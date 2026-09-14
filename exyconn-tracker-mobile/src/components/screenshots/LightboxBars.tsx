@@ -1,4 +1,5 @@
-import { Pressable } from 'react-native';
+import type { RefObject } from 'react';
+import { Pressable, type Text } from 'react-native';
 import { XStack, YStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
 import { activityColor, activityLabel, formatCount } from '@exyconn/tracker-core';
@@ -8,6 +9,8 @@ import { Icon, type IconName } from '../ui/Icon';
 import { Body, Caption } from '../ui/Typography';
 
 interface TopProps {
+  /** Where the screen reader starts when the viewer opens. */
+  titleRef: RefObject<Text | null>;
   /** "Mon 3 Feb, 10:42 AM" — already read in the employee's zone. */
   capturedAt: string;
   activityPercent: number;
@@ -17,6 +20,7 @@ interface TopProps {
 
 /** When the shot was taken, how active its interval was, whether it was blurred — and close. */
 export function LightboxTopBar({
+  titleRef,
   capturedAt,
   activityPercent,
   blurred,
@@ -26,7 +30,9 @@ export function LightboxTopBar({
   return (
     <XStack paddingHorizontal="$3" paddingVertical="$2" gap="$2" alignItems="center">
       <YStack flex={1} gap="$1.5">
-        <Body numberOfLines={1}>{capturedAt}</Body>
+        <Body ref={titleRef} numberOfLines={1}>
+          {capturedAt}
+        </Body>
         <XStack gap="$2">
           <Chip label={activityLabel(t, activityPercent)} tone={activityColor(activityPercent)} />
           {blurred ? <Chip label={t('Blurred')} icon="blur" /> : null}

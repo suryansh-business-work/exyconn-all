@@ -23,6 +23,7 @@ import { TICKET_PRIORITIES, TICKET_TYPES } from './ticket-meta';
 import { TicketFacetIcon } from './TicketFacetIcon';
 import { TicketComments } from './TicketComments';
 import { TicketActivity } from './TicketActivity';
+import { TicketColumnSelect, type TicketBoardColumn } from './TicketColumnSelect';
 import { TicketAttachments } from '../attachments';
 import { useTicket } from './useTicket';
 
@@ -34,6 +35,11 @@ interface TicketDialogProps {
   onClose: () => void;
   /** Called after a save or a delete, so the board and the list reload. */
   onChanged: () => void;
+  /** Given on the board: its columns and the move a drag makes, so a ticket can change column. */
+  board?: {
+    columns: TicketBoardColumn[];
+    onMove: (taskId: string, toColumnId: string) => void;
+  };
 }
 
 /**
@@ -41,7 +47,7 @@ interface TicketDialogProps {
  * editable ticket as a form, and the conversation underneath. Closing without saving changes
  * nothing — the form is the only writer of ticket fields.
  */
-export function TicketDialog({ ticket, onClose, onChanged }: Readonly<TicketDialogProps>) {
+export function TicketDialog({ ticket, onClose, onChanged, board }: Readonly<TicketDialogProps>) {
   const t = useT();
   const confirm = useConfirm();
   const [trail, setTrail] = useState<TicketTrail>('comments');
@@ -82,7 +88,7 @@ export function TicketDialog({ ticket, onClose, onChanged }: Readonly<TicketDial
     <Dialog open fullWidth maxWidth="md" onClose={onClose}>
       <DialogTitle sx={{ pb: 1 }}>
         <Flex direction="row" alignItems="center" spacing={1}>
-          <TicketFacetIcon facet={TICKET_TYPES[ticket.type]} kind="Type" size={18} />
+          <TicketFacetIcon facet={TICKET_TYPES[ticket.type]} kind="Type" size={18} decorative />
           <TicketFacetIcon facet={TICKET_PRIORITIES[ticket.priority]} kind="Priority" size={18} />
           <Text size="label">{ticket.key}</Text>
           <Chip size="small" label={t(TICKET_TYPES[ticket.type].label)} />
@@ -103,6 +109,13 @@ export function TicketDialog({ ticket, onClose, onChanged }: Readonly<TicketDial
       </DialogTitle>
 
       <DialogContent dividers>
+        {board ? (
+          <TicketColumnSelect
+            columns={board.columns}
+            value={ticket.columnId}
+            onChange={(columnId) => board.onMove(ticket.id, columnId)}
+          />
+        ) : null}
         <TicketForm initial={ticket} assignees={assignees} onSubmit={submit} onCancel={onClose} />
         <Divider sx={{ my: 3 }} />
 

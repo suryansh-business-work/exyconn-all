@@ -33,7 +33,10 @@ export default function ReportCalendar({
           .filter((day) => day.activeMs + day.idleMs > 0)
           .map((day) => [
             day.date.slice(0, 10),
-            activityLevel(activityPercent(day.activeMs, day.idleMs)),
+            {
+              level: activityLevel(activityPercent(day.activeMs, day.idleMs)),
+              trackedMs: day.activeMs + day.idleMs,
+            },
           ]),
       ),
     [days],

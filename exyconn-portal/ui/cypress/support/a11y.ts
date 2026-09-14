@@ -41,13 +41,20 @@ afterEach(() => {
         .map((animation) => animation.finished.catch(() => undefined)),
     ),
   );
-  cy.window({ log: false }).then((win) => {
-    if (!('axe' in win)) {
-      (win as unknown as { eval: (source: string) => void }).eval(axe.source);
-    }
-  });
+  if (Cypress.testingType === 'component') {
+    cy.window({ log: false }).then((win) => {
+      if (!('axe' in win)) {
+        (win as unknown as { eval: (source: string) => void }).eval(axe.source);
+      }
+    });
+  } else {
+    // End-to-end specs run from the hub, where axe is installed, and are bundled by webpack,
+    // which cannot evaluate `axe.source` the way Vite's bundle can.
+    cy.injectAxe();
+  }
   cy.checkA11y(
-    '[data-cy-root]',
+    // A component spec checks what it mounted; an end-to-end spec checks the whole page.
+    Cypress.testingType === 'component' ? '[data-cy-root]' : undefined,
     { runOnly: { type: 'tag', values: WCAG_AA } },
     (violations) => {
       const test = Cypress.currentTest.titlePath.join(' › ');

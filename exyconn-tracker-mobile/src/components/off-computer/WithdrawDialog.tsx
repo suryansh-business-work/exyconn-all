@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, type RefObject } from 'react';
+import type { HostInstance } from 'react-native';
 import { useT } from '@exyconn/i18n';
 import { formatDateTime, formatHoursMinutes, type ManualEntry } from '@exyconn/tracker-core';
 import { tracker } from '../../tracker/instance';
@@ -15,6 +16,8 @@ interface Props {
   /** Runs once the portal has removed it. */
   onWithdrawn: () => void;
   onFailed: (message: string) => void;
+  /** The row's Withdraw button; the screen reader goes back to it when the dialog closes. */
+  returnFocusTo: RefObject<HostInstance | null>;
 }
 
 /**
@@ -27,6 +30,7 @@ export function WithdrawDialog({
   onClose,
   onWithdrawn,
   onFailed,
+  returnFocusTo,
 }: Readonly<Props>) {
   const t = useT();
   const [busy, setBusy] = useState(false);
@@ -64,6 +68,7 @@ export function WithdrawDialog({
       danger
       busy={busy}
       onCancel={onClose}
+      returnFocusTo={returnFocusTo}
       onConfirm={() => {
         if (entry !== null) {
           withdraw(entry).catch((cause: unknown) => console.error('Withdraw failed', cause));

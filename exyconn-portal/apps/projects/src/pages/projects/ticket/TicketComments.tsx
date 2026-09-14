@@ -121,6 +121,7 @@ export function TicketComments({ taskId }: Readonly<TicketCommentsProps>) {
         minRows={2}
         size="small"
         placeholder={t('Add a comment…')}
+        slotProps={{ htmlInput: { 'aria-label': t('Add a comment…') } }}
         value={body}
         onChange={(event) => setBody(event.target.value)}
         sx={{ mt: 2 }}

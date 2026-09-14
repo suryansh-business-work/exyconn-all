@@ -1,4 +1,5 @@
-import { Button, Spinner } from 'tamagui';
+import type { Ref } from 'react';
+import { Button, Spinner, type TamaguiElement } from 'tamagui';
 import { useBrand } from '../../theme/BrandProvider';
 import { TRACKER_RADIUS } from '../../theme/tokens';
 import { useThemeColor } from '../../theme/useThemeColor';
@@ -21,6 +22,8 @@ interface Props {
   full?: boolean;
   /** Spoken instead of the label when the label alone would be ambiguous. */
   accessibilityLabel?: string;
+  /** For a button that opens a pop-up, which hands the screen reader back to it on close. */
+  ref?: Ref<TamaguiElement>;
 }
 
 /**
@@ -37,6 +40,7 @@ export function AppButton({
   danger = false,
   full = false,
   accessibilityLabel,
+  ref,
 }: Readonly<Props>) {
   const brand = useBrand();
   const error = useThemeColor('error');
@@ -48,6 +52,7 @@ export function AppButton({
 
   return (
     <Button
+      ref={ref}
       onPress={onPress}
       disabled={inactive}
       opacity={inactive ? 0.55 : 1}

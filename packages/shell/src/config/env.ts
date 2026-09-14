@@ -11,6 +11,11 @@ export const env = Object.freeze({
   logoUrl: '/exyconn-logo.svg',
   /** Full wordmark for dark backgrounds (white "exyconn" text). */
   logoDarkUrl: '/exyconn-logo-dark.svg',
+  /**
+   * The text the fallback wordmarks above spell out — their alternative text (WCAG 2.2
+   * SC 1.1.1) whenever a workspace's own business name has not arrived or is not set.
+   */
+  logoAlt: 'Exyconn',
   /** Icon-only mark (no text) for favicon and the post-login sidebar. */
   iconUrl: '/exyconn-icon.svg',
   brandUrl: 'https://exyconn.com/',

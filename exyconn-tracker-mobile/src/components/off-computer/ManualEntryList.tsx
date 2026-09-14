@@ -1,6 +1,7 @@
 import { Fragment } from 'react';
 import { Separator } from 'tamagui';
 import { useT } from '@exyconn/i18n';
+import type { HostInstance } from 'react-native';
 import type { ManualEntry } from '@exyconn/tracker-core';
 import { Surface } from '../ui/Surface';
 import { Body } from '../ui/Typography';
@@ -9,7 +10,7 @@ import { ManualEntryRow } from './ManualEntryRow';
 interface Props {
   entries: readonly ManualEntry[];
   timezone: string;
-  onWithdraw: (entry: ManualEntry) => void;
+  onWithdraw: (entry: ManualEntry, opener: HostInstance | null) => void;
 }
 
 /** The employee's own claims, newest first, each showing where it stands. */

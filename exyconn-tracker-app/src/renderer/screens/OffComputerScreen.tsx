@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Button,
@@ -35,7 +35,26 @@ export default function OffComputerScreen({ projects, timezone }: Readonly<Props
   const t = useT();
   const { entries, loading, error, reload } = useManualEntries();
   const [claiming, setClaiming] = useState(false);
+  const claimButton = useRef<HTMLButtonElement>(null);
+  const formHeading = useRef<HTMLHeadingElement>(null);
+  /** Set once the form has been opened, so the first render does not steal focus. */
+  const moveFocus = useRef(false);
   useAnnounce(error, 'assertive');
+
+  // The form swaps in place of the list, unmounting whatever had focus: take focus to the form's
+  // heading on the way in and back to "Claim time" on the way out (SC 2.4.3).
+  useEffect(() => {
+    if (!moveFocus.current) {
+      return;
+    }
+    const target = claiming ? formHeading.current : claimButton.current;
+    target?.focus();
+  }, [claiming]);
+
+  function openForm(): void {
+    moveFocus.current = true;
+    setClaiming(true);
+  }
 
   function withdraw(entry: ManualEntry): void {
     window.tracker
@@ -53,7 +72,7 @@ export default function OffComputerScreen({ projects, timezone }: Readonly<Props
     return (
       <LocalizationProvider dateAdapter={AdapterDateFns}>
         <Stack spacing={2}>
-          <Typography variant="h6" component="h2">
+          <Typography variant="h6" component="h2" ref={formHeading} tabIndex={-1}>
             {t('Claim off-computer time')}
           </Typography>
           <Surface>
@@ -84,7 +103,7 @@ export default function OffComputerScreen({ projects, timezone }: Readonly<Props
             {t('Hours the tracker could not measure, and where each one stands.')}
           </Typography>
         </Stack>
-        <Button variant="contained" size="small" onClick={() => setClaiming(true)}>
+        <Button ref={claimButton} variant="contained" size="small" onClick={openForm}>
           {t('Claim time')}
         </Button>
       </Flex>

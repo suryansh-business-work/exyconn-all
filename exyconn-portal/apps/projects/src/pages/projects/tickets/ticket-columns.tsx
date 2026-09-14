@@ -1,5 +1,5 @@
 import { useT } from '@exyconn/i18n';
-import { Avatar, Chip, Flex, Text, Tooltip, fontSize } from '@exyconn/shell/components/ui';
+import { Avatar, Chip, Flex, Text, fontSize } from '@exyconn/shell/components/ui';
 import type { Column } from '@exyconn/shell/components/data/DataTable';
 import { TICKET_PRIORITIES, TICKET_TYPES, TicketFacetIcon, initialsOf } from '../ticket';
 import type { TicketRow } from '../forms/ticket';
@@ -27,7 +27,7 @@ export function ticketColumns(
       label: 'Type',
       render: (row) => (
         <Flex direction="row" alignItems="center" spacing={1}>
-          <TicketFacetIcon facet={TICKET_TYPES[row.type]} kind="Type" />
+          <TicketFacetIcon facet={TICKET_TYPES[row.type]} kind="Type" decorative />
           <Text size="sm">{t(TICKET_TYPES[row.type].label)}</Text>
         </Flex>
       ),
@@ -38,7 +38,7 @@ export function ticketColumns(
       label: 'Priority',
       render: (row) => (
         <Flex direction="row" alignItems="center" spacing={1}>
-          <TicketFacetIcon facet={TICKET_PRIORITIES[row.priority]} kind="Priority" />
+          <TicketFacetIcon facet={TICKET_PRIORITIES[row.priority]} kind="Priority" decorative />
           <Text size="sm">{t(TICKET_PRIORITIES[row.priority].label)}</Text>
         </Flex>
       ),
@@ -53,14 +53,9 @@ export function ticketColumns(
           </Text>
         ) : (
           <Flex direction="row" alignItems="center" spacing={1}>
-            <Tooltip title={row.assigneeName}>
-              <Avatar
-                alt={row.assigneeName}
-                sx={{ width: 22, height: 22, fontSize: fontSize['3xs'] }}
-              >
-                {initialsOf(row.assigneeName)}
-              </Avatar>
-            </Tooltip>
+            <Avatar alt="" aria-hidden sx={{ width: 22, height: 22, fontSize: fontSize['3xs'] }}>
+              {initialsOf(row.assigneeName)}
+            </Avatar>
             <Text size="sm">{row.assigneeName}</Text>
           </Flex>
         ),

@@ -119,6 +119,9 @@ export default function TabBar({
         pointerEvents: 'none',
       })}
     >
+      {/* The WAI-ARIA tabs pattern: arrow keys are handled on the tablist while focus stays on
+          the tabs themselves (roving tabindex), so the list is not a focus stop of its own. */}
+      {/* eslint-disable-next-line jsx-a11y/interactive-supports-focus */}
       <Stack
         direction="row"
         role="tablist"

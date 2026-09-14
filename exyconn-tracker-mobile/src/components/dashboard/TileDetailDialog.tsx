@@ -1,7 +1,9 @@
-import { Modal } from 'react-native';
+import type { RefObject } from 'react';
+import { Modal, type HostInstance } from 'react-native';
 import { Separator, XStack, YStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
 import { useReduceMotion } from '../../hooks/useReduceMotion';
+import { useReturnFocus } from '../../hooks/useReturnFocus';
 import type { Tile, TileFact } from '../../lib/dashboard/tile.types';
 import { useBrand } from '../../theme/BrandProvider';
 import { SCRIM } from '../../theme/palette';
@@ -12,8 +14,12 @@ import { Surface } from '../ui/Surface';
 import { Body, Heading, Title } from '../ui/Typography';
 
 interface Props {
+  /** The tile to explain; null until one has been opened. */
   tile: Tile | null;
+  open: boolean;
   onClose: () => void;
+  /** The tile that was tapped; the screen reader goes back to it on close. */
+  returnFocusTo: RefObject<HostInstance | null>;
 }
 
 /** One "label … value" line of the detail. */
@@ -39,10 +45,11 @@ function FactRow({ fact }: Readonly<{ fact: TileFact }>) {
  * it, and the rule or the privacy promise behind it — so nothing on this screen has to be
  * taken on trust.
  */
-export function TileDetailDialog({ tile, onClose }: Readonly<Props>) {
+export function TileDetailDialog({ tile, open, onClose, returnFocusTo }: Readonly<Props>) {
   const t = useT();
   const brand = useBrand();
   const reduceMotion = useReduceMotion();
+  const { titleRef, modalProps } = useReturnFocus(open, returnFocusTo);
   if (tile === null) {
     return null;
   }
@@ -50,10 +57,11 @@ export function TileDetailDialog({ tile, onClose }: Readonly<Props>) {
 
   return (
     <Modal
-      visible
+      visible={open}
       transparent
       animationType={reduceMotion ? 'none' : 'fade'}
       onRequestClose={onClose}
+      {...modalProps}
     >
       <YStack flex={1} justifyContent="center" padding="$5" backgroundColor={SCRIM}>
         <Surface
@@ -64,7 +72,9 @@ export function TileDetailDialog({ tile, onClose }: Readonly<Props>) {
         >
           <XStack gap="$2" alignItems="center">
             <Icon name={tile.icon} size={20} color={brand.primary} />
-            <Heading flex={1}>{label}</Heading>
+            <Heading ref={titleRef} flex={1}>
+              {label}
+            </Heading>
             <AppButton label={t('Close')} tone="text" onPress={onClose} />
           </XStack>
           <Title>{tile.detail.headline}</Title>

@@ -103,6 +103,14 @@ jobs:
       - name: Component suites
         run: pnpm test:ct
 
+      # The one spec that renders whole pages — sign-in, and the portal layout after it —
+      # so axe checks page structure too (skip link, landmarks, headings, language). Its
+      # GraphQL is mocked; it needs a build of the hub, not a server.
+      - name: Portal pages end to end (with WCAG 2.2 AA)
+        run: |
+          pnpm --filter exyconn-portal-ui build
+          pnpm --filter exyconn-portal-ui test:e2e
+
       - if: failure()
         uses: actions/upload-artifact@v4
         with:

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { FlatList, RefreshControl, useWindowDimensions } from 'react-native';
+import { useRef, useState } from 'react';
+import { FlatList, RefreshControl, useWindowDimensions, type HostInstance } from 'react-native';
 import { useT } from '@exyconn/i18n';
 import { useDayDetail } from '../../hooks/useMyDay';
 import { galleryColumns, type DayRange } from '../../lib/screenshots/gallery-day';
@@ -27,6 +27,9 @@ export function GalleryBody({ range, timezone }: Readonly<Props>) {
   const shots = detail?.screenshots ?? [];
   /** Index of the shot open full screen, or null. Held here so paging can walk the day. */
   const [openIndex, setOpenIndex] = useState<number | null>(null);
+  // Closing keeps the index, so the shot is still there while the viewer fades out.
+  const [open, setOpen] = useState(false);
+  const opener = useRef<HostInstance>(null);
   const ink = useThemeColor('ink');
   const { width } = useWindowDimensions();
   // Wide enough that a screenshot is actually legible — one column on a phone, more on a tablet.
@@ -64,15 +67,21 @@ export function GalleryBody({ range, timezone }: Readonly<Props>) {
             shot={item}
             timezone={timezone}
             width={cardWidth}
-            onOpen={() => setOpenIndex(index)}
+            onOpen={(node) => {
+              opener.current = node;
+              setOpenIndex(index);
+              setOpen(true);
+            }}
           />
         )}
       />
       <ScreenshotLightbox
         shots={shots}
         index={openIndex}
+        open={open}
         timezone={timezone}
-        onClose={() => setOpenIndex(null)}
+        onClose={() => setOpen(false)}
+        returnFocusTo={opener}
         onNavigate={setOpenIndex}
       />
     </>

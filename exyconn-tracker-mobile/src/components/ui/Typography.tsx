@@ -1,4 +1,8 @@
-import { SizableText, type SizableTextProps } from 'tamagui';
+import type { Ref } from 'react';
+import { SizableText, type SizableTextProps, type TamaguiTextElement } from 'tamagui';
+
+/** Text props, plus the ref a pop-up puts on its title to move the screen reader there. */
+type FocusableTextProps = SizableTextProps & { ref?: Ref<TamaguiTextElement> };
 
 /**
  * The app's few kinds of text. Named for what they are, not how big they are, so a screen reads
@@ -38,13 +42,13 @@ export function Title(props: Readonly<SizableTextProps>) {
   );
 }
 
-export function Heading(props: Readonly<SizableTextProps>) {
+export function Heading(props: Readonly<FocusableTextProps>) {
   return (
     <SizableText size="$5" fontWeight="600" color="$ink" accessibilityRole="header" {...props} />
   );
 }
 
-export function Body(props: Readonly<SizableTextProps>) {
+export function Body(props: Readonly<FocusableTextProps>) {
   return <SizableText size="$4" color="$ink" {...props} />;
 }
 

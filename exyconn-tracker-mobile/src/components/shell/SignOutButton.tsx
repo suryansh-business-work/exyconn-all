@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import type { View } from 'react-native';
 import { YStack } from 'tamagui';
 import type { TrackerStatus } from '@exyconn/tracker-core';
 import { useT } from '@exyconn/i18n';
@@ -25,6 +26,7 @@ const SIGN_OUT_FAILED = 'Sign out did not finish. Try again.';
 export function SignOutButton({ status, pendingSync }: Readonly<Props>) {
   const t = useT();
   const [open, setOpen] = useState(false);
+  const opener = useRef<View>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -45,6 +47,7 @@ export function SignOutButton({ status, pendingSync }: Readonly<Props>) {
   return (
     <YStack gap="$2">
       <AppButton
+        ref={opener}
         label={t('Sign out')}
         tone="outlined"
         icon="logout"
@@ -64,6 +67,7 @@ export function SignOutButton({ status, pendingSync }: Readonly<Props>) {
           signOut().catch((cause: unknown) => console.error('Sign out failed', cause));
         }}
         onCancel={() => setOpen(false)}
+        returnFocusTo={opener}
       />
     </YStack>
   );

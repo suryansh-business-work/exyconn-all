@@ -4,6 +4,7 @@ import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortabl
 import { Box, CircularProgress, Flex } from '@exyconn/shell/components/ui';
 import { useProjectBoard } from './useProjectBoard';
 import { useBoardDnd } from './useBoardDnd';
+import { useBoardAnnouncements } from './useBoardAnnouncements';
 import { BoardColumnCard } from './BoardColumnCard';
 import { TaskCard } from './TaskCard';
 import { AddItemInput } from './AddItemInput';
@@ -24,7 +25,16 @@ interface ProjectBoardPageProps {
  */
 export function ProjectBoardPage({ projectId, sprintFilter }: Readonly<ProjectBoardPageProps>) {
   const board = useProjectBoard(projectId);
-  const { sensors, activeTask, onDragStart, onDragEnd } = useBoardDnd(board);
+  const {
+    sensors,
+    activeTask,
+    onDragStart,
+    onDragEnd,
+    onDragCancel,
+    moveColumn,
+    moveTaskToColumn,
+  } = useBoardDnd(board);
+  const accessibility = useBoardAnnouncements(board.columns, board.tasks);
   const [openId, setOpenId] = useState<string | null>(null);
 
   // Filtering here rather than in the hook keeps drag-and-drop working on the whole board:
@@ -48,6 +58,8 @@ export function ProjectBoardPage({ projectId, sprintFilter }: Readonly<ProjectBo
         collisionDetection={closestCorners}
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
+        onDragCancel={onDragCancel}
+        accessibility={accessibility}
       >
         <Flex
           direction="row"
@@ -58,10 +70,13 @@ export function ProjectBoardPage({ projectId, sprintFilter }: Readonly<ProjectBo
             items={board.columns.map((c) => c.id)}
             strategy={horizontalListSortingStrategy}
           >
-            {board.columns.map((column) => (
+            {board.columns.map((column, index) => (
               <BoardColumnCard
                 key={column.id}
                 column={column}
+                index={index}
+                columnCount={board.columns.length}
+                onMoveColumn={moveColumn}
                 tasks={tasksOf(column.id)}
                 onRename={board.editColumn}
                 onToggleDone={board.toggleColumnDone}
@@ -82,7 +97,12 @@ export function ProjectBoardPage({ projectId, sprintFilter }: Readonly<ProjectBo
         </DragOverlay>
       </DndContext>
 
-      <TicketDialog ticket={openTicket} onClose={() => setOpenId(null)} onChanged={board.reload} />
+      <TicketDialog
+        ticket={openTicket}
+        onClose={() => setOpenId(null)}
+        onChanged={board.reload}
+        board={{ columns: board.columns, onMove: moveTaskToColumn }}
+      />
     </>
   );
 }

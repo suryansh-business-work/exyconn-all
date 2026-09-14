@@ -1,5 +1,6 @@
 import { Image } from 'expo-image';
-import { Pressable } from 'react-native';
+import { useRef } from 'react';
+import { Pressable, type HostInstance, type View } from 'react-native';
 import { XStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
 import {
@@ -22,7 +23,7 @@ interface Props {
   /** The card's width in the grid — the image keeps its 16:10 shape inside it. */
   width: number;
   /** Opens this shot full screen — a thumbnail shows that it exists, not what it caught. */
-  onOpen: () => void;
+  onOpen: (opener: HostInstance | null) => void;
 }
 
 /** One screenshot, with the activity level of its interval and the time it was captured. */
@@ -31,11 +32,13 @@ export function ScreenshotCard({ shot, timezone, width, onOpen }: Readonly<Props
   const hairline = useThemeColor('hairline');
   const muted = useThemeColor('muted');
   const capturedAt = formatDateTime(shot.capturedAt, timezone);
+  const thumbnail = useRef<View>(null);
 
   return (
     <Surface width={width} padding="$3" gap="$2.5">
       <Pressable
-        onPress={onOpen}
+        ref={thumbnail}
+        onPress={() => onOpen(thumbnail.current)}
         accessibilityRole="imagebutton"
         accessibilityLabel={t('Open the screenshot captured at {time} full screen', {
           time: capturedAt,
