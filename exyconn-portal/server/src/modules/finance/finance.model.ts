@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { currencyField } from '../../lib/currencyField';
 
 /**
  * Where an invoice stands.
@@ -34,7 +35,7 @@ const invoiceSchema = new Schema(
     lines: { type: [invoiceLineSchema], default: [] },
     /** The sum of the lines when there are any; typed by hand for a single-figure invoice. */
     amount: { type: Number, required: true, min: 0 },
-    currency: { type: String, required: true, trim: true },
+    currency: currencyField,
     status: { type: String, enum: INVOICE_STATUSES, required: true, default: 'DRAFT' },
     /**
      * Sum of the payments recorded against this invoice. Written only by `recordPayment`,

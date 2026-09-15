@@ -11490,9 +11490,15 @@ export type TranslationRow = {
 
 export type UpdateProfileInput = {
   avatarUrl?: InputMaybe<Scalars['String']['input']>;
+  /** A few lines about the person. Empty string clears it. */
+  brief?: InputMaybe<Scalars['String']['input']>;
   /** The language the portal is shown to this person in. Empty string follows the default. */
   locale?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  /** A number colleagues can reach the person on. Empty string clears it. */
+  phone?: InputMaybe<Scalars['String']['input']>;
+  /** Replaces every shared profile at once; an empty address clears that one. */
+  socialLinks?: InputMaybe<UserSocialLinksInput>;
   /**
    * The zone every date and time is shown to this person in. Empty string clears the
    * choice and follows the workspace default again.
@@ -11552,7 +11558,11 @@ export type User = {
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   isBlocked: Scalars['Boolean']['output'];
+  /** Whether the person used a portal or app within the last few minutes. */
+  isOnline: Scalars['Boolean']['output'];
   joinDate?: Maybe<Scalars['DateTime']['output']>;
+  /** The last time the person used any portal or app. */
+  lastActiveAt?: Maybe<Scalars['DateTime']['output']>;
   locale?: Maybe<Scalars['String']['output']>;
   /** The user this person reports to; their manager may approve leave and requests. */
   managerId?: Maybe<Scalars['String']['output']>;
@@ -11561,9 +11571,13 @@ export type User = {
   name: Scalars['String']['output'];
   /** The company this person belongs to; null for a platform administrator. */
   organizationId?: Maybe<Scalars['ID']['output']>;
+  /** A number colleagues can reach the person on; set by the person in their profile. */
+  phone?: Maybe<Scalars['String']['output']>;
   /** The day this employee comes off probation. Null when they are not on one. */
   probationEndDate?: Maybe<Scalars['DateTime']['output']>;
   roles: Array<Role>;
+  /** Public profiles the person chose to share. Null when they have shared none. */
+  socialLinks?: Maybe<UserSocialLinks>;
   /**
    * Where this person is and what language they read. Null means "whatever the workspace
    * default is", so moving the house timezone moves everybody who never expressed a
@@ -11596,6 +11610,22 @@ export type UserPage = {
   __typename?: 'UserPage';
   rows: Array<User>;
   totalCount: Scalars['Int']['output'];
+};
+
+/** Public profiles a person shares — each an http(s) address, null when not given. */
+export type UserSocialLinks = {
+  __typename?: 'UserSocialLinks';
+  github?: Maybe<Scalars['String']['output']>;
+  linkedin?: Maybe<Scalars['String']['output']>;
+  twitter?: Maybe<Scalars['String']['output']>;
+  website?: Maybe<Scalars['String']['output']>;
+};
+
+export type UserSocialLinksInput = {
+  github?: InputMaybe<Scalars['String']['input']>;
+  linkedin?: InputMaybe<Scalars['String']['input']>;
+  twitter?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Webhook = {
@@ -12344,6 +12374,8 @@ export type ResolversTypes = ResolversObject<{
   User: ResolverTypeWrapper<User>;
   UserCredentials: ResolverTypeWrapper<UserCredentials>;
   UserPage: ResolverTypeWrapper<UserPage>;
+  UserSocialLinks: ResolverTypeWrapper<UserSocialLinks>;
+  UserSocialLinksInput: UserSocialLinksInput;
   Webhook: ResolverTypeWrapper<Webhook>;
   WebhookDelivery: ResolverTypeWrapper<WebhookDelivery>;
   WebsiteSubmission: ResolverTypeWrapper<WebsiteSubmission>;
@@ -12835,6 +12867,8 @@ export type ResolversParentTypes = ResolversObject<{
   User: User;
   UserCredentials: UserCredentials;
   UserPage: UserPage;
+  UserSocialLinks: UserSocialLinks;
+  UserSocialLinksInput: UserSocialLinksInput;
   Webhook: Webhook;
   WebhookDelivery: WebhookDelivery;
   WebsiteSubmission: WebsiteSubmission;
@@ -17414,14 +17448,18 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   isBlocked?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  isOnline?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   joinDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  lastActiveAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   locale?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   managerId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   managerName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   organizationId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   probationEndDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   roles?: Resolver<Array<ResolversTypes['Role']>, ParentType, ContextType>;
+  socialLinks?: Resolver<Maybe<ResolversTypes['UserSocialLinks']>, ParentType, ContextType>;
   timezone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   workHoursPerDay?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -17441,6 +17479,14 @@ export type UserCredentialsResolvers<ContextType = GraphQLContext, ParentType ex
 export type UserPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['UserPage'] = ResolversParentTypes['UserPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type UserSocialLinksResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['UserSocialLinks'] = ResolversParentTypes['UserSocialLinks']> = ResolversObject<{
+  github?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  linkedin?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  twitter?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  website?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -17827,6 +17873,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   User?: UserResolvers<ContextType>;
   UserCredentials?: UserCredentialsResolvers<ContextType>;
   UserPage?: UserPageResolvers<ContextType>;
+  UserSocialLinks?: UserSocialLinksResolvers<ContextType>;
   Webhook?: WebhookResolvers<ContextType>;
   WebhookDelivery?: WebhookDeliveryResolvers<ContextType>;
   WebsiteSubmission?: WebsiteSubmissionResolvers<ContextType>;

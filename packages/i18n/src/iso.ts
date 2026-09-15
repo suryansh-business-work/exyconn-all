@@ -44,3 +44,45 @@ export function countryOptions(locale: string): IsoOption[] {
   }
   return codes.sort(byLabel);
 }
+
+const CURRENCY_CODE = /^[A-Z]{3}$/;
+
+/** The runtime's ISO 4217 table, read once; null where the engine cannot list it (Hermes). */
+let knownCurrencies: ReadonlySet<string> | null | undefined;
+
+function currencyTable(): ReadonlySet<string> | null {
+  if (knownCurrencies === undefined) {
+    knownCurrencies =
+      'supportedValuesOf' in Intl ? new Set(Intl.supportedValuesOf('currency')) : null;
+  }
+  return knownCurrencies;
+}
+
+/** Whether Intl will format money in `code` — the check for engines with no table to read. */
+function formatsAsCurrency(code: string): boolean {
+  try {
+    return (
+      new Intl.NumberFormat('en', { style: 'currency', currency: code }).resolvedOptions()
+        .currency === code
+    );
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * A stored or typed currency as the ISO 4217 code Intl needs, or null when it names none.
+ *
+ * Records written before currencies were validated hold '', 'inr ' or '₹'. Handing any of
+ * those to `Intl.NumberFormat` throws "RangeError: Invalid currency code" and takes the
+ * whole screen down, so every money formatter asks here first.
+ */
+export function normalizeCurrency(code: string | null | undefined): string | null {
+  const candidate = (code ?? '').trim().toUpperCase();
+  if (!CURRENCY_CODE.test(candidate)) {
+    return null;
+  }
+  const table = currencyTable();
+  const known = table === null ? formatsAsCurrency(candidate) : table.has(candidate);
+  return known ? candidate : null;
+}

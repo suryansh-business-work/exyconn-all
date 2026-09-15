@@ -1,81 +1,58 @@
-import { Avatar, Box, Divider, Flex, Heading, Paper, Text } from '@/components/ui';
+import { Avatar, Box, Divider, Flex, Heading, Link, Paper, Text } from '@/components/ui';
 import { StatusChip } from '@/components/data/StatusChip';
-
+import { DetailFact, DetailFactGrid } from '@/components/data/DetailFact';
+import { SocialLinkButtons } from '@/components/profile/SocialLinkButtons';
 import { useSettings } from '@/hooks/useSettings';
 import { WorkArrangementFacts } from '@/components/work';
-import { userStatus, type UserDetail } from './user-details.types';
+import { presenceStatus, userInitials, userStatus, type UserDetail } from './user-details.types';
 import { readingPanel } from '@/components/glass/glass';
 
-/** Read-only summary card: identity, roles, status and audit timestamps. */
-export function UserProfileCard({ user }: { user: UserDetail }) {
+/** Read-only summary card: identity, presence, contact, work facts, roles and audit timestamps. */
+export function UserProfileCard({ user }: Readonly<{ user: UserDetail }>) {
   const { formatDateTime } = useSettings();
-  const initials = user.name
-    .split(' ')
-    .map((part) => part.charAt(0))
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
+  const joined = user.joinDate ? formatDateTime(user.joinDate) : '—';
+  const probationEnds = user.probationEndDate
+    ? formatDateTime(user.probationEndDate)
+    : 'Not on probation';
+  const lastActive = user.lastActiveAt ? formatDateTime(user.lastActiveAt) : 'Never';
 
   return (
     <Paper sx={readingPanel}>
-      <Flex direction="row" spacing={2} alignItems="center">
+      <Flex direction="row" spacing={2} alignItems="center" sx={{ flexWrap: 'wrap', rowGap: 1 }}>
         <Avatar src={user.avatarUrl ?? undefined} alt="" aria-hidden sx={{ width: 64, height: 64 }}>
-          {initials}
+          {userInitials(user.name)}
         </Avatar>
-        <Box sx={{ minWidth: 0 }}>
+        <Box sx={{ minWidth: 0, flex: 1 }}>
           <Heading level={6} noWrap>
             {user.name}
           </Heading>
           <Text size="sm" color="text.secondary" noWrap>
             {user.email}
           </Text>
+          <SocialLinkButtons links={user.socialLinks} />
         </Box>
-        <Box sx={{ flexGrow: 1 }} />
-        <StatusChip value={userStatus(user)} />
+        <Flex direction="row" spacing={1}>
+          <StatusChip value={presenceStatus(user)} />
+          <StatusChip value={userStatus(user)} />
+        </Flex>
       </Flex>
 
       <Divider sx={{ my: 2 }} />
 
-      <Flex direction={{ xs: 'column', sm: 'row' }} spacing={3} sx={{ mb: 2 }}>
-        <Box>
-          <Text size="overline" color="text.secondary">
-            Department
-          </Text>
-          <Text size="sm">{user.department ?? '—'}</Text>
-        </Box>
-        <Box>
-          <Text size="overline" color="text.secondary">
-            Designation
-          </Text>
-          <Text size="sm">{user.designation ?? '—'}</Text>
-        </Box>
-        <Box>
-          <Text size="overline" color="text.secondary">
-            Reports to
-          </Text>
-          <Text size="sm">{user.managerName ?? '—'}</Text>
-        </Box>
-        <Box>
-          <Text size="overline" color="text.secondary">
-            Employment
-          </Text>
-          <Text size="sm">{user.employmentStatus}</Text>
-        </Box>
-        <Box>
-          <Text size="overline" color="text.secondary">
-            Joined
-          </Text>
-          <Text size="sm">{user.joinDate ? formatDateTime(user.joinDate) : '—'}</Text>
-        </Box>
-        <Box>
-          <Text size="overline" color="text.secondary">
-            Probation ends
-          </Text>
-          <Text size="sm">
-            {user.probationEndDate ? formatDateTime(user.probationEndDate) : 'Not on probation'}
-          </Text>
-        </Box>
-      </Flex>
+      <DetailFactGrid>
+        <DetailFact label="Department">{user.department ?? '—'}</DetailFact>
+        <DetailFact label="Designation">{user.designation ?? '—'}</DetailFact>
+        <DetailFact label="Reports to">{user.managerName ?? '—'}</DetailFact>
+        <DetailFact label="Employment">
+          <StatusChip value={user.employmentStatus} />
+        </DetailFact>
+        <DetailFact label="Joined">{joined}</DetailFact>
+        <DetailFact label="Probation ends">{probationEnds}</DetailFact>
+        <DetailFact label="Phone">
+          {user.phone ? <Link href={`tel:${user.phone}`}>{user.phone}</Link> : '—'}
+        </DetailFact>
+        <DetailFact label="Last active">{lastActive}</DetailFact>
+      </DetailFactGrid>
 
       <Divider sx={{ my: 2 }} />
 
@@ -83,40 +60,26 @@ export function UserProfileCard({ user }: { user: UserDetail }) {
 
       <Divider sx={{ my: 2 }} />
 
-      <Text size="overline" color="text.secondary">
-        Roles
-      </Text>
-      <Flex direction="row" spacing={0.5} flexWrap="wrap" useFlexGap sx={{ mt: 0.5 }}>
-        {user.roles.map((role) => (
-          <StatusChip key={role} value={role} />
-        ))}
-      </Flex>
+      <DetailFact label="Roles">
+        <Flex direction="row" spacing={0.5} flexWrap="wrap" useFlexGap sx={{ mt: 0.5 }}>
+          {user.roles.map((role) => (
+            <StatusChip key={role} value={role} />
+          ))}
+        </Flex>
+      </DetailFact>
 
       {user.isBlocked && user.blockReason && (
         <Box sx={{ mt: 2 }}>
-          <Text size="overline" color="text.secondary">
-            Block reason
-          </Text>
-          <Text size="sm">{user.blockReason}</Text>
+          <DetailFact label="Block reason">{user.blockReason}</DetailFact>
         </Box>
       )}
 
       <Divider sx={{ my: 2 }} />
 
-      <Flex direction={{ xs: 'column', sm: 'row' }} spacing={3}>
-        <Box>
-          <Text size="overline" color="text.secondary">
-            Created
-          </Text>
-          <Text size="sm">{formatDateTime(user.createdAt)}</Text>
-        </Box>
-        <Box>
-          <Text size="overline" color="text.secondary">
-            Last updated
-          </Text>
-          <Text size="sm">{formatDateTime(user.updatedAt)}</Text>
-        </Box>
-      </Flex>
+      <DetailFactGrid>
+        <DetailFact label="Created">{formatDateTime(user.createdAt)}</DetailFact>
+        <DetailFact label="Last updated">{formatDateTime(user.updatedAt)}</DetailFact>
+      </DetailFactGrid>
     </Paper>
   );
 }

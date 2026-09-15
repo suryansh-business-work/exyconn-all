@@ -1,5 +1,6 @@
 import PDFDocument from 'pdfkit';
 import { payslipLines, type PayslipLine } from './payslip.lines';
+import { formatAmount } from '../../utils/money';
 import { drawLogo, logoHeight, registerFonts, FONTS } from './payslip.brand';
 import {
   ACCENT,
@@ -78,14 +79,6 @@ const MONTHS = [
 /** `August 2026` — the period a payslip covers, as it is printed and emailed. */
 export function periodLabel(month: number, year: number): string {
   return `${MONTHS[month - 1]} ${year}`;
-}
-
-/**
- * Money in the employee's own currency, written in the company's own notation —
- * "₹ 82,500.00" for a company reading in India, "82.500,00 €" for one reading in Germany.
- */
-export function formatAmount(amount: number, currency: string, locale: string): string {
-  return new Intl.NumberFormat(locale, { style: 'currency', currency }).format(amount);
 }
 
 /** A calendar day as ISO 8601 `2026-08-31`, which is unambiguous in every country. */

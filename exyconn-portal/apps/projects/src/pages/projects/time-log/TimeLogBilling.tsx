@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { Chip, Stack, Typography } from '@exyconn/shell/components/ui';
 import { useTrackerBillingByProjectQuery } from '@exyconn/shell/graphql/generated';
-import { activeFormatSettings, useT } from '@exyconn/i18n';
+import { currencyFormatter, useI18n, useT } from '@exyconn/i18n';
 
 interface TimeLogBillingProps {
   projectId: string;
@@ -27,14 +27,11 @@ export function TimeLogBilling({
     fetchPolicy: 'cache-and-network',
   });
   const row = data?.trackerBillingByProject[0];
-  const money = useMemo(() => {
-    const settings = activeFormatSettings();
-    return new Intl.NumberFormat(settings.locale, {
-      style: 'currency',
-      currency: row?.currency || settings.currency,
-      maximumFractionDigits: 2,
-    });
-  }, [row?.currency]);
+  const { settings } = useI18n();
+  const money = useMemo(
+    () => currencyFormatter(settings, { currency: row?.currency, maximumFractionDigits: 2 }),
+    [settings, row?.currency],
+  );
 
   if (!row) {
     return null;

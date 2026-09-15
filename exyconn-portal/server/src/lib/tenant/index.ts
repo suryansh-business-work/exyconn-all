@@ -9,6 +9,7 @@ export {
   requireScope,
   runAsPlatform,
   runForOrganization,
+  runForOrganizationOf,
   runInScope,
   setDefaultScope,
   setScopeOrganization,

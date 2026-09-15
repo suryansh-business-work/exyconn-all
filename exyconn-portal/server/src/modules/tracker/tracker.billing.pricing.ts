@@ -2,6 +2,7 @@ import { UserModel } from '../admin/user.model';
 import { SalaryStructureModel } from '../employee/salary.model';
 import { DEFAULT_PAY_TYPE } from '../../constants/pay';
 import { companyProfile } from '../../lib/company';
+import { normalizeCurrency } from '../../utils/iso';
 
 const MS_PER_HOUR = 3_600_000;
 
@@ -74,7 +75,8 @@ export async function employeeRates(userIds: string[]): Promise<Map<string, Empl
           name: user?.name ?? 'Deleted employee',
           email: user?.email ?? '',
           payType: structure?.payType ?? DEFAULT_PAY_TYPE,
-          currency: structure?.currency ?? currency,
+          // A structure stored with '' or '₹' is billed in the company's money, not crashed on.
+          currency: normalizeCurrency(structure?.currency) ?? currency,
           billingRate: structure?.billingRate ?? 0,
         },
       ];

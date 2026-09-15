@@ -1,6 +1,7 @@
 import type { Request } from 'express';
 import { verifyToken, type TokenPayload } from '../utils/jwt';
 import { UserModel } from '../modules/admin/user.model';
+import { recordActivity } from '../modules/admin/presence';
 import type { Role } from '../constants/roles';
 import { principalForApiKey } from '../modules/integrations/api-key.service';
 import { organizationOf, runAsPlatform, setScopeOrganization } from '../lib/tenant';
@@ -93,6 +94,8 @@ export async function buildContext({ req }: { req: Request }): Promise<GraphQLCo
   // where it means to (organizations.service), and everything else stays confined to their own
   // company — so "list the employees" can never quietly mean every company's employees at once.
   setScopeOrganization(organizationId, false);
+  // Drives "online" on profiles. Not awaited: it never slows or fails the request.
+  recordActivity(decoded.id).catch(() => undefined);
 
   return {
     user: { ...decoded, roles, organizationId },

@@ -1,8 +1,8 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useT } from '@exyconn/i18n';
-import { Box, Text } from '@exyconn/shell/components/ui';
+import { Box } from '@exyconn/shell/components/ui';
+import { DetailFact } from '@exyconn/shell/components/data/DetailFact';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -40,7 +40,6 @@ export function ManagerAssessmentForm({
   onCancel,
   onDone,
 }: Readonly<ManagerAssessmentFormProps>) {
-  const t = useT();
   const notify = useNotify();
   const [submit] = useSubmitManagerAssessmentMutation();
   const methods = useForm<z.input<typeof schema>, unknown, ManagerAssessmentFormValues>({
@@ -72,14 +71,9 @@ export function ManagerAssessmentForm({
       onCancel={onCancel}
       submitLabel="Submit assessment"
     >
-      <Box>
-        <Text size="overline" color="text.secondary">
-          {t('Their self-assessment')}
-        </Text>
-        <Text size="sm" sx={{ whiteSpace: 'pre-line' }}>
-          {review.selfAssessment || '—'}
-        </Text>
-      </Box>
+      <DetailFact label="Their self-assessment">
+        <Box sx={{ whiteSpace: 'pre-line' }}>{review.selfAssessment || '—'}</Box>
+      </DetailFact>
       <RhfTextField
         name="managerAssessment"
         label="Your assessment"

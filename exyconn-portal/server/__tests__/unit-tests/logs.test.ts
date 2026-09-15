@@ -3,6 +3,7 @@ import { GraphQLError } from 'graphql';
 import {
   AppLogEventModel,
   AppLogGroupModel,
+  backfillAppLogGroupUsers,
   buildFixPrompt,
   fingerprintOf,
   ingestLogBatch,
@@ -246,8 +247,34 @@ describe('server error plugin', () => {
     expect(group).toMatchObject({ source: 'SERVER', app: 'portal-server', route: 'ListBugs' });
   });
 
-  it('ignores the errors that are a correct answer', async () => {
-    await runPlugin([new GraphQLError('No', { extensions: { code: 'FORBIDDEN' } })]);
-    expect(await AppLogGroupModel.countDocuments()).toBe(0);
+  it('keeps the errors that are a correct answer as warnings, without variable values', async () => {
+    await runPlugin([
+      new GraphQLError('Variable "$password" got invalid value 123; String cannot represent', {
+        extensions: { code: 'BAD_USER_INPUT' },
+      }),
+    ]);
+    const group = await AppLogGroupModel.findOne().lean();
+    expect(group).toMatchObject({ level: 'WARN', lastUserName: '', lastUserEmail: '' });
+    expect(group?.message).toBe(
+      'Variable "$password" got an invalid value; String cannot represent',
+    );
+  });
+});
+
+describe('log group users', () => {
+  it('stores an empty last user for an anonymous group and backfills older groups', async () => {
+    await ingestLogBatch(batch([entry()]), anonymous);
+    expect(await AppLogGroupModel.findOne().lean()).toMatchObject({
+      lastUserName: '',
+      lastUserEmail: '',
+    });
+
+    await AppLogGroupModel.collection.updateMany(
+      {},
+      { $unset: { lastUserName: '', lastUserEmail: '' } },
+    );
+    await backfillAppLogGroupUsers();
+    const raw = await AppLogGroupModel.collection.findOne({});
+    expect(raw).toMatchObject({ lastUserName: '', lastUserEmail: '' });
   });
 });

@@ -6,3 +6,4 @@ export { organizationsResolvers } from './organizations.resolvers';
 export { provisionOrganization } from './organization.provision';
 export { forEachOrganization } from './organization.each';
 export { migrateLegacyDataIntoFirstOrganization } from './organization.migrate';
+export { repairStoredCurrencies } from './organization.currency';

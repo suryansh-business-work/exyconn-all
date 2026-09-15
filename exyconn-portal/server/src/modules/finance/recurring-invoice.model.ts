@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { currencyField } from '../../lib/currencyField';
 
 /**
  * How often a retainer bills.
@@ -36,7 +37,7 @@ const recurringInvoiceSchema = new Schema(
     /** Denormalised on write, exactly as an invoice does, so the grid never joins to read it. */
     clientName: { type: String, default: '', trim: true },
     lines: { type: [recurringLineSchema], default: [] },
-    currency: { type: String, required: true, trim: true },
+    currency: currencyField,
     placeOfSupplyStateCode: { type: String, default: '', trim: true },
     frequency: { type: String, enum: RECURRENCE_FREQUENCIES, required: true, default: 'MONTHLY' },
     /** The first issue date. `nextRunAt` starts here and walks forward one period at a time. */

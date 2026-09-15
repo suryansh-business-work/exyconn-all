@@ -8,7 +8,7 @@
  */
 export { I18nProvider, useI18n, useT, type I18nValue } from './I18nProvider';
 export { useFormatters } from './useFormatters';
-export { countryOptions, currencyOptions, type IsoOption } from './iso';
+export { countryOptions, currencyOptions, normalizeCurrency, type IsoOption } from './iso';
 export { activeFormatSettings, setActiveFormatSettings } from './active-settings';
 export {
   interpolate,
@@ -19,6 +19,7 @@ export {
 } from './translate';
 export {
   DEFAULT_FORMAT_SETTINGS,
+  currencyFormatter,
   formatCurrency,
   formatDate,
   formatDateTime,

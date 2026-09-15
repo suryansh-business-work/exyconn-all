@@ -2279,9 +2279,15 @@ export type TrainingStatus =
 
 export type UpdateProfileInput = {
   avatarUrl: InputMaybe<Scalars['String']['input']>;
+  /** A few lines about the person. Empty string clears it. */
+  brief: InputMaybe<Scalars['String']['input']>;
   /** The language the portal is shown to this person in. Empty string follows the default. */
   locale: InputMaybe<Scalars['String']['input']>;
   name: InputMaybe<Scalars['String']['input']>;
+  /** A number colleagues can reach the person on. Empty string clears it. */
+  phone: InputMaybe<Scalars['String']['input']>;
+  /** Replaces every shared profile at once; an empty address clears that one. */
+  socialLinks: InputMaybe<UserSocialLinksInput>;
   /**
    * The zone every date and time is shown to this person in. Empty string clears the
    * choice and follows the workspace default again.
@@ -2323,6 +2329,13 @@ export type UpdateUserInput = {
   workLocationNote: InputMaybe<Scalars['String']['input']>;
   workingTime: InputMaybe<WorkingTime>;
   workingTimeNote: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UserSocialLinksInput = {
+  github: InputMaybe<Scalars['String']['input']>;
+  linkedin: InputMaybe<Scalars['String']['input']>;
+  twitter: InputMaybe<Scalars['String']['input']>;
+  website: InputMaybe<Scalars['String']['input']>;
 };
 
 export type WebsiteSubmissionInput = {

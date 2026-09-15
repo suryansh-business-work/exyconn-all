@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, type ReactNode } from 'react';
+import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import { setActiveFormatSettings } from './active-settings';
 import { DEFAULT_FORMAT_SETTINGS, type FormatSettings } from './format';
 import { FALLBACK_LOCALE, directionOf, type TextDirection } from './locale';
@@ -45,26 +45,25 @@ interface Props {
  * desktop app all use the same provider without any of them depending on the others.
  */
 export function I18nProvider({ locale, messages, onMissing, settings, children }: Readonly<Props>) {
-  const value = useMemo<I18nValue>(
-    () => ({
+  const value = useMemo<I18nValue>(() => {
+    const resolved: FormatSettings = {
+      locale,
+      timezone: settings?.timezone ?? FALLBACK_TIMEZONE,
+      dateFormat: settings?.dateFormat ?? DEFAULT_FORMAT_SETTINGS.dateFormat,
+      timeFormat: settings?.timeFormat ?? DEFAULT_FORMAT_SETTINGS.timeFormat,
+      currency: settings?.currency ?? DEFAULT_FORMAT_SETTINGS.currency,
+    };
+    // Published for code a context cannot reach — a grid's column model, say
+    // (active-settings.ts). Here rather than in an effect: an effect runs after the children
+    // have rendered, so their first render would read the empty defaults instead.
+    setActiveFormatSettings(resolved);
+    return {
       locale,
       direction: directionOf(locale),
-      settings: {
-        locale,
-        timezone: settings?.timezone ?? FALLBACK_TIMEZONE,
-        dateFormat: settings?.dateFormat ?? DEFAULT_FORMAT_SETTINGS.dateFormat,
-        timeFormat: settings?.timeFormat ?? DEFAULT_FORMAT_SETTINGS.timeFormat,
-        currency: settings?.currency ?? DEFAULT_FORMAT_SETTINGS.currency,
-      },
+      settings: resolved,
       t: (source, values) => translate(source, { messages, onMissing }, values),
-    }),
-    [locale, messages, onMissing, settings],
-  );
-
-  // Published for code a context cannot reach — a grid's column model, say (active-settings.ts).
-  useEffect(() => {
-    setActiveFormatSettings(value.settings);
-  }, [value.settings]);
+    };
+  }, [locale, messages, onMissing, settings]);
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }

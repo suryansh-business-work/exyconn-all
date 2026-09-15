@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { currencyField } from '../../lib/currencyField';
 
 /**
  * What the money was spent on. Deliberately a short, fixed list: a free-text category field
@@ -38,7 +39,7 @@ const companyExpenseSchema = new Schema(
     category: { type: String, enum: EXPENSE_CATEGORIES, required: true, default: 'OTHER' },
     description: { type: String, default: '', trim: true },
     amount: { type: Number, required: true, min: 0 },
-    currency: { type: String, required: true, trim: true },
+    currency: currencyField,
     /**
      * Which cost centre carries this bill. Empty is a real answer — a company runs for
      * years before it splits its spend up, and refusing to record a bill until somebody

@@ -29,7 +29,8 @@ async function violations(): Promise<string[]> {
   );
 }
 
-describe('renderer meets WCAG 2.2 A/AA (axe)', () => {
+// Whole screens through axe run near vitest's 5s default, and past it under coverage in CI.
+describe('renderer meets WCAG 2.2 A/AA (axe)', { timeout: 30_000 }, () => {
   it('login screen', async () => {
     await mount(<App />, trackerState('signed-out'));
     expect(document.querySelector('h1')).not.toBeNull();

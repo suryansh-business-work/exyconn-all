@@ -87,6 +87,7 @@ query MyDirectReports {
 query GetUser($id: ID!) {
   getUser(id: $id) {
     ...UserFields
+    ...ProfileDetailsFields
     createdAt
     updatedAt
   }

@@ -35,6 +35,11 @@ function statItemsOf(data: Stats): StatItem[] {
       value: String(statCount(stats, 'level', AppLogLevel.Error)),
       accent: color.red[200],
     },
+    {
+      label: 'Warnings',
+      value: String(statCount(stats, 'level', AppLogLevel.Warn)),
+      accent: color.orange[500],
+    },
     { label: 'Occurrences', value: String(statSum(stats, 'count')), accent: color.blue[400] },
     ...Object.values(AppLogSource).map((source) => ({
       label: enumLabel(source),
@@ -96,7 +101,7 @@ export function LogsPage() {
   return (
     <CrudDashboard
       title="Logs"
-      subtitle="Errors and debug logs from the phone app, desktop tracker, portals and API"
+      subtitle="Errors, failed requests and debug logs from the phone app, desktop tracker, portals and API"
       entityLabel="log"
       exportFileName="app-logs"
       stats={statItemsOf(statsData)}

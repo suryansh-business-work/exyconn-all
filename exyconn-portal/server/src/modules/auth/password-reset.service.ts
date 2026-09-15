@@ -8,6 +8,7 @@ import { badRequest } from '../../utils/errors';
 import { createRateLimiter } from '../../utils/rateLimit';
 import { portalOrigin } from '../../utils/portalOrigin';
 import { logger } from '../../utils/logger';
+import { organizationOf, runAsPlatform, runForOrganizationOf } from '../../lib/tenant';
 import type { GraphQLContext } from '../../middleware/auth';
 
 /** The template the link is emailed with. Authored in Tech → Email. */
@@ -41,13 +42,24 @@ export async function requestPasswordReset(email: string, ctx: GraphQLContext): 
     logger.warn(`Password reset for ${address} rate-limited`);
     return true;
   }
-  const user = await UserModel.findOne({ email: address, isActive: true })
-    .select('name email')
-    .lean();
+  // Nobody is signed in, so the person is looked up platform-wide; their token and email
+  // then belong to their own company (the template is that company's).
+  const user = await runAsPlatform(() =>
+    UserModel.findOne({ email: address, isActive: true })
+      .select('name email organizationId')
+      .lean(),
+  );
   if (!user) {
     return true;
   }
+  await runForOrganizationOf(organizationOf(user), () => sendResetLink(user, ctx));
+  return true;
+}
 
+async function sendResetLink(
+  user: { _id: unknown; name: string; email: string },
+  ctx: GraphQLContext,
+): Promise<void> {
   const token = randomBytes(32).toString('hex');
   await PasswordResetTokenModel.create({
     userId: String(user._id),
@@ -66,7 +78,6 @@ export async function requestPasswordReset(email: string, ctx: GraphQLContext): 
   } catch (error) {
     logger.error({ err: error }, `Password reset email to ${user.email} failed`);
   }
-  return true;
 }
 
 /** Sets a new password from an emailed link. The link works once, and only for an hour. */
@@ -78,27 +89,32 @@ export async function resetPassword(
   if (newPassword.length < MIN_PASSWORD_LENGTH) {
     badRequest(`New password must be at least ${MIN_PASSWORD_LENGTH} characters`);
   }
-  const row = await PasswordResetTokenModel.findOne({ tokenHash: hashToken(token) });
+  // Nobody is signed in: the link and its person are found platform-wide, and the change is
+  // then made and audited inside that person's company.
+  const row = await runAsPlatform(() =>
+    PasswordResetTokenModel.findOne({ tokenHash: hashToken(token) }),
+  );
   if (!row || row.usedAt || row.expiresAt.getTime() <= Date.now()) {
     badRequest(INVALID_LINK);
   }
-  const user = await UserModel.findById(row.userId);
+  const user = await runAsPlatform(() => UserModel.findById(row.userId));
   if (!user) {
     badRequest(INVALID_LINK);
   }
+  return runForOrganizationOf(organizationOf(user), async () => {
+    user.passwordHash = await hashPassword(newPassword);
+    await user.save();
+    row.usedAt = new Date();
+    await row.save();
 
-  user.passwordHash = await hashPassword(newPassword);
-  await user.save();
-  row.usedAt = new Date();
-  await row.save();
-
-  await recordAudit(ctx, {
-    action: 'PASSWORD_RESET',
-    module: 'Auth',
-    entityId: user.id,
-    entityLabel: user.email,
-    summary: 'Reset own password from an emailed link',
-    actor: { id: user.id, name: user.name, email: user.email },
+    await recordAudit(ctx, {
+      action: 'PASSWORD_RESET',
+      module: 'Auth',
+      entityId: user.id,
+      entityLabel: user.email,
+      summary: 'Reset own password from an emailed link',
+      actor: { id: user.id, name: user.name, email: user.email },
+    });
+    return true;
   });
-  return true;
 }

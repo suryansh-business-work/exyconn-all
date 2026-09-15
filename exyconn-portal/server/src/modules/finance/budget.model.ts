@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { currencyField } from '../../lib/currencyField';
 
 /**
  * What one cost centre is allowed to spend in one month.
@@ -14,7 +15,7 @@ const budgetSchema = new Schema(
     /** `YYYY-MM`, matching monthKey, so budget and actual bucket identically. */
     month: { type: String, required: true, match: /^\d{4}-\d{2}$/, index: true },
     amount: { type: Number, required: true, min: 0 },
-    currency: { type: String, required: true, trim: true },
+    currency: currencyField,
     note: { type: String, default: '', trim: true },
   },
   { timestamps: true },

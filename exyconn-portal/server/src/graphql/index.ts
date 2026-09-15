@@ -6,6 +6,7 @@ import { organizationsTypeDefs, organizationsResolvers } from '../modules/organi
 import { adminTypeDefs } from '../modules/admin/admin.typeDefs';
 import { adminResolvers } from '../modules/admin/admin.resolvers';
 import { reportingResolvers } from '../modules/admin/reporting';
+import { presenceResolvers } from '../modules/admin/presence';
 import {
   financeTypeDefs,
   financeResolvers,
@@ -200,6 +201,7 @@ export const resolvers = mergeResolvers([
   organizationsResolvers,
   adminResolvers,
   reportingResolvers,
+  presenceResolvers,
   financeResolvers,
   financeBillingResolvers,
   financeCompanyResolvers,

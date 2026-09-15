@@ -7,7 +7,24 @@ mutation UpdateProfile($input: UpdateProfileInput!) {
     avatarUrl
     timezone
     locale
+    ...ProfileDetailsFields
   }
+}
+
+# What a person shares about themselves on their profile, and whether they are around.
+fragment ProfileDetailsFields on User {
+  department
+  designation
+  brief
+  phone
+  socialLinks {
+    linkedin
+    github
+    twitter
+    website
+  }
+  lastActiveAt
+  isOnline
 }
 
 mutation ChangePassword($currentPassword: String!, $newPassword: String!) {

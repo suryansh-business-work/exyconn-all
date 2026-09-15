@@ -161,7 +161,13 @@ async function upsertGroup(batch: LogBatchInput, entry: CleanEntry, user: Resolv
         lastUserEmail: literal(user.email),
         userIds: { $setUnion: [{ $ifNull: ['$userIds', []] }, [literal(user.id)]] },
       }
-    : { userIds: { $ifNull: ['$userIds', []] } };
+    : {
+        // A pipeline upsert skips schema defaults, so a group first seen without a user
+        // would otherwise have no name or email at all — and the grid's non-null fields fail.
+        lastUserName: { $ifNull: ['$lastUserName', ''] },
+        lastUserEmail: { $ifNull: ['$lastUserEmail', ''] },
+        userIds: { $ifNull: ['$userIds', []] },
+      };
   const ignored = { $eq: ['$status', 'IGNORED'] };
 
   return AppLogGroupModel.findOneAndUpdate(
@@ -254,6 +260,16 @@ export async function ingestLogBatch(batch: LogBatchInput, req: LogRequest): Pro
     await recordEntry(batch, entry, user, req);
   }
   return true;
+}
+
+/**
+ * Gives every group stored before the upsert wrote them an empty last user, so the grid can
+ * list those rows. Runs at boot; a no-op once no such group is left.
+ */
+export async function backfillAppLogGroupUsers(): Promise<void> {
+  for (const field of ['lastUserName', 'lastUserEmail']) {
+    await AppLogGroupModel.updateMany({ [field]: { $exists: false } }, { $set: { [field]: '' } });
+  }
 }
 
 /** How the API names itself in its own logs. */

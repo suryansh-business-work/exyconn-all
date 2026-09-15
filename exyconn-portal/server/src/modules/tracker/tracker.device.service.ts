@@ -1,4 +1,5 @@
-import { UserModel } from '../admin/user.model';
+import type { HydratedDocument } from 'mongoose';
+import { UserModel, type UserDocument } from '../admin/user.model';
 import { adminService } from '../admin/admin.service';
 import { resolveEffectiveLocale } from '../i18n/locale.constants';
 import { verifyPassword } from '../../utils/password';
@@ -13,6 +14,8 @@ import { trackerWorkdayService } from './tracker.workday.service';
 import { trackerMessageService } from './tracker.message.service';
 import { presenceOf } from './tracker.presence.service';
 import { policyAcknowledgementService } from '../legal/policy-acknowledgement.service';
+import { assertWorkspaceOpen } from '../auth/workspace-status';
+import { organizationOf, runAsPlatform, runForOrganizationOf } from '../../lib/tenant';
 import type { Role } from '../../constants/roles';
 import {
   TrackerAccessModel,
@@ -22,6 +25,8 @@ import {
   TrackerSessionModel,
   TrackerWindowUsageModel,
 } from './models';
+
+type SignedInUser = HydratedDocument<UserDocument>;
 
 export interface DeviceInput {
   deviceId: string;
@@ -121,9 +126,12 @@ class TrackerDeviceService {
    *
    * Access is refused unless an admin has explicitly granted this employee tracker
    * access, so the app can never start tracking someone who was not told about it.
+   *
+   * Like the portal sign-in, this runs BEFORE a company is known: the person is looked up
+   * platform-wide, and everything after that runs inside the company their record names.
    */
   async login(email: string, password: string, device: DeviceInput) {
-    const user = await UserModel.findOne({ email: email.toLowerCase() });
+    const user = await runAsPlatform(() => UserModel.findOne({ email: email.toLowerCase() }));
     if (!user || !user.isActive) {
       unauthenticated('Invalid email or password');
     }
@@ -135,6 +143,19 @@ class TrackerDeviceService {
       unauthenticated('Invalid email or password');
     }
 
+    const organizationId = organizationOf(user);
+    await assertWorkspaceOpen(organizationId);
+    return runForOrganizationOf(organizationId, () =>
+      this.issueDeviceToken(user, organizationId, device),
+    );
+  }
+
+  /** Checks the tracker grant and binds a new non-expiring token to the device record. */
+  private async issueDeviceToken(
+    user: SignedInUser,
+    organizationId: string | null,
+    device: DeviceInput,
+  ) {
     const access = await TrackerAccessModel.findOne({ userId: user.id }).lean();
     if (!access?.isActive) {
       forbidden('You have not been given access to the tracker. Ask your administrator.');
@@ -144,6 +165,7 @@ class TrackerDeviceService {
       id: user.id,
       email: user.email,
       roles: user.roles as Role[],
+      organizationId,
       deviceId: device.deviceId,
     });
 

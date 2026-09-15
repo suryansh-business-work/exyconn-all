@@ -1,5 +1,6 @@
 import { payslipLines, payslipFilename } from '../../src/modules/payroll/payslip.lines';
-import { buildPayslipPdf, periodLabel, formatAmount } from '../../src/modules/payroll/payslip.pdf';
+import { buildPayslipPdf, periodLabel } from '../../src/modules/payroll/payslip.pdf';
+import { formatAmount } from '../../src/utils/money';
 import { logoHeight } from '../../src/modules/payroll/payslip.brand';
 import {
   isDue,

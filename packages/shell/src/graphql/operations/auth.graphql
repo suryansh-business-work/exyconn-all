@@ -21,6 +21,7 @@ query Me {
     timezone
     locale
     organizationId
+    ...ProfileDetailsFields
   }
 }
 
