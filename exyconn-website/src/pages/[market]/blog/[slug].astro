@@ -75,7 +75,7 @@ const pageJsonLd = [
   ogType="article"
   jsonLd={pageJsonLd}
 >
-  <main class="bg-gradient-to-b from-surface-subtle to-surface min-h-screen">
+  <div class="bg-gradient-to-b from-surface-subtle to-surface min-h-screen">
     <!-- Hero Section -->
     <section class="relative pt-12 pb-8 px-6">
       <div class="max-w-4xl mx-auto">
@@ -150,25 +150,28 @@ const pageJsonLd = [
               <a
                 href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent("https://exyconn.com/blog/" + post.slug)}`}
                 target="_blank"
-                rel="noopener"
+                rel="noopener noreferrer"
+                aria-label="Share on X (opens in new tab)"
                 class="w-10 h-10 rounded-full bg-surface-muted flex items-center justify-center text-fg-muted hover:bg-blue hover:text-on-solid transition-colors"
               >
-                <i class="fa-brands fa-x-twitter"></i>
+                <i class="fa-brands fa-x-twitter icon-md" aria-hidden="true"></i>
               </a>
               <a
                 href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://exyconn.com/blog/" + post.slug)}`}
                 target="_blank"
-                rel="noopener"
+                rel="noopener noreferrer"
+                aria-label="Share on LinkedIn (opens in new tab)"
                 class="w-10 h-10 rounded-full bg-surface-muted flex items-center justify-center text-fg-muted hover:bg-blue-deep hover:text-on-solid transition-colors"
               >
-                <i class="fa-brands fa-linkedin-in"></i>
+                <i class="fa-brands fa-linkedin-in icon-md" aria-hidden="true"></i>
               </a>
               <button
                 onclick="navigator.clipboard.writeText(window.location.href)"
                 class="w-10 h-10 rounded-full bg-surface-muted flex items-center justify-center text-fg-muted hover:bg-inverse hover:text-on-solid transition-colors"
                 title="Copy link"
+                aria-label="Copy link to this article"
               >
-                <i class="fa-solid fa-link"></i>
+                <i class="fa-solid fa-link icon-md" aria-hidden="true"></i>
               </button>
             </div>
           </div>
@@ -232,7 +235,7 @@ const pageJsonLd = [
         </a>
       </div>
     </section>
-  </main>
+  </div>
 </Page>
 
 <style>

@@ -12,7 +12,7 @@ const allTags = getAllTags(blogPosts);
   metaKeywords="Exyconn blog, AI insights, SaaS trends, digital innovation, automation, business technology"
   metaImage="https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg?auto=compress&w=1200&q=80"
 >
-  <main class="bg-gradient-to-b from-surface-subtle via-surface to-surface-subtle min-h-screen">
+  <div class="bg-gradient-to-b from-surface-subtle via-surface to-surface-subtle min-h-screen">
     <!-- Hero Section -->
     <section class="relative py-20 px-6 overflow-hidden">
       <div
@@ -121,8 +121,8 @@ const allTags = getAllTags(blogPosts);
                 {/* Featured Badge */}
                 {post.featured && (
                   <div class="absolute top-4 left-4 z-10">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-amber to-orange text-on-solid text-xs font-bold rounded-full shadow-lg">
-                      <i class="fa-solid fa-star text-[10px]" />
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-amber to-orange text-on-bright text-xs font-bold rounded-full shadow-lg">
+                      <i class="fa-solid fa-star icon-xs" aria-hidden="true" />
                       Featured
                     </span>
                   </div>
@@ -188,11 +188,14 @@ const allTags = getAllTags(blogPosts);
                 </div>
 
                 {/* Hover Effect Arrow */}
+                {/* The title above is the link; this repeats it for the pointer only. */}
                 <a
                   href={`/blog/${post.slug}`}
+                  aria-hidden="true"
+                  tabindex="-1"
                   class="absolute bottom-6 right-6 w-10 h-10 bg-inverse rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-300"
                 >
-                  <i class="fa-solid fa-arrow-right text-on-solid text-sm" />
+                  <i class="fa-solid fa-arrow-right text-on-solid icon-sm" />
                 </a>
               </article>
             ))
@@ -218,7 +221,7 @@ const allTags = getAllTags(blogPosts);
         </div>
       </div>
     </section>
-  </main>
+  </div>
 </Page>
 
 <script>

@@ -11,6 +11,8 @@
 input[type="text"],
 input[type="email"],
 input[type="tel"],
+input[type="url"],
+input[type="number"],
 input[type="password"],
 input[type="search"],
 input[type="file"],
@@ -18,7 +20,8 @@ select,
 textarea {
   width: 100%;
   border-radius: var(--radius-lg);
-  border: var(--border-width-thick) solid var(--color-line);
+  /* `field-border`, not `line`: the edge is how a person finds the field (WCAG 1.4.11). */
+  border: var(--border-width-thick) solid var(--color-field-border);
   background: var(--color-field-bg);
   font-size: var(--font-size-md);
   color: var(--color-fg);
@@ -45,7 +48,7 @@ input[type="checkbox"] {
   -webkit-appearance: none;
   width: 20px;
   height: 20px;
-  border: var(--border-width-heavy) solid var(--color-line);
+  border: var(--border-width-heavy) solid var(--color-field-border);
   border-radius: 0.35em;
   background: var(--color-field-bg);
   outline: none;

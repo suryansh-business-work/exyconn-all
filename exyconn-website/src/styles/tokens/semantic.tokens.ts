@@ -23,8 +23,21 @@ const brandTint = (percent: number): string =>
 
 const same = (value: string): Pair => [value, value];
 
+/** Halfway between two steps of a ramp, for a role no single Tailwind step lands on. */
+const between = (family: "gray", from: 400 | 500, to: 500 | 600): string =>
+  `color-mix(in oklab, ${ramp(family, from)}, ${ramp(family, to)})`;
+
 /** `var(--color-surface)` — how TypeScript (inline styles, the Tailwind plugin) names a role. */
 export const roleVar = (role: string): string => `var(--color-${role})`;
+
+/**
+ * An admin-chosen colour (a company's brand colour, a tool's accent) made fit to be read as
+ * text: pulled 40% towards `fg`, so it darkens by day and lightens at night. That lifts the
+ * usual mid-tone brand blue from 3.3–4.5:1 to well over 4.5:1 in both modes, but a colour
+ * nobody can read (a pale yellow) is only improved, not fixed — keep such colours for fills.
+ */
+export const readableInk = (color: string): string =>
+  `color-mix(in oklab, ${color} 60%, ${roleVar("fg")})`;
 
 const neutralRoles = {
   /* Surfaces, from the page up. `subtle` is the alternate section band. */
@@ -37,12 +50,18 @@ const neutralRoles = {
   inverse: [ramp("gray", 900), ramp("ink", 950)],
   "inverse-muted": [ramp("gray", 800), ramp("ink", 800)],
 
-  /* Inks, strongest first. Contrast is measured against `surface` in each mode. */
+  /*
+   * Inks, strongest first. Every one reaches 4.5:1 (WCAG 1.4.3) on `page`, `surface`,
+   * `surface-subtle` and `surface-muted` in both modes — tests/contrast.test.ts measures it.
+   * `fg-subtle` sits between gray 500 and 600 because gray 500 is 4.4:1 on the muted band.
+   * `fg-faint` used to be a lighter step still (2.6:1 by day, 3.4:1 at night): no ink that
+   * light is readable, so it now answers with `fg-subtle`.
+   */
   fg: [ramp("gray", 900), ramp("gray", 50)],
   "fg-secondary": [ramp("gray", 700), ramp("gray", 200)],
   "fg-muted": [ramp("gray", 600), ramp("gray", 300)],
-  "fg-subtle": [ramp("gray", 500), ramp("gray", 400)],
-  "fg-faint": [ramp("gray", 400), ramp("gray", 500)],
+  "fg-subtle": [between("gray", 500, 600), ramp("gray", 400)],
+  "fg-faint": same(roleVar("fg-subtle")),
 
   /* Lines */
   "line-subtle": [ramp("gray", 100), ramp("ink", 700)],
@@ -52,6 +71,8 @@ const neutralRoles = {
   /* Ink on a saturated or dark fill — the same white whichever mode the page is in. */
   "on-solid": same(ramp("base", "white")),
   "on-solid-muted": same(`color-mix(in srgb, ${ramp("base", "white")} 75%, transparent)`),
+  /* Ink on a bright fill (amber, yellow) that white cannot be read on — dark in both modes. */
+  "on-bright": same(ramp("gray", 950)),
   /* Dims whatever is behind it: a modal backdrop, a caption bar over a photograph. */
   scrim: same(ramp("base", "black")),
 } satisfies Record<string, Pair>;
@@ -74,12 +95,18 @@ const brandRoles = {
   "field-bg": [ramp("base", "white"), ramp("ink", 800)],
   "field-bg-focus": [ramp("sky", 50), ramp("ink", 700)],
   "field-ring": [roleVar("primary-subtle"), roleVar("primary-soft")],
-  "fg-placeholder": [ramp("gray", 400), ramp("gray", 500)],
+  /* Placeholder text is still text: 4.5:1, so it reads as `fg-subtle`. */
+  "fg-placeholder": same(roleVar("fg-subtle")),
+  /* The edge that shows where a field is (WCAG 1.4.11, 3:1) — `line` is only 1.2:1. */
+  "field-border": same(between("gray", 400, 500)),
   "button-bg": [ramp("brand", 500), ramp("ink", 700)],
   "button-fg": [ramp("base", "white"), ramp("gray", 100)],
   "surface-disabled": [ramp("slate", 300), ramp("gray", 700)],
   "fg-disabled": same(ramp("gray", 500)),
 } satisfies Record<string, Pair>;
+
+/* Yellow and green 700 land a hair under 4.5:1 on the muted band, so their inks go one deeper. */
+const DEEP_INK_HUES: ReadonlySet<Hue> = new Set(["yellow", "green"]);
 
 /**
  * Eleven roles per hue, named for what they are used as rather than for a shade:
@@ -97,8 +124,9 @@ const hueRoles = (hue: Hue): Record<string, Pair> => ({
   [`${hue}-deep`]: same(ramp(hue, 700)),
   [`${hue}-night`]: same(ramp(hue, 950)),
   [`${hue}-bright`]: same(ramp(hue, 400)),
-  [`${hue}-fg`]: [ramp(hue, 600), ramp(hue, 400)],
-  [`${hue}-fg-strong`]: [ramp(hue, 700), ramp(hue, 300)],
+  /* By day most hues' 600 is under 4.5:1 on white or on their own tint, so text starts at 700. */
+  [`${hue}-fg`]: [ramp(hue, DEEP_INK_HUES.has(hue) ? 800 : 700), ramp(hue, 400)],
+  [`${hue}-fg-strong`]: [ramp(hue, DEEP_INK_HUES.has(hue) ? 900 : 800), ramp(hue, 300)],
   [`${hue}-fg-deep`]: [ramp(hue, 900), ramp(hue, 200)],
 });
 

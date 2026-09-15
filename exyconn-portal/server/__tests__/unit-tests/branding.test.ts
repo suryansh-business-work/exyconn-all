@@ -2,6 +2,8 @@ import { BrandingModel } from '../../src/modules/branding/branding.model';
 import { getBranding, updateBranding } from '../../src/modules/branding/branding.service';
 import { BRANDING_DEFAULTS } from '../../src/modules/branding/branding.constants';
 import { LOGIN_PAGE_DEFAULTS } from '../../src/modules/branding/login-pages.constants';
+import { brandingTypeDefs } from '../../src/modules/branding/branding.typeDefs';
+import { print } from 'graphql';
 
 describe('branding', () => {
   it('creates the global document with defaults on first read', async () => {
@@ -74,14 +76,20 @@ describe('branding', () => {
     expect(hr?.name).toBe(LOGIN_PAGE_DEFAULTS.find((page) => page.app === 'hr')?.name);
   });
 
-  it('keeps every non-nullable GraphQL field defined', async () => {
-    await BrandingModel.collection.insertOne({ key: 'global' });
+  it('keeps every non-nullable GraphQL field defined, even on an empty or nulled document', async () => {
+    await BrandingModel.collection.insertOne({ key: 'global', heroVideoUrl: null });
 
-    const branding = await getBranding();
+    const branding = (await getBranding()) as unknown as Record<string, unknown>;
 
-    // Every key the SDL declares non-null must be present, or the query blows up at runtime.
-    for (const key of Object.keys(BRANDING_DEFAULTS)) {
-      expect(branding[key as keyof typeof BRANDING_DEFAULTS]).toBeDefined();
+    // Read the non-null scalar fields from the SDL itself, so a field added to the type
+    // without a default fails here instead of on the live site.
+    const brandingType = print(brandingTypeDefs).match(/type Branding \{([^}]*)\}/)?.[1] ?? '';
+    const nonNull = [...brandingType.matchAll(/^\s*(\w+): (?:String|Int|Float|Boolean)!/gm)]
+      .map((match) => match[1])
+      .filter((field) => field !== 'id');
+    expect(nonNull).toContain('heroVideoUrl');
+    for (const field of nonNull) {
+      expect([field, branding[field]]).toEqual([field, expect.anything()]);
     }
   });
 });

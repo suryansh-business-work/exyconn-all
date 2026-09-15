@@ -1,4 +1,6 @@
 ---
+import { readableInk } from "../../styles/tokens/semantic.tokens";
+
 interface Props {
   jobId: string;
   jobTitle: string;
@@ -311,7 +313,7 @@ const { jobId, jobTitle, companyName, companySlug, brandColor } = Astro.props;
     <a
       href={`/career/company/${companySlug}`}
       class="inline-flex items-center gap-2 font-semibold hover:gap-3 transition-all"
-      style={`color: ${brandColor};`}
+      style={`color: ${readableInk(brandColor)};`}
     >
       Explore more jobs at {companyName}
       <i class="fa-solid fa-arrow-right text-sm"></i>

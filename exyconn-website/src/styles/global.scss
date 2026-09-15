@@ -2,6 +2,25 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter+Tight:ital,wght@0,100..900;1,100..900&display=swap");
 @import url("./input.scss");
 
+/*
+ * Font Awesome paints each glyph as generated content, which a screen reader reads out
+ * (a private-use character, or the glyph's name) inside the link or button around it.
+ * Every icon here is decorative — a control that is only an icon carries an aria-label —
+ * so the glyph gets empty alternative text. Browsers without CSS alt text keep the plain
+ * rule from Font Awesome; `var()` would otherwise blank the icon for them.
+ */
+@supports (content: "x" / "") {
+  .fa::before,
+  .fa-solid::before,
+  .fa-regular::before,
+  .fa-brands::before,
+  .fas::before,
+  .far::before,
+  .fab::before {
+    content: var(--fa) / "";
+  }
+}
+
 /* Focus Styles - Global accessibility */
 *:focus {
   outline: none;
@@ -11,6 +30,16 @@
   outline: var(--focus-ring-width) solid var(--color-focus-ring);
   outline-offset: var(--focus-ring-offset);
   border-radius: var(--radius-sm);
+}
+
+/*
+ * Keep whatever receives focus clear of the sticky header and of the launchers pinned to the
+ * bottom corners (cookies, accessibility, back to top) — WCAG 2.4.11, Focus Not Obscured.
+ * Browsers apply scroll padding when they scroll a focused element or an #anchor into view.
+ */
+html {
+  scroll-padding-top: 5.5rem;
+  scroll-padding-bottom: 9rem;
 }
 
 /* Skip Link - Screen reader accessibility */

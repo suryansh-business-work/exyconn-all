@@ -44,6 +44,8 @@
   aria-modal="true"
   aria-labelledby="a11y-drawer-title"
   tabindex="-1"
+  data-open="false"
+  inert
 >
   <!-- Header -->
   <div
@@ -55,7 +57,7 @@
       </div>
       <div>
         <h2 id="a11y-drawer-title" class="text-lg font-bold">Accessibility</h2>
-        <p class="text-xs text-on-solid/80">Customize your viewing experience</p>
+        <p class="text-xs text-on-solid">Customize your viewing experience</p>
       </div>
     </div>
     <button
@@ -399,6 +401,7 @@
       function openDrawer() {
         lastFocus = document.activeElement;
         drawer.classList.remove("translate-x-full");
+        drawer.dataset.open = "true";
         backdrop.classList.remove("opacity-0", "pointer-events-none");
         backdrop.classList.add("opacity-100");
         openBtn.setAttribute("aria-expanded", "true");
@@ -407,6 +410,7 @@
       }
       function closeDrawer() {
         drawer.classList.add("translate-x-full");
+        drawer.dataset.open = "false";
         backdrop.classList.add("opacity-0", "pointer-events-none");
         backdrop.classList.remove("opacity-100");
         openBtn.setAttribute("aria-expanded", "false");

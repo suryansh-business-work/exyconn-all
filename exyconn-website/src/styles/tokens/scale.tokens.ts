@@ -33,6 +33,19 @@ export const scale = {
     "8xl": "7rem",
     "9xl": "10rem",
   },
+  /*
+   * The icon scale, used through the `icon-xs` … `icon-xl` utilities in global.css. `xs` is
+   * the arrow or chevron beside a label, `sm` an icon inside a button or menu row, `md` a
+   * standalone control glyph (search, theme, social), `lg` the menu and close controls, `xl`
+   * a feature tile. Nothing a person must recognise is drawn smaller than 12px.
+   */
+  "icon-size": {
+    xs: "0.75rem",
+    sm: "0.875rem",
+    md: "1rem",
+    lg: "1.25rem",
+    xl: "1.5rem",
+  },
   /* Unitless, so a nested element inherits a ratio rather than a fixed height. */
   "line-height": {
     tight: "1.2",

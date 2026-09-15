@@ -53,7 +53,7 @@ const whatWeDo = [
   metaKeywords="about Exyconn, our team, AI experts, automation, digital transformation, company values, mission, vision"
   metaImage="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=1200&q=80"
 >
-  <main class="bg-surface min-h-screen">
+  <div class="bg-surface min-h-screen">
     <!-- Hero Section -->
     <section
       class="relative py-24 px-6 bg-gradient-to-br from-surface-subtle via-surface to-blue-subtle overflow-hidden"
@@ -78,7 +78,8 @@ const whatWeDo = [
             </span>
             <h1 class="text-5xl md:text-6xl font-bold text-fg mb-6 tracking-tight">
               Building the Future of
-              <span class="bg-gradient-to-r from-blue-strong to-cyan bg-clip-text text-transparent"
+              <span
+                class="bg-gradient-to-r from-blue-strong to-cyan-strong bg-clip-text text-transparent"
                 >AI & SaaS</span
               >
             </h1>
@@ -139,7 +140,7 @@ const whatWeDo = [
                 <div class="w-14 h-14 bg-surface-muted rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <i class={`fa-solid ${stat.icon} text-fg-muted text-xl`} />
                 </div>
-                <div class="text-3xl font-bold bg-gradient-to-r from-blue-strong to-cyan bg-clip-text text-transparent mb-1">
+                <div class="text-3xl font-bold bg-gradient-to-r from-blue-strong to-cyan-strong bg-clip-text text-transparent mb-1">
                   {stat.value}
                 </div>
                 <p class="text-fg-subtle text-sm">{stat.label}</p>
@@ -267,7 +268,7 @@ const whatWeDo = [
             <div class="flex flex-wrap justify-center gap-4">
               <a
                 href="/contact"
-                class="inline-flex items-center gap-2 bg-gradient-to-r from-cyan to-blue-strong text-on-solid font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-cyan/40 hover:scale-105 transition-all"
+                class="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-deep to-blue-strong text-on-solid font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-cyan/40 hover:scale-105 transition-all"
               >
                 <i class="fa-solid fa-calendar-check"></i>
                 Schedule a Consultation
@@ -288,5 +289,5 @@ const whatWeDo = [
     <HowWeWork />
     <WhyChooseUs />
     <DynamicImageStack title="Powered By Leading Technology" />
-  </main>
+  </div>
 </Page>

@@ -138,7 +138,7 @@ export function ContactFormReact() {
 
         <p className="text-center text-xs text-fg-subtle">
           By submitting this form, you agree to our{" "}
-          <a href="/privacy-policy" className="text-blue-fg hover:underline">
+          <a href="/privacy-policy" className="text-blue-fg underline hover:text-blue-fg-strong">
             Privacy Policy
           </a>
           .

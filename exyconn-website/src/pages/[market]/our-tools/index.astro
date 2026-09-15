@@ -14,7 +14,7 @@ const mvpCount = tools.filter((tool) => tool.isMVP).length;
   title="Tools | Exyconn"
   description="Every tool Exyconn builds and maintains, grouped by what it is for."
 >
-  <main class="bg-surface-subtle min-h-screen">
+  <div class="bg-surface-subtle min-h-screen">
     <section
       class="py-20 px-6 bg-gradient-to-br from-sky-subtle via-indigo-subtle to-surface-subtle"
     >
@@ -33,7 +33,7 @@ const mvpCount = tools.filter((tool) => tool.isMVP).length;
         <h1 class="text-5xl md:text-6xl font-black text-fg mb-6 leading-tight tracking-tight">
           The Exyconn<br />
           <span
-            class="bg-gradient-to-r from-sky-strong via-indigo-strong to-violet-strong bg-clip-text text-transparent"
+            class="bg-gradient-to-r from-sky-strong via-indigo to-violet-strong bg-clip-text text-transparent"
           >
             Tools Directory
           </span>
@@ -111,7 +111,7 @@ const mvpCount = tools.filter((tool) => tool.isMVP).length;
                   <p class="text-sm text-fg-muted line-clamp-3">{tool.description}</p>
 
                   <div class="flex items-center justify-between pt-4 mt-4 border-t border-line-subtle">
-                    <span class="px-2 py-0.5 bg-surface-strong text-fg-subtle rounded text-xs font-mono">
+                    <span class="px-2 py-0.5 bg-surface-strong text-fg-muted rounded text-xs font-mono">
                       #{tool.toolCode}
                     </span>
                     {isToolAppSlug(tool) ? (
@@ -135,5 +135,5 @@ const mvpCount = tools.filter((tool) => tool.isMVP).length;
         </section>
       ))
     }
-  </main>
+  </div>
 </Page>

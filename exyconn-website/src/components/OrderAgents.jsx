@@ -103,7 +103,7 @@ export default function OrderAgents() {
             )}
           </ul>
           <button
-            className="mt-4 bg-green-strong text-on-solid px-6 py-2 rounded hover:bg-green-deep transition w-max self-end"
+            className="mt-4 bg-green-deep text-on-solid px-6 py-2 rounded hover:bg-green-night transition w-max self-end"
             onClick={submitOrder}
           >
             Submit Suite Request

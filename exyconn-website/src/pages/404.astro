@@ -34,7 +34,7 @@ const helpfulLinks = [
   metaKeywords="404, not found, page missing, Exyconn, error"
   noindex={true}
 >
-  <main
+  <div
     class="min-h-screen bg-gradient-to-b from-surface-subtle via-surface to-surface-subtle overflow-hidden"
   >
     <!-- Hero Section with Lottie -->
@@ -213,7 +213,7 @@ const helpfulLinks = [
         </a>
       </div>
     </section>
-  </main>
+  </div>
 </Page>
 
 <!-- LottieFiles web component (loaded once for the 404 illustration) -->
@@ -232,8 +232,12 @@ const helpfulLinks = [
         player.setAttribute("src", "https://assets10.lottiefiles.com/packages/lf20_kcsr6fcp.json");
         player.setAttribute("background", "transparent");
         player.setAttribute("speed", "1");
-        player.setAttribute("loop", "");
-        player.setAttribute("autoplay", "");
+        // A looping animation must not start on its own for a visitor who asked for less
+        // motion (WCAG 2.2.2); they see its first frame instead.
+        if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          player.setAttribute("loop", "");
+          player.setAttribute("autoplay", "");
+        }
         player.style.width = "100%";
         player.style.height = "100%";
         host.appendChild(player);

@@ -8,6 +8,7 @@ import {
   getOpenGigs,
 } from "../../../lib/portal";
 import { gigCategoryColors } from "../../../lib/gigCategoryColors";
+import { readableInk } from "../../../styles/tokens/semantic.tokens";
 
 // The group company advertises cross-brand roles and gets its own card below,
 // so it is kept out of the individual-company grid.
@@ -46,7 +47,7 @@ const gigCategoryIcons: Record<string, string> = {
   metaKeywords="careers, jobs, freelance, gigs, AI jobs, SaaS jobs, remote jobs, Exyconn careers"
   metaImage="/career/og-image.png"
 >
-  <main class="bg-surface-subtle min-h-screen">
+  <div class="bg-surface-subtle min-h-screen">
     <!-- Hero Section - Light Mode -->
     <section
       class="relative py-24 px-6 overflow-hidden bg-gradient-to-br from-surface-subtle via-blue-subtle to-indigo-soft"
@@ -83,7 +84,7 @@ const gigCategoryIcons: Record<string, string> = {
           <h1 class="text-5xl md:text-7xl font-black text-fg mb-6 leading-tight tracking-tight">
             Build. Create.<br />
             <span
-              class="bg-gradient-to-r from-blue-strong via-indigo-strong to-purple-strong bg-clip-text text-transparent"
+              class="bg-gradient-to-r from-blue-strong via-indigo to-purple-strong bg-clip-text text-transparent"
             >
               Grow With Us.
             </span>
@@ -302,19 +303,19 @@ const gigCategoryIcons: Record<string, string> = {
                     <h3 class="text-lg font-bold text-fg group-hover:text-indigo-fg transition">
                       {job.title}
                     </h3>
-                    <span class="px-2 py-0.5 bg-surface-strong text-fg-subtle rounded text-xs font-mono">
+                    <span class="px-2 py-0.5 bg-surface-strong text-fg-muted rounded text-xs font-mono">
                       #{job.jobCode}
                     </span>
                     {job.isFeatured && (
                       <span class="px-2 py-0.5 bg-amber-soft text-amber-fg-strong rounded text-xs font-semibold">
-                        <i class="fa-solid fa-star text-[10px] mr-1" />
+                        <i class="fa-solid fa-star icon-xs mr-1" aria-hidden="true" />
                         Featured
                       </span>
                     )}
                   </div>
 
                   <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-fg-subtle">
-                    <span class="font-medium" style={`color: ${company.brandColor};`}>
+                    <span class="font-medium" style={`color: ${readableInk(company.brandColor)};`}>
                       {company.name}
                     </span>
                     <span class="flex items-center gap-1">
@@ -366,7 +367,7 @@ const gigCategoryIcons: Record<string, string> = {
           </p>
           <a
             href="/career/gigs"
-            class="inline-flex items-center gap-2 px-6 py-3 bg-amber text-on-solid font-bold rounded-full hover:bg-amber-strong transition shadow-lg"
+            class="inline-flex items-center gap-2 px-6 py-3 bg-amber text-on-bright font-bold rounded-full hover:bg-amber-strong transition shadow-lg"
           >
             <i class="fa-solid fa-grid-2"></i>
             View All {activeGigs.length} Gigs
@@ -410,7 +411,7 @@ const gigCategoryIcons: Record<string, string> = {
                   >
                     {gig.category}
                   </span>
-                  <span class="px-2 py-0.5 bg-surface-strong text-fg-subtle rounded text-xs font-mono">
+                  <span class="px-2 py-0.5 bg-surface-strong text-fg-muted rounded text-xs font-mono">
                     #{gig.gigCode}
                   </span>
                 </div>
@@ -570,7 +571,7 @@ const gigCategoryIcons: Record<string, string> = {
 
       <div class="relative max-w-4xl mx-auto text-center">
         <h2 class="text-4xl font-black text-on-solid mb-4">Don't See Your Role?</h2>
-        <p class="text-fg-faint text-lg mb-10 max-w-xl mx-auto">
+        <p class="text-on-solid-muted text-lg mb-10 max-w-xl mx-auto">
           We're always looking for exceptional talent. Drop us your resume and we'll reach out when
           there's a match.
         </p>
@@ -594,5 +595,5 @@ const gigCategoryIcons: Record<string, string> = {
         </div>
       </div>
     </section>
-  </main>
+  </div>
 </Page>

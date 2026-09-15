@@ -13,6 +13,13 @@ const NOT_A_PAGE = /^\/(?:_|assets\/|api\/|health|robots\.txt|sitemap\.xml|llms\
 /** True for anything with a file extension — an image, a stylesheet, a font. */
 const HAS_EXTENSION = /\.[a-zA-Z0-9]+$/;
 
+/**
+ * The error pages. 404.astro is prerendered to 404.html and served in place of any URL that
+ * matched nothing, so its build must not be sent to a market: that baked "Redirecting to
+ * /en-us/404" into 404.html, refreshing back into itself every two seconds.
+ */
+const ERROR_PAGE = /^\/(?:404|500)$/;
+
 const isPage = (pathname: string) =>
   !NOT_A_PAGE.test(pathname) && (!HAS_EXTENSION.test(pathname) || pathname.endsWith(".html"));
 
@@ -117,7 +124,8 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // through src/pages/[market]. A URL with no market is caught by the catch-all route, which
   // sends the reader to the market their browser and their country suggest.
   const { market, rest } = splitMarketPath(url.pathname);
-  if (isPage(url.pathname)) {
+  const buildingErrorPage = context.isPrerendered && ERROR_PAGE.test(url.pathname);
+  if (isPage(url.pathname) && !buildingErrorPage) {
     if (!market) {
       // An old link, or somebody typing exyconn.com/about-us: send them to the market they
       // chose last, else the one their browser and their country suggest, keeping the page.

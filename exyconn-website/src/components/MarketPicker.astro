@@ -14,14 +14,18 @@ const { rest } = splitMarketPath(Astro.url.pathname.replace(/\/+$/, "") || "/");
 const here = rest === "" ? "/" : rest;
 ---
 
-<!-- Never translated: every market names itself in its own language, which is the point. -->
-<details class="market-picker" translate="no">
-  <summary aria-label="Change country and language">
-    <span class="market-picker__globe" aria-hidden="true">🌐</span>
-    <span>{market.label}</span>
+<!--
+  Market names are never translated: every market names itself in its own language, which is
+  the point. The summary's name keeps the visible label in it (WCAG 2.5.3, Label in Name).
+-->
+<details class="market-picker">
+  <summary>
+    <i class="fa-solid fa-globe icon-md" aria-hidden="true"></i>
+    <span class="sr-only">Change country and language:</span>
+    <span translate="no">{market.label}</span>
   </summary>
   <div class="market-picker__panel">
-    <ul>
+    <ul translate="no">
       {
         MARKETS.map((entry) => (
           <li>
@@ -51,16 +55,13 @@ const here = rest === "" ? "/" : rest;
     align-items: center;
     gap: 0.5rem;
     cursor: pointer;
+    min-height: 2.75rem;
     padding: 0.5rem 0;
     list-style: none;
   }
 
   .market-picker summary::-webkit-details-marker {
     display: none;
-  }
-
-  .market-picker__globe {
-    font-size: 1rem;
   }
 
   .market-picker__panel {
