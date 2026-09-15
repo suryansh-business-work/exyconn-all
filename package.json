@@ -2,7 +2,7 @@
   "name": "exyconn-portal-plus-website",
   "version": "1.1.0",
   "private": true,
-  "description": "Exyconn monorepo — portal (GraphQL server + React admin UI) and the public Astro website.",
+  "description": "Exyconn monorepo \u2014 portal (GraphQL server + React admin UI) and the public Astro website.",
   "packageManager": "pnpm@9.15.0",
   "engines": {
     "node": ">=22.0.0"
@@ -19,5 +19,21 @@
     "test:ct": "pnpm --filter '@exyconn/*' --workspace-concurrency=1 run test:ct",
     "codegen": "pnpm --filter exyconn-portal-server run codegen && pnpm --filter @exyconn/shell run codegen && pnpm --filter @exyconn/tracker-core run codegen",
     "seed": "pnpm --filter exyconn-portal-server run seed"
+  },
+  "pnpm": {
+    "overrides": {
+      "fast-uri@>=3.0.0 <3.1.6": "^3.1.6",
+      "ip-address@<10.3.1": "^10.3.1",
+      "js-yaml@>=4.0.0 <4.3.2": "^4.3.2",
+      "smol-toml@<1.7.1": "^1.7.1",
+      "@xmldom/xmldom@>=0.9.0 <0.9.12": "^0.9.12",
+      "browserslist@<4.28.7": "^4.28.7",
+      "svgo@>=4.0.0 <4.1.0": "^4.1.0",
+      "undici@>=6.0.0 <6.28.0": "^6.28.0",
+      "qs@<6.16.0": "^6.16.0",
+      "brace-expansion@<1.1.18": "^1.1.18",
+      "brace-expansion@>=2.0.0 <2.1.4": "^2.1.4",
+      "brace-expansion@>=4.0.0 <5.0.9": "^5.0.9"
+    }
   }
 }
