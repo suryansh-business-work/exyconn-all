@@ -349,8 +349,9 @@ jobs:
           fail=0
           # Report every domain (a curl connect/DNS/TLS error shows as 000) before failing,
           # so a missing subdomain vhost/cert is obvious instead of aborting on the first.
+          # -L follows redirects: exyconn.com/ sends visitors on to their market (/en-us).
           for url in "${urls[@]}"; do
-            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 --retry 3 --retry-delay 10 --retry-all-errors "$url" || echo 000)
+            code=$(curl -sL -o /dev/null -w '%{http_code}' --max-time 20 --retry 3 --retry-delay 10 --retry-all-errors "$url" || echo 000)
             if [ "$code" = "200" ]; then
               echo "OK   $url -> $code"
             else
