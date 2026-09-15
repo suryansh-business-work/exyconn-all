@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { extractUrls, scanPages, analyzeStructure } from "./services";
+import { clientErrorMessage } from "../../shared/errors";
 
 export const extractUrlsController = async (req: Request, res: Response) => {
   try {
@@ -26,7 +27,7 @@ export const extractUrlsController = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("URL extraction error:", error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : "Failed to extract URLs",
+      error: clientErrorMessage(error, "Failed to extract URLs"),
     });
   }
 };
@@ -50,7 +51,7 @@ export const scanPagesController = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Page scanning error:", error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : "Failed to scan pages",
+      error: clientErrorMessage(error, "Failed to scan pages"),
     });
   }
 };
@@ -76,7 +77,7 @@ export const analyzeStructureController = async (
     console.error("Structure analysis error:", error);
     return res.status(500).json({
       error:
-        error instanceof Error ? error.message : "Failed to analyze structure",
+        clientErrorMessage(error, "Failed to analyze structure"),
     });
   }
 };

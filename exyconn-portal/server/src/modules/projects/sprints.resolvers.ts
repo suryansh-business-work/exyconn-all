@@ -1,11 +1,14 @@
 import { sprintsService, type MilestoneInput, type SprintInput } from './sprints.service';
 import { serializeTask } from './board.resolvers';
-import { assertRole } from '../../middleware/roleGuard';
+import { assertPermission } from '../../lib/permissions';
+import type { PermissionAction } from '../permissions/permission.model';
 import { withId } from '../../utils/serialize';
 import { ROLES } from '../../constants/roles';
 import type { GraphQLContext } from '../../middleware/auth';
 
-const guard = (ctx: GraphQLContext) => assertRole(ctx, [ROLES.PROJECTS]);
+/** Project data: the PROJECTS role, then whatever the admin matrix leaves it on Project. */
+const guard = (ctx: GraphQLContext, action: PermissionAction) =>
+  assertPermission(ctx, 'Project', [ROLES.PROJECTS], action);
 
 type ProjectScoped = { _id: unknown; projectId: { toString(): string } };
 
@@ -22,7 +25,7 @@ export const sprintsResolvers = {
       { projectId }: { projectId: string },
       ctx: GraphQLContext,
     ) => {
-      guard(ctx);
+      await guard(ctx, 'VIEW');
       return (await sprintsService.sprints(projectId)).map((sprint) => serialize(sprint));
     },
     projectMilestones: async (
@@ -30,11 +33,11 @@ export const sprintsResolvers = {
       { projectId }: { projectId: string },
       ctx: GraphQLContext,
     ) => {
-      guard(ctx);
+      await guard(ctx, 'VIEW');
       return (await sprintsService.milestones(projectId)).map((one) => serialize(one));
     },
     sprintCompletionPlan: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      guard(ctx);
+      await guard(ctx, 'VIEW');
       return sprintsService.completionPlan(id);
     },
   },
@@ -44,7 +47,7 @@ export const sprintsResolvers = {
       { projectId, input }: { projectId: string; input: SprintInput },
       ctx: GraphQLContext,
     ) => {
-      guard(ctx);
+      await guard(ctx, 'CREATE');
       return serialize(await sprintsService.createSprint(projectId, input));
     },
     updateSprint: async (
@@ -52,19 +55,19 @@ export const sprintsResolvers = {
       { id, input }: { id: string; input: SprintInput },
       ctx: GraphQLContext,
     ) => {
-      guard(ctx);
+      await guard(ctx, 'EDIT');
       return serialize(await sprintsService.updateSprint(id, input));
     },
     deleteSprint: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      guard(ctx);
+      await guard(ctx, 'DELETE');
       return sprintsService.deleteSprint(id);
     },
     startSprint: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      guard(ctx);
+      await guard(ctx, 'EDIT');
       return serialize(await sprintsService.startSprint(id));
     },
     completeSprint: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      guard(ctx);
+      await guard(ctx, 'EDIT');
       return serialize(await sprintsService.completeSprint(id));
     },
     createMilestone: async (
@@ -72,7 +75,7 @@ export const sprintsResolvers = {
       { projectId, input }: { projectId: string; input: MilestoneInput },
       ctx: GraphQLContext,
     ) => {
-      guard(ctx);
+      await guard(ctx, 'CREATE');
       return serialize(await sprintsService.createMilestone(projectId, input));
     },
     updateMilestone: async (
@@ -80,11 +83,11 @@ export const sprintsResolvers = {
       { id, input }: { id: string; input: MilestoneInput },
       ctx: GraphQLContext,
     ) => {
-      guard(ctx);
+      await guard(ctx, 'EDIT');
       return serialize(await sprintsService.updateMilestone(id, input));
     },
     deleteMilestone: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      guard(ctx);
+      await guard(ctx, 'DELETE');
       return sprintsService.deleteMilestone(id);
     },
     setTaskSprint: async (
@@ -92,7 +95,7 @@ export const sprintsResolvers = {
       { taskId, sprintId }: { taskId: string; sprintId?: string | null },
       ctx: GraphQLContext,
     ) => {
-      guard(ctx);
+      await guard(ctx, 'EDIT');
       return serializeTask(await sprintsService.setTaskSprint(taskId, sprintId ?? null));
     },
     setTaskParent: async (
@@ -100,7 +103,7 @@ export const sprintsResolvers = {
       { taskId, parentTaskId }: { taskId: string; parentTaskId?: string | null },
       ctx: GraphQLContext,
     ) => {
-      guard(ctx);
+      await guard(ctx, 'EDIT');
       return serializeTask(await sprintsService.setTaskParent(taskId, parentTaskId ?? null));
     },
   },

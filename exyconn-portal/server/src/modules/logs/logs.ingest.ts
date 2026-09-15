@@ -8,6 +8,7 @@ import {
   INGEST_WINDOW_MS,
   MAX_BREADCRUMBS,
   MAX_ENTRIES_PER_BATCH,
+  SERVER_ERROR_WRITES_PER_MINUTE,
   type AppLogLevel,
   type AppLogSource,
 } from './logs.constants';
@@ -68,9 +69,42 @@ const MAX_FOLDED_COUNT = 100_000;
 
 const limiter = createRateLimiter(INGEST_WINDOW_MS, INGEST_MAX_BATCHES);
 
-/** Test seam: forgets every recorded batch. */
+const MINUTE_MS = 60_000;
+
+/**
+ * A process-wide budget that refills continuously up to `capacity` per minute. Unlike the
+ * per-caller window above it has no key: it bounds the total, whoever is causing it.
+ */
+function createTokenBucket(capacity: number) {
+  let tokens = capacity;
+  let updatedAt = Date.now();
+  return {
+    take(): boolean {
+      const now = Date.now();
+      tokens = Math.min(capacity, tokens + ((now - updatedAt) * capacity) / MINUTE_MS);
+      updatedAt = now;
+      if (tokens < 1) {
+        return false;
+      }
+      tokens -= 1;
+      return true;
+    },
+    reset(): void {
+      tokens = capacity;
+      updatedAt = Date.now();
+    },
+  };
+}
+
+const serverWriteBudget = createTokenBucket(SERVER_ERROR_WRITES_PER_MINUTE);
+/** When the dropped-writes warning last went out, so a flood is reported once a minute. */
+let budgetWarnedAt = 0;
+
+/** Test seam: forgets every recorded batch and refills the server error budget. */
 export function resetLogIngestLimits(): void {
   limiter.reset();
+  serverWriteBudget.reset();
+  budgetWarnedAt = 0;
 }
 
 function cut(value: string | null | undefined, max: number): string {
@@ -275,21 +309,42 @@ export async function backfillAppLogGroupUsers(): Promise<void> {
 /** How the API names itself in its own logs. */
 const SERVER_APP = 'portal-server';
 
+/** The entries the process-wide write budget still has room for; warns when it drops any. */
+function withinWriteBudget(entries: LogEntryInput[]): LogEntryInput[] {
+  const allowed: LogEntryInput[] = [];
+  for (const entry of entries) {
+    if (serverWriteBudget.take()) {
+      allowed.push(entry);
+    }
+  }
+  const dropped = entries.length - allowed.length;
+  const now = Date.now();
+  if (dropped > 0 && now - budgetWarnedAt >= MINUTE_MS) {
+    budgetWarnedAt = now;
+    logger.warn({ dropped }, 'Server error log writes are over budget; dropping the Mongo copy');
+  }
+  return allowed;
+}
+
 /**
- * Stores errors the API itself threw (see logs.plugin.ts). Never throws and is not
- * rate-limited: it is the server reporting on itself, and a failure here must not turn one
- * error into two.
+ * Stores errors the API itself threw (see logs.plugin.ts). Never throws: it is the server
+ * reporting on itself, and a failure here must not turn one error into two. Bounded by a
+ * process-wide budget (SERVER_ERROR_WRITES_PER_MINUTE) rather than per caller.
  */
 export async function recordServerErrors(entries: LogEntryInput[], req: LogRequest): Promise<void> {
+  const allowed = withinWriteBudget(entries);
+  if (allowed.length === 0) {
+    return;
+  }
   const batch: LogBatchInput = {
     source: 'SERVER',
     app: SERVER_APP,
     platform: `node ${process.version}`,
-    entries,
+    entries: allowed,
   };
   try {
     const user = await resolveUser(req, null);
-    for (const entry of entries) {
+    for (const entry of allowed) {
       await recordEntry(batch, entry, user, req);
     }
   } catch (error) {

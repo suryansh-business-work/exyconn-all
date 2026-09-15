@@ -6,6 +6,12 @@ import {
   verifySignature,
 } from '../../src/modules/integrations/webhook.signing';
 
+// Outbound calls go through safeFetch, which resolves the host before connecting. The hosts in
+// these tests are fictional, so resolve them to a public address.
+jest.mock('node:dns/promises', () => ({
+  lookup: jest.fn().mockResolvedValue([{ address: '93.184.215.14', family: 4 }]),
+}));
+
 const SECRET = 'whsec_test';
 
 async function hook(overrides: Record<string, unknown> = {}) {

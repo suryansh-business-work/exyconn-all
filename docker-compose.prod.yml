@@ -10,8 +10,31 @@
 # on the server (written by the deploy workflow from GitHub secrets) — never baked in.
 # =============================================================================
 
+# Shared hardening, merged into every service below.
+x-logging: &logging
+  # Bounded logs: an unrotated json-file log grows until the disk fills.
+  driver: json-file
+  options:
+    max-size: '10m'
+    max-file: '5'
+
+# nginx-based SPA images (and the socket proxy's haproxy) start as root and drop
+# privileges themselves, so they keep their default capabilities; setuid binaries can
+# no longer raise privileges.
+x-hardened: &hardened
+  security_opt:
+    - no-new-privileges:true
+  logging: *logging
+
+# Node services run as a non-root user and need no Linux capabilities at all.
+x-hardened-node: &hardened-node
+  <<: *hardened
+  cap_drop:
+    - ALL
+
 services:
   website:
+    <<: *hardened-node
     image: ${DOCKERHUB_USERNAME}/exyconn-website:${TAG:-latest}
     container_name: exyconn-website
     restart: unless-stopped
@@ -28,6 +51,7 @@ services:
       # every piece of content is read from portal-server's public GraphQL API.
 
   tools-ui:
+    <<: *hardened
     image: ${DOCKERHUB_USERNAME}/exyconn-tools-ui:${TAG:-latest}
     container_name: exyconn-tools-ui
     restart: unless-stopped
@@ -35,6 +59,7 @@ services:
       - '127.0.0.1:4001:4001'
 
   tools-api:
+    <<: *hardened-node
     image: ${DOCKERHUB_USERNAME}/exyconn-tools-api:${TAG:-latest}
     container_name: exyconn-tools-api
     restart: unless-stopped
@@ -53,6 +78,7 @@ services:
   # subdomain. They share the login cookie scoped to .exyconn.com and all talk
   # to the single portal-server below.
   portal-hub:
+    <<: *hardened
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-hub:${TAG:-latest}
     container_name: exyconn-portal-hub
     restart: unless-stopped
@@ -60,6 +86,7 @@ services:
       - '127.0.0.1:4003:4003'
 
   portal-admin:
+    <<: *hardened
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-admin:${TAG:-latest}
     container_name: exyconn-portal-admin
     restart: unless-stopped
@@ -67,6 +94,7 @@ services:
       - '127.0.0.1:4020:4020'
 
   portal-employee:
+    <<: *hardened
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-employee:${TAG:-latest}
     container_name: exyconn-portal-employee
     restart: unless-stopped
@@ -74,6 +102,7 @@ services:
       - '127.0.0.1:4021:4021'
 
   portal-finance:
+    <<: *hardened
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-finance:${TAG:-latest}
     container_name: exyconn-portal-finance
     restart: unless-stopped
@@ -81,6 +110,7 @@ services:
       - '127.0.0.1:4022:4022'
 
   portal-support:
+    <<: *hardened
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-support:${TAG:-latest}
     container_name: exyconn-portal-support
     restart: unless-stopped
@@ -88,6 +118,7 @@ services:
       - '127.0.0.1:4023:4023'
 
   portal-crm:
+    <<: *hardened
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-crm:${TAG:-latest}
     container_name: exyconn-portal-crm
     restart: unless-stopped
@@ -95,6 +126,7 @@ services:
       - '127.0.0.1:4024:4024'
 
   portal-products:
+    <<: *hardened
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-products:${TAG:-latest}
     container_name: exyconn-portal-products
     restart: unless-stopped
@@ -102,6 +134,7 @@ services:
       - '127.0.0.1:4025:4025'
 
   portal-legal:
+    <<: *hardened
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-legal:${TAG:-latest}
     container_name: exyconn-portal-legal
     restart: unless-stopped
@@ -109,6 +142,7 @@ services:
       - '127.0.0.1:4026:4026'
 
   portal-hr:
+    <<: *hardened
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-hr:${TAG:-latest}
     container_name: exyconn-portal-hr
     restart: unless-stopped
@@ -116,6 +150,7 @@ services:
       - '127.0.0.1:4027:4027'
 
   portal-marketing:
+    <<: *hardened
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-marketing:${TAG:-latest}
     container_name: exyconn-portal-marketing
     restart: unless-stopped
@@ -123,6 +158,7 @@ services:
       - '127.0.0.1:4028:4028'
 
   portal-projects:
+    <<: *hardened
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-projects:${TAG:-latest}
     container_name: exyconn-portal-projects
     restart: unless-stopped
@@ -130,6 +166,7 @@ services:
       - '127.0.0.1:4029:4029'
 
   portal-ai:
+    <<: *hardened
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-ai:${TAG:-latest}
     container_name: exyconn-portal-ai
     restart: unless-stopped
@@ -137,6 +174,7 @@ services:
       - '127.0.0.1:4030:4030'
 
   portal-website:
+    <<: *hardened
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-website:${TAG:-latest}
     container_name: exyconn-portal-website
     restart: unless-stopped
@@ -144,6 +182,7 @@ services:
       - '127.0.0.1:4031:4031'
 
   portal-tracker:
+    <<: *hardened
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-tracker:${TAG:-latest}
     container_name: exyconn-portal-tracker
     restart: unless-stopped
@@ -151,6 +190,7 @@ services:
       - '127.0.0.1:4032:4032'
 
   portal-tech:
+    <<: *hardened
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-tech:${TAG:-latest}
     container_name: exyconn-portal-tech
     restart: unless-stopped
@@ -158,6 +198,7 @@ services:
       - '127.0.0.1:4033:4033'
 
   portal-it:
+    <<: *hardened
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-it:${TAG:-latest}
     container_name: exyconn-portal-it
     restart: unless-stopped
@@ -166,6 +207,7 @@ services:
 
   # The ISO management system: risks, objectives, audits, findings, management review.
   portal-compliance:
+    <<: *hardened
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-compliance:${TAG:-latest}
     container_name: exyconn-portal-compliance
     restart: unless-stopped
@@ -173,6 +215,7 @@ services:
       - '127.0.0.1:4037:4037'
 
   portal-social:
+    <<: *hardened
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-social:${TAG:-latest}
     container_name: exyconn-portal-social
     restart: unless-stopped
@@ -181,6 +224,7 @@ services:
 
   # Public status page — no sign-in: an outage is exactly when nobody can log in.
   portal-status:
+    <<: *hardened
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-status:${TAG:-latest}
     container_name: exyconn-portal-status
     restart: unless-stopped
@@ -188,6 +232,7 @@ services:
       - '127.0.0.1:4035:4035'
 
   portal-server:
+    <<: *hardened-node
     image: ${DOCKERHUB_USERNAME}/exyconn-portal-server:${TAG:-latest}
     container_name: exyconn-portal-server
     restart: unless-stopped
@@ -214,24 +259,35 @@ services:
       DOCKER_API_URL: http://docker-proxy:2375
     depends_on:
       - docker-proxy
+    # default: the host-published port; docker-api: the only route to the socket proxy.
+    networks:
+      - default
+      - docker-api
 
   # A GET-only window onto the Docker engine for portal-server's Infrastructure screen.
   # Everything that could change the host — POST, exec, build, swarm, the secrets and
   # configs endpoints — stays off, so a compromise of the API can read the stack but
-  # never touch it. Not published to the host: only the compose network can reach it.
+  # never touch it. Not published to the host, and on an internal network shared with
+  # portal-server alone: no other container (tools-api fetches user URLs) can reach it.
   docker-proxy:
+    <<: *hardened
     image: tecnativa/docker-socket-proxy:0.3.0
     container_name: exyconn-docker-proxy
     restart: unless-stopped
+    networks:
+      - docker-api
     environment:
+      # Only what exyconn-portal/server/src/modules/infra/docker.client.ts calls:
+      # /info, /version, /containers, /images and /system/df.
       INFO: 1
       VERSION: 1
       CONTAINERS: 1
       IMAGES: 1
-      NETWORKS: 1
-      VOLUMES: 1
       SYSTEM: 1
       # Explicitly off: anything that mutates the host or leaks credentials.
+      NETWORKS: 0
+      VOLUMES: 0
+      EVENTS: 0
       POST: 0
       EXEC: 0
       BUILD: 0
@@ -247,3 +303,9 @@ services:
       SESSION: 0
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+
+networks:
+  default: {}
+  # No gateway, no host or internet access: portal-server <-> docker-proxy only.
+  docker-api:
+    internal: true

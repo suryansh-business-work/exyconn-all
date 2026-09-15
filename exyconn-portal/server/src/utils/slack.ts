@@ -1,5 +1,6 @@
 import { SlackConfigModel, type SlackConfigDocument } from '../modules/tech/slack-config.model';
 import { logger } from './logger';
+import { ConfigurationError } from './errors';
 
 const SLACK_API_URL = 'https://slack.com/api';
 
@@ -62,7 +63,9 @@ class SlackNotifier {
   private async getActiveConfig(): Promise<SlackConfigDocument> {
     const config = await SlackConfigModel.findOne({ isActive: true }).lean();
     if (!config) {
-      throw new Error('No active Slack configuration. Add one in Admin › Environment Variables.');
+      throw new ConfigurationError(
+        'No active Slack configuration. Add one in Admin › Environment Variables.',
+      );
     }
     return config;
   }

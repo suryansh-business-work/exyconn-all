@@ -1,7 +1,11 @@
 import type { ApolloServerPlugin } from '@apollo/server';
 import type { GraphQLError } from 'graphql';
-import { recordServerErrors, type LogEntryInput } from './logs.ingest';
-import { EXPECTED_ERROR_CODES, type AppLogLevel } from './logs.constants';
+import { normalizeMessage, recordServerErrors, type LogEntryInput } from './logs.ingest';
+import {
+  EXPECTED_ERROR_CODES,
+  MAX_SERVER_ERRORS_PER_REQUEST,
+  type AppLogLevel,
+} from './logs.constants';
 import { logger } from '../../utils/logger';
 import type { GraphQLContext } from '../../middleware/auth';
 
@@ -37,27 +41,68 @@ function toEntry(
 }
 
 /**
+ * The request's errors as log entries: identical ones folded into one (with its count), at
+ * most MAX_SERVER_ERRORS_PER_REQUEST of them, and none of the expected refusals when nobody
+ * is signed in. Each kept server fault also goes to pino — once, not once per repeat.
+ */
+export function foldRequestErrors(
+  errors: readonly GraphQLError[],
+  operationName: string | null | undefined,
+  signedIn: boolean,
+): LogEntryInput[] {
+  const byKey = new Map<string, LogEntryInput>();
+  for (const error of errors) {
+    const expected = isExpected(error);
+    if (expected && !signedIn) continue;
+    const entry = toEntry(error, expected ? 'WARN' : 'ERROR', operationName);
+    const key = [entry.level, entry.errorName, normalizeMessage(entry.message)].join('|');
+    const seen = byKey.get(key);
+    if (seen) {
+      seen.count = (seen.count ?? 1) + 1;
+    } else if (byKey.size < MAX_SERVER_ERRORS_PER_REQUEST) {
+      if (!expected) {
+        logger.error({ err: error.originalError ?? error, operationName }, entry.message);
+      }
+      byKey.set(key, entry);
+    }
+  }
+  return [...byKey.values()];
+}
+
+/** Writes still in flight, so a test can wait for them; the request never does. */
+const pendingWrites = new Set<Promise<void>>();
+
+/** Test seam: resolves once every error log write started so far has finished. */
+export async function settleServerErrorLogs(): Promise<void> {
+  await Promise.all(pendingWrites);
+}
+
+/**
  * Sends every failed GraphQL answer to Tech > Logs, tagged with the operation and the
  * signed-in user. A server fault is an ERROR (and goes to pino); an expected refusal — a
- * wrong password, a missing permission, bad input (see `EXPECTED_ERROR_CODES`) — is a WARN,
- * so a failed sign-in is still visible without reading as a bug.
+ * wrong password, a missing permission, bad input (see `EXPECTED_ERROR_CODES`) — is a WARN
+ * for a signed-in caller, so a failed action is still visible without reading as a bug.
+ *
+ * The write is not awaited: a response must not wait on, or be slowed by, its own logging.
  */
 export const serverErrorLogPlugin: ApolloServerPlugin<GraphQLContext> = {
   async requestDidStart() {
     return {
       async didEncounterErrors({ errors, contextValue, operationName }) {
-        const entries = errors.map((error) => {
-          if (isExpected(error)) {
-            return toEntry(error, 'WARN', operationName);
-          }
-          logger.error({ err: error.originalError ?? error, operationName }, error.message);
-          return toEntry(error, 'ERROR', operationName);
-        });
-        await recordServerErrors(entries, {
+        const entries = foldRequestErrors(errors, operationName, contextValue.user !== null);
+        if (entries.length === 0) {
+          return;
+        }
+        const write = recordServerErrors(entries, {
           user: contextValue.user,
           ip: contextValue.ip,
           userAgent: contextValue.userAgent,
-        });
+        })
+          .catch((error: unknown) => {
+            logger.error({ err: error }, 'Could not store a server error log');
+          })
+          .finally(() => pendingWrites.delete(write));
+        pendingWrites.add(write);
       },
     };
   },

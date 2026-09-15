@@ -9,6 +9,7 @@ import {
   useUpdatePexelsConfigMutation,
 } from '@exyconn/shell/graphql/generated';
 import type { PexelsConfigRow } from './pexels-config.types';
+import { KEEP_SECRET_HINT, secretField } from '../../secret';
 
 const BOOL_OPTIONS: SelectOption[] = [
   { value: 'true', label: 'Yes' },
@@ -18,16 +19,18 @@ const BOOL_OPTIONS: SelectOption[] = [
 /** Pexels issues a fixed-length alphanumeric key; anything shorter is a paste error. */
 const MIN_KEY_LENGTH = 32;
 
-const schema = z.object({
-  label: z.string().trim().min(1, 'Label is required'),
-  apiKey: z
-    .string()
-    .trim()
-    .min(1, 'API key is required')
-    .min(MIN_KEY_LENGTH, `API key must be at least ${MIN_KEY_LENGTH} characters`),
-  isActive: z.enum(['true', 'false']),
-});
-type Values = z.infer<typeof schema>;
+/** The secret is write-only: required to create, blank on an edit keeps the stored one. */
+const makeSchema = (isEdit: boolean) =>
+  z.object({
+    label: z.string().trim().min(1, 'Label is required'),
+    apiKey: secretField(isEdit, 'API key is required', {
+      test: (value) => value.length >= MIN_KEY_LENGTH,
+      message: `API key must be at least ${MIN_KEY_LENGTH} characters`,
+    }),
+    isActive: z.enum(['true', 'false']),
+  });
+type Schema = ReturnType<typeof makeSchema>;
+type Values = z.infer<Schema>;
 
 /** Maps the validated form values onto the GraphQL input. */
 const toInput = (values: Values) => ({
@@ -38,7 +41,8 @@ const toInput = (values: Values) => ({
 
 const toInitial = (row: PexelsConfigRow | null): Values => ({
   label: row?.label ?? '',
-  apiKey: row?.apiKey ?? '',
+  // Never prefilled: the API does not return it, and blank keeps the stored key.
+  apiKey: '',
   isActive: row ? (row.isActive ? 'true' : 'false') : 'true',
 });
 
@@ -52,8 +56,8 @@ interface PexelsConfigFormProps {
 export function PexelsConfigForm({ initial, onDone, onCancel }: Readonly<PexelsConfigFormProps>) {
   const [createConfig] = useCreatePexelsConfigMutation();
   const [updateConfig] = useUpdatePexelsConfigMutation();
-  const methods = useForm<z.input<typeof schema>, unknown, Values>({
-    resolver: zodResolver(schema),
+  const methods = useForm<z.input<Schema>, unknown, Values>({
+    resolver: zodResolver(makeSchema(Boolean(initial))),
     defaultValues: toInitial(initial),
   });
 
@@ -72,7 +76,11 @@ export function PexelsConfigForm({ initial, onDone, onCancel }: Readonly<PexelsC
         name="apiKey"
         label="API key"
         type="password"
-        helperText="From pexels.com/api — one key covers both photo and video search"
+        helperText={
+          isEdit
+            ? KEEP_SECRET_HINT
+            : 'From pexels.com/api — one key covers both photo and video search'
+        }
       />
       <RhfSelect name="isActive" label="Set as active" options={BOOL_OPTIONS} />
     </EntityForm>

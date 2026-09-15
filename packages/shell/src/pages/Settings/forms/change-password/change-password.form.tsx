@@ -9,7 +9,12 @@ import { useChangePasswordMutation } from '@/graphql/generated';
 const schema = z
   .object({
     currentPassword: z.string().min(1, 'Current password is required'),
-    newPassword: z.string().min(1, 'New password is required').min(6, 'Minimum 6 characters'),
+    // Matches the API's policy (server utils/password.ts), so the form refuses first.
+    newPassword: z
+      .string()
+      .min(1, 'New password is required')
+      .min(10, 'Minimum 10 characters')
+      .max(128, 'Maximum 128 characters'),
     confirmPassword: z.string().min(1, 'Please confirm your password'),
   })
   .refine((d) => d.newPassword !== d.currentPassword, {

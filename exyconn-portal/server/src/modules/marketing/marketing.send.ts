@@ -10,7 +10,7 @@ import {
 import { AudienceListModel } from './audience.model';
 import { instrument, newTrackingToken } from './marketing.tracking';
 import type { CampaignModel } from './marketing.model';
-import { emailer } from '../email';
+import { emailer, rawHtml } from '../email';
 import { mailer } from '../../utils/mailer';
 import { badRequest, notFound } from '../../utils/errors';
 import { logger } from '../../utils/logger';
@@ -120,7 +120,8 @@ async function deliver(
     await emailer.send({
       template: campaign.templateKey,
       to: member.email,
-      variables: { ...rendered.vars, subject: rendered.subject, body: rendered.body },
+      // The campaign body is the email's own HTML, written in Marketing.
+      variables: { ...rendered.vars, subject: rendered.subject, body: rawHtml(rendered.body) },
       triggeredBy: `campaign:${String(campaign._id)}`,
     });
     return;

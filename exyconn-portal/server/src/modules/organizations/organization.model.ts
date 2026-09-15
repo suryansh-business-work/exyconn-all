@@ -47,6 +47,11 @@ const organizationSchema = new Schema(
     /** Whose tax rules its invoices and payroll follow. */
     taxSystem: { type: String, enum: TAX_SYSTEMS, required: true, default: 'NONE' },
     contactEmail: { type: String, default: '', lowercase: true, trim: true },
+    /**
+     * The one company that operates the platform itself (Exyconn's own staff). Only its people
+     * may manage what every company shares — see lib/platformAccess. Set at boot, never via the API.
+     */
+    isPlatformOperator: { type: Boolean, required: true, default: false },
   },
   { timestamps: true },
 );

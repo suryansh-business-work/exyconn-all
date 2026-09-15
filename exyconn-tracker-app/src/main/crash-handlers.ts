@@ -1,7 +1,8 @@
-import { app, ipcMain } from 'electron';
+import { app } from 'electron';
 import { captureConsole, type LogBatch } from '@exyconn/logger';
 import { IPC } from '@shared/types';
 import { forwardRendererLogs, logger } from './logger';
+import { handleTrusted } from './web-security';
 
 /**
  * Sends everything that goes wrong in the desktop app to Tech > Logs: uncaught errors and
@@ -34,6 +35,6 @@ export function installMainCrashHandlers(): void {
       name: details.name ?? '',
     });
   });
-  ipcMain.handle(IPC.reportLogs, (_event, batch: LogBatch) => forwardRendererLogs(batch));
+  handleTrusted(IPC.reportLogs, (_event, batch: LogBatch) => forwardRendererLogs(batch));
   logger.info('App started', { version: app.getVersion() });
 }

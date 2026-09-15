@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import * as services from "./services";
+import { clientErrorMessage } from "../../shared/errors";
 
 export const convertCsvToMarkdown = async (req: Request, res: Response) => {
   try {
@@ -8,7 +9,7 @@ export const convertCsvToMarkdown = async (req: Request, res: Response) => {
     res.json({ success: true, data: { markdown } });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Conversion failed";
+      clientErrorMessage(error, "Conversion failed");
     res.status(500).json({ success: false, error: message });
   }
 };
@@ -20,7 +21,7 @@ export const convertJsonToMarkdown = async (req: Request, res: Response) => {
     res.json({ success: true, data: { markdown } });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Conversion failed";
+      clientErrorMessage(error, "Conversion failed");
     res.status(500).json({ success: false, error: message });
   }
 };
@@ -32,7 +33,7 @@ export const convertHtmlToMarkdown = async (req: Request, res: Response) => {
     res.json({ success: true, data: { markdown } });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Conversion failed";
+      clientErrorMessage(error, "Conversion failed");
     res.status(500).json({ success: false, error: message });
   }
 };
@@ -44,7 +45,7 @@ export const convertWebpageToMarkdown = async (req: Request, res: Response) => {
     res.json({ success: true, data: result });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Conversion failed";
+      clientErrorMessage(error, "Conversion failed");
     res.status(500).json({ success: false, error: message });
   }
 };
@@ -60,7 +61,7 @@ export const convertDocxToMarkdown = async (req: Request, res: Response) => {
     res.json({ success: true, data: { markdown } });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Conversion failed";
+      clientErrorMessage(error, "Conversion failed");
     res.status(500).json({ success: false, error: message });
   }
 };
@@ -72,7 +73,7 @@ export const convertRtfToMarkdown = async (req: Request, res: Response) => {
     res.json({ success: true, data: { markdown } });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Conversion failed";
+      clientErrorMessage(error, "Conversion failed");
     res.status(500).json({ success: false, error: message });
   }
 };
@@ -84,7 +85,7 @@ export const convertXmlToMarkdown = async (req: Request, res: Response) => {
     res.json({ success: true, data: { markdown } });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Conversion failed";
+      clientErrorMessage(error, "Conversion failed");
     res.status(500).json({ success: false, error: message });
   }
 };
@@ -96,7 +97,7 @@ export const convertTextToMarkdown = async (req: Request, res: Response) => {
     res.json({ success: true, data: { markdown } });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Conversion failed";
+      clientErrorMessage(error, "Conversion failed");
     res.status(500).json({ success: false, error: message });
   }
 };
@@ -112,7 +113,7 @@ export const convertPdfToMarkdown = async (req: Request, res: Response) => {
     res.json({ success: true, data: { markdown } });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Conversion failed";
+      clientErrorMessage(error, "Conversion failed");
     res.status(500).json({ success: false, error: message });
   }
 };
@@ -124,7 +125,7 @@ export const convertNotionToMarkdown = async (req: Request, res: Response) => {
     res.json({ success: true, data: result });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Conversion failed";
+      clientErrorMessage(error, "Conversion failed");
     res.status(500).json({ success: false, error: message });
   }
 };
@@ -139,7 +140,7 @@ export const convertGoogleDocsToMarkdown = async (
     res.json({ success: true, data: result });
   } catch (error) {
     const message =
-      error instanceof Error ? error.message : "Conversion failed";
+      clientErrorMessage(error, "Conversion failed");
     res.status(500).json({ success: false, error: message });
   }
 };

@@ -4,14 +4,17 @@ import { defaultAiModel, enqueueAiJob, listAiModels, type AiActor } from './ai.s
 import { aiDraft, aiSummarise, type AiDraftKind, type SummaryStyle } from './ai.actions';
 import { aiSpendSummary } from './ai.budget';
 import { renderMergeFields, toValueMap, type PromptVariableInput } from './ai.mergeFields';
-import { assertRole } from '../../middleware/roleGuard';
+import { assertPermission } from '../../lib/permissions';
+import type { PermissionAction } from '../permissions/permission.model';
 import { withId } from '../../utils/serialize';
 import { notFound } from '../../utils/errors';
 import { ROLES } from '../../constants/roles';
 import type { TokenPayload } from '../../utils/jwt';
 import type { GraphQLContext } from '../../middleware/auth';
 
-const guard = (ctx: GraphQLContext) => assertRole(ctx, [ROLES.AI]);
+/** The AI role, then whatever the admin matrix leaves it on AiJob. */
+const guard = (ctx: GraphQLContext, action: PermissionAction) =>
+  assertPermission(ctx, 'AiJob', [ROLES.AI], action);
 
 /** Attribution comes from the token, never from the request body. */
 const actorOf = (user: TokenPayload): AiActor => ({ id: user.id, name: user.email });
@@ -21,14 +24,18 @@ export const aiCustomResolvers = {
   Query: {
     /** The picker's options and its starting value, in one round trip. */
     aiModels: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      guard(ctx);
+      await guard(ctx, 'VIEW');
       const [models, defaultModel] = await Promise.all([listAiModels(), defaultAiModel()]);
       return { models, defaultModel };
     },
 
     /** What AI cost over a window, and who and what it went on. */
-    aiSpendSummary: (_p: unknown, { from, to }: { from: Date; to: Date }, ctx: GraphQLContext) => {
-      guard(ctx);
+    aiSpendSummary: async (
+      _p: unknown,
+      { from, to }: { from: Date; to: Date },
+      ctx: GraphQLContext,
+    ) => {
+      await guard(ctx, 'VIEW');
       return aiSpendSummary(new Date(from), new Date(to));
     },
   },
@@ -38,7 +45,7 @@ export const aiCustomResolvers = {
      * row settles. A run that blocked the request was fine at one job and painful at ten.
      */
     runAiJob: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      const user = guard(ctx);
+      const user = await guard(ctx, 'EDIT');
       return withId(await enqueueAiJob(id, actorOf(user)));
     },
 
@@ -56,7 +63,7 @@ export const aiCustomResolvers = {
       }: { id: string; model: string; variables?: PromptVariableInput[] | null },
       ctx: GraphQLContext,
     ) => {
-      const user = guard(ctx);
+      const user = await guard(ctx, 'EDIT');
       const prompt = await PromptModel.findById(id).lean();
       if (!prompt) notFound('Prompt');
       const actor = actorOf(user);
@@ -72,17 +79,17 @@ export const aiCustomResolvers = {
     },
 
     /** Generic assist: condense text the caller already has. */
-    aiSummarise: (
+    aiSummarise: async (
       _p: unknown,
       { text, style }: { text: string; style?: SummaryStyle | null },
       ctx: GraphQLContext,
-    ) => aiSummarise(text, style ?? 'BRIEF', actorOf(guard(ctx))),
+    ) => aiSummarise(text, style ?? 'BRIEF', actorOf(await guard(ctx, 'EDIT'))),
 
     /** Generic assist: a first draft of one of a fixed set of documents. */
-    aiDraft: (
+    aiDraft: async (
       _p: unknown,
       { kind, context }: { kind: AiDraftKind; context: string },
       ctx: GraphQLContext,
-    ) => aiDraft(kind, context, actorOf(guard(ctx))),
+    ) => aiDraft(kind, context, actorOf(await guard(ctx, 'EDIT'))),
   },
 };

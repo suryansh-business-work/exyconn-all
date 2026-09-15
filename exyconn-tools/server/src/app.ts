@@ -1,13 +1,19 @@
 import express, { Express } from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import helmet from "helmet";
 import toolsRouter from "./tools";
-import commonRouter from "./common/routes";
+import { createCommonRouter } from "./common/routes";
 import { requestLogger, responseTime, errorHandler } from "./shared/middleware";
+import {
+  createApiLimiter,
+  createConcurrencyLimit,
+  createHeavyLimiter,
+} from "./shared/middleware/limits";
 import {
   createHealthHandler,
   createRootHandler,
-  HealthConfig,
+  RootConfig,
   apiDocsHandler,
 } from "./shared/handlers";
 
@@ -28,93 +34,108 @@ const isProduction = process.env.NODE_ENV === "production";
  */
 const LOOPBACK_ORIGIN = /^http:\/\/(?:localhost|127\.0\.0\.1|\[::1\]):\d+$/;
 
-// CORS configuration for production and development
-const allowedOrigins = [
-  // Production domains - Tools
+/**
+ * Browsers may call this API only from the tools site and the main site. Nothing here
+ * uses cookies, so credentials stay off.
+ */
+const allowedOrigins = new Set([
   "https://tools.exyconn.com",
   "https://www.tools.exyconn.com",
-  "https://tools-api.exyconn.com",
-  "https://www.tools-api.exyconn.com",
-  // Production domains - Main site
   "https://exyconn.com",
   "https://www.exyconn.com",
-];
+]);
 
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
-    // Allow requests with no origin (like mobile apps, curl, Postman)
-    if (!origin) {
-      return callback(null, true);
-    }
-    if (allowedOrigins.includes(origin)) {
+    // Requests without an Origin (curl, uptime monitors) are not browser cross-origin calls.
+    if (!origin || allowedOrigins.has(origin)) {
       return callback(null, true);
     }
     if (!isProduction && LOOPBACK_ORIGIN.test(origin)) {
       return callback(null, true);
     }
-    // Allow all subdomains of exyconn.com
-    if (origin.endsWith(".exyconn.com") || origin === "https://exyconn.com") {
-      return callback(null, true);
-    }
-    console.warn(`CORS blocked origin: ${origin}`);
-    return callback(new Error("Not allowed by CORS"), false);
+    // No CORS headers: the browser blocks the response without this server erroring.
+    return callback(null, false);
   },
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-  allowedHeaders: [
-    "Content-Type",
-    "Authorization",
-    "X-Requested-With",
-    "Accept",
-    "Origin",
-  ],
-  credentials: true,
+  methods: ["GET", "POST", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Accept", "X-Requested-With"],
+  credentials: false,
   maxAge: 86400, // Cache preflight for 24 hours
 };
 
-// Standardized Health Configuration
-const healthConfig: HealthConfig = {
-  name: 'exyconn-tools-server',
-  version: '1.0.0',
+const rootConfig: RootConfig = {
+  name: "exyconn-tools-server",
+  version: "1.0.0",
   port: PORT,
-  domain: 'tools-api.exyconn.com',
-  description: 'Exyconn Creative Tools API Server',
-  uiUrl: 'https://tools.exyconn.com',
-  serverUrl: 'https://tools-api.exyconn.com',
-  criticalPackages: ['express', '@imgly/background-removal-node', 'axios', 'imagekit'],
+  domain: "tools-api.exyconn.com",
+  description: "Exyconn Creative Tools API Server",
+  uiUrl: "https://tools.exyconn.com",
+  serverUrl: "https://tools-api.exyconn.com",
+  endpoints: {
+    health: "/health",
+    api: "/api",
+    tools: "/api/tools",
+    common: "/api/common",
+  },
 };
+
+/** Routes whose JSON bodies carry base64 images or whole documents. */
+const LARGE_JSON_PATHS = [
+  "/api/tools/logo-set",
+  "/api/tools/image-tools",
+  "/api/tools/chat-tools/extract-document",
+  "/api/tools/converter-tools",
+];
+
+/** CPU-heavy or upload-heavy tools get a much tighter per-IP budget. */
+const HEAVY_PATHS = [
+  "/api/tools/logo-set",
+  "/api/tools/image-tools",
+  "/api/tools/pdf-tools",
+  "/api/tools/office-tools",
+  "/api/tools/converter-tools",
+];
+
+/** ONNX background removal and LibreOffice: at most two running at once. */
+const EXCLUSIVE_JOB_PATHS = [
+  "/api/tools/logo-set/remove-background",
+  "/api/tools/logo-set/remove-background-base64",
+  "/api/tools/image-tools/remove-background",
+  "/api/tools/office-tools/office-to-pdf",
+];
+const MAX_CONCURRENT_JOBS = 2;
 
 export function createApp(): Express {
   const app = express();
 
-  // Apply CORS middleware
+  // One hop: the host nginx. Rate limits then key on the visitor's IP, not nginx's.
+  app.set("trust proxy", 1);
+  // same-site: tools.exyconn.com reads binary responses (upscaled images, PDFs) from here.
+  app.use(helmet({ crossOriginResourcePolicy: { policy: "same-site" } }));
   app.use(cors(corsOptions));
 
   // Handle preflight requests for all routes (Express 5 compatible)
   app.options("/{*path}", cors(corsOptions));
 
-  app.use(express.json({ limit: "10mb" }));
+  // Health stays outside the limiters so monitors and the container healthcheck never 429.
+  app.get("/health", createHealthHandler());
+
+  app.use(createApiLimiter());
+  app.use(HEAVY_PATHS, createHeavyLimiter());
+  app.use(EXCLUSIVE_JOB_PATHS, createConcurrencyLimit(MAX_CONCURRENT_JOBS));
+
+  app.use(LARGE_JSON_PATHS, express.json({ limit: "10mb" }));
+  app.use(express.json({ limit: "1mb" }));
   app.use(requestLogger);
   app.use(responseTime);
 
-  // Health check endpoint
-  app.get("/health", createHealthHandler(healthConfig));
-
-  // Root endpoint
-  app.get("/", createRootHandler({
-    ...healthConfig,
-    endpoints: {
-      health: '/health',
-      api: '/api',
-      tools: '/api/tools',
-      common: '/api/common',
-    },
-  }));
+  app.get("/", createRootHandler(rootConfig));
 
   // API info endpoint
   app.get("/api", apiDocsHandler);
 
   // Mount common routes
-  app.use("/api/common", commonRouter);
+  app.use("/api/common", createCommonRouter());
 
   // Mount tools router
   app.use("/api/tools", toolsRouter);

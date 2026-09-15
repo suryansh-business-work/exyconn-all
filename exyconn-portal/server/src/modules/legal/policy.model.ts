@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { sanitizeRichHtml } from '../../utils/sanitizeHtml';
 
 /** Who a policy is written for. Drives who can see it, and who is asked to sign. */
 export const POLICY_AUDIENCES = ['ALL_STAFF', 'HR_ONLY', 'PUBLIC'] as const;
@@ -30,8 +31,11 @@ const policySchema = new Schema(
     /** URL segment the website renders this at, e.g. `privacy-policy`. */
     slug: { type: String, required: true, unique: true, trim: true, lowercase: true },
     summary: { type: String, default: '', trim: true },
-    /** Rich text (HTML), authored in the portal. */
-    body: { type: String, required: true },
+    /**
+     * Rich text (HTML), authored in the portal. Sanitised by a setter, so every write path —
+     * create, update, seed — stores only allow-listed markup; readers inject it as HTML.
+     */
+    body: { type: String, required: true, set: sanitizeRichHtml },
     audience: { type: String, enum: POLICY_AUDIENCES, required: true, default: 'ALL_STAFF' },
     status: { type: String, enum: POLICY_STATUSES, required: true, default: 'DRAFT' },
     /** Raised whenever a published policy's wording changes. Signatures are per version. */

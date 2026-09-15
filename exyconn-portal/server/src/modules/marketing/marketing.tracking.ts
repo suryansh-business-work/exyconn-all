@@ -1,4 +1,5 @@
-import { createHash, randomBytes } from 'node:crypto';
+import { createHash, createHmac, hkdfSync, randomBytes, timingSafeEqual } from 'node:crypto';
+import { env } from '../../config/env';
 
 /**
  * Rewriting a campaign's HTML so opens and clicks can be counted, and reading the results
@@ -32,8 +33,49 @@ function isFollowable(url: string): boolean {
 /** `href="..."` in the campaign body. Single or double quoted, as real-world HTML is. */
 const HREF = /href\s*=\s*("([^"]*)"|'([^']*)')/gi;
 
+/** Length of the `s=` signature on a click link: 32 base64url characters, 192 bits. */
+const SIGNATURE_LENGTH = 32;
+
+let linkKey: Buffer | null = null;
+
 /**
- * Points every followable link at the click redirect, carrying where it was going.
+ * The key click links are signed with, derived from JWT_SECRET under its own label (HKDF), so
+ * a signature is never usable as, or derivable from, anything else the secret signs.
+ */
+function getLinkKey(): Buffer {
+  linkKey ??= Buffer.from(hkdfSync('sha256', env.jwtSecret, 'exyconn', 'marketing-link', 32));
+  return linkKey;
+}
+
+/**
+ * The signature a click link carries for this recipient's token and target.
+ *
+ * The redirect is public, so without it anybody could build `/m/c/anything?u=https://evil`
+ * and hand out a link on our domain that lands wherever they like. Only a link this server
+ * rewrote carries a signature that verifies.
+ */
+export function signLink(token: string, url: string): string {
+  return createHmac('sha256', getLinkKey())
+    .update(`${token}|${url}`)
+    .digest('base64url')
+    .slice(0, SIGNATURE_LENGTH);
+}
+
+/** Whether `signature` is the one this server would have put on the link. Constant-time. */
+export function verifyLinkSignature(token: string, url: string, signature: string): boolean {
+  const expected = Buffer.from(signLink(token, url));
+  const given = Buffer.from(signature);
+  return given.length === expected.length && timingSafeEqual(given, expected);
+}
+
+/** Every `href` value in a body, exactly as written. */
+export function extractLinks(html: string): string[] {
+  return [...html.matchAll(HREF)].map((match) => match[2] ?? match[3] ?? '');
+}
+
+/**
+ * Points every followable link at the click redirect, carrying where it was going and a
+ * signature over (token, target) that the redirect checks before following it.
  *
  * Links that are not http(s) are left exactly as they are: `mailto:`, anchors and — the one
  * that matters — anything the rewriting would turn into a redirect to a script. The
@@ -51,7 +93,8 @@ export function rewriteLinks(
     if (!isFollowable(url) || skip.some((exempt) => exempt && url.includes(exempt))) {
       return match;
     }
-    const target = `${origin}${TRACKING_PATH}/c/${token}?u=${encodeURIComponent(url)}`;
+    const signature = signLink(token, url);
+    const target = `${origin}${TRACKING_PATH}/c/${token}?u=${encodeURIComponent(url)}&s=${signature}`;
     return `href="${target}"`;
   });
 }

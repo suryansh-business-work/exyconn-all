@@ -45,8 +45,8 @@ const send = (id: string, audienceListId: string) =>
 const logFor = (campaignId: string) => CampaignSendModel.find({ campaignId }).lean();
 
 describe('Consent and suppression', () => {
-  beforeEach(() => {
-    unsubscribeLimiter.reset();
+  beforeEach(async () => {
+    await unsubscribeLimiter.reset();
     sendCustomEmail.mockResolvedValue(undefined);
   });
 
@@ -141,8 +141,8 @@ describe('Unsubscribing from a link', () => {
       },
     );
 
-  beforeEach(() => {
-    unsubscribeLimiter.reset();
+  beforeEach(async () => {
+    await unsubscribeLimiter.reset();
     sendCustomEmail.mockResolvedValue(undefined);
   });
 

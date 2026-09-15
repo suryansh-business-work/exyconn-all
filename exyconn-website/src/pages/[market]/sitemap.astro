@@ -3,8 +3,10 @@
 import Page from "../../layouts/Page.astro";
 
 import { getNavLinks } from "../../lib/portal";
+import { safeHref } from "../../lib/safe-output";
 
-const allLinks = await getNavLinks();
+// A link whose href is not a safe scheme is left out of the sitemap.
+const allLinks = (await getNavLinks()).filter((link) => safeHref(link.href) !== "");
 
 // Group links by category
 const groupedLinks = allLinks.reduce(

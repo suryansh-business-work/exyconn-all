@@ -6,7 +6,7 @@ query ListEmailConfigs {
     port
     secure
     username
-    password
+    hasPassword
     fromAddress
     isActive
   }
@@ -69,7 +69,8 @@ query ListImageConfigs {
     label
     provider
     publicKey
-    privateKey
+    hasPrivateKey
+    privateKeyHint
     urlEndpoint
     isActive
   }
@@ -103,7 +104,8 @@ query ListSlackConfigs {
   listSlackConfigs {
     id
     label
-    botToken
+    hasBotToken
+    botTokenHint
     defaultChannel
     isActive
   }
@@ -135,7 +137,8 @@ query ListGithubConfigs {
     label
     owner
     repo
-    token
+    hasToken
+    tokenHint
     isActive
   }
 }
@@ -202,7 +205,8 @@ query ListPexelsConfigs {
   listPexelsConfigs {
     id
     label
-    apiKey
+    hasApiKey
+    apiKeyHint
     isActive
   }
 }
@@ -252,7 +256,8 @@ query ListOpenAiConfigs {
   listOpenAiConfigs {
     id
     label
-    apiKey
+    hasApiKey
+    apiKeyHint
     defaultModel
     isActive
   }

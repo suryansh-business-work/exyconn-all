@@ -8,7 +8,8 @@ export const techTypeDefs = gql`
     port: Int!
     secure: Boolean!
     username: String!
-    password: String!
+    "Whether a password is stored. The password itself is write-only and never returned."
+    hasPassword: Boolean!
     fromAddress: String!
     isActive: Boolean!
     createdAt: DateTime!
@@ -38,7 +39,10 @@ export const techTypeDefs = gql`
     label: String!
     provider: String!
     publicKey: String!
-    privateKey: String!
+    "Whether a private key is stored. The key itself is write-only and never returned."
+    hasPrivateKey: Boolean!
+    "The key's last four characters, to tell two apart; null when too short to show safely."
+    privateKeyHint: String
     urlEndpoint: String!
     isActive: Boolean!
     createdAt: DateTime!
@@ -48,7 +52,10 @@ export const techTypeDefs = gql`
   type SlackConfig {
     id: ID!
     label: String!
-    botToken: String!
+    "Whether a bot token is stored. The token itself is write-only and never returned."
+    hasBotToken: Boolean!
+    "The token's last four characters, to tell two apart; null when too short to show safely."
+    botTokenHint: String
     defaultChannel: String!
     isActive: Boolean!
     createdAt: DateTime!
@@ -60,7 +67,10 @@ export const techTypeDefs = gql`
     label: String!
     owner: String!
     repo: String!
-    token: String!
+    "Whether an access token is stored. The token itself is write-only and never returned."
+    hasToken: Boolean!
+    "The token's last four characters, to tell two apart; null when too short to show safely."
+    tokenHint: String
     isActive: Boolean!
     createdAt: DateTime!
     updatedAt: DateTime!
@@ -70,7 +80,10 @@ export const techTypeDefs = gql`
   type PexelsConfig {
     id: ID!
     label: String!
-    apiKey: String!
+    "Whether an API key is stored. The key itself is write-only and never returned."
+    hasApiKey: Boolean!
+    "The key's last four characters, to tell two apart; null when too short to show safely."
+    apiKeyHint: String
     isActive: Boolean!
     createdAt: DateTime!
     updatedAt: DateTime!
@@ -80,7 +93,10 @@ export const techTypeDefs = gql`
   type OpenAiConfig {
     id: ID!
     label: String!
-    apiKey: String!
+    "Whether an API key is stored. The key itself is write-only and never returned."
+    hasApiKey: Boolean!
+    "The key's last four characters, to tell two apart; null when too short to show safely."
+    apiKeyHint: String
     "The model requests default to, e.g. gpt-4o-mini."
     defaultModel: String!
     isActive: Boolean!
@@ -144,6 +160,7 @@ export const techTypeDefs = gql`
     port: Int!
     secure: Boolean!
     username: String!
+    "Write-only. Leave empty when editing to keep the stored password."
     password: String!
     fromAddress: String!
     isActive: Boolean
@@ -167,6 +184,7 @@ export const techTypeDefs = gql`
     label: String!
     provider: String
     publicKey: String!
+    "Write-only. Leave empty when editing to keep the stored key."
     privateKey: String!
     urlEndpoint: String!
     isActive: Boolean
@@ -174,6 +192,7 @@ export const techTypeDefs = gql`
 
   input SlackConfigInput {
     label: String!
+    "Write-only. Leave empty when editing to keep the stored token."
     botToken: String!
     defaultChannel: String!
     isActive: Boolean
@@ -197,12 +216,14 @@ export const techTypeDefs = gql`
 
   input PexelsConfigInput {
     label: String!
+    "Write-only. Leave empty when editing to keep the stored key."
     apiKey: String!
     isActive: Boolean
   }
 
   input OpenAiConfigInput {
     label: String!
+    "Write-only. Leave empty when editing to keep the stored key."
     apiKey: String!
     defaultModel: String!
     isActive: Boolean
@@ -212,6 +233,7 @@ export const techTypeDefs = gql`
     label: String!
     owner: String!
     repo: String!
+    "Write-only. Leave empty when editing to keep the stored token."
     token: String!
     isActive: Boolean
   }

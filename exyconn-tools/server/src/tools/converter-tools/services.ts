@@ -1,4 +1,5 @@
-import axios from "axios";
+import { PublicError } from "../../shared/errors";
+import { safeRequest } from "../../shared/security/safe-http";
 import * as cheerio from "cheerio";
 import TurndownService from "turndown";
 import mammoth from "mammoth";
@@ -168,7 +169,7 @@ export function htmlToMarkdown(htmlContent: string): string {
 export async function webpageToMarkdown(
   url: string,
 ): Promise<{ markdown: string; title: string }> {
-  const response = await axios.get(url, {
+  const response = await safeRequest<string>(url, {
     headers: {
       "User-Agent": "Mozilla/5.0 (compatible; MarkdownConverter/1.0)",
     },
@@ -449,7 +450,7 @@ export async function notionToMarkdown(
   notionUrl: string,
 ): Promise<{ markdown: string; title: string }> {
   // Fetch the Notion page HTML
-  const response = await axios.get(notionUrl, {
+  const response = await safeRequest<string>(notionUrl, {
     headers: {
       "User-Agent": "Mozilla/5.0 (compatible; MarkdownConverter/1.0)",
     },
@@ -488,13 +489,13 @@ export async function googleDocsToMarkdown(
   // Convert to export URL
   const docIdMatch = docsUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
   if (!docIdMatch) {
-    throw new Error("Invalid Google Docs URL");
+    throw new PublicError("Invalid Google Docs URL");
   }
 
   const docId = docIdMatch[1];
   const exportUrl = `https://docs.google.com/document/d/${docId}/export?format=html`;
 
-  const response = await axios.get(exportUrl, {
+  const response = await safeRequest<string>(exportUrl, {
     headers: {
       "User-Agent": "Mozilla/5.0 (compatible; MarkdownConverter/1.0)",
     },

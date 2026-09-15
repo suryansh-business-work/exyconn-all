@@ -10,7 +10,15 @@ import {
   type TableStatsResult,
 } from '../utils/tableQuery';
 
+/**
+ * The most rows an unpaged `list<Plural>` query returns (newest first). Those queries feed
+ * dropdowns and small lists; a collection grown past this belongs on the paged grid query,
+ * and without a ceiling one request could pull an entire collection into memory.
+ */
+export const MAX_LIST_ROWS = 2000;
+
 export interface CrudService<TInput> {
+  /** The newest {@link MAX_LIST_ROWS} records. */
   list(): Promise<unknown[]>;
   /** One server-side page (search/filter/sort/paginate) for a grid. */
   paged(input: TableQueryInput, config: TableConfig): Promise<TablePage>;
@@ -32,7 +40,7 @@ export function createCrudService<TInput extends object>(
 ): CrudService<TInput> {
   const M = model as unknown as Model<TInput>;
   return {
-    list: () => M.find().sort({ createdAt: -1 }).lean(),
+    list: () => M.find().sort({ createdAt: -1 }).limit(MAX_LIST_ROWS).lean(),
     paged: (input, config) => tableQuery(M, input, config),
     stats: (config) => tableStats(M, config),
     async get(id) {

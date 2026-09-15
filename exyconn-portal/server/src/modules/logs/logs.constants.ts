@@ -19,6 +19,20 @@ export const MAX_ENTRIES_PER_BATCH = 50;
 export const INGEST_WINDOW_MS = 10 * 60 * 1000;
 export const INGEST_MAX_BATCHES = 300;
 
+/**
+ * One GraphQL request can fail many times over (a hundred aliased fields each throwing), and
+ * every failure was one stored log. Identical failures are folded into one entry and the
+ * rest cut at this many, so a single request can never be turned into a write flood.
+ */
+export const MAX_SERVER_ERRORS_PER_REQUEST = 10;
+
+/**
+ * Ceiling on server error log writes across ALL requests, as a token bucket refilled at this
+ * rate per minute. Beyond it errors still reach pino; only the Mongo copy is dropped, so a
+ * flood of failing requests cannot fill the database.
+ */
+export const SERVER_ERROR_WRITES_PER_MINUTE = 120;
+
 /** Stored text is cut to these lengths — a log line, not a document. */
 export const FIELD_LIMITS = {
   short: 200,
@@ -38,7 +52,8 @@ export const PROMPT_OPEN_GROUPS_LIMIT = 20;
 /**
  * GraphQL error codes that are a correct answer, not a server fault — a wrong password or a
  * missing permission is the API working. These are logged as WARN; everything else a
- * resolver throws is logged as ERROR.
+ * resolver throws is logged as ERROR. From a caller who is not signed in they are not stored
+ * at all: anybody on the internet can produce them for free.
  */
 export const EXPECTED_ERROR_CODES = new Set([
   'UNAUTHENTICATED',
@@ -48,6 +63,7 @@ export const EXPECTED_ERROR_CODES = new Set([
   'GRAPHQL_VALIDATION_FAILED',
   'GRAPHQL_PARSE_FAILED',
   'PERSISTED_QUERY_NOT_FOUND',
+  'BAD_REQUEST',
 ]);
 
 /** Where each source's code lives, so a pasted prompt tells Claude where to start reading. */

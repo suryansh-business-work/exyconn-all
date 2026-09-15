@@ -1,6 +1,7 @@
 // FIRST: every model must be defined with its organization scope already installed.
 import { assertTenantCoverage, runAsPlatform } from './lib/tenant';
 import {
+  ensurePlatformOperatorOrganization,
   forEachOrganization,
   migrateLegacyDataIntoFirstOrganization,
   repairStoredCurrencies,
@@ -31,6 +32,9 @@ async function bootstrap(): Promise<void> {
   // An install that predates the tenancy is moved into its first organization before anything
   // serves a request — its records would otherwise be invisible to the company they belong to.
   await migrateLegacyDataIntoFirstOrganization();
+  // Exyconn's own staff manage what every company shares from inside the first company, so
+  // exactly one organization is flagged as the platform operator (see lib/platformAccess).
+  await ensurePlatformOperatorOrganization();
   // Money stored with '' or '₹' as its currency crashed every screen that formatted it, so
   // it is rewritten to ISO 4217 before anything serves a request. Only wrong records change.
   await forEachOrganization(repairStoredCurrencies, 'repairStoredCurrencies');

@@ -86,6 +86,7 @@ ARG PORT
 RUN apk add --no-cache wget
 COPY --from=build /repo/${APP_DIR}/dist /usr/share/nginx/html
 COPY docker/spa.nginx.conf /etc/nginx/templates/default.conf.template
+COPY docker/spa-security-headers.conf /etc/nginx/snippets/spa-security-headers.conf
 ENV NGINX_PORT=${PORT}
 EXPOSE ${PORT}
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \

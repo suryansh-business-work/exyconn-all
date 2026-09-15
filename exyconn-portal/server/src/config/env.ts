@@ -1,22 +1,102 @@
 import dotenv from 'dotenv';
+import { z } from 'zod';
 
 dotenv.config();
 
-/** Validated, immutable environment configuration (singleton). */
-function required(key: string): string {
-  const value = process.env[key];
-  if (!value) {
-    throw new Error(`Missing required environment variable: ${key}`);
-  }
-  return value;
+/**
+ * JWT secrets that are known to the world — the example file's, the test suite's and the
+ * obvious one. A token signed with any of them can be forged by anybody who has read this
+ * repository, so production refuses to boot with one.
+ */
+export const PLACEHOLDER_JWT_SECRETS = new Set([
+  'change-me-in-production',
+  'test-secret',
+  'secret',
+]);
+
+/** HS256 wants at least 256 bits of key; 32 characters is the floor for a random secret. */
+export const MIN_JWT_SECRET_LENGTH = 32;
+
+const requiredVariable = (key: string) =>
+  z.string({ error: `Missing required environment variable: ${key}` }).min(1, {
+    error: `Missing required environment variable: ${key}`,
+  });
+
+/** The variables whose values decide whether this process is safe to expose at all. */
+const environmentSchema = z.object({
+  NODE_ENV: z.string().optional(),
+  MONGODB_URI: requiredVariable('MONGODB_URI'),
+  JWT_SECRET: requiredVariable('JWT_SECRET'),
+  CORS_ORIGIN: z.string().optional(),
+});
+
+type EnvironmentValues = z.infer<typeof environmentSchema>;
+
+/** The validated variables, plus what is wrong but not worth refusing to boot over. */
+export interface EnvironmentReport {
+  values: EnvironmentValues;
+  warnings: string[];
 }
 
+/** Throws on what production must never run with; returns what it should only shout about. */
+function productionWarnings(values: EnvironmentValues): string[] {
+  if (PLACEHOLDER_JWT_SECRETS.has(values.JWT_SECRET)) {
+    throw new Error('JWT_SECRET is a published placeholder; set a long random secret');
+  }
+  const origins = (values.CORS_ORIGIN ?? '').split(',').map((origin) => origin.trim());
+  if (!origins.some(Boolean)) {
+    throw new Error('CORS_ORIGIN must list the portal origins in production');
+  }
+  if (origins.includes('*')) {
+    throw new Error("CORS_ORIGIN must not contain '*' in production (credentials are sent)");
+  }
+  // Not fatal on purpose: the deployed secret's length cannot be checked from here, and
+  // refusing to boot would take production down. Loud instead, until it is rotated.
+  if (values.JWT_SECRET.length < MIN_JWT_SECRET_LENGTH) {
+    return [
+      `JWT_SECRET is shorter than ${MIN_JWT_SECRET_LENGTH} characters; rotate it to a long random value`,
+    ];
+  }
+  return [];
+}
+
+/**
+ * Checks the security-relevant variables. Throws when the process must not start (a missing
+ * variable, a forgeable JWT secret, a wildcard CORS list in production); returns the
+ * problems that are only worth shouting about. Exported so the rules can be tested against
+ * a production-shaped environment without re-importing this module.
+ */
+export function validateEnvironment(source: NodeJS.ProcessEnv): EnvironmentReport {
+  const parsed = environmentSchema.safeParse(source);
+  if (!parsed.success) {
+    throw new Error(parsed.error.issues.map((issue) => issue.message).join('; '));
+  }
+  const values = parsed.data;
+  if (values.NODE_ENV === 'production') {
+    return { values, warnings: productionWarnings(values) };
+  }
+  if (values.NODE_ENV) {
+    return { values, warnings: [] };
+  }
+  return {
+    values,
+    warnings: ['NODE_ENV is not set; running with development defaults (Docker sets production)'],
+  };
+}
+
+const report = validateEnvironment(process.env);
+// The logger reads this module, so the report goes to stderr directly rather than to pino.
+for (const warning of report.warnings) {
+  console.error(`[env] ${warning}`);
+}
+
+/** Validated, immutable environment configuration (singleton). */
 export const env = Object.freeze({
   port: Number(process.env.PORT ?? 4004),
-  nodeEnv: process.env.NODE_ENV ?? 'development',
-  isProduction: (process.env.NODE_ENV ?? 'development') === 'production',
-  mongoUri: required('MONGODB_URI'),
-  jwtSecret: required('JWT_SECRET'),
+  nodeEnv: report.values.NODE_ENV ?? 'development',
+  isProduction: report.values.NODE_ENV === 'production',
+  mongoUri: report.values.MONGODB_URI,
+  jwtSecret: report.values.JWT_SECRET,
   jwtExpiresIn: process.env.JWT_EXPIRES_IN ?? '7d',
   /**
    * Origins allowed to call the API. The portal is split into one micro-frontend
@@ -35,11 +115,16 @@ export const env = Object.freeze({
   portalHubUrl: process.env.PORTAL_HUB_URL ?? 'https://portal.exyconn.com',
   /**
    * Body limit for /graphql. Raised well above Express's 100kb default because the
-   * desktop tracker posts base64 screenshots through it. It has to clear
-   * TRACKER_LIMITS.maxScreenshotBytes with room for base64's 4/3 inflation, or a capture
-   * the tracker module accepts is killed by Express before it ever reaches the resolver.
+   * desktop tracker posts base64 screenshots through it, and set to the host nginx's
+   * `client_max_body_size 15m` (deploy/nginx) — nothing larger can arrive in production,
+   * so buffering more here only gives a direct caller a bigger allocation to abuse.
+   *
+   * base64 inflates 4/3, so 15mb carries a screenshot of about 11MB decoded. That is BELOW
+   * TRACKER_LIMITS.maxScreenshotBytes (24MB) and the tracker's MAX_CAPTURE_BYTES (20MB): a
+   * capture between ~11MB and 20MB is refused with a 413 by the perimeter, not by the
+   * resolver. Raise nginx and this together if lossless retina captures must get through.
    */
-  graphqlBodyLimit: process.env.GRAPHQL_BODY_LIMIT ?? '36mb',
+  graphqlBodyLimit: process.env.GRAPHQL_BODY_LIMIT ?? '15mb',
   /** Download page for the desktop tracker, used as the CTA in the access-granted email. */
   trackerDownloadUrl: process.env.TRACKER_DOWNLOAD_URL ?? 'https://employee.exyconn.com/me/tracker',
   /**
@@ -82,7 +167,11 @@ export const env = Object.freeze({
   seedAdmin: {
     name: process.env.SEED_ADMIN_NAME ?? 'Exyconn Admin',
     email: process.env.SEED_ADMIN_EMAIL ?? 'admin@exyconn.com',
-    password: process.env.SEED_ADMIN_PASSWORD ?? 'Admin@1234',
+    /**
+     * Only for creating the bootstrap account on an empty database. No default: a password
+     * in this repository is a password everybody knows, so without one no account is made.
+     */
+    password: process.env.SEED_ADMIN_PASSWORD || null,
   },
 });
 

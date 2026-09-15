@@ -16,6 +16,12 @@ import {
   submitProblemReport,
 } from '../../src/modules/status';
 
+// Outbound calls go through safeFetch, which resolves the host before connecting. The hosts in
+// these tests are fictional, so resolve them to a public address.
+jest.mock('node:dns/promises', () => ({
+  lookup: jest.fn().mockResolvedValue([{ address: '93.184.215.14', family: 4 }]),
+}));
+
 const monitor = {
   key: 'website',
   name: 'Website',
@@ -48,7 +54,9 @@ const sendEmail = mailer.sendCustomEmail as jest.Mock;
 
 /** Replaces the network for one probe round. */
 function mockFetch(response: { ok: boolean; status: number }) {
-  globalThis.fetch = jest.fn().mockResolvedValue(response) as unknown as typeof fetch;
+  globalThis.fetch = jest
+    .fn()
+    .mockResolvedValue(new Response(null, { status: response.status })) as unknown as typeof fetch;
 }
 
 describe('Status catalogue', () => {
@@ -238,7 +246,7 @@ describe('Status monitor round', () => {
 describe('Problem reports', () => {
   beforeAll(() => ProblemReportModel.init());
   beforeEach(async () => {
-    resetReportLimits();
+    await resetReportLimits();
     await StatusMonitorModel.create(monitor);
   });
 

@@ -2,7 +2,7 @@ import { WebsiteSubmissionModel } from './models';
 import { LeadModel } from '../crm/crm.model';
 import { UserModel } from '../admin/user.model';
 import { ROLES } from '../../constants/roles';
-import { assertRole } from '../../middleware/roleGuard';
+import { assertPlatformStaff } from '../../lib/platformAccess';
 import { withId } from '../../utils/serialize';
 import { badRequest, notFound } from '../../utils/errors';
 import type { GraphQLContext } from '../../middleware/auth';
@@ -78,7 +78,8 @@ export const convertWebsiteSubmissionToLead = async (
   { id }: { id: string },
   ctx: GraphQLContext,
 ) => {
-  const user = assertRole(ctx, [ROLES.WEBSITE]);
+  // The inbox is exyconn.com's, so only the platform operator's staff hand it to sales.
+  const user = await assertPlatformStaff(ctx, 'WebsiteSubmission', [ROLES.WEBSITE], 'EDIT');
   const submission = await WebsiteSubmissionModel.findById(id);
   if (!submission) {
     notFound('Submission');

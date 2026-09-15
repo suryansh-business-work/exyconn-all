@@ -13,10 +13,8 @@ import {
   useDeleteSlackConfigMutation,
 } from '@exyconn/shell/graphql/generated';
 import { SlackConfigForm, type SlackConfigRow } from './forms/slack-config';
+import { maskedSecret } from './secret';
 import { SendTestSlackForm } from './forms/send-test-slack';
-
-/** Shows only the token's prefix — the full secret never needs to be read back on screen. */
-const maskToken = (token: string) => `${token.slice(0, 9)}…`;
 
 /** Environment Variables sub-panel: manage Slack workspace credentials (DB-backed). */
 export function SlackConfigsPanel() {
@@ -49,7 +47,11 @@ export function SlackConfigsPanel() {
   const columns: Column<SlackConfigRow>[] = [
     { key: 'label', label: 'Label' },
     { key: 'defaultChannel', label: 'Default channel' },
-    { key: 'botToken', label: 'Bot token', render: (r) => maskToken(r.botToken) },
+    {
+      key: 'botToken',
+      label: 'Bot token',
+      render: (r) => maskedSecret(r.hasBotToken, r.botTokenHint),
+    },
     {
       key: 'isActive',
       label: 'Active',

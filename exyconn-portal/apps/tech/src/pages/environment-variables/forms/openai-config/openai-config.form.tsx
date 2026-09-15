@@ -9,6 +9,7 @@ import {
   useUpdateOpenAiConfigMutation,
 } from '@exyconn/shell/graphql/generated';
 import type { OpenAiConfigRow } from './openai-config.types';
+import { KEEP_SECRET_HINT, secretField } from '../../secret';
 
 const BOOL_OPTIONS: SelectOption[] = [
   { value: 'true', label: 'Yes' },
@@ -18,17 +19,19 @@ const BOOL_OPTIONS: SelectOption[] = [
 /** Every OpenAI secret key starts with this prefix; anything else is the wrong value. */
 const KEY_PREFIX = 'sk-';
 
-const schema = z.object({
-  label: z.string().trim().min(1, 'Label is required'),
-  apiKey: z
-    .string()
-    .trim()
-    .min(1, 'API key is required')
-    .startsWith(KEY_PREFIX, `API key must start with "${KEY_PREFIX}"`),
-  defaultModel: z.string().trim().min(1, 'Model is required'),
-  isActive: z.enum(['true', 'false']),
-});
-type Values = z.infer<typeof schema>;
+/** The secret is write-only: required to create, blank on an edit keeps the stored one. */
+const makeSchema = (isEdit: boolean) =>
+  z.object({
+    label: z.string().trim().min(1, 'Label is required'),
+    apiKey: secretField(isEdit, 'API key is required', {
+      test: (value) => value.startsWith(KEY_PREFIX),
+      message: `API key must start with "${KEY_PREFIX}"`,
+    }),
+    defaultModel: z.string().trim().min(1, 'Model is required'),
+    isActive: z.enum(['true', 'false']),
+  });
+type Schema = ReturnType<typeof makeSchema>;
+type Values = z.infer<Schema>;
 
 /** Maps the validated form values onto the GraphQL input. */
 const toInput = (values: Values) => ({
@@ -40,7 +43,8 @@ const toInput = (values: Values) => ({
 
 const toInitial = (row: OpenAiConfigRow | null): Values => ({
   label: row?.label ?? '',
-  apiKey: row?.apiKey ?? '',
+  // Never prefilled: the API does not return it, and blank keeps the stored key.
+  apiKey: '',
   defaultModel: row?.defaultModel ?? '',
   isActive: row ? (row.isActive ? 'true' : 'false') : 'true',
 });
@@ -55,8 +59,8 @@ interface OpenAiConfigFormProps {
 export function OpenAiConfigForm({ initial, onDone, onCancel }: Readonly<OpenAiConfigFormProps>) {
   const [createConfig] = useCreateOpenAiConfigMutation();
   const [updateConfig] = useUpdateOpenAiConfigMutation();
-  const methods = useForm<z.input<typeof schema>, unknown, Values>({
-    resolver: zodResolver(schema),
+  const methods = useForm<z.input<Schema>, unknown, Values>({
+    resolver: zodResolver(makeSchema(Boolean(initial))),
     defaultValues: toInitial(initial),
   });
 
@@ -75,7 +79,7 @@ export function OpenAiConfigForm({ initial, onDone, onCancel }: Readonly<OpenAiC
         name="apiKey"
         label="API key"
         type="password"
-        helperText="A secret key from platform.openai.com/api-keys"
+        helperText={isEdit ? KEEP_SECRET_HINT : 'A secret key from platform.openai.com/api-keys'}
       />
       <RhfTextField
         name="defaultModel"

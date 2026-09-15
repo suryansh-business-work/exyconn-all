@@ -2,6 +2,7 @@ import { Router, Request, Response } from "express";
 import multer from "multer";
 import { removeBackground } from "@imgly/background-removal-node";
 import { removeBackgroundFromDataUrl } from "./services";
+import { clientErrorMessage } from "../../shared/errors";
 
 const router = Router();
 
@@ -53,7 +54,7 @@ router.post(
       console.error("Error removing background:", error);
       res.status(500).json({
         error: "Failed to remove background",
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: clientErrorMessage(error, "Unknown error"),
       });
     }
   },
@@ -83,7 +84,7 @@ router.post(
       console.error("Error removing background:", error);
       res.status(500).json({
         error: "Failed to remove background",
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: clientErrorMessage(error, "Unknown error"),
       });
     }
   },
@@ -157,7 +158,7 @@ router.post(
       console.error("Error removing background with Remove.bg:", error);
       res.status(500).json({
         error: "Failed to remove background",
-        message: error instanceof Error ? error.message : "Unknown error",
+        message: clientErrorMessage(error, "Unknown error"),
       });
     }
   },

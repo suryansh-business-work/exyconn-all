@@ -2,6 +2,7 @@ import { authService } from './auth.service';
 import { requestPasswordReset, resetPassword } from './password-reset.service';
 import { recordAudit } from '../audit';
 import { assertAuthenticated } from '../../middleware/roleGuard';
+import { assertSingleSignIn } from '../../lib/rateLimiterSignIn';
 import { withId } from '../../utils/serialize';
 import type { GraphQLContext } from '../../middleware/auth';
 import type { UpdateProfileInput } from './auth.service';
@@ -19,7 +20,8 @@ export const authResolvers = {
       { email, password }: { email: string; password: string },
       ctx: GraphQLContext,
     ) => {
-      const { token, user } = await authService.login(email, password);
+      assertSingleSignIn(ctx);
+      const { token, user } = await authService.login(email, password, ctx.ip);
       const signedIn = withId(user);
       await recordAudit(ctx, {
         action: 'LOGIN',

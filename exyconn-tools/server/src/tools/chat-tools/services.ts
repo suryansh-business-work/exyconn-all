@@ -1,9 +1,11 @@
 import axios from "axios";
+import { PublicError } from "../../shared/errors";
+import { safeRequest } from "../../shared/security/safe-http";
 import * as cheerio from "cheerio";
 
 export const scrapeWebsite = async (url: string): Promise<string> => {
   try {
-    const response = await axios.get(url, {
+    const response = await safeRequest<string>(url, {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
@@ -57,7 +59,7 @@ export const scrapeWebsite = async (url: string): Promise<string> => {
     return content;
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      throw new Error(`Failed to fetch website: ${error.message}`);
+      throw new PublicError(`Failed to fetch website: ${error.message}`);
     }
     throw error;
   }
@@ -81,7 +83,7 @@ export const extractTextFromBase64 = async (
     return buffer.toString("utf-8");
   }
 
-  throw new Error(`Unsupported file type: ${mimeType}`);
+  throw new PublicError(`Unsupported file type: ${mimeType}`);
 };
 
 const extractPDFText = async (buffer: Buffer): Promise<string> => {

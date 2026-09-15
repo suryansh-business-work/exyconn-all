@@ -14,6 +14,9 @@ const passwordResetTokenSchema = new Schema(
   { timestamps: true },
 );
 
+/** TTL: Mongo deletes a link once it has expired, used or not. */
+passwordResetTokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+
 export type PasswordResetTokenDocument = InferSchemaType<typeof passwordResetTokenSchema>;
 
 export const PasswordResetTokenModel: Model<PasswordResetTokenDocument> =

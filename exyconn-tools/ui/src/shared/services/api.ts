@@ -47,30 +47,6 @@ export async function uploadImage(file: File, folder: string = '/tools', fileNam
 }
 
 /**
- * Upload a base64 image to ImageKit
- */
-export async function uploadBase64Image(
-  base64: string,
-  fileName: string = 'image.png',
-  folder: string = '/tools'
-): Promise<UploadResponse> {
-  try {
-    const response = await fetch(`${API_BASE_URL}/imagekit/upload-base64`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ base64, fileName, folder }),
-    });
-
-    return await response.json();
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Upload failed',
-    };
-  }
-}
-
-/**
  * Delete an image from ImageKit
  */
 export async function deleteImage(fileId: string): Promise<boolean> {
@@ -87,33 +63,6 @@ export async function deleteImage(fileId: string): Promise<boolean> {
 }
 
 // ============== Email Services ==============
-
-/**
- * Send a generic email
- */
-export async function sendEmail(options: {
-  to: string;
-  subject: string;
-  text?: string;
-  html?: string;
-  from?: string;
-  replyTo?: string;
-}): Promise<EmailResponse> {
-  try {
-    const response = await fetch(`${API_BASE_URL}/email/send`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(options),
-    });
-
-    return await response.json();
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Failed to send email',
-    };
-  }
-}
 
 /**
  * Send a test email with signature preview
@@ -136,19 +85,5 @@ export async function sendSignatureTestEmail(
       success: false,
       error: error instanceof Error ? error.message : 'Failed to send test email',
     };
-  }
-}
-
-/**
- * Verify SMTP connection
- */
-export async function verifyEmailConnection(): Promise<boolean> {
-  try {
-    const response = await fetch(`${API_BASE_URL}/email/verify`);
-    const data = await response.json();
-    return data.success && data.connected;
-  } catch (error) {
-    console.error('Email verification error:', error);
-    return false;
   }
 }

@@ -93,6 +93,8 @@ async function completeInput(input: PurchaseOrderInput): Promise<PurchaseOrderIn
 
 const createPurchaseOrder = async (p: unknown, args: never, ctx: GraphQLContext) => {
   const { input } = args as unknown as { input: PurchaseOrderInput };
+  // Guarded before the number is drawn: a refused caller must not burn one from the series.
+  await assertPermission(ctx, 'PurchaseOrder', productsRoles, 'CREATE');
   const completed = await completeInput(input);
   // The number is drawn here, never typed: a series with a repeat in it makes a receipt
   // impossible to attribute to the order it belongs to.
@@ -102,6 +104,8 @@ const createPurchaseOrder = async (p: unknown, args: never, ctx: GraphQLContext)
 
 const updatePurchaseOrder = async (p: unknown, args: never, ctx: GraphQLContext) => {
   const { id, input } = args as unknown as { id: string; input: PurchaseOrderInput };
+  // Guarded before the order is read, so a refused caller learns nothing about it.
+  await assertPermission(ctx, 'PurchaseOrder', productsRoles, 'EDIT');
   const existing = await PurchaseOrderModel.findById(id).lean();
   if (!existing) {
     notFound('Purchase order');

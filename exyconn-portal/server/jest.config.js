@@ -17,4 +17,18 @@ module.exports = {
   // A share of the cores keeps that bounded without changing CI, where two cores
   // already resolve to a single worker.
   maxWorkers: '25%',
+  // sanitize-html (CommonJS) requires htmlparser2 12, which — with its dom* and entities
+  // dependencies — ships only as ES modules. Node's require(esm) loads that at runtime, but
+  // jest's module system cannot, so those packages (and only those) are transpiled to
+  // CommonJS here. Everything else in node_modules stays untransformed.
+  transform: {
+    '^.+\\.ts$': 'ts-jest',
+    '^.+\\.js$': ['ts-jest', { isolatedModules: true, tsconfig: { allowJs: true } }],
+  },
+  // pnpm keeps every package under node_modules/.pnpm/<name>@<version>/, so the exemption is
+  // written against that layout: everything is ignored except those six packages.
+  transformIgnorePatterns: [
+    '/node_modules/\\.pnpm/(?!(htmlparser2|domhandler|domutils|domelementtype|entities|dom-serializer)@)',
+    '/node_modules/(?!\\.pnpm/)(?!(htmlparser2|domhandler|domutils|domelementtype|entities|dom-serializer)/)',
+  ],
 };

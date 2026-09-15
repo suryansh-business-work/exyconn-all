@@ -12,9 +12,7 @@ import {
   useTestGithubConnectionMutation,
 } from '@exyconn/shell/graphql/generated';
 import { GithubConfigForm, type GithubConfigRow } from './forms/github-config';
-
-/** Shows only the token's prefix — the full secret never needs to be read back on screen. */
-const maskToken = (token: string) => `${token.slice(0, 8)}…`;
+import { maskedSecret } from './secret';
 
 /** Environment Variables sub-panel: the repository tracker builds are started in. */
 export function GithubConfigsPanel() {
@@ -57,7 +55,7 @@ export function GithubConfigsPanel() {
   const columns: Column<GithubConfigRow>[] = [
     { key: 'label', label: 'Label' },
     { key: 'repo', label: 'Repository', render: (r) => `${r.owner}/${r.repo}` },
-    { key: 'token', label: 'Token', render: (r) => maskToken(r.token) },
+    { key: 'token', label: 'Token', render: (r) => maskedSecret(r.hasToken, r.tokenHint) },
     {
       key: 'isActive',
       label: 'Active',

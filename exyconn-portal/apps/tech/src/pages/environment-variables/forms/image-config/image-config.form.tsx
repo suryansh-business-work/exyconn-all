@@ -11,6 +11,7 @@ import {
   useUpdateImageConfigMutation,
 } from '@exyconn/shell/graphql/generated';
 import type { ImageConfigRow } from './image-config.types';
+import { KEEP_SECRET_HINT, secretField } from '../../secret';
 
 const BOOL_OPTIONS: SelectOption[] = [
   { value: 'true', label: 'Yes' },
@@ -19,19 +20,22 @@ const BOOL_OPTIONS: SelectOption[] = [
 
 const PROVIDER_OPTIONS: SelectOption[] = [{ value: 'imagekit', label: 'ImageKit' }];
 
-const schema = z.object({
-  label: z.string().trim().min(1, 'Label is required'),
-  provider: z.string().trim().min(1, 'Provider is required'),
-  publicKey: z.string().trim().min(1, 'Public key is required'),
-  privateKey: z.string().trim().min(1, 'Private key is required'),
-  urlEndpoint: z
-    .string()
-    .trim()
-    .min(1, 'URL endpoint is required')
-    .regex(HTTP_URL, 'Enter a valid URL'),
-  isActive: z.enum(['true', 'false']),
-});
-type Values = z.infer<typeof schema>;
+/** The secret is write-only: required to create, blank on an edit keeps the stored one. */
+const makeSchema = (isEdit: boolean) =>
+  z.object({
+    label: z.string().trim().min(1, 'Label is required'),
+    provider: z.string().trim().min(1, 'Provider is required'),
+    publicKey: z.string().trim().min(1, 'Public key is required'),
+    privateKey: secretField(isEdit, 'Private key is required'),
+    urlEndpoint: z
+      .string()
+      .trim()
+      .min(1, 'URL endpoint is required')
+      .regex(HTTP_URL, 'Enter a valid URL'),
+    isActive: z.enum(['true', 'false']),
+  });
+type Schema = ReturnType<typeof makeSchema>;
+type Values = z.infer<Schema>;
 
 /** Maps the validated form values onto the GraphQL input. */
 const toInput = (values: Values) => ({
@@ -47,7 +51,8 @@ const toInitial = (row: ImageConfigRow | null): Values => ({
   label: row?.label ?? '',
   provider: row?.provider ?? 'imagekit',
   publicKey: row?.publicKey ?? '',
-  privateKey: row?.privateKey ?? '',
+  // Never prefilled: the API does not return it, and blank keeps the stored key.
+  privateKey: '',
   urlEndpoint: row?.urlEndpoint ?? '',
   isActive: row ? (row.isActive ? 'true' : 'false') : 'true',
 });
@@ -59,12 +64,12 @@ interface ImageConfigFormProps {
 }
 
 /** React Hook Form + Zod form to create or update an image-upload (ImageKit) config. */
-export function ImageConfigForm({ initial, onDone, onCancel }: ImageConfigFormProps) {
+export function ImageConfigForm({ initial, onDone, onCancel }: Readonly<ImageConfigFormProps>) {
   const t = useT();
   const [createConfig] = useCreateImageConfigMutation();
   const [updateConfig] = useUpdateImageConfigMutation();
-  const methods = useForm<Values>({
-    resolver: zodResolver(schema),
+  const methods = useForm<z.input<Schema>, unknown, Values>({
+    resolver: zodResolver(makeSchema(Boolean(initial))),
     defaultValues: toInitial(initial),
   });
 
@@ -85,7 +90,12 @@ export function ImageConfigForm({ initial, onDone, onCancel }: ImageConfigFormPr
         options={PROVIDER_OPTIONS.map((o) => ({ ...o, label: t(o.label) }))}
       />
       <RhfTextField name="publicKey" label="Public key" />
-      <RhfTextField name="privateKey" label="Private key" type="password" />
+      <RhfTextField
+        name="privateKey"
+        label="Private key"
+        type="password"
+        helperText={isEdit ? KEEP_SECRET_HINT : 'Stored write-only — it is never shown again'}
+      />
       <RhfTextField name="urlEndpoint" label="URL endpoint" />
       <RhfSelect name="isActive" label="Set as active" options={BOOL_OPTIONS} />
     </EntityForm>

@@ -1878,11 +1878,12 @@ export type EmailConfig = {
   __typename?: 'EmailConfig';
   createdAt: Scalars['DateTime']['output'];
   fromAddress: Scalars['String']['output'];
+  /** Whether a password is stored. The password itself is write-only and never returned. */
+  hasPassword: Scalars['Boolean']['output'];
   host: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   label: Scalars['String']['output'];
-  password: Scalars['String']['output'];
   port: Scalars['Int']['output'];
   secure: Scalars['Boolean']['output'];
   updatedAt: Scalars['DateTime']['output'];
@@ -1894,6 +1895,7 @@ export type EmailConfigInput = {
   host: Scalars['String']['input'];
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   label: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored password. */
   password: Scalars['String']['input'];
   port: Scalars['Int']['input'];
   secure: Scalars['Boolean']['input'];
@@ -2450,12 +2452,15 @@ export type GigPage = {
 export type GithubConfig = {
   __typename?: 'GithubConfig';
   createdAt: Scalars['DateTime']['output'];
+  /** Whether an access token is stored. The token itself is write-only and never returned. */
+  hasToken: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   label: Scalars['String']['output'];
   owner: Scalars['String']['output'];
   repo: Scalars['String']['output'];
-  token: Scalars['String']['output'];
+  /** The token's last four characters, to tell two apart; null when too short to show safely. */
+  tokenHint?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
 };
 
@@ -2464,6 +2469,7 @@ export type GithubConfigInput = {
   label: Scalars['String']['input'];
   owner: Scalars['String']['input'];
   repo: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored token. */
   token: Scalars['String']['input'];
 };
 
@@ -2628,10 +2634,13 @@ export type HrDashboard = {
 export type ImageConfig = {
   __typename?: 'ImageConfig';
   createdAt: Scalars['DateTime']['output'];
+  /** Whether a private key is stored. The key itself is write-only and never returned. */
+  hasPrivateKey: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   label: Scalars['String']['output'];
-  privateKey: Scalars['String']['output'];
+  /** The key's last four characters, to tell two apart; null when too short to show safely. */
+  privateKeyHint?: Maybe<Scalars['String']['output']>;
   provider: Scalars['String']['output'];
   publicKey: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
@@ -2641,6 +2650,7 @@ export type ImageConfig = {
 export type ImageConfigInput = {
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   label: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored key. */
   privateKey: Scalars['String']['input'];
   provider?: InputMaybe<Scalars['String']['input']>;
   publicKey: Scalars['String']['input'];
@@ -3486,6 +3496,7 @@ export type Mutation = {
   createActivity: Activity;
   createAiJob: AiJob;
   createAnnouncement: Announcement;
+  /** Mints a key carrying company roles the creator holds. Optional expiry, at most a year out. */
   createApiKey: IssuedApiKey;
   createApplicant: Applicant;
   createAsset: Asset;
@@ -4214,6 +4225,7 @@ export type MutationCreateAnnouncementArgs = {
 
 
 export type MutationCreateApiKeyArgs = {
+  expiresAt?: InputMaybe<Scalars['DateTime']['input']>;
   name: Scalars['String']['input'];
   roles: Array<Scalars['String']['input']>;
 };
@@ -6574,10 +6586,13 @@ export type OnboardingTemplatePage = {
 /** The OpenAI credential the platform's AI features run on. */
 export type OpenAiConfig = {
   __typename?: 'OpenAiConfig';
-  apiKey: Scalars['String']['output'];
+  /** The key's last four characters, to tell two apart; null when too short to show safely. */
+  apiKeyHint?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   /** The model requests default to, e.g. gpt-4o-mini. */
   defaultModel: Scalars['String']['output'];
+  /** Whether an API key is stored. The key itself is write-only and never returned. */
+  hasApiKey: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   label: Scalars['String']['output'];
@@ -6585,6 +6600,7 @@ export type OpenAiConfig = {
 };
 
 export type OpenAiConfigInput = {
+  /** Write-only. Leave empty when editing to keep the stored key. */
   apiKey: Scalars['String']['input'];
   defaultModel: Scalars['String']['input'];
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
@@ -6614,6 +6630,8 @@ export type Organization = {
   /** The month its financial year opens: 1 is January, 4 is April. */
   fiscalYearStartMonth: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
+  /** Whether this is the company that operates the platform itself. Read-only; set at boot. */
+  isPlatformOperator: Scalars['Boolean']['output'];
   legalName: Scalars['String']['output'];
   /** BCP 47 language tag the company reads by default. */
   locale: Scalars['String']['output'];
@@ -6865,8 +6883,11 @@ export enum PermissionAction {
 /** The Pexels API credential behind the shared upload dialog's stock tabs. */
 export type PexelsConfig = {
   __typename?: 'PexelsConfig';
-  apiKey: Scalars['String']['output'];
+  /** The key's last four characters, to tell two apart; null when too short to show safely. */
+  apiKeyHint?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
+  /** Whether an API key is stored. The key itself is write-only and never returned. */
+  hasApiKey: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   label: Scalars['String']['output'];
@@ -6874,6 +6895,7 @@ export type PexelsConfig = {
 };
 
 export type PexelsConfigInput = {
+  /** Write-only. Leave empty when editing to keep the stored key. */
   apiKey: Scalars['String']['input'];
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   label: Scalars['String']['input'];
@@ -9866,9 +9888,12 @@ export type SlackChannel = {
 
 export type SlackConfig = {
   __typename?: 'SlackConfig';
-  botToken: Scalars['String']['output'];
+  /** The token's last four characters, to tell two apart; null when too short to show safely. */
+  botTokenHint?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   defaultChannel: Scalars['String']['output'];
+  /** Whether a bot token is stored. The token itself is write-only and never returned. */
+  hasBotToken: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   label: Scalars['String']['output'];
@@ -9876,6 +9901,7 @@ export type SlackConfig = {
 };
 
 export type SlackConfigInput = {
+  /** Write-only. Leave empty when editing to keep the stored token. */
   botToken: Scalars['String']['input'];
   defaultChannel: Scalars['String']['input'];
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
@@ -13909,11 +13935,11 @@ export type DockerStorageResolvers<ContextType = GraphQLContext, ParentType exte
 export type EmailConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['EmailConfig'] = ResolversParentTypes['EmailConfig']> = ResolversObject<{
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   fromAddress?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  hasPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   host?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  password?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   port?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   secure?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
@@ -14220,12 +14246,13 @@ export type GigPageResolvers<ContextType = GraphQLContext, ParentType extends Re
 
 export type GithubConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['GithubConfig'] = ResolversParentTypes['GithubConfig']> = ResolversObject<{
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  hasToken?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   owner?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   repo?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  tokenHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -14340,10 +14367,11 @@ export type HrDashboardResolvers<ContextType = GraphQLContext, ParentType extend
 
 export type ImageConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ImageConfig'] = ResolversParentTypes['ImageConfig']> = ResolversObject<{
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  hasPrivateKey?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  privateKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  privateKeyHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   provider?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   publicKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
@@ -15316,9 +15344,10 @@ export type OnboardingTemplatePageResolvers<ContextType = GraphQLContext, Parent
 }>;
 
 export type OpenAiConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['OpenAiConfig'] = ResolversParentTypes['OpenAiConfig']> = ResolversObject<{
-  apiKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  apiKeyHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   defaultModel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  hasApiKey?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -15343,6 +15372,7 @@ export type OrganizationResolvers<ContextType = GraphQLContext, ParentType exten
   currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   fiscalYearStartMonth?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isPlatformOperator?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   legalName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   locale?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -15461,8 +15491,9 @@ export type PerformanceReviewPageResolvers<ContextType = GraphQLContext, ParentT
 }>;
 
 export type PexelsConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PexelsConfig'] = ResolversParentTypes['PexelsConfig']> = ResolversObject<{
-  apiKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  apiKeyHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  hasApiKey?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -16519,9 +16550,10 @@ export type SlackChannelResolvers<ContextType = GraphQLContext, ParentType exten
 }>;
 
 export type SlackConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SlackConfig'] = ResolversParentTypes['SlackConfig']> = ResolversObject<{
-  botToken?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  botTokenHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   defaultChannel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  hasBotToken?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

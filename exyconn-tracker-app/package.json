@@ -1,6 +1,6 @@
 {
   "name": "exyconn-tracker-app",
-  "version": "1.9.55",
+  "version": "1.9.56",
   "private": true,
   "description": "Exyconn Tracker — cross-platform desktop time tracker (Windows + macOS).",
   "main": "out/main/index.js",
@@ -21,6 +21,7 @@
     "package:linux": "electron-vite build && electron-builder --linux --publish never"
   },
   "dependencies": {
+    "dompurify": "^3.4.15",
     "electron-updater": "^6.8.9",
     "get-windows": "9.3.0",
     "node-machine-id": "^1.1.12",

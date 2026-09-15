@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { removeBackgroundFromDataUrl } from "../logo-maker/services";
 import { OutputTooLargeError, upscaleImage } from "./services";
+import { clientErrorMessage } from "../../shared/errors";
 
 export async function upscaleController(req: Request, res: Response) {
   try {
@@ -28,7 +29,7 @@ export async function upscaleController(req: Request, res: Response) {
     console.error("Image upscale error:", error);
     return res.status(500).json({
       error: "Failed to upscale image",
-      message: error instanceof Error ? error.message : "Unknown error",
+      message: clientErrorMessage(error, "Unknown error"),
     });
   }
 }
@@ -51,7 +52,7 @@ export async function removeBackgroundController(req: Request, res: Response) {
     console.error("Error removing background:", error);
     return res.status(500).json({
       error: "Failed to remove background",
-      message: error instanceof Error ? error.message : "Unknown error",
+      message: clientErrorMessage(error, "Unknown error"),
     });
   }
 }

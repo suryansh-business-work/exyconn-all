@@ -67,7 +67,8 @@ export const integrationsTypeDefs = gql`
   }
 
   extend type Mutation {
-    createApiKey(name: String!, roles: [String!]!): IssuedApiKey!
+    "Mints a key carrying company roles the creator holds. Optional expiry, at most a year out."
+    createApiKey(name: String!, roles: [String!]!, expiresAt: DateTime): IssuedApiKey!
     revokeApiKey(id: ID!): ApiKey!
     createWebhook(name: String!, url: String!, events: [String!]!): CreatedWebhook!
     setWebhookActive(id: ID!, active: Boolean!): Webhook!

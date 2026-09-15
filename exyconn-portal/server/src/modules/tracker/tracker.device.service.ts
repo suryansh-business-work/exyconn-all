@@ -2,7 +2,7 @@ import type { HydratedDocument } from 'mongoose';
 import { UserModel, type UserDocument } from '../admin/user.model';
 import { adminService } from '../admin/admin.service';
 import { resolveEffectiveLocale } from '../i18n/locale.constants';
-import { verifyPassword } from '../../utils/password';
+import { verifyCredentials } from '../auth/auth.service';
 import { signDeviceToken } from '../../utils/jwt';
 import { imageUploader } from '../../utils/imagekit';
 import { unauthenticated, forbidden, notFound, badRequest } from '../../utils/errors';
@@ -15,7 +15,7 @@ import { trackerMessageService } from './tracker.message.service';
 import { presenceOf } from './tracker.presence.service';
 import { policyAcknowledgementService } from '../legal/policy-acknowledgement.service';
 import { assertWorkspaceOpen } from '../auth/workspace-status';
-import { organizationOf, runAsPlatform, runForOrganizationOf } from '../../lib/tenant';
+import { organizationOf, runForOrganizationOf } from '../../lib/tenant';
 import type { Role } from '../../constants/roles';
 import {
   TrackerAccessModel,
@@ -119,6 +119,29 @@ function describeDevice(device: DeviceInput) {
   };
 }
 
+const REVOKED_DEVICE = 'This device was revoked. Ask your administrator to re-enable it.';
+
+/**
+ * Refuses to (re-)enrol a device an administrator has taken out of service.
+ *
+ * Signing in used to overwrite whatever row had the deviceId, so the password alone undid an
+ * administrator's revocation. Now a revoked device stays revoked — for whoever signs in on it —
+ * until that employee's tracker access is granted again after the revocation. That is how an
+ * administrator re-enables it, and it keeps "revoke access, then grant it again" working, since
+ * revoking access revokes every device the employee had.
+ *
+ * A device that is still in service may change hands: two employees can share one machine.
+ * Signing in rebinds the row and replaces its token hash, so the previous employee's token
+ * stops working on its next request (buildContext checks the hash) — a hand-over, never two
+ * people tracked on one row.
+ */
+async function assertDeviceEnrollable(deviceId: string, grantedAt: Date): Promise<void> {
+  const existing = await TrackerDeviceModel.findOne({ deviceId }).select('revokedAt').lean();
+  if (existing?.revokedAt && existing.revokedAt.getTime() >= grantedAt.getTime()) {
+    forbidden(REVOKED_DEVICE);
+  }
+}
+
 /** Desktop-tracker logic (singleton). */
 class TrackerDeviceService {
   /**
@@ -127,21 +150,12 @@ class TrackerDeviceService {
    * Access is refused unless an admin has explicitly granted this employee tracker
    * access, so the app can never start tracking someone who was not told about it.
    *
-   * Like the portal sign-in, this runs BEFORE a company is known: the person is looked up
-   * platform-wide, and everything after that runs inside the company their record names.
+   * Like the portal sign-in, this runs BEFORE a company is known: the person is checked
+   * platform-wide (verifyCredentials — the same throttling and hash upgrade as the portal),
+   * and everything after that runs inside the company their record names.
    */
-  async login(email: string, password: string, device: DeviceInput) {
-    const user = await runAsPlatform(() => UserModel.findOne({ email: email.toLowerCase() }));
-    if (!user || !user.isActive) {
-      unauthenticated('Invalid email or password');
-    }
-    if (user.isBlocked) {
-      unauthenticated('Your account is temporarily blocked. Contact an administrator.');
-    }
-    const ok = await verifyPassword(password, user.passwordHash);
-    if (!ok) {
-      unauthenticated('Invalid email or password');
-    }
+  async login(email: string, password: string, device: DeviceInput, ip = 'unknown') {
+    const user = await verifyCredentials(email, password, ip);
 
     const organizationId = organizationOf(user);
     await assertWorkspaceOpen(organizationId);
@@ -161,12 +175,15 @@ class TrackerDeviceService {
       forbidden('You have not been given access to the tracker. Ask your administrator.');
     }
 
+    await assertDeviceEnrollable(device.deviceId, access.grantedAt);
+
     const token = signDeviceToken({
       id: user.id,
       email: user.email,
       roles: user.roles as Role[],
       organizationId,
       deviceId: device.deviceId,
+      tv: user.tokenVersion ?? 0,
     });
 
     await TrackerDeviceModel.findOneAndUpdate(

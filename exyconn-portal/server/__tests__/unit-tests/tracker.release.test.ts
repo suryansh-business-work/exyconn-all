@@ -189,7 +189,12 @@ describe('the trackerLatestRelease query', () => {
     });
     await trackerAdminService.grantAccess(user.id, 'admin');
     const { token } = await trackerDeviceService.login('emp@exyconn.com', PASSWORD, DEVICE);
-    const req = { ip: '127.0.0.1', headers: { authorization: `Bearer ${token}` } };
+    // A device token only stands for the tracker's own operations, so the request names one.
+    const req = {
+      ip: '127.0.0.1',
+      headers: { authorization: `Bearer ${token}` },
+      body: { query: 'query TrackerLatestRelease { trackerLatestRelease { version } }' },
+    };
     return buildContext({ req: req as unknown as Request });
   }
 

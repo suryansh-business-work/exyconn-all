@@ -3,10 +3,17 @@ export interface CsvColumn<Row> {
   value: (row: Row) => unknown;
 }
 
+/**
+ * A spreadsheet runs a cell that starts with one of these as a formula (CSV injection), so
+ * such text is prefixed with `'`. Numbers are left alone: `-5` is a value, not a formula.
+ */
+const FORMULA_START = /^[=+\-@\t\r]/;
+
 /** RFC 4180 quoting: wrap when the cell holds a comma, quote or line break; double the quotes. */
 function cell(value: unknown): string {
   if (value === null || value === undefined) return '';
-  const text = value instanceof Date ? value.toISOString() : String(value);
+  const raw = value instanceof Date ? value.toISOString() : String(value);
+  const text = typeof value !== 'number' && FORMULA_START.test(raw) ? `'${raw}` : raw;
   return /[",\r\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
 }
 

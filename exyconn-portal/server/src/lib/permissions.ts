@@ -150,3 +150,51 @@ export async function permissionsFor(roles: Role[]): Promise<ModulePermission[]>
       export: can(module, 'EXPORT'),
     }));
 }
+
+/**
+ * Refuses a decision about the caller's own record — approving their own leave, request or
+ * expense claim, assessing their own performance, setting their own salary. Whatever role a
+ * person holds, a decision about themselves is somebody else's to make.
+ */
+export function assertNotOwnRecord(ctx: GraphQLContext, employeeId: unknown, what: string): void {
+  const callerId = ctx.user?.id;
+  if (callerId !== undefined && employeeId != null && String(employeeId) === callerId) {
+    forbidden(`You cannot ${what} for yourself.`);
+  }
+}
+
+type CrudMutation = (parent: unknown, args: never, ctx: GraphQLContext) => unknown;
+
+/**
+ * Wraps a module's generated create/update so nobody writes their OWN workflow record through
+ * the HR/Finance console — the route to self-approval, since those inputs carry the status. The
+ * person keeps the self-service mutations (apply for leave, file a claim, …) that force it.
+ *
+ * `employeeIdOf` reads the stored record's employee, so an update cannot dodge the check by
+ * sending somebody else's id.
+ */
+export function refuseOwnRecordWrites<T extends Record<string, CrudMutation>>(
+  mutations: T,
+  name: string,
+  employeeIdOf: (id: string) => Promise<unknown>,
+): T {
+  const what = `edit your own ${name}`;
+  const create = mutations[`create${name}`];
+  const update = mutations[`update${name}`];
+  return {
+    ...mutations,
+    [`create${name}`]: (parent: unknown, args: never, ctx: GraphQLContext) => {
+      const { input } = args as unknown as { input?: { employeeId?: unknown } };
+      assertNotOwnRecord(ctx, input?.employeeId, what);
+      return create(parent, args, ctx);
+    },
+    [`update${name}`]: async (parent: unknown, args: never, ctx: GraphQLContext) => {
+      const { id, input } = args as unknown as { id: string; input?: { employeeId?: unknown } };
+      assertNotOwnRecord(ctx, input?.employeeId, what);
+      if (ctx.user) {
+        assertNotOwnRecord(ctx, await employeeIdOf(id), what);
+      }
+      return update(parent, args, ctx);
+    },
+  };
+}

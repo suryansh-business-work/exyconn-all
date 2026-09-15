@@ -1,4 +1,5 @@
 import type { FilterQuery, Model, PipelineStage } from 'mongoose';
+import { badRequest } from './errors';
 
 /**
  * Reusable server-side table engine shared by every paginated portal grid.
@@ -52,6 +53,21 @@ export interface TablePage {
 /** Upper bound so a client can never ask for an unbounded page. */
 const MAX_PAGE_SIZE = 200;
 
+/**
+ * Bounds on what one grid request may ask the database to do. Every search and filter is an
+ * unanchored case-insensitive `$regex` over a collection scan, and a deep `skip` walks every
+ * row before it — so the size of the request, not just of the page, is capped. The portal
+ * grids stay far inside these: a search box and a handful of column filters. The grid CSV
+ * export (packages/crud fetchAllRows) pages through this same query, so `maxSkip` is set well
+ * above the largest export a module produces today; only a runaway page number is refused.
+ */
+export const TABLE_QUERY_LIMITS = Object.freeze({
+  maxSearchLength: 100,
+  maxFilters: 20,
+  maxFilterValueLength: 200,
+  maxSkip: 100_000,
+});
+
 /** Escapes user text so it is matched literally inside a Mongo `$regex`. */
 function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
@@ -104,6 +120,25 @@ function buildFilter<T>(
     return baseFilter;
   }
   return { ...baseFilter, $and: and } as FilterQuery<T>;
+}
+
+/** Refuses a request bigger than {@link TABLE_QUERY_LIMITS} before it reaches Mongo. */
+function assertWithinLimits(input: TableQueryInput, skip: number): void {
+  if ((input.search?.length ?? 0) > TABLE_QUERY_LIMITS.maxSearchLength) {
+    badRequest(`Search is limited to ${TABLE_QUERY_LIMITS.maxSearchLength} characters`);
+  }
+  const filters = input.filters ?? [];
+  if (filters.length > TABLE_QUERY_LIMITS.maxFilters) {
+    badRequest(`At most ${TABLE_QUERY_LIMITS.maxFilters} filters per request`);
+  }
+  if (filters.some((filter) => filter.value.length > TABLE_QUERY_LIMITS.maxFilterValueLength)) {
+    badRequest(
+      `A filter value is limited to ${TABLE_QUERY_LIMITS.maxFilterValueLength} characters`,
+    );
+  }
+  if (skip > TABLE_QUERY_LIMITS.maxSkip) {
+    badRequest('That page is too far in; narrow the search or filters instead');
+  }
 }
 
 /** Resolves the sort, falling back to the config default when the field isn't allowed. */
@@ -203,18 +238,15 @@ export async function tableQuery<T>(
   config: TableConfig,
   baseFilter: FilterQuery<T> = {},
 ): Promise<TablePage> {
-  const filter = buildFilter(input, config, baseFilter);
-  const sort = buildSort(input, config);
   const pageSize = clamp(input.pageSize, 1, MAX_PAGE_SIZE);
   const page = Math.max(0, input.page);
+  const skip = page * pageSize;
+  assertWithinLimits(input, skip);
+  const filter = buildFilter(input, config, baseFilter);
+  const sort = buildSort(input, config);
 
   const [rows, totalCount] = await Promise.all([
-    model
-      .find(filter)
-      .sort(sort)
-      .skip(page * pageSize)
-      .limit(pageSize)
-      .lean(),
+    model.find(filter).sort(sort).skip(skip).limit(pageSize).lean(),
     model.countDocuments(filter),
   ]);
 

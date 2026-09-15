@@ -74,6 +74,8 @@ export const organizationsResolvers = {
     country: (organization: { country?: string | null }) => organization.country ?? '',
     contactEmail: (organization: { contactEmail?: string | null }) =>
       organization.contactEmail ?? '',
+    isPlatformOperator: (organization: { isPlatformOperator?: boolean | null }) =>
+      organization.isPlatformOperator === true,
   },
   User: {
     /** Which company a person belongs to; null for a platform administrator. */

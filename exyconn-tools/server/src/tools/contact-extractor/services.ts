@@ -1,4 +1,4 @@
-import axios from "axios";
+import { safeRequest } from "../../shared/security/safe-http";
 import * as cheerio from "cheerio";
 
 export interface ExtractedContact {
@@ -50,7 +50,7 @@ const USER_AGENT =
 
 async function fetchPage(url: string): Promise<string | null> {
   try {
-    const response = await axios.get(url, {
+    const response = await safeRequest<string>(url, {
       headers: {
         "User-Agent": USER_AGENT,
         Accept:

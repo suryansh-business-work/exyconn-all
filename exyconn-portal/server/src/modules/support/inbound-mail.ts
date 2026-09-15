@@ -7,6 +7,7 @@ import { fileClientTicket } from './client-ticket.service';
 import { stripQuotedReply } from './inbound-mail.text';
 import { toAttachments, type Attachment, type AttachmentInput } from './attachment.schema';
 import { imageUploader } from '../../utils/imagekit';
+import { kindOfMime, MEDIA_UPLOAD } from '../../utils/uploadValidation';
 import {
   inboundMailbox,
   type InboundAttachment,
@@ -85,10 +86,43 @@ async function matchingTicket(reference: string, sender: string) {
   return null;
 }
 
-/** Puts each file on the image CDN, the same store the console's own uploads go to. */
+/** Largest single attachment hosted from an email; anything bigger stays in the mailbox. */
+const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
+/** Most bytes one email may put on the CDN, however many files it carries. */
+const MAX_TOTAL_ATTACHMENT_BYTES = 25 * 1024 * 1024;
+
+/**
+ * Whether an emailed file may be hosted: a raster image or a PDF — what a ticket attachment is
+ * everywhere else in the portal, minus SVG, which is markup from a stranger — declared as such,
+ * within the per-file cap. The upload itself
+ * still checks that the bytes really are that type.
+ */
+function isHostable(file: InboundAttachment): boolean {
+  const kind = kindOfMime(file.contentType);
+  return (
+    kind !== undefined &&
+    kind !== 'svg' &&
+    MEDIA_UPLOAD.kinds.has(kind) &&
+    file.content.length <= MAX_ATTACHMENT_BYTES
+  );
+}
+
+/**
+ * Puts each allowed file on the image CDN, the same store the console's own uploads go to.
+ * Anything else — an unexpected type, an oversized file, or whatever would take the email
+ * past its total — is skipped with a log line rather than stored.
+ */
 async function hostAttachments(files: InboundAttachment[], uploadedBy: string) {
   const hosted: AttachmentInput[] = [];
+  let total = 0;
   for (const file of files) {
+    if (!isHostable(file) || total + file.content.length > MAX_TOTAL_ATTACHMENT_BYTES) {
+      logger.warn(
+        `Inbound mail: skipped attachment "${file.filename}" (${file.contentType}, ${file.content.length} bytes)`,
+      );
+      continue;
+    }
+    total += file.content.length;
     const url = await imageUploader.uploadImage(
       file.content.toString('base64'),
       file.filename,

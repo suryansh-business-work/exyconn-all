@@ -14,6 +14,7 @@ import { websiteSubmissionResolvers } from './website.submissions.resolvers';
 import { convertWebsiteSubmissionToLead } from './website.lead';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
+import { restrictToPlatform } from '../../lib/platformAccess';
 import { ROLES } from '../../constants/roles';
 import type {
   BlogPostInput,
@@ -192,29 +193,39 @@ const toolResolvers = createCrudResolvers(toolService, {
 export const navLinkService = createCrudService<NavLinkInput>(NavLinkModel as never, 'NavLink');
 const navLinkResolvers = createCrudResolvers(navLinkService, { name: 'NavLink', ...websiteRoles });
 
-/** Website CMS: typed CRUD per content entity + the public read API + form submissions. */
+/**
+ * Website CMS: typed CRUD per content entity + the public read API + form submissions.
+ *
+ * The content is exyconn.com's own, shared by no customer and stored with no organization, so
+ * the editing half is confined to the platform operator (lib/platformAccess) — a WEBSITE user in
+ * a customer company must not rewrite Exyconn's site. The public reads stay open.
+ */
 export const websiteResolvers = {
   Query: {
-    ...blogResolvers.Query,
-    ...caseStudyResolvers.Query,
-    ...jobCompanyResolvers.Query,
-    ...jobResolvers.Query,
-    ...gigResolvers.Query,
-    ...toolCategoryResolvers.Query,
-    ...toolResolvers.Query,
-    ...navLinkResolvers.Query,
+    ...restrictToPlatform({
+      ...blogResolvers.Query,
+      ...caseStudyResolvers.Query,
+      ...jobCompanyResolvers.Query,
+      ...jobResolvers.Query,
+      ...gigResolvers.Query,
+      ...toolCategoryResolvers.Query,
+      ...toolResolvers.Query,
+      ...navLinkResolvers.Query,
+    }),
     ...websiteSubmissionResolvers.Query,
     ...websitePublicResolvers.Query,
   },
   Mutation: {
-    ...blogResolvers.Mutation,
-    ...caseStudyResolvers.Mutation,
-    ...jobCompanyResolvers.Mutation,
-    ...jobResolvers.Mutation,
-    ...gigResolvers.Mutation,
-    ...toolCategoryResolvers.Mutation,
-    ...toolResolvers.Mutation,
-    ...navLinkResolvers.Mutation,
+    ...restrictToPlatform({
+      ...blogResolvers.Mutation,
+      ...caseStudyResolvers.Mutation,
+      ...jobCompanyResolvers.Mutation,
+      ...jobResolvers.Mutation,
+      ...gigResolvers.Mutation,
+      ...toolCategoryResolvers.Mutation,
+      ...toolResolvers.Mutation,
+      ...navLinkResolvers.Mutation,
+    }),
     ...websiteSubmissionResolvers.Mutation,
     convertWebsiteSubmissionToLead,
   },

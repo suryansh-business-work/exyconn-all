@@ -1,5 +1,13 @@
-import { UserModel } from '../admin/user.model';
-import { verifyPassword, hashPassword, generateTempPassword } from '../../utils/password';
+import type { HydratedDocument } from 'mongoose';
+import { UserModel, type UserDocument } from '../admin/user.model';
+import {
+  assertPasswordPolicy,
+  verifyPassword,
+  verifyAgainstNothing,
+  hashPassword,
+  generateTempPassword,
+  needsRehash,
+} from '../../utils/password';
 import { signToken } from '../../utils/jwt';
 import { unauthenticated, badRequest, notFound } from '../../utils/errors';
 import { imageUploader } from '../../utils/imagekit';
@@ -9,7 +17,14 @@ import { mailer } from '../../utils/mailer';
 import { logger } from '../../utils/logger';
 import { isValidTimezone } from '../../utils/timezone';
 import { canonicalLocale } from '../i18n/locale.constants';
-import { organizationOf, runAsPlatform } from '../../lib/tenant';
+import { organizationOf, runAsPlatform, runForOrganizationOf } from '../../lib/tenant';
+import {
+  MAX_EMAIL_LENGTH,
+  assertSignInAllowed,
+  recordSignInFailure,
+  recordSignInSuccess,
+  signInAddress,
+} from '../../lib/rateLimiterSignIn';
 import { assertWorkspaceOpen } from './workspace-status';
 import { profileDetailsUpdate, type ProfileDetailsInput } from './profile-details';
 
@@ -27,20 +42,79 @@ function maskEmail(email: string): string {
   return `${head}${'*'.repeat(Math.max(local.length - 2, 1))}@${domain}`;
 }
 
+const INVALID_CREDENTIALS = 'Invalid email or password';
+
+type SignedInUser = HydratedDocument<UserDocument>;
+
+/**
+ * Retires every token issued to a person so far — portal sessions and tracker devices alike —
+ * on their next request (buildContext compares the token's `tv` with this). Call it whenever
+ * a password is set: a self-service change, an emailed reset, or an administrator's.
+ */
+export async function bumpTokenVersion(userId: string): Promise<void> {
+  await runAsPlatform(() => UserModel.updateOne({ _id: userId }, { $inc: { tokenVersion: 1 } }));
+}
+
+/** Replaces a legacy (bcrypt) or outdated hash with today's, now the plaintext is known good. */
+async function upgradeHash(user: SignedInUser, password: string): Promise<void> {
+  if (!needsRehash(user.passwordHash)) {
+    return;
+  }
+  const passwordHash = await hashPassword(password);
+  await runForOrganizationOf(organizationOf(user), () =>
+    UserModel.updateOne({ _id: user._id }, { $set: { passwordHash } }),
+  );
+  user.passwordHash = passwordHash;
+}
+
+/**
+ * Checks an email and password, for the portal sign-in and the tracker sign-in alike.
+ *
+ * Signing in happens BEFORE an organization is known, so the lookup runs as the platform: an
+ * email address alone identifies a person, and their record says which company they are in.
+ *
+ * Nothing here tells a stranger whether an address has an account: an unknown address costs
+ * the same password work as a known one, and a deactivated or blocked account answers with
+ * the same "invalid" message unless the password was right. Wrong guesses are counted per
+ * address and per IP (lib/rateLimiterSignIn).
+ */
+export async function verifyCredentials(
+  email: string,
+  password: string,
+  ip: string,
+): Promise<SignedInUser> {
+  const address = signInAddress(email);
+  await assertSignInAllowed(address, ip);
+  const user =
+    email.trim().length > MAX_EMAIL_LENGTH
+      ? null
+      : await runAsPlatform(() => UserModel.findOne({ email: address }));
+  const ok = user
+    ? await verifyPassword(password, user.passwordHash)
+    : await verifyAgainstNothing(password);
+  if (!user || !ok) {
+    await recordSignInFailure(address, ip);
+    unauthenticated(INVALID_CREDENTIALS);
+  }
+  if (!user.isActive) {
+    unauthenticated(INVALID_CREDENTIALS);
+  }
+  if (user.isBlocked) {
+    unauthenticated('Your account is temporarily blocked. Contact an administrator.');
+  }
+  await recordSignInSuccess(address);
+  await upgradeHash(user, password);
+  return user;
+}
+
 /** Authentication logic (singleton). */
 class AuthService {
   /**
-   * Signing in happens BEFORE an organization is known, so the lookup runs as the platform:
-   * an email address alone identifies a person, and their record says which company they are
-   * in. A company that has been suspended cannot be signed into at all.
+   * Signs a person in to the portal (see verifyCredentials). A company that has been suspended
+   * cannot be signed into at all. `ip` is the caller's address, which failed guesses count against.
    */
-  async login(email: string, password: string) {
-    const user = await runAsPlatform(() => UserModel.findOne({ email: email.toLowerCase() }));
-    if (!user || !user.isActive) unauthenticated('Invalid email or password');
-    if (user.isBlocked)
-      unauthenticated('Your account is temporarily blocked. Contact an administrator.');
-    const ok = await verifyPassword(password, user.passwordHash);
-    if (!ok) unauthenticated('Invalid email or password');
+  async login(email: string, password: string, ip = 'unknown') {
+    const user = await verifyCredentials(email, password, ip);
 
     const organizationId = organizationOf(user);
     await assertWorkspaceOpen(organizationId);
@@ -50,6 +124,7 @@ class AuthService {
       email: user.email,
       roles: user.roles as Role[],
       organizationId,
+      tv: user.tokenVersion ?? 0,
     });
     return { token, user: user.toObject() };
   }
@@ -91,14 +166,20 @@ class AuthService {
     return user;
   }
 
+  /**
+   * Changes the caller's own password, then retires every token issued so far — including the
+   * one this request came with, so the portal asks for the new password on its next request,
+   * and every other browser and tracker device that knew the old one is signed out.
+   */
   async changePassword(id: string, currentPassword: string, newPassword: string) {
-    if (newPassword.length < 6) badRequest('New password must be at least 6 characters');
     const user = await UserModel.findById(id);
     if (!user) notFound('User');
+    assertPasswordPolicy(newPassword, user.email);
     const ok = await verifyPassword(currentPassword, user.passwordHash);
     if (!ok) badRequest('Current password is incorrect');
     user.passwordHash = await hashPassword(newPassword);
     await user.save();
+    await bumpTokenVersion(user.id);
     return true;
   }
 

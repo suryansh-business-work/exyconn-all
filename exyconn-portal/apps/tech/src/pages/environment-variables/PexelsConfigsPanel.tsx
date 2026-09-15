@@ -12,9 +12,7 @@ import {
   useTestPexelsConnectionMutation,
 } from '@exyconn/shell/graphql/generated';
 import { PexelsConfigForm, type PexelsConfigRow } from './forms/pexels-config';
-
-/** Shows only the key's prefix — the full secret never needs to be read back on screen. */
-const maskKey = (key: string) => `${key.slice(0, 8)}…`;
+import { maskedSecret } from './secret';
 
 /**
  * Environment Variables sub-panel: the Pexels API key behind the stock photo and
@@ -58,7 +56,7 @@ export function PexelsConfigsPanel() {
 
   const columns: Column<PexelsConfigRow>[] = [
     { key: 'label', label: 'Label' },
-    { key: 'apiKey', label: 'API key', render: (r) => maskKey(r.apiKey) },
+    { key: 'apiKey', label: 'API key', render: (r) => maskedSecret(r.hasApiKey, r.apiKeyHint) },
     {
       key: 'isActive',
       label: 'Active',

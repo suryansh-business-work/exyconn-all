@@ -660,6 +660,7 @@ export type EmailConfigInput = {
   host: Scalars['String']['input'];
   isActive: InputMaybe<Scalars['Boolean']['input']>;
   label: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored password. */
   password: Scalars['String']['input'];
   port: Scalars['Int']['input'];
   secure: Scalars['Boolean']['input'];
@@ -880,6 +881,7 @@ export type GithubConfigInput = {
   label: Scalars['String']['input'];
   owner: Scalars['String']['input'];
   repo: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored token. */
   token: Scalars['String']['input'];
 };
 
@@ -926,6 +928,7 @@ export type HolidayType =
 export type ImageConfigInput = {
   isActive: InputMaybe<Scalars['Boolean']['input']>;
   label: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored key. */
   privateKey: Scalars['String']['input'];
   provider: InputMaybe<Scalars['String']['input']>;
   publicKey: Scalars['String']['input'];
@@ -1340,6 +1343,7 @@ export type OnboardingTemplateInput = {
 };
 
 export type OpenAiConfigInput = {
+  /** Write-only. Leave empty when editing to keep the stored key. */
   apiKey: Scalars['String']['input'];
   defaultModel: Scalars['String']['input'];
   isActive: InputMaybe<Scalars['Boolean']['input']>;
@@ -1451,6 +1455,7 @@ export type PermissionAction =
   | 'VIEW';
 
 export type PexelsConfigInput = {
+  /** Write-only. Leave empty when editing to keep the stored key. */
   apiKey: Scalars['String']['input'];
   isActive: InputMaybe<Scalars['Boolean']['input']>;
   label: Scalars['String']['input'];
@@ -1815,6 +1820,7 @@ export type SlaState =
   | 'ON_TRACK';
 
 export type SlackConfigInput = {
+  /** Write-only. Leave empty when editing to keep the stored token. */
   botToken: Scalars['String']['input'];
   defaultChannel: Scalars['String']['input'];
   isActive: InputMaybe<Scalars['Boolean']['input']>;

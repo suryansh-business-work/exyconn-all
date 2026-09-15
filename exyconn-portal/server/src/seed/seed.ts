@@ -83,7 +83,12 @@ async function seed(): Promise<void> {
   }
 
   const existing = await UserModel.findOne({ email: env.seedAdmin.email.toLowerCase() });
-  if (!existing) {
+  if (existing) {
+    logger.info('ADMIN user already exists, skipping');
+  } else if (env.seedAdmin.password === null) {
+    // No default password: one in this repository would be one everybody knows.
+    logger.error('SEED_ADMIN_PASSWORD is not set; the ADMIN user was not seeded');
+  } else {
     const passwordHash = await hashPassword(env.seedAdmin.password);
     await UserModel.create({
       name: env.seedAdmin.name,
@@ -93,8 +98,6 @@ async function seed(): Promise<void> {
       isActive: true,
     });
     logger.info(`Seeded ADMIN user: ${env.seedAdmin.email}`);
-  } else {
-    logger.info('ADMIN user already exists, skipping');
   }
 
   const settings = await AppSettingsModel.findOne({ key: 'global' });

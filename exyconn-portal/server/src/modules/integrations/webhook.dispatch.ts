@@ -9,6 +9,7 @@ import {
   signPayload,
 } from './webhook.signing';
 import { logger } from '../../utils/logger';
+import { safeFetch } from '../../utils/safeFetch';
 import { JOB_KEYS, recordJobRun } from '../../utils/jobHeartbeat';
 
 /** How often the process asks whether a delivery is due. */
@@ -85,20 +86,23 @@ async function attempt(delivery: WebhookDeliveryDoc): Promise<void> {
   }
 
   const timestamp = String(Math.floor(Date.now() / 1000));
-  const controller = new AbortController();
-  const timer = globalThis.setTimeout(() => controller.abort(), TIMEOUT_MS);
 
   try {
-    const response = await fetch(hook.url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        [SIGNATURE_HEADER]: signPayload(hook.secret, timestamp, delivery.payload),
-        [TIMESTAMP_HEADER]: timestamp,
+    // safeFetch, not fetch: the URL was typed in by a customer, and must not be a way to reach
+    // this server's private network (loopback, metadata, Docker services) — on any redirect hop.
+    const response = await safeFetch(
+      hook.url,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          [SIGNATURE_HEADER]: signPayload(hook.secret, timestamp, delivery.payload),
+          [TIMESTAMP_HEADER]: timestamp,
+        },
+        body: delivery.payload,
       },
-      body: delivery.payload,
-      signal: controller.signal,
-    });
+      { timeoutMs: TIMEOUT_MS },
+    );
 
     if (response.ok) {
       await WebhookDeliveryModel.updateOne(
@@ -119,8 +123,6 @@ async function attempt(delivery: WebhookDeliveryDoc): Promise<void> {
     await recordFailure(delivery, `HTTP ${response.status}`, response.status);
   } catch (error) {
     await recordFailure(delivery, error instanceof Error ? error.message : 'Delivery failed', null);
-  } finally {
-    globalThis.clearTimeout(timer);
   }
 
   await WebhookModel.updateOne({ _id: hook._id }, { $inc: { failureCount: 1 } });

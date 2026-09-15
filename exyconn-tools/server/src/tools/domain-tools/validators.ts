@@ -52,6 +52,9 @@ export const portsValidator = [
     .withMessage("Host is required"),
   body("ports")
     .optional()
-    .isArray()
-    .withMessage("Ports must be an array"),
+    .isArray({ max: 20 })
+    .withMessage("Ports must be an array of at most 20 ports"),
+  body("ports.*")
+    .isInt({ min: 1, max: 65535 })
+    .withMessage("Each port must be a whole number between 1 and 65535"),
 ];

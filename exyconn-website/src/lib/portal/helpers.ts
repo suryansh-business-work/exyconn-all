@@ -1,3 +1,4 @@
+import { safeHref } from "../safe-output";
 import { TOOLS_SITE_URL } from "../site";
 import type { BlogPost, Gig, Job, JobCompany, Tool } from "./types";
 
@@ -85,8 +86,9 @@ export function isToolAppSlug(tool: Pick<Tool, "url">): boolean {
  * that runs the tools — two catalogues that coexist by decision. A portal Tool row records
  * the app path (`/tools/<slug>`), and this site 301s every `/tools/*` URL to the tools home
  * page, so linking the raw value would drop the slug. Resolving it against the tools domain
- * keeps the deep link; any other value is already an address in its own right.
+ * keeps the deep link; any other value is already an address in its own right, printed only
+ * when its scheme is safe ("" otherwise).
  */
 export function getToolLaunchUrl(tool: Pick<Tool, "url">): string {
-  return isToolAppSlug(tool) ? `${TOOLS_SITE_URL}${tool.url}` : tool.url;
+  return isToolAppSlug(tool) ? `${TOOLS_SITE_URL}${tool.url}` : safeHref(tool.url);
 }

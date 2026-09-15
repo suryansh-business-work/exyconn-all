@@ -16,7 +16,7 @@ import {
   type AppLogSource,
   type AppLogStatus,
 } from './logs.constants';
-import { assertPermission } from '../../lib/permissions';
+import { assertPlatformStaff } from '../../lib/platformAccess';
 import { ROLES } from '../../constants/roles';
 import { withId, withIds } from '../../utils/serialize';
 import type { GraphQLContext } from '../../middleware/auth';
@@ -27,8 +27,12 @@ type Action = 'VIEW' | 'EDIT' | 'DELETE';
 
 const LOG_ROLES = [ROLES.TECH];
 
+/**
+ * Client logs from every company land in one platform-wide store read by the platform's own
+ * Tech desk, so only the platform operator's staff may read or triage them (lib/platformAccess).
+ */
 const guard = (ctx: GraphQLContext, action: Action) =>
-  assertPermission(ctx, 'AppLog', LOG_ROLES, action);
+  assertPlatformStaff(ctx, 'AppLog', LOG_ROLES, action);
 
 async function openErrorsPrompt(source: AppLogSource | null | undefined): Promise<string> {
   const filter = source

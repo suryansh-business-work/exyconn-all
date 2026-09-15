@@ -13,7 +13,14 @@ import { slackNotifier } from '../../src/utils/slack';
 import { mailer } from '../../src/utils/mailer';
 import { ROLES } from '../../src/constants/roles';
 import { seedUser } from '../helpers';
+import { OPERATOR_ORGANIZATION_ID, seedPlatformOperator } from './security-authz.operator';
 import type { GraphQLContext } from '../../src/middleware/auth';
+
+// Probes go through safeFetch, which resolves the host before connecting. The hosts here are
+// fictional, so resolve them to a public address.
+jest.mock('node:dns/promises', () => ({
+  lookup: jest.fn().mockResolvedValue([{ address: '93.184.215.14', family: 4 }]),
+}));
 
 jest.mock('../../src/utils/slack', () => ({
   slackNotifier: { sendMessage: jest.fn() },
@@ -29,11 +36,14 @@ const sendSlack = slackNotifier.sendMessage as jest.Mock;
 const sendTeamEmail = mailer.sendCustomEmail as jest.Mock;
 const sendTemplate = emailer.send as jest.Mock;
 
+// The status page is a platform feature: its staff sit in the platform operator organization.
 const tech: GraphQLContext = {
   user: { id: 'u1', roles: [ROLES.TECH], email: 'ops@exyconn.com' },
+  organizationId: OPERATOR_ORGANIZATION_ID,
 };
 const sales: GraphQLContext = {
   user: { id: 'u2', roles: [ROLES.CRM], email: 'sales@exyconn.com' },
+  organizationId: OPERATOR_ORGANIZATION_ID,
 };
 
 const monitors = [
@@ -95,6 +105,7 @@ const seedConfirmed = async (email: string) => {
 };
 
 beforeEach(async () => {
+  await seedPlatformOperator();
   await StatusMonitorModel.create(monitors);
 });
 
@@ -179,7 +190,7 @@ describe('Monitor-opened incidents', () => {
     await StatusMonitorModel.deleteMany({ key: 'api' });
     globalThis.fetch = jest
       .fn()
-      .mockResolvedValue({ ok: false, status: 503 }) as unknown as typeof fetch;
+      .mockResolvedValue(new Response(null, { status: 503 })) as unknown as typeof fetch;
 
     await runStatusChecks();
     await runStatusChecks();
@@ -199,7 +210,7 @@ describe('Monitor-opened incidents', () => {
 
     globalThis.fetch = jest
       .fn()
-      .mockResolvedValue({ ok: true, status: 200 }) as unknown as typeof fetch;
+      .mockResolvedValue(new Response(null, { status: 200 })) as unknown as typeof fetch;
     await runStatusChecks();
 
     const closed = await StatusIncidentModel.findOne({ serviceKey: 'hr' }).lean();
@@ -330,7 +341,7 @@ describe('Problem report follow-up', () => {
 
 describe('Status page subscribers', () => {
   beforeEach(async () => {
-    subscribeLimiter.reset();
+    await subscribeLimiter.reset();
     await StatusSubscriberModel.init();
   });
 
@@ -409,7 +420,7 @@ describe('Status page subscribers', () => {
     await seedConfirmed('asha@example.com');
     globalThis.fetch = jest
       .fn()
-      .mockResolvedValue({ ok: false, status: 503 }) as unknown as typeof fetch;
+      .mockResolvedValue(new Response(null, { status: 503 })) as unknown as typeof fetch;
 
     await runStatusChecks();
     await runStatusChecks();

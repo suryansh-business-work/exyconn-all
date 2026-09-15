@@ -6,6 +6,7 @@ import { hrCustomResolvers } from './hr.resolvers';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { ROLES } from '../../constants/roles';
+import { refuseOwnRecordWrites } from '../../lib/permissions';
 
 interface LeaveRequestInput {
   employeeId: string;
@@ -49,7 +50,11 @@ export const hrResolvers = {
     ...hrCustomResolvers.Query,
   },
   Mutation: {
-    ...leaveCrudResolvers.Mutation,
+    // HR edits anybody's leave here — except their own, which would be approving it themselves.
+    ...refuseOwnRecordWrites(leaveCrudResolvers.Mutation, 'LeaveRequest', async (id) => {
+      const row = await LeaveRequestModel.findById(id).select('employeeId').lean();
+      return row?.employeeId;
+    }),
     ...departmentResolvers.Mutation,
     ...positionResolvers.Mutation,
     ...hrCustomResolvers.Mutation,

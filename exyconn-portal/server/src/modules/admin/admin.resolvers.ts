@@ -1,11 +1,19 @@
-import { adminService, assertMayAssignRoles } from './admin.service';
+import {
+  adminService,
+  assertMayAssignRoles,
+  assertMayChangeSignInFields,
+  assertMayManageAccount,
+  type AccountActor,
+} from './admin.service';
 import { assertAuthenticated } from '../../middleware/roleGuard';
 import { assertPermission } from '../../lib/permissions';
+import { callerOrganization } from '../../lib/platformAccess';
 import { ROLES } from '../../constants/roles';
 import { withId, withIds } from '../../utils/serialize';
 import { diffChanges, recordAudit } from '../audit';
 import type { GraphQLContext } from '../../middleware/auth';
 import type { TableQueryInput } from '../../utils/tableQuery';
+import type { TokenPayload } from '../../utils/jwt';
 import type {
   CreateUserInput,
   UpdateUserInput,
@@ -32,6 +40,20 @@ const USER_MODULE = 'User';
 const SETTINGS_MODULE = 'AppSettings';
 
 const sortedRoles = (roles: readonly string[] | undefined) => [...(roles ?? [])].sort().join(', ');
+
+/** The caller as the account rules see them, with the company the request is confined to. */
+const actorOf = (user: TokenPayload, ctx: GraphQLContext): AccountActor => ({
+  id: user.id,
+  roles: user.roles ?? [],
+  organizationId: callerOrganization(ctx, user),
+});
+
+/** Loads the account and refuses when the caller may not manage it at all. */
+async function manageableTarget(actor: AccountActor, id: string) {
+  const target = await adminService.getUser(id);
+  assertMayManageAccount(actor, { id, roles: target.roles });
+  return target;
+}
 
 export const adminResolvers = {
   Query: {
@@ -67,8 +89,8 @@ export const adminResolvers = {
   },
   Mutation: {
     createUser: async (_p: unknown, { input }: { input: CreateUserInput }, ctx: GraphQLContext) => {
-      const actor = await assertPermission(ctx, USER_MODULE, userWriters, 'CREATE');
-      assertMayAssignRoles(actor.roles ?? [], input.roles);
+      const caller = await assertPermission(ctx, USER_MODULE, userWriters, 'CREATE');
+      assertMayAssignRoles(actorOf(caller, ctx), input.roles);
       const { user, password } = await adminService.createUser(input);
       const created = withId(user.toObject());
       await recordAudit(ctx, {
@@ -85,9 +107,11 @@ export const adminResolvers = {
       { id, input }: { id: string; input: UpdateUserInput },
       ctx: GraphQLContext,
     ) => {
-      const actor = await assertPermission(ctx, USER_MODULE, userWriters, 'EDIT');
-      const target = await adminService.getUser(id);
-      assertMayAssignRoles(actor.roles ?? [], input.roles, target.roles);
+      const actor = actorOf(await assertPermission(ctx, USER_MODULE, userWriters, 'EDIT'), ctx);
+      const target = await manageableTarget(actor, id);
+      const current = { id, roles: target.roles, email: target.email, isActive: target.isActive };
+      assertMayAssignRoles(actor, input.roles, current);
+      assertMayChangeSignInFields(actor, input, current);
       const updated = withId(await adminService.updateUser(id, input));
       const rolesChanged =
         input.roles !== undefined && sortedRoles(input.roles) !== sortedRoles(target.roles);
@@ -106,8 +130,8 @@ export const adminResolvers = {
       return updated;
     },
     deleteUser: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      await assertPermission(ctx, USER_MODULE, adminOnly, 'DELETE');
-      const target = await adminService.getUser(id);
+      const user = await assertPermission(ctx, USER_MODULE, adminOnly, 'DELETE');
+      const target = await manageableTarget(actorOf(user, ctx), id);
       const removed = await adminService.deleteUser(id);
       await recordAudit(ctx, {
         action: 'DELETE',
@@ -123,7 +147,8 @@ export const adminResolvers = {
       { id, isActive }: { id: string; isActive: boolean },
       ctx: GraphQLContext,
     ) => {
-      await assertPermission(ctx, USER_MODULE, adminOnly, 'EDIT');
+      const actor = await assertPermission(ctx, USER_MODULE, adminOnly, 'EDIT');
+      await manageableTarget(actorOf(actor, ctx), id);
       const user = withId(await adminService.setUserActive(id, isActive));
       await recordAudit(ctx, {
         action: 'UPDATE',
@@ -139,7 +164,8 @@ export const adminResolvers = {
       { id, isBlocked, reason }: { id: string; isBlocked: boolean; reason?: string },
       ctx: GraphQLContext,
     ) => {
-      await assertPermission(ctx, USER_MODULE, adminOnly, 'EDIT');
+      const actor = await assertPermission(ctx, USER_MODULE, adminOnly, 'EDIT');
+      await manageableTarget(actorOf(actor, ctx), id);
       const user = withId(await adminService.setUserBlocked(id, isBlocked, reason));
       const blockedSummary = reason
         ? `Blocked user ${user.name}: ${reason}`
@@ -154,8 +180,8 @@ export const adminResolvers = {
       return user;
     },
     resetUserPassword: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      await assertPermission(ctx, USER_MODULE, adminOnly, 'EDIT');
-      const target = await adminService.getUser(id);
+      const user = await assertPermission(ctx, USER_MODULE, adminOnly, 'EDIT');
+      const target = await manageableTarget(actorOf(user, ctx), id);
       const password = await adminService.resetUserPassword(id);
       await recordAudit(ctx, {
         action: 'PASSWORD_RESET',

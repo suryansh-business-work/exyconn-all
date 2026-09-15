@@ -2,7 +2,8 @@ import { createHash, randomBytes } from 'node:crypto';
 import { StatusSubscriberModel } from './status-subscriber.model';
 import { emailer } from '../email';
 import { badRequest } from '../../utils/errors';
-import { createRateLimiter } from '../../utils/rateLimit';
+import { createLimiter } from '../../lib/rateLimiter';
+import { MAX_EMAIL_LENGTH } from '../../lib/rateLimiterSignIn';
 import { logger } from '../../utils/logger';
 import { env } from '../../config/env';
 
@@ -10,15 +11,25 @@ import { env } from '../../config/env';
 export const SUBSCRIBE_CONFIRM_TEMPLATE = 'status-subscribe-confirm';
 export const INCIDENT_NOTICE_TEMPLATE = 'status-incident-notice';
 
-const HOUR_MS = 60 * 60 * 1000;
-const MAX_SIGNUPS_PER_HOUR = 3;
+const HOUR_SEC = 60 * 60;
 /** How many notices go out at once. Enough to be quick, small enough not to flood SMTP. */
 const FANOUT_CHUNK = 25;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const BAD_TOKEN = 'This link is invalid or has already been used.';
 
 /** Per-address, so one stuck form cannot flood one inbox — and cannot probe the rest. */
-export const subscribeLimiter = createRateLimiter(HOUR_MS, MAX_SIGNUPS_PER_HOUR);
+export const subscribeLimiter = createLimiter({
+  keyPrefix: 'status_subscribe_address',
+  points: 3,
+  durationSec: HOUR_SEC,
+});
+
+/** Per-IP, so one machine cannot mail confirmation links to a list of strangers. */
+export const subscribeIpLimiter = createLimiter({
+  keyPrefix: 'status_subscribe_ip',
+  points: 10,
+  durationSec: HOUR_SEC,
+});
 
 function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
@@ -48,12 +59,21 @@ async function rotateUnsubscribeToken(id: unknown): Promise<string> {
  * already subscribed would tell a stranger who follows our status page. The email itself
  * is best-effort: a failed send is logged, and the caller sees the same answer either way.
  */
-export async function subscribeToStatus(email: string, origin?: string): Promise<boolean> {
+export async function subscribeToStatus(
+  email: string,
+  origin?: string,
+  /** The caller's address. Absent for an internal caller, which is not limited per IP. */
+  ip?: string,
+): Promise<boolean> {
   const address = email.trim().toLowerCase();
-  if (!EMAIL_PATTERN.exec(address)) {
+  if (address.length > MAX_EMAIL_LENGTH || !EMAIL_PATTERN.exec(address)) {
     return true;
   }
-  if (!subscribeLimiter.allow(address)) {
+  if (ip !== undefined && !(await subscribeIpLimiter.allow(ip))) {
+    logger.warn(`Status subscription from ${ip} rate-limited`);
+    return true;
+  }
+  if (!(await subscribeLimiter.allow(address))) {
     logger.warn(`Status subscription for ${address} rate-limited`);
     return true;
   }

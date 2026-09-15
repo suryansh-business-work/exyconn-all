@@ -1,0 +1,35 @@
+# OPT-IN, NOT INSTALLED BY deploy/server-setup.sh.
+#
+# A catch-all that drops requests for host names this server does not serve (scanners
+# hitting the bare IP, stale DNS pointing here), instead of nginx answering them with
+# whichever vhost happens to sort first.
+#
+# Why it is not enabled automatically: this host also serves the duncit sites, and there
+# can only be ONE default_server per listen address. If duncit (or the distro's
+# sites-enabled/default) already declares one, `nginx -t` fails with "a duplicate default
+# server"; if it does not, this file would take over every request that currently falls
+# through to a duncit vhost. Check first:
+#
+#   grep -rn default_server /etc/nginx/sites-enabled/ /etc/nginx/conf.d/
+#
+# The 443 block needs nginx >= 1.19.4 (ssl_reject_handshake). Ubuntu 22.04 ships 1.18 —
+# check `nginx -v`, and drop the 443 block on older versions.
+#
+# To enable:
+#   cp exyconn-default-server.conf.example /etc/nginx/sites-available/exyconn-default-server.conf
+#   ln -s /etc/nginx/sites-available/exyconn-default-server.conf /etc/nginx/sites-enabled/
+#   nginx -t && systemctl reload nginx
+
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+    return 444;
+}
+
+server {
+    listen 443 ssl default_server;
+    listen [::]:443 ssl default_server;
+    server_name _;
+    ssl_reject_handshake on;
+}

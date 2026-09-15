@@ -1,4 +1,4 @@
-import axios from "axios";
+import { safeRequest } from "../../shared/security/safe-http";
 import * as cheerio from "cheerio";
 import { XMLParser } from "fast-xml-parser";
 
@@ -84,7 +84,7 @@ async function fetchWithTimeout(
   status: number;
 } | null> {
   try {
-    const response = await axios.get(url, {
+    const response = await safeRequest(url, {
       headers: {
         "User-Agent": USER_AGENT,
         Accept: "text/xml, application/xml, text/html, text/plain, */*",

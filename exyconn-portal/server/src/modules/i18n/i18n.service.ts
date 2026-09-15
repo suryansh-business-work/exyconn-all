@@ -1,5 +1,6 @@
 import { AppSettingsModel } from '../admin/settings.model';
 import { currentOrganizationId } from '../../lib/tenant/tenant-scope';
+import { runAsPlatform } from '../../lib/tenant';
 import { logger } from '../../utils/logger';
 import { FALLBACK_LOCALE, canonicalLocale } from './locale.constants';
 import { TranslationModel, translationKey, type TranslationSource } from './translation.model';
@@ -74,7 +75,7 @@ export async function translateMissing(
   locale: string,
   sources: string[],
   /** Asked only when there is something new to send the model; false means "not now". */
-  mayUseModel: () => boolean = () => true,
+  mayUseModel: () => boolean | Promise<boolean> = () => true,
 ): Promise<TranslationEntry[]> {
   const canonical = canonicalLocale(locale);
   if (!canonical || canonical === FALLBACK_LOCALE || sources.length === 0) {
@@ -91,8 +92,8 @@ export async function translateMissing(
   if (missing.length === 0) {
     return [];
   }
-  if (!mayUseModel()) {
-    logger.warn({ locale, count: missing.length }, 'Translation rate-limited for this caller');
+  if (!(await mayUseModel())) {
+    logger.warn({ locale, count: missing.length }, 'Translation refused for this caller');
     return [];
   }
 
@@ -122,6 +123,31 @@ export async function enabledLocales(): Promise<string[]> {
     locales.add(fallback);
   }
   return [...locales];
+}
+
+/**
+ * Whether a locale is one the platform actually serves, for a caller who is not signed in:
+ * some workspace offers it (its enabled locales or its default), or the shared catalogue
+ * already holds translations for it (a language the website or an admin's "translate
+ * everything" has filled).
+ *
+ * The public mutation would otherwise let anybody pick any of the thousands of tags the
+ * runtime resolves — en-GB, en-AU, en-NZ… — and pay the model for each one as a new language.
+ */
+export async function localeIsOffered(locale: string): Promise<boolean> {
+  const canonical = canonicalLocale(locale);
+  if (!canonical) {
+    return false;
+  }
+  const [enabled, catalogued] = await runAsPlatform(() =>
+    Promise.all([
+      AppSettingsModel.exists({
+        $or: [{ enabledLocales: canonical }, { defaultLocale: canonical }],
+      }),
+      TranslationModel.exists({ locale: canonical }),
+    ]),
+  );
+  return enabled !== null || catalogued !== null;
 }
 
 /** Languages being filled right now, so a second click never pays for the same work twice. */

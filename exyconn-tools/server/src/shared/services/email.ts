@@ -1,5 +1,6 @@
 import nodemailer, { Transporter } from "nodemailer";
 import { getActiveEmailConfig } from "./integration-config";
+import { clientErrorMessage } from "../errors";
 
 let cached: { key: string; transporter: Transporter } | null = null;
 
@@ -69,24 +70,7 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResponse> {
     console.error("Email send error:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to send email",
+      error: clientErrorMessage(error, "Failed to send email"),
     };
   }
-}
-
-export async function verifyConnection(): Promise<boolean> {
-  try {
-    const { transporter } = await getTransporter();
-    await transporter.verify();
-    return true;
-  } catch (error) {
-    console.error("SMTP connection error:", error);
-    return false;
-  }
-}
-
-/** The from-address on the active SMTP account, for callers that build their own header. */
-export async function getDefaultFromAddress(): Promise<string> {
-  const { from } = await getTransporter();
-  return from;
 }

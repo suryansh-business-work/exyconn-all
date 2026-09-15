@@ -25,6 +25,8 @@ const related = siblings.filter((one) => one.toolCode !== tool.toolCode).slice(0
 // An admin-chosen colour (any CSS colour) or the indigo role; the tint mixes whichever it is.
 const accent = tool.color || category?.color || roleVar("indigo-strong");
 const accentTint = `color-mix(in srgb, ${accent} 8%, transparent)`;
+// "" when the tool has no URL, or one with an unsafe scheme — then there is no Open button.
+const launchUrl = getToolLaunchUrl(tool);
 ---
 
 <Page title={`${tool.name} | Exyconn Tools`} description={tool.description}>
@@ -123,9 +125,9 @@ const accentTint = `color-mix(in srgb, ${accent} 8%, transparent)`;
 
           <aside class="space-y-6">
             {
-              tool.url && (
+              launchUrl && (
                 <a
-                  href={getToolLaunchUrl(tool)}
+                  href={launchUrl}
                   class="block text-center px-6 py-4 rounded-2xl text-on-solid font-bold shadow-lg transition hover:opacity-90"
                   style={`background: ${accent};`}
                 >

@@ -10,28 +10,32 @@ import {
   useUpdateGithubConfigMutation,
 } from '@exyconn/shell/graphql/generated';
 import type { GithubConfigRow } from './github-config.types';
+import { KEEP_SECRET_HINT, secretField } from '../../secret';
 
 const BOOL_OPTIONS: SelectOption[] = [
   { value: 'true', label: 'Yes' },
   { value: 'false', label: 'No' },
 ];
 
-const schema = z.object({
-  label: z.string().trim().min(1, 'Label is required'),
-  owner: z
-    .string()
-    .trim()
-    .min(1, 'Owner is required')
-    .regex(GITHUB_NAME, 'Use the owner exactly as it appears in the repository URL'),
-  repo: z
-    .string()
-    .trim()
-    .min(1, 'Repository is required')
-    .regex(GITHUB_NAME, 'Use the repository name exactly as it appears in its URL'),
-  token: z.string().trim().min(1, 'Access token is required'),
-  isActive: z.enum(['true', 'false']),
-});
-type Values = z.infer<typeof schema>;
+/** The secret is write-only: required to create, blank on an edit keeps the stored one. */
+const makeSchema = (isEdit: boolean) =>
+  z.object({
+    label: z.string().trim().min(1, 'Label is required'),
+    owner: z
+      .string()
+      .trim()
+      .min(1, 'Owner is required')
+      .regex(GITHUB_NAME, 'Use the owner exactly as it appears in the repository URL'),
+    repo: z
+      .string()
+      .trim()
+      .min(1, 'Repository is required')
+      .regex(GITHUB_NAME, 'Use the repository name exactly as it appears in its URL'),
+    token: secretField(isEdit, 'Access token is required'),
+    isActive: z.enum(['true', 'false']),
+  });
+type Schema = ReturnType<typeof makeSchema>;
+type Values = z.infer<Schema>;
 
 /** Maps the validated form values onto the GraphQL input. */
 const toInput = (values: Values) => ({
@@ -46,7 +50,8 @@ const toInitial = (row: GithubConfigRow | null): Values => ({
   label: row?.label ?? '',
   owner: row?.owner ?? '',
   repo: row?.repo ?? '',
-  token: row?.token ?? '',
+  // Never prefilled: the API does not return it, and blank keeps the stored token.
+  token: '',
   isActive: row ? (row.isActive ? 'true' : 'false') : 'true',
 });
 
@@ -60,8 +65,8 @@ interface GithubConfigFormProps {
 export function GithubConfigForm({ initial, onDone, onCancel }: Readonly<GithubConfigFormProps>) {
   const [createConfig] = useCreateGithubConfigMutation();
   const [updateConfig] = useUpdateGithubConfigMutation();
-  const methods = useForm<z.input<typeof schema>, unknown, Values>({
-    resolver: zodResolver(schema),
+  const methods = useForm<z.input<Schema>, unknown, Values>({
+    resolver: zodResolver(makeSchema(Boolean(initial))),
     defaultValues: toInitial(initial),
   });
 
@@ -86,7 +91,11 @@ export function GithubConfigForm({ initial, onDone, onCancel }: Readonly<GithubC
         name="token"
         label="Access token"
         type="password"
-        helperText="Fine-grained token with Actions: read and write on this repository"
+        helperText={
+          isEdit
+            ? KEEP_SECRET_HINT
+            : 'Fine-grained token with Actions: read and write on this repository'
+        }
       />
       <RhfSelect name="isActive" label="Set as active" options={BOOL_OPTIONS} />
     </EntityForm>

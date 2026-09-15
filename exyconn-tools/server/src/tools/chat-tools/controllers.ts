@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { scrapeWebsite, extractTextFromBase64 } from "./services";
+import { clientErrorMessage } from "../../shared/errors";
 
 export const scrapeWebsiteController = async (req: Request, res: Response) => {
   try {
@@ -15,7 +16,7 @@ export const scrapeWebsiteController = async (req: Request, res: Response) => {
     console.error("Website scraping error:", error);
     return res.status(500).json({
       error:
-        error instanceof Error ? error.message : "Failed to scrape website",
+        clientErrorMessage(error, "Failed to scrape website"),
     });
   }
 };
@@ -38,7 +39,7 @@ export const extractDocumentTextController = async (
   } catch (error) {
     console.error("Document extraction error:", error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : "Failed to extract text",
+      error: clientErrorMessage(error, "Failed to extract text"),
     });
   }
 };

@@ -36,6 +36,8 @@ export const organizationsTypeDefs = gql`
     fiscalYearStartMonth: Int!
     taxSystem: TaxSystem!
     contactEmail: String!
+    "Whether this is the company that operates the platform itself. Read-only; set at boot."
+    isPlatformOperator: Boolean!
     createdAt: DateTime!
     updatedAt: DateTime!
   }

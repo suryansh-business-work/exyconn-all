@@ -12,14 +12,17 @@ import { useResetPasswordMutation } from '@exyconn/shell/graphql/generated';
 import type { ResetPasswordValues } from './reset-password.types';
 
 /** Mirrors the server's minimum, so a password it would refuse is caught before the round-trip. */
-const MIN_PASSWORD_LENGTH = 6;
+/** Matches the API's policy (server utils/password.ts), so the form refuses first. */
+const MIN_PASSWORD_LENGTH = 10;
+const MAX_PASSWORD_LENGTH = 128;
 
 const schema = z
   .object({
     newPassword: z
       .string()
       .min(1, 'New password is required')
-      .min(MIN_PASSWORD_LENGTH, `Minimum ${MIN_PASSWORD_LENGTH} characters`),
+      .min(MIN_PASSWORD_LENGTH, `Minimum ${MIN_PASSWORD_LENGTH} characters`)
+      .max(MAX_PASSWORD_LENGTH, `Maximum ${MAX_PASSWORD_LENGTH} characters`),
     confirmPassword: z.string().min(1, 'Confirm your new password'),
   })
   .refine((values) => values.newPassword === values.confirmPassword, {

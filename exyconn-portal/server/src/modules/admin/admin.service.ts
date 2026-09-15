@@ -3,7 +3,8 @@ import { UserModel } from './user.model';
 import { AppSettingsModel } from './settings.model';
 import { OrganizationModel } from '../organizations/organization.model';
 import { currentOrganizationId, runAsPlatform } from '../../lib/tenant';
-import { hashPassword, generateTempPassword } from '../../utils/password';
+import { assertPasswordPolicy, hashPassword, generateTempPassword } from '../../utils/password';
+import { bumpTokenVersion } from '../auth/auth.service';
 import { notFound, badRequest, forbidden } from '../../utils/errors';
 import { mailer } from '../../utils/mailer';
 import { logger } from '../../utils/logger';
@@ -14,7 +15,7 @@ import {
   type TableConfig,
   type TableQueryInput,
 } from '../../utils/tableQuery';
-import { ROLES, type Role } from '../../constants/roles';
+import { ORGANIZATION_ROLES, ROLES, type Role } from '../../constants/roles';
 import { isValidTimezone } from '../../utils/timezone';
 import { canonicalLocale, isValidLocale } from '../i18n/locale.constants';
 import type { WorkLocation, WorkingTime } from '../../constants/work';
@@ -53,27 +54,124 @@ interface ChainLink {
   managerId?: string | null;
 }
 
+/** Who is changing an account: enough to tell a platform administrator from a company's staff. */
+export interface AccountActor {
+  id?: string;
+  roles: readonly string[];
+  organizationId?: string | null;
+}
+
+/** The account being changed, as it is stored now. */
+export interface AccountTarget {
+  id?: string;
+  roles: readonly string[];
+  email?: string;
+  isActive?: boolean;
+}
+
 /**
- * Stops a non-ADMIN from handing out — or taking — the ADMIN role.
- *
- * HR creates and edits employees, which is the whole point of one shared user database. But
- * "create a user" and "make somebody an administrator" are different powers, and the roles
- * field on the form is the only thing between them. An HR user may not mint an admin, and
- * may not touch an existing admin's account at all.
+ * The roles HR may hand out or take away. Ordinary department access only: nothing that
+ * administers the company (ADMIN, HR), holds its money (FINANCE), runs its systems (TECH) or
+ * watches everybody's screen (TRACKER) — and never the platform's own SUPER_ADMIN.
  */
-export function assertMayAssignRoles(
-  actorRoles: readonly string[],
-  roles: readonly string[] | undefined,
-  targetRoles: readonly string[] = [],
-): void {
-  if (actorRoles.includes(ROLES.ADMIN)) {
+export const HR_GRANTABLE_ROLES: ReadonlySet<string> = new Set<Role>([
+  ROLES.EMPLOYEE,
+  ROLES.SUPPORT,
+  ROLES.CRM,
+  ROLES.PRODUCTS,
+  ROLES.LEGAL,
+  ROLES.MARKETING,
+  ROLES.PROJECTS,
+  ROLES.IT,
+  ROLES.COMPLIANCE,
+]);
+
+const COMPANY_ROLES: ReadonlySet<string> = new Set(ORGANIZATION_ROLES);
+
+/** A platform administrator standing above the companies: SUPER_ADMIN with no organization. */
+export function isPlatformActor(actor: AccountActor): boolean {
+  return actor.roles.includes(ROLES.SUPER_ADMIN) && (actor.organizationId ?? null) === null;
+}
+
+/** Roles in one list and not the other, in either direction. */
+function changedRoles(roles: readonly string[], targetRoles: readonly string[]): string[] {
+  const added = roles.filter((role) => !targetRoles.includes(role));
+  const removed = targetRoles.filter((role) => !roles.includes(role));
+  return [...added, ...removed];
+}
+
+/**
+ * Refuses a company's staff touching a platform administrator's account: resetting its
+ * password or email from inside a company would be a way to take over the platform.
+ */
+export function assertMayManageAccount(actor: AccountActor, target: AccountTarget): void {
+  if (isPlatformActor(actor) || (actor.id !== undefined && actor.id === target.id)) {
     return;
   }
-  if (targetRoles.includes(ROLES.ADMIN)) {
+  if (target.roles.includes(ROLES.SUPER_ADMIN)) {
+    forbidden('Only a platform administrator can change a platform administrator’s account.');
+  }
+}
+
+/**
+ * Who may grant which roles.
+ *
+ * A company grants only company roles: SUPER_ADMIN is the platform's, and no path inside a
+ * company can mint one — only a platform administrator (SUPER_ADMIN with no organization) can.
+ * Inside a company an ADMIN may grant any company role. HR creates and edits employees — that
+ * is what makes one shared user database real — but "create a user" and "make somebody an
+ * administrator" are different powers, so HR adds or removes only the ordinary department
+ * roles in HR_GRANTABLE_ROLES, never its own, and may not touch an administrator at all.
+ */
+export function assertMayAssignRoles(
+  actor: AccountActor,
+  roles: readonly string[] | undefined,
+  target: AccountTarget = { roles: [] },
+): void {
+  if (isPlatformActor(actor)) {
+    return;
+  }
+  const changed = changedRoles(roles ?? target.roles, target.roles);
+  if (changed.some((role) => !COMPANY_ROLES.has(role))) {
+    forbidden('Only a platform administrator can grant or remove SUPER_ADMIN.');
+  }
+  if (actor.roles.includes(ROLES.ADMIN)) {
+    return;
+  }
+  if (target.roles.includes(ROLES.ADMIN)) {
     forbidden('Only an administrator can change an administrator’s account.');
   }
-  if (roles?.includes(ROLES.ADMIN)) {
+  if (changed.includes(ROLES.ADMIN)) {
     forbidden('Only an administrator can grant the ADMIN role.');
+  }
+  if (changed.length > 0 && actor.id !== undefined && actor.id === target.id) {
+    forbidden('You cannot change your own roles.');
+  }
+  const privileged = changed.filter((role) => !HR_GRANTABLE_ROLES.has(role));
+  if (privileged.length > 0) {
+    forbidden(`Only an administrator can grant or remove ${privileged.join(', ')}.`);
+  }
+}
+
+/**
+ * The sign-in fields of an account — password, email, whether it is active — are an
+ * administrator's alone. HR edits the employee record; changing somebody's email or password
+ * would let HR sign in as them. An unchanged value (a form sending back what it loaded) passes.
+ */
+export function assertMayChangeSignInFields(
+  actor: AccountActor,
+  input: Pick<UpdateUserInput, 'email' | 'password' | 'isActive'>,
+  target: AccountTarget,
+): void {
+  if (isPlatformActor(actor) || actor.roles.includes(ROLES.ADMIN)) {
+    return;
+  }
+  const emailChanged =
+    input.email !== undefined &&
+    input.email.trim().toLowerCase() !== (target.email ?? '').toLowerCase();
+  const activeChanged = input.isActive !== undefined && input.isActive !== target.isActive;
+  if (input.password || emailChanged || activeChanged) {
+    forbidden('Only an administrator can change a person’s email, password or active status.');
   }
 }
 
@@ -324,9 +422,15 @@ class AdminService {
     if (input.managerId) await this.assertManagerExists(input.managerId, id);
     const update: Record<string, unknown> = { ...input, ...localeFields(input) };
     delete update.password;
-    if (input.password) update.passwordHash = await hashPassword(input.password);
+    if (input.password) {
+      const current = await UserModel.findById(id).select('email').lean();
+      assertPasswordPolicy(input.password, input.email ?? current?.email ?? '');
+      update.passwordHash = await hashPassword(input.password);
+    }
     const user = await UserModel.findByIdAndUpdate(id, update, { new: true }).lean();
     if (!user) notFound('User');
+    // A password set by an administrator signs the person out everywhere they were signed in.
+    if (input.password) await bumpTokenVersion(id);
     return user;
   }
 
@@ -364,6 +468,8 @@ class AdminService {
     const tempPassword = generateTempPassword();
     user.passwordHash = await hashPassword(tempPassword);
     await user.save();
+    // Whoever held the old password — or a session opened with it — is signed out now.
+    await bumpTokenVersion(id);
     tryEmail('Credentials', () =>
       mailer.sendCredentialsEmail({
         name: user.name,

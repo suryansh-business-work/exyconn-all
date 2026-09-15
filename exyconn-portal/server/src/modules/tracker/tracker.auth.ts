@@ -1,12 +1,102 @@
 import { createHash } from 'node:crypto';
+import { Kind, parse, type DocumentNode } from 'graphql';
 import type { GraphQLContext } from '../../middleware/auth';
 import { assertAuthenticated } from '../../middleware/roleGuard';
 import { TrackerAccessModel, TrackerDeviceModel } from './models';
 import { unauthenticated, forbidden } from '../../utils/errors';
+import { runAsPlatform } from '../../lib/tenant';
 
 /** Devices store a SHA-256 of their token, never the token itself. */
 export function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
+}
+
+/**
+ * Every root field the desktop and phone trackers call (packages/tracker-core operations).
+ *
+ * A device token never expires and sits on a laptop or a phone, so it is not allowed to be a
+ * general portal session: a request carrying one may only run these. Adding an operation to
+ * tracker-core means adding its root field here, or the app is signed out when it calls it.
+ */
+const TRACKER_DEVICE_FIELDS: ReadonlySet<string> = new Set([
+  '__typename',
+  'createTrackerManualEntry',
+  'localeBundle',
+  'markMyTrackerMessagesRead',
+  'myTrackerCalendar',
+  'myTrackerDay',
+  'myTrackerManualEntries',
+  'myTrackerMessages',
+  'myTrackerTotals',
+  'publicBranding',
+  'reportClientLogs',
+  'sendMyTrackerMessage',
+  'setMyTrackerPresence',
+  'trackerAcceptConsent',
+  'trackerHeartbeat',
+  'trackerLatestRelease',
+  'trackerLogin',
+  'trackerMarkAttendance',
+  'trackerMe',
+  'trackerSetTimezone',
+  'trackerStartSession',
+  'trackerStopSession',
+  'trackerSyncIntervals',
+  'trackerTaskOptions',
+  'trackerTimezones',
+  'trackerUploadScreenshot',
+  'translateMissing',
+  'withdrawTrackerManualEntry',
+]);
+
+/** The document a request carries, or null when it has none that parses. */
+function parseDocument(query: unknown): DocumentNode | null {
+  if (typeof query !== 'string') {
+    return null;
+  }
+  try {
+    return parse(query);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Whether a GraphQL request may run on a device token: every operation in it selects only
+ * tracker root fields, named directly (a fragment at the root could hide any field). A request
+ * with no readable document — a batch, a persisted-query hash — is refused.
+ */
+export function deviceMayRun(query: unknown): boolean {
+  const document = parseDocument(query);
+  if (!document) {
+    return false;
+  }
+  return document.definitions.every((definition) => {
+    if (definition.kind !== Kind.OPERATION_DEFINITION) {
+      return true;
+    }
+    return definition.selectionSet.selections.every(
+      (selection) =>
+        selection.kind === Kind.FIELD && TRACKER_DEVICE_FIELDS.has(selection.name.value),
+    );
+  });
+}
+
+/**
+ * Whether a device token is still the live credential of its device: the row exists, belongs
+ * to the token's user, has not been revoked, and holds THIS token's hash — so a token replaced
+ * by a later sign-in on the same device stops working too. Read as the platform, because the
+ * question is asked while the request is still working out who is calling.
+ */
+export async function deviceTokenIsLive(
+  userId: string,
+  deviceId: string,
+  token: string,
+): Promise<boolean> {
+  const device = await runAsPlatform(() =>
+    TrackerDeviceModel.findOne({ deviceId, userId }).select('isActive revokedAt tokenHash').lean(),
+  );
+  return Boolean(device?.isActive && !device.revokedAt && device.tokenHash === hashToken(token));
 }
 
 export interface TrackerDeviceContext {

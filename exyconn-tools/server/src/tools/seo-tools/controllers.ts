@@ -12,6 +12,7 @@ import {
   competitorAnalyze,
   searchPlaces,
 } from "./services";
+import { clientErrorMessage } from "../../shared/errors";
 
 export async function seoCheckerController(req: Request, res: Response) {
   try {
@@ -21,7 +22,7 @@ export async function seoCheckerController(req: Request, res: Response) {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "SEO check failed",
+      error: clientErrorMessage(error, "SEO check failed"),
     });
   }
 }
@@ -34,7 +35,7 @@ export function serpSimulatorController(req: Request, res: Response) {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "SERP simulation failed",
+      error: clientErrorMessage(error, "SERP simulation failed"),
     });
   }
 }
@@ -47,7 +48,7 @@ export function plagiarismCheckerController(req: Request, res: Response) {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Plagiarism check failed",
+      error: clientErrorMessage(error, "Plagiarism check failed"),
     });
   }
 }
@@ -60,7 +61,7 @@ export function summaryGeneratorController(req: Request, res: Response) {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Summary generation failed",
+      error: clientErrorMessage(error, "Summary generation failed"),
     });
   }
 }
@@ -73,7 +74,7 @@ export function rewriteTextController(req: Request, res: Response) {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Text rewrite failed",
+      error: clientErrorMessage(error, "Text rewrite failed"),
     });
   }
 }
@@ -86,7 +87,7 @@ export function gbpDescriptionController(req: Request, res: Response) {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "GBP description generation failed",
+      error: clientErrorMessage(error, "GBP description generation failed"),
     });
   }
 }
@@ -99,7 +100,7 @@ export async function keywordSuggestController(req: Request, res: Response) {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Keyword suggestion failed",
+      error: clientErrorMessage(error, "Keyword suggestion failed"),
     });
   }
 }
@@ -112,7 +113,7 @@ export async function backlinkAnalyzeController(req: Request, res: Response) {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Backlink analysis failed",
+      error: clientErrorMessage(error, "Backlink analysis failed"),
     });
   }
 }
@@ -125,7 +126,7 @@ export async function trafficAnalyzeController(req: Request, res: Response) {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Traffic analysis failed",
+      error: clientErrorMessage(error, "Traffic analysis failed"),
     });
   }
 }
@@ -138,7 +139,7 @@ export async function competitorAnalyzeController(req: Request, res: Response) {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Competitor analysis failed",
+      error: clientErrorMessage(error, "Competitor analysis failed"),
     });
   }
 }
@@ -155,7 +156,7 @@ export async function placeSearchController(req: Request, res: Response) {
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Place search failed",
+      error: clientErrorMessage(error, "Place search failed"),
     });
   }
 }

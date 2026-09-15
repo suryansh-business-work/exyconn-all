@@ -32,10 +32,13 @@ export interface UploadResponse {
   error?: string;
 }
 
+/** Every upload from the public tools site lands under this folder, and only files there can be deleted. */
+export const TOOLS_FOLDER = "/tools";
+
 export async function uploadImage(
-  file: Buffer | string,
+  file: Buffer,
   fileName: string,
-  folder: string = "/tools",
+  folder: string,
 ): Promise<UploadResponse> {
   try {
     const imagekit = await getClient();
@@ -54,34 +57,24 @@ export async function uploadImage(
     };
   } catch (error) {
     console.error("ImageKit upload error:", error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : "Upload failed",
-    };
+    return { success: false, error: "Upload failed" };
   }
 }
 
-export async function deleteImage(fileId: string): Promise<boolean> {
+export type DeleteResult = "deleted" | "forbidden" | "failed";
+
+/** Deletes a file, but only one stored under the tools folder. */
+export async function deleteToolsImage(fileId: string): Promise<DeleteResult> {
   try {
     const imagekit = await getClient();
+    const details = await imagekit.getFileDetails(fileId);
+    if (!details.filePath.startsWith(`${TOOLS_FOLDER}/`)) {
+      return "forbidden";
+    }
     await imagekit.deleteFile(fileId);
-    return true;
+    return "deleted";
   } catch (error) {
     console.error("ImageKit delete error:", error);
-    return false;
-  }
-}
-
-export async function getAuthenticationParameters() {
-  const imagekit = await getClient();
-  return imagekit.getAuthenticationParameters();
-}
-
-export async function isImageKitConfigured(): Promise<boolean> {
-  try {
-    await getClient();
-    return true;
-  } catch {
-    return false;
+    return "failed";
   }
 }

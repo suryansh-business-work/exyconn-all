@@ -4,6 +4,7 @@ import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { createMyRecordsResolver } from '../../lib/employeeScope';
 import { assertAuthenticated } from '../../middleware/roleGuard';
+import { assertNotOwnRecord, refuseOwnRecordWrites } from '../../lib/permissions';
 import { withId } from '../../utils/serialize';
 import { ROLES } from '../../constants/roles';
 import { notify, notifyBestEffort } from '../notifications';
@@ -27,7 +28,7 @@ export const expensesService = createCrudService<ExpenseClaimInput>(
   'ExpenseClaim',
 );
 
-const crud = createCrudResolvers(expensesService, {
+const generated = createCrudResolvers(expensesService, {
   name: 'ExpenseClaim',
   roles: [ROLES.FINANCE],
   table: {
@@ -38,6 +39,30 @@ const crud = createCrudResolvers(expensesService, {
   },
   stats: { countBy: ['status'], sum: ['amount'] },
 });
+
+/** The stored claimant, so an edit cannot dodge the self-approval check with another id. */
+async function claimantOf(id: string): Promise<string | undefined> {
+  const row = await ExpenseClaimModel.findById(id).select('employeeId').lean();
+  return row?.employeeId;
+}
+
+/** Finance's console edits anybody's claim but their own — its input carries the status. */
+const crud = {
+  ...generated,
+  Mutation: refuseOwnRecordWrites(generated.Mutation, 'ExpenseClaim', claimantOf),
+};
+
+/** Finance's decision, never on the approver's own claim. */
+const decideExpenseClaim = async (
+  p: unknown,
+  args: Parameters<typeof setExpenseClaimStatus>[1],
+  ctx: GraphQLContext,
+) => {
+  if (ctx.user) {
+    assertNotOwnRecord(ctx, await claimantOf(args.id), 'approve an expense claim');
+  }
+  return setExpenseClaimStatus(p, args, ctx);
+};
 
 type MyClaim = Omit<ExpenseClaimInput, 'employeeId' | 'status' | 'approvedAmount'>;
 
@@ -85,6 +110,11 @@ export const expensesResolvers = {
     ...crud.Query,
     myExpenseClaims: createMyRecordsResolver(ExpenseClaimModel as never, { incurredOn: -1 }),
   },
-  Mutation: { ...crud.Mutation, createMyExpenseClaim, updateExpenseClaim, setExpenseClaimStatus },
+  Mutation: {
+    ...crud.Mutation,
+    createMyExpenseClaim,
+    updateExpenseClaim,
+    setExpenseClaimStatus: decideExpenseClaim,
+  },
 };
 export { expensesTypeDefs };

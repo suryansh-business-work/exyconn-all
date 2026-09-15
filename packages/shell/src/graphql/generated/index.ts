@@ -1879,11 +1879,12 @@ export type EmailConfig = {
   __typename?: 'EmailConfig';
   createdAt: Scalars['DateTime']['output'];
   fromAddress: Scalars['String']['output'];
+  /** Whether a password is stored. The password itself is write-only and never returned. */
+  hasPassword: Scalars['Boolean']['output'];
   host: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   label: Scalars['String']['output'];
-  password: Scalars['String']['output'];
   port: Scalars['Int']['output'];
   secure: Scalars['Boolean']['output'];
   updatedAt: Scalars['DateTime']['output'];
@@ -1895,6 +1896,7 @@ export type EmailConfigInput = {
   host: Scalars['String']['input'];
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   label: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored password. */
   password: Scalars['String']['input'];
   port: Scalars['Int']['input'];
   secure: Scalars['Boolean']['input'];
@@ -2451,12 +2453,15 @@ export type GigPage = {
 export type GithubConfig = {
   __typename?: 'GithubConfig';
   createdAt: Scalars['DateTime']['output'];
+  /** Whether an access token is stored. The token itself is write-only and never returned. */
+  hasToken: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   label: Scalars['String']['output'];
   owner: Scalars['String']['output'];
   repo: Scalars['String']['output'];
-  token: Scalars['String']['output'];
+  /** The token's last four characters, to tell two apart; null when too short to show safely. */
+  tokenHint?: Maybe<Scalars['String']['output']>;
   updatedAt: Scalars['DateTime']['output'];
 };
 
@@ -2465,6 +2470,7 @@ export type GithubConfigInput = {
   label: Scalars['String']['input'];
   owner: Scalars['String']['input'];
   repo: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored token. */
   token: Scalars['String']['input'];
 };
 
@@ -2629,10 +2635,13 @@ export type HrDashboard = {
 export type ImageConfig = {
   __typename?: 'ImageConfig';
   createdAt: Scalars['DateTime']['output'];
+  /** Whether a private key is stored. The key itself is write-only and never returned. */
+  hasPrivateKey: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   label: Scalars['String']['output'];
-  privateKey: Scalars['String']['output'];
+  /** The key's last four characters, to tell two apart; null when too short to show safely. */
+  privateKeyHint?: Maybe<Scalars['String']['output']>;
   provider: Scalars['String']['output'];
   publicKey: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
@@ -2642,6 +2651,7 @@ export type ImageConfig = {
 export type ImageConfigInput = {
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   label: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored key. */
   privateKey: Scalars['String']['input'];
   provider?: InputMaybe<Scalars['String']['input']>;
   publicKey: Scalars['String']['input'];
@@ -3487,6 +3497,7 @@ export type Mutation = {
   createActivity: Activity;
   createAiJob: AiJob;
   createAnnouncement: Announcement;
+  /** Mints a key carrying company roles the creator holds. Optional expiry, at most a year out. */
   createApiKey: IssuedApiKey;
   createApplicant: Applicant;
   createAsset: Asset;
@@ -4215,6 +4226,7 @@ export type MutationCreateAnnouncementArgs = {
 
 
 export type MutationCreateApiKeyArgs = {
+  expiresAt?: InputMaybe<Scalars['DateTime']['input']>;
   name: Scalars['String']['input'];
   roles: Array<Scalars['String']['input']>;
 };
@@ -6575,10 +6587,13 @@ export type OnboardingTemplatePage = {
 /** The OpenAI credential the platform's AI features run on. */
 export type OpenAiConfig = {
   __typename?: 'OpenAiConfig';
-  apiKey: Scalars['String']['output'];
+  /** The key's last four characters, to tell two apart; null when too short to show safely. */
+  apiKeyHint?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   /** The model requests default to, e.g. gpt-4o-mini. */
   defaultModel: Scalars['String']['output'];
+  /** Whether an API key is stored. The key itself is write-only and never returned. */
+  hasApiKey: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   label: Scalars['String']['output'];
@@ -6586,6 +6601,7 @@ export type OpenAiConfig = {
 };
 
 export type OpenAiConfigInput = {
+  /** Write-only. Leave empty when editing to keep the stored key. */
   apiKey: Scalars['String']['input'];
   defaultModel: Scalars['String']['input'];
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
@@ -6615,6 +6631,8 @@ export type Organization = {
   /** The month its financial year opens: 1 is January, 4 is April. */
   fiscalYearStartMonth: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
+  /** Whether this is the company that operates the platform itself. Read-only; set at boot. */
+  isPlatformOperator: Scalars['Boolean']['output'];
   legalName: Scalars['String']['output'];
   /** BCP 47 language tag the company reads by default. */
   locale: Scalars['String']['output'];
@@ -6866,8 +6884,11 @@ export enum PermissionAction {
 /** The Pexels API credential behind the shared upload dialog's stock tabs. */
 export type PexelsConfig = {
   __typename?: 'PexelsConfig';
-  apiKey: Scalars['String']['output'];
+  /** The key's last four characters, to tell two apart; null when too short to show safely. */
+  apiKeyHint?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
+  /** Whether an API key is stored. The key itself is write-only and never returned. */
+  hasApiKey: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   label: Scalars['String']['output'];
@@ -6875,6 +6896,7 @@ export type PexelsConfig = {
 };
 
 export type PexelsConfigInput = {
+  /** Write-only. Leave empty when editing to keep the stored key. */
   apiKey: Scalars['String']['input'];
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   label: Scalars['String']['input'];
@@ -9867,9 +9889,12 @@ export type SlackChannel = {
 
 export type SlackConfig = {
   __typename?: 'SlackConfig';
-  botToken: Scalars['String']['output'];
+  /** The token's last four characters, to tell two apart; null when too short to show safely. */
+  botTokenHint?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   defaultChannel: Scalars['String']['output'];
+  /** Whether a bot token is stored. The token itself is write-only and never returned. */
+  hasBotToken: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   label: Scalars['String']['output'];
@@ -9877,6 +9902,7 @@ export type SlackConfig = {
 };
 
 export type SlackConfigInput = {
+  /** Write-only. Leave empty when editing to keep the stored token. */
   botToken: Scalars['String']['input'];
   defaultChannel: Scalars['String']['input'];
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
@@ -16066,7 +16092,7 @@ export type SetSupportTicketTriageMutation = { __typename?: 'Mutation', setSuppo
 export type ListEmailConfigsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListEmailConfigsQuery = { __typename?: 'Query', listEmailConfigs: Array<{ __typename?: 'EmailConfig', id: string, label: string, host: string, port: number, secure: boolean, username: string, password: string, fromAddress: string, isActive: boolean }> };
+export type ListEmailConfigsQuery = { __typename?: 'Query', listEmailConfigs: Array<{ __typename?: 'EmailConfig', id: string, label: string, host: string, port: number, secure: boolean, username: string, hasPassword: boolean, fromAddress: string, isActive: boolean }> };
 
 export type CreateEmailConfigMutationVariables = Exact<{
   input: EmailConfigInput;
@@ -16127,7 +16153,7 @@ export type TestInboundMailConnectionMutation = { __typename?: 'Mutation', testI
 export type ListImageConfigsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListImageConfigsQuery = { __typename?: 'Query', listImageConfigs: Array<{ __typename?: 'ImageConfig', id: string, label: string, provider: string, publicKey: string, privateKey: string, urlEndpoint: string, isActive: boolean }> };
+export type ListImageConfigsQuery = { __typename?: 'Query', listImageConfigs: Array<{ __typename?: 'ImageConfig', id: string, label: string, provider: string, publicKey: string, hasPrivateKey: boolean, privateKeyHint?: string | null, urlEndpoint: string, isActive: boolean }> };
 
 export type CreateImageConfigMutationVariables = Exact<{
   input: ImageConfigInput;
@@ -16171,7 +16197,7 @@ export type TestImageUploadMutation = { __typename?: 'Mutation', testImageUpload
 export type ListSlackConfigsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListSlackConfigsQuery = { __typename?: 'Query', listSlackConfigs: Array<{ __typename?: 'SlackConfig', id: string, label: string, botToken: string, defaultChannel: string, isActive: boolean }> };
+export type ListSlackConfigsQuery = { __typename?: 'Query', listSlackConfigs: Array<{ __typename?: 'SlackConfig', id: string, label: string, hasBotToken: boolean, botTokenHint?: string | null, defaultChannel: string, isActive: boolean }> };
 
 export type CreateSlackConfigMutationVariables = Exact<{
   input: SlackConfigInput;
@@ -16206,7 +16232,7 @@ export type SendTestSlackMessageMutation = { __typename?: 'Mutation', sendTestSl
 export type ListGithubConfigsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListGithubConfigsQuery = { __typename?: 'Query', listGithubConfigs: Array<{ __typename?: 'GithubConfig', id: string, label: string, owner: string, repo: string, token: string, isActive: boolean }> };
+export type ListGithubConfigsQuery = { __typename?: 'Query', listGithubConfigs: Array<{ __typename?: 'GithubConfig', id: string, label: string, owner: string, repo: string, hasToken: boolean, tokenHint?: string | null, isActive: boolean }> };
 
 export type CreateGithubConfigMutationVariables = Exact<{
   input: GithubConfigInput;
@@ -16271,7 +16297,7 @@ export type SaveTrackerBuildSettingsMutation = { __typename?: 'Mutation', saveTr
 export type ListPexelsConfigsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListPexelsConfigsQuery = { __typename?: 'Query', listPexelsConfigs: Array<{ __typename?: 'PexelsConfig', id: string, label: string, apiKey: string, isActive: boolean }> };
+export type ListPexelsConfigsQuery = { __typename?: 'Query', listPexelsConfigs: Array<{ __typename?: 'PexelsConfig', id: string, label: string, hasApiKey: boolean, apiKeyHint?: string | null, isActive: boolean }> };
 
 export type CreatePexelsConfigMutationVariables = Exact<{
   input: PexelsConfigInput;
@@ -16325,7 +16351,7 @@ export type SearchPexelsVideosQuery = { __typename?: 'Query', searchPexelsVideos
 export type ListOpenAiConfigsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListOpenAiConfigsQuery = { __typename?: 'Query', listOpenAiConfigs: Array<{ __typename?: 'OpenAiConfig', id: string, label: string, apiKey: string, defaultModel: string, isActive: boolean }> };
+export type ListOpenAiConfigsQuery = { __typename?: 'Query', listOpenAiConfigs: Array<{ __typename?: 'OpenAiConfig', id: string, label: string, hasApiKey: boolean, apiKeyHint?: string | null, defaultModel: string, isActive: boolean }> };
 
 export type CreateOpenAiConfigMutationVariables = Exact<{
   input: OpenAiConfigInput;
@@ -43066,7 +43092,7 @@ export const ListEmailConfigsDocument = gql`
     port
     secure
     username
-    password
+    hasPassword
     fromAddress
     isActive
   }
@@ -43373,7 +43399,8 @@ export const ListImageConfigsDocument = gql`
     label
     provider
     publicKey
-    privateKey
+    hasPrivateKey
+    privateKeyHint
     urlEndpoint
     isActive
   }
@@ -43568,7 +43595,8 @@ export const ListSlackConfigsDocument = gql`
   listSlackConfigs {
     id
     label
-    botToken
+    hasBotToken
+    botTokenHint
     defaultChannel
     isActive
   }
@@ -43735,7 +43763,8 @@ export const ListGithubConfigsDocument = gql`
     label
     owner
     repo
-    token
+    hasToken
+    tokenHint
     isActive
   }
 }
@@ -44100,7 +44129,8 @@ export const ListPexelsConfigsDocument = gql`
   listPexelsConfigs {
     id
     label
-    apiKey
+    hasApiKey
+    apiKeyHint
     isActive
   }
 }
@@ -44355,7 +44385,8 @@ export const ListOpenAiConfigsDocument = gql`
   listOpenAiConfigs {
     id
     label
-    apiKey
+    hasApiKey
+    apiKeyHint
     defaultModel
     isActive
   }

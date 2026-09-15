@@ -1,4 +1,5 @@
 import axios from "axios";
+import { safeRequest } from "../../shared/security/safe-http";
 import * as cheerio from "cheerio";
 
 // Helper: clean URL
@@ -17,7 +18,7 @@ function cleanDomain(input: string): string {
 // ---- SEO Checker ----
 export async function seoCheck(url: string) {
   const targetUrl = cleanUrl(url);
-  const { data: html } = await axios.get(targetUrl, {
+  const { data: html } = await safeRequest<string>(targetUrl, {
     timeout: 15000,
     headers: { "User-Agent": "ExyconnSEOBot/1.0" },
   });
@@ -321,7 +322,7 @@ export async function keywordSuggest(keyword: string) {
 export async function backlinkAnalyze(url: string) {
   const targetUrl = cleanUrl(url);
   const targetDomain = cleanDomain(targetUrl);
-  const { data: html } = await axios.get(targetUrl, {
+  const { data: html } = await safeRequest<string>(targetUrl, {
     timeout: 15000,
     headers: { "User-Agent": "ExyconnSEOBot/1.0" },
   });
@@ -381,7 +382,7 @@ export async function trafficAnalyze(url: string) {
   const targetDomain = cleanDomain(targetUrl);
 
   const startTime = Date.now();
-  const { data: html, headers: responseHeaders } = await axios.get(targetUrl, {
+  const { data: html, headers: responseHeaders } = await safeRequest<string>(targetUrl, {
     timeout: 15000,
     headers: { "User-Agent": "ExyconnSEOBot/1.0" },
   });
@@ -485,7 +486,7 @@ export async function trafficAnalyze(url: string) {
 export async function competitorAnalyze(url: string) {
   const targetUrl = cleanUrl(url);
   const targetDomain = cleanDomain(targetUrl);
-  const { data: html } = await axios.get(targetUrl, {
+  const { data: html } = await safeRequest<string>(targetUrl, {
     timeout: 15000,
     headers: { "User-Agent": "ExyconnSEOBot/1.0" },
   });

@@ -1,5 +1,14 @@
 import ImageKit from 'imagekit';
 import { ImageConfigModel, type ImageConfigDocument } from '../modules/tech/image-config.model';
+import { TRACKER_LIMITS } from '../modules/tracker/tracker.constants';
+import {
+  AVATAR_UPLOAD,
+  MEDIA_UPLOAD,
+  TEST_UPLOAD,
+  assertUpload,
+  screenshotUpload,
+} from './uploadValidation';
+import { ConfigurationError } from './errors';
 
 const AVATAR_FOLDER = '/exyconn-portal/avatars';
 const TEST_FOLDER = '/exyconn-portal/tests';
@@ -24,13 +33,17 @@ class ImageUploader {
   private async getClient(): Promise<ImageKit> {
     const config = await ImageConfigModel.findOne({ isActive: true }).lean();
     if (!config) {
-      throw new Error('No active image configuration. Add one in the Tech module.');
+      throw new ConfigurationError('No active image configuration. Add one in the Tech module.');
     }
     return this.buildClient(config);
   }
 
-  /** Uploads a base64/data-URL image and returns its hosted URL. */
+  /**
+   * Uploads a base64/data-URL image and returns its hosted URL. Every upload below checks the
+   * file first (see uploadValidation): base64 only, bytes matching an allowed type, size capped.
+   */
   async uploadAvatar(file: string, fileName: string): Promise<string> {
+    assertUpload(file, AVATAR_UPLOAD);
     const client = await this.getClient();
     const result = await client.upload({
       file,
@@ -47,11 +60,12 @@ class ImageUploader {
   }
 
   /**
-   * Uploads any base64/data-URL image and returns its hosted URL. This is the single path
-   * behind the portal's shared ImageUploadDialog — `folder` just groups the uploads
+   * Uploads a base64/data-URL image (or an image-or-PDF attachment) and returns its hosted
+   * URL. This is the single path behind the portal's shared ImageUploadDialog — `folder` just groups the uploads
    * (branding, blog, tools…). Sanitised so a caller cannot escape the portal's namespace.
    */
   async uploadImage(file: string, fileName: string, folder = 'misc'): Promise<string> {
+    assertUpload(file, MEDIA_UPLOAD);
     const client = await this.getClient();
     const result = await client.upload({
       file,
@@ -92,6 +106,7 @@ class ImageUploader {
     fileName: string,
     userId: string,
   ): Promise<{ url: string; fileId: string }> {
+    assertUpload(file, screenshotUpload(TRACKER_LIMITS.maxScreenshotBytes));
     const client = await this.getClient();
     const result = await client.upload({
       file,
@@ -123,6 +138,7 @@ class ImageUploader {
    * so an admin can validate provider credentials before activating.
    */
   async uploadTest(config: ImageConfigDocument, file: string, fileName: string): Promise<string> {
+    assertUpload(file, TEST_UPLOAD);
     const client = this.buildClient(config);
     const result = await client.upload({
       file,
