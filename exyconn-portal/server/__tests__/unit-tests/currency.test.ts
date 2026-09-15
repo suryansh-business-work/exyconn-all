@@ -26,7 +26,8 @@ async function legacyBudget(organizationId: string, currency: string): Promise<T
   await BudgetModel.collection.insertOne({
     _id,
     organizationId: new Types.ObjectId(organizationId),
-    costCenterId: 'ENG',
+    // A cost centre has one budget a month (a unique index), so each record gets its own.
+    costCenterId: `CC-${_id.toHexString()}`,
     month: '2026-03',
     amount: 1000,
     currency,
