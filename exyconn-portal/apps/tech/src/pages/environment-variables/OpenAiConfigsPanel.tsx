@@ -12,9 +12,7 @@ import {
   useTestOpenAiConnectionMutation,
 } from '@exyconn/shell/graphql/generated';
 import { OpenAiConfigForm, type OpenAiConfigRow } from './forms/openai-config';
-
-/** Shows only the key's prefix — the full secret never needs to be read back on screen. */
-const maskKey = (key: string) => `${key.slice(0, 8)}…`;
+import { maskedSecret } from './secret';
 
 /**
  * Environment Variables sub-panel: the OpenAI key and model the platform's AI features
@@ -62,7 +60,7 @@ export function OpenAiConfigsPanel() {
 
   const columns: Column<OpenAiConfigRow>[] = [
     { key: 'label', label: 'Label' },
-    { key: 'apiKey', label: 'API key', render: (r) => maskKey(r.apiKey) },
+    { key: 'apiKey', label: 'API key', render: (r) => maskedSecret(r.hasApiKey, r.apiKeyHint) },
     { key: 'defaultModel', label: 'Model' },
     {
       key: 'isActive',

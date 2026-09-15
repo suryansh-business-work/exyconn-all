@@ -2,6 +2,7 @@ import type { SortOrder } from 'mongoose';
 import { assertAuthenticated } from '../middleware/roleGuard';
 import { withIds } from '../utils/serialize';
 import type { GraphQLContext } from '../middleware/auth';
+import { notFound } from '../utils/errors';
 
 type Sort = Record<string, SortOrder>;
 type LeanDoc = { _id: unknown };
@@ -41,6 +42,6 @@ export async function findOwnRecord<T>(
 ): Promise<T> {
   const user = assertAuthenticated(ctx);
   const row = await model.findOne({ _id: id, employeeId: user.id });
-  if (!row) throw new Error('Not found');
+  if (!row) notFound('Record');
   return row as T;
 }

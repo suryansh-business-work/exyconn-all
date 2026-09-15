@@ -76,6 +76,28 @@ export interface OpenAiConfigInput {
 /** Mirrors the GraphQL `TrackerPlatform` enum. */
 export type TrackerPlatform = 'WINDOWS' | 'MACOS' | 'LINUX' | 'ANDROID' | 'IOS';
 
+/**
+ * The platform credentials are write-only (see tech.secrets): the API never returns them, so a
+ * form editing a config cannot send the stored value back. A blank secret on an update therefore
+ * means "keep the stored one" — never "clear it".
+ */
+function withoutBlankSecret<T extends object>(input: T, field: keyof T): Partial<T> {
+  const value = input[field];
+  if (typeof value !== 'string' || value.trim() !== '') {
+    return input;
+  }
+  const update: Partial<T> = { ...input };
+  delete update[field];
+  return update;
+}
+
+/** A config is useless without its credential, so one is required when it is created. */
+function requireSecret(value: string | undefined, label: string): void {
+  if (!value?.trim()) {
+    badRequest(`${label} is required.`);
+  }
+}
+
 /** The settings row is a singleton, so it is always read and written under this key. */
 const SETTINGS_KEY = 'default';
 
@@ -100,6 +122,7 @@ class TechService {
   }
 
   async createEmailConfig(input: EmailConfigInput) {
+    requireSecret(input.password, 'An SMTP password');
     if (input.isActive) await EmailConfigModel.updateMany({}, { isActive: false });
     return (await EmailConfigModel.create(input)).toObject();
   }
@@ -108,7 +131,8 @@ class TechService {
     if (input.isActive) {
       await EmailConfigModel.updateMany({ _id: { $ne: id } }, { isActive: false });
     }
-    const doc = await EmailConfigModel.findByIdAndUpdate(id, input, { new: true }).lean();
+    const update = withoutBlankSecret(input, 'password');
+    const doc = await EmailConfigModel.findByIdAndUpdate(id, update, { new: true }).lean();
     if (!doc) notFound('Email config');
     return doc;
   }
@@ -171,6 +195,7 @@ class TechService {
   }
 
   async createImageConfig(input: ImageConfigInput) {
+    requireSecret(input.privateKey, 'A private key');
     if (input.isActive) await ImageConfigModel.updateMany({}, { isActive: false });
     return (await ImageConfigModel.create(input)).toObject();
   }
@@ -179,7 +204,8 @@ class TechService {
     if (input.isActive) {
       await ImageConfigModel.updateMany({ _id: { $ne: id } }, { isActive: false });
     }
-    const doc = await ImageConfigModel.findByIdAndUpdate(id, input, { new: true }).lean();
+    const update = withoutBlankSecret(input, 'privateKey');
+    const doc = await ImageConfigModel.findByIdAndUpdate(id, update, { new: true }).lean();
     if (!doc) notFound('Image config');
     return doc;
   }
@@ -202,6 +228,7 @@ class TechService {
   }
 
   async createSlackConfig(input: SlackConfigInput) {
+    requireSecret(input.botToken, 'A bot token');
     if (input.isActive) await SlackConfigModel.updateMany({}, { isActive: false });
     return (await SlackConfigModel.create(input)).toObject();
   }
@@ -210,7 +237,8 @@ class TechService {
     if (input.isActive) {
       await SlackConfigModel.updateMany({ _id: { $ne: id } }, { isActive: false });
     }
-    const doc = await SlackConfigModel.findByIdAndUpdate(id, input, { new: true }).lean();
+    const update = withoutBlankSecret(input, 'botToken');
+    const doc = await SlackConfigModel.findByIdAndUpdate(id, update, { new: true }).lean();
     if (!doc) notFound('Slack config');
     return doc;
   }
@@ -239,6 +267,7 @@ class TechService {
   }
 
   async createGithubConfig(input: GithubConfigInput) {
+    requireSecret(input.token, 'An access token');
     if (input.isActive) await GithubConfigModel.updateMany({}, { isActive: false });
     return (await GithubConfigModel.create(input)).toObject();
   }
@@ -247,7 +276,8 @@ class TechService {
     if (input.isActive) {
       await GithubConfigModel.updateMany({ _id: { $ne: id } }, { isActive: false });
     }
-    const doc = await GithubConfigModel.findByIdAndUpdate(id, input, { new: true }).lean();
+    const update = withoutBlankSecret(input, 'token');
+    const doc = await GithubConfigModel.findByIdAndUpdate(id, update, { new: true }).lean();
     if (!doc) notFound('GitHub config');
     return doc;
   }
@@ -313,6 +343,7 @@ class TechService {
   }
 
   async createPexelsConfig(input: PexelsConfigInput) {
+    requireSecret(input.apiKey, 'An API key');
     if (input.isActive) await PexelsConfigModel.updateMany({}, { isActive: false });
     return (await PexelsConfigModel.create(input)).toObject();
   }
@@ -321,7 +352,8 @@ class TechService {
     if (input.isActive) {
       await PexelsConfigModel.updateMany({ _id: { $ne: id } }, { isActive: false });
     }
-    const doc = await PexelsConfigModel.findByIdAndUpdate(id, input, { new: true }).lean();
+    const update = withoutBlankSecret(input, 'apiKey');
+    const doc = await PexelsConfigModel.findByIdAndUpdate(id, update, { new: true }).lean();
     if (!doc) notFound('Pexels config');
     return doc;
   }
@@ -355,6 +387,7 @@ class TechService {
   }
 
   async createOpenAiConfig(input: OpenAiConfigInput) {
+    requireSecret(input.apiKey, 'An API key');
     if (input.isActive) await OpenAiConfigModel.updateMany({}, { isActive: false });
     return (await OpenAiConfigModel.create(input)).toObject();
   }
@@ -363,7 +396,8 @@ class TechService {
     if (input.isActive) {
       await OpenAiConfigModel.updateMany({ _id: { $ne: id } }, { isActive: false });
     }
-    const doc = await OpenAiConfigModel.findByIdAndUpdate(id, input, { new: true }).lean();
+    const update = withoutBlankSecret(input, 'apiKey');
+    const doc = await OpenAiConfigModel.findByIdAndUpdate(id, update, { new: true }).lean();
     if (!doc) notFound('OpenAI config');
     return doc;
   }

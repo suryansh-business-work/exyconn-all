@@ -1,6 +1,6 @@
 import type { GraphQLContext } from '../../middleware/auth';
 import { ROLES } from '../../constants/roles';
-import { assertPermission } from '../../lib/permissions';
+import { assertPlatformStaff } from '../../lib/platformAccess';
 import { withIds } from '../../utils/serialize';
 import { FALLBACK_LOCALE, canonicalLocale, directionOf, endonymOf } from './locale.constants';
 import { TranslationModel } from './translation.model';
@@ -8,12 +8,13 @@ import { TRANSLATE_BATCH } from './i18n.translate';
 import {
   enabledLocales,
   fillLanguage,
+  localeIsOffered,
   readBundle,
   translateMissing,
   upsertTranslation,
   workspaceSettings,
 } from './i18n.service';
-import { createRateLimiter } from '../../utils/rateLimit';
+import { createLimiter } from '../../lib/rateLimiter';
 
 const TRANSLATIONS_MODULE = 'Localization';
 
@@ -26,7 +27,37 @@ const TRANSLATIONS_MODULE = 'Localization';
  * only has to cover genuinely new copy, which is why it can be this generous and still stop
  * somebody from posting junk to be translated in a loop.
  */
-const translationLimiter = createRateLimiter(10 * 60 * 1000, 300);
+const translationLimiter = createLimiter({
+  keyPrefix: 'translate_caller',
+  points: 300,
+  durationSec: 10 * 60,
+});
+
+/**
+ * A daily ceiling on top, for callers who are not signed in, per IP. Sized for the website's
+ * own server filling a new market's pages (it translates from one address), not for a person.
+ */
+const anonymousDailyLimiter = createLimiter({
+  keyPrefix: 'translate_anonymous_day',
+  points: 2000,
+  durationSec: 24 * 60 * 60,
+});
+
+/**
+ * Whether this caller may spend a model call now. A signed-in person keeps the per-caller
+ * budget alone. Anybody else may only ask for a locale the platform serves, within both the
+ * short budget and the daily one for their IP.
+ */
+async function mayCallModel(ctx: GraphQLContext, locale: string): Promise<boolean> {
+  if (ctx.user) {
+    return translationLimiter.allow(ctx.user.id);
+  }
+  const ip = ctx.ip ?? 'unknown';
+  if (!(await localeIsOffered(locale))) {
+    return false;
+  }
+  return (await translationLimiter.allow(ip)) && anonymousDailyLimiter.allow(ip);
+}
 
 /** Nothing in the UI is longer; anything that is was not rendered by one of our screens. */
 const MAX_SOURCE_LENGTH = 500;
@@ -35,6 +66,10 @@ const MAX_SOURCE_LENGTH = 500;
 function publicSources(sources: string[]): string[] {
   return sources.filter((source) => source.length <= MAX_SOURCE_LENGTH).slice(0, TRANSLATE_BATCH);
 }
+/**
+ * The catalogue is shared by every company, so reviewing or overriding it is the platform
+ * operator's administrators' job (lib/platformAccess), not any company's ADMIN.
+ */
 const adminOnly = [ROLES.ADMIN];
 
 /** How many rows the admin's review screen asks for when it does not say. */
@@ -73,7 +108,7 @@ export const i18nResolvers = {
       args: { locale: string; search?: string; skip?: number; limit?: number },
       ctx: GraphQLContext,
     ) => {
-      await assertPermission(ctx, TRANSLATIONS_MODULE, adminOnly, 'VIEW');
+      await assertPlatformStaff(ctx, TRANSLATIONS_MODULE, adminOnly, 'VIEW');
       const locale = canonicalLocale(args.locale) ?? FALLBACK_LOCALE;
       const filter: Record<string, unknown> = { locale };
       if (args.search?.trim()) {
@@ -112,10 +147,7 @@ export const i18nResolvers = {
       if (settings && !settings.autoTranslate) {
         return [];
       }
-      const caller = ctx.user?.id ?? ctx.ip ?? 'unknown';
-      return translateMissing(locale, publicSources(sources), () =>
-        translationLimiter.allow(caller),
-      );
+      return translateMissing(locale, publicSources(sources), () => mayCallModel(ctx, locale));
     },
 
     setTranslation: async (
@@ -123,7 +155,7 @@ export const i18nResolvers = {
       { locale, source, text }: { locale: string; source: string; text: string },
       ctx: GraphQLContext,
     ) => {
-      await assertPermission(ctx, TRANSLATIONS_MODULE, adminOnly, 'EDIT');
+      await assertPlatformStaff(ctx, TRANSLATIONS_MODULE, adminOnly, 'EDIT');
       return upsertTranslation(locale, source, text, 'HUMAN');
     },
 
@@ -132,7 +164,7 @@ export const i18nResolvers = {
       { locale }: { locale: string },
       ctx: GraphQLContext,
     ) => {
-      await assertPermission(ctx, TRANSLATIONS_MODULE, adminOnly, 'EDIT');
+      await assertPlatformStaff(ctx, TRANSLATIONS_MODULE, adminOnly, 'EDIT');
       // The work carries on after the answer; the screen shows rows as they land.
       const { finished, ...started } = await fillLanguage(locale);
       finished.catch(() => undefined);

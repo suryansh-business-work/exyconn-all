@@ -5,11 +5,13 @@
 # Note: Using node:22-slim (Debian) for glibc compatibility with onnxruntime-node
 # =============================================================================
 
-# Stage 1: Dependencies
+# Stage 1: Dependencies — installed exactly as locked. --legacy-peer-deps matches how the
+# lockfile was resolved (exyconn-tools/.npmrc sets it, but that file is outside this
+# build context); optional deps stay in for onnxruntime-node/sharp's platform binaries.
 FROM node:22-slim AS deps
 WORKDIR /app
-COPY package.json ./
-RUN rm -f package-lock.json && npm install --legacy-peer-deps --include=optional
+COPY package.json package-lock.json ./
+RUN npm ci --legacy-peer-deps --include=optional
 
 # Stage 2: Builder
 FROM node:22-slim AS builder
@@ -18,6 +20,11 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY package.json tsconfig.json ./
 COPY src ./src
 RUN npm run build
+
+# Stage 2b: Production dependencies — the same locked tree with dev deps pruned, so the
+# runtime image never re-resolves versions from the registry.
+FROM deps AS prod-deps
+RUN npm prune --omit=dev --legacy-peer-deps && npm cache clean --force
 
 # Stage 3: Production
 FROM node:22-slim AS production
@@ -41,9 +48,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     chown -R nodejs:nodejs /app
 
 # Copy production files
+COPY --from=prod-deps --chown=nodejs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
 COPY --from=builder --chown=nodejs:nodejs /app/package.json ./
-RUN npm install --omit=dev --legacy-peer-deps && npm cache clean --force
 
 USER nodejs
 

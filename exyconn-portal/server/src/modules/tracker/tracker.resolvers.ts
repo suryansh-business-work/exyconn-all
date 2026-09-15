@@ -7,6 +7,7 @@ import { recordAudit } from '../audit';
 import { githubActions } from '../../utils/github';
 import { supportedTimezones } from './tracker.timezone';
 import { assertEmployee, assertTrackerDevice } from './tracker.auth';
+import { assertSingleSignIn } from '../../lib/rateLimiterSignIn';
 import {
   trackerDeviceService,
   type DeviceInput,
@@ -452,8 +453,10 @@ export const trackerResolvers = {
     trackerLogin: async (
       _p: unknown,
       { email, password, device }: { email: string; password: string; device: DeviceInput },
+      ctx: GraphQLContext,
     ) => {
-      const result = await trackerDeviceService.login(email, password, device);
+      assertSingleSignIn(ctx);
+      const result = await trackerDeviceService.login(email, password, device, ctx.ip);
       return {
         token: result.token,
         user: withId(result.user),

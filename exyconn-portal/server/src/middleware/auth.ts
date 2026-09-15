@@ -5,6 +5,8 @@ import { recordActivity } from '../modules/admin/presence';
 import type { Role } from '../constants/roles';
 import { principalForApiKey } from '../modules/integrations/api-key.service';
 import { organizationOf, runAsPlatform, setScopeOrganization } from '../lib/tenant';
+import { OrganizationModel } from '../modules/organizations/organization.model';
+import { deviceMayRun, deviceTokenIsLive } from '../modules/tracker/tracker.auth';
 
 export interface GraphQLContext {
   user: TokenPayload | null;
@@ -29,6 +31,79 @@ export interface GraphQLContext {
   origin?: string;
   /** The `User-Agent` header, stored with client logs (Tech > Logs). Caller-supplied. */
   userAgent?: string;
+  /**
+   * Set when the caller authenticated with a tracker DEVICE token, which buildContext has
+   * already matched to a live device row. Such a request can only reach tracker operations,
+   * and role guards refuse it (see middleware/roleGuard).
+   */
+  deviceId?: string;
+}
+
+/** How long a company's ACTIVE/SUSPENDED status is trusted before it is read again. */
+const WORKSPACE_STATUS_TTL_MS = 60_000;
+const workspaceStatus = new Map<string, { at: number; open: boolean }>();
+
+/**
+ * Whether the caller's company is open for business. Suspending a company signs everyone in it
+ * out within a minute, without a query per request. No company (a platform administrator) is
+ * nothing to suspend.
+ */
+async function workspaceIsOpen(organizationId: string | null): Promise<boolean> {
+  if (organizationId === null) {
+    return true;
+  }
+  const hit = workspaceStatus.get(organizationId);
+  if (hit && Date.now() - hit.at < WORKSPACE_STATUS_TTL_MS) {
+    return hit.open;
+  }
+  const organization = await runAsPlatform(() =>
+    OrganizationModel.findById(organizationId).select('status').lean(),
+  );
+  const open = organization?.status === 'ACTIVE';
+  workspaceStatus.set(organizationId, { at: Date.now(), open });
+  return open;
+}
+
+/** Test seam: forgets every cached company status. */
+export function resetWorkspaceStatusCache(): void {
+  workspaceStatus.clear();
+}
+
+/**
+ * Re-reads the token's user and decides whether the token still stands: the account exists,
+ * is active and unblocked, the token has not been retired (tokenVersion), the company is not
+ * suspended, and — for a device token — the device is live and the request is a tracker one.
+ */
+async function currentHolder(decoded: TokenPayload, token: string, req: Request) {
+  // Read as the platform: which company this person belongs to is the question being asked.
+  const fresh = await runAsPlatform(() =>
+    UserModel.findById(decoded.id)
+      .select('roles isActive isBlocked organizationId tokenVersion')
+      .lean(),
+  );
+  if (!fresh?.isActive || fresh.isBlocked) {
+    return null;
+  }
+  if ((decoded.tv ?? 0) !== (fresh.tokenVersion ?? 0)) {
+    return null;
+  }
+  if (!(await workspaceIsOpen(organizationOf(fresh)))) {
+    return null;
+  }
+  if (decoded.deviceId && !(await deviceHolds(decoded, token, req))) {
+    return null;
+  }
+  return fresh;
+}
+
+/** A device token stands only on its live device row, and only for tracker operations. */
+async function deviceHolds(decoded: TokenPayload, token: string, req: Request): Promise<boolean> {
+  const body = req.body as { query?: unknown } | undefined;
+  const query = body?.query ?? req.query?.query;
+  if (!deviceMayRun(query)) {
+    return false;
+  }
+  return deviceTokenIsLive(decoded.id, decoded.deviceId ?? '', token);
 }
 
 /**
@@ -79,11 +154,8 @@ export async function buildContext({ req }: { req: Request }): Promise<GraphQLCo
     return anonymous(ip, origin, userAgent);
   }
 
-  // Read as the platform: which company this person belongs to is the question being asked.
-  const fresh = await runAsPlatform(() =>
-    UserModel.findById(decoded.id).select('roles isActive isBlocked organizationId').lean(),
-  );
-  if (!fresh || !fresh.isActive || fresh.isBlocked) {
+  const fresh = await currentHolder(decoded, token, req);
+  if (!fresh) {
     return anonymous(ip, origin, userAgent);
   }
 
@@ -103,6 +175,7 @@ export async function buildContext({ req }: { req: Request }): Promise<GraphQLCo
     ip,
     origin,
     userAgent,
+    deviceId: decoded.deviceId,
   };
 }
 

@@ -4,7 +4,11 @@ import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { createMyRecordsResolver } from '../../lib/employeeScope';
 import { assertAuthenticated } from '../../middleware/roleGuard';
-import { assertApprovePermission } from '../../lib/permissions';
+import {
+  assertApprovePermission,
+  assertNotOwnRecord,
+  refuseOwnRecordWrites,
+} from '../../lib/permissions';
 import { notFound } from '../../utils/errors';
 import { withId, withIds } from '../../utils/serialize';
 import { ROLES } from '../../constants/roles';
@@ -26,7 +30,7 @@ export const requestsService = createCrudService<EmployeeRequestInput>(
   'EmployeeRequest',
 );
 
-const crud = createCrudResolvers(requestsService, {
+const generated = createCrudResolvers(requestsService, {
   name: 'EmployeeRequest',
   roles: [ROLES.HR],
   table: {
@@ -37,6 +41,15 @@ const crud = createCrudResolvers(requestsService, {
   },
   stats: { countBy: ['status', 'type'] },
 });
+
+/** HR's console edits anybody's request but their own — that would be deciding it themselves. */
+const crud = {
+  ...generated,
+  Mutation: refuseOwnRecordWrites(generated.Mutation, 'EmployeeRequest', async (id) => {
+    const row = await EmployeeRequestModel.findById(id).select('employeeId').lean();
+    return row?.employeeId;
+  }),
+};
 
 /** An employee raising their own request: id from the token, status forced to PENDING. */
 async function createMyRequest(
@@ -98,6 +111,7 @@ async function decideEmployeeRequest(_p: unknown, args: DecideArgs, ctx: GraphQL
   const row = await EmployeeRequestModel.findById(args.id).lean();
   if (!row) notFound('EmployeeRequest');
   await assertMayActFor(ctx, row.employeeId, [ROLES.HR]);
+  assertNotOwnRecord(ctx, row.employeeId, 'decide a request');
   await assertApprovePermission(ctx, 'EmployeeRequest', [ROLES.HR]);
   const updated = await EmployeeRequestModel.findByIdAndUpdate(
     args.id,

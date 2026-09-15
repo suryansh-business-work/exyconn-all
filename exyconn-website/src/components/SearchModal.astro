@@ -13,7 +13,7 @@
   role="dialog"
   aria-modal="true"
   aria-labelledby="global-search-label"
-  aria-hidden="true"
+  data-open="false"
 >
   <div
     id="global-search-panel"
@@ -21,7 +21,8 @@
   >
     <!-- Input -->
     <div class="flex items-center gap-3 px-5 py-4 border-b border-line-subtle">
-      <i class="fa-solid fa-magnifying-glass text-fg-faint text-lg shrink-0" aria-hidden="true"></i>
+      <i class="fa-solid fa-magnifying-glass text-fg-subtle icon-lg shrink-0" aria-hidden="true"
+      ></i>
       <label for="global-search-input" class="sr-only" id="global-search-label">
         Search the Exyconn website
       </label>
@@ -32,9 +33,10 @@
         spellcheck="false"
         placeholder="Search pages, services, AI, blog…"
         class="gs-input flex-1 bg-transparent border-0 outline-none text-fg placeholder-fg-faint text-base px-3 py-2"
-        aria-controls="global-search-results"
+        role="combobox"
+        aria-autocomplete="list"
+        aria-controls="global-search-list"
         aria-expanded="false"
-        aria-activedescendant=""
       />
       <kbd
         class="hidden sm:inline-flex items-center px-2 py-1 text-[11px] font-semibold text-fg-subtle bg-surface-muted rounded border border-line"
@@ -44,29 +46,28 @@
       <button
         type="button"
         id="global-search-close"
-        class="text-fg-faint hover:text-fg-muted transition-colors"
+        class="inline-flex items-center justify-center w-8 h-8 rounded-full text-fg-subtle hover:text-fg hover:bg-surface-muted transition-colors"
         aria-label="Close search"
       >
-        <i class="fa-solid fa-xmark"></i>
+        <i class="fa-solid fa-xmark icon-lg" aria-hidden="true"></i>
       </button>
     </div>
 
     <!-- Results -->
-    <div
-      id="global-search-results"
-      class="max-h-[60vh] overflow-y-auto py-2"
-      role="listbox"
-      aria-label="Search results"
-    >
+    <div id="global-search-results" class="max-h-[60vh] overflow-y-auto py-2">
       <div id="global-search-empty" class="px-5 py-10 text-center text-fg-faint text-sm">
-        <i class="fa-solid fa-keyboard text-2xl mb-3 block"></i>
+        <i class="fa-solid fa-keyboard icon-xl mx-auto mb-3 block" aria-hidden="true"></i>
         Start typing to search across the website…
       </div>
-      <div id="global-search-noresults" class="px-5 py-10 text-center text-fg-faint text-sm hidden">
-        <i class="fa-regular fa-face-frown text-2xl mb-3 block"></i>
+      <div
+        id="global-search-noresults"
+        class="px-5 py-10 text-center text-fg-faint text-sm hidden"
+        role="status"
+      >
+        <i class="fa-regular fa-face-frown icon-xl mx-auto mb-3 block" aria-hidden="true"></i>
         No results. Try different keywords.
       </div>
-      <ul id="global-search-list" class="hidden"></ul>
+      <ul id="global-search-list" class="hidden" role="listbox" aria-label="Search results"></ul>
     </div>
 
     <!-- Footer hints -->
@@ -310,6 +311,7 @@
         visible = [];
         activeIndex = -1;
         input.setAttribute("aria-expanded", "false");
+        input.removeAttribute("aria-activedescendant");
         return;
       }
       empty.classList.add("hidden");
@@ -328,6 +330,7 @@
         list.classList.add("hidden");
         list.innerHTML = "";
         input.setAttribute("aria-expanded", "false");
+        input.removeAttribute("aria-activedescendant");
         return;
       }
 
@@ -337,17 +340,17 @@
         .map((it, i) => {
           const icon = CAT_ICONS[it.c] || "fa-link";
           return (
-            '<li role="option" id="gs-opt-' +
+            '<li role="none">' +
+            '<a class="gs-result" role="option" tabindex="-1" aria-selected="false" id="gs-opt-' +
             i +
-            '" aria-selected="false">' +
-            '<a class="gs-result" href="' +
+            '" href="' +
             escapeHtml(it.u) +
             '" data-i="' +
             i +
             '">' +
             '<span class="gs-icon"><i class="fa-solid ' +
             icon +
-            ' text-xs"></i></span>' +
+            ' icon-xs" aria-hidden="true"></i></span>' +
             '<span class="gs-meta">' +
             '<span class="gs-title">' +
             highlight(it.t, trimmed) +
@@ -373,8 +376,8 @@
       opts.forEach((li, i) => {
         const a = li.querySelector<HTMLAnchorElement>("a.gs-result");
         const isActive = i === activeIndex;
-        li.setAttribute("aria-selected", isActive ? "true" : "false");
-        if (a) a.classList.toggle("is-active", isActive);
+        a?.setAttribute("aria-selected", isActive ? "true" : "false");
+        a?.classList.toggle("is-active", isActive);
         if (isActive) {
           input.setAttribute("aria-activedescendant", "gs-opt-" + i);
           a?.scrollIntoView({ block: "nearest" });
@@ -382,9 +385,12 @@
       });
     }
 
+    let opener: HTMLElement | null = null;
+
     function open(): void {
+      opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
       overlay.classList.add("is-open");
-      overlay.setAttribute("aria-hidden", "false");
+      overlay.dataset.open = "true";
       document.body.style.overflow = "hidden";
       void loadIndex().then(() => render(input.value));
       requestAnimationFrame(() => input.focus());
@@ -392,8 +398,9 @@
 
     function close(): void {
       overlay.classList.remove("is-open");
-      overlay.setAttribute("aria-hidden", "true");
+      overlay.dataset.open = "false";
       document.body.style.overflow = "";
+      opener?.focus();
     }
 
     // Triggers
@@ -419,16 +426,6 @@
         e.preventDefault();
         if (isOpen) close();
         else open();
-        return;
-      }
-      // "/" opens (when not typing in another input)
-      if (
-        !isOpen &&
-        e.key === "/" &&
-        !(e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement)
-      ) {
-        e.preventDefault();
-        open();
         return;
       }
       if (!isOpen) return;

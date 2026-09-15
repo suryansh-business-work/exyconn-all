@@ -7,6 +7,7 @@ import {
   sanitizeArticleHtml,
   scopeArticleCss,
 } from "../../../lib/portal";
+import { safeHref } from "../../../lib/safe-output";
 import "../../../styles/article.css";
 
 const { slug } = Astro.params;
@@ -17,6 +18,7 @@ if (!caseStudy) {
 }
 
 const body = sanitizeArticleHtml(caseStudy.content);
+const pdfHref = safeHref(caseStudy.pdfUrl);
 // A body designed in the portal's live editor brings its own CSS, scoped to the article.
 const designCss = scopeArticleCss(caseStudy.contentCss);
 
@@ -69,7 +71,7 @@ const pageJsonLd = [
   ogType="article"
   jsonLd={pageJsonLd}
 >
-  <main class="bg-gradient-to-b from-surface-subtle to-surface min-h-screen">
+  <div class="bg-gradient-to-b from-surface-subtle to-surface min-h-screen">
     <!-- Hero Section -->
     <section class="relative pt-12 pb-8 px-6">
       <div class="max-w-4xl mx-auto">
@@ -121,9 +123,9 @@ const pageJsonLd = [
             {formatDate(caseStudy.publishedAt)}
           </span>
           {
-            caseStudy.pdfUrl && (
+            pdfHref && (
               <a
-                href={caseStudy.pdfUrl}
+                href={pdfHref}
                 target="_blank"
                 rel="noopener"
                 class="inline-flex items-center gap-2 px-4 py-2 bg-inverse text-on-solid font-semibold rounded-full hover:bg-inverse-muted transition-colors"
@@ -183,7 +185,7 @@ const pageJsonLd = [
         </a>
       </div>
     </section>
-  </main>
+  </div>
 </Page>
 
 <style>

@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { UserModel } from '../../src/modules/admin/user.model';
 import { ensureAdminAccess } from '../../src/seed/ensureAdminAccess';
 import { authService } from '../../src/modules/auth/auth.service';
@@ -12,7 +13,13 @@ const sentCredentials = mailer.sendCredentialsEmail as jest.MockedFunction<
   typeof mailer.sendCredentialsEmail
 >;
 
-beforeEach(() => sentCredentials.mockClear());
+beforeEach(() => {
+  sentCredentials.mockClear();
+  // A configured bootstrap password, generated so no credential lives in the test.
+  jest.replaceProperty(env.seedAdmin, 'password', randomUUID());
+});
+
+afterEach(() => jest.restoreAllMocks());
 
 describe('ensureAdminAccess', () => {
   it('creates the seed admin on an empty database', async () => {
@@ -37,13 +44,13 @@ describe('ensureAdminAccess', () => {
     expect(seedAdmin?.roles).toEqual(expect.arrayContaining([ROLES.EMPLOYEE, ROLES.ADMIN]));
   });
 
-  it('un-blocks and re-activates the bootstrap account', async () => {
-    const user = await seedUser(ADMIN_EMAIL, 'whatever123', [ROLES.ADMIN]);
+  it('never un-blocks or re-activates the bootstrap account', async () => {
+    const user = await seedUser(ADMIN_EMAIL, 'whatever123', [ROLES.EMPLOYEE]);
     await UserModel.updateOne({ _id: user.id }, { isActive: false, isBlocked: true });
     await ensureAdminAccess();
     const admin = await UserModel.findOne({ email: ADMIN_EMAIL });
-    expect(admin?.isActive).toBe(true);
-    expect(admin?.isBlocked).toBe(false);
+    expect(admin?.isActive).toBe(false);
+    expect(admin?.isBlocked).toBe(true);
   });
 
   it("never touches another user's roles", async () => {
@@ -57,6 +64,21 @@ describe('ensureAdminAccess', () => {
     await ensureAdminAccess();
     const { user } = await authService.login(ADMIN_EMAIL, 'knownpass123');
     expect(user.roles).toContain(ROLES.ADMIN);
+  });
+
+  describe('without SEED_ADMIN_PASSWORD', () => {
+    beforeEach(() => jest.replaceProperty(env.seedAdmin, 'password', null));
+
+    it('creates no account with a default password', async () => {
+      await ensureAdminAccess();
+      expect(await UserModel.countDocuments({ email: ADMIN_EMAIL })).toBe(0);
+    });
+
+    it('re-grants nothing to an existing bootstrap account', async () => {
+      await seedUser(ADMIN_EMAIL, 'whatever123', [ROLES.EMPLOYEE]);
+      await ensureAdminAccess();
+      expect((await UserModel.findOne({ email: ADMIN_EMAIL }))?.roles).toEqual([ROLES.EMPLOYEE]);
+    });
   });
 });
 

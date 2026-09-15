@@ -4,6 +4,7 @@ import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { createMyRecordsResolver, findOwnRecord } from '../../lib/employeeScope';
 import { assertAuthenticated } from '../../middleware/roleGuard';
+import { assertNotOwnRecord, refuseOwnRecordWrites } from '../../lib/permissions';
 import { badRequest, notFound } from '../../utils/errors';
 import { withId, withIds } from '../../utils/serialize';
 import { ROLES } from '../../constants/roles';
@@ -63,6 +64,7 @@ async function commentOnTeamGoal(
   const goal = await GoalModel.findById(id);
   if (!goal) notFound('Goal');
   await assertMayActFor(ctx, goal.employeeId, [ROLES.HR]);
+  assertNotOwnRecord(ctx, goal.employeeId, 'write the manager’s comment');
   goal.managerComment = comment;
   await goal.save();
   return withId(goal.toObject());
@@ -82,6 +84,14 @@ export const goalsResolvers = {
     myGoals: createMyRecordsResolver(GoalModel as never, { endDate: -1 }),
     teamGoals,
   },
-  Mutation: { ...crud.Mutation, updateMyGoalProgress, commentOnTeamGoal },
+  Mutation: {
+    // HR's console may not set the caller's own goal status; their progress has its own mutation.
+    ...refuseOwnRecordWrites(crud.Mutation, 'Goal', async (id) => {
+      const row = await GoalModel.findById(id).select('employeeId').lean();
+      return row?.employeeId;
+    }),
+    updateMyGoalProgress,
+    commentOnTeamGoal,
+  },
 };
 export { goalsTypeDefs };

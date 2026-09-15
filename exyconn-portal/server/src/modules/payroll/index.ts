@@ -22,8 +22,8 @@ import { companyProfile } from '../../lib/company';
 import { normalizeCurrency } from '../../utils/iso';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
-import { assertPermission } from '../../lib/permissions';
-import { assertAuthenticated, assertRole } from '../../middleware/roleGuard';
+import { assertNotOwnRecord, assertPermission, refuseOwnRecordWrites } from '../../lib/permissions';
+import { assertAuthenticated } from '../../middleware/roleGuard';
 import { badRequest, notFound } from '../../utils/errors';
 import { withId, withIds } from '../../utils/serialize';
 import { ROLES } from '../../constants/roles';
@@ -45,6 +45,9 @@ import type { GraphQLContext } from '../../middleware/auth';
 import type { TableQueryInput } from '../../utils/tableQuery';
 
 const PAYROLL_ROLES = [ROLES.HR, ROLES.FINANCE];
+
+/** The admin matrix restricts payroll runs, slips, schedule and settings under this name. */
+const SLIP_MODULE = 'SalarySlip';
 
 interface SalaryStructureInput {
   employeeId: string;
@@ -75,7 +78,7 @@ async function employeeSalary(
   { employeeId }: { employeeId: string },
   ctx: GraphQLContext,
 ) {
-  assertRole(ctx, PAYROLL_ROLES);
+  await assertPermission(ctx, 'SalaryStructure', PAYROLL_ROLES, 'VIEW');
   const structure = await SalaryStructureModel.findOne({ employeeId }).lean();
   return structure ? withId(structure as { _id: unknown }) : null;
 }
@@ -93,7 +96,9 @@ async function saveEmployeeSalary(
   { employeeId, input }: { employeeId: string; input: Omit<SalaryStructureInput, 'employeeId'> },
   ctx: GraphQLContext,
 ) {
-  assertRole(ctx, PAYROLL_ROLES);
+  await assertPermission(ctx, 'SalaryStructure', PAYROLL_ROLES, 'EDIT');
+  // Nobody sets their own pay, whatever payroll role they hold.
+  assertNotOwnRecord(ctx, employeeId, 'set a salary');
   const saved = await SalaryStructureModel.findOneAndUpdate(
     { employeeId },
     { ...input, employeeId },
@@ -298,7 +303,7 @@ async function runPayroll(
   { month, year }: { month: number; year: number },
   ctx: GraphQLContext,
 ) {
-  assertRole(ctx, PAYROLL_ROLES);
+  await assertPermission(ctx, SLIP_MODULE, PAYROLL_ROLES, 'CREATE');
   assertMonth(month, year);
   const settings = await readPayrollSettings();
   const taxTable = await taxTableFor(settings, month, year);
@@ -388,7 +393,7 @@ async function payrollSummary(
   { month, year }: { month: number; year: number },
   ctx: GraphQLContext,
 ) {
-  assertRole(ctx, PAYROLL_ROLES);
+  await assertPermission(ctx, SLIP_MODULE, PAYROLL_ROLES, 'VIEW');
   assertMonth(month, year);
   const slips = await SalarySlipModel.find({ month, year }).lean();
   return {
@@ -429,7 +434,7 @@ async function updatePayrollSchedule(
   { input }: { input: PayrollScheduleInput },
   ctx: GraphQLContext,
 ) {
-  assertRole(ctx, PAYROLL_ROLES);
+  await assertPermission(ctx, SLIP_MODULE, PAYROLL_ROLES, 'EDIT');
   assertSchedule(input);
   return PayrollScheduleModel.findOneAndUpdate({ key: 'global' }, input, {
     new: true,
@@ -442,7 +447,7 @@ async function sendSalarySlips(
   { month, year }: { month: number; year: number },
   ctx: GraphQLContext,
 ) {
-  const user = assertRole(ctx, PAYROLL_ROLES);
+  const user = await assertPermission(ctx, SLIP_MODULE, PAYROLL_ROLES, 'EDIT');
   assertMonth(month, year);
   return dispatchSalarySlips(month, year, user.email);
 }
@@ -458,7 +463,7 @@ async function salarySlipPdf(_p: unknown, { id }: { id: string }, ctx: GraphQLCo
     notFound('Salary slip');
   }
   if (slip.employeeId !== user.id) {
-    assertRole(ctx, PAYROLL_ROLES);
+    await assertPermission(ctx, SLIP_MODULE, PAYROLL_ROLES, 'VIEW');
   }
   const payslip = await renderPayslip(id);
   return {
@@ -508,7 +513,7 @@ async function updatePayrollSettings(
   { input }: { input: PayrollSettingsInput },
   ctx: GraphQLContext,
 ) {
-  assertRole(ctx, [ROLES.HR]);
+  await assertPermission(ctx, SLIP_MODULE, [ROLES.HR], 'EDIT');
   assertPayrollSettings(input);
   return PayrollSettingsModel.findOneAndUpdate({ key: 'global' }, input, {
     new: true,
@@ -541,27 +546,30 @@ export const payrollResolvers = {
       { input }: { input: TableQueryInput },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, PAYROLL_ROLES);
+      await assertPermission(ctx, SLIP_MODULE, PAYROLL_ROLES, 'VIEW');
       const page = await slipService.paged(input, SLIP_TABLE);
       return { rows: withIds(page.rows as { _id: unknown }[]), totalCount: page.totalCount };
     },
     listSalarySlipsStats: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      assertRole(ctx, PAYROLL_ROLES);
+      await assertPermission(ctx, SLIP_MODULE, PAYROLL_ROLES, 'VIEW');
       return slipService.stats({ countBy: ['status'], sum: ['gross', 'net'] });
     },
     payrollSummary,
     payrollSchedule: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      assertRole(ctx, PAYROLL_ROLES);
+      await assertPermission(ctx, SLIP_MODULE, PAYROLL_ROLES, 'VIEW');
       return readSchedule();
     },
     payrollSettings: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      assertRole(ctx, PAYROLL_ROLES);
+      await assertPermission(ctx, SLIP_MODULE, PAYROLL_ROLES, 'VIEW');
       return readPayrollSettings();
     },
     salarySlipPdf,
   },
   Mutation: {
-    ...structureCrud.Mutation,
+    ...refuseOwnRecordWrites(structureCrud.Mutation, 'SalaryStructure', async (id) => {
+      const row = await SalaryStructureModel.findById(id).select('employeeId').lean();
+      return row?.employeeId;
+    }),
     ...regimeCrud.Mutation,
     ...slabCrud.Mutation,
     saveEmployeeSalary,

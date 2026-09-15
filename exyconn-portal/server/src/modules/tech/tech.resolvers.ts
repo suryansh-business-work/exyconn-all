@@ -1,6 +1,8 @@
 import { techService } from './tech.service';
 import { assertAuthenticated } from '../../middleware/roleGuard';
 import { assertPermission } from '../../lib/permissions';
+import { assertPlatformStaff } from '../../lib/platformAccess';
+import { techSecretResolvers } from './tech.secrets';
 import { ROLES } from '../../constants/roles';
 import { withId, withIds } from '../../utils/serialize';
 import type { GraphQLContext } from '../../middleware/auth';
@@ -23,9 +25,20 @@ const techOnly = [ROLES.TECH];
 /** The module name the admin permission matrix restricts these screens under. */
 const TECH_MODULE = 'TechConfig';
 
-/** Role first, then whatever the matrix leaves the caller's role in this module. */
+/**
+ * Role first, then whatever the matrix leaves the caller's role in this module. Only for the
+ * support mailbox, which each company configures for its own tickets.
+ */
 const guard = (ctx: GraphQLContext, action: PermissionAction) =>
   assertPermission(ctx, TECH_MODULE, techOnly, action);
+
+/**
+ * Everything else here is the install's shared infrastructure — one SMTP account, one ImageKit,
+ * one GitHub repository for every company — so only the platform's own staff may see or change
+ * it (lib/platformAccess), on top of the same role and matrix check.
+ */
+const platformGuard = (ctx: GraphQLContext, action: PermissionAction) =>
+  assertPlatformStaff(ctx, TECH_MODULE, techOnly, action);
 
 /** Arguments both stock searches take: the term, the page and the dialog's filter row. */
 interface PexelsSearchArgs {
@@ -40,7 +53,7 @@ const FIRST_PAGE = 1;
 export const techResolvers = {
   Query: {
     listEmailConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      await guard(ctx, 'VIEW');
+      await platformGuard(ctx, 'VIEW');
       return withIds(await techService.listEmailConfigs());
     },
     listInboundMailConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
@@ -48,23 +61,23 @@ export const techResolvers = {
       return withIds(await techService.listInboundMailConfigs());
     },
     listImageConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      await guard(ctx, 'VIEW');
+      await platformGuard(ctx, 'VIEW');
       return withIds(await techService.listImageConfigs());
     },
     listSlackConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      await guard(ctx, 'VIEW');
+      await platformGuard(ctx, 'VIEW');
       return withIds(await techService.listSlackConfigs());
     },
     listGithubConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      await guard(ctx, 'VIEW');
+      await platformGuard(ctx, 'VIEW');
       return withIds(await techService.listGithubConfigs());
     },
     listPexelsConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      await guard(ctx, 'VIEW');
+      await platformGuard(ctx, 'VIEW');
       return withIds(await techService.listPexelsConfigs());
     },
     listOpenAiConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      await guard(ctx, 'VIEW');
+      await platformGuard(ctx, 'VIEW');
       return withIds(await techService.listOpenAiConfigs());
     },
     // The stock tabs live in the shared upload dialog, which every portal renders, so
@@ -86,15 +99,15 @@ export const techResolvers = {
       return techService.searchPexelsVideos(query, page ?? FIRST_PAGE, filters ?? {});
     },
     listSlackChannels: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      await guard(ctx, 'VIEW');
+      await platformGuard(ctx, 'VIEW');
       return techService.listSlackChannels();
     },
     listTrackerBuilds: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      await guard(ctx, 'VIEW');
+      await platformGuard(ctx, 'VIEW');
       return techService.listTrackerBuilds();
     },
     trackerBuildSettings: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      await guard(ctx, 'VIEW');
+      await platformGuard(ctx, 'VIEW');
       return techService.trackerBuildSettings();
     },
   },
@@ -104,7 +117,7 @@ export const techResolvers = {
       { input }: { input: EmailConfigInput },
       ctx: GraphQLContext,
     ) => {
-      await guard(ctx, 'CREATE');
+      await platformGuard(ctx, 'CREATE');
       return withId(await techService.createEmailConfig(input));
     },
     updateEmailConfig: async (
@@ -112,11 +125,11 @@ export const techResolvers = {
       { id, input }: { id: string; input: EmailConfigInput },
       ctx: GraphQLContext,
     ) => {
-      await guard(ctx, 'EDIT');
+      await platformGuard(ctx, 'EDIT');
       return withId(await techService.updateEmailConfig(id, input));
     },
     deleteEmailConfig: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      await guard(ctx, 'DELETE');
+      await platformGuard(ctx, 'DELETE');
       return techService.deleteEmailConfig(id);
     },
     createInboundMailConfig: async (
@@ -148,7 +161,7 @@ export const techResolvers = {
       { input }: { input: ImageConfigInput },
       ctx: GraphQLContext,
     ) => {
-      await guard(ctx, 'CREATE');
+      await platformGuard(ctx, 'CREATE');
       return withId(await techService.createImageConfig(input));
     },
     updateImageConfig: async (
@@ -156,11 +169,11 @@ export const techResolvers = {
       { id, input }: { id: string; input: ImageConfigInput },
       ctx: GraphQLContext,
     ) => {
-      await guard(ctx, 'EDIT');
+      await platformGuard(ctx, 'EDIT');
       return withId(await techService.updateImageConfig(id, input));
     },
     deleteImageConfig: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      await guard(ctx, 'DELETE');
+      await platformGuard(ctx, 'DELETE');
       return techService.deleteImageConfig(id);
     },
     sendTestEmail: async (
@@ -168,7 +181,7 @@ export const techResolvers = {
       { id, to }: { id: string; to: string },
       ctx: GraphQLContext,
     ) => {
-      await guard(ctx, 'EDIT');
+      await platformGuard(ctx, 'EDIT');
       return techService.sendTestEmail(id, to);
     },
     testImageUpload: async (
@@ -176,7 +189,7 @@ export const techResolvers = {
       { id, file, fileName }: { id: string; file: string; fileName: string },
       ctx: GraphQLContext,
     ) => {
-      await guard(ctx, 'EDIT');
+      await platformGuard(ctx, 'EDIT');
       return techService.testImageUpload(id, file, fileName);
     },
     createSlackConfig: async (
@@ -184,7 +197,7 @@ export const techResolvers = {
       { input }: { input: SlackConfigInput },
       ctx: GraphQLContext,
     ) => {
-      await guard(ctx, 'CREATE');
+      await platformGuard(ctx, 'CREATE');
       return withId(await techService.createSlackConfig(input));
     },
     updateSlackConfig: async (
@@ -192,11 +205,11 @@ export const techResolvers = {
       { id, input }: { id: string; input: SlackConfigInput },
       ctx: GraphQLContext,
     ) => {
-      await guard(ctx, 'EDIT');
+      await platformGuard(ctx, 'EDIT');
       return withId(await techService.updateSlackConfig(id, input));
     },
     deleteSlackConfig: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      await guard(ctx, 'DELETE');
+      await platformGuard(ctx, 'DELETE');
       return techService.deleteSlackConfig(id);
     },
     sendTestSlackMessage: async (
@@ -204,7 +217,7 @@ export const techResolvers = {
       { id, channel }: { id: string; channel: string },
       ctx: GraphQLContext,
     ) => {
-      await guard(ctx, 'EDIT');
+      await platformGuard(ctx, 'EDIT');
       return techService.sendTestSlackMessage(id, channel);
     },
     createGithubConfig: async (
@@ -212,7 +225,7 @@ export const techResolvers = {
       { input }: { input: GithubConfigInput },
       ctx: GraphQLContext,
     ) => {
-      await guard(ctx, 'CREATE');
+      await platformGuard(ctx, 'CREATE');
       return withId(await techService.createGithubConfig(input));
     },
     updateGithubConfig: async (
@@ -220,15 +233,15 @@ export const techResolvers = {
       { id, input }: { id: string; input: GithubConfigInput },
       ctx: GraphQLContext,
     ) => {
-      await guard(ctx, 'EDIT');
+      await platformGuard(ctx, 'EDIT');
       return withId(await techService.updateGithubConfig(id, input));
     },
     deleteGithubConfig: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      await guard(ctx, 'DELETE');
+      await platformGuard(ctx, 'DELETE');
       return techService.deleteGithubConfig(id);
     },
     testGithubConnection: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      await guard(ctx, 'EDIT');
+      await platformGuard(ctx, 'EDIT');
       return techService.testGithubConnection(id);
     },
     createPexelsConfig: async (
@@ -236,7 +249,7 @@ export const techResolvers = {
       { input }: { input: PexelsConfigInput },
       ctx: GraphQLContext,
     ) => {
-      await guard(ctx, 'CREATE');
+      await platformGuard(ctx, 'CREATE');
       return withId(await techService.createPexelsConfig(input));
     },
     updatePexelsConfig: async (
@@ -244,15 +257,15 @@ export const techResolvers = {
       { id, input }: { id: string; input: PexelsConfigInput },
       ctx: GraphQLContext,
     ) => {
-      await guard(ctx, 'EDIT');
+      await platformGuard(ctx, 'EDIT');
       return withId(await techService.updatePexelsConfig(id, input));
     },
     deletePexelsConfig: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      await guard(ctx, 'DELETE');
+      await platformGuard(ctx, 'DELETE');
       return techService.deletePexelsConfig(id);
     },
     testPexelsConnection: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      await guard(ctx, 'EDIT');
+      await platformGuard(ctx, 'EDIT');
       return techService.testPexelsConnection(id);
     },
     createOpenAiConfig: async (
@@ -260,7 +273,7 @@ export const techResolvers = {
       { input }: { input: OpenAiConfigInput },
       ctx: GraphQLContext,
     ) => {
-      await guard(ctx, 'CREATE');
+      await platformGuard(ctx, 'CREATE');
       return withId(await techService.createOpenAiConfig(input));
     },
     updateOpenAiConfig: async (
@@ -268,15 +281,15 @@ export const techResolvers = {
       { id, input }: { id: string; input: OpenAiConfigInput },
       ctx: GraphQLContext,
     ) => {
-      await guard(ctx, 'EDIT');
+      await platformGuard(ctx, 'EDIT');
       return withId(await techService.updateOpenAiConfig(id, input));
     },
     deleteOpenAiConfig: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      await guard(ctx, 'DELETE');
+      await platformGuard(ctx, 'DELETE');
       return techService.deleteOpenAiConfig(id);
     },
     testOpenAiConnection: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      await guard(ctx, 'EDIT');
+      await platformGuard(ctx, 'EDIT');
       return techService.testOpenAiConnection(id);
     },
     startTrackerBuild: async (
@@ -284,7 +297,7 @@ export const techResolvers = {
       { platforms, ref }: { platforms: TrackerPlatform[]; ref: string },
       ctx: GraphQLContext,
     ) => {
-      await guard(ctx, 'CREATE');
+      await platformGuard(ctx, 'CREATE');
       return techService.startTrackerBuild(platforms, ref);
     },
     saveTrackerBuildSettings: async (
@@ -295,8 +308,9 @@ export const techResolvers = {
       }: { slackChannels: string[]; statusAlertChannels?: string[] | null },
       ctx: GraphQLContext,
     ) => {
-      await guard(ctx, 'EDIT');
+      await platformGuard(ctx, 'EDIT');
       return techService.saveTrackerBuildSettings(slackChannels, statusAlertChannels);
     },
   },
+  ...techSecretResolvers,
 };

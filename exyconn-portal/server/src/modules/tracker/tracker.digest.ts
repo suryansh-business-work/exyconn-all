@@ -2,7 +2,7 @@ import { AppSettingsModel } from '../admin/settings.model';
 import { forEachOrganization } from '../organizations';
 import { recordJobRun } from '../../utils/jobHeartbeat';
 import { UserModel } from '../admin/user.model';
-import { emailer } from '../email';
+import { emailer, rawHtml } from '../email';
 import { ROLES } from '../../constants/roles';
 import { logger } from '../../utils/logger';
 import { TrackerIntervalModel, TrackerSettingsModel } from './models';
@@ -133,7 +133,8 @@ async function sendDigest(digest: Digest): Promise<void> {
 
   const variables = {
     periodLabel: digest.periodLabel,
-    rows: renderDigestRows(digest.rows),
+    // Built here from escaped cells, so it goes into the template as markup.
+    rows: rawHtml(renderDigestRows(digest.rows)),
     totalHours: String(digest.totalHours),
     employeeCount: String(digest.rows.length),
   };

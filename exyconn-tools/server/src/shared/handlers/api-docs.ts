@@ -7,12 +7,8 @@ interface ToolDoc {
 }
 
 const COMMON_ENDPOINTS = [
-  'GET /api/common/imagekit/auth',
   'POST /api/common/imagekit/upload',
-  'POST /api/common/imagekit/upload-base64',
   'DELETE /api/common/imagekit/delete/:fileId',
-  'GET /api/common/email/verify',
-  'POST /api/common/email/send',
   'POST /api/common/email/send-signature-test',
 ];
 

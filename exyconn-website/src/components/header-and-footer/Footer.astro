@@ -5,6 +5,7 @@ import AccessibilityDrawer from "../AccessibilityDrawer.astro";
 import BrandLogo from "../BrandLogo.astro";
 import MarketPicker from "../MarketPicker.astro";
 import { BRANDING_FALLBACK, type Branding } from "../../lib/portal";
+import { socialLinks, type SocialNetwork } from "../../lib/social-links";
 import { TOOLS_SITE_URL } from "../../lib/site";
 
 interface Props {
@@ -26,58 +27,16 @@ const legalName = branding.legalName || BRANDING_FALLBACK.legalName;
 const copyrightText =
   branding.copyrightText || `© ${new Date().getFullYear()} ${legalName}. All rights reserved.`;
 
-// An empty URL means "no account" — that icon is not rendered at all. Facebook/Instagram/
-// YouTube have no fallback because the footer never linked to them.
-const socialLinks = [
-  {
-    id: "linkedin",
-    url: branding.linkedinUrl || BRANDING_FALLBACK.linkedinUrl,
-    icon: "fa-brands fa-linkedin-in",
-    label: "Follow us on LinkedIn (opens in new tab)",
-    classes:
-      "w-10 h-10 bg-surface-muted hover:bg-blue-subtle hover:text-blue-fg rounded-full flex items-center justify-center text-fg-subtle transition focus:ring-2 focus:ring-blue focus:ring-offset-2",
-  },
-  {
-    id: "twitter",
-    url: branding.twitterUrl || BRANDING_FALLBACK.twitterUrl,
-    icon: "fa-brands fa-x-twitter",
-    label: "Follow us on X / Twitter (opens in new tab)",
-    classes:
-      "w-10 h-10 bg-surface-muted hover:bg-blue-subtle hover:text-blue-bright rounded-full flex items-center justify-center text-fg-subtle transition focus:ring-2 focus:ring-blue focus:ring-offset-2",
-  },
-  {
-    id: "facebook",
-    url: branding.facebookUrl,
-    icon: "fa-brands fa-facebook-f",
-    label: "Follow us on Facebook (opens in new tab)",
-    classes:
-      "w-10 h-10 bg-surface-muted hover:bg-blue-subtle hover:text-blue-fg rounded-full flex items-center justify-center text-fg-subtle transition focus:ring-2 focus:ring-blue focus:ring-offset-2",
-  },
-  {
-    id: "instagram",
-    url: branding.instagramUrl,
-    icon: "fa-brands fa-instagram",
-    label: "Follow us on Instagram (opens in new tab)",
-    classes:
-      "w-10 h-10 bg-surface-muted hover:bg-pink-subtle hover:text-pink-fg rounded-full flex items-center justify-center text-fg-subtle transition focus:ring-2 focus:ring-pink focus:ring-offset-2",
-  },
-  {
-    id: "youtube",
-    url: branding.youtubeUrl,
-    icon: "fa-brands fa-youtube",
-    label: "Subscribe to us on YouTube (opens in new tab)",
-    classes:
-      "w-10 h-10 bg-surface-muted hover:bg-red-subtle hover:text-red-fg rounded-full flex items-center justify-center text-fg-subtle transition focus:ring-2 focus:ring-red focus:ring-offset-2",
-  },
-  {
-    id: "github",
-    url: branding.githubUrl || BRANDING_FALLBACK.githubUrl,
-    icon: "fa-brands fa-github",
-    label: "View our GitHub profile (opens in new tab)",
-    classes:
-      "w-10 h-10 bg-surface-muted hover:bg-surface-strong rounded-full flex items-center justify-center text-fg-subtle transition focus:ring-2 focus:ring-line-strong focus:ring-offset-2",
-  },
-].filter((link) => link.url !== "");
+// Hover colour per network; the links themselves come from Admin > Branding.
+const SOCIAL_HOVER: Record<SocialNetwork, string> = {
+  linkedin: "hover:bg-blue-subtle hover:text-blue-fg",
+  twitter: "hover:bg-blue-subtle hover:text-blue-fg",
+  facebook: "hover:bg-blue-subtle hover:text-blue-fg",
+  instagram: "hover:bg-pink-subtle hover:text-pink-fg",
+  youtube: "hover:bg-red-subtle hover:text-red-fg",
+  github: "hover:bg-surface-strong hover:text-fg",
+};
+const social = socialLinks(branding);
 ---
 
 <Newsletter />
@@ -106,62 +65,78 @@ const socialLinks = [
           Empowering businesses with AI-native intelligence and enterprise-ready SaaS solutions.
           From idea to MVP in weeks, not months.
         </p>
-        <div class="flex items-center gap-4" role="list" aria-label="Social media links">
+        <ul class="flex items-center gap-4" aria-label="Social media links">
           {
-            socialLinks.map((link) => (
-              <a
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                class={link.classes}
-                aria-label={link.label}
-                role="listitem"
-              >
-                <i class={link.icon} aria-hidden="true" />
-              </a>
+            social.map((link) => (
+              <li>
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class:list={[
+                    "w-10 h-10 bg-surface-muted rounded-full flex items-center justify-center text-fg-muted transition",
+                    SOCIAL_HOVER[link.id],
+                  ]}
+                  aria-label={link.label}
+                >
+                  <i class:list={[link.icon, "icon-md"]} aria-hidden="true" />
+                </a>
+              </li>
             ))
           }
-        </div>
+        </ul>
       </div>
 
       <!-- AI Solutions Column -->
       <nav aria-label="AI Solutions navigation">
-        <h4 class="font-semibold text-fg mb-4">AI Solutions</h4>
-        <ul class="space-y-3 text-sm" role="list">
+        <h2 class="font-semibold text-fg mb-4">AI Solutions</h2>
+        <ul class="space-y-1 text-sm">
           <li>
-            <a href="/ai" class="text-fg-muted hover:text-fg transition focus:underline"
+            <a
+              href="/ai"
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
               >AI Platform</a
             >
           </li>
           <li>
-            <a href="/ai/agentic" class="text-fg-muted hover:text-fg transition focus:underline"
+            <a
+              href="/ai/agentic"
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
               >Agentic AI</a
             >
           </li>
           <li>
             <a
               href="/ai/bot-creation"
-              class="text-fg-muted hover:text-fg transition focus:underline">Bot Creation</a
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
+              >Bot Creation</a
             >
           </li>
           <li>
-            <a href="/ai/workflows" class="text-fg-muted hover:text-fg transition focus:underline"
+            <a
+              href="/ai/workflows"
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
               >AI Workflows</a
             >
           </li>
           <li>
-            <a href="/ai/llms" class="text-fg-muted hover:text-fg transition focus:underline"
+            <a
+              href="/ai/llms"
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
               >LLMs</a
             >
           </li>
           <li>
             <a
               href="/ai/custom-model-training"
-              class="text-fg-muted hover:text-fg transition focus:underline">Custom Training</a
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
+              >Custom Training</a
             >
           </li>
           <li>
-            <a href="/ai/mcp-server" class="text-fg-muted hover:text-fg transition focus:underline"
+            <a
+              href="/ai/mcp-server"
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
               >MCP Server</a
             >
           </li>
@@ -170,63 +145,75 @@ const socialLinks = [
 
       <!-- Services Column -->
       <nav aria-label="Services navigation">
-        <h4 class="font-semibold text-fg mb-4">Services</h4>
-        <ul class="space-y-3 text-sm" role="list">
+        <h2 class="font-semibold text-fg mb-4">Services</h2>
+        <ul class="space-y-1 text-sm">
           <li>
-            <a href="/our-services" class="text-fg-muted hover:text-fg transition focus:underline"
+            <a
+              href="/our-services"
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
               >All Services</a
             >
           </li>
           <li>
             <a
               href="/services/digital-consulting"
-              class="text-fg-muted hover:text-fg transition focus:underline">Digital Consulting</a
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
+              >Digital Consulting</a
             >
           </li>
           <li>
             <a
               href="/services/software-as-a-service"
-              class="text-fg-muted hover:text-fg transition focus:underline">SaaS Development</a
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
+              >SaaS Development</a
             >
           </li>
           <li>
             <a
               href="/services/enterprise-application"
-              class="text-fg-muted hover:text-fg transition focus:underline">Enterprise Apps</a
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
+              >Enterprise Apps</a
             >
           </li>
           <li>
             <a
               href="/services/mobile-application-development"
-              class="text-fg-muted hover:text-fg transition focus:underline">Mobile Apps</a
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
+              >Mobile Apps</a
             >
           </li>
           <li>
             <a
               href="/services/data-analytics"
-              class="text-fg-muted hover:text-fg transition focus:underline">Data Analytics</a
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
+              >Data Analytics</a
             >
           </li>
           <li>
             <a
               href="/services/digital-marketing"
-              class="text-fg-muted hover:text-fg transition focus:underline">Digital Marketing</a
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
+              >Digital Marketing</a
             >
           </li>
           <li>
             <a
               href="/services/application-modernization"
-              class="text-fg-muted hover:text-fg transition focus:underline">App Modernization</a
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
+              >App Modernization</a
             >
           </li>
           <li>
             <a
               href="/services/software-development-outsourcing"
-              class="text-fg-muted hover:text-fg transition focus:underline">Outsourcing</a
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
+              >Outsourcing</a
             >
           </li>
           <li>
-            <a href="/india/offer" class="text-fg-muted hover:text-fg transition focus:underline"
+            <a
+              href="/india/offer"
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
               >India Offer</a
             >
           </li>
@@ -235,15 +222,19 @@ const socialLinks = [
 
       <!-- Products Column -->
       <nav aria-label="Products navigation">
-        <h4 class="font-semibold text-fg mb-4">Products</h4>
-        <ul class="space-y-3 text-sm" role="list">
+        <h2 class="font-semibold text-fg mb-4">Products</h2>
+        <ul class="space-y-1 text-sm">
           <li>
-            <a href="/our-products" class="text-fg-muted hover:text-fg transition focus:underline"
+            <a
+              href="/our-products"
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
               >All Products</a
             >
           </li>
           <li>
-            <a href="/ai-services" class="text-fg-muted hover:text-fg transition focus:underline"
+            <a
+              href="/ai-services"
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
               >AI Services</a
             >
           </li>
@@ -252,11 +243,11 @@ const socialLinks = [
               href="https://sibera.work"
               target="_blank"
               rel="noopener noreferrer"
-              class="text-fg-muted hover:text-fg transition inline-flex items-center gap-1 focus:underline"
+              class="py-1 text-fg-muted hover:text-fg transition inline-flex items-center gap-1 focus:underline"
             >
               Sibera <i
-                class="fa-solid fa-arrow-up-right-from-square text-[10px] text-fg-faint"
-                aria-hidden="true"></i>
+                class="fa-solid fa-arrow-up-right-from-square icon-xs text-fg-subtle"
+                aria-hidden="true"></i><span class="sr-only">(opens in a new tab)</span>
             </a>
           </li>
           <li>
@@ -264,11 +255,11 @@ const socialLinks = [
               href="https://spentiva.com"
               target="_blank"
               rel="noopener noreferrer"
-              class="text-fg-muted hover:text-fg transition inline-flex items-center gap-1 focus:underline"
+              class="py-1 text-fg-muted hover:text-fg transition inline-flex items-center gap-1 focus:underline"
             >
               Spentiva <i
-                class="fa-solid fa-arrow-up-right-from-square text-[10px] text-fg-faint"
-                aria-hidden="true"></i>
+                class="fa-solid fa-arrow-up-right-from-square icon-xs text-fg-subtle"
+                aria-hidden="true"></i><span class="sr-only">(opens in a new tab)</span>
             </a>
           </li>
           <li>
@@ -276,11 +267,11 @@ const socialLinks = [
               href="https://duncit.com"
               target="_blank"
               rel="noopener noreferrer"
-              class="text-fg-muted hover:text-fg transition inline-flex items-center gap-1 focus:underline"
+              class="py-1 text-fg-muted hover:text-fg transition inline-flex items-center gap-1 focus:underline"
             >
               Duncit <i
-                class="fa-solid fa-arrow-up-right-from-square text-[10px] text-fg-faint"
-                aria-hidden="true"></i>
+                class="fa-solid fa-arrow-up-right-from-square icon-xs text-fg-subtle"
+                aria-hidden="true"></i><span class="sr-only">(opens in a new tab)</span>
             </a>
           </li>
           <li>
@@ -288,11 +279,11 @@ const socialLinks = [
               href={TOOLS_SITE_URL}
               target="_blank"
               rel="noopener noreferrer"
-              class="text-fg-muted hover:text-fg transition inline-flex items-center gap-1 focus:underline"
+              class="py-1 text-fg-muted hover:text-fg transition inline-flex items-center gap-1 focus:underline"
             >
               Free Tools <i
-                class="fa-solid fa-arrow-up-right-from-square text-[10px] text-fg-faint"
-                aria-hidden="true"></i>
+                class="fa-solid fa-arrow-up-right-from-square icon-xs text-fg-subtle"
+                aria-hidden="true"></i><span class="sr-only">(opens in a new tab)</span>
             </a>
           </li>
         </ul>
@@ -300,70 +291,98 @@ const socialLinks = [
 
       <!-- Company Column -->
       <nav aria-label="Company navigation">
-        <h4 class="font-semibold text-fg mb-4">Company</h4>
-        <ul class="space-y-3 text-sm" role="list">
+        <h2 class="font-semibold text-fg mb-4">Company</h2>
+        <ul class="space-y-1 text-sm">
           <li>
-            <a href="/about-us" class="text-fg-muted hover:text-fg transition focus:underline"
+            <a
+              href="/about-us"
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
               >About Us</a
             >
           </li>
           <li>
-            <a href="/our-vision" class="text-fg-muted hover:text-fg transition focus:underline"
+            <a
+              href="/our-vision"
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
               >Our Vision</a
             >
           </li>
           <li>
-            <a href="/career" class="text-fg-muted hover:text-fg transition focus:underline"
+            <a
+              href="/career"
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
               >Careers</a
             >
           </li>
           <li>
-            <a href="/blog" class="text-fg-muted hover:text-fg transition focus:underline">Blog</a>
+            <a
+              href="/blog"
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
+              >Blog</a
+            >
           </li>
           <li>
             <a
               href={TOOLS_SITE_URL}
               target="_blank"
               rel="noopener noreferrer"
-              class="text-fg-muted hover:text-fg transition focus:underline">Free Tools</a
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
+              >Free Tools</a
             >
           </li>
           <li>
-            <a href="/case-studies" class="text-fg-muted hover:text-fg transition focus:underline"
+            <a
+              href="/case-studies"
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
               >Case Studies</a
             >
           </li>
           <li>
-            <a href="/contact" class="text-fg-muted hover:text-fg transition focus:underline"
+            <a
+              href="/contact"
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
               >Contact</a
             >
           </li>
           <li>
-            <a href="/get-a-quote" class="text-fg-muted hover:text-fg transition focus:underline"
+            <a
+              href="/get-a-quote"
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
               >Get a Quote</a
             >
           </li>
           <li>
-            <a href="/grievance" class="text-fg-muted hover:text-fg transition focus:underline"
+            <a
+              href="/grievance"
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
               >Grievance</a
             >
           </li>
           <li>
-            <a href="/privacy-policy" class="text-fg-muted hover:text-fg transition focus:underline"
+            <a
+              href="/privacy-policy"
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
               >Privacy Policy</a
             >
           </li>
           <li>
-            <a href="/cookies" class="text-fg-muted hover:text-fg transition focus:underline"
+            <a
+              href="/cookies"
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
               >Cookies</a
             >
           </li>
           <li>
-            <a href="/legal" class="text-fg-muted hover:text-fg transition focus:underline">Legal</a
+            <a
+              href="/legal"
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
+              >Legal</a
             >
           </li>
           <li>
-            <a href="/sitemap" class="text-fg-muted hover:text-fg transition focus:underline"
+            <a
+              href="/sitemap"
+              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
               >Sitemap</a
             >
           </li>
@@ -374,7 +393,8 @@ const socialLinks = [
 
   <!-- Bottom Bar -->
   <div class="border-t border-line-subtle">
-    <div class="max-w-7xl mx-auto px-6 py-6">
+    <!-- Bottom padding clears the launchers pinned to the bottom corners, so they never sit on these links. -->
+    <div class="max-w-7xl mx-auto px-6 pt-6 pb-36">
       <div class="flex flex-col md:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-3">
           <MarketPicker />
@@ -385,16 +405,24 @@ const socialLinks = [
           >
         </div>
         <nav aria-label="Legal links" class="flex flex-wrap items-center gap-6 text-sm">
-          <a href="/privacy-policy" class="text-fg-subtle hover:text-fg transition focus:underline"
+          <a
+            href="/privacy-policy"
+            class="inline-block py-1 text-fg-subtle hover:text-fg transition focus:underline"
             >Privacy Policy</a
           >
-          <a href="/legal" class="text-fg-subtle hover:text-fg transition focus:underline"
+          <a
+            href="/legal"
+            class="inline-block py-1 text-fg-subtle hover:text-fg transition focus:underline"
             >Terms of Service</a
           >
-          <a href="/cookies" class="text-fg-subtle hover:text-fg transition focus:underline"
+          <a
+            href="/cookies"
+            class="inline-block py-1 text-fg-subtle hover:text-fg transition focus:underline"
             >Cookies</a
           >
-          <a href="/sitemap" class="text-fg-subtle hover:text-fg transition focus:underline"
+          <a
+            href="/sitemap"
+            class="inline-block py-1 text-fg-subtle hover:text-fg transition focus:underline"
             >Sitemap</a
           >
         </nav>
@@ -404,15 +432,6 @@ const socialLinks = [
 
   <CokkiesModel />
   <AccessibilityDrawer />
-
-  <!-- Single Back to Top Button -->
-  <button
-    id="backToTopBtn"
-    class="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-blue-strong text-on-solid shadow-lg hover:bg-blue-deep transition-all duration-300 flex items-center justify-center opacity-0 pointer-events-none cursor-pointer"
-    aria-label="Back to top"
-  >
-    <i class="fa-solid fa-arrow-up"></i>
-  </button>
 </footer>
 
 <script is:inline>
@@ -438,23 +457,6 @@ const socialLinks = [
       localStorage.setItem("cookieConsent", "rejected");
       hideCookieDialog();
     });
-
-    // Back to Top
-    const backToTopBtn = document.getElementById("backToTopBtn");
-    if (backToTopBtn) {
-      window.addEventListener("scroll", () => {
-        if (window.scrollY > 300) {
-          backToTopBtn.classList.remove("opacity-0", "pointer-events-none");
-          backToTopBtn.classList.add("opacity-100");
-        } else {
-          backToTopBtn.classList.add("opacity-0", "pointer-events-none");
-          backToTopBtn.classList.remove("opacity-100");
-        }
-      });
-      backToTopBtn.addEventListener("click", () => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      });
-    }
   });
 </script>
 

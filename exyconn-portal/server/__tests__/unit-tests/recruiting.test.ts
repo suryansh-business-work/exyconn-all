@@ -39,10 +39,15 @@ const asRole = (role: string): GraphQLContext => ({
   user: { id: 'u1', roles: [role] as never, email: `${role.toLowerCase()}@exyconn.com` },
 });
 
+/** The website posting a form: nobody signed in. */
+const visitor: GraphQLContext = { user: null, ip: '198.51.100.20' };
+
 const submit = (submissionData: Record<string, unknown>) =>
-  websiteResolvers.Mutation.createWebsiteSubmission(null, {
-    input: { formType: 'job-application', submissionData },
-  }) as Promise<{ id: string; applicantId: string | null }>;
+  websiteResolvers.Mutation.createWebsiteSubmission(
+    null,
+    { input: { formType: 'job-application', submissionData } },
+    visitor,
+  ) as Promise<{ id: string; applicantId: string | null }>;
 
 const setStage = (id: string, stage: string, ctx: GraphQLContext, note = '') =>
   recruitingResolvers.Mutation.setApplicantStage(null, { id, stage: stage as never, note }, ctx);
@@ -112,9 +117,11 @@ describe('Applicant from a job application', () => {
   });
 
   it('does not file an applicant for other forms', async () => {
-    await websiteResolvers.Mutation.createWebsiteSubmission(null, {
-      input: { formType: 'contact', submissionData: { email: 'a@b.co', message: 'Hi' } },
-    });
+    await websiteResolvers.Mutation.createWebsiteSubmission(
+      null,
+      { input: { formType: 'contact', submissionData: { email: 'a@b.co', message: 'Hi' } } },
+      visitor,
+    );
 
     expect(await ApplicantModel.countDocuments()).toBe(0);
   });

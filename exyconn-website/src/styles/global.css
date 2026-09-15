@@ -31,13 +31,66 @@
   mask-size: 40px 40px;
 }
 
-/* Global Anchor Styles - Remove default underlines */
-a {
-  text-decoration: none !important;
+/*
+ * Links carry no underline unless they ask for one. In the base layer, so a link's own
+ * `underline` or `hover:underline` utility wins — as an `!important` rule outside the layers
+ * this used to cancel every one of them.
+ */
+@layer base {
+  a,
+  a:hover {
+    text-decoration: none;
+  }
 }
 
-a:hover {
-  text-decoration: none !important;
+/*
+ * A link inside running text must not be told apart by colour alone (WCAG 1.4.1): links in
+ * portal articles, and bare links in a paragraph or list item, keep their underline.
+ */
+.article-body a,
+:is(p, li, dd, td, blockquote) > a:not([class]) {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+/*
+ * The icon scale (--icon-size-*, from tokens/scale.tokens.ts). Each step also gives the
+ * icon Font Awesome's fixed width (1.25em), so a row of icons lines up and the text beside
+ * an icon does not move when the icon font arrives.
+ */
+@utility icon-xs {
+  font-size: var(--icon-size-xs);
+  width: 1.25em;
+  line-height: 1;
+  text-align: center;
+}
+
+@utility icon-sm {
+  font-size: var(--icon-size-sm);
+  width: 1.25em;
+  line-height: 1;
+  text-align: center;
+}
+
+@utility icon-md {
+  font-size: var(--icon-size-md);
+  width: 1.25em;
+  line-height: 1;
+  text-align: center;
+}
+
+@utility icon-lg {
+  font-size: var(--icon-size-lg);
+  width: 1.25em;
+  line-height: 1;
+  text-align: center;
+}
+
+@utility icon-xl {
+  font-size: var(--icon-size-xl);
+  width: 1.25em;
+  line-height: 1;
+  text-align: center;
 }
 
 /* Only apply underline to links explicitly styled for it */

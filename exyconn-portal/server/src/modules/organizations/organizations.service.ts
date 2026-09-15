@@ -136,6 +136,11 @@ class OrganizationService {
       if (belongsTo !== null && belongsTo !== organizationId) {
         badRequest('That email already belongs to somebody in another organization.');
       }
+      // A platform administrator stands above every company; moving that account into one
+      // would hand a company's staff an account that administers the whole platform.
+      if (belongsTo === null && existing.roles.includes(ROLES.SUPER_ADMIN)) {
+        badRequest('That email belongs to a platform administrator, who cannot join a company.');
+      }
       existing.roles = [...new Set([...existing.roles, ROLES.ADMIN])] as Role[];
       setOrganizationOf(existing, organizationId);
       existing.isActive = true;

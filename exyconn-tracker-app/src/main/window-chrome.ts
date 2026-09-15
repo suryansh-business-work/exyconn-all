@@ -1,5 +1,6 @@
-import { BrowserWindow, ipcMain } from 'electron';
+import { BrowserWindow } from 'electron';
 import { IPC } from '@shared/types';
+import { handleTrusted } from './web-security';
 
 /**
  * The tracker draws its own title bar, so minimise / maximise / close arrive over IPC from
@@ -16,9 +17,9 @@ function senderWindow(event: Electron.IpcMainInvokeEvent): BrowserWindow | null 
 
 /** Wired once at startup, for every window that uses the shared preload. */
 export function registerWindowControls(): void {
-  ipcMain.handle(IPC.minimizeWindow, (event) => senderWindow(event)?.minimize());
-  ipcMain.handle(IPC.closeWindow, (event) => senderWindow(event)?.close());
-  ipcMain.handle(IPC.toggleMaximizeWindow, (event) => {
+  handleTrusted(IPC.minimizeWindow, (event) => senderWindow(event)?.minimize());
+  handleTrusted(IPC.closeWindow, (event) => senderWindow(event)?.close());
+  handleTrusted(IPC.toggleMaximizeWindow, (event) => {
     const win = senderWindow(event);
     if (!win) {
       return false;

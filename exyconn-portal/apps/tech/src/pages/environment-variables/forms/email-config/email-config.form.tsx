@@ -9,26 +9,30 @@ import {
   useUpdateEmailConfigMutation,
 } from '@exyconn/shell/graphql/generated';
 import type { EmailConfigRow } from './email-config.types';
+import { KEEP_SECRET_HINT, secretField } from '../../secret';
 
 const BOOL_OPTIONS: SelectOption[] = [
   { value: 'true', label: 'Yes' },
   { value: 'false', label: 'No' },
 ];
 
-const schema = z.object({
-  label: z.string().trim().min(1, 'Label is required'),
-  host: z.string().trim().min(1, 'Host is required'),
-  port: z.coerce
-    .number({ message: 'Port must be a number' })
-    .min(1, 'Enter a valid port')
-    .max(65535, 'Enter a valid port'),
-  secure: z.enum(['true', 'false']),
-  username: z.string().trim().min(1, 'Username is required'),
-  password: z.string().min(1, 'Password is required'),
-  fromAddress: z.string().trim().min(1, 'From address is required'),
-  isActive: z.enum(['true', 'false']),
-});
-type Values = z.infer<typeof schema>;
+/** The password is write-only: required to create, blank on an edit keeps the stored one. */
+const makeSchema = (isEdit: boolean) =>
+  z.object({
+    label: z.string().trim().min(1, 'Label is required'),
+    host: z.string().trim().min(1, 'Host is required'),
+    port: z.coerce
+      .number({ message: 'Port must be a number' })
+      .min(1, 'Enter a valid port')
+      .max(65535, 'Enter a valid port'),
+    secure: z.enum(['true', 'false']),
+    username: z.string().trim().min(1, 'Username is required'),
+    password: secretField(isEdit, 'Password is required'),
+    fromAddress: z.string().trim().min(1, 'From address is required'),
+    isActive: z.enum(['true', 'false']),
+  });
+type Schema = ReturnType<typeof makeSchema>;
+type Values = z.infer<Schema>;
 
 /** Maps the validated form values onto the GraphQL input. */
 const toInput = (values: Values) => ({
@@ -48,7 +52,8 @@ const toInitial = (row: EmailConfigRow | null): Values => ({
   port: row?.port ?? 587,
   secure: row ? (row.secure ? 'true' : 'false') : 'false',
   username: row?.username ?? '',
-  password: row?.password ?? '',
+  // Never prefilled: the API does not return it, and blank keeps the stored password.
+  password: '',
   fromAddress: row?.fromAddress ?? '',
   isActive: row ? (row.isActive ? 'true' : 'false') : 'true',
 });
@@ -60,11 +65,11 @@ interface EmailConfigFormProps {
 }
 
 /** React Hook Form + Zod form to create or update an SMTP/email configuration. */
-export function EmailConfigForm({ initial, onDone, onCancel }: EmailConfigFormProps) {
+export function EmailConfigForm({ initial, onDone, onCancel }: Readonly<EmailConfigFormProps>) {
   const [createConfig] = useCreateEmailConfigMutation();
   const [updateConfig] = useUpdateEmailConfigMutation();
-  const methods = useForm<z.input<typeof schema>, unknown, Values>({
-    resolver: zodResolver(schema),
+  const methods = useForm<z.input<Schema>, unknown, Values>({
+    resolver: zodResolver(makeSchema(Boolean(initial))),
     defaultValues: toInitial(initial),
   });
 
@@ -83,7 +88,12 @@ export function EmailConfigForm({ initial, onDone, onCancel }: EmailConfigFormPr
       <RhfTextField name="port" label="Port" type="number" />
       <RhfSelect name="secure" label="Use TLS/SSL (secure)" options={BOOL_OPTIONS} />
       <RhfTextField name="username" label="Username" />
-      <RhfTextField name="password" label="Password" type="password" />
+      <RhfTextField
+        name="password"
+        label="Password"
+        type="password"
+        helperText={isEdit ? KEEP_SECRET_HINT : 'Stored write-only — it is never shown again'}
+      />
       <RhfTextField name="fromAddress" label="From address" />
       <RhfSelect name="isActive" label="Set as active" options={BOOL_OPTIONS} />
     </EntityForm>

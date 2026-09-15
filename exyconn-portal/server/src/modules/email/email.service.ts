@@ -5,7 +5,14 @@ import { EmailTemplateModel } from './email-template.model';
 import { EmailLogModel } from './email-log.model';
 import { EmailConfigModel, type EmailConfigDocument } from '../tech/email-config.model';
 import { BrandingModel } from '../branding/branding.model';
-import { EmailRenderError, renderTemplate, variablesIn, fragmentsIn } from './email.render';
+import {
+  EmailRenderError,
+  plainVariables,
+  renderTemplate,
+  variablesIn,
+  fragmentsIn,
+  type EmailVariables,
+} from './email.render';
 import { logger } from '../../utils/logger';
 
 /** Everything a caller needs to send one templated message. */
@@ -13,8 +20,11 @@ export interface SendTemplateInput {
   /** The template's `key`, e.g. `policy-published`. */
   template: string;
   to: string;
-  /** Values for every `{{placeholder}}` the template uses. */
-  variables: Record<string, string>;
+  /**
+   * Values for every `{{placeholder}}` the template uses. Text is HTML-escaped when it is
+   * substituted; markup the server built itself must be wrapped in `rawHtml()`.
+   */
+  variables: EmailVariables;
   replyTo?: string;
   /** Who asked for this, for the log. An email address, or a description of the process. */
   triggeredBy?: string;
@@ -77,7 +87,7 @@ function buildTransport(config: EmailConfigDocument) {
  */
 export async function renderStoredTemplate(
   key: string,
-  variables: Record<string, string>,
+  variables: EmailVariables,
 ): Promise<RenderedEmail> {
   const template = await EmailTemplateModel.findOne({ key }).lean();
   if (!template) {
@@ -158,7 +168,7 @@ export async function sendTemplateEmail(input: SendTemplateInput): Promise<void>
     templateName: template.name,
     to: input.to,
     subject: rendered.subject,
-    variables: input.variables,
+    variables: plainVariables(input.variables),
     triggeredBy: input.triggeredBy ?? '',
     attachments: (input.attachments ?? []).map((file) => file.filename),
     sentAt: new Date(),

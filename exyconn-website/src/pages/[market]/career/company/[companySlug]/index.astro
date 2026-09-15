@@ -7,6 +7,8 @@ import {
   getJobs,
   sanitizeArticleHtml,
 } from "../../../../../lib/portal";
+import { safeHref } from "../../../../../lib/safe-output";
+import { readableInk } from "../../../../../styles/tokens/semantic.tokens";
 import "../../../../../styles/article.css";
 
 // Get company slug from URL
@@ -24,6 +26,16 @@ if (!company) {
   return new Response(null, { status: 404 });
 }
 
+// Portal-authored links: an unsafe scheme renders as no link at all.
+const websiteHref = safeHref(company.website);
+const logoSrc = safeHref(company.logo);
+const social = {
+  linkedin: safeHref(company.socialLinks?.linkedin),
+  twitter: safeHref(company.socialLinks?.twitter),
+  instagram: safeHref(company.socialLinks?.instagram),
+  facebook: safeHref(company.socialLinks?.facebook),
+};
+
 // Get unique categories for filtering
 const categories = [...new Set(activeJobs.map((job) => job.category))];
 ---
@@ -34,7 +46,7 @@ const categories = [...new Set(activeJobs.map((job) => job.category))];
   metaKeywords={`${company.name} careers, ${company.name} jobs, ${company.industry} jobs, remote jobs`}
   metaImage={company.logo}
 >
-  <main class="bg-surface min-h-screen">
+  <div class="bg-surface min-h-screen">
     <!-- Hero Section with Company Branding -->
     <section
       class="relative py-20 px-6 overflow-hidden"
@@ -57,7 +69,7 @@ const categories = [...new Set(activeJobs.map((job) => job.category))];
               <a href="/career" class="text-fg-subtle hover:text-fg-secondary transition">Careers</a>
             </li>
             <li class="text-fg-faint">/</li>
-            <li class="font-medium" style={`color: ${company.brandColor};`}>{company.name}</li>
+            <li class="font-medium" style={`color: ${readableInk(company.brandColor)};`}>{company.name}</li>
           </ol>
         </nav>
 
@@ -66,7 +78,7 @@ const categories = [...new Set(activeJobs.map((job) => job.category))];
           <div
             class="w-24 h-24 bg-surface rounded-2xl shadow-lg flex items-center justify-center overflow-hidden shrink-0"
           >
-            <img src={company.logo} alt={`${company.name} logo`} class="w-full h-full object-contain p-3" />
+            <img src={logoSrc} alt={`${company.name} logo`} class="w-full h-full object-contain p-3" />
           </div>
 
           <!-- Company Info -->
@@ -105,9 +117,9 @@ const categories = [...new Set(activeJobs.map((job) => job.category))];
                 <i class="fa-solid fa-briefcase"></i>
                 {activeJobs.length} Open Positions
               </span>
-              {company.website && (
+              {websiteHref && (
                 <a
-                  href={company.website}
+                  href={websiteHref}
                   target="_blank"
                   rel="noopener noreferrer"
                   class="inline-flex items-center gap-2 px-4 py-2 rounded-full font-medium bg-surface-muted text-fg-secondary hover:bg-surface-strong transition"
@@ -214,7 +226,7 @@ const categories = [...new Set(activeJobs.map((job) => job.category))];
                       </span>
                       {job.isFeatured && (
                         <span class="px-2 py-0.5 bg-amber-subtle text-amber-fg text-xs font-medium rounded-full">
-                          <i class="fa-solid fa-star text-[10px] mr-1" />
+                          <i class="fa-solid fa-star icon-xs mr-1" aria-hidden="true" />
                           Featured
                         </span>
                       )}
@@ -278,7 +290,7 @@ const categories = [...new Set(activeJobs.map((job) => job.category))];
         <div class="text-center mt-10">
           <p class="text-fg-muted">
             Don't see a role that fits?
-            <a href={`mailto:careers@${company.slug}.com`} class="font-semibold hover:underline" style={`color: ${company.brandColor};`}>
+            <a href={`mailto:careers@${company.slug}.com`} class="font-semibold hover:underline" style={`color: ${readableInk(company.brandColor)};`}>
               Send us your resume
             </a>
           </p>
@@ -292,44 +304,48 @@ const categories = [...new Set(activeJobs.map((job) => job.category))];
         <div class="max-w-5xl mx-auto text-center">
           <p class="text-fg-muted mb-4">Follow {company.name}</p>
           <div class="flex justify-center gap-4">
-            {company.socialLinks.linkedin && (
+            {social.linkedin && (
               <a
-                href={company.socialLinks.linkedin}
+                href={social.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label={`${company.name} on LinkedIn (opens in new tab)`}
                 class="w-10 h-10 rounded-full bg-surface-muted flex items-center justify-center text-fg-muted hover:bg-blue-strong hover:text-on-solid transition"
               >
-                <i class="fa-brands fa-linkedin-in" />
+                <i class="fa-brands fa-linkedin-in icon-md" aria-hidden="true" />
               </a>
             )}
-            {company.socialLinks.twitter && (
+            {social.twitter && (
               <a
-                href={company.socialLinks.twitter}
+                href={social.twitter}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label={`${company.name} on X / Twitter (opens in new tab)`}
                 class="w-10 h-10 rounded-full bg-surface-muted flex items-center justify-center text-fg-muted hover:bg-sky hover:text-on-solid transition"
               >
-                <i class="fa-brands fa-twitter" />
+                <i class="fa-brands fa-twitter icon-md" aria-hidden="true" />
               </a>
             )}
-            {company.socialLinks.instagram && (
+            {social.instagram && (
               <a
-                href={company.socialLinks.instagram}
+                href={social.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label={`${company.name} on Instagram (opens in new tab)`}
                 class="w-10 h-10 rounded-full bg-surface-muted flex items-center justify-center text-fg-muted hover:bg-pink hover:text-on-solid transition"
               >
-                <i class="fa-brands fa-instagram" />
+                <i class="fa-brands fa-instagram icon-md" aria-hidden="true" />
               </a>
             )}
-            {company.socialLinks.facebook && (
+            {social.facebook && (
               <a
-                href={company.socialLinks.facebook}
+                href={social.facebook}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label={`${company.name} on Facebook (opens in new tab)`}
                 class="w-10 h-10 rounded-full bg-surface-muted flex items-center justify-center text-fg-muted hover:bg-blue-deep hover:text-on-solid transition"
               >
-                <i class="fa-brands fa-facebook-f" />
+                <i class="fa-brands fa-facebook-f icon-md" aria-hidden="true" />
               </a>
             )}
           </div>
@@ -349,7 +365,7 @@ const categories = [...new Set(activeJobs.map((job) => job.category))];
         </a>
       </div>
     </section>
-  </main>
+  </div>
 </Page>
 
 <script>

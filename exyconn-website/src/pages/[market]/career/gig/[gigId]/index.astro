@@ -41,7 +41,7 @@ const gigCategoryIcons: Record<string, string> = {
 ---
 
 <Page title={`${gig.title} | Freelance Gig | Exyconn`} description={gig.shortDescription}>
-  <main class="bg-surface-subtle min-h-screen">
+  <div class="bg-surface-subtle min-h-screen">
     <!-- Header -->
     <section
       class="border-b border-line py-6 px-6 sticky top-0 z-50 backdrop-blur-lg bg-surface/95"
@@ -59,7 +59,7 @@ const gigCategoryIcons: Record<string, string> = {
           <span class="text-sm text-fg-subtle">Posted {postedAgo}</span>
           {
             gig.isUrgent && (
-              <span class="px-3 py-1.5 bg-red text-on-solid rounded-full text-xs font-bold animate-pulse">
+              <span class="px-3 py-1.5 bg-red-strong text-on-solid rounded-full text-xs font-bold animate-pulse">
                 <i class="fa-solid fa-fire mr-1" />
                 URGENT
               </span>
@@ -67,7 +67,7 @@ const gigCategoryIcons: Record<string, string> = {
           }
           <a
             href={`mailto:${gig.applicationContact}?subject=Application for ${gig.title}`}
-            class="px-6 py-2.5 bg-amber text-on-solid font-bold rounded-full hover:bg-amber-strong transition shadow-lg"
+            class="px-6 py-2.5 bg-amber text-on-bright font-bold rounded-full hover:bg-amber-strong transition shadow-lg"
           >
             Apply Now
           </a>
@@ -228,7 +228,7 @@ const gigCategoryIcons: Record<string, string> = {
 
               <a
                 href={`mailto:${gig.applicationContact}?subject=Application for ${gig.title} (${gig.gigCode})`}
-                class="block w-full px-6 py-4 bg-amber text-on-solid text-center font-bold rounded-xl hover:bg-amber-strong transition shadow-lg mb-4"
+                class="block w-full px-6 py-4 bg-amber text-on-bright text-center font-bold rounded-xl hover:bg-amber-strong transition shadow-lg mb-4"
               >
                 <i class="fa-solid fa-envelope mr-2"></i>
                 Apply via Email
@@ -364,5 +364,5 @@ const gigCategoryIcons: Record<string, string> = {
         </div>
       </div>
     </section>
-  </main>
+  </div>
 </Page>

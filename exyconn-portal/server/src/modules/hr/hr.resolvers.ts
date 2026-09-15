@@ -1,6 +1,6 @@
 import { hrService, type ApplyLeaveInput, type MarkAttendanceInput } from './hr.service';
 import { assertRole, assertAuthenticated } from '../../middleware/roleGuard';
-import { assertApprovePermission } from '../../lib/permissions';
+import { assertApprovePermission, assertNotOwnRecord } from '../../lib/permissions';
 import { ROLES } from '../../constants/roles';
 import { withId, withIds } from '../../utils/serialize';
 import { assertMayActFor, directReportIds } from '../admin/reporting';
@@ -79,6 +79,7 @@ export const hrCustomResolvers = {
     ) => {
       const { employeeId } = await hrService.getLeave(id);
       await assertMayActFor(ctx, employeeId, hrOnly);
+      assertNotOwnRecord(ctx, employeeId, 'decide a leave request');
       await assertApprovePermission(ctx, 'LeaveRequest', hrOnly);
       return withId(await hrService.setLeaveStatus(id, status));
     },

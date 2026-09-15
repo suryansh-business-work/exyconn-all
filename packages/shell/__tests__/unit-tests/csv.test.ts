@@ -30,4 +30,16 @@ describe('toCsv', () => {
     const csv = toCsv([], [{ header: 'Amount, INR', value: () => 0 }]);
     expect(csv).toBe('"Amount, INR"');
   });
+
+  it('neutralises text that a spreadsheet would run as a formula', () => {
+    const csv = toCsv(
+      [{ name: '=HYPERLINK("http://x")', amount: -5, note: '@SUM(A1)', when: undefined }],
+      cols,
+    );
+    expect(csv.split('\r\n')[1]).toBe(`"'=HYPERLINK(""http://x"")",-5,'@SUM(A1),`);
+    expect(toCsv([], [{ header: '+1', value: () => 0 }])).toBe("'+1");
+    expect(toCsv([], [{ header: '-1', value: () => 0 }])).toBe("'-1");
+    expect(toCsv([], [{ header: '\tx', value: () => 0 }])).toBe("'\tx");
+    expect(toCsv([], [{ header: '\rx', value: () => 0 }])).toBe('"\'\rx"');
+  });
 });

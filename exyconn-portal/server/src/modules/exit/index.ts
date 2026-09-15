@@ -3,6 +3,8 @@ import { exitTypeDefs } from './exit.typeDefs';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { assertAuthenticated } from '../../middleware/roleGuard';
+import { assertPermission } from '../../lib/permissions';
+import { forbidden } from '../../utils/errors';
 import { withId, withIds } from '../../utils/serialize';
 import { ROLES } from '../../constants/roles';
 import { isValidObjectId } from 'mongoose';
@@ -62,20 +64,40 @@ async function myExitRecord(_p: unknown, _a: unknown, ctx: GraphQLContext) {
  * Reaching EXITED is the moment the person stops being an employee, so their
  * portal access goes with it. Wrapped around the generated update rather than a
  * model hook, so the same edit HR already makes is what revokes access.
+ *
+ * The person deactivated is the one the STORED record is about, never an `employeeId` sent with
+ * the edit — otherwise one exit record could switch off anybody. And only an administrator may
+ * switch off an administrator.
  */
 const updateExitRecord = async (p: unknown, args: never, ctx: GraphQLContext) => {
   const { id, input } = args as unknown as { id: string; input: ExitRecordInput };
-  const before = await ExitRecordModel.findById(id).select('stage').lean();
+  const caller = await assertPermission(ctx, 'ExitRecord', [ROLES.HR], 'EDIT');
+  const before = await ExitRecordModel.findById(id).select('stage employeeId').lean();
+  const becameExited = before !== null && before.stage !== EXITED && input.stage === EXITED;
+  const leaverId = before?.employeeId ?? '';
+  if (becameExited && isValidObjectId(leaverId)) {
+    await assertMayDeactivate(caller.roles ?? [], leaverId);
+  }
   const updated = await crud.Mutation.updateExitRecord(p, args, ctx);
-  const becameExited = before?.stage !== EXITED && input.stage === EXITED;
-  if (becameExited && isValidObjectId(input.employeeId)) {
+  if (becameExited && isValidObjectId(leaverId)) {
     await UserModel.updateOne(
-      { _id: input.employeeId },
+      { _id: leaverId },
       { isActive: false, employmentStatus: 'TERMINATED' },
     );
   }
   return updated;
 };
+
+/** Refuses a non-ADMIN offboarding an administrator's account. */
+async function assertMayDeactivate(callerRoles: readonly string[], userId: string): Promise<void> {
+  if (callerRoles.includes(ROLES.ADMIN)) {
+    return;
+  }
+  const leaver = await UserModel.findById(userId).select('roles').lean();
+  if (leaver?.roles.includes(ROLES.ADMIN)) {
+    forbidden('Only an administrator can offboard an administrator.');
+  }
+}
 
 export const exitResolvers = {
   Query: { ...crud.Query, myExitRecord },

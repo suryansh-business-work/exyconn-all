@@ -3,6 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      Content Security Policy. The renderer talks to the portal only through the main process
+      (IPC), so it connects nowhere itself; ws://localhost:4005 is Vite's dev HMR socket.
+      style-src needs 'unsafe-inline' for MUI/emotion's runtime styles. The script hash is the
+      React Fast Refresh preamble @vitejs/plugin-react 4.x injects in dev only. Screenshots
+      are served from ImageKit.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'sha256-Z2/iFzh9VMlVkEOar1f/oSHWwQk3ve1qk/C2WdsC4Xk='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://ik.imagekit.io; font-src 'self' data:; media-src 'self' data: blob:; connect-src 'self' ws://localhost:4005; object-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'"
+    />
     <title>My screenshots — Exyconn Tracker</title>
     <style>
       /*

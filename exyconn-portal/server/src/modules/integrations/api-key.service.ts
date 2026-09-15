@@ -2,6 +2,7 @@ import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { ApiKeyModel, type ApiKeyDocument } from './api-key.model';
 import type { Role } from '../../constants/roles';
 import { logger } from '../../utils/logger';
+import { organizationOf } from '../../lib/tenant';
 
 /** Every key starts with this, so one is recognisable on sight in a log or a config file. */
 const KEY_PREFIX = 'exy';
@@ -45,6 +46,8 @@ export interface ApiKeyPrincipal {
   id: string;
   name: string;
   roles: Role[];
+  /** The company the key was minted in; every request made with it is confined there. */
+  organizationId: string | null;
 }
 
 /**
@@ -73,5 +76,10 @@ export async function principalForApiKey(
     logger.error(error, 'Stamping an API key’s last use failed'),
   );
 
-  return { id: String(row._id), name: row.name, roles: row.roles as Role[] };
+  return {
+    id: String(row._id),
+    name: row.name,
+    roles: row.roles as Role[],
+    organizationId: organizationOf(row),
+  };
 }

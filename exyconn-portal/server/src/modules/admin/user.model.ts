@@ -26,6 +26,11 @@ const userSchema = new Schema(
     isActive: { type: Boolean, required: true, default: true },
     isBlocked: { type: Boolean, required: true, default: false },
     blockReason: { type: String, default: null },
+    /**
+     * Stamped into every token as `tv`. Raising it (a password change or reset) retires every
+     * token issued before, on its next request. Missing on older accounts, which reads as 0.
+     */
+    tokenVersion: { type: Number, default: 0 },
     // HR fields — optional so legacy accounts (e.g. seed admin) stay valid.
     department: { type: String, trim: true, default: null },
     designation: { type: String, trim: true, default: null },

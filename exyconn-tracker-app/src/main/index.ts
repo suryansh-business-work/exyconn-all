@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, session, shell } from 'electron';
+import { app, BrowserWindow, session, shell } from 'electron';
 import { join } from 'node:path';
 import {
   IPC,
@@ -29,6 +29,7 @@ import { saveReportFile } from './report-file';
 import { PORTAL_GRAPHQL_URL } from './portal-client';
 import { installMainCrashHandlers } from './crash-handlers';
 import { setLogUser } from './logger';
+import { handleTrusted, installNavigationGuards } from './web-security';
 
 /**
  * This app's Windows AppUserModelID. Kept identical to `appId` in electron-builder.yml, which
@@ -150,6 +151,9 @@ function createWindow(placement: Placement | null = null): BrowserWindow {
       preload: join(__dirname, '../preload/index.js'),
       contextIsolation: true,
       nodeIntegration: false,
+      // The preload only uses contextBridge/ipcRenderer, so the renderer runs in Chromium's
+      // OS sandbox (Electron's default since v20 — stated here so nobody turns it off).
+      sandbox: true,
       // Chromium throttles timers in a backgrounded window. The shutter sound is triggered by
       // an IPC message rather than a timer, but the renderer must stay responsive enough to
       // play it while the app sits hidden in the tray, which is where it usually is.
@@ -233,41 +237,41 @@ function waitForUpload(win: BrowserWindow, event: Electron.Event): boolean {
 }
 
 function registerIpc(ctrl: TrackerController): void {
-  ipcMain.handle(IPC.getState, () => ctrl.getState());
-  ipcMain.handle(IPC.login, (_e, email: string, password: string, rememberMe: boolean) =>
+  handleTrusted(IPC.getState, () => ctrl.getState());
+  handleTrusted(IPC.login, (_e, email: string, password: string, rememberMe: boolean) =>
     ctrl.login(email, password, rememberMe),
   );
-  ipcMain.handle(IPC.logout, async () => {
+  handleTrusted(IPC.logout, async () => {
     // The gallery is showing the screenshots of the employee who is signing out.
     closeScreenshotsWindow();
     await ctrl.logout();
   });
-  ipcMain.handle(IPC.acceptConsent, (_e, signedName: string) => ctrl.acceptConsent(signedName));
-  ipcMain.handle(IPC.markAttendance, (_e, status: AttendanceStatus, note: string | null) =>
+  handleTrusted(IPC.acceptConsent, (_e, signedName: string) => ctrl.acceptConsent(signedName));
+  handleTrusted(IPC.markAttendance, (_e, status: AttendanceStatus, note: string | null) =>
     ctrl.markAttendance(status, note),
   );
-  ipcMain.handle(IPC.setProject, (_e, projectId: string) => ctrl.setProject(projectId));
-  ipcMain.handle(IPC.setTask, (_e, taskId: string) => ctrl.setTask(taskId));
-  ipcMain.handle(IPC.start, () => ctrl.start());
-  ipcMain.handle(IPC.pause, () => ctrl.pause());
-  ipcMain.handle(IPC.resume, () => ctrl.resume());
-  ipcMain.handle(IPC.stop, () => ctrl.stop());
-  ipcMain.handle(IPC.getReport, (_e, from: string, to: string) => ctrl.getReport(from, to));
-  ipcMain.handle(IPC.getDay, (_e, start: string, end: string) => ctrl.getDay(start, end));
-  ipcMain.handle(IPC.getTotals, () => ctrl.getTotals());
-  ipcMain.handle(IPC.setTimezone, (_e, timezone: string) => ctrl.setTimezone(timezone));
-  ipcMain.handle(IPC.getTranslations, (_e, locale: string) => ctrl.getTranslations(locale));
-  ipcMain.handle(IPC.translateMissing, (_e, locale: string, sources: string[]) =>
+  handleTrusted(IPC.setProject, (_e, projectId: string) => ctrl.setProject(projectId));
+  handleTrusted(IPC.setTask, (_e, taskId: string) => ctrl.setTask(taskId));
+  handleTrusted(IPC.start, () => ctrl.start());
+  handleTrusted(IPC.pause, () => ctrl.pause());
+  handleTrusted(IPC.resume, () => ctrl.resume());
+  handleTrusted(IPC.stop, () => ctrl.stop());
+  handleTrusted(IPC.getReport, (_e, from: string, to: string) => ctrl.getReport(from, to));
+  handleTrusted(IPC.getDay, (_e, start: string, end: string) => ctrl.getDay(start, end));
+  handleTrusted(IPC.getTotals, () => ctrl.getTotals());
+  handleTrusted(IPC.setTimezone, (_e, timezone: string) => ctrl.setTimezone(timezone));
+  handleTrusted(IPC.getTranslations, (_e, locale: string) => ctrl.getTranslations(locale));
+  handleTrusted(IPC.translateMissing, (_e, locale: string, sources: string[]) =>
     ctrl.translateMissing(locale, sources),
   );
-  ipcMain.handle(IPC.openScreenshots, (_e, range: ScreenshotsRange) => {
+  handleTrusted(IPC.openScreenshots, (_e, range: ScreenshotsRange) => {
     if (window !== null) {
       openScreenshotsWindow(window, range);
     }
   });
-  ipcMain.handle(IPC.getPermissions, () => ctrl.refreshPermissions());
-  ipcMain.handle(IPC.requestPermission, (_e, kind: PermissionKind) => ctrl.requestPermission(kind));
-  ipcMain.handle(IPC.setPreferences, (_e, update: Partial<AppPreferences>) => {
+  handleTrusted(IPC.getPermissions, () => ctrl.refreshPermissions());
+  handleTrusted(IPC.requestPermission, (_e, kind: PermissionKind) => ctrl.requestPermission(kind));
+  handleTrusted(IPC.setPreferences, (_e, update: Partial<AppPreferences>) => {
     const before = secureStore().preferences.transparentBackground;
     const preferences = ctrl.setPreferences(update);
     if (preferences.transparentBackground !== before) {
@@ -280,43 +284,41 @@ function registerIpc(ctrl: TrackerController): void {
     installUpdateWhenIdle();
     return preferences;
   });
-  ipcMain.handle(IPC.getTasks, (_e, projectId: string) => ctrl.getTasks(projectId));
-  ipcMain.handle(IPC.getManualEntries, (_e, from: string, to: string) =>
+  handleTrusted(IPC.getTasks, (_e, projectId: string) => ctrl.getTasks(projectId));
+  handleTrusted(IPC.getManualEntries, (_e, from: string, to: string) =>
     ctrl.getManualEntries(from, to),
   );
-  ipcMain.handle(IPC.createManualEntry, (_e, draft: ManualEntryDraft) =>
+  handleTrusted(IPC.createManualEntry, (_e, draft: ManualEntryDraft) =>
     ctrl.createManualEntry(draft),
   );
-  ipcMain.handle(IPC.withdrawManualEntry, (_e, id: string) => ctrl.withdrawManualEntry(id));
-  ipcMain.handle(IPC.setPresence, (_e, status: PresenceStatus, note: string) =>
+  handleTrusted(IPC.withdrawManualEntry, (_e, id: string) => ctrl.withdrawManualEntry(id));
+  handleTrusted(IPC.setPresence, (_e, status: PresenceStatus, note: string) =>
     ctrl.setPresence(status, note),
   );
-  ipcMain.handle(IPC.getMessages, (_e, kind: TrackerMessageKind) => ctrl.getMessages(kind));
-  ipcMain.handle(IPC.sendMessage, (_e, body: string) => ctrl.sendMessage(body));
-  ipcMain.handle(IPC.markMessagesRead, (_e, kind: TrackerMessageKind) =>
+  handleTrusted(IPC.getMessages, (_e, kind: TrackerMessageKind) => ctrl.getMessages(kind));
+  handleTrusted(IPC.sendMessage, (_e, body: string) => ctrl.sendMessage(body));
+  handleTrusted(IPC.markMessagesRead, (_e, kind: TrackerMessageKind) =>
     ctrl.markMessagesRead(kind),
   );
   // The dialog belongs to the tracker window, so it opens attached to it rather than
   // floating loose over whatever the employee was actually looking at.
-  ipcMain.handle(IPC.saveReport, (_e, report: ReportExport) => saveReportFile(window, report));
-  ipcMain.handle(IPC.getAppVersion, () => app.getVersion());
-  ipcMain.handle(IPC.getUpdate, () => updater.current);
-  ipcMain.handle(IPC.checkForUpdate, () => updater.checkNow());
+  handleTrusted(IPC.saveReport, (_e, report: ReportExport) => saveReportFile(window, report));
+  handleTrusted(IPC.getAppVersion, () => app.getVersion());
+  handleTrusted(IPC.getUpdate, () => updater.current);
+  handleTrusted(IPC.checkForUpdate, () => updater.checkNow());
   // Fire-and-forget on purpose: the renderer gets a progress bar off the state channel, not a
   // promise it has to sit on while a few hundred megabytes arrive.
-  ipcMain.handle(IPC.downloadUpdate, () => updater.download());
+  handleTrusted(IPC.downloadUpdate, () => updater.download());
   /**
    * Restart into the new version. The session is stopped first so the minutes worked up to
    * this moment are flushed — an update must never cost the employee their afternoon.
    */
-  ipcMain.handle(IPC.installUpdate, async () => {
+  handleTrusted(IPC.installUpdate, async () => {
     await ctrl.stop();
     isQuitting = true;
     updater.install();
   });
-  ipcMain.handle(IPC.openPrivacy, () =>
-    shell.openExternal('https://portal.exyconn.com/me/tracker'),
-  );
+  handleTrusted(IPC.openPrivacy, () => shell.openExternal('https://portal.exyconn.com/me/tracker'));
 }
 
 /**
@@ -335,6 +337,8 @@ function lockDownPermissions(): void {
 
 // First, so an error anywhere after this reaches Tech > Logs.
 installMainCrashHandlers();
+// Before any window exists: no pop-ups, no navigation off the app's own pages.
+installNavigationGuards();
 
 // A single instance only — a second launch focuses the existing window.
 if (!app.requestSingleInstanceLock()) {

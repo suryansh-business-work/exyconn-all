@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto';
-import { ipcMain, type BrowserWindow } from 'electron';
+import type { BrowserWindow } from 'electron';
 import type { ComposeInput } from '@exyconn/tracker-core';
 import { IPC, type CaptureRequest, type CaptureResult } from '@shared/types';
+import { onTrusted } from './web-security';
 
 /**
  * How long main waits for a renderer to answer a capture request. A webcam warms up in well
@@ -15,7 +16,7 @@ const pending = new Map<string, (result: CaptureResult) => void>();
 
 /** Wired once, at startup. Every renderer answers on the same channel, keyed by request id. */
 export function registerCaptureBridge(): void {
-  ipcMain.on(IPC.captureResult, (_event, result: CaptureResult) => {
+  onTrusted(IPC.captureResult, (_event, result: CaptureResult) => {
     const settle = pending.get(result.id);
     if (settle) {
       pending.delete(result.id);

@@ -154,7 +154,7 @@ const services = [
   metaDescription="Exyconn Digital Marketing — SEO, PPC, social, content, email, branding, influencer, CRO, and analytics services that grow brand, traffic, and revenue."
   metaKeywords="digital marketing, SEO, PPC, performance marketing, social media, content marketing, email marketing, branding, CRO, marketing analytics, Exyconn"
 >
-  <main class="bg-surface min-h-screen">
+  <div class="bg-surface min-h-screen">
     <!-- Hero -->
     <section
       class="relative py-28 px-6 bg-gradient-to-br from-pink-subtle via-surface to-amber-subtle overflow-hidden"
@@ -178,7 +178,9 @@ const services = [
 
         <h1 class="text-5xl md:text-7xl font-bold text-fg mb-8 tracking-tight leading-tight">
           Grow brand, traffic
-          <span class="bg-gradient-to-r from-pink-strong to-amber bg-clip-text text-transparent">
+          <span
+            class="bg-gradient-to-r from-pink-strong to-amber-strong bg-clip-text text-transparent"
+          >
             and revenue
           </span>
         </h1>
@@ -227,7 +229,7 @@ const services = [
           </div>
           <div>
             <div
-              class="text-4xl font-bold bg-gradient-to-r from-emerald-strong to-green bg-clip-text text-transparent mb-1"
+              class="text-4xl font-bold bg-gradient-to-r from-emerald-strong to-green-strong bg-clip-text text-transparent mb-1"
             >
               60%
             </div>
@@ -235,7 +237,7 @@ const services = [
           </div>
           <div>
             <div
-              class="text-4xl font-bold bg-gradient-to-r from-amber-strong to-orange bg-clip-text text-transparent mb-1"
+              class="text-4xl font-bold bg-gradient-to-r from-amber-strong to-orange-strong bg-clip-text text-transparent mb-1"
             >
               24/7
             </div>
@@ -332,7 +334,7 @@ const services = [
               },
             ].map((p) => (
               <div class="relative bg-surface-subtle rounded-2xl p-6 border border-line-subtle">
-                <span class="absolute -top-3 -left-3 w-10 h-10 rounded-xl bg-gradient-to-br from-pink to-amber text-on-solid text-sm font-bold flex items-center justify-center shadow-lg">
+                <span class="absolute -top-3 -left-3 w-10 h-10 rounded-xl bg-gradient-to-br from-pink to-amber text-on-bright text-sm font-bold flex items-center justify-center shadow-lg">
                   {p.step}
                 </span>
                 <i class={`fa-solid ${p.icon} text-2xl text-pink-fg mb-3`} />
@@ -346,10 +348,10 @@ const services = [
     </section>
 
     <!-- CTA -->
-    <section class="py-20 px-6 bg-gradient-to-br from-pink-strong to-amber">
+    <section class="py-20 px-6 bg-gradient-to-br from-pink-strong to-amber-deep">
       <div class="max-w-4xl mx-auto text-center text-on-solid">
         <h2 class="text-4xl font-bold mb-6">Ready to grow with Exyconn?</h2>
-        <p class="text-lg text-on-solid/90 mb-10 max-w-2xl mx-auto">
+        <p class="text-lg text-on-solid mb-10 max-w-2xl mx-auto">
           Tell us your goals — we'll come back with a custom marketing plan and a clear roadmap to
           hit them.
         </p>
@@ -362,12 +364,12 @@ const services = [
           </a>
           <a
             href="/get-a-quote"
-            class="inline-flex items-center gap-2 bg-on-solid/20 backdrop-blur-sm border border-on-solid/40 text-on-solid font-semibold px-8 py-4 rounded-full hover:bg-on-solid/30 transition"
+            class="inline-flex items-center gap-2 bg-scrim/15 backdrop-blur-sm border border-on-solid/40 text-on-solid font-semibold px-8 py-4 rounded-full hover:bg-scrim/25 transition"
           >
             <i class="fa-solid fa-calculator"></i> Get a quote
           </a>
         </div>
       </div>
     </section>
-  </main>
+  </div>
 </Page>

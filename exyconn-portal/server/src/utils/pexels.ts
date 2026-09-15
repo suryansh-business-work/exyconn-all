@@ -1,4 +1,5 @@
 import { PexelsConfigModel, type PexelsConfigDocument } from '../modules/tech/pexels-config.model';
+import { ConfigurationError } from './errors';
 
 const PEXELS_API_URL = 'https://api.pexels.com';
 
@@ -92,7 +93,9 @@ class PexelsClient {
   private async getActiveKey(): Promise<string> {
     const config = await PexelsConfigModel.findOne({ isActive: true }).lean();
     if (!config) {
-      throw new Error('No active Pexels configuration. Add one in Tech > Environment Variables.');
+      throw new ConfigurationError(
+        'No active Pexels configuration. Add one in Tech > Environment Variables.',
+      );
     }
     return config.apiKey;
   }

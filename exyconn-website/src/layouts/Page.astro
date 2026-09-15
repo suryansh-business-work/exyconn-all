@@ -5,6 +5,7 @@ import Footer from "../components/header-and-footer/Footer.astro";
 import Header from "../components/header-and-footer/Header.astro";
 import SearchModal from "../components/SearchModal.astro";
 import { BRANDING_FALLBACK, getBrandingSafe } from "../lib/portal";
+import { serializeJsonLd } from "../lib/safe-output";
 import { DARK_MEDIA_QUERY, THEME_ATTRIBUTE, THEME_STORAGE_KEY, THEMES } from "../lib/theme";
 import { DEFAULT_MARKET, MARKETS, marketUrl, splitMarketPath } from "../lib/i18n/markets";
 
@@ -205,7 +206,7 @@ const allLd = [...baselineLd, ...pageLd];
     <link rel="apple-touch-icon" href={faviconUrl} />
 
     <!-- Structured data (JSON-LD) -->
-    {allLd.map((ld) => <script type="application/ld+json" set:html={JSON.stringify(ld)} />)}
+    {allLd.map((ld) => <script type="application/ld+json" set:html={serializeJsonLd(ld)} />)}
 
     <!-- Google tag (gtag.js) -->
     <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-6FLH9QJ5FS"></script>
@@ -261,6 +262,11 @@ const allLd = [...baselineLd, ...pageLd];
     <!-- Global anime.js scroll-reveal animations (lazy, respects reduced motion) -->
     <script>
       import "../scripts/anime-init.ts";
+    </script>
+
+    <!-- Focus containment for every modal (mobile menu, search, cookie + accessibility drawers) -->
+    <script>
+      import "../scripts/modal-dialogs.ts";
     </script>
 
     <!-- Back to top button with keyboard support -->

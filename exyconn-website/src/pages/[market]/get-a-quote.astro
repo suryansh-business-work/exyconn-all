@@ -8,7 +8,7 @@ import Page from "../../layouts/Page.astro";
   metaKeywords="get a quote, software budget calculator, project estimate, AI development, SaaS pricing, Exyconn"
   metaImage="https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg?auto=compress&w=1200&q=80"
 >
-  <main class="min-h-screen bg-gradient-to-br from-blue-subtle via-surface to-cyan-subtle">
+  <div class="min-h-screen bg-gradient-to-br from-blue-subtle via-surface to-cyan-subtle">
     <!-- Hero -->
     <section class="py-16 px-6">
       <div class="max-w-7xl mx-auto">
@@ -21,7 +21,7 @@ import Page from "../../layouts/Page.astro";
           </span>
           <h1 class="text-4xl md:text-5xl font-bold text-fg mb-4 tracking-tight">
             Project Budget <span
-              class="bg-gradient-to-r from-blue-strong to-cyan bg-clip-text text-transparent"
+              class="bg-gradient-to-r from-blue-strong to-cyan-strong bg-clip-text text-transparent"
               >Calculator</span
             >
           </h1>
@@ -52,7 +52,7 @@ import Page from "../../layouts/Page.astro";
                   <h3 class="text-xl font-bold text-fg mb-2">Estimated Budget</h3>
                   <div
                     id="budget-value"
-                    class="text-5xl font-extrabold bg-gradient-to-r from-blue-strong to-cyan bg-clip-text text-transparent"
+                    class="text-5xl font-extrabold bg-gradient-to-r from-blue-strong to-cyan-strong bg-clip-text text-transparent"
                   >
                     $0
                   </div>
@@ -91,7 +91,7 @@ import Page from "../../layouts/Page.astro";
         </div>
       </div>
     </section>
-  </main>
+  </div>
 
   <script is:inline type="module">
     import { h, render } from "https://esm.sh/preact@10.19.2";
@@ -370,12 +370,16 @@ import Page from "../../layouts/Page.astro";
                     h("div", { class: "flex-1" }, [
                       h(
                         "label",
-                        { class: "block text-xs font-medium text-fg-subtle mb-1" },
+                        {
+                          class: "block text-xs font-medium text-fg-subtle mb-1",
+                          htmlFor: `role-${idx}-type`,
+                        },
                         "Role"
                       ),
                       h(
                         "select",
                         {
+                          id: `role-${idx}-type`,
                           class:
                             "w-full rounded-lg border border-line px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-muted focus:border-blue focus:outline-none bg-surface",
                           value: role.id,
@@ -395,10 +399,14 @@ import Page from "../../layouts/Page.astro";
                     h("div", { class: "w-24" }, [
                       h(
                         "label",
-                        { class: "block text-xs font-medium text-fg-subtle mb-1" },
+                        {
+                          class: "block text-xs font-medium text-fg-subtle mb-1",
+                          htmlFor: `role-${idx}-count`,
+                        },
                         "Count"
                       ),
                       h("input", {
+                        id: `role-${idx}-count`,
                         type: "number",
                         min: 1,
                         max: 10,
@@ -412,10 +420,14 @@ import Page from "../../layouts/Page.astro";
                     h("div", { class: "w-28" }, [
                       h(
                         "label",
-                        { class: "block text-xs font-medium text-fg-subtle mb-1" },
+                        {
+                          class: "block text-xs font-medium text-fg-subtle mb-1",
+                          htmlFor: `role-${idx}-rate`,
+                        },
                         "Rate/hr"
                       ),
                       h("input", {
+                        id: `role-${idx}-rate`,
                         type: "number",
                         min: 20,
                         class:
@@ -433,9 +445,9 @@ import Page from "../../layouts/Page.astro";
                           "cursor-pointer self-end p-2.5 text-red-fg hover:text-red-fg-strong hover:bg-red-subtle rounded-lg transition",
                         onClick: () => removeRole(idx),
                         disabled: roles.length <= 1,
-                        "aria-label": "Remove role",
+                        "aria-label": `Remove role ${idx + 1}`,
                       },
-                      h("i", { class: "fa-solid fa-trash" })
+                      h("i", { class: "fa-solid fa-trash icon-md", "aria-hidden": "true" })
                     ),
                   ]),
                   // Custom role name input when custom role selected
@@ -443,10 +455,14 @@ import Page from "../../layouts/Page.astro";
                     h("div", { class: "w-full" }, [
                       h(
                         "label",
-                        { class: "block text-xs font-medium text-fg-subtle mb-1" },
+                        {
+                          class: "block text-xs font-medium text-fg-subtle mb-1",
+                          htmlFor: `role-${idx}-name`,
+                        },
                         "Custom Role Name"
                       ),
                       h("input", {
+                        id: `role-${idx}-name`,
                         type: "text",
                         placeholder: "Enter custom role name...",
                         class:

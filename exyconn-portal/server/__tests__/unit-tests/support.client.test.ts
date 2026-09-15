@@ -36,8 +36,8 @@ const validInput = (overrides: Record<string, string> = {}) => ({
   ...overrides,
 });
 
-beforeEach(() => {
-  resetClientTicketLimits();
+beforeEach(async () => {
+  await resetClientTicketLimits();
 });
 
 describe('Customer tickets', () => {

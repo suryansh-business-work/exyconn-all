@@ -2,6 +2,7 @@ import { AiModelPriceModel } from './ai-price.model';
 import { AiSpendLimitModel, AI_SPEND_LIMIT_KEY } from './ai-spend-limit.model';
 import { readAiSpendLimit } from './ai.budget';
 import { assertRole } from '../../middleware/roleGuard';
+import { assertPlatformStaff } from '../../lib/platformAccess';
 import { badRequest } from '../../utils/errors';
 import { withIds } from '../../utils/serialize';
 import { ROLES } from '../../constants/roles';
@@ -10,6 +11,12 @@ import type { GraphQLContext } from '../../middleware/auth';
 /** Tech owns what AI costs; the AI module only reads the ceiling to show it. */
 const OWNERS = [ROLES.TECH];
 const READERS = [ROLES.TECH, ROLES.AI];
+
+/**
+ * Prices are one table for every company, so only the platform operator's Tech staff change
+ * them (lib/platformAccess), restricted under the Tech screen they are edited on.
+ */
+const PRICE_MODULE = 'TechConfig';
 
 export interface AiModelPriceInput {
   model: string;
@@ -62,7 +69,7 @@ export const aiPricingResolvers = {
       { input }: { input: AiModelPriceInput },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, OWNERS);
+      await assertPlatformStaff(ctx, PRICE_MODULE, OWNERS, 'EDIT');
       const model = input.model.trim();
       if (!model) {
         badRequest('Name the model this price is for');
@@ -80,7 +87,7 @@ export const aiPricingResolvers = {
     },
 
     deleteAiModelPrice: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      assertRole(ctx, OWNERS);
+      await assertPlatformStaff(ctx, PRICE_MODULE, OWNERS, 'DELETE');
       await AiModelPriceModel.findByIdAndDelete(id);
       return true;
     },

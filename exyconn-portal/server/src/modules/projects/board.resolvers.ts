@@ -4,14 +4,18 @@ import {
   type TaskAttachmentInput,
   type TaskInput,
 } from './board.service';
-import { assertRole } from '../../middleware/roleGuard';
+import { assertPermission } from '../../lib/permissions';
+import type { PermissionAction } from '../permissions/permission.model';
 import { withId, withIds } from '../../utils/serialize';
 import { ROLES } from '../../constants/roles';
 import { UserModel } from '../admin/user.model';
-import { unauthenticated } from '../../utils/errors';
+import { forbidden, notFound, unauthenticated } from '../../utils/errors';
+import { TaskCommentModel } from './board.model';
 import type { GraphQLContext } from '../../middleware/auth';
 
-const guard = (ctx: GraphQLContext) => assertRole(ctx, [ROLES.PROJECTS]);
+/** Project data: the PROJECTS role, then whatever the admin matrix leaves it on Project. */
+const guard = (ctx: GraphQLContext, action: PermissionAction) =>
+  assertPermission(ctx, 'Project', [ROLES.PROJECTS], action);
 
 type WithId = { _id: unknown };
 type TaskShape = WithId & { columnId: { toString(): string } };
@@ -62,7 +66,7 @@ export const boardResolvers = {
       { projectId }: { projectId: string },
       ctx: GraphQLContext,
     ) => {
-      guard(ctx);
+      await guard(ctx, 'VIEW');
       const { columns, tasks } = await boardService.board(projectId);
       return { columns: withIds(columns), tasks: serializeTasks(tasks) };
     },
@@ -71,19 +75,19 @@ export const boardResolvers = {
       { projectId }: { projectId: string },
       ctx: GraphQLContext,
     ) => {
-      guard(ctx);
+      await guard(ctx, 'VIEW');
       return serializeTasks(await boardService.tasks(projectId));
     },
     taskComments: async (_p: unknown, { taskId }: { taskId: string }, ctx: GraphQLContext) => {
-      guard(ctx);
+      await guard(ctx, 'VIEW');
       return (await boardService.comments(taskId)).map((c) => serializeTaskChild(c));
     },
     taskActivity: async (_p: unknown, { taskId }: { taskId: string }, ctx: GraphQLContext) => {
-      guard(ctx);
+      await guard(ctx, 'VIEW');
       return (await boardService.activity(taskId)).map((entry) => serializeTaskChild(entry));
     },
     listProjectMembers: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      guard(ctx);
+      await guard(ctx, 'VIEW');
       const members = await UserModel.find({ roles: ROLES.PROJECTS, isActive: true })
         .select('name email')
         .sort({ name: 1 })
@@ -97,7 +101,7 @@ export const boardResolvers = {
       { projectId, name }: { projectId: string; name: string },
       ctx: GraphQLContext,
     ) => {
-      guard(ctx);
+      await guard(ctx, 'CREATE');
       return withId(await boardService.createColumn(projectId, name));
     },
     renameColumn: async (
@@ -105,7 +109,7 @@ export const boardResolvers = {
       { id, name }: { id: string; name: string },
       ctx: GraphQLContext,
     ) => {
-      guard(ctx);
+      await guard(ctx, 'EDIT');
       return withId(await boardService.renameColumn(id, name));
     },
     setColumnDone: async (
@@ -113,11 +117,11 @@ export const boardResolvers = {
       { id, isDone }: { id: string; isDone: boolean },
       ctx: GraphQLContext,
     ) => {
-      guard(ctx);
+      await guard(ctx, 'EDIT');
       return withId(await boardService.setColumnDone(id, isDone));
     },
     deleteColumn: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      guard(ctx);
+      await guard(ctx, 'DELETE');
       return boardService.deleteColumn(id);
     },
     reorderColumns: async (
@@ -125,7 +129,7 @@ export const boardResolvers = {
       { projectId, columnIds }: { projectId: string; columnIds: string[] },
       ctx: GraphQLContext,
     ) => {
-      guard(ctx);
+      await guard(ctx, 'EDIT');
       return boardService.reorderColumns(projectId, columnIds);
     },
     createTask: async (
@@ -133,7 +137,7 @@ export const boardResolvers = {
       args: { projectId: string; columnId: string; input: TaskInput },
       ctx: GraphQLContext,
     ) => {
-      guard(ctx);
+      await guard(ctx, 'CREATE');
       const [reporter, assigneeName] = await Promise.all([
         actorOf(ctx),
         assigneeNameOf(args.input.assigneeId),
@@ -152,7 +156,7 @@ export const boardResolvers = {
       { id, input }: { id: string; input: TaskInput },
       ctx: GraphQLContext,
     ) => {
-      guard(ctx);
+      await guard(ctx, 'EDIT');
       const [actor, assigneeName] = await Promise.all([
         actorOf(ctx),
         assigneeNameOf(input.assigneeId),
@@ -160,7 +164,7 @@ export const boardResolvers = {
       return serializeTask(await boardService.updateTask(id, input, assigneeName, actor));
     },
     deleteTask: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      guard(ctx);
+      await guard(ctx, 'DELETE');
       return boardService.deleteTask(id);
     },
     moveTask: async (
@@ -168,7 +172,7 @@ export const boardResolvers = {
       { id, toColumnId, toIndex }: { id: string; toColumnId: string; toIndex: number },
       ctx: GraphQLContext,
     ) => {
-      guard(ctx);
+      await guard(ctx, 'EDIT');
       return boardService.moveTask(id, toColumnId, toIndex, await actorOf(ctx));
     },
     addTaskComment: async (
@@ -176,7 +180,7 @@ export const boardResolvers = {
       args: { taskId: string; body: string; attachments?: TaskAttachmentInput[] | null },
       ctx: GraphQLContext,
     ) => {
-      guard(ctx);
+      await guard(ctx, 'CREATE');
       const author = await actorOf(ctx);
       const comment = await boardService.addComment(
         args.taskId,
@@ -187,7 +191,15 @@ export const boardResolvers = {
       return serializeTaskChild(comment);
     },
     deleteTaskComment: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      guard(ctx);
+      const user = await guard(ctx, 'DELETE');
+      // A comment is its author's words: only they, or an administrator, may take it down.
+      const comment = await TaskCommentModel.findById(id).select('authorId').lean();
+      if (!comment) {
+        notFound('TaskComment');
+      }
+      if (comment.authorId !== user.id && !(user.roles ?? []).includes(ROLES.ADMIN)) {
+        forbidden('Only the author or an administrator can delete this comment.');
+      }
       return boardService.deleteComment(id);
     },
   },

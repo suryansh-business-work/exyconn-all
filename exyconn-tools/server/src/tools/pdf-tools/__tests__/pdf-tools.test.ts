@@ -224,3 +224,29 @@ describe("POST /api/tools/pdf-tools/unlock", () => {
     });
   });
 });
+
+describe("qpdf argument safety", () => {
+  it.each(["@/etc/passwd", "--show-encryption"])(
+    "rejects a password starting with %s without running qpdf",
+    async (password) => {
+      const res = await request(app)
+        .post("/api/tools/pdf-tools/unlock")
+        .field("password", password)
+        .attach("file", pdfInput, { filename: "doc.pdf", contentType: "application/pdf" });
+
+      expect(res.status).toBe(400);
+      expect(spawnMock).not.toHaveBeenCalled();
+    },
+  );
+
+  it("rejects an owner password starting with @", async () => {
+    const res = await request(app)
+      .post("/api/tools/pdf-tools/protect")
+      .field("userPassword", "fine")
+      .field("ownerPassword", "@owner")
+      .attach("file", pdfInput, { filename: "doc.pdf", contentType: "application/pdf" });
+
+    expect(res.status).toBe(400);
+    expect(spawnMock).not.toHaveBeenCalled();
+  });
+});

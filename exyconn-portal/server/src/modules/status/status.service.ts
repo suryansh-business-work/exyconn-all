@@ -104,6 +104,33 @@ function overallState(states: StatusState[]): StatusState {
   return states.includes('DEGRADED') ? 'DEGRADED' : 'OPERATIONAL';
 }
 
+/**
+ * What the anonymous status page may know about where a service lives: the https origin it
+ * links to, never the probed path or query (which can name internal endpoints or carry a
+ * token). "" when the monitor is not an https URL — the schema field is non-null.
+ */
+export function publicServiceUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    return parsed.protocol === 'https:' ? parsed.origin : '';
+  } catch {
+    return '';
+  }
+}
+
+const HTTP_STATUS_ERROR = /^HTTP \d{3}$/;
+
+/**
+ * The last error, as the public may see it. An HTTP status is harmless and useful; anything
+ * else (resolver and socket messages, hostnames, addresses) is reduced to "Unreachable".
+ */
+export function publicServiceError(error: string): string {
+  if (!error || HTTP_STATUS_ERROR.test(error)) {
+    return error;
+  }
+  return 'Unreachable';
+}
+
 function clampDays(days?: number | null): number {
   const requested = days ?? DEFAULT_DAYS;
   return Math.min(MAX_DAYS, Math.max(1, Math.trunc(requested)));
@@ -144,11 +171,11 @@ export async function getStatusOverview(days?: number | null) {
       name: monitor.name,
       description: monitor.description,
       category: monitor.category,
-      url: monitor.url,
+      url: publicServiceUrl(monitor.url),
       state: monitor.state,
       responseMs: monitor.lastResponseMs,
       lastCheckedAt: monitor.lastCheckedAt,
-      lastError: monitor.lastError,
+      lastError: publicServiceError(monitor.lastError),
       uptimeToday: uptimeOf(totals.get(dates[dates.length - 1]) ?? emptyTotals()),
       uptime30d: uptimeOf(sumDays(last30, totals)),
       days: points,

@@ -7,6 +7,7 @@ import { clientForDeal, promoteCompanyToClient } from './crm.promote';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { assertRole } from '../../middleware/roleGuard';
+import { assertPermission } from '../../lib/permissions';
 import { ROLES } from '../../constants/roles';
 import { withId } from '../../utils/serialize';
 import { notFound } from '../../utils/errors';
@@ -149,6 +150,8 @@ const setDealStage = async (
 /** The form's save, with the same client hand-off a drag onto Won gets. */
 const updateDeal = async (p: unknown, args: never, ctx: GraphQLContext) => {
   const { id, input } = args as unknown as { id: string; input: DealInput };
+  // Guarded first: winning a deal files its client, which a refused caller must never trigger.
+  await assertPermission(ctx, 'Deal', crmRoles, 'EDIT');
   if (input.stage !== 'WON') {
     return deals.Mutation.updateDeal(p, args, ctx);
   }

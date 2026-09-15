@@ -14,8 +14,11 @@ import {
 } from '../../src/modules/logs';
 import { ROLES, type Role } from '../../src/constants/roles';
 import { seedUser } from '../helpers';
+import { seedPlatformOperator } from './security-authz.operator';
+import { organizationOf } from '../../src/lib/tenant';
 import type { GraphQLContext } from '../../src/middleware/auth';
 import type { LogBatchInput, LogEntryInput } from '../../src/modules/logs/logs.ingest';
+import { settleServerErrorLogs } from '../../src/modules/logs/logs.plugin';
 
 type Resolver = (p: unknown, a: unknown, c: GraphQLContext) => Promise<unknown>;
 const R = { ...logsResolvers.Query, ...logsResolvers.Mutation } as unknown as Record<
@@ -55,7 +58,10 @@ function batch(entries: LogEntryInput[], overrides: Partial<LogBatchInput> = {})
 
 async function ctxWith(roles: Role[]): Promise<GraphQLContext> {
   const user = await seedUser(`${randomUUID()}@exyconn.com`, randomUUID(), roles);
-  return { user: { id: user.id, email: user.email, roles }, ip: '10.0.0.1' };
+  // Tech > Logs is a platform feature, so the seeded company is the platform operator.
+  const organizationId = String(organizationOf(user));
+  await seedPlatformOperator(organizationId);
+  return { user: { id: user.id, email: user.email, roles }, organizationId, ip: '10.0.0.1' };
 }
 
 beforeEach(() => resetLogIngestLimits());
@@ -230,13 +236,14 @@ describe('Claude prompt', () => {
 });
 
 describe('server error plugin', () => {
-  async function runPlugin(errors: GraphQLError[]) {
+  async function runPlugin(errors: GraphQLError[], contextValue: GraphQLContext = anonymous) {
     const hooks = await serverErrorLogPlugin.requestDidStart?.({} as never);
     await hooks?.didEncounterErrors?.({
       errors,
-      contextValue: anonymous,
+      contextValue,
       operationName: 'ListBugs',
     } as never);
+    await settleServerErrorLogs();
   }
 
   it('logs an unexpected resolver error with its operation', async () => {
@@ -248,13 +255,17 @@ describe('server error plugin', () => {
   });
 
   it('keeps the errors that are a correct answer as warnings, without variable values', async () => {
-    await runPlugin([
-      new GraphQLError('Variable "$password" got invalid value 123; String cannot represent', {
-        extensions: { code: 'BAD_USER_INPUT' },
-      }),
-    ]);
+    const ctx = await ctxWith([ROLES.EMPLOYEE]);
+    await runPlugin(
+      [
+        new GraphQLError('Variable "$password" got invalid value 123; String cannot represent', {
+          extensions: { code: 'BAD_USER_INPUT' },
+        }),
+      ],
+      ctx,
+    );
     const group = await AppLogGroupModel.findOne().lean();
-    expect(group).toMatchObject({ level: 'WARN', lastUserName: '', lastUserEmail: '' });
+    expect(group).toMatchObject({ level: 'WARN', lastUserEmail: ctx.user?.email });
     expect(group?.message).toBe(
       'Variable "$password" got an invalid value; String cannot represent',
     );

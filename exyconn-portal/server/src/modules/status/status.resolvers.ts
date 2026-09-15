@@ -1,6 +1,6 @@
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
-import { assertPermission } from '../../lib/permissions';
+import { assertPlatformStaff, restrictToPlatform } from '../../lib/platformAccess';
 import { ROLES } from '../../constants/roles';
 import { badRequest } from '../../utils/errors';
 import { withId } from '../../utils/serialize';
@@ -54,6 +54,15 @@ interface MaintenanceInput {
 /** Tech owns both catalogues; ADMIN passes every guard anyway. */
 const techOnly = [ROLES.TECH];
 
+/**
+ * The status page, its monitors, incidents and problem reports are Exyconn's own — stored with
+ * no organization — so their admin half is the platform operator's alone (lib/platformAccess).
+ */
+const platformOnly = (crud: ReturnType<typeof createCrudResolvers>) => ({
+  Query: restrictToPlatform(crud.Query),
+  Mutation: restrictToPlatform(crud.Mutation),
+});
+
 export const statusMonitorsService = createCrudService<StatusMonitorInput>(
   StatusMonitorModel as never,
   'Status monitor',
@@ -71,55 +80,63 @@ export const statusMaintenanceService = createCrudService<MaintenanceInput>(
   'Maintenance window',
 );
 
-const monitorCrud = createCrudResolvers(statusMonitorsService, {
-  name: 'StatusMonitor',
-  roles: techOnly,
-  table: {
-    searchFields: ['key', 'name', 'description', 'url'],
-    filterFields: ['key', 'name', 'url', 'category', 'state'],
-    sortFields: ['key', 'name', 'category', 'state', 'order', 'lastCheckedAt'],
-    defaultSort: { field: 'order', dir: 'ASC' },
-  },
-  stats: { countBy: ['state', 'category'] },
-});
+const monitorCrud = platformOnly(
+  createCrudResolvers(statusMonitorsService, {
+    name: 'StatusMonitor',
+    roles: techOnly,
+    table: {
+      searchFields: ['key', 'name', 'description', 'url'],
+      filterFields: ['key', 'name', 'url', 'category', 'state'],
+      sortFields: ['key', 'name', 'category', 'state', 'order', 'lastCheckedAt'],
+      defaultSort: { field: 'order', dir: 'ASC' },
+    },
+    stats: { countBy: ['state', 'category'] },
+  }),
+);
 
-const reportCrud = createCrudResolvers(problemReportsService, {
-  name: 'ProblemReport',
-  roles: techOnly,
-  table: {
-    searchFields: ['reference', 'subject', 'description', 'reporterName', 'reporterEmail'],
-    filterFields: ['reference', 'subject', 'serviceName', 'category', 'severity', 'status'],
-    sortFields: ['reference', 'subject', 'severity', 'status', 'serviceName', 'createdAt'],
-    defaultSort: { field: 'createdAt', dir: 'DESC' },
-  },
-  stats: { countBy: ['status', 'severity'] },
-});
+const reportCrud = platformOnly(
+  createCrudResolvers(problemReportsService, {
+    name: 'ProblemReport',
+    roles: techOnly,
+    table: {
+      searchFields: ['reference', 'subject', 'description', 'reporterName', 'reporterEmail'],
+      filterFields: ['reference', 'subject', 'serviceName', 'category', 'severity', 'status'],
+      sortFields: ['reference', 'subject', 'severity', 'status', 'serviceName', 'createdAt'],
+      defaultSort: { field: 'createdAt', dir: 'DESC' },
+    },
+    stats: { countBy: ['status', 'severity'] },
+  }),
+);
 
 /** Incidents are opened and updated through their own mutations; only delete is generic. */
-const incidentCrud = createCrudResolvers(statusIncidentsService, {
-  name: 'StatusIncident',
-  roles: techOnly,
-  table: {
-    searchFields: ['title', 'serviceName', 'reason'],
-    filterFields: ['serviceKey', 'source', 'impact', 'state'],
-    sortFields: ['title', 'serviceName', 'source', 'impact', 'startedAt', 'resolvedAt'],
-    defaultSort: { field: 'startedAt', dir: 'DESC' },
-  },
-  stats: { countBy: ['source', 'impact'] },
-});
+const incidentCrud = platformOnly(
+  createCrudResolvers(statusIncidentsService, {
+    name: 'StatusIncident',
+    roles: techOnly,
+    table: {
+      searchFields: ['title', 'serviceName', 'reason'],
+      filterFields: ['serviceKey', 'source', 'impact', 'state'],
+      sortFields: ['title', 'serviceName', 'source', 'impact', 'startedAt', 'resolvedAt'],
+      defaultSort: { field: 'startedAt', dir: 'DESC' },
+    },
+    stats: { countBy: ['source', 'impact'] },
+  }),
+);
 
-const maintenanceCrud = createCrudResolvers(statusMaintenanceService, {
-  name: 'StatusMaintenance',
-  plural: 'StatusMaintenanceWindows',
-  roles: techOnly,
-  table: {
-    searchFields: ['title', 'body'],
-    filterFields: ['title'],
-    sortFields: ['title', 'startsAt', 'endsAt', 'createdBy'],
-    defaultSort: { field: 'startsAt', dir: 'DESC' },
-  },
-  stats: { countBy: ['createdBy'] },
-});
+const maintenanceCrud = platformOnly(
+  createCrudResolvers(statusMaintenanceService, {
+    name: 'StatusMaintenance',
+    plural: 'StatusMaintenanceWindows',
+    roles: techOnly,
+    table: {
+      searchFields: ['title', 'body'],
+      filterFields: ['title'],
+      sortFields: ['title', 'startsAt', 'endsAt', 'createdBy'],
+      defaultSort: { field: 'startsAt', dir: 'DESC' },
+    },
+    stats: { countBy: ['createdBy'] },
+  }),
+);
 
 /** A window that ends before it starts is a typo, not a plan. */
 function assertWindow(input: MaintenanceInput): void {
@@ -156,7 +173,7 @@ export const statusResolvers = {
 
     /** Unauthenticated — following a status page needs no account. Double opt-in. */
     subscribeToStatus: (_p: unknown, { email }: { email: string }, ctx: GraphQLContext) =>
-      subscribeToStatus(email, ctx.origin),
+      subscribeToStatus(email, ctx.origin, ctx.ip),
 
     /** Unauthenticated — the emailed link is the only credential either of these needs. */
     confirmStatusSubscription: (_p: unknown, { token }: { token: string }) =>
@@ -170,6 +187,7 @@ export const statusResolvers = {
       args: { id: string; input: ProblemReportRecord },
       ctx: GraphQLContext,
     ) => {
+      await assertPlatformStaff(ctx, 'ProblemReport', techOnly, 'EDIT');
       const before = await ProblemReportModel.findById(args.id).select('status').lean();
       const updated = (await reportCrud.Mutation.updateProblemReport(
         p,
@@ -187,7 +205,7 @@ export const statusResolvers = {
       { input }: { input: CreateIncidentInput },
       ctx: GraphQLContext,
     ) => {
-      const user = await assertPermission(ctx, 'StatusIncident', techOnly, 'CREATE');
+      const user = await assertPlatformStaff(ctx, 'StatusIncident', techOnly, 'CREATE');
       return withId(await createStatusIncident(input, user.email));
     },
 
@@ -196,7 +214,7 @@ export const statusResolvers = {
       { id, status, body }: { id: string; status: IncidentUpdateStatus; body: string },
       ctx: GraphQLContext,
     ) => {
-      const user = await assertPermission(ctx, 'StatusIncident', techOnly, 'EDIT');
+      const user = await assertPlatformStaff(ctx, 'StatusIncident', techOnly, 'EDIT');
       return withId(await addStatusIncidentUpdate(id, status, body, user.email));
     },
 
@@ -205,7 +223,7 @@ export const statusResolvers = {
       { input }: { input: MaintenanceInput },
       ctx: GraphQLContext,
     ) => {
-      const user = await assertPermission(ctx, 'StatusMaintenance', techOnly, 'CREATE');
+      const user = await assertPlatformStaff(ctx, 'StatusMaintenance', techOnly, 'CREATE');
       assertWindow(input);
       const stamped = { input: { ...input, createdBy: user.email } };
       const created = await maintenanceCrud.Mutation.createStatusMaintenance(

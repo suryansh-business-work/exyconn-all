@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { getWebsiteFormTypes, submitForm } from "../../lib/portal";
+import { allowVisitorForm, visitorAddress } from "../../lib/visitor-limit";
 
 /**
  * Every public form funnels through here.
@@ -10,6 +11,16 @@ import { getWebsiteFormTypes, submitForm } from "../../lib/portal";
  */
 export const POST: APIRoute = async ({ request }) => {
   let formType = "";
+
+  if (!allowVisitorForm(visitorAddress(request))) {
+    return new Response(
+      JSON.stringify({ error: "Too many submissions. Please try again later." }),
+      {
+        status: 429,
+        headers: { "Content-Type": "application/json", "Retry-After": "600" },
+      }
+    );
+  }
 
   try {
     const body = await request.json();
@@ -35,7 +46,7 @@ export const POST: APIRoute = async ({ request }) => {
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
     console.error(`Form submission failed (${formType}):`, message);
-    return new Response(JSON.stringify({ error: "Failed to submit form", detail: message }), {
+    return new Response(JSON.stringify({ error: "Failed to submit form" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });

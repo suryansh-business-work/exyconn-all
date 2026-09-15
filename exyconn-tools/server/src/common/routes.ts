@@ -1,214 +1,118 @@
 import { Router, Request, Response } from "express";
 import multer from "multer";
+import { uploadImage, deleteToolsImage } from "../shared/services/imagekit";
+import { sendEmail } from "../shared/services/email";
 import {
-  uploadImage,
-  getAuthenticationParameters,
-  deleteImage,
-} from "../shared/services/imagekit";
+  createSignatureEmailLimiters,
+  createUploadLimiter,
+} from "../shared/middleware/limits";
 import {
-  sendEmail,
-  verifyConnection,
-  getDefaultFromAddress,
-} from "../shared/services/email";
+  MAX_UPLOAD_BYTES,
+  detectImageType,
+  safeFileName,
+  toolsFolder,
+} from "./image-upload";
+import {
+  SIGNATURE_EMAIL_SUBJECT,
+  buildSignatureEmail,
+  signatureTestSchema,
+} from "./signature-email";
 
-const router = Router();
-const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
-});
+const FILE_ID = /^\w{1,64}$/;
 
-// ============== ImageKit Routes ==============
+/**
+ * Shared endpoints the public tools site calls: image uploads for the signature builder
+ * and its test email. Everything here is unauthenticated, so each route is narrow —
+ * images only, under /tools only, to one recipient with fixed wording — and rate limited.
+ * Built per app so limiter state never leaks between app instances.
+ */
+export function createCommonRouter(): Router {
+  const router = Router();
+  const upload = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: MAX_UPLOAD_BYTES, files: 1 },
+  });
+  const uploadLimiter = createUploadLimiter();
 
-// Get ImageKit auth parameters (for client-side uploads)
-router.get("/imagekit/auth", async (req: Request, res: Response) => {
-  try {
-    const authParams = await getAuthenticationParameters();
-    res.json({ success: true, ...authParams });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error:
-        error instanceof Error ? error.message : "Failed to get auth params",
-    });
-  }
-});
-
-// Upload image via server
-router.post(
-  "/imagekit/upload",
-  upload.single("file"),
-  async (req: Request, res: Response) => {
-    try {
+  router.post(
+    "/imagekit/upload",
+    uploadLimiter,
+    upload.single("file"),
+    async (req: Request, res: Response) => {
       if (!req.file) {
         res.status(400).json({ success: false, error: "No file provided" });
         return;
       }
-
-      const folder = req.body.folder || "/tools";
-      const fileName = req.body.fileName || req.file.originalname;
-
-      const result = await uploadImage(req.file.buffer, fileName, folder);
-
-      if (result.success) {
-        res.json(result);
-      } else {
-        res.status(500).json(result);
-      }
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        error: error instanceof Error ? error.message : "Upload failed",
-      });
-    }
-  },
-);
-
-// Upload base64 image
-router.post("/imagekit/upload-base64", async (req: Request, res: Response) => {
-  try {
-    const { base64, fileName, folder } = req.body;
-
-    if (!base64) {
-      res
-        .status(400)
-        .json({ success: false, error: "No base64 data provided" });
-      return;
-    }
-
-    const result = await uploadImage(
-      base64,
-      fileName || "image.png",
-      folder || "/tools",
-    );
-
-    if (result.success) {
-      res.json(result);
-    } else {
-      res.status(500).json(result);
-    }
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : "Upload failed",
-    });
-  }
-});
-
-// Delete image
-router.delete(
-  "/imagekit/delete/:fileId",
-  async (req: Request, res: Response) => {
-    try {
-      const fileId = req.params.fileId as string;
-      const success = await deleteImage(fileId);
-      res.json({ success });
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        error: error instanceof Error ? error.message : "Delete failed",
-      });
-    }
-  },
-);
-
-// ============== Email Routes ==============
-
-// Verify SMTP connection
-router.get("/email/verify", async (req: Request, res: Response) => {
-  try {
-    const isConnected = await verifyConnection();
-    res.json({ success: true, connected: isConnected });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : "Verification failed",
-    });
-  }
-});
-
-// Send email
-router.post("/email/send", async (req: Request, res: Response) => {
-  try {
-    const { to, subject, text, html, from, replyTo } = req.body;
-
-    if (!to || !subject) {
-      res.status(400).json({
-        success: false,
-        error: "Missing required fields: to, subject",
-      });
-      return;
-    }
-
-    const result = await sendEmail({ to, subject, text, html, from, replyTo });
-
-    if (result.success) {
-      res.json(result);
-    } else {
-      res.status(500).json(result);
-    }
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : "Failed to send email",
-    });
-  }
-});
-
-// Send test email with signature preview
-router.post(
-  "/email/send-signature-test",
-  async (req: Request, res: Response) => {
-    try {
-      const { to, signatureHtml, senderName } = req.body;
-
-      if (!to || !signatureHtml) {
+      const type = detectImageType(req.file.mimetype, req.file.buffer);
+      if (!type) {
         res.status(400).json({
           success: false,
-          error: "Missing required fields: to, signatureHtml",
+          error: "Please upload a PNG, JPEG, GIF or WebP image",
         });
         return;
       }
 
-      const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-  <p>Hi there,</p>
-  <p>This is a test email to preview your new email signature. Here's how it looks:</p>
-  <br/>
-  <p>Best regards,</p>
-  <br/>
-  ${signatureHtml}
-</body>
-</html>
-    `;
+      const result = await uploadImage(
+        req.file.buffer,
+        safeFileName(
+          req.body.fileName ?? req.file.originalname,
+          type.extension,
+        ),
+        toolsFolder(req.body.folder),
+      );
+      res.status(result.success ? 200 : 502).json(result);
+    },
+  );
 
+  router.delete(
+    "/imagekit/delete/:fileId",
+    uploadLimiter,
+    async (req: Request, res: Response) => {
+      const fileId = String(req.params.fileId);
+      if (!FILE_ID.test(fileId)) {
+        res.status(400).json({ success: false, error: "Invalid file id" });
+        return;
+      }
+      const result = await deleteToolsImage(fileId);
+      if (result === "deleted") {
+        res.json({ success: true });
+      } else if (result === "forbidden") {
+        res
+          .status(403)
+          .json({ success: false, error: "This file cannot be deleted" });
+      } else {
+        res.status(502).json({ success: false, error: "Delete failed" });
+      }
+    },
+  );
+
+  router.post(
+    "/email/send-signature-test",
+    ...createSignatureEmailLimiters(),
+    async (req: Request, res: Response) => {
+      const parsed = signatureTestSchema.safeParse(req.body);
+      if (!parsed.success) {
+        res.status(400).json({
+          success: false,
+          error: parsed.error.issues[0]?.message ?? "Invalid request",
+        });
+        return;
+      }
+
+      const { to, signatureHtml, senderName } = parsed.data;
       const result = await sendEmail({
         to,
-        subject: "Test Email Signature Preview",
-        html: htmlContent,
-        from: senderName
-          ? `"${senderName}" <${await getDefaultFromAddress()}>`
-          : undefined,
+        subject: SIGNATURE_EMAIL_SUBJECT,
+        html: buildSignatureEmail(signatureHtml, senderName),
       });
 
       if (result.success) {
         res.json({ ...result, message: "Test email sent successfully!" });
       } else {
-        res.status(500).json(result);
+        res.status(502).json(result);
       }
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        error:
-          error instanceof Error ? error.message : "Failed to send test email",
-      });
-    }
-  },
-);
+    },
+  );
 
-export default router;
+  return router;
+}

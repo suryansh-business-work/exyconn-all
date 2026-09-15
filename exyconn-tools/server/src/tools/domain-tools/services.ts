@@ -1,10 +1,11 @@
-import dns from "dns";
-import { promisify } from "util";
-import https from "https";
-import http from "http";
-import tls from "tls";
-import net from "net";
+import dns from "node:dns";
+import { promisify } from "node:util";
+import tls from "node:tls";
+import net from "node:net";
 import axios from "axios";
+import { PublicError } from "../../shared/errors";
+import { resolvePublicAddresses } from "../../shared/security/network-guard";
+import { safeRequest } from "../../shared/security/safe-http";
 
 const resolveMx = promisify(dns.resolveMx);
 const resolveTxt = promisify(dns.resolveTxt);
@@ -24,8 +25,11 @@ function cleanDomain(input: string): string {
 // 2A - SSL Checker
 export async function checkSSL(domain: string) {
   const host = cleanDomain(domain);
+  // Connect to the vetted address itself, so the name cannot re-resolve somewhere private.
+  const [address] = await resolvePublicAddresses(host);
+  const servername = net.isIP(host) ? undefined : host;
   return new Promise((resolve, reject) => {
-    const socket = tls.connect(443, host, { servername: host }, () => {
+    const socket = tls.connect({ host: address, port: 443, servername }, () => {
       const cert = socket.getPeerCertificate();
       if (!cert || !cert.subject) {
         socket.end();
@@ -101,7 +105,7 @@ export async function whoisLookup(domain: string) {
   const host = cleanDomain(domain);
   try {
     const response = await axios.get(
-      `https://rdap.org/domain/${host}`,
+      `https://rdap.org/domain/${encodeURIComponent(host)}`,
       { timeout: 15000 }
     );
     const data = response.data;
@@ -119,7 +123,7 @@ export async function whoisLookup(domain: string) {
     // Fallback to simple WHOIS via TCP
     return new Promise((resolve, reject) => {
       const socket = net.createConnection(43, "whois.verisign-grs.com", () => {
-        socket.write(`${host}\r\n`);
+        socket.write(`${host.replaceAll(/[\r\n]/g, "")}\r\n`);
       });
       let data = "";
       socket.on("data", (chunk) => { data += chunk.toString(); });
@@ -186,13 +190,17 @@ export async function checkDomainAvailability(domain: string) {
 
 // 2H - IP Lookup 
 export async function ipLookup(ip: string) {
+  const address = String(ip).trim();
+  if (!net.isIP(address)) {
+    throw new PublicError("Enter a valid IPv4 or IPv6 address");
+  }
   try {
-    const response = await axios.get(`http://ip-api.com/json/${ip}?fields=66846719`, {
+    const response = await axios.get(`http://ip-api.com/json/${encodeURIComponent(address)}?fields=66846719`, {
       timeout: 10000,
     });
     return response.data;
   } catch {
-    throw new Error("Failed to lookup IP information");
+    throw new PublicError("Failed to lookup IP information");
   }
 }
 
@@ -209,7 +217,8 @@ export async function reverseIPLookup(ip: string) {
 // 2J - HTTP Headers Check
 export async function checkHTTPHeaders(url: string): Promise<Record<string, unknown>> {
   try {
-    const response = await axios.head(url, {
+    const response = await safeRequest(url, {
+      method: "HEAD",
       timeout: 15000,
       maxRedirects: 5,
       validateStatus: () => true,
@@ -239,7 +248,7 @@ export async function checkHTTPHeaders(url: string): Promise<Record<string, unkn
       contentType: headers["content-type"] || "Unknown",
     };
   } catch (err) {
-    throw new Error(`Failed to fetch headers: ${err instanceof Error ? err.message : "Unknown error"}`);
+    throw new PublicError(`Failed to fetch headers: ${err instanceof Error ? err.message : "Unknown error"}`);
   }
 }
 
@@ -247,7 +256,7 @@ export async function checkHTTPHeaders(url: string): Promise<Record<string, unkn
 export async function checkWebsiteStatus(url: string) {
   const start = Date.now();
   try {
-    const response = await axios.get(url, {
+    const response = await safeRequest(url, {
       timeout: 30000,
       maxRedirects: 5,
       validateStatus: () => true,
@@ -279,7 +288,7 @@ export async function checkWebsiteStatus(url: string) {
 export async function checkPageSpeed(url: string) {
   const start = Date.now();
   try {
-    const response = await axios.get(url, {
+    const response = await safeRequest(url, {
       timeout: 30000,
       maxRedirects: 5,
     });
@@ -309,7 +318,7 @@ export async function checkPageSpeed(url: string) {
       },
     };
   } catch (err) {
-    throw new Error(`Failed to check page speed: ${err instanceof Error ? err.message : "Unknown error"}`);
+    throw new PublicError(`Failed to check page speed: ${err instanceof Error ? err.message : "Unknown error"}`);
   }
 }
 
@@ -321,7 +330,7 @@ export async function checkBlacklist(domain: string) {
     const ips = await resolve4(host);
     ip = ips[0];
   } catch {
-    throw new Error("Could not resolve domain to IP");
+    throw new PublicError("Could not resolve domain to IP");
   }
 
   const blacklists = [
@@ -503,7 +512,7 @@ export async function checkRedirects(url: string, maxRedirects: number = 10) {
   let currentUrl = url;
   for (let i = 0; i < maxRedirects; i++) {
     try {
-      const response = await axios.get(currentUrl, {
+      const response = await safeRequest(currentUrl, {
         maxRedirects: 0,
         validateStatus: () => true,
         timeout: 10000,
@@ -547,13 +556,23 @@ export async function checkRedirects(url: string, maxRedirects: number = 10) {
 }
 
 // 2T - Open Ports Check
+export const MAX_PORTS_PER_CHECK = 20;
+
 export async function checkOpenPorts(
   host: string,
   ports?: number[]
 ) {
   const cleanHost = cleanDomain(host);
   const defaultPorts = [21, 22, 25, 53, 80, 110, 143, 443, 465, 587, 993, 995, 3306, 3389, 5432, 8080, 8443];
-  const portsToCheck = ports && ports.length > 0 ? ports : defaultPorts;
+  const portsToCheck = ports && ports.length > 0 ? [...new Set(ports.map(Number))] : defaultPorts;
+  if (
+    portsToCheck.length > MAX_PORTS_PER_CHECK ||
+    portsToCheck.some((port) => !Number.isInteger(port) || port < 1 || port > 65535)
+  ) {
+    throw new PublicError(`Choose up to ${MAX_PORTS_PER_CHECK} ports between 1 and 65535`);
+  }
+  // Scan the vetted address, never the name, so it cannot re-resolve to a private host.
+  const [address] = await resolvePublicAddresses(cleanHost);
 
   const results = await Promise.all(
     portsToCheck.map(
@@ -572,7 +591,7 @@ export async function checkOpenPorts(
           socket.on("error", () => {
             resolve({ port, status: "closed", service: getServiceName(port) });
           });
-          socket.connect(port, cleanHost);
+          socket.connect(port, address);
         })
     )
   );

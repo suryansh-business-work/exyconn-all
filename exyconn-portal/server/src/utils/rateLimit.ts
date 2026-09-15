@@ -1,7 +1,11 @@
 /**
  * A fixed-window counter for the mutations anybody on the internet can call. In-memory
- * and per-process on purpose: the API runs as a single container, and the point is to
- * stop a stuck form or a bored visitor from hammering an endpoint, not to fight a botnet.
+ * and per-process.
+ *
+ * @deprecated Use `createLimiter` from lib/rateLimiter, which is shared across restarts and
+ * instances and cannot grow the process's memory. Its `allow` is async, so a caller must
+ * `await` it — `if (!limiter.allow(key))` on a promise would never refuse anything. Kept only
+ * for logs.ingest.ts until it moves over.
  */
 export interface RateLimiter {
   /** Records one attempt for `key` and reports whether it is within the limit. */

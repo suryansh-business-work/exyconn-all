@@ -10,6 +10,7 @@ import {
   sanitizeArticleHtml,
 } from "../../../../../../../lib/portal";
 import "../../../../../../../styles/article.css";
+import { readableInk } from "../../../../../../../styles/tokens/semantic.tokens";
 import JobApplicationForm from "../../../../../../../components/career/JobApplicationForm.astro";
 
 // Get params from URL
@@ -67,7 +68,7 @@ const jobPostingSchema = {
   metaImage={company.logo}
   jsonLd={jobPostingSchema}
 >
-  <main class="bg-surface min-h-screen">
+  <div class="bg-surface min-h-screen">
     <!-- Header Section -->
     <section
       class="relative py-16 px-6 overflow-hidden"
@@ -118,7 +119,7 @@ const jobPostingSchema = {
                 <a
                   href={`/career/company/${company.slug}`}
                   class="text-sm font-medium hover:underline"
-                  style={`color: ${company.brandColor};`}
+                  style={`color: ${readableInk(company.brandColor)};`}
                 >
                   {company.name}
                 </a>
@@ -191,7 +192,7 @@ const jobPostingSchema = {
               <a
                 href={`mailto:careers@${company.slug}.com?subject=Application for ${job.title} (${job.jobCode})`}
                 class="text-sm font-medium block text-center mt-1 hover:underline"
-                style={`color: ${company.brandColor};`}
+                style={`color: ${readableInk(company.brandColor)};`}
               >
                 careers@{company.slug}.com
               </a>
@@ -218,7 +219,7 @@ const jobPostingSchema = {
                   job.skillSet.map((skill) => (
                     <span
                       class="px-4 py-2 rounded-lg text-sm font-medium"
-                      style={`background: ${company.brandColor}15; color: ${company.brandColor};`}
+                      style={`background: ${company.brandColor}15; color: ${readableInk(company.brandColor)};`}
                     >
                       {skill}
                     </span>
@@ -379,7 +380,7 @@ const jobPostingSchema = {
               <a
                 href={`/career/company/${company.slug}`}
                 class="inline-flex items-center gap-2 text-sm font-medium hover:gap-3 transition-all"
-                style={`color: ${company.brandColor};`}
+                style={`color: ${readableInk(company.brandColor)};`}
               >
                 View all jobs at {company.name}
                 <i class="fa-solid fa-arrow-right text-xs"></i>
@@ -492,7 +493,7 @@ const jobPostingSchema = {
               <a
                 href={`/career/company/${company.slug}`}
                 class="inline-flex items-center gap-2 font-semibold hover:gap-3 transition-all"
-                style={`color: ${company.brandColor};`}
+                style={`color: ${readableInk(company.brandColor)};`}
               >
                 View all {company.name} jobs
                 <i class="fa-solid fa-arrow-right text-sm" />
@@ -535,7 +536,7 @@ const jobPostingSchema = {
         </a>
       </div>
     </section>
-  </main>
+  </div>
 </Page>
 
 <script>

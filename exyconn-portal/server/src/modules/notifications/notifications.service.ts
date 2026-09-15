@@ -1,6 +1,7 @@
 import { NotificationModel } from './notification.model';
 import { UserModel } from '../admin/user.model';
 import { logger } from '../../utils/logger';
+import { badRequest } from '../../utils/errors';
 
 export interface NotifyPayload {
   kind: string;
@@ -54,11 +55,10 @@ export interface BroadcastInput extends NotifyPayload {
 export async function resolveRecipients(input: BroadcastInput): Promise<string[]> {
   const base: Record<string, unknown> = { isActive: true };
   if (input.audience === 'DEPARTMENT') {
-    if (!input.department) throw new Error('department is required for a DEPARTMENT audience');
+    if (!input.department) badRequest('department is required for a DEPARTMENT audience');
     base.department = input.department;
   } else if (input.audience === 'EMPLOYEES') {
-    if (!input.employeeIds?.length)
-      throw new Error('employeeIds is required for an EMPLOYEES audience');
+    if (!input.employeeIds?.length) badRequest('employeeIds is required for an EMPLOYEES audience');
     base._id = { $in: input.employeeIds };
   }
   const users = await UserModel.find(base).select('_id').lean();

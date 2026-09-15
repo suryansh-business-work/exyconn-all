@@ -1,12 +1,14 @@
 import type { ReactElement } from 'react';
 import { alpha, borderWidth, Box, fontSize, TRACKER_RADIUS } from '@exyconn/ui';
+import { sanitizeRichHtml } from '../sanitize-html';
+
 interface Props {
   html: string;
 }
 
 /**
- * Renders the disclosure authored by a portal ADMIN. The HTML is first-party
- * (workspace admin, not end-user input), which is why injecting it is acceptable here.
+ * Renders the disclosure authored by a portal ADMIN. It is sanitised before it is injected:
+ * an admin account is still an account that can be misused, and this window holds a session.
  * Scrolls inside its own panel so the agree/decline buttons always stay reachable.
  */
 export default function ConsentBody({ html }: Readonly<Props>): ReactElement {
@@ -38,7 +40,7 @@ export default function ConsentBody({ html }: Readonly<Props>): ReactElement {
           my: 2,
         },
       })}
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(html) }}
     />
   );
 }

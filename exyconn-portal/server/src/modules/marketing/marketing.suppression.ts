@@ -3,10 +3,10 @@ import { MarketingSuppressionModel, type SuppressionReason } from './suppression
 import { MarketingUnsubscribeTokenModel } from './unsubscribe-token.model';
 import { ContactModel } from '../crm/contact.model';
 import { badRequest } from '../../utils/errors';
-import { createRateLimiter } from '../../utils/rateLimit';
+import { createLimiter } from '../../lib/rateLimiter';
 import { logger } from '../../utils/logger';
 
-const HOUR_MS = 60 * 60 * 1000;
+const HOUR_SEC = 60 * 60;
 const MAX_UNSUBSCRIBES_PER_HOUR = 30;
 const INVALID_LINK = 'This unsubscribe link is not valid. Use the link from a recent email.';
 
@@ -17,7 +17,11 @@ const WITHDRAWN_CONSENT: Readonly<Record<string, SuppressionReason>> = {
 };
 
 /** Per-caller, so the one mutation anybody on the internet can call cannot be hammered. */
-export const unsubscribeLimiter = createRateLimiter(HOUR_MS, MAX_UNSUBSCRIBES_PER_HOUR);
+export const unsubscribeLimiter = createLimiter({
+  keyPrefix: 'unsubscribe_ip',
+  points: MAX_UNSUBSCRIBES_PER_HOUR,
+  durationSec: HOUR_SEC,
+});
 
 function hashToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
@@ -87,7 +91,7 @@ export async function issueUnsubscribeTokens(
  * problem. The token proves which address is asking.
  */
 export async function unsubscribeByToken(token: string, caller: string): Promise<boolean> {
-  if (!unsubscribeLimiter.allow(caller)) {
+  if (!(await unsubscribeLimiter.allow(caller))) {
     logger.warn(`Unsubscribe from ${caller} rate-limited`);
     badRequest('Too many attempts. Try again shortly.');
   }

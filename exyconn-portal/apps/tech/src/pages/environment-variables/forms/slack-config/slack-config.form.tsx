@@ -9,27 +9,33 @@ import {
   useUpdateSlackConfigMutation,
 } from '@exyconn/shell/graphql/generated';
 import type { SlackConfigRow } from './slack-config.types';
+import { KEEP_SECRET_HINT, secretField } from '../../secret';
 
 const BOOL_OPTIONS: SelectOption[] = [
   { value: 'true', label: 'Yes' },
   { value: 'false', label: 'No' },
 ];
 
-const schema = z.object({
-  label: z.string().trim().min(1, 'Label is required'),
-  botToken: z
-    .string()
-    .trim()
-    .min(1, 'Bot token is required')
-    .startsWith('xoxb-', 'A Slack bot token starts with "xoxb-"'),
-  defaultChannel: z
-    .string()
-    .trim()
-    .min(1, 'Default channel is required')
-    .max(80, 'Channel name is too long'),
-  isActive: z.enum(['true', 'false']),
-});
-type Values = z.infer<typeof schema>;
+/** Every Slack bot token starts with this; a user token (xoxp-) cannot post as the app. */
+const BOT_TOKEN_PREFIX = 'xoxb-';
+
+/** The secret is write-only: required to create, blank on an edit keeps the stored one. */
+const makeSchema = (isEdit: boolean) =>
+  z.object({
+    label: z.string().trim().min(1, 'Label is required'),
+    botToken: secretField(isEdit, 'Bot token is required', {
+      test: (value) => value.startsWith(BOT_TOKEN_PREFIX),
+      message: `A Slack bot token starts with "${BOT_TOKEN_PREFIX}"`,
+    }),
+    defaultChannel: z
+      .string()
+      .trim()
+      .min(1, 'Default channel is required')
+      .max(80, 'Channel name is too long'),
+    isActive: z.enum(['true', 'false']),
+  });
+type Schema = ReturnType<typeof makeSchema>;
+type Values = z.infer<Schema>;
 
 /** Maps the validated form values onto the GraphQL input. */
 const toInput = (values: Values) => ({
@@ -41,7 +47,8 @@ const toInput = (values: Values) => ({
 
 const toInitial = (row: SlackConfigRow | null): Values => ({
   label: row?.label ?? '',
-  botToken: row?.botToken ?? '',
+  // Never prefilled: the API does not return it, and blank keeps the stored token.
+  botToken: '',
   defaultChannel: row?.defaultChannel ?? '',
   isActive: row ? (row.isActive ? 'true' : 'false') : 'true',
 });
@@ -56,8 +63,8 @@ interface SlackConfigFormProps {
 export function SlackConfigForm({ initial, onDone, onCancel }: Readonly<SlackConfigFormProps>) {
   const [createConfig] = useCreateSlackConfigMutation();
   const [updateConfig] = useUpdateSlackConfigMutation();
-  const methods = useForm<z.input<typeof schema>, unknown, Values>({
-    resolver: zodResolver(schema),
+  const methods = useForm<z.input<Schema>, unknown, Values>({
+    resolver: zodResolver(makeSchema(Boolean(initial))),
     defaultValues: toInitial(initial),
   });
 
@@ -76,7 +83,9 @@ export function SlackConfigForm({ initial, onDone, onCancel }: Readonly<SlackCon
         name="botToken"
         label="Bot token"
         type="password"
-        helperText="Slack app bot token (xoxb-…) with the chat:write scope"
+        helperText={
+          isEdit ? KEEP_SECRET_HINT : 'Slack app bot token (xoxb-…) with the chat:write scope'
+        }
       />
       <RhfTextField
         name="defaultChannel"

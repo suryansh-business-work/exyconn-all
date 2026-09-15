@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { validationResult } from "express-validator";
+import { MulterError } from "multer";
+import { clientErrorMessage } from "../errors";
 
 // Validation middleware
 export const validate = (req: Request, res: Response, next: NextFunction) => {
@@ -10,17 +12,33 @@ export const validate = (req: Request, res: Response, next: NextFunction) => {
   next();
 };
 
-// Error handling middleware
+type HttpError = Error & { status?: number; statusCode?: number; expose?: boolean };
+
+function clientStatus(err: HttpError): number | undefined {
+  if (err instanceof MulterError) {
+    return err.code === "LIMIT_FILE_SIZE" ? 413 : 400;
+  }
+  const status = err.status ?? err.statusCode;
+  return status !== undefined && status >= 400 && status < 500 ? status : undefined;
+}
+
+// Error handling middleware: client errors (bad JSON, too large, bad upload) keep their
+// message; anything else is logged here and answered generically.
 export const errorHandler = (
-  err: Error,
+  err: HttpError,
   req: Request,
   res: Response,
   _next: NextFunction,
 ) => {
-  console.error("Error:", err.message);
+  const status = clientStatus(err);
+  if (status) {
+    res.status(status).json({ error: err.message });
+    return;
+  }
+  console.error("Error:", err);
   res.status(500).json({
     error: "Internal Server Error",
-    message: err.message || "Unknown error occurred",
+    message: clientErrorMessage(err, "Unknown error occurred"),
   });
 };
 

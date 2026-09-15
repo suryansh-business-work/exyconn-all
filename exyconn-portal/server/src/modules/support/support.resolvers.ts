@@ -312,6 +312,6 @@ export const supportResolvers = {
       _p: unknown,
       { input }: { input: ClientSupportTicketInput },
       ctx: GraphQLContext,
-    ) => createClientSupportTicket(input, ctx.user ? 'AGENT' : 'PORTAL'),
+    ) => createClientSupportTicket(input, ctx.user ? 'AGENT' : 'PORTAL', ctx.ip),
   },
 };

@@ -1,4 +1,5 @@
-import axios from "axios";
+import { PublicError } from "../../shared/errors";
+import { safeRequest } from "../../shared/security/safe-http";
 import * as cheerio from "cheerio";
 
 export interface ExtractedUrl {
@@ -97,7 +98,7 @@ const fetchPage = async (
   url: string,
 ): Promise<{ html: string; statusCode: number } | null> => {
   try {
-    const response = await axios.get(url, {
+    const response = await safeRequest<string>(url, {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
@@ -120,7 +121,7 @@ export const extractUrls = async (
 ): Promise<ExtractedUrl[]> => {
   const pageData = await fetchPage(url);
   if (!pageData) {
-    throw new Error("Failed to fetch the website");
+    throw new PublicError("Failed to fetch the website");
   }
 
   const $ = cheerio.load(pageData.html);

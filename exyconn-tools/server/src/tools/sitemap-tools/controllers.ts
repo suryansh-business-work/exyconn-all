@@ -10,6 +10,7 @@ import {
   splitSitemap,
   analyzeFrequency,
 } from "./services";
+import { clientErrorMessage } from "../../shared/errors";
 
 export const validateSitemapController = async (
   req: Request,
@@ -22,7 +23,7 @@ export const validateSitemapController = async (
   } catch (error) {
     console.error("Sitemap validation error:", error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : "Validation failed",
+      error: clientErrorMessage(error, "Validation failed"),
     });
   }
 };
@@ -35,7 +36,7 @@ export const extractUrlsController = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("URL extraction error:", error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : "Extraction failed",
+      error: clientErrorMessage(error, "Extraction failed"),
     });
   }
 };
@@ -51,7 +52,7 @@ export const compareSitemapsController = async (
   } catch (error) {
     console.error("Sitemap compare error:", error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : "Comparison failed",
+      error: clientErrorMessage(error, "Comparison failed"),
     });
   }
 };
@@ -64,7 +65,7 @@ export const insightsController = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Sitemap insights error:", error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : "Analysis failed",
+      error: clientErrorMessage(error, "Analysis failed"),
     });
   }
 };
@@ -86,7 +87,7 @@ export const generateSitemapController = async (
   } catch (error) {
     console.error("Sitemap generation error:", error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : "Generation failed",
+      error: clientErrorMessage(error, "Generation failed"),
     });
   }
 };
@@ -99,7 +100,7 @@ export const generateIndexController = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Index generation error:", error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : "Generation failed",
+      error: clientErrorMessage(error, "Generation failed"),
     });
   }
 };
@@ -112,7 +113,7 @@ export const generateRobotsController = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Robots.txt generation error:", error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : "Generation failed",
+      error: clientErrorMessage(error, "Generation failed"),
     });
   }
 };
@@ -125,7 +126,7 @@ export const splitSitemapController = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Sitemap split error:", error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : "Split failed",
+      error: clientErrorMessage(error, "Split failed"),
     });
   }
 };
@@ -141,7 +142,7 @@ export const frequencyAnalysisController = async (
   } catch (error) {
     console.error("Frequency analysis error:", error);
     return res.status(500).json({
-      error: error instanceof Error ? error.message : "Analysis failed",
+      error: clientErrorMessage(error, "Analysis failed"),
     });
   }
 };

@@ -3,6 +3,7 @@ import { authService } from '../../src/modules/auth/auth.service';
 import {
   requestPasswordReset,
   resetLinkOrigin,
+  resetIpLimiter,
   resetPassword,
   resetRequestLimiter,
 } from '../../src/modules/auth/password-reset.service';
@@ -22,7 +23,7 @@ jest.mock('../../src/modules/email', () => ({
 const send = emailer.send as jest.Mock;
 const EMAIL = 'jane@exyconn.com';
 const OLD_PASSWORD = 'Secret@123';
-const NEW_PASSWORD = 'Fresh@456';
+const NEW_PASSWORD = process.env.TEST_RESET_PASSWORD ?? 'Fresh@45678';
 const ctx: GraphQLContext = { user: null, ip: '10.0.0.9', origin: env.corsOrigins[0] };
 
 /** The token the emailed link carries — the only place it exists in plaintext. */
@@ -32,7 +33,7 @@ function sentToken(): string {
 }
 
 beforeEach(async () => {
-  resetRequestLimiter.reset();
+  await Promise.all([resetRequestLimiter.reset(), resetIpLimiter.reset()]);
   await seedUser(EMAIL, OLD_PASSWORD, [ROLES.FINANCE]);
 });
 
@@ -54,7 +55,7 @@ describe('self-service password reset', () => {
     expect(audit).toMatchObject({ actorEmail: EMAIL, entityLabel: EMAIL, ip: '10.0.0.9' });
 
     // Single use: the same link cannot set a second password.
-    await expect(resetPassword(token, 'Another@789', ctx)).rejects.toThrow(
+    await expect(resetPassword(token, 'Another@7890', ctx)).rejects.toThrow(
       /invalid or has expired/,
     );
   });
@@ -80,11 +81,13 @@ describe('self-service password reset', () => {
     await expect(authService.login(EMAIL, OLD_PASSWORD)).resolves.toHaveProperty('token');
   });
 
-  it('rejects an unknown token and a short password', async () => {
+  it('rejects an unknown token, and a short password without burning the link', async () => {
     await expect(resetPassword('not-a-token', NEW_PASSWORD, ctx)).rejects.toThrow(
       /invalid or has expired/,
     );
-    await expect(resetPassword('not-a-token', 'abc', ctx)).rejects.toThrow(/at least 6/);
+    await requestPasswordReset(EMAIL, ctx);
+    await expect(resetPassword(sentToken(), 'abc', ctx)).rejects.toThrow(/at least 10/);
+    await expect(resetPassword(sentToken(), NEW_PASSWORD, ctx)).resolves.toBe(true);
   });
 
   it('answers true for an unknown address and sends nothing', async () => {

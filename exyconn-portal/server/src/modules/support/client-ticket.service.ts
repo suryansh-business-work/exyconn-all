@@ -7,7 +7,8 @@ import { uniqueReference } from './ticket-reference';
 import { badRequest } from '../../utils/errors';
 import { withIds } from '../../utils/serialize';
 import { logger } from '../../utils/logger';
-import { createRateLimiter } from '../../utils/rateLimit';
+import { createLimiter } from '../../lib/rateLimiter';
+import { MAX_EMAIL_LENGTH } from '../../lib/rateLimiterSignIn';
 
 /** What the public form sends. Every field is re-validated here — the client is untrusted. */
 export interface ClientSupportTicketInput {
@@ -29,12 +30,27 @@ const LIMITS = {
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /** Five tickets an hour from one address is a person with a problem; more is a script. */
-const HOUR_MS = 60 * 60 * 1000;
-const ticketLimiter = createRateLimiter(HOUR_MS, 5);
+const HOUR_SEC = 60 * 60;
+const ticketLimiter = createLimiter({
+  keyPrefix: 'ticket_address',
+  points: 5,
+  durationSec: HOUR_SEC,
+});
+/** Per-IP as well, so one machine cannot file five tickets under each of a thousand addresses. */
+const ticketIpLimiter = createLimiter({
+  keyPrefix: 'ticket_ip',
+  points: 20,
+  durationSec: HOUR_SEC,
+});
 
 /** Test seam: forgets every recorded attempt. */
-export function resetClientTicketLimits(): void {
-  ticketLimiter.reset();
+export async function resetClientTicketLimits(): Promise<void> {
+  await Promise.all([ticketLimiter.reset(), ticketIpLimiter.reset()]);
+}
+
+/** Regex metacharacters in a value that is matched literally. */
+function escapeRegex(value: string): string {
+  return value.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 }
 
 function assertLength(value: string, label: string, { min, max }: { min: number; max: number }) {
@@ -62,7 +78,7 @@ function assertValid(input: ClientSupportTicketInput): void {
   assertLength(input.requesterName, 'Name', LIMITS.name);
   assertLength(input.subject, 'Subject', LIMITS.subject);
   assertLength(input.description, 'Description', LIMITS.description);
-  if (!EMAIL_PATTERN.exec(input.requesterEmail)) {
+  if (input.requesterEmail.length > MAX_EMAIL_LENGTH || !EMAIL_PATTERN.exec(input.requesterEmail)) {
     badRequest('Enter a valid email address');
   }
 }
@@ -81,7 +97,9 @@ async function resolveClient(email: string): Promise<{ id: string; name: string 
   if (!domain) {
     return null;
   }
-  const sameDomain = await ClientModel.findOne({ email: { $regex: `@${domain}$`, $options: 'i' } })
+  // Escaped: the domain is caller-supplied, and "a@.*" must not match every client on file.
+  const pattern = `@${escapeRegex(domain)}$`;
+  const sameDomain = await ClientModel.findOne({ email: { $regex: pattern, $options: 'i' } })
     .select('name')
     .lean();
   return sameDomain ? { id: sameDomain._id.toString(), name: sameDomain.name } : null;
@@ -129,10 +147,15 @@ export async function fileClientTicket(
 export async function createClientSupportTicket(
   raw: ClientSupportTicketInput,
   channel: TicketChannel = 'PORTAL',
+  /** The caller's address. Absent for an internal caller, which is not limited per IP. */
+  ip?: string,
 ): Promise<string> {
   const input = normalize(raw);
   assertValid(input);
-  if (!ticketLimiter.allow(input.requesterEmail)) {
+  if (ip !== undefined && !(await ticketIpLimiter.allow(ip))) {
+    badRequest('Too many tickets from this connection. Try again in an hour.');
+  }
+  if (!(await ticketLimiter.allow(input.requesterEmail))) {
     badRequest('Too many tickets from this address. Try again in an hour.');
   }
 

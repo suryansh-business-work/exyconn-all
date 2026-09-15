@@ -17,6 +17,7 @@
     "format:check": "prettier --check \"src/**/*.{astro,ts,tsx,js,jsx,css,scss,json,md}\"",
     "test": "vitest run",
     "test:watch": "vitest",
+    "a11y:audit": "node scripts/a11y-audit/index.mjs",
     "setup:husky": "husky",
     "pre-commit": "lint-staged && npm run test && npm run build"
   },

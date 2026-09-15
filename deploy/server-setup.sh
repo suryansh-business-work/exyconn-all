@@ -5,7 +5,11 @@
 #   scp -r deploy root@148.135.136.107:/opt/exyconn-deploy
 #   ssh root@148.135.136.107 'bash /opt/exyconn-deploy/server-setup.sh'
 #
-# Adds/updates ONLY the Exyconn vhosts and their TLS certs:
+# Adds/updates ONLY the Exyconn vhosts, their TLS certs, and the exyconn-prefixed
+# security-header / rate-limit snippets they include (deploy/nginx/snippets, http/).
+# The opt-in catch-all in deploy/nginx/optional/ is never installed by this script.
+#
+# Exyconn vhosts:
 #   exyconn.com(4000) tools(4001) tools-api(4002)
 #   portal(4003) portal-server(4004)
 #   plus one portal micro-frontend per module: admin(4020) employee(4021)
@@ -22,9 +26,51 @@ set -euo pipefail
 EMAIL="${CERTBOT_EMAIL:-suryansh@exyconn.com}"
 NGINX_AVAILABLE=/etc/nginx/sites-available
 NGINX_ENABLED=/etc/nginx/sites-enabled
+NGINX_SNIPPETS=/etc/nginx/snippets
 SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/nginx"
+# Rate-limit zones + header maps: http{}-context only, so it rides in with the vhosts
+# (sites-enabled is included inside http{}); the 00- prefix loads it first.
+HTTP_CONTEXT=00-exyconn-http-context.conf
+SNIPPET_INCLUDE='include /etc/nginx/snippets/exyconn-[a-z0-9-]+\.conf;'
 STAMP="$(date +%Y%m%d-%H%M%S)"
 BACKUP="/root/nginx-backup-${STAMP}.tar.gz"
+
+# Put back the config this run started from when the new one does not pass `nginx -t`,
+# so a failed run never leaves a config that breaks the next reload (e.g. certbot renew).
+# The backup holds every site on the host, so it is only used when it is readable.
+rollback() {
+  echo "!!  nginx -t failed — restoring the previous config from ${BACKUP}" >&2
+  if tar -tzf "${BACKUP}" >/dev/null 2>&1; then
+    rm -f "${NGINX_SNIPPETS}"/exyconn-*.conf
+    rm -rf "${NGINX_AVAILABLE}" "${NGINX_ENABLED}"
+    tar -xzf "${BACKUP}" -C /etc/nginx
+    nginx -t >&2 && echo "    previous config restored; nginx was not reloaded" >&2
+  else
+    echo "    backup unreadable — fix the config by hand; nginx was not reloaded" >&2
+  fi
+  exit 1
+}
+
+# certbot-managed vhosts are never overwritten (that would strip their TLS blocks), so
+# the snippet includes are synced into them instead: every server_name line gets exactly
+# the exyconn snippet includes the repo's copy of that vhost has. Idempotent.
+sync_snippet_includes() {
+  local src="$1" dst="$2" includes tmp
+  includes="$(grep -oE "${SNIPPET_INCLUDE}" "${src}" | sort -u || true)"
+  [ -n "${includes}" ] || return 0
+  tmp="$(mktemp)"
+  grep -vE "${SNIPPET_INCLUDE}" "${dst}" | INCLUDES="${includes}" awk '
+    { print }
+    /^[[:space:]]*server_name[[:space:]]/ {
+      match($0, /^[[:space:]]*/)
+      indent = substr($0, 1, RLENGTH)
+      n = split(ENVIRON["INCLUDES"], list, "\n")
+      for (i = 1; i <= n; i++) print indent list[i]
+    }
+  ' > "${tmp}"
+  cat "${tmp}" > "${dst}"
+  rm -f "${tmp}"
+}
 
 # certbot -d args per certificate
 DOMAINS=(
@@ -54,13 +100,18 @@ DOMAINS=(
 )
 
 echo "==> 1/4  Backing up current nginx config to ${BACKUP}"
-tar -czf "${BACKUP}" -C /etc/nginx sites-available sites-enabled 2>/dev/null || true
+mkdir -p "${NGINX_SNIPPETS}"
+tar -czf "${BACKUP}" -C /etc/nginx sites-available sites-enabled snippets 2>/dev/null || true
 
 echo "==> 2/4  Ensuring nginx + certbot are installed"
 command -v nginx   >/dev/null || { apt-get update && apt-get install -y nginx; }
 command -v certbot >/dev/null || { apt-get update && apt-get install -y certbot python3-certbot-nginx; }
 
 echo "==> 3/4  Installing the Exyconn vhosts (other sites are left untouched)"
+install -m 644 "${SRC_DIR}"/snippets/exyconn-*.conf "${NGINX_SNIPPETS}/"
+install -m 644 "${SRC_DIR}/http/${HTTP_CONTEXT}" "${NGINX_AVAILABLE}/${HTTP_CONTEXT}"
+ln -sf "${NGINX_AVAILABLE}/${HTTP_CONTEXT}" "${NGINX_ENABLED}/${HTTP_CONTEXT}"
+echo "    installed security-header/rate-limit snippets and ${HTTP_CONTEXT}"
 for conf in "${SRC_DIR}"/*.conf; do
   name="$(basename "${conf}")"
   installed="${NGINX_AVAILABLE}/${name}"
@@ -94,13 +145,14 @@ for conf in "${SRC_DIR}"/*.conf; do
         ' "${conf}" >> "${installed}"
       done
     fi
+    sync_snippet_includes "${conf}" "${installed}"
   else
     cp "${conf}" "${installed}"
     echo "    installed ${name}"
   fi
   ln -sf "${installed}" "${NGINX_ENABLED}/${name}"
 done
-nginx -t
+nginx -t || rollback
 systemctl reload nginx
 
 echo "==> 4/4  Obtaining/renewing TLS certificates (certbot skips ones already valid)"

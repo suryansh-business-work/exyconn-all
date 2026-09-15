@@ -39,10 +39,12 @@
   aria-modal="true"
   aria-labelledby="cookie-drawer-title"
   tabindex="-1"
+  data-open="false"
+  inert
 >
   <!-- Header -->
   <div
-    class="flex items-center justify-between p-5 border-b border-line-subtle bg-gradient-to-r from-amber to-orange text-on-solid"
+    class="flex items-center justify-between p-5 border-b border-line-subtle bg-gradient-to-r from-amber-deep to-orange-deep text-on-solid"
   >
     <div class="flex items-center gap-3">
       <div class="w-10 h-10 rounded-xl bg-on-solid/20 flex items-center justify-center">
@@ -50,7 +52,7 @@
       </div>
       <div>
         <h2 id="cookie-drawer-title" class="text-lg font-bold">Cookie preferences</h2>
-        <p class="text-xs text-on-solid/90">We value your privacy</p>
+        <p class="text-xs text-on-solid">We value your privacy</p>
       </div>
     </div>
     <button
@@ -287,6 +289,7 @@
         syncFromPrefs();
         lastFocus = document.activeElement;
         drawer.classList.remove("translate-x-full");
+        drawer.dataset.open = "true";
         backdrop.classList.remove("opacity-0", "pointer-events-none");
         backdrop.classList.add("opacity-100");
         openBtn.setAttribute("aria-expanded", "true");
@@ -295,6 +298,7 @@
       }
       function closeDrawer() {
         drawer.classList.add("translate-x-full");
+        drawer.dataset.open = "false";
         backdrop.classList.add("opacity-0", "pointer-events-none");
         backdrop.classList.remove("opacity-100");
         openBtn.setAttribute("aria-expanded", "false");

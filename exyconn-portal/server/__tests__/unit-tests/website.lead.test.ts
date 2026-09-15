@@ -5,8 +5,10 @@ import { LeadModel } from '../../src/modules/crm/crm.model';
 import { UserModel } from '../../src/modules/admin/user.model';
 import { ROLES } from '../../src/constants/roles';
 import type { GraphQLContext } from '../../src/middleware/auth';
+import { OPERATOR_ORGANIZATION_ID, seedPlatformOperator } from './security-authz.operator';
 
 const seedEditor = async () => {
+  await seedPlatformOperator();
   const user = await UserModel.create({
     name: 'Priya Nair',
     email: 'priya@exyconn.com',
@@ -15,6 +17,8 @@ const seedEditor = async () => {
   });
   const ctx: GraphQLContext = {
     user: { id: String(user._id), roles: [ROLES.WEBSITE], email: user.email },
+    // The website inbox is a platform feature, run from the platform operator company.
+    organizationId: OPERATOR_ORGANIZATION_ID,
   };
   return ctx;
 };

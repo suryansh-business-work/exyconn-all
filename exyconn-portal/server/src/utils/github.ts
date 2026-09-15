@@ -1,5 +1,6 @@
 import { GithubConfigModel, type GithubConfigDocument } from '../modules/tech/github-config.model';
 import { logger } from './logger';
+import { ConfigurationError } from './errors';
 
 const GITHUB_API_URL = 'https://api.github.com';
 
@@ -181,7 +182,9 @@ class GithubActions {
   private async getActiveConfig(): Promise<GithubConfigDocument> {
     const config = await GithubConfigModel.findOne({ isActive: true }).lean();
     if (!config) {
-      throw new Error('No active GitHub configuration. Add one in Tech › Environment Variables.');
+      throw new ConfigurationError(
+        'No active GitHub configuration. Add one in Tech › Environment Variables.',
+      );
     }
     return config;
   }

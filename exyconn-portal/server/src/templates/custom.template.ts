@@ -1,3 +1,4 @@
+import { escapeHtml } from '../modules/email/email.render';
 import { mjmlShell } from './layout.template';
 
 export interface CustomEmailData {
@@ -27,8 +28,9 @@ function paragraphs(message: string): string {
  */
 export function customTemplate(data: CustomEmailData): string {
   const { name, subject, message } = data;
+  // The name and subject are text too: a recipient called `<b>` must not become markup.
   const body = `
-    <mj-text font-size="15px" color="#334155" line-height="24px">Hi ${name},</mj-text>
+    <mj-text font-size="15px" color="#334155" line-height="24px">Hi ${escapeHtml(name)},</mj-text>
     ${paragraphs(message)}`;
-  return mjmlShell(subject, body);
+  return mjmlShell(escapeHtml(subject), body);
 }

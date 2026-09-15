@@ -1,5 +1,5 @@
 import { infraService } from './infra.service';
-import { assertPermission } from '../../lib/permissions';
+import { assertPlatformStaff } from '../../lib/platformAccess';
 import { ROLES } from '../../constants/roles';
 import type { GraphQLContext } from '../../middleware/auth';
 
@@ -12,8 +12,11 @@ const techOnly = [ROLES.TECH];
 /** The module name the admin permission matrix restricts this screen under. */
 const INFRA_MODULE = 'Infrastructure';
 
-/** Read-only, so VIEW is the only action there is to restrict. */
-const guard = (ctx: GraphQLContext) => assertPermission(ctx, INFRA_MODULE, techOnly, 'VIEW');
+/**
+ * Read-only, so VIEW is the only action there is to restrict. The host is the platform's, not
+ * one company's, so only the platform operator's staff may see it (lib/platformAccess).
+ */
+const guard = (ctx: GraphQLContext) => assertPlatformStaff(ctx, INFRA_MODULE, techOnly, 'VIEW');
 
 export const infraResolvers = {
   Query: {

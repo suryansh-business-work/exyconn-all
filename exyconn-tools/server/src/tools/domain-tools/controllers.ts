@@ -21,6 +21,7 @@ import {
   checkRedirects,
   checkOpenPorts,
 } from "./services";
+import { clientErrorMessage } from "../../shared/errors";
 
 export const sslCheckerController = async (req: Request, res: Response) => {
   try {
@@ -30,7 +31,7 @@ export const sslCheckerController = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "SSL check failed",
+      error: clientErrorMessage(error, "SSL check failed"),
     });
   }
 };
@@ -43,7 +44,7 @@ export const mxRecordController = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "MX record check failed",
+      error: clientErrorMessage(error, "MX record check failed"),
     });
   }
 };
@@ -56,7 +57,7 @@ export const dnsLookupController = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "DNS lookup failed",
+      error: clientErrorMessage(error, "DNS lookup failed"),
     });
   }
 };
@@ -69,7 +70,7 @@ export const whoisController = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Whois lookup failed",
+      error: clientErrorMessage(error, "Whois lookup failed"),
     });
   }
 };
@@ -82,7 +83,7 @@ export const domainExpiryController = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Domain expiry check failed",
+      error: clientErrorMessage(error, "Domain expiry check failed"),
     });
   }
 };
@@ -95,7 +96,7 @@ export const nameserverController = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Nameserver check failed",
+      error: clientErrorMessage(error, "Nameserver check failed"),
     });
   }
 };
@@ -111,7 +112,7 @@ export const domainAvailabilityController = async (
   } catch (error) {
     return res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Availability check failed",
+      error: clientErrorMessage(error, "Availability check failed"),
     });
   }
 };
@@ -124,7 +125,7 @@ export const ipLookupController = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "IP lookup failed",
+      error: clientErrorMessage(error, "IP lookup failed"),
     });
   }
 };
@@ -137,7 +138,7 @@ export const reverseIPController = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Reverse IP lookup failed",
+      error: clientErrorMessage(error, "Reverse IP lookup failed"),
     });
   }
 };
@@ -150,7 +151,7 @@ export const httpHeadersController = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "HTTP headers check failed",
+      error: clientErrorMessage(error, "HTTP headers check failed"),
     });
   }
 };
@@ -163,7 +164,7 @@ export const websiteStatusController = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Website status check failed",
+      error: clientErrorMessage(error, "Website status check failed"),
     });
   }
 };
@@ -176,7 +177,7 @@ export const pageSpeedController = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Page speed check failed",
+      error: clientErrorMessage(error, "Page speed check failed"),
     });
   }
 };
@@ -192,7 +193,7 @@ export const blacklistCheckController = async (
   } catch (error) {
     return res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Blacklist check failed",
+      error: clientErrorMessage(error, "Blacklist check failed"),
     });
   }
 };
@@ -205,7 +206,7 @@ export const sslExpiryController = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "SSL expiry check failed",
+      error: clientErrorMessage(error, "SSL expiry check failed"),
     });
   }
 };
@@ -218,7 +219,7 @@ export const txtRecordController = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "TXT record check failed",
+      error: clientErrorMessage(error, "TXT record check failed"),
     });
   }
 };
@@ -231,7 +232,7 @@ export const cnameController = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "CNAME check failed",
+      error: clientErrorMessage(error, "CNAME check failed"),
     });
   }
 };
@@ -247,7 +248,7 @@ export const subdomainFinderController = async (
   } catch (error) {
     return res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Subdomain finder failed",
+      error: clientErrorMessage(error, "Subdomain finder failed"),
     });
   }
 };
@@ -260,7 +261,7 @@ export const domainAgeController = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Domain age check failed",
+      error: clientErrorMessage(error, "Domain age check failed"),
     });
   }
 };
@@ -276,7 +277,7 @@ export const redirectCheckerController = async (
   } catch (error) {
     return res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Redirect check failed",
+      error: clientErrorMessage(error, "Redirect check failed"),
     });
   }
 };
@@ -289,7 +290,7 @@ export const openPortsController = async (req: Request, res: Response) => {
   } catch (error) {
     return res.status(500).json({
       success: false,
-      error: error instanceof Error ? error.message : "Port check failed",
+      error: clientErrorMessage(error, "Port check failed"),
     });
   }
 };

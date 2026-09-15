@@ -9,6 +9,7 @@ import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { ROLES } from '../../constants/roles';
 import { assertAuthenticated } from '../../middleware/roleGuard';
+import { assertPermission } from '../../lib/permissions';
 import { badRequest } from '../../utils/errors';
 import { clientNameFor } from '../clients';
 import { getBranding } from '../branding/branding.service';
@@ -33,10 +34,12 @@ interface InvoiceInput {
  * never a form's. See finance.billing.ts.
  */
 
+const financeRoles = [ROLES.FINANCE];
+
 export const financeService = createCrudService<InvoiceInput>(InvoiceModel as never, 'Invoice');
 const crud = createCrudResolvers(financeService, {
   name: 'Invoice',
-  roles: [ROLES.FINANCE],
+  roles: financeRoles,
   table: {
     searchFields: ['number', 'clientName', 'currency'],
     filterFields: ['number', 'clientName', 'currency', 'status'],
@@ -88,12 +91,15 @@ type GstRow = Parameters<typeof gstBreakdown>[0];
 
 const createInvoice = async (p: unknown, args: never, ctx: GraphQLContext) => {
   const { input } = args as unknown as { input: InvoiceInput };
+  // Guarded before the client and branding are read on the caller's behalf.
+  await assertPermission(ctx, 'Invoice', financeRoles, 'CREATE');
   const completed = { input: await completeInput(input) } as unknown as never;
   return crud.Mutation.createInvoice(p, completed, ctx);
 };
 
 const updateInvoice = async (p: unknown, args: never, ctx: GraphQLContext) => {
   const { id, input } = args as unknown as { id: string; input: InvoiceInput };
+  await assertPermission(ctx, 'Invoice', financeRoles, 'EDIT');
   const completed = { id, input: await completeInput(input) } as unknown as never;
   return crud.Mutation.updateInvoice(p, completed, ctx);
 };

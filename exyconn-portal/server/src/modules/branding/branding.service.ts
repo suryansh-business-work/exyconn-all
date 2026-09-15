@@ -63,9 +63,13 @@ function withLoginPageDefaults(stored: LoginPageConfig[] | undefined): LoginPage
   return LOGIN_PAGE_DEFAULTS.map((fallback) => ({ ...fallback, ...byApp.get(fallback.app) }));
 }
 
-/** Merges defaults underneath the stored values, so older documents still read whole. */
+/**
+ * Merges defaults underneath the stored values, so older documents still read whole. A stored
+ * null counts as missing: the GraphQL fields are non-null, and a null there fails the query.
+ */
 function withDefaults(doc: BrandingLean): BrandingLean {
-  const merged = { ...BRANDING_DEFAULTS, ...doc } as BrandingLean;
+  const stored = Object.fromEntries(Object.entries(doc).filter(([, value]) => value !== null));
+  const merged = { ...BRANDING_DEFAULTS, ...stored } as BrandingLean;
   return { ...merged, loginPages: withLoginPageDefaults(merged.loginPages) };
 }
 

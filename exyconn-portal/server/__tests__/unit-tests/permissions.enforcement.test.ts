@@ -11,6 +11,7 @@ import { permissionsResolvers } from '../../src/modules/permissions';
 import { invalidatePermissionCache } from '../../src/lib/permissions';
 import { ROLES } from '../../src/constants/roles';
 import type { GraphQLContext } from '../../src/middleware/auth';
+import { OPERATOR_ORGANIZATION_ID, seedPlatformOperator } from './security-authz.operator';
 
 type Resolver = (p: unknown, a: unknown, c: GraphQLContext) => Promise<unknown>;
 
@@ -22,8 +23,12 @@ const TECH = techResolvers.Query as unknown as Record<string, Resolver>;
 const AUDIT = auditResolvers.Query as unknown as Record<string, Resolver>;
 const EXPENSES = expensesResolvers.Mutation as unknown as Record<string, Resolver>;
 
+// Tech's configs are a platform feature, so these callers sit in the platform operator company.
 const as = (roles: string[]) =>
-  ({ user: { id: 'u1', email: 'u@x.com', roles } }) as unknown as GraphQLContext;
+  ({
+    user: { id: 'u1', email: 'u@x.com', roles },
+    organizationId: OPERATOR_ORGANIZATION_ID,
+  }) as unknown as GraphQLContext;
 const admin = as([ROLES.ADMIN]);
 const tech = as([ROLES.TECH]);
 const finance = as([ROLES.FINANCE]);
@@ -43,7 +48,10 @@ const claim = () =>
     status: 'SUBMITTED',
   });
 
-beforeEach(() => invalidatePermissionCache());
+beforeEach(async () => {
+  invalidatePermissionCache();
+  await seedPlatformOperator();
+});
 
 describe('the hand-written half of the API', () => {
   it('registers its module names, so the admin matrix can restrict them', async () => {

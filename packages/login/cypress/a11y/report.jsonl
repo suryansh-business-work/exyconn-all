@@ -10,3 +10,7 @@
 {"spec":"src/ResetPassword/forms/reset-password/reset-password.form.cy.tsx","test":"ResetPasswordForm › enforces the minimum length and a matching confirmation","violations":[]}
 {"spec":"src/ResetPassword/forms/reset-password/reset-password.form.cy.tsx","test":"ResetPasswordForm › resets the password and confirms","violations":[]}
 {"spec":"src/ResetPassword/forms/reset-password/reset-password.form.cy.tsx","test":"ResetPasswordForm › shows the server message for a dead link","violations":[]}
+{"spec":"src/ResetPassword/forms/reset-password/reset-password.form.cy.tsx","test":"ResetPasswordForm › requires both fields","violations":[]}
+{"spec":"src/ResetPassword/forms/reset-password/reset-password.form.cy.tsx","test":"ResetPasswordForm › enforces the minimum length and a matching confirmation","violations":[]}
+{"spec":"src/ResetPassword/forms/reset-password/reset-password.form.cy.tsx","test":"ResetPasswordForm › resets the password and confirms","violations":[]}
+{"spec":"src/ResetPassword/forms/reset-password/reset-password.form.cy.tsx","test":"ResetPasswordForm › shows the server message for a dead link","violations":[]}

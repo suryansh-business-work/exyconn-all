@@ -4,6 +4,7 @@ import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { createMyRecordsResolver, findOwnRecord } from '../../lib/employeeScope';
 import { assertAuthenticated } from '../../middleware/roleGuard';
+import { assertNotOwnRecord, refuseOwnRecordWrites } from '../../lib/permissions';
 import { badRequest, notFound } from '../../utils/errors';
 import { withId, withIds } from '../../utils/serialize';
 import { ROLES } from '../../constants/roles';
@@ -84,6 +85,7 @@ async function submitManagerAssessment(
   const review = await PerformanceReviewModel.findById(id);
   if (!review) notFound('PerformanceReview');
   await assertMayActFor(ctx, review.employeeId, [ROLES.HR]);
+  assertNotOwnRecord(ctx, review.employeeId, 'write the manager assessment');
   if (review.status !== 'SELF_SUBMITTED') {
     badRequest('The employee has not submitted their self-assessment yet');
   }
@@ -120,6 +122,14 @@ export const performanceResolvers = {
     }),
     teamPerformanceReviews,
   },
-  Mutation: { ...crud.Mutation, submitSelfAssessment, submitManagerAssessment },
+  Mutation: {
+    // HR's console may not write the caller's own appraisal: score and status are in its input.
+    ...refuseOwnRecordWrites(crud.Mutation, 'PerformanceReview', async (id) => {
+      const row = await PerformanceReviewModel.findById(id).select('employeeId').lean();
+      return row?.employeeId;
+    }),
+    submitSelfAssessment,
+    submitManagerAssessment,
+  },
 };
 export { performanceTypeDefs };

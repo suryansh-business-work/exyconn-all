@@ -1,4 +1,5 @@
-import axios from "axios";
+import { PublicError } from "../../shared/errors";
+import { safeRequest } from "../../shared/security/safe-http";
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
 
 const USER_AGENT =
@@ -60,7 +61,7 @@ export const validateSitemap = async (
   const urls: SitemapUrl[] = [];
 
   try {
-    const response = await axios.get(sitemapUrl, {
+    const response = await safeRequest<string>(sitemapUrl, {
       headers: { "User-Agent": USER_AGENT },
       timeout: 30000,
       maxContentLength: 50 * 1024 * 1024, // 50MB limit
@@ -218,7 +219,7 @@ export const extractSitemapUrls = async (
   sitemapUrl: string,
   followIndex: boolean = true,
 ): Promise<ExtractedUrls> => {
-  const response = await axios.get(sitemapUrl, {
+  const response = await safeRequest<string>(sitemapUrl, {
     headers: { "User-Agent": USER_AGENT },
     timeout: 30000,
   });
@@ -278,7 +279,7 @@ export const extractSitemapUrls = async (
     return { urls, totalCount: urls.length, sitemapType: "urlset" };
   }
 
-  throw new Error("Invalid sitemap format");
+  throw new PublicError("Invalid sitemap format");
 };
 
 // ==================== SITEMAP COMPARE ====================

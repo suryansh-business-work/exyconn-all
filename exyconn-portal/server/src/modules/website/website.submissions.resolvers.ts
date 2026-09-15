@@ -2,8 +2,7 @@ import { WebsiteSubmissionModel } from './models';
 import { SUBMISSION_FORM_TYPES, SUBMISSION_STATUSES } from './website.constants';
 import type { GraphQLContext } from '../../middleware/auth';
 import { ROLES } from '../../constants/roles';
-import { assertRole } from '../../middleware/roleGuard';
-import { assertPermission } from '../../lib/permissions';
+import { assertPlatformStaff } from '../../lib/platformAccess';
 import { withId, withIds } from '../../utils/serialize';
 import { badRequest, notFound } from '../../utils/errors';
 import { tableQuery, tableStats, type TableQueryInput } from '../../utils/tableQuery';
@@ -11,12 +10,19 @@ import { mailer } from '../../utils/mailer';
 import { logger } from '../../utils/logger';
 import { createApplicantFromSubmission } from '../recruiting/recruiting.service';
 import { JOB_APPLICATION_FORM_TYPE } from '../recruiting/recruiting.constants';
+import { createLimiter, tooManyRequests } from '../../lib/rateLimiter';
 
 const ALLOWED_FORM_TYPES = new Set<string>(SUBMISSION_FORM_TYPES);
 const ALLOWED_STATUSES = new Set<string>(SUBMISSION_STATUSES);
 
-/** Matches the UI route guard for /portal/website. ADMIN passes every guard. */
+/**
+ * Matches the UI route guard for /portal/website. The inbox is exyconn.com's own, so only the
+ * platform operator's staff read it (lib/platformAccess); ADMIN there passes the role check.
+ */
 const GUARD_ROLES = [ROLES.WEBSITE];
+
+/** The name the admin permission matrix restricts the inbox under. */
+const SUBMISSION_MODULE = 'WebsiteSubmission';
 
 /**
  * What the inbox grid may search, filter and sort on. `submissionData` is deliberately not
@@ -41,6 +47,52 @@ interface SubmissionInput {
 interface TriageInput {
   status: string;
   notes?: string;
+}
+
+/**
+ * Per-IP limits on the public submission mutation: a burst limit and a daily one. Exported as a
+ * test seam. The website posts every form from its own server (pages/api/form-submit.ts), which
+ * limits each visitor itself, so these are a flood backstop sized for that one caller — a busy
+ * day of genuine enquiries fits; a script hammering the API directly does not.
+ */
+export const SUBMISSION_BURST_POINTS = 60;
+export const submissionBurstLimiter = createLimiter({
+  keyPrefix: 'website_submission_burst',
+  points: SUBMISSION_BURST_POINTS,
+  durationSec: 10 * 60,
+});
+export const submissionDailyLimiter = createLimiter({
+  keyPrefix: 'website_submission_day',
+  points: 500,
+  durationSec: 24 * 60 * 60,
+});
+
+/** A form is a handful of short fields; anything bigger was not sent by one of our forms. */
+const MAX_SUBMISSION_BYTES = 16 * 1024;
+const MAX_SUBMISSION_KEYS = 50;
+/** The data object itself is depth 1; a value may be one object or list deep, no deeper. */
+const MAX_SUBMISSION_DEPTH = 2;
+
+/** How deeply objects and lists nest inside a value; a scalar is depth 0. */
+function depthOf(value: unknown): number {
+  if (value === null || typeof value !== 'object') {
+    return 0;
+  }
+  const children = Object.values(value);
+  return 1 + Math.max(0, ...children.map(depthOf));
+}
+
+/** Refuses a payload that is too large, too wide or too deep to be a website form. */
+function assertSubmissionShape(data: Record<string, unknown>): void {
+  if (Buffer.byteLength(JSON.stringify(data)) > MAX_SUBMISSION_BYTES) {
+    badRequest('This submission is too large.');
+  }
+  if (Object.keys(data).length > MAX_SUBMISSION_KEYS) {
+    badRequest('This submission has too many fields.');
+  }
+  if (depthOf(data) > MAX_SUBMISSION_DEPTH) {
+    badRequest('This submission is nested too deeply.');
+  }
 }
 
 /** Reads the submitter's address, when the form collected one, for the Reply-To header. */
@@ -80,7 +132,7 @@ async function fileApplicant(submissionId: string, data: Record<string, unknown>
 export const websiteSubmissionResolvers = {
   Query: {
     listWebsiteSubmissions: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      assertRole(ctx, GUARD_ROLES);
+      await assertPlatformStaff(ctx, SUBMISSION_MODULE, GUARD_ROLES, 'VIEW');
       return withIds(
         (await WebsiteSubmissionModel.find().sort({ createdAt: -1 }).lean()) as Array<{
           _id: unknown;
@@ -93,7 +145,7 @@ export const websiteSubmissionResolvers = {
       { input }: { input: TableQueryInput },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, GUARD_ROLES);
+      await assertPlatformStaff(ctx, SUBMISSION_MODULE, GUARD_ROLES, 'VIEW');
       const page = await tableQuery(WebsiteSubmissionModel, input, SUBMISSION_TABLE);
       return {
         rows: withIds(page.rows as Array<{ _id: unknown }>),
@@ -102,7 +154,7 @@ export const websiteSubmissionResolvers = {
     },
 
     listWebsiteSubmissionsStats: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      assertRole(ctx, GUARD_ROLES);
+      await assertPlatformStaff(ctx, SUBMISSION_MODULE, GUARD_ROLES, 'VIEW');
       return tableStats(WebsiteSubmissionModel, { countBy: ['status', 'formType'] });
     },
 
@@ -113,7 +165,7 @@ export const websiteSubmissionResolvers = {
     websiteFormTypes: () => [...SUBMISSION_FORM_TYPES],
 
     getWebsiteSubmission: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      assertRole(ctx, GUARD_ROLES);
+      await assertPlatformStaff(ctx, SUBMISSION_MODULE, GUARD_ROLES, 'VIEW');
       const doc = await WebsiteSubmissionModel.findById(id).lean();
       if (!doc) {
         notFound('Submission');
@@ -123,9 +175,18 @@ export const websiteSubmissionResolvers = {
   },
 
   Mutation: {
-    createWebsiteSubmission: async (_p: unknown, { input }: { input: SubmissionInput }) => {
+    createWebsiteSubmission: async (
+      _p: unknown,
+      { input }: { input: SubmissionInput },
+      ctx: GraphQLContext,
+    ) => {
       if (!ALLOWED_FORM_TYPES.has(input.formType)) {
         badRequest(`Unknown form type: ${input.formType}`);
+      }
+      assertSubmissionShape(input.submissionData ?? {});
+      const ip = ctx.ip ?? 'unknown';
+      if (!(await submissionBurstLimiter.allow(ip)) || !(await submissionDailyLimiter.allow(ip))) {
+        tooManyRequests(10 * 60 * 1000, 'submissions');
       }
       const created = await WebsiteSubmissionModel.create({
         formType: input.formType,
@@ -156,7 +217,7 @@ export const websiteSubmissionResolvers = {
       { id, input }: { id: string; input: TriageInput },
       ctx: GraphQLContext,
     ) => {
-      await assertPermission(ctx, 'WebsiteSubmission', GUARD_ROLES, 'APPROVE');
+      await assertPlatformStaff(ctx, SUBMISSION_MODULE, GUARD_ROLES, 'APPROVE');
       if (!ALLOWED_STATUSES.has(input.status)) {
         badRequest(`Unknown status: ${input.status}`);
       }
@@ -172,7 +233,7 @@ export const websiteSubmissionResolvers = {
     },
 
     deleteWebsiteSubmission: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      assertRole(ctx, GUARD_ROLES);
+      await assertPlatformStaff(ctx, SUBMISSION_MODULE, GUARD_ROLES, 'DELETE');
       const deleted = await WebsiteSubmissionModel.findByIdAndDelete(id).lean();
       if (!deleted) {
         notFound('Submission');

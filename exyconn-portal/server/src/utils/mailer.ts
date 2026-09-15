@@ -2,6 +2,7 @@ import nodemailer from 'nodemailer';
 import mjml2html from 'mjml';
 import { env } from '../config/env';
 import { logger } from './logger';
+import { maskEmail } from './maskEmail';
 import { welcomeTemplate } from '../templates/welcome.template';
 import { credentialsTemplate } from '../templates/credentials.template';
 import { customTemplate } from '../templates/custom.template';
@@ -9,6 +10,7 @@ import { trackerAccessTemplate } from '../templates/tracker-access.template';
 import { formSubmissionTemplate } from '../templates/form-submission.template';
 import { EmailConfigModel, type EmailConfigDocument } from '../modules/tech/email-config.model';
 import type { Role } from '../constants/roles';
+import { ConfigurationError } from './errors';
 
 export interface WelcomeEmailPayload {
   name: string;
@@ -61,7 +63,7 @@ class Mailer {
   private async getTransport() {
     const config = await EmailConfigModel.findOne({ isActive: true }).lean();
     if (!config) {
-      throw new Error('No active email configuration. Add one in the Tech module.');
+      throw new ConfigurationError('No active email configuration. Add one in the Tech module.');
     }
     return this.buildTransport(config);
   }
@@ -74,7 +76,7 @@ class Mailer {
       logger.error({ errors }, `MJML compilation produced errors for "${subject}"`);
     }
     await transporter.sendMail({ from: fromAddress, to, subject, html, replyTo });
-    logger.info(`Email "${subject}" sent to ${to}`);
+    logger.info(`Email "${subject}" sent to ${maskEmail(to)}`);
   }
 
   async sendWelcomeEmail(payload: WelcomeEmailPayload): Promise<void> {
@@ -134,7 +136,7 @@ class Mailer {
       logger.error({ errors }, 'MJML compilation produced errors for test email');
     }
     await transporter.sendMail({ from: fromAddress, to, subject, html });
-    logger.info(`Test email sent to ${to} via config "${config.label}"`);
+    logger.info(`Test email sent to ${maskEmail(to)} via config "${config.label}"`);
   }
 }
 

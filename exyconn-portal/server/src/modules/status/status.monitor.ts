@@ -1,6 +1,7 @@
 import { env } from '../../config/env';
 import { runAsPlatform } from '../../lib/tenant';
 import { logger } from '../../utils/logger';
+import { safeFetch } from '../../utils/safeFetch';
 import { recordJobRun } from '../../utils/jobHeartbeat';
 import { StatusMonitorModel } from './status-monitor.model';
 import { StatusDailyModel } from './status-daily.model';
@@ -35,14 +36,13 @@ function stateFor(ok: boolean, responseMs: number): StatusState {
  */
 export async function probe(url: string): Promise<ProbeResult> {
   const startedAt = Date.now();
-  const controller = new AbortController();
-  const timer = globalThis.setTimeout(() => controller.abort(), env.status.timeoutMs);
   try {
-    const response = await fetch(url, {
-      signal: controller.signal,
-      redirect: 'follow',
-      headers: { 'user-agent': 'exyconn-status-monitor' },
-    });
+    // Monitors are editable in the portal, so the probe must not reach private addresses.
+    const response = await safeFetch(
+      url,
+      { headers: { 'user-agent': 'exyconn-status-monitor' } },
+      { timeoutMs: env.status.timeoutMs },
+    );
     const responseMs = Date.now() - startedAt;
     return {
       state: stateFor(response.ok, responseMs),
@@ -57,8 +57,6 @@ export async function probe(url: string): Promise<ProbeResult> {
       httpStatus: 0,
       error: error instanceof Error ? error.message : 'Request failed',
     };
-  } finally {
-    globalThis.clearTimeout(timer);
   }
 }
 

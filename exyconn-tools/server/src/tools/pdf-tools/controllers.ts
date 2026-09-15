@@ -11,6 +11,15 @@ import { decryptPdf, encryptPdf } from "./services";
 
 const UNAVAILABLE_MESSAGE = "PDF encryption service unavailable on this server";
 
+// qpdf reads "@file" as an argument file and "-..." as an option, so a password
+// shaped like either could make it read local files or change what it does.
+const UNSAFE_PASSWORD_PREFIXES = ["@", "-"];
+const PASSWORD_PREFIX_MESSAGE = "Passwords cannot start with @ or -";
+
+function isUnsafePassword(password: string): boolean {
+  return UNSAFE_PASSWORD_PREFIXES.some((prefix) => password.startsWith(prefix));
+}
+
 function tmpPdfPath(suffix: string): string {
   return path.join(os.tmpdir(), `pdf-tools-${randomUUID()}-${suffix}.pdf`);
 }
@@ -42,6 +51,10 @@ export async function protectPdfController(req: Request, res: Response) {
       ? req.body.ownerPassword
       : userPassword;
 
+  if (isUnsafePassword(userPassword) || isUnsafePassword(ownerPassword)) {
+    return res.status(400).json({ error: PASSWORD_PREFIX_MESSAGE });
+  }
+
   const inputPath = tmpPdfPath("in");
   const outputPath = tmpPdfPath("out");
   try {
@@ -68,6 +81,9 @@ export async function unlockPdfController(req: Request, res: Response) {
   const { password } = req.body;
   if (!password || typeof password !== "string") {
     return res.status(400).json({ error: "password is required" });
+  }
+  if (isUnsafePassword(password)) {
+    return res.status(400).json({ error: PASSWORD_PREFIX_MESSAGE });
   }
 
   const inputPath = tmpPdfPath("in");

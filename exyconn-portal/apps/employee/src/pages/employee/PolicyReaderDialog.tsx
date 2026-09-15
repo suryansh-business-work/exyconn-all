@@ -16,6 +16,7 @@ import DrawIcon from '@mui/icons-material/Draw';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useAcknowledgePolicyMutation } from '@exyconn/shell/graphql/generated';
+import { sanitizeRichHtml } from '@exyconn/shell/utils/sanitizeHtml';
 import type { Policy } from './PolicyCard';
 
 interface Props {
@@ -74,7 +75,7 @@ export function PolicyReaderDialog({ policy, onClose, onSigned }: Readonly<Props
           })}
         </Text>
 
-        {/* First-party content, authored by Legal in the portal — not user input.
+        {/* Authored by Legal in the portal, and sanitised before it is injected.
             It scrolls, so it is focusable and named (SC 2.1.1): a keyboard can read a long
             policy before signing it. */}
         <Box
@@ -93,7 +94,7 @@ export function PolicyReaderDialog({ policy, onClose, onSigned }: Readonly<Props
             // A link in a paragraph is marked by more than colour (SC 1.4.1).
             '& a': { color: theme.palette.primary.main, textDecoration: 'underline' },
           })}
-          dangerouslySetInnerHTML={{ __html: policy.body }}
+          dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(policy.body) }}
         />
 
         {policy.acknowledged ? (

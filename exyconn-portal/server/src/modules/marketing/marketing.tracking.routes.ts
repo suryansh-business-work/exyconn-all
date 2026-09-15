@@ -1,7 +1,15 @@
 import { Router } from 'express';
 import { CampaignSendModel } from './campaign-send.model';
 import { CampaignClickModel } from './campaign-click.model';
-import { PIXEL, TRACKING_PATH, hashTrackingToken, safeRedirectTarget } from './marketing.tracking';
+import { CampaignModel } from './marketing.model';
+import {
+  PIXEL,
+  TRACKING_PATH,
+  extractLinks,
+  hashTrackingToken,
+  safeRedirectTarget,
+  verifyLinkSignature,
+} from './marketing.tracking';
 import { logger } from '../../utils/logger';
 
 export { TRACKING_PATH };
@@ -34,15 +42,25 @@ export function marketingTrackingRouter(): Router {
     recordOpen(token).catch((error: unknown) => logger.error(error, 'Recording an open failed'));
   });
 
-  router.get('/c/:token', (req, res) => {
+  router.get('/c/:token', async (req, res) => {
     const token = String(req.params.token ?? '');
-    const target = safeRedirectTarget(
-      typeof req.query.u === 'string' ? decodeURIComponent(req.query.u) : undefined,
-    );
+    // Express has already decoded the query string; decoding it again would let `%2525`-style
+    // input turn into a different URL than the one that was signed.
+    const target = safeRedirectTarget(typeof req.query.u === 'string' ? req.query.u : undefined);
+    const signature = typeof req.query.s === 'string' ? req.query.s : '';
 
-    if (!target) {
-      // Never redirect to something we would not follow — this route is public, so without
-      // the check it is an open redirect wearing our domain.
+    let allowed = false;
+    if (target) {
+      try {
+        allowed = await isTrustedLink(token, target, signature);
+      } catch (error) {
+        logger.error(error, 'Checking a click link failed');
+      }
+    }
+
+    if (!target || !allowed) {
+      // Never redirect to something this server did not put in a campaign — this route is
+      // public, so without the check it is an open redirect wearing our domain.
       res.status(400).send('This link is not valid.');
       return;
     }
@@ -54,6 +72,32 @@ export function marketingTrackingRouter(): Router {
   });
 
   return router;
+}
+
+/**
+ * Whether a click link was really written by a campaign send.
+ *
+ * Links rewritten since signing was introduced carry `s=` and are checked against it alone.
+ * Links in emails sent BEFORE that have no signature; they are still followed, but only when
+ * the token belongs to a real send and the target is, character for character, a link in
+ * that campaign's stored body. A legacy link whose target came from a merge field (so is not
+ * in the stored body verbatim), or whose campaign body has since been edited, is refused.
+ */
+async function isTrustedLink(token: string, url: string, signature: string): Promise<boolean> {
+  if (!token) {
+    return false;
+  }
+  if (signature) {
+    return verifyLinkSignature(token, url, signature);
+  }
+  const send = await CampaignSendModel.findOne({ trackingTokenHash: hashTrackingToken(token) })
+    .select('campaignId')
+    .lean();
+  if (!send) {
+    return false;
+  }
+  const campaign = await CampaignModel.findById(send.campaignId).select('body').lean();
+  return extractLinks(campaign?.body ?? '').includes(url);
 }
 
 /**

@@ -2,6 +2,7 @@
 import BrandLogo from "../BrandLogo.astro";
 import { BRANDING_FALLBACK, type Branding } from "../../lib/portal";
 import { TOOLS_SITE_URL } from "../../lib/site";
+import { socialLinks } from "../../lib/social-links";
 
 interface Props {
   branding: Branding;
@@ -10,6 +11,7 @@ interface Props {
 const { branding } = Astro.props;
 
 const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
+const social = socialLinks(branding);
 ---
 
 <!-- Modern Mobile Drawer Menu -->
@@ -18,6 +20,8 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
   class="lg:hidden fixed inset-0 z-[9999] hidden"
   role="dialog"
   aria-modal="true"
+  aria-label="Main menu"
+  data-open="false"
 >
   <!-- Backdrop with blur -->
   <div
@@ -37,8 +41,8 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
     <div
       class="flex items-center justify-between p-4 border-b border-line-subtle bg-gradient-to-r from-surface-subtle to-surface"
     >
-      <a href="/" class="flex items-center gap-2">
-        <BrandLogo branding={branding} class="h-8 w-auto" alt={businessName} />
+      <a href="/" class="flex items-center gap-2" aria-label={`${businessName} Home`}>
+        <BrandLogo branding={branding} class="h-8 w-auto" alt="" />
       </a>
       <button
         type="button"
@@ -46,14 +50,14 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
         id="closeMobileMenuBtn"
         aria-label="Close menu"
       >
-        <i class="fa-solid fa-xmark text-lg"></i>
+        <i class="fa-solid fa-xmark icon-lg" aria-hidden="true"></i>
       </button>
     </div>
 
     <!-- Scrollable Content -->
     <div class="flex-1 overflow-y-auto overscroll-contain">
       <!-- Navigation Links -->
-      <nav class="p-4 space-y-1">
+      <nav class="p-4 space-y-1" aria-label="Main">
         <!-- Home -->
         <a
           href="/"
@@ -62,7 +66,9 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
           <div
             class="w-9 h-9 rounded-lg bg-surface-muted group-hover:bg-blue-soft flex items-center justify-center transition-colors"
           >
-            <i class="fa-solid fa-home text-fg-subtle group-hover:text-blue-fg"></i>
+            <i
+              class="fa-solid fa-home icon-md text-fg-subtle group-hover:text-blue-fg"
+              aria-hidden="true"></i>
           </div>
           <span class="font-medium">Home</span>
         </a>
@@ -73,15 +79,15 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
           class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-inverse to-inverse-muted text-on-solid group relative overflow-hidden"
         >
           <div class="w-9 h-9 rounded-lg bg-on-solid/10 flex items-center justify-center">
-            <i class="fa-solid fa-bolt text-yellow-bright"></i>
+            <i class="fa-solid fa-bolt icon-md text-yellow-bright" aria-hidden="true"></i>
           </div>
           <div>
             <span class="font-semibold">AI Services</span>
             <p class="text-xs text-on-solid-muted">Agents, automation & platforms</p>
           </div>
           <i
-            class="fa-solid fa-arrow-right ml-auto opacity-60 group-hover:translate-x-1 transition-transform"
-          ></i>
+            class="fa-solid fa-arrow-right icon-sm ml-auto opacity-60 group-hover:translate-x-1 transition-transform"
+            aria-hidden="true"></i>
         </a>
 
         <!-- Exyconn Services -->
@@ -90,7 +96,7 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
           class="flex items-center gap-3 px-4 py-3 rounded-xl text-fg-secondary hover:bg-surface-subtle transition-colors group"
         >
           <div class="w-9 h-9 rounded-lg bg-cyan-subtle flex items-center justify-center">
-            <i class="fa-solid fa-terminal text-cyan-fg"></i>
+            <i class="fa-solid fa-terminal icon-md text-cyan-fg" aria-hidden="true"></i>
           </div>
           <span class="font-medium">Exyconn Services</span>
         </a>
@@ -99,24 +105,27 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
         <div class="mobile-accordion">
           <button
             type="button"
-            class="mobile-accordion-trigger w-full flex items-center gap-3 px-4 py-3 rounded-xl text-on-solid bg-gradient-to-r from-indigo-strong via-blue to-cyan shadow-lg hover:shadow-xl transition-all"
+            aria-expanded="false"
+            aria-controls="mobile-ai-links"
+            class="mobile-accordion-trigger w-full flex items-center gap-3 px-4 py-3 rounded-xl text-on-solid bg-gradient-to-r from-indigo-strong via-blue-strong to-cyan-deep shadow-lg hover:shadow-xl transition-all"
           >
             <div class="w-9 h-9 rounded-lg bg-on-solid/20 flex items-center justify-center">
-              <i class="fa-solid fa-microchip"></i>
+              <i class="fa-solid fa-microchip icon-md" aria-hidden="true"></i>
             </div>
             <span class="font-semibold">AI Solutions</span>
             <i
-              class="fa-solid fa-chevron-down ml-auto transition-transform duration-200 accordion-icon"
-            ></i>
+              class="fa-solid fa-chevron-down icon-sm ml-auto transition-transform duration-200 accordion-icon"
+              aria-hidden="true"></i>
           </button>
-          <div class="mobile-accordion-content hidden">
+          <div class="mobile-accordion-content hidden" id="mobile-ai-links">
             <div class="mt-2 ml-4 pl-4 border-l-2 border-blue-muted space-y-1">
               <a
                 href="/ai/agentic"
                 class="block px-3 py-2.5 rounded-lg hover:bg-blue-subtle transition-colors"
               >
                 <div class="font-medium text-fg flex items-center gap-2 text-sm">
-                  <i class="fa-solid fa-robot text-indigo-fg w-4"></i> Agentic AI
+                  <i class="fa-solid fa-robot icon-sm text-indigo-fg" aria-hidden="true"></i> Agentic
+                  AI
                 </div>
                 <p class="text-xs text-fg-subtle mt-0.5 ml-6">Autonomous business agents</p>
               </a>
@@ -125,7 +134,7 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
                 class="block px-3 py-2.5 rounded-lg hover:bg-blue-subtle transition-colors"
               >
                 <div class="font-medium text-fg flex items-center gap-2 text-sm">
-                  <i class="fa-solid fa-comments text-blue-fg w-4"></i> Bot Creation
+                  <i class="fa-solid fa-comments icon-sm text-blue-fg" aria-hidden="true"></i> Bot Creation
                 </div>
                 <p class="text-xs text-fg-subtle mt-0.5 ml-6">Conversational bots</p>
               </a>
@@ -134,7 +143,8 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
                 class="block px-3 py-2.5 rounded-lg hover:bg-blue-subtle transition-colors"
               >
                 <div class="font-medium text-fg flex items-center gap-2 text-sm">
-                  <i class="fa-solid fa-diagram-project text-cyan-fg w-4"></i> Workflows
+                  <i class="fa-solid fa-diagram-project icon-sm text-cyan-fg" aria-hidden="true"
+                  ></i> Workflows
                 </div>
                 <p class="text-xs text-fg-subtle mt-0.5 ml-6">AI-driven automation</p>
               </a>
@@ -143,7 +153,7 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
                 class="block px-3 py-2.5 rounded-lg hover:bg-blue-subtle transition-colors"
               >
                 <div class="font-medium text-fg flex items-center gap-2 text-sm">
-                  <i class="fa-solid fa-brain text-purple-fg w-4"></i> LLMs
+                  <i class="fa-solid fa-brain icon-sm text-purple-fg" aria-hidden="true"></i> LLMs
                 </div>
                 <p class="text-xs text-fg-subtle mt-0.5 ml-6">Large Language Models</p>
               </a>
@@ -152,7 +162,7 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
                 class="block px-3 py-2.5 rounded-lg hover:bg-blue-subtle transition-colors"
               >
                 <div class="font-medium text-fg flex items-center gap-2 text-sm">
-                  <i class="fa-solid fa-flask text-pink-fg w-4"></i> Custom Training
+                  <i class="fa-solid fa-flask icon-sm text-pink-fg" aria-hidden="true"></i> Custom Training
                 </div>
                 <p class="text-xs text-fg-subtle mt-0.5 ml-6">Train on your data</p>
               </a>
@@ -161,7 +171,7 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
                 class="block px-3 py-2.5 rounded-lg hover:bg-blue-subtle transition-colors"
               >
                 <div class="font-medium text-fg flex items-center gap-2 text-sm">
-                  <i class="fa-solid fa-cubes text-amber-fg w-4"></i> AI Models
+                  <i class="fa-solid fa-cubes icon-sm text-amber-fg" aria-hidden="true"></i> AI Models
                 </div>
                 <p class="text-xs text-fg-subtle mt-0.5 ml-6">Ready-to-use models</p>
               </a>
@@ -170,7 +180,7 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
                 class="block px-3 py-2.5 rounded-lg hover:bg-blue-subtle transition-colors"
               >
                 <div class="font-medium text-fg flex items-center gap-2 text-sm">
-                  <i class="fa-solid fa-server text-emerald-fg w-4"></i> MCP Server
+                  <i class="fa-solid fa-server icon-sm text-emerald-fg" aria-hidden="true"></i> MCP Server
                 </div>
                 <p class="text-xs text-fg-subtle mt-0.5 ml-6">Deploy AI at scale</p>
               </a>
@@ -182,58 +192,60 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
         <div class="mobile-accordion">
           <button
             type="button"
+            aria-expanded="false"
+            aria-controls="mobile-company-links"
             class="mobile-accordion-trigger w-full flex items-center gap-3 px-4 py-3 rounded-xl text-fg-secondary hover:bg-surface-subtle transition-colors"
           >
             <div class="w-9 h-9 rounded-lg bg-blue-subtle flex items-center justify-center">
-              <i class="fa-solid fa-building text-blue-fg"></i>
+              <i class="fa-solid fa-building icon-md text-blue-fg" aria-hidden="true"></i>
             </div>
             <span class="font-medium">Company</span>
             <i
-              class="fa-solid fa-chevron-down ml-auto text-fg-faint transition-transform duration-200 accordion-icon"
-            ></i>
+              class="fa-solid fa-chevron-down icon-sm ml-auto text-fg-subtle transition-transform duration-200 accordion-icon"
+              aria-hidden="true"></i>
           </button>
-          <div class="mobile-accordion-content hidden">
+          <div class="mobile-accordion-content hidden" id="mobile-company-links">
             <div class="mt-2 ml-4 pl-4 border-l-2 border-line space-y-1">
               <a
                 href="/our-vision"
                 class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-surface-subtle transition-colors"
               >
-                <i class="fa-solid fa-eye text-blue-fg w-4 text-sm"></i>
+                <i class="fa-solid fa-eye icon-sm text-blue-fg" aria-hidden="true"></i>
                 <span class="text-sm text-fg-secondary">Our Vision</span>
               </a>
               <a
                 href="/about-us"
                 class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-surface-subtle transition-colors"
               >
-                <i class="fa-solid fa-users text-blue-fg w-4 text-sm"></i>
+                <i class="fa-solid fa-users icon-sm text-blue-fg" aria-hidden="true"></i>
                 <span class="text-sm text-fg-secondary">About Us</span>
               </a>
               <a
                 href="/privacy-policy"
                 class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-surface-subtle transition-colors"
               >
-                <i class="fa-solid fa-shield-halved text-blue-fg w-4 text-sm"></i>
+                <i class="fa-solid fa-shield-halved icon-sm text-blue-fg" aria-hidden="true"></i>
                 <span class="text-sm text-fg-secondary">Privacy Policy</span>
               </a>
               <a
                 href="/legal"
                 class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-surface-subtle transition-colors"
               >
-                <i class="fa-solid fa-scale-balanced text-blue-fg w-4 text-sm"></i>
+                <i class="fa-solid fa-scale-balanced icon-sm text-blue-fg" aria-hidden="true"></i>
                 <span class="text-sm text-fg-secondary">Legal</span>
               </a>
               <a
                 href="/sitemap"
                 class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-surface-subtle transition-colors"
               >
-                <i class="fa-solid fa-sitemap text-blue-fg w-4 text-sm"></i>
+                <i class="fa-solid fa-sitemap icon-sm text-blue-fg" aria-hidden="true"></i>
                 <span class="text-sm text-fg-secondary">Sitemap</span>
               </a>
               <a
                 href="/grievance"
                 class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-surface-subtle transition-colors"
               >
-                <i class="fa-solid fa-message text-blue-fg w-4 text-sm"></i>
+                <i class="fa-solid fa-message icon-sm text-blue-fg" aria-hidden="true"></i>
                 <span class="text-sm text-fg-secondary">Raise a Grievance</span>
               </a>
             </div>
@@ -244,93 +256,96 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
         <div class="mobile-accordion">
           <button
             type="button"
+            aria-expanded="false"
+            aria-controls="mobile-services-links"
             class="mobile-accordion-trigger w-full flex items-center gap-3 px-4 py-3 rounded-xl text-fg-secondary hover:bg-surface-subtle transition-colors"
           >
             <div class="w-9 h-9 rounded-lg bg-purple-subtle flex items-center justify-center">
-              <i class="fa-solid fa-cogs text-purple-fg"></i>
+              <i class="fa-solid fa-cogs icon-md text-purple-fg" aria-hidden="true"></i>
             </div>
             <span class="font-medium">Our Services</span>
             <i
-              class="fa-solid fa-chevron-down ml-auto text-fg-faint transition-transform duration-200 accordion-icon"
-            ></i>
+              class="fa-solid fa-chevron-down icon-sm ml-auto text-fg-subtle transition-transform duration-200 accordion-icon"
+              aria-hidden="true"></i>
           </button>
-          <div class="mobile-accordion-content hidden">
+          <div class="mobile-accordion-content hidden" id="mobile-services-links">
             <div class="mt-2 ml-4 pl-4 border-l-2 border-purple-muted space-y-1">
               <a
                 href="/services/digital-consulting"
                 class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-purple-subtle transition-colors"
               >
-                <i class="fa-solid fa-lightbulb text-purple-fg w-4 text-sm"></i>
+                <i class="fa-solid fa-lightbulb icon-sm text-purple-fg" aria-hidden="true"></i>
                 <span class="text-sm text-fg-secondary">Digital Consulting</span>
               </a>
               <a
                 href="/services/software-as-a-service"
                 class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-purple-subtle transition-colors"
               >
-                <i class="fa-solid fa-cloud text-purple-fg w-4 text-sm"></i>
+                <i class="fa-solid fa-cloud icon-sm text-purple-fg" aria-hidden="true"></i>
                 <span class="text-sm text-fg-secondary">Software-as-a-Service</span>
               </a>
               <a
                 href="/services/application-modernization"
                 class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-purple-subtle transition-colors"
               >
-                <i class="fa-solid fa-arrows-rotate text-purple-fg w-4 text-sm"></i>
+                <i class="fa-solid fa-arrows-rotate icon-sm text-purple-fg" aria-hidden="true"></i>
                 <span class="text-sm text-fg-secondary">App Modernization</span>
               </a>
               <a
                 href="/services/enterprise-application"
                 class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-purple-subtle transition-colors"
               >
-                <i class="fa-solid fa-building-columns text-purple-fg w-4 text-sm"></i>
+                <i class="fa-solid fa-building-columns icon-sm text-purple-fg" aria-hidden="true"
+                ></i>
                 <span class="text-sm text-fg-secondary">Enterprise Application</span>
               </a>
               <a
                 href="/services/mobile-application-development"
                 class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-purple-subtle transition-colors"
               >
-                <i class="fa-solid fa-mobile-screen text-purple-fg w-4 text-sm"></i>
+                <i class="fa-solid fa-mobile-screen icon-sm text-purple-fg" aria-hidden="true"></i>
                 <span class="text-sm text-fg-secondary">Mobile Development</span>
               </a>
               <a
                 href="/services/maintenance"
                 class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-purple-subtle transition-colors"
               >
-                <i class="fa-solid fa-wrench text-purple-fg w-4 text-sm"></i>
+                <i class="fa-solid fa-wrench icon-sm text-purple-fg" aria-hidden="true"></i>
                 <span class="text-sm text-fg-secondary">Maintenance</span>
               </a>
               <a
                 href="/services/data-analytics"
                 class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-purple-subtle transition-colors"
               >
-                <i class="fa-solid fa-chart-line text-purple-fg w-4 text-sm"></i>
+                <i class="fa-solid fa-chart-line icon-sm text-purple-fg" aria-hidden="true"></i>
                 <span class="text-sm text-fg-secondary">Data & Analytics</span>
               </a>
               <a
                 href="/services/digital-marketing"
                 class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-purple-subtle transition-colors"
               >
-                <i class="fa-solid fa-bullhorn text-pink-fg w-4 text-sm"></i>
+                <i class="fa-solid fa-bullhorn icon-sm text-pink-fg" aria-hidden="true"></i>
                 <span class="text-sm text-fg-secondary">Digital Marketing</span>
               </a>
               <a
                 href="/services/automation-integration"
                 class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-purple-subtle transition-colors"
               >
-                <i class="fa-solid fa-gears text-purple-fg w-4 text-sm"></i>
+                <i class="fa-solid fa-gears icon-sm text-purple-fg" aria-hidden="true"></i>
                 <span class="text-sm text-fg-secondary">Automation & Integration</span>
               </a>
               <a
                 href="/services/software-development-outsourcing"
                 class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-purple-subtle transition-colors"
               >
-                <i class="fa-solid fa-people-arrows text-purple-fg w-4 text-sm"></i>
+                <i class="fa-solid fa-people-arrows icon-sm text-purple-fg" aria-hidden="true"></i>
                 <span class="text-sm text-fg-secondary">Outsourcing</span>
               </a>
               <a
                 href="/india/offer"
                 class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-purple-subtle transition-colors"
               >
-                <i class="fa-solid fa-flag text-orange-fg w-4 text-sm"></i>
+                <i class="fa-solid fa-flag icon-sm text-orange-fg" aria-hidden="true"></i>
                 <span class="text-sm text-fg-secondary">India Offer</span>
               </a>
             </div>
@@ -343,7 +358,7 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
           class="flex items-center gap-3 px-4 py-3 rounded-xl text-fg-secondary hover:bg-surface-subtle transition-colors group"
         >
           <div class="w-9 h-9 rounded-lg bg-emerald-subtle flex items-center justify-center">
-            <i class="fa-solid fa-newspaper text-emerald-fg"></i>
+            <i class="fa-solid fa-newspaper icon-md text-emerald-fg" aria-hidden="true"></i>
           </div>
           <span class="font-medium">Blog</span>
         </a>
@@ -353,7 +368,7 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
           class="flex items-center gap-3 px-4 py-3 rounded-xl text-fg-secondary hover:bg-surface-subtle transition-colors group"
         >
           <div class="w-9 h-9 rounded-lg bg-amber-subtle flex items-center justify-center">
-            <i class="fa-solid fa-box text-amber-fg"></i>
+            <i class="fa-solid fa-box icon-md text-amber-fg" aria-hidden="true"></i>
           </div>
           <span class="font-medium">Our Products</span>
         </a>
@@ -363,7 +378,7 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
           class="flex items-center gap-3 px-4 py-3 rounded-xl text-fg-secondary hover:bg-surface-subtle transition-colors group"
         >
           <div class="w-9 h-9 rounded-lg bg-rose-subtle flex items-center justify-center">
-            <i class="fa-solid fa-briefcase text-rose-fg"></i>
+            <i class="fa-solid fa-briefcase icon-md text-rose-fg" aria-hidden="true"></i>
           </div>
           <span class="font-medium">Career</span>
         </a>
@@ -376,15 +391,17 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
           class="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-indigo-strong to-purple-strong text-on-solid group relative overflow-hidden"
         >
           <div class="w-9 h-9 rounded-lg bg-on-solid/10 flex items-center justify-center">
-            <i class="fa-solid fa-toolbox text-on-solid"></i>
+            <i class="fa-solid fa-toolbox icon-md text-on-solid" aria-hidden="true"></i>
           </div>
           <div>
-            <span class="font-semibold">Free Tools</span>
+            <span class="font-semibold"
+              >Free Tools <span class="sr-only">(opens in a new tab)</span></span
+            >
             <p class="text-xs text-on-solid-muted">SEO, AI & Business</p>
           </div>
           <i
-            class="fa-solid fa-arrow-right ml-auto opacity-60 group-hover:translate-x-1 transition-transform text-sm"
-          ></i>
+            class="fa-solid fa-arrow-right icon-sm ml-auto opacity-60 group-hover:translate-x-1 transition-transform"
+            aria-hidden="true"></i>
         </a>
       </nav>
     </div>
@@ -395,46 +412,36 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
         type="button"
         data-search-open
         class="flex items-center justify-center gap-2 w-full py-3 px-6 mb-3 bg-surface text-fg-secondary font-semibold rounded-xl border border-line hover:bg-surface-subtle transition-all active:scale-[0.98]"
-        aria-label="Search the website"
       >
-        <i class="fa-solid fa-magnifying-glass"></i>
+        <i class="fa-solid fa-magnifying-glass icon-md" aria-hidden="true"></i>
         Search the site
       </button>
       <a
         href="/contact"
-        class="flex items-center justify-center gap-2 w-full py-3.5 px-6 bg-gradient-to-r from-blue-strong to-cyan text-on-solid font-semibold rounded-xl shadow-lg shadow-blue/25 hover:shadow-xl hover:shadow-blue/30 transition-all active:scale-[0.98]"
+        class="flex items-center justify-center gap-2 w-full py-3.5 px-6 bg-gradient-to-r from-blue-strong to-cyan-deep text-on-solid font-semibold rounded-xl shadow-lg shadow-blue/25 hover:shadow-xl hover:shadow-blue/30 transition-all active:scale-[0.98]"
       >
-        <i class="fa-solid fa-paper-plane"></i>
+        <i class="fa-solid fa-paper-plane icon-md" aria-hidden="true"></i>
         Contact Us
       </a>
 
       <!-- Social Links -->
-      <div class="flex items-center justify-center gap-3 mt-4">
-        <a
-          href="#"
-          class="w-10 h-10 rounded-full bg-surface-muted hover:bg-blue-soft flex items-center justify-center text-fg-subtle hover:text-blue-fg transition-colors"
-        >
-          <i class="fa-brands fa-linkedin-in"></i>
-        </a>
-        <a
-          href="#"
-          class="w-10 h-10 rounded-full bg-surface-muted hover:bg-blue-soft flex items-center justify-center text-fg-subtle hover:text-blue-fg transition-colors"
-        >
-          <i class="fa-brands fa-twitter"></i>
-        </a>
-        <a
-          href="#"
-          class="w-10 h-10 rounded-full bg-surface-muted hover:bg-pink-soft flex items-center justify-center text-fg-subtle hover:text-pink-fg transition-colors"
-        >
-          <i class="fa-brands fa-instagram"></i>
-        </a>
-        <a
-          href="#"
-          class="w-10 h-10 rounded-full bg-surface-muted hover:bg-surface-strong flex items-center justify-center text-fg-subtle hover:text-fg transition-colors"
-        >
-          <i class="fa-brands fa-github"></i>
-        </a>
-      </div>
+      <ul class="flex items-center justify-center gap-3 mt-4" aria-label="Social media links">
+        {
+          social.map((link) => (
+            <li>
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={link.label}
+                class="w-10 h-10 rounded-full bg-surface-muted hover:bg-blue-soft flex items-center justify-center text-fg-muted hover:text-blue-fg transition-colors"
+              >
+                <i class:list={[link.icon, "icon-md"]} aria-hidden="true" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
     </div>
   </div>
 </div>
@@ -450,12 +457,15 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
     function openMenu() {
       if (mobileMenu && mobileDrawer) {
         mobileMenu.classList.remove("hidden");
+        mobileMenu.dataset.open = "true";
+        openBtn?.setAttribute("aria-expanded", "true");
         document.body.style.overflow = "hidden";
-        // Trigger animation
+        // Trigger animation, and move focus into the menu once it is no longer inert.
         requestAnimationFrame(() => {
           mobileDrawer.classList.remove("translate-x-full");
           mobileDrawer.classList.add("translate-x-0");
           closeBg.style.opacity = "1";
+          closeBtn?.focus();
         });
       }
     }
@@ -465,6 +475,11 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
         mobileDrawer.classList.remove("translate-x-0");
         mobileDrawer.classList.add("translate-x-full");
         closeBg.style.opacity = "0";
+        mobileMenu.dataset.open = "false";
+        openBtn?.setAttribute("aria-expanded", "false");
+        if (mobileMenu.contains(document.activeElement)) {
+          openBtn?.focus();
+        }
         setTimeout(() => {
           mobileMenu.classList.add("hidden");
           document.body.style.overflow = "";
@@ -495,6 +510,9 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
             if (other !== accordion && otherContent && otherIcon) {
               otherContent.classList.add("hidden");
               otherIcon.classList.remove("rotate-180");
+              other
+                .querySelector(".mobile-accordion-trigger")
+                ?.setAttribute("aria-expanded", "false");
             }
           });
 
@@ -506,6 +524,7 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
             content.classList.remove("hidden");
             icon.classList.add("rotate-180");
           }
+          trigger.setAttribute("aria-expanded", String(!isOpen));
         });
       }
     });
