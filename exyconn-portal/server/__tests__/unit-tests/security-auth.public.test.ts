@@ -1,5 +1,6 @@
 import { websiteResolvers } from '../../src/modules/website';
 import { WebsiteSubmissionModel } from '../../src/modules/website/models';
+import { SUBMISSION_BURST_POINTS } from '../../src/modules/website/website.submissions.resolvers';
 import { ClientModel } from '../../src/modules/clients/clients.model';
 import { SupportTicketModel } from '../../src/modules/employee/support.model';
 import { createClientSupportTicket } from '../../src/modules/support/client-ticket.service';
@@ -32,8 +33,8 @@ describe('the public website submission', () => {
     await expect(submit({ email: 'a@b.co', skills: ['ts', 'go'] })).resolves.toHaveProperty('id');
   });
 
-  it('allows a burst of five from one IP, then refuses with TOO_MANY_REQUESTS', async () => {
-    for (let index = 0; index < 5; index += 1) {
+  it('allows a burst from one IP, then refuses with TOO_MANY_REQUESTS', async () => {
+    for (let index = 0; index < SUBMISSION_BURST_POINTS; index += 1) {
       await submit({ message: `hello ${index}` }, '203.0.113.40');
     }
 

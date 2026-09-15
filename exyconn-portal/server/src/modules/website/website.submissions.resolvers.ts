@@ -55,9 +55,10 @@ interface TriageInput {
  * limits each visitor itself, so these are a flood backstop sized for that one caller — a busy
  * day of genuine enquiries fits; a script hammering the API directly does not.
  */
+export const SUBMISSION_BURST_POINTS = 60;
 export const submissionBurstLimiter = createLimiter({
   keyPrefix: 'website_submission_burst',
-  points: 60,
+  points: SUBMISSION_BURST_POINTS,
   durationSec: 10 * 60,
 });
 export const submissionDailyLimiter = createLimiter({
