@@ -7,7 +7,7 @@ import {
   type InvoicePdfData,
 } from './invoice.document';
 
-export { formatAmount, type InvoicePdfData } from './invoice.document';
+export { type InvoicePdfData } from './invoice.document';
 
 /** `Invoice-INV-001.pdf` — safe for any filesystem and mail client. */
 export function invoiceFilename(number: string): string {

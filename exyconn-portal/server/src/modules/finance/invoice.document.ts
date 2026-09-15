@@ -1,5 +1,6 @@
 import { gstBreakdown, lineAmount, type InvoiceLineInput } from './invoice.lines';
 import { gstStateLabel } from './gst.constants';
+import { formatAmount } from '../../utils/money';
 
 /** Everything one invoice prints, already resolved from the database. */
 export interface InvoicePdfData {
@@ -63,14 +64,6 @@ export interface InvoiceDocument {
   totals: DocumentField[];
   bankDetails: string;
   footer: string;
-}
-
-/**
- * Money in the invoice's own currency, written in the company's own notation — "₹ 82,500.00"
- * for a company reading in India, "82.500,00 €" for one reading in Germany.
- */
-export function formatAmount(amount: number, currency: string, locale: string): string {
-  return new Intl.NumberFormat(locale, { style: 'currency', currency }).format(amount);
 }
 
 const isoDay = (date: Date): string => date.toISOString().slice(0, 10);

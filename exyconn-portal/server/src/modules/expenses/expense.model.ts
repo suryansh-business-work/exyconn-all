@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { currencyField } from '../../lib/currencyField';
 
 export const EXPENSE_STATUSES = ['SUBMITTED', 'APPROVED', 'REJECTED', 'PAID'] as const;
 
@@ -8,7 +9,7 @@ const expenseSchema = new Schema(
     category: { type: String, required: true, trim: true },
     description: { type: String, required: true, trim: true },
     amount: { type: Number, required: true, min: 0 },
-    currency: { type: String, required: true },
+    currency: currencyField,
     incurredOn: { type: Date, required: true },
     /** Uploaded bill or invoice. */
     receiptUrl: { type: String, default: null },

@@ -79,6 +79,20 @@ export function runForOrganization<T>(
 }
 
 /**
+ * Runs `fn` as a person found by a platform-wide lookup (sign-in, a password reset): inside
+ * their company, or as the platform for an account that belongs to none (a platform admin).
+ */
+export function runForOrganizationOf<T>(
+  organizationId: string | null,
+  fn: () => T | Promise<T>,
+): Promise<T> {
+  if (organizationId === null) {
+    return runAsPlatform(fn);
+  }
+  return runForOrganization(organizationId, fn);
+}
+
+/**
  * Runs `fn` across every organization: the platform console, the sign-in lookup, boot-time
  * seeding, migrations. Deliberately loud in a review — nothing inside is tenant-isolated.
  */

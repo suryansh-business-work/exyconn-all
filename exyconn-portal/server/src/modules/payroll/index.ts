@@ -19,6 +19,7 @@ import {
 } from './payroll.compute';
 import { DEFAULT_PAY_TYPE, type PayType } from '../../constants/pay';
 import { companyProfile } from '../../lib/company';
+import { normalizeCurrency } from '../../utils/iso';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { assertPermission } from '../../lib/permissions';
@@ -588,7 +589,7 @@ export const payrollResolvers = {
     rate: (s: PaySource) => s.rate ?? 0,
     billingRate: (s: { billingRate?: number | null }) => s.billingRate ?? 0,
     currency: async (s: { currency?: string | null }) =>
-      s.currency ?? (await companyProfile()).currency,
+      normalizeCurrency(s.currency) ?? (await companyProfile()).currency,
     gross: (s: PaySource) => grossOf(monthlyEarnings(s)),
     net: (s: PaySource) => {
       const parts = monthlyEarnings(s);

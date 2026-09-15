@@ -47,6 +47,23 @@ const userSchema = new Schema(
     address: { type: String, trim: true, default: null },
     /** A few lines about the person, shown on their profile across the portals. */
     brief: { type: String, trim: true, default: null },
+    /** A number colleagues can reach the person on; they set it in their own profile. */
+    phone: { type: String, trim: true, default: null },
+    /** Public profiles the person chose to share. Each is an http(s) address or null. */
+    socialLinks: {
+      type: new Schema(
+        {
+          linkedin: { type: String, trim: true, default: null },
+          github: { type: String, trim: true, default: null },
+          twitter: { type: String, trim: true, default: null },
+          website: { type: String, trim: true, default: null },
+        },
+        { _id: false },
+      ),
+      default: null,
+    },
+    /** The last time the person used the API; "online" is derived from it (see presence.ts). */
+    lastActiveAt: { type: Date, default: null },
     /** The user this person reports to — the manager who may approve their leave and requests. */
     managerId: { type: String, default: null, index: true },
     /**

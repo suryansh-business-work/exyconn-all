@@ -26,8 +26,23 @@ export function isValidCountry(code: string): boolean {
   return new Intl.DisplayNames(['en'], { type: 'region' }).of(code) !== code;
 }
 
+/** The same table as a set, read once: every money record is validated against it. */
+let currencyTable: ReadonlySet<string> | null = null;
+
 export function isValidCurrency(code: string): boolean {
-  return CURRENCY_CODE.test(code) && supportedCurrencies().includes(code);
+  currencyTable ??= new Set(Intl.supportedValuesOf('currency'));
+  return CURRENCY_CODE.test(code) && currencyTable.has(code);
+}
+
+/**
+ * A stored or typed currency as its ISO 4217 code, or null when it names none.
+ *
+ * Records written before currencies were validated hold '', 'inr ' or '₹'; anything that
+ * renders money asks here first, because Intl throws on every one of those.
+ */
+export function normalizeCurrency(code: string | null | undefined): string | null {
+  const candidate = (code ?? '').trim().toUpperCase();
+  return isValidCurrency(candidate) ? candidate : null;
 }
 
 /** "India", "Indian Rupee" — for a picker, in the reader's own language. */

@@ -1,4 +1,5 @@
 import { formatInTimeZone } from 'date-fns-tz';
+import { normalizeCurrency } from './iso';
 import { FALLBACK_LOCALE } from './locale';
 import { FALLBACK_TIMEZONE } from './timezone';
 
@@ -85,32 +86,48 @@ export function formatNumber(
   settings: FormatSettings,
   options: Intl.NumberFormatOptions = {},
 ): string {
-  if (value === null || value === undefined || Number.isNaN(value)) {
+  if (!isNumber(value)) {
     return '';
   }
   return new Intl.NumberFormat(settings.locale, options).format(value);
 }
 
+/** Whether there is a number to write at all — null, undefined and NaN are missing values. */
+function isNumber(value: number | null | undefined): value is number {
+  return value !== null && value !== undefined && !Number.isNaN(value);
+}
+
 /**
- * Money, in the company's currency and the person's notation.
+ * A reusable money formatter, for a table that writes hundreds of amounts in one currency.
  *
- * With no currency known — before the workspace's settings have loaded, or for a platform
- * administrator, who belongs to no company — the amount is written as a plain number. Naming
- * a currency nobody chose would be worse than naming none.
+ * `options.currency` is the record's own currency (a payslip, a billing report); it is used
+ * when it is a real ISO 4217 code, then the company's, and with neither the amount is a plain
+ * number. Before the workspace's settings have loaded, or for a platform administrator, who
+ * belongs to no company, there is no currency — and naming one nobody chose would be worse
+ * than naming none. A stored '' or '₹' is treated the same way instead of throwing.
  */
+export function currencyFormatter(
+  settings: FormatSettings,
+  options: Intl.NumberFormatOptions = {},
+): Intl.NumberFormat {
+  const { currency, ...rest } = options;
+  const code = normalizeCurrency(currency) ?? normalizeCurrency(settings.currency);
+  if (code === null) {
+    return new Intl.NumberFormat(settings.locale, rest);
+  }
+  return new Intl.NumberFormat(settings.locale, { ...rest, style: 'currency', currency: code });
+}
+
+/** Money, in the record's or the company's currency and the person's notation. */
 export function formatCurrency(
   value: number | null | undefined,
   settings: FormatSettings,
   options: Intl.NumberFormatOptions = {},
 ): string {
-  if (settings.currency === '') {
-    return formatNumber(value, settings, options);
+  if (!isNumber(value)) {
+    return '';
   }
-  return formatNumber(value, settings, {
-    style: 'currency',
-    currency: settings.currency,
-    ...options,
-  });
+  return currencyFormatter(settings, options).format(value);
 }
 
 /** A percentage, where `value` is already 0-100. */
@@ -119,7 +136,7 @@ export function formatPercent(
   settings: FormatSettings,
   options: Intl.NumberFormatOptions = {},
 ): string {
-  if (value === null || value === undefined || Number.isNaN(value)) {
+  if (!isNumber(value)) {
     return '';
   }
   return new Intl.NumberFormat(settings.locale, {

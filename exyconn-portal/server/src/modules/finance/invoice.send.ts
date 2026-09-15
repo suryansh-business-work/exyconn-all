@@ -1,7 +1,8 @@
 import { isValidObjectId } from 'mongoose';
 import { companyProfile, followsIndianTaxRules } from '../../lib/company';
 import { InvoiceModel } from './finance.model';
-import { buildInvoicePdf, formatAmount, invoiceFilename, type InvoicePdfData } from './invoice.pdf';
+import { formatAmount } from '../../utils/money';
+import { buildInvoicePdf, invoiceFilename, type InvoicePdfData } from './invoice.pdf';
 import { ClientModel } from '../clients/clients.model';
 import { getBranding } from '../branding/branding.service';
 import { emailer } from '../email';

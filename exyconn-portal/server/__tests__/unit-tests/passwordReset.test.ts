@@ -10,6 +10,7 @@ import { PasswordResetTokenModel } from '../../src/modules/auth/password-reset.m
 import { AuditLogModel } from '../../src/modules/audit';
 import { env } from '../../src/config/env';
 import { ROLES } from '../../src/constants/roles';
+import { runInScope } from '../../src/lib/tenant';
 import { seedUser } from '../helpers';
 import type { GraphQLContext } from '../../src/middleware/auth';
 
@@ -56,6 +57,18 @@ describe('self-service password reset', () => {
     await expect(resetPassword(token, 'Another@789', ctx)).rejects.toThrow(
       /invalid or has expired/,
     );
+  });
+
+  it('works from an anonymous request, with no company in scope yet', async () => {
+    // What the API sees before anyone is signed in: a scope with no company and no platform.
+    const anonymous = { organizationId: null, platform: false };
+    await runInScope(anonymous, () => requestPasswordReset(EMAIL, ctx));
+    expect(send).toHaveBeenCalledTimes(1);
+
+    await expect(
+      runInScope(anonymous, () => resetPassword(sentToken(), NEW_PASSWORD, ctx)),
+    ).resolves.toBe(true);
+    await expect(authService.login(EMAIL, NEW_PASSWORD)).resolves.toHaveProperty('token');
   });
 
   it('rejects an expired link', async () => {

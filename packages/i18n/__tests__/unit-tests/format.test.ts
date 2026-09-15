@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { normalizeCurrency } from '../../src/iso';
 import {
+  currencyFormatter,
   formatCurrency,
   formatDate,
   formatDateTime,
@@ -69,6 +71,44 @@ describe('numbers and money', () => {
     expect(formatNumber(null, KOLKATA)).toBe('');
     expect(formatNumber(Number.NaN, KOLKATA)).toBe('');
     expect(formatPercent(undefined, KOLKATA)).toBe('');
+  });
+});
+
+describe('currencies that are not ISO 4217 codes', () => {
+  it('normalises a stored code to the one Intl needs', () => {
+    expect(normalizeCurrency('INR')).toBe('INR');
+    expect(normalizeCurrency('inr ')).toBe('INR');
+    expect(normalizeCurrency(' eur')).toBe('EUR');
+  });
+
+  it('names no currency for a value that is not one', () => {
+    for (const value of [null, undefined, '', '   ', '₹', 'Rs', 'Rupee', 'XYZ', 'INRR']) {
+      expect(normalizeCurrency(value)).toBeNull();
+    }
+  });
+
+  it('writes a record in its own currency, whatever case it was stored in', () => {
+    expect(formatCurrency(1500, KOLKATA, { currency: 'usd ' })).toContain('$');
+  });
+
+  it('falls back to the company currency when the record names a broken one', () => {
+    for (const currency of ['', '₹', 'Rupee']) {
+      expect(formatCurrency(1500, BERLIN, { currency })).toContain('€');
+    }
+  });
+
+  it('is a plain number, never a RangeError, when no currency is usable at all', () => {
+    const nobody: FormatSettings = { ...KOLKATA, currency: '' };
+    expect(formatCurrency(92000, nobody)).toBe('92,000');
+    expect(formatCurrency(92000, { ...KOLKATA, currency: '₹' }, { currency: 'inr?' })).toBe(
+      '92,000',
+    );
+    expect(formatCurrency(null, KOLKATA)).toBe('');
+  });
+
+  it('hands back a reusable formatter bound to the same resolution', () => {
+    expect(currencyFormatter(KOLKATA, { currency: 'eur' }).resolvedOptions().currency).toBe('EUR');
+    expect(currencyFormatter({ ...KOLKATA, currency: '' }).resolvedOptions().style).toBe('decimal');
   });
 });
 

@@ -37,7 +37,8 @@ export const PROMPT_OPEN_GROUPS_LIMIT = 20;
 
 /**
  * GraphQL error codes that are a correct answer, not a server fault — a wrong password or a
- * missing permission is the API working. Everything else a resolver throws is logged.
+ * missing permission is the API working. These are logged as WARN; everything else a
+ * resolver throws is logged as ERROR.
  */
 export const EXPECTED_ERROR_CODES = new Set([
   'UNAUTHENTICATED',

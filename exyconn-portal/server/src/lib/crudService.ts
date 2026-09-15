@@ -42,7 +42,8 @@ export function createCrudService<TInput extends object>(
     },
     create: (input) => M.create(input).then((d) => d.toObject()),
     async update(id, input) {
-      const doc = await M.findByIdAndUpdate(id, input, { new: true }).lean();
+      // Validators too: an update must not store what a create would refuse (a '₹' currency).
+      const doc = await M.findByIdAndUpdate(id, input, { new: true, runValidators: true }).lean();
       if (!doc) notFound(label);
       return doc;
     },

@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { activeFormatSettings, setActiveFormatSettings } from '../../src/active-settings';
+import { DEFAULT_FORMAT_SETTINGS } from '../../src/format';
 import { I18nProvider, useI18n, useT } from '../../src/I18nProvider';
 import { useFormatters } from '../../src/useFormatters';
 
@@ -17,6 +19,12 @@ function Probe() {
       <span data-testid="number">{formatNumber(1234567)}</span>
     </div>
   );
+}
+
+/** Reports the module-level currency as it stands while the child renders. */
+function ActiveCurrencyProbe({ onRender }: Readonly<{ onRender: (currency: string) => void }>) {
+  onRender(activeFormatSettings().currency);
+  return null;
 }
 
 const BERLIN = {
@@ -78,6 +86,19 @@ describe('I18nProvider', () => {
 
     expect(screen.getByTestId('date')).toHaveTextContent('31.12.2025');
     expect(screen.getByTestId('number')).toHaveTextContent('1.234.567');
+  });
+
+  it('publishes its settings before the children render, not after', () => {
+    setActiveFormatSettings(DEFAULT_FORMAT_SETTINGS);
+    const seen: string[] = [];
+
+    render(
+      <I18nProvider locale="de-DE" messages={{}} settings={BERLIN}>
+        <ActiveCurrencyProbe onRender={(currency) => seen.push(currency)} />
+      </I18nProvider>,
+    );
+
+    expect(seen[0]).toBe('EUR');
   });
 
   it('falls back to English and UTC outside any provider', () => {

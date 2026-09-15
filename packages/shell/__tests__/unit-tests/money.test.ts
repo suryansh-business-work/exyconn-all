@@ -23,4 +23,11 @@ describe('formatMoney', () => {
     expect(formatMoney(92000)).toBe('92,000');
     expect(formatMoney(0)).toBe('0');
   });
+
+  it('never throws on a currency a record stored before it was validated', () => {
+    setActiveFormatSettings({ ...DEFAULT_FORMAT_SETTINGS, locale: 'en-IN', currency: 'INR' });
+    expect(formatMoney(92000, '')).toBe('₹92,000');
+    expect(formatMoney(92000, '₹')).toBe('₹92,000');
+    expect(formatMoney(92000, 'inr ')).toBe('₹92,000');
+  });
 });

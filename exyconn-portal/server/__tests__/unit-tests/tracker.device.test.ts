@@ -17,6 +17,8 @@ import {
   TrackerSessionModel,
 } from '../../src/modules/tracker/models';
 import { updateTrackerSettings } from '../../src/modules/tracker/tracker.settings.service';
+import { runForOrganization, runInScope } from '../../src/lib/tenant';
+import { seedOrganization, seedUser } from '../helpers';
 
 // The mailer talks to SMTP; stub the access-granted email so grants work offline.
 jest.mock('../../src/utils/mailer', () => ({
@@ -41,6 +43,27 @@ describe('tracker device auth', () => {
     await expect(trackerDeviceService.login('emp@exyconn.com', PASSWORD, DEVICE)).rejects.toThrow(
       /access to the tracker/i,
     );
+  });
+
+  it('signs in from an anonymous request, with no company in scope yet', async () => {
+    const organization = await seedOrganization();
+    const organizationId = String(organization._id);
+    const user = await seedUser('tenant-emp@exyconn.com', PASSWORD, [ROLES.EMPLOYEE]);
+    await runForOrganization(organizationId, () =>
+      trackerAdminService.grantAccess(user.id, 'admin'),
+    );
+
+    // What the API sees before anyone is signed in: a scope with no company and no platform.
+    const result = await runInScope({ organizationId: null, platform: false }, () =>
+      trackerDeviceService.login('tenant-emp@exyconn.com', PASSWORD, DEVICE),
+    );
+
+    expect(verifyToken(result.token)?.organizationId).toBe(organizationId);
+    // Read inside the company: found only if the device was stored as that company's.
+    const device = await runForOrganization(organizationId, () =>
+      TrackerDeviceModel.findOne({ deviceId: DEVICE.deviceId }).lean(),
+    );
+    expect(device?.userId).toBe(user.id);
   });
 
   it('issues a non-expiring device token once access is granted', async () => {

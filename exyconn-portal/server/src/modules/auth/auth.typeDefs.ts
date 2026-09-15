@@ -16,6 +16,19 @@ export const authTypeDefs = gql`
     timezone: String
     "The language the portal is shown to this person in. Empty string follows the default."
     locale: String
+    "A few lines about the person. Empty string clears it."
+    brief: String
+    "A number colleagues can reach the person on. Empty string clears it."
+    phone: String
+    "Replaces every shared profile at once; an empty address clears that one."
+    socialLinks: UserSocialLinksInput
+  }
+
+  input UserSocialLinksInput {
+    linkedin: String
+    github: String
+    twitter: String
+    website: String
   }
 
   extend type Query {

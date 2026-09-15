@@ -36,6 +36,9 @@ const COLOR_MAP: Record<string, 'default' | 'success' | 'warning' | 'error' | 'i
     LOST: 'error',
     BLOCKED: 'error',
     INACTIVE: 'default',
+    // Profiles: whether the person used a portal or app in the last few minutes.
+    ONLINE: 'success',
+    OFFLINE: 'default',
     // Website module: form-submission triage & gig states (stored lowercase/kebab).
     NEW: 'info',
     IN_REVIEW: 'warning',

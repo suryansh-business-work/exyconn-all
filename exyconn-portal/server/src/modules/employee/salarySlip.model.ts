@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { currencyField } from '../../lib/currencyField';
 
 /** Payout state of a monthly payslip. */
 export const SLIP_STATUSES = ['GENERATED', 'PAID'] as const;
@@ -12,7 +13,7 @@ const salarySlipSchema = new Schema(
     employeeId: { type: String, required: true, trim: true },
     month: { type: Number, required: true, min: 1, max: 12 },
     year: { type: Number, required: true },
-    currency: { type: String, required: true, trim: true },
+    currency: currencyField,
     gross: { type: Number, required: true, min: 0 },
     /**
      * The deductions total — the one figure every existing reader (the Finance summary, the

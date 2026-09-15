@@ -1,5 +1,6 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
 import { DEFAULT_PAY_TYPE, PAY_TYPES } from '../../constants/pay';
+import { currencyField } from '../../lib/currencyField';
 
 /**
  * One salary structure per employee (unique `employeeId`). The gross/net figures
@@ -12,7 +13,7 @@ import { DEFAULT_PAY_TYPE, PAY_TYPES } from '../../constants/pay';
 const salaryStructureSchema = new Schema(
   {
     employeeId: { type: String, required: true, trim: true, unique: true },
-    currency: { type: String, required: true, trim: true },
+    currency: currencyField,
     payType: { type: String, enum: PAY_TYPES, default: DEFAULT_PAY_TYPE },
     /** What "Other" means for this person; empty for the named pay types. */
     payTypeNote: { type: String, trim: true, default: null },

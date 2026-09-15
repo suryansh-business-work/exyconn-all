@@ -30,3 +30,43 @@
 {"spec":"src/pages/hr/forms/leave-request/leave-request.form.cy.tsx","test":"LeaveRequestForm › calls onCancel","violations":[]}
 {"spec":"src/pages/hr/forms/position/position.form.cy.tsx","test":"PositionForm › requires a name","violations":[]}
 {"spec":"src/pages/hr/forms/position/position.form.cy.tsx","test":"PositionForm › calls onCancel","violations":[]}
+{"spec":"src/pages/locations/forms/location/location.form.cy.tsx","test":"LocationForm › validates the required fields","violations":[]}
+{"spec":"src/pages/locations/forms/location/location.form.cy.tsx","test":"LocationForm › calls onCancel","violations":[]}
+{"spec":"src/pages/leave-balances/forms/leave-balance/leave-balance.form.cy.tsx","test":"LeaveBalanceForm › validates the required fields","violations":[]}
+{"spec":"src/pages/leave-balances/forms/leave-balance/leave-balance.form.cy.tsx","test":"LeaveBalanceForm › calls onCancel","violations":[]}
+{"spec":"src/pages/notify/forms/send-notification/send-notification.form.cy.tsx","test":"SendNotificationForm › requires a title","violations":[]}
+{"spec":"src/pages/notify/forms/send-notification/send-notification.form.cy.tsx","test":"SendNotificationForm › rejects an off-portal link","violations":[]}
+{"spec":"src/pages/onboarding/forms/start-onboarding/start-onboarding.form.cy.tsx","test":"StartOnboardingForm › requires both the employee and the template","violations":[]}
+{"spec":"src/pages/onboarding/forms/start-onboarding/start-onboarding.form.cy.tsx","test":"StartOnboardingForm › points HR at the templates page when there are none","violations":[]}
+{"spec":"src/pages/onboarding/forms/start-onboarding/start-onboarding.form.cy.tsx","test":"StartOnboardingForm › calls onCancel","violations":[]}
+{"spec":"src/pages/leave-policies/forms/leave-policy/leave-policy.form.cy.tsx","test":"LeavePolicyForm › validates the required fields","violations":[]}
+{"spec":"src/pages/leave-policies/forms/leave-policy/leave-policy.form.cy.tsx","test":"LeavePolicyForm › calls onCancel","violations":[]}
+{"spec":"src/pages/onboarding-templates/forms/onboarding-template/onboarding-template.form.cy.tsx","test":"OnboardingTemplateForm › requires a name and a task","violations":[]}
+{"spec":"src/pages/onboarding-templates/forms/onboarding-template/onboarding-template.form.cy.tsx","test":"OnboardingTemplateForm › refuses a task due before the join date","violations":[]}
+{"spec":"src/pages/onboarding-templates/forms/onboarding-template/onboarding-template.form.cy.tsx","test":"OnboardingTemplateForm › adds and removes task rows","violations":[]}
+{"spec":"src/pages/onboarding-templates/forms/onboarding-template/onboarding-template.form.cy.tsx","test":"OnboardingTemplateForm › calls onCancel","violations":[]}
+{"spec":"src/pages/payroll-settings/forms/payroll-settings/payroll-settings.form.cy.tsx","test":"PayrollSettingsForm › shows the stored policy","violations":[]}
+{"spec":"src/pages/payroll-settings/forms/payroll-settings/payroll-settings.form.cy.tsx","test":"PayrollSettingsForm › refuses a rate that is not a percentage","violations":[]}
+{"spec":"src/pages/payroll-settings/forms/payroll-settings/payroll-settings.form.cy.tsx","test":"PayrollSettingsForm › refuses a negative wage ceiling","violations":[]}
+{"spec":"src/pages/payroll-settings/forms/payroll-settings/payroll-settings.form.cy.tsx","test":"PayrollSettingsForm › only asks for a company TDS rate when a flat percentage is withheld","violations":[]}
+{"spec":"src/pages/payroll-settings/forms/payroll-settings/payroll-settings.form.cy.tsx","test":"PayrollSettingsForm › calls onCancel","violations":[]}
+{"spec":"src/pages/payslip-schedule/forms/payslip-schedule/payslip-schedule.form.cy.tsx","test":"PayslipScheduleForm › shows the stored schedule","violations":[]}
+{"spec":"src/pages/payslip-schedule/forms/payslip-schedule/payslip-schedule.form.cy.tsx","test":"PayslipScheduleForm › offers only days that exist in every month","violations":[]}
+{"spec":"src/pages/payslip-schedule/forms/payslip-schedule/payslip-schedule.form.cy.tsx","test":"PayslipScheduleForm › lets HR choose which month is sent","violations":[]}
+{"spec":"src/pages/payslip-schedule/forms/payslip-schedule/payslip-schedule.form.cy.tsx","test":"PayslipScheduleForm › calls onCancel","violations":[]}
+{"spec":"src/pages/performance/forms/performance-review/performance-review.form.cy.tsx","test":"PerformanceReviewForm › validates the required fields","violations":[]}
+{"spec":"src/pages/performance/forms/performance-review/performance-review.form.cy.tsx","test":"PerformanceReviewForm › calls onCancel","violations":[]}
+{"spec":"src/pages/requests/forms/employee-request/employee-request.form.cy.tsx","test":"EmployeeRequestForm › validates the required fields","violations":[]}
+{"spec":"src/pages/requests/forms/employee-request/employee-request.form.cy.tsx","test":"EmployeeRequestForm › calls onCancel","violations":[]}
+{"spec":"src/pages/shifts/forms/shift/shift.form.cy.tsx","test":"ShiftForm › validates the required fields","violations":[]}
+{"spec":"src/pages/shifts/forms/shift/shift.form.cy.tsx","test":"ShiftForm › calls onCancel","violations":[]}
+{"spec":"src/pages/salaries/forms/salary-structure/salary-structure.form.cy.tsx","test":"SalaryStructureForm › validates the required fields","violations":[]}
+{"spec":"src/pages/salaries/forms/salary-structure/salary-structure.form.cy.tsx","test":"SalaryStructureForm › takes a currency from the ISO 4217 list","violations":[]}
+{"spec":"src/pages/salaries/forms/salary-structure/salary-structure.form.cy.tsx","test":"SalaryStructureForm › requires the basic salary that actually pays the person","violations":[]}
+{"spec":"src/pages/salaries/forms/salary-structure/salary-structure.form.cy.tsx","test":"SalaryStructureForm › calls onCancel","violations":[]}
+{"spec":"src/pages/teams/forms/team/team.form.cy.tsx","test":"TeamForm › validates the required fields","violations":[]}
+{"spec":"src/pages/teams/forms/team/team.form.cy.tsx","test":"TeamForm › calls onCancel","violations":[]}
+{"spec":"src/pages/tax-slabs/forms/tax-regime/tax-regime.form.cy.tsx","test":"TaxRegimeForm › refuses a regime with no key, year or name","violations":[]}
+{"spec":"src/pages/tax-slabs/forms/tax-regime/tax-regime.form.cy.tsx","test":"TaxRegimeForm › refuses a financial year that is not written as 2026-27","violations":[]}
+{"spec":"src/pages/tax-slabs/forms/tax-regime/tax-regime.form.cy.tsx","test":"TaxRegimeForm › refuses a lower-case key, so the bands can point at it","violations":[]}
+{"spec":"src/pages/tax-slabs/forms/tax-regime/tax-regime.form.cy.tsx","test":"TaxRegimeForm › calls onCancel","violations":[]}

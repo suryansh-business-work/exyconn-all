@@ -5,7 +5,7 @@ Do not create a branch change only staging only
 ## Tech Stack:
 mWeb & Portals: MUI (Material UI)
 Native Apps: Tamagui
-Website: Astro (Highest Priority)
+Website: Astro (Highest PriEority)
 
 ## Forms & Validation:
 React Hook Form + Zod for form handling and validation.

@@ -1,57 +1,33 @@
-import { Box, Chip, Divider, Grid, Flex, Heading, Text } from '@/components/ui';
+import { Box, Grid, Heading } from '@/components/ui';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { readingPanel } from '@/components/glass/glass';
 import { useAuth } from '@/auth/AuthContext';
-import { AvatarUploader } from './AvatarUploader';
+import { useMeQuery } from '@/graphql/generated';
+import { ProfileSummaryCard } from './ProfileSummaryCard';
 import { ProfileForm } from './forms/profile';
 
-/** Self-service profile page: avatar upload, identity overview and name edit. */
+/** Self-service profile page: how colleagues see you on the left, what you can change on the right. */
 export function ProfilePage() {
   const { user } = useAuth();
+  const { data } = useMeQuery({ fetchPolicy: 'cache-and-network' });
   if (!user) return null;
 
   return (
     <Box>
-      <PageHeader title="My Profile" subtitle="Manage your photo and personal details" />
+      <PageHeader
+        title="My Profile"
+        subtitle="Your photo, bio, contact details and the profiles you share"
+      />
       <Grid container spacing={2}>
-        <Grid
-          size={{
-            xs: 12,
-            md: 4,
-          }}
-        >
-          <Box sx={[readingPanel, { textAlign: 'center' }]}>
-            <AvatarUploader />
-            <Heading level={6} sx={{ mt: 2 }}>
-              {user.name}
-            </Heading>
-            <Text size="sm" color="text.secondary">
-              {user.email}
-            </Text>
-            <Divider sx={{ my: 2 }} />
-            <Text size="caption" color="text.secondary">
-              Roles
-            </Text>
-            <Flex
-              direction="row"
-              spacing={0.5}
-              flexWrap="wrap"
-              useFlexGap
-              justifyContent="center"
-              sx={{ mt: 1 }}
-            >
-              {user.roles.map((role) => (
-                <Chip key={role} label={role} size="small" />
-              ))}
-            </Flex>
-          </Box>
+        <Grid size={{ xs: 12, md: 4 }}>
+          <ProfileSummaryCard
+            name={user.name}
+            email={user.email}
+            roles={user.roles}
+            me={data?.me}
+          />
         </Grid>
-        <Grid
-          size={{
-            xs: 12,
-            md: 8,
-          }}
-        >
+        <Grid size={{ xs: 12, md: 8 }}>
           <Box sx={readingPanel}>
             <Heading level={6} sx={{ mb: 2 }}>
               Personal details

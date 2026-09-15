@@ -12,8 +12,10 @@ import { activeFormatSettings, formatCurrency } from '@exyconn/i18n';
  * scope, or a tile computed in a plain function.
  */
 export function formatMoney(amount: number, currency?: string | null): string {
-  const settings = activeFormatSettings();
-  // A record that stores its own currency — a payslip, an expense claim — is written in it.
-  const money = currency ? { ...settings, currency } : settings;
-  return formatCurrency(amount, money, { maximumFractionDigits: 0 });
+  // A record that stores its own currency — a payslip, an expense claim — is written in it,
+  // when it is a real one (see normalizeCurrency).
+  return formatCurrency(amount, activeFormatSettings(), {
+    maximumFractionDigits: 0,
+    currency: currency ?? undefined,
+  });
 }

@@ -10,9 +10,10 @@ import { logger } from '../../utils/logger';
 import { isValidTimezone } from '../../utils/timezone';
 import { canonicalLocale } from '../i18n/locale.constants';
 import { organizationOf, runAsPlatform } from '../../lib/tenant';
-import { OrganizationModel } from '../organizations/organization.model';
+import { assertWorkspaceOpen } from './workspace-status';
+import { profileDetailsUpdate, type ProfileDetailsInput } from './profile-details';
 
-export interface UpdateProfileInput {
+export interface UpdateProfileInput extends ProfileDetailsInput {
   name?: string;
   avatarUrl?: string;
   timezone?: string;
@@ -42,14 +43,7 @@ class AuthService {
     if (!ok) unauthenticated('Invalid email or password');
 
     const organizationId = organizationOf(user);
-    if (organizationId !== null) {
-      const organization = await runAsPlatform(() =>
-        OrganizationModel.findById(organizationId).select('status').lean(),
-      );
-      if (!organization || organization.status !== 'ACTIVE') {
-        unauthenticated('This workspace is suspended. Contact your administrator.');
-      }
-    }
+    await assertWorkspaceOpen(organizationId);
 
     const token = signToken({
       id: user.id,
@@ -74,7 +68,7 @@ class AuthService {
    * choice back to the workspace default rather than storing a blank.
    */
   async updateProfile(id: string, input: UpdateProfileInput) {
-    const update: Record<string, unknown> = {};
+    const update = profileDetailsUpdate(input);
     if (input.name !== undefined) update.name = input.name;
     if (input.avatarUrl !== undefined) update.avatarUrl = input.avatarUrl;
     if (input.timezone !== undefined) {

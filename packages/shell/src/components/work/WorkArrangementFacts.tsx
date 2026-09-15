@@ -1,4 +1,5 @@
-import { Box, Flex, Text } from '@/components/ui';
+import { Box } from '@/components/ui';
+import { DetailFact, DetailFactGrid } from '@/components/data/DetailFact';
 import { describeArrangement, workHours, type WorkArrangement } from './work-arrangement';
 
 interface WorkArrangementFactsProps {
@@ -20,46 +21,25 @@ export function WorkArrangementFacts({
 }: Readonly<WorkArrangementFactsProps>) {
   return (
     <>
-      <Flex direction={{ xs: 'column', sm: 'row' }} spacing={3}>
-        <Box>
-          <Text size="overline" color="text.secondary">
-            Working time
-          </Text>
-          <Text size="sm">
-            {describeArrangement(arrangement.workingTime, arrangement.workingTimeNote)}
-          </Text>
-        </Box>
-        <Box>
-          <Text size="overline" color="text.secondary">
-            Work location
-          </Text>
-          <Text size="sm">
-            {describeArrangement(arrangement.workLocation, arrangement.workLocationNote)}
-          </Text>
-        </Box>
-        <Box>
-          <Text size="overline" color="text.secondary">
-            Hours per day
-          </Text>
-          <Text size="sm">{workHours(arrangement)} h</Text>
-        </Box>
-      </Flex>
+      <DetailFactGrid>
+        <DetailFact label="Working time">
+          {describeArrangement(arrangement.workingTime, arrangement.workingTimeNote)}
+        </DetailFact>
+        <DetailFact label="Work location">
+          {describeArrangement(arrangement.workLocation, arrangement.workLocationNote)}
+        </DetailFact>
+        <DetailFact label="Hours per day">{workHours(arrangement)} h</DetailFact>
+      </DetailFactGrid>
 
       {showProfile && arrangement.address && (
         <Box sx={{ mt: 2 }}>
-          <Text size="overline" color="text.secondary">
-            Address
-          </Text>
-          <Text size="sm">{arrangement.address}</Text>
+          <DetailFact label="Address">{arrangement.address}</DetailFact>
         </Box>
       )}
 
       {showProfile && arrangement.brief && (
         <Box sx={{ mt: 2 }}>
-          <Text size="overline" color="text.secondary">
-            Brief
-          </Text>
-          <Text size="sm">{arrangement.brief}</Text>
+          <DetailFact label="Brief">{arrangement.brief}</DetailFact>
         </Box>
       )}
     </>

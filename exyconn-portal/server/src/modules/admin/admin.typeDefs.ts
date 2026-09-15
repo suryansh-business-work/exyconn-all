@@ -44,6 +44,14 @@ export const adminTypeDefs = gql`
     OTHER
   }
 
+  "Public profiles a person shares — each an http(s) address, null when not given."
+  type UserSocialLinks {
+    linkedin: String
+    github: String
+    twitter: String
+    website: String
+  }
+
   type User {
     id: ID!
     name: String!
@@ -63,6 +71,14 @@ export const adminTypeDefs = gql`
     address: String
     "A few lines about the person, shown on their profile across the portals."
     brief: String
+    "A number colleagues can reach the person on; set by the person in their profile."
+    phone: String
+    "Public profiles the person chose to share. Null when they have shared none."
+    socialLinks: UserSocialLinks
+    "The last time the person used any portal or app."
+    lastActiveAt: DateTime
+    "Whether the person used a portal or app within the last few minutes."
+    isOnline: Boolean!
     "The user this person reports to; their manager may approve leave and requests."
     managerId: String
     "Resolved from managerId for display; null when nobody is set."

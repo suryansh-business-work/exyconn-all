@@ -1,71 +1,85 @@
-import { useRef, useState } from 'react';
-import { Avatar, Box, Button, CircularProgress, fontSize } from '@/components/ui';
+import { useState } from 'react';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
+import { useT } from '@exyconn/i18n';
+import { Avatar, Badge, Box, Button, ImageUploadDialog, fontSize } from '@/components/ui';
 import { useAuth } from '@/auth/AuthContext';
 import { useNotify } from '@/components/feedback/NotificationProvider';
-import { useUploadAvatarMutation, useUpdateProfileMutation } from '@/graphql/generated';
-import { fileToDataUrl, MAX_AVATAR_BYTES } from '@/utils/file';
+import { errorMessage } from '@/utils/errorMessage';
+import { useUpdateProfileMutation } from '@/graphql/generated';
+import { userInitials } from '../UserDetails/user-details.types';
 
-/** Avatar with an upload control that stores the image via ImageKit. */
-export function AvatarUploader() {
+interface AvatarUploaderProps {
+  online: boolean;
+}
+
+/**
+ * The person's photo with a presence dot, and the shared upload dialog (device or stock photo,
+ * cropped, stored on ImageKit) to change it. The new photo is saved as soon as it is uploaded.
+ */
+export function AvatarUploader({ online }: Readonly<AvatarUploaderProps>) {
+  const t = useT();
   const { user, updateUser } = useAuth();
   const notify = useNotify();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-  const [uploadAvatar] = useUploadAvatarMutation();
+  const [open, setOpen] = useState(false);
   const [updateProfile] = useUpdateProfileMutation();
 
-  const handleFile = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    event.target.value = '';
-    if (!file) return;
-    if (file.size > MAX_AVATAR_BYTES) {
-      notify('Image must be 2 MB or smaller', 'error');
-      return;
-    }
-    setUploading(true);
+  const saveAvatar = async (url: string) => {
+    setOpen(false);
     try {
-      const dataUrl = await fileToDataUrl(file);
-      const { data } = await uploadAvatar({ variables: { file: dataUrl } });
-      const url = data?.uploadAvatar;
-      if (url) {
-        await updateProfile({ variables: { input: { avatarUrl: url } } });
-        updateUser({ avatarUrl: url });
-        notify('Profile photo updated');
-      }
+      await updateProfile({ variables: { input: { avatarUrl: url } } });
+      updateUser({ avatarUrl: url });
+      notify('Profile photo updated');
     } catch (err) {
-      notify(err instanceof Error ? err.message : 'Upload failed', 'error');
-    } finally {
-      setUploading(false);
+      notify(errorMessage(err, 'Could not save the photo'), 'error');
     }
   };
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1.5 }}>
-      <Avatar
-        src={user?.avatarUrl ?? undefined}
-        alt={user?.name ?? ''}
-        sx={{ width: 96, height: 96, bgcolor: 'primary.main', fontSize: fontSize['4xl'] }}
+      <Badge
+        overlap="circular"
+        variant="dot"
+        color={online ? 'success' : 'default'}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        aria-label={t(online ? 'Online' : 'Offline')}
+        sx={{
+          '& .MuiBadge-dot': {
+            width: 18,
+            height: 18,
+            borderRadius: '50%',
+            border: 3,
+            borderColor: 'background.paper',
+            bgcolor: online ? 'success.main' : 'grey.400',
+          },
+        }}
       >
-        {user?.name?.charAt(0).toUpperCase()}
-      </Avatar>
-      <input
-        ref={inputRef}
-        type="file"
-        accept="image/*"
-        hidden
-        onChange={handleFile}
-        data-testid="avatar-input"
-      />
+        <Avatar
+          src={user?.avatarUrl ?? undefined}
+          alt={user?.name ?? ''}
+          sx={{ width: 112, height: 112, bgcolor: 'primary.main', fontSize: fontSize['4xl'] }}
+        >
+          {userInitials(user?.name ?? '')}
+        </Avatar>
+      </Badge>
       <Button
         variant="outlined"
         size="small"
-        startIcon={uploading ? <CircularProgress size={16} /> : <PhotoCameraIcon />}
-        disabled={uploading}
-        onClick={() => inputRef.current?.click()}
+        startIcon={<PhotoCameraIcon />}
+        onClick={() => setOpen(true)}
       >
-        {uploading ? 'Uploading…' : 'Change photo'}
+        {t('Change photo')}
       </Button>
+      <ImageUploadDialog
+        open={open}
+        title={t('Profile photo')}
+        folder="avatars"
+        media="image"
+        currentUrl={user?.avatarUrl}
+        onClose={() => setOpen(false)}
+        onUploaded={(url) => {
+          saveAvatar(url).catch((err: unknown) => console.error('Saving the photo failed', err));
+        }}
+      />
     </Box>
   );
 }

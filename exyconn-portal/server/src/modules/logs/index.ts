@@ -2,6 +2,7 @@ export { logsTypeDefs } from './logs.typeDefs';
 export { logsResolvers } from './logs.resolvers';
 export { serverErrorLogPlugin } from './logs.plugin';
 export {
+  backfillAppLogGroupUsers,
   ingestLogBatch,
   recordServerErrors,
   fingerprintOf,

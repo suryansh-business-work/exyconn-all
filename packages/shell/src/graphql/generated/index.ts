@@ -11491,9 +11491,15 @@ export type TranslationRow = {
 
 export type UpdateProfileInput = {
   avatarUrl?: InputMaybe<Scalars['String']['input']>;
+  /** A few lines about the person. Empty string clears it. */
+  brief?: InputMaybe<Scalars['String']['input']>;
   /** The language the portal is shown to this person in. Empty string follows the default. */
   locale?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  /** A number colleagues can reach the person on. Empty string clears it. */
+  phone?: InputMaybe<Scalars['String']['input']>;
+  /** Replaces every shared profile at once; an empty address clears that one. */
+  socialLinks?: InputMaybe<UserSocialLinksInput>;
   /**
    * The zone every date and time is shown to this person in. Empty string clears the
    * choice and follows the workspace default again.
@@ -11553,7 +11559,11 @@ export type User = {
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   isBlocked: Scalars['Boolean']['output'];
+  /** Whether the person used a portal or app within the last few minutes. */
+  isOnline: Scalars['Boolean']['output'];
   joinDate?: Maybe<Scalars['DateTime']['output']>;
+  /** The last time the person used any portal or app. */
+  lastActiveAt?: Maybe<Scalars['DateTime']['output']>;
   locale?: Maybe<Scalars['String']['output']>;
   /** The user this person reports to; their manager may approve leave and requests. */
   managerId?: Maybe<Scalars['String']['output']>;
@@ -11562,9 +11572,13 @@ export type User = {
   name: Scalars['String']['output'];
   /** The company this person belongs to; null for a platform administrator. */
   organizationId?: Maybe<Scalars['ID']['output']>;
+  /** A number colleagues can reach the person on; set by the person in their profile. */
+  phone?: Maybe<Scalars['String']['output']>;
   /** The day this employee comes off probation. Null when they are not on one. */
   probationEndDate?: Maybe<Scalars['DateTime']['output']>;
   roles: Array<Role>;
+  /** Public profiles the person chose to share. Null when they have shared none. */
+  socialLinks?: Maybe<UserSocialLinks>;
   /**
    * Where this person is and what language they read. Null means "whatever the workspace
    * default is", so moving the house timezone moves everybody who never expressed a
@@ -11597,6 +11611,22 @@ export type UserPage = {
   __typename?: 'UserPage';
   rows: Array<User>;
   totalCount: Scalars['Int']['output'];
+};
+
+/** Public profiles a person shares — each an http(s) address, null when not given. */
+export type UserSocialLinks = {
+  __typename?: 'UserSocialLinks';
+  github?: Maybe<Scalars['String']['output']>;
+  linkedin?: Maybe<Scalars['String']['output']>;
+  twitter?: Maybe<Scalars['String']['output']>;
+  website?: Maybe<Scalars['String']['output']>;
+};
+
+export type UserSocialLinksInput = {
+  github?: InputMaybe<Scalars['String']['input']>;
+  linkedin?: InputMaybe<Scalars['String']['input']>;
+  twitter?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Webhook = {
@@ -11717,7 +11747,7 @@ export type GetUserQueryVariables = Exact<{
 }>;
 
 
-export type GetUserQuery = { __typename?: 'Query', getUser: { __typename?: 'User', createdAt: string, updatedAt: string, id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null, timezone?: string | null, locale?: string | null } };
+export type GetUserQuery = { __typename?: 'Query', getUser: { __typename?: 'User', createdAt: string, updatedAt: string, id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null, timezone?: string | null, locale?: string | null, phone?: string | null, lastActiveAt?: string | null, isOnline: boolean, socialLinks?: { __typename?: 'UserSocialLinks', linkedin?: string | null, github?: string | null, twitter?: string | null, website?: string | null } | null } };
 
 export type CreateUserMutationVariables = Exact<{
   input: CreateUserInput;
@@ -12098,7 +12128,7 @@ export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'Au
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, timezone?: string | null, locale?: string | null, organizationId?: string | null } };
+export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, timezone?: string | null, locale?: string | null, organizationId?: string | null, department?: string | null, designation?: string | null, brief?: string | null, phone?: string | null, lastActiveAt?: string | null, isOnline: boolean, socialLinks?: { __typename?: 'UserSocialLinks', linkedin?: string | null, github?: string | null, twitter?: string | null, website?: string | null } | null } };
 
 export type AppSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -15240,7 +15270,9 @@ export type UpdateProfileMutationVariables = Exact<{
 }>;
 
 
-export type UpdateProfileMutation = { __typename?: 'Mutation', updateProfile: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, timezone?: string | null, locale?: string | null } };
+export type UpdateProfileMutation = { __typename?: 'Mutation', updateProfile: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, timezone?: string | null, locale?: string | null, department?: string | null, designation?: string | null, brief?: string | null, phone?: string | null, lastActiveAt?: string | null, isOnline: boolean, socialLinks?: { __typename?: 'UserSocialLinks', linkedin?: string | null, github?: string | null, twitter?: string | null, website?: string | null } | null } };
+
+export type ProfileDetailsFieldsFragment = { __typename?: 'User', department?: string | null, designation?: string | null, brief?: string | null, phone?: string | null, lastActiveAt?: string | null, isOnline: boolean, socialLinks?: { __typename?: 'UserSocialLinks', linkedin?: string | null, github?: string | null, twitter?: string | null, website?: string | null } | null };
 
 export type ChangePasswordMutationVariables = Exact<{
   currentPassword: Scalars['String']['input'];
@@ -17858,6 +17890,22 @@ export const PurchaseOrderFieldsFragmentDoc = gql`
   updatedAt
 }
     `;
+export const ProfileDetailsFieldsFragmentDoc = gql`
+    fragment ProfileDetailsFields on User {
+  department
+  designation
+  brief
+  phone
+  socialLinks {
+    linkedin
+    github
+    twitter
+    website
+  }
+  lastActiveAt
+  isOnline
+}
+    `;
 export const DocPageFieldsFragmentDoc = gql`
     fragment DocPageFields on DocPage {
   id
@@ -18781,11 +18829,13 @@ export const GetUserDocument = gql`
     query GetUser($id: ID!) {
   getUser(id: $id) {
     ...UserFields
+    ...ProfileDetailsFields
     createdAt
     updatedAt
   }
 }
-    ${UserFieldsFragmentDoc}`;
+    ${UserFieldsFragmentDoc}
+${ProfileDetailsFieldsFragmentDoc}`;
 
 /**
  * __useGetUserQuery__
@@ -21025,9 +21075,10 @@ export const MeDocument = gql`
     timezone
     locale
     organizationId
+    ...ProfileDetailsFields
   }
 }
-    `;
+    ${ProfileDetailsFieldsFragmentDoc}`;
 
 /**
  * __useMeQuery__
@@ -38899,9 +38950,10 @@ export const UpdateProfileDocument = gql`
     avatarUrl
     timezone
     locale
+    ...ProfileDetailsFields
   }
 }
-    `;
+    ${ProfileDetailsFieldsFragmentDoc}`;
 
 /**
  * __useUpdateProfileMutation__

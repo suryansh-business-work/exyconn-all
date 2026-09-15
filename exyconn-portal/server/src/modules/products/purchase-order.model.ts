@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { currencyField } from '../../lib/currencyField';
 
 /**
  * Where a purchase order stands.
@@ -44,7 +45,7 @@ const purchaseOrderSchema = new Schema(
     supplierId: { type: String, required: true, trim: true },
     supplierName: { type: String, default: '', trim: true },
     lines: { type: [purchaseOrderLineSchema], default: [] },
-    currency: { type: String, required: true, trim: true },
+    currency: currencyField,
     status: {
       type: String,
       enum: PURCHASE_ORDER_STATUSES,

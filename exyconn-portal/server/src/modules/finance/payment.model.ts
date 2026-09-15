@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { currencyField } from '../../lib/currencyField';
 
 /** How the money arrived. */
 export const PAYMENT_METHODS = ['BANK_TRANSFER', 'CARD', 'UPI', 'CHEQUE', 'CASH', 'OTHER'] as const;
@@ -18,7 +19,7 @@ const paymentSchema = new Schema(
     clientId: { type: String, required: true, trim: true },
     /** Negative for a refund. The invoice's balance follows the sign. */
     amount: { type: Number, required: true },
-    currency: { type: String, required: true, trim: true },
+    currency: currencyField,
     method: { type: String, enum: PAYMENT_METHODS, required: true, default: 'BANK_TRANSFER' },
     reference: { type: String, default: '', trim: true },
     notes: { type: String, default: '', trim: true },

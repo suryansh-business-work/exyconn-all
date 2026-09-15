@@ -3,6 +3,7 @@ import { assertTenantCoverage, runAsPlatform } from './lib/tenant';
 import {
   forEachOrganization,
   migrateLegacyDataIntoFirstOrganization,
+  repairStoredCurrencies,
 } from './modules/organizations';
 import { createApp } from './app';
 import { database } from './config/database';
@@ -17,6 +18,7 @@ import { startCampaignSchedule } from './modules/marketing';
 import { startRecurringInvoiceSchedule } from './modules/finance';
 import { startWebhookDelivery } from './modules/integrations';
 import { ensureAiModelPrices, startAiWorker } from './modules/ai';
+import { backfillAppLogGroupUsers } from './modules/logs';
 import { env } from './config/env';
 import { logger } from './utils/logger';
 
@@ -29,9 +31,14 @@ async function bootstrap(): Promise<void> {
   // An install that predates the tenancy is moved into its first organization before anything
   // serves a request — its records would otherwise be invisible to the company they belong to.
   await migrateLegacyDataIntoFirstOrganization();
+  // Money stored with '' or '₹' as its currency crashed every screen that formatted it, so
+  // it is rewritten to ISO 4217 before anything serves a request. Only wrong records change.
+  await forEachOrganization(repairStoredCurrencies, 'repairStoredCurrencies');
   // A portal nobody can administer is unusable, so make that state unreachable
   // on a fresh install and self-healing on an existing one.
   await runAsPlatform(ensureAdminAccess);
+  // Log groups stored without a last user would fail the Tech > Logs grid.
+  await runAsPlatform(backfillAppLogGroupUsers);
   // The public status page is only as good as its catalogue, so make sure every
   // surface has a monitor row before the first probe round runs.
   await runAsPlatform(ensureStatusMonitors);
