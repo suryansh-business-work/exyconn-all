@@ -522,8 +522,10 @@ class AdminService {
   }
 
   private async readOrCreateSettings() {
-    const existing = await AppSettingsModel.findOne({ key: 'global' }).lean();
-    if (existing) return existing;
+    // Not lean: a record older than a field (defaultLocale, enabledLocales) must still read with
+    // the schema default, or the non-null GraphQL field fails the whole query.
+    const existing = await AppSettingsModel.findOne({ key: 'global' });
+    if (existing) return existing.toObject();
     // A plain object, like the lean read: `withId` spreads its input, which strips a document's fields.
     const created = await AppSettingsModel.create({ key: 'global' });
     return created.toObject();

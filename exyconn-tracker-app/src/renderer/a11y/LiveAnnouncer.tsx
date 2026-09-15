@@ -9,12 +9,17 @@ type Announce = (message: string, politeness: Politeness) => void;
 
 const AnnounceContext = createContext<Announce>(() => undefined);
 
-/** On the page for a screen reader, invisible and unclickable for everybody else. */
+/**
+ * On the page for a screen reader, invisible and unclickable for everybody else.
+ *
+ * Pixel strings, not numbers: `sx` reads `width: 1` as 100% and `margin: -1` as a spacing step,
+ * which made each region a full-window box below the frame — a second, outer scrollbar.
+ */
 const VISUALLY_HIDDEN = {
   position: 'absolute',
-  width: 1,
-  height: 1,
-  margin: -1,
+  width: '1px',
+  height: '1px',
+  margin: '-1px',
   padding: 0,
   overflow: 'hidden',
   clip: 'rect(0 0 0 0)',

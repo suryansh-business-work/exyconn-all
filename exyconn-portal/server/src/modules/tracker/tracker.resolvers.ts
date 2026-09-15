@@ -78,6 +78,7 @@ function serializeDeviceState(state: DeviceState) {
     consentRequired: state.consentRequired,
     settings: withId(state.settings),
     timezone: state.timezone,
+    locale: state.locale,
     workProfile: state.workProfile,
     workday: state.workday,
     projects: state.projects,
