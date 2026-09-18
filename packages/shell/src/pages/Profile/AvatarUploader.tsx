@@ -49,14 +49,14 @@ export function AvatarUploader({ online }: Readonly<AvatarUploaderProps>) {
             borderRadius: '50%',
             border: 3,
             borderColor: 'background.paper',
-            bgcolor: online ? 'success.main' : 'grey.400',
+            bgcolor: online ? 'success.main' : 'text.secondary',
           },
         }}
       >
         <Avatar
           src={user?.avatarUrl ?? undefined}
           alt={user?.name ?? ''}
-          sx={{ width: 112, height: 112, bgcolor: 'primary.main', fontSize: fontSize['4xl'] }}
+          sx={{ width: 112, height: 112, fontSize: fontSize['4xl'] }}
         >
           {userInitials(user?.name ?? '')}
         </Avatar>

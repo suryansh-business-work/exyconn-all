@@ -75,7 +75,7 @@ export function ImageUploadDialog({
           onChange={(_event, next: TabKey) => setTab(next)}
           variant="fullWidth"
           aria-label="upload source"
-          sx={{ px: 2, borderBottom: 1, borderColor: 'divider' }}
+          sx={{ mx: 2, mb: 1 }}
         >
           <Tab value="device" label="From your device" />
           <Tab value="photos" label="Pexels images" />

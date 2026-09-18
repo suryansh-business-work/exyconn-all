@@ -83,7 +83,12 @@ export function ImageForm({ uploadImage, onSubmit, onClose }: Readonly<ImageForm
                 component="img"
                 src={src}
                 alt=""
-                sx={{ maxHeight: 220, objectFit: 'contain', borderRadius: 1, bgcolor: 'grey.100' }}
+                sx={{
+                  maxHeight: 220,
+                  objectFit: 'contain',
+                  borderRadius: 1,
+                  bgcolor: 'background.muted',
+                }}
               />
             )}
             <FormTextField

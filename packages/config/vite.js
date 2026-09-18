@@ -21,10 +21,14 @@ const tabberSrc = packageUrl("../tabber/src");
 const FONT_HREF =
   "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap";
 
-/** The brand indigo, as the installed app's own chrome wears it (tokens: indigo[600]). */
-const THEME_COLOR = "#4f46e5";
+/**
+ * The installed app's own chrome is the page ground of each mode, as the shadcn theme paints
+ * it (tokens: `lightTokens.background.page` = white, `darkTokens.background.page` = zinc[950]).
+ * Mirrored here because this file is plain JS run by Vite and cannot import the TS tokens.
+ */
+const THEME_COLOR = { light: "#ffffff", dark: "#09090b" };
 /** What a cold start paints before the first frame — the light page background. */
-const BACKGROUND_COLOR = "#f7f8fa";
+const BACKGROUND_COLOR = THEME_COLOR.light;
 
 /**
  * Injects the `<head>` every portal app shares — favicon, description, the Inter
@@ -72,11 +76,15 @@ function portalHtml(app) {
             attrs: { rel: "stylesheet", href: FONT_HREF },
             injectTo: "head",
           },
-          {
+          ...Object.entries(THEME_COLOR).map(([scheme, content]) => ({
             tag: "meta",
-            attrs: { name: "theme-color", content: THEME_COLOR },
+            attrs: {
+              name: "theme-color",
+              media: `(prefers-color-scheme: ${scheme})`,
+              content,
+            },
             injectTo: "head",
-          },
+          })),
           {
             tag: "link",
             attrs: { rel: "apple-touch-icon", href: "/pwa/icon-any-192.png" },
@@ -142,7 +150,7 @@ function portalPwa(app) {
       start_url: "/",
       scope: "/",
       display: "standalone",
-      theme_color: THEME_COLOR,
+      theme_color: THEME_COLOR.light,
       background_color: BACKGROUND_COLOR,
       icons: [
         { src: "/pwa/icon-any-192.png", sizes: "192x192", type: "image/png" },

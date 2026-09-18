@@ -1,5 +1,14 @@
 import { useParams } from 'react-router-dom';
-import { Alert, Box, Card, Chip, Flex, Typography, iconSize } from '@exyconn/shell/components/ui';
+import {
+  Alert,
+  Box,
+  Card,
+  Chip,
+  Flex,
+  Typography,
+  iconSize,
+  fontWeight,
+} from '@exyconn/shell/components/ui';
 import LockPersonIcon from '@mui/icons-material/LockPerson';
 import { useT, type Interpolations } from '@exyconn/i18n';
 import { formatWith } from '@exyconn/shell/utils/date';
@@ -60,7 +69,7 @@ export function SharedProjectPage() {
         <Typography
           variant="h5"
           sx={{
-            fontWeight: 800,
+            fontWeight: fontWeight.bold,
             mt: 1,
           }}
         >
@@ -88,7 +97,7 @@ export function SharedProjectPage() {
           <Typography
             variant="h4"
             sx={{
-              fontWeight: 800,
+              fontWeight: fontWeight.bold,
             }}
           >
             {project.name}

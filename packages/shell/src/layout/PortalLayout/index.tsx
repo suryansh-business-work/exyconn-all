@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import type { Theme } from '@/components/ui';
-import { borderWidth, Box, Drawer, Toolbar } from '@/components/ui';
+import { borderWidth, Box, Drawer, enterAnimation, Toolbar } from '@/components/ui';
 import { Topbar } from './Topbar';
 import { Sidebar } from './Sidebar';
 import { PAGE_GUTTER, TOPBAR_HEIGHT } from './metrics';
@@ -21,7 +21,7 @@ const drawerPaper = (t: Theme, width: number) => ({
   boxSizing: 'border-box' as const,
   border: 'none',
   borderRight: `${borderWidth.hairline}px solid ${t.palette.divider}`,
-  background: t.palette.background.paper,
+  background: t.palette.background.sidebar,
   overflowX: 'hidden' as const,
   transition: t.transitions.create('width', { duration: t.transitions.duration.shorter }),
 });
@@ -100,7 +100,10 @@ export function PortalLayout() {
         >
           {/* Keyed by path: a crashed page leaves the sidebar working, and navigating clears it. */}
           <PageErrorBoundary key={pathname}>
-            <Outlet />
+            {/* Remounted with the boundary on every navigation, so each page fades in. */}
+            <Box sx={{ animation: enterAnimation.page }}>
+              <Outlet />
+            </Box>
           </PageErrorBoundary>
         </Box>
       </Box>

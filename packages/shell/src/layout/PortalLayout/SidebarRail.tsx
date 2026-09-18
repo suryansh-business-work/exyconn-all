@@ -30,7 +30,10 @@ export function SidebarRail({ nodes, trail, onSelect }: Readonly<SidebarRailProp
               onClick={() => onSelect(node)}
               sx={{ borderRadius: 1, justifyContent: 'center', minHeight: 40, px: 1 }}
             >
-              <ListItemIcon sx={{ minWidth: 0, color: node.accent }}>
+              {/* Monochrome, as in the expanded tree: the current module is marked by its row. */}
+              <ListItemIcon
+                sx={{ minWidth: 0, color: current ? 'text.primary' : 'text.secondary' }}
+              >
                 <node.icon fontSize="small" />
               </ListItemIcon>
             </ListItemButton>

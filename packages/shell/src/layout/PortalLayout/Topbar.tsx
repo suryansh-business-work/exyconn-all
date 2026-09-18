@@ -4,11 +4,11 @@ import {
   AppBar,
   Avatar,
   Box,
+  borderWidth,
   fontSize,
   IconButton,
   Menu,
   MenuItem,
-  roundButton,
   Toolbar,
   Typography,
   useMediaQuery,
@@ -32,8 +32,8 @@ interface TopbarProps {
 }
 
 /**
- * Top app bar with global search, the bells and the user account menu. It sits on the page's
- * own ground, borderless, with round paper buttons — the trackers' header, in the portal.
+ * Top app bar with global search, the bells and the user account menu — shadcn's site header:
+ * the page's own ground over a hairline, with ghost icon buttons (the theme's IconButton).
  */
 export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
   const { user, signOut } = useAuth();
@@ -70,6 +70,7 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
         width: { md: `calc(100% - ${drawerWidth}px)` },
         ml: { md: `${drawerWidth}px` },
         background: t.palette.background.default,
+        borderBottom: `${borderWidth.hairline}px solid ${t.palette.divider}`,
         // Installed to a home screen, the app owns the whole screen — including whatever is
         // behind the notch. These insets are zero in a browser tab.
         pt: 'env(safe-area-inset-top)',
@@ -89,6 +90,9 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
         <Typography variant="subtitle2" sx={{ flexGrow: 1, display: { xs: 'none', md: 'block' } }}>
           Exyconn Track
         </Typography>
+        {/* Below md the title is hidden, so this takes its place and keeps the actions on the
+            trailing edge instead of bunched up beside the menu button. */}
+        <Box aria-hidden sx={{ flexGrow: 1, display: { xs: 'block', md: 'none' } }} />
         {/* Left out on a phone rather than squeezed: at 160px it shows ten characters, and
             the hamburger beside it opens the same list of modules with room to read them. */}
         {user && !onPhone && <TopbarSearch roles={user.roles} />}
@@ -115,11 +119,7 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
         </Box>
         <ApprovalsBell />
         <NotificationBell />
-        <IconButton
-          onClick={toggle}
-          aria-label={t('Toggle colour mode')}
-          sx={(t) => ({ ...roundButton(t), mr: 1 })}
-        >
+        <IconButton onClick={toggle} aria-label={t('Toggle colour mode')} sx={{ mr: 1 }}>
           {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
         </IconButton>
         <IconButton
@@ -132,7 +132,7 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
             // The button around it is already named "Account menu".
             alt=""
             aria-hidden
-            sx={{ bgcolor: 'primary.main', width: 40, height: 40, fontSize: fontSize.md }}
+            sx={{ width: 40, height: 40, fontSize: fontSize.md }}
           >
             {user?.name?.charAt(0).toUpperCase()}
           </Avatar>

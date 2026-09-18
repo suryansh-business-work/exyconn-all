@@ -1,7 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useT } from '@exyconn/i18n';
-import { Alert, Box, CircularProgress, Flex, Typography } from '@exyconn/shell/components/ui';
+import {
+  Alert,
+  Box,
+  CircularProgress,
+  Flex,
+  Typography,
+  fontWeight,
+} from '@exyconn/shell/components/ui';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 
 interface SubscriptionResultPageProps {
@@ -49,7 +56,7 @@ export function SubscriptionResultPage({
         <Typography
           variant="h5"
           sx={{
-            fontWeight: 800,
+            fontWeight: fontWeight.bold,
           }}
         >
           {t(title)}

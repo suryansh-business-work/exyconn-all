@@ -45,6 +45,30 @@ export const slate = {
   950: '#0f172a',
 } as const;
 
+/**
+ * Tailwind zinc — the base of the shadcn/ui palette the portals are painted in.
+ *
+ * Two steps are ours, not Tailwind's, and exist only for WCAG AA: `450` is the lightest grey
+ * that still draws a field's edge at 3:1 on white (SC 1.4.11 — Tailwind's 200 border is 1.2:1),
+ * and `550` is the muted ink that still reads at 4.5:1 on the muted `100` surface (Tailwind's
+ * 500 measures 4.4:1 there).
+ */
+export const zinc = {
+  50: '#fafafa',
+  100: '#f4f4f5',
+  200: '#e4e4e7',
+  300: '#d4d4d8',
+  400: '#a1a1aa',
+  450: '#8e8e96',
+  500: '#71717a',
+  550: '#67676f',
+  600: '#52525b',
+  700: '#3f3f46',
+  800: '#27272a',
+  900: '#18181b',
+  950: '#09090b',
+} as const;
+
 /** The house accent blue. `400` is the one worn by most stat tiles. */
 export const blue = {
   400: '#4f8cff',
@@ -165,6 +189,7 @@ export const color = {
   black,
   neutral,
   slate,
+  zinc,
   blue,
   azure,
   indigo,

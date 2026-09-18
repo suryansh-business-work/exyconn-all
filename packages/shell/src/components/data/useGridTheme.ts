@@ -18,7 +18,8 @@ export function useGridTheme() {
         fontFamily: theme.typography.fontFamily,
         fontSize: fontSize.sm,
         headerFontSize: fontSize.xs,
-        headerFontWeight: fontWeight.bold,
+        headerFontWeight: fontWeight.medium,
+        browserColorScheme: theme.palette.mode,
         // A grid sits on the page as a card does, so it takes the card corner.
         wrapperBorderRadius: CARD_RADIUS,
       }),

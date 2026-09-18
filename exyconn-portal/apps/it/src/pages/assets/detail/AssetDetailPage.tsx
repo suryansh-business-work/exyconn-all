@@ -1,6 +1,14 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useT } from '@exyconn/i18n';
-import { Button, Card, Chip, Flex, Stack, Typography } from '@exyconn/shell/components/ui';
+import {
+  Button,
+  Card,
+  Chip,
+  Flex,
+  Stack,
+  Typography,
+  fontWeight,
+} from '@exyconn/shell/components/ui';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -76,7 +84,7 @@ export function AssetDetailPage() {
           <Typography
             variant="h5"
             sx={{
-              fontWeight: 800,
+              fontWeight: fontWeight.bold,
             }}
           >
             {asset.name}
