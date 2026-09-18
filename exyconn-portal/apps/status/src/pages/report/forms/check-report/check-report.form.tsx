@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { REPORT_REFERENCE } from '@exyconn/regex';
 import { useT } from '@exyconn/i18n';
-import { Box, Flex, Typography } from '@exyconn/shell/components/ui';
+import { Box, Flex, Typography, fontWeight } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
@@ -39,7 +39,7 @@ function ReportStatusLine({ status }: Readonly<{ status: ReportStatus }>) {
         <Typography
           variant="subtitle2"
           sx={{
-            fontWeight: 700,
+            fontWeight: fontWeight.bold,
           }}
         >
           {status.reference}

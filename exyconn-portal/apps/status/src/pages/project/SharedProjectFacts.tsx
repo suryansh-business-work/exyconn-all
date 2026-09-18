@@ -1,5 +1,5 @@
 import { useT } from '@exyconn/i18n';
-import { Box, Card, Grid, Typography } from '@exyconn/shell/components/ui';
+import { Box, Card, Grid, Typography, fontWeight } from '@exyconn/shell/components/ui';
 
 interface Fact {
   label: string;
@@ -37,7 +37,7 @@ export function SharedProjectFacts({ facts }: Readonly<SharedProjectFactsProps>)
               <Typography
                 variant="h6"
                 sx={{
-                  fontWeight: 700,
+                  fontWeight: fontWeight.bold,
                 }}
               >
                 {fact.value}

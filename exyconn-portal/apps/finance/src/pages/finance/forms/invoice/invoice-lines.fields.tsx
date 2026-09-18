@@ -2,7 +2,7 @@ import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import { useT } from '@exyconn/i18n';
-import { Button, Flex, IconButton, Text } from '@exyconn/shell/components/ui';
+import { Button, Flex, IconButton, Text, fontWeight } from '@exyconn/shell/components/ui';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { formatMoney } from '@exyconn/shell/utils/money';
 import { lineAmount, linesTotal, type InvoiceLineValues } from './invoice.types';
@@ -93,7 +93,7 @@ export function InvoiceLinesFields({ currency }: Readonly<{ currency: string }>)
   return (
     <Flex direction="column" spacing={1.5}>
       <Flex direction="row" alignItems="center" spacing={1}>
-        <Text size="sm" sx={{ fontWeight: 600, flex: 1 }}>
+        <Text size="sm" sx={{ fontWeight: fontWeight.semibold, flex: 1 }}>
           {t('Lines')}
         </Text>
         <Button size="small" startIcon={<AddIcon />} onClick={() => append(EMPTY_LINE)}>
@@ -109,7 +109,7 @@ export function InvoiceLinesFields({ currency }: Readonly<{ currency: string }>)
         />
       ))}
       {fields.length > 0 ? (
-        <Text size="sm" sx={{ textAlign: 'right', fontWeight: 600 }}>
+        <Text size="sm" sx={{ textAlign: 'right', fontWeight: fontWeight.semibold }}>
           {t('Total {amount}', { amount: formatMoney(total, currency) })}
         </Text>
       ) : (

@@ -1,5 +1,12 @@
 import { useT } from '@exyconn/i18n';
-import { Alert, Box, CircularProgress, Flex, Typography } from '@exyconn/shell/components/ui';
+import {
+  Alert,
+  Box,
+  CircularProgress,
+  Flex,
+  Typography,
+  fontWeight,
+} from '@exyconn/shell/components/ui';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { useStatusOverviewQuery, type StatusCategory } from '@exyconn/shell/graphql/generated';
 import { CATEGORY_LABELS, CATEGORY_ORDER, HISTORY_DAYS, REFRESH_MS } from '../../status.constants';
@@ -68,7 +75,7 @@ export function StatusPage() {
         <Typography
           variant="h6"
           sx={{
-            fontWeight: 700,
+            fontWeight: fontWeight.bold,
             mb: 2,
           }}
         >
@@ -88,7 +95,7 @@ export function StatusPage() {
         <Typography
           variant="h6"
           sx={{
-            fontWeight: 700,
+            fontWeight: fontWeight.bold,
             mb: 2,
           }}
         >

@@ -1,4 +1,4 @@
-import type { Theme } from '@exyconn/ui';
+import { fontWeight, type Theme } from '@exyconn/ui';
 
 /**
  * Styles for the ProseMirror surface. TipTap is headless, so every block the schema
@@ -17,10 +17,10 @@ export function contentStyles(minHeight: number) {
     '& .tiptap > :first-child': { mt: 0 },
     '& .tiptap > :last-child': { mb: 0 },
     '& .tiptap p': { my: 1 },
-    '& .tiptap h1': { fontSize: '1.9rem', fontWeight: 700, mt: 3, mb: 1 },
-    '& .tiptap h2': { fontSize: '1.5rem', fontWeight: 700, mt: 2, mb: 1 },
-    '& .tiptap h3': { fontSize: '1.25rem', fontWeight: 600, mt: 2, mb: 1 },
-    '& .tiptap h4': { fontSize: '1.05rem', fontWeight: 600, mt: 2, mb: 1 },
+    '& .tiptap h1': { fontSize: '1.9rem', fontWeight: fontWeight.bold, mt: 3, mb: 1 },
+    '& .tiptap h2': { fontSize: '1.5rem', fontWeight: fontWeight.bold, mt: 2, mb: 1 },
+    '& .tiptap h3': { fontSize: '1.25rem', fontWeight: fontWeight.semibold, mt: 2, mb: 1 },
+    '& .tiptap h4': { fontSize: '1.05rem', fontWeight: fontWeight.semibold, mt: 2, mb: 1 },
     '& .tiptap ul, & .tiptap ol': { my: 1, pl: 3 },
     '& .tiptap a': { color: 'primary.main', textDecoration: 'underline' },
     '& .tiptap blockquote': {
@@ -85,7 +85,7 @@ export function contentStyles(minHeight: number) {
       verticalAlign: 'top',
       '& > p': { my: 0 },
     },
-    '& .tiptap th': { bgcolor: 'action.hover', fontWeight: 600, textAlign: 'left' },
+    '& .tiptap th': { bgcolor: 'action.hover', fontWeight: fontWeight.semibold, textAlign: 'left' },
     '& .tiptap .selectedCell::after': {
       content: '""',
       position: 'absolute',

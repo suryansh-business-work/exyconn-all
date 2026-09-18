@@ -1,6 +1,14 @@
 import EngineeringIcon from '@mui/icons-material/Engineering';
 import { useT } from '@exyconn/i18n';
-import { Box, Chip, Divider, Flex, Link, Typography } from '@exyconn/shell/components/ui';
+import {
+  Box,
+  Chip,
+  Divider,
+  Flex,
+  Link,
+  Typography,
+  fontWeight,
+} from '@exyconn/shell/components/ui';
 import { formatWith } from '@exyconn/shell/utils/date';
 import { TIME_FORMAT } from '../../status.constants';
 import { StateChip } from './StateChip';
@@ -62,7 +70,7 @@ export function ServiceCard({ service, divided, underMaintenance }: Readonly<Ser
               underline="hover"
               variant="subtitle1"
               sx={{
-                fontWeight: 700,
+                fontWeight: fontWeight.bold,
                 color: 'text.primary',
               }}
             >

@@ -1,5 +1,5 @@
 import { useT } from '@exyconn/i18n';
-import { Box, Stack, Typography } from '@exyconn/shell/components/ui';
+import { Box, Stack, Typography, readableAccent } from '@exyconn/shell/components/ui';
 import { formatMoney } from '@exyconn/shell/utils/money';
 import { panel } from '@exyconn/shell/components/glass/glass';
 import type { DealStage } from '@exyconn/shell/graphql/generated';
@@ -50,7 +50,7 @@ export function DealColumn({
           mb: 1,
         }}
       >
-        <Typography variant="subtitle2" sx={{ color: accent }}>
+        <Typography variant="subtitle2" sx={(theme) => ({ color: readableAccent(accent, theme) })}>
           {t(stageLabel(stage))}
         </Typography>
         <Typography

@@ -1,5 +1,13 @@
 import { useT } from '@exyconn/i18n';
-import { Box, Card, Chip, Divider, Flex, Typography } from '@exyconn/shell/components/ui';
+import {
+  Box,
+  Card,
+  Chip,
+  Divider,
+  Flex,
+  Typography,
+  fontWeight,
+} from '@exyconn/shell/components/ui';
 import { formatWith } from '@exyconn/shell/utils/date';
 import { IncidentImpact } from '@exyconn/shell/graphql/generated';
 import { TIME_FORMAT } from '../../status.constants';
@@ -62,7 +70,7 @@ export function IncidentList({ incidents }: Readonly<IncidentListProps>) {
                 <Typography
                   variant="subtitle2"
                   sx={{
-                    fontWeight: 700,
+                    fontWeight: fontWeight.bold,
                   }}
                 >
                   {incident.title}

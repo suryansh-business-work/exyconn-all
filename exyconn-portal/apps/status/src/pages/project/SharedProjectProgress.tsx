@@ -1,5 +1,12 @@
 import { useT } from '@exyconn/i18n';
-import { Card, Chip, Flex, LinearProgress, Typography } from '@exyconn/shell/components/ui';
+import {
+  Card,
+  Chip,
+  Flex,
+  LinearProgress,
+  Typography,
+  fontWeight,
+} from '@exyconn/shell/components/ui';
 import { formatWith } from '@exyconn/shell/utils/date';
 import { DATE_FORMAT } from '../../status.constants';
 import type { SharedMilestone, SharedTicketCount } from './shared-project.types';
@@ -37,7 +44,7 @@ export function SharedProjectProgress({
         <Typography
           variant="h6"
           sx={{
-            fontWeight: 700,
+            fontWeight: fontWeight.bold,
             mb: 1.5,
           }}
         >
@@ -82,7 +89,7 @@ export function SharedProjectProgress({
         <Typography
           variant="h6"
           sx={{
-            fontWeight: 700,
+            fontWeight: fontWeight.bold,
             mb: 1.5,
           }}
         >
@@ -113,7 +120,7 @@ export function SharedProjectProgress({
                 <Typography
                   variant="body2"
                   sx={{
-                    fontWeight: 700,
+                    fontWeight: fontWeight.bold,
                     minWidth: 32,
                   }}
                 >

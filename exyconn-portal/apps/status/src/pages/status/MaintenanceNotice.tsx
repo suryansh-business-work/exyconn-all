@@ -1,6 +1,6 @@
 import EngineeringIcon from '@mui/icons-material/Engineering';
 import { useT } from '@exyconn/i18n';
-import { Alert, Box, Chip, Flex, Typography } from '@exyconn/shell/components/ui';
+import { Alert, Box, Chip, Flex, Typography, fontWeight } from '@exyconn/shell/components/ui';
 import { formatWith } from '@exyconn/shell/utils/date';
 import { TIME_FORMAT } from '../../status.constants';
 import type { StatusMaintenance, StatusService } from './status.types';
@@ -31,7 +31,7 @@ export function MaintenanceNotice({ maintenance, services }: Readonly<Maintenanc
       <Typography
         variant="h6"
         sx={{
-          fontWeight: 700,
+          fontWeight: fontWeight.bold,
           mb: 2,
         }}
       >
@@ -48,7 +48,7 @@ export function MaintenanceNotice({ maintenance, services }: Readonly<Maintenanc
               <Typography
                 variant="subtitle2"
                 sx={{
-                  fontWeight: 700,
+                  fontWeight: fontWeight.bold,
                 }}
               >
                 {window.title}

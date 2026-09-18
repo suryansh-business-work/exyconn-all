@@ -9,6 +9,7 @@ import {
   TableHead,
   TableRow,
   Typography,
+  fontWeight,
 } from '@/components/ui';
 import { DataTableRowActions, type RowAction } from './DataTableRowActions';
 import { TableRefreshButton } from './TableRefreshButton';
@@ -81,7 +82,7 @@ export function DataTable<T extends { id: string }>({
     );
   }
 
-  const headSx = { fontWeight: 700, color: 'text.secondary', borderColor: 'divider' };
+  const headSx = { fontWeight: fontWeight.bold, color: 'text.secondary', borderColor: 'divider' };
   const cellSx = { borderColor: 'divider' };
 
   return (

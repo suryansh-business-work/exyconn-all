@@ -69,7 +69,7 @@ export function ReportPage() {
         <Typography
           variant="h6"
           sx={{
-            fontWeight: 700,
+            fontWeight: fontWeight.bold,
           }}
         >
           {t('Check a report')}

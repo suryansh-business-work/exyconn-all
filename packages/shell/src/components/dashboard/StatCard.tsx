@@ -1,5 +1,5 @@
 import { useT, type Interpolations } from '@exyconn/i18n';
-import { Box, Stack, Typography, iconSize } from '@/components/ui';
+import { Box, Stack, Typography, iconSize, fontWeight } from '@/components/ui';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import { panel } from '../glass/glass';
@@ -66,7 +66,7 @@ export function StatCard({
             <Typography
               variant="caption"
               sx={{
-                fontWeight: 700,
+                fontWeight: fontWeight.bold,
               }}
             >
               {Math.abs(delta)}%
@@ -77,7 +77,7 @@ export function StatCard({
       <Typography
         variant="h6"
         sx={{
-          fontWeight: 700,
+          fontWeight: fontWeight.bold,
           mt: 0.5,
         }}
       >

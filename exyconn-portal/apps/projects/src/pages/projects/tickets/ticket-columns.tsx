@@ -1,5 +1,5 @@
 import { useT } from '@exyconn/i18n';
-import { Avatar, Chip, Flex, Text, fontSize } from '@exyconn/shell/components/ui';
+import { Avatar, Chip, Flex, Text, fontSize, fontWeight } from '@exyconn/shell/components/ui';
 import type { Column } from '@exyconn/shell/components/data/DataTable';
 import { TICKET_PRIORITIES, TICKET_TYPES, TicketFacetIcon, initialsOf } from '../ticket';
 import type { TicketRow } from '../forms/ticket';
@@ -17,7 +17,7 @@ export function ticketColumns(
       key: 'key',
       label: 'Key',
       render: (row) => (
-        <Text size="sm" sx={{ fontWeight: 600, whiteSpace: 'nowrap' }}>
+        <Text size="sm" sx={{ fontWeight: fontWeight.semibold, whiteSpace: 'nowrap' }}>
           {row.key}
         </Text>
       ),

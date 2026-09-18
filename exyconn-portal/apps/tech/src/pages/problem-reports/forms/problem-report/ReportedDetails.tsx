@@ -1,5 +1,5 @@
 import { useT } from '@exyconn/i18n';
-import { Box, Card, Divider, Typography } from '@exyconn/shell/components/ui';
+import { Box, Card, Divider, Typography, fontWeight } from '@exyconn/shell/components/ui';
 import { formatWith } from '@exyconn/shell/utils/date';
 import type { ProblemReportRow } from './problem-report.types';
 
@@ -18,7 +18,7 @@ export function ReportedDetails({ report }: Readonly<ReportedDetailsProps>) {
       <Typography
         variant="subtitle2"
         sx={{
-          fontWeight: 700,
+          fontWeight: fontWeight.bold,
         }}
       >
         {report.reference} · {report.subject}

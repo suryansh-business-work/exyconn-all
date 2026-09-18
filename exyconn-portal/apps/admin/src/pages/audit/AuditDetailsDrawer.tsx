@@ -8,6 +8,7 @@ import {
   TableHead,
   TableRow,
   Text,
+  fontWeight,
 } from '@exyconn/shell/components/ui';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
@@ -53,7 +54,7 @@ function ChangesTable({ rows }: Readonly<{ rows: AuditChangeRow[] }>) {
         <TableBody>
           {rows.map((row) => (
             <TableRow key={row.field}>
-              <TableCell sx={{ fontWeight: 600 }}>{row.field}</TableCell>
+              <TableCell sx={{ fontWeight: fontWeight.semibold }}>{row.field}</TableCell>
               <TableCell sx={{ color: 'text.secondary', wordBreak: 'break-word' }}>
                 {row.from}
               </TableCell>

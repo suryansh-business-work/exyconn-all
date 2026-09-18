@@ -5,6 +5,7 @@ import {
   Grid,
   Flex,
   Heading,
+  readableInk,
   Text,
 } from '@exyconn/shell/components/ui';
 import { useAuth } from '@exyconn/shell/auth/AuthContext';
@@ -54,7 +55,8 @@ export function Portal() {
                       borderRadius: `${CARD_RADIUS}px`,
                       display: 'grid',
                       placeItems: 'center',
-                      color: '#fff',
+                      // Whichever ink reads on this module's colour (SC 1.4.11).
+                      color: readableInk(module.accent),
                       bgcolor: module.accent,
                       mb: 2,
                     }}

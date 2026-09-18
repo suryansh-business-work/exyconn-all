@@ -53,7 +53,7 @@ export function ReportReceipt({ reference, onAnother }: Readonly<ReportReceiptPr
           bgcolor: 'action.hover',
           fontFamily: 'monospace',
           fontSize: fontSize['3xl'],
-          fontWeight: 700,
+          fontWeight: fontWeight.bold,
           letterSpacing: 2,
         }}
       >

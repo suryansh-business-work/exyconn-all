@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useT } from '@exyconn/i18n';
-import { Alert, Box, Card, Flex, Typography } from '@exyconn/shell/components/ui';
+import { Alert, Box, Card, Flex, Typography, fontWeight } from '@exyconn/shell/components/ui';
 import { SubscribeForm } from './forms/subscribe';
 
 /**
@@ -20,7 +20,7 @@ export function SubscribeCard() {
           <Typography
             variant="h6"
             sx={{
-              fontWeight: 700,
+              fontWeight: fontWeight.bold,
             }}
           >
             {t('Subscribe to updates')}

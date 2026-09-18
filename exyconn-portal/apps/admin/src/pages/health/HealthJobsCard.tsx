@@ -1,5 +1,12 @@
 import { useT } from '@exyconn/i18n';
-import { borderWidth, Box, Chip, Stack, Typography } from '@exyconn/shell/components/ui';
+import {
+  borderWidth,
+  Box,
+  Chip,
+  Stack,
+  Typography,
+  fontWeight,
+} from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
 import type { SystemHealthQuery } from '@exyconn/shell/graphql/generated';
 
@@ -28,7 +35,7 @@ function JobRow({ job, formatDateTime }: Readonly<JobRowProps>) {
         <Typography
           variant="body2"
           sx={{
-            fontWeight: 600,
+            fontWeight: fontWeight.semibold,
           }}
         >
           {job.label}

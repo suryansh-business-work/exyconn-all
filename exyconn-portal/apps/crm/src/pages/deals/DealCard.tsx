@@ -1,4 +1,4 @@
-import { borderWidth, Box, Stack, Typography } from '@exyconn/shell/components/ui';
+import { borderWidth, Box, Stack, Typography, fontWeight } from '@exyconn/shell/components/ui';
 import { formatMoney } from '@exyconn/shell/utils/money';
 import type { DealRow } from './forms/deal';
 
@@ -38,7 +38,7 @@ export function DealCard({ deal, accent, onOpen }: Readonly<DealCardProps>) {
         variant="body2"
         noWrap
         sx={{
-          fontWeight: 600,
+          fontWeight: fontWeight.semibold,
         }}
       >
         {deal.title}
@@ -65,7 +65,7 @@ export function DealCard({ deal, accent, onOpen }: Readonly<DealCardProps>) {
         <Typography
           variant="caption"
           sx={{
-            fontWeight: 700,
+            fontWeight: fontWeight.bold,
           }}
         >
           {formatMoney(deal.value)}
