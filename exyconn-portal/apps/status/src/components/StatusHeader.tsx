@@ -13,6 +13,7 @@ import {
   Tooltip,
   Typography,
   zIndex,
+  fontWeight,
 } from '@exyconn/shell/components/ui';
 import { useColorMode } from '@exyconn/shell/theme/ColorModeContext';
 import { usePublicBrandingQuery } from '@exyconn/shell/graphql/generated';
@@ -62,7 +63,7 @@ export function StatusHeader() {
               <Typography
                 variant="subtitle1"
                 sx={{
-                  fontWeight: 700,
+                  fontWeight: fontWeight.bold,
                   lineHeight: 1.2,
                 }}
               >

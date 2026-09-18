@@ -7,7 +7,8 @@ import {
   ListItemButton,
   ListItemIcon,
   ListItemText,
-  color,
+  readableInk,
+  fontWeight,
 } from '@/components/ui';
 import type { PortalAppKey } from '@/config/apps';
 
@@ -47,7 +48,8 @@ export function PortalListItem({ entry, onSelect }: Readonly<PortalListItemProps
             borderRadius: 1.5,
             display: 'grid',
             placeItems: 'center',
-            color: color.white,
+            // Whichever ink reads on this module's colour — white vanishes on amber or teal.
+            color: readableInk(entry.accent),
             bgcolor: entry.accent,
           }}
         >
@@ -60,7 +62,7 @@ export function PortalListItem({ entry, onSelect }: Readonly<PortalListItemProps
         slotProps={{
           primary: {
             sx: {
-              fontWeight: 600,
+              fontWeight: fontWeight.semibold,
             },
           },
           secondary: { variant: 'caption' },

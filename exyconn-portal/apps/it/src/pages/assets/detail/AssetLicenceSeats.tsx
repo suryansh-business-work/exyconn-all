@@ -1,5 +1,5 @@
 import { useT } from '@exyconn/i18n';
-import { Card, Flex, Typography } from '@exyconn/shell/components/ui';
+import { Card, Flex, Typography, fontWeight } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { useLicenceSeatsForQuery } from '@exyconn/shell/graphql/generated';
 
@@ -41,7 +41,7 @@ export function AssetLicenceSeats({
       <Typography
         variant="h6"
         sx={{
-          fontWeight: 700,
+          fontWeight: fontWeight.bold,
           mb: 1.5,
         }}
       >

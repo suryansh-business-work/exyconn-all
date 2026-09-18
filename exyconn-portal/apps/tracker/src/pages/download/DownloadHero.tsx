@@ -8,6 +8,7 @@ import {
   Stack,
   Typography,
   iconSize,
+  readableAccent,
   tint,
 } from '@exyconn/shell/components/ui';
 import { glass } from '@exyconn/shell/components/glass/glass';
@@ -84,7 +85,17 @@ export function DownloadHero({
               mb: 0.5,
             }}
           >
-            <Icon sx={{ fontSize: iconSize['3xl'], color: platform.accent }} />
+            <Icon
+              sx={(theme) => ({
+                fontSize: iconSize['3xl'],
+                color: readableAccent(
+                  platform.accent,
+                  theme,
+                  'graphic',
+                  theme.palette.background.muted,
+                ),
+              })}
+            />
             <Typography variant="h4">
               {t('Exyconn Tracker for {platform}', { platform: platform.label })}
             </Typography>

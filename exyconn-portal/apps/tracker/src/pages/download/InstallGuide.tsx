@@ -9,8 +9,8 @@ import {
   fontWeight,
   iconSize,
   radius,
+  readableAccent,
   spacing,
-  tint,
 } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
 import LockIcon from '@mui/icons-material/Lock';
@@ -33,7 +33,7 @@ function InstallStep({ index, text, accent }: Readonly<StepProps>) {
       }}
     >
       <Box
-        sx={{
+        sx={(theme) => ({
           flexShrink: 0,
           width: spacing(3),
           height: spacing(3),
@@ -42,9 +42,10 @@ function InstallStep({ index, text, accent }: Readonly<StepProps>) {
           placeItems: 'center',
           fontSize: fontSize.xs,
           fontWeight: fontWeight.bold,
-          color: accent,
-          background: tint(accent, 'soft'),
-        }}
+          // The step number is text on a neutral chip: 4.5:1 in either mode, the hue kept.
+          color: readableAccent(accent, theme, 'text', theme.palette.background.muted),
+          background: theme.palette.background.muted,
+        })}
       >
         {index}
       </Box>

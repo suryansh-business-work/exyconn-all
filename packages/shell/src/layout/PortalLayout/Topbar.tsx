@@ -13,6 +13,7 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
+  fontWeight,
 } from '@/components/ui';
 import MenuIcon from '@mui/icons-material/Menu';
 import LightModeIcon from '@mui/icons-material/LightMode';
@@ -100,7 +101,7 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
           <Typography
             variant="caption"
             sx={{
-              fontWeight: 700,
+              fontWeight: fontWeight.bold,
               display: 'block',
               lineHeight: 1.3,
             }}

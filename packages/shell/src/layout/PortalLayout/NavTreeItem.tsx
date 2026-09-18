@@ -2,7 +2,14 @@ import { useT } from '@exyconn/i18n';
 import { useId } from 'react';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import { Collapse, List, ListItemButton, ListItemIcon, ListItemText } from '@/components/ui';
+import {
+  Collapse,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  fontWeight,
+} from '@/components/ui';
 import type { NavNode } from './moduleNav';
 import type { NavState } from './useNavState';
 
@@ -42,7 +49,11 @@ function NavLeaf({ node, depth, nav, onSelect }: Readonly<Props>) {
       <ListItemText
         primary={t(node.label)}
         slotProps={{
-          primary: { variant: 'body2', noWrap: true, sx: { fontWeight: selected ? 600 : 400 } },
+          primary: {
+            variant: 'body2',
+            noWrap: true,
+            sx: { fontWeight: selected ? fontWeight.semibold : fontWeight.regular },
+          },
         }}
       />
     </ListItemButton>
@@ -73,7 +84,9 @@ function NavBranch({ node, depth, nav, onSelect }: Readonly<Props>) {
         </ListItemIcon>
         <ListItemText
           primary={t(node.label)}
-          slotProps={{ primary: { variant: 'body2', noWrap: true, sx: { fontWeight: 600 } } }}
+          slotProps={{
+            primary: { variant: 'body2', noWrap: true, sx: { fontWeight: fontWeight.semibold } },
+          }}
         />
         {expanded ? (
           <ExpandLess fontSize="small" color="disabled" />
@@ -82,7 +95,8 @@ function NavBranch({ node, depth, nav, onSelect }: Readonly<Props>) {
         )}
       </ListItemButton>
       <Collapse in={expanded} timeout="auto" unmountOnExit>
-        <List id={listId} disablePadding>
+        {/* A group of buttons, not list items: as a `<ul>` its children would have to be `<li>`. */}
+        <List id={listId} component="div" role="group" aria-label={t(node.label)} disablePadding>
           {node.children.map((child) => (
             <NavTreeItem
               key={child.key}

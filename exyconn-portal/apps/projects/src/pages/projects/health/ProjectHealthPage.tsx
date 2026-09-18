@@ -1,5 +1,5 @@
 import { useT } from '@exyconn/i18n';
-import { Alert, Box, Chip, Flex, Stack, Text } from '@exyconn/shell/components/ui';
+import { Alert, Box, Chip, Flex, Stack, Text, fontWeight } from '@exyconn/shell/components/ui';
 
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useProjectHealthQuery } from '@exyconn/shell/graphql/generated';
@@ -59,7 +59,7 @@ export function ProjectHealthPage({ projectId }: Readonly<{ projectId: string }>
         <Chip
           label={t(RISK_LABEL[health.risk])}
           color={RISK_COLOR[health.risk]}
-          sx={{ fontWeight: 600 }}
+          sx={{ fontWeight: fontWeight.semibold }}
         />
         <Chip
           variant="outlined"

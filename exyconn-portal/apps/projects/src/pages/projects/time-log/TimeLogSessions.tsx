@@ -7,6 +7,7 @@ import {
   Stack,
   Typography,
   iconSize,
+  fontWeight,
 } from '@exyconn/shell/components/ui';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import PhotoCameraIcon from '@mui/icons-material/PhotoCamera';
@@ -94,7 +95,7 @@ export function TimeLogSessions({
                 width: '100%',
               }}
             >
-              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              <Typography variant="body2" sx={{ fontWeight: fontWeight.semibold }}>
                 {formatDateTime(session.startedAt)}
               </Typography>
               <Chip size="small" label={formatDuration(session.activeMs)} />

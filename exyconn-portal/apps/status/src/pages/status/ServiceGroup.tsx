@@ -1,4 +1,4 @@
-import { Box, Card, Typography } from '@exyconn/shell/components/ui';
+import { Box, Card, Typography, fontWeight } from '@exyconn/shell/components/ui';
 import { ServiceCard } from './ServiceCard';
 import type { StatusService } from './status.types';
 
@@ -17,7 +17,7 @@ export function ServiceGroup({ title, services, maintenanceKeys }: Readonly<Serv
         variant="overline"
         sx={{
           color: 'text.secondary',
-          fontWeight: 700,
+          fontWeight: fontWeight.bold,
         }}
       >
         {title}

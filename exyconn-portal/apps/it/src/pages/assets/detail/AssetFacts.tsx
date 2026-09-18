@@ -1,4 +1,4 @@
-import { Box, Card, Grid, Typography } from '@exyconn/shell/components/ui';
+import { Box, Card, Grid, Typography, fontWeight } from '@exyconn/shell/components/ui';
 
 export interface AssetFact {
   label: string;
@@ -34,7 +34,7 @@ export function AssetFacts({ facts }: Readonly<AssetFactsProps>) {
               <Typography
                 variant="subtitle1"
                 sx={{
-                  fontWeight: 700,
+                  fontWeight: fontWeight.bold,
                 }}
               >
                 {fact.value}

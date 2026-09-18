@@ -114,7 +114,7 @@ export function AssetDetailPage() {
         <Typography
           variant="h6"
           sx={{
-            fontWeight: 700,
+            fontWeight: fontWeight.bold,
             mb: 1.5,
           }}
         >

@@ -9,7 +9,6 @@ import {
   fontWeight,
   Heading,
   portalShadow,
-  radius,
   Text,
 } from '@exyconn/shell/components/ui';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
@@ -91,7 +90,6 @@ export function LoginPromo({ name, slogan, accentColor }: Readonly<LoginPromoPro
           sx={{
             bgcolor: accentColor,
             color: readableInk(accentColor),
-            borderRadius: `${radius.pill}px`,
             px: 2,
             '&:hover': { bgcolor: accentColor, opacity: 0.9 },
           }}

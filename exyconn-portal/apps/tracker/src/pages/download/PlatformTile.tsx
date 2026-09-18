@@ -4,6 +4,7 @@ import {
   Typography,
   borderWidth,
   iconSize,
+  readableAccent,
   tint,
   transition,
 } from '@exyconn/shell/components/ui';
@@ -37,6 +38,13 @@ export function PlatformTile({
       onClick={onSelect}
       aria-pressed={selected}
       sx={(theme) => ({
+        // The tile's own edge marks the selection, so it is held to 3:1 (SC 1.4.11).
+        '--platform-accent': readableAccent(
+          platform.accent,
+          theme,
+          'graphic',
+          theme.palette.background.muted,
+        ),
         width: '100%',
         cursor: 'pointer',
         textAlign: 'left',
@@ -44,10 +52,10 @@ export function PlatformTile({
         borderRadius: 1.5,
         background: selected ? tint(platform.accent) : theme.palette.background.paper,
         border: `${borderWidth.hairline}px solid ${
-          selected ? platform.accent : theme.palette.divider
+          selected ? 'var(--platform-accent)' : theme.palette.divider
         }`,
         transition: transition.surface,
-        '&:hover': { borderColor: platform.accent },
+        '&:hover': { borderColor: 'var(--platform-accent)' },
       })}
     >
       <Stack
@@ -57,7 +65,7 @@ export function PlatformTile({
           alignItems: 'center',
         }}
       >
-        <Icon sx={{ color: platform.accent }} />
+        <Icon sx={{ color: 'var(--platform-accent)' }} />
         <Box sx={{ minWidth: 0, flex: 1 }}>
           <Stack
             direction="row"
@@ -69,7 +77,9 @@ export function PlatformTile({
             <Typography variant="subtitle2" noWrap>
               {platform.label}
             </Typography>
-            {detected && <CheckCircleIcon sx={{ fontSize: iconSize.sm, color: platform.accent }} />}
+            {detected && (
+              <CheckCircleIcon sx={{ fontSize: iconSize.sm, color: 'var(--platform-accent)' }} />
+            )}
           </Stack>
           <Typography
             variant="caption"

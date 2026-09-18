@@ -7,7 +7,6 @@ import {
   Divider,
   Flex,
   IconButton,
-  radius,
   Text,
   zIndex,
 } from '@exyconn/shell/components/ui';
@@ -77,13 +76,18 @@ export function LoginShell({ children }: Readonly<LoginShellProps>) {
         <Flex direction="column" spacing={2} sx={{ width: '100%', maxWidth: 380, minWidth: 0 }}>
           <Box sx={[readingPanel, { width: '100%', borderRadius: `${CARD_RADIUS}px` }]}>
             <Flex direction="row" alignItems="center" justifyContent="space-between" sx={{ mb: 2 }}>
-              <Box component="img" src={page.logoUrl} alt={page.businessName || env.logoAlt} sx={{ height: 26 }} />
+              <Box
+                component="img"
+                src={page.logoUrl}
+                alt={page.businessName || env.logoAlt}
+                sx={{ height: 26 }}
+              />
               <Button
                 href={env.brandUrl}
                 target="_blank"
                 rel="noopener"
                 size="small"
-                sx={{ borderRadius: `${radius.pill}px`, bgcolor: 'action.hover', px: 2 }}
+                sx={{ bgcolor: 'background.muted', px: 2 }}
               >
                 {t('Support')}
               </Button>

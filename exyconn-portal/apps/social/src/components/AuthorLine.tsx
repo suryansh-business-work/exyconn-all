@@ -1,5 +1,5 @@
 import { Link as RouterLink } from 'react-router-dom';
-import { Avatar, Box, Link, Stack, Typography } from '@exyconn/shell/components/ui';
+import { Avatar, Box, Link, Stack, Typography, fontWeight } from '@exyconn/shell/components/ui';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import type { SocialAuthorFieldsFragment } from '@exyconn/shell/graphql/generated';
 
@@ -50,7 +50,7 @@ export function AuthorLine({ author, at, dense = false }: Readonly<AuthorLinePro
           variant={dense ? 'body2' : 'subtitle2'}
           sx={{
             color: 'text.primary',
-            fontWeight: 600,
+            fontWeight: fontWeight.semibold,
           }}
         >
           {author.name}

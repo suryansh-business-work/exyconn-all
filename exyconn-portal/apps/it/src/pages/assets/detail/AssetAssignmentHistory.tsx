@@ -1,5 +1,5 @@
 import { useT } from '@exyconn/i18n';
-import { Card, Chip, Typography } from '@exyconn/shell/components/ui';
+import { Card, Chip, Typography, fontWeight } from '@exyconn/shell/components/ui';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import type { AssetAssignmentsQuery } from '@exyconn/shell/graphql/generated';
 
@@ -57,7 +57,7 @@ export function AssetAssignmentHistory({
       <Typography
         variant="h6"
         sx={{
-          fontWeight: 700,
+          fontWeight: fontWeight.bold,
           mb: 1.5,
         }}
       >

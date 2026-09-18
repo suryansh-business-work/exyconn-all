@@ -1,7 +1,16 @@
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useT } from '@exyconn/i18n';
-import { Avatar, Box, Chip, Flex, IconButton, Text, fontSize } from '@exyconn/shell/components/ui';
+import {
+  Avatar,
+  Box,
+  Chip,
+  Flex,
+  IconButton,
+  Text,
+  fontSize,
+  fontWeight,
+} from '@exyconn/shell/components/ui';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { TICKET_PRIORITIES, TICKET_TYPES, initialsOf } from '../ticket/ticket-meta';
 import { TicketFacetIcon } from '../ticket/TicketFacetIcon';
@@ -94,7 +103,7 @@ export function TaskCard({ task, onOpen }: Readonly<TaskCardProps>) {
           <Flex direction="row" alignItems="center" spacing={1} sx={{ mt: 1 }}>
             <TicketFacetIcon facet={TICKET_TYPES[task.type]} kind="Type" decorative />
             <TicketFacetIcon facet={TICKET_PRIORITIES[task.priority]} kind="Priority" decorative />
-            <Text size="caption" color="text.secondary" sx={{ fontWeight: 600 }}>
+            <Text size="caption" color="text.secondary" sx={{ fontWeight: fontWeight.semibold }}>
               {task.key}
             </Text>
             {task.storyPoints !== null && task.storyPoints !== undefined ? (

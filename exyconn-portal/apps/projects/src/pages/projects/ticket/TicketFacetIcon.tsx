@@ -1,5 +1,5 @@
 import { useT } from '@exyconn/i18n';
-import { Tooltip } from '@exyconn/shell/components/ui';
+import { Tooltip, readableAccent, type Theme } from '@exyconn/shell/components/ui';
 import type { TicketFacet } from './ticket-meta';
 
 interface TicketFacetIconProps {
@@ -11,6 +11,12 @@ interface TicketFacetIconProps {
   decorative?: boolean;
 }
 
+/** The facet's colour, lifted to 3:1 on the panel in either mode — it is a meaningful icon. */
+const glyphSx = (color: string, size: number) => (theme: Theme) => ({
+  fontSize: size,
+  color: readableAccent(color, theme, 'graphic'),
+});
+
 /** The single glyph that stands for a ticket's type or priority, wherever it is shown. */
 export function TicketFacetIcon({
   facet,
@@ -21,7 +27,7 @@ export function TicketFacetIcon({
   const t = useT();
   const Icon = facet.icon;
   if (decorative) {
-    return <Icon aria-hidden sx={{ fontSize: size, color: facet.color }} />;
+    return <Icon aria-hidden sx={glyphSx(facet.color, size)} />;
   }
   const label = t('{kind}: {facet}', { kind: t(kind), facet: t(facet.label) });
   return (
@@ -31,7 +37,7 @@ export function TicketFacetIcon({
         role="img"
         aria-hidden={false}
         aria-label={label}
-        sx={{ fontSize: size, color: facet.color }}
+        sx={glyphSx(facet.color, size)}
       />
     </Tooltip>
   );

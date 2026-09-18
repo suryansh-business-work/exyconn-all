@@ -14,6 +14,7 @@ import {
   TextField,
   Toolbar,
   Tooltip,
+  fontWeight,
 } from '@/components/ui';
 import { useT } from '@exyconn/i18n';
 import { env } from '@/config/env';
@@ -88,7 +89,7 @@ export function SidebarHeader({
                       variant: 'body2',
 
                       sx: {
-                        fontWeight: 600,
+                        fontWeight: fontWeight.semibold,
                       },
                     },
                   }}
