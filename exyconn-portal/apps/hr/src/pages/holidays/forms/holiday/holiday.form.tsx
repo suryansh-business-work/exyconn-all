@@ -1,7 +1,15 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { RhfDatePicker, RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
+import {
+  RhfAutocomplete,
+  RhfDatePicker,
+  RhfMultiSelect,
+  RhfSelect,
+  RhfTextField,
+  type SelectOption,
+} from '@exyconn/shell/components/form/rhf';
+import { useCountryOptions } from '@exyconn/shell/components/localization';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
@@ -17,6 +25,9 @@ const schema = z.object({
   date: z.string().min(1, 'Date is required'),
   type: z.nativeEnum(HolidayType),
   description: z.string().trim(),
+  // Empty is a holiday the whole company observes.
+  country: z.string(),
+  excludedCountries: z.array(z.string()),
 });
 type Values = z.infer<typeof schema>;
 
@@ -25,12 +36,21 @@ const toInitial = (row: HolidayRow | null) => ({
   date: row?.date ?? '',
   type: row?.type ?? Object.values(HolidayType)[0],
   description: row?.description ?? '',
+  country: row?.country ?? '',
+  excludedCountries: row?.excludedCountries ?? [],
 });
 
-/** Empty optional inputs are "not set", which the API models as null. */
+/** The empty country: every country observes it. */
+const ALL_COUNTRIES: SelectOption = { value: '', label: 'All countries' };
+
+/**
+ * Empty optional inputs are "not set", which the API models as null. Opt-outs only mean
+ * something on a company-wide holiday, so a country holiday never carries stale ones.
+ */
 const toInput = (values: Values) => ({
   ...values,
   description: values.description === '' ? null : values.description,
+  excludedCountries: values.country === '' ? values.excludedCountries : [],
 });
 
 interface HolidayFormProps {
@@ -44,10 +64,12 @@ export function HolidayForm({ initial, onDone, onCancel }: Readonly<HolidayFormP
   const [createHoliday] = useCreateHolidayMutation();
   const [updateHoliday] = useUpdateHolidayMutation();
 
+  const countries = useCountryOptions();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });
+  const companyWide = methods.watch('country') === '';
 
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Holiday',
@@ -63,6 +85,20 @@ export function HolidayForm({ initial, onDone, onCancel }: Readonly<HolidayFormP
       <RhfDatePicker name="date" label="Date" />
       <RhfSelect name="type" label="Type" options={enumOptions(Object.values(HolidayType))} />
       <RhfTextField name="description" label="Description" multiline minRows={3} />
+      <RhfAutocomplete
+        name="country"
+        label="Country"
+        options={[ALL_COUNTRIES, ...countries]}
+        helperText="Pick a country for a holiday only employees there observe."
+      />
+      {companyWide && (
+        <RhfMultiSelect
+          name="excludedCountries"
+          label="Not observed in"
+          options={countries}
+          helperText="Countries whose employees work on this day."
+        />
+      )}
     </EntityForm>
   );
 }

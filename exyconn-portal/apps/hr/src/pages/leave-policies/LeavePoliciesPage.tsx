@@ -16,7 +16,7 @@ import {
   type LeavePolicyGridContext,
 } from './leave-policy-grid';
 
-/** Leave Policies — server-paged admin grid over the leave policy records. */
+/** Leave types — server-paged admin grid over the leave policy records. */
 export function LeavePoliciesPage() {
   const { data: statsData, refetch: refetchStats } = useListLeavePoliciesStatsQuery();
   const [deleteLeavePolicy] = useDeleteLeavePolicyMutation();
@@ -25,7 +25,7 @@ export function LeavePoliciesPage() {
   const crud = useCrudResource<LeavePolicyRow, PagedLeavePolicyRow>({
     label: 'LeavePolicy',
     onDelete: (row) => deleteLeavePolicy({ variables: { id: row.id } }),
-    confirmMessage: () => 'Delete this leave policy?',
+    confirmMessage: () => 'Delete this leave type?',
     refetch: refetchStats,
   });
   const fetchRows = usePagedFetcher(
@@ -60,9 +60,9 @@ export function LeavePoliciesPage() {
 
   return (
     <CrudDashboard
-      title="Leave Policies"
-      subtitle="Leave types, quotas and carry-forward rules"
-      entityLabel="leave policy"
+      title="Leave types"
+      subtitle="Global quotas and carry-forward, with per-country overrides"
+      entityLabel="leave type"
       stats={statItems}
       crud={crud}
       renderForm={(initial) => (
@@ -71,7 +71,7 @@ export function LeavePoliciesPage() {
       columnDefs={LEAVE_POLICY_COLUMNS}
       fetchRows={fetchRows}
       context={gridContext}
-      searchPlaceholder="Search policies…"
+      searchPlaceholder="Search leave types…"
     />
   );
 }

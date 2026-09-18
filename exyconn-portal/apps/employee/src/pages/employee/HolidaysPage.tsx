@@ -5,7 +5,7 @@ import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
-import { useListHolidaysQuery } from '@exyconn/shell/graphql/generated';
+import { useMyHolidaysQuery } from '@exyconn/shell/graphql/generated';
 import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 type HolidayRow = {
@@ -16,12 +16,12 @@ type HolidayRow = {
   description: string | null;
 };
 
-/** Employee self-service: read-only company holiday calendar. */
+/** Employee self-service: the holidays observed in the country they work in. */
 export function HolidaysPage() {
-  const { data, loading, refetch } = useListHolidaysQuery({ fetchPolicy: 'cache-and-network' });
+  const { data, loading, refetch } = useMyHolidaysQuery({ fetchPolicy: 'cache-and-network' });
   const { formatDate } = useSettings();
 
-  const rows = (data?.listHolidays ?? []) as HolidayRow[];
+  const rows = (data?.myHolidays ?? []) as HolidayRow[];
 
   const columns: Column<HolidayRow>[] = [
     { key: 'name', label: 'Holiday', render: (h) => <Text weight="medium">{h.name}</Text> },
@@ -33,7 +33,7 @@ export function HolidaysPage() {
 
   return (
     <Box>
-      <PageHeader title="Holidays" subtitle="Company holiday calendar" />
+      <PageHeader title="Holidays" subtitle="Holidays observed where you work" />
       <Box sx={densePanel}>
         <DataTable
           columns={columns}

@@ -1,10 +1,16 @@
+import { Types } from 'mongoose';
 import { LeaveRequestModel } from '../../src/modules/hr/hr.model';
 import { LeaveBalanceModel } from '../../src/modules/hrmaster/leaveBalance.model';
+import { LeavePolicyModel } from '../../src/modules/hrmaster/leavePolicy.model';
 import { NotificationModel } from '../../src/modules/notifications';
 import { hrResolvers } from '../../src/modules/hr';
 import { leaveDays } from '../../src/modules/hr/leave-balance.service';
 import { ROLES } from '../../src/constants/roles';
 import type { GraphQLContext } from '../../src/middleware/auth';
+import { useTestOrganization } from '../helpers';
+
+// A missing balance is created from the quota of the company's country.
+useTestOrganization({ country: 'IN' });
 
 type Resolver = (p: unknown, a: unknown, c: GraphQLContext) => Promise<unknown>;
 const setLeaveStatus = hrResolvers.Mutation.setLeaveStatus as unknown as Resolver;
@@ -12,7 +18,7 @@ const hr = {
   user: { id: 'hr-1', email: 'hr@exyconn.com', roles: [ROLES.HR] },
 } as unknown as GraphQLContext;
 
-const EMP = 'emp-1';
+const EMP = String(new Types.ObjectId());
 const day = (iso: string) => new Date(`${iso}T00:00:00.000Z`);
 
 const request = (over: Record<string, unknown> = {}) =>
@@ -68,12 +74,28 @@ describe('setLeaveStatus and the leave balance', () => {
     expect((await LeaveRequestModel.findById(req._id))?.status).toBe('PENDING');
   });
 
-  it('refuses when no balance row exists for a paid type and says where to add one', async () => {
+  it('refuses when no balance row exists and no quota applies, and says where to set one', async () => {
     const req = await request();
 
     await expect(decide(req._id, 'APPROVED')).rejects.toThrow(
-      'No leave balance for CASUAL in 2026 — add one under HR > Leave Balances',
+      'No leave balance for CASUAL in 2026 — set a quota under HR > Leave Settings or add one under HR > Leave Balances',
     );
+  });
+
+  it("creates the missing balance from the country's quota, then debits it", async () => {
+    await LeavePolicyModel.create({
+      name: 'Casual',
+      code: 'CASUAL',
+      annualQuota: 12,
+      overrides: [{ country: 'IN', annualQuota: 8, carryForwardCap: 0, active: true }],
+    });
+    const req = await request();
+
+    await decide(req._id, 'APPROVED');
+
+    const stored = await LeaveBalanceModel.findOne({ employeeId: EMP, leaveTypeCode: 'CASUAL' });
+    expect(stored?.allocated).toBe(8);
+    expect(stored?.used).toBe(3);
   });
 
   it('needs no balance for UNPAID leave', async () => {

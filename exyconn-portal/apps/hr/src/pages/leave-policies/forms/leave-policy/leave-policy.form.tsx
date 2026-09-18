@@ -9,6 +9,35 @@ import {
   useUpdateLeavePolicyMutation,
 } from '@exyconn/shell/graphql/generated';
 import type { LeavePolicyRow } from './leave-policy.types';
+import { CountryOverrideFields } from './country-overrides.fields';
+
+const days = (label: string) =>
+  z.coerce
+    .number({ message: `${label} must be a number` })
+    .int('Whole days only')
+    .min(0, 'Must be ≥ 0');
+
+const overrideSchema = z.object({
+  country: z.string().min(1, 'Choose a country'),
+  annualQuota: days('Annual quota'),
+  carryForwardCap: days('Carry-forward cap'),
+  active: z.boolean(),
+});
+
+/** Each country at most once — the server refuses a second row, so flag it on that row. */
+function flagRepeatedCountries(rows: { country: string }[], ctx: z.RefinementCtx) {
+  const seen = new Set<string>();
+  rows.forEach((row, index) => {
+    if (row.country !== '' && seen.has(row.country)) {
+      ctx.addIssue({
+        code: 'custom',
+        path: [index, 'country'],
+        message: 'This country already has an override',
+      });
+    }
+    seen.add(row.country);
+  });
+}
 
 const schema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
@@ -22,6 +51,7 @@ const schema = z.object({
   paid: z.boolean(),
   halfDayAllowed: z.boolean(),
   active: z.boolean(),
+  overrides: z.array(overrideSchema).superRefine(flagRepeatedCountries),
 });
 type Values = z.infer<typeof schema>;
 
@@ -33,6 +63,13 @@ const toInitial = (row: LeavePolicyRow | null) => ({
   paid: row?.paid ?? false,
   halfDayAllowed: row?.halfDayAllowed ?? false,
   active: row?.active ?? false,
+  overrides:
+    row?.overrides.map(({ country, annualQuota, carryForwardCap, active }) => ({
+      country,
+      annualQuota,
+      carryForwardCap,
+      active,
+    })) ?? [],
 });
 
 const toInput = (values: Values) => values;
@@ -71,6 +108,7 @@ export function LeavePolicyForm({ initial, onDone, onCancel }: Readonly<LeavePol
       <RhfSwitch name="paid" label="Paid leave" />
       <RhfSwitch name="halfDayAllowed" label="Half day allowed" />
       <RhfSwitch name="active" label="Active" />
+      <CountryOverrideFields />
     </EntityForm>
   );
 }

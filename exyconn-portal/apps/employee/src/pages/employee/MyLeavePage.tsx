@@ -6,8 +6,9 @@ import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
-import { useMyLeaveRequestsQuery } from '@exyconn/shell/graphql/generated';
+import { useMyLeaveBalancesQuery, useMyLeaveRequestsQuery } from '@exyconn/shell/graphql/generated';
 import { ApplyLeaveForm } from './forms/apply-leave';
+import { LeaveBalanceCards } from './LeaveBalanceCards';
 import { densePanel } from '@exyconn/shell/components/glass/glass';
 
 type LeaveRow = {
@@ -19,9 +20,10 @@ type LeaveRow = {
   status: string;
 };
 
-/** Employee self-service: apply for leave and track your own requests. */
+/** Employee self-service: see your balances, apply for leave and track your own requests. */
 export function MyLeavePage() {
   const { data, loading, refetch } = useMyLeaveRequestsQuery({ fetchPolicy: 'cache-and-network' });
+  const balances = useMyLeaveBalancesQuery({ fetchPolicy: 'cache-and-network' });
   const { formatDate } = useSettings();
   const [open, setOpen] = useState(false);
 
@@ -61,6 +63,7 @@ export function MyLeavePage() {
         actionLabel="Apply for leave"
         onAction={() => setOpen(true)}
       />
+      <LeaveBalanceCards balances={balances.data?.myLeaveBalances ?? []} />
       <Box sx={densePanel}>
         <DataTable
           columns={columns}

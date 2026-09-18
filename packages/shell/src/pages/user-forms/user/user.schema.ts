@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { EMAIL } from '@exyconn/regex';
-import { isValidLocale, isValidTimezone } from '@exyconn/i18n';
+import { isValidCountry, isValidLocale, isValidTimezone } from '@exyconn/i18n';
 import {
   EmploymentStatus,
   Role,
@@ -44,6 +44,8 @@ const identitySchema = z
       .string()
       .refine((v) => v === '' || isValidTimezone(v), 'Choose a timezone from the list'),
     locale: z.string().refine((v) => v === '' || isValidLocale(v), 'Choose a language'),
+    // Empty follows the company's country.
+    country: z.string().refine((v) => v === '' || isValidCountry(v), 'Choose a country'),
     workHoursPerDay: z
       .string()
       .min(1, 'Working hours are required')
@@ -105,6 +107,7 @@ export function toFormValues(
     workHoursPerDay: String(row?.workHoursPerDay ?? DEFAULT_WORK_HOURS),
     timezone: row?.timezone ?? '',
     locale: row?.locale ?? '',
+    country: row?.country ?? '',
   };
 }
 
@@ -138,5 +141,6 @@ export function toUserInput(v: UserValues): Omit<CreateUserInput, 'name' | 'emai
     // following it when an admin moves that default — a copied value would not.
     timezone: v.timezone || null,
     locale: v.locale || null,
+    country: v.country || null,
   };
 }

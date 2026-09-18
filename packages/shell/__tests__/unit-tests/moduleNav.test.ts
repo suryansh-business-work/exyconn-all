@@ -62,6 +62,7 @@ describe('moduleNavTree', () => {
       'People',
       'Hiring & onboarding',
       'Time & attendance',
+      'Leave',
       'Pay',
       'Growth',
       'Records',

@@ -2,10 +2,12 @@ import type { ColDef } from 'ag-grid-community';
 import {
   actionsColumn,
   boolColumn,
+  derivedColumn,
   textColumn,
   valueColumn,
   type DatedCrudGridContext,
 } from '@exyconn/crud';
+import { countryName } from '@exyconn/i18n';
 import type { ListLeavePoliciesPagedQuery } from '@exyconn/shell/graphql/generated';
 
 export type PagedLeavePolicyRow =
@@ -21,5 +23,8 @@ export const LEAVE_POLICY_COLUMNS: ColDef<PagedLeavePolicyRow>[] = [
   valueColumn('annualQuota', 'Quota', (row) => String(row.annualQuota ?? '—')),
   valueColumn('carryForwardCap', 'Carry fwd', (row) => String(row.carryForwardCap ?? '—')),
   boolColumn('active', 'Active'),
+  derivedColumn('overrides', 'Country overrides', (row) =>
+    row.overrides.map((override) => countryName(override.country)).join(', '),
+  ),
   actionsColumn(),
 ];

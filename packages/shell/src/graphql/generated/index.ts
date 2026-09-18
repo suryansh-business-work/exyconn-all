@@ -469,7 +469,7 @@ export type ApplyLeaveInput = {
   fromDate: Scalars['DateTime']['input'];
   reason: Scalars['String']['input'];
   toDate: Scalars['DateTime']['input'];
-  type: LeaveType;
+  type: Scalars['String']['input'];
 };
 
 export enum ApprovalDecision {
@@ -1627,6 +1627,8 @@ export type CreateUserInput = {
   address?: InputMaybe<Scalars['String']['input']>;
   avatarUrl?: InputMaybe<Scalars['String']['input']>;
   brief?: InputMaybe<Scalars['String']['input']>;
+  /** ISO 3166-1 alpha-2, or null to follow the company's country. */
+  country?: InputMaybe<Scalars['String']['input']>;
   dateOfBirth?: InputMaybe<Scalars['DateTime']['input']>;
   department?: InputMaybe<Scalars['String']['input']>;
   designation?: InputMaybe<Scalars['String']['input']>;
@@ -2598,16 +2600,24 @@ export type HeldAsset = {
 
 export type Holiday = {
   __typename?: 'Holiday';
+  /** ISO 3166-1 alpha-2 country it is observed in, or empty for the whole company. */
+  country: Scalars['String']['output'];
   date: Scalars['DateTime']['output'];
   description?: Maybe<Scalars['String']['output']>;
+  /** Countries that do not observe this company-wide holiday. */
+  excludedCountries: Array<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   type: HolidayType;
 };
 
 export type HolidayInput = {
+  /** ISO 3166-1 alpha-2, or empty for a holiday the whole company observes. */
+  country: Scalars['String']['input'];
   date: Scalars['DateTime']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
+  /** Countries that do not observe a company-wide holiday. Ignored on a country holiday. */
+  excludedCountries: Array<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   type: HolidayType;
 };
@@ -3106,6 +3116,8 @@ export type LeavePolicy = {
   halfDayAllowed: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
+  /** Per-country terms; a country with no row gets the global ones. */
+  overrides: Array<LeavePolicyOverride>;
   paid: Scalars['Boolean']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
@@ -3117,7 +3129,25 @@ export type LeavePolicyInput = {
   code: Scalars['String']['input'];
   halfDayAllowed: Scalars['Boolean']['input'];
   name: Scalars['String']['input'];
+  overrides: Array<LeavePolicyOverrideInput>;
   paid: Scalars['Boolean']['input'];
+};
+
+/** One country's own terms for a leave type, replacing the global ones there. */
+export type LeavePolicyOverride = {
+  __typename?: 'LeavePolicyOverride';
+  /** Offered in this country — true even when the global type is off (a local-only type). */
+  active: Scalars['Boolean']['output'];
+  annualQuota: Scalars['Int']['output'];
+  carryForwardCap: Scalars['Int']['output'];
+  country: Scalars['String']['output'];
+};
+
+export type LeavePolicyOverrideInput = {
+  active: Scalars['Boolean']['input'];
+  annualQuota: Scalars['Int']['input'];
+  carryForwardCap: Scalars['Int']['input'];
+  country: Scalars['String']['input'];
 };
 
 export type LeavePolicyPage = {
@@ -3135,7 +3165,8 @@ export type LeaveRequest = {
   reason: Scalars['String']['output'];
   status: LeaveStatus;
   toDate: Scalars['DateTime']['output'];
-  type: LeaveType;
+  /** The code of one of HR's leave types (LeavePolicy.code), e.g. CL. */
+  type: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
 
@@ -3145,20 +3176,13 @@ export type LeaveRequestInput = {
   reason: Scalars['String']['input'];
   status: LeaveStatus;
   toDate: Scalars['DateTime']['input'];
-  type: LeaveType;
+  type: Scalars['String']['input'];
 };
 
 export enum LeaveStatus {
   Approved = 'APPROVED',
   Pending = 'PENDING',
   Rejected = 'REJECTED'
-}
-
-export enum LeaveType {
-  Casual = 'CASUAL',
-  Earned = 'EARNED',
-  Sick = 'SICK',
-  Unpaid = 'UNPAID'
 }
 
 export type LegalDocument = {
@@ -7528,7 +7552,10 @@ export type Query = {
    * then newest. Readable by any signed-in user, unlike the HR CRUD above.
    */
   activeAnnouncements: Array<Announcement>;
-  /** Leave types an employee can pick from when applying. */
+  /**
+   * Leave types the signed-in employee can pick from when applying, with quota and
+   * carry-forward already resolved for their country.
+   */
   activeLeavePolicies: Array<LeavePolicy>;
   /** Read live from OpenAI with the active key, so the list is what the account can reach. */
   aiModels: AiModelOptions;
@@ -7802,7 +7829,7 @@ export type Query = {
   listGrades: Array<Grade>;
   listGradesPaged: GradePage;
   listGradesStats: TableStats;
-  /** Company-wide holidays, readable by any authenticated employee. */
+  /** Every holiday in every country, readable by any authenticated employee. */
   listHolidays: Array<Holiday>;
   listHolidaysPaged: HolidayPage;
   listHolidaysStats: TableStats;
@@ -7984,7 +8011,12 @@ export type Query = {
   myExitRecord?: Maybe<ExitRecord>;
   myExpenseClaims: Array<ExpenseClaim>;
   myGoals: Array<Goal>;
-  /** This employee's own balances for the current year. */
+  /** The holidays the signed-in employee observes: company-wide ones plus their country's. */
+  myHolidays: Array<Holiday>;
+  /**
+   * This employee's own balances. The current year's are created on first read from the
+   * quota of every leave type offered in their country.
+   */
   myLeaveBalances: Array<LeaveBalance>;
   /** Self-service: the signed-in user's own leave requests. */
   myLeaveRequests: Array<LeaveRequest>;
@@ -11546,6 +11578,8 @@ export type UpdateUserInput = {
   address?: InputMaybe<Scalars['String']['input']>;
   avatarUrl?: InputMaybe<Scalars['String']['input']>;
   brief?: InputMaybe<Scalars['String']['input']>;
+  /** ISO 3166-1 alpha-2, or null to follow the company's country. */
+  country?: InputMaybe<Scalars['String']['input']>;
   dateOfBirth?: InputMaybe<Scalars['DateTime']['input']>;
   department?: InputMaybe<Scalars['String']['input']>;
   designation?: InputMaybe<Scalars['String']['input']>;
@@ -11576,6 +11610,11 @@ export type User = {
   blockReason?: Maybe<Scalars['String']['output']>;
   /** A few lines about the person, shown on their profile across the portals. */
   brief?: Maybe<Scalars['String']['output']>;
+  /**
+   * ISO 3166-1 alpha-2 country the person is employed in, which decides their leave quotas
+   * and holidays. Null follows the company's country. Set by HR only.
+   */
+  country?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   dateOfBirth?: Maybe<Scalars['DateTime']['output']>;
   department?: Maybe<Scalars['String']['output']>;
@@ -11734,19 +11773,19 @@ export enum WorkingTime {
   Other = 'OTHER'
 }
 
-export type UserFieldsFragment = { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null, timezone?: string | null, locale?: string | null };
+export type UserFieldsFragment = { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null, timezone?: string | null, locale?: string | null, country?: string | null };
 
 export type ListUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListUsersQuery = { __typename?: 'Query', listUsers: Array<{ __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null, timezone?: string | null, locale?: string | null }> };
+export type ListUsersQuery = { __typename?: 'Query', listUsers: Array<{ __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null, timezone?: string | null, locale?: string | null, country?: string | null }> };
 
 export type ListUsersPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListUsersPagedQuery = { __typename?: 'Query', listUsersPaged: { __typename?: 'UserPage', totalCount: number, rows: Array<{ __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null, timezone?: string | null, locale?: string | null }> } };
+export type ListUsersPagedQuery = { __typename?: 'Query', listUsersPaged: { __typename?: 'UserPage', totalCount: number, rows: Array<{ __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null, timezone?: string | null, locale?: string | null, country?: string | null }> } };
 
 export type ListUsersStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -11773,7 +11812,7 @@ export type GetUserQueryVariables = Exact<{
 }>;
 
 
-export type GetUserQuery = { __typename?: 'Query', getUser: { __typename?: 'User', createdAt: string, updatedAt: string, id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null, timezone?: string | null, locale?: string | null, phone?: string | null, lastActiveAt?: string | null, isOnline: boolean, socialLinks?: { __typename?: 'UserSocialLinks', linkedin?: string | null, github?: string | null, twitter?: string | null, website?: string | null } | null } };
+export type GetUserQuery = { __typename?: 'Query', getUser: { __typename?: 'User', createdAt: string, updatedAt: string, id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null, timezone?: string | null, locale?: string | null, country?: string | null, phone?: string | null, lastActiveAt?: string | null, isOnline: boolean, socialLinks?: { __typename?: 'UserSocialLinks', linkedin?: string | null, github?: string | null, twitter?: string | null, website?: string | null } | null } };
 
 export type CreateUserMutationVariables = Exact<{
   input: CreateUserInput;
@@ -12986,7 +13025,7 @@ export type PayrollFieldsFragment = { __typename?: 'SalaryStructure', id: string
 
 export type SalarySlipFieldsFragment = { __typename?: 'SalarySlip', id: string, month: number, year: number, currency: string, gross: number, deductions: number, net: number, status: SlipStatus, issuedDate: string };
 
-export type HolidayFieldsFragment = { __typename?: 'Holiday', id: string, name: string, date: string, type: HolidayType, description?: string | null };
+export type HolidayFieldsFragment = { __typename?: 'Holiday', id: string, name: string, date: string, type: HolidayType, description?: string | null, country: string, excludedCountries: Array<string> };
 
 export type SupportTicketFieldsFragment = { __typename?: 'SupportTicket', id: string, reference: string, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, createdAt: string, attachments: Array<{ __typename?: 'TicketAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> };
 
@@ -13003,7 +13042,7 @@ export type MySalarySlipsQuery = { __typename?: 'Query', mySalarySlips: Array<{ 
 export type ListHolidaysQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListHolidaysQuery = { __typename?: 'Query', listHolidays: Array<{ __typename?: 'Holiday', id: string, name: string, date: string, type: HolidayType, description?: string | null }> };
+export type ListHolidaysQuery = { __typename?: 'Query', listHolidays: Array<{ __typename?: 'Holiday', id: string, name: string, date: string, type: HolidayType, description?: string | null, country: string, excludedCountries: Array<string> }> };
 
 export type MySupportTicketsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -13718,7 +13757,7 @@ export type SystemHealthQuery = { __typename?: 'Query', systemHealth: { __typena
 export type ListLeaveRequestsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListLeaveRequestsQuery = { __typename?: 'Query', listLeaveRequests: Array<{ __typename?: 'LeaveRequest', id: string, employeeId: string, type: LeaveType, fromDate: string, toDate: string, reason: string, status: LeaveStatus }> };
+export type ListLeaveRequestsQuery = { __typename?: 'Query', listLeaveRequests: Array<{ __typename?: 'LeaveRequest', id: string, employeeId: string, type: string, fromDate: string, toDate: string, reason: string, status: LeaveStatus }> };
 
 export type CreateLeaveRequestMutationVariables = Exact<{
   input: LeaveRequestInput;
@@ -13742,14 +13781,14 @@ export type DeleteLeaveRequestMutationVariables = Exact<{
 
 export type DeleteLeaveRequestMutation = { __typename?: 'Mutation', deleteLeaveRequest: boolean };
 
-export type LeaveFieldsFragment = { __typename?: 'LeaveRequest', id: string, employeeId: string, type: LeaveType, fromDate: string, toDate: string, reason: string, status: LeaveStatus };
+export type LeaveFieldsFragment = { __typename?: 'LeaveRequest', id: string, employeeId: string, type: string, fromDate: string, toDate: string, reason: string, status: LeaveStatus };
 
 export type AttendanceFieldsFragment = { __typename?: 'Attendance', id: string, employeeId: string, date: string, status: AttendanceStatus, note?: string | null };
 
 export type MyLeaveRequestsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MyLeaveRequestsQuery = { __typename?: 'Query', myLeaveRequests: Array<{ __typename?: 'LeaveRequest', id: string, employeeId: string, type: LeaveType, fromDate: string, toDate: string, reason: string, status: LeaveStatus }> };
+export type MyLeaveRequestsQuery = { __typename?: 'Query', myLeaveRequests: Array<{ __typename?: 'LeaveRequest', id: string, employeeId: string, type: string, fromDate: string, toDate: string, reason: string, status: LeaveStatus }> };
 
 export type ApplyLeaveMutationVariables = Exact<{
   input: ApplyLeaveInput;
@@ -13780,7 +13819,7 @@ export type LeaveRequestsByEmployeeQueryVariables = Exact<{
 }>;
 
 
-export type LeaveRequestsByEmployeeQuery = { __typename?: 'Query', leaveRequestsByEmployee: Array<{ __typename?: 'LeaveRequest', id: string, employeeId: string, type: LeaveType, fromDate: string, toDate: string, reason: string, status: LeaveStatus }> };
+export type LeaveRequestsByEmployeeQuery = { __typename?: 'Query', leaveRequestsByEmployee: Array<{ __typename?: 'LeaveRequest', id: string, employeeId: string, type: string, fromDate: string, toDate: string, reason: string, status: LeaveStatus }> };
 
 export type AttendanceByEmployeeQueryVariables = Exact<{
   employeeId: Scalars['ID']['input'];
@@ -13792,7 +13831,7 @@ export type AttendanceByEmployeeQuery = { __typename?: 'Query', attendanceByEmpl
 export type TeamLeaveRequestsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type TeamLeaveRequestsQuery = { __typename?: 'Query', teamLeaveRequests: Array<{ __typename?: 'LeaveRequest', createdAt: string, id: string, employeeId: string, type: LeaveType, fromDate: string, toDate: string, reason: string, status: LeaveStatus }> };
+export type TeamLeaveRequestsQuery = { __typename?: 'Query', teamLeaveRequests: Array<{ __typename?: 'LeaveRequest', createdAt: string, id: string, employeeId: string, type: string, fromDate: string, toDate: string, reason: string, status: LeaveStatus }> };
 
 export type OrgChartQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -13878,7 +13917,7 @@ export type ListHolidaysPagedQueryVariables = Exact<{
 }>;
 
 
-export type ListHolidaysPagedQuery = { __typename?: 'Query', listHolidaysPaged: { __typename?: 'HolidayPage', totalCount: number, rows: Array<{ __typename?: 'Holiday', id: string, name: string, date: string, type: HolidayType, description?: string | null }> } };
+export type ListHolidaysPagedQuery = { __typename?: 'Query', listHolidaysPaged: { __typename?: 'HolidayPage', totalCount: number, rows: Array<{ __typename?: 'Holiday', id: string, name: string, date: string, type: HolidayType, description?: string | null, country: string, excludedCountries: Array<string> }> } };
 
 export type ListHolidaysStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -13907,19 +13946,29 @@ export type DeleteHolidayMutationVariables = Exact<{
 
 export type DeleteHolidayMutation = { __typename?: 'Mutation', deleteHoliday: boolean };
 
-export type LeavePolicyFieldsFragment = { __typename?: 'LeavePolicy', id: string, name: string, code: string, annualQuota: number, paid: boolean, halfDayAllowed: boolean, carryForwardCap: number, active: boolean };
+export type MyHolidaysQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyHolidaysQuery = { __typename?: 'Query', myHolidays: Array<{ __typename?: 'Holiday', id: string, name: string, date: string, type: HolidayType, description?: string | null, country: string, excludedCountries: Array<string> }> };
+
+export type LeavePolicyFieldsFragment = { __typename?: 'LeavePolicy', id: string, name: string, code: string, annualQuota: number, paid: boolean, halfDayAllowed: boolean, carryForwardCap: number, active: boolean, overrides: Array<{ __typename?: 'LeavePolicyOverride', country: string, annualQuota: number, carryForwardCap: number, active: boolean }> };
+
+export type ListLeavePoliciesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListLeavePoliciesQuery = { __typename?: 'Query', listLeavePolicies: Array<{ __typename?: 'LeavePolicy', id: string, name: string, code: string, annualQuota: number, paid: boolean, halfDayAllowed: boolean, carryForwardCap: number, active: boolean, overrides: Array<{ __typename?: 'LeavePolicyOverride', country: string, annualQuota: number, carryForwardCap: number, active: boolean }> }> };
 
 export type ActiveLeavePoliciesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ActiveLeavePoliciesQuery = { __typename?: 'Query', activeLeavePolicies: Array<{ __typename?: 'LeavePolicy', id: string, name: string, code: string, annualQuota: number, paid: boolean, halfDayAllowed: boolean, carryForwardCap: number, active: boolean }> };
+export type ActiveLeavePoliciesQuery = { __typename?: 'Query', activeLeavePolicies: Array<{ __typename?: 'LeavePolicy', id: string, name: string, code: string, annualQuota: number, paid: boolean, halfDayAllowed: boolean, carryForwardCap: number, active: boolean, overrides: Array<{ __typename?: 'LeavePolicyOverride', country: string, annualQuota: number, carryForwardCap: number, active: boolean }> }> };
 
 export type ListLeavePoliciesPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListLeavePoliciesPagedQuery = { __typename?: 'Query', listLeavePoliciesPaged: { __typename?: 'LeavePolicyPage', totalCount: number, rows: Array<{ __typename?: 'LeavePolicy', id: string, name: string, code: string, annualQuota: number, paid: boolean, halfDayAllowed: boolean, carryForwardCap: number, active: boolean }> } };
+export type ListLeavePoliciesPagedQuery = { __typename?: 'Query', listLeavePoliciesPaged: { __typename?: 'LeavePolicyPage', totalCount: number, rows: Array<{ __typename?: 'LeavePolicy', id: string, name: string, code: string, annualQuota: number, paid: boolean, halfDayAllowed: boolean, carryForwardCap: number, active: boolean, overrides: Array<{ __typename?: 'LeavePolicyOverride', country: string, annualQuota: number, carryForwardCap: number, active: boolean }> }> } };
 
 export type ListLeavePoliciesStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -17016,6 +17065,7 @@ export const UserFieldsFragmentDoc = gql`
   workHoursPerDay
   timezone
   locale
+  country
 }
     `;
 export const AnnouncementFieldsFragmentDoc = gql`
@@ -17417,6 +17467,8 @@ export const HolidayFieldsFragmentDoc = gql`
   date
   type
   description
+  country
+  excludedCountries
 }
     `;
 export const TicketAttachmentFieldsFragmentDoc = gql`
@@ -17567,6 +17619,12 @@ export const LeavePolicyFieldsFragmentDoc = gql`
   halfDayAllowed
   carryForwardCap
   active
+  overrides {
+    country
+    annualQuota
+    carryForwardCap
+    active
+  }
 }
     `;
 export const LeaveBalanceFieldsFragmentDoc = gql`
@@ -30832,15 +30890,11 @@ export const ListHolidaysPagedDocument = gql`
   listHolidaysPaged(input: $input) {
     totalCount
     rows {
-      id
-      name
-      date
-      type
-      description
+      ...HolidayFields
     }
   }
 }
-    `;
+    ${HolidayFieldsFragmentDoc}`;
 
 /**
  * __useListHolidaysPagedQuery__
@@ -31021,6 +31075,92 @@ export function useDeleteHolidayMutation(baseOptions?: ApolloReactHooks.Mutation
         return ApolloReactHooks.useMutation<DeleteHolidayMutation, DeleteHolidayMutationVariables>(DeleteHolidayDocument, options);
       }
 export type DeleteHolidayMutationHookResult = ReturnType<typeof useDeleteHolidayMutation>;
+export const MyHolidaysDocument = gql`
+    query MyHolidays {
+  myHolidays {
+    ...HolidayFields
+  }
+}
+    ${HolidayFieldsFragmentDoc}`;
+
+/**
+ * __useMyHolidaysQuery__
+ *
+ * To run a query within a React component, call `useMyHolidaysQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyHolidaysQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyHolidaysQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMyHolidaysQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MyHolidaysQuery, MyHolidaysQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MyHolidaysQuery, MyHolidaysQueryVariables>(MyHolidaysDocument, options);
+      }
+export function useMyHolidaysLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MyHolidaysQuery, MyHolidaysQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MyHolidaysQuery, MyHolidaysQueryVariables>(MyHolidaysDocument, options);
+        }
+// @ts-ignore
+export function useMyHolidaysSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MyHolidaysQuery, MyHolidaysQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MyHolidaysQuery, MyHolidaysQueryVariables>;
+// @ts-ignore
+export function useMyHolidaysSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MyHolidaysQuery, MyHolidaysQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MyHolidaysQuery | undefined, MyHolidaysQueryVariables>;
+export function useMyHolidaysSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MyHolidaysQuery, MyHolidaysQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MyHolidaysQuery, MyHolidaysQueryVariables>(MyHolidaysDocument, options);
+        }
+export type MyHolidaysQueryHookResult = ReturnType<typeof useMyHolidaysQuery>;
+export type MyHolidaysLazyQueryHookResult = ReturnType<typeof useMyHolidaysLazyQuery>;
+export type MyHolidaysSuspenseQueryHookResult = ReturnType<typeof useMyHolidaysSuspenseQuery>;
+export const ListLeavePoliciesDocument = gql`
+    query ListLeavePolicies {
+  listLeavePolicies {
+    ...LeavePolicyFields
+  }
+}
+    ${LeavePolicyFieldsFragmentDoc}`;
+
+/**
+ * __useListLeavePoliciesQuery__
+ *
+ * To run a query within a React component, call `useListLeavePoliciesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListLeavePoliciesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListLeavePoliciesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListLeavePoliciesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ListLeavePoliciesQuery, ListLeavePoliciesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListLeavePoliciesQuery, ListLeavePoliciesQueryVariables>(ListLeavePoliciesDocument, options);
+      }
+export function useListLeavePoliciesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListLeavePoliciesQuery, ListLeavePoliciesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListLeavePoliciesQuery, ListLeavePoliciesQueryVariables>(ListLeavePoliciesDocument, options);
+        }
+// @ts-ignore
+export function useListLeavePoliciesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListLeavePoliciesQuery, ListLeavePoliciesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListLeavePoliciesQuery, ListLeavePoliciesQueryVariables>;
+// @ts-ignore
+export function useListLeavePoliciesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListLeavePoliciesQuery, ListLeavePoliciesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListLeavePoliciesQuery | undefined, ListLeavePoliciesQueryVariables>;
+export function useListLeavePoliciesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListLeavePoliciesQuery, ListLeavePoliciesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListLeavePoliciesQuery, ListLeavePoliciesQueryVariables>(ListLeavePoliciesDocument, options);
+        }
+export type ListLeavePoliciesQueryHookResult = ReturnType<typeof useListLeavePoliciesQuery>;
+export type ListLeavePoliciesLazyQueryHookResult = ReturnType<typeof useListLeavePoliciesLazyQuery>;
+export type ListLeavePoliciesSuspenseQueryHookResult = ReturnType<typeof useListLeavePoliciesSuspenseQuery>;
 export const ActiveLeavePoliciesDocument = gql`
     query ActiveLeavePolicies {
   activeLeavePolicies {

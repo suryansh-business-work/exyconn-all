@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { endonymOf, timezoneOptions } from '@exyconn/i18n';
+import { countryOptions, endonymOf, timezoneOptions, useI18n } from '@exyconn/i18n';
 import type { SelectOption } from '@/components/form/rhf';
 import { useLocaleOptionsQuery } from '@/graphql/generated';
 
@@ -34,6 +34,18 @@ export function useLanguageOptions(includeDefault = true): SelectOption[] {
     }));
     return includeDefault ? [WORKSPACE_DEFAULT_OPTION, ...options] : options;
   }, [data, includeDefault]);
+}
+
+/**
+ * Every ISO 3166-1 country, named in the reader's language. The same table the server checks
+ * against, so nothing picked here can be refused as "not a country".
+ */
+export function useCountryOptions(): SelectOption[] {
+  const { locale } = useI18n();
+  return useMemo(
+    () => countryOptions(locale).map((option) => ({ value: option.code, label: option.label })),
+    [locale],
+  );
 }
 
 /** What a stored tag reads as, for a screen showing it rather than editing it. */

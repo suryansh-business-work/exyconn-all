@@ -28,6 +28,8 @@ fragment HolidayFields on Holiday {
   date
   type
   description
+  country
+  excludedCountries
 }
 
 fragment SupportTicketFields on SupportTicket {

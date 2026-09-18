@@ -17,6 +17,7 @@ import {
 } from '../../utils/tableQuery';
 import { ORGANIZATION_ROLES, ROLES, type Role } from '../../constants/roles';
 import { isValidTimezone } from '../../utils/timezone';
+import { isValidCountry } from '../../utils/iso';
 import { canonicalLocale, isValidLocale } from '../i18n/locale.constants';
 import type { WorkLocation, WorkingTime } from '../../constants/work';
 
@@ -223,10 +224,12 @@ export interface HrFields {
   timezone?: string | null;
   /** BCP-47 tag. Null (or omitted) follows the workspace default. */
   locale?: string | null;
+  /** ISO 3166-1 alpha-2. Null (or omitted) follows the company's country. */
+  country?: string | null;
 }
 
 /**
- * A person's chosen zone/language as it goes onto their record.
+ * A person's chosen zone/language/country as it goes onto their record.
  *
  * Empty means "follow the workspace default" and is stored as null, never as a copy of the
  * current default — an admin moving the house timezone should move everybody who never
@@ -236,15 +239,20 @@ export interface HrFields {
 function localeFields(input: HrFields) {
   const timezone = input.timezone?.trim() ?? '';
   const locale = input.locale?.trim() ?? '';
+  const country = input.country?.trim().toUpperCase() ?? '';
   if (timezone !== '' && !isValidTimezone(timezone)) {
     badRequest(`"${timezone}" is not a timezone this system knows.`);
   }
   if (locale !== '' && !isValidLocale(locale)) {
     badRequest(`"${locale}" is not a language tag this system knows.`);
   }
+  if (country !== '' && !isValidCountry(country)) {
+    badRequest(`"${country}" is not an ISO 3166-1 country code.`);
+  }
   return {
     timezone: timezone === '' ? null : timezone,
     locale: locale === '' ? null : (canonicalLocale(locale) ?? null),
+    country: country === '' ? null : country,
   };
 }
 

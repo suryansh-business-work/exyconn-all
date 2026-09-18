@@ -20,6 +20,7 @@ describe('LeaveRequestForm', () => {
     mount();
     cy.contains('button', 'Create').click();
     cy.contains('Employee is required').should('be.visible');
+    cy.contains('Leave type is required').should('be.visible');
     cy.contains('From date is required').should('be.visible');
   });
 

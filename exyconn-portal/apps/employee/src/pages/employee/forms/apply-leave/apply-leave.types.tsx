@@ -1,8 +1,7 @@
-import type { LeaveType } from '@exyconn/shell/graphql/generated';
-
 /** Form values for an employee leave application. */
 export interface ApplyLeaveFormValues {
-  type: LeaveType;
+  /** The code of one of HR's leave types. */
+  type: string;
   fromDate: string;
   toDate: string;
   reason: string;

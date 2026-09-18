@@ -14,7 +14,7 @@ import {
 } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { panel } from '@exyconn/shell/components/glass/glass';
-import { useListHolidaysQuery, useMyLeaveRequestsQuery } from '@exyconn/shell/graphql/generated';
+import { useMyHolidaysQuery, useMyLeaveRequestsQuery } from '@exyconn/shell/graphql/generated';
 import { buildMonthDays } from './buildMonth';
 import { MonthGrid } from './MonthGrid';
 
@@ -23,10 +23,10 @@ export function CalendarPage() {
   const t = useT();
   const [month, setMonth] = useState(() => startOfMonth(new Date()));
 
-  const holidaysQuery = useListHolidaysQuery({ fetchPolicy: 'cache-and-network' });
+  const holidaysQuery = useMyHolidaysQuery({ fetchPolicy: 'cache-and-network' });
   const leavesQuery = useMyLeaveRequestsQuery({ fetchPolicy: 'cache-and-network' });
 
-  const holidays = holidaysQuery.data?.listHolidays ?? [];
+  const holidays = holidaysQuery.data?.myHolidays ?? [];
   const leaves = leavesQuery.data?.myLeaveRequests ?? [];
   const loading = holidaysQuery.loading || leavesQuery.loading;
 

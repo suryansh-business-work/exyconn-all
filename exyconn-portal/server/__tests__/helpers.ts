@@ -24,6 +24,8 @@ export async function seedOrganization(name = 'Test Co') {
 export interface TestOrganization {
   currency?: string;
   locale?: string;
+  /** ISO 3166-1 alpha-2 — decides leave quotas and holidays for employees without one. */
+  country?: string;
   taxSystem?: TaxSystem;
   fiscalYearStartMonth?: number;
 }

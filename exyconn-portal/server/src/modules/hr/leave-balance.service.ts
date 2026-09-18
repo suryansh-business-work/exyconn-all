@@ -1,5 +1,6 @@
 import { LeaveBalanceModel } from '../hrmaster/leaveBalance.model';
 import { badRequest } from '../../utils/errors';
+import { ensureLeaveBalances } from '../hrmaster/leave-country';
 
 /** The slice of a leave request the balance needs to know about. */
 export interface LeaveSpan {
@@ -38,17 +39,22 @@ const balanceKey = (leave: LeaveSpan) => ({
 });
 
 /**
- * Consumes the request's days from the employee's balance for that type and year.
+ * Consumes the request's days from the employee's balance for that type and year, creating
+ * the balance first from their country's quota when HR has not allocated one by hand.
  * Refuses rather than letting `used` overrun what was allocated: an approval that
  * silently went negative is exactly the number HR could no longer trust.
  */
 export async function debitLeaveBalance(leave: LeaveSpan): Promise<void> {
   if (leave.type === UNMETERED_TYPE) return;
   const key = balanceKey(leave);
-  const balance = await LeaveBalanceModel.findOne(key).lean();
+  let balance = await LeaveBalanceModel.findOne(key).lean();
+  if (!balance) {
+    await ensureLeaveBalances(leave.employeeId, key.year);
+    balance = await LeaveBalanceModel.findOne(key).lean();
+  }
   if (!balance) {
     badRequest(
-      `No leave balance for ${key.leaveTypeCode} in ${key.year} — add one under HR > Leave Balances`,
+      `No leave balance for ${key.leaveTypeCode} in ${key.year} — set a quota under HR > Leave Settings or add one under HR > Leave Balances`,
     );
   }
   const days = leaveDays(leave.fromDate, leave.toDate);

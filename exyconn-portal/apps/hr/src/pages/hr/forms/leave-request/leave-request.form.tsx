@@ -10,18 +10,19 @@ import {
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
+import { leaveTypeOptions } from '@exyconn/shell/utils/leaveTypeOptions';
 import {
-  LeaveType,
   LeaveStatus,
   useCreateLeaveRequestMutation,
   useUpdateLeaveRequestMutation,
+  useListLeavePoliciesQuery,
   useListUsersQuery,
 } from '@exyconn/shell/graphql/generated';
 import type { LeaveRequestRow } from './leave-request.types';
 
 const schema = z.object({
   employeeId: z.string().min(1, 'Employee is required'),
-  type: z.nativeEnum(LeaveType),
+  type: z.string().min(1, 'Leave type is required'),
   fromDate: z.string().min(1, 'From date is required'),
   toDate: z.string().min(1, 'To date is required'),
   reason: z.string().trim().min(3, 'Add a reason'),
@@ -31,7 +32,7 @@ type Values = z.infer<typeof schema>;
 
 const toInitial = (row: LeaveRequestRow | null): Values => ({
   employeeId: row?.employeeId ?? '',
-  type: row?.type ?? LeaveType.Casual,
+  type: row?.type ?? '',
   fromDate: row?.fromDate ?? '',
   toDate: row?.toDate ?? '',
   reason: row?.reason ?? '',
@@ -49,6 +50,7 @@ export function LeaveRequestForm({ initial, onDone, onCancel }: LeaveRequestForm
   const [createLeaveRequest] = useCreateLeaveRequestMutation();
   const [updateLeaveRequest] = useUpdateLeaveRequestMutation();
   const { data } = useListUsersQuery();
+  const { data: policies } = useListLeavePoliciesQuery();
 
   const employeeOptions = (data?.listUsers ?? []).map((u) => ({
     value: u.id,
@@ -71,7 +73,12 @@ export function LeaveRequestForm({ initial, onDone, onCancel }: LeaveRequestForm
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfAutocomplete name="employeeId" label="Employee" options={employeeOptions} />
-      <RhfSelect name="type" label="Type" options={enumOptions(Object.values(LeaveType))} />
+      <RhfSelect
+        name="type"
+        label="Type"
+        options={leaveTypeOptions(policies?.listLeavePolicies ?? [])}
+        helperText="Leave types are managed under Leave Settings."
+      />
       <RhfDatePicker name="fromDate" label="From date" />
       <RhfDatePicker name="toDate" label="To date" />
       <RhfTextField name="reason" label="Reason" multiline minRows={2} />

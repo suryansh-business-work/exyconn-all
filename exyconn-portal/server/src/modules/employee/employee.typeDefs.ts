@@ -116,6 +116,10 @@ export const employeeTypeDefs = gql`
     date: DateTime!
     type: HolidayType!
     description: String
+    "ISO 3166-1 alpha-2 country it is observed in, or empty for the whole company."
+    country: String!
+    "Countries that do not observe this company-wide holiday."
+    excludedCountries: [String!]!
   }
 
   type SupportTicket {
@@ -154,7 +158,7 @@ export const employeeTypeDefs = gql`
     mySupportTickets: [SupportTicket!]!
     "The conversation on one of the employee's own tickets, internal notes excluded."
     mySupportReplies(ticketId: ID!): [SupportReply!]!
-    "Company-wide holidays, readable by any authenticated employee."
+    "Every holiday in every country, readable by any authenticated employee."
     listHolidays: [Holiday!]!
   }
 

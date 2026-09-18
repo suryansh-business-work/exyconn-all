@@ -3,6 +3,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import ArticleIcon from '@mui/icons-material/Article';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import BeachAccessIcon from '@mui/icons-material/BeachAccess';
 import BusinessIcon from '@mui/icons-material/Business';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import ContactsIcon from '@mui/icons-material/Contacts';
@@ -40,6 +41,7 @@ export const NAV_GROUP_ICONS = {
   Directory: ContactsIcon,
   Growth: TrendingUpIcon,
   'Hiring & onboarding': PersonAddIcon,
+  Leave: BeachAccessIcon,
   'My record': FolderSharedIcon,
   Operations: EngineeringIcon,
   'Pay & money': AccountBalanceWalletIcon,
