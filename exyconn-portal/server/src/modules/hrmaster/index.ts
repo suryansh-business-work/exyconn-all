@@ -7,6 +7,12 @@ import { createCrudResolvers } from '../../lib/crudResolvers';
 import { createMyRecordsResolver } from '../../lib/employeeScope';
 import { assertAuthenticated } from '../../middleware/roleGuard';
 import { withIds } from '../../utils/serialize';
+import {
+  employeeCountry,
+  ensureLeaveBalances,
+  holidaysObservedIn,
+  offeredPolicies,
+} from './leave-country';
 import { ROLES } from '../../constants/roles';
 import type { GraphQLContext } from '../../middleware/auth';
 
@@ -15,6 +21,8 @@ interface HolidayInput {
   date: Date;
   type: string;
   description?: string | null;
+  country: string;
+  excludedCountries: string[];
 }
 interface LeavePolicyInput {
   name: string;
@@ -24,6 +32,7 @@ interface LeavePolicyInput {
   halfDayAllowed: boolean;
   carryForwardCap: number;
   active: boolean;
+  overrides: { country: string; annualQuota: number; carryForwardCap: number; active: boolean }[];
 }
 interface LeaveBalanceInput {
   employeeId: string;
@@ -44,8 +53,8 @@ const holidayCrud = createCrudResolvers(
     roles: [ROLES.HR],
     table: {
       searchFields: ['name', 'description'],
-      filterFields: ['name', 'type'],
-      sortFields: ['name', 'date', 'type', 'createdAt'],
+      filterFields: ['name', 'type', 'country'],
+      sortFields: ['name', 'date', 'type', 'country', 'createdAt'],
       defaultSort: { field: 'date', dir: 'ASC' },
     },
     stats: { countBy: ['type'] },
@@ -85,11 +94,28 @@ const leaveBalanceCrud = createCrudResolvers(
   },
 );
 
-/** What an employee can actually pick when applying for leave. */
+/** What an employee can actually pick when applying for leave, on their country's terms. */
 async function activeLeavePolicies(_p: unknown, _a: unknown, ctx: GraphQLContext) {
-  assertAuthenticated(ctx);
-  const rows = await LeavePolicyModel.find({ active: true }).sort({ name: 1 }).lean();
-  return withIds(rows as { _id: unknown }[]);
+  const user = assertAuthenticated(ctx);
+  return withIds(await offeredPolicies(await employeeCountry(user.id)));
+}
+
+const ownLeaveBalances = createMyRecordsResolver(LeaveBalanceModel as never, { year: -1 });
+
+/** The employee's balances, after filling in any leave type HR has added this year. */
+async function myLeaveBalances(_p: unknown, _a: unknown, ctx: GraphQLContext) {
+  const user = assertAuthenticated(ctx);
+  await ensureLeaveBalances(user.id, new Date().getUTCFullYear());
+  return ownLeaveBalances(_p, _a, ctx);
+}
+
+/** The holidays the signed-in employee observes in their country. */
+async function myHolidays(_p: unknown, _a: unknown, ctx: GraphQLContext) {
+  const user = assertAuthenticated(ctx);
+  const rows = await HolidayModel.find(holidaysObservedIn(await employeeCountry(user.id)))
+    .sort({ date: 1 })
+    .lean();
+  return withIds(rows);
 }
 
 export const hrMasterResolvers = {
@@ -98,12 +124,22 @@ export const hrMasterResolvers = {
     ...leavePolicyCrud.Query,
     ...leaveBalanceCrud.Query,
     activeLeavePolicies,
-    myLeaveBalances: createMyRecordsResolver(LeaveBalanceModel as never, { year: -1 }),
+    myLeaveBalances,
+    myHolidays,
   },
   Mutation: {
     ...holidayCrud.Mutation,
     ...leavePolicyCrud.Mutation,
     ...leaveBalanceCrud.Mutation,
+  },
+  // Records written before countries existed have neither field; they are global.
+  Holiday: {
+    country: (holiday: { country?: string | null }) => holiday.country ?? '',
+    excludedCountries: (holiday: { excludedCountries?: string[] | null }) =>
+      holiday.excludedCountries ?? [],
+  },
+  LeavePolicy: {
+    overrides: (policy: { overrides?: unknown[] | null }) => policy.overrides ?? [],
   },
   /** Derived rather than stored, so it can never disagree with its parts. */
   LeaveBalance: {

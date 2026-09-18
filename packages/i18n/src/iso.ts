@@ -7,6 +7,8 @@
  * here and the check there can never disagree about what a real country or currency is.
  */
 
+import { activeFormatSettings } from './active-settings';
+
 export interface IsoOption {
   /** The standard's own code: "DE", "EUR". */
   code: string;
@@ -43,6 +45,26 @@ export function countryOptions(locale: string): IsoOption[] {
     }
   }
   return codes.sort(byLabel);
+}
+
+const COUNTRY_CODE = /^[A-Z]{2}$/;
+
+/**
+ * Whether `code` is an ISO 3166-1 alpha-2 country — the same test the server applies, so a
+ * form never accepts a code the API would refuse.
+ */
+export function isValidCountry(code: string): boolean {
+  return (
+    COUNTRY_CODE.test(code) && new Intl.DisplayNames(['en'], { type: 'region' }).of(code) !== code
+  );
+}
+
+/**
+ * A country code as the reader's language names it: "IN" → "India", "Indien". Defaults to
+ * the workspace language so code with no React context — a grid column — can use it.
+ */
+export function countryName(code: string, locale = activeFormatSettings().locale): string {
+  return new Intl.DisplayNames([locale], { type: 'region' }).of(code) ?? code;
 }
 
 const CURRENCY_CODE = /^[A-Z]{3}$/;

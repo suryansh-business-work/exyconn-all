@@ -16,15 +16,31 @@ import { COLOR_MODES, tokensFor } from '../../src/tokens/modes';
 describe.each(COLOR_MODES)('%s mode', (mode) => {
   const t = tokensFor(mode);
   const surfaces = { page: t.background.page, panel: t.background.panel };
+  /** Where text also sits: a hovered or current row, the tab track, a badge, the sidebar. */
+  const everySurface = {
+    ...surfaces,
+    muted: t.background.muted,
+    sidebar: t.background.sidebar,
+  };
 
-  const inks: Record<string, string> = {
+  for (const [inkName, ink] of Object.entries({
     'text.primary': t.text.primary,
     'text.secondary': t.text.secondary,
+  })) {
+    for (const [surfaceName, surface] of Object.entries(everySurface)) {
+      it(`${inkName} on ${surfaceName} is readable (${ink} on ${surface})`, () => {
+        expect(contrastRatio(ink, surface)).toBeGreaterThanOrEqual(AA_TEXT);
+      });
+    }
+  }
+
+  const inks: Record<string, string> = {
     primary: t.primary,
     secondary: t.secondary,
     success: t.success,
     warning: t.warning,
     error: t.error,
+    info: t.info,
   };
 
   for (const [inkName, ink] of Object.entries(inks)) {
@@ -35,9 +51,16 @@ describe.each(COLOR_MODES)('%s mode', (mode) => {
     }
   }
 
-  it('onPrimary on primary is readable — the text on every filled primary button', () => {
+  it('onPrimary on primary is readable — every filled button and every tooltip', () => {
     expect(contrastRatio(t.onPrimary, t.primary)).toBeGreaterThanOrEqual(AA_TEXT);
   });
+
+  // SC 1.4.11 / 2.4.7: the focus ring has to be seen on whatever the focused control sits on.
+  for (const [surfaceName, surface] of Object.entries(everySurface)) {
+    it(`the focus ring stands out on ${surfaceName}`, () => {
+      expect(contrastRatio(t.ring, surface)).toBeGreaterThanOrEqual(AA_LARGE);
+    });
+  }
 });
 
 describe('the contrast arithmetic itself', () => {
@@ -75,10 +98,15 @@ describe('a colour an administrator chose', () => {
   });
 });
 
-describe.each(COLOR_MODES)('the edge of a text field, %s mode', (mode) => {
-  // SC 1.4.11: the outline that shows where a field is needs 3:1 against the panel it sits on.
-  it('is visible on the panel', () => {
-    const t = tokensFor(mode);
-    expect(contrastRatio(t.text.secondary, t.background.panel)).toBeGreaterThanOrEqual(AA_LARGE);
+describe.each(COLOR_MODES)('the edge of a control, %s mode', (mode) => {
+  // SC 1.4.11: a text field's outline and an unchecked switch's track are the only things
+  // that show where the control is, so they need 3:1 against every ground a control sits on.
+  const t = tokensFor(mode);
+  it.each([
+    ['page', t.background.page],
+    ['panel', t.background.panel],
+    ['sidebar', t.background.sidebar],
+  ])('is visible on the %s', (_name, surface) => {
+    expect(contrastRatio(t.control, surface)).toBeGreaterThanOrEqual(AA_LARGE);
   });
 });

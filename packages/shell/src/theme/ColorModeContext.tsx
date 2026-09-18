@@ -17,9 +17,14 @@ interface ColorModeContextValue {
 
 const ColorModeContext = createContext<ColorModeContextValue | undefined>(undefined);
 
+/**
+ * The person's own choice if they have made one; otherwise whatever their system is set to,
+ * so a first visit opens in the mode the rest of their screen is already in.
+ */
 function readInitialMode(): ColorMode {
   const stored = localStorage.getItem(STORAGE_KEY);
-  return stored === 'dark' || stored === 'light' ? stored : 'dark';
+  if (stored === 'dark' || stored === 'light') return stored;
+  return globalThis.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 /**

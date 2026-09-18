@@ -1,11 +1,18 @@
 import { useMemo, useState } from 'react';
 import { useT } from '@exyconn/i18n';
-import { Box, Grid, color } from '@exyconn/shell/components/ui';
+import {
+  Box,
+  ChartCard,
+  Grid,
+  TrendChart,
+  color,
+  type ChartData,
+} from '@exyconn/shell/components/ui';
+import { panel } from '@exyconn/shell/components/glass/glass';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { StatBreakdown } from '@exyconn/shell/components/dashboard/StatBreakdown';
-import { LineChart } from '@exyconn/shell/components/dashboard/LineChart';
 import { formatMoney } from '@exyconn/shell/utils/money';
 import { useCompanyFinanceQuery } from '@exyconn/shell/graphql/generated';
 import { financePeriods, periodFor } from './finance-period';
@@ -68,6 +75,10 @@ export function FinanceOverviewPage() {
   ];
 
   const months = finance?.months ?? [];
+  const profitTrend: ChartData = {
+    labels: months.map((month) => month.label),
+    series: [{ id: 'profit', label: t('Profit'), values: months.map((m) => round(m.profit)) }],
+  };
   const spend = (finance?.byCategory ?? []).map((slice) => ({
     value: slice.label,
     count: round(slice.amount),
@@ -135,12 +146,16 @@ export function FinanceOverviewPage() {
               md: 7,
             }}
           >
-            <Box sx={{ p: 1 }}>
-              <LineChart
-                labels={months.map((month) => month.label)}
-                data={months.map((month) => round(month.profit))}
-                height={240}
-              />
+            <Box sx={[panel, { height: '100%' }]}>
+              <ChartCard
+                title={t('Profit by month')}
+                subtitle={t('What each month earned, less what it cost')}
+                data={profitTrend}
+                formatValue={formatMoney}
+                labelHeading={t('Month')}
+              >
+                <TrendChart data={profitTrend} formatValue={formatMoney} area height={240} />
+              </ChartCard>
             </Box>
           </Grid>
           <Grid

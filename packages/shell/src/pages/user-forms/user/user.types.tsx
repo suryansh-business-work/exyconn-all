@@ -36,4 +36,6 @@ export interface UserFormValues {
   timezone: string;
   /** BCP-47 tag; '' follows the workspace default. */
   locale: string;
+  /** ISO 3166-1 alpha-2; '' follows the company's country. */
+  country: string;
 }

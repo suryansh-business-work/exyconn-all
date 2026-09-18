@@ -7,4 +7,8 @@ export interface HolidayFormValues {
   date: string;
   type: HolidayType;
   description: string;
+  /** ISO 3166-1 alpha-2; '' for a holiday the whole company observes. */
+  country: string;
+  /** Countries that do not observe a company-wide holiday. */
+  excludedCountries: string[];
 }

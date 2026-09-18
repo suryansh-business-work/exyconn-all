@@ -6,6 +6,7 @@ import {
   alpha,
   useTheme,
   iconSize,
+  fontWeight,
 } from '@exyconn/shell/components/ui';
 import { useT } from '@exyconn/i18n';
 import { formatWith } from '@exyconn/shell/utils/date';
@@ -43,7 +44,7 @@ export function OverallBanner({ overview }: Readonly<OverallBannerProps>) {
           <Typography
             variant="h5"
             sx={{
-              fontWeight: 800,
+              fontWeight: fontWeight.bold,
             }}
           >
             {t(headline)}

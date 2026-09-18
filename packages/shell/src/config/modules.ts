@@ -604,13 +604,6 @@ export const MODULES: ModuleDefinition[] = [
         group: 'Hiring & onboarding',
       },
       {
-        key: 'hr-leave',
-        label: 'Leave Requests',
-        path: '/hr/leave',
-        icon: EventAvailableIcon,
-        group: 'Time & attendance',
-      },
-      {
         key: 'hr-attendance',
         label: 'Attendance',
         path: '/hr/attendance',
@@ -625,25 +618,26 @@ export const MODULES: ModuleDefinition[] = [
         group: 'Time & attendance',
       },
       {
-        key: 'hr-holidays',
-        label: 'Holidays',
-        path: '/hr/holidays',
-        icon: CelebrationIcon,
-        group: 'Time & attendance',
-      },
-      {
-        key: 'hr-leave-policies',
-        label: 'Leave Policies',
-        path: '/hr/leave-policies',
-        icon: PolicyIcon,
-        group: 'Time & attendance',
+        key: 'hr-leave',
+        label: 'Leave Requests',
+        path: '/hr/leave',
+        icon: EventAvailableIcon,
+        group: 'Leave',
       },
       {
         key: 'hr-leave-balances',
         label: 'Leave Balances',
         path: '/hr/leave-balances',
         icon: EventAvailableIcon,
-        group: 'Time & attendance',
+        group: 'Leave',
+      },
+      {
+        // Leave types and holidays, each global with per-country overrides.
+        key: 'hr-leave-settings',
+        label: 'Leave Settings',
+        path: '/hr/leave-settings',
+        icon: PolicyIcon,
+        group: 'Leave',
       },
       {
         key: 'hr-salaries',

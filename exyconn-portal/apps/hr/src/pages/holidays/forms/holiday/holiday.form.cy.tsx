@@ -26,6 +26,15 @@ describe('HolidayForm', () => {
     cy.contains('Date is required').should('be.visible');
   });
 
+  it('offers opt-outs only on a company-wide holiday', () => {
+    mount();
+    cy.contains('Countries whose employees work on this day.').should('exist');
+    cy.get('input[name="country"]').clear();
+    cy.get('input[name="country"]').type('India');
+    cy.contains('[role="option"]', /^India$/).click();
+    cy.contains('Countries whose employees work on this day.').should('not.exist');
+  });
+
   it('calls onCancel', () => {
     mount();
     cy.contains('button', 'Cancel').click();

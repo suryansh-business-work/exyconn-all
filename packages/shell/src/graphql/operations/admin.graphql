@@ -24,6 +24,7 @@ fragment UserFields on User {
   workHoursPerDay
   timezone
   locale
+  country
 }
 
 query ListUsers {

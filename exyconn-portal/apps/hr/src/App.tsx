@@ -1,4 +1,4 @@
-import { Route } from 'react-router-dom';
+import { Navigate, Route } from 'react-router-dom';
 import { PortalApp } from '@exyconn/shell';
 import { ROLES } from '@exyconn/shell/auth/roles';
 import { Login } from '@exyconn/login';
@@ -29,8 +29,7 @@ import { GradesPage } from './pages/grades';
 import { EmploymentTypesPage } from './pages/employment-types';
 import { ShiftsPage } from './pages/shifts';
 import { ExitsPage } from './pages/exits';
-import { HolidaysPage } from './pages/holidays';
-import { LeavePoliciesPage } from './pages/leave-policies';
+import { LeaveSettingsPage, LEAVE_SETTINGS_PATH } from './pages/leave-settings';
 import { LeaveBalancesPage } from './pages/leave-balances';
 import { RequestsPage } from './pages/requests';
 import { GoalsPage } from './pages/goals';
@@ -69,8 +68,16 @@ export function App() {
       <Route path="/hr/employment-types" element={<EmploymentTypesPage />} />
       <Route path="/hr/shifts" element={<ShiftsPage />} />
       <Route path="/hr/exits" element={<ExitsPage />} />
-      <Route path="/hr/holidays" element={<HolidaysPage />} />
-      <Route path="/hr/leave-policies" element={<LeavePoliciesPage />} />
+      <Route path="/hr/leave-settings/:tab?" element={<LeaveSettingsPage />} />
+      {/* Both moved under Leave Settings; old links and bookmarks still land there. */}
+      <Route
+        path="/hr/holidays"
+        element={<Navigate to={`${LEAVE_SETTINGS_PATH}/holidays`} replace />}
+      />
+      <Route
+        path="/hr/leave-policies"
+        element={<Navigate to={`${LEAVE_SETTINGS_PATH}/leave-types`} replace />}
+      />
       <Route path="/hr/leave-balances" element={<LeaveBalancesPage />} />
       <Route path="/hr/requests" element={<RequestsPage />} />
       <Route path="/hr/goals" element={<GoalsPage />} />

@@ -1,12 +1,12 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
 
-export const LEAVE_TYPES = ['CASUAL', 'SICK', 'EARNED', 'UNPAID'] as const;
 export const LEAVE_STATUSES = ['PENDING', 'APPROVED', 'REJECTED'] as const;
 
 const leaveRequestSchema = new Schema(
   {
     employeeId: { type: String, required: true, trim: true },
-    type: { type: String, enum: LEAVE_TYPES, required: true, default: 'CASUAL' },
+    /** The code of one of HR's leave types (LeavePolicy.code). */
+    type: { type: String, required: true, trim: true, uppercase: true },
     fromDate: { type: Date, required: true },
     toDate: { type: Date, required: true },
     reason: { type: String, required: true, trim: true },

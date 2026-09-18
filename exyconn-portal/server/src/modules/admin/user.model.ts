@@ -81,6 +81,12 @@ const userSchema = new Schema(
      */
     timezone: { type: String, default: null },
     locale: { type: String, default: null },
+    /**
+     * ISO 3166-1 alpha-2 country the person is employed in — which leave quotas and holidays
+     * apply to them. Null follows the company's country. Set by HR only: it decides
+     * entitlements, so it is not something a person edits on their own profile.
+     */
+    country: { type: String, default: null },
     // Working arrangement — read by the tracker to measure a day, and by the employee
     // portal to show people their own terms. Defaults apply to accounts that predate them.
     workingTime: { type: String, enum: WORKING_TIMES, default: 'FLEXIBLE' },

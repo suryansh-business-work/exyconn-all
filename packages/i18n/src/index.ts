@@ -8,7 +8,14 @@
  */
 export { I18nProvider, useI18n, useT, type I18nValue } from './I18nProvider';
 export { useFormatters } from './useFormatters';
-export { countryOptions, currencyOptions, normalizeCurrency, type IsoOption } from './iso';
+export {
+  countryName,
+  countryOptions,
+  currencyOptions,
+  isValidCountry,
+  normalizeCurrency,
+  type IsoOption,
+} from './iso';
 export { activeFormatSettings, setActiveFormatSettings } from './active-settings';
 export {
   interpolate,

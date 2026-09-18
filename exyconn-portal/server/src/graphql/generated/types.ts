@@ -468,7 +468,7 @@ export type ApplyLeaveInput = {
   fromDate: Scalars['DateTime']['input'];
   reason: Scalars['String']['input'];
   toDate: Scalars['DateTime']['input'];
-  type: LeaveType;
+  type: Scalars['String']['input'];
 };
 
 export enum ApprovalDecision {
@@ -1626,6 +1626,8 @@ export type CreateUserInput = {
   address?: InputMaybe<Scalars['String']['input']>;
   avatarUrl?: InputMaybe<Scalars['String']['input']>;
   brief?: InputMaybe<Scalars['String']['input']>;
+  /** ISO 3166-1 alpha-2, or null to follow the company's country. */
+  country?: InputMaybe<Scalars['String']['input']>;
   dateOfBirth?: InputMaybe<Scalars['DateTime']['input']>;
   department?: InputMaybe<Scalars['String']['input']>;
   designation?: InputMaybe<Scalars['String']['input']>;
@@ -2597,16 +2599,24 @@ export type HeldAsset = {
 
 export type Holiday = {
   __typename?: 'Holiday';
+  /** ISO 3166-1 alpha-2 country it is observed in, or empty for the whole company. */
+  country: Scalars['String']['output'];
   date: Scalars['DateTime']['output'];
   description?: Maybe<Scalars['String']['output']>;
+  /** Countries that do not observe this company-wide holiday. */
+  excludedCountries: Array<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   type: HolidayType;
 };
 
 export type HolidayInput = {
+  /** ISO 3166-1 alpha-2, or empty for a holiday the whole company observes. */
+  country: Scalars['String']['input'];
   date: Scalars['DateTime']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
+  /** Countries that do not observe a company-wide holiday. Ignored on a country holiday. */
+  excludedCountries: Array<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   type: HolidayType;
 };
@@ -3105,6 +3115,8 @@ export type LeavePolicy = {
   halfDayAllowed: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
+  /** Per-country terms; a country with no row gets the global ones. */
+  overrides: Array<LeavePolicyOverride>;
   paid: Scalars['Boolean']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
@@ -3116,7 +3128,25 @@ export type LeavePolicyInput = {
   code: Scalars['String']['input'];
   halfDayAllowed: Scalars['Boolean']['input'];
   name: Scalars['String']['input'];
+  overrides: Array<LeavePolicyOverrideInput>;
   paid: Scalars['Boolean']['input'];
+};
+
+/** One country's own terms for a leave type, replacing the global ones there. */
+export type LeavePolicyOverride = {
+  __typename?: 'LeavePolicyOverride';
+  /** Offered in this country — true even when the global type is off (a local-only type). */
+  active: Scalars['Boolean']['output'];
+  annualQuota: Scalars['Int']['output'];
+  carryForwardCap: Scalars['Int']['output'];
+  country: Scalars['String']['output'];
+};
+
+export type LeavePolicyOverrideInput = {
+  active: Scalars['Boolean']['input'];
+  annualQuota: Scalars['Int']['input'];
+  carryForwardCap: Scalars['Int']['input'];
+  country: Scalars['String']['input'];
 };
 
 export type LeavePolicyPage = {
@@ -3134,7 +3164,8 @@ export type LeaveRequest = {
   reason: Scalars['String']['output'];
   status: LeaveStatus;
   toDate: Scalars['DateTime']['output'];
-  type: LeaveType;
+  /** The code of one of HR's leave types (LeavePolicy.code), e.g. CL. */
+  type: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
 
@@ -3144,20 +3175,13 @@ export type LeaveRequestInput = {
   reason: Scalars['String']['input'];
   status: LeaveStatus;
   toDate: Scalars['DateTime']['input'];
-  type: LeaveType;
+  type: Scalars['String']['input'];
 };
 
 export enum LeaveStatus {
   Approved = 'APPROVED',
   Pending = 'PENDING',
   Rejected = 'REJECTED'
-}
-
-export enum LeaveType {
-  Casual = 'CASUAL',
-  Earned = 'EARNED',
-  Sick = 'SICK',
-  Unpaid = 'UNPAID'
 }
 
 export type LegalDocument = {
@@ -7527,7 +7551,10 @@ export type Query = {
    * then newest. Readable by any signed-in user, unlike the HR CRUD above.
    */
   activeAnnouncements: Array<Announcement>;
-  /** Leave types an employee can pick from when applying. */
+  /**
+   * Leave types the signed-in employee can pick from when applying, with quota and
+   * carry-forward already resolved for their country.
+   */
   activeLeavePolicies: Array<LeavePolicy>;
   /** Read live from OpenAI with the active key, so the list is what the account can reach. */
   aiModels: AiModelOptions;
@@ -7801,7 +7828,7 @@ export type Query = {
   listGrades: Array<Grade>;
   listGradesPaged: GradePage;
   listGradesStats: TableStats;
-  /** Company-wide holidays, readable by any authenticated employee. */
+  /** Every holiday in every country, readable by any authenticated employee. */
   listHolidays: Array<Holiday>;
   listHolidaysPaged: HolidayPage;
   listHolidaysStats: TableStats;
@@ -7983,7 +8010,12 @@ export type Query = {
   myExitRecord?: Maybe<ExitRecord>;
   myExpenseClaims: Array<ExpenseClaim>;
   myGoals: Array<Goal>;
-  /** This employee's own balances for the current year. */
+  /** The holidays the signed-in employee observes: company-wide ones plus their country's. */
+  myHolidays: Array<Holiday>;
+  /**
+   * This employee's own balances. The current year's are created on first read from the
+   * quota of every leave type offered in their country.
+   */
   myLeaveBalances: Array<LeaveBalance>;
   /** Self-service: the signed-in user's own leave requests. */
   myLeaveRequests: Array<LeaveRequest>;
@@ -11545,6 +11577,8 @@ export type UpdateUserInput = {
   address?: InputMaybe<Scalars['String']['input']>;
   avatarUrl?: InputMaybe<Scalars['String']['input']>;
   brief?: InputMaybe<Scalars['String']['input']>;
+  /** ISO 3166-1 alpha-2, or null to follow the company's country. */
+  country?: InputMaybe<Scalars['String']['input']>;
   dateOfBirth?: InputMaybe<Scalars['DateTime']['input']>;
   department?: InputMaybe<Scalars['String']['input']>;
   designation?: InputMaybe<Scalars['String']['input']>;
@@ -11575,6 +11609,11 @@ export type User = {
   blockReason?: Maybe<Scalars['String']['output']>;
   /** A few lines about the person, shown on their profile across the portals. */
   brief?: Maybe<Scalars['String']['output']>;
+  /**
+   * ISO 3166-1 alpha-2 country the person is employed in, which decides their leave quotas
+   * and holidays. Null follows the company's country. Set by HR only.
+   */
+  country?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   dateOfBirth?: Maybe<Scalars['DateTime']['output']>;
   department?: Maybe<Scalars['String']['output']>;
@@ -12081,11 +12120,12 @@ export type ResolversTypes = ResolversObject<{
   LeaveBalancePage: ResolverTypeWrapper<LeaveBalancePage>;
   LeavePolicy: ResolverTypeWrapper<LeavePolicy>;
   LeavePolicyInput: LeavePolicyInput;
+  LeavePolicyOverride: ResolverTypeWrapper<LeavePolicyOverride>;
+  LeavePolicyOverrideInput: LeavePolicyOverrideInput;
   LeavePolicyPage: ResolverTypeWrapper<LeavePolicyPage>;
   LeaveRequest: ResolverTypeWrapper<LeaveRequest>;
   LeaveRequestInput: LeaveRequestInput;
   LeaveStatus: LeaveStatus;
-  LeaveType: LeaveType;
   LegalDocument: ResolverTypeWrapper<LegalDocument>;
   LegalDocumentInput: LegalDocumentInput;
   LegalDocumentPage: ResolverTypeWrapper<LegalDocumentPage>;
@@ -12636,6 +12676,8 @@ export type ResolversParentTypes = ResolversObject<{
   LeaveBalancePage: LeaveBalancePage;
   LeavePolicy: LeavePolicy;
   LeavePolicyInput: LeavePolicyInput;
+  LeavePolicyOverride: LeavePolicyOverride;
+  LeavePolicyOverrideInput: LeavePolicyOverrideInput;
   LeavePolicyPage: LeavePolicyPage;
   LeaveRequest: LeaveRequest;
   LeaveRequestInput: LeaveRequestInput;
@@ -14343,8 +14385,10 @@ export type HeldAssetResolvers<ContextType = GraphQLContext, ParentType extends 
 }>;
 
 export type HolidayResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Holiday'] = ResolversParentTypes['Holiday']> = ResolversObject<{
+  country?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   date?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  excludedCountries?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['HolidayType'], ParentType, ContextType>;
@@ -14624,8 +14668,17 @@ export type LeavePolicyResolvers<ContextType = GraphQLContext, ParentType extend
   halfDayAllowed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  overrides?: Resolver<Array<ResolversTypes['LeavePolicyOverride']>, ParentType, ContextType>;
   paid?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type LeavePolicyOverrideResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LeavePolicyOverride'] = ResolversParentTypes['LeavePolicyOverride']> = ResolversObject<{
+  active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  annualQuota?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  carryForwardCap?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  country?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -14643,7 +14696,7 @@ export type LeaveRequestResolvers<ContextType = GraphQLContext, ParentType exten
   reason?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['LeaveStatus'], ParentType, ContextType>;
   toDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
-  type?: Resolver<ResolversTypes['LeaveType'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -16214,6 +16267,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   myExitRecord?: Resolver<Maybe<ResolversTypes['ExitRecord']>, ParentType, ContextType>;
   myExpenseClaims?: Resolver<Array<ResolversTypes['ExpenseClaim']>, ParentType, ContextType>;
   myGoals?: Resolver<Array<ResolversTypes['Goal']>, ParentType, ContextType>;
+  myHolidays?: Resolver<Array<ResolversTypes['Holiday']>, ParentType, ContextType>;
   myLeaveBalances?: Resolver<Array<ResolversTypes['LeaveBalance']>, ParentType, ContextType>;
   myLeaveRequests?: Resolver<Array<ResolversTypes['LeaveRequest']>, ParentType, ContextType>;
   myManager?: Resolver<Maybe<ResolversTypes['EmployeeOption']>, ParentType, ContextType>;
@@ -17471,6 +17525,7 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   avatarUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   blockReason?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   brief?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  country?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   dateOfBirth?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   department?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -17726,6 +17781,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   LeaveBalance?: LeaveBalanceResolvers<ContextType>;
   LeaveBalancePage?: LeaveBalancePageResolvers<ContextType>;
   LeavePolicy?: LeavePolicyResolvers<ContextType>;
+  LeavePolicyOverride?: LeavePolicyOverrideResolvers<ContextType>;
   LeavePolicyPage?: LeavePolicyPageResolvers<ContextType>;
   LeaveRequest?: LeaveRequestResolvers<ContextType>;
   LegalDocument?: LegalDocumentResolvers<ContextType>;

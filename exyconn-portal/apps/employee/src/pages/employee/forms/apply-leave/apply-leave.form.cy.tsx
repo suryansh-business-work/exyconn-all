@@ -19,6 +19,7 @@ describe('ApplyLeaveForm', () => {
   it('requires dates and a reason', () => {
     mount();
     cy.contains('button', 'Apply').click();
+    cy.contains('Choose a leave type').should('be.visible');
     cy.contains('From date is required').should('be.visible');
     cy.contains('Reason is required').should('be.visible');
   });

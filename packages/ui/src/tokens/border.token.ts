@@ -21,12 +21,12 @@ export type Radius = keyof typeof radius;
 
 /**
  * The portals' control corner, in px — the theme's `shape.borderRadius`: inputs, buttons, list
- * rows, alerts. The 2026-09 redesign followed the trackers' soft look a step less round.
+ * rows, alerts, menus. shadcn/ui's `rounded-md`.
  */
-export const BASE_RADIUS = 10;
+export const BASE_RADIUS = radius.md;
 
-/** The portals' card corner: cards, panels, dialogs and grids — the trackers' 24, a step down. */
-export const CARD_RADIUS = radius.lg;
+/** The portals' card corner: cards, panels, dialogs and grids. shadcn/ui's `rounded-xl`. */
+export const CARD_RADIUS = 12;
 
 /**
  * The trackers' (desktop and phone) control corner — inputs, tiles, calendar days. The 2026-09

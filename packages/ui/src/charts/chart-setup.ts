@@ -32,4 +32,13 @@ Chart.register(
   Legend,
 );
 
+/**
+ * Chart.js animates every draw and knows nothing of the system's "reduce motion" setting, so
+ * it is asked once here: for somebody who has turned motion off, charts simply appear.
+ */
+const REDUCED_MOTION = '(prefers-reduced-motion: reduce)';
+if (globalThis.matchMedia?.(REDUCED_MOTION).matches) {
+  Chart.defaults.animation = false;
+}
+
 export { Chart };

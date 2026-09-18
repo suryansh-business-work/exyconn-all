@@ -10,6 +10,7 @@ import {
   Typography,
   fontSize,
   iconSize,
+  fontWeight,
 } from '@exyconn/shell/components/ui';
 
 interface ReportReceiptProps {
@@ -28,7 +29,7 @@ export function ReportReceipt({ reference, onAnother }: Readonly<ReportReceiptPr
       <Typography
         variant="h5"
         sx={{
-          fontWeight: 800,
+          fontWeight: fontWeight.bold,
           mt: 1,
         }}
       >

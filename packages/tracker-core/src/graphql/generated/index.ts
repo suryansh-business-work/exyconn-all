@@ -187,7 +187,7 @@ export type ApplyLeaveInput = {
   fromDate: Scalars['DateTime']['input'];
   reason: Scalars['String']['input'];
   toDate: Scalars['DateTime']['input'];
-  type: LeaveType;
+  type: Scalars['String']['input'];
 };
 
 export type ApprovalDecision =
@@ -585,6 +585,8 @@ export type CreateUserInput = {
   address: InputMaybe<Scalars['String']['input']>;
   avatarUrl: InputMaybe<Scalars['String']['input']>;
   brief: InputMaybe<Scalars['String']['input']>;
+  /** ISO 3166-1 alpha-2, or null to follow the company's country. */
+  country: InputMaybe<Scalars['String']['input']>;
   dateOfBirth: InputMaybe<Scalars['DateTime']['input']>;
   department: InputMaybe<Scalars['String']['input']>;
   designation: InputMaybe<Scalars['String']['input']>;
@@ -914,8 +916,12 @@ export type GradeInput = {
 };
 
 export type HolidayInput = {
+  /** ISO 3166-1 alpha-2, or empty for a holiday the whole company observes. */
+  country: Scalars['String']['input'];
   date: Scalars['DateTime']['input'];
   description: InputMaybe<Scalars['String']['input']>;
+  /** Countries that do not observe a company-wide holiday. Ignored on a country holiday. */
+  excludedCountries: Array<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   type: HolidayType;
 };
@@ -1103,7 +1109,15 @@ export type LeavePolicyInput = {
   code: Scalars['String']['input'];
   halfDayAllowed: Scalars['Boolean']['input'];
   name: Scalars['String']['input'];
+  overrides: Array<LeavePolicyOverrideInput>;
   paid: Scalars['Boolean']['input'];
+};
+
+export type LeavePolicyOverrideInput = {
+  active: Scalars['Boolean']['input'];
+  annualQuota: Scalars['Int']['input'];
+  carryForwardCap: Scalars['Int']['input'];
+  country: Scalars['String']['input'];
 };
 
 export type LeaveRequestInput = {
@@ -1112,19 +1126,13 @@ export type LeaveRequestInput = {
   reason: Scalars['String']['input'];
   status: LeaveStatus;
   toDate: Scalars['DateTime']['input'];
-  type: LeaveType;
+  type: Scalars['String']['input'];
 };
 
 export type LeaveStatus =
   | 'APPROVED'
   | 'PENDING'
   | 'REJECTED';
-
-export type LeaveType =
-  | 'CASUAL'
-  | 'EARNED'
-  | 'SICK'
-  | 'UNPAID';
 
 export type LegalDocumentInput = {
   category: DocumentCategory;
@@ -2314,6 +2322,8 @@ export type UpdateUserInput = {
   address: InputMaybe<Scalars['String']['input']>;
   avatarUrl: InputMaybe<Scalars['String']['input']>;
   brief: InputMaybe<Scalars['String']['input']>;
+  /** ISO 3166-1 alpha-2, or null to follow the company's country. */
+  country: InputMaybe<Scalars['String']['input']>;
   dateOfBirth: InputMaybe<Scalars['DateTime']['input']>;
   department: InputMaybe<Scalars['String']['input']>;
   designation: InputMaybe<Scalars['String']['input']>;

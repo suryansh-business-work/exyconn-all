@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useT } from '@exyconn/i18n';
-import { Alert, Box, Card, Flex, Typography } from '@exyconn/shell/components/ui';
+import { Alert, Box, Card, Flex, Typography, fontWeight } from '@exyconn/shell/components/ui';
 import type { SelectOption } from '@exyconn/shell/components/form/rhf';
 import { useStatusOverviewQuery } from '@exyconn/shell/graphql/generated';
 import { ReportProblemForm } from './forms/report-problem';
@@ -34,7 +34,7 @@ export function ReportPage() {
         <Typography
           variant="h5"
           sx={{
-            fontWeight: 800,
+            fontWeight: fontWeight.bold,
           }}
         >
           {t('Report a problem')}

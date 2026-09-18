@@ -3,9 +3,8 @@ import { useT, type Interpolations } from '@exyconn/i18n';
 import { Box, Chip, Grid, Stack, Typography } from '@/components/ui';
 import { PageHeader } from '../layout/PageHeader';
 import { StatCard, type StatItem } from './StatCard';
-import { Sparkline } from '../data/Sparkline';
 import { densePanel, panel } from '../glass/glass';
-import { color } from '@exyconn/ui';
+import { color, Sparkline } from '@exyconn/ui';
 
 interface ModuleDashboardProps {
   title: string;
@@ -81,7 +80,7 @@ export function ModuleDashboard({
             </Typography>
             <Chip label={t('Last 16 periods')} size="small" variant="outlined" />
           </Stack>
-          <Sparkline data={chartSeries} color={chartColor} height={96} />
+          <Sparkline values={chartSeries} color={chartColor} height={96} />
         </Box>
       )}
 

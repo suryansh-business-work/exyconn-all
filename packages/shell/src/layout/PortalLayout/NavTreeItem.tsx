@@ -20,7 +20,7 @@ const rowSx = (depth: number) => ({ borderRadius: 1, mb: 0.5, py: 0.5, pl: 1.5 +
  * One page in the sidebar.
  *
  * The icon is muted until the row is the current page, which the theme then fills with the
- * inverted selection ink — the icon takes that ink too. Thirty-three rows each wearing the
+ * muted surface and the foreground ink — the icon takes that ink too. Thirty-three rows each wearing the
  * module's colour is thirty-three things competing to be looked at, and the one that matters —
  * where you are — stops standing out at all.
  */
@@ -36,7 +36,7 @@ function NavLeaf({ node, depth, nav, onSelect }: Readonly<Props>) {
       onClick={() => onSelect(node)}
       sx={rowSx(depth)}
     >
-      <ListItemIcon sx={{ minWidth: 32, color: selected ? 'inherit' : 'text.disabled' }}>
+      <ListItemIcon sx={{ minWidth: 32, color: selected ? 'inherit' : 'text.secondary' }}>
         <Icon fontSize="small" />
       </ListItemIcon>
       <ListItemText
@@ -68,7 +68,7 @@ function NavBranch({ node, depth, nav, onSelect }: Readonly<Props>) {
         aria-controls={listId}
         sx={rowSx(depth)}
       >
-        <ListItemIcon sx={{ minWidth: 32, color: onTrail ? node.accent : 'text.secondary' }}>
+        <ListItemIcon sx={{ minWidth: 32, color: onTrail ? 'text.primary' : 'text.secondary' }}>
           <Icon fontSize="small" />
         </ListItemIcon>
         <ListItemText

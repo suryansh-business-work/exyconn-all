@@ -9,7 +9,7 @@ import { formatMoney } from '@exyconn/shell/utils/money';
 import {
   useMyAttendanceQuery,
   useMyLeaveRequestsQuery,
-  useListHolidaysQuery,
+  useMyHolidaysQuery,
   useMySalarySlipsQuery,
   useMyPayrollQuery,
   useMySupportTicketsQuery,
@@ -45,7 +45,7 @@ export function DashboardPage() {
 
   const attendance = useMyAttendanceQuery(policy);
   const leave = useMyLeaveRequestsQuery(policy);
-  const holidays = useListHolidaysQuery(policy);
+  const holidays = useMyHolidaysQuery(policy);
   const slips = useMySalarySlipsQuery(policy);
   const payroll = useMyPayrollQuery(policy);
   const tickets = useMySupportTicketsQuery(policy);
@@ -119,7 +119,7 @@ export function DashboardPage() {
   }, [attendance.data, leave.data, slips.data, payroll.data, tickets.data, balances.data, t]);
 
   const nextHolidays = useMemo(
-    () => upcomingHolidays((holidays.data?.listHolidays ?? []) as HolidayRecord[], new Date()),
+    () => upcomingHolidays((holidays.data?.myHolidays ?? []) as HolidayRecord[], new Date()),
     [holidays.data],
   );
 

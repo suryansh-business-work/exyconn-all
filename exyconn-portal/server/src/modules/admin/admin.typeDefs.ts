@@ -90,6 +90,11 @@ export const adminTypeDefs = gql`
     """
     timezone: String
     locale: String
+    """
+    ISO 3166-1 alpha-2 country the person is employed in, which decides their leave quotas
+    and holidays. Null follows the company's country. Set by HR only.
+    """
+    country: String
     "Nullable because accounts created before the working arrangement existed have none."
     workingTime: WorkingTime
     workingTimeNote: String
@@ -180,6 +185,8 @@ export const adminTypeDefs = gql`
     timezone: String
     "BCP-47 tag, or null to follow the workspace default."
     locale: String
+    "ISO 3166-1 alpha-2, or null to follow the company's country."
+    country: String
   }
 
   input UpdateUserInput {
@@ -207,6 +214,8 @@ export const adminTypeDefs = gql`
     timezone: String
     "BCP-47 tag, or null to follow the workspace default."
     locale: String
+    "ISO 3166-1 alpha-2, or null to follow the company's country."
+    country: String
   }
 
   input UpdateSettingsInput {

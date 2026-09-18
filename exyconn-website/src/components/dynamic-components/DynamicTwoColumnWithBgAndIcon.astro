@@ -24,6 +24,10 @@ const {
     },
   ],
 } = Astro.props;
+
+/* Only the style and glyph classes are kept: size and colour belong to the tile. */
+const iconName = (icon: string | null | undefined): string =>
+  (icon ?? "").split(" ").slice(0, 2).join(" ");
 ---
 
 <section class="py-20 lg:py-28 bg-gradient-to-b from-surface-subtle to-surface">
@@ -34,24 +38,25 @@ const {
         {title}
       </h2>
 
-      <!-- Items Grid -->
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Items: wrapped and centred so an odd last row sits in the middle -->
+      <ul class="flex flex-wrap justify-center gap-5">
         {
-          items.map((item: { icon: string | null | undefined; text: unknown }, _idx: number) => (
-            <div class="flex items-start gap-4 p-5 bg-surface-subtle rounded-2xl hover:bg-blue-subtle hover:border-blue-soft border border-line-subtle transition-all duration-300">
-              <div class="w-10 h-10 bg-gradient-to-br from-blue to-purple-strong rounded-xl flex items-center justify-center shrink-0">
-                <i
-                  class={`${item.icon?.toString().split(" ")[0]} ${item.icon?.toString().split(" ")[1] || ""} text-on-solid text-sm`}
-                />
+          items.map((item: { icon: string | null | undefined; text: unknown }) => (
+            <li class="group flex items-center gap-4 p-5 w-full sm:w-[calc(50%-0.625rem)] lg:w-[calc(33.333%-0.834rem)] bg-surface-subtle rounded-2xl border border-line-subtle hover:border-blue-soft hover:bg-blue-subtle hover:-translate-y-0.5 transition-all duration-300">
+              <div
+                class="w-12 h-12 bg-gradient-to-br from-blue to-purple-strong rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-blue/25 group-hover:scale-105 transition-transform duration-300"
+                aria-hidden="true"
+              >
+                <i class={`${iconName(item.icon)} text-on-solid text-lg`} />
               </div>
               <p
                 class="text-fg-secondary leading-relaxed text-sm font-medium"
                 set:html={item.text}
               />
-            </div>
+            </li>
           ))
         }
-      </div>
+      </ul>
     </div>
   </div>
 </section>

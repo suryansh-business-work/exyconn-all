@@ -11,7 +11,7 @@ import type {} from '@mui/x-date-pickers/themeAugmentation';
 export { styled, alpha, useTheme, ThemeProvider, createTheme } from '@mui/material/styles';
 export { default as CssBaseline } from '@mui/material/CssBaseline';
 export { default as GlobalStyles } from '@mui/material/GlobalStyles';
-export type { Theme, SxProps, CSSObject } from '@mui/material/styles';
+export type { Theme, SxProps, CSSObject, Components, Shadows } from '@mui/material/styles';
 export type { SystemStyleObject } from '@mui/system';
 /**
  * CSS keyframes for a `styled`/`sx` animation. Comes from `@mui/system` rather than

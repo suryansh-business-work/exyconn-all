@@ -1,13 +1,20 @@
+import { Types } from 'mongoose';
 import { LeavePolicyModel } from '../../src/modules/hrmaster/leavePolicy.model';
 import { LeaveBalanceModel } from '../../src/modules/hrmaster/leaveBalance.model';
 import { hrMasterResolvers } from '../../src/modules/hrmaster';
 import { resolvers } from '../../src/graphql';
 import { ROLES } from '../../src/constants/roles';
 import type { GraphQLContext } from '../../src/middleware/auth';
+import { useTestOrganization } from '../helpers';
+
+// Leave types and balances are resolved against the company's country.
+useTestOrganization({ country: 'IN' });
+
+const EMP = String(new Types.ObjectId());
 
 type Resolver = (p: unknown, a: unknown, c: GraphQLContext) => Promise<unknown>;
 const ctx = (roles: string[]) =>
-  ({ user: { id: 'emp-1', email: 'e@exyconn.com', roles } }) as unknown as GraphQLContext;
+  ({ user: { id: EMP, email: 'e@exyconn.com', roles } }) as unknown as GraphQLContext;
 
 const Q = hrMasterResolvers.Query as unknown as Record<string, Resolver>;
 
@@ -44,7 +51,7 @@ describe('activeLeavePolicies', () => {
 describe('leave balance access', () => {
   it('gives an employee only their own balances', async () => {
     await LeaveBalanceModel.create({
-      employeeId: 'emp-1',
+      employeeId: EMP,
       leaveTypeCode: 'CL',
       year: 2026,
       allocated: 12,
@@ -60,7 +67,7 @@ describe('leave balance access', () => {
       employeeId: string;
     }[];
     expect(rows).toHaveLength(1);
-    expect(rows[0].employeeId).toBe('emp-1');
+    expect(rows[0].employeeId).toBe(EMP);
   });
 
   it('keeps the HR-wide balance list away from a plain employee', async () => {

@@ -26,6 +26,32 @@ describe('LeavePolicyForm', () => {
     cy.contains('Code is required').should('be.visible');
   });
 
+  it('asks for the country on an override row', () => {
+    mount();
+    cy.contains('button', 'Add country override').click();
+    cy.contains('button', 'Create').click();
+    cy.contains('Choose a country').should('be.visible');
+  });
+
+  it('flags a country overridden twice', () => {
+    mount();
+    cy.contains('button', 'Add country override').click();
+    cy.contains('button', 'Add country override').click();
+    cy.get('input[name="overrides.0.country"]').type('India');
+    cy.contains('[role="option"]', /^India$/).click();
+    cy.get('input[name="overrides.1.country"]').type('India');
+    cy.contains('[role="option"]', /^India$/).click();
+    cy.contains('button', 'Create').click();
+    cy.contains('This country already has an override').should('be.visible');
+  });
+
+  it('removes an override row', () => {
+    mount();
+    cy.contains('button', 'Add country override').click();
+    cy.get('[aria-label="Remove override 1"]').click();
+    cy.get('input[name="overrides.0.country"]').should('not.exist');
+  });
+
   it('calls onCancel', () => {
     mount();
     cy.contains('button', 'Cancel').click();

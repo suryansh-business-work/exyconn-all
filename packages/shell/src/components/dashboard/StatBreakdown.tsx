@@ -1,7 +1,7 @@
-import { Box, Stack, Typography } from '@/components/ui';
+import { useMemo } from 'react';
+import { BarChart, Box, ChartCard, spacing, type ChartData } from '@/components/ui';
 import { useT, type Interpolations } from '@exyconn/i18n';
 import { panel } from '../glass/glass';
-import { color } from '@exyconn/ui';
 
 export interface BreakdownBucket {
   value: string;
@@ -13,10 +13,16 @@ interface StatBreakdownProps {
   /** Values for a {placeholder} in the title, e.g. "Email by template, {days}d". */
   titleValues?: Interpolations;
   buckets: BreakdownBucket[];
-  /** Bar colour. Defaults to the dashboard accent. */
+  /** Bar colour. Defaults to the chart palette's first slot. */
   accent?: string;
   emptyMessage?: string;
+  /** Heading of the label column in the table view. */
+  labelHeading?: string;
 }
+
+/** One bar's worth of height, and the least a chart with only a bar or two is given. */
+const ROW_HEIGHT = spacing(4);
+const MIN_HEIGHT = spacing(20);
 
 /** SCREAMING_SNAKE enum values read badly in a UI; show them as words. */
 function humanise(value: string): string {
@@ -24,77 +30,55 @@ function humanise(value: string): string {
   return spaced.charAt(0).toUpperCase() + spaced.slice(1);
 }
 
+/** A count, as a whole number in the reader's own digit grouping. */
+const formatCount = (value: number): string => Math.round(value).toLocaleString();
+
 /**
- * How a module's rows are distributed across one field — the thing a register of
- * rows cannot show at a glance. Bars are scaled to the largest bucket rather than
- * the total, so a long tail stays readable next to a dominant one.
+ * How a module's rows are distributed across one field — the thing a register of rows cannot
+ * show at a glance. A horizontal Chart.js bar chart, largest first, so the long names get room
+ * to be read; the card's table view gives the exact counts without hovering.
  */
 export function StatBreakdown({
   title,
   titleValues,
   buckets,
-  accent = color.blue[400],
+  accent,
   emptyMessage = 'Nothing to show yet.',
+  labelHeading = 'Category',
 }: Readonly<StatBreakdownProps>) {
   const t = useT();
-  const ordered = [...buckets].sort((a, b) => b.count - a.count);
-  const largest = ordered[0]?.count ?? 0;
+  const data = useMemo<ChartData>(() => {
+    const ordered = [...buckets].sort((a, b) => b.count - a.count);
+    return {
+      labels: ordered.map((bucket) => humanise(bucket.value)),
+      series: [
+        {
+          id: 'count',
+          label: t('Count'),
+          values: ordered.map((bucket) => bucket.count),
+          color: accent,
+        },
+      ],
+    };
+  }, [buckets, accent, t]);
 
   return (
     <Box sx={[panel, { height: '100%' }]}>
-      <Typography variant="subtitle2" sx={{ mb: 1.5 }}>
-        {t(title, titleValues)}
-      </Typography>
-      {ordered.length === 0 && (
-        <Typography
-          variant="caption"
-          sx={{
-            color: 'text.secondary',
-          }}
-        >
-          {t(emptyMessage)}
-        </Typography>
-      )}
-      <Stack spacing={1.5}>
-        {ordered.map((bucket) => (
-          <Box key={bucket.value}>
-            <Stack
-              direction="row"
-              sx={{
-                justifyContent: 'space-between',
-                mb: 0.5,
-              }}
-            >
-              <Typography
-                variant="caption"
-                sx={{
-                  color: 'text.secondary',
-                }}
-              >
-                {humanise(bucket.value)}
-              </Typography>
-              <Typography
-                variant="caption"
-                sx={{
-                  fontWeight: 700,
-                }}
-              >
-                {bucket.count}
-              </Typography>
-            </Stack>
-            <Box sx={{ height: 6, borderRadius: 3, bgcolor: 'action.hover', overflow: 'hidden' }}>
-              <Box
-                sx={{
-                  height: '100%',
-                  borderRadius: 3,
-                  bgcolor: accent,
-                  width: largest ? `${Math.max((bucket.count / largest) * 100, 2)}%` : '0%',
-                }}
-              />
-            </Box>
-          </Box>
-        ))}
-      </Stack>
+      <ChartCard
+        title={t(title, titleValues)}
+        data={data}
+        formatValue={formatCount}
+        labelHeading={t(labelHeading)}
+        emptyText={t(emptyMessage)}
+      >
+        <BarChart
+          data={data}
+          formatValue={formatCount}
+          horizontal
+          integer
+          height={Math.max(MIN_HEIGHT, data.labels.length * ROW_HEIGHT)}
+        />
+      </ChartCard>
     </Box>
   );
 }

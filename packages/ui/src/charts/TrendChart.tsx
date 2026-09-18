@@ -16,6 +16,8 @@ interface Props {
   /** Washes the area under a single series. Off for multi-series, where fills would collide. */
   area?: boolean;
   height?: number;
+  /** The values are counts: the axis ticks whole numbers only. */
+  integer?: boolean;
 }
 
 /**
@@ -30,6 +32,7 @@ export function TrendChart({
   formatValue,
   area = false,
   height = 260,
+  integer = false,
 }: Readonly<Props>): ReactElement {
   const palette = useChartPalette();
   const label = useChartLabel();
@@ -62,7 +65,7 @@ export function TrendChart({
   );
 
   const options = useMemo<ChartOptions<'line'>>(() => {
-    const chrome = axisChrome(palette, formatValue);
+    const chrome = axisChrome(palette, formatValue, integer);
     return {
       responsive: true,
       maintainAspectRatio: false,
@@ -71,7 +74,7 @@ export function TrendChart({
       plugins: sharedPlugins(palette, data.series.length, formatValue),
       scales: { x: chrome.category, y: chrome.value },
     } as ChartOptions<'line'>;
-  }, [palette, formatValue, data.series.length]);
+  }, [palette, formatValue, integer, data.series.length]);
 
   return (
     <Box sx={{ height }}>

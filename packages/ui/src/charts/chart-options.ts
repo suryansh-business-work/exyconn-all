@@ -8,7 +8,7 @@ import type { ValueFormatter } from './chart.types';
  * Hairline, solid and one step off the surface. Never dashed: a dashed rule reads as a
  * threshold or a projection, and a grid is neither — it is the quietest thing on the chart.
  */
-export function axisChrome(palette: ChartPalette, format?: ValueFormatter) {
+export function axisChrome(palette: ChartPalette, format?: ValueFormatter, integer = false) {
   return {
     category: {
       grid: { display: false },
@@ -23,6 +23,8 @@ export function axisChrome(palette: ChartPalette, format?: ValueFormatter) {
         color: palette.ink,
         font: { size: 11 },
         maxTicksLimit: 5,
+        // A count has no half-step: "0.5 emails" on an axis is a tick that cannot be true.
+        ...(integer ? { precision: 0 } : {}),
         callback: (value: string | number) =>
           format ? format(typeof value === 'number' ? value : Number(value)) : value,
       },

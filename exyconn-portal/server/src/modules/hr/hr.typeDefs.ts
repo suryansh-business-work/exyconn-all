@@ -1,12 +1,6 @@
 import gql from 'graphql-tag';
 
 export const hrTypeDefs = gql`
-  enum LeaveType {
-    CASUAL
-    SICK
-    EARNED
-    UNPAID
-  }
   enum LeaveStatus {
     PENDING
     APPROVED
@@ -73,7 +67,8 @@ export const hrTypeDefs = gql`
   type LeaveRequest {
     id: ID!
     employeeId: String!
-    type: LeaveType!
+    "The code of one of HR's leave types (LeavePolicy.code), e.g. CL."
+    type: String!
     fromDate: DateTime!
     toDate: DateTime!
     reason: String!
@@ -84,7 +79,7 @@ export const hrTypeDefs = gql`
 
   input LeaveRequestInput {
     employeeId: String!
-    type: LeaveType!
+    type: String!
     fromDate: DateTime!
     toDate: DateTime!
     reason: String!
@@ -93,7 +88,7 @@ export const hrTypeDefs = gql`
 
   "Employee-facing leave application — the server sets employeeId and PENDING status."
   input ApplyLeaveInput {
-    type: LeaveType!
+    type: String!
     fromDate: DateTime!
     toDate: DateTime!
     reason: String!

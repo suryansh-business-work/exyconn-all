@@ -3,6 +3,7 @@ import { AttendanceModel } from './attendance.model';
 import { UserModel } from '../admin/user.model';
 import { notFound } from '../../utils/errors';
 import { creditLeaveBalance, debitLeaveBalance } from './leave-balance.service';
+import { assertLeaveTypeOffered } from '../hrmaster/leave-country';
 import { notifyBestEffort } from '../notifications/notifications.service';
 import { pendingOrRecent } from '../admin/reporting';
 import { companyProfile } from '../../lib/company';
@@ -68,10 +69,11 @@ class HrService {
     return LeaveRequestModel.find(pendingOrRecent(employeeIds)).sort({ createdAt: -1 }).lean();
   }
 
-  applyLeave(employeeId: string, input: ApplyLeaveInput) {
-    return LeaveRequestModel.create({ ...input, employeeId, status: 'PENDING' }).then((d) =>
-      d.toObject(),
-    );
+  /** Only a leave type the employee's country offers can be applied for. */
+  async applyLeave(employeeId: string, input: ApplyLeaveInput) {
+    await assertLeaveTypeOffered(employeeId, input.type);
+    const doc = await LeaveRequestModel.create({ ...input, employeeId, status: 'PENDING' });
+    return doc.toObject();
   }
 
   /**

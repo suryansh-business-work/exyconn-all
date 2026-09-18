@@ -3,11 +3,12 @@ import {
   alpha,
   borderWidth,
   Box,
-  boxShadow,
   Button,
   readableInk,
   Flex,
+  fontWeight,
   Heading,
+  portalShadow,
   radius,
   Text,
 } from '@exyconn/shell/components/ui';
@@ -41,7 +42,7 @@ export function LoginPromo({ name, slogan, accentColor }: Readonly<LoginPromoPro
         borderRadius: `${CARD_RADIUS}px`,
         background: t.palette.background.paper,
         border: `${borderWidth.hairline}px solid ${t.palette.divider}`,
-        boxShadow: boxShadow[t.palette.mode].md,
+        boxShadow: portalShadow[t.palette.mode].md,
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
@@ -62,7 +63,10 @@ export function LoginPromo({ name, slogan, accentColor }: Readonly<LoginPromoPro
         }}
       />
       <Box sx={{ position: 'relative' }}>
-        <Heading level={3} sx={{ fontWeight: 800, lineHeight: 1.05, color: 'text.primary' }}>
+        <Heading
+          level={3}
+          sx={{ fontWeight: fontWeight.bold, lineHeight: 1.05, color: 'text.primary' }}
+        >
           {name}
         </Heading>
         <Text size="sm" color="text.secondary" sx={{ mt: 2, display: 'block', maxWidth: 200 }}>

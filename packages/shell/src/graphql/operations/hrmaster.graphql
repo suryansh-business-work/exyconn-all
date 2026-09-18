@@ -4,11 +4,7 @@ query ListHolidaysPaged($input: TableQueryInput!) {
   listHolidaysPaged(input: $input) {
     totalCount
     rows {
-      id
-      name
-      date
-      type
-      description
+      ...HolidayFields
     }
   }
 }
@@ -46,6 +42,12 @@ mutation DeleteHoliday($id: ID!) {
   deleteHoliday(id: $id)
 }
 
+query MyHolidays {
+  myHolidays {
+    ...HolidayFields
+  }
+}
+
 fragment LeavePolicyFields on LeavePolicy {
   id
   name
@@ -55,6 +57,18 @@ fragment LeavePolicyFields on LeavePolicy {
   halfDayAllowed
   carryForwardCap
   active
+  overrides {
+    country
+    annualQuota
+    carryForwardCap
+    active
+  }
+}
+
+query ListLeavePolicies {
+  listLeavePolicies {
+    ...LeavePolicyFields
+  }
 }
 
 query ActiveLeavePolicies {
