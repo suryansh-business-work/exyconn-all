@@ -323,6 +323,7 @@ export type BrandingInput = {
   accentColor: InputMaybe<Scalars['String']['input']>;
   address: InputMaybe<Scalars['String']['input']>;
   addressLine: InputMaybe<Scalars['String']['input']>;
+  appIconDarkUrl: InputMaybe<Scalars['String']['input']>;
   appIconUrl: InputMaybe<Scalars['String']['input']>;
   backgroundColor: InputMaybe<Scalars['String']['input']>;
   bankDetails: InputMaybe<Scalars['String']['input']>;
@@ -331,12 +332,16 @@ export type BrandingInput = {
   copyrightText: InputMaybe<Scalars['String']['input']>;
   defaultTaxPercent: InputMaybe<Scalars['Float']['input']>;
   description: InputMaybe<Scalars['String']['input']>;
+  emailLogoDarkUrl: InputMaybe<Scalars['String']['input']>;
   emailLogoUrl: InputMaybe<Scalars['String']['input']>;
   facebookUrl: InputMaybe<Scalars['String']['input']>;
+  faviconDarkUrl: InputMaybe<Scalars['String']['input']>;
   faviconUrl: InputMaybe<Scalars['String']['input']>;
   githubUrl: InputMaybe<Scalars['String']['input']>;
   gstin: InputMaybe<Scalars['String']['input']>;
+  heroPosterDarkUrl: InputMaybe<Scalars['String']['input']>;
   heroPosterUrl: InputMaybe<Scalars['String']['input']>;
+  heroVideoDarkUrl: InputMaybe<Scalars['String']['input']>;
   heroVideoUrl: InputMaybe<Scalars['String']['input']>;
   hrEmail: InputMaybe<Scalars['String']['input']>;
   instagramUrl: InputMaybe<Scalars['String']['input']>;
@@ -346,6 +351,7 @@ export type BrandingInput = {
   loginPages: InputMaybe<Array<LoginPageInput>>;
   logoDarkUrl: InputMaybe<Scalars['String']['input']>;
   logoUrl: InputMaybe<Scalars['String']['input']>;
+  ogImageDarkUrl: InputMaybe<Scalars['String']['input']>;
   ogImageUrl: InputMaybe<Scalars['String']['input']>;
   primaryColor: InputMaybe<Scalars['String']['input']>;
   secondaryColor: InputMaybe<Scalars['String']['input']>;

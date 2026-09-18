@@ -17,6 +17,14 @@ export interface BrandingInput {
   appIconUrl?: string;
   emailLogoUrl?: string;
   ogImageUrl?: string;
+  heroVideoUrl?: string;
+  heroPosterUrl?: string;
+  faviconDarkUrl?: string;
+  appIconDarkUrl?: string;
+  emailLogoDarkUrl?: string;
+  ogImageDarkUrl?: string;
+  heroVideoDarkUrl?: string;
+  heroPosterDarkUrl?: string;
   primaryColor?: string;
   secondaryColor?: string;
   accentColor?: string;

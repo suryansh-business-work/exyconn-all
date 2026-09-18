@@ -21,6 +21,12 @@ const INITIAL: BrandingRow = {
   ogImageUrl: '',
   heroVideoUrl: '',
   heroPosterUrl: '',
+  faviconDarkUrl: '',
+  appIconDarkUrl: '',
+  emailLogoDarkUrl: '',
+  ogImageDarkUrl: '',
+  heroVideoDarkUrl: '',
+  heroPosterDarkUrl: '',
   primaryColor: color.blue[600],
   secondaryColor: color.cyan[400],
   accentColor: color.orange[600],
@@ -114,6 +120,20 @@ describe('BrandingForm', () => {
     cy.get('input[name="loginPages.0.backgroundImageUrl"]').clear().type('nope');
     cy.contains('button', 'Save changes').click();
     cy.contains('Enter a valid URL').should('be.visible');
+  });
+
+  it('lists every image with a light and a dark variant in one table', () => {
+    mount();
+    cy.contains('button', 'Images').click();
+    cy.get('table[aria-label="Branding images"]').within(() => {
+      cy.contains('th', 'Light mode').should('be.visible');
+      cy.contains('th', 'Dark mode').should('be.visible');
+      cy.contains('tr', 'Favicon').within(() => {
+        cy.contains('Favicon (light)').should('exist');
+        cy.contains('Favicon (dark)').should('exist');
+      });
+      cy.get('tbody tr').should('have.length', 7);
+    });
   });
 
   it('accepts an empty optional URL', () => {

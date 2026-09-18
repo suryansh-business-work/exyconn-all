@@ -10,6 +10,7 @@ import { useSidebarCollapsed } from '@/hooks/useSidebarCollapsed';
 import { PageErrorBoundary } from '@/logging/PageErrorBoundary';
 import { useT } from '@exyconn/i18n';
 import { MAIN_CONTENT_ID, SkipLink } from './SkipLink';
+import { BrandFavicon } from './BrandFavicon';
 
 /** Wide enough that a page like "Onboarding Templates" is read, not truncated. */
 const DRAWER_WIDTH = 288;
@@ -47,6 +48,7 @@ export function PortalLayout() {
       }}
     >
       <SkipLink />
+      <BrandFavicon />
       <Topbar drawerWidth={width} onMenuClick={() => setMobileOpen((o) => !o)} />
 
       <Box

@@ -18,6 +18,12 @@ export const BRANDING_DEFAULTS = Object.freeze({
   ogImageUrl: '',
   heroVideoUrl: '',
   heroPosterUrl: '',
+  faviconDarkUrl: '',
+  appIconDarkUrl: '',
+  emailLogoDarkUrl: '',
+  ogImageDarkUrl: '',
+  heroVideoDarkUrl: '',
+  heroPosterDarkUrl: '',
 
   primaryColor: '#155dfc',
   secondaryColor: '#00d4ff',

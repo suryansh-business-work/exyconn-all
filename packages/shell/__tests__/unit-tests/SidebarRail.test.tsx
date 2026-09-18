@@ -14,6 +14,7 @@ vi.mock('@/config/env', async (importOriginal) => {
   return { env: { ...actual.env, portalApp: 'hr' } };
 });
 vi.mock('@/layout/PortalSwitcher', () => ({ PortalSwitcher: () => null }));
+vi.mock('@/hooks/useBrandMark', () => ({ useBrandMark: () => '/exyconn-icon.svg' }));
 
 const hr = MODULES.find((m) => m.key === 'hr')!;
 const tree = moduleNavTree(hr);

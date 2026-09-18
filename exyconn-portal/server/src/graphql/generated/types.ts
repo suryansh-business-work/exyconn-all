@@ -892,6 +892,7 @@ export type Branding = {
   address: Scalars['String']['output'];
   /** Registered address as printed on invoices. */
   addressLine: Scalars['String']['output'];
+  appIconDarkUrl: Scalars['String']['output'];
   appIconUrl: Scalars['String']['output'];
   backgroundColor: Scalars['String']['output'];
   /** Bank name, account and IFSC, printed on invoices so the client knows where to pay. */
@@ -902,13 +903,18 @@ export type Branding = {
   /** Tax percent a generated invoice line starts at. */
   defaultTaxPercent: Scalars['Float']['output'];
   description: Scalars['String']['output'];
+  emailLogoDarkUrl: Scalars['String']['output'];
   emailLogoUrl: Scalars['String']['output'];
   facebookUrl: Scalars['String']['output'];
+  /** Dark-mode variants of the images above; empty falls back to the light one. */
+  faviconDarkUrl: Scalars['String']['output'];
   faviconUrl: Scalars['String']['output'];
   githubUrl: Scalars['String']['output'];
   /** Our GST registration, printed on every tax invoice. */
   gstin: Scalars['String']['output'];
+  heroPosterDarkUrl: Scalars['String']['output'];
   heroPosterUrl: Scalars['String']['output'];
+  heroVideoDarkUrl: Scalars['String']['output'];
   /** The clip behind the website's home hero, and the still shown until it plays. */
   heroVideoUrl: Scalars['String']['output'];
   hrEmail: Scalars['String']['output'];
@@ -921,6 +927,7 @@ export type Branding = {
   loginPages: Array<LoginPage>;
   logoDarkUrl: Scalars['String']['output'];
   logoUrl: Scalars['String']['output'];
+  ogImageDarkUrl: Scalars['String']['output'];
   ogImageUrl: Scalars['String']['output'];
   primaryColor: Scalars['String']['output'];
   secondaryColor: Scalars['String']['output'];
@@ -938,6 +945,7 @@ export type BrandingInput = {
   accentColor?: InputMaybe<Scalars['String']['input']>;
   address?: InputMaybe<Scalars['String']['input']>;
   addressLine?: InputMaybe<Scalars['String']['input']>;
+  appIconDarkUrl?: InputMaybe<Scalars['String']['input']>;
   appIconUrl?: InputMaybe<Scalars['String']['input']>;
   backgroundColor?: InputMaybe<Scalars['String']['input']>;
   bankDetails?: InputMaybe<Scalars['String']['input']>;
@@ -946,12 +954,16 @@ export type BrandingInput = {
   copyrightText?: InputMaybe<Scalars['String']['input']>;
   defaultTaxPercent?: InputMaybe<Scalars['Float']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
+  emailLogoDarkUrl?: InputMaybe<Scalars['String']['input']>;
   emailLogoUrl?: InputMaybe<Scalars['String']['input']>;
   facebookUrl?: InputMaybe<Scalars['String']['input']>;
+  faviconDarkUrl?: InputMaybe<Scalars['String']['input']>;
   faviconUrl?: InputMaybe<Scalars['String']['input']>;
   githubUrl?: InputMaybe<Scalars['String']['input']>;
   gstin?: InputMaybe<Scalars['String']['input']>;
+  heroPosterDarkUrl?: InputMaybe<Scalars['String']['input']>;
   heroPosterUrl?: InputMaybe<Scalars['String']['input']>;
+  heroVideoDarkUrl?: InputMaybe<Scalars['String']['input']>;
   heroVideoUrl?: InputMaybe<Scalars['String']['input']>;
   hrEmail?: InputMaybe<Scalars['String']['input']>;
   instagramUrl?: InputMaybe<Scalars['String']['input']>;
@@ -961,6 +973,7 @@ export type BrandingInput = {
   loginPages?: InputMaybe<Array<LoginPageInput>>;
   logoDarkUrl?: InputMaybe<Scalars['String']['input']>;
   logoUrl?: InputMaybe<Scalars['String']['input']>;
+  ogImageDarkUrl?: InputMaybe<Scalars['String']['input']>;
   ogImageUrl?: InputMaybe<Scalars['String']['input']>;
   primaryColor?: InputMaybe<Scalars['String']['input']>;
   secondaryColor?: InputMaybe<Scalars['String']['input']>;
@@ -13545,6 +13558,7 @@ export type BrandingResolvers<ContextType = GraphQLContext, ParentType extends R
   accentColor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   addressLine?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  appIconDarkUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   appIconUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   backgroundColor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   bankDetails?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -13553,12 +13567,16 @@ export type BrandingResolvers<ContextType = GraphQLContext, ParentType extends R
   copyrightText?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   defaultTaxPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  emailLogoDarkUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   emailLogoUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   facebookUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  faviconDarkUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   faviconUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   githubUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   gstin?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  heroPosterDarkUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   heroPosterUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  heroVideoDarkUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   heroVideoUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   hrEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -13569,6 +13587,7 @@ export type BrandingResolvers<ContextType = GraphQLContext, ParentType extends R
   loginPages?: Resolver<Array<ResolversTypes['LoginPage']>, ParentType, ContextType>;
   logoDarkUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   logoUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ogImageDarkUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   ogImageUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   primaryColor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   secondaryColor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

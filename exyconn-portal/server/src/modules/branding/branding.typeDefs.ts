@@ -43,6 +43,13 @@ export const brandingTypeDefs = gql`
     "The clip behind the website's home hero, and the still shown until it plays."
     heroVideoUrl: String!
     heroPosterUrl: String!
+    "Dark-mode variants of the images above; empty falls back to the light one."
+    faviconDarkUrl: String!
+    appIconDarkUrl: String!
+    emailLogoDarkUrl: String!
+    ogImageDarkUrl: String!
+    heroVideoDarkUrl: String!
+    heroPosterDarkUrl: String!
 
     primaryColor: String!
     secondaryColor: String!
@@ -95,6 +102,12 @@ export const brandingTypeDefs = gql`
     ogImageUrl: String
     heroVideoUrl: String
     heroPosterUrl: String
+    faviconDarkUrl: String
+    appIconDarkUrl: String
+    emailLogoDarkUrl: String
+    ogImageDarkUrl: String
+    heroVideoDarkUrl: String
+    heroPosterDarkUrl: String
 
     primaryColor: String
     secondaryColor: String
