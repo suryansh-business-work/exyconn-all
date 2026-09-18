@@ -65,6 +65,7 @@ query ListEmployeeOptions {
     id
     name
     email
+    designation
   }
 }
 

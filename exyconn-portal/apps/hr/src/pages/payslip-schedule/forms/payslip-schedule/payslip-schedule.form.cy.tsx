@@ -1,4 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
+import { LocalizationProvider, AdapterDateFns } from '@exyconn/shell/components/ui';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
@@ -22,13 +23,15 @@ const mount = (initial: PayslipScheduleRow = schedule) =>
   cy.mount(
     <MockedProvider mocks={[]}>
       <ThemeProvider theme={theme}>
-        <NotificationProvider>
-          <PayslipScheduleForm
-            initial={initial}
-            onDone={cy.stub()}
-            onCancel={cy.stub().as('cancel')}
-          />
-        </NotificationProvider>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <NotificationProvider>
+            <PayslipScheduleForm
+              initial={initial}
+              onDone={cy.stub()}
+              onCancel={cy.stub().as('cancel')}
+            />
+          </NotificationProvider>
+        </LocalizationProvider>
       </ThemeProvider>
     </MockedProvider>,
   );
@@ -38,8 +41,7 @@ describe('PayslipScheduleForm', () => {
     mount({ ...schedule, enabled: true, dayOfMonth: 5, hour: 9, minute: 30 });
     cy.get('input[name="enabled"]').should('be.checked');
     cy.contains('Day 5').should('be.visible');
-    cy.contains('09:00').should('be.visible');
-    cy.contains(':30').should('be.visible');
+    cy.get('input[name="time"]').should('have.value', '09:30 AM');
   });
 
   it('offers only days that exist in every month', () => {

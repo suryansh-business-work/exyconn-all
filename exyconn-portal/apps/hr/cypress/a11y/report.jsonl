@@ -70,3 +70,208 @@
 {"spec":"src/pages/tax-slabs/forms/tax-regime/tax-regime.form.cy.tsx","test":"TaxRegimeForm › refuses a financial year that is not written as 2026-27","violations":[]}
 {"spec":"src/pages/tax-slabs/forms/tax-regime/tax-regime.form.cy.tsx","test":"TaxRegimeForm › refuses a lower-case key, so the bands can point at it","violations":[]}
 {"spec":"src/pages/tax-slabs/forms/tax-regime/tax-regime.form.cy.tsx","test":"TaxRegimeForm › calls onCancel","violations":[]}
+{"spec":"src/pages/leave-policies/forms/leave-policy/leave-policy.form.cy.tsx","test":"LeavePolicyForm › validates the required fields","violations":[]}
+{"spec":"src/pages/leave-policies/forms/leave-policy/leave-policy.form.cy.tsx","test":"LeavePolicyForm › asks for the country on an override row","violations":[]}
+{"spec":"src/pages/leave-policies/forms/leave-policy/leave-policy.form.cy.tsx","test":"LeavePolicyForm › flags a country overridden twice","violations":[]}
+{"spec":"src/pages/leave-policies/forms/leave-policy/leave-policy.form.cy.tsx","test":"LeavePolicyForm › removes an override row","violations":[]}
+{"spec":"src/pages/leave-policies/forms/leave-policy/leave-policy.form.cy.tsx","test":"LeavePolicyForm › calls onCancel","violations":[]}
+{"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › validates the required fields","violations":[]}
+{"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › offers opt-outs only on a company-wide holiday","violations":[]}
+{"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › calls onCancel","violations":[]}
+{"spec":"src/pages/hr/forms/leave-request/leave-request.form.cy.tsx","test":"LeaveRequestForm › validates required fields","violations":[]}
+{"spec":"src/pages/hr/forms/leave-request/leave-request.form.cy.tsx","test":"LeaveRequestForm › calls onCancel","violations":[]}
+{"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › validates the required fields","violations":[]}
+{"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › offers opt-outs only on a company-wide holiday","violations":[]}
+{"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › calls onCancel","violations":[]}
+{"spec":"src/pages/announcements/forms/announcement/announcement.form.cy.tsx","test":"AnnouncementForm › validates the required fields","violations":[]}
+{"spec":"src/pages/announcements/forms/announcement/announcement.form.cy.tsx","test":"AnnouncementForm › rejects an expiry that lands before the publish date","violations":[]}
+{"spec":"src/pages/announcements/forms/announcement/announcement.form.cy.tsx","test":"AnnouncementForm › calls onCancel","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant/applicant.form.cy.tsx","test":"ApplicantForm › refuses an empty applicant and says what is missing","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant/applicant.form.cy.tsx","test":"ApplicantForm › rejects a malformed email address","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant/applicant.form.cy.tsx","test":"ApplicantForm › creates the applicant and calls onDone","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant/applicant.form.cy.tsx","test":"ApplicantForm › calls onCancel","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant-stage/applicant-stage.form.cy.tsx","test":"ApplicantStageForm › shows who is being moved and where they are","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant-stage/applicant-stage.form.cy.tsx","test":"ApplicantStageForm › warns that the applicant will be emailed for an offer","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant-stage/applicant-stage.form.cy.tsx","test":"ApplicantStageForm › stays quiet about email for screening","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant-stage/applicant-stage.form.cy.tsx","test":"ApplicantStageForm › moves the applicant and calls onDone","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant-stage/applicant-stage.form.cy.tsx","test":"ApplicantStageForm › calls onCancel","violations":[]}
+{"spec":"src/pages/benefits/forms/benefit/benefit.form.cy.tsx","test":"BenefitForm › validates the required fields","violations":[]}
+{"spec":"src/pages/benefits/forms/benefit/benefit.form.cy.tsx","test":"BenefitForm › calls onCancel","violations":[]}
+{"spec":"src/pages/employment-types/forms/employment-type/employment-type.form.cy.tsx","test":"EmploymentTypeForm › validates the required fields","violations":[]}
+{"spec":"src/pages/employment-types/forms/employment-type/employment-type.form.cy.tsx","test":"EmploymentTypeForm › calls onCancel","violations":[]}
+{"spec":"src/pages/documents/forms/employee-document/employee-document.form.cy.tsx","test":"EmployeeDocumentForm › validates the required fields","violations":[]}
+{"spec":"src/pages/documents/forms/employee-document/employee-document.form.cy.tsx","test":"EmployeeDocumentForm › calls onCancel","violations":[]}
+{"spec":"src/pages/grades/forms/grade/grade.form.cy.tsx","test":"GradeForm › validates the required fields","violations":[]}
+{"spec":"src/pages/grades/forms/grade/grade.form.cy.tsx","test":"GradeForm › calls onCancel","violations":[]}
+{"spec":"src/pages/goals/forms/goal/goal.form.cy.tsx","test":"GoalForm › validates the required fields","violations":[]}
+{"spec":"src/pages/goals/forms/goal/goal.form.cy.tsx","test":"GoalForm › calls onCancel","violations":[]}
+{"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › validates the required fields","violations":[]}
+{"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › offers opt-outs only on a company-wide holiday","violations":[]}
+{"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › calls onCancel","violations":[]}
+{"spec":"src/pages/exits/forms/exit-record/exit-record.form.cy.tsx","test":"ExitRecordForm › validates the required fields","violations":[]}
+{"spec":"src/pages/exits/forms/exit-record/exit-record.form.cy.tsx","test":"ExitRecordForm › calls onCancel","violations":[]}
+{"spec":"src/pages/leave-balances/forms/leave-balance/leave-balance.form.cy.tsx","test":"LeaveBalanceForm › validates the required fields","violations":[]}
+{"spec":"src/pages/leave-balances/forms/leave-balance/leave-balance.form.cy.tsx","test":"LeaveBalanceForm › calls onCancel","violations":[]}
+{"spec":"src/pages/locations/forms/location/location.form.cy.tsx","test":"LocationForm › validates the required fields","violations":[]}
+{"spec":"src/pages/locations/forms/location/location.form.cy.tsx","test":"LocationForm › calls onCancel","violations":[]}
+{"spec":"src/pages/hr/forms/department/department.form.cy.tsx","test":"DepartmentForm › requires a name","violations":[]}
+{"spec":"src/pages/hr/forms/department/department.form.cy.tsx","test":"DepartmentForm › calls onCancel","violations":[]}
+{"spec":"src/pages/hr/forms/leave-request/leave-request.form.cy.tsx","test":"LeaveRequestForm › validates required fields","violations":[]}
+{"spec":"src/pages/hr/forms/leave-request/leave-request.form.cy.tsx","test":"LeaveRequestForm › calls onCancel","violations":[]}
+{"spec":"src/pages/hr/forms/position/position.form.cy.tsx","test":"PositionForm › requires a name","violations":[]}
+{"spec":"src/pages/hr/forms/position/position.form.cy.tsx","test":"PositionForm › calls onCancel","violations":[]}
+{"spec":"src/pages/notify/forms/send-notification/send-notification.form.cy.tsx","test":"SendNotificationForm › requires a title","violations":[]}
+{"spec":"src/pages/notify/forms/send-notification/send-notification.form.cy.tsx","test":"SendNotificationForm › rejects an off-portal link","violations":[]}
+{"spec":"src/pages/leave-policies/forms/leave-policy/leave-policy.form.cy.tsx","test":"LeavePolicyForm › validates the required fields","violations":[]}
+{"spec":"src/pages/leave-policies/forms/leave-policy/leave-policy.form.cy.tsx","test":"LeavePolicyForm › asks for the country on an override row","violations":[]}
+{"spec":"src/pages/leave-policies/forms/leave-policy/leave-policy.form.cy.tsx","test":"LeavePolicyForm › flags a country overridden twice","violations":[]}
+{"spec":"src/pages/leave-policies/forms/leave-policy/leave-policy.form.cy.tsx","test":"LeavePolicyForm › removes an override row","violations":[]}
+{"spec":"src/pages/leave-policies/forms/leave-policy/leave-policy.form.cy.tsx","test":"LeavePolicyForm › calls onCancel","violations":[]}
+{"spec":"src/pages/onboarding/forms/start-onboarding/start-onboarding.form.cy.tsx","test":"StartOnboardingForm › requires both the employee and the template","violations":[]}
+{"spec":"src/pages/onboarding/forms/start-onboarding/start-onboarding.form.cy.tsx","test":"StartOnboardingForm › points HR at the templates page when there are none","violations":[]}
+{"spec":"src/pages/onboarding/forms/start-onboarding/start-onboarding.form.cy.tsx","test":"StartOnboardingForm › calls onCancel","violations":[]}
+{"spec":"src/pages/onboarding-templates/forms/onboarding-template/onboarding-template.form.cy.tsx","test":"OnboardingTemplateForm › requires a name and a task","violations":[]}
+{"spec":"src/pages/onboarding-templates/forms/onboarding-template/onboarding-template.form.cy.tsx","test":"OnboardingTemplateForm › refuses a task due before the join date","violations":[]}
+{"spec":"src/pages/onboarding-templates/forms/onboarding-template/onboarding-template.form.cy.tsx","test":"OnboardingTemplateForm › adds and removes task rows","violations":[]}
+{"spec":"src/pages/onboarding-templates/forms/onboarding-template/onboarding-template.form.cy.tsx","test":"OnboardingTemplateForm › calls onCancel","violations":[]}
+{"spec":"src/pages/payslip-schedule/forms/payslip-schedule/payslip-schedule.form.cy.tsx","test":"PayslipScheduleForm › shows the stored schedule","violations":[]}
+{"spec":"src/pages/payslip-schedule/forms/payslip-schedule/payslip-schedule.form.cy.tsx","test":"PayslipScheduleForm › offers only days that exist in every month","violations":[]}
+{"spec":"src/pages/payslip-schedule/forms/payslip-schedule/payslip-schedule.form.cy.tsx","test":"PayslipScheduleForm › lets HR choose which month is sent","violations":[]}
+{"spec":"src/pages/payslip-schedule/forms/payslip-schedule/payslip-schedule.form.cy.tsx","test":"PayslipScheduleForm › calls onCancel","violations":[]}
+{"spec":"src/pages/payroll-settings/forms/payroll-settings/payroll-settings.form.cy.tsx","test":"PayrollSettingsForm › shows the stored policy","violations":[]}
+{"spec":"src/pages/payroll-settings/forms/payroll-settings/payroll-settings.form.cy.tsx","test":"PayrollSettingsForm › refuses a rate that is not a percentage","violations":[]}
+{"spec":"src/pages/payroll-settings/forms/payroll-settings/payroll-settings.form.cy.tsx","test":"PayrollSettingsForm › refuses a negative wage ceiling","violations":[]}
+{"spec":"src/pages/payroll-settings/forms/payroll-settings/payroll-settings.form.cy.tsx","test":"PayrollSettingsForm › only asks for a company TDS rate when a flat percentage is withheld","violations":[]}
+{"spec":"src/pages/payroll-settings/forms/payroll-settings/payroll-settings.form.cy.tsx","test":"PayrollSettingsForm › calls onCancel","violations":[]}
+{"spec":"src/pages/performance/forms/performance-review/performance-review.form.cy.tsx","test":"PerformanceReviewForm › validates the required fields","violations":[]}
+{"spec":"src/pages/performance/forms/performance-review/performance-review.form.cy.tsx","test":"PerformanceReviewForm › calls onCancel","violations":[]}
+{"spec":"src/pages/salaries/forms/salary-structure/salary-structure.form.cy.tsx","test":"SalaryStructureForm › validates the required fields","violations":[]}
+{"spec":"src/pages/salaries/forms/salary-structure/salary-structure.form.cy.tsx","test":"SalaryStructureForm › takes a currency from the ISO 4217 list","violations":[]}
+{"spec":"src/pages/salaries/forms/salary-structure/salary-structure.form.cy.tsx","test":"SalaryStructureForm › requires the basic salary that actually pays the person","violations":[]}
+{"spec":"src/pages/salaries/forms/salary-structure/salary-structure.form.cy.tsx","test":"SalaryStructureForm › calls onCancel","violations":[]}
+{"spec":"src/pages/requests/forms/employee-request/employee-request.form.cy.tsx","test":"EmployeeRequestForm › validates the required fields","violations":[]}
+{"spec":"src/pages/requests/forms/employee-request/employee-request.form.cy.tsx","test":"EmployeeRequestForm › calls onCancel","violations":[]}
+{"spec":"src/pages/shifts/forms/shift/shift.form.cy.tsx","test":"ShiftForm › validates the required fields","violations":[]}
+{"spec":"src/pages/shifts/forms/shift/shift.form.cy.tsx","test":"ShiftForm › calls onCancel","violations":[]}
+{"spec":"src/pages/teams/forms/team/team.form.cy.tsx","test":"TeamForm › validates the required fields","violations":[]}
+{"spec":"src/pages/teams/forms/team/team.form.cy.tsx","test":"TeamForm › calls onCancel","violations":[]}
+{"spec":"src/pages/tax-slabs/forms/tax-regime/tax-regime.form.cy.tsx","test":"TaxRegimeForm › refuses a regime with no key, year or name","violations":[]}
+{"spec":"src/pages/tax-slabs/forms/tax-regime/tax-regime.form.cy.tsx","test":"TaxRegimeForm › refuses a financial year that is not written as 2026-27","violations":[]}
+{"spec":"src/pages/tax-slabs/forms/tax-regime/tax-regime.form.cy.tsx","test":"TaxRegimeForm › refuses a lower-case key, so the bands can point at it","violations":[]}
+{"spec":"src/pages/tax-slabs/forms/tax-regime/tax-regime.form.cy.tsx","test":"TaxRegimeForm › calls onCancel","violations":[]}
+{"spec":"src/pages/tax-slabs/forms/tax-slab/tax-slab.form.cy.tsx","test":"TaxSlabForm › refuses an upper bound at or below the lower one","violations":[]}
+{"spec":"src/pages/tax-slabs/forms/tax-slab/tax-slab.form.cy.tsx","test":"TaxSlabForm › accepts an empty upper bound as the open-ended top band","violations":[]}
+{"spec":"src/pages/tax-slabs/forms/tax-slab/tax-slab.form.cy.tsx","test":"TaxSlabForm › refuses a rate above 100%","violations":[]}
+{"spec":"src/pages/tax-slabs/forms/tax-slab/tax-slab.form.cy.tsx","test":"TaxSlabForm › refuses a financial year that is not written as 2026-27","violations":[]}
+{"spec":"src/pages/tax-slabs/forms/tax-slab/tax-slab.form.cy.tsx","test":"TaxSlabForm › calls onCancel","violations":[]}
+{"spec":"src/pages/training/forms/training/training.form.cy.tsx","test":"TrainingForm › validates the required fields","violations":[]}
+{"spec":"src/pages/training/forms/training/training.form.cy.tsx","test":"TrainingForm › calls onCancel","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant/applicant.form.cy.tsx","test":"ApplicantForm › refuses an empty applicant and says what is missing","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant/applicant.form.cy.tsx","test":"ApplicantForm › rejects a malformed email address","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant/applicant.form.cy.tsx","test":"ApplicantForm › creates the applicant and calls onDone","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant/applicant.form.cy.tsx","test":"ApplicantForm › calls onCancel","violations":[]}
+{"spec":"src/pages/announcements/forms/announcement/announcement.form.cy.tsx","test":"AnnouncementForm › validates the required fields","violations":[]}
+{"spec":"src/pages/announcements/forms/announcement/announcement.form.cy.tsx","test":"AnnouncementForm › rejects an expiry that lands before the publish date","violations":[]}
+{"spec":"src/pages/announcements/forms/announcement/announcement.form.cy.tsx","test":"AnnouncementForm › calls onCancel","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant-stage/applicant-stage.form.cy.tsx","test":"ApplicantStageForm › shows who is being moved and where they are","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant-stage/applicant-stage.form.cy.tsx","test":"ApplicantStageForm › warns that the applicant will be emailed for an offer","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant-stage/applicant-stage.form.cy.tsx","test":"ApplicantStageForm › stays quiet about email for screening","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant-stage/applicant-stage.form.cy.tsx","test":"ApplicantStageForm › moves the applicant and calls onDone","violations":[]}
+{"spec":"src/pages/applicants/forms/applicant-stage/applicant-stage.form.cy.tsx","test":"ApplicantStageForm › calls onCancel","violations":[]}
+{"spec":"src/pages/documents/forms/employee-document/employee-document.form.cy.tsx","test":"EmployeeDocumentForm › validates the required fields","violations":[]}
+{"spec":"src/pages/documents/forms/employee-document/employee-document.form.cy.tsx","test":"EmployeeDocumentForm › calls onCancel","violations":[]}
+{"spec":"src/pages/employment-types/forms/employment-type/employment-type.form.cy.tsx","test":"EmploymentTypeForm › validates the required fields","violations":[]}
+{"spec":"src/pages/employment-types/forms/employment-type/employment-type.form.cy.tsx","test":"EmploymentTypeForm › calls onCancel","violations":[]}
+{"spec":"src/pages/benefits/forms/benefit/benefit.form.cy.tsx","test":"BenefitForm › validates the required fields","violations":[]}
+{"spec":"src/pages/benefits/forms/benefit/benefit.form.cy.tsx","test":"BenefitForm › calls onCancel","violations":[]}
+{"spec":"src/pages/goals/forms/goal/goal.form.cy.tsx","test":"GoalForm › validates the required fields","violations":[]}
+{"spec":"src/pages/goals/forms/goal/goal.form.cy.tsx","test":"GoalForm › calls onCancel","violations":[]}
+{"spec":"src/pages/exits/forms/exit-record/exit-record.form.cy.tsx","test":"ExitRecordForm › validates the required fields","violations":[]}
+{"spec":"src/pages/exits/forms/exit-record/exit-record.form.cy.tsx","test":"ExitRecordForm › calls onCancel","violations":[]}
+{"spec":"src/pages/grades/forms/grade/grade.form.cy.tsx","test":"GradeForm › validates the required fields","violations":[]}
+{"spec":"src/pages/grades/forms/grade/grade.form.cy.tsx","test":"GradeForm › calls onCancel","violations":[]}
+{"spec":"src/pages/leave-balances/forms/leave-balance/leave-balance.form.cy.tsx","test":"LeaveBalanceForm › validates the required fields","violations":[]}
+{"spec":"src/pages/leave-balances/forms/leave-balance/leave-balance.form.cy.tsx","test":"LeaveBalanceForm › calls onCancel","violations":[]}
+{"spec":"src/pages/leave-policies/forms/leave-policy/leave-policy.form.cy.tsx","test":"LeavePolicyForm › validates the required fields","violations":[]}
+{"spec":"src/pages/leave-policies/forms/leave-policy/leave-policy.form.cy.tsx","test":"LeavePolicyForm › asks for the country on an override row","violations":[]}
+{"spec":"src/pages/leave-policies/forms/leave-policy/leave-policy.form.cy.tsx","test":"LeavePolicyForm › flags a country overridden twice","violations":[]}
+{"spec":"src/pages/leave-policies/forms/leave-policy/leave-policy.form.cy.tsx","test":"LeavePolicyForm › removes an override row","violations":[]}
+{"spec":"src/pages/leave-policies/forms/leave-policy/leave-policy.form.cy.tsx","test":"LeavePolicyForm › calls onCancel","violations":[]}
+{"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › validates the required fields","violations":[]}
+{"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › offers opt-outs only on a company-wide holiday","violations":[]}
+{"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › calls onCancel","violations":[]}
+{"spec":"src/pages/notify/forms/send-notification/send-notification.form.cy.tsx","test":"SendNotificationForm › requires a title","violations":[]}
+{"spec":"src/pages/notify/forms/send-notification/send-notification.form.cy.tsx","test":"SendNotificationForm › rejects an off-portal link","violations":[]}
+{"spec":"src/pages/hr/forms/department/department.form.cy.tsx","test":"DepartmentForm › requires a name","violations":[]}
+{"spec":"src/pages/hr/forms/department/department.form.cy.tsx","test":"DepartmentForm › calls onCancel","violations":[]}
+{"spec":"src/pages/hr/forms/leave-request/leave-request.form.cy.tsx","test":"LeaveRequestForm › validates required fields","violations":[]}
+{"spec":"src/pages/hr/forms/leave-request/leave-request.form.cy.tsx","test":"LeaveRequestForm › calls onCancel","violations":[]}
+{"spec":"src/pages/hr/forms/position/position.form.cy.tsx","test":"PositionForm › requires a name","violations":[]}
+{"spec":"src/pages/hr/forms/position/position.form.cy.tsx","test":"PositionForm › calls onCancel","violations":[]}
+{"spec":"src/pages/locations/forms/location/location.form.cy.tsx","test":"LocationForm › validates the required fields","violations":[]}
+{"spec":"src/pages/locations/forms/location/location.form.cy.tsx","test":"LocationForm › calls onCancel","violations":[]}
+{"spec":"src/pages/onboarding/forms/start-onboarding/start-onboarding.form.cy.tsx","test":"StartOnboardingForm › requires both the employee and the template","violations":[]}
+{"spec":"src/pages/onboarding/forms/start-onboarding/start-onboarding.form.cy.tsx","test":"StartOnboardingForm › points HR at the templates page when there are none","violations":[]}
+{"spec":"src/pages/onboarding/forms/start-onboarding/start-onboarding.form.cy.tsx","test":"StartOnboardingForm › calls onCancel","violations":[]}
+{"spec":"src/pages/onboarding-templates/forms/onboarding-template/onboarding-template.form.cy.tsx","test":"OnboardingTemplateForm › requires a name and a task","violations":[]}
+{"spec":"src/pages/onboarding-templates/forms/onboarding-template/onboarding-template.form.cy.tsx","test":"OnboardingTemplateForm › refuses a task due before the join date","violations":[]}
+{"spec":"src/pages/onboarding-templates/forms/onboarding-template/onboarding-template.form.cy.tsx","test":"OnboardingTemplateForm › adds and removes task rows","violations":[]}
+{"spec":"src/pages/onboarding-templates/forms/onboarding-template/onboarding-template.form.cy.tsx","test":"OnboardingTemplateForm › calls onCancel","violations":[]}
+{"spec":"src/pages/payroll-settings/forms/payroll-settings/payroll-settings.form.cy.tsx","test":"PayrollSettingsForm › shows the stored policy","violations":[]}
+{"spec":"src/pages/payroll-settings/forms/payroll-settings/payroll-settings.form.cy.tsx","test":"PayrollSettingsForm › refuses a rate that is not a percentage","violations":[]}
+{"spec":"src/pages/payroll-settings/forms/payroll-settings/payroll-settings.form.cy.tsx","test":"PayrollSettingsForm › refuses a negative wage ceiling","violations":[]}
+{"spec":"src/pages/payroll-settings/forms/payroll-settings/payroll-settings.form.cy.tsx","test":"PayrollSettingsForm › only asks for a company TDS rate when a flat percentage is withheld","violations":[]}
+{"spec":"src/pages/payroll-settings/forms/payroll-settings/payroll-settings.form.cy.tsx","test":"PayrollSettingsForm › calls onCancel","violations":[]}
+{"spec":"src/pages/payslip-schedule/forms/payslip-schedule/payslip-schedule.form.cy.tsx","test":"PayslipScheduleForm › shows the stored schedule","violations":[]}
+{"spec":"src/pages/payslip-schedule/forms/payslip-schedule/payslip-schedule.form.cy.tsx","test":"PayslipScheduleForm › offers only days that exist in every month","violations":[]}
+{"spec":"src/pages/payslip-schedule/forms/payslip-schedule/payslip-schedule.form.cy.tsx","test":"PayslipScheduleForm › lets HR choose which month is sent","violations":[]}
+{"spec":"src/pages/payslip-schedule/forms/payslip-schedule/payslip-schedule.form.cy.tsx","test":"PayslipScheduleForm › calls onCancel","violations":[]}
+{"spec":"src/pages/performance/forms/performance-review/performance-review.form.cy.tsx","test":"PerformanceReviewForm › validates the required fields","violations":[]}
+{"spec":"src/pages/performance/forms/performance-review/performance-review.form.cy.tsx","test":"PerformanceReviewForm › calls onCancel","violations":[]}
+{"spec":"src/pages/requests/forms/employee-request/employee-request.form.cy.tsx","test":"EmployeeRequestForm › validates the required fields","violations":[]}
+{"spec":"src/pages/requests/forms/employee-request/employee-request.form.cy.tsx","test":"EmployeeRequestForm › calls onCancel","violations":[]}
+{"spec":"src/pages/salaries/forms/salary-structure/salary-structure.form.cy.tsx","test":"SalaryStructureForm › validates the required fields","violations":[]}
+{"spec":"src/pages/salaries/forms/salary-structure/salary-structure.form.cy.tsx","test":"SalaryStructureForm › takes a currency from the ISO 4217 list","violations":[]}
+{"spec":"src/pages/salaries/forms/salary-structure/salary-structure.form.cy.tsx","test":"SalaryStructureForm › requires the basic salary that actually pays the person","violations":[]}
+{"spec":"src/pages/salaries/forms/salary-structure/salary-structure.form.cy.tsx","test":"SalaryStructureForm › calls onCancel","violations":[]}
+{"spec":"src/pages/shifts/forms/shift/shift.form.cy.tsx","test":"ShiftForm › validates the required fields","violations":[]}
+{"spec":"src/pages/shifts/forms/shift/shift.form.cy.tsx","test":"ShiftForm › calls onCancel","violations":[]}
+{"spec":"src/pages/tax-slabs/forms/tax-regime/tax-regime.form.cy.tsx","test":"TaxRegimeForm › refuses a regime with no key, year or name","violations":[]}
+{"spec":"src/pages/tax-slabs/forms/tax-regime/tax-regime.form.cy.tsx","test":"TaxRegimeForm › refuses a financial year that is not written as 2026-27","violations":[]}
+{"spec":"src/pages/tax-slabs/forms/tax-regime/tax-regime.form.cy.tsx","test":"TaxRegimeForm › refuses a lower-case key, so the bands can point at it","violations":[]}
+{"spec":"src/pages/tax-slabs/forms/tax-regime/tax-regime.form.cy.tsx","test":"TaxRegimeForm › calls onCancel","violations":[]}
+{"spec":"src/pages/tax-slabs/forms/tax-slab/tax-slab.form.cy.tsx","test":"TaxSlabForm › refuses an upper bound at or below the lower one","violations":[]}
+{"spec":"src/pages/tax-slabs/forms/tax-slab/tax-slab.form.cy.tsx","test":"TaxSlabForm › accepts an empty upper bound as the open-ended top band","violations":[]}
+{"spec":"src/pages/tax-slabs/forms/tax-slab/tax-slab.form.cy.tsx","test":"TaxSlabForm › refuses a rate above 100%","violations":[]}
+{"spec":"src/pages/tax-slabs/forms/tax-slab/tax-slab.form.cy.tsx","test":"TaxSlabForm › refuses a financial year that is not written as 2026-27","violations":[]}
+{"spec":"src/pages/tax-slabs/forms/tax-slab/tax-slab.form.cy.tsx","test":"TaxSlabForm › calls onCancel","violations":[]}
+{"spec":"src/pages/teams/forms/team/team.form.cy.tsx","test":"TeamForm › validates the required fields","violations":[]}
+{"spec":"src/pages/teams/forms/team/team.form.cy.tsx","test":"TeamForm › calls onCancel","violations":[]}
+{"spec":"src/pages/training/forms/training/training.form.cy.tsx","test":"TrainingForm › validates the required fields","violations":[]}
+{"spec":"src/pages/training/forms/training/training.form.cy.tsx","test":"TrainingForm › calls onCancel","violations":[]}
+{"spec":"src/pages/hr/forms/position/position.form.cy.tsx","test":"PositionForm › requires a name","violations":[]}
+{"spec":"src/pages/hr/forms/position/position.form.cy.tsx","test":"PositionForm › refuses a maximum salary below the minimum","violations":[]}
+{"spec":"src/pages/hr/forms/position/position.form.cy.tsx","test":"PositionForm › refuses a fractional headcount","violations":[]}
+{"spec":"src/pages/hr/forms/position/position.form.cy.tsx","test":"PositionForm › calls onCancel","violations":[]}
+{"spec":"src/pages/hr/forms/department/department.form.cy.tsx","test":"DepartmentForm › requires a name","violations":[]}
+{"spec":"src/pages/hr/forms/department/department.form.cy.tsx","test":"DepartmentForm › limits the code to 12 characters","violations":[]}
+{"spec":"src/pages/hr/forms/department/department.form.cy.tsx","test":"DepartmentForm › calls onCancel","violations":[]}
+{"spec":"src/pages/org-chart/OrgFlowChart.cy.tsx","test":"OrgFlowChart › draws every person and a line to each report","violations":[]}
+{"spec":"src/pages/org-chart/OrgFlowChart.cy.tsx","test":"OrgFlowChart › opens a person from their card","violations":[]}
+{"spec":"src/pages/org-chart/OrgFlowChart.cy.tsx","test":"OrgFlowChart › draws every person and a line to each report","violations":[]}
+{"spec":"src/pages/org-chart/OrgFlowChart.cy.tsx","test":"OrgFlowChart › opens a person from their card","violations":[]}
+{"spec":"src/pages/org-chart/OrgFlowChart.cy.tsx","test":"OrgFlowChart › draws every person and a line to each report","violations":[]}
+{"spec":"src/pages/org-chart/OrgFlowChart.cy.tsx","test":"OrgFlowChart › opens a person from their card","violations":[]}
+{"spec":"src/pages/hr/departments/DepartmentCard.cy.tsx","test":"DepartmentCard › summarises the department and lists its positions when expanded","violations":[]}
+{"spec":"src/pages/hr/departments/DepartmentCard.cy.tsx","test":"DepartmentCard › adds a position to this department","violations":[]}
+{"spec":"src/pages/shifts/forms/shift/shift.form.cy.tsx","test":"ShiftForm › validates the required fields","violations":[]}
+{"spec":"src/pages/shifts/forms/shift/shift.form.cy.tsx","test":"ShiftForm › picks the start time from the MUI clock","violations":[]}
+{"spec":"src/pages/shifts/forms/shift/shift.form.cy.tsx","test":"ShiftForm › calls onCancel","violations":[]}
+{"spec":"src/pages/payslip-schedule/forms/payslip-schedule/payslip-schedule.form.cy.tsx","test":"PayslipScheduleForm › shows the stored schedule","violations":[]}
+{"spec":"src/pages/payslip-schedule/forms/payslip-schedule/payslip-schedule.form.cy.tsx","test":"PayslipScheduleForm › offers only days that exist in every month","violations":[]}
+{"spec":"src/pages/payslip-schedule/forms/payslip-schedule/payslip-schedule.form.cy.tsx","test":"PayslipScheduleForm › lets HR choose which month is sent","violations":[]}
+{"spec":"src/pages/payslip-schedule/forms/payslip-schedule/payslip-schedule.form.cy.tsx","test":"PayslipScheduleForm › calls onCancel","violations":[]}
+{"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › validates the required fields","violations":[]}
+{"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › offers opt-outs only on a company-wide holiday","violations":[]}
+{"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › narrows a country holiday to cities","violations":[]}
+{"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › calls onCancel","violations":[]}

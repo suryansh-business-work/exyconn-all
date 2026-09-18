@@ -37,6 +37,7 @@ import {
 } from '../modules/products';
 import { integrationsTypeDefs, integrationsResolvers } from '../modules/integrations';
 import { hrTypeDefs, hrResolvers } from '../modules/hr';
+import { attendanceTypeDefs } from '../modules/hr/attendance.typeDefs';
 import { employeeTypeDefs, employeeResolvers } from '../modules/employee';
 import {
   supportTypeDefs,
@@ -148,6 +149,7 @@ export const typeDefs = [
   productsPurchasingTypeDefs,
   integrationsTypeDefs,
   hrTypeDefs,
+  attendanceTypeDefs,
   employeeTypeDefs,
   supportTypeDefs,
   supportLibraryTypeDefs,

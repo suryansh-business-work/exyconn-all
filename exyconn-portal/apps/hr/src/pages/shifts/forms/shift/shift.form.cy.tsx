@@ -26,6 +26,12 @@ describe('ShiftForm', () => {
     cy.contains('Code is required').should('be.visible');
   });
 
+  it('picks the start time from the MUI clock', () => {
+    mount();
+    cy.get('input[name="startTime"]').parent().find('button').click();
+    cy.get('[role="dialog"], [role="tooltip"]').should('be.visible');
+  });
+
   it('calls onCancel', () => {
     mount();
     cy.contains('button', 'Cancel').click();

@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
+import { RhfSwitch, RhfTextField, RhfTimePicker } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import { useCreateShiftMutation, useUpdateShiftMutation } from '@exyconn/shell/graphql/generated';
@@ -10,8 +10,8 @@ import type { ShiftRow } from './shift.types';
 const schema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
   code: z.string().trim().min(1, 'Code is required'),
-  startTime: z.string().trim().min(1, 'Start (HH:mm) is required'),
-  endTime: z.string().trim().min(1, 'End (HH:mm) is required'),
+  startTime: z.string().trim().min(1, 'Start time is required'),
+  endTime: z.string().trim().min(1, 'End time is required'),
   breakMinutes: z.coerce
     .number({ message: 'Break (minutes) must be a number' })
     .min(0, 'Must be ≥ 0'),
@@ -62,8 +62,8 @@ export function ShiftForm({ initial, onDone, onCancel }: Readonly<ShiftFormProps
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="name" label="Name" />
       <RhfTextField name="code" label="Code" />
-      <RhfTextField name="startTime" label="Start (HH:mm)" />
-      <RhfTextField name="endTime" label="End (HH:mm)" />
+      <RhfTimePicker name="startTime" label="Start time" />
+      <RhfTimePicker name="endTime" label="End time" />
       <RhfTextField name="breakMinutes" label="Break (minutes)" type="number" />
       <RhfTextField name="graceMinutes" label="Grace (minutes)" type="number" />
       <RhfSwitch name="active" label="Active" />

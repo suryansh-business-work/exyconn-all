@@ -611,12 +611,64 @@ export type Attendance = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+/** One attendance record with the employee's details and the day's tracker brief. */
+export type AttendanceEntry = {
+  __typename?: 'AttendanceEntry';
+  createdAt: Scalars['DateTime']['output'];
+  date: Scalars['DateTime']['output'];
+  department?: Maybe<Scalars['String']['output']>;
+  designation?: Maybe<Scalars['String']['output']>;
+  employeeEmail: Scalars['String']['output'];
+  employeeId: Scalars['String']['output'];
+  employeeName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  note?: Maybe<Scalars['String']['output']>;
+  status: AttendanceStatus;
+  tracker: AttendanceTrackerBrief;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type AttendancePage = {
+  __typename?: 'AttendancePage';
+  rows: Array<AttendanceEntry>;
+  totalCount: Scalars['Int']['output'];
+};
+
+/** Time one employee booked against one project on an attendance day. */
+export type AttendanceProjectTime = {
+  __typename?: 'AttendanceProjectTime';
+  /** Measured active milliseconds. */
+  activeMs: Scalars['Float']['output'];
+  /** Approved off-computer milliseconds, kept apart from measured time. */
+  manualMs: Scalars['Float']['output'];
+  /** Empty for time booked without a project. */
+  projectId: Scalars['String']['output'];
+  /** The project's name as it was when the time was booked. */
+  projectName: Scalars['String']['output'];
+  sessions: Scalars['Int']['output'];
+};
+
 export enum AttendanceStatus {
   Absent = 'ABSENT',
   HalfDay = 'HALF_DAY',
   Present = 'PRESENT',
   Wfh = 'WFH'
 }
+
+/** What the desktop tracker recorded on an attendance day, read in the employee's own zone. */
+export type AttendanceTrackerBrief = {
+  __typename?: 'AttendanceTrackerBrief';
+  activeMs: Scalars['Float']['output'];
+  /** When the first session or off-computer entry of the day started; null if none. */
+  firstStartedAt?: Maybe<Scalars['DateTime']['output']>;
+  idleMs: Scalars['Float']['output'];
+  /** When the last finished one ended; null if none has finished. */
+  lastEndedAt?: Maybe<Scalars['DateTime']['output']>;
+  manualMs: Scalars['Float']['output'];
+  /** Per-project totals, the busiest project first. */
+  projects: Array<AttendanceProjectTime>;
+  sessions: Scalars['Int']['output'];
+};
 
 /** A saved set of people a campaign can be sent to: named clients, named contacts, a segment. */
 export type AudienceList = {
@@ -1733,17 +1785,27 @@ export enum DealStage {
   Won = 'WON'
 }
 
+/** A department and, nested inside it, the positions people are hired into. */
 export type Department = {
   __typename?: 'Department';
+  /** A short reference used on reports and exports, e.g. ENG. */
+  code?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   description?: Maybe<Scalars['String']['output']>;
+  /** The employee who heads the department. */
+  headId?: Maybe<Scalars['String']['output']>;
+  /** Resolved from headId for display; null when nobody is set. */
+  headName?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
+  positions: Array<Position>;
   updatedAt: Scalars['DateTime']['output'];
 };
 
 export type DepartmentInput = {
+  code?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
+  headId?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
 };
 
@@ -7048,19 +7110,41 @@ export enum PolicyStatus {
   Published = 'PUBLISHED'
 }
 
+/** A job position inside a department; its name is the designation on employee records. */
 export type Position = {
   __typename?: 'Position';
+  active: Scalars['Boolean']['output'];
+  code?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
+  /** The owning department's name. */
   department: Scalars['String']['output'];
   description?: Maybe<Scalars['String']['output']>;
+  /** Code of the EmploymentType the position is hired on. */
+  employmentType?: Maybe<Scalars['String']['output']>;
+  /** Active employees currently holding the position. */
+  filled: Scalars['Int']['output'];
+  /** Code of the Grade the position sits in. */
+  grade?: Maybe<Scalars['String']['output']>;
+  /** Approved seats. */
+  headcount: Scalars['Int']['output'];
   id: Scalars['ID']['output'];
+  maxSalary: Scalars['Float']['output'];
+  /** Monthly salary band in the company's currency. */
+  minSalary: Scalars['Float']['output'];
   name: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
 
 export type PositionInput = {
+  active: Scalars['Boolean']['input'];
+  code?: InputMaybe<Scalars['String']['input']>;
   department: Scalars['String']['input'];
   description?: InputMaybe<Scalars['String']['input']>;
+  employmentType?: InputMaybe<Scalars['String']['input']>;
+  grade?: InputMaybe<Scalars['String']['input']>;
+  headcount: Scalars['Int']['input'];
+  maxSalary: Scalars['Float']['input'];
+  minSalary: Scalars['Float']['input'];
   name: Scalars['String']['input'];
 };
 
@@ -7745,6 +7829,12 @@ export type Query = {
   listAssetsStats: TableStats;
   /** HR/ADMIN: all attendance records. */
   listAttendance: Array<Attendance>;
+  /**
+   * HR/ADMIN: the attendance register, one page at a time. Search matches the employee's
+   * name or email and the note. Filters: status and employeeId (EQUALS), dateFrom and dateTo
+   * (YYYY-MM-DD, inclusive) and projectId (days the employee tracked time on that project).
+   */
+  listAttendancePaged: AttendancePage;
   listAudienceLists: Array<AudienceList>;
   listAudienceListsPaged: AudienceListPage;
   listAuditLogsPaged: AuditLogPage;
@@ -7793,7 +7883,7 @@ export type Query = {
   listDeals: Array<Deal>;
   listDealsPaged: DealPage;
   listDealsStats: TableStats;
-  /** HR/ADMIN: organizational departments. */
+  /** HR/ADMIN: organizational departments, each with its positions. */
   listDepartments: Array<Department>;
   listEmailConfigs: Array<EmailConfig>;
   listEmailFragments: Array<EmailFragment>;
@@ -8766,6 +8856,11 @@ export type QueryListApplicantsPagedArgs = {
 
 
 export type QueryListAssetsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListAttendancePagedArgs = {
   input: TableQueryInput;
 };
 
@@ -11908,7 +12003,11 @@ export type ResolversTypes = ResolversObject<{
   AssetPage: ResolverTypeWrapper<AssetPage>;
   AssetStatus: AssetStatus;
   Attendance: ResolverTypeWrapper<Attendance>;
+  AttendanceEntry: ResolverTypeWrapper<AttendanceEntry>;
+  AttendancePage: ResolverTypeWrapper<AttendancePage>;
+  AttendanceProjectTime: ResolverTypeWrapper<AttendanceProjectTime>;
   AttendanceStatus: AttendanceStatus;
+  AttendanceTrackerBrief: ResolverTypeWrapper<AttendanceTrackerBrief>;
   AudienceList: ResolverTypeWrapper<AudienceList>;
   AudienceListInput: AudienceListInput;
   AudienceListPage: ResolverTypeWrapper<AudienceListPage>;
@@ -12504,6 +12603,10 @@ export type ResolversParentTypes = ResolversObject<{
   AssetInput: AssetInput;
   AssetPage: AssetPage;
   Attendance: Attendance;
+  AttendanceEntry: AttendanceEntry;
+  AttendancePage: AttendancePage;
+  AttendanceProjectTime: AttendanceProjectTime;
+  AttendanceTrackerBrief: AttendanceTrackerBrief;
   AudienceList: AudienceList;
   AudienceListInput: AudienceListInput;
   AudienceListPage: AudienceListPage;
@@ -13277,6 +13380,48 @@ export type AttendanceResolvers<ContextType = GraphQLContext, ParentType extends
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type AttendanceEntryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AttendanceEntry'] = ResolversParentTypes['AttendanceEntry']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  date?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  department?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  designation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  employeeEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  employeeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  employeeName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  note?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['AttendanceStatus'], ParentType, ContextType>;
+  tracker?: Resolver<ResolversTypes['AttendanceTrackerBrief'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AttendancePageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AttendancePage'] = ResolversParentTypes['AttendancePage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['AttendanceEntry']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AttendanceProjectTimeResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AttendanceProjectTime'] = ResolversParentTypes['AttendanceProjectTime']> = ResolversObject<{
+  activeMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  manualMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  projectId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  projectName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sessions?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AttendanceTrackerBriefResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AttendanceTrackerBrief'] = ResolversParentTypes['AttendanceTrackerBrief']> = ResolversObject<{
+  activeMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  firstStartedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  idleMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  lastEndedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  manualMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  projects?: Resolver<Array<ResolversTypes['AttendanceProjectTime']>, ParentType, ContextType>;
+  sessions?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type AudienceListResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AudienceList'] = ResolversParentTypes['AudienceList']> = ResolversObject<{
   clientIds?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   contactIds?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
@@ -13877,10 +14022,14 @@ export type DealPageResolvers<ContextType = GraphQLContext, ParentType extends R
 }>;
 
 export type DepartmentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Department'] = ResolversParentTypes['Department']> = ResolversObject<{
+  code?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  headId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  headName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  positions?: Resolver<Array<ResolversTypes['Position']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -15618,10 +15767,18 @@ export type PolicyPageResolvers<ContextType = GraphQLContext, ParentType extends
 }>;
 
 export type PositionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Position'] = ResolversParentTypes['Position']> = ResolversObject<{
+  active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  code?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   department?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  employmentType?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  filled?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  grade?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  headcount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  maxSalary?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  minSalary?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -16036,6 +16193,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listAssetsPaged?: Resolver<ResolversTypes['AssetPage'], ParentType, ContextType, RequireFields<QueryListAssetsPagedArgs, 'input'>>;
   listAssetsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listAttendance?: Resolver<Array<ResolversTypes['Attendance']>, ParentType, ContextType>;
+  listAttendancePaged?: Resolver<ResolversTypes['AttendancePage'], ParentType, ContextType, RequireFields<QueryListAttendancePagedArgs, 'input'>>;
   listAudienceLists?: Resolver<Array<ResolversTypes['AudienceList']>, ParentType, ContextType>;
   listAudienceListsPaged?: Resolver<ResolversTypes['AudienceListPage'], ParentType, ContextType, RequireFields<QueryListAudienceListsPagedArgs, 'input'>>;
   listAuditLogsPaged?: Resolver<ResolversTypes['AuditLogPage'], ParentType, ContextType, RequireFields<QueryListAuditLogsPagedArgs, 'input'>>;
@@ -17665,6 +17823,10 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   AssetAssignment?: AssetAssignmentResolvers<ContextType>;
   AssetPage?: AssetPageResolvers<ContextType>;
   Attendance?: AttendanceResolvers<ContextType>;
+  AttendanceEntry?: AttendanceEntryResolvers<ContextType>;
+  AttendancePage?: AttendancePageResolvers<ContextType>;
+  AttendanceProjectTime?: AttendanceProjectTimeResolvers<ContextType>;
+  AttendanceTrackerBrief?: AttendanceTrackerBriefResolvers<ContextType>;
   AudienceList?: AudienceListResolvers<ContextType>;
   AudienceListPage?: AudienceListPageResolvers<ContextType>;
   AudienceMember?: AudienceMemberResolvers<ContextType>;

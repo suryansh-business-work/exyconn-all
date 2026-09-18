@@ -123,11 +123,33 @@ query HrDashboard {
   }
 }
 
+fragment PositionFields on Position {
+  id
+  name
+  department
+  code
+  description
+  minSalary
+  maxSalary
+  grade
+  employmentType
+  headcount
+  filled
+  active
+}
+
+# Departments with their positions nested inside — HR manages both from one screen.
 query ListDepartments {
   listDepartments {
     id
     name
+    code
     description
+    headId
+    headName
+    positions {
+      ...PositionFields
+    }
   }
 }
 
@@ -149,10 +171,7 @@ mutation DeleteDepartment($id: ID!) {
 
 query ListPositions {
   listPositions {
-    id
-    name
-    department
-    description
+    ...PositionFields
   }
 }
 
@@ -181,5 +200,37 @@ query ProbationsEnding($days: Int) {
     department
     avatarUrl
     probationEndDate
+  }
+}
+
+query ListAttendancePaged($input: TableQueryInput!) {
+  listAttendancePaged(input: $input) {
+    totalCount
+    rows {
+      id
+      employeeId
+      employeeName
+      employeeEmail
+      designation
+      department
+      date
+      status
+      note
+      tracker {
+        activeMs
+        idleMs
+        manualMs
+        sessions
+        firstStartedAt
+        lastEndedAt
+        projects {
+          projectId
+          projectName
+          activeMs
+          manualMs
+          sessions
+        }
+      }
+    }
   }
 }

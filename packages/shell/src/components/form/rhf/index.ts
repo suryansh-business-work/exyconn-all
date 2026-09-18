@@ -5,6 +5,7 @@ export { RhfChipsInput } from './RhfChipsInput';
 export { RhfSwitch } from './RhfSwitch';
 export { RhfDatePicker } from './RhfDatePicker';
 export { RhfDateTimePicker } from './RhfDateTimePicker';
+export { RhfTimePicker } from './RhfTimePicker';
 export { RhfAutocomplete } from './RhfAutocomplete';
 export { RhfCurrencyField, useCompanyCurrency } from './RhfCurrencyField';
 export { RhfRichText } from './RhfRichText';

@@ -1,58 +1,64 @@
-import { useMemo } from 'react';
-import { Box } from '@exyconn/shell/components/ui';
-import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
-import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-
+import { useState } from 'react';
+import { CrudDashboard, usePagedFetcher } from '@exyconn/crud';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
-import { useListAttendanceQuery, useListUsersQuery } from '@exyconn/shell/graphql/generated';
-import { densePanel } from '@exyconn/shell/components/glass/glass';
+import {
+  ListAttendancePagedDocument,
+  type ListAttendancePagedQuery,
+} from '@exyconn/shell/graphql/generated';
+import {
+  ATTENDANCE_COLUMNS,
+  type AttendanceEntryRow,
+  type AttendanceGridContext,
+} from './attendance/attendance-grid';
+import {
+  EMPTY_ATTENDANCE_FILTERS,
+  attendanceFilters,
+  type AttendanceFilterState,
+} from './attendance/attendance.filters';
+import { AttendanceFilters } from './attendance/AttendanceFilters';
+import { AttendanceDetailDialog } from './attendance/AttendanceDetailDialog';
 
-type AttendanceRow = {
-  id: string;
-  employeeId: string;
-  date: string;
-  status: string;
-  note?: string | null;
-};
-
-/** HR Attendance — every recorded attendance entry across the workforce. */
+/**
+ * HR Attendance — every attendance record across the workforce, server-paged, with each
+ * day's tracker brief: time worked, sessions and the projects it went on.
+ */
 export function AttendanceListPage() {
-  const { data, loading, refetch } = useListAttendanceQuery({ fetchPolicy: 'cache-and-network' });
-  const { data: usersData } = useListUsersQuery();
   const { formatDate } = useSettings();
+  const [filters, setFilters] = useState<AttendanceFilterState>(EMPTY_ATTENDANCE_FILTERS);
+  const [refreshSignal, setRefreshSignal] = useState(0);
+  const [viewing, setViewing] = useState<AttendanceEntryRow | null>(null);
 
-  const nameById = useMemo(() => {
-    const map = new Map<string, string>();
-    (usersData?.listUsers ?? []).forEach((u) => map.set(u.id, u.name));
-    return map;
-  }, [usersData]);
+  const fetchRows = usePagedFetcher(
+    ListAttendancePagedDocument,
+    (data: ListAttendancePagedQuery) => data.listAttendancePaged,
+    attendanceFilters(filters),
+  );
 
-  const rows = (data?.listAttendance ?? []) as AttendanceRow[];
+  const changeFilters = (next: AttendanceFilterState) => {
+    setFilters(next);
+    setRefreshSignal((signal) => signal + 1);
+  };
 
-  const columns: Column<AttendanceRow>[] = [
-    {
-      key: 'employeeId',
-      label: 'Employee',
-      render: (r) => nameById.get(r.employeeId) ?? r.employeeId,
-    },
-    { key: 'date', label: 'Date', render: (r) => formatDate(r.date) },
-    { key: 'status', label: 'Status', render: (r) => <StatusChip value={r.status} /> },
-    { key: 'note', label: 'Note', render: (r) => r.note ?? '—' },
-  ];
+  const gridContext: AttendanceGridContext = {
+    actions: { details: setViewing },
+    formatDate,
+  };
 
   return (
-    <Box>
-      <PageHeader title="Attendance" subtitle="All recorded attendance entries" />
-      <Box sx={densePanel}>
-        <DataTable
-          columns={columns}
-          rows={rows}
-          emptyMessage="No attendance recorded yet."
-          loading={loading}
-          onRefresh={refetch}
-        />
-      </Box>
-    </Box>
+    <CrudDashboard
+      title="Attendance"
+      subtitle="Every attendance record, with what the tracker recorded that day"
+      entityLabel="attendance record"
+      stats={[]}
+      refreshSignal={refreshSignal}
+      columnDefs={ATTENDANCE_COLUMNS}
+      fetchRows={fetchRows}
+      context={gridContext}
+      searchPlaceholder="Search by employee, email or note…"
+      exportFileName="attendance"
+      onRowClick={setViewing}
+      toolbar={<AttendanceFilters value={filters} onChange={changeFilters} />}
+      extraDialogs={<AttendanceDetailDialog entry={viewing} onClose={() => setViewing(null)} />}
+    />
   );
 }

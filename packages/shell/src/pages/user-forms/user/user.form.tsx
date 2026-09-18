@@ -68,14 +68,14 @@ function UserFormFields({ initial, salary, onDone, onCancel, onCreated }: Readon
     (deptData?.listDepartments ?? []).map((d) => d.name),
     initial?.department,
   );
-  const positionOptions = nameOptions(
-    (posData?.listPositions ?? []).map((p) => p.name),
-    initial?.designation,
-  );
+  const positions = posData?.listPositions ?? [];
   // Nobody reports to themself, so the person being edited is not offered.
   const managerOptions: SelectOption[] = (peopleData?.listEmployeeOptions ?? [])
     .filter((person) => person.id !== initial?.id)
-    .map((person) => ({ value: person.id, label: person.name }));
+    .map((person) => ({
+      value: person.id,
+      label: [person.name, person.designation].filter(Boolean).join(' — '),
+    }));
 
   const onSubmit = async (values: UserValues) => {
     const isActive = values.isActive === 'true';
@@ -148,7 +148,8 @@ function UserFormFields({ initial, salary, onDone, onCancel, onCreated }: Readon
       <ProfileFields />
       <EmploymentFields
         departmentOptions={departmentOptions}
-        positionOptions={positionOptions}
+        positions={positions}
+        currentDesignation={initial?.designation}
         managerOptions={managerOptions}
       />
       <RhfDatePicker name="joinDate" label="Join date" />

@@ -1,7 +1,7 @@
 import { useFormContext } from 'react-hook-form';
 import { useT } from '@exyconn/i18n';
 import { Box, FormHelperText, Grid } from '@exyconn/shell/components/ui';
-import { RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
+import { RhfSwitch, RhfTimePicker } from '@exyconn/shell/components/form/rhf';
 
 /**
  * Tracking on a schedule instead of on a button press.
@@ -38,7 +38,7 @@ export function AutoStartScheduleFields() {
               sm: 6,
             }}
           >
-            <RhfTextField name="autoStartHour" label="Start at (hour, 0–23)" type="number" />
+            <RhfTimePicker name="autoStartHour" label="Start at" hoursOnly />
           </Grid>
           <Grid
             size={{
@@ -46,10 +46,10 @@ export function AutoStartScheduleFields() {
               sm: 6,
             }}
           >
-            <RhfTextField
+            <RhfTimePicker
               name="autoStopHour"
-              label="Stop at (hour, 0–23)"
-              type="number"
+              label="Stop at"
+              hoursOnly
               helperText={
                 crossesMidnight
                   ? 'This window runs past midnight — a night shift.'

@@ -22,6 +22,14 @@ describe('DepartmentForm', () => {
     cy.contains('Name is required').should('be.visible');
   });
 
+  it('limits the code to 12 characters', () => {
+    mount();
+    cy.get('input[name="name"]').type('Engineering');
+    cy.get('input[name="code"]').type('ENGINEERING-PLATFORM');
+    cy.contains('button', 'Create').click();
+    cy.contains('Keep the code under 12 characters').should('be.visible');
+  });
+
   it('calls onCancel', () => {
     mount();
     cy.contains('button', 'Cancel').click();

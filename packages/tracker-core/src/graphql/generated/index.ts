@@ -634,7 +634,9 @@ export type DealStage =
   | 'WON';
 
 export type DepartmentInput = {
+  code: InputMaybe<Scalars['String']['input']>;
   description: InputMaybe<Scalars['String']['input']>;
+  headId: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
 };
 
@@ -1524,8 +1526,15 @@ export type PolicyStatus =
   | 'PUBLISHED';
 
 export type PositionInput = {
+  active: Scalars['Boolean']['input'];
+  code: InputMaybe<Scalars['String']['input']>;
   department: Scalars['String']['input'];
   description: InputMaybe<Scalars['String']['input']>;
+  employmentType: InputMaybe<Scalars['String']['input']>;
+  grade: InputMaybe<Scalars['String']['input']>;
+  headcount: Scalars['Int']['input'];
+  maxSalary: Scalars['Float']['input'];
+  minSalary: Scalars['Float']['input'];
   name: Scalars['String']['input'];
 };
 
