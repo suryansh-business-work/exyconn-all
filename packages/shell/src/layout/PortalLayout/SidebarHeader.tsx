@@ -17,7 +17,7 @@ import {
   fontWeight,
 } from '@/components/ui';
 import { useT } from '@exyconn/i18n';
-import { env } from '@/config/env';
+import { useBrandMark } from '@/hooks/useBrandMark';
 import { TOPBAR_HEIGHT } from './metrics';
 
 interface SidebarHeaderProps {
@@ -40,6 +40,7 @@ export function SidebarHeader({
   onQueryChange,
 }: Readonly<SidebarHeaderProps>) {
   const t = useT();
+  const brandMark = useBrandMark();
   return (
     <>
       <Toolbar
@@ -50,7 +51,7 @@ export function SidebarHeader({
           px: 1.5,
         }}
       >
-        <Box component="img" src={env.iconUrl} alt="Exyconn" sx={{ height: 22 }} />
+        <Box component="img" src={brandMark} alt="Exyconn" sx={{ height: 22 }} />
         {onToggleCollapse && !collapsed && (
           <Tooltip title={t('Collapse sidebar')}>
             <IconButton size="small" aria-label={t('Collapse sidebar')} onClick={onToggleCollapse}>
