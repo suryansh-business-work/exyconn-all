@@ -1626,6 +1626,8 @@ export type CreateUserInput = {
   address?: InputMaybe<Scalars['String']['input']>;
   avatarUrl?: InputMaybe<Scalars['String']['input']>;
   brief?: InputMaybe<Scalars['String']['input']>;
+  /** The city they work in, for city holidays; null when not set. */
+  city?: InputMaybe<Scalars['String']['input']>;
   /** ISO 3166-1 alpha-2, or null to follow the company's country. */
   country?: InputMaybe<Scalars['String']['input']>;
   dateOfBirth?: InputMaybe<Scalars['DateTime']['input']>;
@@ -2599,6 +2601,8 @@ export type HeldAsset = {
 
 export type Holiday = {
   __typename?: 'Holiday';
+  /** Cities of the country that observe it; empty for the whole country. */
+  cities: Array<Scalars['String']['output']>;
   /** ISO 3166-1 alpha-2 country it is observed in, or empty for the whole company. */
   country: Scalars['String']['output'];
   date: Scalars['DateTime']['output'];
@@ -2611,6 +2615,8 @@ export type Holiday = {
 };
 
 export type HolidayInput = {
+  /** Cities of the country that observe it; empty for the whole country. Ignored on a global one. */
+  cities: Array<Scalars['String']['input']>;
   /** ISO 3166-1 alpha-2, or empty for a holiday the whole company observes. */
   country: Scalars['String']['input'];
   date: Scalars['DateTime']['input'];
@@ -8010,7 +8016,7 @@ export type Query = {
   myExitRecord?: Maybe<ExitRecord>;
   myExpenseClaims: Array<ExpenseClaim>;
   myGoals: Array<Goal>;
-  /** The holidays the signed-in employee observes: company-wide ones plus their country's. */
+  /** The holidays the signed-in employee observes: company-wide ones plus their country's and city's. */
   myHolidays: Array<Holiday>;
   /**
    * This employee's own balances. The current year's are created on first read from the
@@ -11577,6 +11583,8 @@ export type UpdateUserInput = {
   address?: InputMaybe<Scalars['String']['input']>;
   avatarUrl?: InputMaybe<Scalars['String']['input']>;
   brief?: InputMaybe<Scalars['String']['input']>;
+  /** The city they work in, for city holidays; null when not set. */
+  city?: InputMaybe<Scalars['String']['input']>;
   /** ISO 3166-1 alpha-2, or null to follow the company's country. */
   country?: InputMaybe<Scalars['String']['input']>;
   dateOfBirth?: InputMaybe<Scalars['DateTime']['input']>;
@@ -11609,6 +11617,8 @@ export type User = {
   blockReason?: Maybe<Scalars['String']['output']>;
   /** A few lines about the person, shown on their profile across the portals. */
   brief?: Maybe<Scalars['String']['output']>;
+  /** The city the person works in, which decides their city holidays. Set by HR only. */
+  city?: Maybe<Scalars['String']['output']>;
   /**
    * ISO 3166-1 alpha-2 country the person is employed in, which decides their leave quotas
    * and holidays. Null follows the company's country. Set by HR only.
@@ -14385,6 +14395,7 @@ export type HeldAssetResolvers<ContextType = GraphQLContext, ParentType extends 
 }>;
 
 export type HolidayResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Holiday'] = ResolversParentTypes['Holiday']> = ResolversObject<{
+  cities?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   country?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   date?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -17525,6 +17536,7 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   avatarUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   blockReason?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   brief?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  city?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   country?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   dateOfBirth?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;

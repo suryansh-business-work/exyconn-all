@@ -20,14 +20,15 @@ const applyLeave = hrResolvers.Mutation.applyLeave as unknown as Resolver;
 const ctx = (id: string) =>
   ({ user: { id, email: 'e@exyconn.com', roles: [ROLES.EMPLOYEE] } }) as unknown as GraphQLContext;
 
-/** An employee, optionally employed in a country other than the company's. */
-async function employee(country: string | null = null): Promise<string> {
+/** An employee, optionally employed in a country other than the company's, and a city. */
+async function employee(country: string | null = null, city: string | null = null) {
   const user = await UserModel.create({
     name: 'Asha',
     email: `asha-${new Types.ObjectId().toHexString()}@exyconn.com`,
     passwordHash: 'x',
     roles: [ROLES.EMPLOYEE],
     country,
+    city,
   });
   return String(user._id);
 }
@@ -198,6 +199,30 @@ describe('myHolidays', () => {
     ]);
   });
 
+  it("adds a city's holidays only for the people working in that city", async () => {
+    await holiday('Diwali', { country: 'IN' });
+    await holiday('Karnataka Rajyotsava', { country: 'IN', cities: ['Bengaluru'] });
+    await holiday('Gudi Padwa', { country: 'IN', cities: ['Mumbai', 'Pune'] });
+    await holiday('Pioneer Day', { country: 'US', cities: ['Bengaluru'] });
+    const namesFor = async (id: string) =>
+      ((await Q.myHolidays(null, {}, ctx(id))) as { name: string }[])
+        .map((row) => row.name)
+        .sort((a, b) => a.localeCompare(b));
+
+    expect(await namesFor(await employee(null, ' pune '))).toEqual(['Diwali', 'Gudi Padwa']);
+    expect(await namesFor(await employee('IN', 'bengaluru'))).toEqual([
+      'Diwali',
+      'Karnataka Rajyotsava',
+    ]);
+    expect(await namesFor(await employee())).toEqual(['Diwali']);
+  });
+
+  it('matches a city name literally, not as a pattern', async () => {
+    await holiday('Anywhere', { country: 'IN', cities: ['Delhi'] });
+
+    expect(await Q.myHolidays(null, {}, ctx(await employee(null, '.*')))).toEqual([]);
+  });
+
   it('treats a holiday stored before countries existed as company-wide', async () => {
     await HolidayModel.collection.insertOne({
       name: 'Legacy',
@@ -210,11 +235,13 @@ describe('myHolidays', () => {
       name: string;
       country?: string | null;
       excludedCountries?: string[] | null;
+      cities?: string[] | null;
     }[];
     const resolve = hrMasterResolvers.Holiday;
 
     expect(rows.map((row) => row.name)).toEqual(['Legacy']);
     expect(resolve.country(rows[0])).toBe('');
     expect(resolve.excludedCountries(rows[0])).toEqual([]);
+    expect(resolve.cities(rows[0])).toEqual([]);
   });
 });

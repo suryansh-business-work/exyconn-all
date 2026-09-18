@@ -585,6 +585,8 @@ export type CreateUserInput = {
   address: InputMaybe<Scalars['String']['input']>;
   avatarUrl: InputMaybe<Scalars['String']['input']>;
   brief: InputMaybe<Scalars['String']['input']>;
+  /** The city they work in, for city holidays; null when not set. */
+  city: InputMaybe<Scalars['String']['input']>;
   /** ISO 3166-1 alpha-2, or null to follow the company's country. */
   country: InputMaybe<Scalars['String']['input']>;
   dateOfBirth: InputMaybe<Scalars['DateTime']['input']>;
@@ -916,6 +918,8 @@ export type GradeInput = {
 };
 
 export type HolidayInput = {
+  /** Cities of the country that observe it; empty for the whole country. Ignored on a global one. */
+  cities: Array<Scalars['String']['input']>;
   /** ISO 3166-1 alpha-2, or empty for a holiday the whole company observes. */
   country: Scalars['String']['input'];
   date: Scalars['DateTime']['input'];
@@ -2322,6 +2326,8 @@ export type UpdateUserInput = {
   address: InputMaybe<Scalars['String']['input']>;
   avatarUrl: InputMaybe<Scalars['String']['input']>;
   brief: InputMaybe<Scalars['String']['input']>;
+  /** The city they work in, for city holidays; null when not set. */
+  city: InputMaybe<Scalars['String']['input']>;
   /** ISO 3166-1 alpha-2, or null to follow the company's country. */
   country: InputMaybe<Scalars['String']['input']>;
   dateOfBirth: InputMaybe<Scalars['DateTime']['input']>;

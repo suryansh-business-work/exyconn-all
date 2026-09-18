@@ -69,7 +69,7 @@ export const TABLE_QUERY_LIMITS = Object.freeze({
 });
 
 /** Escapes user text so it is matched literally inside a Mongo `$regex`. */
-function escapeRegex(value: string): string {
+export function escapeRegex(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`);
 }
 

@@ -13,6 +13,8 @@ export const hrMasterTypeDefs = gql`
     country: String!
     "Countries that do not observe a company-wide holiday. Ignored on a country holiday."
     excludedCountries: [String!]!
+    "Cities of the country that observe it; empty for the whole country. Ignored on a global one."
+    cities: [String!]!
   }
 
   type HolidayPage {
@@ -101,7 +103,7 @@ export const hrMasterTypeDefs = gql`
     listHolidaysPaged(input: TableQueryInput!): HolidayPage!
     listHolidaysStats: TableStats!
     getHoliday(id: ID!): Holiday!
-    "The holidays the signed-in employee observes: company-wide ones plus their country's."
+    "The holidays the signed-in employee observes: company-wide ones plus their country's and city's."
     myHolidays: [Holiday!]!
 
     listLeavePolicies: [LeavePolicy!]!

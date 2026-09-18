@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
   RhfAutocomplete,
+  RhfChipsInput,
   RhfDatePicker,
   RhfMultiSelect,
   RhfSelect,
@@ -28,6 +29,8 @@ const schema = z.object({
   // Empty is a holiday the whole company observes.
   country: z.string(),
   excludedCountries: z.array(z.string()),
+  // Empty is the whole country. Only a country holiday can be narrowed to cities.
+  cities: z.array(z.string().trim().min(1).max(100, 'Keep city names under 100 characters')),
 });
 type Values = z.infer<typeof schema>;
 
@@ -38,6 +41,7 @@ const toInitial = (row: HolidayRow | null) => ({
   description: row?.description ?? '',
   country: row?.country ?? '',
   excludedCountries: row?.excludedCountries ?? [],
+  cities: row?.cities ?? [],
 });
 
 /** The empty country: every country observes it. */
@@ -45,13 +49,18 @@ const ALL_COUNTRIES: SelectOption = { value: '', label: 'All countries' };
 
 /**
  * Empty optional inputs are "not set", which the API models as null. Opt-outs only mean
- * something on a company-wide holiday, so a country holiday never carries stale ones.
+ * something on a company-wide holiday and cities only on a country one, so neither kind
+ * carries the other's stale values.
  */
-const toInput = (values: Values) => ({
-  ...values,
-  description: values.description === '' ? null : values.description,
-  excludedCountries: values.country === '' ? values.excludedCountries : [],
-});
+const toInput = (values: Values) => {
+  const companyWide = values.country === '';
+  return {
+    ...values,
+    description: values.description === '' ? null : values.description,
+    excludedCountries: companyWide ? values.excludedCountries : [],
+    cities: companyWide ? [] : values.cities,
+  };
+};
 
 interface HolidayFormProps {
   initial: HolidayRow | null;
@@ -91,12 +100,18 @@ export function HolidayForm({ initial, onDone, onCancel }: Readonly<HolidayFormP
         options={[ALL_COUNTRIES, ...countries]}
         helperText="Pick a country for a holiday only employees there observe."
       />
-      {companyWide && (
+      {companyWide ? (
         <RhfMultiSelect
           name="excludedCountries"
           label="Not observed in"
           options={countries}
           helperText="Countries whose employees work on this day."
+        />
+      ) : (
+        <RhfChipsInput
+          name="cities"
+          label="Cities"
+          helperText="Type a city and press Enter. Leave empty for the whole country."
         />
       )}
     </EntityForm>

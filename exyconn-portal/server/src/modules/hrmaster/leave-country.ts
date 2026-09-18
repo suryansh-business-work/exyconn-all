@@ -1,6 +1,7 @@
 import { UserModel } from '../admin/user.model';
 import { companyProfile } from '../../lib/company';
 import { badRequest } from '../../utils/errors';
+import { escapeRegex } from '../../utils/tableQuery';
 import { LeavePolicyModel } from './leavePolicy.model';
 import { LeaveBalanceModel } from './leaveBalance.model';
 
@@ -30,8 +31,18 @@ interface PolicyTerms {
 
 /** The employee's own country, or the company's when HR has not set one. Empty if neither. */
 export async function employeeCountry(employeeId: string): Promise<string> {
-  const user = await UserModel.findById(employeeId).select('country').lean();
-  return user?.country ?? (await companyProfile()).country;
+  return (await employeePlace(employeeId)).country;
+}
+
+/** Where the employee works: their country (as employeeCountry) and city, '' when unset. */
+export async function employeePlace(
+  employeeId: string,
+): Promise<{ country: string; city: string }> {
+  const user = await UserModel.findById(employeeId).select('country city').lean();
+  return {
+    country: user?.country ?? (await companyProfile()).country,
+    city: user?.city ?? '',
+  };
 }
 
 /** A leave type as it applies in `country`: the override's terms where one exists. */
@@ -63,12 +74,20 @@ export async function assertLeaveTypeOffered(employeeId: string, code: string): 
 }
 
 /**
- * The holidays observed in `country`: company-wide ones it has not opted out of, plus its
- * own. Holidays written before countries existed have no country field and count as global.
+ * The holidays observed in `city`, `country`: company-wide ones the country has not opted out
+ * of, plus the country's own — those for the whole country and those naming the city (case
+ * aside). Holidays written before countries or cities existed lack the field: global and
+ * whole-country respectively.
  */
-export function holidaysObservedIn(country: string) {
+export function holidaysObservedIn(country: string, city = '') {
+  const inCity =
+    city === '' ? [] : [{ country, cities: new RegExp(`^${escapeRegex(city)}$`, 'i') }];
   return {
-    $or: [{ country: { $in: ['', null] }, excludedCountries: { $ne: country } }, { country }],
+    $or: [
+      { country: { $in: ['', null] }, excludedCountries: { $ne: country } },
+      { country, cities: { $in: [[], null] } },
+      ...inCity,
+    ],
   };
 }
 

@@ -93,6 +93,11 @@ export function EmploymentFields({
         options={[COMPANY_COUNTRY_OPTION, ...countries]}
         helperText="Decides which leave quotas and holidays apply to them."
       />
+      <RhfTextField
+        name="city"
+        label="City of employment"
+        helperText="Adds the holidays HR set for this city."
+      />
     </>
   );
 }
