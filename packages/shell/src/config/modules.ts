@@ -1,5 +1,6 @@
 import type { SvgIconComponent } from '@mui/icons-material';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import InsightsIcon from '@mui/icons-material/Insights';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import BugReportIcon from '@mui/icons-material/BugReport';
 import GroupsIcon from '@mui/icons-material/Groups';
@@ -782,6 +783,12 @@ export const MODULES: ModuleDefinition[] = [
     accent: color.blue[600],
     children: [
       { key: 'admin-overview', label: 'Overview', path: '/admin', icon: DashboardIcon },
+      {
+        key: 'admin-analytics',
+        label: 'Analytics',
+        path: '/admin/analytics',
+        icon: InsightsIcon,
+      },
       {
         key: 'admin-organizations',
         label: 'Organizations',

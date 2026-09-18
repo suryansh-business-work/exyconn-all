@@ -4,8 +4,8 @@ import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useItCostSummaryQuery, type ItCostSummaryQuery } from '@exyconn/shell/graphql/generated';
-import { MetricChart } from './MetricChart';
-import { StatRow } from './StatRow';
+import { MetricChart } from '@exyconn/shell/components/dashboard/MetricChart';
+import { StatRow } from '@exyconn/shell/components/dashboard/StatRow';
 
 type CostSummary = ItCostSummaryQuery['itCostSummary'];
 

@@ -1,9 +1,9 @@
 import { useMemo } from 'react';
 import { useT } from '@exyconn/i18n';
-import { BarChart, Box, ChartCard, type ChartData } from '@exyconn/shell/components/ui';
-import { panel } from '@exyconn/shell/components/glass/glass';
+import { BarChart, Box, ChartCard, type ChartData } from '@/components/ui';
+import { panel } from '../glass/glass';
 
-/** A labelled number, as the IT read models return them. */
+/** A labelled number, as the report read models return them. */
 export interface Metric {
   label: string;
   value: number;
@@ -21,8 +21,8 @@ interface MetricChartProps {
 }
 
 /**
- * One series of labelled numbers as a bar chart, with its table twin — the shape every IT cost
- * and report chart has. Labels that are enum values are shown as the words they stand for.
+ * One series of labelled numbers as a bar chart, with its table twin — the shape every cost,
+ * report and analytics chart has. Labels that are enum values are shown as the words they stand for.
  */
 export function MetricChart({
   title,

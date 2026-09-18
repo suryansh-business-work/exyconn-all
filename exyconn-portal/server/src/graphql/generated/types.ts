@@ -186,6 +186,20 @@ export type AiUserSpend = {
   userId: Scalars['String']['output'];
 };
 
+/** A labelled count, or hours where the field says so. */
+export type AnalyticsMetric = {
+  __typename?: 'AnalyticsMetric';
+  label: Scalars['String']['output'];
+  value: Scalars['Float']['output'];
+};
+
+/** One bucket of a series over time: a YYYY-MM-DD day or a YYYY-MM month. */
+export type AnalyticsPoint = {
+  __typename?: 'AnalyticsPoint';
+  period: Scalars['String']['output'];
+  value: Scalars['Float']['output'];
+};
+
 export type Announcement = {
   __typename?: 'Announcement';
   audience: AnnouncementAudience;
@@ -2134,6 +2148,17 @@ export type EmailTemplateUsage = {
 export type EmailVariableInput = {
   name: Scalars['String']['input'];
   value: Scalars['String']['input'];
+};
+
+/** The people holding the EMPLOYEE role. */
+export type EmployeeAnalytics = {
+  __typename?: 'EmployeeAnalytics';
+  /** ISO 3166-1 alpha-2 labels; 'Not set' follows the company's country. */
+  byCountry: Array<AnalyticsMetric>;
+  byDepartment: Array<AnalyticsMetric>;
+  byStatus: Array<AnalyticsMetric>;
+  byWorkLocation: Array<AnalyticsMetric>;
+  total: Scalars['Int']['output'];
 };
 
 export type EmployeeDocument = {
@@ -7911,6 +7936,23 @@ export type PexelsSearchFilters = {
   size?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** Every organization on the platform. */
+export type PlatformAnalytics = {
+  __typename?: 'PlatformAnalytics';
+  activeOrganizations: Scalars['Int']['output'];
+  employees: Scalars['Int']['output'];
+  organizations: Scalars['Int']['output'];
+  /** ISO 3166-1 alpha-2 labels. */
+  organizationsByCountry: Array<AnalyticsMetric>;
+  organizationsByStatus: Array<AnalyticsMetric>;
+  /** Organizations created per month over the last year. */
+  organizationsPerMonth: Array<AnalyticsPoint>;
+  trackedUsers: Scalars['Int']['output'];
+  users: Scalars['Int']['output'];
+  /** User accounts per organization, largest first. */
+  usersByOrganization: Array<AnalyticsMetric>;
+};
+
 export type Policy = {
   __typename?: 'Policy';
   /** How many people have signed the CURRENT version. */
@@ -9111,6 +9153,8 @@ export type Query = {
   /** The statutory deduction policy. Created with its defaults on first read. */
   payrollSettings: PayrollSettings;
   payrollSummary: PayrollSummary;
+  /** Organizations and their size across the whole platform. SUPER_ADMIN. */
+  platformAnalytics: PlatformAnalytics;
   /** Who has signed a policy, newest first. */
   policyAcknowledgements: Array<PolicyAcknowledgement>;
   /** Renders a stored template with the values given, through the very code that sends it. */
@@ -9266,6 +9310,8 @@ export type Query = {
   webhookEvents: Array<Scalars['String']['output']>;
   /** The form identifiers the public website may submit under — the one allow-list. */
   websiteFormTypes: Array<Scalars['String']['output']>;
+  /** The company's users, employees and tracker over the last `days` days (1-365). ADMIN. */
+  workspaceAnalytics: WorkspaceAnalytics;
 };
 
 
@@ -10599,6 +10645,11 @@ export type QueryTranslationsArgs = {
   locale: Scalars['String']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
   skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryWorkspaceAnalyticsArgs = {
+  days?: InputMaybe<Scalars['Int']['input']>;
 };
 
 /** What is owed, and how late it is. */
@@ -12032,6 +12083,32 @@ export type TrackerAccess = {
   userId: Scalars['ID']['output'];
 };
 
+/** The time tracker. Hours and sessions cover the period; access and devices are as of now. */
+export type TrackerAnalytics = {
+  __typename?: 'TrackerAnalytics';
+  activeDevices: Scalars['Int']['output'];
+  activeHours: Scalars['Float']['output'];
+  /** Active time as a share of all tracked time, 0-100. */
+  activityPercent: Scalars['Float']['output'];
+  /** People with access who have accepted the monitoring notice. */
+  consented: Scalars['Int']['output'];
+  devicesByPlatform: Array<AnalyticsMetric>;
+  /** Active hours per day. */
+  hoursPerDay: Array<AnalyticsPoint>;
+  idleHours: Scalars['Float']['output'];
+  manualEntriesByStatus: Array<AnalyticsMetric>;
+  presence: Array<AnalyticsMetric>;
+  screenshots: Scalars['Int']['output'];
+  sessions: Scalars['Int']['output'];
+  /** Hours per application, most first. */
+  topApps: Array<AnalyticsMetric>;
+  /** Active hours per person, most first. */
+  topUsers: Array<AnalyticsMetric>;
+  /** People who recorded any time in the period. */
+  trackedUsers: Scalars['Int']['output'];
+  usersWithAccess: Scalars['Int']['output'];
+};
+
 export type TrackerAppUsage = {
   __typename?: 'TrackerAppUsage';
   appName: Scalars['String']['output'];
@@ -12812,6 +12889,23 @@ export type User = {
   workingTimeNote?: Maybe<Scalars['String']['output']>;
 };
 
+/** Every account in the company. */
+export type UserAnalytics = {
+  __typename?: 'UserAnalytics';
+  /** Accounts that may sign in. */
+  active: Scalars['Int']['output'];
+  blocked: Scalars['Int']['output'];
+  /** A user holding several roles counts once under each. */
+  byRole: Array<AnalyticsMetric>;
+  inactive: Scalars['Int']['output'];
+  /** Accounts created in the period. */
+  joined: Scalars['Int']['output'];
+  joinedPerDay: Array<AnalyticsPoint>;
+  /** Used the portal in the last five minutes. */
+  onlineNow: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+};
+
 /** A newly-created user together with the one-time temporary password (also emailed). */
 export type UserCredentials = {
   __typename?: 'UserCredentials';
@@ -12921,6 +13015,17 @@ export enum WorkingTime {
   Other = 'OTHER'
 }
 
+export type WorkspaceAnalytics = {
+  __typename?: 'WorkspaceAnalytics';
+  /** The period covered, in days, ending today. */
+  days: Scalars['Int']['output'];
+  employees: EmployeeAnalytics;
+  /** The workspace timezone the days are read in. */
+  timezone: Scalars['String']['output'];
+  tracker: TrackerAnalytics;
+  users: UserAnalytics;
+};
+
 export type WithIndex<TObject> = TObject & Record<string, any>;
 export type ResolversObject<TObject> = WithIndex<TObject>;
 
@@ -13011,6 +13116,8 @@ export type ResolversTypes = ResolversObject<{
   AiSpendLimitInput: AiSpendLimitInput;
   AiSpendSummary: ResolverTypeWrapper<AiSpendSummary>;
   AiUserSpend: ResolverTypeWrapper<AiUserSpend>;
+  AnalyticsMetric: ResolverTypeWrapper<AnalyticsMetric>;
+  AnalyticsPoint: ResolverTypeWrapper<AnalyticsPoint>;
   Announcement: ResolverTypeWrapper<Announcement>;
   AnnouncementAudience: AnnouncementAudience;
   AnnouncementCategory: AnnouncementCategory;
@@ -13178,6 +13285,7 @@ export type ResolversTypes = ResolversObject<{
   EmailTemplatePage: ResolverTypeWrapper<EmailTemplatePage>;
   EmailTemplateUsage: ResolverTypeWrapper<EmailTemplateUsage>;
   EmailVariableInput: EmailVariableInput;
+  EmployeeAnalytics: ResolverTypeWrapper<EmployeeAnalytics>;
   EmployeeDocument: ResolverTypeWrapper<EmployeeDocument>;
   EmployeeDocumentInput: EmployeeDocumentInput;
   EmployeeDocumentPage: ResolverTypeWrapper<EmployeeDocumentPage>;
@@ -13419,6 +13527,7 @@ export type ResolversTypes = ResolversObject<{
   PexelsConfigInput: PexelsConfigInput;
   PexelsMedia: ResolverTypeWrapper<PexelsMedia>;
   PexelsSearchFilters: PexelsSearchFilters;
+  PlatformAnalytics: ResolverTypeWrapper<PlatformAnalytics>;
   Policy: ResolverTypeWrapper<Policy>;
   PolicyAcknowledgement: ResolverTypeWrapper<PolicyAcknowledgement>;
   PolicyAudience: PolicyAudience;
@@ -13599,6 +13708,7 @@ export type ResolversTypes = ResolversObject<{
   ToolPricing: ResolverTypeWrapper<ToolPricing>;
   ToolPricingInput: ToolPricingInput;
   TrackerAccess: ResolverTypeWrapper<TrackerAccess>;
+  TrackerAnalytics: ResolverTypeWrapper<TrackerAnalytics>;
   TrackerAppUsage: ResolverTypeWrapper<TrackerAppUsage>;
   TrackerBilling: ResolverTypeWrapper<TrackerBilling>;
   TrackerBillingRow: ResolverTypeWrapper<TrackerBillingRow>;
@@ -13649,6 +13759,7 @@ export type ResolversTypes = ResolversObject<{
   UpdateSettingsInput: UpdateSettingsInput;
   UpdateUserInput: UpdateUserInput;
   User: ResolverTypeWrapper<User>;
+  UserAnalytics: ResolverTypeWrapper<UserAnalytics>;
   UserCredentials: ResolverTypeWrapper<UserCredentials>;
   UserPage: ResolverTypeWrapper<UserPage>;
   UserSocialLinks: ResolverTypeWrapper<UserSocialLinks>;
@@ -13661,6 +13772,7 @@ export type ResolversTypes = ResolversObject<{
   WebsiteSubmissionTriageInput: WebsiteSubmissionTriageInput;
   WorkLocation: WorkLocation;
   WorkingTime: WorkingTime;
+  WorkspaceAnalytics: ResolverTypeWrapper<WorkspaceAnalytics>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -13679,6 +13791,8 @@ export type ResolversParentTypes = ResolversObject<{
   AiSpendLimitInput: AiSpendLimitInput;
   AiSpendSummary: AiSpendSummary;
   AiUserSpend: AiUserSpend;
+  AnalyticsMetric: AnalyticsMetric;
+  AnalyticsPoint: AnalyticsPoint;
   Announcement: Announcement;
   AnnouncementInput: AnnouncementInput;
   AnnouncementPage: AnnouncementPage;
@@ -13812,6 +13926,7 @@ export type ResolversParentTypes = ResolversObject<{
   EmailTemplatePage: EmailTemplatePage;
   EmailTemplateUsage: EmailTemplateUsage;
   EmailVariableInput: EmailVariableInput;
+  EmployeeAnalytics: EmployeeAnalytics;
   EmployeeDocument: EmployeeDocument;
   EmployeeDocumentInput: EmployeeDocumentInput;
   EmployeeDocumentPage: EmployeeDocumentPage;
@@ -14001,6 +14116,7 @@ export type ResolversParentTypes = ResolversObject<{
   PexelsConfigInput: PexelsConfigInput;
   PexelsMedia: PexelsMedia;
   PexelsSearchFilters: PexelsSearchFilters;
+  PlatformAnalytics: PlatformAnalytics;
   Policy: Policy;
   PolicyAcknowledgement: PolicyAcknowledgement;
   PolicyInput: PolicyInput;
@@ -14142,6 +14258,7 @@ export type ResolversParentTypes = ResolversObject<{
   ToolPricing: ToolPricing;
   ToolPricingInput: ToolPricingInput;
   TrackerAccess: TrackerAccess;
+  TrackerAnalytics: TrackerAnalytics;
   TrackerAppUsage: TrackerAppUsage;
   TrackerBilling: TrackerBilling;
   TrackerBillingRow: TrackerBillingRow;
@@ -14186,6 +14303,7 @@ export type ResolversParentTypes = ResolversObject<{
   UpdateSettingsInput: UpdateSettingsInput;
   UpdateUserInput: UpdateUserInput;
   User: User;
+  UserAnalytics: UserAnalytics;
   UserCredentials: UserCredentials;
   UserPage: UserPage;
   UserSocialLinks: UserSocialLinks;
@@ -14196,6 +14314,7 @@ export type ResolversParentTypes = ResolversObject<{
   WebsiteSubmissionInput: WebsiteSubmissionInput;
   WebsiteSubmissionPage: WebsiteSubmissionPage;
   WebsiteSubmissionTriageInput: WebsiteSubmissionTriageInput;
+  WorkspaceAnalytics: WorkspaceAnalytics;
 }>;
 
 export type ActivityResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Activity'] = ResolversParentTypes['Activity']> = ResolversObject<{
@@ -14291,6 +14410,18 @@ export type AiUserSpendResolvers<ContextType = GraphQLContext, ParentType extend
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   usd?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   userId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AnalyticsMetricResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AnalyticsMetric'] = ResolversParentTypes['AnalyticsMetric']> = ResolversObject<{
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type AnalyticsPointResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AnalyticsPoint'] = ResolversParentTypes['AnalyticsPoint']> = ResolversObject<{
+  period?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -15387,6 +15518,15 @@ export type EmailTemplateUsageResolvers<ContextType = GraphQLContext, ParentType
   key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type EmployeeAnalyticsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['EmployeeAnalytics'] = ResolversParentTypes['EmployeeAnalytics']> = ResolversObject<{
+  byCountry?: Resolver<Array<ResolversTypes['AnalyticsMetric']>, ParentType, ContextType>;
+  byDepartment?: Resolver<Array<ResolversTypes['AnalyticsMetric']>, ParentType, ContextType>;
+  byStatus?: Resolver<Array<ResolversTypes['AnalyticsMetric']>, ParentType, ContextType>;
+  byWorkLocation?: Resolver<Array<ResolversTypes['AnalyticsMetric']>, ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -17240,6 +17380,19 @@ export type PexelsMediaResolvers<ContextType = GraphQLContext, ParentType extend
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type PlatformAnalyticsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PlatformAnalytics'] = ResolversParentTypes['PlatformAnalytics']> = ResolversObject<{
+  activeOrganizations?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  employees?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  organizations?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  organizationsByCountry?: Resolver<Array<ResolversTypes['AnalyticsMetric']>, ParentType, ContextType>;
+  organizationsByStatus?: Resolver<Array<ResolversTypes['AnalyticsMetric']>, ParentType, ContextType>;
+  organizationsPerMonth?: Resolver<Array<ResolversTypes['AnalyticsPoint']>, ParentType, ContextType>;
+  trackedUsers?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  users?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  usersByOrganization?: Resolver<Array<ResolversTypes['AnalyticsMetric']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type PolicyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Policy'] = ResolversParentTypes['Policy']> = ResolversObject<{
   acknowledgedCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   approvedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -18022,6 +18175,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   payrollSchedule?: Resolver<ResolversTypes['PayrollSchedule'], ParentType, ContextType>;
   payrollSettings?: Resolver<ResolversTypes['PayrollSettings'], ParentType, ContextType>;
   payrollSummary?: Resolver<ResolversTypes['PayrollSummary'], ParentType, ContextType, RequireFields<QueryPayrollSummaryArgs, 'month' | 'year'>>;
+  platformAnalytics?: Resolver<ResolversTypes['PlatformAnalytics'], ParentType, ContextType>;
   policyAcknowledgements?: Resolver<Array<ResolversTypes['PolicyAcknowledgement']>, ParentType, ContextType, RequireFields<QueryPolicyAcknowledgementsArgs, 'policyId'>>;
   previewEmailTemplate?: Resolver<ResolversTypes['EmailPreview'], ParentType, ContextType, RequireFields<QueryPreviewEmailTemplateArgs, 'key'>>;
   probationsEnding?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryProbationsEndingArgs, 'days'>>;
@@ -18096,6 +18250,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   translations?: Resolver<ResolversTypes['TranslationPage'], ParentType, ContextType, RequireFields<QueryTranslationsArgs, 'locale'>>;
   webhookEvents?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   websiteFormTypes?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  workspaceAnalytics?: Resolver<ResolversTypes['WorkspaceAnalytics'], ParentType, ContextType, RequireFields<QueryWorkspaceAnalyticsArgs, 'days'>>;
 }>;
 
 export type ReceivablesResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Receivables'] = ResolversParentTypes['Receivables']> = ResolversObject<{
@@ -18874,6 +19029,25 @@ export type TrackerAccessResolvers<ContextType = GraphQLContext, ParentType exte
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type TrackerAnalyticsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerAnalytics'] = ResolversParentTypes['TrackerAnalytics']> = ResolversObject<{
+  activeDevices?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  activeHours?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  activityPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  consented?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  devicesByPlatform?: Resolver<Array<ResolversTypes['AnalyticsMetric']>, ParentType, ContextType>;
+  hoursPerDay?: Resolver<Array<ResolversTypes['AnalyticsPoint']>, ParentType, ContextType>;
+  idleHours?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  manualEntriesByStatus?: Resolver<Array<ResolversTypes['AnalyticsMetric']>, ParentType, ContextType>;
+  presence?: Resolver<Array<ResolversTypes['AnalyticsMetric']>, ParentType, ContextType>;
+  screenshots?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  sessions?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  topApps?: Resolver<Array<ResolversTypes['AnalyticsMetric']>, ParentType, ContextType>;
+  topUsers?: Resolver<Array<ResolversTypes['AnalyticsMetric']>, ParentType, ContextType>;
+  trackedUsers?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  usersWithAccess?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type TrackerAppUsageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TrackerAppUsage'] = ResolversParentTypes['TrackerAppUsage']> = ResolversObject<{
   appName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   durationMs?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
@@ -19284,6 +19458,18 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type UserAnalyticsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['UserAnalytics'] = ResolversParentTypes['UserAnalytics']> = ResolversObject<{
+  active?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  blocked?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  byRole?: Resolver<Array<ResolversTypes['AnalyticsMetric']>, ParentType, ContextType>;
+  inactive?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  joined?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  joinedPerDay?: Resolver<Array<ResolversTypes['AnalyticsPoint']>, ParentType, ContextType>;
+  onlineNow?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type UserCredentialsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['UserCredentials'] = ResolversParentTypes['UserCredentials']> = ResolversObject<{
   password?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
@@ -19351,6 +19537,15 @@ export type WebsiteSubmissionPageResolvers<ContextType = GraphQLContext, ParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type WorkspaceAnalyticsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WorkspaceAnalytics'] = ResolversParentTypes['WorkspaceAnalytics']> = ResolversObject<{
+  days?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  employees?: Resolver<ResolversTypes['EmployeeAnalytics'], ParentType, ContextType>;
+  timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  tracker?: Resolver<ResolversTypes['TrackerAnalytics'], ParentType, ContextType>;
+  users?: Resolver<ResolversTypes['UserAnalytics'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Activity?: ActivityResolvers<ContextType>;
   ActivityPage?: ActivityPageResolvers<ContextType>;
@@ -19362,6 +19557,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   AiSpendLimit?: AiSpendLimitResolvers<ContextType>;
   AiSpendSummary?: AiSpendSummaryResolvers<ContextType>;
   AiUserSpend?: AiUserSpendResolvers<ContextType>;
+  AnalyticsMetric?: AnalyticsMetricResolvers<ContextType>;
+  AnalyticsPoint?: AnalyticsPointResolvers<ContextType>;
   Announcement?: AnnouncementResolvers<ContextType>;
   AnnouncementPage?: AnnouncementPageResolvers<ContextType>;
   ApiKey?: ApiKeyResolvers<ContextType>;
@@ -19459,6 +19656,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   EmailTemplate?: EmailTemplateResolvers<ContextType>;
   EmailTemplatePage?: EmailTemplatePageResolvers<ContextType>;
   EmailTemplateUsage?: EmailTemplateUsageResolvers<ContextType>;
+  EmployeeAnalytics?: EmployeeAnalyticsResolvers<ContextType>;
   EmployeeDocument?: EmployeeDocumentResolvers<ContextType>;
   EmployeeDocumentPage?: EmployeeDocumentPageResolvers<ContextType>;
   EmployeeLicenceSeat?: EmployeeLicenceSeatResolvers<ContextType>;
@@ -19585,6 +19783,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   PerformanceReviewPage?: PerformanceReviewPageResolvers<ContextType>;
   PexelsConfig?: PexelsConfigResolvers<ContextType>;
   PexelsMedia?: PexelsMediaResolvers<ContextType>;
+  PlatformAnalytics?: PlatformAnalyticsResolvers<ContextType>;
   Policy?: PolicyResolvers<ContextType>;
   PolicyAcknowledgement?: PolicyAcknowledgementResolvers<ContextType>;
   PolicyPage?: PolicyPageResolvers<ContextType>;
@@ -19685,6 +19884,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ToolPage?: ToolPageResolvers<ContextType>;
   ToolPricing?: ToolPricingResolvers<ContextType>;
   TrackerAccess?: TrackerAccessResolvers<ContextType>;
+  TrackerAnalytics?: TrackerAnalyticsResolvers<ContextType>;
   TrackerAppUsage?: TrackerAppUsageResolvers<ContextType>;
   TrackerBilling?: TrackerBillingResolvers<ContextType>;
   TrackerBillingRow?: TrackerBillingRowResolvers<ContextType>;
@@ -19718,6 +19918,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   TranslationPage?: TranslationPageResolvers<ContextType>;
   TranslationRow?: TranslationRowResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
+  UserAnalytics?: UserAnalyticsResolvers<ContextType>;
   UserCredentials?: UserCredentialsResolvers<ContextType>;
   UserPage?: UserPageResolvers<ContextType>;
   UserSocialLinks?: UserSocialLinksResolvers<ContextType>;
@@ -19725,5 +19926,6 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   WebhookDelivery?: WebhookDeliveryResolvers<ContextType>;
   WebsiteSubmission?: WebsiteSubmissionResolvers<ContextType>;
   WebsiteSubmissionPage?: WebsiteSubmissionPageResolvers<ContextType>;
+  WorkspaceAnalytics?: WorkspaceAnalyticsResolvers<ContextType>;
 }>;
 
