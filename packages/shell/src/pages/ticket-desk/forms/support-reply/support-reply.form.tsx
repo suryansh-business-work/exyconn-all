@@ -3,15 +3,11 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
-import { RhfTextField, RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
-import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
-import {
-  AttachmentPicker,
-  SUPPORT_UPLOAD_FOLDER,
-  type AttachmentItem,
-} from '@exyconn/shell/components/upload';
-import { useAddSupportReplyMutation } from '@exyconn/shell/graphql/generated';
+import { RhfTextField, RhfSelect, type SelectOption } from '@/components/form/rhf';
+import { EntityForm } from '@/components/form/EntityForm';
+import { useNotify } from '@/components/feedback/NotificationProvider';
+import { AttachmentPicker, SUPPORT_UPLOAD_FOLDER, type AttachmentItem } from '@/components/upload';
+import { useAddSupportReplyMutation } from '@/graphql/generated';
 import { CannedReplyPicker } from './CannedReplyPicker';
 
 const schema = z.object({

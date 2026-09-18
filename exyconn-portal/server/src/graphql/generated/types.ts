@@ -210,8 +210,14 @@ export enum AnnouncementAudience {
 
 export enum AnnouncementCategory {
   Event = 'EVENT',
+  /** IT: planned maintenance window. */
+  Maintenance = 'MAINTENANCE',
   Notice = 'NOTICE',
+  /** IT: a service is down right now. */
+  Outage = 'OUTAGE',
   Policy = 'POLICY',
+  /** IT: a security warning staff must act on. */
+  SecurityAlert = 'SECURITY_ALERT',
   Update = 'UPDATE'
 }
 
@@ -520,7 +526,10 @@ export type Asset = {
   assignedToName: Scalars['String']['output'];
   category: AssetCategory;
   createdAt: Scalars['DateTime']['output'];
+  edrCheckedAt?: Maybe<Scalars['DateTime']['output']>;
+  edrStatus: AssetEdrStatus;
   id: Scalars['ID']['output'];
+  installedSoftware: Array<Scalars['String']['output']>;
   location: Scalars['String']['output'];
   manufacturer: Scalars['String']['output'];
   modelName: Scalars['String']['output'];
@@ -565,8 +574,17 @@ export enum AssetCategory {
   Other = 'OTHER',
   Peripheral = 'PERIPHERAL',
   Phone = 'PHONE',
+  Printer = 'PRINTER',
   SoftwareLicence = 'SOFTWARE_LICENCE',
   Tablet = 'TABLET'
+}
+
+/** Antivirus / EDR coverage of a device. */
+export enum AssetEdrStatus {
+  NotApplicable = 'NOT_APPLICABLE',
+  Outdated = 'OUTDATED',
+  Protected = 'PROTECTED',
+  Unprotected = 'UNPROTECTED'
 }
 
 export type AssetInput = {
@@ -574,6 +592,9 @@ export type AssetInput = {
   assignedToId?: InputMaybe<Scalars['String']['input']>;
   assignedToName?: InputMaybe<Scalars['String']['input']>;
   category: AssetCategory;
+  edrCheckedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  edrStatus?: InputMaybe<AssetEdrStatus>;
+  installedSoftware?: InputMaybe<Array<Scalars['String']['input']>>;
   location?: InputMaybe<Scalars['String']['input']>;
   manufacturer?: InputMaybe<Scalars['String']['input']>;
   modelName?: InputMaybe<Scalars['String']['input']>;
@@ -2156,6 +2177,7 @@ export type EmployeeLicenceSeat = {
 /** Just enough of an active employee to put them in a picker — readable by any signed-in user. */
 export type EmployeeOption = {
   __typename?: 'EmployeeOption';
+  department?: Maybe<Scalars['String']['output']>;
   designation?: Maybe<Scalars['String']['output']>;
   email: Scalars['String']['output'];
   id: Scalars['ID']['output'];
@@ -2955,6 +2977,631 @@ export type IssuedApiKey = {
   key: Scalars['String']['output'];
 };
 
+/** One application someone can get into today, read off the fulfilled request history. */
+export type ItAccessGrant = {
+  __typename?: 'ItAccessGrant';
+  accessLevel: Scalars['String']['output'];
+  application: Scalars['String']['output'];
+  employeeId: Scalars['String']['output'];
+  expiresAt?: Maybe<Scalars['DateTime']['output']>;
+  grantedAt: Scalars['DateTime']['output'];
+};
+
+export enum ItAccessKind {
+  Grant = 'GRANT',
+  PasswordReset = 'PASSWORD_RESET',
+  Revoke = 'REVOKE',
+  RoleChange = 'ROLE_CHANGE'
+}
+
+/**
+ * A request to grant, change, revoke or reset someone's access to an application. The
+ * password itself is never recorded — only that the reset was asked for, approved and done.
+ */
+export type ItAccessRequest = {
+  __typename?: 'ItAccessRequest';
+  accessLevel: Scalars['String']['output'];
+  application: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  decidedAt?: Maybe<Scalars['DateTime']['output']>;
+  decidedByName: Scalars['String']['output'];
+  decisionNote: Scalars['String']['output'];
+  employeeId: Scalars['String']['output'];
+  employeeName: Scalars['String']['output'];
+  expiresAt?: Maybe<Scalars['DateTime']['output']>;
+  fulfilledAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  kind: ItAccessKind;
+  reason: Scalars['String']['output'];
+  requestedByName: Scalars['String']['output'];
+  status: ItAccessStatus;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/** Status and decision fields are set by decide/fulfil, never by this input. */
+export type ItAccessRequestInput = {
+  accessLevel?: InputMaybe<Scalars['String']['input']>;
+  application: Scalars['String']['input'];
+  employeeId: Scalars['String']['input'];
+  expiresAt?: InputMaybe<Scalars['DateTime']['input']>;
+  kind: ItAccessKind;
+  reason: Scalars['String']['input'];
+};
+
+export type ItAccessRequestPage = {
+  __typename?: 'ItAccessRequestPage';
+  rows: Array<ItAccessRequest>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum ItAccessStatus {
+  Approved = 'APPROVED',
+  Cancelled = 'CANCELLED',
+  Fulfilled = 'FULFILLED',
+  Pending = 'PENDING',
+  Rejected = 'REJECTED'
+}
+
+export type ItAssetUtilization = {
+  __typename?: 'ItAssetUtilization';
+  assigned: Scalars['Int']['output'];
+  category: AssetCategory;
+  total: Scalars['Int']['output'];
+};
+
+/** A planned change to a system: a deployment, a configuration change, a migration. */
+export type ItChange = {
+  __typename?: 'ItChange';
+  createdAt: Scalars['DateTime']['output'];
+  decidedAt?: Maybe<Scalars['DateTime']['output']>;
+  decidedByName: Scalars['String']['output'];
+  decisionNote: Scalars['String']['output'];
+  description: Scalars['String']['output'];
+  environment: ItEnvironment;
+  id: Scalars['ID']['output'];
+  implementedAt?: Maybe<Scalars['DateTime']['output']>;
+  ownerName: Scalars['String']['output'];
+  plannedEnd: Scalars['DateTime']['output'];
+  plannedStart: Scalars['DateTime']['output'];
+  risk: ItRisk;
+  rollbackPlan: Scalars['String']['output'];
+  status: ItChangeStatus;
+  system: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  type: ItChangeType;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/** APPROVED and REJECTED are refused here — they come only from decideItChange. */
+export type ItChangeInput = {
+  description: Scalars['String']['input'];
+  environment: ItEnvironment;
+  ownerName?: InputMaybe<Scalars['String']['input']>;
+  plannedEnd: Scalars['DateTime']['input'];
+  plannedStart: Scalars['DateTime']['input'];
+  risk: ItRisk;
+  rollbackPlan?: InputMaybe<Scalars['String']['input']>;
+  status: ItChangeStatus;
+  system: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+  type: ItChangeType;
+};
+
+export type ItChangePage = {
+  __typename?: 'ItChangePage';
+  rows: Array<ItChange>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum ItChangeStatus {
+  Approved = 'APPROVED',
+  Draft = 'DRAFT',
+  Failed = 'FAILED',
+  Implemented = 'IMPLEMENTED',
+  PendingApproval = 'PENDING_APPROVAL',
+  Rejected = 'REJECTED',
+  RolledBack = 'ROLLED_BACK',
+  Scheduled = 'SCHEDULED'
+}
+
+export enum ItChangeType {
+  Emergency = 'EMERGENCY',
+  Normal = 'NORMAL',
+  Standard = 'STANDARD'
+}
+
+export enum ItCloudKind {
+  Database = 'DATABASE',
+  DockerHost = 'DOCKER_HOST',
+  Domain = 'DOMAIN',
+  Kubernetes = 'KUBERNETES',
+  Other = 'OTHER',
+  Server = 'SERVER',
+  SslCertificate = 'SSL_CERTIFICATE',
+  Storage = 'STORAGE'
+}
+
+/** A server, cluster, database, domain or certificate the company runs or pays for. */
+export type ItCloudResource = {
+  __typename?: 'ItCloudResource';
+  createdAt: Scalars['DateTime']['output'];
+  /** Hostname, URL or connection target — never a credential. */
+  endpoint: Scalars['String']['output'];
+  environment: ItEnvironment;
+  /** When a domain or certificate lapses. */
+  expiresAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  kind: ItCloudKind;
+  monthlyCost: Scalars['Float']['output'];
+  name: Scalars['String']['output'];
+  notes: Scalars['String']['output'];
+  ownerName: Scalars['String']['output'];
+  provider: Scalars['String']['output'];
+  region: Scalars['String']['output'];
+  status: ItServiceStatus;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type ItCloudResourceInput = {
+  endpoint?: InputMaybe<Scalars['String']['input']>;
+  environment: ItEnvironment;
+  expiresAt?: InputMaybe<Scalars['DateTime']['input']>;
+  kind: ItCloudKind;
+  monthlyCost: Scalars['Float']['input'];
+  name: Scalars['String']['input'];
+  notes?: InputMaybe<Scalars['String']['input']>;
+  ownerName?: InputMaybe<Scalars['String']['input']>;
+  provider?: InputMaybe<Scalars['String']['input']>;
+  region?: InputMaybe<Scalars['String']['input']>;
+  status: ItServiceStatus;
+};
+
+export type ItCloudResourcePage = {
+  __typename?: 'ItCloudResourcePage';
+  rows: Array<ItCloudResource>;
+  totalCount: Scalars['Int']['output'];
+};
+
+/** What IT costs. Running costs are normalised to a month; one-off spend is per month. */
+export type ItCostSummary = {
+  __typename?: 'ItCostSummary';
+  annualRunRate: Scalars['Float']['output'];
+  byCategory: Array<ItMetric>;
+  /** Top vendors by yearly running cost. */
+  byVendor: Array<ItMetric>;
+  cloudMonthly: Scalars['Float']['output'];
+  hardwareThisYear: Scalars['Float']['output'];
+  /** Hardware bought and software/services delivered, per month (YYYY-MM), oldest first. */
+  oneOffByMonth: Array<ItMetric>;
+  procurementThisYear: Scalars['Float']['output'];
+  saasMonthly: Scalars['Float']['output'];
+};
+
+/** IT › Dashboard in one read. */
+export type ItDashboard = {
+  __typename?: 'ItDashboard';
+  activeIncidents: Scalars['Int']['output'];
+  activeOutages: Scalars['Int']['output'];
+  announcements: Array<Announcement>;
+  assetsAssigned: Scalars['Int']['output'];
+  assetsInRepair: Scalars['Int']['output'];
+  assetsTotal: Scalars['Int']['output'];
+  certificatesExpiring: Scalars['Int']['output'];
+  criticalVulnerabilities: Scalars['Int']['output'];
+  licencesRenewing: Scalars['Int']['output'];
+  openTickets: Scalars['Int']['output'];
+  openVulnerabilities: Scalars['Int']['output'];
+  overdueTickets: Scalars['Int']['output'];
+  pendingAccess: Scalars['Int']['output'];
+  pendingChanges: Scalars['Int']['output'];
+  pendingPurchases: Scalars['Int']['output'];
+  recentIncidents: Array<ItIncident>;
+  unassignedTickets: Scalars['Int']['output'];
+  upcomingChanges: Array<ItChange>;
+  warrantiesEnding: Scalars['Int']['output'];
+};
+
+export enum ItDecision {
+  Approved = 'APPROVED',
+  Rejected = 'REJECTED'
+}
+
+/** One employee as IT sees them. */
+export type ItEmployeeProfile = {
+  __typename?: 'ItEmployeeProfile';
+  access: Array<ItAccessGrant>;
+  assets: Array<Asset>;
+  department?: Maybe<Scalars['String']['output']>;
+  designation?: Maybe<Scalars['String']['output']>;
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  isBlocked: Scalars['Boolean']['output'];
+  lastActiveAt?: Maybe<Scalars['DateTime']['output']>;
+  licences: Array<EmployeeLicenceSeat>;
+  name: Scalars['String']['output'];
+  /** Access requests waiting on a decision or approved and not yet carried out. */
+  openRequests: Array<ItAccessRequest>;
+  openTickets: Scalars['Int']['output'];
+  roles: Array<Scalars['String']['output']>;
+};
+
+export enum ItEnvironment {
+  Development = 'DEVELOPMENT',
+  Production = 'PRODUCTION',
+  Staging = 'STAGING'
+}
+
+/** An internal IT incident with its timeline, root cause and follow-up actions. */
+export type ItIncident = {
+  __typename?: 'ItIncident';
+  affectedSystems: Array<Scalars['String']['output']>;
+  category: ItIncidentCategory;
+  commanderName: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  description: Scalars['String']['output'];
+  followUps: Array<ItIncidentFollowUp>;
+  id: Scalars['ID']['output'];
+  impact: Scalars['String']['output'];
+  resolvedAt?: Maybe<Scalars['DateTime']['output']>;
+  rootCause: Scalars['String']['output'];
+  severity: ItIncidentSeverity;
+  startedAt: Scalars['DateTime']['output'];
+  status: ItIncidentStatus;
+  timeline: Array<ItIncidentUpdate>;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export enum ItIncidentCategory {
+  Application = 'APPLICATION',
+  Hardware = 'HARDWARE',
+  Network = 'NETWORK',
+  Other = 'OTHER',
+  Outage = 'OUTAGE',
+  Security = 'SECURITY'
+}
+
+/** An action the post-incident review decided on. */
+export type ItIncidentFollowUp = {
+  __typename?: 'ItIncidentFollowUp';
+  done: Scalars['Boolean']['output'];
+  dueAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  ownerName: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
+export type ItIncidentFollowUpInput = {
+  done: Scalars['Boolean']['input'];
+  dueAt?: InputMaybe<Scalars['DateTime']['input']>;
+  ownerName?: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
+};
+
+/** The timeline is appended by addItIncidentUpdate and by status changes, never set here. */
+export type ItIncidentInput = {
+  affectedSystems?: InputMaybe<Array<Scalars['String']['input']>>;
+  category: ItIncidentCategory;
+  commanderName?: InputMaybe<Scalars['String']['input']>;
+  description: Scalars['String']['input'];
+  followUps?: InputMaybe<Array<ItIncidentFollowUpInput>>;
+  impact?: InputMaybe<Scalars['String']['input']>;
+  rootCause?: InputMaybe<Scalars['String']['input']>;
+  severity: ItIncidentSeverity;
+  startedAt: Scalars['DateTime']['input'];
+  status: ItIncidentStatus;
+  title: Scalars['String']['input'];
+};
+
+export type ItIncidentPage = {
+  __typename?: 'ItIncidentPage';
+  rows: Array<ItIncident>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum ItIncidentSeverity {
+  Sev1 = 'SEV1',
+  Sev2 = 'SEV2',
+  Sev3 = 'SEV3',
+  Sev4 = 'SEV4'
+}
+
+export enum ItIncidentStatus {
+  Closed = 'CLOSED',
+  Identified = 'IDENTIFIED',
+  Investigating = 'INVESTIGATING',
+  Monitoring = 'MONITORING',
+  Resolved = 'RESOLVED'
+}
+
+/** One entry on an incident's timeline. */
+export type ItIncidentUpdate = {
+  __typename?: 'ItIncidentUpdate';
+  at: Scalars['DateTime']['output'];
+  authorName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  note: Scalars['String']['output'];
+  status: ItIncidentStatus;
+};
+
+/** A labelled amount or count. */
+export type ItMetric = {
+  __typename?: 'ItMetric';
+  label: Scalars['String']['output'];
+  value: Scalars['Float']['output'];
+};
+
+/** One piece of the network: Wi-Fi, VPN, firewall, DNS zone, IP range, router or switch. */
+export type ItNetworkItem = {
+  __typename?: 'ItNetworkItem';
+  /** IP, CIDR range, hostname or SSID. */
+  address: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  kind: ItNetworkKind;
+  location: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  notes: Scalars['String']['output'];
+  provider: Scalars['String']['output'];
+  status: ItServiceStatus;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type ItNetworkItemInput = {
+  address?: InputMaybe<Scalars['String']['input']>;
+  kind: ItNetworkKind;
+  location?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  notes?: InputMaybe<Scalars['String']['input']>;
+  provider?: InputMaybe<Scalars['String']['input']>;
+  status: ItServiceStatus;
+};
+
+export type ItNetworkItemPage = {
+  __typename?: 'ItNetworkItemPage';
+  rows: Array<ItNetworkItem>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum ItNetworkKind {
+  Dns = 'DNS',
+  Firewall = 'FIREWALL',
+  IpRange = 'IP_RANGE',
+  Other = 'OTHER',
+  Router = 'ROUTER',
+  Switch = 'SWITCH',
+  Vpn = 'VPN',
+  Wifi = 'WIFI'
+}
+
+/** A leaver still being worked through. */
+export type ItOffboardingRow = {
+  __typename?: 'ItOffboardingRow';
+  access: Array<ItAccessGrant>;
+  /** Whether they can still sign in. */
+  accountActive: Scalars['Boolean']['output'];
+  /** Devices they still hold. */
+  assets: Array<Asset>;
+  employeeId: Scalars['String']['output'];
+  employeeName: Scalars['String']['output'];
+  exitId: Scalars['ID']['output'];
+  knowledgeTransferDone: Scalars['Boolean']['output'];
+  lastWorkingDate?: Maybe<Scalars['DateTime']['output']>;
+  /** How many of their applications already have a revoke request open. */
+  revokesPending: Scalars['Int']['output'];
+  stage: ExitStage;
+};
+
+/** A joiner whose checklist gives IT something to do. */
+export type ItOnboardingRow = {
+  __typename?: 'ItOnboardingRow';
+  access: Array<ItAccessGrant>;
+  checklistId: Scalars['ID']['output'];
+  employeeId: Scalars['String']['output'];
+  employeeName: Scalars['String']['output'];
+  /** Only the checklist items IT owns. */
+  items: Array<OnboardingItem>;
+  joinDate: Scalars['DateTime']['output'];
+  /** Onboarding applications they neither hold nor have a request open for. */
+  missingApplications: Array<Scalars['String']['output']>;
+  pendingItems: Scalars['Int']['output'];
+};
+
+export enum ItPurchaseKind {
+  Hardware = 'HARDWARE',
+  Service = 'SERVICE',
+  Software = 'SOFTWARE'
+}
+
+/** One vendor's price for a purchase request. */
+export type ItPurchaseQuote = {
+  __typename?: 'ItPurchaseQuote';
+  amount: Scalars['Float']['output'];
+  id: Scalars['ID']['output'];
+  notes: Scalars['String']['output'];
+  vendor: Scalars['String']['output'];
+};
+
+export type ItPurchaseQuoteInput = {
+  amount: Scalars['Float']['input'];
+  notes?: InputMaybe<Scalars['String']['input']>;
+  vendor: Scalars['String']['input'];
+};
+
+/** A request to buy hardware, software or a service, from the ask to the delivery. */
+export type ItPurchaseRequest = {
+  __typename?: 'ItPurchaseRequest';
+  createdAt: Scalars['DateTime']['output'];
+  decidedAt?: Maybe<Scalars['DateTime']['output']>;
+  decidedByName: Scalars['String']['output'];
+  decisionNote: Scalars['String']['output'];
+  estimatedCost: Scalars['Float']['output'];
+  id: Scalars['ID']['output'];
+  justification: Scalars['String']['output'];
+  kind: ItPurchaseKind;
+  orderReference: Scalars['String']['output'];
+  quantity: Scalars['Int']['output'];
+  quotes: Array<ItPurchaseQuote>;
+  receivedAt?: Maybe<Scalars['DateTime']['output']>;
+  requestedForName: Scalars['String']['output'];
+  status: ItPurchaseStatus;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/** APPROVED and REJECTED are refused here — they come only from decideItPurchaseRequest. */
+export type ItPurchaseRequestInput = {
+  estimatedCost: Scalars['Float']['input'];
+  justification: Scalars['String']['input'];
+  kind: ItPurchaseKind;
+  orderReference?: InputMaybe<Scalars['String']['input']>;
+  quantity: Scalars['Int']['input'];
+  quotes?: InputMaybe<Array<ItPurchaseQuoteInput>>;
+  requestedForName?: InputMaybe<Scalars['String']['input']>;
+  status: ItPurchaseStatus;
+  title: Scalars['String']['input'];
+};
+
+export type ItPurchaseRequestPage = {
+  __typename?: 'ItPurchaseRequestPage';
+  rows: Array<ItPurchaseRequest>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum ItPurchaseStatus {
+  Approved = 'APPROVED',
+  Cancelled = 'CANCELLED',
+  Ordered = 'ORDERED',
+  Quoted = 'QUOTED',
+  Received = 'RECEIVED',
+  Rejected = 'REJECTED',
+  Requested = 'REQUESTED'
+}
+
+/** IT › Reports over the last N months. */
+export type ItReport = {
+  __typename?: 'ItReport';
+  assetUtilization: Array<ItAssetUtilization>;
+  avgResolutionHours: Scalars['Float']['output'];
+  breachedOpen: Scalars['Int']['output'];
+  incidentsByMonth: Array<ItMetric>;
+  incidentsBySeverity: Array<ItMetric>;
+  months: Scalars['Int']['output'];
+  /** Mean time to resolve an incident, in hours. */
+  mttrHours: Scalars['Float']['output'];
+  /** Share of resolved tickets that met their SLA; 100 when none had one. */
+  slaMetPercent: Scalars['Float']['output'];
+  spend: ItCostSummary;
+  ticketTrend: Array<ItTicketTrendPoint>;
+  ticketsByStatus: Array<ItMetric>;
+};
+
+export enum ItRisk {
+  High = 'HIGH',
+  Low = 'LOW',
+  Medium = 'MEDIUM'
+}
+
+export enum ItServiceStatus {
+  Active = 'ACTIVE',
+  Degraded = 'DEGRADED',
+  Down = 'DOWN',
+  Retired = 'RETIRED'
+}
+
+/** The IT team's own configuration. Departments, roles, SLAs and vendors live with their owners. */
+export type ItSettings = {
+  __typename?: 'ItSettings';
+  /** Applications an access request may name. */
+  applications: Array<Scalars['String']['output']>;
+  certificateWarningDays: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  /** Applications every new joiner is given. */
+  onboardingApplications: Array<Scalars['String']['output']>;
+  renewalWarningDays: Scalars['Int']['output'];
+  /** Topics an IT ticket is triaged under. */
+  ticketTopics: Array<Scalars['String']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
+  warrantyWarningDays: Scalars['Int']['output'];
+};
+
+export type ItSettingsInput = {
+  applications: Array<Scalars['String']['input']>;
+  certificateWarningDays: Scalars['Int']['input'];
+  onboardingApplications: Array<Scalars['String']['input']>;
+  renewalWarningDays: Scalars['Int']['input'];
+  ticketTopics: Array<Scalars['String']['input']>;
+  warrantyWarningDays: Scalars['Int']['input'];
+};
+
+export type ItTicketTrendPoint = {
+  __typename?: 'ItTicketTrendPoint';
+  opened: Scalars['Int']['output'];
+  /** YYYY-MM */
+  period: Scalars['String']['output'];
+  resolved: Scalars['Int']['output'];
+};
+
+export enum ItVulnSeverity {
+  Critical = 'CRITICAL',
+  High = 'HIGH',
+  Low = 'LOW',
+  Medium = 'MEDIUM'
+}
+
+export enum ItVulnSource {
+  Pentest = 'PENTEST',
+  Report = 'REPORT',
+  Scan = 'SCAN',
+  VendorAdvisory = 'VENDOR_ADVISORY'
+}
+
+export enum ItVulnStatus {
+  Accepted = 'ACCEPTED',
+  InProgress = 'IN_PROGRESS',
+  Mitigated = 'MITIGATED',
+  Open = 'OPEN',
+  Resolved = 'RESOLVED'
+}
+
+/** A known weakness in something the company runs, and what is being done about it. */
+export type ItVulnerability = {
+  __typename?: 'ItVulnerability';
+  affectedSystem: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  cve: Scalars['String']['output'];
+  discoveredAt: Scalars['DateTime']['output'];
+  dueAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  notes: Scalars['String']['output'];
+  ownerName: Scalars['String']['output'];
+  severity: ItVulnSeverity;
+  source: ItVulnSource;
+  status: ItVulnStatus;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type ItVulnerabilityInput = {
+  affectedSystem: Scalars['String']['input'];
+  cve?: InputMaybe<Scalars['String']['input']>;
+  discoveredAt: Scalars['DateTime']['input'];
+  dueAt?: InputMaybe<Scalars['DateTime']['input']>;
+  notes?: InputMaybe<Scalars['String']['input']>;
+  ownerName?: InputMaybe<Scalars['String']['input']>;
+  severity: ItVulnSeverity;
+  source: ItVulnSource;
+  status: ItVulnStatus;
+  title: Scalars['String']['input'];
+};
+
+export type ItVulnerabilityPage = {
+  __typename?: 'ItVulnerabilityPage';
+  rows: Array<ItVulnerability>;
+  totalCount: Scalars['Int']['output'];
+};
+
 export type Job = {
   __typename?: 'Job';
   applicationDeadline?: Maybe<Scalars['DateTime']['output']>;
@@ -3568,6 +4215,8 @@ export type Mutation = {
    * nobody can sign on somebody else's behalf; signedName is what they typed.
    */
   acknowledgePolicy: PolicyAcknowledgement;
+  /** Append a timeline entry, moving the incident to the given status. */
+  addItIncidentUpdate: ItIncident;
   /** Self-service: continue the conversation on one of the employee's own tickets. */
   addMySupportReply: SupportReply;
   /** RESOLVED closes the incident and alerts the team like the monitor does. */
@@ -3586,6 +4235,8 @@ export type Mutation = {
   assignOrganizationAdmin: User;
   /** SUPPORT/ADMIN: hand a ticket to someone, or pass an empty id to unassign it. */
   assignSupportTicket: SupportTicket;
+  /** Withdraw a request that has not been carried out. */
+  cancelItAccessRequest: ItAccessRequest;
   changePassword: Scalars['Boolean']['output'];
   clearRolePermission: Scalars['Boolean']['output'];
   /** The employee's manager (or HR) leaves a comment on a direct report's goal. */
@@ -3654,6 +4305,13 @@ export type Mutation = {
    * hours, or an employee has no rate.
    */
   createInvoiceFromTimeLog: Invoice;
+  createItAccessRequest: ItAccessRequest;
+  createItChange: ItChange;
+  createItCloudResource: ItCloudResource;
+  createItIncident: ItIncident;
+  createItNetworkItem: ItNetworkItem;
+  createItPurchaseRequest: ItPurchaseRequest;
+  createItVulnerability: ItVulnerability;
   createJob: Job;
   createJobCompany: JobCompany;
   createKbArticle: KbArticle;
@@ -3729,6 +4387,12 @@ export type Mutation = {
   decideApproval: Scalars['Boolean']['output'];
   /** HR/ADMIN or the employee's manager: approve or reject, with an optional note. */
   decideEmployeeRequest: EmployeeRequest;
+  /** Approve or reject a PENDING access request. */
+  decideItAccessRequest: ItAccessRequest;
+  /** Approve or reject a change awaiting approval. */
+  decideItChange: ItChange;
+  /** Approve or reject a purchase request that is requested or quoted. */
+  decideItPurchaseRequest: ItPurchaseRequest;
   deleteActivity: Scalars['Boolean']['output'];
   deleteAiJob: Scalars['Boolean']['output'];
   deleteAiModelPrice: Scalars['Boolean']['output'];
@@ -3774,6 +4438,13 @@ export type Mutation = {
   deleteInboundMailConfig: Scalars['Boolean']['output'];
   deleteInternalAudit: Scalars['Boolean']['output'];
   deleteInvoice: Scalars['Boolean']['output'];
+  deleteItAccessRequest: Scalars['Boolean']['output'];
+  deleteItChange: Scalars['Boolean']['output'];
+  deleteItCloudResource: Scalars['Boolean']['output'];
+  deleteItIncident: Scalars['Boolean']['output'];
+  deleteItNetworkItem: Scalars['Boolean']['output'];
+  deleteItPurchaseRequest: Scalars['Boolean']['output'];
+  deleteItVulnerability: Scalars['Boolean']['output'];
   deleteJob: Scalars['Boolean']['output'];
   deleteJobCompany: Scalars['Boolean']['output'];
   deleteKbArticle: Scalars['Boolean']['output'];
@@ -3828,8 +4499,24 @@ export type Mutation = {
   deleteUser: Scalars['Boolean']['output'];
   deleteWebhook: Scalars['Boolean']['output'];
   deleteWebsiteSubmission: Scalars['Boolean']['output'];
+  /**
+   * SUPPORT/IT: escalate a ticket. Raises it to HIGH priority (recomputing the deadline), bumps
+   * its escalation level, records the reason as an internal note and tells the assignee.
+   */
+  escalateSupportTicket: SupportTicket;
+  /** Mark an APPROVED request as carried out in the target system. */
+  fulfilItAccessRequest: ItAccessRequest;
   grantTrackerAccess: TrackerAccess;
   importMediaFromUrl: Scalars['String']['output'];
+  /**
+   * Disables a leaver's account. Only someone with an exit on record, never an administrator
+   * and never the caller. Admin's setUserActive remains the general way to deactivate anyone.
+   */
+  itDisableLeaverAccount: User;
+  /** Opens a pre-approved GRANT for every onboarding application the joiner is missing. */
+  itProvisionOnboarding: Array<ItAccessRequest>;
+  /** Opens a pre-approved REVOKE for everything the leaver still holds. */
+  itRevokeAllAccess: Array<ItAccessRequest>;
   login: AuthPayload;
   markAllNotificationsRead: Scalars['Int']['output'];
   /** Self-service: mark today's (or a given day's) attendance — upserts per day. */
@@ -3996,7 +4683,7 @@ export type Mutation = {
   setRolePermission: RolePermission;
   /** SUPPORT/ADMIN: move a ticket through its lifecycle. */
   setSupportTicketStatus: SupportTicket;
-  /** SUPPORT/ADMIN: re-triage a ticket — the team it belongs to and how urgent it is. */
+  /** SUPPORT/ADMIN: re-triage a ticket — the team it belongs to, how urgent it is, its topic. */
   setSupportTicketTriage: SupportTicket;
   /** Files a ticket under an epic, or takes it out of one with a null parent. */
   setTaskParent: Task;
@@ -4136,6 +4823,14 @@ export type Mutation = {
   updateInboundMailConfig: InboundMailConfig;
   updateInternalAudit: InternalAudit;
   updateInvoice: Invoice;
+  updateItAccessRequest: ItAccessRequest;
+  updateItChange: ItChange;
+  updateItCloudResource: ItCloudResource;
+  updateItIncident: ItIncident;
+  updateItNetworkItem: ItNetworkItem;
+  updateItPurchaseRequest: ItPurchaseRequest;
+  updateItSettings: ItSettings;
+  updateItVulnerability: ItVulnerability;
   updateJob: Job;
   updateJobCompany: JobCompany;
   updateKbArticle: KbArticle;
@@ -4212,6 +4907,13 @@ export type MutationAcknowledgePolicyArgs = {
 };
 
 
+export type MutationAddItIncidentUpdateArgs = {
+  id: Scalars['ID']['input'];
+  note: Scalars['String']['input'];
+  status: ItIncidentStatus;
+};
+
+
 export type MutationAddMySupportReplyArgs = {
   attachments?: InputMaybe<Array<TicketAttachmentInput>>;
   body: Scalars['String']['input'];
@@ -4271,6 +4973,11 @@ export type MutationAssignOrganizationAdminArgs = {
 
 export type MutationAssignSupportTicketArgs = {
   assigneeId: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationCancelItAccessRequestArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -4543,6 +5250,41 @@ export type MutationCreateInvoiceFromTimeLogArgs = {
   from: Scalars['DateTime']['input'];
   projectId: Scalars['ID']['input'];
   to: Scalars['DateTime']['input'];
+};
+
+
+export type MutationCreateItAccessRequestArgs = {
+  input: ItAccessRequestInput;
+};
+
+
+export type MutationCreateItChangeArgs = {
+  input: ItChangeInput;
+};
+
+
+export type MutationCreateItCloudResourceArgs = {
+  input: ItCloudResourceInput;
+};
+
+
+export type MutationCreateItIncidentArgs = {
+  input: ItIncidentInput;
+};
+
+
+export type MutationCreateItNetworkItemArgs = {
+  input: ItNetworkItemInput;
+};
+
+
+export type MutationCreateItPurchaseRequestArgs = {
+  input: ItPurchaseRequestInput;
+};
+
+
+export type MutationCreateItVulnerabilityArgs = {
+  input: ItVulnerabilityInput;
 };
 
 
@@ -4844,6 +5586,27 @@ export type MutationDecideEmployeeRequestArgs = {
 };
 
 
+export type MutationDecideItAccessRequestArgs = {
+  decision: ItDecision;
+  id: Scalars['ID']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationDecideItChangeArgs = {
+  decision: ItDecision;
+  id: Scalars['ID']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationDecideItPurchaseRequestArgs = {
+  decision: ItDecision;
+  id: Scalars['ID']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type MutationDeleteActivityArgs = {
   id: Scalars['ID']['input'];
 };
@@ -5055,6 +5818,41 @@ export type MutationDeleteInternalAuditArgs = {
 
 
 export type MutationDeleteInvoiceArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteItAccessRequestArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteItChangeArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteItCloudResourceArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteItIncidentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteItNetworkItemArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteItPurchaseRequestArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteItVulnerabilityArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -5314,6 +6112,17 @@ export type MutationDeleteWebsiteSubmissionArgs = {
 };
 
 
+export type MutationEscalateSupportTicketArgs = {
+  id: Scalars['ID']['input'];
+  reason: Scalars['String']['input'];
+};
+
+
+export type MutationFulfilItAccessRequestArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationGrantTrackerAccessArgs = {
   userId: Scalars['ID']['input'];
 };
@@ -5323,6 +6132,21 @@ export type MutationImportMediaFromUrlArgs = {
   fileName: Scalars['String']['input'];
   folder?: InputMaybe<Scalars['String']['input']>;
   url: Scalars['String']['input'];
+};
+
+
+export type MutationItDisableLeaverAccountArgs = {
+  employeeId: Scalars['ID']['input'];
+};
+
+
+export type MutationItProvisionOnboardingArgs = {
+  employeeId: Scalars['ID']['input'];
+};
+
+
+export type MutationItRevokeAllAccessArgs = {
+  employeeId: Scalars['ID']['input'];
 };
 
 
@@ -5663,6 +6487,7 @@ export type MutationSetSupportTicketTriageArgs = {
   category: SupportCategory;
   id: Scalars['ID']['input'];
   priority: SupportPriority;
+  topic?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -6113,6 +6938,53 @@ export type MutationUpdateInvoiceArgs = {
 };
 
 
+export type MutationUpdateItAccessRequestArgs = {
+  id: Scalars['ID']['input'];
+  input: ItAccessRequestInput;
+};
+
+
+export type MutationUpdateItChangeArgs = {
+  id: Scalars['ID']['input'];
+  input: ItChangeInput;
+};
+
+
+export type MutationUpdateItCloudResourceArgs = {
+  id: Scalars['ID']['input'];
+  input: ItCloudResourceInput;
+};
+
+
+export type MutationUpdateItIncidentArgs = {
+  id: Scalars['ID']['input'];
+  input: ItIncidentInput;
+};
+
+
+export type MutationUpdateItNetworkItemArgs = {
+  id: Scalars['ID']['input'];
+  input: ItNetworkItemInput;
+};
+
+
+export type MutationUpdateItPurchaseRequestArgs = {
+  id: Scalars['ID']['input'];
+  input: ItPurchaseRequestInput;
+};
+
+
+export type MutationUpdateItSettingsArgs = {
+  input: ItSettingsInput;
+};
+
+
+export type MutationUpdateItVulnerabilityArgs = {
+  id: Scalars['ID']['input'];
+  input: ItVulnerabilityInput;
+};
+
+
 export type MutationUpdateJobArgs = {
   id: Scalars['ID']['input'];
   input: JobInput;
@@ -6515,6 +7387,7 @@ export enum NotificationKind {
   Announcement = 'ANNOUNCEMENT',
   General = 'GENERAL',
   Goal = 'GOAL',
+  It = 'IT',
   Leave = 'LEAVE',
   Onboarding = 'ONBOARDING',
   Payroll = 'PAYROLL',
@@ -6523,6 +7396,7 @@ export enum NotificationKind {
   SocialComment = 'SOCIAL_COMMENT',
   SocialLike = 'SOCIAL_LIKE',
   SocialShare = 'SOCIAL_SHARE',
+  Support = 'SUPPORT',
   Training = 'TRAINING'
 }
 
@@ -7046,6 +7920,7 @@ export type Policy = {
   approvedOn?: Maybe<Scalars['DateTime']['output']>;
   audience: PolicyAudience;
   body: Scalars['String']['output'];
+  category: PolicyCategory;
   classification: PolicyClassification;
   effectiveDate: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
@@ -7086,6 +7961,16 @@ export enum PolicyAudience {
   Public = 'PUBLIC'
 }
 
+/** Which part of the company a policy governs. IT maintains the IT and SECURITY ones. */
+export enum PolicyCategory {
+  Finance = 'FINANCE',
+  General = 'GENERAL',
+  Hr = 'HR',
+  It = 'IT',
+  Privacy = 'PRIVACY',
+  Security = 'SECURITY'
+}
+
 /**
  * How far a document may travel (ISO 27001 A.5.12).
  *
@@ -7101,6 +7986,8 @@ export enum PolicyClassification {
 export type PolicyInput = {
   audience: PolicyAudience;
   body: Scalars['String']['input'];
+  /** Defaults to GENERAL. */
+  category?: InputMaybe<PolicyCategory>;
   classification?: InputMaybe<PolicyClassification>;
   effectiveDate: Scalars['DateTime']['input'];
   nextReviewOn?: InputMaybe<Scalars['DateTime']['input']>;
@@ -7755,6 +8642,13 @@ export type Query = {
   getHoliday: Holiday;
   getInternalAudit: InternalAudit;
   getInvoice: Invoice;
+  getItAccessRequest: ItAccessRequest;
+  getItChange: ItChange;
+  getItCloudResource: ItCloudResource;
+  getItIncident: ItIncident;
+  getItNetworkItem: ItNetworkItem;
+  getItPurchaseRequest: ItPurchaseRequest;
+  getItVulnerability: ItVulnerability;
   getJob: Job;
   getJobCompany: JobCompany;
   getKbArticle: KbArticle;
@@ -7809,6 +8703,14 @@ export type Query = {
   invoicePayments: Array<Payment>;
   /** The invoice as a PDF, base64 encoded. */
   invoicePdf: Scalars['String']['output'];
+  itCostSummary: ItCostSummary;
+  itDashboard: ItDashboard;
+  itEmployeeProfile: ItEmployeeProfile;
+  itOffboarding: Array<ItOffboardingRow>;
+  itOnboarding: Array<ItOnboardingRow>;
+  /** months: 1 to 24. */
+  itReport: ItReport;
+  itSettings: ItSettings;
   /** How many leads carry this campaign's attribution. */
   leadsByCampaign: Scalars['Int']['output'];
   /** HR/ADMIN: a specific employee's leave requests. */
@@ -7949,6 +8851,35 @@ export type Query = {
   listInvoices: Array<Invoice>;
   listInvoicesPaged: InvoicePage;
   listInvoicesStats: TableStats;
+  listItAccessRequests: Array<ItAccessRequest>;
+  /**
+   * Search matches employee, application and reason. Filter kind with EQUALS; the
+   * Password page asks for kind PASSWORD_RESET.
+   */
+  listItAccessRequestsPaged: ItAccessRequestPage;
+  listItAccessRequestsStats: TableStats;
+  /** Maintenance, outage and security-alert announcements only. */
+  listItAnnouncementsPaged: AnnouncementPage;
+  listItChanges: Array<ItChange>;
+  listItChangesPaged: ItChangePage;
+  listItChangesStats: TableStats;
+  listItCloudResources: Array<ItCloudResource>;
+  listItCloudResourcesPaged: ItCloudResourcePage;
+  listItCloudResourcesStats: TableStats;
+  listItIncidents: Array<ItIncident>;
+  listItIncidentsPaged: ItIncidentPage;
+  listItIncidentsStats: TableStats;
+  listItNetworkItems: Array<ItNetworkItem>;
+  listItNetworkItemsPaged: ItNetworkItemPage;
+  listItNetworkItemsStats: TableStats;
+  /** IT and SECURITY policies only. */
+  listItPoliciesPaged: PolicyPage;
+  listItPurchaseRequests: Array<ItPurchaseRequest>;
+  listItPurchaseRequestsPaged: ItPurchaseRequestPage;
+  listItPurchaseRequestsStats: TableStats;
+  listItVulnerabilities: Array<ItVulnerability>;
+  listItVulnerabilitiesPaged: ItVulnerabilityPage;
+  listItVulnerabilitiesStats: TableStats;
   listJobCompanies: Array<JobCompany>;
   listJobCompaniesPaged: JobCompanyPage;
   listJobCompaniesStats: TableStats;
@@ -8058,7 +8989,7 @@ export type Query = {
   listSuppliers: Array<Supplier>;
   listSuppliersPaged: SupplierPage;
   listSuppliersStats: TableStats;
-  /** SUPPORT/ADMIN: who a ticket can be assigned to. */
+  /** SUPPORT/IT: who a ticket can be assigned to — IT staff for an IT ticket, the desk otherwise. */
   listSupportAgents: Array<SupportAgent>;
   /** SUPPORT/ADMIN: the whole thread on one ticket, internal notes included. */
   listSupportReplies: Array<SupportReply>;
@@ -8608,6 +9539,41 @@ export type QueryGetInvoiceArgs = {
 };
 
 
+export type QueryGetItAccessRequestArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetItChangeArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetItCloudResourceArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetItIncidentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetItNetworkItemArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetItPurchaseRequestArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetItVulnerabilityArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetJobArgs = {
   id: Scalars['ID']['input'];
 };
@@ -8820,6 +9786,16 @@ export type QueryInvoicePaymentsArgs = {
 
 export type QueryInvoicePdfArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryItEmployeeProfileArgs = {
+  employeeId: Scalars['ID']['input'];
+};
+
+
+export type QueryItReportArgs = {
+  months?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -9038,6 +10014,51 @@ export type QueryListInvoicesPagedArgs = {
 };
 
 
+export type QueryListItAccessRequestsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListItAnnouncementsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListItChangesPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListItCloudResourcesPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListItIncidentsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListItNetworkItemsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListItPoliciesPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListItPurchaseRequestsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListItVulnerabilitiesPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListJobCompaniesPagedArgs = {
   input: TableQueryInput;
 };
@@ -9195,6 +10216,11 @@ export type QueryListStockMovementsPagedArgs = {
 
 export type QueryListSuppliersPagedArgs = {
   input: TableQueryInput;
+};
+
+
+export type QueryListSupportAgentsArgs = {
+  category?: InputMaybe<SupportCategory>;
 };
 
 
@@ -10544,6 +11570,9 @@ export type SupportTicket = {
   employeeId: Scalars['String']['output'];
   /** Resolved display name of the employee — populated by the support console. */
   employeeName?: Maybe<Scalars['String']['output']>;
+  escalatedAt?: Maybe<Scalars['DateTime']['output']>;
+  /** How many times it has been escalated. 0 means never. */
+  escalationLevel: Scalars['Int']['output'];
   /** Stamped by the first public reply. */
   firstRespondedAt?: Maybe<Scalars['DateTime']['output']>;
   id: Scalars['ID']['output'];
@@ -10560,6 +11589,8 @@ export type SupportTicket = {
   slaState: SlaState;
   status: SupportStatus;
   subject: Scalars['String']['output'];
+  /** What an IT ticket is about, from IT's topic list. Empty until triaged. */
+  topic: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
 
@@ -12012,6 +13043,7 @@ export type ResolversTypes = ResolversObject<{
   AssetAssignee: ResolverTypeWrapper<AssetAssignee>;
   AssetAssignment: ResolverTypeWrapper<AssetAssignment>;
   AssetCategory: AssetCategory;
+  AssetEdrStatus: AssetEdrStatus;
   AssetInput: AssetInput;
   AssetPage: ResolverTypeWrapper<AssetPage>;
   AssetStatus: AssetStatus;
@@ -12222,6 +13254,62 @@ export type ResolversTypes = ResolversObject<{
   InvoicePage: ResolverTypeWrapper<InvoicePage>;
   InvoiceStatus: InvoiceStatus;
   IssuedApiKey: ResolverTypeWrapper<IssuedApiKey>;
+  ItAccessGrant: ResolverTypeWrapper<ItAccessGrant>;
+  ItAccessKind: ItAccessKind;
+  ItAccessRequest: ResolverTypeWrapper<ItAccessRequest>;
+  ItAccessRequestInput: ItAccessRequestInput;
+  ItAccessRequestPage: ResolverTypeWrapper<ItAccessRequestPage>;
+  ItAccessStatus: ItAccessStatus;
+  ItAssetUtilization: ResolverTypeWrapper<ItAssetUtilization>;
+  ItChange: ResolverTypeWrapper<ItChange>;
+  ItChangeInput: ItChangeInput;
+  ItChangePage: ResolverTypeWrapper<ItChangePage>;
+  ItChangeStatus: ItChangeStatus;
+  ItChangeType: ItChangeType;
+  ItCloudKind: ItCloudKind;
+  ItCloudResource: ResolverTypeWrapper<ItCloudResource>;
+  ItCloudResourceInput: ItCloudResourceInput;
+  ItCloudResourcePage: ResolverTypeWrapper<ItCloudResourcePage>;
+  ItCostSummary: ResolverTypeWrapper<ItCostSummary>;
+  ItDashboard: ResolverTypeWrapper<ItDashboard>;
+  ItDecision: ItDecision;
+  ItEmployeeProfile: ResolverTypeWrapper<ItEmployeeProfile>;
+  ItEnvironment: ItEnvironment;
+  ItIncident: ResolverTypeWrapper<ItIncident>;
+  ItIncidentCategory: ItIncidentCategory;
+  ItIncidentFollowUp: ResolverTypeWrapper<ItIncidentFollowUp>;
+  ItIncidentFollowUpInput: ItIncidentFollowUpInput;
+  ItIncidentInput: ItIncidentInput;
+  ItIncidentPage: ResolverTypeWrapper<ItIncidentPage>;
+  ItIncidentSeverity: ItIncidentSeverity;
+  ItIncidentStatus: ItIncidentStatus;
+  ItIncidentUpdate: ResolverTypeWrapper<ItIncidentUpdate>;
+  ItMetric: ResolverTypeWrapper<ItMetric>;
+  ItNetworkItem: ResolverTypeWrapper<ItNetworkItem>;
+  ItNetworkItemInput: ItNetworkItemInput;
+  ItNetworkItemPage: ResolverTypeWrapper<ItNetworkItemPage>;
+  ItNetworkKind: ItNetworkKind;
+  ItOffboardingRow: ResolverTypeWrapper<ItOffboardingRow>;
+  ItOnboardingRow: ResolverTypeWrapper<ItOnboardingRow>;
+  ItPurchaseKind: ItPurchaseKind;
+  ItPurchaseQuote: ResolverTypeWrapper<ItPurchaseQuote>;
+  ItPurchaseQuoteInput: ItPurchaseQuoteInput;
+  ItPurchaseRequest: ResolverTypeWrapper<ItPurchaseRequest>;
+  ItPurchaseRequestInput: ItPurchaseRequestInput;
+  ItPurchaseRequestPage: ResolverTypeWrapper<ItPurchaseRequestPage>;
+  ItPurchaseStatus: ItPurchaseStatus;
+  ItReport: ResolverTypeWrapper<ItReport>;
+  ItRisk: ItRisk;
+  ItServiceStatus: ItServiceStatus;
+  ItSettings: ResolverTypeWrapper<ItSettings>;
+  ItSettingsInput: ItSettingsInput;
+  ItTicketTrendPoint: ResolverTypeWrapper<ItTicketTrendPoint>;
+  ItVulnSeverity: ItVulnSeverity;
+  ItVulnSource: ItVulnSource;
+  ItVulnStatus: ItVulnStatus;
+  ItVulnerability: ResolverTypeWrapper<ItVulnerability>;
+  ItVulnerabilityInput: ItVulnerabilityInput;
+  ItVulnerabilityPage: ResolverTypeWrapper<ItVulnerabilityPage>;
   JSON: ResolverTypeWrapper<Scalars['JSON']['output']>;
   Job: ResolverTypeWrapper<Job>;
   JobCompany: ResolverTypeWrapper<JobCompany>;
@@ -12334,6 +13422,7 @@ export type ResolversTypes = ResolversObject<{
   Policy: ResolverTypeWrapper<Policy>;
   PolicyAcknowledgement: ResolverTypeWrapper<PolicyAcknowledgement>;
   PolicyAudience: PolicyAudience;
+  PolicyCategory: PolicyCategory;
   PolicyClassification: PolicyClassification;
   PolicyInput: PolicyInput;
   PolicyPage: ResolverTypeWrapper<PolicyPage>;
@@ -12784,6 +13873,44 @@ export type ResolversParentTypes = ResolversObject<{
   InvoiceLineInput: InvoiceLineInput;
   InvoicePage: InvoicePage;
   IssuedApiKey: IssuedApiKey;
+  ItAccessGrant: ItAccessGrant;
+  ItAccessRequest: ItAccessRequest;
+  ItAccessRequestInput: ItAccessRequestInput;
+  ItAccessRequestPage: ItAccessRequestPage;
+  ItAssetUtilization: ItAssetUtilization;
+  ItChange: ItChange;
+  ItChangeInput: ItChangeInput;
+  ItChangePage: ItChangePage;
+  ItCloudResource: ItCloudResource;
+  ItCloudResourceInput: ItCloudResourceInput;
+  ItCloudResourcePage: ItCloudResourcePage;
+  ItCostSummary: ItCostSummary;
+  ItDashboard: ItDashboard;
+  ItEmployeeProfile: ItEmployeeProfile;
+  ItIncident: ItIncident;
+  ItIncidentFollowUp: ItIncidentFollowUp;
+  ItIncidentFollowUpInput: ItIncidentFollowUpInput;
+  ItIncidentInput: ItIncidentInput;
+  ItIncidentPage: ItIncidentPage;
+  ItIncidentUpdate: ItIncidentUpdate;
+  ItMetric: ItMetric;
+  ItNetworkItem: ItNetworkItem;
+  ItNetworkItemInput: ItNetworkItemInput;
+  ItNetworkItemPage: ItNetworkItemPage;
+  ItOffboardingRow: ItOffboardingRow;
+  ItOnboardingRow: ItOnboardingRow;
+  ItPurchaseQuote: ItPurchaseQuote;
+  ItPurchaseQuoteInput: ItPurchaseQuoteInput;
+  ItPurchaseRequest: ItPurchaseRequest;
+  ItPurchaseRequestInput: ItPurchaseRequestInput;
+  ItPurchaseRequestPage: ItPurchaseRequestPage;
+  ItReport: ItReport;
+  ItSettings: ItSettings;
+  ItSettingsInput: ItSettingsInput;
+  ItTicketTrendPoint: ItTicketTrendPoint;
+  ItVulnerability: ItVulnerability;
+  ItVulnerabilityInput: ItVulnerabilityInput;
+  ItVulnerabilityPage: ItVulnerabilityPage;
   JSON: Scalars['JSON']['output'];
   Job: Job;
   JobCompany: JobCompany;
@@ -13341,7 +14468,10 @@ export type AssetResolvers<ContextType = GraphQLContext, ParentType extends Reso
   assignedToName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   category?: Resolver<ResolversTypes['AssetCategory'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  edrCheckedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  edrStatus?: Resolver<ResolversTypes['AssetEdrStatus'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  installedSoftware?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   location?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   manufacturer?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   modelName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -14289,6 +15419,7 @@ export type EmployeeLicenceSeatResolvers<ContextType = GraphQLContext, ParentTyp
 }>;
 
 export type EmployeeOptionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['EmployeeOption'] = ResolversParentTypes['EmployeeOption']> = ResolversObject<{
+  department?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   designation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -14705,6 +15836,340 @@ export type IssuedApiKeyResolvers<ContextType = GraphQLContext, ParentType exten
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type ItAccessGrantResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItAccessGrant'] = ResolversParentTypes['ItAccessGrant']> = ResolversObject<{
+  accessLevel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  application?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  employeeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  expiresAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  grantedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItAccessRequestResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItAccessRequest'] = ResolversParentTypes['ItAccessRequest']> = ResolversObject<{
+  accessLevel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  application?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  decidedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  decidedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  decisionNote?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  employeeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  employeeName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  expiresAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  fulfilledAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['ItAccessKind'], ParentType, ContextType>;
+  reason?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  requestedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['ItAccessStatus'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItAccessRequestPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItAccessRequestPage'] = ResolversParentTypes['ItAccessRequestPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['ItAccessRequest']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItAssetUtilizationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItAssetUtilization'] = ResolversParentTypes['ItAssetUtilization']> = ResolversObject<{
+  assigned?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  category?: Resolver<ResolversTypes['AssetCategory'], ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItChangeResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItChange'] = ResolversParentTypes['ItChange']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  decidedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  decidedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  decisionNote?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  environment?: Resolver<ResolversTypes['ItEnvironment'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  implementedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  ownerName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  plannedEnd?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  plannedStart?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  risk?: Resolver<ResolversTypes['ItRisk'], ParentType, ContextType>;
+  rollbackPlan?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['ItChangeStatus'], ParentType, ContextType>;
+  system?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['ItChangeType'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItChangePageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItChangePage'] = ResolversParentTypes['ItChangePage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['ItChange']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItCloudResourceResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItCloudResource'] = ResolversParentTypes['ItCloudResource']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  endpoint?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  environment?: Resolver<ResolversTypes['ItEnvironment'], ParentType, ContextType>;
+  expiresAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['ItCloudKind'], ParentType, ContextType>;
+  monthlyCost?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ownerName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  provider?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  region?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['ItServiceStatus'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItCloudResourcePageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItCloudResourcePage'] = ResolversParentTypes['ItCloudResourcePage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['ItCloudResource']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItCostSummaryResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItCostSummary'] = ResolversParentTypes['ItCostSummary']> = ResolversObject<{
+  annualRunRate?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  byCategory?: Resolver<Array<ResolversTypes['ItMetric']>, ParentType, ContextType>;
+  byVendor?: Resolver<Array<ResolversTypes['ItMetric']>, ParentType, ContextType>;
+  cloudMonthly?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  hardwareThisYear?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  oneOffByMonth?: Resolver<Array<ResolversTypes['ItMetric']>, ParentType, ContextType>;
+  procurementThisYear?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  saasMonthly?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItDashboardResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItDashboard'] = ResolversParentTypes['ItDashboard']> = ResolversObject<{
+  activeIncidents?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  activeOutages?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  announcements?: Resolver<Array<ResolversTypes['Announcement']>, ParentType, ContextType>;
+  assetsAssigned?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  assetsInRepair?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  assetsTotal?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  certificatesExpiring?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  criticalVulnerabilities?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  licencesRenewing?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  openTickets?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  openVulnerabilities?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  overdueTickets?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  pendingAccess?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  pendingChanges?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  pendingPurchases?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  recentIncidents?: Resolver<Array<ResolversTypes['ItIncident']>, ParentType, ContextType>;
+  unassignedTickets?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  upcomingChanges?: Resolver<Array<ResolversTypes['ItChange']>, ParentType, ContextType>;
+  warrantiesEnding?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItEmployeeProfileResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItEmployeeProfile'] = ResolversParentTypes['ItEmployeeProfile']> = ResolversObject<{
+  access?: Resolver<Array<ResolversTypes['ItAccessGrant']>, ParentType, ContextType>;
+  assets?: Resolver<Array<ResolversTypes['Asset']>, ParentType, ContextType>;
+  department?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  designation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  isBlocked?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  lastActiveAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  licences?: Resolver<Array<ResolversTypes['EmployeeLicenceSeat']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  openRequests?: Resolver<Array<ResolversTypes['ItAccessRequest']>, ParentType, ContextType>;
+  openTickets?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  roles?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItIncidentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItIncident'] = ResolversParentTypes['ItIncident']> = ResolversObject<{
+  affectedSystems?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  category?: Resolver<ResolversTypes['ItIncidentCategory'], ParentType, ContextType>;
+  commanderName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  followUps?: Resolver<Array<ResolversTypes['ItIncidentFollowUp']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  impact?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  resolvedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  rootCause?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  severity?: Resolver<ResolversTypes['ItIncidentSeverity'], ParentType, ContextType>;
+  startedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['ItIncidentStatus'], ParentType, ContextType>;
+  timeline?: Resolver<Array<ResolversTypes['ItIncidentUpdate']>, ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItIncidentFollowUpResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItIncidentFollowUp'] = ResolversParentTypes['ItIncidentFollowUp']> = ResolversObject<{
+  done?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  dueAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  ownerName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItIncidentPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItIncidentPage'] = ResolversParentTypes['ItIncidentPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['ItIncident']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItIncidentUpdateResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItIncidentUpdate'] = ResolversParentTypes['ItIncidentUpdate']> = ResolversObject<{
+  at?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  authorName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  note?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['ItIncidentStatus'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItMetricResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItMetric'] = ResolversParentTypes['ItMetric']> = ResolversObject<{
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItNetworkItemResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItNetworkItem'] = ResolversParentTypes['ItNetworkItem']> = ResolversObject<{
+  address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['ItNetworkKind'], ParentType, ContextType>;
+  location?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  provider?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['ItServiceStatus'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItNetworkItemPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItNetworkItemPage'] = ResolversParentTypes['ItNetworkItemPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['ItNetworkItem']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItOffboardingRowResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItOffboardingRow'] = ResolversParentTypes['ItOffboardingRow']> = ResolversObject<{
+  access?: Resolver<Array<ResolversTypes['ItAccessGrant']>, ParentType, ContextType>;
+  accountActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  assets?: Resolver<Array<ResolversTypes['Asset']>, ParentType, ContextType>;
+  employeeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  employeeName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  exitId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  knowledgeTransferDone?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  lastWorkingDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  revokesPending?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  stage?: Resolver<ResolversTypes['ExitStage'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItOnboardingRowResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItOnboardingRow'] = ResolversParentTypes['ItOnboardingRow']> = ResolversObject<{
+  access?: Resolver<Array<ResolversTypes['ItAccessGrant']>, ParentType, ContextType>;
+  checklistId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  employeeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  employeeName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  items?: Resolver<Array<ResolversTypes['OnboardingItem']>, ParentType, ContextType>;
+  joinDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  missingApplications?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  pendingItems?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItPurchaseQuoteResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItPurchaseQuote'] = ResolversParentTypes['ItPurchaseQuote']> = ResolversObject<{
+  amount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  vendor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItPurchaseRequestResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItPurchaseRequest'] = ResolversParentTypes['ItPurchaseRequest']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  decidedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  decidedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  decisionNote?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  estimatedCost?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  justification?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['ItPurchaseKind'], ParentType, ContextType>;
+  orderReference?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  quantity?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  quotes?: Resolver<Array<ResolversTypes['ItPurchaseQuote']>, ParentType, ContextType>;
+  receivedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  requestedForName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['ItPurchaseStatus'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItPurchaseRequestPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItPurchaseRequestPage'] = ResolversParentTypes['ItPurchaseRequestPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['ItPurchaseRequest']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItReportResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItReport'] = ResolversParentTypes['ItReport']> = ResolversObject<{
+  assetUtilization?: Resolver<Array<ResolversTypes['ItAssetUtilization']>, ParentType, ContextType>;
+  avgResolutionHours?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  breachedOpen?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  incidentsByMonth?: Resolver<Array<ResolversTypes['ItMetric']>, ParentType, ContextType>;
+  incidentsBySeverity?: Resolver<Array<ResolversTypes['ItMetric']>, ParentType, ContextType>;
+  months?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  mttrHours?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  slaMetPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  spend?: Resolver<ResolversTypes['ItCostSummary'], ParentType, ContextType>;
+  ticketTrend?: Resolver<Array<ResolversTypes['ItTicketTrendPoint']>, ParentType, ContextType>;
+  ticketsByStatus?: Resolver<Array<ResolversTypes['ItMetric']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItSettingsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItSettings'] = ResolversParentTypes['ItSettings']> = ResolversObject<{
+  applications?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  certificateWarningDays?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  onboardingApplications?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  renewalWarningDays?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  ticketTopics?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  warrantyWarningDays?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItTicketTrendPointResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItTicketTrendPoint'] = ResolversParentTypes['ItTicketTrendPoint']> = ResolversObject<{
+  opened?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  period?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  resolved?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItVulnerabilityResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItVulnerability'] = ResolversParentTypes['ItVulnerability']> = ResolversObject<{
+  affectedSystem?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  cve?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  discoveredAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  dueAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ownerName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  severity?: Resolver<ResolversTypes['ItVulnSeverity'], ParentType, ContextType>;
+  source?: Resolver<ResolversTypes['ItVulnSource'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['ItVulnStatus'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItVulnerabilityPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItVulnerabilityPage'] = ResolversParentTypes['ItVulnerabilityPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['ItVulnerability']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['JSON'], any> {
   name: 'JSON';
 }
@@ -15039,6 +16504,7 @@ export type ModulePermissionResolvers<ContextType = GraphQLContext, ParentType e
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   _empty?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   acknowledgePolicy?: Resolver<ResolversTypes['PolicyAcknowledgement'], ParentType, ContextType, RequireFields<MutationAcknowledgePolicyArgs, 'policyId' | 'signedName'>>;
+  addItIncidentUpdate?: Resolver<ResolversTypes['ItIncident'], ParentType, ContextType, RequireFields<MutationAddItIncidentUpdateArgs, 'id' | 'note' | 'status'>>;
   addMySupportReply?: Resolver<ResolversTypes['SupportReply'], ParentType, ContextType, RequireFields<MutationAddMySupportReplyArgs, 'body' | 'ticketId'>>;
   addStatusIncidentUpdate?: Resolver<ResolversTypes['StatusIncident'], ParentType, ContextType, RequireFields<MutationAddStatusIncidentUpdateArgs, 'body' | 'id' | 'status'>>;
   addSupportReply?: Resolver<ResolversTypes['SupportReply'], ParentType, ContextType, RequireFields<MutationAddSupportReplyArgs, 'body' | 'internal' | 'ticketId'>>;
@@ -15049,6 +16515,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   archivePolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationArchivePolicyArgs, 'id'>>;
   assignOrganizationAdmin?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationAssignOrganizationAdminArgs, 'input' | 'organizationId'>>;
   assignSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationAssignSupportTicketArgs, 'assigneeId' | 'id'>>;
+  cancelItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationCancelItAccessRequestArgs, 'id'>>;
   changePassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'currentPassword' | 'newPassword'>>;
   clearRolePermission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationClearRolePermissionArgs, 'module' | 'role'>>;
   commentOnTeamGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationCommentOnTeamGoalArgs, 'comment' | 'id'>>;
@@ -15101,6 +16568,13 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createInvoice?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<MutationCreateInvoiceArgs, 'input'>>;
   createInvoiceFromDeal?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<MutationCreateInvoiceFromDealArgs, 'dealId'>>;
   createInvoiceFromTimeLog?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<MutationCreateInvoiceFromTimeLogArgs, 'from' | 'projectId' | 'to'>>;
+  createItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationCreateItAccessRequestArgs, 'input'>>;
+  createItChange?: Resolver<ResolversTypes['ItChange'], ParentType, ContextType, RequireFields<MutationCreateItChangeArgs, 'input'>>;
+  createItCloudResource?: Resolver<ResolversTypes['ItCloudResource'], ParentType, ContextType, RequireFields<MutationCreateItCloudResourceArgs, 'input'>>;
+  createItIncident?: Resolver<ResolversTypes['ItIncident'], ParentType, ContextType, RequireFields<MutationCreateItIncidentArgs, 'input'>>;
+  createItNetworkItem?: Resolver<ResolversTypes['ItNetworkItem'], ParentType, ContextType, RequireFields<MutationCreateItNetworkItemArgs, 'input'>>;
+  createItPurchaseRequest?: Resolver<ResolversTypes['ItPurchaseRequest'], ParentType, ContextType, RequireFields<MutationCreateItPurchaseRequestArgs, 'input'>>;
+  createItVulnerability?: Resolver<ResolversTypes['ItVulnerability'], ParentType, ContextType, RequireFields<MutationCreateItVulnerabilityArgs, 'input'>>;
   createJob?: Resolver<ResolversTypes['Job'], ParentType, ContextType, RequireFields<MutationCreateJobArgs, 'input'>>;
   createJobCompany?: Resolver<ResolversTypes['JobCompany'], ParentType, ContextType, RequireFields<MutationCreateJobCompanyArgs, 'input'>>;
   createKbArticle?: Resolver<ResolversTypes['KbArticle'], ParentType, ContextType, RequireFields<MutationCreateKbArticleArgs, 'input'>>;
@@ -15158,6 +16632,9 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<MutationCreateWebsiteSubmissionArgs, 'input'>>;
   decideApproval?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDecideApprovalArgs, 'decision' | 'id'>>;
   decideEmployeeRequest?: Resolver<ResolversTypes['EmployeeRequest'], ParentType, ContextType, RequireFields<MutationDecideEmployeeRequestArgs, 'id' | 'status'>>;
+  decideItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationDecideItAccessRequestArgs, 'decision' | 'id'>>;
+  decideItChange?: Resolver<ResolversTypes['ItChange'], ParentType, ContextType, RequireFields<MutationDecideItChangeArgs, 'decision' | 'id'>>;
+  decideItPurchaseRequest?: Resolver<ResolversTypes['ItPurchaseRequest'], ParentType, ContextType, RequireFields<MutationDecideItPurchaseRequestArgs, 'decision' | 'id'>>;
   deleteActivity?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteActivityArgs, 'id'>>;
   deleteAiJob?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAiJobArgs, 'id'>>;
   deleteAiModelPrice?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAiModelPriceArgs, 'id'>>;
@@ -15201,6 +16678,13 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteInboundMailConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteInboundMailConfigArgs, 'id'>>;
   deleteInternalAudit?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteInternalAuditArgs, 'id'>>;
   deleteInvoice?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteInvoiceArgs, 'id'>>;
+  deleteItAccessRequest?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteItAccessRequestArgs, 'id'>>;
+  deleteItChange?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteItChangeArgs, 'id'>>;
+  deleteItCloudResource?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteItCloudResourceArgs, 'id'>>;
+  deleteItIncident?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteItIncidentArgs, 'id'>>;
+  deleteItNetworkItem?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteItNetworkItemArgs, 'id'>>;
+  deleteItPurchaseRequest?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteItPurchaseRequestArgs, 'id'>>;
+  deleteItVulnerability?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteItVulnerabilityArgs, 'id'>>;
   deleteJob?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteJobArgs, 'id'>>;
   deleteJobCompany?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteJobCompanyArgs, 'id'>>;
   deleteKbArticle?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteKbArticleArgs, 'id'>>;
@@ -15252,8 +16736,13 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteUser?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteUserArgs, 'id'>>;
   deleteWebhook?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebhookArgs, 'id'>>;
   deleteWebsiteSubmission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebsiteSubmissionArgs, 'id'>>;
+  escalateSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationEscalateSupportTicketArgs, 'id' | 'reason'>>;
+  fulfilItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationFulfilItAccessRequestArgs, 'id'>>;
   grantTrackerAccess?: Resolver<ResolversTypes['TrackerAccess'], ParentType, ContextType, RequireFields<MutationGrantTrackerAccessArgs, 'userId'>>;
   importMediaFromUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationImportMediaFromUrlArgs, 'fileName' | 'url'>>;
+  itDisableLeaverAccount?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationItDisableLeaverAccountArgs, 'employeeId'>>;
+  itProvisionOnboarding?: Resolver<Array<ResolversTypes['ItAccessRequest']>, ParentType, ContextType, RequireFields<MutationItProvisionOnboardingArgs, 'employeeId'>>;
+  itRevokeAllAccess?: Resolver<Array<ResolversTypes['ItAccessRequest']>, ParentType, ContextType, RequireFields<MutationItRevokeAllAccessArgs, 'employeeId'>>;
   login?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationLoginArgs, 'email' | 'password'>>;
   markAllNotificationsRead?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   markAttendance?: Resolver<ResolversTypes['Attendance'], ParentType, ContextType, RequireFields<MutationMarkAttendanceArgs, 'input'>>;
@@ -15390,6 +16879,14 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateInboundMailConfig?: Resolver<ResolversTypes['InboundMailConfig'], ParentType, ContextType, RequireFields<MutationUpdateInboundMailConfigArgs, 'id' | 'input'>>;
   updateInternalAudit?: Resolver<ResolversTypes['InternalAudit'], ParentType, ContextType, RequireFields<MutationUpdateInternalAuditArgs, 'id' | 'input'>>;
   updateInvoice?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<MutationUpdateInvoiceArgs, 'id' | 'input'>>;
+  updateItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationUpdateItAccessRequestArgs, 'id' | 'input'>>;
+  updateItChange?: Resolver<ResolversTypes['ItChange'], ParentType, ContextType, RequireFields<MutationUpdateItChangeArgs, 'id' | 'input'>>;
+  updateItCloudResource?: Resolver<ResolversTypes['ItCloudResource'], ParentType, ContextType, RequireFields<MutationUpdateItCloudResourceArgs, 'id' | 'input'>>;
+  updateItIncident?: Resolver<ResolversTypes['ItIncident'], ParentType, ContextType, RequireFields<MutationUpdateItIncidentArgs, 'id' | 'input'>>;
+  updateItNetworkItem?: Resolver<ResolversTypes['ItNetworkItem'], ParentType, ContextType, RequireFields<MutationUpdateItNetworkItemArgs, 'id' | 'input'>>;
+  updateItPurchaseRequest?: Resolver<ResolversTypes['ItPurchaseRequest'], ParentType, ContextType, RequireFields<MutationUpdateItPurchaseRequestArgs, 'id' | 'input'>>;
+  updateItSettings?: Resolver<ResolversTypes['ItSettings'], ParentType, ContextType, RequireFields<MutationUpdateItSettingsArgs, 'input'>>;
+  updateItVulnerability?: Resolver<ResolversTypes['ItVulnerability'], ParentType, ContextType, RequireFields<MutationUpdateItVulnerabilityArgs, 'id' | 'input'>>;
   updateJob?: Resolver<ResolversTypes['Job'], ParentType, ContextType, RequireFields<MutationUpdateJobArgs, 'id' | 'input'>>;
   updateJobCompany?: Resolver<ResolversTypes['JobCompany'], ParentType, ContextType, RequireFields<MutationUpdateJobCompanyArgs, 'id' | 'input'>>;
   updateKbArticle?: Resolver<ResolversTypes['KbArticle'], ParentType, ContextType, RequireFields<MutationUpdateKbArticleArgs, 'id' | 'input'>>;
@@ -15749,6 +17246,7 @@ export type PolicyResolvers<ContextType = GraphQLContext, ParentType extends Res
   approvedOn?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   audience?: Resolver<ResolversTypes['PolicyAudience'], ParentType, ContextType>;
   body?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  category?: Resolver<ResolversTypes['PolicyCategory'], ParentType, ContextType>;
   classification?: Resolver<ResolversTypes['PolicyClassification'], ParentType, ContextType>;
   effectiveDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -16139,6 +17637,13 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getHoliday?: Resolver<ResolversTypes['Holiday'], ParentType, ContextType, RequireFields<QueryGetHolidayArgs, 'id'>>;
   getInternalAudit?: Resolver<ResolversTypes['InternalAudit'], ParentType, ContextType, RequireFields<QueryGetInternalAuditArgs, 'id'>>;
   getInvoice?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<QueryGetInvoiceArgs, 'id'>>;
+  getItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<QueryGetItAccessRequestArgs, 'id'>>;
+  getItChange?: Resolver<ResolversTypes['ItChange'], ParentType, ContextType, RequireFields<QueryGetItChangeArgs, 'id'>>;
+  getItCloudResource?: Resolver<ResolversTypes['ItCloudResource'], ParentType, ContextType, RequireFields<QueryGetItCloudResourceArgs, 'id'>>;
+  getItIncident?: Resolver<ResolversTypes['ItIncident'], ParentType, ContextType, RequireFields<QueryGetItIncidentArgs, 'id'>>;
+  getItNetworkItem?: Resolver<ResolversTypes['ItNetworkItem'], ParentType, ContextType, RequireFields<QueryGetItNetworkItemArgs, 'id'>>;
+  getItPurchaseRequest?: Resolver<ResolversTypes['ItPurchaseRequest'], ParentType, ContextType, RequireFields<QueryGetItPurchaseRequestArgs, 'id'>>;
+  getItVulnerability?: Resolver<ResolversTypes['ItVulnerability'], ParentType, ContextType, RequireFields<QueryGetItVulnerabilityArgs, 'id'>>;
   getJob?: Resolver<ResolversTypes['Job'], ParentType, ContextType, RequireFields<QueryGetJobArgs, 'id'>>;
   getJobCompany?: Resolver<ResolversTypes['JobCompany'], ParentType, ContextType, RequireFields<QueryGetJobCompanyArgs, 'id'>>;
   getKbArticle?: Resolver<ResolversTypes['KbArticle'], ParentType, ContextType, RequireFields<QueryGetKbArticleArgs, 'id'>>;
@@ -16186,6 +17691,13 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   inventoryValue?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   invoicePayments?: Resolver<Array<ResolversTypes['Payment']>, ParentType, ContextType, RequireFields<QueryInvoicePaymentsArgs, 'invoiceId'>>;
   invoicePdf?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryInvoicePdfArgs, 'id'>>;
+  itCostSummary?: Resolver<ResolversTypes['ItCostSummary'], ParentType, ContextType>;
+  itDashboard?: Resolver<ResolversTypes['ItDashboard'], ParentType, ContextType>;
+  itEmployeeProfile?: Resolver<ResolversTypes['ItEmployeeProfile'], ParentType, ContextType, RequireFields<QueryItEmployeeProfileArgs, 'employeeId'>>;
+  itOffboarding?: Resolver<Array<ResolversTypes['ItOffboardingRow']>, ParentType, ContextType>;
+  itOnboarding?: Resolver<Array<ResolversTypes['ItOnboardingRow']>, ParentType, ContextType>;
+  itReport?: Resolver<ResolversTypes['ItReport'], ParentType, ContextType, RequireFields<QueryItReportArgs, 'months'>>;
+  itSettings?: Resolver<ResolversTypes['ItSettings'], ParentType, ContextType>;
   leadsByCampaign?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<QueryLeadsByCampaignArgs, 'campaignId'>>;
   leaveRequestsByEmployee?: Resolver<Array<ResolversTypes['LeaveRequest']>, ParentType, ContextType, RequireFields<QueryLeaveRequestsByEmployeeArgs, 'employeeId'>>;
   licenceSeatsFor?: Resolver<Array<ResolversTypes['EmployeeLicenceSeat']>, ParentType, ContextType, RequireFields<QueryLicenceSeatsForArgs, 'employeeId'>>;
@@ -16310,6 +17822,29 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listInvoices?: Resolver<Array<ResolversTypes['Invoice']>, ParentType, ContextType>;
   listInvoicesPaged?: Resolver<ResolversTypes['InvoicePage'], ParentType, ContextType, RequireFields<QueryListInvoicesPagedArgs, 'input'>>;
   listInvoicesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listItAccessRequests?: Resolver<Array<ResolversTypes['ItAccessRequest']>, ParentType, ContextType>;
+  listItAccessRequestsPaged?: Resolver<ResolversTypes['ItAccessRequestPage'], ParentType, ContextType, RequireFields<QueryListItAccessRequestsPagedArgs, 'input'>>;
+  listItAccessRequestsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listItAnnouncementsPaged?: Resolver<ResolversTypes['AnnouncementPage'], ParentType, ContextType, RequireFields<QueryListItAnnouncementsPagedArgs, 'input'>>;
+  listItChanges?: Resolver<Array<ResolversTypes['ItChange']>, ParentType, ContextType>;
+  listItChangesPaged?: Resolver<ResolversTypes['ItChangePage'], ParentType, ContextType, RequireFields<QueryListItChangesPagedArgs, 'input'>>;
+  listItChangesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listItCloudResources?: Resolver<Array<ResolversTypes['ItCloudResource']>, ParentType, ContextType>;
+  listItCloudResourcesPaged?: Resolver<ResolversTypes['ItCloudResourcePage'], ParentType, ContextType, RequireFields<QueryListItCloudResourcesPagedArgs, 'input'>>;
+  listItCloudResourcesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listItIncidents?: Resolver<Array<ResolversTypes['ItIncident']>, ParentType, ContextType>;
+  listItIncidentsPaged?: Resolver<ResolversTypes['ItIncidentPage'], ParentType, ContextType, RequireFields<QueryListItIncidentsPagedArgs, 'input'>>;
+  listItIncidentsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listItNetworkItems?: Resolver<Array<ResolversTypes['ItNetworkItem']>, ParentType, ContextType>;
+  listItNetworkItemsPaged?: Resolver<ResolversTypes['ItNetworkItemPage'], ParentType, ContextType, RequireFields<QueryListItNetworkItemsPagedArgs, 'input'>>;
+  listItNetworkItemsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listItPoliciesPaged?: Resolver<ResolversTypes['PolicyPage'], ParentType, ContextType, RequireFields<QueryListItPoliciesPagedArgs, 'input'>>;
+  listItPurchaseRequests?: Resolver<Array<ResolversTypes['ItPurchaseRequest']>, ParentType, ContextType>;
+  listItPurchaseRequestsPaged?: Resolver<ResolversTypes['ItPurchaseRequestPage'], ParentType, ContextType, RequireFields<QueryListItPurchaseRequestsPagedArgs, 'input'>>;
+  listItPurchaseRequestsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listItVulnerabilities?: Resolver<Array<ResolversTypes['ItVulnerability']>, ParentType, ContextType>;
+  listItVulnerabilitiesPaged?: Resolver<ResolversTypes['ItVulnerabilityPage'], ParentType, ContextType, RequireFields<QueryListItVulnerabilitiesPagedArgs, 'input'>>;
+  listItVulnerabilitiesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listJobCompanies?: Resolver<Array<ResolversTypes['JobCompany']>, ParentType, ContextType>;
   listJobCompaniesPaged?: Resolver<ResolversTypes['JobCompanyPage'], ParentType, ContextType, RequireFields<QueryListJobCompaniesPagedArgs, 'input'>>;
   listJobCompaniesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -16413,7 +17948,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listSuppliers?: Resolver<Array<ResolversTypes['Supplier']>, ParentType, ContextType>;
   listSuppliersPaged?: Resolver<ResolversTypes['SupplierPage'], ParentType, ContextType, RequireFields<QueryListSuppliersPagedArgs, 'input'>>;
   listSuppliersStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
-  listSupportAgents?: Resolver<Array<ResolversTypes['SupportAgent']>, ParentType, ContextType>;
+  listSupportAgents?: Resolver<Array<ResolversTypes['SupportAgent']>, ParentType, ContextType, Partial<QueryListSupportAgentsArgs>>;
   listSupportReplies?: Resolver<Array<ResolversTypes['SupportReply']>, ParentType, ContextType, RequireFields<QueryListSupportRepliesArgs, 'ticketId'>>;
   listSupportSlaPolicies?: Resolver<Array<ResolversTypes['SupportSlaPolicy']>, ParentType, ContextType>;
   listSupportSlaPoliciesPaged?: Resolver<ResolversTypes['SupportSlaPolicyPage'], ParentType, ContextType, RequireFields<QueryListSupportSlaPoliciesPagedArgs, 'input'>>;
@@ -17112,6 +18647,8 @@ export type SupportTicketResolvers<ContextType = GraphQLContext, ParentType exte
   dueAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   employeeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   employeeName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  escalatedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  escalationLevel?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   firstRespondedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   priority?: Resolver<ResolversTypes['SupportPriority'], ParentType, ContextType>;
@@ -17123,6 +18660,7 @@ export type SupportTicketResolvers<ContextType = GraphQLContext, ParentType exte
   slaState?: Resolver<ResolversTypes['SlaState'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['SupportStatus'], ParentType, ContextType>;
   subject?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  topic?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -17962,6 +19500,34 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   InvoiceLine?: InvoiceLineResolvers<ContextType>;
   InvoicePage?: InvoicePageResolvers<ContextType>;
   IssuedApiKey?: IssuedApiKeyResolvers<ContextType>;
+  ItAccessGrant?: ItAccessGrantResolvers<ContextType>;
+  ItAccessRequest?: ItAccessRequestResolvers<ContextType>;
+  ItAccessRequestPage?: ItAccessRequestPageResolvers<ContextType>;
+  ItAssetUtilization?: ItAssetUtilizationResolvers<ContextType>;
+  ItChange?: ItChangeResolvers<ContextType>;
+  ItChangePage?: ItChangePageResolvers<ContextType>;
+  ItCloudResource?: ItCloudResourceResolvers<ContextType>;
+  ItCloudResourcePage?: ItCloudResourcePageResolvers<ContextType>;
+  ItCostSummary?: ItCostSummaryResolvers<ContextType>;
+  ItDashboard?: ItDashboardResolvers<ContextType>;
+  ItEmployeeProfile?: ItEmployeeProfileResolvers<ContextType>;
+  ItIncident?: ItIncidentResolvers<ContextType>;
+  ItIncidentFollowUp?: ItIncidentFollowUpResolvers<ContextType>;
+  ItIncidentPage?: ItIncidentPageResolvers<ContextType>;
+  ItIncidentUpdate?: ItIncidentUpdateResolvers<ContextType>;
+  ItMetric?: ItMetricResolvers<ContextType>;
+  ItNetworkItem?: ItNetworkItemResolvers<ContextType>;
+  ItNetworkItemPage?: ItNetworkItemPageResolvers<ContextType>;
+  ItOffboardingRow?: ItOffboardingRowResolvers<ContextType>;
+  ItOnboardingRow?: ItOnboardingRowResolvers<ContextType>;
+  ItPurchaseQuote?: ItPurchaseQuoteResolvers<ContextType>;
+  ItPurchaseRequest?: ItPurchaseRequestResolvers<ContextType>;
+  ItPurchaseRequestPage?: ItPurchaseRequestPageResolvers<ContextType>;
+  ItReport?: ItReportResolvers<ContextType>;
+  ItSettings?: ItSettingsResolvers<ContextType>;
+  ItTicketTrendPoint?: ItTicketTrendPointResolvers<ContextType>;
+  ItVulnerability?: ItVulnerabilityResolvers<ContextType>;
+  ItVulnerabilityPage?: ItVulnerabilityPageResolvers<ContextType>;
   JSON?: GraphQLScalarType;
   Job?: JobResolvers<ContextType>;
   JobCompany?: JobCompanyResolvers<ContextType>;

@@ -2,12 +2,8 @@ import { Route } from 'react-router-dom';
 import { PortalApp } from '@exyconn/shell';
 import { ROLES } from '@exyconn/shell/auth/roles';
 import { Login } from '@exyconn/login';
-import {
-  SlaPoliciesPage,
-  SupportConsolePage,
-  SupportOverviewPage,
-  TicketDetailPage,
-} from './pages/support';
+import { TicketDetailPage } from '@exyconn/shell/pages/ticket-desk';
+import { SlaPoliciesPage, SupportConsolePage, SupportOverviewPage } from './pages/support';
 import { KnowledgeBasePage } from './pages/knowledge-base';
 import { CannedRepliesPage } from './pages/canned-replies';
 
@@ -17,7 +13,10 @@ export function App() {
     <PortalApp loginElement={<Login />} moduleRole={ROLES.SUPPORT} homePath="/support">
       <Route path="/support" element={<SupportOverviewPage />} />
       <Route path="/support/tickets" element={<SupportConsolePage />} />
-      <Route path="/support/tickets/:id" element={<TicketDetailPage />} />
+      <Route
+        path="/support/tickets/:id"
+        element={<TicketDetailPage backPath="/support/tickets" />}
+      />
       <Route path="/support/sla" element={<SlaPoliciesPage />} />
       <Route path="/support/knowledge-base" element={<KnowledgeBasePage />} />
       <Route path="/support/canned-replies" element={<CannedRepliesPage />} />

@@ -12,9 +12,12 @@ import Diversity3Icon from '@mui/icons-material/Diversity3';
 import EngineeringIcon from '@mui/icons-material/Engineering';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import EventNoteIcon from '@mui/icons-material/EventNote';
+import DevicesOtherIcon from '@mui/icons-material/DevicesOther';
 import FolderSharedIcon from '@mui/icons-material/FolderShared';
+import GavelIcon from '@mui/icons-material/Gavel';
 import GroupsIcon from '@mui/icons-material/Groups';
 import LanguageIcon from '@mui/icons-material/Language';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import NewReleasesIcon from '@mui/icons-material/NewReleases';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
@@ -22,6 +25,7 @@ import ReceiptIcon from '@mui/icons-material/Receipt';
 import ScheduleIcon from '@mui/icons-material/Schedule';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TuneIcon from '@mui/icons-material/Tune';
 import ViewKanbanIcon from '@mui/icons-material/ViewKanban';
@@ -39,6 +43,7 @@ export const NAV_GROUP_ICONS = {
   Configuration: TuneIcon,
   Content: ArticleIcon,
   Directory: ContactsIcon,
+  Estate: DevicesOtherIcon,
   Growth: TrendingUpIcon,
   'Hiring & onboarding': PersonAddIcon,
   Leave: BeachAccessIcon,
@@ -47,13 +52,16 @@ export const NAV_GROUP_ICONS = {
   'Pay & money': AccountBalanceWalletIcon,
   Pay: PaymentsIcon,
   People: GroupsIcon,
+  'People & access': ManageAccountsIcon,
   Pipeline: ViewKanbanIcon,
   Planning: EventNoteIcon,
   Records: DescriptionIcon,
   Releases: NewReleasesIcon,
   Requests: AssignmentIcon,
+  'Service desk': SupportAgentIcon,
   Site: LanguageIcon,
   Spend: ShoppingCartIcon,
+  'Spend & governance': GavelIcon,
   System: SettingsIcon,
   'Team & company': BusinessIcon,
   'The team': Diversity3Icon,

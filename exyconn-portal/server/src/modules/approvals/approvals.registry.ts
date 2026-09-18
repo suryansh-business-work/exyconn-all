@@ -9,6 +9,7 @@ import { hrResolvers } from '../hr';
 import { assertPermission } from '../../lib/permissions';
 import { ROLES } from '../../constants/roles';
 import type { ApprovalScope, ApprovalSource } from './approvals.types';
+import { IT_APPROVAL_SOURCES } from '../itsm/itsm.approvals';
 
 /** Newest first: the queue is worked from the top, and a stale row is the older one. */
 const NEWEST_FIRST = { createdAt: -1 } as const;
@@ -169,6 +170,7 @@ export const APPROVAL_SOURCES: ApprovalSource[] = [
   expenseSource,
   requestSource,
   manualTimeSource,
+  ...IT_APPROVAL_SOURCES,
 ];
 
 /** Looks a source up by the `kind` half of a composite approval id. */

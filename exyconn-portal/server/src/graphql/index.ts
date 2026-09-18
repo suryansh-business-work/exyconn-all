@@ -38,6 +38,7 @@ import {
 import { integrationsTypeDefs, integrationsResolvers } from '../modules/integrations';
 import { hrTypeDefs, hrResolvers } from '../modules/hr';
 import { attendanceTypeDefs } from '../modules/hr/attendance.typeDefs';
+import { itsmTypeDefs, itsmResolvers } from '../modules/itsm';
 import { employeeTypeDefs, employeeResolvers } from '../modules/employee';
 import {
   supportTypeDefs,
@@ -196,6 +197,7 @@ export const typeDefs = [
   infraTypeDefs,
   approvalsTypeDefs,
   logsTypeDefs,
+  ...itsmTypeDefs,
 ];
 
 export const resolvers = mergeResolvers([
@@ -264,4 +266,5 @@ export const resolvers = mergeResolvers([
   infraResolvers,
   approvalsResolvers,
   logsResolvers,
+  itsmResolvers,
 ]);

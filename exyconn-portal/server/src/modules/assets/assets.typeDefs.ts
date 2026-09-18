@@ -6,11 +6,20 @@ export const assetsTypeDefs = gql`
     DESKTOP
     MONITOR
     PHONE
+    PRINTER
     TABLET
     PERIPHERAL
     NETWORK
     SOFTWARE_LICENCE
     OTHER
+  }
+
+  "Antivirus / EDR coverage of a device."
+  enum AssetEdrStatus {
+    PROTECTED
+    OUTDATED
+    UNPROTECTED
+    NOT_APPLICABLE
   }
 
   enum AssetStatus {
@@ -37,6 +46,9 @@ export const assetsTypeDefs = gql`
     warrantyExpiry: DateTime
     purchaseCost: Float!
     notes: String!
+    installedSoftware: [String!]!
+    edrStatus: AssetEdrStatus!
+    edrCheckedAt: DateTime
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -56,6 +68,9 @@ export const assetsTypeDefs = gql`
     warrantyExpiry: DateTime
     purchaseCost: Float
     notes: String
+    installedSoftware: [String!]
+    edrStatus: AssetEdrStatus
+    edrCheckedAt: DateTime
   }
 
   type AssetPage {

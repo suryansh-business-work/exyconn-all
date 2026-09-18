@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AssetCategory, AssetStatus } from '@exyconn/shell/graphql/generated';
+import { AssetCategory, AssetEdrStatus, AssetStatus } from '@exyconn/shell/graphql/generated';
 import { isAssignedStatus } from '../../assets.constants';
 import type { AssetRow } from './asset.types';
 
@@ -14,12 +14,18 @@ export const assetSchema = z
     serialNumber: z.string().trim(),
     assignedToId: z.string().trim(),
     location: z.string().trim(),
-    purchaseDate: z.date().nullable(),
-    warrantyExpiry: z.date().nullable(),
+    /** ISO strings from the pickers; empty means not recorded. */
+    purchaseDate: z.string(),
+    warrantyExpiry: z.string(),
     purchaseCost: z.coerce
       .number({ message: 'Cost must be a number' })
       .min(0, 'Cost cannot be negative'),
     notes: z.string().trim(),
+    installedSoftware: z.array(
+      z.string().trim().min(1).max(80, 'Keep each name under 80 characters'),
+    ),
+    edrStatus: z.nativeEnum(AssetEdrStatus),
+    edrCheckedAt: z.string(),
   })
   // An assigned asset without a holder is a row nobody can act on, so it is rejected
   // here rather than saved and chased later.
@@ -30,8 +36,8 @@ export const assetSchema = z
 
 type Values = z.infer<typeof assetSchema>;
 
-/** The DateTime scalar travels as an ISO string, so the pickers' Dates are converted. */
-const asIso = (value: Date | null) => value?.toISOString() ?? null;
+/** An empty date means "not recorded", which the API spells null. */
+const asIso = (value: string) => value || null;
 
 /** Maps the validated form values onto the GraphQL input. */
 export function toAssetInput(values: Values, nameFor: (id: string) => string) {
@@ -40,12 +46,11 @@ export function toAssetInput(values: Values, nameFor: (id: string) => string) {
     ...values,
     purchaseDate: asIso(values.purchaseDate),
     warrantyExpiry: asIso(values.warrantyExpiry),
+    edrCheckedAt: asIso(values.edrCheckedAt),
     assignedToId: assigned ? values.assignedToId : '',
     assignedToName: assigned ? nameFor(values.assignedToId) : '',
   };
 }
-
-const asDate = (value?: string | null) => (value ? new Date(value) : null);
 
 export function toAssetValues(row: AssetRow | null): Values {
   return {
@@ -58,9 +63,12 @@ export function toAssetValues(row: AssetRow | null): Values {
     serialNumber: row?.serialNumber ?? '',
     assignedToId: row?.assignedToId ?? '',
     location: row?.location ?? '',
-    purchaseDate: asDate(row?.purchaseDate),
-    warrantyExpiry: asDate(row?.warrantyExpiry),
+    purchaseDate: row?.purchaseDate ?? '',
+    warrantyExpiry: row?.warrantyExpiry ?? '',
     purchaseCost: row?.purchaseCost ?? 0,
     notes: row?.notes ?? '',
+    installedSoftware: row?.installedSoftware ?? [],
+    edrStatus: row?.edrStatus ?? AssetEdrStatus.NotApplicable,
+    edrCheckedAt: row?.edrCheckedAt ?? '',
   };
 }

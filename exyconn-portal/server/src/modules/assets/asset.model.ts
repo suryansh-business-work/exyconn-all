@@ -6,6 +6,7 @@ export const ASSET_CATEGORIES = [
   'DESKTOP',
   'MONITOR',
   'PHONE',
+  'PRINTER',
   'TABLET',
   'PERIPHERAL',
   'NETWORK',
@@ -14,6 +15,14 @@ export const ASSET_CATEGORIES = [
 ] as const;
 
 /** Where the asset is in its life: in stock, with someone, being fixed, or gone. */
+/** Antivirus / EDR coverage of a device. NOT_APPLICABLE for things that run no agent. */
+export const ASSET_EDR_STATUSES = [
+  'PROTECTED',
+  'OUTDATED',
+  'UNPROTECTED',
+  'NOT_APPLICABLE',
+] as const;
+
 export const ASSET_STATUSES = ['IN_STOCK', 'ASSIGNED', 'IN_REPAIR', 'RETIRED', 'LOST'] as const;
 
 /**
@@ -38,6 +47,16 @@ const assetSchema = new Schema(
     warrantyExpiry: { type: Date, default: null },
     purchaseCost: { type: Number, default: 0, min: 0 },
     notes: { type: String, default: '' },
+    /** Software installed on the device, as IT records it. */
+    installedSoftware: { type: [String], default: [] },
+    edrStatus: {
+      type: String,
+      enum: ASSET_EDR_STATUSES,
+      required: true,
+      default: 'NOT_APPLICABLE',
+    },
+    /** When the antivirus / EDR state was last confirmed. */
+    edrCheckedAt: { type: Date, default: null },
   },
   { timestamps: true },
 );

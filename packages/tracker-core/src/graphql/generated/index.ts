@@ -81,8 +81,14 @@ export type AnnouncementAudience =
 
 export type AnnouncementCategory =
   | 'EVENT'
+  /** IT: planned maintenance window. */
+  | 'MAINTENANCE'
   | 'NOTICE'
+  /** IT: a service is down right now. */
+  | 'OUTAGE'
   | 'POLICY'
+  /** IT: a security warning staff must act on. */
+  | 'SECURITY_ALERT'
   | 'UPDATE';
 
 export type AnnouncementInput = {
@@ -202,14 +208,25 @@ export type AssetCategory =
   | 'OTHER'
   | 'PERIPHERAL'
   | 'PHONE'
+  | 'PRINTER'
   | 'SOFTWARE_LICENCE'
   | 'TABLET';
+
+/** Antivirus / EDR coverage of a device. */
+export type AssetEdrStatus =
+  | 'NOT_APPLICABLE'
+  | 'OUTDATED'
+  | 'PROTECTED'
+  | 'UNPROTECTED';
 
 export type AssetInput = {
   assetTag: Scalars['String']['input'];
   assignedToId: InputMaybe<Scalars['String']['input']>;
   assignedToName: InputMaybe<Scalars['String']['input']>;
   category: AssetCategory;
+  edrCheckedAt: InputMaybe<Scalars['DateTime']['input']>;
+  edrStatus: InputMaybe<AssetEdrStatus>;
+  installedSoftware: InputMaybe<Array<Scalars['String']['input']>>;
   location: InputMaybe<Scalars['String']['input']>;
   manufacturer: InputMaybe<Scalars['String']['input']>;
   modelName: InputMaybe<Scalars['String']['input']>;
@@ -1026,6 +1043,240 @@ export type InvoiceStatus =
   | 'PARTIALLY_PAID'
   | 'SENT';
 
+export type ItAccessKind =
+  | 'GRANT'
+  | 'PASSWORD_RESET'
+  | 'REVOKE'
+  | 'ROLE_CHANGE';
+
+/** Status and decision fields are set by decide/fulfil, never by this input. */
+export type ItAccessRequestInput = {
+  accessLevel: InputMaybe<Scalars['String']['input']>;
+  application: Scalars['String']['input'];
+  employeeId: Scalars['String']['input'];
+  expiresAt: InputMaybe<Scalars['DateTime']['input']>;
+  kind: ItAccessKind;
+  reason: Scalars['String']['input'];
+};
+
+export type ItAccessStatus =
+  | 'APPROVED'
+  | 'CANCELLED'
+  | 'FULFILLED'
+  | 'PENDING'
+  | 'REJECTED';
+
+/** APPROVED and REJECTED are refused here — they come only from decideItChange. */
+export type ItChangeInput = {
+  description: Scalars['String']['input'];
+  environment: ItEnvironment;
+  ownerName: InputMaybe<Scalars['String']['input']>;
+  plannedEnd: Scalars['DateTime']['input'];
+  plannedStart: Scalars['DateTime']['input'];
+  risk: ItRisk;
+  rollbackPlan: InputMaybe<Scalars['String']['input']>;
+  status: ItChangeStatus;
+  system: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+  type: ItChangeType;
+};
+
+export type ItChangeStatus =
+  | 'APPROVED'
+  | 'DRAFT'
+  | 'FAILED'
+  | 'IMPLEMENTED'
+  | 'PENDING_APPROVAL'
+  | 'REJECTED'
+  | 'ROLLED_BACK'
+  | 'SCHEDULED';
+
+export type ItChangeType =
+  | 'EMERGENCY'
+  | 'NORMAL'
+  | 'STANDARD';
+
+export type ItCloudKind =
+  | 'DATABASE'
+  | 'DOCKER_HOST'
+  | 'DOMAIN'
+  | 'KUBERNETES'
+  | 'OTHER'
+  | 'SERVER'
+  | 'SSL_CERTIFICATE'
+  | 'STORAGE';
+
+export type ItCloudResourceInput = {
+  endpoint: InputMaybe<Scalars['String']['input']>;
+  environment: ItEnvironment;
+  expiresAt: InputMaybe<Scalars['DateTime']['input']>;
+  kind: ItCloudKind;
+  monthlyCost: Scalars['Float']['input'];
+  name: Scalars['String']['input'];
+  notes: InputMaybe<Scalars['String']['input']>;
+  ownerName: InputMaybe<Scalars['String']['input']>;
+  provider: InputMaybe<Scalars['String']['input']>;
+  region: InputMaybe<Scalars['String']['input']>;
+  status: ItServiceStatus;
+};
+
+export type ItDecision =
+  | 'APPROVED'
+  | 'REJECTED';
+
+export type ItEnvironment =
+  | 'DEVELOPMENT'
+  | 'PRODUCTION'
+  | 'STAGING';
+
+export type ItIncidentCategory =
+  | 'APPLICATION'
+  | 'HARDWARE'
+  | 'NETWORK'
+  | 'OTHER'
+  | 'OUTAGE'
+  | 'SECURITY';
+
+export type ItIncidentFollowUpInput = {
+  done: Scalars['Boolean']['input'];
+  dueAt: InputMaybe<Scalars['DateTime']['input']>;
+  ownerName: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
+};
+
+/** The timeline is appended by addItIncidentUpdate and by status changes, never set here. */
+export type ItIncidentInput = {
+  affectedSystems: InputMaybe<Array<Scalars['String']['input']>>;
+  category: ItIncidentCategory;
+  commanderName: InputMaybe<Scalars['String']['input']>;
+  description: Scalars['String']['input'];
+  followUps: InputMaybe<Array<ItIncidentFollowUpInput>>;
+  impact: InputMaybe<Scalars['String']['input']>;
+  rootCause: InputMaybe<Scalars['String']['input']>;
+  severity: ItIncidentSeverity;
+  startedAt: Scalars['DateTime']['input'];
+  status: ItIncidentStatus;
+  title: Scalars['String']['input'];
+};
+
+export type ItIncidentSeverity =
+  | 'SEV1'
+  | 'SEV2'
+  | 'SEV3'
+  | 'SEV4';
+
+export type ItIncidentStatus =
+  | 'CLOSED'
+  | 'IDENTIFIED'
+  | 'INVESTIGATING'
+  | 'MONITORING'
+  | 'RESOLVED';
+
+export type ItNetworkItemInput = {
+  address: InputMaybe<Scalars['String']['input']>;
+  kind: ItNetworkKind;
+  location: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  notes: InputMaybe<Scalars['String']['input']>;
+  provider: InputMaybe<Scalars['String']['input']>;
+  status: ItServiceStatus;
+};
+
+export type ItNetworkKind =
+  | 'DNS'
+  | 'FIREWALL'
+  | 'IP_RANGE'
+  | 'OTHER'
+  | 'ROUTER'
+  | 'SWITCH'
+  | 'VPN'
+  | 'WIFI';
+
+export type ItPurchaseKind =
+  | 'HARDWARE'
+  | 'SERVICE'
+  | 'SOFTWARE';
+
+export type ItPurchaseQuoteInput = {
+  amount: Scalars['Float']['input'];
+  notes: InputMaybe<Scalars['String']['input']>;
+  vendor: Scalars['String']['input'];
+};
+
+/** APPROVED and REJECTED are refused here — they come only from decideItPurchaseRequest. */
+export type ItPurchaseRequestInput = {
+  estimatedCost: Scalars['Float']['input'];
+  justification: Scalars['String']['input'];
+  kind: ItPurchaseKind;
+  orderReference: InputMaybe<Scalars['String']['input']>;
+  quantity: Scalars['Int']['input'];
+  quotes: InputMaybe<Array<ItPurchaseQuoteInput>>;
+  requestedForName: InputMaybe<Scalars['String']['input']>;
+  status: ItPurchaseStatus;
+  title: Scalars['String']['input'];
+};
+
+export type ItPurchaseStatus =
+  | 'APPROVED'
+  | 'CANCELLED'
+  | 'ORDERED'
+  | 'QUOTED'
+  | 'RECEIVED'
+  | 'REJECTED'
+  | 'REQUESTED';
+
+export type ItRisk =
+  | 'HIGH'
+  | 'LOW'
+  | 'MEDIUM';
+
+export type ItServiceStatus =
+  | 'ACTIVE'
+  | 'DEGRADED'
+  | 'DOWN'
+  | 'RETIRED';
+
+export type ItSettingsInput = {
+  applications: Array<Scalars['String']['input']>;
+  certificateWarningDays: Scalars['Int']['input'];
+  onboardingApplications: Array<Scalars['String']['input']>;
+  renewalWarningDays: Scalars['Int']['input'];
+  ticketTopics: Array<Scalars['String']['input']>;
+  warrantyWarningDays: Scalars['Int']['input'];
+};
+
+export type ItVulnSeverity =
+  | 'CRITICAL'
+  | 'HIGH'
+  | 'LOW'
+  | 'MEDIUM';
+
+export type ItVulnSource =
+  | 'PENTEST'
+  | 'REPORT'
+  | 'SCAN'
+  | 'VENDOR_ADVISORY';
+
+export type ItVulnStatus =
+  | 'ACCEPTED'
+  | 'IN_PROGRESS'
+  | 'MITIGATED'
+  | 'OPEN'
+  | 'RESOLVED';
+
+export type ItVulnerabilityInput = {
+  affectedSystem: Scalars['String']['input'];
+  cve: InputMaybe<Scalars['String']['input']>;
+  discoveredAt: Scalars['DateTime']['input'];
+  dueAt: InputMaybe<Scalars['DateTime']['input']>;
+  notes: InputMaybe<Scalars['String']['input']>;
+  ownerName: InputMaybe<Scalars['String']['input']>;
+  severity: ItVulnSeverity;
+  source: ItVulnSource;
+  status: ItVulnStatus;
+  title: Scalars['String']['input'];
+};
+
 export type JobCompanyInput = {
   benefits: InputMaybe<Array<CompanyBenefitInput>>;
   brandColor: InputMaybe<Scalars['String']['input']>;
@@ -1293,6 +1544,7 @@ export type NotificationKind =
   | 'ANNOUNCEMENT'
   | 'GENERAL'
   | 'GOAL'
+  | 'IT'
   | 'LEAVE'
   | 'ONBOARDING'
   | 'PAYROLL'
@@ -1301,6 +1553,7 @@ export type NotificationKind =
   | 'SOCIAL_COMMENT'
   | 'SOCIAL_LIKE'
   | 'SOCIAL_SHARE'
+  | 'SUPPORT'
   | 'TRAINING';
 
 export type ObjectiveFrequency =
@@ -1502,6 +1755,15 @@ export type PolicyAudience =
   | 'HR_ONLY'
   | 'PUBLIC';
 
+/** Which part of the company a policy governs. IT maintains the IT and SECURITY ones. */
+export type PolicyCategory =
+  | 'FINANCE'
+  | 'GENERAL'
+  | 'HR'
+  | 'IT'
+  | 'PRIVACY'
+  | 'SECURITY';
+
 /**
  * How far a document may travel (ISO 27001 A.5.12).
  *
@@ -1516,6 +1778,8 @@ export type PolicyClassification =
 export type PolicyInput = {
   audience: PolicyAudience;
   body: Scalars['String']['input'];
+  /** Defaults to GENERAL. */
+  category: InputMaybe<PolicyCategory>;
   classification: InputMaybe<PolicyClassification>;
   effectiveDate: Scalars['DateTime']['input'];
   nextReviewOn: InputMaybe<Scalars['DateTime']['input']>;

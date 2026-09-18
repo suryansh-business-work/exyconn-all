@@ -8,6 +8,13 @@ import { ROLES } from '../../constants/roles';
 import { withId, withIds } from '../../utils/serialize';
 import { notFound } from '../../utils/errors';
 import type { GraphQLContext } from '../../middleware/auth';
+import { tableQuery, tableStats, type TableQueryInput } from '../../utils/tableQuery';
+import {
+  assertPolicyCategory,
+  assertPolicyInScope,
+  policyScope,
+  POLICY_ROLES,
+} from './policy.scope';
 
 const legalRoles = [ROLES.LEGAL];
 
@@ -20,7 +27,17 @@ interface PolicyInput {
   effectiveDate: Date;
   requiresAcknowledgement?: boolean;
   owner?: string;
+  category?: string | null;
 }
+
+/** What the policy grids search, filter and sort on — Legal's and IT's alike. */
+export const POLICY_TABLE = {
+  searchFields: ['title', 'slug', 'summary', 'owner'],
+  filterFields: ['title', 'slug', 'audience', 'status', 'category'],
+  sortFields: ['title', 'slug', 'audience', 'status', 'version', 'effectiveDate', 'updatedAt'],
+  defaultSort: { field: 'updatedAt', dir: 'DESC' as const },
+};
+const POLICY_STATS = { countBy: ['status', 'audience', 'category'] };
 
 export const policiesService = createCrudService<PolicyInput>(PolicyModel as never, 'Policy');
 
@@ -28,15 +45,56 @@ const policies = createCrudResolvers(policiesService, {
   name: 'Policy',
   // Otherwise the factory generates listPolicys, which the schema does not declare.
   plural: 'Policies',
-  roles: legalRoles,
-  table: {
-    searchFields: ['title', 'slug', 'summary', 'owner'],
-    filterFields: ['title', 'slug', 'audience', 'status'],
-    sortFields: ['title', 'slug', 'audience', 'status', 'version', 'effectiveDate', 'updatedAt'],
-    defaultSort: { field: 'updatedAt', dir: 'DESC' },
-  },
-  stats: { countBy: ['status', 'audience'] },
+  roles: POLICY_ROLES,
+  table: POLICY_TABLE,
+  stats: POLICY_STATS,
 });
+
+type IdArgs = { id: string };
+type InputArgs = { input: PolicyInput };
+
+/**
+ * The register reads, narrowed to what the caller may maintain. The generated versions read
+ * the whole collection, which would hand IT every HR-only draft.
+ */
+const scopedPolicyQueries = {
+  listPolicies: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+    const rows = await PolicyModel.find(policyScope(ctx)).sort({ updatedAt: -1 }).lean();
+    return withIds(rows);
+  },
+  listPoliciesPaged: async (
+    _p: unknown,
+    { input }: { input: TableQueryInput },
+    ctx: GraphQLContext,
+  ) => {
+    const page = await tableQuery(PolicyModel, input, POLICY_TABLE, policyScope(ctx));
+    return { rows: withIds(page.rows as Array<{ _id: unknown }>), totalCount: page.totalCount };
+  },
+  listPoliciesStats: (_p: unknown, _a: unknown, ctx: GraphQLContext) =>
+    tableStats(PolicyModel, POLICY_STATS, policyScope(ctx)),
+  getPolicy: async (_p: unknown, { id }: IdArgs, ctx: GraphQLContext) => {
+    await assertPolicyInScope(policyScope(ctx), id);
+    return policies.Query.getPolicy(_p, { id } as never, ctx);
+  },
+};
+
+/** Writes, refused when an IT-only caller reaches outside IT's categories. */
+const scopedPolicyMutations = {
+  createPolicy: async (p: unknown, args: InputArgs, ctx: GraphQLContext) => {
+    assertPolicyCategory(policyScope(ctx), args.input.category);
+    return policies.Mutation.createPolicy(p, args as never, ctx);
+  },
+  updatePolicy: async (p: unknown, args: IdArgs & InputArgs, ctx: GraphQLContext) => {
+    const scope = policyScope(ctx);
+    assertPolicyCategory(scope, args.input.category);
+    await assertPolicyInScope(scope, args.id);
+    return policies.Mutation.updatePolicy(p, args as never, ctx);
+  },
+  deletePolicy: async (p: unknown, args: IdArgs, ctx: GraphQLContext) => {
+    await assertPolicyInScope(policyScope(ctx), args.id);
+    return policies.Mutation.deletePolicy(p, args as never, ctx);
+  },
+};
 
 /**
  * Which audiences a person may read.
@@ -65,7 +123,8 @@ async function publishPolicy(
   { id, raiseVersion }: { id: string; raiseVersion?: boolean | null },
   ctx: GraphQLContext,
 ) {
-  const actor = assertRole(ctx, legalRoles);
+  const actor = assertRole(ctx, POLICY_ROLES);
+  await assertPolicyInScope(policyScope(ctx), id);
   const policy = await PolicyModel.findById(id);
   if (!policy) {
     notFound('Policy');
@@ -85,7 +144,7 @@ async function publishPolicy(
 }
 
 async function archivePolicy(_p: unknown, { id }: { id: string }, ctx: GraphQLContext) {
-  assertRole(ctx, legalRoles);
+  await assertPolicyInScope(policyScope(ctx), id);
   const policy = await PolicyModel.findByIdAndUpdate(
     id,
     { status: 'ARCHIVED' },
@@ -122,6 +181,8 @@ async function acknowledgePolicy(
 
 export const policyResolvers = {
   Policy: {
+    /** Policies written before categories existed read as GENERAL. */
+    category: (policy: { category?: string | null }) => policy.category ?? 'GENERAL',
     /**
      * Whether its review date has passed.
      *
@@ -144,6 +205,7 @@ export const policyResolvers = {
 
   Query: {
     ...policies.Query,
+    ...scopedPolicyQueries,
     policyAcknowledgements: async (
       _p: unknown,
       { policyId }: { policyId: string },
@@ -214,6 +276,7 @@ export const policyResolvers = {
 
   Mutation: {
     ...policies.Mutation,
+    ...scopedPolicyMutations,
     publishPolicy,
     archivePolicy,
     acknowledgePolicy,

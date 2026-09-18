@@ -12,8 +12,11 @@ export interface AssetFormValues {
   serialNumber: string;
   assignedToId: string;
   location: string;
-  purchaseDate: Date | null;
-  warrantyExpiry: Date | null;
+  purchaseDate: string;
+  warrantyExpiry: string;
   purchaseCost: number;
   notes: string;
+  installedSoftware: string[];
+  edrStatus: string;
+  edrCheckedAt: string;
 }

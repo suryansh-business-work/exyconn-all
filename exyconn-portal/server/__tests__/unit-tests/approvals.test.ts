@@ -122,13 +122,17 @@ describe('the shared approval queue', () => {
     const queue = (await myApprovals(null, {}, ctx(admin, [ROLES.ADMIN]))) as unknown as Queue;
 
     expect(queue.totalCount).toBe(4);
-    expect(queue.groups.map((g) => g.kind).sort()).toEqual([
-      'EXPENSE',
-      'LEAVE',
-      'MANUAL_TIME',
-      'REQUEST',
-    ]);
-    expect(queue.groups.every((group) => group.count === 1)).toBe(true);
+    // Every source an administrator may decide is listed, IT's included — empty here.
+    const counts = Object.fromEntries(queue.groups.map((g) => [g.kind, g.count]));
+    expect(counts).toEqual({
+      EXPENSE: 1,
+      LEAVE: 1,
+      MANUAL_TIME: 1,
+      REQUEST: 1,
+      IT_ACCESS: 0,
+      IT_CHANGE: 0,
+      IT_PURCHASE: 0,
+    });
   });
 
   it('carries the money on a claim so the queue can show what is at stake', async () => {

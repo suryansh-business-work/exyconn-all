@@ -11,6 +11,8 @@ interface TicketRow {
   requesterName?: string | null;
   requesterEmail?: string | null;
   attachments?: Attachment[] | null;
+  topic?: string | null;
+  escalationLevel?: number | null;
   dueAt?: Date | null;
   resolvedAt?: Date | null;
 }
@@ -32,6 +34,9 @@ export const supportTicketFields = {
   requesterName: (ticket: TicketRow) => ticket.requesterName ?? '',
   requesterEmail: (ticket: TicketRow) => ticket.requesterEmail ?? '',
   attachments: (ticket: TicketRow) => ticket.attachments ?? [],
+  // Tickets raised before IT worked the queue were stored without these.
+  topic: (ticket: TicketRow) => ticket.topic ?? '',
+  escalationLevel: (ticket: TicketRow) => ticket.escalationLevel ?? 0,
   /** Derived, never stored: the state has to follow the clock, not the last write. */
   slaState: (ticket: TicketRow): SlaState => slaState(ticket, new Date()),
 };

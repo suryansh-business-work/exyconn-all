@@ -2,7 +2,7 @@ import type {
   ListAnnouncementsPagedQuery,
   AnnouncementCategory,
   AnnouncementAudience,
-} from '@exyconn/shell/graphql/generated';
+} from '@/graphql/generated';
 
 export type AnnouncementRow = ListAnnouncementsPagedQuery['listAnnouncementsPaged']['rows'][number];
 

@@ -2,17 +2,14 @@ import { useState } from 'react';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
-import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import {
   useListPoliciesStatsQuery,
   useDeletePolicyMutation,
-  usePublishPolicyMutation,
   ListPoliciesPagedDocument,
   type ListPoliciesPagedQuery,
 } from '@exyconn/shell/graphql/generated';
-import { PolicyForm, type PolicyRow } from './forms/policy';
+import { PolicyForm, usePublishPolicy, type PolicyRow } from '@exyconn/shell/pages/content-forms';
 import { PolicySignersDialog } from './PolicySignersDialog';
 import { POLICY_COLUMNS, type PagedPolicyRow, type PoliciesGridContext } from './policies-grid';
 import { color } from '@exyconn/shell/components/ui';
@@ -26,10 +23,7 @@ import { color } from '@exyconn/shell/components/ui';
 export function PoliciesPage() {
   const { data: statsData, refetch: refetchStats } = useListPoliciesStatsQuery();
   const [deletePolicy] = useDeletePolicyMutation();
-  const [publishPolicy] = usePublishPolicyMutation();
   const [signersFor, setSignersFor] = useState<PagedPolicyRow | null>(null);
-  const confirm = useConfirm();
-  const notify = useNotify();
   const { formatDate } = useSettings();
 
   const crud = useCrudResource<PolicyRow, PagedPolicyRow>({
@@ -66,26 +60,10 @@ export function PoliciesPage() {
     },
   ];
 
-  const publish = async (row: PagedPolicyRow) => {
-    const isRepublish = row.status === 'PUBLISHED';
-    const message = isRepublish
-      ? 'Has the wording of "{title}" changed? Choosing yes makes it v{version} and asks everybody to sign again.'
-      : 'Publish "{title}"? Staff will be able to read it straight away.';
-    const ok = await confirm({
-      message,
-      messageValues: { title: row.title, version: row.version + 1 },
-      confirmText: isRepublish ? 'Yes, new version' : 'Publish',
-    });
-    if (!ok) return;
-    try {
-      await publishPolicy({ variables: { id: row.id, raiseVersion: isRepublish } });
-      await refetchStats();
-      crud.onDone();
-      notify(isRepublish ? 'Published as a new version' : 'Policy published');
-    } catch (err) {
-      notify(err instanceof Error ? err.message : 'Could not publish', 'error');
-    }
-  };
+  const publish = usePublishPolicy(async () => {
+    await refetchStats();
+    crud.onDone();
+  });
 
   const gridContext: PoliciesGridContext = {
     actions: {

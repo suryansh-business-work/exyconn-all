@@ -1,8 +1,8 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import { LocalizationProvider, AdapterDateFns } from '@exyconn/shell/components/ui';
-import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
-import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
-import { theme } from '@exyconn/shell/config/theme';
+import { LocalizationProvider, AdapterDateFns } from '@/components/ui';
+import { ThemeProvider } from '@/components/ui/styles';
+import { NotificationProvider } from '@/components/feedback/NotificationProvider';
+import { theme } from '@/config/theme';
 import { AnnouncementForm } from './announcement.form';
 
 const mount = () =>

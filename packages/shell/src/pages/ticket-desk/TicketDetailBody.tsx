@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useT } from '@exyconn/i18n';
-import { Divider, Stack, Text } from '@exyconn/shell/components/ui';
-import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { AttachmentList, type AttachmentItem } from '@exyconn/shell/components/upload';
+import { Divider, Stack, Text } from '@/components/ui';
+import { StatusChip } from '@/components/data/StatusChip';
+import { AttachmentList, type AttachmentItem } from '@/components/upload';
 import { TicketAssignee } from './TicketAssignee';
 import { TicketThread } from './TicketThread';
 import { TicketTriage } from './TicketTriage';
+import { TicketEscalate } from './TicketEscalate';
 import { SupportReplyForm } from './forms/support-reply';
 
 /** Everything the detail view renders, whether it is in a drawer or on its own page. */
@@ -18,6 +19,9 @@ export interface DetailTicket {
   category: string;
   priority: string;
   slaState: string;
+  topic: string;
+  escalationLevel: number;
+  escalatedAt?: string | null;
   assigneeId: string;
   requesterType: string;
   clientName: string;
@@ -42,15 +46,26 @@ interface TicketDetailBodyProps {
   onChanged: () => void;
   /** What Cancel on the reply box does: close the drawer, or go back to the queue. */
   onCancel: () => void;
+  /** The desk's ticket topics (IT's). Omit for a desk that does not triage by topic. */
+  topics?: readonly string[];
 }
+
+/** A resolved or closed ticket is finished — it has to be reopened before it is escalated. */
+const FINISHED = new Set(['RESOLVED', 'CLOSED']);
 
 /**
  * One ticket in full: what was asked, who owns it, and the conversation so far.
  *
- * Shared by the drawer the grid opens and the `/support/tickets/:id` page an email links
- * to, so the two can never drift into showing different things about the same ticket.
+ * Shared by the drawer the grid opens and the ticket page an email links to — in the Support
+ * console and in IT's helpdesk — so no two of them can drift into showing different things
+ * about the same ticket.
  */
-export function TicketDetailBody({ ticket, onChanged, onCancel }: Readonly<TicketDetailBodyProps>) {
+export function TicketDetailBody({
+  ticket,
+  onChanged,
+  onCancel,
+  topics,
+}: Readonly<TicketDetailBodyProps>) {
   const t = useT();
   // Bumped after a reply so the thread refetches without remounting the whole view.
   const [threadKey, setThreadKey] = useState(0);
@@ -86,9 +101,26 @@ export function TicketDetailBody({ ticket, onChanged, onCancel }: Readonly<Ticke
         ticketId={ticket.id}
         category={ticket.category}
         priority={ticket.priority}
+        topic={ticket.topic}
+        topics={topics}
         onChanged={onChanged}
       />
-      <TicketAssignee ticketId={ticket.id} assigneeId={ticket.assigneeId} onAssigned={onChanged} />
+      <TicketAssignee
+        ticketId={ticket.id}
+        assigneeId={ticket.assigneeId}
+        category={ticket.category}
+        onAssigned={onChanged}
+      />
+      <TicketEscalate
+        ticketId={ticket.id}
+        escalationLevel={ticket.escalationLevel}
+        escalatedAt={ticket.escalatedAt}
+        closed={FINISHED.has(ticket.status)}
+        onEscalated={() => {
+          setThreadKey((key) => key + 1);
+          onChanged();
+        }}
+      />
 
       <Divider />
       <TicketThread key={threadKey} ticketId={ticket.id} />

@@ -1,0 +1,760 @@
+fragment ItNetworkItemFields on ItNetworkItem {
+  id
+  name
+  kind
+  address
+  location
+  provider
+  status
+  notes
+  createdAt
+  updatedAt
+}
+
+query ListItNetworkItemsPaged($input: TableQueryInput!) {
+  listItNetworkItemsPaged(input: $input) {
+    totalCount
+    rows {
+      ...ItNetworkItemFields
+    }
+  }
+}
+
+query ListItNetworkItemsStats {
+  listItNetworkItemsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+query GetItNetworkItem($id: ID!) {
+  getItNetworkItem(id: $id) {
+    ...ItNetworkItemFields
+  }
+}
+
+mutation CreateItNetworkItem($input: ItNetworkItemInput!) {
+  createItNetworkItem(input: $input) {
+    ...ItNetworkItemFields
+  }
+}
+
+mutation UpdateItNetworkItem($id: ID!, $input: ItNetworkItemInput!) {
+  updateItNetworkItem(id: $id, input: $input) {
+    ...ItNetworkItemFields
+  }
+}
+
+mutation DeleteItNetworkItem($id: ID!) {
+  deleteItNetworkItem(id: $id)
+}
+
+fragment ItCloudResourceFields on ItCloudResource {
+  id
+  name
+  kind
+  provider
+  environment
+  region
+  endpoint
+  expiresAt
+  monthlyCost
+  status
+  ownerName
+  notes
+  createdAt
+  updatedAt
+}
+
+query ListItCloudResourcesPaged($input: TableQueryInput!) {
+  listItCloudResourcesPaged(input: $input) {
+    totalCount
+    rows {
+      ...ItCloudResourceFields
+    }
+  }
+}
+
+query ListItCloudResourcesStats {
+  listItCloudResourcesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+query GetItCloudResource($id: ID!) {
+  getItCloudResource(id: $id) {
+    ...ItCloudResourceFields
+  }
+}
+
+mutation CreateItCloudResource($input: ItCloudResourceInput!) {
+  createItCloudResource(input: $input) {
+    ...ItCloudResourceFields
+  }
+}
+
+mutation UpdateItCloudResource($id: ID!, $input: ItCloudResourceInput!) {
+  updateItCloudResource(id: $id, input: $input) {
+    ...ItCloudResourceFields
+  }
+}
+
+mutation DeleteItCloudResource($id: ID!) {
+  deleteItCloudResource(id: $id)
+}
+
+fragment ItVulnerabilityFields on ItVulnerability {
+  id
+  title
+  cve
+  severity
+  source
+  affectedSystem
+  status
+  discoveredAt
+  dueAt
+  ownerName
+  notes
+  createdAt
+  updatedAt
+}
+
+query ListItVulnerabilitiesPaged($input: TableQueryInput!) {
+  listItVulnerabilitiesPaged(input: $input) {
+    totalCount
+    rows {
+      ...ItVulnerabilityFields
+    }
+  }
+}
+
+query ListItVulnerabilitiesStats {
+  listItVulnerabilitiesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+query GetItVulnerability($id: ID!) {
+  getItVulnerability(id: $id) {
+    ...ItVulnerabilityFields
+  }
+}
+
+mutation CreateItVulnerability($input: ItVulnerabilityInput!) {
+  createItVulnerability(input: $input) {
+    ...ItVulnerabilityFields
+  }
+}
+
+mutation UpdateItVulnerability($id: ID!, $input: ItVulnerabilityInput!) {
+  updateItVulnerability(id: $id, input: $input) {
+    ...ItVulnerabilityFields
+  }
+}
+
+mutation DeleteItVulnerability($id: ID!) {
+  deleteItVulnerability(id: $id)
+}
+
+fragment ItAccessRequestFields on ItAccessRequest {
+  id
+  employeeId
+  employeeName
+  application
+  kind
+  accessLevel
+  reason
+  status
+  requestedByName
+  decidedByName
+  decidedAt
+  decisionNote
+  fulfilledAt
+  expiresAt
+  createdAt
+  updatedAt
+}
+
+query ListItAccessRequestsPaged($input: TableQueryInput!) {
+  listItAccessRequestsPaged(input: $input) {
+    totalCount
+    rows {
+      ...ItAccessRequestFields
+    }
+  }
+}
+
+query ListItAccessRequestsStats {
+  listItAccessRequestsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+query GetItAccessRequest($id: ID!) {
+  getItAccessRequest(id: $id) {
+    ...ItAccessRequestFields
+  }
+}
+
+mutation CreateItAccessRequest($input: ItAccessRequestInput!) {
+  createItAccessRequest(input: $input) {
+    ...ItAccessRequestFields
+  }
+}
+
+mutation UpdateItAccessRequest($id: ID!, $input: ItAccessRequestInput!) {
+  updateItAccessRequest(id: $id, input: $input) {
+    ...ItAccessRequestFields
+  }
+}
+
+mutation DeleteItAccessRequest($id: ID!) {
+  deleteItAccessRequest(id: $id)
+}
+
+fragment ItChangeFields on ItChange {
+  id
+  title
+  description
+  type
+  risk
+  environment
+  system
+  status
+  plannedStart
+  plannedEnd
+  implementedAt
+  ownerName
+  rollbackPlan
+  decidedByName
+  decidedAt
+  decisionNote
+  createdAt
+  updatedAt
+}
+
+query ListItChangesPaged($input: TableQueryInput!) {
+  listItChangesPaged(input: $input) {
+    totalCount
+    rows {
+      ...ItChangeFields
+    }
+  }
+}
+
+query ListItChangesStats {
+  listItChangesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+query GetItChange($id: ID!) {
+  getItChange(id: $id) {
+    ...ItChangeFields
+  }
+}
+
+mutation CreateItChange($input: ItChangeInput!) {
+  createItChange(input: $input) {
+    ...ItChangeFields
+  }
+}
+
+mutation UpdateItChange($id: ID!, $input: ItChangeInput!) {
+  updateItChange(id: $id, input: $input) {
+    ...ItChangeFields
+  }
+}
+
+mutation DeleteItChange($id: ID!) {
+  deleteItChange(id: $id)
+}
+
+fragment ItIncidentFields on ItIncident {
+  id
+  title
+  description
+  severity
+  category
+  status
+  startedAt
+  resolvedAt
+  impact
+  affectedSystems
+  commanderName
+  rootCause
+  createdAt
+  updatedAt
+  timeline {
+    id
+    at
+    status
+    note
+    authorName
+  }
+  followUps {
+    id
+    title
+    ownerName
+    dueAt
+    done
+  }
+}
+
+query ListItIncidentsPaged($input: TableQueryInput!) {
+  listItIncidentsPaged(input: $input) {
+    totalCount
+    rows {
+      ...ItIncidentFields
+    }
+  }
+}
+
+query ListItIncidentsStats {
+  listItIncidentsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+query GetItIncident($id: ID!) {
+  getItIncident(id: $id) {
+    ...ItIncidentFields
+  }
+}
+
+mutation CreateItIncident($input: ItIncidentInput!) {
+  createItIncident(input: $input) {
+    ...ItIncidentFields
+  }
+}
+
+mutation UpdateItIncident($id: ID!, $input: ItIncidentInput!) {
+  updateItIncident(id: $id, input: $input) {
+    ...ItIncidentFields
+  }
+}
+
+mutation DeleteItIncident($id: ID!) {
+  deleteItIncident(id: $id)
+}
+
+fragment ItPurchaseRequestFields on ItPurchaseRequest {
+  id
+  title
+  kind
+  quantity
+  estimatedCost
+  requestedForName
+  justification
+  status
+  decidedByName
+  decidedAt
+  decisionNote
+  orderReference
+  receivedAt
+  createdAt
+  updatedAt
+  quotes {
+    id
+    vendor
+    amount
+    notes
+  }
+}
+
+query ListItPurchaseRequestsPaged($input: TableQueryInput!) {
+  listItPurchaseRequestsPaged(input: $input) {
+    totalCount
+    rows {
+      ...ItPurchaseRequestFields
+    }
+  }
+}
+
+query ListItPurchaseRequestsStats {
+  listItPurchaseRequestsStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+query GetItPurchaseRequest($id: ID!) {
+  getItPurchaseRequest(id: $id) {
+    ...ItPurchaseRequestFields
+  }
+}
+
+mutation CreateItPurchaseRequest($input: ItPurchaseRequestInput!) {
+  createItPurchaseRequest(input: $input) {
+    ...ItPurchaseRequestFields
+  }
+}
+
+mutation UpdateItPurchaseRequest($id: ID!, $input: ItPurchaseRequestInput!) {
+  updateItPurchaseRequest(id: $id, input: $input) {
+    ...ItPurchaseRequestFields
+  }
+}
+
+mutation DeleteItPurchaseRequest($id: ID!) {
+  deleteItPurchaseRequest(id: $id)
+}
+
+mutation DecideItAccessRequest($id: ID!, $decision: ItDecision!, $note: String) {
+  decideItAccessRequest(id: $id, decision: $decision, note: $note) {
+    ...ItAccessRequestFields
+  }
+}
+
+mutation DecideItChange($id: ID!, $decision: ItDecision!, $note: String) {
+  decideItChange(id: $id, decision: $decision, note: $note) {
+    ...ItChangeFields
+  }
+}
+
+mutation DecideItPurchaseRequest($id: ID!, $decision: ItDecision!, $note: String) {
+  decideItPurchaseRequest(id: $id, decision: $decision, note: $note) {
+    ...ItPurchaseRequestFields
+  }
+}
+
+mutation FulfilItAccessRequest($id: ID!) {
+  fulfilItAccessRequest(id: $id) {
+    ...ItAccessRequestFields
+  }
+}
+
+mutation CancelItAccessRequest($id: ID!) {
+  cancelItAccessRequest(id: $id) {
+    ...ItAccessRequestFields
+  }
+}
+
+mutation AddItIncidentUpdate($id: ID!, $status: ItIncidentStatus!, $note: String!) {
+  addItIncidentUpdate(id: $id, status: $status, note: $note) {
+    ...ItIncidentFields
+  }
+}
+
+fragment ItSettingsFields on ItSettings {
+  id
+  applications
+  onboardingApplications
+  ticketTopics
+  warrantyWarningDays
+  renewalWarningDays
+  certificateWarningDays
+  updatedAt
+}
+
+query ItSettings {
+  itSettings {
+    ...ItSettingsFields
+  }
+}
+
+mutation UpdateItSettings($input: ItSettingsInput!) {
+  updateItSettings(input: $input) {
+    ...ItSettingsFields
+  }
+}
+
+query ItDashboard {
+  itDashboard {
+    openTickets
+    overdueTickets
+    unassignedTickets
+    pendingAccess
+    pendingChanges
+    pendingPurchases
+    assetsTotal
+    assetsAssigned
+    assetsInRepair
+    warrantiesEnding
+    licencesRenewing
+    certificatesExpiring
+    activeIncidents
+    activeOutages
+    openVulnerabilities
+    criticalVulnerabilities
+    recentIncidents {
+      id
+      title
+      severity
+      category
+      status
+      startedAt
+    }
+    upcomingChanges {
+      id
+      title
+      environment
+      risk
+      status
+      plannedStart
+    }
+    announcements {
+      id
+      title
+      category
+      publishedAt
+    }
+  }
+}
+
+fragment ItAccessGrantFields on ItAccessGrant {
+  employeeId
+  application
+  accessLevel
+  grantedAt
+  expiresAt
+}
+
+query ItEmployeeProfile($employeeId: ID!) {
+  itEmployeeProfile(employeeId: $employeeId) {
+    id
+    name
+    email
+    department
+    designation
+    roles
+    isActive
+    isBlocked
+    lastActiveAt
+    openTickets
+    assets {
+      ...AssetFields
+    }
+    licences {
+      id
+      name
+      vendor
+      renewalDate
+      status
+    }
+    access {
+      ...ItAccessGrantFields
+    }
+    openRequests {
+      ...ItAccessRequestFields
+    }
+  }
+}
+
+query ItOnboarding {
+  itOnboarding {
+    checklistId
+    employeeId
+    employeeName
+    joinDate
+    pendingItems
+    missingApplications
+    items {
+      key
+      label
+      owner
+      dueOn
+      done
+      doneAt
+      doneByName
+      notes
+    }
+    access {
+      ...ItAccessGrantFields
+    }
+  }
+}
+
+query ItOffboarding {
+  itOffboarding {
+    exitId
+    employeeId
+    employeeName
+    stage
+    lastWorkingDate
+    accountActive
+    knowledgeTransferDone
+    revokesPending
+    assets {
+      id
+      assetTag
+      name
+      category
+    }
+    access {
+      ...ItAccessGrantFields
+    }
+  }
+}
+
+mutation ItProvisionOnboarding($employeeId: ID!) {
+  itProvisionOnboarding(employeeId: $employeeId) {
+    id
+  }
+}
+
+mutation ItRevokeAllAccess($employeeId: ID!) {
+  itRevokeAllAccess(employeeId: $employeeId) {
+    id
+  }
+}
+
+fragment ItMetricFields on ItMetric {
+  label
+  value
+}
+
+fragment ItCostSummaryFields on ItCostSummary {
+  saasMonthly
+  cloudMonthly
+  annualRunRate
+  hardwareThisYear
+  procurementThisYear
+  byCategory {
+    ...ItMetricFields
+  }
+  byVendor {
+    ...ItMetricFields
+  }
+  oneOffByMonth {
+    ...ItMetricFields
+  }
+}
+
+query ItCostSummary {
+  itCostSummary {
+    ...ItCostSummaryFields
+  }
+}
+
+query ItReport($months: Int) {
+  itReport(months: $months) {
+    months
+    avgResolutionHours
+    slaMetPercent
+    breachedOpen
+    mttrHours
+    ticketsByStatus {
+      ...ItMetricFields
+    }
+    ticketTrend {
+      period
+      opened
+      resolved
+    }
+    assetUtilization {
+      category
+      total
+      assigned
+    }
+    incidentsBySeverity {
+      ...ItMetricFields
+    }
+    incidentsByMonth {
+      ...ItMetricFields
+    }
+    spend {
+      ...ItCostSummaryFields
+    }
+  }
+}
+
+query ListItAnnouncementsPaged($input: TableQueryInput!) {
+  listItAnnouncementsPaged(input: $input) {
+    totalCount
+    rows {
+      ...AnnouncementFields
+    }
+  }
+}
+
+query ListItPoliciesPaged($input: TableQueryInput!) {
+  listItPoliciesPaged(input: $input) {
+    totalCount
+    rows {
+      ...PolicyFields
+    }
+  }
+}
+
+mutation ItDisableLeaverAccount($employeeId: ID!) {
+  itDisableLeaverAccount(employeeId: $employeeId) {
+    id
+    isActive
+  }
+}

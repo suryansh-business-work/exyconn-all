@@ -5,6 +5,7 @@ fragment PolicyFields on Policy {
   summary
   body
   audience
+  category
   status
   version
   effectiveDate

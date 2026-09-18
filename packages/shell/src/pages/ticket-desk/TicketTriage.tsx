@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { useT } from '@exyconn/i18n';
-import { MenuItem, Stack, TextField } from '@exyconn/shell/components/ui';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
-import { enumOptions } from '@exyconn/shell/utils/enumOptions';
+import { MenuItem, Stack, TextField } from '@/components/ui';
+import { useNotify } from '@/components/feedback/NotificationProvider';
+import { enumOptions } from '@/utils/enumOptions';
 import {
   SupportCategory,
   SupportPriority,
   useSetSupportTicketTriageMutation,
-} from '@exyconn/shell/graphql/generated';
+} from '@/graphql/generated';
 
 const CATEGORY_OPTIONS = enumOptions(Object.values(SupportCategory));
 const PRIORITY_OPTIONS = enumOptions(Object.values(SupportPriority));
@@ -16,10 +16,13 @@ interface TicketTriageProps {
   ticketId: string;
   category: string;
   priority: string;
+  topic: string;
+  /** The desk's topic list (IT's, from its settings). No topic picker when omitted. */
+  topics?: readonly string[];
   onChanged: () => void;
 }
 
-type Triage = { category: string; priority: string };
+type Triage = { category: string; priority: string; topic: string };
 
 /**
  * Re-triage: the team a ticket belongs to and how urgent it is. Employees pick
@@ -31,14 +34,17 @@ export function TicketTriage({
   ticketId,
   category: initialCategory,
   priority: initialPriority,
+  topic: initialTopic,
+  topics,
   onChanged,
 }: Readonly<TicketTriageProps>) {
   const notify = useNotify();
   const t = useT();
   const [setTriage, { loading }] = useSetSupportTicketTriageMutation();
-  const [{ category, priority }, setTriageValue] = useState<Triage>({
+  const [triage, setTriageValue] = useState<Triage>({
     category: initialCategory,
     priority: initialPriority,
+    topic: initialTopic,
   });
 
   const save = async (next: Triage) => {
@@ -48,6 +54,7 @@ export function TicketTriage({
           id: ticketId,
           category: next.category as SupportCategory,
           priority: next.priority as SupportPriority,
+          topic: topics ? next.topic : undefined,
         },
       });
       setTriageValue(next);
@@ -58,15 +65,18 @@ export function TicketTriage({
     }
   };
 
+  const change = (field: keyof Triage) => (event: { target: { value: string } }) =>
+    save({ ...triage, [field]: event.target.value });
+
   return (
-    <Stack direction="row" spacing={1.5}>
+    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
       <TextField
         select
         fullWidth
         label={t('Category')}
-        value={category}
+        value={triage.category}
         disabled={loading}
-        onChange={(event) => save({ category: event.target.value, priority })}
+        onChange={change('category')}
       >
         {CATEGORY_OPTIONS.map((option) => (
           <MenuItem key={option.value} value={option.value}>
@@ -78,9 +88,9 @@ export function TicketTriage({
         select
         fullWidth
         label={t('Priority')}
-        value={priority}
+        value={triage.priority}
         disabled={loading}
-        onChange={(event) => save({ category, priority: event.target.value })}
+        onChange={change('priority')}
       >
         {PRIORITY_OPTIONS.map((option) => (
           <MenuItem key={option.value} value={option.value}>
@@ -88,6 +98,23 @@ export function TicketTriage({
           </MenuItem>
         ))}
       </TextField>
+      {topics && (
+        <TextField
+          select
+          fullWidth
+          label={t('Topic')}
+          value={triage.topic}
+          disabled={loading}
+          onChange={change('topic')}
+        >
+          <MenuItem value="">{t('No topic')}</MenuItem>
+          {topics.map((topic) => (
+            <MenuItem key={topic} value={topic}>
+              {topic}
+            </MenuItem>
+          ))}
+        </TextField>
+      )}
     </Stack>
   );
 }

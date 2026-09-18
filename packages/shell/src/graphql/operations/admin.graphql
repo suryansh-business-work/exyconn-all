@@ -66,6 +66,7 @@ query ListEmployeeOptions {
     name
     email
     designation
+    department
   }
 }
 

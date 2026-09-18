@@ -7,6 +7,8 @@ import { ROLES } from '../../constants/roles';
 import { badRequest } from '../../utils/errors';
 import { withIds } from '../../utils/serialize';
 import type { GraphQLContext } from '../../middleware/auth';
+import { assertCategoryInScope, deskScope, DESK_ROLES } from './desk';
+import { isValidObjectId } from 'mongoose';
 
 const supportTeam = [ROLES.SUPPORT];
 
@@ -36,7 +38,7 @@ export const kbArticleService = createCrudService<KbArticleInput>(
 
 const articles = createCrudResolvers(kbArticleService, {
   name: 'KbArticle',
-  roles: supportTeam,
+  roles: DESK_ROLES,
   table: {
     searchFields: ['title', 'slug', 'summary'],
     filterFields: ['category', 'isPublished'],
@@ -66,7 +68,8 @@ const canned = createCrudResolvers(cannedReplyService, {
 
 /** Who wrote it last. Resolved once on write so an article reads without a join, years on. */
 async function stampAuthor(ctx: GraphQLContext, input: KbArticleInput) {
-  const user = assertRole(ctx, supportTeam);
+  assertCategoryInScope(deskScope(ctx), input.category);
+  const user = assertRole(ctx, DESK_ROLES);
   return { ...input, updatedById: user.id, updatedByName: ctx.user?.email ?? '' };
 }
 
@@ -76,8 +79,19 @@ const createKbArticle = async (p: unknown, args: never, ctx: GraphQLContext) => 
   return articles.Mutation.createKbArticle(p, stamped, ctx);
 };
 
+/** IT may only change the articles filed under IT, whatever the edit moves them to. */
+async function assertArticleInScope(ctx: GraphQLContext, id: string) {
+  const scope = deskScope(ctx);
+  if (!scope.category || !isValidObjectId(id)) {
+    return;
+  }
+  const row = await KbArticleModel.findById(id).select('category').lean();
+  assertCategoryInScope(scope, row?.category ?? '');
+}
+
 const updateKbArticle = async (p: unknown, args: never, ctx: GraphQLContext) => {
   const { id, input } = args as unknown as { id: string; input: KbArticleInput };
+  await assertArticleInScope(ctx, id);
   const stamped = { id, input: await stampAuthor(ctx, input) } as unknown as never;
   return articles.Mutation.updateKbArticle(p, stamped, ctx);
 };
@@ -112,8 +126,10 @@ async function searchKnowledgeBase(_p: unknown, { query }: { query: string }, ct
 
 /** The snippets the composer offers. Retired ones stay in the register but not in the list. */
 async function listActiveCannedReplies(_p: unknown, _a: unknown, ctx: GraphQLContext) {
-  assertRole(ctx, supportTeam);
-  const rows = await CannedReplyModel.find({ isActive: true }).sort({ title: 1 }).lean();
+  // IT answers its own queue from the same composer; it gets the IT snippets only.
+  const rows = await CannedReplyModel.find({ isActive: true, ...deskScope(ctx) })
+    .sort({ title: 1 })
+    .lean();
   return withIds(rows);
 }
 
@@ -134,5 +150,9 @@ export const supportLibraryResolvers = {
     ...canned.Mutation,
     createKbArticle,
     updateKbArticle,
+    deleteKbArticle: async (p: unknown, args: never, ctx: GraphQLContext) => {
+      await assertArticleInScope(ctx, (args as unknown as { id: string }).id);
+      return articles.Mutation.deleteKbArticle(p, args, ctx);
+    },
   },
 };

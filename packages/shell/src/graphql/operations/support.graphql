@@ -43,8 +43,8 @@ query ListSupportReplies($ticketId: ID!) {
   }
 }
 
-query ListSupportAgents {
-  listSupportAgents {
+query ListSupportAgents($category: SupportCategory) {
+  listSupportAgents(category: $category) {
     id
     name
     email
@@ -97,6 +97,9 @@ fragment SupportConsoleTicketFields on SupportTicket {
   firstRespondedAt
   resolvedAt
   slaState
+  topic
+  escalationLevel
+  escalatedAt
   createdAt
   attachments {
     ...TicketAttachmentFields
@@ -201,10 +204,23 @@ mutation SetSupportTicketTriage(
   $id: ID!
   $category: SupportCategory!
   $priority: SupportPriority!
+  $topic: String
 ) {
-  setSupportTicketTriage(id: $id, category: $category, priority: $priority) {
+  setSupportTicketTriage(id: $id, category: $category, priority: $priority, topic: $topic) {
     id
     category
     priority
+    topic
+  }
+}
+
+mutation EscalateSupportTicket($id: ID!, $reason: String!) {
+  escalateSupportTicket(id: $id, reason: $reason) {
+    id
+    priority
+    dueAt
+    slaState
+    escalationLevel
+    escalatedAt
   }
 }

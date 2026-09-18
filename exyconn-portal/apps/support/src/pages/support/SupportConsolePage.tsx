@@ -16,9 +16,13 @@ import {
   type ListSupportTicketsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { TicketStatusDialog, type StatusTicket } from './TicketStatusDialog';
-import { TicketDetailDialog } from './TicketDetailDialog';
-import type { DetailTicket } from './TicketDetailBody';
-import { TicketQuickFilter, quickFilters, type QuickFilter } from './TicketQuickFilter';
+import {
+  TicketDetailDialog,
+  TicketQuickFilter,
+  quickFilters,
+  type DetailTicket,
+  type QuickFilter,
+} from '@exyconn/shell/pages/ticket-desk';
 import { ClientTicketForm } from './forms/client-ticket';
 import { TICKET_COLUMNS, type PagedTicketRow, type TicketsGridContext } from './tickets-grid';
 
