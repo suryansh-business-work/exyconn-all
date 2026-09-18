@@ -67,3 +67,12 @@ export function buildOrgTree(people: OrgPerson[]): OrgTree {
 export function teamSize(node: OrgTreeNode): number {
   return node.reports.reduce((total, report) => total + 1 + teamSize(report), 0);
 }
+
+/** Up to two initials, for an avatar without a photo. */
+export const initialsOf = (name: string) =>
+  name
+    .split(' ')
+    .map((part) => part.charAt(0))
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();

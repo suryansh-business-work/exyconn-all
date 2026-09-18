@@ -18,18 +18,7 @@ const categories = [...new Set(caseStudies.map((cs) => cs.category))];
   metaDescription="Explore real-world case studies showcasing how Exyconn delivers AI and automation solutions that drive measurable business results across industries."
 >
   <!-- Hero Section - Light Background -->
-  <section
-    class="bg-gradient-to-br from-blue-subtle via-surface to-purple-subtle py-20 px-6 relative overflow-hidden"
-  >
-    <div
-      class="absolute top-20 right-20 w-80 h-80 bg-gradient-to-r from-blue-muted/40 to-purple-muted/40 rounded-full blur-3xl"
-    >
-    </div>
-    <div
-      class="absolute bottom-10 left-10 w-96 h-96 bg-gradient-to-r from-cyan-muted/30 to-blue-muted/30 rounded-full blur-3xl"
-    >
-    </div>
-
+  <section class="bg-blue-subtle py-20 px-6 relative overflow-hidden">
     <div class="relative z-10 max-w-5xl mx-auto text-center mb-12">
       <span
         class="inline-flex items-center gap-2 px-4 py-2 bg-surface border border-line rounded-full text-sm font-medium text-fg-muted mb-6 shadow-sm"
@@ -38,9 +27,7 @@ const categories = [...new Set(caseStudies.map((cs) => cs.category))];
         Real Results
       </span>
       <h1 class="text-5xl md:text-6xl font-bold text-fg mb-6 tracking-tight">
-        Case <span class="bg-gradient-to-r from-blue-strong to-purple bg-clip-text text-transparent"
-          >Studies</span
-        >
+        Case <span class="text-blue-fg">Studies</span>
       </h1>
       <p class="text-xl text-fg-muted max-w-2xl mx-auto leading-relaxed">
         See how businesses transform with AI. Real projects, measurable outcomes, proven results.
@@ -61,7 +48,7 @@ const categories = [...new Set(caseStudies.map((cs) => cs.category))];
                 alt={study.title}
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
-              <div class="absolute inset-0 bg-gradient-to-t from-scrim/70 via-scrim/20 to-transparent" />
+              <div class="absolute inset-0 bg-scrim/70" />
               <div class="absolute bottom-0 left-0 right-0 p-3">
                 <span class="text-xs text-blue-bright font-medium">{study.category}</span>
                 <p class="text-on-solid text-sm font-semibold line-clamp-2">{study.title}</p>
@@ -198,7 +185,7 @@ const categories = [...new Set(caseStudies.map((cs) => cs.category))];
   </div>
 
   <!-- CTA Section -->
-  <section class="py-16 px-6 bg-gradient-to-r from-blue-strong to-purple-strong">
+  <section class="py-16 px-6 bg-blue-strong">
     <div class="max-w-4xl mx-auto text-center">
       <h2 class="text-3xl font-bold text-on-solid mb-4">Ready to Create Your Success Story?</h2>
       <p class="text-on-solid-muted text-lg mb-8">

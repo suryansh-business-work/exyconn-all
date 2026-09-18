@@ -404,7 +404,11 @@ import DynamicBreadcrumb from "../../../components/dynamic-components/DynamicBre
     inset: 0;
     background-image:
       linear-gradient(color-mix(in srgb, var(--color-indigo) 6%, transparent) 1px, transparent 1px),
-      linear-gradient(90deg, color-mix(in srgb, var(--color-indigo) 6%, transparent) 1px, transparent 1px);
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--color-indigo) 6%, transparent) 1px,
+        transparent 1px
+      );
     background-size: 60px 60px;
   }
 
@@ -461,10 +465,7 @@ import DynamicBreadcrumb from "../../../components/dynamic-components/DynamicBre
   }
 
   .hero-gradient-text {
-    background: linear-gradient(135deg, var(--color-indigo), var(--color-purple), var(--color-pink));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: var(--color-indigo-fg);
   }
 
   .hero-desc {
@@ -582,7 +583,7 @@ import DynamicBreadcrumb from "../../../components/dynamic-components/DynamicBre
     width: 100px;
     height: 100px;
     border-radius: var(--radius-3xl);
-    background: linear-gradient(135deg, var(--color-indigo-subtle), var(--color-indigo-soft));
+    background: var(--color-indigo-subtle);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -762,7 +763,7 @@ import DynamicBreadcrumb from "../../../components/dynamic-components/DynamicBre
     width: 48px;
     height: 48px;
     border-radius: var(--radius-xl);
-    background: linear-gradient(135deg, var(--color-indigo-strong), var(--color-violet-strong));
+    background: var(--color-indigo-strong);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -825,7 +826,7 @@ import DynamicBreadcrumb from "../../../components/dynamic-components/DynamicBre
     height: 72px;
     margin: 0 auto 1.25rem;
     border-radius: var(--radius-2xl);
-    background: linear-gradient(135deg, var(--color-indigo-subtle), var(--color-indigo-soft));
+    background: var(--color-indigo-subtle);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -833,7 +834,7 @@ import DynamicBreadcrumb from "../../../components/dynamic-components/DynamicBre
   }
 
   .expertise-card:hover .expertise-icon {
-    background: linear-gradient(135deg, var(--color-indigo-muted), var(--color-violet-muted));
+    background: var(--color-indigo-muted);
   }
 
   .expertise-icon i {
@@ -1014,7 +1015,7 @@ import DynamicBreadcrumb from "../../../components/dynamic-components/DynamicBre
   /* ═══════════════ CTA ═══════════════ */
   .outsource-cta {
     padding: 5rem 1.5rem;
-    background: linear-gradient(135deg, var(--color-indigo-strong), var(--color-violet-strong));
+    background: var(--color-indigo-strong);
     text-align: center;
     color: var(--color-on-solid);
   }

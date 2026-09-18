@@ -12,21 +12,10 @@ const allTags = getAllTags(blogPosts);
   metaKeywords="Exyconn blog, AI insights, SaaS trends, digital innovation, automation, business technology"
   metaImage="https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg?auto=compress&w=1200&q=80"
 >
-  <div class="bg-gradient-to-b from-surface-subtle via-surface to-surface-subtle min-h-screen">
+  <div class="bg-surface-subtle min-h-screen">
     <!-- Hero Section -->
     <section class="relative py-20 px-6 overflow-hidden">
-      <div
-        class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-soft/50 via-transparent to-transparent"
-      >
-      </div>
-      <div
-        class="absolute top-10 right-20 w-72 h-72 bg-gradient-to-br from-blue-muted/30 to-cyan-muted/30 rounded-full blur-3xl"
-      >
-      </div>
-      <div
-        class="absolute bottom-0 left-10 w-96 h-96 bg-gradient-to-br from-purple-muted/20 to-pink-muted/20 rounded-full blur-3xl"
-      >
-      </div>
+      <div class="absolute inset-0 bg-blue-subtle/50"></div>
 
       <div class="relative z-10 max-w-6xl mx-auto">
         <div class="flex flex-col lg:flex-row items-center justify-between gap-8">
@@ -38,10 +27,7 @@ const allTags = getAllTags(blogPosts);
               Exyconn Blog
             </span>
             <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-fg mb-4 tracking-tight">
-              Insights on <span
-                class="bg-gradient-to-r from-blue-strong to-purple-strong bg-clip-text text-transparent"
-                >AI & Tech</span
-              >
+              Insights on <span class="text-blue-fg">AI & Tech</span>
             </h1>
             <p class="text-lg text-fg-muted max-w-xl">
               Discover articles, guides, and industry trends from our expert team at Exyconn.
@@ -121,7 +107,7 @@ const allTags = getAllTags(blogPosts);
                 {/* Featured Badge */}
                 {post.featured && (
                   <div class="absolute top-4 left-4 z-10">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-amber to-orange text-on-bright text-xs font-bold rounded-full shadow-lg">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber text-on-bright text-xs font-bold rounded-full shadow-lg">
                       <i class="fa-solid fa-star icon-xs" aria-hidden="true" />
                       Featured
                     </span>
@@ -136,7 +122,7 @@ const allTags = getAllTags(blogPosts);
                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     loading="lazy"
                   />
-                  <div class="absolute inset-0 bg-gradient-to-t from-scrim/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div class="absolute inset-0 bg-scrim/30 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
 
                 {/* Content */}
@@ -172,7 +158,7 @@ const allTags = getAllTags(blogPosts);
                   {/* Author & Meta */}
                   <div class="flex items-center justify-between pt-4 border-t border-line-subtle">
                     <div class="flex items-center gap-3">
-                      <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-strong to-purple-strong flex items-center justify-center text-on-solid text-sm font-bold shadow-md">
+                      <div class="w-10 h-10 rounded-full bg-blue-strong flex items-center justify-center text-on-solid text-sm font-bold shadow-md">
                         {post.author.initials}
                       </div>
                       <div>

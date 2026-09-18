@@ -12,7 +12,7 @@ const serviceCategories = [
         description: "Upgrade your legacy systems for performance, security, and innovation.",
         icon: "fa-arrows-rotate",
         href: "/services/application-modernization",
-        color: "from-blue to-cyan",
+        color: "bg-blue-deep",
       },
       {
         title: "Digital Consulting",
@@ -20,14 +20,14 @@ const serviceCategories = [
           "Accelerate your digital transformation with strategy and technology consulting.",
         icon: "fa-lightbulb",
         href: "/services/digital-consulting",
-        color: "from-purple to-pink",
+        color: "bg-purple-deep",
       },
       {
         title: "Enterprise Application",
         description: "Build, scale, and optimize robust enterprise applications.",
         icon: "fa-building",
         href: "/services/enterprise-application",
-        color: "from-indigo to-purple",
+        color: "bg-indigo",
       },
     ],
   },
@@ -40,7 +40,7 @@ const serviceCategories = [
         description: "Build high-performance, user-friendly mobile apps for iOS and Android.",
         icon: "fa-mobile-screen-button",
         href: "/services/mobile-application-development",
-        color: "from-emerald to-teal",
+        color: "bg-emerald-deep",
       },
       {
         title: "Software as a Service",
@@ -48,14 +48,14 @@ const serviceCategories = [
           "Accelerate your business with scalable, secure, and innovative SaaS solutions.",
         icon: "fa-cloud",
         href: "/services/software-as-a-service",
-        color: "from-sky to-blue",
+        color: "bg-sky-deep",
       },
       {
         title: "Automation & Integration",
         description: "Automate workflows and integrate your business systems for efficiency.",
         icon: "fa-plug-circle-check",
         href: "/services/automation-integration",
-        color: "from-orange to-amber",
+        color: "bg-orange-deep",
       },
     ],
   },
@@ -68,14 +68,14 @@ const serviceCategories = [
         description: "Transform your data into actionable insights for smarter decisions.",
         icon: "fa-chart-bar",
         href: "/services/data-analytics",
-        color: "from-rose to-pink",
+        color: "bg-rose-deep",
       },
       {
         title: "Maintenance & Support",
         description: "Keep your applications running smoothly with proactive support.",
         icon: "fa-screwdriver-wrench",
         href: "/services/maintenance",
-        color: "from-fg-subtle to-inverse-muted",
+        color: "bg-fg-subtle",
       },
     ],
   },
@@ -89,63 +89,63 @@ const serviceCategories = [
           "Technical, on-page, and off-page SEO to rank higher and capture organic demand.",
         icon: "fa-magnifying-glass-chart",
         href: "/services/digital-marketing#seo",
-        color: "from-emerald to-green",
+        color: "bg-emerald-deep",
       },
       {
         title: "Performance Marketing & PPC",
         description: "Google Ads, Meta Ads, LinkedIn, and YouTube campaigns optimized for ROAS.",
         icon: "fa-bullseye",
         href: "/services/digital-marketing#ppc",
-        color: "from-blue to-indigo",
+        color: "bg-blue-deep",
       },
       {
         title: "Social Media Marketing",
         description: "Strategy, content, community, and paid social across all major platforms.",
         icon: "fa-hashtag",
         href: "/services/digital-marketing#social",
-        color: "from-pink to-rose",
+        color: "bg-pink-deep",
       },
       {
         title: "Content Marketing & Copywriting",
         description: "Blogs, landing pages, whitepapers, and video scripts that convert.",
         icon: "fa-pen-nib",
         href: "/services/digital-marketing#content",
-        color: "from-amber to-orange",
+        color: "bg-amber-deep",
       },
       {
         title: "Email & Marketing Automation",
         description: "Lifecycle email, drip campaigns, CRM workflows, and lead nurturing.",
         icon: "fa-envelope-open-text",
         href: "/services/digital-marketing#email",
-        color: "from-cyan to-sky",
+        color: "bg-cyan-deep",
       },
       {
         title: "Branding & Creative Design",
         description: "Logo, brand identity, ad creatives, and motion graphics that stand out.",
         icon: "fa-palette",
         href: "/services/digital-marketing#branding",
-        color: "from-fuchsia to-purple",
+        color: "bg-fuchsia-deep",
       },
       {
         title: "Influencer & Affiliate Marketing",
         description: "Creator partnerships and affiliate programs to scale word-of-mouth.",
         icon: "fa-user-group",
         href: "/services/digital-marketing#influencer",
-        color: "from-violet to-indigo",
+        color: "bg-violet-deep",
       },
       {
         title: "Conversion Rate Optimization",
         description: "A/B testing, funnel audits, and UX improvements to lift conversions.",
         icon: "fa-arrow-trend-up",
         href: "/services/digital-marketing#cro",
-        color: "from-teal to-emerald",
+        color: "bg-teal-deep",
       },
       {
         title: "Marketing Analytics & Reporting",
         description: "GA4, GTM, attribution, and dashboards that turn data into decisions.",
         icon: "fa-chart-line",
         href: "/services/digital-marketing#analytics",
-        color: "from-fg-subtle to-inverse-muted",
+        color: "bg-fg-subtle",
       },
     ],
   },
@@ -160,18 +160,7 @@ const serviceCategories = [
 >
   <div class="bg-surface min-h-screen">
     <!-- Hero Section -->
-    <section
-      class="relative py-28 px-6 bg-gradient-to-br from-blue-subtle via-surface to-cyan-subtle overflow-hidden"
-    >
-      <div
-        class="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-blue-muted/40 to-cyan-muted/40 rounded-full blur-3xl"
-      >
-      </div>
-      <div
-        class="absolute bottom-20 left-20 w-80 h-80 bg-gradient-to-r from-purple-muted/30 to-pink-muted/30 rounded-full blur-3xl"
-      >
-      </div>
-
+    <section class="relative py-28 px-6 bg-blue-subtle overflow-hidden">
       <div class="relative z-10 max-w-5xl mx-auto text-center">
         <!-- Lottie hero illustration (subtle, professional) -->
         <div
@@ -196,11 +185,7 @@ const serviceCategories = [
           data-anime-delay="100"
         >
           Comprehensive
-          <span
-            class="bg-gradient-to-r from-blue-strong to-cyan-strong bg-clip-text text-transparent"
-          >
-            Digital Solutions</span
-          >
+          <span class="text-blue-fg"> Digital Solutions</span>
         </h1>
 
         <p
@@ -238,35 +223,19 @@ const serviceCategories = [
       <div class="max-w-5xl mx-auto">
         <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
           <div>
-            <div
-              class="text-4xl font-bold bg-gradient-to-r from-blue-strong to-cyan-strong bg-clip-text text-transparent mb-1"
-            >
-              8+
-            </div>
+            <div class="text-4xl font-bold text-blue-fg mb-1">8+</div>
             <p class="text-fg-subtle text-sm">Service Categories</p>
           </div>
           <div>
-            <div
-              class="text-4xl font-bold bg-gradient-to-r from-purple-strong to-pink bg-clip-text text-transparent mb-1"
-            >
-              50+
-            </div>
+            <div class="text-4xl font-bold text-purple-fg mb-1">50+</div>
             <p class="text-fg-subtle text-sm">Projects Delivered</p>
           </div>
           <div>
-            <div
-              class="text-4xl font-bold bg-gradient-to-r from-emerald-strong to-teal-strong bg-clip-text text-transparent mb-1"
-            >
-              100%
-            </div>
+            <div class="text-4xl font-bold text-emerald-fg mb-1">100%</div>
             <p class="text-fg-subtle text-sm">Client Satisfaction</p>
           </div>
           <div>
-            <div
-              class="text-4xl font-bold bg-gradient-to-r from-amber-strong to-orange-strong bg-clip-text text-transparent mb-1"
-            >
-              24/7
-            </div>
+            <div class="text-4xl font-bold text-amber-fg mb-1">24/7</div>
             <p class="text-fg-subtle text-sm">Support Available</p>
           </div>
         </div>
@@ -290,7 +259,7 @@ const serviceCategories = [
                   class="group bg-surface rounded-2xl shadow-sm border border-line-subtle p-6 hover:shadow-xl hover:border-blue-soft transition-all duration-300"
                 >
                   <div
-                    class={`w-14 h-14 bg-gradient-to-br ${service.color} rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}
+                    class={`w-14 h-14 ${service.color} rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}
                   >
                     <i class={`fa-solid ${service.icon} text-on-solid text-xl`} />
                   </div>
@@ -311,7 +280,7 @@ const serviceCategories = [
     }
 
     <!-- AI Services Highlight -->
-    <section class="py-20 px-6 bg-gradient-to-br from-blue-strong to-cyan-deep">
+    <section class="py-20 px-6 bg-blue-strong">
       <div class="max-w-6xl mx-auto">
         <div class="grid lg:grid-cols-2 gap-12 items-center">
           <div class="text-on-solid">

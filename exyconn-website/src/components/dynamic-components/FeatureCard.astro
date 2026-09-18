@@ -11,13 +11,13 @@ interface Props {
 const { icon, title, description, link, color = "blue" } = Astro.props;
 
 const gradientClasses = {
-  blue: "from-blue to-blue-strong",
-  emerald: "from-emerald to-teal-strong",
-  purple: "from-purple to-violet-strong",
-  orange: "from-orange to-amber-strong",
-  red: "from-red to-rose-strong",
-  cyan: "from-cyan to-blue-strong",
-  indigo: "from-indigo to-purple-strong",
+  blue: "bg-blue-deep",
+  emerald: "bg-emerald-deep",
+  purple: "bg-purple-deep",
+  orange: "bg-orange-deep",
+  red: "bg-red-deep",
+  cyan: "bg-cyan-deep",
+  indigo: "bg-indigo",
 };
 
 const shadowClasses = {
@@ -58,7 +58,7 @@ const WrapperTag = link ? "a" : "div";
   class={`group block bg-surface rounded-2xl shadow-md border border-line-subtle p-6 hover:shadow-xl ${borderHoverClasses[color]} transition-all duration-300`}
 >
   <div
-    class={`w-12 h-12 bg-gradient-to-br ${gradientClasses[color]} rounded-xl flex items-center justify-center mb-4 shadow-lg ${shadowClasses[color]} group-hover:scale-110 transition-transform`}
+    class={`w-12 h-12 ${gradientClasses[color]} rounded-xl flex items-center justify-center mb-4 shadow-lg ${shadowClasses[color]} group-hover:scale-110 transition-transform`}
   >
     <i class={`fa-solid ${icon} text-on-solid text-xl`}></i>
   </div>

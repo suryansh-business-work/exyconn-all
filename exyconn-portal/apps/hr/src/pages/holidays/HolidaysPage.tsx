@@ -57,7 +57,7 @@ export function HolidaysPage() {
   return (
     <CrudDashboard
       title="Holidays"
-      subtitle="Company-wide and country holidays"
+      subtitle="Company-wide, country and city holidays"
       entityLabel="holiday"
       stats={statItems}
       crud={crud}

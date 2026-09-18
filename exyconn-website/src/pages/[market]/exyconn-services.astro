@@ -324,15 +324,15 @@ const getCategoryIcon = (category: string) => {
 
 const getCategoryColor = (category: string) => {
   const colors: Record<string, string> = {
-    Global: "from-blue to-cyan",
-    Communications: "from-purple to-pink",
-    "Developer Tools": "from-emerald to-teal",
-    "Storage & Files": "from-orange to-amber",
-    "Monitoring & Analytics": "from-rose to-red",
-    "Content & Media": "from-indigo to-violet",
-    Infrastructure: "from-fg-subtle to-inverse-muted",
+    Global: "bg-blue-deep",
+    Communications: "bg-purple-deep",
+    "Developer Tools": "bg-emerald-deep",
+    "Storage & Files": "bg-orange-deep",
+    "Monitoring & Analytics": "bg-rose-deep",
+    "Content & Media": "bg-indigo",
+    Infrastructure: "bg-fg-subtle",
   };
-  return colors[category] || "from-fg-subtle to-fg-subtle";
+  return colors[category] || "bg-fg-subtle";
 };
 
 const getStatusBadge = (status: string) => {
@@ -361,18 +361,7 @@ const soonCount = platformServices.filter((s) => s.status === "soon").length;
 >
   <div class="bg-surface min-h-screen">
     <!-- Hero Section -->
-    <section
-      class="relative py-24 px-6 bg-gradient-to-br from-cyan-subtle via-surface to-blue-subtle overflow-hidden"
-    >
-      <div
-        class="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-cyan-muted/40 to-blue-muted/40 rounded-full blur-3xl"
-      >
-      </div>
-      <div
-        class="absolute bottom-10 left-10 w-80 h-80 bg-gradient-to-r from-purple-muted/30 to-pink-muted/30 rounded-full blur-3xl"
-      >
-      </div>
-
+    <section class="relative py-24 px-6 bg-cyan-subtle overflow-hidden">
       <div class="relative z-10 max-w-6xl mx-auto">
         <div class="text-center mb-12">
           <span
@@ -382,10 +371,7 @@ const soonCount = platformServices.filter((s) => s.status === "soon").length;
             Infrastructure Platform
           </span>
           <h1 class="text-5xl md:text-6xl font-bold text-fg mb-6 tracking-tight">
-            Exyconn <span
-              class="bg-gradient-to-r from-cyan-strong to-blue-strong bg-clip-text text-transparent"
-              >Infrastructure Platform</span
-            >
+            Exyconn <span class="text-cyan-fg">Infrastructure Platform</span>
           </h1>
           <p class="text-xl text-fg-muted max-w-3xl mx-auto leading-relaxed">
             Complete infrastructure platform powering your applications. Email, payments, logs,
@@ -466,7 +452,7 @@ const soonCount = platformServices.filter((s) => s.status === "soon").length;
             <div class="mb-16" id={category.toLowerCase().replace(/ & /g, "-").replace(/ /g, "-")}>
               <div class="flex items-center gap-4 mb-8">
                 <div
-                  class={`w-12 h-12 bg-gradient-to-br ${getCategoryColor(category)} rounded-2xl flex items-center justify-center shadow-lg`}
+                  class={`w-12 h-12 ${getCategoryColor(category)} rounded-2xl flex items-center justify-center shadow-lg`}
                 >
                   <i class={`fa-solid ${getCategoryIcon(category)} text-on-solid text-lg`} />
                 </div>
@@ -483,7 +469,7 @@ const soonCount = platformServices.filter((s) => s.status === "soon").length;
                     <div class="bg-surface rounded-2xl border border-line-subtle p-6 hover:shadow-xl hover:border-blue-soft transition-all duration-300 group">
                       <div class="flex items-start justify-between mb-4">
                         <div
-                          class={`w-12 h-12 bg-gradient-to-br ${getCategoryColor(category)} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-md`}
+                          class={`w-12 h-12 ${getCategoryColor(category)} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-md`}
                         >
                           <i class={`fa-solid ${service.icon} text-on-solid`} />
                         </div>
@@ -592,7 +578,7 @@ const soonCount = platformServices.filter((s) => s.status === "soon").length;
     </section>
 
     <!-- CTA Section -->
-    <section class="py-24 px-6 bg-gradient-to-br from-cyan-subtle to-blue-subtle">
+    <section class="py-24 px-6 bg-cyan-subtle">
       <div class="max-w-4xl mx-auto text-center">
         <h2 class="text-4xl md:text-5xl font-bold text-fg mb-6">Ready to Get Started?</h2>
         <p class="text-xl text-fg-muted mb-10 max-w-2xl mx-auto">

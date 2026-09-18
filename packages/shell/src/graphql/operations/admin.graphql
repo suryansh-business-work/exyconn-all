@@ -25,6 +25,7 @@ fragment UserFields on User {
   timezone
   locale
   country
+  city
 }
 
 query ListUsers {
@@ -64,6 +65,7 @@ query ListEmployeeOptions {
     id
     name
     email
+    designation
   }
 }
 

@@ -8,7 +8,7 @@ import Page from "../../layouts/Page.astro";
   metaKeywords="get a quote, software budget calculator, project estimate, AI development, SaaS pricing, Exyconn"
   metaImage="https://images.pexels.com/photos/1181675/pexels-photo-1181675.jpeg?auto=compress&w=1200&q=80"
 >
-  <div class="min-h-screen bg-gradient-to-br from-blue-subtle via-surface to-cyan-subtle">
+  <div class="min-h-screen bg-blue-subtle">
     <!-- Hero -->
     <section class="py-16 px-6">
       <div class="max-w-7xl mx-auto">
@@ -20,10 +20,7 @@ import Page from "../../layouts/Page.astro";
             Budget Estimator
           </span>
           <h1 class="text-4xl md:text-5xl font-bold text-fg mb-4 tracking-tight">
-            Project Budget <span
-              class="bg-gradient-to-r from-blue-strong to-cyan-strong bg-clip-text text-transparent"
-              >Calculator</span
-            >
+            Project Budget <span class="text-blue-fg">Calculator</span>
           </h1>
           <p class="text-xl text-fg-muted max-w-2xl mx-auto">
             Get an instant estimate for your software project. Configure your team, timeline, and
@@ -40,22 +37,17 @@ import Page from "../../layouts/Page.astro";
 
             <!-- Summary Panel -->
             <div
-              class="bg-gradient-to-br from-surface-subtle to-blue-subtle p-8 md:p-10 border-t lg:border-t-0 lg:border-l border-line-subtle"
+              class="bg-surface-subtle p-8 md:p-10 border-t lg:border-t-0 lg:border-l border-line-subtle"
             >
               <div class="sticky top-24">
                 <div class="text-center mb-8">
                   <div
-                    class="w-16 h-16 bg-gradient-to-br from-blue to-cyan rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue/30"
+                    class="w-16 h-16 bg-blue-deep rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-blue/30"
                   >
                     <i class="fa-solid fa-file-invoice-dollar text-on-solid text-2xl"></i>
                   </div>
                   <h3 class="text-xl font-bold text-fg mb-2">Estimated Budget</h3>
-                  <div
-                    id="budget-value"
-                    class="text-5xl font-extrabold bg-gradient-to-r from-blue-strong to-cyan-strong bg-clip-text text-transparent"
-                  >
-                    $0
-                  </div>
+                  <div id="budget-value" class="text-5xl font-extrabold text-blue-fg">$0</div>
                 </div>
 
                 <div id="budget-breakdown" class="space-y-3 mb-8">

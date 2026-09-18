@@ -36,32 +36,64 @@ export const hrTypeDefs = gql`
     headcount: [HeadcountPoint!]!
   }
 
+  "A department and, nested inside it, the positions people are hired into."
   type Department {
     id: ID!
     name: String!
+    "A short reference used on reports and exports, e.g. ENG."
+    code: String
     description: String
+    "The employee who heads the department."
+    headId: String
+    "Resolved from headId for display; null when nobody is set."
+    headName: String
+    positions: [Position!]!
     createdAt: DateTime!
     updatedAt: DateTime!
   }
 
+  "A job position inside a department; its name is the designation on employee records."
   type Position {
     id: ID!
     name: String!
+    "The owning department's name."
     department: String!
+    code: String
     description: String
+    "Monthly salary band in the company's currency."
+    minSalary: Float!
+    maxSalary: Float!
+    "Code of the Grade the position sits in."
+    grade: String
+    "Code of the EmploymentType the position is hired on."
+    employmentType: String
+    "Approved seats."
+    headcount: Int!
+    "Active employees currently holding the position."
+    filled: Int!
+    active: Boolean!
     createdAt: DateTime!
     updatedAt: DateTime!
   }
 
   input DepartmentInput {
     name: String!
+    code: String
     description: String
+    headId: String
   }
 
   input PositionInput {
     name: String!
     department: String!
+    code: String
     description: String
+    minSalary: Float!
+    maxSalary: Float!
+    grade: String
+    employmentType: String
+    headcount: Int!
+    active: Boolean!
   }
 
   type LeaveRequest {
@@ -120,7 +152,7 @@ export const hrTypeDefs = gql`
     probationsEnding(days: Int = 30): [User!]!
     "Manager: pending and recently decided leave requests from direct reports."
     teamLeaveRequests: [LeaveRequest!]!
-    "HR/ADMIN: organizational departments."
+    "HR/ADMIN: organizational departments, each with its positions."
     listDepartments: [Department!]!
     getDepartment(id: ID!): Department!
     "HR/ADMIN: job positions / designations."

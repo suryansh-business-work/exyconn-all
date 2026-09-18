@@ -3,7 +3,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
-import { RhfSelect, RhfSwitch, type SelectOption } from '@exyconn/shell/components/form/rhf';
+import {
+  RhfSelect,
+  RhfSwitch,
+  RhfTimePicker,
+  type SelectOption,
+} from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useUpdatePayrollScheduleMutation } from '@exyconn/shell/graphql/generated';
@@ -19,8 +24,7 @@ const schema = z.object({
     .int('Pick a whole day of the month')
     .min(1, 'The earliest is the 1st')
     .max(MAX_DAY, `The latest is the ${MAX_DAY}th, so every month has it`),
-  hour: z.coerce.number().int().min(0, 'Pick an hour').max(23, 'Pick an hour'),
-  minute: z.coerce.number().int().min(0, 'Pick a minute').max(59, 'Pick a minute'),
+  time: z.string().min(1, 'Pick a time'),
   period: z.enum(['PREVIOUS_MONTH', 'CURRENT_MONTH'], {
     message: 'Choose which month is sent',
   }),
@@ -33,12 +37,11 @@ const range = (count: number, from: number, label: (value: number) => string): S
     label: label(from + index),
   }));
 
+/** The stored hour + minute as the `HH:mm` the time picker reads. */
+const toTime = (hour: number, minute: number) =>
+  `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+
 const DAY_OPTIONS = range(MAX_DAY, 1, (day) => `Day ${day}`);
-const HOUR_OPTIONS = range(24, 0, (hour) => `${String(hour).padStart(2, '0')}:00`);
-const MINUTE_OPTIONS: SelectOption[] = Array.from({ length: 12 }, (_unused, index) => {
-  const minute = index * 5;
-  return { value: String(minute), label: `:${String(minute).padStart(2, '0')}` };
-});
 const PERIOD_OPTIONS: SelectOption[] = [
   { value: 'PREVIOUS_MONTH', label: 'The previous month' },
   { value: 'CURRENT_MONTH', label: 'The current month' },
@@ -67,15 +70,16 @@ export function PayslipScheduleForm({
     values: {
       enabled: initial.enabled,
       dayOfMonth: initial.dayOfMonth,
-      hour: initial.hour,
-      minute: initial.minute,
+      time: toTime(initial.hour, initial.minute),
       period: initial.period as Values['period'],
     },
   });
 
   const onSubmit = async (values: Values) => {
     try {
-      await saveSchedule({ variables: { input: values } });
+      const { time, ...rest } = values;
+      const [hour, minute] = time.split(':').map(Number);
+      await saveSchedule({ variables: { input: { ...rest, hour, minute } } });
       notify(values.enabled ? 'Payslip emails are scheduled' : 'Scheduled payslip emails are off');
       onDone();
     } catch (error) {
@@ -98,8 +102,7 @@ export function PayslipScheduleForm({
       </Text>
       <RhfSwitch name="enabled" label="Email payslips automatically" />
       <RhfSelect name="dayOfMonth" label="Day of the month" options={DAY_OPTIONS} />
-      <RhfSelect name="hour" label="Hour" options={HOUR_OPTIONS} />
-      <RhfSelect name="minute" label="Minute" options={MINUTE_OPTIONS} />
+      <RhfTimePicker name="time" label="Send at" />
       <RhfSelect name="period" label="Send payslips for" options={PERIOD_OPTIONS} />
     </EntityForm>
   );

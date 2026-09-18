@@ -323,3 +323,22 @@ query ExitRecordHeldAssets($id: ID!) {
     }
   }
 }
+
+# Pickers: the grades and employment types a position can be hired on.
+query ListGrades {
+  listGrades {
+    id
+    name
+    code
+    active
+  }
+}
+
+query ListEmploymentTypes {
+  listEmploymentTypes {
+    id
+    name
+    code
+    active
+  }
+}

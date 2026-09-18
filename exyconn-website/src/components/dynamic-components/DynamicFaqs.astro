@@ -17,7 +17,7 @@ const {
 } = Astro.props;
 ---
 
-<section class="py-20 lg:py-28 bg-gradient-to-b from-surface via-surface-subtle/50 to-surface">
+<section class="py-20 lg:py-28 bg-surface">
   <div class="max-w-4xl mx-auto px-6 lg:px-8">
     <!-- Section Header -->
     <div class="text-center mb-14">
@@ -43,7 +43,7 @@ const {
           >
             <summary class="flex items-center justify-between gap-4 p-6 cursor-pointer list-none">
               <div class="flex items-center gap-4">
-                <span class="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-blue-strong to-purple-strong text-on-solid text-sm font-bold rounded-xl shrink-0">
+                <span class="flex items-center justify-center w-10 h-10 bg-blue-strong text-on-solid text-sm font-bold rounded-xl shrink-0">
                   {String(index + 1).padStart(2, "0")}
                 </span>
                 <h3 class="text-lg font-semibold text-fg group-open:text-blue-fg transition-colors">
@@ -63,12 +63,8 @@ const {
     </div>
 
     <!-- Bottom CTA -->
-    <div
-      class="mt-14 text-center p-8 bg-gradient-to-br from-blue-subtle to-purple-subtle rounded-3xl border border-blue-soft"
-    >
-      <div
-        class="inline-flex items-center justify-center w-14 h-14 bg-gradient-to-br from-blue to-purple-strong rounded-2xl mb-4"
-      >
+    <div class="mt-14 text-center p-8 bg-blue-subtle rounded-3xl border border-blue-soft">
+      <div class="inline-flex items-center justify-center w-14 h-14 bg-blue-deep rounded-2xl mb-4">
         <i class="fa-solid fa-headset text-on-solid text-xl"></i>
       </div>
       <h3 class="text-xl font-bold text-fg mb-2">Still have questions?</h3>

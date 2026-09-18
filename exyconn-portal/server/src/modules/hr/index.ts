@@ -7,6 +7,17 @@ import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { ROLES } from '../../constants/roles';
 import { refuseOwnRecordWrites } from '../../lib/permissions';
+import { assertRole } from '../../middleware/roleGuard';
+import type { GraphQLContext } from '../../middleware/auth';
+import {
+  assertDepartmentEmpty,
+  assertSalaryBand,
+  departmentNameOf,
+  filledCount,
+  followDepartmentRename,
+  headNameOf,
+  positionsOf,
+} from './department.service';
 
 interface LeaveRequestInput {
   employeeId: string;
@@ -19,12 +30,26 @@ interface LeaveRequestInput {
 
 interface DepartmentInput {
   name: string;
+  code?: string;
   description?: string;
+  headId?: string;
 }
 
-interface PositionInput extends DepartmentInput {
+interface PositionInput {
+  name: string;
   department: string;
+  code?: string;
+  description?: string;
+  minSalary?: number;
+  maxSalary?: number;
+  grade?: string;
+  employmentType?: string;
+  headcount?: number;
+  active?: boolean;
 }
+
+type IdArgs = { id: string };
+type InputArgs<T> = { input: T };
 
 const hrRoles = { roles: [ROLES.HR] };
 
@@ -41,8 +66,53 @@ const positionResolvers = createCrudResolvers(
   { name: 'Position', ...hrRoles },
 );
 
+/** Department writes that keep its positions and employees attached to it. */
+const departmentMutations = {
+  ...departmentResolvers.Mutation,
+  updateDepartment: async (
+    p: unknown,
+    args: IdArgs & InputArgs<DepartmentInput>,
+    ctx: GraphQLContext,
+  ) => {
+    assertRole(ctx, hrRoles.roles);
+    const previous = await departmentNameOf(args.id);
+    const updated = await departmentResolvers.Mutation.updateDepartment(p, args as never, ctx);
+    await followDepartmentRename(previous, args.input.name.trim());
+    return updated;
+  },
+  deleteDepartment: async (p: unknown, args: IdArgs, ctx: GraphQLContext) => {
+    assertRole(ctx, hrRoles.roles);
+    await assertDepartmentEmpty(args.id);
+    return departmentResolvers.Mutation.deleteDepartment(p, args as never, ctx);
+  },
+};
+
+/** Position writes refuse a salary band that is upside down. */
+const positionMutations = {
+  ...positionResolvers.Mutation,
+  createPosition: async (p: unknown, args: InputArgs<PositionInput>, ctx: GraphQLContext) => {
+    assertSalaryBand(args.input);
+    return positionResolvers.Mutation.createPosition(p, args as never, ctx);
+  },
+  updatePosition: async (
+    p: unknown,
+    args: IdArgs & InputArgs<PositionInput>,
+    ctx: GraphQLContext,
+  ) => {
+    assertSalaryBand(args.input);
+    return positionResolvers.Mutation.updatePosition(p, args as never, ctx);
+  },
+};
+
 /** Leave CRUD + departments/positions + self-service, per-employee views & dashboard. */
 export const hrResolvers = {
+  Department: {
+    positions: (parent: { name: string }) => positionsOf(parent.name),
+    headName: (parent: { headId?: string | null }) => headNameOf(parent.headId),
+  },
+  Position: {
+    filled: (parent: { name: string; department: string }) => filledCount(parent),
+  },
   Query: {
     ...leaveCrudResolvers.Query,
     ...departmentResolvers.Query,
@@ -55,8 +125,8 @@ export const hrResolvers = {
       const row = await LeaveRequestModel.findById(id).select('employeeId').lean();
       return row?.employeeId;
     }),
-    ...departmentResolvers.Mutation,
-    ...positionResolvers.Mutation,
+    ...departmentMutations,
+    ...positionMutations,
     ...hrCustomResolvers.Mutation,
   },
 };

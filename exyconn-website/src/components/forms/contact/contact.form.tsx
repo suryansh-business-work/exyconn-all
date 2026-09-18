@@ -12,7 +12,7 @@ import { CONTACT_FORM_DEFAULTS, contactFormSchema } from "./contact.schema";
 import type { ContactFormValues } from "./contact.types";
 
 const SUBMIT_CLASSES =
-  "cursor-pointer w-full inline-flex items-center justify-center gap-2 bg-gradient-to-r from-blue-strong to-purple-strong text-on-solid font-semibold px-8 py-4 rounded-xl hover:opacity-90 transition-all duration-300 shadow-lg shadow-blue/20 disabled:opacity-50 disabled:cursor-not-allowed";
+  "cursor-pointer w-full inline-flex items-center justify-center gap-2 bg-blue-strong text-on-solid font-semibold px-8 py-4 rounded-xl hover:opacity-90 transition-all duration-300 shadow-lg shadow-blue/20 disabled:opacity-50 disabled:cursor-not-allowed";
 
 /** The contact page form (React Hook Form + Zod), validated in the browser before it sends. */
 export function ContactFormReact() {

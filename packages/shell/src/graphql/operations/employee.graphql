@@ -30,6 +30,7 @@ fragment HolidayFields on Holiday {
   description
   country
   excludedCountries
+  cities
 }
 
 fragment SupportTicketFields on SupportTicket {

@@ -9,7 +9,8 @@ const NOT_A_COUNTRY = '"{VALUE}" is not an ISO 3166-1 country';
 /**
  * A company holiday, readable by every authenticated employee it applies to: a global one
  * (no country) reaches everybody except the countries that opted out of it, a country one
- * reaches only the people in that country.
+ * reaches only the people in that country — or, when it names cities, only the people
+ * working in one of them.
  */
 const holidaySchema = new Schema(
   {
@@ -40,6 +41,8 @@ const holidaySchema = new Schema(
       ],
       default: [],
     },
+    /** Cities of `country` that observe it; empty is the whole country. Unused on a global one. */
+    cities: { type: [{ type: String, trim: true }], default: [] },
   },
   { timestamps: true },
 );

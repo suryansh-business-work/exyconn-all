@@ -79,51 +79,51 @@ const getStatusBadge = (status: string, badge?: string) => {
 const getColorClasses = (color: string) => {
   const colors: Record<string, { bg: string; border: string; icon: string; text: string }> = {
     indigo: {
-      bg: "from-surface-subtle to-indigo-subtle",
+      bg: "bg-surface-subtle",
       border: "border-indigo-soft",
-      icon: "from-indigo to-violet-strong",
+      icon: "bg-indigo",
       text: "text-indigo-fg",
     },
     emerald: {
-      bg: "from-surface to-emerald-subtle",
+      bg: "bg-surface",
       border: "border-emerald-soft",
-      icon: "from-emerald to-teal-strong",
+      icon: "bg-emerald-deep",
       text: "text-emerald-fg",
     },
     rose: {
-      bg: "from-surface-subtle to-rose-subtle",
+      bg: "bg-surface-subtle",
       border: "border-rose-soft",
-      icon: "from-rose to-pink-strong",
+      icon: "bg-rose-deep",
       text: "text-rose-fg",
     },
     orange: {
-      bg: "from-surface to-orange-subtle",
+      bg: "bg-surface",
       border: "border-orange-soft",
-      icon: "from-orange to-red",
+      icon: "bg-orange-deep",
       text: "text-orange-fg",
     },
     pink: {
-      bg: "from-surface to-pink-subtle",
+      bg: "bg-surface",
       border: "border-pink-soft",
-      icon: "from-pink to-rose",
+      icon: "bg-pink-deep",
       text: "text-pink-fg",
     },
     gray: {
-      bg: "from-inverse to-inverse-muted",
+      bg: "bg-inverse",
       border: "border-inverse-muted",
-      icon: "from-red to-red-strong",
+      icon: "bg-red-deep",
       text: "text-on-solid-muted",
     },
     purple: {
-      bg: "from-surface-subtle to-purple-subtle",
+      bg: "bg-surface-subtle",
       border: "border-purple-soft",
-      icon: "from-purple to-violet-strong",
+      icon: "bg-purple-deep",
       text: "text-purple-fg",
     },
     cyan: {
-      bg: "from-surface-subtle to-cyan-subtle",
+      bg: "bg-surface-subtle",
       border: "border-cyan-soft",
-      icon: "from-cyan to-blue-strong",
+      icon: "bg-cyan-deep",
       text: "text-cyan-fg",
     },
   };
@@ -170,18 +170,7 @@ const productsJsonLd = {
 >
   <div class="bg-surface min-h-screen">
     <!-- Hero Section -->
-    <section
-      class="relative py-24 px-6 bg-gradient-to-br from-surface-subtle via-surface to-blue-subtle overflow-hidden"
-    >
-      <div
-        class="absolute top-20 right-20 w-80 h-80 bg-gradient-to-r from-blue-muted/40 to-cyan-muted/40 rounded-full blur-3xl"
-      >
-      </div>
-      <div
-        class="absolute bottom-10 left-10 w-96 h-96 bg-gradient-to-r from-purple-muted/30 to-pink-muted/30 rounded-full blur-3xl"
-      >
-      </div>
-
+    <section class="relative py-24 px-6 bg-surface-subtle overflow-hidden">
       <div class="relative z-10 max-w-6xl mx-auto text-center">
         <span
           class="inline-flex items-center gap-2 px-4 py-2 bg-surface border border-line rounded-full text-sm font-medium text-fg-muted mb-6 shadow-sm"
@@ -191,10 +180,7 @@ const productsJsonLd = {
         </span>
         <h1 class="text-5xl md:text-6xl font-bold text-fg mb-6 tracking-tight">
           Products that
-          <span
-            class="bg-gradient-to-r from-blue-strong to-cyan-strong bg-clip-text text-transparent"
-            >Power Business</span
-          >
+          <span class="text-blue-fg">Power Business</span>
         </h1>
         <p class="text-xl text-fg-muted max-w-3xl mx-auto leading-relaxed mb-8">
           Exyconn is a multi-product technology company building B2B SaaS platforms, B2B2C
@@ -251,9 +237,7 @@ const productsJsonLd = {
     <section class="py-20 px-6 bg-surface-subtle">
       <div class="max-w-7xl mx-auto">
         <div class="flex items-center gap-3 mb-10">
-          <div
-            class="w-12 h-12 bg-gradient-to-br from-blue to-cyan rounded-2xl flex items-center justify-center"
-          >
+          <div class="w-12 h-12 bg-blue-deep rounded-2xl flex items-center justify-center">
             <i class="fa-solid fa-cloud text-on-solid text-lg"></i>
           </div>
           <div>
@@ -269,7 +253,7 @@ const productsJsonLd = {
               const badge = getStatusBadge(product.status, product.badge);
               return (
                 <div
-                  class={`group relative bg-gradient-to-br ${colors.bg} rounded-3xl border ${colors.border} p-8 hover:shadow-2xl transition-all duration-300`}
+                  class={`group relative ${colors.bg} rounded-3xl border ${colors.border} p-8 hover:shadow-2xl transition-all duration-300`}
                 >
                   <div class="absolute top-6 right-6 text-right">
                     <span
@@ -287,7 +271,7 @@ const productsJsonLd = {
                       <img src={product.logo} alt={product.name} class="h-10" />
                     ) : (
                       <div
-                        class={`w-14 h-14 bg-gradient-to-br ${colors.icon} rounded-2xl flex items-center justify-center`}
+                        class={`w-14 h-14 ${colors.icon} rounded-2xl flex items-center justify-center`}
                       >
                         <i class={`fa-solid ${product.icon} text-on-solid text-xl`} />
                       </div>
@@ -337,7 +321,7 @@ const productsJsonLd = {
         <section class="py-20 px-6 bg-surface">
           <div class="max-w-7xl mx-auto">
             <div class="flex items-center gap-3 mb-10">
-              <div class="w-12 h-12 bg-gradient-to-br from-purple to-violet-strong rounded-2xl flex items-center justify-center">
+              <div class="w-12 h-12 bg-purple-deep rounded-2xl flex items-center justify-center">
                 <i class="fa-solid fa-code text-on-solid text-lg" />
               </div>
               <div>
@@ -354,11 +338,11 @@ const productsJsonLd = {
 
                 return (
                   <div
-                    class={`group relative rounded-3xl border p-6 hover:shadow-xl transition-all duration-300 ${isDark ? "bg-gradient-to-br from-inverse to-inverse-muted border-inverse-muted" : `bg-gradient-to-br ${colors.bg} ${colors.border}`}`}
+                    class={`group relative rounded-3xl border p-6 hover:shadow-xl transition-all duration-300 ${isDark ? " bg-inverse border-inverse-muted" : ` ${colors.bg} ${colors.border}`}`}
                   >
                     <div class="flex items-start justify-between mb-4">
                       <div
-                        class={`w-12 h-12 bg-gradient-to-br ${colors.icon} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}
+                        class={`w-12 h-12 ${colors.icon} rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform`}
                       >
                         <i
                           class={`${product.icon?.includes("fa-brands") ? product.icon : `fa-solid ${product.icon}`} text-on-solid text-lg`}
@@ -425,7 +409,7 @@ const productsJsonLd = {
         <section class="py-20 px-6 bg-surface-subtle">
           <div class="max-w-7xl mx-auto">
             <div class="flex items-center gap-3 mb-10">
-              <div class="w-12 h-12 bg-gradient-to-br from-orange to-red rounded-2xl flex items-center justify-center">
+              <div class="w-12 h-12 bg-orange-deep rounded-2xl flex items-center justify-center">
                 <i class="fa-solid fa-users text-on-solid text-lg" />
               </div>
               <div>
@@ -445,7 +429,7 @@ const productsJsonLd = {
                   >
                     <div class="flex items-start justify-between mb-4">
                       <div
-                        class={`w-12 h-12 bg-gradient-to-br ${colors.icon} rounded-xl flex items-center justify-center`}
+                        class={`w-12 h-12 ${colors.icon} rounded-xl flex items-center justify-center`}
                       >
                         <i class={`fa-solid ${product.icon} text-on-solid text-lg`} />
                       </div>
@@ -553,7 +537,7 @@ const productsJsonLd = {
     </section>
 
     <!-- CTA Section -->
-    <section class="py-24 px-6 bg-gradient-to-br from-surface-subtle to-blue-subtle">
+    <section class="py-24 px-6 bg-surface-subtle">
       <div class="max-w-4xl mx-auto text-center">
         <h2 class="text-4xl font-bold text-fg mb-6">Ready to Build Something Amazing?</h2>
         <p class="text-xl text-fg-muted mb-10 max-w-2xl mx-auto">

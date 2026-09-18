@@ -10,18 +10,8 @@ import Page from "../../layouts/Page.astro";
 >
   <div class="bg-surface min-h-screen">
     <!-- Hero Section - Light Background -->
-    <section
-      class="relative min-h-[60vh] bg-gradient-to-br from-blue-subtle via-surface to-purple-subtle flex items-center overflow-hidden"
-    >
+    <section class="relative min-h-[60vh] bg-blue-subtle flex items-center overflow-hidden">
       <!-- Background Effects -->
-      <div
-        class="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-cyan-muted/40 to-blue-muted/40 rounded-full blur-3xl"
-      >
-      </div>
-      <div
-        class="absolute bottom-20 left-10 w-80 h-80 bg-gradient-to-r from-indigo-muted/30 to-purple-muted/30 rounded-full blur-3xl"
-      >
-      </div>
 
       <div class="relative z-10 max-w-5xl mx-auto text-center py-20 px-6">
         <span
@@ -33,10 +23,7 @@ import Page from "../../layouts/Page.astro";
         <h1 class="text-5xl md:text-6xl font-black mb-6 tracking-tight leading-tight">
           <span class="text-fg">Services That</span>
           <br />
-          <span
-            class="bg-gradient-to-r from-blue-strong via-cyan-strong to-purple-strong bg-clip-text text-transparent"
-            >Transform Business</span
-          >
+          <span class="text-blue-fg">Transform Business</span>
         </h1>
         <p class="text-xl text-fg-muted max-w-3xl mx-auto leading-relaxed mb-8">
           From AI strategy to SaaS deployment, we provide end-to-end services that turn intelligent
@@ -45,7 +32,7 @@ import Page from "../../layouts/Page.astro";
         <div class="flex flex-wrap justify-center gap-4">
           <a
             href="/contact"
-            class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-strong to-purple-strong text-on-solid font-semibold px-8 py-4 rounded-full shadow-lg shadow-blue/25 hover:shadow-blue/40 hover:scale-105 transition-all"
+            class="inline-flex items-center gap-2 bg-blue-strong text-on-solid font-semibold px-8 py-4 rounded-full shadow-lg shadow-blue/25 hover:shadow-blue/40 hover:scale-105 transition-all"
           >
             <i class="fa-solid fa-calendar-check"></i>
             Schedule Consultation
@@ -73,15 +60,11 @@ import Page from "../../layouts/Page.astro";
       <div class="grid md:grid-cols-3 gap-8">
         <!-- AI Platform Services -->
         <div
-          class="group relative bg-gradient-to-br from-blue-strong to-indigo-deep rounded-3xl p-8 text-on-solid overflow-hidden hover:scale-[1.02] transition-all duration-300"
+          class="group relative bg-blue-night rounded-3xl p-8 text-on-solid overflow-hidden hover:scale-[1.02] transition-all duration-300"
         >
-          <div
-            class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-cyan/30 to-blue/30 rounded-full blur-2xl"
-          >
-          </div>
           <div class="relative z-10">
             <div
-              class="w-16 h-16 bg-gradient-to-br from-cyan to-blue-strong rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-cyan/30"
+              class="w-16 h-16 bg-cyan-deep rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-cyan/30"
             >
               <i class="fa-solid fa-microchip text-2xl"></i>
             </div>
@@ -125,13 +108,9 @@ import Page from "../../layouts/Page.astro";
         <div
           class="group relative bg-surface rounded-3xl p-8 border border-line-subtle shadow-xl overflow-hidden hover:scale-[1.02] hover:shadow-2xl transition-all duration-300"
         >
-          <div
-            class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-indigo-soft to-purple-soft rounded-full blur-2xl"
-          >
-          </div>
           <div class="relative z-10">
             <div
-              class="w-16 h-16 bg-gradient-to-br from-indigo to-purple-strong rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-indigo/30"
+              class="w-16 h-16 bg-indigo rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-indigo/30"
             >
               <i class="fa-solid fa-cloud text-2xl text-on-solid"></i>
             </div>
@@ -175,13 +154,9 @@ import Page from "../../layouts/Page.astro";
         <div
           class="group relative bg-surface rounded-3xl p-8 border border-line-subtle shadow-xl overflow-hidden hover:scale-[1.02] hover:shadow-2xl transition-all duration-300"
         >
-          <div
-            class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-emerald-soft to-teal-soft rounded-full blur-2xl"
-          >
-          </div>
           <div class="relative z-10">
             <div
-              class="w-16 h-16 bg-gradient-to-br from-emerald to-teal-strong rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-emerald/30"
+              class="w-16 h-16 bg-emerald-deep rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-emerald/30"
             >
               <i class="fa-solid fa-lightbulb text-2xl text-on-solid"></i>
             </div>
@@ -224,7 +199,7 @@ import Page from "../../layouts/Page.astro";
     </section>
 
     <!-- All Services Grid -->
-    <section class="py-24 px-4 bg-gradient-to-b from-surface-subtle to-surface">
+    <section class="py-24 px-4 bg-surface-subtle">
       <div class="max-w-7xl mx-auto">
         <div class="text-center mb-16">
           <h2 class="text-4xl font-black text-fg mb-4">Complete Service Portfolio</h2>
@@ -409,13 +384,7 @@ import Page from "../../layouts/Page.astro";
     </section>
 
     <!-- CTA Section -->
-    <section
-      class="py-24 px-4 bg-gradient-to-br from-inverse via-indigo-night to-inverse relative overflow-hidden"
-    >
-      <div
-        class="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-cyan/20 to-blue/20 rounded-full blur-3xl"
-      >
-      </div>
+    <section class="py-24 px-4 bg-inverse relative overflow-hidden">
       <div class="max-w-4xl mx-auto text-center relative z-10">
         <h2 class="text-4xl md:text-5xl font-black text-on-solid mb-6">
           Ready to Transform Your Business?
@@ -426,7 +395,7 @@ import Page from "../../layouts/Page.astro";
         <div class="flex flex-wrap justify-center gap-4">
           <a
             href="/get-a-quote"
-            class="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-deep to-blue-strong text-on-solid font-semibold px-10 py-4 rounded-full shadow-lg shadow-cyan/25 hover:shadow-cyan/40 hover:scale-105 transition-all"
+            class="inline-flex items-center gap-2 bg-cyan-deep text-on-solid font-semibold px-10 py-4 rounded-full shadow-lg shadow-cyan/25 hover:shadow-cyan/40 hover:scale-105 transition-all"
           >
             <i class="fa-solid fa-calculator"></i>
             Get a Quote

@@ -12,7 +12,7 @@ import { LEGAL_FORM_DEFAULTS, legalFormSchema } from "./legal.schema";
 import type { LegalFormValues } from "./legal.types";
 
 const SUBMIT_CLASSES =
-  "cursor-pointer w-full bg-gradient-to-r from-amber to-orange text-on-solid font-semibold py-4 px-6 rounded-xl hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-amber/20";
+  "cursor-pointer w-full bg-amber-deep text-on-solid font-semibold py-4 px-6 rounded-xl hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-amber/20";
 
 const legalOptions = [
   { value: "", label: "Select an option" },

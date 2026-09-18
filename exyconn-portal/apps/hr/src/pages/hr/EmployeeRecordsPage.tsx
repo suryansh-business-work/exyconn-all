@@ -31,6 +31,7 @@ export function EmployeeRecordsPage() {
     { key: 'email', label: 'Email' },
     { key: 'department', label: 'Department', render: (r) => r.department ?? '—' },
     { key: 'designation', label: 'Designation', render: (r) => r.designation ?? '—' },
+    { key: 'managerName', label: 'Reports to', render: (r) => r.managerName ?? '—' },
     { key: 'joinDate', label: 'Joined', render: (r) => formatDate(r.joinDate) },
     {
       key: 'workLocation',

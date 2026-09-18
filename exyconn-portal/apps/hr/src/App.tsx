@@ -9,7 +9,6 @@ import {
   EmployeeFormPage,
   AttendanceListPage,
   DepartmentsPage,
-  PositionsPage,
 } from './pages/hr';
 import { UserDetailsPage } from '@exyconn/shell/pages/UserDetails';
 import { AnnouncementsPage } from './pages/announcements';
@@ -85,7 +84,8 @@ export function App() {
       <Route path="/hr/documents" element={<DocumentsPage />} />
       <Route path="/hr/benefits" element={<BenefitsPage />} />
       <Route path="/hr/training" element={<TrainingPage />} />
-      <Route path="/hr/positions" element={<PositionsPage />} />
+      {/* Positions live inside their department now. */}
+      <Route path="/hr/positions" element={<Navigate to="/hr/departments" replace />} />
       <Route path="/hr/applicants" element={<ApplicantsPage />} />
     </PortalApp>
   );

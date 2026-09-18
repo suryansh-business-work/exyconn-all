@@ -1,4 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
+import { LocalizationProvider, AdapterDateFns } from '@exyconn/shell/components/ui';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { TrackerSettingsForm } from './tracker-settings.form';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -36,9 +37,11 @@ const mount = () =>
   cy.mount(
     <MockedProvider mocks={[]}>
       <ThemeProvider theme={theme}>
-        <NotificationProvider>
-          <TrackerSettingsForm initial={initial} />
-        </NotificationProvider>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <NotificationProvider>
+            <TrackerSettingsForm initial={initial} />
+          </NotificationProvider>
+        </LocalizationProvider>
       </ThemeProvider>
     </MockedProvider>,
   );
@@ -85,26 +88,29 @@ describe('TrackerSettingsForm', () => {
 
   it('hides the tracking window until the schedule is switched on', () => {
     mount();
-    cy.contains('label', 'Start at (hour, 0–23)').should('not.exist');
+    cy.contains('label', 'Start at').should('not.exist');
 
     cy.contains('label', 'Start tracking automatically').find('input').check();
-    cy.contains('label', 'Start at (hour, 0–23)').should('exist');
+    cy.contains('label', 'Start at').should('exist');
   });
 
   it('calls out a window that runs past midnight', () => {
     mount();
     cy.contains('label', 'Start tracking automatically').find('input').check();
-    cy.get('input[name="autoStartHour"]').clear().type('22');
-    cy.get('input[name="autoStopHour"]').clear().type('6');
+    // 9 AM → 9 PM, which now starts after the 6 PM stop.
+    cy.get('input[name="autoStartHour"]')
+      .parent()
+      .find('[aria-label="Hours"]')
+      .type('{rightarrow}P');
     cy.contains('runs past midnight').should('exist');
   });
 
   it('hides the send hour until a digest is actually switched on', () => {
     mount();
-    cy.contains('label', 'Send at (hour, 0–23)').should('not.exist');
+    cy.contains('label', 'Send at').should('not.exist');
 
     cy.contains('label', 'Email a daily summary').find('input').check();
-    cy.contains('label', 'Send at (hour, 0–23)').should('exist');
+    cy.contains('label', 'Send at').should('exist');
   });
 
   it('rejects an out-of-range capture interval', () => {

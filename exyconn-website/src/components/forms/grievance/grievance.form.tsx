@@ -12,7 +12,7 @@ import { GRIEVANCE_FORM_DEFAULTS, grievanceFormSchema } from "./grievance.schema
 import type { GrievanceFormValues } from "./grievance.types";
 
 const SUBMIT_CLASSES =
-  "cursor-pointer w-full bg-gradient-to-r from-blue-strong to-purple-strong text-on-solid font-semibold py-4 px-6 rounded-xl hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue/20";
+  "cursor-pointer w-full bg-blue-strong text-on-solid font-semibold py-4 px-6 rounded-xl hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue/20";
 
 /** The grievance page form (React Hook Form + Zod), validated in the browser before it sends. */
 export function GrievanceFormReact() {

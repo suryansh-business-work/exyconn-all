@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useFormContext } from 'react-hook-form';
 import {
   RhfAutocomplete,
@@ -47,19 +48,65 @@ export function ProfileFields() {
   );
 }
 
+/** Just enough of a position to offer it as a designation. */
+interface PositionOption {
+  name: string;
+  department: string;
+  active: boolean;
+}
+
 interface EmploymentFieldsProps {
   departmentOptions: SelectOption[];
-  positionOptions: SelectOption[];
+  positions: ReadonlyArray<PositionOption>;
+  /** The saved designation, kept selectable even if its position was closed or moved. */
+  currentDesignation?: string | null;
   managerOptions: SelectOption[];
+}
+
+/** The open positions of one department, plus the employee's saved designation. */
+function designationOptions(
+  positions: ReadonlyArray<PositionOption>,
+  department: string,
+  current?: string | null,
+): SelectOption[] {
+  const names = positions
+    .filter((position) => position.department === department && position.active)
+    .map((position) => position.name);
+  const unique = Array.from(new Set([...names, ...(current ? [current] : [])]));
+  return unique.map((value) => ({ value, label: value }));
+}
+
+/**
+ * A designation belongs to its department, so switching department clears one that the new
+ * department does not have. The first render is skipped: a saved record keeps what it has.
+ */
+function useClearDesignationOnDepartmentChange(positions: ReadonlyArray<PositionOption>) {
+  const { watch, getValues, setValue } = useFormContext<UserValues>();
+  const department = watch('department');
+  const previous = useRef(department);
+  useEffect(() => {
+    if (previous.current === department) return;
+    previous.current = department;
+    const designation = getValues('designation');
+    const held = positions.some((p) => p.department === department && p.name === designation);
+    if (!held) setValue('designation', '');
+  }, [department, positions, getValues, setValue]);
+  return department;
 }
 
 /** Where the employee sits in the organisation, who they report to, and since when. */
 export function EmploymentFields({
   departmentOptions,
-  positionOptions,
+  positions,
+  currentDesignation,
   managerOptions,
 }: Readonly<EmploymentFieldsProps>) {
   const countries = useCountryOptions();
+  const department = useClearDesignationOnDepartmentChange(positions);
+  const positionOptions = designationOptions(positions, department, currentDesignation);
+  const designationHint = department
+    ? 'Add positions to this department in HR → Departments.'
+    : 'Choose a department first.';
   return (
     <>
       <RhfSelect
@@ -74,13 +121,13 @@ export function EmploymentFields({
         name="designation"
         label="Designation"
         options={positionOptions}
-        helperText={positionOptions.length ? undefined : 'Add positions in HR → Positions first.'}
+        helperText={positionOptions.length ? undefined : designationHint}
       />
       <RhfAutocomplete
         name="managerId"
-        label="Reports to"
+        label="Reports to (manager)"
         options={managerOptions}
-        helperText="Their manager may approve leave and requests, and writes their appraisal."
+        helperText="Places them under this manager in the org chart. Their manager may approve leave and requests, and writes their appraisal."
       />
       <RhfSelect
         name="employmentStatus"
@@ -92,6 +139,11 @@ export function EmploymentFields({
         label="Country of employment"
         options={[COMPANY_COUNTRY_OPTION, ...countries]}
         helperText="Decides which leave quotas and holidays apply to them."
+      />
+      <RhfTextField
+        name="city"
+        label="City of employment"
+        helperText="Adds the holidays HR set for this city."
       />
     </>
   );

@@ -49,20 +49,11 @@ const gigCategoryIcons: Record<string, string> = {
 >
   <div class="bg-surface-subtle min-h-screen">
     <!-- Hero Section - Light Mode -->
-    <section
-      class="relative py-24 px-6 overflow-hidden bg-gradient-to-br from-surface-subtle via-blue-subtle to-indigo-soft"
-    >
+    <section class="relative py-24 px-6 overflow-hidden bg-surface-subtle">
       <!-- Grid Pattern Overlay -->
       <div class="absolute inset-0 opacity-30 pattern-dots bg-indigo-strong/8"></div>
 
       <!-- Floating Orbs -->
-      <div class="absolute top-20 left-10 w-72 h-72 bg-blue-muted/40 rounded-full blur-3xl"></div>
-      <div class="absolute bottom-10 right-10 w-96 h-96 bg-purple-muted/30 rounded-full blur-3xl">
-      </div>
-      <div
-        class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-soft/40 rounded-full blur-3xl"
-      >
-      </div>
 
       <div class="relative z-10 max-w-6xl mx-auto">
         <div class="text-center mb-12">
@@ -83,11 +74,7 @@ const gigCategoryIcons: Record<string, string> = {
 
           <h1 class="text-5xl md:text-7xl font-black text-fg mb-6 leading-tight tracking-tight">
             Build. Create.<br />
-            <span
-              class="bg-gradient-to-r from-blue-strong via-indigo to-purple-strong bg-clip-text text-transparent"
-            >
-              Grow With Us.
-            </span>
+            <span class="text-blue-fg"> Grow With Us. </span>
           </h1>
 
           <p class="text-xl text-fg-muted max-w-2xl mx-auto mb-10">
@@ -120,30 +107,30 @@ const gigCategoryIcons: Record<string, string> = {
                 value: companies.length,
                 label: "Companies",
                 icon: "fa-building",
-                color: "from-blue to-cyan",
+                color: "bg-blue-deep",
               },
               {
                 value: totalJobs,
                 label: "Open Roles",
                 icon: "fa-briefcase",
-                color: "from-violet to-purple",
+                color: "bg-violet-deep",
               },
               {
                 value: totalGigs,
                 label: "Freelance Gigs",
                 icon: "fa-laptop-code",
-                color: "from-amber to-orange",
+                color: "bg-amber-deep",
               },
               {
                 value: "100%",
                 label: "Remote Options",
                 icon: "fa-globe",
-                color: "from-emerald to-teal",
+                color: "bg-emerald-deep",
               },
             ].map((stat) => (
               <div class="group bg-surface/80 backdrop-blur-sm rounded-2xl p-5 border border-line shadow-sm hover:shadow-lg transition-all duration-300">
                 <div
-                  class={`w-10 h-10 rounded-xl bg-gradient-to-br ${stat.color} flex items-center justify-center mb-3`}
+                  class={`w-10 h-10 rounded-xl ${stat.color} flex items-center justify-center mb-3`}
                 >
                   <i class={`fa-solid ${stat.icon} text-on-solid`} />
                 </div>
@@ -224,7 +211,7 @@ const gigCategoryIcons: Record<string, string> = {
           groupJobs.length > 0 && (
             <a
               href="/career/company/group"
-              class="group block bg-gradient-to-r from-indigo-strong via-purple-strong to-pink-strong rounded-2xl p-8 text-on-solid relative overflow-hidden"
+              class="group block bg-indigo-strong rounded-2xl p-8 text-on-solid relative overflow-hidden"
             >
               <div class="absolute inset-0 opacity-20 pattern-rings bg-on-solid/30" />
 
@@ -350,10 +337,7 @@ const gigCategoryIcons: Record<string, string> = {
     </section>
 
     <!-- Freelance Gigs Section -->
-    <section
-      id="freelance"
-      class="py-20 px-6 bg-gradient-to-br from-amber-subtle via-orange-subtle to-yellow-subtle"
-    >
+    <section id="freelance" class="py-20 px-6 bg-amber-subtle">
       <div class="max-w-6xl mx-auto">
         <div class="text-center mb-14">
           <span
@@ -531,10 +515,7 @@ const gigCategoryIcons: Record<string, string> = {
 
           <!-- Company Logos Cloud -->
           <div class="relative">
-            <div
-              class="absolute inset-0 bg-gradient-to-br from-indigo-soft/50 to-purple-soft/50 rounded-3xl"
-            >
-            </div>
+            <div class="absolute inset-0 bg-indigo-soft/50 rounded-3xl"></div>
             <div class="relative p-10">
               <p class="text-center text-sm text-fg-subtle mb-8 font-medium">OUR PORTFOLIO</p>
               <div class="grid grid-cols-3 gap-6">
@@ -553,7 +534,7 @@ const gigCategoryIcons: Record<string, string> = {
                   ))
                 }
                 <div
-                  class="bg-gradient-to-br from-indigo-strong to-purple-strong rounded-2xl p-5 flex flex-col items-center justify-center aspect-square text-on-solid"
+                  class="bg-indigo-strong rounded-2xl p-5 flex flex-col items-center justify-center aspect-square text-on-solid"
                 >
                   <i class="fa-solid fa-layer-group text-2xl mb-2"></i>
                   <span class="text-xs font-bold">GROUP</span>

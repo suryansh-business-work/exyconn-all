@@ -12,7 +12,7 @@ import {
   ListItemButton,
   Text,
 } from '@exyconn/shell/components/ui';
-import { teamSize, type OrgTreeNode } from './org-tree';
+import { initialsOf, teamSize, type OrgTreeNode } from './org-tree';
 
 /** Levels expanded on first paint; deeper teams open on demand. */
 const OPEN_BY_DEFAULT_DEPTH = 1;
@@ -22,14 +22,6 @@ interface OrgNodeCardProps {
   depth: number;
   onOpen: (id: string) => void;
 }
-
-const initialsOf = (name: string) =>
-  name
-    .split(' ')
-    .map((part) => part.charAt(0))
-    .slice(0, 2)
-    .join('')
-    .toUpperCase();
 
 /** One person and, nested underneath, everyone who reports to them. */
 export function OrgNodeCard({ node, depth, onOpen }: Readonly<OrgNodeCardProps>) {
@@ -67,7 +59,8 @@ export function OrgNodeCard({ node, depth, onOpen }: Readonly<OrgNodeCardProps>)
         >
           <Avatar
             src={node.avatarUrl ?? undefined}
-            alt="" aria-hidden
+            alt=""
+            aria-hidden
             sx={{ width: 36, height: 36, mr: 1.5 }}
           >
             {initialsOf(node.name)}

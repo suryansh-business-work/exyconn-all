@@ -226,10 +226,12 @@ export interface HrFields {
   locale?: string | null;
   /** ISO 3166-1 alpha-2. Null (or omitted) follows the company's country. */
   country?: string | null;
+  /** The city they work in. Null (or empty) is none. */
+  city?: string | null;
 }
 
 /**
- * A person's chosen zone/language/country as it goes onto their record.
+ * A person's chosen zone/language/country/city as it goes onto their record.
  *
  * Empty means "follow the workspace default" and is stored as null, never as a copy of the
  * current default — an admin moving the house timezone should move everybody who never
@@ -240,6 +242,7 @@ function localeFields(input: HrFields) {
   const timezone = input.timezone?.trim() ?? '';
   const locale = input.locale?.trim() ?? '';
   const country = input.country?.trim().toUpperCase() ?? '';
+  const city = input.city?.trim() ?? '';
   if (timezone !== '' && !isValidTimezone(timezone)) {
     badRequest(`"${timezone}" is not a timezone this system knows.`);
   }
@@ -253,6 +256,7 @@ function localeFields(input: HrFields) {
     timezone: timezone === '' ? null : timezone,
     locale: locale === '' ? null : (canonicalLocale(locale) ?? null),
     country: country === '' ? null : country,
+    city: city === '' ? null : city,
   };
 }
 

@@ -5,6 +5,8 @@ import { ROLES } from '../../constants/roles';
 import { withId, withIds } from '../../utils/serialize';
 import { assertMayActFor, directReportIds } from '../admin/reporting';
 import type { GraphQLContext } from '../../middleware/auth';
+import type { TableQueryInput } from '../../utils/tableQuery';
+import { attendancePage } from './attendance.report';
 
 const hrOnly = [ROLES.HR];
 
@@ -25,6 +27,14 @@ export const hrCustomResolvers = {
     listAttendance: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       assertRole(ctx, hrOnly);
       return withIds(await hrService.listAttendance());
+    },
+    listAttendancePaged: (
+      _p: unknown,
+      { input }: { input: TableQueryInput },
+      ctx: GraphQLContext,
+    ) => {
+      assertRole(ctx, hrOnly);
+      return attendancePage(input);
     },
     leaveRequestsByEmployee: async (
       _p: unknown,

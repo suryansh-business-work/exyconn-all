@@ -548,16 +548,9 @@ export const MODULES: ModuleDefinition[] = [
       },
       {
         key: 'hr-departments',
-        label: 'Departments',
+        label: 'Departments & Positions',
         path: '/hr/departments',
         icon: ApartmentIcon,
-        group: 'People',
-      },
-      {
-        key: 'hr-positions',
-        label: 'Positions',
-        path: '/hr/positions',
-        icon: WorkIcon,
         group: 'People',
       },
       {

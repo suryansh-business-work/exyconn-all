@@ -9,6 +9,7 @@ import { assertAuthenticated } from '../../middleware/roleGuard';
 import { withIds } from '../../utils/serialize';
 import {
   employeeCountry,
+  employeePlace,
   ensureLeaveBalances,
   holidaysObservedIn,
   offeredPolicies,
@@ -23,6 +24,7 @@ interface HolidayInput {
   description?: string | null;
   country: string;
   excludedCountries: string[];
+  cities: string[];
 }
 interface LeavePolicyInput {
   name: string;
@@ -109,12 +111,11 @@ async function myLeaveBalances(_p: unknown, _a: unknown, ctx: GraphQLContext) {
   return ownLeaveBalances(_p, _a, ctx);
 }
 
-/** The holidays the signed-in employee observes in their country. */
+/** The holidays the signed-in employee observes in their country and city. */
 async function myHolidays(_p: unknown, _a: unknown, ctx: GraphQLContext) {
   const user = assertAuthenticated(ctx);
-  const rows = await HolidayModel.find(holidaysObservedIn(await employeeCountry(user.id)))
-    .sort({ date: 1 })
-    .lean();
+  const { country, city } = await employeePlace(user.id);
+  const rows = await HolidayModel.find(holidaysObservedIn(country, city)).sort({ date: 1 }).lean();
   return withIds(rows);
 }
 
@@ -137,6 +138,7 @@ export const hrMasterResolvers = {
     country: (holiday: { country?: string | null }) => holiday.country ?? '',
     excludedCountries: (holiday: { excludedCountries?: string[] | null }) =>
       holiday.excludedCountries ?? [],
+    cities: (holiday: { cities?: string[] | null }) => holiday.cities ?? [],
   },
   LeavePolicy: {
     overrides: (policy: { overrides?: unknown[] | null }) => policy.overrides ?? [],

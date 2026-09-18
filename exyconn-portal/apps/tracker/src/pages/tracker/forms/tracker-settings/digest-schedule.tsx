@@ -1,7 +1,7 @@
 import { useFormContext } from 'react-hook-form';
 import { useT } from '@exyconn/i18n';
 import { Box, FormHelperText, Grid } from '@exyconn/shell/components/ui';
-import { RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
+import { RhfSwitch, RhfTimePicker } from '@exyconn/shell/components/form/rhf';
 
 /**
  * The scheduled summary emails.
@@ -35,10 +35,10 @@ export function DigestScheduleFields() {
               sm: 6,
             }}
           >
-            <RhfTextField
+            <RhfTimePicker
               name="digestHour"
-              label="Send at (hour, 0–23)"
-              type="number"
+              label="Send at"
+              hoursOnly
               helperText="Read in the workspace timezone, not UTC."
             />
           </Grid>

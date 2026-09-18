@@ -21,16 +21,16 @@ const {
 } = Astro.props;
 
 const gradients = [
-  "from-blue to-cyan",
-  "from-purple to-pink",
-  "from-emerald to-teal",
-  "from-orange to-amber",
-  "from-rose to-red",
-  "from-indigo to-violet",
+  "bg-blue-deep",
+  "bg-purple-deep",
+  "bg-emerald-deep",
+  "bg-orange-deep",
+  "bg-rose-deep",
+  "bg-indigo",
 ];
 ---
 
-<section class="py-20 lg:py-28 bg-gradient-to-b from-surface via-surface-subtle/50 to-surface">
+<section class="py-20 lg:py-28 bg-surface">
   <div class="max-w-6xl mx-auto px-6 lg:px-8">
     <!-- Section Header -->
     <div class="text-center mb-14">
@@ -49,7 +49,7 @@ const gradients = [
           ) => (
             <div class="group bg-surface rounded-3xl border border-line-subtle p-8 hover:shadow-xl hover:shadow-blue-soft/50 hover:border-blue-soft transition-all duration-300">
               <div
-                class={`w-16 h-16 bg-gradient-to-br ${gradients[idx % gradients.length]} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
+                class={`w-16 h-16 ${gradients[idx % gradients.length]} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300 shadow-lg`}
               >
                 <i
                   class={`${col.icon?.toString().split(" ")[0]} ${col.icon?.toString().split(" ")[1] || ""} text-on-solid text-2xl`}

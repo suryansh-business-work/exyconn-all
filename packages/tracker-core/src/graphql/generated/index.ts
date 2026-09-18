@@ -585,6 +585,8 @@ export type CreateUserInput = {
   address: InputMaybe<Scalars['String']['input']>;
   avatarUrl: InputMaybe<Scalars['String']['input']>;
   brief: InputMaybe<Scalars['String']['input']>;
+  /** The city they work in, for city holidays; null when not set. */
+  city: InputMaybe<Scalars['String']['input']>;
   /** ISO 3166-1 alpha-2, or null to follow the company's country. */
   country: InputMaybe<Scalars['String']['input']>;
   dateOfBirth: InputMaybe<Scalars['DateTime']['input']>;
@@ -632,7 +634,9 @@ export type DealStage =
   | 'WON';
 
 export type DepartmentInput = {
+  code: InputMaybe<Scalars['String']['input']>;
   description: InputMaybe<Scalars['String']['input']>;
+  headId: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
 };
 
@@ -916,6 +920,8 @@ export type GradeInput = {
 };
 
 export type HolidayInput = {
+  /** Cities of the country that observe it; empty for the whole country. Ignored on a global one. */
+  cities: Array<Scalars['String']['input']>;
   /** ISO 3166-1 alpha-2, or empty for a holiday the whole company observes. */
   country: Scalars['String']['input'];
   date: Scalars['DateTime']['input'];
@@ -1520,8 +1526,15 @@ export type PolicyStatus =
   | 'PUBLISHED';
 
 export type PositionInput = {
+  active: Scalars['Boolean']['input'];
+  code: InputMaybe<Scalars['String']['input']>;
   department: Scalars['String']['input'];
   description: InputMaybe<Scalars['String']['input']>;
+  employmentType: InputMaybe<Scalars['String']['input']>;
+  grade: InputMaybe<Scalars['String']['input']>;
+  headcount: Scalars['Int']['input'];
+  maxSalary: Scalars['Float']['input'];
+  minSalary: Scalars['Float']['input'];
   name: Scalars['String']['input'];
 };
 
@@ -2322,6 +2335,8 @@ export type UpdateUserInput = {
   address: InputMaybe<Scalars['String']['input']>;
   avatarUrl: InputMaybe<Scalars['String']['input']>;
   brief: InputMaybe<Scalars['String']['input']>;
+  /** The city they work in, for city holidays; null when not set. */
+  city: InputMaybe<Scalars['String']['input']>;
   /** ISO 3166-1 alpha-2, or null to follow the company's country. */
   country: InputMaybe<Scalars['String']['input']>;
   dateOfBirth: InputMaybe<Scalars['DateTime']['input']>;

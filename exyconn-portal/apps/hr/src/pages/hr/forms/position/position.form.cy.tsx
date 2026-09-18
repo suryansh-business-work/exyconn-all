@@ -9,7 +9,12 @@ const mount = () =>
     <MockedProvider mocks={[]}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
-          <PositionForm initial={null} onDone={cy.stub()} onCancel={cy.stub().as('cancel')} />
+          <PositionForm
+            initial={null}
+            department="Engineering"
+            onDone={cy.stub()}
+            onCancel={cy.stub().as('cancel')}
+          />
         </NotificationProvider>
       </ThemeProvider>
     </MockedProvider>,
@@ -20,6 +25,22 @@ describe('PositionForm', () => {
     mount();
     cy.contains('button', 'Create').click();
     cy.contains('Name is required').should('be.visible');
+  });
+
+  it('refuses a maximum salary below the minimum', () => {
+    mount();
+    cy.get('input[name="name"]').type('Engineer');
+    cy.get('input[name="minSalary"]').clear().type('5000');
+    cy.get('input[name="maxSalary"]').clear().type('1000');
+    cy.contains('button', 'Create').click();
+    cy.contains('Maximum salary cannot be less than the minimum').should('be.visible');
+  });
+
+  it('refuses a fractional headcount', () => {
+    mount();
+    cy.get('input[name="headcount"]').clear().type('1.5');
+    cy.contains('button', 'Create').click();
+    cy.contains('Headcount must be a whole number').should('be.visible');
   });
 
   it('calls onCancel', () => {

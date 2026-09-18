@@ -9,25 +9,8 @@ import Page from "../../../layouts/Page.astro";
   metaImage="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80"
 >
   <!-- Hero Section - Light Background -->
-  <section
-    class="relative min-h-[70vh] bg-gradient-to-br from-blue-subtle via-surface to-purple-subtle flex items-center overflow-hidden"
-  >
+  <section class="relative min-h-[70vh] bg-blue-subtle flex items-center overflow-hidden">
     <!-- Animated Background -->
-    <div class="absolute inset-0 overflow-hidden">
-      <div
-        class="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-cyan-muted/40 to-blue-muted/40 rounded-full blur-3xl animate-pulse"
-      >
-      </div>
-      <div
-        class="absolute bottom-10 left-10 w-80 h-80 bg-gradient-to-r from-indigo-muted/30 to-purple-muted/30 rounded-full blur-3xl animate-pulse"
-        style="animation-delay: 1s;"
-      >
-      </div>
-      <div
-        class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-cyan-soft/30 to-indigo-soft/30 rounded-full blur-3xl"
-      >
-      </div>
-    </div>
 
     <div class="relative z-10 max-w-6xl mx-auto text-center py-24 px-6">
       <span
@@ -39,10 +22,7 @@ import Page from "../../../layouts/Page.astro";
       <h1 class="text-5xl md:text-7xl font-black mb-6 tracking-tight leading-tight animate-fade-in">
         <span class="text-fg">AI That Works.</span>
         <br />
-        <span
-          class="bg-gradient-to-r from-blue-strong via-cyan-strong to-purple-strong bg-clip-text text-transparent"
-          >Day One.</span
-        >
+        <span class="text-blue-fg">Day One.</span>
       </h1>
       <p
         class="text-xl md:text-2xl text-fg-muted max-w-3xl mx-auto leading-relaxed mb-10 animate-fade-in"
@@ -83,7 +63,7 @@ import Page from "../../../layouts/Page.astro";
       >
         <a
           href="/contact"
-          class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-strong to-purple-strong text-on-solid font-semibold px-10 py-4 rounded-full shadow-lg shadow-blue/25 hover:shadow-blue/40 hover:scale-105 transition-all"
+          class="inline-flex items-center gap-2 bg-blue-strong text-on-solid font-semibold px-10 py-4 rounded-full shadow-lg shadow-blue/25 hover:shadow-blue/40 hover:scale-105 transition-all"
         >
           <i class="fa-solid fa-rocket"></i>
           Deploy Your First Agent
@@ -110,10 +90,7 @@ import Page from "../../../layouts/Page.astro";
           AI Capabilities
         </span>
         <h2 class="text-4xl md:text-5xl font-black text-fg mb-6 tracking-tight">
-          The Complete <span
-            class="bg-gradient-to-r from-cyan-strong to-indigo bg-clip-text text-transparent"
-            >AI Toolkit</span
-          >
+          The Complete <span class="text-cyan-fg">AI Toolkit</span>
         </h2>
         <p class="text-xl text-fg-muted max-w-3xl mx-auto">
           Everything you need to build, deploy, and scale intelligent AI systems.
@@ -124,12 +101,8 @@ import Page from "../../../layouts/Page.astro";
         <!-- Agentic AI -->
         <a
           href="/ai/agentic"
-          class="group relative bg-gradient-to-br from-blue-strong to-indigo-deep rounded-3xl p-8 text-on-solid overflow-hidden hover:scale-[1.02] transition-all duration-300"
+          class="group relative bg-blue-strong rounded-3xl p-8 text-on-solid overflow-hidden hover:scale-[1.02] transition-all duration-300"
         >
-          <div
-            class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-cyan/30 to-blue/30 rounded-full blur-2xl group-hover:opacity-80 transition-opacity"
-          >
-          </div>
           <div class="relative z-10">
             <div
               class="w-16 h-16 bg-on-solid/20 backdrop-blur-sm rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform"
@@ -155,7 +128,7 @@ import Page from "../../../layouts/Page.astro";
           class="group bg-surface rounded-3xl shadow-xl border border-line-subtle p-8 hover:shadow-2xl hover:border-indigo-muted transition-all duration-300"
         >
           <div
-            class="w-16 h-16 bg-gradient-to-br from-indigo to-purple-strong rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-indigo/30 group-hover:scale-110 transition-transform"
+            class="w-16 h-16 bg-indigo rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-indigo/30 group-hover:scale-110 transition-transform"
           >
             <i class="fa-solid fa-comments text-2xl text-on-solid"></i>
           </div>
@@ -177,7 +150,7 @@ import Page from "../../../layouts/Page.astro";
           class="group bg-surface rounded-3xl shadow-xl border border-line-subtle p-8 hover:shadow-2xl hover:border-purple-muted transition-all duration-300"
         >
           <div
-            class="w-16 h-16 bg-gradient-to-br from-purple to-pink-strong rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-purple/30 group-hover:scale-110 transition-transform"
+            class="w-16 h-16 bg-purple-deep rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-purple/30 group-hover:scale-110 transition-transform"
           >
             <i class="fa-solid fa-diagram-project text-2xl text-on-solid"></i>
           </div>
@@ -199,7 +172,7 @@ import Page from "../../../layouts/Page.astro";
           class="group bg-surface rounded-3xl shadow-xl border border-line-subtle p-8 hover:shadow-2xl hover:border-blue-muted transition-all duration-300"
         >
           <div
-            class="w-16 h-16 bg-gradient-to-br from-blue to-cyan-strong rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue/30 group-hover:scale-110 transition-transform"
+            class="w-16 h-16 bg-blue-deep rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue/30 group-hover:scale-110 transition-transform"
           >
             <i class="fa-solid fa-brain text-2xl text-on-solid"></i>
           </div>
@@ -221,7 +194,7 @@ import Page from "../../../layouts/Page.astro";
           class="group bg-surface rounded-3xl shadow-xl border border-line-subtle p-8 hover:shadow-2xl hover:border-teal-muted transition-all duration-300"
         >
           <div
-            class="w-16 h-16 bg-gradient-to-br from-teal to-emerald-strong rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-teal/30 group-hover:scale-110 transition-transform"
+            class="w-16 h-16 bg-teal-deep rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-teal/30 group-hover:scale-110 transition-transform"
           >
             <i class="fa-solid fa-flask text-2xl text-on-solid"></i>
           </div>
@@ -243,7 +216,7 @@ import Page from "../../../layouts/Page.astro";
           class="group bg-surface rounded-3xl shadow-xl border border-line-subtle p-8 hover:shadow-2xl hover:border-orange-muted transition-all duration-300"
         >
           <div
-            class="w-16 h-16 bg-gradient-to-br from-orange to-red rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-orange/30 group-hover:scale-110 transition-transform"
+            class="w-16 h-16 bg-orange-deep rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-orange/30 group-hover:scale-110 transition-transform"
           >
             <i class="fa-solid fa-server text-2xl text-on-solid"></i>
           </div>
@@ -263,7 +236,7 @@ import Page from "../../../layouts/Page.astro";
   </section>
 
   <!-- Why Our AI Platform -->
-  <section class="py-24 px-4 bg-gradient-to-b from-surface-subtle to-surface">
+  <section class="py-24 px-4 bg-surface-subtle">
     <div class="max-w-6xl mx-auto">
       <div class="text-center mb-16">
         <h2 class="text-4xl font-black text-fg mb-4">Why Exyconn's AI Platform?</h2>
@@ -322,13 +295,7 @@ import Page from "../../../layouts/Page.astro";
   </section>
 
   <!-- CTA Section -->
-  <section
-    class="py-24 px-4 bg-gradient-to-br from-inverse via-indigo-night to-inverse relative overflow-hidden"
-  >
-    <div
-      class="absolute top-20 right-20 w-96 h-96 bg-gradient-to-r from-cyan/20 to-blue/20 rounded-full blur-3xl"
-    >
-    </div>
+  <section class="py-24 px-4 bg-inverse relative overflow-hidden">
     <div class="max-w-4xl mx-auto text-center relative z-10">
       <h2 class="text-4xl md:text-5xl font-black text-on-solid mb-6">Ready to Deploy AI?</h2>
       <p class="text-xl text-on-solid-muted mb-10 max-w-2xl mx-auto">
@@ -337,7 +304,7 @@ import Page from "../../../layouts/Page.astro";
       <div class="flex flex-wrap justify-center gap-4">
         <a
           href="/get-a-quote"
-          class="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-deep to-blue-strong text-on-solid font-semibold px-10 py-4 rounded-full shadow-lg shadow-cyan/25 hover:shadow-cyan/40 hover:scale-105 transition-all"
+          class="inline-flex items-center gap-2 bg-cyan-deep text-on-solid font-semibold px-10 py-4 rounded-full shadow-lg shadow-cyan/25 hover:shadow-cyan/40 hover:scale-105 transition-all"
         >
           <i class="fa-solid fa-calculator"></i>
           Get a Quote
