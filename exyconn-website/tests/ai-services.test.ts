@@ -75,10 +75,10 @@ describe("AI service catalogue", () => {
         }
       });
 
-      it("carries the icon and gradient the cards render", () => {
+      it("carries the icon and the solid fill the cards render", () => {
         expect(service.icon).toMatch(/^fa-[a-z0-9-]+$/);
-        const [, from, to] = /^from-([a-z-]+) to-([a-z-]+)$/.exec(service.color) ?? [];
-        expect(Object.keys(roles)).toEqual(expect.arrayContaining([from, to]));
+        const [, fill] = /^bg-([a-z-]+)$/.exec(service.color) ?? [];
+        expect(Object.keys(roles)).toContain(fill);
       });
 
       it("is findable by slug", () => {

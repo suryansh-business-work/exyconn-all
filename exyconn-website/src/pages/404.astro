@@ -34,23 +34,9 @@ const helpfulLinks = [
   metaKeywords="404, not found, page missing, Exyconn, error"
   noindex={true}
 >
-  <div
-    class="min-h-screen bg-gradient-to-b from-surface-subtle via-surface to-surface-subtle overflow-hidden"
-  >
+  <div class="min-h-screen bg-surface-subtle overflow-hidden">
     <!-- Hero Section with Lottie -->
     <section class="relative py-16 md:py-20 px-6">
-      <!-- Decorative gradient blobs -->
-      <div
-        class="pointer-events-none absolute -top-20 -left-20 w-[28rem] h-[28rem] bg-gradient-to-br from-blue-muted/30 to-purple-muted/20 rounded-full blur-3xl"
-        aria-hidden="true"
-      >
-      </div>
-      <div
-        class="pointer-events-none absolute -bottom-32 -right-20 w-[28rem] h-[28rem] bg-gradient-to-br from-pink-muted/30 to-amber-muted/20 rounded-full blur-3xl"
-        aria-hidden="true"
-      >
-      </div>
-
       <div class="relative max-w-5xl mx-auto text-center">
         <!-- Lottie illustration -->
         <div
@@ -65,7 +51,7 @@ const helpfulLinks = [
         <!-- Animated 404 number (fallback / accent) -->
         <div class="relative inline-block -mt-2 mb-6" data-anime="fade-up" data-anime-delay="150">
           <h1
-            class="relative text-7xl md:text-8xl font-black leading-none bg-gradient-to-br from-blue-strong via-purple-strong to-pink bg-clip-text text-transparent select-none"
+            class="relative text-7xl md:text-8xl font-black leading-none text-blue-fg select-none"
           >
             404
           </h1>
@@ -88,7 +74,7 @@ const helpfulLinks = [
         >
           <a
             href="/"
-            class="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-strong to-purple-strong text-on-solid font-bold rounded-full hover:shadow-xl hover:shadow-blue/25 transition-all duration-300"
+            class="inline-flex items-center gap-3 px-8 py-4 bg-blue-strong text-on-solid font-bold rounded-full hover:shadow-xl hover:shadow-blue/25 transition-all duration-300"
           >
             <i class="fa-solid fa-house"></i>
             Go to Homepage
@@ -127,7 +113,7 @@ const helpfulLinks = [
             quickLinks.map((link) => (
               <a
                 href={link.href}
-                class="group flex flex-col items-center p-6 bg-surface-subtle rounded-2xl hover:bg-gradient-to-br hover:from-blue-subtle hover:to-purple-subtle border border-transparent hover:border-blue-soft transition-all duration-300"
+                class="group flex flex-col items-center p-6 bg-surface-subtle rounded-2xl hover:bg-blue-subtle border border-transparent hover:border-blue-soft transition-all duration-300"
               >
                 <div class="w-14 h-14 bg-surface rounded-xl flex items-center justify-center mb-4 shadow-sm group-hover:shadow-md group-hover:scale-110 transition-all">
                   <i class={`fa-solid ${link.icon} text-xl text-blue-fg`} />
@@ -150,10 +136,7 @@ const helpfulLinks = [
       <div class="max-w-4xl mx-auto">
         <div class="grid md:grid-cols-2 gap-8">
           <!-- Search Suggestion -->
-          <div
-            class="bg-gradient-to-br from-inverse to-inverse-muted rounded-3xl p-8 text-on-solid"
-            data-anime="slide-right"
-          >
+          <div class="bg-inverse rounded-3xl p-8 text-on-solid" data-anime="slide-right">
             <div class="w-14 h-14 bg-on-solid/10 rounded-2xl flex items-center justify-center mb-6">
               <i class="fa-solid fa-magnifying-glass text-2xl"></i>
             </div>
@@ -198,7 +181,7 @@ const helpfulLinks = [
     </section>
 
     <!-- Contact CTA -->
-    <section class="py-12 px-6 bg-gradient-to-r from-blue-strong to-purple-strong">
+    <section class="py-12 px-6 bg-blue-strong">
       <div class="max-w-4xl mx-auto text-center" data-anime="fade-up">
         <h3 class="text-2xl font-bold text-on-solid mb-3">Still can't find what you need?</h3>
         <p class="text-on-solid-muted mb-6">

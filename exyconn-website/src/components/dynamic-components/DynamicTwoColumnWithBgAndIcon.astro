@@ -30,7 +30,7 @@ const iconName = (icon: string | null | undefined): string =>
   (icon ?? "").split(" ").slice(0, 2).join(" ");
 ---
 
-<section class="py-20 lg:py-28 bg-gradient-to-b from-surface-subtle to-surface">
+<section class="py-20 lg:py-28 bg-surface-subtle">
   <div class="max-w-6xl mx-auto px-6 lg:px-8">
     <div class="bg-surface rounded-3xl shadow-xl border border-line-subtle p-8 lg:p-12">
       <!-- Title -->
@@ -44,7 +44,7 @@ const iconName = (icon: string | null | undefined): string =>
           items.map((item: { icon: string | null | undefined; text: unknown }) => (
             <li class="group flex items-center gap-4 p-5 w-full sm:w-[calc(50%-0.625rem)] lg:w-[calc(33.333%-0.834rem)] bg-surface-subtle rounded-2xl border border-line-subtle hover:border-blue-soft hover:bg-blue-subtle hover:-translate-y-0.5 transition-all duration-300">
               <div
-                class="w-12 h-12 bg-gradient-to-br from-blue to-purple-strong rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-blue/25 group-hover:scale-105 transition-transform duration-300"
+                class="w-12 h-12 bg-blue-deep rounded-xl flex items-center justify-center shrink-0 shadow-lg shadow-blue/25 group-hover:scale-105 transition-transform duration-300"
                 aria-hidden="true"
               >
                 <i class={`${iconName(item.icon)} text-on-solid text-lg`} />

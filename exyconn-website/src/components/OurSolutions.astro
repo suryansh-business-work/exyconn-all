@@ -3,18 +3,8 @@ import { aiServices, aiServiceCategories } from "../lib/services/aiServices";
 ---
 
 <!-- AI + SaaS Solutions Grid - Light Theme -->
-<section
-  class="py-24 px-4 md:px-8 bg-gradient-to-b from-surface to-surface-subtle w-full relative overflow-hidden"
->
+<section class="py-24 px-4 md:px-8 bg-surface w-full relative overflow-hidden">
   <!-- Background decoration -->
-  <div
-    class="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-soft/50 to-cyan-soft/50 rounded-full blur-3xl -z-10"
-  >
-  </div>
-  <div
-    class="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-purple-soft/50 to-pink-soft/50 rounded-full blur-3xl -z-10"
-  >
-  </div>
 
   <div class="max-w-7xl mx-auto">
     <!-- Section Header -->
@@ -25,14 +15,8 @@ import { aiServices, aiServiceCategories } from "../lib/services/aiServices";
         <i class="fa-solid fa-sparkles"></i>
         What We Offer
       </span>
-      <h2
-        class="text-4xl md:text-5xl font-bold text-fg mb-6 tracking-tight"
-        data-anime="fade-up"
-      >
-        Solutions for <span
-          class="bg-gradient-to-r from-blue-strong to-cyan-strong bg-clip-text text-transparent"
-          >Modern Business</span
-        >
+      <h2 class="text-4xl md:text-5xl font-bold text-fg mb-6 tracking-tight" data-anime="fade-up">
+        Solutions for <span class="text-blue-fg">Modern Business</span>
       </h2>
       <p
         class="text-xl text-fg-muted max-w-3xl mx-auto leading-relaxed"
@@ -48,15 +32,11 @@ import { aiServices, aiServiceCategories } from "../lib/services/aiServices";
       <!-- Pillar 1: AI Services -->
       <a
         href="/ai-services"
-        class="group bg-gradient-to-br from-inverse to-inverse-muted rounded-3xl shadow-2xl p-8 flex flex-col text-on-solid hover:scale-[1.02] hover:shadow-inverse/30 transition-all duration-300 relative overflow-hidden"
+        class="group bg-inverse rounded-3xl shadow-2xl p-8 flex flex-col text-on-solid hover:scale-[1.02] hover:shadow-inverse/30 transition-all duration-300 relative overflow-hidden"
       >
-        <div
-          class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-blue/20 to-cyan/20 rounded-full blur-2xl"
-        >
-        </div>
         <div class="relative z-10">
           <div
-            class="w-16 h-16 bg-gradient-to-br from-blue to-cyan rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue/30 group-hover:scale-110 transition-transform"
+            class="w-16 h-16 bg-blue-deep rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue/30 group-hover:scale-110 transition-transform"
           >
             <i class="fa-solid fa-bolt text-2xl text-on-solid" aria-hidden="true"></i>
           </div>
@@ -74,7 +54,7 @@ import { aiServices, aiServiceCategories } from "../lib/services/aiServices";
             {
               aiServiceCategories.slice(0, 4).map((category) => (
                 <li class="flex items-center gap-3 text-on-solid-muted">
-                  <i class="fa-solid fa-check-circle text-blue-bright" aria-hidden="true"></i>
+                  <i class="fa-solid fa-check-circle text-blue-bright" aria-hidden="true" />
                   {category.title}
                 </li>
               ))
@@ -94,13 +74,9 @@ import { aiServices, aiServiceCategories } from "../lib/services/aiServices";
         href="/our-products"
         class="group bg-surface rounded-3xl shadow-xl border border-line-subtle p-8 flex flex-col hover:scale-[1.02] hover:shadow-2xl transition-all duration-300 relative overflow-hidden"
       >
-        <div
-          class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-indigo-soft to-purple-soft rounded-full blur-2xl"
-        >
-        </div>
         <div class="relative z-10">
           <div
-            class="w-16 h-16 bg-gradient-to-br from-indigo to-purple-strong rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-indigo/30 group-hover:scale-110 transition-transform"
+            class="w-16 h-16 bg-indigo rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-indigo/30 group-hover:scale-110 transition-transform"
           >
             <i class="fa-solid fa-cube text-2xl text-on-solid"></i>
           </div>
@@ -110,9 +86,7 @@ import { aiServices, aiServiceCategories } from "../lib/services/aiServices";
             security.
           </p>
           <div class="space-y-4 mb-8">
-            <div
-              class="bg-gradient-to-r from-surface-subtle to-indigo-subtle rounded-xl p-4 border border-indigo-soft"
-            >
+            <div class="bg-surface-subtle rounded-xl p-4 border border-indigo-soft">
               <div class="flex items-center gap-3 mb-1">
                 <img
                   src="https://ik.imagekit.io/esdata1/sibera/logo/logo-only.svg"
@@ -123,9 +97,7 @@ import { aiServices, aiServiceCategories } from "../lib/services/aiServices";
               </div>
               <p class="text-sm text-fg-muted">AI-powered CRM platform</p>
             </div>
-            <div
-              class="bg-gradient-to-r from-surface-subtle to-emerald-subtle rounded-xl p-4 border border-emerald-soft"
-            >
+            <div class="bg-surface-subtle rounded-xl p-4 border border-emerald-soft">
               <div class="flex items-center gap-3 mb-1">
                 <img src="https://spentiva.com/logo.svg" alt="Spentiva" class="h-5" />
                 <span class="text-xs text-emerald-fg font-medium">Live</span>
@@ -147,13 +119,9 @@ import { aiServices, aiServiceCategories } from "../lib/services/aiServices";
         href="/ai"
         class="group bg-surface rounded-3xl shadow-xl border border-line-subtle p-8 flex flex-col hover:scale-[1.02] hover:shadow-2xl transition-all duration-300 relative overflow-hidden"
       >
-        <div
-          class="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-cyan-soft to-blue-soft rounded-full blur-2xl"
-        >
-        </div>
         <div class="relative z-10">
           <div
-            class="w-16 h-16 bg-gradient-to-br from-cyan to-blue-strong rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-cyan/30 group-hover:scale-110 transition-transform"
+            class="w-16 h-16 bg-cyan-deep rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-cyan/30 group-hover:scale-110 transition-transform"
           >
             <i class="fa-solid fa-microchip text-2xl text-on-solid"></i>
           </div>

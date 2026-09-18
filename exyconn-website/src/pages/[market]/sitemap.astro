@@ -23,7 +23,7 @@ const groupedLinks = allLinks.reduce(
   metaTitle="Sitemap | Exyconn"
   metaDescription="Browse all pages and sections of Exyconn. Find services, products, careers, and more."
 >
-  <div class="min-h-screen bg-gradient-to-b from-surface via-blue-subtle/30 to-surface py-16 px-4">
+  <div class="min-h-screen bg-surface py-16 px-4">
     <div class="max-w-6xl mx-auto">
       <!-- Header -->
       <div class="text-center mb-12">
@@ -34,10 +34,7 @@ const groupedLinks = allLinks.reduce(
           Navigate
         </span>
         <h1 class="text-4xl md:text-5xl font-bold text-fg mb-4" id="sitemap-heading">
-          Website <span
-            class="bg-gradient-to-r from-blue-strong to-purple-strong bg-clip-text text-transparent"
-            >Sitemap</span
-          >
+          Website <span class="text-blue-fg">Sitemap</span>
         </h1>
         <p class="text-lg text-fg-muted max-w-2xl mx-auto">
           Find all pages and sections of Exyconn. Total <span
@@ -69,7 +66,7 @@ const groupedLinks = allLinks.reduce(
           Object.entries(groupedLinks).map(([category, links]) => (
             <section class="mb-10" aria-labelledby={`sitemap-category-${category}`}>
               <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 bg-gradient-to-br from-blue to-purple-strong rounded-xl flex items-center justify-center">
+                <div class="w-10 h-10 bg-blue-deep rounded-xl flex items-center justify-center">
                   <i
                     class={`fa-solid ${
                       category === "General"

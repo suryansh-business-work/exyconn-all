@@ -34,11 +34,8 @@ const heroPoster = branding.heroPosterUrl;
   }
 
   <!-- Simple Background Pattern -->
-  <div class="absolute inset-0 bg-gradient-to-b from-surface-subtle to-surface"></div>
-  <div
-    class="absolute inset-0 opacity-[0.03] pattern-plus bg-fg"
-  >
-  </div>
+  <div class="absolute inset-0 bg-surface-subtle"></div>
+  <div class="absolute inset-0 opacity-[0.03] pattern-plus bg-fg"></div>
 
   <!-- Main Content -->
   <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 py-15 lg:py-15">
@@ -69,8 +66,8 @@ const heroPoster = branding.heroPosterUrl;
         data-anime-delay="200"
       >
         We build AI agents, automation and vertical AI products that run real operations — sales,
-        support, finance, hiring and logistics — across {aiServices.length} service areas, on the
-        systems you already use.
+        support, finance, hiring and logistics — across {aiServices.length} service areas, on the systems
+        you already use.
       </p>
 
       <!-- CTA Buttons -->
@@ -98,7 +95,7 @@ const heroPoster = branding.heroPosterUrl;
           href={TOOLS_SITE_URL}
           target="_blank"
           rel="noopener noreferrer"
-          class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-gradient-to-r from-indigo-strong to-purple-strong text-on-solid font-semibold px-8 py-4 rounded-xl hover:from-indigo-deep hover:to-purple-deep transition-colors shadow-lg shadow-indigo/25"
+          class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-indigo-strong text-on-solid font-semibold px-8 py-4 rounded-xl hover:bg-indigo-deep transition-colors shadow-lg shadow-indigo/25"
         >
           <i class="fa-solid fa-toolbox"></i>
           Free Tools
@@ -196,7 +193,11 @@ const heroPoster = branding.heroPosterUrl;
   .grid-pattern-light {
     background-image:
       linear-gradient(color-mix(in srgb, var(--color-indigo) 8%, transparent) 1px, transparent 1px),
-      linear-gradient(90deg, color-mix(in srgb, var(--color-indigo) 8%, transparent) 1px, transparent 1px);
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--color-indigo) 8%, transparent) 1px,
+        transparent 1px
+      );
     background-size: 50px 50px;
     width: 100%;
     height: 100%;
@@ -276,7 +277,7 @@ const heroPoster = branding.heroPosterUrl;
     const cardData = [
       {
         icon: "fa-robot",
-        gradient: "from-purple to-pink",
+        gradient: "bg-purple-deep",
         title: "AI Agents",
         description:
           "Autonomous systems that work for you 24/7, handling tasks and making decisions intelligently.",
@@ -284,7 +285,7 @@ const heroPoster = branding.heroPosterUrl;
       },
       {
         icon: "fa-shield-halved",
-        gradient: "from-blue to-cyan",
+        gradient: "bg-blue-deep",
         title: "Exyconn Auth",
         description:
           "Complete authentication and authorization service with OAuth 2.0, MFA, and RBAC support.",
@@ -296,7 +297,7 @@ const heroPoster = branding.heroPosterUrl;
       },
       {
         icon: "fa-cube",
-        gradient: "from-emerald to-teal",
+        gradient: "bg-emerald-deep",
         title: "SaaS Products",
         description: "Full-featured B2B and B2B2C platforms including Spentiva, Sibera, and more.",
         features: [
@@ -307,14 +308,14 @@ const heroPoster = branding.heroPosterUrl;
       },
       {
         icon: "fa-code",
-        gradient: "from-orange to-red",
+        gradient: "bg-orange-deep",
         title: "Developer Tools",
         description: "MCP servers, design systems, and infrastructure tools for rapid development.",
         features: ["API-First Architecture", "Component Libraries", "CI/CD Integration"],
       },
       {
         icon: "fa-comment-dots",
-        gradient: "from-cyan to-blue",
+        gradient: "bg-cyan-deep",
         title: "Conversational AI",
         description:
           "Voice agents and WhatsApp automation that answer, qualify and book around the clock.",
@@ -322,14 +323,14 @@ const heroPoster = branding.heroPosterUrl;
       },
       {
         icon: "fa-chart-line",
-        gradient: "from-violet to-purple",
+        gradient: "bg-violet-deep",
         title: "Analytics & Insights",
         description: "Real-time business intelligence with AI-powered predictive analytics.",
         features: ["Real-Time Dashboards", "Predictive Models", "Custom Reports"],
       },
       {
         icon: "fa-cloud",
-        gradient: "from-sky to-indigo",
+        gradient: "bg-sky-deep",
         title: "Cloud Infrastructure",
         description:
           "Scalable cloud solutions with auto-scaling, load balancing, and global CDN distribution.",
@@ -337,7 +338,7 @@ const heroPoster = branding.heroPosterUrl;
       },
       {
         icon: "fa-lock",
-        gradient: "from-red to-rose",
+        gradient: "bg-red-deep",
         title: "Security & Compliance",
         description:
           "Enterprise-grade security with SOC 2, GDPR compliance, and advanced threat protection.",
@@ -345,7 +346,7 @@ const heroPoster = branding.heroPosterUrl;
       },
       {
         icon: "fa-database",
-        gradient: "from-green to-emerald",
+        gradient: "bg-green-deep",
         title: "Data Management",
         description:
           "Advanced data storage, backup solutions, and real-time synchronization across platforms.",
@@ -353,7 +354,7 @@ const heroPoster = branding.heroPosterUrl;
       },
       {
         icon: "fa-gear",
-        gradient: "from-amber to-orange",
+        gradient: "bg-amber-deep",
         title: "Workflow Automation",
         description:
           "Streamline operations with intelligent automation, triggers, and custom workflow builders.",
@@ -375,7 +376,7 @@ const heroPoster = branding.heroPosterUrl;
       setTimeout(() => {
         contentDiv.innerHTML = `
           <div>
-            <div class="w-14 h-14 bg-gradient-to-br ${card.gradient} rounded-2xl flex items-center justify-center mb-4 shadow-lg">
+            <div class="w-14 h-14 ${card.gradient} rounded-2xl flex items-center justify-center mb-4 shadow-lg">
               <i class="fa-solid ${card.icon} text-on-solid text-xl"></i>
             </div>
             <h3 class="text-fg font-bold text-xl">${card.title}</h3>

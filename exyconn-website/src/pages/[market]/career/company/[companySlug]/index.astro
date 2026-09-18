@@ -50,16 +50,8 @@ const categories = [...new Set(activeJobs.map((job) => job.category))];
     <!-- Hero Section with Company Branding -->
     <section
       class="relative py-20 px-6 overflow-hidden"
-      style={`background: linear-gradient(135deg, ${company.brandColor}10, ${company.secondaryColor}10);`}
+      style={`background: color-mix(in srgb, ${company.brandColor} 6%, transparent);`}
     >
-      <div
-        class="absolute top-20 right-20 w-80 h-80 rounded-full blur-3xl opacity-30"
-        style={`background: ${company.brandColor};`}
-      ></div>
-      <div
-        class="absolute bottom-10 left-10 w-96 h-96 rounded-full blur-3xl opacity-20"
-        style={`background: ${company.secondaryColor};`}
-      ></div>
 
       <div class="relative z-10 max-w-5xl mx-auto">
         <!-- Breadcrumb -->
@@ -174,7 +166,7 @@ const categories = [...new Set(activeJobs.map((job) => job.category))];
     </section>
 
     <!-- Open Positions Section -->
-    <section id="open-positions" class="py-20 px-6 bg-gradient-to-br from-surface-subtle to-blue-subtle">
+    <section id="open-positions" class="py-20 px-6 bg-surface-subtle">
       <div class="max-w-5xl mx-auto">
         <div class="text-center mb-12">
           <h2 class="text-3xl font-bold text-fg mb-4">Open Positions</h2>

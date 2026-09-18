@@ -72,14 +72,8 @@ const jobPostingSchema = {
     <!-- Header Section -->
     <section
       class="relative py-16 px-6 overflow-hidden"
-      style={`background: linear-gradient(135deg, ${company.brandColor}10, ${company.secondaryColor}10);`}
+      style={`background: color-mix(in srgb, ${company.brandColor} 6%, transparent);`}
     >
-      <div
-        class="absolute top-10 right-10 w-60 h-60 rounded-full blur-3xl opacity-30"
-        style={`background: ${company.brandColor};`}
-      >
-      </div>
-
       <div class="relative z-10 max-w-5xl mx-auto">
         <!-- Breadcrumb -->
         <nav class="mb-8">
@@ -319,7 +313,7 @@ const jobPostingSchema = {
                   </h2>
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {job.benefits.map((benefit) => (
-                      <div class="flex items-start gap-4 p-4 bg-gradient-to-br from-rose-subtle to-pink-subtle rounded-xl border border-rose-soft hover:shadow-md transition-shadow group">
+                      <div class="flex items-start gap-4 p-4 bg-rose-subtle rounded-xl border border-rose-soft hover:shadow-md transition-shadow group">
                         <div class="w-6 h-6 rounded-full bg-rose-soft flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-rose-muted transition-colors">
                           <i class="fa-solid fa-check-circle text-rose-fg text-sm" />
                         </div>
@@ -433,10 +427,7 @@ const jobPostingSchema = {
     </section>
 
     <!-- Application Section -->
-    <section
-      id="apply-section"
-      class="py-16 px-6 bg-gradient-to-br from-surface-subtle to-blue-subtle"
-    >
+    <section id="apply-section" class="py-16 px-6 bg-surface-subtle">
       <div class="max-w-3xl mx-auto">
         <div class="text-center mb-10">
           <h2 class="text-3xl font-bold text-fg mb-4">Apply for This Position</h2>

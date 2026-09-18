@@ -19,9 +19,9 @@ interface Props {
 const { title, subtitle, description, primaryCta, secondaryCta, variant = "dark" } = Astro.props;
 
 const bgClasses = {
-  dark: "bg-gradient-to-br from-inverse to-inverse-muted",
-  light: "bg-gradient-to-br from-surface-subtle to-blue-subtle",
-  gradient: "bg-gradient-to-br from-blue-strong via-cyan to-teal",
+  dark: " bg-inverse",
+  light: " bg-surface-subtle",
+  gradient: " bg-blue-strong",
 };
 
 const textClasses = {
@@ -50,14 +50,7 @@ const secondaryBtnClasses = {
 ---
 
 <section class={`py-24 px-6 ${bgClasses[variant]} relative overflow-hidden`}>
-  {
-    variant !== "light" && (
-      <>
-        <div class="absolute top-20 left-20 w-80 h-80 bg-gradient-to-r from-blue/20 to-cyan/20 rounded-full blur-3xl" />
-        <div class="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-r from-purple/20 to-pink/20 rounded-full blur-3xl" />
-      </>
-    )
-  }
+  {variant !== "light" && <></>}
 
   <div class="max-w-4xl mx-auto text-center relative z-10">
     {

@@ -21,7 +21,7 @@ export interface AiService {
   outcomes: string[];
   /** Font Awesome icon class, matching the rest of the site. */
   icon: string;
-  /** Tailwind gradient stops. */
+  /** The solid fill behind the card's icon — a colour role that carries white. */
   color: string;
   categorySlug: string;
 }
@@ -91,7 +91,7 @@ export const aiServices: AiService[] = [
       "Handover documentation so your team can adjust it without us",
     ],
     icon: "fa-robot",
-    color: "from-blue to-cyan",
+    color: "bg-blue-deep",
     categorySlug: "agents-automation",
   },
   {
@@ -107,7 +107,7 @@ export const aiServices: AiService[] = [
       "Run history you can audit when something looks wrong",
     ],
     icon: "fa-diagram-project",
-    color: "from-indigo to-blue",
+    color: "bg-indigo",
     categorySlug: "agents-automation",
   },
   {
@@ -123,7 +123,7 @@ export const aiServices: AiService[] = [
       "Transcripts and outcomes written back to your CRM",
     ],
     icon: "fa-phone-volume",
-    color: "from-violet to-purple",
+    color: "bg-violet-deep",
     categorySlug: "agents-automation",
   },
   {
@@ -139,7 +139,7 @@ export const aiServices: AiService[] = [
       "Conversations logged against the customer record",
     ],
     icon: "fa-comment-dots",
-    color: "from-green to-emerald",
+    color: "bg-green-deep",
     categorySlug: "agents-automation",
   },
   {
@@ -155,7 +155,7 @@ export const aiServices: AiService[] = [
       "Straight into your ERP or accounting system",
     ],
     icon: "fa-file-invoice",
-    color: "from-amber to-orange",
+    color: "bg-amber-deep",
     categorySlug: "agents-automation",
   },
   {
@@ -171,7 +171,7 @@ export const aiServices: AiService[] = [
       "Runs in your tenancy, not a shared third-party account",
     ],
     icon: "fa-user-astronaut",
-    color: "from-sky to-blue",
+    color: "bg-sky-deep",
     categorySlug: "agents-automation",
   },
 
@@ -189,7 +189,7 @@ export const aiServices: AiService[] = [
       "CRM records updated without rep data entry",
     ],
     icon: "fa-bullseye",
-    color: "from-rose to-pink",
+    color: "bg-rose-deep",
     categorySlug: "revenue-growth",
   },
   {
@@ -205,7 +205,7 @@ export const aiServices: AiService[] = [
       "Gaps in your documentation surfaced from real questions",
     ],
     icon: "fa-headset",
-    color: "from-teal to-cyan",
+    color: "bg-teal-deep",
     categorySlug: "revenue-growth",
   },
   {
@@ -222,7 +222,7 @@ export const aiServices: AiService[] = [
       "Performance reported against pipeline, not opens",
     ],
     icon: "fa-bullhorn",
-    color: "from-fuchsia to-purple",
+    color: "bg-fuchsia-deep",
     categorySlug: "revenue-growth",
   },
   {
@@ -239,7 +239,7 @@ export const aiServices: AiService[] = [
       "Works on your current platform",
     ],
     icon: "fa-cart-shopping",
-    color: "from-orange to-red",
+    color: "bg-orange-deep",
     categorySlug: "revenue-growth",
   },
   {
@@ -256,7 +256,7 @@ export const aiServices: AiService[] = [
       "Positioned for assistant-driven buying as it grows",
     ],
     icon: "fa-robot",
-    color: "from-cyan to-blue",
+    color: "bg-cyan-deep",
     categorySlug: "revenue-growth",
   },
 
@@ -274,7 +274,7 @@ export const aiServices: AiService[] = [
       "Launched, then iterated on real usage",
     ],
     icon: "fa-layer-group",
-    color: "from-indigo to-violet",
+    color: "bg-indigo",
     categorySlug: "vertical-platforms",
   },
   {
@@ -290,7 +290,7 @@ export const aiServices: AiService[] = [
       "Clinician review retained on anything clinical",
     ],
     icon: "fa-heart-pulse",
-    color: "from-red to-rose",
+    color: "bg-red-deep",
     categorySlug: "vertical-platforms",
   },
   {
@@ -306,7 +306,7 @@ export const aiServices: AiService[] = [
       "Integrated with your CRM and portals",
     ],
     icon: "fa-building",
-    color: "from-amber to-yellow",
+    color: "bg-amber-deep",
     categorySlug: "vertical-platforms",
   },
   {
@@ -322,7 +322,7 @@ export const aiServices: AiService[] = [
       "Progress analytics for teaching teams",
     ],
     icon: "fa-graduation-cap",
-    color: "from-blue to-indigo",
+    color: "bg-blue-deep",
     categorySlug: "vertical-platforms",
   },
   {
@@ -338,7 +338,7 @@ export const aiServices: AiService[] = [
       "Documentation and customs paperwork automated",
     ],
     icon: "fa-truck-fast",
-    color: "from-emerald to-teal",
+    color: "bg-emerald-deep",
     categorySlug: "vertical-platforms",
   },
   {
@@ -355,7 +355,7 @@ export const aiServices: AiService[] = [
       "Set up for you, with nothing to administer",
     ],
     icon: "fa-store",
-    color: "from-lime to-green",
+    color: "bg-lime-deep",
     categorySlug: "vertical-platforms",
   },
 
@@ -373,7 +373,7 @@ export const aiServices: AiService[] = [
       "Decision records kept for audit",
     ],
     icon: "fa-users",
-    color: "from-purple to-indigo",
+    color: "bg-purple-deep",
     categorySlug: "business-operations",
   },
   {
@@ -389,7 +389,7 @@ export const aiServices: AiService[] = [
       "Marketplace analytics on liquidity and fill rate",
     ],
     icon: "fa-handshake",
-    color: "from-pink to-rose",
+    color: "bg-pink-deep",
     categorySlug: "business-operations",
   },
   {
@@ -405,7 +405,7 @@ export const aiServices: AiService[] = [
       "A complete audit trail on every automated action",
     ],
     icon: "fa-calculator",
-    color: "from-teal to-emerald",
+    color: "bg-teal-deep",
     categorySlug: "business-operations",
   },
   {
@@ -422,7 +422,7 @@ export const aiServices: AiService[] = [
       "Audit reports produced from live data",
     ],
     icon: "fa-clipboard-check",
-    color: "from-fg-subtle to-fg-subtle",
+    color: "bg-fg-subtle",
     categorySlug: "business-operations",
   },
 
@@ -440,7 +440,7 @@ export const aiServices: AiService[] = [
       "Permissions respected so answers never leak content",
     ],
     icon: "fa-magnifying-glass-chart",
-    color: "from-blue to-sky",
+    color: "bg-blue-deep",
     categorySlug: "platform-infrastructure",
   },
   {
@@ -456,7 +456,7 @@ export const aiServices: AiService[] = [
       "Usage data showing what people cannot find",
     ],
     icon: "fa-book-open",
-    color: "from-violet to-fuchsia",
+    color: "bg-violet-deep",
     categorySlug: "platform-infrastructure",
   },
   {
@@ -472,7 +472,7 @@ export const aiServices: AiService[] = [
       "Metrics defined once, consistent everywhere",
     ],
     icon: "fa-chart-column",
-    color: "from-cyan to-teal",
+    color: "bg-cyan-deep",
     categorySlug: "platform-infrastructure",
   },
   {
@@ -488,7 +488,7 @@ export const aiServices: AiService[] = [
       "Model swaps without touching product code",
     ],
     icon: "fa-server",
-    color: "from-indigo to-blue-strong",
+    color: "bg-indigo",
     categorySlug: "platform-infrastructure",
   },
   {
@@ -504,7 +504,7 @@ export const aiServices: AiService[] = [
       "Alerts on quality drift, not just errors",
     ],
     icon: "fa-gauge-high",
-    color: "from-amber to-orange-strong",
+    color: "bg-amber-deep",
     categorySlug: "platform-infrastructure",
   },
   {
@@ -520,7 +520,7 @@ export const aiServices: AiService[] = [
       "Adoption measured on cycle time, not licence count",
     ],
     icon: "fa-code",
-    color: "from-fg-subtle to-inverse-muted",
+    color: "bg-fg-subtle",
     categorySlug: "platform-infrastructure",
   },
 
@@ -538,7 +538,7 @@ export const aiServices: AiService[] = [
       "Response runbooks with automated first steps",
     ],
     icon: "fa-shield-halved",
-    color: "from-red to-orange-strong",
+    color: "bg-red-deep",
     categorySlug: "trust-security",
   },
   {
@@ -554,7 +554,7 @@ export const aiServices: AiService[] = [
       "Decision records that stand up to scrutiny",
     ],
     icon: "fa-scale-balanced",
-    color: "from-blue-strong to-indigo-strong",
+    color: "bg-blue-strong",
     categorySlug: "trust-security",
   },
 ];

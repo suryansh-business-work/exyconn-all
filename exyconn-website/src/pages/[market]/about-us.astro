@@ -16,25 +16,25 @@ const coreValues = [
     icon: "fa-lightbulb",
     title: "Innovation",
     description: "We embrace new ideas and technologies to deliver cutting-edge solutions.",
-    color: "from-yellow to-orange",
+    color: "bg-yellow-deep",
   },
   {
     icon: "fa-handshake-angle",
     title: "Collaboration",
     description: "We believe in strong partnerships and teamwork with our clients.",
-    color: "from-blue to-cyan",
+    color: "bg-blue-deep",
   },
   {
     icon: "fa-shield-halved",
     title: "Integrity",
     description: "We act with honesty, transparency, and ethical business practices.",
-    color: "from-emerald to-teal",
+    color: "bg-emerald-deep",
   },
   {
     icon: "fa-bullseye",
     title: "Excellence",
     description: "We strive for the highest quality in everything we create.",
-    color: "from-purple to-pink",
+    color: "bg-purple-deep",
   },
 ];
 
@@ -55,18 +55,7 @@ const whatWeDo = [
 >
   <div class="bg-surface min-h-screen">
     <!-- Hero Section -->
-    <section
-      class="relative py-24 px-6 bg-gradient-to-br from-surface-subtle via-surface to-blue-subtle overflow-hidden"
-    >
-      <div
-        class="absolute top-20 right-20 w-80 h-80 bg-gradient-to-r from-blue-muted/40 to-cyan-muted/40 rounded-full blur-3xl"
-      >
-      </div>
-      <div
-        class="absolute bottom-10 left-10 w-96 h-96 bg-gradient-to-r from-purple-muted/30 to-pink-muted/30 rounded-full blur-3xl"
-      >
-      </div>
-
+    <section class="relative py-24 px-6 bg-surface-subtle overflow-hidden">
       <div class="relative z-10 max-w-6xl mx-auto">
         <div class="grid lg:grid-cols-2 gap-12 items-center">
           <div>
@@ -78,10 +67,7 @@ const whatWeDo = [
             </span>
             <h1 class="text-5xl md:text-6xl font-bold text-fg mb-6 tracking-tight">
               Building the Future of
-              <span
-                class="bg-gradient-to-r from-blue-strong to-cyan-strong bg-clip-text text-transparent"
-                >AI & SaaS</span
-              >
+              <span class="text-blue-fg">AI & SaaS</span>
             </h1>
             <p class="text-xl text-fg-muted leading-relaxed mb-8">
               We're a team of passionate technologists, strategists, and innovators dedicated to
@@ -114,9 +100,7 @@ const whatWeDo = [
               class="absolute -bottom-6 -left-6 bg-surface rounded-2xl shadow-xl p-4 border border-line-subtle"
             >
               <div class="flex items-center gap-3">
-                <div
-                  class="w-12 h-12 bg-gradient-to-br from-blue to-cyan rounded-xl flex items-center justify-center"
-                >
+                <div class="w-12 h-12 bg-blue-deep rounded-xl flex items-center justify-center">
                   <i class="fa-solid fa-award text-on-solid text-xl"></i>
                 </div>
                 <div>
@@ -140,9 +124,7 @@ const whatWeDo = [
                 <div class="w-14 h-14 bg-surface-muted rounded-2xl flex items-center justify-center mx-auto mb-4">
                   <i class={`fa-solid ${stat.icon} text-fg-muted text-xl`} />
                 </div>
-                <div class="text-3xl font-bold bg-gradient-to-r from-blue-strong to-cyan-strong bg-clip-text text-transparent mb-1">
-                  {stat.value}
-                </div>
+                <div class="text-3xl font-bold text-blue-fg mb-1">{stat.value}</div>
                 <p class="text-fg-subtle text-sm">{stat.label}</p>
               </div>
             ))
@@ -156,9 +138,7 @@ const whatWeDo = [
       <div class="max-w-6xl mx-auto">
         <div class="grid md:grid-cols-2 gap-8">
           <div class="bg-surface rounded-2xl shadow-sm border border-line-subtle p-8">
-            <div
-              class="w-14 h-14 bg-gradient-to-br from-blue to-cyan rounded-2xl flex items-center justify-center mb-6"
-            >
+            <div class="w-14 h-14 bg-blue-deep rounded-2xl flex items-center justify-center mb-6">
               <i class="fa-solid fa-bullseye text-on-solid text-xl"></i>
             </div>
             <h2 class="text-2xl font-bold text-fg mb-4">Our Mission</h2>
@@ -169,9 +149,7 @@ const whatWeDo = [
             </p>
           </div>
           <div class="bg-surface rounded-2xl shadow-sm border border-line-subtle p-8">
-            <div
-              class="w-14 h-14 bg-gradient-to-br from-purple to-pink rounded-2xl flex items-center justify-center mb-6"
-            >
+            <div class="w-14 h-14 bg-purple-deep rounded-2xl flex items-center justify-center mb-6">
               <i class="fa-solid fa-eye text-on-solid text-xl"></i>
             </div>
             <h2 class="text-2xl font-bold text-fg mb-4">Our Vision</h2>
@@ -234,7 +212,7 @@ const whatWeDo = [
             coreValues.map((value) => (
               <div class="bg-surface rounded-2xl shadow-sm border border-line-subtle p-6 text-center hover:shadow-lg transition-all duration-300">
                 <div
-                  class={`w-14 h-14 bg-gradient-to-br ${value.color} rounded-2xl flex items-center justify-center mx-auto mb-4`}
+                  class={`w-14 h-14 ${value.color} rounded-2xl flex items-center justify-center mx-auto mb-4`}
                 >
                   <i class={`fa-solid ${value.icon} text-on-solid text-xl`} />
                 </div>
@@ -250,13 +228,7 @@ const whatWeDo = [
     <!-- CTA Section -->
     <section class="py-20 px-6 bg-surface">
       <div class="max-w-4xl mx-auto">
-        <div
-          class="bg-gradient-to-br from-inverse via-inverse-muted to-inverse rounded-3xl shadow-2xl p-12 text-on-solid relative overflow-hidden"
-        >
-          <div
-            class="absolute top-0 right-0 w-60 h-60 bg-gradient-to-br from-cyan/20 to-blue/20 rounded-full blur-3xl"
-          >
-          </div>
+        <div class="bg-inverse rounded-3xl shadow-2xl p-12 text-on-solid relative overflow-hidden">
           <div class="relative z-10 text-center">
             <h2 class="text-3xl md:text-4xl font-bold mb-4">
               Ready to Transform Your Business with AI?
@@ -268,7 +240,7 @@ const whatWeDo = [
             <div class="flex flex-wrap justify-center gap-4">
               <a
                 href="/contact"
-                class="inline-flex items-center gap-2 bg-gradient-to-r from-cyan-deep to-blue-strong text-on-solid font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-cyan/40 hover:scale-105 transition-all"
+                class="inline-flex items-center gap-2 bg-cyan-deep text-on-solid font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-cyan/40 hover:scale-105 transition-all"
               >
                 <i class="fa-solid fa-calendar-check"></i>
                 Schedule a Consultation
