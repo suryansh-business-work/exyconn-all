@@ -3,8 +3,7 @@ import { Box, Stack, Typography, iconSize } from '@/components/ui';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import { panel } from '../glass/glass';
-import { Sparkline } from '../data/Sparkline';
-import { color } from '@exyconn/ui';
+import { color, Sparkline } from '@exyconn/ui';
 
 export interface StatItem {
   label: string;
@@ -86,7 +85,7 @@ export function StatCard({
       </Typography>
       {series && (
         <Box sx={{ mt: 0.5 }}>
-          <Sparkline data={series} color={accent} height={28} />
+          <Sparkline values={series} color={accent} height={28} />
         </Box>
       )}
     </Box>

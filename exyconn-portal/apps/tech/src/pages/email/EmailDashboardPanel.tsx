@@ -1,8 +1,18 @@
 import { useT } from '@exyconn/i18n';
-import { Alert, Box, color, Flex, Grid, radius, Text } from '@exyconn/shell/components/ui';
+import {
+  Alert,
+  Box,
+  ChartCard,
+  color,
+  Flex,
+  Grid,
+  radius,
+  Text,
+  TrendChart,
+  type ChartData,
+} from '@exyconn/shell/components/ui';
 import { StatCard, type StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { StatBreakdown } from '@exyconn/shell/components/dashboard/StatBreakdown';
-import { LineChart } from '@exyconn/shell/components/dashboard/LineChart';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -22,6 +32,9 @@ function shortDate(iso: string): string {
     timeZone: 'UTC',
   });
 }
+
+/** A number of emails, in the reader's own digit grouping. */
+const formatCount = (value: number): string => Math.round(value).toLocaleString();
 
 /** Tech → Email → Dashboard: is email working, and what has it been doing. */
 export function EmailDashboardPanel() {
@@ -57,6 +70,10 @@ export function EmailDashboardPanel() {
     { key: 'error', label: 'Reason' },
   ];
 
+  const sentTrend: ChartData = {
+    labels: (board?.days ?? []).map((day) => shortDate(day.date)),
+    series: [{ id: 'sent', label: t('Sent'), values: (board?.days ?? []).map((d) => d.sent) }],
+  };
   const usage = (board?.byTemplate ?? []).map((row) => ({
     value: row.name || row.key,
     count: row.sent + row.failed,
@@ -92,14 +109,15 @@ export function EmailDashboardPanel() {
             md: 7,
           }}
         >
-          <Text size="label" component="div" sx={{ mb: 1 }}>
-            {t('Sent per day')}
-          </Text>
-          <LineChart
-            labels={(board?.days ?? []).map((day) => shortDate(day.date))}
-            data={(board?.days ?? []).map((day) => day.sent)}
-            height={220}
-          />
+          <ChartCard
+            title={t('Sent per day')}
+            data={sentTrend}
+            formatValue={formatCount}
+            labelHeading={t('Day')}
+            emptyText={t('Nothing sent in this window.')}
+          >
+            <TrendChart data={sentTrend} formatValue={formatCount} area integer height={220} />
+          </ChartCard>
         </Grid>
         <Grid
           size={{

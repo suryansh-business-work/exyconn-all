@@ -1,6 +1,14 @@
+import { useMemo } from 'react';
 import { useT } from '@exyconn/i18n';
-import { Box, Card, Grid, Typography, color } from '@exyconn/shell/components/ui';
-import { LineChart } from '@exyconn/shell/components/dashboard/LineChart';
+import {
+  Card,
+  ChartCard,
+  Grid,
+  TrendChart,
+  Typography,
+  type ChartData,
+  type ValueFormatter,
+} from '@exyconn/shell/components/ui';
 import { formatWith } from '@exyconn/shell/utils/date';
 import type { StatusDay } from './status.types';
 
@@ -11,34 +19,33 @@ interface StatusChartsProps {
 interface ChartPanelProps {
   title: string;
   caption: string;
-  labels: string[];
-  data: number[];
-  color: string;
+  data: ChartData;
+  formatValue: ValueFormatter;
+  labelHeading: string;
 }
 
-/** One titled chart panel. Hoisted so it is not redefined on every parent render. */
-function ChartPanel({ title, caption, labels, data, color }: Readonly<ChartPanelProps>) {
+const formatPercent: ValueFormatter = (value) => `${value}%`;
+const formatMs: ValueFormatter = (value) => `${Math.round(value).toLocaleString()} ms`;
+
+/** One titled Chart.js panel, with its table view. Hoisted so it is not redefined per render. */
+function ChartPanel({
+  title,
+  caption,
+  data,
+  formatValue,
+  labelHeading,
+}: Readonly<ChartPanelProps>) {
   return (
     <Card variant="outlined" sx={{ p: 2, height: '100%' }}>
-      <Typography
-        variant="subtitle2"
-        sx={{
-          fontWeight: 700,
-        }}
+      <ChartCard
+        title={title}
+        subtitle={caption}
+        data={data}
+        formatValue={formatValue}
+        labelHeading={labelHeading}
       >
-        {title}
-      </Typography>
-      <Typography
-        variant="caption"
-        sx={{
-          color: 'text.secondary',
-        }}
-      >
-        {caption}
-      </Typography>
-      <Box sx={{ mt: 1 }}>
-        <LineChart labels={labels} data={data} color={color} height={220} />
-      </Box>
+        <TrendChart data={data} formatValue={formatValue} area height={220} />
+      </ChartCard>
     </Card>
   );
 }
@@ -46,53 +53,59 @@ function ChartPanel({ title, caption, labels, data, color }: Readonly<ChartPanel
 /** Daily uptime and latency across every monitored service. */
 export function StatusCharts({ daily }: Readonly<StatusChartsProps>) {
   const t = useT();
-  const measured = daily.filter((day) => day.checks > 0);
+  const measured = useMemo(() => daily.filter((day) => day.checks > 0), [daily]);
+  const labels = useMemo(() => measured.map((day) => formatWith(day.date, 'd MMM')), [measured]);
+  const uptime = useMemo<ChartData>(
+    () => ({
+      labels,
+      series: [
+        { id: 'uptime', label: t('Uptime'), values: measured.map((day) => day.uptimePercent) },
+      ],
+    }),
+    [labels, measured, t],
+  );
+  const latency = useMemo<ChartData>(
+    () => ({
+      labels,
+      series: [
+        {
+          id: 'response',
+          label: t('Response time'),
+          values: measured.map((day) => day.avgResponseMs),
+        },
+      ],
+    }),
+    [labels, measured, t],
+  );
 
   if (measured.length === 0) {
     return (
       <Card variant="outlined" sx={{ p: 3 }}>
-        <Typography
-          variant="body2"
-          sx={{
-            color: 'text.secondary',
-          }}
-        >
+        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
           {t('Daily charts appear once the monitor has collected a full day of checks.')}
         </Typography>
       </Card>
     );
   }
 
-  const labels = measured.map((day) => formatWith(day.date, 'd MMM'));
-
   return (
     <Grid container spacing={2}>
-      <Grid
-        size={{
-          xs: 12,
-          md: 6,
-        }}
-      >
+      <Grid size={{ xs: 12, md: 6 }}>
         <ChartPanel
           title={t('Daily uptime')}
           caption={t('Share of checks that succeeded, per day')}
-          labels={labels}
-          data={measured.map((day) => day.uptimePercent)}
-          color={color.green[500]}
+          data={uptime}
+          formatValue={formatPercent}
+          labelHeading={t('Day')}
         />
       </Grid>
-      <Grid
-        size={{
-          xs: 12,
-          md: 6,
-        }}
-      >
+      <Grid size={{ xs: 12, md: 6 }}>
         <ChartPanel
           title={t('Average response time')}
           caption={t('Mean round trip across all services, in milliseconds')}
-          labels={labels}
-          data={measured.map((day) => day.avgResponseMs)}
-          color={color.blue[600]}
+          data={latency}
+          formatValue={formatMs}
+          labelHeading={t('Day')}
         />
       </Grid>
     </Grid>

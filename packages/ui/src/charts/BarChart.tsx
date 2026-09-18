@@ -17,6 +17,8 @@ interface Props {
   /** Bars run left-to-right. Use it for long category names; they get room to be read. */
   horizontal?: boolean;
   height?: number;
+  /** The values are counts: the axis ticks whole numbers only. */
+  integer?: boolean;
 }
 
 /** Mark spec: never fill the slot — the leftover band is air, not a wider bar. */
@@ -38,6 +40,7 @@ export function BarChart({
   stacked = false,
   horizontal = false,
   height = 260,
+  integer = false,
 }: Readonly<Props>): ReactElement {
   const palette = useChartPalette();
   const label = useChartLabel();
@@ -81,7 +84,7 @@ export function BarChart({
   }, [data, palette, stacked]);
 
   const options = useMemo<ChartOptions<'bar'>>(() => {
-    const chrome = axisChrome(palette, formatValue);
+    const chrome = axisChrome(palette, formatValue, integer);
     const category = { ...chrome.category, stacked };
     const value = { ...chrome.value, stacked };
     return {
@@ -93,7 +96,7 @@ export function BarChart({
       plugins: sharedPlugins(palette, data.series.length, formatValue),
       scales: horizontal ? { x: value, y: category } : { x: category, y: value },
     } as ChartOptions<'bar'>;
-  }, [palette, formatValue, stacked, horizontal, data.series.length]);
+  }, [palette, formatValue, stacked, horizontal, integer, data.series.length]);
 
   return (
     <Box sx={{ height }}>
