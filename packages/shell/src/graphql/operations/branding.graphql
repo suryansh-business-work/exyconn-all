@@ -12,6 +12,12 @@ fragment BrandingFields on Branding {
   ogImageUrl
   heroVideoUrl
   heroPosterUrl
+  faviconDarkUrl
+  appIconDarkUrl
+  emailLogoDarkUrl
+  ogImageDarkUrl
+  heroVideoDarkUrl
+  heroPosterDarkUrl
   primaryColor
   secondaryColor
   accentColor

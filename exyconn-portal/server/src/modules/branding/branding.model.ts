@@ -50,6 +50,13 @@ const brandingSchema = new Schema(
      */
     heroVideoUrl: { type: String, default: '', trim: true },
     heroPosterUrl: { type: String, default: '', trim: true },
+    /** Dark-mode variants of the images above; empty falls back to the light one. */
+    faviconDarkUrl: { type: String, default: '', trim: true },
+    appIconDarkUrl: { type: String, default: '', trim: true },
+    emailLogoDarkUrl: { type: String, default: '', trim: true },
+    ogImageDarkUrl: { type: String, default: '', trim: true },
+    heroVideoDarkUrl: { type: String, default: '', trim: true },
+    heroPosterDarkUrl: { type: String, default: '', trim: true },
 
     // Palette
     primaryColor: { type: String, required: true, default: '#155dfc', trim: true },
