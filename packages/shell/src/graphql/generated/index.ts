@@ -187,6 +187,20 @@ export type AiUserSpend = {
   userId: Scalars['String']['output'];
 };
 
+/** A labelled count, or hours where the field says so. */
+export type AnalyticsMetric = {
+  __typename?: 'AnalyticsMetric';
+  label: Scalars['String']['output'];
+  value: Scalars['Float']['output'];
+};
+
+/** One bucket of a series over time: a YYYY-MM-DD day or a YYYY-MM month. */
+export type AnalyticsPoint = {
+  __typename?: 'AnalyticsPoint';
+  period: Scalars['String']['output'];
+  value: Scalars['Float']['output'];
+};
+
 export type Announcement = {
   __typename?: 'Announcement';
   audience: AnnouncementAudience;
@@ -2135,6 +2149,17 @@ export type EmailTemplateUsage = {
 export type EmailVariableInput = {
   name: Scalars['String']['input'];
   value: Scalars['String']['input'];
+};
+
+/** The people holding the EMPLOYEE role. */
+export type EmployeeAnalytics = {
+  __typename?: 'EmployeeAnalytics';
+  /** ISO 3166-1 alpha-2 labels; 'Not set' follows the company's country. */
+  byCountry: Array<AnalyticsMetric>;
+  byDepartment: Array<AnalyticsMetric>;
+  byStatus: Array<AnalyticsMetric>;
+  byWorkLocation: Array<AnalyticsMetric>;
+  total: Scalars['Int']['output'];
 };
 
 export type EmployeeDocument = {
@@ -7912,6 +7937,23 @@ export type PexelsSearchFilters = {
   size?: InputMaybe<Scalars['String']['input']>;
 };
 
+/** Every organization on the platform. */
+export type PlatformAnalytics = {
+  __typename?: 'PlatformAnalytics';
+  activeOrganizations: Scalars['Int']['output'];
+  employees: Scalars['Int']['output'];
+  organizations: Scalars['Int']['output'];
+  /** ISO 3166-1 alpha-2 labels. */
+  organizationsByCountry: Array<AnalyticsMetric>;
+  organizationsByStatus: Array<AnalyticsMetric>;
+  /** Organizations created per month over the last year. */
+  organizationsPerMonth: Array<AnalyticsPoint>;
+  trackedUsers: Scalars['Int']['output'];
+  users: Scalars['Int']['output'];
+  /** User accounts per organization, largest first. */
+  usersByOrganization: Array<AnalyticsMetric>;
+};
+
 export type Policy = {
   __typename?: 'Policy';
   /** How many people have signed the CURRENT version. */
@@ -9112,6 +9154,8 @@ export type Query = {
   /** The statutory deduction policy. Created with its defaults on first read. */
   payrollSettings: PayrollSettings;
   payrollSummary: PayrollSummary;
+  /** Organizations and their size across the whole platform. SUPER_ADMIN. */
+  platformAnalytics: PlatformAnalytics;
   /** Who has signed a policy, newest first. */
   policyAcknowledgements: Array<PolicyAcknowledgement>;
   /** Renders a stored template with the values given, through the very code that sends it. */
@@ -9267,6 +9311,8 @@ export type Query = {
   webhookEvents: Array<Scalars['String']['output']>;
   /** The form identifiers the public website may submit under — the one allow-list. */
   websiteFormTypes: Array<Scalars['String']['output']>;
+  /** The company's users, employees and tracker over the last `days` days (1-365). ADMIN. */
+  workspaceAnalytics: WorkspaceAnalytics;
 };
 
 
@@ -10600,6 +10646,11 @@ export type QueryTranslationsArgs = {
   locale: Scalars['String']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
   skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryWorkspaceAnalyticsArgs = {
+  days?: InputMaybe<Scalars['Int']['input']>;
 };
 
 /** What is owed, and how late it is. */
@@ -12033,6 +12084,32 @@ export type TrackerAccess = {
   userId: Scalars['ID']['output'];
 };
 
+/** The time tracker. Hours and sessions cover the period; access and devices are as of now. */
+export type TrackerAnalytics = {
+  __typename?: 'TrackerAnalytics';
+  activeDevices: Scalars['Int']['output'];
+  activeHours: Scalars['Float']['output'];
+  /** Active time as a share of all tracked time, 0-100. */
+  activityPercent: Scalars['Float']['output'];
+  /** People with access who have accepted the monitoring notice. */
+  consented: Scalars['Int']['output'];
+  devicesByPlatform: Array<AnalyticsMetric>;
+  /** Active hours per day. */
+  hoursPerDay: Array<AnalyticsPoint>;
+  idleHours: Scalars['Float']['output'];
+  manualEntriesByStatus: Array<AnalyticsMetric>;
+  presence: Array<AnalyticsMetric>;
+  screenshots: Scalars['Int']['output'];
+  sessions: Scalars['Int']['output'];
+  /** Hours per application, most first. */
+  topApps: Array<AnalyticsMetric>;
+  /** Active hours per person, most first. */
+  topUsers: Array<AnalyticsMetric>;
+  /** People who recorded any time in the period. */
+  trackedUsers: Scalars['Int']['output'];
+  usersWithAccess: Scalars['Int']['output'];
+};
+
 export type TrackerAppUsage = {
   __typename?: 'TrackerAppUsage';
   appName: Scalars['String']['output'];
@@ -12813,6 +12890,23 @@ export type User = {
   workingTimeNote?: Maybe<Scalars['String']['output']>;
 };
 
+/** Every account in the company. */
+export type UserAnalytics = {
+  __typename?: 'UserAnalytics';
+  /** Accounts that may sign in. */
+  active: Scalars['Int']['output'];
+  blocked: Scalars['Int']['output'];
+  /** A user holding several roles counts once under each. */
+  byRole: Array<AnalyticsMetric>;
+  inactive: Scalars['Int']['output'];
+  /** Accounts created in the period. */
+  joined: Scalars['Int']['output'];
+  joinedPerDay: Array<AnalyticsPoint>;
+  /** Used the portal in the last five minutes. */
+  onlineNow: Scalars['Int']['output'];
+  total: Scalars['Int']['output'];
+};
+
 /** A newly-created user together with the one-time temporary password (also emailed). */
 export type UserCredentials = {
   __typename?: 'UserCredentials';
@@ -12921,6 +13015,17 @@ export enum WorkingTime {
   Flexible = 'FLEXIBLE',
   Other = 'OTHER'
 }
+
+export type WorkspaceAnalytics = {
+  __typename?: 'WorkspaceAnalytics';
+  /** The period covered, in days, ending today. */
+  days: Scalars['Int']['output'];
+  employees: EmployeeAnalytics;
+  /** The workspace timezone the days are read in. */
+  timezone: Scalars['String']['output'];
+  tracker: TrackerAnalytics;
+  users: UserAnalytics;
+};
 
 export type UserFieldsFragment = { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null, timezone?: string | null, locale?: string | null, country?: string | null, city?: string | null };
 
@@ -13189,6 +13294,22 @@ export type DeletePromptMutationVariables = Exact<{
 
 
 export type DeletePromptMutation = { __typename?: 'Mutation', deletePrompt: boolean };
+
+export type AnalyticsMetricFieldsFragment = { __typename?: 'AnalyticsMetric', label: string, value: number };
+
+export type AnalyticsPointFieldsFragment = { __typename?: 'AnalyticsPoint', period: string, value: number };
+
+export type WorkspaceAnalyticsQueryVariables = Exact<{
+  days: Scalars['Int']['input'];
+}>;
+
+
+export type WorkspaceAnalyticsQuery = { __typename?: 'Query', workspaceAnalytics: { __typename?: 'WorkspaceAnalytics', days: number, timezone: string, users: { __typename?: 'UserAnalytics', total: number, active: number, inactive: number, blocked: number, onlineNow: number, joined: number, byRole: Array<{ __typename?: 'AnalyticsMetric', label: string, value: number }>, joinedPerDay: Array<{ __typename?: 'AnalyticsPoint', period: string, value: number }> }, employees: { __typename?: 'EmployeeAnalytics', total: number, byStatus: Array<{ __typename?: 'AnalyticsMetric', label: string, value: number }>, byDepartment: Array<{ __typename?: 'AnalyticsMetric', label: string, value: number }>, byWorkLocation: Array<{ __typename?: 'AnalyticsMetric', label: string, value: number }>, byCountry: Array<{ __typename?: 'AnalyticsMetric', label: string, value: number }> }, tracker: { __typename?: 'TrackerAnalytics', usersWithAccess: number, consented: number, activeDevices: number, screenshots: number, sessions: number, trackedUsers: number, activeHours: number, idleHours: number, activityPercent: number, hoursPerDay: Array<{ __typename?: 'AnalyticsPoint', period: string, value: number }>, topUsers: Array<{ __typename?: 'AnalyticsMetric', label: string, value: number }>, topApps: Array<{ __typename?: 'AnalyticsMetric', label: string, value: number }>, devicesByPlatform: Array<{ __typename?: 'AnalyticsMetric', label: string, value: number }>, presence: Array<{ __typename?: 'AnalyticsMetric', label: string, value: number }>, manualEntriesByStatus: Array<{ __typename?: 'AnalyticsMetric', label: string, value: number }> } } };
+
+export type PlatformAnalyticsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type PlatformAnalyticsQuery = { __typename?: 'Query', platformAnalytics: { __typename?: 'PlatformAnalytics', organizations: number, activeOrganizations: number, users: number, employees: number, trackedUsers: number, organizationsByStatus: Array<{ __typename?: 'AnalyticsMetric', label: string, value: number }>, organizationsByCountry: Array<{ __typename?: 'AnalyticsMetric', label: string, value: number }>, usersByOrganization: Array<{ __typename?: 'AnalyticsMetric', label: string, value: number }>, organizationsPerMonth: Array<{ __typename?: 'AnalyticsPoint', period: string, value: number }> } };
 
 export type AnnouncementFieldsFragment = { __typename?: 'Announcement', id: string, title: string, body: string, category: AnnouncementCategory, pinned: boolean, publishedAt: string, expiresAt?: string | null, audience: AnnouncementAudience, department?: string | null, employeeIds: Array<string> };
 
@@ -18688,6 +18809,18 @@ export const UserFieldsFragmentDoc = gql`
   city
 }
     `;
+export const AnalyticsMetricFieldsFragmentDoc = gql`
+    fragment AnalyticsMetricFields on AnalyticsMetric {
+  label
+  value
+}
+    `;
+export const AnalyticsPointFieldsFragmentDoc = gql`
+    fragment AnalyticsPointFields on AnalyticsPoint {
+  period
+  value
+}
+    `;
 export const AnnouncementFieldsFragmentDoc = gql`
     fragment AnnouncementFields on Announcement {
   id
@@ -22056,6 +22189,170 @@ export function useDeletePromptMutation(baseOptions?: ApolloReactHooks.MutationH
         return ApolloReactHooks.useMutation<DeletePromptMutation, DeletePromptMutationVariables>(DeletePromptDocument, options);
       }
 export type DeletePromptMutationHookResult = ReturnType<typeof useDeletePromptMutation>;
+export const WorkspaceAnalyticsDocument = gql`
+    query WorkspaceAnalytics($days: Int!) {
+  workspaceAnalytics(days: $days) {
+    days
+    timezone
+    users {
+      total
+      active
+      inactive
+      blocked
+      onlineNow
+      joined
+      byRole {
+        ...AnalyticsMetricFields
+      }
+      joinedPerDay {
+        ...AnalyticsPointFields
+      }
+    }
+    employees {
+      total
+      byStatus {
+        ...AnalyticsMetricFields
+      }
+      byDepartment {
+        ...AnalyticsMetricFields
+      }
+      byWorkLocation {
+        ...AnalyticsMetricFields
+      }
+      byCountry {
+        ...AnalyticsMetricFields
+      }
+    }
+    tracker {
+      usersWithAccess
+      consented
+      activeDevices
+      screenshots
+      sessions
+      trackedUsers
+      activeHours
+      idleHours
+      activityPercent
+      hoursPerDay {
+        ...AnalyticsPointFields
+      }
+      topUsers {
+        ...AnalyticsMetricFields
+      }
+      topApps {
+        ...AnalyticsMetricFields
+      }
+      devicesByPlatform {
+        ...AnalyticsMetricFields
+      }
+      presence {
+        ...AnalyticsMetricFields
+      }
+      manualEntriesByStatus {
+        ...AnalyticsMetricFields
+      }
+    }
+  }
+}
+    ${AnalyticsMetricFieldsFragmentDoc}
+${AnalyticsPointFieldsFragmentDoc}`;
+
+/**
+ * __useWorkspaceAnalyticsQuery__
+ *
+ * To run a query within a React component, call `useWorkspaceAnalyticsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWorkspaceAnalyticsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWorkspaceAnalyticsQuery({
+ *   variables: {
+ *      days: // value for 'days'
+ *   },
+ * });
+ */
+export function useWorkspaceAnalyticsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<WorkspaceAnalyticsQuery, WorkspaceAnalyticsQueryVariables> & ({ variables: WorkspaceAnalyticsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WorkspaceAnalyticsQuery, WorkspaceAnalyticsQueryVariables>(WorkspaceAnalyticsDocument, options);
+      }
+export function useWorkspaceAnalyticsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WorkspaceAnalyticsQuery, WorkspaceAnalyticsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WorkspaceAnalyticsQuery, WorkspaceAnalyticsQueryVariables>(WorkspaceAnalyticsDocument, options);
+        }
+// @ts-ignore
+export function useWorkspaceAnalyticsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WorkspaceAnalyticsQuery, WorkspaceAnalyticsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WorkspaceAnalyticsQuery, WorkspaceAnalyticsQueryVariables>;
+// @ts-ignore
+export function useWorkspaceAnalyticsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WorkspaceAnalyticsQuery, WorkspaceAnalyticsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WorkspaceAnalyticsQuery | undefined, WorkspaceAnalyticsQueryVariables>;
+export function useWorkspaceAnalyticsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WorkspaceAnalyticsQuery, WorkspaceAnalyticsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WorkspaceAnalyticsQuery, WorkspaceAnalyticsQueryVariables>(WorkspaceAnalyticsDocument, options);
+        }
+export type WorkspaceAnalyticsQueryHookResult = ReturnType<typeof useWorkspaceAnalyticsQuery>;
+export type WorkspaceAnalyticsLazyQueryHookResult = ReturnType<typeof useWorkspaceAnalyticsLazyQuery>;
+export type WorkspaceAnalyticsSuspenseQueryHookResult = ReturnType<typeof useWorkspaceAnalyticsSuspenseQuery>;
+export const PlatformAnalyticsDocument = gql`
+    query PlatformAnalytics {
+  platformAnalytics {
+    organizations
+    activeOrganizations
+    users
+    employees
+    trackedUsers
+    organizationsByStatus {
+      ...AnalyticsMetricFields
+    }
+    organizationsByCountry {
+      ...AnalyticsMetricFields
+    }
+    usersByOrganization {
+      ...AnalyticsMetricFields
+    }
+    organizationsPerMonth {
+      ...AnalyticsPointFields
+    }
+  }
+}
+    ${AnalyticsMetricFieldsFragmentDoc}
+${AnalyticsPointFieldsFragmentDoc}`;
+
+/**
+ * __usePlatformAnalyticsQuery__
+ *
+ * To run a query within a React component, call `usePlatformAnalyticsQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePlatformAnalyticsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePlatformAnalyticsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function usePlatformAnalyticsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<PlatformAnalyticsQuery, PlatformAnalyticsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<PlatformAnalyticsQuery, PlatformAnalyticsQueryVariables>(PlatformAnalyticsDocument, options);
+      }
+export function usePlatformAnalyticsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<PlatformAnalyticsQuery, PlatformAnalyticsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<PlatformAnalyticsQuery, PlatformAnalyticsQueryVariables>(PlatformAnalyticsDocument, options);
+        }
+// @ts-ignore
+export function usePlatformAnalyticsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<PlatformAnalyticsQuery, PlatformAnalyticsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<PlatformAnalyticsQuery, PlatformAnalyticsQueryVariables>;
+// @ts-ignore
+export function usePlatformAnalyticsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<PlatformAnalyticsQuery, PlatformAnalyticsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<PlatformAnalyticsQuery | undefined, PlatformAnalyticsQueryVariables>;
+export function usePlatformAnalyticsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<PlatformAnalyticsQuery, PlatformAnalyticsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<PlatformAnalyticsQuery, PlatformAnalyticsQueryVariables>(PlatformAnalyticsDocument, options);
+        }
+export type PlatformAnalyticsQueryHookResult = ReturnType<typeof usePlatformAnalyticsQuery>;
+export type PlatformAnalyticsLazyQueryHookResult = ReturnType<typeof usePlatformAnalyticsLazyQuery>;
+export type PlatformAnalyticsSuspenseQueryHookResult = ReturnType<typeof usePlatformAnalyticsSuspenseQuery>;
 export const ActiveAnnouncementsDocument = gql`
     query ActiveAnnouncements {
   activeAnnouncements {

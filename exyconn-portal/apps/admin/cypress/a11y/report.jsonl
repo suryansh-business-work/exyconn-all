@@ -13,3 +13,12 @@
 {"spec":"src/pages/organizations/forms/organization/organization.form.cy.tsx","test":"OrganizationForm › calls onCancel","violations":[]}
 {"spec":"src/pages/organizations/forms/organization-admin/organization-admin.form.cy.tsx","test":"OrganizationAdminForm › asks for a name and a valid email","violations":[]}
 {"spec":"src/pages/organizations/forms/organization-admin/organization-admin.form.cy.tsx","test":"OrganizationAdminForm › calls onCancel","violations":[]}
+{"spec":"src/pages/analytics/AnalyticsSections.cy.tsx","test":"Analytics sections › shows the user totals and the roles chart","violations":[]}
+{"spec":"src/pages/analytics/AnalyticsSections.cy.tsx","test":"Analytics sections › shows tracker hours, activity and platform names","violations":[]}
+{"spec":"src/pages/analytics/AnalyticsSections.cy.tsx","test":"Analytics sections › loads the platform figures for a super admin","violations":[]}
+{"spec":"src/pages/analytics/AnalyticsSections.cy.tsx","test":"Analytics sections › shows the user totals and the roles chart","violations":[]}
+{"spec":"src/pages/analytics/AnalyticsSections.cy.tsx","test":"Analytics sections › shows tracker hours, activity and platform names","violations":[]}
+{"spec":"src/pages/analytics/AnalyticsSections.cy.tsx","test":"Analytics sections › loads the platform figures for a super admin","violations":[]}
+{"spec":"src/pages/analytics/AnalyticsSections.cy.tsx","test":"Analytics sections › shows the user totals and the roles chart","violations":[]}
+{"spec":"src/pages/analytics/AnalyticsSections.cy.tsx","test":"Analytics sections › shows tracker hours, activity and platform names","violations":[]}
+{"spec":"src/pages/analytics/AnalyticsSections.cy.tsx","test":"Analytics sections › loads the platform figures for a super admin","violations":[]}

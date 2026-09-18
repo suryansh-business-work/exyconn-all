@@ -1,5 +1,5 @@
-import { Grid } from '@exyconn/shell/components/ui';
-import { StatCard, type StatItem } from '@exyconn/shell/components/dashboard/StatCard';
+import { Grid } from '@/components/ui';
+import { StatCard, type StatItem } from './StatCard';
 
 /** A row of up to four stat tiles, two per line on a phone. */
 export function StatRow({ stats }: Readonly<{ stats: readonly StatItem[] }>) {

@@ -4,6 +4,7 @@ import { ROLES } from '@exyconn/shell/auth/roles';
 import { Login } from '@exyconn/login';
 import { AdminPage } from './pages/admin';
 import { AdminOverviewPage } from './pages/overview';
+import { AnalyticsPage } from './pages/analytics';
 import { BrandingPage } from './pages/branding';
 import { AppSettingsPage } from './pages/app-settings';
 import { LocalizationPage } from './pages/localization';
@@ -21,6 +22,7 @@ export function App() {
   return (
     <PortalApp loginElement={<Login />} moduleRole={ROLES.ADMIN} homePath="/admin">
       <Route path="/admin" element={<AdminOverviewPage />} />
+      <Route path="/admin/analytics" element={<AnalyticsPage />} />
       <Route path="/admin/users" element={<AdminPage />} />
       {/* The platform's own console, inside the Admin portal: SUPER_ADMIN, never a company's ADMIN. */}
       <Route

@@ -1,0 +1,98 @@
+# Admin → Analytics: the company's people and tracker, and the platform above the companies.
+
+fragment AnalyticsMetricFields on AnalyticsMetric {
+  label
+  value
+}
+
+fragment AnalyticsPointFields on AnalyticsPoint {
+  period
+  value
+}
+
+query WorkspaceAnalytics($days: Int!) {
+  workspaceAnalytics(days: $days) {
+    days
+    timezone
+    users {
+      total
+      active
+      inactive
+      blocked
+      onlineNow
+      joined
+      byRole {
+        ...AnalyticsMetricFields
+      }
+      joinedPerDay {
+        ...AnalyticsPointFields
+      }
+    }
+    employees {
+      total
+      byStatus {
+        ...AnalyticsMetricFields
+      }
+      byDepartment {
+        ...AnalyticsMetricFields
+      }
+      byWorkLocation {
+        ...AnalyticsMetricFields
+      }
+      byCountry {
+        ...AnalyticsMetricFields
+      }
+    }
+    tracker {
+      usersWithAccess
+      consented
+      activeDevices
+      screenshots
+      sessions
+      trackedUsers
+      activeHours
+      idleHours
+      activityPercent
+      hoursPerDay {
+        ...AnalyticsPointFields
+      }
+      topUsers {
+        ...AnalyticsMetricFields
+      }
+      topApps {
+        ...AnalyticsMetricFields
+      }
+      devicesByPlatform {
+        ...AnalyticsMetricFields
+      }
+      presence {
+        ...AnalyticsMetricFields
+      }
+      manualEntriesByStatus {
+        ...AnalyticsMetricFields
+      }
+    }
+  }
+}
+
+query PlatformAnalytics {
+  platformAnalytics {
+    organizations
+    activeOrganizations
+    users
+    employees
+    trackedUsers
+    organizationsByStatus {
+      ...AnalyticsMetricFields
+    }
+    organizationsByCountry {
+      ...AnalyticsMetricFields
+    }
+    usersByOrganization {
+      ...AnalyticsMetricFields
+    }
+    organizationsPerMonth {
+      ...AnalyticsPointFields
+    }
+  }
+}
