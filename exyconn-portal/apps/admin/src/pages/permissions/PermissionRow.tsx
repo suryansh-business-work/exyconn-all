@@ -51,10 +51,14 @@ export function PermissionRow({ module, saved, onSave, onReset }: Readonly<Permi
       direction={{ xs: 'column', md: 'row' }}
       alignItems={{ xs: 'stretch', md: 'center' }}
       spacing={2}
-      sx={{ py: 1, flexWrap: 'wrap' }}
+      wrap
+      sx={{ py: 1 }}
     >
-      <Box sx={{ minWidth: { md: 180 } }}>
-        <Text weight="medium">{module}</Text>
+      {/* A fixed column, so every row's switches line up however long the module's name. */}
+      <Box sx={{ width: { md: 200 }, flexShrink: 0 }}>
+        <Text component="div" weight="medium" sx={{ overflowWrap: 'anywhere' }}>
+          {module}
+        </Text>
         <Chip
           size="small"
           label={restricted ? t('Restricted') : t('Default (all)')}
@@ -63,7 +67,7 @@ export function PermissionRow({ module, saved, onSave, onReset }: Readonly<Permi
           sx={{ mt: 0.5 }}
         />
       </Box>
-      <Flex direction="row" spacing={0.5} sx={{ flexWrap: 'wrap', flexGrow: 1 }}>
+      <Flex direction="row" wrap flexGrow={1} sx={{ rowGap: 1 }}>
         {ACTIONS.map((action) => (
           <FormControlLabel
             key={action}

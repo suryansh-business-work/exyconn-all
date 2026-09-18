@@ -132,6 +132,20 @@ function toggles({ mode, t }: ThemeParts): ComponentGroup {
   // shadcn's thumb is the page colour in light mode and the foreground in dark.
   const restingThumb = mode === 'light' ? t.background.panel : t.text.primary;
   return {
+    // MUI pulls a labelled control 11px left to cancel the padding round a checkbox or switch.
+    // This switch has no padding (below), so that pull slid it over whatever came before and
+    // left its label touching the track. A switch's label gets a real gap instead.
+    MuiFormControlLabel: {
+      styleOverrides: {
+        root: {
+          '&:has(> .MuiSwitch-root)': { marginLeft: 0, gap: spacing(1) },
+          '&.MuiFormControlLabel-labelPlacementStart:has(> .MuiSwitch-root)': {
+            marginLeft: spacing(2),
+            marginRight: 0,
+          },
+        },
+      },
+    },
     MuiSwitch: {
       styleOverrides: {
         root: {
