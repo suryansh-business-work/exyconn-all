@@ -1,6 +1,14 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
 
-export const ANNOUNCEMENT_CATEGORIES = ['NOTICE', 'POLICY', 'EVENT', 'UPDATE'] as const;
+/** What IT posts: planned maintenance, an outage in progress, a security warning. */
+export const ANNOUNCEMENT_IT_CATEGORIES = ['MAINTENANCE', 'OUTAGE', 'SECURITY_ALERT'] as const;
+export const ANNOUNCEMENT_CATEGORIES = [
+  'NOTICE',
+  'POLICY',
+  'EVENT',
+  'UPDATE',
+  ...ANNOUNCEMENT_IT_CATEGORIES,
+] as const;
 export const ANNOUNCEMENT_AUDIENCES = ['ALL', 'DEPARTMENT', 'EMPLOYEES'] as const;
 
 const announcementSchema = new Schema(

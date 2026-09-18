@@ -2,15 +2,15 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { SLUG } from '@exyconn/regex';
-import { RhfTextField, RhfSelect, RhfSwitch } from '@exyconn/shell/components/form/rhf';
-import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
-import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
-import { enumOptions } from '@exyconn/shell/utils/enumOptions';
+import { RhfTextField, RhfSelect, RhfSwitch } from '@/components/form/rhf';
+import { EntityForm } from '@/components/form/EntityForm';
+import { useEntitySave } from '@/components/form/useEntitySave';
+import { enumOptions } from '@/utils/enumOptions';
 import {
   SupportCategory,
   useCreateKbArticleMutation,
   useUpdateKbArticleMutation,
-} from '@exyconn/shell/graphql/generated';
+} from '@/graphql/generated';
 import type { KbArticleRow } from './kb-article.types';
 
 const schema = z.object({
@@ -27,10 +27,16 @@ const schema = z.object({
 });
 type Values = z.infer<typeof schema>;
 
-const toInitial = (row: KbArticleRow | null): Values => ({
+const ALL_CATEGORIES = Object.values(SupportCategory);
+
+/** A new article starts under OTHER, or under the only kind this screen offers. */
+const defaultCategory = (categories: readonly SupportCategory[]): SupportCategory =>
+  categories.includes(SupportCategory.Other) ? SupportCategory.Other : categories[0];
+
+const toInitial = (row: KbArticleRow | null, fallback: SupportCategory): Values => ({
   title: row?.title ?? '',
   slug: row?.slug ?? '',
-  category: row?.category ?? SupportCategory.Other,
+  category: row?.category ?? fallback,
   summary: row?.summary ?? '',
   body: row?.body ?? '',
   isPublished: row?.isPublished ?? false,
@@ -40,6 +46,8 @@ interface KbArticleFormProps {
   initial: KbArticleRow | null;
   onDone: () => void;
   onCancel: () => void;
+  /** The categories this screen may file under. IT passes only IT; Support offers them all. */
+  categories?: readonly SupportCategory[];
 }
 
 /**
@@ -49,12 +57,17 @@ interface KbArticleFormProps {
  * at, so it has to survive the title being reworded. Deriving it would silently break every
  * link the day somebody improved the wording.
  */
-export function KbArticleForm({ initial, onDone, onCancel }: Readonly<KbArticleFormProps>) {
+export function KbArticleForm({
+  initial,
+  onDone,
+  onCancel,
+  categories = ALL_CATEGORIES,
+}: Readonly<KbArticleFormProps>) {
   const [createArticle] = useCreateKbArticleMutation();
   const [updateArticle] = useUpdateKbArticleMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
-    defaultValues: toInitial(initial),
+    defaultValues: toInitial(initial, defaultCategory(categories)),
   });
 
   const { isEdit, onSubmit } = useEntitySave({
@@ -69,11 +82,7 @@ export function KbArticleForm({ initial, onDone, onCancel }: Readonly<KbArticleF
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="title" label="Title" />
       <RhfTextField name="slug" label="Slug" helperText="Stays put when the title is reworded" />
-      <RhfSelect
-        name="category"
-        label="Category"
-        options={enumOptions(Object.values(SupportCategory))}
-      />
+      <RhfSelect name="category" label="Category" options={enumOptions([...categories])} />
       <RhfTextField
         name="summary"
         label="Summary"

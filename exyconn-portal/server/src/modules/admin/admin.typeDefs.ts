@@ -139,6 +139,7 @@ export const adminTypeDefs = gql`
     name: String!
     email: String!
     designation: String
+    department: String
   }
 
   "One person in the org chart; the client nests them by managerId."

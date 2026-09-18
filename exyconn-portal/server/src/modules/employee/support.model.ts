@@ -50,6 +50,11 @@ const supportTicketSchema = new Schema(
      */
     assigneeId: { type: String, default: '', trim: true },
     assigneeName: { type: String, default: '', trim: true },
+    /** What an IT ticket is about, from IT's own topic list (Hardware, VPN, …). */
+    topic: { type: String, default: '', trim: true },
+    /** How many times it has been escalated; 0 until somebody raises the alarm. */
+    escalationLevel: { type: Number, required: true, default: 0, min: 0 },
+    escalatedAt: { type: Date, default: null },
     /** Files posted with the original request. */
     attachments: { type: [attachmentSchema], default: [] },
     /**

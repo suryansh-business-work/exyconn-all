@@ -18,7 +18,7 @@ import {
   useListAssetAssigneesQuery,
 } from '@exyconn/shell/graphql/generated';
 import { LICENCE_BILLING_CYCLES, LICENCE_STATUSES } from '../../licences.constants';
-import { licenceSchema, toLicenceInput, toLicenceValues } from './licence.schema';
+import { licenceSchema, toLicenceValues } from './licence.schema';
 import type { LicenceRow } from './licence.types';
 
 const CYCLE_OPTIONS = enumOptions(LICENCE_BILLING_CYCLES);
@@ -57,9 +57,8 @@ export function LicenceForm({ initial, onDone, onCancel }: Readonly<LicenceFormP
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Licence',
     initial,
-    create: (values: Values) => createLicence({ variables: { input: toLicenceInput(values) } }),
-    update: (row, values) =>
-      updateLicence({ variables: { id: row.id, input: toLicenceInput(values) } }),
+    create: (values: Values) => createLicence({ variables: { input: values } }),
+    update: (row, values) => updateLicence({ variables: { id: row.id, input: values } }),
     onDone,
   });
 

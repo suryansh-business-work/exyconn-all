@@ -13,7 +13,8 @@ export const licenceSchema = z
     assigneeIds: z.array(z.string()),
     cost: z.coerce.number({ message: 'Cost must be a number' }).min(0, 'Cost cannot be negative'),
     billingCycle: z.nativeEnum(LicenceBillingCycle),
-    renewalDate: z.date({ message: 'A renewal date is required' }),
+    /** ISO string from the picker. */
+    renewalDate: z.string().min(1, 'A renewal date is required'),
     status: z.nativeEnum(LicenceStatus),
     notes: z.string().trim(),
   })
@@ -26,11 +27,6 @@ export const licenceSchema = z
 
 type Values = z.infer<typeof licenceSchema>;
 
-/** Maps the validated form values onto the GraphQL input. */
-export function toLicenceInput(values: Values) {
-  return { ...values, renewalDate: values.renewalDate.toISOString() };
-}
-
 export function toLicenceValues(row: LicenceRow | null): Values {
   return {
     name: row?.name ?? '',
@@ -39,7 +35,7 @@ export function toLicenceValues(row: LicenceRow | null): Values {
     assigneeIds: row?.assigneeIds ?? [],
     cost: row?.cost ?? 0,
     billingCycle: row?.billingCycle ?? LicenceBillingCycle.Yearly,
-    renewalDate: row ? new Date(row.renewalDate) : new Date(),
+    renewalDate: row?.renewalDate ?? new Date().toISOString(),
     status: row?.status ?? LicenceStatus.Active,
     notes: row?.notes ?? '',
   };

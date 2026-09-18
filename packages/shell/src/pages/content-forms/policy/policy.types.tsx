@@ -1,4 +1,4 @@
-import type { PolicyFieldsFragment } from '@exyconn/shell/graphql/generated';
+import type { PolicyFieldsFragment } from '@/graphql/generated';
 
 export type PolicyRow = PolicyFieldsFragment;
 

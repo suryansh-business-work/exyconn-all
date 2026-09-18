@@ -6,6 +6,11 @@ export const POLICY_AUDIENCES = ['ALL_STAFF', 'HR_ONLY', 'PUBLIC'] as const;
 
 export const POLICY_STATUSES = ['DRAFT', 'PUBLISHED', 'ARCHIVED'] as const;
 
+/** Which part of the company a policy governs — and so which team maintains it. */
+export const POLICY_CATEGORIES = ['GENERAL', 'HR', 'IT', 'SECURITY', 'PRIVACY', 'FINANCE'] as const;
+/** The categories the IT team writes and maintains: device, BYOD, password, VPN, security. */
+export const IT_POLICY_CATEGORIES = ['IT', 'SECURITY'] as const;
+
 /**
  * How far a document may travel (ISO 27001 A.5.12).
  *
@@ -37,6 +42,7 @@ const policySchema = new Schema(
      */
     body: { type: String, required: true, set: sanitizeRichHtml },
     audience: { type: String, enum: POLICY_AUDIENCES, required: true, default: 'ALL_STAFF' },
+    category: { type: String, enum: POLICY_CATEGORIES, required: true, default: 'GENERAL' },
     status: { type: String, enum: POLICY_STATUSES, required: true, default: 'DRAFT' },
     /** Raised whenever a published policy's wording changes. Signatures are per version. */
     version: { type: Number, required: true, default: 1, min: 1 },

@@ -1,8 +1,8 @@
 import { useT } from '@exyconn/i18n';
-import { borderWidth, Box, Chip, Stack, Text } from '@exyconn/shell/components/ui';
-import { AttachmentList } from '@exyconn/shell/components/upload';
-import { useSettings } from '@exyconn/shell/hooks/useSettings';
-import { useListSupportRepliesQuery } from '@exyconn/shell/graphql/generated';
+import { borderWidth, Box, Chip, Stack, Text } from '@/components/ui';
+import { AttachmentList } from '@/components/upload';
+import { useSettings } from '@/hooks/useSettings';
+import { useListSupportRepliesQuery } from '@/graphql/generated';
 
 interface TicketThreadProps {
   ticketId: string;

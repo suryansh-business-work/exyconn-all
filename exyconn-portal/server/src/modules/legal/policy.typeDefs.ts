@@ -29,6 +29,16 @@ export const policyTypeDefs = gql`
     CONFIDENTIAL
   }
 
+  "Which part of the company a policy governs. IT maintains the IT and SECURITY ones."
+  enum PolicyCategory {
+    GENERAL
+    HR
+    IT
+    SECURITY
+    PRIVACY
+    FINANCE
+  }
+
   type Policy {
     id: ID!
     title: String!
@@ -37,6 +47,7 @@ export const policyTypeDefs = gql`
     summary: String!
     body: String!
     audience: PolicyAudience!
+    category: PolicyCategory!
     status: PolicyStatus!
     "Raised whenever published wording changes. Signatures are recorded per version."
     version: Int!
@@ -63,6 +74,8 @@ export const policyTypeDefs = gql`
     summary: String
     body: String!
     audience: PolicyAudience!
+    "Defaults to GENERAL."
+    category: PolicyCategory
     effectiveDate: DateTime!
     requiresAcknowledgement: Boolean
     owner: String

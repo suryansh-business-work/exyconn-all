@@ -6,6 +6,12 @@ export const announcementsTypeDefs = gql`
     POLICY
     EVENT
     UPDATE
+    "IT: planned maintenance window."
+    MAINTENANCE
+    "IT: a service is down right now."
+    OUTAGE
+    "IT: a security warning staff must act on."
+    SECURITY_ALERT
   }
 
   enum AnnouncementAudience {

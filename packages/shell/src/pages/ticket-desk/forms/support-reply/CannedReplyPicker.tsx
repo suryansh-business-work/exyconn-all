@@ -1,6 +1,6 @@
 import { useT } from '@exyconn/i18n';
-import { MenuItem, TextField } from '@exyconn/shell/components/ui';
-import { useListActiveCannedRepliesQuery } from '@exyconn/shell/graphql/generated';
+import { MenuItem, TextField } from '@/components/ui';
+import { useListActiveCannedRepliesQuery } from '@/graphql/generated';
 
 interface Props {
   /** Called with the snippet's text. The form decides where it lands. */

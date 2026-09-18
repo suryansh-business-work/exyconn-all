@@ -1,19 +1,26 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useT } from '@exyconn/i18n';
-import { Box, Button, Text } from '@exyconn/shell/components/ui';
-import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
+import { Box, Button, Text } from '@/components/ui';
+import { PageHeader } from '@/components/layout/PageHeader';
 
-import { useGetSupportTicketQuery } from '@exyconn/shell/graphql/generated';
+import { useGetSupportTicketQuery } from '@/graphql/generated';
 import { TicketDetailBody } from './TicketDetailBody';
-import { panel } from '@exyconn/shell/components/glass/glass';
+import { panel } from '@/components/glass/glass';
 
 /**
  * One ticket on its own page, so it can be linked to — from a notification email, a
- * chat message, or a colleague's "have a look at this one". It renders exactly the same
+ * chat message, or a colleague's "have a look at this one". Shared by Support and IT. It renders exactly the same
  * body as the drawer the grid opens; only the frame around it differs.
  */
-export function TicketDetailPage() {
+interface TicketDetailPageProps {
+  /** Where "Back to queue" goes — the Support console or IT's helpdesk. */
+  backPath: string;
+  /** The desk's ticket topics (IT's). Omit for a desk that does not triage by topic. */
+  topics?: readonly string[];
+}
+
+export function TicketDetailPage({ backPath, topics }: Readonly<TicketDetailPageProps>) {
   const { id = '' } = useParams();
   const t = useT();
   const navigate = useNavigate();
@@ -24,7 +31,7 @@ export function TicketDetailPage() {
   });
 
   const ticket = data?.getSupportTicket;
-  const backToQueue = () => navigate('/support/tickets');
+  const backToQueue = () => navigate(backPath);
   const emptyMessage = loading ? t('Loading…') : t('This ticket no longer exists.');
 
   return (
@@ -49,6 +56,7 @@ export function TicketDetailPage() {
               refetch().catch(() => undefined);
             }}
             onCancel={backToQueue}
+            topics={topics}
           />
         ) : (
           <Text color="text.secondary">{emptyMessage}</Text>

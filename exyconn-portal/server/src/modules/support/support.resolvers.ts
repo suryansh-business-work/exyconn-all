@@ -1,4 +1,4 @@
-import type { FilterQuery } from 'mongoose';
+import { isValidObjectId, type FilterQuery } from 'mongoose';
 import {
   SUPPORT_CLOSED_STATUSES,
   SupportTicketModel,
@@ -16,7 +16,8 @@ import {
   type ClientSupportTicketInput,
 } from './client-ticket.service';
 import { UserModel } from '../admin/user.model';
-import { assertRole } from '../../middleware/roleGuard';
+import { deskScope, IT_CATEGORY, type TicketScope } from './desk';
+import { escalateTicket } from './escalation';
 import { ROLES } from '../../constants/roles';
 import { badRequest, notFound } from '../../utils/errors';
 import { withId, withIds } from '../../utils/serialize';
@@ -28,8 +29,6 @@ import {
   type TableQueryInput,
 } from '../../utils/tableQuery';
 import type { GraphQLContext } from '../../middleware/auth';
-
-const supportTeam = [ROLES.SUPPORT];
 
 /** What the console grid may search, filter and sort on. */
 const TICKET_TABLE: TableConfig = {
@@ -114,8 +113,9 @@ function splitSpecialFilters(input: TableQueryInput): {
 }
 
 /** The ticket, or a 404 that says nothing about whether the id ever existed. */
-async function ticketById(id: string): Promise<LeanTicket> {
-  const doc = await SupportTicketModel.findById(id).lean<LeanTicket | null>();
+async function ticketById(id: string, scope: TicketScope): Promise<LeanTicket> {
+  if (!isValidObjectId(id)) notFound('SupportTicket');
+  const doc = await SupportTicketModel.findOne({ _id: id, ...scope }).lean<LeanTicket | null>();
   if (!doc) notFound('SupportTicket');
   return doc;
 }
@@ -131,8 +131,8 @@ export const supportResolvers = {
     ...supportSlaPolicyCrud.Query,
 
     listSupportTickets: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      assertRole(ctx, supportTeam);
-      const tickets = await SupportTicketModel.find().sort({ createdAt: -1 }).lean();
+      const scope = deskScope(ctx);
+      const tickets = await SupportTicketModel.find(scope).sort({ createdAt: -1 }).lean();
       return withEmployeeNames(tickets);
     },
 
@@ -141,9 +141,10 @@ export const supportResolvers = {
       { input }: { input: TableQueryInput },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, supportTeam);
+      const scope = deskScope(ctx);
       const query = splitSpecialFilters(input);
-      const page = await tableQuery(SupportTicketModel, query.input, TICKET_TABLE, query.base);
+      const base = { ...query.base, ...scope };
+      const page = await tableQuery(SupportTicketModel, query.input, TICKET_TABLE, base);
       return {
         rows: await withEmployeeNames(page.rows as LeanTicket[]),
         totalCount: page.totalCount,
@@ -151,19 +152,16 @@ export const supportResolvers = {
     },
 
     listSupportTicketsStats: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      assertRole(ctx, supportTeam);
-      return tableStats(SupportTicketModel, TICKET_STATS);
+      return tableStats(SupportTicketModel, TICKET_STATS, deskScope(ctx));
     },
 
     getSupportTicket: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
-      assertRole(ctx, supportTeam);
-      const [ticket] = await withEmployeeNames([await ticketById(id)]);
+      const [ticket] = await withEmployeeNames([await ticketById(id, deskScope(ctx))]);
       return ticket;
     },
 
     supportSlaSummary: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      assertRole(ctx, supportTeam);
-      return supportSlaSummary();
+      return supportSlaSummary(deskScope(ctx));
     },
 
     listSupportReplies: async (
@@ -171,13 +169,19 @@ export const supportResolvers = {
       { ticketId }: { ticketId: string },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, supportTeam);
+      await ticketById(ticketId, deskScope(ctx));
       return withIds(await SupportReplyModel.find({ ticketId }).sort({ createdAt: 1 }).lean());
     },
 
-    listSupportAgents: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      assertRole(ctx, supportTeam);
-      const agents = await UserModel.find({ roles: ROLES.SUPPORT })
+    /** Who a ticket may be handed to: IT for an IT ticket, the support desk for the rest. */
+    listSupportAgents: async (
+      _p: unknown,
+      { category }: { category?: string | null },
+      ctx: GraphQLContext,
+    ) => {
+      const scope = deskScope(ctx);
+      const itQueue = (scope.category ?? category) === IT_CATEGORY;
+      const agents = await UserModel.find({ roles: itQueue ? ROLES.IT : ROLES.SUPPORT })
         .select('name email')
         .sort({ name: 1 })
         .lean();
@@ -203,8 +207,7 @@ export const supportResolvers = {
       { id, status }: { id: string; status: string },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, supportTeam);
-      const ticket = await ticketById(id);
+      const ticket = await ticketById(id, deskScope(ctx));
       const closed = SUPPORT_CLOSED_STATUSES.has(status);
       const resolvedAt = closed ? (ticket.resolvedAt ?? new Date()) : null;
       const doc = await SupportTicketModel.findByIdAndUpdate(
@@ -219,20 +222,30 @@ export const supportResolvers = {
     /** Re-triage. A new priority is a new promise, so the deadline is recomputed. */
     setSupportTicketTriage: async (
       _p: unknown,
-      { id, category, priority }: { id: string; category: string; priority: string },
+      {
+        id,
+        category,
+        priority,
+        topic,
+      }: { id: string; category: string; priority: string; topic?: string | null },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, supportTeam);
-      const ticket = await ticketById(id);
+      const ticket = await ticketById(id, deskScope(ctx));
       const dueAt = await dueAtForPriority(priority, ticket.createdAt);
       const doc = await SupportTicketModel.findByIdAndUpdate(
         id,
-        { category, priority, dueAt },
+        { category, priority, dueAt, ...(topic == null ? {} : { topic: topic.trim() }) },
         { new: true, runValidators: true },
       ).lean();
       if (!doc) notFound('SupportTicket');
       return withId(doc);
     },
+
+    escalateSupportTicket: (
+      _p: unknown,
+      { id, reason }: { id: string; reason: string },
+      ctx: GraphQLContext,
+    ) => escalateTicket(id, reason, deskScope(ctx), ctx),
 
     /** An empty id puts the ticket back in the unassigned queue. */
     assignSupportTicket: async (
@@ -240,7 +253,7 @@ export const supportResolvers = {
       { id, assigneeId }: { id: string; assigneeId: string },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, supportTeam);
+      await ticketById(id, deskScope(ctx));
       let assigneeName = '';
       if (assigneeId) {
         const agent = await UserModel.findById(assigneeId).select('name').lean();
@@ -271,11 +284,11 @@ export const supportResolvers = {
       },
       ctx: GraphQLContext,
     ) => {
-      assertRole(ctx, supportTeam);
+      const scope = deskScope(ctx);
       if (!body.trim()) {
         badRequest('A reply cannot be empty.');
       }
-      const ticket = await ticketById(ticketId);
+      const ticket = await ticketById(ticketId, scope);
       // The token carries no display name, so the author is resolved once here and
       // stored on the reply — a thread has to stay readable years later. A lookup
       // that fails must not lose the reply, which is the part that matters.

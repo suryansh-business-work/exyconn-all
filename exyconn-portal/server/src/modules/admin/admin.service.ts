@@ -312,10 +312,13 @@ class AdminService {
     return UserModel.find().sort({ createdAt: -1 }).lean();
   }
 
-  /** Active employees, name + email only — the picker projection every portal may read. */
+  /**
+   * Active employees — the picker projection every portal may read: who they are and where
+   * they sit (so a form can offer "everyone in Engineering"), nothing from the HR record.
+   */
   listEmployeeOptions() {
     return UserModel.find({ isActive: true })
-      .select('name email designation')
+      .select('name email designation department')
       .sort({ name: 1 })
       .lean();
   }

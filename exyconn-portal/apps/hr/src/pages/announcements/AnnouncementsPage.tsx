@@ -8,7 +8,7 @@ import {
   ListAnnouncementsPagedDocument,
   type ListAnnouncementsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
-import { AnnouncementForm, type AnnouncementRow } from './forms/announcement';
+import { AnnouncementForm, type AnnouncementRow } from '@exyconn/shell/pages/content-forms';
 import { color } from '@exyconn/shell/components/ui';
 import {
   ANNOUNCEMENT_COLUMNS,

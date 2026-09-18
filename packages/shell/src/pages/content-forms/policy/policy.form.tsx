@@ -8,16 +8,17 @@ import {
   RhfSwitch,
   RhfDatePicker,
   RhfRichText,
-} from '@exyconn/shell/components/form/rhf';
-import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
-import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
-import { enumOptions } from '@exyconn/shell/utils/enumOptions';
+} from '@/components/form/rhf';
+import { EntityForm } from '@/components/form/EntityForm';
+import { useEntitySave } from '@/components/form/useEntitySave';
+import { enumOptions } from '@/utils/enumOptions';
 import {
   PolicyAudience,
+  PolicyCategory,
   PolicyClassification,
   useCreatePolicyMutation,
   useUpdatePolicyMutation,
-} from '@exyconn/shell/graphql/generated';
+} from '@/graphql/generated';
 import type { PolicyRow } from './policy.types';
 
 const schema = z.object({
@@ -31,6 +32,7 @@ const schema = z.object({
   summary: z.string().trim(),
   body: z.string().trim().min(1, 'The policy cannot be empty'),
   audience: z.nativeEnum(PolicyAudience),
+  category: z.nativeEnum(PolicyCategory),
   effectiveDate: z.string().min(1, 'Effective date is required'),
   requiresAcknowledgement: z.boolean(),
   owner: z.string().trim(),
@@ -40,12 +42,19 @@ const schema = z.object({
 });
 type Values = z.infer<typeof schema>;
 
-const toInitial = (row: PolicyRow | null): Values => ({
+const ALL_CATEGORIES = Object.values(PolicyCategory);
+
+/** A new policy starts as GENERAL, or as the first kind this screen maintains. */
+const defaultCategory = (categories: readonly PolicyCategory[]): PolicyCategory =>
+  categories.includes(PolicyCategory.General) ? PolicyCategory.General : categories[0];
+
+const toInitial = (row: PolicyRow | null, fallback: PolicyCategory): Values => ({
   title: row?.title ?? '',
   slug: row?.slug ?? '',
   summary: row?.summary ?? '',
   body: row?.body ?? '',
   audience: row?.audience ?? PolicyAudience.AllStaff,
+  category: row?.category ?? fallback,
   effectiveDate: row?.effectiveDate ?? '',
   requiresAcknowledgement: row?.requiresAcknowledgement ?? false,
   owner: row?.owner ?? '',
@@ -57,6 +66,8 @@ interface Props {
   initial: PolicyRow | null;
   onDone: () => void;
   onCancel: () => void;
+  /** The kinds this screen maintains. IT passes IT and SECURITY; Legal offers them all. */
+  categories?: readonly PolicyCategory[];
 }
 
 /**
@@ -66,12 +77,17 @@ interface Props {
  * under them because somebody saved a draft, so putting it in force is a separate,
  * deliberate action with its own question about whether the version should go up.
  */
-export function PolicyForm({ initial, onDone, onCancel }: Readonly<Props>) {
+export function PolicyForm({
+  initial,
+  onDone,
+  onCancel,
+  categories = ALL_CATEGORIES,
+}: Readonly<Props>) {
   const [createPolicy] = useCreatePolicyMutation();
   const [updatePolicy] = useUpdatePolicyMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
-    defaultValues: toInitial(initial),
+    defaultValues: toInitial(initial, defaultCategory(categories)),
   });
 
   const { isEdit, onSubmit } = useEntitySave({
@@ -94,6 +110,12 @@ export function PolicyForm({ initial, onDone, onCancel }: Readonly<Props>) {
         name="audience"
         label="Audience"
         options={enumOptions(Object.values(PolicyAudience))}
+      />
+      <RhfSelect
+        name="category"
+        label="Category"
+        options={enumOptions([...categories])}
+        helperText="Which team maintains it. IT keeps the IT and security policies."
       />
       <RhfTextField name="summary" label="Summary" multiline rows={2} />
       <RhfRichText name="body" label="Policy" />

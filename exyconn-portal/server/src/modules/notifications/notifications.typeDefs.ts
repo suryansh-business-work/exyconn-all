@@ -13,6 +13,8 @@ export const notificationsTypeDefs = gql`
     SOCIAL_LIKE
     SOCIAL_COMMENT
     SOCIAL_SHARE
+    SUPPORT
+    IT
     GENERAL
   }
 

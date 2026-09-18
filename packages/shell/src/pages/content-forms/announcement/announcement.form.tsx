@@ -7,17 +7,17 @@ import {
   RhfSelect,
   RhfSwitch,
   RhfTextField,
-} from '@exyconn/shell/components/form/rhf';
-import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
-import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
-import { enumOptions } from '@exyconn/shell/utils/enumOptions';
+} from '@/components/form/rhf';
+import { EntityForm } from '@/components/form/EntityForm';
+import { useEntitySave } from '@/components/form/useEntitySave';
+import { enumOptions } from '@/utils/enumOptions';
 import {
   AnnouncementCategory,
   AnnouncementAudience,
-  useListUsersQuery,
+  useListEmployeeOptionsQuery,
   useCreateAnnouncementMutation,
   useUpdateAnnouncementMutation,
-} from '@exyconn/shell/graphql/generated';
+} from '@/graphql/generated';
 import type { AnnouncementRow, AnnouncementFormValues } from './announcement.types';
 
 const schema = z
@@ -46,10 +46,19 @@ const schema = z
   });
 type Values = z.infer<typeof schema>;
 
-const toInitial = (row: AnnouncementRow | null): AnnouncementFormValues => ({
+const ALL_CATEGORIES = Object.values(AnnouncementCategory);
+
+/** A new announcement starts as a NOTICE, or as the first kind this screen offers. */
+const defaultCategory = (categories: readonly AnnouncementCategory[]): AnnouncementCategory =>
+  categories.includes(AnnouncementCategory.Notice) ? AnnouncementCategory.Notice : categories[0];
+
+const toInitial = (
+  row: AnnouncementRow | null,
+  fallback: AnnouncementCategory,
+): AnnouncementFormValues => ({
   title: row?.title ?? '',
   body: row?.body ?? '',
-  category: row?.category ?? AnnouncementCategory.Notice,
+  category: row?.category ?? fallback,
   pinned: row?.pinned ?? false,
   publishedAt: row?.publishedAt ?? new Date().toISOString(),
   expiresAt: row?.expiresAt ?? '',
@@ -70,20 +79,27 @@ interface AnnouncementFormProps {
   initial: AnnouncementRow | null;
   onDone: () => void;
   onCancel: () => void;
+  /** The kinds this screen may publish. IT passes maintenance, outage and security alert. */
+  categories?: readonly AnnouncementCategory[];
 }
 
 /** React Hook Form + Zod form to publish or edit a company announcement. */
-export function AnnouncementForm({ initial, onDone, onCancel }: Readonly<AnnouncementFormProps>) {
+export function AnnouncementForm({
+  initial,
+  onDone,
+  onCancel,
+  categories = ALL_CATEGORIES,
+}: Readonly<AnnouncementFormProps>) {
   const [createAnnouncement] = useCreateAnnouncementMutation();
   const [updateAnnouncement] = useUpdateAnnouncementMutation();
-  const { data: usersData } = useListUsersQuery();
+  const { data: usersData } = useListEmployeeOptionsQuery();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     resolver: zodResolver(schema),
-    defaultValues: toInitial(initial),
+    defaultValues: toInitial(initial, defaultCategory(categories)),
   });
 
   const audience = methods.watch('audience');
-  const users = usersData?.listUsers ?? [];
+  const users = usersData?.listEmployeeOptions ?? [];
   const employeeOptions = users.map((u) => ({ value: u.id, label: `${u.name} (${u.email})` }));
   const departmentOptions = [
     ...new Set(users.map((u) => u.department).filter((d): d is string => Boolean(d))),
@@ -104,11 +120,7 @@ export function AnnouncementForm({ initial, onDone, onCancel }: Readonly<Announc
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="title" label="Title" />
       <RhfTextField name="body" label="Message" multiline minRows={4} />
-      <RhfSelect
-        name="category"
-        label="Category"
-        options={enumOptions(Object.values(AnnouncementCategory))}
-      />
+      <RhfSelect name="category" label="Category" options={enumOptions([...categories])} />
       <RhfDatePicker name="publishedAt" label="Publish on" />
       <RhfDatePicker name="expiresAt" label="Expires on (optional)" />
       <RhfSelect

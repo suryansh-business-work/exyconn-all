@@ -8,7 +8,7 @@ import { assertRole } from '../../middleware/roleGuard';
 import { ROLES } from '../../constants/roles';
 import { UserModel } from '../admin/user.model';
 import { withIds } from '../../utils/serialize';
-import { unauthenticated } from '../../utils/errors';
+import { actorNameOf } from '../../lib/actor';
 import type { GraphQLContext } from '../../middleware/auth';
 
 interface AssetInput {
@@ -26,6 +26,9 @@ interface AssetInput {
   warrantyExpiry?: Date | null;
   purchaseCost?: number;
   notes?: string;
+  installedSoftware?: string[];
+  edrStatus?: string;
+  edrCheckedAt?: Date | null;
 }
 
 /** The IT module owns the asset register; ADMIN passes every guard anyway. */
@@ -38,11 +41,19 @@ const crud = createCrudResolvers(assetsService, {
   roles: itOnly,
   table: {
     searchFields: ['assetTag', 'name', 'serialNumber', 'assignedToName', 'manufacturer'],
-    filterFields: ['assetTag', 'name', 'category', 'status', 'assignedToName', 'location'],
+    filterFields: [
+      'assetTag',
+      'name',
+      'category',
+      'status',
+      'assignedToName',
+      'location',
+      'edrStatus',
+    ],
     sortFields: ['assetTag', 'name', 'category', 'status', 'assignedToName', 'createdAt'],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
-  stats: { countBy: ['status', 'category'] },
+  stats: { countBy: ['status', 'category', 'edrStatus'] },
 });
 
 /**
@@ -54,16 +65,6 @@ const listAssetAssignees = async (_p: unknown, _a: unknown, ctx: GraphQLContext)
   const users = await UserModel.find().select('name email').sort({ name: 1 }).lean();
   return withIds(users as Array<{ _id: unknown }>);
 };
-
-/** Who is acting, from the request's own token — never from anything the client sent. */
-async function actorNameOf(ctx: GraphQLContext): Promise<string> {
-  const id = ctx.user?.id;
-  if (!id) {
-    unauthenticated();
-  }
-  const user = await UserModel.findById(id).select('name').lean();
-  return user?.name ?? ctx.user?.email ?? '';
-}
 
 type SavedAsset = { id: string } & AssetHolder;
 
@@ -113,6 +114,12 @@ const licenceSeatsFor = async (
 };
 
 export const assetsResolvers = {
+  /** Assets registered before these fields existed come back without them. */
+  Asset: {
+    installedSoftware: (asset: { installedSoftware?: string[] | null }) =>
+      asset.installedSoftware ?? [],
+    edrStatus: (asset: { edrStatus?: string | null }) => asset.edrStatus ?? 'NOT_APPLICABLE',
+  },
   Query: { ...crud.Query, listAssetAssignees, assetAssignments, licenceSeatsFor },
   Mutation: { ...crud.Mutation, createAsset, updateAsset },
 };

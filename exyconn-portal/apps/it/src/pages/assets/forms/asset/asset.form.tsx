@@ -2,6 +2,7 @@ import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
+  RhfChipsInput,
   RhfTextField,
   RhfSelect,
   RhfDatePicker,
@@ -11,6 +12,7 @@ import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import {
+  AssetEdrStatus,
   AssetStatus,
   useCreateAssetMutation,
   useUpdateAssetMutation,
@@ -22,6 +24,7 @@ import type { AssetRow } from './asset.types';
 
 const CATEGORY_OPTIONS = enumOptions(ASSET_CATEGORIES);
 const STATUS_OPTIONS = enumOptions(ASSET_STATUSES);
+const EDR_OPTIONS = enumOptions(Object.values(AssetEdrStatus));
 type Values = z.infer<typeof assetSchema>;
 
 interface AssetFormProps {
@@ -73,6 +76,13 @@ export function AssetForm({ initial, onDone, onCancel }: Readonly<AssetFormProps
       <RhfDatePicker name="purchaseDate" label="Purchase date" />
       <RhfDatePicker name="warrantyExpiry" label="Warranty expiry" />
       <RhfTextField name="purchaseCost" label="Purchase cost" type="number" />
+      <RhfChipsInput
+        name="installedSoftware"
+        label="Installed software"
+        helperText="Press Enter after each"
+      />
+      <RhfSelect name="edrStatus" label="Antivirus / EDR" options={EDR_OPTIONS} />
+      <RhfDatePicker name="edrCheckedAt" label="EDR last checked" />
       <RhfTextField name="notes" label="Notes" multiline rows={2} />
     </EntityForm>
   );

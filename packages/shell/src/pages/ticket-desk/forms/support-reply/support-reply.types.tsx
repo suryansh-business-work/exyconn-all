@@ -1,4 +1,4 @@
-import type { TicketAttachmentInput } from '@exyconn/shell/graphql/generated';
+import type { TicketAttachmentInput } from '@/graphql/generated';
 
 /** Form values for replying on a ticket. */
 export interface SupportReplyFormValues {

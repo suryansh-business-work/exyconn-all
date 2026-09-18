@@ -8,7 +8,7 @@ import {
   ListKbArticlesPagedDocument,
   type ListKbArticlesPagedQuery,
 } from '@exyconn/shell/graphql/generated';
-import { KbArticleForm, type KbArticleRow } from './forms/kb-article';
+import { KbArticleForm, type KbArticleRow } from '@exyconn/shell/pages/content-forms';
 import { color } from '@exyconn/shell/components/ui';
 import {
   KB_ARTICLE_COLUMNS,

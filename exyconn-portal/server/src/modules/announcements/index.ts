@@ -1,4 +1,4 @@
-import { AnnouncementModel } from './announcement.model';
+import { ANNOUNCEMENT_IT_CATEGORIES, AnnouncementModel } from './announcement.model';
 import { announcementsTypeDefs } from './announcements.typeDefs';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
@@ -8,8 +8,9 @@ import { ROLES } from '../../constants/roles';
 import { broadcast } from '../notifications/notifications.service';
 import { isValidObjectId } from 'mongoose';
 import { UserModel } from '../admin/user.model';
-import { badRequest } from '../../utils/errors';
+import { badRequest, forbidden } from '../../utils/errors';
 import type { GraphQLContext } from '../../middleware/auth';
+import type { TableConfig } from '../../utils/tableQuery';
 
 interface AnnouncementInput {
   title: string;
@@ -31,20 +32,48 @@ function assertAudience(input: AnnouncementInput) {
     badRequest('employeeIds is required for an EMPLOYEES audience');
 }
 
+const IT_CATEGORIES: ReadonlySet<string> = new Set(ANNOUNCEMENT_IT_CATEGORIES);
+
+/**
+ * HR (and ADMIN) publish anything; IT publishes only its own kinds — maintenance, outages and
+ * security alerts — and may only touch announcements of those kinds.
+ */
+function assertMayPublish(ctx: GraphQLContext, category: string | null | undefined) {
+  const roles = assertAuthenticated(ctx).roles ?? [];
+  if (roles.includes(ROLES.ADMIN) || roles.includes(ROLES.HR)) {
+    return;
+  }
+  if (!IT_CATEGORIES.has(category ?? '')) {
+    forbidden('IT may only publish maintenance, outage and security announcements');
+  }
+}
+
+/** The category of an existing announcement, for the IT scope check on edit and delete. */
+async function storedCategory(id: string): Promise<string | null> {
+  if (!isValidObjectId(id)) {
+    return null;
+  }
+  const row = await AnnouncementModel.findById(id).select('category').lean();
+  return row?.category ?? null;
+}
+
 export const announcementsService = createCrudService<AnnouncementInput>(
   AnnouncementModel as never,
   'Announcement',
 );
 
+/** What the announcement grids search, filter and sort on — HR's and IT's alike. */
+export const ANNOUNCEMENT_TABLE: TableConfig = {
+  searchFields: ['title', 'body'],
+  filterFields: ['title', 'category'],
+  sortFields: ['title', 'category', 'pinned', 'publishedAt', 'createdAt'],
+  defaultSort: { field: 'publishedAt', dir: 'DESC' },
+};
+
 const crud = createCrudResolvers(announcementsService, {
   name: 'Announcement',
-  roles: [ROLES.HR],
-  table: {
-    searchFields: ['title', 'body'],
-    filterFields: ['title', 'category'],
-    sortFields: ['title', 'category', 'pinned', 'publishedAt', 'createdAt'],
-    defaultSort: { field: 'publishedAt', dir: 'DESC' },
-  },
+  roles: [ROLES.HR, ROLES.IT],
+  table: ANNOUNCEMENT_TABLE,
   stats: { countBy: ['category'] },
 });
 
@@ -82,6 +111,7 @@ async function activeAnnouncements(_p: unknown, _a: unknown, ctx: GraphQLContext
 const createAnnouncement = async (p: unknown, args: never, ctx: GraphQLContext) => {
   const { input } = args as unknown as { input: AnnouncementInput };
   assertAudience(input);
+  assertMayPublish(ctx, input.category);
   const created = await crud.Mutation.createAnnouncement(p, args, ctx);
   await broadcast({
     kind: 'ANNOUNCEMENT',
@@ -96,12 +126,20 @@ const createAnnouncement = async (p: unknown, args: never, ctx: GraphQLContext) 
 };
 
 const updateAnnouncement = async (p: unknown, args: never, ctx: GraphQLContext) => {
-  assertAudience((args as unknown as { input: AnnouncementInput }).input);
+  const { id, input } = args as unknown as { id: string; input: AnnouncementInput };
+  assertAudience(input);
+  assertMayPublish(ctx, input.category);
+  assertMayPublish(ctx, await storedCategory(id));
   return crud.Mutation.updateAnnouncement(p, args, ctx);
+};
+
+const deleteAnnouncement = async (p: unknown, args: never, ctx: GraphQLContext) => {
+  assertMayPublish(ctx, await storedCategory((args as unknown as { id: string }).id));
+  return crud.Mutation.deleteAnnouncement(p, args, ctx);
 };
 
 export const announcementsResolvers = {
   Query: { ...crud.Query, activeAnnouncements },
-  Mutation: { ...crud.Mutation, createAnnouncement, updateAnnouncement },
+  Mutation: { ...crud.Mutation, createAnnouncement, updateAnnouncement, deleteAnnouncement },
 };
 export { announcementsTypeDefs };

@@ -26,6 +26,14 @@ import BusinessIcon from '@mui/icons-material/Business';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
 import InventoryIcon from '@mui/icons-material/Inventory2';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import PasswordIcon from '@mui/icons-material/Password';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import PersonRemoveIcon from '@mui/icons-material/PersonRemove';
+import AppsIcon from '@mui/icons-material/Apps';
+import CloudIcon from '@mui/icons-material/Cloud';
+import RouterIcon from '@mui/icons-material/Router';
+import PublishedWithChangesIcon from '@mui/icons-material/PublishedWithChanges';
+import SecurityIcon from '@mui/icons-material/Security';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import HowToRegIcon from '@mui/icons-material/HowToReg';
 import ChecklistIcon from '@mui/icons-material/Checklist';
@@ -1075,12 +1083,154 @@ export const MODULES: ModuleDefinition[] = [
     path: '/it',
     role: ROLES.IT,
     icon: DevicesIcon,
-    description: 'Company hardware & licences',
+    description: 'Helpdesk, assets, access, security & IT operations',
     accent: color.cyan[600],
     children: [
-      { key: 'it-overview', label: 'Overview', path: '/it', icon: DashboardIcon },
-      { key: 'it-assets', label: 'Assets', path: '/it/assets', icon: InventoryIcon },
-      { key: 'it-licences', label: 'Licences', path: '/it/licences', icon: VpnKeyIcon },
+      {
+        key: 'it-overview',
+        label: 'Dashboard',
+        path: '/it',
+        icon: DashboardIcon,
+      },
+      {
+        key: 'it-reports',
+        label: 'Reports & Analytics',
+        path: '/it/reports',
+        icon: AssessmentIcon,
+      },
+      {
+        key: 'it-helpdesk',
+        label: 'IT Helpdesk',
+        path: '/it/helpdesk',
+        icon: SupportAgentIcon,
+        group: 'Service desk',
+      },
+      {
+        key: 'it-knowledge-base',
+        label: 'Knowledge Base',
+        path: '/it/knowledge-base',
+        icon: MenuBookIcon,
+        group: 'Service desk',
+      },
+      {
+        key: 'it-announcements',
+        label: 'Announcements',
+        path: '/it/announcements',
+        icon: CampaignIcon,
+        group: 'Service desk',
+      },
+      {
+        key: 'it-people',
+        label: 'Employee IT Profile',
+        path: '/it/people',
+        icon: ManageAccountsIcon,
+        group: 'People & access',
+      },
+      {
+        key: 'it-access',
+        label: 'Access Management',
+        path: '/it/access',
+        icon: VpnKeyIcon,
+        group: 'People & access',
+      },
+      {
+        key: 'it-passwords',
+        label: 'Password Resets',
+        path: '/it/passwords',
+        icon: PasswordIcon,
+        group: 'People & access',
+      },
+      {
+        key: 'it-onboarding',
+        label: 'Employee Onboarding',
+        path: '/it/onboarding',
+        icon: PersonAddIcon,
+        group: 'People & access',
+      },
+      {
+        key: 'it-offboarding',
+        label: 'Employee Offboarding',
+        path: '/it/offboarding',
+        icon: PersonRemoveIcon,
+        group: 'People & access',
+      },
+      {
+        key: 'it-assets',
+        label: 'Asset Management',
+        path: '/it/assets',
+        icon: InventoryIcon,
+        group: 'Estate',
+      },
+      {
+        key: 'it-licences',
+        label: 'Software & Licences',
+        path: '/it/licences',
+        icon: AppsIcon,
+        group: 'Estate',
+      },
+      {
+        key: 'it-cloud',
+        label: 'Cloud & Infrastructure',
+        path: '/it/cloud',
+        icon: CloudIcon,
+        group: 'Estate',
+      },
+      {
+        key: 'it-network',
+        label: 'Network',
+        path: '/it/network',
+        icon: RouterIcon,
+        group: 'Estate',
+      },
+      {
+        key: 'it-incidents',
+        label: 'Incident Management',
+        path: '/it/incidents',
+        icon: ReportProblemIcon,
+        group: 'Operations',
+      },
+      {
+        key: 'it-changes',
+        label: 'Change Management',
+        path: '/it/changes',
+        icon: PublishedWithChangesIcon,
+        group: 'Operations',
+      },
+      {
+        key: 'it-security',
+        label: 'Security Center',
+        path: '/it/security',
+        icon: SecurityIcon,
+        group: 'Operations',
+      },
+      {
+        key: 'it-procurement',
+        label: 'Procurement',
+        path: '/it/procurement',
+        icon: ShoppingCartIcon,
+        group: 'Spend & governance',
+      },
+      {
+        key: 'it-cost',
+        label: 'IT Cost & Budget',
+        path: '/it/cost',
+        icon: SavingsIcon,
+        group: 'Spend & governance',
+      },
+      {
+        key: 'it-policies',
+        label: 'Policies',
+        path: '/it/policies',
+        icon: PolicyIcon,
+        group: 'Spend & governance',
+      },
+      {
+        key: 'it-settings',
+        label: 'IT Admin Settings',
+        path: '/it/settings',
+        icon: TuneIcon,
+        group: 'Spend & governance',
+      },
     ],
   },
   {

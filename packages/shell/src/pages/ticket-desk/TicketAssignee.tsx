@@ -1,14 +1,17 @@
 import { useT } from '@exyconn/i18n';
-import { MenuItem, TextField } from '@exyconn/shell/components/ui';
-import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { MenuItem, TextField } from '@/components/ui';
+import { useNotify } from '@/components/feedback/NotificationProvider';
 import {
+  type SupportCategory,
   useListSupportAgentsQuery,
   useAssignSupportTicketMutation,
-} from '@exyconn/shell/graphql/generated';
+} from '@/graphql/generated';
 
 interface TicketAssigneeProps {
   ticketId: string;
   assigneeId: string;
+  /** IT tickets go to IT staff, everything else to the support desk. */
+  category: string;
   onAssigned: () => void;
 }
 
@@ -20,11 +23,14 @@ interface TicketAssigneeProps {
 export function TicketAssignee({
   ticketId,
   assigneeId,
+  category,
   onAssigned,
 }: Readonly<TicketAssigneeProps>) {
   const notify = useNotify();
   const t = useT();
-  const { data } = useListSupportAgentsQuery();
+  const { data } = useListSupportAgentsQuery({
+    variables: { category: category as SupportCategory },
+  });
   const [assign, { loading }] = useAssignSupportTicketMutation();
 
   const agents = data?.listSupportAgents ?? [];

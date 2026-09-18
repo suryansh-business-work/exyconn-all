@@ -1,5 +1,5 @@
 import { useT } from '@exyconn/i18n';
-import { ToggleButton, ToggleButtonGroup } from '@exyconn/shell/components/ui';
+import { ToggleButton, ToggleButtonGroup } from '@/components/ui';
 import {
   FilterOp,
   SlaState,
@@ -7,7 +7,7 @@ import {
   SupportStatus,
   TicketChannel,
   type TableFilterInput,
-} from '@exyconn/shell/graphql/generated';
+} from '@/graphql/generated';
 
 export type QuickFilter =
   'all' | 'unassigned' | 'mine' | 'open' | 'overdue' | 'customers' | 'employees' | 'emailed';
@@ -48,14 +48,26 @@ export function quickFilters(filter: QuickFilter, userId: string): TableFilterIn
   return FILTERS[filter](userId);
 }
 
+/** The views a desk that only works employee tickets needs — IT's helpdesk. */
+export const EMPLOYEE_DESK_FILTERS: readonly QuickFilter[] = [
+  'all',
+  'unassigned',
+  'mine',
+  'open',
+  'overdue',
+];
+
 interface TicketQuickFilterProps {
   value: QuickFilter;
   onChange: (next: QuickFilter) => void;
+  /** Which views to offer; every one of them when omitted (the Support console). */
+  only?: readonly QuickFilter[];
 }
 
 /** One-click views of the queue, above the grid. */
-export function TicketQuickFilter({ value, onChange }: Readonly<TicketQuickFilterProps>) {
+export function TicketQuickFilter({ value, onChange, only }: Readonly<TicketQuickFilterProps>) {
   const t = useT();
+  const offered = only ? OPTIONS.filter((option) => only.includes(option.value)) : OPTIONS;
   return (
     <ToggleButtonGroup
       exclusive
@@ -69,7 +81,7 @@ export function TicketQuickFilter({ value, onChange }: Readonly<TicketQuickFilte
       aria-label={t('Quick filter')}
       sx={{ mb: 1.5, flexWrap: 'wrap' }}
     >
-      {OPTIONS.map((option) => (
+      {offered.map((option) => (
         <ToggleButton key={option.value} value={option.value}>
           {t(option.label)}
         </ToggleButton>

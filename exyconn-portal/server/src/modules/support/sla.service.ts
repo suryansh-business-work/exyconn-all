@@ -1,4 +1,5 @@
-import { SupportTicketModel } from '../employee/support.model';
+import type { FilterQuery } from 'mongoose';
+import { SupportTicketModel, type SupportTicketDocument } from '../employee/support.model';
 import { DEFAULT_SLA_POLICIES, SupportSlaPolicyModel } from './sla-policy.model';
 import { dueAtFrom, slaState, type SlaClocks, type SlaState } from './support.sla';
 import { logger } from '../../utils/logger';
@@ -47,8 +48,11 @@ export interface SupportSlaSummary {
  * late. Only unresolved tickets are read row by row — that is the small set the team
  * can still act on; the resolved-late tally is one count in the database.
  */
-export async function supportSlaSummary(now = new Date()): Promise<SupportSlaSummary> {
-  const open = await SupportTicketModel.find({ resolvedAt: null, dueAt: { $ne: null } })
+export async function supportSlaSummary(
+  scope: FilterQuery<SupportTicketDocument> = {},
+  now = new Date(),
+): Promise<SupportSlaSummary> {
+  const open = await SupportTicketModel.find({ ...scope, resolvedAt: null, dueAt: { $ne: null } })
     .select('createdAt dueAt resolvedAt')
     .lean<SlaClocks[]>();
 
@@ -58,6 +62,7 @@ export async function supportSlaSummary(now = new Date()): Promise<SupportSlaSum
   }
 
   const resolvedLate = await SupportTicketModel.countDocuments({
+    ...scope,
     resolvedAt: { $ne: null },
     dueAt: { $ne: null },
     $expr: { $gt: ['$resolvedAt', '$dueAt'] },

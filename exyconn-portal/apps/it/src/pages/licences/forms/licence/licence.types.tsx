@@ -9,7 +9,8 @@ export interface LicenceFormValues {
   assigneeIds: string[];
   cost: number;
   billingCycle: string;
-  renewalDate: Date | null;
+  /** ISO string from the picker. */
+  renewalDate: string;
   status: string;
   notes: string;
 }

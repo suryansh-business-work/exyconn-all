@@ -69,6 +69,11 @@ export const supportTypeDefs = gql`
     "Stamped when it reaches RESOLVED or CLOSED; cleared when it is reopened."
     resolvedAt: DateTime
     slaState: SlaState!
+    "What an IT ticket is about, from IT's topic list. Empty until triaged."
+    topic: String!
+    "How many times it has been escalated. 0 means never."
+    escalationLevel: Int!
+    escalatedAt: DateTime
   }
 
   "One message on a ticket. Internal notes are hidden from the requester."
@@ -158,8 +163,8 @@ export const supportTypeDefs = gql`
     supportSlaSummary: SupportSlaSummary!
     "SUPPORT/ADMIN: the whole thread on one ticket, internal notes included."
     listSupportReplies(ticketId: ID!): [SupportReply!]!
-    "SUPPORT/ADMIN: who a ticket can be assigned to."
-    listSupportAgents: [SupportAgent!]!
+    "SUPPORT/IT: who a ticket can be assigned to — IT staff for an IT ticket, the desk otherwise."
+    listSupportAgents(category: SupportCategory): [SupportAgent!]!
     "SUPPORT/ADMIN: the promise made for each priority."
     listSupportSlaPolicies: [SupportSlaPolicy!]!
     listSupportSlaPoliciesPaged(input: TableQueryInput!): SupportSlaPolicyPage!
@@ -175,12 +180,19 @@ export const supportTypeDefs = gql`
   extend type Mutation {
     "SUPPORT/ADMIN: move a ticket through its lifecycle."
     setSupportTicketStatus(id: ID!, status: SupportStatus!): SupportTicket!
-    "SUPPORT/ADMIN: re-triage a ticket — the team it belongs to and how urgent it is."
+    "SUPPORT/ADMIN: re-triage a ticket — the team it belongs to, how urgent it is, its topic."
     setSupportTicketTriage(
       id: ID!
       category: SupportCategory!
       priority: SupportPriority!
+      "IT's topic for the ticket. Omit to leave it as it is."
+      topic: String
     ): SupportTicket!
+    """
+    SUPPORT/IT: escalate a ticket. Raises it to HIGH priority (recomputing the deadline), bumps
+    its escalation level, records the reason as an internal note and tells the assignee.
+    """
+    escalateSupportTicket(id: ID!, reason: String!): SupportTicket!
     "SUPPORT/ADMIN: hand a ticket to someone, or pass an empty id to unassign it."
     assignSupportTicket(id: ID!, assigneeId: String!): SupportTicket!
     "SUPPORT/ADMIN: reply on a ticket, or leave an internal note."

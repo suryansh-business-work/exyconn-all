@@ -45,6 +45,19 @@ describe('AssetForm', () => {
     cy.get('input[name="assetTag"]').should('exist');
   });
 
+  it('accepts a typed purchase date rather than rejecting the picker value', () => {
+    mount();
+    cy.get('input[name="purchaseDate"]').typeDate('12012026');
+    cy.contains('button', 'Create').click();
+    cy.contains(/expected date/i).should('not.exist');
+  });
+
+  it('records the antivirus / EDR state of the device', () => {
+    mount();
+    cy.contains('Antivirus / EDR').should('be.visible');
+    cy.contains('Installed software').should('be.visible');
+  });
+
   it('invokes onCancel when Cancel is clicked', () => {
     mount();
     cy.contains('button', 'Cancel').click();

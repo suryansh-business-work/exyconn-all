@@ -14,6 +14,9 @@ export const NOTIFICATION_KINDS = [
   'SOCIAL_LIKE',
   'SOCIAL_COMMENT',
   'SOCIAL_SHARE',
+  // A ticket being escalated, and IT deciding or carrying out a request.
+  'SUPPORT',
+  'IT',
   'GENERAL',
 ] as const;
 

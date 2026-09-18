@@ -1,3 +1,3 @@
-import type { KbArticleFieldsFragment } from '@exyconn/shell/graphql/generated';
+import type { KbArticleFieldsFragment } from '@/graphql/generated';
 
 export type KbArticleRow = KbArticleFieldsFragment;
