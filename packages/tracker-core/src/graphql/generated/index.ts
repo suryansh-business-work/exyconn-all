@@ -624,6 +624,8 @@ export type CreateUserInput = {
   managerId: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   probationEndDate: InputMaybe<Scalars['DateTime']['input']>;
+  /** The state or region they work in, for regional holidays; null when not set. */
+  region: InputMaybe<Scalars['String']['input']>;
   roles: Array<Role>;
   /** IANA zone name, or null to follow the workspace default. */
   timezone: InputMaybe<Scalars['String']['input']>;
@@ -943,7 +945,7 @@ export type GradeInput = {
 };
 
 export type HolidayInput = {
-  /** Cities of the country that observe it; empty for the whole country. Ignored on a global one. */
+  /** Cities of the country that observe it. Empty with regions: the whole country. */
   cities: Array<Scalars['String']['input']>;
   /** ISO 3166-1 alpha-2, or empty for a holiday the whole company observes. */
   country: Scalars['String']['input'];
@@ -952,6 +954,8 @@ export type HolidayInput = {
   /** Countries that do not observe a company-wide holiday. Ignored on a country holiday. */
   excludedCountries: Array<Scalars['String']['input']>;
   name: Scalars['String']['input'];
+  /** States or regions of the country that observe it. Ignored on a global one. */
+  regions: Array<Scalars['String']['input']>;
   type: HolidayType;
 };
 
@@ -2122,6 +2126,27 @@ export type SlipStatus =
   | 'GENERATED'
   | 'PAID';
 
+export type SocialApp =
+  | 'LINKEDIN'
+  | 'META'
+  | 'X'
+  | 'YOUTUBE';
+
+export type SocialAppConfigInput = {
+  app: SocialApp;
+  clientId: Scalars['String']['input'];
+  /** Blank keeps the stored secret. */
+  clientSecret: InputMaybe<Scalars['String']['input']>;
+  enabled: Scalars['Boolean']['input'];
+};
+
+export type SocialNetwork =
+  | 'FACEBOOK'
+  | 'INSTAGRAM'
+  | 'LINKEDIN'
+  | 'X'
+  | 'YOUTUBE';
+
 export type SocialPostInput = {
   body: Scalars['String']['input'];
   imageUrl: InputMaybe<Scalars['String']['input']>;
@@ -2622,6 +2647,8 @@ export type UpdateUserInput = {
   name: InputMaybe<Scalars['String']['input']>;
   password: InputMaybe<Scalars['String']['input']>;
   probationEndDate: InputMaybe<Scalars['DateTime']['input']>;
+  /** The state or region they work in, for regional holidays; null when not set. */
+  region: InputMaybe<Scalars['String']['input']>;
   roles: InputMaybe<Array<Role>>;
   /** IANA zone name, or null to follow the workspace default. */
   timezone: InputMaybe<Scalars['String']['input']>;
@@ -2637,6 +2664,11 @@ export type UserSocialLinksInput = {
   linkedin: InputMaybe<Scalars['String']['input']>;
   twitter: InputMaybe<Scalars['String']['input']>;
   website: InputMaybe<Scalars['String']['input']>;
+};
+
+export type WebsiteCaptchaAnswer = {
+  answer: Scalars['String']['input'];
+  token: Scalars['String']['input'];
 };
 
 export type WebsiteSubmissionInput = {

@@ -27,6 +27,7 @@ export const HOLIDAY_COLUMNS: ColDef<PagedHolidayRow>[] = [
   derivedColumn('excludedCountries', 'Not observed in', (row) =>
     row.excludedCountries.map((code) => countryName(code)).join(', '),
   ),
+  derivedColumn('regions', 'States / regions', (row) => row.regions.join(', ')),
   derivedColumn('cities', 'Cities', (row) => row.cities.join(', ')),
   textColumn('description', 'Description'),
   actionsColumn(),

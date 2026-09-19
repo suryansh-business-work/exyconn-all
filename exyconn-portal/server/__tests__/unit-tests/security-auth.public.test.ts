@@ -5,7 +5,7 @@ import { ClientModel } from '../../src/modules/clients/clients.model';
 import { SupportTicketModel } from '../../src/modules/employee/support.model';
 import { createClientSupportTicket } from '../../src/modules/support/client-ticket.service';
 import type { GraphQLContext } from '../../src/middleware/auth';
-import { useTestOrganization } from '../helpers';
+import { useTestOrganization, solvedCaptcha } from '../helpers';
 
 jest.mock('../../src/utils/mailer', () => ({
   mailer: { sendFormSubmissionEmail: jest.fn().mockResolvedValue(undefined) },
@@ -16,7 +16,7 @@ const visitor = (ip: string): GraphQLContext => ({ user: null, ip });
 const submit = (submissionData: Record<string, unknown>, ip = '198.51.100.40') =>
   websiteResolvers.Mutation.createWebsiteSubmission(
     null,
-    { input: { formType: 'contact', submissionData } },
+    { input: { formType: 'contact', submissionData }, captcha: solvedCaptcha() },
     visitor(ip),
   );
 

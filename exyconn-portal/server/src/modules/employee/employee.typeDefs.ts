@@ -120,7 +120,9 @@ export const employeeTypeDefs = gql`
     country: String!
     "Countries that do not observe this company-wide holiday."
     excludedCountries: [String!]!
-    "Cities of the country that observe it; empty for the whole country."
+    "States or regions of the country that observe it. Empty with cities: the whole country."
+    regions: [String!]!
+    "Cities of the country that observe it. Empty with regions: the whole country."
     cities: [String!]!
   }
 

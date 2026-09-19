@@ -10,15 +10,13 @@ import {
 import { enumOptions } from '@/utils/enumOptions';
 import { EmploymentStatus, WorkingTime, WorkLocation } from '@/graphql/generated';
 import { DEFAULT_WORK_HOURS } from '@/components/work';
-import { LocalePreferenceFields, useCountryOptions } from '@/components/localization';
+import { LocalePreferenceFields } from '@/components/localization';
+import { PlaceOfEmploymentFields } from './user.place-fields';
 import type { UserValues } from './user.schema';
 
 const WORKING_TIME_OPTIONS = enumOptions(Object.values(WorkingTime));
 const WORK_LOCATION_OPTIONS = enumOptions(Object.values(WorkLocation));
 const EMPLOYMENT_STATUS_OPTIONS = enumOptions(Object.values(EmploymentStatus));
-
-/** The empty country: the person follows the company's own. */
-const COMPANY_COUNTRY_OPTION: SelectOption = { value: '', label: "Company's country" };
 
 /** Photo, address and a short brief — the parts of the record that describe the person. */
 export function ProfileFields() {
@@ -101,7 +99,6 @@ export function EmploymentFields({
   currentDesignation,
   managerOptions,
 }: Readonly<EmploymentFieldsProps>) {
-  const countries = useCountryOptions();
   const department = useClearDesignationOnDepartmentChange(positions);
   const positionOptions = designationOptions(positions, department, currentDesignation);
   const designationHint = department
@@ -134,17 +131,7 @@ export function EmploymentFields({
         label="Employment status"
         options={EMPLOYMENT_STATUS_OPTIONS}
       />
-      <RhfAutocomplete
-        name="country"
-        label="Country of employment"
-        options={[COMPANY_COUNTRY_OPTION, ...countries]}
-        helperText="Decides which leave quotas and holidays apply to them."
-      />
-      <RhfTextField
-        name="city"
-        label="City of employment"
-        helperText="Adds the holidays HR set for this city."
-      />
+      <PlaceOfEmploymentFields />
     </>
   );
 }

@@ -33,6 +33,30 @@ describe('Switch (branded)', () => {
 /** The rendered box of the first element `selector` finds. */
 const box = (selector: string) => cy.get(selector).then(($el) => $el[0].getBoundingClientRect());
 
+describe('Switch size', () => {
+  beforeEach(() => {
+    cy.mount(
+      <ThemeProvider>
+        <Switch slotProps={{ input: { 'aria-label': 'enabled' } }} />
+      </ThemeProvider>,
+    );
+  });
+
+  it('draws a compact 36×20 track', () => {
+    box('.MuiSwitch-root').then((track) => {
+      expect(track.width).to.equal(36);
+      expect(track.height).to.equal(20);
+    });
+  });
+
+  it('keeps a pointer target of at least 24×24 (SC 2.5.8)', () => {
+    box('input[type="checkbox"]').then((target) => {
+      expect(target.width).to.be.at.least(24);
+      expect(target.height).to.be.at.least(24);
+    });
+  });
+});
+
 describe('Switch with a label', () => {
   beforeEach(() => {
     cy.mount(

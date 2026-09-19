@@ -11,6 +11,7 @@ import { logger } from '../../utils/logger';
 import { createApplicantFromSubmission } from '../recruiting/recruiting.service';
 import { JOB_APPLICATION_FORM_TYPE } from '../recruiting/recruiting.constants';
 import { createLimiter, tooManyRequests } from '../../lib/rateLimiter';
+import { assertCaptcha, issueCaptcha } from './website.captcha';
 
 const ALLOWED_FORM_TYPES = new Set<string>(SUBMISSION_FORM_TYPES);
 const ALLOWED_STATUSES = new Set<string>(SUBMISSION_STATUSES);
@@ -172,12 +173,14 @@ export const websiteSubmissionResolvers = {
       }
       return withId(doc as { _id: unknown });
     },
+
+    websiteCaptcha: () => issueCaptcha(),
   },
 
   Mutation: {
     createWebsiteSubmission: async (
       _p: unknown,
-      { input }: { input: SubmissionInput },
+      { input, captcha }: { input: SubmissionInput; captcha: { token: string; answer: string } },
       ctx: GraphQLContext,
     ) => {
       if (!ALLOWED_FORM_TYPES.has(input.formType)) {
@@ -188,6 +191,8 @@ export const websiteSubmissionResolvers = {
       if (!(await submissionBurstLimiter.allow(ip)) || !(await submissionDailyLimiter.allow(ip))) {
         tooManyRequests(10 * 60 * 1000, 'submissions');
       }
+      // After the rate limit, so guessing at the question is throttled like any submission.
+      await assertCaptcha(captcha.token, captcha.answer);
       const created = await WebsiteSubmissionModel.create({
         formType: input.formType,
         source: input.source ?? 'website',

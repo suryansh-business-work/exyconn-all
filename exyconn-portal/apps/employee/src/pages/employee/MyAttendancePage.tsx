@@ -10,6 +10,8 @@ import { useMyAttendanceQuery } from '@exyconn/shell/graphql/generated';
 import { MyWorkArrangementCard } from '@exyconn/shell/components/work';
 import { MarkAttendanceForm } from './forms/mark-attendance';
 import { densePanel } from '@exyconn/shell/components/glass/glass';
+import { portalLogger } from '@exyconn/shell/logging/portalLogger';
+import { AttendanceCalendar } from './attendance-calendar';
 
 type AttendanceRow = { id: string; date: string; status: string; note?: string | null };
 
@@ -37,7 +39,9 @@ export function MyAttendancePage() {
         <MarkAttendanceForm
           onCancel={() => setOpen(false)}
           onDone={() => {
-            void refetch();
+            refetch().catch((error: unknown) =>
+              portalLogger.warn('Could not reload attendance', error),
+            );
             setOpen(false);
           }}
         />
@@ -49,10 +53,11 @@ export function MyAttendancePage() {
     <Box>
       <PageHeader
         title="My Attendance"
-        subtitle="Mark your attendance for the day"
+        subtitle="Mark your attendance for the day, and see your month at a glance"
         actionLabel="Mark attendance"
         onAction={() => setOpen(true)}
       />
+      <AttendanceCalendar attendance={rows} attendanceLoading={loading} />
       <MyWorkArrangementCard />
       <Box sx={densePanel}>
         <DataTable

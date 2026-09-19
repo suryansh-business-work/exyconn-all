@@ -6,6 +6,7 @@ import { emailer } from '../../src/modules/email';
 import { mailer } from '../../src/utils/mailer';
 import { ROLES } from '../../src/constants/roles';
 import type { GraphQLContext } from '../../src/middleware/auth';
+import { solvedCaptcha } from '../helpers';
 
 jest.mock('../../src/modules/email', () => ({
   emailer: { send: jest.fn() },
@@ -45,7 +46,7 @@ const visitor: GraphQLContext = { user: null, ip: '198.51.100.20' };
 const submit = (submissionData: Record<string, unknown>) =>
   websiteResolvers.Mutation.createWebsiteSubmission(
     null,
-    { input: { formType: 'job-application', submissionData } },
+    { input: { formType: 'job-application', submissionData }, captcha: solvedCaptcha() },
     visitor,
   ) as Promise<{ id: string; applicantId: string | null }>;
 
@@ -119,7 +120,10 @@ describe('Applicant from a job application', () => {
   it('does not file an applicant for other forms', async () => {
     await websiteResolvers.Mutation.createWebsiteSubmission(
       null,
-      { input: { formType: 'contact', submissionData: { email: 'a@b.co', message: 'Hi' } } },
+      {
+        input: { formType: 'contact', submissionData: { email: 'a@b.co', message: 'Hi' } },
+        captcha: solvedCaptcha(),
+      },
       visitor,
     );
 

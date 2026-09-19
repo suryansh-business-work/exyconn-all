@@ -275,3 +275,7 @@
 {"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › offers opt-outs only on a company-wide holiday","violations":[]}
 {"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › narrows a country holiday to cities","violations":[]}
 {"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › calls onCancel","violations":[]}
+{"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › validates the required fields","violations":[]}
+{"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › offers opt-outs only on a company-wide holiday","violations":[]}
+{"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › narrows a country holiday to regions and cities","violations":[]}
+{"spec":"src/pages/holidays/forms/holiday/holiday.form.cy.tsx","test":"HolidayForm › calls onCancel","violations":[]}

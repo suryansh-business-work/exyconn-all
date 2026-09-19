@@ -1,5 +1,6 @@
 import type { SvgIconComponent } from '@mui/icons-material';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import ShareIcon from '@mui/icons-material/Share';
 import InsightsIcon from '@mui/icons-material/Insights';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import BugReportIcon from '@mui/icons-material/BugReport';
@@ -627,11 +628,19 @@ export const MODULES: ModuleDefinition[] = [
         group: 'Leave',
       },
       {
-        // Leave types and holidays, each global with per-country overrides.
+        // Leave types, each global with per-country overrides.
         key: 'hr-leave-settings',
         label: 'Leave Settings',
         path: '/hr/leave-settings',
         icon: PolicyIcon,
+        group: 'Leave',
+      },
+      {
+        // Global, country, state / regional and city holidays.
+        key: 'hr-holidays',
+        label: 'Holidays',
+        path: '/hr/holidays',
+        icon: CelebrationIcon,
         group: 'Leave',
       },
       {
@@ -749,6 +758,12 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Suppression List',
         path: '/marketing/suppression',
         icon: BlockIcon,
+      },
+      {
+        key: 'marketing-social',
+        label: 'Social accounts',
+        path: '/marketing/social',
+        icon: ShareIcon,
       },
     ],
   },

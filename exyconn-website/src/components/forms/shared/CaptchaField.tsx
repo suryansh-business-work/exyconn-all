@@ -40,13 +40,20 @@ export function CaptchaField({
       </label>
       <div className="flex items-center gap-4 flex-wrap">
         <div className="flex items-center gap-2 bg-surface px-4 py-2 rounded-lg border border-line">
-          <i className={ACCENT_CLASSES[accent].icon}></i>
-          <span className="font-mono font-bold text-fg">{question}</span>
+          <i className={ACCENT_CLASSES[accent].icon} aria-hidden="true"></i>
+          {/* Announced when a new question replaces the old one. */}
+          <span id="captcha-question" aria-live="polite" className="font-mono font-bold text-fg">
+            {question}
+          </span>
         </div>
         <input
           type="text"
           id="captcha"
+          inputMode="numeric"
+          autoComplete="off"
           placeholder="Answer"
+          aria-describedby="captcha-question captcha-hint"
+          aria-invalid={invalid}
           className={`w-24 ${inputClassName(accent, invalid)}`}
           {...registration}
         />
@@ -54,13 +61,25 @@ export function CaptchaField({
           type="button"
           onClick={onRefresh}
           className={ACCENT_CLASSES[accent].refresh}
-          title="Refresh captcha"
+          title="New question"
+          aria-label="Show a new security question"
         >
-          <i className="fa-solid fa-rotate"></i>
+          <i className="fa-solid fa-rotate" aria-hidden="true"></i>
         </button>
       </div>
-      {error && <div className={ERROR_CLASSES}>{error}</div>}
-      {captchaError && <div className={ERROR_CLASSES}>{captchaError}</div>}
+      <p id="captcha-hint" className="mt-2 text-xs text-fg-subtle">
+        Type the answer to the sum. It stops automated spam.
+      </p>
+      {error && (
+        <div role="alert" className={ERROR_CLASSES}>
+          {error}
+        </div>
+      )}
+      {captchaError && (
+        <div role="alert" className={ERROR_CLASSES}>
+          {captchaError}
+        </div>
+      )}
     </div>
   );
 }

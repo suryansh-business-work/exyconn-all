@@ -1,5 +1,6 @@
 ---
 import { readableInk } from "../../styles/tokens/semantic.tokens";
+import CaptchaBlock from "../forms/shared/CaptchaBlock.astro";
 
 interface Props {
   jobId: string;
@@ -268,6 +269,8 @@ const { jobId, jobTitle, companyName, companySlug, brandColor } = Astro.props;
       </div>
     </div>
 
+    <CaptchaBlock id="job-application" />
+
     <!-- Consent -->
     <div class="pt-4 border-t border-line-subtle">
       <label class="flex items-start gap-3 cursor-pointer">
@@ -286,6 +289,9 @@ const { jobId, jobTitle, companyName, companySlug, brandColor } = Astro.props;
 
     <!-- Submit Button -->
     <div class="pt-4">
+      <p id="submit-error" role="alert" class="hidden mb-3 text-sm text-red-fg text-center">
+        Your application could not be sent. Please check your connection and try again.
+      </p>
       <button
         type="submit"
         class="w-full inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-semibold text-on-solid transition hover:opacity-90 shadow-lg"
@@ -322,7 +328,11 @@ const { jobId, jobTitle, companyName, companySlug, brandColor } = Astro.props;
 </div>
 
 <script>
+  import { mountCaptcha } from "../../lib/captcha-dom";
+
   document.addEventListener("DOMContentLoaded", () => {
+    const captcha = mountCaptcha(document, "job-application");
+    const submitError = document.getElementById("submit-error");
     const form = document.getElementById("job-application-form") as HTMLFormElement;
     const successMessage = document.getElementById("success-message");
     const submitBtn = document.getElementById("submit-btn");
@@ -341,17 +351,18 @@ const { jobId, jobTitle, companyName, companySlug, brandColor } = Astro.props;
     }
 
     // Form submission
-    if (form && successMessage && submitBtn) {
+    if (form && successMessage && submitBtn && captcha && submitError) {
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
         // Show loading state
+        submitError.classList.add("hidden");
         submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-2"></i> Submitting...';
         (submitBtn as HTMLButtonElement).disabled = true;
 
         try {
           const formData = new FormData(form);
-          const payload: Record<string, string> = { formType: "job-application" };
+          const payload: Record<string, string> = {};
           formData.forEach((value, key) => {
             if (key === "resume" && value instanceof File) {
               payload.resumeName = value.name;
@@ -360,26 +371,22 @@ const { jobId, jobTitle, companyName, companySlug, brandColor } = Astro.props;
             }
           });
 
-          const res = await fetch("/api/form-submit", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-
-          if (!res.ok) throw new Error("Send failed");
+          if ((await captcha.send("job-application", payload)) === "captcha") {
+            // The reason is shown under the security question.
+            submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Application';
+            (submitBtn as HTMLButtonElement).disabled = false;
+            return;
+          }
 
           // Hide form, show success message
           form.style.display = "none";
           successMessage.classList.remove("hidden");
           successMessage.scrollIntoView({ behavior: "smooth", block: "center" });
         } catch {
-          // Show error inline
-          submitBtn.innerHTML =
-            '<i class="fa-solid fa-exclamation-circle mr-2"></i> Failed — Try Again';
+          // Said beside the button, where the person is looking, and read out (role="alert").
+          submitError.classList.remove("hidden");
+          submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Application';
           (submitBtn as HTMLButtonElement).disabled = false;
-          setTimeout(() => {
-            submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Submit Application';
-          }, 3000);
         }
       });
     }

@@ -107,15 +107,18 @@ async function trackedItems(
       .select('userId startedAt endedAt projectId projectName durationMs')
       .lean(),
   ]);
+  // Sessions recorded before projects were tracked (and a lean read applies no defaults)
+  // carry no project at all: that is time booked without a project, not a missing value
+  // that fails the whole register.
   return [
     ...sessions.map((s) => ({
       userId: s.userId,
       startedAt: s.startedAt,
       endedAt: s.endedAt ?? null,
-      projectId: s.projectId,
-      projectName: s.projectName,
-      activeMs: s.activeMs,
-      idleMs: s.idleMs,
+      projectId: s.projectId ?? '',
+      projectName: s.projectName ?? '',
+      activeMs: s.activeMs ?? 0,
+      idleMs: s.idleMs ?? 0,
       manualMs: 0,
       isSession: true,
     })),
@@ -123,11 +126,11 @@ async function trackedItems(
       userId: m.userId,
       startedAt: m.startedAt,
       endedAt: m.endedAt,
-      projectId: m.projectId,
-      projectName: m.projectName,
+      projectId: m.projectId ?? '',
+      projectName: m.projectName ?? '',
       activeMs: 0,
       idleMs: 0,
-      manualMs: m.durationMs,
+      manualMs: m.durationMs ?? 0,
       isSession: false,
     })),
   ];

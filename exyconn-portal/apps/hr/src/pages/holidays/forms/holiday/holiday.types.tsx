@@ -11,6 +11,8 @@ export interface HolidayFormValues {
   country: string;
   /** Countries that do not observe a company-wide holiday. */
   excludedCountries: string[];
-  /** Cities of a country holiday that observe it; empty is the whole country. */
+  /** States or regions of a country holiday that observe it. */
+  regions: string[];
+  /** Cities of a country holiday that observe it; with no regions either, the whole country. */
   cities: string[];
 }

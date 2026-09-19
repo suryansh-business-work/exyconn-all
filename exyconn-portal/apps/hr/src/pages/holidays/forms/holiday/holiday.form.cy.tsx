@@ -35,13 +35,14 @@ describe('HolidayForm', () => {
     cy.contains('Countries whose employees work on this day.').should('not.exist');
   });
 
-  it('narrows a country holiday to cities', () => {
+  it('narrows a country holiday to regions and cities', () => {
     mount();
-    cy.contains('Leave empty for the whole country.').should('not.exist');
+    cy.contains('label', 'States / regions').should('not.exist');
     cy.get('input[name="country"]').clear();
     cy.get('input[name="country"]').type('India');
     cy.contains('[role="option"]', /^India$/).click();
-    cy.contains('Leave empty for the whole country.').should('be.visible');
+    cy.contains('label', 'States / regions').parent().find('input').type('Maharashtra{enter}');
+    cy.contains('.MuiChip-root', 'Maharashtra').should('be.visible');
     cy.contains('label', 'Cities').parent().find('input').type('Pune{enter}');
     cy.contains('.MuiChip-root', 'Pune').should('be.visible');
   });

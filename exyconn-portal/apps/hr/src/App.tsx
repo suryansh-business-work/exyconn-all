@@ -29,6 +29,7 @@ import { EmploymentTypesPage } from './pages/employment-types';
 import { ShiftsPage } from './pages/shifts';
 import { ExitsPage } from './pages/exits';
 import { LeaveSettingsPage, LEAVE_SETTINGS_PATH } from './pages/leave-settings';
+import { HolidaysPage } from './pages/holidays';
 import { RequestsPage } from './pages/requests';
 import { GoalsPage } from './pages/goals';
 import { PerformancePage } from './pages/performance';
@@ -67,11 +68,13 @@ export function App() {
       <Route path="/hr/shifts" element={<ShiftsPage />} />
       <Route path="/hr/exits" element={<ExitsPage />} />
       <Route path="/hr/leave-settings/:tab?" element={<LeaveSettingsPage />} />
-      {/* Both moved under Leave Settings; old links and bookmarks still land there. */}
+      <Route path="/hr/holidays" element={<HolidaysPage />} />
+      {/* Holidays have their own page again; the old tab link lands there. */}
       <Route
-        path="/hr/holidays"
-        element={<Navigate to={`${LEAVE_SETTINGS_PATH}/holidays`} replace />}
+        path={`${LEAVE_SETTINGS_PATH}/holidays`}
+        element={<Navigate to="/hr/holidays" replace />}
       />
+      {/* Moved under Leave Settings; old links and bookmarks still land there. */}
       <Route
         path="/hr/leave-policies"
         element={<Navigate to={`${LEAVE_SETTINGS_PATH}/leave-types`} replace />}
