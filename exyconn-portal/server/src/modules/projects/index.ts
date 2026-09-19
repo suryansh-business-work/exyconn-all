@@ -6,6 +6,10 @@ import { ROLES } from '../../constants/roles';
 import { clientNameFor } from '../clients';
 import type { GraphQLContext } from '../../middleware/auth';
 
+// Registers the `projects-due` reminder source. Imported for its side effect, the way every
+// other module with a due date registers: the sweep never has to know this module exists.
+import './projects.reminders';
+
 interface ProjectInput {
   name: string;
   description?: string;

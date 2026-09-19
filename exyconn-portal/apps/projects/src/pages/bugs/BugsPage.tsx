@@ -87,6 +87,7 @@ export function BugsPage() {
       title="Bugs"
       subtitle="Issue tracking"
       entityLabel="bug"
+      exportFileName="bugs"
       stats={statItems}
       crud={crud}
       renderForm={(initial) => (

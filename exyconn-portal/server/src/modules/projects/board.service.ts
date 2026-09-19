@@ -1,5 +1,6 @@
 import { BoardColumnModel, TaskActivityModel, TaskCommentModel, TaskModel } from './board.model';
 import { ProjectModel } from './projects.model';
+import { notifyAssignment, notifyComment, notifyTicketDone } from './projects.notify';
 import { badRequest, notFound } from '../../utils/errors';
 
 /** One file hung off a ticket or a comment, as it arrives from the client. */
@@ -270,6 +271,7 @@ export const boardService = {
       order,
     });
     await record(created.id, reporter, 'created', '', created.key);
+    await notifyAssignment(created, reporter);
     return created.toObject();
   },
 
@@ -290,6 +292,9 @@ export const boardService = {
     for (const change of attachmentChanges(before.attachments, doc.attachments)) {
       await record(id, actor, ATTACHMENT_FIELD, change.from, change.to);
     }
+    // Only a change of hands is news: the previous holder is passed so that re-saving a
+    // ticket's labels does not re-announce an assignment made last week.
+    await notifyAssignment(doc, actor, before.assigneeId ?? '');
     return doc;
   },
 
@@ -319,10 +324,15 @@ export const boardService = {
     if (fromColumnId !== toColumnId) {
       const [from, to] = await Promise.all([
         BoardColumnModel.findById(fromColumnId).select('name').lean(),
-        BoardColumnModel.findById(toColumnId).select('name').lean(),
+        BoardColumnModel.findById(toColumnId).select('name isDone').lean(),
       ]);
       await renumber(fromColumnId);
       await record(id, actor, 'column', from?.name ?? '', to?.name ?? '');
+      // Reaching a done column is the one move worth announcing, and only when somebody
+      // else made it — the board says which columns mean finished, so this never guesses.
+      if (to?.isDone) {
+        await notifyTicketDone(task, actor, to.name);
+      }
     }
     await renumber(toColumnId, id, toIndex);
     return true;
@@ -345,7 +355,11 @@ export const boardService = {
     if (body.trim() === '') {
       badRequest('A comment cannot be empty');
     }
-    const task = await TaskModel.findById(taskId).select('_id').lean();
+    // More than the id, because the people to tell and the words to tell them are both on
+    // the ticket, and this row is already being read to prove the ticket exists.
+    const task = await TaskModel.findById(taskId)
+      .select('key title projectId assigneeId reporterId')
+      .lean();
     if (!task) notFound('Task');
     const created = await TaskCommentModel.create({
       taskId,
@@ -357,6 +371,7 @@ export const boardService = {
     for (const file of attachments) {
       await record(taskId, author, ATTACHMENT_FIELD, '', file.name);
     }
+    await notifyComment(task, author);
     return created.toObject();
   },
 

@@ -4,7 +4,7 @@ export {
   clearReminderSources,
 } from './reminders.registry';
 export type { ReminderSource } from './reminders.registry';
-export { sendReminder, sendReminders } from './reminders.notify';
+export { claimReminder, sendReminder, sendReminders } from './reminders.notify';
 export type { Reminder } from './reminders.notify';
 export { sweepReminders, startReminderSweep } from './reminders.sweep';
 export type { SweepResult } from './reminders.sweep';
