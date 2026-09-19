@@ -1546,13 +1546,18 @@ export type NotificationAudience =
 
 export type NotificationKind =
   | 'ANNOUNCEMENT'
+  | 'COMPLIANCE'
+  | 'CRM'
+  | 'FINANCE'
   | 'GENERAL'
   | 'GOAL'
   | 'IT'
   | 'LEAVE'
+  | 'LEGAL'
   | 'ONBOARDING'
   | 'PAYROLL'
   | 'PERFORMANCE'
+  | 'PROJECT'
   | 'REQUEST'
   | 'SOCIAL_COMMENT'
   | 'SOCIAL_LIKE'

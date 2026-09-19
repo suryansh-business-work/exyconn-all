@@ -7437,13 +7437,18 @@ export enum NotificationAudience {
 
 export enum NotificationKind {
   Announcement = 'ANNOUNCEMENT',
+  Compliance = 'COMPLIANCE',
+  Crm = 'CRM',
+  Finance = 'FINANCE',
   General = 'GENERAL',
   Goal = 'GOAL',
   It = 'IT',
   Leave = 'LEAVE',
+  Legal = 'LEGAL',
   Onboarding = 'ONBOARDING',
   Payroll = 'PAYROLL',
   Performance = 'PERFORMANCE',
+  Project = 'PROJECT',
   Request = 'REQUEST',
   SocialComment = 'SOCIAL_COMMENT',
   SocialLike = 'SOCIAL_LIKE',
