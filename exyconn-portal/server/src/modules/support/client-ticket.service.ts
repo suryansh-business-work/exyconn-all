@@ -43,10 +43,21 @@ const ticketIpLimiter = createLimiter({
   points: 20,
   durationSec: HOUR_SEC,
 });
+/**
+ * Following a ticket is cheap, and a customer does it a handful of times a day; a script
+ * pairing guessed references with guessed addresses does it thousands of times. Ten an hour
+ * per connection is generous for the first and useless for the second, and it is its own
+ * bucket so checking on a ticket never spends somebody's ability to raise one.
+ */
+const ticketLookupLimiter = createLimiter({
+  keyPrefix: 'ticket_lookup_ip',
+  points: 10,
+  durationSec: HOUR_SEC,
+});
 
 /** Test seam: forgets every recorded attempt. */
 export async function resetClientTicketLimits(): Promise<void> {
-  await Promise.all([ticketLimiter.reset(), ticketIpLimiter.reset()]);
+  await Promise.all([ticketLimiter.reset(), ticketIpLimiter.reset(), ticketLookupLimiter.reset()]);
 }
 
 /** Regex metacharacters in a value that is matched literally. */
@@ -191,7 +202,12 @@ export interface ClientTicketStatus {
 export async function clientSupportTicketStatus(
   reference: string,
   email: string,
+  /** The caller's address. Absent for an internal caller, which is not limited. */
+  ip?: string,
 ): Promise<ClientTicketStatus | null> {
+  if (ip !== undefined && !(await ticketLookupLimiter.allow(ip))) {
+    badRequest('Too many lookups from this connection. Try again in an hour.');
+  }
   const ticket = await SupportTicketModel.findOne({
     reference: reference.trim().toUpperCase(),
     requesterEmail: email.trim().toLowerCase(),

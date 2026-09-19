@@ -168,12 +168,16 @@ describe('Replying to a customer', () => {
 });
 
 describe('Following a customer ticket', () => {
-  const status = (reference: string, email: string) =>
-    supportResolvers.Query.clientSupportTicketStatus(null, { reference, email }) as Promise<{
+  /** A context with no address stands for an internal caller, which is never limited. */
+  const status = (reference: string, email: string, ctx: GraphQLContext = { user: null }) =>
+    supportResolvers.Query.clientSupportTicketStatus(null, { reference, email }, ctx) as Promise<{
       status: string;
       subject: string;
       replies: Array<{ body: string }>;
     } | null>;
+
+  /** Stands in for one machine; the limiter only needs a stable key, not a real address. */
+  const oneConnection: GraphQLContext = { user: null, ip: 'test-connection' };
 
   it('shows the ticket to the address that raised it', async () => {
     const agent = await supportAgent();
@@ -202,5 +206,19 @@ describe('Following a customer ticket', () => {
 
     expect(await status(reference, 'someone@else.test')).toBeNull();
     expect(await status('EXY-ZZZZZZ', 'dana@acme.test')).toBeNull();
+  });
+
+  it('stops one connection grinding through references', async () => {
+    const reference = await createClientSupportTicket(validInput());
+
+    // Ten lookups is the hour's allowance; the eleventh is refused even though it is the
+    // one pairing that would have matched — a guessing script never gets that far.
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      await status('EXY-ZZZZZZ', 'guess@else.test', oneConnection);
+    }
+
+    await expect(status(reference, 'dana@acme.test', oneConnection)).rejects.toThrow(
+      'Too many lookups',
+    );
   });
 });

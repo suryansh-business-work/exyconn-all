@@ -1,5 +1,7 @@
 import { supportTypeDefs } from './support.typeDefs';
 import { supportResolvers } from './support.resolvers';
+// Imported for its side effect: the module registers what it wants chased.
+import './support.reminders';
 
 export { supportTypeDefs, supportResolvers };
 export { SupportReplyModel } from './support-reply.model';
