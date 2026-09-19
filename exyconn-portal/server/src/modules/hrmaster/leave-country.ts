@@ -34,13 +34,19 @@ export async function employeeCountry(employeeId: string): Promise<string> {
   return (await employeePlace(employeeId)).country;
 }
 
-/** Where the employee works: their country (as employeeCountry) and city, '' when unset. */
-export async function employeePlace(
-  employeeId: string,
-): Promise<{ country: string; city: string }> {
-  const user = await UserModel.findById(employeeId).select('country city').lean();
+/** Where an employee works, as far as holidays are concerned. '' is "not set". */
+export interface EmployeePlace {
+  country: string;
+  region: string;
+  city: string;
+}
+
+/** Where the employee works: their country (as employeeCountry), region and city. */
+export async function employeePlace(employeeId: string): Promise<EmployeePlace> {
+  const user = await UserModel.findById(employeeId).select('country region city').lean();
   return {
     country: user?.country ?? (await companyProfile()).country,
+    region: user?.region ?? '',
     city: user?.city ?? '',
   };
 }
@@ -73,20 +79,29 @@ export async function assertLeaveTypeOffered(employeeId: string, code: string): 
   }
 }
 
+/** A literal, case-blind match of one name in an array field. */
+const namedIn = (name: string) => new RegExp(`^${escapeRegex(name)}$`, 'i');
+
 /**
- * The holidays observed in `city`, `country`: company-wide ones the country has not opted out
- * of, plus the country's own — those for the whole country and those naming the city (case
- * aside). Holidays written before countries or cities existed lack the field: global and
- * whole-country respectively.
+ * The holidays observed at `place`: company-wide ones its country has not opted out of, plus
+ * the country's own — those for the whole country (no regions and no cities), and those naming
+ * its region or its city (case aside). Holidays written before countries, regions or cities
+ * existed lack the field: global, and whole-country, respectively.
  */
-export function holidaysObservedIn(country: string, city = '') {
-  const inCity =
-    city === '' ? [] : [{ country, cities: new RegExp(`^${escapeRegex(city)}$`, 'i') }];
+export function holidaysObservedIn({
+  country,
+  region = '',
+  city = '',
+}: Partial<EmployeePlace> & { country: string }) {
+  const local = [
+    ...(region === '' ? [] : [{ country, regions: namedIn(region) }]),
+    ...(city === '' ? [] : [{ country, cities: namedIn(city) }]),
+  ];
   return {
     $or: [
       { country: { $in: ['', null] }, excludedCountries: { $ne: country } },
-      { country, cities: { $in: [[], null] } },
-      ...inCity,
+      { country, regions: { $in: [[], null] }, cities: { $in: [[], null] } },
+      ...local,
     ],
   };
 }

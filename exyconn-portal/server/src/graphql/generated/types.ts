@@ -1742,6 +1742,8 @@ export type CreateUserInput = {
   managerId?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   probationEndDate?: InputMaybe<Scalars['DateTime']['input']>;
+  /** The state or region they work in, for regional holidays; null when not set. */
+  region?: InputMaybe<Scalars['String']['input']>;
   roles: Array<Role>;
   /** IANA zone name, or null to follow the workspace default. */
   timezone?: InputMaybe<Scalars['String']['input']>;
@@ -2723,7 +2725,7 @@ export type HeldAsset = {
 
 export type Holiday = {
   __typename?: 'Holiday';
-  /** Cities of the country that observe it; empty for the whole country. */
+  /** Cities of the country that observe it. Empty with regions: the whole country. */
   cities: Array<Scalars['String']['output']>;
   /** ISO 3166-1 alpha-2 country it is observed in, or empty for the whole company. */
   country: Scalars['String']['output'];
@@ -2733,11 +2735,13 @@ export type Holiday = {
   excludedCountries: Array<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
+  /** States or regions of the country that observe it. Empty with cities: the whole country. */
+  regions: Array<Scalars['String']['output']>;
   type: HolidayType;
 };
 
 export type HolidayInput = {
-  /** Cities of the country that observe it; empty for the whole country. Ignored on a global one. */
+  /** Cities of the country that observe it. Empty with regions: the whole country. */
   cities: Array<Scalars['String']['input']>;
   /** ISO 3166-1 alpha-2, or empty for a holiday the whole company observes. */
   country: Scalars['String']['input'];
@@ -2746,6 +2750,8 @@ export type HolidayInput = {
   /** Countries that do not observe a company-wide holiday. Ignored on a country holiday. */
   excludedCountries: Array<Scalars['String']['input']>;
   name: Scalars['String']['input'];
+  /** States or regions of the country that observe it. Ignored on a global one. */
+  regions: Array<Scalars['String']['input']>;
   type: HolidayType;
 };
 
@@ -9094,7 +9100,7 @@ export type Query = {
   myExitRecord?: Maybe<ExitRecord>;
   myExpenseClaims: Array<ExpenseClaim>;
   myGoals: Array<Goal>;
-  /** The holidays the signed-in employee observes: company-wide ones plus their country's and city's. */
+  /** The holidays the signed-in employee observes: company-wide ones plus their country's, region's and city's. */
   myHolidays: Array<Holiday>;
   /**
    * This employee's own balances. The current year's are created on first read from the
@@ -12824,6 +12830,8 @@ export type UpdateUserInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   password?: InputMaybe<Scalars['String']['input']>;
   probationEndDate?: InputMaybe<Scalars['DateTime']['input']>;
+  /** The state or region they work in, for regional holidays; null when not set. */
+  region?: InputMaybe<Scalars['String']['input']>;
   roles?: InputMaybe<Array<Role>>;
   /** IANA zone name, or null to follow the workspace default. */
   timezone?: InputMaybe<Scalars['String']['input']>;
@@ -12874,6 +12882,8 @@ export type User = {
   phone?: Maybe<Scalars['String']['output']>;
   /** The day this employee comes off probation. Null when they are not on one. */
   probationEndDate?: Maybe<Scalars['DateTime']['output']>;
+  /** The state or region the person works in, which decides regional holidays. Set by HR only. */
+  region?: Maybe<Scalars['String']['output']>;
   roles: Array<Role>;
   /** Public profiles the person chose to share. Null when they have shared none. */
   socialLinks?: Maybe<UserSocialLinks>;
@@ -15849,6 +15859,7 @@ export type HolidayResolvers<ContextType = GraphQLContext, ParentType extends Re
   excludedCountries?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  regions?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   type?: Resolver<ResolversTypes['HolidayType'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -19455,6 +19466,7 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   organizationId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   phone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   probationEndDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  region?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   roles?: Resolver<Array<ResolversTypes['Role']>, ParentType, ContextType>;
   socialLinks?: Resolver<Maybe<ResolversTypes['UserSocialLinks']>, ParentType, ContextType>;
   timezone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

@@ -20,8 +20,12 @@ const applyLeave = hrResolvers.Mutation.applyLeave as unknown as Resolver;
 const ctx = (id: string) =>
   ({ user: { id, email: 'e@exyconn.com', roles: [ROLES.EMPLOYEE] } }) as unknown as GraphQLContext;
 
-/** An employee, optionally employed in a country other than the company's, and a city. */
-async function employee(country: string | null = null, city: string | null = null) {
+/** An employee, optionally employed in a country other than the company's, a city and region. */
+async function employee(
+  country: string | null = null,
+  city: string | null = null,
+  region: string | null = null,
+) {
   const user = await UserModel.create({
     name: 'Asha',
     email: `asha-${new Types.ObjectId().toHexString()}@exyconn.com`,
@@ -29,6 +33,7 @@ async function employee(country: string | null = null, city: string | null = nul
     roles: [ROLES.EMPLOYEE],
     country,
     city,
+    region,
   });
   return String(user._id);
 }
@@ -247,6 +252,32 @@ describe('myHolidays', () => {
     expect(await namesFor(await employee())).toEqual(['Diwali']);
   });
 
+  it("adds a region's holidays for everyone working in that region", async () => {
+    await holiday('Diwali', { country: 'IN' });
+    await holiday('Maharashtra Day', { country: 'IN', regions: ['Maharashtra'] });
+    await holiday('Ganesh Chaturthi', {
+      country: 'IN',
+      regions: ['Maharashtra'],
+      cities: ['Bengaluru'],
+    });
+    const namesFor = async (id: string) =>
+      ((await Q.myHolidays(null, {}, ctx(id))) as { name: string }[])
+        .map((row) => row.name)
+        .sort((a, b) => a.localeCompare(b));
+
+    expect(await namesFor(await employee(null, 'Pune', 'maharashtra'))).toEqual([
+      'Diwali',
+      'Ganesh Chaturthi',
+      'Maharashtra Day',
+    ]);
+    // Named by city while not in the region.
+    expect(await namesFor(await employee(null, 'Bengaluru', 'Karnataka'))).toEqual([
+      'Diwali',
+      'Ganesh Chaturthi',
+    ]);
+    expect(await namesFor(await employee())).toEqual(['Diwali']);
+  });
+
   it('matches a city name literally, not as a pattern', async () => {
     await holiday('Anywhere', { country: 'IN', cities: ['Delhi'] });
 
@@ -266,6 +297,7 @@ describe('myHolidays', () => {
       country?: string | null;
       excludedCountries?: string[] | null;
       cities?: string[] | null;
+      regions?: string[] | null;
     }[];
     const resolve = hrMasterResolvers.Holiday;
 
@@ -273,5 +305,45 @@ describe('myHolidays', () => {
     expect(resolve.country(rows[0])).toBe('');
     expect(resolve.excludedCountries(rows[0])).toEqual([]);
     expect(resolve.cities(rows[0])).toEqual([]);
+    expect(resolve.regions(rows[0])).toEqual([]);
+  });
+});
+
+describe('createHoliday', () => {
+  const M = hrMasterResolvers.Mutation as unknown as Record<string, Resolver>;
+  const hr = {
+    user: { id: 'hr', email: 'hr@exyconn.com', roles: [ROLES.HR] },
+  } as unknown as GraphQLContext;
+  const input = (over: Record<string, unknown>) => ({
+    input: {
+      name: 'Holiday',
+      date: new Date('2026-11-01'),
+      type: 'PUBLIC',
+      description: null,
+      country: '',
+      excludedCountries: [],
+      regions: [],
+      cities: [],
+      ...over,
+    },
+  });
+
+  it('adds global, country, regional and city holidays for HR', async () => {
+    await M.createHoliday(null, input({ name: 'New Year', excludedCountries: ['US'] }), hr);
+    await M.createHoliday(null, input({ name: 'Republic Day', country: 'IN' }), hr);
+    await M.createHoliday(null, input({ name: 'Onam', country: 'IN', regions: ['Kerala'] }), hr);
+    await M.createHoliday(
+      null,
+      input({ name: 'Karaga', country: 'IN', cities: ['Bengaluru'] }),
+      hr,
+    );
+
+    const rows = await HolidayModel.find().sort({ name: 1 }).lean();
+    expect(rows.map((row) => [row.name, row.country, row.regions, row.cities])).toEqual([
+      ['Karaga', 'IN', [], ['Bengaluru']],
+      ['New Year', '', [], []],
+      ['Onam', 'IN', ['Kerala'], []],
+      ['Republic Day', 'IN', [], []],
+    ]);
   });
 });

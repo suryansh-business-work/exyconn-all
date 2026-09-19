@@ -24,6 +24,7 @@ interface HolidayInput {
   description?: string | null;
   country: string;
   excludedCountries: string[];
+  regions: string[];
   cities: string[];
 }
 interface LeavePolicyInput {
@@ -127,11 +128,12 @@ async function employeeLeaveBalances(
   return withIds(rows);
 }
 
-/** The holidays the signed-in employee observes in their country and city. */
+/** The holidays the signed-in employee observes in their country, region and city. */
 async function myHolidays(_p: unknown, _a: unknown, ctx: GraphQLContext) {
   const user = assertAuthenticated(ctx);
-  const { country, city } = await employeePlace(user.id);
-  const rows = await HolidayModel.find(holidaysObservedIn(country, city)).sort({ date: 1 }).lean();
+  const rows = await HolidayModel.find(holidaysObservedIn(await employeePlace(user.id)))
+    .sort({ date: 1 })
+    .lean();
   return withIds(rows);
 }
 
@@ -155,6 +157,7 @@ export const hrMasterResolvers = {
     country: (holiday: { country?: string | null }) => holiday.country ?? '',
     excludedCountries: (holiday: { excludedCountries?: string[] | null }) =>
       holiday.excludedCountries ?? [],
+    regions: (holiday: { regions?: string[] | null }) => holiday.regions ?? [],
     cities: (holiday: { cities?: string[] | null }) => holiday.cities ?? [],
   },
   LeavePolicy: {

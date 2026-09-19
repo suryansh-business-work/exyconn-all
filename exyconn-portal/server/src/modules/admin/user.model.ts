@@ -87,6 +87,8 @@ const userSchema = new Schema(
      * entitlements, so it is not something a person edits on their own profile.
      */
     country: { type: String, default: null },
+    /** The state or region they work in, which decides regional holidays. Set by HR only. */
+    region: { type: String, trim: true, default: null },
     /** The city they work in, which decides the city holidays that reach them. Set by HR only. */
     city: { type: String, trim: true, default: null },
     // Working arrangement — read by the tracker to measure a day, and by the employee

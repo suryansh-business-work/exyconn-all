@@ -134,6 +134,8 @@ export class TrackerEngine {
   private currentApp = '';
   private sessionActiveMs = 0;
   private sessionIdleMs = 0;
+  /** Whether the last tick was already past the idle threshold — a run in progress. */
+  private inIdleRun = false;
   private sessionKeys = 0;
   private sessionMouse = 0;
   private screenshotCount = 0;
@@ -292,6 +294,10 @@ export class TrackerEngine {
       return;
     }
     const isIdle = idleFor >= this.settings.idleThresholdSeconds;
+    if (isIdle && !this.inIdleRun) {
+      this.reclassifyIdleRun(idleFor, now);
+    }
+    this.inIdleRun = isIdle;
     if (isIdle) {
       this.intervalIdleMs += TICK_MS;
       this.sessionIdleMs += TICK_MS;
@@ -314,6 +320,25 @@ export class TrackerEngine {
 
     await this.maybeAutoSync(now);
     this.emit();
+  }
+
+  /**
+   * Moves the start of an idle run from active to idle, the moment the run crosses the
+   * threshold.
+   *
+   * Nobody can tell a pause from idleness until the threshold has passed, so the run's first
+   * seconds were counted as worked while they happened. Once it is clearly idle, all of it
+   * was: without this, every break shorter than the threshold showed as work and a longer one
+   * lost its first minutes to it — which is why the idle figure read as zero. Only time in the
+   * current, not-yet-uploaded bucket is moved, so the session and the portal stay equal.
+   */
+  private reclassifyIdleRun(idleForSeconds: number, now: number): void {
+    const creditedMs = Math.max(0, idleForSeconds * 1000 - TICK_MS);
+    const movable = Math.min(creditedMs, this.intervalActiveMs, now - this.intervalStartedAt);
+    this.intervalActiveMs -= movable;
+    this.intervalIdleMs += movable;
+    this.sessionActiveMs -= movable;
+    this.sessionIdleMs += movable;
   }
 
   /**
@@ -530,6 +555,7 @@ export class TrackerEngine {
   private resetSessionTotals(): void {
     this.sessionActiveMs = 0;
     this.sessionIdleMs = 0;
+    this.inIdleRun = false;
     this.sessionKeys = 0;
     this.sessionMouse = 0;
     this.screenshotCount = 0;

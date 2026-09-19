@@ -1,24 +1,16 @@
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
-import { Box, Heading } from '@/components/ui';
+import { useT } from '@exyconn/i18n';
+import { Box, Heading, Text } from '@/components/ui';
 import { DataTable, type Column, type RowAction } from '@/components/data/DataTable';
 import { StatusChip } from '@/components/data/StatusChip';
 
-import { useConfirm } from '@/components/feedback/ConfirmProvider';
-import { useNotify } from '@/components/feedback/NotificationProvider';
 import { useSettings } from '@/hooks/useSettings';
-import {
-  LeaveStatus,
-  useLeaveRequestsByEmployeeQuery,
-  useSetLeaveStatusMutation,
-} from '@/graphql/generated';
+import { LeaveStatus, useLeaveRequestsByEmployeeQuery } from '@/graphql/generated';
 import { panel } from '@/components/glass/glass';
-import {
-  LEAVE_DECISION_DONE,
-  LEAVE_DECISION_PROMPT,
-  LEAVE_DECISION_VERB,
-  type LeaveDecision,
-} from '@/hooks/useLeaveDecision';
+import { useAuth } from '@/auth/AuthContext';
+import { useLeaveDecision } from '@/hooks/useLeaveDecision';
+import { portalLogger } from '@/logging/portalLogger';
 
 type LeaveRow = {
   id: string;
@@ -30,27 +22,25 @@ type LeaveRow = {
 };
 
 /** HR/ADMIN panel: an employee's leave requests with approve/reject actions. */
-export function EmployeeLeavePanel({ employeeId }: { employeeId: string }) {
+export function EmployeeLeavePanel({ employeeId }: Readonly<{ employeeId: string }>) {
+  const t = useT();
   const { data, loading, refetch } = useLeaveRequestsByEmployeeQuery({
     variables: { employeeId },
     fetchPolicy: 'cache-and-network',
   });
-  const [setStatus] = useSetLeaveStatusMutation();
-  const confirm = useConfirm();
-  const notify = useNotify();
+  // The shared decision reports a refusal (not enough balance, …) instead of dropping it.
+  const decide = useLeaveDecision(refetch);
+  const { user } = useAuth();
   const { formatDate } = useSettings();
 
   const rows = (data?.leaveRequestsByEmployee ?? []) as LeaveRow[];
-
-  const decide = async (row: LeaveRow, decision: LeaveDecision) => {
-    const ok = await confirm({
-      message: LEAVE_DECISION_PROMPT[decision],
-      confirmText: LEAVE_DECISION_VERB[decision],
-    });
-    if (!ok) return;
-    await setStatus({ variables: { id: row.id, status: decision } });
-    await refetch();
-    notify(LEAVE_DECISION_DONE[decision]);
+  // Nobody decides their own leave — HR or their manager does — so it is not offered.
+  const ownRecord = user?.id === employeeId;
+  const undecidable = (row: LeaveRow) => ownRecord || row.status !== LeaveStatus.Pending;
+  const run = (row: LeaveRow, status: LeaveStatus.Approved | LeaveStatus.Rejected) => {
+    decide(row, status).catch((error: unknown) =>
+      portalLogger.error('Deciding a leave request failed', error),
+    );
   };
 
   const actions: RowAction<LeaveRow>[] = [
@@ -59,14 +49,16 @@ export function EmployeeLeavePanel({ employeeId }: { employeeId: string }) {
       tooltip: 'Approve',
       ariaLabel: 'approve leave',
       color: 'success',
-      onClick: (r) => decide(r, LeaveStatus.Approved),
+      onClick: (r) => run(r, LeaveStatus.Approved),
+      hidden: undecidable,
     },
     {
       icon: <CloseIcon fontSize="small" />,
       tooltip: 'Reject',
       ariaLabel: 'reject leave',
       color: 'error',
-      onClick: (r) => decide(r, LeaveStatus.Rejected),
+      onClick: (r) => run(r, LeaveStatus.Rejected),
+      hidden: undecidable,
     },
   ];
 
@@ -83,6 +75,11 @@ export function EmployeeLeavePanel({ employeeId }: { employeeId: string }) {
       <Heading level={6} sx={{ mb: 1 }}>
         Leave requests
       </Heading>
+      {ownRecord && (
+        <Text component="p" size="sm" color="text.secondary" sx={{ mb: 1 }}>
+          {t('These are your own requests. HR or your manager approves them — not you.')}
+        </Text>
+      )}
       <DataTable
         columns={columns}
         rows={rows}
