@@ -4,6 +4,7 @@ import { SupportReplyModel } from './support-reply.model';
 import type { Attachment } from './attachment.schema';
 import { dueAtForPriority } from './sla.service';
 import { uniqueReference } from './ticket-reference';
+import { announceTicketFiled } from './ticket-events';
 import { badRequest } from '../../utils/errors';
 import { withIds } from '../../utils/serialize';
 import { logger } from '../../utils/logger';
@@ -133,6 +134,7 @@ export async function fileClientTicket(
     dueAt: await dueAtForPriority(input.priority, createdAt),
   });
   logger.info(`Support ticket ${ticket.reference} raised by ${input.requesterEmail} (${channel})`);
+  announceTicketFiled(ticket);
   return ticket;
 }
 

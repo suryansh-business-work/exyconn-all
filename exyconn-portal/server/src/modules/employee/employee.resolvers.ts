@@ -6,6 +6,7 @@ import { SupportReplyModel } from '../support/support-reply.model';
 import { toAttachments, type AttachmentInput } from '../support/attachment.schema';
 import { dueAtForPriority } from '../support/sla.service';
 import { uniqueReference } from '../support/ticket-reference';
+import { announceTicketFiled } from '../support/ticket-events';
 import { UserModel } from '../admin/user.model';
 import { assertAuthenticated } from '../../middleware/roleGuard';
 import { badRequest, notFound } from '../../utils/errors';
@@ -96,6 +97,7 @@ export const employeeResolvers = {
         status: 'OPEN',
         dueAt: await dueAtForPriority(input.priority, raisedAt),
       });
+      announceTicketFiled(doc);
       return withId(doc.toObject());
     },
     addMySupportReply: async (
