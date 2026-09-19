@@ -15,6 +15,11 @@ export const notificationsTypeDefs = gql`
     SOCIAL_SHARE
     SUPPORT
     IT
+    FINANCE
+    CRM
+    PROJECT
+    LEGAL
+    COMPLIANCE
     GENERAL
   }
 

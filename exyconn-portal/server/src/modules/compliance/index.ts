@@ -6,6 +6,8 @@ import { reviewResolvers } from './review.resolvers';
 import { complianceTypeDefs } from './compliance.typeDefs';
 import { complianceAuditsTypeDefs } from './compliance.audits.typeDefs';
 import { complianceReviewsTypeDefs } from './compliance.reviews.typeDefs';
+// Imported for its side effect: the module registers what it wants chased.
+import './compliance.reminders';
 import type { GraphQLContext } from '../../middleware/auth';
 
 type ResolverMap = Record<string, (p: unknown, a: never, c: GraphQLContext) => unknown>;

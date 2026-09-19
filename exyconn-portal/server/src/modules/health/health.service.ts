@@ -112,6 +112,7 @@ async function jobs(): Promise<HealthJob[]> {
     jobRow('inboundMail', 'Inbound support mail', Boolean(mailbox), runs),
     jobRow('campaignSchedule', 'Scheduled campaigns', true, runs),
     jobRow('aiQueue', 'AI job queue', true, runs),
+    jobRow('reminders', 'Reminder sweep', true, runs),
   ];
 }
 

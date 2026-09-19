@@ -5,6 +5,8 @@ import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { ROLES } from '../../constants/roles';
 import { emitWebhookBestEffort } from '../integrations';
+// Imported for its side effect: the module registers what it wants chased.
+import './crm.reminders';
 import type { GraphQLContext } from '../../middleware/auth';
 
 interface LeadInput {

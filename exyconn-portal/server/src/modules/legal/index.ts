@@ -5,6 +5,8 @@ import { legalCustomResolvers } from './legal.resolvers';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { ROLES } from '../../constants/roles';
+// Imported for its side effect: the module registers what it wants chased.
+import './legal.reminders';
 
 interface ContractInput {
   title: string;

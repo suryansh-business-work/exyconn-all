@@ -19,6 +19,7 @@ export const JOB_KEYS = {
   inboundMail: 'inboundMail',
   campaignSchedule: 'campaignSchedule',
   aiQueue: 'aiQueue',
+  reminders: 'reminders',
 } as const;
 
 export type JobKey = (typeof JOB_KEYS)[keyof typeof JOB_KEYS];
