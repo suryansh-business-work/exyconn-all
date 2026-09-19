@@ -1,45 +1,42 @@
-import { useMemo } from 'react';
-import { Autocomplete, InputAdornment, TextField } from '@/components/ui';
 import SearchIcon from '@mui/icons-material/Search';
-import { accessibleModules, type ModuleDefinition } from '@/config/modules';
-import type { Role } from '@/auth/roles';
-import { useCrossAppNavigate } from '@/hooks/useCrossAppNavigate';
+import { useT } from '@exyconn/i18n';
+import { Box, Button, fontSize } from '@/components/ui';
 
 interface TopbarSearchProps {
-  roles: Role[];
+  onOpen: () => void;
 }
 
-/** Global header search that jumps to any module the user can access. */
-export function TopbarSearch({ roles }: TopbarSearchProps) {
-  const navigateTo = useCrossAppNavigate();
-  const options = useMemo(() => accessibleModules(roles), [roles]);
-
+/**
+ * The topbar's way into the command palette.
+ *
+ * A button rather than a field: what used to sit here was an autocomplete over the list of
+ * modules, which could take somebody to Finance but never to an invoice. The palette does
+ * both, so this only has to open it — and it shows the shortcut, because the point of a
+ * palette is that people stop using the mouse for it.
+ */
+export function TopbarSearch({ onOpen }: Readonly<TopbarSearchProps>) {
+  const t = useT();
+  const shortcut = globalThis.navigator?.platform?.startsWith('Mac') ? '⌘K' : 'Ctrl K';
   return (
-    <Autocomplete<ModuleDefinition>
-      options={options}
-      getOptionLabel={(option) => option.label}
-      onChange={(_event, value) => value && navigateTo(value.key, value.path)}
-      blurOnSelect
-      clearOnEscape
-      sx={{ width: { sm: 240, md: 320 }, mr: 1 }}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          size="small"
-          placeholder="Search…"
-          slotProps={{
-            ...params.slotProps,
-            input: {
-              ...params.slotProps.input,
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon fontSize="small" />
-                </InputAdornment>
-              ),
-            },
-          }}
-        />
-      )}
-    />
+    <Button
+      variant="outlined"
+      size="small"
+      onClick={onOpen}
+      startIcon={<SearchIcon fontSize="small" />}
+      sx={{
+        width: { sm: 200, md: 280 },
+        mr: 1,
+        justifyContent: 'flex-start',
+        color: 'text.secondary',
+        textTransform: 'none',
+      }}
+    >
+      <Box component="span" sx={{ flexGrow: 1, textAlign: 'left' }}>
+        {t('Search…')}
+      </Box>
+      <Box component="span" sx={{ fontSize: fontSize.xs, color: 'text.disabled' }}>
+        {shortcut}
+      </Box>
+    </Button>
   );
 }

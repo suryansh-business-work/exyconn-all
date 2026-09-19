@@ -55,6 +55,9 @@ import {
   marketingMetricsResolvers,
 } from '../modules/marketing';
 import { legalTypeDefs, legalResolvers, policyTypeDefs, policyResolvers } from '../modules/legal';
+import { searchTypeDefs, searchResolvers } from '../modules/search';
+// Imported for its side effect: every module's records become findable from the search box.
+import '../modules/search/providers';
 import { aiTypeDefs, aiResolvers } from '../modules/ai';
 import { crmTypeDefs, crmResolvers } from '../modules/crm';
 import { productsTypeDefs, productsResolvers } from '../modules/products';
@@ -202,6 +205,7 @@ export const typeDefs = [
   ...itsmTypeDefs,
   analyticsTypeDefs,
   socialAccountsTypeDefs,
+  searchTypeDefs,
 ];
 
 export const resolvers = mergeResolvers([
@@ -273,4 +277,5 @@ export const resolvers = mergeResolvers([
   itsmResolvers,
   analyticsResolvers,
   socialAccountsResolvers,
+  searchResolvers,
 ]);
