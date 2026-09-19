@@ -2,6 +2,7 @@ import { AiJobModel } from './ai.model';
 import { forEachOrganization } from '../organizations';
 import { executeAiJob } from './ai.service';
 import { logger } from '../../utils/logger';
+import { JOB_KEYS, recordJobRun } from '../../utils/jobHeartbeat';
 
 /** How often the process looks for a job somebody queued. */
 const TICK_MS = 3_000;
@@ -36,9 +37,14 @@ export async function runNextAiJob(): Promise<boolean> {
  */
 export function startAiWorker(): void {
   const tick = () => {
-    forEachOrganization(runNextAiJob, 'AI queue').catch((error: unknown) =>
-      logger.error(error, 'AI queue tick failed'),
-    );
+    let ran = 0;
+    forEachOrganization(async () => {
+      if (await runNextAiJob()) {
+        ran += 1;
+      }
+    }, 'AI queue')
+      .then(() => recordJobRun(JOB_KEYS.aiQueue, ran > 0 ? `Ran ${ran} job(s)` : 'Queue empty'))
+      .catch((error: unknown) => logger.error(error, 'AI queue tick failed'));
   };
   tick();
   globalThis.setInterval(tick, TICK_MS).unref();

@@ -17,6 +17,8 @@ export const JOB_KEYS = {
   recurringInvoices: 'recurringInvoices',
   webhookDelivery: 'webhookDelivery',
   inboundMail: 'inboundMail',
+  campaignSchedule: 'campaignSchedule',
+  aiQueue: 'aiQueue',
 } as const;
 
 export type JobKey = (typeof JOB_KEYS)[keyof typeof JOB_KEYS];

@@ -77,7 +77,7 @@ function jobRow(
 }
 
 /**
- * The four loops `server.ts` starts. `enabled` reads each loop's own switch, so a
+ * The loops `server.ts` starts. `enabled` reads each loop's own switch, so a
  * schedule an administrator turned off reads as idle rather than broken.
  */
 async function jobs(): Promise<HealthJob[]> {
@@ -110,6 +110,8 @@ async function jobs(): Promise<HealthJob[]> {
     jobRow('recurringInvoices', 'Recurring invoices', true, runs),
     jobRow('webhookDelivery', 'Webhook delivery', true, runs),
     jobRow('inboundMail', 'Inbound support mail', Boolean(mailbox), runs),
+    jobRow('campaignSchedule', 'Scheduled campaigns', true, runs),
+    jobRow('aiQueue', 'AI job queue', true, runs),
   ];
 }
 

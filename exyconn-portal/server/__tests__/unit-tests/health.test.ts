@@ -40,6 +40,8 @@ describe('systemHealth', () => {
       'recurringInvoices',
       'webhookDelivery',
       'inboundMail',
+      'campaignSchedule',
+      'aiQueue',
     ]);
     expect(health.counts.map((count) => count.label)).toEqual([
       'Users',

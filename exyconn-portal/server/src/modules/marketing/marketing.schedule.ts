@@ -3,6 +3,7 @@ import { forEachOrganization } from '../organizations';
 import { runCampaignSend, type CampaignDoc } from './marketing.send';
 import { portalOrigin } from '../../utils/portalOrigin';
 import { logger } from '../../utils/logger';
+import { JOB_KEYS, recordJobRun } from '../../utils/jobHeartbeat';
 
 /** How often the process asks whether a scheduled campaign is due. */
 const TICK_MS = 60_000;
@@ -89,9 +90,12 @@ export async function dispatchScheduledCampaigns(): Promise<number> {
 /** Starts the once-a-minute check that sends campaigns on the schedule marketing set. */
 export function startCampaignSchedule(): void {
   const tick = () => {
-    forEachOrganization(dispatchScheduledCampaigns, 'Scheduled campaigns').catch((error: unknown) =>
-      logger.error(error, 'Scheduled campaign check failed'),
-    );
+    let sent = 0;
+    forEachOrganization(async () => {
+      sent += await dispatchScheduledCampaigns();
+    }, 'Scheduled campaigns')
+      .then(() => recordJobRun(JOB_KEYS.campaignSchedule, `${sent} campaign(s) sent`))
+      .catch((error: unknown) => logger.error(error, 'Scheduled campaign check failed'));
   };
   tick();
   globalThis.setInterval(tick, TICK_MS).unref();
