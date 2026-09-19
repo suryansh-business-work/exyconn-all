@@ -3,6 +3,7 @@ import type { GraphQLFormattedError } from 'graphql';
 import { unwrapResolverError } from '@apollo/server/errors';
 import mongoose from 'mongoose';
 import { logger } from '../utils/logger';
+import { ORGANIZATION_FIELD } from '../lib/tenant';
 import { ConfigurationError } from '../utils/errors';
 import { UnsafeUrlError } from '../utils/safeFetch';
 import { EmailRenderError } from '../modules/email/email.render';
@@ -34,6 +35,17 @@ export const INTERNAL_ERROR_MESSAGE = 'Something went wrong';
 
 function isDuplicateKey(error: unknown): boolean {
   return (error as { code?: unknown } | null)?.code === DUPLICATE_KEY;
+}
+
+/**
+ * Names the field a duplicate collided on — "That name is already in use" — never its value.
+ * The organization is part of every scoped unique key but is not something a person chose.
+ */
+export function duplicateMessage(error: unknown): string {
+  const keyPattern = (error as { keyPattern?: Record<string, unknown> } | null)?.keyPattern ?? {};
+  const fields = Object.keys(keyPattern).filter((field) => field !== ORGANIZATION_FIELD);
+  if (fields.length === 0) return DUPLICATE_VALUE_MESSAGE;
+  return `That ${fields.join(' and ')} is already in use`;
 }
 
 /**
@@ -71,7 +83,7 @@ export function buildFormatError(production: boolean) {
     const original = unwrapResolverError(error);
     if (isDuplicateKey(original)) {
       return {
-        message: DUPLICATE_VALUE_MESSAGE,
+        message: duplicateMessage(original),
         locations: formatted.locations,
         path: formatted.path,
         extensions: { code: 'BAD_USER_INPUT' },

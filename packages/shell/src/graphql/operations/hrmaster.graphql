@@ -137,32 +137,6 @@ query MyLeaveBalances {
   }
 }
 
-query ListLeaveBalancesPaged($input: TableQueryInput!) {
-  listLeaveBalancesPaged(input: $input) {
-    totalCount
-    rows {
-      ...LeaveBalanceFields
-    }
-  }
-}
-
-query ListLeaveBalancesStats {
-  listLeaveBalancesStats {
-    total
-    counts {
-      field
-      buckets {
-        value
-        count
-      }
-    }
-    sums {
-      field
-      total
-    }
-  }
-}
-
 mutation CreateLeaveBalance($input: LeaveBalanceInput!) {
   createLeaveBalance(input: $input) {
     id
@@ -177,4 +151,10 @@ mutation UpdateLeaveBalance($id: ID!, $input: LeaveBalanceInput!) {
 
 mutation DeleteLeaveBalance($id: ID!) {
   deleteLeaveBalance(id: $id)
+}
+
+query EmployeeLeaveBalances($employeeId: ID!, $year: Int!) {
+  employeeLeaveBalances(employeeId: $employeeId, year: $year) {
+    ...LeaveBalanceFields
+  }
 }

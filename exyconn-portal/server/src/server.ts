@@ -1,5 +1,5 @@
 // FIRST: every model must be defined with its organization scope already installed.
-import { assertTenantCoverage, runAsPlatform } from './lib/tenant';
+import { assertTenantCoverage, dropPlatformWideUniqueIndexes, runAsPlatform } from './lib/tenant';
 import {
   ensurePlatformOperatorOrganization,
   forEachOrganization,
@@ -32,6 +32,9 @@ async function bootstrap(): Promise<void> {
   // An install that predates the tenancy is moved into its first organization before anything
   // serves a request — its records would otherwise be invisible to the company they belong to.
   await migrateLegacyDataIntoFirstOrganization();
+  // A collection created before the tenancy may still carry a platform-wide unique index,
+  // which refuses one company a name only another company uses. Drop any such stray.
+  await dropPlatformWideUniqueIndexes();
   // Exyconn's own staff manage what every company shares from inside the first company, so
   // exactly one organization is flagged as the platform operator (see lib/platformAccess).
   await ensurePlatformOperatorOrganization();

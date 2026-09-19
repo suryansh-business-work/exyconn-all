@@ -29,7 +29,6 @@ import { EmploymentTypesPage } from './pages/employment-types';
 import { ShiftsPage } from './pages/shifts';
 import { ExitsPage } from './pages/exits';
 import { LeaveSettingsPage, LEAVE_SETTINGS_PATH } from './pages/leave-settings';
-import { LeaveBalancesPage } from './pages/leave-balances';
 import { RequestsPage } from './pages/requests';
 import { GoalsPage } from './pages/goals';
 import { PerformancePage } from './pages/performance';
@@ -77,7 +76,8 @@ export function App() {
         path="/hr/leave-policies"
         element={<Navigate to={`${LEAVE_SETTINGS_PATH}/leave-types`} replace />}
       />
-      <Route path="/hr/leave-balances" element={<LeaveBalancesPage />} />
+      {/* Balances live on each employee's page now, where HR adds and takes away days. */}
+      <Route path="/hr/leave-balances" element={<Navigate to="/hr/employees" replace />} />
       <Route path="/hr/requests" element={<RequestsPage />} />
       <Route path="/hr/goals" element={<GoalsPage />} />
       <Route path="/hr/performance" element={<PerformancePage />} />

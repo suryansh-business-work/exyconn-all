@@ -5,7 +5,7 @@ import { hrMasterTypeDefs } from './hrmaster.typeDefs';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { createMyRecordsResolver } from '../../lib/employeeScope';
-import { assertAuthenticated } from '../../middleware/roleGuard';
+import { assertAuthenticated, assertRole } from '../../middleware/roleGuard';
 import { withIds } from '../../utils/serialize';
 import {
   employeeCountry,
@@ -111,6 +111,22 @@ async function myLeaveBalances(_p: unknown, _a: unknown, ctx: GraphQLContext) {
   return ownLeaveBalances(_p, _a, ctx);
 }
 
+/**
+ * One employee's balances for `year`, for HR on the employee's own page. Every metered type
+ * their country offers is filled in first, so HR sees — and can adjust — each one without
+ * having to create it by hand.
+ */
+async function employeeLeaveBalances(
+  _p: unknown,
+  { employeeId, year }: { employeeId: string; year: number },
+  ctx: GraphQLContext,
+) {
+  assertRole(ctx, [ROLES.HR]);
+  await ensureLeaveBalances(employeeId, year);
+  const rows = await LeaveBalanceModel.find({ employeeId, year }).sort({ leaveTypeCode: 1 }).lean();
+  return withIds(rows);
+}
+
 /** The holidays the signed-in employee observes in their country and city. */
 async function myHolidays(_p: unknown, _a: unknown, ctx: GraphQLContext) {
   const user = assertAuthenticated(ctx);
@@ -126,6 +142,7 @@ export const hrMasterResolvers = {
     ...leaveBalanceCrud.Query,
     activeLeavePolicies,
     myLeaveBalances,
+    employeeLeaveBalances,
     myHolidays,
   },
   Mutation: {

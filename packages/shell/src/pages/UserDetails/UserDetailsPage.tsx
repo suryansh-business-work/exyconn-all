@@ -6,6 +6,8 @@ import { UserProfileCard } from './UserProfileCard';
 import { UserActions } from './UserActions';
 import { EmployeeLeavePanel } from './EmployeeLeavePanel';
 import { EmployeeAttendancePanel } from './EmployeeAttendancePanel';
+import { EmployeeLeaveBalancePanel } from './EmployeeLeaveBalancePanel';
+import { portalLogger } from '@/logging/portalLogger';
 
 /** Dedicated employee details screen with administrative actions. */
 export function UserDetailsPage() {
@@ -63,9 +65,16 @@ export function UserDetailsPage() {
             >
               <UserActions
                 user={user}
-                onChanged={() => void refetch()}
+                onChanged={() => {
+                  refetch().catch((err: unknown) =>
+                    portalLogger.warn('Could not reload the employee', err),
+                  );
+                }}
                 editPath={fromHr ? `/hr/employees/${user.id}/edit` : undefined}
               />
+            </Grid>
+            <Grid size={{ xs: 12 }}>
+              <EmployeeLeaveBalancePanel employeeId={user.id} />
             </Grid>
             <Grid
               size={{
