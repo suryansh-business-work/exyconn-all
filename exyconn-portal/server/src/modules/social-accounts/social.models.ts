@@ -33,6 +33,10 @@ const socialAccountSchema = new Schema(
     /** Null when the provider's token does not expire (a Facebook Page token). */
     expiresAt: { type: Date, default: null },
     connectedBy: { type: String, required: true },
+    /** When its posts and their numbers were last read from the network. */
+    lastSyncedAt: { type: Date, default: null },
+    /** Why the last read failed, in the network's words; '' when it worked. */
+    syncError: { type: String, default: '' },
   },
   { timestamps: true },
 );

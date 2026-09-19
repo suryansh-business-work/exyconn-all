@@ -16,9 +16,13 @@ import {
   type SocialAppConfigInput,
 } from './social.service';
 import { socialAccountsTypeDefs } from './social.typeDefs';
+import { testAppConnection } from './social.test-connection';
+import { socialPostsResolvers } from './social.posts.resolvers';
+import { socialPostsTypeDefs } from './social.posts.typeDefs';
 
 export { socialCallbackRouter } from './social.routes';
 export { SOCIAL_CALLBACK_PATH } from './social.constants';
+export { startSocialSchedule } from './social.scheduler';
 
 /** App credentials are the install's, like SMTP or Slack: the platform's own Tech staff. */
 const techGuard = (ctx: GraphQLContext) =>
@@ -64,6 +68,10 @@ export const socialAccountsResolvers = {
       await techGuard(ctx);
       return saveAppConfig(input);
     },
+    testSocialAppConfig: async (_p: unknown, { app }: { app: SocialApp }, ctx: GraphQLContext) => {
+      await techGuard(ctx);
+      return testAppConnection(app);
+    },
     startSocialConnect: async (_p: unknown, { app }: { app: SocialApp }, ctx: GraphQLContext) => {
       const user = marketingGuard(ctx);
       const organizationId = callerOrganization(ctx, user);
@@ -83,4 +91,4 @@ export const socialAccountsResolvers = {
     clientSecretHint: (row: { clientSecret: string }) => secretHint(row.clientSecret),
   },
 };
-export { socialAccountsTypeDefs };
+export { socialAccountsTypeDefs, socialPostsTypeDefs, socialPostsResolvers };

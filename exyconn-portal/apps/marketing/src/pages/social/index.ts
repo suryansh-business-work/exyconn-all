@@ -1,1 +1,1 @@
-export { SocialAccountsPage } from './SocialAccountsPage';
+export { SocialPage } from './SocialPage';

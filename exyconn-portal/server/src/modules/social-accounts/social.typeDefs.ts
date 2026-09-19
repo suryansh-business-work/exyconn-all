@@ -41,6 +41,12 @@ export const socialAccountsTypeDefs = gql`
     enabled: Boolean!
   }
 
+  "The outcome of checking an app's client ID and secret with its provider."
+  type SocialAppTest {
+    ok: Boolean!
+    message: String!
+  }
+
   "Whether Marketing can connect this provider right now."
   type SocialAppStatus {
     app: SocialApp!
@@ -62,6 +68,10 @@ export const socialAccountsTypeDefs = gql`
     "Null when the token does not expire."
     expiresAt: DateTime
     connectedBy: String!
+    "When its posts and numbers were last read from the network."
+    lastSyncedAt: DateTime
+    "Why the last read failed, in the network's words; empty when it worked."
+    syncError: String!
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -77,6 +87,8 @@ export const socialAccountsTypeDefs = gql`
 
   extend type Mutation {
     saveSocialAppConfig(input: SocialAppConfigInput!): SocialAppConfig!
+    "Checks the stored client ID and secret with the provider. Platform Tech staff."
+    testSocialAppConfig(app: SocialApp!): SocialAppTest!
     "Starts connecting an account: returns the provider's consent page to open. MARKETING."
     startSocialConnect(app: SocialApp!): String!
     disconnectSocialAccount(id: ID!): Boolean!

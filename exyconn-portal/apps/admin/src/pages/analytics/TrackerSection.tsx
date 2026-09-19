@@ -6,7 +6,7 @@ import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import type { WorkspaceAnalyticsQuery } from '@exyconn/shell/graphql/generated';
 import { AnalyticsSection } from './AnalyticsSection';
-import { PointChart } from './PointChart';
+import { PointChart } from '@exyconn/shell/components/dashboard/PointChart';
 import { count, hours, percent, withPlatformNames } from './analytics.format';
 
 type Tracker = WorkspaceAnalyticsQuery['workspaceAnalytics']['tracker'];

@@ -40,7 +40,12 @@ import { hrTypeDefs, hrResolvers } from '../modules/hr';
 import { attendanceTypeDefs } from '../modules/hr/attendance.typeDefs';
 import { itsmTypeDefs, itsmResolvers } from '../modules/itsm';
 import { analyticsTypeDefs, analyticsResolvers } from '../modules/analytics';
-import { socialAccountsTypeDefs, socialAccountsResolvers } from '../modules/social-accounts';
+import {
+  socialAccountsTypeDefs,
+  socialAccountsResolvers,
+  socialPostsTypeDefs,
+  socialPostsResolvers,
+} from '../modules/social-accounts';
 import { employeeTypeDefs, employeeResolvers } from '../modules/employee';
 import {
   supportTypeDefs,
@@ -202,6 +207,7 @@ export const typeDefs = [
   ...itsmTypeDefs,
   analyticsTypeDefs,
   socialAccountsTypeDefs,
+  socialPostsTypeDefs,
 ];
 
 export const resolvers = mergeResolvers([
@@ -273,4 +279,5 @@ export const resolvers = mergeResolvers([
   itsmResolvers,
   analyticsResolvers,
   socialAccountsResolvers,
+  socialPostsResolvers,
 ]);

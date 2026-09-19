@@ -2,7 +2,10 @@ import { MockedProvider } from '@apollo/client/testing/react';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
-import { SocialAppConfigsDocument } from '@exyconn/shell/graphql/generated';
+import {
+  SocialAppConfigsDocument,
+  TestSocialAppConfigDocument,
+} from '@exyconn/shell/graphql/generated';
 import { SocialAppsPage } from './SocialAppsPage';
 
 const app = (id: string, label: string, enabled: boolean) => ({
@@ -31,6 +34,19 @@ const MOCKS = [
         ],
       },
     },
+    maxUsageCount: 3,
+  },
+  {
+    request: { query: TestSocialAppConfigDocument, variables: { app: 'META' } },
+    result: {
+      data: {
+        testSocialAppConfig: {
+          __typename: 'SocialAppTest',
+          ok: true,
+          message: 'Facebook + Instagram recognised the app’s client ID and secret.',
+        },
+      },
+    },
   },
 ];
 
@@ -53,5 +69,21 @@ describe('SocialAppsPage', () => {
     cy.contains('https://portal-server.exyconn.com/oauth/social/linkedin/callback').should(
       'be.visible',
     );
+  });
+});
+
+describe('SocialAppsPage test connection', () => {
+  it('tests only a set-up app, and says what the provider answered', () => {
+    cy.mount(
+      <MockedProvider mocks={MOCKS}>
+        <ThemeProvider theme={theme}>
+          <NotificationProvider>
+            <SocialAppsPage />
+          </NotificationProvider>
+        </ThemeProvider>
+      </MockedProvider>,
+    );
+    cy.get('button[aria-label="test social app connection"]').should('have.length', 1).click();
+    cy.contains('recognised the app’s client ID and secret').should('be.visible');
   });
 });
