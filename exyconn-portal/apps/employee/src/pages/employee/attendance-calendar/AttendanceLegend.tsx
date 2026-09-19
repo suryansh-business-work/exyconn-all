@@ -18,7 +18,7 @@ export function AttendanceLegend() {
                 sx={{
                   width: 14,
                   height: 14,
-                  mt: 0.25,
+                  mt: 0.5,
                   flexShrink: 0,
                   borderRadius: 0.5,
                   bgcolor: style.tone,

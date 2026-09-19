@@ -27,7 +27,7 @@ export function AttendanceDayCell({ day }: Readonly<{ day: AttendanceDay }>) {
         bgcolor: day.inMonth ? 'background.paper' : 'action.hover',
         display: 'flex',
         flexDirection: 'column',
-        gap: 0.25,
+        gap: 0.5,
       }}
     >
       <Text
