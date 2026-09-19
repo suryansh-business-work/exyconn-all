@@ -7,6 +7,7 @@ import { principalForApiKey } from '../modules/integrations/api-key.service';
 import { organizationOf, runAsPlatform, setScopeOrganization } from '../lib/tenant';
 import { OrganizationModel } from '../modules/organizations/organization.model';
 import { deviceMayRun, deviceTokenIsLive } from '../modules/tracker/tracker.auth';
+import { sessionIsLive } from '../modules/auth/session.service';
 
 export interface GraphQLContext {
   user: TokenPayload | null;
@@ -91,6 +92,12 @@ async function currentHolder(decoded: TokenPayload, token: string, req: Request)
     return null;
   }
   if (decoded.deviceId && !(await deviceHolds(decoded, token, req))) {
+    return null;
+  }
+  // A portal token stands only while its session does, so signing one device out does not
+  // have to retire every token the person holds. Tokens issued before sessions existed carry
+  // no `sid` and keep working until they expire, seven days at the outside.
+  if (decoded.sid && !(await sessionIsLive(decoded.sid))) {
     return null;
   }
   return fresh;

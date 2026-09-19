@@ -20,6 +20,12 @@ export interface TokenPayload {
    * issued before revocation existed, which read as version 0.
    */
   tv?: number;
+  /**
+   * The session row this token belongs to, so one device can be signed out without
+   * retiring every token the person holds. Absent on tracker device tokens, which are
+   * revoked through their device row instead, and on tokens issued before sessions existed.
+   */
+  sid?: string;
 }
 
 const ALGORITHM = 'HS256';
@@ -27,6 +33,44 @@ const ISSUER = 'exyconn-portal';
 /** Who a token is for: a portal session, or a tracker device. Neither is accepted as the other. */
 const PORTAL_AUDIENCE = 'portal';
 const DEVICE_AUDIENCE = 'tracker-device';
+/** A password accepted, a second factor still owed. Never accepted as a session. */
+const MFA_AUDIENCE = 'portal-mfa';
+/**
+ * Long enough to find a phone, open an app and type six digits; short enough that a
+ * challenge left behind on a shared screen is worthless by the time anybody finds it.
+ */
+const MFA_CHALLENGE_TTL = '5m';
+
+/**
+ * Signs the short-lived token that stands between a correct password and a session, for an
+ * account with two-factor authentication on.
+ *
+ * Its own audience, so it can never be presented as a session: a challenge is proof that
+ * somebody knew the password, and on its own that is exactly half of what is required.
+ */
+export function signMfaChallenge(userId: string): string {
+  return jwt.sign({ id: userId }, env.jwtSecret, {
+    algorithm: ALGORITHM,
+    expiresIn: MFA_CHALLENGE_TTL,
+    issuer: ISSUER,
+    audience: MFA_AUDIENCE,
+    jwtid: randomUUID(),
+  });
+}
+
+/** The user a challenge stands for, or null when it is not a live challenge. */
+export function verifyMfaChallenge(token: string): string | null {
+  try {
+    const claims = jwt.verify(token, env.jwtSecret, {
+      algorithms: [ALGORITHM],
+      issuer: ISSUER,
+      audience: MFA_AUDIENCE,
+    }) as { id?: string };
+    return claims.id ?? null;
+  } catch {
+    return null;
+  }
+}
 
 /** Signs a JWT for an authenticated user. */
 export function signToken(payload: TokenPayload): string {

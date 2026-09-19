@@ -15,8 +15,9 @@ describe('AuthService', () => {
   it('logs in with valid credentials and returns a token with all roles', async () => {
     const result = await authService.login(credentials.email, credentials.password);
     expect(result.token).toEqual(expect.any(String));
-    expect(result.user.email).toBe(credentials.email);
-    expect(result.user.roles).toEqual([ROLES.FINANCE, ROLES.HR]);
+    expect(result.mfaRequired).toBe(false);
+    expect(result.user?.email).toBe(credentials.email);
+    expect(result.user?.roles).toEqual([ROLES.FINANCE, ROLES.HR]);
   });
 
   it('rejects an invalid password', async () => {
