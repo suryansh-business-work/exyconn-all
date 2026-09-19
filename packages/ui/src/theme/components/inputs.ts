@@ -19,14 +19,17 @@ import {
 } from '../parts';
 
 /**
- * The shadcn/ui switch: a pill track with the thumb inside it. 40×24 rather than shadcn's
- * 32×18 so the whole control is a 24px target (SC 2.5.8) without a padded hit area around it.
+ * The shadcn/ui switch: a 36×20 pill with the thumb inside it. The 40×24 it replaced read as
+ * a slab once a screen had a column of them. The pointer target stays 24px tall (SC 2.5.8):
+ * the invisible input the click lands on reaches past the track, see `SWITCH_TARGET`.
  */
-const SWITCH_WIDTH = spacing(5);
-const SWITCH_HEIGHT = spacing(3);
-const SWITCH_THUMB = spacing(2.5);
+const SWITCH_WIDTH = spacing(4.5);
+const SWITCH_HEIGHT = spacing(2.5);
+const SWITCH_THUMB = spacing(2);
 const SWITCH_INSET = (SWITCH_HEIGHT - SWITCH_THUMB) / 2;
 const SWITCH_TRAVEL = SWITCH_WIDTH - SWITCH_HEIGHT;
+/** The smallest pointer target WCAG 2.2 AA accepts without extra spacing (SC 2.5.8). */
+const SWITCH_TARGET = spacing(3);
 
 /** The edge MUI draws around an outlined field. */
 const OUTLINE = '.MuiOutlinedInput-notchedOutline';
@@ -177,6 +180,12 @@ function toggles({ mode, t }: ThemeParts): ComponentGroup {
               opacity: DISABLED_OPACITY,
             },
           };
+        },
+        // MUI's input already spans the track sideways (300% of the thumb); this makes it a
+        // full 24px tall too, centred on the thumb, so the target meets SC 2.5.8.
+        input: {
+          top: (SWITCH_THUMB - SWITCH_TARGET) / 2,
+          height: SWITCH_TARGET,
         },
         thumb: { width: SWITCH_THUMB, height: SWITCH_THUMB, boxShadow: t.shadow.sm },
         track: {
