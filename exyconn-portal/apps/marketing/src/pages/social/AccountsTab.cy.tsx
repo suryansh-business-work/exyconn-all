@@ -8,7 +8,7 @@ import {
   SocialAccountsDocument,
   SocialAppStatusesDocument,
 } from '@exyconn/shell/graphql/generated';
-import { SocialAccountsPage } from './SocialAccountsPage';
+import { AccountsTab } from './AccountsTab';
 
 const status = (app: string, label: string, available: boolean, networks: string[]) => ({
   __typename: 'SocialAppStatus',
@@ -61,7 +61,7 @@ const mount = (url = '/marketing/social') =>
         <ThemeProvider theme={theme}>
           <NotificationProvider>
             <ConfirmProvider>
-              <SocialAccountsPage />
+              <AccountsTab />
             </ConfirmProvider>
           </NotificationProvider>
         </ThemeProvider>
@@ -69,7 +69,7 @@ const mount = (url = '/marketing/social') =>
     </MemoryRouter>,
   );
 
-describe('SocialAccountsPage', () => {
+describe('AccountsTab', () => {
   it('offers Connect only for providers Tech has set up', () => {
     mount();
     cy.contains('Facebook + Instagram').parent().find('button').should('not.be.disabled');

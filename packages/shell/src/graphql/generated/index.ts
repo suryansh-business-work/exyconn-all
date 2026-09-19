@@ -4275,6 +4275,8 @@ export type Mutation = {
   commentOnTeamGoal: Goal;
   /** Completes the sprint, moving unfinished tickets on per sprintCompletionPlan. */
   completeSprint: Sprint;
+  /** One post per account: published now, scheduled, or kept as a draft. MARKETING. */
+  composeSocialMediaPost: Array<SocialMediaPost>;
   /** Public: turns a confirm link into a live subscription. The link works exactly once. */
   confirmStatusSubscription: Scalars['Boolean']['output'];
   /** Turns a lead into a company, a contact and a deal at the top of the pipeline. Once only. */
@@ -4513,6 +4515,7 @@ export type Mutation = {
   deleteShift: Scalars['Boolean']['output'];
   deleteSlackConfig: Scalars['Boolean']['output'];
   deleteSocialComment: Scalars['Boolean']['output'];
+  deleteSocialMediaPost: Scalars['Boolean']['output'];
   deleteSocialPost: Scalars['Boolean']['output'];
   /** Deletes the sprint and returns its tickets to the backlog. */
   deleteSprint: Scalars['Boolean']['output'];
@@ -4582,6 +4585,8 @@ export type Mutation = {
    * which is what a change in wording means — leave it off for a typo fix.
    */
   publishPolicy: Policy;
+  /** Publishes a draft, a scheduled post ahead of time, or retries a failed one. */
+  publishSocialMediaPostNow: SocialMediaPost;
   /**
    * Books goods in: writes a RECEIPT movement carrying the order's cost, moves the product's
    * average cost, and re-reads the order's status from what has actually arrived.
@@ -4732,6 +4737,10 @@ export type Mutation = {
   /** Shares a post onto the feed, optionally with something of your own to say. */
   shareSocialPost: SocialPost;
   signContract: Contract;
+  /** AI: post ideas on a topic, in the voice of the best posts. */
+  socialMediaIdeas: Scalars['String']['output'];
+  /** AI: what worked, what did not, and what to try, from the last days' posts. */
+  socialMediaInsights: Scalars['String']['output'];
   /**
    * Starts one joiner's onboarding from a template. HR only, and refused while the employee
    * already has a checklist that is not finished — two open checklists is two answers to
@@ -4760,12 +4769,17 @@ export type Mutation = {
    * whether an address is already subscribed. Nothing is sent until the link is confirmed.
    */
   subscribeToStatus: Scalars['Boolean']['output'];
+  syncAllSocialAccounts: Array<SocialSyncResult>;
+  /** Reads one account's posts and numbers from the network now. MARKETING. */
+  syncSocialAccount: SocialSyncResult;
   testGithubConnection: Scalars['Boolean']['output'];
   testImageUpload: Scalars['String']['output'];
   /** Signs in and opens the mailbox, so credentials are checked before the poller relies on them. */
   testInboundMailConnection: Scalars['Boolean']['output'];
   testOpenAiConnection: Scalars['Boolean']['output'];
   testPexelsConnection: Scalars['Boolean']['output'];
+  /** Checks the stored client ID and secret with the provider. Platform Tech staff. */
+  testSocialAppConfig: SocialAppTest;
   /** Likes the post, or takes the like back. Returns the post as it now stands. */
   toggleSocialPostLike: SocialPost;
   /**
@@ -4917,6 +4931,7 @@ export type Mutation = {
   updateSettings: AppSettings;
   updateShift: Shift;
   updateSlackConfig: SlackConfig;
+  updateSocialMediaPost: SocialMediaPost;
   updateSprint: Sprint;
   updateStatusMaintenance: StatusMaintenance;
   updateStatusMonitor: StatusMonitor;
@@ -5039,6 +5054,11 @@ export type MutationCommentOnTeamGoalArgs = {
 
 export type MutationCompleteSprintArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationComposeSocialMediaPostArgs = {
+  input: SocialMediaPostInput;
 };
 
 
@@ -6060,6 +6080,11 @@ export type MutationDeleteSocialCommentArgs = {
 };
 
 
+export type MutationDeleteSocialMediaPostArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteSocialPostArgs = {
   id: Scalars['ID']['input'];
 };
@@ -6258,6 +6283,11 @@ export type MutationPromoteCompanyToClientArgs = {
 export type MutationPublishPolicyArgs = {
   id: Scalars['ID']['input'];
   raiseVersion?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type MutationPublishSocialMediaPostNowArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -6589,6 +6619,17 @@ export type MutationSignContractArgs = {
 };
 
 
+export type MutationSocialMediaIdeasArgs = {
+  count?: InputMaybe<Scalars['Int']['input']>;
+  topic: Scalars['String']['input'];
+};
+
+
+export type MutationSocialMediaInsightsArgs = {
+  days?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
 export type MutationStartOnboardingArgs = {
   employeeId: Scalars['ID']['input'];
   templateId: Scalars['ID']['input'];
@@ -6634,6 +6675,11 @@ export type MutationSubscribeToStatusArgs = {
 };
 
 
+export type MutationSyncSocialAccountArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationTestGithubConnectionArgs = {
   id: Scalars['ID']['input'];
 };
@@ -6658,6 +6704,11 @@ export type MutationTestOpenAiConnectionArgs = {
 
 export type MutationTestPexelsConnectionArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestSocialAppConfigArgs = {
+  app: SocialApp;
 };
 
 
@@ -7259,6 +7310,12 @@ export type MutationUpdateShiftArgs = {
 export type MutationUpdateSlackConfigArgs = {
   id: Scalars['ID']['input'];
   input: SlackConfigInput;
+};
+
+
+export type MutationUpdateSocialMediaPostArgs = {
+  id: Scalars['ID']['input'];
+  input: SocialMediaPostUpdateInput;
 };
 
 
@@ -9258,14 +9315,21 @@ export type Query = {
   sharedProject?: Maybe<SharedProjectView>;
   /** The company's connected accounts. MARKETING. */
   socialAccounts: Array<SocialAccount>;
+  /** What the posts did over the last days (1-365). MARKETING. */
+  socialAnalytics: SocialAnalytics;
   /** The four providers' apps, set up or not. Platform Tech staff. */
   socialAppConfigs: Array<SocialAppConfig>;
   /** Which providers Marketing can connect. MARKETING. */
   socialAppStatuses: Array<SocialAppStatus>;
+  /** Posts scheduled or published between two instants — the calendar. MARKETING. */
+  socialCalendar: Array<SocialMediaPost>;
   /** The comments on a post, oldest first, so a conversation reads in order. */
   socialComments: Array<SocialComment>;
   /** Everybody's posts, newest first. */
   socialFeed: SocialFeedPage;
+  /** Posts, newest first, optionally for one account or in one state. MARKETING. */
+  socialMediaPosts: Array<SocialMediaPost>;
+  socialNetworkRules: Array<SocialNetworkRule>;
   /** One post, for its own page. */
   socialPost: SocialPost;
   /** One colleague's profile. */
@@ -10576,6 +10640,17 @@ export type QuerySharedProjectArgs = {
 };
 
 
+export type QuerySocialAnalyticsArgs = {
+  days?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QuerySocialCalendarArgs = {
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+};
+
+
 export type QuerySocialCommentsArgs = {
   postId: Scalars['ID']['input'];
 };
@@ -10584,6 +10659,13 @@ export type QuerySocialCommentsArgs = {
 export type QuerySocialFeedArgs = {
   cursor?: InputMaybe<Scalars['ID']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QuerySocialMediaPostsArgs = {
+  accountId?: InputMaybe<Scalars['ID']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  status?: InputMaybe<SocialMediaPostStatus>;
 };
 
 
@@ -11191,9 +11273,30 @@ export type SocialAccount = {
   expiresAt?: Maybe<Scalars['DateTime']['output']>;
   handle: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  /** When its posts and numbers were last read from the network. */
+  lastSyncedAt?: Maybe<Scalars['DateTime']['output']>;
   name: Scalars['String']['output'];
   network: SocialNetwork;
+  /** Why the last read failed, in the network's words; empty when it worked. */
+  syncError: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
+};
+
+export type SocialAnalytics = {
+  __typename?: 'SocialAnalytics';
+  byNetwork: Array<SocialNetworkStat>;
+  comments: Scalars['Int']['output'];
+  days: Scalars['Int']['output'];
+  engagement: Scalars['Int']['output'];
+  engagementPerDay: Array<AnalyticsPoint>;
+  failed: Scalars['Int']['output'];
+  likes: Scalars['Int']['output'];
+  posts: Scalars['Int']['output'];
+  /** Posts waiting for their time, and posts that failed to go out. */
+  scheduled: Scalars['Int']['output'];
+  shares: Scalars['Int']['output'];
+  topPosts: Array<SocialMediaPost>;
+  views: Scalars['Int']['output'];
 };
 
 export enum SocialApp {
@@ -11239,6 +11342,13 @@ export type SocialAppStatus = {
   networks: Array<SocialNetwork>;
 };
 
+/** The outcome of checking an app's client ID and secret with its provider. */
+export type SocialAppTest = {
+  __typename?: 'SocialAppTest';
+  message: Scalars['String']['output'];
+  ok: Scalars['Boolean']['output'];
+};
+
 /** Who wrote something, as the feed needs to show them: enough to render a byline. */
 export type SocialAuthor = {
   __typename?: 'SocialAuthor';
@@ -11268,6 +11378,70 @@ export type SocialFeedPage = {
   posts: Array<SocialPost>;
 };
 
+export type SocialMediaPost = {
+  __typename?: 'SocialMediaPost';
+  accountId: Scalars['ID']['output'];
+  /** Posts written together for several accounts share it. */
+  batchId: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  /** Likes, comments and shares together. */
+  engagement: Scalars['Int']['output'];
+  /** The network's reason when publishing failed. */
+  error: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  link: Scalars['String']['output'];
+  mediaUrl: Scalars['String']['output'];
+  metrics: SocialMediaPostMetrics;
+  network: SocialNetwork;
+  origin: SocialMediaPostOrigin;
+  permalink: Scalars['String']['output'];
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  scheduledAt?: Maybe<Scalars['DateTime']['output']>;
+  status: SocialMediaPostStatus;
+  text: Scalars['String']['output'];
+};
+
+export type SocialMediaPostInput = {
+  accountIds: Array<Scalars['ID']['input']>;
+  /** Keep it as a draft. */
+  draft?: InputMaybe<Scalars['Boolean']['input']>;
+  link: Scalars['String']['input'];
+  mediaUrl: Scalars['String']['input'];
+  /** When to publish; null publishes now. */
+  scheduledAt?: InputMaybe<Scalars['DateTime']['input']>;
+  text: Scalars['String']['input'];
+};
+
+/** What the network counts for a post; zero where it shares no number. */
+export type SocialMediaPostMetrics = {
+  __typename?: 'SocialMediaPostMetrics';
+  comments: Scalars['Int']['output'];
+  likes: Scalars['Int']['output'];
+  shares: Scalars['Int']['output'];
+  views: Scalars['Int']['output'];
+};
+
+export enum SocialMediaPostOrigin {
+  Composed = 'COMPOSED',
+  Synced = 'SYNCED'
+}
+
+export enum SocialMediaPostStatus {
+  Draft = 'DRAFT',
+  Failed = 'FAILED',
+  Published = 'PUBLISHED',
+  Publishing = 'PUBLISHING',
+  Scheduled = 'SCHEDULED'
+}
+
+export type SocialMediaPostUpdateInput = {
+  link: Scalars['String']['input'];
+  mediaUrl: Scalars['String']['input'];
+  /** A time moves it onto the schedule; null keeps it a draft. */
+  scheduledAt?: InputMaybe<Scalars['DateTime']['input']>;
+  text: Scalars['String']['input'];
+};
+
 export enum SocialNetwork {
   Facebook = 'FACEBOOK',
   Instagram = 'INSTAGRAM',
@@ -11275,6 +11449,25 @@ export enum SocialNetwork {
   X = 'X',
   Youtube = 'YOUTUBE'
 }
+
+/** What a network accepts from the composer. */
+export type SocialNetworkRule = {
+  __typename?: 'SocialNetworkRule';
+  allowsImage: Scalars['Boolean']['output'];
+  canPublish: Scalars['Boolean']['output'];
+  maxChars: Scalars['Int']['output'];
+  network: SocialNetwork;
+  note: Scalars['String']['output'];
+  requiresImage: Scalars['Boolean']['output'];
+};
+
+export type SocialNetworkStat = {
+  __typename?: 'SocialNetworkStat';
+  engagement: Scalars['Int']['output'];
+  network: SocialNetwork;
+  posts: Scalars['Int']['output'];
+  views: Scalars['Int']['output'];
+};
 
 export type SocialPost = {
   __typename?: 'SocialPost';
@@ -11307,6 +11500,13 @@ export type SocialProfile = {
   likesReceived: Scalars['Int']['output'];
   postCount: Scalars['Int']['output'];
   user: SocialAuthor;
+};
+
+export type SocialSyncResult = {
+  __typename?: 'SocialSyncResult';
+  accountId: Scalars['ID']['output'];
+  error: Scalars['String']['output'];
+  synced: Scalars['Int']['output'];
 };
 
 export enum SortDir {
@@ -17419,7 +17619,7 @@ export type SocialAppStatusesQuery = { __typename?: 'Query', socialAppStatuses: 
 export type SocialAccountsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SocialAccountsQuery = { __typename?: 'Query', socialAccounts: Array<{ __typename?: 'SocialAccount', id: string, network: SocialNetwork, app: SocialApp, name: string, handle: string, avatarUrl: string, expiresAt?: string | null, createdAt: string }> };
+export type SocialAccountsQuery = { __typename?: 'Query', socialAccounts: Array<{ __typename?: 'SocialAccount', id: string, network: SocialNetwork, app: SocialApp, name: string, handle: string, avatarUrl: string, expiresAt?: string | null, lastSyncedAt?: string | null, syncError: string, createdAt: string }> };
 
 export type StartSocialConnectMutationVariables = Exact<{
   app: SocialApp;
@@ -17434,6 +17634,100 @@ export type DisconnectSocialAccountMutationVariables = Exact<{
 
 
 export type DisconnectSocialAccountMutation = { __typename?: 'Mutation', disconnectSocialAccount: boolean };
+
+export type TestSocialAppConfigMutationVariables = Exact<{
+  app: SocialApp;
+}>;
+
+
+export type TestSocialAppConfigMutation = { __typename?: 'Mutation', testSocialAppConfig: { __typename?: 'SocialAppTest', ok: boolean, message: string } };
+
+export type SocialMediaPostFieldsFragment = { __typename?: 'SocialMediaPost', id: string, accountId: string, network: SocialNetwork, origin: SocialMediaPostOrigin, status: SocialMediaPostStatus, text: string, mediaUrl: string, link: string, permalink: string, scheduledAt?: string | null, publishedAt?: string | null, error: string, engagement: number, batchId: string, createdAt: string, metrics: { __typename?: 'SocialMediaPostMetrics', likes: number, comments: number, shares: number, views: number } };
+
+export type SocialMediaPostsQueryVariables = Exact<{
+  accountId?: InputMaybe<Scalars['ID']['input']>;
+  status?: InputMaybe<SocialMediaPostStatus>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type SocialMediaPostsQuery = { __typename?: 'Query', socialMediaPosts: Array<{ __typename?: 'SocialMediaPost', id: string, accountId: string, network: SocialNetwork, origin: SocialMediaPostOrigin, status: SocialMediaPostStatus, text: string, mediaUrl: string, link: string, permalink: string, scheduledAt?: string | null, publishedAt?: string | null, error: string, engagement: number, batchId: string, createdAt: string, metrics: { __typename?: 'SocialMediaPostMetrics', likes: number, comments: number, shares: number, views: number } }> };
+
+export type SocialCalendarQueryVariables = Exact<{
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+}>;
+
+
+export type SocialCalendarQuery = { __typename?: 'Query', socialCalendar: Array<{ __typename?: 'SocialMediaPost', id: string, accountId: string, network: SocialNetwork, origin: SocialMediaPostOrigin, status: SocialMediaPostStatus, text: string, mediaUrl: string, link: string, permalink: string, scheduledAt?: string | null, publishedAt?: string | null, error: string, engagement: number, batchId: string, createdAt: string, metrics: { __typename?: 'SocialMediaPostMetrics', likes: number, comments: number, shares: number, views: number } }> };
+
+export type SocialNetworkRulesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SocialNetworkRulesQuery = { __typename?: 'Query', socialNetworkRules: Array<{ __typename?: 'SocialNetworkRule', network: SocialNetwork, canPublish: boolean, maxChars: number, requiresImage: boolean, allowsImage: boolean, note: string }> };
+
+export type SocialAnalyticsQueryVariables = Exact<{
+  days: Scalars['Int']['input'];
+}>;
+
+
+export type SocialAnalyticsQuery = { __typename?: 'Query', socialAnalytics: { __typename?: 'SocialAnalytics', days: number, posts: number, likes: number, comments: number, shares: number, views: number, engagement: number, scheduled: number, failed: number, byNetwork: Array<{ __typename?: 'SocialNetworkStat', network: SocialNetwork, posts: number, engagement: number, views: number }>, engagementPerDay: Array<{ __typename?: 'AnalyticsPoint', period: string, value: number }>, topPosts: Array<{ __typename?: 'SocialMediaPost', id: string, accountId: string, network: SocialNetwork, origin: SocialMediaPostOrigin, status: SocialMediaPostStatus, text: string, mediaUrl: string, link: string, permalink: string, scheduledAt?: string | null, publishedAt?: string | null, error: string, engagement: number, batchId: string, createdAt: string, metrics: { __typename?: 'SocialMediaPostMetrics', likes: number, comments: number, shares: number, views: number } }> } };
+
+export type SyncSocialAccountMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type SyncSocialAccountMutation = { __typename?: 'Mutation', syncSocialAccount: { __typename?: 'SocialSyncResult', accountId: string, synced: number, error: string } };
+
+export type SyncAllSocialAccountsMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SyncAllSocialAccountsMutation = { __typename?: 'Mutation', syncAllSocialAccounts: Array<{ __typename?: 'SocialSyncResult', accountId: string, synced: number, error: string }> };
+
+export type ComposeSocialMediaPostMutationVariables = Exact<{
+  input: SocialMediaPostInput;
+}>;
+
+
+export type ComposeSocialMediaPostMutation = { __typename?: 'Mutation', composeSocialMediaPost: Array<{ __typename?: 'SocialMediaPost', id: string, accountId: string, network: SocialNetwork, origin: SocialMediaPostOrigin, status: SocialMediaPostStatus, text: string, mediaUrl: string, link: string, permalink: string, scheduledAt?: string | null, publishedAt?: string | null, error: string, engagement: number, batchId: string, createdAt: string, metrics: { __typename?: 'SocialMediaPostMetrics', likes: number, comments: number, shares: number, views: number } }> };
+
+export type UpdateSocialMediaPostMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: SocialMediaPostUpdateInput;
+}>;
+
+
+export type UpdateSocialMediaPostMutation = { __typename?: 'Mutation', updateSocialMediaPost: { __typename?: 'SocialMediaPost', id: string, accountId: string, network: SocialNetwork, origin: SocialMediaPostOrigin, status: SocialMediaPostStatus, text: string, mediaUrl: string, link: string, permalink: string, scheduledAt?: string | null, publishedAt?: string | null, error: string, engagement: number, batchId: string, createdAt: string, metrics: { __typename?: 'SocialMediaPostMetrics', likes: number, comments: number, shares: number, views: number } } };
+
+export type PublishSocialMediaPostNowMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type PublishSocialMediaPostNowMutation = { __typename?: 'Mutation', publishSocialMediaPostNow: { __typename?: 'SocialMediaPost', id: string, accountId: string, network: SocialNetwork, origin: SocialMediaPostOrigin, status: SocialMediaPostStatus, text: string, mediaUrl: string, link: string, permalink: string, scheduledAt?: string | null, publishedAt?: string | null, error: string, engagement: number, batchId: string, createdAt: string, metrics: { __typename?: 'SocialMediaPostMetrics', likes: number, comments: number, shares: number, views: number } } };
+
+export type DeleteSocialMediaPostMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteSocialMediaPostMutation = { __typename?: 'Mutation', deleteSocialMediaPost: boolean };
+
+export type SocialMediaInsightsMutationVariables = Exact<{
+  days: Scalars['Int']['input'];
+}>;
+
+
+export type SocialMediaInsightsMutation = { __typename?: 'Mutation', socialMediaInsights: string };
+
+export type SocialMediaIdeasMutationVariables = Exact<{
+  topic: Scalars['String']['input'];
+  count: Scalars['Int']['input'];
+}>;
+
+
+export type SocialMediaIdeasMutation = { __typename?: 'Mutation', socialMediaIdeas: string };
 
 export type SocialAuthorFieldsFragment = { __typename?: 'SocialAuthor', id: string, name: string, email: string, avatarUrl?: string | null, designation?: string | null, department?: string | null };
 
@@ -20216,6 +20510,31 @@ export const SocialAppConfigFieldsFragmentDoc = gql`
   hasClientSecret
   clientSecretHint
   enabled
+}
+    `;
+export const SocialMediaPostFieldsFragmentDoc = gql`
+    fragment SocialMediaPostFields on SocialMediaPost {
+  id
+  accountId
+  network
+  origin
+  status
+  text
+  mediaUrl
+  link
+  permalink
+  scheduledAt
+  publishedAt
+  error
+  engagement
+  batchId
+  createdAt
+  metrics {
+    likes
+    comments
+    shares
+    views
+  }
 }
     `;
 export const SocialAuthorFieldsFragmentDoc = gql`
@@ -45153,6 +45472,8 @@ export const SocialAccountsDocument = gql`
     handle
     avatarUrl
     expiresAt
+    lastSyncedAt
+    syncError
     createdAt
   }
 }
@@ -45249,6 +45570,480 @@ export function useDisconnectSocialAccountMutation(baseOptions?: ApolloReactHook
         return ApolloReactHooks.useMutation<DisconnectSocialAccountMutation, DisconnectSocialAccountMutationVariables>(DisconnectSocialAccountDocument, options);
       }
 export type DisconnectSocialAccountMutationHookResult = ReturnType<typeof useDisconnectSocialAccountMutation>;
+export const TestSocialAppConfigDocument = gql`
+    mutation TestSocialAppConfig($app: SocialApp!) {
+  testSocialAppConfig(app: $app) {
+    ok
+    message
+  }
+}
+    `;
+
+/**
+ * __useTestSocialAppConfigMutation__
+ *
+ * To run a mutation, you first call `useTestSocialAppConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestSocialAppConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testSocialAppConfigMutation, { data, loading, error }] = useTestSocialAppConfigMutation({
+ *   variables: {
+ *      app: // value for 'app'
+ *   },
+ * });
+ */
+export function useTestSocialAppConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TestSocialAppConfigMutation, TestSocialAppConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TestSocialAppConfigMutation, TestSocialAppConfigMutationVariables>(TestSocialAppConfigDocument, options);
+      }
+export type TestSocialAppConfigMutationHookResult = ReturnType<typeof useTestSocialAppConfigMutation>;
+export const SocialMediaPostsDocument = gql`
+    query SocialMediaPosts($accountId: ID, $status: SocialMediaPostStatus, $limit: Int) {
+  socialMediaPosts(accountId: $accountId, status: $status, limit: $limit) {
+    ...SocialMediaPostFields
+  }
+}
+    ${SocialMediaPostFieldsFragmentDoc}`;
+
+/**
+ * __useSocialMediaPostsQuery__
+ *
+ * To run a query within a React component, call `useSocialMediaPostsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSocialMediaPostsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSocialMediaPostsQuery({
+ *   variables: {
+ *      accountId: // value for 'accountId'
+ *      status: // value for 'status'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useSocialMediaPostsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<SocialMediaPostsQuery, SocialMediaPostsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<SocialMediaPostsQuery, SocialMediaPostsQueryVariables>(SocialMediaPostsDocument, options);
+      }
+export function useSocialMediaPostsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SocialMediaPostsQuery, SocialMediaPostsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<SocialMediaPostsQuery, SocialMediaPostsQueryVariables>(SocialMediaPostsDocument, options);
+        }
+// @ts-ignore
+export function useSocialMediaPostsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<SocialMediaPostsQuery, SocialMediaPostsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SocialMediaPostsQuery, SocialMediaPostsQueryVariables>;
+// @ts-ignore
+export function useSocialMediaPostsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SocialMediaPostsQuery, SocialMediaPostsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SocialMediaPostsQuery | undefined, SocialMediaPostsQueryVariables>;
+export function useSocialMediaPostsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SocialMediaPostsQuery, SocialMediaPostsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<SocialMediaPostsQuery, SocialMediaPostsQueryVariables>(SocialMediaPostsDocument, options);
+        }
+export type SocialMediaPostsQueryHookResult = ReturnType<typeof useSocialMediaPostsQuery>;
+export type SocialMediaPostsLazyQueryHookResult = ReturnType<typeof useSocialMediaPostsLazyQuery>;
+export type SocialMediaPostsSuspenseQueryHookResult = ReturnType<typeof useSocialMediaPostsSuspenseQuery>;
+export const SocialCalendarDocument = gql`
+    query SocialCalendar($from: DateTime!, $to: DateTime!) {
+  socialCalendar(from: $from, to: $to) {
+    ...SocialMediaPostFields
+  }
+}
+    ${SocialMediaPostFieldsFragmentDoc}`;
+
+/**
+ * __useSocialCalendarQuery__
+ *
+ * To run a query within a React component, call `useSocialCalendarQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSocialCalendarQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSocialCalendarQuery({
+ *   variables: {
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *   },
+ * });
+ */
+export function useSocialCalendarQuery(baseOptions: ApolloReactHooks.QueryHookOptions<SocialCalendarQuery, SocialCalendarQueryVariables> & ({ variables: SocialCalendarQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<SocialCalendarQuery, SocialCalendarQueryVariables>(SocialCalendarDocument, options);
+      }
+export function useSocialCalendarLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SocialCalendarQuery, SocialCalendarQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<SocialCalendarQuery, SocialCalendarQueryVariables>(SocialCalendarDocument, options);
+        }
+// @ts-ignore
+export function useSocialCalendarSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<SocialCalendarQuery, SocialCalendarQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SocialCalendarQuery, SocialCalendarQueryVariables>;
+// @ts-ignore
+export function useSocialCalendarSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SocialCalendarQuery, SocialCalendarQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SocialCalendarQuery | undefined, SocialCalendarQueryVariables>;
+export function useSocialCalendarSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SocialCalendarQuery, SocialCalendarQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<SocialCalendarQuery, SocialCalendarQueryVariables>(SocialCalendarDocument, options);
+        }
+export type SocialCalendarQueryHookResult = ReturnType<typeof useSocialCalendarQuery>;
+export type SocialCalendarLazyQueryHookResult = ReturnType<typeof useSocialCalendarLazyQuery>;
+export type SocialCalendarSuspenseQueryHookResult = ReturnType<typeof useSocialCalendarSuspenseQuery>;
+export const SocialNetworkRulesDocument = gql`
+    query SocialNetworkRules {
+  socialNetworkRules {
+    network
+    canPublish
+    maxChars
+    requiresImage
+    allowsImage
+    note
+  }
+}
+    `;
+
+/**
+ * __useSocialNetworkRulesQuery__
+ *
+ * To run a query within a React component, call `useSocialNetworkRulesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSocialNetworkRulesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSocialNetworkRulesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useSocialNetworkRulesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<SocialNetworkRulesQuery, SocialNetworkRulesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<SocialNetworkRulesQuery, SocialNetworkRulesQueryVariables>(SocialNetworkRulesDocument, options);
+      }
+export function useSocialNetworkRulesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SocialNetworkRulesQuery, SocialNetworkRulesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<SocialNetworkRulesQuery, SocialNetworkRulesQueryVariables>(SocialNetworkRulesDocument, options);
+        }
+// @ts-ignore
+export function useSocialNetworkRulesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<SocialNetworkRulesQuery, SocialNetworkRulesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SocialNetworkRulesQuery, SocialNetworkRulesQueryVariables>;
+// @ts-ignore
+export function useSocialNetworkRulesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SocialNetworkRulesQuery, SocialNetworkRulesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SocialNetworkRulesQuery | undefined, SocialNetworkRulesQueryVariables>;
+export function useSocialNetworkRulesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SocialNetworkRulesQuery, SocialNetworkRulesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<SocialNetworkRulesQuery, SocialNetworkRulesQueryVariables>(SocialNetworkRulesDocument, options);
+        }
+export type SocialNetworkRulesQueryHookResult = ReturnType<typeof useSocialNetworkRulesQuery>;
+export type SocialNetworkRulesLazyQueryHookResult = ReturnType<typeof useSocialNetworkRulesLazyQuery>;
+export type SocialNetworkRulesSuspenseQueryHookResult = ReturnType<typeof useSocialNetworkRulesSuspenseQuery>;
+export const SocialAnalyticsDocument = gql`
+    query SocialAnalytics($days: Int!) {
+  socialAnalytics(days: $days) {
+    days
+    posts
+    likes
+    comments
+    shares
+    views
+    engagement
+    scheduled
+    failed
+    byNetwork {
+      network
+      posts
+      engagement
+      views
+    }
+    engagementPerDay {
+      period
+      value
+    }
+    topPosts {
+      ...SocialMediaPostFields
+    }
+  }
+}
+    ${SocialMediaPostFieldsFragmentDoc}`;
+
+/**
+ * __useSocialAnalyticsQuery__
+ *
+ * To run a query within a React component, call `useSocialAnalyticsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSocialAnalyticsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSocialAnalyticsQuery({
+ *   variables: {
+ *      days: // value for 'days'
+ *   },
+ * });
+ */
+export function useSocialAnalyticsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<SocialAnalyticsQuery, SocialAnalyticsQueryVariables> & ({ variables: SocialAnalyticsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<SocialAnalyticsQuery, SocialAnalyticsQueryVariables>(SocialAnalyticsDocument, options);
+      }
+export function useSocialAnalyticsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SocialAnalyticsQuery, SocialAnalyticsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<SocialAnalyticsQuery, SocialAnalyticsQueryVariables>(SocialAnalyticsDocument, options);
+        }
+// @ts-ignore
+export function useSocialAnalyticsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<SocialAnalyticsQuery, SocialAnalyticsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SocialAnalyticsQuery, SocialAnalyticsQueryVariables>;
+// @ts-ignore
+export function useSocialAnalyticsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SocialAnalyticsQuery, SocialAnalyticsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SocialAnalyticsQuery | undefined, SocialAnalyticsQueryVariables>;
+export function useSocialAnalyticsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SocialAnalyticsQuery, SocialAnalyticsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<SocialAnalyticsQuery, SocialAnalyticsQueryVariables>(SocialAnalyticsDocument, options);
+        }
+export type SocialAnalyticsQueryHookResult = ReturnType<typeof useSocialAnalyticsQuery>;
+export type SocialAnalyticsLazyQueryHookResult = ReturnType<typeof useSocialAnalyticsLazyQuery>;
+export type SocialAnalyticsSuspenseQueryHookResult = ReturnType<typeof useSocialAnalyticsSuspenseQuery>;
+export const SyncSocialAccountDocument = gql`
+    mutation SyncSocialAccount($id: ID!) {
+  syncSocialAccount(id: $id) {
+    accountId
+    synced
+    error
+  }
+}
+    `;
+
+/**
+ * __useSyncSocialAccountMutation__
+ *
+ * To run a mutation, you first call `useSyncSocialAccountMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSyncSocialAccountMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [syncSocialAccountMutation, { data, loading, error }] = useSyncSocialAccountMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useSyncSocialAccountMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SyncSocialAccountMutation, SyncSocialAccountMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SyncSocialAccountMutation, SyncSocialAccountMutationVariables>(SyncSocialAccountDocument, options);
+      }
+export type SyncSocialAccountMutationHookResult = ReturnType<typeof useSyncSocialAccountMutation>;
+export const SyncAllSocialAccountsDocument = gql`
+    mutation SyncAllSocialAccounts {
+  syncAllSocialAccounts {
+    accountId
+    synced
+    error
+  }
+}
+    `;
+
+/**
+ * __useSyncAllSocialAccountsMutation__
+ *
+ * To run a mutation, you first call `useSyncAllSocialAccountsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSyncAllSocialAccountsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [syncAllSocialAccountsMutation, { data, loading, error }] = useSyncAllSocialAccountsMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useSyncAllSocialAccountsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SyncAllSocialAccountsMutation, SyncAllSocialAccountsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SyncAllSocialAccountsMutation, SyncAllSocialAccountsMutationVariables>(SyncAllSocialAccountsDocument, options);
+      }
+export type SyncAllSocialAccountsMutationHookResult = ReturnType<typeof useSyncAllSocialAccountsMutation>;
+export const ComposeSocialMediaPostDocument = gql`
+    mutation ComposeSocialMediaPost($input: SocialMediaPostInput!) {
+  composeSocialMediaPost(input: $input) {
+    ...SocialMediaPostFields
+  }
+}
+    ${SocialMediaPostFieldsFragmentDoc}`;
+
+/**
+ * __useComposeSocialMediaPostMutation__
+ *
+ * To run a mutation, you first call `useComposeSocialMediaPostMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useComposeSocialMediaPostMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [composeSocialMediaPostMutation, { data, loading, error }] = useComposeSocialMediaPostMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useComposeSocialMediaPostMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ComposeSocialMediaPostMutation, ComposeSocialMediaPostMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ComposeSocialMediaPostMutation, ComposeSocialMediaPostMutationVariables>(ComposeSocialMediaPostDocument, options);
+      }
+export type ComposeSocialMediaPostMutationHookResult = ReturnType<typeof useComposeSocialMediaPostMutation>;
+export const UpdateSocialMediaPostDocument = gql`
+    mutation UpdateSocialMediaPost($id: ID!, $input: SocialMediaPostUpdateInput!) {
+  updateSocialMediaPost(id: $id, input: $input) {
+    ...SocialMediaPostFields
+  }
+}
+    ${SocialMediaPostFieldsFragmentDoc}`;
+
+/**
+ * __useUpdateSocialMediaPostMutation__
+ *
+ * To run a mutation, you first call `useUpdateSocialMediaPostMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateSocialMediaPostMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateSocialMediaPostMutation, { data, loading, error }] = useUpdateSocialMediaPostMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateSocialMediaPostMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateSocialMediaPostMutation, UpdateSocialMediaPostMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateSocialMediaPostMutation, UpdateSocialMediaPostMutationVariables>(UpdateSocialMediaPostDocument, options);
+      }
+export type UpdateSocialMediaPostMutationHookResult = ReturnType<typeof useUpdateSocialMediaPostMutation>;
+export const PublishSocialMediaPostNowDocument = gql`
+    mutation PublishSocialMediaPostNow($id: ID!) {
+  publishSocialMediaPostNow(id: $id) {
+    ...SocialMediaPostFields
+  }
+}
+    ${SocialMediaPostFieldsFragmentDoc}`;
+
+/**
+ * __usePublishSocialMediaPostNowMutation__
+ *
+ * To run a mutation, you first call `usePublishSocialMediaPostNowMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePublishSocialMediaPostNowMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [publishSocialMediaPostNowMutation, { data, loading, error }] = usePublishSocialMediaPostNowMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function usePublishSocialMediaPostNowMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<PublishSocialMediaPostNowMutation, PublishSocialMediaPostNowMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<PublishSocialMediaPostNowMutation, PublishSocialMediaPostNowMutationVariables>(PublishSocialMediaPostNowDocument, options);
+      }
+export type PublishSocialMediaPostNowMutationHookResult = ReturnType<typeof usePublishSocialMediaPostNowMutation>;
+export const DeleteSocialMediaPostDocument = gql`
+    mutation DeleteSocialMediaPost($id: ID!) {
+  deleteSocialMediaPost(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteSocialMediaPostMutation__
+ *
+ * To run a mutation, you first call `useDeleteSocialMediaPostMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteSocialMediaPostMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteSocialMediaPostMutation, { data, loading, error }] = useDeleteSocialMediaPostMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteSocialMediaPostMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteSocialMediaPostMutation, DeleteSocialMediaPostMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteSocialMediaPostMutation, DeleteSocialMediaPostMutationVariables>(DeleteSocialMediaPostDocument, options);
+      }
+export type DeleteSocialMediaPostMutationHookResult = ReturnType<typeof useDeleteSocialMediaPostMutation>;
+export const SocialMediaInsightsDocument = gql`
+    mutation SocialMediaInsights($days: Int!) {
+  socialMediaInsights(days: $days)
+}
+    `;
+
+/**
+ * __useSocialMediaInsightsMutation__
+ *
+ * To run a mutation, you first call `useSocialMediaInsightsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSocialMediaInsightsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [socialMediaInsightsMutation, { data, loading, error }] = useSocialMediaInsightsMutation({
+ *   variables: {
+ *      days: // value for 'days'
+ *   },
+ * });
+ */
+export function useSocialMediaInsightsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SocialMediaInsightsMutation, SocialMediaInsightsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SocialMediaInsightsMutation, SocialMediaInsightsMutationVariables>(SocialMediaInsightsDocument, options);
+      }
+export type SocialMediaInsightsMutationHookResult = ReturnType<typeof useSocialMediaInsightsMutation>;
+export const SocialMediaIdeasDocument = gql`
+    mutation SocialMediaIdeas($topic: String!, $count: Int!) {
+  socialMediaIdeas(topic: $topic, count: $count)
+}
+    `;
+
+/**
+ * __useSocialMediaIdeasMutation__
+ *
+ * To run a mutation, you first call `useSocialMediaIdeasMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSocialMediaIdeasMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [socialMediaIdeasMutation, { data, loading, error }] = useSocialMediaIdeasMutation({
+ *   variables: {
+ *      topic: // value for 'topic'
+ *      count: // value for 'count'
+ *   },
+ * });
+ */
+export function useSocialMediaIdeasMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SocialMediaIdeasMutation, SocialMediaIdeasMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SocialMediaIdeasMutation, SocialMediaIdeasMutationVariables>(SocialMediaIdeasDocument, options);
+      }
+export type SocialMediaIdeasMutationHookResult = ReturnType<typeof useSocialMediaIdeasMutation>;
 export const SocialFeedDocument = gql`
     query SocialFeed($limit: Int, $cursor: ID) {
   socialFeed(limit: $limit, cursor: $cursor) {

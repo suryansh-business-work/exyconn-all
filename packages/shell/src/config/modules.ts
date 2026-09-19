@@ -761,7 +761,7 @@ export const MODULES: ModuleDefinition[] = [
       },
       {
         key: 'marketing-social',
-        label: 'Social accounts',
+        label: 'Social media',
         path: '/marketing/social',
         icon: ShareIcon,
       },
@@ -1032,6 +1032,14 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Environment Variables',
         path: '/tech/environment-variables',
         icon: TerminalIcon,
+        group: 'Configuration',
+      },
+      {
+        // Its own page: as an Environment Variables tab it sat off-screen in the strip.
+        key: 'tech-social-apps',
+        label: 'Social apps',
+        path: '/tech/social-apps',
+        icon: ShareIcon,
         group: 'Configuration',
       },
       {

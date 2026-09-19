@@ -1,9 +1,13 @@
-import { Route } from 'react-router-dom';
+import { Navigate, Route } from 'react-router-dom';
 import { PortalApp } from '@exyconn/shell';
 import { ROLES } from '@exyconn/shell/auth/roles';
 import { Login } from '@exyconn/login';
 import { TechOverviewPage } from './pages/overview';
-import { EnvironmentVariablesPage } from './pages/environment-variables';
+import {
+  EnvironmentVariablesPage,
+  SocialAppsPage,
+  SOCIAL_APPS_PATH,
+} from './pages/environment-variables';
 import { EmailPage } from './pages/email';
 import { TrackerBuildPage } from './pages/tracker-build';
 import { SettingsPage } from './pages/settings';
@@ -19,6 +23,12 @@ export function App() {
     <PortalApp loginElement={<Login />} moduleRole={ROLES.TECH} homePath="/tech">
       <Route path="/tech" element={<TechOverviewPage />} />
       <Route path="/tech/environment-variables/:tab?" element={<EnvironmentVariablesPage />} />
+      <Route path="/tech/social-apps" element={<SocialAppsPage />} />
+      {/* It was an Environment Variables tab first; that address still lands on it. */}
+      <Route
+        path="/tech/environment-variables/social-apps"
+        element={<Navigate to={SOCIAL_APPS_PATH} replace />}
+      />
       <Route path="/tech/email/:tab?" element={<EmailPage />} />
       <Route path="/tech/tracker-build" element={<TrackerBuildPage />} />
       <Route path="/tech/problem-reports" element={<ProblemReportsPage />} />

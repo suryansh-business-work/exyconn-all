@@ -5,7 +5,7 @@ import { Login } from '@exyconn/login';
 import { MarketingOverviewPage, MarketingPage } from './pages/marketing';
 import { AudiencesPage } from './pages/audiences';
 import { SuppressionPage } from './pages/suppression';
-import { SocialAccountsPage } from './pages/social';
+import { SocialPage } from './pages/social';
 
 /** Marketing micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
@@ -15,7 +15,7 @@ export function App() {
       <Route path="/marketing/campaigns" element={<MarketingPage />} />
       <Route path="/marketing/audiences" element={<AudiencesPage />} />
       <Route path="/marketing/suppression" element={<SuppressionPage />} />
-      <Route path="/marketing/social" element={<SocialAccountsPage />} />
+      <Route path="/marketing/social/:tab?" element={<SocialPage />} />
     </PortalApp>
   );
 }

@@ -42,6 +42,8 @@ query SocialAccounts {
     handle
     avatarUrl
     expiresAt
+    lastSyncedAt
+    syncError
     createdAt
   }
 }
@@ -52,4 +54,131 @@ mutation StartSocialConnect($app: SocialApp!) {
 
 mutation DisconnectSocialAccount($id: ID!) {
   disconnectSocialAccount(id: $id)
+}
+
+mutation TestSocialAppConfig($app: SocialApp!) {
+  testSocialAppConfig(app: $app) {
+    ok
+    message
+  }
+}
+
+fragment SocialMediaPostFields on SocialMediaPost {
+  id
+  accountId
+  network
+  origin
+  status
+  text
+  mediaUrl
+  link
+  permalink
+  scheduledAt
+  publishedAt
+  error
+  engagement
+  batchId
+  createdAt
+  metrics {
+    likes
+    comments
+    shares
+    views
+  }
+}
+
+query SocialMediaPosts($accountId: ID, $status: SocialMediaPostStatus, $limit: Int) {
+  socialMediaPosts(accountId: $accountId, status: $status, limit: $limit) {
+    ...SocialMediaPostFields
+  }
+}
+
+query SocialCalendar($from: DateTime!, $to: DateTime!) {
+  socialCalendar(from: $from, to: $to) {
+    ...SocialMediaPostFields
+  }
+}
+
+query SocialNetworkRules {
+  socialNetworkRules {
+    network
+    canPublish
+    maxChars
+    requiresImage
+    allowsImage
+    note
+  }
+}
+
+query SocialAnalytics($days: Int!) {
+  socialAnalytics(days: $days) {
+    days
+    posts
+    likes
+    comments
+    shares
+    views
+    engagement
+    scheduled
+    failed
+    byNetwork {
+      network
+      posts
+      engagement
+      views
+    }
+    engagementPerDay {
+      period
+      value
+    }
+    topPosts {
+      ...SocialMediaPostFields
+    }
+  }
+}
+
+mutation SyncSocialAccount($id: ID!) {
+  syncSocialAccount(id: $id) {
+    accountId
+    synced
+    error
+  }
+}
+
+mutation SyncAllSocialAccounts {
+  syncAllSocialAccounts {
+    accountId
+    synced
+    error
+  }
+}
+
+mutation ComposeSocialMediaPost($input: SocialMediaPostInput!) {
+  composeSocialMediaPost(input: $input) {
+    ...SocialMediaPostFields
+  }
+}
+
+mutation UpdateSocialMediaPost($id: ID!, $input: SocialMediaPostUpdateInput!) {
+  updateSocialMediaPost(id: $id, input: $input) {
+    ...SocialMediaPostFields
+  }
+}
+
+mutation PublishSocialMediaPostNow($id: ID!) {
+  publishSocialMediaPostNow(id: $id) {
+    ...SocialMediaPostFields
+  }
+}
+
+mutation DeleteSocialMediaPost($id: ID!) {
+  deleteSocialMediaPost(id: $id)
+}
+
+mutation SocialMediaInsights($days: Int!) {
+  socialMediaInsights(days: $days)
+}
+
+mutation SocialMediaIdeas($topic: String!, $count: Int!) {
+  socialMediaIdeas(topic: $topic, count: $count)
 }

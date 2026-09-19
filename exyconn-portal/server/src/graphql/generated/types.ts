@@ -4274,6 +4274,8 @@ export type Mutation = {
   commentOnTeamGoal: Goal;
   /** Completes the sprint, moving unfinished tickets on per sprintCompletionPlan. */
   completeSprint: Sprint;
+  /** One post per account: published now, scheduled, or kept as a draft. MARKETING. */
+  composeSocialMediaPost: Array<SocialMediaPost>;
   /** Public: turns a confirm link into a live subscription. The link works exactly once. */
   confirmStatusSubscription: Scalars['Boolean']['output'];
   /** Turns a lead into a company, a contact and a deal at the top of the pipeline. Once only. */
@@ -4512,6 +4514,7 @@ export type Mutation = {
   deleteShift: Scalars['Boolean']['output'];
   deleteSlackConfig: Scalars['Boolean']['output'];
   deleteSocialComment: Scalars['Boolean']['output'];
+  deleteSocialMediaPost: Scalars['Boolean']['output'];
   deleteSocialPost: Scalars['Boolean']['output'];
   /** Deletes the sprint and returns its tickets to the backlog. */
   deleteSprint: Scalars['Boolean']['output'];
@@ -4581,6 +4584,8 @@ export type Mutation = {
    * which is what a change in wording means — leave it off for a typo fix.
    */
   publishPolicy: Policy;
+  /** Publishes a draft, a scheduled post ahead of time, or retries a failed one. */
+  publishSocialMediaPostNow: SocialMediaPost;
   /**
    * Books goods in: writes a RECEIPT movement carrying the order's cost, moves the product's
    * average cost, and re-reads the order's status from what has actually arrived.
@@ -4731,6 +4736,10 @@ export type Mutation = {
   /** Shares a post onto the feed, optionally with something of your own to say. */
   shareSocialPost: SocialPost;
   signContract: Contract;
+  /** AI: post ideas on a topic, in the voice of the best posts. */
+  socialMediaIdeas: Scalars['String']['output'];
+  /** AI: what worked, what did not, and what to try, from the last days' posts. */
+  socialMediaInsights: Scalars['String']['output'];
   /**
    * Starts one joiner's onboarding from a template. HR only, and refused while the employee
    * already has a checklist that is not finished — two open checklists is two answers to
@@ -4759,12 +4768,17 @@ export type Mutation = {
    * whether an address is already subscribed. Nothing is sent until the link is confirmed.
    */
   subscribeToStatus: Scalars['Boolean']['output'];
+  syncAllSocialAccounts: Array<SocialSyncResult>;
+  /** Reads one account's posts and numbers from the network now. MARKETING. */
+  syncSocialAccount: SocialSyncResult;
   testGithubConnection: Scalars['Boolean']['output'];
   testImageUpload: Scalars['String']['output'];
   /** Signs in and opens the mailbox, so credentials are checked before the poller relies on them. */
   testInboundMailConnection: Scalars['Boolean']['output'];
   testOpenAiConnection: Scalars['Boolean']['output'];
   testPexelsConnection: Scalars['Boolean']['output'];
+  /** Checks the stored client ID and secret with the provider. Platform Tech staff. */
+  testSocialAppConfig: SocialAppTest;
   /** Likes the post, or takes the like back. Returns the post as it now stands. */
   toggleSocialPostLike: SocialPost;
   /**
@@ -4916,6 +4930,7 @@ export type Mutation = {
   updateSettings: AppSettings;
   updateShift: Shift;
   updateSlackConfig: SlackConfig;
+  updateSocialMediaPost: SocialMediaPost;
   updateSprint: Sprint;
   updateStatusMaintenance: StatusMaintenance;
   updateStatusMonitor: StatusMonitor;
@@ -5038,6 +5053,11 @@ export type MutationCommentOnTeamGoalArgs = {
 
 export type MutationCompleteSprintArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationComposeSocialMediaPostArgs = {
+  input: SocialMediaPostInput;
 };
 
 
@@ -6059,6 +6079,11 @@ export type MutationDeleteSocialCommentArgs = {
 };
 
 
+export type MutationDeleteSocialMediaPostArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteSocialPostArgs = {
   id: Scalars['ID']['input'];
 };
@@ -6257,6 +6282,11 @@ export type MutationPromoteCompanyToClientArgs = {
 export type MutationPublishPolicyArgs = {
   id: Scalars['ID']['input'];
   raiseVersion?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type MutationPublishSocialMediaPostNowArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -6588,6 +6618,17 @@ export type MutationSignContractArgs = {
 };
 
 
+export type MutationSocialMediaIdeasArgs = {
+  count?: InputMaybe<Scalars['Int']['input']>;
+  topic: Scalars['String']['input'];
+};
+
+
+export type MutationSocialMediaInsightsArgs = {
+  days?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
 export type MutationStartOnboardingArgs = {
   employeeId: Scalars['ID']['input'];
   templateId: Scalars['ID']['input'];
@@ -6633,6 +6674,11 @@ export type MutationSubscribeToStatusArgs = {
 };
 
 
+export type MutationSyncSocialAccountArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationTestGithubConnectionArgs = {
   id: Scalars['ID']['input'];
 };
@@ -6657,6 +6703,11 @@ export type MutationTestOpenAiConnectionArgs = {
 
 export type MutationTestPexelsConnectionArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestSocialAppConfigArgs = {
+  app: SocialApp;
 };
 
 
@@ -7258,6 +7309,12 @@ export type MutationUpdateShiftArgs = {
 export type MutationUpdateSlackConfigArgs = {
   id: Scalars['ID']['input'];
   input: SlackConfigInput;
+};
+
+
+export type MutationUpdateSocialMediaPostArgs = {
+  id: Scalars['ID']['input'];
+  input: SocialMediaPostUpdateInput;
 };
 
 
@@ -9257,14 +9314,21 @@ export type Query = {
   sharedProject?: Maybe<SharedProjectView>;
   /** The company's connected accounts. MARKETING. */
   socialAccounts: Array<SocialAccount>;
+  /** What the posts did over the last days (1-365). MARKETING. */
+  socialAnalytics: SocialAnalytics;
   /** The four providers' apps, set up or not. Platform Tech staff. */
   socialAppConfigs: Array<SocialAppConfig>;
   /** Which providers Marketing can connect. MARKETING. */
   socialAppStatuses: Array<SocialAppStatus>;
+  /** Posts scheduled or published between two instants — the calendar. MARKETING. */
+  socialCalendar: Array<SocialMediaPost>;
   /** The comments on a post, oldest first, so a conversation reads in order. */
   socialComments: Array<SocialComment>;
   /** Everybody's posts, newest first. */
   socialFeed: SocialFeedPage;
+  /** Posts, newest first, optionally for one account or in one state. MARKETING. */
+  socialMediaPosts: Array<SocialMediaPost>;
+  socialNetworkRules: Array<SocialNetworkRule>;
   /** One post, for its own page. */
   socialPost: SocialPost;
   /** One colleague's profile. */
@@ -10575,6 +10639,17 @@ export type QuerySharedProjectArgs = {
 };
 
 
+export type QuerySocialAnalyticsArgs = {
+  days?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QuerySocialCalendarArgs = {
+  from: Scalars['DateTime']['input'];
+  to: Scalars['DateTime']['input'];
+};
+
+
 export type QuerySocialCommentsArgs = {
   postId: Scalars['ID']['input'];
 };
@@ -10583,6 +10658,13 @@ export type QuerySocialCommentsArgs = {
 export type QuerySocialFeedArgs = {
   cursor?: InputMaybe<Scalars['ID']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QuerySocialMediaPostsArgs = {
+  accountId?: InputMaybe<Scalars['ID']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  status?: InputMaybe<SocialMediaPostStatus>;
 };
 
 
@@ -11190,9 +11272,30 @@ export type SocialAccount = {
   expiresAt?: Maybe<Scalars['DateTime']['output']>;
   handle: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  /** When its posts and numbers were last read from the network. */
+  lastSyncedAt?: Maybe<Scalars['DateTime']['output']>;
   name: Scalars['String']['output'];
   network: SocialNetwork;
+  /** Why the last read failed, in the network's words; empty when it worked. */
+  syncError: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
+};
+
+export type SocialAnalytics = {
+  __typename?: 'SocialAnalytics';
+  byNetwork: Array<SocialNetworkStat>;
+  comments: Scalars['Int']['output'];
+  days: Scalars['Int']['output'];
+  engagement: Scalars['Int']['output'];
+  engagementPerDay: Array<AnalyticsPoint>;
+  failed: Scalars['Int']['output'];
+  likes: Scalars['Int']['output'];
+  posts: Scalars['Int']['output'];
+  /** Posts waiting for their time, and posts that failed to go out. */
+  scheduled: Scalars['Int']['output'];
+  shares: Scalars['Int']['output'];
+  topPosts: Array<SocialMediaPost>;
+  views: Scalars['Int']['output'];
 };
 
 export enum SocialApp {
@@ -11238,6 +11341,13 @@ export type SocialAppStatus = {
   networks: Array<SocialNetwork>;
 };
 
+/** The outcome of checking an app's client ID and secret with its provider. */
+export type SocialAppTest = {
+  __typename?: 'SocialAppTest';
+  message: Scalars['String']['output'];
+  ok: Scalars['Boolean']['output'];
+};
+
 /** Who wrote something, as the feed needs to show them: enough to render a byline. */
 export type SocialAuthor = {
   __typename?: 'SocialAuthor';
@@ -11267,6 +11377,70 @@ export type SocialFeedPage = {
   posts: Array<SocialPost>;
 };
 
+export type SocialMediaPost = {
+  __typename?: 'SocialMediaPost';
+  accountId: Scalars['ID']['output'];
+  /** Posts written together for several accounts share it. */
+  batchId: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  /** Likes, comments and shares together. */
+  engagement: Scalars['Int']['output'];
+  /** The network's reason when publishing failed. */
+  error: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  link: Scalars['String']['output'];
+  mediaUrl: Scalars['String']['output'];
+  metrics: SocialMediaPostMetrics;
+  network: SocialNetwork;
+  origin: SocialMediaPostOrigin;
+  permalink: Scalars['String']['output'];
+  publishedAt?: Maybe<Scalars['DateTime']['output']>;
+  scheduledAt?: Maybe<Scalars['DateTime']['output']>;
+  status: SocialMediaPostStatus;
+  text: Scalars['String']['output'];
+};
+
+export type SocialMediaPostInput = {
+  accountIds: Array<Scalars['ID']['input']>;
+  /** Keep it as a draft. */
+  draft?: InputMaybe<Scalars['Boolean']['input']>;
+  link: Scalars['String']['input'];
+  mediaUrl: Scalars['String']['input'];
+  /** When to publish; null publishes now. */
+  scheduledAt?: InputMaybe<Scalars['DateTime']['input']>;
+  text: Scalars['String']['input'];
+};
+
+/** What the network counts for a post; zero where it shares no number. */
+export type SocialMediaPostMetrics = {
+  __typename?: 'SocialMediaPostMetrics';
+  comments: Scalars['Int']['output'];
+  likes: Scalars['Int']['output'];
+  shares: Scalars['Int']['output'];
+  views: Scalars['Int']['output'];
+};
+
+export enum SocialMediaPostOrigin {
+  Composed = 'COMPOSED',
+  Synced = 'SYNCED'
+}
+
+export enum SocialMediaPostStatus {
+  Draft = 'DRAFT',
+  Failed = 'FAILED',
+  Published = 'PUBLISHED',
+  Publishing = 'PUBLISHING',
+  Scheduled = 'SCHEDULED'
+}
+
+export type SocialMediaPostUpdateInput = {
+  link: Scalars['String']['input'];
+  mediaUrl: Scalars['String']['input'];
+  /** A time moves it onto the schedule; null keeps it a draft. */
+  scheduledAt?: InputMaybe<Scalars['DateTime']['input']>;
+  text: Scalars['String']['input'];
+};
+
 export enum SocialNetwork {
   Facebook = 'FACEBOOK',
   Instagram = 'INSTAGRAM',
@@ -11274,6 +11448,25 @@ export enum SocialNetwork {
   X = 'X',
   Youtube = 'YOUTUBE'
 }
+
+/** What a network accepts from the composer. */
+export type SocialNetworkRule = {
+  __typename?: 'SocialNetworkRule';
+  allowsImage: Scalars['Boolean']['output'];
+  canPublish: Scalars['Boolean']['output'];
+  maxChars: Scalars['Int']['output'];
+  network: SocialNetwork;
+  note: Scalars['String']['output'];
+  requiresImage: Scalars['Boolean']['output'];
+};
+
+export type SocialNetworkStat = {
+  __typename?: 'SocialNetworkStat';
+  engagement: Scalars['Int']['output'];
+  network: SocialNetwork;
+  posts: Scalars['Int']['output'];
+  views: Scalars['Int']['output'];
+};
 
 export type SocialPost = {
   __typename?: 'SocialPost';
@@ -11306,6 +11499,13 @@ export type SocialProfile = {
   likesReceived: Scalars['Int']['output'];
   postCount: Scalars['Int']['output'];
   user: SocialAuthor;
+};
+
+export type SocialSyncResult = {
+  __typename?: 'SocialSyncResult';
+  accountId: Scalars['ID']['output'];
+  error: Scalars['String']['output'];
+  synced: Scalars['Int']['output'];
 };
 
 export enum SortDir {
@@ -13746,17 +13946,28 @@ export type ResolversTypes = ResolversObject<{
   SlackConfigInput: SlackConfigInput;
   SlipStatus: SlipStatus;
   SocialAccount: ResolverTypeWrapper<SocialAccount>;
+  SocialAnalytics: ResolverTypeWrapper<SocialAnalytics>;
   SocialApp: SocialApp;
   SocialAppConfig: ResolverTypeWrapper<SocialAppConfig>;
   SocialAppConfigInput: SocialAppConfigInput;
   SocialAppStatus: ResolverTypeWrapper<SocialAppStatus>;
+  SocialAppTest: ResolverTypeWrapper<SocialAppTest>;
   SocialAuthor: ResolverTypeWrapper<SocialAuthor>;
   SocialComment: ResolverTypeWrapper<SocialComment>;
   SocialFeedPage: ResolverTypeWrapper<SocialFeedPage>;
+  SocialMediaPost: ResolverTypeWrapper<SocialMediaPost>;
+  SocialMediaPostInput: SocialMediaPostInput;
+  SocialMediaPostMetrics: ResolverTypeWrapper<SocialMediaPostMetrics>;
+  SocialMediaPostOrigin: SocialMediaPostOrigin;
+  SocialMediaPostStatus: SocialMediaPostStatus;
+  SocialMediaPostUpdateInput: SocialMediaPostUpdateInput;
   SocialNetwork: SocialNetwork;
+  SocialNetworkRule: ResolverTypeWrapper<SocialNetworkRule>;
+  SocialNetworkStat: ResolverTypeWrapper<SocialNetworkStat>;
   SocialPost: ResolverTypeWrapper<SocialPost>;
   SocialPostInput: SocialPostInput;
   SocialProfile: ResolverTypeWrapper<SocialProfile>;
+  SocialSyncResult: ResolverTypeWrapper<SocialSyncResult>;
   SortDir: SortDir;
   Sprint: ResolverTypeWrapper<Sprint>;
   SprintCompletionPlan: ResolverTypeWrapper<SprintCompletionPlan>;
@@ -14320,15 +14531,24 @@ export type ResolversParentTypes = ResolversObject<{
   SlackConfig: SlackConfig;
   SlackConfigInput: SlackConfigInput;
   SocialAccount: SocialAccount;
+  SocialAnalytics: SocialAnalytics;
   SocialAppConfig: SocialAppConfig;
   SocialAppConfigInput: SocialAppConfigInput;
   SocialAppStatus: SocialAppStatus;
+  SocialAppTest: SocialAppTest;
   SocialAuthor: SocialAuthor;
   SocialComment: SocialComment;
   SocialFeedPage: SocialFeedPage;
+  SocialMediaPost: SocialMediaPost;
+  SocialMediaPostInput: SocialMediaPostInput;
+  SocialMediaPostMetrics: SocialMediaPostMetrics;
+  SocialMediaPostUpdateInput: SocialMediaPostUpdateInput;
+  SocialNetworkRule: SocialNetworkRule;
+  SocialNetworkStat: SocialNetworkStat;
   SocialPost: SocialPost;
   SocialPostInput: SocialPostInput;
   SocialProfile: SocialProfile;
+  SocialSyncResult: SocialSyncResult;
   Sprint: Sprint;
   SprintCompletionPlan: SprintCompletionPlan;
   SprintInput: SprintInput;
@@ -16801,6 +17021,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   clearRolePermission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationClearRolePermissionArgs, 'module' | 'role'>>;
   commentOnTeamGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationCommentOnTeamGoalArgs, 'comment' | 'id'>>;
   completeSprint?: Resolver<ResolversTypes['Sprint'], ParentType, ContextType, RequireFields<MutationCompleteSprintArgs, 'id'>>;
+  composeSocialMediaPost?: Resolver<Array<ResolversTypes['SocialMediaPost']>, ParentType, ContextType, RequireFields<MutationComposeSocialMediaPostArgs, 'input'>>;
   confirmStatusSubscription?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationConfirmStatusSubscriptionArgs, 'token'>>;
   convertLead?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationConvertLeadArgs, 'id' | 'input'>>;
   convertWebsiteSubmissionToLead?: Resolver<ResolversTypes['Lead'], ParentType, ContextType, RequireFields<MutationConvertWebsiteSubmissionToLeadArgs, 'id'>>;
@@ -16999,6 +17220,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteShift?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteShiftArgs, 'id'>>;
   deleteSlackConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSlackConfigArgs, 'id'>>;
   deleteSocialComment?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSocialCommentArgs, 'id'>>;
+  deleteSocialMediaPost?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSocialMediaPostArgs, 'id'>>;
   deleteSocialPost?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSocialPostArgs, 'id'>>;
   deleteSprint?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSprintArgs, 'id'>>;
   deleteStatusIncident?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteStatusIncidentArgs, 'id'>>;
@@ -17038,6 +17260,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   promoteBugToTask?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationPromoteBugToTaskArgs, 'id'>>;
   promoteCompanyToClient?: Resolver<ResolversTypes['Company'], ParentType, ContextType, RequireFields<MutationPromoteCompanyToClientArgs, 'id'>>;
   publishPolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationPublishPolicyArgs, 'id'>>;
+  publishSocialMediaPostNow?: Resolver<ResolversTypes['SocialMediaPost'], ParentType, ContextType, RequireFields<MutationPublishSocialMediaPostNowArgs, 'id'>>;
   receivePurchaseOrder?: Resolver<ResolversTypes['PurchaseOrder'], ParentType, ContextType, RequireFields<MutationReceivePurchaseOrderArgs, 'id' | 'lines'>>;
   recordPayment?: Resolver<ResolversTypes['Payment'], ParentType, ContextType, RequireFields<MutationRecordPaymentArgs, 'input'>>;
   recordStockMovement?: Resolver<ResolversTypes['StockMovement'], ParentType, ContextType, RequireFields<MutationRecordStockMovementArgs, 'input'>>;
@@ -17094,6 +17317,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setWebhookActive?: Resolver<ResolversTypes['Webhook'], ParentType, ContextType, RequireFields<MutationSetWebhookActiveArgs, 'active' | 'id'>>;
   shareSocialPost?: Resolver<ResolversTypes['SocialPost'], ParentType, ContextType, RequireFields<MutationShareSocialPostArgs, 'id'>>;
   signContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSignContractArgs, 'id' | 'signedBy'>>;
+  socialMediaIdeas?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSocialMediaIdeasArgs, 'count' | 'topic'>>;
+  socialMediaInsights?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSocialMediaInsightsArgs, 'days'>>;
   startOnboarding?: Resolver<ResolversTypes['OnboardingChecklist'], ParentType, ContextType, RequireFields<MutationStartOnboardingArgs, 'employeeId' | 'templateId'>>;
   startSocialConnect?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationStartSocialConnectArgs, 'app'>>;
   startSprint?: Resolver<ResolversTypes['Sprint'], ParentType, ContextType, RequireFields<MutationStartSprintArgs, 'id'>>;
@@ -17102,11 +17327,14 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   submitProblemReport?: Resolver<ResolversTypes['ProblemReportReceipt'], ParentType, ContextType, RequireFields<MutationSubmitProblemReportArgs, 'input'>>;
   submitSelfAssessment?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<MutationSubmitSelfAssessmentArgs, 'id' | 'text'>>;
   subscribeToStatus?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSubscribeToStatusArgs, 'email'>>;
+  syncAllSocialAccounts?: Resolver<Array<ResolversTypes['SocialSyncResult']>, ParentType, ContextType>;
+  syncSocialAccount?: Resolver<ResolversTypes['SocialSyncResult'], ParentType, ContextType, RequireFields<MutationSyncSocialAccountArgs, 'id'>>;
   testGithubConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGithubConnectionArgs, 'id'>>;
   testImageUpload?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestImageUploadArgs, 'file' | 'fileName' | 'id'>>;
   testInboundMailConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestInboundMailConnectionArgs, 'id'>>;
   testOpenAiConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestOpenAiConnectionArgs, 'id'>>;
   testPexelsConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestPexelsConnectionArgs, 'id'>>;
+  testSocialAppConfig?: Resolver<ResolversTypes['SocialAppTest'], ParentType, ContextType, RequireFields<MutationTestSocialAppConfigArgs, 'app'>>;
   toggleSocialPostLike?: Resolver<ResolversTypes['SocialPost'], ParentType, ContextType, RequireFields<MutationToggleSocialPostLikeArgs, 'id'>>;
   trackerAcceptConsent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, Partial<MutationTrackerAcceptConsentArgs>>;
   trackerHeartbeat?: Resolver<ResolversTypes['TrackerMe'], ParentType, ContextType, Partial<MutationTrackerHeartbeatArgs>>;
@@ -17209,6 +17437,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateSettings?: Resolver<ResolversTypes['AppSettings'], ParentType, ContextType, RequireFields<MutationUpdateSettingsArgs, 'input'>>;
   updateShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<MutationUpdateShiftArgs, 'id' | 'input'>>;
   updateSlackConfig?: Resolver<ResolversTypes['SlackConfig'], ParentType, ContextType, RequireFields<MutationUpdateSlackConfigArgs, 'id' | 'input'>>;
+  updateSocialMediaPost?: Resolver<ResolversTypes['SocialMediaPost'], ParentType, ContextType, RequireFields<MutationUpdateSocialMediaPostArgs, 'id' | 'input'>>;
   updateSprint?: Resolver<ResolversTypes['Sprint'], ParentType, ContextType, RequireFields<MutationUpdateSprintArgs, 'id' | 'input'>>;
   updateStatusMaintenance?: Resolver<ResolversTypes['StatusMaintenance'], ParentType, ContextType, RequireFields<MutationUpdateStatusMaintenanceArgs, 'id' | 'input'>>;
   updateStatusMonitor?: Resolver<ResolversTypes['StatusMonitor'], ParentType, ContextType, RequireFields<MutationUpdateStatusMonitorArgs, 'id' | 'input'>>;
@@ -18360,10 +18589,14 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   searchPexelsVideos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsVideosArgs, 'query'>>;
   sharedProject?: Resolver<Maybe<ResolversTypes['SharedProjectView']>, ParentType, ContextType, RequireFields<QuerySharedProjectArgs, 'token'>>;
   socialAccounts?: Resolver<Array<ResolversTypes['SocialAccount']>, ParentType, ContextType>;
+  socialAnalytics?: Resolver<ResolversTypes['SocialAnalytics'], ParentType, ContextType, RequireFields<QuerySocialAnalyticsArgs, 'days'>>;
   socialAppConfigs?: Resolver<Array<ResolversTypes['SocialAppConfig']>, ParentType, ContextType>;
   socialAppStatuses?: Resolver<Array<ResolversTypes['SocialAppStatus']>, ParentType, ContextType>;
+  socialCalendar?: Resolver<Array<ResolversTypes['SocialMediaPost']>, ParentType, ContextType, RequireFields<QuerySocialCalendarArgs, 'from' | 'to'>>;
   socialComments?: Resolver<Array<ResolversTypes['SocialComment']>, ParentType, ContextType, RequireFields<QuerySocialCommentsArgs, 'postId'>>;
   socialFeed?: Resolver<ResolversTypes['SocialFeedPage'], ParentType, ContextType, Partial<QuerySocialFeedArgs>>;
+  socialMediaPosts?: Resolver<Array<ResolversTypes['SocialMediaPost']>, ParentType, ContextType, RequireFields<QuerySocialMediaPostsArgs, 'limit'>>;
+  socialNetworkRules?: Resolver<Array<ResolversTypes['SocialNetworkRule']>, ParentType, ContextType>;
   socialPost?: Resolver<ResolversTypes['SocialPost'], ParentType, ContextType, RequireFields<QuerySocialPostArgs, 'id'>>;
   socialProfile?: Resolver<ResolversTypes['SocialProfile'], ParentType, ContextType, RequireFields<QuerySocialProfileArgs, 'userId'>>;
   socialUserPosts?: Resolver<ResolversTypes['SocialFeedPage'], ParentType, ContextType, RequireFields<QuerySocialUserPostsArgs, 'userId'>>;
@@ -18650,9 +18883,27 @@ export type SocialAccountResolvers<ContextType = GraphQLContext, ParentType exte
   expiresAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   handle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lastSyncedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   network?: Resolver<ResolversTypes['SocialNetwork'], ParentType, ContextType>;
+  syncError?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SocialAnalyticsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SocialAnalytics'] = ResolversParentTypes['SocialAnalytics']> = ResolversObject<{
+  byNetwork?: Resolver<Array<ResolversTypes['SocialNetworkStat']>, ParentType, ContextType>;
+  comments?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  days?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  engagement?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  engagementPerDay?: Resolver<Array<ResolversTypes['AnalyticsPoint']>, ParentType, ContextType>;
+  failed?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  likes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  posts?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  scheduled?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  shares?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  topPosts?: Resolver<Array<ResolversTypes['SocialMediaPost']>, ParentType, ContextType>;
+  views?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -18674,6 +18925,12 @@ export type SocialAppStatusResolvers<ContextType = GraphQLContext, ParentType ex
   available?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   networks?: Resolver<Array<ResolversTypes['SocialNetwork']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SocialAppTestResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SocialAppTest'] = ResolversParentTypes['SocialAppTest']> = ResolversObject<{
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -18703,6 +18960,52 @@ export type SocialFeedPageResolvers<ContextType = GraphQLContext, ParentType ext
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type SocialMediaPostResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SocialMediaPost'] = ResolversParentTypes['SocialMediaPost']> = ResolversObject<{
+  accountId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  batchId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  engagement?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  error?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  link?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  mediaUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  metrics?: Resolver<ResolversTypes['SocialMediaPostMetrics'], ParentType, ContextType>;
+  network?: Resolver<ResolversTypes['SocialNetwork'], ParentType, ContextType>;
+  origin?: Resolver<ResolversTypes['SocialMediaPostOrigin'], ParentType, ContextType>;
+  permalink?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  publishedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  scheduledAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['SocialMediaPostStatus'], ParentType, ContextType>;
+  text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SocialMediaPostMetricsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SocialMediaPostMetrics'] = ResolversParentTypes['SocialMediaPostMetrics']> = ResolversObject<{
+  comments?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  likes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  shares?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  views?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SocialNetworkRuleResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SocialNetworkRule'] = ResolversParentTypes['SocialNetworkRule']> = ResolversObject<{
+  allowsImage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  canPublish?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  maxChars?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  network?: Resolver<ResolversTypes['SocialNetwork'], ParentType, ContextType>;
+  note?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  requiresImage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SocialNetworkStatResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SocialNetworkStat'] = ResolversParentTypes['SocialNetworkStat']> = ResolversObject<{
+  engagement?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  network?: Resolver<ResolversTypes['SocialNetwork'], ParentType, ContextType>;
+  posts?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  views?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type SocialPostResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SocialPost'] = ResolversParentTypes['SocialPost']> = ResolversObject<{
   author?: Resolver<ResolversTypes['SocialAuthor'], ParentType, ContextType>;
   body?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -18724,6 +19027,13 @@ export type SocialProfileResolvers<ContextType = GraphQLContext, ParentType exte
   likesReceived?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   postCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   user?: Resolver<ResolversTypes['SocialAuthor'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SocialSyncResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SocialSyncResult'] = ResolversParentTypes['SocialSyncResult']> = ResolversObject<{
+  accountId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  error?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  synced?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -20027,13 +20337,20 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   SlackChannel?: SlackChannelResolvers<ContextType>;
   SlackConfig?: SlackConfigResolvers<ContextType>;
   SocialAccount?: SocialAccountResolvers<ContextType>;
+  SocialAnalytics?: SocialAnalyticsResolvers<ContextType>;
   SocialAppConfig?: SocialAppConfigResolvers<ContextType>;
   SocialAppStatus?: SocialAppStatusResolvers<ContextType>;
+  SocialAppTest?: SocialAppTestResolvers<ContextType>;
   SocialAuthor?: SocialAuthorResolvers<ContextType>;
   SocialComment?: SocialCommentResolvers<ContextType>;
   SocialFeedPage?: SocialFeedPageResolvers<ContextType>;
+  SocialMediaPost?: SocialMediaPostResolvers<ContextType>;
+  SocialMediaPostMetrics?: SocialMediaPostMetricsResolvers<ContextType>;
+  SocialNetworkRule?: SocialNetworkRuleResolvers<ContextType>;
+  SocialNetworkStat?: SocialNetworkStatResolvers<ContextType>;
   SocialPost?: SocialPostResolvers<ContextType>;
   SocialProfile?: SocialProfileResolvers<ContextType>;
+  SocialSyncResult?: SocialSyncResultResolvers<ContextType>;
   Sprint?: SprintResolvers<ContextType>;
   SprintCompletionPlan?: SprintCompletionPlanResolvers<ContextType>;
   StatBucket?: StatBucketResolvers<ContextType>;

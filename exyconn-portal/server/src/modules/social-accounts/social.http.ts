@@ -53,3 +53,24 @@ export async function getJson(provider: string, url: string, accessToken?: strin
   });
   return read(provider, response);
 }
+
+/** An authenticated JSON POST — what publishing uses. */
+export async function postJson(
+  provider: string,
+  url: string,
+  body: unknown,
+  accessToken: string,
+  headers: Record<string, string> = {},
+): Promise<Json> {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+      ...headers,
+    },
+    body: JSON.stringify(body),
+  });
+  return read(provider, response);
+}
