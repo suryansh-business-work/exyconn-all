@@ -133,6 +133,12 @@ export const env = Object.freeze({
    * resolver. Raise nginx and this together if lossless retina captures must get through.
    */
   graphqlBodyLimit: process.env.GRAPHQL_BODY_LIMIT ?? '15mb',
+  /**
+   * Where the nightly backup writes what it did. Mounted read-only into the container by
+   * docker-compose; empty in development, where the health card then says so rather than
+   * claiming a backup that never ran.
+   */
+  backupStatusFile: process.env.BACKUP_STATUS_FILE ?? '',
   /** Download page for the desktop tracker, used as the CTA in the access-granted email. */
   trackerDownloadUrl: process.env.TRACKER_DOWNLOAD_URL ?? 'https://employee.exyconn.com/me/tracker',
   /**

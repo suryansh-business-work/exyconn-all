@@ -257,6 +257,14 @@ services:
       # Tech > Infrastructure reads the live stack through the read-only socket proxy
       # below. Never the raw socket: /var/run/docker.sock is root on the host.
       DOCKER_API_URL: http://docker-proxy:2375
+      # What the host's nightly backup last did, for Admin > System Health. Read-only,
+      # and outside the database on purpose: a backup's record must survive the thing it
+      # is insuring.
+      BACKUP_STATUS_FILE: /var/lib/exyconn/backup/status.json
+    volumes:
+      # Only the status directory, never the archive directory: a dump of the whole
+      # company has no business being readable inside a web-facing container.
+      - /opt/exyconn-backup-status:/var/lib/exyconn/backup:ro
     depends_on:
       - docker-proxy
     # default: the host-published port; docker-api: the only route to the socket proxy.

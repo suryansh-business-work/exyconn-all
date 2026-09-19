@@ -42,6 +42,7 @@ describe('systemHealth', () => {
       'inboundMail',
       'campaignSchedule',
       'aiQueue',
+      'reminders',
     ]);
     expect(health.counts.map((count) => count.label)).toEqual([
       'Users',
