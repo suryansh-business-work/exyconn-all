@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useT } from '@exyconn/i18n';
-import { Box, ChartCard, TrendChart, type ChartData } from '@exyconn/shell/components/ui';
-import { panel } from '@exyconn/shell/components/glass/glass';
+import { Box, ChartCard, TrendChart, type ChartData } from '@/components/ui';
+import { panel } from '../glass/glass';
 
 /** One bucket of a series over time, as the analytics API returns it. */
 export interface Point {

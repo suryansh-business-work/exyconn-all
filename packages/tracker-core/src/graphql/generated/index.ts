@@ -2151,6 +2151,36 @@ export type SocialAppConfigInput = {
   enabled: Scalars['Boolean']['input'];
 };
 
+export type SocialMediaPostInput = {
+  accountIds: Array<Scalars['ID']['input']>;
+  /** Keep it as a draft. */
+  draft: InputMaybe<Scalars['Boolean']['input']>;
+  link: Scalars['String']['input'];
+  mediaUrl: Scalars['String']['input'];
+  /** When to publish; null publishes now. */
+  scheduledAt: InputMaybe<Scalars['DateTime']['input']>;
+  text: Scalars['String']['input'];
+};
+
+export type SocialMediaPostOrigin =
+  | 'COMPOSED'
+  | 'SYNCED';
+
+export type SocialMediaPostStatus =
+  | 'DRAFT'
+  | 'FAILED'
+  | 'PUBLISHED'
+  | 'PUBLISHING'
+  | 'SCHEDULED';
+
+export type SocialMediaPostUpdateInput = {
+  link: Scalars['String']['input'];
+  mediaUrl: Scalars['String']['input'];
+  /** A time moves it onto the schedule; null keeps it a draft. */
+  scheduledAt: InputMaybe<Scalars['DateTime']['input']>;
+  text: Scalars['String']['input'];
+};
+
 export type SocialNetwork =
   | 'FACEBOOK'
   | 'INSTAGRAM'

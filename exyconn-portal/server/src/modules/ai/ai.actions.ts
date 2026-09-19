@@ -61,7 +61,7 @@ function assertText(value: string, label: string): string {
  * Synchronous because the caller is waiting on the text — the queue exists for the jobs
  * grid, where nobody is.
  */
-async function runAssist(name: string, prompt: string, actor: AiActor): Promise<string> {
+export async function runAssist(name: string, prompt: string, actor: AiActor): Promise<string> {
   await assertWithinAiBudget(actor.id);
   const model = await defaultAiModel();
   const job = await AiJobModel.create({

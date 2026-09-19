@@ -761,7 +761,7 @@ export const MODULES: ModuleDefinition[] = [
       },
       {
         key: 'marketing-social',
-        label: 'Social accounts',
+        label: 'Social media',
         path: '/marketing/social',
         icon: ShareIcon,
       },

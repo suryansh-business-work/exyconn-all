@@ -69,7 +69,7 @@ export async function saveAppConfig(input: SocialAppConfigInput) {
 }
 
 /** The credentials of an app that is turned on, or a refusal saying what is missing. */
-async function usableApp(app: SocialApp) {
+export async function usableApp(app: SocialApp) {
   const config = (await appConfigs()).find((row) => row.app === app);
   if (!config?.enabled || config.clientId === '' || config.clientSecret === '') {
     badRequest(

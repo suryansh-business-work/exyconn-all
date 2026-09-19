@@ -8,7 +8,7 @@ import {
   type PlatformAnalyticsQuery,
 } from '@exyconn/shell/graphql/generated';
 import { AnalyticsSection } from './AnalyticsSection';
-import { PointChart } from './PointChart';
+import { PointChart } from '@exyconn/shell/components/dashboard/PointChart';
 import { count, withCountryNames } from './analytics.format';
 
 type Platform = PlatformAnalyticsQuery['platformAnalytics'];

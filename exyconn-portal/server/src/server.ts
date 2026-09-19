@@ -17,6 +17,7 @@ import { ensureOnboardingDefaults } from './modules/onboarding';
 import { startTrackerDigest, startTrackerRetention } from './modules/tracker';
 import { startCampaignSchedule } from './modules/marketing';
 import { startOverdueSweep, startRecurringInvoiceSchedule } from './modules/finance';
+import { startSocialSchedule } from './modules/social-accounts';
 import { startWebhookDelivery } from './modules/integrations';
 import { ensureAiModelPrices, startAiWorker } from './modules/ai';
 import { backfillAppLogGroupUsers } from './modules/logs';
@@ -78,6 +79,7 @@ async function bootstrap(): Promise<void> {
   // A campaign scheduled for Tuesday morning has to go out on Tuesday morning, whether or
   // not anyone is signed into the Marketing portal when it does.
   startCampaignSchedule();
+  startSocialSchedule();
   startRecurringInvoiceSchedule();
   // Before the reminder sweep below, which tells finance about whatever this has just
   // declared overdue: started in this order, an invoice that fell due overnight is marked,
