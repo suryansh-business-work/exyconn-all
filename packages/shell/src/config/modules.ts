@@ -1035,6 +1035,14 @@ export const MODULES: ModuleDefinition[] = [
         group: 'Configuration',
       },
       {
+        // Its own page: as an Environment Variables tab it sat off-screen in the strip.
+        key: 'tech-social-apps',
+        label: 'Social apps',
+        path: '/tech/social-apps',
+        icon: ShareIcon,
+        group: 'Configuration',
+      },
+      {
         key: 'tech-email',
         label: 'Email',
         path: '/tech/email',

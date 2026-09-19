@@ -8,7 +8,6 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import PriceChangeIcon from '@mui/icons-material/PriceChange';
-import ShareIcon from '@mui/icons-material/Share';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
 import { SlackConfigsPanel } from './SlackConfigsPanel';
@@ -19,7 +18,6 @@ import { GithubConfigsPanel } from './GithubConfigsPanel';
 import { PexelsConfigsPanel } from './PexelsConfigsPanel';
 import { OpenAiConfigsPanel } from './OpenAiConfigsPanel';
 import { AiPricingPanel } from './AiPricingPanel';
-import { SocialAppsPanel } from './SocialAppsPanel';
 
 /** Route the tabs live under; each tab is a slug beneath it. */
 export const ENVIRONMENT_VARIABLES_PATH = '/tech/environment-variables';
@@ -98,16 +96,6 @@ const TABS: TabberItem[] = [
     content: (
       <GlassPanel>
         <InboundMailConfigsPanel />
-      </GlassPanel>
-    ),
-  },
-  {
-    slug: 'social-apps',
-    label: 'Social apps',
-    icon: <ShareIcon />,
-    content: (
-      <GlassPanel>
-        <SocialAppsPanel />
       </GlassPanel>
     ),
   },
