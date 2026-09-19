@@ -10,6 +10,7 @@ import { useMyLeaveBalancesQuery, useMyLeaveRequestsQuery } from '@exyconn/shell
 import { ApplyLeaveForm } from './forms/apply-leave';
 import { LeaveBalanceCards } from './LeaveBalanceCards';
 import { densePanel } from '@exyconn/shell/components/glass/glass';
+import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 
 type LeaveRow = {
   id: string;
@@ -47,7 +48,9 @@ export function MyLeavePage() {
         <ApplyLeaveForm
           onCancel={() => setOpen(false)}
           onDone={() => {
-            void refetch();
+            Promise.all([refetch(), balances.refetch()]).catch((error: unknown) =>
+              portalLogger.warn('Could not reload leave after applying', error),
+            );
             setOpen(false);
           }}
         />
@@ -63,7 +66,10 @@ export function MyLeavePage() {
         actionLabel="Apply for leave"
         onAction={() => setOpen(true)}
       />
-      <LeaveBalanceCards balances={balances.data?.myLeaveBalances ?? []} />
+      <LeaveBalanceCards
+        balances={balances.data?.myLeaveBalances ?? []}
+        loading={balances.loading}
+      />
       <Box sx={densePanel}>
         <DataTable
           columns={columns}

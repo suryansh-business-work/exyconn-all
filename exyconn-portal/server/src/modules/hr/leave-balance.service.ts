@@ -54,7 +54,7 @@ export async function debitLeaveBalance(leave: LeaveSpan): Promise<void> {
   }
   if (!balance) {
     badRequest(
-      `No leave balance for ${key.leaveTypeCode} in ${key.year} — set a quota under HR > Leave Settings or add one under HR > Leave Balances`,
+      `No leave balance for ${key.leaveTypeCode} in ${key.year} — set a quota under HR > Leave Settings or add one on the employee's page`,
     );
   }
   const days = leaveDays(leave.fromDate, leave.toDate);

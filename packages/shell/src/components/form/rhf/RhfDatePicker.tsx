@@ -6,10 +6,13 @@ import { toDate } from '@/utils/date';
 interface RhfDatePickerProps {
   name: string;
   label: string;
+  /** The earliest date that can be picked, as an ISO string; days before it are disabled. */
+  minDate?: string;
+  helperText?: string;
 }
 
 /** React Hook Form-bound MUIX date picker. Stores the value as an ISO string. */
-export function RhfDatePicker({ name, label }: RhfDatePickerProps) {
+export function RhfDatePicker({ name, label, minDate, helperText }: Readonly<RhfDatePickerProps>) {
   const { control } = useFormContext();
   const copy = useFieldCopy();
   return (
@@ -20,6 +23,7 @@ export function RhfDatePicker({ name, label }: RhfDatePickerProps) {
         <DatePicker
           label={copy(label)}
           value={toDate(field.value)}
+          minDate={toDate(minDate) ?? undefined}
           // MUIX fires onChange for every section typed, so a half-entered date arrives
           // as an Invalid Date — toISOString() throws RangeError on one and took the
           // whole form down. An incomplete date is simply "not set yet".
@@ -34,7 +38,7 @@ export function RhfDatePicker({ name, label }: RhfDatePickerProps) {
               fullWidth: true,
               onBlur: field.onBlur,
               error: Boolean(fieldState.error),
-              helperText: copy(fieldState.error?.message),
+              helperText: copy(fieldState.error?.message ?? helperText),
             },
           }}
         />

@@ -78,7 +78,7 @@ describe('setLeaveStatus and the leave balance', () => {
     const req = await request();
 
     await expect(decide(req._id, 'APPROVED')).rejects.toThrow(
-      'No leave balance for CASUAL in 2026 — set a quota under HR > Leave Settings or add one under HR > Leave Balances',
+      "No leave balance for CASUAL in 2026 — set a quota under HR > Leave Settings or add one on the employee's page",
     );
   });
 

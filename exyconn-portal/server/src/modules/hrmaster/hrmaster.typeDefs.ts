@@ -105,6 +105,8 @@ export const hrMasterTypeDefs = gql`
     getHoliday(id: ID!): Holiday!
     "The holidays the signed-in employee observes: company-wide ones plus their country's and city's."
     myHolidays: [Holiday!]!
+    "One employee's balances for a year, every type their country offers filled in. HR."
+    employeeLeaveBalances(employeeId: ID!, year: Int!): [LeaveBalance!]!
 
     listLeavePolicies: [LeavePolicy!]!
     listLeavePoliciesPaged(input: TableQueryInput!): LeavePolicyPage!

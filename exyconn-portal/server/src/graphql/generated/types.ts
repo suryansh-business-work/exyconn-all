@@ -8643,6 +8643,8 @@ export type Query = {
   /** Images on the host and what the engine's disk is spent on. */
   dockerStorage: DockerStorage;
   emailDashboard: EmailDashboard;
+  /** One employee's balances for a year, every type their country offers filled in. HR. */
+  employeeLeaveBalances: Array<LeaveBalance>;
   /**
    * ONE employee's salary structure, looked up by the employee rather than by structure id.
    * Null until HR has set one up. This is what the employee record reads.
@@ -9397,6 +9399,12 @@ export type QueryDockerContainerDetailArgs = {
 
 export type QueryEmailDashboardArgs = {
   days?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryEmployeeLeaveBalancesArgs = {
+  employeeId: Scalars['ID']['input'];
+  year: Scalars['Int']['input'];
 };
 
 
@@ -17753,6 +17761,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   dockerContainers?: Resolver<Array<ResolversTypes['DockerContainer']>, ParentType, ContextType>;
   dockerStorage?: Resolver<ResolversTypes['DockerStorage'], ParentType, ContextType>;
   emailDashboard?: Resolver<ResolversTypes['EmailDashboard'], ParentType, ContextType, Partial<QueryEmailDashboardArgs>>;
+  employeeLeaveBalances?: Resolver<Array<ResolversTypes['LeaveBalance']>, ParentType, ContextType, RequireFields<QueryEmployeeLeaveBalancesArgs, 'employeeId' | 'year'>>;
   employeeSalary?: Resolver<Maybe<ResolversTypes['SalaryStructure']>, ParentType, ContextType, RequireFields<QueryEmployeeSalaryArgs, 'employeeId'>>;
   getActivity?: Resolver<ResolversTypes['Activity'], ParentType, ContextType, RequireFields<QueryGetActivityArgs, 'id'>>;
   getAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<QueryGetAiJobArgs, 'id'>>;

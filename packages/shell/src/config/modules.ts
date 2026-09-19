@@ -627,13 +627,6 @@ export const MODULES: ModuleDefinition[] = [
         group: 'Leave',
       },
       {
-        key: 'hr-leave-balances',
-        label: 'Leave Balances',
-        path: '/hr/leave-balances',
-        icon: EventAvailableIcon,
-        group: 'Leave',
-      },
-      {
         // Leave types and holidays, each global with per-country overrides.
         key: 'hr-leave-settings',
         label: 'Leave Settings',

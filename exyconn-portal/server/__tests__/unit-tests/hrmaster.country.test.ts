@@ -153,6 +153,36 @@ describe('myLeaveBalances', () => {
   });
 });
 
+describe('employeeLeaveBalances', () => {
+  const hr = {
+    user: { id: 'hr', email: 'hr@exyconn.com', roles: [ROLES.HR] },
+  } as unknown as GraphQLContext;
+  const year = new Date().getUTCFullYear();
+
+  it("fills in every metered type the employee's country offers, for HR", async () => {
+    const emp = await employee();
+    await casual();
+    await casual({ name: 'Sick', code: 'SL', annualQuota: 6 });
+
+    const rows = (await Q.employeeLeaveBalances(null, { employeeId: emp, year }, hr)) as {
+      leaveTypeCode: string;
+      allocated: number;
+    }[];
+
+    expect(rows.map((row) => [row.leaveTypeCode, row.allocated])).toEqual([
+      ['CL', 12],
+      ['SL', 6],
+    ]);
+  });
+
+  it('is refused to an employee', async () => {
+    const emp = await employee();
+    await expect(
+      Q.employeeLeaveBalances(null, { employeeId: emp, year }, ctx(emp)),
+    ).rejects.toThrow();
+  });
+});
+
 describe('applyLeave', () => {
   const input = (type: string) => ({
     input: {
