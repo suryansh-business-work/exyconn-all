@@ -1,5 +1,5 @@
-import { NotificationModel } from './notification.model';
 import { UserModel } from '../admin/user.model';
+import { deliver } from './delivery';
 import { logger } from '../../utils/logger';
 import { badRequest } from '../../utils/errors';
 
@@ -10,9 +10,9 @@ export interface NotifyPayload {
   link?: string;
 }
 
-/** Drops a notification for one employee. */
+/** Drops a notification for one employee, on whichever channels they chose. */
 export async function notify(employeeId: string, payload: NotifyPayload): Promise<void> {
-  await NotificationModel.create({ employeeId, ...payload });
+  await deliver([employeeId], payload);
 }
 
 /**
@@ -36,9 +36,9 @@ export async function notifyBestEffort(employeeId: string, payload: NotifyPayloa
 export async function notifyEveryone(payload: NotifyPayload): Promise<void> {
   try {
     const users = await UserModel.find({ isActive: true }).select('_id').lean();
-    if (users.length === 0) return;
-    await NotificationModel.insertMany(
-      users.map((user) => ({ employeeId: String(user._id), ...payload })),
+    await deliver(
+      users.map((user) => String(user._id)),
+      payload,
     );
   } catch (error) {
     logger.error(error, 'Failed to fan out notification');
@@ -68,10 +68,8 @@ export async function resolveRecipients(input: BroadcastInput): Promise<string[]
 /** HR broadcast. Unlike notifyEveryone this throws, because the sender is waiting for a count. */
 export async function broadcast(input: BroadcastInput): Promise<number> {
   const recipients = await resolveRecipients(input);
-  if (recipients.length === 0) return 0;
   const { kind, title, body, link } = input;
-  await NotificationModel.insertMany(
-    recipients.map((employeeId) => ({ employeeId, kind, title, body, link })),
-  );
-  return recipients.length;
+  // The count is what the sender is shown, so it counts people who will see it in the
+  // portal — not people who were merely on the list with the kind switched off.
+  return deliver(recipients, { kind, title, body, link });
 }

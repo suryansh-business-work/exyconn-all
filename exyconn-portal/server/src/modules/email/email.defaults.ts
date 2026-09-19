@@ -271,6 +271,20 @@ const TEMPLATES = [
         </mj-text>`),
   },
   {
+    key: 'notification',
+    name: 'Notification — by email',
+    description:
+      'One portal notification, sent to somebody who asked for that kind by email in their account settings.',
+    subject: '{{title}}',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">{{title}}</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">{{body}}</mj-text>
+        <mj-button background-color="#155dfc" border-radius="10px" href="{{actionUrl}}" padding="24px 0 8px">Open the portal</mj-button>
+        <mj-text font-size="13px" color="#94a3b8">
+          You are getting this because you asked for these by email. Change that under Settings in any portal.
+        </mj-text>`),
+  },
+  {
     key: 'invoice-sent',
     name: 'Invoice sent to client',
     description:
@@ -288,6 +302,27 @@ const TEMPLATES = [
         <mj-text font-size="16px" font-weight="600" color="#0b0a12" padding-top="0">{{dueDate}}</mj-text>
         <mj-text font-size="13px" color="#94a3b8">
           The invoice is attached to this email as a PDF. Reply to this email with any questions.
+        </mj-text>`),
+  },
+  {
+    key: 'invoice-overdue',
+    name: 'Invoice overdue — payment chase',
+    description:
+      'Sent to a client by the overdue invoice sweep, once at each chase stage after the due date. {{daysLate}} is the whole days since the date; the same wording carries every stage, so an edit here changes all of them.',
+    subject: 'Invoice {{invoiceNumber}} is now {{daysLate}} days overdue',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Invoice {{invoiceNumber}} is overdue</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{clientName}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          Our records show invoice {{invoiceNumber}} is still unpaid, {{daysLate}} days after it was due.
+          If it is already on its way, thank you — please ignore this note.
+        </mj-text>
+        <mj-divider border-color="#e2e8f0" />
+        <mj-text font-size="14px" color="#64748b" padding-bottom="4px">Balance due</mj-text>
+        <mj-text font-size="16px" font-weight="600" color="#0b0a12" padding-top="0">{{balanceDue}}</mj-text>
+        <mj-text font-size="14px" color="#64748b" padding-bottom="4px">Was due by</mj-text>
+        <mj-text font-size="16px" font-weight="600" color="#0b0a12" padding-top="0">{{dueDate}}</mj-text>
+        <mj-text font-size="13px" color="#94a3b8">
+          Reply to this email if the invoice needs correcting, or to tell us when it will be settled.
         </mj-text>`),
   },
 ];

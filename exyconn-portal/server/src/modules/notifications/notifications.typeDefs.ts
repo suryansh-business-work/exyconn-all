@@ -56,9 +56,26 @@ export const notificationsTypeDefs = gql`
     recipients: Int!
   }
 
+  "One kind of notification, and where this person wants it."
+  type NotificationPreference {
+    kind: NotificationKind!
+    "Shown in the bell and the notification centre."
+    inPortal: Boolean!
+    "Also sent as an email. Off unless somebody asked for it."
+    email: Boolean!
+  }
+
+  input NotificationPreferenceInput {
+    kind: NotificationKind!
+    inPortal: Boolean!
+    email: Boolean!
+  }
+
   extend type Query {
     myNotifications: [Notification!]!
     myUnreadNotificationCount: Int!
+    "Every kind, with this person's choice or the default where they have made none."
+    myNotificationPreferences: [NotificationPreference!]!
   }
 
   extend type Mutation {
@@ -66,5 +83,7 @@ export const notificationsTypeDefs = gql`
     markAllNotificationsRead: Int!
     "HR broadcast to every active employee, one department, or a chosen list."
     sendNotification(input: SendNotificationInput!): SendNotificationResult!
+    "Sets where one kind reaches this person. Returns the whole set, so a screen stays in step."
+    setMyNotificationPreference(input: NotificationPreferenceInput!): [NotificationPreference!]!
   }
 `;

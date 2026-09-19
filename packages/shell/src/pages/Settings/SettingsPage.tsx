@@ -5,8 +5,12 @@ import { ChangePasswordForm } from './forms/change-password';
 import { readingPanel } from '@/components/glass/glass';
 import { TwoFactorPanel } from './TwoFactorPanel';
 import { SessionsPanel } from './SessionsPanel';
+import { NotificationPreferencesPanel } from './NotificationPreferencesPanel';
 
-/** Account settings: the password, the second factor, and where this account is signed in. */
+/**
+ * Account settings: the password, the second factor, the devices signed in, and which
+ * notifications reach this person.
+ */
 export function SettingsPage() {
   return (
     <Box>
@@ -43,6 +47,14 @@ export function SettingsPage() {
           }}
         >
           <SessionsPanel />
+        </Grid>
+        <Grid
+          size={{
+            xs: 12,
+            md: 6,
+          }}
+        >
+          <NotificationPreferencesPanel />
         </Grid>
       </Grid>
     </Box>
