@@ -26,7 +26,7 @@ function RecoveryCodes({ codes, onDone }: Readonly<RecoveryCodesProps>) {
       </Alert>
       <Box
         component="ul"
-        sx={{ m: 0, mb: 1, pl: 2.5, columns: 2, fontFamily: 'monospace', fontSize: 14 }}
+        sx={{ m: 0, mb: 1, pl: 3, columns: 2, fontFamily: 'monospace', fontSize: 14 }}
       >
         {codes.map((code) => (
           <li key={code}>{code}</li>

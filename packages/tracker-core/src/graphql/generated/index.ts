@@ -1565,6 +1565,12 @@ export type NotificationKind =
   | 'SUPPORT'
   | 'TRAINING';
 
+export type NotificationPreferenceInput = {
+  email: Scalars['Boolean']['input'];
+  inPortal: Scalars['Boolean']['input'];
+  kind: NotificationKind;
+};
+
 export type ObjectiveFrequency =
   | 'HALF_YEARLY'
   | 'MONTHLY'

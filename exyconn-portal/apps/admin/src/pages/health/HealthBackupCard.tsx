@@ -46,7 +46,7 @@ export function HealthBackupCard({ backup, formatDateTime }: Readonly<HealthBack
         {headline()}
       </Alert>
       {backup.configured && (
-        <Stack spacing={0.25}>
+        <Stack spacing={0.5}>
           <Typography variant="caption" sx={{ color: 'text.secondary' }}>
             {t('Last run: {when}', {
               when: backup.lastRunAt ? formatDateTime(backup.lastRunAt) : t('never'),
