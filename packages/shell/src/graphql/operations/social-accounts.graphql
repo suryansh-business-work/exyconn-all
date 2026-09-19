@@ -1,0 +1,55 @@
+# Social accounts for Marketing, and the OAuth apps behind them (Tech).
+
+fragment SocialAppConfigFields on SocialAppConfig {
+  id
+  app
+  label
+  consoleUrl
+  callbackUrl
+  clientId
+  hasClientSecret
+  clientSecretHint
+  enabled
+}
+
+query SocialAppConfigs {
+  socialAppConfigs {
+    ...SocialAppConfigFields
+  }
+}
+
+mutation SaveSocialAppConfig($input: SocialAppConfigInput!) {
+  saveSocialAppConfig(input: $input) {
+    ...SocialAppConfigFields
+  }
+}
+
+query SocialAppStatuses {
+  socialAppStatuses {
+    app
+    label
+    available
+    networks
+  }
+}
+
+query SocialAccounts {
+  socialAccounts {
+    id
+    network
+    app
+    name
+    handle
+    avatarUrl
+    expiresAt
+    createdAt
+  }
+}
+
+mutation StartSocialConnect($app: SocialApp!) {
+  startSocialConnect(app: $app)
+}
+
+mutation DisconnectSocialAccount($id: ID!) {
+  disconnectSocialAccount(id: $id)
+}

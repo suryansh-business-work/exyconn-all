@@ -11,6 +11,7 @@ import { buildContext, type GraphQLContext } from './middleware/auth';
 import { tenantScope } from './middleware/tenant';
 import { env } from './config/env';
 import { TRACKER_UPDATES_PATH, trackerUpdatesRouter } from './modules/tracker/tracker.updates';
+import { SOCIAL_CALLBACK_PATH, socialCallbackRouter } from './modules/social-accounts';
 import {
   TRACKING_PATH,
   marketingTrackingRouter,
@@ -60,6 +61,8 @@ export async function createApp(): Promise<Express> {
   app.use(TRACKER_UPDATES_PATH, trackerUpdatesRouter());
   // Public and unauthenticated by necessity: these are loaded by a mail client, not a session.
   app.use(TRACKING_PATH, marketingTrackingRouter());
+  // Where LinkedIn, Meta, X and Google send the browser back after consent (no session).
+  app.use(SOCIAL_CALLBACK_PATH, socialCallbackRouter());
   app.use(
     '/graphql',
     // The default 100kb body limit is far too small for the tracker: a compressed

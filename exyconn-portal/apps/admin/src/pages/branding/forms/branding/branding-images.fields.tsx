@@ -40,7 +40,8 @@ const IMAGE_ROWS: ImageRow[] = [
   },
   {
     label: 'Favicon',
-    helperText: 'Square, 32×32 or larger.',
+    helperText:
+      'Square PNG or SVG, 32×32 or larger. The browser-tab icon and sidebar mark of every portal, sign-in pages included.',
     light: 'faviconUrl',
     dark: 'faviconDarkUrl',
     media: 'image',

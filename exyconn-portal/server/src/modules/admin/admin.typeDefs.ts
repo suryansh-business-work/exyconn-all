@@ -95,6 +95,8 @@ export const adminTypeDefs = gql`
     and holidays. Null follows the company's country. Set by HR only.
     """
     country: String
+    "The state or region the person works in, which decides regional holidays. Set by HR only."
+    region: String
     "The city the person works in, which decides their city holidays. Set by HR only."
     city: String
     "Nullable because accounts created before the working arrangement existed have none."
@@ -190,6 +192,8 @@ export const adminTypeDefs = gql`
     locale: String
     "ISO 3166-1 alpha-2, or null to follow the company's country."
     country: String
+    "The state or region they work in, for regional holidays; null when not set."
+    region: String
     "The city they work in, for city holidays; null when not set."
     city: String
   }
@@ -221,6 +225,8 @@ export const adminTypeDefs = gql`
     locale: String
     "ISO 3166-1 alpha-2, or null to follow the company's country."
     country: String
+    "The state or region they work in, for regional holidays; null when not set."
+    region: String
     "The city they work in, for city holidays; null when not set."
     city: String
   }

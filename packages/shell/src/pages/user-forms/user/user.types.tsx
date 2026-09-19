@@ -38,6 +38,8 @@ export interface UserFormValues {
   locale: string;
   /** ISO 3166-1 alpha-2; '' follows the company's country. */
   country: string;
+  /** The state or region they work in; '' when not set. */
+  region: string;
   /** The city they work in; '' when not set. */
   city: string;
 }

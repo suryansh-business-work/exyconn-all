@@ -25,6 +25,7 @@ fragment UserFields on User {
   timezone
   locale
   country
+  region
   city
 }
 

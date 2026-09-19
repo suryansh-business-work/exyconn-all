@@ -1,6 +1,7 @@
 import { usePublicBrandingQuery } from '@exyconn/shell/graphql/generated';
 import { PORTAL_APPS, type PortalAppKey } from '@exyconn/shell/config/apps';
 import { env } from '@exyconn/shell/config/env';
+import { pickBrandImage } from '@exyconn/shell/hooks/useBrandMark';
 import { background, color, ensureContrast } from '@exyconn/ui';
 
 /** Everything the login screen needs to look like *this* portal. */
@@ -21,6 +22,8 @@ export interface LoginPageView {
   accentColor: string;
   /** Wordmark for the current colour mode. */
   logoUrl: string;
+  /** Browser-tab icon for the current colour mode (Admin > Branding > Images > Favicon). */
+  faviconUrl: string;
   businessName: string;
   supportEmail: string;
 }
@@ -54,6 +57,7 @@ export function useLoginPage(isDark: boolean): LoginPageView {
       background[isDark ? 'dark' : 'light'].panel,
     ),
     logoUrl: brandLogo || (isDark ? env.logoDarkUrl : env.logoUrl),
+    faviconUrl: pickBrandImage(isDark, branding?.faviconUrl, branding?.faviconDarkUrl, env.iconUrl),
     businessName: branding?.businessName ?? '',
     supportEmail: branding?.supportEmail ?? '',
   };

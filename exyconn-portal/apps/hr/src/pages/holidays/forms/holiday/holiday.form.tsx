@@ -29,7 +29,8 @@ const schema = z.object({
   // Empty is a holiday the whole company observes.
   country: z.string(),
   excludedCountries: z.array(z.string()),
-  // Empty is the whole country. Only a country holiday can be narrowed to cities.
+  // Both empty is the whole country. Only a country holiday can be narrowed to regions/cities.
+  regions: z.array(z.string().trim().min(1).max(100, 'Keep region names under 100 characters')),
   cities: z.array(z.string().trim().min(1).max(100, 'Keep city names under 100 characters')),
 });
 type Values = z.infer<typeof schema>;
@@ -41,6 +42,7 @@ const toInitial = (row: HolidayRow | null) => ({
   description: row?.description ?? '',
   country: row?.country ?? '',
   excludedCountries: row?.excludedCountries ?? [],
+  regions: row?.regions ?? [],
   cities: row?.cities ?? [],
 });
 
@@ -49,7 +51,7 @@ const ALL_COUNTRIES: SelectOption = { value: '', label: 'All countries' };
 
 /**
  * Empty optional inputs are "not set", which the API models as null. Opt-outs only mean
- * something on a company-wide holiday and cities only on a country one, so neither kind
+ * something on a company-wide holiday and regions/cities only on a country one, so neither kind
  * carries the other's stale values.
  */
 const toInput = (values: Values) => {
@@ -58,6 +60,7 @@ const toInput = (values: Values) => {
     ...values,
     description: values.description === '' ? null : values.description,
     excludedCountries: companyWide ? values.excludedCountries : [],
+    regions: companyWide ? [] : values.regions,
     cities: companyWide ? [] : values.cities,
   };
 };
@@ -98,7 +101,7 @@ export function HolidayForm({ initial, onDone, onCancel }: Readonly<HolidayFormP
         name="country"
         label="Country"
         options={[ALL_COUNTRIES, ...countries]}
-        helperText="Pick a country for a holiday only employees there observe."
+        helperText="All countries makes it a global holiday. Pick a country for one only employees there observe."
       />
       {companyWide ? (
         <RhfMultiSelect
@@ -108,11 +111,18 @@ export function HolidayForm({ initial, onDone, onCancel }: Readonly<HolidayFormP
           helperText="Countries whose employees work on this day."
         />
       ) : (
-        <RhfChipsInput
-          name="cities"
-          label="Cities"
-          helperText="Type a city and press Enter. Leave empty for the whole country."
-        />
+        <>
+          <RhfChipsInput
+            name="regions"
+            label="States / regions"
+            helperText="Type a state or region and press Enter, e.g. Maharashtra. Leave regions and cities empty for the whole country."
+          />
+          <RhfChipsInput
+            name="cities"
+            label="Cities"
+            helperText="Type a city and press Enter. Employees in any listed region or city get the holiday."
+          />
+        </>
       )}
     </EntityForm>
   );

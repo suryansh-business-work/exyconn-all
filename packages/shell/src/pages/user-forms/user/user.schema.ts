@@ -46,6 +46,7 @@ const identitySchema = z
     locale: z.string().refine((v) => v === '' || isValidLocale(v), 'Choose a language'),
     // Empty follows the company's country.
     country: z.string().refine((v) => v === '' || isValidCountry(v), 'Choose a country'),
+    region: z.string().trim().max(100, 'Keep the state or region under 100 characters'),
     city: z.string().trim().max(100, 'Keep the city under 100 characters'),
     workHoursPerDay: z
       .string()
@@ -109,6 +110,7 @@ export function toFormValues(
     timezone: row?.timezone ?? '',
     locale: row?.locale ?? '',
     country: row?.country ?? '',
+    region: row?.region ?? '',
     city: row?.city ?? '',
   };
 }
@@ -144,6 +146,7 @@ export function toUserInput(v: UserValues): Omit<CreateUserInput, 'name' | 'emai
     timezone: v.timezone || null,
     locale: v.locale || null,
     country: v.country || null,
+    region: v.region || null,
     city: v.city || null,
   };
 }

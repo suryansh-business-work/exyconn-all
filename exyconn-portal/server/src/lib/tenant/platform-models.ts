@@ -19,6 +19,10 @@ export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   'SlackConfig',
   'OpenAiConfig',
   'PexelsConfig',
+  // The social networks' OAuth apps, registered once for the install, and the short-lived
+  // state of a connection in progress (looked up by the provider's callback, before any scope).
+  'SocialAppConfig',
+  'SocialOAuthState',
   'TrackerBuildSettings',
   // NOTE: the support mailbox (InboundMailConfig) is deliberately NOT here — a company reads
   // its own mailbox into its own tickets, so each configures one in Tech.

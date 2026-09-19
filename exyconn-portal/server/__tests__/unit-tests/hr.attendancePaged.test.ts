@@ -4,6 +4,7 @@ import { AttendanceModel } from '../../src/modules/hr/attendance.model';
 import { attendancePage } from '../../src/modules/hr/attendance.report';
 import { TrackerManualEntryModel, TrackerSessionModel } from '../../src/modules/tracker/models';
 import { FilterOp } from '../../src/graphql/generated/types';
+import { currentOrganizationId } from '../../src/lib/tenant';
 
 const HOUR = 3_600_000;
 const ACME = new Types.ObjectId().toString();
@@ -90,6 +91,28 @@ describe('HR attendance register', () => {
       ['Beta', HOUR, 0],
     ]);
     expect(row?.tracker.firstStartedAt).toEqual(new Date('2026-09-09T20:00:00.000Z'));
+  });
+
+  it('reads a session recorded before projects existed as time with no project', async () => {
+    // Written straight to the collection, as those sessions were: no project fields at all.
+    await TrackerSessionModel.collection.insertOne({
+      organizationId: new Types.ObjectId(currentOrganizationId() ?? undefined),
+      userId: ben,
+      deviceId: 'dev-2',
+      startedAt: new Date('2026-09-10T06:00:00.000Z'),
+      endedAt: new Date('2026-09-10T07:00:00.000Z'),
+      status: 'stopped',
+      activeMs: HOUR,
+      idleMs: 0,
+      keyCount: 0,
+      mouseCount: 0,
+    });
+
+    const result = await page({ filters: [filter('employeeId', ben)] });
+
+    expect(result.rows[0].tracker.projects).toEqual([
+      { projectId: '', projectName: '', activeMs: HOUR, manualMs: 0, sessions: 1 },
+    ]);
   });
 
   it('gives an untracked day an empty brief', async () => {
