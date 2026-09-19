@@ -4413,6 +4413,7 @@ export type Mutation = {
   /** Creates a user, emails a temporary password, and returns it once for copying. */
   createUser: UserCredentials;
   createWebhook: CreatedWebhook;
+  /** Public. Refused unless `captcha` answers a question from `websiteCaptcha`. */
   createWebsiteSubmission: WebsiteSubmission;
   /** Approves or rejects one item, through the owning module's own decision service. */
   decideApproval: Scalars['Boolean']['output'];
@@ -5603,6 +5604,7 @@ export type MutationCreateWebhookArgs = {
 
 
 export type MutationCreateWebsiteSubmissionArgs = {
+  captcha: WebsiteCaptchaAnswer;
   input: WebsiteSubmissionInput;
 };
 
@@ -9341,6 +9343,8 @@ export type Query = {
   translations: TranslationPage;
   /** The events an endpoint may subscribe to. A fixed list, so a dead subscription is impossible. */
   webhookEvents: Array<Scalars['String']['output']>;
+  /** A fresh security question for a public form. Public; each is good for one answer, 10 minutes. */
+  websiteCaptcha: WebsiteCaptcha;
   /** The form identifiers the public website may submit under — the one allow-list. */
   websiteFormTypes: Array<Scalars['String']['output']>;
   /** The company's users, employees and tracker over the last `days` days (1-365). ADMIN. */
@@ -13075,6 +13079,18 @@ export type WebhookDelivery = {
   webhookId: Scalars['String']['output'];
 };
 
+/** A security question for a public form, and the signed token that says which it was. */
+export type WebsiteCaptcha = {
+  __typename?: 'WebsiteCaptcha';
+  question: Scalars['String']['output'];
+  token: Scalars['String']['output'];
+};
+
+export type WebsiteCaptchaAnswer = {
+  answer: Scalars['String']['input'];
+  token: Scalars['String']['input'];
+};
+
 export type WebsiteSubmission = {
   __typename?: 'WebsiteSubmission';
   /** The HR applicant a job application became, filed automatically on submission. */
@@ -13882,6 +13898,8 @@ export type ResolversTypes = ResolversObject<{
   UserSocialLinksInput: UserSocialLinksInput;
   Webhook: ResolverTypeWrapper<Webhook>;
   WebhookDelivery: ResolverTypeWrapper<WebhookDelivery>;
+  WebsiteCaptcha: ResolverTypeWrapper<WebsiteCaptcha>;
+  WebsiteCaptchaAnswer: WebsiteCaptchaAnswer;
   WebsiteSubmission: ResolverTypeWrapper<WebsiteSubmission>;
   WebsiteSubmissionInput: WebsiteSubmissionInput;
   WebsiteSubmissionPage: ResolverTypeWrapper<WebsiteSubmissionPage>;
@@ -14430,6 +14448,8 @@ export type ResolversParentTypes = ResolversObject<{
   UserSocialLinksInput: UserSocialLinksInput;
   Webhook: Webhook;
   WebhookDelivery: WebhookDelivery;
+  WebsiteCaptcha: WebsiteCaptcha;
+  WebsiteCaptchaAnswer: WebsiteCaptchaAnswer;
   WebsiteSubmission: WebsiteSubmission;
   WebsiteSubmissionInput: WebsiteSubmissionInput;
   WebsiteSubmissionPage: WebsiteSubmissionPage;
@@ -16890,7 +16910,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createTraining?: Resolver<ResolversTypes['Training'], ParentType, ContextType, RequireFields<MutationCreateTrainingArgs, 'input'>>;
   createUser?: Resolver<ResolversTypes['UserCredentials'], ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'input'>>;
   createWebhook?: Resolver<ResolversTypes['CreatedWebhook'], ParentType, ContextType, RequireFields<MutationCreateWebhookArgs, 'events' | 'name' | 'url'>>;
-  createWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<MutationCreateWebsiteSubmissionArgs, 'input'>>;
+  createWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<MutationCreateWebsiteSubmissionArgs, 'captcha' | 'input'>>;
   decideApproval?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDecideApprovalArgs, 'decision' | 'id'>>;
   decideEmployeeRequest?: Resolver<ResolversTypes['EmployeeRequest'], ParentType, ContextType, RequireFields<MutationDecideEmployeeRequestArgs, 'id' | 'status'>>;
   decideItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationDecideItAccessRequestArgs, 'decision' | 'id'>>;
@@ -18377,6 +18397,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   trackerTotals?: Resolver<ResolversTypes['TrackerTotals'], ParentType, ContextType, RequireFields<QueryTrackerTotalsArgs, 'userId'>>;
   translations?: Resolver<ResolversTypes['TranslationPage'], ParentType, ContextType, RequireFields<QueryTranslationsArgs, 'locale'>>;
   webhookEvents?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  websiteCaptcha?: Resolver<ResolversTypes['WebsiteCaptcha'], ParentType, ContextType>;
   websiteFormTypes?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   workspaceAnalytics?: Resolver<ResolversTypes['WorkspaceAnalytics'], ParentType, ContextType, RequireFields<QueryWorkspaceAnalyticsArgs, 'days'>>;
 }>;
@@ -19681,6 +19702,12 @@ export type WebhookDeliveryResolvers<ContextType = GraphQLContext, ParentType ex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type WebsiteCaptchaResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WebsiteCaptcha'] = ResolversParentTypes['WebsiteCaptcha']> = ResolversObject<{
+  question?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type WebsiteSubmissionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WebsiteSubmission'] = ResolversParentTypes['WebsiteSubmission']> = ResolversObject<{
   applicantId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
@@ -20091,6 +20118,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   UserSocialLinks?: UserSocialLinksResolvers<ContextType>;
   Webhook?: WebhookResolvers<ContextType>;
   WebhookDelivery?: WebhookDeliveryResolvers<ContextType>;
+  WebsiteCaptcha?: WebsiteCaptchaResolvers<ContextType>;
   WebsiteSubmission?: WebsiteSubmissionResolvers<ContextType>;
   WebsiteSubmissionPage?: WebsiteSubmissionPageResolvers<ContextType>;
   WorkspaceAnalytics?: WorkspaceAnalyticsResolvers<ContextType>;

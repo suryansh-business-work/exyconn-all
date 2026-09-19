@@ -2666,6 +2666,11 @@ export type UserSocialLinksInput = {
   website: InputMaybe<Scalars['String']['input']>;
 };
 
+export type WebsiteCaptchaAnswer = {
+  answer: Scalars['String']['input'];
+  token: Scalars['String']['input'];
+};
+
 export type WebsiteSubmissionInput = {
   formType: Scalars['String']['input'];
   notes: InputMaybe<Scalars['String']['input']>;

@@ -28,6 +28,17 @@ export const submissionTypeDefs = gql`
     notes: String
   }
 
+  "A security question for a public form, and the signed token that says which it was."
+  type WebsiteCaptcha {
+    token: String!
+    question: String!
+  }
+
+  input WebsiteCaptchaAnswer {
+    token: String!
+    answer: String!
+  }
+
   type WebsiteSubmissionPage {
     rows: [WebsiteSubmission!]!
     totalCount: Int!
@@ -44,11 +55,17 @@ export const submissionTypeDefs = gql`
     listWebsiteSubmissionsStats: TableStats!
     "The form identifiers the public website may submit under — the one allow-list."
     websiteFormTypes: [String!]!
+    "A fresh security question for a public form. Public; each is good for one answer, 10 minutes."
+    websiteCaptcha: WebsiteCaptcha!
     getWebsiteSubmission(id: ID!): WebsiteSubmission!
   }
 
   extend type Mutation {
-    createWebsiteSubmission(input: WebsiteSubmissionInput!): WebsiteSubmission!
+    "Public. Refused unless \`captcha\` answers a question from \`websiteCaptcha\`."
+    createWebsiteSubmission(
+      input: WebsiteSubmissionInput!
+      captcha: WebsiteCaptchaAnswer!
+    ): WebsiteSubmission!
     triageWebsiteSubmission(id: ID!, input: WebsiteSubmissionTriageInput!): WebsiteSubmission!
     deleteWebsiteSubmission(id: ID!): Boolean!
     "Files the enquiry as a CRM lead. Once only: the submission remembers the lead it became."

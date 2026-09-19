@@ -1,5 +1,5 @@
-import { createCipheriv, createDecipheriv, hkdfSync, randomBytes } from 'node:crypto';
-import { env } from '../config/env';
+import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
+import { derivedKey } from './derivedKey';
 
 /**
  * Encryption at rest for credentials the server must use again later — a connected social
@@ -10,8 +10,7 @@ import { env } from '../config/env';
 const VERSION = 'v1';
 const IV_BYTES = 12;
 
-const key = (): Buffer =>
-  Buffer.from(hkdfSync('sha256', env.jwtSecret, 'exyconn', 'social-account-tokens', 32));
+const key = (): Buffer => derivedKey('social-account-tokens');
 
 export function seal(plain: string): string {
   const iv = randomBytes(IV_BYTES);

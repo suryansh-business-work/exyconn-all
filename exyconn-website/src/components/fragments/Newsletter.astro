@@ -1,5 +1,6 @@
 ---
 // Modern Newsletter Design - Light Theme
+import CaptchaBlock from "../forms/shared/CaptchaBlock.astro";
 ---
 
 <section class="py-20 lg:py-28 bg-blue-subtle relative overflow-hidden">
@@ -25,29 +26,35 @@
       </p>
 
       <!-- Newsletter Form -->
-      <form id="newsletter-form" class="flex flex-col sm:flex-row gap-4 max-w-xl mx-auto">
-        <div class="flex-1 relative">
-          <input
-            type="email"
-            id="newsletter-email"
-            placeholder="Enter your email address"
-            class="w-full px-6 py-4 bg-surface border border-line rounded-2xl text-fg placeholder-fg-faint focus:outline-none focus:border-purple focus:ring-2 focus:ring-purple/20 transition-all shadow-sm"
-            required
-          />
+      <form id="newsletter-form" class="flex flex-col gap-4 max-w-xl mx-auto">
+        <div class="flex flex-col sm:flex-row gap-4">
+          <div class="flex-1 relative">
+            <label for="newsletter-email" class="sr-only">Email address</label>
+            <input
+              type="email"
+              id="newsletter-email"
+              autocomplete="email"
+              placeholder="Enter your email address"
+              class="w-full px-6 py-4 bg-surface border border-line rounded-2xl text-fg placeholder-fg-faint focus:outline-none focus:border-purple focus:ring-2 focus:ring-purple/20 transition-all shadow-sm"
+              required
+            />
+          </div>
+          <button
+            type="submit"
+            id="newsletter-btn"
+            class="cursor-pointer inline-flex items-center justify-center gap-2 bg-purple-strong text-on-solid font-semibold px-8 py-4 rounded-2xl hover:opacity-90 transition-all duration-300 shadow-lg shadow-purple/20 whitespace-nowrap"
+          >
+            Subscribe
+            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
+          </button>
         </div>
-        <button
-          type="submit"
-          id="newsletter-btn"
-          class="cursor-pointer inline-flex items-center justify-center gap-2 bg-purple-strong text-on-solid font-semibold px-8 py-4 rounded-2xl hover:opacity-90 transition-all duration-300 shadow-lg shadow-purple/20 whitespace-nowrap"
-        >
-          Subscribe
-          <i class="fa-solid fa-arrow-right"></i>
-        </button>
+        <CaptchaBlock id="newsletter" />
       </form>
 
       <!-- Success/Error Messages -->
       <div
         id="newsletter-success"
+        role="status"
         class="hidden mt-4 p-4 bg-green-subtle border border-green-muted rounded-xl text-green-fg-strong text-sm flex items-center justify-center gap-2 max-w-xl mx-auto"
       >
         <i class="fa-solid fa-check-circle"></i>
@@ -55,6 +62,7 @@
       </div>
       <div
         id="newsletter-error"
+        role="alert"
         class="hidden mt-4 p-4 bg-red-subtle border border-red-muted rounded-xl text-red-fg-strong text-sm flex items-center justify-center gap-2 max-w-xl mx-auto"
       >
         <i class="fa-solid fa-exclamation-circle"></i>
@@ -85,14 +93,17 @@
 </section>
 
 <script>
+  import { mountCaptcha } from "../../lib/captcha-dom";
+
   document.addEventListener("DOMContentLoaded", () => {
+    const captcha = mountCaptcha(document, "newsletter");
     const form = document.getElementById("newsletter-form") as HTMLFormElement;
     const emailInput = document.getElementById("newsletter-email") as HTMLInputElement;
     const btn = document.getElementById("newsletter-btn") as HTMLButtonElement;
     const successMsg = document.getElementById("newsletter-success");
     const errorMsg = document.getElementById("newsletter-error");
 
-    if (form && emailInput && btn && successMsg && errorMsg) {
+    if (form && emailInput && btn && successMsg && errorMsg && captcha) {
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const email = emailInput.value.trim();
@@ -104,19 +115,16 @@
         errorMsg.classList.add("hidden");
 
         try {
-          const res = await fetch("/api/form-submit", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ formType: "newsletter", email }),
-          });
-          if (!res.ok) throw new Error("Failed");
-          successMsg.classList.remove("hidden");
-          emailInput.value = "";
+          // A wrong security answer is shown under the question itself.
+          if ((await captcha.send("newsletter", { email })) === "sent") {
+            successMsg.classList.remove("hidden");
+            emailInput.value = "";
+          }
         } catch {
           errorMsg.classList.remove("hidden");
         } finally {
           btn.disabled = false;
-          btn.innerHTML = 'Subscribe <i class="fa-solid fa-arrow-right"></i>';
+          btn.innerHTML = 'Subscribe <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>';
         }
       });
     }

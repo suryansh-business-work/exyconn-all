@@ -5,6 +5,7 @@ import { hashPassword } from '../src/utils/password';
 import { runAsPlatform, setDefaultScope } from '../src/lib/tenant';
 import type { TaxSystem } from '../src/modules/organizations/organization.model';
 import type { Role } from '../src/constants/roles';
+import { issueCaptcha } from '../src/modules/website/website.captcha';
 
 /**
  * The company every seeded person belongs to, as they do in a real install: a request
@@ -71,4 +72,11 @@ export async function seedUser(email: string, password: string, roles: Role[]) {
     isActive: true,
     organizationId: organization._id,
   });
+}
+
+/** A website security question, answered correctly — what a real visitor sends with a form. */
+export function solvedCaptcha(): { token: string; answer: string } {
+  const { token, question } = issueCaptcha();
+  const [a, b] = question.split(' + ').map(Number);
+  return { token, answer: String(a + b) };
 }

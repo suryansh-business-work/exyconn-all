@@ -1,0 +1,52 @@
+---
+/**
+ * The security question for a form written as plain HTML and a script (the React forms use
+ * CaptchaField). `mountCaptcha` in lib/captcha-dom.ts brings it to life: it loads the question
+ * from the portal, which alone knows the answer.
+ */
+interface Props {
+  /** Unique on the page, e.g. "newsletter": ids are built from it. */
+  id: string;
+}
+const { id } = Astro.props;
+const questionId = `${id}-captcha-question`;
+const inputId = `${id}-captcha`;
+---
+
+<div data-captcha={id} class="bg-surface-subtle rounded-xl p-4 border border-line text-left">
+  <label for={inputId} class="block text-sm font-semibold text-fg-secondary mb-2">
+    Security check <span class="text-red-fg" aria-hidden="true">*</span>
+    <span class="sr-only">(required)</span>
+  </label>
+  <div class="flex items-center gap-3 flex-wrap">
+    <span
+      id={questionId}
+      data-captcha-question
+      aria-live="polite"
+      class="font-mono font-bold text-fg bg-surface px-4 py-2 rounded-lg border border-line"
+      >Loading…</span
+    >
+    <input
+      type="text"
+      id={inputId}
+      data-captcha-answer
+      inputmode="numeric"
+      autocomplete="off"
+      required
+      aria-required="true"
+      aria-describedby={questionId}
+      placeholder="Answer"
+      class="w-28 px-4 py-2 bg-surface border border-line-strong rounded-lg text-fg focus:outline-none focus:ring-2 focus:ring-blue"
+    />
+    <button
+      type="button"
+      data-captcha-refresh
+      class="p-2 text-fg-subtle hover:text-blue-fg transition-colors"
+      title="New question"
+      aria-label="Show a new security question"
+    >
+      <i class="fa-solid fa-rotate" aria-hidden="true"></i>
+    </button>
+  </div>
+  <p data-captcha-error role="alert" class="hidden mt-2 text-sm text-red-fg"></p>
+</div>

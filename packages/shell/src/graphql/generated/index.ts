@@ -4414,6 +4414,7 @@ export type Mutation = {
   /** Creates a user, emails a temporary password, and returns it once for copying. */
   createUser: UserCredentials;
   createWebhook: CreatedWebhook;
+  /** Public. Refused unless `captcha` answers a question from `websiteCaptcha`. */
   createWebsiteSubmission: WebsiteSubmission;
   /** Approves or rejects one item, through the owning module's own decision service. */
   decideApproval: Scalars['Boolean']['output'];
@@ -5604,6 +5605,7 @@ export type MutationCreateWebhookArgs = {
 
 
 export type MutationCreateWebsiteSubmissionArgs = {
+  captcha: WebsiteCaptchaAnswer;
   input: WebsiteSubmissionInput;
 };
 
@@ -9342,6 +9344,8 @@ export type Query = {
   translations: TranslationPage;
   /** The events an endpoint may subscribe to. A fixed list, so a dead subscription is impossible. */
   webhookEvents: Array<Scalars['String']['output']>;
+  /** A fresh security question for a public form. Public; each is good for one answer, 10 minutes. */
+  websiteCaptcha: WebsiteCaptcha;
   /** The form identifiers the public website may submit under — the one allow-list. */
   websiteFormTypes: Array<Scalars['String']['output']>;
   /** The company's users, employees and tracker over the last `days` days (1-365). ADMIN. */
@@ -13074,6 +13078,18 @@ export type WebhookDelivery = {
   responseStatus?: Maybe<Scalars['Int']['output']>;
   status: Scalars['String']['output'];
   webhookId: Scalars['String']['output'];
+};
+
+/** A security question for a public form, and the signed token that says which it was. */
+export type WebsiteCaptcha = {
+  __typename?: 'WebsiteCaptcha';
+  question: Scalars['String']['output'];
+  token: Scalars['String']['output'];
+};
+
+export type WebsiteCaptchaAnswer = {
+  answer: Scalars['String']['input'];
+  token: Scalars['String']['input'];
 };
 
 export type WebsiteSubmission = {

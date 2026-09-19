@@ -35,6 +35,8 @@ export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   'JobCompany',
   'NavLink',
   'WebsiteSubmission',
+  // The website captcha's spent questions — exyconn.com's own, not a company's.
+  'WebsiteCaptchaUse',
   'Tool',
   'ToolCategory',
   'StatusMonitor',

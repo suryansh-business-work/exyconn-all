@@ -22,7 +22,18 @@ function getPortalUrl(): string {
 
 interface GraphQLResponse<T> {
   data?: T;
-  errors?: Array<{ message: string }>;
+  errors?: Array<{ message: string; extensions?: { code?: string } }>;
+}
+
+/** The portal refused the operation. `codes` are its error codes, e.g. CAPTCHA_FAILED. */
+export class PortalRequestError extends Error {
+  constructor(
+    message: string,
+    readonly codes: readonly string[]
+  ) {
+    super(message);
+    this.name = "PortalRequestError";
+  }
 }
 
 /** Executes a GraphQL operation against the portal and returns its `data` payload. */
@@ -43,7 +54,10 @@ export async function portalRequest<T>(
   const payload = (await response.json()) as GraphQLResponse<T>;
 
   if (payload.errors?.length) {
-    throw new Error(`Portal request failed: ${payload.errors.map((e) => e.message).join("; ")}`);
+    throw new PortalRequestError(
+      `Portal request failed: ${payload.errors.map((e) => e.message).join("; ")}`,
+      payload.errors.map((e) => e.extensions?.code ?? "")
+    );
   }
 
   if (!payload.data) {

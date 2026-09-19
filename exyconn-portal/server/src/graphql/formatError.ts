@@ -25,6 +25,8 @@ export const PUBLIC_ERROR_CODES = new Set([
   'OPERATION_RESOLUTION_FAILURE',
   'TOO_MANY_REQUESTS',
   'FAILED_PRECONDITION',
+  // A website form's security check: the site shows a new question when it sees this.
+  'CAPTCHA_FAILED',
 ]);
 
 /** Mongo's duplicate-key code — a unique index refusing a second record. */
