@@ -16,7 +16,7 @@ import { ensureTaxSlabs, startPayrollDispatch } from './modules/payroll';
 import { ensureOnboardingDefaults } from './modules/onboarding';
 import { startTrackerDigest, startTrackerRetention } from './modules/tracker';
 import { startCampaignSchedule } from './modules/marketing';
-import { startRecurringInvoiceSchedule } from './modules/finance';
+import { startOverdueSweep, startRecurringInvoiceSchedule } from './modules/finance';
 import { startWebhookDelivery } from './modules/integrations';
 import { ensureAiModelPrices, startAiWorker } from './modules/ai';
 import { backfillAppLogGroupUsers } from './modules/logs';
@@ -79,6 +79,10 @@ async function bootstrap(): Promise<void> {
   // not anyone is signed into the Marketing portal when it does.
   startCampaignSchedule();
   startRecurringInvoiceSchedule();
+  // Before the reminder sweep below, which tells finance about whatever this has just
+  // declared overdue: started in this order, an invoice that fell due overnight is marked,
+  // chased and notified on the same boot rather than an hour apart.
+  startOverdueSweep();
   startWebhookDelivery();
   // Mail sent to the support address has to become a ticket even when nobody is watching
   // the mailbox, so the importer runs on the same terms as the schedulers above.

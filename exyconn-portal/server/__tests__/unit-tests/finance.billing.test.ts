@@ -58,6 +58,18 @@ describe('settleStatus', () => {
   it('returns a fully refunded invoice to unpaid, not to paid', () => {
     expect(settleStatus('PAID', 1000, 0)).toBe('SENT');
   });
+
+  it('keeps an overdue invoice overdue on anything short of full payment', () => {
+    // A token payment three weeks late does not make the rest of the bill less late, and
+    // downgrading it to PARTIALLY_PAID would drop it off the overdue tile and out of the
+    // chase — which is sometimes exactly what a token payment is made to achieve.
+    expect(settleStatus('OVERDUE', 1000, 400)).toBe('OVERDUE');
+    expect(settleStatus('OVERDUE', 1000, 0)).toBe('OVERDUE');
+  });
+
+  it('settles an overdue invoice as soon as the balance is cleared', () => {
+    expect(settleStatus('OVERDUE', 1000, 1000)).toBe('PAID');
+  });
 });
 
 describe('receivables ageing', () => {

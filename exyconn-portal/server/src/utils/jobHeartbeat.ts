@@ -15,6 +15,7 @@ export const JOB_KEYS = {
   trackerRetention: 'trackerRetention',
   trackerDigest: 'trackerDigest',
   recurringInvoices: 'recurringInvoices',
+  overdueInvoices: 'overdueInvoices',
   webhookDelivery: 'webhookDelivery',
   inboundMail: 'inboundMail',
   campaignSchedule: 'campaignSchedule',

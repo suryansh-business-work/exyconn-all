@@ -113,6 +113,7 @@ export function ExpensesPage() {
       title="Expense Claims"
       subtitle="Employee reimbursements"
       entityLabel="claim"
+      exportFileName="expense-claims"
       stats={statItems}
       crud={crud}
       renderForm={(initial) => (

@@ -38,6 +38,7 @@ describe('systemHealth', () => {
       'trackerRetention',
       'trackerDigest',
       'recurringInvoices',
+      'overdueInvoices',
       'webhookDelivery',
       'inboundMail',
       'campaignSchedule',

@@ -5,6 +5,9 @@ import { invoicePdf, sendInvoice } from './invoice.send';
 import { createInvoiceFromDeal } from './invoice.from-deal';
 import { createInvoiceFromTimeLog } from './invoice.from-timelog';
 import { GST_STATES } from './gst.constants';
+// Importing for the side effect: the module that owns invoices registers what it wants
+// chased, so the reminder sweep never has to know finance exists.
+import './finance.reminders';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { ROLES } from '../../constants/roles';
@@ -170,6 +173,12 @@ export { financeCompanyResolvers, companyExpensesService } from './finance.compa
 export { financeBudgetTypeDefs } from './finance.budgets.typeDefs';
 export { financeBudgetResolvers, costCentersService, budgetsService } from './finance.budgets';
 export { financeRecurringTypeDefs } from './finance.recurring.typeDefs';
+export {
+  markOverdueInvoices,
+  sweepOverdueInvoices,
+  startOverdueSweep,
+} from './finance.overdue';
+export { chaseOverdueInvoices, dunningStage, DUNNING_STAGE_DAYS } from './finance.dunning';
 export {
   recurringInvoiceResolvers,
   recurringInvoiceService,

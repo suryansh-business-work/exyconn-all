@@ -1,4 +1,4 @@
-import { InvoiceModel, type InvoiceStatus } from './finance.model';
+import { InvoiceModel, OWED_STATUSES, type InvoiceStatus } from './finance.model';
 import { PaymentModel } from './payment.model';
 import { assertRole } from '../../middleware/roleGuard';
 import { ROLES } from '../../constants/roles';
@@ -18,9 +18,6 @@ interface PaymentInput {
   notes?: string;
   receivedAt?: Date;
 }
-
-/** Statuses that mean money is expected. A draft is not owed; a paid one is settled. */
-const OWED_STATUSES = ['SENT', 'PARTIALLY_PAID', 'OVERDUE'];
 
 /** Payments are written by `recordPayment`, so the ledger is read-only here. */
 const PAYMENT_TABLE: TableConfig = {
@@ -52,6 +49,16 @@ function balanceOf(invoice: { amount: number; amountPaid?: number | null }): num
  * Only the money-driven statuses are decided here. DRAFT and SENT are a person's decision
  * about whether the invoice has gone out, and receiving money against a draft does not
  * un-draft it — so a settled draft is left alone rather than silently marked SENT.
+ *
+ * Lateness is not a money decision at all, which is why an invoice that has already gone
+ * overdue stays overdue until it is settled in full: a customer who pays a tenth of a bill
+ * three weeks late has not made the other nine tenths any less late, and downgrading the
+ * status to PARTIALLY_PAID would drop it out of the chase, off the overdue tile and out of
+ * every conversation about it — the exact outcome a token payment is sometimes made to
+ * produce. Paying it off in full clears it, as does the sweep once somebody moves the due
+ * date out; nothing else does. A refund that reverses a settled invoice hands it back as
+ * SENT and the next sweep re-reads its due date, so the derived status is never guessed at
+ * here from a date this function was not given.
  */
 export function settleStatus(
   current: InvoiceStatus,
@@ -60,6 +67,9 @@ export function settleStatus(
 ): InvoiceStatus {
   if (amountPaid >= amount) {
     return 'PAID';
+  }
+  if (current === 'OVERDUE') {
+    return 'OVERDUE';
   }
   if (amountPaid > 0) {
     return 'PARTIALLY_PAID';

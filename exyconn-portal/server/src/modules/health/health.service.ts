@@ -109,7 +109,7 @@ async function jobs(): Promise<HealthJob[]> {
     // Always "enabled": the loop runs whether or not anybody has set a retainer up, and a
     // dead loop is exactly what this screen exists to show.
     jobRow('recurringInvoices', 'Recurring invoices', true, runs),
-    jobRow('overdueInvoices', 'Overdue invoice sweep', true, runs),
+    jobRow('overdueInvoices', 'Overdue invoices and chasing', true, runs),
     jobRow('webhookDelivery', 'Webhook delivery', true, runs),
     jobRow('inboundMail', 'Inbound support mail', Boolean(mailbox), runs),
     jobRow('campaignSchedule', 'Scheduled campaigns', true, runs),
