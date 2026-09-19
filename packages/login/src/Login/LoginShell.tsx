@@ -16,6 +16,7 @@ import { LoginBackground } from './LoginBackground';
 import { LoginPromo } from './LoginPromo';
 import { OtherPortalsLink } from './OtherPortalsLink';
 import { useLoginPage, type LoginPageView } from './useLoginPage';
+import { useDocumentFavicon } from '@exyconn/shell/hooks/useDocumentFavicon';
 import { env } from '@exyconn/shell/config/env';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { useColorMode } from '@exyconn/shell/theme/ColorModeContext';
@@ -37,6 +38,8 @@ export function LoginShell({ children }: Readonly<LoginShellProps>) {
   const { mode, toggle } = useColorMode();
   const isDark = mode === 'dark';
   const page = useLoginPage(isDark);
+  // Signed out, the branding favicon comes from the public read.
+  useDocumentFavicon(page.faviconUrl);
 
   return (
     <Box

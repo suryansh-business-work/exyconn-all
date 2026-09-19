@@ -106,6 +106,14 @@ export const env = Object.freeze({
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean),
+  /**
+   * The API's own public address. Social sign-in providers send the browser back to it after
+   * consent (`/oauth/social/<app>/callback`), so it must be the URL registered with each one.
+   */
+  apiPublicUrl: (process.env.API_PUBLIC_URL ?? 'https://portal-server.exyconn.com').replace(
+    /\/$/,
+    '',
+  ),
   /** Public portal URL used as the login CTA inside transactional emails. */
   appUrl: process.env.APP_URL ?? 'https://portal.exyconn.com',
   /**

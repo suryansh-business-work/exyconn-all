@@ -4531,6 +4531,7 @@ export type Mutation = {
   deleteUser: Scalars['Boolean']['output'];
   deleteWebhook: Scalars['Boolean']['output'];
   deleteWebsiteSubmission: Scalars['Boolean']['output'];
+  disconnectSocialAccount: Scalars['Boolean']['output'];
   /**
    * SUPPORT/IT: escalate a ticket. Raises it to HIGH priority (recomputing the deadline), bumps
    * its escalation level, records the reason as an internal note and tells the assignee.
@@ -4640,6 +4641,7 @@ export type Mutation = {
    * already exists, and guessing wrong would fail the save on a duplicate key.
    */
   saveEmployeeSalary: SalaryStructure;
+  saveSocialAppConfig: SocialAppConfig;
   saveTrackerBuildSettings: TrackerBuildSettings;
   /**
    * Recovery for a portal with no administrator: mails a fresh password for the
@@ -4735,6 +4737,8 @@ export type Mutation = {
    * the same question.
    */
   startOnboarding: OnboardingChecklist;
+  /** Starts connecting an account: returns the provider's consent page to open. MARKETING. */
+  startSocialConnect: Scalars['String']['output'];
   startSprint: Sprint;
   /** Asks GitHub to build the chosen installers off the given branch. */
   startTrackerBuild: Scalars['Boolean']['output'];
@@ -6144,6 +6148,11 @@ export type MutationDeleteWebsiteSubmissionArgs = {
 };
 
 
+export type MutationDisconnectSocialAccountArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationEscalateSupportTicketArgs = {
   id: Scalars['ID']['input'];
   reason: Scalars['String']['input'];
@@ -6365,6 +6374,11 @@ export type MutationSaveEmployeeSalaryArgs = {
 };
 
 
+export type MutationSaveSocialAppConfigArgs = {
+  input: SocialAppConfigInput;
+};
+
+
 export type MutationSaveTrackerBuildSettingsArgs = {
   slackChannels: Array<Scalars['String']['input']>;
   statusAlertChannels?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -6576,6 +6590,11 @@ export type MutationSignContractArgs = {
 export type MutationStartOnboardingArgs = {
   employeeId: Scalars['ID']['input'];
   templateId: Scalars['ID']['input'];
+};
+
+
+export type MutationStartSocialConnectArgs = {
+  app: SocialApp;
 };
 
 
@@ -9235,6 +9254,12 @@ export type Query = {
   searchPexelsVideos: Array<PexelsMedia>;
   /** Public. Null when the token is unknown, expired or revoked — the page says so. */
   sharedProject?: Maybe<SharedProjectView>;
+  /** The company's connected accounts. MARKETING. */
+  socialAccounts: Array<SocialAccount>;
+  /** The four providers' apps, set up or not. Platform Tech staff. */
+  socialAppConfigs: Array<SocialAppConfig>;
+  /** Which providers Marketing can connect. MARKETING. */
+  socialAppStatuses: Array<SocialAppStatus>;
   /** The comments on a post, oldest first, so a conversation reads in order. */
   socialComments: Array<SocialComment>;
   /** Everybody's posts, newest first. */
@@ -11151,6 +11176,65 @@ export enum SlipStatus {
   Paid = 'PAID'
 }
 
+/** A connected account. Its tokens never leave the server. */
+export type SocialAccount = {
+  __typename?: 'SocialAccount';
+  app: SocialApp;
+  avatarUrl: Scalars['String']['output'];
+  connectedBy: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  /** Null when the token does not expire. */
+  expiresAt?: Maybe<Scalars['DateTime']['output']>;
+  handle: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  network: SocialNetwork;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export enum SocialApp {
+  Linkedin = 'LINKEDIN',
+  Meta = 'META',
+  X = 'X',
+  Youtube = 'YOUTUBE'
+}
+
+/** One provider's OAuth app, shared by every company. The secret is write-only. */
+export type SocialAppConfig = {
+  __typename?: 'SocialAppConfig';
+  app: SocialApp;
+  /** The redirect URL to register with the provider, exactly as shown. */
+  callbackUrl: Scalars['String']['output'];
+  clientId: Scalars['String']['output'];
+  clientSecretHint?: Maybe<Scalars['String']['output']>;
+  /** Where the app is registered with the provider. */
+  consoleUrl: Scalars['String']['output'];
+  enabled: Scalars['Boolean']['output'];
+  hasClientSecret: Scalars['Boolean']['output'];
+  /** The app itself, as its id: there is one row per provider. */
+  id: Scalars['ID']['output'];
+  label: Scalars['String']['output'];
+};
+
+export type SocialAppConfigInput = {
+  app: SocialApp;
+  clientId: Scalars['String']['input'];
+  /** Blank keeps the stored secret. */
+  clientSecret?: InputMaybe<Scalars['String']['input']>;
+  enabled: Scalars['Boolean']['input'];
+};
+
+/** Whether Marketing can connect this provider right now. */
+export type SocialAppStatus = {
+  __typename?: 'SocialAppStatus';
+  app: SocialApp;
+  /** True once Tech has set the app up and turned it on. */
+  available: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  /** The networks one connection adds (Facebook and Instagram for Meta). */
+  networks: Array<SocialNetwork>;
+};
+
 /** Who wrote something, as the feed needs to show them: enough to render a byline. */
 export type SocialAuthor = {
   __typename?: 'SocialAuthor';
@@ -11179,6 +11263,14 @@ export type SocialFeedPage = {
   nextCursor?: Maybe<Scalars['ID']['output']>;
   posts: Array<SocialPost>;
 };
+
+export enum SocialNetwork {
+  Facebook = 'FACEBOOK',
+  Instagram = 'INSTAGRAM',
+  Linkedin = 'LINKEDIN',
+  X = 'X',
+  Youtube = 'YOUTUBE'
+}
 
 export type SocialPost = {
   __typename?: 'SocialPost';
@@ -17289,6 +17381,44 @@ export type SetApplicantStageMutationVariables = Exact<{
 
 export type SetApplicantStageMutation = { __typename?: 'Mutation', setApplicantStage: { __typename?: 'Applicant', id: string, stage: ApplicantStage, stageChangedAt: string, notes: string } };
 
+export type SocialAppConfigFieldsFragment = { __typename?: 'SocialAppConfig', id: string, app: SocialApp, label: string, consoleUrl: string, callbackUrl: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean };
+
+export type SocialAppConfigsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SocialAppConfigsQuery = { __typename?: 'Query', socialAppConfigs: Array<{ __typename?: 'SocialAppConfig', id: string, app: SocialApp, label: string, consoleUrl: string, callbackUrl: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean }> };
+
+export type SaveSocialAppConfigMutationVariables = Exact<{
+  input: SocialAppConfigInput;
+}>;
+
+
+export type SaveSocialAppConfigMutation = { __typename?: 'Mutation', saveSocialAppConfig: { __typename?: 'SocialAppConfig', id: string, app: SocialApp, label: string, consoleUrl: string, callbackUrl: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean } };
+
+export type SocialAppStatusesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SocialAppStatusesQuery = { __typename?: 'Query', socialAppStatuses: Array<{ __typename?: 'SocialAppStatus', app: SocialApp, label: string, available: boolean, networks: Array<SocialNetwork> }> };
+
+export type SocialAccountsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SocialAccountsQuery = { __typename?: 'Query', socialAccounts: Array<{ __typename?: 'SocialAccount', id: string, network: SocialNetwork, app: SocialApp, name: string, handle: string, avatarUrl: string, expiresAt?: string | null, createdAt: string }> };
+
+export type StartSocialConnectMutationVariables = Exact<{
+  app: SocialApp;
+}>;
+
+
+export type StartSocialConnectMutation = { __typename?: 'Mutation', startSocialConnect: string };
+
+export type DisconnectSocialAccountMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DisconnectSocialAccountMutation = { __typename?: 'Mutation', disconnectSocialAccount: boolean };
+
 export type SocialAuthorFieldsFragment = { __typename?: 'SocialAuthor', id: string, name: string, email: string, avatarUrl?: string | null, designation?: string | null, department?: string | null };
 
 export type SocialPostFieldsFragment = { __typename?: 'SocialPost', id: string, body: string, imageUrl: string, likeCount: number, commentCount: number, shareCount: number, likedByMe: boolean, canDelete: boolean, createdAt: string, author: { __typename?: 'SocialAuthor', id: string, name: string, email: string, avatarUrl?: string | null, designation?: string | null, department?: string | null }, sharedFrom?: { __typename?: 'SocialPost', id: string, body: string, imageUrl: string, createdAt: string, author: { __typename?: 'SocialAuthor', id: string, name: string, email: string, avatarUrl?: string | null, designation?: string | null, department?: string | null } } | null };
@@ -20057,6 +20187,19 @@ export const ApplicantFieldsFragmentDoc = gql`
   submissionId
   stageChangedAt
   createdAt
+}
+    `;
+export const SocialAppConfigFieldsFragmentDoc = gql`
+    fragment SocialAppConfigFields on SocialAppConfig {
+  id
+  app
+  label
+  consoleUrl
+  callbackUrl
+  clientId
+  hasClientSecret
+  clientSecretHint
+  enabled
 }
     `;
 export const SocialAuthorFieldsFragmentDoc = gql`
@@ -44865,6 +45008,231 @@ export function useSetApplicantStageMutation(baseOptions?: ApolloReactHooks.Muta
         return ApolloReactHooks.useMutation<SetApplicantStageMutation, SetApplicantStageMutationVariables>(SetApplicantStageDocument, options);
       }
 export type SetApplicantStageMutationHookResult = ReturnType<typeof useSetApplicantStageMutation>;
+export const SocialAppConfigsDocument = gql`
+    query SocialAppConfigs {
+  socialAppConfigs {
+    ...SocialAppConfigFields
+  }
+}
+    ${SocialAppConfigFieldsFragmentDoc}`;
+
+/**
+ * __useSocialAppConfigsQuery__
+ *
+ * To run a query within a React component, call `useSocialAppConfigsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSocialAppConfigsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSocialAppConfigsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useSocialAppConfigsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<SocialAppConfigsQuery, SocialAppConfigsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<SocialAppConfigsQuery, SocialAppConfigsQueryVariables>(SocialAppConfigsDocument, options);
+      }
+export function useSocialAppConfigsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SocialAppConfigsQuery, SocialAppConfigsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<SocialAppConfigsQuery, SocialAppConfigsQueryVariables>(SocialAppConfigsDocument, options);
+        }
+// @ts-ignore
+export function useSocialAppConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<SocialAppConfigsQuery, SocialAppConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SocialAppConfigsQuery, SocialAppConfigsQueryVariables>;
+// @ts-ignore
+export function useSocialAppConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SocialAppConfigsQuery, SocialAppConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SocialAppConfigsQuery | undefined, SocialAppConfigsQueryVariables>;
+export function useSocialAppConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SocialAppConfigsQuery, SocialAppConfigsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<SocialAppConfigsQuery, SocialAppConfigsQueryVariables>(SocialAppConfigsDocument, options);
+        }
+export type SocialAppConfigsQueryHookResult = ReturnType<typeof useSocialAppConfigsQuery>;
+export type SocialAppConfigsLazyQueryHookResult = ReturnType<typeof useSocialAppConfigsLazyQuery>;
+export type SocialAppConfigsSuspenseQueryHookResult = ReturnType<typeof useSocialAppConfigsSuspenseQuery>;
+export const SaveSocialAppConfigDocument = gql`
+    mutation SaveSocialAppConfig($input: SocialAppConfigInput!) {
+  saveSocialAppConfig(input: $input) {
+    ...SocialAppConfigFields
+  }
+}
+    ${SocialAppConfigFieldsFragmentDoc}`;
+
+/**
+ * __useSaveSocialAppConfigMutation__
+ *
+ * To run a mutation, you first call `useSaveSocialAppConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveSocialAppConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveSocialAppConfigMutation, { data, loading, error }] = useSaveSocialAppConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSaveSocialAppConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SaveSocialAppConfigMutation, SaveSocialAppConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SaveSocialAppConfigMutation, SaveSocialAppConfigMutationVariables>(SaveSocialAppConfigDocument, options);
+      }
+export type SaveSocialAppConfigMutationHookResult = ReturnType<typeof useSaveSocialAppConfigMutation>;
+export const SocialAppStatusesDocument = gql`
+    query SocialAppStatuses {
+  socialAppStatuses {
+    app
+    label
+    available
+    networks
+  }
+}
+    `;
+
+/**
+ * __useSocialAppStatusesQuery__
+ *
+ * To run a query within a React component, call `useSocialAppStatusesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSocialAppStatusesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSocialAppStatusesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useSocialAppStatusesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<SocialAppStatusesQuery, SocialAppStatusesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<SocialAppStatusesQuery, SocialAppStatusesQueryVariables>(SocialAppStatusesDocument, options);
+      }
+export function useSocialAppStatusesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SocialAppStatusesQuery, SocialAppStatusesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<SocialAppStatusesQuery, SocialAppStatusesQueryVariables>(SocialAppStatusesDocument, options);
+        }
+// @ts-ignore
+export function useSocialAppStatusesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<SocialAppStatusesQuery, SocialAppStatusesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SocialAppStatusesQuery, SocialAppStatusesQueryVariables>;
+// @ts-ignore
+export function useSocialAppStatusesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SocialAppStatusesQuery, SocialAppStatusesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SocialAppStatusesQuery | undefined, SocialAppStatusesQueryVariables>;
+export function useSocialAppStatusesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SocialAppStatusesQuery, SocialAppStatusesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<SocialAppStatusesQuery, SocialAppStatusesQueryVariables>(SocialAppStatusesDocument, options);
+        }
+export type SocialAppStatusesQueryHookResult = ReturnType<typeof useSocialAppStatusesQuery>;
+export type SocialAppStatusesLazyQueryHookResult = ReturnType<typeof useSocialAppStatusesLazyQuery>;
+export type SocialAppStatusesSuspenseQueryHookResult = ReturnType<typeof useSocialAppStatusesSuspenseQuery>;
+export const SocialAccountsDocument = gql`
+    query SocialAccounts {
+  socialAccounts {
+    id
+    network
+    app
+    name
+    handle
+    avatarUrl
+    expiresAt
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useSocialAccountsQuery__
+ *
+ * To run a query within a React component, call `useSocialAccountsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSocialAccountsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSocialAccountsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useSocialAccountsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<SocialAccountsQuery, SocialAccountsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<SocialAccountsQuery, SocialAccountsQueryVariables>(SocialAccountsDocument, options);
+      }
+export function useSocialAccountsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SocialAccountsQuery, SocialAccountsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<SocialAccountsQuery, SocialAccountsQueryVariables>(SocialAccountsDocument, options);
+        }
+// @ts-ignore
+export function useSocialAccountsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<SocialAccountsQuery, SocialAccountsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SocialAccountsQuery, SocialAccountsQueryVariables>;
+// @ts-ignore
+export function useSocialAccountsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SocialAccountsQuery, SocialAccountsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SocialAccountsQuery | undefined, SocialAccountsQueryVariables>;
+export function useSocialAccountsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SocialAccountsQuery, SocialAccountsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<SocialAccountsQuery, SocialAccountsQueryVariables>(SocialAccountsDocument, options);
+        }
+export type SocialAccountsQueryHookResult = ReturnType<typeof useSocialAccountsQuery>;
+export type SocialAccountsLazyQueryHookResult = ReturnType<typeof useSocialAccountsLazyQuery>;
+export type SocialAccountsSuspenseQueryHookResult = ReturnType<typeof useSocialAccountsSuspenseQuery>;
+export const StartSocialConnectDocument = gql`
+    mutation StartSocialConnect($app: SocialApp!) {
+  startSocialConnect(app: $app)
+}
+    `;
+
+/**
+ * __useStartSocialConnectMutation__
+ *
+ * To run a mutation, you first call `useStartSocialConnectMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useStartSocialConnectMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [startSocialConnectMutation, { data, loading, error }] = useStartSocialConnectMutation({
+ *   variables: {
+ *      app: // value for 'app'
+ *   },
+ * });
+ */
+export function useStartSocialConnectMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<StartSocialConnectMutation, StartSocialConnectMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<StartSocialConnectMutation, StartSocialConnectMutationVariables>(StartSocialConnectDocument, options);
+      }
+export type StartSocialConnectMutationHookResult = ReturnType<typeof useStartSocialConnectMutation>;
+export const DisconnectSocialAccountDocument = gql`
+    mutation DisconnectSocialAccount($id: ID!) {
+  disconnectSocialAccount(id: $id)
+}
+    `;
+
+/**
+ * __useDisconnectSocialAccountMutation__
+ *
+ * To run a mutation, you first call `useDisconnectSocialAccountMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDisconnectSocialAccountMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [disconnectSocialAccountMutation, { data, loading, error }] = useDisconnectSocialAccountMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDisconnectSocialAccountMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DisconnectSocialAccountMutation, DisconnectSocialAccountMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DisconnectSocialAccountMutation, DisconnectSocialAccountMutationVariables>(DisconnectSocialAccountDocument, options);
+      }
+export type DisconnectSocialAccountMutationHookResult = ReturnType<typeof useDisconnectSocialAccountMutation>;
 export const SocialFeedDocument = gql`
     query SocialFeed($limit: Int, $cursor: ID) {
   socialFeed(limit: $limit, cursor: $cursor) {

@@ -4530,6 +4530,7 @@ export type Mutation = {
   deleteUser: Scalars['Boolean']['output'];
   deleteWebhook: Scalars['Boolean']['output'];
   deleteWebsiteSubmission: Scalars['Boolean']['output'];
+  disconnectSocialAccount: Scalars['Boolean']['output'];
   /**
    * SUPPORT/IT: escalate a ticket. Raises it to HIGH priority (recomputing the deadline), bumps
    * its escalation level, records the reason as an internal note and tells the assignee.
@@ -4639,6 +4640,7 @@ export type Mutation = {
    * already exists, and guessing wrong would fail the save on a duplicate key.
    */
   saveEmployeeSalary: SalaryStructure;
+  saveSocialAppConfig: SocialAppConfig;
   saveTrackerBuildSettings: TrackerBuildSettings;
   /**
    * Recovery for a portal with no administrator: mails a fresh password for the
@@ -4734,6 +4736,8 @@ export type Mutation = {
    * the same question.
    */
   startOnboarding: OnboardingChecklist;
+  /** Starts connecting an account: returns the provider's consent page to open. MARKETING. */
+  startSocialConnect: Scalars['String']['output'];
   startSprint: Sprint;
   /** Asks GitHub to build the chosen installers off the given branch. */
   startTrackerBuild: Scalars['Boolean']['output'];
@@ -6143,6 +6147,11 @@ export type MutationDeleteWebsiteSubmissionArgs = {
 };
 
 
+export type MutationDisconnectSocialAccountArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationEscalateSupportTicketArgs = {
   id: Scalars['ID']['input'];
   reason: Scalars['String']['input'];
@@ -6364,6 +6373,11 @@ export type MutationSaveEmployeeSalaryArgs = {
 };
 
 
+export type MutationSaveSocialAppConfigArgs = {
+  input: SocialAppConfigInput;
+};
+
+
 export type MutationSaveTrackerBuildSettingsArgs = {
   slackChannels: Array<Scalars['String']['input']>;
   statusAlertChannels?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -6575,6 +6589,11 @@ export type MutationSignContractArgs = {
 export type MutationStartOnboardingArgs = {
   employeeId: Scalars['ID']['input'];
   templateId: Scalars['ID']['input'];
+};
+
+
+export type MutationStartSocialConnectArgs = {
+  app: SocialApp;
 };
 
 
@@ -9234,6 +9253,12 @@ export type Query = {
   searchPexelsVideos: Array<PexelsMedia>;
   /** Public. Null when the token is unknown, expired or revoked — the page says so. */
   sharedProject?: Maybe<SharedProjectView>;
+  /** The company's connected accounts. MARKETING. */
+  socialAccounts: Array<SocialAccount>;
+  /** The four providers' apps, set up or not. Platform Tech staff. */
+  socialAppConfigs: Array<SocialAppConfig>;
+  /** Which providers Marketing can connect. MARKETING. */
+  socialAppStatuses: Array<SocialAppStatus>;
   /** The comments on a post, oldest first, so a conversation reads in order. */
   socialComments: Array<SocialComment>;
   /** Everybody's posts, newest first. */
@@ -11150,6 +11175,65 @@ export enum SlipStatus {
   Paid = 'PAID'
 }
 
+/** A connected account. Its tokens never leave the server. */
+export type SocialAccount = {
+  __typename?: 'SocialAccount';
+  app: SocialApp;
+  avatarUrl: Scalars['String']['output'];
+  connectedBy: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  /** Null when the token does not expire. */
+  expiresAt?: Maybe<Scalars['DateTime']['output']>;
+  handle: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  network: SocialNetwork;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export enum SocialApp {
+  Linkedin = 'LINKEDIN',
+  Meta = 'META',
+  X = 'X',
+  Youtube = 'YOUTUBE'
+}
+
+/** One provider's OAuth app, shared by every company. The secret is write-only. */
+export type SocialAppConfig = {
+  __typename?: 'SocialAppConfig';
+  app: SocialApp;
+  /** The redirect URL to register with the provider, exactly as shown. */
+  callbackUrl: Scalars['String']['output'];
+  clientId: Scalars['String']['output'];
+  clientSecretHint?: Maybe<Scalars['String']['output']>;
+  /** Where the app is registered with the provider. */
+  consoleUrl: Scalars['String']['output'];
+  enabled: Scalars['Boolean']['output'];
+  hasClientSecret: Scalars['Boolean']['output'];
+  /** The app itself, as its id: there is one row per provider. */
+  id: Scalars['ID']['output'];
+  label: Scalars['String']['output'];
+};
+
+export type SocialAppConfigInput = {
+  app: SocialApp;
+  clientId: Scalars['String']['input'];
+  /** Blank keeps the stored secret. */
+  clientSecret?: InputMaybe<Scalars['String']['input']>;
+  enabled: Scalars['Boolean']['input'];
+};
+
+/** Whether Marketing can connect this provider right now. */
+export type SocialAppStatus = {
+  __typename?: 'SocialAppStatus';
+  app: SocialApp;
+  /** True once Tech has set the app up and turned it on. */
+  available: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  /** The networks one connection adds (Facebook and Instagram for Meta). */
+  networks: Array<SocialNetwork>;
+};
+
 /** Who wrote something, as the feed needs to show them: enough to render a byline. */
 export type SocialAuthor = {
   __typename?: 'SocialAuthor';
@@ -11178,6 +11262,14 @@ export type SocialFeedPage = {
   nextCursor?: Maybe<Scalars['ID']['output']>;
   posts: Array<SocialPost>;
 };
+
+export enum SocialNetwork {
+  Facebook = 'FACEBOOK',
+  Instagram = 'INSTAGRAM',
+  Linkedin = 'LINKEDIN',
+  X = 'X',
+  Youtube = 'YOUTUBE'
+}
 
 export type SocialPost = {
   __typename?: 'SocialPost';
@@ -13637,9 +13729,15 @@ export type ResolversTypes = ResolversObject<{
   SlackConfig: ResolverTypeWrapper<SlackConfig>;
   SlackConfigInput: SlackConfigInput;
   SlipStatus: SlipStatus;
+  SocialAccount: ResolverTypeWrapper<SocialAccount>;
+  SocialApp: SocialApp;
+  SocialAppConfig: ResolverTypeWrapper<SocialAppConfig>;
+  SocialAppConfigInput: SocialAppConfigInput;
+  SocialAppStatus: ResolverTypeWrapper<SocialAppStatus>;
   SocialAuthor: ResolverTypeWrapper<SocialAuthor>;
   SocialComment: ResolverTypeWrapper<SocialComment>;
   SocialFeedPage: ResolverTypeWrapper<SocialFeedPage>;
+  SocialNetwork: SocialNetwork;
   SocialPost: ResolverTypeWrapper<SocialPost>;
   SocialPostInput: SocialPostInput;
   SocialProfile: ResolverTypeWrapper<SocialProfile>;
@@ -14203,6 +14301,10 @@ export type ResolversParentTypes = ResolversObject<{
   SlackChannel: SlackChannel;
   SlackConfig: SlackConfig;
   SlackConfigInput: SlackConfigInput;
+  SocialAccount: SocialAccount;
+  SocialAppConfig: SocialAppConfig;
+  SocialAppConfigInput: SocialAppConfigInput;
+  SocialAppStatus: SocialAppStatus;
   SocialAuthor: SocialAuthor;
   SocialComment: SocialComment;
   SocialFeedPage: SocialFeedPage;
@@ -16895,6 +16997,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteUser?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteUserArgs, 'id'>>;
   deleteWebhook?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebhookArgs, 'id'>>;
   deleteWebsiteSubmission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebsiteSubmissionArgs, 'id'>>;
+  disconnectSocialAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisconnectSocialAccountArgs, 'id'>>;
   escalateSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationEscalateSupportTicketArgs, 'id' | 'reason'>>;
   fulfilItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationFulfilItAccessRequestArgs, 'id'>>;
   grantTrackerAccess?: Resolver<ResolversTypes['TrackerAccess'], ParentType, ContextType, RequireFields<MutationGrantTrackerAccessArgs, 'userId'>>;
@@ -16936,6 +17039,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   saveAiModelPrice?: Resolver<ResolversTypes['AiModelPrice'], ParentType, ContextType, RequireFields<MutationSaveAiModelPriceArgs, 'input'>>;
   saveAiSpendLimit?: Resolver<ResolversTypes['AiSpendLimit'], ParentType, ContextType, RequireFields<MutationSaveAiSpendLimitArgs, 'input'>>;
   saveEmployeeSalary?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationSaveEmployeeSalaryArgs, 'employeeId' | 'input'>>;
+  saveSocialAppConfig?: Resolver<ResolversTypes['SocialAppConfig'], ParentType, ContextType, RequireFields<MutationSaveSocialAppConfigArgs, 'input'>>;
   saveTrackerBuildSettings?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType, RequireFields<MutationSaveTrackerBuildSettingsArgs, 'slackChannels'>>;
   sendAdminCredentials?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sendCampaign?: Resolver<ResolversTypes['CampaignSendResult'], ParentType, ContextType, RequireFields<MutationSendCampaignArgs, 'id'>>;
@@ -16971,6 +17075,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   shareSocialPost?: Resolver<ResolversTypes['SocialPost'], ParentType, ContextType, RequireFields<MutationShareSocialPostArgs, 'id'>>;
   signContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSignContractArgs, 'id' | 'signedBy'>>;
   startOnboarding?: Resolver<ResolversTypes['OnboardingChecklist'], ParentType, ContextType, RequireFields<MutationStartOnboardingArgs, 'employeeId' | 'templateId'>>;
+  startSocialConnect?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationStartSocialConnectArgs, 'app'>>;
   startSprint?: Resolver<ResolversTypes['Sprint'], ParentType, ContextType, RequireFields<MutationStartSprintArgs, 'id'>>;
   startTrackerBuild?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationStartTrackerBuildArgs, 'platforms' | 'ref'>>;
   submitManagerAssessment?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<MutationSubmitManagerAssessmentArgs, 'id' | 'managerAssessment'>>;
@@ -18234,6 +18339,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   searchPexelsPhotos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsPhotosArgs, 'query'>>;
   searchPexelsVideos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsVideosArgs, 'query'>>;
   sharedProject?: Resolver<Maybe<ResolversTypes['SharedProjectView']>, ParentType, ContextType, RequireFields<QuerySharedProjectArgs, 'token'>>;
+  socialAccounts?: Resolver<Array<ResolversTypes['SocialAccount']>, ParentType, ContextType>;
+  socialAppConfigs?: Resolver<Array<ResolversTypes['SocialAppConfig']>, ParentType, ContextType>;
+  socialAppStatuses?: Resolver<Array<ResolversTypes['SocialAppStatus']>, ParentType, ContextType>;
   socialComments?: Resolver<Array<ResolversTypes['SocialComment']>, ParentType, ContextType, RequireFields<QuerySocialCommentsArgs, 'postId'>>;
   socialFeed?: Resolver<ResolversTypes['SocialFeedPage'], ParentType, ContextType, Partial<QuerySocialFeedArgs>>;
   socialPost?: Resolver<ResolversTypes['SocialPost'], ParentType, ContextType, RequireFields<QuerySocialPostArgs, 'id'>>;
@@ -18510,6 +18618,41 @@ export type SlackConfigResolvers<ContextType = GraphQLContext, ParentType extend
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SocialAccountResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SocialAccount'] = ResolversParentTypes['SocialAccount']> = ResolversObject<{
+  app?: Resolver<ResolversTypes['SocialApp'], ParentType, ContextType>;
+  avatarUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  connectedBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  expiresAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  handle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  network?: Resolver<ResolversTypes['SocialNetwork'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SocialAppConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SocialAppConfig'] = ResolversParentTypes['SocialAppConfig']> = ResolversObject<{
+  app?: Resolver<ResolversTypes['SocialApp'], ParentType, ContextType>;
+  callbackUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  clientId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  clientSecretHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  consoleUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  hasClientSecret?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SocialAppStatusResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SocialAppStatus'] = ResolversParentTypes['SocialAppStatus']> = ResolversObject<{
+  app?: Resolver<ResolversTypes['SocialApp'], ParentType, ContextType>;
+  available?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  networks?: Resolver<Array<ResolversTypes['SocialNetwork']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -19856,6 +19999,9 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ShiftPage?: ShiftPageResolvers<ContextType>;
   SlackChannel?: SlackChannelResolvers<ContextType>;
   SlackConfig?: SlackConfigResolvers<ContextType>;
+  SocialAccount?: SocialAccountResolvers<ContextType>;
+  SocialAppConfig?: SocialAppConfigResolvers<ContextType>;
+  SocialAppStatus?: SocialAppStatusResolvers<ContextType>;
   SocialAuthor?: SocialAuthorResolvers<ContextType>;
   SocialComment?: SocialCommentResolvers<ContextType>;
   SocialFeedPage?: SocialFeedPageResolvers<ContextType>;

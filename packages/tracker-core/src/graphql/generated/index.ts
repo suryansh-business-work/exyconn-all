@@ -2126,6 +2126,27 @@ export type SlipStatus =
   | 'GENERATED'
   | 'PAID';
 
+export type SocialApp =
+  | 'LINKEDIN'
+  | 'META'
+  | 'X'
+  | 'YOUTUBE';
+
+export type SocialAppConfigInput = {
+  app: SocialApp;
+  clientId: Scalars['String']['input'];
+  /** Blank keeps the stored secret. */
+  clientSecret: InputMaybe<Scalars['String']['input']>;
+  enabled: Scalars['Boolean']['input'];
+};
+
+export type SocialNetwork =
+  | 'FACEBOOK'
+  | 'INSTAGRAM'
+  | 'LINKEDIN'
+  | 'X'
+  | 'YOUTUBE';
+
 export type SocialPostInput = {
   body: Scalars['String']['input'];
   imageUrl: InputMaybe<Scalars['String']['input']>;
