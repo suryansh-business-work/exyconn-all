@@ -1741,16 +1741,26 @@ export type CreateUserInput = {
   designation?: InputMaybe<Scalars['String']['input']>;
   email: Scalars['String']['input'];
   employmentStatus?: InputMaybe<EmploymentStatus>;
+  /** Kind of employment, by code — permanent, contract, intern. Empty when not set. */
+  employmentTypeCode?: InputMaybe<Scalars['String']['input']>;
+  /** Job grade or band, by code. Empty when not set. */
+  gradeCode?: InputMaybe<Scalars['String']['input']>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   joinDate?: InputMaybe<Scalars['DateTime']['input']>;
   /** BCP-47 tag, or null to follow the workspace default. */
   locale?: InputMaybe<Scalars['String']['input']>;
+  /** Office or site this person works at, by the location's code. Empty when not set. */
+  locationCode?: InputMaybe<Scalars['String']['input']>;
   managerId?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   probationEndDate?: InputMaybe<Scalars['DateTime']['input']>;
   /** The state or region they work in, for regional holidays; null when not set. */
   region?: InputMaybe<Scalars['String']['input']>;
   roles: Array<Role>;
+  /** Working-hours pattern, by code. Empty when not set. */
+  shiftCode?: InputMaybe<Scalars['String']['input']>;
+  /** Team inside the department. Empty when not set. */
+  teamName?: InputMaybe<Scalars['String']['input']>;
   /** IANA zone name, or null to follow the workspace default. */
   timezone?: InputMaybe<Scalars['String']['input']>;
   workHoursPerDay?: InputMaybe<Scalars['Int']['input']>;
@@ -13256,10 +13266,16 @@ export type UpdateUserInput = {
   designation?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   employmentStatus?: InputMaybe<EmploymentStatus>;
+  /** Kind of employment, by code — permanent, contract, intern. Empty when not set. */
+  employmentTypeCode?: InputMaybe<Scalars['String']['input']>;
+  /** Job grade or band, by code. Empty when not set. */
+  gradeCode?: InputMaybe<Scalars['String']['input']>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   joinDate?: InputMaybe<Scalars['DateTime']['input']>;
   /** BCP-47 tag, or null to follow the workspace default. */
   locale?: InputMaybe<Scalars['String']['input']>;
+  /** Office or site this person works at, by the location's code. Empty when not set. */
+  locationCode?: InputMaybe<Scalars['String']['input']>;
   managerId?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   password?: InputMaybe<Scalars['String']['input']>;
@@ -13267,6 +13283,10 @@ export type UpdateUserInput = {
   /** The state or region they work in, for regional holidays; null when not set. */
   region?: InputMaybe<Scalars['String']['input']>;
   roles?: InputMaybe<Array<Role>>;
+  /** Working-hours pattern, by code. Empty when not set. */
+  shiftCode?: InputMaybe<Scalars['String']['input']>;
+  /** Team inside the department. Empty when not set. */
+  teamName?: InputMaybe<Scalars['String']['input']>;
   /** IANA zone name, or null to follow the workspace default. */
   timezone?: InputMaybe<Scalars['String']['input']>;
   workHoursPerDay?: InputMaybe<Scalars['Int']['input']>;
@@ -13296,6 +13316,10 @@ export type User = {
   designation?: Maybe<Scalars['String']['output']>;
   email: Scalars['String']['output'];
   employmentStatus: EmploymentStatus;
+  /** Kind of employment, by code — permanent, contract, intern. Empty when not set. */
+  employmentTypeCode?: Maybe<Scalars['String']['output']>;
+  /** Job grade or band, by code. Empty when not set. */
+  gradeCode?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   isBlocked: Scalars['Boolean']['output'];
@@ -13305,6 +13329,8 @@ export type User = {
   /** The last time the person used any portal or app. */
   lastActiveAt?: Maybe<Scalars['DateTime']['output']>;
   locale?: Maybe<Scalars['String']['output']>;
+  /** Office or site this person works at, by the location's code. Empty when not set. */
+  locationCode?: Maybe<Scalars['String']['output']>;
   /** The user this person reports to; their manager may approve leave and requests. */
   managerId?: Maybe<Scalars['String']['output']>;
   /** Resolved from managerId for display; null when nobody is set. */
@@ -13319,8 +13345,12 @@ export type User = {
   /** The state or region the person works in, which decides regional holidays. Set by HR only. */
   region?: Maybe<Scalars['String']['output']>;
   roles: Array<Role>;
+  /** Working-hours pattern, by code. Empty when not set. */
+  shiftCode?: Maybe<Scalars['String']['output']>;
   /** Public profiles the person chose to share. Null when they have shared none. */
   socialLinks?: Maybe<UserSocialLinks>;
+  /** Team inside the department. Empty when not set. */
+  teamName?: Maybe<Scalars['String']['output']>;
   /**
    * Where this person is and what language they read. Null means "whatever the workspace
    * default is", so moving the house timezone moves everybody who never expressed a
@@ -20154,6 +20184,8 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   designation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   employmentStatus?: Resolver<ResolversTypes['EmploymentStatus'], ParentType, ContextType>;
+  employmentTypeCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  gradeCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   isBlocked?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -20161,6 +20193,7 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   joinDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   lastActiveAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   locale?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  locationCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   managerId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   managerName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -20169,7 +20202,9 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   probationEndDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   region?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   roles?: Resolver<Array<ResolversTypes['Role']>, ParentType, ContextType>;
+  shiftCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   socialLinks?: Resolver<Maybe<ResolversTypes['UserSocialLinks']>, ParentType, ContextType>;
+  teamName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   timezone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   workHoursPerDay?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;

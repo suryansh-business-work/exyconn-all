@@ -9,6 +9,11 @@ fragment UserFields on User {
   blockReason
   department
   designation
+  locationCode
+  teamName
+  gradeCode
+  employmentTypeCode
+  shiftCode
   joinDate
   dateOfBirth
   probationEndDate

@@ -1742,16 +1742,26 @@ export type CreateUserInput = {
   designation?: InputMaybe<Scalars['String']['input']>;
   email: Scalars['String']['input'];
   employmentStatus?: InputMaybe<EmploymentStatus>;
+  /** Kind of employment, by code — permanent, contract, intern. Empty when not set. */
+  employmentTypeCode?: InputMaybe<Scalars['String']['input']>;
+  /** Job grade or band, by code. Empty when not set. */
+  gradeCode?: InputMaybe<Scalars['String']['input']>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   joinDate?: InputMaybe<Scalars['DateTime']['input']>;
   /** BCP-47 tag, or null to follow the workspace default. */
   locale?: InputMaybe<Scalars['String']['input']>;
+  /** Office or site this person works at, by the location's code. Empty when not set. */
+  locationCode?: InputMaybe<Scalars['String']['input']>;
   managerId?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   probationEndDate?: InputMaybe<Scalars['DateTime']['input']>;
   /** The state or region they work in, for regional holidays; null when not set. */
   region?: InputMaybe<Scalars['String']['input']>;
   roles: Array<Role>;
+  /** Working-hours pattern, by code. Empty when not set. */
+  shiftCode?: InputMaybe<Scalars['String']['input']>;
+  /** Team inside the department. Empty when not set. */
+  teamName?: InputMaybe<Scalars['String']['input']>;
   /** IANA zone name, or null to follow the workspace default. */
   timezone?: InputMaybe<Scalars['String']['input']>;
   workHoursPerDay?: InputMaybe<Scalars['Int']['input']>;
@@ -13257,10 +13267,16 @@ export type UpdateUserInput = {
   designation?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   employmentStatus?: InputMaybe<EmploymentStatus>;
+  /** Kind of employment, by code — permanent, contract, intern. Empty when not set. */
+  employmentTypeCode?: InputMaybe<Scalars['String']['input']>;
+  /** Job grade or band, by code. Empty when not set. */
+  gradeCode?: InputMaybe<Scalars['String']['input']>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   joinDate?: InputMaybe<Scalars['DateTime']['input']>;
   /** BCP-47 tag, or null to follow the workspace default. */
   locale?: InputMaybe<Scalars['String']['input']>;
+  /** Office or site this person works at, by the location's code. Empty when not set. */
+  locationCode?: InputMaybe<Scalars['String']['input']>;
   managerId?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   password?: InputMaybe<Scalars['String']['input']>;
@@ -13268,6 +13284,10 @@ export type UpdateUserInput = {
   /** The state or region they work in, for regional holidays; null when not set. */
   region?: InputMaybe<Scalars['String']['input']>;
   roles?: InputMaybe<Array<Role>>;
+  /** Working-hours pattern, by code. Empty when not set. */
+  shiftCode?: InputMaybe<Scalars['String']['input']>;
+  /** Team inside the department. Empty when not set. */
+  teamName?: InputMaybe<Scalars['String']['input']>;
   /** IANA zone name, or null to follow the workspace default. */
   timezone?: InputMaybe<Scalars['String']['input']>;
   workHoursPerDay?: InputMaybe<Scalars['Int']['input']>;
@@ -13297,6 +13317,10 @@ export type User = {
   designation?: Maybe<Scalars['String']['output']>;
   email: Scalars['String']['output'];
   employmentStatus: EmploymentStatus;
+  /** Kind of employment, by code — permanent, contract, intern. Empty when not set. */
+  employmentTypeCode?: Maybe<Scalars['String']['output']>;
+  /** Job grade or band, by code. Empty when not set. */
+  gradeCode?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   isBlocked: Scalars['Boolean']['output'];
@@ -13306,6 +13330,8 @@ export type User = {
   /** The last time the person used any portal or app. */
   lastActiveAt?: Maybe<Scalars['DateTime']['output']>;
   locale?: Maybe<Scalars['String']['output']>;
+  /** Office or site this person works at, by the location's code. Empty when not set. */
+  locationCode?: Maybe<Scalars['String']['output']>;
   /** The user this person reports to; their manager may approve leave and requests. */
   managerId?: Maybe<Scalars['String']['output']>;
   /** Resolved from managerId for display; null when nobody is set. */
@@ -13320,8 +13346,12 @@ export type User = {
   /** The state or region the person works in, which decides regional holidays. Set by HR only. */
   region?: Maybe<Scalars['String']['output']>;
   roles: Array<Role>;
+  /** Working-hours pattern, by code. Empty when not set. */
+  shiftCode?: Maybe<Scalars['String']['output']>;
   /** Public profiles the person chose to share. Null when they have shared none. */
   socialLinks?: Maybe<UserSocialLinks>;
+  /** Team inside the department. Empty when not set. */
+  teamName?: Maybe<Scalars['String']['output']>;
   /**
    * Where this person is and what language they read. Null means "whatever the workspace
    * default is", so moving the house timezone moves everybody who never expressed a
@@ -13504,19 +13534,19 @@ export type WorkspaceAnalytics = {
   users: UserAnalytics;
 };
 
-export type UserFieldsFragment = { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null, timezone?: string | null, locale?: string | null, country?: string | null, region?: string | null, city?: string | null };
+export type UserFieldsFragment = { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, locationCode?: string | null, teamName?: string | null, gradeCode?: string | null, employmentTypeCode?: string | null, shiftCode?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null, timezone?: string | null, locale?: string | null, country?: string | null, region?: string | null, city?: string | null };
 
 export type ListUsersQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListUsersQuery = { __typename?: 'Query', listUsers: Array<{ __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null, timezone?: string | null, locale?: string | null, country?: string | null, region?: string | null, city?: string | null }> };
+export type ListUsersQuery = { __typename?: 'Query', listUsers: Array<{ __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, locationCode?: string | null, teamName?: string | null, gradeCode?: string | null, employmentTypeCode?: string | null, shiftCode?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null, timezone?: string | null, locale?: string | null, country?: string | null, region?: string | null, city?: string | null }> };
 
 export type ListUsersPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListUsersPagedQuery = { __typename?: 'Query', listUsersPaged: { __typename?: 'UserPage', totalCount: number, rows: Array<{ __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null, timezone?: string | null, locale?: string | null, country?: string | null, region?: string | null, city?: string | null }> } };
+export type ListUsersPagedQuery = { __typename?: 'Query', listUsersPaged: { __typename?: 'UserPage', totalCount: number, rows: Array<{ __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, locationCode?: string | null, teamName?: string | null, gradeCode?: string | null, employmentTypeCode?: string | null, shiftCode?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null, timezone?: string | null, locale?: string | null, country?: string | null, region?: string | null, city?: string | null }> } };
 
 export type ListUsersStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -13543,7 +13573,7 @@ export type GetUserQueryVariables = Exact<{
 }>;
 
 
-export type GetUserQuery = { __typename?: 'Query', getUser: { __typename?: 'User', createdAt: string, updatedAt: string, id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null, timezone?: string | null, locale?: string | null, country?: string | null, region?: string | null, city?: string | null, phone?: string | null, lastActiveAt?: string | null, isOnline: boolean, socialLinks?: { __typename?: 'UserSocialLinks', linkedin?: string | null, github?: string | null, twitter?: string | null, website?: string | null } | null } };
+export type GetUserQuery = { __typename?: 'Query', getUser: { __typename?: 'User', createdAt: string, updatedAt: string, id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null, isActive: boolean, isBlocked: boolean, blockReason?: string | null, department?: string | null, designation?: string | null, locationCode?: string | null, teamName?: string | null, gradeCode?: string | null, employmentTypeCode?: string | null, shiftCode?: string | null, joinDate?: string | null, dateOfBirth?: string | null, probationEndDate?: string | null, employmentStatus: EmploymentStatus, address?: string | null, brief?: string | null, managerId?: string | null, managerName?: string | null, workingTime?: WorkingTime | null, workingTimeNote?: string | null, workLocation?: WorkLocation | null, workLocationNote?: string | null, workHoursPerDay?: number | null, timezone?: string | null, locale?: string | null, country?: string | null, region?: string | null, city?: string | null, phone?: string | null, lastActiveAt?: string | null, isOnline: boolean, socialLinks?: { __typename?: 'UserSocialLinks', linkedin?: string | null, github?: string | null, twitter?: string | null, website?: string | null } | null } };
 
 export type CreateUserMutationVariables = Exact<{
   input: CreateUserInput;
@@ -17152,6 +17182,11 @@ export type ListEmploymentTypesQueryVariables = Exact<{ [key: string]: never; }>
 
 export type ListEmploymentTypesQuery = { __typename?: 'Query', listEmploymentTypes: Array<{ __typename?: 'EmploymentType', id: string, name: string, code: string, active: boolean }> };
 
+export type OrgMasterOptionsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type OrgMasterOptionsQuery = { __typename?: 'Query', listLocations: Array<{ __typename?: 'Location', id: string, name: string, code: string, active: boolean }>, listTeams: Array<{ __typename?: 'Team', id: string, name: string, department: string, active: boolean }>, listGrades: Array<{ __typename?: 'Grade', id: string, name: string, code: string, active: boolean }>, listEmploymentTypes: Array<{ __typename?: 'EmploymentType', id: string, name: string, code: string, active: boolean }>, listShifts: Array<{ __typename?: 'Shift', id: string, name: string, code: string, startTime: string, endTime: string, active: boolean }> };
+
 export type SalaryStructureFieldsFragment = { __typename?: 'SalaryStructure', id: string, employeeId: string, currency: string, payType: PayType, payTypeNote?: string | null, basic: number, hra: number, allowances: number, deductions: number, rate: number, billingRate: number, gross: number, net: number, pfApplicable: boolean, esiApplicable: boolean, tdsPercent: number, pfNumber?: string | null, esiNumber?: string | null, panNumber?: string | null, effectiveFrom: string };
 
 export type ListSalaryStructuresPagedQueryVariables = Exact<{
@@ -19465,6 +19500,11 @@ export const UserFieldsFragmentDoc = gql`
   blockReason
   department
   designation
+  locationCode
+  teamName
+  gradeCode
+  employmentTypeCode
+  shiftCode
   joinDate
   dateOfBirth
   probationEndDate
@@ -42374,6 +42414,78 @@ export function useListEmploymentTypesSuspenseQuery(baseOptions?: ApolloReactHoo
 export type ListEmploymentTypesQueryHookResult = ReturnType<typeof useListEmploymentTypesQuery>;
 export type ListEmploymentTypesLazyQueryHookResult = ReturnType<typeof useListEmploymentTypesLazyQuery>;
 export type ListEmploymentTypesSuspenseQueryHookResult = ReturnType<typeof useListEmploymentTypesSuspenseQuery>;
+export const OrgMasterOptionsDocument = gql`
+    query OrgMasterOptions {
+  listLocations {
+    id
+    name
+    code
+    active
+  }
+  listTeams {
+    id
+    name
+    department
+    active
+  }
+  listGrades {
+    id
+    name
+    code
+    active
+  }
+  listEmploymentTypes {
+    id
+    name
+    code
+    active
+  }
+  listShifts {
+    id
+    name
+    code
+    startTime
+    endTime
+    active
+  }
+}
+    `;
+
+/**
+ * __useOrgMasterOptionsQuery__
+ *
+ * To run a query within a React component, call `useOrgMasterOptionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useOrgMasterOptionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useOrgMasterOptionsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useOrgMasterOptionsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<OrgMasterOptionsQuery, OrgMasterOptionsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<OrgMasterOptionsQuery, OrgMasterOptionsQueryVariables>(OrgMasterOptionsDocument, options);
+      }
+export function useOrgMasterOptionsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<OrgMasterOptionsQuery, OrgMasterOptionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<OrgMasterOptionsQuery, OrgMasterOptionsQueryVariables>(OrgMasterOptionsDocument, options);
+        }
+// @ts-ignore
+export function useOrgMasterOptionsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<OrgMasterOptionsQuery, OrgMasterOptionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<OrgMasterOptionsQuery, OrgMasterOptionsQueryVariables>;
+// @ts-ignore
+export function useOrgMasterOptionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<OrgMasterOptionsQuery, OrgMasterOptionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<OrgMasterOptionsQuery | undefined, OrgMasterOptionsQueryVariables>;
+export function useOrgMasterOptionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<OrgMasterOptionsQuery, OrgMasterOptionsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<OrgMasterOptionsQuery, OrgMasterOptionsQueryVariables>(OrgMasterOptionsDocument, options);
+        }
+export type OrgMasterOptionsQueryHookResult = ReturnType<typeof useOrgMasterOptionsQuery>;
+export type OrgMasterOptionsLazyQueryHookResult = ReturnType<typeof useOrgMasterOptionsLazyQuery>;
+export type OrgMasterOptionsSuspenseQueryHookResult = ReturnType<typeof useOrgMasterOptionsSuspenseQuery>;
 export const ListSalaryStructuresPagedDocument = gql`
     query ListSalaryStructuresPaged($input: TableQueryInput!) {
   listSalaryStructuresPaged(input: $input) {

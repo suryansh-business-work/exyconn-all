@@ -617,16 +617,26 @@ export type CreateUserInput = {
   designation: InputMaybe<Scalars['String']['input']>;
   email: Scalars['String']['input'];
   employmentStatus: InputMaybe<EmploymentStatus>;
+  /** Kind of employment, by code — permanent, contract, intern. Empty when not set. */
+  employmentTypeCode: InputMaybe<Scalars['String']['input']>;
+  /** Job grade or band, by code. Empty when not set. */
+  gradeCode: InputMaybe<Scalars['String']['input']>;
   isActive: InputMaybe<Scalars['Boolean']['input']>;
   joinDate: InputMaybe<Scalars['DateTime']['input']>;
   /** BCP-47 tag, or null to follow the workspace default. */
   locale: InputMaybe<Scalars['String']['input']>;
+  /** Office or site this person works at, by the location's code. Empty when not set. */
+  locationCode: InputMaybe<Scalars['String']['input']>;
   managerId: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   probationEndDate: InputMaybe<Scalars['DateTime']['input']>;
   /** The state or region they work in, for regional holidays; null when not set. */
   region: InputMaybe<Scalars['String']['input']>;
   roles: Array<Role>;
+  /** Working-hours pattern, by code. Empty when not set. */
+  shiftCode: InputMaybe<Scalars['String']['input']>;
+  /** Team inside the department. Empty when not set. */
+  teamName: InputMaybe<Scalars['String']['input']>;
   /** IANA zone name, or null to follow the workspace default. */
   timezone: InputMaybe<Scalars['String']['input']>;
   workHoursPerDay: InputMaybe<Scalars['Int']['input']>;
@@ -2680,10 +2690,16 @@ export type UpdateUserInput = {
   designation: InputMaybe<Scalars['String']['input']>;
   email: InputMaybe<Scalars['String']['input']>;
   employmentStatus: InputMaybe<EmploymentStatus>;
+  /** Kind of employment, by code — permanent, contract, intern. Empty when not set. */
+  employmentTypeCode: InputMaybe<Scalars['String']['input']>;
+  /** Job grade or band, by code. Empty when not set. */
+  gradeCode: InputMaybe<Scalars['String']['input']>;
   isActive: InputMaybe<Scalars['Boolean']['input']>;
   joinDate: InputMaybe<Scalars['DateTime']['input']>;
   /** BCP-47 tag, or null to follow the workspace default. */
   locale: InputMaybe<Scalars['String']['input']>;
+  /** Office or site this person works at, by the location's code. Empty when not set. */
+  locationCode: InputMaybe<Scalars['String']['input']>;
   managerId: InputMaybe<Scalars['String']['input']>;
   name: InputMaybe<Scalars['String']['input']>;
   password: InputMaybe<Scalars['String']['input']>;
@@ -2691,6 +2707,10 @@ export type UpdateUserInput = {
   /** The state or region they work in, for regional holidays; null when not set. */
   region: InputMaybe<Scalars['String']['input']>;
   roles: InputMaybe<Array<Role>>;
+  /** Working-hours pattern, by code. Empty when not set. */
+  shiftCode: InputMaybe<Scalars['String']['input']>;
+  /** Team inside the department. Empty when not set. */
+  teamName: InputMaybe<Scalars['String']['input']>;
   /** IANA zone name, or null to follow the workspace default. */
   timezone: InputMaybe<Scalars['String']['input']>;
   workHoursPerDay: InputMaybe<Scalars['Int']['input']>;

@@ -6,6 +6,13 @@ import { currentOrganizationId, runAsPlatform } from '../../lib/tenant';
 import { assertPasswordPolicy, hashPassword, generateTempPassword } from '../../utils/password';
 import { bumpTokenVersion } from '../auth/auth.service';
 import { notFound, badRequest, forbidden } from '../../utils/errors';
+import {
+  EmploymentTypeModel,
+  GradeModel,
+  LocationModel,
+  ShiftModel,
+  TeamModel,
+} from '../orgmaster/orgmaster.models';
 import { mailer } from '../../utils/mailer';
 import { logger } from '../../utils/logger';
 import {
@@ -204,6 +211,16 @@ export type EmploymentStatus = 'ACTIVE' | 'ON_LEAVE' | 'TERMINATED';
 export interface HrFields {
   department?: string;
   designation?: string;
+  /** Office or site, by the location master's code. Empty clears it. */
+  locationCode?: string;
+  /** Team inside the department, by name. Empty clears it. */
+  teamName?: string;
+  /** Job grade, by the grade master's code. Empty clears it. */
+  gradeCode?: string;
+  /** Kind of employment, by the employment-type master's code. Empty clears it. */
+  employmentTypeCode?: string;
+  /** Working-hours pattern, by the shift master's code. Empty clears it. */
+  shiftCode?: string;
   joinDate?: Date;
   dateOfBirth?: Date;
   /** The day they come off probation; null when they are not on one. */
@@ -264,11 +281,47 @@ function localeFields(input: HrFields) {
   };
 }
 
+/**
+ * The master data a person is placed in, checked against the masters themselves.
+ *
+ * Refused rather than stored loose: a shift code with a typo would read as "no shift" on
+ * every screen that joins them, which looks exactly like a person nobody has got round to
+ * placing. The masters are small and this runs on a form submit, so five lookups is the
+ * cheapest possible way to be sure.
+ */
+async function placementFields(input: HrFields) {
+  const asked = {
+    locationCode: input.locationCode?.trim().toUpperCase() ?? '',
+    teamName: input.teamName?.trim() ?? '',
+    gradeCode: input.gradeCode?.trim().toUpperCase() ?? '',
+    employmentTypeCode: input.employmentTypeCode?.trim().toUpperCase() ?? '',
+    shiftCode: input.shiftCode?.trim().toUpperCase() ?? '',
+  };
+  const checks: [string, string, () => Promise<unknown>][] = [
+    ['location', asked.locationCode, () => LocationModel.exists({ code: asked.locationCode })],
+    ['team', asked.teamName, () => TeamModel.exists({ name: asked.teamName })],
+    ['grade', asked.gradeCode, () => GradeModel.exists({ code: asked.gradeCode })],
+    [
+      'employment type',
+      asked.employmentTypeCode,
+      () => EmploymentTypeModel.exists({ code: asked.employmentTypeCode }),
+    ],
+    ['shift', asked.shiftCode, () => ShiftModel.exists({ code: asked.shiftCode })],
+  ];
+  for (const [what, value, exists] of checks) {
+    if (value !== '' && !(await exists())) {
+      badRequest(`There is no ${what} "${value}". Add it to the master list first.`);
+    }
+  }
+  return asked;
+}
+
 /** The HR fields, as they go onto a new user document. */
-function hrFields(input: HrFields) {
+async function hrFields(input: HrFields) {
   return {
     department: input.department,
     designation: input.designation,
+    ...(await placementFields(input)),
     joinDate: input.joinDate,
     dateOfBirth: input.dateOfBirth,
     probationEndDate: input.probationEndDate ?? null,
@@ -357,7 +410,7 @@ class AdminService {
       passwordHash,
       roles: input.roles,
       isActive: input.isActive ?? true,
-      ...hrFields(input),
+      ...(await hrFields(input)),
     });
 
     tryEmail('Welcome', () =>
@@ -439,7 +492,13 @@ class AdminService {
 
   async updateUser(id: string, input: UpdateUserInput) {
     if (input.managerId) await this.assertManagerExists(input.managerId, id);
-    const update: Record<string, unknown> = { ...input, ...localeFields(input) };
+    // The placement codes are checked against the masters here too: an update is the path
+    // most likely to carry one, since a joiner is usually placed after the account exists.
+    const update: Record<string, unknown> = {
+      ...input,
+      ...localeFields(input),
+      ...(await placementFields(input)),
+    };
     delete update.password;
     if (input.password) {
       const current = await UserModel.findById(id).select('email').lean();

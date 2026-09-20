@@ -63,6 +63,16 @@ export const adminTypeDefs = gql`
     blockReason: String
     department: String
     designation: String
+    "Office or site this person works at, by the location's code. Empty when not set."
+    locationCode: String
+    "Team inside the department. Empty when not set."
+    teamName: String
+    "Job grade or band, by code. Empty when not set."
+    gradeCode: String
+    "Kind of employment, by code — permanent, contract, intern. Empty when not set."
+    employmentTypeCode: String
+    "Working-hours pattern, by code. Empty when not set."
+    shiftCode: String
     joinDate: DateTime
     dateOfBirth: DateTime
     "The day this employee comes off probation. Null when they are not on one."
@@ -173,6 +183,16 @@ export const adminTypeDefs = gql`
     isActive: Boolean
     department: String
     designation: String
+    "Office or site this person works at, by the location's code. Empty when not set."
+    locationCode: String
+    "Team inside the department. Empty when not set."
+    teamName: String
+    "Job grade or band, by code. Empty when not set."
+    gradeCode: String
+    "Kind of employment, by code — permanent, contract, intern. Empty when not set."
+    employmentTypeCode: String
+    "Working-hours pattern, by code. Empty when not set."
+    shiftCode: String
     joinDate: DateTime
     dateOfBirth: DateTime
     probationEndDate: DateTime
@@ -206,6 +226,16 @@ export const adminTypeDefs = gql`
     isActive: Boolean
     department: String
     designation: String
+    "Office or site this person works at, by the location's code. Empty when not set."
+    locationCode: String
+    "Team inside the department. Empty when not set."
+    teamName: String
+    "Job grade or band, by code. Empty when not set."
+    gradeCode: String
+    "Kind of employment, by code — permanent, contract, intern. Empty when not set."
+    employmentTypeCode: String
+    "Working-hours pattern, by code. Empty when not set."
+    shiftCode: String
     joinDate: DateTime
     dateOfBirth: DateTime
     probationEndDate: DateTime
