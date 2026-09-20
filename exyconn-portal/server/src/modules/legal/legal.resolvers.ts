@@ -1,56 +1,86 @@
-import { ContractModel } from './legal.model';
 import { assertRole } from '../../middleware/roleGuard';
-import { withId } from '../../utils/serialize';
-import { notFound } from '../../utils/errors';
-import { emailer } from '../email';
 import { ROLES } from '../../constants/roles';
+import {
+  contractSignatures,
+  contractToSign,
+  requestContractSignature,
+  revokeContractSignature,
+  signContractInternally,
+  signContractWithToken,
+} from './signature.service';
 import type { GraphQLContext } from '../../middleware/auth';
 
 const guard = (ctx: GraphQLContext) => assertRole(ctx, [ROLES.LEGAL]);
 
-/** Custom Legal mutations layered on top of the contract/document CRUD. */
+/**
+ * Signatures on contracts.
+ *
+ * Signing used to be one mutation that wrote a name into a field: whoever was looking at the
+ * Sign Board typed the counterparty's name and the contract read as signed. That records an
+ * assertion. What is here instead is two paths that both produce evidence — a link the
+ * counterparty signs behind, and our own side signed by an account the request can name.
+ */
 export const legalCustomResolvers = {
+  Query: {
+    contractSignatures: (
+      _p: unknown,
+      { contractId }: { contractId: string },
+      ctx: GraphQLContext,
+    ) => {
+      guard(ctx);
+      return contractSignatures(contractId);
+    },
+    /** Unauthenticated: the counterparty has a link, not an account. */
+    contractToSign: (_p: unknown, { token }: { token: string }) => contractToSign(token),
+  },
   Mutation: {
-    sendContract: async (
+    requestContractSignature: (
       _p: unknown,
-      { id, email, message }: { id: string; email: string; message?: string | null },
+      args: {
+        contractId: string;
+        signerName: string;
+        signerEmail: string;
+        message?: string | null;
+      },
       ctx: GraphQLContext,
     ) => {
+      const user = guard(ctx);
+      return requestContractSignature({ ...args, requestedByName: user.email });
+    },
+    revokeContractSignature: (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
       guard(ctx);
-      const contract = await ContractModel.findById(id);
-      if (!contract) notFound('Contract');
-      // Through the template engine, so the wording is an edit in Tech → Email rather than
-      // a deploy — and so the send lands in the log alongside every other email.
-      await emailer.send({
-        template: 'contract-for-signature',
-        to: email,
-        variables: {
-          party: contract.party,
-          contractTitle: contract.title,
-          message:
-            message ??
-            `Please find the contract "${contract.title}" for your review and signature.`,
-        },
-        triggeredBy: ctx.user?.email ?? '',
+      return revokeContractSignature(id);
+    },
+    /**
+     * Our own side, signed by the account making the request.
+     *
+     * The signer is read from the token rather than typed, so the record names whoever
+     * actually did it — the old mutation took the name as an argument, which meant the
+     * signature said whatever the person at the keyboard wanted it to say.
+     */
+    signContract: (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
+      const user = guard(ctx);
+      return signContractInternally({
+        contractId: id,
+        signerEmail: user.email,
+        ip: ctx.ip ?? 'unknown',
+        userAgent: ctx.userAgent ?? '',
       });
-      contract.sentAt = new Date();
-      await contract.save();
-      return withId(contract.toObject() as { _id: unknown });
     },
-
-    signContract: async (
+    /**
+     * Unauthenticated, and the caller's address and agent are read from the request rather
+     * than from arguments: they are evidence, and evidence a signer can type is not evidence.
+     */
+    signContractWithToken: (
       _p: unknown,
-      { id, signedBy }: { id: string; signedBy: string },
+      { token, signedName }: { token: string; signedName: string },
       ctx: GraphQLContext,
-    ) => {
-      guard(ctx);
-      const contract = await ContractModel.findByIdAndUpdate(
-        id,
-        { signedBy, signedAt: new Date(), status: 'ACTIVE' },
-        { new: true },
-      ).lean();
-      if (!contract) notFound('Contract');
-      return withId(contract as { _id: unknown });
-    },
+    ) =>
+      signContractWithToken({
+        token,
+        signedName,
+        ip: ctx.ip ?? 'unknown',
+        userAgent: ctx.userAgent ?? '',
+      }),
   },
 };

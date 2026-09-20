@@ -20,6 +20,9 @@ const schema = z.object({
   effectiveDate: z.string().min(1, 'Effective date is required'),
   expiryDate: z.string().min(1, 'Expiry date is required'),
   status: z.nativeEnum(ContractStatus),
+  // The file a counterparty is asked to read. Optional, because a contract is often drafted
+  // before there is a PDF of it — but a signature request refuses to go out without one.
+  documentUrl: z.string().trim(),
 });
 type Values = z.infer<typeof schema>;
 
@@ -30,6 +33,7 @@ const toInitial = (row: ContractRow | null): Values => ({
   effectiveDate: row?.effectiveDate ?? '',
   expiryDate: row?.expiryDate ?? '',
   status: row?.status ?? ContractStatus.Draft,
+  documentUrl: row?.documentUrl ?? '',
 });
 
 interface ContractFormProps {
@@ -66,6 +70,11 @@ export function ContractForm({ initial, onDone, onCancel }: ContractFormProps) {
         name="status"
         label="Status"
         options={enumOptions(Object.values(ContractStatus))}
+      />
+      <RhfTextField
+        name="documentUrl"
+        label="Document URL"
+        helperText="The PDF a counterparty reads before signing. Its bytes are hashed at the moment they sign."
       />
     </EntityForm>
   );

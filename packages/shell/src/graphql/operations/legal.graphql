@@ -7,6 +7,7 @@ query ListContracts {
     effectiveDate
     expiryDate
     status
+    documentUrl
     sentAt
     signedBy
     signedAt
@@ -24,6 +25,7 @@ query ListContractsPaged($input: TableQueryInput!) {
       effectiveDate
       expiryDate
       status
+      documentUrl
       sentAt
       signedBy
       signedAt
@@ -64,19 +66,74 @@ mutation DeleteContract($id: ID!) {
   deleteContract(id: $id)
 }
 
-mutation SendContract($id: ID!, $email: String!, $message: String) {
-  sendContract(id: $id, email: $email, message: $message) {
+# Asking a counterparty to sign: they get a link that identifies them, and Legal gets the
+# same link back so it can be passed on by hand when email is not the route.
+mutation RequestContractSignature(
+  $contractId: ID!
+  $signerName: String!
+  $signerEmail: String!
+  $message: String
+) {
+  requestContractSignature(
+    contractId: $contractId
+    signerName: $signerName
+    signerEmail: $signerEmail
+    message: $message
+  ) {
     id
-    sentAt
+    url
   }
 }
 
-mutation SignContract($id: ID!, $signedBy: String!) {
-  signContract(id: $id, signedBy: $signedBy) {
+mutation RevokeContractSignature($id: ID!) {
+  revokeContractSignature(id: $id)
+}
+
+# Our own side. The signer is the account making the request, so there is nothing to type.
+mutation SignContract($id: ID!) {
+  signContract(id: $id) {
     id
     signedBy
     signedAt
     status
+  }
+}
+
+query ContractSignatures($contractId: ID!) {
+  contractSignatures(contractId: $contractId) {
+    id
+    signerName
+    signerEmail
+    requestedByName
+    expiresAt
+    revokedAt
+    signedAt
+    signedName
+    signedIp
+    signedUserAgent
+    documentSha256
+    createdAt
+  }
+}
+
+# The public signing page: what the counterparty behind a link is shown, and the signature.
+query ContractToSign($token: String!) {
+  contractToSign(token: $token) {
+    title
+    party
+    type
+    effectiveDate
+    expiryDate
+    documentUrl
+    signerName
+    signedAt
+  }
+}
+
+mutation SignContractWithToken($token: String!, $signedName: String!) {
+  signContractWithToken(token: $token, signedName: $signedName) {
+    signedAt
+    documentSha256
   }
 }
 

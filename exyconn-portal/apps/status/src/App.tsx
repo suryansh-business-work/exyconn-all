@@ -9,6 +9,7 @@ import { ReportPage } from './pages/report';
 import { HelpPage } from './pages/help';
 import { ConfirmSubscriptionPage, UnsubscribePage } from './pages/subscribe';
 import { SharedProjectPage } from './pages/project';
+import { SignContractPage } from './pages/sign';
 
 /**
  * Public status site. Unlike every other micro-frontend it deliberately does not use
@@ -29,6 +30,8 @@ export function App() {
                 <Route path="/help" element={<HelpPage />} />
                 <Route path="/subscribe/confirm" element={<ConfirmSubscriptionPage />} />
                 <Route path="/unsubscribe" element={<UnsubscribePage />} />
+                {/* A counterparty signing a contract from the link they were emailed. */}
+                <Route path="/sign/:token" element={<SignContractPage />} />
                 {/* A client's read-only view of one project, opened from a share link. */}
                 <Route path="/project/:token" element={<SharedProjectPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />

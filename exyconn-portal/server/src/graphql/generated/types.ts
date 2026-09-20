@@ -1682,6 +1682,8 @@ export type ContainerPort = {
 export type Contract = {
   __typename?: 'Contract';
   createdAt: Scalars['DateTime']['output'];
+  /** The document a counterparty is asked to read and sign. Empty until one is attached. */
+  documentUrl: Scalars['String']['output'];
   effectiveDate: Scalars['DateTime']['output'];
   expiryDate: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
@@ -1696,6 +1698,7 @@ export type Contract = {
 };
 
 export type ContractInput = {
+  documentUrl?: InputMaybe<Scalars['String']['input']>;
   effectiveDate: Scalars['DateTime']['input'];
   expiryDate: Scalars['DateTime']['input'];
   party: Scalars['String']['input'];
@@ -1710,12 +1713,62 @@ export type ContractPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/**
+ * One request for a signature, and the evidence of it. Everything from the moment of
+ * signing onwards is written once and never again.
+ */
+export type ContractSignature = {
+  __typename?: 'ContractSignature';
+  createdAt: Scalars['DateTime']['output'];
+  /** SHA-256 of the document's bytes as they were when it was signed. */
+  documentSha256: Scalars['String']['output'];
+  expiresAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  requestedByName: Scalars['String']['output'];
+  revokedAt?: Maybe<Scalars['DateTime']['output']>;
+  signedAt?: Maybe<Scalars['DateTime']['output']>;
+  signedIp: Scalars['String']['output'];
+  /** The name the signer typed — their mark, in their own words. */
+  signedName: Scalars['String']['output'];
+  signedUserAgent: Scalars['String']['output'];
+  signerEmail: Scalars['String']['output'];
+  signerName: Scalars['String']['output'];
+};
+
+/** What Legal gets back when a request is raised: the link, so it can be passed on by hand. */
+export type ContractSignatureRequest = {
+  __typename?: 'ContractSignatureRequest';
+  id: Scalars['ID']['output'];
+  url: Scalars['String']['output'];
+};
+
+/** Confirmation the signer sees, and the hash they can check the document against later. */
+export type ContractSignedReceipt = {
+  __typename?: 'ContractSignedReceipt';
+  documentSha256: Scalars['String']['output'];
+  signedAt: Scalars['DateTime']['output'];
+};
+
 export enum ContractStatus {
   Active = 'ACTIVE',
   Draft = 'DRAFT',
   Expired = 'EXPIRED',
   Terminated = 'TERMINATED'
 }
+
+/** What a counterparty sees on the public signing page. Deliberately narrow. */
+export type ContractToSign = {
+  __typename?: 'ContractToSign';
+  documentUrl: Scalars['String']['output'];
+  effectiveDate: Scalars['DateTime']['output'];
+  expiryDate: Scalars['DateTime']['output'];
+  party: Scalars['String']['output'];
+  /** Set once it has been signed, so a revisited link says so rather than signing twice. */
+  signedAt?: Maybe<Scalars['DateTime']['output']>;
+  signerName: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  type: ContractType;
+};
 
 export enum ContractType {
   Employment = 'EMPLOYMENT',
@@ -4717,6 +4770,11 @@ export type Mutation = {
    */
   reportClientLogs: Scalars['Boolean']['output'];
   /**
+   * LEGAL: ask a counterparty to sign. Emails them a link nobody else has and returns it,
+   * so it can also be passed on by hand.
+   */
+  requestContractSignature: ContractSignatureRequest;
+  /**
    * Self-service reset: emails a one-hour link to the address if an account has it.
    * Always true, so the answer does not reveal which addresses have accounts.
    */
@@ -4732,6 +4790,8 @@ export type Mutation = {
    */
   reviewTrackerManualEntry: TrackerManualEntry;
   revokeApiKey: ApiKey;
+  /** LEGAL: withdraw an unsigned request. A signed one is evidence and cannot be withdrawn. */
+  revokeContractSignature: Scalars['Boolean']['output'];
   /** Ends every session except this one, for somebody who thinks their password has been seen. */
   revokeOtherSessions: Scalars['Int']['output'];
   revokeProjectShare: ProjectShare;
@@ -4778,7 +4838,6 @@ export type Mutation = {
    * leaves no send log or last-sent stamp behind.
    */
   sendCampaign: CampaignSendResult;
-  sendContract: Contract;
   /** Emails the invoice PDF to the client, moves a draft to SENT and stamps sentAt. */
   sendInvoice: Invoice;
   /** Posts a line onto the caller's OWN tracker thread. */
@@ -4855,7 +4914,16 @@ export type Mutation = {
   setWebhookActive: Webhook;
   /** Shares a post onto the feed, optionally with something of your own to say. */
   shareSocialPost: SocialPost;
+  /**
+   * LEGAL: sign our own side. The signer is the account making the request, not a name typed
+   * into a field, and the document's hash is recorded with it.
+   */
   signContract: Contract;
+  /**
+   * Unauthenticated — the counterparty signs with the link they were sent. Records the name
+   * they typed, where they answered from, and the hash of the document they were shown.
+   */
+  signContractWithToken: ContractSignedReceipt;
   /** AI: post ideas on a topic, in the voice of the best posts. */
   socialMediaIdeas: Scalars['String']['output'];
   /** AI: what worked, what did not, and what to try, from the last days' posts. */
@@ -6457,6 +6525,14 @@ export type MutationReportClientLogsArgs = {
 };
 
 
+export type MutationRequestContractSignatureArgs = {
+  contractId: Scalars['ID']['input'];
+  message?: InputMaybe<Scalars['String']['input']>;
+  signerEmail: Scalars['String']['input'];
+  signerName: Scalars['String']['input'];
+};
+
+
 export type MutationRequestPasswordResetArgs = {
   email: Scalars['String']['input'];
 };
@@ -6481,6 +6557,11 @@ export type MutationReviewTrackerManualEntryArgs = {
 
 
 export type MutationRevokeApiKeyArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationRevokeContractSignatureArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -6559,13 +6640,6 @@ export type MutationSendCampaignArgs = {
   audienceListId?: InputMaybe<Scalars['ID']['input']>;
   id: Scalars['ID']['input'];
   testEmail?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type MutationSendContractArgs = {
-  email: Scalars['String']['input'];
-  id: Scalars['ID']['input'];
-  message?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -6758,7 +6832,12 @@ export type MutationShareSocialPostArgs = {
 
 export type MutationSignContractArgs = {
   id: Scalars['ID']['input'];
-  signedBy: Scalars['String']['input'];
+};
+
+
+export type MutationSignContractWithTokenArgs = {
+  signedName: Scalars['String']['input'];
+  token: Scalars['String']['input'];
 };
 
 
@@ -8890,6 +8969,13 @@ export type Query = {
   companyFinance: CompanyFinance;
   /** Compliance only — the state of the whole management system on one screen. */
   complianceOverview: ComplianceOverview;
+  /** LEGAL: every signature request on one contract, newest first, with its evidence. */
+  contractSignatures: Array<ContractSignature>;
+  /**
+   * Unauthenticated — what the counterparty behind a signing link is shown. Null when the
+   * link is unknown, withdrawn or expired.
+   */
+  contractToSign?: Maybe<ContractToSign>;
   /** Open deals (not won or lost): how many, their face value and the probability-weighted value. */
   dealForecast: DealForecast;
   docPage: DocPage;
@@ -9667,6 +9753,16 @@ export type QueryClientSupportTicketStatusArgs = {
 export type QueryCompanyFinanceArgs = {
   from: Scalars['DateTime']['input'];
   to: Scalars['DateTime']['input'];
+};
+
+
+export type QueryContractSignaturesArgs = {
+  contractId: Scalars['ID']['input'];
+};
+
+
+export type QueryContractToSignArgs = {
+  token: Scalars['String']['input'];
 };
 
 
@@ -13794,7 +13890,11 @@ export type ResolversTypes = ResolversObject<{
   Contract: ResolverTypeWrapper<Contract>;
   ContractInput: ContractInput;
   ContractPage: ResolverTypeWrapper<ContractPage>;
+  ContractSignature: ResolverTypeWrapper<ContractSignature>;
+  ContractSignatureRequest: ResolverTypeWrapper<ContractSignatureRequest>;
+  ContractSignedReceipt: ResolverTypeWrapper<ContractSignedReceipt>;
   ContractStatus: ContractStatus;
+  ContractToSign: ResolverTypeWrapper<ContractToSign>;
   ContractType: ContractType;
   ConvertLeadInput: ConvertLeadInput;
   CostCenter: ResolverTypeWrapper<CostCenter>;
@@ -14471,6 +14571,10 @@ export type ResolversParentTypes = ResolversObject<{
   Contract: Contract;
   ContractInput: ContractInput;
   ContractPage: ContractPage;
+  ContractSignature: ContractSignature;
+  ContractSignatureRequest: ContractSignatureRequest;
+  ContractSignedReceipt: ContractSignedReceipt;
+  ContractToSign: ContractToSign;
   ConvertLeadInput: ConvertLeadInput;
   CostCenter: CostCenter;
   CostCenterInput: CostCenterInput;
@@ -15839,6 +15943,7 @@ export type ContainerPortResolvers<ContextType = GraphQLContext, ParentType exte
 
 export type ContractResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Contract'] = ResolversParentTypes['Contract']> = ResolversObject<{
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  documentUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   effectiveDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   expiryDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -15856,6 +15961,46 @@ export type ContractResolvers<ContextType = GraphQLContext, ParentType extends R
 export type ContractPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ContractPage'] = ResolversParentTypes['ContractPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['Contract']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ContractSignatureResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ContractSignature'] = ResolversParentTypes['ContractSignature']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  documentSha256?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  expiresAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  requestedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  revokedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  signedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  signedIp?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  signedName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  signedUserAgent?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  signerEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  signerName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ContractSignatureRequestResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ContractSignatureRequest'] = ResolversParentTypes['ContractSignatureRequest']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ContractSignedReceiptResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ContractSignedReceipt'] = ResolversParentTypes['ContractSignedReceipt']> = ResolversObject<{
+  documentSha256?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  signedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ContractToSignResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ContractToSign'] = ResolversParentTypes['ContractToSign']> = ResolversObject<{
+  documentUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  effectiveDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  expiryDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  party?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  signedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  signerName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['ContractType'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -17577,11 +17722,13 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   renameColumn?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationRenameColumnArgs, 'id' | 'name'>>;
   reorderColumns?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationReorderColumnsArgs, 'columnIds' | 'projectId'>>;
   reportClientLogs?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationReportClientLogsArgs, 'input'>>;
+  requestContractSignature?: Resolver<ResolversTypes['ContractSignatureRequest'], ParentType, ContextType, RequireFields<MutationRequestContractSignatureArgs, 'contractId' | 'signerEmail' | 'signerName'>>;
   requestPasswordReset?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestPasswordResetArgs, 'email'>>;
   resetPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
   resetUserPassword?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationResetUserPasswordArgs, 'id'>>;
   reviewTrackerManualEntry?: Resolver<ResolversTypes['TrackerManualEntry'], ParentType, ContextType, RequireFields<MutationReviewTrackerManualEntryArgs, 'id' | 'status'>>;
   revokeApiKey?: Resolver<ResolversTypes['ApiKey'], ParentType, ContextType, RequireFields<MutationRevokeApiKeyArgs, 'id'>>;
+  revokeContractSignature?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRevokeContractSignatureArgs, 'id'>>;
   revokeOtherSessions?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   revokeProjectShare?: Resolver<ResolversTypes['ProjectShare'], ParentType, ContextType, RequireFields<MutationRevokeProjectShareArgs, 'id'>>;
   revokeSession?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRevokeSessionArgs, 'id'>>;
@@ -17598,7 +17745,6 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   saveTrackerBuildSettings?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType, RequireFields<MutationSaveTrackerBuildSettingsArgs, 'slackChannels'>>;
   sendAdminCredentials?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sendCampaign?: Resolver<ResolversTypes['CampaignSendResult'], ParentType, ContextType, RequireFields<MutationSendCampaignArgs, 'id'>>;
-  sendContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSendContractArgs, 'email' | 'id'>>;
   sendInvoice?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<MutationSendInvoiceArgs, 'email' | 'id'>>;
   sendMyTrackerMessage?: Resolver<ResolversTypes['TrackerMessage'], ParentType, ContextType, RequireFields<MutationSendMyTrackerMessageArgs, 'body'>>;
   sendNotification?: Resolver<ResolversTypes['SendNotificationResult'], ParentType, ContextType, RequireFields<MutationSendNotificationArgs, 'input'>>;
@@ -17629,7 +17775,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setUserBlocked?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSetUserBlockedArgs, 'id' | 'isBlocked'>>;
   setWebhookActive?: Resolver<ResolversTypes['Webhook'], ParentType, ContextType, RequireFields<MutationSetWebhookActiveArgs, 'active' | 'id'>>;
   shareSocialPost?: Resolver<ResolversTypes['SocialPost'], ParentType, ContextType, RequireFields<MutationShareSocialPostArgs, 'id'>>;
-  signContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSignContractArgs, 'id' | 'signedBy'>>;
+  signContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSignContractArgs, 'id'>>;
+  signContractWithToken?: Resolver<ResolversTypes['ContractSignedReceipt'], ParentType, ContextType, RequireFields<MutationSignContractWithTokenArgs, 'signedName' | 'token'>>;
   socialMediaIdeas?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSocialMediaIdeasArgs, 'count' | 'topic'>>;
   socialMediaInsights?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSocialMediaInsightsArgs, 'days'>>;
   startMfaEnrolment?: Resolver<ResolversTypes['MfaEnrolment'], ParentType, ContextType>;
@@ -18443,6 +18590,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   clientSupportTicketStatus?: Resolver<Maybe<ResolversTypes['ClientTicketStatus']>, ParentType, ContextType, RequireFields<QueryClientSupportTicketStatusArgs, 'email' | 'reference'>>;
   companyFinance?: Resolver<ResolversTypes['CompanyFinance'], ParentType, ContextType, RequireFields<QueryCompanyFinanceArgs, 'from' | 'to'>>;
   complianceOverview?: Resolver<ResolversTypes['ComplianceOverview'], ParentType, ContextType>;
+  contractSignatures?: Resolver<Array<ResolversTypes['ContractSignature']>, ParentType, ContextType, RequireFields<QueryContractSignaturesArgs, 'contractId'>>;
+  contractToSign?: Resolver<Maybe<ResolversTypes['ContractToSign']>, ParentType, ContextType, RequireFields<QueryContractToSignArgs, 'token'>>;
   dealForecast?: Resolver<ResolversTypes['DealForecast'], ParentType, ContextType>;
   docPage?: Resolver<ResolversTypes['DocPage'], ParentType, ContextType, RequireFields<QueryDocPageArgs, 'id'>>;
   dockerContainerDetail?: Resolver<ResolversTypes['DockerContainerDetail'], ParentType, ContextType, RequireFields<QueryDockerContainerDetailArgs, 'id'>>;
@@ -20481,6 +20630,10 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ContainerPort?: ContainerPortResolvers<ContextType>;
   Contract?: ContractResolvers<ContextType>;
   ContractPage?: ContractPageResolvers<ContextType>;
+  ContractSignature?: ContractSignatureResolvers<ContextType>;
+  ContractSignatureRequest?: ContractSignatureRequestResolvers<ContextType>;
+  ContractSignedReceipt?: ContractSignedReceiptResolvers<ContextType>;
+  ContractToSign?: ContractToSignResolvers<ContextType>;
   CostCenter?: CostCenterResolvers<ContextType>;
   CostCenterPage?: CostCenterPageResolvers<ContextType>;
   CreatedWebhook?: CreatedWebhookResolvers<ContextType>;

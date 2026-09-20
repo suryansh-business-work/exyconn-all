@@ -1,18 +1,9 @@
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
-import { Text } from '@exyconn/shell/components/ui';
-import { RhfTextField } from '@exyconn/shell/components/form/rhf';
-import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
+import { Alert, Button, Flex, Text } from '@exyconn/shell/components/ui';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { useSignContractMutation } from '@exyconn/shell/graphql/generated';
 import type { SignContractTarget } from './sign-contract.types';
-
-const schema = z.object({
-  signedBy: z.string().trim().min(1, 'Signer name is required'),
-});
-type Values = z.infer<typeof schema>;
 
 interface SignContractFormProps {
   contract: SignContractTarget;
@@ -20,44 +11,54 @@ interface SignContractFormProps {
   onCancel: () => void;
 }
 
-/** Records a signer for a contract and marks it active. */
-export function SignContractForm({ contract, onDone, onCancel }: SignContractFormProps) {
+/**
+ * Signs our own side of a contract.
+ *
+ * There is nothing to fill in, and that is the change: this used to ask for a name and write
+ * whatever was typed, so the signature said whoever the person at the keyboard wanted it to
+ * say. The signer is now the account making the request, recorded with the time, the address
+ * it came from and the hash of the document as it stood.
+ */
+export function SignContractForm({ contract, onDone, onCancel }: Readonly<SignContractFormProps>) {
   const t = useT();
   const notify = useNotify();
-  const [signContract] = useSignContractMutation();
-  const methods = useForm<Values>({
-    resolver: zodResolver(schema),
-    defaultValues: { signedBy: '' },
-  });
+  const [sign, { loading }] = useSignContractMutation();
 
-  const onSubmit = async (values: Values) => {
+  const onSign = async () => {
     try {
-      await signContract({ variables: { id: contract.id, signedBy: values.signedBy } });
-      notify('“{title}” signed by {name}', 'success', {
-        title: contract.title,
-        name: values.signedBy,
-      });
+      await sign({ variables: { id: contract.id } });
+      notify('“{title}” signed', 'success', { title: contract.title });
       onDone();
     } catch (err) {
-      notify(err instanceof Error ? err.message : 'Sign failed', 'error');
+      notify(errorMessage(err, 'Signing failed'), 'error');
     }
   };
 
   return (
-    <EntityForm
-      methods={methods}
-      onSubmit={onSubmit}
-      isEdit={false}
-      onCancel={onCancel}
-      submitLabel="Sign"
-    >
+    <Flex direction="column" spacing={1.5}>
       <Text size="sm" color="text.secondary">
-        {t('Signing “{title}” with {party}.', {
+        {t('Signing “{title}” with {party}, as yourself.', {
           title: contract.title,
           party: contract.party,
         })}
       </Text>
-      <RhfTextField name="signedBy" label="Signed by (full name)" />
-    </EntityForm>
+      {contract.documentUrl ? (
+        <Alert severity="info">
+          {t('The document will be read and hashed now, so the signature is of this version.')}
+        </Alert>
+      ) : (
+        <Alert severity="warning">
+          {t('Attach the document to this contract first — there is nothing to sign yet.')}
+        </Alert>
+      )}
+      <Flex direction="row" spacing={1}>
+        <Button variant="contained" onClick={onSign} disabled={loading || !contract.documentUrl}>
+          {t('Sign')}
+        </Button>
+        <Button variant="text" onClick={onCancel}>
+          {t('Cancel')}
+        </Button>
+      </Flex>
+    </Flex>
   );
 }

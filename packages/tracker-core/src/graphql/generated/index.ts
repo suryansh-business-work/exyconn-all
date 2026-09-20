@@ -566,6 +566,7 @@ export type ContactStatus =
   | 'UNSUBSCRIBED';
 
 export type ContractInput = {
+  documentUrl: InputMaybe<Scalars['String']['input']>;
   effectiveDate: Scalars['DateTime']['input'];
   expiryDate: Scalars['DateTime']['input'];
   party: Scalars['String']['input'];

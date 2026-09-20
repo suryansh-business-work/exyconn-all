@@ -1683,6 +1683,8 @@ export type ContainerPort = {
 export type Contract = {
   __typename?: 'Contract';
   createdAt: Scalars['DateTime']['output'];
+  /** The document a counterparty is asked to read and sign. Empty until one is attached. */
+  documentUrl: Scalars['String']['output'];
   effectiveDate: Scalars['DateTime']['output'];
   expiryDate: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
@@ -1697,6 +1699,7 @@ export type Contract = {
 };
 
 export type ContractInput = {
+  documentUrl?: InputMaybe<Scalars['String']['input']>;
   effectiveDate: Scalars['DateTime']['input'];
   expiryDate: Scalars['DateTime']['input'];
   party: Scalars['String']['input'];
@@ -1711,12 +1714,62 @@ export type ContractPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/**
+ * One request for a signature, and the evidence of it. Everything from the moment of
+ * signing onwards is written once and never again.
+ */
+export type ContractSignature = {
+  __typename?: 'ContractSignature';
+  createdAt: Scalars['DateTime']['output'];
+  /** SHA-256 of the document's bytes as they were when it was signed. */
+  documentSha256: Scalars['String']['output'];
+  expiresAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  requestedByName: Scalars['String']['output'];
+  revokedAt?: Maybe<Scalars['DateTime']['output']>;
+  signedAt?: Maybe<Scalars['DateTime']['output']>;
+  signedIp: Scalars['String']['output'];
+  /** The name the signer typed — their mark, in their own words. */
+  signedName: Scalars['String']['output'];
+  signedUserAgent: Scalars['String']['output'];
+  signerEmail: Scalars['String']['output'];
+  signerName: Scalars['String']['output'];
+};
+
+/** What Legal gets back when a request is raised: the link, so it can be passed on by hand. */
+export type ContractSignatureRequest = {
+  __typename?: 'ContractSignatureRequest';
+  id: Scalars['ID']['output'];
+  url: Scalars['String']['output'];
+};
+
+/** Confirmation the signer sees, and the hash they can check the document against later. */
+export type ContractSignedReceipt = {
+  __typename?: 'ContractSignedReceipt';
+  documentSha256: Scalars['String']['output'];
+  signedAt: Scalars['DateTime']['output'];
+};
+
 export enum ContractStatus {
   Active = 'ACTIVE',
   Draft = 'DRAFT',
   Expired = 'EXPIRED',
   Terminated = 'TERMINATED'
 }
+
+/** What a counterparty sees on the public signing page. Deliberately narrow. */
+export type ContractToSign = {
+  __typename?: 'ContractToSign';
+  documentUrl: Scalars['String']['output'];
+  effectiveDate: Scalars['DateTime']['output'];
+  expiryDate: Scalars['DateTime']['output'];
+  party: Scalars['String']['output'];
+  /** Set once it has been signed, so a revisited link says so rather than signing twice. */
+  signedAt?: Maybe<Scalars['DateTime']['output']>;
+  signerName: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  type: ContractType;
+};
 
 export enum ContractType {
   Employment = 'EMPLOYMENT',
@@ -4718,6 +4771,11 @@ export type Mutation = {
    */
   reportClientLogs: Scalars['Boolean']['output'];
   /**
+   * LEGAL: ask a counterparty to sign. Emails them a link nobody else has and returns it,
+   * so it can also be passed on by hand.
+   */
+  requestContractSignature: ContractSignatureRequest;
+  /**
    * Self-service reset: emails a one-hour link to the address if an account has it.
    * Always true, so the answer does not reveal which addresses have accounts.
    */
@@ -4733,6 +4791,8 @@ export type Mutation = {
    */
   reviewTrackerManualEntry: TrackerManualEntry;
   revokeApiKey: ApiKey;
+  /** LEGAL: withdraw an unsigned request. A signed one is evidence and cannot be withdrawn. */
+  revokeContractSignature: Scalars['Boolean']['output'];
   /** Ends every session except this one, for somebody who thinks their password has been seen. */
   revokeOtherSessions: Scalars['Int']['output'];
   revokeProjectShare: ProjectShare;
@@ -4779,7 +4839,6 @@ export type Mutation = {
    * leaves no send log or last-sent stamp behind.
    */
   sendCampaign: CampaignSendResult;
-  sendContract: Contract;
   /** Emails the invoice PDF to the client, moves a draft to SENT and stamps sentAt. */
   sendInvoice: Invoice;
   /** Posts a line onto the caller's OWN tracker thread. */
@@ -4856,7 +4915,16 @@ export type Mutation = {
   setWebhookActive: Webhook;
   /** Shares a post onto the feed, optionally with something of your own to say. */
   shareSocialPost: SocialPost;
+  /**
+   * LEGAL: sign our own side. The signer is the account making the request, not a name typed
+   * into a field, and the document's hash is recorded with it.
+   */
   signContract: Contract;
+  /**
+   * Unauthenticated — the counterparty signs with the link they were sent. Records the name
+   * they typed, where they answered from, and the hash of the document they were shown.
+   */
+  signContractWithToken: ContractSignedReceipt;
   /** AI: post ideas on a topic, in the voice of the best posts. */
   socialMediaIdeas: Scalars['String']['output'];
   /** AI: what worked, what did not, and what to try, from the last days' posts. */
@@ -6458,6 +6526,14 @@ export type MutationReportClientLogsArgs = {
 };
 
 
+export type MutationRequestContractSignatureArgs = {
+  contractId: Scalars['ID']['input'];
+  message?: InputMaybe<Scalars['String']['input']>;
+  signerEmail: Scalars['String']['input'];
+  signerName: Scalars['String']['input'];
+};
+
+
 export type MutationRequestPasswordResetArgs = {
   email: Scalars['String']['input'];
 };
@@ -6482,6 +6558,11 @@ export type MutationReviewTrackerManualEntryArgs = {
 
 
 export type MutationRevokeApiKeyArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationRevokeContractSignatureArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -6560,13 +6641,6 @@ export type MutationSendCampaignArgs = {
   audienceListId?: InputMaybe<Scalars['ID']['input']>;
   id: Scalars['ID']['input'];
   testEmail?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type MutationSendContractArgs = {
-  email: Scalars['String']['input'];
-  id: Scalars['ID']['input'];
-  message?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -6759,7 +6833,12 @@ export type MutationShareSocialPostArgs = {
 
 export type MutationSignContractArgs = {
   id: Scalars['ID']['input'];
-  signedBy: Scalars['String']['input'];
+};
+
+
+export type MutationSignContractWithTokenArgs = {
+  signedName: Scalars['String']['input'];
+  token: Scalars['String']['input'];
 };
 
 
@@ -8891,6 +8970,13 @@ export type Query = {
   companyFinance: CompanyFinance;
   /** Compliance only — the state of the whole management system on one screen. */
   complianceOverview: ComplianceOverview;
+  /** LEGAL: every signature request on one contract, newest first, with its evidence. */
+  contractSignatures: Array<ContractSignature>;
+  /**
+   * Unauthenticated — what the counterparty behind a signing link is shown. Null when the
+   * link is unknown, withdrawn or expired.
+   */
+  contractToSign?: Maybe<ContractToSign>;
   /** Open deals (not won or lost): how many, their face value and the probability-weighted value. */
   dealForecast: DealForecast;
   docPage: DocPage;
@@ -9668,6 +9754,16 @@ export type QueryClientSupportTicketStatusArgs = {
 export type QueryCompanyFinanceArgs = {
   from: Scalars['DateTime']['input'];
   to: Scalars['DateTime']['input'];
+};
+
+
+export type QueryContractSignaturesArgs = {
+  contractId: Scalars['ID']['input'];
+};
+
+
+export type QueryContractToSignArgs = {
+  token: Scalars['String']['input'];
 };
 
 
@@ -16502,14 +16598,14 @@ export type ItDisableLeaverAccountMutation = { __typename?: 'Mutation', itDisabl
 export type ListContractsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListContractsQuery = { __typename?: 'Query', listContracts: Array<{ __typename?: 'Contract', id: string, title: string, party: string, type: ContractType, effectiveDate: string, expiryDate: string, status: ContractStatus, sentAt?: string | null, signedBy?: string | null, signedAt?: string | null }> };
+export type ListContractsQuery = { __typename?: 'Query', listContracts: Array<{ __typename?: 'Contract', id: string, title: string, party: string, type: ContractType, effectiveDate: string, expiryDate: string, status: ContractStatus, documentUrl: string, sentAt?: string | null, signedBy?: string | null, signedAt?: string | null }> };
 
 export type ListContractsPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListContractsPagedQuery = { __typename?: 'Query', listContractsPaged: { __typename?: 'ContractPage', totalCount: number, rows: Array<{ __typename?: 'Contract', id: string, title: string, party: string, type: ContractType, effectiveDate: string, expiryDate: string, status: ContractStatus, sentAt?: string | null, signedBy?: string | null, signedAt?: string | null }> } };
+export type ListContractsPagedQuery = { __typename?: 'Query', listContractsPaged: { __typename?: 'ContractPage', totalCount: number, rows: Array<{ __typename?: 'Contract', id: string, title: string, party: string, type: ContractType, effectiveDate: string, expiryDate: string, status: ContractStatus, documentUrl: string, sentAt?: string | null, signedBy?: string | null, signedAt?: string | null }> } };
 
 export type ListContractsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -16538,22 +16634,51 @@ export type DeleteContractMutationVariables = Exact<{
 
 export type DeleteContractMutation = { __typename?: 'Mutation', deleteContract: boolean };
 
-export type SendContractMutationVariables = Exact<{
-  id: Scalars['ID']['input'];
-  email: Scalars['String']['input'];
+export type RequestContractSignatureMutationVariables = Exact<{
+  contractId: Scalars['ID']['input'];
+  signerName: Scalars['String']['input'];
+  signerEmail: Scalars['String']['input'];
   message?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-export type SendContractMutation = { __typename?: 'Mutation', sendContract: { __typename?: 'Contract', id: string, sentAt?: string | null } };
+export type RequestContractSignatureMutation = { __typename?: 'Mutation', requestContractSignature: { __typename?: 'ContractSignatureRequest', id: string, url: string } };
+
+export type RevokeContractSignatureMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type RevokeContractSignatureMutation = { __typename?: 'Mutation', revokeContractSignature: boolean };
 
 export type SignContractMutationVariables = Exact<{
   id: Scalars['ID']['input'];
-  signedBy: Scalars['String']['input'];
 }>;
 
 
 export type SignContractMutation = { __typename?: 'Mutation', signContract: { __typename?: 'Contract', id: string, signedBy?: string | null, signedAt?: string | null, status: ContractStatus } };
+
+export type ContractSignaturesQueryVariables = Exact<{
+  contractId: Scalars['ID']['input'];
+}>;
+
+
+export type ContractSignaturesQuery = { __typename?: 'Query', contractSignatures: Array<{ __typename?: 'ContractSignature', id: string, signerName: string, signerEmail: string, requestedByName: string, expiresAt: string, revokedAt?: string | null, signedAt?: string | null, signedName: string, signedIp: string, signedUserAgent: string, documentSha256: string, createdAt: string }> };
+
+export type ContractToSignQueryVariables = Exact<{
+  token: Scalars['String']['input'];
+}>;
+
+
+export type ContractToSignQuery = { __typename?: 'Query', contractToSign?: { __typename?: 'ContractToSign', title: string, party: string, type: ContractType, effectiveDate: string, expiryDate: string, documentUrl: string, signerName: string, signedAt?: string | null } | null };
+
+export type SignContractWithTokenMutationVariables = Exact<{
+  token: Scalars['String']['input'];
+  signedName: Scalars['String']['input'];
+}>;
+
+
+export type SignContractWithTokenMutation = { __typename?: 'Mutation', signContractWithToken: { __typename?: 'ContractSignedReceipt', signedAt: string, documentSha256: string } };
 
 export type ListLegalDocumentsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -38335,6 +38460,7 @@ export const ListContractsDocument = gql`
     effectiveDate
     expiryDate
     status
+    documentUrl
     sentAt
     signedBy
     signedAt
@@ -38389,6 +38515,7 @@ export const ListContractsPagedDocument = gql`
       effectiveDate
       expiryDate
       status
+      documentUrl
       sentAt
       signedBy
       signedAt
@@ -38576,42 +38703,76 @@ export function useDeleteContractMutation(baseOptions?: ApolloReactHooks.Mutatio
         return ApolloReactHooks.useMutation<DeleteContractMutation, DeleteContractMutationVariables>(DeleteContractDocument, options);
       }
 export type DeleteContractMutationHookResult = ReturnType<typeof useDeleteContractMutation>;
-export const SendContractDocument = gql`
-    mutation SendContract($id: ID!, $email: String!, $message: String) {
-  sendContract(id: $id, email: $email, message: $message) {
+export const RequestContractSignatureDocument = gql`
+    mutation RequestContractSignature($contractId: ID!, $signerName: String!, $signerEmail: String!, $message: String) {
+  requestContractSignature(
+    contractId: $contractId
+    signerName: $signerName
+    signerEmail: $signerEmail
+    message: $message
+  ) {
     id
-    sentAt
+    url
   }
 }
     `;
 
 /**
- * __useSendContractMutation__
+ * __useRequestContractSignatureMutation__
  *
- * To run a mutation, you first call `useSendContractMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useSendContractMutation` returns a tuple that includes:
+ * To run a mutation, you first call `useRequestContractSignatureMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRequestContractSignatureMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [sendContractMutation, { data, loading, error }] = useSendContractMutation({
+ * const [requestContractSignatureMutation, { data, loading, error }] = useRequestContractSignatureMutation({
  *   variables: {
- *      id: // value for 'id'
- *      email: // value for 'email'
+ *      contractId: // value for 'contractId'
+ *      signerName: // value for 'signerName'
+ *      signerEmail: // value for 'signerEmail'
  *      message: // value for 'message'
  *   },
  * });
  */
-export function useSendContractMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SendContractMutation, SendContractMutationVariables>) {
+export function useRequestContractSignatureMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RequestContractSignatureMutation, RequestContractSignatureMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<SendContractMutation, SendContractMutationVariables>(SendContractDocument, options);
+        return ApolloReactHooks.useMutation<RequestContractSignatureMutation, RequestContractSignatureMutationVariables>(RequestContractSignatureDocument, options);
       }
-export type SendContractMutationHookResult = ReturnType<typeof useSendContractMutation>;
+export type RequestContractSignatureMutationHookResult = ReturnType<typeof useRequestContractSignatureMutation>;
+export const RevokeContractSignatureDocument = gql`
+    mutation RevokeContractSignature($id: ID!) {
+  revokeContractSignature(id: $id)
+}
+    `;
+
+/**
+ * __useRevokeContractSignatureMutation__
+ *
+ * To run a mutation, you first call `useRevokeContractSignatureMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRevokeContractSignatureMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [revokeContractSignatureMutation, { data, loading, error }] = useRevokeContractSignatureMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useRevokeContractSignatureMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RevokeContractSignatureMutation, RevokeContractSignatureMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RevokeContractSignatureMutation, RevokeContractSignatureMutationVariables>(RevokeContractSignatureDocument, options);
+      }
+export type RevokeContractSignatureMutationHookResult = ReturnType<typeof useRevokeContractSignatureMutation>;
 export const SignContractDocument = gql`
-    mutation SignContract($id: ID!, $signedBy: String!) {
-  signContract(id: $id, signedBy: $signedBy) {
+    mutation SignContract($id: ID!) {
+  signContract(id: $id) {
     id
     signedBy
     signedAt
@@ -38634,7 +38795,6 @@ export const SignContractDocument = gql`
  * const [signContractMutation, { data, loading, error }] = useSignContractMutation({
  *   variables: {
  *      id: // value for 'id'
- *      signedBy: // value for 'signedBy'
  *   },
  * });
  */
@@ -38643,6 +38803,144 @@ export function useSignContractMutation(baseOptions?: ApolloReactHooks.MutationH
         return ApolloReactHooks.useMutation<SignContractMutation, SignContractMutationVariables>(SignContractDocument, options);
       }
 export type SignContractMutationHookResult = ReturnType<typeof useSignContractMutation>;
+export const ContractSignaturesDocument = gql`
+    query ContractSignatures($contractId: ID!) {
+  contractSignatures(contractId: $contractId) {
+    id
+    signerName
+    signerEmail
+    requestedByName
+    expiresAt
+    revokedAt
+    signedAt
+    signedName
+    signedIp
+    signedUserAgent
+    documentSha256
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useContractSignaturesQuery__
+ *
+ * To run a query within a React component, call `useContractSignaturesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useContractSignaturesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useContractSignaturesQuery({
+ *   variables: {
+ *      contractId: // value for 'contractId'
+ *   },
+ * });
+ */
+export function useContractSignaturesQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ContractSignaturesQuery, ContractSignaturesQueryVariables> & ({ variables: ContractSignaturesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ContractSignaturesQuery, ContractSignaturesQueryVariables>(ContractSignaturesDocument, options);
+      }
+export function useContractSignaturesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ContractSignaturesQuery, ContractSignaturesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ContractSignaturesQuery, ContractSignaturesQueryVariables>(ContractSignaturesDocument, options);
+        }
+// @ts-ignore
+export function useContractSignaturesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ContractSignaturesQuery, ContractSignaturesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ContractSignaturesQuery, ContractSignaturesQueryVariables>;
+// @ts-ignore
+export function useContractSignaturesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ContractSignaturesQuery, ContractSignaturesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ContractSignaturesQuery | undefined, ContractSignaturesQueryVariables>;
+export function useContractSignaturesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ContractSignaturesQuery, ContractSignaturesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ContractSignaturesQuery, ContractSignaturesQueryVariables>(ContractSignaturesDocument, options);
+        }
+export type ContractSignaturesQueryHookResult = ReturnType<typeof useContractSignaturesQuery>;
+export type ContractSignaturesLazyQueryHookResult = ReturnType<typeof useContractSignaturesLazyQuery>;
+export type ContractSignaturesSuspenseQueryHookResult = ReturnType<typeof useContractSignaturesSuspenseQuery>;
+export const ContractToSignDocument = gql`
+    query ContractToSign($token: String!) {
+  contractToSign(token: $token) {
+    title
+    party
+    type
+    effectiveDate
+    expiryDate
+    documentUrl
+    signerName
+    signedAt
+  }
+}
+    `;
+
+/**
+ * __useContractToSignQuery__
+ *
+ * To run a query within a React component, call `useContractToSignQuery` and pass it any options that fit your needs.
+ * When your component renders, `useContractToSignQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useContractToSignQuery({
+ *   variables: {
+ *      token: // value for 'token'
+ *   },
+ * });
+ */
+export function useContractToSignQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ContractToSignQuery, ContractToSignQueryVariables> & ({ variables: ContractToSignQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ContractToSignQuery, ContractToSignQueryVariables>(ContractToSignDocument, options);
+      }
+export function useContractToSignLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ContractToSignQuery, ContractToSignQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ContractToSignQuery, ContractToSignQueryVariables>(ContractToSignDocument, options);
+        }
+// @ts-ignore
+export function useContractToSignSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ContractToSignQuery, ContractToSignQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ContractToSignQuery, ContractToSignQueryVariables>;
+// @ts-ignore
+export function useContractToSignSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ContractToSignQuery, ContractToSignQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ContractToSignQuery | undefined, ContractToSignQueryVariables>;
+export function useContractToSignSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ContractToSignQuery, ContractToSignQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ContractToSignQuery, ContractToSignQueryVariables>(ContractToSignDocument, options);
+        }
+export type ContractToSignQueryHookResult = ReturnType<typeof useContractToSignQuery>;
+export type ContractToSignLazyQueryHookResult = ReturnType<typeof useContractToSignLazyQuery>;
+export type ContractToSignSuspenseQueryHookResult = ReturnType<typeof useContractToSignSuspenseQuery>;
+export const SignContractWithTokenDocument = gql`
+    mutation SignContractWithToken($token: String!, $signedName: String!) {
+  signContractWithToken(token: $token, signedName: $signedName) {
+    signedAt
+    documentSha256
+  }
+}
+    `;
+
+/**
+ * __useSignContractWithTokenMutation__
+ *
+ * To run a mutation, you first call `useSignContractWithTokenMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSignContractWithTokenMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [signContractWithTokenMutation, { data, loading, error }] = useSignContractWithTokenMutation({
+ *   variables: {
+ *      token: // value for 'token'
+ *      signedName: // value for 'signedName'
+ *   },
+ * });
+ */
+export function useSignContractWithTokenMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SignContractWithTokenMutation, SignContractWithTokenMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SignContractWithTokenMutation, SignContractWithTokenMutationVariables>(SignContractWithTokenDocument, options);
+      }
+export type SignContractWithTokenMutationHookResult = ReturnType<typeof useSignContractWithTokenMutation>;
 export const ListLegalDocumentsDocument = gql`
     query ListLegalDocuments {
   listLegalDocuments {

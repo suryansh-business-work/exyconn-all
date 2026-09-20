@@ -13,6 +13,14 @@ const contractSchema = new Schema(
     status: { type: String, enum: CONTRACT_STATUSES, required: true, default: 'DRAFT' },
     // Set when the contract is emailed to a counterparty from the Contracts page.
     sentAt: { type: Date, default: null },
+    /**
+     * The document itself — what a counterparty is actually asked to sign.
+     *
+     * Contracts carried a title, two dates and a party, and nothing to read. A signature
+     * request needs something to show, and a signature has to be OF something, so the file
+     * lives here and its hash is recorded when somebody signs it.
+     */
+    documentUrl: { type: String, default: '', trim: true },
     // Set when a contract is signed from the Sign Board.
     signedBy: { type: String, trim: true, default: null },
     signedAt: { type: Date, default: null },

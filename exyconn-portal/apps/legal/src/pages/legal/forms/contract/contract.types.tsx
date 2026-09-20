@@ -13,4 +13,6 @@ export interface ContractFormValues {
   effectiveDate: string;
   expiryDate: string;
   status: ContractStatus;
+  /** The file a counterparty reads before signing; '' until one is attached. */
+  documentUrl: string;
 }
