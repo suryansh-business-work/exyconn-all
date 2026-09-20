@@ -6,6 +6,8 @@ import { assertRole } from '../../middleware/roleGuard';
 import { ROLES } from '../../constants/roles';
 import { badRequest } from '../../utils/errors';
 import type { GraphQLContext } from '../../middleware/auth';
+// Imported for its side effect: the module registers what it wants chased.
+import './products.reminders';
 
 interface ProductInput {
   name: string;

@@ -9,6 +9,8 @@ import { ROLES } from '../../constants/roles';
 import { refuseOwnRecordWrites } from '../../lib/permissions';
 import { assertRole } from '../../middleware/roleGuard';
 import type { GraphQLContext } from '../../middleware/auth';
+// Imported for its side effect: the module registers the dates it wants chased.
+import './hr.reminders';
 import {
   assertDepartmentEmpty,
   assertSalaryBand,
