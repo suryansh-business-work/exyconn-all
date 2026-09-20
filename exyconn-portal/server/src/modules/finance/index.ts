@@ -173,11 +173,7 @@ export { financeCompanyResolvers, companyExpensesService } from './finance.compa
 export { financeBudgetTypeDefs } from './finance.budgets.typeDefs';
 export { financeBudgetResolvers, costCentersService, budgetsService } from './finance.budgets';
 export { financeRecurringTypeDefs } from './finance.recurring.typeDefs';
-export {
-  markOverdueInvoices,
-  sweepOverdueInvoices,
-  startOverdueSweep,
-} from './finance.overdue';
+export { markOverdueInvoices, sweepOverdueInvoices, startOverdueSweep } from './finance.overdue';
 export { chaseOverdueInvoices, dunningStage, DUNNING_STAGE_DAYS } from './finance.dunning';
 export {
   recurringInvoiceResolvers,

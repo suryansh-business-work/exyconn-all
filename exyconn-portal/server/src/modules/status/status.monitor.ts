@@ -2,7 +2,8 @@ import { env } from '../../config/env';
 import { runAsPlatform } from '../../lib/tenant';
 import { logger } from '../../utils/logger';
 import { safeFetch } from '../../utils/safeFetch';
-import { recordJobRun } from '../../utils/jobHeartbeat';
+import { JOB_KEYS, recordJobRun } from '../../utils/jobHeartbeat';
+import { registerBackgroundJob } from '../tech/jobs.registry';
 import { StatusMonitorModel } from './status-monitor.model';
 import { StatusDailyModel } from './status-daily.model';
 import { StatusIncidentModel } from './status-incident.model';
@@ -185,3 +186,10 @@ export function startStatusMonitor(): void {
   globalThis.setInterval(round, env.status.intervalMs).unref();
   logger.info(`Status monitor started (every ${Math.round(env.status.intervalMs / 1000)}s)`);
 }
+
+registerBackgroundJob({
+  key: JOB_KEYS.statusMonitor,
+  label: 'Status page monitor',
+  description: 'Probes every monitored service and opens or resolves incidents.',
+  runOnce: () => runStatusChecks(),
+});

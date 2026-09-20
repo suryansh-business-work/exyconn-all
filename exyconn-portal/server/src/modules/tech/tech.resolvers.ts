@@ -3,8 +3,11 @@ import { assertAuthenticated } from '../../middleware/roleGuard';
 import { assertPermission } from '../../lib/permissions';
 import { assertPlatformStaff } from '../../lib/platformAccess';
 import { techSecretResolvers } from './tech.secrets';
+import { describeBackgroundJobs, findBackgroundJob } from './jobs.registry';
+import { forEachOrganization } from '../organizations';
 import { ROLES } from '../../constants/roles';
 import { withId, withIds } from '../../utils/serialize';
+import { logger } from '../../utils/logger';
 import type { GraphQLContext } from '../../middleware/auth';
 import type { PermissionAction } from '../permissions/permission.model';
 import type { PexelsSearchFilters } from '../../utils/pexels';
@@ -52,6 +55,10 @@ const FIRST_PAGE = 1;
 
 export const techResolvers = {
   Query: {
+    backgroundJobs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      await platformGuard(ctx, 'VIEW');
+      return describeBackgroundJobs();
+    },
     listEmailConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       await platformGuard(ctx, 'VIEW');
       return withIds(await techService.listEmailConfigs());
@@ -112,6 +119,22 @@ export const techResolvers = {
     },
   },
   Mutation: {
+    /**
+     * EDIT rather than VIEW: it is a write, even though what it writes is whatever the loop
+     * would have written on its own schedule.
+     */
+    runBackgroundJob: async (_p: unknown, { key }: { key: string }, ctx: GraphQLContext) => {
+      await platformGuard(ctx, 'EDIT');
+      const job = findBackgroundJob(key);
+      if (!job) {
+        return false;
+      }
+      logger.info(`Background job ${key} run on request`);
+      // The same per-company fan-out the timer uses, so a job written for one company cannot
+      // accidentally run platform-wide because somebody pressed a button.
+      await forEachOrganization(job.runOnce, `${job.label} (on request)`);
+      return true;
+    },
     createEmailConfig: async (
       _p: unknown,
       { input }: { input: EmailConfigInput },

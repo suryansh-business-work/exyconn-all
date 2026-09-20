@@ -848,6 +848,18 @@ export type AuthPayload = {
   user?: Maybe<User>;
 };
 
+/** One background loop the server runs, and what its last pass reported. */
+export type BackgroundJob = {
+  __typename?: 'BackgroundJob';
+  /** What it does, for somebody deciding whether to run it now. */
+  description: Scalars['String']['output'];
+  key: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+  /** Null until it has run once in this process — a restart forgets, deliberately. */
+  lastRunAt?: Maybe<Scalars['DateTime']['output']>;
+  lastRunSummary: Scalars['String']['output'];
+};
+
 export type Benefit = {
   __typename?: 'Benefit';
   coverage: Scalars['String']['output'];
@@ -4832,6 +4844,14 @@ export type Mutation = {
   /** Queues the job for the AI worker and answers at once. Poll the job for the result. */
   runAiJob: AiJob;
   /**
+   * TECH: takes one pass of a loop now, across every company.
+   *
+   * Safe to press twice: every loop is idempotent by construction, because two processes may
+   * tick at the same moment anyway. This is the same pass the timer takes, not a second
+   * implementation of it.
+   */
+  runBackgroundJob: Scalars['Boolean']['output'];
+  /**
    * Generates (or recomputes) every active employee's slip for the month from their
    * salary structure and approved unpaid leave. Idempotent: running it twice
    * recomputes GENERATED slips and never touches PAID ones.
@@ -6628,6 +6648,11 @@ export type MutationRevokeTrackerDeviceArgs = {
 
 export type MutationRunAiJobArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationRunBackgroundJobArgs = {
+  key: Scalars['String']['input'];
 };
 
 
@@ -8983,6 +9008,8 @@ export type Query = {
   attendanceByEmployee: Array<Attendance>;
   /** Who an audience currently reaches: named members plus its segment, de-duplicated. */
   audienceMembers: Array<AudienceMember>;
+  /** TECH: every background loop, with what its last pass did. */
+  backgroundJobs: Array<BackgroundJob>;
   branding: Branding;
   /**
    * Budget against actual per cost centre between two dates, both bounds inclusive of the
@@ -13869,6 +13896,7 @@ export type ResolversTypes = ResolversObject<{
   AuditLogPage: ResolverTypeWrapper<AuditLogPage>;
   AuditStatus: AuditStatus;
   AuthPayload: ResolverTypeWrapper<AuthPayload>;
+  BackgroundJob: ResolverTypeWrapper<BackgroundJob>;
   Benefit: ResolverTypeWrapper<Benefit>;
   BenefitInput: BenefitInput;
   BenefitKind: BenefitKind;
@@ -14563,6 +14591,7 @@ export type ResolversParentTypes = ResolversObject<{
   AuditLog: AuditLog;
   AuditLogPage: AuditLogPage;
   AuthPayload: AuthPayload;
+  BackgroundJob: BackgroundJob;
   Benefit: Benefit;
   BenefitInput: BenefitInput;
   BenefitPage: BenefitPage;
@@ -15528,6 +15557,15 @@ export type AuthPayloadResolvers<ContextType = GraphQLContext, ParentType extend
   mfaRequired?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type BackgroundJobResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['BackgroundJob'] = ResolversParentTypes['BackgroundJob']> = ResolversObject<{
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lastRunAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  lastRunSummary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -17805,6 +17843,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   revokeTrackerAccess?: Resolver<ResolversTypes['TrackerAccess'], ParentType, ContextType, RequireFields<MutationRevokeTrackerAccessArgs, 'userId'>>;
   revokeTrackerDevice?: Resolver<ResolversTypes['TrackerDevice'], ParentType, ContextType, RequireFields<MutationRevokeTrackerDeviceArgs, 'deviceId'>>;
   runAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<MutationRunAiJobArgs, 'id'>>;
+  runBackgroundJob?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRunBackgroundJobArgs, 'key'>>;
   runPayroll?: Resolver<ResolversTypes['PayrollRunResult'], ParentType, ContextType, RequireFields<MutationRunPayrollArgs, 'month' | 'year'>>;
   runPrompt?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<MutationRunPromptArgs, 'id' | 'model'>>;
   runRecurringInvoiceNow?: Resolver<ResolversTypes['RecurringInvoice'], ParentType, ContextType, RequireFields<MutationRunRecurringInvoiceNowArgs, 'id'>>;
@@ -18654,6 +18693,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   assetAssignments?: Resolver<Array<ResolversTypes['AssetAssignment']>, ParentType, ContextType, RequireFields<QueryAssetAssignmentsArgs, 'assetId'>>;
   attendanceByEmployee?: Resolver<Array<ResolversTypes['Attendance']>, ParentType, ContextType, RequireFields<QueryAttendanceByEmployeeArgs, 'employeeId'>>;
   audienceMembers?: Resolver<Array<ResolversTypes['AudienceMember']>, ParentType, ContextType, RequireFields<QueryAudienceMembersArgs, 'id'>>;
+  backgroundJobs?: Resolver<Array<ResolversTypes['BackgroundJob']>, ParentType, ContextType>;
   branding?: Resolver<ResolversTypes['Branding'], ParentType, ContextType>;
   budgetVsActual?: Resolver<Array<ResolversTypes['BudgetVariance']>, ParentType, ContextType, RequireFields<QueryBudgetVsActualArgs, 'from' | 'to'>>;
   campaignLeadCounts?: Resolver<Array<ResolversTypes['CampaignLeadCount']>, ParentType, ContextType>;
@@ -20664,6 +20704,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   AuditLog?: AuditLogResolvers<ContextType>;
   AuditLogPage?: AuditLogPageResolvers<ContextType>;
   AuthPayload?: AuthPayloadResolvers<ContextType>;
+  BackgroundJob?: BackgroundJobResolvers<ContextType>;
   Benefit?: BenefitResolvers<ContextType>;
   BenefitPage?: BenefitPageResolvers<ContextType>;
   BlogAuthor?: BlogAuthorResolvers<ContextType>;

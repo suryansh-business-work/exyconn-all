@@ -3,6 +3,7 @@ import { sendReminders } from './reminders.notify';
 import { forEachOrganization } from '../organizations';
 import { logger } from '../../utils/logger';
 import { JOB_KEYS, recordJobRun } from '../../utils/jobHeartbeat';
+import { registerBackgroundJob } from '../tech/jobs.registry';
 
 /**
  * How often the sweep asks. Hourly rather than daily: a daily loop in a process that
@@ -55,3 +56,10 @@ export function startReminderSweep(): void {
   globalThis.setInterval(tick, TICK_MS).unref();
   logger.info('Reminder sweep started');
 }
+
+registerBackgroundJob({
+  key: JOB_KEYS.reminders,
+  label: 'Reminder sweep',
+  description: 'Asks every module what has come due and tells whoever owns it.',
+  runOnce: () => sweepReminders(),
+});

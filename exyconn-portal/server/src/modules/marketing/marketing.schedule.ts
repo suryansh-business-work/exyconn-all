@@ -4,6 +4,7 @@ import { runCampaignSend, type CampaignDoc } from './marketing.send';
 import { portalOrigin } from '../../utils/portalOrigin';
 import { logger } from '../../utils/logger';
 import { JOB_KEYS, recordJobRun } from '../../utils/jobHeartbeat';
+import { registerBackgroundJob } from '../tech/jobs.registry';
 
 /** How often the process asks whether a scheduled campaign is due. */
 const TICK_MS = 60_000;
@@ -101,3 +102,10 @@ export function startCampaignSchedule(): void {
   globalThis.setInterval(tick, TICK_MS).unref();
   logger.info('Campaign schedule started');
 }
+
+registerBackgroundJob({
+  key: JOB_KEYS.campaignSchedule,
+  label: 'Scheduled campaigns',
+  description: 'Sends every campaign whose scheduled moment has arrived.',
+  runOnce: () => dispatchScheduledCampaigns(),
+});

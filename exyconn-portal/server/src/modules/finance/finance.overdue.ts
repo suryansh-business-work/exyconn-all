@@ -3,6 +3,7 @@ import { chaseOverdueInvoices } from './finance.dunning';
 import { forEachOrganization } from '../organizations';
 import { logger } from '../../utils/logger';
 import { JOB_KEYS, recordJobRun } from '../../utils/jobHeartbeat';
+import { registerBackgroundJob } from '../tech/jobs.registry';
 
 /** How often the process asks which invoices have gone late. */
 const TICK_MS = 60 * 60_000;
@@ -119,3 +120,10 @@ export function startOverdueSweep(): void {
   globalThis.setInterval(tick, TICK_MS).unref();
   logger.info('Overdue invoice sweep started');
 }
+
+registerBackgroundJob({
+  key: JOB_KEYS.overdueInvoices,
+  label: 'Overdue invoices and chasing',
+  description: 'Marks what has gone late, clears what has not, and sends the due chases.',
+  runOnce: () => sweepOverdueInvoices(),
+});

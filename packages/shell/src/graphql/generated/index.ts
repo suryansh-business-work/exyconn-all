@@ -849,6 +849,18 @@ export type AuthPayload = {
   user?: Maybe<User>;
 };
 
+/** One background loop the server runs, and what its last pass reported. */
+export type BackgroundJob = {
+  __typename?: 'BackgroundJob';
+  /** What it does, for somebody deciding whether to run it now. */
+  description: Scalars['String']['output'];
+  key: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+  /** Null until it has run once in this process — a restart forgets, deliberately. */
+  lastRunAt?: Maybe<Scalars['DateTime']['output']>;
+  lastRunSummary: Scalars['String']['output'];
+};
+
 export type Benefit = {
   __typename?: 'Benefit';
   coverage: Scalars['String']['output'];
@@ -4833,6 +4845,14 @@ export type Mutation = {
   /** Queues the job for the AI worker and answers at once. Poll the job for the result. */
   runAiJob: AiJob;
   /**
+   * TECH: takes one pass of a loop now, across every company.
+   *
+   * Safe to press twice: every loop is idempotent by construction, because two processes may
+   * tick at the same moment anyway. This is the same pass the timer takes, not a second
+   * implementation of it.
+   */
+  runBackgroundJob: Scalars['Boolean']['output'];
+  /**
    * Generates (or recomputes) every active employee's slip for the month from their
    * salary structure and approved unpaid leave. Idempotent: running it twice
    * recomputes GENERATED slips and never touches PAID ones.
@@ -6629,6 +6649,11 @@ export type MutationRevokeTrackerDeviceArgs = {
 
 export type MutationRunAiJobArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationRunBackgroundJobArgs = {
+  key: Scalars['String']['input'];
 };
 
 
@@ -8984,6 +9009,8 @@ export type Query = {
   attendanceByEmployee: Array<Attendance>;
   /** Who an audience currently reaches: named members plus its segment, de-duplicated. */
   audienceMembers: Array<AudienceMember>;
+  /** TECH: every background loop, with what its last pass did. */
+  backgroundJobs: Array<BackgroundJob>;
   branding: Branding;
   /**
    * Budget against actual per cost centre between two dates, both bounds inclusive of the
@@ -19129,6 +19156,18 @@ export type TestOpenAiConnectionMutationVariables = Exact<{
 
 
 export type TestOpenAiConnectionMutation = { __typename?: 'Mutation', testOpenAiConnection: boolean };
+
+export type BackgroundJobsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type BackgroundJobsQuery = { __typename?: 'Query', backgroundJobs: Array<{ __typename?: 'BackgroundJob', key: string, label: string, description: string, lastRunAt?: string | null, lastRunSummary: string }> };
+
+export type RunBackgroundJobMutationVariables = Exact<{
+  key: Scalars['String']['input'];
+}>;
+
+
+export type RunBackgroundJobMutation = { __typename?: 'Mutation', runBackgroundJob: boolean };
 
 export type TrackerAccessFieldsFragment = { __typename?: 'TrackerAccess', id: string, userId: string, grantedBy: string, grantedAt: string, revokedAt?: string | null, isActive: boolean, consentedAt?: string | null, timezone: string };
 
@@ -52063,6 +52102,81 @@ export function useTestOpenAiConnectionMutation(baseOptions?: ApolloReactHooks.M
         return ApolloReactHooks.useMutation<TestOpenAiConnectionMutation, TestOpenAiConnectionMutationVariables>(TestOpenAiConnectionDocument, options);
       }
 export type TestOpenAiConnectionMutationHookResult = ReturnType<typeof useTestOpenAiConnectionMutation>;
+export const BackgroundJobsDocument = gql`
+    query BackgroundJobs {
+  backgroundJobs {
+    key
+    label
+    description
+    lastRunAt
+    lastRunSummary
+  }
+}
+    `;
+
+/**
+ * __useBackgroundJobsQuery__
+ *
+ * To run a query within a React component, call `useBackgroundJobsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useBackgroundJobsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useBackgroundJobsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useBackgroundJobsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<BackgroundJobsQuery, BackgroundJobsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<BackgroundJobsQuery, BackgroundJobsQueryVariables>(BackgroundJobsDocument, options);
+      }
+export function useBackgroundJobsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<BackgroundJobsQuery, BackgroundJobsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<BackgroundJobsQuery, BackgroundJobsQueryVariables>(BackgroundJobsDocument, options);
+        }
+// @ts-ignore
+export function useBackgroundJobsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<BackgroundJobsQuery, BackgroundJobsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<BackgroundJobsQuery, BackgroundJobsQueryVariables>;
+// @ts-ignore
+export function useBackgroundJobsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<BackgroundJobsQuery, BackgroundJobsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<BackgroundJobsQuery | undefined, BackgroundJobsQueryVariables>;
+export function useBackgroundJobsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<BackgroundJobsQuery, BackgroundJobsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<BackgroundJobsQuery, BackgroundJobsQueryVariables>(BackgroundJobsDocument, options);
+        }
+export type BackgroundJobsQueryHookResult = ReturnType<typeof useBackgroundJobsQuery>;
+export type BackgroundJobsLazyQueryHookResult = ReturnType<typeof useBackgroundJobsLazyQuery>;
+export type BackgroundJobsSuspenseQueryHookResult = ReturnType<typeof useBackgroundJobsSuspenseQuery>;
+export const RunBackgroundJobDocument = gql`
+    mutation RunBackgroundJob($key: String!) {
+  runBackgroundJob(key: $key)
+}
+    `;
+
+/**
+ * __useRunBackgroundJobMutation__
+ *
+ * To run a mutation, you first call `useRunBackgroundJobMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRunBackgroundJobMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [runBackgroundJobMutation, { data, loading, error }] = useRunBackgroundJobMutation({
+ *   variables: {
+ *      key: // value for 'key'
+ *   },
+ * });
+ */
+export function useRunBackgroundJobMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RunBackgroundJobMutation, RunBackgroundJobMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RunBackgroundJobMutation, RunBackgroundJobMutationVariables>(RunBackgroundJobDocument, options);
+      }
+export type RunBackgroundJobMutationHookResult = ReturnType<typeof useRunBackgroundJobMutation>;
 export const TrackerAccessListDocument = gql`
     query TrackerAccessList {
   trackerAccessList {

@@ -14,6 +14,7 @@ import {
   type InboundMessage,
 } from '../../utils/inboundMail';
 import { JOB_KEYS, recordJobRun } from '../../utils/jobHeartbeat';
+import { registerBackgroundJob } from '../tech/jobs.registry';
 import { logger } from '../../utils/logger';
 
 /** What became of one arrived message. */
@@ -207,7 +208,7 @@ async function handleMessage(message: InboundMessage): Promise<void> {
 }
 
 /** Reads the mailbox once and reports how long to wait before reading it again. */
-async function pollOnce(): Promise<number> {
+export async function pollOnce(): Promise<number> {
   const config = await InboundMailConfigModel.findOne({ isActive: true }).lean();
   if (!config) {
     recordJobRun(JOB_KEYS.inboundMail, 'No mailbox configured');
@@ -250,3 +251,10 @@ export function startInboundMail(): void {
   scheduleNext(0);
   logger.info('Inbound support mail poller started');
 }
+
+registerBackgroundJob({
+  key: JOB_KEYS.inboundMail,
+  label: 'Inbound support mail',
+  description: 'Reads the support mailbox and turns each message into a ticket or a reply.',
+  runOnce: () => pollOnce(),
+});

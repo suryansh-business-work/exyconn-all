@@ -11,6 +11,7 @@ import {
 import { logger } from '../../utils/logger';
 import { safeFetch } from '../../utils/safeFetch';
 import { JOB_KEYS, recordJobRun } from '../../utils/jobHeartbeat';
+import { registerBackgroundJob } from '../tech/jobs.registry';
 
 /** How often the process asks whether a delivery is due. */
 const TICK_MS = 60_000;
@@ -181,3 +182,10 @@ export function startWebhookDelivery(): void {
   globalThis.setInterval(tick, TICK_MS).unref();
   logger.info('Webhook delivery started');
 }
+
+registerBackgroundJob({
+  key: JOB_KEYS.webhookDelivery,
+  label: 'Webhook delivery',
+  description: 'Posts queued events to subscribed endpoints, retrying what failed.',
+  runOnce: () => deliverDueWebhooks(),
+});
