@@ -13,8 +13,75 @@ import { IT_CATEGORY, type TicketScope } from './desk';
 const ESCALATED_PRIORITY = 'HIGH';
 
 /** Where the assignee opens the ticket: IT's helpdesk for an IT ticket, the console otherwise. */
-const ticketLink = (id: string, category: string) =>
+export const ticketLink = (id: string, category: string) =>
   category === IT_CATEGORY ? `/it/helpdesk/${id}` : `/support/tickets/${id}`;
+
+/**
+ * Whoever an escalation is attributed to on the thread: a signed-in agent, or the SLA
+ * sweep when the deadline escalated it with nobody watching.
+ */
+export interface EscalationActor {
+  /** Empty for the sweep — no account did it. */
+  id: string;
+  name: string;
+}
+
+/** The fields an escalation reads off the ticket it is about to raise. */
+interface EscalatableTicket {
+  _id: unknown;
+  subject: string;
+  category: string;
+  createdAt: Date;
+  assigneeId?: string | null;
+  escalationLevel?: number | null;
+}
+
+/**
+ * The escalation itself, with no opinion about who asked for it.
+ *
+ * Split out from the mutation so the SLA sweep escalates a breached ticket by exactly the
+ * same steps an agent does — same priority, same recomputed deadline, same internal note on
+ * the thread, same notification to whoever holds it. A second implementation for the
+ * automatic path would be a second set of rules to keep in step, and the thread is the
+ * record people read months later: it has to say the same thing whichever raised it.
+ */
+export async function applyEscalation(
+  ticket: EscalatableTicket,
+  why: string,
+  actor: EscalationActor,
+) {
+  const id = String(ticket._id);
+  const level = (ticket.escalationLevel ?? 0) + 1;
+  const updated = await SupportTicketModel.findByIdAndUpdate(
+    id,
+    {
+      priority: ESCALATED_PRIORITY,
+      dueAt: await dueAtForPriority(ESCALATED_PRIORITY, ticket.createdAt),
+      escalationLevel: level,
+      escalatedAt: new Date(),
+    },
+    { new: true },
+  ).lean();
+  if (!updated) {
+    notFound('SupportTicket');
+  }
+  await SupportReplyModel.create({
+    ticketId: id,
+    authorId: actor.id,
+    authorName: actor.name,
+    body: `Escalated to level ${level}: ${why}`,
+    internal: true,
+  });
+  if (ticket.assigneeId) {
+    await notifyBestEffort(ticket.assigneeId, {
+      kind: 'SUPPORT',
+      title: `Ticket escalated: ${ticket.subject}`,
+      body: why,
+      link: ticketLink(id, ticket.category),
+    });
+  }
+  return withId(updated);
+}
 
 /**
  * Escalates a ticket: it becomes HIGH priority with the deadline that priority promises, its
@@ -40,35 +107,5 @@ export async function escalateTicket(
   if (SUPPORT_CLOSED_STATUSES.has(ticket.status)) {
     badRequest('Reopen the ticket before escalating it.');
   }
-  const level = (ticket.escalationLevel ?? 0) + 1;
-  const updated = await SupportTicketModel.findByIdAndUpdate(
-    id,
-    {
-      priority: ESCALATED_PRIORITY,
-      dueAt: await dueAtForPriority(ESCALATED_PRIORITY, ticket.createdAt),
-      escalationLevel: level,
-      escalatedAt: new Date(),
-    },
-    { new: true },
-  ).lean();
-  if (!updated) {
-    notFound('SupportTicket');
-  }
-  const authorName = await actorNameOf(ctx);
-  await SupportReplyModel.create({
-    ticketId: id,
-    authorId: ctx.user?.id ?? '',
-    authorName,
-    body: `Escalated to level ${level}: ${why}`,
-    internal: true,
-  });
-  if (ticket.assigneeId) {
-    await notifyBestEffort(ticket.assigneeId, {
-      kind: 'SUPPORT',
-      title: `Ticket escalated: ${ticket.subject}`,
-      body: why,
-      link: ticketLink(id, ticket.category),
-    });
-  }
-  return withId(updated);
+  return applyEscalation(ticket, why, { id: ctx.user?.id ?? '', name: await actorNameOf(ctx) });
 }

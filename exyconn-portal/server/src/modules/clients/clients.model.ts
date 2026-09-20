@@ -6,7 +6,12 @@ const clientSchema = new Schema(
   {
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, lowercase: true, trim: true },
-    phone: { type: String, required: true, trim: true },
+    /**
+     * Not required: a client filed automatically when a deal is won carries whatever the
+     * account had, and an account with no number on file is still somebody to invoice. The
+     * clients form asks for one; the model must not refuse a win over it.
+     */
+    phone: { type: String, default: '', trim: true },
     company: { type: String, required: true, trim: true },
     status: { type: String, enum: CLIENT_STATUSES, required: true, default: 'PROSPECT' },
     // GST — what a tax invoice to this client prints about them.

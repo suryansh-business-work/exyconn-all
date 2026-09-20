@@ -50,6 +50,19 @@ export async function emitWebhook(event: string, payload: unknown): Promise<numb
 }
 
 /**
+ * Queues an event and never lets that failure reach the thing that emitted it.
+ *
+ * Every emit site is a business action that has already happened — an invoice was raised, a
+ * deal was won — so a queueing failure must be logged and swallowed rather than undoing it.
+ * One helper rather than a `.catch` at each call site, so no site can forget to write one.
+ */
+export function emitWebhookBestEffort(event: string, payload: unknown): void {
+  emitWebhook(event, payload).catch((error: unknown) =>
+    logger.error(error, `Queueing ${event} failed`),
+  );
+}
+
+/**
  * Claims one due delivery by pushing its next attempt out.
  *
  * A compare-and-set on `nextAttemptAt`, the same shape the recurring-invoice claim uses: the

@@ -32,6 +32,21 @@ export const healthTypeDefs = gql`
     value: Int!
   }
 
+  "The nightly database backup, as the host's own status file reports it."
+  type HealthBackup {
+    "False when no backup has ever been installed on this host."
+    configured: Boolean!
+    "Whether the last run succeeded."
+    ok: Boolean!
+    "Null until a backup has run once."
+    lastRunAt: DateTime
+    archive: String!
+    sizeMb: Float!
+    "How many days of archives are kept before they are pruned."
+    retainDays: Int!
+    message: String!
+  }
+
   type SystemHealth {
     "The server package's own version, read from its package.json."
     serverVersion: String!
@@ -40,6 +55,7 @@ export const healthTypeDefs = gql`
     mongo: HealthMongo!
     jobs: [HealthJob!]!
     counts: [HealthCount!]!
+    backup: HealthBackup!
   }
 
   extend type Query {

@@ -8,7 +8,7 @@ import {
   generateTempPassword,
   needsRehash,
 } from '../../utils/password';
-import { signToken } from '../../utils/jwt';
+import { signToken, signMfaChallenge, verifyMfaChallenge } from '../../utils/jwt';
 import { unauthenticated, badRequest, notFound } from '../../utils/errors';
 import { imageUploader } from '../../utils/imagekit';
 import { ROLES, type Role } from '../../constants/roles';
@@ -26,6 +26,8 @@ import {
   signInAddress,
 } from '../../lib/rateLimiterSignIn';
 import { assertWorkspaceOpen } from './workspace-status';
+import { startSession, revokeAllSessions } from './session.service';
+import { mfaIsOn, verifySecondFactor } from './mfa.service';
 import { profileDetailsUpdate, type ProfileDetailsInput } from './profile-details';
 
 export interface UpdateProfileInput extends ProfileDetailsInput {
@@ -53,6 +55,10 @@ type SignedInUser = HydratedDocument<UserDocument>;
  */
 export async function bumpTokenVersion(userId: string): Promise<void> {
   await runAsPlatform(() => UserModel.updateOne({ _id: userId }, { $inc: { tokenVersion: 1 } }));
+  // The session rows go with them. Left behind they would sit in the person's own list as
+  // live sign-ins that no longer work, which reads as "somebody else is still in my
+  // account" — and it is folded in here so no caller of this can forget to do it.
+  await revokeAllSessions(userId);
 }
 
 /** Replaces a legacy (bcrypt) or outdated hash with today's, now the plaintext is known good. */
@@ -107,26 +113,106 @@ export async function verifyCredentials(
   return user;
 }
 
+/** Where a sign-in came from, recorded on the session it creates. */
+export interface SignInFrom {
+  ip: string;
+  userAgent: string;
+}
+
+/**
+ * What a sign-in that did not arrive over HTTP records — a test, or an internal caller. The
+ * session row still exists, and reads as "unknown device" in the list, which is honest.
+ */
+const NOWHERE: SignInFrom = { ip: 'unknown', userAgent: '' };
+
+/**
+ * What a sign-in attempt produces: either a session, or a demand for a second factor.
+ *
+ * Both outcomes come back from one mutation rather than two, because the client cannot know
+ * in advance which it will get — and it must not be able to find out by asking, since that
+ * would tell a stranger which accounts have two-factor switched on.
+ */
+export interface LoginResult {
+  token: string;
+  user: Record<string, unknown> | null;
+  mfaRequired: boolean;
+  mfaChallenge: string;
+}
+
 /** Authentication logic (singleton). */
 class AuthService {
   /**
    * Signs a person in to the portal (see verifyCredentials). A company that has been suspended
    * cannot be signed into at all. `ip` is the caller's address, which failed guesses count against.
+   *
+   * With two-factor on, the password alone buys only a five-minute challenge: no session row
+   * is created, no token is issued and nothing about the account comes back.
    */
-  async login(email: string, password: string, ip = 'unknown') {
-    const user = await verifyCredentials(email, password, ip);
+  async login(email: string, password: string, from: SignInFrom = NOWHERE): Promise<LoginResult> {
+    const user = await verifyCredentials(email, password, from.ip);
 
     const organizationId = organizationOf(user);
     await assertWorkspaceOpen(organizationId);
 
+    if (await mfaIsOn(user.id)) {
+      return {
+        token: '',
+        user: null,
+        mfaRequired: true,
+        mfaChallenge: signMfaChallenge(user.id),
+      };
+    }
+    return this.issueSession(user, from);
+  }
+
+  /**
+   * Turns an identity that has been fully proved into a session — the last step of both the
+   * one-factor and the two-factor path, so a session is recorded the same way whichever
+   * door it came through.
+   */
+  async issueSession(user: SignedInUser, from: SignInFrom = NOWHERE): Promise<LoginResult> {
+    const organizationId = organizationOf(user);
+    const sessionId = await startSession({
+      userId: user.id,
+      userAgent: from.userAgent,
+      ip: from.ip,
+    });
     const token = signToken({
       id: user.id,
       email: user.email,
       roles: user.roles as Role[],
       organizationId,
       tv: user.tokenVersion ?? 0,
+      sid: sessionId,
     });
-    return { token, user: user.toObject() };
+    return { token, user: user.toObject(), mfaRequired: false, mfaChallenge: '' };
+  }
+
+  /**
+   * The second half of a two-factor sign-in.
+   *
+   * The challenge says who; the code says it is still them. A wrong code counts against the
+   * same per-address and per-IP limits a wrong password does, so the six digits cannot be
+   * worked through at leisure.
+   */
+  async completeMfaSignIn(challenge: string, code: string, from: SignInFrom = NOWHERE) {
+    const userId = verifyMfaChallenge(challenge);
+    if (!userId) {
+      unauthenticated('That sign-in has expired. Enter your password again.');
+    }
+    const user = await runAsPlatform(() => UserModel.findById(userId));
+    if (!user?.isActive || user.isBlocked) {
+      unauthenticated(INVALID_CREDENTIALS);
+    }
+    const address = signInAddress(user.email);
+    await assertSignInAllowed(address, from.ip);
+    if (!(await verifySecondFactor(user.id, code))) {
+      await recordSignInFailure(address, from.ip);
+      unauthenticated('That code is not right.');
+    }
+    await recordSignInSuccess(address);
+    await assertWorkspaceOpen(organizationOf(user));
+    return this.issueSession(user, from);
   }
 
   async me(id: string) {

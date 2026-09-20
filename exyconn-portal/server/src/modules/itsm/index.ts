@@ -14,6 +14,8 @@ import { itReport } from './reports';
 import { itOffboarding, itOnboarding, itProvisionOnboarding, itRevokeAllAccess } from './lifecycle';
 import { itScopedListResolvers } from './scoped-lists';
 import { itDisableLeaverAccount } from './offboarding-account';
+// Imported for its side effect: the module registers the dates it wants chased.
+import './itsm.reminders';
 
 /**
  * IT service management: the registers IT keeps (network, cloud, vulnerabilities), its

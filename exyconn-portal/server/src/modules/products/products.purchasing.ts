@@ -12,6 +12,7 @@ import { nextSequence } from '../../lib/sequence';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { ROLES } from '../../constants/roles';
+import { emitWebhookBestEffort } from '../integrations';
 import { assertPermission } from '../../lib/permissions';
 import { badRequest, notFound } from '../../utils/errors';
 import { withId } from '../../utils/serialize';
@@ -200,6 +201,7 @@ const receivePurchaseOrder = async (_p: unknown, args: never, ctx: GraphQLContex
   }
 
   const now = new Date();
+  const statusBefore = order.status;
   order.status = statusFromReceipts(
     order.lines as unknown as PurchaseLineShape[],
     order.status,
@@ -207,6 +209,20 @@ const receivePurchaseOrder = async (_p: unknown, args: never, ctx: GraphQLContex
   order.firstReceivedAt = order.firstReceivedAt ?? now;
   order.receivedAt = order.status === 'RECEIVED' ? now : null;
   await order.save();
+
+  // On the transition only: an order received in three deliveries has arrived once, and an
+  // integration that files the supplier's bill must not file it per delivery.
+  if (order.status === 'RECEIVED' && statusBefore !== 'RECEIVED') {
+    emitWebhookBestEffort('purchase_order.received', {
+      purchaseOrderId: String(order._id),
+      number: order.number,
+      supplierId: order.supplierId,
+      supplierName: order.supplierName,
+      total: orderTotal(order.lines as unknown as PurchaseLineShape[]),
+      currency: order.currency,
+      receivedAt: now.toISOString(),
+    });
+  }
 
   return withId(order.toObject());
 };

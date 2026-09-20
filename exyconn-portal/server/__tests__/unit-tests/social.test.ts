@@ -377,8 +377,10 @@ describe('social notifications', () => {
 
   it('never fails the reaction when the notification cannot be written', async () => {
     const created = await post(ravi, 'Ship day');
+    // `insertMany` rather than `create`: delivery now reads the recipient's channel
+    // preferences and writes the batch, so that is the call a broken store breaks.
     const insert = jest
-      .spyOn(NotificationModel, 'create')
+      .spyOn(NotificationModel, 'insertMany')
       .mockRejectedValueOnce(new Error('notification store is down') as never);
 
     const liked: Post = await M.toggleSocialPostLike(null, { id: created.id }, ctx(asha));

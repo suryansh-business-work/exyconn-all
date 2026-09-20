@@ -1,35 +1,46 @@
-import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
-import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import {
   ModuleOverview,
   type OverviewBreakdown,
 } from '@exyconn/shell/components/dashboard/ModuleOverview';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
-import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import {
+  ProjectRisk,
   useListBugsStatsQuery,
-  useListProjectsQuery,
   useListProjectsStatsQuery,
+  useProjectHealthOverviewQuery,
 } from '@exyconn/shell/graphql/generated';
 import { color } from '@exyconn/shell/components/ui';
-
-/** How many projects the overview lists before sending you to the register. */
-const RECENT_PROJECTS = 8;
+import { PortfolioTable, type PortfolioRow } from './portfolio';
 
 /** A bug in either of these is still someone's problem; the other two are done with. */
 const OPEN_BUG_STATUSES = ['OPEN', 'IN_PROGRESS'];
 
-/** Projects → Overview: what is being delivered, and what is blocking it. */
+/**
+ * Projects → Overview: what is being delivered, and what is going wrong with it.
+ *
+ * The counts along the top say how much work exists. The panel underneath says which of it
+ * is in trouble and why — which is the question somebody actually opens this page with, and
+ * the one four stat cards have never been able to answer.
+ */
 export function ProjectsOverviewPage() {
   const { data: projectStatsData } = useListProjectsStatsQuery();
   const { data: bugStatsData } = useListBugsStatsQuery();
-  const { data: projectsData, loading, refetch } = useListProjectsQuery();
-  const { formatDate } = useSettings();
+  const {
+    data: healthData,
+    loading,
+    refetch,
+  } = useProjectHealthOverviewQuery({ fetchPolicy: 'cache-and-network' });
 
   const projectStats = projectStatsData?.listProjectsStats;
   const bugStats = bugStatsData?.listBugsStats;
-  const projects = projectsData?.listProjects ?? [];
+
+  // The table keys rows on `id`; the health query calls the same value `projectId`.
+  const portfolio: PortfolioRow[] = (healthData?.projectHealthOverview ?? []).map((row) => ({
+    ...row,
+    id: row.projectId,
+  }));
+  const atRisk = portfolio.filter((row) => row.risk === ProjectRisk.High).length;
 
   const openBugs = OPEN_BUG_STATUSES.reduce(
     (sum, status) => sum + statCount(bugStats, 'status', status),
@@ -43,12 +54,10 @@ export function ProjectsOverviewPage() {
       value: String(statCount(projectStats, 'status', 'ACTIVE')),
       accent: color.green[500],
     },
+    // Counted from the same ratings the panel below explains, so the card and the list can
+    // never disagree about how many projects are in trouble.
+    { label: 'At risk', value: String(atRisk), accent: color.red[200] },
     { label: 'Open bugs', value: String(openBugs), accent: color.amber[500] },
-    {
-      label: 'Critical bugs',
-      value: String(statCount(bugStats, 'severity', 'CRITICAL')),
-      accent: color.red[200],
-    },
   ];
 
   const breakdowns: OverviewBreakdown[] = [
@@ -64,14 +73,6 @@ export function ProjectsOverviewPage() {
     },
   ];
 
-  const columns: Column<(typeof projects)[number]>[] = [
-    { key: 'name', label: 'Project' },
-    { key: 'key', label: 'Key' },
-    { key: 'clientName', label: 'Client' },
-    { key: 'status', label: 'Status', render: (r) => <StatusChip value={r.status} /> },
-    { key: 'endDate', label: 'Ends', render: (r) => formatDate(r.endDate) },
-  ];
-
   return (
     <ModuleOverview
       title="Projects"
@@ -82,15 +83,9 @@ export function ProjectsOverviewPage() {
         { label: 'Open project register', to: '/projects/list' },
         { label: 'Open bugs', to: '/bugs' },
       ]}
-      recentTitle="Newest projects"
+      recentTitle="Portfolio — the ones in trouble first"
     >
-      <DataTable
-        columns={columns}
-        rows={projects.slice(0, RECENT_PROJECTS)}
-        emptyMessage="No projects yet."
-        loading={loading}
-        onRefresh={refetch}
-      />
+      <PortfolioTable rows={portfolio} loading={loading} onRefresh={refetch} />
     </ModuleOverview>
   );
 }

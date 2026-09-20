@@ -72,6 +72,7 @@ export function ProjectsPage() {
       title="Projects"
       subtitle="Project management"
       entityLabel="project"
+      exportFileName="projects"
       stats={statItems}
       crud={crud}
       renderForm={(initial) => (

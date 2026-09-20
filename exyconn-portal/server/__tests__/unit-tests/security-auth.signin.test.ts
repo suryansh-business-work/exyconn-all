@@ -13,7 +13,9 @@ const EMAIL = 'target@exyconn.com';
 /** Tries a wrong password `times` times from one IP, swallowing the expected refusals. */
 async function guess(email: string, ip: string, times: number) {
   for (let attempt = 0; attempt < times; attempt += 1) {
-    await authService.login(email, `wrong-guess-${attempt}`, ip).catch(() => undefined);
+    await authService
+      .login(email, `wrong-guess-${attempt}`, { ip: ip, userAgent: '' })
+      .catch(() => undefined);
   }
 }
 
@@ -25,11 +27,13 @@ describe('brute force on sign-in', () => {
   it('locks an address after ten wrong passwords, from any IP, with TOO_MANY_REQUESTS', async () => {
     for (let attempt = 0; attempt < 10; attempt += 1) {
       await authService
-        .login(EMAIL, `wrong-guess-${attempt}`, `198.51.100.${attempt}`)
+        .login(EMAIL, `wrong-guess-${attempt}`, { ip: `198.51.100.${attempt}`, userAgent: '' })
         .catch(() => undefined);
     }
 
-    await expect(authService.login(EMAIL, PASSWORD, '192.0.2.50')).rejects.toMatchObject({
+    await expect(
+      authService.login(EMAIL, PASSWORD, { ip: '192.0.2.50', userAgent: '' }),
+    ).rejects.toMatchObject({
       message: expect.stringMatching(/Too many sign-in attempts\. Try again in 15 minute/),
       extensions: expect.objectContaining({ code: 'TOO_MANY_REQUESTS' }),
     });
@@ -37,14 +41,14 @@ describe('brute force on sign-in', () => {
 
   it('forgives an address its typos once the right password arrives', async () => {
     await guess(EMAIL, '198.51.100.1', 9);
-    await expect(authService.login(EMAIL, PASSWORD, '198.51.100.1')).resolves.toHaveProperty(
-      'token',
-    );
+    await expect(
+      authService.login(EMAIL, PASSWORD, { ip: '198.51.100.1', userAgent: '' }),
+    ).resolves.toHaveProperty('token');
 
     await guess(EMAIL, '198.51.100.2', 9);
-    await expect(authService.login(EMAIL, PASSWORD, '198.51.100.2')).resolves.toHaveProperty(
-      'token',
-    );
+    await expect(
+      authService.login(EMAIL, PASSWORD, { ip: '198.51.100.2', userAgent: '' }),
+    ).resolves.toHaveProperty('token');
   });
 
   it('locks an IP spraying guesses across many addresses', async () => {
@@ -52,33 +56,37 @@ describe('brute force on sign-in', () => {
       await guess(`nobody${attempt}@exyconn.com`, '203.0.113.66', 1);
     }
 
-    await expect(authService.login(EMAIL, PASSWORD, '203.0.113.66')).rejects.toMatchObject({
+    await expect(
+      authService.login(EMAIL, PASSWORD, { ip: '203.0.113.66', userAgent: '' }),
+    ).rejects.toMatchObject({
       extensions: expect.objectContaining({ code: 'TOO_MANY_REQUESTS' }),
     });
-    await expect(authService.login(EMAIL, PASSWORD, '203.0.113.67')).resolves.toHaveProperty(
-      'token',
-    );
+    await expect(
+      authService.login(EMAIL, PASSWORD, { ip: '203.0.113.67', userAgent: '' }),
+    ).resolves.toHaveProperty('token');
   });
 
   it('says nothing about a blocked or deactivated account to somebody without its password', async () => {
     await runAsPlatform(() => UserModel.updateOne({ email: EMAIL }, { isBlocked: true }));
-    await expect(authService.login(EMAIL, 'wrong-guess', '198.51.100.9')).rejects.toThrow(
-      'Invalid email or password',
-    );
-    await expect(authService.login(EMAIL, PASSWORD, '198.51.100.9')).rejects.toThrow(/blocked/);
+    await expect(
+      authService.login(EMAIL, 'wrong-guess', { ip: '198.51.100.9', userAgent: '' }),
+    ).rejects.toThrow('Invalid email or password');
+    await expect(
+      authService.login(EMAIL, PASSWORD, { ip: '198.51.100.9', userAgent: '' }),
+    ).rejects.toThrow(/blocked/);
 
     await runAsPlatform(() =>
       UserModel.updateOne({ email: EMAIL }, { isBlocked: false, isActive: false }),
     );
-    await expect(authService.login(EMAIL, PASSWORD, '198.51.100.9')).rejects.toThrow(
-      'Invalid email or password',
-    );
+    await expect(
+      authService.login(EMAIL, PASSWORD, { ip: '198.51.100.9', userAgent: '' }),
+    ).rejects.toThrow('Invalid email or password');
   });
 
   it('answers an unknown address exactly like a wrong password', async () => {
-    await expect(authService.login('ghost@exyconn.com', PASSWORD, '198.51.100.8')).rejects.toThrow(
-      'Invalid email or password',
-    );
+    await expect(
+      authService.login('ghost@exyconn.com', PASSWORD, { ip: '198.51.100.8', userAgent: '' }),
+    ).rejects.toThrow('Invalid email or password');
   });
 });
 

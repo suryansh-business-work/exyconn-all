@@ -17,6 +17,12 @@ export const NOTIFICATION_KINDS = [
   // A ticket being escalated, and IT deciding or carrying out a request.
   'SUPPORT',
   'IT',
+  // What the reminder sweep chases: a date that has arrived in one of these modules.
+  'FINANCE',
+  'CRM',
+  'PROJECT',
+  'LEGAL',
+  'COMPLIANCE',
   'GENERAL',
 ] as const;
 

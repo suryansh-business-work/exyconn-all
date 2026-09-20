@@ -9,6 +9,7 @@ import { createCrudResolvers } from '../../lib/crudResolvers';
 import { assertRole } from '../../middleware/roleGuard';
 import { assertPermission } from '../../lib/permissions';
 import { ROLES } from '../../constants/roles';
+import { emitWebhookBestEffort } from '../integrations';
 import { withId } from '../../utils/serialize';
 import { notFound } from '../../utils/errors';
 import type { GraphQLContext } from '../../middleware/auth';
@@ -123,6 +124,37 @@ const activities = createCrudResolvers(activitiesService, {
   stats: { countBy: ['type', 'relatedType'] },
 });
 
+/** What an integration is told when a deal is won. */
+interface WonDeal {
+  id: string;
+  title: string;
+  companyName: string;
+  contactName: string;
+  value: number;
+  owner: string;
+  clientId?: string | null;
+}
+
+/**
+ * Announces a win once, on the transition into WON.
+ *
+ * Guarded on the previous stage rather than the new one: a won deal that is saved again — a
+ * corrected value, a different owner — has not been won twice, and an integration that
+ * raises an invoice on this event must not raise a second.
+ */
+function announceWon(deal: WonDeal): void {
+  emitWebhookBestEffort('deal.won', {
+    dealId: deal.id,
+    title: deal.title,
+    companyName: deal.companyName,
+    contactName: deal.contactName,
+    value: deal.value,
+    owner: deal.owner,
+    clientId: deal.clientId ?? '',
+    wonAt: new Date().toISOString(),
+  });
+}
+
 /**
  * Moving a card on the pipeline board. A dedicated mutation rather than a full
  * update, so a drag sends the one field that changed and cannot silently
@@ -139,12 +171,17 @@ const setDealStage = async (
   if (!deal) {
     notFound('Deal');
   }
+  const won = stage === 'WON' && deal.stage !== 'WON';
   const clientId = stage === 'WON' ? await clientForDeal(deal) : (deal.clientId ?? '');
   const updated = await DealModel.findByIdAndUpdate(id, { stage, clientId }, { new: true }).lean();
   if (!updated) {
     notFound('Deal');
   }
-  return withId(updated);
+  const row = withId(updated);
+  if (won) {
+    announceWon(row);
+  }
+  return row;
 };
 
 /** The form's save, with the same client hand-off a drag onto Won gets. */
@@ -161,7 +198,11 @@ const updateDeal = async (p: unknown, args: never, ctx: GraphQLContext) => {
   }
   const clientId = await clientForDeal({ ...deal, ...input });
   const completed = { id, input: { ...input, clientId } } as unknown as never;
-  return deals.Mutation.updateDeal(p, completed, ctx);
+  const saved = (await deals.Mutation.updateDeal(p, completed, ctx)) as WonDeal;
+  if (deal.stage !== 'WON') {
+    announceWon(saved);
+  }
+  return saved;
 };
 
 /**

@@ -3,8 +3,14 @@ import { PageHeader } from '@/components/layout/PageHeader';
 
 import { ChangePasswordForm } from './forms/change-password';
 import { readingPanel } from '@/components/glass/glass';
+import { TwoFactorPanel } from './TwoFactorPanel';
+import { SessionsPanel } from './SessionsPanel';
+import { NotificationPreferencesPanel } from './NotificationPreferencesPanel';
 
-/** Account settings page — currently houses the change-password form. */
+/**
+ * Account settings: the password, the second factor, the devices signed in, and which
+ * notifications reach this person.
+ */
 export function SettingsPage() {
   return (
     <Box>
@@ -25,6 +31,30 @@ export function SettingsPage() {
             </Text>
             <ChangePasswordForm />
           </Box>
+        </Grid>
+        <Grid
+          size={{
+            xs: 12,
+            md: 6,
+          }}
+        >
+          <TwoFactorPanel />
+        </Grid>
+        <Grid
+          size={{
+            xs: 12,
+            md: 6,
+          }}
+        >
+          <SessionsPanel />
+        </Grid>
+        <Grid
+          size={{
+            xs: 12,
+            md: 6,
+          }}
+        >
+          <NotificationPreferencesPanel />
         </Grid>
       </Grid>
     </Box>

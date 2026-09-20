@@ -1,5 +1,5 @@
 import type { Model } from 'mongoose';
-import { InvoiceModel } from './finance.model';
+import { InvoiceModel, OWED_STATUSES } from './finance.model';
 import { PaymentModel } from './payment.model';
 import { CompanyExpenseModel, EXPENSE_CATEGORIES } from './company-expense.model';
 import { SalarySlipModel } from '../employee/salarySlip.model';
@@ -43,9 +43,6 @@ function humanise(value: string): string {
 
 /** Claims that have actually become a company cost. A rejected claim never was one. */
 const COUNTED_CLAIM_STATUSES = ['APPROVED', 'PAID'];
-
-/** Invoice statuses that mean money is still expected. */
-const OWED_STATUSES = ['SENT', 'PARTIALLY_PAID', 'OVERDUE'];
 
 export interface Period {
   from: Date;

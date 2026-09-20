@@ -24,6 +24,7 @@ import { useLoginMutation } from '@exyconn/shell/graphql/generated';
 import { useAuth, type AuthUser } from '@exyconn/shell/auth/AuthContext';
 import { safeNext } from '@exyconn/shell/utils/redirect';
 import { AdminRecovery } from './AdminRecovery';
+import { MfaChallengeForm } from '../mfa';
 import { ForgotPasswordDialog } from '../forgot-password';
 
 const schema = z.object({
@@ -47,6 +48,8 @@ export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
   const [error, setError] = useState<string | null>(null);
   const [show, setShow] = useState(false);
   const [forgotOpen, setForgotOpen] = useState(false);
+  /** Set when the password was right and an authenticator code is still owed. */
+  const [challenge, setChallenge] = useState('');
   const methods = useForm<Values>({
     resolver: zodResolver(schema),
     defaultValues: { email: '', password: '' },
@@ -56,8 +59,13 @@ export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
     setError(null);
     try {
       const { data } = await login({ variables: values });
-      if (data?.login) {
-        signIn(data.login.token, data.login.user as AuthUser);
+      const result = data?.login;
+      if (result?.mfaRequired) {
+        setChallenge(result.mfaChallenge);
+        return;
+      }
+      if (result?.token && result.user) {
+        signIn(result.token, result.user as AuthUser);
         // Return the user to the page they were trying to reach before the gate.
         navigate(safeNext(params.get('next')), { replace: true });
       }
@@ -65,6 +73,16 @@ export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
       setError(err instanceof Error ? err.message : t('Login failed'));
     }
   };
+
+  if (challenge) {
+    return (
+      <MfaChallengeForm
+        challenge={challenge}
+        accentColor={accentColor}
+        onStartOver={() => setChallenge('')}
+      />
+    );
+  }
 
   return (
     <FormProvider {...methods}>

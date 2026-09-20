@@ -63,7 +63,7 @@ describe('ensureAdminAccess', () => {
     await seedUser(ADMIN_EMAIL, 'knownpass123', [ROLES.EMPLOYEE]);
     await ensureAdminAccess();
     const { user } = await authService.login(ADMIN_EMAIL, 'knownpass123');
-    expect(user.roles).toContain(ROLES.ADMIN);
+    expect(user?.roles).toContain(ROLES.ADMIN);
   });
 
   describe('without SEED_ADMIN_PASSWORD', () => {
@@ -94,7 +94,7 @@ describe('sendAdminCredentials', () => {
     expect(message).not.toContain(ADMIN_EMAIL);
 
     const { user } = await authService.login(ADMIN_EMAIL, payload.password);
-    expect(user.roles).toContain(ROLES.ADMIN);
+    expect(user?.roles).toContain(ROLES.ADMIN);
   });
 
   it('refuses to touch anything once an administrator exists', async () => {

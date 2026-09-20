@@ -16,11 +16,12 @@ import { ensureTaxSlabs, startPayrollDispatch } from './modules/payroll';
 import { ensureOnboardingDefaults } from './modules/onboarding';
 import { startTrackerDigest, startTrackerRetention } from './modules/tracker';
 import { startCampaignSchedule } from './modules/marketing';
+import { startOverdueSweep, startRecurringInvoiceSchedule } from './modules/finance';
 import { startSocialSchedule } from './modules/social-accounts';
-import { startRecurringInvoiceSchedule } from './modules/finance';
 import { startWebhookDelivery } from './modules/integrations';
 import { ensureAiModelPrices, startAiWorker } from './modules/ai';
 import { backfillAppLogGroupUsers } from './modules/logs';
+import { startReminderSweep } from './modules/reminders';
 import { env } from './config/env';
 import { logger } from './utils/logger';
 
@@ -80,6 +81,10 @@ async function bootstrap(): Promise<void> {
   startCampaignSchedule();
   startSocialSchedule();
   startRecurringInvoiceSchedule();
+  // Before the reminder sweep below, which tells finance about whatever this has just
+  // declared overdue: started in this order, an invoice that fell due overnight is marked,
+  // chased and notified on the same boot rather than an hour apart.
+  startOverdueSweep();
   startWebhookDelivery();
   // Mail sent to the support address has to become a ticket even when nobody is watching
   // the mailbox, so the importer runs on the same terms as the schedulers above.
@@ -90,6 +95,10 @@ async function bootstrap(): Promise<void> {
   // AI jobs are queued rather than run inside the request that asked for them, so
   // something has to drain the queue whether or not anyone has the AI module open.
   startAiWorker();
+  // Due dates are the one thing in the portal nobody is watching: a contract expires, a
+  // corrective action falls overdue, a follow-up is missed, and the record simply sits
+  // there. The sweep asks every module what has come due and tells the people who own it.
+  startReminderSweep();
   const app = await createApp();
   app.listen(env.port, () => {
     logger.info(`GraphQL server ready at http://localhost:${env.port}/graphql`);

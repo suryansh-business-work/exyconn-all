@@ -11,7 +11,6 @@ import {
 } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
-import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import { gstStateCodeField } from '@exyconn/shell/utils/gstFields';
 import { useGstStateOptions } from '@exyconn/shell/hooks/useGstStateOptions';
 import {
@@ -21,6 +20,7 @@ import {
   useUpdateInvoiceMutation,
 } from '@exyconn/shell/graphql/generated';
 import { InvoiceLinesFields } from './invoice-lines.fields';
+import { invoiceStatusOptions } from './invoice.types';
 import type { InvoiceRow } from './invoice.types';
 
 const lineSchema = z.object({
@@ -114,7 +114,12 @@ export function InvoiceForm({ initial, onDone, onCancel }: Readonly<InvoiceFormP
       />
       <RhfCurrencyField />
       <InvoiceLinesFields currency={currency} />
-      <RhfSelect name="status" label="Status" options={enumOptions(Object.values(InvoiceStatus))} />
+      <RhfSelect
+        name="status"
+        label="Status"
+        options={invoiceStatusOptions(initial?.status ?? null)}
+        helperText="Paid, part paid and overdue are set by the payments and the due date, not here."
+      />
       <RhfDatePicker name="issuedDate" label="Issued date" />
       <RhfDatePicker name="dueDate" label="Due date" />
     </EntityForm>

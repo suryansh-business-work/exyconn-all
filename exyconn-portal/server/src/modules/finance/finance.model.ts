@@ -66,6 +66,23 @@ const invoiceSchema = new Schema(
 /** The stored workflow state of an invoice. */
 export type InvoiceStatus = (typeof INVOICE_STATUSES)[number];
 
+/**
+ * The statuses that mean money is still expected: a draft is not owed, a paid one is
+ * settled, and everything in between is outstanding however late it has become.
+ *
+ * Declared here beside the statuses themselves because four separate places ask the same
+ * question — the ageing report, the company summary, the overdue sweep and the chase. Each
+ * used to carry its own copy of the list, which is how a new status ends up counted as
+ * receivable by one screen and quietly ignored by the next.
+ */
+export const OWED_STATUSES: InvoiceStatus[] = ['SENT', 'PARTIALLY_PAID', 'OVERDUE'];
+
+/**
+ * The owed statuses that have not been declared late yet — the ones the overdue sweep reads
+ * and may rewrite. OVERDUE is deliberately absent: it is the sweep's own output.
+ */
+export const NOT_YET_LATE_STATUSES: InvoiceStatus[] = ['SENT', 'PARTIALLY_PAID'];
+
 export type InvoiceDocument = InferSchemaType<typeof invoiceSchema>;
 export const InvoiceModel: Model<InvoiceDocument> = model<InvoiceDocument>(
   'Invoice',

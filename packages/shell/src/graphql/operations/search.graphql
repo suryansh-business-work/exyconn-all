@@ -1,0 +1,13 @@
+# The command palette: everything the caller's roles can open, matching what they typed.
+query Search($query: String!) {
+  search(query: $query) {
+    key
+    label
+    hits {
+      id
+      title
+      subtitle
+      link
+    }
+  }
+}

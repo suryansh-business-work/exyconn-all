@@ -36,8 +36,9 @@ export function PermissionTable({
   onReset,
 }: Readonly<PermissionTableProps>) {
   const t = useT();
+  // Focusable: the container scrolls, and a scrollable region must be reachable by keyboard.
   return (
-    <TableContainer sx={{ maxHeight: '65vh' }}>
+    <TableContainer sx={{ maxHeight: '65vh' }} tabIndex={0}>
       {/* Sized to its content rather than the panel: a row stays one easy sweep of the eye. */}
       <Table
         stickyHeader

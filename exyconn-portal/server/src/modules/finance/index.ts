@@ -5,6 +5,9 @@ import { invoicePdf, sendInvoice } from './invoice.send';
 import { createInvoiceFromDeal } from './invoice.from-deal';
 import { createInvoiceFromTimeLog } from './invoice.from-timelog';
 import { GST_STATES } from './gst.constants';
+// Importing for the side effect: the module that owns invoices registers what it wants
+// chased, so the reminder sweep never has to know finance exists.
+import './finance.reminders';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { ROLES } from '../../constants/roles';
@@ -12,6 +15,7 @@ import { assertAuthenticated } from '../../middleware/roleGuard';
 import { assertPermission } from '../../lib/permissions';
 import { badRequest } from '../../utils/errors';
 import { clientNameFor } from '../clients';
+import { emitWebhookBestEffort } from '../integrations';
 import { getBranding } from '../branding/branding.service';
 import type { GraphQLContext } from '../../middleware/auth';
 
@@ -89,12 +93,39 @@ const gstStates = (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
 /** The stored fields the GST split is computed from. */
 type GstRow = Parameters<typeof gstBreakdown>[0];
 
+/** The fields an integration is told about when an invoice is raised. */
+interface InvoiceRow {
+  id: string;
+  number: string;
+  clientId: string;
+  clientName: string;
+  amount: number;
+  currency: string;
+  status: string;
+  dueDate: Date;
+}
+
+function invoicePayload(invoice: InvoiceRow) {
+  return {
+    invoiceId: invoice.id,
+    number: invoice.number,
+    clientId: invoice.clientId,
+    clientName: invoice.clientName,
+    amount: invoice.amount,
+    currency: invoice.currency,
+    status: invoice.status,
+    dueDate: invoice.dueDate.toISOString(),
+  };
+}
+
 const createInvoice = async (p: unknown, args: never, ctx: GraphQLContext) => {
   const { input } = args as unknown as { input: InvoiceInput };
   // Guarded before the client and branding are read on the caller's behalf.
   await assertPermission(ctx, 'Invoice', financeRoles, 'CREATE');
   const completed = { input: await completeInput(input) } as unknown as never;
-  return crud.Mutation.createInvoice(p, completed, ctx);
+  const invoice = (await crud.Mutation.createInvoice(p, completed, ctx)) as InvoiceRow;
+  emitWebhookBestEffort('invoice.created', invoicePayload(invoice));
+  return invoice;
 };
 
 const updateInvoice = async (p: unknown, args: never, ctx: GraphQLContext) => {
@@ -142,6 +173,12 @@ export { financeCompanyResolvers, companyExpensesService } from './finance.compa
 export { financeBudgetTypeDefs } from './finance.budgets.typeDefs';
 export { financeBudgetResolvers, costCentersService, budgetsService } from './finance.budgets';
 export { financeRecurringTypeDefs } from './finance.recurring.typeDefs';
+export {
+  markOverdueInvoices,
+  sweepOverdueInvoices,
+  startOverdueSweep,
+} from './finance.overdue';
+export { chaseOverdueInvoices, dunningStage, DUNNING_STAGE_DAYS } from './finance.dunning';
 export {
   recurringInvoiceResolvers,
   recurringInvoiceService,

@@ -4,6 +4,9 @@ import { withCampaignName, type LeadAttribution } from './crm.attribution';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { ROLES } from '../../constants/roles';
+import { emitWebhookBestEffort } from '../integrations';
+// Imported for its side effect: the module registers what it wants chased.
+import './crm.reminders';
 import type { GraphQLContext } from '../../middleware/auth';
 
 interface LeadInput {
@@ -35,7 +38,19 @@ const leads = createCrudResolvers(crmService, {
 const createLead = async (p: unknown, args: never, ctx: GraphQLContext) => {
   const { input } = args as unknown as { input: LeadInput };
   const completed = { input: await withCampaignName(input) } as unknown as never;
-  return leads.Mutation.createLead(p, completed, ctx);
+  const lead = (await leads.Mutation.createLead(p, completed, ctx)) as LeadInput & { id: string };
+  emitWebhookBestEffort('lead.created', {
+    leadId: lead.id,
+    name: lead.name,
+    email: lead.email,
+    source: lead.source,
+    stage: lead.stage,
+    value: lead.value,
+    owner: lead.owner,
+    campaignId: lead.campaignId ?? '',
+    campaignName: lead.campaignName ?? '',
+  });
+  return lead;
 };
 
 const updateLead = async (p: unknown, args: never, ctx: GraphQLContext) => {

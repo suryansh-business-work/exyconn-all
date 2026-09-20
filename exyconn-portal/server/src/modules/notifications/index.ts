@@ -4,6 +4,7 @@ import { createMyRecordsResolver } from '../../lib/employeeScope';
 import { assertAuthenticated, assertRole } from '../../middleware/roleGuard';
 import { ROLES } from '../../constants/roles';
 import { broadcast, type BroadcastInput } from './notifications.service';
+import { readPreferences, setPreference } from './preferences.service';
 import type { GraphQLContext } from '../../middleware/auth';
 
 export const notificationsResolvers = {
@@ -12,6 +13,10 @@ export const notificationsResolvers = {
     myUnreadNotificationCount: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       const user = assertAuthenticated(ctx);
       return NotificationModel.countDocuments({ employeeId: user.id, read: false });
+    },
+    myNotificationPreferences: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      const user = assertAuthenticated(ctx);
+      return readPreferences(user.id);
     },
   },
   Mutation: {
@@ -31,6 +36,17 @@ export const notificationsResolvers = {
       assertRole(ctx, [ROLES.HR]);
       return { recipients: await broadcast(input) };
     },
+    setMyNotificationPreference: async (
+      _p: unknown,
+      { input }: { input: { kind: string; inPortal: boolean; email: boolean } },
+      ctx: GraphQLContext,
+    ) => {
+      const user = assertAuthenticated(ctx);
+      return setPreference(user.id, input.kind, {
+        inPortal: input.inPortal,
+        email: input.email,
+      });
+    },
     markAllNotificationsRead: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       const user = assertAuthenticated(ctx);
       const res = await NotificationModel.updateMany(
@@ -43,3 +59,6 @@ export const notificationsResolvers = {
 };
 export { notificationsTypeDefs, NotificationModel };
 export { notify, notifyBestEffort, notifyEveryone } from './notifications.service';
+export { deliver } from './delivery';
+export { readPreferences, setPreference, channelsFor } from './preferences.service';
+export { NotificationPreferenceModel } from './preference.model';

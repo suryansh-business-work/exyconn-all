@@ -8,6 +8,7 @@ import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { useSystemHealthQuery, type SystemHealthQuery } from '@exyconn/shell/graphql/generated';
 import { HealthFactsCard, type HealthFact } from './HealthFactsCard';
 import { HealthJobsCard } from './HealthJobsCard';
+import { HealthBackupCard } from './HealthBackupCard';
 import { formatUptime } from './uptime';
 
 type Health = SystemHealthQuery['systemHealth'];
@@ -90,6 +91,14 @@ export function SystemHealthPage() {
                 value: String(count.value),
               }))}
             />
+          </Grid>
+          <Grid
+            size={{
+              xs: 12,
+              md: 4,
+            }}
+          >
+            <HealthBackupCard backup={health.backup} formatDateTime={formatDateTime} />
           </Grid>
         </Grid>
       )}

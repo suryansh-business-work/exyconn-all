@@ -22,5 +22,14 @@ query SystemHealth {
       label
       value
     }
+    backup {
+      configured
+      ok
+      lastRunAt
+      archive
+      sizeMb
+      retainDays
+      message
+    }
   }
 }

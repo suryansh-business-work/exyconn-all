@@ -812,8 +812,14 @@ export enum AuditStatus {
 
 export type AuthPayload = {
   __typename?: 'AuthPayload';
+  /** The five-minute token to send back with the code. Empty unless mfaRequired. */
+  mfaChallenge: Scalars['String']['output'];
+  /** True when the password was right and an authenticator code is still needed. */
+  mfaRequired: Scalars['Boolean']['output'];
+  /** Empty when a second factor is still owed: no session exists until the code is given. */
   token: Scalars['String']['output'];
-  user: User;
+  /** Null until the sign-in is complete, so a password alone reveals nothing about the account. */
+  user?: Maybe<User>;
 };
 
 export type Benefit = {
@@ -2685,6 +2691,22 @@ export type HeadcountPoint = {
   label: Scalars['String']['output'];
 };
 
+/** The nightly database backup, as the host's own status file reports it. */
+export type HealthBackup = {
+  __typename?: 'HealthBackup';
+  archive: Scalars['String']['output'];
+  /** False when no backup has ever been installed on this host. */
+  configured: Scalars['Boolean']['output'];
+  /** Null until a backup has run once. */
+  lastRunAt?: Maybe<Scalars['DateTime']['output']>;
+  message: Scalars['String']['output'];
+  /** Whether the last run succeeded. */
+  ok: Scalars['Boolean']['output'];
+  /** How many days of archives are kept before they are pruned. */
+  retainDays: Scalars['Int']['output'];
+  sizeMb: Scalars['Float']['output'];
+};
+
 /** A headline number the console shows next to the runtime figures. */
 export type HealthCount = {
   __typename?: 'HealthCount';
@@ -4190,6 +4212,23 @@ export type MarketingSuppressionPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** What an authenticator app needs to start producing codes. */
+export type MfaEnrolment = {
+  __typename?: 'MfaEnrolment';
+  /** The shared secret, for somebody typing it in by hand. */
+  secret: Scalars['String']['output'];
+  /** The otpauth:// URI the QR code encodes. */
+  uri: Scalars['String']['output'];
+};
+
+/** Whether this account asks for an authenticator code, and how much recovery is left. */
+export type MfaStatus = {
+  __typename?: 'MfaStatus';
+  enabled: Scalars['Boolean']['output'];
+  enrolledAt?: Maybe<Scalars['DateTime']['output']>;
+  recoveryCodesLeft: Scalars['Int']['output'];
+};
+
 /** A dated commitment on a project — a launch, a review, a hand-over. */
 export type Milestone = {
   __typename?: 'Milestone';
@@ -4276,6 +4315,11 @@ export type Mutation = {
   completeSprint: Sprint;
   /** One post per account: published now, scheduled, or kept as a draft. MARKETING. */
   composeSocialMediaPost: Array<SocialMediaPost>;
+  /**
+   * Switches two-factor on, once a code proves the secret reached the app. Returns the
+   * recovery codes, which are shown once and stored hashed.
+   */
+  confirmMfaEnrolment: Array<Scalars['String']['output']>;
   /** Public: turns a confirm link into a live subscription. The link works exactly once. */
   confirmStatusSubscription: Scalars['Boolean']['output'];
   /** Turns a lead into a company, a contact and a deal at the top of the pipeline. Once only. */
@@ -4534,6 +4578,8 @@ export type Mutation = {
   deleteUser: Scalars['Boolean']['output'];
   deleteWebhook: Scalars['Boolean']['output'];
   deleteWebsiteSubmission: Scalars['Boolean']['output'];
+  /** Switches two-factor off. Needs the password: a borrowed screen must not be enough. */
+  disableMfa: Scalars['Boolean']['output'];
   disconnectSocialAccount: Scalars['Boolean']['output'];
   /**
    * SUPPORT/IT: escalate a ticket. Raises it to HIGH priority (recomputing the deadline), bumps
@@ -4618,7 +4664,11 @@ export type Mutation = {
    */
   reviewTrackerManualEntry: TrackerManualEntry;
   revokeApiKey: ApiKey;
+  /** Ends every session except this one, for somebody who thinks their password has been seen. */
+  revokeOtherSessions: Scalars['Int']['output'];
   revokeProjectShare: ProjectShare;
+  /** Ends one of this account's other sessions. The current one cannot be ended this way. */
+  revokeSession: Scalars['Boolean']['output'];
   revokeTrackerAccess: TrackerAccess;
   revokeTrackerDevice: TrackerDevice;
   /** Queues the job for the AI worker and answers at once. Poll the job for the result. */
@@ -4698,6 +4748,8 @@ export type Mutation = {
   setExpenseClaimStatus: ExpenseClaim;
   /** HR/ADMIN or the employee's manager: approve or reject a leave request. */
   setLeaveStatus: LeaveRequest;
+  /** Sets where one kind reaches this person. Returns the whole set, so a screen stays in step. */
+  setMyNotificationPreference: Array<NotificationPreference>;
   /**
    * Records what the caller says they are doing — at lunch, on a break, in a meeting.
    *
@@ -4740,6 +4792,8 @@ export type Mutation = {
   socialMediaIdeas: Scalars['String']['output'];
   /** AI: what worked, what did not, and what to try, from the last days' posts. */
   socialMediaInsights: Scalars['String']['output'];
+  /** Mints a secret and returns what an authenticator app needs. Nothing is switched on yet. */
+  startMfaEnrolment: MfaEnrolment;
   /**
    * Starts one joiner's onboarding from a template. HR only, and refused while the employee
    * already has a checklist that is not finished — two open checklists is two answers to
@@ -4947,6 +5001,8 @@ export type Mutation = {
   updateUser: User;
   uploadAvatar: Scalars['String']['output'];
   uploadImage: Scalars['String']['output'];
+  /** The second step of a two-factor sign-in: the challenge from login, plus the code. */
+  verifyMfa: AuthPayload;
   /** Withdraws one of the caller's OWN entries, and only while it is still pending. */
   withdrawTrackerManualEntry: Scalars['Boolean']['output'];
 };
@@ -5058,6 +5114,11 @@ export type MutationCompleteSprintArgs = {
 
 export type MutationComposeSocialMediaPostArgs = {
   input: SocialMediaPostInput;
+};
+
+
+export type MutationConfirmMfaEnrolmentArgs = {
+  code: Scalars['String']['input'];
 };
 
 
@@ -6174,6 +6235,11 @@ export type MutationDeleteWebsiteSubmissionArgs = {
 };
 
 
+export type MutationDisableMfaArgs = {
+  password: Scalars['String']['input'];
+};
+
+
 export type MutationDisconnectSocialAccountArgs = {
   id: Scalars['ID']['input'];
 };
@@ -6356,6 +6422,11 @@ export type MutationRevokeProjectShareArgs = {
 };
 
 
+export type MutationRevokeSessionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationRevokeTrackerAccessArgs = {
   userId: Scalars['ID']['input'];
 };
@@ -6524,6 +6595,11 @@ export type MutationSetExpenseClaimStatusArgs = {
 export type MutationSetLeaveStatusArgs = {
   id: Scalars['ID']['input'];
   status: LeaveStatus;
+};
+
+
+export type MutationSetMyNotificationPreferenceArgs = {
+  input: NotificationPreferenceInput;
 };
 
 
@@ -7413,6 +7489,12 @@ export type MutationUploadImageArgs = {
 };
 
 
+export type MutationVerifyMfaArgs = {
+  challenge: Scalars['String']['input'];
+  code: Scalars['String']['input'];
+};
+
+
 export type MutationWithdrawTrackerManualEntryArgs = {
   id: Scalars['ID']['input'];
 };
@@ -7494,13 +7576,18 @@ export enum NotificationAudience {
 
 export enum NotificationKind {
   Announcement = 'ANNOUNCEMENT',
+  Compliance = 'COMPLIANCE',
+  Crm = 'CRM',
+  Finance = 'FINANCE',
   General = 'GENERAL',
   Goal = 'GOAL',
   It = 'IT',
   Leave = 'LEAVE',
+  Legal = 'LEGAL',
   Onboarding = 'ONBOARDING',
   Payroll = 'PAYROLL',
   Performance = 'PERFORMANCE',
+  Project = 'PROJECT',
   Request = 'REQUEST',
   SocialComment = 'SOCIAL_COMMENT',
   SocialLike = 'SOCIAL_LIKE',
@@ -7508,6 +7595,22 @@ export enum NotificationKind {
   Support = 'SUPPORT',
   Training = 'TRAINING'
 }
+
+/** One kind of notification, and where this person wants it. */
+export type NotificationPreference = {
+  __typename?: 'NotificationPreference';
+  /** Also sent as an email. Off unless somebody asked for it. */
+  email: Scalars['Boolean']['output'];
+  /** Shown in the bell and the notification centre. */
+  inPortal: Scalars['Boolean']['output'];
+  kind: NotificationKind;
+};
+
+export type NotificationPreferenceInput = {
+  email: Scalars['Boolean']['input'];
+  inPortal: Scalars['Boolean']['input'];
+  kind: NotificationKind;
+};
 
 /**
  * An objective the company set itself and measures (clause 6.2 of every one of the standards).
@@ -9189,6 +9292,10 @@ export type Query = {
   myLeaveRequests: Array<LeaveRequest>;
   /** The signed-in user's manager, if one is set. */
   myManager?: Maybe<EmployeeOption>;
+  /** Whether two-factor authentication is on for this account. */
+  myMfaStatus: MfaStatus;
+  /** Every kind, with this person's choice or the default where they have made none. */
+  myNotificationPreferences: Array<NotificationPreference>;
   myNotifications: Array<Notification>;
   /** Self-service: the signed-in employee's own checklist. Null when they have none. */
   myOnboarding?: Maybe<OnboardingChecklist>;
@@ -9207,6 +9314,8 @@ export type Query = {
   myRequests: Array<EmployeeRequest>;
   /** Self-service: the signed-in employee's monthly payslips. */
   mySalarySlips: Array<SalarySlip>;
+  /** Every browser and device this account is signed in on, newest first. */
+  mySessions: Array<UserSession>;
   /** The conversation on one of the employee's own tickets, internal notes excluded. */
   mySupportReplies: Array<SupportReply>;
   /** The signed-in employee's own support tickets. */
@@ -9299,6 +9408,11 @@ export type Query = {
    * download anyone's.
    */
   salarySlipPdf: SalarySlipDownload;
+  /**
+   * Searches every module the caller's roles can open. Returns only groups that matched, and
+   * at most a handful from each — this answers "take me to that record", not "report on it".
+   */
+  search: Array<SearchGroup>;
   /**
    * Any signed-in user: published articles matching a phrase, best match first.
    *
@@ -10615,6 +10729,11 @@ export type QuerySalarySlipPdfArgs = {
 };
 
 
+export type QuerySearchArgs = {
+  query: Scalars['String']['input'];
+};
+
+
 export type QuerySearchKnowledgeBaseArgs = {
   query: Scalars['String']['input'];
 };
@@ -11114,6 +11233,24 @@ export type SalaryStructurePage = {
   __typename?: 'SalaryStructurePage';
   rows: Array<SalaryStructure>;
   totalCount: Scalars['Int']['output'];
+};
+
+/** One module's matches, grouped under the module's own name. */
+export type SearchGroup = {
+  __typename?: 'SearchGroup';
+  hits: Array<SearchHit>;
+  key: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+};
+
+/** One record the search box can jump to. */
+export type SearchHit = {
+  __typename?: 'SearchHit';
+  id: Scalars['ID']['output'];
+  /** Where it opens, including the portal path — e.g. /crm/deals or /hr/employees/123. */
+  link: Scalars['String']['output'];
+  subtitle: Scalars['String']['output'];
+  title: Scalars['String']['output'];
 };
 
 export type SendMailInput = {
@@ -11980,6 +12117,7 @@ export enum SuppressionReason {
 
 export type SystemHealth = {
   __typename?: 'SystemHealth';
+  backup: HealthBackup;
   counts: Array<HealthCount>;
   jobs: Array<HealthJob>;
   mongo: HealthMongo;
@@ -13234,6 +13372,19 @@ export type UserPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** One browser or device this account is signed in on. */
+export type UserSession = {
+  __typename?: 'UserSession';
+  createdAt: Scalars['DateTime']['output'];
+  /** True for the session making this request, which the list must never offer to end. */
+  current: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  ip: Scalars['String']['output'];
+  lastSeenAt: Scalars['DateTime']['output'];
+  /** What the browser called itself — enough to recognise the device, not to fingerprint it. */
+  userAgent: Scalars['String']['output'];
+};
+
 /** Public profiles a person shares — each an http(s) address, null when not given. */
 export type UserSocialLinks = {
   __typename?: 'UserSocialLinks';
@@ -13659,6 +13810,7 @@ export type ResolversTypes = ResolversObject<{
   GradePage: ResolverTypeWrapper<GradePage>;
   GstState: ResolverTypeWrapper<GstState>;
   HeadcountPoint: ResolverTypeWrapper<HeadcountPoint>;
+  HealthBackup: ResolverTypeWrapper<HealthBackup>;
   HealthCount: ResolverTypeWrapper<HealthCount>;
   HealthJob: ResolverTypeWrapper<HealthJob>;
   HealthMongo: ResolverTypeWrapper<HealthMongo>;
@@ -13796,6 +13948,8 @@ export type ResolversTypes = ResolversObject<{
   MarketingSuppression: ResolverTypeWrapper<MarketingSuppression>;
   MarketingSuppressionInput: MarketingSuppressionInput;
   MarketingSuppressionPage: ResolverTypeWrapper<MarketingSuppressionPage>;
+  MfaEnrolment: ResolverTypeWrapper<MfaEnrolment>;
+  MfaStatus: ResolverTypeWrapper<MfaStatus>;
   Milestone: ResolverTypeWrapper<Milestone>;
   MilestoneInput: MilestoneInput;
   MilestoneState: MilestoneState;
@@ -13810,6 +13964,8 @@ export type ResolversTypes = ResolversObject<{
   Notification: ResolverTypeWrapper<Notification>;
   NotificationAudience: NotificationAudience;
   NotificationKind: NotificationKind;
+  NotificationPreference: ResolverTypeWrapper<NotificationPreference>;
+  NotificationPreferenceInput: NotificationPreferenceInput;
   Objective: ResolverTypeWrapper<Objective>;
   ObjectiveFrequency: ObjectiveFrequency;
   ObjectiveInput: ObjectiveInput;
@@ -13930,6 +14086,8 @@ export type ResolversTypes = ResolversObject<{
   SalaryStructure: ResolverTypeWrapper<SalaryStructure>;
   SalaryStructureInput: SalaryStructureInput;
   SalaryStructurePage: ResolverTypeWrapper<SalaryStructurePage>;
+  SearchGroup: ResolverTypeWrapper<SearchGroup>;
+  SearchHit: ResolverTypeWrapper<SearchHit>;
   SendMailInput: SendMailInput;
   SendNotificationInput: SendNotificationInput;
   SendNotificationResult: ResolverTypeWrapper<SendNotificationResult>;
@@ -14105,6 +14263,7 @@ export type ResolversTypes = ResolversObject<{
   UserAnalytics: ResolverTypeWrapper<UserAnalytics>;
   UserCredentials: ResolverTypeWrapper<UserCredentials>;
   UserPage: ResolverTypeWrapper<UserPage>;
+  UserSession: ResolverTypeWrapper<UserSession>;
   UserSocialLinks: ResolverTypeWrapper<UserSocialLinks>;
   UserSocialLinksInput: UserSocialLinksInput;
   Webhook: ResolverTypeWrapper<Webhook>;
@@ -14309,6 +14468,7 @@ export type ResolversParentTypes = ResolversObject<{
   GradePage: GradePage;
   GstState: GstState;
   HeadcountPoint: HeadcountPoint;
+  HealthBackup: HealthBackup;
   HealthCount: HealthCount;
   HealthJob: HealthJob;
   HealthMongo: HealthMongo;
@@ -14416,6 +14576,8 @@ export type ResolversParentTypes = ResolversObject<{
   MarketingSuppression: MarketingSuppression;
   MarketingSuppressionInput: MarketingSuppressionInput;
   MarketingSuppressionPage: MarketingSuppressionPage;
+  MfaEnrolment: MfaEnrolment;
+  MfaStatus: MfaStatus;
   Milestone: Milestone;
   MilestoneInput: MilestoneInput;
   ModulePermission: ModulePermission;
@@ -14426,6 +14588,8 @@ export type ResolversParentTypes = ResolversObject<{
   NavLink: NavLink;
   NavLinkInput: NavLinkInput;
   Notification: Notification;
+  NotificationPreference: NotificationPreference;
+  NotificationPreferenceInput: NotificationPreferenceInput;
   Objective: Objective;
   ObjectiveInput: ObjectiveInput;
   ObjectivePage: ObjectivePage;
@@ -14517,6 +14681,8 @@ export type ResolversParentTypes = ResolversObject<{
   SalaryStructure: SalaryStructure;
   SalaryStructureInput: SalaryStructureInput;
   SalaryStructurePage: SalaryStructurePage;
+  SearchGroup: SearchGroup;
+  SearchHit: SearchHit;
   SendMailInput: SendMailInput;
   SendNotificationInput: SendNotificationInput;
   SendNotificationResult: SendNotificationResult;
@@ -14664,6 +14830,7 @@ export type ResolversParentTypes = ResolversObject<{
   UserAnalytics: UserAnalytics;
   UserCredentials: UserCredentials;
   UserPage: UserPage;
+  UserSession: UserSession;
   UserSocialLinks: UserSocialLinks;
   UserSocialLinksInput: UserSocialLinksInput;
   Webhook: Webhook;
@@ -15108,8 +15275,10 @@ export type AuditLogPageResolvers<ContextType = GraphQLContext, ParentType exten
 }>;
 
 export type AuthPayloadResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AuthPayload'] = ResolversParentTypes['AuthPayload']> = ResolversObject<{
+  mfaChallenge?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  mfaRequired?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -16162,6 +16331,17 @@ export type HeadcountPointResolvers<ContextType = GraphQLContext, ParentType ext
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type HealthBackupResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['HealthBackup'] = ResolversParentTypes['HealthBackup']> = ResolversObject<{
+  archive?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  configured?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  lastRunAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  retainDays?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  sizeMb?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type HealthCountResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['HealthCount'] = ResolversParentTypes['HealthCount']> = ResolversObject<{
   label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   value?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -16979,6 +17159,19 @@ export type MarketingSuppressionPageResolvers<ContextType = GraphQLContext, Pare
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type MfaEnrolmentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MfaEnrolment'] = ResolversParentTypes['MfaEnrolment']> = ResolversObject<{
+  secret?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  uri?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MfaStatusResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MfaStatus'] = ResolversParentTypes['MfaStatus']> = ResolversObject<{
+  enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  enrolledAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  recoveryCodesLeft?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type MilestoneResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Milestone'] = ResolversParentTypes['Milestone']> = ResolversObject<{
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -17022,6 +17215,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   commentOnTeamGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationCommentOnTeamGoalArgs, 'comment' | 'id'>>;
   completeSprint?: Resolver<ResolversTypes['Sprint'], ParentType, ContextType, RequireFields<MutationCompleteSprintArgs, 'id'>>;
   composeSocialMediaPost?: Resolver<Array<ResolversTypes['SocialMediaPost']>, ParentType, ContextType, RequireFields<MutationComposeSocialMediaPostArgs, 'input'>>;
+  confirmMfaEnrolment?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationConfirmMfaEnrolmentArgs, 'code'>>;
   confirmStatusSubscription?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationConfirmStatusSubscriptionArgs, 'token'>>;
   convertLead?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationConvertLeadArgs, 'id' | 'input'>>;
   convertWebsiteSubmissionToLead?: Resolver<ResolversTypes['Lead'], ParentType, ContextType, RequireFields<MutationConvertWebsiteSubmissionToLeadArgs, 'id'>>;
@@ -17239,6 +17433,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteUser?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteUserArgs, 'id'>>;
   deleteWebhook?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebhookArgs, 'id'>>;
   deleteWebsiteSubmission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebsiteSubmissionArgs, 'id'>>;
+  disableMfa?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisableMfaArgs, 'password'>>;
   disconnectSocialAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisconnectSocialAccountArgs, 'id'>>;
   escalateSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationEscalateSupportTicketArgs, 'id' | 'reason'>>;
   fulfilItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationFulfilItAccessRequestArgs, 'id'>>;
@@ -17272,7 +17467,9 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   resetUserPassword?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationResetUserPasswordArgs, 'id'>>;
   reviewTrackerManualEntry?: Resolver<ResolversTypes['TrackerManualEntry'], ParentType, ContextType, RequireFields<MutationReviewTrackerManualEntryArgs, 'id' | 'status'>>;
   revokeApiKey?: Resolver<ResolversTypes['ApiKey'], ParentType, ContextType, RequireFields<MutationRevokeApiKeyArgs, 'id'>>;
+  revokeOtherSessions?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   revokeProjectShare?: Resolver<ResolversTypes['ProjectShare'], ParentType, ContextType, RequireFields<MutationRevokeProjectShareArgs, 'id'>>;
+  revokeSession?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRevokeSessionArgs, 'id'>>;
   revokeTrackerAccess?: Resolver<ResolversTypes['TrackerAccess'], ParentType, ContextType, RequireFields<MutationRevokeTrackerAccessArgs, 'userId'>>;
   revokeTrackerDevice?: Resolver<ResolversTypes['TrackerDevice'], ParentType, ContextType, RequireFields<MutationRevokeTrackerDeviceArgs, 'deviceId'>>;
   runAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<MutationRunAiJobArgs, 'id'>>;
@@ -17303,6 +17500,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setDealStage?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationSetDealStageArgs, 'id' | 'stage'>>;
   setExpenseClaimStatus?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationSetExpenseClaimStatusArgs, 'id' | 'status'>>;
   setLeaveStatus?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationSetLeaveStatusArgs, 'id' | 'status'>>;
+  setMyNotificationPreference?: Resolver<Array<ResolversTypes['NotificationPreference']>, ParentType, ContextType, RequireFields<MutationSetMyNotificationPreferenceArgs, 'input'>>;
   setMyTrackerPresence?: Resolver<ResolversTypes['TrackerPresenceState'], ParentType, ContextType, RequireFields<MutationSetMyTrackerPresenceArgs, 'status'>>;
   setOnboardingItem?: Resolver<ResolversTypes['OnboardingChecklist'], ParentType, ContextType, RequireFields<MutationSetOnboardingItemArgs, 'checklistId' | 'done' | 'key'>>;
   setOrganizationStatus?: Resolver<ResolversTypes['Organization'], ParentType, ContextType, RequireFields<MutationSetOrganizationStatusArgs, 'id' | 'status'>>;
@@ -17319,6 +17517,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   signContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSignContractArgs, 'id' | 'signedBy'>>;
   socialMediaIdeas?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSocialMediaIdeasArgs, 'count' | 'topic'>>;
   socialMediaInsights?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSocialMediaInsightsArgs, 'days'>>;
+  startMfaEnrolment?: Resolver<ResolversTypes['MfaEnrolment'], ParentType, ContextType>;
   startOnboarding?: Resolver<ResolversTypes['OnboardingChecklist'], ParentType, ContextType, RequireFields<MutationStartOnboardingArgs, 'employeeId' | 'templateId'>>;
   startSocialConnect?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationStartSocialConnectArgs, 'app'>>;
   startSprint?: Resolver<ResolversTypes['Sprint'], ParentType, ContextType, RequireFields<MutationStartSprintArgs, 'id'>>;
@@ -17454,6 +17653,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'id' | 'input'>>;
   uploadAvatar?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationUploadAvatarArgs, 'file'>>;
   uploadImage?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationUploadImageArgs, 'file' | 'fileName'>>;
+  verifyMfa?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationVerifyMfaArgs, 'challenge' | 'code'>>;
   withdrawTrackerManualEntry?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationWithdrawTrackerManualEntryArgs, 'id'>>;
 }>;
 
@@ -17493,6 +17693,13 @@ export type NotificationResolvers<ContextType = GraphQLContext, ParentType exten
   link?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   read?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type NotificationPreferenceResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['NotificationPreference'] = ResolversParentTypes['NotificationPreference']> = ResolversObject<{
+  email?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  inPortal?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['NotificationKind'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -18521,6 +18728,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   myLeaveBalances?: Resolver<Array<ResolversTypes['LeaveBalance']>, ParentType, ContextType>;
   myLeaveRequests?: Resolver<Array<ResolversTypes['LeaveRequest']>, ParentType, ContextType>;
   myManager?: Resolver<Maybe<ResolversTypes['EmployeeOption']>, ParentType, ContextType>;
+  myMfaStatus?: Resolver<ResolversTypes['MfaStatus'], ParentType, ContextType>;
+  myNotificationPreferences?: Resolver<Array<ResolversTypes['NotificationPreference']>, ParentType, ContextType>;
   myNotifications?: Resolver<Array<ResolversTypes['Notification']>, ParentType, ContextType>;
   myOnboarding?: Resolver<Maybe<ResolversTypes['OnboardingChecklist']>, ParentType, ContextType>;
   myOrganization?: Resolver<Maybe<ResolversTypes['Organization']>, ParentType, ContextType>;
@@ -18532,6 +18741,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   myPolicy?: Resolver<Maybe<ResolversTypes['MyPolicy']>, ParentType, ContextType, RequireFields<QueryMyPolicyArgs, 'slug'>>;
   myRequests?: Resolver<Array<ResolversTypes['EmployeeRequest']>, ParentType, ContextType>;
   mySalarySlips?: Resolver<Array<ResolversTypes['SalarySlip']>, ParentType, ContextType>;
+  mySessions?: Resolver<Array<ResolversTypes['UserSession']>, ParentType, ContextType>;
   mySupportReplies?: Resolver<Array<ResolversTypes['SupportReply']>, ParentType, ContextType, RequireFields<QueryMySupportRepliesArgs, 'ticketId'>>;
   mySupportTickets?: Resolver<Array<ResolversTypes['SupportTicket']>, ParentType, ContextType>;
   myTrackerAccess?: Resolver<Maybe<ResolversTypes['TrackerAccess']>, ParentType, ContextType>;
@@ -18584,6 +18794,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   publicTools?: Resolver<Array<ResolversTypes['Tool']>, ParentType, ContextType, Partial<QueryPublicToolsArgs>>;
   receivables?: Resolver<ResolversTypes['Receivables'], ParentType, ContextType>;
   salarySlipPdf?: Resolver<ResolversTypes['SalarySlipDownload'], ParentType, ContextType, RequireFields<QuerySalarySlipPdfArgs, 'id'>>;
+  search?: Resolver<Array<ResolversTypes['SearchGroup']>, ParentType, ContextType, RequireFields<QuerySearchArgs, 'query'>>;
   searchKnowledgeBase?: Resolver<Array<ResolversTypes['KbArticle']>, ParentType, ContextType, RequireFields<QuerySearchKnowledgeBaseArgs, 'query'>>;
   searchPexelsPhotos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsPhotosArgs, 'query'>>;
   searchPexelsVideos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsVideosArgs, 'query'>>;
@@ -18784,6 +18995,21 @@ export type SalaryStructureResolvers<ContextType = GraphQLContext, ParentType ex
 export type SalaryStructurePageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SalaryStructurePage'] = ResolversParentTypes['SalaryStructurePage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['SalaryStructure']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SearchGroupResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SearchGroup'] = ResolversParentTypes['SearchGroup']> = ResolversObject<{
+  hits?: Resolver<Array<ResolversTypes['SearchHit']>, ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SearchHitResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SearchHit'] = ResolversParentTypes['SearchHit']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  link?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  subtitle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -19321,6 +19547,7 @@ export type SupportTicketPageResolvers<ContextType = GraphQLContext, ParentType 
 }>;
 
 export type SystemHealthResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SystemHealth'] = ResolversParentTypes['SystemHealth']> = ResolversObject<{
+  backup?: Resolver<ResolversTypes['HealthBackup'], ParentType, ContextType>;
   counts?: Resolver<Array<ResolversTypes['HealthCount']>, ParentType, ContextType>;
   jobs?: Resolver<Array<ResolversTypes['HealthJob']>, ParentType, ContextType>;
   mongo?: Resolver<ResolversTypes['HealthMongo'], ParentType, ContextType>;
@@ -19977,6 +20204,16 @@ export type UserPageResolvers<ContextType = GraphQLContext, ParentType extends R
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type UserSessionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['UserSession'] = ResolversParentTypes['UserSession']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  current?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  ip?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lastSeenAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  userAgent?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type UserSocialLinksResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['UserSocialLinks'] = ResolversParentTypes['UserSocialLinks']> = ResolversObject<{
   github?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   linkedin?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -20183,6 +20420,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   GradePage?: GradePageResolvers<ContextType>;
   GstState?: GstStateResolvers<ContextType>;
   HeadcountPoint?: HeadcountPointResolvers<ContextType>;
+  HealthBackup?: HealthBackupResolvers<ContextType>;
   HealthCount?: HealthCountResolvers<ContextType>;
   HealthJob?: HealthJobResolvers<ContextType>;
   HealthMongo?: HealthMongoResolvers<ContextType>;
@@ -20256,12 +20494,15 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ManagementReviewPage?: ManagementReviewPageResolvers<ContextType>;
   MarketingSuppression?: MarketingSuppressionResolvers<ContextType>;
   MarketingSuppressionPage?: MarketingSuppressionPageResolvers<ContextType>;
+  MfaEnrolment?: MfaEnrolmentResolvers<ContextType>;
+  MfaStatus?: MfaStatusResolvers<ContextType>;
   Milestone?: MilestoneResolvers<ContextType>;
   ModulePermission?: ModulePermissionResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   MyPolicy?: MyPolicyResolvers<ContextType>;
   NavLink?: NavLinkResolvers<ContextType>;
   Notification?: NotificationResolvers<ContextType>;
+  NotificationPreference?: NotificationPreferenceResolvers<ContextType>;
   Objective?: ObjectiveResolvers<ContextType>;
   ObjectivePage?: ObjectivePageResolvers<ContextType>;
   OnboardingChecklist?: OnboardingChecklistResolvers<ContextType>;
@@ -20327,6 +20568,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   SalarySlipPage?: SalarySlipPageResolvers<ContextType>;
   SalaryStructure?: SalaryStructureResolvers<ContextType>;
   SalaryStructurePage?: SalaryStructurePageResolvers<ContextType>;
+  SearchGroup?: SearchGroupResolvers<ContextType>;
+  SearchHit?: SearchHitResolvers<ContextType>;
   SendNotificationResult?: SendNotificationResultResolvers<ContextType>;
   ServerRuntime?: ServerRuntimeResolvers<ContextType>;
   SharedMilestone?: SharedMilestoneResolvers<ContextType>;
@@ -20432,6 +20675,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   UserAnalytics?: UserAnalyticsResolvers<ContextType>;
   UserCredentials?: UserCredentialsResolvers<ContextType>;
   UserPage?: UserPageResolvers<ContextType>;
+  UserSession?: UserSessionResolvers<ContextType>;
   UserSocialLinks?: UserSocialLinksResolvers<ContextType>;
   Webhook?: WebhookResolvers<ContextType>;
   WebhookDelivery?: WebhookDeliveryResolvers<ContextType>;

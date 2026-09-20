@@ -813,8 +813,14 @@ export enum AuditStatus {
 
 export type AuthPayload = {
   __typename?: 'AuthPayload';
+  /** The five-minute token to send back with the code. Empty unless mfaRequired. */
+  mfaChallenge: Scalars['String']['output'];
+  /** True when the password was right and an authenticator code is still needed. */
+  mfaRequired: Scalars['Boolean']['output'];
+  /** Empty when a second factor is still owed: no session exists until the code is given. */
   token: Scalars['String']['output'];
-  user: User;
+  /** Null until the sign-in is complete, so a password alone reveals nothing about the account. */
+  user?: Maybe<User>;
 };
 
 export type Benefit = {
@@ -2686,6 +2692,22 @@ export type HeadcountPoint = {
   label: Scalars['String']['output'];
 };
 
+/** The nightly database backup, as the host's own status file reports it. */
+export type HealthBackup = {
+  __typename?: 'HealthBackup';
+  archive: Scalars['String']['output'];
+  /** False when no backup has ever been installed on this host. */
+  configured: Scalars['Boolean']['output'];
+  /** Null until a backup has run once. */
+  lastRunAt?: Maybe<Scalars['DateTime']['output']>;
+  message: Scalars['String']['output'];
+  /** Whether the last run succeeded. */
+  ok: Scalars['Boolean']['output'];
+  /** How many days of archives are kept before they are pruned. */
+  retainDays: Scalars['Int']['output'];
+  sizeMb: Scalars['Float']['output'];
+};
+
 /** A headline number the console shows next to the runtime figures. */
 export type HealthCount = {
   __typename?: 'HealthCount';
@@ -4191,6 +4213,23 @@ export type MarketingSuppressionPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** What an authenticator app needs to start producing codes. */
+export type MfaEnrolment = {
+  __typename?: 'MfaEnrolment';
+  /** The shared secret, for somebody typing it in by hand. */
+  secret: Scalars['String']['output'];
+  /** The otpauth:// URI the QR code encodes. */
+  uri: Scalars['String']['output'];
+};
+
+/** Whether this account asks for an authenticator code, and how much recovery is left. */
+export type MfaStatus = {
+  __typename?: 'MfaStatus';
+  enabled: Scalars['Boolean']['output'];
+  enrolledAt?: Maybe<Scalars['DateTime']['output']>;
+  recoveryCodesLeft: Scalars['Int']['output'];
+};
+
 /** A dated commitment on a project — a launch, a review, a hand-over. */
 export type Milestone = {
   __typename?: 'Milestone';
@@ -4277,6 +4316,11 @@ export type Mutation = {
   completeSprint: Sprint;
   /** One post per account: published now, scheduled, or kept as a draft. MARKETING. */
   composeSocialMediaPost: Array<SocialMediaPost>;
+  /**
+   * Switches two-factor on, once a code proves the secret reached the app. Returns the
+   * recovery codes, which are shown once and stored hashed.
+   */
+  confirmMfaEnrolment: Array<Scalars['String']['output']>;
   /** Public: turns a confirm link into a live subscription. The link works exactly once. */
   confirmStatusSubscription: Scalars['Boolean']['output'];
   /** Turns a lead into a company, a contact and a deal at the top of the pipeline. Once only. */
@@ -4535,6 +4579,8 @@ export type Mutation = {
   deleteUser: Scalars['Boolean']['output'];
   deleteWebhook: Scalars['Boolean']['output'];
   deleteWebsiteSubmission: Scalars['Boolean']['output'];
+  /** Switches two-factor off. Needs the password: a borrowed screen must not be enough. */
+  disableMfa: Scalars['Boolean']['output'];
   disconnectSocialAccount: Scalars['Boolean']['output'];
   /**
    * SUPPORT/IT: escalate a ticket. Raises it to HIGH priority (recomputing the deadline), bumps
@@ -4619,7 +4665,11 @@ export type Mutation = {
    */
   reviewTrackerManualEntry: TrackerManualEntry;
   revokeApiKey: ApiKey;
+  /** Ends every session except this one, for somebody who thinks their password has been seen. */
+  revokeOtherSessions: Scalars['Int']['output'];
   revokeProjectShare: ProjectShare;
+  /** Ends one of this account's other sessions. The current one cannot be ended this way. */
+  revokeSession: Scalars['Boolean']['output'];
   revokeTrackerAccess: TrackerAccess;
   revokeTrackerDevice: TrackerDevice;
   /** Queues the job for the AI worker and answers at once. Poll the job for the result. */
@@ -4699,6 +4749,8 @@ export type Mutation = {
   setExpenseClaimStatus: ExpenseClaim;
   /** HR/ADMIN or the employee's manager: approve or reject a leave request. */
   setLeaveStatus: LeaveRequest;
+  /** Sets where one kind reaches this person. Returns the whole set, so a screen stays in step. */
+  setMyNotificationPreference: Array<NotificationPreference>;
   /**
    * Records what the caller says they are doing — at lunch, on a break, in a meeting.
    *
@@ -4741,6 +4793,8 @@ export type Mutation = {
   socialMediaIdeas: Scalars['String']['output'];
   /** AI: what worked, what did not, and what to try, from the last days' posts. */
   socialMediaInsights: Scalars['String']['output'];
+  /** Mints a secret and returns what an authenticator app needs. Nothing is switched on yet. */
+  startMfaEnrolment: MfaEnrolment;
   /**
    * Starts one joiner's onboarding from a template. HR only, and refused while the employee
    * already has a checklist that is not finished — two open checklists is two answers to
@@ -4948,6 +5002,8 @@ export type Mutation = {
   updateUser: User;
   uploadAvatar: Scalars['String']['output'];
   uploadImage: Scalars['String']['output'];
+  /** The second step of a two-factor sign-in: the challenge from login, plus the code. */
+  verifyMfa: AuthPayload;
   /** Withdraws one of the caller's OWN entries, and only while it is still pending. */
   withdrawTrackerManualEntry: Scalars['Boolean']['output'];
 };
@@ -5059,6 +5115,11 @@ export type MutationCompleteSprintArgs = {
 
 export type MutationComposeSocialMediaPostArgs = {
   input: SocialMediaPostInput;
+};
+
+
+export type MutationConfirmMfaEnrolmentArgs = {
+  code: Scalars['String']['input'];
 };
 
 
@@ -6175,6 +6236,11 @@ export type MutationDeleteWebsiteSubmissionArgs = {
 };
 
 
+export type MutationDisableMfaArgs = {
+  password: Scalars['String']['input'];
+};
+
+
 export type MutationDisconnectSocialAccountArgs = {
   id: Scalars['ID']['input'];
 };
@@ -6357,6 +6423,11 @@ export type MutationRevokeProjectShareArgs = {
 };
 
 
+export type MutationRevokeSessionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationRevokeTrackerAccessArgs = {
   userId: Scalars['ID']['input'];
 };
@@ -6525,6 +6596,11 @@ export type MutationSetExpenseClaimStatusArgs = {
 export type MutationSetLeaveStatusArgs = {
   id: Scalars['ID']['input'];
   status: LeaveStatus;
+};
+
+
+export type MutationSetMyNotificationPreferenceArgs = {
+  input: NotificationPreferenceInput;
 };
 
 
@@ -7414,6 +7490,12 @@ export type MutationUploadImageArgs = {
 };
 
 
+export type MutationVerifyMfaArgs = {
+  challenge: Scalars['String']['input'];
+  code: Scalars['String']['input'];
+};
+
+
 export type MutationWithdrawTrackerManualEntryArgs = {
   id: Scalars['ID']['input'];
 };
@@ -7495,13 +7577,18 @@ export enum NotificationAudience {
 
 export enum NotificationKind {
   Announcement = 'ANNOUNCEMENT',
+  Compliance = 'COMPLIANCE',
+  Crm = 'CRM',
+  Finance = 'FINANCE',
   General = 'GENERAL',
   Goal = 'GOAL',
   It = 'IT',
   Leave = 'LEAVE',
+  Legal = 'LEGAL',
   Onboarding = 'ONBOARDING',
   Payroll = 'PAYROLL',
   Performance = 'PERFORMANCE',
+  Project = 'PROJECT',
   Request = 'REQUEST',
   SocialComment = 'SOCIAL_COMMENT',
   SocialLike = 'SOCIAL_LIKE',
@@ -7509,6 +7596,22 @@ export enum NotificationKind {
   Support = 'SUPPORT',
   Training = 'TRAINING'
 }
+
+/** One kind of notification, and where this person wants it. */
+export type NotificationPreference = {
+  __typename?: 'NotificationPreference';
+  /** Also sent as an email. Off unless somebody asked for it. */
+  email: Scalars['Boolean']['output'];
+  /** Shown in the bell and the notification centre. */
+  inPortal: Scalars['Boolean']['output'];
+  kind: NotificationKind;
+};
+
+export type NotificationPreferenceInput = {
+  email: Scalars['Boolean']['input'];
+  inPortal: Scalars['Boolean']['input'];
+  kind: NotificationKind;
+};
 
 /**
  * An objective the company set itself and measures (clause 6.2 of every one of the standards).
@@ -9190,6 +9293,10 @@ export type Query = {
   myLeaveRequests: Array<LeaveRequest>;
   /** The signed-in user's manager, if one is set. */
   myManager?: Maybe<EmployeeOption>;
+  /** Whether two-factor authentication is on for this account. */
+  myMfaStatus: MfaStatus;
+  /** Every kind, with this person's choice or the default where they have made none. */
+  myNotificationPreferences: Array<NotificationPreference>;
   myNotifications: Array<Notification>;
   /** Self-service: the signed-in employee's own checklist. Null when they have none. */
   myOnboarding?: Maybe<OnboardingChecklist>;
@@ -9208,6 +9315,8 @@ export type Query = {
   myRequests: Array<EmployeeRequest>;
   /** Self-service: the signed-in employee's monthly payslips. */
   mySalarySlips: Array<SalarySlip>;
+  /** Every browser and device this account is signed in on, newest first. */
+  mySessions: Array<UserSession>;
   /** The conversation on one of the employee's own tickets, internal notes excluded. */
   mySupportReplies: Array<SupportReply>;
   /** The signed-in employee's own support tickets. */
@@ -9300,6 +9409,11 @@ export type Query = {
    * download anyone's.
    */
   salarySlipPdf: SalarySlipDownload;
+  /**
+   * Searches every module the caller's roles can open. Returns only groups that matched, and
+   * at most a handful from each — this answers "take me to that record", not "report on it".
+   */
+  search: Array<SearchGroup>;
   /**
    * Any signed-in user: published articles matching a phrase, best match first.
    *
@@ -10616,6 +10730,11 @@ export type QuerySalarySlipPdfArgs = {
 };
 
 
+export type QuerySearchArgs = {
+  query: Scalars['String']['input'];
+};
+
+
 export type QuerySearchKnowledgeBaseArgs = {
   query: Scalars['String']['input'];
 };
@@ -11115,6 +11234,24 @@ export type SalaryStructurePage = {
   __typename?: 'SalaryStructurePage';
   rows: Array<SalaryStructure>;
   totalCount: Scalars['Int']['output'];
+};
+
+/** One module's matches, grouped under the module's own name. */
+export type SearchGroup = {
+  __typename?: 'SearchGroup';
+  hits: Array<SearchHit>;
+  key: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+};
+
+/** One record the search box can jump to. */
+export type SearchHit = {
+  __typename?: 'SearchHit';
+  id: Scalars['ID']['output'];
+  /** Where it opens, including the portal path — e.g. /crm/deals or /hr/employees/123. */
+  link: Scalars['String']['output'];
+  subtitle: Scalars['String']['output'];
+  title: Scalars['String']['output'];
 };
 
 export type SendMailInput = {
@@ -11981,6 +12118,7 @@ export enum SuppressionReason {
 
 export type SystemHealth = {
   __typename?: 'SystemHealth';
+  backup: HealthBackup;
   counts: Array<HealthCount>;
   jobs: Array<HealthJob>;
   mongo: HealthMongo;
@@ -13235,6 +13373,19 @@ export type UserPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** One browser or device this account is signed in on. */
+export type UserSession = {
+  __typename?: 'UserSession';
+  createdAt: Scalars['DateTime']['output'];
+  /** True for the session making this request, which the list must never offer to end. */
+  current: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  ip: Scalars['String']['output'];
+  lastSeenAt: Scalars['DateTime']['output'];
+  /** What the browser called itself — enough to recognise the device, not to fingerprint it. */
+  userAgent: Scalars['String']['output'];
+};
+
 /** Public profiles a person shares — each an http(s) address, null when not given. */
 export type UserSocialLinks = {
   __typename?: 'UserSocialLinks';
@@ -13778,13 +13929,64 @@ export type ListAuditLogsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ListAuditLogsStatsQuery = { __typename?: 'Query', listAuditLogsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
 
+export type SignInResultFragment = { __typename?: 'AuthPayload', token: string, mfaRequired: boolean, mfaChallenge: string, user?: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null } | null };
+
 export type LoginMutationVariables = Exact<{
   email: Scalars['String']['input'];
   password: Scalars['String']['input'];
 }>;
 
 
-export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'AuthPayload', token: string, user: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null } } };
+export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'AuthPayload', token: string, mfaRequired: boolean, mfaChallenge: string, user?: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null } | null } };
+
+export type VerifyMfaMutationVariables = Exact<{
+  challenge: Scalars['String']['input'];
+  code: Scalars['String']['input'];
+}>;
+
+
+export type VerifyMfaMutation = { __typename?: 'Mutation', verifyMfa: { __typename?: 'AuthPayload', token: string, mfaRequired: boolean, mfaChallenge: string, user?: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null } | null } };
+
+export type MySessionsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MySessionsQuery = { __typename?: 'Query', mySessions: Array<{ __typename?: 'UserSession', id: string, userAgent: string, ip: string, lastSeenAt: string, createdAt: string, current: boolean }> };
+
+export type MyMfaStatusQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyMfaStatusQuery = { __typename?: 'Query', myMfaStatus: { __typename?: 'MfaStatus', enabled: boolean, recoveryCodesLeft: number, enrolledAt?: string | null } };
+
+export type RevokeSessionMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type RevokeSessionMutation = { __typename?: 'Mutation', revokeSession: boolean };
+
+export type RevokeOtherSessionsMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type RevokeOtherSessionsMutation = { __typename?: 'Mutation', revokeOtherSessions: number };
+
+export type StartMfaEnrolmentMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type StartMfaEnrolmentMutation = { __typename?: 'Mutation', startMfaEnrolment: { __typename?: 'MfaEnrolment', secret: string, uri: string } };
+
+export type ConfirmMfaEnrolmentMutationVariables = Exact<{
+  code: Scalars['String']['input'];
+}>;
+
+
+export type ConfirmMfaEnrolmentMutation = { __typename?: 'Mutation', confirmMfaEnrolment: Array<string> };
+
+export type DisableMfaMutationVariables = Exact<{
+  password: Scalars['String']['input'];
+}>;
+
+
+export type DisableMfaMutation = { __typename?: 'Mutation', disableMfa: boolean };
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -14911,6 +15113,18 @@ export type MyNotificationsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type MyNotificationsQuery = { __typename?: 'Query', myNotifications: Array<{ __typename?: 'Notification', id: string, kind: NotificationKind, title: string, body: string, link?: string | null, read: boolean, createdAt: string }> };
 
+export type MyNotificationPreferencesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyNotificationPreferencesQuery = { __typename?: 'Query', myNotificationPreferences: Array<{ __typename?: 'NotificationPreference', kind: NotificationKind, inPortal: boolean, email: boolean }> };
+
+export type SetMyNotificationPreferenceMutationVariables = Exact<{
+  input: NotificationPreferenceInput;
+}>;
+
+
+export type SetMyNotificationPreferenceMutation = { __typename?: 'Mutation', setMyNotificationPreference: Array<{ __typename?: 'NotificationPreference', kind: NotificationKind, inPortal: boolean, email: boolean }> };
+
 export type MyUnreadNotificationCountQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -15348,7 +15562,7 @@ export type RunRecurringInvoiceNowMutation = { __typename?: 'Mutation', runRecur
 export type SystemHealthQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type SystemHealthQuery = { __typename?: 'Query', systemHealth: { __typename?: 'SystemHealth', serverVersion: string, nodeVersion: string, uptimeSeconds: number, mongo: { __typename?: 'HealthMongo', ok: boolean, dbName: string, collections: number, dataSizeMb: number }, jobs: Array<{ __typename?: 'HealthJob', key: string, label: string, enabled: boolean, lastRunAt?: string | null, lastRunSummary: string }>, counts: Array<{ __typename?: 'HealthCount', label: string, value: number }> } };
+export type SystemHealthQuery = { __typename?: 'Query', systemHealth: { __typename?: 'SystemHealth', serverVersion: string, nodeVersion: string, uptimeSeconds: number, mongo: { __typename?: 'HealthMongo', ok: boolean, dbName: string, collections: number, dataSizeMb: number }, jobs: Array<{ __typename?: 'HealthJob', key: string, label: string, enabled: boolean, lastRunAt?: string | null, lastRunSummary: string }>, counts: Array<{ __typename?: 'HealthCount', label: string, value: number }>, backup: { __typename?: 'HealthBackup', configured: boolean, ok: boolean, lastRunAt?: string | null, archive: string, sizeMb: number, retainDays: number, message: string } } };
 
 export type ListLeaveRequestsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -17597,6 +17811,13 @@ export type SetApplicantStageMutationVariables = Exact<{
 
 export type SetApplicantStageMutation = { __typename?: 'Mutation', setApplicantStage: { __typename?: 'Applicant', id: string, stage: ApplicantStage, stageChangedAt: string, notes: string } };
 
+export type SearchQueryVariables = Exact<{
+  query: Scalars['String']['input'];
+}>;
+
+
+export type SearchQuery = { __typename?: 'Query', search: Array<{ __typename?: 'SearchGroup', key: string, label: string, hits: Array<{ __typename?: 'SearchHit', id: string, title: string, subtitle: string, link: string }> }> };
+
 export type SocialAppConfigFieldsFragment = { __typename?: 'SocialAppConfig', id: string, app: SocialApp, label: string, consoleUrl: string, callbackUrl: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean };
 
 export type SocialAppConfigsQueryVariables = Exact<{ [key: string]: never; }>;
@@ -19310,6 +19531,20 @@ export const AssetFieldsFragmentDoc = gql`
   installedSoftware
   edrStatus
   edrCheckedAt
+}
+    `;
+export const SignInResultFragmentDoc = gql`
+    fragment SignInResult on AuthPayload {
+  token
+  mfaRequired
+  mfaChallenge
+  user {
+    id
+    name
+    email
+    roles
+    avatarUrl
+  }
 }
     `;
 export const TaskAttachmentFieldsFragmentDoc = gql`
@@ -23749,17 +23984,10 @@ export type ListAuditLogsStatsSuspenseQueryHookResult = ReturnType<typeof useLis
 export const LoginDocument = gql`
     mutation Login($email: String!, $password: String!) {
   login(email: $email, password: $password) {
-    token
-    user {
-      id
-      name
-      email
-      roles
-      avatarUrl
-    }
+    ...SignInResult
   }
 }
-    `;
+    ${SignInResultFragmentDoc}`;
 
 /**
  * __useLoginMutation__
@@ -23784,6 +24012,271 @@ export function useLoginMutation(baseOptions?: ApolloReactHooks.MutationHookOpti
         return ApolloReactHooks.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument, options);
       }
 export type LoginMutationHookResult = ReturnType<typeof useLoginMutation>;
+export const VerifyMfaDocument = gql`
+    mutation VerifyMfa($challenge: String!, $code: String!) {
+  verifyMfa(challenge: $challenge, code: $code) {
+    ...SignInResult
+  }
+}
+    ${SignInResultFragmentDoc}`;
+
+/**
+ * __useVerifyMfaMutation__
+ *
+ * To run a mutation, you first call `useVerifyMfaMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useVerifyMfaMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [verifyMfaMutation, { data, loading, error }] = useVerifyMfaMutation({
+ *   variables: {
+ *      challenge: // value for 'challenge'
+ *      code: // value for 'code'
+ *   },
+ * });
+ */
+export function useVerifyMfaMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<VerifyMfaMutation, VerifyMfaMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<VerifyMfaMutation, VerifyMfaMutationVariables>(VerifyMfaDocument, options);
+      }
+export type VerifyMfaMutationHookResult = ReturnType<typeof useVerifyMfaMutation>;
+export const MySessionsDocument = gql`
+    query MySessions {
+  mySessions {
+    id
+    userAgent
+    ip
+    lastSeenAt
+    createdAt
+    current
+  }
+}
+    `;
+
+/**
+ * __useMySessionsQuery__
+ *
+ * To run a query within a React component, call `useMySessionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMySessionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMySessionsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMySessionsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MySessionsQuery, MySessionsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MySessionsQuery, MySessionsQueryVariables>(MySessionsDocument, options);
+      }
+export function useMySessionsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MySessionsQuery, MySessionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MySessionsQuery, MySessionsQueryVariables>(MySessionsDocument, options);
+        }
+// @ts-ignore
+export function useMySessionsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MySessionsQuery, MySessionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MySessionsQuery, MySessionsQueryVariables>;
+// @ts-ignore
+export function useMySessionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MySessionsQuery, MySessionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MySessionsQuery | undefined, MySessionsQueryVariables>;
+export function useMySessionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MySessionsQuery, MySessionsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MySessionsQuery, MySessionsQueryVariables>(MySessionsDocument, options);
+        }
+export type MySessionsQueryHookResult = ReturnType<typeof useMySessionsQuery>;
+export type MySessionsLazyQueryHookResult = ReturnType<typeof useMySessionsLazyQuery>;
+export type MySessionsSuspenseQueryHookResult = ReturnType<typeof useMySessionsSuspenseQuery>;
+export const MyMfaStatusDocument = gql`
+    query MyMfaStatus {
+  myMfaStatus {
+    enabled
+    recoveryCodesLeft
+    enrolledAt
+  }
+}
+    `;
+
+/**
+ * __useMyMfaStatusQuery__
+ *
+ * To run a query within a React component, call `useMyMfaStatusQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyMfaStatusQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyMfaStatusQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMyMfaStatusQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MyMfaStatusQuery, MyMfaStatusQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MyMfaStatusQuery, MyMfaStatusQueryVariables>(MyMfaStatusDocument, options);
+      }
+export function useMyMfaStatusLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MyMfaStatusQuery, MyMfaStatusQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MyMfaStatusQuery, MyMfaStatusQueryVariables>(MyMfaStatusDocument, options);
+        }
+// @ts-ignore
+export function useMyMfaStatusSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MyMfaStatusQuery, MyMfaStatusQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MyMfaStatusQuery, MyMfaStatusQueryVariables>;
+// @ts-ignore
+export function useMyMfaStatusSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MyMfaStatusQuery, MyMfaStatusQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MyMfaStatusQuery | undefined, MyMfaStatusQueryVariables>;
+export function useMyMfaStatusSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MyMfaStatusQuery, MyMfaStatusQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MyMfaStatusQuery, MyMfaStatusQueryVariables>(MyMfaStatusDocument, options);
+        }
+export type MyMfaStatusQueryHookResult = ReturnType<typeof useMyMfaStatusQuery>;
+export type MyMfaStatusLazyQueryHookResult = ReturnType<typeof useMyMfaStatusLazyQuery>;
+export type MyMfaStatusSuspenseQueryHookResult = ReturnType<typeof useMyMfaStatusSuspenseQuery>;
+export const RevokeSessionDocument = gql`
+    mutation RevokeSession($id: ID!) {
+  revokeSession(id: $id)
+}
+    `;
+
+/**
+ * __useRevokeSessionMutation__
+ *
+ * To run a mutation, you first call `useRevokeSessionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRevokeSessionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [revokeSessionMutation, { data, loading, error }] = useRevokeSessionMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useRevokeSessionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RevokeSessionMutation, RevokeSessionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RevokeSessionMutation, RevokeSessionMutationVariables>(RevokeSessionDocument, options);
+      }
+export type RevokeSessionMutationHookResult = ReturnType<typeof useRevokeSessionMutation>;
+export const RevokeOtherSessionsDocument = gql`
+    mutation RevokeOtherSessions {
+  revokeOtherSessions
+}
+    `;
+
+/**
+ * __useRevokeOtherSessionsMutation__
+ *
+ * To run a mutation, you first call `useRevokeOtherSessionsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRevokeOtherSessionsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [revokeOtherSessionsMutation, { data, loading, error }] = useRevokeOtherSessionsMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useRevokeOtherSessionsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RevokeOtherSessionsMutation, RevokeOtherSessionsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RevokeOtherSessionsMutation, RevokeOtherSessionsMutationVariables>(RevokeOtherSessionsDocument, options);
+      }
+export type RevokeOtherSessionsMutationHookResult = ReturnType<typeof useRevokeOtherSessionsMutation>;
+export const StartMfaEnrolmentDocument = gql`
+    mutation StartMfaEnrolment {
+  startMfaEnrolment {
+    secret
+    uri
+  }
+}
+    `;
+
+/**
+ * __useStartMfaEnrolmentMutation__
+ *
+ * To run a mutation, you first call `useStartMfaEnrolmentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useStartMfaEnrolmentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [startMfaEnrolmentMutation, { data, loading, error }] = useStartMfaEnrolmentMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useStartMfaEnrolmentMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<StartMfaEnrolmentMutation, StartMfaEnrolmentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<StartMfaEnrolmentMutation, StartMfaEnrolmentMutationVariables>(StartMfaEnrolmentDocument, options);
+      }
+export type StartMfaEnrolmentMutationHookResult = ReturnType<typeof useStartMfaEnrolmentMutation>;
+export const ConfirmMfaEnrolmentDocument = gql`
+    mutation ConfirmMfaEnrolment($code: String!) {
+  confirmMfaEnrolment(code: $code)
+}
+    `;
+
+/**
+ * __useConfirmMfaEnrolmentMutation__
+ *
+ * To run a mutation, you first call `useConfirmMfaEnrolmentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useConfirmMfaEnrolmentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [confirmMfaEnrolmentMutation, { data, loading, error }] = useConfirmMfaEnrolmentMutation({
+ *   variables: {
+ *      code: // value for 'code'
+ *   },
+ * });
+ */
+export function useConfirmMfaEnrolmentMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ConfirmMfaEnrolmentMutation, ConfirmMfaEnrolmentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ConfirmMfaEnrolmentMutation, ConfirmMfaEnrolmentMutationVariables>(ConfirmMfaEnrolmentDocument, options);
+      }
+export type ConfirmMfaEnrolmentMutationHookResult = ReturnType<typeof useConfirmMfaEnrolmentMutation>;
+export const DisableMfaDocument = gql`
+    mutation DisableMfa($password: String!) {
+  disableMfa(password: $password)
+}
+    `;
+
+/**
+ * __useDisableMfaMutation__
+ *
+ * To run a mutation, you first call `useDisableMfaMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDisableMfaMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [disableMfaMutation, { data, loading, error }] = useDisableMfaMutation({
+ *   variables: {
+ *      password: // value for 'password'
+ *   },
+ * });
+ */
+export function useDisableMfaMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DisableMfaMutation, DisableMfaMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DisableMfaMutation, DisableMfaMutationVariables>(DisableMfaDocument, options);
+      }
+export type DisableMfaMutationHookResult = ReturnType<typeof useDisableMfaMutation>;
 export const MeDocument = gql`
     query Me {
   me {
@@ -29999,6 +30492,83 @@ export function useMyNotificationsSuspenseQuery(baseOptions?: ApolloReactHooks.S
 export type MyNotificationsQueryHookResult = ReturnType<typeof useMyNotificationsQuery>;
 export type MyNotificationsLazyQueryHookResult = ReturnType<typeof useMyNotificationsLazyQuery>;
 export type MyNotificationsSuspenseQueryHookResult = ReturnType<typeof useMyNotificationsSuspenseQuery>;
+export const MyNotificationPreferencesDocument = gql`
+    query MyNotificationPreferences {
+  myNotificationPreferences {
+    kind
+    inPortal
+    email
+  }
+}
+    `;
+
+/**
+ * __useMyNotificationPreferencesQuery__
+ *
+ * To run a query within a React component, call `useMyNotificationPreferencesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyNotificationPreferencesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyNotificationPreferencesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMyNotificationPreferencesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MyNotificationPreferencesQuery, MyNotificationPreferencesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MyNotificationPreferencesQuery, MyNotificationPreferencesQueryVariables>(MyNotificationPreferencesDocument, options);
+      }
+export function useMyNotificationPreferencesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MyNotificationPreferencesQuery, MyNotificationPreferencesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MyNotificationPreferencesQuery, MyNotificationPreferencesQueryVariables>(MyNotificationPreferencesDocument, options);
+        }
+// @ts-ignore
+export function useMyNotificationPreferencesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MyNotificationPreferencesQuery, MyNotificationPreferencesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MyNotificationPreferencesQuery, MyNotificationPreferencesQueryVariables>;
+// @ts-ignore
+export function useMyNotificationPreferencesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MyNotificationPreferencesQuery, MyNotificationPreferencesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MyNotificationPreferencesQuery | undefined, MyNotificationPreferencesQueryVariables>;
+export function useMyNotificationPreferencesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MyNotificationPreferencesQuery, MyNotificationPreferencesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MyNotificationPreferencesQuery, MyNotificationPreferencesQueryVariables>(MyNotificationPreferencesDocument, options);
+        }
+export type MyNotificationPreferencesQueryHookResult = ReturnType<typeof useMyNotificationPreferencesQuery>;
+export type MyNotificationPreferencesLazyQueryHookResult = ReturnType<typeof useMyNotificationPreferencesLazyQuery>;
+export type MyNotificationPreferencesSuspenseQueryHookResult = ReturnType<typeof useMyNotificationPreferencesSuspenseQuery>;
+export const SetMyNotificationPreferenceDocument = gql`
+    mutation SetMyNotificationPreference($input: NotificationPreferenceInput!) {
+  setMyNotificationPreference(input: $input) {
+    kind
+    inPortal
+    email
+  }
+}
+    `;
+
+/**
+ * __useSetMyNotificationPreferenceMutation__
+ *
+ * To run a mutation, you first call `useSetMyNotificationPreferenceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetMyNotificationPreferenceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setMyNotificationPreferenceMutation, { data, loading, error }] = useSetMyNotificationPreferenceMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSetMyNotificationPreferenceMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SetMyNotificationPreferenceMutation, SetMyNotificationPreferenceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SetMyNotificationPreferenceMutation, SetMyNotificationPreferenceMutationVariables>(SetMyNotificationPreferenceDocument, options);
+      }
+export type SetMyNotificationPreferenceMutationHookResult = ReturnType<typeof useSetMyNotificationPreferenceMutation>;
 export const MyUnreadNotificationCountDocument = gql`
     query MyUnreadNotificationCount {
   myUnreadNotificationCount
@@ -32575,6 +33145,15 @@ export const SystemHealthDocument = gql`
     counts {
       label
       value
+    }
+    backup {
+      configured
+      ok
+      lastRunAt
+      archive
+      sizeMb
+      retainDays
+      message
     }
   }
 }
@@ -45343,6 +45922,57 @@ export function useSetApplicantStageMutation(baseOptions?: ApolloReactHooks.Muta
         return ApolloReactHooks.useMutation<SetApplicantStageMutation, SetApplicantStageMutationVariables>(SetApplicantStageDocument, options);
       }
 export type SetApplicantStageMutationHookResult = ReturnType<typeof useSetApplicantStageMutation>;
+export const SearchDocument = gql`
+    query Search($query: String!) {
+  search(query: $query) {
+    key
+    label
+    hits {
+      id
+      title
+      subtitle
+      link
+    }
+  }
+}
+    `;
+
+/**
+ * __useSearchQuery__
+ *
+ * To run a query within a React component, call `useSearchQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSearchQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSearchQuery({
+ *   variables: {
+ *      query: // value for 'query'
+ *   },
+ * });
+ */
+export function useSearchQuery(baseOptions: ApolloReactHooks.QueryHookOptions<SearchQuery, SearchQueryVariables> & ({ variables: SearchQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<SearchQuery, SearchQueryVariables>(SearchDocument, options);
+      }
+export function useSearchLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SearchQuery, SearchQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<SearchQuery, SearchQueryVariables>(SearchDocument, options);
+        }
+// @ts-ignore
+export function useSearchSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<SearchQuery, SearchQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SearchQuery, SearchQueryVariables>;
+// @ts-ignore
+export function useSearchSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SearchQuery, SearchQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SearchQuery | undefined, SearchQueryVariables>;
+export function useSearchSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SearchQuery, SearchQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<SearchQuery, SearchQueryVariables>(SearchDocument, options);
+        }
+export type SearchQueryHookResult = ReturnType<typeof useSearchQuery>;
+export type SearchLazyQueryHookResult = ReturnType<typeof useSearchLazyQuery>;
+export type SearchSuspenseQueryHookResult = ReturnType<typeof useSearchSuspenseQuery>;
 export const SocialAppConfigsDocument = gql`
     query SocialAppConfigs {
   socialAppConfigs {

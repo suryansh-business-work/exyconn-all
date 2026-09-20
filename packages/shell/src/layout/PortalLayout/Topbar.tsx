@@ -21,6 +21,7 @@ import DarkModeIcon from '@mui/icons-material/DarkMode';
 import { useAuth } from '@/auth/AuthContext';
 import { useColorMode } from '@/theme/ColorModeContext';
 import { TopbarSearch } from './TopbarSearch';
+import { CommandPalette, useCommandPalette } from '../CommandPalette';
 import { NotificationBell } from './NotificationBell';
 import { ApprovalsBell } from './ApprovalsBell';
 import { PAGE_GUTTER, TOPBAR_HEIGHT } from './metrics';
@@ -45,6 +46,7 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
   const onPhone = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const palette = useCommandPalette();
 
   const go = (path: string) => () => {
     setAnchorEl(null);
@@ -94,9 +96,9 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
         {/* Below md the title is hidden, so this takes its place and keeps the actions on the
             trailing edge instead of bunched up beside the menu button. */}
         <Box aria-hidden sx={{ flexGrow: 1, display: { xs: 'block', md: 'none' } }} />
-        {/* Left out on a phone rather than squeezed: at 160px it shows ten characters, and
-            the hamburger beside it opens the same list of modules with room to read them. */}
-        {user && !onPhone && <TopbarSearch roles={user.roles} />}
+        {/* Left out on a phone rather than squeezed: the palette's own shortcut has no
+            meaning on a touch keyboard, and the hamburger beside it opens the same modules. */}
+        {user && !onPhone && <TopbarSearch onOpen={() => palette.setOpen(true)} />}
         <Box sx={{ textAlign: 'right', mx: 1.5, display: { xs: 'none', sm: 'block' } }}>
           <Typography
             variant="caption"
@@ -147,6 +149,9 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
           <MenuItem onClick={handleSignOut}>{t('Sign out')}</MenuItem>
         </Menu>
       </Toolbar>
+      {/* Mounted whatever the screen size: the shortcut works on a keyboard attached to a
+          phone-width window, and the trigger button is only hidden, not the feature. */}
+      <CommandPalette open={palette.open} onClose={() => palette.setOpen(false)} />
     </AppBar>
   );
 }

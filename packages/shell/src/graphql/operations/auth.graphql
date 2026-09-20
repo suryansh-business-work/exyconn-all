@@ -1,14 +1,71 @@
+# The sign-in itself, and the second step for an account with two-factor on. Both return the
+# same shape: one of them carries a session, the other carries a challenge.
+fragment SignInResult on AuthPayload {
+  token
+  mfaRequired
+  mfaChallenge
+  user {
+    id
+    name
+    email
+    roles
+    avatarUrl
+  }
+}
+
 mutation Login($email: String!, $password: String!) {
   login(email: $email, password: $password) {
-    token
-    user {
-      id
-      name
-      email
-      roles
-      avatarUrl
-    }
+    ...SignInResult
   }
+}
+
+mutation VerifyMfa($challenge: String!, $code: String!) {
+  verifyMfa(challenge: $challenge, code: $code) {
+    ...SignInResult
+  }
+}
+
+# Account settings: where this person is signed in, and whether a code is asked for.
+query MySessions {
+  mySessions {
+    id
+    userAgent
+    ip
+    lastSeenAt
+    createdAt
+    current
+  }
+}
+
+query MyMfaStatus {
+  myMfaStatus {
+    enabled
+    recoveryCodesLeft
+    enrolledAt
+  }
+}
+
+mutation RevokeSession($id: ID!) {
+  revokeSession(id: $id)
+}
+
+mutation RevokeOtherSessions {
+  revokeOtherSessions
+}
+
+mutation StartMfaEnrolment {
+  startMfaEnrolment {
+    secret
+    uri
+  }
+}
+
+mutation ConfirmMfaEnrolment($code: String!) {
+  confirmMfaEnrolment(code: $code)
+}
+
+mutation DisableMfa($password: String!) {
+  disableMfa(password: $password)
 }
 
 query Me {

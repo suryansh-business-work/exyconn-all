@@ -12,6 +12,23 @@ query MyNotifications {
   }
 }
 
+# Account settings: where each kind of notification should reach this person.
+query MyNotificationPreferences {
+  myNotificationPreferences {
+    kind
+    inPortal
+    email
+  }
+}
+
+mutation SetMyNotificationPreference($input: NotificationPreferenceInput!) {
+  setMyNotificationPreference(input: $input) {
+    kind
+    inPortal
+    email
+  }
+}
+
 query MyUnreadNotificationCount {
   myUnreadNotificationCount
 }

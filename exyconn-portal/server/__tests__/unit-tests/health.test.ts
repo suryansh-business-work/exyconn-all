@@ -38,8 +38,12 @@ describe('systemHealth', () => {
       'trackerRetention',
       'trackerDigest',
       'recurringInvoices',
+      'overdueInvoices',
       'webhookDelivery',
       'inboundMail',
+      'campaignSchedule',
+      'aiQueue',
+      'reminders',
     ]);
     expect(health.counts.map((count) => count.label)).toEqual([
       'Users',

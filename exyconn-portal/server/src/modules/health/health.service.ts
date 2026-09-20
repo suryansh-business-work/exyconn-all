@@ -9,6 +9,7 @@ import { TrackerSettingsModel } from '../tracker/models';
 import { InboundMailConfigModel } from '../tech/inbound-mail-config.model';
 import { env } from '../../config/env';
 import { readJobRuns, type JobRun } from '../../utils/jobHeartbeat';
+import { readBackupStatus } from './backup.status';
 
 /**
  * The server's own package.json. Three directories up from this file in both layouts:
@@ -77,7 +78,7 @@ function jobRow(
 }
 
 /**
- * The four loops `server.ts` starts. `enabled` reads each loop's own switch, so a
+ * The loops `server.ts` starts. `enabled` reads each loop's own switch, so a
  * schedule an administrator turned off reads as idle rather than broken.
  */
 async function jobs(): Promise<HealthJob[]> {
@@ -108,8 +109,12 @@ async function jobs(): Promise<HealthJob[]> {
     // Always "enabled": the loop runs whether or not anybody has set a retainer up, and a
     // dead loop is exactly what this screen exists to show.
     jobRow('recurringInvoices', 'Recurring invoices', true, runs),
+    jobRow('overdueInvoices', 'Overdue invoices and chasing', true, runs),
     jobRow('webhookDelivery', 'Webhook delivery', true, runs),
     jobRow('inboundMail', 'Inbound support mail', Boolean(mailbox), runs),
+    jobRow('campaignSchedule', 'Scheduled campaigns', true, runs),
+    jobRow('aiQueue', 'AI job queue', true, runs),
+    jobRow('reminders', 'Reminder sweep', true, runs),
   ];
 }
 
@@ -137,5 +142,6 @@ export const healthService = {
     mongo: await mongoHealth(),
     jobs: await jobs(),
     counts: await counts(),
+    backup: readBackupStatus(env.backupStatusFile),
   }),
 };

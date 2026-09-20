@@ -192,7 +192,8 @@ export const supportResolvers = {
     clientSupportTicketStatus: (
       _p: unknown,
       { reference, email }: { reference: string; email: string },
-    ) => clientSupportTicketStatus(reference, email),
+      ctx: GraphQLContext,
+    ) => clientSupportTicketStatus(reference, email, ctx.ip),
   },
   Mutation: {
     ...supportSlaPolicyCrud.Mutation,

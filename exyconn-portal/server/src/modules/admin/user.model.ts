@@ -31,6 +31,30 @@ const userSchema = new Schema(
      * token issued before, on its next request. Missing on older accounts, which reads as 0.
      */
     tokenVersion: { type: Number, default: 0 },
+    /**
+     * Two-factor authentication. Absent on every account that has never set it up, which
+     * reads as off.
+     *
+     * The secret is sealed rather than hashed because checking a TOTP code means computing
+     * it, which needs the secret back. The recovery codes are hashed, because they are only
+     * ever compared, and each is removed from the list the moment it is used.
+     */
+    mfa: {
+      type: new Schema(
+        {
+          enabled: { type: Boolean, required: true, default: false },
+          /** Sealed with utils/secretBox. Set while enrolling, before `enabled` is true. */
+          secret: { type: String, default: '' },
+          recoveryCodes: { type: [String], default: [] },
+          enrolledAt: { type: Date, default: null },
+        },
+        { _id: false },
+      ),
+      default: undefined,
+      // Never leaves the server: `select: false` keeps the sealed secret and the code
+      // hashes out of every query that did not deliberately ask for them.
+      select: false,
+    },
     // HR fields — optional so legacy accounts (e.g. seed admin) stay valid.
     department: { type: String, trim: true, default: null },
     designation: { type: String, trim: true, default: null },
