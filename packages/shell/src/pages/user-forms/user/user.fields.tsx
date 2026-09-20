@@ -12,6 +12,7 @@ import { EmploymentStatus, WorkingTime, WorkLocation } from '@/graphql/generated
 import { DEFAULT_WORK_HOURS } from '@/components/work';
 import { LocalePreferenceFields } from '@/components/localization';
 import { PlaceOfEmploymentFields } from './user.place-fields';
+import { PlacementFields } from './user.placement-fields';
 import type { UserValues } from './user.schema';
 
 const WORKING_TIME_OPTIONS = enumOptions(Object.values(WorkingTime));
@@ -131,6 +132,7 @@ export function EmploymentFields({
         label="Employment status"
         options={EMPLOYMENT_STATUS_OPTIONS}
       />
+      <PlacementFields />
       <PlaceOfEmploymentFields />
     </>
   );

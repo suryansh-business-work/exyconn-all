@@ -1,5 +1,5 @@
 import { slaState, type SlaState } from './support.sla';
-import type { Attachment } from './attachment.schema';
+import type { Attachment } from '../../lib/attachments';
 
 interface TicketRow {
   createdAt: Date;

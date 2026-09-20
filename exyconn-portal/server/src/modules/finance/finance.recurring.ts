@@ -13,6 +13,7 @@ import { badRequest, notFound } from '../../utils/errors';
 import { assertPermission } from '../../lib/permissions';
 import { logger } from '../../utils/logger';
 import { JOB_KEYS, recordJobRun } from '../../utils/jobHeartbeat';
+import { registerBackgroundJob } from '../tech/jobs.registry';
 import type { GraphQLContext } from '../../middleware/auth';
 
 /** How often the process asks whether a retainer is due. */
@@ -256,3 +257,10 @@ export const recurringInvoiceResolvers = {
     runRecurringInvoiceNow,
   },
 };
+
+registerBackgroundJob({
+  key: JOB_KEYS.recurringInvoices,
+  label: 'Recurring invoices',
+  description: 'Raises the retainer invoices whose next run date has arrived.',
+  runOnce: () => generateDueInvoices(),
+});

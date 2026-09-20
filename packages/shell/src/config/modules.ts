@@ -1085,6 +1085,12 @@ export const MODULES: ModuleDefinition[] = [
         group: 'Operations',
       },
       {
+        key: 'tech-jobs',
+        label: 'Background jobs',
+        path: '/tech/jobs',
+        icon: ScheduleIcon,
+      },
+      {
         key: 'tech-logs',
         label: 'Logs',
         path: '/tech/logs',
@@ -1268,9 +1274,15 @@ export const MODULES: ModuleDefinition[] = [
     accent: color.teal[600],
     children: [
       {
+        key: 'compliance-overview',
+        label: 'Overview',
+        path: '/compliance',
+        icon: VerifiedUserIcon,
+      },
+      {
         key: 'compliance-risks',
         label: 'Risk register',
-        path: '/compliance',
+        path: '/compliance/risks',
         icon: ReportProblemIcon,
       },
       {

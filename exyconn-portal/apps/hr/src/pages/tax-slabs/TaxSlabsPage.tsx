@@ -66,6 +66,7 @@ export function TaxSlabsPage() {
 
   return (
     <CrudDashboard
+      exportFileName="tax-slabs"
       title="Tax Slabs"
       subtitle="Income-tax regimes and the bands every payslip is worked out from"
       entityLabel="band"

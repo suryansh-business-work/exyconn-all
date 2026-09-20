@@ -52,6 +52,7 @@ export function GradesPage() {
 
   return (
     <CrudDashboard
+      exportFileName="grades"
       title="Grades"
       subtitle="Job bands and salary ranges"
       entityLabel="grade"

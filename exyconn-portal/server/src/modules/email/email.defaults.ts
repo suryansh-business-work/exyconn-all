@@ -141,14 +141,19 @@ const TEMPLATES = [
   {
     key: 'contract-for-signature',
     name: 'Contract sent for signature',
-    description: 'Sent to a counterparty when Legal sends a contract out.',
+    description:
+      'Sent to a counterparty when Legal asks for a signature. The button carries the link that identifies them.',
     subject: 'Contract for your signature: {{contractTitle}}',
     mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Contract for signature</mj-text>
         <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{party}},</mj-text>
         <mj-text font-size="15px" color="#334155" line-height="24px">{{message}}</mj-text>
         <mj-divider border-color="#e2e8f0" />
         <mj-text font-size="14px" color="#64748b" padding-bottom="4px">Contract</mj-text>
-        <mj-text font-size="16px" font-weight="600" color="#0b0a12" padding-top="0">{{contractTitle}}</mj-text>`),
+        <mj-text font-size="16px" font-weight="600" color="#0b0a12" padding-top="0">{{contractTitle}}</mj-text>
+        <mj-button background-color="#155dfc" border-radius="10px" href="{{signingUrl}}" padding="24px 0 8px">Read and sign</mj-button>
+        <mj-text font-size="13px" color="#94a3b8">
+          This link is yours alone — please do not forward it. It stops working once the contract is signed.
+        </mj-text>`),
   },
   {
     key: 'support-reply',

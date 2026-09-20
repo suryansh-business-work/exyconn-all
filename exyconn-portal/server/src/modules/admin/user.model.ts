@@ -55,6 +55,24 @@ const userSchema = new Schema(
       // hashes out of every query that did not deliberately ask for them.
       select: false,
     },
+    /**
+     * The org master data this person belongs to: where they work, which team they are in,
+     * their grade, their kind of employment and the hours they keep.
+     *
+     * Stored as the master's own `code` rather than an id, because that is what the masters
+     * are keyed on and what every other record already references them by (a position's
+     * grade, a holiday's location). Empty string means "not set", the same as every other
+     * optional field here.
+     *
+     * These existed as five full CRUD screens with nothing on either side of them: an
+     * employee could not be put on a shift, in a team or at a location, so a location's
+     * timezone and a shift's grace period were configured and then read by nothing.
+     */
+    locationCode: { type: String, default: '', trim: true, uppercase: true },
+    teamName: { type: String, default: '', trim: true },
+    gradeCode: { type: String, default: '', trim: true, uppercase: true },
+    employmentTypeCode: { type: String, default: '', trim: true, uppercase: true },
+    shiftCode: { type: String, default: '', trim: true, uppercase: true },
     // HR fields — optional so legacy accounts (e.g. seed admin) stay valid.
     department: { type: String, trim: true, default: null },
     designation: { type: String, trim: true, default: null },

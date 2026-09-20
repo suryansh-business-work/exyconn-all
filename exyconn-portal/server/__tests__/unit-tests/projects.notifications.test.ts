@@ -75,7 +75,11 @@ describe('a ticket assigned to you', () => {
     const todo = await column(leadCtx, created.id, 'To do');
     const task = await boardResolvers.Mutation.createTask(
       null,
-      { projectId: created.id, columnId: todo.id, input: { title: 'Blank PDF', assigneeId: dev.id } },
+      {
+        projectId: created.id,
+        columnId: todo.id,
+        input: { title: 'Blank PDF', assigneeId: dev.id },
+      },
       leadCtx,
     );
 
@@ -117,7 +121,11 @@ describe('a comment on a ticket', () => {
     const todo = await column(leadCtx, created.id, 'To do');
     const task = await boardResolvers.Mutation.createTask(
       null,
-      { projectId: created.id, columnId: todo.id, input: { title: 'Blank PDF', assigneeId: dev.id } },
+      {
+        projectId: created.id,
+        columnId: todo.id,
+        input: { title: 'Blank PDF', assigneeId: dev.id },
+      },
       leadCtx,
     );
     await NotificationModel.deleteMany({});
@@ -169,7 +177,11 @@ describe('a ticket moved to a done column', () => {
     await boardResolvers.Mutation.setColumnDone(null, { id: done.id, isDone: true }, leadCtx);
     const task = await boardResolvers.Mutation.createTask(
       null,
-      { projectId: created.id, columnId: todo.id, input: { title: 'Blank PDF', assigneeId: dev.id } },
+      {
+        projectId: created.id,
+        columnId: todo.id,
+        input: { title: 'Blank PDF', assigneeId: dev.id },
+      },
       devCtx,
     );
     await NotificationModel.deleteMany({});
@@ -193,7 +205,11 @@ describe('a ticket moved to a done column', () => {
     await boardResolvers.Mutation.setColumnDone(null, { id: done.id, isDone: true }, leadCtx);
     const task = await boardResolvers.Mutation.createTask(
       null,
-      { projectId: created.id, columnId: todo.id, input: { title: 'Blank PDF', assigneeId: dev.id } },
+      {
+        projectId: created.id,
+        columnId: todo.id,
+        input: { title: 'Blank PDF', assigneeId: dev.id },
+      },
       devCtx,
     );
     await NotificationModel.deleteMany({});
@@ -214,7 +230,11 @@ describe('a ticket moved to a done column', () => {
     const doing = await column(leadCtx, created.id, 'In progress');
     const task = await boardResolvers.Mutation.createTask(
       null,
-      { projectId: created.id, columnId: todo.id, input: { title: 'Blank PDF', assigneeId: dev.id } },
+      {
+        projectId: created.id,
+        columnId: todo.id,
+        input: { title: 'Blank PDF', assigneeId: dev.id },
+      },
       devCtx,
     );
     await NotificationModel.deleteMany({});

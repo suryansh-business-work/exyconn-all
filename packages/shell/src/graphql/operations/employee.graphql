@@ -44,7 +44,7 @@ fragment SupportTicketFields on SupportTicket {
   status
   createdAt
   attachments {
-    ...TicketAttachmentFields
+    ...FileAttachmentFields
   }
 }
 
@@ -87,12 +87,12 @@ query MySupportReplies($ticketId: ID!) {
     body
     createdAt
     attachments {
-      ...TicketAttachmentFields
+      ...FileAttachmentFields
     }
   }
 }
 
-mutation AddMySupportReply($ticketId: ID!, $body: String!, $attachments: [TicketAttachmentInput!]) {
+mutation AddMySupportReply($ticketId: ID!, $body: String!, $attachments: [FileAttachmentInput!]) {
   addMySupportReply(ticketId: $ticketId, body: $body, attachments: $attachments) {
     id
   }

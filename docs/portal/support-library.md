@@ -3,11 +3,11 @@
 Two records, both of them writing the desk reuses, and they are deliberately not the same
 thing.
 
-| | Knowledge base article | Canned reply |
-| --- | --- | --- |
-| Written to be | read on its own, by whoever has the question | dropped into a thread and then edited |
-| Reaches | any signed-in colleague, through search | the agent's composer |
-| Sent automatically | never — it is found | never — it is a starting point |
+|                    | Knowledge base article                       | Canned reply                          |
+| ------------------ | -------------------------------------------- | ------------------------------------- |
+| Written to be      | read on its own, by whoever has the question | dropped into a thread and then edited |
+| Reaches            | any signed-in colleague, through search      | the agent's composer                  |
+| Sent automatically | never — it is found                          | never — it is a starting point        |
 
 An article explains something. A snippet is the paragraph an agent is tired of retyping.
 Collapsing the two would mean either publishing half-sentences or making people search
@@ -27,11 +27,11 @@ an employee hunting for it themselves are the same search over the same publishe
 Restricting it would have meant writing it twice.
 
 Ranking is a Mongo text index weighted to the title (10) over the summary (4) over the body
-(1), so an article *about* VPNs beats one that mentions VPNs in passing.
+(1), so an article _about_ VPNs beats one that mentions VPNs in passing.
 
 **The index has to exist before the first search.** Mongoose builds it in the background
 when the model is first used, so a search arriving early in a fresh deployment can beat it
-and fail with *"text index required"*. `searchKnowledgeBase` awaits `KbArticleModel.init()`,
+and fail with _"text index required"_. `searchKnowledgeBase` awaits `KbArticleModel.init()`,
 which resolves once and is cached, so the wait happens exactly once per boot. This was
 caught by a test, not in production.
 

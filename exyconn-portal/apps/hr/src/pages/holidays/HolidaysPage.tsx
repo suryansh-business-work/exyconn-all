@@ -56,6 +56,7 @@ export function HolidaysPage() {
 
   return (
     <CrudDashboard
+      exportFileName="holidays"
       title="Holidays"
       subtitle="Global, country, state / regional and city holidays — each employee sees the ones for where they work"
       entityLabel="holiday"

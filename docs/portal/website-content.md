@@ -6,19 +6,19 @@ request time through `src/lib/portal/*`, against the unauthenticated `public*` r
 [`server/src/modules/website`](../../exyconn-portal/server/src/modules/website) and the
 Branding and Legal modules.
 
-| Site area | Portal query | Portal screen that edits it |
-|---|---|---|
-| Blog (`/blog`, `/blog/[slug]`) | `publicBlogPosts`, `publicBlogPost` | Website > Blog |
-| Case studies (`/case-studies`, `/case-studies/[slug]`) | `publicCaseStudies`, `publicCaseStudy` | Website > Case Studies |
-| Careers — companies | `publicJobCompanies`, `publicJobCompany` | Website > Companies |
-| Careers — jobs | `publicJobs`, `publicJob` | Website > Jobs |
-| Careers — gigs | `publicGigs`, `publicGig` | Website > Freelance Gigs |
-| Tools directory (`/our-tools`) | `publicToolCategories`, `publicTools`, `publicTool` | Website > Tool Categories, Website > Tools |
-| Header / footer navigation | `publicNavLinks` | Website > Navigation Links |
-| Branding (name, logos, colours, socials) | `publicBranding` | Admin > Branding |
-| Policy pages (`/policies/*`) | `publicPolicies`, `publicPolicy` | Legal > Policies |
-| Form submissions (write) | `createWebsiteSubmission` | Website > Form Submissions |
-| The form-type allow-list | `websiteFormTypes` | — (server constant) |
+| Site area                                              | Portal query                                        | Portal screen that edits it                |
+| ------------------------------------------------------ | --------------------------------------------------- | ------------------------------------------ |
+| Blog (`/blog`, `/blog/[slug]`)                         | `publicBlogPosts`, `publicBlogPost`                 | Website > Blog                             |
+| Case studies (`/case-studies`, `/case-studies/[slug]`) | `publicCaseStudies`, `publicCaseStudy`              | Website > Case Studies                     |
+| Careers — companies                                    | `publicJobCompanies`, `publicJobCompany`            | Website > Companies                        |
+| Careers — jobs                                         | `publicJobs`, `publicJob`                           | Website > Jobs                             |
+| Careers — gigs                                         | `publicGigs`, `publicGig`                           | Website > Freelance Gigs                   |
+| Tools directory (`/our-tools`)                         | `publicToolCategories`, `publicTools`, `publicTool` | Website > Tool Categories, Website > Tools |
+| Header / footer navigation                             | `publicNavLinks`                                    | Website > Navigation Links                 |
+| Branding (name, logos, colours, socials)               | `publicBranding`                                    | Admin > Branding                           |
+| Policy pages (`/policies/*`)                           | `publicPolicies`, `publicPolicy`                    | Legal > Policies                           |
+| Form submissions (write)                               | `createWebsiteSubmission`                           | Website > Form Submissions                 |
+| The form-type allow-list                               | `websiteFormTypes`                                  | — (server constant)                        |
 
 Branding is the one query allowed a bundled fallback (`getBrandingSafe`) because it renders
 on every page; everything else fails loudly rather than serving stale content.
@@ -40,7 +40,7 @@ There are two ways to write a body, and both produce that HTML:
   tickets, the tracker consent text) uses `RhfRichText`, i.e. the `@exyconn/rich-text`
   editor: headings, marks, colour, alignment, lists and check lists, links, tables, and
   images uploaded to ImageKit.
-- **Live edit** — the *Live edit* row action on Blog and Case studies opens
+- **Live edit** — the _Live edit_ row action on Blog and Case studies opens
   `@exyconn/live-editor` (GrapesJS) full-screen at `/website/blog/:id/live-edit` or
   `/website/case-studies/:id/live-edit`. Its canvas loads
   `https://exyconn.com/styles/article-canvas.css` (the same `article.css`, plus the font and
@@ -50,7 +50,7 @@ There are two ways to write a body, and both produce that HTML:
   rest of the page.
 
 A body with `contentCss` is shown in the edit form as "Designed in the live editor" instead
-of the rich-text editor, which cannot represent its layout; *Edit as rich text* clears the
+of the rich-text editor, which cannot represent its layout; _Edit as rich text_ clears the
 design on purpose.
 
 The bodies were seeded by

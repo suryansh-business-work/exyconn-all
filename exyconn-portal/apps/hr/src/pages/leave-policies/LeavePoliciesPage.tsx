@@ -60,6 +60,7 @@ export function LeavePoliciesPage() {
 
   return (
     <CrudDashboard
+      exportFileName="leave-types"
       title="Leave types"
       subtitle="Global quotas and carry-forward, with per-country overrides"
       entityLabel="leave type"

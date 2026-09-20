@@ -77,6 +77,7 @@ export function PoliciesPage() {
 
   return (
     <CrudDashboard
+      exportFileName="policies"
       title="Policies"
       subtitle="What the company asks of people, and who has agreed to it"
       entityLabel="policy"

@@ -1,6 +1,7 @@
 import { isValidObjectId } from 'mongoose';
 import { UserModel } from './user.model';
 import { assertAuthenticated, assertRole } from '../../middleware/roleGuard';
+import { delegatedFromIds } from '../approvals/delegates.service';
 import { forbidden } from '../../utils/errors';
 import { withId, withIds } from '../../utils/serialize';
 import { ROLES, type Role } from '../../constants/roles';
@@ -29,9 +30,14 @@ export async function isManagerOf(managerId: string, employeeId: string): Promis
 }
 
 /**
- * Who may decide something about an employee: the module's own roles (ADMIN always), or
- * the employee's manager. The manager check is the reporting line as it stands now, so a
- * re-assigned employee's old manager loses the power the moment HR moves them.
+ * Who may decide something about an employee: the module's own roles (ADMIN always), the
+ * employee's manager, or whoever is covering that manager today.
+ *
+ * The manager check is the reporting line as it stands now, so a re-assigned employee's old
+ * manager loses the power the moment HR moves them. The delegation check is the same
+ * question asked of the people this caller is standing in for — read here rather than only
+ * in the approvals queue, because a queue that offers a decision the API then refuses is
+ * worse than not offering it.
  */
 export async function assertMayActFor(
   ctx: GraphQLContext,
@@ -42,7 +48,20 @@ export async function assertMayActFor(
   const userRoles = user.roles ?? [];
   const byRole = userRoles.includes(ROLES.ADMIN) || userRoles.some((role) => roles.includes(role));
   if (byRole || (await isManagerOf(user.id, employeeId))) return user;
-  forbidden('Only HR or the employee’s manager may do this');
+  if (await coversManagerOf(user.id, employeeId)) return user;
+  forbidden('Only HR, the employee’s manager or their stand-in may do this');
+}
+
+/** Whether this caller is covering the approvals of anybody `employeeId` reports to. */
+async function coversManagerOf(userId: string, employeeId: string): Promise<boolean> {
+  const covering = await delegatedFromIds(userId);
+  if (covering.length === 0) {
+    return false;
+  }
+  const managers = await Promise.all(
+    covering.map((managerId) => isManagerOf(managerId, employeeId)),
+  );
+  return managers.includes(true);
 }
 
 /** Filter for every row that belongs to one of the given employees. */

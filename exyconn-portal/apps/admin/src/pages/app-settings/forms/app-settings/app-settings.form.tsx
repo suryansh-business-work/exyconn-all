@@ -11,6 +11,7 @@ import {
   RhfChipsInput,
   RhfSelect,
   RhfSwitch,
+  RhfTextField,
 } from '@exyconn/shell/components/form/rhf';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
@@ -112,7 +113,12 @@ export function AppSettingsForm({ initial }: Readonly<AppSettingsFormProps>) {
 
   const onSubmit = async (values: AppSettingsFormValues) => {
     try {
-      await updateSettings({ variables: { input: values } });
+      await updateSettings({
+        variables: {
+          // The one field the form keeps as text, because a number input's empty state is ''.
+          input: { ...values, auditRetentionDays: Number(values.auditRetentionDays) },
+        },
+      });
       methods.reset(values);
       notify('App settings updated');
     } catch (err) {
@@ -157,6 +163,15 @@ export function AppSettingsForm({ initial }: Readonly<AppSettingsFormProps>) {
           translated and stored. Off leaves it in the default language until somebody
           writes the translation by hand in Localization. */}
       <RhfSwitch name="autoTranslate" label="Translate new text automatically" />
+      {/* Zero by default, and it says so: an audit trail is what an incident is
+          reconstructed from, and several standards ask for a stated period — so shortening
+          it is a decision somebody makes here rather than one the portal makes for them. */}
+      <RhfTextField
+        name="auditRetentionDays"
+        label="Keep audit history for (days)"
+        type="number"
+        helperText="0 keeps it for ever. Anything older than this is deleted a few times a day."
+      />
     </EntityForm>
   );
 }

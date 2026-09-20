@@ -1,6 +1,6 @@
 import { isValidObjectId } from 'mongoose';
 import { UserModel } from '../admin/user.model';
-import { directReportIds } from '../admin/reporting';
+import { reportsInScope } from './delegates.service';
 import { isAllowed } from '../../lib/permissions';
 import { assertAuthenticated } from '../../middleware/roleGuard';
 import { badRequest, forbidden } from '../../utils/errors';
@@ -43,14 +43,17 @@ export interface ApprovalQueue {
  * taken APPROVE away from a role does not leave that role a queue full of buttons the
  * server would refuse. The manager path deliberately is not — a manager deciding their
  * own report's request is acting through the reporting line, not through the module's
- * role, exactly as `assertApprovePermission` already reasons about it.
+ * role, exactly as `assertApprovePermission` already reasons about it — and it now includes
+ * whoever they are covering for, so a manager on leave is not a hold on everything behind them.
  */
 async function scopeFor(source: ApprovalSource, roles: Role[], userId: string) {
   if (roles.includes(ROLES.ADMIN)) return { ownerIds: null };
   const byRole = roles.some((role) => source.roles.includes(role));
   if (byRole && (await isAllowed(roles, source.module, 'APPROVE'))) return { ownerIds: null };
   if (!source.managerMayDecide) return null;
-  const ownerIds = await directReportIds(userId);
+  // Their own reports, plus anybody's they are covering today. A delegate stands in the away
+  // person's place in the reporting line: they see exactly what that person would have seen.
+  const ownerIds = await reportsInScope(userId);
   return ownerIds.length > 0 ? { ownerIds } : null;
 }
 

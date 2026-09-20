@@ -5,6 +5,7 @@ import { ROLES } from '../../constants/roles';
 import { assertPlatformStaff } from '../../lib/platformAccess';
 import { withId } from '../../utils/serialize';
 import { badRequest, notFound } from '../../utils/errors';
+import { logger } from '../../utils/logger';
 import type { GraphQLContext } from '../../middleware/auth';
 
 type Payload = Record<string, unknown>;
@@ -66,6 +67,53 @@ export function leadFromSubmission(formType: string, data: Payload, owner: strin
     owner,
     notes: notesOf(formType, data),
   };
+}
+
+/**
+ * The enquiries that are a sales lead by their nature.
+ *
+ * A "contact us" and an "India offer" enquiry are somebody asking to be sold to; a
+ * grievance, a legal notice, a job application and a newsletter sign-up are not, and filing
+ * those as leads would put complaints and candidates into a sales pipeline. Anything else
+ * can still be handed over by hand from the inbox.
+ */
+const SALES_FORM_TYPES: ReadonlySet<string> = new Set(['contact', 'india-offer']);
+
+/** What an automatically filed lead's owner reads as until the desk picks it up. */
+export const UNASSIGNED = 'Unassigned';
+
+/**
+ * Files a lead the moment a sales enquiry arrives.
+ *
+ * The inbox always had a "convert to lead" button, which means an enquiry that came in on
+ * Friday evening waited for somebody to open a screen — and an enquiry nobody opened was an
+ * enquiry nobody answered. Best-effort: a submission is never lost because the CRM refused
+ * it, and the button still works for whatever this leaves alone.
+ */
+export async function autoFileLead(
+  submissionId: string,
+  formType: string,
+  data: Payload,
+): Promise<string | null> {
+  if (!SALES_FORM_TYPES.has(formType)) {
+    return null;
+  }
+  const email = firstText(data, ['email']).toLowerCase();
+  if (!email) {
+    return null;
+  }
+  try {
+    // Named "Unassigned" rather than left blank: a lead has to have an owner, and putting a
+    // real person's name on one nobody has picked up would say somebody had. Assignment is
+    // the sales desk's own decision, and this is what it reads as until they make it.
+    const lead = await LeadModel.create(leadFromSubmission(formType, data, UNASSIGNED));
+    const leadId = String(lead._id);
+    await WebsiteSubmissionModel.updateOne({ _id: submissionId }, { leadId });
+    return leadId;
+  } catch (error) {
+    logger.error(error, `Submission ${submissionId} could not be filed as a lead`);
+    return null;
+  }
 }
 
 /**

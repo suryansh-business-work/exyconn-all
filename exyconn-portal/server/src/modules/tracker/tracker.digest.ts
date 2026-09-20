@@ -1,6 +1,7 @@
 import { AppSettingsModel } from '../admin/settings.model';
 import { forEachOrganization } from '../organizations';
-import { recordJobRun } from '../../utils/jobHeartbeat';
+import { JOB_KEYS, recordJobRun } from '../../utils/jobHeartbeat';
+import { registerBackgroundJob } from '../tech/jobs.registry';
 import { UserModel } from '../admin/user.model';
 import { emailer, rawHtml } from '../email';
 import { ROLES } from '../../constants/roles';
@@ -190,7 +191,7 @@ export function isDigestDue(
 }
 
 /** Sends whichever digests are due, and records that they went. */
-async function runDueDigests(): Promise<void> {
+export async function runDueDigests(): Promise<void> {
   const [settings, appSettings] = await Promise.all([
     getTrackerSettings(),
     AppSettingsModel.findOne().lean(),
@@ -244,3 +245,10 @@ export function startTrackerDigest(): void {
   globalThis.setInterval(tick, TICK_MS).unref();
   logger.info('Tracker digest scheduler started');
 }
+
+registerBackgroundJob({
+  key: JOB_KEYS.trackerDigest,
+  label: 'Tracker digests',
+  description: 'Emails the daily and weekly tracked-hours summaries when they are due.',
+  runOnce: () => runDueDigests(),
+});

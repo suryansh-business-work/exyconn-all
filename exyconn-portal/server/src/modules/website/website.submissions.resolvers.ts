@@ -8,6 +8,7 @@ import { badRequest, notFound } from '../../utils/errors';
 import { tableQuery, tableStats, type TableQueryInput } from '../../utils/tableQuery';
 import { mailer } from '../../utils/mailer';
 import { logger } from '../../utils/logger';
+import { autoFileLead } from './website.lead';
 import { createApplicantFromSubmission } from '../recruiting/recruiting.service';
 import { JOB_APPLICATION_FORM_TYPE } from '../recruiting/recruiting.constants';
 import { createLimiter, tooManyRequests } from '../../lib/rateLimiter';
@@ -205,6 +206,10 @@ export const websiteSubmissionResolvers = {
         input.formType === JOB_APPLICATION_FORM_TYPE
           ? await fileApplicant(String(created._id), submissionData)
           : null;
+      // A sales enquiry becomes a lead now rather than when somebody next opens the inbox:
+      // an enquiry that arrives on Friday evening should not wait for Monday to exist in
+      // the CRM. Best-effort, and the inbox's own button still covers everything else.
+      await autoFileLead(String(created._id), input.formType, submissionData);
       try {
         await mailer.sendFormSubmissionEmail({
           formType: input.formType,

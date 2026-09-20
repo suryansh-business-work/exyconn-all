@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
 import { useT } from '@exyconn/i18n';
 import {
@@ -34,7 +35,12 @@ export function StatusHeader() {
   const t = useT();
   const { mode, toggle } = useColorMode();
   const navigate = useNavigate();
-  const onReportPage = useLocation().pathname === '/report';
+  const path = useLocation().pathname;
+  const onReportPage = path === '/report';
+  const onHelpPage = path === '/help';
+  // Both actions collapse to one "back" on their own page: two ways out of the same screen
+  // is a choice nobody wants to make.
+  const away = onReportPage || onHelpPage;
   const isDark = mode === 'dark';
   const { data } = usePublicBrandingQuery();
   const branding = data?.publicBranding;
@@ -85,13 +91,28 @@ export function StatusHeader() {
                 {isDark ? <LightModeIcon /> : <DarkModeIcon />}
               </IconButton>
             </Tooltip>
-            <Button
-              variant={onReportPage ? 'outlined' : 'contained'}
-              startIcon={onReportPage ? undefined : <ReportProblemIcon />}
-              onClick={() => navigate(onReportPage ? '/' : '/report')}
-            >
-              {onReportPage ? t('Back to status') : t('Report a problem')}
-            </Button>
+            {away ? (
+              <Button variant="outlined" onClick={() => navigate('/')}>
+                {t('Back to status')}
+              </Button>
+            ) : (
+              <>
+                <Button
+                  variant="outlined"
+                  startIcon={<SupportAgentIcon />}
+                  onClick={() => navigate('/help')}
+                >
+                  {t('Get help')}
+                </Button>
+                <Button
+                  variant="contained"
+                  startIcon={<ReportProblemIcon />}
+                  onClick={() => navigate('/report')}
+                >
+                  {t('Report a problem')}
+                </Button>
+              </>
+            )}
           </Flex>
         </Flex>
       </Container>

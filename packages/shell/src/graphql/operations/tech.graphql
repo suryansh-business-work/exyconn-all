@@ -282,3 +282,18 @@ mutation DeleteOpenAiConfig($id: ID!) {
 mutation TestOpenAiConnection($id: ID!) {
   testOpenAiConnection(id: $id)
 }
+
+# Tech › Jobs: every background loop, and a way to make one take a pass now.
+query BackgroundJobs {
+  backgroundJobs {
+    key
+    label
+    description
+    lastRunAt
+    lastRunSummary
+  }
+}
+
+mutation RunBackgroundJob($key: String!) {
+  runBackgroundJob(key: $key)
+}

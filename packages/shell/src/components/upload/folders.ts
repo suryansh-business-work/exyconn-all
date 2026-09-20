@@ -5,3 +5,6 @@
  * ticket form and their replies, and all three must land in the same place.
  */
 export const SUPPORT_UPLOAD_FOLDER = 'support';
+
+/** Evidence hung off a compliance finding or an audit — what an auditor asks to see. */
+export const COMPLIANCE_UPLOAD_FOLDER = 'compliance';

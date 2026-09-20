@@ -3,7 +3,7 @@ import { SalarySlipModel } from './salarySlip.model';
 import { HolidayModel } from './holiday.model';
 import { SupportTicketModel } from './support.model';
 import { SupportReplyModel } from '../support/support-reply.model';
-import { toAttachments, type AttachmentInput } from '../support/attachment.schema';
+import { toAttachments, type AttachmentInput } from '../../lib/attachments';
 import { dueAtForPriority } from '../support/sla.service';
 import { uniqueReference } from '../support/ticket-reference';
 import { announceTicketFiled } from '../support/ticket-events';

@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { attachmentSchema } from '../../lib/attachments';
 import { COMPLIANCE_CATEGORIES, MANAGEMENT_STANDARDS } from './compliance.constants';
 
 /** Where the finding came from. One register whatever raised it. */
@@ -69,6 +70,12 @@ const findingSchema = new Schema(
     effective: { type: Boolean, default: null },
     effectivenessNote: { type: String, default: '' },
     closedOn: { type: Date, default: null },
+    /**
+     * The evidence. An auditor's question is never "was it corrected" but "show me" — a
+     * screenshot of the fixed setting, the signed training record, the changed procedure.
+     * The register carried none, so every answer lived in somebody's mail.
+     */
+    evidence: { type: [attachmentSchema], default: [] },
   },
   { timestamps: true },
 );

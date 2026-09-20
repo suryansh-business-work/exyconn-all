@@ -61,6 +61,7 @@ export function SlaPoliciesPage() {
 
   return (
     <CrudDashboard<SlaPolicyRow, PagedSlaPolicyRow>
+      exportFileName="sla-policies"
       title="SLA Policies"
       subtitle="What support promises for each priority"
       entityLabel="policy"

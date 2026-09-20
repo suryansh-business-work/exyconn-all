@@ -405,6 +405,8 @@ export type AppLogUserInput = {
 
 export type AppSettings = {
   __typename?: 'AppSettings';
+  /** Days of audit history kept. Zero keeps it for ever, which is the default. */
+  auditRetentionDays: Scalars['Int']['output'];
   /** Machine-translate a string the first time a screen needs one and none exists. */
   autoTranslate: Scalars['Boolean']['output'];
   /** ISO 3166-1 alpha-2 country the company operates in, or empty. */
@@ -495,6 +497,32 @@ export enum ApprovalDecision {
   Approved = 'APPROVED',
   Rejected = 'REJECTED'
 }
+
+/**
+ * One person standing in for another's approvals while they are away. A window rather than a
+ * switch, so nobody has to remember to turn it off.
+ */
+export type ApprovalDelegation = {
+  __typename?: 'ApprovalDelegation';
+  /** Whether it covers today, which is the only question the queue asks. */
+  active: Scalars['Boolean']['output'];
+  fromDate: Scalars['DateTime']['output'];
+  fromEmployeeId: Scalars['String']['output'];
+  fromName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  note: Scalars['String']['output'];
+  toDate: Scalars['DateTime']['output'];
+  toEmployeeId: Scalars['String']['output'];
+  toName: Scalars['String']['output'];
+};
+
+export type ApprovalDelegationInput = {
+  fromDate: Scalars['DateTime']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
+  /** Inclusive — a delegation until Friday covers Friday. */
+  toDate: Scalars['DateTime']['input'];
+  toEmployeeId: Scalars['String']['input'];
+};
 
 /** How many are waiting in one source — the counts behind the queue's tabs. */
 export type ApprovalGroup = {
@@ -820,6 +848,18 @@ export type AuthPayload = {
   token: Scalars['String']['output'];
   /** Null until the sign-in is complete, so a password alone reveals nothing about the account. */
   user?: Maybe<User>;
+};
+
+/** One background loop the server runs, and what its last pass reported. */
+export type BackgroundJob = {
+  __typename?: 'BackgroundJob';
+  /** What it does, for somebody deciding whether to run it now. */
+  description: Scalars['String']['output'];
+  key: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+  /** Null until it has run once in this process — a restart forgets, deliberately. */
+  lastRunAt?: Maybe<Scalars['DateTime']['output']>;
+  lastRunSummary: Scalars['String']['output'];
 };
 
 export type Benefit = {
@@ -1586,6 +1626,41 @@ export enum ComplianceCategory {
   Supplier = 'SUPPLIER'
 }
 
+/** Where the management system stands, measured when the query runs. */
+export type ComplianceOverview = {
+  __typename?: 'ComplianceOverview';
+  audits: Scalars['Int']['output'];
+  auditsPlanned: Scalars['Int']['output'];
+  findings: Scalars['Int']['output'];
+  findingsByType: Array<ComplianceSlice>;
+  /** Corrective actions past their date and not yet verified. */
+  findingsOverdue: Scalars['Int']['output'];
+  /** When leadership last met. Null when they never have. */
+  lastReviewOn?: Maybe<Scalars['DateTime']['output']>;
+  lastReviewTitle: Scalars['String']['output'];
+  objectives: Scalars['Int']['output'];
+  /** Objectives the owner has marked at risk or already missed. */
+  objectivesAtRisk: Scalars['Int']['output'];
+  openFindings: Scalars['Int']['output'];
+  openRisks: Scalars['Int']['output'];
+  /** Open risks by their RESIDUAL level — the risk carried after the controls. */
+  residualHeat: Array<ComplianceSlice>;
+  reviews: Scalars['Int']['output'];
+  risks: Scalars['Int']['output'];
+  risksByStatus: Array<ComplianceSlice>;
+  /** Open risks whose review date has passed — how a register quietly goes stale. */
+  risksPastReview: Scalars['Int']['output'];
+  /** Audits performed against each standard in the last year. Zero is the gap. */
+  standardCoverage: Array<ComplianceSlice>;
+};
+
+/** A count of one group, for the dashboard's breakdowns. */
+export type ComplianceSlice = {
+  __typename?: 'ComplianceSlice';
+  label: Scalars['String']['output'];
+  value: Scalars['Int']['output'];
+};
+
 export type Contact = {
   __typename?: 'Contact';
   companyId: Scalars['String']['output'];
@@ -1647,6 +1722,8 @@ export type ContainerPort = {
 export type Contract = {
   __typename?: 'Contract';
   createdAt: Scalars['DateTime']['output'];
+  /** The document a counterparty is asked to read and sign. Empty until one is attached. */
+  documentUrl: Scalars['String']['output'];
   effectiveDate: Scalars['DateTime']['output'];
   expiryDate: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
@@ -1661,6 +1738,7 @@ export type Contract = {
 };
 
 export type ContractInput = {
+  documentUrl?: InputMaybe<Scalars['String']['input']>;
   effectiveDate: Scalars['DateTime']['input'];
   expiryDate: Scalars['DateTime']['input'];
   party: Scalars['String']['input'];
@@ -1675,12 +1753,62 @@ export type ContractPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/**
+ * One request for a signature, and the evidence of it. Everything from the moment of
+ * signing onwards is written once and never again.
+ */
+export type ContractSignature = {
+  __typename?: 'ContractSignature';
+  createdAt: Scalars['DateTime']['output'];
+  /** SHA-256 of the document's bytes as they were when it was signed. */
+  documentSha256: Scalars['String']['output'];
+  expiresAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  requestedByName: Scalars['String']['output'];
+  revokedAt?: Maybe<Scalars['DateTime']['output']>;
+  signedAt?: Maybe<Scalars['DateTime']['output']>;
+  signedIp: Scalars['String']['output'];
+  /** The name the signer typed — their mark, in their own words. */
+  signedName: Scalars['String']['output'];
+  signedUserAgent: Scalars['String']['output'];
+  signerEmail: Scalars['String']['output'];
+  signerName: Scalars['String']['output'];
+};
+
+/** What Legal gets back when a request is raised: the link, so it can be passed on by hand. */
+export type ContractSignatureRequest = {
+  __typename?: 'ContractSignatureRequest';
+  id: Scalars['ID']['output'];
+  url: Scalars['String']['output'];
+};
+
+/** Confirmation the signer sees, and the hash they can check the document against later. */
+export type ContractSignedReceipt = {
+  __typename?: 'ContractSignedReceipt';
+  documentSha256: Scalars['String']['output'];
+  signedAt: Scalars['DateTime']['output'];
+};
+
 export enum ContractStatus {
   Active = 'ACTIVE',
   Draft = 'DRAFT',
   Expired = 'EXPIRED',
   Terminated = 'TERMINATED'
 }
+
+/** What a counterparty sees on the public signing page. Deliberately narrow. */
+export type ContractToSign = {
+  __typename?: 'ContractToSign';
+  documentUrl: Scalars['String']['output'];
+  effectiveDate: Scalars['DateTime']['output'];
+  expiryDate: Scalars['DateTime']['output'];
+  party: Scalars['String']['output'];
+  /** Set once it has been signed, so a revisited link says so rather than signing twice. */
+  signedAt?: Maybe<Scalars['DateTime']['output']>;
+  signerName: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  type: ContractType;
+};
 
 export enum ContractType {
   Employment = 'EMPLOYMENT',
@@ -1741,16 +1869,26 @@ export type CreateUserInput = {
   designation?: InputMaybe<Scalars['String']['input']>;
   email: Scalars['String']['input'];
   employmentStatus?: InputMaybe<EmploymentStatus>;
+  /** Kind of employment, by code — permanent, contract, intern. Empty when not set. */
+  employmentTypeCode?: InputMaybe<Scalars['String']['input']>;
+  /** Job grade or band, by code. Empty when not set. */
+  gradeCode?: InputMaybe<Scalars['String']['input']>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   joinDate?: InputMaybe<Scalars['DateTime']['input']>;
   /** BCP-47 tag, or null to follow the workspace default. */
   locale?: InputMaybe<Scalars['String']['input']>;
+  /** Office or site this person works at, by the location's code. Empty when not set. */
+  locationCode?: InputMaybe<Scalars['String']['input']>;
   managerId?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   probationEndDate?: InputMaybe<Scalars['DateTime']['input']>;
   /** The state or region they work in, for regional holidays; null when not set. */
   region?: InputMaybe<Scalars['String']['input']>;
   roles: Array<Role>;
+  /** Working-hours pattern, by code. Empty when not set. */
+  shiftCode?: InputMaybe<Scalars['String']['input']>;
+  /** Team inside the department. Empty when not set. */
+  teamName?: InputMaybe<Scalars['String']['input']>;
   /** IANA zone name, or null to follow the workspace default. */
   timezone?: InputMaybe<Scalars['String']['input']>;
   workHoursPerDay?: InputMaybe<Scalars['Int']['input']>;
@@ -2411,6 +2549,23 @@ export enum ExpenseStatus {
   Submitted = 'SUBMITTED'
 }
 
+/** A file posted with a ticket or a reply. Hosted on the portal's image CDN. */
+export type FileAttachment = {
+  __typename?: 'FileAttachment';
+  contentType: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  uploadedAt: Scalars['DateTime']['output'];
+  uploadedBy: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
+
+/** What a client sends when it posts a file: the server stamps who and when. */
+export type FileAttachmentInput = {
+  contentType?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  url: Scalars['String']['input'];
+};
+
 export enum FilterOp {
   Contains = 'CONTAINS',
   Equals = 'EQUALS',
@@ -2458,6 +2613,8 @@ export type Finding = {
   /** Whether the correction actually worked. Null until it has been verified. */
   effective?: Maybe<Scalars['Boolean']['output']>;
   effectivenessNote: Scalars['String']['output'];
+  /** What proves it: the screenshot, the signed record, the changed procedure. */
+  evidence: Array<FileAttachment>;
   id: Scalars['ID']['output'];
   immediateAction: Scalars['String']['output'];
   ownerId: Scalars['String']['output'];
@@ -2486,6 +2643,7 @@ export type FindingInput = {
   dueOn?: InputMaybe<Scalars['DateTime']['input']>;
   effective?: InputMaybe<Scalars['Boolean']['input']>;
   effectivenessNote?: InputMaybe<Scalars['String']['input']>;
+  evidence?: InputMaybe<Array<FileAttachmentInput>>;
   immediateAction: Scalars['String']['input'];
   ownerId: Scalars['String']['input'];
   ownerName: Scalars['String']['input'];
@@ -2893,6 +3051,8 @@ export type InternalAudit = {
   conclusion: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   criteria: Scalars['String']['output'];
+  /** The audit's own papers: the plan, the checklist, the report as it was issued. */
+  evidence: Array<FileAttachment>;
   /** What this audit raised, so the report and its findings are read together. */
   findings: Array<Finding>;
   id: Scalars['ID']['output'];
@@ -2914,6 +3074,7 @@ export type InternalAuditInput = {
   auditeeName: Scalars['String']['input'];
   conclusion: Scalars['String']['input'];
   criteria: Scalars['String']['input'];
+  evidence?: InputMaybe<Array<FileAttachmentInput>>;
   kind: AuditKind;
   leadAuditorId: Scalars['String']['input'];
   leadAuditorName: Scalars['String']['input'];
@@ -4471,6 +4632,8 @@ export type Mutation = {
   decideItChange: ItChange;
   /** Approve or reject a purchase request that is requested or quoted. */
   decideItPurchaseRequest: ItPurchaseRequest;
+  /** Hands this person's approvals to a colleague for a window. */
+  delegateApprovals: ApprovalDelegation;
   deleteActivity: Scalars['Boolean']['output'];
   deleteAiJob: Scalars['Boolean']['output'];
   deleteAiModelPrice: Scalars['Boolean']['output'];
@@ -4581,6 +4744,8 @@ export type Mutation = {
   /** Switches two-factor off. Needs the password: a borrowed screen must not be enough. */
   disableMfa: Scalars['Boolean']['output'];
   disconnectSocialAccount: Scalars['Boolean']['output'];
+  /** Calls off a delegation. Only whoever arranged it may. */
+  endApprovalDelegation: Scalars['Boolean']['output'];
   /**
    * SUPPORT/IT: escalate a ticket. Raises it to HIGH priority (recomputing the deadline), bumps
    * its escalation level, records the reason as an internal note and tells the assignee.
@@ -4649,6 +4814,11 @@ export type Mutation = {
    */
   reportClientLogs: Scalars['Boolean']['output'];
   /**
+   * LEGAL: ask a counterparty to sign. Emails them a link nobody else has and returns it,
+   * so it can also be passed on by hand.
+   */
+  requestContractSignature: ContractSignatureRequest;
+  /**
    * Self-service reset: emails a one-hour link to the address if an account has it.
    * Always true, so the answer does not reveal which addresses have accounts.
    */
@@ -4664,6 +4834,8 @@ export type Mutation = {
    */
   reviewTrackerManualEntry: TrackerManualEntry;
   revokeApiKey: ApiKey;
+  /** LEGAL: withdraw an unsigned request. A signed one is evidence and cannot be withdrawn. */
+  revokeContractSignature: Scalars['Boolean']['output'];
   /** Ends every session except this one, for somebody who thinks their password has been seen. */
   revokeOtherSessions: Scalars['Int']['output'];
   revokeProjectShare: ProjectShare;
@@ -4673,6 +4845,14 @@ export type Mutation = {
   revokeTrackerDevice: TrackerDevice;
   /** Queues the job for the AI worker and answers at once. Poll the job for the result. */
   runAiJob: AiJob;
+  /**
+   * TECH: takes one pass of a loop now, across every company.
+   *
+   * Safe to press twice: every loop is idempotent by construction, because two processes may
+   * tick at the same moment anyway. This is the same pass the timer takes, not a second
+   * implementation of it.
+   */
+  runBackgroundJob: Scalars['Boolean']['output'];
   /**
    * Generates (or recomputes) every active employee's slip for the month from their
    * salary structure and approved unpaid leave. Idempotent: running it twice
@@ -4710,7 +4890,6 @@ export type Mutation = {
    * leaves no send log or last-sent stamp behind.
    */
   sendCampaign: CampaignSendResult;
-  sendContract: Contract;
   /** Emails the invoice PDF to the client, moves a draft to SENT and stamps sentAt. */
   sendInvoice: Invoice;
   /** Posts a line onto the caller's OWN tracker thread. */
@@ -4787,7 +4966,16 @@ export type Mutation = {
   setWebhookActive: Webhook;
   /** Shares a post onto the feed, optionally with something of your own to say. */
   shareSocialPost: SocialPost;
+  /**
+   * LEGAL: sign our own side. The signer is the account making the request, not a name typed
+   * into a field, and the document's hash is recorded with it.
+   */
   signContract: Contract;
+  /**
+   * Unauthenticated — the counterparty signs with the link they were sent. Records the name
+   * they typed, where they answered from, and the hash of the document they were shown.
+   */
+  signContractWithToken: ContractSignedReceipt;
   /** AI: post ideas on a topic, in the voice of the best posts. */
   socialMediaIdeas: Scalars['String']['output'];
   /** AI: what worked, what did not, and what to try, from the last days' posts. */
@@ -5022,7 +5210,7 @@ export type MutationAddItIncidentUpdateArgs = {
 
 
 export type MutationAddMySupportReplyArgs = {
-  attachments?: InputMaybe<Array<TicketAttachmentInput>>;
+  attachments?: InputMaybe<Array<FileAttachmentInput>>;
   body: Scalars['String']['input'];
   ticketId: Scalars['ID']['input'];
 };
@@ -5036,7 +5224,7 @@ export type MutationAddStatusIncidentUpdateArgs = {
 
 
 export type MutationAddSupportReplyArgs = {
-  attachments?: InputMaybe<Array<TicketAttachmentInput>>;
+  attachments?: InputMaybe<Array<FileAttachmentInput>>;
   body: Scalars['String']['input'];
   internal: Scalars['Boolean']['input'];
   ticketId: Scalars['ID']['input'];
@@ -5725,6 +5913,11 @@ export type MutationDecideItPurchaseRequestArgs = {
 };
 
 
+export type MutationDelegateApprovalsArgs = {
+  input: ApprovalDelegationInput;
+};
+
+
 export type MutationDeleteActivityArgs = {
   id: Scalars['ID']['input'];
 };
@@ -6245,6 +6438,11 @@ export type MutationDisconnectSocialAccountArgs = {
 };
 
 
+export type MutationEndApprovalDelegationArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationEscalateSupportTicketArgs = {
   id: Scalars['ID']['input'];
   reason: Scalars['String']['input'];
@@ -6389,6 +6587,14 @@ export type MutationReportClientLogsArgs = {
 };
 
 
+export type MutationRequestContractSignatureArgs = {
+  contractId: Scalars['ID']['input'];
+  message?: InputMaybe<Scalars['String']['input']>;
+  signerEmail: Scalars['String']['input'];
+  signerName: Scalars['String']['input'];
+};
+
+
 export type MutationRequestPasswordResetArgs = {
   email: Scalars['String']['input'];
 };
@@ -6417,6 +6623,11 @@ export type MutationRevokeApiKeyArgs = {
 };
 
 
+export type MutationRevokeContractSignatureArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationRevokeProjectShareArgs = {
   id: Scalars['ID']['input'];
 };
@@ -6439,6 +6650,11 @@ export type MutationRevokeTrackerDeviceArgs = {
 
 export type MutationRunAiJobArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationRunBackgroundJobArgs = {
+  key: Scalars['String']['input'];
 };
 
 
@@ -6491,13 +6707,6 @@ export type MutationSendCampaignArgs = {
   audienceListId?: InputMaybe<Scalars['ID']['input']>;
   id: Scalars['ID']['input'];
   testEmail?: InputMaybe<Scalars['String']['input']>;
-};
-
-
-export type MutationSendContractArgs = {
-  email: Scalars['String']['input'];
-  id: Scalars['ID']['input'];
-  message?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -6690,7 +6899,12 @@ export type MutationShareSocialPostArgs = {
 
 export type MutationSignContractArgs = {
   id: Scalars['ID']['input'];
-  signedBy: Scalars['String']['input'];
+};
+
+
+export type MutationSignContractWithTokenArgs = {
+  signedName: Scalars['String']['input'];
+  token: Scalars['String']['input'];
 };
 
 
@@ -7497,6 +7711,13 @@ export type MutationVerifyMfaArgs = {
 
 export type MutationWithdrawTrackerManualEntryArgs = {
   id: Scalars['ID']['input'];
+};
+
+/** What this person has arranged, and whose approvals they are covering. */
+export type MyApprovalDelegations = {
+  __typename?: 'MyApprovalDelegations';
+  given: Array<ApprovalDelegation>;
+  held: Array<ApprovalDelegation>;
 };
 
 export type MyExpenseClaimInput = {
@@ -8789,6 +9010,8 @@ export type Query = {
   attendanceByEmployee: Array<Attendance>;
   /** Who an audience currently reaches: named members plus its segment, de-duplicated. */
   audienceMembers: Array<AudienceMember>;
+  /** TECH: every background loop, with what its last pass did. */
+  backgroundJobs: Array<BackgroundJob>;
   branding: Branding;
   /**
    * Budget against actual per cost centre between two dates, both bounds inclusive of the
@@ -8820,6 +9043,15 @@ export type Query = {
    * fall on, as the caller sends them.
    */
   companyFinance: CompanyFinance;
+  /** Compliance only — the state of the whole management system on one screen. */
+  complianceOverview: ComplianceOverview;
+  /** LEGAL: every signature request on one contract, newest first, with its evidence. */
+  contractSignatures: Array<ContractSignature>;
+  /**
+   * Unauthenticated — what the counterparty behind a signing link is shown. Null when the
+   * link is unknown, withdrawn or expired.
+   */
+  contractToSign?: Maybe<ContractToSign>;
   /** Open deals (not won or lost): how many, their face value and the probability-weighted value. */
   dealForecast: DealForecast;
   docPage: DocPage;
@@ -9266,6 +9498,8 @@ export type Query = {
   /** The locales this workspace offers. Public — the login screen has a language picker. */
   localeOptions: Array<LocaleOption>;
   me: User;
+  /** Delegations this person has arranged, and the ones they are covering. */
+  myApprovalDelegations: MyApprovalDelegations;
   /**
    * Everything awaiting the caller across every module, newest first. The kind argument narrows to
    * one source; it can never widen what the caller is allowed to see.
@@ -9597,6 +9831,16 @@ export type QueryClientSupportTicketStatusArgs = {
 export type QueryCompanyFinanceArgs = {
   from: Scalars['DateTime']['input'];
   to: Scalars['DateTime']['input'];
+};
+
+
+export type QueryContractSignaturesArgs = {
+  contractId: Scalars['ID']['input'];
+};
+
+
+export type QueryContractToSignArgs = {
+  token: Scalars['String']['input'];
 };
 
 
@@ -11992,7 +12236,7 @@ export enum SupportPriority {
 /** One message on a ticket. Internal notes are hidden from the requester. */
 export type SupportReply = {
   __typename?: 'SupportReply';
-  attachments: Array<TicketAttachment>;
+  attachments: Array<FileAttachment>;
   authorId: Scalars['String']['output'];
   authorName: Scalars['String']['output'];
   body: Scalars['String']['output'];
@@ -12054,7 +12298,7 @@ export type SupportTicket = {
   /** Support-team member who owns it. Empty until someone picks it up. */
   assigneeId: Scalars['String']['output'];
   assigneeName: Scalars['String']['output'];
-  attachments: Array<TicketAttachment>;
+  attachments: Array<FileAttachment>;
   category: SupportCategory;
   /** How it reached the desk. PORTAL for everything raised before the mailbox existed. */
   channel: TicketChannel;
@@ -12095,7 +12339,7 @@ export type SupportTicket = {
 /** Employee-facing support request — the server sets employeeId and OPEN status. */
 export type SupportTicketInput = {
   /** Screenshots or documents, already uploaded through uploadImage. */
-  attachments?: InputMaybe<Array<TicketAttachmentInput>>;
+  attachments?: InputMaybe<Array<FileAttachmentInput>>;
   category: SupportCategory;
   description: Scalars['String']['input'];
   priority: SupportPriority;
@@ -12393,23 +12637,6 @@ export type TeamPage = {
   __typename?: 'TeamPage';
   rows: Array<Team>;
   totalCount: Scalars['Int']['output'];
-};
-
-/** A file posted with a ticket or a reply. Hosted on the portal's image CDN. */
-export type TicketAttachment = {
-  __typename?: 'TicketAttachment';
-  contentType: Scalars['String']['output'];
-  name: Scalars['String']['output'];
-  uploadedAt: Scalars['DateTime']['output'];
-  uploadedBy: Scalars['String']['output'];
-  url: Scalars['String']['output'];
-};
-
-/** What a client sends when it posts a file: the server stamps who and when. */
-export type TicketAttachmentInput = {
-  contentType?: InputMaybe<Scalars['String']['input']>;
-  name: Scalars['String']['input'];
-  url: Scalars['String']['input'];
 };
 
 /** How a ticket reached the desk. */
@@ -13235,6 +13462,8 @@ export type UpdateProfileInput = {
 };
 
 export type UpdateSettingsInput = {
+  /** Days of audit history to keep. Zero keeps it for ever. */
+  auditRetentionDays?: InputMaybe<Scalars['Int']['input']>;
   autoTranslate?: InputMaybe<Scalars['Boolean']['input']>;
   dateFormat?: InputMaybe<Scalars['String']['input']>;
   defaultLocale?: InputMaybe<Scalars['String']['input']>;
@@ -13256,10 +13485,16 @@ export type UpdateUserInput = {
   designation?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   employmentStatus?: InputMaybe<EmploymentStatus>;
+  /** Kind of employment, by code — permanent, contract, intern. Empty when not set. */
+  employmentTypeCode?: InputMaybe<Scalars['String']['input']>;
+  /** Job grade or band, by code. Empty when not set. */
+  gradeCode?: InputMaybe<Scalars['String']['input']>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   joinDate?: InputMaybe<Scalars['DateTime']['input']>;
   /** BCP-47 tag, or null to follow the workspace default. */
   locale?: InputMaybe<Scalars['String']['input']>;
+  /** Office or site this person works at, by the location's code. Empty when not set. */
+  locationCode?: InputMaybe<Scalars['String']['input']>;
   managerId?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   password?: InputMaybe<Scalars['String']['input']>;
@@ -13267,6 +13502,10 @@ export type UpdateUserInput = {
   /** The state or region they work in, for regional holidays; null when not set. */
   region?: InputMaybe<Scalars['String']['input']>;
   roles?: InputMaybe<Array<Role>>;
+  /** Working-hours pattern, by code. Empty when not set. */
+  shiftCode?: InputMaybe<Scalars['String']['input']>;
+  /** Team inside the department. Empty when not set. */
+  teamName?: InputMaybe<Scalars['String']['input']>;
   /** IANA zone name, or null to follow the workspace default. */
   timezone?: InputMaybe<Scalars['String']['input']>;
   workHoursPerDay?: InputMaybe<Scalars['Int']['input']>;
@@ -13296,6 +13535,10 @@ export type User = {
   designation?: Maybe<Scalars['String']['output']>;
   email: Scalars['String']['output'];
   employmentStatus: EmploymentStatus;
+  /** Kind of employment, by code — permanent, contract, intern. Empty when not set. */
+  employmentTypeCode?: Maybe<Scalars['String']['output']>;
+  /** Job grade or band, by code. Empty when not set. */
+  gradeCode?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   isBlocked: Scalars['Boolean']['output'];
@@ -13305,6 +13548,8 @@ export type User = {
   /** The last time the person used any portal or app. */
   lastActiveAt?: Maybe<Scalars['DateTime']['output']>;
   locale?: Maybe<Scalars['String']['output']>;
+  /** Office or site this person works at, by the location's code. Empty when not set. */
+  locationCode?: Maybe<Scalars['String']['output']>;
   /** The user this person reports to; their manager may approve leave and requests. */
   managerId?: Maybe<Scalars['String']['output']>;
   /** Resolved from managerId for display; null when nobody is set. */
@@ -13319,8 +13564,12 @@ export type User = {
   /** The state or region the person works in, which decides regional holidays. Set by HR only. */
   region?: Maybe<Scalars['String']['output']>;
   roles: Array<Role>;
+  /** Working-hours pattern, by code. Empty when not set. */
+  shiftCode?: Maybe<Scalars['String']['output']>;
   /** Public profiles the person chose to share. Null when they have shared none. */
   socialLinks?: Maybe<UserSocialLinks>;
+  /** Team inside the department. Empty when not set. */
+  teamName?: Maybe<Scalars['String']['output']>;
   /**
    * Where this person is and what language they read. Null means "whatever the workspace
    * default is", so moving the house timezone moves everybody who never expressed a
@@ -13620,6 +13869,8 @@ export type ResolversTypes = ResolversObject<{
   ApplicantStage: ApplicantStage;
   ApplyLeaveInput: ApplyLeaveInput;
   ApprovalDecision: ApprovalDecision;
+  ApprovalDelegation: ResolverTypeWrapper<ApprovalDelegation>;
+  ApprovalDelegationInput: ApprovalDelegationInput;
   ApprovalGroup: ResolverTypeWrapper<ApprovalGroup>;
   ApprovalItem: ResolverTypeWrapper<ApprovalItem>;
   ApprovalQueue: ResolverTypeWrapper<ApprovalQueue>;
@@ -13649,6 +13900,7 @@ export type ResolversTypes = ResolversObject<{
   AuditLogPage: ResolverTypeWrapper<AuditLogPage>;
   AuditStatus: AuditStatus;
   AuthPayload: ResolverTypeWrapper<AuthPayload>;
+  BackgroundJob: ResolverTypeWrapper<BackgroundJob>;
   Benefit: ResolverTypeWrapper<Benefit>;
   BenefitInput: BenefitInput;
   BenefitKind: BenefitKind;
@@ -13710,6 +13962,8 @@ export type ResolversTypes = ResolversObject<{
   CompanySocialLinksInput: CompanySocialLinksInput;
   CompanyStatus: CompanyStatus;
   ComplianceCategory: ComplianceCategory;
+  ComplianceOverview: ResolverTypeWrapper<ComplianceOverview>;
+  ComplianceSlice: ResolverTypeWrapper<ComplianceSlice>;
   Contact: ResolverTypeWrapper<Contact>;
   ContactInput: ContactInput;
   ContactPage: ResolverTypeWrapper<ContactPage>;
@@ -13719,7 +13973,11 @@ export type ResolversTypes = ResolversObject<{
   Contract: ResolverTypeWrapper<Contract>;
   ContractInput: ContractInput;
   ContractPage: ResolverTypeWrapper<ContractPage>;
+  ContractSignature: ResolverTypeWrapper<ContractSignature>;
+  ContractSignatureRequest: ResolverTypeWrapper<ContractSignatureRequest>;
+  ContractSignedReceipt: ResolverTypeWrapper<ContractSignedReceipt>;
   ContractStatus: ContractStatus;
+  ContractToSign: ResolverTypeWrapper<ContractToSign>;
   ContractType: ContractType;
   ConvertLeadInput: ConvertLeadInput;
   CostCenter: ResolverTypeWrapper<CostCenter>;
@@ -13786,6 +14044,8 @@ export type ResolversTypes = ResolversObject<{
   ExpenseClaimPage: ResolverTypeWrapper<ExpenseClaimPage>;
   ExpenseState: ExpenseState;
   ExpenseStatus: ExpenseStatus;
+  FileAttachment: ResolverTypeWrapper<FileAttachment>;
+  FileAttachmentInput: FileAttachmentInput;
   FilterOp: FilterOp;
   FinanceBucket: ResolverTypeWrapper<FinanceBucket>;
   FinanceMonth: ResolverTypeWrapper<FinanceMonth>;
@@ -13956,6 +14216,7 @@ export type ResolversTypes = ResolversObject<{
   ModulePermission: ResolverTypeWrapper<ModulePermission>;
   MovementReason: MovementReason;
   Mutation: ResolverTypeWrapper<{}>;
+  MyApprovalDelegations: ResolverTypeWrapper<MyApprovalDelegations>;
   MyExpenseClaimInput: MyExpenseClaimInput;
   MyPolicy: ResolverTypeWrapper<MyPolicy>;
   MyRequestInput: MyRequestInput;
@@ -14198,8 +14459,6 @@ export type ResolversTypes = ResolversObject<{
   Team: ResolverTypeWrapper<Team>;
   TeamInput: TeamInput;
   TeamPage: ResolverTypeWrapper<TeamPage>;
-  TicketAttachment: ResolverTypeWrapper<TicketAttachment>;
-  TicketAttachmentInput: TicketAttachmentInput;
   TicketChannel: TicketChannel;
   Tool: ResolverTypeWrapper<Tool>;
   ToolCategory: ResolverTypeWrapper<ToolCategory>;
@@ -14314,6 +14573,8 @@ export type ResolversParentTypes = ResolversObject<{
   ApplicantInput: ApplicantInput;
   ApplicantPage: ApplicantPage;
   ApplyLeaveInput: ApplyLeaveInput;
+  ApprovalDelegation: ApprovalDelegation;
+  ApprovalDelegationInput: ApprovalDelegationInput;
   ApprovalGroup: ApprovalGroup;
   ApprovalItem: ApprovalItem;
   ApprovalQueue: ApprovalQueue;
@@ -14334,6 +14595,7 @@ export type ResolversParentTypes = ResolversObject<{
   AuditLog: AuditLog;
   AuditLogPage: AuditLogPage;
   AuthPayload: AuthPayload;
+  BackgroundJob: BackgroundJob;
   Benefit: Benefit;
   BenefitInput: BenefitInput;
   BenefitPage: BenefitPage;
@@ -14386,6 +14648,8 @@ export type ResolversParentTypes = ResolversObject<{
   CompanyPage: CompanyPage;
   CompanySocialLinks: CompanySocialLinks;
   CompanySocialLinksInput: CompanySocialLinksInput;
+  ComplianceOverview: ComplianceOverview;
+  ComplianceSlice: ComplianceSlice;
   Contact: Contact;
   ContactInput: ContactInput;
   ContactPage: ContactPage;
@@ -14394,6 +14658,10 @@ export type ResolversParentTypes = ResolversObject<{
   Contract: Contract;
   ContractInput: ContractInput;
   ContractPage: ContractPage;
+  ContractSignature: ContractSignature;
+  ContractSignatureRequest: ContractSignatureRequest;
+  ContractSignedReceipt: ContractSignedReceipt;
+  ContractToSign: ContractToSign;
   ConvertLeadInput: ConvertLeadInput;
   CostCenter: CostCenter;
   CostCenterInput: CostCenterInput;
@@ -14449,6 +14717,8 @@ export type ResolversParentTypes = ResolversObject<{
   ExpenseClaim: ExpenseClaim;
   ExpenseClaimInput: ExpenseClaimInput;
   ExpenseClaimPage: ExpenseClaimPage;
+  FileAttachment: FileAttachment;
+  FileAttachmentInput: FileAttachmentInput;
   FinanceBucket: FinanceBucket;
   FinanceMonth: FinanceMonth;
   Finding: Finding;
@@ -14582,6 +14852,7 @@ export type ResolversParentTypes = ResolversObject<{
   MilestoneInput: MilestoneInput;
   ModulePermission: ModulePermission;
   Mutation: {};
+  MyApprovalDelegations: MyApprovalDelegations;
   MyExpenseClaimInput: MyExpenseClaimInput;
   MyPolicy: MyPolicy;
   MyRequestInput: MyRequestInput;
@@ -14772,8 +15043,6 @@ export type ResolversParentTypes = ResolversObject<{
   Team: Team;
   TeamInput: TeamInput;
   TeamPage: TeamPage;
-  TicketAttachment: TicketAttachment;
-  TicketAttachmentInput: TicketAttachmentInput;
   Tool: Tool;
   ToolCategory: ToolCategory;
   ToolCategoryInput: ToolCategoryInput;
@@ -15050,6 +15319,7 @@ export type AppLogGroupPageResolvers<ContextType = GraphQLContext, ParentType ex
 }>;
 
 export type AppSettingsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AppSettings'] = ResolversParentTypes['AppSettings']> = ResolversObject<{
+  auditRetentionDays?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   autoTranslate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   country?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -15088,6 +15358,19 @@ export type ApplicantResolvers<ContextType = GraphQLContext, ParentType extends 
 export type ApplicantPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ApplicantPage'] = ResolversParentTypes['ApplicantPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['Applicant']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ApprovalDelegationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ApprovalDelegation'] = ResolversParentTypes['ApprovalDelegation']> = ResolversObject<{
+  active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  fromDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  fromEmployeeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  fromName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  note?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  toDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  toEmployeeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  toName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -15279,6 +15562,15 @@ export type AuthPayloadResolvers<ContextType = GraphQLContext, ParentType extend
   mfaRequired?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type BackgroundJobResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['BackgroundJob'] = ResolversParentTypes['BackgroundJob']> = ResolversObject<{
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lastRunAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  lastRunSummary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -15695,6 +15987,33 @@ export type CompanySocialLinksResolvers<ContextType = GraphQLContext, ParentType
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type ComplianceOverviewResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ComplianceOverview'] = ResolversParentTypes['ComplianceOverview']> = ResolversObject<{
+  audits?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  auditsPlanned?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  findings?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  findingsByType?: Resolver<Array<ResolversTypes['ComplianceSlice']>, ParentType, ContextType>;
+  findingsOverdue?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastReviewOn?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  lastReviewTitle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  objectives?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  objectivesAtRisk?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  openFindings?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  openRisks?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  residualHeat?: Resolver<Array<ResolversTypes['ComplianceSlice']>, ParentType, ContextType>;
+  reviews?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  risks?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  risksByStatus?: Resolver<Array<ResolversTypes['ComplianceSlice']>, ParentType, ContextType>;
+  risksPastReview?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  standardCoverage?: Resolver<Array<ResolversTypes['ComplianceSlice']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ComplianceSliceResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ComplianceSlice'] = ResolversParentTypes['ComplianceSlice']> = ResolversObject<{
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type ContactResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Contact'] = ResolversParentTypes['Contact']> = ResolversObject<{
   companyId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   companyName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -15735,6 +16054,7 @@ export type ContainerPortResolvers<ContextType = GraphQLContext, ParentType exte
 
 export type ContractResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Contract'] = ResolversParentTypes['Contract']> = ResolversObject<{
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  documentUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   effectiveDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   expiryDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -15752,6 +16072,46 @@ export type ContractResolvers<ContextType = GraphQLContext, ParentType extends R
 export type ContractPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ContractPage'] = ResolversParentTypes['ContractPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['Contract']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ContractSignatureResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ContractSignature'] = ResolversParentTypes['ContractSignature']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  documentSha256?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  expiresAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  requestedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  revokedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  signedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  signedIp?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  signedName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  signedUserAgent?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  signerEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  signerName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ContractSignatureRequestResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ContractSignatureRequest'] = ResolversParentTypes['ContractSignatureRequest']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ContractSignedReceiptResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ContractSignedReceipt'] = ResolversParentTypes['ContractSignedReceipt']> = ResolversObject<{
+  documentSha256?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  signedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ContractToSignResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ContractToSign'] = ResolversParentTypes['ContractToSign']> = ResolversObject<{
+  documentUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  effectiveDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  expiryDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  party?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  signedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  signerName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['ContractType'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -16183,6 +16543,15 @@ export type ExpenseClaimPageResolvers<ContextType = GraphQLContext, ParentType e
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type FileAttachmentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['FileAttachment'] = ResolversParentTypes['FileAttachment']> = ResolversObject<{
+  contentType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  uploadedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  uploadedBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type FinanceBucketResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['FinanceBucket'] = ResolversParentTypes['FinanceBucket']> = ResolversObject<{
   amount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -16210,6 +16579,7 @@ export type FindingResolvers<ContextType = GraphQLContext, ParentType extends Re
   dueOn?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   effective?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   effectivenessNote?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  evidence?: Resolver<Array<ResolversTypes['FileAttachment']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   immediateAction?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   ownerId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -16442,6 +16812,7 @@ export type InternalAuditResolvers<ContextType = GraphQLContext, ParentType exte
   conclusion?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   criteria?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  evidence?: Resolver<Array<ResolversTypes['FileAttachment']>, ParentType, ContextType>;
   findings?: Resolver<Array<ResolversTypes['Finding']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   kind?: Resolver<ResolversTypes['AuditKind'], ParentType, ContextType>;
@@ -17331,6 +17702,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   decideItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationDecideItAccessRequestArgs, 'decision' | 'id'>>;
   decideItChange?: Resolver<ResolversTypes['ItChange'], ParentType, ContextType, RequireFields<MutationDecideItChangeArgs, 'decision' | 'id'>>;
   decideItPurchaseRequest?: Resolver<ResolversTypes['ItPurchaseRequest'], ParentType, ContextType, RequireFields<MutationDecideItPurchaseRequestArgs, 'decision' | 'id'>>;
+  delegateApprovals?: Resolver<ResolversTypes['ApprovalDelegation'], ParentType, ContextType, RequireFields<MutationDelegateApprovalsArgs, 'input'>>;
   deleteActivity?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteActivityArgs, 'id'>>;
   deleteAiJob?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAiJobArgs, 'id'>>;
   deleteAiModelPrice?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAiModelPriceArgs, 'id'>>;
@@ -17435,6 +17807,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteWebsiteSubmission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebsiteSubmissionArgs, 'id'>>;
   disableMfa?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisableMfaArgs, 'password'>>;
   disconnectSocialAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisconnectSocialAccountArgs, 'id'>>;
+  endApprovalDelegation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationEndApprovalDelegationArgs, 'id'>>;
   escalateSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationEscalateSupportTicketArgs, 'id' | 'reason'>>;
   fulfilItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationFulfilItAccessRequestArgs, 'id'>>;
   grantTrackerAccess?: Resolver<ResolversTypes['TrackerAccess'], ParentType, ContextType, RequireFields<MutationGrantTrackerAccessArgs, 'userId'>>;
@@ -17462,17 +17835,20 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   renameColumn?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationRenameColumnArgs, 'id' | 'name'>>;
   reorderColumns?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationReorderColumnsArgs, 'columnIds' | 'projectId'>>;
   reportClientLogs?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationReportClientLogsArgs, 'input'>>;
+  requestContractSignature?: Resolver<ResolversTypes['ContractSignatureRequest'], ParentType, ContextType, RequireFields<MutationRequestContractSignatureArgs, 'contractId' | 'signerEmail' | 'signerName'>>;
   requestPasswordReset?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestPasswordResetArgs, 'email'>>;
   resetPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
   resetUserPassword?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationResetUserPasswordArgs, 'id'>>;
   reviewTrackerManualEntry?: Resolver<ResolversTypes['TrackerManualEntry'], ParentType, ContextType, RequireFields<MutationReviewTrackerManualEntryArgs, 'id' | 'status'>>;
   revokeApiKey?: Resolver<ResolversTypes['ApiKey'], ParentType, ContextType, RequireFields<MutationRevokeApiKeyArgs, 'id'>>;
+  revokeContractSignature?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRevokeContractSignatureArgs, 'id'>>;
   revokeOtherSessions?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   revokeProjectShare?: Resolver<ResolversTypes['ProjectShare'], ParentType, ContextType, RequireFields<MutationRevokeProjectShareArgs, 'id'>>;
   revokeSession?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRevokeSessionArgs, 'id'>>;
   revokeTrackerAccess?: Resolver<ResolversTypes['TrackerAccess'], ParentType, ContextType, RequireFields<MutationRevokeTrackerAccessArgs, 'userId'>>;
   revokeTrackerDevice?: Resolver<ResolversTypes['TrackerDevice'], ParentType, ContextType, RequireFields<MutationRevokeTrackerDeviceArgs, 'deviceId'>>;
   runAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<MutationRunAiJobArgs, 'id'>>;
+  runBackgroundJob?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRunBackgroundJobArgs, 'key'>>;
   runPayroll?: Resolver<ResolversTypes['PayrollRunResult'], ParentType, ContextType, RequireFields<MutationRunPayrollArgs, 'month' | 'year'>>;
   runPrompt?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<MutationRunPromptArgs, 'id' | 'model'>>;
   runRecurringInvoiceNow?: Resolver<ResolversTypes['RecurringInvoice'], ParentType, ContextType, RequireFields<MutationRunRecurringInvoiceNowArgs, 'id'>>;
@@ -17483,7 +17859,6 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   saveTrackerBuildSettings?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType, RequireFields<MutationSaveTrackerBuildSettingsArgs, 'slackChannels'>>;
   sendAdminCredentials?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sendCampaign?: Resolver<ResolversTypes['CampaignSendResult'], ParentType, ContextType, RequireFields<MutationSendCampaignArgs, 'id'>>;
-  sendContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSendContractArgs, 'email' | 'id'>>;
   sendInvoice?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<MutationSendInvoiceArgs, 'email' | 'id'>>;
   sendMyTrackerMessage?: Resolver<ResolversTypes['TrackerMessage'], ParentType, ContextType, RequireFields<MutationSendMyTrackerMessageArgs, 'body'>>;
   sendNotification?: Resolver<ResolversTypes['SendNotificationResult'], ParentType, ContextType, RequireFields<MutationSendNotificationArgs, 'input'>>;
@@ -17514,7 +17889,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setUserBlocked?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSetUserBlockedArgs, 'id' | 'isBlocked'>>;
   setWebhookActive?: Resolver<ResolversTypes['Webhook'], ParentType, ContextType, RequireFields<MutationSetWebhookActiveArgs, 'active' | 'id'>>;
   shareSocialPost?: Resolver<ResolversTypes['SocialPost'], ParentType, ContextType, RequireFields<MutationShareSocialPostArgs, 'id'>>;
-  signContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSignContractArgs, 'id' | 'signedBy'>>;
+  signContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSignContractArgs, 'id'>>;
+  signContractWithToken?: Resolver<ResolversTypes['ContractSignedReceipt'], ParentType, ContextType, RequireFields<MutationSignContractWithTokenArgs, 'signedName' | 'token'>>;
   socialMediaIdeas?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSocialMediaIdeasArgs, 'count' | 'topic'>>;
   socialMediaInsights?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSocialMediaInsightsArgs, 'days'>>;
   startMfaEnrolment?: Resolver<ResolversTypes['MfaEnrolment'], ParentType, ContextType>;
@@ -17655,6 +18031,12 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   uploadImage?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationUploadImageArgs, 'file' | 'fileName'>>;
   verifyMfa?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationVerifyMfaArgs, 'challenge' | 'code'>>;
   withdrawTrackerManualEntry?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationWithdrawTrackerManualEntryArgs, 'id'>>;
+}>;
+
+export type MyApprovalDelegationsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MyApprovalDelegations'] = ResolversParentTypes['MyApprovalDelegations']> = ResolversObject<{
+  given?: Resolver<Array<ResolversTypes['ApprovalDelegation']>, ParentType, ContextType>;
+  held?: Resolver<Array<ResolversTypes['ApprovalDelegation']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type MyPolicyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MyPolicy'] = ResolversParentTypes['MyPolicy']> = ResolversObject<{
@@ -18316,6 +18698,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   assetAssignments?: Resolver<Array<ResolversTypes['AssetAssignment']>, ParentType, ContextType, RequireFields<QueryAssetAssignmentsArgs, 'assetId'>>;
   attendanceByEmployee?: Resolver<Array<ResolversTypes['Attendance']>, ParentType, ContextType, RequireFields<QueryAttendanceByEmployeeArgs, 'employeeId'>>;
   audienceMembers?: Resolver<Array<ResolversTypes['AudienceMember']>, ParentType, ContextType, RequireFields<QueryAudienceMembersArgs, 'id'>>;
+  backgroundJobs?: Resolver<Array<ResolversTypes['BackgroundJob']>, ParentType, ContextType>;
   branding?: Resolver<ResolversTypes['Branding'], ParentType, ContextType>;
   budgetVsActual?: Resolver<Array<ResolversTypes['BudgetVariance']>, ParentType, ContextType, RequireFields<QueryBudgetVsActualArgs, 'from' | 'to'>>;
   campaignLeadCounts?: Resolver<Array<ResolversTypes['CampaignLeadCount']>, ParentType, ContextType>;
@@ -18327,6 +18710,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   canExport?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<QueryCanExportArgs, 'module'>>;
   clientSupportTicketStatus?: Resolver<Maybe<ResolversTypes['ClientTicketStatus']>, ParentType, ContextType, RequireFields<QueryClientSupportTicketStatusArgs, 'email' | 'reference'>>;
   companyFinance?: Resolver<ResolversTypes['CompanyFinance'], ParentType, ContextType, RequireFields<QueryCompanyFinanceArgs, 'from' | 'to'>>;
+  complianceOverview?: Resolver<ResolversTypes['ComplianceOverview'], ParentType, ContextType>;
+  contractSignatures?: Resolver<Array<ResolversTypes['ContractSignature']>, ParentType, ContextType, RequireFields<QueryContractSignaturesArgs, 'contractId'>>;
+  contractToSign?: Resolver<Maybe<ResolversTypes['ContractToSign']>, ParentType, ContextType, RequireFields<QueryContractToSignArgs, 'token'>>;
   dealForecast?: Resolver<ResolversTypes['DealForecast'], ParentType, ContextType>;
   docPage?: Resolver<ResolversTypes['DocPage'], ParentType, ContextType, RequireFields<QueryDocPageArgs, 'id'>>;
   dockerContainerDetail?: Resolver<ResolversTypes['DockerContainerDetail'], ParentType, ContextType, RequireFields<QueryDockerContainerDetailArgs, 'id'>>;
@@ -18716,6 +19102,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   localeBundle?: Resolver<ResolversTypes['LocaleBundle'], ParentType, ContextType, RequireFields<QueryLocaleBundleArgs, 'locale'>>;
   localeOptions?: Resolver<Array<ResolversTypes['LocaleOption']>, ParentType, ContextType>;
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  myApprovalDelegations?: Resolver<ResolversTypes['MyApprovalDelegations'], ParentType, ContextType>;
   myApprovals?: Resolver<ResolversTypes['ApprovalQueue'], ParentType, ContextType, Partial<QueryMyApprovalsArgs>>;
   myAttendance?: Resolver<Array<ResolversTypes['Attendance']>, ParentType, ContextType>;
   myBenefits?: Resolver<Array<ResolversTypes['Benefit']>, ParentType, ContextType>;
@@ -19474,7 +19861,7 @@ export type SupportAgentResolvers<ContextType = GraphQLContext, ParentType exten
 }>;
 
 export type SupportReplyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SupportReply'] = ResolversParentTypes['SupportReply']> = ResolversObject<{
-  attachments?: Resolver<Array<ResolversTypes['TicketAttachment']>, ParentType, ContextType>;
+  attachments?: Resolver<Array<ResolversTypes['FileAttachment']>, ParentType, ContextType>;
   authorId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   authorName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   body?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -19512,7 +19899,7 @@ export type SupportSlaSummaryResolvers<ContextType = GraphQLContext, ParentType 
 export type SupportTicketResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SupportTicket'] = ResolversParentTypes['SupportTicket']> = ResolversObject<{
   assigneeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   assigneeName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  attachments?: Resolver<Array<ResolversTypes['TicketAttachment']>, ParentType, ContextType>;
+  attachments?: Resolver<Array<ResolversTypes['FileAttachment']>, ParentType, ContextType>;
   category?: Resolver<ResolversTypes['SupportCategory'], ParentType, ContextType>;
   channel?: Resolver<ResolversTypes['TicketChannel'], ParentType, ContextType>;
   clientId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -19671,15 +20058,6 @@ export type TeamResolvers<ContextType = GraphQLContext, ParentType extends Resol
 export type TeamPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TeamPage'] = ResolversParentTypes['TeamPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['Team']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type TicketAttachmentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TicketAttachment'] = ResolversParentTypes['TicketAttachment']> = ResolversObject<{
-  contentType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  uploadedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
-  uploadedBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -20154,6 +20532,8 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   designation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   employmentStatus?: Resolver<ResolversTypes['EmploymentStatus'], ParentType, ContextType>;
+  employmentTypeCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  gradeCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   isBlocked?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -20161,6 +20541,7 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   joinDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   lastActiveAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   locale?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  locationCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   managerId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   managerName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -20169,7 +20550,9 @@ export type UserResolvers<ContextType = GraphQLContext, ParentType extends Resol
   probationEndDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   region?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   roles?: Resolver<Array<ResolversTypes['Role']>, ParentType, ContextType>;
+  shiftCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   socialLinks?: Resolver<Maybe<ResolversTypes['UserSocialLinks']>, ParentType, ContextType>;
+  teamName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   timezone?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   workHoursPerDay?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -20307,6 +20690,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   AppSettings?: AppSettingsResolvers<ContextType>;
   Applicant?: ApplicantResolvers<ContextType>;
   ApplicantPage?: ApplicantPageResolvers<ContextType>;
+  ApprovalDelegation?: ApprovalDelegationResolvers<ContextType>;
   ApprovalGroup?: ApprovalGroupResolvers<ContextType>;
   ApprovalItem?: ApprovalItemResolvers<ContextType>;
   ApprovalQueue?: ApprovalQueueResolvers<ContextType>;
@@ -20325,6 +20709,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   AuditLog?: AuditLogResolvers<ContextType>;
   AuditLogPage?: AuditLogPageResolvers<ContextType>;
   AuthPayload?: AuthPayloadResolvers<ContextType>;
+  BackgroundJob?: BackgroundJobResolvers<ContextType>;
   Benefit?: BenefitResolvers<ContextType>;
   BenefitPage?: BenefitPageResolvers<ContextType>;
   BlogAuthor?: BlogAuthorResolvers<ContextType>;
@@ -20361,12 +20746,18 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   CompanyFinance?: CompanyFinanceResolvers<ContextType>;
   CompanyPage?: CompanyPageResolvers<ContextType>;
   CompanySocialLinks?: CompanySocialLinksResolvers<ContextType>;
+  ComplianceOverview?: ComplianceOverviewResolvers<ContextType>;
+  ComplianceSlice?: ComplianceSliceResolvers<ContextType>;
   Contact?: ContactResolvers<ContextType>;
   ContactPage?: ContactPageResolvers<ContextType>;
   ContainerMount?: ContainerMountResolvers<ContextType>;
   ContainerPort?: ContainerPortResolvers<ContextType>;
   Contract?: ContractResolvers<ContextType>;
   ContractPage?: ContractPageResolvers<ContextType>;
+  ContractSignature?: ContractSignatureResolvers<ContextType>;
+  ContractSignatureRequest?: ContractSignatureRequestResolvers<ContextType>;
+  ContractSignedReceipt?: ContractSignedReceiptResolvers<ContextType>;
+  ContractToSign?: ContractToSignResolvers<ContextType>;
   CostCenter?: CostCenterResolvers<ContextType>;
   CostCenterPage?: CostCenterPageResolvers<ContextType>;
   CreatedWebhook?: CreatedWebhookResolvers<ContextType>;
@@ -20407,6 +20798,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ExitRecordPage?: ExitRecordPageResolvers<ContextType>;
   ExpenseClaim?: ExpenseClaimResolvers<ContextType>;
   ExpenseClaimPage?: ExpenseClaimPageResolvers<ContextType>;
+  FileAttachment?: FileAttachmentResolvers<ContextType>;
   FinanceBucket?: FinanceBucketResolvers<ContextType>;
   FinanceMonth?: FinanceMonthResolvers<ContextType>;
   Finding?: FindingResolvers<ContextType>;
@@ -20499,6 +20891,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Milestone?: MilestoneResolvers<ContextType>;
   ModulePermission?: ModulePermissionResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  MyApprovalDelegations?: MyApprovalDelegationsResolvers<ContextType>;
   MyPolicy?: MyPolicyResolvers<ContextType>;
   NavLink?: NavLinkResolvers<ContextType>;
   Notification?: NotificationResolvers<ContextType>;
@@ -20632,7 +21025,6 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   TdsSlab?: TdsSlabResolvers<ContextType>;
   Team?: TeamResolvers<ContextType>;
   TeamPage?: TeamPageResolvers<ContextType>;
-  TicketAttachment?: TicketAttachmentResolvers<ContextType>;
   Tool?: ToolResolvers<ContextType>;
   ToolCategory?: ToolCategoryResolvers<ContextType>;
   ToolPage?: ToolPageResolvers<ContextType>;

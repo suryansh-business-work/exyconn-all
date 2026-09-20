@@ -91,6 +91,7 @@ query AppSettings {
     defaultLocale
     enabledLocales
     autoTranslate
+    auditRetentionDays
     currency
     country
     fiscalYearStartMonth

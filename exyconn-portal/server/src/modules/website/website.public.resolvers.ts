@@ -18,6 +18,16 @@ import { withId, withIds } from '../../utils/serialize';
 
 type LeanDoc = { _id: unknown };
 
+/**
+ * What the public may see of dated content: active, and not dated in the future.
+ *
+ * `publishedAt` has always been on blog posts and case studies, and the site showed
+ * everything active whatever that date said — so an editor could write next week's post,
+ * set next week's date and publish it today by accident. Scheduling a post is now what
+ * setting a future date means, which is what everybody assumed it already meant.
+ */
+const publishedBy = (now: Date) => ({ isActive: true, publishedAt: { $lte: now } });
+
 /** Serializes a nullable lean document, mapping `_id` onto `id`. */
 function serializeOne<T extends LeanDoc>(doc: T | null): (T & { id: string }) | null {
   return doc ? withId(doc) : null;
@@ -27,26 +37,32 @@ export const websitePublicResolvers = {
   Query: {
     publicBlogPosts: async () =>
       withIds(
-        (await BlogPostModel.find({ isActive: true })
+        (await BlogPostModel.find(publishedBy(new Date()))
           .sort({ publishedAt: -1 })
           .lean()) as LeanDoc[],
       ),
 
     publicBlogPost: async (_p: unknown, { slug }: { slug: string }) =>
       serializeOne(
-        (await BlogPostModel.findOne({ slug, isActive: true }).lean()) as LeanDoc | null,
+        (await BlogPostModel.findOne({
+          slug,
+          ...publishedBy(new Date()),
+        }).lean()) as LeanDoc | null,
       ),
 
     publicCaseStudies: async () =>
       withIds(
-        (await CaseStudyModel.find({ isActive: true })
+        (await CaseStudyModel.find(publishedBy(new Date()))
           .sort({ publishedAt: -1 })
           .lean()) as LeanDoc[],
       ),
 
     publicCaseStudy: async (_p: unknown, { slug }: { slug: string }) =>
       serializeOne(
-        (await CaseStudyModel.findOne({ slug, isActive: true }).lean()) as LeanDoc | null,
+        (await CaseStudyModel.findOne({
+          slug,
+          ...publishedBy(new Date()),
+        }).lean()) as LeanDoc | null,
       ),
 
     publicJobCompanies: async () =>

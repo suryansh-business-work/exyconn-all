@@ -64,6 +64,7 @@ export function CaseStudiesPage() {
 
   return (
     <CrudDashboard
+      exportFileName="case-studies"
       title="Case studies"
       subtitle="Website case studies"
       entityLabel="case study"

@@ -22,6 +22,7 @@ import { startWebhookDelivery } from './modules/integrations';
 import { ensureAiModelPrices, startAiWorker } from './modules/ai';
 import { backfillAppLogGroupUsers } from './modules/logs';
 import { startReminderSweep } from './modules/reminders';
+import { startAuditRetention } from './modules/audit';
 import { env } from './config/env';
 import { logger } from './utils/logger';
 
@@ -99,6 +100,8 @@ async function bootstrap(): Promise<void> {
   // corrective action falls overdue, a follow-up is missed, and the record simply sits
   // there. The sweep asks every module what has come due and tells the people who own it.
   startReminderSweep();
+  // Does nothing until somebody sets a window in Admin > Settings; see audit.retention.ts.
+  startAuditRetention();
   const app = await createApp();
   app.listen(env.port, () => {
     logger.info(`GraphQL server ready at http://localhost:${env.port}/graphql`);

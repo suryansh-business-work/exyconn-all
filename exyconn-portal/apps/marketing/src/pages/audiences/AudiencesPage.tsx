@@ -68,6 +68,7 @@ export function AudiencesPage() {
 
   return (
     <CrudDashboard
+      exportFileName="audiences"
       title="Audiences"
       subtitle={audienceSubtitle}
       subtitleValues={{ count: clientCount }}

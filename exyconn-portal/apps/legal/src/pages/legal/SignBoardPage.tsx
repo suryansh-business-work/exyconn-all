@@ -11,6 +11,7 @@ import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvid
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useListContractsQuery } from '@exyconn/shell/graphql/generated';
 import { SignContractForm } from './forms/sign-contract';
+import { SignatureEvidence } from './SignatureEvidence';
 import type { ContractRow } from './forms/contract';
 
 /** Legal → Sign Board: sign contracts and track who signed them. */
@@ -83,6 +84,8 @@ export function SignBoardPage() {
             }}
           />
         )}
+        {/* Under the action, so whoever is about to sign can see who else already has. */}
+        {signTarget && <SignatureEvidence contractId={signTarget.id} />}
       </CrudDialog>
     </ModuleDashboard>
   );

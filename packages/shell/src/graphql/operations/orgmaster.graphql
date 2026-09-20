@@ -342,3 +342,41 @@ query ListEmploymentTypes {
     active
   }
 }
+
+# Everything the employee form needs to place somebody: where they work, which team, their
+# grade, their kind of employment and their shift. One request rather than five, because the
+# form shows all five pickers at once.
+query OrgMasterOptions {
+  listLocations {
+    id
+    name
+    code
+    active
+  }
+  listTeams {
+    id
+    name
+    department
+    active
+  }
+  listGrades {
+    id
+    name
+    code
+    active
+  }
+  listEmploymentTypes {
+    id
+    name
+    code
+    active
+  }
+  listShifts {
+    id
+    name
+    code
+    startTime
+    endTime
+    active
+  }
+}

@@ -1,5 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
-import { attachmentSchema } from '../support/attachment.schema';
+import { attachmentSchema } from '../../lib/attachments';
 
 /** Which team an employee support ticket is routed to. */
 export const SUPPORT_CATEGORIES = ['IT', 'HR', 'PAYROLL', 'FACILITIES', 'OTHER'] as const;

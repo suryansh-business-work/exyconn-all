@@ -3,6 +3,7 @@ import { forEachOrganization } from '../organizations';
 import { executeAiJob } from './ai.service';
 import { logger } from '../../utils/logger';
 import { JOB_KEYS, recordJobRun } from '../../utils/jobHeartbeat';
+import { registerBackgroundJob } from '../tech/jobs.registry';
 
 /** How often the process looks for a job somebody queued. */
 const TICK_MS = 3_000;
@@ -50,3 +51,10 @@ export function startAiWorker(): void {
   globalThis.setInterval(tick, TICK_MS).unref();
   logger.info('AI job worker started');
 }
+
+registerBackgroundJob({
+  key: JOB_KEYS.aiQueue,
+  label: 'AI job queue',
+  description: 'Runs the oldest queued AI job, one at a time.',
+  runOnce: () => runNextAiJob(),
+});

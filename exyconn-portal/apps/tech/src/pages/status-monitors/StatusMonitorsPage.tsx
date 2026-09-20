@@ -57,6 +57,7 @@ export function StatusMonitorsPage() {
 
   return (
     <CrudDashboard
+      exportFileName="status-monitors"
       title="Status Monitors"
       subtitle="Every endpoint status.exyconn.com watches, and what it reported last"
       entityLabel="monitor"

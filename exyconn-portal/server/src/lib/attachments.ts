@@ -1,12 +1,13 @@
 import { Schema, type InferSchemaType } from 'mongoose';
 
 /**
- * A file hung off a ticket or one of its replies. The bytes live on the image CDN
- * (uploaded through `uploadImage`); only the resulting URL and enough metadata to
- * render a link are stored here.
+ * A file hung off a record — a ticket, a reply, a compliance finding, an audit. The bytes
+ * live on the image CDN (uploaded through `uploadImage`); only the resulting URL and enough
+ * metadata to render a link are stored here.
  *
- * Embedded rather than a collection of its own: an attachment has no life outside
- * the message it was posted with, and is always read with it.
+ * Embedded rather than a collection of its own: an attachment has no life outside the record
+ * it was posted with, and is always read with it. Shared rather than copied per module,
+ * because "who attached what, and when" should read the same everywhere.
  */
 export const attachmentSchema = new Schema(
   {

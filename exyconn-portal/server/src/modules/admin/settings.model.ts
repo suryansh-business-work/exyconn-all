@@ -29,6 +29,15 @@ const settingsSchema = new Schema(
      * the honest thing to show when a workspace would rather translate by hand.
      */
     autoTranslate: { type: Boolean, required: true, default: true },
+    /**
+     * How many days of audit history to keep. Zero — the default — keeps it for ever.
+     *
+     * Zero by default on purpose: an audit trail is the record an incident is reconstructed
+     * from and several standards ask for a stated retention period, so shortening it has to
+     * be somebody's decision rather than ours. What it prevents is the other failure: a
+     * collection that grows for ever with nobody having decided that it should.
+     */
+    auditRetentionDays: { type: Number, required: true, default: 0, min: 0 },
   },
   { timestamps: true },
 );

@@ -64,6 +64,7 @@ export function ExitsPage() {
 
   return (
     <CrudDashboard
+      exportFileName="exits"
       title="Exits & Offboarding"
       subtitle="Resignations, clearance and full & final"
       entityLabel="exit record"

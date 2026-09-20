@@ -200,6 +200,14 @@ export type ApprovalDecision =
   | 'APPROVED'
   | 'REJECTED';
 
+export type ApprovalDelegationInput = {
+  fromDate: Scalars['DateTime']['input'];
+  note: InputMaybe<Scalars['String']['input']>;
+  /** Inclusive — a delegation until Friday covers Friday. */
+  toDate: Scalars['DateTime']['input'];
+  toEmployeeId: Scalars['String']['input'];
+};
+
 export type AssetCategory =
   | 'DESKTOP'
   | 'LAPTOP'
@@ -566,6 +574,7 @@ export type ContactStatus =
   | 'UNSUBSCRIBED';
 
 export type ContractInput = {
+  documentUrl: InputMaybe<Scalars['String']['input']>;
   effectiveDate: Scalars['DateTime']['input'];
   expiryDate: Scalars['DateTime']['input'];
   party: Scalars['String']['input'];
@@ -617,16 +626,26 @@ export type CreateUserInput = {
   designation: InputMaybe<Scalars['String']['input']>;
   email: Scalars['String']['input'];
   employmentStatus: InputMaybe<EmploymentStatus>;
+  /** Kind of employment, by code — permanent, contract, intern. Empty when not set. */
+  employmentTypeCode: InputMaybe<Scalars['String']['input']>;
+  /** Job grade or band, by code. Empty when not set. */
+  gradeCode: InputMaybe<Scalars['String']['input']>;
   isActive: InputMaybe<Scalars['Boolean']['input']>;
   joinDate: InputMaybe<Scalars['DateTime']['input']>;
   /** BCP-47 tag, or null to follow the workspace default. */
   locale: InputMaybe<Scalars['String']['input']>;
+  /** Office or site this person works at, by the location's code. Empty when not set. */
+  locationCode: InputMaybe<Scalars['String']['input']>;
   managerId: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   probationEndDate: InputMaybe<Scalars['DateTime']['input']>;
   /** The state or region they work in, for regional holidays; null when not set. */
   region: InputMaybe<Scalars['String']['input']>;
   roles: Array<Role>;
+  /** Working-hours pattern, by code. Empty when not set. */
+  shiftCode: InputMaybe<Scalars['String']['input']>;
+  /** Team inside the department. Empty when not set. */
+  teamName: InputMaybe<Scalars['String']['input']>;
   /** IANA zone name, or null to follow the workspace default. */
   timezone: InputMaybe<Scalars['String']['input']>;
   workHoursPerDay: InputMaybe<Scalars['Int']['input']>;
@@ -831,6 +850,13 @@ export type ExpenseStatus =
   | 'REJECTED'
   | 'SUBMITTED';
 
+/** What a client sends when it posts a file: the server stamps who and when. */
+export type FileAttachmentInput = {
+  contentType: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  url: Scalars['String']['input'];
+};
+
 export type FilterOp =
   | 'CONTAINS'
   | 'EQUALS'
@@ -848,6 +874,7 @@ export type FindingInput = {
   dueOn: InputMaybe<Scalars['DateTime']['input']>;
   effective: InputMaybe<Scalars['Boolean']['input']>;
   effectivenessNote: InputMaybe<Scalars['String']['input']>;
+  evidence: InputMaybe<Array<FileAttachmentInput>>;
   immediateAction: Scalars['String']['input'];
   ownerId: Scalars['String']['input'];
   ownerName: Scalars['String']['input'];
@@ -1007,6 +1034,7 @@ export type InternalAuditInput = {
   auditeeName: Scalars['String']['input'];
   conclusion: Scalars['String']['input'];
   criteria: Scalars['String']['input'];
+  evidence: InputMaybe<Array<FileAttachmentInput>>;
   kind: AuditKind;
   leadAuditorId: Scalars['String']['input'];
   leadAuditorName: Scalars['String']['input'];
@@ -2323,7 +2351,7 @@ export type SupportStatus =
 /** Employee-facing support request — the server sets employeeId and OPEN status. */
 export type SupportTicketInput = {
   /** Screenshots or documents, already uploaded through uploadImage. */
-  attachments: InputMaybe<Array<TicketAttachmentInput>>;
+  attachments: InputMaybe<Array<FileAttachmentInput>>;
   category: SupportCategory;
   description: Scalars['String']['input'];
   priority: SupportPriority;
@@ -2444,13 +2472,6 @@ export type TeamInput = {
   description: Scalars['String']['input'];
   leadEmployeeId: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
-};
-
-/** What a client sends when it posts a file: the server stamps who and when. */
-export type TicketAttachmentInput = {
-  contentType: InputMaybe<Scalars['String']['input']>;
-  name: Scalars['String']['input'];
-  url: Scalars['String']['input'];
 };
 
 /** How a ticket reached the desk. */
@@ -2659,6 +2680,8 @@ export type UpdateProfileInput = {
 };
 
 export type UpdateSettingsInput = {
+  /** Days of audit history to keep. Zero keeps it for ever. */
+  auditRetentionDays: InputMaybe<Scalars['Int']['input']>;
   autoTranslate: InputMaybe<Scalars['Boolean']['input']>;
   dateFormat: InputMaybe<Scalars['String']['input']>;
   defaultLocale: InputMaybe<Scalars['String']['input']>;
@@ -2680,10 +2703,16 @@ export type UpdateUserInput = {
   designation: InputMaybe<Scalars['String']['input']>;
   email: InputMaybe<Scalars['String']['input']>;
   employmentStatus: InputMaybe<EmploymentStatus>;
+  /** Kind of employment, by code — permanent, contract, intern. Empty when not set. */
+  employmentTypeCode: InputMaybe<Scalars['String']['input']>;
+  /** Job grade or band, by code. Empty when not set. */
+  gradeCode: InputMaybe<Scalars['String']['input']>;
   isActive: InputMaybe<Scalars['Boolean']['input']>;
   joinDate: InputMaybe<Scalars['DateTime']['input']>;
   /** BCP-47 tag, or null to follow the workspace default. */
   locale: InputMaybe<Scalars['String']['input']>;
+  /** Office or site this person works at, by the location's code. Empty when not set. */
+  locationCode: InputMaybe<Scalars['String']['input']>;
   managerId: InputMaybe<Scalars['String']['input']>;
   name: InputMaybe<Scalars['String']['input']>;
   password: InputMaybe<Scalars['String']['input']>;
@@ -2691,6 +2720,10 @@ export type UpdateUserInput = {
   /** The state or region they work in, for regional holidays; null when not set. */
   region: InputMaybe<Scalars['String']['input']>;
   roles: InputMaybe<Array<Role>>;
+  /** Working-hours pattern, by code. Empty when not set. */
+  shiftCode: InputMaybe<Scalars['String']['input']>;
+  /** Team inside the department. Empty when not set. */
+  teamName: InputMaybe<Scalars['String']['input']>;
   /** IANA zone name, or null to follow the workspace default. */
   timezone: InputMaybe<Scalars['String']['input']>;
   workHoursPerDay: InputMaybe<Scalars['Int']['input']>;

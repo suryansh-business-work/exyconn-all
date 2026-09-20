@@ -56,6 +56,7 @@ export function SuppliersPage() {
 
   return (
     <CrudDashboard
+      exportFileName="suppliers"
       title="Suppliers"
       subtitle="Who stock is bought from"
       entityLabel="supplier"

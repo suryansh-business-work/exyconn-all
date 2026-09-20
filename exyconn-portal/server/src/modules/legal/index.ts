@@ -15,6 +15,8 @@ interface ContractInput {
   effectiveDate: Date;
   expiryDate: Date;
   status: string;
+  /** The document a counterparty is asked to sign. Empty until one is attached. */
+  documentUrl?: string;
 }
 
 interface LegalDocumentInput {
@@ -56,7 +58,15 @@ const documentResolvers = createCrudResolvers(documentService, {
 
 /** Merges contract CRUD, document CRUD, and the custom send/sign mutations. */
 export const legalResolvers = {
-  Query: { ...contractResolvers.Query, ...documentResolvers.Query },
+  /** Written before a document could be attached, a `.lean()` row comes back without it. */
+  Contract: {
+    documentUrl: (contract: { documentUrl?: string | null }) => contract.documentUrl ?? '',
+  },
+  Query: {
+    ...contractResolvers.Query,
+    ...documentResolvers.Query,
+    ...legalCustomResolvers.Query,
+  },
   Mutation: {
     ...contractResolvers.Mutation,
     ...documentResolvers.Mutation,

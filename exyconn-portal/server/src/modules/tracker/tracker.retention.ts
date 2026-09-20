@@ -1,7 +1,8 @@
 import { imageUploader } from '../../utils/imagekit';
 import { forEachOrganization } from '../organizations';
 import { logger } from '../../utils/logger';
-import { recordJobRun } from '../../utils/jobHeartbeat';
+import { JOB_KEYS, recordJobRun } from '../../utils/jobHeartbeat';
+import { registerBackgroundJob } from '../tech/jobs.registry';
 import { TrackerScreenshotModel } from './models';
 import { getTrackerSettings } from './tracker.settings.service';
 
@@ -72,7 +73,7 @@ export async function purgeExpiredScreenshots(cutoff: Date): Promise<PurgeResult
 }
 
 /** Runs a pass if the workspace has a retention window set. Zero days means keep forever. */
-async function runIfConfigured(): Promise<void> {
+export async function runIfConfigured(): Promise<void> {
   const settings = await getTrackerSettings();
   const days = settings.screenshotRetentionDays ?? 0;
   if (days <= 0) {
@@ -98,3 +99,10 @@ export function startTrackerRetention(): void {
   globalThis.setInterval(tick, TICK_MS).unref();
   logger.info('Tracker screenshot retention started');
 }
+
+registerBackgroundJob({
+  key: JOB_KEYS.trackerRetention,
+  label: 'Screenshot retention',
+  description: 'Deletes screenshots past the retention window, image before row.',
+  runOnce: () => runIfConfigured(),
+});

@@ -31,6 +31,13 @@ const identitySchema = z
     department: z.string().trim().min(1, 'Department is required'),
     managerId: z.string(),
     designation: z.string().trim().min(1, 'Designation is required'),
+    // The org master data. Empty means "not placed yet", which is honest for a joiner whose
+    // desk and shift are decided in their first week.
+    locationCode: z.string().trim(),
+    teamName: z.string().trim(),
+    gradeCode: z.string().trim(),
+    employmentTypeCode: z.string().trim(),
+    shiftCode: z.string().trim(),
     joinDate: z.string().min(1, 'Join date is required'),
     dateOfBirth: z.string(),
     probationEndDate: z.string(),
@@ -98,6 +105,11 @@ export function toFormValues(
     department: row?.department ?? '',
     managerId: row?.managerId ?? '',
     designation: row?.designation ?? '',
+    locationCode: row?.locationCode ?? '',
+    teamName: row?.teamName ?? '',
+    gradeCode: row?.gradeCode ?? '',
+    employmentTypeCode: row?.employmentTypeCode ?? '',
+    shiftCode: row?.shiftCode ?? '',
     joinDate: row?.joinDate ?? '',
     dateOfBirth: row?.dateOfBirth ?? '',
     probationEndDate: row?.probationEndDate ?? '',
@@ -131,6 +143,11 @@ export function toUserInput(v: UserValues): Omit<CreateUserInput, 'name' | 'emai
     // An empty pick clears the reporting line rather than storing an empty id.
     managerId: v.managerId || null,
     designation: v.designation,
+    locationCode: v.locationCode,
+    teamName: v.teamName,
+    gradeCode: v.gradeCode,
+    employmentTypeCode: v.employmentTypeCode,
+    shiftCode: v.shiftCode,
     joinDate: v.joinDate,
     dateOfBirth: v.dateOfBirth || null,
     // An empty pick means "not on probation" rather than a date nobody chose.

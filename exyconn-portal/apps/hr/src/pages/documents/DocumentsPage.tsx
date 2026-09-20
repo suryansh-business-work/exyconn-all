@@ -55,6 +55,7 @@ export function DocumentsPage() {
 
   return (
     <CrudDashboard
+      exportFileName="employee-documents"
       title="Employee Documents"
       subtitle="Letters, tax and policy documents"
       entityLabel="document"

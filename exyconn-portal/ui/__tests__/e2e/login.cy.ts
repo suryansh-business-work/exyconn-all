@@ -6,11 +6,18 @@ describe('Login flow', () => {
   beforeEach(() => {
     cy.intercept('POST', '**/graphql', (req) => {
       if (req.body.operationName === 'Login') {
+        // Every field the operation asks for, including the two-factor ones: a reply that
+        // omits a selected field is a reply Apollo may refuse, and then the test would be
+        // failing on its own stub rather than on the portal.
         req.reply({
           data: {
             login: {
+              __typename: 'AuthPayload',
               token: 'fake-jwt-token',
+              mfaRequired: false,
+              mfaChallenge: '',
               user: {
+                __typename: 'User',
                 id: '1',
                 name: 'Exyconn Admin',
                 email: 'admin@exyconn.com',

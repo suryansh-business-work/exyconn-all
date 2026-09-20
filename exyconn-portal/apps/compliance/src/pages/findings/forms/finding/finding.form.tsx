@@ -11,6 +11,7 @@ import {
   type SelectOption,
 } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
+import { RhfAttachmentPicker, COMPLIANCE_UPLOAD_FOLDER } from '@exyconn/shell/components/upload';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   FindingSource,
@@ -125,7 +126,13 @@ export function FindingForm({ initial, onDone, onCancel }: Readonly<FindingFormP
         label="Was it effective?"
         options={EFFECTIVE_OPTIONS.map((o) => ({ ...o, label: t(o.label) }))}
       />
-      <RhfTextField name="effectivenessNote" label="Evidence" multiline rows={2} />
+      <RhfTextField
+        name="effectivenessNote"
+        label="What the verification showed"
+        multiline
+        rows={2}
+      />
+      <RhfAttachmentPicker name="evidence" folder={COMPLIANCE_UPLOAD_FOLDER} />
     </EntityForm>
   );
 }

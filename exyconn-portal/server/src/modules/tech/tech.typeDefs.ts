@@ -238,7 +238,20 @@ export const techTypeDefs = gql`
     isActive: Boolean
   }
 
+  "One background loop the server runs, and what its last pass reported."
+  type BackgroundJob {
+    key: String!
+    label: String!
+    "What it does, for somebody deciding whether to run it now."
+    description: String!
+    "Null until it has run once in this process — a restart forgets, deliberately."
+    lastRunAt: DateTime
+    lastRunSummary: String!
+  }
+
   extend type Query {
+    "TECH: every background loop, with what its last pass did."
+    backgroundJobs: [BackgroundJob!]!
     listEmailConfigs: [EmailConfig!]!
     listInboundMailConfigs: [InboundMailConfig!]!
     listImageConfigs: [ImageConfig!]!
@@ -257,6 +270,14 @@ export const techTypeDefs = gql`
   }
 
   extend type Mutation {
+    """
+    TECH: takes one pass of a loop now, across every company.
+
+    Safe to press twice: every loop is idempotent by construction, because two processes may
+    tick at the same moment anyway. This is the same pass the timer takes, not a second
+    implementation of it.
+    """
+    runBackgroundJob(key: String!): Boolean!
     createEmailConfig(input: EmailConfigInput!): EmailConfig!
     updateEmailConfig(id: ID!, input: EmailConfigInput!): EmailConfig!
     deleteEmailConfig(id: ID!): Boolean!

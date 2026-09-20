@@ -44,6 +44,7 @@ export function ToolsPage() {
 
   return (
     <CrudDashboard
+      exportFileName="tools"
       title="Tools"
       subtitle="The public tools directory"
       entityLabel="tool"

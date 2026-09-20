@@ -2,7 +2,7 @@
 
 Finance could already say what the company earned, spent, collected and paid — `companyFinance`
 answers all four, on both an accrual and a cash basis. What it could not say is whether any of
-that was what anybody *intended*.
+that was what anybody _intended_.
 
 Three records close that gap: a **cost centre** to spend against, a **budget** per centre per
 month, and a report that puts the two beside each other.
@@ -40,11 +40,11 @@ the company actually spent is worse than no report: it is a reconciliation nobod
 
 ## Reading the numbers
 
-| Field | Meaning |
-| --- | --- |
-| `budgeted` | Every budget row for the centre in a month the window touches |
-| `actual` | Bills booked to the centre, by `incurredOn` — the accrual date, matching profit |
-| `variance` | `budgeted - actual`. **Positive is money left; negative is an overspend.** |
+| Field         | Meaning                                                                                                                               |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `budgeted`    | Every budget row for the centre in a month the window touches                                                                         |
+| `actual`      | Bills booked to the centre, by `incurredOn` — the accrual date, matching profit                                                       |
+| `variance`    | `budgeted - actual`. **Positive is money left; negative is an overspend.**                                                            |
 | `utilisation` | Actual as a percentage of budget. **Null** where there is no budget — zero budget with real spend is not "infinite", it is unbudgeted |
 
 A centre with neither a budget nor any spend in the window is left out; one with either still

@@ -60,6 +60,7 @@ export function DocumentsPage() {
 
   return (
     <CrudDashboard
+      exportFileName="legal-documents"
       title="Documents"
       subtitle="Legal document repository"
       entityLabel="document"

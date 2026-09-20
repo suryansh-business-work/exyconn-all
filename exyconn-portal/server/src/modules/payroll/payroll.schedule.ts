@@ -3,7 +3,8 @@ import { forEachOrganization } from '../organizations';
 import { PayrollScheduleModel, type PayrollScheduleDocument } from './payroll-schedule.model';
 import { dispatchSalarySlips } from './payroll.dispatch';
 import { logger } from '../../utils/logger';
-import { recordJobRun } from '../../utils/jobHeartbeat';
+import { JOB_KEYS, recordJobRun } from '../../utils/jobHeartbeat';
+import { registerBackgroundJob } from '../tech/jobs.registry';
 
 /** How often the process asks whether a scheduled dispatch is due. */
 const TICK_MS = 60_000;
@@ -95,7 +96,7 @@ export async function readSchedule(): Promise<PayrollScheduleDocument> {
 }
 
 /** Sends the due period and records what happened, so the next tick knows to stand down. */
-async function runIfDue(): Promise<void> {
+export async function runIfDue(): Promise<void> {
   const [schedule, settings] = await Promise.all([
     readSchedule(),
     AppSettingsModel.findOne().lean(),
@@ -130,3 +131,10 @@ export function startPayrollDispatch(): void {
   globalThis.setInterval(tick, TICK_MS).unref();
   logger.info('Payslip dispatch scheduler started');
 }
+
+registerBackgroundJob({
+  key: JOB_KEYS.payrollDispatch,
+  label: 'Payslip dispatch',
+  description: 'Emails the month’s payslips on the day and hour the schedule names.',
+  runOnce: () => runIfDue(),
+});

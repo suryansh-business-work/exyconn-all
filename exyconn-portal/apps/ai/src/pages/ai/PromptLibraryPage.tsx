@@ -82,6 +82,7 @@ export function PromptLibraryPage() {
 
   return (
     <CrudDashboard
+      exportFileName="prompts"
       title="Prompt Library"
       subtitle="Reusable AI prompts"
       entityLabel="prompt"

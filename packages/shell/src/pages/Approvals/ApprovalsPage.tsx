@@ -10,6 +10,7 @@ import { ApprovalDecision, useMyApprovalsQuery } from '@/graphql/generated';
 import { formatMoney } from '@/utils/money';
 import { ApprovalKindFilter } from './ApprovalKindFilter';
 import { densePanel } from '@/components/glass/glass';
+import { DelegationPanel } from './DelegationPanel';
 
 type Row = {
   id: string;
@@ -107,6 +108,11 @@ export function ApprovalsPage() {
           loading={loading}
           onRefresh={refetch}
         />
+      </Box>
+      {/* Under the queue: it explains why somebody else's work may be in it, and it is where
+          people look on the way out of the door. */}
+      <Box sx={{ mt: 1.5 }}>
+        <DelegationPanel />
       </Box>
     </Box>
   );

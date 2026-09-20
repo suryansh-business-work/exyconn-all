@@ -59,6 +59,7 @@ export function TrainingPage() {
 
   return (
     <CrudDashboard
+      exportFileName="training"
       title="Learning & Training"
       subtitle="Courses assigned to employees"
       entityLabel="training"

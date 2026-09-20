@@ -50,6 +50,11 @@ export const appSettingsSchema = z.object({
       'Every language must be a tag like en, hi or pt-BR',
     ),
   autoTranslate: z.boolean(),
+  // Kept as a string because the number input's empty state is '' rather than 0.
+  auditRetentionDays: z.string().refine((value) => {
+    const days = Number(value);
+    return value !== '' && Number.isInteger(days) && days >= 0 && days <= 3650;
+  }, 'Enter a whole number of days, 0 to keep for ever'),
 });
 
 export type AppSettingsFormValues = z.infer<typeof appSettingsSchema>;
@@ -62,4 +67,5 @@ export const toAppSettingsValues = (row: AppSettingsRow): AppSettingsFormValues 
   defaultLocale: canonicalLocale(row.defaultLocale) ?? 'en',
   enabledLocales: [...row.enabledLocales],
   autoTranslate: row.autoTranslate,
+  auditRetentionDays: String(row.auditRetentionDays),
 });

@@ -82,7 +82,9 @@ describe('tracker device auth', () => {
     expect(result.consentRequired).toBe(true);
   });
 
-  it.each(['android', 'ios'])('enrols a %s phone as a device', async (platform) => {
+  // Linux included: the release workflow builds an AppImage and the download page offers it,
+  // so a device registering from Linux has to be a device the register accepts.
+  it.each(['android', 'ios', 'linux'])('enrols a %s device', async (platform) => {
     const user = await makeEmployee();
     await trackerAdminService.grantAccess(user.id, 'admin');
 

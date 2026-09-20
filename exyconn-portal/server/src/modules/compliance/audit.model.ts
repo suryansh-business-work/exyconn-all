@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { attachmentSchema } from '../../lib/attachments';
 import { MANAGEMENT_STANDARDS } from './compliance.constants';
 
 /** Who is auditing whom: our own audit, a certification body's, or one of a supplier. */
@@ -38,6 +39,8 @@ const internalAuditSchema = new Schema(
     summary: { type: String, default: '' },
     /** The auditor's conclusion — whether the system conforms, and how well it works. */
     conclusion: { type: String, default: '' },
+    /** The audit's own papers: the plan, the checklist, the report as it was issued. */
+    evidence: { type: [attachmentSchema], default: [] },
   },
   { timestamps: true },
 );

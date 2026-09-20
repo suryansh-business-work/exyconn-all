@@ -1,7 +1,7 @@
 import { ClientModel } from '../clients/clients.model';
 import { SupportTicketModel, type TicketChannel } from '../employee/support.model';
 import { SupportReplyModel } from './support-reply.model';
-import type { Attachment } from './attachment.schema';
+import type { Attachment } from '../../lib/attachments';
 import { dueAtForPriority } from './sla.service';
 import { uniqueReference } from './ticket-reference';
 import { announceTicketFiled } from './ticket-events';

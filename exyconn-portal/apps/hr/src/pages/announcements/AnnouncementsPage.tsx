@@ -63,6 +63,7 @@ export function AnnouncementsPage() {
 
   return (
     <CrudDashboard
+      exportFileName="announcements"
       title="Announcements"
       subtitle="Company notices, policies and updates"
       entityLabel="announcement"

@@ -24,6 +24,13 @@ const bill = (costCenterId: string, amount: number, on = '2026-03-10') =>
   });
 
 describe('budget against actual', () => {
+  // Mongoose builds indexes in the background after connecting, so the unique index on
+  // (costCenterId, month) is not necessarily there when the first test runs. `init()`
+  // resolves once it is — without this the duplicate simply saves.
+  beforeAll(async () => {
+    await BudgetModel.init();
+  });
+
   it('reports what is left when a centre is under its budget', async () => {
     const eng = await centre('ENG', 'Engineering');
     await budget(String(eng._id), '2026-03', 10_000);

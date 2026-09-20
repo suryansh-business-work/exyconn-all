@@ -74,6 +74,7 @@ export function MarketingPage() {
 
   return (
     <CrudDashboard
+      exportFileName="campaigns"
       title="Marketing"
       subtitle="Campaigns"
       entityLabel="campaign"

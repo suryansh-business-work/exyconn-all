@@ -53,6 +53,7 @@ export function ClientsPage() {
 
   return (
     <CrudDashboard
+      exportFileName="clients"
       title="Clients"
       subtitle="Client directory"
       entityLabel="client"

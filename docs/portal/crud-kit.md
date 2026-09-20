@@ -9,12 +9,12 @@ and nothing else.
 
 ## The four pieces
 
-| Export | Replaces |
-| --- | --- |
-`usePagedQuery` → **`usePagedFetcher(document, select)`** | the hand-written `useCallback` + `client.query` + `{ rows, totalCount }` unwrap |
-**`useCrudResource(options)`** | `useCrudDialog` + `useConfirm` + `useNotify` + a `refreshSignal` counter + a `handleDelete` + a `reload` |
-**Column factories** | one `cellRenderer` component per status/date/bool/actions column, per module |
-**`CrudDashboard`** | the `ModuleDashboard` → `CrudDialog` → `ServerDataGrid` JSX frame |
+| Export                                                    | Replaces                                                                                                 |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `usePagedQuery` → **`usePagedFetcher(document, select)`** | the hand-written `useCallback` + `client.query` + `{ rows, totalCount }` unwrap                          |
+| **`useCrudResource(options)`**                            | `useCrudDialog` + `useConfirm` + `useNotify` + a `refreshSignal` counter + a `handleDelete` + a `reload` |
+| **Column factories**                                      | one `cellRenderer` component per status/date/bool/actions column, per module                             |
+| **`CrudDashboard`**                                       | the `ModuleDashboard` → `CrudDialog` → `ServerDataGrid` JSX frame                                        |
 
 ---
 
@@ -23,16 +23,16 @@ and nothing else.
 Import from `@exyconn/crud`. Each returns an ag-grid `ColDef`, so a column model stays a
 module-level constant and mixes freely with hand-written `ColDef`s.
 
-| Factory | Sortable | Server-filterable | Renders |
-| --- | --- | --- | --- |
-| `textColumn(field, header, format?)` | ✅ | ✅ | the field, or `format(row)` |
-| `valueColumn(field, header, format)` | ✅ | — | `format(row)` — money, counts |
-| `derivedColumn(colId, header, format)` | — | — | `format(row)` — joined or computed text |
-| `statusColumn(field, header, toStatus?)` | ✅ | — | `StatusChip` off the field, or off `toStatus(row)` |
-| `derivedStatusColumn(colId, header, toStatus)` | — | — | `StatusChip` with no backing field |
-| `boolColumn(field, header)` | ✅ | — | `BoolChip` (Yes/No) |
-| `dateColumn(field, header, emptyText?)` | ✅ | — | the date through the viewer's settings |
-| `actionsColumn(specs?, width?)` | — | — | the row's icon buttons |
+| Factory                                        | Sortable | Server-filterable | Renders                                            |
+| ---------------------------------------------- | -------- | ----------------- | -------------------------------------------------- |
+| `textColumn(field, header, format?)`           | ✅       | ✅                | the field, or `format(row)`                        |
+| `valueColumn(field, header, format)`           | ✅       | —                 | `format(row)` — money, counts                      |
+| `derivedColumn(colId, header, format)`         | —        | —                 | `format(row)` — joined or computed text            |
+| `statusColumn(field, header, toStatus?)`       | ✅       | —                 | `StatusChip` off the field, or off `toStatus(row)` |
+| `derivedStatusColumn(colId, header, toStatus)` | —        | —                 | `StatusChip` with no backing field                 |
+| `boolColumn(field, header)`                    | ✅       | —                 | `BoolChip` (Yes/No)                                |
+| `dateColumn(field, header, emptyText?)`        | ✅       | —                 | the date through the viewer's settings             |
+| `actionsColumn(specs?, width?)`                | —        | —                 | the row's icon buttons                             |
 
 Only text columns are wired to the server's `TableQueryInput.filters`, so everything else
 opts out of the floating filter row rather than offering a filter that does nothing.
@@ -42,14 +42,19 @@ opts out of the floating filter row rather than offering a filter that does noth
 An action is declared without its handler:
 
 ```ts
-import SendIcon from '@mui/icons-material/Send';
-import { DELETE_ACTION, EDIT_ACTION, actionsColumn, type RowActionSpec } from '@exyconn/crud';
+import SendIcon from "@mui/icons-material/Send";
+import {
+  DELETE_ACTION,
+  EDIT_ACTION,
+  actionsColumn,
+  type RowActionSpec,
+} from "@exyconn/crud";
 
 const SEND_ACTION: RowActionSpec = {
-  key: 'send',
-  label: 'send contract', // the button's accessible name
+  key: "send",
+  label: "send contract", // the button's accessible name
   icon: SendIcon,
-  color: 'primary',
+  color: "primary",
 };
 
 actionsColumn([EDIT_ACTION, SEND_ACTION, DELETE_ACTION]);
@@ -101,10 +106,10 @@ page that changes them bumps its `refreshSignal` to make the grid re-read.
 
 ```ts
 const crud = useCrudResource<LeadRow, PagedLeadRow>({
-  label: 'Lead',                                            // "Lead deleted"
-  onDelete: (row) => deleteLead({ variables: { id: row.id } } ),
+  label: "Lead", // "Lead deleted"
+  onDelete: (row) => deleteLead({ variables: { id: row.id } }),
   confirmMessage: (row) => `Delete lead "${row.name}"?`,
-  refetch: refetchStats,                                    // optional
+  refetch: refetchStats, // optional
 });
 ```
 
@@ -128,7 +133,7 @@ an unhandled promise rejection in the console.
 <CrudDashboard
   title="CRM"
   subtitle="Leads & pipeline"
-  entityLabel="lead"        // drives "New lead" and the drawer's "Edit lead"
+  entityLabel="lead" // drives "New lead" and the drawer's "Edit lead"
   stats={statItems}
   crud={crud}
   renderForm={(initial) => (
@@ -167,19 +172,26 @@ create drawer, and the page passes its own `refreshSignal`.
 `leads-grid.tsx` — the column model:
 
 ```tsx
-import type { ColDef } from 'ag-grid-community';
-import { actionsColumn, statusColumn, textColumn, valueColumn, type CrudGridContext } from '@exyconn/crud';
-import type { ListLeadsPagedQuery } from '@exyconn/shell/graphql/generated';
+import type { ColDef } from "ag-grid-community";
+import {
+  actionsColumn,
+  statusColumn,
+  textColumn,
+  valueColumn,
+  type CrudGridContext,
+} from "@exyconn/crud";
+import type { ListLeadsPagedQuery } from "@exyconn/shell/graphql/generated";
 
-export type PagedLeadRow = ListLeadsPagedQuery['listLeadsPaged']['rows'][number];
+export type PagedLeadRow =
+  ListLeadsPagedQuery["listLeadsPaged"]["rows"][number];
 export type LeadsGridContext = CrudGridContext<PagedLeadRow>;
 
 export const LEAD_COLUMNS: ColDef<PagedLeadRow>[] = [
-  textColumn('name', 'Name'),
-  textColumn('email', 'Email'),
-  statusColumn('source', 'Source'),
-  valueColumn('value', 'Value', (row) => row.value.toLocaleString()),
-  statusColumn('stage', 'Stage'),
+  textColumn("name", "Name"),
+  textColumn("email", "Email"),
+  statusColumn("source", "Source"),
+  valueColumn("value", "Value", (row) => row.value.toLocaleString()),
+  statusColumn("stage", "Stage"),
   actionsColumn(),
 ];
 ```
@@ -192,7 +204,7 @@ export function CrmPage() {
   const [deleteLead] = useDeleteLeadMutation();
 
   const crud = useCrudResource<LeadRow, PagedLeadRow>({
-    label: 'Lead',
+    label: "Lead",
     onDelete: (row) => deleteLead({ variables: { id: row.id } }),
     confirmMessage: (row) => `Delete lead "${row.name}"?`,
     refetch: refetchStats,
@@ -204,8 +216,12 @@ export function CrmPage() {
 
   const stats = statsData?.listLeadsStats;
   const statItems: StatItem[] = [
-    { label: 'Leads', value: String(statTotal(stats)), accent: '#4f8cff' },
-    { label: 'Won', value: String(statCount(stats, 'stage', 'WON')), accent: '#7be37b' },
+    { label: "Leads", value: String(statTotal(stats)), accent: "#4f8cff" },
+    {
+      label: "Won",
+      value: String(statCount(stats, "stage", "WON")),
+      accent: "#7be37b",
+    },
   ];
 
   const gridContext: LeadsGridContext = {
@@ -220,7 +236,11 @@ export function CrmPage() {
       stats={statItems}
       crud={crud}
       renderForm={(initial) => (
-        <LeadForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
+        <LeadForm
+          initial={initial}
+          onCancel={crud.close}
+          onDone={crud.onDone}
+        />
       )}
       columnDefs={LEAD_COLUMNS}
       fetchRows={fetchRows}

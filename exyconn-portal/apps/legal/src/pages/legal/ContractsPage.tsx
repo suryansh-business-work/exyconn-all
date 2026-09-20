@@ -12,7 +12,7 @@ import {
   type ListContractsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { ContractForm, type ContractRow } from './forms/contract';
-import { SendContractForm } from './forms/send-contract';
+import { RequestSignatureForm } from './forms/request-signature';
 import { color } from '@exyconn/shell/components/ui';
 import {
   CONTRACT_COLUMNS,
@@ -69,6 +69,7 @@ export function ContractsPage() {
 
   return (
     <CrudDashboard
+      exportFileName="contracts"
       title="Contracts"
       subtitle="Create, send & track contracts"
       entityLabel="contract"
@@ -83,9 +84,9 @@ export function ContractsPage() {
       context={gridContext}
       searchPlaceholder="Search contracts…"
       extraDialogs={
-        <CrudDialog open={Boolean(sendTarget)} title={t('Send contract')} onClose={closeSend}>
+        <CrudDialog open={Boolean(sendTarget)} title={t('Send for signature')} onClose={closeSend}>
           {sendTarget && (
-            <SendContractForm
+            <RequestSignatureForm
               contract={sendTarget}
               onCancel={closeSend}
               onDone={() => {

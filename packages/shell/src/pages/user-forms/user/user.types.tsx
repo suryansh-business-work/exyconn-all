@@ -21,6 +21,16 @@ export interface UserFormValues {
   /** The user this person reports to; '' when nobody is set. */
   managerId: string;
   designation: string;
+  /** Office or site, by the location master's code; '' when not placed. */
+  locationCode: string;
+  /** Team inside the department, by name; '' when not placed. */
+  teamName: string;
+  /** Job grade, by code; '' when not set. */
+  gradeCode: string;
+  /** Kind of employment, by code; '' when not set. */
+  employmentTypeCode: string;
+  /** Working-hours pattern, by code; '' when not set. */
+  shiftCode: string;
   joinDate: string;
   dateOfBirth: string;
   /** The day they come off probation; '' when they are not on one. */

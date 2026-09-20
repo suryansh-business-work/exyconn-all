@@ -89,6 +89,7 @@ export function ApplicantsPage() {
 
   return (
     <CrudDashboard
+      exportFileName="applicants"
       title="Applicants"
       subtitle="Everyone in the hiring pipeline, from the website and from referrals"
       entityLabel="applicant"

@@ -51,6 +51,7 @@ export function ActivitiesPage() {
 
   return (
     <CrudDashboard
+      exportFileName="activities"
       title="Activities"
       subtitle="Calls, meetings, notes and follow-ups"
       entityLabel="activity"
