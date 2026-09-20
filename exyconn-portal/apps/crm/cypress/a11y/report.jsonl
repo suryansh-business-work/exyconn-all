@@ -42,3 +42,16 @@
 {"spec":"src/pages/deals/forms/deal/deal.form.cy.tsx","test":"DealForm › keeps probability a percent","violations":[]}
 {"spec":"src/pages/deals/forms/deal/deal.form.cy.tsx","test":"DealForm › starts a new deal at zero value and 10% confidence","violations":[]}
 {"spec":"src/pages/deals/forms/deal/deal.form.cy.tsx","test":"DealForm › invokes onCancel when Cancel is clicked","violations":[]}
+{"spec":"src/pages/activities/forms/activity/activity.form.cy.tsx","test":"ActivityForm › requires a subject, an owner and something to be about","violations":[]}
+{"spec":"src/pages/activities/forms/activity/activity.form.cy.tsx","test":"ActivityForm › does not crash when a due date is typed by hand","violations":[]}
+{"spec":"src/pages/activities/forms/activity/activity.form.cy.tsx","test":"ActivityForm › clears the subject error once a subject is typed","violations":[]}
+{"spec":"src/pages/activities/forms/activity/activity.form.cy.tsx","test":"ActivityForm › invokes onCancel when Cancel is clicked","violations":[]}
+{"spec":"src/pages/companies/forms/company/company.form.cy.tsx","test":"CompanyForm › requires a name, a domain and an owner","violations":[]}
+{"spec":"src/pages/companies/forms/company/company.form.cy.tsx","test":"CompanyForm › rejects a domain pasted as a full URL","violations":[]}
+{"spec":"src/pages/companies/forms/company/company.form.cy.tsx","test":"CompanyForm › accepts a bare domain","violations":[]}
+{"spec":"src/pages/companies/forms/company/company.form.cy.tsx","test":"CompanyForm › invokes onCancel when Cancel is clicked","violations":[]}
+{"spec":"src/pages/deals/forms/deal/deal.form.cy.tsx","test":"DealForm › requires a title and an owner","violations":[]}
+{"spec":"src/pages/deals/forms/deal/deal.form.cy.tsx","test":"DealForm › refuses a negative deal value","violations":[]}
+{"spec":"src/pages/deals/forms/deal/deal.form.cy.tsx","test":"DealForm › keeps probability a percent","violations":[]}
+{"spec":"src/pages/deals/forms/deal/deal.form.cy.tsx","test":"DealForm › starts a new deal at zero value and 10% confidence","violations":[]}
+{"spec":"src/pages/deals/forms/deal/deal.form.cy.tsx","test":"DealForm › invokes onCancel when Cancel is clicked","violations":[]}

@@ -110,3 +110,7 @@ pnpm codegen                              # regenerate GraphQL hooks after a .gr
   command palette on top of it.
 - [backups.md](./backups.md) — the nightly database backup, the restore drill, and what the
   backup deliberately is not.
+- [background-jobs.md](./background-jobs.md) — the twelve loops the API runs, why their
+  heartbeats are in memory, and why a Run now button is safe.
+- [contract-signing.md](./contract-signing.md) — what a signature records now that it is
+  evidence rather than a typed name.
