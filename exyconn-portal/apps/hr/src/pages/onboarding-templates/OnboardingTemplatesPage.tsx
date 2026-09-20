@@ -63,6 +63,7 @@ export function OnboardingTemplatesPage() {
 
   return (
     <CrudDashboard
+      exportFileName="onboarding-templates"
       title="Onboarding Templates"
       subtitle="The checklists a joiner's first days are made from"
       entityLabel="template"

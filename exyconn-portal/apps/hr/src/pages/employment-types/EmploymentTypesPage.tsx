@@ -56,6 +56,7 @@ export function EmploymentTypesPage() {
 
   return (
     <CrudDashboard
+      exportFileName="employment-types"
       title="Employment Types"
       subtitle="Full-time, contract, intern and so on"
       entityLabel="employment type"

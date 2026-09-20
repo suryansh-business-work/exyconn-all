@@ -59,6 +59,7 @@ export function GoalsPage() {
 
   return (
     <CrudDashboard
+      exportFileName="goals"
       title="Goals"
       subtitle="What each employee is measured on"
       entityLabel="goal"

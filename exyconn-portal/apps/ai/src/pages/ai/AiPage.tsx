@@ -110,6 +110,7 @@ export function AiPage() {
 
   return (
     <CrudDashboard
+      exportFileName="ai-jobs"
       title="AI"
       subtitle="AI jobs"
       entityLabel="job"

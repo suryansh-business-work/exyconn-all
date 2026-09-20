@@ -69,6 +69,7 @@ export function ContractsPage() {
 
   return (
     <CrudDashboard
+      exportFileName="contracts"
       title="Contracts"
       subtitle="Create, send & track contracts"
       entityLabel="contract"

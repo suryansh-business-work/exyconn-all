@@ -68,6 +68,7 @@ export function SuppressionPage() {
 
   return (
     <CrudDashboard
+      exportFileName="suppression-list"
       title="Suppression List"
       subtitle="Addresses no campaign may reach"
       entityLabel="address"

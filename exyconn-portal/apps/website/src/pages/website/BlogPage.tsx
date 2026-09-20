@@ -60,6 +60,7 @@ export function BlogPage() {
 
   return (
     <CrudDashboard
+      exportFileName="blog-posts"
       title="Blog"
       subtitle="Website blog posts"
       entityLabel="blog post"

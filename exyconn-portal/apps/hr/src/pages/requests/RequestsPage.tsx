@@ -60,6 +60,7 @@ export function RequestsPage() {
 
   return (
     <CrudDashboard
+      exportFileName="employee-requests"
       title="Employee Requests"
       subtitle="WFH, regularisation and other HR requests"
       entityLabel="request"

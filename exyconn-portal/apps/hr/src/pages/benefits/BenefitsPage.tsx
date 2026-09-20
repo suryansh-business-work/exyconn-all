@@ -55,6 +55,7 @@ export function BenefitsPage() {
 
   return (
     <CrudDashboard
+      exportFileName="benefits"
       title="Benefits"
       subtitle="Insurance, PF and other benefits"
       entityLabel="benefit"

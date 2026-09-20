@@ -38,7 +38,9 @@ export function DirectReportsList({ reports }: Readonly<{ reports: DirectReport[
         {reports.map((person) => (
           <ListItem key={person.id} disableGutters>
             <ListItemAvatar>
-              <Avatar alt="" aria-hidden>{initialsOf(person.name)}</Avatar>
+              <Avatar alt="" aria-hidden>
+                {initialsOf(person.name)}
+              </Avatar>
             </ListItemAvatar>
             <ListItemText
               primary={person.name}

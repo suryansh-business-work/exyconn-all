@@ -48,6 +48,7 @@ export function ShiftsPage() {
 
   return (
     <CrudDashboard
+      exportFileName="shifts"
       title="Shifts"
       subtitle="Working-hour patterns and late rules"
       entityLabel="shift"

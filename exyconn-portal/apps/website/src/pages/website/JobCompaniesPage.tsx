@@ -49,6 +49,7 @@ export function JobCompaniesPage() {
 
   return (
     <CrudDashboard
+      exportFileName="job-companies"
       title="Job Companies"
       subtitle="Companies hiring through the public careers site"
       entityLabel="company"

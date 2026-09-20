@@ -52,6 +52,7 @@ export function TeamsPage() {
 
   return (
     <CrudDashboard
+      exportFileName="teams"
       title="Teams"
       subtitle="Teams inside each department"
       entityLabel="team"

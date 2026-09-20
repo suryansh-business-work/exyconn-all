@@ -59,6 +59,7 @@ export function SalariesPage() {
 
   return (
     <CrudDashboard
+      exportFileName="salary-structures"
       title="Salary Structures"
       subtitle="Each employee’s basic, HRA, allowances and deductions"
       entityLabel="salary structure"

@@ -48,6 +48,7 @@ export function LocationsPage() {
 
   return (
     <CrudDashboard
+      exportFileName="locations"
       title="Locations"
       subtitle="Offices and work sites"
       entityLabel="location"

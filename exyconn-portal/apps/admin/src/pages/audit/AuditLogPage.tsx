@@ -54,6 +54,7 @@ export function AuditLogPage() {
 
   return (
     <CrudDashboard<PagedAuditRow, PagedAuditRow>
+      exportFileName="audit-log"
       title="Audit Log"
       subtitle="Who changed what, and when"
       entityLabel="entry"

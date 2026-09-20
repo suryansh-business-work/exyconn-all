@@ -60,7 +60,11 @@ const mount = (children: ReactNode, mocks: MockedProvider.Props['mocks'] = []) =
   );
 
 /** The stat tile labelled exactly `label`: its label row, then the big number under it. */
-const tile = (label: string) => cy.contains(new RegExp(`^${label}$`)).parent().parent();
+const tile = (label: string) =>
+  cy
+    .contains(new RegExp(`^${label}$`))
+    .parent()
+    .parent();
 
 describe('Analytics sections', () => {
   it('shows the user totals and the roles chart', () => {

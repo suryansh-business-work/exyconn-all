@@ -51,6 +51,7 @@ export function GigsPage() {
 
   return (
     <CrudDashboard
+      exportFileName="gigs"
       title="Gigs"
       subtitle="Freelance gigs on the public site"
       entityLabel="gig"

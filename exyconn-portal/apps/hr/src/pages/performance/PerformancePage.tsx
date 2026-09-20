@@ -59,6 +59,7 @@ export function PerformancePage() {
 
   return (
     <CrudDashboard
+      exportFileName="appraisals"
       title="Performance"
       subtitle="Appraisal cycles and ratings"
       entityLabel="review"

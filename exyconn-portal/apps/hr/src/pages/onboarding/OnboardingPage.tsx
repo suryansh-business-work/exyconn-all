@@ -56,6 +56,7 @@ export function OnboardingPage() {
 
   return (
     <CrudDashboard
+      exportFileName="onboarding"
       title="Onboarding"
       subtitle="Every joiner's first days, and what is still outstanding"
       entityLabel="onboarding"

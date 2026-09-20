@@ -48,6 +48,7 @@ export function JobsPage() {
 
   return (
     <CrudDashboard
+      exportFileName="jobs"
       title="Jobs"
       subtitle="Openings published on the public careers site"
       entityLabel="job"
