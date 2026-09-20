@@ -6,6 +6,7 @@ import { NotificationProvider } from '@exyconn/shell/components/feedback/Notific
 import { StatusShell } from './components/StatusShell';
 import { StatusPage } from './pages/status';
 import { ReportPage } from './pages/report';
+import { HelpPage } from './pages/help';
 import { ConfirmSubscriptionPage, UnsubscribePage } from './pages/subscribe';
 import { SharedProjectPage } from './pages/project';
 
@@ -24,6 +25,8 @@ export function App() {
               <Routes>
                 <Route path="/" element={<StatusPage />} />
                 <Route path="/report" element={<ReportPage />} />
+                {/* Support, for a customer with no account: the one app without a sign-in. */}
+                <Route path="/help" element={<HelpPage />} />
                 <Route path="/subscribe/confirm" element={<ConfirmSubscriptionPage />} />
                 <Route path="/unsubscribe" element={<UnsubscribePage />} />
                 {/* A client's read-only view of one project, opened from a share link. */}

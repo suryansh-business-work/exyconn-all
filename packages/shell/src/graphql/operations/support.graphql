@@ -224,3 +224,20 @@ mutation EscalateSupportTicket($id: ID!, $reason: String!) {
     escalatedAt
   }
 }
+
+# A customer following their own ticket on the public help page: the reference they were
+# given plus the address they raised it from. Null unless both match.
+query ClientSupportTicketStatus($reference: String!, $email: String!) {
+  clientSupportTicketStatus(reference: $reference, email: $email) {
+    reference
+    subject
+    status
+    updatedAt
+    replies {
+      id
+      body
+      authorName
+      createdAt
+    }
+  }
+}

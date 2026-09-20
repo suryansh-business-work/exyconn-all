@@ -18636,6 +18636,14 @@ export type EscalateSupportTicketMutationVariables = Exact<{
 
 export type EscalateSupportTicketMutation = { __typename?: 'Mutation', escalateSupportTicket: { __typename?: 'SupportTicket', id: string, priority: SupportPriority, dueAt?: string | null, slaState: SlaState, escalationLevel: number, escalatedAt?: string | null } };
 
+export type ClientSupportTicketStatusQueryVariables = Exact<{
+  reference: Scalars['String']['input'];
+  email: Scalars['String']['input'];
+}>;
+
+
+export type ClientSupportTicketStatusQuery = { __typename?: 'Query', clientSupportTicketStatus?: { __typename?: 'ClientTicketStatus', reference: string, subject: string, status: SupportStatus, updatedAt: string, replies: Array<{ __typename?: 'SupportReply', id: string, body: string, authorName: string, createdAt: string }> } | null };
+
 export type ListEmailConfigsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -50051,6 +50059,60 @@ export function useEscalateSupportTicketMutation(baseOptions?: ApolloReactHooks.
         return ApolloReactHooks.useMutation<EscalateSupportTicketMutation, EscalateSupportTicketMutationVariables>(EscalateSupportTicketDocument, options);
       }
 export type EscalateSupportTicketMutationHookResult = ReturnType<typeof useEscalateSupportTicketMutation>;
+export const ClientSupportTicketStatusDocument = gql`
+    query ClientSupportTicketStatus($reference: String!, $email: String!) {
+  clientSupportTicketStatus(reference: $reference, email: $email) {
+    reference
+    subject
+    status
+    updatedAt
+    replies {
+      id
+      body
+      authorName
+      createdAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useClientSupportTicketStatusQuery__
+ *
+ * To run a query within a React component, call `useClientSupportTicketStatusQuery` and pass it any options that fit your needs.
+ * When your component renders, `useClientSupportTicketStatusQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useClientSupportTicketStatusQuery({
+ *   variables: {
+ *      reference: // value for 'reference'
+ *      email: // value for 'email'
+ *   },
+ * });
+ */
+export function useClientSupportTicketStatusQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ClientSupportTicketStatusQuery, ClientSupportTicketStatusQueryVariables> & ({ variables: ClientSupportTicketStatusQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ClientSupportTicketStatusQuery, ClientSupportTicketStatusQueryVariables>(ClientSupportTicketStatusDocument, options);
+      }
+export function useClientSupportTicketStatusLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ClientSupportTicketStatusQuery, ClientSupportTicketStatusQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ClientSupportTicketStatusQuery, ClientSupportTicketStatusQueryVariables>(ClientSupportTicketStatusDocument, options);
+        }
+// @ts-ignore
+export function useClientSupportTicketStatusSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ClientSupportTicketStatusQuery, ClientSupportTicketStatusQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientSupportTicketStatusQuery, ClientSupportTicketStatusQueryVariables>;
+// @ts-ignore
+export function useClientSupportTicketStatusSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientSupportTicketStatusQuery, ClientSupportTicketStatusQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientSupportTicketStatusQuery | undefined, ClientSupportTicketStatusQueryVariables>;
+export function useClientSupportTicketStatusSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientSupportTicketStatusQuery, ClientSupportTicketStatusQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ClientSupportTicketStatusQuery, ClientSupportTicketStatusQueryVariables>(ClientSupportTicketStatusDocument, options);
+        }
+export type ClientSupportTicketStatusQueryHookResult = ReturnType<typeof useClientSupportTicketStatusQuery>;
+export type ClientSupportTicketStatusLazyQueryHookResult = ReturnType<typeof useClientSupportTicketStatusLazyQuery>;
+export type ClientSupportTicketStatusSuspenseQueryHookResult = ReturnType<typeof useClientSupportTicketStatusSuspenseQuery>;
 export const ListEmailConfigsDocument = gql`
     query ListEmailConfigs {
   listEmailConfigs {
