@@ -88,7 +88,11 @@ export function DataTable<T extends { id: string }>({
   return (
     <>
       {toolbar}
-      <TableContainer sx={{ background: 'transparent' }} aria-busy={loading}>
+      {/* Focusable because it scrolls: a table wider or taller than its box is a scrollable
+          region, and a region somebody can only reach with a mouse fails WCAG 2.2 AA
+          (scrollable-region-focusable). One tab stop per table is the price of being able to
+          read the rest of a wide table from the keyboard. */}
+      <TableContainer tabIndex={0} sx={{ background: 'transparent' }} aria-busy={loading}>
         <Table size="small">
           <TableHead>
             <TableRow>

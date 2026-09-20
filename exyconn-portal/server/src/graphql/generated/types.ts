@@ -4664,7 +4664,7 @@ export type Mutation = {
    */
   reviewTrackerManualEntry: TrackerManualEntry;
   revokeApiKey: ApiKey;
-  /** Ends every session except this one — the button for "I think somebody saw my password". */
+  /** Ends every session except this one, for somebody who thinks their password has been seen. */
   revokeOtherSessions: Scalars['Int']['output'];
   revokeProjectShare: ProjectShare;
   /** Ends one of this account's other sessions. The current one cannot be ended this way. */

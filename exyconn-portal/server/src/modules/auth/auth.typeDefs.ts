@@ -78,7 +78,7 @@ export const authTypeDefs = gql`
     verifyMfa(challenge: String!, code: String!): AuthPayload!
     "Ends one of this account's other sessions. The current one cannot be ended this way."
     revokeSession(id: ID!): Boolean!
-    "Ends every session except this one — the button for \"I think somebody saw my password\"."
+    "Ends every session except this one, for somebody who thinks their password has been seen."
     revokeOtherSessions: Int!
     "Mints a secret and returns what an authenticator app needs. Nothing is switched on yet."
     startMfaEnrolment: MfaEnrolment!
