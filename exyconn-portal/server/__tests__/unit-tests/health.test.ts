@@ -44,6 +44,7 @@ describe('systemHealth', () => {
       'campaignSchedule',
       'aiQueue',
       'reminders',
+      'auditRetention',
     ]);
     expect(health.counts.map((count) => count.label)).toEqual([
       'Users',

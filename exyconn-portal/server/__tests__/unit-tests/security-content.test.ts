@@ -157,14 +157,12 @@ describe('safeFetch (SSRF)', () => {
         ? [{ address: '127.0.0.1', family: 4 }]
         : [{ address: '93.184.215.14', family: 4 }],
     );
-    globalThis.fetch = jest
-      .fn()
-      .mockResolvedValue(
-        new Response(null, {
-          status: 302,
-          headers: { location: 'https://internal.example/admin' },
-        }),
-      ) as unknown as typeof fetch;
+    globalThis.fetch = jest.fn().mockResolvedValue(
+      new Response(null, {
+        status: 302,
+        headers: { location: 'https://internal.example/admin' },
+      }),
+    ) as unknown as typeof fetch;
 
     await expect(safeFetch('https://public.example')).rejects.toThrow(/not a public/);
     expect(globalThis.fetch).toHaveBeenCalledTimes(1);

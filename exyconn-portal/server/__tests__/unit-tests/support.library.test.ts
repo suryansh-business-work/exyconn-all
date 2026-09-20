@@ -17,7 +17,9 @@ interface Article {
 }
 
 const ctx = (roles: string[] = [ROLES.SUPPORT]) =>
-  ({ user: { id: '65b000000000000000000001', email: 'agent@exyconn.com', roles } }) as unknown as GraphQLContext;
+  ({
+    user: { id: '65b000000000000000000001', email: 'agent@exyconn.com', roles },
+  }) as unknown as GraphQLContext;
 
 const article = (over: Record<string, unknown> = {}) =>
   KbArticleModel.create({

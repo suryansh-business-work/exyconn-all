@@ -153,8 +153,16 @@ describe('how the chase is summarised', () => {
     const dev = await developer();
     const created = await project();
     const todo = await column(created._id, 'To do');
-    await task(created._id, todo._id, { key: 'BILL-1', dueDate: day('2026-06-01'), assigneeId: dev });
-    await task(created._id, todo._id, { key: 'BILL-2', dueDate: day('2026-06-02'), assigneeId: dev });
+    await task(created._id, todo._id, {
+      key: 'BILL-1',
+      dueDate: day('2026-06-01'),
+      assigneeId: dev,
+    });
+    await task(created._id, todo._id, {
+      key: 'BILL-2',
+      dueDate: day('2026-06-02'),
+      assigneeId: dev,
+    });
     await bug({ assigneeId: dev, title: 'Login loops', dueDate: day('2026-06-03') });
     await bug({ assigneeId: dev, title: 'Search is slow', dueDate: day('2026-06-04') });
 
