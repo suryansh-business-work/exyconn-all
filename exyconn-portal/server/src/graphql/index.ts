@@ -189,6 +189,7 @@ export const typeDefs = [
   complianceTypeDefs,
   complianceAuditsTypeDefs,
   complianceReviewsTypeDefs,
+  complianceDashboardTypeDefs,
   performanceTypeDefs,
   expensesTypeDefs,
   benefitsTypeDefs,
