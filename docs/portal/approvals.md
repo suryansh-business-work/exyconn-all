@@ -10,7 +10,7 @@ decision was hiding in, and nothing anywhere could answer "what is waiting on me
 ## It is a view, not a table
 
 There is **no approvals collection**. An approval lives in the collection that owns the
-decision — a leave request *is* the leave request — and the queue reads through to them.
+decision — a leave request _is_ the leave request — and the queue reads through to them.
 A central copy would be a second version of the truth, and the two would part company the
 first time anything decided a claim without going through the queue.
 
@@ -32,12 +32,12 @@ one**.
 
 `decideApproval` dispatches to the owning module's own service:
 
-| Source | Decided through |
-| --- | --- |
-| `LEAVE` | `hrResolvers.Mutation.setLeaveStatus` |
-| `EXPENSE` | `setExpenseClaimStatus` |
-| `REQUEST` | `requestsResolvers.Mutation.decideEmployeeRequest` |
-| `MANUAL_TIME` | `trackerManualService.review` |
+| Source        | Decided through                                    |
+| ------------- | -------------------------------------------------- |
+| `LEAVE`       | `hrResolvers.Mutation.setLeaveStatus`              |
+| `EXPENSE`     | `setExpenseClaimStatus`                            |
+| `REQUEST`     | `requestsResolvers.Mutation.decideEmployeeRequest` |
+| `MANUAL_TIME` | `trackerManualService.review`                      |
 
 This is not tidiness. Approving leave means debiting a leave balance; writing
 `status: 'APPROVED'` from the queue would approve leave that never left anybody's
@@ -54,7 +54,7 @@ Per source, in `scopeFor`:
    takes APPROVE away from a role does not leave that role a queue full of buttons the
    server would refuse.
 3. **A manager**, where the source allows it — only their own direct reports' rows. This
-   path is deliberately *not* measured against the matrix: a manager acting through the
+   path is deliberately _not_ measured against the matrix: a manager acting through the
    reporting line is not acting through the module's role at all, exactly as
    `assertApprovePermission` already reasons.
 4. **Anyone else** — the source does not appear at all. Not a zero count: absent.

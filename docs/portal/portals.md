@@ -12,36 +12,36 @@ background artwork and the accent are per-app values on the branding record, so
 `finance.exyconn.com/login` and `hr.exyconn.com/login` look like their own front doors while
 running identical code.
 
-| Portal | App key | Production | Login | Dev port | Role |
-|---|---|---|---|---|---|
-| Portal Home (launcher) | `hub` | https://portal.exyconn.com | https://portal.exyconn.com/login | 4003 | any |
-| Admin | `admin` | https://admin.exyconn.com | https://admin.exyconn.com/login | 4020 | `ADMIN` |
-| My Workspace | `employee` | https://employee.exyconn.com | https://employee.exyconn.com/login | 4021 | `EMPLOYEE` |
-| Finance | `finance` | https://finance.exyconn.com | https://finance.exyconn.com/login | 4022 | `FINANCE` |
-| Support | `support` | https://support.exyconn.com | https://support.exyconn.com/login | 4023 | `SUPPORT` |
-| CRM | `crm` | https://crm.exyconn.com | https://crm.exyconn.com/login | 4024 | `CRM` |
-| Products | `products` | https://products.exyconn.com | https://products.exyconn.com/login | 4025 | `PRODUCTS` |
-| Legal | `legal` | https://legal.exyconn.com | https://legal.exyconn.com/login | 4026 | `LEGAL` |
-| HR | `hr` | https://hr.exyconn.com | https://hr.exyconn.com/login | 4027 | `HR` |
-| Marketing | `marketing` | https://marketing.exyconn.com | https://marketing.exyconn.com/login | 4028 | `MARKETING` |
-| Projects | `projects` | https://projects.exyconn.com | https://projects.exyconn.com/login | 4029 | `PROJECTS` |
-| AI | `ai` | https://ai.exyconn.com | https://ai.exyconn.com/login | 4030 | `AI` |
-| Website | `website` | https://website.exyconn.com | https://website.exyconn.com/login | 4031 | `WEBSITE` |
-| Time Tracker | `tracker` | https://tracker.exyconn.com | https://tracker.exyconn.com/login | 4032 | `TRACKER` |
-| Tech | `tech` | https://tech.exyconn.com | https://tech.exyconn.com/login | 4033 | `TECH` |
-| IT | `it` | https://it.exyconn.com | https://it.exyconn.com/login | 4034 | `IT` |
-| Compliance | `compliance` | https://compliance.exyconn.com | https://compliance.exyconn.com/login | 4037 | `COMPLIANCE` |
-| Social | `social` | https://social.exyconn.com | https://social.exyconn.com/login | 4036 | `EMPLOYEE` |
+| Portal                 | App key      | Production                     | Login                                | Dev port | Role         |
+| ---------------------- | ------------ | ------------------------------ | ------------------------------------ | -------- | ------------ |
+| Portal Home (launcher) | `hub`        | https://portal.exyconn.com     | https://portal.exyconn.com/login     | 4003     | any          |
+| Admin                  | `admin`      | https://admin.exyconn.com      | https://admin.exyconn.com/login      | 4020     | `ADMIN`      |
+| My Workspace           | `employee`   | https://employee.exyconn.com   | https://employee.exyconn.com/login   | 4021     | `EMPLOYEE`   |
+| Finance                | `finance`    | https://finance.exyconn.com    | https://finance.exyconn.com/login    | 4022     | `FINANCE`    |
+| Support                | `support`    | https://support.exyconn.com    | https://support.exyconn.com/login    | 4023     | `SUPPORT`    |
+| CRM                    | `crm`        | https://crm.exyconn.com        | https://crm.exyconn.com/login        | 4024     | `CRM`        |
+| Products               | `products`   | https://products.exyconn.com   | https://products.exyconn.com/login   | 4025     | `PRODUCTS`   |
+| Legal                  | `legal`      | https://legal.exyconn.com      | https://legal.exyconn.com/login      | 4026     | `LEGAL`      |
+| HR                     | `hr`         | https://hr.exyconn.com         | https://hr.exyconn.com/login         | 4027     | `HR`         |
+| Marketing              | `marketing`  | https://marketing.exyconn.com  | https://marketing.exyconn.com/login  | 4028     | `MARKETING`  |
+| Projects               | `projects`   | https://projects.exyconn.com   | https://projects.exyconn.com/login   | 4029     | `PROJECTS`   |
+| AI                     | `ai`         | https://ai.exyconn.com         | https://ai.exyconn.com/login         | 4030     | `AI`         |
+| Website                | `website`    | https://website.exyconn.com    | https://website.exyconn.com/login    | 4031     | `WEBSITE`    |
+| Time Tracker           | `tracker`    | https://tracker.exyconn.com    | https://tracker.exyconn.com/login    | 4032     | `TRACKER`    |
+| Tech                   | `tech`       | https://tech.exyconn.com       | https://tech.exyconn.com/login       | 4033     | `TECH`       |
+| IT                     | `it`         | https://it.exyconn.com         | https://it.exyconn.com/login         | 4034     | `IT`         |
+| Compliance             | `compliance` | https://compliance.exyconn.com | https://compliance.exyconn.com/login | 4037     | `COMPLIANCE` |
+| Social                 | `social`     | https://social.exyconn.com     | https://social.exyconn.com/login     | 4036     | `EMPLOYEE`   |
 
 Not portal apps, but part of the same deployment:
 
-| Service | Production | Dev port |
-|---|---|---|
-| Marketing website (Astro) | https://exyconn.com | 4000 |
-| Tools UI | https://tools.exyconn.com | 4001 |
-| Tools API | https://tools-api.exyconn.com | 4002 |
-| Portal GraphQL API | https://portal-server.exyconn.com/graphql | 1002 |
-| Status page (public, no sign-in) | https://status.exyconn.com | 4035 |
+| Service                          | Production                                | Dev port |
+| -------------------------------- | ----------------------------------------- | -------- |
+| Marketing website (Astro)        | https://exyconn.com                       | 4000     |
+| Tools UI                         | https://tools.exyconn.com                 | 4001     |
+| Tools API                        | https://tools-api.exyconn.com             | 4002     |
+| Portal GraphQL API               | https://portal-server.exyconn.com/graphql | 1002     |
+| Status page (public, no sign-in) | https://status.exyconn.com                | 4035     |
 
 Social is the one module keyed to `EMPLOYEE` rather than a role of its own. That is
 deliberate: every colleague holds that role, and a company feed only part of the company

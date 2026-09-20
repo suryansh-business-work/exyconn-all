@@ -1,7 +1,7 @@
 # App logs — Tech › Logs
 
 Every error and debug log from the phone tracker, the desktop tracker, the portals and the
-API ends up in one table at **tech.exyconn.com/tech/logs**. Each row is one *distinct*
+API ends up in one table at **tech.exyconn.com/tech/logs**. Each row is one _distinct_
 problem, with how many times it happened, to how many people, who saw it last, on which
 platform and build, and on which screen. Open a row to see the individual occurrences: who,
 when, which device, the stack, the React component stack and the breadcrumbs that led to it.
@@ -20,16 +20,16 @@ The prompts are built on the server (`modules/logs/logs.prompt.ts`) from the sto
 
 ## Where logs come from
 
-| Source | Captured automatically | Code |
-| --- | --- | --- |
-| `MOBILE` | uncaught JS errors (fatal ones too — written to disk before the app dies), unhandled rejections, every screen render error (each route exports `ScreenErrorBoundary`, so the screen shows a retry instead of the app closing), `console.error`/`warn`, and **app closes JS never sees** (native crash, killed by the OS) via the session marker | `exyconn-tracker-mobile/src/tracker/crash-handlers.ts` |
-| `DESKTOP` | main-process `uncaughtException`/`unhandledRejection`, a renderer or GPU process that dies, renderer errors (sent to main over IPC), render errors per section, `console.error`/`warn` | `exyconn-tracker-app/src/main/crash-handlers.ts`, `src/renderer/logger.ts` |
-| `PORTAL` | uncaught errors, unhandled rejections, render errors per page, GraphQL queries the API refused to validate, requests that got no answer, `console.error`/`warn` | `packages/shell/src/logging/` |
-| `SERVER` | every resolver error except the expected answers (UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, BAD_USER_INPUT, …) | `exyconn-portal/server/src/modules/logs/logs.plugin.ts` |
+| Source    | Captured automatically                                                                                                                                                                                                                                                                                                                          | Code                                                                       |
+| --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `MOBILE`  | uncaught JS errors (fatal ones too — written to disk before the app dies), unhandled rejections, every screen render error (each route exports `ScreenErrorBoundary`, so the screen shows a retry instead of the app closing), `console.error`/`warn`, and **app closes JS never sees** (native crash, killed by the OS) via the session marker | `exyconn-tracker-mobile/src/tracker/crash-handlers.ts`                     |
+| `DESKTOP` | main-process `uncaughtException`/`unhandledRejection`, a renderer or GPU process that dies, renderer errors (sent to main over IPC), render errors per section, `console.error`/`warn`                                                                                                                                                          | `exyconn-tracker-app/src/main/crash-handlers.ts`, `src/renderer/logger.ts` |
+| `PORTAL`  | uncaught errors, unhandled rejections, render errors per page, GraphQL queries the API refused to validate, requests that got no answer, `console.error`/`warn`                                                                                                                                                                                 | `packages/shell/src/logging/`                                              |
+| `SERVER`  | every resolver error except the expected answers (UNAUTHENTICATED, FORBIDDEN, NOT_FOUND, BAD_USER_INPUT, …)                                                                                                                                                                                                                                     | `exyconn-portal/server/src/modules/logs/logs.plugin.ts`                    |
 
 Every client entry carries the current route and the last 30 breadcrumbs (screens opened,
 status changes, earlier logs). The screen, the user (from the session; a user the client only
-claimed is marked *unverified*), the device and the build are stamped on each batch.
+claimed is marked _unverified_), the device and the build are stamped on each batch.
 
 ## Logging from code
 
@@ -37,15 +37,15 @@ The console is already captured, so an existing `console.error('Saving failed', 
 reported as-is. For anything else, import the app's logger:
 
 ```ts
-import { logger } from '../tracker/logger';        // mobile
-import { logger } from './logger';                  // desktop main or renderer
-import { portalLogger } from '@exyconn/shell/logging/portalLogger'; // portals
+import { logger } from "../tracker/logger"; // mobile
+import { logger } from "./logger"; // desktop main or renderer
+import { portalLogger } from "@exyconn/shell/logging/portalLogger"; // portals
 
-logger.error('Saving the timezone failed', err, { timezone });
-logger.warn('Slow sync', undefined, { ms });
-logger.info('Signed in');
-logger.debug('Opened the calendar');
-logger.breadcrumb('Tapped Start'); // not sent on its own; rides along with the next error
+logger.error("Saving the timezone failed", err, { timezone });
+logger.warn("Slow sync", undefined, { ms });
+logger.info("Signed in");
+logger.debug("Opened the calendar");
+logger.breadcrumb("Tapped Start"); // not sent on its own; rides along with the next error
 ```
 
 ## How it works

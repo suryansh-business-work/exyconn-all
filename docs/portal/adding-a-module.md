@@ -17,12 +17,13 @@ The server side first — the shared grid only works against a `listXxxPaged` +
 3. **Column model** — `<entity>-grid.tsx` next to the page:
 
    ```tsx
-   export type PagedThingRow = ListThingsPagedQuery['listThingsPaged']['rows'][number];
+   export type PagedThingRow =
+     ListThingsPagedQuery["listThingsPaged"]["rows"][number];
    export type ThingsGridContext = CrudGridContext<PagedThingRow>;
 
    export const THING_COLUMNS: ColDef<PagedThingRow>[] = [
-     textColumn('name', 'Name'),
-     statusColumn('status', 'Status'),
+     textColumn("name", "Name"),
+     statusColumn("status", "Status"),
      actionsColumn(),
    ];
    ```
@@ -68,11 +69,12 @@ The server side first — the shared grid only works against a `listXxxPaged` +
 
    Depend on `@exyconn/shell`, `@exyconn/login` and — if it has a CRUD screen —
    `@exyconn/crud`; keep `@exyconn/config` in `devDependencies`.
+
 5. **Deployment** — seven places still mirror the registry by hand. Miss one and the
    failure is usually far from the cause, so the list is worth working through in order:
    - `docker/portal-app.Dockerfile` — a `COPY .../package.json` line in the deps layer.
      Without it pnpm resolves nothing for the filter and the build dies on `tsc: not
-     found` twenty minutes into a deploy. `scripts/check-docker-manifests.mjs` catches it
+found` twenty minutes into a deploy. `scripts/check-docker-manifests.mjs` catches it
      in seconds; run it.
    - `.github/workflows/deploy.yml` — a `matrix.include` entry with `APP_PKG`, `APP_DIR`,
      `PORT`, `VITE_PORTAL_APP`, **and** the domain in the post-deploy health-check list.
@@ -86,23 +88,24 @@ The server side first — the shared grid only works against a `listXxxPaged` +
    - `docs/portal/portals.md` and `DEPLOYMENT.md` — the port/domain/image tables.
 
    Order matters at the end: deploy.yml health-checks the new domain, so the certificate
-   has to exist *before* the first deploy or the job fails on a domain with no TLS.
+   has to exist _before_ the first deploy or the job fails on a domain with no TLS.
+
 6. **Verify** — `pnpm install`, then `pnpm typecheck && pnpm lint && pnpm test && pnpm build`,
    plus `node scripts/check-docker-manifests.mjs` and `node scripts/check-workspace-imports.mjs`.
 
 ## Change something shared
 
-| Change | Where |
-| --- | --- |
-| A page's `<title>`, description, port or subdomain | `packages/config/apps.json` |
-| The favicon or webfont every app loads | `packages/config/vite.js` (`portalHtml`) |
-| A TypeScript compiler option or path alias | `packages/config/tsconfig.app.json` |
-| An ESLint rule | `packages/config/eslint.js` |
-| Formatting | `packages/config/prettier.json` |
-| A UI primitive's defaults | `packages/shell/src/components/ui` |
-| The Cancel/Save footer or field spacing on every form | `packages/shell/src/components/form` |
-| How a status chip, date cell or row action renders in every grid | `packages/crud/src/grid` |
-| The CRUD screen's layout | `packages/crud/src/page/CrudDashboard.tsx` |
+| Change                                                           | Where                                      |
+| ---------------------------------------------------------------- | ------------------------------------------ |
+| A page's `<title>`, description, port or subdomain               | `packages/config/apps.json`                |
+| The favicon or webfont every app loads                           | `packages/config/vite.js` (`portalHtml`)   |
+| A TypeScript compiler option or path alias                       | `packages/config/tsconfig.app.json`        |
+| An ESLint rule                                                   | `packages/config/eslint.js`                |
+| Formatting                                                       | `packages/config/prettier.json`            |
+| A UI primitive's defaults                                        | `packages/shell/src/components/ui`         |
+| The Cancel/Save footer or field spacing on every form            | `packages/shell/src/components/form`       |
+| How a status chip, date cell or row action renders in every grid | `packages/crud/src/grid`                   |
+| The CRUD screen's layout                                         | `packages/crud/src/page/CrudDashboard.tsx` |
 
 ## Branching
 

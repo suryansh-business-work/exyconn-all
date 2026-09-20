@@ -12,12 +12,12 @@ from who you signed in as.
 
 Not by remembering to add a filter. `src/lib/tenant` puts it in the data layer:
 
-| File | What it does |
-| --- | --- |
-| `tenant-scope.ts` | The organization the work in hand belongs to, carried per request in an `AsyncLocalStorage`. A scope is either one organization or (deliberately) the platform. |
-| `tenant-plugin.ts` | A Mongoose plugin: adds `organizationId`, filters **every** query by it, stamps **every** write, and makes each unique index unique *within* a company. |
-| `install.ts` | Wraps `mongoose.model()` so the plugin is applied as each model is defined, and `assertTenantCoverage()` refuses to boot if a model was missed. |
-| `platform-models.ts` | The models that are deliberately **not** a company's data. Everything else is tenant data by default. |
+| File                 | What it does                                                                                                                                                    |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `tenant-scope.ts`    | The organization the work in hand belongs to, carried per request in an `AsyncLocalStorage`. A scope is either one organization or (deliberately) the platform. |
+| `tenant-plugin.ts`   | A Mongoose plugin: adds `organizationId`, filters **every** query by it, stamps **every** write, and makes each unique index unique _within_ a company.         |
+| `install.ts`         | Wraps `mongoose.model()` so the plugin is applied as each model is defined, and `assertTenantCoverage()` refuses to boot if a model was missed.                 |
+| `platform-models.ts` | The models that are deliberately **not** a company's data. Everything else is tenant data by default.                                                           |
 
 Three rules follow from this:
 
@@ -41,7 +41,7 @@ company**: each reads its own mailbox into its own tickets.
 ### What stays unique across the platform
 
 A person's email address, because it is how they sign in. Everything else that was unique —
-an invoice number, a product SKU, a department name — is unique *within* a company, so two
+an invoice number, a product SKU, a department name — is unique _within_ a company, so two
 companies can both have an `INV-001`.
 
 ## Roles

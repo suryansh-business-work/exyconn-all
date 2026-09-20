@@ -38,12 +38,12 @@ Nothing depends on an app.
 
 ## The packages
 
-| Package | What it is | Docs |
-| --- | --- | --- |
-| [`@exyconn/config`](../../packages/config) | The app registry (`apps.json`) plus the Vite, TypeScript, ESLint, Prettier and Cypress presets every package extends. Zero runtime dependencies. | [packages.md](./packages.md#exyconnconfig) |
-| [`@exyconn/shell`](../../packages/shell) | The design system, auth, Apollo wiring, portal layout, form primitives, generated GraphQL hooks and the pages every module shares (Profile, Settings, User details). | [packages.md](./packages.md#exyconnshell) |
-| [`@exyconn/crud`](../../packages/crud) | The server-paged CRUD kit: ag-grid column factories, the paged fetcher, the create/edit/delete resource hook and the dashboard that composes them. | [crud-kit.md](./crud-kit.md) |
-| [`@exyconn/login`](../../packages/login) | The login screen, shared by every app so an expired session lands in the same place. | [packages.md](./packages.md#exyconnlogin) |
+| Package                                    | What it is                                                                                                                                                           | Docs                                       |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| [`@exyconn/config`](../../packages/config) | The app registry (`apps.json`) plus the Vite, TypeScript, ESLint, Prettier and Cypress presets every package extends. Zero runtime dependencies.                     | [packages.md](./packages.md#exyconnconfig) |
+| [`@exyconn/shell`](../../packages/shell)   | The design system, auth, Apollo wiring, portal layout, form primitives, generated GraphQL hooks and the pages every module shares (Profile, Settings, User details). | [packages.md](./packages.md#exyconnshell)  |
+| [`@exyconn/crud`](../../packages/crud)     | The server-paged CRUD kit: ag-grid column factories, the paged fetcher, the create/edit/delete resource hook and the dashboard that composes them.                   | [crud-kit.md](./crud-kit.md)               |
+| [`@exyconn/login`](../../packages/login)   | The login screen, shared by every app so an expired session lands in the same place.                                                                                 | [packages.md](./packages.md#exyconnlogin)  |
 
 The packages are consumed **as TypeScript source**, not as built artifacts: each app's
 Vite config aliases `@exyconn/shell/...` and `@exyconn/crud/...` straight at `src/`, and
@@ -102,3 +102,11 @@ pnpm codegen                              # regenerate GraphQL hooks after a .gr
   fact, and how HR, Legal, Projects and the desktop tracker share it.
 - [website-content.md](./website-content.md) — every piece of exyconn.com is read from the
   portal; which query and which screen owns each of them.
+- [authentication.md](./authentication.md) — how signing in works now that there is a second
+  factor and a session per device, and what is still a password only.
+- [reminders.md](./reminders.md) — the hourly sweep that chases due dates across nine
+  modules, and how a module registers its own.
+- [search.md](./search.md) — one search across every module the caller can open, and the
+  command palette on top of it.
+- [backups.md](./backups.md) — the nightly database backup, the restore drill, and what the
+  backup deliberately is not.
