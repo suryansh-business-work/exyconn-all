@@ -64,3 +64,8 @@
 {"spec":"src/pages/organizations/forms/organization-admin/organization-admin.form.cy.tsx","test":"OrganizationAdminForm › calls onCancel","violations":[]}
 {"spec":"src/pages/permissions/PermissionMatrix.cy.tsx","test":"PermissionMatrix (browser) › lays the matrix out as a table with actions as column headings","violations":[]}
 {"spec":"src/pages/permissions/PermissionMatrix.cy.tsx","test":"PermissionMatrix (browser) › uses native, focusable checkboxes, and shows the save bar on a change","violations":[]}
+{"spec":"src/pages/analytics/AnalyticsSections.cy.tsx","test":"Analytics sections › shows the user totals and the roles chart","violations":[]}
+{"spec":"src/pages/analytics/AnalyticsSections.cy.tsx","test":"Analytics sections › shows tracker hours, activity and its charts","violations":[]}
+{"spec":"src/pages/analytics/AnalyticsSections.cy.tsx","test":"Analytics sections › loads the platform figures for a super admin","violations":[]}
+{"spec":"src/pages/permissions/PermissionMatrix.cy.tsx","test":"PermissionMatrix (browser) › lays the matrix out as a table with actions as column headings","violations":[]}
+{"spec":"src/pages/permissions/PermissionMatrix.cy.tsx","test":"PermissionMatrix (browser) › uses native, focusable checkboxes, and shows the save bar on a change","violations":[]}

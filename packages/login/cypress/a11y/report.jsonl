@@ -26,3 +26,20 @@
 {"spec":"src/ResetPassword/forms/reset-password/reset-password.form.cy.tsx","test":"ResetPasswordForm › enforces the minimum length and a matching confirmation","violations":[]}
 {"spec":"src/ResetPassword/forms/reset-password/reset-password.form.cy.tsx","test":"ResetPasswordForm › resets the password and confirms","violations":[]}
 {"spec":"src/ResetPassword/forms/reset-password/reset-password.form.cy.tsx","test":"ResetPasswordForm › shows the server message for a dead link","violations":[]}
+{"spec":"src/Login/forms/login/login.form.cy.tsx","test":"LoginForm › shows validation errors when submitting empty","violations":[]}
+{"spec":"src/Login/forms/login/login.form.cy.tsx","test":"LoginForm › validates email format","violations":[]}
+{"spec":"src/Login/forms/login/login.form.cy.tsx","test":"LoginForm › toggles password visibility","violations":[]}
+{"spec":"src/Login/forms/login/login.form.cy.tsx","test":"LoginForm › does not expose a one-click admin login helper","violations":[]}
+{"spec":"src/Login/forms/forgot-password/forgot-password.form.cy.tsx","test":"ForgotPasswordForm › requires an email","violations":[]}
+{"spec":"src/Login/forms/forgot-password/forgot-password.form.cy.tsx","test":"ForgotPasswordForm › validates the email format","violations":[]}
+{"spec":"src/Login/forms/forgot-password/forgot-password.form.cy.tsx","test":"ForgotPasswordForm › shows the same message whatever the address and closes","violations":[]}
+{"spec":"src/Login/forms/forgot-password/forgot-password.form.cy.tsx","test":"ForgotPasswordForm › cancels without sending","violations":[]}
+{"spec":"src/Login/forms/mfa/mfa.form.cy.tsx","test":"the second step of a sign-in › asks for a code and says a recovery code will do","violations":[]}
+{"spec":"src/Login/forms/mfa/mfa.form.cy.tsx","test":"the second step of a sign-in › refuses anything shorter than a code","violations":[]}
+{"spec":"src/Login/forms/mfa/mfa.form.cy.tsx","test":"the second step of a sign-in › shows what the server said when the code is wrong, and clears the field","violations":[]}
+{"spec":"src/Login/forms/mfa/mfa.form.cy.tsx","test":"the second step of a sign-in › accepts a good code without complaint","violations":[]}
+{"spec":"src/Login/forms/mfa/mfa.form.cy.tsx","test":"the second step of a sign-in › can go back to the password step","violations":[]}
+{"spec":"src/ResetPassword/forms/reset-password/reset-password.form.cy.tsx","test":"ResetPasswordForm › requires both fields","violations":[]}
+{"spec":"src/ResetPassword/forms/reset-password/reset-password.form.cy.tsx","test":"ResetPasswordForm › enforces the minimum length and a matching confirmation","violations":[]}
+{"spec":"src/ResetPassword/forms/reset-password/reset-password.form.cy.tsx","test":"ResetPasswordForm › resets the password and confirms","violations":[]}
+{"spec":"src/ResetPassword/forms/reset-password/reset-password.form.cy.tsx","test":"ResetPasswordForm › shows the server message for a dead link","violations":[]}
