@@ -39,6 +39,8 @@ export const complianceAuditsTypeDefs = gql`
     conclusion: String!
     "What this audit raised, so the report and its findings are read together."
     findings: [Finding!]!
+    "The audit's own papers: the plan, the checklist, the report as it was issued."
+    evidence: [FileAttachment!]!
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -57,6 +59,7 @@ export const complianceAuditsTypeDefs = gql`
     status: AuditStatus!
     summary: String!
     conclusion: String!
+    evidence: [FileAttachmentInput!]
   }
 
   type InternalAuditPage {
@@ -125,6 +128,8 @@ export const complianceAuditsTypeDefs = gql`
     effective: Boolean
     effectivenessNote: String!
     closedOn: DateTime
+    "What proves it: the screenshot, the signed record, the changed procedure."
+    evidence: [FileAttachment!]!
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -152,6 +157,7 @@ export const complianceAuditsTypeDefs = gql`
     effective: Boolean
     effectivenessNote: String
     closedOn: DateTime
+    evidence: [FileAttachmentInput!]
   }
 
   type FindingPage {

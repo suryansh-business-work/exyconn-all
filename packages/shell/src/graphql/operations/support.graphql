@@ -20,7 +20,7 @@ mutation SetSupportTicketStatus($id: ID!, $status: SupportStatus!) {
   }
 }
 
-fragment TicketAttachmentFields on TicketAttachment {
+fragment FileAttachmentFields on FileAttachment {
   url
   name
   contentType
@@ -38,7 +38,7 @@ query ListSupportReplies($ticketId: ID!) {
     internal
     createdAt
     attachments {
-      ...TicketAttachmentFields
+      ...FileAttachmentFields
     }
   }
 }
@@ -63,7 +63,7 @@ mutation AddSupportReply(
   $ticketId: ID!
   $body: String!
   $internal: Boolean!
-  $attachments: [TicketAttachmentInput!]
+  $attachments: [FileAttachmentInput!]
 ) {
   addSupportReply(
     ticketId: $ticketId
@@ -102,7 +102,7 @@ fragment SupportConsoleTicketFields on SupportTicket {
   escalatedAt
   createdAt
   attachments {
-    ...TicketAttachmentFields
+    ...FileAttachmentFields
   }
 }
 

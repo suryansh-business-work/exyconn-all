@@ -841,6 +841,13 @@ export type ExpenseStatus =
   | 'REJECTED'
   | 'SUBMITTED';
 
+/** What a client sends when it posts a file: the server stamps who and when. */
+export type FileAttachmentInput = {
+  contentType: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  url: Scalars['String']['input'];
+};
+
 export type FilterOp =
   | 'CONTAINS'
   | 'EQUALS'
@@ -858,6 +865,7 @@ export type FindingInput = {
   dueOn: InputMaybe<Scalars['DateTime']['input']>;
   effective: InputMaybe<Scalars['Boolean']['input']>;
   effectivenessNote: InputMaybe<Scalars['String']['input']>;
+  evidence: InputMaybe<Array<FileAttachmentInput>>;
   immediateAction: Scalars['String']['input'];
   ownerId: Scalars['String']['input'];
   ownerName: Scalars['String']['input'];
@@ -1017,6 +1025,7 @@ export type InternalAuditInput = {
   auditeeName: Scalars['String']['input'];
   conclusion: Scalars['String']['input'];
   criteria: Scalars['String']['input'];
+  evidence: InputMaybe<Array<FileAttachmentInput>>;
   kind: AuditKind;
   leadAuditorId: Scalars['String']['input'];
   leadAuditorName: Scalars['String']['input'];
@@ -2333,7 +2342,7 @@ export type SupportStatus =
 /** Employee-facing support request — the server sets employeeId and OPEN status. */
 export type SupportTicketInput = {
   /** Screenshots or documents, already uploaded through uploadImage. */
-  attachments: InputMaybe<Array<TicketAttachmentInput>>;
+  attachments: InputMaybe<Array<FileAttachmentInput>>;
   category: SupportCategory;
   description: Scalars['String']['input'];
   priority: SupportPriority;
@@ -2454,13 +2463,6 @@ export type TeamInput = {
   description: Scalars['String']['input'];
   leadEmployeeId: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
-};
-
-/** What a client sends when it posts a file: the server stamps who and when. */
-export type TicketAttachmentInput = {
-  contentType: InputMaybe<Scalars['String']['input']>;
-  name: Scalars['String']['input'];
-  url: Scalars['String']['input'];
 };
 
 /** How a ticket reached the desk. */

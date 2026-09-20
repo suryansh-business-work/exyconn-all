@@ -1,5 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
-import { attachmentSchema } from './attachment.schema';
+import { attachmentSchema } from '../../lib/attachments';
 
 /**
  * One message on a ticket. `internal` marks a note the team writes to itself:

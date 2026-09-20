@@ -33,7 +33,7 @@ export const supportTypeDefs = gql`
   }
 
   "A file posted with a ticket or a reply. Hosted on the portal's image CDN."
-  type TicketAttachment {
+  type FileAttachment {
     url: String!
     name: String!
     contentType: String!
@@ -42,7 +42,7 @@ export const supportTypeDefs = gql`
   }
 
   "What a client sends when it posts a file: the server stamps who and when."
-  input TicketAttachmentInput {
+  input FileAttachmentInput {
     url: String!
     name: String!
     contentType: String
@@ -61,7 +61,7 @@ export const supportTypeDefs = gql`
     "Who to write back to on a customer ticket. Empty on an employee ticket."
     requesterName: String!
     requesterEmail: String!
-    attachments: [TicketAttachment!]!
+    attachments: [FileAttachment!]!
     "When the SLA says it must be resolved. Null when no active policy covers its priority."
     dueAt: DateTime
     "Stamped by the first public reply."
@@ -84,7 +84,7 @@ export const supportTypeDefs = gql`
     authorName: String!
     body: String!
     internal: Boolean!
-    attachments: [TicketAttachment!]!
+    attachments: [FileAttachment!]!
     createdAt: DateTime!
   }
 
@@ -200,7 +200,7 @@ export const supportTypeDefs = gql`
       ticketId: ID!
       body: String!
       internal: Boolean!
-      attachments: [TicketAttachmentInput!]
+      attachments: [FileAttachmentInput!]
     ): SupportReply!
     createSupportSlaPolicy(input: SupportSlaPolicyInput!): SupportSlaPolicy!
     updateSupportSlaPolicy(id: ID!, input: SupportSlaPolicyInput!): SupportSlaPolicy!

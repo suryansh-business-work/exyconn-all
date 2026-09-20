@@ -5,7 +5,7 @@ import { UserModel } from '../admin/user.model';
 import { SupportReplyModel } from './support-reply.model';
 import { fileClientTicket } from './client-ticket.service';
 import { stripQuotedReply } from './inbound-mail.text';
-import { toAttachments, type Attachment, type AttachmentInput } from './attachment.schema';
+import { toAttachments, type Attachment, type AttachmentInput } from '../../lib/attachments';
 import { imageUploader } from '../../utils/imagekit';
 import { kindOfMime, MEDIA_UPLOAD } from '../../utils/uploadValidation';
 import {

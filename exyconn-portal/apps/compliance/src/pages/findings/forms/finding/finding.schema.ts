@@ -36,6 +36,11 @@ export const findingSchema = z
     verifiedByName: z.string().trim(),
     effective: z.enum([EFFECTIVE_UNANSWERED, EFFECTIVE_YES, EFFECTIVE_NO]),
     effectivenessNote: z.string().trim(),
+    // What proves it. Unvalidated beyond its shape: the picker has already uploaded each
+    // file and holds only the URL it got back.
+    evidence: z.array(
+      z.object({ url: z.string(), name: z.string(), contentType: z.string() }),
+    ),
   })
   // The server refuses this too (clause 10.2 ends on whether the action WORKED); catching it
   // here means the answer arrives while the person still has the verification fields open.
@@ -66,6 +71,7 @@ export function toFindingInput(values: Values) {
     dueOn: values.dueOn ? values.dueOn.toISOString() : null,
     verifiedOn: values.verifiedOn ? values.verifiedOn.toISOString() : null,
     effective: effectiveOf(values.effective),
+    evidence: values.evidence,
     closedOn: values.status === FindingStatus.Closed ? new Date().toISOString() : null,
   };
 }
@@ -100,5 +106,10 @@ export function toFindingValues(row: FindingRow | null): Values {
     verifiedByName: row?.verifiedByName ?? '',
     effective: answerOf(row?.effective),
     effectivenessNote: row?.effectivenessNote ?? '',
+    evidence: (row?.evidence ?? []).map((file) => ({
+      url: file.url,
+      name: file.name,
+      contentType: file.contentType,
+    })),
   };
 }

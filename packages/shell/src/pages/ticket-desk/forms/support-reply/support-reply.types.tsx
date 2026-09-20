@@ -1,4 +1,4 @@
-import type { TicketAttachmentInput } from '@/graphql/generated';
+import type { FileAttachmentInput } from '@/graphql/generated';
 
 /** Form values for replying on a ticket. */
 export interface SupportReplyFormValues {
@@ -7,4 +7,4 @@ export interface SupportReplyFormValues {
 }
 
 /** What the form sends alongside the message — the generated input, unchanged. */
-export type SupportReplyAttachment = TicketAttachmentInput;
+export type SupportReplyAttachment = FileAttachmentInput;

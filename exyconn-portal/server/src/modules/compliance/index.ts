@@ -3,6 +3,8 @@ import { objectiveResolvers } from './objective.resolvers';
 import { auditResolvers } from './audit.resolvers';
 import { findingResolvers } from './finding.resolvers';
 import { reviewResolvers } from './review.resolvers';
+import { complianceDashboardResolvers } from './compliance.dashboard';
+import { complianceDashboardTypeDefs } from './compliance.dashboard.typeDefs';
 import { complianceTypeDefs } from './compliance.typeDefs';
 import { complianceAuditsTypeDefs } from './compliance.audits.typeDefs';
 import { complianceReviewsTypeDefs } from './compliance.reviews.typeDefs';
@@ -12,7 +14,14 @@ import type { GraphQLContext } from '../../middleware/auth';
 
 type ResolverMap = Record<string, (p: unknown, a: never, c: GraphQLContext) => unknown>;
 
-const groups = [
+/** A register's resolvers. The dashboard is read-only, so `Mutation` is optional. */
+interface ResolverGroup {
+  Query: ResolverMap;
+  Mutation?: ResolverMap;
+}
+
+const groups: ResolverGroup[] = [
+  complianceDashboardResolvers,
   riskResolvers,
   objectiveResolvers,
   auditResolvers,
@@ -28,14 +37,20 @@ const groups = [
  */
 export const complianceResolvers = {
   Query: groups.reduce<ResolverMap>((all, group) => ({ ...all, ...group.Query }), {}),
-  Mutation: groups.reduce<ResolverMap>((all, group) => ({ ...all, ...group.Mutation }), {}),
+  Mutation: groups.reduce<ResolverMap>((all, group) => ({ ...all, ...(group.Mutation ?? {}) }), {}),
+  Finding: findingResolvers.Finding,
   Risk: riskResolvers.Risk,
   Objective: objectiveResolvers.Objective,
   InternalAudit: auditResolvers.InternalAudit,
   ManagementReview: reviewResolvers.ManagementReview,
 };
 
-export { complianceTypeDefs, complianceAuditsTypeDefs, complianceReviewsTypeDefs };
+export {
+  complianceTypeDefs,
+  complianceAuditsTypeDefs,
+  complianceReviewsTypeDefs,
+  complianceDashboardTypeDefs,
+};
 export { RiskModel } from './risk.model';
 export { ObjectiveModel } from './objective.model';
 export { InternalAuditModel } from './audit.model';

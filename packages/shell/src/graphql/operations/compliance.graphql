@@ -90,6 +90,13 @@ fragment FindingFields on Finding {
   effective
   effectivenessNote
   closedOn
+  evidence {
+    url
+    name
+    contentType
+    uploadedBy
+    uploadedAt
+  }
 }
 
 fragment ManagementReviewFields on ManagementReview {
@@ -296,4 +303,39 @@ mutation UpdateManagementReview($id: ID!, $input: ManagementReviewInput!) {
 
 mutation DeleteManagementReview($id: ID!) {
   deleteManagementReview(id: $id)
+}
+
+# Compliance › Overview: where the management system stands, on one screen.
+query ComplianceOverview {
+  complianceOverview {
+    risks
+    openRisks
+    risksPastReview
+    findings
+    openFindings
+    findingsOverdue
+    audits
+    auditsPlanned
+    objectives
+    objectivesAtRisk
+    reviews
+    lastReviewOn
+    lastReviewTitle
+    risksByStatus {
+      label
+      value
+    }
+    findingsByType {
+      label
+      value
+    }
+    residualHeat {
+      label
+      value
+    }
+    standardCoverage {
+      label
+      value
+    }
+  }
 }

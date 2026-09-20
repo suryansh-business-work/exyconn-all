@@ -1587,6 +1587,41 @@ export enum ComplianceCategory {
   Supplier = 'SUPPLIER'
 }
 
+/** Where the management system stands, measured when the query runs. */
+export type ComplianceOverview = {
+  __typename?: 'ComplianceOverview';
+  audits: Scalars['Int']['output'];
+  auditsPlanned: Scalars['Int']['output'];
+  findings: Scalars['Int']['output'];
+  findingsByType: Array<ComplianceSlice>;
+  /** Corrective actions past their date and not yet verified. */
+  findingsOverdue: Scalars['Int']['output'];
+  /** When leadership last met. Null when they never have. */
+  lastReviewOn?: Maybe<Scalars['DateTime']['output']>;
+  lastReviewTitle: Scalars['String']['output'];
+  objectives: Scalars['Int']['output'];
+  /** Objectives the owner has marked at risk or already missed. */
+  objectivesAtRisk: Scalars['Int']['output'];
+  openFindings: Scalars['Int']['output'];
+  openRisks: Scalars['Int']['output'];
+  /** Open risks by their RESIDUAL level — the risk carried after the controls. */
+  residualHeat: Array<ComplianceSlice>;
+  reviews: Scalars['Int']['output'];
+  risks: Scalars['Int']['output'];
+  risksByStatus: Array<ComplianceSlice>;
+  /** Open risks whose review date has passed — how a register quietly goes stale. */
+  risksPastReview: Scalars['Int']['output'];
+  /** Audits performed against each standard in the last year. Zero is the gap. */
+  standardCoverage: Array<ComplianceSlice>;
+};
+
+/** A count of one group, for the dashboard's breakdowns. */
+export type ComplianceSlice = {
+  __typename?: 'ComplianceSlice';
+  label: Scalars['String']['output'];
+  value: Scalars['Int']['output'];
+};
+
 export type Contact = {
   __typename?: 'Contact';
   companyId: Scalars['String']['output'];
@@ -2422,6 +2457,23 @@ export enum ExpenseStatus {
   Submitted = 'SUBMITTED'
 }
 
+/** A file posted with a ticket or a reply. Hosted on the portal's image CDN. */
+export type FileAttachment = {
+  __typename?: 'FileAttachment';
+  contentType: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  uploadedAt: Scalars['DateTime']['output'];
+  uploadedBy: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
+
+/** What a client sends when it posts a file: the server stamps who and when. */
+export type FileAttachmentInput = {
+  contentType?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  url: Scalars['String']['input'];
+};
+
 export enum FilterOp {
   Contains = 'CONTAINS',
   Equals = 'EQUALS',
@@ -2469,6 +2521,8 @@ export type Finding = {
   /** Whether the correction actually worked. Null until it has been verified. */
   effective?: Maybe<Scalars['Boolean']['output']>;
   effectivenessNote: Scalars['String']['output'];
+  /** What proves it: the screenshot, the signed record, the changed procedure. */
+  evidence: Array<FileAttachment>;
   id: Scalars['ID']['output'];
   immediateAction: Scalars['String']['output'];
   ownerId: Scalars['String']['output'];
@@ -2497,6 +2551,7 @@ export type FindingInput = {
   dueOn?: InputMaybe<Scalars['DateTime']['input']>;
   effective?: InputMaybe<Scalars['Boolean']['input']>;
   effectivenessNote?: InputMaybe<Scalars['String']['input']>;
+  evidence?: InputMaybe<Array<FileAttachmentInput>>;
   immediateAction: Scalars['String']['input'];
   ownerId: Scalars['String']['input'];
   ownerName: Scalars['String']['input'];
@@ -2904,6 +2959,8 @@ export type InternalAudit = {
   conclusion: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   criteria: Scalars['String']['output'];
+  /** The audit's own papers: the plan, the checklist, the report as it was issued. */
+  evidence: Array<FileAttachment>;
   /** What this audit raised, so the report and its findings are read together. */
   findings: Array<Finding>;
   id: Scalars['ID']['output'];
@@ -2925,6 +2982,7 @@ export type InternalAuditInput = {
   auditeeName: Scalars['String']['input'];
   conclusion: Scalars['String']['input'];
   criteria: Scalars['String']['input'];
+  evidence?: InputMaybe<Array<FileAttachmentInput>>;
   kind: AuditKind;
   leadAuditorId: Scalars['String']['input'];
   leadAuditorName: Scalars['String']['input'];
@@ -5033,7 +5091,7 @@ export type MutationAddItIncidentUpdateArgs = {
 
 
 export type MutationAddMySupportReplyArgs = {
-  attachments?: InputMaybe<Array<TicketAttachmentInput>>;
+  attachments?: InputMaybe<Array<FileAttachmentInput>>;
   body: Scalars['String']['input'];
   ticketId: Scalars['ID']['input'];
 };
@@ -5047,7 +5105,7 @@ export type MutationAddStatusIncidentUpdateArgs = {
 
 
 export type MutationAddSupportReplyArgs = {
-  attachments?: InputMaybe<Array<TicketAttachmentInput>>;
+  attachments?: InputMaybe<Array<FileAttachmentInput>>;
   body: Scalars['String']['input'];
   internal: Scalars['Boolean']['input'];
   ticketId: Scalars['ID']['input'];
@@ -8831,6 +8889,8 @@ export type Query = {
    * fall on, as the caller sends them.
    */
   companyFinance: CompanyFinance;
+  /** Compliance only — the state of the whole management system on one screen. */
+  complianceOverview: ComplianceOverview;
   /** Open deals (not won or lost): how many, their face value and the probability-weighted value. */
   dealForecast: DealForecast;
   docPage: DocPage;
@@ -12003,7 +12063,7 @@ export enum SupportPriority {
 /** One message on a ticket. Internal notes are hidden from the requester. */
 export type SupportReply = {
   __typename?: 'SupportReply';
-  attachments: Array<TicketAttachment>;
+  attachments: Array<FileAttachment>;
   authorId: Scalars['String']['output'];
   authorName: Scalars['String']['output'];
   body: Scalars['String']['output'];
@@ -12065,7 +12125,7 @@ export type SupportTicket = {
   /** Support-team member who owns it. Empty until someone picks it up. */
   assigneeId: Scalars['String']['output'];
   assigneeName: Scalars['String']['output'];
-  attachments: Array<TicketAttachment>;
+  attachments: Array<FileAttachment>;
   category: SupportCategory;
   /** How it reached the desk. PORTAL for everything raised before the mailbox existed. */
   channel: TicketChannel;
@@ -12106,7 +12166,7 @@ export type SupportTicket = {
 /** Employee-facing support request — the server sets employeeId and OPEN status. */
 export type SupportTicketInput = {
   /** Screenshots or documents, already uploaded through uploadImage. */
-  attachments?: InputMaybe<Array<TicketAttachmentInput>>;
+  attachments?: InputMaybe<Array<FileAttachmentInput>>;
   category: SupportCategory;
   description: Scalars['String']['input'];
   priority: SupportPriority;
@@ -12404,23 +12464,6 @@ export type TeamPage = {
   __typename?: 'TeamPage';
   rows: Array<Team>;
   totalCount: Scalars['Int']['output'];
-};
-
-/** A file posted with a ticket or a reply. Hosted on the portal's image CDN. */
-export type TicketAttachment = {
-  __typename?: 'TicketAttachment';
-  contentType: Scalars['String']['output'];
-  name: Scalars['String']['output'];
-  uploadedAt: Scalars['DateTime']['output'];
-  uploadedBy: Scalars['String']['output'];
-  url: Scalars['String']['output'];
-};
-
-/** What a client sends when it posts a file: the server stamps who and when. */
-export type TicketAttachmentInput = {
-  contentType?: InputMaybe<Scalars['String']['input']>;
-  name: Scalars['String']['input'];
-  url: Scalars['String']['input'];
 };
 
 /** How a ticket reached the desk. */
@@ -14320,7 +14363,7 @@ export type ObjectiveFieldsFragment = { __typename?: 'Objective', id: string, ti
 
 export type InternalAuditFieldsFragment = { __typename?: 'InternalAudit', id: string, reference: string, title: string, kind: AuditKind, standards: Array<ManagementStandard>, scope: string, criteria: string, leadAuditorId: string, leadAuditorName: string, auditeeName: string, plannedOn: string, performedOn?: string | null, status: AuditStatus, summary: string, conclusion: string };
 
-export type FindingFieldsFragment = { __typename?: 'Finding', id: string, reference: string, title: string, description: string, source: FindingSource, auditId: string, riskId: string, standards: Array<ManagementStandard>, category: ComplianceCategory, clause: string, type: FindingType, immediateAction: string, rootCause: string, correctiveAction: string, ownerId: string, ownerName: string, raisedOn: string, dueOn?: string | null, status: FindingStatus, verifiedOn?: string | null, verifiedByName: string, effective?: boolean | null, effectivenessNote: string, closedOn?: string | null };
+export type FindingFieldsFragment = { __typename?: 'Finding', id: string, reference: string, title: string, description: string, source: FindingSource, auditId: string, riskId: string, standards: Array<ManagementStandard>, category: ComplianceCategory, clause: string, type: FindingType, immediateAction: string, rootCause: string, correctiveAction: string, ownerId: string, ownerName: string, raisedOn: string, dueOn?: string | null, status: FindingStatus, verifiedOn?: string | null, verifiedByName: string, effective?: boolean | null, effectivenessNote: string, closedOn?: string | null, evidence: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> };
 
 export type ManagementReviewFieldsFragment = { __typename?: 'ManagementReview', id: string, reference: string, title: string, standards: Array<ManagementStandard>, heldOn: string, chairName: string, attendees: string, inputs: string, decisions: string, openActionCount: number, status: ManagementReviewStatus, actions: Array<{ __typename?: 'ManagementReviewAction', description: string, ownerName: string, dueOn?: string | null, done: boolean }> };
 
@@ -14443,7 +14486,7 @@ export type ListFindingsPagedQueryVariables = Exact<{
 }>;
 
 
-export type ListFindingsPagedQuery = { __typename?: 'Query', listFindingsPaged: { __typename?: 'FindingPage', totalCount: number, rows: Array<{ __typename?: 'Finding', id: string, reference: string, title: string, description: string, source: FindingSource, auditId: string, riskId: string, standards: Array<ManagementStandard>, category: ComplianceCategory, clause: string, type: FindingType, immediateAction: string, rootCause: string, correctiveAction: string, ownerId: string, ownerName: string, raisedOn: string, dueOn?: string | null, status: FindingStatus, verifiedOn?: string | null, verifiedByName: string, effective?: boolean | null, effectivenessNote: string, closedOn?: string | null }> } };
+export type ListFindingsPagedQuery = { __typename?: 'Query', listFindingsPaged: { __typename?: 'FindingPage', totalCount: number, rows: Array<{ __typename?: 'Finding', id: string, reference: string, title: string, description: string, source: FindingSource, auditId: string, riskId: string, standards: Array<ManagementStandard>, category: ComplianceCategory, clause: string, type: FindingType, immediateAction: string, rootCause: string, correctiveAction: string, ownerId: string, ownerName: string, raisedOn: string, dueOn?: string | null, status: FindingStatus, verifiedOn?: string | null, verifiedByName: string, effective?: boolean | null, effectivenessNote: string, closedOn?: string | null, evidence: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> }> } };
 
 export type ListFindingsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -14505,6 +14548,11 @@ export type DeleteManagementReviewMutationVariables = Exact<{
 
 
 export type DeleteManagementReviewMutation = { __typename?: 'Mutation', deleteManagementReview: boolean };
+
+export type ComplianceOverviewQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ComplianceOverviewQuery = { __typename?: 'Query', complianceOverview: { __typename?: 'ComplianceOverview', risks: number, openRisks: number, risksPastReview: number, findings: number, openFindings: number, findingsOverdue: number, audits: number, auditsPlanned: number, objectives: number, objectivesAtRisk: number, reviews: number, lastReviewOn?: string | null, lastReviewTitle: string, risksByStatus: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }>, findingsByType: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }>, residualHeat: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }>, standardCoverage: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }> } };
 
 export type CompanyFieldsFragment = { __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean };
 
@@ -14855,7 +14903,7 @@ export type SalarySlipFieldsFragment = { __typename?: 'SalarySlip', id: string, 
 
 export type HolidayFieldsFragment = { __typename?: 'Holiday', id: string, name: string, date: string, type: HolidayType, description?: string | null, country: string, excludedCountries: Array<string>, regions: Array<string>, cities: Array<string> };
 
-export type SupportTicketFieldsFragment = { __typename?: 'SupportTicket', id: string, reference: string, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, createdAt: string, attachments: Array<{ __typename?: 'TicketAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> };
+export type SupportTicketFieldsFragment = { __typename?: 'SupportTicket', id: string, reference: string, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, createdAt: string, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> };
 
 export type MyPayrollQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -14875,7 +14923,7 @@ export type ListHolidaysQuery = { __typename?: 'Query', listHolidays: Array<{ __
 export type MySupportTicketsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MySupportTicketsQuery = { __typename?: 'Query', mySupportTickets: Array<{ __typename?: 'SupportTicket', id: string, reference: string, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, createdAt: string, attachments: Array<{ __typename?: 'TicketAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> }> };
+export type MySupportTicketsQuery = { __typename?: 'Query', mySupportTickets: Array<{ __typename?: 'SupportTicket', id: string, reference: string, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, createdAt: string, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> }> };
 
 export type CreateSupportTicketMutationVariables = Exact<{
   input: SupportTicketInput;
@@ -14889,12 +14937,12 @@ export type MySupportRepliesQueryVariables = Exact<{
 }>;
 
 
-export type MySupportRepliesQuery = { __typename?: 'Query', mySupportReplies: Array<{ __typename?: 'SupportReply', id: string, ticketId: string, authorId: string, authorName: string, body: string, createdAt: string, attachments: Array<{ __typename?: 'TicketAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> }> };
+export type MySupportRepliesQuery = { __typename?: 'Query', mySupportReplies: Array<{ __typename?: 'SupportReply', id: string, ticketId: string, authorId: string, authorName: string, body: string, createdAt: string, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> }> };
 
 export type AddMySupportReplyMutationVariables = Exact<{
   ticketId: Scalars['ID']['input'];
   body: Scalars['String']['input'];
-  attachments?: InputMaybe<Array<TicketAttachmentInput> | TicketAttachmentInput>;
+  attachments?: InputMaybe<Array<FileAttachmentInput> | FileAttachmentInput>;
 }>;
 
 
@@ -18467,14 +18515,14 @@ export type SetSupportTicketStatusMutationVariables = Exact<{
 
 export type SetSupportTicketStatusMutation = { __typename?: 'Mutation', setSupportTicketStatus: { __typename?: 'SupportTicket', id: string, status: SupportStatus } };
 
-export type TicketAttachmentFieldsFragment = { __typename?: 'TicketAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string };
+export type FileAttachmentFieldsFragment = { __typename?: 'FileAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string };
 
 export type ListSupportRepliesQueryVariables = Exact<{
   ticketId: Scalars['ID']['input'];
 }>;
 
 
-export type ListSupportRepliesQuery = { __typename?: 'Query', listSupportReplies: Array<{ __typename?: 'SupportReply', id: string, ticketId: string, authorId: string, authorName: string, body: string, internal: boolean, createdAt: string, attachments: Array<{ __typename?: 'TicketAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> }> };
+export type ListSupportRepliesQuery = { __typename?: 'Query', listSupportReplies: Array<{ __typename?: 'SupportReply', id: string, ticketId: string, authorId: string, authorName: string, body: string, internal: boolean, createdAt: string, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> }> };
 
 export type ListSupportAgentsQueryVariables = Exact<{
   category?: InputMaybe<SupportCategory>;
@@ -18495,20 +18543,20 @@ export type AddSupportReplyMutationVariables = Exact<{
   ticketId: Scalars['ID']['input'];
   body: Scalars['String']['input'];
   internal: Scalars['Boolean']['input'];
-  attachments?: InputMaybe<Array<TicketAttachmentInput> | TicketAttachmentInput>;
+  attachments?: InputMaybe<Array<FileAttachmentInput> | FileAttachmentInput>;
 }>;
 
 
 export type AddSupportReplyMutation = { __typename?: 'Mutation', addSupportReply: { __typename?: 'SupportReply', id: string } };
 
-export type SupportConsoleTicketFieldsFragment = { __typename?: 'SupportTicket', id: string, employeeId: string, employeeName?: string | null, requesterType: SupportRequester, channel: TicketChannel, reference: string, clientId: string, clientName: string, requesterName: string, requesterEmail: string, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, assigneeId: string, assigneeName: string, dueAt?: string | null, firstRespondedAt?: string | null, resolvedAt?: string | null, slaState: SlaState, topic: string, escalationLevel: number, escalatedAt?: string | null, createdAt: string, attachments: Array<{ __typename?: 'TicketAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> };
+export type SupportConsoleTicketFieldsFragment = { __typename?: 'SupportTicket', id: string, employeeId: string, employeeName?: string | null, requesterType: SupportRequester, channel: TicketChannel, reference: string, clientId: string, clientName: string, requesterName: string, requesterEmail: string, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, assigneeId: string, assigneeName: string, dueAt?: string | null, firstRespondedAt?: string | null, resolvedAt?: string | null, slaState: SlaState, topic: string, escalationLevel: number, escalatedAt?: string | null, createdAt: string, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> };
 
 export type GetSupportTicketQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetSupportTicketQuery = { __typename?: 'Query', getSupportTicket: { __typename?: 'SupportTicket', id: string, employeeId: string, employeeName?: string | null, requesterType: SupportRequester, channel: TicketChannel, reference: string, clientId: string, clientName: string, requesterName: string, requesterEmail: string, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, assigneeId: string, assigneeName: string, dueAt?: string | null, firstRespondedAt?: string | null, resolvedAt?: string | null, slaState: SlaState, topic: string, escalationLevel: number, escalatedAt?: string | null, createdAt: string, attachments: Array<{ __typename?: 'TicketAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> } };
+export type GetSupportTicketQuery = { __typename?: 'Query', getSupportTicket: { __typename?: 'SupportTicket', id: string, employeeId: string, employeeName?: string | null, requesterType: SupportRequester, channel: TicketChannel, reference: string, clientId: string, clientName: string, requesterName: string, requesterEmail: string, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, assigneeId: string, assigneeName: string, dueAt?: string | null, firstRespondedAt?: string | null, resolvedAt?: string | null, slaState: SlaState, topic: string, escalationLevel: number, escalatedAt?: string | null, createdAt: string, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> } };
 
 export type SupportSlaSummaryQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -18563,7 +18611,7 @@ export type ListSupportTicketsPagedQueryVariables = Exact<{
 }>;
 
 
-export type ListSupportTicketsPagedQuery = { __typename?: 'Query', listSupportTicketsPaged: { __typename?: 'SupportTicketPage', totalCount: number, rows: Array<{ __typename?: 'SupportTicket', id: string, employeeId: string, employeeName?: string | null, requesterType: SupportRequester, channel: TicketChannel, reference: string, clientId: string, clientName: string, requesterName: string, requesterEmail: string, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, assigneeId: string, assigneeName: string, dueAt?: string | null, firstRespondedAt?: string | null, resolvedAt?: string | null, slaState: SlaState, topic: string, escalationLevel: number, escalatedAt?: string | null, createdAt: string, attachments: Array<{ __typename?: 'TicketAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> }> } };
+export type ListSupportTicketsPagedQuery = { __typename?: 'Query', listSupportTicketsPaged: { __typename?: 'SupportTicketPage', totalCount: number, rows: Array<{ __typename?: 'SupportTicket', id: string, employeeId: string, employeeName?: string | null, requesterType: SupportRequester, channel: TicketChannel, reference: string, clientId: string, clientName: string, requesterName: string, requesterEmail: string, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, assigneeId: string, assigneeName: string, dueAt?: string | null, firstRespondedAt?: string | null, resolvedAt?: string | null, slaState: SlaState, topic: string, escalationLevel: number, escalatedAt?: string | null, createdAt: string, attachments: Array<{ __typename?: 'FileAttachment', url: string, name: string, contentType: string, uploadedBy: string, uploadedAt: string }> }> } };
 
 export type ListSupportTicketsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -19771,6 +19819,13 @@ export const FindingFieldsFragmentDoc = gql`
   effective
   effectivenessNote
   closedOn
+  evidence {
+    url
+    name
+    contentType
+    uploadedBy
+    uploadedAt
+  }
 }
     `;
 export const ManagementReviewFieldsFragmentDoc = gql`
@@ -19965,8 +20020,8 @@ export const HolidayFieldsFragmentDoc = gql`
   cities
 }
     `;
-export const TicketAttachmentFieldsFragmentDoc = gql`
-    fragment TicketAttachmentFields on TicketAttachment {
+export const FileAttachmentFieldsFragmentDoc = gql`
+    fragment FileAttachmentFields on FileAttachment {
   url
   name
   contentType
@@ -19985,7 +20040,7 @@ export const SupportTicketFieldsFragmentDoc = gql`
   status
   createdAt
   attachments {
-    ...TicketAttachmentFields
+    ...FileAttachmentFields
   }
 }
     `;
@@ -21015,7 +21070,7 @@ export const SupportConsoleTicketFieldsFragmentDoc = gql`
   escalatedAt
   createdAt
   attachments {
-    ...TicketAttachmentFields
+    ...FileAttachmentFields
   }
 }
     `;
@@ -26924,6 +26979,77 @@ export function useDeleteManagementReviewMutation(baseOptions?: ApolloReactHooks
         return ApolloReactHooks.useMutation<DeleteManagementReviewMutation, DeleteManagementReviewMutationVariables>(DeleteManagementReviewDocument, options);
       }
 export type DeleteManagementReviewMutationHookResult = ReturnType<typeof useDeleteManagementReviewMutation>;
+export const ComplianceOverviewDocument = gql`
+    query ComplianceOverview {
+  complianceOverview {
+    risks
+    openRisks
+    risksPastReview
+    findings
+    openFindings
+    findingsOverdue
+    audits
+    auditsPlanned
+    objectives
+    objectivesAtRisk
+    reviews
+    lastReviewOn
+    lastReviewTitle
+    risksByStatus {
+      label
+      value
+    }
+    findingsByType {
+      label
+      value
+    }
+    residualHeat {
+      label
+      value
+    }
+    standardCoverage {
+      label
+      value
+    }
+  }
+}
+    `;
+
+/**
+ * __useComplianceOverviewQuery__
+ *
+ * To run a query within a React component, call `useComplianceOverviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useComplianceOverviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useComplianceOverviewQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useComplianceOverviewQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ComplianceOverviewQuery, ComplianceOverviewQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ComplianceOverviewQuery, ComplianceOverviewQueryVariables>(ComplianceOverviewDocument, options);
+      }
+export function useComplianceOverviewLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ComplianceOverviewQuery, ComplianceOverviewQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ComplianceOverviewQuery, ComplianceOverviewQueryVariables>(ComplianceOverviewDocument, options);
+        }
+// @ts-ignore
+export function useComplianceOverviewSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ComplianceOverviewQuery, ComplianceOverviewQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ComplianceOverviewQuery, ComplianceOverviewQueryVariables>;
+// @ts-ignore
+export function useComplianceOverviewSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ComplianceOverviewQuery, ComplianceOverviewQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ComplianceOverviewQuery | undefined, ComplianceOverviewQueryVariables>;
+export function useComplianceOverviewSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ComplianceOverviewQuery, ComplianceOverviewQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ComplianceOverviewQuery, ComplianceOverviewQueryVariables>(ComplianceOverviewDocument, options);
+        }
+export type ComplianceOverviewQueryHookResult = ReturnType<typeof useComplianceOverviewQuery>;
+export type ComplianceOverviewLazyQueryHookResult = ReturnType<typeof useComplianceOverviewLazyQuery>;
+export type ComplianceOverviewSuspenseQueryHookResult = ReturnType<typeof useComplianceOverviewSuspenseQuery>;
 export const ListCompaniesDocument = gql`
     query ListCompanies {
   listCompanies {
@@ -28942,7 +29068,7 @@ export const MySupportTicketsDocument = gql`
   }
 }
     ${SupportTicketFieldsFragmentDoc}
-${TicketAttachmentFieldsFragmentDoc}`;
+${FileAttachmentFieldsFragmentDoc}`;
 
 /**
  * __useMySupportTicketsQuery__
@@ -29019,11 +29145,11 @@ export const MySupportRepliesDocument = gql`
     body
     createdAt
     attachments {
-      ...TicketAttachmentFields
+      ...FileAttachmentFields
     }
   }
 }
-    ${TicketAttachmentFieldsFragmentDoc}`;
+    ${FileAttachmentFieldsFragmentDoc}`;
 
 /**
  * __useMySupportRepliesQuery__
@@ -29062,7 +29188,7 @@ export type MySupportRepliesQueryHookResult = ReturnType<typeof useMySupportRepl
 export type MySupportRepliesLazyQueryHookResult = ReturnType<typeof useMySupportRepliesLazyQuery>;
 export type MySupportRepliesSuspenseQueryHookResult = ReturnType<typeof useMySupportRepliesSuspenseQuery>;
 export const AddMySupportReplyDocument = gql`
-    mutation AddMySupportReply($ticketId: ID!, $body: String!, $attachments: [TicketAttachmentInput!]) {
+    mutation AddMySupportReply($ticketId: ID!, $body: String!, $attachments: [FileAttachmentInput!]) {
   addMySupportReply(ticketId: $ticketId, body: $body, attachments: $attachments) {
     id
   }
@@ -49279,11 +49405,11 @@ export const ListSupportRepliesDocument = gql`
     internal
     createdAt
     attachments {
-      ...TicketAttachmentFields
+      ...FileAttachmentFields
     }
   }
 }
-    ${TicketAttachmentFieldsFragmentDoc}`;
+    ${FileAttachmentFieldsFragmentDoc}`;
 
 /**
  * __useListSupportRepliesQuery__
@@ -49401,7 +49527,7 @@ export function useAssignSupportTicketMutation(baseOptions?: ApolloReactHooks.Mu
       }
 export type AssignSupportTicketMutationHookResult = ReturnType<typeof useAssignSupportTicketMutation>;
 export const AddSupportReplyDocument = gql`
-    mutation AddSupportReply($ticketId: ID!, $body: String!, $internal: Boolean!, $attachments: [TicketAttachmentInput!]) {
+    mutation AddSupportReply($ticketId: ID!, $body: String!, $internal: Boolean!, $attachments: [FileAttachmentInput!]) {
   addSupportReply(
     ticketId: $ticketId
     body: $body
@@ -49445,7 +49571,7 @@ export const GetSupportTicketDocument = gql`
   }
 }
     ${SupportConsoleTicketFieldsFragmentDoc}
-${TicketAttachmentFieldsFragmentDoc}`;
+${FileAttachmentFieldsFragmentDoc}`;
 
 /**
  * __useGetSupportTicketQuery__
@@ -49756,7 +49882,7 @@ export const ListSupportTicketsPagedDocument = gql`
   }
 }
     ${SupportConsoleTicketFieldsFragmentDoc}
-${TicketAttachmentFieldsFragmentDoc}`;
+${FileAttachmentFieldsFragmentDoc}`;
 
 /**
  * __useListSupportTicketsPagedQuery__

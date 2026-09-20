@@ -97,6 +97,7 @@ import {
   complianceTypeDefs,
   complianceAuditsTypeDefs,
   complianceReviewsTypeDefs,
+  complianceDashboardTypeDefs,
   complianceResolvers,
 } from '../modules/compliance';
 import { performanceTypeDefs, performanceResolvers } from '../modules/performance';

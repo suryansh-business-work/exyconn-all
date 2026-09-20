@@ -4,6 +4,8 @@ import { createCrudResolvers } from '../../lib/crudResolvers';
 import { nextSequence } from '../../lib/sequence';
 import { ROLES } from '../../constants/roles';
 import { badRequest } from '../../utils/errors';
+import { toAttachments, type Attachment, type AttachmentInput } from '../../lib/attachments';
+import { assertAuthenticated } from '../../middleware/roleGuard';
 import type { GraphQLContext } from '../../middleware/auth';
 
 const FINDING_SERIES = 'compliance-finding';
@@ -32,6 +34,7 @@ export interface FindingInput {
   effective?: boolean | null;
   effectivenessNote?: string;
   closedOn?: Date | null;
+  evidence?: AttachmentInput[] | null;
 }
 
 export const findingsService = createCrudService<FindingInput & { reference: string }>(
@@ -73,10 +76,26 @@ function assertMayClose(input: Partial<FindingInput>, stored: Partial<FindingInp
   }
 }
 
+/**
+ * Evidence, with who attached it and when stamped here rather than taken from the client.
+ *
+ * An auditor reads the uploader and the date as part of the evidence; a client that could
+ * write them could also write somebody else's name on a file they uploaded themselves.
+ */
+function withEvidence(input: FindingInput, ctx: GraphQLContext) {
+  if (input.evidence === undefined) {
+    return input;
+  }
+  const by = ctx.user?.email ?? '';
+  return { ...input, evidence: toAttachments(input.evidence, by) as unknown as AttachmentInput[] };
+}
+
 async function createFinding(_p: unknown, { input }: { input: FindingInput }, ctx: GraphQLContext) {
+  assertAuthenticated(ctx);
   assertMayClose(input, {});
   const reference = await nextSequence(FINDING_SERIES, FINDING_PREFIX);
-  return crud.Mutation.createFinding(_p, { input: { ...input, reference } } as never, ctx);
+  const completed = { ...withEvidence(input, ctx), reference };
+  return crud.Mutation.createFinding(_p, { input: completed } as never, ctx);
 }
 
 async function updateFinding(
@@ -84,12 +103,18 @@ async function updateFinding(
   args: { id: string; input: FindingInput },
   ctx: GraphQLContext,
 ) {
+  assertAuthenticated(ctx);
   const stored = await FindingModel.findById(args.id).select('verifiedOn effective').lean();
   assertMayClose(args.input, (stored ?? {}) as Partial<FindingInput>);
-  return crud.Mutation.updateFinding(_p, args as never, ctx);
+  const completed = { id: args.id, input: withEvidence(args.input, ctx) };
+  return crud.Mutation.updateFinding(_p, completed as never, ctx);
 }
 
 export const findingResolvers = {
+  /** Written before evidence existed, a `.lean()` row comes back without the field. */
+  Finding: {
+    evidence: (row: { evidence?: Attachment[] | null }) => row.evidence ?? [],
+  },
   Query: crud.Query,
   Mutation: { ...crud.Mutation, createFinding, updateFinding },
 };

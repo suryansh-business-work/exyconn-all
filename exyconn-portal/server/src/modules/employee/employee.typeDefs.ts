@@ -150,7 +150,7 @@ export const employeeTypeDefs = gql`
     description: String!
     priority: SupportPriority!
     "Screenshots or documents, already uploaded through uploadImage."
-    attachments: [TicketAttachmentInput!]
+    attachments: [FileAttachmentInput!]
   }
 
   extend type Query {
@@ -173,7 +173,7 @@ export const employeeTypeDefs = gql`
     addMySupportReply(
       ticketId: ID!
       body: String!
-      attachments: [TicketAttachmentInput!]
+      attachments: [FileAttachmentInput!]
     ): SupportReply!
   }
 `;

@@ -6,7 +6,7 @@ import {
 } from '../employee/support.model';
 import { SupportReplyModel } from './support-reply.model';
 import { notifyRequesterOfReply } from './support.notify';
-import { toAttachments, type AttachmentInput } from './attachment.schema';
+import { toAttachments, type AttachmentInput } from '../../lib/attachments';
 import { supportReplyFields, supportTicketFields } from './support.fields';
 import { dueAtForPriority, supportSlaSummary } from './sla.service';
 import { supportSlaPolicyCrud } from './sla.crud';

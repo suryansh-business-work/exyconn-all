@@ -1586,6 +1586,41 @@ export enum ComplianceCategory {
   Supplier = 'SUPPLIER'
 }
 
+/** Where the management system stands, measured when the query runs. */
+export type ComplianceOverview = {
+  __typename?: 'ComplianceOverview';
+  audits: Scalars['Int']['output'];
+  auditsPlanned: Scalars['Int']['output'];
+  findings: Scalars['Int']['output'];
+  findingsByType: Array<ComplianceSlice>;
+  /** Corrective actions past their date and not yet verified. */
+  findingsOverdue: Scalars['Int']['output'];
+  /** When leadership last met. Null when they never have. */
+  lastReviewOn?: Maybe<Scalars['DateTime']['output']>;
+  lastReviewTitle: Scalars['String']['output'];
+  objectives: Scalars['Int']['output'];
+  /** Objectives the owner has marked at risk or already missed. */
+  objectivesAtRisk: Scalars['Int']['output'];
+  openFindings: Scalars['Int']['output'];
+  openRisks: Scalars['Int']['output'];
+  /** Open risks by their RESIDUAL level — the risk carried after the controls. */
+  residualHeat: Array<ComplianceSlice>;
+  reviews: Scalars['Int']['output'];
+  risks: Scalars['Int']['output'];
+  risksByStatus: Array<ComplianceSlice>;
+  /** Open risks whose review date has passed — how a register quietly goes stale. */
+  risksPastReview: Scalars['Int']['output'];
+  /** Audits performed against each standard in the last year. Zero is the gap. */
+  standardCoverage: Array<ComplianceSlice>;
+};
+
+/** A count of one group, for the dashboard's breakdowns. */
+export type ComplianceSlice = {
+  __typename?: 'ComplianceSlice';
+  label: Scalars['String']['output'];
+  value: Scalars['Int']['output'];
+};
+
 export type Contact = {
   __typename?: 'Contact';
   companyId: Scalars['String']['output'];
@@ -2421,6 +2456,23 @@ export enum ExpenseStatus {
   Submitted = 'SUBMITTED'
 }
 
+/** A file posted with a ticket or a reply. Hosted on the portal's image CDN. */
+export type FileAttachment = {
+  __typename?: 'FileAttachment';
+  contentType: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  uploadedAt: Scalars['DateTime']['output'];
+  uploadedBy: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
+
+/** What a client sends when it posts a file: the server stamps who and when. */
+export type FileAttachmentInput = {
+  contentType?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  url: Scalars['String']['input'];
+};
+
 export enum FilterOp {
   Contains = 'CONTAINS',
   Equals = 'EQUALS',
@@ -2468,6 +2520,8 @@ export type Finding = {
   /** Whether the correction actually worked. Null until it has been verified. */
   effective?: Maybe<Scalars['Boolean']['output']>;
   effectivenessNote: Scalars['String']['output'];
+  /** What proves it: the screenshot, the signed record, the changed procedure. */
+  evidence: Array<FileAttachment>;
   id: Scalars['ID']['output'];
   immediateAction: Scalars['String']['output'];
   ownerId: Scalars['String']['output'];
@@ -2496,6 +2550,7 @@ export type FindingInput = {
   dueOn?: InputMaybe<Scalars['DateTime']['input']>;
   effective?: InputMaybe<Scalars['Boolean']['input']>;
   effectivenessNote?: InputMaybe<Scalars['String']['input']>;
+  evidence?: InputMaybe<Array<FileAttachmentInput>>;
   immediateAction: Scalars['String']['input'];
   ownerId: Scalars['String']['input'];
   ownerName: Scalars['String']['input'];
@@ -2903,6 +2958,8 @@ export type InternalAudit = {
   conclusion: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   criteria: Scalars['String']['output'];
+  /** The audit's own papers: the plan, the checklist, the report as it was issued. */
+  evidence: Array<FileAttachment>;
   /** What this audit raised, so the report and its findings are read together. */
   findings: Array<Finding>;
   id: Scalars['ID']['output'];
@@ -2924,6 +2981,7 @@ export type InternalAuditInput = {
   auditeeName: Scalars['String']['input'];
   conclusion: Scalars['String']['input'];
   criteria: Scalars['String']['input'];
+  evidence?: InputMaybe<Array<FileAttachmentInput>>;
   kind: AuditKind;
   leadAuditorId: Scalars['String']['input'];
   leadAuditorName: Scalars['String']['input'];
@@ -5032,7 +5090,7 @@ export type MutationAddItIncidentUpdateArgs = {
 
 
 export type MutationAddMySupportReplyArgs = {
-  attachments?: InputMaybe<Array<TicketAttachmentInput>>;
+  attachments?: InputMaybe<Array<FileAttachmentInput>>;
   body: Scalars['String']['input'];
   ticketId: Scalars['ID']['input'];
 };
@@ -5046,7 +5104,7 @@ export type MutationAddStatusIncidentUpdateArgs = {
 
 
 export type MutationAddSupportReplyArgs = {
-  attachments?: InputMaybe<Array<TicketAttachmentInput>>;
+  attachments?: InputMaybe<Array<FileAttachmentInput>>;
   body: Scalars['String']['input'];
   internal: Scalars['Boolean']['input'];
   ticketId: Scalars['ID']['input'];
@@ -8830,6 +8888,8 @@ export type Query = {
    * fall on, as the caller sends them.
    */
   companyFinance: CompanyFinance;
+  /** Compliance only — the state of the whole management system on one screen. */
+  complianceOverview: ComplianceOverview;
   /** Open deals (not won or lost): how many, their face value and the probability-weighted value. */
   dealForecast: DealForecast;
   docPage: DocPage;
@@ -12002,7 +12062,7 @@ export enum SupportPriority {
 /** One message on a ticket. Internal notes are hidden from the requester. */
 export type SupportReply = {
   __typename?: 'SupportReply';
-  attachments: Array<TicketAttachment>;
+  attachments: Array<FileAttachment>;
   authorId: Scalars['String']['output'];
   authorName: Scalars['String']['output'];
   body: Scalars['String']['output'];
@@ -12064,7 +12124,7 @@ export type SupportTicket = {
   /** Support-team member who owns it. Empty until someone picks it up. */
   assigneeId: Scalars['String']['output'];
   assigneeName: Scalars['String']['output'];
-  attachments: Array<TicketAttachment>;
+  attachments: Array<FileAttachment>;
   category: SupportCategory;
   /** How it reached the desk. PORTAL for everything raised before the mailbox existed. */
   channel: TicketChannel;
@@ -12105,7 +12165,7 @@ export type SupportTicket = {
 /** Employee-facing support request — the server sets employeeId and OPEN status. */
 export type SupportTicketInput = {
   /** Screenshots or documents, already uploaded through uploadImage. */
-  attachments?: InputMaybe<Array<TicketAttachmentInput>>;
+  attachments?: InputMaybe<Array<FileAttachmentInput>>;
   category: SupportCategory;
   description: Scalars['String']['input'];
   priority: SupportPriority;
@@ -12403,23 +12463,6 @@ export type TeamPage = {
   __typename?: 'TeamPage';
   rows: Array<Team>;
   totalCount: Scalars['Int']['output'];
-};
-
-/** A file posted with a ticket or a reply. Hosted on the portal's image CDN. */
-export type TicketAttachment = {
-  __typename?: 'TicketAttachment';
-  contentType: Scalars['String']['output'];
-  name: Scalars['String']['output'];
-  uploadedAt: Scalars['DateTime']['output'];
-  uploadedBy: Scalars['String']['output'];
-  url: Scalars['String']['output'];
-};
-
-/** What a client sends when it posts a file: the server stamps who and when. */
-export type TicketAttachmentInput = {
-  contentType?: InputMaybe<Scalars['String']['input']>;
-  name: Scalars['String']['input'];
-  url: Scalars['String']['input'];
 };
 
 /** How a ticket reached the desk. */
@@ -13740,6 +13783,8 @@ export type ResolversTypes = ResolversObject<{
   CompanySocialLinksInput: CompanySocialLinksInput;
   CompanyStatus: CompanyStatus;
   ComplianceCategory: ComplianceCategory;
+  ComplianceOverview: ResolverTypeWrapper<ComplianceOverview>;
+  ComplianceSlice: ResolverTypeWrapper<ComplianceSlice>;
   Contact: ResolverTypeWrapper<Contact>;
   ContactInput: ContactInput;
   ContactPage: ResolverTypeWrapper<ContactPage>;
@@ -13816,6 +13861,8 @@ export type ResolversTypes = ResolversObject<{
   ExpenseClaimPage: ResolverTypeWrapper<ExpenseClaimPage>;
   ExpenseState: ExpenseState;
   ExpenseStatus: ExpenseStatus;
+  FileAttachment: ResolverTypeWrapper<FileAttachment>;
+  FileAttachmentInput: FileAttachmentInput;
   FilterOp: FilterOp;
   FinanceBucket: ResolverTypeWrapper<FinanceBucket>;
   FinanceMonth: ResolverTypeWrapper<FinanceMonth>;
@@ -14228,8 +14275,6 @@ export type ResolversTypes = ResolversObject<{
   Team: ResolverTypeWrapper<Team>;
   TeamInput: TeamInput;
   TeamPage: ResolverTypeWrapper<TeamPage>;
-  TicketAttachment: ResolverTypeWrapper<TicketAttachment>;
-  TicketAttachmentInput: TicketAttachmentInput;
   TicketChannel: TicketChannel;
   Tool: ResolverTypeWrapper<Tool>;
   ToolCategory: ResolverTypeWrapper<ToolCategory>;
@@ -14416,6 +14461,8 @@ export type ResolversParentTypes = ResolversObject<{
   CompanyPage: CompanyPage;
   CompanySocialLinks: CompanySocialLinks;
   CompanySocialLinksInput: CompanySocialLinksInput;
+  ComplianceOverview: ComplianceOverview;
+  ComplianceSlice: ComplianceSlice;
   Contact: Contact;
   ContactInput: ContactInput;
   ContactPage: ContactPage;
@@ -14479,6 +14526,8 @@ export type ResolversParentTypes = ResolversObject<{
   ExpenseClaim: ExpenseClaim;
   ExpenseClaimInput: ExpenseClaimInput;
   ExpenseClaimPage: ExpenseClaimPage;
+  FileAttachment: FileAttachment;
+  FileAttachmentInput: FileAttachmentInput;
   FinanceBucket: FinanceBucket;
   FinanceMonth: FinanceMonth;
   Finding: Finding;
@@ -14802,8 +14851,6 @@ export type ResolversParentTypes = ResolversObject<{
   Team: Team;
   TeamInput: TeamInput;
   TeamPage: TeamPage;
-  TicketAttachment: TicketAttachment;
-  TicketAttachmentInput: TicketAttachmentInput;
   Tool: Tool;
   ToolCategory: ToolCategory;
   ToolCategoryInput: ToolCategoryInput;
@@ -15725,6 +15772,33 @@ export type CompanySocialLinksResolvers<ContextType = GraphQLContext, ParentType
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type ComplianceOverviewResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ComplianceOverview'] = ResolversParentTypes['ComplianceOverview']> = ResolversObject<{
+  audits?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  auditsPlanned?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  findings?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  findingsByType?: Resolver<Array<ResolversTypes['ComplianceSlice']>, ParentType, ContextType>;
+  findingsOverdue?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lastReviewOn?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  lastReviewTitle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  objectives?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  objectivesAtRisk?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  openFindings?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  openRisks?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  residualHeat?: Resolver<Array<ResolversTypes['ComplianceSlice']>, ParentType, ContextType>;
+  reviews?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  risks?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  risksByStatus?: Resolver<Array<ResolversTypes['ComplianceSlice']>, ParentType, ContextType>;
+  risksPastReview?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  standardCoverage?: Resolver<Array<ResolversTypes['ComplianceSlice']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ComplianceSliceResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ComplianceSlice'] = ResolversParentTypes['ComplianceSlice']> = ResolversObject<{
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type ContactResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Contact'] = ResolversParentTypes['Contact']> = ResolversObject<{
   companyId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   companyName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -16213,6 +16287,15 @@ export type ExpenseClaimPageResolvers<ContextType = GraphQLContext, ParentType e
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type FileAttachmentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['FileAttachment'] = ResolversParentTypes['FileAttachment']> = ResolversObject<{
+  contentType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  uploadedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  uploadedBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type FinanceBucketResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['FinanceBucket'] = ResolversParentTypes['FinanceBucket']> = ResolversObject<{
   amount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -16240,6 +16323,7 @@ export type FindingResolvers<ContextType = GraphQLContext, ParentType extends Re
   dueOn?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   effective?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   effectivenessNote?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  evidence?: Resolver<Array<ResolversTypes['FileAttachment']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   immediateAction?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   ownerId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -16472,6 +16556,7 @@ export type InternalAuditResolvers<ContextType = GraphQLContext, ParentType exte
   conclusion?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   criteria?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  evidence?: Resolver<Array<ResolversTypes['FileAttachment']>, ParentType, ContextType>;
   findings?: Resolver<Array<ResolversTypes['Finding']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   kind?: Resolver<ResolversTypes['AuditKind'], ParentType, ContextType>;
@@ -18357,6 +18442,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   canExport?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<QueryCanExportArgs, 'module'>>;
   clientSupportTicketStatus?: Resolver<Maybe<ResolversTypes['ClientTicketStatus']>, ParentType, ContextType, RequireFields<QueryClientSupportTicketStatusArgs, 'email' | 'reference'>>;
   companyFinance?: Resolver<ResolversTypes['CompanyFinance'], ParentType, ContextType, RequireFields<QueryCompanyFinanceArgs, 'from' | 'to'>>;
+  complianceOverview?: Resolver<ResolversTypes['ComplianceOverview'], ParentType, ContextType>;
   dealForecast?: Resolver<ResolversTypes['DealForecast'], ParentType, ContextType>;
   docPage?: Resolver<ResolversTypes['DocPage'], ParentType, ContextType, RequireFields<QueryDocPageArgs, 'id'>>;
   dockerContainerDetail?: Resolver<ResolversTypes['DockerContainerDetail'], ParentType, ContextType, RequireFields<QueryDockerContainerDetailArgs, 'id'>>;
@@ -19504,7 +19590,7 @@ export type SupportAgentResolvers<ContextType = GraphQLContext, ParentType exten
 }>;
 
 export type SupportReplyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SupportReply'] = ResolversParentTypes['SupportReply']> = ResolversObject<{
-  attachments?: Resolver<Array<ResolversTypes['TicketAttachment']>, ParentType, ContextType>;
+  attachments?: Resolver<Array<ResolversTypes['FileAttachment']>, ParentType, ContextType>;
   authorId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   authorName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   body?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -19542,7 +19628,7 @@ export type SupportSlaSummaryResolvers<ContextType = GraphQLContext, ParentType 
 export type SupportTicketResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SupportTicket'] = ResolversParentTypes['SupportTicket']> = ResolversObject<{
   assigneeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   assigneeName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  attachments?: Resolver<Array<ResolversTypes['TicketAttachment']>, ParentType, ContextType>;
+  attachments?: Resolver<Array<ResolversTypes['FileAttachment']>, ParentType, ContextType>;
   category?: Resolver<ResolversTypes['SupportCategory'], ParentType, ContextType>;
   channel?: Resolver<ResolversTypes['TicketChannel'], ParentType, ContextType>;
   clientId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -19701,15 +19787,6 @@ export type TeamResolvers<ContextType = GraphQLContext, ParentType extends Resol
 export type TeamPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TeamPage'] = ResolversParentTypes['TeamPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['Team']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
-}>;
-
-export type TicketAttachmentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TicketAttachment'] = ResolversParentTypes['TicketAttachment']> = ResolversObject<{
-  contentType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  uploadedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
-  uploadedBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -20396,6 +20473,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   CompanyFinance?: CompanyFinanceResolvers<ContextType>;
   CompanyPage?: CompanyPageResolvers<ContextType>;
   CompanySocialLinks?: CompanySocialLinksResolvers<ContextType>;
+  ComplianceOverview?: ComplianceOverviewResolvers<ContextType>;
+  ComplianceSlice?: ComplianceSliceResolvers<ContextType>;
   Contact?: ContactResolvers<ContextType>;
   ContactPage?: ContactPageResolvers<ContextType>;
   ContainerMount?: ContainerMountResolvers<ContextType>;
@@ -20442,6 +20521,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ExitRecordPage?: ExitRecordPageResolvers<ContextType>;
   ExpenseClaim?: ExpenseClaimResolvers<ContextType>;
   ExpenseClaimPage?: ExpenseClaimPageResolvers<ContextType>;
+  FileAttachment?: FileAttachmentResolvers<ContextType>;
   FinanceBucket?: FinanceBucketResolvers<ContextType>;
   FinanceMonth?: FinanceMonthResolvers<ContextType>;
   Finding?: FindingResolvers<ContextType>;
@@ -20667,7 +20747,6 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   TdsSlab?: TdsSlabResolvers<ContextType>;
   Team?: TeamResolvers<ContextType>;
   TeamPage?: TeamPageResolvers<ContextType>;
-  TicketAttachment?: TicketAttachmentResolvers<ContextType>;
   Tool?: ToolResolvers<ContextType>;
   ToolCategory?: ToolCategoryResolvers<ContextType>;
   ToolPage?: ToolPageResolvers<ContextType>;
