@@ -406,6 +406,8 @@ export type AppLogUserInput = {
 
 export type AppSettings = {
   __typename?: 'AppSettings';
+  /** Days of audit history kept. Zero keeps it for ever, which is the default. */
+  auditRetentionDays: Scalars['Int']['output'];
   /** Machine-translate a string the first time a screen needs one and none exists. */
   autoTranslate: Scalars['Boolean']['output'];
   /** ISO 3166-1 alpha-2 country the company operates in, or empty. */
@@ -13461,6 +13463,8 @@ export type UpdateProfileInput = {
 };
 
 export type UpdateSettingsInput = {
+  /** Days of audit history to keep. Zero keeps it for ever. */
+  auditRetentionDays?: InputMaybe<Scalars['Int']['input']>;
   autoTranslate?: InputMaybe<Scalars['Boolean']['input']>;
   dateFormat?: InputMaybe<Scalars['String']['input']>;
   defaultLocale?: InputMaybe<Scalars['String']['input']>;
@@ -14260,7 +14264,7 @@ export type MeQuery = { __typename?: 'Query', me: { __typename?: 'User', id: str
 export type AppSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type AppSettingsQuery = { __typename?: 'Query', appSettings: { __typename?: 'AppSettings', id: string, dateFormat: string, timeFormat: string, timezone: string, defaultLocale: string, enabledLocales: Array<string>, autoTranslate: boolean, currency: string, country: string, fiscalYearStartMonth: number, taxSystem: TaxSystem } };
+export type AppSettingsQuery = { __typename?: 'Query', appSettings: { __typename?: 'AppSettings', id: string, dateFormat: string, timeFormat: string, timezone: string, defaultLocale: string, enabledLocales: Array<string>, autoTranslate: boolean, auditRetentionDays: number, currency: string, country: string, fiscalYearStartMonth: number, taxSystem: TaxSystem } };
 
 export type SendAdminCredentialsMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -24795,6 +24799,7 @@ export const AppSettingsDocument = gql`
     defaultLocale
     enabledLocales
     autoTranslate
+    auditRetentionDays
     currency
     country
     fiscalYearStartMonth

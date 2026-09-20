@@ -135,6 +135,8 @@ export const adminTypeDefs = gql`
     enabledLocales: [String!]!
     "Machine-translate a string the first time a screen needs one and none exists."
     autoTranslate: Boolean!
+    "Days of audit history kept. Zero keeps it for ever, which is the default."
+    auditRetentionDays: Int!
     "The company's own money: an ISO 4217 code. Empty for a platform administrator."
     currency: String!
     "ISO 3166-1 alpha-2 country the company operates in, or empty."
@@ -268,6 +270,8 @@ export const adminTypeDefs = gql`
     defaultLocale: String
     enabledLocales: [String!]
     autoTranslate: Boolean
+    "Days of audit history to keep. Zero keeps it for ever."
+    auditRetentionDays: Int
   }
 
   input SendMailInput {

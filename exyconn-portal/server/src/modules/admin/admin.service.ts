@@ -361,6 +361,8 @@ export interface UpdateSettingsInput {
   defaultLocale?: string;
   enabledLocales?: string[];
   autoTranslate?: boolean;
+  /** Days of audit history to keep. Zero keeps it for ever. */
+  auditRetentionDays?: number;
 }
 
 /** User & portal-settings management (singleton). */

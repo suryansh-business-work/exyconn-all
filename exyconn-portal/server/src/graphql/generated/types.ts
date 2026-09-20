@@ -405,6 +405,8 @@ export type AppLogUserInput = {
 
 export type AppSettings = {
   __typename?: 'AppSettings';
+  /** Days of audit history kept. Zero keeps it for ever, which is the default. */
+  auditRetentionDays: Scalars['Int']['output'];
   /** Machine-translate a string the first time a screen needs one and none exists. */
   autoTranslate: Scalars['Boolean']['output'];
   /** ISO 3166-1 alpha-2 country the company operates in, or empty. */
@@ -13460,6 +13462,8 @@ export type UpdateProfileInput = {
 };
 
 export type UpdateSettingsInput = {
+  /** Days of audit history to keep. Zero keeps it for ever. */
+  auditRetentionDays?: InputMaybe<Scalars['Int']['input']>;
   autoTranslate?: InputMaybe<Scalars['Boolean']['input']>;
   dateFormat?: InputMaybe<Scalars['String']['input']>;
   defaultLocale?: InputMaybe<Scalars['String']['input']>;
@@ -15315,6 +15319,7 @@ export type AppLogGroupPageResolvers<ContextType = GraphQLContext, ParentType ex
 }>;
 
 export type AppSettingsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['AppSettings'] = ResolversParentTypes['AppSettings']> = ResolversObject<{
+  auditRetentionDays?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   autoTranslate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   country?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

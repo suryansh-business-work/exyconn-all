@@ -2680,6 +2680,8 @@ export type UpdateProfileInput = {
 };
 
 export type UpdateSettingsInput = {
+  /** Days of audit history to keep. Zero keeps it for ever. */
+  auditRetentionDays: InputMaybe<Scalars['Int']['input']>;
   autoTranslate: InputMaybe<Scalars['Boolean']['input']>;
   dateFormat: InputMaybe<Scalars['String']['input']>;
   defaultLocale: InputMaybe<Scalars['String']['input']>;
