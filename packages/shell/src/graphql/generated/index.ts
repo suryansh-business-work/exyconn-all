@@ -497,6 +497,32 @@ export enum ApprovalDecision {
   Rejected = 'REJECTED'
 }
 
+/**
+ * One person standing in for another's approvals while they are away. A window rather than a
+ * switch, so nobody has to remember to turn it off.
+ */
+export type ApprovalDelegation = {
+  __typename?: 'ApprovalDelegation';
+  /** Whether it covers today, which is the only question the queue asks. */
+  active: Scalars['Boolean']['output'];
+  fromDate: Scalars['DateTime']['output'];
+  fromEmployeeId: Scalars['String']['output'];
+  fromName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  note: Scalars['String']['output'];
+  toDate: Scalars['DateTime']['output'];
+  toEmployeeId: Scalars['String']['output'];
+  toName: Scalars['String']['output'];
+};
+
+export type ApprovalDelegationInput = {
+  fromDate: Scalars['DateTime']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
+  /** Inclusive — a delegation until Friday covers Friday. */
+  toDate: Scalars['DateTime']['input'];
+  toEmployeeId: Scalars['String']['input'];
+};
+
 /** How many are waiting in one source — the counts behind the queue's tabs. */
 export type ApprovalGroup = {
   __typename?: 'ApprovalGroup';
@@ -4593,6 +4619,8 @@ export type Mutation = {
   decideItChange: ItChange;
   /** Approve or reject a purchase request that is requested or quoted. */
   decideItPurchaseRequest: ItPurchaseRequest;
+  /** Hands this person's approvals to a colleague for a window. */
+  delegateApprovals: ApprovalDelegation;
   deleteActivity: Scalars['Boolean']['output'];
   deleteAiJob: Scalars['Boolean']['output'];
   deleteAiModelPrice: Scalars['Boolean']['output'];
@@ -4703,6 +4731,8 @@ export type Mutation = {
   /** Switches two-factor off. Needs the password: a borrowed screen must not be enough. */
   disableMfa: Scalars['Boolean']['output'];
   disconnectSocialAccount: Scalars['Boolean']['output'];
+  /** Calls off a delegation. Only whoever arranged it may. */
+  endApprovalDelegation: Scalars['Boolean']['output'];
   /**
    * SUPPORT/IT: escalate a ticket. Raises it to HIGH priority (recomputing the deadline), bumps
    * its escalation level, records the reason as an internal note and tells the assignee.
@@ -5862,6 +5892,11 @@ export type MutationDecideItPurchaseRequestArgs = {
 };
 
 
+export type MutationDelegateApprovalsArgs = {
+  input: ApprovalDelegationInput;
+};
+
+
 export type MutationDeleteActivityArgs = {
   id: Scalars['ID']['input'];
 };
@@ -6378,6 +6413,11 @@ export type MutationDisableMfaArgs = {
 
 
 export type MutationDisconnectSocialAccountArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationEndApprovalDelegationArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -7645,6 +7685,13 @@ export type MutationVerifyMfaArgs = {
 
 export type MutationWithdrawTrackerManualEntryArgs = {
   id: Scalars['ID']['input'];
+};
+
+/** What this person has arranged, and whose approvals they are covering. */
+export type MyApprovalDelegations = {
+  __typename?: 'MyApprovalDelegations';
+  given: Array<ApprovalDelegation>;
+  held: Array<ApprovalDelegation>;
 };
 
 export type MyExpenseClaimInput = {
@@ -9423,6 +9470,8 @@ export type Query = {
   /** The locales this workspace offers. Public — the login screen has a language picker. */
   localeOptions: Array<LocaleOption>;
   me: User;
+  /** Delegations this person has arranged, and the ones they are covering. */
+  myApprovalDelegations: MyApprovalDelegations;
   /**
    * Everything awaiting the caller across every module, newest first. The kind argument narrows to
    * one source; it can never widen what the caller is allowed to see.
@@ -14018,6 +14067,25 @@ export type DecideApprovalMutationVariables = Exact<{
 
 
 export type DecideApprovalMutation = { __typename?: 'Mutation', decideApproval: boolean };
+
+export type MyApprovalDelegationsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyApprovalDelegationsQuery = { __typename?: 'Query', myApprovalDelegations: { __typename?: 'MyApprovalDelegations', given: Array<{ __typename?: 'ApprovalDelegation', id: string, toEmployeeId: string, toName: string, fromDate: string, toDate: string, note: string, active: boolean }>, held: Array<{ __typename?: 'ApprovalDelegation', id: string, fromEmployeeId: string, fromName: string, fromDate: string, toDate: string, note: string, active: boolean }> } };
+
+export type DelegateApprovalsMutationVariables = Exact<{
+  input: ApprovalDelegationInput;
+}>;
+
+
+export type DelegateApprovalsMutation = { __typename?: 'Mutation', delegateApprovals: { __typename?: 'ApprovalDelegation', id: string, toName: string, fromDate: string, toDate: string, active: boolean } };
+
+export type EndApprovalDelegationMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type EndApprovalDelegationMutation = { __typename?: 'Mutation', endApprovalDelegation: boolean };
 
 export type AssetFieldsFragment = { __typename?: 'Asset', id: string, assetTag: string, name: string, category: AssetCategory, status: AssetStatus, manufacturer: string, modelName: string, serialNumber: string, assignedToId: string, assignedToName: string, location: string, purchaseDate?: string | null, warrantyExpiry?: string | null, purchaseCost: number, notes: string, installedSoftware: Array<string>, edrStatus: AssetEdrStatus, edrCheckedAt?: string | null };
 
@@ -23676,6 +23744,128 @@ export function useDecideApprovalMutation(baseOptions?: ApolloReactHooks.Mutatio
         return ApolloReactHooks.useMutation<DecideApprovalMutation, DecideApprovalMutationVariables>(DecideApprovalDocument, options);
       }
 export type DecideApprovalMutationHookResult = ReturnType<typeof useDecideApprovalMutation>;
+export const MyApprovalDelegationsDocument = gql`
+    query MyApprovalDelegations {
+  myApprovalDelegations {
+    given {
+      id
+      toEmployeeId
+      toName
+      fromDate
+      toDate
+      note
+      active
+    }
+    held {
+      id
+      fromEmployeeId
+      fromName
+      fromDate
+      toDate
+      note
+      active
+    }
+  }
+}
+    `;
+
+/**
+ * __useMyApprovalDelegationsQuery__
+ *
+ * To run a query within a React component, call `useMyApprovalDelegationsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyApprovalDelegationsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyApprovalDelegationsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMyApprovalDelegationsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MyApprovalDelegationsQuery, MyApprovalDelegationsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MyApprovalDelegationsQuery, MyApprovalDelegationsQueryVariables>(MyApprovalDelegationsDocument, options);
+      }
+export function useMyApprovalDelegationsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MyApprovalDelegationsQuery, MyApprovalDelegationsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MyApprovalDelegationsQuery, MyApprovalDelegationsQueryVariables>(MyApprovalDelegationsDocument, options);
+        }
+// @ts-ignore
+export function useMyApprovalDelegationsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MyApprovalDelegationsQuery, MyApprovalDelegationsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MyApprovalDelegationsQuery, MyApprovalDelegationsQueryVariables>;
+// @ts-ignore
+export function useMyApprovalDelegationsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MyApprovalDelegationsQuery, MyApprovalDelegationsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MyApprovalDelegationsQuery | undefined, MyApprovalDelegationsQueryVariables>;
+export function useMyApprovalDelegationsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MyApprovalDelegationsQuery, MyApprovalDelegationsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MyApprovalDelegationsQuery, MyApprovalDelegationsQueryVariables>(MyApprovalDelegationsDocument, options);
+        }
+export type MyApprovalDelegationsQueryHookResult = ReturnType<typeof useMyApprovalDelegationsQuery>;
+export type MyApprovalDelegationsLazyQueryHookResult = ReturnType<typeof useMyApprovalDelegationsLazyQuery>;
+export type MyApprovalDelegationsSuspenseQueryHookResult = ReturnType<typeof useMyApprovalDelegationsSuspenseQuery>;
+export const DelegateApprovalsDocument = gql`
+    mutation DelegateApprovals($input: ApprovalDelegationInput!) {
+  delegateApprovals(input: $input) {
+    id
+    toName
+    fromDate
+    toDate
+    active
+  }
+}
+    `;
+
+/**
+ * __useDelegateApprovalsMutation__
+ *
+ * To run a mutation, you first call `useDelegateApprovalsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDelegateApprovalsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [delegateApprovalsMutation, { data, loading, error }] = useDelegateApprovalsMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDelegateApprovalsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DelegateApprovalsMutation, DelegateApprovalsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DelegateApprovalsMutation, DelegateApprovalsMutationVariables>(DelegateApprovalsDocument, options);
+      }
+export type DelegateApprovalsMutationHookResult = ReturnType<typeof useDelegateApprovalsMutation>;
+export const EndApprovalDelegationDocument = gql`
+    mutation EndApprovalDelegation($id: ID!) {
+  endApprovalDelegation(id: $id)
+}
+    `;
+
+/**
+ * __useEndApprovalDelegationMutation__
+ *
+ * To run a mutation, you first call `useEndApprovalDelegationMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useEndApprovalDelegationMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [endApprovalDelegationMutation, { data, loading, error }] = useEndApprovalDelegationMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useEndApprovalDelegationMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<EndApprovalDelegationMutation, EndApprovalDelegationMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<EndApprovalDelegationMutation, EndApprovalDelegationMutationVariables>(EndApprovalDelegationDocument, options);
+      }
+export type EndApprovalDelegationMutationHookResult = ReturnType<typeof useEndApprovalDelegationMutation>;
 export const ListAssetsPagedDocument = gql`
     query ListAssetsPaged($input: TableQueryInput!) {
   listAssetsPaged(input: $input) {

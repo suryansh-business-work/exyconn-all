@@ -496,6 +496,32 @@ export enum ApprovalDecision {
   Rejected = 'REJECTED'
 }
 
+/**
+ * One person standing in for another's approvals while they are away. A window rather than a
+ * switch, so nobody has to remember to turn it off.
+ */
+export type ApprovalDelegation = {
+  __typename?: 'ApprovalDelegation';
+  /** Whether it covers today, which is the only question the queue asks. */
+  active: Scalars['Boolean']['output'];
+  fromDate: Scalars['DateTime']['output'];
+  fromEmployeeId: Scalars['String']['output'];
+  fromName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  note: Scalars['String']['output'];
+  toDate: Scalars['DateTime']['output'];
+  toEmployeeId: Scalars['String']['output'];
+  toName: Scalars['String']['output'];
+};
+
+export type ApprovalDelegationInput = {
+  fromDate: Scalars['DateTime']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
+  /** Inclusive — a delegation until Friday covers Friday. */
+  toDate: Scalars['DateTime']['input'];
+  toEmployeeId: Scalars['String']['input'];
+};
+
 /** How many are waiting in one source — the counts behind the queue's tabs. */
 export type ApprovalGroup = {
   __typename?: 'ApprovalGroup';
@@ -4592,6 +4618,8 @@ export type Mutation = {
   decideItChange: ItChange;
   /** Approve or reject a purchase request that is requested or quoted. */
   decideItPurchaseRequest: ItPurchaseRequest;
+  /** Hands this person's approvals to a colleague for a window. */
+  delegateApprovals: ApprovalDelegation;
   deleteActivity: Scalars['Boolean']['output'];
   deleteAiJob: Scalars['Boolean']['output'];
   deleteAiModelPrice: Scalars['Boolean']['output'];
@@ -4702,6 +4730,8 @@ export type Mutation = {
   /** Switches two-factor off. Needs the password: a borrowed screen must not be enough. */
   disableMfa: Scalars['Boolean']['output'];
   disconnectSocialAccount: Scalars['Boolean']['output'];
+  /** Calls off a delegation. Only whoever arranged it may. */
+  endApprovalDelegation: Scalars['Boolean']['output'];
   /**
    * SUPPORT/IT: escalate a ticket. Raises it to HIGH priority (recomputing the deadline), bumps
    * its escalation level, records the reason as an internal note and tells the assignee.
@@ -5861,6 +5891,11 @@ export type MutationDecideItPurchaseRequestArgs = {
 };
 
 
+export type MutationDelegateApprovalsArgs = {
+  input: ApprovalDelegationInput;
+};
+
+
 export type MutationDeleteActivityArgs = {
   id: Scalars['ID']['input'];
 };
@@ -6377,6 +6412,11 @@ export type MutationDisableMfaArgs = {
 
 
 export type MutationDisconnectSocialAccountArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationEndApprovalDelegationArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -7644,6 +7684,13 @@ export type MutationVerifyMfaArgs = {
 
 export type MutationWithdrawTrackerManualEntryArgs = {
   id: Scalars['ID']['input'];
+};
+
+/** What this person has arranged, and whose approvals they are covering. */
+export type MyApprovalDelegations = {
+  __typename?: 'MyApprovalDelegations';
+  given: Array<ApprovalDelegation>;
+  held: Array<ApprovalDelegation>;
 };
 
 export type MyExpenseClaimInput = {
@@ -9422,6 +9469,8 @@ export type Query = {
   /** The locales this workspace offers. Public — the login screen has a language picker. */
   localeOptions: Array<LocaleOption>;
   me: User;
+  /** Delegations this person has arranged, and the ones they are covering. */
+  myApprovalDelegations: MyApprovalDelegations;
   /**
    * Everything awaiting the caller across every module, newest first. The kind argument narrows to
    * one source; it can never widen what the caller is allowed to see.
@@ -13789,6 +13838,8 @@ export type ResolversTypes = ResolversObject<{
   ApplicantStage: ApplicantStage;
   ApplyLeaveInput: ApplyLeaveInput;
   ApprovalDecision: ApprovalDecision;
+  ApprovalDelegation: ResolverTypeWrapper<ApprovalDelegation>;
+  ApprovalDelegationInput: ApprovalDelegationInput;
   ApprovalGroup: ResolverTypeWrapper<ApprovalGroup>;
   ApprovalItem: ResolverTypeWrapper<ApprovalItem>;
   ApprovalQueue: ResolverTypeWrapper<ApprovalQueue>;
@@ -14133,6 +14184,7 @@ export type ResolversTypes = ResolversObject<{
   ModulePermission: ResolverTypeWrapper<ModulePermission>;
   MovementReason: MovementReason;
   Mutation: ResolverTypeWrapper<{}>;
+  MyApprovalDelegations: ResolverTypeWrapper<MyApprovalDelegations>;
   MyExpenseClaimInput: MyExpenseClaimInput;
   MyPolicy: ResolverTypeWrapper<MyPolicy>;
   MyRequestInput: MyRequestInput;
@@ -14489,6 +14541,8 @@ export type ResolversParentTypes = ResolversObject<{
   ApplicantInput: ApplicantInput;
   ApplicantPage: ApplicantPage;
   ApplyLeaveInput: ApplyLeaveInput;
+  ApprovalDelegation: ApprovalDelegation;
+  ApprovalDelegationInput: ApprovalDelegationInput;
   ApprovalGroup: ApprovalGroup;
   ApprovalItem: ApprovalItem;
   ApprovalQueue: ApprovalQueue;
@@ -14765,6 +14819,7 @@ export type ResolversParentTypes = ResolversObject<{
   MilestoneInput: MilestoneInput;
   ModulePermission: ModulePermission;
   Mutation: {};
+  MyApprovalDelegations: MyApprovalDelegations;
   MyExpenseClaimInput: MyExpenseClaimInput;
   MyPolicy: MyPolicy;
   MyRequestInput: MyRequestInput;
@@ -15269,6 +15324,19 @@ export type ApplicantResolvers<ContextType = GraphQLContext, ParentType extends 
 export type ApplicantPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ApplicantPage'] = ResolversParentTypes['ApplicantPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['Applicant']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ApprovalDelegationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ApprovalDelegation'] = ResolversParentTypes['ApprovalDelegation']> = ResolversObject<{
+  active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  fromDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  fromEmployeeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  fromName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  note?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  toDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  toEmployeeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  toName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -17591,6 +17659,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   decideItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationDecideItAccessRequestArgs, 'decision' | 'id'>>;
   decideItChange?: Resolver<ResolversTypes['ItChange'], ParentType, ContextType, RequireFields<MutationDecideItChangeArgs, 'decision' | 'id'>>;
   decideItPurchaseRequest?: Resolver<ResolversTypes['ItPurchaseRequest'], ParentType, ContextType, RequireFields<MutationDecideItPurchaseRequestArgs, 'decision' | 'id'>>;
+  delegateApprovals?: Resolver<ResolversTypes['ApprovalDelegation'], ParentType, ContextType, RequireFields<MutationDelegateApprovalsArgs, 'input'>>;
   deleteActivity?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteActivityArgs, 'id'>>;
   deleteAiJob?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAiJobArgs, 'id'>>;
   deleteAiModelPrice?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteAiModelPriceArgs, 'id'>>;
@@ -17695,6 +17764,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteWebsiteSubmission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebsiteSubmissionArgs, 'id'>>;
   disableMfa?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisableMfaArgs, 'password'>>;
   disconnectSocialAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisconnectSocialAccountArgs, 'id'>>;
+  endApprovalDelegation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationEndApprovalDelegationArgs, 'id'>>;
   escalateSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationEscalateSupportTicketArgs, 'id' | 'reason'>>;
   fulfilItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationFulfilItAccessRequestArgs, 'id'>>;
   grantTrackerAccess?: Resolver<ResolversTypes['TrackerAccess'], ParentType, ContextType, RequireFields<MutationGrantTrackerAccessArgs, 'userId'>>;
@@ -17917,6 +17987,12 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   uploadImage?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationUploadImageArgs, 'file' | 'fileName'>>;
   verifyMfa?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationVerifyMfaArgs, 'challenge' | 'code'>>;
   withdrawTrackerManualEntry?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationWithdrawTrackerManualEntryArgs, 'id'>>;
+}>;
+
+export type MyApprovalDelegationsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MyApprovalDelegations'] = ResolversParentTypes['MyApprovalDelegations']> = ResolversObject<{
+  given?: Resolver<Array<ResolversTypes['ApprovalDelegation']>, ParentType, ContextType>;
+  held?: Resolver<Array<ResolversTypes['ApprovalDelegation']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type MyPolicyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MyPolicy'] = ResolversParentTypes['MyPolicy']> = ResolversObject<{
@@ -18981,6 +19057,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   localeBundle?: Resolver<ResolversTypes['LocaleBundle'], ParentType, ContextType, RequireFields<QueryLocaleBundleArgs, 'locale'>>;
   localeOptions?: Resolver<Array<ResolversTypes['LocaleOption']>, ParentType, ContextType>;
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  myApprovalDelegations?: Resolver<ResolversTypes['MyApprovalDelegations'], ParentType, ContextType>;
   myApprovals?: Resolver<ResolversTypes['ApprovalQueue'], ParentType, ContextType, Partial<QueryMyApprovalsArgs>>;
   myAttendance?: Resolver<Array<ResolversTypes['Attendance']>, ParentType, ContextType>;
   myBenefits?: Resolver<Array<ResolversTypes['Benefit']>, ParentType, ContextType>;
@@ -20568,6 +20645,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   AppSettings?: AppSettingsResolvers<ContextType>;
   Applicant?: ApplicantResolvers<ContextType>;
   ApplicantPage?: ApplicantPageResolvers<ContextType>;
+  ApprovalDelegation?: ApprovalDelegationResolvers<ContextType>;
   ApprovalGroup?: ApprovalGroupResolvers<ContextType>;
   ApprovalItem?: ApprovalItemResolvers<ContextType>;
   ApprovalQueue?: ApprovalQueueResolvers<ContextType>;
@@ -20767,6 +20845,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Milestone?: MilestoneResolvers<ContextType>;
   ModulePermission?: ModulePermissionResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
+  MyApprovalDelegations?: MyApprovalDelegationsResolvers<ContextType>;
   MyPolicy?: MyPolicyResolvers<ContextType>;
   NavLink?: NavLinkResolvers<ContextType>;
   Notification?: NotificationResolvers<ContextType>;

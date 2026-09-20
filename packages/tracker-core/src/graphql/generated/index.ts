@@ -200,6 +200,14 @@ export type ApprovalDecision =
   | 'APPROVED'
   | 'REJECTED';
 
+export type ApprovalDelegationInput = {
+  fromDate: Scalars['DateTime']['input'];
+  note: InputMaybe<Scalars['String']['input']>;
+  /** Inclusive — a delegation until Friday covers Friday. */
+  toDate: Scalars['DateTime']['input'];
+  toEmployeeId: Scalars['String']['input'];
+};
+
 export type AssetCategory =
   | 'DESKTOP'
   | 'LAPTOP'
