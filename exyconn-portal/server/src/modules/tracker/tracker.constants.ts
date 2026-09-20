@@ -11,8 +11,12 @@
 /**
  * Platforms a tracker app runs on: the desktop app reports Node's `process.platform`,
  * the phone app reports React Native's `Platform.OS`.
+ *
+ * `linux` is here because the release workflow has always built an AppImage and the download
+ * page has always offered it — a device registering from it was refused by this enum, which
+ * is a Linux user who can install the tracker and cannot use it.
  */
-export const DEVICE_PLATFORMS = ['win32', 'darwin', 'android', 'ios'] as const;
+export const DEVICE_PLATFORMS = ['win32', 'darwin', 'linux', 'android', 'ios'] as const;
 
 /** Lifecycle of a tracking session. */
 export const SESSION_STATUSES = ['active', 'stopped'] as const;

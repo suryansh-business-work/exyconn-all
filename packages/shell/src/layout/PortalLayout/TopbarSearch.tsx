@@ -34,7 +34,9 @@ export function TopbarSearch({ onOpen }: Readonly<TopbarSearchProps>) {
       <Box component="span" sx={{ flexGrow: 1, textAlign: 'left' }}>
         {t('Search…')}
       </Box>
-      <Box component="span" sx={{ fontSize: fontSize.xs, color: 'text.disabled' }}>
+      {/* The same ink as the label, not a dimmer one: a hint at `text.disabled` on the
+          topbar's own ground does not reach 4.5:1, and axe fails the whole page for it. */}
+      <Box component="span" sx={{ fontSize: fontSize.xs }}>
         {shortcut}
       </Box>
     </Button>
