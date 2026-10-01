@@ -18,6 +18,7 @@ permissions:
 
 jobs:
   workspace:
+    timeout-minutes: 45
     name: Typecheck · Lint · Test
     runs-on: ubuntu-latest
     steps:
@@ -85,6 +86,7 @@ jobs:
           retention-days: 7
 
   component-tests:
+    timeout-minutes: 45
     name: Component Tests (Cypress)
     runs-on: ubuntu-latest
     steps:
@@ -155,6 +157,7 @@ jobs:
   # every push, and the same report in the run's summary. It runs even when a job above failed:
   # that is when the report matters most.
   quality-report:
+    timeout-minutes: 15
     name: Quality report (a11y · coverage · duplication)
     needs: [workspace, component-tests]
     if: ${{ !cancelled() }}
@@ -200,6 +203,7 @@ jobs:
           retention-days: 14
 
   website:
+    timeout-minutes: 20
     name: Website · Typecheck · Lint · Test
     runs-on: ubuntu-latest
     steps:
@@ -227,9 +231,10 @@ jobs:
         working-directory: exyconn-website
         run: pnpm test
 
-  tools-ui:
-    name: Tools UI · Typecheck · Lint · Test
+  tools:
+    name: Tools · Typecheck · Lint · Test
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
@@ -244,39 +249,14 @@ jobs:
         env:
           npm_config_onnxruntime_node_install_cuda: skip
         run: npm run install:all
+      # ui and server in one job: they share the install above, which was the slow part of
+      # the two jobs this replaces.
       - name: Typecheck
-        working-directory: exyconn-tools/ui
-        run: npm run typecheck
-      - name: Lint
-        working-directory: exyconn-tools/ui
-        run: npm run lint
-      - name: Test
-        working-directory: exyconn-tools/ui
-        run: npm test
-
-  tools-server:
-    name: Tools Server · Typecheck · Lint · Test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: 22
-      - name: Install
         working-directory: exyconn-tools
-        # onnxruntime-node (via @imgly/background-removal-node) otherwise downloads a CUDA
-        # bundle from the ONNX Runtime GitHub release on linux/x64, which fails mid-download
-        # often enough to redden a run. The runner has no NVIDIA GPU, so the CUDA provider
-        # could never be used; the package's bundled CPU build is what actually runs.
-        env:
-          npm_config_onnxruntime_node_install_cuda: skip
-        run: npm run install:all
-      - name: Typecheck
-        working-directory: exyconn-tools/server
         run: npm run typecheck
       - name: Lint
-        working-directory: exyconn-tools/server
+        working-directory: exyconn-tools
         run: npm run lint
       - name: Test
-        working-directory: exyconn-tools/server
+        working-directory: exyconn-tools
         run: npm test
