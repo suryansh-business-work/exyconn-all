@@ -33,8 +33,8 @@ export const HAIRLINE = `${borderWidth.hairline}px solid`;
  * the same number in `sx` multiplies the theme radius, so the portals always spell the unit. */
 export const CONTROL_CORNER = `${BASE_RADIUS}px`;
 export const CARD_CORNER = `${CARD_RADIUS}px`;
-/** A row inside a padded menu or list — shadcn/ui's `rounded-sm`. */
-export const INNER_CORNER = `${radius.sm}px`;
+/** A row inside a padded menu or list: a step inside the control corner. */
+export const INNER_CORNER = `${radius.md}px`;
 export const PILL = `${radius.pill}px`;
 
 /** A disabled control — shadcn/ui's `disabled:opacity-50`. Exempt from contrast (SC 1.4.3). */

@@ -25,6 +25,19 @@ export const boxShadow: Record<ColorMode, { none: string; sm: string; md: string
 
 export type Elevation = keyof (typeof boxShadow)['light'];
 
+/** How much of an accent its glow carries: a thin edge and a wide, faint bloom. */
+const GLOW_EDGE_OPACITY = 0.35;
+const GLOW_BLOOM_OPACITY = 0.25;
+
+/**
+ * The soft light the reference puts under a selected node: a hairline of the accent and a
+ * wide bloom of it. For a dark ground, where a black shadow cannot be seen and a surface
+ * that matters has to be lit instead.
+ */
+export function glow(accent: string): string {
+  return `0 0 0 1px ${alpha(accent, GLOW_EDGE_OPACITY)}, 0 8px 32px ${alpha(accent, GLOW_BLOOM_OPACITY)}`;
+}
+
 /** A focus ring, drawn as a shadow so it follows the element's own corner radius. */
 export function focusRing(accent: string): string {
   return `0 0 0 1px ${accent}`;

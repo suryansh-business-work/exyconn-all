@@ -1,5 +1,6 @@
 import { alpha, type CSSObject } from '../../styles';
 import { tintOpacity } from '../../tokens/backgrounds.token';
+import { glow } from '../../tokens/box-shadow.token';
 import { borderWidth } from '../../tokens/border.token';
 import { transition } from '../../tokens/motion.token';
 import { spacing } from '../../tokens/spacing.token';
@@ -35,11 +36,14 @@ const SWITCH_TARGET = spacing(3);
 const OUTLINE = '.MuiOutlinedInput-notchedOutline';
 
 /** A primary button per variant, as shadcn draws its `default`, `outline` and `ghost` buttons. */
-function primaryButton({ t }: ThemeParts): Record<string, CSSObject> {
+function primaryButton({ mode, t }: ThemeParts): Record<string, CSSObject> {
+  // On the dark canvas a hovered primary button lights up, as the reference's Generate does;
+  // a black shadow would not be seen there. On white the small shadow is enough.
+  const hoverShadow = mode === 'dark' ? glow(t.primary) : t.shadow.xs;
   return {
     contained: {
       boxShadow: t.shadow.xs,
-      '&:hover': { backgroundColor: alpha(t.primary, HOVER_FILL_OPACITY), boxShadow: t.shadow.xs },
+      '&:hover': { backgroundColor: alpha(t.primary, HOVER_FILL_OPACITY), boxShadow: hoverShadow },
     },
     // The outline button is neutral: foreground ink on the panel, a hairline, a muted hover.
     outlined: {
