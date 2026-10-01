@@ -75,7 +75,7 @@ export function useCrudResource<TRow, TTarget = TRow>({
       typeof copy === 'string'
         ? { message: copy }
         : { message: copy.message, messageValues: copy.values };
-    const ok = await confirm({ ...prompt, confirmText: 'Delete' });
+    const ok = await confirm({ ...prompt, confirmText: 'Delete', destructive: true });
     if (!ok) {
       return;
     }

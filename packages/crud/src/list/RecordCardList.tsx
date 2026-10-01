@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ColDef } from 'ag-grid-community';
-import { Alert, Box, Button, Flex, Skeleton, Text, TextField } from '@exyconn/shell/components/ui';
+import { Alert, Button, Flex, Skeleton, Text, TextField } from '@exyconn/shell/components/ui';
 import type { TablePageResult } from '@exyconn/shell/components/data/ServerDataGrid';
 import type { TableQueryInput } from '@exyconn/shell/graphql/generated';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
@@ -9,6 +9,7 @@ import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useT } from '@exyconn/i18n';
 import { RecordCardRow } from './RecordCardRow';
 import { cardActionSpecs } from './recordCard';
+import { EmptyState } from '@exyconn/shell/components/feedback/EmptyState';
 
 /** How long a phone keyboard rests before the list goes and asks the server. */
 const SEARCH_DEBOUNCE_MS = 350;
@@ -108,6 +109,7 @@ export function RecordCardList<Row>({
           // The row's own id when it has one; the list is append-only, so the index is
           // stable for anything without one.
           key={(row as { id?: string }).id ?? `row-${index}`}
+          index={index}
           row={row}
           columnDefs={columnDefs}
           context={cardContext}
@@ -118,11 +120,7 @@ export function RecordCardList<Row>({
 
       {loading && <Skeleton variant="rounded" height={96} />}
 
-      {!loading && loaded === 0 && !error && (
-        <Box sx={{ py: 4, textAlign: 'center' }}>
-          <Text color="text.secondary">{t('Nothing to show yet.')}</Text>
-        </Box>
-      )}
+      {!loading && loaded === 0 && !error && <EmptyState title="Nothing to show yet." />}
 
       {loaded > 0 && (
         <Flex direction="column" spacing={1} alignItems="center">

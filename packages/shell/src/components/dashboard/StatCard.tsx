@@ -74,8 +74,11 @@ export function StatCard({
           </Stack>
         )}
       </Stack>
+      {/* Sized like a heading, but not one: four numbers as <h6> straight after the page's
+          <h1> skipped every level between and made the outline read as a list of figures. */}
       <Typography
         variant="h6"
+        component="p"
         sx={{
           fontWeight: fontWeight.bold,
           mt: 0.5,

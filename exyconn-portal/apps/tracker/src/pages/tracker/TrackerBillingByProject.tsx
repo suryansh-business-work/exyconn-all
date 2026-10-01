@@ -85,7 +85,8 @@ export function TrackerBillingByProject({ range }: Readonly<{ range: BillingRang
             <Text color="text.secondary">{t('No tracked time in this range.')}</Text>
           </Box>
         ) : (
-          <TableContainer>
+          // Focusable: it scrolls sideways on a phone, and the keyboard must reach it too.
+          <TableContainer tabIndex={0}>
             <Table size="small">
               <TableHead>
                 <TableRow>

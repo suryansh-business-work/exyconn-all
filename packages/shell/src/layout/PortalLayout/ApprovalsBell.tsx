@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useT } from '@exyconn/i18n';
 import { Badge, IconButton } from '@/components/ui';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import { useMyPendingApprovalCountQuery } from '@/graphql/generated';
@@ -13,6 +14,7 @@ const POLL_INTERVAL_MS = 60_000;
  */
 export function ApprovalsBell() {
   const navigate = useNavigate();
+  const t = useT();
   const { data } = useMyPendingApprovalCountQuery({ pollInterval: POLL_INTERVAL_MS });
   const waiting = data?.myPendingApprovalCount ?? 0;
   if (waiting === 0) return null;
@@ -20,7 +22,7 @@ export function ApprovalsBell() {
   return (
     <IconButton
       onClick={() => navigate('/approvals')}
-      aria-label={`${waiting} approvals waiting on you`}
+      aria-label={t('{count} approvals waiting on you', { count: waiting })}
       sx={{ mr: 0.5 }}
     >
       <Badge badgeContent={waiting} color="warning" max={99}>

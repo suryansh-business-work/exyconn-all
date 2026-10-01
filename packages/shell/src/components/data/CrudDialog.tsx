@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, Drawer, IconButton, Stack, Typography } from '@/components/ui';
 import CloseIcon from '@mui/icons-material/Close';
 
@@ -11,6 +12,7 @@ interface CrudDialogProps {
 
 /** Right-anchored MUI drawer that hosts a module's create/edit form. */
 export function CrudDialog({ open, title, onClose, children }: CrudDialogProps) {
+  const t = useT();
   return (
     <Drawer
       anchor="right"
@@ -31,8 +33,11 @@ export function CrudDialog({ open, title, onClose, children }: CrudDialogProps) 
           borderColor: 'divider',
         }}
       >
-        <Typography variant="h6">{title}</Typography>
-        <IconButton onClick={onClose} aria-label="Close" edge="end">
+        {/* The one heading of the panel: styled h6, but an h2 under the page's h1. */}
+        <Typography variant="h6" component="h2">
+          {title}
+        </Typography>
+        <IconButton onClick={onClose} aria-label={t('Close')} edge="end">
           <CloseIcon />
         </IconButton>
       </Stack>

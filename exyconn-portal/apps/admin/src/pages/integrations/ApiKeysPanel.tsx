@@ -22,6 +22,7 @@ import {
   useListApiKeysQuery,
   useRevokeApiKeyMutation,
 } from '@exyconn/shell/graphql/generated';
+import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 
 /** The roles a key can be granted. Mirrors the portal's own list — a key is never more. */
 const GRANTABLE_ROLES = [
@@ -46,6 +47,7 @@ const GRANTABLE_ROLES = [
 export function ApiKeysPanel() {
   const t = useT();
   const notify = useNotify();
+  const confirm = useConfirm();
   const { formatDateTime } = useSettings();
   const { data, refetch } = useListApiKeysQuery();
   const [createKey] = useCreateApiKeyMutation();
@@ -72,6 +74,12 @@ export function ApiKeysPanel() {
   };
 
   const revoke = async (id: string): Promise<void> => {
+    const ok = await confirm({
+      message: 'Revoke this key? Anything using it stops working immediately.',
+      confirmText: 'Revoke',
+      destructive: true,
+    });
+    if (!ok) return;
     try {
       await revokeKey({ variables: { id } });
       notify('Key revoked. Anything using it stops working immediately.');
@@ -127,8 +135,9 @@ export function ApiKeysPanel() {
         </Button>
       </Flex>
 
-      {/* Scrolls itself on a narrow screen rather than widening the page. */}
-      <TableContainer>
+      {/* Scrolls itself on a narrow screen rather than widening the page — and is focusable,
+          so the keyboard can scroll it too (scrollable-region-focusable). */}
+      <TableContainer tabIndex={0}>
         <Table size="small">
           <TableHead>
             <TableRow>

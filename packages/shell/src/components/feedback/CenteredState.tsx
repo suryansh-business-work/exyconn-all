@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { useT } from '@exyconn/i18n';
 import { Box, CircularProgress } from '@/components/ui';
 
 interface CenteredStateProps {
@@ -29,11 +30,19 @@ export function CenteredState({ children, fill = false }: Readonly<CenteredState
   );
 }
 
-/** The spinner a screen shows while it waits for its first answer. */
+/**
+ * The spinner a screen shows while it waits for its first answer.
+ *
+ * A live status region, so a screen reader hears "Loading" when it appears instead of a
+ * page that has gone quiet; polite, so it never talks over what is being read.
+ */
 export function LoadingState({ label = 'Loading' }: Readonly<{ label?: string }>) {
+  const t = useT();
   return (
     <CenteredState>
-      <CircularProgress aria-label={label} />
+      <Box role="status" aria-live="polite">
+        <CircularProgress aria-label={t(label)} />
+      </Box>
     </CenteredState>
   );
 }
