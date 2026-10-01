@@ -21,6 +21,7 @@ import { startSocialSchedule } from './modules/social-accounts';
 import { startWebhookDelivery } from './modules/integrations';
 import { ensureAiModelPrices, startAiWorker } from './modules/ai';
 import { backfillAppLogGroupUsers } from './modules/logs';
+import { backfillPositionDefaults } from './modules/hr';
 import { startReminderSweep } from './modules/reminders';
 import { startAuditRetention } from './modules/audit';
 import { env } from './config/env';
@@ -67,6 +68,9 @@ async function bootstrap(): Promise<void> {
   // HR > Tax Slabs — it is a starting point to check against the finance act, not a rate
   // this repository is asserting.
   await forEachOrganization(ensureTaxSlabs, 'ensureTaxSlabs');
+  // Positions from before the salary band existed have no band, which failed every
+  // department listing that nests them.
+  await forEachOrganization(backfillPositionDefaults, 'backfillPositionDefaults');
   startStatusMonitor();
   // Payslips go out on the schedule HR sets in the portal, so the loop has to be running
   // even in a month nobody signs in.

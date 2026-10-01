@@ -28,6 +28,20 @@ export async function positionsOf(department: string) {
   return withIds(await PositionModel.find({ department }).sort({ name: 1 }).lean());
 }
 
+/** What a position stored before its salary band and headcount existed is given on boot. */
+const POSITION_DEFAULTS = { minSalary: 0, maxSalary: 0, headcount: 1, active: true };
+
+/**
+ * Gives every position written under the original name/department/description schema the
+ * fields GraphQL declares non-null. `.lean()` skips schema defaults, so one such row nulled
+ * `minSalary` and failed the whole ListDepartments response. A no-op once none is left.
+ */
+export async function backfillPositionDefaults(): Promise<void> {
+  for (const [field, value] of Object.entries(POSITION_DEFAULTS)) {
+    await PositionModel.updateMany({ [field]: null }, { $set: { [field]: value } });
+  }
+}
+
 /** The department head's name for display; null when nobody is set. */
 export async function headNameOf(headId?: string | null): Promise<string | null> {
   if (!headId || !isValidObjectId(headId)) return null;
