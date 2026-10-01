@@ -22,6 +22,7 @@ import { startWebhookDelivery } from './modules/integrations';
 import { ensureAiModelPrices, startAiWorker } from './modules/ai';
 import { backfillAppLogGroupUsers } from './modules/logs';
 import { backfillPositionDefaults } from './modules/hr';
+import { runOnce } from './lib/migrations';
 import { startReminderSweep } from './modules/reminders';
 import { startAuditRetention } from './modules/audit';
 import { env } from './config/env';
@@ -49,7 +50,7 @@ async function bootstrap(): Promise<void> {
   // on a fresh install and self-healing on an existing one.
   await runAsPlatform(ensureAdminAccess);
   // Log groups stored without a last user would fail the Tech > Logs grid.
-  await runAsPlatform(backfillAppLogGroupUsers);
+  await runAsPlatform(() => runOnce('app-log-group-users', backfillAppLogGroupUsers));
   // The public status page is only as good as its catalogue, so make sure every
   // surface has a monitor row before the first probe round runs.
   await runAsPlatform(ensureStatusMonitors);
@@ -69,8 +70,12 @@ async function bootstrap(): Promise<void> {
   // this repository is asserting.
   await forEachOrganization(ensureTaxSlabs, 'ensureTaxSlabs');
   // Positions from before the salary band existed have no band, which failed every
-  // department listing that nests them.
-  await forEachOrganization(backfillPositionDefaults, 'backfillPositionDefaults');
+  // department listing that nests them. One-shot repairs like this one go through the
+  // ledger (lib/migrations) so they run once per company rather than on every boot.
+  await forEachOrganization(
+    () => runOnce('position-defaults', backfillPositionDefaults),
+    'backfillPositionDefaults',
+  );
   startStatusMonitor();
   // Payslips go out on the schedule HR sets in the portal, so the loop has to be running
   // even in a month nobody signs in.
