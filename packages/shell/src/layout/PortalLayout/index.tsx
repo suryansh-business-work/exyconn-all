@@ -48,7 +48,8 @@ export function PortalLayout() {
         display: 'flex',
         minHeight: '100vh',
         color: 'text.primary',
-        background: 'background.default',
+        // Transparent, so the theme's dotted canvas on <body> shows between the panels.
+        background: 'transparent',
       }}
     >
       <SkipLink />

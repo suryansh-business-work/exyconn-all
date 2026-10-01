@@ -1,4 +1,5 @@
 import { mount } from 'cypress/react';
+import '@fontsource-variable/outfit';
 import type { ReactNode } from 'react';
 import { ThemeProvider } from '@exyconn/ui/styles';
 import { LocalizationProvider, AdapterDateFns, theme } from '@exyconn/ui';

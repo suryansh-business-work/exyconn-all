@@ -1,5 +1,4 @@
-import { Box, alpha } from '@exyconn/shell/components/ui';
-import { color } from '@exyconn/ui';
+import { Box, alpha, useTheme } from '@exyconn/shell/components/ui';
 
 interface LoginBackgroundProps {
   imageUrl: string;
@@ -13,7 +12,9 @@ interface LoginBackgroundProps {
  * form, so a missing or slow image just leaves the flat brand surface behind it.
  */
 export function LoginBackground({ imageUrl, accentColor, isDark }: Readonly<LoginBackgroundProps>) {
-  const base = isDark ? color.neutral[900] : color.neutral[50];
+  // The page colour of the mode in force, so the sign-in ground is the same canvas as every
+  // page behind it rather than a grey of its own.
+  const base = useTheme().palette.background.default;
 
   return (
     <Box aria-hidden sx={{ position: 'absolute', inset: 0, bgcolor: base }}>

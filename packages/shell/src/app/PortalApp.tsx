@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+// The portals' face, bundled: the theme asks for "Outfit Variable" (tokens/typography.token.ts).
+import '@fontsource-variable/outfit';
 import { ApolloProvider } from '@apollo/client/react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { LocalizationProvider, AdapterDateFns } from '@exyconn/ui/pickers';
