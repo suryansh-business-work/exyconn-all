@@ -33,4 +33,18 @@ export const enterFrom = { offsetPx: 4, scale: 0.96 } as const;
 export const enterAnimation = {
   page: `${keyframeName.fadeIn} ${duration.base}ms ${easing.standard} backwards`,
   dialog: `${keyframeName.zoomIn} ${duration.base}ms ${easing.standard} backwards`,
+  /** One card, tile or row of a list; pair it with `staggerDelay` so the list settles in turn. */
+  item: `${keyframeName.fadeIn} ${duration.base}ms ${easing.standard} backwards`,
 } as const;
+
+/** How far apart neighbouring items start, and how many stagger before the rest land together. */
+const STAGGER_STEP_MS = 30;
+const STAGGER_LIMIT = 8;
+
+/**
+ * The `animationDelay` for the nth item of a list. Capped, so a long list does not keep its
+ * tail invisible for a second: after the first few the rest arrive with the last of them.
+ */
+export function staggerDelay(index: number): string {
+  return `${Math.min(index, STAGGER_LIMIT) * STAGGER_STEP_MS}ms`;
+}

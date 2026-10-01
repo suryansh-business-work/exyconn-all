@@ -67,6 +67,8 @@ export function TaskCard({ task, onOpen }: Readonly<TaskCardProps>) {
         border: 1,
         borderColor: 'divider',
         boxShadow: 1,
+        // The hover lift is the one cue on a board that a card opens, not just drags.
+        '&:hover': { boxShadow: 2 },
         opacity: isDragging ? 0.4 : 1,
         transform: CSS.Transform.toString(transform),
         transition,

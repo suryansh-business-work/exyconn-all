@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useT, type Interpolations } from '@exyconn/i18n';
-import { Box, Chip, Grid, Stack, Typography } from '@/components/ui';
+import { Box, Chip, enterAnimation, Grid, Stack, staggerDelay, Typography } from '@/components/ui';
 import { PageHeader } from '../layout/PageHeader';
 import { StatCard, type StatItem } from './StatCard';
 import { densePanel, panel } from '../glass/glass';
@@ -52,13 +52,14 @@ export function ModuleDashboard({
       />
 
       <Grid container spacing={1.5} sx={{ mb: 1.5 }}>
-        {stats.map((stat) => (
+        {stats.map((stat, index) => (
           <Grid
             key={stat.label}
             size={{
               xs: 6,
               md: statCols,
             }}
+            sx={{ animation: enterAnimation.item, animationDelay: staggerDelay(index) }}
           >
             <StatCard {...stat} />
           </Grid>
