@@ -1,4 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
+import { timezoneOptionLabel } from '@exyconn/i18n';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { AppSettingsForm } from './app-settings.form';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -32,19 +33,28 @@ const pick = (name: string, option: string) => {
   cy.get('ul[role="listbox"]').contains('li', option).click();
 };
 
+/**
+ * A zone as the picker writes it — "Asia/Kolkata (GMT+05:30)". Read through the same helper
+ * the form labels its options with, so the expectation does not drift with the offset when
+ * daylight saving moves.
+ */
+const zoneLabel = (zone: string) => timezoneOptionLabel(zone);
+
+/**
+ * The timezone field's own Clear button — every Autocomplete on the form has one, so it is
+ * scoped to this field. Forced because MUI keeps the clear indicator hidden until the field
+ * is hovered or focused.
+ */
+const clearTimezone = () =>
+  cy.get('input[name="timezone"]').parent().find('button[title="Clear"]').click({ force: true });
+
 describe('AppSettingsForm', () => {
-  // SKIP — real defect, not a spec bug: app-settings.form.tsx builds its options with
-  // `timezoneOptions()` and never passes the saved zone, but Intl.supportedValuesOf
-  // ships 'Asia/Calcutta', not the portal default 'Asia/Kolkata'. The saved value is
-  // therefore absent from the option list and the Autocomplete renders BLANK for it.
-  // `timezoneOptions(current)` exists to prevent exactly this. Un-skip once the form
-  // passes the current timezone.
-  it.skip('shows the loaded values and previews now through them', () => {
+  it('shows the loaded values and previews now through them', () => {
     mount();
-    cy.get('input[name="timezone"]').should('have.value', 'Asia/Kolkata');
+    cy.get('input[name="timezone"]').should('have.value', zoneLabel('Asia/Kolkata'));
     cy.get('[data-testid="app-settings-preview"]')
       .invoke('text')
-      .should('match', /^\d{2} [A-Z][a-z]{2} \d{4} \d{2}:\d{2} [ap]m$/);
+      .should('match', /^\d{2} [A-Z][a-z]{2} \d{4} \d{2}:\d{2} [AP]M$/);
   });
 
   it('re-renders the preview when the time format changes', () => {
@@ -53,47 +63,29 @@ describe('AppSettingsForm', () => {
     cy.get('[data-testid="app-settings-preview"]')
       .invoke('text')
       .should('match', /\d{2}:\d{2}$/)
-      .and('not.match', /[ap]m$/);
+      .and('not.match', /[ap]m$/i);
   });
 
-  // SKIP — real defect, not a spec bug: app-settings.form.tsx builds its options with
-  // `timezoneOptions()` and never passes the saved zone, but Intl.supportedValuesOf
-  // ships 'Asia/Calcutta', not the portal default 'Asia/Kolkata'. The saved value is
-  // therefore absent from the option list and the Autocomplete renders BLANK for it.
-  // `timezoneOptions(current)` exists to prevent exactly this. Un-skip once the form
-  // passes the current timezone.
-  it.skip('requires a timezone', () => {
+  it('requires a timezone', () => {
     mount();
-    cy.get('button[title="Clear"]').click({ force: true });
+    clearTimezone();
     cy.get('[data-testid="app-settings-preview"]').should('contain', 'Pick a date format');
     cy.contains('button', 'Save changes').click();
     cy.contains('Timezone is required').should('be.visible');
   });
 
-  // SKIP — real defect, not a spec bug: app-settings.form.tsx builds its options with
-  // `timezoneOptions()` and never passes the saved zone, but Intl.supportedValuesOf
-  // ships 'Asia/Calcutta', not the portal default 'Asia/Kolkata'. The saved value is
-  // therefore absent from the option list and the Autocomplete renders BLANK for it.
-  // `timezoneOptions(current)` exists to prevent exactly this. Un-skip once the form
-  // passes the current timezone.
-  it.skip('searches the timezone list and previews the pick', () => {
+  it('searches the timezone list and previews the pick', () => {
     mount();
     cy.get('input[name="timezone"]').clear().type('Europe/Lon');
     cy.get('ul[role="listbox"]').contains('li', 'Europe/London').click();
-    cy.get('input[name="timezone"]').should('have.value', 'Europe/London');
+    cy.get('input[name="timezone"]').should('have.value', zoneLabel('Europe/London'));
     cy.get('[data-testid="app-settings-preview"]').should('not.contain', 'Pick a date format');
   });
 
-  // SKIP — real defect, not a spec bug: app-settings.form.tsx builds its options with
-  // `timezoneOptions()` and never passes the saved zone, but Intl.supportedValuesOf
-  // ships 'Asia/Calcutta', not the portal default 'Asia/Kolkata'. The saved value is
-  // therefore absent from the option list and the Autocomplete renders BLANK for it.
-  // `timezoneOptions(current)` exists to prevent exactly this. Un-skip once the form
-  // passes the current timezone.
-  it.skip('restores the loaded values on cancel', () => {
+  it('restores the loaded values on cancel', () => {
     mount();
-    cy.get('button[title="Clear"]').click({ force: true });
+    clearTimezone();
     cy.contains('button', 'Cancel').click();
-    cy.get('input[name="timezone"]').should('have.value', 'Asia/Kolkata');
+    cy.get('input[name="timezone"]').should('have.value', zoneLabel('Asia/Kolkata'));
   });
 });

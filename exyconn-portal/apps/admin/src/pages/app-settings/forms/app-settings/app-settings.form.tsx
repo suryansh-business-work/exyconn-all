@@ -32,9 +32,6 @@ const patternOptions = (patterns: readonly string[]) =>
 
 const DATE_FORMAT_OPTIONS = patternOptions(DATE_FORMATS);
 const TIME_FORMAT_OPTIONS = patternOptions(TIME_FORMATS);
-// Labelled with each zone's current offset, so "Asia/Kolkata" reads as a time as well
-// as a place. Built once: the list is ~450 entries.
-const TIMEZONE_OPTIONS = timezoneOptions();
 
 /**
  * The languages the default can be set to: the ones this workspace offers, plus English.
@@ -110,6 +107,11 @@ export function AppSettingsForm({ initial }: Readonly<AppSettingsFormProps>) {
     resolver: zodResolver(appSettingsSchema),
     defaultValues: toAppSettingsValues(initial),
   });
+  // The saved zone is unioned into the list, because `Intl.supportedValuesOf` returns zones
+  // pre-canonicalisation — it reports 'Asia/Calcutta' and not the 'Asia/Kolkata' somebody is
+  // saved with, and an Autocomplete whose value is missing from its own options renders blank.
+  // Labelled with each zone's current offset, and memoised: the list is ~450 entries.
+  const timezones = useMemo(() => timezoneOptions(initial.timezone), [initial.timezone]);
 
   const onSubmit = async (values: AppSettingsFormValues) => {
     try {
@@ -150,7 +152,7 @@ export function AppSettingsForm({ initial }: Readonly<AppSettingsFormProps>) {
       <RhfAutocomplete
         name="timezone"
         label="Timezone"
-        options={TIMEZONE_OPTIONS}
+        options={timezones}
         helperText="IANA zone the organisation keeps time in. Everybody who has not picked their own reads dates in this one."
       />
       <RhfChipsInput

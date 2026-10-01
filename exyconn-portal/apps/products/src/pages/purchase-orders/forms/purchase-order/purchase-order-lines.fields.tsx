@@ -3,7 +3,12 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import { useT } from '@exyconn/i18n';
 import { Box, Button, Flex, Grid, IconButton, Text } from '@exyconn/shell/components/ui';
-import { RhfSelect, RhfTextField, type SelectOption } from '@exyconn/shell/components/form/rhf';
+import {
+  RhfFieldArrayError,
+  RhfSelect,
+  RhfTextField,
+  type SelectOption,
+} from '@exyconn/shell/components/form/rhf';
 import { lineCost, linesTotal, type PurchaseOrderLineValues } from './purchase-order.types';
 
 interface LineRowProps {
@@ -119,6 +124,7 @@ export function PurchaseOrderLinesFields({ products }: Readonly<{ products: Sele
           onRemove={() => remove(index)}
         />
       ))}
+      <RhfFieldArrayError name="lines" />
       <Flex direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 1 }}>
         <Button size="small" startIcon={<AddIcon />} onClick={() => append({ ...EMPTY_LINE })}>
           {t('Add line')}

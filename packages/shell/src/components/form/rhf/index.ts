@@ -2,6 +2,7 @@ export { RhfTextField } from './RhfTextField';
 export { RhfSelect } from './RhfSelect';
 export { RhfMultiSelect } from './RhfMultiSelect';
 export { RhfChipsInput } from './RhfChipsInput';
+export { RhfFieldArrayError } from './RhfFieldArrayError';
 export { RhfSwitch } from './RhfSwitch';
 export { RhfDatePicker } from './RhfDatePicker';
 export { RhfDateTimePicker } from './RhfDateTimePicker';
