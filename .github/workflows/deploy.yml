@@ -34,6 +34,12 @@ jobs:
           node-version: 22
       - name: Install
         working-directory: exyconn-tools
+        # onnxruntime-node (via @imgly/background-removal-node) otherwise downloads a CUDA
+        # bundle from the ONNX Runtime GitHub release on linux/x64, which fails mid-download
+        # often enough to redden a run. The runner has no NVIDIA GPU, so the CUDA provider
+        # could never be used; the package's bundled CPU build is what actually runs.
+        env:
+          npm_config_onnxruntime_node_install_cuda: skip
         run: npm run install:all
       - name: Typecheck, lint & test (ui + server)
         working-directory: exyconn-tools

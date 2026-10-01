@@ -206,4 +206,51 @@ describe('GraphQL e2e', () => {
     expect(after.body.errors).toBeUndefined();
     expect(after.body.data.listInvoices).toEqual([]);
   });
+
+  /**
+   * A field resolver has to hand back a settled promise, not a Mongoose query: the executor
+   * subscribes to a field's result twice, and a query refuses the second with "Query was
+   * already executed" — which took the whole ListDepartments response down with it. Driven
+   * through HTTP because only the real executor subscribes twice; calling the resolver
+   * directly passes either way.
+   */
+  it('nests positions inside their department, each with its id', async () => {
+    const token = await loginAsAdmin();
+    await gql(
+      `mutation($i:DepartmentInput!){ createDepartment(input:$i){ id } }`,
+      { i: { name: 'Engineering' } },
+      token,
+    );
+    const position = await gql(
+      `mutation($i:PositionInput!){ createPosition(input:$i){ id } }`,
+      {
+        i: {
+          name: 'Engineer',
+          department: 'Engineering',
+          minSalary: 1000,
+          maxSalary: 2000,
+          headcount: 2,
+          active: true,
+        },
+      },
+      token,
+    );
+    expect(position.body.errors).toBeUndefined();
+
+    const res = await gql(
+      `{ listDepartments { id name headName positions { id name filled } } }`,
+      undefined,
+      token,
+    );
+
+    expect(res.body.errors).toBeUndefined();
+    expect(res.body.data.listDepartments).toEqual([
+      {
+        id: expect.any(String),
+        name: 'Engineering',
+        headName: null,
+        positions: [{ id: position.body.data.createPosition.id, name: 'Engineer', filled: 0 }],
+      },
+    ]);
+  });
 });

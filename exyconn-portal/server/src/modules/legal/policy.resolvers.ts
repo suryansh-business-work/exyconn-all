@@ -196,7 +196,7 @@ export const policyResolvers = {
       return new Date(policy.nextReviewOn).getTime() < Date.now();
     },
     /** Signatures on the CURRENT version — an older version's count would flatter the number. */
-    acknowledgedCount: (policy: { id?: string; _id?: unknown; version: number }) =>
+    acknowledgedCount: async (policy: { id?: string; _id?: unknown; version: number }) =>
       PolicyAcknowledgementModel.countDocuments({
         policyId: policy.id ?? String(policy._id),
         version: policy.version,
