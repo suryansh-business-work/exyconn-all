@@ -5,7 +5,12 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useT } from '@exyconn/i18n';
 import { Box, Button, Flex, IconButton, Text } from '@exyconn/shell/components/ui';
-import { RhfSelect, RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
+import {
+  RhfFieldArrayError,
+  RhfSelect,
+  RhfSwitch,
+  RhfTextField,
+} from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
@@ -149,6 +154,7 @@ export function OnboardingTemplateForm({
       {fields.map((field, index) => (
         <TaskRow key={field.id} index={index} onRemove={() => remove(index)} />
       ))}
+      <RhfFieldArrayError name="tasks" />
       <Button
         variant="outlined"
         startIcon={<AddIcon />}

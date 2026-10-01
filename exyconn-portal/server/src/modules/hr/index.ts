@@ -133,3 +133,4 @@ export const hrResolvers = {
   },
 };
 export { hrTypeDefs };
+export { backfillPositionDefaults } from './department.service';

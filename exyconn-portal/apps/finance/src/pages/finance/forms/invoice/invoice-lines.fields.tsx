@@ -3,7 +3,7 @@ import AddIcon from '@mui/icons-material/Add';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import { useT } from '@exyconn/i18n';
 import { Button, Flex, IconButton, Text, fontWeight } from '@exyconn/shell/components/ui';
-import { RhfTextField } from '@exyconn/shell/components/form/rhf';
+import { RhfFieldArrayError, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { formatMoney } from '@exyconn/shell/utils/money';
 import { lineAmount, linesTotal, type InvoiceLineValues } from './invoice.types';
 
@@ -108,6 +108,7 @@ export function InvoiceLinesFields({ currency }: Readonly<{ currency: string }>)
           onRemove={() => remove(index)}
         />
       ))}
+      <RhfFieldArrayError name="lines" />
       {fields.length > 0 ? (
         <Text size="sm" sx={{ textAlign: 'right', fontWeight: fontWeight.semibold }}>
           {t('Total {amount}', { amount: formatMoney(total, currency) })}

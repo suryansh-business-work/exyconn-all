@@ -25,6 +25,7 @@ env:
 
 jobs:
   test-tools:
+    timeout-minutes: 20
     name: Test tools
     runs-on: ubuntu-latest
     steps:
@@ -49,6 +50,7 @@ jobs:
           npm run test
 
   test-workspace:
+    timeout-minutes: 90
     name: Test workspace
     runs-on: ubuntu-latest
     steps:
@@ -66,13 +68,14 @@ jobs:
       - name: GraphQL codegen is in sync
         run: |
           pnpm codegen
-          git diff --exit-code -- exyconn-portal/server/src/graphql/generated packages/shell/src/graphql/generated \
+          git diff --exit-code -- exyconn-portal/server/src/graphql/generated packages/shell/src/graphql/generated packages/tracker-core/src/graphql/generated \
             || { echo "::error::Committed GraphQL codegen output is stale — run 'pnpm codegen' and commit the result."; exit 1; }
       - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --workspace-concurrency=2 run typecheck
       - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --workspace-concurrency=3 run lint
       - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --workspace-concurrency=1 run test
 
   build:
+    timeout-minutes: 40
     name: Build & push ${{ matrix.service }}
     needs: [test-tools, test-workspace]
     runs-on: ubuntu-latest
@@ -272,6 +275,7 @@ jobs:
           cache-to: type=gha,mode=max,scope=${{ matrix.service }}
 
   deploy:
+    timeout-minutes: 20
     name: Deploy to server
     needs: build
     runs-on: ubuntu-latest
@@ -333,6 +337,7 @@ jobs:
             docker image prune -f
 
   verify:
+    timeout-minutes: 15
     name: Verify 200 OK
     needs: deploy
     runs-on: ubuntu-latest
@@ -391,30 +396,10 @@ jobs:
           fi
           echo "Every service returned 200 OK."
 
-  tracker:
-    name: Build tracker installer (Windows)
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
-        with:
-          version: 9.15.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - name: Package Windows installer
-        run: pnpm --filter exyconn-tracker-app run package:win
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: exyconn-tracker-windows
-          path: exyconn-tracker-app/dist/*.exe
-          if-no-files-found: error
-
   notify:
+    timeout-minutes: 5
     name: Notify Slack
-    needs: [verify, tracker]
+    needs: [verify]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -422,7 +407,7 @@ jobs:
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
         run: |
-          status="${{ (needs.verify.result == 'success' && needs.tracker.result == 'success') && '✅ succeeded' || '❌ failed' }}"
+          status="${{ needs.verify.result == 'success' && '✅ succeeded' || '❌ failed' }}"
           curl -s -X POST -H 'Content-type: application/json' \
             --data "{\"text\":\"Exyconn deploy $status for commit ${{ github.sha }} on ${{ github.ref_name }}\"}" \
             "$SLACK_WEBHOOK"

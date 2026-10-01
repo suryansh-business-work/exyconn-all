@@ -3,9 +3,9 @@ Do not create a branch change only staging only
 # Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
 
 ## Tech Stack:
-mWeb & Portals: MUI (Material UI)
-Native Apps: Tamagui
-Website: Astro (Highest PriEority)
+Portals (exyconn-portal/apps/*, packages/shell, packages/ui) and the desktop tracker (exyconn-tracker-app, Electron): MUI (Material UI)
+Phone tracker (exyconn-tracker-mobile, Expo): Tamagui
+Website (exyconn-website): Astro (Highest Priority)
 
 ## Forms & Validation:
 React Hook Form + Zod for form handling and validation.
@@ -75,7 +75,7 @@ These guidelines are working if: fewer unnecessary changes in diffs, fewer rewri
    - Use constants only for reusable configuration, not business data.
 
 3. Form Validation:
-   - Use YUP for all form validations.
+   - Use Zod (with React Hook Form) for all form validations. Yup and Formik are not used in this repo.
    - Ensure proper schema-based validation.
    - Cover:
      - Required fields
@@ -102,26 +102,33 @@ These guidelines are working if: fewer unnecessary changes in diffs, fewer rewri
    - Maintain consistent folder structure.
 
 8. Check linting, build, and formatting, then push the code. Ensure that all GitHub CI checks are green and that everything is up and running:
-<https://duncit.com>
-<https://server.duncit.com/>
-<https://admin.duncit.com/>
-<https://mweb.duncit.com/>
-<https://partners.duncit.com/>
-<https://partners-app.duncit.com/>
-<https://ads.duncit.com/>
-<https://crm.duncit.com/>
-<https://finance.duncit.com/>
-<https://tech.duncit.com/>
-<https://support.duncit.com/>
-<https://website.duncit.com/>
-<https://legal.duncit.com/>
-<https://ai.duncit.com/>
-<https://products.duncit.com/>
-<https://marketing.duncit.com/>
+<https://exyconn.com>
+<https://portal-server.exyconn.com/health>
+<https://portal.exyconn.com>
+<https://admin.exyconn.com>
+<https://employee.exyconn.com>
+<https://hr.exyconn.com>
+<https://finance.exyconn.com>
+<https://support.exyconn.com>
+<https://crm.exyconn.com>
+<https://products.exyconn.com>
+<https://legal.exyconn.com>
+<https://tech.exyconn.com>
+<https://it.exyconn.com>
+<https://compliance.exyconn.com>
+<https://social.exyconn.com>
+<https://status.exyconn.com>
+<https://marketing.exyconn.com>
+<https://projects.exyconn.com>
+<https://ai.exyconn.com>
+<https://website.exyconn.com>
+<https://tracker.exyconn.com>
+<https://tools.exyconn.com>
+<https://tools-api.exyconn.com/health>
 
 9. Any .tsx file should not exceed 200 lines. If a file grows beyond 200 lines, create a folder with the same component name and refactor it into multiple smaller components/modules inside that folder using an index-based structure. Ensure the refactor introduces no breaking changes and preserves all existing functionality, imports, exports, and behavior.
 
-10. Before creating any form, first create a dedicated folder with the form name. Inside it, keep these 4 files: (form-name).form.tsx for the form implementation using React hook form + Zod with proper hints, validations, and error handling, (form-name).form.cy.tsx for Cypress test cases covering validations and user flows, (form-name).types.tsx for codegen-based shared/common types, and index.tsx to export all required components, types, and utilities from a single entry point. this should be follow in mWeb and Admin both. strictlly use MUI only no HTML Componentss for date and time use MUIX Core date and time. this is for Mobile app and mWeb and Portal migrate from Formik & Yup to React hook form + Zod
+10. Before creating any form, first create a dedicated folder with the form name. Inside it, keep these 4 files: (form-name).form.tsx for the form implementation using React hook form + Zod with proper hints, validations, and error handling, (form-name).form.cy.tsx for Cypress test cases covering validations and user flows, (form-name).types.tsx for codegen-based shared/common types, and index.tsx to export all required components, types, and utilities from a single entry point. This applies to every portal app and to packages/shell. Strictly use MUI only, no raw HTML form components; for date and time use MUI X date and time pickers. The portals and both tracker apps use React Hook Form + Zod; nothing here uses Formik or Yup.
 
 11. For Date and time use Data FNS and make sure it should be sync based on setting in admin panel. For date and time input use MUIX Core date and time pickers. Always ensure that the date and time are displayed in the user's local timezone and format, which can be configured in the admin panel. Avoid hardcoding any date or time formats; instead, use dynamic formatting based on user settings.
 
@@ -129,7 +136,7 @@ These guidelines are working if: fewer unnecessary changes in diffs, fewer rewri
 
 13. Use GraphQL and GraphQL Code Generator for all API interactions. Ensure that all queries and mutations are properly typed and that the generated code is used throughout the project for type safety and consistency.
 
-14. After completing all changes, make sure to verify the build, check types, run lint checks, apply code formatting, and only then push the code to the repository. Ensure that all GitHub CI checks pass successfully and that the application is fully functional across all environments (<https://duncit.com>, <https://server.duncit.com/>, <https://admin.duncit.com/>, <https://mweb.duncit.com/>, <https://partners.duncit.com/>, <https://partners-app.duncit.com/>, <https://ads.duncit.com/>, <https://crm.duncit.com/>, <https://finance.duncit.com/>, <https://tech.duncit.com/>, <https://support.duncit.com/>, <https://website.duncit.com/>, <https://legal.duncit.com/>, <https://ai.duncit.com/>, <https://products.duncit.com/>, <https://marketing.duncit.com/>).
+14. After completing all changes, make sure to verify the build, check types, run lint checks, apply code formatting, and only then push the code to the repository. Ensure that all GitHub CI checks pass successfully and that the application is fully functional across every domain listed under rule 8 (the deploy workflow's verify job checks the same list).
 
 15. Performance, Security, Accessbility, SEO, Best Practices, Code Quality, Scalability, and Maintainability should be the top priority while writing code. Always follow industry best practices and guidelines to ensure that the codebase remains robust, secure, and maintainable in the long run. Regularly review and refactor code to improve performance, enhance security, and ensure accessibility compliance.
 
@@ -202,16 +209,16 @@ These guidelines are working if: fewer unnecessary changes in diffs, fewer rewri
 - Prefer extracting a cohesive JSX block into a __hoisted, module-scope sub-component__ (e.g. a card/button/list) or a long branch into a named helper with early-return guards. Never define the component inside the parent (S6478). Mark every extracted prop type `Readonly<…>` (S6759).
 - A deeply-nested ternary chain (`a ? : b ? : c ? : d`) costs more than the same logic as a sub-component using `if`/early-returns — pull the leaf branches out, or move a single inline `?:` into a top-level `const` so it sits at nesting 0.
 - For a flagged value used in a JSX prop (e.g. `onDownloadTicket={podId ? … : undefined}`), hoist it to a `const` above the `return` — that drops its nesting increment without changing behavior.
-- DO NOT duplicate a shared conditional value (like `const ink = mine ? '$onPrimary' : '$color'`) into multiple conditionally-rendered children: in a 100%-coverage package (duncit-mobile-app, threshold 100/100/100/100) that creates a new branch that only executes in the child's render path, so a test that exercises the value on only one side leaves it uncovered. Compute it __once in the parent__ and pass it as a prop (extract the repeated union into a `type` alias, S4323).
-- After any mobile-app refactor run `npm run typecheck`, `npm run lint` (zero-warning gate, `lint:fix` auto-formats prettier) AND `npm run test:coverage` — a green typecheck is not enough; the branch threshold catches coverage regressions from extracted components.
+- DO NOT duplicate a shared conditional value (like `const ink = mine ? '$onPrimary' : '$color'`) into multiple conditionally-rendered children: in a 100%-coverage package (exyconn-tracker-mobile, threshold 100/100/100/100) that creates a new branch that only executes in the child's render path, so a test that exercises the value on only one side leaves it uncovered. Compute it __once in the parent__ and pass it as a prop (extract the repeated union into a `type` alias, S4323).
+- After any tracker refactor run that package's `typecheck`, `lint` (zero-warning gate) AND `test` with coverage — a green typecheck is not enough; the branch threshold catches coverage regressions from extracted components.
 
-27.Most important point mWeb and Mobile App need to be absolute identical
-28. Do Not create mjml File in Local inside tech portal there is the option of /email-templates Usi se sabhi maintain karana hai
-29. Use MUI for mWeb & Portal components and for Native Web and Native App use Tamagui components
-30. Is mWeb, Native App, Portal, Native web use React Hooks Form and Zod
-31. No UTF Icons For Native Icons use @expo/vector-icons and mWeb & Portals me @mui/icons-material Icon ka use karo
-32. Branching & deployment flow (ENFORCED): NEVER push directly to `main`/`master` — a husky pre-push hook blocks it (emergency bypass: ALLOW_MAIN_PUSH=1). All changes go feature-branch -> `staging` branch first. Pushing `staging` deploys the full replica stack to https://staging.<sub>.duncit.com (same VPS, /opt/duncit-staging, host ports = production + 100, images tagged :staging with staging URLs baked in, separate Mongo database `duncit-staging`). After verifying on staging, open a PR `staging` -> `main`; merging deploys production. PR base for feature work is `staging`, not `main`.
-33. App versioning (ENFORCED): a single app version lives in app/mobile-app/app.json (expo.version) mirrored to app/mobile-app/package.json + app/mweb/package.json (keep all three equal). The husky pre-commit hook asks major/minor/patch on EVERY commit (no skip; interactive via /dev/tty, else $VERSION_BUMP env, else patch) and runs scripts/bump-version.mjs to bump all three. The deploy workflow passes app.json's version as APP_VERSION into server.env; the server upserts it into the DB (branding.app_latest_version) on boot, exposed via the public `appVersionInfo { latest_version android_store_url ios_store_url }` query. The mobile app force-update gate blocks (Play Store) when its baked-in version < DB latest_version. Version is shown on both login screens + both sidebars. pre-commit no longer runs typecheck/tests (CI does). CAVEAT: since the DB version bumps every push but the Play Store build publishes separately, only bump toward a release you will actually publish, or the gate can block users before the new build is live.
+27. Most important point: the desktop tracker (exyconn-tracker-app) and the phone tracker (exyconn-tracker-mobile) must behave identically. Everything not tied to a platform lives in packages/tracker-core and is shared by both.
+28. Do not create MJML files locally. Email templates are records seeded by the server (`ensureEmailDefaults`) and edited in the portal; maintain them there.
+29. Use MUI (via @exyconn/ui) for portal and desktop-tracker components; the phone tracker uses Tamagui components.
+30. Portals, desktop tracker and phone tracker all use React Hook Form and Zod.
+31. No UTF icons. Phone tracker icons come from @expo/vector-icons; portals and the desktop tracker use @mui/icons-material.
+32. Branching & deployment flow: two long-lived branches only. Every change is pushed to `staging` (never a feature branch, never `main`); `ci.yml` runs on it and `build.yml` sends it to SonarQube. There is no staging deployment. When CI is green, open a PR `staging` -> `main`; merging runs `deploy.yml`, which tests again, builds every image, rolls the server at /opt/exyconn and health-checks every domain in rule 8.
+33. Tracker versioning (ENFORCED): one version lives in exyconn-tracker-app/package.json and is mirrored into exyconn-tracker-mobile/package.json by scripts/bump-version.mjs; CI's `check-tracker-versions.mjs` fails the run if they drift. The `.githooks/pre-commit` hook asks major/minor/patch on every commit (interactive via /dev/tty, else $VERSION_BUMP, else patch; `s` skips; rebases and merges are not bumped) and stages the bump into the commit. The root package version describes the repository, not a shipped artifact, and is not bumped. Tracker binaries are built only by `tracker-release.yml` (on a push to `main` touching the tracker, or from Tech > Tracker Build), which tags the release `tracker-v<version>`; electron-updater compares against that number, so a release without a bump is one no installed tracker will notice.
 34. No Duplicate Code Deep think on the same use common module generic jo multiple place me use ho sake, Create Common Utils, Common Packages, Shared File etc
 35. SonarQube Coding Standards — write clean the first time
 
@@ -265,4 +272,4 @@ Sonar rules that keep failing here (rule id in brackets). **Get them right up fr
 
 ### Before you finish
 - Typecheck the workspace you touched (`pnpm --filter <name> exec tsc -b --noEmit`, or `tsc --noEmit -p tsconfig.json` for server) and run its tests. Don't introduce a new Sonar issue to fix an old one.
-- `portals/crm/open-wa-server/**` is vendored third-party — don't apply these standards there.
+- Generated code (`**/graphql/generated/**`) is committed exactly as codegen emits it — never format it, and always run the ROOT `pnpm codegen` (it regenerates server, shell and tracker-core together).

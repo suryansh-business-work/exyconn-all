@@ -1,0 +1,5 @@
+# GraphQL codegen output is committed exactly as emitted: CI regenerates it and fails on any
+# diff, so a prettier pass over these directories reads as "codegen is stale".
+exyconn-portal/server/src/graphql/generated
+packages/shell/src/graphql/generated
+packages/tracker-core/src/graphql/generated

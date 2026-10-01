@@ -1,9 +1,11 @@
 import { randomUUID } from 'node:crypto';
-import { hrResolvers } from '../../src/modules/hr';
+import { Types } from 'mongoose';
+import { backfillPositionDefaults, hrResolvers } from '../../src/modules/hr';
 import { PositionModel } from '../../src/modules/hr/position.model';
 import { UserModel } from '../../src/modules/admin/user.model';
 import { ROLES } from '../../src/constants/roles';
 import { seedUser, useTestOrganization } from '../helpers';
+import { currentOrganizationId } from '../../src/lib/tenant';
 import type { GraphQLContext } from '../../src/middleware/auth';
 
 useTestOrganization();
@@ -69,5 +71,20 @@ describe('departments and their positions', () => {
     await expect(call('deleteDepartment', { id: dept.id })).rejects.toThrow(
       'Move or delete the positions',
     );
+  });
+
+  it('gives a position stored before the salary band its non-null fields', async () => {
+    // Written straight to the collection, as those positions were: no band, headcount or flag.
+    await PositionModel.collection.insertOne({
+      organizationId: new Types.ObjectId(currentOrganizationId() ?? undefined),
+      name: 'Designer',
+      department: 'Design',
+      description: null,
+    });
+
+    await backfillPositionDefaults();
+
+    const [row] = await hrResolvers.Department.positions({ name: 'Design' });
+    expect(row).toMatchObject({ minSalary: 0, maxSalary: 0, headcount: 1, active: true });
   });
 });

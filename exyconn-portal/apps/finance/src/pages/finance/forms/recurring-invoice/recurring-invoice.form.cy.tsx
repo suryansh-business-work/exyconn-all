@@ -28,10 +28,7 @@ describe('RecurringInvoiceForm', () => {
     cy.contains('Start date is required').should('be.visible');
   });
 
-  // SKIP: InvoiceLinesFields never renders the array-level `lines` error, so the schema's
-  // 'Add at least one line' message cannot reach the screen. Server-enforced in
-  // finance.recurring.ts; un-skip once the fields component renders the root error.
-  it.skip('refuses a retainer with nothing on it — it would bill nothing, every period, silently', () => {
+  it('refuses a retainer with nothing on it — it would bill nothing, every period, silently', () => {
     mount();
     cy.contains('button', 'Create').click();
     cy.contains('Add at least one line').should('be.visible');

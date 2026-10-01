@@ -23,10 +23,7 @@ describe('PurchaseOrderForm', () => {
     cy.contains('Order date is required').should('be.visible');
   });
 
-  // SKIP: PurchaseOrderLinesFields never renders the array-level `lines` error, so the
-  // schema's 'Add at least one line' message cannot reach the screen. Server-enforced in
-  // products.purchasing.ts; un-skip once the fields component renders the root error.
-  it.skip('refuses an order for nothing — it could never be received', () => {
+  it('refuses an order for nothing — it could never be received', () => {
     mount();
     cy.contains('button', 'Create').click();
     cy.contains('Add at least one line').should('be.visible');

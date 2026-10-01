@@ -1,3 +1,4 @@
+import { Query as MongooseQuery } from 'mongoose';
 import { DateTimeResolver } from 'graphql-scalars';
 import { baseTypeDefs } from './base.typeDefs';
 import { authTypeDefs } from '../modules/auth/auth.typeDefs';
@@ -119,22 +120,46 @@ import { logsTypeDefs, logsResolvers } from '../modules/logs';
 import { JSONScalar } from './jsonScalar';
 
 type ResolverGroup = Record<string, Record<string, unknown> | undefined>;
+type Resolver = (...args: unknown[]) => unknown;
+
+/**
+ * Runs a Mongoose query a resolver handed back instead of a result.
+ *
+ * A query is a thenable that executes on its first `.then()`, and the executor subscribes to
+ * a field's value twice, so the second subscription is refused with "Query was already
+ * executed" — which production reports only as "Something went wrong", for the whole
+ * response. That took the HR Departments page down twice; here it cannot recur, whichever
+ * module forgets the `await`.
+ */
+function settled(resolver: unknown): unknown {
+  if (typeof resolver !== 'function') {
+    return resolver;
+  }
+  return (...args: unknown[]) => {
+    const result = (resolver as Resolver)(...args);
+    return result instanceof MongooseQuery ? result.exec() : result;
+  };
+}
+
+function settledFields(fields: Record<string, unknown>): Record<string, unknown> {
+  return Object.fromEntries(Object.entries(fields).map(([name, fn]) => [name, settled(fn)]));
+}
 
 /**
  * Merges every module's resolver group. Query and Mutation are flattened
  * together; any other key is a type resolver map (computed fields), merged per
  * type so two modules can both contribute fields to the same type.
  */
-function mergeResolvers(groups: ResolverGroup[]) {
+export function mergeResolvers(groups: ResolverGroup[]) {
   const Query: Record<string, unknown> = {};
   const Mutation: Record<string, unknown> = {};
   const types: Record<string, Record<string, unknown>> = {};
   for (const group of groups) {
-    Object.assign(Query, group.Query ?? {});
-    Object.assign(Mutation, group.Mutation ?? {});
+    Object.assign(Query, settledFields(group.Query ?? {}));
+    Object.assign(Mutation, settledFields(group.Mutation ?? {}));
     for (const [name, fields] of Object.entries(group)) {
       if (name === 'Query' || name === 'Mutation' || !fields) continue;
-      types[name] = { ...types[name], ...fields };
+      types[name] = { ...types[name], ...settledFields(fields) };
     }
   }
   return { DateTime: DateTimeResolver, JSON: JSONScalar, Query, Mutation, ...types };

@@ -39,7 +39,10 @@ Thumbs.db
 
 # electron-builder output (the installer is a release artifact, not source)
 exyconn-tracker-app/dist/
+# Written by every Cypress run; CI uploads them from the runner, so nothing reads a committed copy.
 **/cypress/a11y/
+**/cypress/screenshots/
+**/cypress/videos/
 
 # CI quality reports (.github/scripts/pr-reports)
 /reports/
