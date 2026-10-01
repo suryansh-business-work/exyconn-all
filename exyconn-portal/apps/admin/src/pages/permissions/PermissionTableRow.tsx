@@ -12,6 +12,7 @@ import {
 import { ACTIONS, rowStatus } from './permissions.logic';
 import type { PermissionDraft } from './usePermissionDraft';
 import { actionLabel } from './actionLabel';
+import { indeterminateInput } from './indeterminateInput';
 
 const STATUS_COLOR = { Unsaved: 'info', Restricted: 'warning', Default: 'default' } as const;
 
@@ -62,6 +63,7 @@ export function PermissionTableRow({
             onChange={() => draft.toggleCell(module, action)}
             slotProps={{
               input: {
+                ref: indeterminateInput(row === 'some'),
                 'aria-label': t('{action} in {module}', { action: t(actionLabel(action)), module }),
               },
             }}

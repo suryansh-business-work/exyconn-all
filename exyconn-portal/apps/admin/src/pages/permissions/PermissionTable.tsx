@@ -13,6 +13,7 @@ import { ACTIONS } from './permissions.logic';
 import type { PermissionDraft } from './usePermissionDraft';
 import { PermissionTableRow } from './PermissionTableRow';
 import { actionLabel } from './actionLabel';
+import { indeterminateInput } from './indeterminateInput';
 
 interface PermissionTableProps {
   role: string;
@@ -68,6 +69,7 @@ export function PermissionTable({
                       onChange={() => draft.toggleColumn(action)}
                       slotProps={{
                         input: {
+                          ref: indeterminateInput(state === 'some'),
                           'aria-label': t('{action} in every module', {
                             action: t(actionLabel(action)),
                           }),

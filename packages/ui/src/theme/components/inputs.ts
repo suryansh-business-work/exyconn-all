@@ -117,6 +117,15 @@ function fields({ mode, t }: ThemeParts): ComponentGroup {
         },
       },
     },
+    // A disabled field's label and helper text are still read — "Your sign-in address. Ask an
+    // administrator to change it." is the whole point of the field — and MUI's disabled ink
+    // is ~2.4:1. The control itself is exempt from SC 1.4.3; the sentence beside it is not.
+    MuiFormHelperText: {
+      styleOverrides: { root: { '&.Mui-disabled': { color: t.text.secondary } } },
+    },
+    MuiInputLabel: {
+      styleOverrides: { root: { '&.Mui-disabled': { color: t.text.secondary } } },
+    },
     MuiAutocomplete: {
       styleOverrides: {
         paper: {
