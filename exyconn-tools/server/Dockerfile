@@ -11,6 +11,11 @@
 FROM node:22-slim AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
+# onnxruntime-node's install script downloads a CUDA bundle from the ONNX Runtime GitHub
+# release on linux/x64, which is both the slowest and the least reliable part of this build.
+# No host that runs this image has an NVIDIA GPU, so the CUDA execution provider could never
+# be used; onnxruntime falls back to the CPU build bundled in the package.
+ENV npm_config_onnxruntime_node_install_cuda=skip
 RUN npm ci --legacy-peer-deps --include=optional
 
 # Stage 2: Builder
