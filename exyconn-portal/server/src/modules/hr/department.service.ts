@@ -3,6 +3,7 @@ import { DepartmentModel } from './department.model';
 import { PositionModel } from './position.model';
 import { UserModel } from '../admin/user.model';
 import { badRequest } from '../../utils/errors';
+import { withIds } from '../../utils/serialize';
 
 export interface SalaryBand {
   minSalary?: number | null;
@@ -16,9 +17,15 @@ export function assertSalaryBand({ minSalary, maxSalary }: SalaryBand): void {
   }
 }
 
-/** A department's positions, by name. */
-export function positionsOf(department: string) {
-  return PositionModel.find({ department }).sort({ name: 1 }).lean();
+/**
+ * A department's positions, by name, ready for GraphQL.
+ *
+ * Awaited here rather than returned as a query: a Mongoose query is a thenable that runs on
+ * the first `.then()`, and the executor subscribes to a field's result twice, which the query
+ * refuses with "Query was already executed".
+ */
+export async function positionsOf(department: string) {
+  return withIds(await PositionModel.find({ department }).sort({ name: 1 }).lean());
 }
 
 /** The department head's name for display; null when nobody is set. */
@@ -29,7 +36,7 @@ export async function headNameOf(headId?: string | null): Promise<string | null>
 }
 
 /** Active people holding a position, which is what its headcount is measured against. */
-export function filledCount(position: { name: string; department: string }): Promise<number> {
+export async function filledCount(position: { name: string; department: string }): Promise<number> {
   return UserModel.countDocuments({
     isActive: true,
     department: position.department,

@@ -209,6 +209,21 @@ describe('publishing and versions', () => {
     expect(after).toBe(0);
   });
 
+  /**
+   * The executor subscribes to a field's result twice, so the count has to be a settled
+   * promise: a Mongoose query refuses the second with "Query was already executed".
+   */
+  it('counts signatures from a result that can be read twice', async () => {
+    const policy = await seedPolicy();
+    const counted = policyResolvers.Policy.acknowledgedCount({
+      id: String(policy._id),
+      version: 1,
+    });
+
+    expect(await counted).toBe(0);
+    expect(await counted).toBe(0);
+  });
+
   it('takes an archived policy out of everyone’s list', async () => {
     const policy = await seedPolicy();
     const { ctx } = await makeStaff();
