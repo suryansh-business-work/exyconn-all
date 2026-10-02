@@ -18,7 +18,11 @@ import {
 
 /** Employment Types — server-paged admin grid over the employment type records. */
 export function EmploymentTypesPage() {
-  const { data: statsData, refetch: refetchStats } = useListEmploymentTypesStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListEmploymentTypesStatsQuery();
   const [deleteEmploymentType] = useDeleteEmploymentTypeMutation();
   const { formatDate } = useSettings();
 
@@ -61,6 +65,7 @@ export function EmploymentTypesPage() {
       subtitle="Full-time, contract, intern and so on"
       entityLabel="employment type"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <EmploymentTypeForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

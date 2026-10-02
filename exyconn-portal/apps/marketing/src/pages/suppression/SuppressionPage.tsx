@@ -23,7 +23,11 @@ import {
  * way — there is no "re-subscribe" button that could be pressed by accident.
  */
 export function SuppressionPage() {
-  const { data: statsData, refetch: refetchStats } = useListMarketingSuppressionsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListMarketingSuppressionsStatsQuery();
   const [deleteSuppression] = useDeleteMarketingSuppressionMutation();
   const { formatDate } = useSettings();
   const crud = useCrudResource<SuppressionRow, PagedSuppressionRow>({
@@ -74,6 +78,7 @@ export function SuppressionPage() {
       entityLabel="address"
       actionLabel="Add address"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <SuppressionForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

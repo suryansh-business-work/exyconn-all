@@ -19,7 +19,11 @@ import { CLOUD_COLUMNS, type CloudGridContext, type PagedCloudResourceRow } from
  */
 export function CloudPage() {
   const { formatDate, formatCurrency } = useSettings();
-  const { data: statsData, refetch: refetchStats } = useListItCloudResourcesStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListItCloudResourcesStatsQuery();
   const [remove] = useDeleteItCloudResourceMutation();
   const crud = useCrudResource<CloudResourceRow, PagedCloudResourceRow>({
     label: 'Cloud resource',
@@ -65,6 +69,7 @@ export function CloudPage() {
       exportFileName="cloud-resources"
       permissionModule="ItCloudResource"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <CloudResourceForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

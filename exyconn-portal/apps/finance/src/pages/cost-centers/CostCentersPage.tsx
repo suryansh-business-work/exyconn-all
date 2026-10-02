@@ -22,7 +22,11 @@ import {
  * no row for, and closing a department must not orphan years of spend booked to it.
  */
 export function CostCentersPage() {
-  const { data: statsData, refetch: refetchStats } = useListCostCentersStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListCostCentersStatsQuery();
   const [deleteCostCenter] = useDeleteCostCenterMutation();
 
   const crud = useCrudResource<CostCenterRow, PagedCostCenterRow>({
@@ -66,6 +70,7 @@ export function CostCentersPage() {
       entityLabel="cost centre"
       exportFileName="cost-centres"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <CostCenterForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

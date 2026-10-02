@@ -9,6 +9,7 @@ import { formatBytes } from '@exyconn/shell/utils/file';
 import { useInfrastructureOverviewQuery } from '@exyconn/shell/graphql/generated';
 import { InfraDetailCard } from './InfraDetailCard';
 import { formatDuration } from './infrastructure.format';
+import { BACKGROUND_REQUEST } from '@exyconn/shell/config/networkActivity';
 
 /** Refresh cadence for the live host figures, in milliseconds. */
 const POLL_MS = 30_000;
@@ -22,6 +23,7 @@ export function HostPanel() {
   const { data, loading, error } = useInfrastructureOverviewQuery({
     fetchPolicy: 'cache-and-network',
     pollInterval: POLL_MS,
+    context: BACKGROUND_REQUEST,
   });
 
   if (error) {

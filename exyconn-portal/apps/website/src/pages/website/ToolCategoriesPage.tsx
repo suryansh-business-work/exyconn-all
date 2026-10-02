@@ -67,6 +67,7 @@ export function ToolCategoriesPage() {
       actionLabel="New category"
       onAction={crud.openCreate}
       stats={stats}
+      statsLoading={!data && loading}
     >
       <DataTable
         columns={columns}

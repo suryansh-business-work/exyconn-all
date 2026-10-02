@@ -24,7 +24,11 @@ export function IncidentsPage() {
   const { formatDate } = useSettings();
   const [viewing, setViewing] = useState<PagedIncidentRow | null>(null);
   const [reload] = useGetItIncidentLazyQuery({ fetchPolicy: 'network-only' });
-  const { data: statsData, refetch: refetchStats } = useListItIncidentsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListItIncidentsStatsQuery();
   const [remove] = useDeleteItIncidentMutation();
   const crud = useCrudResource<IncidentRow, PagedIncidentRow>({
     label: 'Incident',
@@ -82,6 +86,7 @@ export function IncidentsPage() {
       exportFileName="incidents"
       permissionModule="ItIncident"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <IncidentForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

@@ -39,7 +39,8 @@ export function FormActions({ submitting, isEdit, onCancel, submitLabel }: FormA
       <Button
         type="submit"
         variant="contained"
-        disabled={submitting}
+        loading={submitting}
+        loadingPosition="start"
         sx={{ width: { xs: '100%', sm: 'auto' } }}
       >
         {submitting ? t('Saving…') : label}

@@ -19,7 +19,11 @@ import {
 
 /** Employee Documents — server-paged admin grid over the document records. */
 export function DocumentsPage() {
-  const { data: statsData, refetch: refetchStats } = useListEmployeeDocumentsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListEmployeeDocumentsStatsQuery();
   const [deleteEmployeeDocument] = useDeleteEmployeeDocumentMutation();
   const { formatDate } = useSettings();
   const nameOf = useEmployeeNames();
@@ -60,6 +64,7 @@ export function DocumentsPage() {
       subtitle="Letters, tax and policy documents"
       entityLabel="document"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <EmployeeDocumentForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

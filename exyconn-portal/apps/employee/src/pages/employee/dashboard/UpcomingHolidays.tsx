@@ -2,21 +2,28 @@ import { format } from 'date-fns';
 import { useT } from '@exyconn/i18n';
 import { Box, Text, Heading, Flex } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 import CelebrationIcon from '@mui/icons-material/Celebration';
 import type { HolidayRecord } from './dashboard.selectors';
 
 interface UpcomingHolidaysProps {
   holidays: HolidayRecord[];
   formatDate: (value: string) => string;
+  loading?: boolean;
 }
 
 /** Next few company holidays, soonest first. */
-export function UpcomingHolidays({ holidays, formatDate }: Readonly<UpcomingHolidaysProps>) {
+export function UpcomingHolidays({
+  holidays,
+  formatDate,
+  loading = false,
+}: Readonly<UpcomingHolidaysProps>) {
   const t = useT();
   return (
     <Box sx={[panel, { height: '100%' }]}>
       <Heading level={6}>{t('Upcoming holidays')}</Heading>
-      {holidays.length === 0 && (
+      {loading && <LoadingState />}
+      {!loading && holidays.length === 0 && (
         <Text size="sm" color="text.secondary">
           {t('No holidays scheduled ahead.')}
         </Text>

@@ -7,6 +7,7 @@ import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { useDockerContainersQuery } from '@exyconn/shell/graphql/generated';
 import { ContainerDetailDialog } from './ContainerDetailDialog';
 import { formatPort } from './infrastructure.format';
+import { BACKGROUND_REQUEST } from '@exyconn/shell/config/networkActivity';
 
 /** How often the container list re-reads the engine, in milliseconds. */
 const POLL_MS = 15_000;
@@ -50,6 +51,7 @@ export function ContainersPanel() {
   const { data, loading, error, refetch, networkStatus } = useDockerContainersQuery({
     fetchPolicy: 'cache-and-network',
     pollInterval: POLL_MS,
+    context: BACKGROUND_REQUEST,
   });
   const [selected, setSelected] = useState<ContainerRow | null>(null);
 

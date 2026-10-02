@@ -33,7 +33,8 @@ export function PayrollSlipsTable({ month, year, refreshKey }: Readonly<PayrollS
   const client = useApolloClient();
   const { download } = usePayslipDownload();
   const [rows, setRows] = useState<Slip[]>([]);
-  const [loading, setLoading] = useState(false);
+  // Starts true: the effect loads on mount, so the first paint is already waiting on it.
+  const [loading, setLoading] = useState(true);
 
   /** Loads the month's slips; `isCancelled` stops a superseded load from writing state. */
   const loadSlips = useCallback(

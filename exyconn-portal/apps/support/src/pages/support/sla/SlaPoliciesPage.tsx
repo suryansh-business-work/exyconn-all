@@ -23,7 +23,11 @@ import {
  * were given, which is the only way a promise made to somebody stays the one they were told.
  */
 export function SlaPoliciesPage() {
-  const { data: statsData, refetch: refetchStats } = useListSupportSlaPoliciesStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListSupportSlaPoliciesStatsQuery();
   const { data: slaData } = useSupportSlaSummaryQuery({ fetchPolicy: 'cache-and-network' });
   const [deletePolicy] = useDeleteSupportSlaPolicyMutation();
 
@@ -66,6 +70,7 @@ export function SlaPoliciesPage() {
       subtitle="What support promises for each priority"
       entityLabel="policy"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <SlaPolicyForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

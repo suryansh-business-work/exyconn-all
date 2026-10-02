@@ -14,7 +14,11 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Teams — server-paged admin grid over the team records. */
 export function TeamsPage() {
-  const { data: statsData, refetch: refetchStats } = useListTeamsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListTeamsStatsQuery();
   const [deleteTeam] = useDeleteTeamMutation();
   const { formatDate } = useSettings();
 
@@ -57,6 +61,7 @@ export function TeamsPage() {
       subtitle="Teams inside each department"
       entityLabel="team"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <TeamForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

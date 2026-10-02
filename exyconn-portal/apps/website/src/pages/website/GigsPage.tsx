@@ -14,7 +14,7 @@ import { color } from '@exyconn/shell/components/ui';
 /** Website CMS — freelance gigs published on the public site (server-side grid). */
 export function GigsPage() {
   // Stat cards still summarise all gigs; the grid itself is server-paged.
-  const { data } = useListGigsQuery();
+  const { data, loading } = useListGigsQuery();
   const [deleteGig] = useDeleteGigMutation();
   const { formatDate } = useSettings();
   const crud = useCrudResource<GigRow, PagedGigRow>({
@@ -56,6 +56,7 @@ export function GigsPage() {
       subtitle="Freelance gigs on the public site"
       entityLabel="gig"
       stats={stats}
+      statsLoading={!data && loading}
       crud={crud}
       renderForm={(initial) => (
         <GigForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

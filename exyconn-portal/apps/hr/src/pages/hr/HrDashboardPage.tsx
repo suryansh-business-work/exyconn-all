@@ -1,33 +1,8 @@
-import { useMemo } from 'react';
 import { Box, Grid } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { StatCard } from '@exyconn/shell/components/dashboard/StatCard';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
-import { upcomingHolidays } from '@exyconn/shell/utils/upcomingHolidays';
-import {
-  useHrDashboardQuery,
-  useListUsersQuery,
-  useListAttendanceQuery,
-  useListLeaveRequestsQuery,
-  useListHolidaysQuery,
-  useListEmployeeRequestsStatsQuery,
-  useListGoalsStatsQuery,
-  useListPerformanceReviewsStatsQuery,
-  useListExitRecordsStatsQuery,
-  useActiveAnnouncementsQuery,
-  useProbationsEndingQuery,
-} from '@exyconn/shell/graphql/generated';
-import {
-  todayAttendance,
-  pendingLeave,
-  newJoiners,
-  upcomingAnniversaries,
-  upcomingBirthdays,
-  type AttendanceRow,
-  type LeaveRow,
-  type UserRow,
-} from './dashboard/hrDashboard.selectors';
-import { buildHrTiles } from './dashboard/hrDashboard.tiles';
+import { useHrDashboardData } from './dashboard/useHrDashboardData';
 import { HrPendingLeave } from './dashboard/HrPendingLeave';
 import { HrUpcomingHolidays } from './dashboard/HrUpcomingHolidays';
 import { HrNewJoiners } from './dashboard/HrNewJoiners';
@@ -37,52 +12,11 @@ import { HrBirthdays } from './dashboard/HrBirthdays';
 import { HrProbations } from './dashboard/HrProbations';
 import { HrHeadcountChart } from './dashboard/HrHeadcountChart';
 
-const policy = { fetchPolicy: 'cache-and-network' } as const;
-
 /** HR Dashboard — the morning view: workforce, today, and everything waiting on HR. */
 export function HrDashboardPage() {
-  const { data, loading } = useHrDashboardQuery(policy);
-  const users = useListUsersQuery(policy);
-  const attendance = useListAttendanceQuery(policy);
-  const leave = useListLeaveRequestsQuery(policy);
-  const holidays = useListHolidaysQuery(policy);
-  const requests = useListEmployeeRequestsStatsQuery(policy);
-  const goals = useListGoalsStatsQuery(policy);
-  const reviews = useListPerformanceReviewsStatsQuery(policy);
-  const exits = useListExitRecordsStatsQuery(policy);
-  const announcements = useActiveAnnouncementsQuery(policy);
-  const probations = useProbationsEndingQuery(policy);
+  const { tiles, derived, headcount, headcountLoading, probationRows, announcementRows, loading } =
+    useHrDashboardData();
   const { formatDate } = useSettings();
-
-  const dash = data?.hrDashboard;
-  const headcount = dash?.headcount ?? [];
-
-  const derived = useMemo(() => {
-    const now = new Date();
-    const userRows = (users.data?.listUsers ?? []) as UserRow[];
-    return {
-      userRows,
-      joiners: newJoiners(userRows, now),
-      anniversaries: upcomingAnniversaries(userRows, now),
-      birthdays: upcomingBirthdays(userRows, now),
-      today: todayAttendance((attendance.data?.listAttendance ?? []) as AttendanceRow[], now),
-      pending: pendingLeave((leave.data?.listLeaveRequests ?? []) as LeaveRow[], userRows),
-      nextHolidays: upcomingHolidays(holidays.data?.listHolidays ?? [], now, 4),
-    };
-  }, [users.data, attendance.data, leave.data, holidays.data]);
-
-  const tiles = buildHrTiles({
-    totalEmployees: dash?.totalEmployees ?? derived.userRows.length,
-    activeEmployees: dash?.activeEmployees ?? 0,
-    onLeave: dash?.onLeave ?? 0,
-    newJoiners: derived.joiners.length,
-    today: derived.today,
-    pendingLeave: derived.pending.length,
-    requestStats: requests.data?.listEmployeeRequestsStats,
-    goalStats: goals.data?.listGoalsStats,
-    reviewStats: reviews.data?.listPerformanceReviewsStats,
-    exitStats: exits.data?.listExitRecordsStats,
-  });
 
   return (
     <Box>
@@ -99,7 +33,7 @@ export function HrDashboardPage() {
               lg: 2,
             }}
           >
-            <StatCard {...tile} />
+            <StatCard {...tile} loading={loading.tiles} />
           </Grid>
         ))}
       </Grid>
@@ -111,7 +45,11 @@ export function HrDashboardPage() {
             md: 4,
           }}
         >
-          <HrPendingLeave rows={derived.pending.slice(0, 6)} formatDate={formatDate} />
+          <HrPendingLeave
+            rows={derived.pending.slice(0, 6)}
+            formatDate={formatDate}
+            loading={loading.pendingLeave}
+          />
         </Grid>
         <Grid
           size={{
@@ -119,7 +57,11 @@ export function HrDashboardPage() {
             md: 4,
           }}
         >
-          <HrNewJoiners users={derived.joiners.slice(0, 6)} formatDate={formatDate} />
+          <HrNewJoiners
+            users={derived.joiners.slice(0, 6)}
+            formatDate={formatDate}
+            loading={loading.users}
+          />
         </Grid>
         <Grid
           size={{
@@ -127,7 +69,11 @@ export function HrDashboardPage() {
             md: 4,
           }}
         >
-          <HrUpcomingHolidays holidays={derived.nextHolidays} formatDate={formatDate} />
+          <HrUpcomingHolidays
+            holidays={derived.nextHolidays}
+            formatDate={formatDate}
+            loading={loading.holidays}
+          />
         </Grid>
       </Grid>
 
@@ -139,8 +85,9 @@ export function HrDashboardPage() {
           }}
         >
           <HrProbations
-            rows={(probations.data?.probationsEnding ?? []).slice(0, 6)}
+            rows={probationRows.slice(0, 6)}
             formatDate={formatDate}
+            loading={loading.probations}
           />
         </Grid>
       </Grid>
@@ -152,7 +99,7 @@ export function HrDashboardPage() {
             md: 7,
           }}
         >
-          <HrHeadcountChart points={headcount} loading={loading} />
+          <HrHeadcountChart points={headcount} loading={headcountLoading} />
         </Grid>
         <Grid
           size={{
@@ -163,8 +110,9 @@ export function HrDashboardPage() {
           <Grid container spacing={1.5}>
             <Grid size={12}>
               <HrAnnouncements
-                rows={(announcements.data?.activeAnnouncements ?? []).slice(0, 4)}
+                rows={announcementRows.slice(0, 4)}
                 formatDate={formatDate}
+                loading={loading.announcements}
               />
             </Grid>
             <Grid
@@ -177,6 +125,7 @@ export function HrDashboardPage() {
               <HrAnniversaries
                 anniversaries={derived.anniversaries.slice(0, 4)}
                 formatDate={(d) => formatDate(d.toISOString())}
+                loading={loading.users}
               />
             </Grid>
             <Grid
@@ -189,6 +138,7 @@ export function HrDashboardPage() {
               <HrBirthdays
                 birthdays={derived.birthdays.slice(0, 4)}
                 formatDate={(d) => formatDate(d.toISOString())}
+                loading={loading.users}
               />
             </Grid>
           </Grid>

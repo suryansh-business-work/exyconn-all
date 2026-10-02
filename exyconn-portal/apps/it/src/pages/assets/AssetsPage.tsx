@@ -15,7 +15,11 @@ import { color } from '@exyconn/shell/components/ui';
 /** IT module — the asset register, with a server-side grid over every item. */
 export function AssetsPage() {
   // Stat cards come from one server aggregation; the grid is server-paged separately.
-  const { data: statsData, refetch: refetchStats } = useListAssetsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListAssetsStatsQuery();
   const [deleteAsset] = useDeleteAssetMutation();
   const navigate = useNavigate();
   const crud = useCrudResource<AssetRow, PagedAssetRow>({
@@ -60,6 +64,7 @@ export function AssetsPage() {
       entityLabel="asset"
       exportFileName="assets"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <AssetForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

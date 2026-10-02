@@ -83,6 +83,7 @@ export function HrPage() {
       actionLabel="New request"
       onAction={crud.openCreate}
       stats={stats}
+      statsLoading={!data && loading}
     >
       <DataTable
         columns={columns}

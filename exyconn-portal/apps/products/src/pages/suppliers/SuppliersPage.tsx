@@ -17,7 +17,11 @@ import {
 
 /** Products → Suppliers: who stock is bought from. */
 export function SuppliersPage() {
-  const { data: statsData, refetch: refetchStats } = useListSuppliersStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListSuppliersStatsQuery();
   const [deleteSupplier] = useDeleteSupplierMutation();
   const crud = useCrudResource<SupplierRow, PagedSupplierRow>({
     label: 'Supplier',
@@ -61,6 +65,7 @@ export function SuppliersPage() {
       subtitle="Who stock is bought from"
       entityLabel="supplier"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <SupplierForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

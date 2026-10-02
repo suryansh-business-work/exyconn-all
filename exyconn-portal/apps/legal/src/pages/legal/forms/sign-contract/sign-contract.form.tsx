@@ -52,7 +52,12 @@ export function SignContractForm({ contract, onDone, onCancel }: Readonly<SignCo
         </Alert>
       )}
       <Flex direction="row" spacing={1}>
-        <Button variant="contained" onClick={onSign} disabled={loading || !contract.documentUrl}>
+        <Button
+          variant="contained"
+          onClick={onSign}
+          loading={loading}
+          disabled={!contract.documentUrl}
+        >
           {t('Sign')}
         </Button>
         <Button variant="text" onClick={onCancel}>

@@ -24,14 +24,18 @@ const OPEN_BUG_STATUSES = ['OPEN', 'IN_PROGRESS'];
  * the one four stat cards have never been able to answer.
  */
 export function ProjectsOverviewPage() {
-  const { data: projectStatsData } = useListProjectsStatsQuery();
-  const { data: bugStatsData } = useListBugsStatsQuery();
+  const { data: projectStatsData, loading: projectStatsLoading } = useListProjectsStatsQuery();
+  const { data: bugStatsData, loading: bugStatsLoading } = useListBugsStatsQuery();
   const {
     data: healthData,
     loading,
     refetch,
   } = useProjectHealthOverviewQuery({ fetchPolicy: 'cache-and-network' });
 
+  const statsLoading =
+    (!projectStatsData && projectStatsLoading) ||
+    (!bugStatsData && bugStatsLoading) ||
+    (!healthData && loading);
   const projectStats = projectStatsData?.listProjectsStats;
   const bugStats = bugStatsData?.listBugsStats;
 
@@ -78,6 +82,7 @@ export function ProjectsOverviewPage() {
       title="Projects"
       subtitle="Delivery at a glance"
       stats={statItems}
+      statsLoading={statsLoading}
       breakdowns={breakdowns}
       links={[
         { label: 'Open project register', to: '/projects/list' },

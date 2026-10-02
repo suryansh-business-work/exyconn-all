@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { apolloClient } from '@exyconn/shell/config/apolloClient';
 import { ColorModeProvider } from '@exyconn/shell/theme/ColorModeContext';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
+import { NetworkActivityBar } from '@exyconn/shell/components/feedback/NetworkActivityBar';
 import { StatusShell } from './components/StatusShell';
 import { StatusPage } from './pages/status';
 import { ReportPage } from './pages/report';
@@ -21,6 +22,7 @@ export function App() {
     <ApolloProvider client={apolloClient}>
       <ColorModeProvider>
         <NotificationProvider>
+          <NetworkActivityBar />
           <BrowserRouter>
             <StatusShell>
               <Routes>

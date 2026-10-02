@@ -36,7 +36,11 @@ interface AccessPageProps {
 export function AccessPage({ onlyKind, title, subtitle, entityLabel }: Readonly<AccessPageProps>) {
   const { formatDate } = useSettings();
   const [deciding, setDeciding] = useState<PagedAccessRequestRow | null>(null);
-  const { data: statsData, refetch: refetchStats } = useListItAccessRequestsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListItAccessRequestsStatsQuery();
   const [remove] = useDeleteItAccessRequestMutation();
   const [decide] = useDecideItAccessRequestMutation();
   const [fulfil] = useFulfilItAccessRequestMutation();
@@ -103,6 +107,7 @@ export function AccessPage({ onlyKind, title, subtitle, entityLabel }: Readonly<
       exportFileName={onlyKind ? 'password-resets' : 'access-requests'}
       permissionModule="ItAccessRequest"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <AccessRequestForm

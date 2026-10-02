@@ -26,7 +26,11 @@ import {
 export function ProcurementPage() {
   const { formatDate, formatCurrency } = useSettings();
   const [deciding, setDeciding] = useState<PagedPurchaseRow | null>(null);
-  const { data: statsData, refetch: refetchStats } = useListItPurchaseRequestsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListItPurchaseRequestsStatsQuery();
   const [remove] = useDeleteItPurchaseRequestMutation();
   const [decide] = useDecideItPurchaseRequestMutation();
   const crud = useCrudResource<PurchaseRequestRow, PagedPurchaseRow>({
@@ -73,6 +77,7 @@ export function ProcurementPage() {
       exportFileName="it-procurement"
       permissionModule="ItPurchaseRequest"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <PurchaseRequestForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

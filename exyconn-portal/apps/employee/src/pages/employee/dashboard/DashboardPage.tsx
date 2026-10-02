@@ -51,6 +51,10 @@ export function DashboardPage() {
   const tickets = useMySupportTicketsQuery(policy);
   const announcements = useActiveAnnouncementsQuery(policy);
   const balances = useMyLeaveBalancesQuery(policy);
+  // Tiles show skeletons only until the first answer of every query they read.
+  const statsLoading = [attendance, leave, slips, payroll, tickets, balances].some(
+    (query) => !query.data && query.loading,
+  );
 
   const stats = useMemo<StatItem[]>(() => {
     const now = new Date();
@@ -132,7 +136,7 @@ export function DashboardPage() {
         titleValues={{ name: firstName }}
         subtitle="Your workspace at a glance"
       />
-      <DashboardTiles stats={stats} />
+      <DashboardTiles stats={stats} loading={statsLoading} />
 
       <Grid container spacing={2}>
         <Grid
@@ -146,6 +150,7 @@ export function DashboardPage() {
               (announcements.data?.activeAnnouncements ?? []) as AnnouncementSummary[]
             ).slice(0, 4)}
             formatDate={formatDate}
+            loading={!announcements.data && announcements.loading}
           />
         </Grid>
         <Grid
@@ -154,7 +159,11 @@ export function DashboardPage() {
             md: 4,
           }}
         >
-          <UpcomingHolidays holidays={nextHolidays} formatDate={formatDate} />
+          <UpcomingHolidays
+            holidays={nextHolidays}
+            formatDate={formatDate}
+            loading={!holidays.data && holidays.loading}
+          />
         </Grid>
         <Grid
           size={{
@@ -165,6 +174,7 @@ export function DashboardPage() {
           <RecentLeave
             requests={((leave.data?.myLeaveRequests ?? []) as LeaveSummaryRow[]).slice(0, 4)}
             formatDate={formatDate}
+            loading={!leave.data && leave.loading}
           />
         </Grid>
       </Grid>

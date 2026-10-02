@@ -25,7 +25,11 @@ const ACCENT = color.amber[500];
  */
 export function TaxSlabsPage() {
   const regimesQuery = useListTaxRegimesQuery({ fetchPolicy: 'cache-and-network' });
-  const { data: statsData, refetch: refetchStats } = useListTaxSlabsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListTaxSlabsStatsQuery();
   const [deleteSlab] = useDeleteTaxSlabMutation();
 
   const crud = useCrudResource<TaxSlabRow, PagedTaxSlabRow>({
@@ -71,6 +75,7 @@ export function TaxSlabsPage() {
       subtitle="Income-tax regimes and the bands every payslip is worked out from"
       entityLabel="band"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <TaxSlabForm

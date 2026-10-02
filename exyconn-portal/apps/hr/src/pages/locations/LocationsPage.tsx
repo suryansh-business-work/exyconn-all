@@ -14,7 +14,11 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Locations — server-paged admin grid over the location records. */
 export function LocationsPage() {
-  const { data: statsData, refetch: refetchStats } = useListLocationsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListLocationsStatsQuery();
   const [deleteLocation] = useDeleteLocationMutation();
   const { formatDate } = useSettings();
 
@@ -53,6 +57,7 @@ export function LocationsPage() {
       subtitle="Offices and work sites"
       entityLabel="location"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <LocationForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

@@ -1,6 +1,7 @@
 import { useT } from '@exyconn/i18n';
 import { Avatar, Box, Divider, Flex, Text, fontSize } from '@exyconn/shell/components/ui';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 import { useTaskActivityQuery } from '@exyconn/shell/graphql/generated';
 import { initialsOf } from './ticket-meta';
 
@@ -38,12 +39,13 @@ function describe(t: Translate, field: string, fromValue: string, toValue: strin
 export function TicketActivity({ taskId }: Readonly<TicketActivityProps>) {
   const t = useT();
   const { formatDateTime } = useSettings();
-  const { data } = useTaskActivityQuery({
+  const { data, loading } = useTaskActivityQuery({
     variables: { taskId },
     fetchPolicy: 'cache-and-network',
   });
 
   const entries = data?.taskActivity ?? [];
+  const firstLoad = !data && loading;
 
   return (
     <Box>
@@ -72,7 +74,8 @@ export function TicketActivity({ taskId }: Readonly<TicketActivityProps>) {
           </Flex>
         ))}
 
-        {entries.length === 0 ? (
+        {firstLoad ? <LoadingState /> : null}
+        {!firstLoad && entries.length === 0 ? (
           <Text size="sm" color="text.secondary">
             {t('Nothing has changed on this ticket yet.')}
           </Text>

@@ -35,7 +35,9 @@ const OPEN_PAGE = {
  * is fetched as rows.
  */
 export function SupportOverviewPage() {
-  const { data: statsData } = useListSupportTicketsStatsQuery({ fetchPolicy: 'cache-and-network' });
+  const { data: statsData, loading: statsLoading } = useListSupportTicketsStatsQuery({
+    fetchPolicy: 'cache-and-network',
+  });
   const {
     data: openData,
     loading,
@@ -80,6 +82,7 @@ export function SupportOverviewPage() {
       title="Support"
       subtitle="Tickets at a glance"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       breakdowns={breakdowns}
       links={[{ label: 'Open ticket console', to: '/support/tickets' }]}
       recentTitle="Open tickets"

@@ -3,10 +3,11 @@ import { StatCard, type StatItem } from '@exyconn/shell/components/dashboard/Sta
 
 interface DashboardTilesProps {
   stats: StatItem[];
+  loading?: boolean;
 }
 
 /** The tile row at the top of the employee dashboard. */
-export function DashboardTiles({ stats }: Readonly<DashboardTilesProps>) {
+export function DashboardTiles({ stats, loading = false }: Readonly<DashboardTilesProps>) {
   return (
     <Grid container spacing={2} sx={{ mb: 2 }}>
       {stats.map((stat) => (
@@ -19,7 +20,7 @@ export function DashboardTiles({ stats }: Readonly<DashboardTilesProps>) {
             lg: 2,
           }}
         >
-          <StatCard {...stat} />
+          <StatCard {...stat} loading={loading} />
         </Grid>
       ))}
     </Grid>

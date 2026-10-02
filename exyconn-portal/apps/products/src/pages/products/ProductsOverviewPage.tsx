@@ -21,8 +21,8 @@ const RECENT_PRODUCTS = 8;
 
 /** Products → Overview: what the catalogue holds, and what is running out. */
 export function ProductsOverviewPage() {
-  const { data: statsData } = useListProductsStatsQuery();
-  const { data: valueData } = useInventoryValueQuery();
+  const { data: statsData, loading: statsDataLoading } = useListProductsStatsQuery();
+  const { data: valueData, loading: valueLoading } = useInventoryValueQuery();
   const { data: productsData, loading, refetch } = useListProductsQuery();
 
   const stats = statsData?.listProductsStats;
@@ -30,6 +30,8 @@ export function ProductsOverviewPage() {
   // Each line is read against its own reorder level, not one figure for the catalogue.
   const lowStock = products.filter((p) => stockLevel(p) === 'CRITICAL');
 
+  const statsLoading =
+    (!statsData && statsDataLoading) || (!valueData && valueLoading) || (!productsData && loading);
   const statItems: StatItem[] = [
     { label: 'Products', value: String(statTotal(stats)), accent: color.blue[400] },
     { label: 'Units in stock', value: String(statSum(stats, 'stock')), accent: color.green[500] },
@@ -70,6 +72,7 @@ export function ProductsOverviewPage() {
       title="Products"
       subtitle="Catalogue at a glance"
       stats={statItems}
+      statsLoading={statsLoading}
       breakdowns={breakdowns}
       links={[{ label: 'Open catalogue', to: '/products/catalogue' }]}
       recentTitle={lowStock.length > 0 ? 'Running low' : 'Newest products'}

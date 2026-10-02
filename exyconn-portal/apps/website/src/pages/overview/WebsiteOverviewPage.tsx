@@ -40,9 +40,10 @@ function filedAs(t: Translate, row: SubmissionRow): string {
 /** Website → Overview: what exyconn.com is publishing, and who it brought in. */
 export function WebsiteOverviewPage() {
   const t = useT();
-  const { data: submissionStatsData } = useListWebsiteSubmissionsStatsQuery();
-  const { data: blogStatsData } = useListBlogPostsStatsQuery();
-  const { data: jobStatsData } = useListJobsStatsQuery();
+  const { data: submissionStatsData, loading: submissionStatsLoading } =
+    useListWebsiteSubmissionsStatsQuery();
+  const { data: blogStatsData, loading: blogStatsLoading } = useListBlogPostsStatsQuery();
+  const { data: jobStatsData, loading: jobStatsLoading } = useListJobsStatsQuery();
   const {
     data: submissionsData,
     loading,
@@ -53,6 +54,10 @@ export function WebsiteOverviewPage() {
   });
   const { formatDateTime } = useSettings();
 
+  const statsLoading =
+    (!submissionStatsData && submissionStatsLoading) ||
+    (!blogStatsData && blogStatsLoading) ||
+    (!jobStatsData && jobStatsLoading);
   const submissionStats = submissionStatsData?.listWebsiteSubmissionsStats;
   const blogStats = blogStatsData?.listBlogPostsStats;
   const jobStats = jobStatsData?.listJobsStats;
@@ -100,6 +105,7 @@ export function WebsiteOverviewPage() {
       title="Website"
       subtitle="What exyconn.com publishes, and who it brings in"
       stats={statItems}
+      statsLoading={statsLoading}
       breakdowns={breakdowns}
       links={[
         { label: 'Open enquiry inbox', to: '/website/submissions' },

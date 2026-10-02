@@ -15,7 +15,11 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Goals — server-paged admin grid over the goal records. */
 export function GoalsPage() {
-  const { data: statsData, refetch: refetchStats } = useListGoalsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListGoalsStatsQuery();
   const [deleteGoal] = useDeleteGoalMutation();
   const { formatDate } = useSettings();
   const nameOf = useEmployeeNames();
@@ -64,6 +68,7 @@ export function GoalsPage() {
       subtitle="What each employee is measured on"
       entityLabel="goal"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <GoalForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

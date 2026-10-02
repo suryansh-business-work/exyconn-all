@@ -14,7 +14,11 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Shifts — server-paged admin grid over the shift records. */
 export function ShiftsPage() {
-  const { data: statsData, refetch: refetchStats } = useListShiftsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListShiftsStatsQuery();
   const [deleteShift] = useDeleteShiftMutation();
   const { formatDate } = useSettings();
 
@@ -53,6 +57,7 @@ export function ShiftsPage() {
       subtitle="Working-hour patterns and late rules"
       entityLabel="shift"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <ShiftForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

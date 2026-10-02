@@ -18,7 +18,11 @@ import { color } from '@exyconn/shell/components/ui';
 /** Projects module — project management dashboard with a server-side projects grid. */
 export function ProjectsPage() {
   // Stat cards come from one server aggregation; the grid is server-paged separately.
-  const { data: statsData, refetch: refetchStats } = useListProjectsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListProjectsStatsQuery();
   const [deleteProject] = useDeleteProjectMutation();
   const navigate = useNavigate();
   const { formatDate } = useSettings();
@@ -74,6 +78,7 @@ export function ProjectsPage() {
       entityLabel="project"
       exportFileName="projects"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <ProjectForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

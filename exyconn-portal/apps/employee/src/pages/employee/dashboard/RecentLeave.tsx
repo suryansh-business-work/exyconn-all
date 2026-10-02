@@ -1,6 +1,7 @@
 import { useT } from '@exyconn/i18n';
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 
 export interface LeaveSummaryRow {
   id: string;
@@ -13,15 +14,17 @@ export interface LeaveSummaryRow {
 interface RecentLeaveProps {
   requests: LeaveSummaryRow[];
   formatDate: (value: string) => string;
+  loading?: boolean;
 }
 
 /** The employee's most recent leave requests and where each one stands. */
-export function RecentLeave({ requests, formatDate }: Readonly<RecentLeaveProps>) {
+export function RecentLeave({ requests, formatDate, loading = false }: Readonly<RecentLeaveProps>) {
   const t = useT();
   return (
     <Box sx={[panel, { height: '100%' }]}>
       <Heading level={6}>{t('Recent leave')}</Heading>
-      {requests.length === 0 && (
+      {loading && <LoadingState />}
+      {!loading && requests.length === 0 && (
         <Text size="sm" color="text.secondary">
           {t('No leave requests yet.')}
         </Text>

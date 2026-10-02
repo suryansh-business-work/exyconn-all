@@ -20,7 +20,11 @@ import { color } from '@exyconn/shell/components/ui';
  * register. The board is for moving a deal; this is for finding one.
  */
 export function DealsListPage() {
-  const { data: statsData, refetch: refetchStats } = useListDealsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListDealsStatsQuery();
   const [deleteDeal] = useDeleteDealMutation();
   const { formatDate } = useSettings();
   const createInvoice = useCreateInvoiceFromDeal();
@@ -57,6 +61,7 @@ export function DealsListPage() {
         entityLabel="deal"
         exportFileName="deals"
         stats={statItems}
+        statsLoading={!statsData && statsLoading}
         crud={crud}
         renderForm={(initial) => (
           <DealForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

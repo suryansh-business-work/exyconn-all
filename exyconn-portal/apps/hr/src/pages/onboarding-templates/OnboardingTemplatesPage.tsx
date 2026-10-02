@@ -24,7 +24,11 @@ import {
  */
 export function OnboardingTemplatesPage() {
   const { formatDate } = useSettings();
-  const { data: statsData, refetch: refetchStats } = useListOnboardingTemplatesStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListOnboardingTemplatesStatsQuery();
   const [deleteTemplate] = useDeleteOnboardingTemplateMutation();
 
   const crud = useCrudResource<PagedOnboardingTemplateRow>({
@@ -68,6 +72,7 @@ export function OnboardingTemplatesPage() {
       subtitle="The checklists a joiner's first days are made from"
       entityLabel="template"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <OnboardingTemplateForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

@@ -56,7 +56,11 @@ function statItemsOf(data: Stats): StatItem[] {
  */
 export function LogsPage() {
   const { formatDateTime } = useSettings();
-  const { data: statsData, refetch: refetchStats } = useListAppLogGroupsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListAppLogGroupsStatsQuery();
   const [filters, setFilters] = useState(DEFAULT_LOG_FILTERS);
   const [refreshSignal, setRefreshSignal] = useState(0);
   const [viewing, setViewing] = useState<AppLogRow | null>(null);
@@ -105,6 +109,7 @@ export function LogsPage() {
       entityLabel="log"
       exportFileName="app-logs"
       stats={statItemsOf(statsData)}
+      statsLoading={!statsData && statsLoading}
       refreshSignal={refreshSignal}
       columnDefs={LOG_COLUMNS}
       fetchRows={fetchRows}

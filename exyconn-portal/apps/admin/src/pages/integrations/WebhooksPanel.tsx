@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useT } from '@exyconn/i18n';
 import {
-  Alert,
   Box,
   Button,
   Chip,
@@ -13,7 +12,6 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Text,
   TextField,
 } from '@exyconn/shell/components/ui';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -25,6 +23,8 @@ import {
   useSetWebhookActiveMutation,
 } from '@exyconn/shell/graphql/generated';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
+import { WebhookSecretAlert } from './WebhookSecretAlert';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 
 /**
  * Webhooks — how this portal tells another system that something happened.
@@ -39,7 +39,7 @@ export function WebhooksPanel() {
   const notify = useNotify();
   const confirm = useConfirm();
   const { formatDateTime } = useSettings();
-  const { data, refetch } = useListWebhooksQuery();
+  const { data, loading, refetch } = useListWebhooksQuery();
   const [createWebhook] = useCreateWebhookMutation();
   const [setActive] = useSetWebhookActiveMutation();
   const [deleteWebhook] = useDeleteWebhookMutation();
@@ -82,21 +82,7 @@ export function WebhooksPanel() {
 
   return (
     <Box>
-      {secret ? (
-        <Alert severity="warning" sx={{ mb: 2 }} onClose={() => setSecret(null)}>
-          <Text size="sm" weight="bold" sx={{ display: 'block' }}>
-            {t('Copy this signing secret now — it is never shown again.')}
-          </Text>
-          <Text size="sm" sx={{ fontFamily: 'monospace', wordBreak: 'break-all' }}>
-            {secret}
-          </Text>
-          <Text size="caption" sx={{ display: 'block', mt: 0.5 }}>
-            {t(
-              'Verify each delivery as sha256 HMAC over `<timestamp>.<body>`, from the x-exyconn-timestamp and x-exyconn-signature headers.',
-            )}
-          </Text>
-        </Alert>
-      ) : null}
+      {secret ? <WebhookSecretAlert secret={secret} onClose={() => setSecret(null)} /> : null}
 
       <Flex direction="row" spacing={1} sx={{ mb: 1, flexWrap: 'wrap' }}>
         <TextField
@@ -141,6 +127,7 @@ export function WebhooksPanel() {
 
       {/* Scrolls itself on a narrow screen rather than widening the page — and is focusable,
           so the keyboard can scroll it too (scrollable-region-focusable). */}
+      {!data && loading && <LoadingState />}
       <TableContainer tabIndex={0}>
         <Table size="small">
           <TableHead>

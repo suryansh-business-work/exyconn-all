@@ -6,6 +6,7 @@ import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { color } from '@exyconn/shell/components/ui';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useComplianceOverviewQuery } from '@exyconn/shell/graphql/generated';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 import { ComplianceGaps } from './ComplianceGaps';
 
 /**
@@ -17,8 +18,9 @@ import { ComplianceGaps } from './ComplianceGaps';
  */
 export function ComplianceOverviewPage() {
   const { formatDate } = useSettings();
-  const { data } = useComplianceOverviewQuery({ fetchPolicy: 'cache-and-network' });
+  const { data, loading } = useComplianceOverviewQuery({ fetchPolicy: 'cache-and-network' });
   const overview = data?.complianceOverview;
+  const firstLoad = !data && loading;
 
   const statItems: StatItem[] = [
     { label: 'Open risks', value: String(overview?.openRisks ?? 0), accent: color.blue[400] },
@@ -64,6 +66,7 @@ export function ComplianceOverviewPage() {
       title="Compliance"
       subtitle="ISO 9001, 27001, 45001 and 14001 in one management system"
       stats={statItems}
+      statsLoading={firstLoad}
       breakdowns={breakdowns}
       links={[
         { label: 'Open the risk register', to: '/compliance' },
@@ -72,16 +75,20 @@ export function ComplianceOverviewPage() {
       ]}
       recentTitle="What an auditor will ask about"
     >
-      <ComplianceGaps
-        standardCoverage={overview?.standardCoverage ?? []}
-        residualHeat={overview?.residualHeat ?? []}
-        findingsOverdue={overview?.findingsOverdue ?? 0}
-        risksPastReview={overview?.risksPastReview ?? 0}
-        objectivesAtRisk={overview?.objectivesAtRisk ?? 0}
-        lastReviewOn={overview?.lastReviewOn ?? null}
-        lastReviewTitle={overview?.lastReviewTitle ?? ''}
-        formatDate={formatDate}
-      />
+      {firstLoad ? (
+        <LoadingState />
+      ) : (
+        <ComplianceGaps
+          standardCoverage={overview?.standardCoverage ?? []}
+          residualHeat={overview?.residualHeat ?? []}
+          findingsOverdue={overview?.findingsOverdue ?? 0}
+          risksPastReview={overview?.risksPastReview ?? 0}
+          objectivesAtRisk={overview?.objectivesAtRisk ?? 0}
+          lastReviewOn={overview?.lastReviewOn ?? null}
+          lastReviewTitle={overview?.lastReviewTitle ?? ''}
+          formatDate={formatDate}
+        />
+      )}
     </ModuleOverview>
   );
 }

@@ -19,7 +19,7 @@ import {
 /** Website CMS — case studies with a server-side grid. */
 export function CaseStudiesPage() {
   // Stat cards still summarise all case studies; the grid itself is server-paged.
-  const { data } = useListCaseStudiesQuery();
+  const { data, loading } = useListCaseStudiesQuery();
   const [deleteCaseStudy] = useDeleteCaseStudyMutation();
   const { formatDate } = useSettings();
   const navigate = useNavigate();
@@ -69,6 +69,7 @@ export function CaseStudiesPage() {
       subtitle="Website case studies"
       entityLabel="case study"
       stats={stats}
+      statsLoading={!data && loading}
       crud={crud}
       renderForm={(initial) => (
         <CaseStudyForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

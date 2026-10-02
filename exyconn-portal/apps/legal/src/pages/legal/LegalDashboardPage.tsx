@@ -41,7 +41,12 @@ export function LegalDashboardPage() {
   ];
 
   return (
-    <ModuleDashboard title="Legal" subtitle="Contracts & documents overview" stats={stats}>
+    <ModuleDashboard
+      title="Legal"
+      subtitle="Contracts & documents overview"
+      stats={stats}
+      statsLoading={!contractsData && loading}
+    >
       <DataTable
         columns={columns}
         rows={contracts.slice(0, 8)}

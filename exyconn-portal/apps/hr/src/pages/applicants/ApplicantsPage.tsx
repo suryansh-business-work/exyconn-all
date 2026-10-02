@@ -41,7 +41,11 @@ const TILE_STAGES = [
 export function ApplicantsPage() {
   const t = useT();
   const { formatDate } = useSettings();
-  const { data: statsData, refetch: refetchStats } = useListApplicantsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListApplicantsStatsQuery();
   const [deleteApplicant] = useDeleteApplicantMutation();
   const [stage, setStage] = useState<StageFilter>('all');
   const [advancing, setAdvancing] = useState<PagedApplicantRow | null>(null);
@@ -94,6 +98,7 @@ export function ApplicantsPage() {
       subtitle="Everyone in the hiring pipeline, from the website and from referrals"
       entityLabel="applicant"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <ApplicantForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

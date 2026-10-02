@@ -19,7 +19,11 @@ import {
 
 /** Salary Structures — server-paged admin grid over the salary structure records. */
 export function SalariesPage() {
-  const { data: statsData, refetch: refetchStats } = useListSalaryStructuresStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListSalaryStructuresStatsQuery();
   const [deleteSalaryStructure] = useDeleteSalaryStructureMutation();
   const { formatDate } = useSettings();
   const nameOf = useEmployeeNames();
@@ -64,6 +68,7 @@ export function SalariesPage() {
       subtitle="Each employee’s basic, HRA, allowances and deductions"
       entityLabel="salary structure"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <SalaryStructureForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

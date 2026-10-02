@@ -177,7 +177,7 @@ export function PayrollPage() {
               md: 2.4,
             }}
           >
-            <StatCard {...tile} />
+            <StatCard {...tile} loading={!summary.data && summary.loading} />
           </Grid>
         ))}
       </Grid>

@@ -17,7 +17,7 @@ import {
 /** Website module — job companies powering the public careers pages (server-side grid). */
 export function JobCompaniesPage() {
   // Stat cards still summarise all companies; the grid itself is server-paged.
-  const { data } = useListJobCompaniesQuery();
+  const { data, loading } = useListJobCompaniesQuery();
   const [deleteJobCompany] = useDeleteJobCompanyMutation();
   const crud = useCrudResource<JobCompanyRow, PagedJobCompanyRow>({
     label: 'Company',
@@ -54,6 +54,7 @@ export function JobCompaniesPage() {
       subtitle="Companies hiring through the public careers site"
       entityLabel="company"
       stats={stats}
+      statsLoading={!data && loading}
       crud={crud}
       renderForm={(initial) => (
         <JobCompanyForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

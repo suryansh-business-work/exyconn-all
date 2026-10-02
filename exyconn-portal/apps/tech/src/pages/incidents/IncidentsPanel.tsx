@@ -30,7 +30,11 @@ import {
 export function IncidentsPanel() {
   const t = useT();
   const { formatDate } = useSettings();
-  const { data: statsData, refetch: refetchStats } = useListStatusIncidentsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListStatusIncidentsStatsQuery();
   const [deleteIncident] = useDeleteStatusIncidentMutation();
   const [updating, setUpdating] = useState<PagedIncidentRow | null>(null);
 
@@ -79,6 +83,7 @@ export function IncidentsPanel() {
       subtitle="What the public status page reports, and the updates posted on it"
       entityLabel="incident"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={() => <IncidentForm onCancel={crud.close} onDone={crud.onDone} />}
       columnDefs={INCIDENT_COLUMNS}

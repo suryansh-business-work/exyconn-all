@@ -20,7 +20,7 @@ export function useProjectShares(projectId: string) {
   const confirm = useConfirm();
   const notify = useNotify();
   const [newUrl, setNewUrl] = useState('');
-  const { data, refetch } = useProjectSharesQuery({
+  const { data, loading, refetch } = useProjectSharesQuery({
     variables: { projectId },
     skip: projectId === '',
     fetchPolicy: 'cache-and-network',
@@ -69,6 +69,7 @@ export function useProjectShares(projectId: string) {
 
   return {
     shares: data?.projectShares ?? [],
+    loading: !data && loading,
     newUrl,
     onCreated,
     forget,

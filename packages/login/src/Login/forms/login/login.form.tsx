@@ -138,7 +138,7 @@ export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
             type="submit"
             fullWidth
             variant="contained"
-            disabled={methods.formState.isSubmitting}
+            loading={methods.formState.isSubmitting}
             sx={{
               bgcolor: accentColor,
               // The label's ink is picked by contrast with the accent, not assumed to be white.

@@ -23,9 +23,9 @@ type AuditRow = ListAuditLogsPagedQuery['listAuditLogsPaged']['rows'][number];
 
 /** Admin → Overview: who is in the workspace, who it serves, and what has been changing. */
 export function AdminOverviewPage() {
-  const { data: userStatsData } = useListUsersStatsQuery();
-  const { data: clientStatsData } = useListClientsStatsQuery();
-  const { data: auditStatsData } = useListAuditLogsStatsQuery();
+  const { data: userStatsData, loading: userStatsLoading } = useListUsersStatsQuery();
+  const { data: clientStatsData, loading: clientStatsLoading } = useListClientsStatsQuery();
+  const { data: auditStatsData, loading: auditStatsLoading } = useListAuditLogsStatsQuery();
   const {
     data: auditData,
     loading,
@@ -39,6 +39,10 @@ export function AdminOverviewPage() {
   const userStats = userStatsData?.listUsersStats;
   const clientStats = clientStatsData?.listClientsStats;
   const auditStats = auditStatsData?.listAuditLogsStats;
+  const statsLoading =
+    (!userStatsData && userStatsLoading) ||
+    (!clientStatsData && clientStatsLoading) ||
+    (!auditStatsData && auditStatsLoading);
   const changes = auditData?.listAuditLogsPaged.rows ?? [];
 
   const statItems: StatItem[] = [
@@ -79,6 +83,7 @@ export function AdminOverviewPage() {
       title="Admin"
       subtitle="People, clients and what has been changing"
       stats={statItems}
+      statsLoading={statsLoading}
       breakdowns={breakdowns}
       links={[
         { label: 'Open users', to: '/admin/users' },

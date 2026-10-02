@@ -6,6 +6,8 @@ import { withParam } from '@exyconn/shell/utils/searchParams';
 import { useTrackerMessageThreadsQuery } from '@exyconn/shell/graphql/generated';
 import { TrackerMessageThreadList } from './TrackerMessageThreadList';
 import { TrackerMessageThread } from './TrackerMessageThread';
+import { BACKGROUND_REQUEST } from '@exyconn/shell/config/networkActivity';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 
 /** Query-string key holding whose conversation is open, so a thread can be linked to. */
 const EMPLOYEE_PARAM = 'employee';
@@ -21,9 +23,10 @@ export function TrackerMessageInbox() {
   const t = useT();
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedUserId = searchParams.get(EMPLOYEE_PARAM);
-  const { data } = useTrackerMessageThreadsQuery({
+  const { data, loading } = useTrackerMessageThreadsQuery({
     fetchPolicy: 'cache-and-network',
     pollInterval: 30_000,
+    context: BACKGROUND_REQUEST,
   });
 
   const select = useCallback(
@@ -45,11 +48,15 @@ export function TrackerMessageInbox() {
         }}
       >
         <Card variant="outlined">
-          <TrackerMessageThreadList
-            threads={threads}
-            selectedUserId={selectedUserId}
-            onSelect={select}
-          />
+          {!data && loading ? (
+            <LoadingState />
+          ) : (
+            <TrackerMessageThreadList
+              threads={threads}
+              selectedUserId={selectedUserId}
+              onSelect={select}
+            />
+          )}
         </Card>
       </Grid>
       <Grid

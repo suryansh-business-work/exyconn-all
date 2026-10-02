@@ -12,6 +12,7 @@ import { AuthProvider } from '@/auth/AuthContext';
 import type { Role } from '@/auth/roles';
 import { NotificationProvider } from '@/components/feedback/NotificationProvider';
 import { ConfirmProvider } from '@/components/feedback/ConfirmProvider';
+import { NetworkActivityBar } from '@/components/feedback/NetworkActivityBar';
 import { PortalLayout } from '@/layout/PortalLayout';
 import { ProtectedRoute } from '@/routes/ProtectedRoute';
 import { ProfilePage } from '@/pages/Profile';
@@ -66,6 +67,7 @@ export function PortalApp({
           <LocalizationProvider dateAdapter={AdapterDateFns}>
             <NotificationProvider>
               <ConfirmProvider>
+                <NetworkActivityBar />
                 <OfflineBanner />
                 <PwaUpdateBanner />
                 <BrowserRouter>

@@ -65,6 +65,7 @@ export function NavLinksPage() {
       actionLabel="New nav link"
       onAction={crud.openCreate}
       stats={stats}
+      statsLoading={!data && loading}
     >
       <DataTable
         columns={columns}

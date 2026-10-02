@@ -25,6 +25,8 @@ interface ModuleOverviewProps {
   title: string;
   subtitle: string;
   stats: StatItem[];
+  /** True until the stats query first answers — the tiles show placeholders, not zeros. */
+  statsLoading?: boolean;
   /** Up to two distributions, shown side by side. */
   breakdowns?: OverviewBreakdown[];
   links?: OverviewLink[];
@@ -42,6 +44,7 @@ export function ModuleOverview({
   title,
   subtitle,
   stats,
+  statsLoading = false,
   breakdowns = [],
   links = [],
   recentTitle = 'Recent',
@@ -65,7 +68,7 @@ export function ModuleOverview({
               md: statCols,
             }}
           >
-            <StatCard {...stat} />
+            <StatCard {...stat} loading={statsLoading} />
           </Grid>
         ))}
       </Grid>

@@ -1,21 +1,25 @@
 import { useT } from '@exyconn/i18n';
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import type { UserRow } from './hrDashboard.selectors';
 
 interface HrNewJoinersProps {
   users: UserRow[];
   formatDate: (value: string) => string;
+  /** True until the card's data first arrives. */
+  loading?: boolean;
 }
 
 /** Who joined this month. */
-export function HrNewJoiners({ users, formatDate }: Readonly<HrNewJoinersProps>) {
+export function HrNewJoiners({ users, formatDate, loading = false }: Readonly<HrNewJoinersProps>) {
   const t = useT();
   return (
     <Box sx={[panel, { height: '100%' }]}>
       <Heading level={6}>{t('New joiners this month')}</Heading>
-      {users.length === 0 && (
+      {loading && <LoadingState />}
+      {!loading && users.length === 0 && (
         <Text size="sm" color="text.secondary">
           {t('No one joined this month.')}
         </Text>

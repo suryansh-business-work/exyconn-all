@@ -18,6 +18,7 @@ import { IncidentList } from './IncidentList';
 import { MaintenanceNotice } from './MaintenanceNotice';
 import { SubscribeCard } from '../subscribe';
 import type { StatusMaintenance, StatusService } from './status.types';
+import { BACKGROUND_REQUEST } from '@exyconn/shell/config/networkActivity';
 
 /** Groups the flat service list into the page's sections, dropping empty categories. */
 function groupByCategory(services: StatusService[]) {
@@ -45,6 +46,7 @@ export function StatusPage() {
   const { data, loading, error } = useStatusOverviewQuery({
     variables: { days: HISTORY_DAYS },
     pollInterval: REFRESH_MS,
+    context: BACKGROUND_REQUEST,
   });
 
   if (loading && !data) {

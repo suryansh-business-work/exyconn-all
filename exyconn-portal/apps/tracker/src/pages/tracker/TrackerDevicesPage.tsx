@@ -18,6 +18,7 @@ import { TrackerDeviceLastSeen } from './TrackerDeviceLastSeen';
 import { useTrackerTimezones } from './useTrackerTimezones';
 import { isDeviceOnline } from '@exyconn/shell/pages/tracker-view/tracker.format';
 import type { TrackerDeviceRow } from '@exyconn/shell/pages/tracker-view/tracker.types';
+import { BACKGROUND_REQUEST } from '@exyconn/shell/config/networkActivity';
 
 /**
  * How often this console re-reads the device list. Matched to the desktop app's own
@@ -30,6 +31,7 @@ export function TrackerDevicesPage() {
   const { data, loading, refetch, networkStatus } = useTrackerDevicesQuery({
     fetchPolicy: 'cache-and-network',
     pollInterval: REFRESH_MS,
+    context: BACKGROUND_REQUEST,
   });
   const [revokeDevice] = useRevokeTrackerDeviceMutation();
   const [selected, setSelected] = useState<TrackerDeviceRow | null>(null);
@@ -106,6 +108,7 @@ export function TrackerDevicesPage() {
       title="Tracker Devices"
       subtitle="Enrolled desktop and phone agents"
       stats={stats}
+      statsLoading={!data && loading}
     >
       <DataTable
         columns={columns}

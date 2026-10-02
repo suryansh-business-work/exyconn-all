@@ -15,7 +15,11 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Learning & Training — server-paged admin grid over the training records. */
 export function TrainingPage() {
-  const { data: statsData, refetch: refetchStats } = useListTrainingsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListTrainingsStatsQuery();
   const [deleteTraining] = useDeleteTrainingMutation();
   const { formatDate } = useSettings();
   const nameOf = useEmployeeNames();
@@ -64,6 +68,7 @@ export function TrainingPage() {
       subtitle="Courses assigned to employees"
       entityLabel="training"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <TrainingForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

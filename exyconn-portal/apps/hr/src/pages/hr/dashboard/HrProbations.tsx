@@ -1,6 +1,7 @@
 import { useT } from '@exyconn/i18n';
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
 
 /** Just enough of an employee to say whose probation is ending, and when. */
@@ -14,6 +15,8 @@ export interface ProbationRow {
 interface HrProbationsProps {
   rows: ProbationRow[];
   formatDate: (value: string) => string;
+  /** True until the card's data first arrives. */
+  loading?: boolean;
 }
 
 /**
@@ -22,12 +25,13 @@ interface HrProbationsProps {
  * A confirmation that nobody remembered to make is a decision made by default, so the date
  * is put in front of HR before it passes rather than after.
  */
-export function HrProbations({ rows, formatDate }: Readonly<HrProbationsProps>) {
+export function HrProbations({ rows, formatDate, loading = false }: Readonly<HrProbationsProps>) {
   const t = useT();
   return (
     <Box sx={[panel, { height: '100%' }]}>
       <Heading level={6}>{t('Coming off probation')}</Heading>
-      {rows.length === 0 && (
+      {loading && <LoadingState />}
+      {!loading && rows.length === 0 && (
         <Text size="sm" color="text.secondary">
           {t('Nobody’s probation ends in the next 30 days.')}
         </Text>

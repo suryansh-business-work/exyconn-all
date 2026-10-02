@@ -22,7 +22,11 @@ import { CHANGE_COLUMNS, type ChangesGridContext, type PagedChangeRow } from './
 export function ChangesPage() {
   const { formatDate } = useSettings();
   const [deciding, setDeciding] = useState<PagedChangeRow | null>(null);
-  const { data: statsData, refetch: refetchStats } = useListItChangesStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListItChangesStatsQuery();
   const [remove] = useDeleteItChangeMutation();
   const [decide] = useDecideItChangeMutation();
   const crud = useCrudResource<ChangeRow, PagedChangeRow>({
@@ -77,6 +81,7 @@ export function ChangesPage() {
       exportFileName="changes"
       permissionModule="ItChange"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <ChangeForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

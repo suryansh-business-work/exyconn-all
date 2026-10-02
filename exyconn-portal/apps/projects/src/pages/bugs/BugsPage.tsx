@@ -21,7 +21,7 @@ import { color } from '@exyconn/shell/components/ui';
 export function BugsPage() {
   const t = useT();
   // Stat cards come from one server aggregation; the grid is server-paged separately.
-  const { data: statsData, refetch: refetchStats } = useListBugsStatsQuery();
+  const { data: statsData, loading: statsLoading, refetch: refetchStats } = useListBugsStatsQuery();
   const [deleteBug] = useDeleteBugMutation();
   const [promoteBug] = usePromoteBugToTaskMutation();
   const confirm = useConfirm();
@@ -89,6 +89,7 @@ export function BugsPage() {
       entityLabel="bug"
       exportFileName="bugs"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <BugForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

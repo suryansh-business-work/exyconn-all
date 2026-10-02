@@ -16,7 +16,11 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** CRM → Companies: the accounts contacts and deals hang off. */
 export function CompaniesPage() {
-  const { data: statsData, refetch: refetchStats } = useListCompaniesStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListCompaniesStatsQuery();
   const [deleteCompany] = useDeleteCompanyMutation();
   const [promoteCompany] = usePromoteCompanyToClientMutation();
   const notify = useNotify();
@@ -73,6 +77,7 @@ export function CompaniesPage() {
       entityLabel="company"
       exportFileName="companies"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <CompanyForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

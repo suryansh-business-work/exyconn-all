@@ -19,7 +19,11 @@ import {
 /** Planned windows: announced on the public page while upcoming or in progress. */
 export function MaintenancePanel() {
   const { formatDate } = useSettings();
-  const { data: statsData, refetch: refetchStats } = useListStatusMaintenanceWindowsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListStatusMaintenanceWindowsStatsQuery();
   const [deleteWindow] = useDeleteStatusMaintenanceMutation();
 
   const crud = useCrudResource<MaintenanceRow, PagedMaintenanceRow>({
@@ -55,6 +59,7 @@ export function MaintenancePanel() {
       subtitle="Planned downtime, announced on the status page ahead of time"
       entityLabel="maintenance window"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <MaintenanceForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

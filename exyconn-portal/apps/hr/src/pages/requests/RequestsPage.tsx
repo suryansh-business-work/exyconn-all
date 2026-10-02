@@ -18,7 +18,11 @@ import {
 
 /** Employee Requests — server-paged admin grid over the request records. */
 export function RequestsPage() {
-  const { data: statsData, refetch: refetchStats } = useListEmployeeRequestsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListEmployeeRequestsStatsQuery();
   const [deleteEmployeeRequest] = useDeleteEmployeeRequestMutation();
   const { formatDate } = useSettings();
 
@@ -65,6 +69,7 @@ export function RequestsPage() {
       subtitle="WFH, regularisation and other HR requests"
       entityLabel="request"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <EmployeeRequestForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

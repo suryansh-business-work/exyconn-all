@@ -27,7 +27,11 @@ const USD_DIGITS = 2;
 export function AiPage() {
   const t = useT();
   // Stat cards come from one server aggregation; the grid is server-paged separately.
-  const { data: statsData, refetch: refetchStats } = useListAiJobsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListAiJobsStatsQuery();
   const [deleteAiJob] = useDeleteAiJobMutation();
   const [runAiJob] = useRunAiJobMutation();
   const [resultId, setResultId] = useState<string | null>(null);
@@ -115,6 +119,7 @@ export function AiPage() {
       subtitle="AI jobs"
       entityLabel="job"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <AiJobForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

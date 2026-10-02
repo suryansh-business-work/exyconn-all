@@ -2,6 +2,7 @@ import { useT } from '@exyconn/i18n';
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { panel } from '@exyconn/shell/components/glass/glass';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 import PushPinIcon from '@mui/icons-material/PushPin';
 
 interface AnnouncementRow {
@@ -15,15 +16,22 @@ interface AnnouncementRow {
 interface HrAnnouncementsProps {
   rows: AnnouncementRow[];
   formatDate: (value: string) => string;
+  /** True until the card's data first arrives. */
+  loading?: boolean;
 }
 
 /** What is currently published to every employee. */
-export function HrAnnouncements({ rows, formatDate }: Readonly<HrAnnouncementsProps>) {
+export function HrAnnouncements({
+  rows,
+  formatDate,
+  loading = false,
+}: Readonly<HrAnnouncementsProps>) {
   const t = useT();
   return (
     <Box sx={[panel, { height: '100%' }]}>
       <Heading level={6}>{t('Live announcements')}</Heading>
-      {rows.length === 0 && (
+      {loading && <LoadingState />}
+      {!loading && rows.length === 0 && (
         <Text size="sm" color="text.secondary">
           {t('Nothing published right now.')}
         </Text>

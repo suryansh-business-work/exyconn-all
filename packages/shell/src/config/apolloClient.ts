@@ -3,6 +3,7 @@ import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { setContext } from '@apollo/client/link/context';
 import { onError } from '@apollo/client/link/error';
 import { env } from './env';
+import { activityLink, BACKGROUND_REQUEST } from './networkActivity';
 import { tokenStore } from '@/auth/tokenStore';
 import { ReportClientLogsDocument } from '@/graphql/generated';
 import { setLogTransport } from '@/logging/portalLogger';
@@ -30,11 +31,15 @@ const errorLink = onError(({ error, operation }) => {
 });
 
 export const apolloClient = new ApolloClient({
-  link: from([errorLink, authLink, httpLink]),
+  link: from([activityLink, errorLink, authLink, httpLink]),
   cache: new InMemoryCache(),
   defaultOptions: { watchQuery: { fetchPolicy: 'cache-and-network' } },
 });
 
 setLogTransport((batch) =>
-  apolloClient.mutate({ mutation: ReportClientLogsDocument, variables: { input: batch } }),
+  apolloClient.mutate({
+    mutation: ReportClientLogsDocument,
+    variables: { input: batch },
+    context: BACKGROUND_REQUEST,
+  }),
 );

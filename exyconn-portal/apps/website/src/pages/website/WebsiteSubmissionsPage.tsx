@@ -39,7 +39,11 @@ import {
  */
 export function WebsiteSubmissionsPage() {
   const t = useT();
-  const { data: statsData, refetch: refetchStats } = useListWebsiteSubmissionsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListWebsiteSubmissionsStatsQuery();
   const [deleteSubmission] = useDeleteWebsiteSubmissionMutation();
   const [convertToLead] = useConvertWebsiteSubmissionToLeadMutation();
   const confirm = useConfirm();
@@ -121,6 +125,7 @@ export function WebsiteSubmissionsPage() {
       entityLabel="submission"
       exportFileName="website-submissions"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       refreshSignal={crud.refreshSignal}
       columnDefs={SUBMISSION_COLUMNS}
       fetchRows={fetchRows}

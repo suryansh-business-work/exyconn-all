@@ -14,7 +14,7 @@ import { AUDIT_COLUMNS, type PagedAuditRow, type AuditsGridContext } from './aud
 
 /** The audit programme (clause 9.2): what will be audited, what was, and what it found. */
 export function AuditsPage() {
-  const { data: statsData, refetch } = useListInternalAuditsStatsQuery();
+  const { data: statsData, loading: statsLoading, refetch } = useListInternalAuditsStatsQuery();
   const [deleteAudit] = useDeleteInternalAuditMutation();
   const { formatDate } = useSettings();
   const crud = useCrudResource<AuditRow, PagedAuditRow>({
@@ -63,6 +63,7 @@ export function AuditsPage() {
       entityLabel="audit"
       exportFileName="audit-programme"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <AuditForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

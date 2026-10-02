@@ -15,6 +15,8 @@ interface ModuleDashboardProps {
   actionLabelValues?: Interpolations;
   onAction?: () => void;
   stats: StatItem[];
+  /** True until the stats query first answers — the tiles show placeholders, not zeros. */
+  statsLoading?: boolean;
   /** Optional trend chart — omit for real, count-only dashboards. */
   chartTitle?: string;
   chartSeries?: number[];
@@ -32,6 +34,7 @@ export function ModuleDashboard({
   actionLabelValues,
   onAction,
   stats,
+  statsLoading = false,
   chartTitle,
   chartSeries,
   chartColor = color.orange[500],
@@ -61,7 +64,7 @@ export function ModuleDashboard({
             }}
             sx={{ animation: enterAnimation.item, animationDelay: staggerDelay(index) }}
           >
-            <StatCard {...stat} />
+            <StatCard {...stat} loading={statsLoading} />
           </Grid>
         ))}
       </Grid>

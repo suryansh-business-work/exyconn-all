@@ -17,7 +17,11 @@ import {
 
 /** Support → Canned Replies: the paragraphs the desk sends often, kept once. */
 export function CannedRepliesPage() {
-  const { data: statsData, refetch: refetchStats } = useListCannedRepliesStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListCannedRepliesStatsQuery();
   const [deleteReply] = useDeleteCannedReplyMutation();
 
   const crud = useCrudResource<CannedReplyRow, PagedCannedReplyRow>({
@@ -57,6 +61,7 @@ export function CannedRepliesPage() {
       entityLabel="canned reply"
       exportFileName="canned-replies"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <CannedReplyForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

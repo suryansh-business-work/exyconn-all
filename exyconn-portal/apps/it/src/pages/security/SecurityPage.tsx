@@ -25,9 +25,13 @@ import {
  */
 export function SecurityPage() {
   const { formatDate } = useSettings();
-  const { data: vulnData, refetch: refetchStats } = useListItVulnerabilitiesStatsQuery();
-  const { data: assetData } = useListAssetsStatsQuery();
-  const { data: incidentData } = useListItIncidentsStatsQuery();
+  const {
+    data: vulnData,
+    loading: vulnLoading,
+    refetch: refetchStats,
+  } = useListItVulnerabilitiesStatsQuery();
+  const { data: assetData, loading: assetLoading } = useListAssetsStatsQuery();
+  const { data: incidentData, loading: incidentLoading } = useListItIncidentsStatsQuery();
   const [remove] = useDeleteItVulnerabilityMutation();
   const crud = useCrudResource<VulnerabilityRow, PagedVulnerabilityRow>({
     label: 'Vulnerability',
@@ -60,6 +64,11 @@ export function SecurityPage() {
     },
   ];
 
+  const statsLoading =
+    (!vulnData && vulnLoading) ||
+    (!assetData && assetLoading) ||
+    (!incidentData && incidentLoading);
+
   const gridContext: VulnerabilitiesGridContext = {
     actions: { edit: crud.openEdit, delete: crud.remove },
     formatDate,
@@ -73,6 +82,7 @@ export function SecurityPage() {
       exportFileName="vulnerabilities"
       permissionModule="ItVulnerability"
       stats={statItems}
+      statsLoading={statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <VulnerabilityForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

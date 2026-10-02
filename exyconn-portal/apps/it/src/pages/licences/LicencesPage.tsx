@@ -18,10 +18,14 @@ import { color } from '@exyconn/shell/components/ui';
 /** IT module — the software licences the company pays for, their seats and renewals. */
 export function LicencesPage() {
   // Stat cards come from one server aggregation; the grid is server-paged separately.
-  const { data: statsData, refetch: refetchStats } = useListLicencesStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListLicencesStatsQuery();
   // Seats used and renewals due are per-row questions no aggregation answers, so the
   // (small) full list backs those two tiles.
-  const { data: listData, refetch: refetchList } = useListLicencesQuery();
+  const { data: listData, loading: listLoading, refetch: refetchList } = useListLicencesQuery();
   const [deleteLicence] = useDeleteLicenceMutation();
   const { formatDate } = useSettings();
   const crud = useCrudResource<LicenceRow, PagedLicenceRow>({
@@ -69,6 +73,7 @@ export function LicencesPage() {
       entityLabel="licence"
       exportFileName="licences"
       stats={statItems}
+      statsLoading={(!statsData && statsLoading) || (!listData && listLoading)}
       crud={crud}
       renderForm={(initial) => (
         <LicenceForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

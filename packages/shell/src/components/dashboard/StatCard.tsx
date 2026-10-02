@@ -1,5 +1,5 @@
 import { useT, type Interpolations } from '@exyconn/i18n';
-import { Box, Stack, Typography, iconSize, fontWeight } from '@/components/ui';
+import { Box, Skeleton, Stack, Typography, iconSize, fontWeight } from '@/components/ui';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import { panel } from '../glass/glass';
@@ -21,6 +21,11 @@ export interface StatItem {
   series?: number[];
 }
 
+interface StatCardProps extends StatItem {
+  /** The figure is still on its way: a placeholder stands in for it, not a misleading 0. */
+  loading?: boolean;
+}
+
 /** A frosted stat tile: label, big value, trend delta and a mini sparkline. */
 export function StatCard({
   label,
@@ -29,7 +34,8 @@ export function StatCard({
   delta,
   accent = color.orange[500],
   series,
-}: StatItem) {
+  loading = false,
+}: Readonly<StatCardProps>) {
   const t = useT();
   const up = (delta ?? 0) >= 0;
   return (
@@ -84,9 +90,9 @@ export function StatCard({
           mt: 0.5,
         }}
       >
-        {value}
+        {loading ? <Skeleton width="40%" /> : value}
       </Typography>
-      {series && (
+      {series && !loading && (
         <Box sx={{ mt: 0.5 }}>
           <Sparkline values={series} color={accent} height={28} />
         </Box>

@@ -9,6 +9,7 @@ import {
   type ChartData,
 } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
@@ -42,6 +43,7 @@ export function FinanceOverviewPage() {
     fetchPolicy: 'cache-and-network',
   });
   const finance = data?.companyFinance;
+  const firstLoad = !finance && loading;
 
   const stats: StatItem[] = [
     { label: 'Invoiced', value: formatMoney(finance?.invoiced ?? 0), accent: color.blue[400] },
@@ -96,81 +98,86 @@ export function FinanceOverviewPage() {
 
       <ModuleDashboard
         title="Company finance"
-        subtitle={loading && !finance ? 'Loading…' : '{period}, ending today'}
+        subtitle={firstLoad ? 'Loading…' : '{period}, ending today'}
         subtitleValues={{ period: t(period.label) }}
         stats={stats}
+        statsLoading={firstLoad}
       >
-        <Grid container spacing={1.5}>
-          <Grid
-            size={{
-              xs: 12,
-              md: 4,
-            }}
-          >
-            <FinanceMoneyPanel
-              title={t('Earned and spent')}
-              basis={t(
-                'Accrual — dated when it was invoiced or incurred, whenever the money moves.',
-              )}
-              lines={earned}
-            />
-          </Grid>
-          <Grid
-            size={{
-              xs: 12,
-              md: 4,
-            }}
-          >
-            <FinanceMoneyPanel
-              title={t('Cash movement')}
-              basis={t('Cash — dated when the money actually arrived or left.')}
-              lines={moved}
-            />
-          </Grid>
-          <Grid
-            size={{
-              xs: 12,
-              md: 4,
-            }}
-          >
-            <FinanceMoneyPanel
-              title={t('Position today')}
-              basis={t('As of now, not the period — an old unpaid invoice is still owed today.')}
-              lines={owed}
-            />
-          </Grid>
+        {firstLoad ? (
+          <LoadingState />
+        ) : (
+          <Grid container spacing={1.5}>
+            <Grid
+              size={{
+                xs: 12,
+                md: 4,
+              }}
+            >
+              <FinanceMoneyPanel
+                title={t('Earned and spent')}
+                basis={t(
+                  'Accrual — dated when it was invoiced or incurred, whenever the money moves.',
+                )}
+                lines={earned}
+              />
+            </Grid>
+            <Grid
+              size={{
+                xs: 12,
+                md: 4,
+              }}
+            >
+              <FinanceMoneyPanel
+                title={t('Cash movement')}
+                basis={t('Cash — dated when the money actually arrived or left.')}
+                lines={moved}
+              />
+            </Grid>
+            <Grid
+              size={{
+                xs: 12,
+                md: 4,
+              }}
+            >
+              <FinanceMoneyPanel
+                title={t('Position today')}
+                basis={t('As of now, not the period — an old unpaid invoice is still owed today.')}
+                lines={owed}
+              />
+            </Grid>
 
-          <Grid
-            size={{
-              xs: 12,
-              md: 7,
-            }}
-          >
-            <Box sx={[panel, { height: '100%' }]}>
-              <ChartCard
-                title={t('Profit by month')}
-                subtitle={t('What each month earned, less what it cost')}
-                data={profitTrend}
-                formatValue={formatMoney}
-                labelHeading={t('Month')}
-              >
-                <TrendChart data={profitTrend} formatValue={formatMoney} area height={240} />
-              </ChartCard>
-            </Box>
+            <Grid
+              size={{
+                xs: 12,
+                md: 7,
+              }}
+            >
+              <Box sx={[panel, { height: '100%' }]}>
+                <ChartCard
+                  title={t('Profit by month')}
+                  subtitle={t('What each month earned, less what it cost')}
+                  data={profitTrend}
+                  formatValue={formatMoney}
+                  labelHeading={t('Month')}
+                >
+                  <TrendChart data={profitTrend} formatValue={formatMoney} area height={240} />
+                </ChartCard>
+              </Box>
+            </Grid>
+            <Grid
+              size={{
+                xs: 12,
+                md: 5,
+              }}
+            >
+              <StatBreakdown
+                title="Spend by category"
+                buckets={spend}
+                emptyMessage="No company expenses recorded in this period."
+              />
+            </Grid>
           </Grid>
-          <Grid
-            size={{
-              xs: 12,
-              md: 5,
-            }}
-          >
-            <StatBreakdown
-              title="Spend by category"
-              buckets={spend}
-              emptyMessage="No company expenses recorded in this period."
-            />
-          </Grid>
-        </Grid>
+        )}
       </ModuleDashboard>
     </Box>
   );
