@@ -3,6 +3,7 @@ import {
   Box,
   ButtonBase,
   duration,
+  easing,
   Grid,
   iconSize,
   onScrim,
@@ -75,7 +76,7 @@ function PexelsTile({ item, onPick }: Readonly<PexelsTileProps>) {
           px: 1,
           py: 0.5,
           opacity: 0,
-          transition: `opacity ${duration.fast}ms`,
+          transition: `opacity ${duration.fast}ms ${easing.standard}`,
           bgcolor: scrim(),
           color: onScrim,
         }}

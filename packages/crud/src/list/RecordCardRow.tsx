@@ -1,14 +1,24 @@
 import type { MouseEvent } from 'react';
 import type { ColDef } from 'ag-grid-community';
 import { useT } from '@exyconn/i18n';
-import { Box, ButtonBase, Flex, IconButton, Text } from '@exyconn/shell/components/ui';
+import {
+  Box,
+  ButtonBase,
+  Flex,
+  IconButton,
+  Text,
+  enterAnimation,
+  staggerDelay,
+} from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { panel } from '@exyconn/shell/components/glass/glass';
+import { interactive, panel } from '@exyconn/shell/components/glass/glass';
 import { toRecordCard } from './recordCard';
 import type { CrudGridContext, RowActionSpec } from '../grid/types';
 
 interface RecordCardRowProps<Row> {
   row: Row;
+  /** The card's place in its list, which sets when it settles in. */
+  index?: number;
   columnDefs: ColDef<Row>[];
   context: object;
   actionSpecs: readonly RowActionSpec[];
@@ -24,6 +34,7 @@ interface RecordCardRowProps<Row> {
  */
 export function RecordCardRow<Row>({
   row,
+  index = 0,
   columnDefs,
   context,
   actionSpecs,
@@ -39,7 +50,17 @@ export function RecordCardRow<Row>({
   };
 
   return (
-    <Box sx={[panel, { position: 'relative' }]}>
+    <Box
+      sx={[
+        panel,
+        onClick ? interactive : {},
+        {
+          position: 'relative',
+          animation: enterAnimation.item,
+          animationDelay: staggerDelay(index),
+        },
+      ]}
+    >
       <Flex direction="row" alignItems="flex-start" justifyContent="space-between" spacing={1}>
         <CardTitle title={card.title} onOpen={onClick ? () => onClick(row) : undefined} />
         {/* Above the stretched title, so an action is its own target. */}

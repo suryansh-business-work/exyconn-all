@@ -24,6 +24,7 @@ import {
   useListWebhooksQuery,
   useSetWebhookActiveMutation,
 } from '@exyconn/shell/graphql/generated';
+import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 
 /**
  * Webhooks — how this portal tells another system that something happened.
@@ -36,6 +37,7 @@ import {
 export function WebhooksPanel() {
   const t = useT();
   const notify = useNotify();
+  const confirm = useConfirm();
   const { formatDateTime } = useSettings();
   const { data, refetch } = useListWebhooksQuery();
   const [createWebhook] = useCreateWebhookMutation();
@@ -68,6 +70,14 @@ export function WebhooksPanel() {
     action
       .then(() => refetch())
       .catch((error: unknown) => notify(error instanceof Error ? error.message : failure, 'error'));
+  };
+  const remove = async (id: string): Promise<void> => {
+    const ok = await confirm({
+      message: 'Delete this endpoint? Deliveries to it stop at once.',
+      confirmText: 'Delete',
+      destructive: true,
+    });
+    if (ok) run(deleteWebhook({ variables: { id } }), 'Could not delete the endpoint');
   };
 
   return (
@@ -129,8 +139,9 @@ export function WebhooksPanel() {
         ))}
       </Flex>
 
-      {/* Scrolls itself on a narrow screen rather than widening the page. */}
-      <TableContainer>
+      {/* Scrolls itself on a narrow screen rather than widening the page — and is focusable,
+          so the keyboard can scroll it too (scrollable-region-focusable). */}
+      <TableContainer tabIndex={0}>
         <Table size="small">
           <TableHead>
             <TableRow>
@@ -172,12 +183,9 @@ export function WebhooksPanel() {
                   <Button
                     size="small"
                     color="error"
-                    onClick={() =>
-                      run(
-                        deleteWebhook({ variables: { id: hook.id } }),
-                        'Could not delete the endpoint',
-                      )
-                    }
+                    onClick={() => {
+                      remove(hook.id).catch((error: unknown) => console.error('Delete', error));
+                    }}
                   >
                     {t('Delete')}
                   </Button>

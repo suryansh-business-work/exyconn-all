@@ -18,6 +18,7 @@ import {
   useSocialCommentsQuery,
 } from '@exyconn/shell/graphql/generated';
 import { AuthorLine } from '../../components/AuthorLine';
+import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 
 interface CommentThreadProps {
   postId: string;
@@ -31,6 +32,7 @@ interface CommentThreadProps {
  */
 export function CommentThread({ postId }: Readonly<CommentThreadProps>) {
   const t = useT();
+  const confirm = useConfirm();
   const notify = useNotify();
   const { data, loading, error } = useSocialCommentsQuery({ variables: { postId } });
   const [deleteComment] = useDeleteSocialCommentMutation({
@@ -41,6 +43,8 @@ export function CommentThread({ postId }: Readonly<CommentThreadProps>) {
   });
 
   const remove = async (id: string) => {
+    const ok = await confirm({ message: 'Delete this comment?', confirmText: 'Delete', destructive: true });
+    if (!ok) return;
     try {
       await deleteComment({ variables: { id } });
     } catch (deleteError) {

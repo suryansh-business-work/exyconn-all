@@ -23,6 +23,11 @@ interface ConfirmOptions {
   messageValues?: Interpolations;
   confirmText?: string;
   cancelText?: string;
+  /**
+   * True when confirming deletes or revokes something. The confirm button then wears the
+   * error colour, so "Delete" does not look like every other primary action on the screen.
+   */
+  destructive?: boolean;
 }
 
 type Resolver = (value: boolean) => void;
@@ -66,7 +71,11 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
           <Button onClick={() => settle(false)} color="inherit">
             {t(options?.cancelText ?? 'Cancel')}
           </Button>
-          <Button onClick={() => settle(true)} variant="contained">
+          <Button
+            onClick={() => settle(true)}
+            variant="contained"
+            color={options?.destructive ? 'error' : 'primary'}
+          >
             {t(options?.confirmText ?? 'Confirm')}
           </Button>
         </DialogActions>

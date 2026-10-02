@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { KeyboardEvent, ReactNode } from 'react';
 import { useT } from '@exyconn/i18n';
 import {
   Box,
@@ -8,12 +8,12 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
   fontWeight,
 } from '@/components/ui';
 import { DataTableRowActions, type RowAction } from './DataTableRowActions';
 import { TableRefreshButton } from './TableRefreshButton';
 import { TableSkeletonRows } from './TableSkeletonRows';
+import { EmptyState } from '../feedback/EmptyState';
 
 export type { RowAction } from './DataTableRowActions';
 
@@ -69,18 +69,20 @@ export function DataTable<T extends { id: string }>({
     return (
       <>
         {toolbar}
-        <Box sx={{ p: 4, textAlign: 'center' }}>
-          <Typography
-            sx={{
-              color: 'text.secondary',
-            }}
-          >
-            {t(emptyMessage)}
-          </Typography>
-        </Box>
+        <EmptyState title={emptyMessage} />
       </>
     );
   }
+
+  // A row that opens on click opens on Enter and Space too, and is in the tab order, or it
+  // is a link only a mouse can follow (SC 2.1.1).
+  const rowKeyHandler = (row: T) => (event: KeyboardEvent<HTMLTableRowElement>) => {
+    if (event.target !== event.currentTarget) return;
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onRowClick?.(row);
+    }
+  };
 
   const headSx = { fontWeight: fontWeight.bold, color: 'text.secondary', borderColor: 'divider' };
   const cellSx = { borderColor: 'divider' };
@@ -120,6 +122,8 @@ export function DataTable<T extends { id: string }>({
                   key={row.id}
                   hover
                   onClick={onRowClick ? () => onRowClick(row) : undefined}
+                  onKeyDown={onRowClick ? rowKeyHandler(row) : undefined}
+                  tabIndex={onRowClick ? 0 : undefined}
                   sx={{ '& td': cellSx, cursor: onRowClick ? 'pointer' : 'default' }}
                 >
                   {columns.map((col) => (

@@ -1,4 +1,11 @@
-import { borderWidth, Box, Stack, Typography, fontWeight } from '@exyconn/shell/components/ui';
+import {
+  borderWidth,
+  Box,
+  Stack,
+  Typography,
+  fontWeight,
+  transition,
+} from '@exyconn/shell/components/ui';
 import { formatMoney } from '@exyconn/shell/utils/money';
 import type { DealRow } from './forms/deal';
 
@@ -31,6 +38,7 @@ export function DealCard({ deal, accent, onOpen }: Readonly<DealCardProps>) {
         borderRadius: 1.5,
         bgcolor: 'background.paper',
         font: 'inherit',
+        transition: transition.surface,
         '&:hover': { borderColor: accent },
       }}
     >

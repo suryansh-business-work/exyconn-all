@@ -30,11 +30,9 @@ export function AttendanceDayCell({ day }: Readonly<{ day: AttendanceDay }>) {
         gap: 0.5,
       }}
     >
-      <Text
-        size="sm"
-        weight={day.isToday ? 'bold' : 'regular'}
-        color={day.inMonth ? 'text.primary' : 'text.secondary'}
-      >
+      {/* Always the primary ink: the secondary one fell under 4.5:1 on the muted wash the
+          other months' days sit on (SC 1.4.3). The wash alone tells those days apart. */}
+      <Text size="sm" weight={day.isToday ? 'bold' : 'regular'} color="text.primary">
         {format(day.date, 'd')}
       </Text>
       {style && (

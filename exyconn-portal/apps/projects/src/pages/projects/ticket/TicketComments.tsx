@@ -21,6 +21,7 @@ import {
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { AttachmentList, AttachmentPicker, type PickedAttachment } from '../attachments';
 import { initialsOf } from './ticket-meta';
+import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 
 interface TicketCommentsProps {
   taskId: string;
@@ -29,6 +30,7 @@ interface TicketCommentsProps {
 /** The conversation on a ticket: who said what, when, oldest first. */
 export function TicketComments({ taskId }: Readonly<TicketCommentsProps>) {
   const t = useT();
+  const confirm = useConfirm();
   const notify = useNotify();
   const { formatDateTime } = useSettings();
   const { data, refetch } = useTaskCommentsQuery({ variables: { taskId } });
@@ -59,6 +61,8 @@ export function TicketComments({ taskId }: Readonly<TicketCommentsProps>) {
   };
 
   const remove = async (id: string) => {
+    const ok = await confirm({ message: 'Delete this comment?', confirmText: 'Delete', destructive: true });
+    if (!ok) return;
     try {
       await deleteComment({ variables: { id } });
       await refetch();

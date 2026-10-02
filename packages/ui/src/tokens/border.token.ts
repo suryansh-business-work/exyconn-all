@@ -15,18 +15,18 @@ export type BorderWidth = keyof typeof borderWidth;
  * different unit system. In `sx`, write `borderRadius: 1` (one theme radius) or a string
  * like `'4px'` if you truly mean px.
  */
-export const radius = { sm: 4, md: 8, lg: 16, pill: 9999 } as const;
+export const radius = { sm: 4, md: 8, lg: 16, xl: 20, pill: 9999 } as const;
 
 export type Radius = keyof typeof radius;
 
 /**
  * The portals' control corner, in px — the theme's `shape.borderRadius`: inputs, buttons, list
- * rows, alerts, menus. shadcn/ui's `rounded-md`.
+ * rows, alerts, menus. The reference draws its controls at 12px.
  */
-export const BASE_RADIUS = radius.md;
+export const BASE_RADIUS = 12;
 
-/** The portals' card corner: cards, panels, dialogs and grids. shadcn/ui's `rounded-xl`. */
-export const CARD_RADIUS = 12;
+/** The portals' card corner: cards, panels, dialogs and grids — the reference's node card. */
+export const CARD_RADIUS = radius.xl;
 
 /**
  * The trackers' (desktop and phone) control corner — inputs, tiles, calendar days. The 2026-09

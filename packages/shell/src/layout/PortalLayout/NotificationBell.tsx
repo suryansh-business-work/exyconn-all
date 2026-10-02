@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { useT } from '@exyconn/i18n';
 import { Badge, IconButton } from '@/components/ui';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { useMyUnreadNotificationCountQuery } from '@/graphql/generated';
@@ -11,7 +12,8 @@ export function NotificationBell() {
   const navigate = useNavigate();
   const { data } = useMyUnreadNotificationCountQuery({ pollInterval: POLL_INTERVAL_MS });
   const unread = data?.myUnreadNotificationCount ?? 0;
-  const label = unread > 0 ? `${unread} unread notifications` : 'notifications';
+  const t = useT();
+  const label = unread > 0 ? t('{count} unread notifications', { count: unread }) : t('Notifications');
 
   return (
     <IconButton onClick={() => navigate('/notifications')} aria-label={label} sx={{ mr: 0.5 }}>

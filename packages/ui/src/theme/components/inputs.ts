@@ -1,5 +1,6 @@
 import { alpha, type CSSObject } from '../../styles';
 import { tintOpacity } from '../../tokens/backgrounds.token';
+import { glow } from '../../tokens/box-shadow.token';
 import { borderWidth } from '../../tokens/border.token';
 import { transition } from '../../tokens/motion.token';
 import { spacing } from '../../tokens/spacing.token';
@@ -35,11 +36,14 @@ const SWITCH_TARGET = spacing(3);
 const OUTLINE = '.MuiOutlinedInput-notchedOutline';
 
 /** A primary button per variant, as shadcn draws its `default`, `outline` and `ghost` buttons. */
-function primaryButton({ t }: ThemeParts): Record<string, CSSObject> {
+function primaryButton({ mode, t }: ThemeParts): Record<string, CSSObject> {
+  // On the dark canvas a hovered primary button lights up, as the reference's Generate does;
+  // a black shadow would not be seen there. On white the small shadow is enough.
+  const hoverShadow = mode === 'dark' ? glow(t.primary) : t.shadow.xs;
   return {
     contained: {
       boxShadow: t.shadow.xs,
-      '&:hover': { backgroundColor: alpha(t.primary, HOVER_FILL_OPACITY), boxShadow: t.shadow.xs },
+      '&:hover': { backgroundColor: alpha(t.primary, HOVER_FILL_OPACITY), boxShadow: hoverShadow },
     },
     // The outline button is neutral: foreground ink on the panel, a hairline, a muted hover.
     outlined: {
@@ -116,6 +120,15 @@ function fields({ mode, t }: ThemeParts): ComponentGroup {
           '&.Mui-disabled': { boxShadow: 'none' },
         },
       },
+    },
+    // A disabled field's label and helper text are still read — "Your sign-in address. Ask an
+    // administrator to change it." is the whole point of the field — and MUI's disabled ink
+    // is ~2.4:1. The control itself is exempt from SC 1.4.3; the sentence beside it is not.
+    MuiFormHelperText: {
+      styleOverrides: { root: { '&.Mui-disabled': { color: t.text.secondary } } },
+    },
+    MuiInputLabel: {
+      styleOverrides: { root: { '&.Mui-disabled': { color: t.text.secondary } } },
     },
     MuiAutocomplete: {
       styleOverrides: {

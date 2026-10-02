@@ -1,4 +1,4 @@
-import { CARD_RADIUS, borderWidth, portalShadow } from '@exyconn/ui';
+import { CARD_RADIUS, borderWidth, duration, easing, portalShadow, transition } from '@exyconn/ui';
 import type { Theme, SystemStyleObject } from '@exyconn/ui/styles';
 
 /**
@@ -40,4 +40,21 @@ export const densePanel = (theme: Theme): SystemStyleObject<Theme> => ({
 export const readingPanel = (theme: Theme): SystemStyleObject<Theme> => ({
   ...glass(theme),
   p: { xs: 2, md: 3 },
+});
+
+/**
+ * The feedback a surface gives when it can be opened: it lifts on hover, settles on press.
+ *
+ * Added to a panel that is, or holds, a button — a record card, a deal, a tile. A surface
+ * that answers a pointer is how somebody tells "this opens" from "this is a label" before
+ * they commit a click, which no cursor change says on a phone. Reduced motion shortens the
+ * transition to nothing (see the theme baseline).
+ */
+export const interactive = (theme: Theme): SystemStyleObject<Theme> => ({
+  transition: `${transition.surface}, box-shadow ${duration.fast}ms ${easing.standard}`,
+  '&:hover': {
+    borderColor: theme.palette.text.secondary,
+    boxShadow: portalShadow[theme.palette.mode].md,
+  },
+  '&:active': { boxShadow: portalShadow[theme.palette.mode].sm },
 });

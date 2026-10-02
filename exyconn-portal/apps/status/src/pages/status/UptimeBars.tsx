@@ -1,6 +1,7 @@
 import {
   Box,
   duration,
+  easing,
   Flex,
   Tooltip,
   Typography,
@@ -80,7 +81,7 @@ export function UptimeBars({ days }: Readonly<UptimeBarsProps>) {
                 minWidth: 2,
                 borderRadius: 0.5,
                 bgcolor: barColor(day, theme),
-                transition: `transform ${duration.fast}ms`,
+                transition: `transform ${duration.fast}ms ${easing.standard}`,
                 '&:hover, &:focus-visible': { transform: 'scaleY(1.12)' },
               }}
             />

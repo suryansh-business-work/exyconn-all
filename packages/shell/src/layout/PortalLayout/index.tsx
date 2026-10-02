@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import type { Theme } from '@/components/ui';
 import { borderWidth, Box, Drawer, enterAnimation, Toolbar } from '@/components/ui';
@@ -11,6 +11,7 @@ import { PageErrorBoundary } from '@/logging/PageErrorBoundary';
 import { useT } from '@exyconn/i18n';
 import { MAIN_CONTENT_ID, SkipLink } from './SkipLink';
 import { BrandFavicon } from './BrandFavicon';
+import { useFocusOnNavigate } from './useFocusOnNavigate';
 
 /** Wide enough that a page like "Onboarding Templates" is read, not truncated. */
 const DRAWER_WIDTH = 288;
@@ -34,6 +35,9 @@ export function PortalLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [collapsed, toggleCollapsed] = useSidebarCollapsed();
   const t = useT();
+  const main = useRef<HTMLElement>(null);
+  useFocusOnNavigate(main);
+
   if (!user) return null;
 
   const width = collapsed ? RAIL_WIDTH : DRAWER_WIDTH;
@@ -44,7 +48,8 @@ export function PortalLayout() {
         display: 'flex',
         minHeight: '100vh',
         color: 'text.primary',
-        background: 'background.default',
+        // Transparent, so the theme's dotted canvas on <body> shows between the panels.
+        background: 'transparent',
       }}
     >
       <SkipLink />
@@ -86,7 +91,8 @@ export function PortalLayout() {
       <Box
         component="main"
         id={MAIN_CONTENT_ID}
-        // Focusable from the skip link only — not a tab stop of its own.
+        ref={main}
+        // Focusable from the skip link and on navigation only — not a tab stop of its own.
         tabIndex={-1}
         sx={{ flexGrow: 1, minWidth: 0, width: { md: `calc(100% - ${width}px)` } }}
       >

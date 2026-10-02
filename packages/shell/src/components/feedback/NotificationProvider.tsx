@@ -46,9 +46,14 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       {children}
       <Snackbar
         open={state.open}
-        autoHideDuration={4000}
+        // An error stays until it is dismissed: "Could not save" that vanishes in four seconds
+        // is gone before a screen reader has finished it, and before anyone can read what to
+        // do next. Good news can go on its own.
+        autoHideDuration={state.severity === 'error' ? null : 4000}
         onClose={handleClose}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        // Clear of the home indicator on an installed app; zero in a browser tab.
+        sx={{ mb: 'env(safe-area-inset-bottom)' }}
       >
         <Alert
           onClose={handleClose}

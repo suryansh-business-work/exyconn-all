@@ -1,29 +1,29 @@
 import { portalShadow } from '../box-shadow.token';
-import { blue, emerald, orange, red, white, zinc } from '../colors.tokens';
+import { fuchsia, green, onyx, orange, red, sky, white } from '../colors.tokens';
 import type { SemanticTokens } from './semantic-tokens';
 
 /**
- * Light mode: shadcn/ui's zinc theme — near-black ink and a near-black primary on white.
+ * Light mode: the reference's white ground with the same accents taken down to shades that
+ * read on it. The reference's blue (#6DB5FF) measures 2.3:1 on white and its pink 2.5:1 —
+ * fine as a cursor label, unreadable as a button — so each has a 700 step that clears 4.5:1
+ * and keeps the hue. The yellow cannot be made to read on white at all, so the warning hue
+ * here is the orange that always was.
  *
- * The status hues run DARK here (emerald 900, orange 800, red 900) because they are read
- * against white — the same green that is legible on the dark panel would be a 2:1 smear on
- * this one. That inversion is the whole reason the two modes are separate files.
- *
- * `secondary` is orange 800 for the same reason. The brand orange (500) measures 2.4:1 on
- * white — it was believed to pass, and nothing checked; `contrast.test.ts` now does.
+ * Every status hue runs DARK here and LIGHT in dark.token.ts; that inversion is the whole
+ * reason the two modes are separate files.
  */
 export const lightTokens: SemanticTokens = {
-  primary: zinc[900],
-  onPrimary: zinc[50],
-  secondary: orange[800],
-  success: emerald[900],
+  primary: sky[700],
+  onPrimary: white,
+  secondary: fuchsia[700],
+  success: green[650],
   warning: orange[800],
   error: red[900],
-  info: blue[600],
-  background: { page: white, panel: white, muted: zinc[100], sidebar: zinc[50] },
-  text: { primary: zinc[950], secondary: zinc[550] },
-  divider: zinc[200],
-  control: zinc[450],
-  ring: zinc[950],
+  info: sky[700],
+  background: { page: white, panel: white, muted: onyx[100], sidebar: onyx[50] },
+  text: { primary: onyx[950], secondary: onyx[600] },
+  divider: onyx[200],
+  control: onyx[500],
+  ring: onyx[950],
   shadow: portalShadow.light,
 };

@@ -55,9 +55,9 @@ describe('theme contrast', () => {
 });
 
 describe('theme tokens', () => {
-  it('asks for Inter first, with a fallback on every platform', () => {
+  it('asks for Outfit first, with a fallback on every platform', () => {
     const { typography } = createAppTheme('light');
-    expect(typography.fontFamily).toMatch(/^"Inter"/);
+    expect(typography.fontFamily).toMatch(/^"Outfit Variable", "Outfit"/);
     expect(typography.fontFamily).toContain('system-ui');
   });
 
