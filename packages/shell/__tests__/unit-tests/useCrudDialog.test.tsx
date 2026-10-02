@@ -66,4 +66,23 @@ describe('useCrudDialog', () => {
     expect(result.current.crud.open).toBe(false);
     expect(result.current.search).toBe('');
   });
+
+  it('keeps two resources on one page apart when the second has a scope', () => {
+    const { result } = renderHook(
+      () => ({
+        departments: useCrudDialog<Row>(),
+        positions: useCrudDialog<Row>('position'),
+        search: useLocation().search,
+      }),
+      { wrapper: ({ children }) => <MemoryRouter>{children}</MemoryRouter> },
+    );
+    act(() => result.current.positions.openCreate());
+    expect(result.current.search).toBe('?form-position=new');
+    expect(result.current.positions.open).toBe(true);
+    expect(result.current.departments.open).toBe(false);
+    act(() => result.current.positions.close());
+    act(() => result.current.departments.openEdit({ id: 'dept-1' }));
+    expect(result.current.departments.open).toBe(true);
+    expect(result.current.positions.open).toBe(false);
+  });
 });
