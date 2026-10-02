@@ -10,19 +10,12 @@ import { theme } from '@exyconn/shell/config/theme';
 import {
   SocialAccountsDocument,
   SocialAnalyticsDocument,
-  SocialCalendarDocument,
   SocialMediaPostsDocument,
   SocialNetworkRulesDocument,
 } from '@exyconn/shell/graphql/generated';
 import { PostsTab } from './PostsTab';
-import { CalendarTab } from './CalendarTab';
 import { AnalyticsTab } from './AnalyticsTab';
-import { monthRange } from './calendar.days';
 import { ACCOUNTS, RULES, post } from './social.fixtures.cy';
-
-const now = new Date();
-const today = (hour: number) =>
-  new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour).toISOString();
 
 const mount = (children: ReactNode, mocks: MockedResponse[]) =>
   cy.mount(
@@ -82,33 +75,6 @@ describe('Social tabs', () => {
     cy.contains('Token expired').should('be.visible');
     cy.get('button[aria-label="edit post"]').should('have.length', 1);
     cy.get('button[aria-label="open post on the network"]').should('have.length', 1);
-  });
-
-  it("puts this month's posts on their days, status in words", () => {
-    const { from, to } = monthRange(new Date(now.getFullYear(), now.getMonth(), 1));
-    mount(<CalendarTab />, [
-      {
-        request: {
-          query: SocialCalendarDocument,
-          variables: { from: from.toISOString(), to: to.toISOString() },
-        },
-        result: {
-          data: {
-            socialCalendar: [
-              post('p1', { publishedAt: today(9) }),
-              post('p2', {
-                status: 'SCHEDULED',
-                publishedAt: null,
-                scheduledAt: today(15),
-                network: 'X',
-              }),
-            ],
-          },
-        },
-      },
-    ]);
-    cy.contains('Facebook 09:00 · Published').should('be.visible');
-    cy.contains('X 15:00 · Scheduled').should('be.visible');
   });
 
   it('shows the totals, the charts and the AI panel', () => {

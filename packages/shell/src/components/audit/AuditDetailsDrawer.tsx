@@ -9,11 +9,11 @@ import {
   TableRow,
   Text,
   fontWeight,
-} from '@exyconn/shell/components/ui';
-import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
-import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
+} from '@/components/ui';
+import { CrudDialog } from '@/components/data/CrudDialog';
+import { StatusChip } from '@/components/data/StatusChip';
 import { parseAuditChanges, type AuditChangeRow } from './audit-changes';
-import type { PagedAuditRow } from './audit-grid';
+import type { AuditLogRow } from './audit-row';
 
 interface FactProps {
   label: string;
@@ -68,7 +68,9 @@ function ChangesTable({ rows }: Readonly<{ rows: AuditChangeRow[] }>) {
 }
 
 interface AuditDetailsDrawerProps {
-  row: PagedAuditRow | null;
+  row: AuditLogRow | null;
+  /** The dialog heading, in the words of the page that opened it. */
+  title: string;
   onClose: () => void;
   formatDateTime: (value: string) => string;
 }
@@ -76,6 +78,7 @@ interface AuditDetailsDrawerProps {
 /** One audit entry in full: what happened, who did it, and — for an update — what changed. */
 export function AuditDetailsDrawer({
   row,
+  title,
   onClose,
   formatDateTime,
 }: Readonly<AuditDetailsDrawerProps>) {
@@ -87,7 +90,7 @@ export function AuditDetailsDrawer({
   const entity = row.entityLabel ? `${row.entityLabel} · ${row.entityId}` : row.entityId;
 
   return (
-    <CrudDialog open title={t('Audit details')} onClose={onClose}>
+    <CrudDialog open title={t(title)} onClose={onClose}>
       <Stack spacing={2}>
         <Stack
           direction="row"

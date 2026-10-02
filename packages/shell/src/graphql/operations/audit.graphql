@@ -1,36 +1,59 @@
+fragment AuditLogRow on AuditLog {
+  id
+  actorId
+  actorName
+  actorEmail
+  action
+  module
+  entityId
+  entityLabel
+  summary
+  changes
+  ip
+  createdAt
+}
+
+fragment AuditLogStats on TableStats {
+  total
+  counts {
+    field
+    buckets {
+      value
+      count
+    }
+  }
+  sums {
+    field
+    total
+  }
+}
+
 query ListAuditLogsPaged($input: TableQueryInput!) {
   listAuditLogsPaged(input: $input) {
     totalCount
     rows {
-      id
-      actorId
-      actorName
-      actorEmail
-      action
-      module
-      entityId
-      entityLabel
-      summary
-      changes
-      ip
-      createdAt
+      ...AuditLogRow
     }
   }
 }
 
 query ListAuditLogsStats {
   listAuditLogsStats {
-    total
-    counts {
-      field
-      buckets {
-        value
-        count
-      }
+    ...AuditLogStats
+  }
+}
+
+query ListFinanceChangeLogPaged($input: TableQueryInput!) {
+  listFinanceChangeLogPaged(input: $input) {
+    totalCount
+    rows {
+      ...AuditLogRow
     }
-    sums {
-      field
-      total
-    }
+  }
+}
+
+query ListFinanceChangeLogStats {
+  listFinanceChangeLogStats {
+    ...AuditLogStats
   }
 }

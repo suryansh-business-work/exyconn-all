@@ -21,7 +21,7 @@ export const callbackUrl = (app: SocialApp): string =>
 
 const base64url = (bytes: Buffer) => bytes.toString('base64url');
 
-/** Every provider, configured or not, so Tech always shows the four to fill in. */
+/** Every provider, configured or not, so Tech always shows every one to fill in. */
 export async function appConfigs() {
   const stored = await runAsPlatform(() => SocialAppConfigModel.find().lean());
   return SOCIAL_APPS.map((app) => {

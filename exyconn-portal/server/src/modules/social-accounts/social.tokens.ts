@@ -1,6 +1,6 @@
 import { open, seal } from '../../utils/secretBox';
-import type { SocialApp } from './social.constants';
-import { SocialProviderError, postForm } from './social.http';
+import { THREADS_GRAPH, type SocialApp } from './social.constants';
+import { SocialProviderError, getJson, postForm } from './social.http';
 import { SocialAccountModel } from './social.models';
 import { PROVIDERS, type AppCredentials } from './social.providers';
 import { usableApp } from './social.service';
@@ -8,9 +8,12 @@ import { usableApp } from './social.service';
 /** Refresh this long before expiry, so a token never lapses mid-request. */
 const EARLY_MS = 2 * 60 * 1000;
 
-type Refresh = (app: AppCredentials, refreshToken: string) => Promise<Record<string, unknown>>;
+type Refresh = (app: AppCredentials, token: string) => Promise<Record<string, unknown>>;
 
-/** The providers whose access tokens expire and come with a refresh token. */
+/** Threads has no refresh token: its long-lived access token is what gets refreshed. */
+const REFRESHES_ITSELF = new Set<SocialApp>(['THREADS']);
+
+/** The providers whose access tokens expire and can be refreshed. */
 const REFRESH: Partial<Record<SocialApp, Refresh>> = {
   X: (app, refreshToken) =>
     postForm(
@@ -35,6 +38,14 @@ const REFRESH: Partial<Record<SocialApp, Refresh>> = {
       client_id: app.clientId,
       client_secret: app.clientSecret,
     }),
+  THREADS: (_app, accessToken) =>
+    getJson(
+      'Threads',
+      `${THREADS_GRAPH}/refresh_access_token?${new URLSearchParams({
+        grant_type: 'th_refresh_token',
+        access_token: accessToken,
+      }).toString()}`,
+    ),
 };
 
 interface StoredAccount {
@@ -55,13 +66,14 @@ export async function accessTokenOf(account: StoredAccount): Promise<string> {
     return open(account.accessToken);
   }
   const refresh = REFRESH[account.app];
-  if (!refresh || !account.refreshToken) {
+  const token = REFRESHES_ITSELF.has(account.app) ? account.accessToken : account.refreshToken;
+  if (!refresh || !token) {
     throw new SocialProviderError(
       PROVIDERS[account.app].label,
       'the connection has expired — connect the account again',
     );
   }
-  const body = await refresh(await usableApp(account.app), open(account.refreshToken));
+  const body = await refresh(await usableApp(account.app), open(token));
   const accessToken = typeof body.access_token === 'string' ? body.access_token : '';
   const refreshToken = typeof body.refresh_token === 'string' ? body.refresh_token : '';
   const expiresIn = typeof body.expires_in === 'number' ? body.expires_in : null;

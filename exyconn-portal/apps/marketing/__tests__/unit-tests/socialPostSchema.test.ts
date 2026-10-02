@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   makeSocialPostSchema,
   postLength,
+  scheduledFormValues,
   toFormValues,
 } from '../../src/pages/social/forms/social-post';
 import type { NetworkRule, SocialMediaPostRow } from '../../src/pages/social/forms/social-post';
@@ -96,5 +97,19 @@ describe('social post schema', () => {
     } as SocialMediaPostRow;
     expect(toFormValues(stored)).toMatchObject({ accountIds: ['x'], timing: 'SCHEDULE' });
     expect(toFormValues({ ...stored, status: 'DRAFT' } as SocialMediaPostRow).timing).toBe('DRAFT');
+  });
+
+  it('starts a post planned on the calendar scheduled, on its accounts, at its time', () => {
+    const accountIds = ['fb', 'x'];
+    const values = scheduledFormValues({ accountIds, scheduledAt: '2026-10-05T04:30:00.000Z' });
+    expect(values).toEqual({
+      accountIds: ['fb', 'x'],
+      text: '',
+      mediaUrl: '',
+      link: '',
+      timing: 'SCHEDULE',
+      scheduledAt: '2026-10-05T04:30:00.000Z',
+    });
+    expect(values.accountIds).not.toBe(accountIds);
   });
 });

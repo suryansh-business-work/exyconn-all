@@ -1,5 +1,10 @@
 import { useState } from 'react';
-import { CrudDashboard, usePagedFetcher } from '@exyconn/crud';
+import {
+  AUDIT_COLUMNS,
+  CrudDashboard,
+  usePagedFetcher,
+  type AuditGridContext,
+} from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -8,8 +13,7 @@ import {
   useListAuditLogsStatsQuery,
   type ListAuditLogsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
-import { AuditDetailsDrawer } from './AuditDetailsDrawer';
-import { AUDIT_COLUMNS, type AuditGridContext, type PagedAuditRow } from './audit-grid';
+import { AuditDetailsDrawer, type AuditLogRow } from '@exyconn/shell/components/audit';
 import { color } from '@exyconn/shell/components/ui';
 
 /**
@@ -20,7 +24,7 @@ import { color } from '@exyconn/shell/components/ui';
 export function AuditLogPage() {
   const { formatDateTime } = useSettings();
   const { data: statsData, loading: statsLoading } = useListAuditLogsStatsQuery();
-  const [selected, setSelected] = useState<PagedAuditRow | null>(null);
+  const [selected, setSelected] = useState<AuditLogRow | null>(null);
 
   const fetchRows = usePagedFetcher(
     ListAuditLogsPagedDocument,
@@ -53,7 +57,7 @@ export function AuditLogPage() {
   };
 
   return (
-    <CrudDashboard<PagedAuditRow, PagedAuditRow>
+    <CrudDashboard<AuditLogRow, AuditLogRow>
       exportFileName="audit-log"
       title="Audit Log"
       subtitle="Who changed what, and when"
@@ -69,6 +73,7 @@ export function AuditLogPage() {
       extraDialogs={
         <AuditDetailsDrawer
           row={selected}
+          title="Audit details"
           onClose={() => setSelected(null)}
           formatDateTime={formatDateTime}
         />

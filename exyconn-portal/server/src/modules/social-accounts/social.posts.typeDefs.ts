@@ -110,8 +110,8 @@ export const socialPostsTypeDefs = gql`
       status: SocialMediaPostStatus
       limit: Int = 100
     ): [SocialMediaPost!]!
-    "Posts scheduled or published between two instants — the calendar. MARKETING."
-    socialCalendar(from: DateTime!, to: DateTime!): [SocialMediaPost!]!
+    "Posts scheduled or published between two instants, optionally for some accounts only — the calendar. MARKETING."
+    socialCalendar(from: DateTime!, to: DateTime!, accountIds: [ID!]): [SocialMediaPost!]!
     "What the posts did over the last days (1-365). MARKETING."
     socialAnalytics(days: Int = 30): SocialAnalytics!
     socialNetworkRules: [SocialNetworkRule!]!

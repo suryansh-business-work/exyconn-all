@@ -1,5 +1,5 @@
-import { isValidObjectId } from 'mongoose';
-import { AuditLogModel, type AuditAction } from './audit.model';
+import { isValidObjectId, type FilterQuery } from 'mongoose';
+import { AuditLogModel, type AuditAction, type AuditLogDocument } from './audit.model';
 import { UserModel } from '../admin/user.model';
 import { logger } from '../../utils/logger';
 import {
@@ -52,13 +52,19 @@ export interface AuditEntry {
 
 type Actor = { id: string; name?: string; email?: string };
 
-/** A human name for a document — whichever of the usual naming fields it has. */
-export function entityLabelOf(doc: unknown): string {
+/** Who a scheduled job's changes are logged under — no person made them. */
+export const SYSTEM_ACTOR: Actor = Object.freeze({ id: 'system', name: 'System' });
+
+/**
+ * A human name for a document — whichever of the usual naming fields it has, then the
+ * module's own `extraFields` for a record that has none of them (a bill's vendor).
+ */
+export function entityLabelOf(doc: unknown, extraFields: readonly string[] = []): string {
   if (!doc || typeof doc !== 'object') {
     return '';
   }
   const record = doc as Record<string, unknown>;
-  for (const field of LABEL_FIELDS) {
+  for (const field of [...LABEL_FIELDS, ...extraFields]) {
     const value = record[field];
     if (typeof value === 'string' && value.trim() !== '') {
       return value;
@@ -148,12 +154,26 @@ export async function recordAudit(ctx: GraphQLContext, entry: AuditEntry): Promi
   }
 }
 
-/** One page of the log for the Admin grid. */
-export function listAuditLogsPaged(input: TableQueryInput) {
-  return tableQuery(AuditLogModel, input, AUDIT_TABLE_CONFIG);
+/**
+ * {@link recordAudit} for work no request started — a background job. The row lands in the
+ * company the job is running for, because the tenant scope it runs under stamps it.
+ */
+export function recordSystemAudit(entry: Omit<AuditEntry, 'actor'>): Promise<void> {
+  return recordAudit({ user: null }, { ...entry, actor: SYSTEM_ACTOR });
 }
 
-/** Per-action and per-module counts for the Admin grid's tiles. */
-export function listAuditLogsStats() {
-  return tableStats(AuditLogModel, AUDIT_STATS_CONFIG);
+/**
+ * One page of the log. `scope` narrows it before the grid's search and filters apply — a
+ * portal's change log reads only its own modules, whatever the client asks for.
+ */
+export function listAuditLogsPaged(
+  input: TableQueryInput,
+  scope: FilterQuery<AuditLogDocument> = {},
+) {
+  return tableQuery(AuditLogModel, input, AUDIT_TABLE_CONFIG, scope);
+}
+
+/** Per-action and per-module counts for the grid's tiles, within the same `scope`. */
+export function listAuditLogsStats(scope: FilterQuery<AuditLogDocument> = {}) {
+  return tableStats(AuditLogModel, AUDIT_STATS_CONFIG, scope);
 }

@@ -482,7 +482,7 @@ describe('analytics and AI', () => {
     await expect(Q.socialCalendar(null, { from: to, to: from }, marketing())).rejects.toThrow(
       'range',
     );
-    expect(((await Q.socialNetworkRules(null, {}, marketing())) as unknown[]).length).toBe(5);
+    expect(((await Q.socialNetworkRules(null, {}, marketing())) as unknown[]).length).toBe(6);
   });
 
   it('asks the AI with the posts, and refuses a bad request', async () => {

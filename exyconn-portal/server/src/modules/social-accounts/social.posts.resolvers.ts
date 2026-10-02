@@ -54,7 +54,7 @@ export const socialPostsResolvers = {
     },
     socialCalendar: async (
       _p: unknown,
-      { from, to }: { from: Date; to: Date },
+      { from, to, accountIds }: { from: Date; to: Date; accountIds?: string[] | null },
       ctx: GraphQLContext,
     ) => {
       guard(ctx);
@@ -64,6 +64,7 @@ export const socialPostsResolvers = {
       const inRange = { $gte: from, $lt: to };
       const rows = await SocialMediaPostModel.find({
         $or: [{ scheduledAt: inRange }, { publishedAt: inRange }],
+        ...(accountIds?.length ? { accountId: { $in: accountIds } } : {}),
       })
         .sort({ scheduledAt: 1, publishedAt: 1 })
         .lean();

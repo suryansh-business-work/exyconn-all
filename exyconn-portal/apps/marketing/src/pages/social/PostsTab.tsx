@@ -15,9 +15,8 @@ import { SocialMediaPostStatus, useSocialMediaPostsQuery } from '@exyconn/shell/
 import { SocialPostForm, type SocialMediaPostRow } from './forms/social-post';
 import { useComposerData } from './useComposerData';
 import { usePostActions } from './usePostActions';
-import { accountLabel } from './social.labels';
+import { UNSENT, accountLabel } from './social.labels';
 
-const UNSENT = new Set<string>(['DRAFT', 'SCHEDULED', 'FAILED']);
 const EXCERPT = 90;
 const excerpt = (text: string) =>
   text.length > EXCERPT ? `${text.slice(0, EXCERPT)}…` : text || '—';

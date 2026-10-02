@@ -23,6 +23,11 @@ interface CrudResolverConfig {
    * come from one aggregation instead of fetching every row.
    */
   stats?: StatsConfig;
+  /**
+   * Fields that name a row in the audit log when it has none of the usual ones (name,
+   * number, title…), e.g. ['vendor'] for a bill.
+   */
+  labelFields?: string[];
 }
 
 type ResolverMap = Record<string, (p: unknown, a: never, c: GraphQLContext) => unknown>;
@@ -36,7 +41,7 @@ type LeanDoc = { _id: unknown };
  */
 export function createCrudResolvers<TInput extends object>(
   service: CrudService<TInput>,
-  { name, roles, plural, table, stats }: CrudResolverConfig,
+  { name, roles, plural, table, stats, labelFields }: CrudResolverConfig,
 ): { Query: ResolverMap; Mutation: ResolverMap } {
   PERMISSION_MODULES.add(name);
   const guard = (ctx: GraphQLContext, action: 'VIEW' | 'CREATE' | 'EDIT' | 'DELETE') =>
@@ -79,7 +84,7 @@ export function createCrudResolvers<TInput extends object>(
           action: 'CREATE',
           module: name,
           entityId: created.id,
-          entityLabel: entityLabelOf(created),
+          entityLabel: entityLabelOf(created, labelFields),
           summary: `Created ${name}`,
         });
         return created;
@@ -95,7 +100,7 @@ export function createCrudResolvers<TInput extends object>(
           action: 'UPDATE',
           module: name,
           entityId: id,
-          entityLabel: entityLabelOf(updated),
+          entityLabel: entityLabelOf(updated, labelFields),
           summary: fields.length > 0 ? `Updated ${name} (${fields.join(', ')})` : `Updated ${name}`,
           changes,
         });
@@ -109,7 +114,7 @@ export function createCrudResolvers<TInput extends object>(
           action: 'DELETE',
           module: name,
           entityId: id,
-          entityLabel: entityLabelOf(before),
+          entityLabel: entityLabelOf(before, labelFields),
           summary: `Deleted ${name}`,
         });
         return removed;

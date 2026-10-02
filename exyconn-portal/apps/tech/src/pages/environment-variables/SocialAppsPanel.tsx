@@ -99,7 +99,7 @@ export function SocialAppsPanel() {
     <Box>
       <PageHeader
         title="Social apps"
-        subtitle="The LinkedIn, Meta, X and Google apps Marketing connects accounts through. Set each one up once."
+        subtitle="The LinkedIn, Meta, Threads, X and Google apps Marketing connects accounts through. Set each one up once."
       />
       <DataTable
         columns={columns}

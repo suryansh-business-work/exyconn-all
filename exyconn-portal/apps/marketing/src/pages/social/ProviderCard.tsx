@@ -11,6 +11,7 @@ const NETWORK_NAMES: Readonly<Record<string, string>> = {
   LINKEDIN: 'LinkedIn',
   FACEBOOK: 'Facebook Pages',
   INSTAGRAM: 'Instagram Business',
+  THREADS: 'Threads profile',
   X: 'X profile',
   YOUTUBE: 'YouTube channel',
 };

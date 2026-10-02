@@ -6,7 +6,7 @@ import { SocialAppsPanel } from './SocialAppsPanel';
 export const SOCIAL_APPS_PATH = '/tech/social-apps';
 
 /**
- * Tech › Social apps: the LinkedIn, Meta, X and Google OAuth apps Marketing connects accounts
+ * Tech › Social apps: the LinkedIn, Meta, Threads, X and Google OAuth apps Marketing connects accounts
  * through. Its own page rather than a tenth Environment Variables tab, where it sat off-screen.
  */
 export function SocialAppsPage() {

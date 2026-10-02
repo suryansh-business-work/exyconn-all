@@ -1,6 +1,11 @@
 import { z } from 'zod';
 import { HTTP_URL } from '@exyconn/regex';
-import type { NetworkRule, SocialMediaPostRow, SocialPostFormValues } from './social-post.types';
+import type {
+  NetworkRule,
+  ScheduleDefaults,
+  SocialMediaPostRow,
+  SocialPostFormValues,
+} from './social-post.types';
 
 const MAX_TEXT = 63_206;
 
@@ -93,5 +98,15 @@ export function toFormValues(post: SocialMediaPostRow | null): SocialPostFormVal
     link: post?.link ?? '',
     timing: timingOf(post),
     scheduledAt: post?.scheduledAt ?? '',
+  };
+}
+
+/** A new post started from the calendar: scheduled, on these accounts, at this time. */
+export function scheduledFormValues(schedule: ScheduleDefaults): SocialPostFormValues {
+  return {
+    ...toFormValues(null),
+    accountIds: [...schedule.accountIds],
+    timing: 'SCHEDULE',
+    scheduledAt: schedule.scheduledAt,
   };
 }

@@ -15,6 +15,7 @@ import { logger } from '../../utils/logger';
 import { JOB_KEYS, recordJobRun } from '../../utils/jobHeartbeat';
 import { registerBackgroundJob } from '../tech/jobs.registry';
 import type { GraphQLContext } from '../../middleware/auth';
+import { diffChanges, recordAudit, recordSystemAudit, type AuditEntry } from '../audit';
 
 /** How often the process asks whether a retainer is due. */
 const TICK_MS = 60 * 60_000;
@@ -104,11 +105,14 @@ const updateRecurringInvoice = async (p: unknown, args: never, ctx: GraphQLConte
  * tick that runs late, or a server that was off over the weekend, must still date the invoice
  * to the period it bills.
  */
-async function writeInvoice(schedule: RecurringInvoiceDocument, issuedDate: Date): Promise<string> {
+async function writeInvoice(
+  schedule: RecurringInvoiceDocument,
+  issuedDate: Date,
+): Promise<{ id: string; number: string }> {
   const lines = (schedule.lines ?? []) as InvoiceLineInput[];
   const [number, branding] = await Promise.all([nextInvoiceNumber(), getBranding()]);
 
-  await InvoiceModel.create({
+  const created = await InvoiceModel.create({
     number,
     clientId: schedule.clientId,
     clientName: schedule.clientName,
@@ -122,7 +126,34 @@ async function writeInvoice(schedule: RecurringInvoiceDocument, issuedDate: Date
     placeOfSupplyStateCode: schedule.placeOfSupplyStateCode ?? '',
     supplierStateCode: branding.stateCode,
   });
-  return number;
+  return { id: String(created._id), number };
+}
+
+/** Writes one audit row, as a person (Run now) or as the system (the hourly tick). */
+type AuditWriter = (entry: Omit<AuditEntry, 'actor'>) => Promise<void>;
+
+/** The two rows a raised period leaves: the new invoice, and the schedule moving on. */
+async function auditRaised(
+  write: AuditWriter,
+  schedule: { id: string; name: string },
+  invoice: { id: string; number: string },
+  nextRunAt: { from: Date; to: Date },
+): Promise<void> {
+  await write({
+    action: 'CREATE',
+    module: 'Invoice',
+    entityId: invoice.id,
+    entityLabel: invoice.number,
+    summary: `Created Invoice ${invoice.number} from recurring schedule "${schedule.name}"`,
+  });
+  await write({
+    action: 'UPDATE',
+    module: 'RecurringInvoice',
+    entityId: schedule.id,
+    entityLabel: schedule.name,
+    summary: `RecurringInvoice raised ${invoice.number}`,
+    changes: diffChanges({ nextRunAt: nextRunAt.from }, { nextRunAt: nextRunAt.to }),
+  });
 }
 
 /**
@@ -184,9 +215,13 @@ export async function generateDueInvoices(now: Date = new Date()): Promise<numbe
     }
     perSchedule.set(claim.id, (perSchedule.get(claim.id) ?? 0) + 1);
     try {
-      const number = await writeInvoice(claim.schedule, claim.issuedDate);
+      const invoice = await writeInvoice(claim.schedule, claim.issuedDate);
       raised += 1;
-      logger.info(`Recurring invoice ${number} raised for "${claim.schedule.name}"`);
+      await auditRaised(recordSystemAudit, { id: claim.id, name: claim.schedule.name }, invoice, {
+        from: claim.issuedDate,
+        to: claim.schedule.nextRunAt,
+      });
+      logger.info(`Recurring invoice ${invoice.number} raised for "${claim.schedule.name}"`);
     } catch (error) {
       // The claim stands, so this period is not retried in a loop. It is a lost DRAFT, which
       // "Run now" replays — never a second invoice to a client.
@@ -209,15 +244,20 @@ const runRecurringInvoiceNow = async (_p: unknown, args: never, ctx: GraphQLCont
   // Dates the invoice to the period the schedule is currently on, then moves it along — the
   // same order the unattended path uses, so pressing the button cannot double-bill either.
   const issuedDate = new Date(schedule.nextRunAt);
+  const nextRunAt = nextOccurrence(issuedDate, schedule.frequency as never);
   await RecurringInvoiceModel.updateOne(
     { _id: schedule._id },
     {
-      nextRunAt: nextOccurrence(issuedDate, schedule.frequency as never),
+      nextRunAt,
       lastGeneratedAt: new Date(),
       $inc: { generatedCount: 1 },
     },
   );
-  await writeInvoice(schedule, issuedDate);
+  const invoice = await writeInvoice(schedule, issuedDate);
+  await auditRaised((entry) => recordAudit(ctx, entry), { id, name: schedule.name }, invoice, {
+    from: issuedDate,
+    to: nextRunAt,
+  });
   return withIdOf(await RecurringInvoiceModel.findById(id).lean());
 };
 

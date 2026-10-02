@@ -1,6 +1,7 @@
 import type { SocialNetwork } from '../social.constants';
 import { facebook, instagram } from './meta';
 import { linkedin } from './linkedin';
+import { threads } from './threads';
 import { x } from './x';
 import { youtube } from './youtube';
 import type { NetworkClient } from './network.types';
@@ -9,6 +10,7 @@ export const NETWORKS: Readonly<Record<SocialNetwork, NetworkClient>> = {
   LINKEDIN: linkedin,
   FACEBOOK: facebook,
   INSTAGRAM: instagram,
+  THREADS: threads,
   X: x,
   YOUTUBE: youtube,
 };

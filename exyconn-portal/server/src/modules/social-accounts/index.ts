@@ -35,6 +35,7 @@ const SOCIAL_PAGE = '/marketing/social';
 const NETWORKS: Readonly<Record<SocialApp, SocialNetwork[]>> = {
   LINKEDIN: ['LINKEDIN'],
   META: ['FACEBOOK', 'INSTAGRAM'],
+  THREADS: ['THREADS'],
   X: ['X'],
   YOUTUBE: ['YOUTUBE'],
 };

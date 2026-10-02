@@ -9290,6 +9290,10 @@ export type Query = {
   listExpenseClaims: Array<ExpenseClaim>;
   listExpenseClaimsPaged: ExpenseClaimPage;
   listExpenseClaimsStats: TableStats;
+  /** The audit log narrowed to finance records: invoices, schedules, payments, spend, claims and budgets. */
+  listFinanceChangeLogPaged: AuditLogPage;
+  /** Per-action and per-module counts over the same finance records. */
+  listFinanceChangeLogStats: TableStats;
   listFindings: Array<Finding>;
   listFindingsPaged: FindingPage;
   listFindingsStats: TableStats;
@@ -9665,11 +9669,11 @@ export type Query = {
   socialAccounts: Array<SocialAccount>;
   /** What the posts did over the last days (1-365). MARKETING. */
   socialAnalytics: SocialAnalytics;
-  /** The four providers' apps, set up or not. Platform Tech staff. */
+  /** Every provider's app, set up or not. Platform Tech staff. */
   socialAppConfigs: Array<SocialAppConfig>;
   /** Which providers Marketing can connect. MARKETING. */
   socialAppStatuses: Array<SocialAppStatus>;
-  /** Posts scheduled or published between two instants — the calendar. MARKETING. */
+  /** Posts scheduled or published between two instants, optionally for some accounts only — the calendar. MARKETING. */
   socialCalendar: Array<SocialMediaPost>;
   /** The comments on a post, oldest first, so a conversation reads in order. */
   socialComments: Array<SocialComment>;
@@ -10491,6 +10495,11 @@ export type QueryListExpenseClaimsPagedArgs = {
 };
 
 
+export type QueryListFinanceChangeLogPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListFindingsPagedArgs = {
   input: TableQueryInput;
 };
@@ -11009,6 +11018,7 @@ export type QuerySocialAnalyticsArgs = {
 
 
 export type QuerySocialCalendarArgs = {
+  accountIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   from: Scalars['DateTime']['input'];
   to: Scalars['DateTime']['input'];
 };
@@ -11683,6 +11693,7 @@ export type SocialAnalytics = {
 export enum SocialApp {
   Linkedin = 'LINKEDIN',
   Meta = 'META',
+  Threads = 'THREADS',
   X = 'X',
   Youtube = 'YOUTUBE'
 }
@@ -11827,6 +11838,7 @@ export enum SocialNetwork {
   Facebook = 'FACEBOOK',
   Instagram = 'INSTAGRAM',
   Linkedin = 'LINKEDIN',
+  Threads = 'THREADS',
   X = 'X',
   Youtube = 'YOUTUBE'
 }
@@ -14185,6 +14197,10 @@ export type GetAssetQueryVariables = Exact<{
 
 export type GetAssetQuery = { __typename?: 'Query', getAsset: { __typename?: 'Asset', id: string, assetTag: string, name: string, category: AssetCategory, status: AssetStatus, manufacturer: string, modelName: string, serialNumber: string, assignedToId: string, assignedToName: string, location: string, purchaseDate?: string | null, warrantyExpiry?: string | null, purchaseCost: number, notes: string, installedSoftware: Array<string>, edrStatus: AssetEdrStatus, edrCheckedAt?: string | null } };
 
+export type AuditLogRowFragment = { __typename?: 'AuditLog', id: string, actorId: string, actorName: string, actorEmail: string, action: AuditAction, module: string, entityId: string, entityLabel: string, summary: string, changes: string, ip: string, createdAt: string };
+
+export type AuditLogStatsFragment = { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> };
+
 export type ListAuditLogsPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
@@ -14196,6 +14212,18 @@ export type ListAuditLogsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type ListAuditLogsStatsQuery = { __typename?: 'Query', listAuditLogsStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type ListFinanceChangeLogPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ListFinanceChangeLogPagedQuery = { __typename?: 'Query', listFinanceChangeLogPaged: { __typename?: 'AuditLogPage', totalCount: number, rows: Array<{ __typename?: 'AuditLog', id: string, actorId: string, actorName: string, actorEmail: string, action: AuditAction, module: string, entityId: string, entityLabel: string, summary: string, changes: string, ip: string, createdAt: string }> } };
+
+export type ListFinanceChangeLogStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListFinanceChangeLogStatsQuery = { __typename?: 'Query', listFinanceChangeLogStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
 
 export type SignInResultFragment = { __typename?: 'AuthPayload', token: string, mfaRequired: boolean, mfaChallenge: string, user?: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null } | null };
 
@@ -18184,6 +18212,7 @@ export type SocialMediaPostsQuery = { __typename?: 'Query', socialMediaPosts: Ar
 export type SocialCalendarQueryVariables = Exact<{
   from: Scalars['DateTime']['input'];
   to: Scalars['DateTime']['input'];
+  accountIds?: InputMaybe<Array<Scalars['ID']['input']> | Scalars['ID']['input']>;
 }>;
 
 
@@ -19863,6 +19892,38 @@ export const AssetFieldsFragmentDoc = gql`
   installedSoftware
   edrStatus
   edrCheckedAt
+}
+    `;
+export const AuditLogRowFragmentDoc = gql`
+    fragment AuditLogRow on AuditLog {
+  id
+  actorId
+  actorName
+  actorEmail
+  action
+  module
+  entityId
+  entityLabel
+  summary
+  changes
+  ip
+  createdAt
+}
+    `;
+export const AuditLogStatsFragmentDoc = gql`
+    fragment AuditLogStats on TableStats {
+  total
+  counts {
+    field
+    buckets {
+      value
+      count
+    }
+  }
+  sums {
+    field
+    total
+  }
 }
     `;
 export const SignInResultFragmentDoc = gql`
@@ -24335,22 +24396,11 @@ export const ListAuditLogsPagedDocument = gql`
   listAuditLogsPaged(input: $input) {
     totalCount
     rows {
-      id
-      actorId
-      actorName
-      actorEmail
-      action
-      module
-      entityId
-      entityLabel
-      summary
-      changes
-      ip
-      createdAt
+      ...AuditLogRow
     }
   }
 }
-    `;
+    ${AuditLogRowFragmentDoc}`;
 
 /**
  * __useListAuditLogsPagedQuery__
@@ -24391,21 +24441,10 @@ export type ListAuditLogsPagedSuspenseQueryHookResult = ReturnType<typeof useLis
 export const ListAuditLogsStatsDocument = gql`
     query ListAuditLogsStats {
   listAuditLogsStats {
-    total
-    counts {
-      field
-      buckets {
-        value
-        count
-      }
-    }
-    sums {
-      field
-      total
-    }
+    ...AuditLogStats
   }
 }
-    `;
+    ${AuditLogStatsFragmentDoc}`;
 
 /**
  * __useListAuditLogsStatsQuery__
@@ -24442,6 +24481,96 @@ export function useListAuditLogsStatsSuspenseQuery(baseOptions?: ApolloReactHook
 export type ListAuditLogsStatsQueryHookResult = ReturnType<typeof useListAuditLogsStatsQuery>;
 export type ListAuditLogsStatsLazyQueryHookResult = ReturnType<typeof useListAuditLogsStatsLazyQuery>;
 export type ListAuditLogsStatsSuspenseQueryHookResult = ReturnType<typeof useListAuditLogsStatsSuspenseQuery>;
+export const ListFinanceChangeLogPagedDocument = gql`
+    query ListFinanceChangeLogPaged($input: TableQueryInput!) {
+  listFinanceChangeLogPaged(input: $input) {
+    totalCount
+    rows {
+      ...AuditLogRow
+    }
+  }
+}
+    ${AuditLogRowFragmentDoc}`;
+
+/**
+ * __useListFinanceChangeLogPagedQuery__
+ *
+ * To run a query within a React component, call `useListFinanceChangeLogPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListFinanceChangeLogPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListFinanceChangeLogPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useListFinanceChangeLogPagedQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ListFinanceChangeLogPagedQuery, ListFinanceChangeLogPagedQueryVariables> & ({ variables: ListFinanceChangeLogPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListFinanceChangeLogPagedQuery, ListFinanceChangeLogPagedQueryVariables>(ListFinanceChangeLogPagedDocument, options);
+      }
+export function useListFinanceChangeLogPagedLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListFinanceChangeLogPagedQuery, ListFinanceChangeLogPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListFinanceChangeLogPagedQuery, ListFinanceChangeLogPagedQueryVariables>(ListFinanceChangeLogPagedDocument, options);
+        }
+// @ts-ignore
+export function useListFinanceChangeLogPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListFinanceChangeLogPagedQuery, ListFinanceChangeLogPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListFinanceChangeLogPagedQuery, ListFinanceChangeLogPagedQueryVariables>;
+// @ts-ignore
+export function useListFinanceChangeLogPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListFinanceChangeLogPagedQuery, ListFinanceChangeLogPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListFinanceChangeLogPagedQuery | undefined, ListFinanceChangeLogPagedQueryVariables>;
+export function useListFinanceChangeLogPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListFinanceChangeLogPagedQuery, ListFinanceChangeLogPagedQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListFinanceChangeLogPagedQuery, ListFinanceChangeLogPagedQueryVariables>(ListFinanceChangeLogPagedDocument, options);
+        }
+export type ListFinanceChangeLogPagedQueryHookResult = ReturnType<typeof useListFinanceChangeLogPagedQuery>;
+export type ListFinanceChangeLogPagedLazyQueryHookResult = ReturnType<typeof useListFinanceChangeLogPagedLazyQuery>;
+export type ListFinanceChangeLogPagedSuspenseQueryHookResult = ReturnType<typeof useListFinanceChangeLogPagedSuspenseQuery>;
+export const ListFinanceChangeLogStatsDocument = gql`
+    query ListFinanceChangeLogStats {
+  listFinanceChangeLogStats {
+    ...AuditLogStats
+  }
+}
+    ${AuditLogStatsFragmentDoc}`;
+
+/**
+ * __useListFinanceChangeLogStatsQuery__
+ *
+ * To run a query within a React component, call `useListFinanceChangeLogStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListFinanceChangeLogStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListFinanceChangeLogStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListFinanceChangeLogStatsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ListFinanceChangeLogStatsQuery, ListFinanceChangeLogStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListFinanceChangeLogStatsQuery, ListFinanceChangeLogStatsQueryVariables>(ListFinanceChangeLogStatsDocument, options);
+      }
+export function useListFinanceChangeLogStatsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListFinanceChangeLogStatsQuery, ListFinanceChangeLogStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListFinanceChangeLogStatsQuery, ListFinanceChangeLogStatsQueryVariables>(ListFinanceChangeLogStatsDocument, options);
+        }
+// @ts-ignore
+export function useListFinanceChangeLogStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListFinanceChangeLogStatsQuery, ListFinanceChangeLogStatsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListFinanceChangeLogStatsQuery, ListFinanceChangeLogStatsQueryVariables>;
+// @ts-ignore
+export function useListFinanceChangeLogStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListFinanceChangeLogStatsQuery, ListFinanceChangeLogStatsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListFinanceChangeLogStatsQuery | undefined, ListFinanceChangeLogStatsQueryVariables>;
+export function useListFinanceChangeLogStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListFinanceChangeLogStatsQuery, ListFinanceChangeLogStatsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListFinanceChangeLogStatsQuery, ListFinanceChangeLogStatsQueryVariables>(ListFinanceChangeLogStatsDocument, options);
+        }
+export type ListFinanceChangeLogStatsQueryHookResult = ReturnType<typeof useListFinanceChangeLogStatsQuery>;
+export type ListFinanceChangeLogStatsLazyQueryHookResult = ReturnType<typeof useListFinanceChangeLogStatsLazyQuery>;
+export type ListFinanceChangeLogStatsSuspenseQueryHookResult = ReturnType<typeof useListFinanceChangeLogStatsSuspenseQuery>;
 export const LoginDocument = gql`
     mutation Login($email: String!, $password: String!) {
   login(email: $email, password: $password) {
@@ -47056,8 +47185,8 @@ export type SocialMediaPostsQueryHookResult = ReturnType<typeof useSocialMediaPo
 export type SocialMediaPostsLazyQueryHookResult = ReturnType<typeof useSocialMediaPostsLazyQuery>;
 export type SocialMediaPostsSuspenseQueryHookResult = ReturnType<typeof useSocialMediaPostsSuspenseQuery>;
 export const SocialCalendarDocument = gql`
-    query SocialCalendar($from: DateTime!, $to: DateTime!) {
-  socialCalendar(from: $from, to: $to) {
+    query SocialCalendar($from: DateTime!, $to: DateTime!, $accountIds: [ID!]) {
+  socialCalendar(from: $from, to: $to, accountIds: $accountIds) {
     ...SocialMediaPostFields
   }
 }
@@ -47077,6 +47206,7 @@ export const SocialCalendarDocument = gql`
  *   variables: {
  *      from: // value for 'from'
  *      to: // value for 'to'
+ *      accountIds: // value for 'accountIds'
  *   },
  * });
  */

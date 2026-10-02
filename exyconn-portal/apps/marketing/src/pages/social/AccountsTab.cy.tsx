@@ -26,6 +26,7 @@ const MOCKS = [
         socialAppStatuses: [
           status('LINKEDIN', 'LinkedIn', false, ['LINKEDIN']),
           status('META', 'Facebook + Instagram', true, ['FACEBOOK', 'INSTAGRAM']),
+          status('THREADS', 'Threads', true, ['THREADS']),
         ],
       },
     },
@@ -76,6 +77,12 @@ describe('AccountsTab', () => {
     cy.contains('LinkedIn').parent().find('button').should('be.disabled');
     cy.contains('Not set up yet').should('be.visible');
     cy.contains('Adds: Facebook Pages, Instagram Business').should('be.visible');
+  });
+
+  it('offers Threads, with its own app', () => {
+    mount();
+    cy.contains('Adds: Threads profile').should('be.visible');
+    cy.contains('Adds: Threads profile').parent().find('button').should('not.be.disabled');
   });
 
   it('lists connected accounts', () => {

@@ -19,6 +19,8 @@ import {
   recurringInvoiceResolvers,
   financeBudgetTypeDefs,
   financeBudgetResolvers,
+  financeChangeLogTypeDefs,
+  financeChangeLogResolvers,
 } from '../modules/finance';
 import { emailTypeDefs, emailResolvers } from '../modules/email';
 import { bugsTypeDefs, bugsResolvers } from '../modules/bugs';
@@ -175,6 +177,7 @@ export const typeDefs = [
   financeCompanyTypeDefs,
   financeRecurringTypeDefs,
   financeBudgetTypeDefs,
+  financeChangeLogTypeDefs,
   emailTypeDefs,
   policyTypeDefs,
   bugsTypeDefs,
@@ -252,6 +255,7 @@ export const resolvers = mergeResolvers([
   financeCompanyResolvers,
   recurringInvoiceResolvers,
   financeBudgetResolvers,
+  financeChangeLogResolvers,
   emailResolvers,
   policyResolvers,
   bugsResolvers,

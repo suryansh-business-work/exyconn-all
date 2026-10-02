@@ -40,6 +40,14 @@ export const NETWORK_RULES: Readonly<Record<SocialNetwork, NetworkRule>> = {
     allowsImage: false,
     note: 'Text, with a link shared as an article.',
   },
+  THREADS: {
+    network: 'THREADS',
+    canPublish: true,
+    maxChars: 500,
+    requiresImage: false,
+    allowsImage: true,
+    note: 'Text up to 500 characters, link included, with an optional image.',
+  },
   X: {
     network: 'X',
     canPublish: true,

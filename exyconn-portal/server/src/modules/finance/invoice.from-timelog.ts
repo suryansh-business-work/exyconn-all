@@ -10,6 +10,7 @@ import { assertRole } from '../../middleware/roleGuard';
 import { badRequest, notFound } from '../../utils/errors';
 import { withId } from '../../utils/serialize';
 import type { GraphQLContext } from '../../middleware/auth';
+import { recordAudit } from '../audit';
 
 /** How long the client has to pay, from the day the invoice is raised. */
 const DUE_IN_DAYS = 30;
@@ -92,5 +93,13 @@ export const createInvoiceFromTimeLog = async (
   ctx: GraphQLContext,
 ) => {
   assertRole(ctx, INVOICING_ROLES);
-  return withId(await buildInvoiceFromTimeLog(projectId, from, to));
+  const invoice = withId(await buildInvoiceFromTimeLog(projectId, from, to));
+  await recordAudit(ctx, {
+    action: 'CREATE',
+    module: 'Invoice',
+    entityId: invoice.id,
+    entityLabel: invoice.number,
+    summary: `Created Invoice ${invoice.number} from project time (${day(from)}–${day(to)})`,
+  });
+  return invoice;
 };

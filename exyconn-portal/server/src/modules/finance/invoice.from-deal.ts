@@ -9,6 +9,7 @@ import { ROLES } from '../../constants/roles';
 import { withId } from '../../utils/serialize';
 import { badRequest, notFound } from '../../utils/errors';
 import type { GraphQLContext } from '../../middleware/auth';
+import { recordAudit } from '../audit';
 
 /** Sales raises the invoice the moment a deal closes; Finance can too. */
 const invoicingRoles = [ROLES.FINANCE, ROLES.CRM];
@@ -73,6 +74,13 @@ export async function createInvoiceFromDeal(
     dueDate: new Date(issuedDate.getTime() + DUE_IN_DAYS * DAY_MS),
     placeOfSupplyStateCode: client.stateCode ?? '',
     supplierStateCode: branding.stateCode,
+  });
+  await recordAudit(ctx, {
+    action: 'CREATE',
+    module: 'Invoice',
+    entityId: created._id,
+    entityLabel: number,
+    summary: `Created Invoice ${number} from deal "${deal.title}"`,
   });
   return withId(created.toObject());
 }

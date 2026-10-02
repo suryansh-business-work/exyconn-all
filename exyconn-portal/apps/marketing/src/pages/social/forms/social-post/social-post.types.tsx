@@ -20,3 +20,10 @@ export interface SocialPostFormValues {
   /** ISO string; only read when scheduling. */
   scheduledAt: string;
 }
+
+/** What a new post starts with when it is planned from the calendar. */
+export interface ScheduleDefaults {
+  accountIds: string[];
+  /** ISO string. */
+  scheduledAt: string;
+}

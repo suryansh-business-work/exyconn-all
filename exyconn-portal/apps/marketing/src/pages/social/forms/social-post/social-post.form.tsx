@@ -24,10 +24,11 @@ import { NETWORK_LABEL, accountLabel } from '../../social.labels';
 import {
   makeSocialPostSchema,
   postLength,
+  scheduledFormValues,
   toFormValues,
   type SocialPostValues,
 } from './social-post.schema';
-import type { NetworkRule, SocialMediaPostRow } from './social-post.types';
+import type { NetworkRule, ScheduleDefaults, SocialMediaPostRow } from './social-post.types';
 
 interface ComposeAccount {
   id: string;
@@ -40,6 +41,8 @@ interface SocialPostFormProps {
   rules: readonly NetworkRule[];
   /** The post being edited, or null to write a new one. */
   initial: SocialMediaPostRow | null;
+  /** A new post planned from the calendar; its accounts that take no posts are dropped. */
+  schedule?: ScheduleDefaults;
   onDone: () => void;
   onCancel: () => void;
 }
@@ -56,6 +59,7 @@ export function SocialPostForm({
   accounts,
   rules,
   initial,
+  schedule,
   onDone,
   onCancel,
 }: Readonly<SocialPostFormProps>) {
@@ -72,13 +76,18 @@ export function SocialPostForm({
     };
   }, [rules, networkOf]);
   const schema = useMemo(() => makeSocialPostSchema(ruleOf), [ruleOf]);
+  const publishable = accounts.filter((account) => ruleOf(account.id)?.canPublish);
   const methods = useForm<z.input<typeof schema>, unknown, SocialPostValues>({
     resolver: zodResolver(schema),
-    defaultValues: toFormValues(initial),
+    defaultValues: schedule
+      ? scheduledFormValues({
+          ...schedule,
+          accountIds: schedule.accountIds.filter((id) => ruleOf(id)?.canPublish),
+        })
+      : toFormValues(initial),
   });
   const [accountIds, text, link, timing] = methods.watch(['accountIds', 'text', 'link', 'timing']);
 
-  const publishable = accounts.filter((account) => ruleOf(account.id)?.canPublish);
   const options = publishable.map((account) => ({
     value: account.id,
     label: accountLabel(account),

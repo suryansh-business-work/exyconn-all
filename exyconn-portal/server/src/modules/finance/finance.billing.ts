@@ -7,6 +7,7 @@ import { badRequest, notFound } from '../../utils/errors';
 import { tableQuery, type TableConfig, type TableQueryInput } from '../../utils/tableQuery';
 import type { GraphQLContext } from '../../middleware/auth';
 import { emitWebhookBestEffort } from '../integrations';
+import { diffChanges, recordAudit } from '../audit';
 
 const financeRoles = [ROLES.FINANCE];
 
@@ -124,9 +125,27 @@ async function recordPayment(_p: unknown, { input }: { input: PaymentInput }, ct
     recordedBy: ctx.user?.email ?? '',
   });
 
+  const before = { amountPaid: paidBefore, status: invoice.status };
   invoice.amountPaid = paidAfter;
   invoice.status = settleStatus(invoice.status, invoice.amount, paidAfter);
   await invoice.save();
+
+  // Two rows: the receipt itself, and what it did to the invoice it was paid against.
+  await recordAudit(ctx, {
+    action: 'CREATE',
+    module: 'Payment',
+    entityId: payment._id,
+    entityLabel: invoice.number,
+    summary: `Recorded ${payment.amount} ${payment.currency} against ${invoice.number}`,
+  });
+  await recordAudit(ctx, {
+    action: 'UPDATE',
+    module: 'Invoice',
+    entityId: invoice._id,
+    entityLabel: invoice.number,
+    summary: `Payment recorded on Invoice ${invoice.number}`,
+    changes: diffChanges(before, { amountPaid: paidAfter, status: invoice.status }),
+  });
 
   if (invoice.status === 'PAID') {
     // Queued, never sent inline: an integration's endpoint being down must not fail the

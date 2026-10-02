@@ -10,6 +10,7 @@ import { ROLES } from '../../constants/roles';
 import { notify, notifyBestEffort } from '../notifications';
 import { setExpenseClaimStatus } from './expense-status';
 import type { GraphQLContext } from '../../middleware/auth';
+import { recordAudit } from '../audit';
 
 interface ExpenseClaimInput {
   employeeId: string;
@@ -38,6 +39,7 @@ const generated = createCrudResolvers(expensesService, {
     defaultSort: { field: 'incurredOn', dir: 'DESC' },
   },
   stats: { countBy: ['status'], sum: ['amount'] },
+  labelFields: ['category'],
 });
 
 /** The stored claimant, so an edit cannot dodge the self-approval check with another id. */
@@ -77,6 +79,13 @@ async function createMyExpenseClaim(
     ...input,
     employeeId: user.id,
     status: 'SUBMITTED',
+  });
+  await recordAudit(ctx, {
+    action: 'CREATE',
+    module: 'ExpenseClaim',
+    entityId: created._id,
+    entityLabel: created.category,
+    summary: 'Submitted ExpenseClaim',
   });
   await notify(user.id, {
     kind: 'REQUEST',
