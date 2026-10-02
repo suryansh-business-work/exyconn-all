@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { RhfAutocomplete, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreateDepartmentMutation,
@@ -41,7 +42,7 @@ interface DepartmentFormProps {
 export function DepartmentForm({ initial, onDone, onCancel }: Readonly<DepartmentFormProps>) {
   const [createDepartment] = useCreateDepartmentMutation();
   const [updateDepartment] = useUpdateDepartmentMutation();
-  const { data } = useListEmployeeOptionsQuery();
+  const { data, loading } = useListEmployeeOptionsQuery();
   const headOptions = (data?.listEmployeeOptions ?? []).map((person) => ({
     value: person.id,
     label: person.name,
@@ -60,6 +61,11 @@ export function DepartmentForm({ initial, onDone, onCancel }: Readonly<Departmen
       updateDepartment({ variables: { id: row.id, input: toInput(values) } }),
     onDone,
   });
+
+  // The head picker needs its options before it can show the head already chosen.
+  if (!data && loading) {
+    return <LoadingState />;
+  }
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>

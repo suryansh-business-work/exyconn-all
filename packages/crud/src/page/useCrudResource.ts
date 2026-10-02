@@ -21,6 +21,8 @@ export interface UseCrudResourceOptions<TTarget> {
   confirmMessage: (row: TTarget) => ConfirmCopy;
   /** Re-reads the page's own data (its stats or list query) after a mutation. */
   refetch?: () => Promise<unknown>;
+  /** Names the form's URL param when a page holds a second resource — see useCrudDialog. */
+  scope?: string;
 }
 
 export interface CrudResource<TRow, TTarget> {
@@ -49,8 +51,9 @@ export function useCrudResource<TRow, TTarget = TRow>({
   onDelete,
   confirmMessage,
   refetch,
+  scope,
 }: UseCrudResourceOptions<TTarget>): CrudResource<TRow, TTarget> {
-  const dialog = useCrudDialog<TRow>();
+  const dialog = useCrudDialog<TRow>(scope);
   const { close } = dialog;
   const confirm = useConfirm();
   const notify = useNotify();

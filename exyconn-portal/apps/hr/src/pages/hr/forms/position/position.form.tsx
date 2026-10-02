@@ -7,6 +7,7 @@ import {
   type SelectOption,
 } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreatePositionMutation,
@@ -48,9 +49,12 @@ export function PositionForm({
 }: Readonly<PositionFormProps>) {
   const [createPosition] = useCreatePositionMutation();
   const [updatePosition] = useUpdatePositionMutation();
-  const { data: departments } = useListDepartmentsQuery();
-  const { data: grades } = useListGradesQuery();
-  const { data: types } = useListEmploymentTypesQuery();
+  const { data: departments, loading: departmentsLoading } = useListDepartmentsQuery();
+  const { data: grades, loading: gradesLoading } = useListGradesQuery();
+  const { data: types, loading: typesLoading } = useListEmploymentTypesQuery();
+  // The pickers need their options before they can show the values already chosen.
+  const optionsLoading =
+    (!departments && departmentsLoading) || (!grades && gradesLoading) || (!types && typesLoading);
 
   const departmentOptions = (departments?.listDepartments ?? []).map((d) => ({
     value: d.name,
@@ -71,6 +75,10 @@ export function PositionForm({
       updatePosition({ variables: { id: row.id, input: toPositionInput(values) } }),
     onDone,
   });
+
+  if (optionsLoading) {
+    return <LoadingState />;
+  }
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>

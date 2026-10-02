@@ -42,6 +42,7 @@ export function DepartmentsPage() {
     onDelete: (row) => deletePosition({ variables: { id: row.id } }),
     confirmMessage: (row) => ({ message: 'Delete position "{name}"?', values: { name: row.name } }),
     refetch,
+    scope: 'position',
   });
 
   const addPosition = (department: string) => {

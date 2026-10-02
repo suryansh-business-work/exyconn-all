@@ -12,11 +12,16 @@ export type CrudFormMode = 'new' | 'edit';
  * The mode lives in the URL (`?form=new` / `?form=edit`) so the browser's Back button
  * leaves the form rather than the portal. The row being edited is held in memory: it
  * comes from the grid, not from an id, so a reload lands back on the list.
+ *
+ * A page with two resources (departments and the positions inside them) gives the second a
+ * `scope`, so each owns its own param — sharing `?form` opened both forms at once and let
+ * one close the other's edit.
  */
-export function useCrudDialog<T>() {
+export function useCrudDialog<T>(scope?: string) {
   const [params, setParams] = useSearchParams();
   const [editing, setEditing] = useState<T | null>(null);
-  const mode = params.get(CRUD_FORM_PARAM);
+  const param = scope ? `${CRUD_FORM_PARAM}-${scope}` : CRUD_FORM_PARAM;
+  const mode = params.get(param);
 
   const setMode = useCallback(
     (next: CrudFormMode | null) => {
@@ -24,9 +29,9 @@ export function useCrudDialog<T>() {
         (current) => {
           const updated = new URLSearchParams(current);
           if (next) {
-            updated.set(CRUD_FORM_PARAM, next);
+            updated.set(param, next);
           } else {
-            updated.delete(CRUD_FORM_PARAM);
+            updated.delete(param);
           }
           return updated;
         },
@@ -34,7 +39,7 @@ export function useCrudDialog<T>() {
         { replace: next === null },
       );
     },
-    [setParams],
+    [setParams, param],
   );
 
   const openCreate = useCallback(() => {
