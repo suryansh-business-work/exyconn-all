@@ -17,6 +17,11 @@ module.exports = {
   // A share of the cores keeps that bounded without changing CI, where two cores
   // already resolve to a single worker.
   maxWorkers: '25%',
+  // On CI's two cores that share is one worker, which jest would otherwise run in band: one
+  // process for all 169 suites, whose heap grows with every suite's modules and coverage
+  // until V8 aborts. A memory limit makes jest use a real worker and restart it once it
+  // grows past this, so the heap is bounded however many suites there are.
+  workerIdleMemoryLimit: '1024MB',
   // sanitize-html (CommonJS) requires htmlparser2 12, which — with its dom* and entities
   // dependencies — ships only as ES modules. Node's require(esm) loads that at runtime, but
   // jest's module system cannot, so those packages (and only those) are transpiled to
