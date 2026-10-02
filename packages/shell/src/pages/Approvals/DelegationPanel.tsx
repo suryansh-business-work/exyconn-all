@@ -3,6 +3,7 @@ import { useT } from '@exyconn/i18n';
 import { Alert, Box, Button, Chip, Flex, Heading, Text } from '@/components/ui';
 import { densePanel } from '@/components/glass/glass';
 import { useConfirm } from '@/components/feedback/ConfirmProvider';
+import { LoadingState } from '@/components/feedback/CenteredState';
 import { useNotify } from '@/components/feedback/NotificationProvider';
 import { useSettings } from '@/hooks/useSettings';
 import { errorMessage } from '@/utils/errorMessage';
@@ -66,8 +67,13 @@ export function DelegationPanel() {
   const confirm = useConfirm();
   const { formatDate } = useSettings();
   const [arranging, setArranging] = useState(false);
-  const { data, refetch } = useMyApprovalDelegationsQuery({ fetchPolicy: 'cache-and-network' });
+  const { data, loading, refetch } = useMyApprovalDelegationsQuery({
+    fetchPolicy: 'cache-and-network',
+  });
   const [end] = useEndApprovalDelegationMutation();
+  if (!data && loading) {
+    return <LoadingState />;
+  }
   const given: Given[] = data?.myApprovalDelegations.given ?? [];
   const held: Held[] = data?.myApprovalDelegations.held ?? [];
 

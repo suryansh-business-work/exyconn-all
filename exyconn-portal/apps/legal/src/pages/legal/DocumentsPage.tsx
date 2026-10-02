@@ -18,7 +18,11 @@ import {
 /** Legal → Documents: repository of legal documents with CRUD. */
 export function DocumentsPage() {
   // Stat cards come from one server aggregation; the grid is server-paged separately.
-  const { data: statsData, refetch: refetchStats } = useListLegalDocumentsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListLegalDocumentsStatsQuery();
   const [deleteDocument] = useDeleteLegalDocumentMutation();
   const crud = useCrudResource<LegalDocumentRow, PagedLegalDocumentRow>({
     label: 'Document',
@@ -65,6 +69,7 @@ export function DocumentsPage() {
       subtitle="Legal document repository"
       entityLabel="document"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <DocumentForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

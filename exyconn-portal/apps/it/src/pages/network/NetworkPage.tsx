@@ -13,7 +13,11 @@ import { NETWORK_COLUMNS, type NetworkGridContext, type PagedNetworkItemRow } fr
 
 /** IT › Network: Wi-Fi, VPN, firewalls, DNS and IP ranges, and whether each is up. */
 export function NetworkPage() {
-  const { data: statsData, refetch: refetchStats } = useListItNetworkItemsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListItNetworkItemsStatsQuery();
   const [remove] = useDeleteItNetworkItemMutation();
   const crud = useCrudResource<NetworkItemRow, PagedNetworkItemRow>({
     label: 'Network item',
@@ -54,6 +58,7 @@ export function NetworkPage() {
       exportFileName="network"
       permissionModule="ItNetworkItem"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <NetworkItemForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

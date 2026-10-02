@@ -16,7 +16,11 @@ import { color } from '@exyconn/shell/components/ui';
 /** Products module — catalog dashboard with a server-side products grid. */
 export function ProductsPage() {
   // Stat cards come from one server aggregation; the grid is server-paged separately.
-  const { data: statsData, refetch: refetchStats } = useListProductsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListProductsStatsQuery();
   const [deleteProduct] = useDeleteProductMutation();
   const [history, setHistory] = useState<PagedProductRow | null>(null);
   const crud = useCrudResource<ProductRow, PagedProductRow>({
@@ -57,6 +61,7 @@ export function ProductsPage() {
       entityLabel="product"
       exportFileName="products"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <ProductForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

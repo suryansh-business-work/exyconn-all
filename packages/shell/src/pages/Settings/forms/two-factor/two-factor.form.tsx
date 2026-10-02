@@ -98,7 +98,7 @@ export function TwoFactorForm({ onEnrolled, onCancel }: Readonly<TwoFactorFormPr
             inputMode="numeric"
           />
           <Flex direction="row" spacing={1}>
-            <Button type="submit" variant="contained" disabled={methods.formState.isSubmitting}>
+            <Button type="submit" variant="contained" loading={methods.formState.isSubmitting}>
               {t('Turn on')}
             </Button>
             <Button variant="text" onClick={onCancel}>

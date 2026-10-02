@@ -24,7 +24,11 @@ import {
 export function ContractsPage() {
   const t = useT();
   // Stat cards come from one server aggregation; the grid is server-paged separately.
-  const { data: statsData, refetch: refetchStats } = useListContractsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListContractsStatsQuery();
   const [deleteContract] = useDeleteContractMutation();
   const [sendTarget, setSendTarget] = useState<ContractRow | null>(null);
   const { formatDate } = useSettings();
@@ -74,6 +78,7 @@ export function ContractsPage() {
       subtitle="Create, send & track contracts"
       entityLabel="contract"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <ContractForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

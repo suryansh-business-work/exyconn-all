@@ -21,7 +21,11 @@ import { color } from '@exyconn/shell/components/ui';
  * that decides whether everybody has to sign again.
  */
 export function PoliciesPage() {
-  const { data: statsData, refetch: refetchStats } = useListPoliciesStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListPoliciesStatsQuery();
   const [deletePolicy] = useDeletePolicyMutation();
   const [signersFor, setSignersFor] = useState<PagedPolicyRow | null>(null);
   const { formatDate } = useSettings();
@@ -82,6 +86,7 @@ export function PoliciesPage() {
       subtitle="What the company asks of people, and who has agreed to it"
       entityLabel="policy"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <PolicyForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

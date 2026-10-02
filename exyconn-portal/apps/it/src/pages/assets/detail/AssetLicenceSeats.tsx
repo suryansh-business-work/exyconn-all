@@ -1,6 +1,7 @@
 import { useT } from '@exyconn/i18n';
 import { Card, Flex, Typography, fontWeight } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 import { useLicenceSeatsForQuery } from '@exyconn/shell/graphql/generated';
 
 interface AssetLicenceSeatsProps {
@@ -22,13 +23,16 @@ export function AssetLicenceSeats({
   formatDate,
 }: Readonly<AssetLicenceSeatsProps>) {
   const t = useT();
-  const { data } = useLicenceSeatsForQuery({
+  const { data, loading } = useLicenceSeatsForQuery({
     variables: { employeeId },
     skip: employeeId === '',
   });
 
   if (employeeId === '') {
     return null;
+  }
+  if (!data && loading) {
+    return <LoadingState />;
   }
 
   const seats = data?.licenceSeatsFor ?? [];

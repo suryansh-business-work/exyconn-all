@@ -25,9 +25,9 @@ type BillingRow = TrackerBillingQuery['trackerBilling']['rows'][number];
 export function TrackerOverviewPage() {
   // The month is fixed for the life of the page, exactly as the billing report opens it.
   const [range] = useState(monthRange);
-  const { data: accessData } = useTrackerAccessListQuery();
-  const { data: devicesData } = useTrackerDevicesQuery();
-  const { data: pendingData } = useTrackerPendingManualEntriesQuery();
+  const { data: accessData, loading: accessLoading } = useTrackerAccessListQuery();
+  const { data: devicesData, loading: devicesLoading } = useTrackerDevicesQuery();
+  const { data: pendingData, loading: pendingLoading } = useTrackerPendingManualEntriesQuery();
   const { data: billingData, loading, refetch } = useTrackerBillingQuery({ variables: range });
 
   const tracking = (accessData?.trackerAccessList ?? []).filter((row) => row.isActive);
@@ -38,6 +38,11 @@ export function TrackerOverviewPage() {
   // Busiest first, and only the top few: both the bars and the table read as a ranking.
   const rows = [...(billing?.rows ?? [])].sort((a, b) => b.hours - a.hours).slice(0, TOP_EMPLOYEES);
 
+  const statsLoading =
+    (!accessData && accessLoading) ||
+    (!devicesData && devicesLoading) ||
+    (!pendingData && pendingLoading) ||
+    (!billingData && loading);
   const statItems: StatItem[] = [
     { label: 'Tracking', value: String(tracking.length), accent: color.blue[400] },
     { label: 'Devices', value: String(devices.length), accent: color.cyan[600] },
@@ -79,6 +84,7 @@ export function TrackerOverviewPage() {
       title="Time Tracker"
       subtitle="Who is tracking, and what this month is worth"
       stats={statItems}
+      statsLoading={statsLoading}
       breakdowns={breakdowns}
       links={[
         { label: 'Open activity', to: '/tracker/activity' },

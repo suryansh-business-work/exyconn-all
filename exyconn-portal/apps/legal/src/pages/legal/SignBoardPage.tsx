@@ -51,7 +51,12 @@ export function SignBoardPage() {
   ];
 
   return (
-    <ModuleDashboard title="Sign Board" subtitle="Sign & track contract signatures" stats={stats}>
+    <ModuleDashboard
+      title="Sign Board"
+      subtitle="Sign & track contract signatures"
+      stats={stats}
+      statsLoading={!data && loading}
+    >
       <DataTable
         columns={columns}
         rows={rows}

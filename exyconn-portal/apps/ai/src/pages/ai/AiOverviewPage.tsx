@@ -29,8 +29,8 @@ const USD_DIGITS = 2;
 /** AI → Overview: what has been run, what it cost, what is still running and what failed. */
 export function AiOverviewPage() {
   const t = useT();
-  const { data: jobStatsData } = useListAiJobsStatsQuery();
-  const { data: promptStatsData } = useListPromptsStatsQuery();
+  const { data: jobStatsData, loading: jobStatsLoading } = useListAiJobsStatsQuery();
+  const { data: promptStatsData, loading: promptStatsLoading } = useListPromptsStatsQuery();
   const { data: jobsData, loading, refetch } = useListAiJobsQuery();
   // Recomputed only when the module reloads, so the two boundaries stay stable while the
   // page is open — a window that slid under the user would make the totals jump.
@@ -40,7 +40,12 @@ export function AiOverviewPage() {
     loading: spendLoading,
     refetch: refetchSpend,
   } = useAiSpendSummaryQuery({ variables: period });
-  const { data: limitData } = useAiSpendLimitQuery();
+  const { data: limitData, loading: limitLoading } = useAiSpendLimitQuery();
+  const statsLoading =
+    (!jobStatsData && jobStatsLoading) ||
+    (!promptStatsData && promptStatsLoading) ||
+    (!spendData && spendLoading) ||
+    (!limitData && limitLoading);
 
   const jobStats = jobStatsData?.listAiJobsStats;
   const jobs = jobsData?.listAiJobs ?? [];
@@ -105,6 +110,7 @@ export function AiOverviewPage() {
       title="AI"
       subtitle="Jobs, spending and the prompt library at a glance"
       stats={statItems}
+      statsLoading={statsLoading}
       breakdowns={breakdowns}
       links={[
         { label: 'Open jobs', to: '/ai/jobs' },

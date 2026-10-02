@@ -25,7 +25,7 @@ export function AudiencesPage() {
   const t = useT();
   // Audiences are few and their sizes come from arrays, which no aggregation can sum —
   // so the tiles read the full list rather than a stats query.
-  const { data, refetch } = useListAudienceListsQuery();
+  const { data, loading, refetch } = useListAudienceListsQuery();
   const { data: clientsData } = useListClientsQuery();
   const [deleteAudienceList] = useDeleteAudienceListMutation();
   const [membersTarget, setMembersTarget] = useState<PagedAudienceRow | null>(null);
@@ -74,6 +74,7 @@ export function AudiencesPage() {
       subtitleValues={{ count: clientCount }}
       entityLabel="audience"
       stats={statItems}
+      statsLoading={!data && loading}
       crud={crud}
       renderForm={(initial) => (
         <AudienceListForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

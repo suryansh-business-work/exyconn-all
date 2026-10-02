@@ -102,7 +102,7 @@ export function MfaChallengeForm({
             type="submit"
             fullWidth
             variant="contained"
-            disabled={methods.formState.isSubmitting}
+            loading={methods.formState.isSubmitting}
             sx={{
               bgcolor: accentColor,
               color: readableInk(accentColor),

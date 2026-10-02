@@ -14,6 +14,7 @@ import { MetricChart } from '@exyconn/shell/components/dashboard/MetricChart';
 import { PointChart } from '@exyconn/shell/components/dashboard/PointChart';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 import { densePanel } from '@exyconn/shell/components/glass/glass';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import {
@@ -46,7 +47,7 @@ export function AnalyticsTab() {
   const t = useT();
   const { formatDate } = useSettings();
   const [days, setDays] = useState<number>(30);
-  const { data, error } = useSocialAnalyticsQuery({
+  const { data, loading, error } = useSocialAnalyticsQuery({
     variables: { days },
     fetchPolicy: 'cache-and-network',
   });
@@ -85,6 +86,7 @@ export function AnalyticsTab() {
         ))}
       </ToggleButtonGroup>
       {error && <Text color="error">{error.message}</Text>}
+      {!data && loading && <LoadingState />}
       {report && (
         <>
           <StatRow stats={tilesOf(report)} />

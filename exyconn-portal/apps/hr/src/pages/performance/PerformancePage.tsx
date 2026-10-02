@@ -19,7 +19,11 @@ import {
 
 /** Performance — server-paged admin grid over the review records. */
 export function PerformancePage() {
-  const { data: statsData, refetch: refetchStats } = useListPerformanceReviewsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListPerformanceReviewsStatsQuery();
   const [deletePerformanceReview] = useDeletePerformanceReviewMutation();
   const { formatDate } = useSettings();
   const nameOf = useEmployeeNames();
@@ -64,6 +68,7 @@ export function PerformancePage() {
       subtitle="Appraisal cycles and ratings"
       entityLabel="review"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <PerformanceReviewForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

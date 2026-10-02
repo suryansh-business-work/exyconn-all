@@ -28,7 +28,11 @@ import {
 /** Expense Claims — server-paged admin grid over the claim records, with finance's decisions. */
 export function ExpensesPage() {
   const t = useT();
-  const { data: statsData, refetch: refetchStats } = useListExpenseClaimsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListExpenseClaimsStatsQuery();
   const [deleteExpenseClaim] = useDeleteExpenseClaimMutation();
   const [setStatus] = useSetExpenseClaimStatusMutation();
   const [approveTarget, setApproveTarget] = useState<PagedExpenseClaimRow | null>(null);
@@ -115,6 +119,7 @@ export function ExpensesPage() {
       entityLabel="claim"
       exportFileName="expense-claims"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <ExpenseClaimForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

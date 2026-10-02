@@ -17,7 +17,7 @@ import { REVIEW_COLUMNS, type PagedReviewRow, type ReviewsGridContext } from './
  * decide whether the management system is working, and what to change.
  */
 export function ReviewsPage() {
-  const { data: statsData, refetch } = useListManagementReviewsStatsQuery();
+  const { data: statsData, loading: statsLoading, refetch } = useListManagementReviewsStatsQuery();
   const [deleteReview] = useDeleteManagementReviewMutation();
   const { formatDate } = useSettings();
   const crud = useCrudResource<ReviewRow, PagedReviewRow>({
@@ -62,6 +62,7 @@ export function ReviewsPage() {
       entityLabel="review"
       exportFileName="management-reviews"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <ReviewForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

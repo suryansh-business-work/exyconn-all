@@ -40,10 +40,14 @@ export function TechOverviewPage() {
     variables: { days: OVERVIEW_DAYS },
     fetchPolicy: 'cache-and-network',
   });
-  const { data: emailData } = useEmailDashboardQuery({ variables: { days: OVERVIEW_DAYS } });
-  const { data: reportsData } = useListProblemReportsStatsQuery();
+  const { data: emailData, loading: emailLoading } = useEmailDashboardQuery({
+    variables: { days: OVERVIEW_DAYS },
+  });
+  const { data: reportsData, loading: reportsLoading } = useListProblemReportsStatsQuery();
   const { formatDateTime } = useSettings();
 
+  const statsLoading =
+    (!statusData && loading) || (!emailData && emailLoading) || (!reportsData && reportsLoading);
   const status = statusData?.statusOverview;
   const email = emailData?.emailDashboard;
   const reportStats = reportsData?.listProblemReportsStats;
@@ -112,6 +116,7 @@ export function TechOverviewPage() {
       title="Tech"
       subtitle="Integrations, outbound email and uptime at a glance"
       stats={statItems}
+      statsLoading={statsLoading}
       breakdowns={breakdowns}
       links={[
         { label: 'Environment variables', to: '/tech/environment-variables' },

@@ -10,6 +10,7 @@ import { TrackerBillingTable } from './TrackerBillingTable';
 import { EMPLOYEE_BILLING_CSV, moneyFormat } from './tracker.billing';
 import type { BillingRange } from './BillingRangePicker';
 import { densePanel } from '@exyconn/shell/components/glass/glass';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 
 /**
  * Tracked time priced per employee.
@@ -25,6 +26,7 @@ export function TrackerBillingEmployees({ range }: Readonly<{ range: BillingRang
   });
 
   const billing = data?.trackerBilling;
+  const firstLoad = !data && loading;
   const rows = useMemo(() => billing?.rows ?? [], [billing]);
   const money = useMemo(() => moneyFormat(billing?.currency), [billing?.currency]);
   const unrated = rows.filter((row) => !row.rated).length;
@@ -52,6 +54,7 @@ export function TrackerBillingEmployees({ range }: Readonly<{ range: BillingRang
             label="Hours"
             value={String(billing?.totalHours ?? 0)}
             accent={color.sky[500]}
+            loading={firstLoad}
           />
         </Grid>
         <Grid
@@ -64,6 +67,7 @@ export function TrackerBillingEmployees({ range }: Readonly<{ range: BillingRang
             label="Amount"
             value={money.format(billing?.totalAmount ?? 0)}
             accent={color.green[300]}
+            loading={firstLoad}
           />
         </Grid>
       </Grid>
@@ -74,12 +78,16 @@ export function TrackerBillingEmployees({ range }: Readonly<{ range: BillingRang
         </Text>
       )}
 
-      <TrackerBillingChart
-        rows={rows}
-        title="Billable hours by employee"
-        subtitle="Tracked active time plus approved off-computer time"
-        labelHeading="Employee"
-      />
+      {firstLoad ? (
+        <LoadingState />
+      ) : (
+        <TrackerBillingChart
+          rows={rows}
+          title="Billable hours by employee"
+          subtitle="Tracked active time plus approved off-computer time"
+          labelHeading="Employee"
+        />
+      )}
 
       <Flex direction="row" justifyContent="flex-end" sx={{ mb: 1 }}>
         <ExportCsvButton

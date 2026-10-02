@@ -43,7 +43,11 @@ const COLUMNS: ColDef<PagedArticleRow>[] = [
  */
 export function KnowledgeBasePage() {
   const { formatDate } = useSettings();
-  const { data: statsData, refetch: refetchStats } = useListKbArticlesStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListKbArticlesStatsQuery();
   const [remove] = useDeleteKbArticleMutation();
   const crud = useCrudResource<KbArticleRow, PagedArticleRow>({
     label: 'Article',
@@ -77,6 +81,7 @@ export function KnowledgeBasePage() {
       exportFileName="it-knowledge-base"
       permissionModule="KbArticle"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <KbArticleForm

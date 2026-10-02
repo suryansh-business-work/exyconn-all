@@ -23,6 +23,7 @@ import {
   useRevokeApiKeyMutation,
 } from '@exyconn/shell/graphql/generated';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 
 /** The roles a key can be granted. Mirrors the portal's own list — a key is never more. */
 const GRANTABLE_ROLES = [
@@ -49,7 +50,7 @@ export function ApiKeysPanel() {
   const notify = useNotify();
   const confirm = useConfirm();
   const { formatDateTime } = useSettings();
-  const { data, refetch } = useListApiKeysQuery();
+  const { data, loading, refetch } = useListApiKeysQuery();
   const [createKey] = useCreateApiKeyMutation();
   const [revokeKey] = useRevokeApiKeyMutation();
 
@@ -137,6 +138,7 @@ export function ApiKeysPanel() {
 
       {/* Scrolls itself on a narrow screen rather than widening the page — and is focusable,
           so the keyboard can scroll it too (scrollable-region-focusable). */}
+      {!data && loading && <LoadingState />}
       <TableContainer tabIndex={0}>
         <Table size="small">
           <TableHead>

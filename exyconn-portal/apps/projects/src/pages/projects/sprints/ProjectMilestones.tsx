@@ -16,6 +16,7 @@ import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import {
   MilestoneState,
@@ -51,7 +52,7 @@ export function ProjectMilestones({ projectId }: Readonly<ProjectMilestonesProps
   const notify = useNotify();
   const [editing, setEditing] = useState<MilestoneFieldsFragment | null>(null);
   const [open, setOpen] = useState(false);
-  const { data, refetch } = useProjectMilestonesQuery({
+  const { data, loading, refetch } = useProjectMilestonesQuery({
     variables: { projectId },
     skip: projectId === '',
     fetchPolicy: 'cache-and-network',
@@ -59,6 +60,7 @@ export function ProjectMilestones({ projectId }: Readonly<ProjectMilestonesProps
   const [deleteMilestone] = useDeleteMilestoneMutation();
 
   const milestones = data?.projectMilestones ?? [];
+  const firstLoad = !data && loading;
 
   const openForm = (milestone: MilestoneFieldsFragment | null) => {
     setEditing(milestone);
@@ -148,7 +150,8 @@ export function ProjectMilestones({ projectId }: Readonly<ProjectMilestonesProps
             </IconButton>
           </Flex>
         ))}
-        {milestones.length === 0 ? (
+        {firstLoad ? <LoadingState /> : null}
+        {!firstLoad && milestones.length === 0 ? (
           <Text size="sm" color="text.secondary">
             {t('No milestones yet. Anything set here is what a shared client link shows.')}
           </Text>

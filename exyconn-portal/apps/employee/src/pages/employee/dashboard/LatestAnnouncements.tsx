@@ -2,6 +2,7 @@ import { useT } from '@exyconn/i18n';
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { panel } from '@exyconn/shell/components/glass/glass';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 import PushPinIcon from '@mui/icons-material/PushPin';
 
 export interface AnnouncementSummary {
@@ -15,18 +16,21 @@ export interface AnnouncementSummary {
 interface LatestAnnouncementsProps {
   announcements: AnnouncementSummary[];
   formatDate: (value: string) => string;
+  loading?: boolean;
 }
 
 /** The few most recent live announcements, pinned first (the API already sorts). */
 export function LatestAnnouncements({
   announcements,
   formatDate,
+  loading = false,
 }: Readonly<LatestAnnouncementsProps>) {
   const t = useT();
   return (
     <Box sx={[panel, { height: '100%' }]}>
       <Heading level={6}>{t('Announcements')}</Heading>
-      {announcements.length === 0 && (
+      {loading && <LoadingState />}
+      {!loading && announcements.length === 0 && (
         <Text size="sm" color="text.secondary">
           {t('Nothing announced right now.')}
         </Text>

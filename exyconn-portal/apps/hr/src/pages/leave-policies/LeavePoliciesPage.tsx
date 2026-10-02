@@ -18,7 +18,11 @@ import {
 
 /** Leave types — server-paged admin grid over the leave policy records. */
 export function LeavePoliciesPage() {
-  const { data: statsData, refetch: refetchStats } = useListLeavePoliciesStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListLeavePoliciesStatsQuery();
   const [deleteLeavePolicy] = useDeleteLeavePolicyMutation();
   const { formatDate } = useSettings();
 
@@ -65,6 +69,7 @@ export function LeavePoliciesPage() {
       subtitle="Global quotas and carry-forward, with per-country overrides"
       entityLabel="leave type"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <LeavePolicyForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

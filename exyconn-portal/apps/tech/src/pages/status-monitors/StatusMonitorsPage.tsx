@@ -18,7 +18,11 @@ import {
 
 /** Tech module — the catalogue of endpoints the public status page reports on. */
 export function StatusMonitorsPage() {
-  const { data: statsData, refetch: refetchStats } = useListStatusMonitorsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListStatusMonitorsStatsQuery();
   const [deleteMonitor] = useDeleteStatusMonitorMutation();
   const crud = useCrudResource<StatusMonitorRow, PagedStatusMonitorRow>({
     label: 'Status monitor',
@@ -62,6 +66,7 @@ export function StatusMonitorsPage() {
       subtitle="Every endpoint status.exyconn.com watches, and what it reported last"
       entityLabel="monitor"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <StatusMonitorForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

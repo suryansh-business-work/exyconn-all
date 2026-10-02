@@ -17,7 +17,7 @@ import { FINDING_COLUMNS, type PagedFindingRow, type FindingsGridContext } from 
  * finding came from an audit, a customer, an incident or somebody noticing.
  */
 export function FindingsPage() {
-  const { data: statsData, refetch } = useListFindingsStatsQuery();
+  const { data: statsData, loading: statsLoading, refetch } = useListFindingsStatsQuery();
   const [deleteFinding] = useDeleteFindingMutation();
   const { formatDate } = useSettings();
   const crud = useCrudResource<FindingRow, PagedFindingRow>({
@@ -62,6 +62,7 @@ export function FindingsPage() {
       entityLabel="finding"
       exportFileName="findings"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <FindingForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

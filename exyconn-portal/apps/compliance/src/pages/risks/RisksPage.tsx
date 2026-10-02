@@ -17,7 +17,7 @@ import { RISK_COLUMNS, type PagedRiskRow, type RisksGridContext } from './risks-
  * and the first thing an auditor opens.
  */
 export function RisksPage() {
-  const { data: statsData, refetch } = useListRisksStatsQuery();
+  const { data: statsData, loading: statsLoading, refetch } = useListRisksStatsQuery();
   const [deleteRisk] = useDeleteRiskMutation();
   const { formatDate } = useSettings();
   const crud = useCrudResource<RiskRow, PagedRiskRow>({
@@ -66,6 +66,7 @@ export function RisksPage() {
       entityLabel="risk"
       exportFileName="risk-register"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <RiskForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

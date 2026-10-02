@@ -26,11 +26,11 @@ const COLUMNS: Column<LeadRow>[] = [
 
 /** CRM → Overview: the whole funnel, from new leads to the weighted deal forecast. */
 export function CrmOverviewPage() {
-  const { data: leadStats } = useListLeadsStatsQuery();
-  const { data: dealStats } = useListDealsStatsQuery();
-  const { data: companyStats } = useListCompaniesStatsQuery();
-  const { data: contactStats } = useListContactsStatsQuery();
-  const { data: forecastData } = useDealForecastQuery();
+  const { data: leadStats, loading: leadStatsLoading } = useListLeadsStatsQuery();
+  const { data: dealStats, loading: dealStatsLoading } = useListDealsStatsQuery();
+  const { data: companyStats, loading: companyStatsLoading } = useListCompaniesStatsQuery();
+  const { data: contactStats, loading: contactStatsLoading } = useListContactsStatsQuery();
+  const { data: forecastData, loading: forecastLoading } = useDealForecastQuery();
   const { data: leadsData, loading, refetch } = useListLeadsQuery();
 
   const source: CrmOverviewSource = {
@@ -40,6 +40,12 @@ export function CrmOverviewPage() {
     contacts: contactStats?.listContactsStats,
     forecast: forecastData?.dealForecast,
   };
+  const statsLoading =
+    (!leadStats && leadStatsLoading) ||
+    (!dealStats && dealStatsLoading) ||
+    (!companyStats && companyStatsLoading) ||
+    (!contactStats && contactStatsLoading) ||
+    (!forecastData && forecastLoading);
   const leads = leadsData?.listLeads ?? [];
 
   return (
@@ -47,6 +53,7 @@ export function CrmOverviewPage() {
       title="CRM"
       subtitle="Pipeline at a glance"
       stats={crmStatItems(source)}
+      statsLoading={statsLoading}
       breakdowns={crmBreakdowns(source)}
       links={[
         { label: 'Open leads register', to: '/crm/leads' },

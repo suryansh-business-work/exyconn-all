@@ -1,6 +1,7 @@
 import { useT, type Interpolations } from '@exyconn/i18n';
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 import CakeIcon from '@mui/icons-material/Cake';
 import type { Anniversary } from './hrDashboard.selectors';
 
@@ -10,6 +11,8 @@ type Translate = (source: string, values?: Interpolations) => string;
 interface HrAnniversariesProps {
   anniversaries: Anniversary[];
   formatDate: (value: Date) => string;
+  /** True until the card's data first arrives. */
+  loading?: boolean;
 }
 
 function when(daysAway: number, t: Translate): string {
@@ -25,12 +28,17 @@ function yearsServed(years: number, t: Translate): string {
 }
 
 /** Work anniversaries in the next month — the cheapest recognition there is. */
-export function HrAnniversaries({ anniversaries, formatDate }: Readonly<HrAnniversariesProps>) {
+export function HrAnniversaries({
+  anniversaries,
+  formatDate,
+  loading = false,
+}: Readonly<HrAnniversariesProps>) {
   const t = useT();
   return (
     <Box sx={[panel, { height: '100%' }]}>
       <Heading level={6}>{t('Work anniversaries')}</Heading>
-      {anniversaries.length === 0 && (
+      {loading && <LoadingState />}
+      {!loading && anniversaries.length === 0 && (
         <Text size="sm" color="text.secondary">
           {t('None in the next 30 days.')}
         </Text>

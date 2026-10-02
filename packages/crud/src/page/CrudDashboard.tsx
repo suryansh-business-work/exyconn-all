@@ -26,6 +26,8 @@ interface CrudDashboardProps<TRow, TPaged> {
   /** Overrides the "New {entityLabel}" header button label. */
   actionLabel?: string;
   stats: StatItem[];
+  /** True until the stats query first answers — the tiles show placeholders, not zeros. */
+  statsLoading?: boolean;
   /**
    * Create/edit/delete state. Omit it for a grid whose rows are made elsewhere — the
    * support console, say — and there is no "New …" button and no create form.
@@ -76,6 +78,7 @@ export function CrudDashboard<TRow, TPaged>({
   entityLabel,
   actionLabel,
   stats,
+  statsLoading,
   crud,
   renderForm,
   refreshSignal,
@@ -141,6 +144,7 @@ export function CrudDashboard<TRow, TPaged>({
       actionLabelValues={createAction?.values}
       onAction={createAction?.open}
       stats={stats}
+      statsLoading={statsLoading}
       dialog={extraDialogs}
     >
       {toolbar}

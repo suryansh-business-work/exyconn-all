@@ -14,7 +14,11 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Holidays — server-paged admin grid over the holiday records. */
 export function HolidaysPage() {
-  const { data: statsData, refetch: refetchStats } = useListHolidaysStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListHolidaysStatsQuery();
   const [deleteHoliday] = useDeleteHolidayMutation();
   const { formatDate } = useSettings();
 
@@ -61,6 +65,7 @@ export function HolidaysPage() {
       subtitle="Global, country, state / regional and city holidays — each employee sees the ones for where they work"
       entityLabel="holiday"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <HolidayForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

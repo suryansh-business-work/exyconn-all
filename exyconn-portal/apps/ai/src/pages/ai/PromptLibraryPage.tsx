@@ -21,7 +21,11 @@ import { color } from '@exyconn/shell/components/ui';
 export function PromptLibraryPage() {
   const t = useT();
   // Stat cards come from one server aggregation; the grid is server-paged separately.
-  const { data: statsData, refetch: refetchStats } = useListPromptsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListPromptsStatsQuery();
   const [deletePrompt] = useDeletePromptMutation();
   const notify = useNotify();
   const [runTarget, setRunTarget] = useState<RunPromptTarget | null>(null);
@@ -87,6 +91,7 @@ export function PromptLibraryPage() {
       subtitle="Reusable AI prompts"
       entityLabel="prompt"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <PromptForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

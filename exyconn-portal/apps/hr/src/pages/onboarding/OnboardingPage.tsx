@@ -26,7 +26,11 @@ import {
  */
 export function OnboardingPage() {
   const { formatDate } = useSettings();
-  const { data: statsData, refetch: refetchStats } = useListOnboardingChecklistsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListOnboardingChecklistsStatsQuery();
   const [deleteChecklist] = useDeleteOnboardingChecklistMutation();
   const [viewing, setViewing] = useState<PagedOnboardingChecklistRow | null>(null);
 
@@ -62,6 +66,7 @@ export function OnboardingPage() {
       entityLabel="onboarding"
       actionLabel="Start onboarding"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={() => <StartOnboardingForm onCancel={crud.close} onDone={crud.onDone} />}
       columnDefs={ONBOARDING_COLUMNS}

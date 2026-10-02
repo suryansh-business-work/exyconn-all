@@ -2,6 +2,7 @@ import { useT } from '@exyconn/i18n';
 import { Text, color } from '@exyconn/shell/components/ui';
 import { ModuleOverview } from '@exyconn/shell/components/dashboard/ModuleOverview';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 import { useItDashboardQuery, type ItDashboardQuery } from '@exyconn/shell/graphql/generated';
 import { DashboardLists } from './DashboardLists';
 
@@ -53,7 +54,7 @@ const LINKS = [
  */
 export function DashboardPage() {
   const t = useT();
-  const { data, error } = useItDashboardQuery({ fetchPolicy: 'cache-and-network' });
+  const { data, loading, error } = useItDashboardQuery({ fetchPolicy: 'cache-and-network' });
   const dashboard = data?.itDashboard;
 
   return (
@@ -61,9 +62,11 @@ export function DashboardPage() {
       title="IT"
       subtitle="Tickets, outages, approvals, assets and announcements"
       stats={dashboard ? tilesOf(dashboard) : []}
+      statsLoading={!data && loading}
       links={LINKS}
       recentTitle="What needs attention"
     >
+      {!data && loading && <LoadingState />}
       {dashboard && <DashboardLists dashboard={dashboard} />}
       {error && (
         <Text color="error">

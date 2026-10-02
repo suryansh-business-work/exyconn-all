@@ -13,7 +13,7 @@ import { color } from '@exyconn/shell/components/ui';
 /** Website CMS — the tools listed in the public tools directory (server-side grid). */
 export function ToolsPage() {
   // Stat cards still summarise all tools; the grid itself is server-paged.
-  const { data } = useListToolsQuery();
+  const { data, loading } = useListToolsQuery();
   const [deleteTool] = useDeleteToolMutation();
   const crud = useCrudResource<ToolRow, PagedToolRow>({
     label: 'Tool',
@@ -49,6 +49,7 @@ export function ToolsPage() {
       subtitle="The public tools directory"
       entityLabel="tool"
       stats={stats}
+      statsLoading={!data && loading}
       crud={crud}
       renderForm={(initial) => (
         <ToolForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

@@ -19,7 +19,7 @@ import { color } from '@exyconn/shell/components/ui';
  */
 export function AuditLogPage() {
   const { formatDateTime } = useSettings();
-  const { data: statsData } = useListAuditLogsStatsQuery();
+  const { data: statsData, loading: statsLoading } = useListAuditLogsStatsQuery();
   const [selected, setSelected] = useState<PagedAuditRow | null>(null);
 
   const fetchRows = usePagedFetcher(
@@ -59,6 +59,7 @@ export function AuditLogPage() {
       subtitle="Who changed what, and when"
       entityLabel="entry"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       permissionModule="AuditLog"
       columnDefs={AUDIT_COLUMNS}
       fetchRows={fetchRows}

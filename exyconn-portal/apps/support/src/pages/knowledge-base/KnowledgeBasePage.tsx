@@ -23,7 +23,11 @@ import {
  * answer to paste and an employee hunting for it themselves are the same search.
  */
 export function KnowledgeBasePage() {
-  const { data: statsData, refetch: refetchStats } = useListKbArticlesStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListKbArticlesStatsQuery();
   const [deleteArticle] = useDeleteKbArticleMutation();
   const { formatDate } = useSettings();
 
@@ -68,6 +72,7 @@ export function KnowledgeBasePage() {
       entityLabel="article"
       exportFileName="knowledge-base"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <KbArticleForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

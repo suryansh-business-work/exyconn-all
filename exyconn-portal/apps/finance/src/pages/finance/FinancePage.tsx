@@ -21,7 +21,11 @@ import { color } from '@exyconn/shell/components/ui';
 export function FinancePage() {
   const t = useT();
   // Stat cards come from one server aggregation; the grid is server-paged separately.
-  const { data: statsData, refetch: refetchStats } = useListInvoicesStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListInvoicesStatsQuery();
   const [deleteInvoice] = useDeleteInvoiceMutation();
   const [sendTarget, setSendTarget] = useState<PagedInvoiceRow | null>(null);
   const { download } = useInvoiceDownload();
@@ -75,6 +79,7 @@ export function FinancePage() {
       entityLabel="invoice"
       exportFileName="invoices"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <InvoiceForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

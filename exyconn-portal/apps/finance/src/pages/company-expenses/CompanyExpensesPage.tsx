@@ -27,7 +27,11 @@ import {
  * company cost and the dashboard counts them separately, so it can always say which is which.
  */
 export function CompanyExpensesPage() {
-  const { data: statsData, refetch: refetchStats } = useListCompanyExpensesStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListCompanyExpensesStatsQuery();
   const [deleteExpense] = useDeleteCompanyExpenseMutation();
   const [markPaid] = useMarkExpensePaidMutation();
   const { formatDate } = useSettings();
@@ -90,6 +94,7 @@ export function CompanyExpensesPage() {
       entityLabel="expense"
       exportFileName="company-expenses"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <CompanyExpenseForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

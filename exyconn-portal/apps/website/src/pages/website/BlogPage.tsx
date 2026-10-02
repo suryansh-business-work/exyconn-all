@@ -15,7 +15,7 @@ import { color } from '@exyconn/shell/components/ui';
 /** Website CMS — blog posts with a server-side grid. */
 export function BlogPage() {
   // Stat cards still summarise all posts; the grid itself is server-paged.
-  const { data } = useListBlogPostsQuery();
+  const { data, loading } = useListBlogPostsQuery();
   const [deleteBlogPost] = useDeleteBlogPostMutation();
   const { formatDate } = useSettings();
   const navigate = useNavigate();
@@ -66,6 +66,7 @@ export function BlogPage() {
       entityLabel="blog post"
       actionLabel="New post"
       stats={stats}
+      statsLoading={!data && loading}
       crud={crud}
       renderForm={(initial) => (
         <BlogPostForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

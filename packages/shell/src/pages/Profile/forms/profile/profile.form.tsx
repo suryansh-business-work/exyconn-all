@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { EntityForm } from '@/components/form/EntityForm';
 import { useAuth } from '@/auth/AuthContext';
 import { useNotify } from '@/components/feedback/NotificationProvider';
+import { LoadingState } from '@/components/feedback/CenteredState';
 import { errorMessage } from '@/utils/errorMessage';
 import { useMeQuery, useUpdateProfileMutation } from '@/graphql/generated';
 import { profileSchema } from './profile.schema';
@@ -38,12 +39,16 @@ function valuesOf(name: string, me: ProfileMe | undefined): ProfileFormValues {
 export function ProfileForm() {
   const { user, updateUser } = useAuth();
   const notify = useNotify();
-  const { data, refetch } = useMeQuery({ fetchPolicy: 'cache-first' });
+  const { data, loading, refetch } = useMeQuery({ fetchPolicy: 'cache-first' });
   const [updateProfile] = useUpdateProfileMutation();
   const methods = useForm<ProfileFormValues>({
     resolver: zodResolver(profileSchema),
     values: valuesOf(user?.name ?? '', data?.me),
   });
+
+  if (!data && loading) {
+    return <LoadingState />;
+  }
 
   const onSubmit = async (values: ProfileFormValues) => {
     try {

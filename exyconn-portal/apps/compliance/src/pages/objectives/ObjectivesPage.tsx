@@ -21,7 +21,7 @@ import {
  * appraisal goals, which belong to HR.
  */
 export function ObjectivesPage() {
-  const { data: statsData, refetch } = useListObjectivesStatsQuery();
+  const { data: statsData, loading: statsLoading, refetch } = useListObjectivesStatsQuery();
   const [deleteObjective] = useDeleteObjectiveMutation();
   const { formatDate } = useSettings();
   const crud = useCrudResource<ObjectiveRow, PagedObjectiveRow>({
@@ -66,6 +66,7 @@ export function ObjectivesPage() {
       entityLabel="objective"
       exportFileName="objectives"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <ObjectiveForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

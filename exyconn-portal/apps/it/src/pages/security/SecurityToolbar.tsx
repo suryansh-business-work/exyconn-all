@@ -1,6 +1,6 @@
 import { Link as RouterLink } from 'react-router-dom';
 import { useT } from '@exyconn/i18n';
-import { Button, Stack, Text } from '@exyconn/shell/components/ui';
+import { Button, Skeleton, Stack, Text } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { statCount } from '@exyconn/shell/components/data/tableStats';
 import { AssetEdrStatus, useListAssetsStatsQuery } from '@exyconn/shell/graphql/generated';
@@ -18,8 +18,9 @@ const SECURITY_LINKS = [
  */
 export function SecurityToolbar() {
   const t = useT();
-  const { data } = useListAssetsStatsQuery();
+  const { data, loading } = useListAssetsStatsQuery();
   const stats = data?.listAssetsStats;
+  const countsLoading = !data && loading;
   return (
     <Stack spacing={1.5} sx={{ mb: 1.5 }}>
       <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap', gap: 1 }}>
@@ -29,7 +30,11 @@ export function SecurityToolbar() {
         {Object.values(AssetEdrStatus).map((status) => (
           <Stack key={status} direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
             <StatusChip value={status} />
-            <Text size="sm">{statCount(stats, 'edrStatus', status)}</Text>
+            {countsLoading ? (
+              <Skeleton variant="text" width={16} />
+            ) : (
+              <Text size="sm">{statCount(stats, 'edrStatus', status)}</Text>
+            )}
           </Stack>
         ))}
       </Stack>

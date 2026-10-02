@@ -37,7 +37,11 @@ export function SupportConsolePage() {
   const t = useT();
   const navigate = useNavigate();
   const { formatDate } = useSettings();
-  const { data: statsData, refetch: refetchStats } = useListSupportTicketsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListSupportTicketsStatsQuery();
   const { data: slaData, refetch: refetchSla } = useSupportSlaSummaryQuery({
     fetchPolicy: 'cache-and-network',
   });
@@ -119,6 +123,7 @@ export function SupportConsolePage() {
       subtitle="Employee & customer tickets"
       entityLabel="ticket"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       refreshSignal={refreshSignal}
       columnDefs={TICKET_COLUMNS}
       fetchRows={fetchRows}

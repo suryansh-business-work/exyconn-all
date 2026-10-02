@@ -52,7 +52,11 @@ const COLUMNS: ColDef<PagedPolicyRow>[] = [
 /** IT › Policies: IT policy, BYOD, password, device usage, VPN and security policies. */
 export function PoliciesPage() {
   const { formatDate } = useSettings();
-  const { data: statsData, refetch: refetchStats } = useListPoliciesStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListPoliciesStatsQuery();
   const [remove] = useDeletePolicyMutation();
   const crud = useCrudResource<PolicyRow, PagedPolicyRow>({
     label: 'Policy',
@@ -98,6 +102,7 @@ export function PoliciesPage() {
       exportFileName="it-policies"
       permissionModule="Policy"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <PolicyForm

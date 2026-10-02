@@ -11,4 +11,11 @@ describe('StatCard', () => {
     cy.mount(<StatCard label="Users" value="42" delta={12} />);
     cy.contains('12%').should('be.visible');
   });
+
+  it('holds a placeholder, not the value, until the figure arrives', () => {
+    cy.mount(<StatCard label="Clients" value="0" loading />);
+    cy.contains('Clients').should('be.visible');
+    cy.contains('0').should('not.exist');
+    cy.get('.MuiSkeleton-root').should('exist');
+  });
 });

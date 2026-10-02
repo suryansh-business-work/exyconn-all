@@ -13,7 +13,7 @@ import { color } from '@exyconn/shell/components/ui';
 /** Website module — job postings published on the public careers site (server-side grid). */
 export function JobsPage() {
   // Stat cards still summarise all jobs; the grid itself is server-paged.
-  const { data } = useListJobsQuery();
+  const { data, loading } = useListJobsQuery();
   const [deleteJob] = useDeleteJobMutation();
   const crud = useCrudResource<JobRow, PagedJobRow>({
     label: 'Job',
@@ -53,6 +53,7 @@ export function JobsPage() {
       subtitle="Openings published on the public careers site"
       entityLabel="job"
       stats={stats}
+      statsLoading={!data && loading}
       crud={crud}
       renderForm={(initial) => (
         <JobForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

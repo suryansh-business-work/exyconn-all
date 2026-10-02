@@ -2,20 +2,28 @@ import { useT } from '@exyconn/i18n';
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { panel } from '@exyconn/shell/components/glass/glass';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 import type { PendingLeave } from './hrDashboard.selectors';
 
 interface HrPendingLeaveProps {
   rows: PendingLeave[];
   formatDate: (value: string) => string;
+  /** True until the card's data first arrives. */
+  loading?: boolean;
 }
 
 /** Leave requests waiting on HR — the queue this dashboard exists to surface. */
-export function HrPendingLeave({ rows, formatDate }: Readonly<HrPendingLeaveProps>) {
+export function HrPendingLeave({
+  rows,
+  formatDate,
+  loading = false,
+}: Readonly<HrPendingLeaveProps>) {
   const t = useT();
   return (
     <Box sx={[panel, { height: '100%' }]}>
       <Heading level={6}>{t('Pending leave approvals')}</Heading>
-      {rows.length === 0 && (
+      {loading && <LoadingState />}
+      {!loading && rows.length === 0 && (
         <Text size="sm" color="text.secondary">
           {t('Nothing waiting on you.')}
         </Text>

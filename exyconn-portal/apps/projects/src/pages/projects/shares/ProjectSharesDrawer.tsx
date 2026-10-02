@@ -2,6 +2,7 @@ import { useT } from '@exyconn/i18n';
 import { Alert, Box, Divider, Flex, Stack, Text, fontSize } from '@exyconn/shell/components/ui';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 import { ShareForm } from '../forms/share';
 import { ShareRow } from './ShareRow';
 import { useProjectShares } from './useProjectShares';
@@ -94,7 +95,8 @@ export function ProjectSharesDrawer({ project, onClose }: Readonly<ProjectShares
             onRevoke={shares.revoke}
           />
         ))}
-        {shares.shares.length === 0 ? (
+        {shares.loading ? <LoadingState /> : null}
+        {!shares.loading && shares.shares.length === 0 ? (
           <Text size="sm" color="text.secondary">
             {t('No links have been issued for this project.')}
           </Text>

@@ -38,7 +38,11 @@ export function HelpdeskPage() {
   const [quick, setQuick] = useState<QuickFilter>('all');
   const [refreshSignal, setRefreshSignal] = useState(0);
   const [viewing, setViewing] = useState<PagedItTicketRow | null>(null);
-  const { data: dashboard, refetch: refetchDashboard } = useItDashboardQuery();
+  const {
+    data: dashboard,
+    loading: dashboardLoading,
+    refetch: refetchDashboard,
+  } = useItDashboardQuery();
   const { data: sla } = useSupportSlaSummaryQuery();
   const { data: settings } = useItSettingsQuery();
   const fetchRows = usePagedFetcher(
@@ -83,6 +87,7 @@ export function HelpdeskPage() {
       entityLabel="ticket"
       exportFileName="it-tickets"
       stats={statItems}
+      statsLoading={!dashboard && dashboardLoading}
       refreshSignal={refreshSignal}
       columnDefs={HELPDESK_COLUMNS}
       fetchRows={fetchRows}

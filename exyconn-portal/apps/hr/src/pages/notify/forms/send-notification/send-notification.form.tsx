@@ -122,7 +122,7 @@ export function SendNotificationForm({ onSent }: Readonly<SendNotificationFormPr
             <RhfMultiSelect name="employeeIds" label="Employees" options={employeeOptions} />
           )}
           <Flex direction="row" justifyContent="flex-end">
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" loading={loading} loadingPosition="start">
               {loading ? t('Sending…') : t('Send notification')}
             </Button>
           </Flex>

@@ -19,7 +19,11 @@ import {
 
 /** Tech module — everything reported from the public status page, waiting for triage. */
 export function ProblemReportsPage() {
-  const { data: statsData, refetch: refetchStats } = useListProblemReportsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListProblemReportsStatsQuery();
   const [deleteReport] = useDeleteProblemReportMutation();
   const crud = useCrudResource<ProblemReportRow, PagedProblemReportRow>({
     label: 'Problem report',
@@ -66,6 +70,7 @@ export function ProblemReportsPage() {
       entityLabel="report"
       exportFileName="problem-reports"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <ProblemReportForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

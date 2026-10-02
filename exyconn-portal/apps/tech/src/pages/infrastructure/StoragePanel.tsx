@@ -84,7 +84,7 @@ export function StoragePanel() {
               md: 3,
             }}
           >
-            <StatCard {...stat} />
+            <StatCard {...stat} loading={!data && loading} />
           </Grid>
         ))}
       </Grid>

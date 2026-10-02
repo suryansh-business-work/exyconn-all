@@ -14,7 +14,11 @@ import { color } from '@exyconn/shell/components/ui';
 /** Clients module — client directory dashboard with a server-side clients grid. */
 export function ClientsPage() {
   // Stat cards come from one server aggregation; the grid is server-paged separately.
-  const { data: statsData, refetch: refetchStats } = useListClientsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListClientsStatsQuery();
   const [deleteClient] = useDeleteClientMutation();
   const crud = useCrudResource<ClientRow, PagedClientRow>({
     label: 'Client',
@@ -58,6 +62,7 @@ export function ClientsPage() {
       subtitle="Client directory"
       entityLabel="client"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <ClientForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

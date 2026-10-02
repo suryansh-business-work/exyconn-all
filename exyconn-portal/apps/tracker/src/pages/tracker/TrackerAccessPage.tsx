@@ -74,6 +74,8 @@ export function TrackerAccessPage() {
     access: accessByUser.get(user.id) ?? null,
   }));
 
+  const statsLoading =
+    (!usersQuery.data && usersQuery.loading) || (!accessQuery.data && accessQuery.loading);
   const activeCount = rows.filter((row) => row.access?.isActive).length;
   const consentedCount = rows.filter((row) => row.access?.consentedAt).length;
   const stats: StatItem[] = [
@@ -145,6 +147,7 @@ export function TrackerAccessPage() {
       title="Tracker Access"
       subtitle="Grant or revoke desktop tracking"
       stats={stats}
+      statsLoading={statsLoading}
     >
       <DataTable
         columns={columns}

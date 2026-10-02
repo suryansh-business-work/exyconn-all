@@ -11,6 +11,7 @@ import {
 } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useItReportQuery, type ItReportQuery } from '@exyconn/shell/graphql/generated';
 import { MetricChart } from '@exyconn/shell/components/dashboard/MetricChart';
@@ -46,7 +47,7 @@ export function ReportsPage() {
   const t = useT();
   const { formatCurrency } = useSettings();
   const [months, setMonths] = useState<number>(6);
-  const { data, error } = useItReportQuery({
+  const { data, loading, error } = useItReportQuery({
     variables: { months },
     fetchPolicy: 'cache-and-network',
   });
@@ -77,6 +78,7 @@ export function ReportsPage() {
         </ToggleButtonGroup>
       </PageHeader>
       {error && <Text color="error">{error.message}</Text>}
+      {!report && loading && <LoadingState />}
       {report && (
         <Stack spacing={1.5}>
           <StatRow stats={tilesOf(report)} />

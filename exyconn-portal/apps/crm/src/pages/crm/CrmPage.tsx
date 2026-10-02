@@ -21,7 +21,11 @@ export function CrmPage() {
   const t = useT();
   const navigate = useNavigate();
   // Stat cards come from one server aggregation; the grid is server-paged separately.
-  const { data: statsData, refetch: refetchStats } = useListLeadsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListLeadsStatsQuery();
   const [deleteLead] = useDeleteLeadMutation();
   const [converting, setConverting] = useState<PagedLeadRow | null>(null);
   const crud = useCrudResource<LeadRow, PagedLeadRow>({
@@ -65,6 +69,7 @@ export function CrmPage() {
       entityLabel="lead"
       exportFileName="leads"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <LeadForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

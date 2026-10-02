@@ -25,7 +25,11 @@ import {
 export function MarketingPage() {
   const t = useT();
   // Stat cards come from one server aggregation; the grid is server-paged separately.
-  const { data: statsData, refetch: refetchStats } = useListCampaignsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListCampaignsStatsQuery();
   const [deleteCampaign] = useDeleteCampaignMutation();
   const [detailsTarget, setDetailsTarget] = useState<CampaignRow | null>(null);
   const [sendTarget, setSendTarget] = useState<CampaignRow | null>(null);
@@ -79,6 +83,7 @@ export function MarketingPage() {
       subtitle="Campaigns"
       entityLabel="campaign"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <CampaignForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

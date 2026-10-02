@@ -3,6 +3,7 @@ import { useT } from '@exyconn/i18n';
 import { Badge, IconButton } from '@/components/ui';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { useMyUnreadNotificationCountQuery } from '@/graphql/generated';
+import { BACKGROUND_REQUEST } from '@/config/networkActivity';
 
 /** How often the badge re-asks the server, in ms. Notifications are not real-time. */
 const POLL_INTERVAL_MS = 60_000;
@@ -10,10 +11,14 @@ const POLL_INTERVAL_MS = 60_000;
 /** Topbar bell: unread badge, and a click opens the shared notification centre. */
 export function NotificationBell() {
   const navigate = useNavigate();
-  const { data } = useMyUnreadNotificationCountQuery({ pollInterval: POLL_INTERVAL_MS });
+  const { data } = useMyUnreadNotificationCountQuery({
+    pollInterval: POLL_INTERVAL_MS,
+    context: BACKGROUND_REQUEST,
+  });
   const unread = data?.myUnreadNotificationCount ?? 0;
   const t = useT();
-  const label = unread > 0 ? t('{count} unread notifications', { count: unread }) : t('Notifications');
+  const label =
+    unread > 0 ? t('{count} unread notifications', { count: unread }) : t('Notifications');
 
   return (
     <IconButton onClick={() => navigate('/notifications')} aria-label={label} sx={{ mr: 0.5 }}>

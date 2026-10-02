@@ -22,7 +22,11 @@ import { color } from '@exyconn/shell/components/ui';
 /** Admin module — user management dashboard with a server-side Users grid. */
 export function AdminPage() {
   // Stat cards come from one server aggregation; the grid is server-paged separately.
-  const { data: statsData, refetch: refetchStats } = useListUsersStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListUsersStatsQuery();
   const [deleteUser] = useDeleteUserMutation();
   const [resetPassword] = useResetUserPasswordMutation();
   const confirm = useConfirm();
@@ -90,6 +94,7 @@ export function AdminPage() {
       entityLabel="user"
       exportFileName="users"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <UserForm

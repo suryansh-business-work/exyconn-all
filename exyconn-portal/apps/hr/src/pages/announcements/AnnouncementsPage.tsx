@@ -18,7 +18,11 @@ import {
 
 /** HR module — publishes the announcements every employee portal reads. */
 export function AnnouncementsPage() {
-  const { data: statsData, refetch: refetchStats } = useListAnnouncementsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListAnnouncementsStatsQuery();
   const [deleteAnnouncement] = useDeleteAnnouncementMutation();
   const { formatDate } = useSettings();
 
@@ -68,6 +72,7 @@ export function AnnouncementsPage() {
       subtitle="Company notices, policies and updates"
       entityLabel="announcement"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <AnnouncementForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

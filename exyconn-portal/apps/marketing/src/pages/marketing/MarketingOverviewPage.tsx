@@ -21,9 +21,9 @@ const RECENT_CAMPAIGNS = 8;
 
 /** Marketing → Overview: what is running, what it costs, and who it reached. */
 export function MarketingOverviewPage() {
-  const { data: statsData } = useListCampaignsStatsQuery();
+  const { data: statsData, loading: statsDataLoading } = useListCampaignsStatsQuery();
   const { data: campaignsData, loading, refetch } = useListCampaignsQuery();
-  const { data: leadsData } = useCampaignLeadCountsQuery();
+  const { data: leadsData, loading: leadsLoading } = useCampaignLeadCountsQuery();
   const { formatDate } = useSettings();
 
   const stats = statsData?.listCampaignsStats;
@@ -33,6 +33,8 @@ export function MarketingOverviewPage() {
   const leadsGenerated = leadCounts.reduce((sum, row) => sum + row.leads, 0);
   const leadsFor = new Map(leadCounts.map((row) => [row.campaignId, row.leads]));
 
+  const statsLoading =
+    (!statsData && statsDataLoading) || (!campaignsData && loading) || (!leadsData && leadsLoading);
   const statItems: StatItem[] = [
     { label: 'Campaigns', value: String(statTotal(stats)), accent: color.blue[400] },
     {
@@ -72,6 +74,7 @@ export function MarketingOverviewPage() {
       title="Marketing"
       subtitle="Campaigns and audiences at a glance"
       stats={statItems}
+      statsLoading={statsLoading}
       breakdowns={breakdowns}
       links={[
         { label: 'Open campaigns', to: '/marketing/campaigns' },

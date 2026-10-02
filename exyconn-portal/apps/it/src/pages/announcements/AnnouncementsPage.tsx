@@ -46,7 +46,11 @@ const COLUMNS: ColDef<PagedAnnouncementRow>[] = [
 /** IT › Announcements: maintenance windows, outages and security alerts, told to staff. */
 export function AnnouncementsPage() {
   const { formatDate } = useSettings();
-  const { data: statsData, refetch: refetchStats } = useListAnnouncementsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListAnnouncementsStatsQuery();
   const [remove] = useDeleteAnnouncementMutation();
   const crud = useCrudResource<AnnouncementRow, PagedAnnouncementRow>({
     label: 'Announcement',
@@ -90,6 +94,7 @@ export function AnnouncementsPage() {
       exportFileName="it-announcements"
       permissionModule="Announcement"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <AnnouncementForm

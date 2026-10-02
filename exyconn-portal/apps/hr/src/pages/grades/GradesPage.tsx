@@ -14,7 +14,11 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Grades — server-paged admin grid over the grade records. */
 export function GradesPage() {
-  const { data: statsData, refetch: refetchStats } = useListGradesStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListGradesStatsQuery();
   const [deleteGrade] = useDeleteGradeMutation();
   const { formatDate } = useSettings();
 
@@ -57,6 +61,7 @@ export function GradesPage() {
       subtitle="Job bands and salary ranges"
       entityLabel="grade"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <GradeForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

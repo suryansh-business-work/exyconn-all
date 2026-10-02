@@ -16,7 +16,11 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Finance → Budgets: what each cost centre may spend, one month at a time. */
 export function BudgetsPage() {
-  const { data: statsData, refetch: refetchStats } = useListBudgetsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListBudgetsStatsQuery();
   const { data: centresData } = useListCostCentersQuery();
   const [deleteBudget] = useDeleteBudgetMutation();
 
@@ -74,6 +78,7 @@ export function BudgetsPage() {
       entityLabel="budget"
       exportFileName="budgets"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <BudgetForm

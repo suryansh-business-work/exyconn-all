@@ -30,7 +30,11 @@ export function PurchaseOrdersPage() {
   const t = useT();
   const { formatDate } = useSettings();
   const [receiving, setReceiving] = useState<PurchaseOrderRow | null>(null);
-  const { data: statsData, refetch: refetchStats } = useListPurchaseOrdersStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListPurchaseOrdersStatsQuery();
   const [deleteOrder] = useDeletePurchaseOrderMutation();
 
   const crud = useCrudResource<PurchaseOrderRow, PurchaseOrderRow>({
@@ -86,6 +90,7 @@ export function PurchaseOrdersPage() {
       entityLabel="purchase order"
       exportFileName="purchase-orders"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <PurchaseOrderForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

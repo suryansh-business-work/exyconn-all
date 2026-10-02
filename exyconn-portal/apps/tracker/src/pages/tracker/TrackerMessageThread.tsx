@@ -20,6 +20,7 @@ import {
   useTrackerMessageThreadQuery,
   type TrackerMessageFieldsFragment,
 } from '@exyconn/shell/graphql/generated';
+import { BACKGROUND_REQUEST } from '@exyconn/shell/config/networkActivity';
 
 /** The portal refuses anything longer, so the field stops before the round trip does. */
 const MAX_CHARS = 2000;
@@ -85,6 +86,7 @@ export function TrackerMessageThread({ userId, userName }: Readonly<TrackerMessa
     variables: { userId },
     fetchPolicy: 'cache-and-network',
     pollInterval: 15_000,
+    context: BACKGROUND_REQUEST,
   });
   const [markRead] = useMarkTrackerThreadReadMutation({
     refetchQueries: [TrackerMessageThreadsDocument],

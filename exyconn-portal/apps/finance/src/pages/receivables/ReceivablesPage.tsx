@@ -50,7 +50,12 @@ export function ReceivablesPage() {
   return (
     <Box>
       <PageHeader title="Receivables" subtitle="What is owed, and how late it is" />
-      <ModuleDashboard title="Ageing" subtitle="Unpaid balances by age" stats={stats}>
+      <ModuleDashboard
+        title="Ageing"
+        subtitle="Unpaid balances by age"
+        stats={stats}
+        statsLoading={!report && loading}
+      >
         <DataTable
           columns={columns}
           rows={bands}

@@ -20,7 +20,11 @@ import {
 
 /** Exits & Offboarding — server-paged admin grid over the exit record records. */
 export function ExitsPage() {
-  const { data: statsData, refetch: refetchStats } = useListExitRecordsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListExitRecordsStatsQuery();
   const [deleteExitRecord] = useDeleteExitRecordMutation();
   const { formatDate } = useSettings();
   const nameOf = useEmployeeNames();
@@ -69,6 +73,7 @@ export function ExitsPage() {
       subtitle="Resignations, clearance and full & final"
       entityLabel="exit record"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <>

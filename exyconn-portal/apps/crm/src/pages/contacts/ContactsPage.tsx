@@ -13,7 +13,11 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** CRM → Contacts: the people at the accounts, and who owns each relationship. */
 export function ContactsPage() {
-  const { data: statsData, refetch: refetchStats } = useListContactsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListContactsStatsQuery();
   const [deleteContact] = useDeleteContactMutation();
   const crud = useCrudResource<ContactRow, PagedContactRow>({
     label: 'Contact',
@@ -57,6 +61,7 @@ export function ContactsPage() {
       entityLabel="contact"
       exportFileName="contacts"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <ContactForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

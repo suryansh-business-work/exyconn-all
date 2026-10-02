@@ -3,6 +3,7 @@ import { useT } from '@exyconn/i18n';
 import { Badge, IconButton } from '@/components/ui';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import { useMyPendingApprovalCountQuery } from '@/graphql/generated';
+import { BACKGROUND_REQUEST } from '@/config/networkActivity';
 
 /** How often the badge re-asks the server, in ms. An approval is not real-time either. */
 const POLL_INTERVAL_MS = 60_000;
@@ -15,7 +16,10 @@ const POLL_INTERVAL_MS = 60_000;
 export function ApprovalsBell() {
   const navigate = useNavigate();
   const t = useT();
-  const { data } = useMyPendingApprovalCountQuery({ pollInterval: POLL_INTERVAL_MS });
+  const { data } = useMyPendingApprovalCountQuery({
+    pollInterval: POLL_INTERVAL_MS,
+    context: BACKGROUND_REQUEST,
+  });
   const waiting = data?.myPendingApprovalCount ?? 0;
   if (waiting === 0) return null;
 

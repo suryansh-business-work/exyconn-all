@@ -17,7 +17,11 @@ import {
 
 /** CRM → Activities: what was said, and what still has to be done about it. */
 export function ActivitiesPage() {
-  const { data: statsData, refetch: refetchStats } = useListActivitiesStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListActivitiesStatsQuery();
   const [deleteActivity] = useDeleteActivityMutation();
   const crud = useCrudResource<ActivityRow, PagedActivityRow>({
     label: 'Activity',
@@ -56,6 +60,7 @@ export function ActivitiesPage() {
       subtitle="Calls, meetings, notes and follow-ups"
       entityLabel="activity"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <ActivityForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

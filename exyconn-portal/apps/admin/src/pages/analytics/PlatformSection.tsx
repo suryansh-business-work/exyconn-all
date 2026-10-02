@@ -7,6 +7,7 @@ import {
   usePlatformAnalyticsQuery,
   type PlatformAnalyticsQuery,
 } from '@exyconn/shell/graphql/generated';
+import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 import { AnalyticsSection } from './AnalyticsSection';
 import { PointChart } from '@exyconn/shell/components/dashboard/PointChart';
 import { count, withCountryNames } from './analytics.format';
@@ -28,11 +29,12 @@ function tilesOf(platform: Platform): StatItem[] {
 /** SUPER_ADMIN only: every organization on the platform, how big, and where. */
 export function PlatformSection() {
   const t = useT();
-  const { data, error } = usePlatformAnalyticsQuery({ fetchPolicy: 'cache-and-network' });
+  const { data, loading, error } = usePlatformAnalyticsQuery({ fetchPolicy: 'cache-and-network' });
   const platform = data?.platformAnalytics;
   return (
     <AnalyticsSection title="Platform" subtitle="Every organization on the platform, as of now">
       {error && <Text color="error">{error.message}</Text>}
+      {!data && loading && <LoadingState />}
       {platform && (
         <>
           <StatRow stats={tilesOf(platform)} />

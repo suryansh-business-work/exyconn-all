@@ -15,7 +15,11 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Benefits — server-paged admin grid over the benefit records. */
 export function BenefitsPage() {
-  const { data: statsData, refetch: refetchStats } = useListBenefitsStatsQuery();
+  const {
+    data: statsData,
+    loading: statsLoading,
+    refetch: refetchStats,
+  } = useListBenefitsStatsQuery();
   const [deleteBenefit] = useDeleteBenefitMutation();
   const { formatDate } = useSettings();
   const nameOf = useEmployeeNames();
@@ -60,6 +64,7 @@ export function BenefitsPage() {
       subtitle="Insurance, PF and other benefits"
       entityLabel="benefit"
       stats={statItems}
+      statsLoading={!statsData && statsLoading}
       crud={crud}
       renderForm={(initial) => (
         <BenefitForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />

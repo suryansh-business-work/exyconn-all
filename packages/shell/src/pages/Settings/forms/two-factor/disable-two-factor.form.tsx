@@ -65,7 +65,7 @@ export function DisableTwoFactorForm({
               type="submit"
               variant="contained"
               color="error"
-              disabled={methods.formState.isSubmitting}
+              loading={methods.formState.isSubmitting}
             >
               {t('Turn off')}
             </Button>
