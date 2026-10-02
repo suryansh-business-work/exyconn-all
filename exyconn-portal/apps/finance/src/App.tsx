@@ -10,6 +10,7 @@ import { CompanyExpensesPage } from './pages/company-expenses';
 import { CostCentersPage } from './pages/cost-centers';
 import { BudgetsPage } from './pages/budgets';
 import { BudgetVariancePage } from './pages/budget-variance';
+import { ChangeLogPage } from './pages/change-log';
 
 /** Finance micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
@@ -24,6 +25,7 @@ export function App() {
       <Route path="/finance/cost-centres" element={<CostCentersPage />} />
       <Route path="/finance/budgets" element={<BudgetsPage />} />
       <Route path="/finance/budget-variance" element={<BudgetVariancePage />} />
+      <Route path="/finance/change-log" element={<ChangeLogPage />} />
       <Route path="/expenses" element={<ExpensesPage />} />
     </PortalApp>
   );

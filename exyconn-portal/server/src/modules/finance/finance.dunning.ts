@@ -7,6 +7,7 @@ import { emailer } from '../email';
 import { companyProfile } from '../../lib/company';
 import { formatAmount } from '../../utils/money';
 import { logger } from '../../utils/logger';
+import { recordSystemAudit } from '../audit';
 
 /**
  * How long after the due date the customer hears from us, in days.
@@ -156,6 +157,13 @@ export async function chaseOverdueInvoices(now = new Date()): Promise<number> {
     );
     if (claimed && (await sendChase(target, to, profile.locale))) {
       sent += 1;
+      await recordSystemAudit({
+        action: 'UPDATE',
+        module: 'Invoice',
+        entityId: target.id,
+        entityLabel: target.number,
+        summary: `Sent the ${target.stage}-day overdue reminder for Invoice ${target.number} to ${to}`,
+      });
     }
   }
   return sent;

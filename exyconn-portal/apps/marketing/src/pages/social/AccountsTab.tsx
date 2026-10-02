@@ -7,7 +7,7 @@ import { ConnectedAccountsTable } from './ConnectedAccountsTable';
 import { useConnectOutcome } from './useConnectOutcome';
 import { useSocialAccounts } from './useSocialAccounts';
 
-/** Social › Accounts: connect LinkedIn, Meta, X and YouTube accounts, and keep them in sync. */
+/** Social › Accounts: connect LinkedIn, Meta, Threads, X and YouTube accounts, and keep them in sync. */
 export function AccountsTab() {
   const t = useT();
   const social = useSocialAccounts();

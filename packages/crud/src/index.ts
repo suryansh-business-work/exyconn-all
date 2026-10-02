@@ -25,6 +25,7 @@ export type {
   RowActionSpec,
 } from './grid/types';
 export { usePagedFetcher } from './grid/usePagedFetcher';
+export { AUDIT_COLUMNS, type AuditGridContext } from './grid/auditColumns';
 export {
   useCrudResource,
   type CrudResource,

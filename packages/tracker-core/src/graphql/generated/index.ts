@@ -2168,6 +2168,7 @@ export type SlipStatus =
 export type SocialApp =
   | 'LINKEDIN'
   | 'META'
+  | 'THREADS'
   | 'X'
   | 'YOUTUBE';
 
@@ -2213,6 +2214,7 @@ export type SocialNetwork =
   | 'FACEBOOK'
   | 'INSTAGRAM'
   | 'LINKEDIN'
+  | 'THREADS'
   | 'X'
   | 'YOUTUBE';
 

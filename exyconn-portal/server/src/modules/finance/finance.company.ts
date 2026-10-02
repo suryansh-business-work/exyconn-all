@@ -7,6 +7,7 @@ import { ROLES } from '../../constants/roles';
 import { withId } from '../../utils/serialize';
 import { badRequest, notFound } from '../../utils/errors';
 import type { GraphQLContext } from '../../middleware/auth';
+import { diffChanges, recordAudit } from '../audit';
 
 const financeRoles = [ROLES.FINANCE];
 
@@ -37,6 +38,7 @@ const expenses = createCrudResolvers(companyExpensesService, {
     defaultSort: { field: 'incurredOn', dir: 'DESC' },
   },
   stats: { countBy: ['category', 'status'], sum: ['amount'] },
+  labelFields: ['vendor'],
 });
 
 /**
@@ -61,10 +63,20 @@ async function markExpensePaid(
     badRequest(`${expense.vendor} was already settled on this bill.`);
   }
 
+  const before = { status: expense.status, paidOn: expense.paidOn };
   expense.status = 'PAID';
   expense.paidOn = paidOn ?? new Date();
   expense.recordedBy = ctx.user?.email ?? actor.id;
   await expense.save();
+
+  await recordAudit(ctx, {
+    action: 'UPDATE',
+    module: 'CompanyExpense',
+    entityId: expense._id,
+    entityLabel: expense.vendor,
+    summary: `Marked CompanyExpense from ${expense.vendor} paid`,
+    changes: diffChanges(before, { status: expense.status, paidOn: expense.paidOn }),
+  });
 
   return withId(expense.toObject());
 }

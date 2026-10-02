@@ -11,6 +11,7 @@ import { ROLES } from '../../constants/roles';
 import { withId } from '../../utils/serialize';
 import { notFound } from '../../utils/errors';
 import type { GraphQLContext } from '../../middleware/auth';
+import { diffChanges, recordAudit } from '../audit';
 
 const financeRoles = [ROLES.FINANCE];
 
@@ -123,5 +124,13 @@ export async function sendInvoice(
   if (!saved) {
     notFound('Invoice');
   }
+  await recordAudit(ctx, {
+    action: 'UPDATE',
+    module: 'Invoice',
+    entityId: id,
+    entityLabel: invoice.number,
+    summary: `Sent Invoice ${invoice.number} to ${email}`,
+    changes: diffChanges({ status: invoice.status }, { status: saved.status }),
+  });
   return withId(saved as { _id: unknown });
 }

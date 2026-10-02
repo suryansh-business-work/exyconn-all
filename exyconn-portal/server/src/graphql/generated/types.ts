@@ -9289,6 +9289,10 @@ export type Query = {
   listExpenseClaims: Array<ExpenseClaim>;
   listExpenseClaimsPaged: ExpenseClaimPage;
   listExpenseClaimsStats: TableStats;
+  /** The audit log narrowed to finance records: invoices, schedules, payments, spend, claims and budgets. */
+  listFinanceChangeLogPaged: AuditLogPage;
+  /** Per-action and per-module counts over the same finance records. */
+  listFinanceChangeLogStats: TableStats;
   listFindings: Array<Finding>;
   listFindingsPaged: FindingPage;
   listFindingsStats: TableStats;
@@ -9664,11 +9668,11 @@ export type Query = {
   socialAccounts: Array<SocialAccount>;
   /** What the posts did over the last days (1-365). MARKETING. */
   socialAnalytics: SocialAnalytics;
-  /** The four providers' apps, set up or not. Platform Tech staff. */
+  /** Every provider's app, set up or not. Platform Tech staff. */
   socialAppConfigs: Array<SocialAppConfig>;
   /** Which providers Marketing can connect. MARKETING. */
   socialAppStatuses: Array<SocialAppStatus>;
-  /** Posts scheduled or published between two instants — the calendar. MARKETING. */
+  /** Posts scheduled or published between two instants, optionally for some accounts only — the calendar. MARKETING. */
   socialCalendar: Array<SocialMediaPost>;
   /** The comments on a post, oldest first, so a conversation reads in order. */
   socialComments: Array<SocialComment>;
@@ -10490,6 +10494,11 @@ export type QueryListExpenseClaimsPagedArgs = {
 };
 
 
+export type QueryListFinanceChangeLogPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListFindingsPagedArgs = {
   input: TableQueryInput;
 };
@@ -11008,6 +11017,7 @@ export type QuerySocialAnalyticsArgs = {
 
 
 export type QuerySocialCalendarArgs = {
+  accountIds?: InputMaybe<Array<Scalars['ID']['input']>>;
   from: Scalars['DateTime']['input'];
   to: Scalars['DateTime']['input'];
 };
@@ -11682,6 +11692,7 @@ export type SocialAnalytics = {
 export enum SocialApp {
   Linkedin = 'LINKEDIN',
   Meta = 'META',
+  Threads = 'THREADS',
   X = 'X',
   Youtube = 'YOUTUBE'
 }
@@ -11826,6 +11837,7 @@ export enum SocialNetwork {
   Facebook = 'FACEBOOK',
   Instagram = 'INSTAGRAM',
   Linkedin = 'LINKEDIN',
+  Threads = 'THREADS',
   X = 'X',
   Youtube = 'YOUTUBE'
 }
@@ -18918,6 +18930,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listExpenseClaims?: Resolver<Array<ResolversTypes['ExpenseClaim']>, ParentType, ContextType>;
   listExpenseClaimsPaged?: Resolver<ResolversTypes['ExpenseClaimPage'], ParentType, ContextType, RequireFields<QueryListExpenseClaimsPagedArgs, 'input'>>;
   listExpenseClaimsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listFinanceChangeLogPaged?: Resolver<ResolversTypes['AuditLogPage'], ParentType, ContextType, RequireFields<QueryListFinanceChangeLogPagedArgs, 'input'>>;
+  listFinanceChangeLogStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listFindings?: Resolver<Array<ResolversTypes['Finding']>, ParentType, ContextType>;
   listFindingsPaged?: Resolver<ResolversTypes['FindingPage'], ParentType, ContextType, RequireFields<QueryListFindingsPagedArgs, 'input'>>;
   listFindingsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;

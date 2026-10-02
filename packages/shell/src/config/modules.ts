@@ -382,6 +382,13 @@ export const MODULES: ModuleDefinition[] = [
         icon: AssessmentIcon,
         group: 'Planning',
       },
+      {
+        key: 'finance-change-log',
+        label: 'Change log',
+        path: '/finance/change-log',
+        icon: HistoryIcon,
+        group: 'Records',
+      },
     ],
   },
   {

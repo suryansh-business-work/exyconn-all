@@ -5,6 +5,7 @@ import { withId } from '../../utils/serialize';
 import { badRequest, notFound } from '../../utils/errors';
 import { notifyBestEffort } from '../notifications/notifications.service';
 import type { GraphQLContext } from '../../middleware/auth';
+import { diffChanges, recordAudit } from '../audit';
 
 const financeRoles = [ROLES.FINANCE];
 
@@ -46,6 +47,11 @@ export async function setExpenseClaimStatus(
     notFound('Expense claim');
   }
 
+  const before = {
+    status: claim.status,
+    approvedAmount: claim.approvedAmount,
+    paidOn: claim.paidOn,
+  };
   if (status === 'APPROVED') {
     const cleared = approvedAmount ?? claim.amount;
     if (cleared < 0 || cleared > claim.amount) {
@@ -59,6 +65,19 @@ export async function setExpenseClaimStatus(
   }
   claim.status = status;
   await claim.save();
+
+  await recordAudit(ctx, {
+    action: 'UPDATE',
+    module: 'ExpenseClaim',
+    entityId: claim._id,
+    entityLabel: claim.category,
+    summary: `Set ExpenseClaim to ${status}`,
+    changes: diffChanges(before, {
+      status: claim.status,
+      approvedAmount: claim.approvedAmount,
+      paidOn: claim.paidOn,
+    }),
+  });
 
   // Best-effort: a notification store hiccup must not undo a decision that is already made.
   await notifyBestEffort(claim.employeeId, {

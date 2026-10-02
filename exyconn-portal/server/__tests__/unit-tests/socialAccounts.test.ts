@@ -60,12 +60,12 @@ describe('secretBox', () => {
 describe('social app configs (Tech)', () => {
   beforeEach(() => seedPlatformOperator());
 
-  it('lists all four providers with the callback to register', async () => {
+  it('lists every provider with the callback to register', async () => {
     const rows = (await Q.socialAppConfigs(null, {}, techStaff())) as {
       app: string;
       callbackUrl: string;
     }[];
-    expect(rows.map((row) => row.app)).toEqual(['LINKEDIN', 'META', 'X', 'YOUTUBE']);
+    expect(rows.map((row) => row.app)).toEqual(['LINKEDIN', 'META', 'THREADS', 'X', 'YOUTUBE']);
     expect(rows[1].callbackUrl).toMatch(/\/oauth\/social\/meta\/callback$/);
   });
 

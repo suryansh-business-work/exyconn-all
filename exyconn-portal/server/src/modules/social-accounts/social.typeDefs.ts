@@ -5,6 +5,7 @@ export const socialAccountsTypeDefs = gql`
   enum SocialApp {
     LINKEDIN
     META
+    THREADS
     X
     YOUTUBE
   }
@@ -13,6 +14,7 @@ export const socialAccountsTypeDefs = gql`
     LINKEDIN
     FACEBOOK
     INSTAGRAM
+    THREADS
     X
     YOUTUBE
   }
@@ -77,7 +79,7 @@ export const socialAccountsTypeDefs = gql`
   }
 
   extend type Query {
-    "The four providers' apps, set up or not. Platform Tech staff."
+    "Every provider's app, set up or not. Platform Tech staff."
     socialAppConfigs: [SocialAppConfig!]!
     "Which providers Marketing can connect. MARKETING."
     socialAppStatuses: [SocialAppStatus!]!

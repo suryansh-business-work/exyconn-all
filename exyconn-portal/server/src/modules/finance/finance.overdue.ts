@@ -1,5 +1,12 @@
-import { InvoiceModel, NOT_YET_LATE_STATUSES } from './finance.model';
+import type { FilterQuery } from 'mongoose';
+import {
+  InvoiceModel,
+  NOT_YET_LATE_STATUSES,
+  type InvoiceDocument,
+  type InvoiceStatus,
+} from './finance.model';
 import { chaseOverdueInvoices } from './finance.dunning';
+import { recordSystemAudit } from '../audit';
 import { forEachOrganization } from '../organizations';
 import { logger } from '../../utils/logger';
 import { JOB_KEYS, recordJobRun } from '../../utils/jobHeartbeat';
@@ -42,6 +49,38 @@ function lateBefore(now: Date): Date {
 }
 
 /**
+ * Moves every invoice matching `filter` to `status`, and logs each one under the system.
+ *
+ * The rows are read first so the log can name them and say what each moved from; the update
+ * is then confined to those ids AND the same filter, so an invoice that changed in between
+ * is left alone.
+ */
+async function moveStatus(
+  filter: FilterQuery<InvoiceDocument>,
+  status: InvoiceStatus,
+): Promise<number> {
+  const rows = await InvoiceModel.find(filter).select('number status').lean();
+  if (rows.length === 0) {
+    return 0;
+  }
+  const result = await InvoiceModel.updateMany(
+    { ...filter, _id: { $in: rows.map((row) => row._id) } },
+    { status },
+  );
+  for (const row of rows) {
+    await recordSystemAudit({
+      action: 'UPDATE',
+      module: 'Invoice',
+      entityId: row._id,
+      entityLabel: row.number,
+      summary: `Overdue sweep set Invoice ${row.number} to ${status}`,
+      changes: { status: { from: row.status, to: status } },
+    });
+  }
+  return result.modifiedCount;
+}
+
+/**
  * Writes the OVERDUE status the rest of finance has always assumed somebody was writing.
  *
  * OVERDUE was in the status list, the invoices screen counted a tile of it and the ageing
@@ -58,32 +97,28 @@ function lateBefore(now: Date): Date {
 export async function markOverdueInvoices(now = new Date()): Promise<OverdueSweepResult> {
   const cutoff = lateBefore(now);
 
-  const marked = await InvoiceModel.updateMany(
+  const marked = await moveStatus(
     { status: { $in: NOT_YET_LATE_STATUSES }, dueDate: { $lte: cutoff }, ...STILL_OWED },
-    { status: 'OVERDUE' },
+    'OVERDUE',
   );
 
   // Back out of OVERDUE, to whichever status the money says it should be. Two updates
   // rather than one because the answer differs by whether anything has been paid, and a
   // part-paid invoice that came back from overdue is PARTIALLY_PAID, not SENT.
-  const partlyPaid = await InvoiceModel.updateMany(
+  const partlyPaid = await moveStatus(
     { status: 'OVERDUE', dueDate: { $gt: cutoff }, amountPaid: { $gt: 0 } },
-    { status: 'PARTIALLY_PAID' },
+    'PARTIALLY_PAID',
   );
-  const untouched = await InvoiceModel.updateMany(
+  const untouched = await moveStatus(
     {
       status: 'OVERDUE',
       dueDate: { $gt: cutoff },
       $or: [{ amountPaid: { $lte: 0 } }, { amountPaid: null }],
     },
-    { status: 'SENT' },
+    'SENT',
   );
 
-  return {
-    marked: marked.modifiedCount,
-    cleared: partlyPaid.modifiedCount + untouched.modifiedCount,
-    chased: 0,
-  };
+  return { marked, cleared: partlyPaid + untouched, chased: 0 };
 }
 
 /**

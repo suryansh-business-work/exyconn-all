@@ -11,5 +11,7 @@ export function useComposerData() {
     accounts: accounts.data?.socialAccounts ?? [],
     rules: rules.data?.socialNetworkRules ?? [],
     loading: accounts.loading || rules.loading,
+    /** True only until the accounts first arrive, so a refetch never flashes a loader. */
+    accountsFirstLoad: !accounts.data && accounts.loading,
   };
 }

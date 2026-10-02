@@ -93,8 +93,8 @@ query SocialMediaPosts($accountId: ID, $status: SocialMediaPostStatus, $limit: I
   }
 }
 
-query SocialCalendar($from: DateTime!, $to: DateTime!) {
-  socialCalendar(from: $from, to: $to) {
+query SocialCalendar($from: DateTime!, $to: DateTime!, $accountIds: [ID!]) {
+  socialCalendar(from: $from, to: $to, accountIds: $accountIds) {
     ...SocialMediaPostFields
   }
 }

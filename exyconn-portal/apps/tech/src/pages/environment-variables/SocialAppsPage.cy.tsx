@@ -29,6 +29,7 @@ const MOCKS = [
         socialAppConfigs: [
           app('LINKEDIN', 'LinkedIn', false),
           app('META', 'Facebook + Instagram', true),
+          app('THREADS', 'Threads', false),
           app('X', 'X', false),
           app('YOUTUBE', 'YouTube', false),
         ],
@@ -51,7 +52,7 @@ const MOCKS = [
 ];
 
 describe('SocialAppsPage', () => {
-  it('lists the four providers with their status, and opens one to set up', () => {
+  it('lists every provider with their status, and opens one to set up', () => {
     cy.mount(
       <MockedProvider mocks={MOCKS}>
         <ThemeProvider theme={theme}>
@@ -65,6 +66,7 @@ describe('SocialAppsPage', () => {
     cy.contains('td', 'Facebook + Instagram').should('be.visible');
     cy.contains('td', 'meta-client').should('be.visible');
     cy.contains('td', 'YouTube').should('be.visible');
+    cy.contains('td', 'Threads').should('be.visible');
     cy.get('button[aria-label="set up social app"]').first().click();
     cy.contains('https://portal-server.exyconn.com/oauth/social/linkedin/callback').should(
       'be.visible',

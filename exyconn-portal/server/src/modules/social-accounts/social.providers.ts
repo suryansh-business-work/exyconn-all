@@ -1,4 +1,4 @@
-import type { SocialApp, SocialNetwork } from './social.constants';
+import { THREADS_GRAPH, type SocialApp, type SocialNetwork } from './social.constants';
 import { getJson, postForm } from './social.http';
 
 /** What the tokens are, as the provider answered. */
@@ -175,6 +175,58 @@ const meta: Provider = {
   accounts: metaAccounts,
 };
 
+/** A Threads profile: its own app, a short-lived code token swapped for a 60-day one. */
+const threads: Provider = {
+  label: 'Threads',
+  consoleUrl: 'https://developers.facebook.com/apps',
+  authorizeUrl: (app, redirectUri, state) =>
+    url('https://threads.net/oauth/authorize', {
+      client_id: app.clientId,
+      redirect_uri: redirectUri,
+      scope: 'threads_basic,threads_content_publish,threads_manage_insights',
+      response_type: 'code',
+      state,
+    }),
+  exchange: async (app, code, redirectUri) => {
+    const short = await postForm('Threads', `${THREADS_GRAPH}/oauth/access_token`, {
+      client_id: app.clientId,
+      client_secret: app.clientSecret,
+      grant_type: 'authorization_code',
+      redirect_uri: redirectUri,
+      code,
+    });
+    return tokensOf(
+      await getJson(
+        'Threads',
+        url(`${THREADS_GRAPH}/access_token`, {
+          grant_type: 'th_exchange_token',
+          client_secret: app.clientSecret,
+          access_token: str(short.access_token),
+        }),
+      ),
+    );
+  },
+  accounts: async (tokens) => {
+    const me = await getJson(
+      'Threads',
+      url(`${THREADS_GRAPH}/v1.0/me`, {
+        fields: 'id,username,name,threads_profile_picture_url',
+        access_token: tokens.accessToken,
+      }),
+    );
+    const username = str(me.username);
+    return [
+      {
+        network: 'THREADS',
+        externalId: str(me.id),
+        name: str(me.name) || username,
+        handle: `@${username}`,
+        avatarUrl: str(me.threads_profile_picture_url),
+      },
+    ];
+  },
+};
+
 const x: Provider = {
   label: 'X',
   consoleUrl: 'https://developer.x.com/en/portal/projects-and-apps',
@@ -278,6 +330,7 @@ const youtube: Provider = {
 export const PROVIDERS: Readonly<Record<SocialApp, Provider>> = {
   LINKEDIN: linkedin,
   META: meta,
+  THREADS: threads,
   X: x,
   YOUTUBE: youtube,
 };
