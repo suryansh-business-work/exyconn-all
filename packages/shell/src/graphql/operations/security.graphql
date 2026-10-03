@@ -1,0 +1,138 @@
+query SslCertificates($refresh: Boolean) {
+  sslCertificates(refresh: $refresh) {
+    warningDays
+    checkedAt
+    certificates {
+      host
+      monitors
+      status
+      subject
+      altNames
+      issuer
+      validFrom
+      validTo
+      daysLeft
+      serialNumber
+      fingerprint256
+      protocol
+      authorized
+      error
+      checkedAt
+    }
+  }
+}
+
+query ListSonarConfigs {
+  listSonarConfigs {
+    id
+    label
+    hostUrl
+    projectKey
+    organization
+    hasToken
+    tokenHint
+    isActive
+  }
+}
+
+mutation CreateSonarConfig($input: SonarConfigInput!) {
+  createSonarConfig(input: $input) {
+    id
+  }
+}
+
+mutation UpdateSonarConfig($id: ID!, $input: SonarConfigInput!) {
+  updateSonarConfig(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteSonarConfig($id: ID!) {
+  deleteSonarConfig(id: $id)
+}
+
+mutation TestSonarConnection($id: ID!) {
+  testSonarConnection(id: $id) {
+    ok
+    message
+  }
+}
+
+query SonarOverview($refresh: Boolean) {
+  sonarOverview(refresh: $refresh) {
+    state
+    message
+    configLabel
+    projectKey
+    projectUrl
+    checkedAt
+    qualityGate {
+      status
+      conditions {
+        status
+        metric
+        comparator
+        errorThreshold
+        actualValue
+      }
+    }
+    metrics {
+      alertStatus
+      bugs
+      vulnerabilities
+      securityHotspots
+      codeSmells
+      coverage
+      duplicatedLinesDensity
+      ncloc
+      reliabilityRating
+      securityRating
+      maintainabilityRating
+      technicalDebtMinutes
+      newBugs
+      newVulnerabilities
+      newSecurityHotspots
+      newCodeSmells
+      newCoverage
+      newDuplicatedLinesDensity
+    }
+    analyses {
+      key
+      date
+      version
+      events
+    }
+    issues {
+      key
+      rule
+      severity
+      type
+      file
+      line
+      message
+      url
+    }
+    issuesTotal
+    severityCounts {
+      value
+      count
+    }
+    typeCounts {
+      value
+      count
+    }
+  }
+}
+
+query SonarIssues($severity: String!) {
+  sonarIssues(severity: $severity) {
+    key
+    rule
+    severity
+    type
+    file
+    line
+    message
+    url
+  }
+}

@@ -25,6 +25,7 @@ import { backfillPositionDefaults } from './modules/hr';
 import { runOnce } from './lib/migrations';
 import { startReminderSweep } from './modules/reminders';
 import { startAuditRetention } from './modules/audit';
+import { ensureWhatsappDemoSeeds } from './modules/whatsapp-demo';
 import { env } from './config/env';
 import { logger } from './utils/logger';
 
@@ -76,6 +77,10 @@ async function bootstrap(): Promise<void> {
     () => runOnce('position-defaults', backfillPositionDefaults),
     'backfillPositionDefaults',
   );
+  // The WhatsApp demo opens on its default industries. Each industry is seeded into a company
+  // once (ledger line per industry key), so a new one ships on the next boot and an edited
+  // one is never overwritten.
+  await forEachOrganization(ensureWhatsappDemoSeeds, 'ensureWhatsappDemoSeeds');
   startStatusMonitor();
   // Payslips go out on the schedule HR sets in the portal, so the loop has to be running
   // even in a month nobody signs in.

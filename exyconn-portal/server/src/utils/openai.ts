@@ -25,6 +25,12 @@ export interface CompletionRequest {
   apiKey: string;
   model: string;
   prompt: string;
+  /** Instructions sent as the system message, ahead of the prompt. */
+  system?: string;
+  /** Asks for a JSON object back (OpenAI's JSON mode); the caller still validates it. */
+  json?: boolean;
+  /** Cancels the request, e.g. on a caller's timeout. */
+  signal?: AbortSignal;
 }
 
 /**
@@ -32,9 +38,15 @@ export interface CompletionRequest {
  * the Tech module's Environment Variables screen, so rotating either needs no redeploy.
  */
 class OpenAiClient {
-  private async request<T>(apiKey: string, path: string, body?: unknown): Promise<T> {
+  private async request<T>(
+    apiKey: string,
+    path: string,
+    body?: unknown,
+    signal?: AbortSignal,
+  ): Promise<T> {
     const response = await fetch(`${OPENAI_API_URL}${path}`, {
       method: body ? 'POST' : 'GET',
+      signal,
       headers: {
         Authorization: `Bearer ${apiKey}`,
         ...(body ? { 'Content-Type': 'application/json' } : {}),
@@ -67,11 +79,24 @@ class OpenAiClient {
   }
 
   /** Runs one prompt and returns the answer with the token usage it cost. */
-  async complete({ apiKey, model, prompt }: CompletionRequest): Promise<CompletionResult> {
-    const body = await this.request<CompletionResponse>(apiKey, '/v1/chat/completions', {
-      model,
-      messages: [{ role: 'user', content: prompt }],
-    });
+  async complete({
+    apiKey,
+    model,
+    prompt,
+    system,
+    json,
+    signal,
+  }: CompletionRequest): Promise<CompletionResult> {
+    const messages = [
+      ...(system ? [{ role: 'system', content: system }] : []),
+      { role: 'user', content: prompt },
+    ];
+    const body = await this.request<CompletionResponse>(
+      apiKey,
+      '/v1/chat/completions',
+      { model, messages, ...(json ? { response_format: { type: 'json_object' } } : {}) },
+      signal,
+    );
     const text = body.choices[0]?.message?.content ?? '';
     return {
       text,

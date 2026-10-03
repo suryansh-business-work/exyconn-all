@@ -16,6 +16,11 @@ COPY exyconn-portal/server/package.json exyconn-portal/server/
 COPY exyconn-portal/ui/package.json exyconn-portal/ui/
 COPY exyconn-website/package.json exyconn-website/
 COPY exyconn-tracker-app/package.json exyconn-tracker-app/
+# The server imports @exyconn/wa-flow's compiled build; its workspace dependencies (regex,
+# and config through both as a dev dependency) are resolved by the filtered install too.
+COPY packages/wa-flow/package.json packages/wa-flow/
+COPY packages/regex/package.json packages/regex/
+COPY packages/config/package.json packages/config/
 # The root `prepare` script runs on every install, this one included; it needs its own
 # file present. It no-ops without a .git directory, which an image never has.
 COPY scripts/install-git-hooks.mjs scripts/
@@ -23,6 +28,10 @@ RUN pnpm install --frozen-lockfile --filter exyconn-portal-server...
 
 # --- Build + produce a self-contained deploy bundle ---------------------------
 FROM deps AS build
+# wa-flow is built first: the server's tsc reads its dist types, and `deploy` copies its dist.
+# Its tsconfig.build.json is standalone, so its source is all it needs.
+COPY packages/wa-flow packages/wa-flow
+RUN pnpm --filter @exyconn/wa-flow run build
 COPY exyconn-portal/server exyconn-portal/server
 RUN pnpm --filter exyconn-portal-server run build \
   && pnpm --filter exyconn-portal-server deploy --prod /app

@@ -4731,6 +4731,7 @@ export type Mutation = {
   createSlackConfig: SlackConfig;
   createSocialComment: SocialComment;
   createSocialPost: SocialPost;
+  createSonarConfig: SonarConfig;
   createSprint: Sprint;
   createStatusIncident: StatusIncident;
   /** Creating a window also emails every confirmed status subscriber. */
@@ -4757,6 +4758,7 @@ export type Mutation = {
   createWebhook: CreatedWebhook;
   /** Public. Refused unless `captcha` answers a question from `websiteCaptcha`. `resume` (PDF, DOC or DOCX, max 5 MB) is accepted with a job application only. */
   createWebsiteSubmission: WebsiteSubmission;
+  createWhatsappWorkflow: WhatsappWorkflow;
   /** Approves or rejects one item, through the owning module's own decision service. */
   decideApproval: Scalars['Boolean']['output'];
   /** HR/ADMIN or the employee's manager: approve or reject, with an optional note. */
@@ -4860,6 +4862,7 @@ export type Mutation = {
   deleteSocialComment: Scalars['Boolean']['output'];
   deleteSocialMediaPost: Scalars['Boolean']['output'];
   deleteSocialPost: Scalars['Boolean']['output'];
+  deleteSonarConfig: Scalars['Boolean']['output'];
   /** Deletes the sprint and returns its tickets to the backlog. */
   deleteSprint: Scalars['Boolean']['output'];
   deleteStatusIncident: Scalars['Boolean']['output'];
@@ -4878,9 +4881,14 @@ export type Mutation = {
   deleteUser: Scalars['Boolean']['output'];
   deleteWebhook: Scalars['Boolean']['output'];
   deleteWebsiteSubmission: Scalars['Boolean']['output'];
+  deleteWhatsappWorkflow: Scalars['Boolean']['output'];
   /** Switches two-factor off. Needs the password: a borrowed screen must not be enough. */
   disableMfa: Scalars['Boolean']['output'];
+  /** Puts the published graph back into the draft. */
+  discardWhatsappWorkflowDraft: WhatsappWorkflow;
   disconnectSocialAccount: Scalars['Boolean']['output'];
+  /** Copies a workflow as a never-published draft keyed key-copy. */
+  duplicateWhatsappWorkflow: WhatsappWorkflow;
   /** Calls off a delegation. Only whoever arranged it may. */
   endApprovalDelegation: Scalars['Boolean']['output'];
   /**
@@ -4936,6 +4944,8 @@ export type Mutation = {
   publishPolicy: Policy;
   /** Publishes a draft, a scheduled post ahead of time, or retries a failed one. */
   publishSocialMediaPostNow: SocialMediaPost;
+  /** Refused with the issues listed when the draft has errors. */
+  publishWhatsappWorkflow: WhatsappWorkflow;
   /**
    * Books goods in: writes a RECEIPT movement carrying the order's cost, moves the product's
    * average cost, and re-reads the order's status from what has actually arrived.
@@ -4945,6 +4955,8 @@ export type Mutation = {
   recordPayment: Payment;
   /** Records a movement and moves the product's stock with it, in one step. */
   recordStockMovement: StockMovement;
+  /** At most 100 events per call; returns how many were newly stored. */
+  recordWhatsappDemoEvents: Scalars['Int']['output'];
   renameColumn: BoardColumn;
   reorderColumns: Scalars['Boolean']['output'];
   /**
@@ -5018,6 +5030,7 @@ export type Mutation = {
   saveEmployeeSalary: SalaryStructure;
   saveSocialAppConfig: SocialAppConfig;
   saveTrackerBuildSettings: TrackerBuildSettings;
+  saveWhatsappWorkflowDraft: WhatsappWorkflow;
   /**
    * Recovery for a portal with no administrator: mails a fresh password for the
    * configured admin account to that configured address. A no-op once any ADMIN
@@ -5165,6 +5178,8 @@ export type Mutation = {
   testPexelsConnection: Scalars['Boolean']['output'];
   /** Checks the stored client ID and secret with the provider. Platform Tech staff. */
   testSocialAppConfig: SocialAppTest;
+  /** Validates the token, then checks it can see the project. */
+  testSonarConnection: SonarConnectionTest;
   /** Likes the post, or takes the like back. Returns the post as it now stands. */
   toggleSocialPostLike: SocialPost;
   /**
@@ -5319,6 +5334,7 @@ export type Mutation = {
   updateShift: Shift;
   updateSlackConfig: SlackConfig;
   updateSocialMediaPost: SocialMediaPost;
+  updateSonarConfig: SonarConfig;
   updateSprint: Sprint;
   updateStatusMaintenance: StatusMaintenance;
   updateStatusMonitor: StatusMonitor;
@@ -5335,8 +5351,10 @@ export type Mutation = {
   updateUser: User;
   uploadAvatar: Scalars['String']['output'];
   uploadImage: Scalars['String']['output'];
+  upsertWhatsappDemo: WhatsappDemo;
   /** The second step of a two-factor sign-in: the challenge from login, plus the code. */
   verifyMfa: AuthPayload;
+  whatsappDemoParse: WhatsappDemoParseResult;
   /** Withdraws one of the caller's OWN entries, and only while it is still pending. */
   withdrawTrackerManualEntry: Scalars['Boolean']['output'];
 };
@@ -5938,6 +5956,11 @@ export type MutationCreateSocialPostArgs = {
 };
 
 
+export type MutationCreateSonarConfigArgs = {
+  input: SonarConfigInput;
+};
+
+
 export type MutationCreateSprintArgs = {
   input: SprintInput;
   projectId: Scalars['ID']['input'];
@@ -6032,6 +6055,11 @@ export type MutationCreateWebsiteSubmissionArgs = {
   captcha: WebsiteCaptchaAnswer;
   input: WebsiteSubmissionInput;
   resume?: InputMaybe<WebsiteFileInput>;
+};
+
+
+export type MutationCreateWhatsappWorkflowArgs = {
+  input: WhatsappWorkflowCreateInput;
 };
 
 
@@ -6510,6 +6538,11 @@ export type MutationDeleteSocialPostArgs = {
 };
 
 
+export type MutationDeleteSonarConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteSprintArgs = {
   id: Scalars['ID']['input'];
 };
@@ -6595,12 +6628,27 @@ export type MutationDeleteWebsiteSubmissionArgs = {
 };
 
 
+export type MutationDeleteWhatsappWorkflowArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDisableMfaArgs = {
   password: Scalars['String']['input'];
 };
 
 
+export type MutationDiscardWhatsappWorkflowDraftArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDisconnectSocialAccountArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDuplicateWhatsappWorkflowArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -6726,6 +6774,11 @@ export type MutationPublishSocialMediaPostNowArgs = {
 };
 
 
+export type MutationPublishWhatsappWorkflowArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationReceivePurchaseOrderArgs = {
   id: Scalars['ID']['input'];
   lines: Array<PurchaseReceiptLineInput>;
@@ -6739,6 +6792,11 @@ export type MutationRecordPaymentArgs = {
 
 export type MutationRecordStockMovementArgs = {
   input: StockMovementInput;
+};
+
+
+export type MutationRecordWhatsappDemoEventsArgs = {
+  events: Array<WhatsappDemoEventInput>;
 };
 
 
@@ -6873,6 +6931,12 @@ export type MutationSaveSocialAppConfigArgs = {
 export type MutationSaveTrackerBuildSettingsArgs = {
   slackChannels: Array<Scalars['String']['input']>;
   statusAlertChannels?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+
+export type MutationSaveWhatsappWorkflowDraftArgs = {
+  id: Scalars['ID']['input'];
+  input: WhatsappWorkflowDraftInput;
 };
 
 
@@ -7188,6 +7252,11 @@ export type MutationTestPexelsConnectionArgs = {
 
 export type MutationTestSocialAppConfigArgs = {
   app: SocialApp;
+};
+
+
+export type MutationTestSonarConnectionArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -7810,6 +7879,12 @@ export type MutationUpdateSocialMediaPostArgs = {
 };
 
 
+export type MutationUpdateSonarConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: SonarConfigInput;
+};
+
+
 export type MutationUpdateSprintArgs = {
   id: Scalars['ID']['input'];
   input: SprintInput;
@@ -7905,9 +7980,20 @@ export type MutationUploadImageArgs = {
 };
 
 
+export type MutationUpsertWhatsappDemoArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: WhatsappDemoInput;
+};
+
+
 export type MutationVerifyMfaArgs = {
   challenge: Scalars['String']['input'];
   code: Scalars['String']['input'];
+};
+
+
+export type MutationWhatsappDemoParseArgs = {
+  input: WhatsappDemoParseInput;
 };
 
 
@@ -9699,6 +9785,7 @@ export type Query = {
   /** Every channel the active Slack bot token can see. */
   listSlackChannels: Array<SlackChannel>;
   listSlackConfigs: Array<SlackConfig>;
+  listSonarConfigs: Array<SonarConfig>;
   listStatusIncidents: Array<StatusIncident>;
   listStatusIncidentsPaged: StatusIncidentPage;
   listStatusIncidentsStats: TableStats;
@@ -9947,8 +10034,14 @@ export type Query = {
   socialProfile: SocialProfile;
   /** One colleague's posts, newest first. */
   socialUserPosts: SocialFeedPage;
+  /** TECH: the worst open issues of one severity (BLOCKER, CRITICAL, MAJOR, MINOR, INFO). */
+  sonarIssues: Array<SonarIssue>;
+  /** TECH: the active SonarQube project. Cached for five minutes unless refresh is set. */
+  sonarOverview: SonarOverview;
   /** What completing this sprint would do to its unfinished tickets. */
   sprintCompletionPlan: SprintCompletionPlan;
+  /** TECH: every monitored host's certificate. Cached for ten minutes unless refresh is set. */
+  sslCertificates: SslCertificateReport;
   /** Public: no sign-in, this is what status.exyconn.com reads. */
   statusOverview: StatusOverview;
   /** SUPPORT/ADMIN: how the queue stands against its SLA deadlines. */
@@ -10025,6 +10118,16 @@ export type Query = {
   websiteCaptcha: WebsiteCaptcha;
   /** The form identifiers the public website may submit under — the one allow-list. */
   websiteFormTypes: Array<Scalars['String']['output']>;
+  whatsappDemoAiStatus: WhatsappAiStatus;
+  /** Every active demo with its published workflows, for the chat. */
+  whatsappDemoCatalog: Array<WhatsappDemoBundle>;
+  whatsappDemoFunnel: Array<WhatsappFunnelStep>;
+  whatsappDemoSession?: Maybe<WhatsappDemoSessionDetail>;
+  whatsappDemoSessions: WhatsappDemoSessionPage;
+  whatsappDemoStats: WhatsappDemoStats;
+  whatsappDemos: Array<WhatsappDemo>;
+  whatsappWorkflow?: Maybe<WhatsappWorkflow>;
+  whatsappWorkflows: Array<WhatsappWorkflow>;
   /** The company's users, employees and tracker over the last `days` days (1-365). ADMIN. */
   workspaceAnalytics: WorkspaceAnalytics;
 };
@@ -11331,8 +11434,23 @@ export type QuerySocialUserPostsArgs = {
 };
 
 
+export type QuerySonarIssuesArgs = {
+  severity: Scalars['String']['input'];
+};
+
+
+export type QuerySonarOverviewArgs = {
+  refresh?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
 export type QuerySprintCompletionPlanArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QuerySslCertificatesArgs = {
+  refresh?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -11416,6 +11534,42 @@ export type QueryTranslationsArgs = {
   locale: Scalars['String']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
   skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryWhatsappDemoFunnelArgs = {
+  demoKey: Scalars['String']['input'];
+  from: Scalars['String']['input'];
+  to: Scalars['String']['input'];
+  workflow: Scalars['String']['input'];
+};
+
+
+export type QueryWhatsappDemoSessionArgs = {
+  sessionId: Scalars['ID']['input'];
+};
+
+
+export type QueryWhatsappDemoSessionsArgs = {
+  from?: InputMaybe<Scalars['String']['input']>;
+  input: TableQueryInput;
+  to?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryWhatsappDemoStatsArgs = {
+  from: Scalars['String']['input'];
+  to: Scalars['String']['input'];
+};
+
+
+export type QueryWhatsappWorkflowArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryWhatsappWorkflowsArgs = {
+  demoId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -12182,6 +12336,135 @@ export type SocialSyncResult = {
   synced: Scalars['Int']['output'];
 };
 
+export type SonarAnalysis = {
+  __typename?: 'SonarAnalysis';
+  date: Scalars['DateTime']['output'];
+  events: Array<Scalars['String']['output']>;
+  key: Scalars['String']['output'];
+  version: Scalars['String']['output'];
+};
+
+/** A SonarQube or SonarCloud project the Security screen reads. */
+export type SonarConfig = {
+  __typename?: 'SonarConfig';
+  createdAt: Scalars['DateTime']['output'];
+  /** Whether a token is stored. The token itself is write-only and never returned. */
+  hasToken: Scalars['Boolean']['output'];
+  hostUrl: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  /** SonarCloud organization key; empty for a self-hosted SonarQube. */
+  organization: Scalars['String']['output'];
+  projectKey: Scalars['String']['output'];
+  /** The token's last four characters, to tell two apart; null when too short to show safely. */
+  tokenHint?: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type SonarConfigInput = {
+  hostUrl: Scalars['String']['input'];
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+  organization?: InputMaybe<Scalars['String']['input']>;
+  projectKey: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored token. */
+  token: Scalars['String']['input'];
+};
+
+/** What a connection test found, in words for the person who pressed it. */
+export type SonarConnectionTest = {
+  __typename?: 'SonarConnectionTest';
+  message: Scalars['String']['output'];
+  ok: Scalars['Boolean']['output'];
+};
+
+export type SonarFacetCount = {
+  __typename?: 'SonarFacetCount';
+  count: Scalars['Int']['output'];
+  value: Scalars['String']['output'];
+};
+
+export type SonarGateCondition = {
+  __typename?: 'SonarGateCondition';
+  actualValue: Scalars['String']['output'];
+  comparator: Scalars['String']['output'];
+  errorThreshold: Scalars['String']['output'];
+  metric: Scalars['String']['output'];
+  status: Scalars['String']['output'];
+};
+
+export type SonarIssue = {
+  __typename?: 'SonarIssue';
+  file: Scalars['String']['output'];
+  key: Scalars['String']['output'];
+  line?: Maybe<Scalars['Int']['output']>;
+  message: Scalars['String']['output'];
+  rule: Scalars['String']['output'];
+  severity: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+  /** Opens the issue in SonarQube. */
+  url: Scalars['String']['output'];
+};
+
+/** The project's measures. Ratings are letters A to E; anything not computed is null. */
+export type SonarMetrics = {
+  __typename?: 'SonarMetrics';
+  alertStatus?: Maybe<Scalars['String']['output']>;
+  bugs?: Maybe<Scalars['Float']['output']>;
+  codeSmells?: Maybe<Scalars['Float']['output']>;
+  coverage?: Maybe<Scalars['Float']['output']>;
+  duplicatedLinesDensity?: Maybe<Scalars['Float']['output']>;
+  maintainabilityRating?: Maybe<Scalars['String']['output']>;
+  ncloc?: Maybe<Scalars['Float']['output']>;
+  newBugs?: Maybe<Scalars['Float']['output']>;
+  newCodeSmells?: Maybe<Scalars['Float']['output']>;
+  newCoverage?: Maybe<Scalars['Float']['output']>;
+  newDuplicatedLinesDensity?: Maybe<Scalars['Float']['output']>;
+  newSecurityHotspots?: Maybe<Scalars['Float']['output']>;
+  newVulnerabilities?: Maybe<Scalars['Float']['output']>;
+  reliabilityRating?: Maybe<Scalars['String']['output']>;
+  securityHotspots?: Maybe<Scalars['Float']['output']>;
+  securityRating?: Maybe<Scalars['String']['output']>;
+  technicalDebtMinutes?: Maybe<Scalars['Float']['output']>;
+  vulnerabilities?: Maybe<Scalars['Float']['output']>;
+};
+
+/** The active SonarQube project at a glance. A problem is a state with a message, not an error. */
+export type SonarOverview = {
+  __typename?: 'SonarOverview';
+  analyses: Array<SonarAnalysis>;
+  checkedAt: Scalars['DateTime']['output'];
+  configLabel: Scalars['String']['output'];
+  /** The most severe open issues, worst first. */
+  issues: Array<SonarIssue>;
+  issuesTotal: Scalars['Int']['output'];
+  message: Scalars['String']['output'];
+  metrics?: Maybe<SonarMetrics>;
+  projectKey: Scalars['String']['output'];
+  projectUrl: Scalars['String']['output'];
+  qualityGate?: Maybe<SonarQualityGate>;
+  severityCounts: Array<SonarFacetCount>;
+  state: SonarOverviewState;
+  typeCounts: Array<SonarFacetCount>;
+};
+
+export enum SonarOverviewState {
+  Error = 'ERROR',
+  NotConfigured = 'NOT_CONFIGURED',
+  NotFound = 'NOT_FOUND',
+  Ok = 'OK',
+  Unauthorized = 'UNAUTHORIZED',
+  Unreachable = 'UNREACHABLE'
+}
+
+export type SonarQualityGate = {
+  __typename?: 'SonarQualityGate';
+  conditions: Array<SonarGateCondition>;
+  /** OK, WARN, ERROR or NONE when the project has no gate. */
+  status: Scalars['String']['output'];
+};
+
 export enum SortDir {
   Asc = 'ASC',
   Desc = 'DESC'
@@ -12222,6 +12505,49 @@ export enum SprintState {
   Active = 'ACTIVE',
   Completed = 'COMPLETED',
   Planned = 'PLANNED'
+}
+
+/** The certificate one monitored host presented, and what it means. */
+export type SslCertificate = {
+  __typename?: 'SslCertificate';
+  /** Every name the certificate is valid for. */
+  altNames: Array<Scalars['String']['output']>;
+  /** Whether the chain verified against the trusted roots for this host name. */
+  authorized: Scalars['Boolean']['output'];
+  checkedAt: Scalars['DateTime']['output'];
+  /** Whole days until it expires, negative once it has. Null when unknown. */
+  daysLeft?: Maybe<Scalars['Int']['output']>;
+  /** Why the chain did not verify, or why the host could not be reached. Empty when fine. */
+  error: Scalars['String']['output'];
+  fingerprint256: Scalars['String']['output'];
+  host: Scalars['String']['output'];
+  issuer: Scalars['String']['output'];
+  /** Names of the status monitors whose https URL points at this host. */
+  monitors: Array<Scalars['String']['output']>;
+  /** The negotiated TLS version, e.g. TLSv1.3. */
+  protocol: Scalars['String']['output'];
+  serialNumber: Scalars['String']['output'];
+  status: SslCertificateStatus;
+  /** The subject common name. */
+  subject: Scalars['String']['output'];
+  validFrom?: Maybe<Scalars['DateTime']['output']>;
+  validTo?: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type SslCertificateReport = {
+  __typename?: 'SslCertificateReport';
+  certificates: Array<SslCertificate>;
+  checkedAt: Scalars['DateTime']['output'];
+  /** A certificate with this many days or fewer left is EXPIRING. */
+  warningDays: Scalars['Int']['output'];
+};
+
+export enum SslCertificateStatus {
+  Expired = 'EXPIRED',
+  Expiring = 'EXPIRING',
+  Invalid = 'INVALID',
+  Ok = 'OK',
+  Unreachable = 'UNREACHABLE'
 }
 
 export type StatBucket = {
@@ -14037,6 +14363,284 @@ export type WebsiteSubmissionTriageInput = {
   notes?: InputMaybe<Scalars['String']['input']>;
   status: Scalars['String']['input'];
 };
+
+export type WhatsappAiEntityInput = {
+  description: Scalars['String']['input'];
+  kind: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
+export type WhatsappAiIntentInput = {
+  description: Scalars['String']['input'];
+  id: Scalars['String']['input'];
+};
+
+export type WhatsappAiStats = {
+  __typename?: 'WhatsappAiStats';
+  avgLatencyMs: Scalars['Int']['output'];
+  calls: Scalars['Int']['output'];
+  failures: Scalars['Int']['output'];
+  tokens: Scalars['Int']['output'];
+};
+
+export type WhatsappAiStatus = {
+  __typename?: 'WhatsappAiStatus';
+  configured: Scalars['Boolean']['output'];
+  model?: Maybe<Scalars['String']['output']>;
+};
+
+export type WhatsappCount = {
+  __typename?: 'WhatsappCount';
+  count: Scalars['Int']['output'];
+  key: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+};
+
+export type WhatsappDayPoint = {
+  __typename?: 'WhatsappDayPoint';
+  date: Scalars['String']['output'];
+  flowsCompleted: Scalars['Int']['output'];
+  flowsStarted: Scalars['Int']['output'];
+  sessions: Scalars['Int']['output'];
+};
+
+/** One industry demo: the business the chat pretends to be. */
+export type WhatsappDemo = {
+  __typename?: 'WhatsappDemo';
+  active: Scalars['Boolean']['output'];
+  /** BusinessProfile, as businessSchema in @exyconn/wa-flow describes it. */
+  business: Scalars['JSON']['output'];
+  greeting: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  industry: Scalars['String']['output'];
+  key: Scalars['String']['output'];
+  menuButton: Scalars['String']['output'];
+  menuText: Scalars['String']['output'];
+  order: Scalars['Int']['output'];
+  updatedAt: Scalars['String']['output'];
+};
+
+export type WhatsappDemoBundle = {
+  __typename?: 'WhatsappDemoBundle';
+  demo: WhatsappDemo;
+  /** Changes whenever the demo or any of its published workflows changes. */
+  revision: Scalars['String']['output'];
+  /** Published workflows only, in menu order. */
+  workflows: Array<WhatsappPublishedWorkflow>;
+};
+
+export type WhatsappDemoEvent = {
+  __typename?: 'WhatsappDemoEvent';
+  at: Scalars['String']['output'];
+  demoKey?: Maybe<Scalars['String']['output']>;
+  durationMs?: Maybe<Scalars['Int']['output']>;
+  id: Scalars['ID']['output'];
+  label?: Maybe<Scalars['String']['output']>;
+  /** AI_CALL only: ok, latencyMs, tokens, error and intent. */
+  meta?: Maybe<Scalars['JSON']['output']>;
+  node?: Maybe<Scalars['String']['output']>;
+  stepKind?: Maybe<Scalars['String']['output']>;
+  type: WhatsappDemoEventType;
+  workflow?: Maybe<Scalars['String']['output']>;
+};
+
+export type WhatsappDemoEventInput = {
+  /** ISO time on the client clock. */
+  at: Scalars['String']['input'];
+  demoKey?: InputMaybe<Scalars['String']['input']>;
+  /** phone, tablet or desktop (SESSION_START). */
+  device?: InputMaybe<Scalars['String']['input']>;
+  durationMs?: InputMaybe<Scalars['Int']['input']>;
+  /** Client-generated UUID; a repeated id is ignored. */
+  id: Scalars['ID']['input'];
+  /** Option title or input kind; cut to 80 characters. */
+  label?: InputMaybe<Scalars['String']['input']>;
+  node?: InputMaybe<Scalars['String']['input']>;
+  /** Client-generated UUID per tab session. */
+  sessionId: Scalars['ID']['input'];
+  /** choice or text. */
+  stepKind?: InputMaybe<Scalars['String']['input']>;
+  type: WhatsappDemoEventType;
+  /** Width x height (SESSION_START). */
+  viewport?: InputMaybe<Scalars['String']['input']>;
+  workflow?: InputMaybe<Scalars['String']['input']>;
+};
+
+export enum WhatsappDemoEventType {
+  AiCall = 'AI_CALL',
+  ChatCleared = 'CHAT_CLEARED',
+  DemoOpened = 'DEMO_OPENED',
+  DocumentOpened = 'DOCUMENT_OPENED',
+  FlowAbandoned = 'FLOW_ABANDONED',
+  FlowCompleted = 'FLOW_COMPLETED',
+  FlowStarted = 'FLOW_STARTED',
+  QrOpened = 'QR_OPENED',
+  ReminderDelivered = 'REMINDER_DELIVERED',
+  SessionEnd = 'SESSION_END',
+  SessionStart = 'SESSION_START',
+  Step = 'STEP'
+}
+
+export type WhatsappDemoInput = {
+  active: Scalars['Boolean']['input'];
+  business: Scalars['JSON']['input'];
+  greeting: Scalars['String']['input'];
+  industry: Scalars['String']['input'];
+  key: Scalars['String']['input'];
+  menuButton: Scalars['String']['input'];
+  menuText: Scalars['String']['input'];
+  order: Scalars['Int']['input'];
+};
+
+export type WhatsappDemoParseInput = {
+  demoKey: Scalars['String']['input'];
+  entities: Array<WhatsappAiEntityInput>;
+  intents: Array<WhatsappAiIntentInput>;
+  node: Scalars['String']['input'];
+  sessionId: Scalars['ID']['input'];
+  /** At most 500 characters are read. */
+  text: Scalars['String']['input'];
+  /** A workflow key, or $router for the menu. */
+  workflow: Scalars['String']['input'];
+};
+
+export type WhatsappDemoParseResult = {
+  __typename?: 'WhatsappDemoParseResult';
+  /** Entity name to value, only for the names asked for; date and time kinds add nameMs. */
+  entities: Scalars['JSON']['output'];
+  /** NOT_CONFIGURED, TIMEOUT, RATE_LIMITED or FAILED. */
+  error?: Maybe<Scalars['String']['output']>;
+  /** One of the given intent ids, or null. */
+  intent?: Maybe<Scalars['String']['output']>;
+  latencyMs: Scalars['Int']['output'];
+  /** False when AI is not configured, timed out, was rate limited or answered badly. */
+  ok: Scalars['Boolean']['output'];
+};
+
+export type WhatsappDemoSession = {
+  __typename?: 'WhatsappDemoSession';
+  demos: Array<Scalars['String']['output']>;
+  device?: Maybe<Scalars['String']['output']>;
+  durationMs: Scalars['Int']['output'];
+  events: Scalars['Int']['output'];
+  flowsCompleted: Scalars['Int']['output'];
+  flowsStarted: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  lastEventAt: Scalars['String']['output'];
+  sessionId: Scalars['ID']['output'];
+  startedAt: Scalars['String']['output'];
+  /** active when an event arrived in the last 30 minutes, otherwise ended. */
+  status: Scalars['String']['output'];
+  userEmail: Scalars['String']['output'];
+  userId: Scalars['ID']['output'];
+  userName: Scalars['String']['output'];
+  viewport?: Maybe<Scalars['String']['output']>;
+};
+
+export type WhatsappDemoSessionDetail = {
+  __typename?: 'WhatsappDemoSessionDetail';
+  events: Array<WhatsappDemoEvent>;
+  session: WhatsappDemoSession;
+};
+
+export type WhatsappDemoSessionPage = {
+  __typename?: 'WhatsappDemoSessionPage';
+  rows: Array<WhatsappDemoSession>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type WhatsappDemoStats = {
+  __typename?: 'WhatsappDemoStats';
+  ai: WhatsappAiStats;
+  avgSessionMs: Scalars['Int']['output'];
+  /** 0 to 1. */
+  completionRate: Scalars['Float']['output'];
+  /** One point per day in the range, zero-filled. */
+  daily: Array<WhatsappDayPoint>;
+  devices: Array<WhatsappCount>;
+  flows: Array<WhatsappFlowStat>;
+  flowsCompleted: Scalars['Int']['output'];
+  flowsStarted: Scalars['Int']['output'];
+  sessions: Scalars['Int']['output'];
+  /** By DEMO_OPENED events. */
+  topDemos: Array<WhatsappCount>;
+  uniqueUsers: Scalars['Int']['output'];
+};
+
+export type WhatsappFlowStat = {
+  __typename?: 'WhatsappFlowStat';
+  abandoned: Scalars['Int']['output'];
+  completed: Scalars['Int']['output'];
+  demoKey: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  started: Scalars['Int']['output'];
+  workflow: Scalars['String']['output'];
+};
+
+/** Distinct sessions reaching one node, in order of first reach. */
+export type WhatsappFunnelStep = {
+  __typename?: 'WhatsappFunnelStep';
+  label: Scalars['String']['output'];
+  node: Scalars['String']['output'];
+  sessions: Scalars['Int']['output'];
+};
+
+export type WhatsappPublishedWorkflow = {
+  __typename?: 'WhatsappPublishedWorkflow';
+  description: Scalars['String']['output'];
+  /** The published graph. */
+  graph: Scalars['JSON']['output'];
+  key: Scalars['String']['output'];
+  keywords: Array<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  order: Scalars['Int']['output'];
+  version: Scalars['Int']['output'];
+};
+
+export type WhatsappWorkflow = {
+  __typename?: 'WhatsappWorkflow';
+  demoId: Scalars['ID']['output'];
+  demoKey: Scalars['String']['output'];
+  description: Scalars['String']['output'];
+  /** The graph being edited. */
+  draft: Scalars['JSON']['output'];
+  id: Scalars['ID']['output'];
+  key: Scalars['String']['output'];
+  keywords: Array<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  order: Scalars['Int']['output'];
+  /** The graph the chat runs; null until the first publish. */
+  published?: Maybe<Scalars['JSON']['output']>;
+  publishedAt?: Maybe<Scalars['String']['output']>;
+  /** DRAFT when never published or when the draft differs from what is published. */
+  status: WhatsappWorkflowStatus;
+  updatedAt: Scalars['String']['output'];
+  updatedByName?: Maybe<Scalars['String']['output']>;
+  /** The published version; 0 until the first publish. */
+  version: Scalars['Int']['output'];
+};
+
+export type WhatsappWorkflowCreateInput = {
+  demoId: Scalars['ID']['input'];
+  description: Scalars['String']['input'];
+  key: Scalars['String']['input'];
+  keywords: Array<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  order?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type WhatsappWorkflowDraftInput = {
+  description: Scalars['String']['input'];
+  graph: Scalars['JSON']['input'];
+  keywords: Array<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  order: Scalars['Int']['input'];
+};
+
+export enum WhatsappWorkflowStatus {
+  Draft = 'DRAFT',
+  Published = 'PUBLISHED'
+}
 
 /** Where an employee is expected to work from. OTHER is described in workLocationNote. */
 export enum WorkLocation {
@@ -18576,6 +19180,61 @@ export type SearchQueryVariables = Exact<{
 
 export type SearchQuery = { __typename?: 'Query', search: Array<{ __typename?: 'SearchGroup', key: string, label: string, hits: Array<{ __typename?: 'SearchHit', id: string, title: string, subtitle: string, link: string }> }> };
 
+export type SslCertificatesQueryVariables = Exact<{
+  refresh?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type SslCertificatesQuery = { __typename?: 'Query', sslCertificates: { __typename?: 'SslCertificateReport', warningDays: number, checkedAt: string, certificates: Array<{ __typename?: 'SslCertificate', host: string, monitors: Array<string>, status: SslCertificateStatus, subject: string, altNames: Array<string>, issuer: string, validFrom?: string | null, validTo?: string | null, daysLeft?: number | null, serialNumber: string, fingerprint256: string, protocol: string, authorized: boolean, error: string, checkedAt: string }> } };
+
+export type ListSonarConfigsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListSonarConfigsQuery = { __typename?: 'Query', listSonarConfigs: Array<{ __typename?: 'SonarConfig', id: string, label: string, hostUrl: string, projectKey: string, organization: string, hasToken: boolean, tokenHint?: string | null, isActive: boolean }> };
+
+export type CreateSonarConfigMutationVariables = Exact<{
+  input: SonarConfigInput;
+}>;
+
+
+export type CreateSonarConfigMutation = { __typename?: 'Mutation', createSonarConfig: { __typename?: 'SonarConfig', id: string } };
+
+export type UpdateSonarConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: SonarConfigInput;
+}>;
+
+
+export type UpdateSonarConfigMutation = { __typename?: 'Mutation', updateSonarConfig: { __typename?: 'SonarConfig', id: string } };
+
+export type DeleteSonarConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteSonarConfigMutation = { __typename?: 'Mutation', deleteSonarConfig: boolean };
+
+export type TestSonarConnectionMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TestSonarConnectionMutation = { __typename?: 'Mutation', testSonarConnection: { __typename?: 'SonarConnectionTest', ok: boolean, message: string } };
+
+export type SonarOverviewQueryVariables = Exact<{
+  refresh?: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+export type SonarOverviewQuery = { __typename?: 'Query', sonarOverview: { __typename?: 'SonarOverview', state: SonarOverviewState, message: string, configLabel: string, projectKey: string, projectUrl: string, checkedAt: string, issuesTotal: number, qualityGate?: { __typename?: 'SonarQualityGate', status: string, conditions: Array<{ __typename?: 'SonarGateCondition', status: string, metric: string, comparator: string, errorThreshold: string, actualValue: string }> } | null, metrics?: { __typename?: 'SonarMetrics', alertStatus?: string | null, bugs?: number | null, vulnerabilities?: number | null, securityHotspots?: number | null, codeSmells?: number | null, coverage?: number | null, duplicatedLinesDensity?: number | null, ncloc?: number | null, reliabilityRating?: string | null, securityRating?: string | null, maintainabilityRating?: string | null, technicalDebtMinutes?: number | null, newBugs?: number | null, newVulnerabilities?: number | null, newSecurityHotspots?: number | null, newCodeSmells?: number | null, newCoverage?: number | null, newDuplicatedLinesDensity?: number | null } | null, analyses: Array<{ __typename?: 'SonarAnalysis', key: string, date: string, version: string, events: Array<string> }>, issues: Array<{ __typename?: 'SonarIssue', key: string, rule: string, severity: string, type: string, file: string, line?: number | null, message: string, url: string }>, severityCounts: Array<{ __typename?: 'SonarFacetCount', value: string, count: number }>, typeCounts: Array<{ __typename?: 'SonarFacetCount', value: string, count: number }> } };
+
+export type SonarIssuesQueryVariables = Exact<{
+  severity: Scalars['String']['input'];
+}>;
+
+
+export type SonarIssuesQuery = { __typename?: 'Query', sonarIssues: Array<{ __typename?: 'SonarIssue', key: string, rule: string, severity: string, type: string, file: string, line?: number | null, message: string, url: string }> };
+
 export type SocialAppConfigFieldsFragment = { __typename?: 'SocialAppConfig', id: string, app: SocialApp, label: string, consoleUrl: string, callbackUrl: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean };
 
 export type SocialAppConfigsQueryVariables = Exact<{ [key: string]: never; }>;
@@ -20231,6 +20890,140 @@ export type ConvertWebsiteSubmissionToLeadMutationVariables = Exact<{
 
 
 export type ConvertWebsiteSubmissionToLeadMutation = { __typename?: 'Mutation', convertWebsiteSubmissionToLead: { __typename?: 'Lead', id: string, name: string } };
+
+export type WhatsappDemoFieldsFragment = { __typename?: 'WhatsappDemo', id: string, key: string, industry: string, business: any, greeting: string, menuText: string, menuButton: string, order: number, active: boolean, updatedAt: string };
+
+export type WhatsappWorkflowFieldsFragment = { __typename?: 'WhatsappWorkflow', id: string, demoId: string, demoKey: string, key: string, name: string, description: string, keywords: Array<string>, order: number, status: WhatsappWorkflowStatus, version: number, draft: any, published?: any | null, publishedAt?: string | null, updatedAt: string, updatedByName?: string | null };
+
+export type WhatsappDemoSessionFieldsFragment = { __typename?: 'WhatsappDemoSession', id: string, sessionId: string, userId: string, userName: string, userEmail: string, startedAt: string, lastEventAt: string, durationMs: number, device?: string | null, viewport?: string | null, demos: Array<string>, flowsStarted: number, flowsCompleted: number, events: number, status: string };
+
+export type WhatsappDemoCatalogQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type WhatsappDemoCatalogQuery = { __typename?: 'Query', whatsappDemoCatalog: Array<{ __typename?: 'WhatsappDemoBundle', revision: string, demo: { __typename?: 'WhatsappDemo', id: string, key: string, industry: string, business: any, greeting: string, menuText: string, menuButton: string, order: number, active: boolean, updatedAt: string }, workflows: Array<{ __typename?: 'WhatsappPublishedWorkflow', key: string, name: string, description: string, keywords: Array<string>, order: number, version: number, graph: any }> }> };
+
+export type WhatsappDemoAiStatusQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type WhatsappDemoAiStatusQuery = { __typename?: 'Query', whatsappDemoAiStatus: { __typename?: 'WhatsappAiStatus', configured: boolean, model?: string | null } };
+
+export type RecordWhatsappDemoEventsMutationVariables = Exact<{
+  events: Array<WhatsappDemoEventInput> | WhatsappDemoEventInput;
+}>;
+
+
+export type RecordWhatsappDemoEventsMutation = { __typename?: 'Mutation', recordWhatsappDemoEvents: number };
+
+export type WhatsappDemoParseMutationVariables = Exact<{
+  input: WhatsappDemoParseInput;
+}>;
+
+
+export type WhatsappDemoParseMutation = { __typename?: 'Mutation', whatsappDemoParse: { __typename?: 'WhatsappDemoParseResult', ok: boolean, intent?: string | null, entities: any, latencyMs: number, error?: string | null } };
+
+export type WhatsappDemosQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type WhatsappDemosQuery = { __typename?: 'Query', whatsappDemos: Array<{ __typename?: 'WhatsappDemo', id: string, key: string, industry: string, business: any, greeting: string, menuText: string, menuButton: string, order: number, active: boolean, updatedAt: string }> };
+
+export type WhatsappWorkflowsQueryVariables = Exact<{
+  demoId?: InputMaybe<Scalars['ID']['input']>;
+}>;
+
+
+export type WhatsappWorkflowsQuery = { __typename?: 'Query', whatsappWorkflows: Array<{ __typename?: 'WhatsappWorkflow', id: string, demoId: string, demoKey: string, key: string, name: string, description: string, keywords: Array<string>, order: number, status: WhatsappWorkflowStatus, version: number, draft: any, published?: any | null, publishedAt?: string | null, updatedAt: string, updatedByName?: string | null }> };
+
+export type WhatsappWorkflowQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type WhatsappWorkflowQuery = { __typename?: 'Query', whatsappWorkflow?: { __typename?: 'WhatsappWorkflow', id: string, demoId: string, demoKey: string, key: string, name: string, description: string, keywords: Array<string>, order: number, status: WhatsappWorkflowStatus, version: number, draft: any, published?: any | null, publishedAt?: string | null, updatedAt: string, updatedByName?: string | null } | null };
+
+export type WhatsappDemoStatsQueryVariables = Exact<{
+  from: Scalars['String']['input'];
+  to: Scalars['String']['input'];
+}>;
+
+
+export type WhatsappDemoStatsQuery = { __typename?: 'Query', whatsappDemoStats: { __typename?: 'WhatsappDemoStats', sessions: number, uniqueUsers: number, flowsStarted: number, flowsCompleted: number, completionRate: number, avgSessionMs: number, topDemos: Array<{ __typename?: 'WhatsappCount', key: string, label: string, count: number }>, devices: Array<{ __typename?: 'WhatsappCount', key: string, label: string, count: number }>, daily: Array<{ __typename?: 'WhatsappDayPoint', date: string, sessions: number, flowsStarted: number, flowsCompleted: number }>, flows: Array<{ __typename?: 'WhatsappFlowStat', demoKey: string, workflow: string, name: string, started: number, completed: number, abandoned: number }>, ai: { __typename?: 'WhatsappAiStats', calls: number, failures: number, avgLatencyMs: number, tokens: number } } };
+
+export type WhatsappDemoFunnelQueryVariables = Exact<{
+  demoKey: Scalars['String']['input'];
+  workflow: Scalars['String']['input'];
+  from: Scalars['String']['input'];
+  to: Scalars['String']['input'];
+}>;
+
+
+export type WhatsappDemoFunnelQuery = { __typename?: 'Query', whatsappDemoFunnel: Array<{ __typename?: 'WhatsappFunnelStep', node: string, label: string, sessions: number }> };
+
+export type WhatsappDemoSessionsQueryVariables = Exact<{
+  input: TableQueryInput;
+  from?: InputMaybe<Scalars['String']['input']>;
+  to?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type WhatsappDemoSessionsQuery = { __typename?: 'Query', whatsappDemoSessions: { __typename?: 'WhatsappDemoSessionPage', totalCount: number, rows: Array<{ __typename?: 'WhatsappDemoSession', id: string, sessionId: string, userId: string, userName: string, userEmail: string, startedAt: string, lastEventAt: string, durationMs: number, device?: string | null, viewport?: string | null, demos: Array<string>, flowsStarted: number, flowsCompleted: number, events: number, status: string }> } };
+
+export type WhatsappDemoSessionQueryVariables = Exact<{
+  sessionId: Scalars['ID']['input'];
+}>;
+
+
+export type WhatsappDemoSessionQuery = { __typename?: 'Query', whatsappDemoSession?: { __typename?: 'WhatsappDemoSessionDetail', session: { __typename?: 'WhatsappDemoSession', id: string, sessionId: string, userId: string, userName: string, userEmail: string, startedAt: string, lastEventAt: string, durationMs: number, device?: string | null, viewport?: string | null, demos: Array<string>, flowsStarted: number, flowsCompleted: number, events: number, status: string }, events: Array<{ __typename?: 'WhatsappDemoEvent', id: string, type: WhatsappDemoEventType, at: string, demoKey?: string | null, workflow?: string | null, node?: string | null, stepKind?: string | null, label?: string | null, durationMs?: number | null, meta?: any | null }> } | null };
+
+export type UpsertWhatsappDemoMutationVariables = Exact<{
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: WhatsappDemoInput;
+}>;
+
+
+export type UpsertWhatsappDemoMutation = { __typename?: 'Mutation', upsertWhatsappDemo: { __typename?: 'WhatsappDemo', id: string, key: string, industry: string, business: any, greeting: string, menuText: string, menuButton: string, order: number, active: boolean, updatedAt: string } };
+
+export type CreateWhatsappWorkflowMutationVariables = Exact<{
+  input: WhatsappWorkflowCreateInput;
+}>;
+
+
+export type CreateWhatsappWorkflowMutation = { __typename?: 'Mutation', createWhatsappWorkflow: { __typename?: 'WhatsappWorkflow', id: string, demoId: string, demoKey: string, key: string, name: string, description: string, keywords: Array<string>, order: number, status: WhatsappWorkflowStatus, version: number, draft: any, published?: any | null, publishedAt?: string | null, updatedAt: string, updatedByName?: string | null } };
+
+export type SaveWhatsappWorkflowDraftMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: WhatsappWorkflowDraftInput;
+}>;
+
+
+export type SaveWhatsappWorkflowDraftMutation = { __typename?: 'Mutation', saveWhatsappWorkflowDraft: { __typename?: 'WhatsappWorkflow', id: string, demoId: string, demoKey: string, key: string, name: string, description: string, keywords: Array<string>, order: number, status: WhatsappWorkflowStatus, version: number, draft: any, published?: any | null, publishedAt?: string | null, updatedAt: string, updatedByName?: string | null } };
+
+export type PublishWhatsappWorkflowMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type PublishWhatsappWorkflowMutation = { __typename?: 'Mutation', publishWhatsappWorkflow: { __typename?: 'WhatsappWorkflow', id: string, demoId: string, demoKey: string, key: string, name: string, description: string, keywords: Array<string>, order: number, status: WhatsappWorkflowStatus, version: number, draft: any, published?: any | null, publishedAt?: string | null, updatedAt: string, updatedByName?: string | null } };
+
+export type DiscardWhatsappWorkflowDraftMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DiscardWhatsappWorkflowDraftMutation = { __typename?: 'Mutation', discardWhatsappWorkflowDraft: { __typename?: 'WhatsappWorkflow', id: string, demoId: string, demoKey: string, key: string, name: string, description: string, keywords: Array<string>, order: number, status: WhatsappWorkflowStatus, version: number, draft: any, published?: any | null, publishedAt?: string | null, updatedAt: string, updatedByName?: string | null } };
+
+export type DuplicateWhatsappWorkflowMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DuplicateWhatsappWorkflowMutation = { __typename?: 'Mutation', duplicateWhatsappWorkflow: { __typename?: 'WhatsappWorkflow', id: string, demoId: string, demoKey: string, key: string, name: string, description: string, keywords: Array<string>, order: number, status: WhatsappWorkflowStatus, version: number, draft: any, published?: any | null, publishedAt?: string | null, updatedAt: string, updatedByName?: string | null } };
+
+export type DeleteWhatsappWorkflowMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteWhatsappWorkflowMutation = { __typename?: 'Mutation', deleteWhatsappWorkflow: boolean };
 
 export const UserFieldsFragmentDoc = gql`
     fragment UserFields on User {
@@ -22160,6 +22953,58 @@ export const WebsiteSubmissionFieldsFragmentDoc = gql`
   leadId
   applicantId
   createdAt
+}
+    `;
+export const WhatsappDemoFieldsFragmentDoc = gql`
+    fragment WhatsappDemoFields on WhatsappDemo {
+  id
+  key
+  industry
+  business
+  greeting
+  menuText
+  menuButton
+  order
+  active
+  updatedAt
+}
+    `;
+export const WhatsappWorkflowFieldsFragmentDoc = gql`
+    fragment WhatsappWorkflowFields on WhatsappWorkflow {
+  id
+  demoId
+  demoKey
+  key
+  name
+  description
+  keywords
+  order
+  status
+  version
+  draft
+  published
+  publishedAt
+  updatedAt
+  updatedByName
+}
+    `;
+export const WhatsappDemoSessionFieldsFragmentDoc = gql`
+    fragment WhatsappDemoSessionFields on WhatsappDemoSession {
+  id
+  sessionId
+  userId
+  userName
+  userEmail
+  startedAt
+  lastEventAt
+  durationMs
+  device
+  viewport
+  demos
+  flowsStarted
+  flowsCompleted
+  events
+  status
 }
     `;
 export const ListUsersDocument = gql`
@@ -48020,6 +48865,393 @@ export function useSearchSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken 
 export type SearchQueryHookResult = ReturnType<typeof useSearchQuery>;
 export type SearchLazyQueryHookResult = ReturnType<typeof useSearchLazyQuery>;
 export type SearchSuspenseQueryHookResult = ReturnType<typeof useSearchSuspenseQuery>;
+export const SslCertificatesDocument = gql`
+    query SslCertificates($refresh: Boolean) {
+  sslCertificates(refresh: $refresh) {
+    warningDays
+    checkedAt
+    certificates {
+      host
+      monitors
+      status
+      subject
+      altNames
+      issuer
+      validFrom
+      validTo
+      daysLeft
+      serialNumber
+      fingerprint256
+      protocol
+      authorized
+      error
+      checkedAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useSslCertificatesQuery__
+ *
+ * To run a query within a React component, call `useSslCertificatesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSslCertificatesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSslCertificatesQuery({
+ *   variables: {
+ *      refresh: // value for 'refresh'
+ *   },
+ * });
+ */
+export function useSslCertificatesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<SslCertificatesQuery, SslCertificatesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<SslCertificatesQuery, SslCertificatesQueryVariables>(SslCertificatesDocument, options);
+      }
+export function useSslCertificatesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SslCertificatesQuery, SslCertificatesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<SslCertificatesQuery, SslCertificatesQueryVariables>(SslCertificatesDocument, options);
+        }
+// @ts-ignore
+export function useSslCertificatesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<SslCertificatesQuery, SslCertificatesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SslCertificatesQuery, SslCertificatesQueryVariables>;
+// @ts-ignore
+export function useSslCertificatesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SslCertificatesQuery, SslCertificatesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SslCertificatesQuery | undefined, SslCertificatesQueryVariables>;
+export function useSslCertificatesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SslCertificatesQuery, SslCertificatesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<SslCertificatesQuery, SslCertificatesQueryVariables>(SslCertificatesDocument, options);
+        }
+export type SslCertificatesQueryHookResult = ReturnType<typeof useSslCertificatesQuery>;
+export type SslCertificatesLazyQueryHookResult = ReturnType<typeof useSslCertificatesLazyQuery>;
+export type SslCertificatesSuspenseQueryHookResult = ReturnType<typeof useSslCertificatesSuspenseQuery>;
+export const ListSonarConfigsDocument = gql`
+    query ListSonarConfigs {
+  listSonarConfigs {
+    id
+    label
+    hostUrl
+    projectKey
+    organization
+    hasToken
+    tokenHint
+    isActive
+  }
+}
+    `;
+
+/**
+ * __useListSonarConfigsQuery__
+ *
+ * To run a query within a React component, call `useListSonarConfigsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListSonarConfigsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListSonarConfigsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListSonarConfigsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ListSonarConfigsQuery, ListSonarConfigsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListSonarConfigsQuery, ListSonarConfigsQueryVariables>(ListSonarConfigsDocument, options);
+      }
+export function useListSonarConfigsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListSonarConfigsQuery, ListSonarConfigsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListSonarConfigsQuery, ListSonarConfigsQueryVariables>(ListSonarConfigsDocument, options);
+        }
+// @ts-ignore
+export function useListSonarConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListSonarConfigsQuery, ListSonarConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListSonarConfigsQuery, ListSonarConfigsQueryVariables>;
+// @ts-ignore
+export function useListSonarConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListSonarConfigsQuery, ListSonarConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListSonarConfigsQuery | undefined, ListSonarConfigsQueryVariables>;
+export function useListSonarConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListSonarConfigsQuery, ListSonarConfigsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListSonarConfigsQuery, ListSonarConfigsQueryVariables>(ListSonarConfigsDocument, options);
+        }
+export type ListSonarConfigsQueryHookResult = ReturnType<typeof useListSonarConfigsQuery>;
+export type ListSonarConfigsLazyQueryHookResult = ReturnType<typeof useListSonarConfigsLazyQuery>;
+export type ListSonarConfigsSuspenseQueryHookResult = ReturnType<typeof useListSonarConfigsSuspenseQuery>;
+export const CreateSonarConfigDocument = gql`
+    mutation CreateSonarConfig($input: SonarConfigInput!) {
+  createSonarConfig(input: $input) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useCreateSonarConfigMutation__
+ *
+ * To run a mutation, you first call `useCreateSonarConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateSonarConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createSonarConfigMutation, { data, loading, error }] = useCreateSonarConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateSonarConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateSonarConfigMutation, CreateSonarConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateSonarConfigMutation, CreateSonarConfigMutationVariables>(CreateSonarConfigDocument, options);
+      }
+export type CreateSonarConfigMutationHookResult = ReturnType<typeof useCreateSonarConfigMutation>;
+export const UpdateSonarConfigDocument = gql`
+    mutation UpdateSonarConfig($id: ID!, $input: SonarConfigInput!) {
+  updateSonarConfig(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useUpdateSonarConfigMutation__
+ *
+ * To run a mutation, you first call `useUpdateSonarConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateSonarConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateSonarConfigMutation, { data, loading, error }] = useUpdateSonarConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateSonarConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateSonarConfigMutation, UpdateSonarConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateSonarConfigMutation, UpdateSonarConfigMutationVariables>(UpdateSonarConfigDocument, options);
+      }
+export type UpdateSonarConfigMutationHookResult = ReturnType<typeof useUpdateSonarConfigMutation>;
+export const DeleteSonarConfigDocument = gql`
+    mutation DeleteSonarConfig($id: ID!) {
+  deleteSonarConfig(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteSonarConfigMutation__
+ *
+ * To run a mutation, you first call `useDeleteSonarConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteSonarConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteSonarConfigMutation, { data, loading, error }] = useDeleteSonarConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteSonarConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteSonarConfigMutation, DeleteSonarConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteSonarConfigMutation, DeleteSonarConfigMutationVariables>(DeleteSonarConfigDocument, options);
+      }
+export type DeleteSonarConfigMutationHookResult = ReturnType<typeof useDeleteSonarConfigMutation>;
+export const TestSonarConnectionDocument = gql`
+    mutation TestSonarConnection($id: ID!) {
+  testSonarConnection(id: $id) {
+    ok
+    message
+  }
+}
+    `;
+
+/**
+ * __useTestSonarConnectionMutation__
+ *
+ * To run a mutation, you first call `useTestSonarConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestSonarConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testSonarConnectionMutation, { data, loading, error }] = useTestSonarConnectionMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTestSonarConnectionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TestSonarConnectionMutation, TestSonarConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TestSonarConnectionMutation, TestSonarConnectionMutationVariables>(TestSonarConnectionDocument, options);
+      }
+export type TestSonarConnectionMutationHookResult = ReturnType<typeof useTestSonarConnectionMutation>;
+export const SonarOverviewDocument = gql`
+    query SonarOverview($refresh: Boolean) {
+  sonarOverview(refresh: $refresh) {
+    state
+    message
+    configLabel
+    projectKey
+    projectUrl
+    checkedAt
+    qualityGate {
+      status
+      conditions {
+        status
+        metric
+        comparator
+        errorThreshold
+        actualValue
+      }
+    }
+    metrics {
+      alertStatus
+      bugs
+      vulnerabilities
+      securityHotspots
+      codeSmells
+      coverage
+      duplicatedLinesDensity
+      ncloc
+      reliabilityRating
+      securityRating
+      maintainabilityRating
+      technicalDebtMinutes
+      newBugs
+      newVulnerabilities
+      newSecurityHotspots
+      newCodeSmells
+      newCoverage
+      newDuplicatedLinesDensity
+    }
+    analyses {
+      key
+      date
+      version
+      events
+    }
+    issues {
+      key
+      rule
+      severity
+      type
+      file
+      line
+      message
+      url
+    }
+    issuesTotal
+    severityCounts {
+      value
+      count
+    }
+    typeCounts {
+      value
+      count
+    }
+  }
+}
+    `;
+
+/**
+ * __useSonarOverviewQuery__
+ *
+ * To run a query within a React component, call `useSonarOverviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSonarOverviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSonarOverviewQuery({
+ *   variables: {
+ *      refresh: // value for 'refresh'
+ *   },
+ * });
+ */
+export function useSonarOverviewQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<SonarOverviewQuery, SonarOverviewQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<SonarOverviewQuery, SonarOverviewQueryVariables>(SonarOverviewDocument, options);
+      }
+export function useSonarOverviewLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SonarOverviewQuery, SonarOverviewQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<SonarOverviewQuery, SonarOverviewQueryVariables>(SonarOverviewDocument, options);
+        }
+// @ts-ignore
+export function useSonarOverviewSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<SonarOverviewQuery, SonarOverviewQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SonarOverviewQuery, SonarOverviewQueryVariables>;
+// @ts-ignore
+export function useSonarOverviewSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SonarOverviewQuery, SonarOverviewQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SonarOverviewQuery | undefined, SonarOverviewQueryVariables>;
+export function useSonarOverviewSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SonarOverviewQuery, SonarOverviewQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<SonarOverviewQuery, SonarOverviewQueryVariables>(SonarOverviewDocument, options);
+        }
+export type SonarOverviewQueryHookResult = ReturnType<typeof useSonarOverviewQuery>;
+export type SonarOverviewLazyQueryHookResult = ReturnType<typeof useSonarOverviewLazyQuery>;
+export type SonarOverviewSuspenseQueryHookResult = ReturnType<typeof useSonarOverviewSuspenseQuery>;
+export const SonarIssuesDocument = gql`
+    query SonarIssues($severity: String!) {
+  sonarIssues(severity: $severity) {
+    key
+    rule
+    severity
+    type
+    file
+    line
+    message
+    url
+  }
+}
+    `;
+
+/**
+ * __useSonarIssuesQuery__
+ *
+ * To run a query within a React component, call `useSonarIssuesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSonarIssuesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSonarIssuesQuery({
+ *   variables: {
+ *      severity: // value for 'severity'
+ *   },
+ * });
+ */
+export function useSonarIssuesQuery(baseOptions: ApolloReactHooks.QueryHookOptions<SonarIssuesQuery, SonarIssuesQueryVariables> & ({ variables: SonarIssuesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<SonarIssuesQuery, SonarIssuesQueryVariables>(SonarIssuesDocument, options);
+      }
+export function useSonarIssuesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SonarIssuesQuery, SonarIssuesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<SonarIssuesQuery, SonarIssuesQueryVariables>(SonarIssuesDocument, options);
+        }
+// @ts-ignore
+export function useSonarIssuesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<SonarIssuesQuery, SonarIssuesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SonarIssuesQuery, SonarIssuesQueryVariables>;
+// @ts-ignore
+export function useSonarIssuesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SonarIssuesQuery, SonarIssuesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SonarIssuesQuery | undefined, SonarIssuesQueryVariables>;
+export function useSonarIssuesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SonarIssuesQuery, SonarIssuesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<SonarIssuesQuery, SonarIssuesQueryVariables>(SonarIssuesDocument, options);
+        }
+export type SonarIssuesQueryHookResult = ReturnType<typeof useSonarIssuesQuery>;
+export type SonarIssuesLazyQueryHookResult = ReturnType<typeof useSonarIssuesLazyQuery>;
+export type SonarIssuesSuspenseQueryHookResult = ReturnType<typeof useSonarIssuesSuspenseQuery>;
 export const SocialAppConfigsDocument = gql`
     query SocialAppConfigs {
   socialAppConfigs {
@@ -56790,3 +58022,741 @@ export function useConvertWebsiteSubmissionToLeadMutation(baseOptions?: ApolloRe
         return ApolloReactHooks.useMutation<ConvertWebsiteSubmissionToLeadMutation, ConvertWebsiteSubmissionToLeadMutationVariables>(ConvertWebsiteSubmissionToLeadDocument, options);
       }
 export type ConvertWebsiteSubmissionToLeadMutationHookResult = ReturnType<typeof useConvertWebsiteSubmissionToLeadMutation>;
+export const WhatsappDemoCatalogDocument = gql`
+    query WhatsappDemoCatalog {
+  whatsappDemoCatalog {
+    demo {
+      ...WhatsappDemoFields
+    }
+    workflows {
+      key
+      name
+      description
+      keywords
+      order
+      version
+      graph
+    }
+    revision
+  }
+}
+    ${WhatsappDemoFieldsFragmentDoc}`;
+
+/**
+ * __useWhatsappDemoCatalogQuery__
+ *
+ * To run a query within a React component, call `useWhatsappDemoCatalogQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWhatsappDemoCatalogQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWhatsappDemoCatalogQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useWhatsappDemoCatalogQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<WhatsappDemoCatalogQuery, WhatsappDemoCatalogQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WhatsappDemoCatalogQuery, WhatsappDemoCatalogQueryVariables>(WhatsappDemoCatalogDocument, options);
+      }
+export function useWhatsappDemoCatalogLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WhatsappDemoCatalogQuery, WhatsappDemoCatalogQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WhatsappDemoCatalogQuery, WhatsappDemoCatalogQueryVariables>(WhatsappDemoCatalogDocument, options);
+        }
+// @ts-ignore
+export function useWhatsappDemoCatalogSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoCatalogQuery, WhatsappDemoCatalogQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappDemoCatalogQuery, WhatsappDemoCatalogQueryVariables>;
+// @ts-ignore
+export function useWhatsappDemoCatalogSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoCatalogQuery, WhatsappDemoCatalogQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappDemoCatalogQuery | undefined, WhatsappDemoCatalogQueryVariables>;
+export function useWhatsappDemoCatalogSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoCatalogQuery, WhatsappDemoCatalogQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WhatsappDemoCatalogQuery, WhatsappDemoCatalogQueryVariables>(WhatsappDemoCatalogDocument, options);
+        }
+export type WhatsappDemoCatalogQueryHookResult = ReturnType<typeof useWhatsappDemoCatalogQuery>;
+export type WhatsappDemoCatalogLazyQueryHookResult = ReturnType<typeof useWhatsappDemoCatalogLazyQuery>;
+export type WhatsappDemoCatalogSuspenseQueryHookResult = ReturnType<typeof useWhatsappDemoCatalogSuspenseQuery>;
+export const WhatsappDemoAiStatusDocument = gql`
+    query WhatsappDemoAiStatus {
+  whatsappDemoAiStatus {
+    configured
+    model
+  }
+}
+    `;
+
+/**
+ * __useWhatsappDemoAiStatusQuery__
+ *
+ * To run a query within a React component, call `useWhatsappDemoAiStatusQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWhatsappDemoAiStatusQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWhatsappDemoAiStatusQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useWhatsappDemoAiStatusQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<WhatsappDemoAiStatusQuery, WhatsappDemoAiStatusQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WhatsappDemoAiStatusQuery, WhatsappDemoAiStatusQueryVariables>(WhatsappDemoAiStatusDocument, options);
+      }
+export function useWhatsappDemoAiStatusLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WhatsappDemoAiStatusQuery, WhatsappDemoAiStatusQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WhatsappDemoAiStatusQuery, WhatsappDemoAiStatusQueryVariables>(WhatsappDemoAiStatusDocument, options);
+        }
+// @ts-ignore
+export function useWhatsappDemoAiStatusSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoAiStatusQuery, WhatsappDemoAiStatusQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappDemoAiStatusQuery, WhatsappDemoAiStatusQueryVariables>;
+// @ts-ignore
+export function useWhatsappDemoAiStatusSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoAiStatusQuery, WhatsappDemoAiStatusQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappDemoAiStatusQuery | undefined, WhatsappDemoAiStatusQueryVariables>;
+export function useWhatsappDemoAiStatusSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoAiStatusQuery, WhatsappDemoAiStatusQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WhatsappDemoAiStatusQuery, WhatsappDemoAiStatusQueryVariables>(WhatsappDemoAiStatusDocument, options);
+        }
+export type WhatsappDemoAiStatusQueryHookResult = ReturnType<typeof useWhatsappDemoAiStatusQuery>;
+export type WhatsappDemoAiStatusLazyQueryHookResult = ReturnType<typeof useWhatsappDemoAiStatusLazyQuery>;
+export type WhatsappDemoAiStatusSuspenseQueryHookResult = ReturnType<typeof useWhatsappDemoAiStatusSuspenseQuery>;
+export const RecordWhatsappDemoEventsDocument = gql`
+    mutation RecordWhatsappDemoEvents($events: [WhatsappDemoEventInput!]!) {
+  recordWhatsappDemoEvents(events: $events)
+}
+    `;
+
+/**
+ * __useRecordWhatsappDemoEventsMutation__
+ *
+ * To run a mutation, you first call `useRecordWhatsappDemoEventsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRecordWhatsappDemoEventsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [recordWhatsappDemoEventsMutation, { data, loading, error }] = useRecordWhatsappDemoEventsMutation({
+ *   variables: {
+ *      events: // value for 'events'
+ *   },
+ * });
+ */
+export function useRecordWhatsappDemoEventsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RecordWhatsappDemoEventsMutation, RecordWhatsappDemoEventsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RecordWhatsappDemoEventsMutation, RecordWhatsappDemoEventsMutationVariables>(RecordWhatsappDemoEventsDocument, options);
+      }
+export type RecordWhatsappDemoEventsMutationHookResult = ReturnType<typeof useRecordWhatsappDemoEventsMutation>;
+export const WhatsappDemoParseDocument = gql`
+    mutation WhatsappDemoParse($input: WhatsappDemoParseInput!) {
+  whatsappDemoParse(input: $input) {
+    ok
+    intent
+    entities
+    latencyMs
+    error
+  }
+}
+    `;
+
+/**
+ * __useWhatsappDemoParseMutation__
+ *
+ * To run a mutation, you first call `useWhatsappDemoParseMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useWhatsappDemoParseMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [whatsappDemoParseMutation, { data, loading, error }] = useWhatsappDemoParseMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useWhatsappDemoParseMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<WhatsappDemoParseMutation, WhatsappDemoParseMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<WhatsappDemoParseMutation, WhatsappDemoParseMutationVariables>(WhatsappDemoParseDocument, options);
+      }
+export type WhatsappDemoParseMutationHookResult = ReturnType<typeof useWhatsappDemoParseMutation>;
+export const WhatsappDemosDocument = gql`
+    query WhatsappDemos {
+  whatsappDemos {
+    ...WhatsappDemoFields
+  }
+}
+    ${WhatsappDemoFieldsFragmentDoc}`;
+
+/**
+ * __useWhatsappDemosQuery__
+ *
+ * To run a query within a React component, call `useWhatsappDemosQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWhatsappDemosQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWhatsappDemosQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useWhatsappDemosQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<WhatsappDemosQuery, WhatsappDemosQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WhatsappDemosQuery, WhatsappDemosQueryVariables>(WhatsappDemosDocument, options);
+      }
+export function useWhatsappDemosLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WhatsappDemosQuery, WhatsappDemosQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WhatsappDemosQuery, WhatsappDemosQueryVariables>(WhatsappDemosDocument, options);
+        }
+// @ts-ignore
+export function useWhatsappDemosSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemosQuery, WhatsappDemosQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappDemosQuery, WhatsappDemosQueryVariables>;
+// @ts-ignore
+export function useWhatsappDemosSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemosQuery, WhatsappDemosQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappDemosQuery | undefined, WhatsappDemosQueryVariables>;
+export function useWhatsappDemosSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemosQuery, WhatsappDemosQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WhatsappDemosQuery, WhatsappDemosQueryVariables>(WhatsappDemosDocument, options);
+        }
+export type WhatsappDemosQueryHookResult = ReturnType<typeof useWhatsappDemosQuery>;
+export type WhatsappDemosLazyQueryHookResult = ReturnType<typeof useWhatsappDemosLazyQuery>;
+export type WhatsappDemosSuspenseQueryHookResult = ReturnType<typeof useWhatsappDemosSuspenseQuery>;
+export const WhatsappWorkflowsDocument = gql`
+    query WhatsappWorkflows($demoId: ID) {
+  whatsappWorkflows(demoId: $demoId) {
+    ...WhatsappWorkflowFields
+  }
+}
+    ${WhatsappWorkflowFieldsFragmentDoc}`;
+
+/**
+ * __useWhatsappWorkflowsQuery__
+ *
+ * To run a query within a React component, call `useWhatsappWorkflowsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWhatsappWorkflowsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWhatsappWorkflowsQuery({
+ *   variables: {
+ *      demoId: // value for 'demoId'
+ *   },
+ * });
+ */
+export function useWhatsappWorkflowsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<WhatsappWorkflowsQuery, WhatsappWorkflowsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WhatsappWorkflowsQuery, WhatsappWorkflowsQueryVariables>(WhatsappWorkflowsDocument, options);
+      }
+export function useWhatsappWorkflowsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WhatsappWorkflowsQuery, WhatsappWorkflowsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WhatsappWorkflowsQuery, WhatsappWorkflowsQueryVariables>(WhatsappWorkflowsDocument, options);
+        }
+// @ts-ignore
+export function useWhatsappWorkflowsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WhatsappWorkflowsQuery, WhatsappWorkflowsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappWorkflowsQuery, WhatsappWorkflowsQueryVariables>;
+// @ts-ignore
+export function useWhatsappWorkflowsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappWorkflowsQuery, WhatsappWorkflowsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappWorkflowsQuery | undefined, WhatsappWorkflowsQueryVariables>;
+export function useWhatsappWorkflowsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappWorkflowsQuery, WhatsappWorkflowsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WhatsappWorkflowsQuery, WhatsappWorkflowsQueryVariables>(WhatsappWorkflowsDocument, options);
+        }
+export type WhatsappWorkflowsQueryHookResult = ReturnType<typeof useWhatsappWorkflowsQuery>;
+export type WhatsappWorkflowsLazyQueryHookResult = ReturnType<typeof useWhatsappWorkflowsLazyQuery>;
+export type WhatsappWorkflowsSuspenseQueryHookResult = ReturnType<typeof useWhatsappWorkflowsSuspenseQuery>;
+export const WhatsappWorkflowDocument = gql`
+    query WhatsappWorkflow($id: ID!) {
+  whatsappWorkflow(id: $id) {
+    ...WhatsappWorkflowFields
+  }
+}
+    ${WhatsappWorkflowFieldsFragmentDoc}`;
+
+/**
+ * __useWhatsappWorkflowQuery__
+ *
+ * To run a query within a React component, call `useWhatsappWorkflowQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWhatsappWorkflowQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWhatsappWorkflowQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useWhatsappWorkflowQuery(baseOptions: ApolloReactHooks.QueryHookOptions<WhatsappWorkflowQuery, WhatsappWorkflowQueryVariables> & ({ variables: WhatsappWorkflowQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WhatsappWorkflowQuery, WhatsappWorkflowQueryVariables>(WhatsappWorkflowDocument, options);
+      }
+export function useWhatsappWorkflowLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WhatsappWorkflowQuery, WhatsappWorkflowQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WhatsappWorkflowQuery, WhatsappWorkflowQueryVariables>(WhatsappWorkflowDocument, options);
+        }
+// @ts-ignore
+export function useWhatsappWorkflowSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WhatsappWorkflowQuery, WhatsappWorkflowQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappWorkflowQuery, WhatsappWorkflowQueryVariables>;
+// @ts-ignore
+export function useWhatsappWorkflowSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappWorkflowQuery, WhatsappWorkflowQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappWorkflowQuery | undefined, WhatsappWorkflowQueryVariables>;
+export function useWhatsappWorkflowSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappWorkflowQuery, WhatsappWorkflowQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WhatsappWorkflowQuery, WhatsappWorkflowQueryVariables>(WhatsappWorkflowDocument, options);
+        }
+export type WhatsappWorkflowQueryHookResult = ReturnType<typeof useWhatsappWorkflowQuery>;
+export type WhatsappWorkflowLazyQueryHookResult = ReturnType<typeof useWhatsappWorkflowLazyQuery>;
+export type WhatsappWorkflowSuspenseQueryHookResult = ReturnType<typeof useWhatsappWorkflowSuspenseQuery>;
+export const WhatsappDemoStatsDocument = gql`
+    query WhatsappDemoStats($from: String!, $to: String!) {
+  whatsappDemoStats(from: $from, to: $to) {
+    sessions
+    uniqueUsers
+    flowsStarted
+    flowsCompleted
+    completionRate
+    avgSessionMs
+    topDemos {
+      key
+      label
+      count
+    }
+    devices {
+      key
+      label
+      count
+    }
+    daily {
+      date
+      sessions
+      flowsStarted
+      flowsCompleted
+    }
+    flows {
+      demoKey
+      workflow
+      name
+      started
+      completed
+      abandoned
+    }
+    ai {
+      calls
+      failures
+      avgLatencyMs
+      tokens
+    }
+  }
+}
+    `;
+
+/**
+ * __useWhatsappDemoStatsQuery__
+ *
+ * To run a query within a React component, call `useWhatsappDemoStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWhatsappDemoStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWhatsappDemoStatsQuery({
+ *   variables: {
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *   },
+ * });
+ */
+export function useWhatsappDemoStatsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<WhatsappDemoStatsQuery, WhatsappDemoStatsQueryVariables> & ({ variables: WhatsappDemoStatsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WhatsappDemoStatsQuery, WhatsappDemoStatsQueryVariables>(WhatsappDemoStatsDocument, options);
+      }
+export function useWhatsappDemoStatsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WhatsappDemoStatsQuery, WhatsappDemoStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WhatsappDemoStatsQuery, WhatsappDemoStatsQueryVariables>(WhatsappDemoStatsDocument, options);
+        }
+// @ts-ignore
+export function useWhatsappDemoStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoStatsQuery, WhatsappDemoStatsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappDemoStatsQuery, WhatsappDemoStatsQueryVariables>;
+// @ts-ignore
+export function useWhatsappDemoStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoStatsQuery, WhatsappDemoStatsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappDemoStatsQuery | undefined, WhatsappDemoStatsQueryVariables>;
+export function useWhatsappDemoStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoStatsQuery, WhatsappDemoStatsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WhatsappDemoStatsQuery, WhatsappDemoStatsQueryVariables>(WhatsappDemoStatsDocument, options);
+        }
+export type WhatsappDemoStatsQueryHookResult = ReturnType<typeof useWhatsappDemoStatsQuery>;
+export type WhatsappDemoStatsLazyQueryHookResult = ReturnType<typeof useWhatsappDemoStatsLazyQuery>;
+export type WhatsappDemoStatsSuspenseQueryHookResult = ReturnType<typeof useWhatsappDemoStatsSuspenseQuery>;
+export const WhatsappDemoFunnelDocument = gql`
+    query WhatsappDemoFunnel($demoKey: String!, $workflow: String!, $from: String!, $to: String!) {
+  whatsappDemoFunnel(demoKey: $demoKey, workflow: $workflow, from: $from, to: $to) {
+    node
+    label
+    sessions
+  }
+}
+    `;
+
+/**
+ * __useWhatsappDemoFunnelQuery__
+ *
+ * To run a query within a React component, call `useWhatsappDemoFunnelQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWhatsappDemoFunnelQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWhatsappDemoFunnelQuery({
+ *   variables: {
+ *      demoKey: // value for 'demoKey'
+ *      workflow: // value for 'workflow'
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *   },
+ * });
+ */
+export function useWhatsappDemoFunnelQuery(baseOptions: ApolloReactHooks.QueryHookOptions<WhatsappDemoFunnelQuery, WhatsappDemoFunnelQueryVariables> & ({ variables: WhatsappDemoFunnelQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WhatsappDemoFunnelQuery, WhatsappDemoFunnelQueryVariables>(WhatsappDemoFunnelDocument, options);
+      }
+export function useWhatsappDemoFunnelLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WhatsappDemoFunnelQuery, WhatsappDemoFunnelQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WhatsappDemoFunnelQuery, WhatsappDemoFunnelQueryVariables>(WhatsappDemoFunnelDocument, options);
+        }
+// @ts-ignore
+export function useWhatsappDemoFunnelSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoFunnelQuery, WhatsappDemoFunnelQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappDemoFunnelQuery, WhatsappDemoFunnelQueryVariables>;
+// @ts-ignore
+export function useWhatsappDemoFunnelSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoFunnelQuery, WhatsappDemoFunnelQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappDemoFunnelQuery | undefined, WhatsappDemoFunnelQueryVariables>;
+export function useWhatsappDemoFunnelSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoFunnelQuery, WhatsappDemoFunnelQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WhatsappDemoFunnelQuery, WhatsappDemoFunnelQueryVariables>(WhatsappDemoFunnelDocument, options);
+        }
+export type WhatsappDemoFunnelQueryHookResult = ReturnType<typeof useWhatsappDemoFunnelQuery>;
+export type WhatsappDemoFunnelLazyQueryHookResult = ReturnType<typeof useWhatsappDemoFunnelLazyQuery>;
+export type WhatsappDemoFunnelSuspenseQueryHookResult = ReturnType<typeof useWhatsappDemoFunnelSuspenseQuery>;
+export const WhatsappDemoSessionsDocument = gql`
+    query WhatsappDemoSessions($input: TableQueryInput!, $from: String, $to: String) {
+  whatsappDemoSessions(input: $input, from: $from, to: $to) {
+    rows {
+      ...WhatsappDemoSessionFields
+    }
+    totalCount
+  }
+}
+    ${WhatsappDemoSessionFieldsFragmentDoc}`;
+
+/**
+ * __useWhatsappDemoSessionsQuery__
+ *
+ * To run a query within a React component, call `useWhatsappDemoSessionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWhatsappDemoSessionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWhatsappDemoSessionsQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *      from: // value for 'from'
+ *      to: // value for 'to'
+ *   },
+ * });
+ */
+export function useWhatsappDemoSessionsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<WhatsappDemoSessionsQuery, WhatsappDemoSessionsQueryVariables> & ({ variables: WhatsappDemoSessionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WhatsappDemoSessionsQuery, WhatsappDemoSessionsQueryVariables>(WhatsappDemoSessionsDocument, options);
+      }
+export function useWhatsappDemoSessionsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WhatsappDemoSessionsQuery, WhatsappDemoSessionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WhatsappDemoSessionsQuery, WhatsappDemoSessionsQueryVariables>(WhatsappDemoSessionsDocument, options);
+        }
+// @ts-ignore
+export function useWhatsappDemoSessionsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoSessionsQuery, WhatsappDemoSessionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappDemoSessionsQuery, WhatsappDemoSessionsQueryVariables>;
+// @ts-ignore
+export function useWhatsappDemoSessionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoSessionsQuery, WhatsappDemoSessionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappDemoSessionsQuery | undefined, WhatsappDemoSessionsQueryVariables>;
+export function useWhatsappDemoSessionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoSessionsQuery, WhatsappDemoSessionsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WhatsappDemoSessionsQuery, WhatsappDemoSessionsQueryVariables>(WhatsappDemoSessionsDocument, options);
+        }
+export type WhatsappDemoSessionsQueryHookResult = ReturnType<typeof useWhatsappDemoSessionsQuery>;
+export type WhatsappDemoSessionsLazyQueryHookResult = ReturnType<typeof useWhatsappDemoSessionsLazyQuery>;
+export type WhatsappDemoSessionsSuspenseQueryHookResult = ReturnType<typeof useWhatsappDemoSessionsSuspenseQuery>;
+export const WhatsappDemoSessionDocument = gql`
+    query WhatsappDemoSession($sessionId: ID!) {
+  whatsappDemoSession(sessionId: $sessionId) {
+    session {
+      ...WhatsappDemoSessionFields
+    }
+    events {
+      id
+      type
+      at
+      demoKey
+      workflow
+      node
+      stepKind
+      label
+      durationMs
+      meta
+    }
+  }
+}
+    ${WhatsappDemoSessionFieldsFragmentDoc}`;
+
+/**
+ * __useWhatsappDemoSessionQuery__
+ *
+ * To run a query within a React component, call `useWhatsappDemoSessionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWhatsappDemoSessionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWhatsappDemoSessionQuery({
+ *   variables: {
+ *      sessionId: // value for 'sessionId'
+ *   },
+ * });
+ */
+export function useWhatsappDemoSessionQuery(baseOptions: ApolloReactHooks.QueryHookOptions<WhatsappDemoSessionQuery, WhatsappDemoSessionQueryVariables> & ({ variables: WhatsappDemoSessionQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WhatsappDemoSessionQuery, WhatsappDemoSessionQueryVariables>(WhatsappDemoSessionDocument, options);
+      }
+export function useWhatsappDemoSessionLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WhatsappDemoSessionQuery, WhatsappDemoSessionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WhatsappDemoSessionQuery, WhatsappDemoSessionQueryVariables>(WhatsappDemoSessionDocument, options);
+        }
+// @ts-ignore
+export function useWhatsappDemoSessionSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoSessionQuery, WhatsappDemoSessionQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappDemoSessionQuery, WhatsappDemoSessionQueryVariables>;
+// @ts-ignore
+export function useWhatsappDemoSessionSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoSessionQuery, WhatsappDemoSessionQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappDemoSessionQuery | undefined, WhatsappDemoSessionQueryVariables>;
+export function useWhatsappDemoSessionSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoSessionQuery, WhatsappDemoSessionQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WhatsappDemoSessionQuery, WhatsappDemoSessionQueryVariables>(WhatsappDemoSessionDocument, options);
+        }
+export type WhatsappDemoSessionQueryHookResult = ReturnType<typeof useWhatsappDemoSessionQuery>;
+export type WhatsappDemoSessionLazyQueryHookResult = ReturnType<typeof useWhatsappDemoSessionLazyQuery>;
+export type WhatsappDemoSessionSuspenseQueryHookResult = ReturnType<typeof useWhatsappDemoSessionSuspenseQuery>;
+export const UpsertWhatsappDemoDocument = gql`
+    mutation UpsertWhatsappDemo($id: ID, $input: WhatsappDemoInput!) {
+  upsertWhatsappDemo(id: $id, input: $input) {
+    ...WhatsappDemoFields
+  }
+}
+    ${WhatsappDemoFieldsFragmentDoc}`;
+
+/**
+ * __useUpsertWhatsappDemoMutation__
+ *
+ * To run a mutation, you first call `useUpsertWhatsappDemoMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpsertWhatsappDemoMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [upsertWhatsappDemoMutation, { data, loading, error }] = useUpsertWhatsappDemoMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpsertWhatsappDemoMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpsertWhatsappDemoMutation, UpsertWhatsappDemoMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpsertWhatsappDemoMutation, UpsertWhatsappDemoMutationVariables>(UpsertWhatsappDemoDocument, options);
+      }
+export type UpsertWhatsappDemoMutationHookResult = ReturnType<typeof useUpsertWhatsappDemoMutation>;
+export const CreateWhatsappWorkflowDocument = gql`
+    mutation CreateWhatsappWorkflow($input: WhatsappWorkflowCreateInput!) {
+  createWhatsappWorkflow(input: $input) {
+    ...WhatsappWorkflowFields
+  }
+}
+    ${WhatsappWorkflowFieldsFragmentDoc}`;
+
+/**
+ * __useCreateWhatsappWorkflowMutation__
+ *
+ * To run a mutation, you first call `useCreateWhatsappWorkflowMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateWhatsappWorkflowMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createWhatsappWorkflowMutation, { data, loading, error }] = useCreateWhatsappWorkflowMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateWhatsappWorkflowMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateWhatsappWorkflowMutation, CreateWhatsappWorkflowMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateWhatsappWorkflowMutation, CreateWhatsappWorkflowMutationVariables>(CreateWhatsappWorkflowDocument, options);
+      }
+export type CreateWhatsappWorkflowMutationHookResult = ReturnType<typeof useCreateWhatsappWorkflowMutation>;
+export const SaveWhatsappWorkflowDraftDocument = gql`
+    mutation SaveWhatsappWorkflowDraft($id: ID!, $input: WhatsappWorkflowDraftInput!) {
+  saveWhatsappWorkflowDraft(id: $id, input: $input) {
+    ...WhatsappWorkflowFields
+  }
+}
+    ${WhatsappWorkflowFieldsFragmentDoc}`;
+
+/**
+ * __useSaveWhatsappWorkflowDraftMutation__
+ *
+ * To run a mutation, you first call `useSaveWhatsappWorkflowDraftMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveWhatsappWorkflowDraftMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveWhatsappWorkflowDraftMutation, { data, loading, error }] = useSaveWhatsappWorkflowDraftMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSaveWhatsappWorkflowDraftMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SaveWhatsappWorkflowDraftMutation, SaveWhatsappWorkflowDraftMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SaveWhatsappWorkflowDraftMutation, SaveWhatsappWorkflowDraftMutationVariables>(SaveWhatsappWorkflowDraftDocument, options);
+      }
+export type SaveWhatsappWorkflowDraftMutationHookResult = ReturnType<typeof useSaveWhatsappWorkflowDraftMutation>;
+export const PublishWhatsappWorkflowDocument = gql`
+    mutation PublishWhatsappWorkflow($id: ID!) {
+  publishWhatsappWorkflow(id: $id) {
+    ...WhatsappWorkflowFields
+  }
+}
+    ${WhatsappWorkflowFieldsFragmentDoc}`;
+
+/**
+ * __usePublishWhatsappWorkflowMutation__
+ *
+ * To run a mutation, you first call `usePublishWhatsappWorkflowMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePublishWhatsappWorkflowMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [publishWhatsappWorkflowMutation, { data, loading, error }] = usePublishWhatsappWorkflowMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function usePublishWhatsappWorkflowMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<PublishWhatsappWorkflowMutation, PublishWhatsappWorkflowMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<PublishWhatsappWorkflowMutation, PublishWhatsappWorkflowMutationVariables>(PublishWhatsappWorkflowDocument, options);
+      }
+export type PublishWhatsappWorkflowMutationHookResult = ReturnType<typeof usePublishWhatsappWorkflowMutation>;
+export const DiscardWhatsappWorkflowDraftDocument = gql`
+    mutation DiscardWhatsappWorkflowDraft($id: ID!) {
+  discardWhatsappWorkflowDraft(id: $id) {
+    ...WhatsappWorkflowFields
+  }
+}
+    ${WhatsappWorkflowFieldsFragmentDoc}`;
+
+/**
+ * __useDiscardWhatsappWorkflowDraftMutation__
+ *
+ * To run a mutation, you first call `useDiscardWhatsappWorkflowDraftMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDiscardWhatsappWorkflowDraftMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [discardWhatsappWorkflowDraftMutation, { data, loading, error }] = useDiscardWhatsappWorkflowDraftMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDiscardWhatsappWorkflowDraftMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DiscardWhatsappWorkflowDraftMutation, DiscardWhatsappWorkflowDraftMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DiscardWhatsappWorkflowDraftMutation, DiscardWhatsappWorkflowDraftMutationVariables>(DiscardWhatsappWorkflowDraftDocument, options);
+      }
+export type DiscardWhatsappWorkflowDraftMutationHookResult = ReturnType<typeof useDiscardWhatsappWorkflowDraftMutation>;
+export const DuplicateWhatsappWorkflowDocument = gql`
+    mutation DuplicateWhatsappWorkflow($id: ID!) {
+  duplicateWhatsappWorkflow(id: $id) {
+    ...WhatsappWorkflowFields
+  }
+}
+    ${WhatsappWorkflowFieldsFragmentDoc}`;
+
+/**
+ * __useDuplicateWhatsappWorkflowMutation__
+ *
+ * To run a mutation, you first call `useDuplicateWhatsappWorkflowMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDuplicateWhatsappWorkflowMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [duplicateWhatsappWorkflowMutation, { data, loading, error }] = useDuplicateWhatsappWorkflowMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDuplicateWhatsappWorkflowMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DuplicateWhatsappWorkflowMutation, DuplicateWhatsappWorkflowMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DuplicateWhatsappWorkflowMutation, DuplicateWhatsappWorkflowMutationVariables>(DuplicateWhatsappWorkflowDocument, options);
+      }
+export type DuplicateWhatsappWorkflowMutationHookResult = ReturnType<typeof useDuplicateWhatsappWorkflowMutation>;
+export const DeleteWhatsappWorkflowDocument = gql`
+    mutation DeleteWhatsappWorkflow($id: ID!) {
+  deleteWhatsappWorkflow(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteWhatsappWorkflowMutation__
+ *
+ * To run a mutation, you first call `useDeleteWhatsappWorkflowMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteWhatsappWorkflowMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteWhatsappWorkflowMutation, { data, loading, error }] = useDeleteWhatsappWorkflowMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteWhatsappWorkflowMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteWhatsappWorkflowMutation, DeleteWhatsappWorkflowMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteWhatsappWorkflowMutation, DeleteWhatsappWorkflowMutationVariables>(DeleteWhatsappWorkflowDocument, options);
+      }
+export type DeleteWhatsappWorkflowMutationHookResult = ReturnType<typeof useDeleteWhatsappWorkflowMutation>;

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 // The portals' face, bundled: the theme asks for "Inter Variable" (tokens/typography.token.ts).
 import '@fontsource-variable/inter';
 import { ApolloProvider } from '@apollo/client/react';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { LocalizationProvider, AdapterDateFns } from '@exyconn/ui/pickers';
 import { apolloClient } from '@/config/apolloClient';
 import { PortalI18nProvider } from '@/i18n/PortalI18nProvider';
@@ -44,6 +44,11 @@ interface PortalAppProps {
   children: ReactNode;
   /** Real route in this app that `/` and unknown paths fall back to. */
   homePath?: string;
+  /**
+   * Whether the signed-in routes sit inside the portal's sidebar and topbar. Off for an app
+   * that owns the whole screen (the WhatsApp demo), which then provides its own way out.
+   */
+  chrome?: boolean;
 }
 
 /**
@@ -56,6 +61,7 @@ export function PortalApp({
   moduleRole,
   children,
   homePath = '/',
+  chrome = true,
 }: Readonly<PortalAppProps>) {
   return (
     <ApolloProvider client={apolloClient}>
@@ -80,7 +86,7 @@ export function PortalApp({
                       <Route
                         element={
                           <ProtectedRoute requiredRole={moduleRole}>
-                            <PortalLayout />
+                            {chrome ? <PortalLayout /> : <Outlet />}
                           </ProtectedRoute>
                         }
                       >

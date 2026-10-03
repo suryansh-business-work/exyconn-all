@@ -35,6 +35,7 @@ COPY packages/time/package.json packages/time/
 COPY packages/tracker-core/package.json packages/tracker-core/
 COPY packages/rich-text/package.json packages/rich-text/
 COPY packages/ui/package.json packages/ui/
+COPY packages/wa-flow/package.json packages/wa-flow/
 COPY exyconn-portal/package.json exyconn-portal/
 COPY exyconn-portal/server/package.json exyconn-portal/server/
 COPY exyconn-portal/ui/package.json exyconn-portal/ui/
@@ -56,6 +57,7 @@ COPY exyconn-portal/apps/support/package.json exyconn-portal/apps/support/
 COPY exyconn-portal/apps/tech/package.json exyconn-portal/apps/tech/
 COPY exyconn-portal/apps/tracker/package.json exyconn-portal/apps/tracker/
 COPY exyconn-portal/apps/website/package.json exyconn-portal/apps/website/
+COPY exyconn-portal/apps/whatsapp-demo/package.json exyconn-portal/apps/whatsapp-demo/
 COPY exyconn-website/package.json exyconn-website/
 COPY exyconn-tracker-app/package.json exyconn-tracker-app/
 # The root `prepare` script runs on every install, this one included; it needs its own

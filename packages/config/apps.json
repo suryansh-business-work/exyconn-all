@@ -107,6 +107,12 @@
     "title": "Social · Exyconn Track",
     "description": "Exyconn Track — the internal employee feed."
   },
+  "whatsapp-demo": {
+    "subdomain": "whatsapp-demo",
+    "port": 4038,
+    "title": "WhatsApp Demo · Exyconn Track",
+    "description": "Exyconn Track — an interactive WhatsApp Business automation demo for client walkthroughs."
+  },
   "status": {
     "subdomain": "status",
     "port": 4035,

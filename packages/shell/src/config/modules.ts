@@ -97,6 +97,8 @@ import SavingsIcon from '@mui/icons-material/Savings';
 import QuickreplyIcon from '@mui/icons-material/Quickreply';
 import ForumIcon from '@mui/icons-material/Forum';
 import DynamicFeedIcon from '@mui/icons-material/DynamicFeed';
+import HttpsIcon from '@mui/icons-material/Https';
+import ChatIcon from '@mui/icons-material/Chat';
 import { ROLES, type Role } from '@/auth/roles';
 import { appUrl, type PortalAppKey } from './apps';
 import type { NavGroup } from './navGroups';
@@ -1120,6 +1122,20 @@ export const MODULES: ModuleDefinition[] = [
         icon: BuildIcon,
         group: 'Releases',
       },
+      {
+        key: 'tech-security-ssl',
+        label: 'SSL certificates',
+        path: '/tech/security/ssl',
+        icon: HttpsIcon,
+        group: 'Security',
+      },
+      {
+        key: 'tech-security-sonar',
+        label: 'SonarQube',
+        path: '/tech/security/sonar',
+        icon: FactCheckIcon,
+        group: 'Security',
+      },
     ],
   },
   {
@@ -1341,6 +1357,17 @@ export const MODULES: ModuleDefinition[] = [
       { key: 'social-feed', label: 'Feed', path: '/social', icon: DynamicFeedIcon },
       { key: 'social-profile', label: 'My Profile', path: '/social/me', icon: PersonIcon },
     ],
+  },
+  {
+    // Keyed to EMPLOYEE like Social: anyone in the company may walk a client through it.
+    // The app renders without portal chrome; its /admin analytics are ADMIN-only on the server.
+    key: 'whatsapp-demo',
+    label: 'WhatsApp Demo',
+    path: '/whatsapp-demo',
+    role: ROLES.EMPLOYEE,
+    icon: ChatIcon,
+    description: 'WhatsApp Business automation demos for client walkthroughs',
+    accent: color.green[600],
   },
 ];
 

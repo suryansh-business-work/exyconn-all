@@ -160,6 +160,14 @@ export const env = Object.freeze({
     failuresToOpen: Number(process.env.STATUS_FAILURES_TO_OPEN ?? 2),
   },
   /**
+   * Tech › Security › SSL certificates. A certificate with this many days or fewer left is
+   * reported as expiring; the per-host TLS handshake gives up after `sslTimeoutMs`.
+   */
+  security: {
+    sslWarningDays: Number(process.env.SSL_WARNING_DAYS ?? 30),
+    sslTimeoutMs: Number(process.env.SSL_CHECK_TIMEOUT_MS ?? 8_000),
+  },
+  /**
    * Where a project share link opens. The read-only client view lives on the public status
    * site, which is the one app with no sign-in and no portal chrome.
    */

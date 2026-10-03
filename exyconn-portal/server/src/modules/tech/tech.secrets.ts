@@ -1,10 +1,10 @@
 /**
  * What the API says about a platform credential instead of the credential itself.
  *
- * The SMTP password, the ImageKit private key, the Slack bot token, the GitHub token and the
- * Pexels/OpenAI API keys are write-only: a screen learns whether one is stored and, for the
- * long random tokens, its last few characters — enough to tell two keys apart, never enough to
- * use one. The services that send mail, upload or call out read the stored value directly.
+ * The SMTP password, the ImageKit private key, the Slack bot token, the GitHub and SonarQube
+ * tokens and the Pexels/OpenAI API keys are write-only: a screen learns whether one is stored
+ * and, for the long random tokens, its last few characters — enough to tell two keys apart,
+ * never enough to use one. The services that send mail, upload or call out read the stored value directly.
  */
 
 /** How many trailing characters of a token are shown. */
@@ -53,5 +53,9 @@ export const techSecretResolvers = {
   OpenAiConfig: {
     hasApiKey: hasSecret('apiKey'),
     apiKeyHint: hintOf('apiKey'),
+  },
+  SonarConfig: {
+    hasToken: hasSecret('token'),
+    tokenHint: hintOf('token'),
   },
 };
