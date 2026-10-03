@@ -74,6 +74,10 @@ export const employeeTypeDefs = gql`
     pfApplicable: Boolean!
     esiApplicable: Boolean!
     tdsPercent: Float!
+    "The regime key this person is taxed under. Null follows the one Payroll Settings names."
+    taxRegimeKey: String
+    "No tax bracket: payroll withholds no TDS from this person at all."
+    taxExempt: Boolean!
     "Statutory identifiers, printed on the payslip when they are on file."
     pfNumber: String
     esiNumber: String

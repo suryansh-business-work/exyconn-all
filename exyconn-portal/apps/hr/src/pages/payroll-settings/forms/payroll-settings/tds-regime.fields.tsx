@@ -2,7 +2,7 @@ import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
 import { RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import type { SelectOption } from '@exyconn/shell/components/form/rhf';
-import { useListTaxRegimesQuery } from '@exyconn/shell/graphql/generated';
+import { useTaxRegimeChoicesQuery } from '@exyconn/shell/graphql/generated';
 
 /**
  * Which regime a SLAB run applies, and when the financial year it is read for opens.
@@ -13,11 +13,12 @@ import { useListTaxRegimesQuery } from '@exyconn/shell/graphql/generated';
  */
 export function TdsRegimeFields() {
   const t = useT();
-  const { data, loading } = useListTaxRegimesQuery({ fetchPolicy: 'cache-and-network' });
-  const regimes = data?.listTaxRegimes ?? [];
+  // One option per regime key: the setting stores the key, and the year comes from the period.
+  const { data, loading } = useTaxRegimeChoicesQuery({ fetchPolicy: 'cache-and-network' });
+  const regimes = data?.taxRegimeChoices ?? [];
   const options: SelectOption[] = regimes.map((regime) => ({
     value: regime.regimeKey,
-    label: `${regime.name} (${regime.financialYear})`,
+    label: regime.name,
   }));
 
   return (
@@ -26,7 +27,7 @@ export function TdsRegimeFields() {
         name="tdsRegimeKey"
         label="Regime"
         options={options}
-        helperText="The bands in HR › Tax Slabs this run walks. The year comes from the period run."
+        helperText="The company default: the bands in HR › Tax Slabs a run walks for anyone without a regime of their own. The year comes from the period run."
       />
       {!loading && regimes.length === 0 && (
         <Text size="sm" color="warning.main">

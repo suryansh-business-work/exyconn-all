@@ -778,6 +778,8 @@ export type EmployeeSalaryInput = {
   pfApplicable: InputMaybe<Scalars['Boolean']['input']>;
   pfNumber: InputMaybe<Scalars['String']['input']>;
   rate: InputMaybe<Scalars['Float']['input']>;
+  taxExempt: InputMaybe<Scalars['Boolean']['input']>;
+  taxRegimeKey: InputMaybe<Scalars['String']['input']>;
   tdsPercent: InputMaybe<Scalars['Float']['input']>;
 };
 
@@ -2126,6 +2128,10 @@ export type SalaryStructureInput = {
   pfNumber: InputMaybe<Scalars['String']['input']>;
   /** Per hour for HOURLY, per month for STIPEND and OTHER. Ignored by FIXED. */
   rate: InputMaybe<Scalars['Float']['input']>;
+  /** No tax bracket: no TDS is withheld from this person at all. */
+  taxExempt: InputMaybe<Scalars['Boolean']['input']>;
+  /** The regime key this person is taxed under. Null follows the one Payroll Settings names. */
+  taxRegimeKey: InputMaybe<Scalars['String']['input']>;
   /** Percent of taxable pay withheld for this person; 0 falls back to the company rate. */
   tdsPercent: InputMaybe<Scalars['Float']['input']>;
 };

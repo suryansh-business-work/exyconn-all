@@ -4,6 +4,7 @@ import { RhfDatePicker, RhfSelect, RhfTextField, RhfCurrencyField } from '@/comp
 import { enumOptions } from '@/utils/enumOptions';
 import { PayType } from '@/graphql/generated';
 import { rateLabel, usesSingleAmount, type CompensationValues } from './compensation';
+import { TaxRegimeField } from './TaxRegimeField';
 
 const PAY_TYPE_OPTIONS = enumOptions(Object.values(PayType));
 
@@ -46,7 +47,8 @@ function FixedAmounts() {
  * The pay type decides which amounts are asked for, because asking for all of them would
  * invite a stipend that also carries a basic salary — a number payroll would pay out. The
  * billing rate is asked for whatever the type: it is what the tracker prices tracked hours
- * at, and pay and bill-out are different numbers even for an hourly employee.
+ * at, and pay and bill-out are different numbers even for an hourly employee. The tax regime
+ * decides how their TDS is worked out, or that none is withheld.
  */
 export function CompensationFields() {
   const { watch } = useFormContext<CompensationValues>();
@@ -94,6 +96,14 @@ export function CompensationFields() {
           label="Billing rate per hour"
           help="What the tracker bills an hour of this person's time at. Leave 0 if their time is not billed."
         />
+        <Grid
+          size={{
+            xs: 12,
+            sm: 6,
+          }}
+        >
+          <TaxRegimeField />
+        </Grid>
         <Grid
           size={{
             xs: 12,
