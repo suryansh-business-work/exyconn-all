@@ -1,0 +1,90 @@
+---
+/**
+ * Blog posts and case-study bodies: a compact night band with the page's scene, the
+ * sentence-case title and meta, an optional hero image, then a 68ch reading column beside a
+ * sticky "On this page" rail (right on desktop, collapsible on phones). The default slot is
+ * the body — render it as `<article class={ARTICLE_CLASS} set:html={body} />` so the
+ * .article-body contract (article.css, the live editor) is unchanged. `withHeadingIds` in
+ * src/lib/inner/headings.ts gives the body's headings ids and returns the TOC entries.
+ */
+import "../../styles/article.css";
+import "../../styles/inner-stage.css";
+import InnerStage from "./InnerStage.astro";
+import ReadingProgress from "./ReadingProgress.astro";
+import StickyToc from "./StickyToc.astro";
+import type { Crumb, DisplayDate, PageFamily, SceneConfig, TocEntry } from "./types";
+
+interface HeroImage {
+  src: string;
+  alt: string;
+  width: number;
+  height: number;
+}
+
+type Props = Readonly<{
+  title: string;
+  crumbs?: readonly Crumb[];
+  category?: string;
+  author?: string;
+  published: DisplayDate;
+  /** Already phrased, e.g. "6 min read". */
+  readTime?: string;
+  image?: HeroImage;
+  tocLabel?: string;
+  toc?: readonly Pick<TocEntry, "id" | "label">[];
+  family?: PageFamily;
+  scene?: SceneConfig;
+}>;
+
+const {
+  title,
+  crumbs,
+  category,
+  author,
+  published,
+  readTime,
+  image,
+  tocLabel = "",
+  toc = [],
+  family = "blog",
+  scene = { shapes: ["documents"] },
+} = Astro.props;
+const hasToc = toc.length > 1 && tocLabel !== "";
+---
+
+<InnerStage family={family} variant="band" crumbs={crumbs} title={title} scene={scene}>
+  <p class="inner-meta stage-label">
+    {category && <span>{category}</span>}
+    {author && <span>{author}</span>}
+    <time datetime={published.iso}>{published.text}</time>
+    {readTime && <span>{readTime}</span>}
+  </p>
+</InnerStage>
+<ReadingProgress target="article-reading" />
+<div class="inner-section stage-shell">
+  <div class={`inner-reading ${hasToc ? "inner-reading--toc-right" : ""}`}>
+    {
+      hasToc && (
+        <aside>
+          <StickyToc label={tocLabel} items={toc} />
+        </aside>
+      )
+    }
+    <div id="article-reading" class="inner-article-column w-full">
+      {
+        image && (
+          <img
+            src={image.src}
+            alt={image.alt}
+            width={image.width}
+            height={image.height}
+            class="w-full h-auto rounded-2xl mb-10"
+            decoding="async"
+          />
+        )
+      }
+      <slot />
+      <slot name="after" />
+    </div>
+  </div>
+</div>

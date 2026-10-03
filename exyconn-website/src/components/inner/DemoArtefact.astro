@@ -1,0 +1,65 @@
+---
+/**
+ * A product moment in a glass frame — a mock chat, an agent trace or a config file — so a
+ * capability is shown, not described. A night object in both site themes. Content is the
+ * page's own example; use the default slot for anything the three kinds do not cover.
+ */
+import "../../styles/inner-stage.css";
+
+interface Message {
+  from: "user" | "agent";
+  text: string;
+}
+interface TraceStep {
+  label: string;
+  detail?: string;
+}
+
+type Props = Readonly<{
+  /** Shown in the title bar, e.g. "support-agent · live". */
+  title: string;
+  kind: "chat" | "trace" | "config" | "custom";
+  messages?: readonly Message[];
+  steps?: readonly TraceStep[];
+  code?: string;
+  /** Accessible description of what the artefact demonstrates. */
+  caption: string;
+}>;
+
+const { title, kind, messages = [], steps = [], code = "", caption } = Astro.props;
+---
+
+<figure class="glass inner-demo" data-theme="dark">
+  <div class="inner-demo__bar" aria-hidden="true">
+    <span class="inner-demo__dot"></span>
+    <span class="inner-demo__dot"></span>
+    <span class="inner-demo__dot"></span>
+    <span class="stage-label ml-2">{title}</span>
+  </div>
+  <div class="inner-demo__body">
+    {
+      kind === "chat" &&
+        messages.map((message) => (
+          <p class={`inner-demo__message inner-demo__message--${message.from}`}>{message.text}</p>
+        ))
+    }
+    {
+      kind === "trace" && (
+        <ol class="grid gap-3">
+          {steps.map((step, index) => (
+            <li class="inner-demo__step">
+              <span class="inner-demo__step-mark stage-label" aria-hidden="true">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <span class="font-semibold">{step.label}</span>
+              {step.detail && <span class="col-start-2 text-fg-secondary">{step.detail}</span>}
+            </li>
+          ))}
+        </ol>
+      )
+    }
+    {kind === "config" && <pre set:text={code} />}
+    {kind === "custom" && <slot />}
+  </div>
+  <figcaption class="sr-only">{caption}</figcaption>
+</figure>

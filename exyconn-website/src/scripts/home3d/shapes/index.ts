@@ -1,8 +1,8 @@
-import { createRandom } from "../math";
-import { sampleJet } from "./aviation";
-import { coreNodes, linkNodes, linkPositions, sampleCore } from "./core";
-import { sampleRobot } from "./robotics";
-import { sampleSpace } from "./space";
+import { createRandom } from "../../stage3d/math";
+import { sampleJet } from "../../stage3d/shapes/aviation";
+import { coreNodes, linkNodes, linkPositions, sampleCore } from "../../stage3d/shapes/core";
+import { sampleRobot } from "../../stage3d/shapes/robotics";
+import { sampleSpace } from "../../stage3d/shapes/space";
 
 /**
  * Every target the protagonist morphs between, sampled once for the tier's point budget.

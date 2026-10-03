@@ -1,13 +1,13 @@
 import { Vector3, type Group, type PerspectiveCamera } from "three";
 import { poseAt } from "../camera-path";
-import { wrap } from "../math";
+import { wrap } from "../../stage3d/math";
 import { hudOpacity, shapeWeights } from "../story";
 import type { Accents } from "./accents";
 import type { Backdrop } from "./backdrop";
 import type { Hud } from "./hud";
-import type { ScenePalette, SceneColor } from "./palette";
+import type { ScenePalette, SceneColor } from "../../stage3d/palette";
 import type { Protagonist } from "./protagonist";
-import { blendColors } from "./uniforms";
+import { blendColors } from "../../stage3d/uniforms";
 
 /**
  * One frame of the story: given the damped motion state, place the camera and subject and

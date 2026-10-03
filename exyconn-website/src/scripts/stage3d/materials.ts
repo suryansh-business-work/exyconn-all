@@ -1,6 +1,6 @@
 import { AdditiveBlending, BufferAttribute, BufferGeometry, ShaderMaterial } from "three";
-import { glowFragment, simplePointsVertex } from "../shaders/particles";
-import type { Random } from "../shapes/sampling";
+import { glowFragment, simplePointsVertex } from "./shaders/points";
+import type { Random } from "./shapes/sampling";
 import type { Rgb } from "./palette";
 import { colorUniform } from "./uniforms";
 

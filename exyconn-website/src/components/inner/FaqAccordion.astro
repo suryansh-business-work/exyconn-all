@@ -1,0 +1,34 @@
+---
+/**
+ * Questions as native <details> (keyboard and screen-reader ready without script), plus the
+ * matching FAQPage JSON-LD. Use one FaqAccordion per page so the structured data is single.
+ */
+import "../../styles/inner-stage.css";
+import { faqJsonLd } from "../../lib/inner/structured-data";
+import { serializeJsonLd } from "../../lib/safe-output";
+import type { FaqItem } from "./types";
+
+type Props = Readonly<{
+  items: readonly FaqItem[];
+  /** Emit FAQPage structured data (default true). */
+  structuredData?: boolean;
+}>;
+
+const { items, structuredData = true } = Astro.props;
+---
+
+<div class="inner-faq">
+  {
+    items.map((item) => (
+      <details>
+        <summary>{item.question}</summary>
+        <p class="inner-faq__answer">{item.answer}</p>
+      </details>
+    ))
+  }
+</div>
+{
+  structuredData && items.length > 0 && (
+    <script type="application/ld+json" is:inline set:html={serializeJsonLd(faqJsonLd(items))} />
+  )
+}

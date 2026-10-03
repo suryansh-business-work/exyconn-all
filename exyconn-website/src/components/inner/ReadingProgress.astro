@@ -1,0 +1,19 @@
+---
+/** A 2px bar at the top of the viewport filling as the reader moves through `target`. Decorative. */
+import "../../styles/inner-stage.css";
+
+type Props = Readonly<{
+  /** id of the element whose reading progress is shown. */
+  target: string;
+}>;
+
+const { target } = Astro.props;
+---
+
+<div class="inner-progress" aria-hidden="true" data-reading-progress={target}><span></span></div>
+
+<script>
+  import { bootReading } from "../../scripts/inner/toc";
+
+  bootReading();
+</script>

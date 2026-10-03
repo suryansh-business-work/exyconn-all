@@ -1,0 +1,99 @@
+---
+/**
+ * Proof right under the hero — ONE of: a logo marquee (pauses on hover/focus, static under
+ * reduced motion), stat counters (count up once in view; the final value is already in the
+ * DOM) or certification badges. Show only proof that exists on the site or portal today.
+ */
+import "../../styles/inner-stage.css";
+
+interface Logo {
+  name: string;
+  src: string;
+  href?: string;
+}
+interface Stat {
+  /** Final display value, e.g. "99.9%" or "1,200+"; its first number counts up. */
+  value: string;
+  label: string;
+}
+interface Badge {
+  label: string;
+  detail?: string;
+}
+
+type Props = Readonly<
+  { label: string } & (
+    | { variant: "logos"; items: readonly Logo[] }
+    | { variant: "stats"; items: readonly Stat[] }
+    | { variant: "badges"; items: readonly Badge[] }
+  )
+>;
+
+const props = Astro.props;
+const { label } = props;
+---
+
+<section class="inner-proof py-10" aria-label={label}>
+  <div class="stage-shell">
+    {
+      props.variant === "logos" && (
+        <div class="inner-marquee">
+          <div class="inner-marquee__track">
+            {[false, true].map((copy) => (
+              <ul class="inner-marquee__list" aria-hidden={copy ? "true" : undefined}>
+                {props.items.map((logo) => (
+                  <li>
+                    {logo.href && !copy ? (
+                      <a href={logo.href}>
+                        <img src={logo.src} alt={logo.name} loading="lazy" decoding="async" />
+                      </a>
+                    ) : (
+                      <img
+                        src={logo.src}
+                        alt={copy ? "" : logo.name}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    )}
+                  </li>
+                ))}
+              </ul>
+            ))}
+          </div>
+        </div>
+      )
+    }
+    {
+      props.variant === "stats" && (
+        <dl class="inner-stats" style={`--inner-stat-columns: ${Math.min(4, props.items.length)}`}>
+          {props.items.map((stat) => (
+            <div class="flex flex-col-reverse gap-1">
+              <dt class="stage-label">{stat.label}</dt>
+              <dd class="inner-metric__value" data-count>
+                {stat.value}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      )
+    }
+    {
+      props.variant === "badges" && (
+        <ul class="inner-chips justify-center">
+          {props.items.map((badge) => (
+            <li class="inner-chip gap-2">
+              <span class="font-semibold">{badge.label}</span>
+              {badge.detail && <span class="stage-label">{badge.detail}</span>}
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+</section>
+
+<script>
+  import { bootCounters } from "../../scripts/inner/counters";
+
+  bootCounters();
+</script>

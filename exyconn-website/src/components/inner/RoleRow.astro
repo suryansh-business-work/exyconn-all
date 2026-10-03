@@ -1,0 +1,35 @@
+---
+/**
+ * One open role as a full-width row link: title (and department), then location, type and
+ * pay as chips. Rows group under a department heading on the careers page.
+ */
+import "../../styles/inner-stage.css";
+import type { DataAttributes } from "./types";
+
+type Props = Readonly<{
+  href: string;
+  title: string;
+  department?: string;
+  location: string;
+  type: string;
+  /** Shown when the posting has it — never invented. */
+  pay?: string;
+}> &
+  DataAttributes;
+
+const { href, title, department, location, type, pay, ...data } = Astro.props;
+---
+
+<li {...data}>
+  <a href={href} class="inner-role">
+    <span>
+      <span class="block inner-h3">{title}</span>
+      {department && <span class="stage-label">{department}</span>}
+    </span>
+    <span class="inner-chips">
+      <span class="inner-chip">{location}</span>
+      <span class="inner-chip">{type}</span>
+      {pay && <span class="inner-chip font-semibold">{pay}</span>}
+    </span>
+  </a>
+</li>

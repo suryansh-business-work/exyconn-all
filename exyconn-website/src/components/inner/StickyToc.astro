@@ -1,0 +1,38 @@
+---
+/**
+ * "On this page": a sticky rail from 1024px, a collapsible list on phones. Marks the section
+ * being read with aria-current. Entries link to element ids on the page.
+ */
+import "../../styles/inner-stage.css";
+import type { TocEntry } from "./types";
+
+type Props = Readonly<{
+  label: string;
+  items: readonly Pick<TocEntry, "id" | "label">[];
+}>;
+
+const { label, items } = Astro.props;
+---
+
+<details class="inner-toc">
+  <summary class="stage-label">{label}</summary>
+  <nav aria-label={label}>
+    <ol>
+      {
+        items.map((item) => (
+          <li>
+            <a href={`#${item.id}`} class="inner-toc__link">
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </nav>
+</details>
+
+<script>
+  import { bootReading } from "../../scripts/inner/toc";
+
+  bootReading();
+</script>

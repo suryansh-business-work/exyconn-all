@@ -6,13 +6,14 @@ import {
   ShaderMaterial,
   Vector2,
 } from "three";
-import { glowFragment, particleVertex } from "../shaders/particles";
+import { glowFragment } from "../../stage3d/shaders/points";
+import { particleVertex } from "../shaders/particles";
 import type { Targets } from "../shapes";
-import { TRAIL_END, ENGINE_X, WINGTIP_X } from "../shapes/aviation";
-import { BELT_END, BELT_START, ELBOW, SHOULDER } from "../shapes/robotics";
-import { PLANET_TILT } from "../shapes/space";
-import type { ScenePalette } from "./palette";
-import { colorUniform, tiltMatrix, vec3 } from "./uniforms";
+import { TRAIL_END, ENGINE_X, WINGTIP_X } from "../../stage3d/shapes/aviation";
+import { BELT_END, BELT_START, ELBOW, SHOULDER } from "../../stage3d/shapes/robotics";
+import { PLANET_TILT } from "../../stage3d/shapes/space";
+import type { ScenePalette } from "../../stage3d/palette";
+import { colorUniform, tiltMatrix, vec3 } from "../../stage3d/uniforms";
 
 /**
  * The AI core and everything it becomes: one Points draw call whose vertex shader morphs

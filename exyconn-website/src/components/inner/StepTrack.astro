@@ -1,0 +1,38 @@
+---
+/**
+ * A process as stations on a line — vertical on phones, horizontal from 1024px. Each step
+ * has a mono number and timing, a title and one or two lines of text. Generalised from the
+ * home page's ProcessTrack.
+ */
+import "../../styles/inner-stage.css";
+
+interface Step {
+  title: string;
+  text: string;
+  /** Timing or phase in mono, e.g. "Week 1–2". */
+  when?: string;
+}
+
+type Props = Readonly<{
+  steps: readonly Step[];
+  /** Highlight tag per step for the stage scene (e.g. pipeline stations), in step order. */
+  highlights?: readonly number[];
+}>;
+
+const { steps, highlights = [] } = Astro.props;
+---
+
+<ol class="inner-steps" style={`--inner-step-columns: ${Math.min(5, steps.length)}`}>
+  {
+    steps.map((step, index) => (
+      <li data-stage-highlight={highlights[index]}>
+        <p class="stage-label">
+          <span class="inner-index">{String(index + 1).padStart(2, "0")}</span>
+          {step.when && <span> · {step.when}</span>}
+        </p>
+        <h3 class="inner-h3 mt-2">{step.title}</h3>
+        <p class="inner-card__text mt-2">{step.text}</p>
+      </li>
+    ))
+  }
+</ol>

@@ -1,0 +1,102 @@
+---
+/**
+ * Chips + search + sort for a list, kept in the URL query (?cat=ai&q=voice&sort=-date) so a
+ * filtered view can be shared. No framework: the list's items carry `data-filter-item`,
+ * `data-filter-<param>="a b"`, `data-search="…"` and `data-sort-<key>="…"`. On phones the
+ * chip groups open as a bottom sheet. Without JavaScript the full list simply shows.
+ */
+import "../../styles/inner-stage.css";
+
+interface Option {
+  value: string;
+  label: string;
+}
+interface ChipGroup {
+  /** Query parameter, e.g. "cat". */
+  param: string;
+  label: string;
+  options: readonly Option[];
+  /** Label of the chip that clears this group, e.g. "All". */
+  allLabel: string;
+}
+
+type Props = Readonly<{
+  /** id of the element holding the items. */
+  target: string;
+  label: string;
+  /** Summary of the phone sheet, e.g. "Filters". */
+  sheetLabel: string;
+  groups?: readonly ChipGroup[];
+  search?: { param: string; label: string; placeholder: string };
+  sort?: { param: string; label: string; options: readonly Option[] };
+  /** Live result count, e.g. "{shown} of {total} case studies". */
+  countTemplate: string;
+}>;
+
+const { target, label, sheetLabel, groups = [], search, sort, countTemplate } = Astro.props;
+---
+
+<div class="inner-filter" role="search" aria-label={label} data-filter-bar data-target={target}>
+  <div class="inner-filter__tools">
+    {
+      search && (
+        <label class="inner-field">
+          <span class="stage-label">{search.label}</span>
+          <input
+            type="search"
+            name={search.param}
+            placeholder={search.placeholder}
+            data-filter-search
+            autocomplete="off"
+          />
+        </label>
+      )
+    }
+    {
+      sort && (
+        <label class="inner-field sm:flex-none">
+          <span class="stage-label">{sort.label}</span>
+          <select name={sort.param} data-filter-sort>
+            {sort.options.map((option) => (
+              <option value={option.value}>{option.label}</option>
+            ))}
+          </select>
+        </label>
+      )
+    }
+  </div>
+  {
+    groups.length > 0 && (
+      <details class="inner-filter__sheet">
+        <summary class="inner-chip">{sheetLabel}</summary>
+        <div class="inner-filter__groups">
+          {groups.map((group) => (
+            <fieldset>
+              <legend class="stage-label mb-2">{group.label}</legend>
+              <div class="inner-chips">
+                {[{ value: "", label: group.allLabel }, ...group.options].map((option) => (
+                  <button
+                    type="button"
+                    class="inner-chip"
+                    data-chip-param={group.param}
+                    value={option.value}
+                    aria-pressed={option.value === "" ? "true" : "false"}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+          ))}
+        </div>
+      </details>
+    )
+  }
+  <p class="stage-label" aria-live="polite" data-filter-count={countTemplate}></p>
+</div>
+
+<script>
+  import { bootFilterBars } from "../../scripts/inner/filter-dom";
+
+  bootFilterBars();
+</script>

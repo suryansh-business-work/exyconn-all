@@ -1,4 +1,5 @@
-import { selectQualityTier } from "./quality";
+import { readDeviceProfile, supportsWebGL2, whenIdle } from "../stage3d/device";
+import { selectQualityTier } from "../stage3d/quality";
 import { setupRail, setupReveal } from "./ui";
 
 /**
@@ -7,46 +8,8 @@ import { setupRail, setupReveal } from "./ui";
  * fetched as a separate chunk and the scene fades in behind the text. Browsers without
  * WebGL 2 keep the gradient.
  */
-const supportsWebGL2 = (): boolean => {
-  try {
-    const context = document.createElement("canvas").getContext("webgl2");
-    context?.getExtension("WEBGL_lose_context")?.loseContext();
-    return Boolean(context);
-  } catch (error) {
-    console.warn("WebGL 2 probe failed", error);
-    return false;
-  }
-};
-
-const whenIdle = (callback: () => void): void => {
-  const start = () => {
-    if ("requestIdleCallback" in globalThis) {
-      globalThis.requestIdleCallback(callback, { timeout: 1500 });
-    } else {
-      globalThis.setTimeout(callback, 200);
-    }
-  };
-  if (document.readyState === "complete") {
-    start();
-  } else {
-    window.addEventListener("load", start, { once: true });
-  }
-};
-
-interface NavigatorHints {
-  deviceMemory?: number;
-}
-
 const startWebGL = async (stage: HTMLElement, host: HTMLElement, chapters: HTMLElement[]) => {
-  const tier = selectQualityTier({
-    width: window.innerWidth,
-    devicePixelRatio: window.devicePixelRatio || 1,
-    cores: navigator.hardwareConcurrency,
-    memoryGb: (navigator as Navigator & NavigatorHints).deviceMemory,
-    reducedMotion:
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
-      document.documentElement.dataset.a11yMotion === "on",
-  });
+  const tier = selectQualityTier(readDeviceProfile());
   const { startScene } = await import("./scene/app");
   return startScene({ stage, host, chapters, tier });
 };

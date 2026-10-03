@@ -1,0 +1,25 @@
+---
+/**
+ * One numbered, anchored section of a legal page. The number is also a link to the section
+ * itself, so a reader can copy a direct link to any clause.
+ */
+import "../../styles/inner-stage.css";
+
+type Props = Readonly<{
+  id: string;
+  number: number;
+  title: string;
+  /** Accessible name of the anchor link, e.g. "Link to this section". */
+  anchorLabel: string;
+}>;
+
+const { id, number, title, anchorLabel } = Astro.props;
+---
+
+<section id={id} class="inner-legal-section" aria-labelledby={`${id}-heading`}>
+  <h2 id={`${id}-heading`}>
+    <a href={`#${id}`} aria-label={`${anchorLabel}: ${title}`}>{String(number).padStart(2, "0")}</a>
+    <span>{title}</span>
+  </h2>
+  <slot />
+</section>

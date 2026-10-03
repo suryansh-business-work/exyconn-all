@@ -1,0 +1,58 @@
+---
+/**
+ * A card that is one link: mono index ("S/03"), title, one-line outcome, tags and an arrow.
+ * `highlight` lights that tag in the stage scene while the card is hovered or focused.
+ */
+import "../../styles/inner-stage.css";
+import type { DataAttributes } from "./types";
+
+type Props = Readonly<{
+  href: string;
+  title: string;
+  text: string;
+  index?: string;
+  tags?: readonly string[];
+  more?: string;
+  highlight?: number;
+  level?: "h2" | "h3";
+  external?: boolean;
+}> &
+  DataAttributes;
+
+const {
+  href,
+  title,
+  text,
+  index,
+  tags = [],
+  more,
+  highlight,
+  level = "h3",
+  external,
+  ...data
+} = Astro.props;
+const Title = level;
+const target = external ? { target: "_blank", rel: "noopener noreferrer" } : {};
+---
+
+<a href={href} {...target} class="inner-card group" data-stage-highlight={highlight} {...data}>
+  {index && <span class="stage-label inner-index">{index}</span>}
+  <Title class="inner-h3">{title}</Title>
+  <p class="inner-card__text">{text}</p>
+  {
+    tags.length > 0 && (
+      <ul class="inner-chips" aria-label="Tags">
+        {tags.map((tag) => (
+          <li class="inner-chip">{tag}</li>
+        ))}
+      </ul>
+    )
+  }
+  <span class="inner-card__more">
+    {more}
+    {external && <span class="sr-only">(opens in a new tab)</span>}
+    <i
+      class="fa-solid fa-arrow-right icon-xs transition-transform group-hover:translate-x-1"
+      aria-hidden="true"></i>
+  </span>
+</a>
