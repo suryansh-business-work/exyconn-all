@@ -1,0 +1,72 @@
+---
+/**
+ * Privacy, cookies, policies, grievance and legal pages: a compact night band with the
+ * page's scene (a shield by default), "Last updated", a plain-words summary, then numbered
+ * LegalSection children beside a sticky TOC (left rail on desktop, collapsible on phones).
+ * The body follows the site theme in a 70ch column. The `after` slot holds the privacy
+ * contact and related policies.
+ */
+import "../../styles/inner-stage.css";
+import InnerStage from "./InnerStage.astro";
+import ReadingProgress from "./ReadingProgress.astro";
+import StickyToc from "./StickyToc.astro";
+import type { Crumb, DisplayDate, PageFamily, SceneConfig, TocEntry } from "./types";
+
+type Props = Readonly<{
+  title: string;
+  crumbs?: readonly Crumb[];
+  /** e.g. "Last updated". */
+  updatedLabel: string;
+  /** When the wording last changed. Omitted when nobody recorded it — never guessed. */
+  updated?: DisplayDate;
+  summaryTitle: string;
+  /** Three to five plain-words bullets. */
+  summary: readonly string[];
+  tocLabel: string;
+  sections: readonly Pick<TocEntry, "id" | "label">[];
+  family?: PageFamily;
+  scene?: SceneConfig;
+}>;
+
+const {
+  title,
+  crumbs,
+  updatedLabel,
+  updated,
+  summaryTitle,
+  summary,
+  tocLabel,
+  sections,
+  family = "company",
+  scene = { shapes: ["shield"] },
+} = Astro.props;
+---
+
+<InnerStage family={family} variant="band" crumbs={crumbs} title={title} scene={scene}>
+  {
+    updated && (
+      <p class="stage-label mt-4">
+        {updatedLabel}
+        <time datetime={updated.iso}>{updated.text}</time>
+      </p>
+    )
+  }
+</InnerStage>
+<ReadingProgress target="legal-body" />
+<div class="inner-section stage-shell">
+  <div class="inner-reading inner-reading--toc-left">
+    <aside>
+      <StickyToc label={tocLabel} items={sections} />
+    </aside>
+    <div id="legal-body" class="inner-reading__column">
+      <section class="inner-panel inner-summary" aria-labelledby="legal-summary">
+        <h2 id="legal-summary" class="inner-h3">{summaryTitle}</h2>
+        <ul>
+          {summary.map((point) => <li>{point}</li>)}
+        </ul>
+      </section>
+      <slot />
+      <slot name="after" />
+    </div>
+  </div>
+</div>

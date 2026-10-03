@@ -1,5 +1,5 @@
-import { clamp, damp } from "../math";
-import { adaptPixelRatio, COMPACT_WIDTH, type QualityTier } from "../quality";
+import { clamp, damp } from "../../stage3d/math";
+import { adaptPixelRatio, COMPACT_WIDTH, type QualityTier } from "../../stage3d/quality";
 import { activeChapter } from "../story";
 import { buildScene } from "./build";
 import { applyFrame, type Motion } from "./frame";

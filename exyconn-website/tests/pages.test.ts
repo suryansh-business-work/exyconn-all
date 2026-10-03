@@ -20,7 +20,6 @@ const STATIC_PAGES = [
   "/get-a-quote",
   "/grievance",
   "/legal",
-  "/our-products",
   "/our-services",
   "/our-vision",
   "/privacy-policy",

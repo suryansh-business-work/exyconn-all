@@ -1,0 +1,82 @@
+---
+/**
+ * A system drawn as layers top to bottom (channels → agents → tools → data…), each band of
+ * nodes lighting up in sequence when the figure scrolls into view. The SVG is the figure's
+ * image (role="img"); its title and description carry the same content for assistive tech.
+ */
+import "../../styles/inner-stage.css";
+import { layoutArchitecture, NODE_HEIGHT, VIEW_WIDTH } from "../../lib/inner/architecture";
+import type { ArchitectureLayer } from "./types";
+
+type Props = Readonly<{
+  /** Accessible name and caption. */
+  title: string;
+  layers: readonly ArchitectureLayer[];
+  id?: string;
+}>;
+
+const { title, layers, id = "architecture" } = Astro.props;
+const layout = layoutArchitecture(layers);
+const description = layers.map((layer) => `${layer.label}: ${layer.nodes.join(", ")}`).join(". ");
+const midX = VIEW_WIDTH / 2;
+---
+
+<figure class="inner-arch">
+  <svg
+    viewBox={`0 0 ${VIEW_WIDTH} ${layout.height}`}
+    role="img"
+    aria-labelledby={`${id}-title ${id}-desc`}
+  >
+    <title id={`${id}-title`}>{title}</title>
+    <desc id={`${id}-desc`}>{description}</desc>
+    {
+      layout.layers
+        .slice(1)
+        .map((layer, index) => (
+          <line
+            class="inner-arch__wire"
+            x1={midX}
+            x2={midX}
+            y1={layout.layers[index].bottom}
+            y2={layer.labelY - 10}
+          />
+        ))
+    }
+    {
+      layout.layers.map((layer, index) => (
+        <g class="inner-arch__layer" style={`--layer: ${index}`}>
+          <text class="inner-arch__label" x="8" y={layer.labelY}>
+            {layer.label}
+          </text>
+          {layer.nodes.map((node) => (
+            <g>
+              <rect
+                class="inner-arch__node"
+                x={node.x}
+                y={node.y}
+                width={node.width}
+                height={NODE_HEIGHT}
+                rx="8"
+              />
+              <text
+                class="inner-arch__text"
+                x={node.x + node.width / 2}
+                y={node.y + NODE_HEIGHT / 2 + 4}
+                text-anchor="middle"
+              >
+                {node.text}
+              </text>
+            </g>
+          ))}
+        </g>
+      ))
+    }
+  </svg>
+  <figcaption class="stage-label mt-4 text-center">{title}</figcaption>
+</figure>
+
+<script>
+  import { bootReveals } from "../../scripts/inner/reveal";
+
+  bootReveals();
+</script>

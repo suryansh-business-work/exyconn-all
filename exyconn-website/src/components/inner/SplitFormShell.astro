@@ -1,0 +1,42 @@
+---
+/**
+ * Contact-style layout: the pitch on the left (title, lede, reassurance points, then the
+ * `aside` slot for direct channels or proof), the form on the right in a panel. Fields come
+ * from the existing form components — this is layout only. Stacks on phones, form second.
+ */
+import "../../styles/inner-stage.css";
+
+type Props = Readonly<{
+  label?: string;
+  title: string;
+  lede?: string;
+  points?: readonly string[];
+  /** The form panel's accessible name, e.g. "Send us a message". */
+  formLabel: string;
+  headingLevel?: "h1" | "h2";
+}>;
+
+const { label, title, lede, points = [], formLabel, headingLevel = "h2" } = Astro.props;
+const Heading = headingLevel;
+---
+
+<div class="stage-shell inner-split">
+  <div class="inner-split__intro">
+    {label && <p class="stage-label inner-index">{label}</p>}
+    <Heading class="inner-band__title text-fg">{title}</Heading>
+    {lede && <p class="inner-lede">{lede}</p>}
+    {
+      points.length > 0 && (
+        <ul class="inner-points">
+          {points.map((point) => (
+            <li>{point}</li>
+          ))}
+        </ul>
+      )
+    }
+    <slot name="aside" />
+  </div>
+  <section class="inner-panel p-5 md:p-8" aria-label={formLabel}>
+    <slot />
+  </section>
+</div>

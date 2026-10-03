@@ -12,7 +12,7 @@ import {
   Color,
   type Material,
 } from "three";
-import type { Rgb } from "./palette";
+import type { Rgb } from "../../stage3d/palette";
 
 /**
  * The blueprint overlay the hero opens on: dashed construction circles around the core,

@@ -1,4 +1,10 @@
 import { policyResolvers } from '../../src/modules/legal';
+import {
+  OrganizationModel,
+  ensurePlatformOperatorOrganization,
+} from '../../src/modules/organizations';
+import { runAsPlatform, runForOrganization } from '../../src/lib/tenant';
+import { invalidatePlatformOperatorCache } from '../../src/lib/platformAccess';
 import { PolicyModel } from '../../src/modules/legal/policy.model';
 import { PolicyAcknowledgementModel } from '../../src/modules/legal/policy-acknowledgement.model';
 import { UserModel } from '../../src/modules/admin/user.model';
@@ -82,7 +88,15 @@ describe('policy audience', () => {
 
 describe('public policies', () => {
   it('serves a published public policy to the website', async () => {
-    await seedPolicy({ slug: 'privacy-policy', title: 'Privacy', audience: 'PUBLIC' });
+    // The website publishes the operator company's policies, so the policy lives there.
+    invalidatePlatformOperatorCache();
+    const operator = await runAsPlatform(() =>
+      OrganizationModel.create({ name: 'Exyconn', slug: 'exyconn', currency: 'USD' }),
+    );
+    await ensurePlatformOperatorOrganization();
+    await runForOrganization(String(operator._id), () =>
+      seedPolicy({ slug: 'privacy-policy', title: 'Privacy', audience: 'PUBLIC' }),
+    );
 
     const rows = await policyResolvers.Query.publicPolicies();
     expect(rows).toHaveLength(1);

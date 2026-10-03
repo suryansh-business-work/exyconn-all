@@ -1,0 +1,38 @@
+---
+/**
+ * One quantified result: the big number, what it measures, and where it comes from (a case
+ * study). Only real, published metrics — never an estimate.
+ */
+import "../../styles/inner-stage.css";
+import type { InnerAction } from "./types";
+
+type Props = Readonly<{
+  value: string;
+  label: string;
+  /** Source or context in mono, e.g. the client's industry. */
+  context?: string;
+  link?: InnerAction;
+}>;
+
+const { value, label, context, link } = Astro.props;
+---
+
+<article class="inner-card">
+  {context && <p class="stage-label inner-index">{context}</p>}
+  <p class="inner-metric__value" data-count>{value}</p>
+  <p class="inner-card__text">{label}</p>
+  {
+    link && (
+      <a href={link.href} class="inner-card__more underline-offset-4 hover:underline">
+        {link.label}
+        <i class="fa-solid fa-arrow-right icon-xs" aria-hidden="true" />
+      </a>
+    )
+  }
+</article>
+
+<script>
+  import { bootCounters } from "../../scripts/inner/counters";
+
+  bootCounters();
+</script>

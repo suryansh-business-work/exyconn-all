@@ -1,0 +1,40 @@
+---
+/**
+ * A numbered chapter opening — "01 — LABEL" in mono over the measurement rule, then the H2
+ * (condensed uppercase by CSS, sentence case in source) and an optional lede. Put it inside
+ * an `.inner-section` so the heading reveals on entry.
+ */
+import "../../styles/inner-stage.css";
+
+type Props = Readonly<{
+  index: number;
+  label: string;
+  title: string;
+  lede?: string;
+  id?: string;
+  level?: "h2" | "h3";
+}>;
+
+const { index, label, title, lede, id, level = "h2" } = Astro.props;
+const Heading = level;
+---
+
+<header class="inner-chapter-heading">
+  <p class="stage-label">
+    <span class="inner-chapter-heading__number">{String(index).padStart(2, "0")}</span>
+    <span aria-hidden="true"> — </span>
+    <span>{label}</span>
+  </p>
+  <div class="stage-rule max-w-xs mt-3" aria-hidden="true"></div>
+  <Heading id={id} class="stage-title stage-title--md">
+    <span class="block" data-reveal-line>{title}</span>
+  </Heading>
+  {lede && <p class="inner-lede">{lede}</p>}
+  <slot />
+</header>
+
+<script>
+  import { bootReveals } from "../../scripts/inner/reveal";
+
+  bootReveals();
+</script>

@@ -22,7 +22,6 @@ export const heroCopy = {
 
 export const heroActions: readonly HomeAction[] = [
   { label: "Explore AI Services", href: "/ai-services", icon: "fa-bolt" },
-  { label: "View Products", href: "/our-products", icon: "fa-cube" },
   { label: "Free Tools", href: TOOLS_SITE_URL, icon: "fa-toolbox", external: true },
 ];
 

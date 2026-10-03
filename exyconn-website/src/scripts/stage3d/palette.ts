@@ -1,7 +1,7 @@
-import { roleVar } from "../../../styles/tokens/semantic.tokens";
+import { roleVar } from "../../styles/tokens/semantic.tokens";
 
 /**
- * The scene's colours, read from the site's colour roles at runtime — the stage carries
+ * The home scene's colours, read from the site's colour roles at runtime — the stage carries
  * `data-theme="dark"`, so these are always the night answers. The browser resolves each role
  * (oklch, color-mix) to a computed colour, and a 1×1 canvas turns that into sRGB channels.
  */
@@ -30,19 +30,29 @@ const toRgb = (context: CanvasRenderingContext2D, color: string): Rgb => {
   return [r / 255, g / 255, b / 255];
 };
 
-export const readPalette = (stage: HTMLElement): ScenePalette => {
+/**
+ * Resolves any set of colour roles to sRGB channels as `element` paints them — so a stage
+ * with `data-theme="dark"` gets the night answers. Used for the home palette and for an
+ * inner page's accent pair.
+ */
+export const readRoles = <K extends string>(
+  element: HTMLElement,
+  roles: Readonly<Record<K, string>>
+): Record<K, Rgb> => {
   const probe = document.createElement("span");
   probe.hidden = true;
-  stage.append(probe);
+  element.append(probe);
   const canvas = document.createElement("canvas");
   canvas.width = 1;
   canvas.height = 1;
   const context = canvas.getContext("2d", { willReadFrequently: true });
-  const entries = Object.entries(ROLES).map(([name, role]) => {
+  const entries = Object.entries<string>(roles).map(([name, role]) => {
     probe.style.color = roleVar(role);
     const computed = getComputedStyle(probe).color;
     return [name, context ? toRgb(context, computed) : [0, 0, 0]];
   });
   probe.remove();
-  return Object.fromEntries(entries) as ScenePalette;
+  return Object.fromEntries(entries) as Record<K, Rgb>;
 };
+
+export const readPalette = (stage: HTMLElement): ScenePalette => readRoles(stage, ROLES);

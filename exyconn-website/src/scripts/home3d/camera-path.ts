@@ -1,4 +1,4 @@
-import { clamp, lerp } from "./math";
+import { clamp, lerp } from "../stage3d/math";
 import { LAST_CHAPTER } from "./story";
 
 /**

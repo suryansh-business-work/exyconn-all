@@ -1,0 +1,39 @@
+---
+/**
+ * A gig: pay first (every gig shows it), then title, scope, skills and the deadline. The
+ * whole card is the link.
+ */
+import "../../styles/inner-stage.css";
+import type { DataAttributes } from "./types";
+
+type Props = Readonly<{
+  href: string;
+  title: string;
+  pay: string;
+  scope: string;
+  skills?: readonly string[];
+  /** Already phrased for the reader, e.g. "Apply by 12 Oct". */
+  deadline?: string;
+  level?: "h2" | "h3";
+}> &
+  DataAttributes;
+
+const { href, title, pay, scope, skills = [], deadline, level = "h3", ...data } = Astro.props;
+const Title = level;
+---
+
+<a href={href} class="inner-card" {...data}>
+  <p class="inner-pay">{pay}</p>
+  <Title class="inner-h3">{title}</Title>
+  <p class="inner-card__text">{scope}</p>
+  {
+    skills.length > 0 && (
+      <ul class="inner-chips" aria-label="Skills">
+        {skills.map((skill) => (
+          <li class="inner-chip">{skill}</li>
+        ))}
+      </ul>
+    )
+  }
+  {deadline && <p class="stage-label mt-auto pt-2">{deadline}</p>}
+</a>

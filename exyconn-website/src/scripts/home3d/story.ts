@@ -1,4 +1,4 @@
-import { clamp, smoothstep } from "./math";
+import { clamp, smoothstep } from "../stage3d/math";
 
 /**
  * The scroll story. The page is split into chapters; each chapter "arrives" at a scroll

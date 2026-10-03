@@ -7,13 +7,18 @@ import {
   Vector2,
   type BufferGeometry,
 } from "three";
-import { createRandom } from "../math";
-import type { QualityTier } from "../quality";
-import { backdropFragment, backdropVertex, gridFragment, gridVertex } from "../shaders/backdrop";
-import { onSphere } from "../shapes/sampling";
-import { glowPointsMaterial, pointsGeometry } from "./materials";
-import type { ScenePalette } from "./palette";
-import { colorUniform } from "./uniforms";
+import { createRandom } from "../../stage3d/math";
+import type { QualityTier } from "../../stage3d/quality";
+import {
+  backdropFragment,
+  backdropVertex,
+  gridFragment,
+  gridVertex,
+} from "../../stage3d/shaders/backdrop";
+import { onSphere } from "../../stage3d/shapes/sampling";
+import { glowPointsMaterial, pointsGeometry } from "../../stage3d/materials";
+import type { ScenePalette } from "../../stage3d/palette";
+import { colorUniform } from "../../stage3d/uniforms";
 
 /** Nebula sky, perspective grid floor and a parallax starfield. */
 export interface Backdrop {

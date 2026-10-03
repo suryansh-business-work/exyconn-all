@@ -1,0 +1,60 @@
+---
+/**
+ * Layout for a multi-step form (get a quote): "Step x of n" with a segmented bar, the form
+ * in the default slot, an optional `summary` slot as a sticky panel on desktop, and an
+ * `after` slot for "what happens next". The form reports its step with
+ * `announceFormStep(index)` from src/scripts/inner/form-step.ts.
+ */
+import "../../styles/inner-stage.css";
+import { stepState, stepText } from "../../scripts/inner/form-step";
+
+type Props = Readonly<{
+  /** Step names, in order. */
+  steps: readonly string[];
+  /** e.g. "Step {current} of {total}". */
+  progressTemplate: string;
+  /** Zero-based step shown first. */
+  current?: number;
+}>;
+
+const { steps, progressTemplate, current = 0 } = Astro.props;
+const hasSummary = Astro.slots.has("summary");
+---
+
+<div class={`inner-multistep ${hasSummary ? "inner-multistep--with-summary" : ""}`} data-multistep>
+  <div>
+    <div class="inner-stepper mb-8">
+      <p class="stage-label mb-3" aria-live="polite" data-form-step-text={progressTemplate}>
+        {stepText(progressTemplate, current, steps.length)}
+      </p>
+      <ol>
+        {
+          steps.map((step, index) => (
+            <li
+              data-form-step
+              data-state={stepState(index, current)}
+              aria-current={index === current ? "step" : undefined}
+            >
+              <span class="sr-only">{step}</span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+    <slot />
+  </div>
+  {
+    hasSummary && (
+      <aside class="inner-multistep__summary inner-panel p-5">
+        <slot name="summary" />
+      </aside>
+    )
+  }
+  <slot name="after" />
+</div>
+
+<script>
+  import { bootFormSteps } from "../../scripts/inner/form-step";
+
+  bootFormSteps();
+</script>

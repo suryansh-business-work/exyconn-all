@@ -1,18 +1,12 @@
-import {
-  Group,
-  PerspectiveCamera,
-  Scene,
-  WebGLRenderer,
-  type Material,
-  type Object3D,
-} from "three";
-import type { QualityTier } from "../quality";
+import { Group, PerspectiveCamera, Scene, type WebGLRenderer } from "three";
+import type { QualityTier } from "../../stage3d/quality";
+import { createRenderer, disposeScene } from "../../stage3d/renderer";
 import { buildTargets } from "../shapes";
 import { createAccents } from "./accents";
 import { createBackdrop } from "./backdrop";
 import type { Stage } from "./frame";
 import { createHud } from "./hud";
-import { readPalette } from "./palette";
+import { readPalette } from "../../stage3d/palette";
 import { createProtagonist } from "./protagonist";
 
 /** Assembles the renderer and every object of the scene for one quality tier. */
@@ -24,15 +18,6 @@ export interface Built {
   dispose: () => void;
 }
 
-const disposeObject = (object: Object3D): void => {
-  const { geometry, material } = object as Object3D & {
-    geometry?: { dispose: () => void };
-    material?: Material;
-  };
-  geometry?.dispose();
-  material?.dispose();
-};
-
 export const buildScene = (
   stageElement: HTMLElement,
   host: HTMLElement,
@@ -40,10 +25,7 @@ export const buildScene = (
   compact: boolean
 ): Built => {
   const palette = readPalette(stageElement);
-  const renderer = new WebGLRenderer({ antialias: false });
-  renderer.setPixelRatio(tier.pixelRatio);
-  renderer.domElement.setAttribute("aria-hidden", "true");
-  host.append(renderer.domElement);
+  const renderer = createRenderer(host, tier.pixelRatio);
 
   const targets = buildTargets(tier.particles, tier.filaments);
   const protagonist = createProtagonist(targets, palette, tier.pixelRatio, compact);
@@ -79,10 +61,6 @@ export const buildScene = (
         material.uniforms.uPixelRatio.value = ratio;
       });
     },
-    dispose: () => {
-      scene.traverse(disposeObject);
-      renderer.dispose();
-      renderer.domElement.remove();
-    },
+    dispose: () => disposeScene(scene, renderer),
   };
 };

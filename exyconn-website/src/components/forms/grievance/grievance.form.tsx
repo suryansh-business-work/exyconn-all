@@ -5,16 +5,23 @@ import {
   FormField,
   SubmitButton,
   SubmitStatusAlert,
-  inputClassName,
   useCaptchaSubmit,
 } from "../shared";
+import {
+  CAPTCHA_CLASS,
+  CONTROL_CLASS,
+  FINE_PRINT_CLASS,
+  FORM_CLASS,
+  ROW_CLASS,
+  SUBMIT_CLASS,
+} from "../legal/legal-form.styles";
 import { GRIEVANCE_FORM_DEFAULTS, grievanceFormSchema } from "./grievance.schema";
 import type { GrievanceFormValues } from "./grievance.types";
 
-const SUBMIT_CLASSES =
-  "cursor-pointer w-full bg-blue-strong text-on-solid font-semibold py-4 px-6 rounded-xl hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-blue/20";
-
-/** The grievance page form (React Hook Form + Zod), validated in the browser before it sends. */
+/**
+ * The grievance page form (React Hook Form + Zod), validated in the browser before it sends.
+ * It sits under the page's "Submit your grievance" section heading, so it has none of its own.
+ */
 export function GrievanceFormReact() {
   const {
     register,
@@ -35,24 +42,22 @@ export function GrievanceFormReact() {
     submit(answer, payload);
 
   return (
-    <section className="max-w-xl mx-auto mt-12 rounded-xl p-5">
-      <div className="bg-surface rounded-2xl shadow-xl p-8">
-        <h2 className="text-2xl font-bold text-[var(--color-primary)] mb-6 text-center">
-          Submit Your Grievance
-        </h2>
+    <div className={FORM_CLASS}>
+      <SubmitStatusAlert
+        status={status}
+        successMessage="Your grievance has been submitted. We will review it and get back to you."
+      />
 
-        <SubmitStatusAlert
-          status={status}
-          successMessage="Your grievance has been submitted. We will review it and get back to you."
-        />
-
-        <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
+      <form aria-label="Grievance" onSubmit={handleSubmit(onSubmit)}>
+        <div className={ROW_CLASS}>
           <FormField id="name" label="Your Name" marker="required" error={errors.name?.message}>
             <input
               type="text"
               id="name"
+              autoComplete="name"
               placeholder="Enter your full name"
-              className={inputClassName("blue", Boolean(errors.name))}
+              aria-invalid={Boolean(errors.name)}
+              className={CONTROL_CLASS}
               {...register("name")}
             />
           </FormField>
@@ -61,37 +66,43 @@ export function GrievanceFormReact() {
             <input
               type="email"
               id="email"
+              autoComplete="email"
               placeholder="you@example.com"
-              className={inputClassName("blue", Boolean(errors.email))}
+              aria-invalid={Boolean(errors.email)}
+              className={CONTROL_CLASS}
               {...register("email")}
             />
           </FormField>
+        </div>
 
-          <FormField id="subject" label="Subject" marker="required" error={errors.subject?.message}>
-            <input
-              type="text"
-              id="subject"
-              placeholder="Brief description of your grievance"
-              className={inputClassName("blue", Boolean(errors.subject))}
-              {...register("subject")}
-            />
-          </FormField>
+        <FormField id="subject" label="Subject" marker="required" error={errors.subject?.message}>
+          <input
+            type="text"
+            id="subject"
+            placeholder="Brief description of your grievance"
+            aria-invalid={Boolean(errors.subject)}
+            className={CONTROL_CLASS}
+            {...register("subject")}
+          />
+        </FormField>
 
-          <FormField
+        <FormField
+          id="message"
+          label="Grievance Details"
+          marker="required"
+          error={errors.message?.message}
+        >
+          <textarea
             id="message"
-            label="Grievance Details"
-            marker="required"
-            error={errors.message?.message}
-          >
-            <textarea
-              id="message"
-              rows={6}
-              placeholder="Please provide detailed information about your grievance..."
-              className={`${inputClassName("blue", Boolean(errors.message))} resize-none`}
-              {...register("message")}
-            />
-          </FormField>
+            rows={6}
+            placeholder="Please provide detailed information about your grievance..."
+            aria-invalid={Boolean(errors.message)}
+            className={CONTROL_CLASS}
+            {...register("message")}
+          />
+        </FormField>
 
+        <div className={CAPTCHA_CLASS}>
           <CaptchaField
             question={captcha.question}
             registration={register("captcha")}
@@ -100,20 +111,20 @@ export function GrievanceFormReact() {
             onRefresh={refreshCaptcha}
             accent="blue"
           />
+        </div>
 
-          <SubmitButton
-            isSubmitting={isSubmitting}
-            className={SUBMIT_CLASSES}
-            label="Submit Grievance"
-            busyLabel="Submitting..."
-          />
-        </form>
+        <SubmitButton
+          isSubmitting={isSubmitting}
+          className={SUBMIT_CLASS}
+          label="Submit Grievance"
+          busyLabel="Submitting..."
+        />
+      </form>
 
-        <p className="text-xs text-fg-subtle mt-4 text-center">
-          By submitting, you agree that your grievance will be reviewed in accordance with Exyconn's
-          grievance redressal policy.
-        </p>
-      </div>
-    </section>
+      <p className={FINE_PRINT_CLASS}>
+        By submitting, you agree that your grievance will be reviewed in accordance with Exyconn's
+        grievance redressal policy.
+      </p>
+    </div>
   );
 }

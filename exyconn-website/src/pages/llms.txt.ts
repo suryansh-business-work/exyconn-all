@@ -17,7 +17,6 @@ Exyconn is a B2B technology services company offering AI agents, an infrastructu
 
 ## Core pages
 - [Home](${SITE_URL}/): Overview of Exyconn's offerings
-- [Our Products](${SITE_URL}/our-products): SaaS and consumer-app portfolio
 - [Our Services](${SITE_URL}/our-services): Full service catalog
 - [AI Solutions](${SITE_URL}/ai): AI agents, MCP servers, models, and automation workflows
 - [AI Services](${SITE_URL}/ai-services): The full AI services catalogue — agents, automation, industry platforms, operations, infrastructure and AI governance

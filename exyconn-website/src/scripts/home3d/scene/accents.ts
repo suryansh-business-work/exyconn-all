@@ -12,15 +12,15 @@ import {
   Float32BufferAttribute,
   Color,
 } from "three";
-import { createRandom } from "../math";
-import type { QualityTier } from "../quality";
-import { radarFragment, uvVertex } from "../shaders/backdrop";
-import { sampleJetSilhouette } from "../shapes/aviation";
-import { sampleRobotArm } from "../shapes/robotics";
-import { sampleSatellite } from "../shapes/space";
-import { glowPointsMaterial, pointsGeometry } from "./materials";
-import type { ScenePalette } from "./palette";
-import { colorUniform } from "./uniforms";
+import { createRandom } from "../../stage3d/math";
+import type { QualityTier } from "../../stage3d/quality";
+import { radarFragment, uvVertex } from "../../stage3d/shaders/backdrop";
+import { sampleJetSilhouette } from "../../stage3d/shapes/aviation";
+import { sampleRobotArm } from "../../stage3d/shapes/robotics";
+import { sampleSatellite } from "../../stage3d/shapes/space";
+import { glowPointsMaterial, pointsGeometry } from "../../stage3d/materials";
+import type { ScenePalette } from "../../stage3d/palette";
+import { colorUniform } from "../../stage3d/uniforms";
 
 /**
  * What lives around the protagonist: the radar sweep under the jet, the neural filaments

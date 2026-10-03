@@ -1,0 +1,113 @@
+---
+/**
+ * The night stage at the top of every inner page (data-theme="dark" on this element only).
+ *
+ * - variant "hero" (default): 78svh on desktop — mono breadcrumb, H1 (sentence case in
+ *   source, uppercase by CSS), lede, primary + ghost CTA, the page's particle scene.
+ * - variant "band": the compact 30–38svh header for reading and transactional pages
+ *   (articles, legal, job/gig detail, contact, sitemap) — sentence-case title, no CTAs needed.
+ *
+ * Phones: the scene sits ABOVE the title (42svh hero / 30svh band), never behind text.
+ * Desktop: the scene fills the stage behind the right half. After the stage scrolls away the
+ * scene dims and freezes; it re-forms small in a CtaBand. Without `scene`, the `media` slot
+ * (e.g. a tool screenshot in a device frame) takes the scene's place.
+ */
+import "../../styles/inner-stage.css";
+import { resolveScene } from "../../scripts/stage3d/inner/config";
+import ActionLink from "./ActionLink.astro";
+import type { Crumb, InnerAction, PageFamily, SceneConfig } from "./types";
+
+type Props = Readonly<{
+  family: PageFamily;
+  variant?: "hero" | "band";
+  /** Mono trail above the title, e.g. AI / Agents. The last crumb is the current page. */
+  crumbs?: readonly Crumb[];
+  title: string;
+  lede?: string;
+  primary?: InnerAction;
+  secondary?: InnerAction;
+  scene?: SceneConfig;
+  headingId?: string;
+}>;
+
+const {
+  family,
+  variant = "hero",
+  crumbs = [],
+  title,
+  lede,
+  primary,
+  secondary,
+  scene,
+  headingId = "page-title",
+} = Astro.props;
+const sceneJson = scene ? JSON.stringify(resolveScene(scene, family)) : undefined;
+const hasMedia = Astro.slots.has("media");
+const titleClass = variant === "hero" ? "stage-title inner-stage__title" : "inner-band__title";
+---
+
+<section
+  class={`inner-stage inner-stage--${variant}`}
+  data-theme="dark"
+  data-accent={family}
+  data-inner-stage={sceneJson ? "" : undefined}
+  data-scene-config={sceneJson}
+  aria-labelledby={headingId}
+>
+  {
+    sceneJson && (
+      <div class="inner-stage__canvas" aria-hidden="true">
+        <div class="inner-stage__pin" data-stage-canvas />
+      </div>
+    )
+  }
+  {
+    !sceneJson && hasMedia && (
+      <div class="inner-stage__media">
+        <slot name="media" />
+      </div>
+    )
+  }
+  <div class="stage-shell inner-stage__body">
+    <div class="inner-stage__column">
+      {
+        crumbs.length > 0 && (
+          <nav class="inner-crumbs stage-label" aria-label="Breadcrumb">
+            <ol>
+              {crumbs.map((crumb, index) => (
+                <li>
+                  {crumb.href && index < crumbs.length - 1 ? (
+                    <a href={crumb.href} class="inner-crumbs__link">
+                      {crumb.label}
+                    </a>
+                  ) : (
+                    <span aria-current={index === crumbs.length - 1 ? "page" : undefined}>
+                      {crumb.label}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )
+      }
+      <h1 id={headingId} class={titleClass}>{title}</h1>
+      {lede && <p class="inner-stage__lede">{lede}</p>}
+      {
+        (primary || secondary) && (
+          <div class="inner-stage__actions">
+            {primary && <ActionLink action={primary} />}
+            {secondary && <ActionLink action={secondary} variant="ghost" />}
+          </div>
+        )
+      }
+      <slot />
+    </div>
+  </div>
+</section>
+
+<script>
+  import { bootInnerStage } from "../../scripts/stage3d/inner/boot";
+
+  bootInnerStage();
+</script>

@@ -7,6 +7,8 @@ import { assertRole, assertAuthenticated } from '../../middleware/roleGuard';
 import { ROLES } from '../../constants/roles';
 import { withId, withIds } from '../../utils/serialize';
 import { notFound } from '../../utils/errors';
+import { runForOrganization } from '../../lib/tenant';
+import { platformOperatorOrganizationId } from '../../lib/platformAccess';
 import type { GraphQLContext } from '../../middleware/auth';
 import { tableQuery, tableStats, type TableQueryInput } from '../../utils/tableQuery';
 import {
@@ -31,6 +33,22 @@ interface PolicyInput {
 }
 
 /** What the policy grids search, filter and sort on — Legal's and IT's alike. */
+/**
+ * Reads as Exyconn's own company, whose policies the website publishes.
+ *
+ * A website visitor is signed in to no company, and policies belong to one, so the tenant
+ * guard refused the query outright — /policies was a 500. Reading as the platform instead
+ * would publish every customer's PUBLIC policies on exyconn.com; the operator is the one
+ * company the site speaks for. Nothing to read until an operator exists.
+ */
+async function asWebsiteOwner<T>(read: () => Promise<T>, none: T): Promise<T> {
+  const operatorId = await platformOperatorOrganizationId();
+  if (operatorId === null) {
+    return none;
+  }
+  return runForOrganization(operatorId, read);
+}
+
 export const POLICY_TABLE = {
   searchFields: ['title', 'slug', 'summary', 'owner'],
   filterFields: ['title', 'slug', 'audience', 'status', 'category'],
@@ -268,10 +286,17 @@ export const policyResolvers = {
      * The website. Unauthenticated by design, and deliberately narrow: only PUBLISHED and
      * only PUBLIC, so an internal handbook cannot be reached by guessing a slug.
      */
-    publicPolicies: async () =>
-      PolicyModel.find({ status: 'PUBLISHED', audience: 'PUBLIC' }).sort({ title: 1 }).lean(),
-    publicPolicy: async (_p: unknown, { slug }: { slug: string }) =>
-      PolicyModel.findOne({ slug, status: 'PUBLISHED', audience: 'PUBLIC' }).lean(),
+    publicPolicies: () =>
+      asWebsiteOwner(
+        () =>
+          PolicyModel.find({ status: 'PUBLISHED', audience: 'PUBLIC' }).sort({ title: 1 }).lean(),
+        [],
+      ),
+    publicPolicy: (_p: unknown, { slug }: { slug: string }) =>
+      asWebsiteOwner(
+        () => PolicyModel.findOne({ slug, status: 'PUBLISHED', audience: 'PUBLIC' }).lean(),
+        null,
+      ),
   },
 
   Mutation: {
