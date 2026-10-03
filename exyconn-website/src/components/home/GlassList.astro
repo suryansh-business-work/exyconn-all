@@ -1,0 +1,39 @@
+---
+/**
+ * A dense list of icon + title + text rows on one glass panel: one column on phones,
+ * two from `sm` up. Used for the hero features, the industries and the value props.
+ */
+interface Item {
+  icon: string;
+  title: string;
+  text: string;
+}
+
+interface Props {
+  items: readonly Item[];
+  /** Tint and ink of the icon tile, e.g. "bg-amber-soft text-amber-fg". */
+  tile: string;
+  /** Rows are sub-headings in their chapter, or plain emphasis where no heading fits. */
+  titleTag?: "h3" | "p";
+  class?: string;
+}
+
+const { items, tile, titleTag = "h3", class: extra = "" } = Astro.props;
+const Title = titleTag;
+---
+
+<ul class={`glass grid grid-cols-1 sm:grid-cols-2 divide-y divide-line sm:divide-y-0 ${extra}`}>
+  {
+    items.map((item) => (
+      <li class="flex gap-3 p-4">
+        <span class={`shrink-0 w-9 h-9 rounded-lg flex items-center justify-center ${tile}`}>
+          <i class={`fa-solid ${item.icon} icon-sm`} aria-hidden="true" />
+        </span>
+        <div class="min-w-0">
+          <Title class="font-bold text-fg leading-snug">{item.title}</Title>
+          <p class="mt-1 text-sm text-fg-secondary leading-relaxed">{item.text}</p>
+        </div>
+      </li>
+    ))
+  }
+</ul>

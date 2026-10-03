@@ -1,0 +1,57 @@
+---
+/**
+ * A chapter's opening: mono index and label over a measurement rule, the condensed display
+ * headline (revealed on entry) and its lead paragraph.
+ */
+interface Props {
+  index: number;
+  label: string;
+  icon?: string;
+  title: string;
+  accent?: string;
+  lead?: string;
+  level?: "h1" | "h2";
+  size?: "lg" | "md";
+  centered?: boolean;
+}
+
+const {
+  index,
+  label,
+  icon,
+  title,
+  accent,
+  lead,
+  level = "h2",
+  size = "lg",
+  centered = false,
+} = Astro.props;
+const Heading = level;
+const titleClass = size === "md" ? "stage-title stage-title--md" : "stage-title";
+const alignClass = centered ? "text-center mx-auto [&>*]:mx-auto" : "";
+---
+
+<div class={`max-w-3xl ${alignClass}`}>
+  <p class={`stage-label flex items-center gap-3 mb-3 ${centered ? "justify-center" : ""}`}>
+    <span class="text-orange-bright" aria-hidden="true">[{String(index).padStart(2, "0")}]</span>
+    {icon && <i class={`fa-solid ${icon} text-fg-muted`} aria-hidden="true" />}
+    <span>{label}</span>
+  </p>
+  <div class="stage-rule max-w-xs mb-6" aria-hidden="true"></div>
+  <Heading class={titleClass}>
+    <span class="block" data-reveal-line>{title}</span>
+    {
+      accent && (
+        <span class="block stage-accent" data-reveal-line>
+          {accent}
+        </span>
+      )
+    }
+  </Heading>
+  {
+    lead && (
+      <p class="mt-6 text-lg md:text-xl text-fg-secondary leading-relaxed max-w-2xl">{lead}</p>
+    )
+  }
+  <slot />
+</div>

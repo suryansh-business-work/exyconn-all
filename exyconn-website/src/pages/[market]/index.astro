@@ -1,13 +1,30 @@
 ---
 import Page from "../../layouts/Page.astro";
-import HomeBanner from "../../components/fragments/Banners/HomeBanner.astro";
-import OurSolutions from "../../components/OurSolutions.astro";
-import AiServicesOverview from "../../components/AiServicesOverview.astro";
-import WhyChooseUs from "../../components/WhyChooseUs.astro";
-import IndustriesWeServe from "../../components/IndustriesWeServe.astro";
-import HowWeWork from "../../components/HowWeWork.astro";
-import DynamicImageStack from "../../components/dynamic-components/DynamicImageStack.astro";
+import HomeStage from "../../components/home/HomeStage.astro";
+import HeroChapter from "../../components/home/HeroChapter.astro";
+import SolutionsChapter from "../../components/home/SolutionsChapter.astro";
+import IndustriesChapter from "../../components/home/IndustriesChapter.astro";
+import PartnerChapter from "../../components/home/PartnerChapter.astro";
+import ClosingChapter from "../../components/home/ClosingChapter.astro";
 import { aiServices } from "../../lib/services/aiServices";
+import { BRANDING_FALLBACK, getBrandingSafe } from "../../lib/portal";
+import { heroCopy } from "../../lib/home/hero";
+import { solutionsHeader } from "../../lib/home/solutions";
+import { industriesHeader } from "../../lib/home/industries";
+import { whyChooseUsCopy } from "../../lib/home/why-choose-us";
+import { processCopy } from "../../lib/home/process";
+
+// Every branding field can be empty until an admin fills it in.
+const branding = await getBrandingSafe();
+const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
+
+const chapters = [
+  { id: "intro", label: heroCopy.badge },
+  { id: "solutions", label: solutionsHeader.badge },
+  { id: "industries", label: industriesHeader.badge },
+  { id: "partner", label: whyChooseUsCopy.badge },
+  { id: "start", label: processCopy.cta.label },
+];
 ---
 
 <Page
@@ -15,14 +32,20 @@ import { aiServices } from "../../lib/services/aiServices";
   description={`Exyconn builds AI agents, automation and vertical AI products across ${aiServices.length} service areas — sales, support, voice, finance, hiring, logistics and the platform layer underneath.`}
   keywords="AI agents, AI automation, AI sales automation, AI customer support, AI voice agents, WhatsApp automation, vertical AI SaaS, AI workflow automation, RAG platform, AI governance"
 >
-  <HomeBanner />
-  <OurSolutions />
-  <AiServicesOverview />
-  <WhyChooseUs />
-  <IndustriesWeServe />
-  <HowWeWork />
-  <DynamicImageStack
-    title="Powered By Leading Technology"
-    subtitle="Cutting-Edge AI & Cloud Infrastructure"
-  />
+  <HomeStage chapters={chapters} railLabel="Page sections">
+    <HeroChapter id={chapters[0].id} />
+    <SolutionsChapter id={chapters[1].id} />
+    <IndustriesChapter id={chapters[2].id} />
+    <PartnerChapter
+      id={chapters[3].id}
+      techTitle="Powered By Leading Technology"
+      techSubtitle="Cutting-Edge AI & Cloud Infrastructure"
+    />
+    <ClosingChapter
+      id={chapters[4].id}
+      businessName={businessName}
+      slogan={branding.slogan || BRANDING_FALLBACK.slogan}
+      description={branding.description || BRANDING_FALLBACK.description}
+    />
+  </HomeStage>
 </Page>

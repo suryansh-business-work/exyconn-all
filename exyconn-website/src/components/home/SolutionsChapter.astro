@@ -1,0 +1,80 @@
+---
+/** Chapter 1 — aviation. "What We Offer": the pillars, the quick links and the catalogue. */
+import { pillars, quickSolutions, solutionsHeader } from "../../lib/home/solutions";
+import ChapterIntro from "./ChapterIntro.astro";
+import ServiceCatalogue from "./ServiceCatalogue.astro";
+
+interface Props {
+  id: string;
+}
+
+const { id } = Astro.props;
+---
+
+<section id={id} data-chapter="1" class="stage-chapter">
+  <div class="stage-shell">
+    <div class="stage-intro">
+      <ChapterIntro
+        index={1}
+        label={solutionsHeader.badge}
+        icon="fa-sparkles"
+        title={solutionsHeader.title}
+        accent={solutionsHeader.accent}
+        lead={solutionsHeader.lead}
+      />
+    </div>
+
+    <div class="stage-column stage-gap grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {
+        pillars.map((pillar) => (
+          <a href={pillar.href} class="glass group p-5 flex flex-col">
+            <div class="flex items-center justify-between gap-3 mb-4">
+              <span class="w-10 h-10 rounded-lg bg-sky-soft text-sky-fg flex items-center justify-center">
+                <i class={`fa-solid ${pillar.icon}`} aria-hidden="true" />
+              </span>
+              {pillar.flag && <span class="stage-label text-amber-bright">{pillar.flag}</span>}
+            </div>
+            <h3 class="text-xl font-bold text-fg">{pillar.title}</h3>
+            <p class="mt-2 text-sm text-fg-secondary leading-relaxed">{pillar.text}</p>
+            <ul class="mt-4 space-y-1.5">
+              {pillar.points.map((point) => (
+                <li class="flex items-start gap-2 text-sm text-fg-secondary">
+                  <i
+                    class="fa-solid fa-check shrink-0 icon-xs mt-1 text-cyan-bright"
+                    aria-hidden="true"
+                  />
+                  {point}
+                </li>
+              ))}
+            </ul>
+            <span class="mt-auto pt-5 inline-flex items-center gap-2 text-sm font-semibold text-sky-bright">
+              {pillar.cta}
+              <i
+                class="fa-solid fa-arrow-right icon-xs group-hover:translate-x-1 transition-transform"
+                aria-hidden="true"
+              />
+            </span>
+          </a>
+        ))
+      }
+    </div>
+
+    <ul class="stage-column mt-3 grid grid-cols-2 gap-3">
+      {
+        quickSolutions.map((item) => (
+          <li>
+            <a href={item.href} class="glass flex items-center gap-3 p-3.5 h-full">
+              <i class={`fa-solid ${item.icon} shrink-0 text-sky-bright`} aria-hidden="true" />
+              <span class="min-w-0">
+                <span class="block font-semibold text-fg">{item.title}</span>
+                <span class="block text-xs text-fg-secondary">{item.text}</span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <ServiceCatalogue />
+  </div>
+</section>
