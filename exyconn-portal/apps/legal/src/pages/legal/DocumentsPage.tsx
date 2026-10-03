@@ -1,13 +1,16 @@
+import { useCallback } from 'react';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import {
   useListLegalDocumentsStatsQuery,
   useDeleteLegalDocumentMutation,
+  useGetLegalDocumentBodyLazyQuery,
   ListLegalDocumentsPagedDocument,
   type ListLegalDocumentsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { DocumentForm, type LegalDocumentRow } from './forms/document';
+import { useBodyDownloads } from './useBodyDownloads';
 import { color } from '@exyconn/shell/components/ui';
 import {
   DOCUMENT_COLUMNS,
@@ -33,6 +36,18 @@ export function DocumentsPage() {
     }),
     refetch: refetchStats,
   });
+  const [loadBody] = useGetLegalDocumentBodyLazyQuery({ fetchPolicy: 'network-only' });
+  const fetchBody = useCallback(
+    async (id: string) => {
+      const { data, error } = await loadBody({ variables: { id } });
+      if (error) {
+        throw error;
+      }
+      return data?.getLegalDocument.content ?? '';
+    },
+    [loadBody],
+  );
+  const downloads = useBodyDownloads<PagedLegalDocumentRow>(fetchBody);
   const fetchRows = usePagedFetcher(
     ListLegalDocumentsPagedDocument,
     (data: ListLegalDocumentsPagedQuery) => data.listLegalDocumentsPaged,
@@ -59,7 +74,7 @@ export function DocumentsPage() {
   ];
 
   const gridContext: DocumentsGridContext = {
-    actions: { edit: crud.openEdit, delete: crud.remove },
+    actions: { edit: crud.openEdit, delete: crud.remove, ...downloads },
   };
 
   return (

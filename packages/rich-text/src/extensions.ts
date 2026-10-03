@@ -7,7 +7,7 @@ import { Subscript } from '@tiptap/extension-subscript';
 import { Superscript } from '@tiptap/extension-superscript';
 import { TableKit } from '@tiptap/extension-table';
 import { TextAlign } from '@tiptap/extension-text-align';
-import { Color, TextStyle } from '@tiptap/extension-text-style';
+import { Color, FontFamily, FontSize, TextStyle } from '@tiptap/extension-text-style';
 import { CharacterCount, Placeholder } from '@tiptap/extensions';
 
 /** Images resize from their corners only, so the aspect ratio has one obvious handle. */
@@ -40,6 +40,8 @@ export function buildExtensions(placeholder: string): Extensions {
     }),
     TextStyle,
     Color,
+    FontFamily,
+    FontSize,
     Highlight.configure({ multicolor: true }),
     TextAlign.configure({ types: ALIGNABLE }),
     Subscript,

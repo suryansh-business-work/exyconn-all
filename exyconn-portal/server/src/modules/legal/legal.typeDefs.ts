@@ -24,6 +24,8 @@ export const legalTypeDefs = gql`
     status: ContractStatus!
     "The document a counterparty is asked to read and sign. Empty until one is attached."
     documentUrl: String!
+    "The contract's text as rich-text HTML. Null on contracts saved before it existed."
+    content: String
     sentAt: DateTime
     signedBy: String
     signedAt: DateTime
@@ -79,6 +81,7 @@ export const legalTypeDefs = gql`
     expiryDate: DateTime!
     status: ContractStatus!
     documentUrl: String
+    content: String
   }
 
   type ContractPage {
@@ -104,6 +107,8 @@ export const legalTypeDefs = gql`
     category: DocumentCategory!
     owner: String
     fileUrl: String
+    "The document's text as rich-text HTML. Null on documents saved before it existed."
+    content: String
     status: DocumentStatus!
     createdAt: DateTime!
     updatedAt: DateTime!
@@ -114,6 +119,7 @@ export const legalTypeDefs = gql`
     category: DocumentCategory!
     owner: String
     fileUrl: String
+    content: String
     status: DocumentStatus!
   }
 

@@ -1722,6 +1722,8 @@ export type ContainerPort = {
 
 export type Contract = {
   __typename?: 'Contract';
+  /** The contract's text as rich-text HTML. Null on contracts saved before it existed. */
+  content?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   /** The document a counterparty is asked to read and sign. Empty until one is attached. */
   documentUrl: Scalars['String']['output'];
@@ -1739,6 +1741,7 @@ export type Contract = {
 };
 
 export type ContractInput = {
+  content?: InputMaybe<Scalars['String']['input']>;
   documentUrl?: InputMaybe<Scalars['String']['input']>;
   effectiveDate: Scalars['DateTime']['input'];
   expiryDate: Scalars['DateTime']['input'];
@@ -4130,6 +4133,8 @@ export enum LeaveStatus {
 export type LegalDocument = {
   __typename?: 'LegalDocument';
   category: DocumentCategory;
+  /** The document's text as rich-text HTML. Null on documents saved before it existed. */
+  content?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   fileUrl?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -4141,6 +4146,7 @@ export type LegalDocument = {
 
 export type LegalDocumentInput = {
   category: DocumentCategory;
+  content?: InputMaybe<Scalars['String']['input']>;
   fileUrl?: InputMaybe<Scalars['String']['input']>;
   owner?: InputMaybe<Scalars['String']['input']>;
   status: DocumentStatus;
@@ -16900,6 +16906,20 @@ export type DeleteLegalDocumentMutationVariables = Exact<{
 
 
 export type DeleteLegalDocumentMutation = { __typename?: 'Mutation', deleteLegalDocument: boolean };
+
+export type GetContractBodyQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetContractBodyQuery = { __typename?: 'Query', getContract: { __typename?: 'Contract', id: string, title: string, content?: string | null } };
+
+export type GetLegalDocumentBodyQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type GetLegalDocumentBodyQuery = { __typename?: 'Query', getLegalDocument: { __typename?: 'LegalDocument', id: string, title: string, content?: string | null } };
 
 export type LicenceFieldsFragment = { __typename?: 'Licence', id: string, name: string, vendor: string, seatsTotal: number, assigneeIds: Array<string>, cost: number, billingCycle: LicenceBillingCycle, renewalDate: string, status: LicenceStatus, notes: string };
 
@@ -39612,6 +39632,98 @@ export function useDeleteLegalDocumentMutation(baseOptions?: ApolloReactHooks.Mu
         return ApolloReactHooks.useMutation<DeleteLegalDocumentMutation, DeleteLegalDocumentMutationVariables>(DeleteLegalDocumentDocument, options);
       }
 export type DeleteLegalDocumentMutationHookResult = ReturnType<typeof useDeleteLegalDocumentMutation>;
+export const GetContractBodyDocument = gql`
+    query GetContractBody($id: ID!) {
+  getContract(id: $id) {
+    id
+    title
+    content
+  }
+}
+    `;
+
+/**
+ * __useGetContractBodyQuery__
+ *
+ * To run a query within a React component, call `useGetContractBodyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetContractBodyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetContractBodyQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetContractBodyQuery(baseOptions: ApolloReactHooks.QueryHookOptions<GetContractBodyQuery, GetContractBodyQueryVariables> & ({ variables: GetContractBodyQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<GetContractBodyQuery, GetContractBodyQueryVariables>(GetContractBodyDocument, options);
+      }
+export function useGetContractBodyLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetContractBodyQuery, GetContractBodyQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<GetContractBodyQuery, GetContractBodyQueryVariables>(GetContractBodyDocument, options);
+        }
+// @ts-ignore
+export function useGetContractBodySuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<GetContractBodyQuery, GetContractBodyQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GetContractBodyQuery, GetContractBodyQueryVariables>;
+// @ts-ignore
+export function useGetContractBodySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GetContractBodyQuery, GetContractBodyQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GetContractBodyQuery | undefined, GetContractBodyQueryVariables>;
+export function useGetContractBodySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GetContractBodyQuery, GetContractBodyQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<GetContractBodyQuery, GetContractBodyQueryVariables>(GetContractBodyDocument, options);
+        }
+export type GetContractBodyQueryHookResult = ReturnType<typeof useGetContractBodyQuery>;
+export type GetContractBodyLazyQueryHookResult = ReturnType<typeof useGetContractBodyLazyQuery>;
+export type GetContractBodySuspenseQueryHookResult = ReturnType<typeof useGetContractBodySuspenseQuery>;
+export const GetLegalDocumentBodyDocument = gql`
+    query GetLegalDocumentBody($id: ID!) {
+  getLegalDocument(id: $id) {
+    id
+    title
+    content
+  }
+}
+    `;
+
+/**
+ * __useGetLegalDocumentBodyQuery__
+ *
+ * To run a query within a React component, call `useGetLegalDocumentBodyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetLegalDocumentBodyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetLegalDocumentBodyQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useGetLegalDocumentBodyQuery(baseOptions: ApolloReactHooks.QueryHookOptions<GetLegalDocumentBodyQuery, GetLegalDocumentBodyQueryVariables> & ({ variables: GetLegalDocumentBodyQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<GetLegalDocumentBodyQuery, GetLegalDocumentBodyQueryVariables>(GetLegalDocumentBodyDocument, options);
+      }
+export function useGetLegalDocumentBodyLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GetLegalDocumentBodyQuery, GetLegalDocumentBodyQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<GetLegalDocumentBodyQuery, GetLegalDocumentBodyQueryVariables>(GetLegalDocumentBodyDocument, options);
+        }
+// @ts-ignore
+export function useGetLegalDocumentBodySuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<GetLegalDocumentBodyQuery, GetLegalDocumentBodyQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GetLegalDocumentBodyQuery, GetLegalDocumentBodyQueryVariables>;
+// @ts-ignore
+export function useGetLegalDocumentBodySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GetLegalDocumentBodyQuery, GetLegalDocumentBodyQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GetLegalDocumentBodyQuery | undefined, GetLegalDocumentBodyQueryVariables>;
+export function useGetLegalDocumentBodySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GetLegalDocumentBodyQuery, GetLegalDocumentBodyQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<GetLegalDocumentBodyQuery, GetLegalDocumentBodyQueryVariables>(GetLegalDocumentBodyDocument, options);
+        }
+export type GetLegalDocumentBodyQueryHookResult = ReturnType<typeof useGetLegalDocumentBodyQuery>;
+export type GetLegalDocumentBodyLazyQueryHookResult = ReturnType<typeof useGetLegalDocumentBodyLazyQuery>;
+export type GetLegalDocumentBodySuspenseQueryHookResult = ReturnType<typeof useGetLegalDocumentBodySuspenseQuery>;
 export const ListLicencesDocument = gql`
     query ListLicences {
   listLicences {

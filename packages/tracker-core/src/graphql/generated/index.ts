@@ -574,6 +574,7 @@ export type ContactStatus =
   | 'UNSUBSCRIBED';
 
 export type ContractInput = {
+  content: InputMaybe<Scalars['String']['input']>;
   documentUrl: InputMaybe<Scalars['String']['input']>;
   effectiveDate: Scalars['DateTime']['input'];
   expiryDate: Scalars['DateTime']['input'];
@@ -1431,6 +1432,7 @@ export type LeaveStatus =
 
 export type LegalDocumentInput = {
   category: DocumentCategory;
+  content: InputMaybe<Scalars['String']['input']>;
   fileUrl: InputMaybe<Scalars['String']['input']>;
   owner: InputMaybe<Scalars['String']['input']>;
   status: DocumentStatus;

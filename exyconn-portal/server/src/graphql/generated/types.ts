@@ -1721,6 +1721,8 @@ export type ContainerPort = {
 
 export type Contract = {
   __typename?: 'Contract';
+  /** The contract's text as rich-text HTML. Null on contracts saved before it existed. */
+  content?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   /** The document a counterparty is asked to read and sign. Empty until one is attached. */
   documentUrl: Scalars['String']['output'];
@@ -1738,6 +1740,7 @@ export type Contract = {
 };
 
 export type ContractInput = {
+  content?: InputMaybe<Scalars['String']['input']>;
   documentUrl?: InputMaybe<Scalars['String']['input']>;
   effectiveDate: Scalars['DateTime']['input'];
   expiryDate: Scalars['DateTime']['input'];
@@ -4129,6 +4132,8 @@ export enum LeaveStatus {
 export type LegalDocument = {
   __typename?: 'LegalDocument';
   category: DocumentCategory;
+  /** The document's text as rich-text HTML. Null on documents saved before it existed. */
+  content?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   fileUrl?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -4140,6 +4145,7 @@ export type LegalDocument = {
 
 export type LegalDocumentInput = {
   category: DocumentCategory;
+  content?: InputMaybe<Scalars['String']['input']>;
   fileUrl?: InputMaybe<Scalars['String']['input']>;
   owner?: InputMaybe<Scalars['String']['input']>;
   status: DocumentStatus;
@@ -16125,6 +16131,7 @@ export type ContainerPortResolvers<ContextType = GraphQLContext, ParentType exte
 }>;
 
 export type ContractResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Contract'] = ResolversParentTypes['Contract']> = ResolversObject<{
+  content?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   documentUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   effectiveDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
@@ -17471,6 +17478,7 @@ export type LeaveRequestResolvers<ContextType = GraphQLContext, ParentType exten
 
 export type LegalDocumentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LegalDocument'] = ResolversParentTypes['LegalDocument']> = ResolversObject<{
   category?: Resolver<ResolversTypes['DocumentCategory'], ParentType, ContextType>;
+  content?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   fileUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;

@@ -17,6 +17,8 @@ export interface ToolbarState {
   inLink: boolean;
   textColor: string;
   highlight: string;
+  fontFamily: string;
+  fontSize: string;
 }
 
 const selectState = (editor: Editor): ToolbarState => ({
@@ -30,6 +32,8 @@ const selectState = (editor: Editor): ToolbarState => ({
   inLink: editor.isActive('link'),
   textColor: editor.getAttributes('textStyle').color ?? '',
   highlight: editor.getAttributes('highlight').color ?? '',
+  fontFamily: editor.getAttributes('textStyle').fontFamily ?? '',
+  fontSize: editor.getAttributes('textStyle').fontSize ?? '',
 });
 
 /**

@@ -17,6 +17,8 @@ interface ContractInput {
   status: string;
   /** The document a counterparty is asked to sign. Empty until one is attached. */
   documentUrl?: string;
+  /** The contract's text as rich-text HTML. */
+  content?: string;
 }
 
 interface LegalDocumentInput {
@@ -24,6 +26,8 @@ interface LegalDocumentInput {
   category: string;
   owner?: string;
   fileUrl?: string;
+  /** The document's text as rich-text HTML. */
+  content?: string;
   status: string;
 }
 
