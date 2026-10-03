@@ -10,7 +10,6 @@ import {
   HAIRLINE,
   HOVER_FILL_OPACITY,
   INNER_CORNER,
-  PILL,
   TOUCH,
   TOUCH_TARGET,
   halo,
@@ -19,7 +18,7 @@ import {
 } from '../parts';
 
 /**
- * The shadcn/ui switch: a 36×20 pill with the thumb inside it. The 40×24 it replaced read as
+ * The shadcn/ui switch: a 36×20 track with the thumb inside it. The 40×24 it replaced read as
  * a slab once a screen had a column of them. The pointer target stays 24px tall (SC 2.5.8):
  * the invisible input the click lands on reaches past the track, see `SWITCH_TARGET`.
  */
@@ -62,9 +61,9 @@ function buttons(parts: ThemeParts): ComponentGroup {
     MuiButton: {
       defaultProps: { disableElevation: true, size: 'small' },
       styleOverrides: {
-        // Every button is a pill — the primary one a filled pill of the ink colour.
+        // Every button shares the 4px control corner — the primary one filled with the ink colour.
         root: ({ ownerState }) => ({
-          borderRadius: PILL,
+          borderRadius: CONTROL_CORNER,
           paddingInline: spacing(1.5),
           fontWeight: fontWeight.medium,
           transition: transition.control,
@@ -73,13 +72,13 @@ function buttons(parts: ThemeParts): ComponentGroup {
         }),
       },
     },
-    // Icon buttons are ghost circles. The hover stays
+    // Icon buttons are ghost squares on the 4px corner. The hover stays
     // MUI's translucent ink wash — the muted fill on a light ground, and still visible when
     // the button floats on a photo or a dark lightbox, where a solid fill would hide the icon.
     MuiIconButton: {
       styleOverrides: {
         root: {
-          borderRadius: '50%',
+          borderRadius: CONTROL_CORNER,
           transition: transition.control,
           [TOUCH]: { minWidth: TOUCH_TARGET, minHeight: TOUCH_TARGET },
         },
@@ -209,9 +208,14 @@ function toggles({ mode, t }: ThemeParts): ComponentGroup {
           top: (SWITCH_THUMB - SWITCH_TARGET) / 2,
           height: SWITCH_TARGET,
         },
-        thumb: { width: SWITCH_THUMB, height: SWITCH_THUMB, boxShadow: t.shadow.sm },
+        thumb: {
+          width: SWITCH_THUMB,
+          height: SWITCH_THUMB,
+          borderRadius: CONTROL_CORNER,
+          boxShadow: t.shadow.sm,
+        },
         track: {
-          borderRadius: PILL,
+          borderRadius: CONTROL_CORNER,
           opacity: 1,
           // The unchecked track is the control's only outline: `control` holds it at 3:1.
           backgroundColor: t.control,

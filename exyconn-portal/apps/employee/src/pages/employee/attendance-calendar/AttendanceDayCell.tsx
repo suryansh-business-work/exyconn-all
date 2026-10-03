@@ -18,7 +18,7 @@ export function AttendanceDayCell({ day }: Readonly<{ day: AttendanceDay }>) {
         minHeight: { xs: 52, sm: 72 },
         p: { xs: 0.5, sm: 1 },
         minWidth: 0,
-        borderRadius: 1.5,
+        borderRadius: 1,
         border: 1,
         borderColor: day.isToday ? 'primary.main' : 'divider',
         borderLeftWidth: style ? 4 : 1,

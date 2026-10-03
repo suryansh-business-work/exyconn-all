@@ -40,7 +40,7 @@ export function OrgFlowChart({ trees, onOpen }: Readonly<OrgFlowChartProps>) {
   }, [trees, onOpen, theme.palette.divider]);
 
   return (
-    <Box sx={{ height: { xs: 480, md: '70vh' }, borderRadius: 2, overflow: 'hidden' }}>
+    <Box sx={{ height: { xs: 480, md: '70vh' }, borderRadius: 1, overflow: 'hidden' }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}

@@ -20,14 +20,13 @@ export const radius = { sm: 4, md: 8, lg: 16, xl: 20, xxl: 24, pill: 9999 } as c
 export type Radius = keyof typeof radius;
 
 /**
- * The portals' field corner, in px — the theme's `shape.borderRadius`: inputs, alerts, menus.
- * Buttons, chips, tabs and the search are pills; a field stays a rounded rectangle because a
- * multi-line one has to look the same as a single-line one beside it.
+ * The portals' corner, in px — the theme's `shape.borderRadius`. No portal corner is rounder
+ * than 4px: fields, buttons, chips, tabs, icon buttons, avatars and badges all share it.
  */
-export const BASE_RADIUS = 12;
+export const BASE_RADIUS = radius.sm;
 
-/** The portals' card corner: cards, panels, dialogs and grids — large and soft. */
-export const CARD_RADIUS = radius.xxl;
+/** The portals' card corner: cards, panels, dialogs and grids — held to the same 4px. */
+export const CARD_RADIUS = radius.sm;
 
 /**
  * The trackers' (desktop and phone) control corner — inputs, tiles, calendar days. The 2026-09

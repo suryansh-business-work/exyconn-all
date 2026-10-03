@@ -46,7 +46,7 @@ export function TicketThread({ ticketId }: Readonly<TicketThreadProps>) {
           key={reply.id}
           sx={{
             p: 1.5,
-            borderRadius: 1.5,
+            borderRadius: 1,
             border: `${borderWidth.hairline}px solid`,
             borderColor: reply.internal ? 'warning.light' : 'divider',
             bgcolor: reply.internal ? 'warning.light' : 'background.paper',

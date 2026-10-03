@@ -26,7 +26,7 @@ export function HealthStat({ label, value, percent, color = 'primary', hint }: R
           // The bar stops at full; the number above says how far past it went.
           value={Math.min(percent, 100)}
           color={color}
-          sx={{ height: 6, borderRadius: 3, mt: 0.5 }}
+          sx={{ height: 6, borderRadius: 1, mt: 0.5 }}
         />
       ) : null}
       {hint ? (

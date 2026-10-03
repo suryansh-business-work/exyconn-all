@@ -130,9 +130,9 @@ describe('the portal palette', () => {
     });
   });
 
-  it('rounds fields at 12 and cards at 24', () => {
-    expect(BASE_RADIUS).toBe(12);
-    expect(CARD_RADIUS).toBe(24);
+  it('caps every portal corner at 4px', () => {
+    expect(BASE_RADIUS).toBe(4);
+    expect(CARD_RADIUS).toBe(4);
   });
 
   it('draws a focus ring as a hairline shadow in the accent', () => {

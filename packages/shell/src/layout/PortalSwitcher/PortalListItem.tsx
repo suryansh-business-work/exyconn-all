@@ -45,7 +45,7 @@ export function PortalListItem({ entry, onSelect }: Readonly<PortalListItemProps
           sx={{
             width: 34,
             height: 34,
-            borderRadius: 1.5,
+            borderRadius: 1,
             display: 'grid',
             placeItems: 'center',
             // Whichever ink reads on this module's colour — white vanishes on amber or teal.

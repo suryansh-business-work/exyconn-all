@@ -24,16 +24,13 @@ function LoginPageCard({ index, app }: Readonly<LoginPageCardProps>) {
     <Box
       sx={{
         p: 1.5,
-        borderRadius: 1.5,
+        borderRadius: 1,
         border: `${borderWidth.hairline}px solid`,
         borderColor: 'divider',
       }}
     >
       <Flex direction="row" alignItems="center" spacing={1} sx={{ mb: 1.5 }}>
-        <Box
-          aria-hidden
-          sx={{ width: 14, height: 14, borderRadius: '50%', backgroundColor: accent }}
-        />
+        <Box aria-hidden sx={{ width: 14, height: 14, borderRadius: 1, backgroundColor: accent }} />
         <Chip label={app} />
       </Flex>
 

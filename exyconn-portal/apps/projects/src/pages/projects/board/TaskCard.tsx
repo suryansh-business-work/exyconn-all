@@ -62,7 +62,7 @@ export function TaskCard({ task, onOpen }: Readonly<TaskCardProps>) {
       ref={setNodeRef}
       sx={{
         p: 1.5,
-        borderRadius: 1.5,
+        borderRadius: 1,
         bgcolor: 'background.paper',
         border: 1,
         borderColor: 'divider',

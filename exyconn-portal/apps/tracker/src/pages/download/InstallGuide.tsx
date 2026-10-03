@@ -37,7 +37,7 @@ function InstallStep({ index, text, accent }: Readonly<StepProps>) {
           flexShrink: 0,
           width: spacing(3),
           height: spacing(3),
-          borderRadius: radius.pill,
+          borderRadius: `${radius.sm}px`,
           display: 'grid',
           placeItems: 'center',
           fontSize: fontSize.xs,

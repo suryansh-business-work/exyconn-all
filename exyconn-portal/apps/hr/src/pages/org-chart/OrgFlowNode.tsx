@@ -29,7 +29,7 @@ export function OrgFlowNode({ data }: Readonly<NodeProps<OrgFlowNodeType>>) {
         bgcolor: 'background.paper',
         border: 1,
         borderColor: 'divider',
-        borderRadius: 2,
+        borderRadius: 1,
         overflow: 'hidden',
       }}
     >

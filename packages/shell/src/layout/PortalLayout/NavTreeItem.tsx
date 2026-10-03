@@ -12,7 +12,7 @@ import {
   radius,
 } from '@/components/ui';
 
-const PILL_RADIUS = `${radius.pill}px`;
+const NAV_CORNER = `${radius.sm}px`;
 import type { NavNode } from './moduleNav';
 import type { NavState } from './useNavState';
 
@@ -25,11 +25,11 @@ interface Props {
 }
 
 /**
- * A pill row. The current page is a white (card-coloured) pill lifted off the canvas the
+ * A nav row on the 4px corner. The current page is a white (card-coloured) row lifted off the canvas the
  * sidebar sits on — the same language as the cards on the page.
  */
 const rowSx = (depth: number) => ({
-  borderRadius: PILL_RADIUS,
+  borderRadius: NAV_CORNER,
   mb: 0.5,
   py: 0.75,
   pl: 1.5 + depth * 1.5,

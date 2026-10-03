@@ -55,7 +55,7 @@ export function OrgNodeCard({ node, depth, onOpen }: Readonly<OrgNodeCardProps>)
         )}
         <ListItemButton
           onClick={() => onOpen(node.id)}
-          sx={{ borderRadius: 1.5, py: 1, flexGrow: 1 }}
+          sx={{ borderRadius: 1, py: 1, flexGrow: 1 }}
         >
           <Avatar
             src={node.avatarUrl ?? undefined}

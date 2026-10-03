@@ -49,7 +49,7 @@ export function PlatformTile({
         cursor: 'pointer',
         textAlign: 'left',
         p: 1.5,
-        borderRadius: 1.5,
+        borderRadius: 1,
         background: selected ? tint(platform.accent) : theme.palette.background.paper,
         border: `${borderWidth.hairline}px solid ${
           selected ? 'var(--platform-accent)' : theme.palette.divider

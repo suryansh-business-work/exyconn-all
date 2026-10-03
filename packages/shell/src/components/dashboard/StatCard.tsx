@@ -62,7 +62,7 @@ export function StatCard({
             sx={{
               alignItems: 'center',
               px: 1,
-              borderRadius: `${radius.pill}px`,
+              borderRadius: `${radius.sm}px`,
               bgcolor: 'background.muted',
               color: up ? 'success.main' : 'error.main',
             }}

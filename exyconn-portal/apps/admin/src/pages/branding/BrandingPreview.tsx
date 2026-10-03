@@ -37,7 +37,7 @@ export function BrandingPreview({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            borderRadius: 1.5,
+            borderRadius: 1,
             border: `${borderWidth.hairline}px solid`,
             borderColor: 'divider',
             overflow: 'hidden',
