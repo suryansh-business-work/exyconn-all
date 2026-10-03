@@ -110,3 +110,29 @@
 .hover-link:hover {
   color: var(--color-blue);
 }
+
+/*
+ * Partner logos ("Powered By Leading Technology") are shown as one-colour marks so six
+ * brands' colours and backgrounds do not fight the page: ink on the day theme, white on the
+ * night theme (the home stage is always night). Full strength on hover or focus.
+ */
+@layer components {
+  .tech-logo {
+    filter: brightness(0);
+    opacity: 0.6;
+    transition: opacity 200ms ease;
+  }
+  [data-theme="dark"] .tech-logo {
+    filter: brightness(0) invert(1);
+    opacity: 0.72;
+  }
+  .tech-logo-item:hover .tech-logo,
+  .tech-logo-item:focus-within .tech-logo {
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .tech-logo {
+      transition: none;
+    }
+  }
+}
