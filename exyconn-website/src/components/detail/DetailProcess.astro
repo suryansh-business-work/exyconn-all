@@ -1,0 +1,28 @@
+---
+/**
+ * Chapter "How we work" (service pages): the site's own delivery process, from
+ * src/lib/home/process.ts — the same steps the home page and About show.
+ */
+import "../../styles/inner-stage.css";
+import ChapterHeading from "../inner/ChapterHeading.astro";
+import StepTrack from "../inner/StepTrack.astro";
+import { processCopy, processSteps } from "../../lib/home/process";
+
+type Props = Readonly<{ index: number; label: string }>;
+
+const { index, label } = Astro.props;
+const steps = processSteps.map(({ title, text, when }) => ({ title, text, when }));
+---
+
+<section class="inner-section stage-shell" aria-labelledby="detail-process">
+  <ChapterHeading
+    index={index}
+    label={label}
+    title={`${processCopy.title} ${processCopy.accent}`}
+    lede={processCopy.lead}
+    id="detail-process"
+  />
+  <div class="mt-10">
+    <StepTrack steps={steps} />
+  </div>
+</section>
