@@ -34,6 +34,12 @@ export const submissionTypeDefs = gql`
     question: String!
   }
 
+  "A file sent with a public form: its name and its bytes as a base64 data URL."
+  input WebsiteFileInput {
+    name: String!
+    data: String!
+  }
+
   input WebsiteCaptchaAnswer {
     token: String!
     answer: String!
@@ -61,10 +67,11 @@ export const submissionTypeDefs = gql`
   }
 
   extend type Mutation {
-    "Public. Refused unless \`captcha\` answers a question from \`websiteCaptcha\`."
+    "Public. Refused unless \`captcha\` answers a question from \`websiteCaptcha\`. \`resume\` (PDF, DOC or DOCX, max 5 MB) is accepted with a job application only."
     createWebsiteSubmission(
       input: WebsiteSubmissionInput!
       captcha: WebsiteCaptchaAnswer!
+      resume: WebsiteFileInput
     ): WebsiteSubmission!
     triageWebsiteSubmission(id: ID!, input: WebsiteSubmissionTriageInput!): WebsiteSubmission!
     deleteWebsiteSubmission(id: ID!): Boolean!

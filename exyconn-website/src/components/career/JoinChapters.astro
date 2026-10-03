@@ -1,0 +1,48 @@
+---
+/** Why join, how hiring works and the FAQ — the careers index's closing chapters. */
+import ChapterHeading from "../inner/ChapterHeading.astro";
+import FaqAccordion from "../inner/FaqAccordion.astro";
+import StepTrack from "../inner/StepTrack.astro";
+import PerkGrid from "./PerkGrid.astro";
+import {
+  CAREER_PERKS,
+  CAREERS_COPY as copy,
+  CAREERS_EMAIL,
+  CAREERS_FAQ,
+  HIRING_STEPS,
+} from "../../lib/career/copy";
+import { fill } from "../../lib/career/format";
+
+type Props = Readonly<{ start: number }>;
+
+const { start } = Astro.props;
+---
+
+<section class="inner-section stage-shell" aria-labelledby="why-title">
+  <ChapterHeading
+    index={start}
+    label={copy.whyLabel}
+    title={copy.whyTitle}
+    lede={copy.whyLede}
+    id="why-title"
+  />
+  <PerkGrid items={CAREER_PERKS} />
+</section>
+
+<section class="inner-section stage-shell" aria-labelledby="hiring-title">
+  <ChapterHeading
+    index={start + 1}
+    label={copy.hiringLabel}
+    title={copy.hiringTitle}
+    id="hiring-title"
+  />
+  <div class="mt-10"><StepTrack steps={HIRING_STEPS} /></div>
+</section>
+
+<section class="inner-section stage-shell" aria-labelledby="faq-title">
+  <ChapterHeading index={start + 2} label={copy.faqLabel} title={copy.faqTitle} id="faq-title" />
+  <div class="mt-10 career-column">
+    <FaqAccordion items={CAREERS_FAQ} />
+    <p class="inner-card__text mt-8">{fill(copy.accommodations, { email: CAREERS_EMAIL })}</p>
+  </div>
+</section>

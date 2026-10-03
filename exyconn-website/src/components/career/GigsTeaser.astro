@@ -1,0 +1,53 @@
+---
+/** Up to three open gigs on the careers index, and the way to all of them (never "0 gigs"). */
+import ChapterHeading from "../inner/ChapterHeading.astro";
+import GigTile from "./GigTile.astro";
+import { CAREERS_COPY as copy, GIG_LABELS } from "../../lib/career/copy";
+import { countLabel } from "../../lib/career/format";
+import { gigHref, gigPay } from "../../lib/career/gigs";
+import type { Gig } from "../../lib/portal/types";
+
+type Props = Readonly<{
+  index: number;
+  gigs: readonly Gig[];
+  total: number;
+}>;
+
+const { index, gigs, total } = Astro.props;
+---
+
+<section class="inner-section stage-shell" aria-labelledby="gigs-title">
+  <ChapterHeading
+    index={index}
+    label={copy.gigsLabel}
+    title={copy.gigsTitle}
+    lede={copy.gigsLede}
+    id="gigs-title"
+  />
+  {
+    gigs.length === 0 ? (
+      <p class="inner-panel p-6 mt-10 text-fg-secondary">{copy.emptyGigsText}</p>
+    ) : (
+      <>
+        <ul class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-10">
+          {gigs.map((gig) => (
+            <GigTile
+              href={gigHref(gig)}
+              title={gig.title}
+              category={gig.category}
+              scope={gig.shortDescription}
+              pay={gigPay(gig)}
+              duration={gig.duration}
+              skills={gig.tags}
+              skillsLabel={GIG_LABELS.skills}
+              urgent={gig.isUrgent ? GIG_LABELS.urgent : undefined}
+            />
+          ))}
+        </ul>
+        <a href="/career/gigs" class="inner-action inner-action--ghost mt-8">
+          {countLabel(total, copy.allGig, copy.allGigs)}
+        </a>
+      </>
+    )
+  }
+</section>

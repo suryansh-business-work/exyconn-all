@@ -4,6 +4,7 @@ import { TRACKER_LIMITS } from '../modules/tracker/tracker.constants';
 import {
   AVATAR_UPLOAD,
   MEDIA_UPLOAD,
+  RESUME_UPLOAD,
   TEST_UPLOAD,
   assertUpload,
   screenshotUpload,
@@ -14,6 +15,7 @@ const AVATAR_FOLDER = '/exyconn-portal/avatars';
 const TEST_FOLDER = '/exyconn-portal/tests';
 const TRACKER_FOLDER = '/exyconn-portal/tracker';
 const MEDIA_FOLDER = '/exyconn-portal/media';
+const RESUME_FOLDER = '/exyconn-portal/resumes';
 
 /**
  * Server-side image uploader (singleton). The provider credentials are loaded
@@ -71,6 +73,23 @@ class ImageUploader {
       file,
       fileName,
       folder: this.mediaFolder(folder),
+      useUniqueFileName: true,
+    });
+    return result.url;
+  }
+
+  /**
+   * Uploads the résumé a visitor attached to a website job application (PDF, DOC or DOCX,
+   * checked like every upload) and returns its hosted URL, which HR opens from the applicant.
+   * The unique file name keeps one applicant's file from being found by guessing another's.
+   */
+  async uploadResume(file: string, fileName: string): Promise<string> {
+    assertUpload(file, RESUME_UPLOAD);
+    const client = await this.getClient();
+    const result = await client.upload({
+      file,
+      fileName,
+      folder: RESUME_FOLDER,
       useUniqueFileName: true,
     });
     return result.url;

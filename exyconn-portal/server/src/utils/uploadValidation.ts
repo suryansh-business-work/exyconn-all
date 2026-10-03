@@ -11,7 +11,7 @@ import { badRequest } from './errors';
  */
 
 /** A kind of file, identified by its leading bytes. */
-export type UploadKind = 'png' | 'jpeg' | 'gif' | 'webp' | 'svg' | 'pdf';
+export type UploadKind = 'png' | 'jpeg' | 'gif' | 'webp' | 'svg' | 'pdf' | 'doc' | 'docx';
 
 export interface UploadPolicy {
   readonly kinds: ReadonlySet<UploadKind>;
@@ -42,6 +42,12 @@ export const TEST_UPLOAD: UploadPolicy = {
   maxBytes: 12 * MB,
 };
 
+/** A résumé sent with a website job application: PDF or Word, as the form says (max 5 MB). */
+export const RESUME_UPLOAD: UploadPolicy = {
+  kinds: new Set<UploadKind>(['pdf', 'doc', 'docx']),
+  maxBytes: 5 * MB,
+};
+
 /** A desktop-tracker capture: PNG at quality 100, JPEG below it. */
 export function screenshotUpload(maxBytes: number): UploadPolicy {
   return { kinds: new Set<UploadKind>(['png', 'jpeg']), maxBytes };
@@ -55,6 +61,8 @@ const MIME_KINDS: Readonly<Record<string, UploadKind>> = {
   'image/webp': 'webp',
   'image/svg+xml': 'svg',
   'application/pdf': 'pdf',
+  'application/msword': 'doc',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
 };
 
 /** The kind a MIME type names, or undefined when it is not one this module knows. */
@@ -92,6 +100,9 @@ const MATCHERS: Readonly<Record<UploadKind, (head: Buffer) => boolean>> = {
   webp: (head) => startsWith(head, 'RIFF') && startsWith(head, 'WEBP', 8),
   svg: looksLikeSvg,
   pdf: (head) => startsWith(head, '%PDF-'),
+  // Word 97–2003 is an OLE compound file; a .docx is a ZIP package.
+  doc: (head) => startsWith(head, '\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1'),
+  docx: (head) => startsWith(head, 'PK\x03\x04'),
 };
 
 /** Decoded size of a base64 payload, without decoding it. */

@@ -1,0 +1,387 @@
+/* Careers pages (index, gigs, gig, company, job) on top of styles/inner-stage.css. Body blocks
+   follow the site theme; the chips in the night band read the band's dark tokens. Tokens only. */
+
+.career-anchor {
+  scroll-margin-top: var(--inner-sticky-top);
+}
+
+.career-column {
+  max-width: 70ch;
+}
+
+.career-clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow: hidden;
+}
+
+/* ---------- Roles grouped by department ---------- */
+.career-groups {
+  display: grid;
+  gap: var(--space-8);
+  margin-top: var(--space-8);
+}
+
+/* A department whose rows the filter has all hidden disappears with them. */
+.career-group:not(:has(li:not([hidden]))) {
+  display: none;
+}
+
+.career-group__title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2) var(--space-4);
+  padding-bottom: var(--space-3);
+  border-bottom: var(--border-width-heavy) solid var(--color-fg);
+}
+
+.career-group__list {
+  display: grid;
+}
+
+/* ---------- Gig and company cards ---------- */
+.career-gig__top {
+  display: flex;
+  min-height: 1.75rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.career-gig__category {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-fg-secondary);
+}
+
+.career-gig__category::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--radius-circle);
+  background: var(--career-dot, var(--color-fg-muted));
+}
+
+.career-gig__meta {
+  margin-top: auto;
+  padding-top: var(--space-2);
+  color: var(--color-fg-secondary);
+}
+
+.career-flag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.75rem;
+  padding: 0 var(--space-3);
+  border: var(--border-width-hairline) solid var(--color-amber-fg);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-amber-fg);
+}
+
+.career-company__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.career-company__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: auto;
+  padding-top: var(--space-2);
+}
+
+.career-company__foot .inner-card__more {
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.career-logo {
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+  padding: var(--space-1);
+  border: var(--border-width-hairline) solid var(--color-line);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  object-fit: contain;
+}
+
+.career-logo--lg {
+  width: 4rem;
+  height: 4rem;
+  margin-bottom: var(--space-4);
+}
+
+/* ---------- Night band chips ---------- */
+.career-stage-chips {
+  margin-top: var(--space-5);
+}
+
+.career-status::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-right: var(--space-2);
+  border-radius: var(--radius-circle);
+  background: var(--color-fg-muted);
+}
+
+/* Only an open posting reads as live; closed, completed or cancelled stays neutral. */
+.career-status[data-open] {
+  border-color: var(--color-green-fg);
+  color: var(--color-green-fg);
+}
+
+.career-status[data-open]::before {
+  background: var(--color-green-fg);
+}
+
+/* ---------- Company about ---------- */
+.career-about {
+  display: grid;
+  gap: var(--space-8);
+}
+
+.career-about__panel {
+  align-self: start;
+  padding: var(--space-6);
+}
+
+@media (min-width: 1024px) {
+  .career-about {
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    gap: var(--space-16);
+  }
+}
+
+.career-nofit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+  margin-top: var(--space-10);
+}
+
+/* ---------- Job and gig detail: reading column + apply rail ---------- */
+.career-detail {
+  display: grid;
+  gap: var(--space-10);
+}
+
+.career-detail__main {
+  display: grid;
+  gap: var(--space-12);
+  min-width: 0;
+  max-width: 70ch;
+}
+
+.career-block__title {
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-3);
+  border-bottom: var(--border-width-hairline) solid var(--color-line);
+  font-size: clamp(1.25rem, 2vw, 1.5rem);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-snug);
+  color: var(--color-fg);
+}
+
+.career-rail {
+  display: none;
+}
+
+.career-facts {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-5);
+}
+
+.career-facts dd {
+  margin-top: var(--space-1);
+  color: var(--color-fg);
+}
+
+.career-rail__action .inner-action {
+  width: 100%;
+  justify-content: center;
+}
+
+@media (min-width: 1024px) {
+  .career-detail {
+    grid-template-columns: minmax(0, 1fr) 20rem;
+    gap: var(--space-16);
+  }
+
+  .career-rail {
+    display: block;
+  }
+
+  .career-rail__panel {
+    position: sticky;
+    top: var(--inner-sticky-top);
+    padding: var(--space-6);
+  }
+}
+
+/* Phones: a slim bar between the floating buttons — accessibility/cookie on the left (44px
+   from 8px) and back-to-top on the right — clear of both, above the safe-area inset. */
+.career-applybar {
+  position: fixed;
+  inset: auto 3.75rem calc(0.5rem + env(safe-area-inset-bottom)) 3.75rem;
+  z-index: var(--z-header);
+  display: flex;
+  transition:
+    opacity var(--duration-slow) var(--ease-standard),
+    transform var(--duration-slow) var(--ease-standard);
+}
+
+.career-applybar .inner-action {
+  flex: 1;
+  justify-content: center;
+  min-height: 2.75rem;
+  box-shadow: var(--shadow-xl);
+}
+
+.career-applybar[data-away] {
+  opacity: 0;
+  transform: translateY(150%);
+  pointer-events: none;
+}
+
+@media (min-width: 1024px) {
+  .career-applybar {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .career-applybar {
+    transition: none;
+  }
+}
+
+/* ---------- Application form (inside the legal-form field idiom) ---------- */
+.career-form-column {
+  max-width: 52rem;
+}
+
+.job-apply__group {
+  display: grid;
+  gap: var(--space-5);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.job-apply__group + .job-apply__group,
+.job-apply__group + .legal-form__captcha {
+  padding-top: var(--space-6);
+  border-top: var(--border-width-hairline) solid var(--color-line);
+}
+
+.job-apply__group > legend {
+  float: left;
+  width: 100%;
+  margin-bottom: var(--space-2);
+  color: var(--accent-a-ink, var(--color-fg-secondary));
+}
+
+.job-apply__drop {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+  min-height: 4.5rem;
+  padding: var(--space-4);
+  border: var(--border-width-hairline) dashed var(--color-field-border);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-subtle);
+  transition: var(--transition-surface);
+}
+
+.job-apply__drop:hover,
+.job-apply__drop[data-filled] {
+  border-style: solid;
+  border-color: var(--accent-a-ink, var(--color-line-strong));
+}
+
+.job-apply__drop:focus-within {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+
+/* The real file input covers the whole box: the large target is the input itself. */
+.legal-form .job-apply__drop input[type="file"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  min-height: 100%;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.job-apply__drop-action {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--color-fg);
+  color: var(--color-page);
+  font-weight: var(--font-weight-semibold);
+}
+
+.job-apply__drop-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--color-fg-secondary);
+}
+
+.job-apply__consent {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.legal-form .job-apply__consent input[type="checkbox"] {
+  flex: none;
+  width: 1.5rem;
+  min-height: 1.5rem;
+  height: 1.5rem;
+  margin-top: 0.125rem;
+  padding: 0;
+  border-radius: var(--radius-sm);
+  appearance: auto;
+  accent-color: var(--color-fg);
+}
+
+.legal-form .job-apply__consent label {
+  margin: 0;
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+  line-height: var(--line-height-normal);
+  color: var(--color-fg-secondary);
+}
+
+.job-apply__sent {
+  display: grid;
+  gap: var(--space-4);
+  justify-items: start;
+}

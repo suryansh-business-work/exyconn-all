@@ -1,0 +1,48 @@
+---
+/**
+ * Open roles under their department headings, each a RoleRow (title, company, location,
+ * type, pay when posted). FilterBar targets the wrapper; a department whose rows are all
+ * filtered out hides itself (career.css).
+ */
+import "./career.css";
+import RoleRow from "../inner/RoleRow.astro";
+import { fill } from "../../lib/career/format";
+import { roleFilterData, roleHref, type RoleGroup } from "../../lib/career/roles";
+import type { JobWithCompany } from "../../lib/portal/types";
+
+type Props = Readonly<{
+  id: string;
+  groups: readonly RoleGroup<JobWithCompany>[];
+  countTemplate: string;
+  /** Show the company under each title (the careers index lists every company's roles). */
+  showCompany?: boolean;
+}>;
+
+const { id, groups, countTemplate, showCompany = true } = Astro.props;
+---
+
+<div id={id} class="career-groups">
+  {
+    groups.map((group) => (
+      <section class="career-group" aria-labelledby={group.id}>
+        <h3 id={group.id} class="career-group__title">
+          <span class="inner-h3">{group.department}</span>
+          <span class="stage-label">{fill(countTemplate, { n: group.roles.length })}</span>
+        </h3>
+        <ul class="career-group__list">
+          {group.roles.map((role) => (
+            <RoleRow
+              href={roleHref(role.job)}
+              title={role.job.title}
+              department={showCompany ? role.company.name : role.job.experienceLevel}
+              location={role.job.location || role.job.workMode}
+              type={`${role.job.jobType} · ${role.job.workMode}`}
+              pay={role.job.salaryRange || undefined}
+              {...roleFilterData(role)}
+            />
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+</div>

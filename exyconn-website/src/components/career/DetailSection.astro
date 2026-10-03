@@ -1,0 +1,15 @@
+---
+/** One titled block in a job or gig page's reading column (H2, then the content slot). */
+import "./career.css";
+import { slugify } from "../../lib/inner/headings";
+
+type Props = Readonly<{ title: string; id?: string }>;
+
+const { title, id } = Astro.props;
+const headingId = id ?? `detail-${slugify(title)}`;
+---
+
+<section class="career-block" aria-labelledby={headingId}>
+  <h2 id={headingId} class="career-block__title">{title}</h2>
+  <slot />
+</section>

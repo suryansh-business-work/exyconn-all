@@ -1,0 +1,87 @@
+---
+/**
+ * The apply call that stays in reach on a job or gig page: a sticky panel in the right rail
+ * from 1024px (facts + the action), and on phones a slim bar fixed to the bottom — inset
+ * between the floating accessibility/cookie buttons (left) and back-to-top (right), and
+ * hidden while the form it points at, or the footer, is on screen.
+ */
+import "../../styles/inner-stage.css";
+import "./career.css";
+import ActionLink from "../inner/ActionLink.astro";
+import type { InnerAction } from "../inner/types";
+
+interface Fact {
+  term: string;
+  value: string;
+}
+
+type Props = Readonly<{
+  label: string;
+  title: string;
+  facts: readonly Fact[];
+  /** Omitted when there is nowhere to apply (a closed gig): the note says why. */
+  action?: InnerAction;
+  note?: string;
+  /** id of the element whose visibility hides the phone bar (the form section). */
+  watch?: string;
+}>;
+
+const { label, title, facts, action, note, watch } = Astro.props;
+---
+
+<div class="career-rail">
+  <div class="inner-panel career-rail__panel">
+    <p class="stage-label">{label}</p>
+    <p class="inner-h3 mt-2">{title}</p>
+    {
+      facts.length > 0 && (
+        <dl class="career-facts">
+          {facts.map((fact) => (
+            <div>
+              <dt class="stage-label">{fact.term}</dt>
+              <dd>{fact.value}</dd>
+            </div>
+          ))}
+        </dl>
+      )
+    }
+    {note && <p class="inner-card__text mt-4">{note}</p>}
+    {
+      action && (
+        <div class="mt-5 career-rail__action">
+          <ActionLink action={action} />
+        </div>
+      )
+    }
+  </div>
+</div>
+{
+  action && (
+    <div class="career-applybar" data-apply-bar data-watch={watch}>
+      <ActionLink action={action} />
+    </div>
+  )
+}
+
+<script>
+  /** Hides the phone apply bar while the form (or the footer) is in view. */
+  const bar = document.querySelector<HTMLElement>("[data-apply-bar]");
+  const targets = [
+    bar?.dataset.watch ? document.getElementById(bar.dataset.watch) : null,
+    document.querySelector("footer"),
+  ].filter((element): element is HTMLElement => element !== null);
+  if (bar && targets.length > 0 && "IntersectionObserver" in globalThis) {
+    const seen = new Set<Element>();
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          seen.add(entry.target);
+        } else {
+          seen.delete(entry.target);
+        }
+      });
+      bar.toggleAttribute("data-away", seen.size > 0);
+    });
+    targets.forEach((target) => observer.observe(target));
+  }
+</script>

@@ -2766,6 +2766,12 @@ export type WebsiteCaptchaAnswer = {
   token: Scalars['String']['input'];
 };
 
+/** A file sent with a public form: its name and its bytes as a base64 data URL. */
+export type WebsiteFileInput = {
+  data: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
 export type WebsiteSubmissionInput = {
   formType: Scalars['String']['input'];
   notes: InputMaybe<Scalars['String']['input']>;
