@@ -5,14 +5,21 @@ import {
   FormField,
   SubmitButton,
   SubmitStatusAlert,
-  inputClassName,
   useCaptchaSubmit,
 } from "../shared";
+import {
+  CAPTCHA_CLASS,
+  CONTROL_CLASS,
+  FINE_PRINT_CLASS,
+  ROW_CLASS,
+  SUBMIT_CLASS,
+} from "../legal/legal-form.styles";
+import "./contact-form.css";
 import { CONTACT_FORM_DEFAULTS, contactFormSchema } from "./contact.schema";
 import type { ContactFormValues } from "./contact.types";
 
-const SUBMIT_CLASSES =
-  "cursor-pointer w-full inline-flex items-center justify-center gap-2 bg-blue-strong text-on-solid font-semibold px-8 py-4 rounded-xl hover:opacity-90 transition-all duration-300 shadow-lg shadow-blue/20 disabled:opacity-50 disabled:cursor-not-allowed";
+/** The page's panel (SplitFormShell) frames the form; this only sets the field idiom. */
+const FORM_CLASS = "legal-form contact-form";
 
 /** The contact page form (React Hook Form + Zod), validated in the browser before it sends. */
 export function ContactFormReact() {
@@ -34,14 +41,14 @@ export function ContactFormReact() {
   const onSubmit = ({ captcha: answer, ...payload }: ContactFormValues) => submit(answer, payload);
 
   return (
-    <div className="bg-surface rounded-3xl border border-line-subtle shadow-xl shadow-surface-muted/50 p-8 lg:p-10">
+    <div className={FORM_CLASS}>
       <SubmitStatusAlert
         status={status}
         successMessage="Thank you! Your message has been sent successfully."
       />
 
-      <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-        <div className="grid sm:grid-cols-2 gap-5">
+      <form aria-label="Contact form" onSubmit={handleSubmit(onSubmit)}>
+        <div className={ROW_CLASS}>
           <FormField
             id="firstName"
             label="First Name"
@@ -51,8 +58,10 @@ export function ContactFormReact() {
             <input
               type="text"
               id="firstName"
+              autoComplete="given-name"
               placeholder="John"
-              className={inputClassName("blue", Boolean(errors.firstName))}
+              aria-invalid={Boolean(errors.firstName)}
+              className={CONTROL_CLASS}
               {...register("firstName")}
             />
           </FormField>
@@ -65,8 +74,10 @@ export function ContactFormReact() {
             <input
               type="text"
               id="lastName"
+              autoComplete="family-name"
               placeholder="Doe"
-              className={inputClassName("blue", Boolean(errors.lastName))}
+              aria-invalid={Boolean(errors.lastName)}
+              className={CONTROL_CLASS}
               {...register("lastName")}
             />
           </FormField>
@@ -76,8 +87,10 @@ export function ContactFormReact() {
           <input
             type="email"
             id="email"
+            autoComplete="email"
             placeholder="john@example.com"
-            className={inputClassName("blue", Boolean(errors.email))}
+            aria-invalid={Boolean(errors.email)}
+            className={CONTROL_CLASS}
             {...register("email")}
           />
         </FormField>
@@ -86,8 +99,9 @@ export function ContactFormReact() {
           <input
             type="text"
             id="company"
+            autoComplete="organization"
             placeholder="Your company"
-            className={inputClassName("blue")}
+            className={CONTROL_CLASS}
             {...register("company")}
           />
         </FormField>
@@ -96,7 +110,8 @@ export function ContactFormReact() {
           <select
             id="subject"
             defaultValue=""
-            className={inputClassName("blue", Boolean(errors.subject))}
+            aria-invalid={Boolean(errors.subject)}
+            className={CONTROL_CLASS}
             {...register("subject")}
           >
             <option value="" disabled>
@@ -115,30 +130,33 @@ export function ContactFormReact() {
             id="message"
             rows={4}
             placeholder="Tell us about your project..."
-            className={`${inputClassName("blue", Boolean(errors.message))} resize-none`}
+            aria-invalid={Boolean(errors.message)}
+            className={CONTROL_CLASS}
             {...register("message")}
           />
         </FormField>
 
-        <CaptchaField
-          question={captcha.question}
-          registration={register("captcha")}
-          error={errors.captcha?.message}
-          captchaError={captchaError}
-          onRefresh={refreshCaptcha}
-          accent="blue"
-        />
+        <div className={CAPTCHA_CLASS}>
+          <CaptchaField
+            question={captcha.question}
+            registration={register("captcha")}
+            error={errors.captcha?.message}
+            captchaError={captchaError}
+            onRefresh={refreshCaptcha}
+            accent="blue"
+          />
+        </div>
 
         <SubmitButton
           isSubmitting={isSubmitting}
-          className={SUBMIT_CLASSES}
+          className={SUBMIT_CLASS}
           label="Send Message"
           busyLabel="Sending..."
         />
 
-        <p className="text-center text-xs text-fg-subtle">
+        <p className={FINE_PRINT_CLASS}>
           By submitting this form, you agree to our{" "}
-          <a href="/privacy-policy" className="text-blue-fg underline hover:text-blue-fg-strong">
+          <a href="/privacy-policy" className="underline">
             Privacy Policy
           </a>
           .

@@ -1,0 +1,45 @@
+---
+/**
+ * Beside the contact form: the direct channels (mail addresses, the legal page) and a short
+ * row of quick links. Theme-following surfaces only.
+ */
+import "../../styles/inner-stage.css";
+import "./company.css";
+import type { ContactChannel } from "../../lib/company/contact";
+
+type Props = Readonly<{
+  channelsTitle: string;
+  channels: readonly ContactChannel[];
+  linksTitle: string;
+  links: readonly { label: string; href: string }[];
+}>;
+
+const { channelsTitle, channels, linksTitle, links } = Astro.props;
+---
+
+<h2 class="stage-label inner-index company-aside-title">{channelsTitle}</h2>
+<ul class="company-channels">
+  {
+    channels.map((channel) => (
+      <li>
+        <a href={channel.href}>
+          <span class="inner-h3 !text-base">{channel.title}</span>
+          <span class="inner-card__text text-sm">{channel.description}</span>
+          <span class="company-channels__value">{channel.value}</span>
+        </a>
+      </li>
+    ))
+  }
+</ul>
+<h2 class="stage-label inner-index company-aside-title">{linksTitle}</h2>
+<ul class="inner-chips mt-4">
+  {
+    links.map((link) => (
+      <li>
+        <a href={link.href} class="inner-chip !min-h-11">
+          {link.label}
+        </a>
+      </li>
+    ))
+  }
+</ul>

@@ -1,0 +1,29 @@
+---
+/**
+ * The vision page's one mid-page morph (blueprint: allowed on Vision): the horizons as a
+ * step track beside a night window that receives the hero's sunrise once the hero is gone.
+ * Each step lights its arc of the sunrise (tag i + 1) while hovered or focused.
+ */
+import "../../styles/inner-stage.css";
+import "./company.css";
+import StepTrack from "../inner/StepTrack.astro";
+
+interface Horizon {
+  when: string;
+  title: string;
+  text: string;
+}
+
+type Props = Readonly<{
+  horizons: readonly Horizon[];
+}>;
+
+const { horizons } = Astro.props;
+---
+
+<div class="company-horizons">
+  <div class="company-echo" data-theme="dark" aria-hidden="true">
+    <div class="inner-echo" data-stage-echo data-stage-shape="0"></div>
+  </div>
+  <StepTrack steps={horizons} highlights={horizons.map((_, index) => index + 1)} />
+</div>

@@ -1,28 +1,36 @@
 ---
 import Page from "../../../layouts/Page.astro";
-import OrderAgents from "../../../components/OrderAgents.jsx";
+import "../../../components/company/company.css";
+import { OrderAgentsForm } from "../../../components/company/order-agents";
+import InnerStage from "../../../components/inner/InnerStage.astro";
+import { AGENTS, agentsBand, agentsMeta } from "../../../lib/company/agents";
+import { breadcrumbJsonLd } from "../../../lib/inner/structured-data";
+
+const SITE_URL = (Astro.site?.toString() ?? "https://exyconn.com/").replace(/\/$/, "");
+const crumbs = [
+  { label: "Home", href: "/" },
+  { label: "AI", href: "/ai" },
+  { label: "Order agents" },
+];
 ---
 
 <Page
-  metaTitle="Order AI Agents | Exyconn"
-  metaDescription="Order AI agents for your business. Select from a list of automation agents and add them to your order list."
-  metaKeywords="order, AI agents, Exyconn, automation, business"
-  metaImage="https://images.pexels.com/photos/3183197/pexels-photo-3183197.jpeg?auto=compress&w=1200&q=80"
+  metaTitle={agentsMeta.title}
+  metaDescription={agentsMeta.description}
+  metaKeywords={agentsMeta.keywords}
+  metaImage={agentsMeta.image}
+  jsonLd={breadcrumbJsonLd(crumbs, SITE_URL)}
 >
-  <OrderAgents client:only="react" />
-  <style>
-    @keyframes fade-in-up {
-      0% {
-        opacity: 0;
-        transform: translateY(40px);
-      }
-      100% {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    .animate-fade-in-up {
-      animation: fade-in-up 0.8s cubic-bezier(0.4, 0, 0.2, 1) both;
-    }
-  </style>
+  <InnerStage
+    family="ai"
+    variant="band"
+    crumbs={crumbs}
+    title={agentsBand.title}
+    lede={agentsBand.lede}
+    scene={{ shapes: ["rings"], data: { rings: { rings: AGENTS.length } } }}
+  />
+
+  <div class="inner-section stage-shell company-tail">
+    <OrderAgentsForm client:load />
+  </div>
 </Page>
