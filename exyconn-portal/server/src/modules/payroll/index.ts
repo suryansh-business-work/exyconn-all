@@ -28,6 +28,8 @@ import {
 } from './payroll-settings.model';
 import { TaxRegimeModel, TaxSlabModel } from './tax-slab.model';
 import { planPayroll, runPayrollFor } from './payroll.run';
+import { checkTaxChoiceIn, checkedTaxChoice, taxRegimeChoices } from './salary.tax';
+import { diffChanges, recordAudit } from '../audit';
 import { readSchedule } from './payroll.schedule';
 import { dispatchSalarySlips, renderPayslip } from './payroll.dispatch';
 import type { GraphQLContext } from '../../middleware/auth';
@@ -55,6 +57,10 @@ interface SalaryStructureInput {
   pfApplicable?: boolean;
   esiApplicable?: boolean;
   tdsPercent?: number;
+  /** The regime this employee is taxed under; null follows Payroll Settings. */
+  taxRegimeKey?: string | null;
+  /** No tax bracket: no TDS is withheld from this employee. */
+  taxExempt?: boolean;
   pfNumber?: string;
   esiNumber?: string;
   panNumber?: string;
@@ -88,11 +94,23 @@ async function saveEmployeeSalary(
   await assertPermission(ctx, 'SalaryStructure', PAYROLL_ROLES, 'EDIT');
   // Nobody sets their own pay, whatever payroll role they hold.
   assertNotOwnRecord(ctx, employeeId, 'set a salary');
+  const checked = await checkedTaxChoice(input);
+  const before = await SalaryStructureModel.findOne({ employeeId }).lean();
   const saved = await SalaryStructureModel.findOneAndUpdate(
     { employeeId },
-    { ...input, employeeId },
+    { ...checked, employeeId },
     { new: true, upsert: true, setDefaultsOnInsert: true },
   ).lean();
+  // Pay and tax status are what an auditor asks about first, so every save says what moved.
+  const changes = diffChanges(before, checked);
+  await recordAudit(ctx, {
+    action: before ? 'UPDATE' : 'CREATE',
+    module: 'SalaryStructure',
+    entityId: saved?._id,
+    entityLabel: employeeId,
+    summary: `Saved the salary of employee ${employeeId} (${Object.keys(changes).join(', ') || 'no changes'})`,
+    changes,
+  });
   return withId(saved as { _id: unknown });
 }
 
@@ -366,6 +384,12 @@ export const payrollResolvers = {
     ...regimeCrud.Query,
     ...slabCrud.Query,
     employeeSalary,
+    taxRegimeChoices: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      // Whoever may set a salary may see what it can be taxed under — Finance included,
+      // although only HR edits the tax table itself.
+      await assertPermission(ctx, 'SalaryStructure', PAYROLL_ROLES, 'VIEW');
+      return taxRegimeChoices();
+    },
     listSalarySlipsPaged: async (
       _p: unknown,
       { input }: { input: TableQueryInput },
@@ -392,10 +416,14 @@ export const payrollResolvers = {
     salarySlipPdf,
   },
   Mutation: {
-    ...refuseOwnRecordWrites(structureCrud.Mutation, 'SalaryStructure', async (id) => {
-      const row = await SalaryStructureModel.findById(id).select('employeeId').lean();
-      return row?.employeeId;
-    }),
+    ...refuseOwnRecordWrites(
+      checkTaxChoiceIn(structureCrud.Mutation, 'SalaryStructure'),
+      'SalaryStructure',
+      async (id) => {
+        const row = await SalaryStructureModel.findById(id).select('employeeId').lean();
+        return row?.employeeId;
+      },
+    ),
     ...regimeCrud.Mutation,
     ...slabCrud.Mutation,
     saveEmployeeSalary,
@@ -407,7 +435,12 @@ export const payrollResolvers = {
   },
   SalarySlip: SLIP_STATUTORY_DEFAULTS,
   /** Defaulted on read for the same reason as the slip's: `.lean()` skips schema defaults. */
+  // A company whose settings were saved before the TDS table existed has none of these
+  // three, and a missing non-null field fails the whole query ("Something went wrong").
   PayrollSettings: {
+    tdsSlabs: (s: { tdsSlabs?: unknown[] | null }) => s.tdsSlabs ?? [],
+    tdsAnnualExemption: (s: { tdsAnnualExemption?: number | null }) => s.tdsAnnualExemption ?? 0,
+    tdsCessPercent: (s: { tdsCessPercent?: number | null }) => s.tdsCessPercent ?? 0,
     tdsRegimeKey: (s: { tdsRegimeKey?: string | null }) => s.tdsRegimeKey ?? DEFAULT_TDS_REGIME_KEY,
     financialYearStartMonth: (s: { financialYearStartMonth?: number | null }) =>
       s.financialYearStartMonth ?? DEFAULT_FINANCIAL_YEAR_START_MONTH,
@@ -435,6 +468,8 @@ export const payrollResolvers = {
     pfApplicable: (s: { pfApplicable?: boolean | null }) => s.pfApplicable ?? true,
     esiApplicable: (s: { esiApplicable?: boolean | null }) => s.esiApplicable ?? true,
     tdsPercent: (s: { tdsPercent?: number | null }) => s.tdsPercent ?? 0,
+    taxRegimeKey: (s: { taxRegimeKey?: string | null }) => s.taxRegimeKey ?? null,
+    taxExempt: (s: { taxExempt?: boolean | null }) => s.taxExempt ?? false,
   },
 };
 export { payrollTypeDefs };
