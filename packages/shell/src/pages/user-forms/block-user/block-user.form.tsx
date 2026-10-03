@@ -21,7 +21,11 @@ interface BlockUserFormProps {
 export function BlockUserForm({ userId, onDone, onCancel }: BlockUserFormProps) {
   const notify = useNotify();
   const [setUserBlocked] = useSetUserBlockedMutation();
-  const methods = useForm<Values>({ resolver: zodResolver(schema), defaultValues: { reason: '' } });
+  const methods = useForm<Values>({
+    mode: 'onTouched',
+    resolver: zodResolver(schema),
+    defaultValues: { reason: '' },
+  });
 
   const onSubmit = async (values: Values) => {
     try {

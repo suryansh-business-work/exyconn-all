@@ -29,6 +29,8 @@ export interface TestOrganization {
   country?: string;
   taxSystem?: TaxSystem;
   fiscalYearStartMonth?: number;
+  /** IANA — the clock the company's own dates (a payroll month opening) are read on. */
+  timezone?: string;
 }
 
 /**
@@ -79,4 +81,31 @@ export function solvedCaptcha(): { token: string; answer: string } {
   const { token, question } = issueCaptcha();
   const [a, b] = question.split(' + ').map(Number);
   return { token, answer: String(a + b) };
+}
+
+/**
+ * Stops the clock at `iso` for code that asks for the current time, without faking any timer:
+ * the in-memory database and the driver keep their real timeouts. Pair with
+ * `jest.useRealTimers()` after the test.
+ */
+export function freezeClock(iso: string): void {
+  jest.useFakeTimers({
+    now: new Date(iso),
+    doNotFake: [
+      'hrtime',
+      'nextTick',
+      'performance',
+      'queueMicrotask',
+      'requestAnimationFrame',
+      'cancelAnimationFrame',
+      'requestIdleCallback',
+      'cancelIdleCallback',
+      'setImmediate',
+      'clearImmediate',
+      'setInterval',
+      'clearInterval',
+      'setTimeout',
+      'clearTimeout',
+    ],
+  });
 }

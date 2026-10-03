@@ -37,6 +37,7 @@ export function AiJobForm({ initial, onDone, onCancel }: Readonly<AiJobFormProps
   const [updateAiJob] = useUpdateAiJobMutation();
   const { options, defaultModel, error } = useAiModels();
   const methods = useForm<Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

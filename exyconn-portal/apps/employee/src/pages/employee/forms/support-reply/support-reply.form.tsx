@@ -32,6 +32,7 @@ export function SupportReplyForm({ ticketId, onCancel, onDone }: Readonly<Suppor
   // Files upload as they are picked, so they live beside the form rather than in it.
   const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
   const methods = useForm<SupportReplyFormValues>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: INITIAL,
   });

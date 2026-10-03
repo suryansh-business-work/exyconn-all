@@ -1,6 +1,15 @@
 import type { ReactElement } from 'react';
-import { useCallback, useEffect } from 'react';
-import { Box, Chip, Dialog, IconButton, Stack, Typography, scrim } from '@exyconn/ui';
+import { useCallback, useEffect, useState } from 'react';
+import {
+  Box,
+  Chip,
+  CircularProgress,
+  Dialog,
+  IconButton,
+  Stack,
+  Typography,
+  scrim,
+} from '@exyconn/ui';
 import { useT } from '@exyconn/i18n';
 import CloseRounded from '@mui/icons-material/CloseRounded';
 import ChevronLeftRounded from '@mui/icons-material/ChevronLeftRounded';
@@ -25,6 +34,30 @@ const NAV_SX = {
   backgroundColor: scrim('light'),
   '&:hover': { backgroundColor: scrim('heavy') },
 } as const;
+
+/** The full-size image, with a spinner over it until it has arrived from storage. */
+function LightboxImage({ src, alt }: Readonly<{ src: string; alt: string }>): ReactElement {
+  const t = useT();
+  const [loading, setLoading] = useState(true);
+  return (
+    <Box sx={{ flex: 1, minHeight: 0, display: 'grid', placeItems: 'center', p: 2, pt: 0 }}>
+      <Box
+        component="img"
+        src={src}
+        alt={alt}
+        onLoad={() => setLoading(false)}
+        onError={() => setLoading(false)}
+        sx={{ gridArea: '1 / 1', maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+      />
+      {loading ? (
+        <CircularProgress
+          aria-label={t('Loading the screenshot')}
+          sx={{ gridArea: '1 / 1', color: 'common.white' }}
+        />
+      ) : null}
+    </Box>
+  );
+}
 
 /**
  * One screenshot, full screen.
@@ -134,14 +167,11 @@ export default function ScreenshotLightbox({
           </Stack>
         </Stack>
 
-        <Box sx={{ flex: 1, minHeight: 0, display: 'grid', placeItems: 'center', p: 2, pt: 0 }}>
-          <Box
-            component="img"
-            src={shot.imageUrl}
-            alt={t('Screenshot captured at {time}, full screen', { time: capturedAt })}
-            sx={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', display: 'block' }}
-          />
-        </Box>
+        <LightboxImage
+          key={shot.id}
+          src={shot.imageUrl}
+          alt={t('Screenshot captured at {time}, full screen', { time: capturedAt })}
+        />
 
         {many ? (
           <>

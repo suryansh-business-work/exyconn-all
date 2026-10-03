@@ -51,6 +51,7 @@ export function ToolCategoryForm({ initial, onDone, onCancel }: Readonly<ToolCat
   const [createToolCategory] = useCreateToolCategoryMutation();
   const [updateToolCategory] = useUpdateToolCategoryMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

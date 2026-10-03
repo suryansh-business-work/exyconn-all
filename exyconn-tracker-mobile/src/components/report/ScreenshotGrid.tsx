@@ -1,10 +1,8 @@
-import { Image } from 'expo-image';
 import { Pressable } from 'react-native';
 import { XStack, YStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
 import { activityLabel, formatTimeOfDay, type DayScreenshot } from '@exyconn/tracker-core';
-import { TRACKER_RADIUS, borderWidth } from '../../theme/tokens';
-import { useThemeColor } from '../../theme/useThemeColor';
+import { ShotImage } from '../screenshots/ShotImage';
 import { Body, Caption } from '../ui/Typography';
 
 interface Props {
@@ -23,7 +21,6 @@ interface ThumbProps {
 
 function Thumb({ shot, timezone, onOpen }: Readonly<ThumbProps>) {
   const t = useT();
-  const hairline = useThemeColor('hairline');
   const capturedAt = formatTimeOfDay(shot.capturedAt, timezone);
   return (
     <YStack width="48%" gap="$1">
@@ -34,19 +31,11 @@ function Thumb({ shot, timezone, onOpen }: Readonly<ThumbProps>) {
           time: capturedAt,
         })}
       >
-        <Image
-          source={{ uri: shot.imageUrl }}
-          contentFit="cover"
+        <ShotImage
+          key={shot.id}
+          uri={shot.imageUrl}
           recyclingKey={shot.id}
-          transition={150}
           accessibilityLabel={t('Screenshot captured at {time}', { time: capturedAt })}
-          style={{
-            width: '100%',
-            aspectRatio: 16 / 10,
-            borderRadius: TRACKER_RADIUS,
-            borderWidth: borderWidth.hairline,
-            borderColor: hairline,
-          }}
         />
       </Pressable>
       <Caption numberOfLines={1}>

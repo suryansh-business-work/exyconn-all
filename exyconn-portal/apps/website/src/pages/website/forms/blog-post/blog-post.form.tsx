@@ -83,6 +83,7 @@ export function BlogPostForm({ initial, onDone, onCancel }: Readonly<BlogPostFor
   const [createBlogPost] = useCreateBlogPostMutation();
   const [updateBlogPost] = useUpdateBlogPostMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

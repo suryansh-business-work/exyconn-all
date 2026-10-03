@@ -14,12 +14,15 @@ const TILE_SIZE = 40;
 
 interface Props {
   permission: PermissionInfo;
+  /** Another request is in flight — this one waits. */
   busy: boolean;
+  /** This grant is the one being asked for right now. */
+  loading: boolean;
   onGrant: () => void;
 }
 
 /** One missing grant: what it is, why it is needed, and how to give it. */
-export function PermissionRow({ permission, busy, onGrant }: Readonly<Props>) {
+export function PermissionRow({ permission, busy, loading, onGrant }: Readonly<Props>) {
   const t = useT();
   const brand = useBrand();
   const title = t(permission.title);
@@ -46,6 +49,7 @@ export function PermissionRow({ permission, busy, onGrant }: Readonly<Props>) {
         <AppButton
           label={action}
           disabled={busy}
+          busy={loading}
           accessibilityLabel={t('{action}: {permission}', { action, permission: title })}
           onPress={onGrant}
         />

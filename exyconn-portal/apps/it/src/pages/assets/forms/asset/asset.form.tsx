@@ -39,6 +39,7 @@ export function AssetForm({ initial, onDone, onCancel }: Readonly<AssetFormProps
   const [updateAsset] = useUpdateAssetMutation();
   const { data } = useListAssetAssigneesQuery();
   const methods = useForm<z.input<typeof assetSchema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(assetSchema),
     defaultValues: toAssetValues(initial),
   });

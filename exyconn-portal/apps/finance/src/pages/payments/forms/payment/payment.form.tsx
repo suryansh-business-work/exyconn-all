@@ -72,6 +72,7 @@ export function PaymentForm({ onDone, onCancel }: Readonly<PaymentFormProps>) {
   const { data } = useListInvoicesQuery();
   const [record] = useRecordPaymentMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: {
       invoiceId: '',

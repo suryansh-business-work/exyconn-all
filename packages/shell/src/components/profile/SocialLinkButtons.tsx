@@ -52,7 +52,7 @@ export function SocialLinkButtons({
             sx={{
               display: 'inline-flex',
               p: 1,
-              borderRadius: '50%',
+              borderRadius: 1,
               '&:hover': { color: 'primary.main' },
             }}
           >

@@ -23,6 +23,7 @@ export function SubscribeForm({ onSubmitted }: Readonly<SubscribeFormProps>) {
   const [subscribe] = useSubscribeToStatusMutation();
   const notify = useNotify();
   const methods = useForm<z.input<typeof subscribeSchema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(subscribeSchema),
     defaultValues: SUBSCRIBE_DEFAULTS,
   });

@@ -21,6 +21,9 @@ const STATUS_LABEL: Record<ManualEntryStatus, string> = {
 interface RowProps {
   entry: ManualEntry;
   timezone: string;
+  /** Some claim is being withdrawn — this one when `busy`; either way, no second withdrawal. */
+  locked: boolean;
+  busy: boolean;
   onWithdraw: (entry: ManualEntry) => void;
 }
 
@@ -32,7 +35,7 @@ function bookedTo(entry: ManualEntry): string {
   return `${entry.projectName} · ${entry.taskKey} ${entry.taskTitle}`;
 }
 
-function EntryRow({ entry, timezone, onWithdraw }: Readonly<RowProps>): ReactElement {
+function EntryRow({ entry, timezone, locked, busy, onWithdraw }: Readonly<RowProps>): ReactElement {
   const t = useT();
   return (
     <Stack spacing={0.75}>
@@ -75,7 +78,13 @@ function EntryRow({ entry, timezone, onWithdraw }: Readonly<RowProps>): ReactEle
       )}
       {entry.status === 'PENDING' && (
         <Flex direction="row" justifyContent="flex-end">
-          <Button size="small" color="inherit" onClick={() => onWithdraw(entry)}>
+          <Button
+            size="small"
+            color="inherit"
+            loading={busy}
+            disabled={locked}
+            onClick={() => onWithdraw(entry)}
+          >
             {t('Withdraw')}
           </Button>
         </Flex>
@@ -87,6 +96,8 @@ function EntryRow({ entry, timezone, onWithdraw }: Readonly<RowProps>): ReactEle
 interface Props {
   entries: ManualEntry[];
   timezone: string;
+  /** The id of the claim being withdrawn, or null. */
+  withdrawing: string | null;
   onWithdraw: (entry: ManualEntry) => void;
 }
 
@@ -94,6 +105,7 @@ interface Props {
 export default function ManualEntryList({
   entries,
   timezone,
+  withdrawing,
   onWithdraw,
 }: Readonly<Props>): ReactElement {
   const t = useT();
@@ -116,7 +128,14 @@ export default function ManualEntryList({
     <Surface>
       <Stack divider={<Divider flexItem />} spacing={1.5}>
         {entries.map((entry) => (
-          <EntryRow key={entry.id} entry={entry} timezone={timezone} onWithdraw={onWithdraw} />
+          <EntryRow
+            key={entry.id}
+            entry={entry}
+            timezone={timezone}
+            locked={withdrawing !== null}
+            busy={withdrawing === entry.id}
+            onWithdraw={onWithdraw}
+          />
         ))}
       </Stack>
     </Surface>

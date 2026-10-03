@@ -4,9 +4,9 @@ import { fontSize } from '../../tokens/font-size.token';
 import { transition } from '../../tokens/motion.token';
 import { spacing } from '../../tokens/spacing.token';
 import { fontWeight } from '../../tokens/typography.token';
-import { CONTROL_CORNER, HAIRLINE, PILL, type ComponentGroup, type ThemeParts } from '../parts';
+import { CONTROL_CORNER, HAIRLINE, type ComponentGroup, type ThemeParts } from '../parts';
 
-/** shadcn's badge: a small rounded-md label, the neutral one on the muted surface. */
+/** Badges keep the 4px control corner; the neutral one sits on the muted surface. */
 function chips({ t }: ThemeParts): ComponentGroup {
   return {
     MuiChip: {
@@ -92,14 +92,22 @@ export function feedback(parts: ThemeParts): ComponentGroup {
       },
     },
     MuiLinearProgress: {
-      styleOverrides: { root: { borderRadius: PILL }, bar: { borderRadius: PILL } },
+      styleOverrides: {
+        root: { borderRadius: CONTROL_CORNER },
+        bar: { borderRadius: CONTROL_CORNER },
+      },
     },
     // MUI's initials avatar is white on a mid grey — 1.9:1. shadcn's fallback is the muted
     // surface with the foreground ink, which reads in both modes.
     MuiAvatar: {
+      // MUI's `rounded` variant takes the theme corner, so no avatar is a circle.
+      defaultProps: { variant: 'rounded' },
       styleOverrides: {
         colorDefault: { backgroundColor: t.background.muted, color: t.text.primary },
       },
     },
+    // MUI rounds a badge and a slider thumb fully; both take the control corner instead.
+    MuiBadge: { styleOverrides: { badge: { borderRadius: CONTROL_CORNER } } },
+    MuiSlider: { styleOverrides: { thumb: { borderRadius: CONTROL_CORNER } } },
   };
 }

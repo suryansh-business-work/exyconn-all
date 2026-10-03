@@ -34,6 +34,7 @@ export function RaiseTicketForm({ onSubmitted, onCancel }: Readonly<RaiseTicketF
   const notify = useNotify();
   const [raise] = useCreateClientSupportTicketMutation();
   const methods = useForm<z.input<typeof raiseTicketSchema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(raiseTicketSchema),
     defaultValues: RAISE_TICKET_DEFAULTS,
   });

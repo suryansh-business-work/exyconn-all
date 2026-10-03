@@ -2,13 +2,17 @@ import type { ReactElement } from 'react';
 import { ListSubheader, MenuItem, TextField } from '@exyconn/ui';
 import { useT } from '@exyconn/i18n';
 import type { TrackerTask } from '@shared/types';
+import { ticketHint } from '@exyconn/tracker-core';
 import { run } from '../run';
+import SelectSpinner from './SelectSpinner';
 
 interface Props {
   tasks: TrackerTask[];
   selectedTaskId: string;
   /** A running session is already booked; changing it mid-flight would rewrite the record. */
   disabled: boolean;
+  /** The selected project's tickets are being read from the portal. */
+  loading: boolean;
 }
 
 /**
@@ -26,6 +30,7 @@ export default function TicketPicker({
   tasks,
   selectedTaskId,
   disabled,
+  loading,
 }: Readonly<Props>): ReactElement {
   const t = useT();
   const mine = tasks.filter((task) => task.assignedToMe);
@@ -44,11 +49,10 @@ export default function TicketPicker({
       fullWidth
       label={t('Ticket')}
       value={selectedTaskId}
-      disabled={disabled}
-      helperText={
-        disabled ? t('Locked while tracking — stop to book to another ticket.') : t('Optional.')
-      }
+      disabled={disabled || loading}
+      helperText={ticketHint(t, { loading, locked: disabled })}
       onChange={(event) => run(() => window.tracker.setTask(event.target.value))}
+      slotProps={{ select: { IconComponent: loading ? SelectSpinner : undefined } }}
     >
       <MenuItem value="">{t('No ticket')}</MenuItem>
       {mine.length > 0 && <ListSubheader>{t('Assigned to me')}</ListSubheader>}

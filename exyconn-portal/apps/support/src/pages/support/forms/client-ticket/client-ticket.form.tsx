@@ -60,7 +60,11 @@ interface ClientTicketFormProps {
 export function ClientTicketForm({ onCancel, onDone }: Readonly<ClientTicketFormProps>) {
   const notify = useNotify();
   const [createTicket] = useCreateClientSupportTicketMutation();
-  const methods = useForm<Values>({ resolver: zodResolver(schema), defaultValues: INITIAL });
+  const methods = useForm<Values>({
+    mode: 'onTouched',
+    resolver: zodResolver(schema),
+    defaultValues: INITIAL,
+  });
 
   const onSubmit = async (values: Values) => {
     try {

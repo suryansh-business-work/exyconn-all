@@ -1,7 +1,5 @@
 import type { ReactElement } from 'react';
 import {
-  borderWidth,
-  Box,
   ButtonBase,
   Chip,
   duration,
@@ -16,6 +14,7 @@ import { useT } from '@exyconn/i18n';
 import BlurOnRounded from '@mui/icons-material/BlurOnRounded';
 import type { DayScreenshot } from '@shared/types';
 import { activityColor, activityLabel, formatDateTime } from '@exyconn/tracker-core';
+import ShotImage from './ShotImage';
 import Surface from './Surface';
 
 interface Props {
@@ -46,19 +45,10 @@ export default function ScreenshotCard({ shot, timezone, onOpen }: Readonly<Prop
           '&:hover': { transform: 'translateY(-2px)' },
         }}
       >
-        <Box
-          component="img"
+        <ShotImage
+          key={shot.id}
           src={shot.imageUrl}
           alt={t('Screenshot captured at {time}', { time: capturedAt })}
-          loading="lazy"
-          sx={(theme) => ({
-            width: '100%',
-            aspectRatio: '16 / 10',
-            objectFit: 'cover',
-            display: 'block',
-            borderRadius: `${TRACKER_RADIUS}px`,
-            border: `${borderWidth.hairline}px solid ${theme.palette.divider}`,
-          })}
         />
       </ButtonBase>
 

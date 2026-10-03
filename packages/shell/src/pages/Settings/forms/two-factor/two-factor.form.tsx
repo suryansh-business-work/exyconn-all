@@ -36,6 +36,7 @@ export function TwoFactorForm({ onEnrolled, onCancel }: Readonly<TwoFactorFormPr
   const [secret, setSecret] = useState('');
   const [qr, setQr] = useState('');
   const methods = useForm<ConfirmTwoFactorValues>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: { code: '' },
   });

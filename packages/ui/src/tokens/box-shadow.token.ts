@@ -25,19 +25,6 @@ export const boxShadow: Record<ColorMode, { none: string; sm: string; md: string
 
 export type Elevation = keyof (typeof boxShadow)['light'];
 
-/** How much of an accent its glow carries: a thin edge and a wide, faint bloom. */
-const GLOW_EDGE_OPACITY = 0.35;
-const GLOW_BLOOM_OPACITY = 0.25;
-
-/**
- * The soft light the reference puts under a selected node: a hairline of the accent and a
- * wide bloom of it. For a dark ground, where a black shadow cannot be seen and a surface
- * that matters has to be lit instead.
- */
-export function glow(accent: string): string {
-  return `0 0 0 1px ${alpha(accent, GLOW_EDGE_OPACITY)}, 0 8px 32px ${alpha(accent, GLOW_BLOOM_OPACITY)}`;
-}
-
 /** A focus ring, drawn as a shadow so it follows the element's own corner radius. */
 export function focusRing(accent: string): string {
   return `0 0 0 1px ${accent}`;
@@ -58,16 +45,17 @@ function shade(opacity: number): string {
 }
 
 /**
- * Tailwind's shadow geometry at two strengths. The soft pair is Tailwind's own (5% / 10%);
- * dark mode needs a denser shade, because on a near-black ground a 10% shadow is not there.
+ * Soft, wide shadows: a tight contact shade under the edge and a long diffuse one that lifts a
+ * card off the grey canvas without drawing a line round it. Dark mode needs a denser shade,
+ * because on a near-black ground a 10% shadow is not there.
  */
 function shadowScale(faint: number, soft: number): ShadowScale {
   return {
     xs: `0 1px 2px 0 ${shade(faint)}`,
-    sm: `0 1px 3px 0 ${shade(soft)}, 0 1px 2px -1px ${shade(soft)}`,
-    md: `0 4px 6px -1px ${shade(soft)}, 0 2px 4px -2px ${shade(soft)}`,
-    lg: `0 10px 15px -3px ${shade(soft)}, 0 4px 6px -4px ${shade(soft)}`,
-    xl: `0 20px 25px -5px ${shade(soft)}, 0 8px 10px -6px ${shade(soft)}`,
+    sm: `0 1px 2px 0 ${shade(faint)}, 0 6px 20px -4px ${shade(soft)}`,
+    md: `0 2px 4px -1px ${shade(faint)}, 0 12px 28px -6px ${shade(soft)}`,
+    lg: `0 4px 8px -2px ${shade(faint)}, 0 20px 40px -8px ${shade(soft)}`,
+    xl: `0 8px 16px -4px ${shade(faint)}, 0 32px 64px -12px ${shade(soft)}`,
   };
 }
 
@@ -76,6 +64,6 @@ function shadowScale(faint: number, soft: number): ShadowScale {
  * keep `boxShadow` above — this scale belongs to `createAppTheme` and the shell's surfaces.
  */
 export const portalShadow: Record<ColorMode, ShadowScale> = {
-  light: shadowScale(0.05, 0.1),
-  dark: shadowScale(0.3, 0.45),
+  light: shadowScale(0.04, 0.08),
+  dark: shadowScale(0.3, 0.5),
 };

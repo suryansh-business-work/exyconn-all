@@ -35,6 +35,7 @@ export function OrganizationAdminForm({
 }: Readonly<OrganizationAdminFormProps>) {
   const [assignAdmin] = useAssignOrganizationAdminMutation();
   const methods = useForm<Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: { name: '', email: '' },
   });

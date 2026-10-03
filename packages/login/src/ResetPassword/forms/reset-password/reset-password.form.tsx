@@ -47,6 +47,7 @@ export function ResetPasswordForm({ token, accentColor }: Readonly<ResetPassword
   const [resetPassword] = useResetPasswordMutation();
   const [error, setError] = useState<string | null>(null);
   const methods = useForm<ResetPasswordValues>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: { newPassword: '', confirmPassword: '' },
   });

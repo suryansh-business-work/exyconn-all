@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import { useEffect, useState } from 'react';
-import { MenuItem, Stack, TextField, Typography } from '@exyconn/ui';
+import { Alert, MenuItem, Stack, TextField, TRACKER_RADIUS, Typography } from '@exyconn/ui';
 import type { PresenceState, PresenceStatus } from '@shared/types';
 import {
   formatElapsed,
@@ -10,6 +10,9 @@ import {
 } from '@exyconn/tracker-core';
 import { useT, type Interpolations } from '@exyconn/i18n';
 import { run } from '../run';
+import usePendingAction from '../hooks/usePendingAction';
+import { useAnnounce } from '../a11y/LiveAnnouncer';
+import SelectSpinner from './SelectSpinner';
 
 type Translate = (source: string, values?: Interpolations) => string;
 
@@ -48,13 +51,27 @@ function sinceLabel(t: Translate, presence: PresenceState, timezone: string): st
 export default function PresencePicker({ presence, timezone }: Readonly<Props>): ReactElement {
   const t = useT();
   const [note, setNote] = useState(presence.note);
+  const { pending, error, perform } = usePendingAction<'presence'>();
+  const saving = pending !== null;
+  useAnnounce(error, 'assertive');
 
   // The portal is the source of truth: a note set from another device, or rejected here,
   // must not leave this field showing something nobody recorded.
   useEffect(() => setNote(presence.note), [presence.note]);
 
+  const save = async (status: PresenceStatus, withNote: string): Promise<void> => {
+    const saved = await perform(
+      'presence',
+      () => window.tracker.setPresence(status, withNote),
+      t('Could not update your status.'),
+    );
+    if (!saved) {
+      // Nothing was recorded, so the field goes back to what the portal holds.
+      setNote(presence.note);
+    }
+  };
   const apply = (status: PresenceStatus, withNote: string): void => {
-    run(() => window.tracker.setPresence(status, withNote));
+    run(() => save(status, withNote));
   };
 
   const since = sinceLabel(t, presence, timezone);
@@ -70,7 +87,10 @@ export default function PresencePicker({ presence, timezone }: Readonly<Props>):
         fullWidth
         label={t('My status')}
         value={presence.status}
+        disabled={saving}
+        helperText={saving ? t('Saving…') : undefined}
         onChange={(event) => apply(event.target.value as PresenceStatus, note)}
+        slotProps={{ select: { IconComponent: saving ? SelectSpinner : undefined } }}
       >
         {PRESENCE_OPTIONS.map((option) => (
           <MenuItem key={option.status} value={option.status}>
@@ -85,6 +105,7 @@ export default function PresencePicker({ presence, timezone }: Readonly<Props>):
         label={t('Note (optional)')}
         placeholder={t('Back at 2')}
         value={note}
+        disabled={saving}
         onChange={(event) => setNote(event.target.value)}
         onBlur={() => {
           if (note !== presence.note) {
@@ -95,6 +116,12 @@ export default function PresencePicker({ presence, timezone }: Readonly<Props>):
           htmlInput: { maxLength: 120 },
         }}
       />
+
+      {error !== null && (
+        <Alert severity="error" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
+          {error}
+        </Alert>
+      )}
 
       <Typography
         variant="caption"

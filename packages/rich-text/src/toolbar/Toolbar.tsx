@@ -10,6 +10,8 @@ import DataObjectIcon from '@mui/icons-material/DataObject';
 import { Box, Divider, Flex } from '@exyconn/ui';
 import { ActionGroup } from './ActionGroup';
 import { BlockTypeSelect } from './BlockTypeSelect';
+import { FontSelect } from './FontSelect';
+import { FONT_FAMILIES, FONT_SIZES } from './font-options';
 import { ColorMenu } from './ColorMenu';
 import { TableMenu } from './TableMenu';
 import { ToolbarButton } from './ToolbarButton';
@@ -28,7 +30,7 @@ interface ToolbarProps {
 
 const Separator = () => <Divider orientation="vertical" flexItem sx={{ mx: 0.5 }} />;
 
-/** The formatting toolbar: history, block type, marks, colour, alignment, blocks, inserts, source. */
+/** The formatting toolbar: history, block type, font, marks, colour, alignment, blocks, inserts, source. */
 export function Toolbar({
   editor,
   sourceMode,
@@ -64,6 +66,26 @@ export function Toolbar({
       </ToolbarButton>
       <Separator />
       <BlockTypeSelect editor={editor} value={state.blockType} disabled={sourceMode} />
+      <FontSelect
+        label="Font"
+        value={state.fontFamily}
+        options={FONT_FAMILIES}
+        disabled={sourceMode}
+        minWidth={128}
+        onChange={(value) =>
+          value ? chain().setFontFamily(value).run() : chain().unsetFontFamily().run()
+        }
+      />
+      <FontSelect
+        label="Font size"
+        value={state.fontSize}
+        options={FONT_SIZES}
+        disabled={sourceMode}
+        minWidth={96}
+        onChange={(value) =>
+          value ? chain().setFontSize(value).run() : chain().unsetFontSize().run()
+        }
+      />
       <Separator />
       <ActionGroup
         editor={editor}

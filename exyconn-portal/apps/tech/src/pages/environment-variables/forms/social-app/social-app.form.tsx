@@ -40,6 +40,7 @@ export function SocialAppForm({ row, onDone, onCancel }: Readonly<SocialAppFormP
   const t = useT();
   const [save] = useSaveSocialAppConfigMutation();
   const methods = useForm<z.input<Schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(makeSchema(row.hasClientSecret)),
     // The secret is never prefilled: the API does not return it, and blank keeps it.
     defaultValues: { clientId: row.clientId, clientSecret: '', enabled: row.enabled },

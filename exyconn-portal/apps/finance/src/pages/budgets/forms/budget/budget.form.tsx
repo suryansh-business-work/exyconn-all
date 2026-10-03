@@ -50,6 +50,7 @@ export function BudgetForm({ initial, costCentres, onDone, onCancel }: Readonly<
   const [updateBudget] = useUpdateBudgetMutation();
   const companyCurrency = useCompanyCurrency();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial, companyCurrency),
   });

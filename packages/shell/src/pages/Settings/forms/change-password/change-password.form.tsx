@@ -33,7 +33,11 @@ const INITIAL: Values = { currentPassword: '', newPassword: '', confirmPassword:
 export function ChangePasswordForm() {
   const notify = useNotify();
   const [changePassword] = useChangePasswordMutation();
-  const methods = useForm<Values>({ resolver: zodResolver(schema), defaultValues: INITIAL });
+  const methods = useForm<Values>({
+    mode: 'onTouched',
+    resolver: zodResolver(schema),
+    defaultValues: INITIAL,
+  });
 
   const onSubmit = async (values: Values) => {
     try {

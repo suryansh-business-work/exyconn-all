@@ -194,3 +194,20 @@ mutation UpdateLegalDocument($id: ID!, $input: LegalDocumentInput!) {
 mutation DeleteLegalDocument($id: ID!) {
   deleteLegalDocument(id: $id)
 }
+
+# The body is fetched on its own, for the editor and the downloads — the grids never carry it.
+query GetContractBody($id: ID!) {
+  getContract(id: $id) {
+    id
+    title
+    content
+  }
+}
+
+query GetLegalDocumentBody($id: ID!) {
+  getLegalDocument(id: $id) {
+    id
+    title
+    content
+  }
+}

@@ -1,6 +1,7 @@
 import type { ReactElement, ReactNode } from 'react';
 import { alpha, Box, GlobalStyles } from '@exyconn/ui';
 import { a11yGlobalStyles } from '../a11y/global-styles';
+import { scrollbarGlobalStyles } from '../scrollbar-styles';
 
 interface Props {
   children: ReactNode;
@@ -35,6 +36,7 @@ export default function AppFrame({ children, groundOpacity = 1 }: Readonly<Props
       })}
     >
       <GlobalStyles styles={a11yGlobalStyles} />
+      <GlobalStyles styles={scrollbarGlobalStyles} />
       {seeThrough ? <GlobalStyles styles={CLEAR_PAGE} /> : null}
       {children}
     </Box>

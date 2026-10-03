@@ -11,6 +11,7 @@ import {
   type RowActionSpec,
 } from '@exyconn/crud';
 import type { ListContractsPagedQuery } from '@exyconn/shell/graphql/generated';
+import { PDF_ACTION, WORD_ACTION } from './download-actions';
 
 export type PagedContractRow = ListContractsPagedQuery['listContractsPaged']['rows'][number];
 
@@ -32,5 +33,5 @@ export const CONTRACT_COLUMNS: ColDef<PagedContractRow>[] = [
   dateColumn('expiryDate', 'Expires'),
   statusColumn('status', 'Status'),
   dateColumn('sentAt', 'Sent', '—'),
-  actionsColumn([EDIT_ACTION, SEND_ACTION, DELETE_ACTION]),
+  actionsColumn([EDIT_ACTION, SEND_ACTION, PDF_ACTION, WORD_ACTION, DELETE_ACTION]),
 ];

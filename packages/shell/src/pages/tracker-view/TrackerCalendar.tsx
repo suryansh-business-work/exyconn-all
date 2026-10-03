@@ -19,7 +19,7 @@ function DayCell({ cell, selected, onSelect }: Readonly<DayCellProps>) {
     <CardActionArea
       disabled={!cell.inMonth}
       onClick={() => onSelect(cell.dateKey)}
-      sx={{ borderRadius: 1.5, opacity: cell.inMonth ? 1 : 0.4 }}
+      sx={{ borderRadius: 1, opacity: cell.inMonth ? 1 : 0.4 }}
     >
       <Box
         sx={{
@@ -27,7 +27,7 @@ function DayCell({ cell, selected, onSelect }: Readonly<DayCellProps>) {
           // About 40px of cell on a phone: the date has to fit before anything else does.
           p: { xs: 0.5, sm: 1 },
           minWidth: 0,
-          borderRadius: 1.5,
+          borderRadius: 1,
           border: 1,
           borderColor,
           display: 'flex',

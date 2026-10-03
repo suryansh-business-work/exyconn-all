@@ -69,6 +69,7 @@ export function ImageConfigForm({ initial, onDone, onCancel }: Readonly<ImageCon
   const [createConfig] = useCreateImageConfigMutation();
   const [updateConfig] = useUpdateImageConfigMutation();
   const methods = useForm<z.input<Schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(makeSchema(Boolean(initial))),
     defaultValues: toInitial(initial),
   });

@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 import { useMemo } from 'react';
-import { Stack, Typography, DateCalendar, DatePicker } from '@exyconn/ui';
+import { CircularProgress, Stack, Typography, DateCalendar, DatePicker } from '@exyconn/ui';
 import type { ReportDay } from '@shared/types';
 import { activityLevel, activityPercent } from '@exyconn/tracker-core';
 import { useT } from '@exyconn/i18n';
@@ -10,6 +10,8 @@ import TrackedDay, { TrackedDatesContext } from './TrackedDay';
 interface Props {
   /** The visible month's days — the dotted cells are keyed off these. */
   days: readonly ReportDay[];
+  /** The month's days are still on their way, so the dots are not drawn yet. */
+  loading: boolean;
   selected: Date;
   /** Today; the employee cannot look into the future. */
   maxDate: Date;
@@ -20,6 +22,7 @@ interface Props {
 /** A jump-to-date picker, plus a month grid that dots every day with tracked time by activity. */
 export default function ReportCalendar({
   days,
+  loading,
   selected,
   maxDate,
   onSelect,
@@ -70,17 +73,30 @@ export default function ReportCalendar({
           />
         </TrackedDatesContext.Provider>
 
-        <Typography
-          variant="caption"
-          sx={{
-            color: 'text.secondary',
-            textAlign: 'center',
-          }}
-        >
-          {t(
-            'Dotted days have tracked time, coloured by how active they were. Pick one to see its screenshots.',
-          )}
-        </Typography>
+        {loading ? (
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{ alignItems: 'center', justifyContent: 'center' }}
+          >
+            <CircularProgress size={14} aria-hidden />
+            <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+              {t('Loading your tracked days…')}
+            </Typography>
+          </Stack>
+        ) : (
+          <Typography
+            variant="caption"
+            sx={{
+              color: 'text.secondary',
+              textAlign: 'center',
+            }}
+          >
+            {t(
+              'Dotted days have tracked time, coloured by how active they were. Pick one to see its screenshots.',
+            )}
+          </Typography>
+        )}
       </Stack>
     </Surface>
   );

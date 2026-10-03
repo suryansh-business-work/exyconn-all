@@ -1,12 +1,16 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { monthBounds, type ReportDay } from '@exyconn/tracker-core';
 import { sumReport, type ReportTotals } from '../lib/report/totals';
 import { tracker } from '../tracker/instance';
+import { useReload } from './useReload';
 
 export interface ReportQuery {
   days: ReportDay[];
   totals: ReportTotals;
+  /** True until the first answer for this month — the skeletons' cue. */
   loading: boolean;
+  /** True while a pull-to-refresh re-reads a month already on screen. */
+  refreshing: boolean;
   error: string | null;
   /** Asks the portal again — pull-to-refresh, the phone's "try again". */
   reload: () => void;
@@ -23,12 +27,17 @@ export function useMyReport(month: Date, zone: string): ReportQuery {
   const [days, setDays] = useState<ReportDay[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [attempt, setAttempt] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+  const { attempt, reload, isReload } = useReload();
   const { fromISO, toISO } = monthBounds(month, zone);
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
+    if (isReload(attempt)) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
     setError(null);
     tracker
       .getReport(fromISO, toISO)
@@ -36,6 +45,7 @@ export function useMyReport(month: Date, zone: string): ReportQuery {
         if (active) {
           setDays(rows);
           setLoading(false);
+          setRefreshing(false);
         }
       })
       .catch((cause: unknown) => {
@@ -44,14 +54,13 @@ export function useMyReport(month: Date, zone: string): ReportQuery {
           setDays([]);
           setError('Could not load your report. Check your connection and try again.');
           setLoading(false);
+          setRefreshing(false);
         }
       });
     return () => {
       active = false;
     };
-  }, [fromISO, toISO, attempt]);
+  }, [fromISO, toISO, attempt, isReload]);
 
-  const reload = useCallback(() => setAttempt((count) => count + 1), []);
-
-  return { days, totals: sumReport(days), loading, error, reload };
+  return { days, totals: sumReport(days), loading, refreshing, error, reload };
 }

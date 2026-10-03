@@ -5,7 +5,5 @@ export function run(action: () => Promise<unknown>): void {
   });
 }
 
-/** The sentence to show for a failed action — the error's own words, or a plain fallback. */
-export function messageOf(cause: unknown, fallback: string): string {
-  return cause instanceof Error && cause.message !== '' ? cause.message : fallback;
-}
+/** The sentence for a failed action — read the same way the desktop reads it. */
+export { messageOf } from '@exyconn/tracker-core';

@@ -9,6 +9,8 @@ import { shareReport } from './share-report';
 
 interface Props {
   days: readonly ReportDay[];
+  /** The month is still loading — what is on screen may be the previous one. */
+  loading: boolean;
   /** "2026-02" — the month the file is named after. */
   monthKey: string;
   monthLabel: string;
@@ -42,7 +44,7 @@ const FAILED: Problem = {
  * Closing the share sheet is a normal outcome and says nothing; a real failure says so,
  * because a download the employee believes happened and did not is worse than an error.
  */
-export function ReportDownloadButton({ days, monthKey, monthLabel }: Readonly<Props>) {
+export function ReportDownloadButton({ days, loading, monthKey, monthLabel }: Readonly<Props>) {
   const t = useT();
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<Problem | null>(null);
@@ -71,7 +73,7 @@ export function ReportDownloadButton({ days, monthKey, monthLabel }: Readonly<Pr
         icon="download"
         full
         busy={busy}
-        disabled={days.length === 0}
+        disabled={loading || days.length === 0}
         onPress={share}
       />
       <Caption>

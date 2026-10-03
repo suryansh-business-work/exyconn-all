@@ -17,6 +17,7 @@ const INITIAL: PayrollSettingsRow = {
   professionalTaxMonthly: 200,
   tdsMode: TdsMode.None,
   tdsFlatPercent: 0,
+  runFromDay: 25,
 };
 
 const mount = (initial: PayrollSettingsRow = INITIAL) =>
@@ -53,6 +54,20 @@ describe('PayrollSettingsForm', () => {
     cy.get('input[name="pfWageCeiling"]').clear().type('-1');
     cy.contains('button', 'Save deductions').click();
     cy.contains('The PF wage ceiling cannot be negative').should('be.visible');
+  });
+
+  it('shows the run day and refuses one that is not in every month', () => {
+    mount();
+    cy.get('input[name="runFromDay"]').should('have.value', '25');
+    cy.get('input[name="runFromDay"]').clear().type('29');
+    cy.contains('button', 'Save deductions').click();
+    cy.contains('Choose a day from 1 to 28, so it exists in every month').should('be.visible');
+    cy.get('input[name="runFromDay"]').clear().type('0');
+    cy.contains('button', 'Save deductions').click();
+    cy.contains('Choose a day from 1 to 28').should('be.visible');
+    cy.get('input[name="runFromDay"]').clear().type('2.5');
+    cy.contains('button', 'Save deductions').click();
+    cy.contains('Use a whole day of the month').should('be.visible');
   });
 
   it('only asks for a company TDS rate when a flat percentage is withheld', () => {

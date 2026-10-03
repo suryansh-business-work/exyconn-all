@@ -46,7 +46,7 @@ export function PageHeader({
       sx={{
         justifyContent: 'space-between',
         alignItems: { xs: 'flex-start', sm: 'center' },
-        mb: 2,
+        mb: 3,
       }}
     >
       <Box>

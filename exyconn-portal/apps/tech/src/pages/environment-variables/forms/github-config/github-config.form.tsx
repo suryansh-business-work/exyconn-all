@@ -66,6 +66,7 @@ export function GithubConfigForm({ initial, onDone, onCancel }: Readonly<GithubC
   const [createConfig] = useCreateGithubConfigMutation();
   const [updateConfig] = useUpdateGithubConfigMutation();
   const methods = useForm<z.input<Schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(makeSchema(Boolean(initial))),
     defaultValues: toInitial(initial),
   });

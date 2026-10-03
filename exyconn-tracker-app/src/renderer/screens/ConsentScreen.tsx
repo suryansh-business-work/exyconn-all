@@ -11,6 +11,7 @@ import Surface from '../components/Surface';
 import ScreenLayout from '../components/ScreenLayout';
 import { run } from '../run';
 import { useAnnounce } from '../a11y/LiveAnnouncer';
+import usePendingAction from '../hooks/usePendingAction';
 
 interface Props {
   branding: Branding | null;
@@ -40,9 +41,9 @@ export default function ConsentScreen({
   policy,
 }: Readonly<Props>): ReactElement {
   const t = useT();
-  const [busy, setBusy] = useState(false);
   const [signedName, setSignedName] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const { pending, error, perform } = usePendingAction<'agree' | 'decline'>();
+  const busy = pending !== null;
 
   const body = policy?.body ?? settings?.consentText ?? '';
   const hasDisclosure = body.trim() !== '';
@@ -51,27 +52,19 @@ export default function ConsentScreen({
   const webcamEnabled = settings?.webcamEnabled ?? false;
   useAnnounce(error, 'assertive');
 
-  async function accept(): Promise<void> {
-    setBusy(true);
-    setError(null);
-    try {
-      await window.tracker.acceptConsent(signedName.trim());
-    } catch (cause: unknown) {
-      console.error('Failed to record consent', cause);
-      setError(cause instanceof Error ? cause.message : t('Could not record your agreement.'));
-      setBusy(false);
-    }
-  }
-
-  async function decline(): Promise<void> {
-    setBusy(true);
-    try {
-      await window.tracker.logout();
-    } catch (cause: unknown) {
-      console.error('Failed to sign out', cause);
-      setBusy(false);
-    }
-  }
+  // On success the main process publishes the next state and this screen unmounts.
+  const accept = (): Promise<boolean> =>
+    perform(
+      'agree',
+      () => window.tracker.acceptConsent(signedName.trim()),
+      t('Could not record your agreement.'),
+    );
+  const decline = (): Promise<boolean> =>
+    perform(
+      'decline',
+      () => window.tracker.logout(),
+      t('Could not sign out. Check your connection and try again.'),
+    );
 
   return (
     <ScreenLayout maxWidth={560}>
@@ -157,6 +150,7 @@ export default function ConsentScreen({
             size="large"
             fullWidth
             startIcon={<CheckCircleOutline />}
+            loading={pending === 'agree'}
             disabled={busy || !canAgree}
             onClick={() => run(accept)}
           >
@@ -166,6 +160,7 @@ export default function ConsentScreen({
             variant="text"
             color="inherit"
             fullWidth
+            loading={pending === 'decline'}
             disabled={busy}
             onClick={() => run(decline)}
           >

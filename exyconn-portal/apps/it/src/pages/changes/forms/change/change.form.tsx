@@ -37,6 +37,7 @@ export function ChangeForm({ initial, onDone, onCancel }: Readonly<ChangeFormPro
   const [create] = useCreateItChangeMutation();
   const [update] = useUpdateItChangeMutation();
   const methods = useForm<ChangeValues>({
+    mode: 'onTouched',
     resolver: zodResolver(changeSchema),
     defaultValues: toChangeValues(initial),
   });

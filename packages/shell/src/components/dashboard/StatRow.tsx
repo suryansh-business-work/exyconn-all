@@ -7,7 +7,7 @@ export function StatRow({
   loading = false,
 }: Readonly<{ stats: readonly StatItem[]; loading?: boolean }>) {
   return (
-    <Grid container spacing={1.5}>
+    <Grid container spacing={2}>
       {stats.map((stat) => (
         <Grid key={stat.label} size={{ xs: 6, md: 12 / Math.min(Math.max(stats.length, 1), 4) }}>
           <StatCard {...stat} loading={loading} />

@@ -38,6 +38,7 @@ export function TrackerNotificationsForm({
   const notify = useNotify();
   const [saveSettings] = useSaveTrackerBuildSettingsMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     values: initial,
   });

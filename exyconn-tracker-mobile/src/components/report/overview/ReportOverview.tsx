@@ -4,24 +4,20 @@ import { useT } from '@exyconn/i18n';
 import {
   formatCount,
   formatDayLabel,
-  formatHoursMinutes,
   relativeChange,
   type PeriodLength,
-  type PeriodTotals,
 } from '@exyconn/tracker-core';
 import type { PeriodInsights } from '../../../hooks/usePeriodInsights';
 import { useBrand } from '../../../theme/BrandProvider';
 import { borderWidth, radius, trackerSelected } from '../../../theme/tokens';
 import { ActivityCard } from '../../charts/ActivityCard';
-import { GradientBar } from '../../charts/GradientBar';
 import { StripesChart } from '../../charts/StripesChart';
 import type { IconName } from '../../ui/Icon';
 import { Notice } from '../../ui/Notice';
-import { Surface } from '../../ui/Surface';
-import { Body, Caption, Figure } from '../../ui/Typography';
+import { Body, Caption } from '../../ui/Typography';
 import { SkeletonBlock } from '../SkeletonBlock';
-import { ChangeBadge } from './ChangeBadge';
 import { MetricCard } from './MetricCard';
+import { WorkedCard } from './WorkedCard';
 
 const PERIODS: ReadonlyArray<{ length: PeriodLength; label: string; before: string }> = [
   { length: 7, label: 'Last 7 days', before: 'the 7 days before' },
@@ -36,6 +32,10 @@ const METRICS: ReadonlyArray<{ key: CountKey; label: string; icon: IconName }> =
   { key: 'sessions', label: 'Sessions', icon: 'timer-outline' },
   { key: 'trackedDays', label: 'Days tracked', icon: 'calendar-check-outline' },
 ];
+
+/** The stripes chart's and a metric card's own heights, held while the period is on its way. */
+const STRIPES_HEIGHT = 140;
+const METRIC_HEIGHT = 112;
 
 /** The chips are at least 40 tall; the slop brings the touch target to the platform's 44. */
 const CHIP_SLOP = { top: 2, bottom: 2 } as const;
@@ -72,43 +72,6 @@ function PeriodChip({ label, selected, onPress }: Readonly<ChipProps>) {
         </Body>
       </XStack>
     </Pressable>
-  );
-}
-
-interface WorkedProps {
-  current: PeriodTotals;
-  previous: PeriodTotals;
-  before: string;
-}
-
-/** The period's worked time, how active it was, and how it moved against the period before. */
-function WorkedCard({ current, previous, before }: Readonly<WorkedProps>) {
-  const t = useT();
-  const change = relativeChange(current.activeMs, previous.activeMs);
-  return (
-    <Surface>
-      <Body color="$muted" fontWeight="600">
-        {t('Worked')}
-      </Body>
-      <XStack alignItems="center" gap="$2">
-        <Figure>{formatHoursMinutes(current.activeMs)}</Figure>
-        {change === null ? null : <ChangeBadge change={change} />}
-      </XStack>
-      <GradientBar
-        percent={current.activityPercent}
-        label={t('Active')}
-        trailing={t('{time} idle', { time: formatHoursMinutes(current.idleMs) })}
-        accessibilityLabel={t('{percent}% of tracked time was active', {
-          percent: current.activityPercent,
-        })}
-      />
-      <Caption>
-        {t('{time} {before}.', {
-          time: formatHoursMinutes(previous.activeMs),
-          before: t(before),
-        })}
-      </Caption>
-    </Surface>
   );
 }
 
@@ -153,18 +116,22 @@ export function ReportOverview({ length, onLengthChange, insights }: Readonly<Pr
       )}
 
       <ActivityCard title={t('Over time')} percent={loading ? null : current.activityPercent}>
-        <StripesChart
-          bars={columns}
-          labels={{
-            start: formatDayLabel(first),
-            middle: formatDayLabel(middle),
-            end: formatDayLabel(last),
-          }}
-          summary={t('Hours worked per day, {period}; {days} days tracked.', {
-            period: t(period.label).toLowerCase(),
-            days: current.trackedDays,
-          })}
-        />
+        {loading ? (
+          <SkeletonBlock height={STRIPES_HEIGHT} />
+        ) : (
+          <StripesChart
+            bars={columns}
+            labels={{
+              start: formatDayLabel(first),
+              middle: formatDayLabel(middle),
+              end: formatDayLabel(last),
+            }}
+            summary={t('Hours worked per day, {period}; {days} days tracked.', {
+              period: t(period.label).toLowerCase(),
+              days: current.trackedDays,
+            })}
+          />
+        )}
         <Caption>
           {t('Each stripe is a day: its height is the time worked, its colour how active it was.')}
         </Caption>
@@ -173,16 +140,20 @@ export function ReportOverview({ length, onLengthChange, insights }: Readonly<Pr
       <XStack flexWrap="wrap" gap="$3">
         {METRICS.map((metric) => (
           <YStack key={metric.key} width="47%" flexGrow={1}>
-            <MetricCard
-              label={t(metric.label)}
-              icon={metric.icon}
-              value={formatCount(current[metric.key])}
-              change={relativeChange(current[metric.key], previous[metric.key])}
-              caption={t('{count} {before}', {
-                count: formatCount(previous[metric.key]),
-                before: t(period.before),
-              })}
-            />
+            {loading ? (
+              <SkeletonBlock height={METRIC_HEIGHT} />
+            ) : (
+              <MetricCard
+                label={t(metric.label)}
+                icon={metric.icon}
+                value={formatCount(current[metric.key])}
+                change={relativeChange(current[metric.key], previous[metric.key])}
+                caption={t('{count} {before}', {
+                  count: formatCount(previous[metric.key]),
+                  before: t(period.before),
+                })}
+              />
+            )}
           </YStack>
         ))}
       </XStack>

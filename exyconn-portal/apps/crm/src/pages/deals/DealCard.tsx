@@ -35,7 +35,7 @@ export function DealCard({ deal, accent, onOpen }: Readonly<DealCardProps>) {
         border: `${borderWidth.hairline}px solid`,
         borderColor: 'divider',
         borderLeft: `3px solid ${accent}`,
-        borderRadius: 1.5,
+        borderRadius: 1,
         bgcolor: 'background.paper',
         font: 'inherit',
         transition: transition.surface,

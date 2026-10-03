@@ -27,3 +27,8 @@ export function httpStatusOf(error: unknown): number | null {
   const match = HTTP_STATUS.exec(error.message);
   return match === null ? null : Number.parseInt(match[1], 10);
 }
+
+/** The sentence to show for a failed action — the error's own words, or a plain fallback. */
+export function messageOf(cause: unknown, fallback: string): string {
+  return cause instanceof Error && cause.message !== '' ? cause.message : fallback;
+}

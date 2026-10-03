@@ -32,6 +32,7 @@ export function TrackerSettingsForm({ initial }: Readonly<TrackerSettingsFormPro
   const notify = useNotify();
   const [updateSettings] = useUpdateTrackerSettingsMutation();
   const methods = useForm<z.input<typeof trackerSettingsSchema>, unknown, TrackerSettingsValues>({
+    mode: 'onTouched',
     resolver: zodResolver(trackerSettingsSchema),
     defaultValues: toInitial(initial),
   });

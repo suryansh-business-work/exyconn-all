@@ -3,8 +3,8 @@ import { enterAnimation } from '../../tokens/motion.token';
 import { numeric } from '../../tokens/typography.token';
 import { CARD_CORNER, HAIRLINE, PHONE, type ComponentGroup, type ThemeParts } from '../parts';
 
-/** Compact density: this is dense, data-heavy chrome, so every primitive starts small. */
-const DENSE_CARD_PADDING = spacing(1.5);
+/** A card's inner padding: room to breathe without losing the density data screens need. */
+const DENSE_CARD_PADDING = spacing(2);
 const PHONE_DIALOG_INSET = spacing(1);
 
 function cards({ t }: ThemeParts): ComponentGroup {
@@ -18,7 +18,7 @@ function cards({ t }: ThemeParts): ComponentGroup {
         outlined: { borderColor: t.divider },
       },
     },
-    // shadcn's card: `rounded-xl border shadow-sm` on the panel colour.
+    // A card: the large soft corner, a faint hairline and the wide soft shadow on the panel colour.
     MuiCard: {
       defaultProps: { elevation: 0 },
       styleOverrides: {

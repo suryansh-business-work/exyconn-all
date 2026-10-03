@@ -1,4 +1,3 @@
-import { dottedCanvas } from '../../tokens/backgrounds.token';
 import { borderWidth } from '../../tokens/border.token';
 import { enterFrom, keyframeName } from '../../tokens/motion.token';
 import { numeric } from '../../tokens/typography.token';
@@ -28,9 +27,8 @@ export function baseline({ mode, t }: ThemeParts): ComponentGroup {
       styleOverrides: {
         // Native scrollbars, date inputs and autofill follow the palette instead of staying light.
         html: { colorScheme: mode },
-        // The page is the reference's canvas: the page colour with a grid of hairline dots
-        // over it. Surfaces that sit on it are opaque, so the dots show only in the gaps.
-        body: { backgroundColor: t.background.page, ...dottedCanvas(t.divider) },
+        // The page is a plain soft canvas; the white cards on it carry the structure.
+        body: { backgroundColor: t.background.page },
         a: { textDecoration: 'none', color: 'inherit' },
         /**
          * A `<button>` does not inherit colour or type from its parent — the UA paints it

@@ -51,6 +51,7 @@ export function ContactForm({ initial, onDone, onCancel }: Readonly<ContactFormP
   const [updateContact] = useUpdateContactMutation();
   const { data } = useListCompaniesQuery();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

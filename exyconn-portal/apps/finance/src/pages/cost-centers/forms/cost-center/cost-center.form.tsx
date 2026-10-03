@@ -48,6 +48,7 @@ export function CostCenterForm({ initial, onDone, onCancel }: Readonly<CostCente
   const [createCostCenter] = useCreateCostCenterMutation();
   const [updateCostCenter] = useUpdateCostCenterMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

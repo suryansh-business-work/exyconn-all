@@ -51,6 +51,7 @@ export function ConvertLeadForm({ lead, onDone, onCancel }: Readonly<ConvertLead
   const notify = useNotify();
   const [convertLead] = useConvertLeadMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(lead),
   });

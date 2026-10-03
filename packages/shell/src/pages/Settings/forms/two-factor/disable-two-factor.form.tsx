@@ -32,6 +32,7 @@ export function DisableTwoFactorForm({
   const notify = useNotify();
   const [disable] = useDisableMfaMutation();
   const methods = useForm<DisableTwoFactorValues>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: { password: '' },
   });

@@ -50,6 +50,7 @@ export function ClientForm({ initial, onDone, onCancel }: ClientFormProps) {
   const [updateClient] = useUpdateClientMutation();
   const stateOptions = useGstStateOptions();
   const methods = useForm<Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

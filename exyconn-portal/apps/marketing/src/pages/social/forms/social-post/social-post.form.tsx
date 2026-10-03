@@ -78,6 +78,7 @@ export function SocialPostForm({
   const schema = useMemo(() => makeSocialPostSchema(ruleOf), [ruleOf]);
   const publishable = accounts.filter((account) => ruleOf(account.id)?.canPublish);
   const methods = useForm<z.input<typeof schema>, unknown, SocialPostValues>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: schedule
       ? scheduledFormValues({

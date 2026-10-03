@@ -43,6 +43,7 @@ export function CannedReplyForm({ initial, onDone, onCancel }: Readonly<CannedRe
   const [createReply] = useCreateCannedReplyMutation();
   const [updateReply] = useUpdateCannedReplyMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

@@ -44,6 +44,7 @@ export function IncidentForm({ initial, onDone, onCancel }: Readonly<IncidentFor
   const [create] = useCreateItIncidentMutation();
   const [update] = useUpdateItIncidentMutation();
   const methods = useForm<IncidentValues>({
+    mode: 'onTouched',
     resolver: zodResolver(incidentSchema),
     defaultValues: toIncidentValues(initial),
   });

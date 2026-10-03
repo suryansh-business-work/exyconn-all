@@ -44,6 +44,7 @@ export function SendCampaignForm({ campaign, onDone, onCancel }: Readonly<SendCa
   const [sendCampaign] = useSendCampaignMutation();
   const [testing, setTesting] = useState(false);
   const methods = useForm<Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: { audienceListId: '', testEmail: '' },
   });

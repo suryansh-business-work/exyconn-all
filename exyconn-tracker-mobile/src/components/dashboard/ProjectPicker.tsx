@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useT } from '@exyconn/i18n';
-import type { TrackerProject } from '@exyconn/tracker-core';
+import { projectHint, type TrackerProject } from '@exyconn/tracker-core';
 import { tracker } from '../../tracker/instance';
 import { PickerField } from '../form/PickerField';
 
@@ -12,6 +12,8 @@ interface Props {
   selectedProjectId: string;
   /** A running session is already booked; changing it mid-flight would rewrite the record. */
   disabled: boolean;
+  /** The portal has not answered yet, so there is no list to choose from. */
+  loading: boolean;
 }
 
 /**
@@ -21,13 +23,13 @@ interface Props {
  * house-wide "Global Project" — time that belongs to no particular project still belongs
  * somewhere. Locked while tracking, because the project was fixed when the session opened.
  */
-export function ProjectPicker({ projects, selectedProjectId, disabled }: Readonly<Props>) {
+export function ProjectPicker({ projects, selectedProjectId, disabled, loading }: Readonly<Props>) {
   const t = useT();
   const options = useMemo(
     () => projects.map((project) => ({ value: project.id, label: project.name })),
     [projects],
   );
-  const empty = projects.length === 0;
+  const empty = projects.length === 0 && !loading;
 
   return (
     <PickerField
@@ -36,8 +38,9 @@ export function ProjectPicker({ projects, selectedProjectId, disabled }: Readonl
       options={options}
       selected={selectedProjectId}
       placeholder={empty ? t('No projects yet') : t('Choose a project')}
-      hint={disabled ? t('Locked while tracking — stop to book to another project.') : undefined}
+      hint={projectHint(t, { loading, locked: disabled })}
       disabled={disabled || empty}
+      busy={loading}
       searchable={options.length > SEARCH_FROM}
       onSelect={(projectId) => tracker.setProject(projectId)}
     />

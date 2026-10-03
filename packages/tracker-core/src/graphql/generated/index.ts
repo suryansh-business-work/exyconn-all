@@ -574,6 +574,7 @@ export type ContactStatus =
   | 'UNSUBSCRIBED';
 
 export type ContractInput = {
+  content: InputMaybe<Scalars['String']['input']>;
   documentUrl: InputMaybe<Scalars['String']['input']>;
   effectiveDate: Scalars['DateTime']['input'];
   expiryDate: Scalars['DateTime']['input'];
@@ -1431,6 +1432,7 @@ export type LeaveStatus =
 
 export type LegalDocumentInput = {
   category: DocumentCategory;
+  content: InputMaybe<Scalars['String']['input']>;
   fileUrl: InputMaybe<Scalars['String']['input']>;
   owner: InputMaybe<Scalars['String']['input']>;
   status: DocumentStatus;
@@ -1725,6 +1727,15 @@ export type PaymentMethod =
   | 'OTHER'
   | 'UPI';
 
+/**
+ * Where one active employee stands for a month's run. READY can be run; ALREADY_RUN has a
+ * slip for the month and is never run again; NO_STRUCTURE has no salary structure on file.
+ */
+export type PayrollCandidateStatus =
+  | 'ALREADY_RUN'
+  | 'NO_STRUCTURE'
+  | 'READY';
+
 export type PayrollScheduleInput = {
   dayOfMonth: Scalars['Int']['input'];
   enabled: Scalars['Boolean']['input'];
@@ -1742,6 +1753,7 @@ export type PayrollSettingsInput = {
   pfEnabled: Scalars['Boolean']['input'];
   pfWageCeiling: Scalars['Float']['input'];
   professionalTaxMonthly: Scalars['Float']['input'];
+  runFromDay: InputMaybe<Scalars['Int']['input']>;
   tdsAnnualExemption: InputMaybe<Scalars['Float']['input']>;
   tdsCessPercent: InputMaybe<Scalars['Float']['input']>;
   tdsFlatPercent: Scalars['Float']['input'];
@@ -2375,6 +2387,7 @@ export type TableFilterInput = {
 /** Server-side pagination/sort/filter/search request. `page` is zero-indexed. */
 export type TableQueryInput = {
   filters: InputMaybe<Array<TableFilterInput>>;
+  /** Zero-based: 0 is the first page, so the first pageSize rows. */
   page: Scalars['Int']['input'];
   pageSize: Scalars['Int']['input'];
   search: InputMaybe<Scalars['String']['input']>;

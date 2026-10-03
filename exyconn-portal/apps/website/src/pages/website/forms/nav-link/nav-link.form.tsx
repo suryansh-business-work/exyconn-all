@@ -50,6 +50,7 @@ export function NavLinkForm({ initial, onDone, onCancel }: Readonly<NavLinkFormP
   const [createNavLink] = useCreateNavLinkMutation();
   const [updateNavLink] = useUpdateNavLinkMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

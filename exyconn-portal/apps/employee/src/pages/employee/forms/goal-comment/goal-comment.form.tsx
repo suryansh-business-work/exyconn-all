@@ -28,6 +28,7 @@ export function GoalCommentForm({ goal, onCancel, onDone }: Readonly<GoalComment
   const notify = useNotify();
   const [comment] = useCommentOnTeamGoalMutation();
   const methods = useForm<GoalCommentFormValues>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: { comment: goal.managerComment ?? '' },
   });

@@ -45,6 +45,7 @@ export function TrackerNoticeForm({ employees }: Readonly<TrackerNoticeFormProps
   const confirm = useConfirm();
   const [sendNotice] = useSendTrackerNoticeMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: { title: '', body: '', userIds: [] },
   });

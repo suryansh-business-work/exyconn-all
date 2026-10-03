@@ -66,6 +66,7 @@ export function PayslipScheduleForm({
   const notify = useNotify();
   const [saveSchedule] = useUpdatePayrollScheduleMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     values: {
       enabled: initial.enabled,

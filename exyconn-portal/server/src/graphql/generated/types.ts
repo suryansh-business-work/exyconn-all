@@ -1721,6 +1721,8 @@ export type ContainerPort = {
 
 export type Contract = {
   __typename?: 'Contract';
+  /** The contract's text as rich-text HTML. Null on contracts saved before it existed. */
+  content?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   /** The document a counterparty is asked to read and sign. Empty until one is attached. */
   documentUrl: Scalars['String']['output'];
@@ -1738,6 +1740,7 @@ export type Contract = {
 };
 
 export type ContractInput = {
+  content?: InputMaybe<Scalars['String']['input']>;
   documentUrl?: InputMaybe<Scalars['String']['input']>;
   effectiveDate: Scalars['DateTime']['input'];
   expiryDate: Scalars['DateTime']['input'];
@@ -4129,6 +4132,8 @@ export enum LeaveStatus {
 export type LegalDocument = {
   __typename?: 'LegalDocument';
   category: DocumentCategory;
+  /** The document's text as rich-text HTML. Null on documents saved before it existed. */
+  content?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   fileUrl?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
@@ -4140,6 +4145,7 @@ export type LegalDocument = {
 
 export type LegalDocumentInput = {
   category: DocumentCategory;
+  content?: InputMaybe<Scalars['String']['input']>;
   fileUrl?: InputMaybe<Scalars['String']['input']>;
   owner?: InputMaybe<Scalars['String']['input']>;
   status: DocumentStatus;
@@ -4854,9 +4860,10 @@ export type Mutation = {
    */
   runBackgroundJob: Scalars['Boolean']['output'];
   /**
-   * Generates (or recomputes) every active employee's slip for the month from their
-   * salary structure and approved unpaid leave. Idempotent: running it twice
-   * recomputes GENERATED slips and never touches PAID ones.
+   * Issues the month's slip to exactly the employees picked, from their salary structure and
+   * approved unpaid leave. Refused before the month opens (runFromDay in the payroll settings),
+   * with nobody picked, or if any one picked is inactive, has no salary structure or already
+   * has a slip for the month: a month run for an employee is never run again.
    */
   runPayroll: PayrollRunResult;
   /** Queues a prompt-library entry as a new job, with its {{variables}} filled in. */
@@ -6659,6 +6666,7 @@ export type MutationRunBackgroundJobArgs = {
 
 
 export type MutationRunPayrollArgs = {
+  employeeIds: Array<Scalars['ID']['input']>;
   month: Scalars['Int']['input'];
   year: Scalars['Int']['input'];
 };
@@ -8142,6 +8150,32 @@ export type PaymentPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** One active employee in a run plan. Amounts are worked out for READY employees only. */
+export type PayrollCandidate = {
+  __typename?: 'PayrollCandidate';
+  currency?: Maybe<Scalars['String']['output']>;
+  deductions?: Maybe<Scalars['Float']['output']>;
+  department?: Maybe<Scalars['String']['output']>;
+  designation?: Maybe<Scalars['String']['output']>;
+  employeeId: Scalars['ID']['output'];
+  gross?: Maybe<Scalars['Float']['output']>;
+  name: Scalars['String']['output'];
+  net?: Maybe<Scalars['Float']['output']>;
+  /** The existing slip's status, for ALREADY_RUN. */
+  slipStatus?: Maybe<SlipStatus>;
+  status: PayrollCandidateStatus;
+};
+
+/**
+ * Where one active employee stands for a month's run. READY can be run; ALREADY_RUN has a
+ * slip for the month and is never run again; NO_STRUCTURE has no salary structure on file.
+ */
+export enum PayrollCandidateStatus {
+  AlreadyRun = 'ALREADY_RUN',
+  NoStructure = 'NO_STRUCTURE',
+  Ready = 'READY'
+}
+
 /** What one payslip email run did, per employee outcome. */
 export type PayrollDispatchResult = {
   __typename?: 'PayrollDispatchResult';
@@ -8154,17 +8188,32 @@ export type PayrollDispatchResult = {
   year: Scalars['Int']['output'];
 };
 
-/** What one payroll run did. */
+/** What running a month would do, employee by employee, before anything is written. */
+export type PayrollRunPlan = {
+  __typename?: 'PayrollRunPlan';
+  alreadyRunCount: Scalars['Int']['output'];
+  employees: Array<PayrollCandidate>;
+  month: Scalars['Int']['output'];
+  noStructureCount: Scalars['Int']['output'];
+  /** Whether the month can be run now. */
+  open: Scalars['Boolean']['output'];
+  /** Midnight, on the company clock, of the day this month opens for running. */
+  opensOn: Scalars['DateTime']['output'];
+  readyCount: Scalars['Int']['output'];
+  totalDeductions: Scalars['Float']['output'];
+  /** Totals over the READY employees. */
+  totalGross: Scalars['Float']['output'];
+  totalNet: Scalars['Float']['output'];
+  year: Scalars['Int']['output'];
+};
+
+/** What one payroll run did. A run either issues a slip to every employee picked or refuses. */
 export type PayrollRunResult = {
   __typename?: 'PayrollRunResult';
-  /** Slips created for the first time. */
+  /** Slips issued, one per employee picked. */
   generated: Scalars['Int']['output'];
   month: Scalars['Int']['output'];
-  /** Employees skipped: no salary structure, inactive, or slip already PAID. */
-  skipped: Scalars['Int']['output'];
   totalNet: Scalars['Float']['output'];
-  /** Slips that already existed and were recomputed (only while still GENERATED). */
-  updated: Scalars['Int']['output'];
   year: Scalars['Int']['output'];
 };
 
@@ -8208,6 +8257,8 @@ export type PayrollSettings = {
   /** PF is charged on basic only up to this figure; anything above it is exempt. */
   pfWageCeiling: Scalars['Float']['output'];
   professionalTaxMonthly: Scalars['Float']['output'];
+  /** A month's payroll can be run from this day of that month on, 1-28, on the company clock. */
+  runFromDay: Scalars['Int']['output'];
   /** Deducted from annual taxable pay before the bands are applied. */
   tdsAnnualExemption: Scalars['Float']['output'];
   /** Charged on the TAX, not on the income. 0 where the jurisdiction has none. */
@@ -8229,6 +8280,7 @@ export type PayrollSettingsInput = {
   pfEnabled: Scalars['Boolean']['input'];
   pfWageCeiling: Scalars['Float']['input'];
   professionalTaxMonthly: Scalars['Float']['input'];
+  runFromDay?: InputMaybe<Scalars['Int']['input']>;
   tdsAnnualExemption?: InputMaybe<Scalars['Float']['input']>;
   tdsCessPercent?: InputMaybe<Scalars['Float']['input']>;
   tdsFlatPercent: Scalars['Float']['input'];
@@ -9581,6 +9633,8 @@ export type Query = {
   organization: Organization;
   /** Every organization on the platform (SUPER_ADMIN). */
   organizations: Array<Organization>;
+  /** Every active employee and whether the month can be run for them, with the figures it would store. */
+  payrollRunPlan: PayrollRunPlan;
   /** The payslip email schedule. Created with its defaults on first read. */
   payrollSchedule: PayrollSchedule;
   /** The statutory deduction policy. Created with its defaults on first read. */
@@ -10845,6 +10899,12 @@ export type QueryOpenAppLogsFixPromptArgs = {
 
 export type QueryOrganizationArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryPayrollRunPlanArgs = {
+  month: Scalars['Int']['input'];
+  year: Scalars['Int']['input'];
 };
 
 
@@ -12392,6 +12452,7 @@ export type TableFilterInput = {
 /** Server-side pagination/sort/filter/search request. `page` is zero-indexed. */
 export type TableQueryInput = {
   filters?: InputMaybe<Array<TableFilterInput>>;
+  /** Zero-based: 0 is the first page, so the first pageSize rows. */
   page: Scalars['Int']['input'];
   pageSize: Scalars['Int']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
@@ -14267,7 +14328,10 @@ export type ResolversTypes = ResolversObject<{
   PaymentInput: PaymentInput;
   PaymentMethod: PaymentMethod;
   PaymentPage: ResolverTypeWrapper<PaymentPage>;
+  PayrollCandidate: ResolverTypeWrapper<PayrollCandidate>;
+  PayrollCandidateStatus: PayrollCandidateStatus;
   PayrollDispatchResult: ResolverTypeWrapper<PayrollDispatchResult>;
+  PayrollRunPlan: ResolverTypeWrapper<PayrollRunPlan>;
   PayrollRunResult: ResolverTypeWrapper<PayrollRunResult>;
   PayrollSchedule: ResolverTypeWrapper<PayrollSchedule>;
   PayrollScheduleInput: PayrollScheduleInput;
@@ -14894,7 +14958,9 @@ export type ResolversParentTypes = ResolversObject<{
   Payment: Payment;
   PaymentInput: PaymentInput;
   PaymentPage: PaymentPage;
+  PayrollCandidate: PayrollCandidate;
   PayrollDispatchResult: PayrollDispatchResult;
+  PayrollRunPlan: PayrollRunPlan;
   PayrollRunResult: PayrollRunResult;
   PayrollSchedule: PayrollSchedule;
   PayrollScheduleInput: PayrollScheduleInput;
@@ -16065,6 +16131,7 @@ export type ContainerPortResolvers<ContextType = GraphQLContext, ParentType exte
 }>;
 
 export type ContractResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Contract'] = ResolversParentTypes['Contract']> = ResolversObject<{
+  content?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   documentUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   effectiveDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
@@ -17411,6 +17478,7 @@ export type LeaveRequestResolvers<ContextType = GraphQLContext, ParentType exten
 
 export type LegalDocumentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LegalDocument'] = ResolversParentTypes['LegalDocument']> = ResolversObject<{
   category?: Resolver<ResolversTypes['DocumentCategory'], ParentType, ContextType>;
+  content?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   fileUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -17861,7 +17929,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   revokeTrackerDevice?: Resolver<ResolversTypes['TrackerDevice'], ParentType, ContextType, RequireFields<MutationRevokeTrackerDeviceArgs, 'deviceId'>>;
   runAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<MutationRunAiJobArgs, 'id'>>;
   runBackgroundJob?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRunBackgroundJobArgs, 'key'>>;
-  runPayroll?: Resolver<ResolversTypes['PayrollRunResult'], ParentType, ContextType, RequireFields<MutationRunPayrollArgs, 'month' | 'year'>>;
+  runPayroll?: Resolver<ResolversTypes['PayrollRunResult'], ParentType, ContextType, RequireFields<MutationRunPayrollArgs, 'employeeIds' | 'month' | 'year'>>;
   runPrompt?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<MutationRunPromptArgs, 'id' | 'model'>>;
   runRecurringInvoiceNow?: Resolver<ResolversTypes['RecurringInvoice'], ParentType, ContextType, RequireFields<MutationRunRecurringInvoiceNowArgs, 'id'>>;
   saveAiModelPrice?: Resolver<ResolversTypes['AiModelPrice'], ParentType, ContextType, RequireFields<MutationSaveAiModelPriceArgs, 'input'>>;
@@ -18249,6 +18317,20 @@ export type PaymentPageResolvers<ContextType = GraphQLContext, ParentType extend
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type PayrollCandidateResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PayrollCandidate'] = ResolversParentTypes['PayrollCandidate']> = ResolversObject<{
+  currency?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  deductions?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  department?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  designation?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  employeeId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  gross?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  net?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  slipStatus?: Resolver<Maybe<ResolversTypes['SlipStatus']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['PayrollCandidateStatus'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type PayrollDispatchResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PayrollDispatchResult'] = ResolversParentTypes['PayrollDispatchResult']> = ResolversObject<{
   failed?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   month?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -18258,12 +18340,25 @@ export type PayrollDispatchResultResolvers<ContextType = GraphQLContext, ParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type PayrollRunPlanResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PayrollRunPlan'] = ResolversParentTypes['PayrollRunPlan']> = ResolversObject<{
+  alreadyRunCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  employees?: Resolver<Array<ResolversTypes['PayrollCandidate']>, ParentType, ContextType>;
+  month?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  noStructureCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  open?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  opensOn?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  readyCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  totalDeductions?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  totalGross?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  totalNet?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  year?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type PayrollRunResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PayrollRunResult'] = ResolversParentTypes['PayrollRunResult']> = ResolversObject<{
   generated?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   month?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  skipped?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   totalNet?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
-  updated?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   year?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -18291,6 +18386,7 @@ export type PayrollSettingsResolvers<ContextType = GraphQLContext, ParentType ex
   pfEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   pfWageCeiling?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   professionalTaxMonthly?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  runFromDay?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   tdsAnnualExemption?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   tdsCessPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   tdsFlatPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
@@ -19157,6 +19253,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   orgChart?: Resolver<Array<ResolversTypes['OrgNode']>, ParentType, ContextType>;
   organization?: Resolver<ResolversTypes['Organization'], ParentType, ContextType, RequireFields<QueryOrganizationArgs, 'id'>>;
   organizations?: Resolver<Array<ResolversTypes['Organization']>, ParentType, ContextType>;
+  payrollRunPlan?: Resolver<ResolversTypes['PayrollRunPlan'], ParentType, ContextType, RequireFields<QueryPayrollRunPlanArgs, 'month' | 'year'>>;
   payrollSchedule?: Resolver<ResolversTypes['PayrollSchedule'], ParentType, ContextType>;
   payrollSettings?: Resolver<ResolversTypes['PayrollSettings'], ParentType, ContextType>;
   payrollSummary?: Resolver<ResolversTypes['PayrollSummary'], ParentType, ContextType, RequireFields<QueryPayrollSummaryArgs, 'month' | 'year'>>;
@@ -20923,7 +21020,9 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Organization?: OrganizationResolvers<ContextType>;
   Payment?: PaymentResolvers<ContextType>;
   PaymentPage?: PaymentPageResolvers<ContextType>;
+  PayrollCandidate?: PayrollCandidateResolvers<ContextType>;
   PayrollDispatchResult?: PayrollDispatchResultResolvers<ContextType>;
+  PayrollRunPlan?: PayrollRunPlanResolvers<ContextType>;
   PayrollRunResult?: PayrollRunResultResolvers<ContextType>;
   PayrollSchedule?: PayrollScheduleResolvers<ContextType>;
   PayrollSettings?: PayrollSettingsResolvers<ContextType>;

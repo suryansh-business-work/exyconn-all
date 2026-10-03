@@ -29,6 +29,7 @@ export function ForgotPasswordForm({ onCancel, onDone }: Readonly<ForgotPassword
   const notify = useNotify();
   const [requestReset] = useRequestPasswordResetMutation();
   const methods = useForm<ForgotPasswordValues>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: { email: '' },
   });

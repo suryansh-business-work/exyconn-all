@@ -41,15 +41,31 @@ asarUnpack:
 win:
   target:
     - nsis
+  icon: build/icon.ico
   artifactName: Exyconn-Tracker-Setup-${version}.${ext}
 
+# The installer is the first thing anybody sees of the app: the logo on its window, its
+# uninstaller and the shortcuts it makes, and the brand sidebar on its welcome and finish
+# pages. The bitmaps are 24-bit BMPs at NSIS's own sizes (sidebar 164×314, header 150×57) —
+# the only format its Modern UI draws reliably. Regenerate them from build/logo-source.png.
 nsis:
   oneClick: false
   perMachine: false
   allowToChangeInstallationDirectory: true
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+  installerHeaderIcon: build/icon.ico
+  installerSidebar: build/installerSidebar.bmp
+  uninstallerSidebar: build/installerSidebar.bmp
+  installerHeader: build/installerHeader.bmp
+  createDesktopShortcut: always
+  createStartMenuShortcut: true
+  shortcutName: Exyconn Tracker
+  runAfterFinish: true
 
 mac:
   category: public.app-category.productivity
+  icon: build/icon.icns
   artifactName: Exyconn-Tracker-${version}-${arch}.${ext}
   target:
     - target: dmg
@@ -67,11 +83,29 @@ mac:
     # tracking is running. macOS shows this sentence in its own permission prompt.
     NSCameraUsageDescription: Exyconn Tracker takes a photo with each work screenshot, if your workspace has enabled it.
 
+# The disk image opens on the app beside an Applications link, over a background that says
+# what to do; background@2x.png beside it is picked up for Retina screens.
 dmg:
   sign: false
+  title: Exyconn Tracker ${version}
+  icon: build/icon.icns
+  background: build/background.png
+  iconSize: 100
+  window:
+    width: 540
+    height: 380
+  contents:
+    - x: 140
+      y: 200
+      type: file
+    - x: 400
+      y: 200
+      type: link
+      path: /Applications
 
 linux:
   target:
     - AppImage
   category: Office
+  icon: build/icon.png
   artifactName: Exyconn-Tracker-${version}.${ext}

@@ -34,6 +34,7 @@ export function ApproveClaimForm({ claim, onDone, onCancel }: Readonly<ApproveCl
   const notify = useNotify();
   const [setStatus] = useSetExpenseClaimStatusMutation();
   const methods = useForm<z.input<Schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schemaFor(claim.amount)),
     defaultValues: { approvedAmount: claim.approvedAmount ?? claim.amount },
   });

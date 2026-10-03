@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useT } from '@exyconn/i18n';
-import type { TrackerTask } from '@exyconn/tracker-core';
+import { ticketHint, type TrackerTask } from '@exyconn/tracker-core';
 import { NO_TICKET, ticketOptions } from '../../lib/dashboard/ticket-options';
 import { tracker } from '../../tracker/instance';
 import { PickerField } from '../form/PickerField';
@@ -10,6 +10,8 @@ interface Props {
   selectedTaskId: string;
   /** A running session is already booked; changing it mid-flight would rewrite the record. */
   disabled: boolean;
+  /** The selected project's tickets are being read from the portal. */
+  loading: boolean;
 }
 
 /**
@@ -24,7 +26,7 @@ interface Props {
  * session when it opened. Switching ticket means stopping and starting, which is honest: the
  * time before the switch really was spent on the other one.
  */
-export function TicketPicker({ tasks, selectedTaskId, disabled }: Readonly<Props>) {
+export function TicketPicker({ tasks, selectedTaskId, disabled, loading }: Readonly<Props>) {
   const t = useT();
   const options = useMemo(() => ticketOptions(tasks), [tasks]);
 
@@ -35,10 +37,9 @@ export function TicketPicker({ tasks, selectedTaskId, disabled }: Readonly<Props
       options={options}
       selected={selectedTaskId}
       placeholder={t(NO_TICKET.label)}
-      hint={
-        disabled ? t('Locked while tracking — stop to book to another ticket.') : t('Optional.')
-      }
+      hint={ticketHint(t, { loading, locked: disabled })}
       disabled={disabled}
+      busy={loading}
       searchable
       onSelect={(taskId) => tracker.setTask(taskId)}
     />

@@ -17,7 +17,7 @@ import { SalaryStructureModel } from '../../src/modules/employee/salary.model';
 import { SalarySlipModel } from '../../src/modules/employee/salarySlip.model';
 import { UserModel } from '../../src/modules/admin/user.model';
 import { ROLES } from '../../src/constants/roles';
-import { seedUser, useTestOrganization } from '../helpers';
+import { freezeClock, seedUser, useTestOrganization } from '../helpers';
 import type { GraphQLContext } from '../../src/middleware/auth';
 
 useTestOrganization({
@@ -338,13 +338,18 @@ async function employeeOn(email: string, joinDate: Date): Promise<string> {
 
 describe('a payroll run in SLAB mode', () => {
   beforeEach(setSlabPolicy);
+  // December 2026 only opens on its run day, so these runs happen after it.
+  beforeEach(() => freezeClock('2026-12-28T12:00:00.000Z'));
+  afterEach(() => {
+    jest.useRealTimers();
+  });
 
   it('withholds the table’s figure, and less from a mid-year joiner', async () => {
     await seedTestTable('2026-27');
     const veteran = await employeeOn('veteran@exyconn.com', new Date('2020-01-01T00:00:00.000Z'));
     const joiner = await employeeOn('joiner@exyconn.com', new Date('2026-12-01T00:00:00.000Z'));
 
-    await M.runPayroll(null, { month: 12, year: 2026 }, hr);
+    await M.runPayroll(null, { month: 12, year: 2026, employeeIds: [veteran, joiner] }, hr);
 
     const veteranSlip = await SalarySlipModel.findOne({ employeeId: veteran }).lean();
     const joinerSlip = await SalarySlipModel.findOne({ employeeId: joiner }).lean();
@@ -357,7 +362,7 @@ describe('a payroll run in SLAB mode', () => {
     await seedTestTable('2019-20');
     const employee = await employeeOn('nobody@exyconn.com', new Date('2020-01-01T00:00:00.000Z'));
 
-    await M.runPayroll(null, { month: 12, year: 2026 }, hr);
+    await M.runPayroll(null, { month: 12, year: 2026, employeeIds: [employee] }, hr);
 
     const slip = await SalarySlipModel.findOne({ employeeId: employee }).lean();
     expect(slip?.tds).toBe(0);
@@ -369,7 +374,7 @@ describe('a payroll run in SLAB mode', () => {
     const employee = await employeeOn('march@exyconn.com', new Date('2020-01-01T00:00:00.000Z'));
 
     // March 2026 still belongs to the financial year that opened in April 2025.
-    await M.runPayroll(null, { month: 3, year: 2026 }, hr);
+    await M.runPayroll(null, { month: 3, year: 2026, employeeIds: [employee] }, hr);
 
     const slip = await SalarySlipModel.findOne({ employeeId: employee }).lean();
     expect(slip?.tds).toBe(monthlyTdsFromSlabs(80_000, 12, REGIME, SLABS));

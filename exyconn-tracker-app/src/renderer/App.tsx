@@ -3,6 +3,7 @@ import { Box, CircularProgress, ThemeProvider } from '@exyconn/ui';
 import type { TrackerState } from '@shared/types';
 import { groundOpacity } from '@shared/transparency';
 import { deviceTimezone } from '@exyconn/tracker-core';
+import { useT } from '@exyconn/i18n';
 import TrackerI18nProvider from './i18n/TrackerI18nProvider';
 import AppFrame from './components/AppFrame';
 import ClosingDialog from './components/ClosingDialog';
@@ -55,9 +56,10 @@ function ScreenRouter({ state }: Readonly<RouterProps>): ReactElement {
 
 /** Full-bleed spinner shown until the first state snapshot lands. */
 function Loading(): ReactElement {
+  const t = useT();
   return (
     <Box sx={{ flex: 1, display: 'grid', placeItems: 'center' }}>
-      <CircularProgress />
+      <CircularProgress aria-label={t('Loading…')} />
     </Box>
   );
 }

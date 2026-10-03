@@ -1,8 +1,16 @@
 import type { ColDef, ICellRendererParams } from 'ag-grid-community';
-import { actionsColumn, statusColumn, textColumn, type CrudGridContext } from '@exyconn/crud';
+import {
+  DELETE_ACTION,
+  EDIT_ACTION,
+  actionsColumn,
+  statusColumn,
+  textColumn,
+  type CrudGridContext,
+} from '@exyconn/crud';
 import { useT } from '@exyconn/i18n';
 import { Link } from '@exyconn/shell/components/ui';
 import type { ListLegalDocumentsPagedQuery } from '@exyconn/shell/graphql/generated';
+import { PDF_ACTION, WORD_ACTION } from './download-actions';
 
 export type PagedLegalDocumentRow =
   ListLegalDocumentsPagedQuery['listLegalDocumentsPaged']['rows'][number];
@@ -40,5 +48,5 @@ export const DOCUMENT_COLUMNS: ColDef<PagedLegalDocumentRow>[] = [
     filter: false,
     floatingFilter: false,
   },
-  actionsColumn(),
+  actionsColumn([EDIT_ACTION, PDF_ACTION, WORD_ACTION, DELETE_ACTION]),
 ];

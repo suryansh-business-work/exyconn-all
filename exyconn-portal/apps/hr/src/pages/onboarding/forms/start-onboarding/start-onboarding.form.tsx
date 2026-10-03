@@ -47,6 +47,7 @@ export function StartOnboardingForm({ onDone, onCancel }: Readonly<StartOnboardi
   }));
 
   const methods = useForm<Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: { employeeId: '', templateId: '' },
   });

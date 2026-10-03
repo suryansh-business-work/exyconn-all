@@ -38,6 +38,7 @@ export function LicenceForm({ initial, onDone, onCancel }: Readonly<LicenceFormP
   const [updateLicence] = useUpdateLicenceMutation();
   const { data } = useListAssetAssigneesQuery();
   const methods = useForm<z.input<typeof licenceSchema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(licenceSchema),
     defaultValues: toLicenceValues(initial),
   });

@@ -33,6 +33,7 @@ export function IncidentUpdateForm({
   const notify = useNotify();
   const [addUpdate] = useAddItIncidentUpdateMutation();
   const methods = useForm<IncidentUpdateValues>({
+    mode: 'onTouched',
     resolver: zodResolver(incidentUpdateSchema),
     defaultValues: { status, note: '' },
   });

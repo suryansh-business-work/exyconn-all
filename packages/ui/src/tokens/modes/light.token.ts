@@ -1,29 +1,30 @@
 import { portalShadow } from '../box-shadow.token';
-import { fuchsia, green, onyx, orange, red, sky, white } from '../colors.tokens';
+import { blue, green, mist, orange, red, white } from '../colors.tokens';
 import type { SemanticTokens } from './semantic-tokens';
 
 /**
- * Light mode: the reference's white ground with the same accents taken down to shades that
- * read on it. The reference's blue (#6DB5FF) measures 2.3:1 on white and its pink 2.5:1 —
- * fine as a cursor label, unreadable as a button — so each has a 700 step that clears 4.5:1
- * and keeps the hue. The yellow cannot be made to read on white at all, so the warning hue
- * here is the orange that always was.
+ * Light mode: white cards on a soft cool-grey canvas, a deep navy ink, and the navy as the
+ * one accent every primary button, current tab and checked control wears. The brand orange
+ * is identity only.
  *
- * Every status hue runs DARK here and LIGHT in dark.token.ts; that inversion is the whole
- * reason the two modes are separate files.
+ * Text sits on the grey page as well as on the white cards, so every ink here is held to
+ * 4.5:1 on BOTH — which is why the status hues are a step darker than they would need to be
+ * on white alone. Every status hue runs DARK here and LIGHT in dark.token.ts; that inversion
+ * is the whole reason the two modes are separate files.
  */
 export const lightTokens: SemanticTokens = {
-  primary: sky[700],
+  primary: mist[850],
   onPrimary: white,
-  secondary: fuchsia[700],
-  success: green[650],
+  secondary: orange[900],
+  success: green[900],
   warning: orange[800],
-  error: red[900],
-  info: sky[700],
-  background: { page: white, panel: white, muted: onyx[100], sidebar: onyx[50] },
-  text: { primary: onyx[950], secondary: onyx[600] },
-  divider: onyx[200],
-  control: onyx[500],
-  ring: onyx[950],
+  error: red[950],
+  info: blue[700],
+  // The navigation sits on the canvas itself, as the topbar does: only the cards are lifted.
+  background: { page: mist[100], panel: white, muted: mist[200], sidebar: mist[100] },
+  text: { primary: mist[850], secondary: mist[600] },
+  divider: mist[250],
+  control: mist[500],
+  ring: mist[850],
   shadow: portalShadow.light,
 };

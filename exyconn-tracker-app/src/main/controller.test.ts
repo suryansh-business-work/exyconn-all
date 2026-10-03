@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import type {
   TrackerProject,
   TrackerSettings,
+  TrackerTask,
   TrackerState,
   WorkProfile,
   Workday,
@@ -346,6 +347,39 @@ describe('the working day', () => {
     controller.setProject('p-global');
 
     expect(controller.getState().selectedTaskId).toBe('');
+  });
+
+  it('says the ticket list is loading until the portal answers, and keeps only the latest', async () => {
+    const { controller } = await signedInController();
+    await vi.waitFor(() => expect(controller.getState().tasksLoading).toBe(false));
+    let answerFirst: (tasks: TrackerTask[]) => void = () => undefined;
+    let answerSecond: (tasks: TrackerTask[]) => void = () => undefined;
+    vi.mocked(portal.fetchTasks)
+      .mockReturnValueOnce(new Promise((resolve) => (answerFirst = resolve)))
+      .mockReturnValueOnce(new Promise((resolve) => (answerSecond = resolve)));
+
+    controller.setProject('p-global');
+    controller.setProject('p-global');
+    expect(controller.getState().tasksLoading).toBe(true);
+
+    // The older answer lands last, and must not overwrite the newer one.
+    answerSecond([{ id: 't-2', key: 'EXY-2', title: 'Newer', assignedToMe: false }]);
+    await vi.waitFor(() => expect(controller.getState().tasksLoading).toBe(false));
+    answerFirst([{ id: 't-1', key: 'EXY-1', title: 'Older', assignedToMe: false }]);
+    await Promise.resolve();
+    expect(controller.getState().tasks.map((task) => task.id)).toEqual(['t-2']);
+  });
+
+  it('stops saying the tickets are loading when the portal fails to send them', async () => {
+    const { controller } = await signedInController();
+    vi.mocked(portal.fetchTasks).mockRejectedValueOnce(new Error('offline'));
+    const log = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+
+    controller.setProject('p-global');
+
+    await vi.waitFor(() => expect(controller.getState().tasksLoading).toBe(false));
+    expect(log).toHaveBeenCalledWith('Loading tickets failed', expect.any(Error));
+    log.mockRestore();
   });
 
   it('books to the house-wide project when the stored pick is no longer offered', async () => {

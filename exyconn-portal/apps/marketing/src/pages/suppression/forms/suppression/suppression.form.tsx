@@ -37,6 +37,7 @@ export function SuppressionForm({ initial, onDone, onCancel }: Readonly<Suppress
   const [createSuppression] = useCreateMarketingSuppressionMutation();
   const [updateSuppression] = useUpdateMarketingSuppressionMutation();
   const methods = useForm<Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

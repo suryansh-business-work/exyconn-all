@@ -40,6 +40,7 @@ export function GradeForm({ initial, onDone, onCancel }: Readonly<GradeFormProps
   const [updateGrade] = useUpdateGradeMutation();
 
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

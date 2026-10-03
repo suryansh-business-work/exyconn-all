@@ -55,6 +55,7 @@ export function MfaChallengeForm({
   const [verify] = useVerifyMfaMutation();
   const [error, setError] = useState<string | null>(null);
   const methods = useForm<MfaChallengeValues>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: { code: '' },
   });

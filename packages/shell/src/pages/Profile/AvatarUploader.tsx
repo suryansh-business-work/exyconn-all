@@ -46,7 +46,7 @@ export function AvatarUploader({ online }: Readonly<AvatarUploaderProps>) {
           '& .MuiBadge-dot': {
             width: 18,
             height: 18,
-            borderRadius: '50%',
+            borderRadius: 1,
             border: 3,
             borderColor: 'background.paper',
             bgcolor: online ? 'success.main' : 'text.secondary',

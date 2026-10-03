@@ -90,6 +90,7 @@ export function TaxSlabForm({
   const [updateSlab] = useUpdateTaxSlabMutation();
 
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial, defaultRegimeKey, defaultFinancialYear),
   });

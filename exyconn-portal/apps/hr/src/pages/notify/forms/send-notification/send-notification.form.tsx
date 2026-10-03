@@ -60,7 +60,11 @@ export function SendNotificationForm({ onSent }: Readonly<SendNotificationFormPr
   const notify = useNotify();
   const [send, { loading }] = useSendNotificationMutation();
   const { data } = useListUsersQuery();
-  const methods = useForm<Values>({ resolver: zodResolver(schema), defaultValues: INITIAL });
+  const methods = useForm<Values>({
+    mode: 'onTouched',
+    resolver: zodResolver(schema),
+    defaultValues: INITIAL,
+  });
   const audience = methods.watch('audience');
 
   const users = data?.listUsers ?? [];

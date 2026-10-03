@@ -36,6 +36,7 @@ export function SendInvoiceForm({ invoice, onDone, onCancel }: Readonly<SendInvo
   const [sendInvoice] = useSendInvoiceMutation();
   const { data: clientData } = useGetClientQuery({ variables: { id: invoice.clientId } });
   const methods = useForm<Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: { email: '', message: '' },
   });

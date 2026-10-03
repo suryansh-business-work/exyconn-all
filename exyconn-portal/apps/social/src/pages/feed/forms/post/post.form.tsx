@@ -28,6 +28,7 @@ export function PostForm({ onPosted }: Readonly<PostFormProps>) {
   const [createPost] = useCreateSocialPostMutation({ refetchQueries: [SocialFeedDocument] });
 
   const methods = useForm<PostFormValues, unknown, PostFormValues>({
+    mode: 'onTouched',
     resolver: zodResolver(postSchema),
     defaultValues: EMPTY,
   });

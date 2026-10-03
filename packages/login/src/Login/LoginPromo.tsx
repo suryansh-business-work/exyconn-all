@@ -56,7 +56,7 @@ export function LoginPromo({ name, slogan, accentColor }: Readonly<LoginPromoPro
           top: 120,
           width: 220,
           height: 220,
-          borderRadius: '46% 54% 60% 40% / 50% 40% 60% 50%',
+          borderRadius: 1,
           background: `linear-gradient(135deg, ${accentColor}, ${alpha(accentColor, 0.55)})`,
           opacity: 0.85,
         }}

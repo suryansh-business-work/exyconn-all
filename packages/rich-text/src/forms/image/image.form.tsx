@@ -46,6 +46,7 @@ interface ImageFormProps {
 /** Inserts an image: uploaded from the device, or an address that is already hosted. */
 export function ImageForm({ uploadImage, onSubmit, onClose }: Readonly<ImageFormProps>) {
   const methods = useForm<ImageFormValues>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: EMPTY,
   });

@@ -37,6 +37,7 @@ export function IncidentForm({ onDone, onCancel }: Readonly<IncidentFormProps>) 
   const [createIncident] = useCreateStatusIncidentMutation();
   const { data } = useListStatusMonitorsQuery();
   const methods = useForm<z.input<typeof incidentSchema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(incidentSchema),
     defaultValues: INCIDENT_DEFAULTS,
   });

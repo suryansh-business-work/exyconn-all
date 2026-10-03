@@ -69,6 +69,7 @@ export function EmailConfigForm({ initial, onDone, onCancel }: Readonly<EmailCon
   const [createConfig] = useCreateEmailConfigMutation();
   const [updateConfig] = useUpdateEmailConfigMutation();
   const methods = useForm<z.input<Schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(makeSchema(Boolean(initial))),
     defaultValues: toInitial(initial),
   });

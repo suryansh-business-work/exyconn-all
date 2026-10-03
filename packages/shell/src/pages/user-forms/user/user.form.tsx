@@ -60,6 +60,7 @@ function UserFormFields({ initial, salary, onDone, onCancel, onCreated }: Readon
   const isEdit = Boolean(initial);
   const companyCurrency = useCompanyCurrency();
   const methods = useForm<UserValues>({
+    mode: 'onTouched',
     resolver: zodResolver(userSchema),
     defaultValues: toFormValues(initial, salary, companyCurrency),
   });

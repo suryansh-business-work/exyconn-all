@@ -81,6 +81,7 @@ export function CaseStudyForm({ initial, onDone, onCancel }: Readonly<CaseStudyF
   const [createCaseStudy] = useCreateCaseStudyMutation();
   const [updateCaseStudy] = useUpdateCaseStudyMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

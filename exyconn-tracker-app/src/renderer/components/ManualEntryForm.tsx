@@ -1,5 +1,5 @@
 import type { ReactElement, FormEvent } from 'react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   Alert,
   Button,
@@ -10,9 +10,11 @@ import {
   TextField,
   Typography,
 } from '@exyconn/ui';
-import type { ManualEntryDraft, TrackerProject, TrackerTask } from '@shared/types';
+import type { ManualEntryDraft, TrackerProject } from '@shared/types';
 import { useT } from '@exyconn/i18n';
 import { useAnnounce } from '../a11y/LiveAnnouncer';
+import useProjectTasks from '../hooks/useProjectTasks';
+import { messageOf } from '../run';
 
 interface Props {
   projects: TrackerProject[];
@@ -37,7 +39,6 @@ export default function ManualEntryForm({
 }: Readonly<Props>): ReactElement {
   const t = useT();
   const [projectId, setProjectId] = useState(projects[0]?.id ?? '');
-  const [tasks, setTasks] = useState<TrackerTask[]>([]);
   const [taskId, setTaskId] = useState(NO_TICKET);
   const [startedAt, setStartedAt] = useState<Date | null>(null);
   const [endedAt, setEndedAt] = useState<Date | null>(null);
@@ -50,30 +51,7 @@ export default function ManualEntryForm({
 
   // The ticket list belongs to the project chosen here, not to the one the next session is
   // booked against — browsing in this form must not re-point that.
-  useEffect(() => {
-    let active = true;
-    setTaskId(NO_TICKET);
-    if (projectId === '') {
-      setTasks([]);
-      return undefined;
-    }
-    window.tracker
-      .getTasks(projectId)
-      .then((rows) => {
-        if (active) {
-          setTasks(rows);
-        }
-      })
-      .catch((cause: unknown) => {
-        console.error('Loading tickets failed', cause);
-        if (active) {
-          setTasks([]);
-        }
-      });
-    return () => {
-      active = false;
-    };
-  }, [projectId]);
+  const { tasks, loading: ticketsLoading } = useProjectTasks(projectId);
 
   function draftFrom(start: Date, end: Date): ManualEntryDraft {
     return {
@@ -98,7 +76,8 @@ export default function ManualEntryForm({
       await window.tracker.createManualEntry(draftFrom(startedAt, endedAt));
       onDone();
     } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : t('The claim could not be filed.'));
+      console.error('Filing the claim failed', cause);
+      setError(messageOf(cause, t('The claim could not be filed.')));
       setSaving(false);
     }
   }
@@ -123,7 +102,11 @@ export default function ManualEntryForm({
         size="small"
         label={t('Project')}
         value={projectId}
-        onChange={(event) => setProjectId(event.target.value)}
+        onChange={(event) => {
+          // The ticket belonged to the old project; it cannot follow the claim to a new one.
+          setTaskId(NO_TICKET);
+          setProjectId(event.target.value);
+        }}
       >
         {projects.map((project) => (
           <MenuItem key={project.id} value={project.id}>
@@ -137,6 +120,8 @@ export default function ManualEntryForm({
         size="small"
         label={t('Ticket')}
         value={taskId}
+        disabled={ticketsLoading}
+        helperText={ticketsLoading ? t('Loading tickets…') : undefined}
         onChange={(event) => setTaskId(event.target.value)}
       >
         <MenuItem value={NO_TICKET}>{t('No ticket')}</MenuItem>
@@ -176,7 +161,7 @@ export default function ManualEntryForm({
         <Button color="inherit" onClick={onCancel} disabled={saving}>
           {t('Cancel')}
         </Button>
-        <Button type="submit" variant="contained" disabled={saving}>
+        <Button type="submit" variant="contained" loading={saving}>
           {t('Submit claim')}
         </Button>
       </Flex>

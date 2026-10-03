@@ -108,11 +108,37 @@ query PayrollSummary($month: Int!, $year: Int!) {
   }
 }
 
-mutation RunPayroll($month: Int!, $year: Int!) {
-  runPayroll(month: $month, year: $year) {
+# Who the month's run would reach, and what it would pay each of them.
+query PayrollRunPlan($month: Int!, $year: Int!) {
+  payrollRunPlan(month: $month, year: $year) {
+    month
+    year
+    opensOn
+    open
+    readyCount
+    alreadyRunCount
+    noStructureCount
+    totalGross
+    totalDeductions
+    totalNet
+    employees {
+      employeeId
+      name
+      department
+      designation
+      status
+      slipStatus
+      gross
+      deductions
+      net
+      currency
+    }
+  }
+}
+
+mutation RunPayroll($month: Int!, $year: Int!, $employeeIds: [ID!]!) {
+  runPayroll(month: $month, year: $year, employeeIds: $employeeIds) {
     generated
-    updated
-    skipped
     totalNet
   }
 }
@@ -187,6 +213,7 @@ fragment PayrollSettingsFields on PayrollSettings {
   tdsCessPercent
   tdsRegimeKey
   financialYearStartMonth
+  runFromDay
 }
 
 # The company-wide statutory deduction policy every payslip is worked out from.

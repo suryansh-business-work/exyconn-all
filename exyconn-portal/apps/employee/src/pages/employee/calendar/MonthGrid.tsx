@@ -16,7 +16,7 @@ function DayCell({ day }: { day: DayMarker }) {
         // date itself, let alone what is happening on it.
         p: { xs: 0.5, sm: 1 },
         minWidth: 0,
-        borderRadius: 1.5,
+        borderRadius: 1,
         border: 1,
         borderColor: day.isToday ? 'primary.main' : 'divider',
         opacity: day.inMonth ? 1 : 0.4,
@@ -47,7 +47,7 @@ function DayCell({ day }: { day: DayMarker }) {
             display: { xs: 'block', sm: 'none' },
             width: 6,
             height: 6,
-            borderRadius: '50%',
+            borderRadius: 1,
             bgcolor: 'secondary.main',
           }}
         />
@@ -66,7 +66,7 @@ function DayCell({ day }: { day: DayMarker }) {
               display: { xs: 'block', sm: 'none' },
               width: 6,
               height: 6,
-              borderRadius: '50%',
+              borderRadius: 1,
               bgcolor: 'info.main',
             }}
           />

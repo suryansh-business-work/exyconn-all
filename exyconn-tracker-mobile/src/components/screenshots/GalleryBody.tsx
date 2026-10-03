@@ -23,7 +23,7 @@ const GAP = 12;
  */
 export function GalleryBody({ range, timezone }: Readonly<Props>) {
   const t = useT();
-  const { detail, loading, error, reload } = useDayDetail(range.startISO, range.endISO);
+  const { detail, loading, refreshing, error, reload } = useDayDetail(range.startISO, range.endISO);
   const shots = detail?.screenshots ?? [];
   /** Index of the shot open full screen, or null. Held here so paging can walk the day. */
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -56,11 +56,7 @@ export function GalleryBody({ range, timezone }: Readonly<Props>) {
           />
         }
         refreshControl={
-          <RefreshControl
-            refreshing={loading && detail !== null}
-            onRefresh={reload}
-            tintColor={ink}
-          />
+          <RefreshControl refreshing={refreshing} onRefresh={reload} tintColor={ink} />
         }
         renderItem={({ item, index }) => (
           <ScreenshotCard

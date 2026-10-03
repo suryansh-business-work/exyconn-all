@@ -60,16 +60,55 @@ export const payrollTypeDefs = gql`
     totalCount: Int!
   }
 
-  "What one payroll run did."
+  "What one payroll run did. A run either issues a slip to every employee picked or refuses."
   type PayrollRunResult {
     month: Int!
     year: Int!
-    "Slips created for the first time."
+    "Slips issued, one per employee picked."
     generated: Int!
-    "Slips that already existed and were recomputed (only while still GENERATED)."
-    updated: Int!
-    "Employees skipped: no salary structure, inactive, or slip already PAID."
-    skipped: Int!
+    totalNet: Float!
+  }
+
+  """
+  Where one active employee stands for a month's run. READY can be run; ALREADY_RUN has a
+  slip for the month and is never run again; NO_STRUCTURE has no salary structure on file.
+  """
+  enum PayrollCandidateStatus {
+    READY
+    ALREADY_RUN
+    NO_STRUCTURE
+  }
+
+  "One active employee in a run plan. Amounts are worked out for READY employees only."
+  type PayrollCandidate {
+    employeeId: ID!
+    name: String!
+    department: String
+    designation: String
+    status: PayrollCandidateStatus!
+    "The existing slip's status, for ALREADY_RUN."
+    slipStatus: SlipStatus
+    gross: Float
+    deductions: Float
+    net: Float
+    currency: String
+  }
+
+  "What running a month would do, employee by employee, before anything is written."
+  type PayrollRunPlan {
+    month: Int!
+    year: Int!
+    "Midnight, on the company clock, of the day this month opens for running."
+    opensOn: DateTime!
+    "Whether the month can be run now."
+    open: Boolean!
+    employees: [PayrollCandidate!]!
+    readyCount: Int!
+    alreadyRunCount: Int!
+    noStructureCount: Int!
+    "Totals over the READY employees."
+    totalGross: Float!
+    totalDeductions: Float!
     totalNet: Float!
   }
 
@@ -171,6 +210,8 @@ export const payrollTypeDefs = gql`
     tdsRegimeKey: String!
     "The month a financial year opens in, 1-12. April in India, 1 on a calendar tax year."
     financialYearStartMonth: Int!
+    "A month's payroll can be run from this day of that month on, 1-28, on the company clock."
+    runFromDay: Int!
   }
 
   input PayrollSettingsInput {
@@ -188,6 +229,7 @@ export const payrollTypeDefs = gql`
     tdsCessPercent: Float
     tdsRegimeKey: String
     financialYearStartMonth: Int
+    runFromDay: Int
   }
 
   """
@@ -280,6 +322,8 @@ export const payrollTypeDefs = gql`
     listSalarySlipsPaged(input: TableQueryInput!): SalarySlipPage!
     listSalarySlipsStats: TableStats!
     payrollSummary(month: Int!, year: Int!): PayrollSummary!
+    "Every active employee and whether the month can be run for them, with the figures it would store."
+    payrollRunPlan(month: Int!, year: Int!): PayrollRunPlan!
     "The payslip email schedule. Created with its defaults on first read."
     payrollSchedule: PayrollSchedule!
     """
@@ -311,11 +355,12 @@ export const payrollTypeDefs = gql`
     updateSalaryStructure(id: ID!, input: SalaryStructureInput!): SalaryStructure!
     deleteSalaryStructure(id: ID!): Boolean!
     """
-    Generates (or recomputes) every active employee's slip for the month from their
-    salary structure and approved unpaid leave. Idempotent: running it twice
-    recomputes GENERATED slips and never touches PAID ones.
+    Issues the month's slip to exactly the employees picked, from their salary structure and
+    approved unpaid leave. Refused before the month opens (runFromDay in the payroll settings),
+    with nobody picked, or if any one picked is inactive, has no salary structure or already
+    has a slip for the month: a month run for an employee is never run again.
     """
-    runPayroll(month: Int!, year: Int!): PayrollRunResult!
+    runPayroll(month: Int!, year: Int!, employeeIds: [ID!]!): PayrollRunResult!
     "Marks every GENERATED slip of the month PAID. Returns how many changed."
     markPayrollPaid(month: Int!, year: Int!): Int!
     "Saves when payslip emails go out. Turning it off stops the scheduled run."

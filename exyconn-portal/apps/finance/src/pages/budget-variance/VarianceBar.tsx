@@ -34,7 +34,7 @@ export function VarianceBar({ utilisation }: Readonly<Props>) {
         // The bar stops at full; the number above it is what says how far past it went.
         value={Math.min(utilisation, 100)}
         color={colourFor(utilisation)}
-        sx={{ height: 6, borderRadius: 3 }}
+        sx={{ height: 6, borderRadius: 1 }}
       />
       <Text size="caption" color="text.secondary">
         {t('{percent}% used', { percent: utilisation.toFixed(0) })}

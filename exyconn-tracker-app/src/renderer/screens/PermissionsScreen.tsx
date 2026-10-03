@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
-import { useState } from 'react';
 import type { SvgIconComponent } from '@mui/icons-material';
-import { Button, Stack, Typography } from '@exyconn/ui';
+import { Alert, Button, Stack, TRACKER_RADIUS, Typography } from '@exyconn/ui';
 import { useT } from '@exyconn/i18n';
 import AccessibilityNewOutlined from '@mui/icons-material/AccessibilityNewOutlined';
 import RefreshRounded from '@mui/icons-material/RefreshRounded';
@@ -12,6 +11,8 @@ import Surface from '../components/Surface';
 import PermissionRow from '../components/PermissionRow';
 import ScreenLayout from '../components/ScreenLayout';
 import { run } from '../run';
+import usePendingAction from '../hooks/usePendingAction';
+import { useAnnounce } from '../a11y/LiveAnnouncer';
 
 interface PermissionInfo {
   kind: PermissionKind;
@@ -51,30 +52,23 @@ interface Props {
 /** macOS-only screen prompting for the TCC grants the tracker still needs. */
 export default function PermissionsScreen({ permissions }: Readonly<Props>): ReactElement {
   const t = useT();
-  const [busy, setBusy] = useState(false);
+  const { pending, error, perform } = usePendingAction<PermissionKind | 'recheck'>();
+  const busy = pending !== null;
+  useAnnounce(error, 'assertive');
   const missing = PERMISSIONS.filter((row) => !permissions[row.kind]);
 
-  async function grant(kind: PermissionKind): Promise<void> {
-    setBusy(true);
-    try {
-      await window.tracker.requestPermission(kind);
-    } catch (cause: unknown) {
-      console.error('Failed to request permission', cause);
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function recheck(): Promise<void> {
-    setBusy(true);
-    try {
-      await window.tracker.getPermissions();
-    } catch (cause: unknown) {
-      console.error('Failed to re-check permissions', cause);
-    } finally {
-      setBusy(false);
-    }
-  }
+  const grant = (kind: PermissionKind): Promise<boolean> =>
+    perform(
+      kind,
+      () => window.tracker.requestPermission(kind),
+      t('macOS did not answer the request. Try again, or allow it in System Settings.'),
+    );
+  const recheck = (): Promise<boolean> =>
+    perform(
+      'recheck',
+      () => window.tracker.getPermissions(),
+      t('Could not re-check the permissions. Try again.'),
+    );
 
   return (
     <ScreenLayout maxWidth={520}>
@@ -95,6 +89,16 @@ export default function PermissionsScreen({ permissions }: Readonly<Props>): Rea
           )}
         </Typography>
 
+        {error !== null && (
+          <Alert
+            severity="error"
+            variant="outlined"
+            sx={{ borderRadius: `${TRACKER_RADIUS}px`, mb: 1.5 }}
+          >
+            {error}
+          </Alert>
+        )}
+
         <Stack spacing={1.5}>
           {missing.map((row) => (
             <PermissionRow
@@ -103,6 +107,7 @@ export default function PermissionsScreen({ permissions }: Readonly<Props>): Rea
               reason={t(row.reason)}
               icon={row.icon}
               busy={busy}
+              loading={pending === row.kind}
               onGrant={() => run(() => grant(row.kind))}
             />
           ))}
@@ -113,6 +118,7 @@ export default function PermissionsScreen({ permissions }: Readonly<Props>): Rea
           color="inherit"
           fullWidth
           startIcon={<RefreshRounded />}
+          loading={pending === 'recheck'}
           disabled={busy}
           sx={{ mt: 2.5 }}
           onClick={() => run(recheck)}

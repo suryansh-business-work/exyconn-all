@@ -32,6 +32,7 @@ export function SubmissionTriageForm({
   const notify = useNotify();
   const [triageSubmission] = useTriageWebsiteSubmissionMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: { status: submission.status, notes: submission.notes },
   });

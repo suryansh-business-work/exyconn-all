@@ -35,7 +35,7 @@ export function CalendarDayCell({ day, onPlan, onEdit }: Readonly<CalendarDayCel
         minHeight: { xs: 64, sm: 96 },
         p: 0.5,
         minWidth: 0,
-        borderRadius: 1.5,
+        borderRadius: 1,
         border: 1,
         borderColor: day.isToday ? 'primary.main' : 'divider',
         bgcolor: day.inMonth ? 'background.paper' : 'action.hover',
@@ -50,7 +50,7 @@ export function CalendarDayCell({ day, onPlan, onEdit }: Readonly<CalendarDayCel
           sx={{
             position: 'absolute',
             inset: 0,
-            borderRadius: 1.5,
+            borderRadius: 1,
             '&:hover, &.Mui-focusVisible': { bgcolor: 'action.selected' },
             '&.Mui-focusVisible': { outline: 2, outlineColor: 'primary.main' },
           }}

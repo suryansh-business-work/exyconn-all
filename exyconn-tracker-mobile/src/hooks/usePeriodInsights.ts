@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   periodColumns,
   periodTotals,
@@ -11,13 +11,17 @@ import {
   type ReportDay,
 } from '@exyconn/tracker-core';
 import { tracker } from '../tracker/instance';
+import { useReload } from './useReload';
 
 export interface PeriodInsights {
   range: PeriodWindow;
   current: PeriodTotals;
   previous: PeriodTotals;
   columns: PeriodColumn[];
+  /** True until the first answer for this period — the skeletons' cue. */
   loading: boolean;
+  /** True while a pull-to-refresh re-reads a period already on screen. */
+  refreshing: boolean;
   error: string | null;
   /** Asks the portal again — pull-to-refresh. */
   reload: () => void;
@@ -37,11 +41,16 @@ export function usePeriodInsights(length: PeriodLength, zone: string): PeriodIns
   const [days, setDays] = useState<ReportDay[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [attempt, setAttempt] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+  const { attempt, reload, isReload } = useReload();
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
+    if (isReload(attempt)) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
     setError(null);
     tracker
       .getReport(range.fromISO, range.toISO)
@@ -49,6 +58,7 @@ export function usePeriodInsights(length: PeriodLength, zone: string): PeriodIns
         if (active) {
           setDays(rows);
           setLoading(false);
+          setRefreshing(false);
         }
       })
       .catch((cause: unknown) => {
@@ -57,14 +67,13 @@ export function usePeriodInsights(length: PeriodLength, zone: string): PeriodIns
           setDays([]);
           setError('Could not load your insights. Check your connection and try again.');
           setLoading(false);
+          setRefreshing(false);
         }
       });
     return () => {
       active = false;
     };
-  }, [range, attempt]);
-
-  const reload = useCallback(() => setAttempt((count) => count + 1), []);
+  }, [range, attempt, isReload]);
 
   return useMemo(
     () => ({
@@ -73,9 +82,10 @@ export function usePeriodInsights(length: PeriodLength, zone: string): PeriodIns
       previous: periodTotals(days, range.previous),
       columns: periodColumns(days, range.current),
       loading,
+      refreshing,
       error,
       reload,
     }),
-    [range, days, loading, error, reload],
+    [range, days, loading, refreshing, error, reload],
   );
 }

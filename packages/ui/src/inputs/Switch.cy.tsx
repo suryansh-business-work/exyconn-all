@@ -95,3 +95,35 @@ describe('Switch with a label', () => {
     });
   });
 });
+
+describe('Switch thumb', () => {
+  /** The thumb sits inside the track, inset evenly, wherever it rests. */
+  const expectThumbInside = () => {
+    box('.MuiSwitch-root').then((track) => {
+      box('.MuiSwitch-thumb').then((thumb) => {
+        expect(thumb.left).to.be.at.least(track.left);
+        expect(thumb.right).to.be.at.most(track.right);
+        expect(thumb.top).to.be.at.least(track.top);
+        expect(thumb.bottom).to.be.at.most(track.bottom);
+        expect(thumb.top - track.top).to.be.closeTo(track.bottom - thumb.bottom, 0.5);
+      });
+    });
+  };
+
+  for (const size of ['medium', 'small'] as const) {
+    for (const checked of [false, true]) {
+      it(`stays inside a ${size} track when ${checked ? 'on' : 'off'}`, () => {
+        cy.mount(
+          <ThemeProvider>
+            <Switch
+              size={size}
+              checked={checked}
+              slotProps={{ input: { 'aria-label': 'enabled' } }}
+            />
+          </ThemeProvider>,
+        );
+        expectThumbInside();
+      });
+    }
+  }
+});

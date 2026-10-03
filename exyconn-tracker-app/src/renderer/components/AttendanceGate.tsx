@@ -1,10 +1,21 @@
 import { useState, type ReactElement } from 'react';
-import { Alert, Button, MenuItem, Stack, TextField, TRACKER_RADIUS, Typography } from '@exyconn/ui';
+import {
+  Alert,
+  Button,
+  CircularProgress,
+  MenuItem,
+  Stack,
+  TextField,
+  TRACKER_RADIUS,
+  Typography,
+} from '@exyconn/ui';
 import HowToRegOutlined from '@mui/icons-material/HowToRegOutlined';
 import type { AttendanceStatus, Workday } from '@shared/types';
 import { ATTENDANCE_OPTIONS, humanize } from '@exyconn/tracker-core';
 import { useT } from '@exyconn/i18n';
 import { useAnnounce } from '../a11y/LiveAnnouncer';
+import usePendingAction from '../hooks/usePendingAction';
+import { run } from '../run';
 
 interface Props {
   workday: Workday | null;
@@ -18,16 +29,24 @@ interface Props {
  * employee portal's own "Mark attendance", so somebody who marked in there this morning
  * arrives here already done.
  */
-export default function AttendanceGate({ workday }: Readonly<Props>): ReactElement | null {
+export default function AttendanceGate({ workday }: Readonly<Props>): ReactElement {
   const t = useT();
   const [status, setStatus] = useState<AttendanceStatus>('PRESENT');
   const [note, setNote] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { pending, error, perform } = usePendingAction<'mark'>();
+  const busy = pending !== null;
   useAnnounce(error, 'assertive');
 
+  // Null until the portal has said what today is — a loader, not a gap that later jumps in.
   if (workday === null) {
-    return null;
+    return (
+      <Stack role="status" direction="row" spacing={1} sx={{ alignItems: 'center' }}>
+        <CircularProgress size={16} aria-hidden />
+        <Typography variant="caption" sx={{ color: 'text.secondary' }}>
+          {t('Checking today’s attendance…')}
+        </Typography>
+      </Stack>
+    );
   }
 
   if (workday.attendanceMarked) {
@@ -47,17 +66,12 @@ export default function AttendanceGate({ workday }: Readonly<Props>): ReactEleme
     );
   }
 
-  async function mark(): Promise<void> {
-    setBusy(true);
-    setError(null);
-    try {
-      await window.tracker.markAttendance(status, note.trim() || null);
-    } catch (cause: unknown) {
-      setError(cause instanceof Error ? cause.message : t('Could not mark your attendance.'));
-    } finally {
-      setBusy(false);
-    }
-  }
+  const mark = (): Promise<boolean> =>
+    perform(
+      'mark',
+      () => window.tracker.markAttendance(status, note.trim() || null),
+      t('Could not mark your attendance.'),
+    );
 
   return (
     <Stack spacing={1.25}>
@@ -69,6 +83,7 @@ export default function AttendanceGate({ workday }: Readonly<Props>): ReactEleme
         size="small"
         label={t('Attendance')}
         value={status}
+        disabled={busy}
         onChange={(event) => setStatus(event.target.value as AttendanceStatus)}
       >
         {ATTENDANCE_OPTIONS.map((option) => (
@@ -81,6 +96,7 @@ export default function AttendanceGate({ workday }: Readonly<Props>): ReactEleme
         size="small"
         label={t('Note (optional)')}
         value={note}
+        disabled={busy}
         onChange={(event) => setNote(event.target.value)}
       />
       {error !== null && (
@@ -91,10 +107,8 @@ export default function AttendanceGate({ workday }: Readonly<Props>): ReactEleme
       <Button
         variant="contained"
         startIcon={<HowToRegOutlined />}
-        disabled={busy}
-        onClick={() => {
-          mark().catch((cause: unknown) => console.error('Mark attendance failed', cause));
-        }}
+        loading={busy}
+        onClick={() => run(mark)}
       >
         {t('Mark attendance')}
       </Button>

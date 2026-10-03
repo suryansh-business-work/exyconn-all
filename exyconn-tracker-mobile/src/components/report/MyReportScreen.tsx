@@ -18,6 +18,7 @@ import { ReportOverview } from './overview/ReportOverview';
 import { ReportTable } from './ReportTable';
 import { ReportTotals } from './ReportTotals';
 import { SegmentedControl, type SegmentOption } from '../ui/SegmentedControl';
+import { SkeletonBlock } from './SkeletonBlock';
 
 type TabId = 'overview' | 'calendar' | 'days';
 
@@ -26,6 +27,17 @@ const TABS: readonly SegmentOption<TabId>[] = [
   { value: 'calendar', label: 'Calendar' },
   { value: 'days', label: 'Days' },
 ];
+
+/** Totals and both month charts, while the month is on its way — never a month of zeros. */
+function MonthSkeleton() {
+  return (
+    <>
+      <SkeletonBlock height={88} />
+      <SkeletonBlock height={260} />
+      <SkeletonBlock height={260} />
+    </>
+  );
+}
 
 interface Props {
   /** The employee's chosen zone: the day bounds and every timestamp below are read in it. */
@@ -63,7 +75,10 @@ export function MyReportScreen({ timezone }: Readonly<Props>) {
   };
 
   return (
-    <ScreenLayout onRefresh={refresh} refreshing={report.loading}>
+    <ScreenLayout
+      onRefresh={refresh}
+      refreshing={report.refreshing || day.refreshing || insights.refreshing}
+    >
       <Caption>{t('This is your own tracked time, as your workspace sees it.')}</Caption>
 
       <SegmentedControl
@@ -84,6 +99,7 @@ export function MyReportScreen({ timezone }: Readonly<Props>) {
         <>
           <ReportCalendar
             days={report.days}
+            loading={report.loading}
             month={month}
             selected={selected}
             maxDate={today}
@@ -107,14 +123,21 @@ export function MyReportScreen({ timezone }: Readonly<Props>) {
             canGoForward={canGoForward(month, today)}
             onChange={setMonth}
           />
-          <ReportTotals totals={report.totals} />
-          <ReportMonthChart days={report.days} monthLabel={monthLabel} />
-          {/* Hours first, then how solid they were: the second chart only means something
-              once the reader knows how long the days it describes actually were. */}
-          <ReportActivityChart days={report.days} monthLabel={monthLabel} />
+          {report.loading ? (
+            <MonthSkeleton />
+          ) : (
+            <>
+              <ReportTotals totals={report.totals} />
+              <ReportMonthChart days={report.days} monthLabel={monthLabel} />
+              {/* Hours first, then how solid they were: the second chart only means
+                  something once the reader knows how long the days it describes were. */}
+              <ReportActivityChart days={report.days} monthLabel={monthLabel} />
+            </>
+          )}
           <ReportTable days={report.days} loading={report.loading} />
           <ReportDownloadButton
             days={report.days}
+            loading={report.loading}
             monthKey={monthKeyOf(month)}
             monthLabel={monthLabel}
           />

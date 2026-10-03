@@ -1,10 +1,14 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { dayBounds, type DayDetail } from '@exyconn/tracker-core';
 import { tracker } from '../tracker/instance';
+import { useReload } from './useReload';
 
 export interface DayQuery {
   detail: DayDetail | null;
+  /** True until the first answer for this day (or the next read of it) — the skeletons' cue. */
   loading: boolean;
+  /** True while a pull-to-refresh re-reads a day already on screen. */
+  refreshing: boolean;
   error: string | null;
   /** Asks the portal again — pull-to-refresh, the phone's "try again". */
   reload: () => void;
@@ -24,11 +28,16 @@ export function useDayDetail(
   const [detail, setDetail] = useState<DayDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [attempt, setAttempt] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+  const { attempt, reload, isReload } = useReload();
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
+    if (isReload(attempt)) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
     setError(null);
     tracker
       .getDay(startISO, endISO)
@@ -36,6 +45,7 @@ export function useDayDetail(
         if (active) {
           setDetail(day);
           setLoading(false);
+          setRefreshing(false);
         }
       })
       .catch((cause: unknown) => {
@@ -44,16 +54,15 @@ export function useDayDetail(
           setDetail(null);
           setError('Could not load this day. Check your connection and try again.');
           setLoading(false);
+          setRefreshing(false);
         }
       });
     return () => {
       active = false;
     };
-  }, [startISO, endISO, attempt, refreshKey]);
+  }, [startISO, endISO, attempt, refreshKey, isReload]);
 
-  const reload = useCallback(() => setAttempt((count) => count + 1), []);
-
-  return { detail, loading, error, reload };
+  return { detail, loading, refreshing, error, reload };
 }
 
 /**

@@ -23,6 +23,7 @@ export function CustomMailForm({ userId, onDone, onCancel }: CustomMailFormProps
   const notify = useNotify();
   const [sendUserMail] = useSendUserMailMutation();
   const methods = useForm<Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: { subject: '', message: '' },
   });

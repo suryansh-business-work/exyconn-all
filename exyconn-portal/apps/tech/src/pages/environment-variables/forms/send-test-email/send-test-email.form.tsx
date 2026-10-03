@@ -34,6 +34,7 @@ export function SendTestEmailForm({
   const notify = useNotify();
   const [sendTest] = useSendTestEmailMutation();
   const methods = useForm<Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     values: { to: defaultTo },
   });

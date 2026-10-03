@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { LEGAL_BODY_MAX_CHARS } from './document.model';
 
 export const CONTRACT_TYPES = ['NDA', 'MSA', 'SOW', 'EMPLOYMENT'] as const;
 export const CONTRACT_STATUSES = ['DRAFT', 'ACTIVE', 'EXPIRED', 'TERMINATED'] as const;
@@ -21,6 +22,11 @@ const contractSchema = new Schema(
      * lives here and its hash is recorded when somebody signs it.
      */
     documentUrl: { type: String, default: '', trim: true },
+    /**
+     * The contract's text, drafted in the portal's rich-text editor, as HTML. It is what Legal
+     * writes and downloads; what a counterparty signs is still the file at `documentUrl`.
+     */
+    content: { type: String, default: '', maxlength: LEGAL_BODY_MAX_CHARS },
     // Set when a contract is signed from the Sign Board.
     signedBy: { type: String, trim: true, default: null },
     signedAt: { type: Date, default: null },

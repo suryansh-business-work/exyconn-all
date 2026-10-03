@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import { useT } from '@exyconn/i18n';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
@@ -8,10 +8,12 @@ import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats'
 import {
   useListContractsStatsQuery,
   useDeleteContractMutation,
+  useGetContractBodyLazyQuery,
   ListContractsPagedDocument,
   type ListContractsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
 import { ContractForm, type ContractRow } from './forms/contract';
+import { useBodyDownloads } from './useBodyDownloads';
 import { RequestSignatureForm } from './forms/request-signature';
 import { color } from '@exyconn/shell/components/ui';
 import {
@@ -41,6 +43,18 @@ export function ContractsPage() {
     }),
     refetch: refetchStats,
   });
+  const [loadBody] = useGetContractBodyLazyQuery({ fetchPolicy: 'network-only' });
+  const fetchBody = useCallback(
+    async (id: string) => {
+      const { data, error } = await loadBody({ variables: { id } });
+      if (error) {
+        throw error;
+      }
+      return data?.getContract.content ?? '';
+    },
+    [loadBody],
+  );
+  const downloads = useBodyDownloads<PagedContractRow>(fetchBody);
   const fetchRows = usePagedFetcher(
     ListContractsPagedDocument,
     (data: ListContractsPagedQuery) => data.listContractsPaged,
@@ -65,7 +79,7 @@ export function ContractsPage() {
   ];
 
   const gridContext: ContractsGridContext = {
-    actions: { edit: crud.openEdit, send: setSendTarget, delete: crud.remove },
+    actions: { edit: crud.openEdit, send: setSendTarget, delete: crud.remove, ...downloads },
     formatDate,
   };
 

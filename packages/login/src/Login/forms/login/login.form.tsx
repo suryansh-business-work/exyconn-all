@@ -51,6 +51,7 @@ export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
   /** Set when the password was right and an authenticator code is still owed. */
   const [challenge, setChallenge] = useState('');
   const methods = useForm<Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: { email: '', password: '' },
   });

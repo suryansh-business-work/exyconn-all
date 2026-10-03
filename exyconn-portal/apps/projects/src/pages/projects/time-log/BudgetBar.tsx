@@ -43,7 +43,7 @@ export function BudgetBar({ trackedMs, budgetHours }: Readonly<BudgetBarProps>) 
         value={Math.min(used, 1) * 100}
         color={color}
         aria-label={t('Budget used')}
-        sx={{ height: 8, borderRadius: 4 }}
+        sx={{ height: 8, borderRadius: 1 }}
       />
     </Box>
   );

@@ -38,6 +38,7 @@ export function ShareForm({ projectId, onCreated, onCancel }: Readonly<ShareForm
   const [createShare] = useCreateProjectShareMutation();
 
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: { label: '', expiresInDays: '30' },
   });

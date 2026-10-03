@@ -33,6 +33,7 @@ interface DecisionFormProps {
 export function DecisionForm({ onDecide, onDone, onCancel }: Readonly<DecisionFormProps>) {
   const notify = useNotify();
   const methods = useForm<DecisionValues>({
+    mode: 'onTouched',
     resolver: zodResolver(decisionSchema),
     defaultValues: { decision: ItDecision.Approved, note: '' },
   });

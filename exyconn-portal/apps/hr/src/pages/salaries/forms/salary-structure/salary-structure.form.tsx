@@ -49,6 +49,7 @@ export function SalaryStructureForm({
   }));
 
   const methods = useForm<Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: {
       employeeId: initial?.employeeId ?? '',

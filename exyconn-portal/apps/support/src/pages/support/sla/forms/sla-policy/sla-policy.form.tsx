@@ -56,6 +56,7 @@ export function SlaPolicyForm({ initial, onDone, onCancel }: Readonly<SlaPolicyF
   const [createPolicy] = useCreateSupportSlaPolicyMutation();
   const [updatePolicy] = useUpdateSupportSlaPolicyMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

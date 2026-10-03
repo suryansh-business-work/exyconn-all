@@ -34,8 +34,7 @@ export const HAIRLINE = `${borderWidth.hairline}px solid`;
 export const CONTROL_CORNER = `${BASE_RADIUS}px`;
 export const CARD_CORNER = `${CARD_RADIUS}px`;
 /** A row inside a padded menu or list: a step inside the control corner. */
-export const INNER_CORNER = `${radius.md}px`;
-export const PILL = `${radius.pill}px`;
+export const INNER_CORNER = `${radius.sm / 2}px`;
 
 /** A disabled control — shadcn/ui's `disabled:opacity-50`. Exempt from contrast (SC 1.4.3). */
 export const DISABLED_OPACITY = 0.5;

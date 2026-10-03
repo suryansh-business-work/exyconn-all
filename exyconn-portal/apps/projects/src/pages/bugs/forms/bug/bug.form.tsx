@@ -61,6 +61,7 @@ export function BugForm({ initial, onDone, onCancel }: Readonly<BugFormProps>) {
   const { data: projectData } = useListProjectsQuery();
   const { data: employeeData } = useListEmployeeOptionsQuery();
   const methods = useForm<Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });
