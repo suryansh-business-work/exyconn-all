@@ -348,13 +348,16 @@ export type BrandingInput = {
   accentColor: InputMaybe<Scalars['String']['input']>;
   address: InputMaybe<Scalars['String']['input']>;
   addressLine: InputMaybe<Scalars['String']['input']>;
+  ambitionboxUrl: InputMaybe<Scalars['String']['input']>;
   appIconDarkUrl: InputMaybe<Scalars['String']['input']>;
   appIconUrl: InputMaybe<Scalars['String']['input']>;
   backgroundColor: InputMaybe<Scalars['String']['input']>;
   bankDetails: InputMaybe<Scalars['String']['input']>;
   businessName: InputMaybe<Scalars['String']['input']>;
+  clutchUrl: InputMaybe<Scalars['String']['input']>;
   contactPhone: InputMaybe<Scalars['String']['input']>;
   copyrightText: InputMaybe<Scalars['String']['input']>;
+  crunchbaseUrl: InputMaybe<Scalars['String']['input']>;
   defaultTaxPercent: InputMaybe<Scalars['Float']['input']>;
   description: InputMaybe<Scalars['String']['input']>;
   emailLogoDarkUrl: InputMaybe<Scalars['String']['input']>;
@@ -497,6 +500,14 @@ export type ClientSupportTicketInput = {
   requesterEmail: Scalars['String']['input'];
   requesterName: Scalars['String']['input'];
   subject: Scalars['String']['input'];
+};
+
+export type CloudflareConfigInput = {
+  accountId: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored token. */
+  apiToken: InputMaybe<Scalars['String']['input']>;
+  isActive: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
 };
 
 export type CompanyBenefitInput = {
@@ -684,6 +695,17 @@ export type DepartmentInput = {
   headId: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
 };
+
+/** Who answers for a domain now, judged from the nameservers the registry holds. */
+export type DnsAuthority =
+  | 'CLOUDFLARE'
+  | 'GODADDY'
+  | 'OTHER';
+
+export type DnsRecordStatus =
+  | 'MATCH'
+  | 'MISSING_ON_CLOUDFLARE'
+  | 'ONLY_ON_CLOUDFLARE';
 
 export type DocumentCategory =
   | 'COMPLIANCE'
@@ -964,6 +986,15 @@ export type GoalStatus =
   | 'CANCELLED'
   | 'COMPLETED'
   | 'DRAFT';
+
+export type GodaddyConfigInput = {
+  /** Write-only. Leave empty when editing to keep the stored key. */
+  apiKey: InputMaybe<Scalars['String']['input']>;
+  /** Write-only. Leave empty when editing to keep the stored secret. */
+  apiSecret: InputMaybe<Scalars['String']['input']>;
+  isActive: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+};
 
 export type GradeInput = {
   active: Scalars['Boolean']['input'];
@@ -1560,6 +1591,11 @@ export type MyRequestInput = {
   subject: Scalars['String']['input'];
   type: RequestType;
 };
+
+export type NameserverTarget =
+  | 'CLOUDFLARE'
+  | 'CUSTOM'
+  | 'GODADDY';
 
 export type NavLinkInput = {
   category: Scalars['String']['input'];

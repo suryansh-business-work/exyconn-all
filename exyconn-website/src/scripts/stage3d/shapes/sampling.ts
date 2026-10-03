@@ -12,11 +12,31 @@ export interface Part {
   sample: Sampler;
   /** Free per-part tag written beside every point (a robot joint, an orbit speed…). */
   tag?: number;
+  /**
+   * When this point is built, 0 (first) to 1 (last) — a tower rising floor by floor, a bar
+   * growing from its axis. Parts without one are built in a random order.
+   */
+  order?: (point: Vec3) => number;
+}
+
+/**
+ * Structure drawn as lines beside the points: two vertices per segment. `order` builds a
+ * segment like a point; `flow` (0 or 1) marks a data link that carries moving packets, and
+ * `along` runs 0→1 down each link so the packets travel in one direction.
+ */
+export interface LineSet {
+  positions: Float32Array;
+  order: Float32Array;
+  flow: Float32Array;
+  along: Float32Array;
 }
 
 export interface Cloud {
   positions: Float32Array;
   tags: Float32Array;
+  /** Per-point build order, when the shape is built as a story rather than all at once. */
+  order?: Float32Array;
+  lines?: LineSet;
 }
 
 const TAU = Math.PI * 2;
@@ -126,18 +146,24 @@ export const jitter = (random: Random, point: Vec3, amount: number): Vec3 => [
 export const fillCloud = (count: number, parts: readonly Part[], random: Random): Cloud => {
   const positions = new Float32Array(count * 3);
   const tags = new Float32Array(count);
+  const ordered = parts.some((part) => part.order);
+  const order = ordered ? new Float32Array(count) : undefined;
   const total = parts.reduce((sum, part) => sum + part.weight, 0);
   let written = 0;
   parts.forEach((part, index) => {
     const isLast = index === parts.length - 1;
     const share = isLast ? count - written : Math.floor((count * part.weight) / total);
     for (let n = 0; n < share; n += 1) {
-      positions.set(part.sample(random), (written + n) * 3);
+      const point = part.sample(random);
+      positions.set(point, (written + n) * 3);
       tags[written + n] = part.tag ?? 0;
+      if (order) {
+        order[written + n] = part.order ? part.order(point) : random();
+      }
     }
     written += share;
   });
-  return { positions, tags };
+  return order ? { positions, tags, order } : { positions, tags };
 };
 
 /** A uniformly chosen index below `length`. */

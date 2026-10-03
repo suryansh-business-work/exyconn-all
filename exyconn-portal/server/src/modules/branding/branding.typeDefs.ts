@@ -69,6 +69,9 @@ export const brandingTypeDefs = gql`
     instagramUrl: String!
     youtubeUrl: String!
     githubUrl: String!
+    clutchUrl: String!
+    crunchbaseUrl: String!
+    ambitionboxUrl: String!
 
     copyrightText: String!
 
@@ -127,6 +130,9 @@ export const brandingTypeDefs = gql`
     instagramUrl: String
     youtubeUrl: String
     githubUrl: String
+    clutchUrl: String
+    crunchbaseUrl: String
+    ambitionboxUrl: String
 
     copyrightText: String
 

@@ -119,17 +119,33 @@ function referringMarket(referer: string | null, host: string): Market | null {
  */
 export function marketForRequest(request: Request): Market {
   const { headers } = request;
-  if (CRAWLER.test(headers.get("user-agent") ?? "")) {
+  if (isCrawler(request)) {
     return DEFAULT_MARKET;
   }
   return (
     rememberedMarket(headers.get("cookie")) ??
     referringMarket(headers.get("referer"), new URL(request.url).host) ??
-    chooseMarket(
-      headers.get("accept-language"),
-      headers.get("cf-ipcountry") ?? headers.get("x-country")
-    )
+    browserMarket(request)
   );
+}
+
+/** True for a crawler, unfurler or agent — never sent anywhere, and never offered a market. */
+export function isCrawler(request: Request): boolean {
+  return CRAWLER.test(request.headers.get("user-agent") ?? "");
+}
+
+/** The market the reader's browser asks for — its languages, and the country the edge reports. */
+export function browserMarket(request: Request): Market {
+  const { headers } = request;
+  return chooseMarket(
+    headers.get("accept-language"),
+    headers.get("cf-ipcountry") ?? headers.get("x-country")
+  );
+}
+
+/** True once the reader has picked a market in the picker (or answered the suggestion). */
+export function hasChosenMarket(request: Request): boolean {
+  return rememberedMarket(request.headers.get("cookie")) !== null;
 }
 
 /**

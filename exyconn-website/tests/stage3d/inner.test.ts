@@ -26,18 +26,18 @@ const desktop: DeviceProfile = {
 const phone: DeviceProfile = { ...desktop, width: 390, devicePixelRatio: 3 };
 
 describe("inner quality tier", () => {
-  it("halves the home budget and caps the pixel ratio at 1.5 on desktops", () => {
+  it("keeps the home point budget and caps the pixel ratio at 1.5 on desktops", () => {
     const tier = selectInnerTier(desktop);
-    expect(tier.particles).toBe(selectQualityTier(desktop).particles / 2);
-    expect(tier.particles).toBe(8000);
+    expect(tier.particles).toBe(selectQualityTier(desktop).particles);
+    expect(tier.particles).toBe(16000);
     expect(tier.pixelRatio).toBe(1.5);
     expect(tier.nebulaOctaves).toBe(2);
     expect(tier.ambientPoints).toBe(0);
   });
 
-  it("gives phones 3.5k points, DPR 1.25 and no nebula", () => {
+  it("gives phones 7k points, DPR 1.25 and no nebula", () => {
     const tier = selectInnerTier(phone);
-    expect(tier.particles).toBe(3500);
+    expect(tier.particles).toBe(7000);
     expect(tier.pixelRatio).toBe(1.25);
     expect(tier.nebulaOctaves).toBe(0);
     expect(selectInnerTier({ ...phone, reducedMotion: true }).animate).toBe(false);

@@ -389,5 +389,5 @@ export default defineDetailPage({
     label: "Our business tools",
     keys: ["claude", "openai", "gemini"],
   },
-  scene: { shapes: ["orbits"], data: { orbits: { agents: 12 } } },
+  scene: { shapes: ["neuralCore"], data: { neuralCore: { modules: 8 } } },
 });

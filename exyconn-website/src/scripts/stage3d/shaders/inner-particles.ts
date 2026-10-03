@@ -3,6 +3,9 @@
  * a tag per shape. `uForm` gathers the swarm out of a scatter when the hero opens; `uShape`
  * morphs between shapes (0 → 1 → 2) with a staggered swarm, as on the home page; and
  * `uHighlight` lights the points whose tag matches (−1 = none) while the rest recede.
+ * `aOrder` is when a point is built in the hero shape, so a scene assembles as a story — a
+ * tower rising floor by floor, a bar from its axis. The pointer (`uPointer`, in NDC) pushes
+ * nearby points aside and lights them while `uPointerMix` is up.
  */
 export const innerParticleVertex = /* glsl */ `
 uniform float uTime;
@@ -16,11 +19,15 @@ uniform float uHighlight;
 uniform float uHighlightMix;
 uniform vec3 uColA;
 uniform vec3 uColB;
+uniform vec2 uPointer;
+uniform float uPointerMix;
+uniform float uAspect;
 
 attribute vec3 aShape1;
 attribute vec3 aShape2;
 attribute vec3 aTags;
 attribute float aRandom;
+attribute float aOrder;
 
 varying vec3 vColor;
 varying float vAlpha;
@@ -49,21 +56,25 @@ void main() {
   vec3 dir = normalize(vec3(hash(r * 91.7), hash(r * 53.3 + 1.0), hash(r * 17.9 + 2.0)) - 0.5 + 0.0001);
   vec3 p = mix(shapeAt(index), shapeAt(index + 1.0), t);
   p += dir * (sin(t * PI) * 0.8 + sin(uTime * 1.3 + r * 40.0) * 0.012);
-  float form = smoothstep(0.0, 1.0, clamp((uForm - r * 0.35) / 0.65, 0.0, 1.0));
+  float form = smoothstep(0.0, 1.0, clamp((uForm - aOrder * 0.6) / 0.4, 0.0, 1.0));
   p = mix(dir * (3.2 + r * 2.5), p, form);
 
   vec4 mv = modelViewMatrix * vec4(p, 1.0);
+  vec4 clip = projectionMatrix * mv;
+  vec2 fromPointer = (clip.xy / clip.w - uPointer) * vec2(uAspect, 1.0);
+  float near = uPointerMix * smoothstep(0.22, 0.0, length(fromPointer));
+  mv.xy += normalize(fromPointer + 0.0001) * near * 0.012 * -mv.z;
   gl_Position = projectionMatrix * mv;
 
   float tag = t < 0.5 ? tagAt(index) : tagAt(index + 1.0);
   float highlightOn = step(0.0, uHighlight) * uHighlightMix;
   float lit = highlightOn * (1.0 - step(0.5, abs(tag - uHighlight)));
   float hot = step(0.965, hash(r * 3.7));
-  float size = uSize * (0.55 + 0.9 * hash(r * 7.1)) * (1.0 + hot * 1.2) * (1.0 + lit * 0.8);
+  float size = uSize * (0.55 + 0.9 * hash(r * 7.1)) * (1.0 + hot * 1.2) * (1.0 + lit * 0.8 + near * 0.6);
   gl_PointSize = size * uPixelRatio * (10.0 / -mv.z);
 
   vec3 color = mix(uColA, uColB, smoothstep(0.15, 0.85, r));
-  vColor = mix(color, vec3(1.0), hot * 0.5 + lit * 0.35);
+  vColor = mix(color, vec3(1.0), hot * 0.5 + lit * 0.35 + near * 0.45);
   float twinkle = 0.78 + 0.22 * sin(uTime * 2.0 + r * 60.0);
   float recede = mix(1.0, 0.3, highlightOn - lit);
   vAlpha = uOpacity * twinkle * 0.85 * recede * (0.3 + 0.7 * form) * (0.7 + 0.3 * hot);

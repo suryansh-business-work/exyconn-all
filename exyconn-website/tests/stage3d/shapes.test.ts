@@ -73,7 +73,7 @@ describe("shape registry", () => {
   });
 
   it("knows its ids", () => {
-    expect(SHAPE_IDS).toHaveLength(22);
+    expect(SHAPE_IDS).toHaveLength(32);
     expect(isShapeId("globe")).toBe(true);
     expect(isShapeId("teapot")).toBe(false);
     expect(isShapeId(3)).toBe(false);

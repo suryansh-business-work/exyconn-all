@@ -16,6 +16,8 @@ export interface Market {
   language: string;
   /** ISO 3166-1 alpha-2, or null for a market that is not one country ("Gulf"). */
   country: string | null;
+  /** The countries a market that is not one country serves — the Gulf's five. */
+  countries?: string[];
   /** The full tag for `lang`, `hreflang` and number/date formatting. */
   locale: string;
 }
@@ -44,6 +46,13 @@ export function marketByPath(segment: string | undefined): Market | null {
 /** Every market that reads in one language, in registry order. */
 export function marketsSpeaking(language: string): Market[] {
   return MARKETS.filter((market) => market.language === language);
+}
+
+/** Every market published for one country, including a region's market that covers it. */
+function marketsIn(country: string): Market[] {
+  return MARKETS.filter(
+    (market) => market.country === country || (market.countries ?? []).includes(country)
+  );
 }
 
 /** `/en-in/about-us` — the same page in another market. */
@@ -80,6 +89,12 @@ function acceptedLanguages(header: string | null): string[] {
     .map((entry) => entry.tag);
 }
 
+/** The country a language tag names: `hi-in` -> `IN`. Null for `hi`, `es-419` or a script. */
+function regionOf(tag: string): string | null {
+  const region = tag.split("-")[1];
+  return region?.length === 2 ? region.toUpperCase() : null;
+}
+
 /**
  * The market for one tag the browser accepts ("en-IN", "fr"), or null when its language is
  * not published. The country the edge reports picks among that language's markets — French
@@ -109,13 +124,15 @@ function marketForTag(tag: string, inCountry: readonly Market[]): Market | null 
  * that, the default.
  *
  * `country` is whatever the edge knows — Cloudflare's `CF-IPCountry`, a load balancer's own
- * header — and is simply absent in development.
+ * header. Without one, the first country the browser's own tags name stands in for it: a
+ * `hi-IN` browser is in India even though the site publishes no Hindi, so it reads en-in, and
+ * `ta-IN, en` reads en-in rather than the default English market.
  */
 export function chooseMarket(acceptLanguage: string | null, country: string | null): Market {
-  const inCountry = country
-    ? MARKETS.filter((market) => market.country === country.toUpperCase())
-    : [];
-  for (const tag of acceptedLanguages(acceptLanguage)) {
+  const tags = acceptedLanguages(acceptLanguage);
+  const where = country?.toUpperCase() ?? tags.map(regionOf).find((region) => region !== null);
+  const inCountry = where ? marketsIn(where) : [];
+  for (const tag of tags) {
     const match = marketForTag(tag, inCountry);
     if (match) {
       return match;

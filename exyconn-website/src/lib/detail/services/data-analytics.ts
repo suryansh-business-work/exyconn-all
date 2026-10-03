@@ -107,5 +107,5 @@ export default defineDetailPage({
     label: "Analytics tools",
     keys: ["adobeAnalytics"],
   },
-  scene: serviceScene("chart", 3),
+  scene: serviceScene("dataflow", "chart"),
 });

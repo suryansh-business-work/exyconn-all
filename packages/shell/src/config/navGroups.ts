@@ -23,6 +23,7 @@ import PaymentsIcon from '@mui/icons-material/Payments';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import ScheduleIcon from '@mui/icons-material/Schedule';
+import SecurityIcon from '@mui/icons-material/Security';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
@@ -58,6 +59,7 @@ export const NAV_GROUP_ICONS = {
   Records: DescriptionIcon,
   Releases: NewReleasesIcon,
   Requests: AssignmentIcon,
+  Security: SecurityIcon,
   'Service desk': SupportAgentIcon,
   Site: LanguageIcon,
   Spend: ShoppingCartIcon,

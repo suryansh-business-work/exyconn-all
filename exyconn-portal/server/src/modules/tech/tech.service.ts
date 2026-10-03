@@ -81,7 +81,7 @@ export type TrackerPlatform = 'WINDOWS' | 'MACOS' | 'LINUX' | 'ANDROID' | 'IOS';
  * form editing a config cannot send the stored value back. A blank secret on an update therefore
  * means "keep the stored one" — never "clear it".
  */
-function withoutBlankSecret<T extends object>(input: T, field: keyof T): Partial<T> {
+export function withoutBlankSecret<T extends object>(input: T, field: keyof T): Partial<T> {
   const value = input[field];
   if (typeof value !== 'string' || value.trim() !== '') {
     return input;
@@ -92,7 +92,7 @@ function withoutBlankSecret<T extends object>(input: T, field: keyof T): Partial
 }
 
 /** A config is useless without its credential, so one is required when it is created. */
-function requireSecret(value: string | undefined, label: string): void {
+export function requireSecret(value: string | undefined, label: string): void {
   if (!value?.trim()) {
     badRequest(`${label} is required.`);
   }

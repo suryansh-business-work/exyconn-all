@@ -974,14 +974,17 @@ export type Branding = {
   address: Scalars['String']['output'];
   /** Registered address as printed on invoices. */
   addressLine: Scalars['String']['output'];
+  ambitionboxUrl: Scalars['String']['output'];
   appIconDarkUrl: Scalars['String']['output'];
   appIconUrl: Scalars['String']['output'];
   backgroundColor: Scalars['String']['output'];
   /** Bank name, account and IFSC, printed on invoices so the client knows where to pay. */
   bankDetails: Scalars['String']['output'];
   businessName: Scalars['String']['output'];
+  clutchUrl: Scalars['String']['output'];
   contactPhone: Scalars['String']['output'];
   copyrightText: Scalars['String']['output'];
+  crunchbaseUrl: Scalars['String']['output'];
   /** Tax percent a generated invoice line starts at. */
   defaultTaxPercent: Scalars['Float']['output'];
   description: Scalars['String']['output'];
@@ -1027,13 +1030,16 @@ export type BrandingInput = {
   accentColor?: InputMaybe<Scalars['String']['input']>;
   address?: InputMaybe<Scalars['String']['input']>;
   addressLine?: InputMaybe<Scalars['String']['input']>;
+  ambitionboxUrl?: InputMaybe<Scalars['String']['input']>;
   appIconDarkUrl?: InputMaybe<Scalars['String']['input']>;
   appIconUrl?: InputMaybe<Scalars['String']['input']>;
   backgroundColor?: InputMaybe<Scalars['String']['input']>;
   bankDetails?: InputMaybe<Scalars['String']['input']>;
   businessName?: InputMaybe<Scalars['String']['input']>;
+  clutchUrl?: InputMaybe<Scalars['String']['input']>;
   contactPhone?: InputMaybe<Scalars['String']['input']>;
   copyrightText?: InputMaybe<Scalars['String']['input']>;
+  crunchbaseUrl?: InputMaybe<Scalars['String']['input']>;
   defaultTaxPercent?: InputMaybe<Scalars['Float']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   emailLogoDarkUrl?: InputMaybe<Scalars['String']['input']>;
@@ -1455,6 +1461,37 @@ export type ClientTicketStatus = {
   status: SupportStatus;
   subject: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
+};
+
+/** The Cloudflare API credential. The token is write-only and never returned. */
+export type CloudflareConfig = {
+  __typename?: 'CloudflareConfig';
+  /** The Cloudflare account a domain's zone is created in. */
+  accountId: Scalars['String']['output'];
+  apiTokenHint?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  hasApiToken: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type CloudflareConfigInput = {
+  accountId: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored token. */
+  apiToken?: InputMaybe<Scalars['String']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+};
+
+/** A domain's Cloudflare zone and the nameservers Cloudflare assigned it. */
+export type CloudflareZone = {
+  __typename?: 'CloudflareZone';
+  id: Scalars['ID']['output'];
+  nameServers: Array<Scalars['String']['output']>;
+  originalNameServers: Array<Scalars['String']['output']>;
+  status: Scalars['String']['output'];
 };
 
 export type Company = {
@@ -2006,6 +2043,71 @@ export type DepartmentInput = {
   headId?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
 };
+
+/** Who answers for a domain now, judged from the nameservers the registry holds. */
+export enum DnsAuthority {
+  Cloudflare = 'CLOUDFLARE',
+  Godaddy = 'GODADDY',
+  Other = 'OTHER'
+}
+
+/** A domain on the GoDaddy account. */
+export type DnsDomain = {
+  __typename?: 'DnsDomain';
+  domain: Scalars['String']['output'];
+  nameServers: Array<Scalars['String']['output']>;
+  status: Scalars['String']['output'];
+};
+
+export type DnsMigrationFailure = {
+  __typename?: 'DnsMigrationFailure';
+  content: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+};
+
+export type DnsMigrationResult = {
+  __typename?: 'DnsMigrationResult';
+  alreadyPresent: Scalars['Int']['output'];
+  created: Scalars['Int']['output'];
+  failed: Array<DnsMigrationFailure>;
+  zone: CloudflareZone;
+};
+
+export type DnsOverview = {
+  __typename?: 'DnsOverview';
+  authority: DnsAuthority;
+  domain: Scalars['String']['output'];
+  /** The nameservers GoDaddy's registry holds for the domain now. */
+  godaddyNameServers: Array<Scalars['String']['output']>;
+  missingOnCloudflare: Scalars['Int']['output'];
+  /** The GoDaddy nameservers the domain had before the portal first moved it; empty if never. */
+  previousGodaddyNameServers: Array<Scalars['String']['output']>;
+  records: Array<DnsRecordPair>;
+  /** Null until the domain is shifted to Cloudflare. */
+  zone?: Maybe<CloudflareZone>;
+};
+
+/** One DNS record and where it exists. TTL and proxying are shown but never make a mismatch. */
+export type DnsRecordPair = {
+  __typename?: 'DnsRecordPair';
+  cloudflareProxied?: Maybe<Scalars['Boolean']['output']>;
+  cloudflareTtl?: Maybe<Scalars['Int']['output']>;
+  content: Scalars['String']['output'];
+  godaddyTtl?: Maybe<Scalars['Int']['output']>;
+  key: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  priority?: Maybe<Scalars['Int']['output']>;
+  status: DnsRecordStatus;
+  type: Scalars['String']['output'];
+};
+
+export enum DnsRecordStatus {
+  Match = 'MATCH',
+  MissingOnCloudflare = 'MISSING_ON_CLOUDFLARE',
+  OnlyOnCloudflare = 'ONLY_ON_CLOUDFLARE'
+}
 
 /** One page of a project's documentation. Pages nest through parentId. */
 export type DocPage = {
@@ -2813,6 +2915,28 @@ export enum GoalStatus {
   Completed = 'COMPLETED',
   Draft = 'DRAFT'
 }
+
+/** The GoDaddy API credential. The key and secret are write-only and never returned. */
+export type GodaddyConfig = {
+  __typename?: 'GodaddyConfig';
+  apiKeyHint?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  hasApiKey: Scalars['Boolean']['output'];
+  hasApiSecret: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type GodaddyConfigInput = {
+  /** Write-only. Leave empty when editing to keep the stored key. */
+  apiKey?: InputMaybe<Scalars['String']['input']>;
+  /** Write-only. Leave empty when editing to keep the stored secret. */
+  apiSecret?: InputMaybe<Scalars['String']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+};
 
 export type Grade = {
   __typename?: 'Grade';
@@ -4517,6 +4641,7 @@ export type Mutation = {
    * account. Rate-limited per address; returns only the ticket's reference.
    */
   createClientSupportTicket: Scalars['String']['output'];
+  createCloudflareConfig: CloudflareConfig;
   createColumn: BoardColumn;
   createCompany: Company;
   createCompanyExpense: CompanyExpense;
@@ -4538,6 +4663,7 @@ export type Mutation = {
   createGig: Gig;
   createGithubConfig: GithubConfig;
   createGoal: Goal;
+  createGodaddyConfig: GodaddyConfig;
   createGrade: Grade;
   createHoliday: Holiday;
   createImageConfig: ImageConfig;
@@ -4660,6 +4786,7 @@ export type Mutation = {
   deleteCannedReply: Scalars['Boolean']['output'];
   deleteCaseStudy: Scalars['Boolean']['output'];
   deleteClient: Scalars['Boolean']['output'];
+  deleteCloudflareConfig: Scalars['Boolean']['output'];
   deleteColumn: Scalars['Boolean']['output'];
   deleteCompany: Scalars['Boolean']['output'];
   deleteCompanyExpense: Scalars['Boolean']['output'];
@@ -4682,6 +4809,7 @@ export type Mutation = {
   deleteGig: Scalars['Boolean']['output'];
   deleteGithubConfig: Scalars['Boolean']['output'];
   deleteGoal: Scalars['Boolean']['output'];
+  deleteGodaddyConfig: Scalars['Boolean']['output'];
   deleteGrade: Scalars['Boolean']['output'];
   deleteHoliday: Scalars['Boolean']['output'];
   deleteImageConfig: Scalars['Boolean']['output'];
@@ -4789,6 +4917,8 @@ export type Mutation = {
   markPayrollPaid: Scalars['Int']['output'];
   /** Marks one employee's inbound messages read, so the portal's unread badge clears. */
   markTrackerThreadRead: Scalars['Int']['output'];
+  /** Copies every GoDaddy record Cloudflare lacks into the domain's zone, creating the zone first. */
+  migrateDnsToCloudflare: DnsMigrationResult;
   /** Re-files a page under a new parent (null for top level) at a given position. */
   moveDocPage: Scalars['Boolean']['output'];
   moveTask: Scalars['Boolean']['output'];
@@ -4930,6 +5060,8 @@ export type Mutation = {
   setColumnDone: BoardColumn;
   /** Moves a deal to another pipeline stage — what a drag on the board does. Winning makes the account a client. */
   setDealStage: Deal;
+  /** Points the domain's nameservers at Cloudflare, back at GoDaddy, or at a custom set. */
+  setDomainNameservers: Array<Scalars['String']['output']>;
   /**
    * Finance's decision on a claim. APPROVED takes an approved amount (defaults to the claim);
    * PAID stamps paidOn, the date the reimbursement reaches the cash figures.
@@ -5023,7 +5155,9 @@ export type Mutation = {
   syncAllSocialAccounts: Array<SocialSyncResult>;
   /** Reads one account's posts and numbers from the network now. MARKETING. */
   syncSocialAccount: SocialSyncResult;
+  testCloudflareConnection: Scalars['Boolean']['output'];
   testGithubConnection: Scalars['Boolean']['output'];
+  testGodaddyConnection: Scalars['Boolean']['output'];
   testImageUpload: Scalars['String']['output'];
   /** Signs in and opens the mailbox, so credentials are checked before the poller relies on them. */
   testInboundMailConnection: Scalars['Boolean']['output'];
@@ -5099,6 +5233,7 @@ export type Mutation = {
   updateCannedReply: CannedReply;
   updateCaseStudy: CaseStudy;
   updateClient: Client;
+  updateCloudflareConfig: CloudflareConfig;
   updateCompany: Company;
   updateCompanyExpense: CompanyExpense;
   updateContact: Contact;
@@ -5119,6 +5254,7 @@ export type Mutation = {
   updateGig: Gig;
   updateGithubConfig: GithubConfig;
   updateGoal: Goal;
+  updateGodaddyConfig: GodaddyConfig;
   updateGrade: Grade;
   updateHoliday: Holiday;
   updateImageConfig: ImageConfig;
@@ -5418,6 +5554,11 @@ export type MutationCreateClientSupportTicketArgs = {
 };
 
 
+export type MutationCreateCloudflareConfigArgs = {
+  input: CloudflareConfigInput;
+};
+
+
 export type MutationCreateColumnArgs = {
   name: Scalars['String']['input'];
   projectId: Scalars['ID']['input'];
@@ -5523,6 +5664,11 @@ export type MutationCreateGithubConfigArgs = {
 
 export type MutationCreateGoalArgs = {
   input: GoalInput;
+};
+
+
+export type MutationCreateGodaddyConfigArgs = {
+  input: GodaddyConfigInput;
 };
 
 
@@ -6009,6 +6155,11 @@ export type MutationDeleteClientArgs = {
 };
 
 
+export type MutationDeleteCloudflareConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteColumnArgs = {
   id: Scalars['ID']['input'];
 };
@@ -6110,6 +6261,11 @@ export type MutationDeleteGithubConfigArgs = {
 
 
 export type MutationDeleteGoalArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteGodaddyConfigArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -6530,6 +6686,11 @@ export type MutationMarkTrackerThreadReadArgs = {
 };
 
 
+export type MutationMigrateDnsToCloudflareArgs = {
+  domain: Scalars['String']['input'];
+};
+
+
 export type MutationMoveDocPageArgs = {
   id: Scalars['ID']['input'];
   parentId?: InputMaybe<Scalars['ID']['input']>;
@@ -6806,6 +6967,13 @@ export type MutationSetDealStageArgs = {
 };
 
 
+export type MutationSetDomainNameserversArgs = {
+  domain: Scalars['String']['input'];
+  nameServers?: InputMaybe<Array<Scalars['String']['input']>>;
+  target: NameserverTarget;
+};
+
+
 export type MutationSetExpenseClaimStatusArgs = {
   approvedAmount?: InputMaybe<Scalars['Float']['input']>;
   id: Scalars['ID']['input'];
@@ -6981,7 +7149,17 @@ export type MutationSyncSocialAccountArgs = {
 };
 
 
+export type MutationTestCloudflareConnectionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationTestGithubConnectionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestGodaddyConnectionArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -7186,6 +7364,12 @@ export type MutationUpdateClientArgs = {
 };
 
 
+export type MutationUpdateCloudflareConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: CloudflareConfigInput;
+};
+
+
 export type MutationUpdateCompanyArgs = {
   id: Scalars['ID']['input'];
   input: CompanyInput;
@@ -7304,6 +7488,12 @@ export type MutationUpdateGithubConfigArgs = {
 export type MutationUpdateGoalArgs = {
   id: Scalars['ID']['input'];
   input: GoalInput;
+};
+
+
+export type MutationUpdateGodaddyConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: GodaddyConfigInput;
 };
 
 
@@ -7765,6 +7955,12 @@ export type MyRequestInput = {
   subject: Scalars['String']['input'];
   type: RequestType;
 };
+
+export enum NameserverTarget {
+  Cloudflare = 'CLOUDFLARE',
+  Custom = 'CUSTOM',
+  Godaddy = 'GODADDY'
+}
 
 export type NavLink = {
   __typename?: 'NavLink';
@@ -9110,6 +9306,10 @@ export type Query = {
   contractToSign?: Maybe<ContractToSign>;
   /** Open deals (not won or lost): how many, their face value and the probability-weighted value. */
   dealForecast: DealForecast;
+  /** The domains on the active GoDaddy account. */
+  dnsDomains: Array<DnsDomain>;
+  /** A domain's records on GoDaddy and Cloudflare side by side, and its nameservers. */
+  dnsOverview: DnsOverview;
   docPage: DocPage;
   /** One container in full, including a live CPU/memory sample (takes ~2s to measure). */
   dockerContainerDetail: DockerContainerDetail;
@@ -9299,6 +9499,7 @@ export type Query = {
   listClients: Array<Client>;
   listClientsPaged: ClientPage;
   listClientsStats: TableStats;
+  listCloudflareConfigs: Array<CloudflareConfig>;
   listCompanies: Array<Company>;
   listCompaniesPaged: CompanyPage;
   listCompaniesStats: TableStats;
@@ -9359,6 +9560,7 @@ export type Query = {
   listGoals: Array<Goal>;
   listGoalsPaged: GoalPage;
   listGoalsStats: TableStats;
+  listGodaddyConfigs: Array<GodaddyConfig>;
   listGrades: Array<Grade>;
   listGradesPaged: GradePage;
   listGradesStats: TableStats;
@@ -9905,6 +10107,11 @@ export type QueryContractSignaturesArgs = {
 
 export type QueryContractToSignArgs = {
   token: Scalars['String']['input'];
+};
+
+
+export type QueryDnsOverviewArgs = {
+  domain: Scalars['String']['input'];
 };
 
 
@@ -14543,24 +14750,24 @@ export type SetColumnDoneMutationVariables = Exact<{
 
 export type SetColumnDoneMutation = { __typename?: 'Mutation', setColumnDone: { __typename?: 'BoardColumn', id: string, isDone: boolean } };
 
-export type BrandingFieldsFragment = { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, heroVideoUrl: string, heroPosterUrl: string, faviconDarkUrl: string, appIconDarkUrl: string, emailLogoDarkUrl: string, ogImageDarkUrl: string, heroVideoDarkUrl: string, heroPosterDarkUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, hrEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> };
+export type BrandingFieldsFragment = { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, heroVideoUrl: string, heroPosterUrl: string, faviconDarkUrl: string, appIconDarkUrl: string, emailLogoDarkUrl: string, ogImageDarkUrl: string, heroVideoDarkUrl: string, heroPosterDarkUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, hrEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, clutchUrl: string, crunchbaseUrl: string, ambitionboxUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> };
 
 export type BrandingQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type BrandingQuery = { __typename?: 'Query', branding: { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, heroVideoUrl: string, heroPosterUrl: string, faviconDarkUrl: string, appIconDarkUrl: string, emailLogoDarkUrl: string, ogImageDarkUrl: string, heroVideoDarkUrl: string, heroPosterDarkUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, hrEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> } };
+export type BrandingQuery = { __typename?: 'Query', branding: { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, heroVideoUrl: string, heroPosterUrl: string, faviconDarkUrl: string, appIconDarkUrl: string, emailLogoDarkUrl: string, ogImageDarkUrl: string, heroVideoDarkUrl: string, heroPosterDarkUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, hrEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, clutchUrl: string, crunchbaseUrl: string, ambitionboxUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> } };
 
 export type PublicBrandingQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PublicBrandingQuery = { __typename?: 'Query', publicBranding: { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, heroVideoUrl: string, heroPosterUrl: string, faviconDarkUrl: string, appIconDarkUrl: string, emailLogoDarkUrl: string, ogImageDarkUrl: string, heroVideoDarkUrl: string, heroPosterDarkUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, hrEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> } };
+export type PublicBrandingQuery = { __typename?: 'Query', publicBranding: { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, heroVideoUrl: string, heroPosterUrl: string, faviconDarkUrl: string, appIconDarkUrl: string, emailLogoDarkUrl: string, ogImageDarkUrl: string, heroVideoDarkUrl: string, heroPosterDarkUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, hrEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, clutchUrl: string, crunchbaseUrl: string, ambitionboxUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> } };
 
 export type UpdateBrandingMutationVariables = Exact<{
   input: BrandingInput;
 }>;
 
 
-export type UpdateBrandingMutation = { __typename?: 'Mutation', updateBranding: { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, heroVideoUrl: string, heroPosterUrl: string, faviconDarkUrl: string, appIconDarkUrl: string, emailLogoDarkUrl: string, ogImageDarkUrl: string, heroVideoDarkUrl: string, heroPosterDarkUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, hrEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> } };
+export type UpdateBrandingMutation = { __typename?: 'Mutation', updateBranding: { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, heroVideoUrl: string, heroPosterUrl: string, faviconDarkUrl: string, appIconDarkUrl: string, emailLogoDarkUrl: string, ogImageDarkUrl: string, heroVideoDarkUrl: string, heroPosterDarkUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, hrEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, clutchUrl: string, crunchbaseUrl: string, ambitionboxUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> } };
 
 export type UploadImageMutationVariables = Exact<{
   file: Scalars['String']['input'];
@@ -15101,6 +15308,102 @@ export type ConvertLeadMutationVariables = Exact<{
 
 
 export type ConvertLeadMutation = { __typename?: 'Mutation', convertLead: { __typename?: 'Deal', id: string, title: string } };
+
+export type ListGodaddyConfigsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListGodaddyConfigsQuery = { __typename?: 'Query', listGodaddyConfigs: Array<{ __typename?: 'GodaddyConfig', id: string, label: string, hasApiKey: boolean, apiKeyHint?: string | null, hasApiSecret: boolean, isActive: boolean }> };
+
+export type CreateGodaddyConfigMutationVariables = Exact<{
+  input: GodaddyConfigInput;
+}>;
+
+
+export type CreateGodaddyConfigMutation = { __typename?: 'Mutation', createGodaddyConfig: { __typename?: 'GodaddyConfig', id: string } };
+
+export type UpdateGodaddyConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: GodaddyConfigInput;
+}>;
+
+
+export type UpdateGodaddyConfigMutation = { __typename?: 'Mutation', updateGodaddyConfig: { __typename?: 'GodaddyConfig', id: string } };
+
+export type DeleteGodaddyConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteGodaddyConfigMutation = { __typename?: 'Mutation', deleteGodaddyConfig: boolean };
+
+export type TestGodaddyConnectionMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TestGodaddyConnectionMutation = { __typename?: 'Mutation', testGodaddyConnection: boolean };
+
+export type ListCloudflareConfigsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListCloudflareConfigsQuery = { __typename?: 'Query', listCloudflareConfigs: Array<{ __typename?: 'CloudflareConfig', id: string, label: string, accountId: string, hasApiToken: boolean, apiTokenHint?: string | null, isActive: boolean }> };
+
+export type CreateCloudflareConfigMutationVariables = Exact<{
+  input: CloudflareConfigInput;
+}>;
+
+
+export type CreateCloudflareConfigMutation = { __typename?: 'Mutation', createCloudflareConfig: { __typename?: 'CloudflareConfig', id: string } };
+
+export type UpdateCloudflareConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: CloudflareConfigInput;
+}>;
+
+
+export type UpdateCloudflareConfigMutation = { __typename?: 'Mutation', updateCloudflareConfig: { __typename?: 'CloudflareConfig', id: string } };
+
+export type DeleteCloudflareConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteCloudflareConfigMutation = { __typename?: 'Mutation', deleteCloudflareConfig: boolean };
+
+export type TestCloudflareConnectionMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TestCloudflareConnectionMutation = { __typename?: 'Mutation', testCloudflareConnection: boolean };
+
+export type DnsDomainsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type DnsDomainsQuery = { __typename?: 'Query', dnsDomains: Array<{ __typename?: 'DnsDomain', domain: string, status: string }> };
+
+export type DnsOverviewQueryVariables = Exact<{
+  domain: Scalars['String']['input'];
+}>;
+
+
+export type DnsOverviewQuery = { __typename?: 'Query', dnsOverview: { __typename?: 'DnsOverview', domain: string, authority: DnsAuthority, godaddyNameServers: Array<string>, previousGodaddyNameServers: Array<string>, missingOnCloudflare: number, zone?: { __typename?: 'CloudflareZone', id: string, status: string, nameServers: Array<string> } | null, records: Array<{ __typename?: 'DnsRecordPair', key: string, type: string, name: string, content: string, priority?: number | null, godaddyTtl?: number | null, cloudflareTtl?: number | null, cloudflareProxied?: boolean | null, status: DnsRecordStatus }> } };
+
+export type MigrateDnsToCloudflareMutationVariables = Exact<{
+  domain: Scalars['String']['input'];
+}>;
+
+
+export type MigrateDnsToCloudflareMutation = { __typename?: 'Mutation', migrateDnsToCloudflare: { __typename?: 'DnsMigrationResult', created: number, alreadyPresent: number, failed: Array<{ __typename?: 'DnsMigrationFailure', type: string, name: string, content: string, message: string }> } };
+
+export type SetDomainNameserversMutationVariables = Exact<{
+  domain: Scalars['String']['input'];
+  target: NameserverTarget;
+  nameServers?: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+export type SetDomainNameserversMutation = { __typename?: 'Mutation', setDomainNameservers: Array<string> };
 
 export type EmailFragmentFieldsFragment = { __typename?: 'EmailFragment', id: string, key: string, name: string, description: string, mjml: string, updatedBy: string, updatedAt: string };
 
@@ -20132,6 +20435,9 @@ export const BrandingFieldsFragmentDoc = gql`
   instagramUrl
   youtubeUrl
   githubUrl
+  clutchUrl
+  crunchbaseUrl
+  ambitionboxUrl
   copyrightText
   gstin
   stateCode
@@ -28951,6 +29257,515 @@ export function useConvertLeadMutation(baseOptions?: ApolloReactHooks.MutationHo
         return ApolloReactHooks.useMutation<ConvertLeadMutation, ConvertLeadMutationVariables>(ConvertLeadDocument, options);
       }
 export type ConvertLeadMutationHookResult = ReturnType<typeof useConvertLeadMutation>;
+export const ListGodaddyConfigsDocument = gql`
+    query ListGodaddyConfigs {
+  listGodaddyConfigs {
+    id
+    label
+    hasApiKey
+    apiKeyHint
+    hasApiSecret
+    isActive
+  }
+}
+    `;
+
+/**
+ * __useListGodaddyConfigsQuery__
+ *
+ * To run a query within a React component, call `useListGodaddyConfigsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListGodaddyConfigsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListGodaddyConfigsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListGodaddyConfigsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ListGodaddyConfigsQuery, ListGodaddyConfigsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListGodaddyConfigsQuery, ListGodaddyConfigsQueryVariables>(ListGodaddyConfigsDocument, options);
+      }
+export function useListGodaddyConfigsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListGodaddyConfigsQuery, ListGodaddyConfigsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListGodaddyConfigsQuery, ListGodaddyConfigsQueryVariables>(ListGodaddyConfigsDocument, options);
+        }
+// @ts-ignore
+export function useListGodaddyConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListGodaddyConfigsQuery, ListGodaddyConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListGodaddyConfigsQuery, ListGodaddyConfigsQueryVariables>;
+// @ts-ignore
+export function useListGodaddyConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListGodaddyConfigsQuery, ListGodaddyConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListGodaddyConfigsQuery | undefined, ListGodaddyConfigsQueryVariables>;
+export function useListGodaddyConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListGodaddyConfigsQuery, ListGodaddyConfigsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListGodaddyConfigsQuery, ListGodaddyConfigsQueryVariables>(ListGodaddyConfigsDocument, options);
+        }
+export type ListGodaddyConfigsQueryHookResult = ReturnType<typeof useListGodaddyConfigsQuery>;
+export type ListGodaddyConfigsLazyQueryHookResult = ReturnType<typeof useListGodaddyConfigsLazyQuery>;
+export type ListGodaddyConfigsSuspenseQueryHookResult = ReturnType<typeof useListGodaddyConfigsSuspenseQuery>;
+export const CreateGodaddyConfigDocument = gql`
+    mutation CreateGodaddyConfig($input: GodaddyConfigInput!) {
+  createGodaddyConfig(input: $input) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useCreateGodaddyConfigMutation__
+ *
+ * To run a mutation, you first call `useCreateGodaddyConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateGodaddyConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createGodaddyConfigMutation, { data, loading, error }] = useCreateGodaddyConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateGodaddyConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateGodaddyConfigMutation, CreateGodaddyConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateGodaddyConfigMutation, CreateGodaddyConfigMutationVariables>(CreateGodaddyConfigDocument, options);
+      }
+export type CreateGodaddyConfigMutationHookResult = ReturnType<typeof useCreateGodaddyConfigMutation>;
+export const UpdateGodaddyConfigDocument = gql`
+    mutation UpdateGodaddyConfig($id: ID!, $input: GodaddyConfigInput!) {
+  updateGodaddyConfig(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useUpdateGodaddyConfigMutation__
+ *
+ * To run a mutation, you first call `useUpdateGodaddyConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateGodaddyConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateGodaddyConfigMutation, { data, loading, error }] = useUpdateGodaddyConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateGodaddyConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateGodaddyConfigMutation, UpdateGodaddyConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateGodaddyConfigMutation, UpdateGodaddyConfigMutationVariables>(UpdateGodaddyConfigDocument, options);
+      }
+export type UpdateGodaddyConfigMutationHookResult = ReturnType<typeof useUpdateGodaddyConfigMutation>;
+export const DeleteGodaddyConfigDocument = gql`
+    mutation DeleteGodaddyConfig($id: ID!) {
+  deleteGodaddyConfig(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteGodaddyConfigMutation__
+ *
+ * To run a mutation, you first call `useDeleteGodaddyConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteGodaddyConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteGodaddyConfigMutation, { data, loading, error }] = useDeleteGodaddyConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteGodaddyConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteGodaddyConfigMutation, DeleteGodaddyConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteGodaddyConfigMutation, DeleteGodaddyConfigMutationVariables>(DeleteGodaddyConfigDocument, options);
+      }
+export type DeleteGodaddyConfigMutationHookResult = ReturnType<typeof useDeleteGodaddyConfigMutation>;
+export const TestGodaddyConnectionDocument = gql`
+    mutation TestGodaddyConnection($id: ID!) {
+  testGodaddyConnection(id: $id)
+}
+    `;
+
+/**
+ * __useTestGodaddyConnectionMutation__
+ *
+ * To run a mutation, you first call `useTestGodaddyConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestGodaddyConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testGodaddyConnectionMutation, { data, loading, error }] = useTestGodaddyConnectionMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTestGodaddyConnectionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TestGodaddyConnectionMutation, TestGodaddyConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TestGodaddyConnectionMutation, TestGodaddyConnectionMutationVariables>(TestGodaddyConnectionDocument, options);
+      }
+export type TestGodaddyConnectionMutationHookResult = ReturnType<typeof useTestGodaddyConnectionMutation>;
+export const ListCloudflareConfigsDocument = gql`
+    query ListCloudflareConfigs {
+  listCloudflareConfigs {
+    id
+    label
+    accountId
+    hasApiToken
+    apiTokenHint
+    isActive
+  }
+}
+    `;
+
+/**
+ * __useListCloudflareConfigsQuery__
+ *
+ * To run a query within a React component, call `useListCloudflareConfigsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListCloudflareConfigsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListCloudflareConfigsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListCloudflareConfigsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ListCloudflareConfigsQuery, ListCloudflareConfigsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListCloudflareConfigsQuery, ListCloudflareConfigsQueryVariables>(ListCloudflareConfigsDocument, options);
+      }
+export function useListCloudflareConfigsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListCloudflareConfigsQuery, ListCloudflareConfigsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListCloudflareConfigsQuery, ListCloudflareConfigsQueryVariables>(ListCloudflareConfigsDocument, options);
+        }
+// @ts-ignore
+export function useListCloudflareConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListCloudflareConfigsQuery, ListCloudflareConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListCloudflareConfigsQuery, ListCloudflareConfigsQueryVariables>;
+// @ts-ignore
+export function useListCloudflareConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListCloudflareConfigsQuery, ListCloudflareConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListCloudflareConfigsQuery | undefined, ListCloudflareConfigsQueryVariables>;
+export function useListCloudflareConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListCloudflareConfigsQuery, ListCloudflareConfigsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListCloudflareConfigsQuery, ListCloudflareConfigsQueryVariables>(ListCloudflareConfigsDocument, options);
+        }
+export type ListCloudflareConfigsQueryHookResult = ReturnType<typeof useListCloudflareConfigsQuery>;
+export type ListCloudflareConfigsLazyQueryHookResult = ReturnType<typeof useListCloudflareConfigsLazyQuery>;
+export type ListCloudflareConfigsSuspenseQueryHookResult = ReturnType<typeof useListCloudflareConfigsSuspenseQuery>;
+export const CreateCloudflareConfigDocument = gql`
+    mutation CreateCloudflareConfig($input: CloudflareConfigInput!) {
+  createCloudflareConfig(input: $input) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useCreateCloudflareConfigMutation__
+ *
+ * To run a mutation, you first call `useCreateCloudflareConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCloudflareConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCloudflareConfigMutation, { data, loading, error }] = useCreateCloudflareConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCloudflareConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateCloudflareConfigMutation, CreateCloudflareConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateCloudflareConfigMutation, CreateCloudflareConfigMutationVariables>(CreateCloudflareConfigDocument, options);
+      }
+export type CreateCloudflareConfigMutationHookResult = ReturnType<typeof useCreateCloudflareConfigMutation>;
+export const UpdateCloudflareConfigDocument = gql`
+    mutation UpdateCloudflareConfig($id: ID!, $input: CloudflareConfigInput!) {
+  updateCloudflareConfig(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useUpdateCloudflareConfigMutation__
+ *
+ * To run a mutation, you first call `useUpdateCloudflareConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCloudflareConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCloudflareConfigMutation, { data, loading, error }] = useUpdateCloudflareConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCloudflareConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateCloudflareConfigMutation, UpdateCloudflareConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateCloudflareConfigMutation, UpdateCloudflareConfigMutationVariables>(UpdateCloudflareConfigDocument, options);
+      }
+export type UpdateCloudflareConfigMutationHookResult = ReturnType<typeof useUpdateCloudflareConfigMutation>;
+export const DeleteCloudflareConfigDocument = gql`
+    mutation DeleteCloudflareConfig($id: ID!) {
+  deleteCloudflareConfig(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteCloudflareConfigMutation__
+ *
+ * To run a mutation, you first call `useDeleteCloudflareConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCloudflareConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCloudflareConfigMutation, { data, loading, error }] = useDeleteCloudflareConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteCloudflareConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteCloudflareConfigMutation, DeleteCloudflareConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteCloudflareConfigMutation, DeleteCloudflareConfigMutationVariables>(DeleteCloudflareConfigDocument, options);
+      }
+export type DeleteCloudflareConfigMutationHookResult = ReturnType<typeof useDeleteCloudflareConfigMutation>;
+export const TestCloudflareConnectionDocument = gql`
+    mutation TestCloudflareConnection($id: ID!) {
+  testCloudflareConnection(id: $id)
+}
+    `;
+
+/**
+ * __useTestCloudflareConnectionMutation__
+ *
+ * To run a mutation, you first call `useTestCloudflareConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestCloudflareConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testCloudflareConnectionMutation, { data, loading, error }] = useTestCloudflareConnectionMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTestCloudflareConnectionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TestCloudflareConnectionMutation, TestCloudflareConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TestCloudflareConnectionMutation, TestCloudflareConnectionMutationVariables>(TestCloudflareConnectionDocument, options);
+      }
+export type TestCloudflareConnectionMutationHookResult = ReturnType<typeof useTestCloudflareConnectionMutation>;
+export const DnsDomainsDocument = gql`
+    query DnsDomains {
+  dnsDomains {
+    domain
+    status
+  }
+}
+    `;
+
+/**
+ * __useDnsDomainsQuery__
+ *
+ * To run a query within a React component, call `useDnsDomainsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useDnsDomainsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useDnsDomainsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useDnsDomainsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<DnsDomainsQuery, DnsDomainsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<DnsDomainsQuery, DnsDomainsQueryVariables>(DnsDomainsDocument, options);
+      }
+export function useDnsDomainsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<DnsDomainsQuery, DnsDomainsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<DnsDomainsQuery, DnsDomainsQueryVariables>(DnsDomainsDocument, options);
+        }
+// @ts-ignore
+export function useDnsDomainsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<DnsDomainsQuery, DnsDomainsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<DnsDomainsQuery, DnsDomainsQueryVariables>;
+// @ts-ignore
+export function useDnsDomainsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<DnsDomainsQuery, DnsDomainsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<DnsDomainsQuery | undefined, DnsDomainsQueryVariables>;
+export function useDnsDomainsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<DnsDomainsQuery, DnsDomainsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<DnsDomainsQuery, DnsDomainsQueryVariables>(DnsDomainsDocument, options);
+        }
+export type DnsDomainsQueryHookResult = ReturnType<typeof useDnsDomainsQuery>;
+export type DnsDomainsLazyQueryHookResult = ReturnType<typeof useDnsDomainsLazyQuery>;
+export type DnsDomainsSuspenseQueryHookResult = ReturnType<typeof useDnsDomainsSuspenseQuery>;
+export const DnsOverviewDocument = gql`
+    query DnsOverview($domain: String!) {
+  dnsOverview(domain: $domain) {
+    domain
+    authority
+    godaddyNameServers
+    previousGodaddyNameServers
+    missingOnCloudflare
+    zone {
+      id
+      status
+      nameServers
+    }
+    records {
+      key
+      type
+      name
+      content
+      priority
+      godaddyTtl
+      cloudflareTtl
+      cloudflareProxied
+      status
+    }
+  }
+}
+    `;
+
+/**
+ * __useDnsOverviewQuery__
+ *
+ * To run a query within a React component, call `useDnsOverviewQuery` and pass it any options that fit your needs.
+ * When your component renders, `useDnsOverviewQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useDnsOverviewQuery({
+ *   variables: {
+ *      domain: // value for 'domain'
+ *   },
+ * });
+ */
+export function useDnsOverviewQuery(baseOptions: ApolloReactHooks.QueryHookOptions<DnsOverviewQuery, DnsOverviewQueryVariables> & ({ variables: DnsOverviewQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<DnsOverviewQuery, DnsOverviewQueryVariables>(DnsOverviewDocument, options);
+      }
+export function useDnsOverviewLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<DnsOverviewQuery, DnsOverviewQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<DnsOverviewQuery, DnsOverviewQueryVariables>(DnsOverviewDocument, options);
+        }
+// @ts-ignore
+export function useDnsOverviewSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<DnsOverviewQuery, DnsOverviewQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<DnsOverviewQuery, DnsOverviewQueryVariables>;
+// @ts-ignore
+export function useDnsOverviewSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<DnsOverviewQuery, DnsOverviewQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<DnsOverviewQuery | undefined, DnsOverviewQueryVariables>;
+export function useDnsOverviewSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<DnsOverviewQuery, DnsOverviewQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<DnsOverviewQuery, DnsOverviewQueryVariables>(DnsOverviewDocument, options);
+        }
+export type DnsOverviewQueryHookResult = ReturnType<typeof useDnsOverviewQuery>;
+export type DnsOverviewLazyQueryHookResult = ReturnType<typeof useDnsOverviewLazyQuery>;
+export type DnsOverviewSuspenseQueryHookResult = ReturnType<typeof useDnsOverviewSuspenseQuery>;
+export const MigrateDnsToCloudflareDocument = gql`
+    mutation MigrateDnsToCloudflare($domain: String!) {
+  migrateDnsToCloudflare(domain: $domain) {
+    created
+    alreadyPresent
+    failed {
+      type
+      name
+      content
+      message
+    }
+  }
+}
+    `;
+
+/**
+ * __useMigrateDnsToCloudflareMutation__
+ *
+ * To run a mutation, you first call `useMigrateDnsToCloudflareMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useMigrateDnsToCloudflareMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [migrateDnsToCloudflareMutation, { data, loading, error }] = useMigrateDnsToCloudflareMutation({
+ *   variables: {
+ *      domain: // value for 'domain'
+ *   },
+ * });
+ */
+export function useMigrateDnsToCloudflareMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<MigrateDnsToCloudflareMutation, MigrateDnsToCloudflareMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<MigrateDnsToCloudflareMutation, MigrateDnsToCloudflareMutationVariables>(MigrateDnsToCloudflareDocument, options);
+      }
+export type MigrateDnsToCloudflareMutationHookResult = ReturnType<typeof useMigrateDnsToCloudflareMutation>;
+export const SetDomainNameserversDocument = gql`
+    mutation SetDomainNameservers($domain: String!, $target: NameserverTarget!, $nameServers: [String!]) {
+  setDomainNameservers(
+    domain: $domain
+    target: $target
+    nameServers: $nameServers
+  )
+}
+    `;
+
+/**
+ * __useSetDomainNameserversMutation__
+ *
+ * To run a mutation, you first call `useSetDomainNameserversMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetDomainNameserversMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setDomainNameserversMutation, { data, loading, error }] = useSetDomainNameserversMutation({
+ *   variables: {
+ *      domain: // value for 'domain'
+ *      target: // value for 'target'
+ *      nameServers: // value for 'nameServers'
+ *   },
+ * });
+ */
+export function useSetDomainNameserversMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SetDomainNameserversMutation, SetDomainNameserversMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SetDomainNameserversMutation, SetDomainNameserversMutationVariables>(SetDomainNameserversDocument, options);
+      }
+export type SetDomainNameserversMutationHookResult = ReturnType<typeof useSetDomainNameserversMutation>;
 export const ListEmailFragmentsDocument = gql`
     query ListEmailFragments {
   listEmailFragments {

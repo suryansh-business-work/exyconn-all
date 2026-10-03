@@ -19,6 +19,11 @@ export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   'SlackConfig',
   'OpenAiConfig',
   'PexelsConfig',
+  // The registrar and DNS credentials behind Tech > Security > Cloudflare, and the record of
+  // every nameserver change made there — exyconn.com's own DNS, not any company's.
+  'GodaddyConfig',
+  'CloudflareConfig',
+  'NameserverChange',
   // The social networks' OAuth apps, registered once for the install, and the short-lived
   // state of a connection in progress (looked up by the provider's callback, before any scope).
   'SocialAppConfig',

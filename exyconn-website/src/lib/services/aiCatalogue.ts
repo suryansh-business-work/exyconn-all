@@ -56,29 +56,33 @@ export const catalogueCta: {
 /** Filter link for one category on the listing, e.g. /ai-services?cat=trust-security. */
 export const categoryHref = (slug: string): string => `/ai-services?cat=${slug}`;
 
-/** Scene tag of a category on the listing's lattice: its position, counted from 1. */
+/** Scene tag of a category on the listing's neural core: its position, counted from 1. */
 export const categoryTag = (slug: string): number =>
   aiServiceCategories.findIndex((category) => category.slug === slug) + 1;
 
-/** The listing's scene: one lattice cluster per category. */
+/** The listing's scene: a neural core with one agent module in orbit per category. */
 export const catalogueScene = (): SceneConfig => ({
-  shapes: ["lattice"],
-  data: { lattice: { clusters: aiServiceCategories.length } },
+  shapes: ["neuralCore"],
+  data: { neuralCore: { modules: aiServiceCategories.length } },
 });
 
-/** A detail page's header scene, chosen by its category and sized by the category's services. */
+/**
+ * A detail page's header scene, chosen by its category and sized by the category's services:
+ * agents orbiting a neural core, data turned into a rising chart, an AI product served from
+ * the cloud to its tenants, an AI chip wiring up the platform, a shield.
+ */
 export const sceneForCategory = (slug: string): SceneConfig => {
   const size = servicesInCategory(slug).length;
   switch (slug) {
     case "agents-automation":
-      return { shapes: ["orbits"], data: { orbits: { agents: size } } };
+      return { shapes: ["neuralCore"], data: { neuralCore: { modules: size } } };
     case "revenue-growth":
     case "business-operations":
-      return { shapes: ["pipeline"], data: { pipeline: { stations: size } } };
+      return { shapes: ["dataflow"] };
     case "vertical-platforms":
-      return { shapes: ["layers"], data: { layers: { layers: size } } };
+      return { shapes: ["cloudStack"] };
     case "platform-infrastructure":
-      return { shapes: ["hubSpokes"], data: { hubSpokes: { ports: size } } };
+      return { shapes: ["aiChip"], data: { aiChip: { pads: size } } };
     case "trust-security":
       return { shapes: ["shield"] };
     default:

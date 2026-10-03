@@ -4,12 +4,14 @@ import "../styles/global.css";
 import "../styles/chrome.css";
 import BackToTop from "../components/fragments/BackToTop.astro";
 import Footer from "../components/header-and-footer/Footer.astro";
+import MarketSuggestion from "../components/MarketSuggestion.astro";
 import Header from "../components/header-and-footer/Header.astro";
 import SearchModal from "../components/SearchModal.astro";
 import { BRANDING_FALLBACK, getBrandingSafe } from "../lib/portal";
 import { renderHead, ROBOTS_INDEX, ROBOTS_NOINDEX, type PageMeta } from "@exyconn/seo";
 import HeadScripts from "../components/header-and-footer/HeadScripts.astro";
 import { baselineJsonLd } from "../lib/chrome/site-schema";
+import { socialLinks } from "../lib/social-links";
 import { DEFAULT_MARKET, MARKETS, marketUrl, splitMarketPath } from "../lib/i18n/markets";
 
 const {
@@ -92,6 +94,7 @@ const baselineLd = baselineJsonLd({
   organizationUrl,
   siteUrl: SITE_URL,
   logo: absoluteLogo,
+  profiles: socialLinks(branding).map((link) => link.url),
 });
 
 const pageLd = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
@@ -156,6 +159,7 @@ const pageMeta: PageMeta = {
     </main>
 
     <Footer branding={branding} />
+    <MarketSuggestion />
 
     <!-- Global search modal (Ctrl/Cmd+K, /, or [data-search-open] triggers) -->
     <SearchModal />

@@ -3,6 +3,8 @@ import { SHAPES } from "../shapes/registry";
 import { createAnimator } from "./animator";
 import type { ResolvedScene } from "./config";
 import { listenForHighlights } from "./highlight";
+import { createStageInput } from "./interaction";
+import { damp, smoothstep } from "../math";
 import { buildInnerWorld } from "./scene";
 import { needsFrames, parseShapeIndex, phaseFor, type StagePhase } from "./state";
 
@@ -26,8 +28,12 @@ const STILL_TIME = 6;
 export const startInnerScene = async (options: InnerSceneOptions): Promise<() => void> => {
   const { stage, host, echoes, config, tier } = options;
   const world = buildInnerWorld(stage, host, config, tier);
-  const { renderer, scene, camera, root, particles, stars, nebula } = world;
+  const { renderer, scene, camera, root, particles, lines, stars, nebula } = world;
   const animator = createAnimator(particles.uniforms, tier.animate);
+  const input = createStageInput(stage, () => renderer.domElement, tier.animate);
+  const rest = { z: 7.4, x: 0 };
+  let pitchGoal = 0;
+  let pitch = 0;
   const visibleEchoes = new Set<HTMLElement>();
   let current = host;
   let phase: StagePhase = "live";
@@ -43,10 +49,13 @@ export const startInnerScene = async (options: InnerSceneOptions): Promise<() =>
     renderer.setSize(width, height, false);
     camera.aspect = width / Math.max(1, height);
     camera.fov = wide ? 40 : 50;
-    camera.position.set(0, 0.2, wide ? 7.4 : 5.8);
+    rest.z = wide ? 7.4 : 5.8;
+    rest.x = wide ? 2.1 : 0;
+    camera.position.set(0, 0.2, rest.z);
     camera.lookAt(0, 0, 0);
     camera.updateProjectionMatrix();
-    root.position.set(wide ? 1.9 : 0, 0, 0);
+    root.position.set(rest.x, 0, 0);
+    particles.uniforms.uAspect.value = camera.aspect;
     if (nebula) {
       const ratio = renderer.getPixelRatio();
       nebula.visible = wide;
@@ -57,10 +66,34 @@ export const startInnerScene = async (options: InnerSceneOptions): Promise<() =>
   const render = () => {
     particles.uniforms.uTime.value = time;
     stars.uniforms.uTime.value = time;
+    if (lines) {
+      lines.uniforms.uTime.value = time;
+      lines.uniforms.uForm.value = particles.uniforms.uForm.value;
+      lines.uniforms.uAngle.value = particles.uniforms.uAngle.value;
+      // The structure belongs to the hero shape; it fades as the stage morphs away from it.
+      lines.uniforms.uLineMix.value = 1 - smoothstep(0, 0.5, particles.uniforms.uShape.value);
+    }
     if (nebula) {
       nebula.material.uniforms.uTime.value = time;
     }
     renderer.render(scene, camera);
+  };
+
+  /**
+   * The stage's response to the visitor: looks down on the shape by its pitch, leans towards
+   * the pointer, and as the hero scrolls away turns the scene and brings the camera in.
+   */
+  const lean = (dt: number) => {
+    const onHero = current === host;
+    const { x, y, near, scroll } = input.step(dt, onHero);
+    pitch = tier.animate ? damp(pitch, pitchGoal, 3, dt) : pitchGoal;
+    root.rotation.x = pitch - y * 0.12 + scroll * 0.2;
+    root.rotation.y = x * 0.28 + scroll * 0.6;
+    // Sinks a little as the hero rises, so the scene stays clear of the sticky header.
+    root.position.set(rest.x, -scroll * 0.5, 0);
+    camera.position.z = rest.z - scroll * 1;
+    particles.uniforms.uPointer.value.set(x, y);
+    particles.uniforms.uPointerMix.value = onHero ? near : 0;
   };
 
   const tick = (now: number) => {
@@ -68,6 +101,7 @@ export const startInnerScene = async (options: InnerSceneOptions): Promise<() =>
     last = now;
     time += dt;
     animator.step(time, dt);
+    lean(dt);
     render();
     raf = needsFrames(phase, tier.animate, animator.settling()) ? requestAnimationFrame(tick) : 0;
   };
@@ -77,6 +111,7 @@ export const startInnerScene = async (options: InnerSceneOptions): Promise<() =>
     raf = 0;
     if (!tier.animate) {
       animator.step(time, 0);
+      lean(0);
       render();
     } else if (!document.hidden && needsFrames(phase, tier.animate, animator.settling())) {
       last = performance.now();
@@ -84,7 +119,11 @@ export const startInnerScene = async (options: InnerSceneOptions): Promise<() =>
     }
   };
 
-  const setShape = (index: number) => animator.setShape(index, SHAPES[config.shapes[index]].motion);
+  const setShape = (index: number) => {
+    const shape = SHAPES[config.shapes[index]];
+    pitchGoal = shape.pitch ?? 0;
+    animator.setShape(index, shape.motion);
+  };
 
   const moveTo = (target: HTMLElement) => {
     current = target;
@@ -162,6 +201,7 @@ export const startInnerScene = async (options: InnerSceneOptions): Promise<() =>
     window.removeEventListener("resize", onResize);
     document.removeEventListener("visibilitychange", run);
     stopHighlights();
+    input.dispose();
     world.dispose();
     delete stage.dataset.scene;
     delete stage.dataset.scenePhase;

@@ -1,4 +1,14 @@
+import { sampleAiChip, AI_CHIP_BOUNDS, type AiChipParams } from "./ai-chip";
 import { sampleJet } from "./aviation";
+import { sampleCity, CITY_BOUNDS } from "./city";
+import { sampleCloudStack, CLOUD_STACK_BOUNDS } from "./cloud-stack";
+import { sampleDataflow, DATAFLOW_BOUNDS } from "./dataflow";
+import { sampleDevices, DEVICES_BOUNDS } from "./devices";
+import { sampleIntegration, INTEGRATION_BOUNDS } from "./integration";
+import { sampleModernize, MODERNIZE_BOUNDS } from "./modernize";
+import { sampleNeuralCore, NEURAL_CORE_BOUNDS, type NeuralCoreParams } from "./neural-core";
+import { sampleOps, OPS_BOUNDS } from "./ops";
+import { sampleRoadmap, ROADMAP_BOUNDS } from "./roadmap";
 import {
   sampleConstellation,
   CONSTELLATION_BOUNDS,
@@ -54,6 +64,16 @@ export interface ShapeParamsMap {
   shield: ShieldParams;
   documents: DocumentsParams;
   tree: TreeParams;
+  city: Record<string, never>;
+  dataflow: Record<string, never>;
+  devices: Record<string, never>;
+  cloudStack: Record<string, never>;
+  integration: Record<string, never>;
+  ops: Record<string, never>;
+  roadmap: Record<string, never>;
+  modernize: Record<string, never>;
+  neuralCore: NeuralCoreParams;
+  aiChip: AiChipParams;
 }
 
 export type ShapeId = keyof ShapeParamsMap;
@@ -68,6 +88,11 @@ export interface ShapeDefinition<P> {
   bounds: Vec3;
   motion: ShapeMotion;
   sample: (count: number, random: Random, params?: P) => Cloud;
+  /**
+   * How far the stage looks down on the shape, radians. Built scenes with depth — a city, a
+   * server room — read as places from a little above; flat diagrams stay face on (0).
+   */
+  pitch?: number;
 }
 
 type Registry = { readonly [K in ShapeId]: ShapeDefinition<ShapeParamsMap[K]> };
@@ -100,6 +125,21 @@ export const SHAPES: Registry = {
   shield: { bounds: SHIELD_BOUNDS, motion: "sway", sample: sampleShield },
   documents: { bounds: DOCUMENTS_BOUNDS, motion: "sway", sample: sampleDocuments },
   tree: { bounds: TREE_BOUNDS, motion: "sway", sample: sampleTree },
+  city: { bounds: CITY_BOUNDS, motion: "spin", sample: sampleCity, pitch: 0.34 },
+  dataflow: { bounds: DATAFLOW_BOUNDS, motion: "sway", sample: sampleDataflow, pitch: 0.16 },
+  devices: { bounds: DEVICES_BOUNDS, motion: "sway", sample: sampleDevices, pitch: 0.06 },
+  cloudStack: { bounds: CLOUD_STACK_BOUNDS, motion: "sway", sample: sampleCloudStack, pitch: 0.12 },
+  integration: {
+    bounds: INTEGRATION_BOUNDS,
+    motion: "sway",
+    sample: sampleIntegration,
+    pitch: 0.18,
+  },
+  ops: { bounds: OPS_BOUNDS, motion: "sway", sample: sampleOps, pitch: 0.04 },
+  roadmap: { bounds: ROADMAP_BOUNDS, motion: "sway", sample: sampleRoadmap, pitch: 0.22 },
+  modernize: { bounds: MODERNIZE_BOUNDS, motion: "sway", sample: sampleModernize, pitch: 0.14 },
+  neuralCore: { bounds: NEURAL_CORE_BOUNDS, motion: "spin", sample: sampleNeuralCore, pitch: 0.22 },
+  aiChip: { bounds: AI_CHIP_BOUNDS, motion: "sway", sample: sampleAiChip, pitch: 0.62 },
 };
 
 export const SHAPE_IDS = Object.keys(SHAPES) as ShapeId[];

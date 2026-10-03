@@ -12,6 +12,7 @@ import BrandLogo from "../BrandLogo.astro";
 import MarketPicker from "../MarketPicker.astro";
 import Icon from "../inner/Icon.astro";
 import { BRANDING_FALLBACK, type Branding } from "../../lib/portal";
+import SocialIcon from "../SocialIcon.astro";
 import { socialLinks } from "../../lib/social-links";
 import { FOOTER_COLUMNS, FOOTER_TAGLINE, LEGAL_LINKS } from "../../lib/chrome/navigation";
 
@@ -28,7 +29,9 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
 const legalName = branding.legalName || BRANDING_FALLBACK.legalName;
 const copyrightText =
   branding.copyrightText || `© ${new Date().getFullYear()} ${legalName}. All rights reserved.`;
-const social = socialLinks(branding);
+// GitHub stays in the mobile menu but not here: the footer is for the profiles that speak for
+// the business — where people follow it, review it and look it up.
+const social = socialLinks(branding).filter((link) => link.id !== "github");
 const newTab = { target: "_blank", rel: "noopener noreferrer" };
 ---
 
@@ -42,12 +45,15 @@ const newTab = { target: "_blank", rel: "noopener noreferrer" };
         <BrandLogo branding={branding} alt="" width="120" height="40" class="h-10 w-auto" />
       </a>
       <p class="mt-4 max-w-sm text-sm leading-relaxed text-fg-secondary">{FOOTER_TAGLINE}</p>
-      <ul class="mt-6 flex items-center gap-2" aria-label="Social media links">
+      <ul
+        class="mt-6 flex flex-wrap items-center gap-2"
+        aria-label="Social media and company profiles"
+      >
         {
           social.map((link) => (
             <li>
               <a href={link.url} {...newTab} aria-label={link.label} class="chrome-social">
-                <i class:list={[link.icon, "icon-md"]} aria-hidden="true" />
+                <SocialIcon glyph={link.glyph} />
               </a>
             </li>
           ))

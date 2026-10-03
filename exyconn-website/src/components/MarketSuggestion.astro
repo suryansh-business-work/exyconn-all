@@ -1,0 +1,82 @@
+---
+/**
+ * Offers the reader their own market when the page is in another one — a shared /en-us link
+ * opened by a French browser, say. Hidden until /api/market-suggestion has something to offer;
+ * either answer is remembered as the reader's choice, so it is offered once.
+ */
+---
+
+<aside
+  id="market-suggestion"
+  hidden
+  aria-label="Language suggestion"
+  class="fixed top-36 inset-x-4 z-50 md:inset-x-auto md:end-6 md:max-w-sm rounded-xl border border-line bg-surface p-4 shadow-lg"
+>
+  <p class="flex items-start gap-2 text-sm text-fg">
+    <i class="fa-solid fa-globe icon-sm mt-0.5 text-fg-muted" aria-hidden="true"></i>
+    <span>
+      This page is also available in <strong data-market-label translate="no"></strong>.
+    </span>
+  </p>
+  <div class="mt-3 flex flex-wrap justify-end gap-2">
+    <button
+      type="button"
+      data-market-stay
+      class="rounded-lg px-3 py-1.5 text-sm text-fg-muted hover:bg-surface-muted hover:text-fg focus:outline-none focus:ring-2 focus:ring-blue-muted transition"
+    >
+      Stay here
+    </button>
+    <a
+      data-market-switch
+      href="/"
+      class="rounded-lg bg-blue-strong px-3 py-1.5 text-sm font-semibold text-on-solid hover:bg-blue-deep focus:outline-none focus:ring-2 focus:ring-blue-muted transition"
+    >
+      Switch
+    </a>
+  </div>
+</aside>
+
+<script>
+  import { choiceCookie, MARKET_COOKIE } from "../lib/i18n/market-cookie";
+
+  interface Suggestion {
+    path: string;
+    label: string;
+  }
+
+  /** Fills in and shows the offer; either answer is remembered so it is never offered again. */
+  function offer(box: HTMLElement, current: string, suggestion: Suggestion) {
+    const label = box.querySelector<HTMLElement>("[data-market-label]");
+    const switchLink = box.querySelector<HTMLAnchorElement>("[data-market-switch]");
+    const stay = box.querySelector<HTMLButtonElement>("[data-market-stay]");
+    if (!label || !switchLink || !stay) {
+      return;
+    }
+    const rest = location.pathname.slice(current.length + 1);
+    label.textContent = suggestion.label;
+    switchLink.href = `/${suggestion.path}${rest}${location.search}${location.hash}`;
+    switchLink.addEventListener("click", () => {
+      document.cookie = choiceCookie(suggestion.path);
+    });
+    stay.addEventListener("click", () => {
+      document.cookie = choiceCookie(current);
+      box.hidden = true;
+    });
+    box.hidden = false;
+  }
+
+  async function suggestMarket() {
+    const box = document.getElementById("market-suggestion");
+    const current = location.pathname.split("/")[1] ?? "";
+    // A reader who has picked a market has answered already; the server checks again.
+    if (!box || !current || document.cookie.includes(`${MARKET_COOKIE}=`)) {
+      return;
+    }
+    const response = await fetch(`/api/market-suggestion?current=${encodeURIComponent(current)}`);
+    if (response.status === 200) {
+      offer(box, current, (await response.json()) as Suggestion);
+    }
+  }
+
+  suggestMarket().catch((error: unknown) => console.error("Market suggestion failed", error));
+</script>

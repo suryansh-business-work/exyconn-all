@@ -157,10 +157,10 @@ describe("AI catalogue", () => {
     expect(categoryTag("unknown")).toBe(0);
   });
 
-  it("draws one lattice cluster per category on the listing", () => {
+  it("orbits one agent module per category round the listing's neural core", () => {
     expect(catalogueScene()).toEqual({
-      shapes: ["lattice"],
-      data: { lattice: { clusters: aiServiceCategories.length } },
+      shapes: ["neuralCore"],
+      data: { neuralCore: { modules: aiServiceCategories.length } },
     });
   });
 
@@ -169,11 +169,11 @@ describe("AI catalogue", () => {
       const scene = sceneForCategory(category.slug);
       scene.shapes.forEach((shape) => expect(isShapeId(shape)).toBe(true));
     });
-    expect(sceneForCategory("agents-automation").data?.orbits?.agents).toBeGreaterThan(0);
-    expect(sceneForCategory("revenue-growth").shapes).toEqual(["pipeline"]);
-    expect(sceneForCategory("business-operations").shapes).toEqual(["pipeline"]);
-    expect(sceneForCategory("vertical-platforms").shapes).toEqual(["layers"]);
-    expect(sceneForCategory("platform-infrastructure").shapes).toEqual(["hubSpokes"]);
+    expect(sceneForCategory("agents-automation").data?.neuralCore?.modules).toBeGreaterThan(0);
+    expect(sceneForCategory("revenue-growth").shapes).toEqual(["dataflow"]);
+    expect(sceneForCategory("business-operations").shapes).toEqual(["dataflow"]);
+    expect(sceneForCategory("vertical-platforms").shapes).toEqual(["cloudStack"]);
+    expect(sceneForCategory("platform-infrastructure").data?.aiChip?.pads).toBeGreaterThan(0);
     expect(sceneForCategory("trust-security")).toEqual({ shapes: ["shield"] });
     expect(sceneForCategory("unknown")).toEqual({ shapes: ["core"] });
   });

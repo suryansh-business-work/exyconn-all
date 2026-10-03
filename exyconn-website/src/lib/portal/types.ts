@@ -157,6 +157,9 @@ export interface Branding {
 
   linkedinUrl: string;
   twitterUrl: string;
+  clutchUrl: string;
+  crunchbaseUrl: string;
+  ambitionboxUrl: string;
   facebookUrl: string;
   instagramUrl: string;
   youtubeUrl: string;

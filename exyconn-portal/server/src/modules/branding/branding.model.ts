@@ -80,6 +80,10 @@ const brandingSchema = new Schema(
     instagramUrl: { type: String, default: '', trim: true },
     youtubeUrl: { type: String, default: '', trim: true },
     githubUrl: { type: String, default: '', trim: true },
+    // Review and company directories the website links to beside the social networks.
+    clutchUrl: { type: String, default: '', trim: true },
+    crunchbaseUrl: { type: String, default: '', trim: true },
+    ambitionboxUrl: { type: String, default: '', trim: true },
 
     copyrightText: { type: String, default: '', trim: true },
 

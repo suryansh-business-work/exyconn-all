@@ -43,6 +43,9 @@ export const BRANDING_DEFAULTS = Object.freeze({
   instagramUrl: '',
   youtubeUrl: '',
   githubUrl: '',
+  clutchUrl: '',
+  crunchbaseUrl: '',
+  ambitionboxUrl: '',
 
   copyrightText: '',
 

@@ -61,6 +61,9 @@ export const brandingSchema = z.object({
   instagramUrl: url,
   youtubeUrl: url,
   githubUrl: url,
+  clutchUrl: url,
+  crunchbaseUrl: url,
+  ambitionboxUrl: url,
 
   copyrightText: text,
 
@@ -121,6 +124,9 @@ export const toBrandingValues = (row: BrandingRow): BrandingFormValues => ({
   instagramUrl: row.instagramUrl,
   youtubeUrl: row.youtubeUrl,
   githubUrl: row.githubUrl,
+  clutchUrl: row.clutchUrl,
+  crunchbaseUrl: row.crunchbaseUrl,
+  ambitionboxUrl: row.ambitionboxUrl,
 
   copyrightText: row.copyrightText,
 

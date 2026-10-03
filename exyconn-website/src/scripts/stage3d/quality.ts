@@ -114,8 +114,9 @@ export const adaptPixelRatio = (averageFrameMs: number, current: number, floor: 
     : current;
 
 /**
- * Inner pages get half the home budget: one explanatory shape in the hero, not a five-act
- * story. Phones keep DPR ≤ 1.25 and lose the fbm nebula (0 octaves = CSS gradient only);
+ * Inner pages get the home page's point budget: their hero is a built scene — a city, a
+ * server room and its charts — that reads as sparse at half. Stars and filaments stay at
+ * half. Phones keep DPR ≤ 1.25 and lose the fbm nebula (0 octaves = CSS gradient only);
  * desktops may go to 1.5.
  */
 const INNER_MAX_PIXEL_RATIO = { compact: 1.25, wide: 1.5 } as const;
@@ -126,7 +127,7 @@ export const selectInnerTier = (profile: DeviceProfile): QualityTier => {
   const maxPixelRatio = compact ? INNER_MAX_PIXEL_RATIO.compact : INNER_MAX_PIXEL_RATIO.wide;
   return {
     ...home,
-    particles: Math.round(home.particles / 2),
+    particles: home.particles,
     stars: Math.round(home.stars / 2),
     filaments: Math.round(home.filaments / 2),
     ambientPoints: 0,

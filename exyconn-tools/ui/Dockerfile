@@ -36,12 +36,17 @@ RUN apk add --no-cache curl
 COPY --from=builder /repo/exyconn-tools/ui/dist /usr/share/nginx/html
 
 # Nginx SPA config - Port 4001
+# Prerendered routes live at <path>/index.html: serve that file for /tools/x directly. With
+# `$uri/` nginx answered /tools/x with a 301 to its own http://host:4001/tools/x/ (the
+# container port), which visitors cannot reach; absolute_redirect off keeps any other
+# redirect relative.
 RUN echo 'server { \
     listen 4001; \
     server_name localhost; \
     root /usr/share/nginx/html; \
     index index.html; \
-    location / { try_files $uri $uri/ /index.html; } \
+    absolute_redirect off; \
+    location / { try_files $uri $uri/index.html /index.html; } \
     location ~* \\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2)$ { expires 1y; add_header Cache-Control "public, immutable"; } \
     gzip on; \
     gzip_types text/plain text/css application/json application/javascript text/xml application/xml; \

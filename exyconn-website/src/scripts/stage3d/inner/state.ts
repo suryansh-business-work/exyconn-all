@@ -14,8 +14,11 @@ export type StagePhase = "live" | "dimmed" | "echo" | "parked";
 
 /** Below this share of the hero on screen, the scene dims and freezes. */
 export const LIVE_RATIO = 0.5;
-/** How long the swarm takes to gather, seconds. */
-export const FORM_SECONDS = 1.8;
+/**
+ * How long the hero takes to build, seconds. Long enough to read as a story — the racks,
+ * then the streams, then the chart — rather than a flash.
+ */
+export const FORM_SECONDS = 2.8;
 /** How long a highlight takes to come up or go down, seconds. */
 export const HIGHLIGHT_SECONDS = 0.35;
 

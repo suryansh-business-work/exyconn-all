@@ -103,5 +103,5 @@ export default defineDetailPage({
         "Contact Exyconn for a free consultation. We’ll assess your applications and recommend the best maintenance plan for your needs.",
     },
   ],
-  scene: serviceScene("cog", 3),
+  scene: serviceScene("ops", "cog"),
 });

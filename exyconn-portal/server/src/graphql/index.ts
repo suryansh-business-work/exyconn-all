@@ -84,6 +84,7 @@ import {
   projectHealthResolvers,
 } from '../modules/projects';
 import { techTypeDefs, techResolvers } from '../modules/tech';
+import { dnsTypeDefs, dnsResolvers } from '../modules/dns';
 import { statusTypeDefs, statusResolvers } from '../modules/status';
 import { recruitingTypeDefs, recruitingResolvers } from '../modules/recruiting';
 import { infraTypeDefs, infraResolvers } from '../modules/infra';
@@ -206,6 +207,7 @@ export const typeDefs = [
   shareTypeDefs,
   projectHealthTypeDefs,
   techTypeDefs,
+  dnsTypeDefs,
   ...websiteTypeDefs,
   trackerTypeDefs,
   brandingTypeDefs,
@@ -283,6 +285,7 @@ export const resolvers = mergeResolvers([
   projectHealthResolvers,
   crmResolvers,
   techResolvers,
+  dnsResolvers,
   websiteResolvers,
   trackerResolvers,
   brandingResolvers,
