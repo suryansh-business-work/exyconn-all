@@ -1,0 +1,71 @@
+---
+/**
+ * A case study's snapshot — industry, services, date, author, PDF — as a disclosure: open
+ * (and sticky beside the story) from 1024px, collapsed on phones. Only fields the story has.
+ */
+import "./content.css";
+import type { DisplayDate } from "../../lib/content/format";
+
+interface Row {
+  term: string;
+  value: string;
+}
+
+type Props = Readonly<{
+  title: string;
+  rows: readonly Row[];
+  published: { term: string; date: DisplayDate };
+  pdf?: { label: string; href: string };
+}>;
+
+const { title, rows, published, pdf } = Astro.props;
+---
+
+<details class="inner-panel content-snapshot" open data-snapshot>
+  <summary class="stage-label">{title}</summary>
+  <dl>
+    {
+      rows
+        .filter((row) => row.value)
+        .map((row) => (
+          <div>
+            <dt class="stage-label">{row.term}</dt>
+            <dd>{row.value}</dd>
+          </div>
+        ))
+    }
+    {
+      published.date.text && (
+        <div>
+          <dt class="stage-label">{published.term}</dt>
+          <dd>
+            <time datetime={published.date.iso}>{published.date.text}</time>
+          </dd>
+        </div>
+      )
+    }
+  </dl>
+  {
+    pdf && (
+      <a
+        href={pdf.href}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="content-share__button mt-4"
+      >
+        <i class="fa-solid fa-file-arrow-down" aria-hidden="true" />
+        {pdf.label}
+        <span class="sr-only">(opens in a new tab)</span>
+      </a>
+    )
+  }
+</details>
+
+<script>
+  // Phones start collapsed; the server renders it open so it reads without JavaScript.
+  if (!matchMedia("(min-width: 1024px)").matches) {
+    document.querySelectorAll<HTMLDetailsElement>("[data-snapshot]").forEach((snapshot) => {
+      snapshot.open = false;
+    });
+  }
+</script>

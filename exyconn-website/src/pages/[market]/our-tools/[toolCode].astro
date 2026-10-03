@@ -1,15 +1,16 @@
 ---
+import DeviceFrame from "../../../components/content/DeviceFrame.astro";
+import ActionLink from "../../../components/inner/ActionLink.astro";
+import CtaBand from "../../../components/inner/CtaBand.astro";
+import InnerStage from "../../../components/inner/InnerStage.astro";
+import LinkCard from "../../../components/inner/LinkCard.astro";
 import Page from "../../../layouts/Page.astro";
+import { TOOL_COPY as copy, cubeCount, monogram } from "../../../lib/content/tools";
+import { breadcrumbJsonLd } from "../../../lib/inner/structured-data";
 import { getTool, getToolCategories, getToolLaunchUrl, getTools } from "../../../lib/portal";
-import { readableInk, roleVar } from "../../../styles/tokens/semantic.tokens";
 
 const { toolCode } = Astro.params;
-
-if (!toolCode) {
-  return new Response(null, { status: 404 });
-}
-
-const tool = await getTool(toolCode);
+const tool = toolCode ? await getTool(toolCode) : null;
 
 if (!tool) {
   return new Response(null, { status: 404 });
@@ -19,168 +20,139 @@ const [categories, siblings] = await Promise.all([
   getToolCategories(),
   getTools(tool.categorySlug),
 ]);
-
 const category = categories.find((one) => one.slug === tool.categorySlug) ?? null;
 const related = siblings.filter((one) => one.toolCode !== tool.toolCode).slice(0, 3);
-// An admin-chosen colour (any CSS colour) or the indigo role; the tint mixes whichever it is.
-const accent = tool.color || category?.color || roleVar("indigo-strong");
-const accentTint = `color-mix(in srgb, ${accent} 8%, transparent)`;
 // "" when the tool has no URL, or one with an unsafe scheme — then there is no Open button.
 const launchUrl = getToolLaunchUrl(tool);
+const open = launchUrl ? { label: copy.open, href: launchUrl } : undefined;
+const SITE_URL = (Astro.site?.toString() ?? "https://exyconn.com/").replace(/\/$/, "");
+const crumbs = [
+  { label: copy.home, href: "/" },
+  { label: copy.list, href: "/our-tools" },
+  { label: tool.name },
+];
+const pricing = tool.pricing;
 ---
 
-<Page title={`${tool.name} | Exyconn Tools`} description={tool.description}>
-  <div class="bg-surface-subtle min-h-screen">
-    <section class="border-b border-line py-6 px-6 bg-surface">
-      <div class="max-w-5xl mx-auto flex items-center justify-between gap-4">
-        <a href="/our-tools" class="flex items-center gap-2 text-fg-muted hover:text-fg transition">
-          <i class="fa-solid fa-arrow-left"></i>
-          <span class="font-medium">Back to all tools</span>
-        </a>
+<Page
+  title={`${tool.name} | Exyconn Tools`}
+  description={tool.description}
+  jsonLd={breadcrumbJsonLd(crumbs, SITE_URL)}
+>
+  <InnerStage
+    family="services"
+    variant="band"
+    crumbs={crumbs}
+    title={tool.name}
+    lede={tool.description}
+    primary={open}
+    secondary={copy.ctaSecondary}
+    scene={{ shapes: ["cubes"], data: { cubes: { cubes: cubeCount(siblings.length) } } }}
+  >
+    <p class="inner-meta stage-label">
+      {category && <a href={`/our-tools?cat=${category.slug}`}>{category.category}</a>}
+      {tool.isMVP && <span>{copy.mvp}</span>}
+      <span>#{tool.toolCode}</span>
+    </p>
+  </InnerStage>
+
+  <section class="inner-section stage-shell grid gap-12">
+    {
+      launchUrl && (
+        <DeviceFrame url={launchUrl} label={copy.previewLabel}>
+          <div class="content-tool">
+            <span class="content-tool__mark" aria-hidden="true">
+              {monogram(tool.name)}
+            </span>
+            <h2 class="inner-h3 mt-5">{tool.name}</h2>
+            <p class="inner-card__text mt-2">{tool.description}</p>
+            <div class="mt-6">
+              <ActionLink action={{ label: copy.open, href: launchUrl }} />
+            </div>
+          </div>
+          {tool.features.length > 0 && (
+            <ul class="content-checks" aria-label={copy.features}>
+              {tool.features.map((feature) => (
+                <li>{feature}</li>
+              ))}
+            </ul>
+          )}
+        </DeviceFrame>
+      )
+    }
+
+    <div class="grid gap-6 lg:grid-cols-3">
+      <div class="grid gap-6 lg:col-span-2 content-start">
         {
-          category && (
-            <a
-              href={`/our-tools#${category.slug}`}
-              class="text-sm font-semibold px-3 py-1.5 rounded-lg"
-              style={`background: ${accentTint}; color: ${readableInk(accent)};`}
-            >
-              {category.category}
-            </a>
+          tool.longDescription && (
+            <div class="inner-panel p-6 md:p-8">
+              <h2 class="inner-h3">{copy.about}</h2>
+              <p class="inner-card__text mt-3 whitespace-pre-line">{tool.longDescription}</p>
+            </div>
+          )
+        }
+        {
+          tool.useCases.length > 0 && (
+            <div class="inner-panel p-6 md:p-8">
+              <h2 class="inner-h3">{copy.useCases}</h2>
+              <ul class="inner-chips mt-4">
+                {tool.useCases.map((useCase) => (
+                  <li class="inner-chip">{useCase}</li>
+                ))}
+              </ul>
+            </div>
           )
         }
       </div>
-    </section>
+      {
+        pricing && (
+          <div class="inner-panel p-6 md:p-8 self-start">
+            <h2 class="inner-h3">{copy.pricing}</h2>
+            <p class="inner-metric__value mt-4">
+              {pricing.currency} {pricing.price}
+            </p>
+            {pricing.alterationNote && (
+              <p class="inner-card__text mt-3">{pricing.alterationNote}</p>
+            )}
+            {pricing.features.length > 0 && (
+              <ul class="content-checks mt-5">
+                {pricing.features.map((feature) => (
+                  <li>{feature}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        )
+      }
+    </div>
 
-    <section class="py-14 px-6">
-      <div class="max-w-5xl mx-auto">
-        <div class="flex items-start gap-5 mb-8">
-          <div
-            class="w-16 h-16 rounded-2xl flex items-center justify-center shrink-0"
-            style={`background: ${accentTint};`}
-          >
-            <i class={`fa-solid ${tool.icon || "fa-wrench"} text-2xl`} style={`color: ${accent};`}
-            ></i>
-          </div>
-          <div>
-            <div class="flex items-center gap-3 mb-2">
-              <h1 class="text-4xl font-black text-fg">{tool.name}</h1>
-              {
-                tool.isMVP && (
-                  <span class="px-2.5 py-1 bg-amber-soft text-amber-fg-strong rounded-lg text-xs font-bold">
-                    MVP
-                  </span>
-                )
-              }
-            </div>
-            <p class="text-lg text-fg-muted">{tool.description}</p>
-            <span
-              class="inline-block mt-3 px-2 py-0.5 bg-surface-strong text-fg-muted rounded text-xs font-mono"
-              >#{tool.toolCode}</span
-            >
-          </div>
+    {
+      related.length > 0 && (
+        <div>
+          <h2 class="inner-h3">{copy.related}</h2>
+          <ul class="grid gap-6 md:grid-cols-3 mt-6">
+            {related.map((one) => (
+              <li>
+                <LinkCard
+                  href={`/our-tools/${one.toolCode}`}
+                  index={monogram(one.name)}
+                  title={one.name}
+                  text={one.description}
+                  more={copy.details}
+                />
+              </li>
+            ))}
+          </ul>
         </div>
+      )
+    }
+  </section>
 
-        <div class="grid lg:grid-cols-3 gap-8">
-          <div class="lg:col-span-2 space-y-8">
-            {
-              tool.longDescription && (
-                <div class="bg-surface rounded-2xl p-6 border border-line-subtle">
-                  <h2 class="text-xl font-bold text-fg mb-3">About this tool</h2>
-                  <p class="text-fg-muted whitespace-pre-line">{tool.longDescription}</p>
-                </div>
-              )
-            }
-
-            {
-              tool.features.length > 0 && (
-                <div class="bg-surface rounded-2xl p-6 border border-line-subtle">
-                  <h2 class="text-xl font-bold text-fg mb-4">What it does</h2>
-                  <ul class="space-y-2">
-                    {tool.features.map((feature) => (
-                      <li class="flex items-start gap-3 text-fg-muted">
-                        <i class="fa-solid fa-check mt-1" style={`color: ${accent};`} />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )
-            }
-
-            {
-              tool.useCases.length > 0 && (
-                <div class="bg-surface rounded-2xl p-6 border border-line-subtle">
-                  <h2 class="text-xl font-bold text-fg mb-4">Where people use it</h2>
-                  <div class="flex flex-wrap gap-2">
-                    {tool.useCases.map((useCase) => (
-                      <span class="px-3 py-1.5 bg-surface-muted text-fg-muted rounded-lg text-sm">
-                        {useCase}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )
-            }
-          </div>
-
-          <aside class="space-y-6">
-            {
-              launchUrl && (
-                <a
-                  href={launchUrl}
-                  class="block text-center px-6 py-4 rounded-2xl text-on-solid font-bold shadow-lg transition hover:opacity-90"
-                  style={`background: ${accent};`}
-                >
-                  Open {tool.name}
-                  <i class="fa-solid fa-arrow-up-right-from-square ml-2" />
-                </a>
-              )
-            }
-
-            {
-              tool.pricing && (
-                <div class="bg-surface rounded-2xl p-6 border border-line-subtle">
-                  <h2 class="text-lg font-bold text-fg mb-2">Pricing</h2>
-                  <p class="text-3xl font-black text-fg">
-                    {tool.pricing.currency} {tool.pricing.price}
-                  </p>
-                  {tool.pricing.alterationNote && (
-                    <p class="text-sm text-fg-subtle mt-2">{tool.pricing.alterationNote}</p>
-                  )}
-                  <ul class="mt-4 space-y-1.5">
-                    {tool.pricing.features.map((feature) => (
-                      <li class="text-sm text-fg-muted flex items-start gap-2">
-                        <i class="fa-solid fa-check mt-1 text-emerald-fg" />
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )
-            }
-
-            {
-              related.length > 0 && (
-                <div class="bg-surface rounded-2xl p-6 border border-line-subtle">
-                  <h2 class="text-lg font-bold text-fg mb-3">More in this category</h2>
-                  <ul class="space-y-2">
-                    {related.map((one) => (
-                      <li>
-                        <a
-                          href={`/our-tools/${one.toolCode}`}
-                          class="text-fg-muted hover:text-indigo-fg transition"
-                        >
-                          {one.name}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )
-            }
-          </aside>
-        </div>
-      </div>
-    </section>
-  </div>
+  <CtaBand
+    family="services"
+    label={copy.ctaLabel}
+    title={copy.ctaTitle}
+    primary={copy.ctaPrimary}
+    secondary={copy.ctaSecondary}
+  />
 </Page>

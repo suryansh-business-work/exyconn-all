@@ -61,73 +61,104 @@ const BRANDING_FIELDS = `
   copyrightText
 `;
 
+/**
+ * Runs one read query; on any portal failure logs it and resolves to `empty` ([] or null).
+ *
+ * A portal outage then renders the page's empty state (or a 404 for a detail page) instead
+ * of a 500 — and never stale bundled content (see client.ts).
+ */
+async function read<T>(label: string, empty: T, run: () => Promise<T>): Promise<T> {
+  try {
+    return await run();
+  } catch (error) {
+    console.error(`Portal ${label} failed — rendering without it.`, error);
+    return empty;
+  }
+}
+
 // ── Blog & case studies ─────────────────────────────────────────────────────
 
 /** Every published blog post, newest first — the portal already applies that order. */
 export async function getBlogPosts(): Promise<BlogPost[]> {
-  const data = await portalRequest<{ publicBlogPosts: BlogPost[] }>(
-    `query { publicBlogPosts { ${BLOG_FIELDS} } }`
-  );
-  return data.publicBlogPosts;
+  return read("getBlogPosts", [], async () => {
+    const data = await portalRequest<{ publicBlogPosts: BlogPost[] }>(
+      `query { publicBlogPosts { ${BLOG_FIELDS} } }`
+    );
+    return data.publicBlogPosts;
+  });
 }
 
 /** One post by slug, or null when the portal has no published post at that address. */
 export async function getBlogPost(slug: string): Promise<BlogPost | null> {
-  const data = await portalRequest<{ publicBlogPost: BlogPost | null }>(
-    `query GetBlogPost($slug: String!) { publicBlogPost(slug: $slug) { ${BLOG_FIELDS} } }`,
-    { slug }
-  );
-  return data.publicBlogPost;
+  return read("getBlogPost", null, async () => {
+    const data = await portalRequest<{ publicBlogPost: BlogPost | null }>(
+      `query GetBlogPost($slug: String!) { publicBlogPost(slug: $slug) { ${BLOG_FIELDS} } }`,
+      { slug }
+    );
+    return data.publicBlogPost;
+  });
 }
 
 /** Every published case study, newest first. */
 export async function getCaseStudies(): Promise<CaseStudy[]> {
-  const data = await portalRequest<{ publicCaseStudies: CaseStudy[] }>(
-    `query { publicCaseStudies { ${CASE_STUDY_FIELDS} } }`
-  );
-  return data.publicCaseStudies;
+  return read("getCaseStudies", [], async () => {
+    const data = await portalRequest<{ publicCaseStudies: CaseStudy[] }>(
+      `query { publicCaseStudies { ${CASE_STUDY_FIELDS} } }`
+    );
+    return data.publicCaseStudies;
+  });
 }
 
 /** One case study by slug, or null when the portal has not published one at that address. */
 export async function getCaseStudy(slug: string): Promise<CaseStudy | null> {
-  const data = await portalRequest<{ publicCaseStudy: CaseStudy | null }>(
-    `query GetCaseStudy($slug: String!) { publicCaseStudy(slug: $slug) { ${CASE_STUDY_FIELDS} } }`,
-    { slug }
-  );
-  return data.publicCaseStudy;
+  return read("getCaseStudy", null, async () => {
+    const data = await portalRequest<{ publicCaseStudy: CaseStudy | null }>(
+      `query GetCaseStudy($slug: String!) { publicCaseStudy(slug: $slug) { ${CASE_STUDY_FIELDS} } }`,
+      { slug }
+    );
+    return data.publicCaseStudy;
+  });
 }
 
 // ── Careers ─────────────────────────────────────────────────────────────────
 
 export async function getJobCompanies(): Promise<JobCompany[]> {
-  const data = await portalRequest<{ publicJobCompanies: JobCompany[] }>(
-    `query { publicJobCompanies { ${COMPANY_FIELDS} } }`
-  );
-  return data.publicJobCompanies;
+  return read("getJobCompanies", [], async () => {
+    const data = await portalRequest<{ publicJobCompanies: JobCompany[] }>(
+      `query { publicJobCompanies { ${COMPANY_FIELDS} } }`
+    );
+    return data.publicJobCompanies;
+  });
 }
 
 export async function getJobCompany(slug: string): Promise<JobCompany | null> {
-  const data = await portalRequest<{ publicJobCompany: JobCompany | null }>(
-    `query GetJobCompany($slug: String!) { publicJobCompany(slug: $slug) { ${COMPANY_FIELDS} } }`,
-    { slug }
-  );
-  return data.publicJobCompany;
+  return read("getJobCompany", null, async () => {
+    const data = await portalRequest<{ publicJobCompany: JobCompany | null }>(
+      `query GetJobCompany($slug: String!) { publicJobCompany(slug: $slug) { ${COMPANY_FIELDS} } }`,
+      { slug }
+    );
+    return data.publicJobCompany;
+  });
 }
 
 export async function getJobs(companySlug?: string): Promise<Job[]> {
-  const data = await portalRequest<{ publicJobs: Job[] }>(
-    `query GetJobs($companySlug: String) { publicJobs(companySlug: $companySlug) { ${JOB_FIELDS} } }`,
-    { companySlug }
-  );
-  return data.publicJobs;
+  return read("getJobs", [], async () => {
+    const data = await portalRequest<{ publicJobs: Job[] }>(
+      `query GetJobs($companySlug: String) { publicJobs(companySlug: $companySlug) { ${JOB_FIELDS} } }`,
+      { companySlug }
+    );
+    return data.publicJobs;
+  });
 }
 
 export async function getJob(jobCode: string): Promise<Job | null> {
-  const data = await portalRequest<{ publicJob: Job | null }>(
-    `query GetJob($jobCode: String!) { publicJob(jobCode: $jobCode) { ${JOB_FIELDS} } }`,
-    { jobCode }
-  );
-  return data.publicJob;
+  return read("getJob", null, async () => {
+    const data = await portalRequest<{ publicJob: Job | null }>(
+      `query GetJob($jobCode: String!) { publicJob(jobCode: $jobCode) { ${JOB_FIELDS} } }`,
+      { jobCode }
+    );
+    return data.publicJob;
+  });
 }
 
 /** Every active job paired with its company, newest first — powers the careers index. */
@@ -146,8 +177,12 @@ export async function getJobsWithCompanies(): Promise<JobWithCompany[]> {
 // ── Gigs ────────────────────────────────────────────────────────────────────
 
 export async function getGigs(): Promise<Gig[]> {
-  const data = await portalRequest<{ publicGigs: Gig[] }>(`query { publicGigs { ${GIG_FIELDS} } }`);
-  return data.publicGigs;
+  return read("getGigs", [], async () => {
+    const data = await portalRequest<{ publicGigs: Gig[] }>(
+      `query { publicGigs { ${GIG_FIELDS} } }`
+    );
+    return data.publicGigs;
+  });
 }
 
 /** Only gigs that are still open for applications. */
@@ -157,48 +192,58 @@ export async function getOpenGigs(): Promise<Gig[]> {
 }
 
 export async function getGig(gigCode: string): Promise<Gig | null> {
-  const data = await portalRequest<{ publicGig: Gig | null }>(
-    `query GetGig($gigCode: String!) { publicGig(gigCode: $gigCode) { ${GIG_FIELDS} } }`,
-    { gigCode }
-  );
-  return data.publicGig;
+  return read("getGig", null, async () => {
+    const data = await portalRequest<{ publicGig: Gig | null }>(
+      `query GetGig($gigCode: String!) { publicGig(gigCode: $gigCode) { ${GIG_FIELDS} } }`,
+      { gigCode }
+    );
+    return data.publicGig;
+  });
 }
 
 // ── Tools directory ─────────────────────────────────────────────────────────
 
 /** The active tool categories, in the order the portal put them in. */
 export async function getToolCategories(): Promise<ToolCategory[]> {
-  const data = await portalRequest<{ publicToolCategories: ToolCategory[] }>(
-    `query { publicToolCategories { ${TOOL_CATEGORY_FIELDS} } }`
-  );
-  return data.publicToolCategories;
+  return read("getToolCategories", [], async () => {
+    const data = await portalRequest<{ publicToolCategories: ToolCategory[] }>(
+      `query { publicToolCategories { ${TOOL_CATEGORY_FIELDS} } }`
+    );
+    return data.publicToolCategories;
+  });
 }
 
 /** Every active tool, or just one category's when a slug is given. */
 export async function getTools(categorySlug?: string): Promise<Tool[]> {
-  const data = await portalRequest<{ publicTools: Tool[] }>(
-    `query GetTools($categorySlug: String) { publicTools(categorySlug: $categorySlug) { ${TOOL_FIELDS} } }`,
-    { categorySlug }
-  );
-  return data.publicTools;
+  return read("getTools", [], async () => {
+    const data = await portalRequest<{ publicTools: Tool[] }>(
+      `query GetTools($categorySlug: String) { publicTools(categorySlug: $categorySlug) { ${TOOL_FIELDS} } }`,
+      { categorySlug }
+    );
+    return data.publicTools;
+  });
 }
 
 /** One tool by its code, or null when the portal has no active tool at that address. */
 export async function getTool(toolCode: string): Promise<Tool | null> {
-  const data = await portalRequest<{ publicTool: Tool | null }>(
-    `query GetTool($toolCode: String!) { publicTool(toolCode: $toolCode) { ${TOOL_FIELDS} } }`,
-    { toolCode }
-  );
-  return data.publicTool;
+  return read("getTool", null, async () => {
+    const data = await portalRequest<{ publicTool: Tool | null }>(
+      `query GetTool($toolCode: String!) { publicTool(toolCode: $toolCode) { ${TOOL_FIELDS} } }`,
+      { toolCode }
+    );
+    return data.publicTool;
+  });
 }
 
 // ── Navigation ──────────────────────────────────────────────────────────────
 
 export async function getNavLinks(): Promise<NavLink[]> {
-  const data = await portalRequest<{ publicNavLinks: NavLink[] }>(
-    `query { publicNavLinks { ${NAV_LINK_FIELDS} } }`
-  );
-  return data.publicNavLinks;
+  return read("getNavLinks", [], async () => {
+    const data = await portalRequest<{ publicNavLinks: NavLink[] }>(
+      `query { publicNavLinks { ${NAV_LINK_FIELDS} } }`
+    );
+    return data.publicNavLinks;
+  });
 }
 
 // ── Branding ────────────────────────────────────────────────────────────────
@@ -266,9 +311,10 @@ export const BRANDING_FALLBACK: Branding = {
 /**
  * Branding, but never throwing.
  *
- * The portal client deliberately has NO fallback (see client.ts): for blog, careers and the
- * rest, serving stale bundled content would silently mask an editor's change, so a failed
- * fetch must surface. Branding is the one exception, because it is site *chrome* — the
+ * The portal client deliberately has NO fallback content (see client.ts): for blog, careers
+ * and the rest, serving stale bundled content would silently mask an editor's change, so a
+ * failed read logs and renders empty (see `read`). Branding is the one exception, because it
+ * is site *chrome* — the
  * header logo, favicon, theme colour and footer render on EVERY page. Letting a brief portal
  * hiccup 500 the entire website is far worse than showing last-known-good branding for a few
  * seconds, so this single query falls back to `BRANDING_FALLBACK` and logs the failure.
@@ -290,17 +336,21 @@ const POLICY_FIELDS = `
 
 /** Every policy Legal has published for the public. */
 export async function getPublicPolicies(): Promise<PublicPolicy[]> {
-  const data = await portalRequest<{ publicPolicies: PublicPolicy[] }>(
-    `query { publicPolicies { ${POLICY_FIELDS} } }`
-  );
-  return data.publicPolicies;
+  return read("getPublicPolicies", [], async () => {
+    const data = await portalRequest<{ publicPolicies: PublicPolicy[] }>(
+      `query { publicPolicies { ${POLICY_FIELDS} } }`
+    );
+    return data.publicPolicies;
+  });
 }
 
 /** One public policy by slug, or null when Legal has not published one at that address. */
 export async function getPublicPolicy(slug: string): Promise<PublicPolicy | null> {
-  const data = await portalRequest<{ publicPolicy: PublicPolicy | null }>(
-    `query PublicPolicy($slug: String!) { publicPolicy(slug: $slug) { ${POLICY_FIELDS} } }`,
-    { slug }
-  );
-  return data.publicPolicy;
+  return read("getPublicPolicy", null, async () => {
+    const data = await portalRequest<{ publicPolicy: PublicPolicy | null }>(
+      `query PublicPolicy($slug: String!) { publicPolicy(slug: $slug) { ${POLICY_FIELDS} } }`,
+      { slug }
+    );
+    return data.publicPolicy;
+  });
 }

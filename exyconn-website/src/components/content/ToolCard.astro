@@ -1,0 +1,58 @@
+---
+/**
+ * One tool in the directory, as its own `<li>` (FilterBar's data-* pass through): a
+ * monogram mark tinted by the admin's colour (validated, mixed in CSS — never string-built
+ * alpha), name linking to its detail page, purpose, category, and an "Open tool" link.
+ */
+import "./content.css";
+import type { DataAttributes } from "../inner/types";
+
+type Props = Readonly<{
+  href: string;
+  name: string;
+  description: string;
+  category: string;
+  mark: string;
+  /** A validated CSS colour, or "" for the family accent. */
+  tint: string;
+  badge?: string;
+  open?: { label: string; href: string; note: string };
+  details: string;
+  highlight?: number;
+}> &
+  DataAttributes;
+
+const { href, name, description, category, mark, tint, badge, open, details, highlight, ...data } =
+  Astro.props;
+const style = tint ? `--tool-tint: ${tint}` : undefined;
+---
+
+<li class="content-card" {...data}>
+  <article class="inner-card content-tool" style={style} data-stage-highlight={highlight}>
+    <div class="content-tool__head">
+      <span class="content-tool__mark" aria-hidden="true">{mark}</span>
+      <p class="stage-label inner-index">{category}</p>
+      {badge && <span class="inner-chip">{badge}</span>}
+    </div>
+    <h3 class="inner-h3">
+      <a href={href} class="content-tool__name">{name}</a>
+    </h3>
+    <p class="inner-card__text">{description}</p>
+    <div class="content-tool__actions">
+      <a href={href} class="content-tool__link">
+        {details}<span class="sr-only">: {name}</span>
+      </a>
+      {
+        open && (
+          <a href={open.href} class="content-tool__link content-tool__link--open">
+            {open.label}
+            <span class="sr-only">
+              {name} {open.note}
+            </span>
+            <i class="fa-solid fa-arrow-up-right-from-square icon-xs" aria-hidden="true" />
+          </a>
+        )
+      }
+    </div>
+  </article>
+</li>

@@ -1,0 +1,98 @@
+---
+/**
+ * One article or story in a list, rendered as its own `<li>` (FilterBar's data-* attributes
+ * pass through). 16:9 cover, mono kicker, title as the single link, two-line summary, meta
+ * and optional metric bullets. `wide` spans two columns from 768px (the lead item).
+ */
+import "../../styles/inner-stage.css";
+import "./content.css";
+import type { DataAttributes } from "../inner/types";
+
+interface Metric {
+  value: string;
+  label: string;
+}
+
+type Props = Readonly<{
+  href: string;
+  title: string;
+  summary: string;
+  image: string;
+  kicker?: string;
+  badge?: string;
+  meta: readonly string[];
+  metrics?: readonly Metric[];
+  more: string;
+  wide?: boolean;
+  /** The first card above the fold loads eagerly. */
+  eager?: boolean;
+  level?: "h2" | "h3";
+}> &
+  DataAttributes;
+
+const {
+  href,
+  title,
+  summary,
+  image,
+  kicker,
+  badge,
+  meta,
+  metrics = [],
+  more,
+  wide = false,
+  eager = false,
+  level = "h3",
+  ...data
+} = Astro.props;
+const Title = level;
+---
+
+<li class={`content-card ${wide ? "content-card--wide" : ""}`} {...data}>
+  <article class="inner-card content-card__body group">
+    <div class="content-card__media">
+      {
+        image ? (
+          <img
+            src={image}
+            alt=""
+            width="1600"
+            height="900"
+            loading={eager ? "eager" : "lazy"}
+            decoding="async"
+          />
+        ) : (
+          <span class="content-card__placeholder stage-label" aria-hidden="true">
+            {kicker}
+          </span>
+        )
+      }
+      {badge && <span class="content-card__badge stage-label">{badge}</span>}
+    </div>
+    {kicker && <p class="stage-label inner-index">{kicker}</p>}
+    <Title class={wide ? "inner-h3 content-card__title--wide" : "inner-h3"}>
+      <a href={href} class="content-card__link">{title}</a>
+    </Title>
+    <p class="inner-card__text content-card__summary">{summary}</p>
+    {
+      metrics.length > 0 && (
+        <dl class="content-card__metrics">
+          {metrics.map((metric) => (
+            <div>
+              <dt class="sr-only">{metric.label}</dt>
+              <dd class="content-card__metric-value">{metric.value}</dd>
+              <dd class="content-card__metric-label">{metric.label}</dd>
+            </div>
+          ))}
+        </dl>
+      )
+    }
+    <p class="content-card__meta stage-label">
+      {meta.filter(Boolean).map((item) => <span>{item}</span>)}
+    </p>
+    <span class="inner-card__more" aria-hidden="true">
+      {more}
+      <i class="fa-solid fa-arrow-right icon-xs transition-transform group-hover:translate-x-1"></i>
+    </span>
+  </article>
+</li>

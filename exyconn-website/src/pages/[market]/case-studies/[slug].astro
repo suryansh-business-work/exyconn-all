@@ -1,8 +1,29 @@
 ---
+import StudySnapshot from "../../../components/content/StudySnapshot.astro";
+import CtaBand from "../../../components/inner/CtaBand.astro";
+import InnerStage from "../../../components/inner/InnerStage.astro";
+import ProofStrip from "../../../components/inner/ProofStrip.astro";
+import ReadingProgress from "../../../components/inner/ReadingProgress.astro";
+import StickyToc from "../../../components/inner/StickyToc.astro";
 import Page from "../../../layouts/Page.astro";
 import {
+  CASE_STUDY_COPY as copy,
+  storyMetrics,
+  storyTerrain,
+} from "../../../lib/content/case-studies";
+import {
+  absoluteAsset,
+  displayDate,
+  marketCrumbs,
+  marketPageUrl,
+} from "../../../lib/content/format";
+import { articleJsonLd } from "../../../lib/content/structured-data";
+import { DEFAULT_MARKET } from "../../../lib/i18n/markets";
+import { withHeadingIds } from "../../../lib/inner/headings";
+import { breadcrumbJsonLd } from "../../../lib/inner/structured-data";
+import {
   ARTICLE_CLASS,
-  formatDate,
+  BRANDING_FALLBACK,
   getCaseStudy,
   sanitizeArticleHtml,
   scopeArticleCss,
@@ -11,187 +32,115 @@ import { safeHref } from "../../../lib/safe-output";
 import "../../../styles/article.css";
 
 const { slug } = Astro.params;
-const caseStudy = slug ? await getCaseStudy(slug) : null;
+const study = slug ? await getCaseStudy(slug) : null;
 
-if (!caseStudy) {
+if (!study) {
   return new Response(null, { status: 404 });
 }
 
-const body = sanitizeArticleHtml(caseStudy.content);
-const pdfHref = safeHref(caseStudy.pdfUrl);
+const market = Astro.locals.market ?? DEFAULT_MARKET;
+const SITE_URL = (Astro.site?.toString() ?? "https://exyconn.com/").replace(/\/$/, "");
+const { html, toc } = withHeadingIds(sanitizeArticleHtml(study.content));
 // A body designed in the portal's live editor brings its own CSS, scoped to the article.
-const designCss = scopeArticleCss(caseStudy.contentCss);
-
-const SITE_URL = (Astro.site?.toString() || "https://exyconn.com/").replace(/\/$/, "");
-const caseStudyUrl = `${SITE_URL}/case-studies/${caseStudy.slug}`;
-const coverAbs = /^https?:\/\//.test(caseStudy.coverImage)
-  ? caseStudy.coverImage
-  : `${SITE_URL}${caseStudy.coverImage}`;
-
-const pageJsonLd = [
-  {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    headline: caseStudy.title,
-    description: caseStudy.excerpt,
-    image: coverAbs,
-    datePublished: caseStudy.publishedAt,
-    dateModified: caseStudy.publishedAt,
-    articleSection: caseStudy.category,
-    author: {
-      "@type": "Organization",
-      name: "Exyconn",
-      url: SITE_URL,
-    },
+const designCss = scopeArticleCss(study.contentCss);
+const metrics = storyMetrics(study);
+const pdfHref = safeHref(study.pdfUrl);
+const published = displayDate(study.publishedAt, market.locale);
+const url = marketPageUrl(SITE_URL, market, `/case-studies/${study.slug}`);
+const crumbs = [
+  { label: copy.home, href: "/" },
+  { label: copy.list, href: "/case-studies" },
+  { label: study.title },
+];
+const jsonLd = [
+  articleJsonLd({
+    type: "Article",
+    headline: study.title,
+    description: study.excerpt,
+    image: absoluteAsset(SITE_URL, study.coverImage),
+    published: study.publishedAt,
+    url,
+    keywords: study.tags,
+    section: study.category,
     publisher: {
-      "@type": "Organization",
-      name: "Exyconn",
-      logo: { "@type": "ImageObject", url: `${SITE_URL}/favicon.svg` },
+      name: BRANDING_FALLBACK.businessName,
+      url: SITE_URL,
+      logo: `${SITE_URL}${BRANDING_FALLBACK.faviconUrl}`,
     },
-    mainEntityOfPage: { "@type": "WebPage", "@id": caseStudyUrl },
-    keywords: caseStudy.tags.join(", "),
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
-      { "@type": "ListItem", position: 2, name: "Case Studies", item: `${SITE_URL}/case-studies` },
-      { "@type": "ListItem", position: 3, name: caseStudy.title, item: caseStudyUrl },
-    ],
-  },
+  }),
+  breadcrumbJsonLd(marketCrumbs(crumbs, market, url), SITE_URL),
 ];
 ---
 
 <Page
-  metaTitle={caseStudy.title + " | Exyconn Case Study"}
-  metaDescription={caseStudy.excerpt}
-  metaKeywords={caseStudy.tags.join(", ")}
-  metaImage={caseStudy.coverImage}
+  metaTitle={`${study.title} | Exyconn Case Study`}
+  metaDescription={study.excerpt}
+  metaKeywords={study.tags.join(", ")}
+  metaImage={study.coverImage || undefined}
   ogType="article"
-  jsonLd={pageJsonLd}
+  jsonLd={jsonLd}
 >
-  <div class="bg-surface-subtle min-h-screen">
-    <!-- Hero Section -->
-    <section class="relative pt-12 pb-8 px-6">
-      <div class="max-w-4xl mx-auto">
-        <!-- Breadcrumb -->
-        <nav class="flex items-center gap-2 text-sm text-fg-subtle mb-8">
-          <a href="/" class="hover:text-blue-fg transition-colors">Home</a>
-          <i class="fa-solid fa-chevron-right text-xs"></i>
-          <a href="/case-studies" class="hover:text-blue-fg transition-colors">Case Studies</a>
-          <i class="fa-solid fa-chevron-right text-xs"></i>
-          <span class="text-fg font-medium truncate max-w-[200px]">{caseStudy.title}</span>
-        </nav>
+  <InnerStage
+    family="proof"
+    variant="band"
+    crumbs={crumbs}
+    title={study.title}
+    lede={study.excerpt}
+    scene={{ shapes: ["terrain"], data: { terrain: { values: storyTerrain(metrics) } } }}
+  >
+    <p class="inner-meta stage-label">
+      <span>{study.category}</span>
+      {published.text && <time datetime={published.iso}>{published.text}</time>}
+    </p>
+  </InnerStage>
 
-        <!-- Category + Tags -->
-        <div class="flex flex-wrap gap-2 mb-4">
-          <span
-            class="text-xs font-semibold text-purple-fg-strong bg-purple-subtle px-3 py-1 rounded-full uppercase tracking-wide"
-          >
-            {caseStudy.category}
-          </span>
-          {
-            caseStudy.tags.map((tag) => (
-              <span class="text-xs font-medium text-blue-fg bg-blue-subtle px-3 py-1 rounded-full">
-                {tag}
-              </span>
-            ))
-          }
-        </div>
+  {metrics.length > 0 && <ProofStrip variant="stats" label={copy.resultsLabel} items={metrics} />}
 
-        <!-- Title -->
-        <h1 class="text-4xl md:text-5xl font-bold text-fg mb-6 leading-tight">
-          {caseStudy.title}
-        </h1>
-
-        <!-- Excerpt -->
-        <p class="text-xl text-fg-muted mb-8 leading-relaxed">
-          {caseStudy.excerpt}
-        </p>
-
-        <!-- Meta Info -->
-        <div
-          class="flex flex-wrap items-center gap-4 pb-8 border-b border-line text-sm text-fg-subtle"
-        >
-          <span class="flex items-center gap-1.5">
-            <i class="fa-regular fa-user"></i>
-            {caseStudy.author}
-          </span>
-          <span class="flex items-center gap-1.5">
-            <i class="fa-regular fa-calendar"></i>
-            {formatDate(caseStudy.publishedAt)}
-          </span>
-          {
-            pdfHref && (
-              <a
-                href={pdfHref}
-                target="_blank"
-                rel="noopener"
-                class="inline-flex items-center gap-2 px-4 py-2 bg-inverse text-on-solid font-semibold rounded-full hover:bg-inverse-muted transition-colors"
-              >
-                <i class="fa-solid fa-file-pdf" />
-                Download PDF
-              </a>
-            )
-          }
-        </div>
-      </div>
-    </section>
-
-    <!-- Cover Image -->
-    <section class="px-6 mb-12">
-      <div class="max-w-5xl mx-auto">
-        <img
-          src={caseStudy.coverImage}
-          alt={caseStudy.title}
-          class="w-full h-[400px] object-cover rounded-2xl shadow-lg"
+  <ReadingProgress target="study-reading" />
+  <div class="inner-section stage-shell">
+    <div class="content-study">
+      <aside class="content-study__aside">
+        <StudySnapshot
+          title={copy.snapshot}
+          rows={[
+            { term: copy.industry, value: study.category },
+            { term: copy.services, value: study.tags.join(", ") },
+            { term: copy.author, value: study.author },
+          ]}
+          published={{ term: copy.published, date: published }}
+          pdf={pdfHref ? { label: copy.pdf, href: pdfHref } : undefined}
         />
-      </div>
-    </section>
-
-    <!-- Content -->
-    <section class="px-6 pb-16">
-      <div class="max-w-3xl mx-auto">
+        {toc.length > 1 && <StickyToc label={copy.toc} items={toc} />}
+      </aside>
+      <div id="study-reading" class="inner-article-column w-full">
+        {
+          study.coverImage && (
+            <img
+              src={study.coverImage}
+              alt=""
+              width="1600"
+              height="900"
+              class="w-full h-auto rounded-2xl mb-10"
+              decoding="async"
+            />
+          )
+        }
         {designCss && <style is:inline set:html={designCss} />}
-        <article class={ARTICLE_CLASS} set:html={body} />
-
-        <!-- Back Link -->
-        <div class="mt-12 pt-8 border-t border-line">
-          <a
-            href="/case-studies"
-            class="inline-flex items-center gap-2 text-sm font-medium text-blue-fg hover:text-blue-fg-strong transition-colors"
-          >
-            <i class="fa-solid fa-arrow-left"></i>
-            Back to all case studies
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="px-6 py-16 bg-blue-strong">
-      <div class="max-w-3xl mx-auto text-center">
-        <h2 class="text-3xl font-bold text-on-solid mb-4">Ready to Create Your Success Story?</h2>
-        <p class="text-on-solid-muted text-lg mb-8">
-          Let's discuss how Exyconn can transform your business with AI and automation.
-        </p>
-        <a
-          href="/get-a-quote"
-          class="inline-flex items-center gap-2 px-8 py-4 bg-surface text-blue-fg font-semibold rounded-full hover:shadow-xl transition-all"
-        >
-          Start Your Project
-          <i class="fa-solid fa-arrow-right"></i>
+        <article class={ARTICLE_CLASS} set:html={html} />
+        <a href="/case-studies" class="content-share__button mt-12">
+          <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+          {copy.back}
         </a>
       </div>
-    </section>
+    </div>
   </div>
-</Page>
 
-<style>
-  .prose .lead {
-    font-size: var(--font-size-xl);
-    line-height: 1.75rem;
-    color: var(--color-fg-muted);
-  }
-</style>
+  <CtaBand
+    family="proof"
+    label={copy.ctaLabel}
+    title={copy.ctaTitle}
+    text={copy.ctaText}
+    primary={copy.ctaPrimary}
+    secondary={copy.ctaSecondary}
+  />
+</Page>
