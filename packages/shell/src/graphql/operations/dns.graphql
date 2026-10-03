@@ -1,0 +1,118 @@
+# Tech > Security > Cloudflare, and the GoDaddy / Cloudflare credentials in
+# Tech > Environment Variables. Platform staff only.
+
+query ListGodaddyConfigs {
+  listGodaddyConfigs {
+    id
+    label
+    hasApiKey
+    apiKeyHint
+    hasApiSecret
+    isActive
+  }
+}
+
+mutation CreateGodaddyConfig($input: GodaddyConfigInput!) {
+  createGodaddyConfig(input: $input) {
+    id
+  }
+}
+
+mutation UpdateGodaddyConfig($id: ID!, $input: GodaddyConfigInput!) {
+  updateGodaddyConfig(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteGodaddyConfig($id: ID!) {
+  deleteGodaddyConfig(id: $id)
+}
+
+mutation TestGodaddyConnection($id: ID!) {
+  testGodaddyConnection(id: $id)
+}
+
+query ListCloudflareConfigs {
+  listCloudflareConfigs {
+    id
+    label
+    accountId
+    hasApiToken
+    apiTokenHint
+    isActive
+  }
+}
+
+mutation CreateCloudflareConfig($input: CloudflareConfigInput!) {
+  createCloudflareConfig(input: $input) {
+    id
+  }
+}
+
+mutation UpdateCloudflareConfig($id: ID!, $input: CloudflareConfigInput!) {
+  updateCloudflareConfig(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteCloudflareConfig($id: ID!) {
+  deleteCloudflareConfig(id: $id)
+}
+
+mutation TestCloudflareConnection($id: ID!) {
+  testCloudflareConnection(id: $id)
+}
+
+query DnsDomains {
+  dnsDomains {
+    domain
+    status
+  }
+}
+
+query DnsOverview($domain: String!) {
+  dnsOverview(domain: $domain) {
+    domain
+    authority
+    godaddyNameServers
+    previousGodaddyNameServers
+    missingOnCloudflare
+    zone {
+      id
+      status
+      nameServers
+    }
+    records {
+      key
+      type
+      name
+      content
+      priority
+      godaddyTtl
+      cloudflareTtl
+      cloudflareProxied
+      status
+    }
+  }
+}
+
+mutation MigrateDnsToCloudflare($domain: String!) {
+  migrateDnsToCloudflare(domain: $domain) {
+    created
+    alreadyPresent
+    failed {
+      type
+      name
+      content
+      message
+    }
+  }
+}
+
+mutation SetDomainNameservers(
+  $domain: String!
+  $target: NameserverTarget!
+  $nameServers: [String!]
+) {
+  setDomainNameservers(domain: $domain, target: $target, nameServers: $nameServers)
+}

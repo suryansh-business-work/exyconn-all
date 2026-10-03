@@ -8,6 +8,8 @@ import GitHubIcon from '@mui/icons-material/GitHub';
 import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import PriceChangeIcon from '@mui/icons-material/PriceChange';
+import DnsIcon from '@mui/icons-material/Dns';
+import CloudIcon from '@mui/icons-material/Cloud';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
 import { SlackConfigsPanel } from './SlackConfigsPanel';
@@ -18,6 +20,8 @@ import { GithubConfigsPanel } from './GithubConfigsPanel';
 import { PexelsConfigsPanel } from './PexelsConfigsPanel';
 import { OpenAiConfigsPanel } from './OpenAiConfigsPanel';
 import { AiPricingPanel } from './AiPricingPanel';
+import { GodaddyConfigsPanel } from './GodaddyConfigsPanel';
+import { CloudflareConfigsPanel } from './CloudflareConfigsPanel';
 
 /** Route the tabs live under; each tab is a slug beneath it. */
 export const ENVIRONMENT_VARIABLES_PATH = '/tech/environment-variables';
@@ -106,6 +110,26 @@ const TABS: TabberItem[] = [
     content: (
       <GlassPanel>
         <GithubConfigsPanel />
+      </GlassPanel>
+    ),
+  },
+  {
+    slug: 'godaddy',
+    label: 'GoDaddy',
+    icon: <DnsIcon />,
+    content: (
+      <GlassPanel>
+        <GodaddyConfigsPanel />
+      </GlassPanel>
+    ),
+  },
+  {
+    slug: 'cloudflare',
+    label: 'Cloudflare',
+    icon: <CloudIcon />,
+    content: (
+      <GlassPanel>
+        <CloudflareConfigsPanel />
       </GlassPanel>
     ),
   },

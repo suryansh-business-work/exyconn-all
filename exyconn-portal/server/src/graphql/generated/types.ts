@@ -1456,6 +1456,37 @@ export type ClientTicketStatus = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+/** The Cloudflare API credential. The token is write-only and never returned. */
+export type CloudflareConfig = {
+  __typename?: 'CloudflareConfig';
+  /** The Cloudflare account a domain's zone is created in. */
+  accountId: Scalars['String']['output'];
+  apiTokenHint?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  hasApiToken: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type CloudflareConfigInput = {
+  accountId: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored token. */
+  apiToken?: InputMaybe<Scalars['String']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+};
+
+/** A domain's Cloudflare zone and the nameservers Cloudflare assigned it. */
+export type CloudflareZone = {
+  __typename?: 'CloudflareZone';
+  id: Scalars['ID']['output'];
+  nameServers: Array<Scalars['String']['output']>;
+  originalNameServers: Array<Scalars['String']['output']>;
+  status: Scalars['String']['output'];
+};
+
 export type Company = {
   __typename?: 'Company';
   /** The Admin client this account became when a deal was won; empty until then. */
@@ -2005,6 +2036,71 @@ export type DepartmentInput = {
   headId?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
 };
+
+/** Who answers for a domain now, judged from the nameservers the registry holds. */
+export enum DnsAuthority {
+  Cloudflare = 'CLOUDFLARE',
+  Godaddy = 'GODADDY',
+  Other = 'OTHER'
+}
+
+/** A domain on the GoDaddy account. */
+export type DnsDomain = {
+  __typename?: 'DnsDomain';
+  domain: Scalars['String']['output'];
+  nameServers: Array<Scalars['String']['output']>;
+  status: Scalars['String']['output'];
+};
+
+export type DnsMigrationFailure = {
+  __typename?: 'DnsMigrationFailure';
+  content: Scalars['String']['output'];
+  message: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+};
+
+export type DnsMigrationResult = {
+  __typename?: 'DnsMigrationResult';
+  alreadyPresent: Scalars['Int']['output'];
+  created: Scalars['Int']['output'];
+  failed: Array<DnsMigrationFailure>;
+  zone: CloudflareZone;
+};
+
+export type DnsOverview = {
+  __typename?: 'DnsOverview';
+  authority: DnsAuthority;
+  domain: Scalars['String']['output'];
+  /** The nameservers GoDaddy's registry holds for the domain now. */
+  godaddyNameServers: Array<Scalars['String']['output']>;
+  missingOnCloudflare: Scalars['Int']['output'];
+  /** The GoDaddy nameservers the domain had before the portal first moved it; empty if never. */
+  previousGodaddyNameServers: Array<Scalars['String']['output']>;
+  records: Array<DnsRecordPair>;
+  /** Null until the domain is shifted to Cloudflare. */
+  zone?: Maybe<CloudflareZone>;
+};
+
+/** One DNS record and where it exists. TTL and proxying are shown but never make a mismatch. */
+export type DnsRecordPair = {
+  __typename?: 'DnsRecordPair';
+  cloudflareProxied?: Maybe<Scalars['Boolean']['output']>;
+  cloudflareTtl?: Maybe<Scalars['Int']['output']>;
+  content: Scalars['String']['output'];
+  godaddyTtl?: Maybe<Scalars['Int']['output']>;
+  key: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  priority?: Maybe<Scalars['Int']['output']>;
+  status: DnsRecordStatus;
+  type: Scalars['String']['output'];
+};
+
+export enum DnsRecordStatus {
+  Match = 'MATCH',
+  MissingOnCloudflare = 'MISSING_ON_CLOUDFLARE',
+  OnlyOnCloudflare = 'ONLY_ON_CLOUDFLARE'
+}
 
 /** One page of a project's documentation. Pages nest through parentId. */
 export type DocPage = {
@@ -2812,6 +2908,28 @@ export enum GoalStatus {
   Completed = 'COMPLETED',
   Draft = 'DRAFT'
 }
+
+/** The GoDaddy API credential. The key and secret are write-only and never returned. */
+export type GodaddyConfig = {
+  __typename?: 'GodaddyConfig';
+  apiKeyHint?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  hasApiKey: Scalars['Boolean']['output'];
+  hasApiSecret: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type GodaddyConfigInput = {
+  /** Write-only. Leave empty when editing to keep the stored key. */
+  apiKey?: InputMaybe<Scalars['String']['input']>;
+  /** Write-only. Leave empty when editing to keep the stored secret. */
+  apiSecret?: InputMaybe<Scalars['String']['input']>;
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+};
 
 export type Grade = {
   __typename?: 'Grade';
@@ -4516,6 +4634,7 @@ export type Mutation = {
    * account. Rate-limited per address; returns only the ticket's reference.
    */
   createClientSupportTicket: Scalars['String']['output'];
+  createCloudflareConfig: CloudflareConfig;
   createColumn: BoardColumn;
   createCompany: Company;
   createCompanyExpense: CompanyExpense;
@@ -4537,6 +4656,7 @@ export type Mutation = {
   createGig: Gig;
   createGithubConfig: GithubConfig;
   createGoal: Goal;
+  createGodaddyConfig: GodaddyConfig;
   createGrade: Grade;
   createHoliday: Holiday;
   createImageConfig: ImageConfig;
@@ -4659,6 +4779,7 @@ export type Mutation = {
   deleteCannedReply: Scalars['Boolean']['output'];
   deleteCaseStudy: Scalars['Boolean']['output'];
   deleteClient: Scalars['Boolean']['output'];
+  deleteCloudflareConfig: Scalars['Boolean']['output'];
   deleteColumn: Scalars['Boolean']['output'];
   deleteCompany: Scalars['Boolean']['output'];
   deleteCompanyExpense: Scalars['Boolean']['output'];
@@ -4681,6 +4802,7 @@ export type Mutation = {
   deleteGig: Scalars['Boolean']['output'];
   deleteGithubConfig: Scalars['Boolean']['output'];
   deleteGoal: Scalars['Boolean']['output'];
+  deleteGodaddyConfig: Scalars['Boolean']['output'];
   deleteGrade: Scalars['Boolean']['output'];
   deleteHoliday: Scalars['Boolean']['output'];
   deleteImageConfig: Scalars['Boolean']['output'];
@@ -4788,6 +4910,8 @@ export type Mutation = {
   markPayrollPaid: Scalars['Int']['output'];
   /** Marks one employee's inbound messages read, so the portal's unread badge clears. */
   markTrackerThreadRead: Scalars['Int']['output'];
+  /** Copies every GoDaddy record Cloudflare lacks into the domain's zone, creating the zone first. */
+  migrateDnsToCloudflare: DnsMigrationResult;
   /** Re-files a page under a new parent (null for top level) at a given position. */
   moveDocPage: Scalars['Boolean']['output'];
   moveTask: Scalars['Boolean']['output'];
@@ -4929,6 +5053,8 @@ export type Mutation = {
   setColumnDone: BoardColumn;
   /** Moves a deal to another pipeline stage — what a drag on the board does. Winning makes the account a client. */
   setDealStage: Deal;
+  /** Points the domain's nameservers at Cloudflare, back at GoDaddy, or at a custom set. */
+  setDomainNameservers: Array<Scalars['String']['output']>;
   /**
    * Finance's decision on a claim. APPROVED takes an approved amount (defaults to the claim);
    * PAID stamps paidOn, the date the reimbursement reaches the cash figures.
@@ -5022,7 +5148,9 @@ export type Mutation = {
   syncAllSocialAccounts: Array<SocialSyncResult>;
   /** Reads one account's posts and numbers from the network now. MARKETING. */
   syncSocialAccount: SocialSyncResult;
+  testCloudflareConnection: Scalars['Boolean']['output'];
   testGithubConnection: Scalars['Boolean']['output'];
+  testGodaddyConnection: Scalars['Boolean']['output'];
   testImageUpload: Scalars['String']['output'];
   /** Signs in and opens the mailbox, so credentials are checked before the poller relies on them. */
   testInboundMailConnection: Scalars['Boolean']['output'];
@@ -5098,6 +5226,7 @@ export type Mutation = {
   updateCannedReply: CannedReply;
   updateCaseStudy: CaseStudy;
   updateClient: Client;
+  updateCloudflareConfig: CloudflareConfig;
   updateCompany: Company;
   updateCompanyExpense: CompanyExpense;
   updateContact: Contact;
@@ -5118,6 +5247,7 @@ export type Mutation = {
   updateGig: Gig;
   updateGithubConfig: GithubConfig;
   updateGoal: Goal;
+  updateGodaddyConfig: GodaddyConfig;
   updateGrade: Grade;
   updateHoliday: Holiday;
   updateImageConfig: ImageConfig;
@@ -5417,6 +5547,11 @@ export type MutationCreateClientSupportTicketArgs = {
 };
 
 
+export type MutationCreateCloudflareConfigArgs = {
+  input: CloudflareConfigInput;
+};
+
+
 export type MutationCreateColumnArgs = {
   name: Scalars['String']['input'];
   projectId: Scalars['ID']['input'];
@@ -5522,6 +5657,11 @@ export type MutationCreateGithubConfigArgs = {
 
 export type MutationCreateGoalArgs = {
   input: GoalInput;
+};
+
+
+export type MutationCreateGodaddyConfigArgs = {
+  input: GodaddyConfigInput;
 };
 
 
@@ -6008,6 +6148,11 @@ export type MutationDeleteClientArgs = {
 };
 
 
+export type MutationDeleteCloudflareConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteColumnArgs = {
   id: Scalars['ID']['input'];
 };
@@ -6109,6 +6254,11 @@ export type MutationDeleteGithubConfigArgs = {
 
 
 export type MutationDeleteGoalArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteGodaddyConfigArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -6529,6 +6679,11 @@ export type MutationMarkTrackerThreadReadArgs = {
 };
 
 
+export type MutationMigrateDnsToCloudflareArgs = {
+  domain: Scalars['String']['input'];
+};
+
+
 export type MutationMoveDocPageArgs = {
   id: Scalars['ID']['input'];
   parentId?: InputMaybe<Scalars['ID']['input']>;
@@ -6805,6 +6960,13 @@ export type MutationSetDealStageArgs = {
 };
 
 
+export type MutationSetDomainNameserversArgs = {
+  domain: Scalars['String']['input'];
+  nameServers?: InputMaybe<Array<Scalars['String']['input']>>;
+  target: NameserverTarget;
+};
+
+
 export type MutationSetExpenseClaimStatusArgs = {
   approvedAmount?: InputMaybe<Scalars['Float']['input']>;
   id: Scalars['ID']['input'];
@@ -6980,7 +7142,17 @@ export type MutationSyncSocialAccountArgs = {
 };
 
 
+export type MutationTestCloudflareConnectionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationTestGithubConnectionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestGodaddyConnectionArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -7185,6 +7357,12 @@ export type MutationUpdateClientArgs = {
 };
 
 
+export type MutationUpdateCloudflareConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: CloudflareConfigInput;
+};
+
+
 export type MutationUpdateCompanyArgs = {
   id: Scalars['ID']['input'];
   input: CompanyInput;
@@ -7303,6 +7481,12 @@ export type MutationUpdateGithubConfigArgs = {
 export type MutationUpdateGoalArgs = {
   id: Scalars['ID']['input'];
   input: GoalInput;
+};
+
+
+export type MutationUpdateGodaddyConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: GodaddyConfigInput;
 };
 
 
@@ -7764,6 +7948,12 @@ export type MyRequestInput = {
   subject: Scalars['String']['input'];
   type: RequestType;
 };
+
+export enum NameserverTarget {
+  Cloudflare = 'CLOUDFLARE',
+  Custom = 'CUSTOM',
+  Godaddy = 'GODADDY'
+}
 
 export type NavLink = {
   __typename?: 'NavLink';
@@ -9109,6 +9299,10 @@ export type Query = {
   contractToSign?: Maybe<ContractToSign>;
   /** Open deals (not won or lost): how many, their face value and the probability-weighted value. */
   dealForecast: DealForecast;
+  /** The domains on the active GoDaddy account. */
+  dnsDomains: Array<DnsDomain>;
+  /** A domain's records on GoDaddy and Cloudflare side by side, and its nameservers. */
+  dnsOverview: DnsOverview;
   docPage: DocPage;
   /** One container in full, including a live CPU/memory sample (takes ~2s to measure). */
   dockerContainerDetail: DockerContainerDetail;
@@ -9298,6 +9492,7 @@ export type Query = {
   listClients: Array<Client>;
   listClientsPaged: ClientPage;
   listClientsStats: TableStats;
+  listCloudflareConfigs: Array<CloudflareConfig>;
   listCompanies: Array<Company>;
   listCompaniesPaged: CompanyPage;
   listCompaniesStats: TableStats;
@@ -9358,6 +9553,7 @@ export type Query = {
   listGoals: Array<Goal>;
   listGoalsPaged: GoalPage;
   listGoalsStats: TableStats;
+  listGodaddyConfigs: Array<GodaddyConfig>;
   listGrades: Array<Grade>;
   listGradesPaged: GradePage;
   listGradesStats: TableStats;
@@ -9904,6 +10100,11 @@ export type QueryContractSignaturesArgs = {
 
 export type QueryContractToSignArgs = {
   token: Scalars['String']['input'];
+};
+
+
+export type QueryDnsOverviewArgs = {
+  domain: Scalars['String']['input'];
 };
 
 
@@ -14053,6 +14254,9 @@ export type ResolversTypes = ResolversObject<{
   ClientStatus: ClientStatus;
   ClientSupportTicketInput: ClientSupportTicketInput;
   ClientTicketStatus: ResolverTypeWrapper<ClientTicketStatus>;
+  CloudflareConfig: ResolverTypeWrapper<CloudflareConfig>;
+  CloudflareConfigInput: CloudflareConfigInput;
+  CloudflareZone: ResolverTypeWrapper<CloudflareZone>;
   Company: ResolverTypeWrapper<Company>;
   CompanyBenefit: ResolverTypeWrapper<CompanyBenefit>;
   CompanyBenefitInput: CompanyBenefitInput;
@@ -14098,6 +14302,13 @@ export type ResolversTypes = ResolversObject<{
   DealStage: DealStage;
   Department: ResolverTypeWrapper<Department>;
   DepartmentInput: DepartmentInput;
+  DnsAuthority: DnsAuthority;
+  DnsDomain: ResolverTypeWrapper<DnsDomain>;
+  DnsMigrationFailure: ResolverTypeWrapper<DnsMigrationFailure>;
+  DnsMigrationResult: ResolverTypeWrapper<DnsMigrationResult>;
+  DnsOverview: ResolverTypeWrapper<DnsOverview>;
+  DnsRecordPair: ResolverTypeWrapper<DnsRecordPair>;
+  DnsRecordStatus: DnsRecordStatus;
   DocPage: ResolverTypeWrapper<DocPage>;
   DockerContainer: ResolverTypeWrapper<DockerContainer>;
   DockerContainerDetail: ResolverTypeWrapper<DockerContainerDetail>;
@@ -14169,6 +14380,8 @@ export type ResolversTypes = ResolversObject<{
   GoalInput: GoalInput;
   GoalPage: ResolverTypeWrapper<GoalPage>;
   GoalStatus: GoalStatus;
+  GodaddyConfig: ResolverTypeWrapper<GodaddyConfig>;
+  GodaddyConfigInput: GodaddyConfigInput;
   Grade: ResolverTypeWrapper<Grade>;
   GradeInput: GradeInput;
   GradePage: ResolverTypeWrapper<GradePage>;
@@ -14324,6 +14537,7 @@ export type ResolversTypes = ResolversObject<{
   MyExpenseClaimInput: MyExpenseClaimInput;
   MyPolicy: ResolverTypeWrapper<MyPolicy>;
   MyRequestInput: MyRequestInput;
+  NameserverTarget: NameserverTarget;
   NavLink: ResolverTypeWrapper<NavLink>;
   NavLinkInput: NavLinkInput;
   Notification: ResolverTypeWrapper<Notification>;
@@ -14746,6 +14960,9 @@ export type ResolversParentTypes = ResolversObject<{
   ClientPage: ClientPage;
   ClientSupportTicketInput: ClientSupportTicketInput;
   ClientTicketStatus: ClientTicketStatus;
+  CloudflareConfig: CloudflareConfig;
+  CloudflareConfigInput: CloudflareConfigInput;
+  CloudflareZone: CloudflareZone;
   Company: Company;
   CompanyBenefit: CompanyBenefit;
   CompanyBenefitInput: CompanyBenefitInput;
@@ -14785,6 +15002,11 @@ export type ResolversParentTypes = ResolversObject<{
   DealPage: DealPage;
   Department: Department;
   DepartmentInput: DepartmentInput;
+  DnsDomain: DnsDomain;
+  DnsMigrationFailure: DnsMigrationFailure;
+  DnsMigrationResult: DnsMigrationResult;
+  DnsOverview: DnsOverview;
+  DnsRecordPair: DnsRecordPair;
   DocPage: DocPage;
   DockerContainer: DockerContainer;
   DockerContainerDetail: DockerContainerDetail;
@@ -14842,6 +15064,8 @@ export type ResolversParentTypes = ResolversObject<{
   Goal: Goal;
   GoalInput: GoalInput;
   GoalPage: GoalPage;
+  GodaddyConfig: GodaddyConfig;
+  GodaddyConfigInput: GodaddyConfigInput;
   Grade: Grade;
   GradeInput: GradeInput;
   GradePage: GradePage;
@@ -16016,6 +16240,26 @@ export type ClientTicketStatusResolvers<ContextType = GraphQLContext, ParentType
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type CloudflareConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CloudflareConfig'] = ResolversParentTypes['CloudflareConfig']> = ResolversObject<{
+  accountId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  apiTokenHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  hasApiToken?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CloudflareZoneResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CloudflareZone'] = ResolversParentTypes['CloudflareZone']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  nameServers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  originalNameServers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type CompanyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Company'] = ResolversParentTypes['Company']> = ResolversObject<{
   clientId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
@@ -16314,6 +16558,53 @@ export type DepartmentResolvers<ContextType = GraphQLContext, ParentType extends
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   positions?: Resolver<Array<ResolversTypes['Position']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type DnsDomainResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['DnsDomain'] = ResolversParentTypes['DnsDomain']> = ResolversObject<{
+  domain?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  nameServers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type DnsMigrationFailureResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['DnsMigrationFailure'] = ResolversParentTypes['DnsMigrationFailure']> = ResolversObject<{
+  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type DnsMigrationResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['DnsMigrationResult'] = ResolversParentTypes['DnsMigrationResult']> = ResolversObject<{
+  alreadyPresent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  created?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  failed?: Resolver<Array<ResolversTypes['DnsMigrationFailure']>, ParentType, ContextType>;
+  zone?: Resolver<ResolversTypes['CloudflareZone'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type DnsOverviewResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['DnsOverview'] = ResolversParentTypes['DnsOverview']> = ResolversObject<{
+  authority?: Resolver<ResolversTypes['DnsAuthority'], ParentType, ContextType>;
+  domain?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  godaddyNameServers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  missingOnCloudflare?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  previousGodaddyNameServers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  records?: Resolver<Array<ResolversTypes['DnsRecordPair']>, ParentType, ContextType>;
+  zone?: Resolver<Maybe<ResolversTypes['CloudflareZone']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type DnsRecordPairResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['DnsRecordPair'] = ResolversParentTypes['DnsRecordPair']> = ResolversObject<{
+  cloudflareProxied?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  cloudflareTtl?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  godaddyTtl?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  priority?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['DnsRecordStatus'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -16781,6 +17072,18 @@ export type GoalResolvers<ContextType = GraphQLContext, ParentType extends Resol
 export type GoalPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['GoalPage'] = ResolversParentTypes['GoalPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['Goal']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type GodaddyConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['GodaddyConfig'] = ResolversParentTypes['GodaddyConfig']> = ResolversObject<{
+  apiKeyHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  hasApiKey?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  hasApiSecret?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -17721,6 +18024,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createCaseStudy?: Resolver<ResolversTypes['CaseStudy'], ParentType, ContextType, RequireFields<MutationCreateCaseStudyArgs, 'input'>>;
   createClient?: Resolver<ResolversTypes['Client'], ParentType, ContextType, RequireFields<MutationCreateClientArgs, 'input'>>;
   createClientSupportTicket?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationCreateClientSupportTicketArgs, 'input'>>;
+  createCloudflareConfig?: Resolver<ResolversTypes['CloudflareConfig'], ParentType, ContextType, RequireFields<MutationCreateCloudflareConfigArgs, 'input'>>;
   createColumn?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationCreateColumnArgs, 'name' | 'projectId'>>;
   createCompany?: Resolver<ResolversTypes['Company'], ParentType, ContextType, RequireFields<MutationCreateCompanyArgs, 'input'>>;
   createCompanyExpense?: Resolver<ResolversTypes['CompanyExpense'], ParentType, ContextType, RequireFields<MutationCreateCompanyExpenseArgs, 'input'>>;
@@ -17742,6 +18046,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createGig?: Resolver<ResolversTypes['Gig'], ParentType, ContextType, RequireFields<MutationCreateGigArgs, 'input'>>;
   createGithubConfig?: Resolver<ResolversTypes['GithubConfig'], ParentType, ContextType, RequireFields<MutationCreateGithubConfigArgs, 'input'>>;
   createGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationCreateGoalArgs, 'input'>>;
+  createGodaddyConfig?: Resolver<ResolversTypes['GodaddyConfig'], ParentType, ContextType, RequireFields<MutationCreateGodaddyConfigArgs, 'input'>>;
   createGrade?: Resolver<ResolversTypes['Grade'], ParentType, ContextType, RequireFields<MutationCreateGradeArgs, 'input'>>;
   createHoliday?: Resolver<ResolversTypes['Holiday'], ParentType, ContextType, RequireFields<MutationCreateHolidayArgs, 'input'>>;
   createImageConfig?: Resolver<ResolversTypes['ImageConfig'], ParentType, ContextType, RequireFields<MutationCreateImageConfigArgs, 'input'>>;
@@ -17834,6 +18139,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteCannedReply?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCannedReplyArgs, 'id'>>;
   deleteCaseStudy?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCaseStudyArgs, 'id'>>;
   deleteClient?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClientArgs, 'id'>>;
+  deleteCloudflareConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCloudflareConfigArgs, 'id'>>;
   deleteColumn?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteColumnArgs, 'id'>>;
   deleteCompany?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCompanyArgs, 'id'>>;
   deleteCompanyExpense?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCompanyExpenseArgs, 'id'>>;
@@ -17855,6 +18161,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteGig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGigArgs, 'id'>>;
   deleteGithubConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGithubConfigArgs, 'id'>>;
   deleteGoal?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGoalArgs, 'id'>>;
+  deleteGodaddyConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGodaddyConfigArgs, 'id'>>;
   deleteGrade?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGradeArgs, 'id'>>;
   deleteHoliday?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteHolidayArgs, 'id'>>;
   deleteImageConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteImageConfigArgs, 'id'>>;
@@ -17938,6 +18245,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   markNotificationRead?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationMarkNotificationReadArgs, 'id'>>;
   markPayrollPaid?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationMarkPayrollPaidArgs, 'month' | 'year'>>;
   markTrackerThreadRead?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationMarkTrackerThreadReadArgs, 'userId'>>;
+  migrateDnsToCloudflare?: Resolver<ResolversTypes['DnsMigrationResult'], ParentType, ContextType, RequireFields<MutationMigrateDnsToCloudflareArgs, 'domain'>>;
   moveDocPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationMoveDocPageArgs, 'id' | 'toIndex'>>;
   moveTask?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationMoveTaskArgs, 'id' | 'toColumnId' | 'toIndex'>>;
   promoteBugToTask?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationPromoteBugToTaskArgs, 'id'>>;
@@ -17988,6 +18296,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setApplicantStage?: Resolver<ResolversTypes['Applicant'], ParentType, ContextType, RequireFields<MutationSetApplicantStageArgs, 'id' | 'stage'>>;
   setColumnDone?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationSetColumnDoneArgs, 'id' | 'isDone'>>;
   setDealStage?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationSetDealStageArgs, 'id' | 'stage'>>;
+  setDomainNameservers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationSetDomainNameserversArgs, 'domain' | 'target'>>;
   setExpenseClaimStatus?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationSetExpenseClaimStatusArgs, 'id' | 'status'>>;
   setLeaveStatus?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationSetLeaveStatusArgs, 'id' | 'status'>>;
   setMyNotificationPreference?: Resolver<Array<ResolversTypes['NotificationPreference']>, ParentType, ContextType, RequireFields<MutationSetMyNotificationPreferenceArgs, 'input'>>;
@@ -18019,7 +18328,9 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   subscribeToStatus?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSubscribeToStatusArgs, 'email'>>;
   syncAllSocialAccounts?: Resolver<Array<ResolversTypes['SocialSyncResult']>, ParentType, ContextType>;
   syncSocialAccount?: Resolver<ResolversTypes['SocialSyncResult'], ParentType, ContextType, RequireFields<MutationSyncSocialAccountArgs, 'id'>>;
+  testCloudflareConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestCloudflareConnectionArgs, 'id'>>;
   testGithubConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGithubConnectionArgs, 'id'>>;
+  testGodaddyConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGodaddyConnectionArgs, 'id'>>;
   testImageUpload?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestImageUploadArgs, 'file' | 'fileName' | 'id'>>;
   testInboundMailConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestInboundMailConnectionArgs, 'id'>>;
   testOpenAiConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestOpenAiConnectionArgs, 'id'>>;
@@ -18055,6 +18366,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateCannedReply?: Resolver<ResolversTypes['CannedReply'], ParentType, ContextType, RequireFields<MutationUpdateCannedReplyArgs, 'id' | 'input'>>;
   updateCaseStudy?: Resolver<ResolversTypes['CaseStudy'], ParentType, ContextType, RequireFields<MutationUpdateCaseStudyArgs, 'id' | 'input'>>;
   updateClient?: Resolver<ResolversTypes['Client'], ParentType, ContextType, RequireFields<MutationUpdateClientArgs, 'id' | 'input'>>;
+  updateCloudflareConfig?: Resolver<ResolversTypes['CloudflareConfig'], ParentType, ContextType, RequireFields<MutationUpdateCloudflareConfigArgs, 'id' | 'input'>>;
   updateCompany?: Resolver<ResolversTypes['Company'], ParentType, ContextType, RequireFields<MutationUpdateCompanyArgs, 'id' | 'input'>>;
   updateCompanyExpense?: Resolver<ResolversTypes['CompanyExpense'], ParentType, ContextType, RequireFields<MutationUpdateCompanyExpenseArgs, 'id' | 'input'>>;
   updateContact?: Resolver<ResolversTypes['Contact'], ParentType, ContextType, RequireFields<MutationUpdateContactArgs, 'id' | 'input'>>;
@@ -18075,6 +18387,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateGig?: Resolver<ResolversTypes['Gig'], ParentType, ContextType, RequireFields<MutationUpdateGigArgs, 'id' | 'input'>>;
   updateGithubConfig?: Resolver<ResolversTypes['GithubConfig'], ParentType, ContextType, RequireFields<MutationUpdateGithubConfigArgs, 'id' | 'input'>>;
   updateGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationUpdateGoalArgs, 'id' | 'input'>>;
+  updateGodaddyConfig?: Resolver<ResolversTypes['GodaddyConfig'], ParentType, ContextType, RequireFields<MutationUpdateGodaddyConfigArgs, 'id' | 'input'>>;
   updateGrade?: Resolver<ResolversTypes['Grade'], ParentType, ContextType, RequireFields<MutationUpdateGradeArgs, 'id' | 'input'>>;
   updateHoliday?: Resolver<ResolversTypes['Holiday'], ParentType, ContextType, RequireFields<MutationUpdateHolidayArgs, 'id' | 'input'>>;
   updateImageConfig?: Resolver<ResolversTypes['ImageConfig'], ParentType, ContextType, RequireFields<MutationUpdateImageConfigArgs, 'id' | 'input'>>;
@@ -18857,6 +19170,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   contractSignatures?: Resolver<Array<ResolversTypes['ContractSignature']>, ParentType, ContextType, RequireFields<QueryContractSignaturesArgs, 'contractId'>>;
   contractToSign?: Resolver<Maybe<ResolversTypes['ContractToSign']>, ParentType, ContextType, RequireFields<QueryContractToSignArgs, 'token'>>;
   dealForecast?: Resolver<ResolversTypes['DealForecast'], ParentType, ContextType>;
+  dnsDomains?: Resolver<Array<ResolversTypes['DnsDomain']>, ParentType, ContextType>;
+  dnsOverview?: Resolver<ResolversTypes['DnsOverview'], ParentType, ContextType, RequireFields<QueryDnsOverviewArgs, 'domain'>>;
   docPage?: Resolver<ResolversTypes['DocPage'], ParentType, ContextType, RequireFields<QueryDocPageArgs, 'id'>>;
   dockerContainerDetail?: Resolver<ResolversTypes['DockerContainerDetail'], ParentType, ContextType, RequireFields<QueryDockerContainerDetailArgs, 'id'>>;
   dockerContainers?: Resolver<Array<ResolversTypes['DockerContainer']>, ParentType, ContextType>;
@@ -19017,6 +19332,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listClients?: Resolver<Array<ResolversTypes['Client']>, ParentType, ContextType>;
   listClientsPaged?: Resolver<ResolversTypes['ClientPage'], ParentType, ContextType, RequireFields<QueryListClientsPagedArgs, 'input'>>;
   listClientsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listCloudflareConfigs?: Resolver<Array<ResolversTypes['CloudflareConfig']>, ParentType, ContextType>;
   listCompanies?: Resolver<Array<ResolversTypes['Company']>, ParentType, ContextType>;
   listCompaniesPaged?: Resolver<ResolversTypes['CompanyPage'], ParentType, ContextType, RequireFields<QueryListCompaniesPagedArgs, 'input'>>;
   listCompaniesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -19073,6 +19389,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listGoals?: Resolver<Array<ResolversTypes['Goal']>, ParentType, ContextType>;
   listGoalsPaged?: Resolver<ResolversTypes['GoalPage'], ParentType, ContextType, RequireFields<QueryListGoalsPagedArgs, 'input'>>;
   listGoalsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listGodaddyConfigs?: Resolver<Array<ResolversTypes['GodaddyConfig']>, ParentType, ContextType>;
   listGrades?: Resolver<Array<ResolversTypes['Grade']>, ParentType, ContextType>;
   listGradesPaged?: Resolver<ResolversTypes['GradePage'], ParentType, ContextType, RequireFields<QueryListGradesPagedArgs, 'input'>>;
   listGradesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -20895,6 +21212,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Client?: ClientResolvers<ContextType>;
   ClientPage?: ClientPageResolvers<ContextType>;
   ClientTicketStatus?: ClientTicketStatusResolvers<ContextType>;
+  CloudflareConfig?: CloudflareConfigResolvers<ContextType>;
+  CloudflareZone?: CloudflareZoneResolvers<ContextType>;
   Company?: CompanyResolvers<ContextType>;
   CompanyBenefit?: CompanyBenefitResolvers<ContextType>;
   CompanyExpense?: CompanyExpenseResolvers<ContextType>;
@@ -20923,6 +21242,11 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   DealForecast?: DealForecastResolvers<ContextType>;
   DealPage?: DealPageResolvers<ContextType>;
   Department?: DepartmentResolvers<ContextType>;
+  DnsDomain?: DnsDomainResolvers<ContextType>;
+  DnsMigrationFailure?: DnsMigrationFailureResolvers<ContextType>;
+  DnsMigrationResult?: DnsMigrationResultResolvers<ContextType>;
+  DnsOverview?: DnsOverviewResolvers<ContextType>;
+  DnsRecordPair?: DnsRecordPairResolvers<ContextType>;
   DocPage?: DocPageResolvers<ContextType>;
   DockerContainer?: DockerContainerResolvers<ContextType>;
   DockerContainerDetail?: DockerContainerDetailResolvers<ContextType>;
@@ -20964,6 +21288,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   GithubConfig?: GithubConfigResolvers<ContextType>;
   Goal?: GoalResolvers<ContextType>;
   GoalPage?: GoalPageResolvers<ContextType>;
+  GodaddyConfig?: GodaddyConfigResolvers<ContextType>;
   Grade?: GradeResolvers<ContextType>;
   GradePage?: GradePageResolvers<ContextType>;
   GstState?: GstStateResolvers<ContextType>;

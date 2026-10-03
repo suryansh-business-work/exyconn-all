@@ -55,6 +55,10 @@ const COLOR_MAP: Record<string, 'default' | 'success' | 'warning' | 'error' | 'i
     PORTAL: 'info',
     EMAIL: 'primary',
     AGENT: 'default',
+    // Tech > Security > Cloudflare: where a DNS record exists.
+    MATCH: 'success',
+    MISSING_ON_CLOUDFLARE: 'warning',
+    ONLY_ON_CLOUDFLARE: 'info',
     // Tech > Infrastructure: Docker container and health states.
     RUNNING: 'success',
     HEALTHY: 'success',

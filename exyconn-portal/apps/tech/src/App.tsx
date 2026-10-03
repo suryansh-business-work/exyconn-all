@@ -17,6 +17,7 @@ import { InfrastructurePage } from './pages/infrastructure';
 import { IncidentsPage } from './pages/incidents';
 import { LogsPage } from './pages/logs';
 import { JobsPage } from './pages/jobs';
+import { CloudflarePage, CLOUDFLARE_PATH } from './pages/security/cloudflare';
 
 /** Tech micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
@@ -39,6 +40,7 @@ export function App() {
       <Route path="/tech/logs" element={<LogsPage />} />
       <Route path="/tech/jobs" element={<JobsPage />} />
       <Route path="/tech/settings" element={<SettingsPage />} />
+      <Route path={CLOUDFLARE_PATH} element={<CloudflarePage />} />
     </PortalApp>
   );
 }

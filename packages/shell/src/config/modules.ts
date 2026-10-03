@@ -89,6 +89,7 @@ import PercentIcon from '@mui/icons-material/Percent';
 import TranslateIcon from '@mui/icons-material/Translate';
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import MonitorHeartIcon from '@mui/icons-material/MonitorHeart';
+import CloudSyncIcon from '@mui/icons-material/CloudSync';
 import DnsIcon from '@mui/icons-material/Dns';
 import ScheduleSendIcon from '@mui/icons-material/ScheduleSend';
 import PaletteIcon from '@mui/icons-material/Palette';
@@ -1062,6 +1063,14 @@ export const MODULES: ModuleDefinition[] = [
         path: '/tech/settings',
         icon: TuneIcon,
         group: 'Configuration',
+      },
+      {
+        // Moving exyconn.com's DNS from GoDaddy to Cloudflare and switching its nameservers.
+        key: 'tech-cloudflare',
+        label: 'Cloudflare',
+        path: '/tech/security/cloudflare',
+        icon: CloudSyncIcon,
+        group: 'Security',
       },
       {
         key: 'tech-problem-reports',

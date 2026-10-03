@@ -39,6 +39,9 @@ export const UPPER_SNAKE = /^[A-Z\d_]+$/;
 /** A bare domain, not a URL — `exyconn.com`, no scheme and no path. */
 export const DOMAIN = /^[a-z\d-]+(?:\.[a-z\d-]+)+$/i;
 
+/** A Cloudflare account or zone id: 32 hexadecimal characters. */
+export const CLOUDFLARE_ID = /^[\da-f]{32}$/i;
+
 /** A GitHub owner or repository name as it appears in the repository URL. */
 export const GITHUB_NAME = /^[\w.-]+$/;
 

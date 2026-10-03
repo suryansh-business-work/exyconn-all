@@ -499,6 +499,14 @@ export type ClientSupportTicketInput = {
   subject: Scalars['String']['input'];
 };
 
+export type CloudflareConfigInput = {
+  accountId: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored token. */
+  apiToken: InputMaybe<Scalars['String']['input']>;
+  isActive: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+};
+
 export type CompanyBenefitInput = {
   description: InputMaybe<Scalars['String']['input']>;
   icon: Scalars['String']['input'];
@@ -684,6 +692,17 @@ export type DepartmentInput = {
   headId: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
 };
+
+/** Who answers for a domain now, judged from the nameservers the registry holds. */
+export type DnsAuthority =
+  | 'CLOUDFLARE'
+  | 'GODADDY'
+  | 'OTHER';
+
+export type DnsRecordStatus =
+  | 'MATCH'
+  | 'MISSING_ON_CLOUDFLARE'
+  | 'ONLY_ON_CLOUDFLARE';
 
 export type DocumentCategory =
   | 'COMPLIANCE'
@@ -964,6 +983,15 @@ export type GoalStatus =
   | 'CANCELLED'
   | 'COMPLETED'
   | 'DRAFT';
+
+export type GodaddyConfigInput = {
+  /** Write-only. Leave empty when editing to keep the stored key. */
+  apiKey: InputMaybe<Scalars['String']['input']>;
+  /** Write-only. Leave empty when editing to keep the stored secret. */
+  apiSecret: InputMaybe<Scalars['String']['input']>;
+  isActive: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+};
 
 export type GradeInput = {
   active: Scalars['Boolean']['input'];
@@ -1560,6 +1588,11 @@ export type MyRequestInput = {
   subject: Scalars['String']['input'];
   type: RequestType;
 };
+
+export type NameserverTarget =
+  | 'CLOUDFLARE'
+  | 'CUSTOM'
+  | 'GODADDY';
 
 export type NavLinkInput = {
   category: Scalars['String']['input'];
