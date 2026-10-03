@@ -1,132 +1,85 @@
 ---
-// Modern Newsletter Design - Light Theme
+/**
+ * The newsletter row at the top of the night footer: kicker, title and the sign-up form with
+ * its security question. Copy lives in lib/chrome/newsletter.ts.
+ */
 import CaptchaBlock from "../forms/shared/CaptchaBlock.astro";
+import Icon from "../inner/Icon.astro";
+import { NEWSLETTER_COPY as copy } from "../../lib/chrome/newsletter";
 ---
 
-<section class="py-20 lg:py-28 bg-blue-subtle relative overflow-hidden">
-  <!-- Background Elements -->
-  <div class="absolute inset-0 pattern-plus bg-indigo/5"></div>
-
-  <div class="relative z-10 max-w-4xl mx-auto px-6 lg:px-8">
-    <div class="text-center">
-      <!-- Icon -->
-      <div
-        class="inline-flex items-center justify-center w-16 h-16 bg-purple-deep rounded-2xl mb-6 shadow-lg shadow-purple/20"
-      >
-        <i class="fa-solid fa-envelope-open-text text-on-solid text-2xl"></i>
+<section
+  class="chrome-shell grid gap-8 py-12 lg:grid-cols-2 lg:gap-16 lg:py-16"
+  aria-labelledby="newsletter-title"
+>
+  <div>
+    <p class="stage-label">{copy.label}</p>
+    <div class="stage-rule max-w-xs mt-3 mb-5" aria-hidden="true"></div>
+    <h2 id="newsletter-title" class="stage-title chrome-newsletter__title">{copy.title}</h2>
+    <p class="mt-4 max-w-lg text-fg-secondary leading-relaxed">{copy.text}</p>
+    <ul class="mt-5 flex flex-wrap gap-2" aria-label="What you get">
+      {
+        copy.benefits.map((benefit) => (
+          <li class="inline-flex items-center gap-2 rounded-full border border-line-strong px-3 py-1 text-xs text-fg-secondary">
+            <Icon name="check-circle" class="icon-xs text-cyan-bright" />
+            {benefit}
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+  <div class="lg:pt-8">
+    <form id="newsletter-form" class="grid gap-3">
+      <label for="newsletter-email" class="text-sm font-semibold text-fg-secondary">
+        {copy.emailLabel}
+      </label>
+      <div class="flex flex-col gap-3 sm:flex-row">
+        <input
+          type="email"
+          id="newsletter-email"
+          autocomplete="email"
+          placeholder={copy.placeholder}
+          class="chrome-field flex-1"
+          required
+        />
+        <button
+          type="submit"
+          id="newsletter-btn"
+          class="chrome-button chrome-button--solid group px-6"
+          data-busy="false"
+        >
+          <span class="group-data-[busy=true]:hidden">{copy.submit}</span>
+          <span class="hidden group-data-[busy=true]:inline">{copy.busy}</span>
+          <Icon name="arrow-right" class="icon-xs group-data-[busy=true]:hidden" />
+          <Icon
+            name="spinner"
+            class="icon-xs hidden animate-spin group-data-[busy=true]:inline-block"
+          />
+        </button>
       </div>
-
-      <!-- Heading -->
-      <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-fg mb-4">
-        Follow Us for <span class="text-blue-fg">More Updates</span>
-      </h2>
-      <p class="text-fg-muted text-lg max-w-xl mx-auto mb-10">
-        Stay ahead with the latest in AI, technology trends, and exclusive insights delivered
-        straight to your inbox.
-      </p>
-
-      <!-- Newsletter Form -->
-      <form id="newsletter-form" class="flex flex-col gap-4 max-w-xl mx-auto">
-        <div class="flex flex-col sm:flex-row gap-4">
-          <div class="flex-1 relative">
-            <label for="newsletter-email" class="sr-only">Email address</label>
-            <input
-              type="email"
-              id="newsletter-email"
-              autocomplete="email"
-              placeholder="Enter your email address"
-              class="w-full px-6 py-4 bg-surface border border-line rounded-2xl text-fg placeholder-fg-faint focus:outline-none focus:border-purple focus:ring-2 focus:ring-purple/20 transition-all shadow-sm"
-              required
-            />
-          </div>
-          <button
-            type="submit"
-            id="newsletter-btn"
-            class="cursor-pointer inline-flex items-center justify-center gap-2 bg-purple-strong text-on-solid font-semibold px-8 py-4 rounded-2xl hover:opacity-90 transition-all duration-300 shadow-lg shadow-purple/20 whitespace-nowrap"
-          >
-            Subscribe
-            <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>
-          </button>
-        </div>
-        <CaptchaBlock id="newsletter" />
-      </form>
-
-      <!-- Success/Error Messages -->
-      <div
-        id="newsletter-success"
-        role="status"
-        class="hidden mt-4 p-4 bg-green-subtle border border-green-muted rounded-xl text-green-fg-strong text-sm flex items-center justify-center gap-2 max-w-xl mx-auto"
-      >
-        <i class="fa-solid fa-check-circle"></i>
-        <span>Thank you for subscribing! You'll receive our updates soon.</span>
-      </div>
-      <div
-        id="newsletter-error"
-        role="alert"
-        class="hidden mt-4 p-4 bg-red-subtle border border-red-muted rounded-xl text-red-fg-strong text-sm flex items-center justify-center gap-2 max-w-xl mx-auto"
-      >
-        <i class="fa-solid fa-exclamation-circle"></i>
-        <span>Something went wrong. Please try again.</span>
-      </div>
-
-      <!-- Benefits -->
-      <div class="mt-10 flex flex-wrap items-center justify-center gap-8 text-sm text-fg-subtle">
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-check-circle text-green-fg"></i>
-          <span>Weekly AI Insights</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-check-circle text-green-fg"></i>
-          <span>Product Updates</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-check-circle text-green-fg"></i>
-          <span>Exclusive Content</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-check-circle text-green-fg"></i>
-          <span>No Spam, Ever</span>
-        </div>
-      </div>
-    </div>
+      <CaptchaBlock id="newsletter" />
+    </form>
+    <p
+      id="newsletter-success"
+      role="status"
+      class="mt-3 flex items-center gap-2 text-sm text-green-bright"
+      hidden
+    >
+      <Icon name="check-circle" class="icon-sm" />
+      {copy.success}
+    </p>
+    <p
+      id="newsletter-error"
+      role="alert"
+      class="mt-3 flex items-center gap-2 text-sm text-red-bright"
+      hidden
+    >
+      <Icon name="alert-circle" class="icon-sm" />
+      {copy.error}
+    </p>
   </div>
 </section>
 
 <script>
-  import { mountCaptcha } from "../../lib/captcha-dom";
-
-  document.addEventListener("DOMContentLoaded", () => {
-    const captcha = mountCaptcha(document, "newsletter");
-    const form = document.getElementById("newsletter-form") as HTMLFormElement;
-    const emailInput = document.getElementById("newsletter-email") as HTMLInputElement;
-    const btn = document.getElementById("newsletter-btn") as HTMLButtonElement;
-    const successMsg = document.getElementById("newsletter-success");
-    const errorMsg = document.getElementById("newsletter-error");
-
-    if (form && emailInput && btn && successMsg && errorMsg && captcha) {
-      form.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const email = emailInput.value.trim();
-        if (!email) return;
-
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Subscribing...';
-        successMsg.classList.add("hidden");
-        errorMsg.classList.add("hidden");
-
-        try {
-          // A wrong security answer is shown under the question itself.
-          if ((await captcha.send("newsletter", { email })) === "sent") {
-            successMsg.classList.remove("hidden");
-            emailInput.value = "";
-          }
-        } catch {
-          errorMsg.classList.remove("hidden");
-        } finally {
-          btn.disabled = false;
-          btn.innerHTML = 'Subscribe <i class="fa-solid fa-arrow-right" aria-hidden="true"></i>';
-        }
-      });
-    }
-  });
+  import "../../scripts/chrome/newsletter";
 </script>

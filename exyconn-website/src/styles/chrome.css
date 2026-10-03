@@ -1,0 +1,741 @@
+/*
+ * The site chrome: header, phone menu, footer, the settings drawers and back to top.
+ *
+ * The header, phone menu and footer are night objects (data-theme="dark"), like the home
+ * stage and every inner page's InnerStage and CtaBand, so they look the same in both site
+ * modes and the logo is always the night logo. The drawers follow the site theme. Colour
+ * comes only from roles; stacking only from the --z-* tokens.
+ */
+
+/*
+ * Unlayered, like global.scss and input.scss, so these classes beat the global element rules
+ * (label, checkbox, button). The icon base alone sits in the components layer, so a utility
+ * (`hidden`, a size) on an icon still wins.
+ */
+@layer theme, base, components, utilities;
+
+@layer components {
+  /* The inline SVG icons (components/inner/Icon.astro, forms/shared/SvgIcon.tsx). */
+  .svg-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    flex-shrink: 0;
+    vertical-align: -0.125em;
+    transition: transform var(--duration-base) var(--ease-standard);
+  }
+}
+
+:root {
+  --chrome-header-height: 4rem;
+  --chrome-gutter: var(--space-4);
+  --chrome-hairline: color-mix(in oklab, var(--color-fg) 12%, transparent);
+}
+
+@media (min-width: 640px) {
+  :root {
+    --chrome-gutter: var(--space-6);
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --chrome-gutter: var(--space-8);
+  }
+}
+
+html.chrome-locked {
+  overflow: hidden;
+}
+
+.chrome-shell {
+  width: 100%;
+  max-width: 80rem;
+  margin-inline: auto;
+  padding-inline: max(var(--chrome-gutter), env(safe-area-inset-left))
+    max(var(--chrome-gutter), env(safe-area-inset-right));
+}
+
+/* The neon hairline under the header and over the footer: violet → fuchsia → cyan. */
+.chrome-neon {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-violet-bright) 25%,
+    var(--color-fuchsia-bright) 50%,
+    var(--color-cyan-bright) 75%,
+    transparent
+  );
+  opacity: 0.55;
+}
+
+/* ---------- Promo strip ---------- */
+.chrome-promo {
+  background: var(--color-inverse);
+  color: var(--color-fg-secondary);
+  font-size: var(--font-size-xs);
+}
+
+.chrome-promo a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 2.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.chrome-promo a:hover {
+  color: var(--color-fg);
+}
+
+.chrome-promo__tag {
+  color: var(--color-orange-bright);
+}
+
+.chrome-promo__text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- Header ---------- */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  color: var(--color-fg);
+  background: color-mix(in oklab, var(--color-inverse) 96%, transparent);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+}
+
+.site-header__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: var(--chrome-header-height);
+}
+
+.site-header__logo {
+  display: inline-flex;
+  align-items: center;
+  margin-right: auto;
+  min-height: 2.75rem;
+}
+
+.site-header__logo img {
+  height: 2rem;
+  width: auto;
+}
+
+.chrome-nav {
+  display: none;
+}
+
+.chrome-nav__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-fg-secondary);
+  transition: var(--transition-surface), var(--transition-color);
+}
+
+.chrome-nav__link:hover,
+.chrome-nav__link[aria-expanded="true"] {
+  color: var(--color-fg);
+  background: color-mix(in oklab, var(--color-fg) 7%, transparent);
+}
+
+.chrome-nav__link[aria-expanded="true"] .svg-icon {
+  transform: rotate(180deg);
+}
+
+.chrome-icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex-shrink: 0;
+  border-radius: var(--radius-pill);
+  color: var(--color-fg-secondary);
+  font-size: var(--icon-size-lg);
+  transition: var(--transition-surface), var(--transition-color);
+}
+
+.chrome-icon-button:hover {
+  color: var(--color-fg);
+  background: color-mix(in oklab, var(--color-fg) 8%, transparent);
+}
+
+.chrome-search {
+  display: none;
+}
+
+.chrome-cta {
+  display: none;
+}
+
+@media (min-width: 1024px) {
+  .chrome-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    margin-right: auto;
+  }
+
+  .chrome-search {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 11rem;
+    min-height: 2.5rem;
+    padding: var(--space-2) var(--space-3);
+    border: var(--border-width-hairline) solid var(--chrome-hairline);
+    border-radius: var(--radius-pill);
+    font-size: var(--font-size-sm);
+    color: var(--color-fg-muted);
+    transition: var(--transition-surface);
+  }
+
+  .chrome-search:hover {
+    border-color: var(--color-line-strong);
+    color: var(--color-fg);
+  }
+
+  .chrome-search kbd {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: var(--font-size-2xs);
+    color: var(--color-fg-subtle);
+  }
+
+  .chrome-search-icon,
+  .chrome-menu-button {
+    display: none;
+  }
+
+  .chrome-cta {
+    display: inline-flex;
+  }
+}
+
+@media (min-width: 1280px) {
+  .chrome-search {
+    width: 14rem;
+  }
+}
+
+@media (max-width: 1279px) {
+  .chrome-cta--wide {
+    display: none;
+  }
+}
+
+/* The theme toggle shows the SITE's mode, not the night header's own. */
+.theme-toggle__sun,
+:root[data-theme="dark"] .theme-toggle__moon {
+  display: none;
+}
+
+:root[data-theme="dark"] .theme-toggle__sun {
+  display: inline-block;
+}
+
+/* Header calls to action: the inner kit's solid and ghost buttons, header-sized. */
+.chrome-action {
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.5rem;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+  border: var(--border-width-hairline) solid transparent;
+  transition: var(--transition-surface), var(--transition-color);
+}
+
+.chrome-action--primary {
+  background: var(--color-fg);
+  color: var(--color-page);
+}
+
+.chrome-action--primary:hover {
+  background: var(--color-fg-secondary);
+}
+
+.chrome-action--ghost {
+  border-color: var(--chrome-hairline);
+  color: var(--color-fg);
+}
+
+.chrome-action--ghost:hover {
+  border-color: var(--color-fg-muted);
+}
+
+/* ---------- Dropdown panels ---------- */
+.chrome-menu {
+  position: relative;
+}
+
+.chrome-panel {
+  position: absolute;
+  top: calc(100% + var(--space-3));
+  left: 50%;
+  transform: translateX(-50%);
+  width: 34rem;
+  padding: var(--space-4);
+  border: var(--border-width-hairline) solid var(--chrome-hairline);
+  border-radius: var(--radius-2xl);
+  /* Opaque: a backdrop-filter inside the header's own cannot blur the page behind. */
+  background: var(--color-inverse);
+  box-shadow: var(--shadow-xl);
+}
+
+.chrome-panel[hidden] {
+  display: none;
+}
+
+.chrome-panel__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-1);
+}
+
+.chrome-panel__item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+  transition: var(--transition-surface);
+}
+
+.chrome-panel__item:hover {
+  background: color-mix(in oklab, var(--color-fg) 7%, transparent);
+}
+
+.chrome-panel__index {
+  grid-row: span 2;
+  padding-top: 0.15rem;
+  color: var(--color-violet-bright);
+}
+
+.chrome-panel__label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg);
+}
+
+.chrome-panel__text {
+  font-size: var(--font-size-xs);
+  color: var(--color-fg-muted);
+}
+
+.chrome-panel__overview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-top: var(--border-width-hairline) solid var(--chrome-hairline);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg);
+}
+
+.chrome-panel__overview:hover {
+  color: var(--color-cyan-bright);
+}
+
+/* ---------- Drawers: phone menu (night), accessibility + cookies (site theme) ---------- */
+.chrome-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  background: color-mix(in oklab, var(--color-scrim) 55%, transparent);
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--duration-slow) var(--ease-standard),
+    visibility 0s linear var(--duration-slow);
+}
+
+/*
+ * Closed, a drawer is moved fully off the right edge AND hidden, with no shadow: a shadow on a
+ * parked drawer used to paint a strip down the right of every page.
+ */
+.chrome-drawer {
+  position: fixed;
+  inset: 0 0 0 auto;
+  z-index: var(--z-modal);
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 26rem);
+  height: 100dvh;
+  background: var(--color-surface);
+  color: var(--color-fg);
+  border-left: var(--border-width-hairline) solid var(--color-line);
+  transform: translateX(100%);
+  visibility: hidden;
+  box-shadow: none;
+  transition:
+    transform var(--duration-slow) var(--ease-standard),
+    visibility 0s linear var(--duration-slow);
+}
+
+.chrome-drawer[data-open="true"] {
+  transform: none;
+  visibility: visible;
+  box-shadow: var(--shadow-xl);
+  transition: transform var(--duration-slow) var(--ease-standard);
+}
+
+.chrome-backdrop[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity var(--duration-slow) var(--ease-standard);
+}
+
+.chrome-drawer:focus {
+  outline: none;
+}
+
+.chrome-drawer__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: var(--border-width-hairline) solid var(--color-line);
+}
+
+.chrome-drawer__title {
+  margin-top: var(--space-1);
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.chrome-drawer__body {
+  flex: 1;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-5);
+}
+
+.chrome-drawer__foot {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5) max(var(--space-4), env(safe-area-inset-bottom));
+  border-top: var(--border-width-hairline) solid var(--color-line);
+}
+
+/* A row with a label, one line of help and a switch. */
+.chrome-option {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width-hairline) solid var(--color-line);
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition: var(--transition-surface);
+}
+
+.chrome-option--static {
+  cursor: default;
+}
+
+.chrome-option:hover {
+  border-color: var(--color-line-strong);
+}
+
+.chrome-option__label {
+  display: block;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg);
+}
+
+.chrome-option__text {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: var(--font-size-xs);
+  color: var(--color-fg-muted);
+}
+
+.chrome-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-width-hairline) solid var(--color-line-strong);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-fg);
+  text-align: center;
+  transition: var(--transition-surface);
+}
+
+.chrome-button--tile {
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--font-size-xs);
+}
+
+.chrome-drawer__foot--stack {
+  grid-auto-flow: row;
+}
+
+.chrome-button:hover {
+  background: var(--color-surface-muted);
+}
+
+.chrome-button--solid {
+  border-color: var(--color-fg);
+  background: var(--color-fg);
+  color: var(--color-page);
+  font-weight: var(--font-weight-semibold);
+}
+
+.chrome-button--solid:hover {
+  background: var(--color-fg-secondary);
+}
+
+/* ---------- Phone menu (night) ---------- */
+.chrome-mobile-menu {
+  background: linear-gradient(180deg, var(--color-inverse), var(--color-indigo-night));
+  border-left-color: var(--chrome-hairline);
+}
+
+.chrome-mobile-group > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 3rem;
+  list-style: none;
+  cursor: pointer;
+  font-weight: var(--font-weight-semibold);
+}
+
+.chrome-mobile-group > summary::-webkit-details-marker {
+  display: none;
+}
+
+.chrome-mobile-group[open] > summary .svg-icon {
+  transform: rotate(180deg);
+}
+
+.chrome-mobile-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 2.75rem;
+  color: var(--color-fg-secondary);
+}
+
+.chrome-mobile-link--strong {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg);
+}
+
+.chrome-mobile-link:hover {
+  color: var(--color-fg);
+}
+
+.chrome-mobile-section {
+  border-bottom: var(--border-width-hairline) solid var(--chrome-hairline);
+  padding-block: var(--space-2);
+}
+
+/* ---------- Footer (night) ---------- */
+.site-footer {
+  color: var(--color-fg);
+  background: linear-gradient(180deg, var(--color-indigo-night), var(--color-inverse) 40%);
+}
+
+/* Room under the last row for back to top and the phone's home indicator. */
+.site-footer__bottom {
+  padding-block: var(--space-6) calc(var(--space-24) + env(safe-area-inset-bottom));
+  border-top: var(--border-width-hairline) solid var(--chrome-hairline);
+}
+
+.site-footer__brand {
+  grid-column: 1 / -1;
+}
+
+.site-footer__columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-8) var(--space-6);
+}
+
+@media (min-width: 1024px) {
+  .site-footer__columns {
+    grid-template-columns: minmax(0, 1.6fr) repeat(4, minmax(0, 1fr));
+  }
+
+  .site-footer__brand {
+    grid-column: auto;
+  }
+}
+
+.site-footer__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: 2.75rem;
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+  transition: var(--transition-color);
+}
+
+@media (min-width: 1024px) {
+  .site-footer__link {
+    min-height: 2rem;
+  }
+}
+
+.site-footer__link:hover {
+  color: var(--color-fg);
+}
+
+.chrome-social {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: var(--border-width-hairline) solid var(--chrome-hairline);
+  border-radius: var(--radius-pill);
+  color: var(--color-fg-secondary);
+  transition: var(--transition-surface), var(--transition-color);
+}
+
+.chrome-social:hover {
+  color: var(--color-fg);
+  border-color: var(--color-violet-bright);
+}
+
+/* ---------- Newsletter row (inside the footer) ---------- */
+.stage-title.chrome-newsletter__title {
+  font-size: clamp(1.75rem, 3.2vw, 2.75rem);
+}
+
+.chrome-field {
+  width: 100%;
+  min-height: 3rem;
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width-hairline) solid var(--color-line-strong);
+  border-radius: var(--radius-lg);
+  background: color-mix(in oklab, var(--color-fg) 5%, transparent);
+  color: var(--color-fg);
+}
+
+.chrome-field::placeholder {
+  color: var(--color-fg-subtle);
+}
+
+/* ---------- Back to top ---------- */
+.back-to-top {
+  position: fixed;
+  right: max(var(--space-4), env(safe-area-inset-right));
+  bottom: max(var(--space-4), env(safe-area-inset-bottom));
+  z-index: var(--z-overlay);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: var(--border-width-hairline) solid var(--chrome-hairline);
+  border-radius: var(--radius-pill);
+  background: color-mix(in oklab, var(--color-inverse) 80%, transparent);
+  color: var(--color-fg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: var(--shadow-md);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(0.5rem);
+  transition:
+    opacity var(--duration-slow) var(--ease-standard),
+    transform var(--duration-slow) var(--ease-standard),
+    visibility 0s linear var(--duration-slow);
+}
+
+.back-to-top[data-visible="true"] {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    opacity var(--duration-slow) var(--ease-standard),
+    transform var(--duration-slow) var(--ease-standard);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chrome-drawer,
+  .chrome-drawer[data-open="true"],
+  .chrome-backdrop,
+  .back-to-top {
+    transition: none;
+  }
+}
+
+/*
+ * The switch. Outside the layer: it has to beat the unlayered checkbox look in input.scss.
+ */
+input[type="checkbox"].chrome-switch {
+  appearance: none;
+  border: 0;
+  position: relative;
+  flex-shrink: 0;
+  width: 2.75rem;
+  height: 1.5rem;
+  margin: 0;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-strong);
+  box-shadow: var(--shadow-inset);
+  cursor: pointer;
+  transition: background var(--duration-base) var(--ease-standard);
+}
+
+input[type="checkbox"].chrome-switch::after {
+  content: "";
+  display: block;
+  border: 0;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-xs);
+  transition: transform var(--duration-base) var(--ease-standard);
+}
+
+input[type="checkbox"].chrome-switch:checked {
+  background: var(--color-primary);
+}
+
+input[type="checkbox"].chrome-switch:checked::after {
+  transform: translateX(1.25rem);
+}

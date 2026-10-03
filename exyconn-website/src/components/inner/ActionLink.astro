@@ -1,5 +1,6 @@
 ---
 /** A call-to-action link: solid `primary` or outlined `ghost`. Readable on night bands and in both site themes. */
+import Icon from "./Icon.astro";
 import type { InnerAction } from "./types";
 
 type Props = Readonly<{
@@ -21,5 +22,5 @@ const external = action.external ? { target: "_blank", rel: "noopener noreferrer
 >
   {action.label}
   {action.external && <span class="sr-only">(opens in a new tab)</span>}
-  <i class="fa-solid fa-arrow-right icon-xs" aria-hidden="true"></i>
+  <Icon name="arrow-right" class="icon-xs" />
 </a>

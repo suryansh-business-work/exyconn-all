@@ -93,7 +93,9 @@ async function translatePage(
  */
 export const onRequest = defineMiddleware(async (context, next) => {
   const url = context.url;
-  const host = context.request.headers.get("host") || "";
+  // A prerendered page (404.html) has no request headers — reading them only warns — and
+  // is never served on www anyway.
+  const host = context.isPrerendered ? "" : context.request.headers.get("host") || "";
 
   // 1. Force apex (no www) on production hostnames only
   const lowerHost = host.toLowerCase();

@@ -1,7 +1,9 @@
 ---
 /**
- * The site logo in whichever mode the page is in. Branding carries a separate logo for dark
- * backgrounds (Admin > Branding); until one is uploaded the daylight logo is used for both.
+ * The site logo in whichever mode the element is in — the header, phone menu and footer are
+ * night objects, so they show the night logo in both site modes. Branding carries a separate
+ * logo for dark backgrounds (Admin > Branding); until one is uploaded the daylight logo is
+ * drawn in one light colour on night surfaces, so it never turns dark-on-dark.
  */
 import type { HTMLAttributes } from "astro/types";
 import { BRANDING_FALLBACK, type Branding } from "../lib/portal";
@@ -21,7 +23,7 @@ const darkSrc = branding.logoDarkUrl || lightSrc;
 
 {
   darkSrc === lightSrc ? (
-    <img class={className} src={lightSrc} {...imgProps} />
+    <img class:list={[className, "dark:brightness-0 dark:invert"]} src={lightSrc} {...imgProps} />
   ) : (
     <>
       <img class:list={[className, "dark:hidden"]} src={lightSrc} {...imgProps} />

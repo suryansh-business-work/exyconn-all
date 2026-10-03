@@ -37,3 +37,43 @@ export const breadcrumbJsonLd = (crumbs: readonly Crumb[], siteUrl: string) => (
     ...(crumb.href ? { item: absolute(crumb.href, siteUrl) } : {}),
   })),
 });
+
+export interface ServiceLd {
+  name: string;
+  description: string;
+  /** The page's own absolute URL. */
+  url: string;
+  /** e.g. "AI agents" or "Software development". */
+  serviceType?: string;
+  areaServed?: string;
+  provider: Readonly<{ name: string; url: string }>;
+  /** What the service includes, published as its offer catalogue. */
+  offers?: Readonly<{
+    title: string;
+    items: readonly Readonly<{ name: string; description?: string }>[];
+  }>;
+}
+
+const offerCatalog = (offers: NonNullable<ServiceLd["offers"]>) => ({
+  "@type": "OfferCatalog",
+  name: offers.title,
+  itemListElement: offers.items.map((item, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    name: item.name,
+    ...(item.description ? { description: item.description } : {}),
+  })),
+});
+
+/** schema.org Service for a service or capability page; pass it to Page's `jsonLd`. */
+export const serviceJsonLd = (service: ServiceLd) => ({
+  "@context": "https://schema.org",
+  "@type": "Service",
+  name: service.name,
+  description: service.description,
+  url: service.url,
+  ...(service.serviceType ? { serviceType: service.serviceType } : {}),
+  ...(service.areaServed ? { areaServed: service.areaServed } : {}),
+  provider: { "@type": "Organization", name: service.provider.name, url: service.provider.url },
+  ...(service.offers?.items.length ? { hasOfferCatalog: offerCatalog(service.offers) } : {}),
+});

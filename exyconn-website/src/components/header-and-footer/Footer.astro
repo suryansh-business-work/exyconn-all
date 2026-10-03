@@ -1,12 +1,19 @@
 ---
-import Newsletter from "./../fragments/Newsletter.astro";
+/**
+ * The night footer: the newsletter row, the brand and four link columns (lib/chrome), then the
+ * market picker, copyright and legal links. It also hosts the two settings drawers, opened
+ * from the header, the phone menu and the "Cookie preferences" button here — none of them
+ * floats over the page.
+ */
+import Newsletter from "../fragments/Newsletter.astro";
 import CokkiesModel from "../CokkiesModel.astro";
 import AccessibilityDrawer from "../AccessibilityDrawer.astro";
 import BrandLogo from "../BrandLogo.astro";
 import MarketPicker from "../MarketPicker.astro";
+import Icon from "../inner/Icon.astro";
 import { BRANDING_FALLBACK, type Branding } from "../../lib/portal";
-import { socialLinks, type SocialNetwork } from "../../lib/social-links";
-import { TOOLS_SITE_URL } from "../../lib/site";
+import { socialLinks } from "../../lib/social-links";
+import { FOOTER_COLUMNS, FOOTER_TAGLINE, LEGAL_LINKS } from "../../lib/chrome/navigation";
 
 interface Props {
   branding: Branding;
@@ -14,456 +21,97 @@ interface Props {
 
 const { branding } = Astro.props;
 
-// Version is injected at build time via Vite define in astro.config.mjs
-// Falls back to env variable or default
-const versionLabel = import.meta.env.PUBLIC_APP_VERSION || "v0.0.1-dev";
+// The build, for whoever debugs a deployment: in the markup, never on screen.
+const version = import.meta.env.PUBLIC_APP_VERSION || "dev";
 
-// Branding fields are empty strings until an admin fills them in — fall back to the values
-// the site used to hardcode so it looks unchanged until then.
 const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
 const legalName = branding.legalName || BRANDING_FALLBACK.legalName;
-
-// The portal can supply the whole notice; otherwise build it from the legal name + this year.
 const copyrightText =
   branding.copyrightText || `© ${new Date().getFullYear()} ${legalName}. All rights reserved.`;
-
-// Hover colour per network; the links themselves come from Admin > Branding.
-const SOCIAL_HOVER: Record<SocialNetwork, string> = {
-  linkedin: "hover:bg-blue-subtle hover:text-blue-fg",
-  twitter: "hover:bg-blue-subtle hover:text-blue-fg",
-  facebook: "hover:bg-blue-subtle hover:text-blue-fg",
-  instagram: "hover:bg-pink-subtle hover:text-pink-fg",
-  youtube: "hover:bg-red-subtle hover:text-red-fg",
-  github: "hover:bg-surface-strong hover:text-fg",
-};
 const social = socialLinks(branding);
+const newTab = { target: "_blank", rel: "noopener noreferrer" };
 ---
 
-<Newsletter />
+<footer class="site-footer" data-theme="dark" data-version={version} aria-label="Site footer">
+  <div class="chrome-neon" aria-hidden="true"></div>
+  <Newsletter />
 
-<!-- Footer Section - Modern Light Design -->
-<footer
-  class="w-full bg-surface-subtle border-t border-line-subtle"
-  role="contentinfo"
-  aria-label="Site footer"
->
-  <!-- Main Footer Content -->
-  <div class="max-w-7xl mx-auto px-6 py-16">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
-      <!-- Brand Column -->
-      <div class="lg:col-span-2">
-        <a href="/" class="inline-block mb-6" aria-label={`${businessName} - Go to homepage`}>
-          <BrandLogo
-            branding={branding}
-            alt={`${businessName} Logo`}
-            class="h-10"
-            width="120"
-            height="40"
-          />
-        </a>
-        <p class="text-fg-muted text-sm leading-relaxed mb-6 max-w-sm">
-          Empowering businesses with AI-native intelligence and enterprise-ready SaaS solutions.
-          From idea to MVP in weeks, not months.
-        </p>
-        <ul class="flex items-center gap-4" aria-label="Social media links">
-          {
-            social.map((link) => (
+  <div class="chrome-shell site-footer__columns border-t border-line pt-12 pb-12">
+    <div class="site-footer__brand">
+      <a href="/" class="inline-flex min-h-11 items-center" aria-label={`${businessName} home`}>
+        <BrandLogo branding={branding} alt="" width="120" height="40" class="h-10 w-auto" />
+      </a>
+      <p class="mt-4 max-w-sm text-sm leading-relaxed text-fg-secondary">{FOOTER_TAGLINE}</p>
+      <ul class="mt-6 flex items-center gap-2" aria-label="Social media links">
+        {
+          social.map((link) => (
+            <li>
+              <a href={link.url} {...newTab} aria-label={link.label} class="chrome-social">
+                <i class:list={[link.icon, "icon-md"]} aria-hidden="true" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    {
+      FOOTER_COLUMNS.map((column) => (
+        <nav aria-labelledby={`footer-${column.id}`}>
+          <h2 id={`footer-${column.id}`} class="stage-label mb-3">
+            {column.label}
+          </h2>
+          <ul>
+            {column.links.map((link) => (
               <li>
-                <a
-                  href={link.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class:list={[
-                    "w-10 h-10 bg-surface-muted rounded-full flex items-center justify-center text-fg-muted transition",
-                    SOCIAL_HOVER[link.id],
-                  ]}
-                  aria-label={link.label}
-                >
-                  <i class:list={[link.icon, "icon-md"]} aria-hidden="true" />
+                <a href={link.href} class="site-footer__link" {...(link.external ? newTab : {})}>
+                  {link.label}
+                  {link.external && (
+                    <>
+                      <Icon name="arrow-up-right" class="icon-xs text-fg-subtle" />
+                      <span class="sr-only">(opens in a new tab)</span>
+                    </>
+                  )}
                 </a>
               </li>
-            ))
-          }
-        </ul>
-      </div>
-
-      <!-- AI Solutions Column -->
-      <nav aria-label="AI Solutions navigation">
-        <h2 class="font-semibold text-fg mb-4">AI Solutions</h2>
-        <ul class="space-y-1 text-sm">
-          <li>
-            <a
-              href="/ai"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >AI Platform</a
-            >
-          </li>
-          <li>
-            <a
-              href="/ai/agentic"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >Agentic AI</a
-            >
-          </li>
-          <li>
-            <a
-              href="/ai/bot-creation"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >Bot Creation</a
-            >
-          </li>
-          <li>
-            <a
-              href="/ai/workflows"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >AI Workflows</a
-            >
-          </li>
-          <li>
-            <a
-              href="/ai/llms"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >LLMs</a
-            >
-          </li>
-          <li>
-            <a
-              href="/ai/custom-model-training"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >Custom Training</a
-            >
-          </li>
-          <li>
-            <a
-              href="/ai/mcp-server"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >MCP Server</a
-            >
-          </li>
-        </ul>
-      </nav>
-
-      <!-- Services Column -->
-      <nav aria-label="Services navigation">
-        <h2 class="font-semibold text-fg mb-4">Services</h2>
-        <ul class="space-y-1 text-sm">
-          <li>
-            <a
-              href="/our-services"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >All Services</a
-            >
-          </li>
-          <li>
-            <a
-              href="/services/digital-consulting"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >Digital Consulting</a
-            >
-          </li>
-          <li>
-            <a
-              href="/services/software-as-a-service"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >SaaS Development</a
-            >
-          </li>
-          <li>
-            <a
-              href="/services/enterprise-application"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >Enterprise Apps</a
-            >
-          </li>
-          <li>
-            <a
-              href="/services/mobile-application-development"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >Mobile Apps</a
-            >
-          </li>
-          <li>
-            <a
-              href="/services/data-analytics"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >Data Analytics</a
-            >
-          </li>
-          <li>
-            <a
-              href="/services/digital-marketing"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >Digital Marketing</a
-            >
-          </li>
-          <li>
-            <a
-              href="/services/application-modernization"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >App Modernization</a
-            >
-          </li>
-          <li>
-            <a
-              href="/services/software-development-outsourcing"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >Outsourcing</a
-            >
-          </li>
-          <li>
-            <a
-              href="/india/offer"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >India Offer</a
-            >
-          </li>
-        </ul>
-      </nav>
-
-      <!-- Products Column -->
-      <nav aria-label="Products navigation">
-        <h2 class="font-semibold text-fg mb-4">Products</h2>
-        <ul class="space-y-1 text-sm">
-          <li>
-            <a
-              href="/ai-services"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >AI Services</a
-            >
-          </li>
-          <li>
-            <a
-              href="https://sibera.work"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="py-1 text-fg-muted hover:text-fg transition inline-flex items-center gap-1 focus:underline"
-            >
-              Sibera <i
-                class="fa-solid fa-arrow-up-right-from-square icon-xs text-fg-subtle"
-                aria-hidden="true"></i><span class="sr-only">(opens in a new tab)</span>
-            </a>
-          </li>
-          <li>
-            <a
-              href="https://spentiva.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="py-1 text-fg-muted hover:text-fg transition inline-flex items-center gap-1 focus:underline"
-            >
-              Spentiva <i
-                class="fa-solid fa-arrow-up-right-from-square icon-xs text-fg-subtle"
-                aria-hidden="true"></i><span class="sr-only">(opens in a new tab)</span>
-            </a>
-          </li>
-          <li>
-            <a
-              href="https://duncit.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="py-1 text-fg-muted hover:text-fg transition inline-flex items-center gap-1 focus:underline"
-            >
-              Duncit <i
-                class="fa-solid fa-arrow-up-right-from-square icon-xs text-fg-subtle"
-                aria-hidden="true"></i><span class="sr-only">(opens in a new tab)</span>
-            </a>
-          </li>
-          <li>
-            <a
-              href={TOOLS_SITE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="py-1 text-fg-muted hover:text-fg transition inline-flex items-center gap-1 focus:underline"
-            >
-              Free Tools <i
-                class="fa-solid fa-arrow-up-right-from-square icon-xs text-fg-subtle"
-                aria-hidden="true"></i><span class="sr-only">(opens in a new tab)</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-
-      <!-- Company Column -->
-      <nav aria-label="Company navigation">
-        <h2 class="font-semibold text-fg mb-4">Company</h2>
-        <ul class="space-y-1 text-sm">
-          <li>
-            <a
-              href="/about-us"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >About Us</a
-            >
-          </li>
-          <li>
-            <a
-              href="/our-vision"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >Our Vision</a
-            >
-          </li>
-          <li>
-            <a
-              href="/career"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >Careers</a
-            >
-          </li>
-          <li>
-            <a
-              href="/blog"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >Blog</a
-            >
-          </li>
-          <li>
-            <a
-              href={TOOLS_SITE_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >Free Tools</a
-            >
-          </li>
-          <li>
-            <a
-              href="/case-studies"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >Case Studies</a
-            >
-          </li>
-          <li>
-            <a
-              href="/contact"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >Contact</a
-            >
-          </li>
-          <li>
-            <a
-              href="/get-a-quote"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >Get a Quote</a
-            >
-          </li>
-          <li>
-            <a
-              href="/grievance"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >Grievance</a
-            >
-          </li>
-          <li>
-            <a
-              href="/privacy-policy"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >Privacy Policy</a
-            >
-          </li>
-          <li>
-            <a
-              href="/cookies"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >Cookies</a
-            >
-          </li>
-          <li>
-            <a
-              href="/legal"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >Legal</a
-            >
-          </li>
-          <li>
-            <a
-              href="/sitemap"
-              class="inline-block py-1 text-fg-muted hover:text-fg transition focus:underline"
-              >Sitemap</a
-            >
-          </li>
-        </ul>
-      </nav>
-    </div>
-  </div>
-
-  <!-- Bottom Bar -->
-  <div class="border-t border-line-subtle">
-    <!-- Bottom padding clears the launchers pinned to the bottom corners, so they never sit on these links. -->
-    <div class="max-w-7xl mx-auto px-6 pt-6 pb-36">
-      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-        <!-- One below another on a phone, side by side from md up. -->
-        <div class="flex flex-col md:flex-row items-center gap-3 text-center md:text-start">
-          <MarketPicker />
-          <p class="text-sm text-fg-subtle">{copyrightText}</p>
-          <span
-            class="text-xs text-fg-faint bg-surface-muted px-2 py-0.5 rounded font-mono"
-            title="Website Version">{versionLabel}</span
-          >
-        </div>
-        <nav
-          aria-label="Legal links"
-          class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm"
-        >
-          <a
-            href="/privacy-policy"
-            class="inline-block py-1 text-fg-subtle hover:text-fg transition focus:underline"
-            >Privacy Policy</a
-          >
-          <a
-            href="/legal"
-            class="inline-block py-1 text-fg-subtle hover:text-fg transition focus:underline"
-            >Terms of Service</a
-          >
-          <a
-            href="/cookies"
-            class="inline-block py-1 text-fg-subtle hover:text-fg transition focus:underline"
-            >Cookies</a
-          >
-          <a
-            href="/sitemap"
-            class="inline-block py-1 text-fg-subtle hover:text-fg transition focus:underline"
-            >Sitemap</a
-          >
+            ))}
+          </ul>
         </nav>
-      </div>
-    </div>
+      ))
+    }
   </div>
 
-  <CokkiesModel />
-  <AccessibilityDrawer />
+  <div class="site-footer__bottom">
+    <div
+      class="chrome-shell flex flex-col gap-4 text-sm lg:flex-row lg:items-center lg:justify-between"
+    >
+      <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-6">
+        <MarketPicker />
+        <p class="text-fg-muted">{copyrightText}</p>
+      </div>
+      <nav aria-label="Legal links" class="flex flex-wrap items-center gap-x-5">
+        {
+          LEGAL_LINKS.map((link) => (
+            <a href={link.href} class="site-footer__link">
+              {link.label}
+            </a>
+          ))
+        }
+        <button
+          type="button"
+          class="site-footer__link"
+          data-drawer-open="cookie-drawer"
+          aria-controls="cookie-drawer"
+          aria-expanded="false"
+        >
+          <Icon name="cookie" class="icon-xs" />
+          Cookie preferences
+        </button>
+      </nav>
+    </div>
+  </div>
 </footer>
 
-<script is:inline>
-  // Cookie consent handling
-  function showCookieDialog() {
-    const consent = localStorage.getItem("cookieConsent");
-    const dialog = document.getElementById("cookieConsent");
-    if (!consent && dialog) {
-      dialog.querySelector("div").style.display = "flex";
-    }
-  }
-  function hideCookieDialog() {
-    const dialog = document.getElementById("cookieConsent");
-    if (dialog) dialog.querySelector("div").style.display = "none";
-  }
-  document.addEventListener("DOMContentLoaded", () => {
-    showCookieDialog();
-    document.getElementById("acceptCookies")?.addEventListener("click", () => {
-      localStorage.setItem("cookieConsent", "accepted");
-      hideCookieDialog();
-    });
-    document.getElementById("rejectCookies")?.addEventListener("click", () => {
-      localStorage.setItem("cookieConsent", "rejected");
-      hideCookieDialog();
-    });
-  });
-</script>
-
-<!-- Google Analytics -->
-<script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-1SMCDWXEYH"></script>
-<script is:inline>
-  window.dataLayer = window.dataLayer || [];
-  function gtag() {
-    dataLayer.push(arguments);
-  }
-  gtag("js", new Date());
-  gtag("config", "G-1SMCDWXEYH");
-</script>
+<!-- Fixed drawers sit outside the footer, so its stacking and theme never reach them. -->
+<CokkiesModel />
+<AccessibilityDrawer />

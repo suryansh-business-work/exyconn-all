@@ -1,14 +1,18 @@
 import type { UseFormRegisterReturn } from "react-hook-form";
 import { type Accent, ERROR_CLASSES, LABEL_CLASSES, inputClassName } from "./fieldClasses";
+import { SvgIcon } from "./SvgIcon";
+
+const REFRESH_BASE =
+  "inline-flex size-11 items-center justify-center rounded-lg text-fg-subtle transition-colors";
 
 const ACCENT_CLASSES: Record<Accent, { icon: string; refresh: string }> = {
   blue: {
-    icon: "fa-solid fa-shield-halved text-blue-fg",
-    refresh: "p-2 text-fg-subtle hover:text-blue-fg transition-colors",
+    icon: "text-blue-fg",
+    refresh: `${REFRESH_BASE} hover:text-blue-fg`,
   },
   amber: {
-    icon: "fa-solid fa-shield-halved text-amber-fg",
-    refresh: "p-2 text-fg-subtle hover:text-amber-fg transition-colors",
+    icon: "text-amber-fg",
+    refresh: `${REFRESH_BASE} hover:text-amber-fg`,
   },
 };
 
@@ -40,7 +44,7 @@ export function CaptchaField({
       </label>
       <div className="flex items-center gap-4 flex-wrap">
         <div className="flex items-center gap-2 bg-surface px-4 py-2 rounded-lg border border-line">
-          <i className={ACCENT_CLASSES[accent].icon} aria-hidden="true"></i>
+          <SvgIcon name="shield" className={ACCENT_CLASSES[accent].icon} />
           {/* Announced when a new question replaces the old one. */}
           <span id="captcha-question" aria-live="polite" className="font-mono font-bold text-fg">
             {question}
@@ -64,7 +68,7 @@ export function CaptchaField({
           title="New question"
           aria-label="Show a new security question"
         >
-          <i className="fa-solid fa-rotate" aria-hidden="true"></i>
+          <SvgIcon name="refresh" className="icon-md" />
         </button>
       </div>
       <p id="captcha-hint" className="mt-2 text-xs text-fg-subtle">

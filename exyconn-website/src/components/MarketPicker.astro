@@ -1,4 +1,5 @@
 ---
+import Icon from "./inner/Icon.astro";
 import { DEFAULT_MARKET, MARKETS, marketUrl, splitMarketPath } from "../lib/i18n/markets";
 
 /**
@@ -20,7 +21,7 @@ const here = rest === "" ? "/" : rest;
 -->
 <details class="market-picker" data-market-picker>
   <summary>
-    <i class="fa-solid fa-globe icon-md" aria-hidden="true"></i>
+    <Icon name="globe" class="icon-md" />
     <span class="sr-only">Change country and language:</span>
     <span translate="no">{market.label}</span>
   </summary>
@@ -75,7 +76,7 @@ const here = rest === "" ? "/" : rest;
     bottom: 100%;
     left: 50%;
     translate: -50% 0;
-    z-index: 40;
+    z-index: var(--z-overlay);
     width: min(92vw, 46rem);
     max-height: min(60vh, 28rem);
     overflow-y: auto;

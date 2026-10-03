@@ -1,7 +1,8 @@
 ---
 /**
- * Proof right under the hero — ONE of: a logo marquee (pauses on hover/focus, static under
- * reduced motion), stat counters (count up once in view; the final value is already in the
+ * Proof right under the hero — ONE of: logos (a marquee from five up that pauses on
+ * hover/focus and is static under reduced motion; fewer sit still in one centred row), stat
+ * counters (count up once in view; the final value is already in the
  * DOM) or certification badges. Show only proof that exists on the site or portal today.
  */
 import "../../styles/inner-stage.css";
@@ -31,12 +32,36 @@ type Props = Readonly<
 
 const props = Astro.props;
 const { label } = props;
+
+/** Below this many logos a marquee only shows the same few repeating: they sit still instead. */
+const MARQUEE_MIN = 5;
+/** Box every logo is fitted into (CSS: 2rem tall, at most 9rem wide); reserves its space. */
+const LOGO_BOX = { width: 144, height: 32 } as const;
+const logoAttrs = { ...LOGO_BOX, loading: "lazy", decoding: "async" } as const;
+const marquee = props.variant === "logos" && props.items.length >= MARQUEE_MIN;
 ---
 
 <section class="inner-proof py-10" aria-label={label}>
   <div class="stage-shell">
     {
-      props.variant === "logos" && (
+      props.variant === "logos" && !marquee && (
+        <ul class="inner-logos">
+          {props.items.map((logo) => (
+            <li>
+              {logo.href ? (
+                <a href={logo.href}>
+                  <img src={logo.src} alt={logo.name} {...logoAttrs} />
+                </a>
+              ) : (
+                <img src={logo.src} alt={logo.name} {...logoAttrs} />
+              )}
+            </li>
+          ))}
+        </ul>
+      )
+    }
+    {
+      marquee && props.variant === "logos" && (
         <div class="inner-marquee">
           <div class="inner-marquee__track">
             {[false, true].map((copy) => (
@@ -45,15 +70,10 @@ const { label } = props;
                   <li>
                     {logo.href && !copy ? (
                       <a href={logo.href}>
-                        <img src={logo.src} alt={logo.name} loading="lazy" decoding="async" />
+                        <img src={logo.src} alt={logo.name} {...logoAttrs} />
                       </a>
                     ) : (
-                      <img
-                        src={logo.src}
-                        alt={copy ? "" : logo.name}
-                        loading="lazy"
-                        decoding="async"
-                      />
+                      <img src={logo.src} alt={copy ? "" : logo.name} {...logoAttrs} />
                     )}
                   </li>
                 ))}
@@ -65,7 +85,11 @@ const { label } = props;
     }
     {
       props.variant === "stats" && (
-        <dl class="inner-stats" style={`--inner-stat-columns: ${Math.min(4, props.items.length)}`}>
+        <dl
+          class="inner-stats"
+          data-stat-count={Math.min(4, props.items.length)}
+          style={`--inner-stat-columns: ${Math.min(4, props.items.length)}`}
+        >
           {props.items.map((stat) => (
             <div class="flex flex-col-reverse gap-1">
               <dt class="stage-label">{stat.label}</dt>

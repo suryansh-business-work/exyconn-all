@@ -4,6 +4,7 @@
  * `highlight` lights that tag in the stage scene while the card is hovered or focused.
  */
 import "../../styles/inner-stage.css";
+import Icon from "./Icon.astro";
 import type { DataAttributes } from "./types";
 
 type Props = Readonly<{
@@ -14,7 +15,7 @@ type Props = Readonly<{
   tags?: readonly string[];
   more?: string;
   highlight?: number;
-  level?: "h2" | "h3";
+  level?: "h2" | "h3" | "h4";
   external?: boolean;
 }> &
   DataAttributes;
@@ -51,8 +52,6 @@ const target = external ? { target: "_blank", rel: "noopener noreferrer" } : {};
   <span class="inner-card__more">
     {more}
     {external && <span class="sr-only">(opens in a new tab)</span>}
-    <i
-      class="fa-solid fa-arrow-right icon-xs transition-transform group-hover:translate-x-1"
-      aria-hidden="true"></i>
+    <Icon name="arrow-right" class="icon-xs transition-transform group-hover:translate-x-1" />
   </span>
 </a>
