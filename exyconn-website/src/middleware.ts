@@ -1,9 +1,9 @@
 import { defineMiddleware } from "astro:middleware";
-import { chooseMarket, marketUrl, splitMarketPath, type Market } from "./lib/i18n/markets";
+import { splitMarketPath, type Market } from "./lib/i18n/markets";
 import { collectStrings, translateHtml } from "./lib/i18n/html-translate";
 import { cachePage, cachedPage } from "./lib/i18n/page-cache";
 import { loadMessages, translateMissing, type Messages } from "./lib/i18n/translations";
-import { localiseLinks, marketCookie, rememberedMarket } from "./lib/i18n/market-links";
+import { localiseLinks, marketRedirect } from "./lib/i18n/market-links";
 
 const APEX_HOST = "exyconn.com";
 
@@ -37,11 +37,9 @@ async function localise(market: Market, path: string, response: Response): Promi
   }
   const html = await pageText(market, path, response);
   const headers = new Headers(response.headers);
-  // The body is rewritten, so the length the renderer sent no longer describes it.
+  // The body is rewritten, so the length the renderer sent no longer describes it. Reading a
+  // market is not choosing it: only the picker remembers one (see market-cookie.ts).
   headers.delete("content-length");
-  // Remember the choice, so a link without a market — typed, from an email, built by the
-  // search box — comes back here rather than to whatever the browser's language suggests.
-  headers.append("Set-Cookie", marketCookie(market));
   return new Response(localiseLinks(html, market), { status: response.status, headers });
 }
 
@@ -121,21 +119,14 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // 3. Every page lives under a market — exyconn.com/en-in/about-us — which Astro routes
-  // through src/pages/[market]. A URL with no market is caught by the catch-all route, which
-  // sends the reader to the market their browser and their country suggest.
+  // through src/pages/[market]. A URL with no market is sent on to the reader's market.
   const { market, rest } = splitMarketPath(url.pathname);
   const buildingErrorPage = context.isPrerendered && ERROR_PAGE.test(url.pathname);
   if (isPage(url.pathname) && !buildingErrorPage) {
     if (!market) {
       // An old link, or somebody typing exyconn.com/about-us: send them to the market they
-      // chose last, else the one their browser and their country suggest, keeping the page.
-      const chosen =
-        rememberedMarket(context.request.headers.get("cookie")) ??
-        chooseMarket(
-          context.request.headers.get("accept-language"),
-          context.request.headers.get("cf-ipcountry") ?? context.request.headers.get("x-country")
-        );
-      return context.redirect(`${marketUrl(chosen, url.pathname)}${url.search}`, 302);
+      // chose, else the one their browser asks for, keeping the page (see marketForRequest).
+      return marketRedirect(context.request, url.pathname, url.search);
     }
     context.locals.market = market;
     const page = await next();

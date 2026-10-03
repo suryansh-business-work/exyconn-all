@@ -1,12 +1,13 @@
 ---
-import { chooseMarket, marketUrl, splitMarketPath } from "../lib/i18n/markets";
+import { splitMarketPath } from "../lib/i18n/markets";
+import { marketRedirect } from "../lib/i18n/market-links";
 
 /**
  * Every URL that arrives without a market.
  *
  * An old link, a search result from before the site was published per market, or somebody
- * typing exyconn.com/about-us — all of them land here and are sent on to the market their
- * browser and their country suggest, keeping the page they asked for.
+ * typing exyconn.com/about-us — all of them land here and are sent on to the market the reader
+ * chose, else the one their browser asks for, keeping the page they asked for.
  *
  * It is a route rather than middleware because Astro only runs middleware for a URL that
  * matches something; an unmatched path is a 404 before any of our code sees it.
@@ -19,9 +20,5 @@ if (splitMarketPath(path).market) {
   return new Response(null, { status: 404 });
 }
 
-const market = chooseMarket(
-  Astro.request.headers.get("accept-language"),
-  Astro.request.headers.get("cf-ipcountry") ?? Astro.request.headers.get("x-country")
-);
-return Astro.redirect(`${marketUrl(market, path)}${Astro.url.search}`, 302);
+return marketRedirect(Astro.request, path, Astro.url.search);
 ---
