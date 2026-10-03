@@ -31,9 +31,8 @@ describe('ThemeProvider (tokens)', () => {
       );
       const t = tokensFor(mode);
       cy.get('body').should('have.css', 'background-color', hexToRgb(t.background.page));
-      cy.get('body').should(($body) => {
-        expect($body.css('background-image')).to.contain('radial-gradient');
-      });
+      // The mist canvas is a flat grey: no dot pattern or glow painted over it.
+      cy.get('body').should('have.css', 'background-image', 'none');
       cy.contains('p', 'canvas').should('have.css', 'color', hexToRgb(t.text.primary));
     });
   }
