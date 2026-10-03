@@ -9,6 +9,7 @@
 export * from './types';
 export * from './activity';
 export * from './auto-stop';
+export * from './booking-hint';
 export * from './branding';
 export * from './capture-overlay';
 export * from './capture-policy';

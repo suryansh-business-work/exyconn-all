@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { Pressable, type View } from 'react-native';
-import { XStack } from 'tamagui';
+import { Spinner, XStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
 import { TRACKER_RADIUS } from '../../theme/tokens';
 import { FieldFrame } from './FieldFrame';
@@ -19,6 +19,8 @@ interface Props {
   /** A validation message; replaces the hint and outlines the field. */
   error?: string;
   disabled: boolean;
+  /** Its list is loading, or the choice is being saved: a spinner, and no presses meanwhile. */
+  busy?: boolean;
   searchable?: boolean;
   onSelect: (value: string) => void;
 }
@@ -37,6 +39,7 @@ export function PickerField({
   hint,
   error,
   disabled,
+  busy = false,
   searchable = false,
   onSelect,
 }: Readonly<Props>) {
@@ -45,17 +48,19 @@ export function PickerField({
   const opener = useRef<View>(null);
   const current = options.find((option) => option.value === selected);
   const shown = current?.label ?? placeholder;
+  const locked = disabled || busy;
+  const icon = disabled ? 'lock-outline' : 'chevron-down';
 
   return (
     <FieldFrame id={id} label={label} hint={hint} error={error}>
       <Pressable
         ref={opener}
         onPress={() => setOpen(true)}
-        disabled={disabled}
+        disabled={locked}
         accessibilityRole="button"
         accessibilityLabel={t('{label}: {value}', { label, value: shown })}
         accessibilityHint={t('Opens the list of choices')}
-        accessibilityState={{ disabled }}
+        accessibilityState={{ disabled: locked, busy }}
       >
         <XStack
           borderWidth={1}
@@ -64,12 +69,12 @@ export function PickerField({
           backgroundColor="$paper"
           padding="$3"
           alignItems="center"
-          opacity={disabled ? 0.55 : 1}
+          opacity={locked ? 0.55 : 1}
         >
           <Body flex={1} color={current === undefined ? '$muted' : '$ink'} numberOfLines={1}>
             {shown}
           </Body>
-          <Icon name={disabled ? 'lock-outline' : 'chevron-down'} />
+          {busy ? <Spinner /> : <Icon name={icon} />}
         </XStack>
       </Pressable>
       <OptionSheet

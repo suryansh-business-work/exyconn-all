@@ -45,8 +45,14 @@ export function TrackerCard({ state }: Readonly<Props>) {
         projects={state.projects}
         selectedProjectId={state.selectedProjectId}
         disabled={tracking}
+        loading={workday === null}
       />
-      <TicketPicker tasks={state.tasks} selectedTaskId={state.selectedTaskId} disabled={tracking} />
+      <TicketPicker
+        tasks={state.tasks}
+        selectedTaskId={state.selectedTaskId}
+        disabled={tracking}
+        loading={state.tasksLoading}
+      />
       <Separator borderColor="$hairline" />
       {/* Above the controls, not below: saying "I am at lunch" IS a tracking control — it
           pauses the session — and finding it under the buttons would make it look like a

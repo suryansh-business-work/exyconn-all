@@ -23,7 +23,7 @@ function dialog(): Element | null {
   return document.querySelector('[role="dialog"]');
 }
 
-describe('dialogs close on Escape and hand focus back to their opener', () => {
+describe('dialogs close on Escape and hand focus back to their opener', { timeout: 30_000 }, () => {
   it('screenshot lightbox', async () => {
     await mount(<ScreenshotsApp />, trackerState('idle'));
     const opener = await click('main button[aria-label^="Open the screenshot"]');

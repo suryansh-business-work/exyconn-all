@@ -15,8 +15,11 @@ const SKELETONS = ['a', 'b', 'c', 'd'] as const;
 
 /** Placeholder tiles at the real grid's shape, so the panel does not jump when they land. */
 function LoadingTiles(): ReactElement {
+  const t = useT();
   return (
     <Box
+      role="progressbar"
+      aria-label={t('Loading your all-time totals')}
       sx={{
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fill, minmax(min(150px, 100%), 1fr))',

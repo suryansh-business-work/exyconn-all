@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Alert, Button, LinearProgress, Stack, Typography } from '@exyconn/ui';
 import { useT } from '@exyconn/i18n';
 import type { UpdateState } from '@shared/types';
-import { run } from '../run';
 import { useAnnounce } from '../a11y/LiveAnnouncer';
 
 interface Props {
@@ -24,18 +23,24 @@ interface Props {
 export default function UpdateBanner({ update }: Readonly<Props>): ReactElement | null {
   const t = useT();
   const [restarting, setRestarting] = useState(false);
+  // From the press until the main process has taken the request; progress then takes over.
+  const [requested, setRequested] = useState(false);
   // A new version, a failed download and a finished one are all spoken when they happen. The
   // download's progress is not: a percentage read out every tick would drown everything else.
   const message = announcementOf(update, t) ?? '';
   useAnnounce(message);
 
+  const download = (): void => {
+    setRequested(true);
+    window.tracker
+      .downloadUpdate()
+      .catch((error: unknown) => console.error('Could not start the update download', error))
+      .finally(() => setRequested(false));
+  };
+
   if (update.stage === 'available') {
     return (
-      <UpdateNotice
-        text={message}
-        actionLabel={t('Update')}
-        onAction={() => run(() => window.tracker.downloadUpdate())}
-      />
+      <UpdateNotice text={message} actionLabel={t('Update')} busy={requested} onAction={download} />
     );
   }
 
@@ -67,7 +72,8 @@ export default function UpdateBanner({ update }: Readonly<Props>): ReactElement 
         severity="warning"
         text={message}
         actionLabel={t('Retry')}
-        onAction={() => run(() => window.tracker.downloadUpdate())}
+        busy={requested}
+        onAction={download}
       />
     );
   }
@@ -80,7 +86,7 @@ export default function UpdateBanner({ update }: Readonly<Props>): ReactElement 
     <UpdateNotice
       text={message}
       actionLabel={t('Restart')}
-      disabled={restarting}
+      busy={restarting}
       onAction={() => {
         setRestarting(true);
         window.tracker.installUpdate().catch((error: unknown) => {
@@ -113,7 +119,8 @@ interface NoticeProps {
   actionLabel: string;
   onAction: () => void;
   severity?: 'info' | 'warning';
-  disabled?: boolean;
+  /** The action is under way: a spinner on the button, and no second press. */
+  busy?: boolean;
 }
 
 /** One line and one button — the whole vocabulary an update is allowed here. */
@@ -122,14 +129,14 @@ function UpdateNotice({
   actionLabel,
   onAction,
   severity = 'info',
-  disabled = false,
+  busy = false,
 }: Readonly<NoticeProps>): ReactElement {
   return (
     <Alert
       severity={severity}
       sx={{ mx: 2, mt: 1.5 }}
       action={
-        <Button size="small" onClick={onAction} disabled={disabled}>
+        <Button size="small" onClick={onAction} loading={busy}>
           {actionLabel}
         </Button>
       }

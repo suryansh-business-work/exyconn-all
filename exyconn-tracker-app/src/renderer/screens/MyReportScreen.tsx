@@ -4,6 +4,7 @@ import {
   AdapterDateFns,
   Alert,
   LocalizationProvider,
+  Skeleton,
   Stack,
   Tab,
   Tabs,
@@ -40,6 +41,17 @@ function startOfMonth(date: Date): Date {
 /** "2026-02" — the month as a file name can carry it, and as it sorts. */
 function monthKeyOf(month: Date): string {
   return `${month.getFullYear()}-${String(month.getMonth() + 1).padStart(2, '0')}`;
+}
+
+/** Totals and both month charts, while the month is on its way — never a month of zeros. */
+function MonthSkeleton(): ReactElement {
+  return (
+    <>
+      <Skeleton variant="rounded" height={88} />
+      <Skeleton variant="rounded" height={260} />
+      <Skeleton variant="rounded" height={260} />
+    </>
+  );
 }
 
 /**
@@ -97,6 +109,7 @@ export default function MyReportScreen({ timezone }: Readonly<Props>): ReactElem
             <>
               <ReportCalendar
                 days={days}
+                loading={loading}
                 selected={selected}
                 maxDate={today}
                 onSelect={selectDate}
@@ -115,14 +128,21 @@ export default function MyReportScreen({ timezone }: Readonly<Props>): ReactElem
           {tab === 'days' && (
             <>
               <MonthSwitcher month={month} canGoForward={canGoForward} onChange={setMonth} />
-              <ReportTotals totals={totals} />
-              <ReportMonthChart days={days} monthLabel={monthLabel} />
-              {/* Hours first, then how solid they were: the second chart only means something
-                once the reader knows how long the days it describes actually were. */}
-              <ReportActivityChart days={days} monthLabel={monthLabel} />
+              {loading ? (
+                <MonthSkeleton />
+              ) : (
+                <>
+                  <ReportTotals totals={totals} />
+                  <ReportMonthChart days={days} monthLabel={monthLabel} />
+                  {/* Hours first, then how solid they were: the second chart only means
+                    something once the reader knows how long the days it describes were. */}
+                  <ReportActivityChart days={days} monthLabel={monthLabel} />
+                </>
+              )}
               <ReportTable days={days} loading={loading} />
               <ReportDownloadButton
                 days={days}
+                loading={loading}
                 monthKey={monthKeyOf(month)}
                 monthLabel={monthLabel}
               />

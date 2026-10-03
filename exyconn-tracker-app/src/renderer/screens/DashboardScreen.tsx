@@ -82,11 +82,13 @@ export default function DashboardScreen({ state }: Readonly<Props>): ReactElemen
             projects={state.projects}
             selectedProjectId={state.selectedProjectId}
             disabled={tracking}
+            loading={workday === null}
           />
           <TicketPicker
             tasks={state.tasks}
             selectedTaskId={state.selectedTaskId}
             disabled={tracking}
+            loading={state.tasksLoading}
           />
           <Divider />
           {/* Above the controls, not below: saying "I am at lunch" IS a tracking control —

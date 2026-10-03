@@ -80,7 +80,8 @@ export function PresenceForm({ presence, timezone }: Readonly<Props>) {
         name="status"
         label={t('My status')}
         options={statusOptions}
-        disabled={busy}
+        hint={busy ? t('Saving…') : undefined}
+        busy={busy}
         onChanged={apply}
       />
       <TextField

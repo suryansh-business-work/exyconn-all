@@ -1,16 +1,9 @@
 import type { ReactElement } from 'react';
-import {
-  borderWidth,
-  Box,
-  ButtonBase,
-  duration,
-  easing,
-  TRACKER_RADIUS,
-  Typography,
-} from '@exyconn/ui';
+import { Box, ButtonBase, duration, easing, TRACKER_RADIUS, Typography } from '@exyconn/ui';
 import { useT } from '@exyconn/i18n';
 import type { DayScreenshot } from '@shared/types';
 import { activityLabel, formatTimeOfDay } from '@exyconn/tracker-core';
+import ShotImage from './ShotImage';
 
 interface Props {
   shots: readonly DayScreenshot[];
@@ -64,19 +57,10 @@ export default function ScreenshotGrid({ shots, timezone, onOpen }: Readonly<Pro
               '&:hover': { transform: 'translateY(-2px)' },
             }}
           >
-            <Box
-              component="img"
+            <ShotImage
+              key={shot.id}
               src={shot.imageUrl}
               alt={t('Screenshot captured at {time}', { time: capturedAt })}
-              loading="lazy"
-              sx={(theme) => ({
-                width: '100%',
-                aspectRatio: '16 / 10',
-                objectFit: 'cover',
-                display: 'block',
-                borderRadius: `${TRACKER_RADIUS}px`,
-                border: `${borderWidth.hairline}px solid ${theme.palette.divider}`,
-              })}
             />
             <Typography
               variant="caption"

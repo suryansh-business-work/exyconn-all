@@ -1,15 +1,6 @@
 import type { ReactElement } from 'react';
 import { useState } from 'react';
-import {
-  Alert,
-  Box,
-  borderWidth,
-  Chip,
-  letterSpacing,
-  Skeleton,
-  Stack,
-  Typography,
-} from '@exyconn/ui';
+import { Alert, Box, borderWidth, Chip, Skeleton, Stack, Typography } from '@exyconn/ui';
 import type { CSSObject, Theme } from '@exyconn/ui';
 import { useT } from '@exyconn/i18n';
 import KeyboardOutlined from '@mui/icons-material/KeyboardOutlined';
@@ -19,19 +10,15 @@ import EventAvailableOutlined from '@mui/icons-material/EventAvailableOutlined';
 import {
   formatCount,
   formatDayLabel,
-  formatHoursMinutes,
   relativeChange,
   type PeriodLength,
-  type PeriodTotals,
 } from '@exyconn/tracker-core';
 import { selectedFill } from '../theme';
 import usePeriodInsights from '../hooks/usePeriodInsights';
 import ActivityCard from './ActivityCard';
-import ChangeBadge from './ChangeBadge';
-import GradientBar from './GradientBar';
 import MetricCard from './MetricCard';
 import StripesChart from './StripesChart';
-import Surface from './Surface';
+import WorkedCard from './WorkedCard';
 import { useAnnounce } from '../a11y/LiveAnnouncer';
 
 const PERIODS: ReadonlyArray<{ length: PeriodLength; label: string; before: string }> = [
@@ -55,50 +42,16 @@ interface Props {
 /** Two figures a row, dropping to one when zoom leaves no room for two (WCAG 1.4.10). */
 const GRID_COLUMNS = 'repeat(auto-fit, minmax(min(150px, 100%), 1fr))';
 
+/** The stripes chart's own height, held while the period is on its way. */
+const STRIPES_HEIGHT = 140;
+const METRIC_HEIGHT = 112;
+
 /** A period chip that is not showing: paper with a hairline, as the phone draws it. */
 function unselectedChip(theme: Theme): CSSObject {
   return {
     backgroundColor: theme.palette.background.paper,
     border: `${borderWidth.hairline}px solid ${theme.palette.divider}`,
   };
-}
-
-/** The period's worked time, how active it was, and how both moved against the period before. */
-function WorkedCard({
-  current,
-  previous,
-  before,
-}: Readonly<{ current: PeriodTotals; previous: PeriodTotals; before: string }>): ReactElement {
-  const t = useT();
-  const change = relativeChange(current.activeMs, previous.activeMs);
-  return (
-    <Surface sx={{ p: 2.5 }}>
-      <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
-        {t('Worked')}
-      </Typography>
-      <Stack direction="row" spacing={1} sx={{ alignItems: 'center', my: 1 }}>
-        <Typography
-          variant="h3"
-          component="p"
-          sx={{ fontWeight: 700, letterSpacing: letterSpacing.tighter }}
-        >
-          {formatHoursMinutes(current.activeMs)}
-        </Typography>
-        {change === null ? null : <ChangeBadge change={change} />}
-      </Stack>
-      <GradientBar
-        percent={current.activityPercent}
-        label={t('Active')}
-        trailing={t('{time} idle', { time: formatHoursMinutes(current.idleMs) })}
-        ariaLabel={t('{percent}% of tracked time was active', {
-          percent: current.activityPercent,
-        })}
-      />
-      <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 1 }}>
-        {t('{time} {before}.', { time: formatHoursMinutes(previous.activeMs), before: t(before) })}
-      </Typography>
-    </Surface>
-  );
 }
 
 /**
@@ -149,37 +102,45 @@ export default function ReportOverview({ timezone }: Readonly<Props>): ReactElem
       )}
 
       <ActivityCard title={t('Over time')} percent={loading ? null : current.activityPercent}>
-        <StripesChart
-          bars={columns}
-          labels={{
-            start: formatDayLabel(first),
-            middle: formatDayLabel(middle),
-            end: formatDayLabel(last),
-          }}
-          summary={t('Hours worked per day, {period}; {days} days tracked.', {
-            period: t(period.label).toLowerCase(),
-            days: current.trackedDays,
-          })}
-        />
+        {loading ? (
+          <Skeleton variant="rounded" height={STRIPES_HEIGHT} />
+        ) : (
+          <StripesChart
+            bars={columns}
+            labels={{
+              start: formatDayLabel(first),
+              middle: formatDayLabel(middle),
+              end: formatDayLabel(last),
+            }}
+            summary={t('Hours worked per day, {period}; {days} days tracked.', {
+              period: t(period.label).toLowerCase(),
+              days: current.trackedDays,
+            })}
+          />
+        )}
         <Typography variant="caption" sx={{ color: 'text.secondary', display: 'block', mt: 1 }}>
           {t('Each stripe is a day: its height is the time worked, its colour how active it was.')}
         </Typography>
       </ActivityCard>
 
       <Box sx={{ display: 'grid', gridTemplateColumns: GRID_COLUMNS, gap: 1.5 }}>
-        {METRICS.map((metric) => (
-          <MetricCard
-            key={metric.key}
-            label={t(metric.label)}
-            icon={metric.icon}
-            value={formatCount(current[metric.key])}
-            change={relativeChange(current[metric.key], previous[metric.key])}
-            caption={t('{count} {before}', {
-              count: formatCount(previous[metric.key]),
-              before: t(period.before),
-            })}
-          />
-        ))}
+        {METRICS.map((metric) =>
+          loading ? (
+            <Skeleton key={metric.key} variant="rounded" height={METRIC_HEIGHT} />
+          ) : (
+            <MetricCard
+              key={metric.key}
+              label={t(metric.label)}
+              icon={metric.icon}
+              value={formatCount(current[metric.key])}
+              change={relativeChange(current[metric.key], previous[metric.key])}
+              caption={t('{count} {before}', {
+                count: formatCount(previous[metric.key]),
+                before: t(period.before),
+              })}
+            />
+          ),
+        )}
       </Box>
     </Stack>
   );

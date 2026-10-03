@@ -1,12 +1,12 @@
 import type { TrackerStatus } from '@exyconn/tracker-core';
-import { useState } from 'react';
 import { Linking } from 'react-native';
 import { YStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
 import { missingPermissions } from '../../lib/permissions/permission-rows';
 import { refreshPermissions, requestPermission } from '../../tracker/instance';
-import { messageOf } from '../../tracker/run';
-import type { Capabilities, MobilePermissions } from '../../tracker/types';
+import { usePendingAction } from '../../hooks/usePendingAction';
+import { run } from '../../tracker/run';
+import type { Capabilities, MobilePermissions, PermissionKind } from '../../tracker/types';
 import { AppFooter } from '../shell/AppFooter';
 import { AppButton } from '../ui/AppButton';
 import { BrandMark } from '../ui/BrandMark';
@@ -16,6 +16,9 @@ import { Surface } from '../ui/Surface';
 import { Caption, Title } from '../ui/Typography';
 import { PermissionRow } from './PermissionRow';
 import { SignOutButton } from '../shell/SignOutButton';
+
+/** A grant being asked for, a re-check, or the trip to Settings — one at a time. */
+type PermissionAction = PermissionKind | 'recheck' | 'settings';
 
 const REQUEST_FAILED = 'The phone did not answer the request. Try again, or allow it in Settings.';
 
@@ -39,25 +42,12 @@ export function PermissionsScreen({
   pendingSync,
 }: Readonly<Props>) {
   const t = useT();
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { pending, error, perform } = usePendingAction<PermissionAction>();
+  const busy = pending !== null;
   const missing = missingPermissions(permissions, capabilities);
 
-  async function attempt(action: () => Promise<void>): Promise<void> {
-    setBusy(true);
-    setError(null);
-    try {
-      await action();
-    } catch (cause: unknown) {
-      console.error('Permission request failed', cause);
-      setError(messageOf(cause, t(REQUEST_FAILED)));
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  function press(action: () => Promise<void>): void {
-    attempt(action).catch((cause: unknown) => console.error('Permission action failed', cause));
+  function press(key: PermissionAction, action: () => Promise<void>): void {
+    run(() => perform(key, action, t(REQUEST_FAILED)));
   }
 
   return (
@@ -83,7 +73,8 @@ export function PermissionsScreen({
               key={permission.kind}
               permission={permission}
               busy={busy}
-              onGrant={() => press(() => requestPermission(permission.kind))}
+              loading={pending === permission.kind}
+              onGrant={() => press(permission.kind, () => requestPermission(permission.kind))}
             />
           ))}
         </YStack>
@@ -94,7 +85,8 @@ export function PermissionsScreen({
           icon="refresh"
           full
           disabled={busy}
-          onPress={() => press(refreshPermissions)}
+          busy={pending === 'recheck'}
+          onPress={() => press('recheck', refreshPermissions)}
         />
         <YStack gap="$2">
           <Caption>
@@ -108,7 +100,8 @@ export function PermissionsScreen({
             icon="cog-outline"
             full
             disabled={busy}
-            onPress={() => press(() => Linking.openSettings())}
+            busy={pending === 'settings'}
+            onPress={() => press('settings', () => Linking.openSettings())}
           />
         </YStack>
       </Surface>

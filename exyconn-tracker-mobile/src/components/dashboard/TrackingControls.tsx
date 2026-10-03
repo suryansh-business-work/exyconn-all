@@ -1,18 +1,18 @@
-import { useState } from 'react';
 import { XStack, YStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
 import type { TrackerStatus } from '@exyconn/tracker-core';
 import { resumeTracking, tracker } from '../../tracker/instance';
-import { messageOf } from '../../tracker/run';
+import { usePendingAction } from '../../hooks/usePendingAction';
+import { run } from '../../tracker/run';
 import { AppButton } from '../ui/AppButton';
 import { Notice } from '../ui/Notice';
 
 type ControlAction = 'start' | 'pause' | 'resume' | 'stop';
 
 /** What each button does, and the sentence shown when it fails without saying why. */
-const ACTIONS: Readonly<Record<ControlAction, { run: () => unknown; failed: string }>> = {
+const ACTIONS: Readonly<Record<ControlAction, { run: () => Promise<unknown>; failed: string }>> = {
   start: { run: () => tracker.start(), failed: 'Could not start tracking.' },
-  pause: { run: () => tracker.pause(), failed: 'Could not pause tracking.' },
+  pause: { run: async () => tracker.pause(), failed: 'Could not pause tracking.' },
   // Not tracker.resume(): on Android the screen-capture grant the session needs may be gone.
   resume: { run: () => resumeTracking(), failed: 'Could not resume tracking.' },
   stop: { run: () => tracker.stop(), failed: 'Could not stop tracking.' },
@@ -35,29 +35,14 @@ interface Props {
  */
 export function TrackingControls({ status, attendanceMarked }: Readonly<Props>) {
   const t = useT();
-  const [pending, setPending] = useState<ControlAction | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { pending, error, perform } = usePendingAction<ControlAction>();
   const isIdle = status === 'idle';
   const isTracking = status === 'tracking';
   const isPaused = status === 'paused';
   const locked = pending !== null;
 
-  async function perform(action: ControlAction): Promise<void> {
-    setPending(action);
-    setError(null);
-    try {
-      await ACTIONS[action].run();
-    } catch (cause: unknown) {
-      console.error(`Tracking ${action} failed`, cause);
-      setError(messageOf(cause, t(ACTIONS[action].failed)));
-    } finally {
-      setPending(null);
-    }
-  }
-
-  const press = (action: ControlAction) => () => {
-    perform(action).catch((cause: unknown) => console.error('Tracking control failed', cause));
-  };
+  const press = (action: ControlAction) => () =>
+    run(() => perform(action, ACTIONS[action].run, t(ACTIONS[action].failed)));
 
   return (
     <YStack gap="$3">

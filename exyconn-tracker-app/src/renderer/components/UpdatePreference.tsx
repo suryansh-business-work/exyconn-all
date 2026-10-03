@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { Button, Checkbox, FormControlLabel, Stack, Typography } from '@exyconn/ui';
+import { Button, Checkbox, FormControlLabel, LinearProgress, Stack, Typography } from '@exyconn/ui';
 import { useT } from '@exyconn/i18n';
 import RefreshRounded from '@mui/icons-material/RefreshRounded';
 import type { AppPreferences, UpdateState } from '@shared/types';
@@ -58,7 +58,8 @@ function statusOf(update: UpdateState, t: ReturnType<typeof useT>): string {
  */
 export default function UpdatePreference({ preferences, update }: Readonly<Props>): ReactElement {
   const t = useT();
-  const busy = update.stage === 'checking' || update.stage === 'downloading';
+  const checking = update.stage === 'checking';
+  const downloading = update.stage === 'downloading';
   const status = statusOf(update, t);
   // The result of "Check for updates" appears below the button; say it where focus is.
   useAnnounce(status);
@@ -103,11 +104,19 @@ export default function UpdatePreference({ preferences, update }: Readonly<Props
         color="inherit"
         fullWidth
         startIcon={<RefreshRounded />}
-        disabled={busy}
+        loading={checking}
+        disabled={downloading}
         onClick={() => run(() => window.tracker.checkForUpdate())}
       >
         {t('Check for updates')}
       </Button>
+      {downloading ? (
+        <LinearProgress
+          variant="determinate"
+          value={update.percent}
+          aria-label={t('Downloading version {version}', { version: update.version })}
+        />
+      ) : null}
       <Typography
         variant="caption"
         sx={{

@@ -9,6 +9,8 @@ import { useAnnounce } from '../a11y/LiveAnnouncer';
 
 interface Props {
   days: readonly ReportDay[];
+  /** The month is still loading — what is on screen may be the previous one. */
+  loading: boolean;
   /** "2026-02" — the month the file is named after. */
   monthKey: string;
   monthLabel: string;
@@ -26,14 +28,17 @@ interface Props {
  */
 export default function ReportDownloadButton({
   days,
+  loading,
   monthKey,
   monthLabel,
 }: Readonly<Props>): ReactElement {
   const t = useT();
   const [notice, setNotice] = useState('');
+  const [saving, setSaving] = useState(false);
   useAnnounce(notice);
 
   const save = (): void => {
+    setSaving(true);
     window.tracker
       .saveReport(buildReportCsv(days, monthKey))
       .then((result) => {
@@ -44,7 +49,8 @@ export default function ReportDownloadButton({
       .catch((cause: unknown) => {
         console.error('Saving the report failed', cause);
         setNotice(t('Could not save the report. Check the folder and try again.'));
-      });
+      })
+      .finally(() => setSaving(false));
   };
 
   return (
@@ -54,7 +60,8 @@ export default function ReportDownloadButton({
         color="inherit"
         fullWidth
         startIcon={<DownloadRounded />}
-        disabled={days.length === 0}
+        loading={saving}
+        disabled={loading || days.length === 0}
         onClick={save}
       >
         {t('Download {month} as CSV', { month: monthLabel })}

@@ -8,7 +8,10 @@ interface Props {
   title: string;
   reason: string;
   icon: SvgIconComponent;
+  /** Another request is in flight — this one waits. */
   busy: boolean;
+  /** This grant is the one being asked for right now. */
+  loading: boolean;
   onGrant: () => void;
 }
 
@@ -18,6 +21,7 @@ export default function PermissionRow({
   reason,
   icon,
   busy,
+  loading,
   onGrant,
 }: Readonly<Props>): ReactElement {
   const t = useT();
@@ -58,7 +62,13 @@ export default function PermissionRow({
             {reason}
           </Typography>
         </Box>
-        <Button variant="contained" size="small" disabled={busy} onClick={onGrant}>
+        <Button
+          variant="contained"
+          size="small"
+          loading={loading}
+          disabled={busy}
+          onClick={onGrant}
+        >
           {t('Grant')}
         </Button>
       </Stack>

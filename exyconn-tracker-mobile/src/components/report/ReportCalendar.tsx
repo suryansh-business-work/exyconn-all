@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { Spinner, XStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
 import type { ReportDay } from '@exyconn/tracker-core';
 import { trackedDateLevels } from '../../lib/report/calendar';
@@ -12,6 +13,8 @@ import { MonthSwitcher } from './MonthSwitcher';
 interface Props {
   /** The visible month's days — the dotted cells are keyed off these. */
   days: readonly ReportDay[];
+  /** The month's days are still on their way, so the dots are not drawn yet. */
+  loading: boolean;
   /** The month on show. */
   month: Date;
   selected: Date;
@@ -24,6 +27,7 @@ interface Props {
 /** A jump-to-date picker, plus a month grid that dots every day with tracked time by activity. */
 export function ReportCalendar({
   days,
+  loading,
   month,
   selected,
   maxDate,
@@ -48,11 +52,18 @@ export function ReportCalendar({
         maxDate={maxDate}
         onSelect={onSelect}
       />
-      <Caption textAlign="center">
-        {t(
-          'Dotted days have tracked time, coloured by how active they were. Tap one to see its screenshots.',
-        )}
-      </Caption>
+      {loading ? (
+        <XStack gap="$2" alignItems="center" justifyContent="center">
+          <Spinner size="small" accessibilityElementsHidden />
+          <Caption>{t('Loading your tracked days…')}</Caption>
+        </XStack>
+      ) : (
+        <Caption textAlign="center">
+          {t(
+            'Dotted days have tracked time, coloured by how active they were. Tap one to see its screenshots.',
+          )}
+        </Caption>
+      )}
     </Surface>
   );
 }

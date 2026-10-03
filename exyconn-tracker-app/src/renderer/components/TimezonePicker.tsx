@@ -118,7 +118,9 @@ export default function TimezonePicker({ timezone }: Readonly<Props>): ReactElem
                 ...params.slotProps.input,
                 endAdornment: (
                   <>
-                    {saving ? <CircularProgress color="inherit" size={16} /> : null}
+                    {saving ? (
+                      <CircularProgress color="inherit" size={16} aria-label={t('Saving…')} />
+                    ) : null}
                     {params.slotProps.input.endAdornment}
                   </>
                 ),

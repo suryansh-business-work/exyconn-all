@@ -17,7 +17,8 @@ export function TodayActivity({ timezone, lastSyncAt }: Readonly<Props>) {
     <DayActivityChart
       title={t('Today’s activity')}
       detail={detail}
-      loading={loading}
+      // A skeleton only until the first answer: a re-read after each sync keeps the chart up.
+      loading={loading && detail === null}
       timezone={timezone}
     />
   );

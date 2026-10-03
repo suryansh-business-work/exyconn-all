@@ -150,6 +150,7 @@ export function trackerState(status: TrackerStatus): TrackerState {
     selectedProjectId: 'p1',
     tasks: [{ id: 't1', key: 'EXY-1', title: 'Onboarding', assignedToMe: true }],
     selectedTaskId: '',
+    tasksLoading: false,
     consentPolicy: null,
     rememberMe: false,
     signedOutReason: null,

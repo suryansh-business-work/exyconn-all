@@ -1,4 +1,3 @@
-import { Image } from 'expo-image';
 import { useRef } from 'react';
 import { Pressable, type HostInstance, type View } from 'react-native';
 import { XStack } from 'tamagui';
@@ -9,13 +8,13 @@ import {
   formatDateTime,
   type DayScreenshot,
 } from '@exyconn/tracker-core';
-import { TRACKER_RADIUS, borderWidth } from '../../theme/tokens';
 import { useThemeColor } from '../../theme/useThemeColor';
 import { Chip } from '../ui/Chip';
 import { Icon } from '../ui/Icon';
 import { Surface } from '../ui/Surface';
 import { Body } from '../ui/Typography';
 import { ActivityBar } from './ActivityBar';
+import { ShotImage } from './ShotImage';
 
 interface Props {
   shot: DayScreenshot;
@@ -29,7 +28,6 @@ interface Props {
 /** One screenshot, with the activity level of its interval and the time it was captured. */
 export function ScreenshotCard({ shot, timezone, width, onOpen }: Readonly<Props>) {
   const t = useT();
-  const hairline = useThemeColor('hairline');
   const muted = useThemeColor('muted');
   const capturedAt = formatDateTime(shot.capturedAt, timezone);
   const thumbnail = useRef<View>(null);
@@ -44,19 +42,11 @@ export function ScreenshotCard({ shot, timezone, width, onOpen }: Readonly<Props
           time: capturedAt,
         })}
       >
-        <Image
-          source={{ uri: shot.imageUrl }}
-          contentFit="cover"
+        <ShotImage
+          key={shot.id}
+          uri={shot.imageUrl}
           recyclingKey={shot.id}
-          transition={150}
           accessibilityLabel={t('Screenshot captured at {time}', { time: capturedAt })}
-          style={{
-            width: '100%',
-            aspectRatio: 16 / 10,
-            borderRadius: TRACKER_RADIUS,
-            borderWidth: borderWidth.hairline,
-            borderColor: hairline,
-          }}
         />
       </Pressable>
 

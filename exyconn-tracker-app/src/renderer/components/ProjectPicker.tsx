@@ -2,13 +2,17 @@ import type { ReactElement } from 'react';
 import { MenuItem, TextField } from '@exyconn/ui';
 import type { TrackerProject } from '@shared/types';
 import { useT } from '@exyconn/i18n';
+import { projectHint } from '@exyconn/tracker-core';
 import { run } from '../run';
+import SelectSpinner from './SelectSpinner';
 
 interface Props {
   projects: TrackerProject[];
   selectedProjectId: string;
   /** A running session is already booked; changing it mid-flight would rewrite the record. */
   disabled: boolean;
+  /** The portal has not answered yet, so there is no list to choose from. */
+  loading: boolean;
 }
 
 /**
@@ -22,6 +26,7 @@ export default function ProjectPicker({
   projects,
   selectedProjectId,
   disabled,
+  loading,
 }: Readonly<Props>): ReactElement {
   const t = useT();
   return (
@@ -31,11 +36,10 @@ export default function ProjectPicker({
       fullWidth
       label={t('Project')}
       value={selectedProjectId}
-      disabled={disabled || projects.length === 0}
-      helperText={
-        disabled ? t('Locked while tracking — stop to book to another project.') : undefined
-      }
+      disabled={disabled || loading || projects.length === 0}
+      helperText={projectHint(t, { loading, locked: disabled })}
       onChange={(event) => run(() => window.tracker.setProject(event.target.value))}
+      slotProps={{ select: { IconComponent: loading ? SelectSpinner : undefined } }}
     >
       {projects.map((project) => (
         <MenuItem key={project.id} value={project.id}>

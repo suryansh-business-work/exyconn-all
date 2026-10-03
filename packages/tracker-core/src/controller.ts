@@ -65,6 +65,8 @@ export interface TrackerState<Permissions, Preferences> {
   selectedProjectId: string;
   /** Tickets on the selected project, the employee's own assigned ones first. */
   tasks: TrackerTask[];
+  /** The ticket list is being read from the portal — the picker says so instead of "none". */
+  tasksLoading: boolean;
   /** The ticket the next session books against. '' means "the project, no ticket". */
   selectedTaskId: string;
   /** The Legal policy behind the consent screen, when the workspace has chosen one. */
@@ -195,6 +197,9 @@ export class TrackerController<Permissions, Preferences, PermissionKind> {
   private projects: TrackerProject[] = [];
   /** Tickets on the SELECTED project. Reloaded when that changes, not on every heartbeat. */
   private tasks: TrackerTask[] = [];
+  private tasksLoading = false;
+  /** Bumped per ticket read, so a slow answer for a project left behind cannot land last. */
+  private taskRequest = 0;
   private consentPolicy: ConsentPolicy | null = null;
   /** What the employee last told the portal they were doing. Working until they say otherwise. */
   private presence: PresenceState = { status: 'WORKING', note: '', since: null };
@@ -242,6 +247,7 @@ export class TrackerController<Permissions, Preferences, PermissionKind> {
       projects: this.projects,
       selectedProjectId: this.selectedProjectId(),
       tasks: this.tasks,
+      tasksLoading: this.tasksLoading,
       selectedTaskId: this.selectedTaskId(),
       consentPolicy: this.consentPolicy,
       preferences: store.preferences,
@@ -452,12 +458,25 @@ export class TrackerController<Permissions, Preferences, PermissionKind> {
   /** Loads the selected project's tickets. Never throws into a caller — the picker degrades. */
   private async loadTasks(): Promise<void> {
     const projectId = this.selectedProjectId();
+    const request = ++this.taskRequest;
     if (!this.user || projectId === '') {
       this.tasks = [];
+      this.tasksLoading = false;
       return;
     }
-    this.tasks = await this.deps.portal.fetchTasks(projectId);
+    this.tasksLoading = true;
     this.emit();
+    try {
+      const tasks = await this.deps.portal.fetchTasks(projectId);
+      if (request === this.taskRequest) {
+        this.tasks = tasks;
+      }
+    } finally {
+      if (request === this.taskRequest) {
+        this.tasksLoading = false;
+        this.emit();
+      }
+    }
   }
 
   /**
@@ -598,6 +617,8 @@ export class TrackerController<Permissions, Preferences, PermissionKind> {
     this.workday = null;
     this.projects = [];
     this.tasks = [];
+    this.tasksLoading = false;
+    this.taskRequest += 1; // a ticket read still in flight belongs to the employee who left
     this.consentPolicy = null;
     this.presence = { status: 'WORKING', note: '', since: null };
     this.unreadMessages = 0;

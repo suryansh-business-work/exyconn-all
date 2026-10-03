@@ -1,8 +1,8 @@
 import { Image } from 'expo-image';
-import type { RefObject } from 'react';
+import { useState, type RefObject } from 'react';
 import { Modal, type HostInstance } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Theme, YStack } from 'tamagui';
+import { Spinner, Theme, YStack } from 'tamagui';
 import { useT } from '@exyconn/i18n';
 import { formatDateTime, type DayScreenshot } from '@exyconn/tracker-core';
 import { useReduceMotion } from '../../hooks/useReduceMotion';
@@ -20,6 +20,38 @@ interface Props {
   onNavigate: (index: number) => void;
   /** The thumbnail that was tapped; the screen reader goes back to it on close. */
   returnFocusTo: RefObject<HostInstance | null>;
+}
+
+/** The full-size image, with a spinner over it until it has arrived from storage. */
+function LightboxImage({ uri, label }: Readonly<{ uri: string; label: string }>) {
+  const t = useT();
+  const [loading, setLoading] = useState(true);
+  return (
+    <YStack flex={1} padding="$2">
+      <Image
+        source={{ uri }}
+        contentFit="contain"
+        accessibilityLabel={label}
+        onLoad={() => setLoading(false)}
+        onError={() => setLoading(false)}
+        style={{ flex: 1 }}
+      />
+      {loading ? (
+        <YStack
+          position="absolute"
+          top={0}
+          right={0}
+          bottom={0}
+          left={0}
+          alignItems="center"
+          justifyContent="center"
+          pointerEvents="none"
+        >
+          <Spinner size="large" color="$ink" accessibilityLabel={t('Loading the screenshot')} />
+        </YStack>
+      ) : null}
+    </YStack>
+  );
 }
 
 /**
@@ -77,17 +109,11 @@ export function ScreenshotLightbox({
             blurred={shot.blurred}
             onClose={onClose}
           />
-          <YStack flex={1} padding="$2">
-            <Image
-              source={{ uri: shot.imageUrl }}
-              contentFit="contain"
-              recyclingKey={shot.id}
-              accessibilityLabel={t('Screenshot captured at {time}, full screen', {
-                time: capturedAt,
-              })}
-              style={{ flex: 1 }}
-            />
-          </YStack>
+          <LightboxImage
+            key={shot.id}
+            uri={shot.imageUrl}
+            label={t('Screenshot captured at {time}, full screen', { time: capturedAt })}
+          />
           {shots.length > 1 ? (
             <LightboxNav index={index} total={shots.length} onStep={step} />
           ) : null}

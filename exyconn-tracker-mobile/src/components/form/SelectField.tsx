@@ -11,6 +11,8 @@ interface Props<T extends FieldValues> {
   hint?: string;
   placeholder?: string;
   disabled?: boolean;
+  /** Shows a spinner in the field — e.g. while the choice is being saved. */
+  busy?: boolean;
   searchable?: boolean;
   /** Runs after the form value changes — e.g. reload the tickets for a new project. */
   onChanged?: (value: string) => void;
@@ -25,6 +27,7 @@ export function SelectField<T extends FieldValues>({
   hint,
   placeholder,
   disabled = false,
+  busy = false,
   searchable = false,
   onChanged,
 }: Readonly<Props<T>>) {
@@ -40,6 +43,7 @@ export function SelectField<T extends FieldValues>({
       hint={hint}
       error={fieldState.error?.message}
       disabled={disabled}
+      busy={busy}
       searchable={searchable}
       onSelect={(next) => {
         field.onChange(next);

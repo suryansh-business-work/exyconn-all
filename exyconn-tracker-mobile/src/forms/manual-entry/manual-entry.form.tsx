@@ -53,7 +53,7 @@ export function ManualEntryForm({ projects, timezone, onCancel, onDone }: Readon
     },
   });
   const projectId = useWatch({ control, name: 'projectId' });
-  const tasks = useProjectTasks(projectId);
+  const { tasks, loading: ticketsLoading } = useProjectTasks(projectId);
   const busy = formState.isSubmitting;
   const now = new Date();
   const earliest = new Date(now.getTime() - MANUAL_ENTRY_LIMITS.maxBackdateMs);
@@ -104,7 +104,8 @@ export function ManualEntryForm({ projects, timezone, onCancel, onDone }: Readon
         name="taskId"
         label={t('Ticket')}
         options={ticketOptions}
-        disabled={busy}
+        disabled={busy || ticketsLoading}
+        hint={ticketsLoading ? t('Loading tickets…') : undefined}
         searchable
       />
       <DateTimeField

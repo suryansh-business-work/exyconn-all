@@ -15,7 +15,9 @@ import type { ManualEntry, TrackerProject } from '@shared/types';
 import ManualEntryForm from '../components/ManualEntryForm';
 import ManualEntryList from '../components/ManualEntryList';
 import Surface from '../components/Surface';
+import WithdrawDialog from '../components/WithdrawDialog';
 import useManualEntries from '../hooks/useManualEntries';
+import usePendingAction from '../hooks/usePendingAction';
 import { useAnnounce } from '../a11y/LiveAnnouncer';
 
 interface Props {
@@ -34,12 +36,16 @@ interface Props {
 export default function OffComputerScreen({ projects, timezone }: Readonly<Props>): ReactElement {
   const t = useT();
   const { entries, loading, error, reload } = useManualEntries();
+  const withdrawal = usePendingAction();
   const [claiming, setClaiming] = useState(false);
+  /** The claim the confirmation is asking about; null when nothing is being withdrawn. */
+  const [confirming, setConfirming] = useState<ManualEntry | null>(null);
   const claimButton = useRef<HTMLButtonElement>(null);
   const formHeading = useRef<HTMLHeadingElement>(null);
   /** Set once the form has been opened, so the first render does not steal focus. */
   const moveFocus = useRef(false);
   useAnnounce(error, 'assertive');
+  useAnnounce(withdrawal.error, 'assertive');
 
   // The form swaps in place of the list, unmounting whatever had focus: take focus to the form's
   // heading on the way in and back to "Claim time" on the way out (SC 2.4.3).
@@ -53,13 +59,24 @@ export default function OffComputerScreen({ projects, timezone }: Readonly<Props
 
   function openForm(): void {
     moveFocus.current = true;
+    withdrawal.clearError();
     setClaiming(true);
   }
 
   function withdraw(entry: ManualEntry): void {
-    window.tracker
-      .withdrawManualEntry(entry.id)
-      .then(reload)
+    withdrawal
+      .perform(
+        entry.id,
+        () => window.tracker.withdrawManualEntry(entry.id),
+        t('The claim could not be withdrawn.'),
+      )
+      .then((done) => {
+        // Closed either way, as on the phone: a failure is said on the screen, under the list.
+        setConfirming(null);
+        if (done) {
+          reload();
+        }
+      })
       .catch((cause: unknown) => console.error('Withdrawing the claim failed', cause));
   }
 
@@ -109,14 +126,32 @@ export default function OffComputerScreen({ projects, timezone }: Readonly<Props
       </Flex>
 
       {error !== null && <Alert severity="error">{error}</Alert>}
+      {withdrawal.error !== null && <Alert severity="error">{withdrawal.error}</Alert>}
 
-      {loading ? (
+      {/* Only until the first answer: a reload after a claim keeps the list it is replacing. */}
+      {loading && entries.length === 0 ? (
         <Flex direction="row" justifyContent="center">
-          <CircularProgress size={24} />
+          <CircularProgress size={24} aria-label={t('Loading your claims')} />
         </Flex>
       ) : (
-        <ManualEntryList entries={entries} timezone={timezone} onWithdraw={withdraw} />
+        <ManualEntryList
+          entries={entries}
+          timezone={timezone}
+          withdrawing={withdrawal.pending}
+          onWithdraw={(entry) => {
+            withdrawal.clearError();
+            setConfirming(entry);
+          }}
+        />
       )}
+
+      <WithdrawDialog
+        entry={confirming}
+        timezone={timezone}
+        busy={withdrawal.pending !== null}
+        onCancel={() => setConfirming(null)}
+        onConfirm={withdraw}
+      />
     </Stack>
   );
 }
