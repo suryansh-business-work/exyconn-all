@@ -974,14 +974,17 @@ export type Branding = {
   address: Scalars['String']['output'];
   /** Registered address as printed on invoices. */
   addressLine: Scalars['String']['output'];
+  ambitionboxUrl: Scalars['String']['output'];
   appIconDarkUrl: Scalars['String']['output'];
   appIconUrl: Scalars['String']['output'];
   backgroundColor: Scalars['String']['output'];
   /** Bank name, account and IFSC, printed on invoices so the client knows where to pay. */
   bankDetails: Scalars['String']['output'];
   businessName: Scalars['String']['output'];
+  clutchUrl: Scalars['String']['output'];
   contactPhone: Scalars['String']['output'];
   copyrightText: Scalars['String']['output'];
+  crunchbaseUrl: Scalars['String']['output'];
   /** Tax percent a generated invoice line starts at. */
   defaultTaxPercent: Scalars['Float']['output'];
   description: Scalars['String']['output'];
@@ -1027,13 +1030,16 @@ export type BrandingInput = {
   accentColor?: InputMaybe<Scalars['String']['input']>;
   address?: InputMaybe<Scalars['String']['input']>;
   addressLine?: InputMaybe<Scalars['String']['input']>;
+  ambitionboxUrl?: InputMaybe<Scalars['String']['input']>;
   appIconDarkUrl?: InputMaybe<Scalars['String']['input']>;
   appIconUrl?: InputMaybe<Scalars['String']['input']>;
   backgroundColor?: InputMaybe<Scalars['String']['input']>;
   bankDetails?: InputMaybe<Scalars['String']['input']>;
   businessName?: InputMaybe<Scalars['String']['input']>;
+  clutchUrl?: InputMaybe<Scalars['String']['input']>;
   contactPhone?: InputMaybe<Scalars['String']['input']>;
   copyrightText?: InputMaybe<Scalars['String']['input']>;
+  crunchbaseUrl?: InputMaybe<Scalars['String']['input']>;
   defaultTaxPercent?: InputMaybe<Scalars['Float']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   emailLogoDarkUrl?: InputMaybe<Scalars['String']['input']>;
@@ -14744,24 +14750,24 @@ export type SetColumnDoneMutationVariables = Exact<{
 
 export type SetColumnDoneMutation = { __typename?: 'Mutation', setColumnDone: { __typename?: 'BoardColumn', id: string, isDone: boolean } };
 
-export type BrandingFieldsFragment = { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, heroVideoUrl: string, heroPosterUrl: string, faviconDarkUrl: string, appIconDarkUrl: string, emailLogoDarkUrl: string, ogImageDarkUrl: string, heroVideoDarkUrl: string, heroPosterDarkUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, hrEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> };
+export type BrandingFieldsFragment = { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, heroVideoUrl: string, heroPosterUrl: string, faviconDarkUrl: string, appIconDarkUrl: string, emailLogoDarkUrl: string, ogImageDarkUrl: string, heroVideoDarkUrl: string, heroPosterDarkUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, hrEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, clutchUrl: string, crunchbaseUrl: string, ambitionboxUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> };
 
 export type BrandingQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type BrandingQuery = { __typename?: 'Query', branding: { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, heroVideoUrl: string, heroPosterUrl: string, faviconDarkUrl: string, appIconDarkUrl: string, emailLogoDarkUrl: string, ogImageDarkUrl: string, heroVideoDarkUrl: string, heroPosterDarkUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, hrEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> } };
+export type BrandingQuery = { __typename?: 'Query', branding: { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, heroVideoUrl: string, heroPosterUrl: string, faviconDarkUrl: string, appIconDarkUrl: string, emailLogoDarkUrl: string, ogImageDarkUrl: string, heroVideoDarkUrl: string, heroPosterDarkUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, hrEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, clutchUrl: string, crunchbaseUrl: string, ambitionboxUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> } };
 
 export type PublicBrandingQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PublicBrandingQuery = { __typename?: 'Query', publicBranding: { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, heroVideoUrl: string, heroPosterUrl: string, faviconDarkUrl: string, appIconDarkUrl: string, emailLogoDarkUrl: string, ogImageDarkUrl: string, heroVideoDarkUrl: string, heroPosterDarkUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, hrEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> } };
+export type PublicBrandingQuery = { __typename?: 'Query', publicBranding: { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, heroVideoUrl: string, heroPosterUrl: string, faviconDarkUrl: string, appIconDarkUrl: string, emailLogoDarkUrl: string, ogImageDarkUrl: string, heroVideoDarkUrl: string, heroPosterDarkUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, hrEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, clutchUrl: string, crunchbaseUrl: string, ambitionboxUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> } };
 
 export type UpdateBrandingMutationVariables = Exact<{
   input: BrandingInput;
 }>;
 
 
-export type UpdateBrandingMutation = { __typename?: 'Mutation', updateBranding: { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, heroVideoUrl: string, heroPosterUrl: string, faviconDarkUrl: string, appIconDarkUrl: string, emailLogoDarkUrl: string, ogImageDarkUrl: string, heroVideoDarkUrl: string, heroPosterDarkUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, hrEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> } };
+export type UpdateBrandingMutation = { __typename?: 'Mutation', updateBranding: { __typename?: 'Branding', id: string, businessName: string, legalName: string, slogan: string, description: string, logoUrl: string, logoDarkUrl: string, faviconUrl: string, appIconUrl: string, emailLogoUrl: string, ogImageUrl: string, heroVideoUrl: string, heroPosterUrl: string, faviconDarkUrl: string, appIconDarkUrl: string, emailLogoDarkUrl: string, ogImageDarkUrl: string, heroVideoDarkUrl: string, heroPosterDarkUrl: string, primaryColor: string, secondaryColor: string, accentColor: string, backgroundColor: string, textColor: string, supportEmail: string, hrEmail: string, contactPhone: string, websiteUrl: string, address: string, linkedinUrl: string, twitterUrl: string, facebookUrl: string, instagramUrl: string, youtubeUrl: string, githubUrl: string, clutchUrl: string, crunchbaseUrl: string, ambitionboxUrl: string, copyrightText: string, gstin: string, stateCode: string, addressLine: string, invoicePrefix: string, defaultTaxPercent: number, bankDetails: string, loginPages: Array<{ __typename?: 'LoginPage', app: string, name: string, tagline: string, backgroundImageUrl: string, accentColor: string }> } };
 
 export type UploadImageMutationVariables = Exact<{
   file: Scalars['String']['input'];
@@ -20429,6 +20435,9 @@ export const BrandingFieldsFragmentDoc = gql`
   instagramUrl
   youtubeUrl
   githubUrl
+  clutchUrl
+  crunchbaseUrl
+  ambitionboxUrl
   copyrightText
   gstin
   stateCode

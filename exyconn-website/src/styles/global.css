@@ -93,6 +93,32 @@
   text-align: center;
 }
 
+/*
+ * A brand's mark drawn in the text colour, for networks Font Awesome has no glyph for. The
+ * brand's own logo is the mask and `currentColor` the paint, so it sits in the same grey as
+ * the Font Awesome glyphs beside it and takes their hover colour too. Sized 1em, so the
+ * `icon-*` wrapper around it sets its size.
+ */
+@utility brand-mark {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  background-color: currentColor;
+  mask: var(--brand-mark) center / contain no-repeat;
+}
+
+.brand-mark-clutch {
+  --brand-mark: url("/logos/social/clutch.png");
+}
+
+.brand-mark-crunchbase {
+  --brand-mark: url("/logos/social/crunchbase.svg");
+}
+
+.brand-mark-ambitionbox {
+  --brand-mark: url("/logos/social/ambitionbox.png");
+}
+
 /* Only apply underline to links explicitly styled for it */
 .link-underline {
   text-decoration: underline !important;

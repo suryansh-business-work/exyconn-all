@@ -179,6 +179,7 @@
     "label": "Gulf - English",
     "language": "en",
     "country": null,
+    "countries": ["AE", "BH", "KW", "OM", "QA"],
     "locale": "en"
   },
   {

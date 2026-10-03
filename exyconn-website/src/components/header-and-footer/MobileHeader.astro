@@ -8,6 +8,7 @@ import BrandLogo from "../BrandLogo.astro";
 import Icon from "../inner/Icon.astro";
 import { BRANDING_FALLBACK, type Branding } from "../../lib/portal";
 import { HEADER_ACTIONS, HEADER_MENUS, MOBILE_SHORTCUTS } from "../../lib/chrome/navigation";
+import SocialIcon from "../SocialIcon.astro";
 import { socialLinks } from "../../lib/social-links";
 
 interface Props {
@@ -113,7 +114,7 @@ const newTab = { target: "_blank", rel: "noopener noreferrer" };
         social.map((link) => (
           <li>
             <a href={link.url} {...newTab} aria-label={link.label} class="chrome-social">
-              <i class:list={[link.icon, "icon-md"]} aria-hidden="true" />
+              <SocialIcon glyph={link.glyph} />
             </a>
           </li>
         ))

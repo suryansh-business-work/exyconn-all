@@ -973,14 +973,17 @@ export type Branding = {
   address: Scalars['String']['output'];
   /** Registered address as printed on invoices. */
   addressLine: Scalars['String']['output'];
+  ambitionboxUrl: Scalars['String']['output'];
   appIconDarkUrl: Scalars['String']['output'];
   appIconUrl: Scalars['String']['output'];
   backgroundColor: Scalars['String']['output'];
   /** Bank name, account and IFSC, printed on invoices so the client knows where to pay. */
   bankDetails: Scalars['String']['output'];
   businessName: Scalars['String']['output'];
+  clutchUrl: Scalars['String']['output'];
   contactPhone: Scalars['String']['output'];
   copyrightText: Scalars['String']['output'];
+  crunchbaseUrl: Scalars['String']['output'];
   /** Tax percent a generated invoice line starts at. */
   defaultTaxPercent: Scalars['Float']['output'];
   description: Scalars['String']['output'];
@@ -1026,13 +1029,16 @@ export type BrandingInput = {
   accentColor?: InputMaybe<Scalars['String']['input']>;
   address?: InputMaybe<Scalars['String']['input']>;
   addressLine?: InputMaybe<Scalars['String']['input']>;
+  ambitionboxUrl?: InputMaybe<Scalars['String']['input']>;
   appIconDarkUrl?: InputMaybe<Scalars['String']['input']>;
   appIconUrl?: InputMaybe<Scalars['String']['input']>;
   backgroundColor?: InputMaybe<Scalars['String']['input']>;
   bankDetails?: InputMaybe<Scalars['String']['input']>;
   businessName?: InputMaybe<Scalars['String']['input']>;
+  clutchUrl?: InputMaybe<Scalars['String']['input']>;
   contactPhone?: InputMaybe<Scalars['String']['input']>;
   copyrightText?: InputMaybe<Scalars['String']['input']>;
+  crunchbaseUrl?: InputMaybe<Scalars['String']['input']>;
   defaultTaxPercent?: InputMaybe<Scalars['Float']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   emailLogoDarkUrl?: InputMaybe<Scalars['String']['input']>;
@@ -15977,13 +15983,16 @@ export type BrandingResolvers<ContextType = GraphQLContext, ParentType extends R
   accentColor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   addressLine?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ambitionboxUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   appIconDarkUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   appIconUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   backgroundColor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   bankDetails?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   businessName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  clutchUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   contactPhone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   copyrightText?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  crunchbaseUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   defaultTaxPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   emailLogoDarkUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

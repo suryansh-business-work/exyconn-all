@@ -1,0 +1,19 @@
+---
+import type { SocialGlyph } from "../lib/social-links";
+
+interface Props {
+  glyph: SocialGlyph;
+}
+
+const { glyph } = Astro.props;
+---
+
+{
+  glyph.kind === "font" ? (
+    <i class:list={[glyph.className, "icon-md"]} aria-hidden="true" />
+  ) : (
+    <span class="icon-md inline-flex justify-center" aria-hidden="true">
+      <span class:list={["brand-mark", glyph.className]} />
+    </span>
+  )
+}

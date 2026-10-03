@@ -41,6 +41,9 @@ export interface BrandingInput {
   instagramUrl?: string;
   youtubeUrl?: string;
   githubUrl?: string;
+  clutchUrl?: string;
+  crunchbaseUrl?: string;
+  ambitionboxUrl?: string;
   copyrightText?: string;
   gstin?: string;
   stateCode?: string;

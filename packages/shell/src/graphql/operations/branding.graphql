@@ -34,6 +34,9 @@ fragment BrandingFields on Branding {
   instagramUrl
   youtubeUrl
   githubUrl
+  clutchUrl
+  crunchbaseUrl
+  ambitionboxUrl
   copyrightText
   gstin
   stateCode

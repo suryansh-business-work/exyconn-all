@@ -16,6 +16,9 @@ const SOCIAL_FIELDS = [
   { name: 'instagramUrl', label: 'Instagram' },
   { name: 'youtubeUrl', label: 'YouTube' },
   { name: 'githubUrl', label: 'GitHub' },
+  { name: 'clutchUrl', label: 'Clutch' },
+  { name: 'crunchbaseUrl', label: 'Crunchbase' },
+  { name: 'ambitionboxUrl', label: 'AmbitionBox' },
 ] as const;
 
 /** Contact & social tab — public contact details, social profiles and copyright. */

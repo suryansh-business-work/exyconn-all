@@ -57,7 +57,7 @@ const BRANDING_FIELDS = `
   logoUrl logoDarkUrl faviconUrl appIconUrl emailLogoUrl ogImageUrl heroVideoUrl heroPosterUrl
   primaryColor secondaryColor accentColor backgroundColor textColor
   supportEmail contactPhone websiteUrl address
-  linkedinUrl twitterUrl facebookUrl instagramUrl youtubeUrl githubUrl
+  linkedinUrl twitterUrl clutchUrl crunchbaseUrl ambitionboxUrl facebookUrl instagramUrl youtubeUrl githubUrl
   copyrightText
 `;
 
@@ -299,7 +299,10 @@ export const BRANDING_FALLBACK: Branding = {
   address: "",
 
   linkedinUrl: "https://linkedin.com/company/exyconn",
-  twitterUrl: "https://twitter.com/exyconn",
+  twitterUrl: "https://x.com/exyconn",
+  clutchUrl: "https://clutch.co/profile/exyconn",
+  crunchbaseUrl: "https://www.crunchbase.com/organization/exyconn-business-solutions",
+  ambitionboxUrl: "https://www.ambitionbox.com/reviews/exyconn-reviews",
   facebookUrl: "",
   instagramUrl: "",
   youtubeUrl: "",

@@ -348,13 +348,16 @@ export type BrandingInput = {
   accentColor: InputMaybe<Scalars['String']['input']>;
   address: InputMaybe<Scalars['String']['input']>;
   addressLine: InputMaybe<Scalars['String']['input']>;
+  ambitionboxUrl: InputMaybe<Scalars['String']['input']>;
   appIconDarkUrl: InputMaybe<Scalars['String']['input']>;
   appIconUrl: InputMaybe<Scalars['String']['input']>;
   backgroundColor: InputMaybe<Scalars['String']['input']>;
   bankDetails: InputMaybe<Scalars['String']['input']>;
   businessName: InputMaybe<Scalars['String']['input']>;
+  clutchUrl: InputMaybe<Scalars['String']['input']>;
   contactPhone: InputMaybe<Scalars['String']['input']>;
   copyrightText: InputMaybe<Scalars['String']['input']>;
+  crunchbaseUrl: InputMaybe<Scalars['String']['input']>;
   defaultTaxPercent: InputMaybe<Scalars['Float']['input']>;
   description: InputMaybe<Scalars['String']['input']>;
   emailLogoDarkUrl: InputMaybe<Scalars['String']['input']>;

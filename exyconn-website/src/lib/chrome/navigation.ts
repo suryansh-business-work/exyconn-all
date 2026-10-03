@@ -141,8 +141,6 @@ const PRODUCTS: NavGroup = {
   label: "Products",
   links: [
     { label: "AI services", href: "/ai-services" },
-    { label: "Sibera", href: "https://sibera.work", external: true },
-    { label: "Spentiva", href: "https://spentiva.com", external: true },
     { label: "Duncit", href: "https://duncit.com", external: true },
     { label: "Free tools", href: TOOLS_SITE_URL, external: true },
   ],
