@@ -17,7 +17,7 @@ const nothing = () => new Response(null, { status: 204, headers: PRIVATE });
  * A URL that names a market is never redirected (it may be a link somebody chose to share, and
  * it is what search engines index), so this is how such a page still meets the reader's
  * language: it offers, the reader decides. Nothing is offered to a crawler, to a reader who has
- * already picked a market, or when the page is already in the market their browser asks for.
+ * already picked a market, or when the page is already in the language their browser asks for.
  */
 export const GET: APIRoute = ({ request, url }) => {
   const current = marketByPath(url.searchParams.get("current") ?? undefined);
@@ -25,7 +25,9 @@ export const GET: APIRoute = ({ request, url }) => {
     return nothing();
   }
   const suggested = browserMarket(request);
-  if (suggested.path === current.path) {
+  // Only a different language is worth interrupting for: a British reader on the US page
+  // reads it perfectly well, and the picker is there if they want en-gb.
+  if (suggested.language === current.language) {
     return nothing();
   }
   return new Response(JSON.stringify({ path: suggested.path, label: suggested.label }), {

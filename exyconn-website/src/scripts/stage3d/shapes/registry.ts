@@ -1,3 +1,4 @@
+import { sampleAiChip, AI_CHIP_BOUNDS, type AiChipParams } from "./ai-chip";
 import { sampleJet } from "./aviation";
 import { sampleCity, CITY_BOUNDS } from "./city";
 import { sampleCloudStack, CLOUD_STACK_BOUNDS } from "./cloud-stack";
@@ -5,6 +6,7 @@ import { sampleDataflow, DATAFLOW_BOUNDS } from "./dataflow";
 import { sampleDevices, DEVICES_BOUNDS } from "./devices";
 import { sampleIntegration, INTEGRATION_BOUNDS } from "./integration";
 import { sampleModernize, MODERNIZE_BOUNDS } from "./modernize";
+import { sampleNeuralCore, NEURAL_CORE_BOUNDS, type NeuralCoreParams } from "./neural-core";
 import { sampleOps, OPS_BOUNDS } from "./ops";
 import { sampleRoadmap, ROADMAP_BOUNDS } from "./roadmap";
 import {
@@ -70,6 +72,8 @@ export interface ShapeParamsMap {
   ops: Record<string, never>;
   roadmap: Record<string, never>;
   modernize: Record<string, never>;
+  neuralCore: NeuralCoreParams;
+  aiChip: AiChipParams;
 }
 
 export type ShapeId = keyof ShapeParamsMap;
@@ -134,6 +138,8 @@ export const SHAPES: Registry = {
   ops: { bounds: OPS_BOUNDS, motion: "sway", sample: sampleOps, pitch: 0.04 },
   roadmap: { bounds: ROADMAP_BOUNDS, motion: "sway", sample: sampleRoadmap, pitch: 0.22 },
   modernize: { bounds: MODERNIZE_BOUNDS, motion: "sway", sample: sampleModernize, pitch: 0.14 },
+  neuralCore: { bounds: NEURAL_CORE_BOUNDS, motion: "spin", sample: sampleNeuralCore, pitch: 0.22 },
+  aiChip: { bounds: AI_CHIP_BOUNDS, motion: "sway", sample: sampleAiChip, pitch: 0.62 },
 };
 
 export const SHAPE_IDS = Object.keys(SHAPES) as ShapeId[];
