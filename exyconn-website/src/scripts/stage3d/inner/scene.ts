@@ -3,6 +3,7 @@ import {
   BufferAttribute,
   BufferGeometry,
   Group,
+  LineSegments,
   Mesh,
   PerspectiveCamera,
   PlaneGeometry,
@@ -12,6 +13,8 @@ import {
   Vector2,
   type WebGLRenderer,
 } from "three";
+import type { LineSet } from "../shapes/sampling";
+import { innerLinesFragment, innerLinesVertex } from "../shaders/inner-lines";
 import { createRandom } from "../math";
 import { glowPointsMaterial, pointsGeometry } from "../materials";
 import { readRoles, type Rgb } from "../palette";
@@ -37,13 +40,15 @@ export interface InnerWorld {
   camera: PerspectiveCamera;
   root: Group;
   particles: ShaderMaterial;
+  /** The hero shape's structure — edges and data links — when it draws one. */
+  lines: ShaderMaterial | null;
   stars: ShaderMaterial;
   nebula: Mesh<PlaneGeometry, ShaderMaterial> | null;
   dispose: () => void;
 }
 
 /** World units the largest shape is scaled to. */
-const FIT_RADIUS = 1.8;
+const FIT_RADIUS = 2;
 
 type Colours = Record<"a" | "b" | "deep" | "mid" | "line", Rgb>;
 
@@ -69,6 +74,7 @@ const protagonist = (config: ResolvedScene, tier: QualityTier, colours: Colours)
   geometry.setAttribute("aShape2", new BufferAttribute(third, 3));
   geometry.setAttribute("aTags", new BufferAttribute(tags, 3));
   geometry.setAttribute("aRandom", new BufferAttribute(targets.random, 1));
+  geometry.setAttribute("aOrder", new BufferAttribute(targets.order, 1));
   const material = new ShaderMaterial({
     vertexShader: innerParticleVertex,
     fragmentShader: glowFragment,
@@ -88,11 +94,43 @@ const protagonist = (config: ResolvedScene, tier: QualityTier, colours: Colours)
       uHighlightMix: { value: 0 },
       uColA: colorUniform(colours.a),
       uColB: colorUniform(colours.b),
+      uPointer: { value: new Vector2(0, 0) },
+      uPointerMix: { value: 0 },
+      uAspect: { value: 1 },
     },
   });
   const points = new Points(geometry, material);
   points.frustumCulled = false;
-  return { points, material };
+  return { points, material, lines: targets.lines };
+};
+
+/** The structure layer: thin additive lines that build and turn with the points. */
+const structureFor = (lines: LineSet, colours: Colours) => {
+  const geometry = new BufferGeometry();
+  geometry.setAttribute("position", new BufferAttribute(lines.positions, 3));
+  geometry.setAttribute("aOrder", new BufferAttribute(lines.order, 1));
+  geometry.setAttribute("aFlow", new BufferAttribute(lines.flow, 1));
+  geometry.setAttribute("aAlong", new BufferAttribute(lines.along, 1));
+  const material = new ShaderMaterial({
+    vertexShader: innerLinesVertex,
+    fragmentShader: innerLinesFragment,
+    transparent: true,
+    depthTest: false,
+    depthWrite: false,
+    blending: AdditiveBlending,
+    uniforms: {
+      uTime: { value: 0 },
+      uForm: { value: 0 },
+      uAngle: { value: 0 },
+      uLineMix: { value: 1 },
+      uOpacity: { value: 1 },
+      uColA: colorUniform(colours.a),
+      uColB: colorUniform(colours.b),
+    },
+  });
+  const mesh = new LineSegments(geometry, material);
+  mesh.frustumCulled = false;
+  return { mesh, material };
 };
 
 const nebulaFor = (tier: QualityTier, colours: Colours) => {
@@ -147,6 +185,10 @@ export const buildInnerWorld = (
   const hero = protagonist(config, tier, colours);
   const root = new Group();
   root.add(hero.points);
+  const structure = hero.lines ? structureFor(hero.lines, colours) : null;
+  if (structure) {
+    root.add(structure.mesh);
+  }
   const largest = Math.max(...config.shapes.flatMap((id) => SHAPES[id].bounds.slice(0, 2)));
   root.scale.setScalar(FIT_RADIUS / largest);
 
@@ -171,6 +213,7 @@ export const buildInnerWorld = (
     camera: new PerspectiveCamera(40, 1, 0.1, 120),
     root,
     particles: hero.material,
+    lines: structure?.material ?? null,
     stars: stars.material,
     nebula,
     dispose: () => disposeScene(scene, renderer),

@@ -103,5 +103,5 @@ export default defineDetailPage({
         "Contact Exyconn for a free consultation. We’ll assess your legacy systems and recommend the best modernization strategy.",
     },
   ],
-  scene: serviceScene("rotate", 3),
+  scene: serviceScene("modernize", "rotate"),
 });

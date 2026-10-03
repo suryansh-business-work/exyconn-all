@@ -163,10 +163,10 @@ describe("copy, logos and scenes", () => {
     LOGO_KEYS.forEach((key) => expect(DETAIL_LOGOS[key].width).toBeGreaterThan(0));
   });
 
-  it("builds a lattice-to-glyph service scene with one cluster per offering", () => {
-    const scene = serviceScene("cog", 3);
+  it("builds a service scene that re-forms into the service's glyph", () => {
+    const scene = serviceScene("ops", "cog");
+    expect(scene.shapes[0]).toBe("ops");
     expect(scene.shapes[SERVICE_GLYPH_SHAPE]).toBe("glyph");
-    expect(scene.data?.lattice).toEqual({ clusters: 3 });
     expect(scene.data?.glyph?.paths).toBe(GLYPHS.cog);
   });
 });

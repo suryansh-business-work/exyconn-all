@@ -103,5 +103,5 @@ export default defineDetailPage({
         "Contact Exyconn for a free consultation. We’ll discuss your goals and recommend the best SaaS approach for your needs.",
     },
   ],
-  scene: serviceScene("cloud", 3),
+  scene: serviceScene("cloudStack", "cloud"),
 });

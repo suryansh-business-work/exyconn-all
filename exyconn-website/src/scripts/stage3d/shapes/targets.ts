@@ -1,5 +1,6 @@
 import { createRandom } from "../math";
 import { SHAPES, type ShapeId, type ShapeParamsMap } from "./registry";
+import type { LineSet } from "./sampling";
 
 /**
  * The point targets one stage morphs between: the shapes a page asked for, sampled once
@@ -17,6 +18,10 @@ export interface StageTargets {
   tags: Float32Array[];
   /** One stable random per point: stagger, size, colour. */
   random: Float32Array;
+  /** When each point is built in the hero shape (0 first, 1 last). */
+  order: Float32Array;
+  /** The hero shape's structure, when it draws one. */
+  lines: LineSet | null;
 }
 
 const sampleOne = <K extends ShapeId>(
@@ -37,10 +42,14 @@ export const buildTargets = (
   }
   const random = createRandom(seed);
   const clouds = shapeIds.map((id) => sampleOne(id, count, random, data));
+  const stagger = Float32Array.from({ length: count }, () => random());
   return {
     count,
     positions: clouds.map((cloud) => cloud.positions),
     tags: clouds.map((cloud) => cloud.tags),
-    random: Float32Array.from({ length: count }, () => random()),
+    random: stagger,
+    // A shape without a story builds in the random stagger it always had.
+    order: clouds[0].order ?? stagger,
+    lines: clouds[0].lines ?? null,
   };
 };

@@ -102,5 +102,5 @@ export default defineDetailPage({
         "Contact Exyconn for a free consultation. We’ll discuss your goals and recommend the best mobile strategy for your needs.",
     },
   ],
-  scene: serviceScene("phone", 3),
+  scene: serviceScene("devices", "phone"),
 });

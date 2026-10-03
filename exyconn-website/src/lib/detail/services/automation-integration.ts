@@ -102,5 +102,5 @@ export default defineDetailPage({
         "Contact Exyconn for a free consultation. We’ll assess your needs and recommend the best automation and integration strategy.",
     },
   ],
-  scene: serviceScene("plug", 3),
+  scene: serviceScene("integration", "plug"),
 });

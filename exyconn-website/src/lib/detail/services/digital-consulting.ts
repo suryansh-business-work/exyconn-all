@@ -107,5 +107,5 @@ export default defineDetailPage({
     label: "Our digital consulting tools",
     keys: ["claude", "openai", "gemini"],
   },
-  scene: serviceScene("bulb", 3),
+  scene: serviceScene("roadmap", "bulb"),
 });
