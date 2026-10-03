@@ -28,6 +28,7 @@ import { ApprovalsBell } from './ApprovalsBell';
 import { PAGE_GUTTER, TOPBAR_HEIGHT } from './metrics';
 import { useT } from '@exyconn/i18n';
 import { useInstallPrompt } from '@/pwa';
+import { roleList } from '@/auth/roles';
 
 /** The topbar's actions: round card-coloured buttons with a hairline, set apart from the canvas. */
 const roundActions = (t: Theme) => ({
@@ -131,7 +132,7 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
               display: 'block',
             }}
           >
-            {user?.roles.join(', ')}
+            {user ? roleList(user.roles, t) : null}
           </Typography>
         </Box>
         <Box sx={roundActions}>
