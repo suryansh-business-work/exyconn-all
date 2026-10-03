@@ -14,20 +14,6 @@ export const background: Record<ColorMode, { page: string; panel: string; raised
 };
 
 /**
- * The reference's canvas: a grid of one-pixel dots behind everything. Drawn in the divider
- * colour, so it is a texture rather than a pattern, and spaced three spacing units apart.
- */
-export const canvasDots = { size: 1, pitch: 24 } as const;
-
-/** The CSS that paints the dotted canvas in a colour: `backgroundImage` and `backgroundSize`. */
-export function dottedCanvas(dot: string): { backgroundImage: string; backgroundSize: string } {
-  return {
-    backgroundImage: `radial-gradient(${dot} ${canvasDots.size}px, transparent ${canvasDots.size}px)`,
-    backgroundSize: `${canvasDots.pitch}px ${canvasDots.pitch}px`,
-  };
-}
-
-/**
  * How strongly an accent tints a surface behind it — a selected tile, a numbered step, a
  * status pill. Kept as opacities rather than as `${accent}14` hex suffixes: the suffix form
  * silently produces `#RRGGBB14` garbage the moment the accent is an `rgb()` or a CSS var.

@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { createAppTheme } from '../../src/theme';
 import { COLOR_MODES, tokensFor } from '../../src/tokens/modes';
-import { canvasDots, dottedCanvas, scrim, tint } from '../../src/tokens/backgrounds.token';
-import { focusRing, glow } from '../../src/tokens/box-shadow.token';
+import { scrim, tint } from '../../src/tokens/backgrounds.token';
+import { focusRing } from '../../src/tokens/box-shadow.token';
 import { enterAnimation, staggerDelay } from '../../src/tokens/motion.token';
 import { BASE_RADIUS, CARD_RADIUS } from '../../src/tokens/border.token';
-import { fuchsia, onyx, sky, yellow } from '../../src/tokens/colors.tokens';
+import { mist, orange, white } from '../../src/tokens/colors.tokens';
 
 type StyleFn = (args: {
   ownerState: Record<string, unknown>;
@@ -77,12 +77,12 @@ describe.each(COLOR_MODES)('%s mode overrides', (mode) => {
     ).not.toHaveProperty('&:hover');
   });
 
-  it('lights a hovered primary button on the dark canvas, shadows it on the light one', () => {
+  it('lifts a hovered primary button with the card shadow', () => {
     const button = override(mode, 'MuiButton', 'root');
     const hover = button({ ownerState: { color: 'primary', variant: 'contained' }, theme: null })[
       '&:hover'
     ] as Record<string, string>;
-    expect(hover.boxShadow).toBe(mode === 'dark' ? glow(t.primary) : t.shadow.xs);
+    expect(hover.boxShadow).toBe(t.shadow.sm);
   });
 
   it('colours a switch by its own palette entry, defaulting to primary', () => {
@@ -105,48 +105,37 @@ describe.each(COLOR_MODES)('%s mode overrides', (mode) => {
     expect(row({ ownerState: {}, theme: null })).toHaveProperty('fontSize');
   });
 
-  it('paints the page as a dotted canvas in the divider colour', () => {
+  it('paints the page as a plain canvas in the page colour', () => {
     const baseline = createAppTheme(mode).components?.MuiCssBaseline?.styleOverrides as Record<
       string,
       Record<string, string>
     >;
-    expect(baseline.body).toMatchObject({
-      backgroundColor: t.background.page,
-      ...dottedCanvas(t.divider),
-    });
+    expect(baseline.body).toEqual({ backgroundColor: t.background.page });
   });
 });
 
-describe('the reference palette', () => {
-  it('wears the accents as drawn on the dark grounds and takes them down for the light', () => {
-    expect(tokensFor('dark')).toMatchObject({
-      primary: sky[300],
-      secondary: fuchsia[300],
-      ring: yellow[300],
-      background: { page: onyx[950] },
-    });
+describe('the portal palette', () => {
+  it('puts white cards on a grey canvas in light mode and inverts the ink accent in dark', () => {
     expect(tokensFor('light')).toMatchObject({
-      primary: sky[700],
-      secondary: fuchsia[700],
-      background: { page: '#ffffff' },
+      primary: mist[850],
+      onPrimary: white,
+      secondary: orange[900],
+      background: { page: mist[100], panel: white },
+    });
+    expect(tokensFor('dark')).toMatchObject({
+      primary: mist[100],
+      onPrimary: mist[950],
+      secondary: orange[200],
+      background: { page: mist[950], panel: mist[900] },
     });
   });
 
-  it('rounds controls at 12 and cards at 20, as the reference draws them', () => {
+  it('rounds fields at 12 and cards at 24', () => {
     expect(BASE_RADIUS).toBe(12);
-    expect(CARD_RADIUS).toBe(20);
+    expect(CARD_RADIUS).toBe(24);
   });
 
-  it('spaces the canvas dots three spacing units apart', () => {
-    const css = dottedCanvas('#123456');
-    expect(css.backgroundSize).toBe(`${canvasDots.pitch}px ${canvasDots.pitch}px`);
-    expect(css.backgroundImage).toContain('#123456');
-  });
-
-  it('glows in the accent, with a hairline edge and a wide bloom', () => {
-    const shadow = glow('#6db5ff');
-    expect(shadow).toContain('0 0 0 1px');
-    expect(shadow).toContain('0 8px 32px');
+  it('draws a focus ring as a hairline shadow in the accent', () => {
     expect(focusRing('#6db5ff')).toBe('0 0 0 1px #6db5ff');
   });
 

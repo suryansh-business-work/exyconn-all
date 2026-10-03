@@ -8,4 +8,4 @@ export const TOPBAR_HEIGHT = 64;
  * well below it puts the page title out of line with everything on the page, and the drift is
  * invisible until somebody notices the whole portal looks slightly crooked.
  */
-export const PAGE_GUTTER = { xs: 1.5, md: 2 };
+export const PAGE_GUTTER = { xs: 2, md: 3 };

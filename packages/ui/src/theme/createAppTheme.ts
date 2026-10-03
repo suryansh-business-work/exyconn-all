@@ -100,21 +100,21 @@ export function createAppTheme(mode: ColorMode, direction: ThemeDirection = 'ltr
       fontWeightMedium: fontWeight.medium,
       fontWeightBold: fontWeight.bold,
       /**
-       * The page title: shadcn's `font-semibold tracking-tight`, sized against the screen
+       * The page title: large, light and tight, sized against the screen
        * rather than fixed, so "Purchase orders" is one line on a phone instead of three.
        * `clamp` keeps it between 1.5rem and the 2rem a desk gets.
        */
       h4: {
-        fontSize: 'clamp(1.5rem, 1.1rem + 2vw, 2rem)',
-        fontWeight: fontWeight.semibold,
+        fontSize: 'clamp(1.5rem, 1.1rem + 2vw, 2.25rem)',
+        fontWeight: fontWeight.regular,
         letterSpacing: letterSpacing.tighter,
       },
       h5: {
         fontSize: 'clamp(1.25rem, 1rem + 1.2vw, 1.5rem)',
-        fontWeight: fontWeight.semibold,
+        fontWeight: fontWeight.medium,
         letterSpacing: letterSpacing.tight,
       },
-      h6: { fontWeight: fontWeight.semibold, letterSpacing: letterSpacing.snug },
+      h6: { fontWeight: fontWeight.medium, letterSpacing: letterSpacing.snug },
       subtitle2: { fontWeight: fontWeight.semibold },
       button: { textTransform: 'none', fontWeight: fontWeight.medium },
       overline: { fontWeight: fontWeight.semibold, letterSpacing: letterSpacing.wide },

@@ -9,7 +9,10 @@ import {
   ListItemIcon,
   ListItemText,
   fontWeight,
+  radius,
 } from '@/components/ui';
+
+const PILL_RADIUS = `${radius.pill}px`;
 import type { NavNode } from './moduleNav';
 import type { NavState } from './useNavState';
 
@@ -21,7 +24,17 @@ interface Props {
   onSelect: (node: NavNode) => void;
 }
 
-const rowSx = (depth: number) => ({ borderRadius: 1, mb: 0.5, py: 0.5, pl: 1.5 + depth * 1.5 });
+/**
+ * A pill row. The current page is a white (card-coloured) pill lifted off the canvas the
+ * sidebar sits on — the same language as the cards on the page.
+ */
+const rowSx = (depth: number) => ({
+  borderRadius: PILL_RADIUS,
+  mb: 0.5,
+  py: 0.75,
+  pl: 1.5 + depth * 1.5,
+  '&.Mui-selected, &.Mui-selected:hover': { bgcolor: 'background.paper', boxShadow: 1 },
+});
 
 /**
  * One page in the sidebar.

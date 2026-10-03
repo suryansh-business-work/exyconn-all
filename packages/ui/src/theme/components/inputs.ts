@@ -1,6 +1,5 @@
 import { alpha, type CSSObject } from '../../styles';
 import { tintOpacity } from '../../tokens/backgrounds.token';
-import { glow } from '../../tokens/box-shadow.token';
 import { borderWidth } from '../../tokens/border.token';
 import { transition } from '../../tokens/motion.token';
 import { spacing } from '../../tokens/spacing.token';
@@ -36,14 +35,11 @@ const SWITCH_TARGET = spacing(3);
 const OUTLINE = '.MuiOutlinedInput-notchedOutline';
 
 /** A primary button per variant, as shadcn draws its `default`, `outline` and `ghost` buttons. */
-function primaryButton({ mode, t }: ThemeParts): Record<string, CSSObject> {
-  // On the dark canvas a hovered primary button lights up, as the reference's Generate does;
-  // a black shadow would not be seen there. On white the small shadow is enough.
-  const hoverShadow = mode === 'dark' ? glow(t.primary) : t.shadow.xs;
+function primaryButton({ t }: ThemeParts): Record<string, CSSObject> {
   return {
     contained: {
       boxShadow: t.shadow.xs,
-      '&:hover': { backgroundColor: alpha(t.primary, HOVER_FILL_OPACITY), boxShadow: hoverShadow },
+      '&:hover': { backgroundColor: alpha(t.primary, HOVER_FILL_OPACITY), boxShadow: t.shadow.sm },
     },
     // The outline button is neutral: foreground ink on the panel, a hairline, a muted hover.
     outlined: {
@@ -66,8 +62,10 @@ function buttons(parts: ThemeParts): ComponentGroup {
     MuiButton: {
       defaultProps: { disableElevation: true, size: 'small' },
       styleOverrides: {
+        // Every button is a pill — the primary one a filled pill of the ink colour.
         root: ({ ownerState }) => ({
-          borderRadius: CONTROL_CORNER,
+          borderRadius: PILL,
+          paddingInline: spacing(1.5),
           fontWeight: fontWeight.medium,
           transition: transition.control,
           [TOUCH]: { minHeight: TOUCH_TARGET, paddingInline: spacing(2) },
@@ -75,13 +73,13 @@ function buttons(parts: ThemeParts): ComponentGroup {
         }),
       },
     },
-    // Icon buttons are shadcn's `ghost` + `size="icon"`: a rounded square. The hover stays
+    // Icon buttons are ghost circles. The hover stays
     // MUI's translucent ink wash — the muted fill on a light ground, and still visible when
     // the button floats on a photo or a dark lightbox, where a solid fill would hide the icon.
     MuiIconButton: {
       styleOverrides: {
         root: {
-          borderRadius: CONTROL_CORNER,
+          borderRadius: '50%',
           transition: transition.control,
           [TOUCH]: { minWidth: TOUCH_TARGET, minHeight: TOUCH_TARGET },
         },
@@ -92,8 +90,9 @@ function buttons(parts: ThemeParts): ComponentGroup {
 
 /** Text fields and selects: shadcn's `input` — a quiet edge that turns to the ring on focus. */
 function fields({ mode, t }: ThemeParts): ComponentGroup {
-  // shadcn fills a dark field (`bg-input/30`); a light one is transparent on its panel.
-  const fill = mode === 'dark' ? alpha(t.control, tintOpacity.strong) : 'transparent';
+  // A light field is a white well, so it reads on the grey page as well as on a card; a dark
+  // one is a faint wash of its own edge colour.
+  const fill = mode === 'dark' ? alpha(t.control, tintOpacity.strong) : t.background.panel;
   return {
     MuiTextField: { defaultProps: { size: 'small' } },
     MuiSelect: { defaultProps: { size: 'small' } },

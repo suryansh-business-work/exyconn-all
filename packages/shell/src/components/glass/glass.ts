@@ -12,7 +12,7 @@ import type { Theme, SystemStyleObject } from '@exyconn/ui/styles';
 export const glass = (theme: Theme): SystemStyleObject<Theme> => ({
   background: theme.palette.background.paper,
   border: `${borderWidth.hairline}px solid ${theme.palette.divider}`,
-  // The card corner, as a px string: a panel and a card are the same shape (shadcn's card).
+  // The card corner, as a px string: a panel and a card are the same shape.
   borderRadius: `${CARD_RADIUS}px`,
   boxShadow: portalShadow[theme.palette.mode].sm,
 });
@@ -27,7 +27,7 @@ export const glass = (theme: Theme): SystemStyleObject<Theme> => ({
  */
 export const panel = (theme: Theme): SystemStyleObject<Theme> => ({
   ...glass(theme),
-  p: { xs: 1.5, md: 2 },
+  p: { xs: 2, md: 3 },
 });
 
 /** Grids, tiles and anything that holds its own dense chrome. */
@@ -39,7 +39,7 @@ export const densePanel = (theme: Theme): SystemStyleObject<Theme> => ({
 /** A form or a page of prose, where the content wants air around it. */
 export const readingPanel = (theme: Theme): SystemStyleObject<Theme> => ({
   ...glass(theme),
-  p: { xs: 2, md: 3 },
+  p: { xs: 2, md: 4 },
 });
 
 /**

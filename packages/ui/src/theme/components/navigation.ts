@@ -1,4 +1,3 @@
-import { BASE_RADIUS } from '../../tokens/border.token';
 import { transition } from '../../tokens/motion.token';
 import { spacing } from '../../tokens/spacing.token';
 import { fontWeight } from '../../tokens/typography.token';
@@ -7,6 +6,7 @@ import {
   CONTROL_CORNER,
   HAIRLINE,
   INNER_CORNER,
+  PILL,
   TOUCH,
   TOUCH_TARGET,
   type ComponentGroup,
@@ -18,15 +18,13 @@ const DENSE_LIST_PADDING = spacing(0.5);
 /** A tab inside its track. */
 const TAB_HEIGHT = spacing(4);
 const TAB_TRACK_PADDING = spacing(0.5);
-/** The track's corner wraps the tab's at the track's padding, so the two curves stay parallel. */
-const TAB_TRACK_CORNER = `${BASE_RADIUS + TAB_TRACK_PADDING}px`;
 
 /**
- * shadcn/ui's tabs: a muted track that hugs its tabs, the current tab raised out of it on the
- * page colour with a small shadow. Exported for the theme test, which pins the selected look.
+ * Segmented pill tabs: a muted pill track that hugs its tabs, the current tab a raised card-
+ * coloured pill in it. Exported for the theme test, which pins the selected look.
  */
 export function selectedTab({ t }: ThemeParts) {
-  return { backgroundColor: t.background.page, color: t.text.primary, boxShadow: t.shadow.sm };
+  return { backgroundColor: t.background.panel, color: t.text.primary, boxShadow: t.shadow.xs };
 }
 
 function tabs(parts: ThemeParts): ComponentGroup {
@@ -38,7 +36,7 @@ function tabs(parts: ThemeParts): ComponentGroup {
           minHeight: TAB_HEIGHT + TAB_TRACK_PADDING * 2,
           [TOUCH]: { minHeight: TOUCH_TARGET + TAB_TRACK_PADDING * 2 },
           padding: TAB_TRACK_PADDING,
-          borderRadius: TAB_TRACK_CORNER,
+          borderRadius: PILL,
           backgroundColor: t.background.muted,
           // Hugs its tabs as shadcn's does; a full-width strip keeps its width, and a long
           // one still scrolls inside the page rather than past it.
@@ -47,7 +45,7 @@ function tabs(parts: ThemeParts): ComponentGroup {
         }),
         indicator: { display: 'none' },
         // An arrow with nowhere to scroll takes no room, so the first tab sits at the track's edge.
-        scrollButtons: { borderRadius: CONTROL_CORNER, '&.Mui-disabled': { width: 0 } },
+        scrollButtons: { borderRadius: PILL, '&.Mui-disabled': { width: 0 } },
       },
     },
     MuiTab: {
@@ -57,7 +55,7 @@ function tabs(parts: ThemeParts): ComponentGroup {
           [TOUCH]: { minHeight: TOUCH_TARGET },
           paddingBlock: spacing(0.5),
           paddingInline: spacing(1.5),
-          borderRadius: CONTROL_CORNER,
+          borderRadius: PILL,
           textTransform: 'none',
           fontWeight: fontWeight.medium,
           color: t.text.secondary,

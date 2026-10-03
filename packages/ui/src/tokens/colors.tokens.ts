@@ -74,6 +74,8 @@ export const blue = {
   400: '#4f8cff',
   500: '#3b82f6',
   600: '#155dfc',
+  /** The light-mode info ink: 4.5:1 on the grey page as well as on white. */
+  700: '#2563b8',
 } as const;
 
 /**
@@ -112,8 +114,7 @@ export const purple = {
   400: '#a855f7',
 } as const;
 
-/** The brand pink: the reference's #FF5DE7 on dark, and its 4.5:1-on-white shade for light. */
-export const fuchsia = { 300: '#ff5de7', 500: '#d946ef', 700: '#b5109a' } as const;
+export const fuchsia = { 500: '#d946ef' } as const;
 
 export const pink = {
   300: '#e87ba4',
@@ -132,15 +133,21 @@ export const red = {
   700: '#d03b3b',
   800: '#dc2626',
   900: '#d92d20',
+  /** The light-mode error ink: 4.5:1 on the grey page as well as on white. */
+  950: '#b42318',
 } as const;
 
 export const orange = {
+  /** The brand orange lifted for the dark grounds, where the 900 below would sink. */
+  200: '#ff8a5c',
   300: '#ec835a',
   400: '#eb6834',
   500: '#f9851f',
   600: '#f97316',
   700: '#d95926',
   800: '#b54708',
+  /** The brand orange as ink on the light grounds — the reference's #E5532D measures 3.6:1. */
+  900: '#b93c0b',
 } as const;
 
 export const amber = {
@@ -161,6 +168,8 @@ export const green = {
   650: '#15803d',
   700: '#0ca30c',
   800: '#008300',
+  /** The light-mode success ink: 4.5:1 on the grey page as well as on white. */
+  900: '#166534',
 } as const;
 
 export const emerald = {
@@ -184,35 +193,28 @@ export const cyan = {
   600: '#0891b2',
 } as const;
 
-/**
- * The portal accent blue. `300` is the reference's #6DB5FF, worn as-is on the dark grounds
- * (9:1 on the page); `700` is the same hue taken down until it reads at 4.5:1 on white,
- * which the reference's shade (2.3:1) does not.
- */
-export const sky = { 300: '#6db5ff', 500: '#0ea5e9', 700: '#1a66cc' } as const;
+export const sky = { 500: '#0ea5e9' } as const;
 
 /**
- * The portal neutral — the reference's #0D0D0D page and pure-white light mode, with the
- * steps between chosen for WCAG AA: `500` draws a control's edge at 3:1 on white and on the
- * light sidebar, `550` does the same on the dark panel, `600` is the muted ink that reads at
- * 4.5:1 on the light muted surface, and `400` the one that reads on the dark muted surface.
+ * The portal neutral: a cool, faintly blue grey — a soft grey canvas, white cards and a deep
+ * navy ink. The steps between are chosen for WCAG AA in both modes: `600` is the muted ink
+ * that reads at 4.5:1 on the light page and the muted surface, `500` draws a control's edge
+ * at 3:1 on the light page, `550` does the same on the dark panel, and `400` is the muted
+ * ink on the dark grounds. `100` is the light page and the dark ink alike.
  */
-export const onyx = {
-  50: '#f7f7f7',
-  100: '#f3f3f3',
-  200: '#e6e6e6',
-  400: '#a3a3a3',
-  500: '#8a8a8a',
-  550: '#707070',
-  600: '#666666',
-  800: '#232323',
-  900: '#171717',
-  925: '#111111',
-  950: '#0d0d0d',
+export const mist = {
+  100: '#eef0f3',
+  200: '#e4e7ec',
+  250: '#dfe2e8',
+  400: '#9ba2b0',
+  500: '#7b8290',
+  550: '#697081',
+  600: '#565d6b',
+  800: '#232836',
+  850: '#1b2130',
+  900: '#171b25',
+  950: '#0f121a',
 } as const;
-
-/** The reference's highlight yellow — the focus ring and the warning hue on the dark grounds. */
-export const yellow = { 300: '#fefa3d' } as const;
 
 /** Every ramp under one name, so a consumer imports `color` and nothing else. */
 export const color = {
@@ -237,8 +239,7 @@ export const color = {
   teal,
   cyan,
   sky,
-  onyx,
-  yellow,
+  mist,
 } as const;
 
 /** The families a categorical accent may be drawn from. */

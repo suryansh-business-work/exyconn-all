@@ -59,7 +59,7 @@ export function ModuleOverview({
     <>
       <PageHeader title={title} subtitle={subtitle} />
 
-      <Grid container spacing={1.5} sx={{ mb: 1.5 }}>
+      <Grid container spacing={2} sx={{ mb: 2 }}>
         {stats.map((stat) => (
           <Grid
             key={stat.label}
@@ -74,7 +74,7 @@ export function ModuleOverview({
       </Grid>
 
       {breakdowns.length > 0 && (
-        <Grid container spacing={1.5} sx={{ mb: 1.5 }}>
+        <Grid container spacing={2} sx={{ mb: 2 }}>
           {breakdowns.map((breakdown) => (
             <Grid
               key={breakdown.title}

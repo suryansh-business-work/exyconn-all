@@ -42,7 +42,7 @@ describe('createAppTheme', () => {
       const theme = createAppTheme(mode);
       const tab = theme.components?.MuiTab?.styleOverrides?.root as Record<string, unknown>;
       expect(tab['&.Mui-selected']).toEqual(selectedTab({ mode, t }));
-      expect(tab['&.Mui-selected']).toMatchObject({ backgroundColor: t.background.page });
+      expect(tab['&.Mui-selected']).toMatchObject({ backgroundColor: t.background.panel });
     },
   );
 

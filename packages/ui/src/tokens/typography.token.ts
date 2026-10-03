@@ -3,15 +3,15 @@
  */
 
 /**
- * Outfit, the reference's face, with a system fallback on every platform.
+ * Inter, with a system fallback on every platform.
  *
- * The portals bundle its variable build (@fontsource-variable/outfit, imported once by the
- * shell's app root), so "Outfit Variable" is what the browser finds; the plain name is for
- * anywhere it was installed by hand. Geometric, but with tabular figures, so the finance
- * screens' columns still line up.
+ * The portals bundle its variable build (@fontsource-variable/inter, imported once by the
+ * shell's app root), so "Inter Variable" is what the browser finds; the plain name is for
+ * anywhere it was installed by hand. A quiet grotesk with tabular figures, so the finance
+ * screens' columns line up, and the same face the trackers wear.
  */
 export const fontFamily = {
-  sans: '"Outfit Variable", "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif',
+  sans: '"Inter Variable", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif',
   /** The desktop tracker bundles Inter's variable build (@fontsource-variable/inter). */
   tracker:
     '"Inter Variable", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',

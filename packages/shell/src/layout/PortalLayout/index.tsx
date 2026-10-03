@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import type { Theme } from '@/components/ui';
-import { borderWidth, Box, Drawer, enterAnimation, Toolbar } from '@/components/ui';
+import { Box, Drawer, enterAnimation, Toolbar } from '@/components/ui';
 import { Topbar } from './Topbar';
 import { Sidebar } from './Sidebar';
 import { PAGE_GUTTER, TOPBAR_HEIGHT } from './metrics';
@@ -21,8 +21,9 @@ const RAIL_WIDTH = 64;
 const drawerPaper = (t: Theme, width: number) => ({
   width,
   boxSizing: 'border-box' as const,
+  // No edge: the navigation sits on the same canvas as the page, and the cards beside it
+  // are what is lifted.
   border: 'none',
-  borderRight: `${borderWidth.hairline}px solid ${t.palette.divider}`,
   background: t.palette.background.sidebar,
   overflowX: 'hidden' as const,
   transition: t.transitions.create('width', { duration: t.transitions.duration.shorter }),
@@ -101,9 +102,9 @@ export function PortalLayout() {
         <Box
           sx={{
             px: PAGE_GUTTER,
-            pt: 0.5,
+            pt: 1,
             // Clear of the home indicator on an installed app; zero in a browser tab.
-            pb: { xs: 'calc(env(safe-area-inset-bottom) + 12px)', md: 2 },
+            pb: { xs: 'calc(env(safe-area-inset-bottom) + 16px)', md: 3 },
           }}
         >
           {/* Keyed by path: a crashed page leaves the sidebar working, and navigating clears it. */}

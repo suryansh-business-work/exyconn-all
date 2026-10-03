@@ -6,14 +6,14 @@ import { spacing } from '../../tokens/spacing.token';
 import { fontWeight } from '../../tokens/typography.token';
 import { CONTROL_CORNER, HAIRLINE, PILL, type ComponentGroup, type ThemeParts } from '../parts';
 
-/** shadcn's badge: a small rounded-md label, the neutral one on the muted surface. */
+/** Badges are small pills; the neutral one sits on the muted surface. */
 function chips({ t }: ThemeParts): ComponentGroup {
   return {
     MuiChip: {
       defaultProps: { size: 'small' },
       styleOverrides: {
         root: ({ ownerState }) => ({
-          borderRadius: CONTROL_CORNER,
+          borderRadius: PILL,
           fontWeight: fontWeight.medium,
           transition: transition.control,
           ...(ownerState.color === 'default' && ownerState.variant !== 'outlined'

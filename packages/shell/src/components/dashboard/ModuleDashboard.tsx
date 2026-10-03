@@ -54,7 +54,7 @@ export function ModuleDashboard({
         onAction={onAction}
       />
 
-      <Grid container spacing={1.5} sx={{ mb: 1.5 }}>
+      <Grid container spacing={2} sx={{ mb: 2 }}>
         {stats.map((stat, index) => (
           <Grid
             key={stat.label}

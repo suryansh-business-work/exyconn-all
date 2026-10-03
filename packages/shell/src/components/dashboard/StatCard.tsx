@@ -3,7 +3,7 @@ import { Box, Skeleton, Stack, Typography, iconSize, fontWeight } from '@/compon
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TrendingDownIcon from '@mui/icons-material/TrendingDown';
 import { panel } from '../glass/glass';
-import { color, Sparkline } from '@exyconn/ui';
+import { color, numeric, radius, Sparkline } from '@exyconn/ui';
 
 export interface StatItem {
   label: string;
@@ -26,7 +26,7 @@ interface StatCardProps extends StatItem {
   loading?: boolean;
 }
 
-/** A frosted stat tile: label, big value, trend delta and a mini sparkline. */
+/** A stat tile: label, a large light figure, a trend pill and a mini sparkline. */
 export function StatCard({
   label,
   labelValues,
@@ -61,6 +61,9 @@ export function StatCard({
             spacing={0.5}
             sx={{
               alignItems: 'center',
+              px: 1,
+              borderRadius: `${radius.pill}px`,
+              bgcolor: 'background.muted',
               color: up ? 'success.main' : 'error.main',
             }}
           >
@@ -83,17 +86,18 @@ export function StatCard({
       {/* Sized like a heading, but not one: four numbers as <h6> straight after the page's
           <h1> skipped every level between and made the outline read as a list of figures. */}
       <Typography
-        variant="h6"
+        variant="h4"
         component="p"
         sx={{
-          fontWeight: fontWeight.bold,
-          mt: 0.5,
+          fontWeight: fontWeight.regular,
+          fontVariantNumeric: numeric.tabular,
+          mt: 1,
         }}
       >
         {loading ? <Skeleton width="40%" /> : value}
       </Typography>
       {series && !loading && (
-        <Box sx={{ mt: 0.5 }}>
+        <Box sx={{ mt: 1 }}>
           <Sparkline values={series} color={accent} height={28} />
         </Box>
       )}

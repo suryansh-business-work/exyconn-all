@@ -1,29 +1,29 @@
 import { alpha } from '../../styles';
 import { portalShadow } from '../box-shadow.token';
-import { fuchsia, green, red, sky, white, yellow, onyx } from '../colors.tokens';
+import { amber, azure, green, mist, orange, red } from '../colors.tokens';
 import type { SemanticTokens } from './semantic-tokens';
 
 /** How far the hairline is lifted off a dark panel. A solid grey border reads as a seam. */
-const DARK_DIVIDER_OPACITY = 0.1;
+const DARK_DIVIDER_OPACITY = 0.08;
 
 /**
- * Dark mode: the reference's node canvas — #0D0D0D page, a panel one step up, white ink,
- * and the three accents worn exactly as drawn, because every one of them clears 4.5:1 here
- * (blue 9:1, pink 7:1, yellow 17:1). The ring is the yellow: it is the highlight the
- * reference puts around the selected node, and it stands out on every ground at 14:1.
+ * Dark mode: the same layout at night — a deep navy-black canvas, cards one step up, and the
+ * light-mode ink turned into the accent, so a primary button is a light pill with navy ink
+ * exactly where light mode has a navy pill with white ink. The status hues are the light
+ * shades of each family; every one clears 4.5:1 on the page and on a card.
  */
 export const darkTokens: SemanticTokens = {
-  primary: sky[300],
-  onPrimary: onyx[950],
-  secondary: fuchsia[300],
+  primary: mist[100],
+  onPrimary: mist[950],
+  secondary: orange[200],
   success: green[200],
-  warning: yellow[300],
+  warning: amber[300],
   error: red[300],
-  info: sky[300],
-  background: { page: onyx[950], panel: onyx[900], muted: onyx[800], sidebar: onyx[925] },
-  text: { primary: white, secondary: onyx[400] },
-  divider: alpha(white, DARK_DIVIDER_OPACITY),
-  control: onyx[550],
-  ring: yellow[300],
+  info: azure[300],
+  background: { page: mist[950], panel: mist[900], muted: mist[800], sidebar: mist[950] },
+  text: { primary: mist[100], secondary: mist[400] },
+  divider: alpha(mist[100], DARK_DIVIDER_OPACITY),
+  control: mist[550],
+  ring: mist[100],
   shadow: portalShadow.dark,
 };

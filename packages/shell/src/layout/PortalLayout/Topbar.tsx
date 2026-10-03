@@ -14,6 +14,7 @@ import {
   useMediaQuery,
   useTheme,
   fontWeight,
+  type Theme,
 } from '@/components/ui';
 import MenuIcon from '@mui/icons-material/Menu';
 import LightModeIcon from '@mui/icons-material/LightMode';
@@ -27,6 +28,19 @@ import { ApprovalsBell } from './ApprovalsBell';
 import { PAGE_GUTTER, TOPBAR_HEIGHT } from './metrics';
 import { useT } from '@exyconn/i18n';
 import { useInstallPrompt } from '@/pwa';
+
+/** The topbar's actions: round card-coloured buttons with a hairline, set apart from the canvas. */
+const roundActions = (t: Theme) => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: 1,
+  mr: 1,
+  '& .MuiIconButton-root': {
+    bgcolor: 'background.paper',
+    border: `${borderWidth.hairline}px solid ${t.palette.divider}`,
+    '&:hover': { bgcolor: 'background.muted' },
+  },
+});
 
 interface TopbarProps {
   drawerWidth: number;
@@ -72,8 +86,8 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
       sx={(t) => ({
         width: { md: `calc(100% - ${drawerWidth}px)` },
         ml: { md: `${drawerWidth}px` },
+        // The canvas itself, with no rule under it: the topbar is part of the page.
         background: t.palette.background.default,
-        borderBottom: `${borderWidth.hairline}px solid ${t.palette.divider}`,
         // Installed to a home screen, the app owns the whole screen — including whatever is
         // behind the notch. These insets are zero in a browser tab.
         pt: 'env(safe-area-inset-top)',
@@ -120,11 +134,13 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
             {user?.roles.join(', ')}
           </Typography>
         </Box>
-        <ApprovalsBell />
-        <NotificationBell />
-        <IconButton onClick={toggle} aria-label={t('Toggle colour mode')} sx={{ mr: 1 }}>
-          {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
-        </IconButton>
+        <Box sx={roundActions}>
+          <ApprovalsBell />
+          <NotificationBell />
+          <IconButton onClick={toggle} aria-label={t('Toggle colour mode')}>
+            {mode === 'light' ? <DarkModeIcon /> : <LightModeIcon />}
+          </IconButton>
+        </Box>
         <IconButton
           onClick={(e) => setAnchorEl(e.currentTarget)}
           aria-label={t('Account menu')}
