@@ -420,9 +420,12 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
       </button>
     </div>
   </nav>
-
-  <MobileHeader branding={branding} />
 </header>
+
+<!-- Outside <header>, not in it: the header's backdrop-filter makes it the containing block
+     for every fixed descendant, which pinned the "full-screen" menu to the header's own box —
+     the drawer started below the banner and slid off-screen once the page was scrolled. -->
+<MobileHeader branding={branding} />
 
 <script>
   /**
