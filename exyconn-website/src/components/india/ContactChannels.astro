@@ -1,0 +1,26 @@
+---
+/** The direct channels (phone only when branding has one, then email) as tappable links. */
+import type { ContactChannel } from "../../lib/india/contact";
+
+type Props = Readonly<{ channels: readonly ContactChannel[] }>;
+
+const { channels } = Astro.props;
+---
+
+<ul class="offer-channels">
+  {
+    channels.map((channel) => (
+      <li>
+        <a href={channel.href} class="offer-channel">
+          <span class="offer-icon">
+            <i class={`fa-solid ${channel.icon} icon-md`} aria-hidden="true" />
+          </span>
+          <span>
+            <small>{channel.label}</small>
+            <strong>{channel.value}</strong>
+          </span>
+        </a>
+      </li>
+    ))
+  }
+</ul>

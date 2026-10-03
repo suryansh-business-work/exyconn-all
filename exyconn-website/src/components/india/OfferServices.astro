@@ -1,0 +1,33 @@
+---
+/** Every service the offer leads into, grouped as on the services hub, one LinkCard each. */
+import ActionLink from "../inner/ActionLink.astro";
+import LinkCard from "../inner/LinkCard.astro";
+import type { InnerAction } from "../inner/types";
+
+interface ServiceGroup {
+  title: string;
+  items: readonly { href: string; title: string; text: string }[];
+}
+
+type Props = Readonly<{ groups: readonly ServiceGroup[]; more: string; all: InnerAction }>;
+
+const { groups, more, all } = Astro.props;
+---
+
+<div class="offer-services mt-12 grid gap-12">
+  {
+    groups.map((group) => (
+      <div>
+        <p class="stage-label inner-index offer-label">{group.title}</p>
+        <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {group.items.map((item) => (
+            <LinkCard href={item.href} title={item.title} text={item.text} more={more} />
+          ))}
+        </div>
+      </div>
+    ))
+  }
+</div>
+<div class="mt-12">
+  <ActionLink action={all} variant="ghost" />
+</div>

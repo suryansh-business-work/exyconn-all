@@ -1,0 +1,78 @@
+---
+/**
+ * The packages side by side, read from the same plan data as the cards. A table from 768px;
+ * on phones each feature becomes a row with the three plans' values beneath it.
+ */
+import PlanCell from "./PlanCell.astro";
+import {
+  comparisonCell,
+  formatRupees,
+  type OfferPlan,
+  type PlanFeature,
+} from "../../lib/india/plans";
+
+type Props = Readonly<{
+  plans: readonly OfferPlan[];
+  features: readonly PlanFeature[];
+  caption: string;
+  featureLabel: string;
+  yes: string;
+  no: string;
+}>;
+
+const { plans, features, caption, featureLabel, yes, no } = Astro.props;
+---
+
+<div class="inner-panel mt-10 overflow-hidden">
+  <div class="offer-compare__table-wrap" tabindex="0" role="region" aria-label={caption}>
+    <table class="offer-compare__table">
+      <caption class="sr-only">{caption}</caption>
+      <thead>
+        <tr>
+          <th scope="col" class="text-start">{featureLabel}</th>
+          {
+            plans.map((plan) => (
+              <th scope="col" class:list={{ "is-popular": plan.popular }}>
+                {plan.name}
+                <span class="offer-compare__price">₹{formatRupees(plan.price)}</span>
+              </th>
+            ))
+          }
+        </tr>
+      </thead>
+      <tbody>
+        {
+          features.map((feature) => (
+            <tr>
+              <th scope="row">{feature.label}</th>
+              {plans.map((plan) => (
+                <td class:list={{ "is-popular": plan.popular }}>
+                  <PlanCell cell={comparisonCell(feature.values[plan.id])} yes={yes} no={no} />
+                </td>
+              ))}
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+  <ul class="offer-compare__rows" aria-label={caption}>
+    {
+      features.map((feature) => (
+        <li>
+          <p class="offer-compare__feature">{feature.label}</p>
+          <dl class="offer-compare__plans">
+            {plans.map((plan) => (
+              <div>
+                <dt>{plan.name}</dt>
+                <dd>
+                  <PlanCell cell={comparisonCell(feature.values[plan.id])} yes={yes} no={no} />
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </li>
+      ))
+    }
+  </ul>
+</div>
