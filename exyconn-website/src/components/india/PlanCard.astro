@@ -1,0 +1,54 @@
+---
+/** One India offer package: tier, name, price, everything it includes and its call to action. */
+import ActionLink from "../inner/ActionLink.astro";
+import { formatRupees, planHighlights, type OfferPlan } from "../../lib/india/plans";
+
+type Props = Readonly<{
+  plan: OfferPlan;
+  /** The cube this card lights in the stage scene (1-based). */
+  highlight: number;
+  popularLabel: string;
+  href: string;
+}>;
+
+const { plan, highlight, popularLabel, href } = Astro.props;
+const headingId = `plan-${plan.id}`;
+---
+
+<article
+  class:list={["inner-card offer-plan", { "offer-plan--popular": plan.popular }]}
+  aria-labelledby={headingId}
+  data-stage-highlight={highlight}
+>
+  {
+    plan.popular && (
+      <p class="offer-plan__badge">
+        <i class="fa-solid fa-star icon-xs" aria-hidden="true" />
+        {popularLabel}
+      </p>
+    )
+  }
+  <p class="stage-label inner-index">{plan.tier}</p>
+  <h3 id={headingId} class="inner-h3">{plan.name}</h3>
+  <p class="offer-plan__price">
+    <span class="inner-metric__value">₹{formatRupees(plan.price)}</span>
+    <span class="offer-plan__period">{plan.period}</span>
+  </p>
+  <ul class="offer-plan__list">
+    {
+      planHighlights(plan).map((item) => (
+        <li>
+          <i class="fa-solid fa-check icon-xs" aria-hidden="true" />
+          <span>{item}</span>
+        </li>
+      ))
+    }
+  </ul>
+  <div class="offer-plan__action">
+    <ActionLink
+      action={{ label: plan.cta, href }}
+      variant={plan.popular ? "primary" : "ghost"}
+      highlight={highlight}
+    />
+  </div>
+</article>

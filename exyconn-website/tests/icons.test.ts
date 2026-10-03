@@ -44,7 +44,16 @@ describe("icons in the site chrome", () => {
   const tags = CHROME.flatMap((file) => iconTags(read(file)).map((tag) => [file, tag] as const));
 
   it("finds the icons to check", () => {
-    expect(tags.length).toBeGreaterThan(40);
+    expect(tags.length).toBeGreaterThan(0);
+  });
+
+  it("draws the header, phone menu, footer and toggles from the inline SVG set", () => {
+    const svgOnly = CHROME.filter((file) => file !== "components/SearchModal.astro");
+    const fontIcons = svgOnly.flatMap((file) =>
+      iconTags(read(file)).map((tag) => `${file}: ${tag}`)
+    );
+    expect(fontIcons).toEqual([]);
+    expect(svgOnly.every((file) => read(file).includes("<Icon "))).toBe(true);
   });
 
   it("size every icon from the scale", () => {

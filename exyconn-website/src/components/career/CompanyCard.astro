@@ -1,0 +1,52 @@
+---
+/**
+ * A company on the careers page: its logo, name, industry, tagline and how many roles it has
+ * open — the whole card is the link to its careers page.
+ */
+import "../../styles/inner-stage.css";
+import "./career.css";
+import { safeHref } from "../../lib/safe-output";
+
+type Props = Readonly<{
+  href: string;
+  name: string;
+  logo: string;
+  industry: string;
+  tagline: string;
+  /** Already phrased, e.g. "3 open roles". */
+  openings: string;
+  more: string;
+}>;
+
+const { href, name, logo, industry, tagline, openings, more } = Astro.props;
+const logoSrc = safeHref(logo);
+---
+
+<li>
+  <a href={href} class="inner-card career-company">
+    <span class="career-company__head">
+      {
+        logoSrc && (
+          <img
+            src={logoSrc}
+            alt=""
+            width="48"
+            height="48"
+            loading="lazy"
+            decoding="async"
+            class="career-logo"
+          />
+        )
+      }
+      <span>
+        <span class="block inner-h3">{name}</span>
+        {industry && <span class="stage-label">{industry}</span>}
+      </span>
+    </span>
+    {tagline && <span class="inner-card__text career-clamp">{tagline}</span>}
+    <span class="career-company__foot">
+      <span class="inner-chip">{openings}</span>
+      <span class="inner-card__more">{more}</span>
+    </span>
+  </a>
+</li>

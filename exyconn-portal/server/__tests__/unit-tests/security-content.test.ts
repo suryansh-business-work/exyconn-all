@@ -20,6 +20,7 @@ import {
 import {
   AVATAR_UPLOAD,
   MEDIA_UPLOAD,
+  RESUME_UPLOAD,
   assertUpload,
   screenshotUpload,
 } from '../../src/utils/uploadValidation';
@@ -253,6 +254,23 @@ describe('upload validation', () => {
       /cannot be uploaded/,
     );
     expect(() => assertUpload(PNG.toString('base64'), screenshotUpload(4))).toThrow(/too large/);
+  });
+
+  it('takes a PDF or Word résumé, and nothing else, within 5 MB', () => {
+    const DOC = Buffer.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1, 0, 0]);
+    const DOCX = Buffer.from([0x50, 0x4b, 0x03, 0x04, 0x14, 0]);
+    const WORD = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+
+    expect(assertUpload(dataUrl('application/pdf', PDF), RESUME_UPLOAD)).toBe('pdf');
+    expect(assertUpload(dataUrl('application/msword', DOC), RESUME_UPLOAD)).toBe('doc');
+    expect(assertUpload(dataUrl(WORD, DOCX), RESUME_UPLOAD)).toBe('docx');
+    expect(() => assertUpload(dataUrl(WORD, PDF), RESUME_UPLOAD)).toThrow(/cannot be uploaded/);
+    expect(() => assertUpload(dataUrl('image/png', PNG), RESUME_UPLOAD)).toThrow(
+      /cannot be uploaded/,
+    );
+    expect(() => assertUpload(dataUrl(WORD, DOCX), MEDIA_UPLOAD)).toThrow(/cannot be uploaded/);
+    const big = `data:application/pdf;base64,${'A'.repeat(Math.ceil((5 * 1024 * 1024 * 4) / 3) + 8)}`;
+    expect(() => assertUpload(big, RESUME_UPLOAD)).toThrow(/too large/);
   });
 });
 

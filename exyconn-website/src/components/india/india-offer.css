@@ -1,0 +1,263 @@
+/*
+ * The Hindi India offer page. Colour comes only from roles and the `contact` family accent;
+ * this file only tunes type for Devanagari and lays out the plan cards and comparison.
+ */
+@import url("https://fonts.googleapis.com/css2?family=Hind:wght@400;500;600;700&display=swap");
+
+/*
+ * Inter Tight has no Devanagari, so Hind draws the Hindi (Google Fonts serves it per
+ * unicode-range — Latin text never downloads it); Noto Sans Devanagari is the system fallback.
+ */
+.india-offer {
+  font-family: "Inter Tight", "Hind", "Noto Sans Devanagari", "Kohinoor Devanagari", sans-serif;
+}
+
+/*
+ * Devanagari hangs its matras above the headline and below the baseline: the stage's tight
+ * 0.92 leading and negative tracking clip them and break conjuncts, so headings open up here.
+ */
+.india-offer :is(.stage-title, .inner-band__title) {
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+
+/*
+ * Mono labels are Latin-only and their wide tracking pulls Devanagari clusters apart: Hindi
+ * labels use the text face, untracked and a step larger.
+ */
+.india-offer
+  :is(.inner-chapter-heading .stage-label, .inner-split__intro > .stage-label, .offer-label) {
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0;
+}
+
+.india-offer :is(.inner-h3, .offer-compare__feature) {
+  line-height: 1.45;
+}
+
+.india-offer :is(.inner-card__text, .inner-lede, .inner-stage__lede, .inner-points li) {
+  line-height: 1.75;
+}
+
+.india-offer :is(#plans, #enquiry-form) {
+  scroll-margin-top: var(--inner-sticky-top);
+}
+
+/* Room above the floating a11y / back-to-top buttons. */
+.india-offer {
+  padding-bottom: var(--space-4);
+}
+
+/* ---------- Problem cards ---------- */
+.offer-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--radius-xl);
+  border: var(--border-width-hairline) solid var(--color-line-strong);
+  color: var(--accent-a-ink);
+}
+
+/* ---------- Plan cards ---------- */
+.offer-plan {
+  position: relative;
+  gap: var(--space-4);
+}
+
+.offer-plan--popular {
+  border-color: var(--accent-a-ink);
+  box-shadow: 0 0 0 1px var(--accent-a-ink);
+}
+
+.offer-plan__badge {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--color-fg);
+  color: var(--color-page);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.offer-plan__price {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.offer-plan__period {
+  color: var(--color-fg-secondary);
+}
+
+.offer-plan__list {
+  display: grid;
+  gap: var(--space-2);
+  padding-block: var(--space-4);
+  border-top: var(--border-width-hairline) solid var(--color-line);
+  color: var(--color-fg-secondary);
+  line-height: 1.6;
+}
+
+.offer-plan__list li,
+.offer-channel {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.offer-plan__list i {
+  margin-top: 0.4em;
+  color: var(--accent-a-ink);
+}
+
+.offer-plan__action {
+  margin-top: auto;
+}
+
+.offer-plan__action .inner-action {
+  width: 100%;
+  justify-content: center;
+}
+
+/* ---------- Comparison: a table from 768px, stacked rows on phones ---------- */
+.offer-compare__table-wrap {
+  display: none;
+}
+
+.offer-compare__table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+.offer-compare__table :is(th, td) {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: var(--border-width-hairline) solid var(--color-line);
+}
+
+.offer-compare__table thead th {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg);
+  vertical-align: bottom;
+}
+
+.offer-compare__table tbody th {
+  text-align: start;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-fg);
+}
+
+.offer-compare__table td {
+  color: var(--color-fg-secondary);
+}
+
+.offer-compare__table .is-popular {
+  background: var(--color-surface-subtle);
+}
+
+.offer-compare__price {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--accent-a-ink);
+}
+
+.offer-compare__rows > li {
+  padding: var(--space-4) var(--space-5);
+  border-bottom: var(--border-width-hairline) solid var(--color-line);
+}
+
+.offer-compare__rows > li:last-child {
+  border-bottom: 0;
+}
+
+.offer-compare__feature {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-fg);
+}
+
+.offer-compare__plans {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.offer-compare__plans dt {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-fg-secondary);
+}
+
+.offer-compare__plans dd {
+  color: var(--color-fg-secondary);
+}
+
+.offer-yes {
+  color: var(--accent-a-ink);
+}
+
+.offer-no {
+  color: var(--color-fg-secondary);
+}
+
+@media (min-width: 768px) {
+  .offer-compare__table-wrap {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .offer-compare__rows {
+    display: none;
+  }
+}
+
+/* ---------- Direct channels ---------- */
+.offer-channels {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-8);
+}
+
+.offer-channel {
+  align-items: center;
+  min-height: 2.75rem;
+  color: var(--color-fg);
+}
+
+.offer-channel small {
+  display: block;
+  color: var(--color-fg-secondary);
+}
+
+.offer-channel strong {
+  overflow-wrap: anywhere;
+}
+
+.offer-channel:hover strong,
+.offer-channel:focus-visible strong {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* ---------- Services: thirteen cards, so phones get a tighter card ---------- */
+@media (max-width: 639px) {
+  .offer-services .inner-card {
+    padding: var(--space-5);
+    gap: var(--space-2);
+  }
+
+  .offer-compare__rows > li {
+    padding: var(--space-3) var(--space-4);
+  }
+}

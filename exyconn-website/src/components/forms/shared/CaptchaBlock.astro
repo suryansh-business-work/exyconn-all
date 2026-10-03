@@ -4,6 +4,8 @@
  * CaptchaField). `mountCaptcha` in lib/captcha-dom.ts brings it to life: it loads the question
  * from the portal, which alone knows the answer.
  */
+import Icon from "../../inner/Icon.astro";
+
 interface Props {
   /** Unique on the page, e.g. "newsletter": ids are built from it. */
   id: string;
@@ -36,16 +38,16 @@ const inputId = `${id}-captcha`;
       aria-required="true"
       aria-describedby={questionId}
       placeholder="Answer"
-      class="w-28 px-4 py-2 bg-surface border border-line-strong rounded-lg text-fg focus:outline-none focus:ring-2 focus:ring-blue"
+      class="captcha-answer px-4 py-2"
     />
     <button
       type="button"
       data-captcha-refresh
-      class="p-2 text-fg-subtle hover:text-blue-fg transition-colors"
+      class="inline-flex size-11 items-center justify-center rounded-lg text-fg-subtle hover:text-fg transition-colors"
       title="New question"
       aria-label="Show a new security question"
     >
-      <i class="fa-solid fa-rotate" aria-hidden="true"></i>
+      <Icon name="refresh" class="icon-md" />
     </button>
   </div>
   <p data-captcha-error role="alert" class="hidden mt-2 text-sm text-red-fg"></p>

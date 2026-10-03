@@ -1,3 +1,5 @@
+import { SvgIcon } from "./SvgIcon";
+
 interface SubmitButtonProps {
   isSubmitting: boolean;
   className: string;
@@ -17,13 +19,13 @@ export function SubmitButton({
     <button type="submit" disabled={isSubmitting} className={className}>
       {isSubmitting ? (
         <>
-          <i className="fa-solid fa-spinner fa-spin"></i>
+          <SvgIcon name="spinner" className="animate-spin" />
           {busyLabel}
         </>
       ) : (
         <>
           {label}
-          <i className="fa-solid fa-paper-plane"></i>
+          <SvgIcon name="send" />
         </>
       )}
     </button>

@@ -1,0 +1,45 @@
+/*
+ * The accessibility drawer's effects, applied to <html> as data-a11y-* attributes (by the head
+ * script in Page.astro before first paint, then by scripts/chrome/a11y-preferences.ts).
+ * Deliberately unlayered and !important where they must beat every component's own rule.
+ */
+html[data-a11y-contrast="on"] {
+  filter: contrast(1.35);
+}
+
+html[data-a11y-grayscale="on"] {
+  filter: grayscale(1);
+}
+
+html[data-a11y-contrast="on"][data-a11y-grayscale="on"] {
+  filter: contrast(1.35) grayscale(1);
+}
+
+html[data-a11y-links="on"] a {
+  text-decoration: underline !important;
+  text-underline-offset: 2px;
+}
+
+html[data-a11y-readable="on"] body,
+html[data-a11y-readable="on"] body * {
+  font-family: Verdana, Tahoma, "Trebuchet MS", system-ui, sans-serif !important;
+  letter-spacing: 0.02em;
+}
+
+html[data-a11y-motion="on"] *,
+html[data-a11y-motion="on"] *::before,
+html[data-a11y-motion="on"] *::after {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+  scroll-behavior: auto !important;
+}
+
+html[data-a11y-cursor="on"],
+html[data-a11y-cursor="on"] * {
+  cursor:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'><polygon points='2,2 2,26 9,20 13,30 18,28 14,18 24,18' fill='black' stroke='white' stroke-width='1.5'/></svg>")
+      2 2,
+    auto !important;
+}

@@ -14,6 +14,8 @@ import type { Crumb, DisplayDate, PageFamily, SceneConfig, TocEntry } from "./ty
 
 type Props = Readonly<{
   title: string;
+  /** One or two plain lines under the title, in the band. */
+  lede?: string;
   crumbs?: readonly Crumb[];
   /** e.g. "Last updated". */
   updatedLabel: string;
@@ -30,6 +32,7 @@ type Props = Readonly<{
 
 const {
   title,
+  lede,
   crumbs,
   updatedLabel,
   updated,
@@ -42,7 +45,7 @@ const {
 } = Astro.props;
 ---
 
-<InnerStage family={family} variant="band" crumbs={crumbs} title={title} scene={scene}>
+<InnerStage family={family} variant="band" crumbs={crumbs} title={title} lede={lede} scene={scene}>
   {
     updated && (
       <p class="stage-label mt-4">

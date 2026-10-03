@@ -1,7 +1,13 @@
 ---
+/**
+ * The phone menu: a night drawer from the right (scripts/chrome/drawer.ts) with the three
+ * header groups as disclosures, the shortcuts, then the call to action and the settings —
+ * search, accessibility and cookie preferences live here instead of floating over the page.
+ */
 import BrandLogo from "../BrandLogo.astro";
+import Icon from "../inner/Icon.astro";
 import { BRANDING_FALLBACK, type Branding } from "../../lib/portal";
-import { TOOLS_SITE_URL } from "../../lib/site";
+import { HEADER_ACTIONS, HEADER_MENUS, MOBILE_SHORTCUTS } from "../../lib/chrome/navigation";
 import { socialLinks } from "../../lib/social-links";
 
 interface Props {
@@ -9,544 +15,113 @@ interface Props {
 }
 
 const { branding } = Astro.props;
-
 const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
 const social = socialLinks(branding);
+const newTab = { target: "_blank", rel: "noopener noreferrer" };
 ---
 
-<!-- Modern Mobile Drawer Menu -->
+<div class="chrome-backdrop" data-drawer-backdrop="mobileMenu" data-open="false"></div>
 <div
   id="mobileMenu"
-  class="lg:hidden fixed inset-0 z-[9999] hidden"
+  class="chrome-drawer chrome-mobile-menu"
+  data-theme="dark"
   role="dialog"
   aria-modal="true"
   aria-label="Main menu"
   data-open="false"
+  tabindex="-1"
 >
-  <!-- Backdrop with blur -->
-  <div
-    id="closeMobileMenuBg"
-    class="fixed inset-0 bg-scrim/50 backdrop-blur-sm transition-opacity duration-300"
-    style="height: 100dvh;"
-  >
+  <div class="chrome-drawer__head">
+    <a href="/" aria-label={`${businessName} home`} class="inline-flex min-h-11 items-center">
+      <BrandLogo branding={branding} alt="" width="96" height="32" class="h-8 w-auto" />
+    </a>
+    <button
+      type="button"
+      class="chrome-icon-button"
+      data-drawer-close="mobileMenu"
+      aria-label="Close menu"
+    >
+      <Icon name="close" />
+    </button>
   </div>
 
-  <!-- Drawer Panel -->
-  <div
-    id="mobileDrawer"
-    class="fixed right-0 w-[85%] max-w-[380px] bg-surface shadow-2xl overflow-hidden flex flex-col transform translate-x-full transition-transform duration-300 ease-out"
-    style="top: 0; height: 100dvh; bottom: 0;"
-  >
-    <!-- Header -->
-    <div
-      class="flex items-center justify-between p-4 border-b border-line-subtle bg-surface-subtle"
-    >
-      <a href="/" class="flex items-center gap-2" aria-label={`${businessName} Home`}>
-        <BrandLogo branding={branding} class="h-8 w-auto" alt="" />
-      </a>
-      <button
-        type="button"
-        class="cursor-pointer w-10 h-10 rounded-full bg-surface-muted hover:bg-surface-strong flex items-center justify-center text-fg-muted hover:text-fg transition-all"
-        id="closeMobileMenuBtn"
-        aria-label="Close menu"
-      >
-        <i class="fa-solid fa-xmark icon-lg" aria-hidden="true"></i>
-      </button>
-    </div>
-
-    <!-- Scrollable Content -->
-    <div class="flex-1 overflow-y-auto overscroll-contain">
-      <!-- Navigation Links -->
-      <nav class="p-4 space-y-1" aria-label="Main">
-        <!-- Home -->
-        <a
-          href="/"
-          class="flex items-center gap-3 px-4 py-3 rounded-xl text-fg-secondary hover:bg-surface-subtle transition-colors group"
-        >
-          <div
-            class="w-9 h-9 rounded-lg bg-surface-muted group-hover:bg-blue-soft flex items-center justify-center transition-colors"
-          >
-            <i
-              class="fa-solid fa-home icon-md text-fg-subtle group-hover:text-blue-fg"
-              aria-hidden="true"></i>
-          </div>
-          <span class="font-medium">Home</span>
-        </a>
-
-        <!-- AI Services - Featured -->
-        <a
-          href="/ai-services"
-          class="flex items-center gap-3 px-4 py-3 rounded-xl bg-inverse text-on-solid group relative overflow-hidden"
-        >
-          <div class="w-9 h-9 rounded-lg bg-on-solid/10 flex items-center justify-center">
-            <i class="fa-solid fa-bolt icon-md text-yellow-bright" aria-hidden="true"></i>
-          </div>
-          <div>
-            <span class="font-semibold">AI Services</span>
-            <p class="text-xs text-on-solid-muted">Agents, automation & platforms</p>
-          </div>
-          <i
-            class="fa-solid fa-arrow-right icon-sm ml-auto opacity-60 group-hover:translate-x-1 transition-transform"
-            aria-hidden="true"></i>
-        </a>
-
-        <!-- Exyconn Services -->
-        <a
-          href="/exyconn-services"
-          class="flex items-center gap-3 px-4 py-3 rounded-xl text-fg-secondary hover:bg-surface-subtle transition-colors group"
-        >
-          <div class="w-9 h-9 rounded-lg bg-cyan-subtle flex items-center justify-center">
-            <i class="fa-solid fa-terminal icon-md text-cyan-fg" aria-hidden="true"></i>
-          </div>
-          <span class="font-medium">Exyconn Services</span>
-        </a>
-
-        <!-- AI Dropdown -->
-        <div class="mobile-accordion">
-          <button
-            type="button"
-            aria-expanded="false"
-            aria-controls="mobile-ai-links"
-            class="mobile-accordion-trigger w-full flex items-center gap-3 px-4 py-3 rounded-xl text-on-solid bg-indigo-strong shadow-lg hover:shadow-xl transition-all"
-          >
-            <div class="w-9 h-9 rounded-lg bg-on-solid/20 flex items-center justify-center">
-              <i class="fa-solid fa-microchip icon-md" aria-hidden="true"></i>
-            </div>
-            <span class="font-semibold">AI Solutions</span>
-            <i
-              class="fa-solid fa-chevron-down icon-sm ml-auto transition-transform duration-200 accordion-icon"
-              aria-hidden="true"></i>
-          </button>
-          <div class="mobile-accordion-content hidden" id="mobile-ai-links">
-            <div class="mt-2 ml-4 pl-4 border-l-2 border-blue-muted space-y-1">
-              <a
-                href="/ai/agentic"
-                class="block px-3 py-2.5 rounded-lg hover:bg-blue-subtle transition-colors"
-              >
-                <div class="font-medium text-fg flex items-center gap-2 text-sm">
-                  <i class="fa-solid fa-robot icon-sm text-indigo-fg" aria-hidden="true"></i> Agentic
-                  AI
-                </div>
-                <p class="text-xs text-fg-subtle mt-0.5 ml-6">Autonomous business agents</p>
-              </a>
-              <a
-                href="/ai/bot-creation"
-                class="block px-3 py-2.5 rounded-lg hover:bg-blue-subtle transition-colors"
-              >
-                <div class="font-medium text-fg flex items-center gap-2 text-sm">
-                  <i class="fa-solid fa-comments icon-sm text-blue-fg" aria-hidden="true"></i> Bot Creation
-                </div>
-                <p class="text-xs text-fg-subtle mt-0.5 ml-6">Conversational bots</p>
-              </a>
-              <a
-                href="/ai/workflows"
-                class="block px-3 py-2.5 rounded-lg hover:bg-blue-subtle transition-colors"
-              >
-                <div class="font-medium text-fg flex items-center gap-2 text-sm">
-                  <i class="fa-solid fa-diagram-project icon-sm text-cyan-fg" aria-hidden="true"
-                  ></i> Workflows
-                </div>
-                <p class="text-xs text-fg-subtle mt-0.5 ml-6">AI-driven automation</p>
-              </a>
-              <a
-                href="/ai/llms"
-                class="block px-3 py-2.5 rounded-lg hover:bg-blue-subtle transition-colors"
-              >
-                <div class="font-medium text-fg flex items-center gap-2 text-sm">
-                  <i class="fa-solid fa-brain icon-sm text-purple-fg" aria-hidden="true"></i> LLMs
-                </div>
-                <p class="text-xs text-fg-subtle mt-0.5 ml-6">Large Language Models</p>
-              </a>
-              <a
-                href="/ai/custom-model-training"
-                class="block px-3 py-2.5 rounded-lg hover:bg-blue-subtle transition-colors"
-              >
-                <div class="font-medium text-fg flex items-center gap-2 text-sm">
-                  <i class="fa-solid fa-flask icon-sm text-pink-fg" aria-hidden="true"></i> Custom Training
-                </div>
-                <p class="text-xs text-fg-subtle mt-0.5 ml-6">Train on your data</p>
-              </a>
-              <a
-                href="/ai/models"
-                class="block px-3 py-2.5 rounded-lg hover:bg-blue-subtle transition-colors"
-              >
-                <div class="font-medium text-fg flex items-center gap-2 text-sm">
-                  <i class="fa-solid fa-cubes icon-sm text-amber-fg" aria-hidden="true"></i> AI Models
-                </div>
-                <p class="text-xs text-fg-subtle mt-0.5 ml-6">Ready-to-use models</p>
-              </a>
-              <a
-                href="/ai/mcp-server"
-                class="block px-3 py-2.5 rounded-lg hover:bg-blue-subtle transition-colors"
-              >
-                <div class="font-medium text-fg flex items-center gap-2 text-sm">
-                  <i class="fa-solid fa-server icon-sm text-emerald-fg" aria-hidden="true"></i> MCP Server
-                </div>
-                <p class="text-xs text-fg-subtle mt-0.5 ml-6">Deploy AI at scale</p>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Company Dropdown -->
-        <div class="mobile-accordion">
-          <button
-            type="button"
-            aria-expanded="false"
-            aria-controls="mobile-company-links"
-            class="mobile-accordion-trigger w-full flex items-center gap-3 px-4 py-3 rounded-xl text-fg-secondary hover:bg-surface-subtle transition-colors"
-          >
-            <div class="w-9 h-9 rounded-lg bg-blue-subtle flex items-center justify-center">
-              <i class="fa-solid fa-building icon-md text-blue-fg" aria-hidden="true"></i>
-            </div>
-            <span class="font-medium">Company</span>
-            <i
-              class="fa-solid fa-chevron-down icon-sm ml-auto text-fg-subtle transition-transform duration-200 accordion-icon"
-              aria-hidden="true"></i>
-          </button>
-          <div class="mobile-accordion-content hidden" id="mobile-company-links">
-            <div class="mt-2 ml-4 pl-4 border-l-2 border-line space-y-1">
-              <a
-                href="/our-vision"
-                class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-surface-subtle transition-colors"
-              >
-                <i class="fa-solid fa-eye icon-sm text-blue-fg" aria-hidden="true"></i>
-                <span class="text-sm text-fg-secondary">Our Vision</span>
-              </a>
-              <a
-                href="/about-us"
-                class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-surface-subtle transition-colors"
-              >
-                <i class="fa-solid fa-users icon-sm text-blue-fg" aria-hidden="true"></i>
-                <span class="text-sm text-fg-secondary">About Us</span>
-              </a>
-              <a
-                href="/privacy-policy"
-                class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-surface-subtle transition-colors"
-              >
-                <i class="fa-solid fa-shield-halved icon-sm text-blue-fg" aria-hidden="true"></i>
-                <span class="text-sm text-fg-secondary">Privacy Policy</span>
-              </a>
-              <a
-                href="/legal"
-                class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-surface-subtle transition-colors"
-              >
-                <i class="fa-solid fa-scale-balanced icon-sm text-blue-fg" aria-hidden="true"></i>
-                <span class="text-sm text-fg-secondary">Legal</span>
-              </a>
-              <a
-                href="/sitemap"
-                class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-surface-subtle transition-colors"
-              >
-                <i class="fa-solid fa-sitemap icon-sm text-blue-fg" aria-hidden="true"></i>
-                <span class="text-sm text-fg-secondary">Sitemap</span>
-              </a>
-              <a
-                href="/grievance"
-                class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-surface-subtle transition-colors"
-              >
-                <i class="fa-solid fa-message icon-sm text-blue-fg" aria-hidden="true"></i>
-                <span class="text-sm text-fg-secondary">Raise a Grievance</span>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Services Dropdown -->
-        <div class="mobile-accordion">
-          <button
-            type="button"
-            aria-expanded="false"
-            aria-controls="mobile-services-links"
-            class="mobile-accordion-trigger w-full flex items-center gap-3 px-4 py-3 rounded-xl text-fg-secondary hover:bg-surface-subtle transition-colors"
-          >
-            <div class="w-9 h-9 rounded-lg bg-purple-subtle flex items-center justify-center">
-              <i class="fa-solid fa-cogs icon-md text-purple-fg" aria-hidden="true"></i>
-            </div>
-            <span class="font-medium">Our Services</span>
-            <i
-              class="fa-solid fa-chevron-down icon-sm ml-auto text-fg-subtle transition-transform duration-200 accordion-icon"
-              aria-hidden="true"></i>
-          </button>
-          <div class="mobile-accordion-content hidden" id="mobile-services-links">
-            <div class="mt-2 ml-4 pl-4 border-l-2 border-purple-muted space-y-1">
-              <a
-                href="/services/digital-consulting"
-                class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-purple-subtle transition-colors"
-              >
-                <i class="fa-solid fa-lightbulb icon-sm text-purple-fg" aria-hidden="true"></i>
-                <span class="text-sm text-fg-secondary">Digital Consulting</span>
-              </a>
-              <a
-                href="/services/software-as-a-service"
-                class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-purple-subtle transition-colors"
-              >
-                <i class="fa-solid fa-cloud icon-sm text-purple-fg" aria-hidden="true"></i>
-                <span class="text-sm text-fg-secondary">Software-as-a-Service</span>
-              </a>
-              <a
-                href="/services/application-modernization"
-                class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-purple-subtle transition-colors"
-              >
-                <i class="fa-solid fa-arrows-rotate icon-sm text-purple-fg" aria-hidden="true"></i>
-                <span class="text-sm text-fg-secondary">App Modernization</span>
-              </a>
-              <a
-                href="/services/enterprise-application"
-                class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-purple-subtle transition-colors"
-              >
-                <i class="fa-solid fa-building-columns icon-sm text-purple-fg" aria-hidden="true"
-                ></i>
-                <span class="text-sm text-fg-secondary">Enterprise Application</span>
-              </a>
-              <a
-                href="/services/mobile-application-development"
-                class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-purple-subtle transition-colors"
-              >
-                <i class="fa-solid fa-mobile-screen icon-sm text-purple-fg" aria-hidden="true"></i>
-                <span class="text-sm text-fg-secondary">Mobile Development</span>
-              </a>
-              <a
-                href="/services/maintenance"
-                class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-purple-subtle transition-colors"
-              >
-                <i class="fa-solid fa-wrench icon-sm text-purple-fg" aria-hidden="true"></i>
-                <span class="text-sm text-fg-secondary">Maintenance</span>
-              </a>
-              <a
-                href="/services/data-analytics"
-                class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-purple-subtle transition-colors"
-              >
-                <i class="fa-solid fa-chart-line icon-sm text-purple-fg" aria-hidden="true"></i>
-                <span class="text-sm text-fg-secondary">Data & Analytics</span>
-              </a>
-              <a
-                href="/services/digital-marketing"
-                class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-purple-subtle transition-colors"
-              >
-                <i class="fa-solid fa-bullhorn icon-sm text-pink-fg" aria-hidden="true"></i>
-                <span class="text-sm text-fg-secondary">Digital Marketing</span>
-              </a>
-              <a
-                href="/services/automation-integration"
-                class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-purple-subtle transition-colors"
-              >
-                <i class="fa-solid fa-gears icon-sm text-purple-fg" aria-hidden="true"></i>
-                <span class="text-sm text-fg-secondary">Automation & Integration</span>
-              </a>
-              <a
-                href="/services/software-development-outsourcing"
-                class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-purple-subtle transition-colors"
-              >
-                <i class="fa-solid fa-people-arrows icon-sm text-purple-fg" aria-hidden="true"></i>
-                <span class="text-sm text-fg-secondary">Outsourcing</span>
-              </a>
-              <a
-                href="/india/offer"
-                class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-purple-subtle transition-colors"
-              >
-                <i class="fa-solid fa-flag icon-sm text-orange-fg" aria-hidden="true"></i>
-                <span class="text-sm text-fg-secondary">India Offer</span>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <!-- Simple Links -->
-        <a
-          href="/blog"
-          class="flex items-center gap-3 px-4 py-3 rounded-xl text-fg-secondary hover:bg-surface-subtle transition-colors group"
-        >
-          <div class="w-9 h-9 rounded-lg bg-emerald-subtle flex items-center justify-center">
-            <i class="fa-solid fa-newspaper icon-md text-emerald-fg" aria-hidden="true"></i>
-          </div>
-          <span class="font-medium">Blog</span>
-        </a>
-
-        <a
-          href="/career"
-          class="flex items-center gap-3 px-4 py-3 rounded-xl text-fg-secondary hover:bg-surface-subtle transition-colors group"
-        >
-          <div class="w-9 h-9 rounded-lg bg-rose-subtle flex items-center justify-center">
-            <i class="fa-solid fa-briefcase icon-md text-rose-fg" aria-hidden="true"></i>
-          </div>
-          <span class="font-medium">Career</span>
-        </a>
-
-        <!-- Free Tools - Featured -->
-        <a
-          href={TOOLS_SITE_URL}
-          target="_blank"
-          rel="noopener noreferrer"
-          class="flex items-center gap-3 px-4 py-3 rounded-xl bg-indigo-strong text-on-solid group relative overflow-hidden"
-        >
-          <div class="w-9 h-9 rounded-lg bg-on-solid/10 flex items-center justify-center">
-            <i class="fa-solid fa-toolbox icon-md text-on-solid" aria-hidden="true"></i>
-          </div>
-          <div>
-            <span class="font-semibold"
-              >Free Tools <span class="sr-only">(opens in a new tab)</span></span
+  <nav class="chrome-drawer__body" aria-label="Main">
+    {
+      HEADER_MENUS.map((group) => (
+        <details class="chrome-mobile-group chrome-mobile-section">
+          <summary>
+            {group.label}
+            <Icon name="chevron-down" class="icon-sm text-fg-subtle" />
+          </summary>
+          <ul class="pb-2">
+            {[...group.links, ...(group.overview ? [group.overview] : [])].map((link) => (
+              <li>
+                <a href={link.href} class="chrome-mobile-link" {...(link.external ? newTab : {})}>
+                  {link.label}
+                  {link.external && <span class="sr-only">(opens in a new tab)</span>}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </details>
+      ))
+    }
+    <ul class="chrome-mobile-section">
+      {
+        MOBILE_SHORTCUTS.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              class="chrome-mobile-link chrome-mobile-link--strong"
+              {...(link.external ? newTab : {})}
             >
-            <p class="text-xs text-on-solid-muted">SEO, AI & Business</p>
-          </div>
-          <i
-            class="fa-solid fa-arrow-right icon-sm ml-auto opacity-60 group-hover:translate-x-1 transition-transform"
-            aria-hidden="true"></i>
-        </a>
-      </nav>
-    </div>
+              {link.label}
+              {link.external && <span class="sr-only">(opens in a new tab)</span>}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
 
-    <!-- Footer CTA -->
-    <div class="p-4 border-t border-line-subtle bg-surface-subtle">
+  <div class="chrome-drawer__foot chrome-drawer__foot--stack">
+    <a href={HEADER_ACTIONS.primary.href} class="chrome-button chrome-button--solid">
+      {HEADER_ACTIONS.primary.label}
+      <Icon name="arrow-right" class="icon-xs" />
+    </a>
+    <div class="grid grid-cols-3 gap-2">
+      <button type="button" data-search-open class="chrome-button chrome-button--tile">
+        <Icon name="search" class="icon-md" />Search
+      </button>
       <button
         type="button"
-        data-search-open
-        class="flex items-center justify-center gap-2 w-full py-3 px-6 mb-3 bg-surface text-fg-secondary font-semibold rounded-xl border border-line hover:bg-surface-subtle transition-all active:scale-[0.98]"
+        class="chrome-button chrome-button--tile"
+        data-drawer-open="a11y-drawer"
       >
-        <i class="fa-solid fa-magnifying-glass icon-md" aria-hidden="true"></i>
-        Search the site
+        <Icon name="accessibility" class="icon-md" />Accessibility
       </button>
-      <a
-        href="/contact"
-        class="flex items-center justify-center gap-2 w-full py-3.5 px-6 bg-blue-strong text-on-solid font-semibold rounded-xl shadow-lg shadow-blue/25 hover:shadow-xl hover:shadow-blue/30 transition-all active:scale-[0.98]"
+      <button
+        type="button"
+        class="chrome-button chrome-button--tile"
+        data-drawer-open="cookie-drawer"
       >
-        <i class="fa-solid fa-paper-plane icon-md" aria-hidden="true"></i>
-        Contact Us
-      </a>
-
-      <!-- Social Links -->
-      <ul class="flex items-center justify-center gap-3 mt-4" aria-label="Social media links">
-        {
-          social.map((link) => (
-            <li>
-              <a
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={link.label}
-                class="w-10 h-10 rounded-full bg-surface-muted hover:bg-blue-soft flex items-center justify-center text-fg-muted hover:text-blue-fg transition-colors"
-              >
-                <i class:list={[link.icon, "icon-md"]} aria-hidden="true" />
-              </a>
-            </li>
-          ))
-        }
-      </ul>
+        <Icon name="cookie" class="icon-md" />Cookies
+      </button>
     </div>
+    <ul class="flex items-center justify-center gap-2" aria-label="Social media links">
+      {
+        social.map((link) => (
+          <li>
+            <a href={link.url} {...newTab} aria-label={link.label} class="chrome-social">
+              <i class:list={[link.icon, "icon-md"]} aria-hidden="true" />
+            </a>
+          </li>
+        ))
+      }
+    </ul>
   </div>
 </div>
 
-<script is:inline>
-  document.addEventListener("DOMContentLoaded", () => {
-    const mobileMenu = document.getElementById("mobileMenu");
-    const mobileDrawer = document.getElementById("mobileDrawer");
-    const closeBg = document.getElementById("closeMobileMenuBg");
-    const openBtn = document.getElementById("openMobileMenu");
-    const closeBtn = document.getElementById("closeMobileMenuBtn");
-
-    function openMenu() {
-      if (mobileMenu && mobileDrawer) {
-        mobileMenu.classList.remove("hidden");
-        mobileMenu.dataset.open = "true";
-        openBtn?.setAttribute("aria-expanded", "true");
-        document.body.style.overflow = "hidden";
-        // Trigger animation, and move focus into the menu once it is no longer inert.
-        requestAnimationFrame(() => {
-          mobileDrawer.classList.remove("translate-x-full");
-          mobileDrawer.classList.add("translate-x-0");
-          closeBg.style.opacity = "1";
-          closeBtn?.focus();
-        });
-      }
-    }
-
-    function closeMenu() {
-      if (mobileMenu && mobileDrawer) {
-        mobileDrawer.classList.remove("translate-x-0");
-        mobileDrawer.classList.add("translate-x-full");
-        closeBg.style.opacity = "0";
-        mobileMenu.dataset.open = "false";
-        openBtn?.setAttribute("aria-expanded", "false");
-        if (mobileMenu.contains(document.activeElement)) {
-          openBtn?.focus();
-        }
-        setTimeout(() => {
-          mobileMenu.classList.add("hidden");
-          document.body.style.overflow = "";
-        }, 300);
-      }
-    }
-
-    // Event listeners
-    if (openBtn) openBtn.addEventListener("click", openMenu);
-    if (closeBtn) closeBtn.addEventListener("click", closeMenu);
-    if (closeBg) closeBg.addEventListener("click", closeMenu);
-
-    // Accordion functionality
-    const accordions = document.querySelectorAll(".mobile-accordion");
-    accordions.forEach((accordion) => {
-      const trigger = accordion.querySelector(".mobile-accordion-trigger");
-      const content = accordion.querySelector(".mobile-accordion-content");
-      const icon = accordion.querySelector(".accordion-icon");
-
-      if (trigger && content && icon) {
-        trigger.addEventListener("click", () => {
-          const isOpen = !content.classList.contains("hidden");
-
-          // Close all other accordions
-          accordions.forEach((other) => {
-            const otherContent = other.querySelector(".mobile-accordion-content");
-            const otherIcon = other.querySelector(".accordion-icon");
-            if (other !== accordion && otherContent && otherIcon) {
-              otherContent.classList.add("hidden");
-              otherIcon.classList.remove("rotate-180");
-              other
-                .querySelector(".mobile-accordion-trigger")
-                ?.setAttribute("aria-expanded", "false");
-            }
-          });
-
-          // Toggle current accordion
-          if (isOpen) {
-            content.classList.add("hidden");
-            icon.classList.remove("rotate-180");
-          } else {
-            content.classList.remove("hidden");
-            icon.classList.add("rotate-180");
-          }
-          trigger.setAttribute("aria-expanded", String(!isOpen));
-        });
-      }
-    });
-
-    // Close menu on escape key
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && mobileMenu && !mobileMenu.classList.contains("hidden")) {
-        closeMenu();
-      }
-    });
-
-    // Close menu when clicking on links
-    const menuLinks = mobileMenu?.querySelectorAll("a");
-    menuLinks?.forEach((link) => {
-      link.addEventListener("click", () => {
-        closeMenu();
-      });
-    });
-  });
+<script>
+  import "../../scripts/chrome/mobile-menu";
 </script>
-
-<style>
-  #closeMobileMenuBg {
-    opacity: 0;
-    transition: opacity 0.3s ease;
-  }
-
-  .accordion-icon {
-    transition: transform 0.2s ease;
-  }
-
-  .accordion-icon.rotate-180 {
-    transform: rotate(180deg);
-  }
-</style>

@@ -1,24 +1,24 @@
+---
+/**
+ * Back to top: small, bottom-right, clear of the safe-area insets. It shows only while the
+ * reader scrolls back up a long page (scripts/chrome/back-to-top.ts), so it never parks over
+ * the text being read; the footer keeps room under its last row for it.
+ */
+import Icon from "../inner/Icon.astro";
+---
+
 <button
-  id="backToTopBtn"
+  id="back-to-top"
+  type="button"
+  class="back-to-top"
+  data-theme="dark"
+  data-visible="false"
   aria-label="Back to top"
-  class="fixed bottom-20 right-6 z-[9999] bg-indigo-deep text-on-solid p-3 rounded-full shadow-lg hover:bg-indigo-strong transition-opacity opacity-0 pointer-events-none"
-  style="transition: opacity 0.3s;"
+  title="Back to top"
 >
-  <i class="fas fa-arrow-up"></i>
+  <Icon name="arrow-up" class="icon-md" />
 </button>
 
-<script is:inline>
-  const backToTopBtn = document.getElementById("backToTopBtn");
-  window.addEventListener("scroll", () => {
-    if (window.scrollY > 300) {
-      backToTopBtn.classList.remove("opacity-0", "pointer-events-none");
-      backToTopBtn.classList.add("opacity-100");
-    } else {
-      backToTopBtn.classList.add("opacity-0", "pointer-events-none");
-      backToTopBtn.classList.remove("opacity-100");
-    }
-  });
-  backToTopBtn.addEventListener("click", () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  });
+<script>
+  import "../../scripts/chrome/back-to-top";
 </script>

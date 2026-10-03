@@ -141,7 +141,31 @@
 .inner-crumbs ol {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--space-2);
+  gap: var(--space-1) var(--space-2);
+  line-height: var(--line-height-snug);
+}
+
+/* A long trail wraps between crumbs, and a long crumb (an article title) within itself. */
+.inner-crumbs ol {
+  align-items: center;
+}
+
+.inner-crumbs li {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+.inner-crumbs a {
+  display: inline-block;
+  padding-block: var(--space-1);
+}
+
+@media (max-width: 639px) {
+  .inner-crumbs {
+    letter-spacing: 0.1em;
+  }
 }
 
 .inner-crumbs li + li::before {
@@ -513,6 +537,42 @@ html[data-a11y-motion="on"] .inner-marquee__list[aria-hidden="true"] {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-6);
+}
+
+/* Phones: one stat spans the row; three share one row at a smaller size — never 2 + orphan. */
+.inner-stats[data-stat-count="1"] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (max-width: 767px) {
+  .inner-stats[data-stat-count="3"] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-3);
+  }
+
+  .inner-stats[data-stat-count="3"] .inner-metric__value {
+    font-size: clamp(1.5rem, 7vw, 2.2rem);
+  }
+
+  .inner-stats[data-stat-count="3"] .stage-label {
+    letter-spacing: 0.08em;
+  }
+}
+
+/* Fewer logos than a marquee needs: one still, centred row. */
+.inner-logos {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8) var(--space-12);
+}
+
+.inner-logos img {
+  height: 2rem;
+  width: auto;
+  max-width: 9rem;
+  object-fit: contain;
 }
 
 @media (min-width: 768px) {

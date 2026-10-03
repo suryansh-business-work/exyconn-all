@@ -33,13 +33,13 @@
 }
 
 /*
- * Keep whatever receives focus clear of the sticky header and of the launchers pinned to the
- * bottom corners (cookies, accessibility, back to top) — WCAG 2.4.11, Focus Not Obscured.
- * Browsers apply scroll padding when they scroll a focused element or an #anchor into view.
+ * Keep whatever receives focus clear of the sticky header (4rem) and of back to top in the
+ * bottom-right corner — WCAG 2.4.11, Focus Not Obscured. Browsers apply scroll padding when
+ * they scroll a focused element or an #anchor into view.
  */
 html {
   scroll-padding-top: 5.5rem;
-  scroll-padding-bottom: 9rem;
+  scroll-padding-bottom: 5rem;
 }
 
 /* Skip Link - Screen reader accessibility */

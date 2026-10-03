@@ -4,6 +4,7 @@
  * picks one the page follows their operating system — see `lib/theme.ts`, and the inline
  * script in `Page.astro` that applies the mode before first paint.
  */
+import Icon from "./inner/Icon.astro";
 ---
 
 <button
@@ -12,11 +13,11 @@
   aria-label="Dark mode"
   aria-pressed="false"
   title="Toggle dark mode"
-  class="cursor-pointer inline-flex items-center justify-center rounded-full p-2.5 text-fg-secondary hover:bg-surface-muted transition shrink-0"
+  class="chrome-icon-button"
 >
-  <!-- Visibility lives on the wrappers: Font Awesome's own `display` outranks Tailwind's. -->
-  <span class="dark:hidden"><i class="fa-solid fa-moon icon-lg" aria-hidden="true"></i></span>
-  <span class="hidden dark:inline"><i class="fa-solid fa-sun icon-lg" aria-hidden="true"></i></span>
+  <!-- Keyed to <html>'s mode in styles/chrome.css: the header itself is always night. -->
+  <Icon name="moon" class="theme-toggle__moon" />
+  <Icon name="sun" class="theme-toggle__sun" />
 </button>
 
 <script>

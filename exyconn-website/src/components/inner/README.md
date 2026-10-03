@@ -94,8 +94,11 @@ Renders "01 — LABEL", the measurement rule and the H2 (revealed on entry).
 ```
 
 Stats: the final value is in the HTML; its first number counts up once in view (skipped
-under reduced motion). Logos: a marquee that pauses on hover/focus and wraps statically under
-reduced motion. Only proof that already exists on the site/portal (decision 3).
+under reduced motion). One stat spans the row; three share one row on phones (never 2 + an
+orphan); two or four sit 2 × n. Logos: from five up, a marquee that pauses on hover/focus and
+wraps statically under reduced motion; one to four sit still in a centred row. Every logo is
+fitted into a 144 × 32 box (width/height set). Only proof that already exists on the site/portal
+(decision 3).
 
 ### LinkCard / MetricCard
 
@@ -119,7 +122,8 @@ reduced motion. Only proof that already exists on the site/portal (decision 3).
 />
 ```
 
-`highlight` lights that tag in the stage scene while the card is hovered or focused.
+`highlight` lights that tag in the stage scene while the card is hovered or focused. `level` is
+`"h2"`, `"h3"` (default) or `"h4"` — pick the one that keeps the page's outline unbroken.
 
 ### StepTrack
 
@@ -229,6 +233,7 @@ the posting has it.
 ```astro
 <LegalLayout
   title="Privacy policy"
+  lede="How we collect, use and protect your information."
   crumbs={crumbs}
   updatedLabel="Last updated"
   updated={{ iso: "2026-10-01", text: format(date, "d MMMM yyyy", { locale }) }}
@@ -249,8 +254,8 @@ the posting has it.
 </LegalLayout>
 ```
 
-Band header with a scene (default `shield`; `documents` suits policies), TOC on the left,
-70ch column. `family` defaults to `company`.
+Band header with a scene (default `shield`; `documents` suits policies), an optional `lede`
+under the title, TOC on the left, 70ch column. `family` defaults to `company`.
 
 ### ArticleLayout
 
@@ -342,3 +347,14 @@ layouts `sway`.
 | `jet`, `robot`, `planet` | —                                                    | home-specific                   | (home story worlds)            |
 
 `glyph`, `terrain` and `constellation` throw without their data — pass real numbers.
+
+## Icons and structured data
+
+`Icon.astro` draws an inline SVG from `src/lib/inner/icons.ts` (`<Icon name="arrow-right"
+class="icon-xs" />`; decorative, sized by the `icon-*` scale). React islands use
+`forms/shared/SvgIcon.tsx`. The kit and forms/shared no longer use Font Awesome; add a glyph
+to `icons.ts` rather than reaching for an `<i class="fa-…">`.
+
+`src/lib/inner/structured-data.ts` exports `breadcrumbJsonLd`, `faqJsonLd` and
+`serviceJsonLd({ name, description, url, serviceType?, areaServed?, provider, offers? })` —
+pass the results to Page's `jsonLd`.

@@ -134,3 +134,8 @@ input[type="button"] {
     box-shadow: var(--shadow-none);
   }
 }
+
+/* The security answer is a two- or three-digit sum: a short box beside its question. */
+input[type="text"].captcha-answer {
+  width: 7rem;
+}

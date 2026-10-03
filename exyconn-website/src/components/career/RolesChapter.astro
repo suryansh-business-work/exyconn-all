@@ -1,0 +1,86 @@
+---
+/**
+ * A numbered chapter of open roles: FilterBar (team, work mode, company — whichever have more
+ * than one choice) over the department groups, or the empty state when nothing is open.
+ * Used by the careers index and every company's page.
+ */
+import ContentEmpty from "../content/ContentEmpty.astro";
+import ChapterHeading from "../inner/ChapterHeading.astro";
+import FilterBar from "../inner/FilterBar.astro";
+import type { InnerAction } from "../inner/types";
+import RoleGroups from "./RoleGroups.astro";
+import { CAREERS_COPY as copy } from "../../lib/career/copy";
+import { groupRolesByDepartment, roleFilterOptions } from "../../lib/career/roles";
+import type { JobWithCompany } from "../../lib/portal/types";
+
+type Props = Readonly<{
+  id: string;
+  index: number;
+  label: string;
+  title: string;
+  lede?: string;
+  roles: readonly JobWithCompany[];
+  empty: {
+    label: string;
+    title: string;
+    text: string;
+    primary?: InnerAction;
+    secondary?: InnerAction;
+  };
+  showCompany?: boolean;
+}>;
+
+const { id, index, label, title, lede, roles, empty, showCompany = true } = Astro.props;
+const groups = groupRolesByDepartment(roles);
+const filters = roleFilterOptions(roles);
+const chipGroups = [
+  {
+    param: "team",
+    label: copy.departmentLabel,
+    allLabel: copy.allDepartments,
+    options: filters.departments,
+  },
+  { param: "mode", label: copy.modeLabel, allLabel: copy.allModes, options: filters.modes },
+  {
+    param: "company",
+    label: copy.companyLabel,
+    allLabel: copy.allCompanies,
+    options: filters.companies,
+  },
+].filter((group) => group.options.length > 0);
+const listId = `${id}-list`;
+---
+
+<section id={id} class="inner-section stage-shell career-anchor" aria-labelledby={`${id}-title`}>
+  <ChapterHeading index={index} label={label} title={title} lede={lede} id={`${id}-title`} />
+  {
+    roles.length === 0 ? (
+      <div class="mt-10">
+        <ContentEmpty {...empty} level="h3" />
+      </div>
+    ) : (
+      <>
+        <div class="mt-10">
+          <FilterBar
+            target={listId}
+            label={copy.filterLabel}
+            sheetLabel={copy.sheetLabel}
+            groups={chipGroups}
+            search={{ param: "q", label: copy.searchLabel, placeholder: copy.searchPlaceholder }}
+            countTemplate={copy.countTemplate}
+          />
+        </div>
+        <RoleGroups
+          id={listId}
+          groups={groups}
+          countTemplate={copy.rolesCount}
+          showCompany={showCompany}
+        />
+        <p data-filter-empty={listId} class="inner-panel p-6 mt-6 text-fg-secondary" hidden>
+          {copy.noMatch}
+        </p>
+      </>
+    )
+  }
+  <slot />
+</section>

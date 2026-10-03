@@ -1,0 +1,58 @@
+/* Order agents: the catalogue beside the suite panel. Field idiom from
+   ../../forms/legal/legal-form.css; theme-following tokens only. */
+
+.agents-layout {
+  display: grid;
+  gap: var(--space-10);
+}
+
+@media (min-width: 1024px) {
+  .agents-layout {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: var(--space-12);
+    align-items: start;
+  }
+
+  .agents-suite {
+    position: sticky;
+    top: var(--inner-sticky-top);
+  }
+}
+
+.agents-list {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-6);
+}
+
+@media (min-width: 640px) {
+  .agents-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .agents-list > li:last-child:nth-child(odd) {
+    grid-column: span 2;
+  }
+}
+
+.agents-card--added {
+  border-color: var(--accent-a-ink, var(--color-line-strong));
+}
+
+.agents-card__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: auto;
+  padding-top: var(--space-2);
+}
+
+.agents-suite.legal-form {
+  margin-top: 0;
+}
+
+.agents-error {
+  color: var(--color-red-fg);
+}

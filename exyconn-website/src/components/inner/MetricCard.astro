@@ -4,6 +4,7 @@
  * study). Only real, published metrics — never an estimate.
  */
 import "../../styles/inner-stage.css";
+import Icon from "./Icon.astro";
 import type { InnerAction } from "./types";
 
 type Props = Readonly<{
@@ -25,7 +26,7 @@ const { value, label, context, link } = Astro.props;
     link && (
       <a href={link.href} class="inner-card__more underline-offset-4 hover:underline">
         {link.label}
-        <i class="fa-solid fa-arrow-right icon-xs" aria-hidden="true" />
+        <Icon name="arrow-right" class="icon-xs" />
       </a>
     )
   }

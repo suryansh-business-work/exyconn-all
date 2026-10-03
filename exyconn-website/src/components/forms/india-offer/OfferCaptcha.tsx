@@ -1,6 +1,5 @@
 import type { UseFormRegisterReturn } from "react-hook-form";
-import { OFFER_ERROR_CLASSES, offerInputClass } from "./india-offer.classes";
-import { OfferField } from "./OfferField";
+import { FormField, inputClassName } from "../shared";
 
 interface OfferCaptchaProps {
   question: string;
@@ -12,7 +11,7 @@ interface OfferCaptchaProps {
   onRefresh: () => void;
 }
 
-/** The offer form's security check: the maths question, the answer box and a refresh button. */
+/** The offer form's security check in Hindi: the maths question, the answer and a refresh. */
 export function OfferCaptcha({
   question,
   registration,
@@ -22,39 +21,44 @@ export function OfferCaptcha({
 }: Readonly<OfferCaptchaProps>) {
   const invalid = Boolean(error) || Boolean(captchaError);
   return (
-    <OfferField
-      id="offer-captcha"
-      icon="fa-shield-halved"
-      label="सुरक्षा जाँच"
-      required
-      full
-      error={error}
-    >
-      <div className="captcha-row">
-        <span className="captcha-question">{question}</span>
-        <input
-          type="text"
-          id="offer-captcha"
-          placeholder="जवाब"
-          className={`${offerInputClass(invalid)} captcha-input`}
-          autoComplete="off"
-          {...registration}
-        />
+    <FormField id="offer-captcha" label="सुरक्षा जाँच" marker="required" error={error}>
+      <div className="flex flex-wrap items-center gap-3">
+        {/* Announced when a new question replaces the old one. */}
+        <span
+          id="offer-captcha-question"
+          aria-live="polite"
+          className="rounded-lg border border-line bg-surface px-4 py-3 font-mono font-bold text-fg"
+        >
+          {question}
+        </span>
+        <div className="w-28">
+          <input
+            type="text"
+            id="offer-captcha"
+            inputMode="numeric"
+            placeholder="जवाब"
+            autoComplete="off"
+            aria-describedby="offer-captcha-question"
+            aria-invalid={invalid}
+            className={inputClassName("blue", invalid)}
+            {...registration}
+          />
+        </div>
         <button
           type="button"
           onClick={onRefresh}
-          className="captcha-refresh"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-line text-fg-secondary transition-colors hover:text-fg"
           title="नया सवाल"
           aria-label="कैप्चा रीफ्रेश करें"
         >
-          <i className="fa-solid fa-rotate-right"></i>
+          <i className="fa-solid fa-rotate-right" aria-hidden="true"></i>
         </button>
       </div>
       {captchaError && (
-        <div className={OFFER_ERROR_CLASSES}>
-          <i className="fa-solid fa-triangle-exclamation"></i> {captchaError}
+        <div role="alert" className="mt-1 text-xs text-red-fg">
+          {captchaError}
         </div>
       )}
-    </OfferField>
+    </FormField>
   );
 }

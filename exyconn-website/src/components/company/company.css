@@ -1,0 +1,178 @@
+/*
+ * Company and conversion pages (about, vision, contact, get a quote, order agents). Layout
+ * only — colour comes from roles and the inner kit's accent inks, so both site themes stay
+ * readable. Night surfaces carry data-theme="dark" in the markup.
+ */
+
+/* Five link cards without an orphan: 1 → 2 (last spans both) → 5 in a row. */
+.company-work {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-10);
+}
+
+@media (min-width: 640px) {
+  .company-work {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .company-work > li:last-child:nth-child(odd) {
+    grid-column: span 2;
+  }
+}
+
+@media (min-width: 1280px) {
+  .company-work {
+    grid-template-columns: repeat(var(--company-work-columns, 5), minmax(0, 1fr));
+  }
+
+  .company-work > li:last-child:nth-child(odd) {
+    grid-column: auto;
+  }
+}
+
+/* A statement set large, for the thesis chapters. */
+.company-statement {
+  max-width: 48rem;
+  margin-top: var(--space-8);
+  font-size: clamp(1.35rem, 2.4vw, 2rem);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-snug);
+  color: var(--color-fg);
+}
+
+.company-statement + .company-statement {
+  margin-top: var(--space-4);
+  color: var(--color-fg-secondary);
+}
+
+/* Beliefs: big mono number, a title and one line — no icons. */
+.company-beliefs {
+  display: grid;
+  margin-top: var(--space-10);
+  border-top: var(--border-width-hairline) solid var(--color-line);
+}
+
+@media (min-width: 768px) {
+  .company-beliefs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--space-10);
+  }
+}
+
+.company-beliefs > li {
+  display: grid;
+  grid-template-columns: 3.5rem minmax(0, 1fr);
+  gap: var(--space-4);
+  padding-block: var(--space-6);
+  border-bottom: var(--border-width-hairline) solid var(--color-line);
+}
+
+.company-beliefs__number {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xl);
+  line-height: 1;
+  color: var(--accent-a-ink, var(--color-fg-secondary));
+}
+
+/* Figures in a row of terms (markets, countries, languages). */
+.company-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-8);
+}
+
+.company-facts > div {
+  display: flex;
+  flex-direction: column-reverse;
+}
+
+.company-facts dd {
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-fg);
+}
+
+.company-facts dt {
+  margin-top: var(--space-2);
+  color: var(--color-fg-secondary);
+}
+
+/* The vision page's mid-page morph: a night window the sunrise re-forms in. */
+.company-echo {
+  position: relative;
+  overflow: hidden;
+  min-height: 12rem;
+  aspect-ratio: 16 / 10;
+  border-radius: var(--radius-2xl);
+  background: linear-gradient(180deg, var(--color-indigo-night), var(--color-inverse));
+}
+
+.company-horizons {
+  margin-top: var(--space-10);
+}
+
+@media (min-width: 1024px) {
+  .company-echo {
+    aspect-ratio: 4 / 3;
+  }
+}
+
+@media (min-width: 1024px) {
+  .company-horizons {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: var(--space-12);
+    align-items: center;
+  }
+}
+
+.company-horizons .inner-steps {
+  margin-top: var(--space-8);
+}
+
+/* Contact: direct channels and quick links beside the form. */
+.company-channels {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.company-channels a {
+  display: grid;
+  gap: var(--space-1);
+  min-height: 2.75rem;
+  padding: var(--space-4);
+  border: var(--border-width-hairline) solid var(--color-line);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  text-decoration: none;
+  transition: var(--transition-surface);
+}
+
+.company-channels a:hover {
+  border-color: var(--accent-a-ink, var(--color-line-strong));
+}
+
+.company-channels a:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.company-channels__value {
+  font-weight: var(--font-weight-semibold);
+  color: var(--accent-a-ink, var(--color-fg));
+  overflow-wrap: anywhere;
+}
+
+.company-aside-title {
+  margin-top: var(--space-10);
+}
+
+/* Room above the floating buttons at the end of a form page. */
+.company-tail {
+  padding-bottom: var(--space-24);
+}

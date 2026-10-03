@@ -1,0 +1,73 @@
+---
+/**
+ * A company's own words from the portal: "About" (its description, beside a panel with the
+ * logo, tagline and the social profiles it actually has) or "Culture". Rich text is sanitized.
+ */
+import "../../styles/article.css";
+import "./career.css";
+import ChapterHeading from "../inner/ChapterHeading.astro";
+import { socialLinks } from "../../lib/career/company";
+import { COMPANY_COPY as copy } from "../../lib/career/copy";
+import { fill } from "../../lib/career/format";
+import { ARTICLE_CLASS, sanitizeArticleHtml } from "../../lib/portal";
+import type { JobCompany } from "../../lib/portal/types";
+import { safeHref } from "../../lib/safe-output";
+
+type Props = Readonly<{
+  index: number;
+  company: JobCompany;
+  part?: "about" | "culture";
+}>;
+
+const { index, company, part = "about" } = Astro.props;
+const about = part === "about";
+const id = `company-${part}`;
+const logo = safeHref(company.logo);
+const socials = about ? socialLinks(company) : [];
+---
+
+<section class="inner-section stage-shell" aria-labelledby={id}>
+  <ChapterHeading
+    index={index}
+    label={about ? copy.aboutLabel : copy.cultureLabel}
+    title={about ? fill(copy.aboutTitle, { name: company.name }) : copy.cultureTitle}
+    id={id}
+  />
+  <div class:list={["mt-10", about && "career-about"]}>
+    <div
+      class={`${ARTICLE_CLASS} career-column`}
+      set:html={sanitizeArticleHtml(about ? company.description : company.culture)}
+    />
+    {
+      about && (
+        <aside class="inner-panel career-about__panel" aria-label={company.name}>
+          {logo && (
+            <img src={logo} alt="" width="64" height="64" class="career-logo career-logo--lg" />
+          )}
+          <p class="inner-h3">{company.name}</p>
+          {company.tagline && <p class="inner-card__text">{company.tagline}</p>}
+          {socials.length > 0 && (
+            <div class="mt-6">
+              <p class="stage-label">{fill(copy.socialLabel, { name: company.name })}</p>
+              <ul class="inner-chips mt-3">
+                {socials.map((social) => (
+                  <li>
+                    <a
+                      href={social.href}
+                      class="inner-chip"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {social.network}
+                      <span class="sr-only"> (opens in a new tab)</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </aside>
+      )
+    }
+  </div>
+</section>

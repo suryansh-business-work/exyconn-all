@@ -1,0 +1,32 @@
+---
+/**
+ * The about page's "where we work" figures — markets, countries and languages counted from
+ * the market registry — with the sentence that explains the globe's arcs.
+ */
+import "../../styles/inner-stage.css";
+import "./company.css";
+import type { MarketFacts } from "../../lib/company/markets-globe";
+
+type Props = Readonly<{
+  facts: MarketFacts;
+  labels: Readonly<Record<keyof MarketFacts, string>>;
+  text: string;
+  caption: string;
+}>;
+
+const { facts, labels, text, caption } = Astro.props;
+const keys = ["markets", "countries", "languages"] as const;
+---
+
+<p class="inner-lede">{text}</p>
+<dl class="company-facts">
+  {
+    keys.map((key) => (
+      <div>
+        <dt class="stage-label">{labels[key]}</dt>
+        <dd>{facts[key]}</dd>
+      </div>
+    ))
+  }
+</dl>
+<p class="inner-card__text mt-6 text-sm">{caption}</p>

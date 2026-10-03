@@ -1,0 +1,20 @@
+---
+/** Numbered perk cards (title + one line), four across on desktop. */
+import "../../styles/inner-stage.css";
+
+type Props = Readonly<{ items: readonly { title: string; text: string }[] }>;
+
+const { items } = Astro.props;
+---
+
+<ul class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mt-10">
+  {
+    items.map((perk, index) => (
+      <li class="inner-card">
+        <span class="stage-label inner-index">{String(index + 1).padStart(2, "0")}</span>
+        <h3 class="inner-h3">{perk.title}</h3>
+        <p class="inner-card__text">{perk.text}</p>
+      </li>
+    ))
+  }
+</ul>

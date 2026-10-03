@@ -4629,7 +4629,7 @@ export type Mutation = {
   /** Creates a user, emails a temporary password, and returns it once for copying. */
   createUser: UserCredentials;
   createWebhook: CreatedWebhook;
-  /** Public. Refused unless `captcha` answers a question from `websiteCaptcha`. */
+  /** Public. Refused unless `captcha` answers a question from `websiteCaptcha`. `resume` (PDF, DOC or DOCX, max 5 MB) is accepted with a job application only. */
   createWebsiteSubmission: WebsiteSubmission;
   /** Approves or rejects one item, through the owning module's own decision service. */
   decideApproval: Scalars['Boolean']['output'];
@@ -5885,6 +5885,7 @@ export type MutationCreateWebhookArgs = {
 export type MutationCreateWebsiteSubmissionArgs = {
   captcha: WebsiteCaptchaAnswer;
   input: WebsiteSubmissionInput;
+  resume?: InputMaybe<WebsiteFileInput>;
 };
 
 
@@ -13787,6 +13788,12 @@ export type WebsiteCaptcha = {
 export type WebsiteCaptchaAnswer = {
   answer: Scalars['String']['input'];
   token: Scalars['String']['input'];
+};
+
+/** A file sent with a public form: its name and its bytes as a base64 data URL. */
+export type WebsiteFileInput = {
+  data: Scalars['String']['input'];
+  name: Scalars['String']['input'];
 };
 
 export type WebsiteSubmission = {

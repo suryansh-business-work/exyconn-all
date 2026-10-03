@@ -1,0 +1,26 @@
+---
+/** One comparison cell: a tick, a cross (each with spoken text) or the plan's quantity. */
+import type { ComparisonCell } from "../../lib/india/plans";
+
+type Props = Readonly<{ cell: ComparisonCell; yes: string; no: string }>;
+
+const { cell, yes, no } = Astro.props;
+---
+
+{
+  cell.kind === "yes" && (
+    <span class="offer-yes">
+      <i class="fa-solid fa-check icon-sm" aria-hidden="true" />
+      <span class="sr-only">{yes}</span>
+    </span>
+  )
+}
+{
+  cell.kind === "no" && (
+    <span class="offer-no">
+      <i class="fa-solid fa-xmark icon-sm" aria-hidden="true" />
+      <span class="sr-only">{no}</span>
+    </span>
+  )
+}
+{cell.kind === "amount" && <span>{cell.text}</span>}

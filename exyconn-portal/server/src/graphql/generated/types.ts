@@ -4628,7 +4628,7 @@ export type Mutation = {
   /** Creates a user, emails a temporary password, and returns it once for copying. */
   createUser: UserCredentials;
   createWebhook: CreatedWebhook;
-  /** Public. Refused unless `captcha` answers a question from `websiteCaptcha`. */
+  /** Public. Refused unless `captcha` answers a question from `websiteCaptcha`. `resume` (PDF, DOC or DOCX, max 5 MB) is accepted with a job application only. */
   createWebsiteSubmission: WebsiteSubmission;
   /** Approves or rejects one item, through the owning module's own decision service. */
   decideApproval: Scalars['Boolean']['output'];
@@ -5884,6 +5884,7 @@ export type MutationCreateWebhookArgs = {
 export type MutationCreateWebsiteSubmissionArgs = {
   captcha: WebsiteCaptchaAnswer;
   input: WebsiteSubmissionInput;
+  resume?: InputMaybe<WebsiteFileInput>;
 };
 
 
@@ -13788,6 +13789,12 @@ export type WebsiteCaptchaAnswer = {
   token: Scalars['String']['input'];
 };
 
+/** A file sent with a public form: its name and its bytes as a base64 data URL. */
+export type WebsiteFileInput = {
+  data: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
 export type WebsiteSubmission = {
   __typename?: 'WebsiteSubmission';
   /** The HR applicant a job application became, filed automatically on submission. */
@@ -14630,6 +14637,7 @@ export type ResolversTypes = ResolversObject<{
   WebhookDelivery: ResolverTypeWrapper<WebhookDelivery>;
   WebsiteCaptcha: ResolverTypeWrapper<WebsiteCaptcha>;
   WebsiteCaptchaAnswer: WebsiteCaptchaAnswer;
+  WebsiteFileInput: WebsiteFileInput;
   WebsiteSubmission: ResolverTypeWrapper<WebsiteSubmission>;
   WebsiteSubmissionInput: WebsiteSubmissionInput;
   WebsiteSubmissionPage: ResolverTypeWrapper<WebsiteSubmissionPage>;
@@ -15210,6 +15218,7 @@ export type ResolversParentTypes = ResolversObject<{
   WebhookDelivery: WebhookDelivery;
   WebsiteCaptcha: WebsiteCaptcha;
   WebsiteCaptchaAnswer: WebsiteCaptchaAnswer;
+  WebsiteFileInput: WebsiteFileInput;
   WebsiteSubmission: WebsiteSubmission;
   WebsiteSubmissionInput: WebsiteSubmissionInput;
   WebsiteSubmissionPage: WebsiteSubmissionPage;

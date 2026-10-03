@@ -1,0 +1,30 @@
+---
+/**
+ * An inline SVG icon from src/lib/inner/icons.ts. Decorative by default (aria-hidden); size
+ * it with the icon scale (`icon-xs` … `icon-xl` set the font size, the glyph is 1em square).
+ */
+import { iconPaths, type IconName } from "../../lib/inner/icons";
+
+type Props = Readonly<{
+  name: IconName;
+  class?: string;
+  /** Stroke width in the 24-unit grid. */
+  stroke?: number;
+}>;
+
+const { name, class: className, stroke = 2 } = Astro.props;
+---
+
+<svg
+  class:list={["svg-icon", className]}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width={stroke}
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+>
+  {iconPaths(name).map((d) => <path d={d} />)}
+</svg>

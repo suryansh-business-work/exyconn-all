@@ -1,0 +1,49 @@
+---
+/** One header dropdown: a disclosure button and its panel of links (scripts/chrome/header-menus.ts). */
+import Icon from "../inner/Icon.astro";
+import { menuIndex, type NavGroup } from "../../lib/chrome/navigation";
+
+type Props = Readonly<{ group: NavGroup }>;
+
+const { group } = Astro.props;
+const panelId = `nav-panel-${group.id}`;
+---
+
+<div class="chrome-menu" data-nav-menu>
+  <button type="button" class="chrome-nav__link" aria-expanded="false" aria-controls={panelId}>
+    {group.label}
+    <Icon name="chevron-down" class="icon-xs text-fg-subtle" />
+  </button>
+  <div id={panelId} class="chrome-panel" hidden>
+    <ul class="chrome-panel__grid">
+      {
+        group.links.map((link, index) => (
+          <li>
+            <a
+              href={link.href}
+              class="chrome-panel__item"
+              {...(link.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+            >
+              <span class="chrome-panel__index stage-label" aria-hidden="true">
+                {menuIndex(index + 1)}
+              </span>
+              <span class="chrome-panel__label">
+                {link.label}
+                {link.external && <span class="sr-only">(opens in a new tab)</span>}
+              </span>
+              {link.text && <span class="chrome-panel__text">{link.text}</span>}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    {
+      group.overview && (
+        <a href={group.overview.href} class="chrome-panel__overview">
+          {group.overview.label}
+          <Icon name="arrow-right" class="icon-sm" />
+        </a>
+      )
+    }
+  </div>
+</div>

@@ -1,0 +1,37 @@
+---
+/**
+ * Beliefs or principles as numbered one-liners — a big mono number, a title and a line of
+ * text, no icons. Two columns from 768px.
+ */
+import "../../styles/inner-stage.css";
+import "./company.css";
+
+interface Belief {
+  title: string;
+  text: string;
+}
+
+type Props = Readonly<{
+  items: readonly Belief[];
+  level?: "h3" | "h4";
+}>;
+
+const { items, level = "h3" } = Astro.props;
+const Title = level;
+---
+
+<ol class="company-beliefs">
+  {
+    items.map((item, index) => (
+      <li>
+        <span class="company-beliefs__number" aria-hidden="true">
+          {String(index + 1).padStart(2, "0")}
+        </span>
+        <div>
+          <Title class="inner-h3">{item.title}</Title>
+          <p class="inner-card__text mt-2">{item.text}</p>
+        </div>
+      </li>
+    ))
+  }
+</ol>

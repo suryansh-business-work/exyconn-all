@@ -1,0 +1,85 @@
+---
+/**
+ * A freelance gig as one card link: pay first when the posting has one (never invented),
+ * then category, title, scope, skills and the deadline. The careers twin of inner/GigCard,
+ * which requires a pay figure most portal gigs do not carry.
+ */
+import "../../styles/inner-stage.css";
+import "./career.css";
+import type { DataAttributes } from "../inner/types";
+import { gigCategoryColors } from "../../lib/gigCategoryColors";
+
+type Props = Readonly<{
+  href: string;
+  title: string;
+  category: string;
+  scope: string;
+  pay?: string;
+  duration?: string;
+  skills?: readonly string[];
+  skillsLabel: string;
+  /** Already phrased for the reader, e.g. "Apply by 12 October 2026". */
+  deadline?: string;
+  /** The "Urgent" label, when the gig is urgent. */
+  urgent?: string;
+  level?: "h2" | "h3";
+}> &
+  DataAttributes;
+
+const MAX_SKILLS = 4;
+const {
+  href,
+  title,
+  category,
+  scope,
+  pay,
+  duration,
+  skills = [],
+  skillsLabel,
+  deadline,
+  urgent,
+  level = "h3",
+  ...data
+} = Astro.props;
+const Title = level;
+const shown = skills.slice(0, MAX_SKILLS);
+const more = skills.length - shown.length;
+const ink = gigCategoryColors(category).ink;
+---
+
+<li {...data}>
+  <a href={href} class="inner-card career-gig">
+    <span class="career-gig__top">
+      <span class="stage-label career-gig__category" style={`--career-dot: ${ink};`}>
+        {category}
+      </span>
+      {urgent && <span class="career-flag">{urgent}</span>}
+    </span>
+    {pay && <span class="inner-pay">{pay}</span>}
+    <Title class="inner-h3">{title}</Title>
+    <span class="inner-card__text career-clamp">{scope}</span>
+    {
+      shown.length > 0 && (
+        <span class="inner-chips" aria-label={skillsLabel} role="list">
+          {shown.map((skill) => (
+            <span class="inner-chip" role="listitem">
+              {skill}
+            </span>
+          ))}
+          {more > 0 && (
+            <span class="inner-chip" role="listitem">
+              +{more}
+            </span>
+          )}
+        </span>
+      )
+    }
+    {
+      (duration || deadline) && (
+        <span class="stage-label career-gig__meta">
+          {[duration, deadline].filter(Boolean).join(" · ")}
+        </span>
+      )
+    }
+  </a>
+</li>

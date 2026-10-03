@@ -1,0 +1,56 @@
+---
+/** The careers index's company cards, the group company's cross-brand card last. */
+import ChapterHeading from "../inner/ChapterHeading.astro";
+import CompanyCard from "./CompanyCard.astro";
+import { CAREERS_COPY as copy } from "../../lib/career/copy";
+import { countLabel } from "../../lib/career/format";
+import type { CompanyCard as Card } from "../../lib/career/roles";
+
+type Props = Readonly<{
+  index: number;
+  companies: readonly Card[];
+  group?: Card;
+}>;
+
+const { index, companies, group } = Astro.props;
+const openings = (n: number) =>
+  n === 0 ? copy.companyNoRoles : countLabel(n, copy.companyRole, copy.companyRoles);
+---
+
+<section class="inner-section stage-shell" aria-labelledby="companies-title">
+  <ChapterHeading
+    index={index}
+    label={copy.companiesLabel}
+    title={copy.companiesTitle}
+    lede={copy.companiesLede}
+    id="companies-title"
+  />
+  <ul class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-10">
+    {
+      companies.map(({ company, openRoles }) => (
+        <CompanyCard
+          href={`/career/company/${company.slug}`}
+          name={company.name}
+          logo={company.logo}
+          industry={company.industry}
+          tagline={company.tagline}
+          openings={openings(openRoles)}
+          more={copy.viewOpenings}
+        />
+      ))
+    }
+    {
+      group && group.openRoles > 0 && (
+        <CompanyCard
+          href={`/career/company/${group.company.slug}`}
+          name={copy.groupTitle}
+          logo={group.company.logo}
+          industry={group.company.name}
+          tagline={copy.groupText}
+          openings={openings(group.openRoles)}
+          more={copy.viewOpenings}
+        />
+      )
+    }
+  </ul>
+</section>

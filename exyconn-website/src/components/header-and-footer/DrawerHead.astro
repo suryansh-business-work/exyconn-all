@@ -1,0 +1,29 @@
+---
+/** The top row of a settings drawer: mono kicker, title (the dialog's name) and close. */
+import Icon from "../inner/Icon.astro";
+
+type Props = Readonly<{
+  drawerId: string;
+  titleId: string;
+  label: string;
+  title: string;
+  closeLabel: string;
+}>;
+
+const { drawerId, titleId, label, title, closeLabel } = Astro.props;
+---
+
+<div class="chrome-drawer__head">
+  <div>
+    <p class="stage-label">{label}</p>
+    <h2 id={titleId} class="chrome-drawer__title">{title}</h2>
+  </div>
+  <button
+    type="button"
+    class="chrome-icon-button"
+    data-drawer-close={drawerId}
+    aria-label={closeLabel}
+  >
+    <Icon name="close" />
+  </button>
+</div>

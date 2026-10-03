@@ -13,6 +13,8 @@ import { createApplicantFromSubmission } from '../recruiting/recruiting.service'
 import { JOB_APPLICATION_FORM_TYPE } from '../recruiting/recruiting.constants';
 import { createLimiter, tooManyRequests } from '../../lib/rateLimiter';
 import { assertCaptcha, issueCaptcha } from './website.captcha';
+import { imageUploader } from '../../utils/imagekit';
+import { RESUME_UPLOAD, assertUpload } from '../../utils/uploadValidation';
 
 const ALLOWED_FORM_TYPES = new Set<string>(SUBMISSION_FORM_TYPES);
 const ALLOWED_STATUSES = new Set<string>(SUBMISSION_STATUSES);
@@ -44,6 +46,12 @@ interface SubmissionInput {
   submissionData: Record<string, unknown>;
   status?: string;
   notes?: string;
+}
+
+/** A file posted with a public form: its name and a base64 data URL of its bytes. */
+interface FileInput {
+  name: string;
+  data: string;
 }
 
 interface TriageInput {
@@ -101,6 +109,40 @@ function assertSubmissionShape(data: Record<string, unknown>): void {
 function replyToOf(submissionData: Record<string, unknown>): string | undefined {
   const email = submissionData.email;
   return typeof email === 'string' && email ? email : undefined;
+}
+
+/** The file's own name, without any path a browser may send, kept short for the CDN. */
+const MAX_FILE_NAME = 120;
+function baseFileName(name: string): string {
+  return name.split(/[\\/]/).pop()?.trim().slice(-MAX_FILE_NAME) || 'resume';
+}
+
+/**
+ * Refuses a résumé before anything is spent on it: only a job application carries one, and its
+ * bytes must be a PDF or Word file within 5 MB (checked again on upload).
+ */
+function assertResume(formType: string, resume: FileInput | null | undefined): void {
+  if (!resume) {
+    return;
+  }
+  if (formType !== JOB_APPLICATION_FORM_TYPE) {
+    badRequest('Only a job application can carry a file.');
+  }
+  assertUpload(resume.data, RESUME_UPLOAD);
+}
+
+/**
+ * Hosts the résumé and returns the fields that point at it. `resumeUrl` is what the applicant
+ * row and the notification email link to; an upload that fails fails the submission, so an
+ * application is never filed without the file the visitor sent.
+ */
+async function storeResume(resume: FileInput | null | undefined): Promise<Record<string, string>> {
+  if (!resume) {
+    return {};
+  }
+  const resumeName = baseFileName(resume.name);
+  const resumeUrl = await imageUploader.uploadResume(resume.data, resumeName);
+  return { resumeName, resumeUrl };
 }
 
 /**
@@ -181,27 +223,39 @@ export const websiteSubmissionResolvers = {
   Mutation: {
     createWebsiteSubmission: async (
       _p: unknown,
-      { input, captcha }: { input: SubmissionInput; captcha: { token: string; answer: string } },
+      {
+        input,
+        captcha,
+        resume,
+      }: {
+        input: SubmissionInput;
+        captcha: { token: string; answer: string };
+        resume?: FileInput | null;
+      },
       ctx: GraphQLContext,
     ) => {
       if (!ALLOWED_FORM_TYPES.has(input.formType)) {
         badRequest(`Unknown form type: ${input.formType}`);
       }
       assertSubmissionShape(input.submissionData ?? {});
+      assertResume(input.formType, resume);
       const ip = ctx.ip ?? 'unknown';
       if (!(await submissionBurstLimiter.allow(ip)) || !(await submissionDailyLimiter.allow(ip))) {
         tooManyRequests(10 * 60 * 1000, 'submissions');
       }
       // After the rate limit, so guessing at the question is throttled like any submission.
       await assertCaptcha(captcha.token, captcha.answer);
+      const submissionData: Record<string, unknown> = {
+        ...input.submissionData,
+        ...(await storeResume(resume)),
+      };
       const created = await WebsiteSubmissionModel.create({
         formType: input.formType,
         source: input.source ?? 'website',
-        submissionData: input.submissionData ?? {},
+        submissionData,
         status: 'new',
         notes: '',
       });
-      const submissionData = (input.submissionData ?? {}) as Record<string, unknown>;
       const applicantId =
         input.formType === JOB_APPLICATION_FORM_TYPE
           ? await fileApplicant(String(created._id), submissionData)

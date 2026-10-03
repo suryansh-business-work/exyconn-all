@@ -1,0 +1,6 @@
+/* The contact form sits inside SplitFormShell's panel, so it drops the legal form's own
+   padding and offset; the field idiom comes from ../legal/legal-form.css. */
+.contact-form.legal-form {
+  margin-top: 0;
+  padding: 0;
+}

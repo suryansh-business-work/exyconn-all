@@ -1,0 +1,31 @@
+---
+/**
+ * Facts under a job, gig or company title on the night band — location, type, pay, dates —
+ * as chips. A status chip ("Open" / "Closed") is marked so only an open posting reads as live.
+ */
+import "../../styles/inner-stage.css";
+import "./career.css";
+
+type Props = Readonly<{
+  label: string;
+  items: readonly string[];
+  status?: { label: string; open: boolean };
+  /** A flag such as "Urgent". */
+  flag?: string;
+}>;
+
+const { label, items, status, flag } = Astro.props;
+const shown = items.filter((item) => item.trim() !== "");
+---
+
+<ul class="inner-chips career-stage-chips" aria-label={label}>
+  {
+    status && (
+      <li class="inner-chip career-status" data-open={status.open ? "" : undefined}>
+        {status.label}
+      </li>
+    )
+  }
+  {flag && <li class="inner-chip career-flag">{flag}</li>}
+  {shown.map((item) => <li class="inner-chip">{item}</li>)}
+</ul>

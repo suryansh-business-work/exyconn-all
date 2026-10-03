@@ -1,14 +1,17 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useCaptchaSubmit } from "../shared";
-import { offerInputClass } from "./india-offer.classes";
+import { FormField, SubmitButton, inputClassName, useCaptchaSubmit } from "../shared";
+import { OFFER_PLANS, planOptionLabel } from "../../../lib/india/plans";
+import { OFFER_PRICING } from "../../../lib/india/offer";
 import { INDIA_OFFER_FORM_DEFAULTS, indiaOfferFormSchema } from "./india-offer.schema";
 import type { IndiaOfferFormValues } from "./india-offer.types";
 import { OfferCaptcha } from "./OfferCaptcha";
-import { OfferField } from "./OfferField";
 import { OfferStatusAlert } from "./OfferStatusAlert";
 
 const CAPTCHA_OPTIONS = { incorrectAnswer: "गलत जवाब — दोबारा कोशिश करें", successResetMs: 6000 };
+const SUBMIT_CLASSES =
+  "inner-action inner-action--primary w-full justify-center disabled:cursor-not-allowed disabled:opacity-70";
+const input = (invalid?: unknown) => inputClassName("blue", Boolean(invalid));
 
 /** The India offer lead form (React Hook Form + Zod), validated in the browser before it sends. */
 export function IndiaOfferForm() {
@@ -32,135 +35,122 @@ export function IndiaOfferForm() {
     submit(answer, payload);
 
   return (
-    <div className="offer-form-wrapper">
+    <div>
       <OfferStatusAlert status={status} />
 
-      <form className="offer-form-grid" noValidate onSubmit={handleSubmit(onSubmit)}>
-        <OfferField
-          id="offer-name"
-          icon="fa-user"
-          label="आपका नाम"
-          required
-          error={errors.name?.message}
-        >
+      <form className="grid gap-5 sm:grid-cols-2" noValidate onSubmit={handleSubmit(onSubmit)}>
+        <FormField id="offer-name" label="आपका नाम" marker="required" error={errors.name?.message}>
           <input
             type="text"
             id="offer-name"
+            autoComplete="name"
             placeholder="अपना पूरा नाम लिखें"
-            className={offerInputClass(Boolean(errors.name))}
+            aria-invalid={Boolean(errors.name)}
+            className={input(errors.name)}
             {...register("name")}
           />
-        </OfferField>
+        </FormField>
 
-        <OfferField
+        <FormField
           id="offer-phone"
-          icon="fa-phone"
           label="फ़ोन नंबर"
-          required
+          marker="required"
           error={errors.phone?.message}
         >
           <input
             type="tel"
             id="offer-phone"
+            autoComplete="tel-national"
+            inputMode="numeric"
             placeholder="9876543210"
             maxLength={10}
-            className={offerInputClass(Boolean(errors.phone))}
+            aria-invalid={Boolean(errors.phone)}
+            className={input(errors.phone)}
             {...register("phone")}
           />
-        </OfferField>
+        </FormField>
 
-        <OfferField
-          id="offer-email"
-          icon="fa-envelope"
-          label="ईमेल"
-          required
-          error={errors.email?.message}
-        >
+        <FormField id="offer-email" label="ईमेल" marker="required" error={errors.email?.message}>
           <input
             type="email"
             id="offer-email"
+            autoComplete="email"
             placeholder="aapka@email.com"
-            className={offerInputClass(Boolean(errors.email))}
+            aria-invalid={Boolean(errors.email)}
+            className={input(errors.email)}
             {...register("email")}
           />
-        </OfferField>
+        </FormField>
 
-        <OfferField
-          id="offer-business"
-          icon="fa-building"
-          label="बिज़नेस का नाम"
-          error={errors.business?.message}
-        >
+        <FormField id="offer-business" label="बिज़नेस का नाम" error={errors.business?.message}>
           <input
             type="text"
             id="offer-business"
+            autoComplete="organization"
             placeholder="आपकी कंपनी / दुकान का नाम"
-            className={offerInputClass()}
+            aria-invalid={Boolean(errors.business)}
+            className={input(errors.business)}
             {...register("business")}
           />
-        </OfferField>
+        </FormField>
 
-        <OfferField
-          id="offer-plan"
-          icon="fa-box-open"
-          label="कौनसा प्लान चाहिए?"
-          required
-          full
-          error={errors.plan?.message}
-        >
-          <select
+        <div className="sm:col-span-2">
+          <FormField
             id="offer-plan"
-            defaultValue=""
-            className={offerInputClass(Boolean(errors.plan))}
-            {...register("plan")}
+            label="कौनसा प्लान चाहिए?"
+            marker="required"
+            error={errors.plan?.message}
           >
-            <option value="" disabled>
-              — प्लान चुनें —
-            </option>
-            <option value="basic">Basic Biz — ₹4,999</option>
-            <option value="smart">Smart Biz — ₹9,999 (लोकप्रिय)</option>
-            <option value="pro">Pro Biz — ₹14,999</option>
-            <option value="custom">मुझे सलाह चाहिए</option>
-          </select>
-        </OfferField>
+            <select
+              id="offer-plan"
+              defaultValue=""
+              aria-invalid={Boolean(errors.plan)}
+              className={input(errors.plan)}
+              {...register("plan")}
+            >
+              <option value="" disabled>
+                — प्लान चुनें —
+              </option>
+              {OFFER_PLANS.map((plan) => (
+                <option key={plan.id} value={plan.id}>
+                  {planOptionLabel(plan, OFFER_PRICING.popularShort)}
+                </option>
+              ))}
+              <option value="custom">मुझे सलाह चाहिए</option>
+            </select>
+          </FormField>
+        </div>
 
-        <OfferField
-          id="offer-message"
-          icon="fa-comment-dots"
-          label="कुछ और बताना है?"
-          full
-          error={errors.message?.message}
-        >
-          <textarea
-            id="offer-message"
-            rows={3}
-            placeholder="अपनी ज़रूरत यहाँ लिखें..."
-            className={offerInputClass()}
-            style={{ resize: "vertical" }}
-            {...register("message")}
+        <div className="sm:col-span-2">
+          <FormField id="offer-message" label="कुछ और बताना है?" error={errors.message?.message}>
+            <textarea
+              id="offer-message"
+              rows={3}
+              placeholder="अपनी ज़रूरत यहाँ लिखें..."
+              aria-invalid={Boolean(errors.message)}
+              className={`${input(errors.message)} resize-y`}
+              {...register("message")}
+            />
+          </FormField>
+        </div>
+
+        <div className="sm:col-span-2">
+          <OfferCaptcha
+            question={captcha.question}
+            registration={register("captcha")}
+            error={errors.captcha?.message}
+            captchaError={captchaError}
+            onRefresh={refreshCaptcha}
           />
-        </OfferField>
+        </div>
 
-        <OfferCaptcha
-          question={captcha.question}
-          registration={register("captcha")}
-          error={errors.captcha?.message}
-          captchaError={captchaError}
-          onRefresh={refreshCaptcha}
-        />
-
-        <div className="form-field form-field-full">
-          <button type="submit" disabled={isSubmitting} className="submit-btn">
-            {isSubmitting ? (
-              <>
-                <i className="fa-solid fa-spinner fa-spin"></i> भेज रहे हैं...
-              </>
-            ) : (
-              <>
-                <i className="fa-solid fa-paper-plane"></i> अभी भेजें
-              </>
-            )}
-          </button>
+        <div className="sm:col-span-2">
+          <SubmitButton
+            isSubmitting={isSubmitting}
+            className={SUBMIT_CLASSES}
+            label="अभी भेजें"
+            busyLabel="भेज रहे हैं..."
+          />
         </div>
       </form>
     </div>

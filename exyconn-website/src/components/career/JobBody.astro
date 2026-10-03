@@ -1,0 +1,77 @@
+---
+/**
+ * The reading column of a role's page: skills, the portal's own description and
+ * responsibilities (sanitized rich text), requirements, nice-to-haves, benefits and sharing.
+ * Blocks without content are left out.
+ */
+import "../../styles/article.css";
+import "./career.css";
+import ShareLinks from "../content/ShareLinks.astro";
+import DetailSection from "./DetailSection.astro";
+import { JOB_COPY as copy } from "../../lib/career/copy";
+import { hasText } from "../../lib/career/company";
+import { ARTICLE_CLASS, sanitizeArticleHtml } from "../../lib/portal";
+import type { Job, JobCompany } from "../../lib/portal/types";
+
+type Props = Readonly<{ job: Job; company: JobCompany; url: string }>;
+
+const { job, company, url } = Astro.props;
+const lists = [
+  { title: copy.requirements, items: job.requirements },
+  { title: copy.niceToHave, items: job.niceToHave },
+  { title: copy.benefits, items: job.benefits },
+].filter((list) => list.items.length > 0);
+---
+
+<div class="career-detail__main">
+  {
+    job.skillSet.length > 0 && (
+      <DetailSection title={copy.skills}>
+        <ul class="inner-chips">
+          {job.skillSet.map((skill) => (
+            <li class="inner-chip">{skill}</li>
+          ))}
+        </ul>
+      </DetailSection>
+    )
+  }
+  {
+    hasText(job.jobDescription) && (
+      <DetailSection title={copy.about}>
+        <div class={ARTICLE_CLASS} set:html={sanitizeArticleHtml(job.jobDescription)} />
+      </DetailSection>
+    )
+  }
+  {
+    hasText(job.jobResponsibilities) && (
+      <DetailSection title={copy.responsibilities}>
+        <div class={ARTICLE_CLASS} set:html={sanitizeArticleHtml(job.jobResponsibilities)} />
+      </DetailSection>
+    )
+  }
+  {
+    lists.map((list) => (
+      <DetailSection title={list.title}>
+        <ul class="inner-points">
+          {list.items.map((item) => (
+            <li>{item}</li>
+          ))}
+        </ul>
+      </DetailSection>
+    ))
+  }
+  <div class="career-block">
+    <ShareLinks
+      url={url}
+      title={`${job.title} at ${company.name}`}
+      labels={{
+        heading: copy.share,
+        x: copy.shareX,
+        linkedIn: copy.shareLinkedIn,
+        copy: copy.copy,
+        copied: copy.copied,
+        copyFailed: copy.copyFailed,
+      }}
+    />
+  </div>
+</div>

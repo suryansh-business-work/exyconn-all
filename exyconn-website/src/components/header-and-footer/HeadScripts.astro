@@ -1,0 +1,64 @@
+---
+/**
+ * The scripts every page runs in <head>: light/dark and the accessibility preferences applied
+ * before first paint (so a night visitor never sees a white flash and a larger text size never
+ * jumps in late), then Google Analytics (one tag: G-6FLH9QJ5FS) and Google Tag Manager.
+ */
+import { DARK_MEDIA_QUERY, THEME_ATTRIBUTE, THEME_STORAGE_KEY, THEMES } from "../../lib/theme";
+import { A11Y_STORAGE_KEY, A11Y_TOGGLE_IDS } from "../../lib/chrome/preferences";
+---
+
+<script
+  is:inline
+  define:vars={{
+    attribute: THEME_ATTRIBUTE,
+    storageKey: THEME_STORAGE_KEY,
+    themes: THEMES,
+    darkQuery: DARK_MEDIA_QUERY,
+    a11yKey: A11Y_STORAGE_KEY,
+    a11yToggles: A11Y_TOGGLE_IDS,
+  }}
+>
+  const root = document.documentElement;
+  let stored = null;
+  let a11y = {};
+  try {
+    stored = localStorage.getItem(storageKey);
+    a11y = JSON.parse(localStorage.getItem(a11yKey) || "{}") || {};
+  } catch (error) {
+    console.warn("Display preferences could not be read", error);
+  }
+  const osTheme = matchMedia(darkQuery).matches ? "dark" : "light";
+  root.setAttribute(attribute, themes.includes(stored) ? stored : osTheme);
+  for (const toggle of a11yToggles) {
+    if (a11y[toggle] === true) root.setAttribute("data-a11y-" + toggle, "on");
+  }
+  if (typeof a11y.fontSize === "number" && a11y.fontSize !== 100) {
+    root.style.fontSize = a11y.fontSize + "%";
+  }
+</script>
+<!-- Google tag (gtag.js) -->
+<script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-6FLH9QJ5FS"></script>
+<script is:inline>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag("js", new Date());
+  gtag("config", "G-6FLH9QJ5FS");
+</script>
+
+<!-- Google Tag Manager -->
+<script is:inline>
+  (function (w, d, s, l, i) {
+    w[l] = w[l] || [];
+    w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+    var f = d.getElementsByTagName(s)[0],
+      j = d.createElement(s),
+      dl = l != "dataLayer" ? "&l=" + l : "";
+    j.async = true;
+    j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+    f.parentNode.insertBefore(j, f);
+  })(window, document, "script", "dataLayer", "GTM-5LF624ZH");
+</script>
+<!-- End Google Tag Manager -->
