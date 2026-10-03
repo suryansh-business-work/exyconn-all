@@ -1,6 +1,7 @@
 import { BrowserWindow } from 'electron';
 import { IPC } from '@shared/types';
 import { handleTrusted } from './web-security';
+import appIconPath from '../../resources/icon.png?asset';
 
 /**
  * The tracker draws its own title bar, so minimise / maximise / close arrive over IPC from
@@ -51,4 +52,11 @@ export function applyWindowChrome(win: BrowserWindow): void {
   win.on('leave-full-screen', () => report(false));
   // The renderer mounts after these events would have fired, so state it once it can hear.
   win.webContents.on('did-finish-load', () => report(win.isMaximized()));
+
+  // Linux takes a window's taskbar icon from the window itself — an AppImage nobody has
+  // integrated has no .desktop entry to lend it one. Windows and macOS read the icon built
+  // into the .exe / .app instead, which is sharper than this single PNG.
+  if (process.platform === 'linux') {
+    win.setIcon(appIconPath);
+  }
 }
