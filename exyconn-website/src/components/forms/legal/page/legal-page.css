@@ -1,0 +1,159 @@
+/* Legal pages: lists, term cards, topic cards and related links inside LegalLayout's 70ch
+   column. Theme-following surfaces only (.inner-panel / .inner-card), tokens only. */
+
+.inner-legal-section .legal-list {
+  display: grid;
+  gap: var(--space-3);
+  padding-left: 0;
+  list-style: none;
+}
+
+.legal-list li {
+  position: relative;
+  padding-left: var(--space-6);
+}
+
+.legal-list li::before {
+  content: "";
+  position: absolute;
+  left: 0.25rem;
+  top: 0.7em;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--radius-circle);
+  background: var(--accent-a-ink, var(--color-fg-muted));
+}
+
+.legal-list--check li::before {
+  top: 0.35em;
+  width: 0.4rem;
+  height: 0.75rem;
+  border-radius: 0;
+  background: none;
+  border: solid var(--accent-a-ink, var(--color-fg-muted));
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.legal-list strong,
+.legal-terms dt,
+.legal-related__label {
+  color: var(--color-fg);
+  font-weight: var(--font-weight-semibold);
+}
+
+.inner-legal-section a:not(.inner-card, [aria-label]) {
+  color: var(--color-fg);
+  text-decoration: underline;
+  text-decoration-color: var(--accent-a-ink, currentColor);
+  text-underline-offset: 3px;
+}
+
+.legal-terms,
+.legal-topics {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+
+@media (min-width: 640px) {
+  .legal-terms,
+  .legal-topics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.legal-terms > div {
+  padding: var(--space-4) var(--space-5);
+}
+
+.legal-terms dd {
+  margin-top: var(--space-1);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+}
+
+.legal-topics .inner-card {
+  padding: var(--space-5);
+}
+
+.legal-topics .inner-card :where(p, ul) {
+  margin-top: 0;
+  font-size: var(--font-size-sm);
+}
+
+.legal-topics .legal-list {
+  gap: var(--space-2);
+}
+
+.legal-note {
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+}
+
+.legal-related {
+  margin-top: var(--space-16);
+  padding-top: var(--space-8);
+  border-top: var(--border-width-hairline) solid var(--color-line);
+}
+
+.legal-related ul {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .legal-related ul {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.legal-related .inner-card {
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-5);
+  min-height: 2.75rem;
+}
+
+.legal-related .inner-card__text {
+  font-size: var(--font-size-sm);
+}
+
+/* Room for the floating a11y / back-to-top buttons under the last block on phones. */
+.legal-related,
+.legal-empty {
+  margin-bottom: var(--space-16);
+}
+
+/* ---------- Policies index + notices ---------- */
+.legal-empty {
+  display: grid;
+  gap: var(--space-3);
+  max-width: 70ch;
+  padding: var(--space-6);
+  color: var(--color-fg-secondary);
+}
+
+.legal-empty a,
+.legal-policies__meta {
+  color: var(--color-fg);
+}
+
+.legal-empty a {
+  text-decoration: underline;
+  text-decoration-color: var(--accent-a-ink, currentColor);
+  text-underline-offset: 3px;
+}
+
+.legal-policies {
+  display: grid;
+  gap: var(--space-3);
+  max-width: 70ch;
+  margin-bottom: var(--space-16);
+}
+
+.legal-policies__meta {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--color-fg-muted);
+}

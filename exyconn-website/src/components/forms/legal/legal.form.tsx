@@ -5,14 +5,18 @@ import {
   FormField,
   SubmitButton,
   SubmitStatusAlert,
-  inputClassName,
   useCaptchaSubmit,
 } from "../shared";
+import {
+  CAPTCHA_CLASS,
+  CONTROL_CLASS,
+  FINE_PRINT_CLASS,
+  FORM_CLASS,
+  ROW_CLASS,
+  SUBMIT_CLASS,
+} from "./legal-form.styles";
 import { LEGAL_FORM_DEFAULTS, legalFormSchema } from "./legal.schema";
 import type { LegalFormValues } from "./legal.types";
-
-const SUBMIT_CLASSES =
-  "cursor-pointer w-full bg-amber-deep text-on-solid font-semibold py-4 px-6 rounded-xl hover:opacity-90 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg shadow-amber/20";
 
 const legalOptions = [
   { value: "", label: "Select an option" },
@@ -24,7 +28,10 @@ const legalOptions = [
   { value: "other", label: "Other Legal Issue" },
 ];
 
-/** The legal request form (React Hook Form + Zod), validated in the browser before it sends. */
+/**
+ * The legal request form (React Hook Form + Zod), validated in the browser before it sends.
+ * It sits under the page's "Submit a request" section heading, so it has none of its own.
+ */
 export function LegalFormReact() {
   const {
     register,
@@ -43,36 +50,38 @@ export function LegalFormReact() {
   const onSubmit = ({ captcha: answer, ...payload }: LegalFormValues) => submit(answer, payload);
 
   return (
-    <section className="max-w-xl mx-auto mt-12 bg-surface rounded-2xl shadow-xl p-8">
-      <h2 className="text-2xl font-bold text-[var(--color-primary)] mb-6 text-center">
-        Submit a Legal Request
-      </h2>
-
+    <div className={FORM_CLASS}>
       <SubmitStatusAlert
         status={status}
         successMessage="Your legal request has been submitted. We will review it and respond promptly."
       />
 
-      <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
-        <FormField id="name" label="Your Name" marker="required" error={errors.name?.message}>
-          <input
-            type="text"
-            id="name"
-            placeholder="Enter your full name"
-            className={inputClassName("amber", Boolean(errors.name))}
-            {...register("name")}
-          />
-        </FormField>
+      <form aria-label="Legal request" onSubmit={handleSubmit(onSubmit)}>
+        <div className={ROW_CLASS}>
+          <FormField id="name" label="Your Name" marker="required" error={errors.name?.message}>
+            <input
+              type="text"
+              id="name"
+              autoComplete="name"
+              placeholder="Enter your full name"
+              aria-invalid={Boolean(errors.name)}
+              className={CONTROL_CLASS}
+              {...register("name")}
+            />
+          </FormField>
 
-        <FormField id="email" label="Your Email" marker="required" error={errors.email?.message}>
-          <input
-            type="email"
-            id="email"
-            placeholder="you@example.com"
-            className={inputClassName("amber", Boolean(errors.email))}
-            {...register("email")}
-          />
-        </FormField>
+          <FormField id="email" label="Your Email" marker="required" error={errors.email?.message}>
+            <input
+              type="email"
+              id="email"
+              autoComplete="email"
+              placeholder="you@example.com"
+              aria-invalid={Boolean(errors.email)}
+              className={CONTROL_CLASS}
+              {...register("email")}
+            />
+          </FormField>
+        </div>
 
         <FormField
           id="legalType"
@@ -83,7 +92,8 @@ export function LegalFormReact() {
           <select
             id="legalType"
             defaultValue=""
-            className={inputClassName("amber", Boolean(errors.legalType))}
+            aria-invalid={Boolean(errors.legalType)}
+            className={CONTROL_CLASS}
             {...register("legalType")}
           >
             {legalOptions.map((option) => (
@@ -98,8 +108,10 @@ export function LegalFormReact() {
           <input
             type="text"
             id="url"
+            inputMode="url"
             placeholder="https://example.com/page-or-image"
-            className={inputClassName("amber")}
+            aria-invalid={Boolean(errors.url)}
+            className={CONTROL_CLASS}
             {...register("url")}
           />
         </FormField>
@@ -114,33 +126,36 @@ export function LegalFormReact() {
             id="details"
             rows={6}
             placeholder="Describe your legal concern, including any supporting information or documentation."
-            className={`${inputClassName("amber", Boolean(errors.details))} resize-none`}
+            aria-invalid={Boolean(errors.details)}
+            className={CONTROL_CLASS}
             {...register("details")}
           />
         </FormField>
 
-        <CaptchaField
-          question={captcha.question}
-          registration={register("captcha")}
-          error={errors.captcha?.message}
-          captchaError={captchaError}
-          onRefresh={refreshCaptcha}
-          accent="amber"
-        />
+        <div className={CAPTCHA_CLASS}>
+          <CaptchaField
+            question={captcha.question}
+            registration={register("captcha")}
+            error={errors.captcha?.message}
+            captchaError={captchaError}
+            onRefresh={refreshCaptcha}
+            accent="amber"
+          />
+        </div>
 
         <SubmitButton
           isSubmitting={isSubmitting}
-          className={SUBMIT_CLASSES}
+          className={SUBMIT_CLASS}
           label="Submit Legal Request"
           busyLabel="Submitting..."
         />
       </form>
 
-      <p className="text-xs text-fg-subtle mt-4 text-center">
+      <p className={FINE_PRINT_CLASS}>
         By submitting, you confirm that the information provided is accurate and you have the
         authority to make this request. Exyconn will review and respond in accordance with
         applicable law and our policies.
       </p>
-    </section>
+    </div>
   );
 }

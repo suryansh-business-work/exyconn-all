@@ -1,47 +1,71 @@
 ---
+import PolicyNotice from "../../../components/forms/legal/page/PolicyNotice.astro";
+import RelatedLegal from "../../../components/forms/legal/page/RelatedLegal.astro";
+import InnerStage from "../../../components/inner/InnerStage.astro";
 import Page from "../../../layouts/Page.astro";
-import { getPublicPolicies } from "../../../lib/portal";
+import { DEFAULT_MARKET } from "../../../lib/i18n/markets";
+import { breadcrumbJsonLd } from "../../../lib/inner/structured-data";
+import { loadPolicies, policyRow, policySheets } from "../../../lib/legal";
+import "../../../components/forms/legal/page/legal-page.css";
 
-/** Every policy Legal has published publicly. The list is the portal's, not this repo's. */
-const policies = await getPublicPolicies();
-
-const asDate = (value: string) =>
-  new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+/** Every policy the operator company has published publicly. The list is the portal's. */
+const result = await loadPolicies();
+if (result.status === "error") {
+  Astro.response.status = 503;
+}
+const market = Astro.locals.market ?? DEFAULT_MARKET;
+const rows =
+  result.status === "ok" ? result.policies.map((policy) => policyRow(policy, market.locale)) : [];
+const sheets = policySheets(rows.length);
+const SITE_URL = (Astro.site?.toString() ?? "https://exyconn.com/").replace(/\/$/, "");
+const crumbs = [
+  { label: "Home", href: "/" },
+  { label: "Legal", href: "/legal" },
+  { label: "Policies" },
+];
 ---
 
 <Page
   metaTitle="Policies | Exyconn"
   metaDescription="Exyconn's published company policies, including privacy, cookies and terms."
   metaKeywords="policies, privacy policy, terms, exyconn"
+  jsonLd={breadcrumbJsonLd(crumbs, SITE_URL)}
 >
-  <div class="bg-surface min-h-screen">
-    <section class="py-16 px-6 bg-blue-subtle">
-      <div class="max-w-4xl mx-auto text-center">
-        <h1 class="text-4xl md:text-5xl font-bold text-fg mb-4 tracking-tight">Policies</h1>
-        <p class="text-xl text-fg-muted max-w-2xl mx-auto">
-          The commitments we publish, and when each one took effect.
-        </p>
-      </div>
-    </section>
-
-    <section class="py-14 px-6">
-      <div class="max-w-3xl mx-auto grid gap-4">
-        {policies.length === 0 && <p class="text-fg-muted">No policies have been published yet.</p>}
-        {
-          policies.map((policy) => (
-            <a
-              href={`/policies/${policy.slug}`}
-              class="block p-6 border border-line rounded-2xl hover:border-blue-muted hover:shadow-sm transition"
-            >
-              <h2 class="text-xl font-semibold text-fg">{policy.title}</h2>
-              {policy.summary && <p class="mt-2 text-fg-muted">{policy.summary}</p>}
-              <p class="mt-3 text-sm text-fg-subtle">
-                Version {policy.version} · Effective {asDate(policy.effectiveDate)}
-              </p>
-            </a>
-          ))
-        }
-      </div>
-    </section>
-  </div>
+  <InnerStage
+    family="company"
+    variant="band"
+    crumbs={crumbs}
+    title="Company policies"
+    lede="The commitments we publish, and when each one took effect."
+    scene={{ shapes: ["documents"], data: sheets ? { documents: { sheets } } : undefined }}
+  />
+  <section class="inner-section stage-shell">
+    <h2 class="inner-h3">Policies in effect</h2>
+    <div class="mt-6">
+      {result.status === "error" && <PolicyNotice kind="error" headingLevel="h3" />}
+      {
+        result.status === "ok" && rows.length === 0 && (
+          <PolicyNotice kind="empty" headingLevel="h3" />
+        )
+      }
+      {
+        rows.length > 0 && (
+          <ul class="legal-policies">
+            {rows.map((row) => (
+              <li>
+                <a class="inner-card" href={row.href}>
+                  <h3 class="inner-h3">{row.title}</h3>
+                  {row.summary && <p class="inner-card__text">{row.summary}</p>}
+                  <p class="legal-policies__meta">{row.meta}</p>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+    <div class="max-w-[70ch]">
+      <RelatedLegal current="policies" />
+    </div>
+  </section>
 </Page>

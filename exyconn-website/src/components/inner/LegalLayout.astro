@@ -17,7 +17,8 @@ type Props = Readonly<{
   crumbs?: readonly Crumb[];
   /** e.g. "Last updated". */
   updatedLabel: string;
-  updated: DisplayDate;
+  /** When the wording last changed. Omitted when nobody recorded it — never guessed. */
+  updated?: DisplayDate;
   summaryTitle: string;
   /** Three to five plain-words bullets. */
   summary: readonly string[];
@@ -42,10 +43,14 @@ const {
 ---
 
 <InnerStage family={family} variant="band" crumbs={crumbs} title={title} scene={scene}>
-  <p class="stage-label mt-4">
-    {updatedLabel}
-    <time datetime={updated.iso}>{updated.text}</time>
-  </p>
+  {
+    updated && (
+      <p class="stage-label mt-4">
+        {updatedLabel}
+        <time datetime={updated.iso}>{updated.text}</time>
+      </p>
+    )
+  }
 </InnerStage>
 <ReadingProgress target="legal-body" />
 <div class="inner-section stage-shell">

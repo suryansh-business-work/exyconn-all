@@ -1,81 +1,31 @@
 ---
-import GrievanceFormReact from "../../components/forms/GrievanceFormReact.tsx";
-import Page from "../../layouts/Page.astro";
+import { GrievanceFormReact } from "../../components/forms/grievance";
+import LegalDocumentPage from "../../components/forms/legal/page/LegalDocumentPage.astro";
+import LegalSection from "../../components/inner/LegalSection.astro";
+import { getLegalDocument, sectionById, sectionNumber } from "../../lib/legal";
+
+const doc = await getLegalDocument("grievance");
+const crumbs = [
+  { label: "Home", href: "/" },
+  { label: "Legal", href: "/legal" },
+  { label: doc.title },
+];
+const submit = sectionById(doc, "submit-your-grievance");
 ---
 
-<Page
-  metaTitle="Raise a Grievance | Report Concerns | Exyconn"
-  metaDescription="Submit your grievance or concern to Exyconn. We are committed to transparency, fairness, and prompt resolution for all stakeholders."
+<LegalDocumentPage
+  doc={doc}
+  current="grievance"
+  crumbs={crumbs}
+  family="contact"
+  scene={{ shapes: ["rings"] }}
 >
-  <div class="bg-surface min-h-screen">
-    <!-- Hero Section - Light Background -->
-    <section class="relative py-20 px-6 bg-blue-subtle overflow-hidden">
-      <div class="relative z-10 max-w-4xl mx-auto text-center">
-        <span
-          class="inline-flex items-center gap-2 px-4 py-2 bg-surface border border-line rounded-full text-sm font-medium text-fg-muted mb-6 shadow-sm"
-        >
-          <i class="fa-solid fa-shield-halved text-blue-fg"></i>
-          We're Here to Listen
-        </span>
-
-        <h1 class="text-4xl md:text-5xl font-bold text-fg mb-6 tracking-tight">
-          Raise a <span class="text-blue-fg">Grievance</span>
-        </h1>
-
-        <p class="text-xl text-fg-muted max-w-2xl mx-auto leading-relaxed mb-4">
-          At Exyconn, we uphold the highest standards of integrity, transparency, and
-          accountability. If you have a concern or grievance, we encourage you to share it with us.
-        </p>
-
-        <p class="text-fg-subtle max-w-xl mx-auto">
-          All submissions are handled confidentially and reviewed by our compliance team. We strive
-          for prompt and just resolution.
-        </p>
-      </div>
-    </section>
-
-    <!-- Our Commitment -->
-    <section class="py-12 px-6 bg-surface">
-      <div class="max-w-5xl mx-auto">
-        <div class="grid md:grid-cols-3 gap-6">
-          <div class="flex items-start gap-4 p-6 bg-surface-subtle rounded-2xl">
-            <div
-              class="w-12 h-12 bg-blue-deep rounded-xl flex items-center justify-center shrink-0"
-            >
-              <i class="fa-solid fa-lock text-on-solid"></i>
-            </div>
-            <div>
-              <h3 class="font-semibold text-fg mb-1">Confidential</h3>
-              <p class="text-sm text-fg-muted">Your identity is protected throughout the process</p>
-            </div>
-          </div>
-          <div class="flex items-start gap-4 p-6 bg-surface-subtle rounded-2xl">
-            <div
-              class="w-12 h-12 bg-purple-deep rounded-xl flex items-center justify-center shrink-0"
-            >
-              <i class="fa-solid fa-scale-balanced text-on-solid"></i>
-            </div>
-            <div>
-              <h3 class="font-semibold text-fg mb-1">Fair Review</h3>
-              <p class="text-sm text-fg-muted">Every concern is reviewed impartially by our team</p>
-            </div>
-          </div>
-          <div class="flex items-start gap-4 p-6 bg-surface-subtle rounded-2xl">
-            <div
-              class="w-12 h-12 bg-emerald-deep rounded-xl flex items-center justify-center shrink-0"
-            >
-              <i class="fa-solid fa-clock text-on-solid"></i>
-            </div>
-            <div>
-              <h3 class="font-semibold text-fg mb-1">Prompt Response</h3>
-              <p class="text-sm text-fg-muted">We aim to respond within 5 business days</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Grievance Form -->
+  <LegalSection
+    id={submit.id}
+    number={sectionNumber(doc, submit.id)}
+    title={submit.label}
+    anchorLabel="Link to this section"
+  >
     <GrievanceFormReact client:load />
-  </div>
-</Page>
+  </LegalSection>
+</LegalDocumentPage>

@@ -1,0 +1,114 @@
+/* The legal and grievance forms in the inner-page idiom. Scoped to .legal-form so the shared
+   field components (forms/shared/*) keep their markup; theme-following tokens only. */
+
+.legal-form {
+  display: grid;
+  gap: var(--space-5);
+  margin-top: var(--space-6);
+  padding: var(--space-5);
+}
+
+@media (min-width: 640px) {
+  .legal-form {
+    padding: var(--space-8);
+  }
+
+  .legal-form__row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+}
+
+.legal-form > form {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.legal-form__row {
+  display: grid;
+  gap: var(--space-5);
+}
+
+.legal-form label {
+  display: block;
+  margin-bottom: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-fg-secondary);
+}
+
+.legal-form form :is(input, select, textarea) {
+  min-height: 2.75rem;
+  padding: var(--space-3) var(--space-4);
+  border: var(--border-width-hairline) solid var(--color-field-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-field-bg);
+  color: var(--color-fg);
+  font-size: var(--font-size-md);
+  box-shadow: none;
+  transition: var(--transition-surface);
+}
+
+.legal-form__control {
+  width: 100%;
+}
+
+.legal-form textarea {
+  resize: vertical;
+  min-height: 9rem;
+}
+
+.legal-form form :is(input, textarea)::placeholder {
+  color: var(--color-fg-placeholder);
+}
+
+.legal-form form :is(input, select, textarea):focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: 1px;
+  background: var(--color-field-bg-focus);
+}
+
+.legal-form form :is(input, select, textarea)[aria-invalid="true"] {
+  border-color: var(--color-red-fg);
+}
+
+.legal-form__captcha > div {
+  padding: var(--space-4);
+  border: var(--border-width-hairline) dashed var(--color-line-strong);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-subtle);
+}
+
+.legal-form__captcha button {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+}
+
+.legal-form__submit {
+  width: 100%;
+}
+
+.legal-form__submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.legal-form__submit:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+.legal-form__fine-print {
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-normal);
+  color: var(--color-fg-muted);
+}
+
+.legal-form .legal-form__captcha input {
+  width: 8rem;
+  flex: none;
+}

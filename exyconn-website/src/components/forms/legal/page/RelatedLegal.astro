@@ -1,0 +1,26 @@
+---
+/** "Related policies": the other legal pages as cards, at the end of each legal page. */
+import { relatedLegalLinks, type LegalLink } from "../../../../lib/legal";
+import "./legal-page.css";
+
+type Props = Readonly<{ current: LegalLink["key"]; title?: string }>;
+
+const { current, title = "Related policies" } = Astro.props;
+const links = relatedLegalLinks(current);
+---
+
+<section class="legal-related" aria-labelledby="legal-related-title">
+  <h2 id="legal-related-title" class="inner-h3">{title}</h2>
+  <ul>
+    {
+      links.map((link) => (
+        <li>
+          <a class="inner-card" href={link.href}>
+            <span class="legal-related__label">{link.label}</span>
+            <span class="inner-card__text">{link.text}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</section>
