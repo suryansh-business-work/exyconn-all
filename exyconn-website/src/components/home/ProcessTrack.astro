@@ -1,0 +1,43 @@
+---
+/**
+ * How the work runs, drawn as stations on a line — four steps from the shared process data,
+ * each with its timing in mono.
+ */
+import { processCopy, processSteps } from "../../lib/home/process";
+---
+
+<div class="stage-column stage-gap glass p-5 md:p-6">
+  <p class="stage-label flex items-center gap-2 mb-3">
+    <i class={`fa-solid ${processCopy.badgeIcon}`} aria-hidden="true"></i>
+    {processCopy.badge}
+  </p>
+  <h2 class="stage-title stage-title--md">
+    <span class="block" data-reveal-line>{processCopy.title}</span>
+    <span class="block stage-accent" data-reveal-line>{processCopy.accent}</span>
+  </h2>
+  <p class="mt-4 text-fg-secondary leading-relaxed">{processCopy.lead}</p>
+
+  <ol class="mt-6 border-l border-line-strong ml-3">
+    {
+      processSteps.map((step, index) => (
+        <li class="relative pl-7 pb-6 last:pb-0">
+          <span class="absolute -left-3 top-0 w-6 h-6 rounded-full border-2 border-orange-bright bg-inverse flex items-center justify-center">
+            <span class="w-2 h-2 rounded-full bg-orange-bright" />
+          </span>
+          <p class="stage-label flex items-center gap-3">
+            <span aria-hidden="true">{String(index + 1).padStart(2, "0")}</span>
+            <span class="text-orange-bright">{step.when}</span>
+          </p>
+          <h3 class="mt-1 font-bold text-lg text-fg flex items-center gap-2">
+            <i
+              class={`fa-solid ${step.icon} shrink-0 icon-sm text-amber-bright`}
+              aria-hidden="true"
+            />
+            {step.title}
+          </h3>
+          <p class="mt-1 text-sm text-fg-secondary leading-relaxed">{step.text}</p>
+        </li>
+      ))
+    }
+  </ol>
+</div>

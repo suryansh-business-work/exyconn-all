@@ -2405,6 +2405,8 @@ export type EmployeeSalaryInput = {
   pfApplicable?: InputMaybe<Scalars['Boolean']['input']>;
   pfNumber?: InputMaybe<Scalars['String']['input']>;
   rate?: InputMaybe<Scalars['Float']['input']>;
+  taxExempt?: InputMaybe<Scalars['Boolean']['input']>;
+  taxRegimeKey?: InputMaybe<Scalars['String']['input']>;
   tdsPercent?: InputMaybe<Scalars['Float']['input']>;
 };
 
@@ -9753,6 +9755,8 @@ export type Query = {
   /** The ticket's history, newest first. */
   taskActivity: Array<TaskActivity>;
   taskComments: Array<TaskComment>;
+  /** The regimes on file, one per key, for anyone who sets salaries (HR and Finance). */
+  taxRegimeChoices: Array<TaxRegimeChoice>;
   /** Manager: every goal of their direct reports. */
   teamGoals: Array<Goal>;
   /** Manager: pending and recently decided leave requests from direct reports. */
@@ -11516,6 +11520,10 @@ export type SalaryStructure = {
    * STIPEND and OTHER. Ignored for FIXED, whose money is in the components above.
    */
   rate: Scalars['Float']['output'];
+  /** No tax bracket: payroll withholds no TDS from this person at all. */
+  taxExempt: Scalars['Boolean']['output'];
+  /** The regime key this person is taxed under. Null follows the one Payroll Settings names. */
+  taxRegimeKey?: Maybe<Scalars['String']['output']>;
   tdsPercent: Scalars['Float']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
@@ -11540,6 +11548,10 @@ export type SalaryStructureInput = {
   pfNumber?: InputMaybe<Scalars['String']['input']>;
   /** Per hour for HOURLY, per month for STIPEND and OTHER. Ignored by FIXED. */
   rate?: InputMaybe<Scalars['Float']['input']>;
+  /** No tax bracket: no TDS is withheld from this person at all. */
+  taxExempt?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The regime key this person is taxed under. Null follows the one Payroll Settings names. */
+  taxRegimeKey?: InputMaybe<Scalars['String']['input']>;
   /** Percent of taxable pay withheld for this person; 0 falls back to the company rate. */
   tdsPercent?: InputMaybe<Scalars['Float']['input']>;
 };
@@ -12600,6 +12612,18 @@ export type TaxRegime = {
   regimeKey: Scalars['String']['output'];
   /** Taken off annual pay before the bands are walked. */
   standardDeduction: Scalars['Float']['output'];
+};
+
+/**
+ * One regime an employee can be taxed under, whatever the year — the regime key and the
+ * name of its latest year on file. What the per-employee regime picker offers.
+ */
+export type TaxRegimeChoice = {
+  __typename?: 'TaxRegimeChoice';
+  /** Whether the latest year of this regime is applied. An inactive one withholds nothing. */
+  active: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  regimeKey: Scalars['String']['output'];
 };
 
 export type TaxRegimeInput = {
@@ -17562,21 +17586,21 @@ export type OrgMasterOptionsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type OrgMasterOptionsQuery = { __typename?: 'Query', listLocations: Array<{ __typename?: 'Location', id: string, name: string, code: string, active: boolean }>, listTeams: Array<{ __typename?: 'Team', id: string, name: string, department: string, active: boolean }>, listGrades: Array<{ __typename?: 'Grade', id: string, name: string, code: string, active: boolean }>, listEmploymentTypes: Array<{ __typename?: 'EmploymentType', id: string, name: string, code: string, active: boolean }>, listShifts: Array<{ __typename?: 'Shift', id: string, name: string, code: string, startTime: string, endTime: string, active: boolean }> };
 
-export type SalaryStructureFieldsFragment = { __typename?: 'SalaryStructure', id: string, employeeId: string, currency: string, payType: PayType, payTypeNote?: string | null, basic: number, hra: number, allowances: number, deductions: number, rate: number, billingRate: number, gross: number, net: number, pfApplicable: boolean, esiApplicable: boolean, tdsPercent: number, pfNumber?: string | null, esiNumber?: string | null, panNumber?: string | null, effectiveFrom: string };
+export type SalaryStructureFieldsFragment = { __typename?: 'SalaryStructure', id: string, employeeId: string, currency: string, payType: PayType, payTypeNote?: string | null, basic: number, hra: number, allowances: number, deductions: number, rate: number, billingRate: number, gross: number, net: number, pfApplicable: boolean, esiApplicable: boolean, tdsPercent: number, taxRegimeKey?: string | null, taxExempt: boolean, pfNumber?: string | null, esiNumber?: string | null, panNumber?: string | null, effectiveFrom: string };
 
 export type ListSalaryStructuresPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListSalaryStructuresPagedQuery = { __typename?: 'Query', listSalaryStructuresPaged: { __typename?: 'SalaryStructurePage', totalCount: number, rows: Array<{ __typename?: 'SalaryStructure', id: string, employeeId: string, currency: string, payType: PayType, payTypeNote?: string | null, basic: number, hra: number, allowances: number, deductions: number, rate: number, billingRate: number, gross: number, net: number, pfApplicable: boolean, esiApplicable: boolean, tdsPercent: number, pfNumber?: string | null, esiNumber?: string | null, panNumber?: string | null, effectiveFrom: string }> } };
+export type ListSalaryStructuresPagedQuery = { __typename?: 'Query', listSalaryStructuresPaged: { __typename?: 'SalaryStructurePage', totalCount: number, rows: Array<{ __typename?: 'SalaryStructure', id: string, employeeId: string, currency: string, payType: PayType, payTypeNote?: string | null, basic: number, hra: number, allowances: number, deductions: number, rate: number, billingRate: number, gross: number, net: number, pfApplicable: boolean, esiApplicable: boolean, tdsPercent: number, taxRegimeKey?: string | null, taxExempt: boolean, pfNumber?: string | null, esiNumber?: string | null, panNumber?: string | null, effectiveFrom: string }> } };
 
 export type EmployeeSalaryQueryVariables = Exact<{
   employeeId: Scalars['ID']['input'];
 }>;
 
 
-export type EmployeeSalaryQuery = { __typename?: 'Query', employeeSalary?: { __typename?: 'SalaryStructure', id: string, employeeId: string, currency: string, payType: PayType, payTypeNote?: string | null, basic: number, hra: number, allowances: number, deductions: number, rate: number, billingRate: number, gross: number, net: number, pfApplicable: boolean, esiApplicable: boolean, tdsPercent: number, pfNumber?: string | null, esiNumber?: string | null, panNumber?: string | null, effectiveFrom: string } | null };
+export type EmployeeSalaryQuery = { __typename?: 'Query', employeeSalary?: { __typename?: 'SalaryStructure', id: string, employeeId: string, currency: string, payType: PayType, payTypeNote?: string | null, basic: number, hra: number, allowances: number, deductions: number, rate: number, billingRate: number, gross: number, net: number, pfApplicable: boolean, esiApplicable: boolean, tdsPercent: number, taxRegimeKey?: string | null, taxExempt: boolean, pfNumber?: string | null, esiNumber?: string | null, panNumber?: string | null, effectiveFrom: string } | null };
 
 export type SaveEmployeeSalaryMutationVariables = Exact<{
   employeeId: Scalars['ID']['input'];
@@ -17584,7 +17608,7 @@ export type SaveEmployeeSalaryMutationVariables = Exact<{
 }>;
 
 
-export type SaveEmployeeSalaryMutation = { __typename?: 'Mutation', saveEmployeeSalary: { __typename?: 'SalaryStructure', id: string, employeeId: string, currency: string, payType: PayType, payTypeNote?: string | null, basic: number, hra: number, allowances: number, deductions: number, rate: number, billingRate: number, gross: number, net: number, pfApplicable: boolean, esiApplicable: boolean, tdsPercent: number, pfNumber?: string | null, esiNumber?: string | null, panNumber?: string | null, effectiveFrom: string } };
+export type SaveEmployeeSalaryMutation = { __typename?: 'Mutation', saveEmployeeSalary: { __typename?: 'SalaryStructure', id: string, employeeId: string, currency: string, payType: PayType, payTypeNote?: string | null, basic: number, hra: number, allowances: number, deductions: number, rate: number, billingRate: number, gross: number, net: number, pfApplicable: boolean, esiApplicable: boolean, tdsPercent: number, taxRegimeKey?: string | null, taxExempt: boolean, pfNumber?: string | null, esiNumber?: string | null, panNumber?: string | null, effectiveFrom: string } };
 
 export type ListSalaryStructuresStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -17695,6 +17719,11 @@ export type UpdatePayrollSettingsMutationVariables = Exact<{
 export type UpdatePayrollSettingsMutation = { __typename?: 'Mutation', updatePayrollSettings: { __typename?: 'PayrollSettings', pfEnabled: boolean, pfEmployeePercent: number, pfWageCeiling: number, esiEnabled: boolean, esiEmployeePercent: number, esiWageLimit: number, professionalTaxMonthly: number, tdsMode: TdsMode, tdsFlatPercent: number, tdsAnnualExemption: number, tdsCessPercent: number, tdsRegimeKey: string, financialYearStartMonth: number, runFromDay: number, tdsSlabs: Array<{ __typename?: 'TdsSlab', upTo?: number | null, percent: number }> } };
 
 export type TaxRegimeFieldsFragment = { __typename?: 'TaxRegime', id: string, regimeKey: string, financialYear: string, name: string, standardDeduction: number, rebateIncomeLimit: number, rebateMaxTax: number, cessPercent: number, active: boolean };
+
+export type TaxRegimeChoicesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TaxRegimeChoicesQuery = { __typename?: 'Query', taxRegimeChoices: Array<{ __typename?: 'TaxRegimeChoice', regimeKey: string, name: string, active: boolean }> };
 
 export type ListTaxRegimesQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -20991,6 +21020,8 @@ export const SalaryStructureFieldsFragmentDoc = gql`
   pfApplicable
   esiApplicable
   tdsPercent
+  taxRegimeKey
+  taxExempt
   pfNumber
   esiNumber
   panNumber
@@ -44203,6 +44234,51 @@ export function useUpdatePayrollSettingsMutation(baseOptions?: ApolloReactHooks.
         return ApolloReactHooks.useMutation<UpdatePayrollSettingsMutation, UpdatePayrollSettingsMutationVariables>(UpdatePayrollSettingsDocument, options);
       }
 export type UpdatePayrollSettingsMutationHookResult = ReturnType<typeof useUpdatePayrollSettingsMutation>;
+export const TaxRegimeChoicesDocument = gql`
+    query TaxRegimeChoices {
+  taxRegimeChoices {
+    regimeKey
+    name
+    active
+  }
+}
+    `;
+
+/**
+ * __useTaxRegimeChoicesQuery__
+ *
+ * To run a query within a React component, call `useTaxRegimeChoicesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTaxRegimeChoicesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTaxRegimeChoicesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useTaxRegimeChoicesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<TaxRegimeChoicesQuery, TaxRegimeChoicesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<TaxRegimeChoicesQuery, TaxRegimeChoicesQueryVariables>(TaxRegimeChoicesDocument, options);
+      }
+export function useTaxRegimeChoicesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<TaxRegimeChoicesQuery, TaxRegimeChoicesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<TaxRegimeChoicesQuery, TaxRegimeChoicesQueryVariables>(TaxRegimeChoicesDocument, options);
+        }
+// @ts-ignore
+export function useTaxRegimeChoicesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<TaxRegimeChoicesQuery, TaxRegimeChoicesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TaxRegimeChoicesQuery, TaxRegimeChoicesQueryVariables>;
+// @ts-ignore
+export function useTaxRegimeChoicesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TaxRegimeChoicesQuery, TaxRegimeChoicesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TaxRegimeChoicesQuery | undefined, TaxRegimeChoicesQueryVariables>;
+export function useTaxRegimeChoicesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TaxRegimeChoicesQuery, TaxRegimeChoicesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<TaxRegimeChoicesQuery, TaxRegimeChoicesQueryVariables>(TaxRegimeChoicesDocument, options);
+        }
+export type TaxRegimeChoicesQueryHookResult = ReturnType<typeof useTaxRegimeChoicesQuery>;
+export type TaxRegimeChoicesLazyQueryHookResult = ReturnType<typeof useTaxRegimeChoicesLazyQuery>;
+export type TaxRegimeChoicesSuspenseQueryHookResult = ReturnType<typeof useTaxRegimeChoicesSuspenseQuery>;
 export const ListTaxRegimesDocument = gql`
     query ListTaxRegimes {
   listTaxRegimes {

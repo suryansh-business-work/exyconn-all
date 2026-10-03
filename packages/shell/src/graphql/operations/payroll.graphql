@@ -17,6 +17,8 @@ fragment SalaryStructureFields on SalaryStructure {
   pfApplicable
   esiApplicable
   tdsPercent
+  taxRegimeKey
+  taxExempt
   pfNumber
   esiNumber
   panNumber
@@ -241,6 +243,15 @@ fragment TaxRegimeFields on TaxRegime {
   rebateMaxTax
   cessPercent
   active
+}
+
+# The regimes an employee can be taxed under, one per key, for the compensation picker.
+query TaxRegimeChoices {
+  taxRegimeChoices {
+    regimeKey
+    name
+    active
+  }
 }
 
 query ListTaxRegimes {

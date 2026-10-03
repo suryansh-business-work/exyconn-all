@@ -1,0 +1,282 @@
+/*
+ * The home stage: a night band (it carries data-theme="dark", so every colour role inside
+ * answers with its night value in both site modes) over which the chapters scroll, with the
+ * WebGL scene pinned behind them. Colour comes only from roles.
+ */
+.home-stage {
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  color: var(--color-fg);
+  background: linear-gradient(
+    180deg,
+    var(--color-inverse),
+    var(--color-indigo-night) 55%,
+    var(--color-inverse)
+  );
+}
+
+/* The scene layer spans the stage; its inner box sticks to the viewport while the stage scrolls. */
+.stage-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/*
+ * The pinned viewport. Its own glow is what a browser without WebGL keeps; the canvas fades
+ * in over it once the scene has drawn its first frame.
+ */
+.stage-canvas__pin {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100lvh;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      ellipse 45% 55% at 72% 45%,
+      color-mix(in oklab, var(--color-violet) 26%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 40% 40% at 20% 85%,
+      color-mix(in oklab, var(--color-cyan) 12%, transparent),
+      transparent 70%
+    );
+}
+
+.stage-canvas__pin canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transition: opacity 1.4s var(--ease-standard);
+}
+
+.home-stage[data-scene="ready"] .stage-canvas__pin canvas {
+  opacity: 1;
+}
+
+.stage-content {
+  position: relative;
+  z-index: 1;
+}
+
+/*
+ * Layout. Phones: the scene owns the top of every chapter and shows again in the gaps
+ * between panels. Wide screens: panels keep to a reading column on the left and the scene
+ * holds the right side throughout.
+ */
+.stage-shell {
+  width: 100%;
+  max-width: 80rem;
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+}
+
+.stage-column {
+  width: 100%;
+  max-width: 44rem;
+}
+
+.stage-chapter {
+  position: relative;
+  padding-block: 36svh var(--space-16);
+}
+
+.stage-chapter--hero {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-block: 46svh var(--space-10);
+}
+
+/* Room at the end for the floating cookie, accessibility and back-to-top buttons. */
+.stage-chapter--closing {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-block: 52svh var(--space-24);
+}
+
+.stage-gap {
+  margin-top: 28svh;
+}
+
+@media (min-width: 640px) {
+  .stage-shell {
+    padding-inline: var(--space-6);
+  }
+}
+
+@media (min-width: 1024px) {
+  .stage-shell {
+    padding-inline: var(--space-8);
+  }
+
+  .stage-chapter {
+    padding-block: 22vh var(--space-24);
+  }
+
+  .stage-chapter--hero {
+    justify-content: center;
+    padding-block: var(--space-16) var(--space-12);
+  }
+
+  .stage-intro {
+    min-height: 62vh;
+  }
+
+  .stage-gap {
+    margin-top: 10rem;
+  }
+}
+
+/* Type: condensed uppercase display, tiny mono labels. */
+.stage-title {
+  font-size: clamp(2.5rem, 5.6vw, 5.6rem);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.stage-title--md {
+  font-size: clamp(2.1rem, 4.4vw, 4.2rem);
+}
+
+.stage-accent {
+  background: linear-gradient(
+    90deg,
+    var(--color-violet-bright),
+    var(--color-fuchsia-bright) 50%,
+    var(--color-cyan-bright)
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.stage-label {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-2xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-fg-secondary);
+}
+
+/*
+ * Frosted glass: translucent so the scene reads through, blurred so whatever glows behind
+ * turns into a soft haze rather than detail competing with the text. Body copy on glass is
+ * `fg-secondary` or stronger, which keeps 4.5:1 over that haze.
+ */
+.glass {
+  background: color-mix(in oklab, var(--color-inverse) 56%, transparent);
+  border: var(--border-width-hairline) solid color-mix(in oklab, var(--color-fg) 13%, transparent);
+  border-radius: var(--radius-2xl);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+}
+
+a.glass {
+  transition:
+    var(--transition-surface),
+    transform var(--duration-slow) var(--ease-standard);
+}
+
+a.glass:hover {
+  border-color: color-mix(in oklab, var(--color-violet-bright) 55%, transparent);
+  transform: translateY(-2px);
+}
+
+.stage-content a:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Measurement ticks under a section label, after the blueprint. */
+.stage-rule {
+  height: 6px;
+  background:
+    repeating-linear-gradient(
+        90deg,
+        color-mix(in oklab, var(--color-orange-bright) 70%, transparent) 0 1px,
+        transparent 1px 12px
+      )
+      bottom / 100% 4px no-repeat,
+    linear-gradient(color-mix(in oklab, var(--color-fg) 18%, transparent), transparent) bottom /
+      100% 1px no-repeat;
+}
+
+/* Heading reveal: only once the script has armed it, so without JS every heading shows. */
+.home-stage[data-reveal-ready] [data-reveal-line] {
+  clip-path: inset(0 0 100% 0);
+  transform: translateY(0.3em);
+  transition:
+    clip-path 0.9s var(--ease-standard),
+    transform 0.9s var(--ease-standard);
+}
+
+.home-stage[data-reveal-ready] [data-reveal-line].is-revealed {
+  clip-path: inset(-0.2em -0.1em -0.2em -0.1em);
+  transform: none;
+}
+
+/* The chapter rail: wide screens only, pinned like the canvas so it leaves with the stage. */
+.stage-rail-track {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  pointer-events: none;
+}
+
+.stage-rail-track > .stage-rail {
+  position: sticky;
+  top: 50%;
+  margin-right: 1.25rem;
+  transform: translateY(-50%);
+  pointer-events: auto;
+}
+
+.stage-rail a[aria-current="true"] .stage-rail__dot {
+  background: var(--color-orange-bright);
+  transform: scale(1.6);
+}
+
+.stage-rail a[aria-current="true"] .stage-rail__label {
+  color: var(--color-fg);
+}
+
+@media (max-width: 767px) {
+  /* A smaller blur radius: phones re-blur every panel over the live canvas each frame. */
+  .glass {
+    background: color-mix(in oklab, var(--color-inverse) 62%, transparent);
+    backdrop-filter: blur(10px) saturate(140%);
+    -webkit-backdrop-filter: blur(10px) saturate(140%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-stage[data-reveal-ready] [data-reveal-line] {
+    clip-path: none;
+    transform: none;
+    transition: none;
+  }
+
+  .stage-canvas__pin canvas {
+    transition: none;
+  }
+}
+
+/* Grid and flex children may shrink below their content, so nothing pushes past the gutter. */
+.stage-content :where(.grid > *, .flex > *) {
+  min-width: 0;
+}

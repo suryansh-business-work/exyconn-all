@@ -2404,6 +2404,8 @@ export type EmployeeSalaryInput = {
   pfApplicable?: InputMaybe<Scalars['Boolean']['input']>;
   pfNumber?: InputMaybe<Scalars['String']['input']>;
   rate?: InputMaybe<Scalars['Float']['input']>;
+  taxExempt?: InputMaybe<Scalars['Boolean']['input']>;
+  taxRegimeKey?: InputMaybe<Scalars['String']['input']>;
   tdsPercent?: InputMaybe<Scalars['Float']['input']>;
 };
 
@@ -9752,6 +9754,8 @@ export type Query = {
   /** The ticket's history, newest first. */
   taskActivity: Array<TaskActivity>;
   taskComments: Array<TaskComment>;
+  /** The regimes on file, one per key, for anyone who sets salaries (HR and Finance). */
+  taxRegimeChoices: Array<TaxRegimeChoice>;
   /** Manager: every goal of their direct reports. */
   teamGoals: Array<Goal>;
   /** Manager: pending and recently decided leave requests from direct reports. */
@@ -11515,6 +11519,10 @@ export type SalaryStructure = {
    * STIPEND and OTHER. Ignored for FIXED, whose money is in the components above.
    */
   rate: Scalars['Float']['output'];
+  /** No tax bracket: payroll withholds no TDS from this person at all. */
+  taxExempt: Scalars['Boolean']['output'];
+  /** The regime key this person is taxed under. Null follows the one Payroll Settings names. */
+  taxRegimeKey?: Maybe<Scalars['String']['output']>;
   tdsPercent: Scalars['Float']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
@@ -11539,6 +11547,10 @@ export type SalaryStructureInput = {
   pfNumber?: InputMaybe<Scalars['String']['input']>;
   /** Per hour for HOURLY, per month for STIPEND and OTHER. Ignored by FIXED. */
   rate?: InputMaybe<Scalars['Float']['input']>;
+  /** No tax bracket: no TDS is withheld from this person at all. */
+  taxExempt?: InputMaybe<Scalars['Boolean']['input']>;
+  /** The regime key this person is taxed under. Null follows the one Payroll Settings names. */
+  taxRegimeKey?: InputMaybe<Scalars['String']['input']>;
   /** Percent of taxable pay withheld for this person; 0 falls back to the company rate. */
   tdsPercent?: InputMaybe<Scalars['Float']['input']>;
 };
@@ -12599,6 +12611,18 @@ export type TaxRegime = {
   regimeKey: Scalars['String']['output'];
   /** Taken off annual pay before the bands are walked. */
   standardDeduction: Scalars['Float']['output'];
+};
+
+/**
+ * One regime an employee can be taxed under, whatever the year — the regime key and the
+ * name of its latest year on file. What the per-employee regime picker offers.
+ */
+export type TaxRegimeChoice = {
+  __typename?: 'TaxRegimeChoice';
+  /** Whether the latest year of this regime is applied. An inactive one withholds nothing. */
+  active: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  regimeKey: Scalars['String']['output'];
 };
 
 export type TaxRegimeInput = {
@@ -14524,6 +14548,7 @@ export type ResolversTypes = ResolversObject<{
   TaskPriority: TaskPriority;
   TaskType: TaskType;
   TaxRegime: ResolverTypeWrapper<TaxRegime>;
+  TaxRegimeChoice: ResolverTypeWrapper<TaxRegimeChoice>;
   TaxRegimeInput: TaxRegimeInput;
   TaxSlab: ResolverTypeWrapper<TaxSlab>;
   TaxSlabInput: TaxSlabInput;
@@ -15112,6 +15137,7 @@ export type ResolversParentTypes = ResolversObject<{
   TaskComment: TaskComment;
   TaskInput: TaskInput;
   TaxRegime: TaxRegime;
+  TaxRegimeChoice: TaxRegimeChoice;
   TaxRegimeInput: TaxRegimeInput;
   TaxSlab: TaxSlab;
   TaxSlabInput: TaxSlabInput;
@@ -19315,6 +19341,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   systemHealth?: Resolver<ResolversTypes['SystemHealth'], ParentType, ContextType>;
   taskActivity?: Resolver<Array<ResolversTypes['TaskActivity']>, ParentType, ContextType, RequireFields<QueryTaskActivityArgs, 'taskId'>>;
   taskComments?: Resolver<Array<ResolversTypes['TaskComment']>, ParentType, ContextType, RequireFields<QueryTaskCommentsArgs, 'taskId'>>;
+  taxRegimeChoices?: Resolver<Array<ResolversTypes['TaxRegimeChoice']>, ParentType, ContextType>;
   teamGoals?: Resolver<Array<ResolversTypes['Goal']>, ParentType, ContextType>;
   teamLeaveRequests?: Resolver<Array<ResolversTypes['LeaveRequest']>, ParentType, ContextType>;
   teamPerformanceReviews?: Resolver<Array<ResolversTypes['PerformanceReview']>, ParentType, ContextType>;
@@ -19485,6 +19512,8 @@ export type SalaryStructureResolvers<ContextType = GraphQLContext, ParentType ex
   pfApplicable?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   pfNumber?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   rate?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  taxExempt?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  taxRegimeKey?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   tdsPercent?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -20127,6 +20156,13 @@ export type TaxRegimeResolvers<ContextType = GraphQLContext, ParentType extends 
   rebateMaxTax?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   regimeKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   standardDeduction?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TaxRegimeChoiceResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TaxRegimeChoice'] = ResolversParentTypes['TaxRegimeChoice']> = ResolversObject<{
+  active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  regimeKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -21133,6 +21169,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   TaskAttachment?: TaskAttachmentResolvers<ContextType>;
   TaskComment?: TaskCommentResolvers<ContextType>;
   TaxRegime?: TaxRegimeResolvers<ContextType>;
+  TaxRegimeChoice?: TaxRegimeChoiceResolvers<ContextType>;
   TaxSlab?: TaxSlabResolvers<ContextType>;
   TaxSlabPage?: TaxSlabPageResolvers<ContextType>;
   TdsSlab?: TdsSlabResolvers<ContextType>;

@@ -1,0 +1,55 @@
+---
+/**
+ * The scroll-driven home page. Chapters are ordinary HTML in the slot; behind them a WebGL
+ * scene (src/scripts/home3d) follows the reader through five chapters. The stage is a
+ * night band in both site modes: additive glow needs a dark sky, and `data-theme="dark"`
+ * makes every colour role inside answer with its night value.
+ */
+import "../../styles/home-stage.css";
+
+interface Props {
+  /** The chapters, in order, for the rail: their element ids and short names. */
+  chapters: readonly { id: string; label: string }[];
+  railLabel: string;
+}
+
+const { chapters, railLabel } = Astro.props;
+---
+
+<div class="home-stage" data-theme="dark" data-home-stage>
+  <div class="stage-canvas" aria-hidden="true">
+    <div class="stage-canvas__pin" data-home-canvas></div>
+  </div>
+
+  <div class="stage-rail-track">
+    <nav class="stage-rail hidden lg:flex flex-col gap-1" aria-label={railLabel}>
+      {
+        chapters.map((chapter, index) => (
+          <a
+            href={`#${chapter.id}`}
+            data-rail-link
+            class="group flex items-center justify-end gap-3 min-h-8 px-2 rounded-md"
+          >
+            <span class="stage-rail__label stage-label opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100 transition-opacity">
+              {chapter.label}
+            </span>
+            <span class="stage-label text-orange-bright" aria-hidden="true">
+              {String(index).padStart(2, "0")}
+            </span>
+            <span class="stage-rail__dot block w-1.5 h-1.5 rounded-full bg-fg-subtle transition-transform" />
+          </a>
+        ))
+      }
+    </nav>
+  </div>
+
+  <div class="stage-content">
+    <slot />
+  </div>
+</div>
+
+<script>
+  import { bootHome } from "../../scripts/home3d/boot";
+
+  bootHome();
+</script>

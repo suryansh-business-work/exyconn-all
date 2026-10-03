@@ -1,16 +1,14 @@
-import { marketByPath, marketUrl, type Market } from "./markets";
+import { MARKET_COOKIE, choiceCookie } from "./market-cookie";
+import {
+  DEFAULT_MARKET,
+  chooseMarket,
+  marketByPath,
+  marketUrl,
+  splitMarketPath,
+  type Market,
+} from "./markets";
 
-/**
- * Where the reader's last-chosen market is remembered.
- *
- * A link that carries no market — typed by hand, opened from an email, built by a script like
- * the search box — would otherwise be sent to whatever the browser's language suggests, and a
- * reader who had just picked "Canada - Français" would be thrown back to the default.
- */
-export const MARKET_COOKIE = "exy_market";
-
-/** A year: the choice is a preference, not a session. */
-const COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+export { MARKET_COOKIE } from "./market-cookie";
 
 const APEX_ORIGIN = "https://exyconn.com";
 
@@ -24,12 +22,12 @@ const NAVIGATING_TAG = /<(a|form)\b[^>]*>/gi;
 /** `href="…"`, `href='…'` or `action=…` inside one of those tags. */
 const TARGET_ATTRIBUTE = /(\s(?:href|action)\s*=\s*)(["'])([^"']*)\2/gi;
 
-/** The `Set-Cookie` value that remembers `market` for every page on the site. */
+/** The cookie value that remembers `market` as the reader's choice. */
 export function marketCookie(market: Market): string {
-  return `${MARKET_COOKIE}=${market.path}; Path=/; Max-Age=${COOKIE_MAX_AGE}; SameSite=Lax`;
+  return choiceCookie(market.path);
 }
 
-/** The market a request's cookies remember, or null when there is none (or it is not one). */
+/** The market a reader chose, from a request's cookies, or null when they never chose one. */
 export function rememberedMarket(cookieHeader: string | null): Market | null {
   if (!cookieHeader) {
     return null;
@@ -87,4 +85,64 @@ export function localiseLinks(html: string, market: Market): string {
       return localised === null ? whole : `${prefix}${quote}${localised}${quote}`;
     })
   );
+}
+
+/**
+ * Crawlers, link unfurlers and AI agents. They are never sent anywhere by language: each one
+ * gets the `x-default` market, so what a search engine indexes does not depend on where its
+ * crawler happens to run, and every other market is found through the page's hreflang links.
+ */
+const CRAWLER = /bot\b|crawl|spider|slurp|externalhit|externalagent|-ai\b|-user\b/i;
+
+/**
+ * The market of the page a reader just came from on this site, or null.
+ *
+ * A link a script builds — the search box's results — carries no market, and a reader who was
+ * reading /fr-ca should stay there rather than be sent to whatever their browser asks for.
+ */
+function referringMarket(referer: string | null, host: string): Market | null {
+  if (!referer || !URL.canParse(referer)) {
+    return null;
+  }
+  const from = new URL(referer);
+  return from.host === host ? splitMarketPath(from.pathname).market : null;
+}
+
+/**
+ * Which market a URL that names none is sent to, in this order:
+ *  1. a crawler always gets the default (`x-default`) market;
+ *  2. the market the reader chose in the picker (the cookie);
+ *  3. the market of the page on this site they followed the link from;
+ *  4. the best match for their browser's languages (`Accept-Language`), with the country the
+ *     edge reports only choosing between one language's markets;
+ *  5. the default market.
+ */
+export function marketForRequest(request: Request): Market {
+  const { headers } = request;
+  if (CRAWLER.test(headers.get("user-agent") ?? "")) {
+    return DEFAULT_MARKET;
+  }
+  return (
+    rememberedMarket(headers.get("cookie")) ??
+    referringMarket(headers.get("referer"), new URL(request.url).host) ??
+    chooseMarket(
+      headers.get("accept-language"),
+      headers.get("cf-ipcountry") ?? headers.get("x-country")
+    )
+  );
+}
+
+/**
+ * A temporary (302) redirect from a URL without a market to the same page in the reader's
+ * market. It depends on who is asking, so no shared cache may keep it for anyone else.
+ */
+export function marketRedirect(request: Request, pathname: string, search: string): Response {
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: `${marketUrl(marketForRequest(request), pathname)}${search}`,
+      "Cache-Control": "private, no-store",
+      Vary: "Accept-Language, Cookie, Referer, User-Agent",
+    },
+  });
 }

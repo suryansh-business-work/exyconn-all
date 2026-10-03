@@ -1,3 +1,17 @@
+---
+import {
+  whyChooseUsActions,
+  whyChooseUsCopy,
+  whyChooseUsStats,
+  whyChooseUsValues,
+} from "../lib/home/why-choose-us";
+
+const ACTION_CLASSES = [
+  "inline-flex items-center gap-2 bg-cyan-deep text-on-solid font-semibold px-8 py-4 rounded-full shadow-lg shadow-cyan/25 hover:shadow-cyan/40 hover:scale-105 transition-all duration-300",
+  "inline-flex items-center gap-2 bg-surface-muted text-fg font-semibold px-8 py-4 rounded-full hover:bg-surface-strong hover:scale-105 transition-all duration-300",
+];
+---
+
 <!-- Why Choose Exyconn - Enhanced Value Proposition -->
 <section class="bg-surface py-24 px-4 relative overflow-hidden">
   <!-- Background Elements -->
@@ -7,8 +21,8 @@
       <!-- Left: Image with Stats Overlay -->
       <div class="w-full lg:w-1/2 relative">
         <img
-          src="https://images.pexels.com/photos/3861973/pexels-photo-3861973.jpeg?auto=compress&w=800&q=80"
-          alt="Exyconn AI Team"
+          src={whyChooseUsCopy.image.src}
+          alt={whyChooseUsCopy.image.alt}
           class="w-full rounded-3xl shadow-2xl object-cover h-[500px]"
         />
         <!-- Floating Stats Card -->
@@ -16,15 +30,17 @@
           class="absolute -bottom-8 -right-8 bg-surface rounded-2xl shadow-xl p-6 border border-line-subtle hidden md:block"
         >
           <div class="flex items-center gap-6">
-            <div class="text-center">
-              <div class="text-3xl font-black text-cyan-fg">98%</div>
-              <div class="text-sm text-fg-subtle">Client Retention</div>
-            </div>
-            <div class="h-12 w-px bg-surface-strong"></div>
-            <div class="text-center">
-              <div class="text-3xl font-black text-indigo-fg">500+</div>
-              <div class="text-sm text-fg-subtle">AI Deployments</div>
-            </div>
+            {
+              whyChooseUsStats.map((stat, index) => (
+                <>
+                  {index > 0 && <div class="h-12 w-px bg-surface-strong" />}
+                  <div class="text-center">
+                    <div class={`text-3xl font-black ${stat.ink}`}>{stat.value}</div>
+                    <div class="text-sm text-fg-subtle">{stat.label}</div>
+                  </div>
+                </>
+              ))
+            }
           </div>
         </div>
         <!-- Award Badge -->
@@ -35,96 +51,47 @@
         <span
           class="inline-flex items-center gap-2 px-4 py-2 bg-cyan-subtle border border-cyan-muted rounded-full text-sm font-semibold text-cyan-fg-strong mb-4"
         >
-          <i class="fa-solid fa-shield-check"></i>
-          The AI-First Technology Partner
+          <i class={`fa-solid ${whyChooseUsCopy.badgeIcon}`}></i>
+          {whyChooseUsCopy.badge}
         </span>
         <h2
           class="text-4xl md:text-5xl font-black text-fg mb-6 tracking-tight leading-tight"
           data-anime="slide-right"
         >
-          Why Leading Enterprises Choose <span class="text-cyan-fg">Exyconn</span>
+          {whyChooseUsCopy.title}
+          <span class="text-cyan-fg">{whyChooseUsCopy.accent}</span>
         </h2>
         <p class="text-xl text-fg-muted mb-8 leading-relaxed">
-          We don't just build AI—we architect intelligent systems that transform how businesses
-          operate. Our unique combination of deep AI expertise and enterprise SaaS experience
-          delivers measurable results.
+          {whyChooseUsCopy.lead}
         </p>
 
         <!-- Value Props Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
-          <div
-            class="bg-surface rounded-xl shadow-md border border-line-subtle p-5 hover:shadow-lg transition-shadow"
-          >
-            <div
-              class="w-12 h-12 bg-cyan-deep rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-cyan/20"
-            >
-              <i class="fa-solid fa-rocket text-on-solid text-xl"></i>
-            </div>
-            <h3 class="font-bold text-lg text-fg mb-2">Production-Ready AI</h3>
-            <p class="text-fg-muted text-sm">
-              Deploy AI agents that work in production from day one—not proofs of concept.
-            </p>
-          </div>
-
-          <div
-            class="bg-surface rounded-xl shadow-md border border-line-subtle p-5 hover:shadow-lg transition-shadow"
-          >
-            <div
-              class="w-12 h-12 bg-indigo rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-indigo/20"
-            >
-              <i class="fa-solid fa-cloud text-on-solid text-xl"></i>
-            </div>
-            <h3 class="font-bold text-lg text-fg mb-2">SaaS-Native Platforms</h3>
-            <p class="text-fg-muted text-sm">
-              Our platforms are built cloud-first with enterprise security and 99.9% uptime.
-            </p>
-          </div>
-
-          <div
-            class="bg-surface rounded-xl shadow-md border border-line-subtle p-5 hover:shadow-lg transition-shadow"
-          >
-            <div
-              class="w-12 h-12 bg-emerald-deep rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-emerald/20"
-            >
-              <i class="fa-solid fa-bolt text-on-solid text-xl"></i>
-            </div>
-            <h3 class="font-bold text-lg text-fg mb-2">10x Faster Delivery</h3>
-            <p class="text-fg-muted text-sm">
-              Pre-built components and AI accelerators cut implementation time by 90%.
-            </p>
-          </div>
-
-          <div
-            class="bg-surface rounded-xl shadow-md border border-line-subtle p-5 hover:shadow-lg transition-shadow"
-          >
-            <div
-              class="w-12 h-12 bg-orange-deep rounded-xl flex items-center justify-center mb-4 shadow-lg shadow-orange/20"
-            >
-              <i class="fa-solid fa-handshake text-on-solid text-xl"></i>
-            </div>
-            <h3 class="font-bold text-lg text-fg mb-2">End-to-End Partnership</h3>
-            <p class="text-fg-muted text-sm">
-              From strategy through deployment to 24/7 support—we're with you all the way.
-            </p>
-          </div>
+          {
+            whyChooseUsValues.map((value) => (
+              <div class="bg-surface rounded-xl shadow-md border border-line-subtle p-5 hover:shadow-lg transition-shadow">
+                <div
+                  class={`w-12 h-12 ${value.tile} rounded-xl flex items-center justify-center mb-4 shadow-lg`}
+                >
+                  <i class={`fa-solid ${value.icon} text-on-solid text-xl`} />
+                </div>
+                <h3 class="font-bold text-lg text-fg mb-2">{value.title}</h3>
+                <p class="text-fg-muted text-sm">{value.text}</p>
+              </div>
+            ))
+          }
         </div>
 
         <!-- CTA Buttons -->
         <div class="flex flex-wrap gap-4">
-          <a
-            href="/case-studies"
-            class="inline-flex items-center gap-2 bg-cyan-deep text-on-solid font-semibold px-8 py-4 rounded-full shadow-lg shadow-cyan/25 hover:shadow-cyan/40 hover:scale-105 transition-all duration-300"
-          >
-            <i class="fa-solid fa-chart-column"></i>
-            View Case Studies
-          </a>
-          <a
-            href="/contact"
-            class="inline-flex items-center gap-2 bg-surface-muted text-fg font-semibold px-8 py-4 rounded-full hover:bg-surface-strong hover:scale-105 transition-all duration-300"
-          >
-            <i class="fa-solid fa-calendar-check"></i>
-            Schedule Demo
-          </a>
+          {
+            whyChooseUsActions.map((action, index) => (
+              <a href={action.href} class={ACTION_CLASSES[index]}>
+                <i class={`fa-solid ${action.icon}`} />
+                {action.label}
+              </a>
+            ))
+          }
         </div>
       </div>
     </div>

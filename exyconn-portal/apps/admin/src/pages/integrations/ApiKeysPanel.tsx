@@ -24,6 +24,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { roleLabel, roleList } from '@exyconn/shell/auth/roles';
 
 /** The roles a key can be granted. Mirrors the portal's own list — a key is never more. */
 const GRANTABLE_ROLES = [
@@ -114,7 +115,7 @@ export function ApiKeysPanel() {
           {GRANTABLE_ROLES.map((role) => (
             <Chip
               key={role}
-              label={role}
+              label={t(roleLabel(role))}
               color={roles.includes(role) ? 'primary' : 'default'}
               onClick={() =>
                 setRoles((current) =>
@@ -155,7 +156,7 @@ export function ApiKeysPanel() {
               <TableRow key={key.id}>
                 <TableCell>{key.name}</TableCell>
                 <TableCell sx={{ fontFamily: 'monospace' }}>{key.prefix}</TableCell>
-                <TableCell>{key.roles.join(', ')}</TableCell>
+                <TableCell>{roleList(key.roles, t)}</TableCell>
                 <TableCell>
                   {key.lastUsedAt ? formatDateTime(key.lastUsedAt) : t('Never')}
                 </TableCell>

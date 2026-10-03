@@ -17,6 +17,14 @@ export function rateLabel(payType: PayType): string {
   return payType === PayType.Hourly ? 'Rate per hour' : 'Amount per month';
 }
 
+/**
+ * The tax regime picker's two choices that are not a regime on file. Both are padded with
+ * spaces, which no regime key can contain (keys are trimmed words like NEW or OLD), so
+ * neither can ever be mistaken for a regime somebody adds later.
+ */
+export const COMPANY_TAX_REGIME = ' company ';
+export const NO_TAX_BRACKET = ' no-tax ';
+
 /** A money field: typed as a string because a number input's empty state is '', not 0. */
 const money = (label: string) =>
   z
@@ -37,6 +45,8 @@ export const compensationSchema = z
     deductions: money('Deductions'),
     rate: money('Rate'),
     billingRate: money('Billing rate'),
+    /** A regime key, `COMPANY_TAX_REGIME` or `NO_TAX_BRACKET`. */
+    taxRegime: z.string(),
     effectiveFrom: z.string().min(1, 'Effective from is required'),
   })
   // The amount that actually pays this person has to be there. Which field that is depends
@@ -58,6 +68,14 @@ export type CompensationValues = z.infer<typeof compensationSchema>;
 
 const amount = (value: number | null | undefined): string => String(value ?? 0);
 
+/** The picker value for a stored structure: no tax bracket, its own regime, or the default. */
+function taxRegimeValue(salary: EmployeeSalary | null): string {
+  if (salary?.taxExempt) {
+    return NO_TAX_BRACKET;
+  }
+  return salary?.taxRegimeKey ?? COMPANY_TAX_REGIME;
+}
+
 /** Form defaults for an employee with no structure yet, or their stored one. */
 export function toCompensationValues(
   salary: EmployeeSalary | null,
@@ -75,6 +93,7 @@ export function toCompensationValues(
     deductions: amount(salary?.deductions),
     rate: amount(salary?.rate),
     billingRate: amount(salary?.billingRate),
+    taxRegime: taxRegimeValue(salary),
     // A new structure takes effect the day they join, which is the answer often enough that
     // asking again would just be a second chance to type it differently.
     effectiveFrom: salary?.effectiveFrom ?? joinDate ?? '',
@@ -90,6 +109,7 @@ export function toCompensationValues(
  */
 export function toSalaryInput(v: CompensationValues): EmployeeSalaryInput {
   const single = usesSingleAmount(v.payType);
+  const noTax = v.taxRegime === NO_TAX_BRACKET;
   return {
     currency: v.currency,
     payType: v.payType,
@@ -100,6 +120,9 @@ export function toSalaryInput(v: CompensationValues): EmployeeSalaryInput {
     deductions: Number(v.deductions),
     rate: single ? Number(v.rate) : 0,
     billingRate: Number(v.billingRate),
+    // Sent every time, so moving someone back to the default or out of no tax bracket sticks.
+    taxExempt: noTax,
+    taxRegimeKey: noTax || v.taxRegime === COMPANY_TAX_REGIME ? null : v.taxRegime,
     effectiveFrom: v.effectiveFrom,
   };
 }

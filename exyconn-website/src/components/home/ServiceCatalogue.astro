@@ -1,0 +1,73 @@
+---
+/**
+ * The AI service catalogue, dense and narrow: one glass panel per category in the reading
+ * column, its services as compact rows. Read straight from lib/services so the home page
+ * and /ai-services never drift.
+ */
+import { catalogueHeader } from "../../lib/home/solutions";
+import { aiServiceCategories, servicesInCategory } from "../../lib/services/aiServices";
+---
+
+<div class="stage-column stage-gap">
+  <div class="glass p-5 md:p-6 mb-3">
+    <p class="stage-label flex items-center gap-2 mb-3">
+      <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
+      {catalogueHeader.badge}
+    </p>
+    <h2 class="stage-title stage-title--md">
+      <span class="block" data-reveal-line>{catalogueHeader.title}</span>
+      <span class="block stage-accent" data-reveal-line>{catalogueHeader.accent}</span>
+    </h2>
+    <p class="mt-4 text-fg-secondary leading-relaxed">{catalogueHeader.lead}</p>
+    <a
+      href={catalogueHeader.cta.href}
+      class="mt-5 inline-flex items-center gap-2 min-h-11 font-semibold text-sky-bright"
+    >
+      {catalogueHeader.cta.label}
+      <i class="fa-solid fa-arrow-right icon-xs" aria-hidden="true"></i>
+    </a>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+    {
+      aiServiceCategories.map((category) => (
+        <section class="glass p-4" aria-labelledby={`category-${category.slug}`}>
+          <div class="flex items-start gap-3 pb-3 border-b border-line">
+            <span class="shrink-0 w-9 h-9 rounded-lg bg-violet-soft text-violet-fg flex items-center justify-center">
+              <i class={`fa-solid ${category.icon} icon-sm`} aria-hidden="true" />
+            </span>
+            <div class="min-w-0">
+              <h3 id={`category-${category.slug}`} class="font-bold text-fg leading-snug">
+                {category.title}
+              </h3>
+              <p class="mt-0.5 text-xs text-fg-secondary">{category.description}</p>
+            </div>
+          </div>
+          <ul class="mt-1">
+            {servicesInCategory(category.slug).map((service) => (
+              <li>
+                <a
+                  href={`/ai-services/${service.slug}`}
+                  class="group flex gap-2.5 rounded-lg px-1.5 py-2 hover:bg-surface-muted/50 transition-colors"
+                >
+                  <i
+                    class={`fa-solid ${service.icon} shrink-0 mt-1 icon-xs text-cyan-bright`}
+                    aria-hidden="true"
+                  />
+                  <span class="min-w-0">
+                    <span class="block text-sm font-semibold text-fg leading-snug group-hover:text-cyan-bright">
+                      {service.title}
+                    </span>
+                    <span class="hidden sm:block text-xs text-fg-secondary leading-relaxed">
+                      {service.summary}
+                    </span>
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </div>
+</div>

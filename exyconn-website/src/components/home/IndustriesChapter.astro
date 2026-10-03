@@ -1,0 +1,42 @@
+---
+/** Chapter 2 — robotics and automation. The industries served, then how the work runs. */
+import { industries, industriesCta, industriesHeader } from "../../lib/home/industries";
+import ChapterIntro from "./ChapterIntro.astro";
+import GlassList from "./GlassList.astro";
+import ProcessTrack from "./ProcessTrack.astro";
+import StageButton from "./StageButton.astro";
+
+interface Props {
+  id: string;
+}
+
+const { id } = Astro.props;
+---
+
+<section id={id} data-chapter="2" class="stage-chapter">
+  <div class="stage-shell">
+    <div class="stage-intro">
+      <ChapterIntro
+        index={2}
+        label={industriesHeader.badge}
+        icon="fa-globe"
+        title={industriesHeader.title}
+        accent={industriesHeader.accent}
+        lead={industriesHeader.lead}
+      />
+    </div>
+
+    <div class="stage-column stage-gap">
+      <GlassList items={industries} tile="bg-amber-soft text-amber-fg" />
+
+      <div
+        class="glass mt-3 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+      >
+        <p class="text-fg-secondary">{industriesCta.text}</p>
+        <StageButton action={industriesCta} variant="solid" />
+      </div>
+    </div>
+
+    <ProcessTrack />
+  </div>
+</section>

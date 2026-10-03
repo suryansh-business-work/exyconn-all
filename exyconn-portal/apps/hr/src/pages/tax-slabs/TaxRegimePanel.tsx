@@ -74,7 +74,7 @@ export function TaxRegimePanel({ regimes, loading, refetch }: Readonly<TaxRegime
       </Flex>
       <Text size="sm" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
         {t(
-          'The standard deduction and the rebate that go with each table. Payroll Settings names which regime the next run applies.',
+          'The standard deduction and the rebate that go with each table. Payroll Settings names the company default; a regime set on an employee’s salary takes its place for them.',
         )}
       </Text>
       <DataTable

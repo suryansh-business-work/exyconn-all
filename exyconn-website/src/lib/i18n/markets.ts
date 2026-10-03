@@ -81,43 +81,45 @@ function acceptedLanguages(header: string | null): string[] {
 }
 
 /**
+ * The market for one tag the browser accepts ("en-IN", "fr"), or null when its language is
+ * not published. The country the edge reports picks among that language's markets — French
+ * in Brussels is fr-be, and an "en-US" browser in India still reads en-in — then a tag that
+ * names a market exactly, then the default market when it speaks the language (plain "en" is
+ * en-us), then the first in the registry.
+ */
+function marketForTag(tag: string, inCountry: readonly Market[]): Market | null {
+  const language = tag.split("-")[0];
+  const speaking = marketsSpeaking(language);
+  return (
+    inCountry.find((market) => market.language === language) ??
+    marketByPath(tag) ??
+    speaking.find((market) => market === DEFAULT_MARKET) ??
+    speaking[0] ??
+    null
+  );
+}
+
+/**
  * Which market to send somebody to when they arrive without one.
  *
- * The country decides the market and the language decides which of that country's markets:
- * Belgium publishes in both Dutch and French, and sending a French speaker in Brussels to the
- * Dutch page is worse than sending them to France's. Failing all that, the default.
+ * The browser's languages decide, best first, and the country only chooses between one
+ * language's markets (see `marketForTag`): Belgium publishes in Dutch and French, and a
+ * French speaker there is better served by fr-be than by a Dutch page or France's. Only when
+ * no language the browser asks for is published does the country alone decide, and failing
+ * that, the default.
  *
  * `country` is whatever the edge knows — Cloudflare's `CF-IPCountry`, a load balancer's own
  * header — and is simply absent in development.
  */
 export function chooseMarket(acceptLanguage: string | null, country: string | null): Market {
-  const wanted = acceptedLanguages(acceptLanguage);
-  const languages = wanted.map((tag) => tag.split("-")[0]);
   const inCountry = country
     ? MARKETS.filter((market) => market.country === country.toUpperCase())
     : [];
-
-  for (const language of languages) {
-    const match = inCountry.find((market) => market.language === language);
+  for (const tag of acceptedLanguages(acceptLanguage)) {
+    const match = marketForTag(tag, inCountry);
     if (match) {
       return match;
     }
   }
-  if (inCountry.length > 0) {
-    return inCountry[0];
-  }
-  // No country, so honour the exact tag if it is a market ("en-in"), then the language.
-  for (const tag of wanted) {
-    const exact = marketByPath(tag);
-    if (exact) {
-      return exact;
-    }
-  }
-  for (const language of languages) {
-    const first = MARKETS.find((market) => market.language === language);
-    if (first) {
-      return first;
-    }
-  }
-  return DEFAULT_MARKET;
+  return inCountry[0] ?? DEFAULT_MARKET;
 }

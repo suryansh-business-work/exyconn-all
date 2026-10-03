@@ -42,6 +42,13 @@ const salaryStructureSchema = new Schema(
     esiApplicable: { type: Boolean, default: true },
     /** Percent of taxable pay withheld for this person; 0 falls back to the company rate. */
     tdsPercent: { type: Number, min: 0, max: 100, default: 0 },
+    /**
+     * The tax regime (a `TaxRegime.regimeKey`) this employee is taxed under. Null follows the
+     * regime Payroll Settings names, so the company default still moves everybody at once.
+     */
+    taxRegimeKey: { type: String, trim: true, default: null },
+    /** No tax bracket: payroll withholds no TDS from this employee at all. */
+    taxExempt: { type: Boolean, default: false },
     // Statutory identifiers, printed on the payslip when they are on file.
     pfNumber: { type: String, trim: true, default: null },
     esiNumber: { type: String, trim: true, default: null },

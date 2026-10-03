@@ -24,6 +24,10 @@ export const payrollTypeDefs = gql`
     esiApplicable: Boolean
     "Percent of taxable pay withheld for this person; 0 falls back to the company rate."
     tdsPercent: Float
+    "The regime key this person is taxed under. Null follows the one Payroll Settings names."
+    taxRegimeKey: String
+    "No tax bracket: no TDS is withheld from this person at all."
+    taxExempt: Boolean
     pfNumber: String
     esiNumber: String
     panNumber: String
@@ -44,6 +48,8 @@ export const payrollTypeDefs = gql`
     pfApplicable: Boolean
     esiApplicable: Boolean
     tdsPercent: Float
+    taxRegimeKey: String
+    taxExempt: Boolean
     pfNumber: String
     esiNumber: String
     panNumber: String
@@ -258,6 +264,17 @@ export const payrollTypeDefs = gql`
     active: Boolean!
   }
 
+  """
+  One regime an employee can be taxed under, whatever the year — the regime key and the
+  name of its latest year on file. What the per-employee regime picker offers.
+  """
+  type TaxRegimeChoice {
+    regimeKey: String!
+    name: String!
+    "Whether the latest year of this regime is applied. An inactive one withholds nothing."
+    active: Boolean!
+  }
+
   input TaxRegimeInput {
     regimeKey: String!
     financialYear: String!
@@ -335,6 +352,8 @@ export const payrollTypeDefs = gql`
     payrollSettings: PayrollSettings!
     "Every income-tax regime on file, both years and both regimes."
     listTaxRegimes: [TaxRegime!]!
+    "The regimes on file, one per key, for anyone who sets salaries (HR and Finance)."
+    taxRegimeChoices: [TaxRegimeChoice!]!
     getTaxRegime(id: ID!): TaxRegime!
     listTaxSlabs: [TaxSlab!]!
     listTaxSlabsPaged(input: TableQueryInput!): TaxSlabPage!

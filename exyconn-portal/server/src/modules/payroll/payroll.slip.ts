@@ -88,6 +88,7 @@ export interface SlipStructure {
   pfApplicable?: boolean | null;
   esiApplicable?: boolean | null;
   tdsPercent?: number | null;
+  taxExempt?: boolean | null;
 }
 
 /** What ONE employee's slip is worked out from, gathered before any arithmetic happens. */
@@ -110,36 +111,68 @@ export async function slipFor(
       pfApplicable: structure.pfApplicable,
       esiApplicable: structure.esiApplicable,
       tdsPercent: structure.tdsPercent,
+      taxExempt: structure.taxExempt,
     },
     slabTax,
   );
 }
 
-/** The regime and bands SLAB mode applies, read once for the whole run. */
+/** One regime's figures and bands. */
 export interface TaxTable {
   regime: TaxRegimeFigures | null;
   slabs: TaxSlabRow[];
 }
 
+/** Every regime on file for the run's financial year, and the one Payroll Settings names. */
+export interface TaxTables {
+  defaultKey: string;
+  byKey: ReadonlyMap<string, TaxTable>;
+}
+
+const NO_TABLE: TaxTable = { regime: null, slabs: [] };
+
 /**
- * The tax table for the financial year this period falls in.
+ * Every regime's table for the financial year this period falls in, read once per run.
  *
- * Read once per run rather than once per employee, and only in SLAB mode: the other modes
- * never look at it, so a portal that has not entered one is not asked for it.
+ * All of them rather than the settings' one, because each employee may be taxed under a
+ * regime of their own. Two small collections filtered to one year, so a run of any size
+ * costs the same two reads. `NONE` mode withholds nothing and reads nothing.
  */
-export async function taxTableFor(
+export async function taxTablesFor(
   settings: PayrollTaxSettings,
   month: number,
   year: number,
-): Promise<TaxTable> {
-  if (settings.tdsMode !== 'SLAB') {
-    return { regime: null, slabs: [] };
+): Promise<TaxTables> {
+  const defaultKey = settings.tdsRegimeKey ?? DEFAULT_TDS_REGIME_KEY;
+  if (settings.tdsMode === 'NONE') {
+    return { defaultKey, byKey: new Map() };
   }
-  const regimeKey = settings.tdsRegimeKey ?? DEFAULT_TDS_REGIME_KEY;
   const financialYear = financialYearOf(year, month, startMonthOf(settings));
-  const [regime, slabs] = await Promise.all([
-    TaxRegimeModel.findOne({ regimeKey, financialYear }).lean(),
-    TaxSlabModel.find({ regimeKey, financialYear }).lean(),
+  const [regimes, slabs] = await Promise.all([
+    TaxRegimeModel.find({ financialYear }).lean(),
+    TaxSlabModel.find({ financialYear }).lean(),
   ]);
-  return { regime, slabs };
+  const byKey = new Map<string, TaxTable>(
+    regimes.map((regime) => [
+      regime.regimeKey,
+      { regime, slabs: slabs.filter((slab) => slab.regimeKey === regime.regimeKey) },
+    ]),
+  );
+  return { defaultKey, byKey };
+}
+
+/**
+ * The table ONE employee is taxed under: their own regime when HR chose one, otherwise the
+ * company's. A regime with no table for this year withholds nothing, exactly as an
+ * unconfigured company default does.
+ */
+export function slabTaxFor(
+  tables: TaxTables,
+  taxRegimeKey: string | null | undefined,
+  payableMonths: number,
+): SlabTaxInput {
+  const ownKey = taxRegimeKey ?? '';
+  const key = ownKey === '' ? tables.defaultKey : ownKey;
+  const table = tables.byKey.get(key) ?? NO_TABLE;
+  return { ...table, payableMonths, ownRegime: ownKey !== '' };
 }

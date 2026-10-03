@@ -5,7 +5,10 @@
  * and a pay type that only one of them could set would be a field the other silently reset.
  */
 export { CompensationFields } from './CompensationFields';
+export { TaxRegimeField } from './TaxRegimeField';
 export {
+  COMPANY_TAX_REGIME,
+  NO_TAX_BRACKET,
   compensationSchema,
   rateLabel,
   toCompensationValues,

@@ -13,7 +13,8 @@ import {
   slipFields,
   slipFor,
   startMonthOf,
-  taxTableFor,
+  slabTaxFor,
+  taxTablesFor,
   type SlipFigures,
 } from './payroll.slip';
 import { payrollWindow, windowClosedMessage, type PayrollWindow } from './payroll.window';
@@ -96,12 +97,12 @@ async function candidatesFor(
     .sort({ name: 1 })
     .lean();
   const ids = users.map((u) => String(u._id));
-  const [structures, slips, taxTable] = await Promise.all([
+  const [structures, slips, taxTables] = await Promise.all([
     SalaryStructureModel.find({ employeeId: { $in: ids } }).lean(),
     SalarySlipModel.find({ employeeId: { $in: ids }, month, year })
       .select('employeeId status')
       .lean(),
-    taxTableFor(settings, month, year),
+    taxTablesFor(settings, month, year),
   ]);
   const structureOf = new Map(structures.map((s) => [s.employeeId, s]));
   const slipOf = new Map(slips.map((s) => [s.employeeId, s.status]));
@@ -127,10 +128,15 @@ async function candidatesFor(
       }
       // Worked out per employee, not per run: a mid-year joiner is taxed on the months they
       // will actually be paid in this financial year, not on a full year they will not earn.
-      const figures = await slipFor(employeeId, structure, month, year, settings, {
-        ...taxTable,
-        payableMonths: payableMonthsInFinancialYear(user.joinDate, year, month, startMonth),
-      });
+      const payableMonths = payableMonthsInFinancialYear(user.joinDate, year, month, startMonth);
+      const figures = await slipFor(
+        employeeId,
+        structure,
+        month,
+        year,
+        settings,
+        slabTaxFor(taxTables, structure.taxRegimeKey, payableMonths),
+      );
       return {
         ...base,
         status: 'READY',

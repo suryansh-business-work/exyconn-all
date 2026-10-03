@@ -123,6 +123,11 @@ export interface StatutoryOverrides {
   esiApplicable?: boolean | null;
   /** Percent of taxable pay withheld for this employee; 0 or unset means "use the setting". */
   tdsPercent?: number | null;
+  /**
+   * HR has put this employee in no tax bracket: no TDS is withheld from them, whatever the
+   * company mode, their own rate or their regime says. Unset reads as "taxed as usual".
+   */
+  taxExempt?: boolean | null;
 }
 
 /** The named statutory lines of one month's slip. */
@@ -342,6 +347,11 @@ export interface SlabTaxInput {
   slabs: readonly TaxSlabRow[];
   /** This employee's paid months in the financial year the period falls in. */
   payableMonths: number;
+  /**
+   * The regime was chosen for this employee rather than inherited from Payroll Settings, so
+   * its slabs apply even when the company otherwise withholds a flat percentage.
+   */
+  ownRegime?: boolean;
 }
 
 /**
@@ -349,7 +359,9 @@ export interface SlabTaxInput {
  *
  * Precedence, in order: `NONE` withholds nothing at all; an employee's own recorded rate
  * beats every mode, because somebody has worked their position out and this is where it is
- * written down; `SLAB` walks the regime's table; `FLAT_PERCENT` takes the company rate.
+ * written down; a regime chosen for the employee, or `SLAB` mode, walks the regime's table;
+ * `FLAT_PERCENT` takes the company rate. An employee in no tax bracket never reaches here —
+ * see `statutoryDeductions`.
  *
  * `SLAB` with no table resolved withholds nothing — an unconfigured portal must not invent
  * a rate, and the caller that has not looked one up is one that could not.
@@ -367,7 +379,7 @@ export function taxDeductedAtSource(
   if (overridePercent > 0) {
     return money((pay * overridePercent) / 100);
   }
-  if (settings.tdsMode === 'SLAB') {
+  if (settings.tdsMode === 'SLAB' || slabTax?.ownRegime) {
     if (!slabTax) {
       return 0;
     }
@@ -382,7 +394,8 @@ export function taxDeductedAtSource(
 /**
  * Every statutory line of one month, in the order they depend on each other: PF and ESI
  * off the contracted components, professional tax flat, and TDS on what is left after the
- * three of them and after any loss of pay — the pay the employee is actually taxed on.
+ * three of them and after any loss of pay — the pay the employee is actually taxed on. An
+ * employee in no tax bracket has no TDS line at all; their other lines are unchanged.
  */
 export function statutoryDeductions(
   parts: StructureParts,
@@ -396,7 +409,9 @@ export function statutoryDeductions(
   const esi = employeeStateInsurance(gross, settings, overrides.esiApplicable ?? true);
   const professionalTax = money(settings.professionalTaxMonthly);
   const taxable = gross - lossOfPay - pf - esi - professionalTax;
-  const tds = taxDeductedAtSource(taxable, settings, overrides.tdsPercent ?? 0, slabTax);
+  const tds = overrides.taxExempt
+    ? 0
+    : taxDeductedAtSource(taxable, settings, overrides.tdsPercent ?? 0, slabTax);
   return { pf, esi, professionalTax, tds };
 }
 

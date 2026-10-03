@@ -18,7 +18,7 @@ const here = rest === "" ? "/" : rest;
   Market names are never translated: every market names itself in its own language, which is
   the point. The summary's name keeps the visible label in it (WCAG 2.5.3, Label in Name).
 -->
-<details class="market-picker">
+<details class="market-picker" data-market-picker>
   <summary>
     <i class="fa-solid fa-globe icon-md" aria-hidden="true"></i>
     <span class="sr-only">Change country and language:</span>
@@ -32,6 +32,7 @@ const here = rest === "" ? "/" : rest;
             <a
               href={marketUrl(entry, here)}
               hreflang={entry.locale}
+              data-market={entry.path}
               lang={entry.locale}
               aria-current={entry.path === market.path ? "true" : undefined}
             >
@@ -64,10 +65,16 @@ const here = rest === "" ? "/" : rest;
     display: none;
   }
 
+  /*
+   * On a phone the picker sits centred in the footer, so the panel is centred on it (and so on
+   * the screen) — anchored to its start edge it would run off the side. Physical `left` is
+   * deliberate: centring is the same in both writing directions.
+   */
   .market-picker__panel {
     position: absolute;
     bottom: 100%;
-    inset-inline-start: 0;
+    left: 50%;
+    translate: -50% 0;
     z-index: 40;
     width: min(92vw, 46rem);
     max-height: min(60vh, 28rem);
@@ -76,7 +83,10 @@ const here = rest === "" ? "/" : rest;
     border-radius: 0.75rem;
     border: 1px solid color-mix(in srgb, currentColor 15%, transparent);
     background: var(--color-surface);
-    box-shadow: var(--shadow-lg, 0 1.25rem 2.5rem color-mix(in srgb, currentColor 22%, transparent));
+    box-shadow: var(
+      --shadow-lg,
+      0 1.25rem 2.5rem color-mix(in srgb, currentColor 22%, transparent)
+    );
   }
 
   .market-picker__panel ul {
@@ -86,6 +96,14 @@ const here = rest === "" ? "/" : rest;
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+
+  @media (min-width: 48rem) {
+    .market-picker__panel {
+      left: auto;
+      inset-inline-start: 0;
+      translate: none;
+    }
   }
 
   @media (min-width: 40rem) {
@@ -121,3 +139,18 @@ const here = rest === "" ? "/" : rest;
     font-weight: 700;
   }
 </style>
+
+<script>
+  import { choiceCookie } from "../lib/i18n/market-cookie";
+
+  // Picking a market is the one thing remembered: from then on a link without a market comes
+  // back to it instead of to what the browser's language suggests (see marketForRequest).
+  for (const picker of document.querySelectorAll<HTMLElement>("[data-market-picker]")) {
+    picker.addEventListener("click", (event) => {
+      const link = (event.target as Element).closest<HTMLAnchorElement>("a[data-market]");
+      if (link?.dataset.market) {
+        document.cookie = choiceCookie(link.dataset.market);
+      }
+    });
+  }
+</script>

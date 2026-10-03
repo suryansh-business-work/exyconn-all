@@ -28,6 +28,7 @@ import { ApprovalsBell } from './ApprovalsBell';
 import { PAGE_GUTTER, TOPBAR_HEIGHT } from './metrics';
 import { useT } from '@exyconn/i18n';
 import { useInstallPrompt } from '@/pwa';
+import { roleList } from '@/auth/roles';
 
 /** The topbar's actions: round card-coloured buttons with a hairline, set apart from the canvas. */
 const roundActions = (t: Theme) => ({
@@ -86,8 +87,10 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
       sx={(t) => ({
         width: { md: `calc(100% - ${drawerWidth}px)` },
         ml: { md: `${drawerWidth}px` },
-        // The canvas itself, with no rule under it: the topbar is part of the page.
+        // The canvas itself, over a very light hairline: the topbar stays part of the page.
+        // Drawn as an inset shadow so the bar keeps the height the spacer under it reserves.
         background: t.palette.background.default,
+        boxShadow: `inset 0 -${borderWidth.hairline}px 0 ${t.palette.background.muted}`,
         // Installed to a home screen, the app owns the whole screen — including whatever is
         // behind the notch. These insets are zero in a browser tab.
         pt: 'env(safe-area-inset-top)',
@@ -131,7 +134,7 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
               display: 'block',
             }}
           >
-            {user?.roles.join(', ')}
+            {user ? roleList(user.roles, t) : null}
           </Typography>
         </Box>
         <Box sx={roundActions}>

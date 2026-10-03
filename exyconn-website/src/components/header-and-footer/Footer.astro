@@ -396,7 +396,8 @@ const social = socialLinks(branding);
     <!-- Bottom padding clears the launchers pinned to the bottom corners, so they never sit on these links. -->
     <div class="max-w-7xl mx-auto px-6 pt-6 pb-36">
       <div class="flex flex-col md:flex-row items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
+        <!-- One below another on a phone, side by side from md up. -->
+        <div class="flex flex-col md:flex-row items-center gap-3 text-center md:text-start">
           <MarketPicker />
           <p class="text-sm text-fg-subtle">{copyrightText}</p>
           <span
@@ -404,7 +405,10 @@ const social = socialLinks(branding);
             title="Website Version">{versionLabel}</span
           >
         </div>
-        <nav aria-label="Legal links" class="flex flex-wrap items-center gap-6 text-sm">
+        <nav
+          aria-label="Legal links"
+          class="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-sm"
+        >
           <a
             href="/privacy-policy"
             class="inline-block py-1 text-fg-subtle hover:text-fg transition focus:underline"

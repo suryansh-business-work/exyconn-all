@@ -9,6 +9,7 @@ import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useItEmployeeProfileQuery } from '@exyconn/shell/graphql/generated';
 import { EmployeePicker } from './EmployeePicker';
 import { AccessSection, DevicesSection, LicencesSection, RequestsSection } from './ProfileSections';
+import { roleList } from '@exyconn/shell/auth/roles';
 
 /** Whether the account can sign in, in one word. */
 function accountState(profile: { isActive: boolean; isBlocked: boolean }): string {
@@ -47,7 +48,7 @@ export function PeoplePage() {
             <DetailFact label="Account">
               <StatusChip value={accountState(profile)} />
             </DetailFact>
-            <DetailFact label="Portal roles">{profile.roles.join(', ')}</DetailFact>
+            <DetailFact label="Portal roles">{roleList(profile.roles, t)}</DetailFact>
             <DetailFact label="Last active">
               {profile.lastActiveAt ? formatDateTime(profile.lastActiveAt) : '—'}
             </DetailFact>

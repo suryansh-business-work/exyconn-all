@@ -1,0 +1,87 @@
+---
+/** Chapter 3 — space. Why Exyconn, and the platforms the work runs on. */
+import {
+  whyChooseUsActions,
+  whyChooseUsCopy,
+  whyChooseUsStats,
+  whyChooseUsValues,
+} from "../../lib/home/why-choose-us";
+import { defaultTechLogos } from "../../lib/tech-logos";
+import ChapterIntro from "./ChapterIntro.astro";
+import GlassList from "./GlassList.astro";
+import StageButton from "./StageButton.astro";
+
+interface Props {
+  id: string;
+  techTitle: string;
+  techSubtitle: string;
+}
+
+const { id, techTitle, techSubtitle } = Astro.props;
+---
+
+<section id={id} data-chapter="3" class="stage-chapter">
+  <div class="stage-shell">
+    <div class="stage-intro">
+      <ChapterIntro
+        index={3}
+        label={whyChooseUsCopy.badge}
+        icon={whyChooseUsCopy.badgeIcon}
+        title={whyChooseUsCopy.title}
+        accent={whyChooseUsCopy.accent}
+        lead={whyChooseUsCopy.lead}
+      >
+        <div class="mt-8 flex flex-col sm:flex-row gap-3">
+          {
+            whyChooseUsActions.map((action, index) => (
+              <StageButton action={action} variant={index === 0 ? "solid" : "glass"} />
+            ))
+          }
+        </div>
+      </ChapterIntro>
+    </div>
+
+    <div class="stage-column stage-gap">
+      <GlassList items={whyChooseUsValues} tile="bg-fuchsia-soft text-fuchsia-fg" />
+      <figure class="glass mt-3 p-2 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2 items-center">
+        <img
+          src={whyChooseUsCopy.image.src}
+          alt={whyChooseUsCopy.image.alt}
+          class="w-full h-44 object-cover rounded-xl"
+          loading="lazy"
+        />
+        <dl class="grid grid-cols-2 sm:grid-cols-1 gap-2 px-2">
+          {
+            whyChooseUsStats.map((stat) => (
+              <div class="px-3 py-2 text-center">
+                <dt class="stage-label">{stat.label}</dt>
+                <dd class="mt-1 text-3xl font-black text-fg">{stat.value}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </figure>
+    </div>
+
+    <div class="stage-column stage-gap glass p-5 md:p-6">
+      <h2 class="stage-title stage-title--md">
+        <span class="block" data-reveal-line>{techTitle}</span>
+      </h2>
+      <p class="mt-3 text-fg-secondary">{techSubtitle}</p>
+      <ul class="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-2">
+        {
+          defaultTechLogos.map((logo) => (
+            <li class="flex items-center justify-center h-16 rounded-xl bg-on-solid px-3">
+              <img
+                src={logo.src}
+                alt={logo.name}
+                class={`object-contain max-h-8 max-w-full ${logo.width ?? "h-8 w-auto"}`}
+                loading="lazy"
+              />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>

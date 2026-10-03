@@ -38,6 +38,8 @@ asarUnpack:
 # has a space, and GitHub stores an uploaded "Exyconn Tracker-…" as "Exyconn.Tracker-…" —
 # while latest*.yml still asks for the name with the space, which the update feed cannot
 # find, so every in-app update failed to download. artifact-names.test.ts guards this.
+# Every frame of icon.ico must stay under 64 KB: rcedit writes only the low 16 bits of a
+# frame's size into the .exe's icon directory, so a bigger 256px frame is read back truncated.
 win:
   target:
     - nsis
@@ -108,4 +110,8 @@ linux:
     - AppImage
   category: Office
   icon: build/icon.png
+  # Electron names a Linux window's WM_CLASS after package.json `name`; the desktop entry
+  # defaults to the product name, so the dock could not tie the window to the entry's icon.
+  desktop:
+    StartupWMClass: exyconn-tracker-app
   artifactName: Exyconn-Tracker-${version}.${ext}

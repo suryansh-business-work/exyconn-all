@@ -1,0 +1,29 @@
+---
+/** The stage's call-to-action link in one of three weights. */
+import type { HomeAction } from "../../lib/home/hero";
+
+interface Props {
+  action: HomeAction;
+  variant?: "solid" | "glass" | "accent";
+}
+
+const { action, variant = "glass" } = Astro.props;
+
+const VARIANTS = {
+  solid: "bg-on-solid text-on-bright hover:bg-on-solid/85",
+  glass: "glass text-fg",
+  accent: "bg-indigo-strong text-on-solid hover:bg-indigo-deep shadow-lg shadow-indigo/30",
+} as const;
+const external = action.external ? { target: "_blank", rel: "noopener noreferrer" } : {};
+---
+
+<a
+  href={action.href}
+  {...external}
+  class={`inline-flex items-center justify-center gap-2 min-h-12 px-6 py-3 rounded-xl font-semibold transition-colors w-full sm:w-auto ${VARIANTS[variant]}`}
+>
+  <i class={`fa-solid ${action.icon} icon-sm`} aria-hidden="true"></i>
+  {action.label}
+  {action.external && <span class="sr-only">(opens in a new tab)</span>}
+  <i class="fa-solid fa-arrow-right icon-xs" aria-hidden="true"></i>
+</a>
