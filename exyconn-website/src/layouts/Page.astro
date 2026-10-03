@@ -5,7 +5,14 @@ import Footer from "../components/header-and-footer/Footer.astro";
 import Header from "../components/header-and-footer/Header.astro";
 import SearchModal from "../components/SearchModal.astro";
 import { BRANDING_FALLBACK, getBrandingSafe } from "../lib/portal";
-import { serializeJsonLd } from "../lib/safe-output";
+import {
+  organizationLd,
+  renderHead,
+  ROBOTS_INDEX,
+  ROBOTS_NOINDEX,
+  webSiteLd,
+  type PageMeta,
+} from "@exyconn/seo";
 import { DARK_MEDIA_QUERY, THEME_ATTRIBUTE, THEME_STORAGE_KEY, THEMES } from "../lib/theme";
 import { DEFAULT_MARKET, MARKETS, marketUrl, splitMarketPath } from "../lib/i18n/markets";
 
@@ -85,9 +92,7 @@ const absoluteLogo = toAbsoluteUrl(faviconUrl);
 
 // Baseline Organization + WebSite JSON-LD (always emitted on every page)
 const baselineLd = [
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
+  organizationLd({
     name: businessName,
     url: organizationUrl,
     logo: absoluteLogo,
@@ -110,27 +115,42 @@ const baselineLd = [
       "https://duncit.com",
     ],
     contactPoint: {
-      "@type": "ContactPoint",
       contactType: "customer support",
       url: `${SITE_URL}/contact`,
       availableLanguage: ["English"],
     },
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
+  }),
+  webSiteLd({
     name: businessName,
     url: organizationUrl,
-    potentialAction: {
-      "@type": "SearchAction",
-      target: `${SITE_URL}/blog?q={search_term_string}`,
-      "query-input": "required name=search_term_string",
-    },
-  },
+    searchUrlTemplate: `${SITE_URL}/blog?q={search_term_string}`,
+  }),
 ];
 
 const pageLd = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
-const allLd = [...baselineLd, ...pageLd];
+
+// Every meta tag of the head, printed (escaped, in a fixed order) by @exyconn/seo — the same
+// renderer the tools site prerenders with.
+const pageMeta: PageMeta = {
+  title: finalTitle,
+  description: finalDescription,
+  canonical: canonicalUrl,
+  keywords: finalKeywords,
+  robots: noindex ? ROBOTS_NOINDEX : ROBOTS_INDEX,
+  locale: market.locale,
+  alternates: [
+    ...alternates,
+    {
+      hreflang: "x-default",
+      href: `${SITE_URL}${marketUrl(DEFAULT_MARKET, pagePath === "" ? "/" : pagePath)}`,
+    },
+  ],
+  siteName: businessName,
+  type: ogType,
+  image: { url: absoluteImage, width: 1200, height: 630 },
+  themeColor,
+  jsonLd: [...baselineLd, ...pageLd],
+};
 ---
 
 <!doctype html>
@@ -160,53 +180,11 @@ const allLd = [...baselineLd, ...pageLd];
     </script>
     <link rel="icon" type={faviconType} href={faviconUrl} />
     <meta name="generator" content={Astro.generator} />
-    <title>{finalTitle}</title>
-    <meta name="description" content={finalDescription} />
-    <meta name="keywords" content={finalKeywords} />
-
-    <!-- Canonical URL -->
-    <link rel="canonical" href={canonicalUrl} />
-
-    <!-- This page in every market it is published for, and where to send everyone else. -->
-    {alternates.map((alternate) => (
-      <link rel="alternate" hreflang={alternate.hreflang} href={alternate.href} />
-    ))}
-    <link
-      rel="alternate"
-      hreflang="x-default"
-      href={`${SITE_URL}${marketUrl(DEFAULT_MARKET, pagePath === "" ? "/" : pagePath)}`}
-    />
-
-    {noindex && <meta name="robots" content="noindex, nofollow" />}
-    {
-      !noindex && (
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
-      )
-    }
-
-    <!-- Open Graph -->
-    <meta property="og:site_name" content={businessName} />
-    <meta property="og:type" content={ogType} />
-    <meta property="og:url" content={canonicalUrl} />
-    <meta property="og:title" content={finalTitle} />
-    <meta property="og:description" content={finalDescription} />
-    <meta property="og:image" content={absoluteImage} />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={finalTitle} />
-    <meta name="twitter:description" content={finalDescription} />
-    <meta name="twitter:image" content={absoluteImage} />
-
-    <!-- Theme color for mobile browsers -->
-    <meta name="theme-color" content={themeColor} />
     <!-- Apple touch icon for iOS -->
     <link rel="apple-touch-icon" href={faviconUrl} />
 
-    <!-- Structured data (JSON-LD) -->
-    {allLd.map((ld) => <script type="application/ld+json" set:html={serializeJsonLd(ld)} />)}
+    <!-- Title, description, canonical, hreflang, robots, Open Graph, Twitter, JSON-LD -->
+    <Fragment set:html={renderHead(pageMeta)} />
 
     <!-- Google tag (gtag.js) -->
     <script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-6FLH9QJ5FS"></script>

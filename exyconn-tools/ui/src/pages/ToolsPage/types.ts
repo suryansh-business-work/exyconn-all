@@ -1,34 +1,16 @@
-import { ToolItem, ToolCategory } from '../../shared/data/toolsData';
+import type { ToolCategory } from '../../shared/data/toolsData';
 
-export type { ToolItem, ToolCategory };
-
-export interface ToolsHeaderProps {
-  searchQuery: string;
-  onSearchChange: (query: string) => void;
-  mode: 'light' | 'dark';
-  onToggleTheme: () => void;
-  onLogoClick: () => void;
-  onOpenSecrets: () => void;
+export interface HubSearchProps {
+  query: string;
+  onQueryChange: (query: string) => void;
+  /** Number of tools, for the placeholder. */
+  total: number;
 }
 
-export interface CategorySelectProps {
-  selectedCategory: string;
-  onCategoryChange: (category: string) => void;
-}
-
-export interface ToolCardProps {
-  tool: ToolItem;
-  onToolClick: (tool: ToolItem) => void;
-}
-
-export interface ToolsGridProps {
+export interface CategorySectionProps {
   category: ToolCategory;
-  onToolClick: (tool: ToolItem) => void;
-}
-
-export interface HeroSectionProps {
-  title: string;
-  subtitle: string;
-  totalTools: number;
-  categoryCount: number;
+  /** 1-based position, printed as the section's mono index. */
+  index: number;
+  /** Show at most this many tools (the hub previews; the category page lists all). */
+  limit?: number;
 }

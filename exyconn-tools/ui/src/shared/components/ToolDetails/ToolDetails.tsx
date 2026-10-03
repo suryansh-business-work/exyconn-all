@@ -1,321 +1,105 @@
 import React from 'react';
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Box,
-  Card,
-  CardActionArea,
-  Chip,
-  Container,
-  Divider,
-  Grid,
-  Stack,
-  Typography,
-} from '@mui/material';
-import { CheckCircleOutlineOutlined, ExpandMore } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import Box from '@mui/material/Box';
+import Chip from '@mui/material/Chip';
+import Typography from '@mui/material/Typography';
 import { findToolById, getCategoryOfTool } from '../../data/toolsData';
 import { getToolDetails } from '../../data/toolDetails';
+import { gutterSx, SHELL_MAX_WIDTH } from '../Shell/styles';
+import { ToolGrid } from '../ToolCard';
+import DetailsHeading from './DetailsHeading';
+import FeatureList from './FeatureList';
+import HowToSteps from './HowToSteps';
+import FaqList from './FaqList';
 
 interface ToolDetailsProps {
   toolId: string;
 }
 
+const RELATED_COUNT = 4;
+
 /**
- * SEO-rich details rendered below every tool: about, features, how-to,
- * use cases, FAQs and related tools. Content comes from the toolDetails
- * registry; the same content feeds the prerendered meta tags.
+ * Details rendered below every tool: about, features, how-to, use cases, FAQs and related
+ * tools. The content comes from the toolDetails registry, which also feeds the page meta.
  */
-const ToolDetails: React.FC<ToolDetailsProps> = ({ toolId }) => {
-  const navigate = useNavigate();
+const ToolDetails: React.FC<Readonly<ToolDetailsProps>> = ({ toolId }) => {
   const tool = findToolById(toolId);
   const category = getCategoryOfTool(toolId);
   const details = getToolDetails(toolId);
-
   if (!tool || !details) {
     return null;
   }
-
-  const related = (category?.items ?? []).filter((item) => item.id !== toolId).slice(0, 4);
+  const related = (category?.items ?? []).filter((item) => item.id !== toolId).slice(0, RELATED_COUNT);
 
   return (
-    <Box component="section" sx={{ borderTop: 1, borderColor: 'divider', bgcolor: 'background.paper' }}>
-      <Container maxWidth="lg" sx={{ py: { xs: 4, md: 6 } }}>
-        {/* About */}
-        <Typography
-          variant="h5"
-          component="h2"
-          gutterBottom
+    <Box
+      component="section"
+      aria-labelledby="tool-about"
+      sx={{ borderTop: 1, borderColor: 'divider', bgcolor: 'background.default' }}
+    >
+      <Box
+        sx={{
+          maxWidth: SHELL_MAX_WIDTH,
+          mx: 'auto',
+          py: { xs: 6, md: 9 },
+          display: 'grid',
+          gap: { xs: 6, md: 8 },
+          ...gutterSx,
+        }}
+      >
+        <Box
           sx={{
-            fontWeight: 700,
+            display: 'grid',
+            gap: { xs: 4, md: 8 },
+            gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'minmax(0, 1.4fr) minmax(0, 1fr)' },
           }}
         >
-          About {tool.name}
-        </Typography>
-        <Stack spacing={1.5} sx={{ maxWidth: 860 }}>
-          {details.longDescription.map((paragraph) => (
-            <Typography
-              key={paragraph}
-              sx={{
-                color: 'text.secondary',
-              }}
-            >
-              {paragraph}
-            </Typography>
-          ))}
-        </Stack>
-
-        {/* Features + How to */}
-        <Grid container spacing={4} sx={{ mt: 1 }}>
-          <Grid
-            size={{
-              xs: 12,
-              md: 7,
-            }}
-          >
-            <Typography
-              variant="h6"
-              component="h3"
-              gutterBottom
-              sx={{
-                fontWeight: 700,
-              }}
-            >
-              Key features
-            </Typography>
-            <Grid container spacing={1}>
-              {details.features.map((feature) => (
-                <Grid
-                  key={feature}
-                  size={{
-                    xs: 12,
-                    sm: 6,
-                  }}
-                >
-                  <Stack
-                    direction="row"
-                    spacing={1}
-                    sx={{
-                      alignItems: 'flex-start',
-                    }}
-                  >
-                    <CheckCircleOutlineOutlined sx={{ fontSize: 18, mt: '3px', color: tool.color }} />
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        color: 'text.secondary',
-                      }}
-                    >
-                      {feature}
-                    </Typography>
-                  </Stack>
-                </Grid>
-              ))}
-            </Grid>
-          </Grid>
-          <Grid
-            size={{
-              xs: 12,
-              md: 5,
-            }}
-          >
-            <Typography
-              variant="h6"
-              component="h3"
-              gutterBottom
-              sx={{
-                fontWeight: 700,
-              }}
-            >
-              How to use
-            </Typography>
-            <Stack spacing={1.25}>
-              {details.howTo.map((step, index) => (
-                <Stack
-                  key={step}
-                  direction="row"
-                  spacing={1.5}
-                  sx={{
-                    alignItems: 'flex-start',
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: 22,
-                      height: 22,
-                      borderRadius: '50%',
-                      bgcolor: tool.color,
-                      color: '#fff',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 12,
-                      fontWeight: 700,
-                      flexShrink: 0,
-                      mt: '1px',
-                    }}
-                  >
-                    {index + 1}
-                  </Box>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: 'text.secondary',
-                    }}
-                  >
-                    {step}
-                  </Typography>
-                </Stack>
-              ))}
-            </Stack>
-          </Grid>
-        </Grid>
-
-        {/* Use cases */}
-        <Box sx={{ mt: 4 }}>
-          <Typography
-            variant="h6"
-            component="h3"
-            gutterBottom
-            sx={{
-              fontWeight: 700,
-            }}
-          >
-            Popular use cases
-          </Typography>
-          <Stack
-            direction="row"
-            spacing={1}
-            useFlexGap
-            sx={{
-              flexWrap: 'wrap',
-            }}
-          >
-            {details.useCases.map((useCase) => (
-              <Chip key={useCase} label={useCase} variant="outlined" sx={{ borderRadius: 1.5 }} />
-            ))}
-          </Stack>
-        </Box>
-
-        {/* FAQs */}
-        <Box sx={{ mt: 4 }}>
-          <Typography
-            variant="h6"
-            component="h3"
-            gutterBottom
-            sx={{
-              fontWeight: 700,
-            }}
-          >
-            Frequently asked questions
-          </Typography>
           <Box>
-            {details.faqs.map((faq) => (
-              <Accordion
-                key={faq.question}
-                disableGutters
-                elevation={0}
-                sx={{
-                  border: 1,
-                  borderColor: 'divider',
-                  '&:not(:last-child)': { borderBottom: 0 },
-                  '&::before': { display: 'none' },
-                }}
-              >
-                <AccordionSummary expandIcon={<ExpandMore />}>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      fontWeight: 600,
-                    }}
-                  >
-                    {faq.question}
-                  </Typography>
-                </AccordionSummary>
-                <AccordionDetails sx={{ pt: 0 }}>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: 'text.secondary',
-                    }}
-                  >
-                    {faq.answer}
-                  </Typography>
-                </AccordionDetails>
-              </Accordion>
-            ))}
+            <DetailsHeading kicker="About" id="tool-about">
+              About {tool.name}
+            </DetailsHeading>
+            <Box sx={{ display: 'grid', gap: 1.5 }}>
+              {details.longDescription.map((paragraph) => (
+                <Typography key={paragraph} sx={{ color: 'text.secondary' }}>
+                  {paragraph}
+                </Typography>
+              ))}
+            </Box>
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 3 }}>
+              {details.useCases.map((useCase) => (
+                <Chip
+                  key={useCase}
+                  label={useCase}
+                  variant="outlined"
+                  sx={{
+                    height: 'auto',
+                    minHeight: 32,
+                    maxWidth: '100%',
+                    '& .MuiChip-label': { whiteSpace: 'normal', py: 0.75 },
+                  }}
+                />
+              ))}
+            </Box>
+          </Box>
+          <Box>
+            <DetailsHeading kicker="Steps">How to use</DetailsHeading>
+            <HowToSteps steps={details.howTo} />
           </Box>
         </Box>
-
-        {/* Related tools */}
+        <Box>
+          <DetailsHeading kicker="Features">Key features</DetailsHeading>
+          <FeatureList features={details.features} color={tool.color} />
+        </Box>
+        <Box>
+          <DetailsHeading kicker="FAQ">Frequently asked questions</DetailsHeading>
+          <FaqList faqs={details.faqs} />
+        </Box>
         {related.length > 0 && (
-          <Box sx={{ mt: 4 }}>
-            <Divider sx={{ mb: 3 }} />
-            <Typography
-              variant="h6"
-              component="h3"
-              gutterBottom
-              sx={{
-                fontWeight: 700,
-              }}
-            >
-              More {category?.category ?? 'related tools'}
-            </Typography>
-            <Grid container spacing={1.5}>
-              {related.map((item) => (
-                <Grid
-                  key={item.id}
-                  size={{
-                    xs: 12,
-                    sm: 6,
-                    md: 3,
-                  }}
-                >
-                  <Card variant="outlined" sx={{ height: '100%' }}>
-                    <CardActionArea
-                      onClick={() => navigate(item.url)}
-                      sx={{ p: 1.5, height: '100%', alignItems: 'flex-start' }}
-                    >
-                      <Stack
-                        direction="row"
-                        spacing={1}
-                        sx={{
-                          alignItems: 'center',
-                          mb: 0.5,
-                        }}
-                      >
-                        <Box component={item.icon} sx={{ width: 18, height: 18, color: item.color, flexShrink: 0 }} />
-                        <Typography
-                          variant="body2"
-                          noWrap
-                          sx={{
-                            fontWeight: 600,
-                          }}
-                        >
-                          {item.name}
-                        </Typography>
-                      </Stack>
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          color: 'text.secondary',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
-                        }}
-                      >
-                        {item.description}
-                      </Typography>
-                    </CardActionArea>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
+          <Box>
+            <DetailsHeading kicker="Related">More {category?.category ?? 'tools'}</DetailsHeading>
+            <ToolGrid tools={related} headingComponent="h3" />
           </Box>
         )}
-      </Container>
+      </Box>
     </Box>
   );
 };

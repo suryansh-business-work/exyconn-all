@@ -1,63 +1,43 @@
 import React from 'react';
-import { Box, Button, Container, Typography } from '@mui/material';
-import { SearchOff, Home } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Apps from '@mui/icons-material/Apps';
+import AppHeader from '../../shared/components/Shell/AppHeader';
+import Footer from '../../shared/components/Footer/Footer';
+import NightBand from '../../shared/components/Shell/NightBand';
+import StageLabel from '../../shared/components/Shell/StageLabel';
+import AccentText from '../../shared/components/Shell/AccentText';
+import { displaySx } from '../../shared/components/Shell/styles';
+import { HUB_PATH } from '../../shared/seo/site';
 
-/** 404 page shown for unknown routes (replaces the old silent redirect). */
-const NotFoundPage: React.FC = () => {
-  const navigate = useNavigate();
-
-  React.useEffect(() => {
-    document.title = 'Page not found | Exyconn Tools';
-  }, []);
-
-  return (
-    <Container maxWidth="sm">
-      <Box
-        sx={{
-          minHeight: '70vh',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          textAlign: 'center',
-          gap: 2,
-        }}
-      >
-        <SearchOff sx={{ fontSize: 64, color: 'text.disabled' }} />
-        <Typography
-          variant="h1"
-          sx={{
-            fontWeight: 800,
-            lineHeight: 1,
-            color: 'text.disabled',
-            fontSize: { xs: '3.5rem', sm: '5rem' },
-          }}
-        >
-          404
+/** 404 for unknown routes; its meta (noindex) comes from RouteSeo like every other page. */
+const NotFoundPage: React.FC = () => (
+  <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <AppHeader />
+    <Box component="main" sx={{ flex: 1, display: 'flex' }}>
+      <NightBand label="Page not found" sx={{ flex: 1, py: { xs: 10, md: 14 } }}>
+        <StageLabel tick>Error 404</StageLabel>
+        <Typography component="h1" sx={{ ...displaySx, fontSize: { xs: '2.6rem', md: '4.5rem' }, mt: 2 }}>
+          This page <AccentText>isn&apos;t here</AccentText>
         </Typography>
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: 700,
-          }}
-        >
-          Page not found
+        <Typography sx={{ color: 'text.secondary', mt: 2, maxWidth: 520 }}>
+          The link may be old or mistyped. Every tool is still one search away on the hub.
         </Typography>
-        <Typography
-          sx={{
-            color: 'text.secondary',
-            maxWidth: 420,
-          }}
+        <Button
+          variant="contained"
+          component={RouterLink}
+          to={HUB_PATH}
+          startIcon={<Apps />}
+          sx={{ mt: 4, minHeight: 48, px: 3 }}
         >
-          The page you are looking for doesn&apos;t exist or may have moved. Browse all free tools instead.
-        </Typography>
-        <Button variant="contained" startIcon={<Home />} onClick={() => navigate('/tools')} sx={{ mt: 1 }}>
           Browse all tools
         </Button>
-      </Box>
-    </Container>
-  );
-};
+      </NightBand>
+    </Box>
+    <Footer />
+  </Box>
+);
 
 export default NotFoundPage;

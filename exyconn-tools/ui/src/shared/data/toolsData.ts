@@ -172,6 +172,10 @@ export interface ToolItem {
 
 export interface ToolCategory {
   category: string;
+  /** URL segment of the category page: /categories/<slug>. */
+  slug: string;
+  /** One-sentence summary (<=155 chars) shown on the category page and used as its meta description. */
+  description: string;
   icon: ToolIcon;
   color: string;
   items: ToolItem[];
@@ -180,6 +184,9 @@ export interface ToolCategory {
 export const toolsData: ToolCategory[] = [
   {
     category: 'Business & Utility Tools',
+    slug: 'business-utility',
+    description:
+      'Logo kits, email signatures, QR codes, ROI calculators and lead tools — everyday business utilities that run free in your browser.',
     icon: LuBriefcase,
     color: '#6366f1',
     items: [
@@ -304,6 +311,9 @@ export const toolsData: ToolCategory[] = [
   },
   {
     category: 'AI Writing Tools',
+    slug: 'ai-writing',
+    description:
+      'Rewrite, paraphrase, summarise and draft with AI — sentence and paragraph rewriters, summaries and letters, free and instant.',
     icon: LuPenTool,
     color: '#10b981',
     items: [
@@ -360,6 +370,9 @@ export const toolsData: ToolCategory[] = [
   },
   {
     category: 'AI Prompt & Generator Tools',
+    slug: 'ai-generators',
+    description:
+      'AI generators for prompts, blog titles, brand and chatbot names, replies and Google Business descriptions — free, no signup.',
     icon: TbPrompt,
     color: '#ec4899',
     items: [
@@ -439,6 +452,9 @@ export const toolsData: ToolCategory[] = [
   },
   {
     category: 'AI Chat Tools',
+    slug: 'ai-chat',
+    description:
+      'Chat with a PDF, Word file, website or plain text, and analyse chat transcripts — answers grounded in your own documents.',
     icon: TbMessageChatbot,
     color: '#8b5cf6',
     items: [
@@ -494,6 +510,9 @@ export const toolsData: ToolCategory[] = [
   },
   {
     category: 'FAQ & Support Tools',
+    slug: 'faq-support',
+    description:
+      'Generate FAQs from web pages, PDFs, Notion and Google Docs, and write support scripts — ready-to-publish help content in minutes.',
     icon: MdOutlineSupportAgent,
     color: '#14b8a6',
     items: [
@@ -565,6 +584,9 @@ export const toolsData: ToolCategory[] = [
   },
   {
     category: 'SEO Tools',
+    slug: 'seo',
+    description:
+      'Free SEO tools: site audits, SERP previews, keyword research, rank and backlink checks, page speed and AI search visibility.',
     icon: TbSeo,
     color: '#f97316',
     items: [
@@ -668,6 +690,9 @@ export const toolsData: ToolCategory[] = [
   },
   {
     category: 'Sitemap Tools',
+    slug: 'sitemaps',
+    description:
+      'Find, validate, generate, compare, split and merge XML sitemaps, and extract every URL — the complete sitemap toolkit, free.',
     icon: TbSitemap,
     color: '#ef4444',
     items: [
@@ -876,6 +901,9 @@ export const toolsData: ToolCategory[] = [
   },
   {
     category: 'Website & URL Tools',
+    slug: 'website-url',
+    description:
+      'Check status, redirects, HTTP headers and traffic, scan pages and extract URLs and contacts from any website.',
     icon: TbWorldWww,
     color: '#3b82f6',
     items: [
@@ -943,6 +971,9 @@ export const toolsData: ToolCategory[] = [
   },
   {
     category: 'Domain & Network Tools',
+    slug: 'domain-network',
+    description:
+      'DNS, WHOIS, MX, TXT, CNAME and nameserver lookups, SSL checks, domain age, availability and IP tools in one place.',
     icon: LuNetwork,
     color: '#6366f1',
     items: [
@@ -1110,6 +1141,9 @@ export const toolsData: ToolCategory[] = [
   },
   {
     category: 'File & Data Converter Tools',
+    slug: 'converters',
+    description:
+      'Convert HTML, PDF, Word, Notion, CSV, JSON, XML and more to clean Markdown or images — private, in-browser conversion.',
     icon: TbTransform,
     color: '#06b6d4',
     items: [
@@ -1337,6 +1371,9 @@ export const toolsData: ToolCategory[] = [
   },
   {
     category: 'PDF Tools',
+    slug: 'pdf',
+    description:
+      'Merge, split, compress, convert, sign, protect, OCR and edit PDFs — fast, private PDF tools that never upload your files.',
     icon: FaRegFilePdf,
     color: '#ef4444',
     items: [
@@ -1544,6 +1581,9 @@ export const toolsData: ToolCategory[] = [
   },
   {
     category: 'Image Tools',
+    slug: 'image',
+    description:
+      'Compress, resize, crop, rotate, upscale and watermark images, remove backgrounds and blur faces — free online image tools.',
     icon: FaRegImages,
     color: '#ec4899',
     items: [
@@ -1671,6 +1711,10 @@ export const findToolById = (id: string): ToolItem | undefined => getAllTools().
 // Category a tool belongs to
 export const getCategoryOfTool = (id: string): ToolCategory | undefined =>
   toolsData.find((cat) => cat.items.some((item) => item.id === id));
+
+// Category by its URL slug
+export const findCategoryBySlug = (slug: string): ToolCategory | undefined =>
+  toolsData.find((cat) => cat.slug === slug);
 
 // Get tools by category
 export const getToolsByCategory = (category: string): ToolItem[] => {
