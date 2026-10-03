@@ -53,6 +53,7 @@ export function AccessRequestForm({
   const { data: people } = useListAssetAssigneesQuery();
   const { data: settings } = useItSettingsQuery();
   const methods = useForm<AccessRequestValues>({
+    mode: 'onTouched',
     resolver: zodResolver(accessRequestSchema),
     defaultValues: toAccessRequestValues(initial, kind),
   });

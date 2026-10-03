@@ -25,6 +25,7 @@ export function MarkAttendanceForm({
   const notify = useNotify();
   const [markAttendance] = useMarkAttendanceMutation();
   const methods = useForm<Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: { date: new Date().toISOString(), status: AttendanceStatus.Present, note: '' },
   });

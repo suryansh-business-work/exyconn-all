@@ -47,6 +47,7 @@ export function ContractForm({ initial, onDone, onCancel }: ContractFormProps) {
   const [createContract] = useCreateContractMutation();
   const [updateContract] = useUpdateContractMutation();
   const methods = useForm<Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

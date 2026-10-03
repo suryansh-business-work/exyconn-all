@@ -64,6 +64,7 @@ export function SlackConfigForm({ initial, onDone, onCancel }: Readonly<SlackCon
   const [createConfig] = useCreateSlackConfigMutation();
   const [updateConfig] = useUpdateSlackConfigMutation();
   const methods = useForm<z.input<Schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(makeSchema(Boolean(initial))),
     defaultValues: toInitial(initial),
   });

@@ -54,6 +54,7 @@ export function SupplierForm({ initial, onDone, onCancel }: Readonly<SupplierFor
   const [createSupplier] = useCreateSupplierMutation();
   const [updateSupplier] = useUpdateSupplierMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

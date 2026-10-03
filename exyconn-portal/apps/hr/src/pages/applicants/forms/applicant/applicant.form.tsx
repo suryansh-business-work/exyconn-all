@@ -69,6 +69,7 @@ export function ApplicantForm({ initial, onDone, onCancel }: Readonly<ApplicantF
   const [createApplicant] = useCreateApplicantMutation();
   const [updateApplicant] = useUpdateApplicantMutation();
   const methods = useForm<z.input<typeof applicantSchema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(applicantSchema),
     defaultValues: toApplicantValues(initial),
   });

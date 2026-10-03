@@ -41,6 +41,7 @@ export function RequestSignatureForm({
   const notify = useNotify();
   const [request] = useRequestContractSignatureMutation();
   const methods = useForm<Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: { signerName: contract.party, signerEmail: '', message: '' },
   });

@@ -23,6 +23,7 @@ export function ItSettingsForm({ settings, onSaved }: Readonly<ItSettingsFormPro
   const notify = useNotify();
   const [save] = useUpdateItSettingsMutation();
   const methods = useForm<z.input<typeof itSettingsSchema>, unknown, ItSettingsValues>({
+    mode: 'onTouched',
     resolver: zodResolver(itSettingsSchema),
     defaultValues: toItSettingsValues(settings),
   });

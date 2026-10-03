@@ -115,6 +115,7 @@ export function PayrollSettingsForm({
   const notify = useNotify();
   const [saveSettings] = useUpdatePayrollSettingsMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     values: {
       pfEnabled: initial.pfEnabled,

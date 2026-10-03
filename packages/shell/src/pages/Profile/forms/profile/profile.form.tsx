@@ -42,6 +42,7 @@ export function ProfileForm() {
   const { data, loading, refetch } = useMeQuery({ fetchPolicy: 'cache-first' });
   const [updateProfile] = useUpdateProfileMutation();
   const methods = useForm<ProfileFormValues>({
+    mode: 'onTouched',
     resolver: zodResolver(profileSchema),
     values: valuesOf(user?.name ?? '', data?.me),
   });

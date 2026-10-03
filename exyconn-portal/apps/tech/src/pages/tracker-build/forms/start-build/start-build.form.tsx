@@ -38,6 +38,7 @@ export function StartBuildForm({ channelCount, onDone, onCancel }: Readonly<Star
   const notify = useNotify();
   const [startBuild] = useStartTrackerBuildMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: { platforms: [], ref: DEFAULT_BUILD_REF },
   });

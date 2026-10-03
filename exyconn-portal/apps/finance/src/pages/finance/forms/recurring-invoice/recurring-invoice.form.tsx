@@ -100,6 +100,7 @@ export function RecurringInvoiceForm({
 }: Readonly<RecurringInvoiceFormProps>) {
   const companyCurrency = useCompanyCurrency();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial, companyCurrency),
   });

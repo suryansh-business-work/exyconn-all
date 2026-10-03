@@ -83,6 +83,7 @@ export function GigForm({ initial, onDone, onCancel }: Readonly<GigFormProps>) {
   const [createGig] = useCreateGigMutation();
   const [updateGig] = useUpdateGigMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

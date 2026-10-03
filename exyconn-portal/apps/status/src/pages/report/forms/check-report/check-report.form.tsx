@@ -67,6 +67,7 @@ export function CheckReportForm({ onCancel }: Readonly<CheckReportFormProps>) {
   const [lookup] = useProblemReportStatusLazyQuery({ fetchPolicy: 'network-only' });
   const [status, setStatus] = useState<ReportStatus | null>(null);
   const methods = useForm<z.input<typeof checkReportSchema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(checkReportSchema),
     defaultValues: { reference: '' },
   });

@@ -64,6 +64,7 @@ export function StockMovementForm({ onDone, onCancel }: Readonly<StockMovementFo
   const { data: suppliersData } = useListSuppliersQuery();
   const [record] = useRecordStockMovementMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: {
       productId: '',

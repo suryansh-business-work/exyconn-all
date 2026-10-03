@@ -60,6 +60,7 @@ export function OpenAiConfigForm({ initial, onDone, onCancel }: Readonly<OpenAiC
   const [createConfig] = useCreateOpenAiConfigMutation();
   const [updateConfig] = useUpdateOpenAiConfigMutation();
   const methods = useForm<z.input<Schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(makeSchema(Boolean(initial))),
     defaultValues: toInitial(initial),
   });

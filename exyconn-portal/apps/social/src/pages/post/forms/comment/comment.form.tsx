@@ -35,6 +35,7 @@ export function CommentForm({ postId }: Readonly<CommentFormProps>) {
   });
 
   const methods = useForm<CommentFormValues, unknown, CommentFormValues>({
+    mode: 'onTouched',
     resolver: zodResolver(commentSchema),
     defaultValues: EMPTY,
   });

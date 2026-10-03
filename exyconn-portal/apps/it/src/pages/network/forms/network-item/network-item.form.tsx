@@ -31,6 +31,7 @@ export function NetworkItemForm({ initial, onDone, onCancel }: Readonly<NetworkI
   const [create] = useCreateItNetworkItemMutation();
   const [update] = useUpdateItNetworkItemMutation();
   const methods = useForm<NetworkItemValues>({
+    mode: 'onTouched',
     resolver: zodResolver(networkItemSchema),
     defaultValues: toNetworkItemValues(initial),
   });

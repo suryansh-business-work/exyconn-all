@@ -64,6 +64,7 @@ export function BrandingForm({ initial }: Readonly<BrandingFormProps>) {
   const notify = useNotify();
   const [updateBranding] = useUpdateBrandingMutation();
   const methods = useForm<BrandingFormInput, unknown, BrandingFormValues>({
+    mode: 'onTouched',
     resolver: zodResolver(brandingSchema),
     defaultValues: toBrandingValues(initial),
   });

@@ -45,7 +45,11 @@ export function ApplyLeaveForm({ onCancel, onDone }: Readonly<ApplyLeaveFormProp
   const [applyLeave] = useApplyLeaveMutation();
   // Only the leave types HR offers in this employee's country, on that country's terms.
   const { data: policies, loading } = useActiveLeavePoliciesQuery();
-  const methods = useForm<Values>({ resolver: zodResolver(schema), defaultValues: INITIAL });
+  const methods = useForm<Values>({
+    mode: 'onTouched',
+    resolver: zodResolver(schema),
+    defaultValues: INITIAL,
+  });
 
   const offered = useMemo(() => leaveTypeOptions(policies?.activeLeavePolicies ?? []), [policies]);
   const names = useMemo(

@@ -123,6 +123,7 @@ export function OnboardingTemplateForm({
   const [createTemplate] = useCreateOnboardingTemplateMutation();
   const [updateTemplate] = useUpdateOnboardingTemplateMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toValues(initial),
   });

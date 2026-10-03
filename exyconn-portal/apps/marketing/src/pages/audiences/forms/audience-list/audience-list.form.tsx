@@ -68,6 +68,7 @@ export function AudienceListForm({ initial, onDone, onCancel }: Readonly<Audienc
   const [createAudienceList] = useCreateAudienceListMutation();
   const [updateAudienceList] = useUpdateAudienceListMutation();
   const methods = useForm<Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

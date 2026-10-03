@@ -43,6 +43,7 @@ export function ManagerAssessmentForm({
   const notify = useNotify();
   const [submit] = useSubmitManagerAssessmentMutation();
   const methods = useForm<z.input<typeof schema>, unknown, ManagerAssessmentFormValues>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: { managerAssessment: review.managerAssessment, score: review.score ?? '' },
   });

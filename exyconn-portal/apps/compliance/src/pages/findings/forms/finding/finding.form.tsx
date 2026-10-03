@@ -62,6 +62,7 @@ export function FindingForm({ initial, onDone, onCancel }: Readonly<FindingFormP
   const { data: auditsData } = useListInternalAuditsQuery();
   const { data: risksData } = useListRisksQuery();
   const methods = useForm<z.input<typeof findingSchema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(findingSchema),
     defaultValues: toFindingValues(initial),
   });

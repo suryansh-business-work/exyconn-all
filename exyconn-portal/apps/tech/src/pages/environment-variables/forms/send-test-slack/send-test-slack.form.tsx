@@ -33,6 +33,7 @@ export function SendTestSlackForm({
   const notify = useNotify();
   const [sendTest] = useSendTestSlackMessageMutation();
   const methods = useForm<Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     values: { channel: defaultChannel },
   });

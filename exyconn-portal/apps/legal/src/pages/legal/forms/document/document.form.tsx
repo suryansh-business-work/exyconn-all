@@ -50,6 +50,7 @@ export function DocumentForm({ initial, onDone, onCancel }: DocumentFormProps) {
   const [updateDocument] = useUpdateLegalDocumentMutation();
 
   const methods = useForm<Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

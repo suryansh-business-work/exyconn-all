@@ -62,6 +62,7 @@ export function PositionForm({
   }));
 
   const methods = useForm<PositionSchemaInput, unknown, PositionFormValues>({
+    mode: 'onTouched',
     resolver: zodResolver(positionSchema),
     defaultValues: toFormValues(initial, department),
   });

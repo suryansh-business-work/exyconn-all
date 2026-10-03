@@ -35,6 +35,7 @@ export function ApplicantStageForm({
   const notify = useNotify();
   const [setStage] = useSetApplicantStageMutation();
   const methods = useForm<z.input<typeof applicantStageSchema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(applicantStageSchema),
     defaultValues: { stage: applicant.stage, note: '' },
   });

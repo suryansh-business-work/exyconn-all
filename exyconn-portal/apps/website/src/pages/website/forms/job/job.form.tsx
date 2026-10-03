@@ -80,6 +80,7 @@ export function JobForm({ initial, onDone, onCancel }: Readonly<JobFormProps>) {
   const [createJob] = useCreateJobMutation();
   const [updateJob] = useUpdateJobMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

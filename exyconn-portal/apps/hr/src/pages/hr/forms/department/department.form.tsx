@@ -48,6 +48,7 @@ export function DepartmentForm({ initial, onDone, onCancel }: Readonly<Departmen
     label: person.name,
   }));
   const methods = useForm<DepartmentFormValues>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

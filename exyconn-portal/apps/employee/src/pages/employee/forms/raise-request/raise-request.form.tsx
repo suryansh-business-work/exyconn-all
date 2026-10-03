@@ -25,7 +25,11 @@ interface RaiseRequestFormProps {
 export function RaiseRequestForm({ onCancel, onDone }: Readonly<RaiseRequestFormProps>) {
   const notify = useNotify();
   const [createMyRequest] = useCreateMyRequestMutation();
-  const methods = useForm<Values>({ resolver: zodResolver(schema), defaultValues: INITIAL });
+  const methods = useForm<Values>({
+    mode: 'onTouched',
+    resolver: zodResolver(schema),
+    defaultValues: INITIAL,
+  });
 
   const onSubmit = async (values: Values) => {
     try {

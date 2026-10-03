@@ -58,6 +58,7 @@ export function LeaveRequestForm({ initial, onDone, onCancel }: LeaveRequestForm
   }));
 
   const methods = useForm<Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

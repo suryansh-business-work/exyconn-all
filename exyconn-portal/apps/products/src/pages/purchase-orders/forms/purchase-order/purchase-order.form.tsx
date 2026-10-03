@@ -79,6 +79,7 @@ interface PurchaseOrderFormProps {
 export function PurchaseOrderForm({ initial, onDone, onCancel }: Readonly<PurchaseOrderFormProps>) {
   const companyCurrency = useCompanyCurrency();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial, companyCurrency),
   });

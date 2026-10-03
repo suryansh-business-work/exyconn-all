@@ -39,6 +39,7 @@ export function PurchaseRequestForm({
   const [create] = useCreateItPurchaseRequestMutation();
   const [update] = useUpdateItPurchaseRequestMutation();
   const methods = useForm<z.input<typeof purchaseRequestSchema>, unknown, PurchaseRequestValues>({
+    mode: 'onTouched',
     resolver: zodResolver(purchaseRequestSchema),
     defaultValues: toPurchaseRequestValues(initial),
   });

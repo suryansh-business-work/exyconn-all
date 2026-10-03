@@ -78,6 +78,7 @@ interface TicketFormProps {
 export function TicketForm({ initial, assignees, onSubmit, onCancel }: Readonly<TicketFormProps>) {
   const t = useT();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

@@ -41,6 +41,7 @@ export function AuditForm({ initial, onDone, onCancel }: Readonly<AuditFormProps
   const [createAudit] = useCreateInternalAuditMutation();
   const [updateAudit] = useUpdateInternalAuditMutation();
   const methods = useForm<z.input<typeof auditSchema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(auditSchema),
     defaultValues: toAuditValues(initial),
   });

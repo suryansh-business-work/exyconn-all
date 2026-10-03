@@ -67,6 +67,7 @@ export function PromptForm({ initial, onDone, onCancel }: Readonly<PromptFormPro
   const [updatePrompt] = useUpdatePromptMutation();
 
   const methods = useForm<Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

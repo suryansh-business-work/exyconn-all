@@ -41,6 +41,7 @@ interface LinkFormProps {
 /** Adds or edits the link on the selected text. Mounted only while it is open. */
 export function LinkForm({ initial, onSubmit, onClose }: Readonly<LinkFormProps>) {
   const methods = useForm<LinkFormValues>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: initial,
   });

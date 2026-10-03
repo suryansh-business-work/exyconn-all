@@ -45,6 +45,7 @@ export function LeaveBalanceForm({
   const [createLeaveBalance] = useCreateLeaveBalanceMutation();
   const [updateLeaveBalance] = useUpdateLeaveBalanceMutation();
   const methods = useForm<z.input<typeof leaveBalanceSchema>, unknown, LeaveBalanceValues>({
+    mode: 'onTouched',
     resolver: zodResolver(leaveBalanceSchema),
     defaultValues: toFormValues(initial),
   });

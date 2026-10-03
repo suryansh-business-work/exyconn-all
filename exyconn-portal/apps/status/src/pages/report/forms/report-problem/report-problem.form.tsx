@@ -35,6 +35,7 @@ export function ReportProblemForm({
   const t = useT();
   const wholePlatform: SelectOption = { value: '', label: t('Not sure / the whole platform') };
   const methods = useForm<z.input<typeof reportProblemSchema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(reportProblemSchema),
     defaultValues: REPORT_DEFAULTS,
   });

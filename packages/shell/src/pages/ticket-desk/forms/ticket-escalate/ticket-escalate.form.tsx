@@ -37,6 +37,7 @@ export function TicketEscalateForm({
   const notify = useNotify();
   const [escalate] = useEscalateSupportTicketMutation();
   const methods = useForm<TicketEscalateValues>({
+    mode: 'onTouched',
     resolver: zodResolver(ticketEscalateSchema),
     defaultValues: { reason: '' },
   });

@@ -50,6 +50,7 @@ export function MaintenanceForm({ initial, onDone, onCancel }: Readonly<Maintena
   const [updateWindow] = useUpdateStatusMaintenanceMutation();
   const { data } = useListStatusMonitorsQuery();
   const methods = useForm<z.input<typeof maintenanceSchema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(maintenanceSchema),
     defaultValues: toMaintenanceValues(initial),
   });

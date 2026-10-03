@@ -35,6 +35,7 @@ export function CloudResourceForm({ initial, onDone, onCancel }: Readonly<CloudR
   const [create] = useCreateItCloudResourceMutation();
   const [update] = useUpdateItCloudResourceMutation();
   const methods = useForm<z.input<typeof cloudResourceSchema>, unknown, CloudResourceValues>({
+    mode: 'onTouched',
     resolver: zodResolver(cloudResourceSchema),
     defaultValues: toCloudResourceValues(initial),
   });

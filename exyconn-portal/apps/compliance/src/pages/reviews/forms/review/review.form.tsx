@@ -41,6 +41,7 @@ export function ReviewForm({ initial, onDone, onCancel }: Readonly<ReviewFormPro
   const [createReview] = useCreateManagementReviewMutation();
   const [updateReview] = useUpdateManagementReviewMutation();
   const methods = useForm<z.input<typeof reviewSchema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(reviewSchema),
     defaultValues: toReviewValues(initial),
   });

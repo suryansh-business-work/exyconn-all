@@ -48,7 +48,11 @@ export function SupportTicketForm({
   const [createTicket] = useCreateSupportTicketMutation();
   // Files upload as they are picked, so they live beside the form rather than in it.
   const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
-  const methods = useForm<Values>({ resolver: zodResolver(schema), defaultValues: INITIAL });
+  const methods = useForm<Values>({
+    mode: 'onTouched',
+    resolver: zodResolver(schema),
+    defaultValues: INITIAL,
+  });
 
   const onSubmit = async (values: Values) => {
     try {

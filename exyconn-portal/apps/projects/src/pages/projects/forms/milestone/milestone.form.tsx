@@ -58,6 +58,7 @@ export function MilestoneForm({
   const [updateMilestone] = useUpdateMilestoneMutation();
 
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

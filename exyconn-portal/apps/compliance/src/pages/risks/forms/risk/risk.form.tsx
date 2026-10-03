@@ -40,6 +40,7 @@ export function RiskForm({ initial, onDone, onCancel }: Readonly<RiskFormProps>)
   const [createRisk] = useCreateRiskMutation();
   const [updateRisk] = useUpdateRiskMutation();
   const methods = useForm<z.input<typeof riskSchema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(riskSchema),
     defaultValues: toRiskValues(initial),
   });

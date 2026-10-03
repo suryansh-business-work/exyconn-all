@@ -44,6 +44,7 @@ export function ProblemReportForm({ initial, onDone, onCancel }: Readonly<Proble
   const [updateReport] = useUpdateProblemReportMutation();
   const { data } = useListStatusMonitorsQuery();
   const methods = useForm<z.input<typeof problemReportSchema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(problemReportSchema),
     defaultValues: toProblemReportValues(initial),
   });

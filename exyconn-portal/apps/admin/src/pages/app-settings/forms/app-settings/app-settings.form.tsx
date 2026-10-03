@@ -104,6 +104,7 @@ export function AppSettingsForm({ initial }: Readonly<AppSettingsFormProps>) {
   const notify = useNotify();
   const [updateSettings] = useUpdateSettingsMutation({ refetchQueries: [AppSettingsDocument] });
   const methods = useForm<AppSettingsFormValues>({
+    mode: 'onTouched',
     resolver: zodResolver(appSettingsSchema),
     defaultValues: toAppSettingsValues(initial),
   });

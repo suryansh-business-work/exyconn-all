@@ -50,6 +50,7 @@ export function AssetNotesForm({ asset, onDone }: Readonly<AssetNotesFormProps>)
   const [updateAsset] = useUpdateAssetMutation();
 
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: { notes: asset.notes },
   });

@@ -43,6 +43,7 @@ export function ExpenseClaimForm({ onCancel, onDone }: Readonly<ExpenseClaimForm
   const companyCurrency = useCompanyCurrency();
   const initial = initialValues(companyCurrency);
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: initial,
   });

@@ -27,6 +27,7 @@ export function StatusMonitorForm({ initial, onDone, onCancel }: Readonly<Status
   const [createMonitor] = useCreateStatusMonitorMutation();
   const [updateMonitor] = useUpdateStatusMonitorMutation();
   const methods = useForm<z.input<typeof statusMonitorSchema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(statusMonitorSchema),
     defaultValues: toStatusMonitorValues(initial),
   });

@@ -42,6 +42,7 @@ export function AiSpendLimitForm({ initial, onDone, onCancel }: Readonly<AiSpend
   const notify = useNotify();
   const [saveLimit] = useSaveAiSpendLimitMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     values: {
       monthlyUsdCap: String(initial.monthlyUsdCap),

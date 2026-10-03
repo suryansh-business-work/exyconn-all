@@ -29,6 +29,7 @@ interface DocPageFormProps {
  */
 export function DocPageForm({ page, onSubmit, onCancel }: Readonly<DocPageFormProps>) {
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(page),
   });

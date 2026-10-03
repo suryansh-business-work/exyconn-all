@@ -62,6 +62,7 @@ export function DealForm({ initial, onDone, onCancel }: Readonly<DealFormProps>)
   const { data: companiesData } = useListCompaniesQuery();
   const { data: contactsData } = useListContactsQuery();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

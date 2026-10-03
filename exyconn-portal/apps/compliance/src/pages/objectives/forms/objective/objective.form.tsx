@@ -44,6 +44,7 @@ export function ObjectiveForm({ initial, onDone, onCancel }: Readonly<ObjectiveF
   const [createObjective] = useCreateObjectiveMutation();
   const [updateObjective] = useUpdateObjectiveMutation();
   const methods = useForm<z.input<typeof objectiveSchema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(objectiveSchema),
     defaultValues: toObjectiveValues(initial),
   });

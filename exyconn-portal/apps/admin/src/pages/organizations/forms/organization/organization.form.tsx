@@ -93,6 +93,7 @@ export function OrganizationForm({ initial, onDone, onCancel }: Readonly<Organiz
   const zones = useMemo(() => timezoneOptions(initial?.timezone ?? ''), [initial?.timezone]);
 
   const methods = useForm<Values>({
+    mode: 'onTouched',
     resolver: zodResolver(schema),
     defaultValues: toInitial(initial),
   });

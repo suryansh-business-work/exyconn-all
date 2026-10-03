@@ -57,6 +57,7 @@ export function PexelsConfigForm({ initial, onDone, onCancel }: Readonly<PexelsC
   const [createConfig] = useCreatePexelsConfigMutation();
   const [updateConfig] = useUpdatePexelsConfigMutation();
   const methods = useForm<z.input<Schema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(makeSchema(Boolean(initial))),
     defaultValues: toInitial(initial),
   });

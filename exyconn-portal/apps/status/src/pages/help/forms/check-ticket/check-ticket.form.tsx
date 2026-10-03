@@ -61,6 +61,7 @@ export function CheckTicketForm({ onCancel }: Readonly<CheckTicketFormProps>) {
   const [ticket, setTicket] = useState<ClientTicket | null>(null);
   const [missing, setMissing] = useState(false);
   const methods = useForm<z.input<typeof checkTicketSchema>, unknown, Values>({
+    mode: 'onTouched',
     resolver: zodResolver(checkTicketSchema),
     defaultValues: { reference: '', email: '' },
   });
