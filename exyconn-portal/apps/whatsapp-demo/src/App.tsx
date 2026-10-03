@@ -25,7 +25,7 @@ export function App() {
       chrome={false}
     >
       <Route
-        path={`${HOME_PATH}/:demoKey?`}
+        path="/whatsapp-demo/:demoKey?"
         element={
           <PageErrorBoundary>
             <ChatsPage />
