@@ -17,8 +17,15 @@ import {
   fontWeight,
 } from '@/components/ui';
 import { useT } from '@exyconn/i18n';
-import { useBrandMark } from '@/hooks/useBrandMark';
+import { useBrandLogo, useBrandMark } from '@/hooks/useBrandMark';
+import { env } from '@/config/env';
 import { TOPBAR_HEIGHT } from './metrics';
+
+/** The rail's mark: a square that fits its 64px width with the hit area around it. */
+const BRAND_MARK_SIZE = 28;
+/** The open sidebar's wordmark: one line of the topbar's height, never wider than the header. */
+const BRAND_LOGO_HEIGHT = 26;
+const BRAND_LOGO_MAX_WIDTH = 168;
 
 interface SidebarHeaderProps {
   collapsed: boolean;
@@ -41,6 +48,7 @@ export function SidebarHeader({
 }: Readonly<SidebarHeaderProps>) {
   const t = useT();
   const brandMark = useBrandMark();
+  const brandLogo = useBrandLogo();
   return (
     <>
       <Toolbar
@@ -51,7 +59,23 @@ export function SidebarHeader({
           px: 1.5,
         }}
       >
-        <Box component="img" src={brandMark} alt="Exyconn" sx={{ height: 22 }} />
+        {/* The rail is one icon wide, so it carries the mark; the open sidebar has room for the
+            whole wordmark. Both follow the colour mode, and Admin › Branding replaces either. */}
+        {collapsed ? (
+          <Box
+            component="img"
+            src={brandMark}
+            alt={env.logoAlt}
+            sx={{ width: BRAND_MARK_SIZE, height: BRAND_MARK_SIZE, objectFit: 'contain' }}
+          />
+        ) : (
+          <Box
+            component="img"
+            src={brandLogo}
+            alt={env.logoAlt}
+            sx={{ height: BRAND_LOGO_HEIGHT, maxWidth: BRAND_LOGO_MAX_WIDTH, objectFit: 'contain' }}
+          />
+        )}
         {onToggleCollapse && !collapsed && (
           <Tooltip title={t('Collapse sidebar')}>
             <IconButton size="small" aria-label={t('Collapse sidebar')} onClick={onToggleCollapse}>

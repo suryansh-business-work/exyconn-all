@@ -31,3 +31,19 @@ export function useBrandMark(): string {
     env.iconUrl,
   );
 }
+
+/**
+ * The organisation's full wordmark (Admin › Branding › Logo) for the current colour mode —
+ * the expanded sidebar. Unlike the icon mark, dark mode never falls back to the light logo:
+ * its dark "exyconn" text would vanish on the dark sidebar, so the built-in dark wordmark
+ * stands in until Branding has a dark logo of its own.
+ */
+export function useBrandLogo(): string {
+  const { mode } = useColorMode();
+  const { data } = useBrandingQuery();
+  const branding = data?.branding;
+  if (mode === 'dark') {
+    return branding?.logoDarkUrl || env.logoDarkUrl;
+  }
+  return branding?.logoUrl || env.logoUrl;
+}
