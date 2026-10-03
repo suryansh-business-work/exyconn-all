@@ -128,8 +128,11 @@ describe("pairs written in components", () => {
       }
     });
 
+  // A guard that the scan still matches anything. The redesigned pages paint through role
+  // classes in the stage/inner stylesheets, so far fewer pairs are written inline than the
+  // retired components did; a handful is the expected count now.
   it("finds pairs to measure", () => {
-    expect(written.size).toBeGreaterThan(10);
+    expect(written.size).toBeGreaterThanOrEqual(5);
   });
 
   it("keeps gradient headings at 3:1, the large-text minimum, at every stop", () => {
