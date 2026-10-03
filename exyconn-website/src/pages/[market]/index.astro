@@ -6,6 +6,7 @@ import SolutionsChapter from "../../components/home/SolutionsChapter.astro";
 import IndustriesChapter from "../../components/home/IndustriesChapter.astro";
 import PartnerChapter from "../../components/home/PartnerChapter.astro";
 import ClosingChapter from "../../components/home/ClosingChapter.astro";
+import PlatformsMarquee from "../../components/home/PlatformsMarquee.astro";
 import { aiServices } from "../../lib/services/aiServices";
 import { BRANDING_FALLBACK, getBrandingSafe } from "../../lib/portal";
 import { heroCopy } from "../../lib/home/hero";
@@ -41,6 +42,7 @@ const chapters = [
       techTitle="Powered By Leading Technology"
       techSubtitle="Cutting-Edge AI & Cloud Infrastructure"
     />
+    <PlatformsMarquee id="platforms" />
     <ClosingChapter
       id={chapters[4].id}
       businessName={businessName}
