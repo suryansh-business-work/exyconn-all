@@ -7,21 +7,20 @@ import { panel } from '@exyconn/shell/components/glass/glass';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { formatMoney } from '@exyconn/shell/utils/money';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import PaidIcon from '@mui/icons-material/Paid';
 import ForwardToInboxIcon from '@mui/icons-material/ForwardToInbox';
 import {
   usePayrollSummaryQuery,
-  useRunPayrollMutation,
   useMarkPayrollPaidMutation,
   useSendSalarySlipsMutation,
 } from '@exyconn/shell/graphql/generated';
 import { PayrollSlipsTable } from './PayrollSlipsTable';
 import { MONTHS } from './payroll.constants';
+import { PayrollRunControl } from './run-dialog';
 
 /**
- * Payroll run for one month: review the totals, generate or recompute every
- * active employee's slip, then mark the month paid. Paid slips are never touched.
+ * Payroll for one month: run it for the employees HR picks (once the month has opened),
+ * review the totals, then mark the month paid. A month is never run twice for anyone.
  */
 export function PayrollPage() {
   const t = useT();
@@ -35,11 +34,11 @@ export function PayrollPage() {
     variables: { month, year },
     fetchPolicy: 'cache-and-network',
   });
-  const [runPayroll, { loading: running }] = useRunPayrollMutation();
   const [markPaid, { loading: paying }] = useMarkPayrollPaidMutation();
   const [sendSlips, { loading: sending }] = useSendSalarySlipsMutation();
   const s = summary.data?.payrollSummary;
   const monthName = t(MONTHS[month - 1]);
+  const period = t('{month} {year}', { month: monthName, year });
 
   const tiles = useMemo<StatItem[]>(
     () => [
@@ -55,29 +54,6 @@ export function PayrollPage() {
     ],
     [s],
   );
-
-  const run = async () => {
-    const ok = await confirm({
-      title: 'Run payroll for {month} {year}?',
-      titleValues: { month: monthName, year },
-      message:
-        'Every active employee with a salary structure gets a slip. Existing GENERATED slips are recomputed; PAID slips are left alone.',
-    });
-    if (!ok) return;
-    try {
-      const { data } = await runPayroll({ variables: { month, year } });
-      const r = data?.runPayroll;
-      const done = {
-        generated: r?.generated ?? 0,
-        updated: r?.updated ?? 0,
-        skipped: r?.skipped ?? 0,
-      };
-      notify('Generated {generated}, recomputed {updated}, skipped {skipped}.', 'success', done);
-      await summary.refetch();
-    } catch (error) {
-      notify(error instanceof Error ? error.message : 'Payroll run failed', 'error');
-    }
-  };
 
   const pay = async () => {
     const ok = await confirm({
@@ -147,9 +123,12 @@ export function PayrollPage() {
             sx={{ width: 120 }}
           />
           <Box sx={{ flexGrow: 1 }} />
-          <Button startIcon={<PlayArrowIcon />} onClick={run} disabled={running}>
-            {running ? t('Running…') : t('Run payroll')}
-          </Button>
+          <PayrollRunControl
+            month={month}
+            year={year}
+            period={period}
+            onRan={() => summary.refetch()}
+          />
           <Button
             startIcon={<PaidIcon />}
             onClick={pay}

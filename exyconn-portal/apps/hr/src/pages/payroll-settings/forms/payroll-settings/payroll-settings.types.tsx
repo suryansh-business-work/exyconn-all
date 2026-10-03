@@ -18,4 +18,6 @@ export interface PayrollSettingsFormValues {
   tdsRegimeKey: string;
   /** The month a financial year opens in, 1-12. */
   financialYearStartMonth: number;
+  /** The day of a month (1-28) from which that month's payroll may be run. */
+  runFromDay: number;
 }

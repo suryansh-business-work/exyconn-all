@@ -47,7 +47,7 @@ export function PayrollSlipsTable({ month, year, refreshKey }: Readonly<PayrollS
             fetchPolicy: 'network-only',
             variables: {
               input: {
-                page: 1,
+                page: 0,
                 pageSize: 200,
                 filters: [
                   { field: 'month', op: FilterOp.Equals, value: String(month) },

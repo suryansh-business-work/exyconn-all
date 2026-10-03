@@ -40,6 +40,11 @@ const schema = z.object({
     .int('Use a whole month number')
     .min(1, 'Months run 1-12')
     .max(12, 'Months run 1-12'),
+  runFromDay: z.coerce
+    .number()
+    .int('Use a whole day of the month')
+    .min(1, 'Choose a day from 1 to 28')
+    .max(28, 'Choose a day from 1 to 28, so it exists in every month'),
 });
 type Values = z.infer<typeof schema>;
 
@@ -129,6 +134,7 @@ export function PayrollSettingsForm({
       tdsCessPercent: initial.tdsCessPercent ?? 0,
       tdsRegimeKey: initial.tdsRegimeKey,
       financialYearStartMonth: initial.financialYearStartMonth,
+      runFromDay: initial.runFromDay,
     },
   });
 
@@ -155,6 +161,12 @@ export function PayrollSettingsForm({
           'These apply to every employee unless their own salary structure says otherwise. A payslip that has already been generated keeps the figures it was generated with.',
         )}
       </Text>
+      <RhfTextField
+        name="runFromDay"
+        label="Payroll can be run from day"
+        type="number"
+        helperText="A month's payroll opens on this day of that month (1-28), on the company's clock."
+      />
       <RhfSwitch name="pfEnabled" label="Withhold provident fund (PF)" />
       <RhfTextField name="pfEmployeePercent" label="PF rate (% of basic)" type="number" />
       <RhfTextField

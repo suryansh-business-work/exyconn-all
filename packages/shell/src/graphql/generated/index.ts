@@ -4855,9 +4855,10 @@ export type Mutation = {
    */
   runBackgroundJob: Scalars['Boolean']['output'];
   /**
-   * Generates (or recomputes) every active employee's slip for the month from their
-   * salary structure and approved unpaid leave. Idempotent: running it twice
-   * recomputes GENERATED slips and never touches PAID ones.
+   * Issues the month's slip to exactly the employees picked, from their salary structure and
+   * approved unpaid leave. Refused before the month opens (runFromDay in the payroll settings),
+   * with nobody picked, or if any one picked is inactive, has no salary structure or already
+   * has a slip for the month: a month run for an employee is never run again.
    */
   runPayroll: PayrollRunResult;
   /** Queues a prompt-library entry as a new job, with its {{variables}} filled in. */
@@ -6660,6 +6661,7 @@ export type MutationRunBackgroundJobArgs = {
 
 
 export type MutationRunPayrollArgs = {
+  employeeIds: Array<Scalars['ID']['input']>;
   month: Scalars['Int']['input'];
   year: Scalars['Int']['input'];
 };
@@ -8143,6 +8145,32 @@ export type PaymentPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** One active employee in a run plan. Amounts are worked out for READY employees only. */
+export type PayrollCandidate = {
+  __typename?: 'PayrollCandidate';
+  currency?: Maybe<Scalars['String']['output']>;
+  deductions?: Maybe<Scalars['Float']['output']>;
+  department?: Maybe<Scalars['String']['output']>;
+  designation?: Maybe<Scalars['String']['output']>;
+  employeeId: Scalars['ID']['output'];
+  gross?: Maybe<Scalars['Float']['output']>;
+  name: Scalars['String']['output'];
+  net?: Maybe<Scalars['Float']['output']>;
+  /** The existing slip's status, for ALREADY_RUN. */
+  slipStatus?: Maybe<SlipStatus>;
+  status: PayrollCandidateStatus;
+};
+
+/**
+ * Where one active employee stands for a month's run. READY can be run; ALREADY_RUN has a
+ * slip for the month and is never run again; NO_STRUCTURE has no salary structure on file.
+ */
+export enum PayrollCandidateStatus {
+  AlreadyRun = 'ALREADY_RUN',
+  NoStructure = 'NO_STRUCTURE',
+  Ready = 'READY'
+}
+
 /** What one payslip email run did, per employee outcome. */
 export type PayrollDispatchResult = {
   __typename?: 'PayrollDispatchResult';
@@ -8155,17 +8183,32 @@ export type PayrollDispatchResult = {
   year: Scalars['Int']['output'];
 };
 
-/** What one payroll run did. */
+/** What running a month would do, employee by employee, before anything is written. */
+export type PayrollRunPlan = {
+  __typename?: 'PayrollRunPlan';
+  alreadyRunCount: Scalars['Int']['output'];
+  employees: Array<PayrollCandidate>;
+  month: Scalars['Int']['output'];
+  noStructureCount: Scalars['Int']['output'];
+  /** Whether the month can be run now. */
+  open: Scalars['Boolean']['output'];
+  /** Midnight, on the company clock, of the day this month opens for running. */
+  opensOn: Scalars['DateTime']['output'];
+  readyCount: Scalars['Int']['output'];
+  totalDeductions: Scalars['Float']['output'];
+  /** Totals over the READY employees. */
+  totalGross: Scalars['Float']['output'];
+  totalNet: Scalars['Float']['output'];
+  year: Scalars['Int']['output'];
+};
+
+/** What one payroll run did. A run either issues a slip to every employee picked or refuses. */
 export type PayrollRunResult = {
   __typename?: 'PayrollRunResult';
-  /** Slips created for the first time. */
+  /** Slips issued, one per employee picked. */
   generated: Scalars['Int']['output'];
   month: Scalars['Int']['output'];
-  /** Employees skipped: no salary structure, inactive, or slip already PAID. */
-  skipped: Scalars['Int']['output'];
   totalNet: Scalars['Float']['output'];
-  /** Slips that already existed and were recomputed (only while still GENERATED). */
-  updated: Scalars['Int']['output'];
   year: Scalars['Int']['output'];
 };
 
@@ -8209,6 +8252,8 @@ export type PayrollSettings = {
   /** PF is charged on basic only up to this figure; anything above it is exempt. */
   pfWageCeiling: Scalars['Float']['output'];
   professionalTaxMonthly: Scalars['Float']['output'];
+  /** A month's payroll can be run from this day of that month on, 1-28, on the company clock. */
+  runFromDay: Scalars['Int']['output'];
   /** Deducted from annual taxable pay before the bands are applied. */
   tdsAnnualExemption: Scalars['Float']['output'];
   /** Charged on the TAX, not on the income. 0 where the jurisdiction has none. */
@@ -8230,6 +8275,7 @@ export type PayrollSettingsInput = {
   pfEnabled: Scalars['Boolean']['input'];
   pfWageCeiling: Scalars['Float']['input'];
   professionalTaxMonthly: Scalars['Float']['input'];
+  runFromDay?: InputMaybe<Scalars['Int']['input']>;
   tdsAnnualExemption?: InputMaybe<Scalars['Float']['input']>;
   tdsCessPercent?: InputMaybe<Scalars['Float']['input']>;
   tdsFlatPercent: Scalars['Float']['input'];
@@ -9582,6 +9628,8 @@ export type Query = {
   organization: Organization;
   /** Every organization on the platform (SUPER_ADMIN). */
   organizations: Array<Organization>;
+  /** Every active employee and whether the month can be run for them, with the figures it would store. */
+  payrollRunPlan: PayrollRunPlan;
   /** The payslip email schedule. Created with its defaults on first read. */
   payrollSchedule: PayrollSchedule;
   /** The statutory deduction policy. Created with its defaults on first read. */
@@ -10846,6 +10894,12 @@ export type QueryOpenAppLogsFixPromptArgs = {
 
 export type QueryOrganizationArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryPayrollRunPlanArgs = {
+  month: Scalars['Int']['input'];
+  year: Scalars['Int']['input'];
 };
 
 
@@ -12393,6 +12447,7 @@ export type TableFilterInput = {
 /** Server-side pagination/sort/filter/search request. `page` is zero-indexed. */
 export type TableQueryInput = {
   filters?: InputMaybe<Array<TableFilterInput>>;
+  /** Zero-based: 0 is the first page, so the first pageSize rows. */
   page: Scalars['Int']['input'];
   pageSize: Scalars['Int']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
@@ -17553,13 +17608,22 @@ export type PayrollSummaryQueryVariables = Exact<{
 
 export type PayrollSummaryQuery = { __typename?: 'Query', payrollSummary: { __typename?: 'PayrollSummary', month: number, year: number, slips: number, paid: number, totalGross: number, totalDeductions: number, totalNet: number } };
 
-export type RunPayrollMutationVariables = Exact<{
+export type PayrollRunPlanQueryVariables = Exact<{
   month: Scalars['Int']['input'];
   year: Scalars['Int']['input'];
 }>;
 
 
-export type RunPayrollMutation = { __typename?: 'Mutation', runPayroll: { __typename?: 'PayrollRunResult', generated: number, updated: number, skipped: number, totalNet: number } };
+export type PayrollRunPlanQuery = { __typename?: 'Query', payrollRunPlan: { __typename?: 'PayrollRunPlan', month: number, year: number, opensOn: string, open: boolean, readyCount: number, alreadyRunCount: number, noStructureCount: number, totalGross: number, totalDeductions: number, totalNet: number, employees: Array<{ __typename?: 'PayrollCandidate', employeeId: string, name: string, department?: string | null, designation?: string | null, status: PayrollCandidateStatus, slipStatus?: SlipStatus | null, gross?: number | null, deductions?: number | null, net?: number | null, currency?: string | null }> } };
+
+export type RunPayrollMutationVariables = Exact<{
+  month: Scalars['Int']['input'];
+  year: Scalars['Int']['input'];
+  employeeIds: Array<Scalars['ID']['input']> | Scalars['ID']['input'];
+}>;
+
+
+export type RunPayrollMutation = { __typename?: 'Mutation', runPayroll: { __typename?: 'PayrollRunResult', generated: number, totalNet: number } };
 
 export type MarkPayrollPaidMutationVariables = Exact<{
   month: Scalars['Int']['input'];
@@ -17596,19 +17660,19 @@ export type SendSalarySlipsMutationVariables = Exact<{
 
 export type SendSalarySlipsMutation = { __typename?: 'Mutation', sendSalarySlips: { __typename?: 'PayrollDispatchResult', month: number, year: number, sent: number, failed: number, skipped: number } };
 
-export type PayrollSettingsFieldsFragment = { __typename?: 'PayrollSettings', pfEnabled: boolean, pfEmployeePercent: number, pfWageCeiling: number, esiEnabled: boolean, esiEmployeePercent: number, esiWageLimit: number, professionalTaxMonthly: number, tdsMode: TdsMode, tdsFlatPercent: number, tdsAnnualExemption: number, tdsCessPercent: number, tdsRegimeKey: string, financialYearStartMonth: number, tdsSlabs: Array<{ __typename?: 'TdsSlab', upTo?: number | null, percent: number }> };
+export type PayrollSettingsFieldsFragment = { __typename?: 'PayrollSettings', pfEnabled: boolean, pfEmployeePercent: number, pfWageCeiling: number, esiEnabled: boolean, esiEmployeePercent: number, esiWageLimit: number, professionalTaxMonthly: number, tdsMode: TdsMode, tdsFlatPercent: number, tdsAnnualExemption: number, tdsCessPercent: number, tdsRegimeKey: string, financialYearStartMonth: number, runFromDay: number, tdsSlabs: Array<{ __typename?: 'TdsSlab', upTo?: number | null, percent: number }> };
 
 export type PayrollSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type PayrollSettingsQuery = { __typename?: 'Query', payrollSettings: { __typename?: 'PayrollSettings', pfEnabled: boolean, pfEmployeePercent: number, pfWageCeiling: number, esiEnabled: boolean, esiEmployeePercent: number, esiWageLimit: number, professionalTaxMonthly: number, tdsMode: TdsMode, tdsFlatPercent: number, tdsAnnualExemption: number, tdsCessPercent: number, tdsRegimeKey: string, financialYearStartMonth: number, tdsSlabs: Array<{ __typename?: 'TdsSlab', upTo?: number | null, percent: number }> } };
+export type PayrollSettingsQuery = { __typename?: 'Query', payrollSettings: { __typename?: 'PayrollSettings', pfEnabled: boolean, pfEmployeePercent: number, pfWageCeiling: number, esiEnabled: boolean, esiEmployeePercent: number, esiWageLimit: number, professionalTaxMonthly: number, tdsMode: TdsMode, tdsFlatPercent: number, tdsAnnualExemption: number, tdsCessPercent: number, tdsRegimeKey: string, financialYearStartMonth: number, runFromDay: number, tdsSlabs: Array<{ __typename?: 'TdsSlab', upTo?: number | null, percent: number }> } };
 
 export type UpdatePayrollSettingsMutationVariables = Exact<{
   input: PayrollSettingsInput;
 }>;
 
 
-export type UpdatePayrollSettingsMutation = { __typename?: 'Mutation', updatePayrollSettings: { __typename?: 'PayrollSettings', pfEnabled: boolean, pfEmployeePercent: number, pfWageCeiling: number, esiEnabled: boolean, esiEmployeePercent: number, esiWageLimit: number, professionalTaxMonthly: number, tdsMode: TdsMode, tdsFlatPercent: number, tdsAnnualExemption: number, tdsCessPercent: number, tdsRegimeKey: string, financialYearStartMonth: number, tdsSlabs: Array<{ __typename?: 'TdsSlab', upTo?: number | null, percent: number }> } };
+export type UpdatePayrollSettingsMutation = { __typename?: 'Mutation', updatePayrollSettings: { __typename?: 'PayrollSettings', pfEnabled: boolean, pfEmployeePercent: number, pfWageCeiling: number, esiEnabled: boolean, esiEmployeePercent: number, esiWageLimit: number, professionalTaxMonthly: number, tdsMode: TdsMode, tdsFlatPercent: number, tdsAnnualExemption: number, tdsCessPercent: number, tdsRegimeKey: string, financialYearStartMonth: number, runFromDay: number, tdsSlabs: Array<{ __typename?: 'TdsSlab', upTo?: number | null, percent: number }> } };
 
 export type TaxRegimeFieldsFragment = { __typename?: 'TaxRegime', id: string, regimeKey: string, financialYear: string, name: string, standardDeduction: number, rebateIncomeLimit: number, rebateMaxTax: number, cessPercent: number, active: boolean };
 
@@ -20932,6 +20996,7 @@ export const PayrollSettingsFieldsFragmentDoc = gql`
   tdsCessPercent
   tdsRegimeKey
   financialYearStartMonth
+  runFromDay
 }
     `;
 export const TaxRegimeFieldsFragmentDoc = gql`
@@ -43653,12 +43718,76 @@ export function usePayrollSummarySuspenseQuery(baseOptions?: ApolloReactHooks.Sk
 export type PayrollSummaryQueryHookResult = ReturnType<typeof usePayrollSummaryQuery>;
 export type PayrollSummaryLazyQueryHookResult = ReturnType<typeof usePayrollSummaryLazyQuery>;
 export type PayrollSummarySuspenseQueryHookResult = ReturnType<typeof usePayrollSummarySuspenseQuery>;
+export const PayrollRunPlanDocument = gql`
+    query PayrollRunPlan($month: Int!, $year: Int!) {
+  payrollRunPlan(month: $month, year: $year) {
+    month
+    year
+    opensOn
+    open
+    readyCount
+    alreadyRunCount
+    noStructureCount
+    totalGross
+    totalDeductions
+    totalNet
+    employees {
+      employeeId
+      name
+      department
+      designation
+      status
+      slipStatus
+      gross
+      deductions
+      net
+      currency
+    }
+  }
+}
+    `;
+
+/**
+ * __usePayrollRunPlanQuery__
+ *
+ * To run a query within a React component, call `usePayrollRunPlanQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePayrollRunPlanQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePayrollRunPlanQuery({
+ *   variables: {
+ *      month: // value for 'month'
+ *      year: // value for 'year'
+ *   },
+ * });
+ */
+export function usePayrollRunPlanQuery(baseOptions: ApolloReactHooks.QueryHookOptions<PayrollRunPlanQuery, PayrollRunPlanQueryVariables> & ({ variables: PayrollRunPlanQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<PayrollRunPlanQuery, PayrollRunPlanQueryVariables>(PayrollRunPlanDocument, options);
+      }
+export function usePayrollRunPlanLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<PayrollRunPlanQuery, PayrollRunPlanQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<PayrollRunPlanQuery, PayrollRunPlanQueryVariables>(PayrollRunPlanDocument, options);
+        }
+// @ts-ignore
+export function usePayrollRunPlanSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<PayrollRunPlanQuery, PayrollRunPlanQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<PayrollRunPlanQuery, PayrollRunPlanQueryVariables>;
+// @ts-ignore
+export function usePayrollRunPlanSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<PayrollRunPlanQuery, PayrollRunPlanQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<PayrollRunPlanQuery | undefined, PayrollRunPlanQueryVariables>;
+export function usePayrollRunPlanSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<PayrollRunPlanQuery, PayrollRunPlanQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<PayrollRunPlanQuery, PayrollRunPlanQueryVariables>(PayrollRunPlanDocument, options);
+        }
+export type PayrollRunPlanQueryHookResult = ReturnType<typeof usePayrollRunPlanQuery>;
+export type PayrollRunPlanLazyQueryHookResult = ReturnType<typeof usePayrollRunPlanLazyQuery>;
+export type PayrollRunPlanSuspenseQueryHookResult = ReturnType<typeof usePayrollRunPlanSuspenseQuery>;
 export const RunPayrollDocument = gql`
-    mutation RunPayroll($month: Int!, $year: Int!) {
-  runPayroll(month: $month, year: $year) {
+    mutation RunPayroll($month: Int!, $year: Int!, $employeeIds: [ID!]!) {
+  runPayroll(month: $month, year: $year, employeeIds: $employeeIds) {
     generated
-    updated
-    skipped
     totalNet
   }
 }
@@ -43679,6 +43808,7 @@ export const RunPayrollDocument = gql`
  *   variables: {
  *      month: // value for 'month'
  *      year: // value for 'year'
+ *      employeeIds: // value for 'employeeIds'
  *   },
  * });
  */

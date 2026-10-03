@@ -50,7 +50,7 @@ export function WebsiteOverviewPage() {
     refetch,
   } = useListWebsiteSubmissionsPagedQuery({
     // No sort: the inbox's own default is newest-first, which is what an overview wants.
-    variables: { input: { page: 1, pageSize: RECENT_SUBMISSIONS } },
+    variables: { input: { page: 0, pageSize: RECENT_SUBMISSIONS } },
   });
   const { formatDateTime } = useSettings();
 

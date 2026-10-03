@@ -34,6 +34,23 @@ describe('tableQuery', () => {
     expect(third.totalCount).toBe(5);
   });
 
+  it('counts pages from zero: page 0 is the first rows, page 1 skips a whole page', async () => {
+    for (let i = 0; i < 3; i += 1) {
+      await make(`User ${i}`, `u${i}@x.com`);
+    }
+    const sort = { field: 'name', dir: 'ASC' as const };
+    const first = await tableQuery(UserModel, { page: 0, pageSize: 200, sort }, CONFIG);
+    expect((first.rows as { name: string }[]).map((r) => r.name)).toEqual([
+      'User 0',
+      'User 1',
+      'User 2',
+    ]);
+    // What the payroll slips table once asked for: everything sat on the page it skipped.
+    const second = await tableQuery(UserModel, { page: 1, pageSize: 200, sort }, CONFIG);
+    expect(second.rows).toEqual([]);
+    expect(second.totalCount).toBe(3);
+  });
+
   it('searches across the configured fields, case-insensitively', async () => {
     await make('Alice', 'alice@acme.com');
     await make('Bob', 'bob@other.com');

@@ -1,21 +1,11 @@
 import { SalaryStructureModel } from '../employee/salary.model';
 import { SalarySlipModel } from '../employee/salarySlip.model';
-import { UserModel } from '../admin/user.model';
-import { LeaveRequestModel } from '../hr/hr.model';
 import { payrollTypeDefs } from './payroll.typeDefs';
 import {
-  computeMonthlySlip,
-  financialYearOf,
   grossOf,
   monthlyEarnings,
-  payableMonthsInFinancialYear,
-  unpaidLeaveDays,
-  type LeaveSpan,
   type PaySource,
-  type SlabTaxInput,
   type StatutorySettings,
-  type TaxRegimeFigures,
-  type TaxSlabRow,
 } from './payroll.compute';
 import { DEFAULT_PAY_TYPE, type PayType } from '../../constants/pay';
 import { companyProfile } from '../../lib/company';
@@ -27,18 +17,17 @@ import { assertAuthenticated } from '../../middleware/roleGuard';
 import { badRequest, notFound } from '../../utils/errors';
 import { withId, withIds } from '../../utils/serialize';
 import { ROLES } from '../../constants/roles';
-import { notify } from '../notifications';
 import { PayrollScheduleModel, MAX_SCHEDULE_DAY } from './payroll-schedule.model';
 import {
   DEFAULT_FINANCIAL_YEAR_START_MONTH,
+  DEFAULT_RUN_FROM_DAY,
   DEFAULT_TDS_REGIME_KEY,
   PayrollSettingsModel,
   readPayrollSettings,
   TDS_MODES,
 } from './payroll-settings.model';
 import { TaxRegimeModel, TaxSlabModel } from './tax-slab.model';
-import { ensurePayslipDocument } from '../documents';
-import { periodLabel } from './payslip.pdf';
+import { planPayroll, runPayrollFor } from './payroll.run';
 import { readSchedule } from './payroll.schedule';
 import { dispatchSalarySlips, renderPayslip } from './payroll.dispatch';
 import type { GraphQLContext } from '../../middleware/auth';
@@ -179,197 +168,25 @@ function assertMonth(month: number, year: number) {
   if (year < 2000 || year > 2100) badRequest('year out of range');
 }
 
-/** One employee's approved unpaid leave, as plain date spans. */
-async function unpaidLeaveFor(employeeId: string): Promise<LeaveSpan[]> {
-  const rows = await LeaveRequestModel.find({
-    employeeId,
-    type: 'UNPAID',
-    status: 'APPROVED',
-  }).lean();
-  return rows.map((r) => ({
-    fromDate: new Date(r.fromDate),
-    toDate: new Date(r.toDate),
-    type: r.type,
-    status: r.status,
-  }));
-}
-
-/**
- * The tax-table half of the payroll settings.
- *
- * Both fields are optional here because `.lean()` skips Mongoose defaults: a settings
- * document saved before the tax table existed comes back without them.
- */
-interface PayrollTaxSettings {
-  tdsMode: string;
-  tdsRegimeKey?: string | null;
-  financialYearStartMonth?: number | null;
-}
-
-/** The month the financial year opens in, as stored or as the schema would have defaulted it. */
-function startMonthOf(settings: PayrollTaxSettings): number {
-  return settings.financialYearStartMonth ?? DEFAULT_FINANCIAL_YEAR_START_MONTH;
-}
-
-/** The stored figures of one slip, whichever way the run arrived at them. */
-type SlipFigures = ReturnType<typeof computeMonthlySlip>;
-
-/** The amount columns a slip carries, so a create and a recompute write the same set. */
-function slipFields(amounts: SlipFigures, currency: string) {
-  return {
-    currency,
-    gross: amounts.gross,
-    deductions: amounts.deductions,
-    pf: amounts.pf,
-    esi: amounts.esi,
-    professionalTax: amounts.professionalTax,
-    tds: amounts.tds,
-    otherDeductions: amounts.otherDeductions,
-    net: amounts.net,
-  };
-}
-
-/** A slip's own document title, as the employee will find it under My Documents. */
-function payslipTitle(month: number, year: number): string {
-  return `Payslip ${periodLabel(month, year)}`;
-}
-
-/** What ONE employee's slip is worked out from, gathered before any arithmetic happens. */
-async function slipFor(
-  employeeId: string,
-  structure: {
-    payType?: string | null;
-    rate?: number | null;
-    basic: number;
-    hra: number;
-    allowances: number;
-    deductions: number;
-    pfApplicable?: boolean | null;
-    esiApplicable?: boolean | null;
-    tdsPercent?: number | null;
-  },
-  month: number,
-  year: number,
-  settings: StatutorySettings,
-  slabTax: SlabTaxInput,
-): Promise<SlipFigures> {
-  const unpaidDays = unpaidLeaveDays(await unpaidLeaveFor(employeeId), year, month);
-  return computeMonthlySlip(
-    monthlyEarnings(structure),
-    year,
-    month,
-    unpaidDays,
-    settings,
-    {
-      pfApplicable: structure.pfApplicable,
-      esiApplicable: structure.esiApplicable,
-      tdsPercent: structure.tdsPercent,
-    },
-    slabTax,
-  );
-}
-
-/** The regime and bands SLAB mode applies, read once for the whole run. */
-interface TaxTable {
-  regime: TaxRegimeFigures | null;
-  slabs: TaxSlabRow[];
-}
-
-/**
- * The tax table for the financial year this period falls in.
- *
- * Read once per run rather than once per employee, and only in SLAB mode: the other modes
- * never look at it, so a portal that has not entered one is not asked for it.
- */
-async function taxTableFor(
-  settings: PayrollTaxSettings,
-  month: number,
-  year: number,
-): Promise<TaxTable> {
-  if (settings.tdsMode !== 'SLAB') {
-    return { regime: null, slabs: [] };
-  }
-  const regimeKey = settings.tdsRegimeKey ?? DEFAULT_TDS_REGIME_KEY;
-  const financialYear = financialYearOf(year, month, startMonthOf(settings));
-  const [regime, slabs] = await Promise.all([
-    TaxRegimeModel.findOne({ regimeKey, financialYear }).lean(),
-    TaxSlabModel.find({ regimeKey, financialYear }).lean(),
-  ]);
-  return { regime, slabs };
-}
-
-async function runPayroll(
+/** What the month's run would do, employee by employee — HR reviews this before running it. */
+async function payrollRunPlan(
   _p: unknown,
   { month, year }: { month: number; year: number },
   ctx: GraphQLContext,
 ) {
   await assertPermission(ctx, SLIP_MODULE, PAYROLL_ROLES, 'CREATE');
   assertMonth(month, year);
-  const settings = await readPayrollSettings();
-  const taxTable = await taxTableFor(settings, month, year);
-  const startMonth = startMonthOf(settings);
-  const users = await UserModel.find({ isActive: true }).select('_id name joinDate').lean();
-  const structures = await SalaryStructureModel.find({
-    employeeId: { $in: users.map((u) => String(u._id)) },
-  }).lean();
-  const byEmployee = new Map(structures.map((s) => [s.employeeId, s]));
+  return planPayroll(month, year);
+}
 
-  let generated = 0;
-  let updated = 0;
-  let skipped = 0;
-  let totalNet = 0;
-
-  for (const user of users) {
-    const employeeId = String(user._id);
-    const structure = byEmployee.get(employeeId);
-    if (!structure) {
-      skipped += 1;
-      continue;
-    }
-    const existing = await SalarySlipModel.findOne({ employeeId, month, year });
-    if (existing?.status === 'PAID') {
-      skipped += 1;
-      continue;
-    }
-    // Worked out per employee, not per run: a mid-year joiner is taxed on the months they
-    // will actually be paid in this financial year, not on a full year they will not earn.
-    const amounts = await slipFor(employeeId, structure, month, year, settings, {
-      ...taxTable,
-      payableMonths: payableMonthsInFinancialYear(user.joinDate, year, month, startMonth),
-    });
-    totalNet += amounts.net;
-
-    let slipId: string;
-    let issuedDate: Date;
-    if (existing) {
-      existing.set(slipFields(amounts, structure.currency));
-      await existing.save();
-      slipId = String(existing._id);
-      issuedDate = existing.issuedDate;
-      updated += 1;
-    } else {
-      issuedDate = new Date();
-      const created = await SalarySlipModel.create({
-        employeeId,
-        month,
-        year,
-        ...slipFields(amounts, structure.currency),
-        status: 'GENERATED',
-        issuedDate,
-      });
-      slipId = String(created._id);
-      generated += 1;
-      await notify(employeeId, {
-        kind: 'PAYROLL',
-        title: `Salary slip for ${month}/${year} is ready`,
-        link: '/me/salary-slips',
-      });
-    }
-    // Filed against the payslip's own id, so re-running a month never gives an employee a
-    // second copy of the same payslip in My Documents.
-    await ensurePayslipDocument(employeeId, slipId, payslipTitle(month, year), issuedDate);
-  }
-  return { month, year, generated, updated, skipped, totalNet };
+async function runPayroll(
+  _p: unknown,
+  { month, year, employeeIds }: { month: number; year: number; employeeIds: string[] },
+  ctx: GraphQLContext,
+) {
+  await assertPermission(ctx, SLIP_MODULE, PAYROLL_ROLES, 'CREATE');
+  assertMonth(month, year);
+  return runPayrollFor(month, year, employeeIds);
 }
 
 async function markPayrollPaid(
@@ -478,6 +295,7 @@ interface PayrollSettingsInput extends StatutorySettings {
   tdsMode: string;
   tdsRegimeKey?: string;
   financialYearStartMonth?: number;
+  runFromDay?: number;
 }
 
 const MONTHS_IN_YEAR = 12;
@@ -501,6 +319,13 @@ function assertPayrollSettings(input: PayrollSettingsInput) {
   const startMonth = input.financialYearStartMonth;
   if (startMonth !== undefined && (startMonth < 1 || startMonth > MONTHS_IN_YEAR)) {
     badRequest(`financialYearStartMonth must be 1-${MONTHS_IN_YEAR}`);
+  }
+  const runFromDay = input.runFromDay;
+  if (
+    runFromDay !== undefined &&
+    (!Number.isInteger(runFromDay) || runFromDay < 1 || runFromDay > MAX_SCHEDULE_DAY)
+  ) {
+    badRequest(`runFromDay must be a whole day 1-${MAX_SCHEDULE_DAY} so it exists in every month`);
   }
 }
 
@@ -555,6 +380,7 @@ export const payrollResolvers = {
       return slipService.stats({ countBy: ['status'], sum: ['gross', 'net'] });
     },
     payrollSummary,
+    payrollRunPlan,
     payrollSchedule: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       await assertPermission(ctx, SLIP_MODULE, PAYROLL_ROLES, 'VIEW');
       return readSchedule();
@@ -585,6 +411,7 @@ export const payrollResolvers = {
     tdsRegimeKey: (s: { tdsRegimeKey?: string | null }) => s.tdsRegimeKey ?? DEFAULT_TDS_REGIME_KEY,
     financialYearStartMonth: (s: { financialYearStartMonth?: number | null }) =>
       s.financialYearStartMonth ?? DEFAULT_FINANCIAL_YEAR_START_MONTH,
+    runFromDay: (s: { runFromDay?: number | null }) => s.runFromDay ?? DEFAULT_RUN_FROM_DAY,
   },
   /**
    * Derived so the HR list shows the same numbers the employee's own view does.

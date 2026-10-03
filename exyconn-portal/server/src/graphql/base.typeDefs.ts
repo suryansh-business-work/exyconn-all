@@ -33,6 +33,7 @@ export const baseTypeDefs = gql`
 
   "Server-side pagination/sort/filter/search request. \`page\` is zero-indexed."
   input TableQueryInput {
+    "Zero-based: 0 is the first page, so the first pageSize rows."
     page: Int!
     pageSize: Int!
     search: String

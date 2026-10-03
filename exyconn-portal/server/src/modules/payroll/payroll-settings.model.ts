@@ -1,5 +1,6 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
 import { companyProfile, followsIndianTaxRules } from '../../lib/company';
+import { MAX_SCHEDULE_DAY } from './payroll-schedule.model';
 
 /**
  * How TDS is worked out for an employee.
@@ -19,6 +20,12 @@ export const TDS_MODES = ['NONE', 'FLAT_PERCENT', 'SLAB'] as const;
  */
 export const DEFAULT_TDS_REGIME_KEY = 'NEW';
 export const DEFAULT_FINANCIAL_YEAR_START_MONTH = 4;
+
+/**
+ * The day of a month from which that month's payroll may be run, on the company's clock.
+ * Exported for the same `.lean()` reason as the two above.
+ */
+export const DEFAULT_RUN_FROM_DAY = 25;
 
 /** India's flat monthly professional tax; nil for a company under any other tax system. */
 const INDIA_PROFESSIONAL_TAX_MONTHLY = 200;
@@ -88,6 +95,17 @@ const payrollSettingsSchema = new Schema(
       min: 1,
       max: 12,
       default: DEFAULT_FINANCIAL_YEAR_START_MONTH,
+    },
+    /**
+     * A month's payroll opens on this day of that month and stays open after it. Capped at
+     * 28 so the day exists in every month.
+     */
+    runFromDay: {
+      type: Number,
+      required: true,
+      min: 1,
+      max: MAX_SCHEDULE_DAY,
+      default: DEFAULT_RUN_FROM_DAY,
     },
   },
   { timestamps: true },
