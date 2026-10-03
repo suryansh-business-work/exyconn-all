@@ -1,7 +1,9 @@
 import { useT } from '@exyconn/i18n';
-import { useId, useMemo } from 'react';
-import { Box, Tab, Tabs, type SxProps, type Theme } from '@exyconn/shell/components/ui';
+import { useId, useMemo, useState } from 'react';
+import { Box, Tab, Tabs, Text, type SxProps, type Theme } from '@exyconn/shell/components/ui';
+import { TabSearch } from '@exyconn/shell/components/layout/TabSearch';
 import { useTabberSlug } from './useTabberSlug';
+import { filterTabs } from './filterTabs';
 import type { TabberItem, TabberVariant } from './tabber.types';
 
 export interface TabberProps {
@@ -11,7 +13,7 @@ export interface TabberProps {
   variant?: TabberVariant;
   /** Names the tab strip for screen readers. */
   ariaLabel: string;
-  /** Styling for the tab strip itself. */
+  /** Styling for the row that holds the tab strip and its search, e.g. the gap below it. */
   sx?: SxProps<Theme>;
 }
 
@@ -20,7 +22,8 @@ export interface TabberProps {
  *
  * MUI Tabs underneath, so it looks and behaves like every other tab set in the
  * portal, but the selected tab is a slug in the route rather than component
- * state — reloading, sharing the link or pressing back all keep the same tab.
+ * state — reloading, sharing the link or pressing back all keep the same tab. A search at
+ * the end of the strip narrows it to the tabs whose name matches, on every portal page.
  */
 export function Tabber({
   basePath,
@@ -36,32 +39,72 @@ export function Tabber({
   const slugs = useMemo(() => items.map((item) => item.slug), [items]);
   const { slug, selectSlug } = useTabberSlug(basePath, slugs);
   const active = items.find((item) => item.slug === slug);
+  const [searching, setSearching] = useState(false);
+  const [query, setQuery] = useState('');
+  const visible = filterTabs(items, query, (item) => t(item.label));
+  // MUI Tabs warns about a value with no tab; a filtered-out active tab selects none.
+  const shownValue = visible.some((item) => item.slug === slug) ? slug : false;
   const tabId = (value: string) => `${id}-tab-${value}`;
   const panelId = (value: string) => `${id}-panel-${value}`;
+  const stripId = `${id}-strip`;
+
+  const closeSearch = () => {
+    setSearching(false);
+    setQuery('');
+  };
+  const goToFirstMatch = () => {
+    const first = visible[0];
+    if (first) {
+      selectSlug(first.slug);
+      closeSearch();
+    }
+  };
 
   return (
     <>
-      <Tabs
-        value={slug}
-        onChange={(_event, next: string) => selectSlug(next)}
-        variant={variant}
-        scrollButtons="auto"
-        allowScrollButtonsMobile
-        aria-label={t(ariaLabel)}
-        sx={sx}
+      <Box
+        sx={[{ display: 'flex', alignItems: 'center', gap: 1 }, ...(Array.isArray(sx) ? sx : [sx])]}
       >
-        {items.map((item) => (
-          <Tab
-            key={item.slug}
-            id={tabId(item.slug)}
-            aria-controls={panelId(item.slug)}
-            value={item.slug}
-            label={t(item.label)}
-            icon={item.icon}
-            iconPosition={item.icon ? 'start' : undefined}
-          />
-        ))}
-      </Tabs>
+        <Tabs
+          id={stripId}
+          value={shownValue}
+          onChange={(_event, next: string) => {
+            selectSlug(next);
+            closeSearch();
+          }}
+          variant={variant}
+          scrollButtons="auto"
+          allowScrollButtonsMobile
+          aria-label={t(ariaLabel)}
+          sx={{ flex: 1, minWidth: 0 }}
+        >
+          {visible.map((item) => (
+            <Tab
+              key={item.slug}
+              id={tabId(item.slug)}
+              aria-controls={panelId(item.slug)}
+              value={item.slug}
+              label={t(item.label)}
+              icon={item.icon}
+              iconPosition={item.icon ? 'start' : undefined}
+            />
+          ))}
+        </Tabs>
+        {visible.length === 0 && (
+          <Text size="sm" color="text.secondary" role="status" sx={{ flex: 1 }}>
+            {t('No tabs match "{query}"', { query: query.trim() })}
+          </Text>
+        )}
+        <TabSearch
+          open={searching}
+          query={query}
+          onOpen={() => setSearching(true)}
+          onClose={closeSearch}
+          onQueryChange={setQuery}
+          onSubmit={goToFirstMatch}
+          controls={stripId}
+        />
+      </Box>
       {/* The panel the tab controls (WAI-ARIA tabs): named by its tab, so a screen reader
           says which one it has landed in. */}
       {active && (
