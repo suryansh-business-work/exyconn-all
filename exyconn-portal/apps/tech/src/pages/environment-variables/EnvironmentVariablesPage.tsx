@@ -10,6 +10,7 @@ import SmartToyIcon from '@mui/icons-material/SmartToy';
 import PriceChangeIcon from '@mui/icons-material/PriceChange';
 import DnsIcon from '@mui/icons-material/Dns';
 import CloudIcon from '@mui/icons-material/Cloud';
+import FactCheckIcon from '@mui/icons-material/FactCheck';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
 import { SlackConfigsPanel } from './SlackConfigsPanel';
@@ -22,6 +23,7 @@ import { OpenAiConfigsPanel } from './OpenAiConfigsPanel';
 import { AiPricingPanel } from './AiPricingPanel';
 import { GodaddyConfigsPanel } from './GodaddyConfigsPanel';
 import { CloudflareConfigsPanel } from './CloudflareConfigsPanel';
+import { SonarConfigsPanel } from './SonarConfigsPanel';
 
 /** Route the tabs live under; each tab is a slug beneath it. */
 export const ENVIRONMENT_VARIABLES_PATH = '/tech/environment-variables';
@@ -130,6 +132,16 @@ const TABS: TabberItem[] = [
     content: (
       <GlassPanel>
         <CloudflareConfigsPanel />
+      </GlassPanel>
+    ),
+  },
+  {
+    slug: 'sonarqube',
+    label: 'SonarQube',
+    icon: <FactCheckIcon />,
+    content: (
+      <GlassPanel>
+        <SonarConfigsPanel />
       </GlassPanel>
     ),
   },

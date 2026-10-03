@@ -18,6 +18,7 @@ import { IncidentsPage } from './pages/incidents';
 import { LogsPage } from './pages/logs';
 import { JobsPage } from './pages/jobs';
 import { CloudflarePage } from './pages/security/cloudflare';
+import { SonarPage, SslCertificatesPage } from './pages/security';
 
 /** Tech micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
@@ -41,6 +42,8 @@ export function App() {
       <Route path="/tech/jobs" element={<JobsPage />} />
       <Route path="/tech/settings" element={<SettingsPage />} />
       <Route path="/tech/security/cloudflare" element={<CloudflarePage />} />
+      <Route path="/tech/security/ssl" element={<SslCertificatesPage />} />
+      <Route path="/tech/security/sonar" element={<SonarPage />} />
     </PortalApp>
   );
 }

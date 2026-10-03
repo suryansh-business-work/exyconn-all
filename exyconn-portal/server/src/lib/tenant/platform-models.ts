@@ -24,6 +24,7 @@ export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   'GodaddyConfig',
   'CloudflareConfig',
   'NameserverChange',
+  'SonarConfig',
   // The social networks' OAuth apps, registered once for the install, and the short-lived
   // state of a connection in progress (looked up by the provider's callback, before any scope).
   'SocialAppConfig',
