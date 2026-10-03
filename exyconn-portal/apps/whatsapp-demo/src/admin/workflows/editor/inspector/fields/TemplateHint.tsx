@@ -53,7 +53,7 @@ export function TemplateHint() {
             'Any message can fill in values while the chat runs. Write text in English; it is translated before the values go in.',
           )}
         </Text>
-        <Box component="dl" sx={{ m: 0, display: 'grid', gap: 0.75 }}>
+        <Box component="dl" sx={{ m: 0, display: 'grid', gap: 0.5 }}>
           {LINES.map((line) => (
             <Box key={line.id}>
               <Text component="dt" size="caption">
