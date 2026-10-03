@@ -1,0 +1,116 @@
+---
+/**
+ * Server-rendered tabs. Every panel is in the HTML (crawlable, readable without script, where
+ * the panels simply stack); the script then shows the tab list, keeps one panel open and wires
+ * arrow keys and the previous/next buttons. Phones scroll the tab list sideways.
+ */
+import "../../styles/inner-stage.css";
+import "./tabs.css";
+import ChapterHeading from "../inner/ChapterHeading.astro";
+import { DETAIL_COPY } from "../../lib/detail/copy";
+import { splitPoint } from "../../lib/detail/helpers";
+import { DETAIL_LOGOS } from "../../lib/detail/logos";
+import type { DetailTab } from "../../lib/detail/schema";
+
+type Props = Readonly<{
+  index: number;
+  label: string;
+  title: string;
+  items: readonly DetailTab[];
+}>;
+
+const { index, label, title, items } = Astro.props;
+const copy = DETAIL_COPY.tabs;
+const panels = items.map((item, i) => ({
+  ...item,
+  tabId: `detail-tab-${i}`,
+  panelId: `detail-panel-${i}`,
+  logo: item.logo ? DETAIL_LOGOS[item.logo] : undefined,
+  points: item.points.map(splitPoint),
+}));
+---
+
+<section class="inner-section stage-shell" aria-labelledby="detail-tabs">
+  <ChapterHeading index={index} label={label} title={title} id="detail-tabs" />
+  <div class="detail-tabs mt-10" data-detail-tabs>
+    <div class="detail-tabs__list" role="tablist" aria-labelledby="detail-tabs" hidden>
+      {
+        panels.map((panel, i) => (
+          <button
+            type="button"
+            role="tab"
+            id={panel.tabId}
+            class="detail-tab"
+            aria-controls={panel.panelId}
+            aria-selected={i === 0 ? "true" : "false"}
+            tabindex={i === 0 ? 0 : -1}
+          >
+            {panel.label}
+          </button>
+        ))
+      }
+    </div>
+    {
+      panels.map((panel, i) => (
+        <div
+          role="tabpanel"
+          id={panel.panelId}
+          aria-labelledby={panel.tabId}
+          class="detail-tabs__panel inner-panel"
+          tabindex="0"
+        >
+          <div class="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:gap-12">
+            <div>
+              {panel.logo && (
+                <img
+                  src={panel.logo.src}
+                  alt={panel.logo.name}
+                  width={panel.logo.width}
+                  height={panel.logo.height}
+                  class="tech-logo mb-6 h-8 w-auto"
+                  loading="lazy"
+                  decoding="async"
+                />
+              )}
+              <p class="stage-label inner-index">{panel.summary}</p>
+              <h3 class="inner-h3 mt-2">{panel.label}</h3>
+              <p class="mt-4 text-fg-secondary leading-relaxed">{panel.text}</p>
+            </div>
+            <ul class="inner-points lg:mt-0">
+              {panel.points.map((point) => (
+                <li>
+                  <span>
+                    {point.term && <strong class="text-fg">{point.term}: </strong>}
+                    {point.text}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div class="detail-tabs__pager" hidden>
+            <button type="button" class="detail-tabs__step" data-tab-step="-1" disabled={i === 0}>
+              <i class="fa-solid fa-arrow-left icon-xs" aria-hidden="true" />
+              {copy.previous}
+            </button>
+            <span class="stage-label">{copy.position(i + 1, panels.length)}</span>
+            <button
+              type="button"
+              class="detail-tabs__step"
+              data-tab-step="1"
+              disabled={i === panels.length - 1}
+            >
+              {copy.next}
+              <i class="fa-solid fa-arrow-right icon-xs" aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<script>
+  import { bootDetailTabs } from "./tabs";
+
+  bootDetailTabs();
+</script>

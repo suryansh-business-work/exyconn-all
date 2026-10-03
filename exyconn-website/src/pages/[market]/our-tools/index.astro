@@ -1,133 +1,131 @@
 ---
+import ContentEmpty from "../../../components/content/ContentEmpty.astro";
+import ToolCard from "../../../components/content/ToolCard.astro";
+import ChapterHeading from "../../../components/inner/ChapterHeading.astro";
+import CtaBand from "../../../components/inner/CtaBand.astro";
+import FilterBar from "../../../components/inner/FilterBar.astro";
+import InnerStage from "../../../components/inner/InnerStage.astro";
 import Page from "../../../layouts/Page.astro";
+import {
+  TOOLS_COPY as copy,
+  cssColor,
+  cubeCount,
+  MAX_CUBES,
+  monogram,
+  toolCatalogue,
+} from "../../../lib/content/tools";
+import { breadcrumbJsonLd } from "../../../lib/inner/structured-data";
 import { getToolCategories, getToolLaunchUrl, getTools, isToolAppSlug } from "../../../lib/portal";
 
 // Both lists come from the portal's Tools CRUD — this page holds no tool data of its own.
 const [categories, tools] = await Promise.all([getToolCategories(), getTools()]);
-
-const toolsOf = (slug: string) => tools.filter((tool) => tool.categorySlug === slug);
-const populated = categories.filter((category) => toolsOf(category.slug).length > 0);
-const mvpCount = tools.filter((tool) => tool.isMVP).length;
+const catalogue = toolCatalogue(categories, tools);
+const total = catalogue.entries.length;
+const early = catalogue.entries.filter(({ tool }) => tool.isMVP).length;
+const SITE_URL = (Astro.site?.toString() ?? "https://exyconn.com/").replace(/\/$/, "");
+const crumbs = [{ label: "Home", href: "/" }, { label: copy.crumb }];
+const stats = copy.stats
+  .replace("{tools}", String(total))
+  .replace("{categories}", String(catalogue.categories.length));
 ---
 
-<Page
-  title="Tools | Exyconn"
-  description="Every tool Exyconn builds and maintains, grouped by what it is for."
->
-  <div class="bg-surface-subtle min-h-screen">
-    <section class="py-20 px-6 bg-sky-subtle">
-      <div class="max-w-6xl mx-auto text-center">
-        <div
-          class="inline-flex items-center gap-3 px-5 py-2.5 bg-surface/70 backdrop-blur-md rounded-full border border-line shadow-sm mb-8"
-        >
-          <i class="fa-solid fa-toolbox text-indigo-fg"></i>
-          <span class="text-fg-secondary font-medium">
-            {tools.length}
-            {tools.length === 1 ? "tool" : "tools"} across {populated.length}
-            {populated.length === 1 ? "category" : "categories"}
-          </span>
-        </div>
-
-        <h1 class="text-5xl md:text-6xl font-black text-fg mb-6 leading-tight tracking-tight">
-          The Exyconn<br />
-          <span class="text-sky-fg"> Tools Directory </span>
-        </h1>
-
-        <p class="text-xl text-fg-muted max-w-3xl mx-auto">
-          Everything we build and maintain, grouped by what it is for. {mvpCount} of them are early releases
-          we are still shaping with the people using them.
-        </p>
-      </div>
-    </section>
-
+<Page title={copy.title} description={copy.description} jsonLd={breadcrumbJsonLd(crumbs, SITE_URL)}>
+  <InnerStage
+    family="services"
+    crumbs={crumbs}
+    title={copy.heading}
+    lede={copy.lede}
+    primary={total > 0 ? copy.appLink : undefined}
+    scene={{ shapes: ["cubes"], data: { cubes: { cubes: cubeCount(total) } } }}
+  >
     {
-      populated.length === 0 && (
-        <section class="py-20 px-6">
-          <div class="max-w-3xl mx-auto text-center">
-            <h2 class="text-2xl font-bold text-fg mb-3">Nothing published yet</h2>
-            <p class="text-fg-muted">
-              The directory fills up as tools are published from the portal. Check back shortly.
-            </p>
-          </div>
-        </section>
+      total > 0 && (
+        <p class="inner-meta stage-label">
+          <span>{stats}</span>
+          {early > 0 && <span>{copy.early.replace("{count}", String(early))}</span>}
+        </p>
       )
     }
+  </InnerStage>
 
+  <section class="inner-section stage-shell" aria-labelledby="tools-directory">
+    <ChapterHeading
+      index={1}
+      label={copy.chapterLabel}
+      title={copy.chapterTitle}
+      id="tools-directory"
+    />
     {
-      populated.map((category) => (
-        <section id={category.slug} class="py-14 px-6 odd:bg-surface scroll-mt-20">
-          <div class="max-w-6xl mx-auto">
-            <div class="flex items-center gap-3 mb-8">
-              <div
-                class="w-12 h-12 rounded-xl flex items-center justify-center"
-                style={`background: ${category.color}15;`}
-              >
-                <i
-                  class={`fa-solid ${category.icon || "fa-cube"} text-xl`}
-                  style={`color: ${category.color};`}
-                />
-              </div>
-              <div>
-                <h2 class="text-2xl font-bold text-fg">{category.category}</h2>
-                <p class="text-sm text-fg-subtle">{category.description}</p>
-              </div>
-            </div>
-
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {toolsOf(category.slug).map((tool) => (
-                <div class="group relative bg-surface rounded-2xl p-6 shadow-sm hover:shadow-xl border border-line-subtle hover:border-line transition-all duration-300">
-                  <div
-                    class="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
-                    style={`background: ${tool.color || category.color}15;`}
-                  >
-                    <i
-                      class={`fa-solid ${tool.icon || "fa-wrench"} text-xl`}
-                      style={`color: ${tool.color || category.color};`}
-                    />
-                  </div>
-
-                  <div class="flex items-center gap-2 mb-2">
-                    <h3 class="text-lg font-bold text-fg group-hover:text-indigo-fg transition">
-                      <a
-                        href={`/our-tools/${tool.toolCode}`}
-                        class="after:absolute after:inset-0 after:content-['']"
-                      >
-                        {tool.name}
-                      </a>
-                    </h3>
-                    {tool.isMVP && (
-                      <span class="px-2 py-0.5 bg-amber-soft text-amber-fg-strong rounded text-xs font-bold">
-                        MVP
-                      </span>
-                    )}
-                  </div>
-
-                  <p class="text-sm text-fg-muted line-clamp-3">{tool.description}</p>
-
-                  <div class="flex items-center justify-between pt-4 mt-4 border-t border-line-subtle">
-                    <span class="px-2 py-0.5 bg-surface-strong text-fg-muted rounded text-xs font-mono">
-                      #{tool.toolCode}
-                    </span>
-                    {isToolAppSlug(tool) ? (
-                      <a
-                        href={getToolLaunchUrl(tool)}
-                        class="relative z-10 w-9 h-9 rounded-full bg-surface-muted hover:bg-indigo flex items-center justify-center transition-all"
-                      >
-                        <i class="fa-solid fa-arrow-up-right-from-square text-fg-faint group-hover:text-indigo-fg hover:!text-on-solid transition" />
-                        <span class="sr-only">Open {tool.name} on tools.exyconn.com</span>
-                      </a>
-                    ) : (
-                      <div class="w-9 h-9 rounded-full bg-surface-muted group-hover:bg-indigo flex items-center justify-center transition-all">
-                        <i class="fa-solid fa-arrow-right text-fg-faint group-hover:text-on-solid transition" />
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+      total === 0 ? (
+        <div class="mt-10">
+          <ContentEmpty
+            label={copy.emptyLabel}
+            title={copy.emptyTitle}
+            text={copy.emptyText}
+            primary={copy.emptyPrimary}
+            secondary={copy.emptySecondary}
+            level="h3"
+          />
+        </div>
+      ) : (
+        <>
+          <div class="mt-10">
+            <FilterBar
+              target="tools"
+              label={copy.filterLabel}
+              sheetLabel={copy.sheetLabel}
+              groups={[
+                {
+                  param: "cat",
+                  label: copy.categoryLabel,
+                  allLabel: copy.all,
+                  options: catalogue.categories.map(({ category }) => ({
+                    value: category.slug,
+                    label: category.category,
+                  })),
+                },
+              ]}
+              search={{ param: "q", label: copy.searchLabel, placeholder: copy.searchPlaceholder }}
+              countTemplate={copy.countTemplate}
+            />
           </div>
-        </section>
-      ))
+          <ul id="tools" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-8">
+            {catalogue.entries.map(({ tool, category }, index) => (
+              <ToolCard
+                href={`/our-tools/${tool.toolCode}`}
+                name={tool.name}
+                description={tool.description}
+                category={category.category}
+                mark={monogram(tool.name)}
+                tint={cssColor(tool.color || category.color)}
+                badge={tool.isMVP ? copy.mvp : undefined}
+                details={copy.details}
+                open={
+                  isToolAppSlug(tool)
+                    ? { label: copy.open, href: getToolLaunchUrl(tool), note: copy.opensApp }
+                    : undefined
+                }
+                highlight={index < MAX_CUBES ? index + 1 : undefined}
+                data-filter-item
+                data-filter-cat={category.slug}
+                data-search={`${tool.name} ${tool.description} ${tool.keywords.join(" ")}`}
+              />
+            ))}
+          </ul>
+          <p data-filter-empty="tools" class="inner-panel p-6 mt-6 text-fg-secondary" hidden>
+            {copy.noMatch}
+          </p>
+        </>
+      )
     }
-  </div>
+  </section>
+
+  <CtaBand
+    family="services"
+    label={copy.ctaLabel}
+    title={copy.ctaTitle}
+    text={copy.ctaText}
+    primary={copy.ctaPrimary}
+    secondary={copy.ctaSecondary}
+  />
 </Page>

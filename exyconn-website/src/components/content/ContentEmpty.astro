@@ -1,0 +1,40 @@
+---
+/**
+ * The server-rendered "nothing published yet" state of a portal-driven list: a mono label,
+ * a sentence-case heading, one line of context and two real destinations. Follows the site
+ * theme (inner-panel), so it reads in light and dark.
+ */
+import "../../styles/inner-stage.css";
+import "./content.css";
+import ActionLink from "../inner/ActionLink.astro";
+import type { InnerAction } from "../inner/types";
+
+type Props = Readonly<{
+  label: string;
+  title: string;
+  text: string;
+  primary?: InnerAction;
+  secondary?: InnerAction;
+  level?: "h2" | "h3";
+}>;
+
+const { label, title, text, primary, secondary, level = "h2" } = Astro.props;
+const Heading = level;
+---
+
+<div class="inner-panel content-empty">
+  <div class="content-empty__mark" aria-hidden="true">
+    <span></span><span></span><span></span>
+  </div>
+  <p class="stage-label content-empty__label">{label}</p>
+  <Heading class="inner-h3 mt-3">{title}</Heading>
+  <p class="inner-card__text mt-3 max-w-xl">{text}</p>
+  {
+    (primary || secondary) && (
+      <div class="inner-stage__actions">
+        {primary && <ActionLink action={primary} />}
+        {secondary && <ActionLink action={secondary} variant="ghost" />}
+      </div>
+    )
+  }
+</div>

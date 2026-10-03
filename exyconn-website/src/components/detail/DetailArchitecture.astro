@@ -1,0 +1,25 @@
+---
+/** Chapter "Architecture" (AI capability pages): the heading beside the layered diagram. */
+import "../../styles/inner-stage.css";
+import ArchitectureDiagram from "../inner/ArchitectureDiagram.astro";
+import ChapterHeading from "../inner/ChapterHeading.astro";
+import type { ArchitectureLayer } from "../inner/types";
+
+type Props = Readonly<{
+  index: number;
+  label: string;
+  title: string;
+  layers: readonly ArchitectureLayer[];
+}>;
+
+const { index, label, title, layers } = Astro.props;
+---
+
+<section class="inner-section stage-shell" aria-labelledby="detail-architecture">
+  <div class="grid items-center gap-10 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] lg:gap-16">
+    <ChapterHeading index={index} label={label} title={title} id="detail-architecture" />
+    <div class="inner-panel p-4 sm:p-10">
+      <ArchitectureDiagram title={title} layers={layers} />
+    </div>
+  </div>
+</section>

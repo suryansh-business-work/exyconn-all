@@ -4,6 +4,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 import ToolsPage from './pages/ToolsPage';
 import NotFoundPage from './pages/NotFoundPage';
+import CategoryPage from './pages/CategoryPage';
 import { getAllTools } from './shared/data/toolsData';
 
 const Loading: React.FC = () => (
@@ -44,6 +45,7 @@ const AppRoutes: React.FC = () => (
     <Routes>
       <Route path="/" element={<ToolsPage />} />
       <Route path="/tools" element={<ToolsPage />} />
+      <Route path="/categories/:slug" element={<CategoryPage />} />
       {toolRoutes.map(({ path, Component }) => (
         <Route key={path} path={`/tools/${path}`} element={<Component />} />
       ))}

@@ -1,0 +1,26 @@
+---
+/**
+ * A browser-window frame around a tool: the real address it runs at in the bar, and the
+ * default slot as the window's content. Static (no particles over it — decision 4).
+ */
+import "./content.css";
+
+type Props = Readonly<{
+  /** Absolute URL the tool runs at; shown without its scheme. */
+  url: string;
+  label: string;
+}>;
+
+const { url, label } = Astro.props;
+const address = url.replace(/^https?:\/\//, "");
+---
+
+<figure class="content-device" aria-label={label}>
+  <div class="content-device__bar" aria-hidden="true">
+    <span class="content-device__dots"><span></span><span></span><span></span></span>
+    <span class="content-device__address">{address}</span>
+  </div>
+  <div class="content-device__screen">
+    <slot />
+  </div>
+</figure>

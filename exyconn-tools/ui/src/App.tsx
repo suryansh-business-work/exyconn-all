@@ -6,6 +6,7 @@ import { SecretsProvider } from './shared/context/SecretsContext';
 import ScrollToTop from './shared/components/ScrollToTop/ScrollToTop';
 import ScrollTopButton from './shared/components/ScrollToTop/ScrollTopButton';
 import AppRoutes from './routes';
+import RouteSeo from './shared/seo/RouteSeo';
 
 const App: React.FC = () => (
   <ThemeProvider>
@@ -13,6 +14,7 @@ const App: React.FC = () => (
       <BrowserRouter>
         {/* Inside the router: both read the current location / window scroll. */}
         <ScrollToTop />
+        <RouteSeo />
         <SecretsProvider>
           <AppRoutes />
         </SecretsProvider>

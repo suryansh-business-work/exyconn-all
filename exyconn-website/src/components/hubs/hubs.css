@@ -1,0 +1,128 @@
+/*
+ * Hub pages (services, our-services, exyconn-services, ai, ai-services). Layout only — colour
+ * comes from roles and the inner kit's accent inks, so both site themes stay readable.
+ */
+
+/* Three stats sit on one row on phones too, instead of leaving an orphan. */
+.hub-proof-3 .inner-stats {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+/* A catalogue group with nothing left after filtering disappears with its heading. */
+.hub-group:not(:has([data-filter-item]:not([hidden]))) {
+  display: none;
+}
+
+.hub-group + .hub-group {
+  margin-top: var(--space-12);
+}
+
+/* A compact list row: name and status, one line of text, feature chips. */
+.hub-rows {
+  display: grid;
+  border-top: var(--border-width-hairline) solid var(--color-line);
+}
+
+.hub-rows > li {
+  display: grid;
+  gap: var(--space-2);
+  padding-block: var(--space-4);
+  border-bottom: var(--border-width-hairline) solid var(--color-line);
+}
+
+@media (min-width: 1024px) {
+  .hub-rows > li {
+    grid-template-columns: minmax(0, 14rem) minmax(0, 1fr) minmax(0, 18rem);
+    align-items: baseline;
+    gap: var(--space-6);
+  }
+}
+
+.hub-status {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.hub-status::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: var(--radius-circle);
+  background: var(--accent-b-ink, var(--color-fg-muted));
+}
+
+/* Pillar rows: the pillar's head, then its service cards. */
+.hub-pillars {
+  display: grid;
+  gap: var(--space-12);
+}
+
+.hub-pillar {
+  display: grid;
+  gap: var(--space-6);
+  padding-top: var(--space-6);
+  border-top: var(--border-width-hairline) solid var(--color-line);
+  transition: border-color var(--duration-slow) var(--ease-standard);
+}
+
+.hub-pillar:hover,
+.hub-pillar:focus-within {
+  border-top-color: var(--accent-a-ink, var(--color-line-strong));
+}
+
+.hub-pillar__head {
+  max-width: 40rem;
+}
+
+.hub-pillar__cards {
+  display: grid;
+  gap: var(--space-4);
+}
+
+@media (min-width: 640px) {
+  .hub-pillar__cards {
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  }
+}
+
+/* An inline text link on a page surface: the family's ink, a 44px tap target. */
+.hub-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--accent-a-ink, var(--color-fg));
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.25em;
+}
+
+.hub-link:hover {
+  text-decoration-thickness: 2px;
+}
+
+.hub-link:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+/* Link rows inside a half-width column: title above its line of text at every width. */
+.hub-rows--links > li {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+
+/* Bullet lists of links: the dot centres on the 44px link. */
+.hub-link-list li {
+  align-items: center;
+}
+
+.hub-link-list li::before {
+  margin-top: 0;
+}
+
+/* A group with a single card keeps a card's width instead of spanning the row. */
+.hub-pillar__cards:has(> :only-child) {
+  max-width: 40rem;
+}

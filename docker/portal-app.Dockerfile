@@ -29,6 +29,7 @@ COPY packages/logger/package.json packages/logger/
 COPY packages/shell/package.json packages/shell/
 COPY packages/login/package.json packages/login/
 COPY packages/regex/package.json packages/regex/
+COPY packages/seo/package.json packages/seo/
 COPY packages/tabber/package.json packages/tabber/
 COPY packages/time/package.json packages/time/
 COPY packages/tracker-core/package.json packages/tracker-core/

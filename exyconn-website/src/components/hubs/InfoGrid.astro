@@ -1,0 +1,64 @@
+---
+/**
+ * A grid of plain (non-link) cards: mono index, title, text and an optional bullet list.
+ * For "what we offer" / "why us" lists; an item may still carry one link.
+ */
+import "../../styles/inner-stage.css";
+import "./hubs.css";
+
+interface Item {
+  title: string;
+  text: string;
+  /** Anchor id, so other pages can deep-link to the card. */
+  id?: string;
+  points?: readonly string[];
+  /** A link under the card's text, when the item has a page of its own. */
+  link?: { label: string; href: string };
+}
+
+type Props = Readonly<{
+  items: readonly Item[];
+  columns?: 2 | 3 | 4;
+  /** Mono index prefix, e.g. "S" → "S/01". Omit for no index. */
+  indexPrefix?: string;
+  /** Heading level of each card title. */
+  level?: "h3" | "h4";
+}>;
+
+const COLUMNS = {
+  2: "md:grid-cols-2",
+  3: "md:grid-cols-2 lg:grid-cols-3",
+  4: "md:grid-cols-2 lg:grid-cols-4",
+} as const;
+
+const { items, columns = 3, indexPrefix, level = "h3" } = Astro.props;
+const Title = level;
+---
+
+<ul class={`grid gap-4 mt-10 ${COLUMNS[columns]}`}>
+  {
+    items.map((item, index) => (
+      <li id={item.id} class="inner-card scroll-mt-28">
+        {indexPrefix && (
+          <span class="stage-label inner-index">
+            {indexPrefix}/{String(index + 1).padStart(2, "0")}
+          </span>
+        )}
+        <Title class="inner-h3">{item.title}</Title>
+        <p class="inner-card__text">{item.text}</p>
+        {item.points && item.points.length > 0 && (
+          <ul class="inner-points !mt-2 text-sm">
+            {item.points.map((point) => (
+              <li>{point}</li>
+            ))}
+          </ul>
+        )}
+        {item.link && (
+          <a href={item.link.href} class="hub-link mt-auto">
+            {item.link.label}
+          </a>
+        )}
+      </li>
+    ))
+  }
+</ul>

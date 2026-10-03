@@ -1,0 +1,76 @@
+---
+/**
+ * Share an article: X, LinkedIn and copy-link, all with the page's market-correct URL. The
+ * copy result is announced politely (no alert dialogs).
+ */
+import "./content.css";
+
+type Props = Readonly<{
+  url: string;
+  title: string;
+  labels: {
+    heading: string;
+    x: string;
+    linkedIn: string;
+    copy: string;
+    copied: string;
+    copyFailed: string;
+  };
+}>;
+
+const { url, title, labels } = Astro.props;
+const xHref = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+const linkedInHref = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
+---
+
+<div class="content-share" data-share>
+  <p class="stage-label">{labels.heading}</p>
+  <div class="content-share__row">
+    <a href={xHref} target="_blank" rel="noopener noreferrer" class="content-share__button">
+      <i class="fa-brands fa-x-twitter" aria-hidden="true"></i>
+      <span>{labels.x}</span>
+      <span class="sr-only">(opens in a new tab)</span>
+    </a>
+    <a href={linkedInHref} target="_blank" rel="noopener noreferrer" class="content-share__button">
+      <i class="fa-brands fa-linkedin-in" aria-hidden="true"></i>
+      <span>{labels.linkedIn}</span>
+      <span class="sr-only">(opens in a new tab)</span>
+    </a>
+    <button
+      type="button"
+      class="content-share__button"
+      data-share-copy={url}
+      data-copied={labels.copied}
+      data-failed={labels.copyFailed}
+    >
+      <i class="fa-solid fa-link" aria-hidden="true"></i>
+      <span>{labels.copy}</span>
+    </button>
+  </div>
+  <p class="content-share__status" role="status" data-share-status></p>
+</div>
+
+<script>
+  const copyLink = async (button: HTMLButtonElement) => {
+    const status = button
+      .closest("[data-share]")
+      ?.querySelector<HTMLElement>("[data-share-status]");
+    try {
+      await navigator.clipboard.writeText(button.dataset.shareCopy ?? location.href);
+      if (status) {
+        status.textContent = button.dataset.copied ?? "";
+      }
+    } catch (error) {
+      console.error("Copy link failed", error);
+      if (status) {
+        status.textContent = button.dataset.failed ?? "";
+      }
+    }
+  };
+
+  document.querySelectorAll<HTMLButtonElement>("[data-share-copy]").forEach((button) => {
+    button.addEventListener("click", () => {
+      copyLink(button).catch((error: unknown) => console.error(error));
+    });
+  });
+</script>

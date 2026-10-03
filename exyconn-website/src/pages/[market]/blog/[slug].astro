@@ -1,14 +1,29 @@
 ---
+import ShareLinks from "../../../components/content/ShareLinks.astro";
+import ArticleLayout from "../../../components/inner/ArticleLayout.astro";
+import ChapterHeading from "../../../components/inner/ChapterHeading.astro";
+import CtaBand from "../../../components/inner/CtaBand.astro";
+import LinkCard from "../../../components/inner/LinkCard.astro";
 import Page from "../../../layouts/Page.astro";
+import { ARTICLE_COPY as copy, articleSheets, relatedPosts } from "../../../lib/content/blog";
+import {
+  absoluteAsset,
+  displayDate,
+  marketCrumbs,
+  marketPageUrl,
+} from "../../../lib/content/format";
+import { articleJsonLd } from "../../../lib/content/structured-data";
+import { DEFAULT_MARKET } from "../../../lib/i18n/markets";
+import { withHeadingIds } from "../../../lib/inner/headings";
+import { breadcrumbJsonLd } from "../../../lib/inner/structured-data";
 import {
   ARTICLE_CLASS,
-  formatDate,
+  BRANDING_FALLBACK,
   getBlogPost,
   getBlogPosts,
   sanitizeArticleHtml,
   scopeArticleCss,
 } from "../../../lib/portal";
-import "../../../styles/article.css";
 
 const { slug } = Astro.params;
 const post = slug ? await getBlogPost(slug) : null;
@@ -17,237 +32,130 @@ if (!post) {
   return new Response(null, { status: 404 });
 }
 
-const body = sanitizeArticleHtml(post.content);
+const market = Astro.locals.market ?? DEFAULT_MARKET;
+const SITE_URL = (Astro.site?.toString() ?? "https://exyconn.com/").replace(/\/$/, "");
+const { html, toc } = withHeadingIds(sanitizeArticleHtml(post.content));
 // A body designed in the portal's live editor brings its own CSS, scoped to the article.
 const designCss = scopeArticleCss(post.contentCss);
-
-// Get related posts (same tags, excluding current)
-const allPosts = await getBlogPosts();
-const relatedPosts = allPosts
-  .filter((p) => p.slug !== post.slug && p.tags.some((tag) => post.tags.includes(tag)))
-  .slice(0, 3);
-
-const SITE_URL = (Astro.site?.toString() || "https://exyconn.com/").replace(/\/$/, "");
-const postUrl = `${SITE_URL}/blog/${post.slug}`;
-const coverAbs = /^https?:\/\//.test(post.coverImage)
-  ? post.coverImage
-  : `${SITE_URL}${post.coverImage}`;
-
-const pageJsonLd = [
-  {
-    "@context": "https://schema.org",
-    "@type": "BlogPosting",
+const related = relatedPosts(post, await getBlogPosts());
+const url = marketPageUrl(SITE_URL, market, `/blog/${post.slug}`);
+const crumbs = [
+  { label: copy.home, href: "/" },
+  { label: copy.blog, href: "/blog" },
+  { label: post.title },
+];
+const image = absoluteAsset(SITE_URL, post.coverImage);
+const jsonLd = [
+  articleJsonLd({
+    type: "BlogPosting",
     headline: post.title,
     description: post.summary,
-    image: coverAbs,
-    datePublished: post.publishedAt,
-    dateModified: post.publishedAt,
-    author: {
-      "@type": "Organization",
-      name: "Exyconn",
-      url: SITE_URL,
-    },
+    image,
+    published: post.publishedAt,
+    url,
+    keywords: post.tags,
+    section: post.tags[0],
+    author: post.author.name,
     publisher: {
-      "@type": "Organization",
-      name: "Exyconn",
-      logo: { "@type": "ImageObject", url: `${SITE_URL}/favicon.svg` },
+      name: BRANDING_FALLBACK.businessName,
+      url: SITE_URL,
+      logo: `${SITE_URL}${BRANDING_FALLBACK.faviconUrl}`,
     },
-    mainEntityOfPage: { "@type": "WebPage", "@id": postUrl },
-    keywords: post.tags.join(", "),
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Home", item: `${SITE_URL}/` },
-      { "@type": "ListItem", position: 2, name: "Blog", item: `${SITE_URL}/blog` },
-      { "@type": "ListItem", position: 3, name: post.title, item: postUrl },
-    ],
-  },
+  }),
+  breadcrumbJsonLd(marketCrumbs(crumbs, market, url), SITE_URL),
 ];
 ---
 
 <Page
-  metaTitle={post.title + " | Exyconn Blog"}
+  metaTitle={`${post.title} | Exyconn Blog`}
   metaDescription={post.summary}
   metaKeywords={post.tags.join(", ")}
-  metaImage={post.coverImage}
+  metaImage={post.coverImage || undefined}
   ogType="article"
-  jsonLd={pageJsonLd}
+  jsonLd={jsonLd}
 >
-  <div class="bg-surface-subtle min-h-screen">
-    <!-- Hero Section -->
-    <section class="relative pt-12 pb-8 px-6">
-      <div class="max-w-4xl mx-auto">
-        <!-- Breadcrumb -->
-        <nav class="flex items-center gap-2 text-sm text-fg-subtle mb-8">
-          <a href="/" class="hover:text-blue-fg transition-colors">Home</a>
-          <i class="fa-solid fa-chevron-right text-xs"></i>
-          <a href="/blog" class="hover:text-blue-fg transition-colors">Blog</a>
-          <i class="fa-solid fa-chevron-right text-xs"></i>
-          <span class="text-fg font-medium truncate max-w-[200px]">{post.title}</span>
-        </nav>
+  <ArticleLayout
+    title={post.title}
+    crumbs={crumbs}
+    category={post.tags[0]}
+    author={post.author.name}
+    published={displayDate(post.publishedAt, market.locale)}
+    readTime={post.readTime}
+    image={post.coverImage
+      ? { src: post.coverImage, alt: "", width: 1600, height: 900 }
+      : undefined}
+    tocLabel={copy.toc}
+    toc={toc}
+    scene={{ shapes: ["documents"], data: { documents: { sheets: articleSheets(toc) } } }}
+  >
+    {designCss && <style is:inline set:html={designCss} />}
+    <p class="inner-lede mb-10">{post.summary}</p>
+    <article class={ARTICLE_CLASS} set:html={html} />
 
-        <!-- Tags -->
-        <div class="flex flex-wrap gap-2 mb-4">
-          {
-            post.tags.map((tag) => (
-              <span class="text-xs font-medium text-blue-fg bg-blue-subtle px-3 py-1 rounded-full">
-                {tag}
-              </span>
-            ))
-          }
-        </div>
-
-        <!-- Title -->
-        <h1 class="text-4xl md:text-5xl font-bold text-fg mb-6 leading-tight">
-          {post.title}
-        </h1>
-
-        <!-- Summary -->
-        <p class="text-xl text-fg-muted mb-8 leading-relaxed">
-          {post.summary}
-        </p>
-
-        <!-- Meta Info (Date & Read Time only) -->
-        <div
-          class="flex flex-wrap items-center gap-4 pb-8 border-b border-line text-sm text-fg-subtle"
-        >
-          <span class="flex items-center gap-1.5">
-            <i class="fa-regular fa-calendar"></i>
-            {formatDate(post.publishedAt)}
-          </span>
-          <span class="flex items-center gap-1.5">
-            <i class="fa-regular fa-clock"></i>
-            {post.readTime}
-          </span>
+    <div slot="after" class="mt-16 grid gap-6">
+      {
+        post.tags.length > 0 && (
+          <ul class="inner-chips" aria-label={copy.tags}>
+            {post.tags.map((tag) => (
+              <li class="inner-chip">{tag}</li>
+            ))}
+          </ul>
+        )
+      }
+      <div class="inner-panel content-author">
+        <span class="content-author__mark" aria-hidden="true">{post.author.initials}</span>
+        <div>
+          <p class="stage-label">{copy.by}</p>
+          <p class="inner-h3 mt-1">{post.author.name}</p>
+          {post.author.role && <p class="inner-card__text">{post.author.role}</p>}
         </div>
       </div>
-    </section>
+      <ShareLinks
+        url={url}
+        title={post.title}
+        labels={{
+          heading: copy.share,
+          x: copy.shareX,
+          linkedIn: copy.shareLinkedIn,
+          copy: copy.copy,
+          copied: copy.copied,
+          copyFailed: copy.copyFailed,
+        }}
+      />
+    </div>
+  </ArticleLayout>
 
-    <!-- Cover Image -->
-    <section class="px-6 mb-12">
-      <div class="max-w-5xl mx-auto">
-        <img
-          src={post.coverImage}
-          alt={post.title}
-          class="w-full h-[400px] object-cover rounded-2xl shadow-lg"
+  {
+    related.length > 0 && (
+      <section class="inner-section stage-shell" aria-labelledby="related-articles">
+        <ChapterHeading
+          index={1}
+          label={copy.relatedLabel}
+          title={copy.relatedTitle}
+          id="related-articles"
         />
-      </div>
-    </section>
+        <ul class="grid gap-6 md:grid-cols-3 mt-10">
+          {related.map((other) => (
+            <li>
+              <LinkCard
+                href={`/blog/${other.slug}`}
+                index={other.tags[0]}
+                title={other.title}
+                text={other.summary}
+                more={copy.read}
+              />
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
 
-    <!-- Content -->
-    <section class="px-6 pb-16">
-      <div class="max-w-3xl mx-auto">
-        {designCss && <style is:inline set:html={designCss} />}
-        <article class={ARTICLE_CLASS} set:html={body} />
-
-        <!-- Share Section -->
-        <div class="mt-12 pt-8 border-t border-line">
-          <div class="flex flex-wrap items-center justify-between gap-4">
-            <span class="text-fg-muted font-medium">Share this article:</span>
-            <div class="flex items-center gap-3">
-              <a
-                href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(post.title)}&url=${encodeURIComponent("https://exyconn.com/blog/" + post.slug)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Share on X (opens in new tab)"
-                class="w-10 h-10 rounded-full bg-surface-muted flex items-center justify-center text-fg-muted hover:bg-blue hover:text-on-solid transition-colors"
-              >
-                <i class="fa-brands fa-x-twitter icon-md" aria-hidden="true"></i>
-              </a>
-              <a
-                href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://exyconn.com/blog/" + post.slug)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Share on LinkedIn (opens in new tab)"
-                class="w-10 h-10 rounded-full bg-surface-muted flex items-center justify-center text-fg-muted hover:bg-blue-deep hover:text-on-solid transition-colors"
-              >
-                <i class="fa-brands fa-linkedin-in icon-md" aria-hidden="true"></i>
-              </a>
-              <button
-                onclick="navigator.clipboard.writeText(window.location.href)"
-                class="w-10 h-10 rounded-full bg-surface-muted flex items-center justify-center text-fg-muted hover:bg-inverse hover:text-on-solid transition-colors"
-                title="Copy link"
-                aria-label="Copy link to this article"
-              >
-                <i class="fa-solid fa-link icon-md" aria-hidden="true"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Related Articles -->
-    {
-      relatedPosts.length > 0 && (
-        <section class="px-6 py-16 bg-surface-subtle">
-          <div class="max-w-6xl mx-auto">
-            <h2 class="text-2xl font-bold text-fg mb-8">Related Articles</h2>
-            <div class="grid md:grid-cols-3 gap-8">
-              {relatedPosts.map((related) => (
-                <a
-                  href={`/blog/${related.slug}`}
-                  class="group bg-surface rounded-2xl shadow-sm border border-line-subtle overflow-hidden hover:shadow-lg transition-all"
-                >
-                  <div class="h-40 overflow-hidden">
-                    <img
-                      src={related.coverImage}
-                      alt={related.title}
-                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  </div>
-                  <div class="p-5">
-                    <div class="flex gap-2 mb-2">
-                      {related.tags.slice(0, 2).map((tag) => (
-                        <span class="text-xs text-blue-fg bg-blue-subtle px-2 py-0.5 rounded-full">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    <h3 class="font-bold text-fg group-hover:text-blue-fg transition-colors line-clamp-2">
-                      {related.title}
-                    </h3>
-                    <p class="text-sm text-fg-subtle mt-2">{formatDate(related.publishedAt)}</p>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
-        </section>
-      )
-    }
-
-    <!-- CTA Section -->
-    <section class="px-6 py-16 bg-blue-strong">
-      <div class="max-w-3xl mx-auto text-center">
-        <h2 class="text-3xl font-bold text-on-solid mb-4">Ready to Transform Your Business?</h2>
-        <p class="text-on-solid-muted text-lg mb-8">
-          Let's discuss how Exyconn can help you leverage AI and automation for growth.
-        </p>
-        <a
-          href="/get-a-quote"
-          class="inline-flex items-center gap-2 px-8 py-4 bg-surface text-blue-fg font-semibold rounded-full hover:shadow-xl transition-all"
-        >
-          Get Started
-          <i class="fa-solid fa-arrow-right"></i>
-        </a>
-      </div>
-    </section>
-  </div>
+  <CtaBand
+    family="blog"
+    label={copy.ctaLabel}
+    title={copy.ctaTitle}
+    primary={copy.ctaPrimary}
+    secondary={copy.ctaSecondary}
+  />
 </Page>
-
-<style>
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .prose .lead {
-    font-size: var(--font-size-xl);
-    line-height: 1.75rem;
-    color: var(--color-fg-muted);
-  }
-</style>

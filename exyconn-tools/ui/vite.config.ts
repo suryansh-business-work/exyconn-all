@@ -7,6 +7,9 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      // Tools is an npm project outside the pnpm workspace; the zero-dependency head
+      // renderer is consumed straight from source (the Dockerfile copies packages/seo).
+      '@exyconn/seo': path.resolve(__dirname, '../../packages/seo/src/index.ts'),
     },
   },
   server: {

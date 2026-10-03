@@ -23,7 +23,8 @@
     /* Path Aliases */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@exyconn/seo": ["../../packages/seo/src/index.ts"]
     }
   },
   "include": ["src"],

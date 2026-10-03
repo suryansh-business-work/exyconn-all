@@ -1,0 +1,35 @@
+---
+/**
+ * The tools strip under the hero: a few one-colour marks in a still row (a marquee needs more
+ * logos than these pages have). Marks come from src/lib/detail/logos.ts.
+ */
+import "../../styles/inner-stage.css";
+import type { DetailLogo } from "../../lib/detail/logos";
+
+type Props = Readonly<{ label: string; logos: readonly DetailLogo[] }>;
+
+const { label, logos } = Astro.props;
+---
+
+<section class="inner-proof py-10" aria-labelledby="detail-logos-label">
+  <div class="stage-shell flex flex-col items-center gap-6 md:flex-row md:justify-center md:gap-10">
+    <h2 id="detail-logos-label" class="stage-label">{label}</h2>
+    <ul class="flex flex-wrap justify-center gap-3">
+      {
+        logos.map((logo) => (
+          <li class="tech-logo-item flex h-16 min-w-36 items-center justify-center rounded-xl border border-line-subtle px-6">
+            <img
+              src={logo.src}
+              alt={logo.name}
+              width={logo.width}
+              height={logo.height}
+              class="tech-logo h-7 w-auto max-w-32 object-contain"
+              loading="lazy"
+              decoding="async"
+            />
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

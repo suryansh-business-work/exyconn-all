@@ -1,0 +1,110 @@
+/* DetailTabs. Body block: follows the site theme; the accent comes from the page family. */
+.detail-tabs {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.detail-tabs__list {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  scrollbar-width: thin;
+  padding-block-end: var(--space-2);
+  mask-image: linear-gradient(90deg, black 85%, transparent);
+}
+
+.detail-tabs__list[hidden] {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .detail-tabs__list {
+    flex-wrap: wrap;
+    overflow: visible;
+    mask-image: none;
+  }
+}
+
+.detail-tab {
+  flex: none;
+  scroll-snap-align: start;
+  min-height: 2.75rem;
+  padding: var(--space-2) var(--space-4);
+  border: var(--border-width-hairline) solid var(--color-line-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-fg-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: var(--transition-surface);
+}
+
+.detail-tab:hover {
+  border-color: var(--accent-a-ink, var(--color-fg));
+  color: var(--color-fg);
+}
+
+.detail-tab[aria-selected="true"] {
+  background: var(--color-fg);
+  border-color: var(--color-fg);
+  color: var(--color-page);
+}
+
+.detail-tabs__panel {
+  padding: var(--space-6);
+}
+
+@media (min-width: 640px) {
+  .detail-tabs__panel {
+    padding: var(--space-10);
+  }
+}
+
+.detail-tabs__panel[hidden] {
+  display: none;
+}
+
+.detail-tabs__pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-top: var(--space-8);
+  padding-top: var(--space-6);
+  border-top: var(--border-width-hairline) solid var(--color-line);
+}
+
+.detail-tabs__pager[hidden] {
+  display: none;
+}
+
+.detail-tabs__step {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 2.75rem;
+  padding-inline: var(--space-3);
+  border-radius: var(--radius-pill);
+  font-weight: var(--font-weight-semibold);
+  color: var(--accent-a-ink, var(--color-fg));
+  cursor: pointer;
+}
+
+.detail-tabs__step:disabled {
+  visibility: hidden;
+}
+
+:is(.detail-tab, .detail-tabs__step, .detail-tabs__panel):focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detail-tab {
+    transition: none;
+  }
+}

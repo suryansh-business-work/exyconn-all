@@ -1,0 +1,30 @@
+---
+/** Chapter "Related": three link cards to the next pages of the same section. */
+import "../../styles/inner-stage.css";
+import ChapterHeading from "../inner/ChapterHeading.astro";
+import LinkCard from "../inner/LinkCard.astro";
+import type { RelatedCard } from "../../lib/detail/helpers";
+
+type Props = Readonly<{
+  index: number;
+  label: string;
+  title: string;
+  more: string;
+  cards: readonly RelatedCard[];
+}>;
+
+const { index, label, title, more, cards } = Astro.props;
+---
+
+<section class="inner-section stage-shell" aria-labelledby="detail-related">
+  <ChapterHeading index={index} label={label} title={title} id="detail-related" />
+  <ul class="mt-10 grid gap-4 md:grid-cols-3">
+    {
+      cards.map((card) => (
+        <li>
+          <LinkCard {...card} more={more} />
+        </li>
+      ))
+    }
+  </ul>
+</section>

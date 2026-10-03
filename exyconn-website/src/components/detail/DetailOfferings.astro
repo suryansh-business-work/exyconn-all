@@ -1,0 +1,38 @@
+---
+/**
+ * The offerings (use cases on AI pages, deliverables on service pages) as cards. Hovering or
+ * focusing card `i` lights tag `i + 1` in the stage scene — on service pages, its lattice
+ * cluster.
+ */
+import "../../styles/inner-stage.css";
+import ChapterHeading from "../inner/ChapterHeading.astro";
+import type { DetailPage } from "../../lib/detail/schema";
+
+type Props = Readonly<{
+  index: number;
+  label: string;
+  offerings: DetailPage["offerings"];
+}>;
+
+const { index, label, offerings } = Astro.props;
+---
+
+<section class="inner-section stage-shell" aria-labelledby="detail-offerings">
+  <ChapterHeading index={index} label={label} title={offerings.title} id="detail-offerings" />
+  <ul class="mt-10 grid gap-4 md:grid-cols-3">
+    {
+      offerings.items.map((item, i) => (
+        <li class="inner-card" data-stage-highlight={i + 1}>
+          <span class="flex items-center justify-between gap-4">
+            <span class="detail-icon" aria-hidden="true">
+              <i class={`fa-solid fa-${item.icon} icon-sm`} aria-hidden="true" />
+            </span>
+            <span class="stage-label inner-index">{String(i + 1).padStart(2, "0")}</span>
+          </span>
+          <h3 class="inner-h3 mt-3">{item.title}</h3>
+          <p class="inner-card__text">{item.text}</p>
+        </li>
+      ))
+    }
+  </ul>
+</section>

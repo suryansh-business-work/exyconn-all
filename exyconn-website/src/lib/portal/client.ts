@@ -2,9 +2,15 @@
  * Thin GraphQL client for the Exyconn portal.
  *
  * The portal is the single source of truth for all site content (blog, case studies,
- * careers, gigs, navigation). There is deliberately NO hardcoded fallback: if the
- * portal cannot be reached the error propagates, rather than silently serving stale
- * bundled content that would mask an editor's changes.
+ * careers, gigs, navigation). There is deliberately NO hardcoded fallback content: this
+ * client throws on any failure, and the read queries in queries.ts turn that into an empty
+ * list (or null) plus a logged error, so a page shows its empty state instead of a 500 —
+ * never stale bundled content that would mask an editor's changes.
+ *
+ * Local design work only: in `astro dev`, PORTAL_FIXTURES=<absolute path to a module
+ * exporting `answerPortalQuery(query, variables)`> answers reads from that module (e.g.
+ * tests/fixtures/portal.ts) so populated layouts can be built and screenshotted while the
+ * portal is empty. Production builds compile this branch away (`import.meta.env.DEV`).
  */
 
 function getPortalUrl(): string {
@@ -36,11 +42,21 @@ export class PortalRequestError extends Error {
   }
 }
 
+interface FixtureModule {
+  answerPortalQuery: (query: string, variables: Record<string, unknown>) => unknown;
+}
+
 /** Executes a GraphQL operation against the portal and returns its `data` payload. */
 export async function portalRequest<T>(
   query: string,
   variables: Record<string, unknown> = {}
 ): Promise<T> {
+  const fixtures = import.meta.env.DEV ? process.env.PORTAL_FIXTURES : undefined;
+  if (fixtures) {
+    const module = (await import(/* @vite-ignore */ fixtures)) as FixtureModule;
+    return module.answerPortalQuery(query, variables) as T;
+  }
+
   const response = await fetch(getPortalUrl(), {
     method: "POST",
     headers: { "Content-Type": "application/json" },

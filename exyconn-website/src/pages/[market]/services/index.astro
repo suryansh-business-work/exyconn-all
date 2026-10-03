@@ -1,389 +1,72 @@
 ---
 import Page from "../../../layouts/Page.astro";
-import DynamicImageStack from "../../../components/dynamic-components/DynamicImageStack.astro";
+import ChapterHeading from "../../../components/inner/ChapterHeading.astro";
+import CtaBand from "../../../components/inner/CtaBand.astro";
+import InnerStage from "../../../components/inner/InnerStage.astro";
+import ProofStrip from "../../../components/inner/ProofStrip.astro";
+import StepTrack from "../../../components/inner/StepTrack.astro";
+import GroupedCards from "../../../components/hubs/GroupedCards.astro";
+import RelatedHubs from "../../../components/hubs/RelatedHubs.astro";
+import { breadcrumbJsonLd } from "../../../lib/inner/structured-data";
+import { pillarGroups, servicePillars } from "../../../lib/services/catalog";
+import { hubChapters, hubCta, hubHero, hubMeta, hubStats } from "../../../lib/services/hub";
+import { lifecycleSteps } from "../../../lib/services/outsourcing";
 
-const serviceCategories = [
-  {
-    title: "Digital Services",
-    description: "Transform your business with comprehensive digital solutions",
-    services: [
-      {
-        title: "Application Modernization",
-        description: "Upgrade your legacy systems for performance, security, and innovation.",
-        icon: "fa-arrows-rotate",
-        href: "/services/application-modernization",
-        color: "bg-blue-deep",
-      },
-      {
-        title: "Digital Consulting",
-        description:
-          "Accelerate your digital transformation with strategy and technology consulting.",
-        icon: "fa-lightbulb",
-        href: "/services/digital-consulting",
-        color: "bg-purple-deep",
-      },
-      {
-        title: "Enterprise Application",
-        description: "Build, scale, and optimize robust enterprise applications.",
-        icon: "fa-building",
-        href: "/services/enterprise-application",
-        color: "bg-indigo",
-      },
-    ],
-  },
-  {
-    title: "Development Services",
-    description: "Build powerful applications for web and mobile",
-    services: [
-      {
-        title: "Mobile Application Development",
-        description: "Build high-performance, user-friendly mobile apps for iOS and Android.",
-        icon: "fa-mobile-screen-button",
-        href: "/services/mobile-application-development",
-        color: "bg-emerald-deep",
-      },
-      {
-        title: "Software as a Service",
-        description:
-          "Accelerate your business with scalable, secure, and innovative SaaS solutions.",
-        icon: "fa-cloud",
-        href: "/services/software-as-a-service",
-        color: "bg-sky-deep",
-      },
-      {
-        title: "Automation & Integration",
-        description: "Automate workflows and integrate your business systems for efficiency.",
-        icon: "fa-plug-circle-check",
-        href: "/services/automation-integration",
-        color: "bg-orange-deep",
-      },
-    ],
-  },
-  {
-    title: "Data & Analytics",
-    description: "Unlock insights and make data-driven decisions",
-    services: [
-      {
-        title: "Data Analytics",
-        description: "Transform your data into actionable insights for smarter decisions.",
-        icon: "fa-chart-bar",
-        href: "/services/data-analytics",
-        color: "bg-rose-deep",
-      },
-      {
-        title: "Maintenance & Support",
-        description: "Keep your applications running smoothly with proactive support.",
-        icon: "fa-screwdriver-wrench",
-        href: "/services/maintenance",
-        color: "bg-fg-subtle",
-      },
-    ],
-  },
-  {
-    title: "Exyconn Digital Marketing",
-    description: "Grow your brand, traffic, and revenue with full-funnel marketing services",
-    services: [
-      {
-        title: "SEO (Search Engine Optimization)",
-        description:
-          "Technical, on-page, and off-page SEO to rank higher and capture organic demand.",
-        icon: "fa-magnifying-glass-chart",
-        href: "/services/digital-marketing#seo",
-        color: "bg-emerald-deep",
-      },
-      {
-        title: "Performance Marketing & PPC",
-        description: "Google Ads, Meta Ads, LinkedIn, and YouTube campaigns optimized for ROAS.",
-        icon: "fa-bullseye",
-        href: "/services/digital-marketing#ppc",
-        color: "bg-blue-deep",
-      },
-      {
-        title: "Social Media Marketing",
-        description: "Strategy, content, community, and paid social across all major platforms.",
-        icon: "fa-hashtag",
-        href: "/services/digital-marketing#social",
-        color: "bg-pink-deep",
-      },
-      {
-        title: "Content Marketing & Copywriting",
-        description: "Blogs, landing pages, whitepapers, and video scripts that convert.",
-        icon: "fa-pen-nib",
-        href: "/services/digital-marketing#content",
-        color: "bg-amber-deep",
-      },
-      {
-        title: "Email & Marketing Automation",
-        description: "Lifecycle email, drip campaigns, CRM workflows, and lead nurturing.",
-        icon: "fa-envelope-open-text",
-        href: "/services/digital-marketing#email",
-        color: "bg-cyan-deep",
-      },
-      {
-        title: "Branding & Creative Design",
-        description: "Logo, brand identity, ad creatives, and motion graphics that stand out.",
-        icon: "fa-palette",
-        href: "/services/digital-marketing#branding",
-        color: "bg-fuchsia-deep",
-      },
-      {
-        title: "Influencer & Affiliate Marketing",
-        description: "Creator partnerships and affiliate programs to scale word-of-mouth.",
-        icon: "fa-user-group",
-        href: "/services/digital-marketing#influencer",
-        color: "bg-violet-deep",
-      },
-      {
-        title: "Conversion Rate Optimization",
-        description: "A/B testing, funnel audits, and UX improvements to lift conversions.",
-        icon: "fa-arrow-trend-up",
-        href: "/services/digital-marketing#cro",
-        color: "bg-teal-deep",
-      },
-      {
-        title: "Marketing Analytics & Reporting",
-        description: "GA4, GTM, attribution, and dashboards that turn data into decisions.",
-        icon: "fa-chart-line",
-        href: "/services/digital-marketing#analytics",
-        color: "bg-fg-subtle",
-      },
-    ],
-  },
-];
+const SITE_URL = (Astro.site?.toString() ?? "https://exyconn.com/").replace(/\/$/, "");
+const crumbs = [{ label: "Home", href: "/" }, { label: "Services" }];
 ---
 
 <Page
-  metaTitle="Our Services | Exyconn"
-  metaDescription="Explore all digital, automation, analytics, SaaS, and mobile services offered by Exyconn. Transform your business with our comprehensive solutions."
-  metaKeywords="digital services, automation, SaaS, mobile development, enterprise applications, data analytics, Exyconn"
-  metaImage="https://images.pexels.com/photos/3183197/pexels-photo-3183197.jpeg?auto=compress&w=1200&q=80"
+  metaTitle={hubMeta.title}
+  metaDescription={hubMeta.description}
+  metaKeywords={hubMeta.keywords}
+  metaImage={hubMeta.image}
+  jsonLd={breadcrumbJsonLd(crumbs, SITE_URL)}
 >
-  <div class="bg-surface min-h-screen">
-    <!-- Hero Section -->
-    <section class="relative py-28 px-6 bg-blue-subtle overflow-hidden">
-      <div class="relative z-10 max-w-5xl mx-auto text-center">
-        <!-- Lottie hero illustration (subtle, professional) -->
-        <div
-          id="services-hero-lottie"
-          class="mx-auto mb-6 w-[200px] h-[140px] sm:w-[260px] sm:h-[180px]"
-          aria-hidden="true"
-          data-anime="zoom-in"
-        >
-        </div>
+  <InnerStage
+    family="services"
+    crumbs={crumbs}
+    title={hubHero.title}
+    lede={hubHero.lede}
+    primary={hubHero.primary}
+    secondary={hubHero.secondary}
+    scene={{ shapes: ["lattice"], data: { lattice: { clusters: servicePillars.length } } }}
+  />
+  <ProofStrip variant="stats" label="Services at a glance" items={hubStats} />
 
-        <span
-          class="inline-flex items-center gap-2 px-4 py-2 bg-surface border border-line rounded-full text-sm font-medium text-fg-muted mb-8 shadow-sm"
-          data-anime="fade-up"
-        >
-          <i class="fa-solid fa-briefcase text-blue-fg"></i>
-          Our Services
-        </span>
+  <section class="inner-section stage-shell" aria-labelledby="pillars">
+    <ChapterHeading
+      index={1}
+      id="pillars"
+      label={hubChapters.pillars.label}
+      title={hubChapters.pillars.title}
+      lede={hubChapters.pillars.lede}
+    />
+    <GroupedCards groups={pillarGroups()} more={hubChapters.pillars.more} highlight />
+  </section>
 
-        <h1
-          class="text-5xl md:text-7xl font-bold text-fg mb-8 tracking-tight leading-tight"
-          data-anime="fade-up"
-          data-anime-delay="100"
-        >
-          Comprehensive
-          <span class="text-blue-fg"> Digital Solutions</span>
-        </h1>
+  <section class="inner-section stage-shell" aria-labelledby="lifecycle">
+    <ChapterHeading
+      index={2}
+      id="lifecycle"
+      label={hubChapters.lifecycle.label}
+      title={hubChapters.lifecycle.title}
+    />
+    <div class="mt-10"><StepTrack steps={lifecycleSteps} /></div>
+  </section>
 
-        <p
-          class="text-xl md:text-2xl text-fg-muted max-w-3xl mx-auto leading-relaxed mb-10"
-          data-anime="fade-up"
-          data-anime-delay="200"
-        >
-          From digital transformation to AI automation, we provide end-to-end services to help your
-          business thrive in the digital era.
-        </p>
+  <RelatedHubs
+    current="/services"
+    index={3}
+    label={hubChapters.explore.label}
+    title={hubChapters.explore.title}
+  />
 
-        <div
-          class="flex flex-wrap justify-center gap-4"
-          data-anime="fade-up"
-          data-anime-delay="300"
-        >
-          <a
-            href="/contact"
-            class="inline-flex items-center gap-2 bg-inverse text-on-solid font-semibold px-8 py-4 rounded-full hover:bg-inverse-muted transition shadow-xl"
-          >
-            <i class="fa-solid fa-rocket"></i> Get Started
-          </a>
-          <a
-            href="/get-a-quote"
-            class="inline-flex items-center gap-2 bg-surface border border-line text-fg font-semibold px-8 py-4 rounded-full hover:bg-surface-subtle transition shadow-lg"
-          >
-            <i class="fa-solid fa-calculator"></i> Get a Quote
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <!-- Services Stats -->
-    <section class="py-12 px-6 bg-surface border-y border-line-subtle">
-      <div class="max-w-5xl mx-auto">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-          <div>
-            <div class="text-4xl font-bold text-blue-fg mb-1">8+</div>
-            <p class="text-fg-subtle text-sm">Service Categories</p>
-          </div>
-          <div>
-            <div class="text-4xl font-bold text-purple-fg mb-1">50+</div>
-            <p class="text-fg-subtle text-sm">Projects Delivered</p>
-          </div>
-          <div>
-            <div class="text-4xl font-bold text-emerald-fg mb-1">100%</div>
-            <p class="text-fg-subtle text-sm">Client Satisfaction</p>
-          </div>
-          <div>
-            <div class="text-4xl font-bold text-amber-fg mb-1">24/7</div>
-            <p class="text-fg-subtle text-sm">Support Available</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Service Categories -->
-    {
-      serviceCategories.map((category, catIndex) => (
-        <section class={`py-20 px-6 ${catIndex % 2 === 0 ? "bg-surface-subtle" : "bg-surface"}`}>
-          <div class="max-w-6xl mx-auto">
-            <div class="mb-12">
-              <h2 class="text-3xl font-bold text-fg mb-3">{category.title}</h2>
-              <p class="text-fg-muted">{category.description}</p>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-6">
-              {category.services.map((service) => (
-                <a
-                  href={service.href}
-                  class="group bg-surface rounded-2xl shadow-sm border border-line-subtle p-6 hover:shadow-xl hover:border-blue-soft transition-all duration-300"
-                >
-                  <div
-                    class={`w-14 h-14 ${service.color} rounded-2xl flex items-center justify-center mb-5 group-hover:scale-110 transition-transform`}
-                  >
-                    <i class={`fa-solid ${service.icon} text-on-solid text-xl`} />
-                  </div>
-                  <h3 class="text-xl font-bold text-fg mb-3 group-hover:text-blue-fg transition-colors">
-                    {service.title}
-                  </h3>
-                  <p class="text-fg-muted text-sm leading-relaxed mb-4">{service.description}</p>
-                  <span class="inline-flex items-center gap-2 text-blue-fg font-medium text-sm group-hover:gap-3 transition-all">
-                    Learn More
-                    <i class="fa-solid fa-arrow-right text-xs" />
-                  </span>
-                </a>
-              ))}
-            </div>
-          </div>
-        </section>
-      ))
-    }
-
-    <!-- AI Services Highlight -->
-    <section class="py-20 px-6 bg-blue-strong">
-      <div class="max-w-6xl mx-auto">
-        <div class="grid lg:grid-cols-2 gap-12 items-center">
-          <div class="text-on-solid">
-            <span
-              class="inline-flex items-center gap-2 px-4 py-2 bg-scrim/15 backdrop-blur-sm rounded-full text-sm font-medium text-on-solid mb-6"
-            >
-              <i class="fa-solid fa-robot"></i>
-              AI-Powered Solutions
-            </span>
-            <h2 class="text-4xl font-bold mb-6">Explore Our AI Services</h2>
-            <p class="text-on-solid text-lg mb-8 leading-relaxed">
-              Leverage cutting-edge AI technology to automate workflows, build intelligent agents,
-              and transform your business operations.
-            </p>
-            <div class="flex flex-wrap gap-4">
-              <a
-                href="/ai"
-                class="inline-flex items-center gap-2 bg-surface text-blue-fg font-semibold px-6 py-3 rounded-full hover:bg-blue-subtle transition"
-              >
-                <i class="fa-solid fa-brain"></i> Explore AI Services
-              </a>
-              <a
-                href="/ai-services"
-                class="inline-flex items-center gap-2 bg-scrim/15 backdrop-blur-sm border border-on-solid/40 text-on-solid font-semibold px-6 py-3 rounded-full hover:bg-scrim/25 transition"
-              >
-                <i class="fa-solid fa-terminal"></i> AI Services Catalogue
-              </a>
-            </div>
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            {
-              [
-                { icon: "fa-robot", label: "AI Agents", desc: "Autonomous agents" },
-                {
-                  icon: "fa-wand-magic-sparkles",
-                  label: "Automation",
-                  desc: "Workflow automation",
-                },
-                { icon: "fa-comments", label: "Bot Creation", desc: "Custom chatbots" },
-                { icon: "fa-brain", label: "Custom Models", desc: "Model training" },
-              ].map((item) => (
-                <div class="bg-scrim/15 backdrop-blur-sm rounded-xl p-5 border border-on-solid/20">
-                  <i
-                    class={`fa-solid ${item.icon} text-on-solid text-2xl mb-3`}
-                    aria-hidden="true"
-                  />
-                  <h4 class="font-bold text-on-solid mb-1">{item.label}</h4>
-                  <p class="text-on-solid text-sm">{item.desc}</p>
-                </div>
-              ))
-            }
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="py-20 px-6 bg-surface">
-      <div class="max-w-4xl mx-auto text-center">
-        <h2 class="text-4xl font-bold text-fg mb-6">Ready to Transform Your Business?</h2>
-        <p class="text-xl text-fg-muted mb-10 max-w-2xl mx-auto">
-          Let's discuss how our services can help you achieve your business goals. Schedule a free
-          consultation today.
-        </p>
-        <div class="flex flex-wrap justify-center gap-4">
-          <a
-            href="/contact"
-            class="inline-flex items-center gap-2 bg-inverse text-on-solid font-semibold px-10 py-4 rounded-full hover:bg-inverse-muted transition shadow-xl"
-          >
-            <i class="fa-solid fa-calendar-check"></i> Schedule Consultation
-          </a>
-        </div>
-      </div>
-    </section>
-
-    <DynamicImageStack title="Powered By Leading Technology" />
-  </div>
+  <CtaBand
+    family="services"
+    title={hubCta.title}
+    text={hubCta.text}
+    primary={hubCta.primary}
+    secondary={hubCta.secondary}
+  />
 </Page>
-
-<!-- Lottie hero illustration loader -->
-<script
-  is:inline
-  type="module"
-  src="https://unpkg.com/@lottiefiles/lottie-player@2.0.12/dist/lottie-player.js"></script>
-<script is:inline>
-  (function () {
-    function mount() {
-      const host = document.getElementById("services-hero-lottie");
-      if (!host || host.querySelector("lottie-player")) return;
-      const player = document.createElement("lottie-player");
-      player.setAttribute("src", "https://assets3.lottiefiles.com/packages/lf20_yfsb3a03.json");
-      player.setAttribute("background", "transparent");
-      player.setAttribute("speed", "1");
-      player.setAttribute("loop", "");
-      player.setAttribute("autoplay", "");
-      player.style.width = "100%";
-      player.style.height = "100%";
-      host.appendChild(player);
-    }
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", mount);
-    } else {
-      mount();
-    }
-  })();
-</script>

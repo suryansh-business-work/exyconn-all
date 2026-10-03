@@ -1,0 +1,65 @@
+---
+/**
+ * Chapter "What it is": the definition and the reasons to invest. AI capability pages add the
+ * demo artefact on the right (the reasons then sit under the definition); service pages put
+ * the reasons on the right.
+ */
+import "../../styles/inner-stage.css";
+import ChapterHeading from "../inner/ChapterHeading.astro";
+import DemoArtefact from "../inner/DemoArtefact.astro";
+import DetailIconList from "./DetailIconList.astro";
+import type { DetailPage } from "../../lib/detail/schema";
+
+type Props = Readonly<{
+  index: number;
+  label: string;
+  intro: DetailPage["intro"];
+  benefits: DetailPage["benefits"];
+  demo?: DetailPage["demo"];
+}>;
+
+const { index, label, intro, benefits, demo } = Astro.props;
+const steps = demo?.kind === "trace" ? demo.steps : undefined;
+const messages = demo?.kind === "chat" ? demo.messages : undefined;
+---
+
+<section class="inner-section stage-shell" aria-labelledby="detail-intro">
+  <ChapterHeading index={index} label={label} title={intro.title} id="detail-intro" />
+  <div class="mt-10 grid items-start gap-10 lg:grid-cols-2 lg:gap-12">
+    <div>
+      <p class="detail-definition">
+        <strong>{intro.term}</strong>
+        {intro.definition}
+      </p>
+      {demo && <DetailIconList title={benefits.title} items={benefits.items} class="mt-10" />}
+    </div>
+    {
+      demo ? (
+        <div class="lg:sticky lg:top-28">
+          <DemoArtefact
+            title={demo.title}
+            kind={demo.kind}
+            caption={demo.caption}
+            steps={steps}
+            messages={messages}
+          />
+        </div>
+      ) : (
+        <DetailIconList title={benefits.title} items={benefits.items} />
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .detail-definition {
+    font-size: clamp(1.15rem, 1.6vw, 1.4rem);
+    line-height: var(--line-height-relaxed);
+    color: var(--color-fg-secondary);
+  }
+
+  .detail-definition strong {
+    color: var(--accent-a-ink, var(--color-fg));
+    font-weight: var(--font-weight-semibold);
+  }
+</style>

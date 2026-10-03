@@ -1,0 +1,87 @@
+---
+/**
+ * The infrastructure platform's services as compact rows grouped by category, filtered by
+ * a FilterBar (category chips + search, in the URL). Hovering a group lights its cube.
+ */
+import "./hubs.css";
+import FilterBar from "../inner/FilterBar.astro";
+import { countLabel } from "../../lib/services/catalog";
+import { STATUS_LABELS, type PlatformGroup } from "../../lib/services/platform";
+
+type Props = Readonly<{
+  groups: readonly PlatformGroup[];
+  copy: {
+    filterLabel: string;
+    sheetLabel: string;
+    chipsLabel: string;
+    allLabel: string;
+    searchLabel: string;
+    searchPlaceholder: string;
+    countTemplate: string;
+    empty: string;
+    serviceOne: string;
+    serviceMany: string;
+  };
+}>;
+
+const { groups, copy } = Astro.props;
+---
+
+<FilterBar
+  target="platform-directory"
+  label={copy.filterLabel}
+  sheetLabel={copy.sheetLabel}
+  groups={[
+    {
+      param: "cat",
+      label: copy.chipsLabel,
+      allLabel: copy.allLabel,
+      options: groups.map((group) => ({ value: group.slug, label: group.category })),
+    },
+  ]}
+  search={{ param: "q", label: copy.searchLabel, placeholder: copy.searchPlaceholder }}
+  countTemplate={copy.countTemplate}
+/>
+
+<div id="platform-directory" class="mt-12">
+  {
+    groups.map((group, index) => (
+      <section
+        id={group.slug}
+        class="hub-group scroll-mt-28"
+        aria-labelledby={`${group.slug}-title`}
+        data-stage-highlight={index + 1}
+      >
+        <div class="flex flex-wrap items-baseline justify-between gap-2">
+          <h3 id={`${group.slug}-title`} class="inner-h3">
+            {group.category}
+          </h3>
+          <p class="stage-label">
+            {countLabel(group.services.length, copy.serviceOne, copy.serviceMany)}
+          </p>
+        </div>
+        <ul class="hub-rows mt-4">
+          {group.services.map((service) => (
+            <li
+              data-filter-item
+              data-filter-cat={group.slug}
+              data-search={`${service.name} ${service.description} ${service.features.join(" ")}`}
+            >
+              <p class="flex flex-wrap items-center gap-x-3 gap-y-1">
+                <span class="font-semibold text-fg">{service.name}</span>
+                <span class="hub-status stage-label">{STATUS_LABELS[service.status]}</span>
+              </p>
+              <p class="inner-card__text">{service.description}</p>
+              <ul class="inner-chips" aria-label={`${service.name} features`}>
+                {service.features.map((feature) => (
+                  <li class="inner-chip">{feature}</li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+</div>
+<p class="inner-lede" data-filter-empty="platform-directory" hidden>{copy.empty}</p>
