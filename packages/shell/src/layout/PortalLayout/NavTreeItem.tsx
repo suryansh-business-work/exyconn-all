@@ -31,7 +31,7 @@ interface Props {
 const rowSx = (depth: number) => ({
   borderRadius: NAV_CORNER,
   mb: 0.5,
-  py: 0.75,
+  py: 0.5,
   pl: 1.5 + depth * 1.5,
   '&.Mui-selected, &.Mui-selected:hover': { bgcolor: 'background.paper', boxShadow: 1 },
 });
