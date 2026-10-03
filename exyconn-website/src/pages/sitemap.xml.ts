@@ -15,7 +15,6 @@ const staticPages = [
   "/get-a-quote",
   "/grievance",
   "/legal",
-  "/our-products",
   "/our-services",
   "/our-vision",
   "/privacy-policy",
