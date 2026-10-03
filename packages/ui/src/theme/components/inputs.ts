@@ -170,7 +170,17 @@ function toggles({ mode, t }: ThemeParts): ComponentGroup {
           padding: 0,
           // The focus ring is drawn outside the track; a clipped root would cut it off.
           overflow: 'visible',
-          '&.MuiSwitch-sizeSmall': { width: SWITCH_WIDTH, height: SWITCH_HEIGHT, padding: 0 },
+          // MUI's own `size="small"` rules pad the thumb and resize it through nested selectors,
+          // which outrank the slot overrides below — so the thumb overhung the track. The
+          // compact switch is already small; small means the same switch.
+          '&.MuiSwitch-sizeSmall': {
+            width: SWITCH_WIDTH,
+            height: SWITCH_HEIGHT,
+            padding: 0,
+            '& .MuiSwitch-switchBase': { padding: 0, margin: SWITCH_INSET },
+            '& .MuiSwitch-switchBase.Mui-checked': { transform: `translateX(${SWITCH_TRAVEL}px)` },
+            '& .MuiSwitch-thumb': { width: SWITCH_THUMB, height: SWITCH_THUMB },
+          },
         },
         switchBase: ({ ownerState, theme }) => {
           const accent =
