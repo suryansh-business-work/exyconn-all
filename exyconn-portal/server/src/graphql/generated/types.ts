@@ -4730,6 +4730,7 @@ export type Mutation = {
   createSlackConfig: SlackConfig;
   createSocialComment: SocialComment;
   createSocialPost: SocialPost;
+  createSonarConfig: SonarConfig;
   createSprint: Sprint;
   createStatusIncident: StatusIncident;
   /** Creating a window also emails every confirmed status subscriber. */
@@ -4756,6 +4757,7 @@ export type Mutation = {
   createWebhook: CreatedWebhook;
   /** Public. Refused unless `captcha` answers a question from `websiteCaptcha`. `resume` (PDF, DOC or DOCX, max 5 MB) is accepted with a job application only. */
   createWebsiteSubmission: WebsiteSubmission;
+  createWhatsappWorkflow: WhatsappWorkflow;
   /** Approves or rejects one item, through the owning module's own decision service. */
   decideApproval: Scalars['Boolean']['output'];
   /** HR/ADMIN or the employee's manager: approve or reject, with an optional note. */
@@ -4859,6 +4861,7 @@ export type Mutation = {
   deleteSocialComment: Scalars['Boolean']['output'];
   deleteSocialMediaPost: Scalars['Boolean']['output'];
   deleteSocialPost: Scalars['Boolean']['output'];
+  deleteSonarConfig: Scalars['Boolean']['output'];
   /** Deletes the sprint and returns its tickets to the backlog. */
   deleteSprint: Scalars['Boolean']['output'];
   deleteStatusIncident: Scalars['Boolean']['output'];
@@ -4877,9 +4880,14 @@ export type Mutation = {
   deleteUser: Scalars['Boolean']['output'];
   deleteWebhook: Scalars['Boolean']['output'];
   deleteWebsiteSubmission: Scalars['Boolean']['output'];
+  deleteWhatsappWorkflow: Scalars['Boolean']['output'];
   /** Switches two-factor off. Needs the password: a borrowed screen must not be enough. */
   disableMfa: Scalars['Boolean']['output'];
+  /** Puts the published graph back into the draft. */
+  discardWhatsappWorkflowDraft: WhatsappWorkflow;
   disconnectSocialAccount: Scalars['Boolean']['output'];
+  /** Copies a workflow as a never-published draft keyed key-copy. */
+  duplicateWhatsappWorkflow: WhatsappWorkflow;
   /** Calls off a delegation. Only whoever arranged it may. */
   endApprovalDelegation: Scalars['Boolean']['output'];
   /**
@@ -4935,6 +4943,8 @@ export type Mutation = {
   publishPolicy: Policy;
   /** Publishes a draft, a scheduled post ahead of time, or retries a failed one. */
   publishSocialMediaPostNow: SocialMediaPost;
+  /** Refused with the issues listed when the draft has errors. */
+  publishWhatsappWorkflow: WhatsappWorkflow;
   /**
    * Books goods in: writes a RECEIPT movement carrying the order's cost, moves the product's
    * average cost, and re-reads the order's status from what has actually arrived.
@@ -4944,6 +4954,8 @@ export type Mutation = {
   recordPayment: Payment;
   /** Records a movement and moves the product's stock with it, in one step. */
   recordStockMovement: StockMovement;
+  /** At most 100 events per call; returns how many were newly stored. */
+  recordWhatsappDemoEvents: Scalars['Int']['output'];
   renameColumn: BoardColumn;
   reorderColumns: Scalars['Boolean']['output'];
   /**
@@ -5017,6 +5029,7 @@ export type Mutation = {
   saveEmployeeSalary: SalaryStructure;
   saveSocialAppConfig: SocialAppConfig;
   saveTrackerBuildSettings: TrackerBuildSettings;
+  saveWhatsappWorkflowDraft: WhatsappWorkflow;
   /**
    * Recovery for a portal with no administrator: mails a fresh password for the
    * configured admin account to that configured address. A no-op once any ADMIN
@@ -5164,6 +5177,8 @@ export type Mutation = {
   testPexelsConnection: Scalars['Boolean']['output'];
   /** Checks the stored client ID and secret with the provider. Platform Tech staff. */
   testSocialAppConfig: SocialAppTest;
+  /** Validates the token, then checks it can see the project. */
+  testSonarConnection: SonarConnectionTest;
   /** Likes the post, or takes the like back. Returns the post as it now stands. */
   toggleSocialPostLike: SocialPost;
   /**
@@ -5318,6 +5333,7 @@ export type Mutation = {
   updateShift: Shift;
   updateSlackConfig: SlackConfig;
   updateSocialMediaPost: SocialMediaPost;
+  updateSonarConfig: SonarConfig;
   updateSprint: Sprint;
   updateStatusMaintenance: StatusMaintenance;
   updateStatusMonitor: StatusMonitor;
@@ -5334,8 +5350,10 @@ export type Mutation = {
   updateUser: User;
   uploadAvatar: Scalars['String']['output'];
   uploadImage: Scalars['String']['output'];
+  upsertWhatsappDemo: WhatsappDemo;
   /** The second step of a two-factor sign-in: the challenge from login, plus the code. */
   verifyMfa: AuthPayload;
+  whatsappDemoParse: WhatsappDemoParseResult;
   /** Withdraws one of the caller's OWN entries, and only while it is still pending. */
   withdrawTrackerManualEntry: Scalars['Boolean']['output'];
 };
@@ -5937,6 +5955,11 @@ export type MutationCreateSocialPostArgs = {
 };
 
 
+export type MutationCreateSonarConfigArgs = {
+  input: SonarConfigInput;
+};
+
+
 export type MutationCreateSprintArgs = {
   input: SprintInput;
   projectId: Scalars['ID']['input'];
@@ -6031,6 +6054,11 @@ export type MutationCreateWebsiteSubmissionArgs = {
   captcha: WebsiteCaptchaAnswer;
   input: WebsiteSubmissionInput;
   resume?: InputMaybe<WebsiteFileInput>;
+};
+
+
+export type MutationCreateWhatsappWorkflowArgs = {
+  input: WhatsappWorkflowCreateInput;
 };
 
 
@@ -6509,6 +6537,11 @@ export type MutationDeleteSocialPostArgs = {
 };
 
 
+export type MutationDeleteSonarConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteSprintArgs = {
   id: Scalars['ID']['input'];
 };
@@ -6594,12 +6627,27 @@ export type MutationDeleteWebsiteSubmissionArgs = {
 };
 
 
+export type MutationDeleteWhatsappWorkflowArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDisableMfaArgs = {
   password: Scalars['String']['input'];
 };
 
 
+export type MutationDiscardWhatsappWorkflowDraftArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDisconnectSocialAccountArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDuplicateWhatsappWorkflowArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -6725,6 +6773,11 @@ export type MutationPublishSocialMediaPostNowArgs = {
 };
 
 
+export type MutationPublishWhatsappWorkflowArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationReceivePurchaseOrderArgs = {
   id: Scalars['ID']['input'];
   lines: Array<PurchaseReceiptLineInput>;
@@ -6738,6 +6791,11 @@ export type MutationRecordPaymentArgs = {
 
 export type MutationRecordStockMovementArgs = {
   input: StockMovementInput;
+};
+
+
+export type MutationRecordWhatsappDemoEventsArgs = {
+  events: Array<WhatsappDemoEventInput>;
 };
 
 
@@ -6872,6 +6930,12 @@ export type MutationSaveSocialAppConfigArgs = {
 export type MutationSaveTrackerBuildSettingsArgs = {
   slackChannels: Array<Scalars['String']['input']>;
   statusAlertChannels?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+
+export type MutationSaveWhatsappWorkflowDraftArgs = {
+  id: Scalars['ID']['input'];
+  input: WhatsappWorkflowDraftInput;
 };
 
 
@@ -7187,6 +7251,11 @@ export type MutationTestPexelsConnectionArgs = {
 
 export type MutationTestSocialAppConfigArgs = {
   app: SocialApp;
+};
+
+
+export type MutationTestSonarConnectionArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -7809,6 +7878,12 @@ export type MutationUpdateSocialMediaPostArgs = {
 };
 
 
+export type MutationUpdateSonarConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: SonarConfigInput;
+};
+
+
 export type MutationUpdateSprintArgs = {
   id: Scalars['ID']['input'];
   input: SprintInput;
@@ -7904,9 +7979,20 @@ export type MutationUploadImageArgs = {
 };
 
 
+export type MutationUpsertWhatsappDemoArgs = {
+  id?: InputMaybe<Scalars['ID']['input']>;
+  input: WhatsappDemoInput;
+};
+
+
 export type MutationVerifyMfaArgs = {
   challenge: Scalars['String']['input'];
   code: Scalars['String']['input'];
+};
+
+
+export type MutationWhatsappDemoParseArgs = {
+  input: WhatsappDemoParseInput;
 };
 
 
@@ -9698,6 +9784,7 @@ export type Query = {
   /** Every channel the active Slack bot token can see. */
   listSlackChannels: Array<SlackChannel>;
   listSlackConfigs: Array<SlackConfig>;
+  listSonarConfigs: Array<SonarConfig>;
   listStatusIncidents: Array<StatusIncident>;
   listStatusIncidentsPaged: StatusIncidentPage;
   listStatusIncidentsStats: TableStats;
@@ -9946,8 +10033,14 @@ export type Query = {
   socialProfile: SocialProfile;
   /** One colleague's posts, newest first. */
   socialUserPosts: SocialFeedPage;
+  /** TECH: the worst open issues of one severity (BLOCKER, CRITICAL, MAJOR, MINOR, INFO). */
+  sonarIssues: Array<SonarIssue>;
+  /** TECH: the active SonarQube project. Cached for five minutes unless refresh is set. */
+  sonarOverview: SonarOverview;
   /** What completing this sprint would do to its unfinished tickets. */
   sprintCompletionPlan: SprintCompletionPlan;
+  /** TECH: every monitored host's certificate. Cached for ten minutes unless refresh is set. */
+  sslCertificates: SslCertificateReport;
   /** Public: no sign-in, this is what status.exyconn.com reads. */
   statusOverview: StatusOverview;
   /** SUPPORT/ADMIN: how the queue stands against its SLA deadlines. */
@@ -10024,6 +10117,16 @@ export type Query = {
   websiteCaptcha: WebsiteCaptcha;
   /** The form identifiers the public website may submit under — the one allow-list. */
   websiteFormTypes: Array<Scalars['String']['output']>;
+  whatsappDemoAiStatus: WhatsappAiStatus;
+  /** Every active demo with its published workflows, for the chat. */
+  whatsappDemoCatalog: Array<WhatsappDemoBundle>;
+  whatsappDemoFunnel: Array<WhatsappFunnelStep>;
+  whatsappDemoSession?: Maybe<WhatsappDemoSessionDetail>;
+  whatsappDemoSessions: WhatsappDemoSessionPage;
+  whatsappDemoStats: WhatsappDemoStats;
+  whatsappDemos: Array<WhatsappDemo>;
+  whatsappWorkflow?: Maybe<WhatsappWorkflow>;
+  whatsappWorkflows: Array<WhatsappWorkflow>;
   /** The company's users, employees and tracker over the last `days` days (1-365). ADMIN. */
   workspaceAnalytics: WorkspaceAnalytics;
 };
@@ -11330,8 +11433,23 @@ export type QuerySocialUserPostsArgs = {
 };
 
 
+export type QuerySonarIssuesArgs = {
+  severity: Scalars['String']['input'];
+};
+
+
+export type QuerySonarOverviewArgs = {
+  refresh?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
 export type QuerySprintCompletionPlanArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QuerySslCertificatesArgs = {
+  refresh?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -11415,6 +11533,42 @@ export type QueryTranslationsArgs = {
   locale: Scalars['String']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
   skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryWhatsappDemoFunnelArgs = {
+  demoKey: Scalars['String']['input'];
+  from: Scalars['String']['input'];
+  to: Scalars['String']['input'];
+  workflow: Scalars['String']['input'];
+};
+
+
+export type QueryWhatsappDemoSessionArgs = {
+  sessionId: Scalars['ID']['input'];
+};
+
+
+export type QueryWhatsappDemoSessionsArgs = {
+  from?: InputMaybe<Scalars['String']['input']>;
+  input: TableQueryInput;
+  to?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryWhatsappDemoStatsArgs = {
+  from: Scalars['String']['input'];
+  to: Scalars['String']['input'];
+};
+
+
+export type QueryWhatsappWorkflowArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryWhatsappWorkflowsArgs = {
+  demoId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 
@@ -12181,6 +12335,135 @@ export type SocialSyncResult = {
   synced: Scalars['Int']['output'];
 };
 
+export type SonarAnalysis = {
+  __typename?: 'SonarAnalysis';
+  date: Scalars['DateTime']['output'];
+  events: Array<Scalars['String']['output']>;
+  key: Scalars['String']['output'];
+  version: Scalars['String']['output'];
+};
+
+/** A SonarQube or SonarCloud project the Security screen reads. */
+export type SonarConfig = {
+  __typename?: 'SonarConfig';
+  createdAt: Scalars['DateTime']['output'];
+  /** Whether a token is stored. The token itself is write-only and never returned. */
+  hasToken: Scalars['Boolean']['output'];
+  hostUrl: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  /** SonarCloud organization key; empty for a self-hosted SonarQube. */
+  organization: Scalars['String']['output'];
+  projectKey: Scalars['String']['output'];
+  /** The token's last four characters, to tell two apart; null when too short to show safely. */
+  tokenHint?: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type SonarConfigInput = {
+  hostUrl: Scalars['String']['input'];
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+  organization?: InputMaybe<Scalars['String']['input']>;
+  projectKey: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored token. */
+  token: Scalars['String']['input'];
+};
+
+/** What a connection test found, in words for the person who pressed it. */
+export type SonarConnectionTest = {
+  __typename?: 'SonarConnectionTest';
+  message: Scalars['String']['output'];
+  ok: Scalars['Boolean']['output'];
+};
+
+export type SonarFacetCount = {
+  __typename?: 'SonarFacetCount';
+  count: Scalars['Int']['output'];
+  value: Scalars['String']['output'];
+};
+
+export type SonarGateCondition = {
+  __typename?: 'SonarGateCondition';
+  actualValue: Scalars['String']['output'];
+  comparator: Scalars['String']['output'];
+  errorThreshold: Scalars['String']['output'];
+  metric: Scalars['String']['output'];
+  status: Scalars['String']['output'];
+};
+
+export type SonarIssue = {
+  __typename?: 'SonarIssue';
+  file: Scalars['String']['output'];
+  key: Scalars['String']['output'];
+  line?: Maybe<Scalars['Int']['output']>;
+  message: Scalars['String']['output'];
+  rule: Scalars['String']['output'];
+  severity: Scalars['String']['output'];
+  type: Scalars['String']['output'];
+  /** Opens the issue in SonarQube. */
+  url: Scalars['String']['output'];
+};
+
+/** The project's measures. Ratings are letters A to E; anything not computed is null. */
+export type SonarMetrics = {
+  __typename?: 'SonarMetrics';
+  alertStatus?: Maybe<Scalars['String']['output']>;
+  bugs?: Maybe<Scalars['Float']['output']>;
+  codeSmells?: Maybe<Scalars['Float']['output']>;
+  coverage?: Maybe<Scalars['Float']['output']>;
+  duplicatedLinesDensity?: Maybe<Scalars['Float']['output']>;
+  maintainabilityRating?: Maybe<Scalars['String']['output']>;
+  ncloc?: Maybe<Scalars['Float']['output']>;
+  newBugs?: Maybe<Scalars['Float']['output']>;
+  newCodeSmells?: Maybe<Scalars['Float']['output']>;
+  newCoverage?: Maybe<Scalars['Float']['output']>;
+  newDuplicatedLinesDensity?: Maybe<Scalars['Float']['output']>;
+  newSecurityHotspots?: Maybe<Scalars['Float']['output']>;
+  newVulnerabilities?: Maybe<Scalars['Float']['output']>;
+  reliabilityRating?: Maybe<Scalars['String']['output']>;
+  securityHotspots?: Maybe<Scalars['Float']['output']>;
+  securityRating?: Maybe<Scalars['String']['output']>;
+  technicalDebtMinutes?: Maybe<Scalars['Float']['output']>;
+  vulnerabilities?: Maybe<Scalars['Float']['output']>;
+};
+
+/** The active SonarQube project at a glance. A problem is a state with a message, not an error. */
+export type SonarOverview = {
+  __typename?: 'SonarOverview';
+  analyses: Array<SonarAnalysis>;
+  checkedAt: Scalars['DateTime']['output'];
+  configLabel: Scalars['String']['output'];
+  /** The most severe open issues, worst first. */
+  issues: Array<SonarIssue>;
+  issuesTotal: Scalars['Int']['output'];
+  message: Scalars['String']['output'];
+  metrics?: Maybe<SonarMetrics>;
+  projectKey: Scalars['String']['output'];
+  projectUrl: Scalars['String']['output'];
+  qualityGate?: Maybe<SonarQualityGate>;
+  severityCounts: Array<SonarFacetCount>;
+  state: SonarOverviewState;
+  typeCounts: Array<SonarFacetCount>;
+};
+
+export enum SonarOverviewState {
+  Error = 'ERROR',
+  NotConfigured = 'NOT_CONFIGURED',
+  NotFound = 'NOT_FOUND',
+  Ok = 'OK',
+  Unauthorized = 'UNAUTHORIZED',
+  Unreachable = 'UNREACHABLE'
+}
+
+export type SonarQualityGate = {
+  __typename?: 'SonarQualityGate';
+  conditions: Array<SonarGateCondition>;
+  /** OK, WARN, ERROR or NONE when the project has no gate. */
+  status: Scalars['String']['output'];
+};
+
 export enum SortDir {
   Asc = 'ASC',
   Desc = 'DESC'
@@ -12221,6 +12504,49 @@ export enum SprintState {
   Active = 'ACTIVE',
   Completed = 'COMPLETED',
   Planned = 'PLANNED'
+}
+
+/** The certificate one monitored host presented, and what it means. */
+export type SslCertificate = {
+  __typename?: 'SslCertificate';
+  /** Every name the certificate is valid for. */
+  altNames: Array<Scalars['String']['output']>;
+  /** Whether the chain verified against the trusted roots for this host name. */
+  authorized: Scalars['Boolean']['output'];
+  checkedAt: Scalars['DateTime']['output'];
+  /** Whole days until it expires, negative once it has. Null when unknown. */
+  daysLeft?: Maybe<Scalars['Int']['output']>;
+  /** Why the chain did not verify, or why the host could not be reached. Empty when fine. */
+  error: Scalars['String']['output'];
+  fingerprint256: Scalars['String']['output'];
+  host: Scalars['String']['output'];
+  issuer: Scalars['String']['output'];
+  /** Names of the status monitors whose https URL points at this host. */
+  monitors: Array<Scalars['String']['output']>;
+  /** The negotiated TLS version, e.g. TLSv1.3. */
+  protocol: Scalars['String']['output'];
+  serialNumber: Scalars['String']['output'];
+  status: SslCertificateStatus;
+  /** The subject common name. */
+  subject: Scalars['String']['output'];
+  validFrom?: Maybe<Scalars['DateTime']['output']>;
+  validTo?: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type SslCertificateReport = {
+  __typename?: 'SslCertificateReport';
+  certificates: Array<SslCertificate>;
+  checkedAt: Scalars['DateTime']['output'];
+  /** A certificate with this many days or fewer left is EXPIRING. */
+  warningDays: Scalars['Int']['output'];
+};
+
+export enum SslCertificateStatus {
+  Expired = 'EXPIRED',
+  Expiring = 'EXPIRING',
+  Invalid = 'INVALID',
+  Ok = 'OK',
+  Unreachable = 'UNREACHABLE'
 }
 
 export type StatBucket = {
@@ -14037,6 +14363,284 @@ export type WebsiteSubmissionTriageInput = {
   status: Scalars['String']['input'];
 };
 
+export type WhatsappAiEntityInput = {
+  description: Scalars['String']['input'];
+  kind: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
+export type WhatsappAiIntentInput = {
+  description: Scalars['String']['input'];
+  id: Scalars['String']['input'];
+};
+
+export type WhatsappAiStats = {
+  __typename?: 'WhatsappAiStats';
+  avgLatencyMs: Scalars['Int']['output'];
+  calls: Scalars['Int']['output'];
+  failures: Scalars['Int']['output'];
+  tokens: Scalars['Int']['output'];
+};
+
+export type WhatsappAiStatus = {
+  __typename?: 'WhatsappAiStatus';
+  configured: Scalars['Boolean']['output'];
+  model?: Maybe<Scalars['String']['output']>;
+};
+
+export type WhatsappCount = {
+  __typename?: 'WhatsappCount';
+  count: Scalars['Int']['output'];
+  key: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+};
+
+export type WhatsappDayPoint = {
+  __typename?: 'WhatsappDayPoint';
+  date: Scalars['String']['output'];
+  flowsCompleted: Scalars['Int']['output'];
+  flowsStarted: Scalars['Int']['output'];
+  sessions: Scalars['Int']['output'];
+};
+
+/** One industry demo: the business the chat pretends to be. */
+export type WhatsappDemo = {
+  __typename?: 'WhatsappDemo';
+  active: Scalars['Boolean']['output'];
+  /** BusinessProfile, as businessSchema in @exyconn/wa-flow describes it. */
+  business: Scalars['JSON']['output'];
+  greeting: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  industry: Scalars['String']['output'];
+  key: Scalars['String']['output'];
+  menuButton: Scalars['String']['output'];
+  menuText: Scalars['String']['output'];
+  order: Scalars['Int']['output'];
+  updatedAt: Scalars['String']['output'];
+};
+
+export type WhatsappDemoBundle = {
+  __typename?: 'WhatsappDemoBundle';
+  demo: WhatsappDemo;
+  /** Changes whenever the demo or any of its published workflows changes. */
+  revision: Scalars['String']['output'];
+  /** Published workflows only, in menu order. */
+  workflows: Array<WhatsappPublishedWorkflow>;
+};
+
+export type WhatsappDemoEvent = {
+  __typename?: 'WhatsappDemoEvent';
+  at: Scalars['String']['output'];
+  demoKey?: Maybe<Scalars['String']['output']>;
+  durationMs?: Maybe<Scalars['Int']['output']>;
+  id: Scalars['ID']['output'];
+  label?: Maybe<Scalars['String']['output']>;
+  /** AI_CALL only: ok, latencyMs, tokens, error and intent. */
+  meta?: Maybe<Scalars['JSON']['output']>;
+  node?: Maybe<Scalars['String']['output']>;
+  stepKind?: Maybe<Scalars['String']['output']>;
+  type: WhatsappDemoEventType;
+  workflow?: Maybe<Scalars['String']['output']>;
+};
+
+export type WhatsappDemoEventInput = {
+  /** ISO time on the client clock. */
+  at: Scalars['String']['input'];
+  demoKey?: InputMaybe<Scalars['String']['input']>;
+  /** phone, tablet or desktop (SESSION_START). */
+  device?: InputMaybe<Scalars['String']['input']>;
+  durationMs?: InputMaybe<Scalars['Int']['input']>;
+  /** Client-generated UUID; a repeated id is ignored. */
+  id: Scalars['ID']['input'];
+  /** Option title or input kind; cut to 80 characters. */
+  label?: InputMaybe<Scalars['String']['input']>;
+  node?: InputMaybe<Scalars['String']['input']>;
+  /** Client-generated UUID per tab session. */
+  sessionId: Scalars['ID']['input'];
+  /** choice or text. */
+  stepKind?: InputMaybe<Scalars['String']['input']>;
+  type: WhatsappDemoEventType;
+  /** Width x height (SESSION_START). */
+  viewport?: InputMaybe<Scalars['String']['input']>;
+  workflow?: InputMaybe<Scalars['String']['input']>;
+};
+
+export enum WhatsappDemoEventType {
+  AiCall = 'AI_CALL',
+  ChatCleared = 'CHAT_CLEARED',
+  DemoOpened = 'DEMO_OPENED',
+  DocumentOpened = 'DOCUMENT_OPENED',
+  FlowAbandoned = 'FLOW_ABANDONED',
+  FlowCompleted = 'FLOW_COMPLETED',
+  FlowStarted = 'FLOW_STARTED',
+  QrOpened = 'QR_OPENED',
+  ReminderDelivered = 'REMINDER_DELIVERED',
+  SessionEnd = 'SESSION_END',
+  SessionStart = 'SESSION_START',
+  Step = 'STEP'
+}
+
+export type WhatsappDemoInput = {
+  active: Scalars['Boolean']['input'];
+  business: Scalars['JSON']['input'];
+  greeting: Scalars['String']['input'];
+  industry: Scalars['String']['input'];
+  key: Scalars['String']['input'];
+  menuButton: Scalars['String']['input'];
+  menuText: Scalars['String']['input'];
+  order: Scalars['Int']['input'];
+};
+
+export type WhatsappDemoParseInput = {
+  demoKey: Scalars['String']['input'];
+  entities: Array<WhatsappAiEntityInput>;
+  intents: Array<WhatsappAiIntentInput>;
+  node: Scalars['String']['input'];
+  sessionId: Scalars['ID']['input'];
+  /** At most 500 characters are read. */
+  text: Scalars['String']['input'];
+  /** A workflow key, or $router for the menu. */
+  workflow: Scalars['String']['input'];
+};
+
+export type WhatsappDemoParseResult = {
+  __typename?: 'WhatsappDemoParseResult';
+  /** Entity name to value, only for the names asked for; date and time kinds add nameMs. */
+  entities: Scalars['JSON']['output'];
+  /** NOT_CONFIGURED, TIMEOUT, RATE_LIMITED or FAILED. */
+  error?: Maybe<Scalars['String']['output']>;
+  /** One of the given intent ids, or null. */
+  intent?: Maybe<Scalars['String']['output']>;
+  latencyMs: Scalars['Int']['output'];
+  /** False when AI is not configured, timed out, was rate limited or answered badly. */
+  ok: Scalars['Boolean']['output'];
+};
+
+export type WhatsappDemoSession = {
+  __typename?: 'WhatsappDemoSession';
+  demos: Array<Scalars['String']['output']>;
+  device?: Maybe<Scalars['String']['output']>;
+  durationMs: Scalars['Int']['output'];
+  events: Scalars['Int']['output'];
+  flowsCompleted: Scalars['Int']['output'];
+  flowsStarted: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  lastEventAt: Scalars['String']['output'];
+  sessionId: Scalars['ID']['output'];
+  startedAt: Scalars['String']['output'];
+  /** active when an event arrived in the last 30 minutes, otherwise ended. */
+  status: Scalars['String']['output'];
+  userEmail: Scalars['String']['output'];
+  userId: Scalars['ID']['output'];
+  userName: Scalars['String']['output'];
+  viewport?: Maybe<Scalars['String']['output']>;
+};
+
+export type WhatsappDemoSessionDetail = {
+  __typename?: 'WhatsappDemoSessionDetail';
+  events: Array<WhatsappDemoEvent>;
+  session: WhatsappDemoSession;
+};
+
+export type WhatsappDemoSessionPage = {
+  __typename?: 'WhatsappDemoSessionPage';
+  rows: Array<WhatsappDemoSession>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type WhatsappDemoStats = {
+  __typename?: 'WhatsappDemoStats';
+  ai: WhatsappAiStats;
+  avgSessionMs: Scalars['Int']['output'];
+  /** 0 to 1. */
+  completionRate: Scalars['Float']['output'];
+  /** One point per day in the range, zero-filled. */
+  daily: Array<WhatsappDayPoint>;
+  devices: Array<WhatsappCount>;
+  flows: Array<WhatsappFlowStat>;
+  flowsCompleted: Scalars['Int']['output'];
+  flowsStarted: Scalars['Int']['output'];
+  sessions: Scalars['Int']['output'];
+  /** By DEMO_OPENED events. */
+  topDemos: Array<WhatsappCount>;
+  uniqueUsers: Scalars['Int']['output'];
+};
+
+export type WhatsappFlowStat = {
+  __typename?: 'WhatsappFlowStat';
+  abandoned: Scalars['Int']['output'];
+  completed: Scalars['Int']['output'];
+  demoKey: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  started: Scalars['Int']['output'];
+  workflow: Scalars['String']['output'];
+};
+
+/** Distinct sessions reaching one node, in order of first reach. */
+export type WhatsappFunnelStep = {
+  __typename?: 'WhatsappFunnelStep';
+  label: Scalars['String']['output'];
+  node: Scalars['String']['output'];
+  sessions: Scalars['Int']['output'];
+};
+
+export type WhatsappPublishedWorkflow = {
+  __typename?: 'WhatsappPublishedWorkflow';
+  description: Scalars['String']['output'];
+  /** The published graph. */
+  graph: Scalars['JSON']['output'];
+  key: Scalars['String']['output'];
+  keywords: Array<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  order: Scalars['Int']['output'];
+  version: Scalars['Int']['output'];
+};
+
+export type WhatsappWorkflow = {
+  __typename?: 'WhatsappWorkflow';
+  demoId: Scalars['ID']['output'];
+  demoKey: Scalars['String']['output'];
+  description: Scalars['String']['output'];
+  /** The graph being edited. */
+  draft: Scalars['JSON']['output'];
+  id: Scalars['ID']['output'];
+  key: Scalars['String']['output'];
+  keywords: Array<Scalars['String']['output']>;
+  name: Scalars['String']['output'];
+  order: Scalars['Int']['output'];
+  /** The graph the chat runs; null until the first publish. */
+  published?: Maybe<Scalars['JSON']['output']>;
+  publishedAt?: Maybe<Scalars['String']['output']>;
+  /** DRAFT when never published or when the draft differs from what is published. */
+  status: WhatsappWorkflowStatus;
+  updatedAt: Scalars['String']['output'];
+  updatedByName?: Maybe<Scalars['String']['output']>;
+  /** The published version; 0 until the first publish. */
+  version: Scalars['Int']['output'];
+};
+
+export type WhatsappWorkflowCreateInput = {
+  demoId: Scalars['ID']['input'];
+  description: Scalars['String']['input'];
+  key: Scalars['String']['input'];
+  keywords: Array<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  order?: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type WhatsappWorkflowDraftInput = {
+  description: Scalars['String']['input'];
+  graph: Scalars['JSON']['input'];
+  keywords: Array<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  order: Scalars['Int']['input'];
+};
+
+export enum WhatsappWorkflowStatus {
+  Draft = 'DRAFT',
+  Published = 'PUBLISHED'
+}
+
 /** Where an employee is expected to work from. OTHER is described in workLocationNote. */
 export enum WorkLocation {
   Home = 'HOME',
@@ -14714,11 +15318,25 @@ export type ResolversTypes = ResolversObject<{
   SocialPostInput: SocialPostInput;
   SocialProfile: ResolverTypeWrapper<SocialProfile>;
   SocialSyncResult: ResolverTypeWrapper<SocialSyncResult>;
+  SonarAnalysis: ResolverTypeWrapper<SonarAnalysis>;
+  SonarConfig: ResolverTypeWrapper<SonarConfig>;
+  SonarConfigInput: SonarConfigInput;
+  SonarConnectionTest: ResolverTypeWrapper<SonarConnectionTest>;
+  SonarFacetCount: ResolverTypeWrapper<SonarFacetCount>;
+  SonarGateCondition: ResolverTypeWrapper<SonarGateCondition>;
+  SonarIssue: ResolverTypeWrapper<SonarIssue>;
+  SonarMetrics: ResolverTypeWrapper<SonarMetrics>;
+  SonarOverview: ResolverTypeWrapper<SonarOverview>;
+  SonarOverviewState: SonarOverviewState;
+  SonarQualityGate: ResolverTypeWrapper<SonarQualityGate>;
   SortDir: SortDir;
   Sprint: ResolverTypeWrapper<Sprint>;
   SprintCompletionPlan: ResolverTypeWrapper<SprintCompletionPlan>;
   SprintInput: SprintInput;
   SprintState: SprintState;
+  SslCertificate: ResolverTypeWrapper<SslCertificate>;
+  SslCertificateReport: ResolverTypeWrapper<SslCertificateReport>;
+  SslCertificateStatus: SslCertificateStatus;
   StatBucket: ResolverTypeWrapper<StatBucket>;
   StatFieldCounts: ResolverTypeWrapper<StatFieldCounts>;
   StatFieldSum: ResolverTypeWrapper<StatFieldSum>;
@@ -14862,6 +15480,31 @@ export type ResolversTypes = ResolversObject<{
   WebsiteSubmissionInput: WebsiteSubmissionInput;
   WebsiteSubmissionPage: ResolverTypeWrapper<WebsiteSubmissionPage>;
   WebsiteSubmissionTriageInput: WebsiteSubmissionTriageInput;
+  WhatsappAiEntityInput: WhatsappAiEntityInput;
+  WhatsappAiIntentInput: WhatsappAiIntentInput;
+  WhatsappAiStats: ResolverTypeWrapper<WhatsappAiStats>;
+  WhatsappAiStatus: ResolverTypeWrapper<WhatsappAiStatus>;
+  WhatsappCount: ResolverTypeWrapper<WhatsappCount>;
+  WhatsappDayPoint: ResolverTypeWrapper<WhatsappDayPoint>;
+  WhatsappDemo: ResolverTypeWrapper<WhatsappDemo>;
+  WhatsappDemoBundle: ResolverTypeWrapper<WhatsappDemoBundle>;
+  WhatsappDemoEvent: ResolverTypeWrapper<WhatsappDemoEvent>;
+  WhatsappDemoEventInput: WhatsappDemoEventInput;
+  WhatsappDemoEventType: WhatsappDemoEventType;
+  WhatsappDemoInput: WhatsappDemoInput;
+  WhatsappDemoParseInput: WhatsappDemoParseInput;
+  WhatsappDemoParseResult: ResolverTypeWrapper<WhatsappDemoParseResult>;
+  WhatsappDemoSession: ResolverTypeWrapper<WhatsappDemoSession>;
+  WhatsappDemoSessionDetail: ResolverTypeWrapper<WhatsappDemoSessionDetail>;
+  WhatsappDemoSessionPage: ResolverTypeWrapper<WhatsappDemoSessionPage>;
+  WhatsappDemoStats: ResolverTypeWrapper<WhatsappDemoStats>;
+  WhatsappFlowStat: ResolverTypeWrapper<WhatsappFlowStat>;
+  WhatsappFunnelStep: ResolverTypeWrapper<WhatsappFunnelStep>;
+  WhatsappPublishedWorkflow: ResolverTypeWrapper<WhatsappPublishedWorkflow>;
+  WhatsappWorkflow: ResolverTypeWrapper<WhatsappWorkflow>;
+  WhatsappWorkflowCreateInput: WhatsappWorkflowCreateInput;
+  WhatsappWorkflowDraftInput: WhatsappWorkflowDraftInput;
+  WhatsappWorkflowStatus: WhatsappWorkflowStatus;
   WorkLocation: WorkLocation;
   WorkingTime: WorkingTime;
   WorkspaceAnalytics: ResolverTypeWrapper<WorkspaceAnalytics>;
@@ -15327,9 +15970,21 @@ export type ResolversParentTypes = ResolversObject<{
   SocialPostInput: SocialPostInput;
   SocialProfile: SocialProfile;
   SocialSyncResult: SocialSyncResult;
+  SonarAnalysis: SonarAnalysis;
+  SonarConfig: SonarConfig;
+  SonarConfigInput: SonarConfigInput;
+  SonarConnectionTest: SonarConnectionTest;
+  SonarFacetCount: SonarFacetCount;
+  SonarGateCondition: SonarGateCondition;
+  SonarIssue: SonarIssue;
+  SonarMetrics: SonarMetrics;
+  SonarOverview: SonarOverview;
+  SonarQualityGate: SonarQualityGate;
   Sprint: Sprint;
   SprintCompletionPlan: SprintCompletionPlan;
   SprintInput: SprintInput;
+  SslCertificate: SslCertificate;
+  SslCertificateReport: SslCertificateReport;
   StatBucket: StatBucket;
   StatFieldCounts: StatFieldCounts;
   StatFieldSum: StatFieldSum;
@@ -15453,6 +16108,29 @@ export type ResolversParentTypes = ResolversObject<{
   WebsiteSubmissionInput: WebsiteSubmissionInput;
   WebsiteSubmissionPage: WebsiteSubmissionPage;
   WebsiteSubmissionTriageInput: WebsiteSubmissionTriageInput;
+  WhatsappAiEntityInput: WhatsappAiEntityInput;
+  WhatsappAiIntentInput: WhatsappAiIntentInput;
+  WhatsappAiStats: WhatsappAiStats;
+  WhatsappAiStatus: WhatsappAiStatus;
+  WhatsappCount: WhatsappCount;
+  WhatsappDayPoint: WhatsappDayPoint;
+  WhatsappDemo: WhatsappDemo;
+  WhatsappDemoBundle: WhatsappDemoBundle;
+  WhatsappDemoEvent: WhatsappDemoEvent;
+  WhatsappDemoEventInput: WhatsappDemoEventInput;
+  WhatsappDemoInput: WhatsappDemoInput;
+  WhatsappDemoParseInput: WhatsappDemoParseInput;
+  WhatsappDemoParseResult: WhatsappDemoParseResult;
+  WhatsappDemoSession: WhatsappDemoSession;
+  WhatsappDemoSessionDetail: WhatsappDemoSessionDetail;
+  WhatsappDemoSessionPage: WhatsappDemoSessionPage;
+  WhatsappDemoStats: WhatsappDemoStats;
+  WhatsappFlowStat: WhatsappFlowStat;
+  WhatsappFunnelStep: WhatsappFunnelStep;
+  WhatsappPublishedWorkflow: WhatsappPublishedWorkflow;
+  WhatsappWorkflow: WhatsappWorkflow;
+  WhatsappWorkflowCreateInput: WhatsappWorkflowCreateInput;
+  WhatsappWorkflowDraftInput: WhatsappWorkflowDraftInput;
   WorkspaceAnalytics: WorkspaceAnalytics;
 }>;
 
@@ -18108,6 +18786,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createSlackConfig?: Resolver<ResolversTypes['SlackConfig'], ParentType, ContextType, RequireFields<MutationCreateSlackConfigArgs, 'input'>>;
   createSocialComment?: Resolver<ResolversTypes['SocialComment'], ParentType, ContextType, RequireFields<MutationCreateSocialCommentArgs, 'body' | 'postId'>>;
   createSocialPost?: Resolver<ResolversTypes['SocialPost'], ParentType, ContextType, RequireFields<MutationCreateSocialPostArgs, 'input'>>;
+  createSonarConfig?: Resolver<ResolversTypes['SonarConfig'], ParentType, ContextType, RequireFields<MutationCreateSonarConfigArgs, 'input'>>;
   createSprint?: Resolver<ResolversTypes['Sprint'], ParentType, ContextType, RequireFields<MutationCreateSprintArgs, 'input' | 'projectId'>>;
   createStatusIncident?: Resolver<ResolversTypes['StatusIncident'], ParentType, ContextType, RequireFields<MutationCreateStatusIncidentArgs, 'input'>>;
   createStatusMaintenance?: Resolver<ResolversTypes['StatusMaintenance'], ParentType, ContextType, RequireFields<MutationCreateStatusMaintenanceArgs, 'input'>>;
@@ -18126,6 +18805,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createUser?: Resolver<ResolversTypes['UserCredentials'], ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'input'>>;
   createWebhook?: Resolver<ResolversTypes['CreatedWebhook'], ParentType, ContextType, RequireFields<MutationCreateWebhookArgs, 'events' | 'name' | 'url'>>;
   createWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<MutationCreateWebsiteSubmissionArgs, 'captcha' | 'input'>>;
+  createWhatsappWorkflow?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationCreateWhatsappWorkflowArgs, 'input'>>;
   decideApproval?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDecideApprovalArgs, 'decision' | 'id'>>;
   decideEmployeeRequest?: Resolver<ResolversTypes['EmployeeRequest'], ParentType, ContextType, RequireFields<MutationDecideEmployeeRequestArgs, 'id' | 'status'>>;
   decideItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationDecideItAccessRequestArgs, 'decision' | 'id'>>;
@@ -18219,6 +18899,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteSocialComment?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSocialCommentArgs, 'id'>>;
   deleteSocialMediaPost?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSocialMediaPostArgs, 'id'>>;
   deleteSocialPost?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSocialPostArgs, 'id'>>;
+  deleteSonarConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSonarConfigArgs, 'id'>>;
   deleteSprint?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSprintArgs, 'id'>>;
   deleteStatusIncident?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteStatusIncidentArgs, 'id'>>;
   deleteStatusMaintenance?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteStatusMaintenanceArgs, 'id'>>;
@@ -18236,8 +18917,11 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteUser?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteUserArgs, 'id'>>;
   deleteWebhook?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebhookArgs, 'id'>>;
   deleteWebsiteSubmission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebsiteSubmissionArgs, 'id'>>;
+  deleteWhatsappWorkflow?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWhatsappWorkflowArgs, 'id'>>;
   disableMfa?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisableMfaArgs, 'password'>>;
+  discardWhatsappWorkflowDraft?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationDiscardWhatsappWorkflowDraftArgs, 'id'>>;
   disconnectSocialAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisconnectSocialAccountArgs, 'id'>>;
+  duplicateWhatsappWorkflow?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationDuplicateWhatsappWorkflowArgs, 'id'>>;
   endApprovalDelegation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationEndApprovalDelegationArgs, 'id'>>;
   escalateSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationEscalateSupportTicketArgs, 'id' | 'reason'>>;
   fulfilItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationFulfilItAccessRequestArgs, 'id'>>;
@@ -18261,9 +18945,11 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   promoteCompanyToClient?: Resolver<ResolversTypes['Company'], ParentType, ContextType, RequireFields<MutationPromoteCompanyToClientArgs, 'id'>>;
   publishPolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationPublishPolicyArgs, 'id'>>;
   publishSocialMediaPostNow?: Resolver<ResolversTypes['SocialMediaPost'], ParentType, ContextType, RequireFields<MutationPublishSocialMediaPostNowArgs, 'id'>>;
+  publishWhatsappWorkflow?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationPublishWhatsappWorkflowArgs, 'id'>>;
   receivePurchaseOrder?: Resolver<ResolversTypes['PurchaseOrder'], ParentType, ContextType, RequireFields<MutationReceivePurchaseOrderArgs, 'id' | 'lines'>>;
   recordPayment?: Resolver<ResolversTypes['Payment'], ParentType, ContextType, RequireFields<MutationRecordPaymentArgs, 'input'>>;
   recordStockMovement?: Resolver<ResolversTypes['StockMovement'], ParentType, ContextType, RequireFields<MutationRecordStockMovementArgs, 'input'>>;
+  recordWhatsappDemoEvents?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationRecordWhatsappDemoEventsArgs, 'events'>>;
   renameColumn?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationRenameColumnArgs, 'id' | 'name'>>;
   reorderColumns?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationReorderColumnsArgs, 'columnIds' | 'projectId'>>;
   reportClientLogs?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationReportClientLogsArgs, 'input'>>;
@@ -18289,6 +18975,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   saveEmployeeSalary?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationSaveEmployeeSalaryArgs, 'employeeId' | 'input'>>;
   saveSocialAppConfig?: Resolver<ResolversTypes['SocialAppConfig'], ParentType, ContextType, RequireFields<MutationSaveSocialAppConfigArgs, 'input'>>;
   saveTrackerBuildSettings?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType, RequireFields<MutationSaveTrackerBuildSettingsArgs, 'slackChannels'>>;
+  saveWhatsappWorkflowDraft?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationSaveWhatsappWorkflowDraftArgs, 'id' | 'input'>>;
   sendAdminCredentials?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sendCampaign?: Resolver<ResolversTypes['CampaignSendResult'], ParentType, ContextType, RequireFields<MutationSendCampaignArgs, 'id'>>;
   sendInvoice?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<MutationSendInvoiceArgs, 'email' | 'id'>>;
@@ -18345,6 +19032,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   testOpenAiConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestOpenAiConnectionArgs, 'id'>>;
   testPexelsConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestPexelsConnectionArgs, 'id'>>;
   testSocialAppConfig?: Resolver<ResolversTypes['SocialAppTest'], ParentType, ContextType, RequireFields<MutationTestSocialAppConfigArgs, 'app'>>;
+  testSonarConnection?: Resolver<ResolversTypes['SonarConnectionTest'], ParentType, ContextType, RequireFields<MutationTestSonarConnectionArgs, 'id'>>;
   toggleSocialPostLike?: Resolver<ResolversTypes['SocialPost'], ParentType, ContextType, RequireFields<MutationToggleSocialPostLikeArgs, 'id'>>;
   trackerAcceptConsent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, Partial<MutationTrackerAcceptConsentArgs>>;
   trackerHeartbeat?: Resolver<ResolversTypes['TrackerMe'], ParentType, ContextType, Partial<MutationTrackerHeartbeatArgs>>;
@@ -18450,6 +19138,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateShift?: Resolver<ResolversTypes['Shift'], ParentType, ContextType, RequireFields<MutationUpdateShiftArgs, 'id' | 'input'>>;
   updateSlackConfig?: Resolver<ResolversTypes['SlackConfig'], ParentType, ContextType, RequireFields<MutationUpdateSlackConfigArgs, 'id' | 'input'>>;
   updateSocialMediaPost?: Resolver<ResolversTypes['SocialMediaPost'], ParentType, ContextType, RequireFields<MutationUpdateSocialMediaPostArgs, 'id' | 'input'>>;
+  updateSonarConfig?: Resolver<ResolversTypes['SonarConfig'], ParentType, ContextType, RequireFields<MutationUpdateSonarConfigArgs, 'id' | 'input'>>;
   updateSprint?: Resolver<ResolversTypes['Sprint'], ParentType, ContextType, RequireFields<MutationUpdateSprintArgs, 'id' | 'input'>>;
   updateStatusMaintenance?: Resolver<ResolversTypes['StatusMaintenance'], ParentType, ContextType, RequireFields<MutationUpdateStatusMaintenanceArgs, 'id' | 'input'>>;
   updateStatusMonitor?: Resolver<ResolversTypes['StatusMonitor'], ParentType, ContextType, RequireFields<MutationUpdateStatusMonitorArgs, 'id' | 'input'>>;
@@ -18466,7 +19155,9 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'id' | 'input'>>;
   uploadAvatar?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationUploadAvatarArgs, 'file'>>;
   uploadImage?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationUploadImageArgs, 'file' | 'fileName'>>;
+  upsertWhatsappDemo?: Resolver<ResolversTypes['WhatsappDemo'], ParentType, ContextType, RequireFields<MutationUpsertWhatsappDemoArgs, 'input'>>;
   verifyMfa?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationVerifyMfaArgs, 'challenge' | 'code'>>;
+  whatsappDemoParse?: Resolver<ResolversTypes['WhatsappDemoParseResult'], ParentType, ContextType, RequireFields<MutationWhatsappDemoParseArgs, 'input'>>;
   withdrawTrackerManualEntry?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationWithdrawTrackerManualEntryArgs, 'id'>>;
 }>;
 
@@ -19524,6 +20215,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listShiftsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listSlackChannels?: Resolver<Array<ResolversTypes['SlackChannel']>, ParentType, ContextType>;
   listSlackConfigs?: Resolver<Array<ResolversTypes['SlackConfig']>, ParentType, ContextType>;
+  listSonarConfigs?: Resolver<Array<ResolversTypes['SonarConfig']>, ParentType, ContextType>;
   listStatusIncidents?: Resolver<Array<ResolversTypes['StatusIncident']>, ParentType, ContextType>;
   listStatusIncidentsPaged?: Resolver<ResolversTypes['StatusIncidentPage'], ParentType, ContextType, RequireFields<QueryListStatusIncidentsPagedArgs, 'input'>>;
   listStatusIncidentsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -19670,7 +20362,10 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   socialPost?: Resolver<ResolversTypes['SocialPost'], ParentType, ContextType, RequireFields<QuerySocialPostArgs, 'id'>>;
   socialProfile?: Resolver<ResolversTypes['SocialProfile'], ParentType, ContextType, RequireFields<QuerySocialProfileArgs, 'userId'>>;
   socialUserPosts?: Resolver<ResolversTypes['SocialFeedPage'], ParentType, ContextType, RequireFields<QuerySocialUserPostsArgs, 'userId'>>;
+  sonarIssues?: Resolver<Array<ResolversTypes['SonarIssue']>, ParentType, ContextType, RequireFields<QuerySonarIssuesArgs, 'severity'>>;
+  sonarOverview?: Resolver<ResolversTypes['SonarOverview'], ParentType, ContextType, Partial<QuerySonarOverviewArgs>>;
   sprintCompletionPlan?: Resolver<ResolversTypes['SprintCompletionPlan'], ParentType, ContextType, RequireFields<QuerySprintCompletionPlanArgs, 'id'>>;
+  sslCertificates?: Resolver<ResolversTypes['SslCertificateReport'], ParentType, ContextType, Partial<QuerySslCertificatesArgs>>;
   statusOverview?: Resolver<ResolversTypes['StatusOverview'], ParentType, ContextType, Partial<QueryStatusOverviewArgs>>;
   supportSlaSummary?: Resolver<ResolversTypes['SupportSlaSummary'], ParentType, ContextType>;
   systemHealth?: Resolver<ResolversTypes['SystemHealth'], ParentType, ContextType>;
@@ -19703,6 +20398,15 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   webhookEvents?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   websiteCaptcha?: Resolver<ResolversTypes['WebsiteCaptcha'], ParentType, ContextType>;
   websiteFormTypes?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  whatsappDemoAiStatus?: Resolver<ResolversTypes['WhatsappAiStatus'], ParentType, ContextType>;
+  whatsappDemoCatalog?: Resolver<Array<ResolversTypes['WhatsappDemoBundle']>, ParentType, ContextType>;
+  whatsappDemoFunnel?: Resolver<Array<ResolversTypes['WhatsappFunnelStep']>, ParentType, ContextType, RequireFields<QueryWhatsappDemoFunnelArgs, 'demoKey' | 'from' | 'to' | 'workflow'>>;
+  whatsappDemoSession?: Resolver<Maybe<ResolversTypes['WhatsappDemoSessionDetail']>, ParentType, ContextType, RequireFields<QueryWhatsappDemoSessionArgs, 'sessionId'>>;
+  whatsappDemoSessions?: Resolver<ResolversTypes['WhatsappDemoSessionPage'], ParentType, ContextType, RequireFields<QueryWhatsappDemoSessionsArgs, 'input'>>;
+  whatsappDemoStats?: Resolver<ResolversTypes['WhatsappDemoStats'], ParentType, ContextType, RequireFields<QueryWhatsappDemoStatsArgs, 'from' | 'to'>>;
+  whatsappDemos?: Resolver<Array<ResolversTypes['WhatsappDemo']>, ParentType, ContextType>;
+  whatsappWorkflow?: Resolver<Maybe<ResolversTypes['WhatsappWorkflow']>, ParentType, ContextType, RequireFields<QueryWhatsappWorkflowArgs, 'id'>>;
+  whatsappWorkflows?: Resolver<Array<ResolversTypes['WhatsappWorkflow']>, ParentType, ContextType, Partial<QueryWhatsappWorkflowsArgs>>;
   workspaceAnalytics?: Resolver<ResolversTypes['WorkspaceAnalytics'], ParentType, ContextType, RequireFields<QueryWorkspaceAnalyticsArgs, 'days'>>;
 }>;
 
@@ -20125,6 +20829,106 @@ export type SocialSyncResultResolvers<ContextType = GraphQLContext, ParentType e
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type SonarAnalysisResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SonarAnalysis'] = ResolversParentTypes['SonarAnalysis']> = ResolversObject<{
+  date?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  events?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  version?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SonarConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SonarConfig'] = ResolversParentTypes['SonarConfig']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  hasToken?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  hostUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  organization?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  projectKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  tokenHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SonarConnectionTestResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SonarConnectionTest'] = ResolversParentTypes['SonarConnectionTest']> = ResolversObject<{
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SonarFacetCountResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SonarFacetCount'] = ResolversParentTypes['SonarFacetCount']> = ResolversObject<{
+  count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SonarGateConditionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SonarGateCondition'] = ResolversParentTypes['SonarGateCondition']> = ResolversObject<{
+  actualValue?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  comparator?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  errorThreshold?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  metric?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SonarIssueResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SonarIssue'] = ResolversParentTypes['SonarIssue']> = ResolversObject<{
+  file?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  line?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  rule?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  severity?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SonarMetricsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SonarMetrics'] = ResolversParentTypes['SonarMetrics']> = ResolversObject<{
+  alertStatus?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  bugs?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  codeSmells?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  coverage?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  duplicatedLinesDensity?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  maintainabilityRating?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  ncloc?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  newBugs?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  newCodeSmells?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  newCoverage?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  newDuplicatedLinesDensity?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  newSecurityHotspots?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  newVulnerabilities?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  reliabilityRating?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  securityHotspots?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  securityRating?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  technicalDebtMinutes?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  vulnerabilities?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SonarOverviewResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SonarOverview'] = ResolversParentTypes['SonarOverview']> = ResolversObject<{
+  analyses?: Resolver<Array<ResolversTypes['SonarAnalysis']>, ParentType, ContextType>;
+  checkedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  configLabel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  issues?: Resolver<Array<ResolversTypes['SonarIssue']>, ParentType, ContextType>;
+  issuesTotal?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  metrics?: Resolver<Maybe<ResolversTypes['SonarMetrics']>, ParentType, ContextType>;
+  projectKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  projectUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  qualityGate?: Resolver<Maybe<ResolversTypes['SonarQualityGate']>, ParentType, ContextType>;
+  severityCounts?: Resolver<Array<ResolversTypes['SonarFacetCount']>, ParentType, ContextType>;
+  state?: Resolver<ResolversTypes['SonarOverviewState'], ParentType, ContextType>;
+  typeCounts?: Resolver<Array<ResolversTypes['SonarFacetCount']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SonarQualityGateResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SonarQualityGate'] = ResolversParentTypes['SonarQualityGate']> = ResolversObject<{
+  conditions?: Resolver<Array<ResolversTypes['SonarGateCondition']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type SprintResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Sprint'] = ResolversParentTypes['Sprint']> = ResolversObject<{
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   endsOn?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
@@ -20142,6 +20946,32 @@ export type SprintCompletionPlanResolvers<ContextType = GraphQLContext, ParentTy
   targetSprintId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   targetSprintName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   unfinishedCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SslCertificateResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SslCertificate'] = ResolversParentTypes['SslCertificate']> = ResolversObject<{
+  altNames?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  authorized?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  checkedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  daysLeft?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  error?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  fingerprint256?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  host?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  issuer?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  monitors?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  protocol?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  serialNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['SslCertificateStatus'], ParentType, ContextType>;
+  subject?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  validFrom?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  validTo?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SslCertificateReportResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['SslCertificateReport'] = ResolversParentTypes['SslCertificateReport']> = ResolversObject<{
+  certificates?: Resolver<Array<ResolversTypes['SslCertificate']>, ParentType, ContextType>;
+  checkedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  warningDays?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -21140,6 +21970,172 @@ export type WebsiteSubmissionPageResolvers<ContextType = GraphQLContext, ParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type WhatsappAiStatsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappAiStats'] = ResolversParentTypes['WhatsappAiStats']> = ResolversObject<{
+  avgLatencyMs?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  calls?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  failures?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  tokens?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WhatsappAiStatusResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappAiStatus'] = ResolversParentTypes['WhatsappAiStatus']> = ResolversObject<{
+  configured?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  model?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WhatsappCountResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappCount'] = ResolversParentTypes['WhatsappCount']> = ResolversObject<{
+  count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WhatsappDayPointResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappDayPoint'] = ResolversParentTypes['WhatsappDayPoint']> = ResolversObject<{
+  date?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  flowsCompleted?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  flowsStarted?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  sessions?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WhatsappDemoResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappDemo'] = ResolversParentTypes['WhatsappDemo']> = ResolversObject<{
+  active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  business?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
+  greeting?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  industry?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  menuButton?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  menuText?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  order?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WhatsappDemoBundleResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappDemoBundle'] = ResolversParentTypes['WhatsappDemoBundle']> = ResolversObject<{
+  demo?: Resolver<ResolversTypes['WhatsappDemo'], ParentType, ContextType>;
+  revision?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  workflows?: Resolver<Array<ResolversTypes['WhatsappPublishedWorkflow']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WhatsappDemoEventResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappDemoEvent'] = ResolversParentTypes['WhatsappDemoEvent']> = ResolversObject<{
+  at?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  demoKey?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  durationMs?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  label?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  meta?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
+  node?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  stepKind?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['WhatsappDemoEventType'], ParentType, ContextType>;
+  workflow?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WhatsappDemoParseResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappDemoParseResult'] = ResolversParentTypes['WhatsappDemoParseResult']> = ResolversObject<{
+  entities?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
+  error?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  intent?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  latencyMs?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  ok?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WhatsappDemoSessionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappDemoSession'] = ResolversParentTypes['WhatsappDemoSession']> = ResolversObject<{
+  demos?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  device?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  durationMs?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  events?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  flowsCompleted?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  flowsStarted?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lastEventAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sessionId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  startedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  userId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  userName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  viewport?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WhatsappDemoSessionDetailResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappDemoSessionDetail'] = ResolversParentTypes['WhatsappDemoSessionDetail']> = ResolversObject<{
+  events?: Resolver<Array<ResolversTypes['WhatsappDemoEvent']>, ParentType, ContextType>;
+  session?: Resolver<ResolversTypes['WhatsappDemoSession'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WhatsappDemoSessionPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappDemoSessionPage'] = ResolversParentTypes['WhatsappDemoSessionPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['WhatsappDemoSession']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WhatsappDemoStatsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappDemoStats'] = ResolversParentTypes['WhatsappDemoStats']> = ResolversObject<{
+  ai?: Resolver<ResolversTypes['WhatsappAiStats'], ParentType, ContextType>;
+  avgSessionMs?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  completionRate?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  daily?: Resolver<Array<ResolversTypes['WhatsappDayPoint']>, ParentType, ContextType>;
+  devices?: Resolver<Array<ResolversTypes['WhatsappCount']>, ParentType, ContextType>;
+  flows?: Resolver<Array<ResolversTypes['WhatsappFlowStat']>, ParentType, ContextType>;
+  flowsCompleted?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  flowsStarted?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  sessions?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  topDemos?: Resolver<Array<ResolversTypes['WhatsappCount']>, ParentType, ContextType>;
+  uniqueUsers?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WhatsappFlowStatResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappFlowStat'] = ResolversParentTypes['WhatsappFlowStat']> = ResolversObject<{
+  abandoned?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  completed?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  demoKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  started?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  workflow?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WhatsappFunnelStepResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappFunnelStep'] = ResolversParentTypes['WhatsappFunnelStep']> = ResolversObject<{
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  node?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sessions?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WhatsappPublishedWorkflowResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappPublishedWorkflow'] = ResolversParentTypes['WhatsappPublishedWorkflow']> = ResolversObject<{
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  graph?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  keywords?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  order?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  version?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WhatsappWorkflowResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappWorkflow'] = ResolversParentTypes['WhatsappWorkflow']> = ResolversObject<{
+  demoId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  demoKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  draft?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  keywords?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  order?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  published?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
+  publishedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['WhatsappWorkflowStatus'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedByName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  version?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type WorkspaceAnalyticsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WorkspaceAnalytics'] = ResolversParentTypes['WorkspaceAnalytics']> = ResolversObject<{
   days?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   employees?: Resolver<ResolversTypes['EmployeeAnalytics'], ParentType, ContextType>;
@@ -21479,8 +22475,19 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   SocialPost?: SocialPostResolvers<ContextType>;
   SocialProfile?: SocialProfileResolvers<ContextType>;
   SocialSyncResult?: SocialSyncResultResolvers<ContextType>;
+  SonarAnalysis?: SonarAnalysisResolvers<ContextType>;
+  SonarConfig?: SonarConfigResolvers<ContextType>;
+  SonarConnectionTest?: SonarConnectionTestResolvers<ContextType>;
+  SonarFacetCount?: SonarFacetCountResolvers<ContextType>;
+  SonarGateCondition?: SonarGateConditionResolvers<ContextType>;
+  SonarIssue?: SonarIssueResolvers<ContextType>;
+  SonarMetrics?: SonarMetricsResolvers<ContextType>;
+  SonarOverview?: SonarOverviewResolvers<ContextType>;
+  SonarQualityGate?: SonarQualityGateResolvers<ContextType>;
   Sprint?: SprintResolvers<ContextType>;
   SprintCompletionPlan?: SprintCompletionPlanResolvers<ContextType>;
+  SslCertificate?: SslCertificateResolvers<ContextType>;
+  SslCertificateReport?: SslCertificateReportResolvers<ContextType>;
   StatBucket?: StatBucketResolvers<ContextType>;
   StatFieldCounts?: StatFieldCountsResolvers<ContextType>;
   StatFieldSum?: StatFieldSumResolvers<ContextType>;
@@ -21567,6 +22574,22 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   WebsiteCaptcha?: WebsiteCaptchaResolvers<ContextType>;
   WebsiteSubmission?: WebsiteSubmissionResolvers<ContextType>;
   WebsiteSubmissionPage?: WebsiteSubmissionPageResolvers<ContextType>;
+  WhatsappAiStats?: WhatsappAiStatsResolvers<ContextType>;
+  WhatsappAiStatus?: WhatsappAiStatusResolvers<ContextType>;
+  WhatsappCount?: WhatsappCountResolvers<ContextType>;
+  WhatsappDayPoint?: WhatsappDayPointResolvers<ContextType>;
+  WhatsappDemo?: WhatsappDemoResolvers<ContextType>;
+  WhatsappDemoBundle?: WhatsappDemoBundleResolvers<ContextType>;
+  WhatsappDemoEvent?: WhatsappDemoEventResolvers<ContextType>;
+  WhatsappDemoParseResult?: WhatsappDemoParseResultResolvers<ContextType>;
+  WhatsappDemoSession?: WhatsappDemoSessionResolvers<ContextType>;
+  WhatsappDemoSessionDetail?: WhatsappDemoSessionDetailResolvers<ContextType>;
+  WhatsappDemoSessionPage?: WhatsappDemoSessionPageResolvers<ContextType>;
+  WhatsappDemoStats?: WhatsappDemoStatsResolvers<ContextType>;
+  WhatsappFlowStat?: WhatsappFlowStatResolvers<ContextType>;
+  WhatsappFunnelStep?: WhatsappFunnelStepResolvers<ContextType>;
+  WhatsappPublishedWorkflow?: WhatsappPublishedWorkflowResolvers<ContextType>;
+  WhatsappWorkflow?: WhatsappWorkflowResolvers<ContextType>;
   WorkspaceAnalytics?: WorkspaceAnalyticsResolvers<ContextType>;
 }>;
 

@@ -63,6 +63,10 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # The server resolves @exyconn/wa-flow through its compiled dist (types included), and
+      # dist is never committed, so it is built before anything typechecks or tests the server.
+      - name: Build @exyconn/wa-flow
+        run: pnpm --filter @exyconn/wa-flow build
       # CI skips main (it deploys instead), so this is the only gate on a push
       # straight to main — without it a type error is first seen by the image build.
       - name: GraphQL codegen is in sync
@@ -207,6 +211,14 @@ jobs:
               APP_DIR=exyconn-portal/apps/social
               PORT=4036
               VITE_PORTAL_APP=social
+          - service: portal-whatsapp-demo
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/portal-app-whatsapp-demo
+              APP_DIR=exyconn-portal/apps/whatsapp-demo
+              PORT=4038
+              VITE_PORTAL_APP=whatsapp-demo
           - service: portal-status
             dockerfile: docker/portal-app.Dockerfile
             context: .
@@ -370,6 +382,7 @@ jobs:
             "https://it.exyconn.com"
             "https://compliance.exyconn.com"
             "https://social.exyconn.com"
+            "https://whatsapp-demo.exyconn.com"
             "https://status.exyconn.com"
             "https://hr.exyconn.com"
             "https://marketing.exyconn.com"

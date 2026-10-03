@@ -88,6 +88,7 @@ import { dnsTypeDefs, dnsResolvers } from '../modules/dns';
 import { statusTypeDefs, statusResolvers } from '../modules/status';
 import { recruitingTypeDefs, recruitingResolvers } from '../modules/recruiting';
 import { infraTypeDefs, infraResolvers } from '../modules/infra';
+import { securityTypeDefs, securityResolvers } from '../modules/security';
 // The website module splits its SDL across one file per content entity, so it exports an array.
 import { websiteTypeDefs, websiteResolvers } from '../modules/website';
 import { trackerTypeDefs, trackerResolvers } from '../modules/tracker';
@@ -120,6 +121,7 @@ import { healthTypeDefs, healthResolvers } from '../modules/health';
 import { socialTypeDefs, socialResolvers } from '../modules/social';
 import { approvalsTypeDefs, approvalsResolvers } from '../modules/approvals';
 import { logsTypeDefs, logsResolvers } from '../modules/logs';
+import { whatsappDemoTypeDefs, whatsappDemoResolvers } from '../modules/whatsapp-demo';
 import { JSONScalar } from './jsonScalar';
 
 type ResolverGroup = Record<string, Record<string, unknown> | undefined>;
@@ -237,8 +239,10 @@ export const typeDefs = [
   statusTypeDefs,
   recruitingTypeDefs,
   infraTypeDefs,
+  securityTypeDefs,
   approvalsTypeDefs,
   logsTypeDefs,
+  whatsappDemoTypeDefs,
   ...itsmTypeDefs,
   analyticsTypeDefs,
   socialAccountsTypeDefs,
@@ -312,8 +316,10 @@ export const resolvers = mergeResolvers([
   statusResolvers,
   recruitingResolvers,
   infraResolvers,
+  securityResolvers,
   approvalsResolvers,
   logsResolvers,
+  whatsappDemoResolvers,
   itsmResolvers,
   analyticsResolvers,
   socialAccountsResolvers,

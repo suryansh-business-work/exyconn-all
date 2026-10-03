@@ -33,6 +33,10 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # The server resolves @exyconn/wa-flow through its compiled dist (types included), and
+      # dist is never committed, so it is built before anything typechecks or tests the server.
+      - name: Build @exyconn/wa-flow
+        run: pnpm --filter @exyconn/wa-flow build
       # The codegen output is committed and no build step regenerates it, so a
       # `.graphql` operation added without re-running codegen only surfaces as a
       # type error later, inside the deploy image build. Catch the drift here.

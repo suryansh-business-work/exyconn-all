@@ -15,6 +15,7 @@ import {
   REPORT_REFERENCE,
   SITE_PATH,
   SLUG,
+  SONAR_PROJECT_KEY,
   UPPER_SNAKE,
   YEAR_MONTH,
 } from '../../src';
@@ -114,6 +115,12 @@ const CASES: ReadonlyArray<{
     pattern: GITHUB_NAME,
     valid: ['exyconn', 'exyconn-all', 'my.repo_2'],
     invalid: ['', 'owner/repo', 'has space'],
+  },
+  {
+    name: 'SONAR_PROJECT_KEY',
+    pattern: SONAR_PROJECT_KEY,
+    valid: ['exyconn', 'org_exyconn-all', 'com.exyconn:portal', 'a1b2-c3d4'],
+    invalid: ['', '12345', 'has space', 'owner/repo'],
   },
   {
     name: 'YEAR_MONTH',

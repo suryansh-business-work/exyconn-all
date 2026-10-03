@@ -32,6 +32,7 @@ running identical code.
 | IT                     | `it`         | https://it.exyconn.com         | https://it.exyconn.com/login         | 4034     | `IT`         |
 | Compliance             | `compliance` | https://compliance.exyconn.com | https://compliance.exyconn.com/login | 4037     | `COMPLIANCE` |
 | Social                 | `social`     | https://social.exyconn.com     | https://social.exyconn.com/login     | 4036     | `EMPLOYEE`   |
+| WhatsApp Demo          | `whatsapp-demo` | https://whatsapp-demo.exyconn.com | https://whatsapp-demo.exyconn.com/login | 4038 | `EMPLOYEE` |
 
 Not portal apps, but part of the same deployment:
 
@@ -47,7 +48,9 @@ Social is the one module keyed to `EMPLOYEE` rather than a role of its own. That
 deliberate: every colleague holds that role, and a company feed only part of the company
 can open is a noticeboard. Two modules sharing one role is fine — `accessibleModules`
 filters by role membership, and `APP_BY_SEGMENT` routes on the first path segment, so
-`/me` and `/social` reach different apps.
+`/me` and `/social` reach different apps. The WhatsApp demo is keyed to `EMPLOYEE` for the
+same reason, and is the one app with no portal chrome (`PortalApp chrome={false}`): it
+renders a full-screen WhatsApp-style client, and its `/admin` analytics are ADMIN-only on the server.
 
 The status page is built from the same packages but is deliberately **not** a portal app:
 it has no login, no role and no portal chrome, because an outage is exactly when nobody can

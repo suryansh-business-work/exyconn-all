@@ -2277,6 +2277,24 @@ export type SocialPostInput = {
   imageUrl: InputMaybe<Scalars['String']['input']>;
 };
 
+export type SonarConfigInput = {
+  hostUrl: Scalars['String']['input'];
+  isActive: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+  organization: InputMaybe<Scalars['String']['input']>;
+  projectKey: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored token. */
+  token: Scalars['String']['input'];
+};
+
+export type SonarOverviewState =
+  | 'ERROR'
+  | 'NOT_CONFIGURED'
+  | 'NOT_FOUND'
+  | 'OK'
+  | 'UNAUTHORIZED'
+  | 'UNREACHABLE';
+
 export type SortDir =
   | 'ASC'
   | 'DESC';
@@ -2292,6 +2310,13 @@ export type SprintState =
   | 'ACTIVE'
   | 'COMPLETED'
   | 'PLANNED';
+
+export type SslCertificateStatus =
+  | 'EXPIRED'
+  | 'EXPIRING'
+  | 'INVALID'
+  | 'OK'
+  | 'UNREACHABLE';
 
 export type StatusCategory =
   | 'API'
@@ -2820,6 +2845,97 @@ export type WebsiteSubmissionTriageInput = {
   notes: InputMaybe<Scalars['String']['input']>;
   status: Scalars['String']['input'];
 };
+
+export type WhatsappAiEntityInput = {
+  description: Scalars['String']['input'];
+  kind: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
+export type WhatsappAiIntentInput = {
+  description: Scalars['String']['input'];
+  id: Scalars['String']['input'];
+};
+
+export type WhatsappDemoEventInput = {
+  /** ISO time on the client clock. */
+  at: Scalars['String']['input'];
+  demoKey: InputMaybe<Scalars['String']['input']>;
+  /** phone, tablet or desktop (SESSION_START). */
+  device: InputMaybe<Scalars['String']['input']>;
+  durationMs: InputMaybe<Scalars['Int']['input']>;
+  /** Client-generated UUID; a repeated id is ignored. */
+  id: Scalars['ID']['input'];
+  /** Option title or input kind; cut to 80 characters. */
+  label: InputMaybe<Scalars['String']['input']>;
+  node: InputMaybe<Scalars['String']['input']>;
+  /** Client-generated UUID per tab session. */
+  sessionId: Scalars['ID']['input'];
+  /** choice or text. */
+  stepKind: InputMaybe<Scalars['String']['input']>;
+  type: WhatsappDemoEventType;
+  /** Width x height (SESSION_START). */
+  viewport: InputMaybe<Scalars['String']['input']>;
+  workflow: InputMaybe<Scalars['String']['input']>;
+};
+
+export type WhatsappDemoEventType =
+  | 'AI_CALL'
+  | 'CHAT_CLEARED'
+  | 'DEMO_OPENED'
+  | 'DOCUMENT_OPENED'
+  | 'FLOW_ABANDONED'
+  | 'FLOW_COMPLETED'
+  | 'FLOW_STARTED'
+  | 'QR_OPENED'
+  | 'REMINDER_DELIVERED'
+  | 'SESSION_END'
+  | 'SESSION_START'
+  | 'STEP';
+
+export type WhatsappDemoInput = {
+  active: Scalars['Boolean']['input'];
+  business: Scalars['JSON']['input'];
+  greeting: Scalars['String']['input'];
+  industry: Scalars['String']['input'];
+  key: Scalars['String']['input'];
+  menuButton: Scalars['String']['input'];
+  menuText: Scalars['String']['input'];
+  order: Scalars['Int']['input'];
+};
+
+export type WhatsappDemoParseInput = {
+  demoKey: Scalars['String']['input'];
+  entities: Array<WhatsappAiEntityInput>;
+  intents: Array<WhatsappAiIntentInput>;
+  node: Scalars['String']['input'];
+  sessionId: Scalars['ID']['input'];
+  /** At most 500 characters are read. */
+  text: Scalars['String']['input'];
+  /** A workflow key, or $router for the menu. */
+  workflow: Scalars['String']['input'];
+};
+
+export type WhatsappWorkflowCreateInput = {
+  demoId: Scalars['ID']['input'];
+  description: Scalars['String']['input'];
+  key: Scalars['String']['input'];
+  keywords: Array<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  order: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type WhatsappWorkflowDraftInput = {
+  description: Scalars['String']['input'];
+  graph: Scalars['JSON']['input'];
+  keywords: Array<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  order: Scalars['Int']['input'];
+};
+
+export type WhatsappWorkflowStatus =
+  | 'DRAFT'
+  | 'PUBLISHED';
 
 /** Where an employee is expected to work from. OTHER is described in workLocationNote. */
 export type WorkLocation =

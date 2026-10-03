@@ -117,6 +117,7 @@ These guidelines are working if: fewer unnecessary changes in diffs, fewer rewri
 <https://it.exyconn.com>
 <https://compliance.exyconn.com>
 <https://social.exyconn.com>
+<https://whatsapp-demo.exyconn.com>
 <https://status.exyconn.com>
 <https://marketing.exyconn.com>
 <https://projects.exyconn.com>

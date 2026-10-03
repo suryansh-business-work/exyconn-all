@@ -45,6 +45,9 @@ export const CLOUDFLARE_ID = /^[\da-f]{32}$/i;
 /** A GitHub owner or repository name as it appears in the repository URL. */
 export const GITHUB_NAME = /^[\w.-]+$/;
 
+/** A SonarQube project key: letters, digits, `-`, `_`, `.` and `:`, not digits alone. */
+export const SONAR_PROJECT_KEY = /^(?!\d+$)[\w.:-]+$/;
+
 /** A calendar month as `YYYY-MM`, e.g. `2026-04`. */
 export const YEAR_MONTH = /^\d{4}-(?:0[1-9]|1[0-2])$/;
 
@@ -59,3 +62,12 @@ export const GST_STATE_CODE = /^\d{2}$/;
 
 /** A problem-report reference the status page hands out, e.g. `EXY-4KQ7W2`. */
 export const REPORT_REFERENCE = /^EXY-[A-Z2-9]{6}$/;
+
+/** A person's name as typed into a form or a chat: letters (any script), spaces, `.`, `'` and `-`. */
+export const PERSON_NAME = /^\p{L}[\p{L}\p{M}\s.'-]{1,59}$/u;
+
+/** An Indian PIN code: six digits, never starting with 0. */
+export const INDIAN_PINCODE = /^[1-9]\d{5}$/;
+
+/** A date typed as day/month/year, e.g. `14/08/1990` or `4-8-1990`. */
+export const DAY_MONTH_YEAR = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})$/;

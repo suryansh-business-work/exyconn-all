@@ -1,0 +1,223 @@
+fragment WhatsappDemoFields on WhatsappDemo {
+  id
+  key
+  industry
+  business
+  greeting
+  menuText
+  menuButton
+  order
+  active
+  updatedAt
+}
+
+fragment WhatsappWorkflowFields on WhatsappWorkflow {
+  id
+  demoId
+  demoKey
+  key
+  name
+  description
+  keywords
+  order
+  status
+  version
+  draft
+  published
+  publishedAt
+  updatedAt
+  updatedByName
+}
+
+fragment WhatsappDemoSessionFields on WhatsappDemoSession {
+  id
+  sessionId
+  userId
+  userName
+  userEmail
+  startedAt
+  lastEventAt
+  durationMs
+  device
+  viewport
+  demos
+  flowsStarted
+  flowsCompleted
+  events
+  status
+}
+
+query WhatsappDemoCatalog {
+  whatsappDemoCatalog {
+    demo {
+      ...WhatsappDemoFields
+    }
+    workflows {
+      key
+      name
+      description
+      keywords
+      order
+      version
+      graph
+    }
+    revision
+  }
+}
+
+query WhatsappDemoAiStatus {
+  whatsappDemoAiStatus {
+    configured
+    model
+  }
+}
+
+mutation RecordWhatsappDemoEvents($events: [WhatsappDemoEventInput!]!) {
+  recordWhatsappDemoEvents(events: $events)
+}
+
+mutation WhatsappDemoParse($input: WhatsappDemoParseInput!) {
+  whatsappDemoParse(input: $input) {
+    ok
+    intent
+    entities
+    latencyMs
+    error
+  }
+}
+
+query WhatsappDemos {
+  whatsappDemos {
+    ...WhatsappDemoFields
+  }
+}
+
+query WhatsappWorkflows($demoId: ID) {
+  whatsappWorkflows(demoId: $demoId) {
+    ...WhatsappWorkflowFields
+  }
+}
+
+query WhatsappWorkflow($id: ID!) {
+  whatsappWorkflow(id: $id) {
+    ...WhatsappWorkflowFields
+  }
+}
+
+query WhatsappDemoStats($from: String!, $to: String!) {
+  whatsappDemoStats(from: $from, to: $to) {
+    sessions
+    uniqueUsers
+    flowsStarted
+    flowsCompleted
+    completionRate
+    avgSessionMs
+    topDemos {
+      key
+      label
+      count
+    }
+    devices {
+      key
+      label
+      count
+    }
+    daily {
+      date
+      sessions
+      flowsStarted
+      flowsCompleted
+    }
+    flows {
+      demoKey
+      workflow
+      name
+      started
+      completed
+      abandoned
+    }
+    ai {
+      calls
+      failures
+      avgLatencyMs
+      tokens
+    }
+  }
+}
+
+query WhatsappDemoFunnel($demoKey: String!, $workflow: String!, $from: String!, $to: String!) {
+  whatsappDemoFunnel(demoKey: $demoKey, workflow: $workflow, from: $from, to: $to) {
+    node
+    label
+    sessions
+  }
+}
+
+query WhatsappDemoSessions($input: TableQueryInput!, $from: String, $to: String) {
+  whatsappDemoSessions(input: $input, from: $from, to: $to) {
+    rows {
+      ...WhatsappDemoSessionFields
+    }
+    totalCount
+  }
+}
+
+query WhatsappDemoSession($sessionId: ID!) {
+  whatsappDemoSession(sessionId: $sessionId) {
+    session {
+      ...WhatsappDemoSessionFields
+    }
+    events {
+      id
+      type
+      at
+      demoKey
+      workflow
+      node
+      stepKind
+      label
+      durationMs
+      meta
+    }
+  }
+}
+
+mutation UpsertWhatsappDemo($id: ID, $input: WhatsappDemoInput!) {
+  upsertWhatsappDemo(id: $id, input: $input) {
+    ...WhatsappDemoFields
+  }
+}
+
+mutation CreateWhatsappWorkflow($input: WhatsappWorkflowCreateInput!) {
+  createWhatsappWorkflow(input: $input) {
+    ...WhatsappWorkflowFields
+  }
+}
+
+mutation SaveWhatsappWorkflowDraft($id: ID!, $input: WhatsappWorkflowDraftInput!) {
+  saveWhatsappWorkflowDraft(id: $id, input: $input) {
+    ...WhatsappWorkflowFields
+  }
+}
+
+mutation PublishWhatsappWorkflow($id: ID!) {
+  publishWhatsappWorkflow(id: $id) {
+    ...WhatsappWorkflowFields
+  }
+}
+
+mutation DiscardWhatsappWorkflowDraft($id: ID!) {
+  discardWhatsappWorkflowDraft(id: $id) {
+    ...WhatsappWorkflowFields
+  }
+}
+
+mutation DuplicateWhatsappWorkflow($id: ID!) {
+  duplicateWhatsappWorkflow(id: $id) {
+    ...WhatsappWorkflowFields
+  }
+}
+
+mutation DeleteWhatsappWorkflow($id: ID!) {
+  deleteWhatsappWorkflow(id: $id)
+}

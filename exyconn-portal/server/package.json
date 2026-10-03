@@ -20,6 +20,7 @@
   "dependencies": {
     "@apollo/server": "^4.11.3",
     "@escape.tech/graphql-armor": "^3.2.0",
+    "@exyconn/wa-flow": "workspace:*",
     "argon2": "^0.45.1",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
