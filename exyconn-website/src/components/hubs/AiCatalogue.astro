@@ -1,0 +1,92 @@
+---
+/**
+ * The AI service catalogue, one group per category, filtered by a FilterBar (category chips
+ * and search, kept in the URL). Each card carries its category for the chips and lights its
+ * category's cluster in the stage's lattice; a group with no matches hides with its heading.
+ */
+import "./hubs.css";
+import FilterBar from "../inner/FilterBar.astro";
+import LinkCard from "../inner/LinkCard.astro";
+import { categoryTag } from "../../lib/services/aiCatalogue";
+import { countLabel } from "../../lib/services/catalog";
+import { aiServiceCategories, servicesInCategory } from "../../lib/services/aiServices";
+
+type Props = Readonly<{
+  copy: {
+    filterLabel: string;
+    sheetLabel: string;
+    chipsLabel: string;
+    allLabel: string;
+    searchLabel: string;
+    searchPlaceholder: string;
+    countTemplate: string;
+    empty: string;
+    more: string;
+    serviceOne: string;
+    serviceMany: string;
+  };
+}>;
+
+const { copy } = Astro.props;
+const groups = aiServiceCategories.map((category) => ({
+  category,
+  services: servicesInCategory(category.slug),
+}));
+---
+
+<FilterBar
+  target="ai-catalogue"
+  label={copy.filterLabel}
+  sheetLabel={copy.sheetLabel}
+  groups={[
+    {
+      param: "cat",
+      label: copy.chipsLabel,
+      allLabel: copy.allLabel,
+      options: aiServiceCategories.map((category) => ({
+        value: category.slug,
+        label: category.title,
+      })),
+    },
+  ]}
+  search={{ param: "q", label: copy.searchLabel, placeholder: copy.searchPlaceholder }}
+  countTemplate={copy.countTemplate}
+/>
+
+<div id="ai-catalogue" class="mt-12">
+  {
+    groups.map(({ category, services }) => (
+      <section
+        id={category.slug}
+        class="hub-group scroll-mt-28"
+        aria-labelledby={`${category.slug}-title`}
+      >
+        <div class="max-w-3xl">
+          <p class="stage-label inner-index">
+            {String(categoryTag(category.slug)).padStart(2, "0")} ·{" "}
+            {countLabel(services.length, copy.serviceOne, copy.serviceMany)}
+          </p>
+          <h2 id={`${category.slug}-title`} class="inner-h3 mt-2">
+            {category.title}
+          </h2>
+          <p class="inner-card__text mt-2">{category.description}</p>
+        </div>
+        <div class="grid gap-4 mt-6 sm:grid-cols-2 lg:grid-cols-3">
+          {services.map((service) => (
+            <LinkCard
+              href={`/ai-services/${service.slug}`}
+              title={service.title}
+              text={service.summary}
+              more={copy.more}
+              highlight={categoryTag(category.slug)}
+              data-filter-item
+              data-filter-cat={category.slug}
+              data-search={`${service.title} ${service.summary} ${category.title}`}
+            />
+          ))}
+        </div>
+      </section>
+    ))
+  }
+</div>
+<p class="inner-lede" data-filter-empty="ai-catalogue" hidden>{copy.empty}</p>

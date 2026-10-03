@@ -1,5 +1,18 @@
 ---
 import Page from "../../../layouts/Page.astro";
+import ActionLink from "../../../components/inner/ActionLink.astro";
+import ChapterHeading from "../../../components/inner/ChapterHeading.astro";
+import CtaBand from "../../../components/inner/CtaBand.astro";
+import InnerStage from "../../../components/inner/InnerStage.astro";
+import LinkCard from "../../../components/inner/LinkCard.astro";
+import "../../../components/hubs/hubs.css";
+import { breadcrumbJsonLd } from "../../../lib/inner/structured-data";
+import {
+  catalogueCta,
+  categoryHref,
+  detailCopy,
+  sceneForCategory,
+} from "../../../lib/services/aiCatalogue";
 import {
   findAiService,
   findAiServiceCategory,
@@ -16,16 +29,19 @@ if (!service) {
 const category = findAiServiceCategory(service.categorySlug);
 const relatedServices = servicesInCategory(service.categorySlug)
   .filter((item) => item.slug !== service.slug)
-  .slice(0, 4);
+  .slice(0, 3);
 
-const SITE_URL = "https://exyconn.com";
-const LISTING_URL = `${SITE_URL}/ai-services`;
-const serviceUrl = `${LISTING_URL}/${service.slug}`;
-const categoryUrl = category ? `${LISTING_URL}#${category.slug}` : LISTING_URL;
-const categoryTitle = category?.title ?? "AI Services";
+const SITE_URL = (Astro.site?.toString() ?? "https://exyconn.com/").replace(/\/$/, "");
+const serviceUrl = `${SITE_URL}/ai-services/${service.slug}`;
+const categoryTitle = category?.title ?? detailCopy.listing;
+const categoryUrl = categoryHref(service.categorySlug);
 
-const pageTitle = `${service.title} | AI Services | Exyconn`;
-const pageKeywords = [service.title, categoryTitle, "AI services", "Exyconn"].join(", ");
+const crumbs = [
+  { label: "Home", href: "/" },
+  { label: detailCopy.listing, href: "/ai-services" },
+  { label: categoryTitle, href: categoryUrl },
+  { label: service.title },
+];
 
 const serviceJsonLd = {
   "@context": "https://schema.org",
@@ -36,11 +52,7 @@ const serviceJsonLd = {
   serviceType: categoryTitle,
   category: categoryTitle,
   areaServed: "Worldwide",
-  provider: {
-    "@type": "Organization",
-    name: "Exyconn",
-    url: SITE_URL,
-  },
+  provider: { "@type": "Organization", name: "Exyconn", url: SITE_URL },
   hasOfferCatalog: {
     "@type": "OfferCatalog",
     name: `${service.title} deliverables`,
@@ -51,185 +63,98 @@ const serviceJsonLd = {
     })),
   },
 };
-
-const breadcrumbJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  itemListElement: [
-    { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
-    { "@type": "ListItem", position: 2, name: "AI Services", item: LISTING_URL },
-    { "@type": "ListItem", position: 3, name: service.title, item: serviceUrl },
-  ],
-};
 ---
 
 <Page
-  metaTitle={pageTitle}
+  metaTitle={`${service.title} | AI Services | Exyconn`}
   metaDescription={service.summary}
-  metaKeywords={pageKeywords}
+  metaKeywords={[service.title, categoryTitle, "AI services", "Exyconn"].join(", ")}
   canonical={serviceUrl}
-  jsonLd={[serviceJsonLd, breadcrumbJsonLd]}
+  jsonLd={[serviceJsonLd, breadcrumbJsonLd(crumbs, SITE_URL)]}
 >
-  <div class="bg-surface min-h-screen">
-    <!-- Breadcrumb -->
-    <nav aria-label="Breadcrumb" class="border-b border-line-subtle bg-surface-subtle">
-      <ol class="max-w-6xl mx-auto flex items-center gap-2 px-6 py-3 text-sm text-fg-muted">
-        <li><a href="/" class="hover:text-blue-fg-strong transition-colors">Home</a></li>
-        <li aria-hidden="true" class="text-fg-faint">/</li>
-        <li>
-          <a href="/ai-services" class="hover:text-blue-fg-strong transition-colors">AI Services</a>
-        </li>
-        <li aria-hidden="true" class="text-fg-faint">/</li>
-        <li class="font-medium text-fg truncate">{service.title}</li>
-      </ol>
-    </nav>
+  <InnerStage
+    family="services"
+    crumbs={crumbs}
+    title={service.title}
+    lede={service.summary}
+    primary={detailCopy.quote}
+    secondary={detailCopy.talk}
+    scene={sceneForCategory(service.categorySlug)}
+  />
 
-    <!-- Hero -->
-    <section class="relative overflow-hidden px-6 py-20 bg-surface-subtle">
-      <div class="relative z-10 max-w-6xl mx-auto">
-        <div class="flex flex-col md:flex-row md:items-start gap-8">
-          <div
-            class={`w-20 h-20 shrink-0 rounded-3xl ${service.color} flex items-center justify-center shadow-lg`}
-          >
-            <i class={`fa-solid ${service.icon} text-on-solid text-3xl`} aria-hidden="true"></i>
-          </div>
-
-          <div class="flex-1">
-            <a
-              href={categoryUrl}
-              class="inline-flex items-center gap-2 px-4 py-2 bg-surface border border-line rounded-full text-sm font-medium text-fg-secondary mb-6 shadow-sm hover:border-blue-muted hover:text-blue-fg-strong transition-colors"
-            >
-              <i
-                class={`fa-solid ${category?.icon ?? "fa-microchip"} text-blue-fg`}
-                aria-hidden="true"></i>
-              {categoryTitle}
-            </a>
-
-            <h1
-              class="text-4xl md:text-5xl font-bold text-fg mb-6 tracking-tight leading-tight"
-              data-anime="fade-up"
-            >
-              {service.title}
-            </h1>
-
-            <p
-              class="text-lg md:text-xl text-fg-muted max-w-3xl leading-relaxed"
-              data-anime="fade-up"
-              data-anime-delay="100"
-            >
-              {service.summary}
-            </p>
-          </div>
-        </div>
+  <section class="inner-section stage-shell" aria-labelledby="approach">
+    <div class="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:items-start">
+      <div>
+        <ChapterHeading
+          index={1}
+          id="approach"
+          label={detailCopy.approachLabel}
+          title={detailCopy.approachTitle}
+          lede={service.description}
+        />
       </div>
-    </section>
-
-    <!-- Detail -->
-    <section class="px-6 py-16">
-      <div class="max-w-6xl mx-auto grid lg:grid-cols-3 gap-10">
-        <div class="lg:col-span-2 space-y-8">
-          <div class="bg-surface rounded-3xl border border-line-subtle shadow-sm p-8">
-            <h2 class="text-2xl font-bold text-fg mb-4 flex items-center gap-3">
-              <i class="fa-solid fa-circle-info text-blue-fg" aria-hidden="true"></i>
-              How we approach it
-            </h2>
-            <p class="text-fg-muted text-lg leading-relaxed">{service.description}</p>
-          </div>
-
-          <div class="bg-surface rounded-3xl border border-line-subtle shadow-sm p-8">
-            <h2 class="text-2xl font-bold text-fg mb-6 flex items-center gap-3">
-              <i class="fa-solid fa-circle-check text-emerald-fg" aria-hidden="true"></i>
-              What you get
-            </h2>
-            <ul class="grid sm:grid-cols-2 gap-4">
-              {
-                service.outcomes.map((outcome) => (
-                  <li class="flex items-start gap-3 rounded-2xl bg-surface-subtle border border-line-subtle p-4">
-                    <span class="shrink-0 w-6 h-6 rounded-full bg-emerald-soft flex items-center justify-center mt-0.5">
-                      <i
-                        class="fa-solid fa-check text-emerald-fg-strong text-xs"
-                        aria-hidden="true"
-                      />
-                    </span>
-                    <span class="text-fg-secondary text-sm leading-relaxed">{outcome}</span>
-                  </li>
-                ))
-              }
-            </ul>
-          </div>
+      <aside class="inner-panel p-6 lg:mt-10" aria-labelledby="scope-title">
+        <h3 id="scope-title" class="inner-h3">{detailCopy.scopeTitle}</h3>
+        <p class="inner-card__text mt-3">{detailCopy.scopeText}</p>
+        <div class="inner-stage__actions">
+          <ActionLink action={detailCopy.quote} />
+          <ActionLink action={detailCopy.talk} variant="ghost" />
         </div>
+        <div class="stage-rule mt-6" aria-hidden="true"></div>
+        <p class="stage-label inner-index mt-6">{categoryTitle}</p>
+        <p class="inner-card__text mt-2">{category?.description}</p>
+        <a href={categoryUrl} class="hub-link mt-2">{detailCopy.categoryLink}</a>
+      </aside>
+    </div>
+  </section>
 
-        <aside class="space-y-6">
-          <div class="bg-blue-strong rounded-3xl p-8 text-on-solid shadow-xl">
-            <h2 class="text-xl font-bold mb-3">Scope this for your business</h2>
-            <p class="text-on-solid-muted text-sm leading-relaxed mb-6">
-              Send us the workflow you want {service.title.toLowerCase()} applied to. You get a scope,
-              a timeline and a price — not a discovery invoice.
-            </p>
-            <a
-              href="/get-a-quote"
-              class="inline-flex w-full items-center justify-center gap-2 bg-surface text-blue-fg-strong font-semibold px-6 py-3 rounded-full hover:bg-blue-subtle transition"
-            >
-              <i class="fa-solid fa-calculator" aria-hidden="true"></i> Get a Quote
-            </a>
-            <a
-              href="/contact"
-              class="mt-3 inline-flex w-full items-center justify-center gap-2 bg-on-solid/15 border border-on-solid/40 text-on-solid font-semibold px-6 py-3 rounded-full hover:bg-on-solid/25 transition"
-            >
-              <i class="fa-solid fa-comments" aria-hidden="true"></i> Talk to Us
-            </a>
-          </div>
+  <section class="inner-section stage-shell" aria-labelledby="outcomes">
+    <ChapterHeading
+      index={2}
+      id="outcomes"
+      label={detailCopy.outcomesLabel}
+      title={detailCopy.outcomesTitle}
+    />
+    <ol class="grid gap-4 mt-10 md:grid-cols-2">
+      {
+        service.outcomes.map((outcome, index) => (
+          <li class="inner-card">
+            <span class="stage-label inner-index">{String(index + 1).padStart(2, "0")}</span>
+            <p class="text-fg leading-relaxed">{outcome}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
 
-          <div class="bg-surface rounded-3xl border border-line-subtle shadow-sm p-6">
-            <h2 class="text-lg font-bold text-fg mb-2">Part of {categoryTitle}</h2>
-            <p class="text-fg-muted text-sm leading-relaxed mb-4">{category?.description}</p>
-            <a
-              href={categoryUrl}
-              class="inline-flex items-center gap-2 text-blue-fg-strong font-medium text-sm hover:gap-3 transition-all"
-            >
-              See the whole category
-              <i class="fa-solid fa-arrow-right text-xs" aria-hidden="true"></i>
-            </a>
-          </div>
+  {
+    relatedServices.length > 0 && (
+      <section class="inner-section stage-shell" aria-labelledby="related">
+        <ChapterHeading
+          index={3}
+          id="related"
+          label={detailCopy.relatedLabel}
+          title={detailCopy.relatedTitle(categoryTitle)}
+        />
+        <div class="grid gap-4 mt-10 md:grid-cols-3">
+          {relatedServices.map((related) => (
+            <LinkCard
+              href={`/ai-services/${related.slug}`}
+              title={related.title}
+              text={related.summary}
+              more={detailCopy.more}
+            />
+          ))}
+        </div>
+      </section>
+    )
+  }
 
-          <a
-            href="/ai-services"
-            class="flex items-center justify-center gap-2 text-fg-muted hover:text-blue-fg-strong transition-colors py-3"
-          >
-            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
-            <span>Back to all AI services</span>
-          </a>
-        </aside>
-      </div>
-    </section>
-
-    <!-- Related -->
-    {
-      relatedServices.length > 0 && (
-        <section class="px-6 py-16 bg-surface-subtle border-t border-line-subtle">
-          <div class="max-w-6xl mx-auto">
-            <h2 class="text-2xl font-bold text-fg mb-8">More in {categoryTitle}</h2>
-            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {relatedServices.map((related) => (
-                <a
-                  href={`/ai-services/${related.slug}`}
-                  class="group bg-surface rounded-2xl border border-line-subtle shadow-sm p-6 hover:shadow-xl hover:border-blue-soft hover:-translate-y-1 transition-all duration-300"
-                >
-                  <div
-                    class={`w-12 h-12 ${related.color} rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
-                  >
-                    <i class={`fa-solid ${related.icon} text-on-solid`} aria-hidden="true" />
-                  </div>
-                  <h3 class="font-bold text-fg mb-2 group-hover:text-blue-fg-strong transition-colors">
-                    {related.title}
-                  </h3>
-                  <p class="text-fg-muted text-sm leading-relaxed">{related.summary}</p>
-                </a>
-              ))}
-            </div>
-          </div>
-        </section>
-      )
-    }
-  </div>
+  <CtaBand
+    family="services"
+    title={catalogueCta.title}
+    text={catalogueCta.text}
+    primary={detailCopy.quote}
+    secondary={detailCopy.talk}
+  />
 </Page>

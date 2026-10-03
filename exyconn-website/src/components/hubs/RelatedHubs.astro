@@ -1,0 +1,33 @@
+---
+/**
+ * Cross-links between the overlapping hubs (user decision 2): every hub except this one,
+ * as link cards in a numbered chapter. The default slot goes between the heading and the cards.
+ */
+import "./hubs.css";
+import ChapterHeading from "../inner/ChapterHeading.astro";
+import LinkCard from "../inner/LinkCard.astro";
+import { otherHubs } from "../../lib/services/catalog";
+
+type Props = Readonly<{
+  /** This page's hub href, left out of the list. */
+  current: string;
+  index: number;
+  label: string;
+  title: string;
+}>;
+
+const { current, index, label, title } = Astro.props;
+const links = otherHubs(current);
+---
+
+<section class="inner-section stage-shell" aria-labelledby="related-hubs">
+  <ChapterHeading index={index} label={label} title={title} id="related-hubs" />
+  <slot />
+  <div class="grid gap-4 mt-10 md:grid-cols-2 lg:grid-cols-4">
+    {
+      links.map((link) => (
+        <LinkCard href={link.href} title={link.title} text={link.text} more={link.more} />
+      ))
+    }
+  </div>
+</section>

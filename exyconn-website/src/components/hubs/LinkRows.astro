@@ -1,0 +1,36 @@
+---
+/**
+ * A compact grouped list: one titled group per entry, its items as rows (linked title, one
+ * line of text). Dense alternative to a card grid for long portfolios.
+ */
+import "./hubs.css";
+
+export interface RowGroup {
+  title: string;
+  services: readonly { title: string; text: string; href: string }[];
+}
+
+type Props = Readonly<{ groups: readonly RowGroup[] }>;
+
+const { groups } = Astro.props;
+---
+
+<div class="grid gap-10 mt-10 lg:grid-cols-2">
+  {
+    groups.map((group) => (
+      <section aria-label={group.title}>
+        <h3 class="stage-label inner-index">{group.title}</h3>
+        <ul class="hub-rows hub-rows--links mt-4">
+          {group.services.map((service) => (
+            <li>
+              <a href={service.href} class="hub-link">
+                {service.title}
+              </a>
+              <p class="inner-card__text">{service.text}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+</div>

@@ -1,0 +1,66 @@
+---
+/**
+ * Groups of link cards, one row each: the group's head (mono number + label, title, line of
+ * text), then its cards. Used for the services hub's pillars and the AI hub's capability map.
+ * With `highlight`, hovering or focusing a group (or any of its cards) lights scene tag
+ * group + 1 — the lattice cluster of that pillar.
+ */
+import "./hubs.css";
+import LinkCard from "../inner/LinkCard.astro";
+
+export interface CardGroup {
+  id: string;
+  label: string;
+  title: string;
+  text?: string;
+  cards: readonly {
+    href: string;
+    title: string;
+    text: string;
+    index?: string;
+    tags?: readonly string[];
+  }[];
+}
+
+type Props = Readonly<{ groups: readonly CardGroup[]; more: string; highlight?: boolean }>;
+
+const { groups, more, highlight = false } = Astro.props;
+const tagFor = (index: number) => (highlight ? index + 1 : undefined);
+---
+
+<div class="hub-pillars mt-10">
+  {
+    groups.map((group, groupIndex) => (
+      <section
+        class="hub-pillar"
+        aria-labelledby={`group-${group.id}`}
+        data-stage-highlight={tagFor(groupIndex)}
+      >
+        <header class="hub-pillar__head">
+          <p class="stage-label">
+            <span class="inner-index">{String(groupIndex + 1).padStart(2, "0")}</span>
+            <span aria-hidden="true"> — </span>
+            {group.label}
+          </p>
+          <h3 id={`group-${group.id}`} class="inner-h3 mt-2">
+            {group.title}
+          </h3>
+          {group.text && <p class="inner-card__text mt-2">{group.text}</p>}
+        </header>
+        <div class="hub-pillar__cards">
+          {group.cards.map((card) => (
+            <LinkCard
+              href={card.href}
+              index={card.index}
+              title={card.title}
+              text={card.text}
+              tags={card.tags}
+              more={more}
+              highlight={tagFor(groupIndex)}
+            />
+          ))}
+        </div>
+      </section>
+    ))
+  }
+</div>
