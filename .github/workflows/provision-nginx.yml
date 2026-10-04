@@ -2,10 +2,9 @@ name: Provision nginx & TLS
 
 # Installs the nginx vhosts and obtains their certificates on the server.
 #
-# A new portal subdomain needs this once: the deploy workflow starts its container
-# but only ever copies the compose file, so nginx has no vhost for the new host and
-# the domain answers nothing until this runs. Kept manual because it rewrites nginx
-# config and talks to Let's Encrypt, which has rate limits.
+# deploy.yml runs the same server-setup.sh after every rollout, so a new portal
+# subdomain gets its vhost + certificate on deploy. This manual run is for fixing
+# nginx/TLS on its own, without rolling the stack.
 #
 # deploy/server-setup.sh backs up the current config first, and is additive and
 # idempotent — certbot skips any certificate that is still valid.
