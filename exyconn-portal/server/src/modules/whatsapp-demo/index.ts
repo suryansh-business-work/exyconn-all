@@ -3,37 +3,58 @@ import { ROLES } from '../../constants/roles';
 import { whatsappDemoTypeDefs } from './whatsappDemo.typeDefs';
 import * as demos from './whatsappDemo.service';
 import * as workflows from './whatsappDemo.workflows';
-import { recordEvents, type WhatsappDemoEventInput } from './whatsappDemo.events';
-import { aiStatus, parse, type ParseInput } from './whatsappDemo.parse';
+import { recordEvents, type EventActor, type WhatsappDemoEventInput } from './whatsappDemo.events';
+import { aiStatus, parseAs, type ParseInput } from './whatsappDemo.parse';
 import { stats } from './whatsappDemo.stats';
 import { funnel, sessionDetail, sessions } from './whatsappDemo.sessions';
 import type { TableQueryInput } from '../../utils/tableQuery';
 import type { GraphQLContext } from '../../middleware/auth';
+import { runForOrganization } from '../../lib/tenant';
+import { actorNameOf } from '../../lib/actor';
 
 /**
  * The WhatsApp Business demo at whatsapp-demo.exyconn.com.
  *
  * Two audiences, enforced here rather than by hiding screens: the chat (any signed-in
- * employee — ADMIN passes every role check) reads the published catalogue, records its
- * analytics and asks for AI parses; everything that edits content or reads analytics is the
+ * employee — ADMIN passes every role check — or a demo visitor signed in with an emailed code)
+ * reads the published catalogue, records its analytics and asks for AI parses; everything that edits content or reads analytics is the
  * company's administrators' (ADMIN, or the platform's SUPER_ADMIN).
  */
-const chatUser = (ctx: GraphQLContext) => assertRole(ctx, [ROLES.EMPLOYEE]);
 const admin = (ctx: GraphQLContext) => assertRole(ctx, [ROLES.ADMIN, ROLES.SUPER_ADMIN]);
+
+/**
+ * Runs chat work for whoever may chat: a signed-in employee in their own company, or a demo
+ * visitor (email-and-code sign-in) inside the company that owns the demos — the only company
+ * data a visitor ever reaches.
+ */
+function asChatter<T>(ctx: GraphQLContext, work: () => Promise<T>): Promise<T> {
+  const visitor = ctx.demoVisitor;
+  if (visitor && !ctx.user) {
+    return runForOrganization(visitor.organizationId, work);
+  }
+  assertRole(ctx, [ROLES.EMPLOYEE]);
+  return work();
+}
+
+/** Who analytics and AI parses are recorded against: the visitor, or the employee from the token. */
+async function chatActor(ctx: GraphQLContext): Promise<EventActor> {
+  const visitor = ctx.demoVisitor;
+  if (visitor && !ctx.user) {
+    return { id: `visitor:${visitor.id}`, name: visitor.name, email: visitor.email };
+  }
+  const user = assertRole(ctx, [ROLES.EMPLOYEE]);
+  return { id: user.id, name: await actorNameOf(ctx), email: user.email };
+}
 
 type Id = { id: string };
 type Range = { from: string; to: string };
 
 export const whatsappDemoResolvers = {
   Query: {
-    whatsappDemoCatalog: (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      chatUser(ctx);
-      return demos.catalog();
-    },
-    whatsappDemoAiStatus: (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      chatUser(ctx);
-      return aiStatus();
-    },
+    whatsappDemoCatalog: (_p: unknown, _a: unknown, ctx: GraphQLContext) =>
+      asChatter(ctx, () => demos.catalog()),
+    whatsappDemoAiStatus: (_p: unknown, _a: unknown, ctx: GraphQLContext) =>
+      asChatter(ctx, () => aiStatus()),
     whatsappDemos: (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       admin(ctx);
       return demos.listDemos();
@@ -84,9 +105,9 @@ export const whatsappDemoResolvers = {
       _p: unknown,
       { events }: { events: WhatsappDemoEventInput[] },
       ctx: GraphQLContext,
-    ) => recordEvents(ctx, chatUser(ctx), events),
+    ) => asChatter(ctx, async () => recordEvents(await chatActor(ctx), events)),
     whatsappDemoParse: (_p: unknown, { input }: { input: ParseInput }, ctx: GraphQLContext) =>
-      parse(ctx, chatUser(ctx), input),
+      asChatter(ctx, async () => parseAs(await chatActor(ctx), input)),
     upsertWhatsappDemo: (
       _p: unknown,
       { id, input }: { id?: string | null; input: demos.WhatsappDemoInput },

@@ -19,12 +19,21 @@ const organizationHeader = CURRENT_ORGANIZATION_SLUG
   ? { [ORGANIZATION_HEADER]: CURRENT_ORGANIZATION_SLUG }
   : {};
 
+/** Headers one app adds to every request of its own (the WhatsApp demo's visitor pass). */
+let appHeaders: () => Record<string, string> = () => ({});
+
+/** Lets an app add its own request headers; the WhatsApp demo sends its visitor pass this way. */
+export function setAppRequestHeaders(provider: () => Record<string, string>): void {
+  appHeaders = provider;
+}
+
 const authLink = setContext((_operation, { headers }) => {
   const token = tokenStore.get();
   return {
     headers: {
       ...headers,
       ...organizationHeader,
+      ...appHeaders(),
       ...(token ? { authorization: `Bearer ${token}` } : {}),
     },
   };

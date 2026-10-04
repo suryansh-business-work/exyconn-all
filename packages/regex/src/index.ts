@@ -30,6 +30,9 @@ export const HEX_COLOR = /^#[\da-f]{6}$/i;
 /** A URL segment or lookup key: lower-case letters, digits and hyphens, e.g. `ai-writing`. */
 export const SLUG = /^[a-z\d-]+$/;
 
+/** A six-digit one-time code, as emailed for the WhatsApp demo sign-in, e.g. `042917`. */
+export const ONE_TIME_CODE = /^\d{6}$/;
+
 /** A reference code: letters, digits and hyphens, e.g. `CC-OPS` or `ACME-01`. */
 export const CODE = /^[A-Za-z\d-]+$/;
 

@@ -4882,6 +4882,7 @@ export type Mutation = {
   deleteWebhook: Scalars['Boolean']['output'];
   deleteWebsiteSubmission: Scalars['Boolean']['output'];
   deleteWhatsappChannel: Scalars['Boolean']['output'];
+  deleteWhatsappDemoVisitor: Scalars['Boolean']['output'];
   deleteWhatsappWorkflow: Scalars['Boolean']['output'];
   /** Switches two-factor off. Needs the password: a borrowed screen must not be enough. */
   disableMfa: Scalars['Boolean']['output'];
@@ -4975,6 +4976,8 @@ export type Mutation = {
    * Always true, so the answer does not reveal which addresses have accounts.
    */
   requestPasswordReset: Scalars['Boolean']['output'];
+  /** Public: files the visitor as a lead and emails a sign-in code. The website sends its security question's answer; the demo's own sign-in sends none and is limited per network. */
+  requestWhatsappDemoCode: Scalars['Boolean']['output'];
   /** Sets a new password from an emailed link. The link works once. */
   resetPassword: Scalars['Boolean']['output'];
   /** Generates a new temporary password, emails it, and returns it once for copying. */
@@ -5121,6 +5124,8 @@ export type Mutation = {
   setUserActive: User;
   setUserBlocked: User;
   setWebhookActive: Webhook;
+  /** Blocking retires the visitor's pass at once (website staff). */
+  setWhatsappDemoVisitorBlocked: WhatsappDemoVisitor;
   /** Shares a post onto the feed, optionally with something of your own to say. */
   shareSocialPost: SocialPost;
   /**
@@ -5356,6 +5361,8 @@ export type Mutation = {
   upsertWhatsappDemo: WhatsappDemo;
   /** The second step of a two-factor sign-in: the challenge from login, plus the code. */
   verifyMfa: AuthPayload;
+  /** Public: exchanges the emailed code for a demo-only pass. */
+  verifyWhatsappDemoCode: WhatsappDemoSignIn;
   whatsappDemoParse: WhatsappDemoParseResult;
   /** Withdraws one of the caller's OWN entries, and only while it is still pending. */
   withdrawTrackerManualEntry: Scalars['Boolean']['output'];
@@ -6630,6 +6637,11 @@ export type MutationDeleteWebsiteSubmissionArgs = {
 };
 
 
+export type MutationDeleteWhatsappDemoVisitorArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteWhatsappWorkflowArgs = {
   id: Scalars['ID']['input'];
 };
@@ -6829,6 +6841,12 @@ export type MutationRequestContractSignatureArgs = {
 
 export type MutationRequestPasswordResetArgs = {
   email: Scalars['String']['input'];
+};
+
+
+export type MutationRequestWhatsappDemoCodeArgs = {
+  captcha?: InputMaybe<WebsiteCaptchaAnswer>;
+  input: WhatsappDemoCodeInput;
 };
 
 
@@ -7138,6 +7156,12 @@ export type MutationSetUserBlockedArgs = {
 
 export type MutationSetWebhookActiveArgs = {
   active: Scalars['Boolean']['input'];
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationSetWhatsappDemoVisitorBlockedArgs = {
+  blocked: Scalars['Boolean']['input'];
   id: Scalars['ID']['input'];
 };
 
@@ -7996,6 +8020,12 @@ export type MutationUpsertWhatsappDemoArgs = {
 export type MutationVerifyMfaArgs = {
   challenge: Scalars['String']['input'];
   code: Scalars['String']['input'];
+};
+
+
+export type MutationVerifyWhatsappDemoCodeArgs = {
+  code: Scalars['String']['input'];
+  email: Scalars['String']['input'];
 };
 
 
@@ -10137,6 +10167,12 @@ export type Query = {
   whatsappDemoSession?: Maybe<WhatsappDemoSessionDetail>;
   whatsappDemoSessions: WhatsappDemoSessionPage;
   whatsappDemoStats: WhatsappDemoStats;
+  /** The signed-in demo visitor (pass in x-demo-visitor), or null. */
+  whatsappDemoVisitorMe?: Maybe<WhatsappDemoVisitor>;
+  /** Website > WhatsApp Leads: totals by source and by blocked (website staff). */
+  whatsappDemoVisitorStats: TableStats;
+  /** Website > WhatsApp Leads: every demo visitor (website staff). */
+  whatsappDemoVisitorsPaged: WhatsappDemoVisitorPage;
   whatsappDemos: Array<WhatsappDemo>;
   whatsappWorkflow?: Maybe<WhatsappWorkflow>;
   whatsappWorkflows: Array<WhatsappWorkflow>;
@@ -11572,6 +11608,11 @@ export type QueryWhatsappDemoSessionsArgs = {
 export type QueryWhatsappDemoStatsArgs = {
   from: Scalars['String']['input'];
   to: Scalars['String']['input'];
+};
+
+
+export type QueryWhatsappDemoVisitorsPagedArgs = {
+  input: TableQueryInput;
 };
 
 
@@ -14475,6 +14516,14 @@ export type WhatsappDemoBundle = {
   workflows: Array<WhatsappPublishedWorkflow>;
 };
 
+export type WhatsappDemoCodeInput = {
+  company?: InputMaybe<Scalars['String']['input']>;
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  phone?: InputMaybe<Scalars['String']['input']>;
+  source: WhatsappDemoVisitorSource;
+};
+
 export type WhatsappDemoEvent = {
   __typename?: 'WhatsappDemoEvent';
   at: Scalars['String']['output'];
@@ -14595,6 +14644,14 @@ export type WhatsappDemoSessionPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** A signed-in visitor: the demo-only pass (send it as x-demo-visitor), who they are, and where the demo is. */
+export type WhatsappDemoSignIn = {
+  __typename?: 'WhatsappDemoSignIn';
+  demoUrl: Scalars['String']['output'];
+  token: Scalars['String']['output'];
+  visitor: WhatsappDemoVisitor;
+};
+
 export type WhatsappDemoStats = {
   __typename?: 'WhatsappDemoStats';
   ai: WhatsappAiStats;
@@ -14612,6 +14669,38 @@ export type WhatsappDemoStats = {
   topDemos: Array<WhatsappCount>;
   uniqueUsers: Scalars['Int']['output'];
 };
+
+/** A prospect who signs in to the WhatsApp demo with an emailed code: a website lead. */
+export type WhatsappDemoVisitor = {
+  __typename?: 'WhatsappDemoVisitor';
+  blocked: Scalars['Boolean']['output'];
+  company: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  lastSignInAt?: Maybe<Scalars['DateTime']['output']>;
+  name: Scalars['String']['output'];
+  phone: Scalars['String']['output'];
+  signInCount: Scalars['Int']['output'];
+  source: WhatsappDemoVisitorSource;
+  updatedAt: Scalars['DateTime']['output'];
+  /** When they first entered a correct code; null until then. */
+  verifiedAt?: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type WhatsappDemoVisitorPage = {
+  __typename?: 'WhatsappDemoVisitorPage';
+  rows: Array<WhatsappDemoVisitor>;
+  totalCount: Scalars['Int']['output'];
+};
+
+/** Where a demo visitor first asked for a sign-in code. */
+export enum WhatsappDemoVisitorSource {
+  /** The demo's own sign-in screen. */
+  DemoLogin = 'DEMO_LOGIN',
+  /** The WhatsApp chatbot page on the website. */
+  Website = 'WEBSITE'
+}
 
 export type WhatsappFlowStat = {
   __typename?: 'WhatsappFlowStat';
@@ -21090,6 +21179,55 @@ export type DeleteWhatsappChannelMutationVariables = Exact<{ [key: string]: neve
 
 export type DeleteWhatsappChannelMutation = { __typename?: 'Mutation', deleteWhatsappChannel: boolean };
 
+export type WhatsappDemoVisitorFieldsFragment = { __typename?: 'WhatsappDemoVisitor', id: string, name: string, email: string, company: string, phone: string, source: WhatsappDemoVisitorSource, verifiedAt?: string | null, lastSignInAt?: string | null, signInCount: number, blocked: boolean, createdAt: string, updatedAt: string };
+
+export type RequestWhatsappDemoCodeMutationVariables = Exact<{
+  input: WhatsappDemoCodeInput;
+}>;
+
+
+export type RequestWhatsappDemoCodeMutation = { __typename?: 'Mutation', requestWhatsappDemoCode: boolean };
+
+export type VerifyWhatsappDemoCodeMutationVariables = Exact<{
+  email: Scalars['String']['input'];
+  code: Scalars['String']['input'];
+}>;
+
+
+export type VerifyWhatsappDemoCodeMutation = { __typename?: 'Mutation', verifyWhatsappDemoCode: { __typename?: 'WhatsappDemoSignIn', token: string, demoUrl: string, visitor: { __typename?: 'WhatsappDemoVisitor', id: string, name: string, email: string, company: string, phone: string, source: WhatsappDemoVisitorSource, verifiedAt?: string | null, lastSignInAt?: string | null, signInCount: number, blocked: boolean, createdAt: string, updatedAt: string } } };
+
+export type WhatsappDemoVisitorMeQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type WhatsappDemoVisitorMeQuery = { __typename?: 'Query', whatsappDemoVisitorMe?: { __typename?: 'WhatsappDemoVisitor', id: string, name: string, email: string, company: string, phone: string, source: WhatsappDemoVisitorSource, verifiedAt?: string | null, lastSignInAt?: string | null, signInCount: number, blocked: boolean, createdAt: string, updatedAt: string } | null };
+
+export type WhatsappDemoVisitorsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type WhatsappDemoVisitorsPagedQuery = { __typename?: 'Query', whatsappDemoVisitorsPaged: { __typename?: 'WhatsappDemoVisitorPage', totalCount: number, rows: Array<{ __typename?: 'WhatsappDemoVisitor', id: string, name: string, email: string, company: string, phone: string, source: WhatsappDemoVisitorSource, verifiedAt?: string | null, lastSignInAt?: string | null, signInCount: number, blocked: boolean, createdAt: string, updatedAt: string }> } };
+
+export type WhatsappDemoVisitorStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type WhatsappDemoVisitorStatsQuery = { __typename?: 'Query', whatsappDemoVisitorStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type SetWhatsappDemoVisitorBlockedMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  blocked: Scalars['Boolean']['input'];
+}>;
+
+
+export type SetWhatsappDemoVisitorBlockedMutation = { __typename?: 'Mutation', setWhatsappDemoVisitorBlocked: { __typename?: 'WhatsappDemoVisitor', id: string, name: string, email: string, company: string, phone: string, source: WhatsappDemoVisitorSource, verifiedAt?: string | null, lastSignInAt?: string | null, signInCount: number, blocked: boolean, createdAt: string, updatedAt: string } };
+
+export type DeleteWhatsappDemoVisitorMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteWhatsappDemoVisitorMutation = { __typename?: 'Mutation', deleteWhatsappDemoVisitor: boolean };
+
 export const UserFieldsFragmentDoc = gql`
     fragment UserFields on User {
   id
@@ -23086,6 +23224,22 @@ export const WhatsappChannelFieldsFragmentDoc = gql`
   webhookUrl
   updatedAt
   updatedByName
+}
+    `;
+export const WhatsappDemoVisitorFieldsFragmentDoc = gql`
+    fragment WhatsappDemoVisitorFields on WhatsappDemoVisitor {
+  id
+  name
+  email
+  company
+  phone
+  source
+  verifiedAt
+  lastSignInAt
+  signInCount
+  blocked
+  createdAt
+  updatedAt
 }
     `;
 export const ListUsersDocument = gql`
@@ -58944,3 +59098,269 @@ export function useDeleteWhatsappChannelMutation(baseOptions?: ApolloReactHooks.
         return ApolloReactHooks.useMutation<DeleteWhatsappChannelMutation, DeleteWhatsappChannelMutationVariables>(DeleteWhatsappChannelDocument, options);
       }
 export type DeleteWhatsappChannelMutationHookResult = ReturnType<typeof useDeleteWhatsappChannelMutation>;
+export const RequestWhatsappDemoCodeDocument = gql`
+    mutation RequestWhatsappDemoCode($input: WhatsappDemoCodeInput!) {
+  requestWhatsappDemoCode(input: $input)
+}
+    `;
+
+/**
+ * __useRequestWhatsappDemoCodeMutation__
+ *
+ * To run a mutation, you first call `useRequestWhatsappDemoCodeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRequestWhatsappDemoCodeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [requestWhatsappDemoCodeMutation, { data, loading, error }] = useRequestWhatsappDemoCodeMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useRequestWhatsappDemoCodeMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RequestWhatsappDemoCodeMutation, RequestWhatsappDemoCodeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RequestWhatsappDemoCodeMutation, RequestWhatsappDemoCodeMutationVariables>(RequestWhatsappDemoCodeDocument, options);
+      }
+export type RequestWhatsappDemoCodeMutationHookResult = ReturnType<typeof useRequestWhatsappDemoCodeMutation>;
+export const VerifyWhatsappDemoCodeDocument = gql`
+    mutation VerifyWhatsappDemoCode($email: String!, $code: String!) {
+  verifyWhatsappDemoCode(email: $email, code: $code) {
+    token
+    demoUrl
+    visitor {
+      ...WhatsappDemoVisitorFields
+    }
+  }
+}
+    ${WhatsappDemoVisitorFieldsFragmentDoc}`;
+
+/**
+ * __useVerifyWhatsappDemoCodeMutation__
+ *
+ * To run a mutation, you first call `useVerifyWhatsappDemoCodeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useVerifyWhatsappDemoCodeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [verifyWhatsappDemoCodeMutation, { data, loading, error }] = useVerifyWhatsappDemoCodeMutation({
+ *   variables: {
+ *      email: // value for 'email'
+ *      code: // value for 'code'
+ *   },
+ * });
+ */
+export function useVerifyWhatsappDemoCodeMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<VerifyWhatsappDemoCodeMutation, VerifyWhatsappDemoCodeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<VerifyWhatsappDemoCodeMutation, VerifyWhatsappDemoCodeMutationVariables>(VerifyWhatsappDemoCodeDocument, options);
+      }
+export type VerifyWhatsappDemoCodeMutationHookResult = ReturnType<typeof useVerifyWhatsappDemoCodeMutation>;
+export const WhatsappDemoVisitorMeDocument = gql`
+    query WhatsappDemoVisitorMe {
+  whatsappDemoVisitorMe {
+    ...WhatsappDemoVisitorFields
+  }
+}
+    ${WhatsappDemoVisitorFieldsFragmentDoc}`;
+
+/**
+ * __useWhatsappDemoVisitorMeQuery__
+ *
+ * To run a query within a React component, call `useWhatsappDemoVisitorMeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWhatsappDemoVisitorMeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWhatsappDemoVisitorMeQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useWhatsappDemoVisitorMeQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<WhatsappDemoVisitorMeQuery, WhatsappDemoVisitorMeQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WhatsappDemoVisitorMeQuery, WhatsappDemoVisitorMeQueryVariables>(WhatsappDemoVisitorMeDocument, options);
+      }
+export function useWhatsappDemoVisitorMeLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WhatsappDemoVisitorMeQuery, WhatsappDemoVisitorMeQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WhatsappDemoVisitorMeQuery, WhatsappDemoVisitorMeQueryVariables>(WhatsappDemoVisitorMeDocument, options);
+        }
+// @ts-ignore
+export function useWhatsappDemoVisitorMeSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoVisitorMeQuery, WhatsappDemoVisitorMeQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappDemoVisitorMeQuery, WhatsappDemoVisitorMeQueryVariables>;
+// @ts-ignore
+export function useWhatsappDemoVisitorMeSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoVisitorMeQuery, WhatsappDemoVisitorMeQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappDemoVisitorMeQuery | undefined, WhatsappDemoVisitorMeQueryVariables>;
+export function useWhatsappDemoVisitorMeSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoVisitorMeQuery, WhatsappDemoVisitorMeQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WhatsappDemoVisitorMeQuery, WhatsappDemoVisitorMeQueryVariables>(WhatsappDemoVisitorMeDocument, options);
+        }
+export type WhatsappDemoVisitorMeQueryHookResult = ReturnType<typeof useWhatsappDemoVisitorMeQuery>;
+export type WhatsappDemoVisitorMeLazyQueryHookResult = ReturnType<typeof useWhatsappDemoVisitorMeLazyQuery>;
+export type WhatsappDemoVisitorMeSuspenseQueryHookResult = ReturnType<typeof useWhatsappDemoVisitorMeSuspenseQuery>;
+export const WhatsappDemoVisitorsPagedDocument = gql`
+    query WhatsappDemoVisitorsPaged($input: TableQueryInput!) {
+  whatsappDemoVisitorsPaged(input: $input) {
+    totalCount
+    rows {
+      ...WhatsappDemoVisitorFields
+    }
+  }
+}
+    ${WhatsappDemoVisitorFieldsFragmentDoc}`;
+
+/**
+ * __useWhatsappDemoVisitorsPagedQuery__
+ *
+ * To run a query within a React component, call `useWhatsappDemoVisitorsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWhatsappDemoVisitorsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWhatsappDemoVisitorsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useWhatsappDemoVisitorsPagedQuery(baseOptions: ApolloReactHooks.QueryHookOptions<WhatsappDemoVisitorsPagedQuery, WhatsappDemoVisitorsPagedQueryVariables> & ({ variables: WhatsappDemoVisitorsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WhatsappDemoVisitorsPagedQuery, WhatsappDemoVisitorsPagedQueryVariables>(WhatsappDemoVisitorsPagedDocument, options);
+      }
+export function useWhatsappDemoVisitorsPagedLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WhatsappDemoVisitorsPagedQuery, WhatsappDemoVisitorsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WhatsappDemoVisitorsPagedQuery, WhatsappDemoVisitorsPagedQueryVariables>(WhatsappDemoVisitorsPagedDocument, options);
+        }
+// @ts-ignore
+export function useWhatsappDemoVisitorsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoVisitorsPagedQuery, WhatsappDemoVisitorsPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappDemoVisitorsPagedQuery, WhatsappDemoVisitorsPagedQueryVariables>;
+// @ts-ignore
+export function useWhatsappDemoVisitorsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoVisitorsPagedQuery, WhatsappDemoVisitorsPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappDemoVisitorsPagedQuery | undefined, WhatsappDemoVisitorsPagedQueryVariables>;
+export function useWhatsappDemoVisitorsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoVisitorsPagedQuery, WhatsappDemoVisitorsPagedQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WhatsappDemoVisitorsPagedQuery, WhatsappDemoVisitorsPagedQueryVariables>(WhatsappDemoVisitorsPagedDocument, options);
+        }
+export type WhatsappDemoVisitorsPagedQueryHookResult = ReturnType<typeof useWhatsappDemoVisitorsPagedQuery>;
+export type WhatsappDemoVisitorsPagedLazyQueryHookResult = ReturnType<typeof useWhatsappDemoVisitorsPagedLazyQuery>;
+export type WhatsappDemoVisitorsPagedSuspenseQueryHookResult = ReturnType<typeof useWhatsappDemoVisitorsPagedSuspenseQuery>;
+export const WhatsappDemoVisitorStatsDocument = gql`
+    query WhatsappDemoVisitorStats {
+  whatsappDemoVisitorStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useWhatsappDemoVisitorStatsQuery__
+ *
+ * To run a query within a React component, call `useWhatsappDemoVisitorStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWhatsappDemoVisitorStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWhatsappDemoVisitorStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useWhatsappDemoVisitorStatsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<WhatsappDemoVisitorStatsQuery, WhatsappDemoVisitorStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WhatsappDemoVisitorStatsQuery, WhatsappDemoVisitorStatsQueryVariables>(WhatsappDemoVisitorStatsDocument, options);
+      }
+export function useWhatsappDemoVisitorStatsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WhatsappDemoVisitorStatsQuery, WhatsappDemoVisitorStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WhatsappDemoVisitorStatsQuery, WhatsappDemoVisitorStatsQueryVariables>(WhatsappDemoVisitorStatsDocument, options);
+        }
+// @ts-ignore
+export function useWhatsappDemoVisitorStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoVisitorStatsQuery, WhatsappDemoVisitorStatsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappDemoVisitorStatsQuery, WhatsappDemoVisitorStatsQueryVariables>;
+// @ts-ignore
+export function useWhatsappDemoVisitorStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoVisitorStatsQuery, WhatsappDemoVisitorStatsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappDemoVisitorStatsQuery | undefined, WhatsappDemoVisitorStatsQueryVariables>;
+export function useWhatsappDemoVisitorStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappDemoVisitorStatsQuery, WhatsappDemoVisitorStatsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WhatsappDemoVisitorStatsQuery, WhatsappDemoVisitorStatsQueryVariables>(WhatsappDemoVisitorStatsDocument, options);
+        }
+export type WhatsappDemoVisitorStatsQueryHookResult = ReturnType<typeof useWhatsappDemoVisitorStatsQuery>;
+export type WhatsappDemoVisitorStatsLazyQueryHookResult = ReturnType<typeof useWhatsappDemoVisitorStatsLazyQuery>;
+export type WhatsappDemoVisitorStatsSuspenseQueryHookResult = ReturnType<typeof useWhatsappDemoVisitorStatsSuspenseQuery>;
+export const SetWhatsappDemoVisitorBlockedDocument = gql`
+    mutation SetWhatsappDemoVisitorBlocked($id: ID!, $blocked: Boolean!) {
+  setWhatsappDemoVisitorBlocked(id: $id, blocked: $blocked) {
+    ...WhatsappDemoVisitorFields
+  }
+}
+    ${WhatsappDemoVisitorFieldsFragmentDoc}`;
+
+/**
+ * __useSetWhatsappDemoVisitorBlockedMutation__
+ *
+ * To run a mutation, you first call `useSetWhatsappDemoVisitorBlockedMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetWhatsappDemoVisitorBlockedMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setWhatsappDemoVisitorBlockedMutation, { data, loading, error }] = useSetWhatsappDemoVisitorBlockedMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      blocked: // value for 'blocked'
+ *   },
+ * });
+ */
+export function useSetWhatsappDemoVisitorBlockedMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SetWhatsappDemoVisitorBlockedMutation, SetWhatsappDemoVisitorBlockedMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SetWhatsappDemoVisitorBlockedMutation, SetWhatsappDemoVisitorBlockedMutationVariables>(SetWhatsappDemoVisitorBlockedDocument, options);
+      }
+export type SetWhatsappDemoVisitorBlockedMutationHookResult = ReturnType<typeof useSetWhatsappDemoVisitorBlockedMutation>;
+export const DeleteWhatsappDemoVisitorDocument = gql`
+    mutation DeleteWhatsappDemoVisitor($id: ID!) {
+  deleteWhatsappDemoVisitor(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteWhatsappDemoVisitorMutation__
+ *
+ * To run a mutation, you first call `useDeleteWhatsappDemoVisitorMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteWhatsappDemoVisitorMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteWhatsappDemoVisitorMutation, { data, loading, error }] = useDeleteWhatsappDemoVisitorMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteWhatsappDemoVisitorMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteWhatsappDemoVisitorMutation, DeleteWhatsappDemoVisitorMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteWhatsappDemoVisitorMutation, DeleteWhatsappDemoVisitorMutationVariables>(DeleteWhatsappDemoVisitorDocument, options);
+      }
+export type DeleteWhatsappDemoVisitorMutationHookResult = ReturnType<typeof useDeleteWhatsappDemoVisitorMutation>;

@@ -116,6 +116,8 @@ export const env = Object.freeze({
   ),
   /** Public portal URL used as the login CTA inside transactional emails. */
   appUrl: process.env.APP_URL ?? 'https://portal.exyconn.com',
+  /** The WhatsApp demo a verified visitor is sent to, from the code email and after sign-in. */
+  whatsappDemoUrl: process.env.WHATSAPP_DEMO_URL ?? 'https://whatsapp-demo.exyconn.com',
   /**
    * Where a self-service password reset link opens when the request did not come from a
    * portal origin CORS trusts (a curl, say). A request from a portal links back to itself.

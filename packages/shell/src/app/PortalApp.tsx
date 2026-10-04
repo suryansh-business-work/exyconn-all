@@ -51,6 +51,11 @@ interface PortalAppProps {
    * that owns the whole screen (the WhatsApp demo), which then provides its own way out.
    */
   chrome?: boolean;
+  /**
+   * Routes outside the sign-in gate, which guard themselves. The WhatsApp demo puts its chats
+   * here behind a gate that also admits a demo visitor signed in with an emailed code.
+   */
+  publicRoutes?: ReactNode;
 }
 
 /**
@@ -64,6 +69,7 @@ export function PortalApp({
   children,
   homePath = '/',
   chrome = true,
+  publicRoutes,
 }: Readonly<PortalAppProps>) {
   return (
     <ApolloProvider client={apolloClient}>
@@ -88,6 +94,7 @@ export function PortalApp({
                       <Route path="/login" element={loginElement} />
                       <Route path={RESET_PASSWORD_PATH} element={loginElement} />
                       <Route path={UNSUBSCRIBE_PATH} element={loginElement} />
+                      {publicRoutes}
                       <Route
                         element={
                           <ProtectedRoute requiredRole={moduleRole}>

@@ -91,6 +91,9 @@ COPY --from=build /repo/${APP_DIR}/dist /usr/share/nginx/html
 COPY docker/spa.nginx.conf /etc/nginx/templates/default.conf.template
 COPY docker/spa-security-headers.conf /etc/nginx/snippets/spa-security-headers.conf
 ENV NGINX_PORT=${PORT}
+# Who may frame the app (docker/spa-security-headers.conf). Compose widens it for the
+# WhatsApp demo only, which exyconn.com embeds.
+ENV FRAME_ANCESTORS="'self'"
 EXPOSE ${PORT}
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
   CMD wget -q --spider "http://127.0.0.1:${NGINX_PORT}/" || exit 1

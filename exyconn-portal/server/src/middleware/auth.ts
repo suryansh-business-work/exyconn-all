@@ -6,6 +6,7 @@ import type { Role } from '../constants/roles';
 import { principalForApiKey } from '../modules/integrations/api-key.service';
 import { organizationOf, runAsPlatform, setScopeOrganization, setScopeSelf } from '../lib/tenant';
 import { actingOrganization } from './actingOrganization';
+import { VISITOR_HEADER, visitorForPass, type DemoVisitor } from '../modules/whatsapp-demo/visitor';
 import { OrganizationModel } from '../modules/organizations/organization.model';
 import { deviceMayRun, deviceTokenIsLive } from '../modules/tracker/tracker.auth';
 import { sessionIsLive } from '../modules/auth/session.service';
@@ -39,6 +40,12 @@ export interface GraphQLContext {
    * and role guards refuse it (see middleware/roleGuard).
    */
   deviceId?: string;
+  /**
+   * Set when the caller is a WhatsApp demo visitor (email-and-code sign-in, see
+   * modules/whatsapp-demo/visitor) rather than a portal user. Such a request has no `user`,
+   * so every role guard refuses it; only the demo's chat operations accept it.
+   */
+  demoVisitor?: DemoVisitor;
 }
 
 /** How long a company's ACTIVE/SUSPENDED status is trusted before it is read again. */
@@ -159,12 +166,12 @@ export async function buildContext({ req }: { req: Request }): Promise<GraphQLCo
   const token = header.startsWith('Bearer ') ? header.slice(7) : '';
   const decoded = token ? verifyToken(token) : null;
   if (!decoded) {
-    return anonymous(ip, origin, userAgent);
+    return visitorOrAnonymous(req, ip, origin, userAgent);
   }
 
   const fresh = await currentHolder(decoded, token, req);
   if (!fresh) {
-    return anonymous(ip, origin, userAgent);
+    return visitorOrAnonymous(req, ip, origin, userAgent);
   }
 
   const roles = fresh.roles as Role[];
@@ -192,6 +199,25 @@ export async function buildContext({ req }: { req: Request }): Promise<GraphQLCo
     userAgent,
     deviceId: decoded.deviceId,
   };
+}
+
+/**
+ * No portal session: a WhatsApp demo visitor when the request carries a live pass, and otherwise
+ * nobody. Either way NO company is put in scope — the data layer keeps refusing company data to
+ * this request, and the demo's chat resolvers enter the demo owner's company themselves.
+ */
+async function visitorOrAnonymous(
+  req: Request,
+  ip: string,
+  origin?: string,
+  userAgent?: string,
+): Promise<GraphQLContext> {
+  const pass = req.headers[VISITOR_HEADER];
+  const demoVisitor = typeof pass === 'string' && pass !== '' ? await visitorForPass(pass) : null;
+  if (!demoVisitor) {
+    return anonymous(ip, origin, userAgent);
+  }
+  return { ...anonymous(ip, origin, userAgent), demoVisitor };
 }
 
 /**

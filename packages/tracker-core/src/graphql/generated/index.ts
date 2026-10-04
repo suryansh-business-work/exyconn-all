@@ -2870,6 +2870,14 @@ export type WhatsappChannelInput = {
   verifyToken: Scalars['String']['input'];
 };
 
+export type WhatsappDemoCodeInput = {
+  company: InputMaybe<Scalars['String']['input']>;
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  phone: InputMaybe<Scalars['String']['input']>;
+  source: WhatsappDemoVisitorSource;
+};
+
 export type WhatsappDemoEventInput = {
   /** ISO time on the client clock. */
   at: Scalars['String']['input'];
@@ -2928,6 +2936,13 @@ export type WhatsappDemoParseInput = {
   /** A workflow key, or $router for the menu. */
   workflow: Scalars['String']['input'];
 };
+
+/** Where a demo visitor first asked for a sign-in code. */
+export type WhatsappDemoVisitorSource =
+  /** The demo's own sign-in screen. */
+  | 'DEMO_LOGIN'
+  /** The WhatsApp chatbot page on the website. */
+  | 'WEBSITE';
 
 export type WhatsappWorkflowCreateInput = {
   demoId: Scalars['ID']['input'];

@@ -80,6 +80,7 @@ import CategoryIcon from '@mui/icons-material/Category';
 import BuildIcon from '@mui/icons-material/Build';
 import LinkIcon from '@mui/icons-material/Link';
 import MarkEmailUnreadIcon from '@mui/icons-material/MarkEmailUnread';
+import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import DevicesIcon from '@mui/icons-material/Devices';
@@ -882,6 +883,12 @@ export const MODULES: ModuleDefinition[] = [
         label: 'Form Submissions',
         path: '/website/submissions',
         icon: MarkEmailUnreadIcon,
+      },
+      {
+        key: 'website-whatsapp-leads',
+        label: 'WhatsApp Leads',
+        path: '/website/whatsapp-leads',
+        icon: WhatsAppIcon,
       },
       {
         key: 'website-blog',
