@@ -22,9 +22,9 @@ const [agentic] = DETAIL_PAGES;
 const service = DETAIL_PAGES.find((page) => page.section === "services")!;
 
 describe("detail page modules", () => {
-  it("covers the seven AI capabilities and eight services, once each", () => {
+  it("covers the seven AI capabilities and nine services, once each", () => {
     const keys = DETAIL_PAGES.map((page) => detailPath(page));
-    expect(new Set(keys).size).toBe(15);
+    expect(new Set(keys).size).toBe(16);
     expect(DETAIL_PAGES.filter((page) => page.section === "ai")).toHaveLength(7);
     expect(DETAIL_PAGES.filter((page) => page.section === "services")).toHaveLength(9);
   });
