@@ -348,6 +348,30 @@ jobs:
             # races portal-server's boot (Mongo connect + admin bootstrap take a few seconds).
             docker compose -f docker-compose.prod.yml up -d --remove-orphans --wait --wait-timeout 180
             docker image prune -f
+      # A new subdomain needs its nginx vhost + certificate before verify can reach it.
+      # server-setup.sh is additive and idempotent (backs up, rolls back on a bad
+      # `nginx -t`, certbot --keep-until-expiring skips valid certs), so it runs every deploy.
+      - name: Copy the deploy directory to the server
+        uses: appleboy/scp-action@917f8b81dfc1ccd331fef9e2d61bdc6c8be94634 # v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          source: deploy/
+          target: /opt/exyconn-deploy
+          strip_components: 1
+      - name: Install vhosts and obtain certificates
+        uses: appleboy/ssh-action@7eaf76671a0d7eec5d98ee897acda4f968735a17 # v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          command_timeout: 20m
+          script: |
+            set -e
+            bash /opt/exyconn-deploy/server-setup.sh
 
   verify:
     timeout-minutes: 15
