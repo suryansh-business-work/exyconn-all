@@ -1,6 +1,7 @@
 /**
- * `@exyconn/wa-flow/engine` — the pure conversation engine. Browser-side only (it reads
- * @exyconn/regex from source); the server never needs it.
+ * `@exyconn/wa-flow/engine` — the pure conversation engine. The browser chat reads it from
+ * source; the server's real WhatsApp channel loads the compiled dist, which requires
+ * @exyconn/regex's dist (the server runs with `--conditions=exyconn-compiled`).
  */
 export { respond, newChatState, type ChatEvent } from './engine';
 export { createDummy, hashSeed, startOfDay, type DummyData } from './dummy';

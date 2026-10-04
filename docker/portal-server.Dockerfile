@@ -29,9 +29,12 @@ RUN pnpm install --frozen-lockfile --filter exyconn-portal-server...
 # --- Build + produce a self-contained deploy bundle ---------------------------
 FROM deps AS build
 # wa-flow is built first: the server's tsc reads its dist types, and `deploy` copies its dist.
-# Its tsconfig.build.json is standalone, so its source is all it needs.
+# regex is built too: wa-flow's compiled engine requires it, and the runtime can only load its
+# dist (Node will not strip types under node_modules). Both tsconfig.build.json files are
+# standalone, so their source is all they need.
+COPY packages/regex packages/regex
 COPY packages/wa-flow packages/wa-flow
-RUN pnpm --filter @exyconn/wa-flow run build
+RUN pnpm --filter @exyconn/regex run build && pnpm --filter @exyconn/wa-flow run build
 COPY exyconn-portal/server exyconn-portal/server
 RUN pnpm --filter exyconn-portal-server run build \
   && pnpm --filter exyconn-portal-server deploy --prod /app
@@ -50,4 +53,5 @@ EXPOSE 4004
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
   CMD wget -q --spider http://127.0.0.1:4004/health || exit 1
 
-CMD ["node", "dist/server.js"]
+# `exyconn-compiled` points @exyconn/regex at its dist instead of its TypeScript source.
+CMD ["node", "--conditions=exyconn-compiled", "dist/server.js"]

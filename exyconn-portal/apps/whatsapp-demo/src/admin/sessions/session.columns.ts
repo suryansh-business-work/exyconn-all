@@ -17,11 +17,12 @@ function sessionContext(context: unknown): SessionGridContext {
   return context as SessionGridContext;
 }
 
-/** The device kinds the chat reports, as people say them. */
+/** The device kinds the chat reports, as people say them; `whatsapp` is the real number. */
 const DEVICE_LABELS: Readonly<Record<string, string>> = {
   phone: 'Phone',
   tablet: 'Tablet',
   desktop: 'Desktop',
+  whatsapp: 'WhatsApp',
 };
 
 /** A session's device in words; an unrecorded one is a dash, not a blank. */

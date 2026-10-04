@@ -4,7 +4,8 @@ import { openAiClient, type CompletionResult } from '../../utils/openai';
 import { createLimiter } from '../../lib/rateLimiter';
 import { companyTimezone, localNow } from './whatsappDemo.zone';
 import { logger } from '../../utils/logger';
-import { storeEvents } from './whatsappDemo.events';
+import { storeActorEvents, type EventActor } from './whatsappDemo.events';
+import { actorNameOf } from '../../lib/actor';
 import {
   SYSTEM_PROMPT,
   answerSchema,
@@ -137,18 +138,17 @@ function safeJson(text: string): unknown {
 
 /** Records the call's outcome — never its text — as an AI_CALL event. */
 async function recordCall(
-  ctx: GraphQLContext,
-  user: TokenPayload,
+  actor: EventActor,
   input: ParseInput,
   result: ParseResult,
   tokens: number,
 ) {
   try {
-    await storeEvents(ctx, user, [
+    await storeActorEvents(actor, [
       {
         eventId: `ai-${randomUUID()}`,
         sessionId: input.sessionId.slice(0, 64),
-        userId: user.id,
+        userId: actor.id,
         type: 'AI_CALL',
         at: new Date(),
         demoKey: input.demoKey.slice(0, 64),
@@ -171,17 +171,23 @@ async function recordCall(
   }
 }
 
+/** Reads the text for `actor`, within their rate limit, and records the outcome. */
+export async function parseAs(actor: EventActor, input: ParseInput): Promise<ParseResult> {
+  let outcome: { result: ParseResult; tokens: number };
+  if (await parseLimiter.allow(actor.id)) {
+    outcome = await callModel(input);
+  } else {
+    outcome = { result: failed('RATE_LIMITED'), tokens: 0 };
+  }
+  await recordCall(actor, input, outcome.result, outcome.tokens);
+  return outcome.result;
+}
+
 export async function parse(
   ctx: GraphQLContext,
   user: TokenPayload,
   input: ParseInput,
 ): Promise<ParseResult> {
-  let outcome: { result: ParseResult; tokens: number };
-  if (await parseLimiter.allow(user.id)) {
-    outcome = await callModel(input);
-  } else {
-    outcome = { result: failed('RATE_LIMITED'), tokens: 0 };
-  }
-  await recordCall(ctx, user, input, outcome.result, outcome.tokens);
-  return outcome.result;
+  const name = await actorNameOf(ctx);
+  return parseAs({ id: user.id, name, email: user.email }, input);
 }

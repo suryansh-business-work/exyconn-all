@@ -1,8 +1,9 @@
 /**
  * `@exyconn/wa-flow` — the WhatsApp demo's schema, validator, layout and authoring helpers.
- * Server-safe (Zod only). The conversation engine is a separate, browser-side entry:
+ * Server-safe (Zod only). The conversation engine is a separate entry,
  * `@exyconn/wa-flow/engine`. Seed industries: `@exyconn/wa-flow/seeds`.
  */
+export * from './catalog';
 export * from './visuals';
 export * from './schema';
 export * from './handles';

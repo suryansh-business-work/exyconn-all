@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import InsightsOutlinedIcon from '@mui/icons-material/InsightsOutlined';
 import HistoryOutlinedIcon from '@mui/icons-material/HistoryOutlined';
 import AccountTreeOutlinedIcon from '@mui/icons-material/AccountTreeOutlined';
+import PhoneIphoneOutlinedIcon from '@mui/icons-material/PhoneIphoneOutlined';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
 import { Box } from '@exyconn/shell/components/ui';
 import type { AuthUser } from '@exyconn/shell/auth/AuthContext';
@@ -11,6 +12,7 @@ import { PAGE_GUTTER } from '@exyconn/shell/layout/PortalLayout/metrics';
 import { AnalyticsTab } from '../analytics';
 import { SessionsTab } from '../sessions';
 import { WorkflowEditorPage, WorkflowListPage } from '../workflows';
+import { ChannelTab } from '../channel';
 import { ADMIN_BASE, ADMIN_TAB } from '../admin.paths';
 import { AdminTopBar } from './AdminTopBar';
 
@@ -63,6 +65,16 @@ export function AdminShell({ user }: Readonly<{ user: AuthUser }>) {
         content: (
           <PageErrorBoundary>
             <BotWorkflowsTab />
+          </PageErrorBoundary>
+        ),
+      },
+      {
+        slug: ADMIN_TAB.whatsappNumber,
+        label: 'WhatsApp number',
+        icon: <PhoneIphoneOutlinedIcon />,
+        content: (
+          <PageErrorBoundary>
+            <ChannelTab />
           </PageErrorBoundary>
         ),
       },

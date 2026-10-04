@@ -5,7 +5,17 @@
   "type": "module",
   "description": "The validation patterns every form checks against, with ZERO dependencies. One definition of an email, a URL, a phone number, a slug or a GSTIN, so the portals, the website and the server cannot drift apart on what they accept.",
   "main": "./src/index.ts",
+  "exports": {
+    ".": {
+      "exyconn-compiled": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "default": "./src/index.ts"
+    }
+  },
   "scripts": {
+    "build": "tsc -p tsconfig.build.json",
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"src/**/*.ts\"",
     "format": "prettier --write \"src/**/*.ts\"",

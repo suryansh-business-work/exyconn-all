@@ -2857,6 +2857,17 @@ export type WhatsappAiIntentInput = {
   id: Scalars['String']['input'];
 };
 
+export type WhatsappChannelInput = {
+  /** Blank keeps the stored token. */
+  accessToken: Scalars['String']['input'];
+  /** Blank keeps the stored secret. */
+  appSecret: Scalars['String']['input'];
+  displayPhone: Scalars['String']['input'];
+  enabled: Scalars['Boolean']['input'];
+  phoneNumberId: Scalars['String']['input'];
+  verifyToken: Scalars['String']['input'];
+};
+
 export type WhatsappDemoEventInput = {
   /** ISO time on the client clock. */
   at: Scalars['String']['input'];

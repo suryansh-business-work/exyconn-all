@@ -13,4 +13,5 @@ export const ADMIN_TAB = {
   analytics: 'analytics',
   sessions: 'sessions',
   botWorkflows: 'bot-workflows',
+  whatsappNumber: 'whatsapp-number',
 } as const;

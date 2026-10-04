@@ -2,7 +2,7 @@
   "name": "@exyconn/wa-flow",
   "version": "1.1.0",
   "private": true,
-  "description": "The WhatsApp demo's conversation schema (Zod), graph validator, pure conversation engine and seed industries. One definition shared by the portal server (validation + seeding, through the compiled dist) and the whatsapp-demo app (engine + editor, straight from source).",
+  "description": "The WhatsApp demo's conversation schema (Zod), graph validator, pure conversation engine and seed industries. One definition shared by the portal server (validation, seeding and the real WhatsApp channel, through the compiled dist) and the whatsapp-demo app (engine + editor, straight from source).",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -21,6 +21,10 @@
       "default": "./src/seeds/index.ts"
     },
     "./engine": {
+      "require": {
+        "types": "./dist/engine/index.d.ts",
+        "default": "./dist/engine/index.js"
+      },
       "default": "./src/engine/index.ts"
     }
   },
