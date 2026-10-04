@@ -221,3 +221,36 @@ mutation DuplicateWhatsappWorkflow($id: ID!) {
 mutation DeleteWhatsappWorkflow($id: ID!) {
   deleteWhatsappWorkflow(id: $id)
 }
+
+fragment WhatsappChannelFields on WhatsappChannel {
+  id
+  phoneNumberId
+  displayPhone
+  verifyToken
+  enabled
+  hasAccessToken
+  accessTokenHint
+  hasAppSecret
+  webhookUrl
+  updatedAt
+  updatedByName
+}
+
+query WhatsappChannel {
+  whatsappChannel {
+    webhookUrl
+    channel {
+      ...WhatsappChannelFields
+    }
+  }
+}
+
+mutation SaveWhatsappChannel($input: WhatsappChannelInput!) {
+  saveWhatsappChannel(input: $input) {
+    ...WhatsappChannelFields
+  }
+}
+
+mutation DeleteWhatsappChannel {
+  deleteWhatsappChannel
+}

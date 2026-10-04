@@ -5,12 +5,15 @@ The WhatsApp Business demo's single source of truth: the **workflow schema** (Zo
 
 | Entry | What | Who imports it |
 | --- | --- | --- |
-| `@exyconn/wa-flow` | schema, types, `validateGraph`, `outputHandles`, `autoLayout`, authoring helpers, rendered-message types | portal server (compiled `dist/`, CommonJS) and the app (source) |
-| `@exyconn/wa-flow/engine` | `respond`, `newChatState`, templates, dummy data, input validation | the whatsapp-demo app only (browser; reads `@exyconn/regex` source) |
+| `@exyconn/wa-flow` | schema, types, `validateGraph`, `outputHandles`, `autoLayout`, authoring helpers, rendered-message types, `toDemoBundle` (catalogue entry → runnable bundle) | portal server (compiled `dist/`, CommonJS) and the app (source) |
+| `@exyconn/wa-flow/engine` | `respond`, `newChatState`, templates, dummy data, input validation | the whatsapp-demo app (source) and the server's real WhatsApp channel (compiled `dist/`) |
 | `@exyconn/wa-flow/seeds` | `SEED_DEMOS` — the default industries | the portal server's boot seed |
 
 The server loads the compiled build, so run `pnpm --filter @exyconn/wa-flow build` after
-changing anything outside `src/engine/` (CI and both Dockerfiles do this before the server).
+changing anything (CI and both Dockerfiles do this before the server). The compiled engine
+requires `@exyconn/regex`, which ships source for every bundler and a `dist` only under the
+`exyconn-compiled` export condition: the server image builds that dist and starts Node with
+`--conditions=exyconn-compiled`. Locally, `tsx` and Jest read the regex source directly.
 
 ## How it fits together
 
@@ -18,9 +21,19 @@ changing anything outside `src/engine/` (CI and both Dockerfiles do this before 
 src/seeds/<industry>/*.ts  ──(boot runOnce seed)──▶  Mongo: WhatsappDemo + WhatsappWorkflow (draft + published)
                                                         │  edited at /admin/bot-workflows (React Flow)
                                                         ▼
-whatsapp-demo app  ◀── published workflows (GraphQL) ──┘
+whatsapp-demo app  ◀── published workflows (GraphQL) ──┤
    └─ engine.respond(bundle, state, event, ctx) → replies, pushes, analytics signals, ai request
+                                                        │
+real WhatsApp number ◀── Meta Cloud API webhook ────────┘  (server: modules/whatsapp-demo/channel)
+   └─ the same engine on the server; replies sent as WhatsApp messages, state kept per chat
 ```
+
+The real number is connected at WhatsApp demo > Admin > WhatsApp number. One number demos
+every industry: a new chat gets the industry list first ("industries" brings it back), and
+an industry's name typed as the first message starts it straight away. Text, buttons, lists,
+links, locations and contacts are sent as WhatsApp's own messages; the mock-up cards
+(products, orders, tickets, documents, illustrations) go as formatted text with their option
+as a reply button.
 
 Seeds are written once as TypeScript and copied into the database the first time the server
 boots with them. From then on the database is the truth: admins edit drafts and publish; the

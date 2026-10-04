@@ -22,6 +22,7 @@ export const JOB_KEYS = {
   aiQueue: 'aiQueue',
   reminders: 'reminders',
   auditRetention: 'auditRetention',
+  whatsappReminders: 'whatsappReminders',
 } as const;
 
 export type JobKey = (typeof JOB_KEYS)[keyof typeof JOB_KEYS];

@@ -4880,6 +4880,7 @@ export type Mutation = {
   deleteUser: Scalars['Boolean']['output'];
   deleteWebhook: Scalars['Boolean']['output'];
   deleteWebsiteSubmission: Scalars['Boolean']['output'];
+  deleteWhatsappChannel: Scalars['Boolean']['output'];
   deleteWhatsappWorkflow: Scalars['Boolean']['output'];
   /** Switches two-factor off. Needs the password: a borrowed screen must not be enough. */
   disableMfa: Scalars['Boolean']['output'];
@@ -5029,6 +5030,7 @@ export type Mutation = {
   saveEmployeeSalary: SalaryStructure;
   saveSocialAppConfig: SocialAppConfig;
   saveTrackerBuildSettings: TrackerBuildSettings;
+  saveWhatsappChannel: WhatsappChannel;
   saveWhatsappWorkflowDraft: WhatsappWorkflow;
   /**
    * Recovery for a portal with no administrator: mails a fresh password for the
@@ -6930,6 +6932,11 @@ export type MutationSaveSocialAppConfigArgs = {
 export type MutationSaveTrackerBuildSettingsArgs = {
   slackChannels: Array<Scalars['String']['input']>;
   statusAlertChannels?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+
+export type MutationSaveWhatsappChannelArgs = {
+  input: WhatsappChannelInput;
 };
 
 
@@ -10117,6 +10124,7 @@ export type Query = {
   websiteCaptcha: WebsiteCaptcha;
   /** The form identifiers the public website may submit under — the one allow-list. */
   websiteFormTypes: Array<Scalars['String']['output']>;
+  whatsappChannel: WhatsappChannelSettings;
   whatsappDemoAiStatus: WhatsappAiStatus;
   /** Every active demo with its published workflows, for the chat. */
   whatsappDemoCatalog: Array<WhatsappDemoBundle>;
@@ -14388,6 +14396,40 @@ export type WhatsappAiStatus = {
   model?: Maybe<Scalars['String']['output']>;
 };
 
+export type WhatsappChannel = {
+  __typename?: 'WhatsappChannel';
+  /** The last characters of the stored token, to tell two apart; never the token. */
+  accessTokenHint?: Maybe<Scalars['String']['output']>;
+  displayPhone: Scalars['String']['output'];
+  enabled: Scalars['Boolean']['output'];
+  hasAccessToken: Scalars['Boolean']['output'];
+  hasAppSecret: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  phoneNumberId: Scalars['String']['output'];
+  updatedAt?: Maybe<Scalars['String']['output']>;
+  updatedByName?: Maybe<Scalars['String']['output']>;
+  verifyToken: Scalars['String']['output'];
+  webhookUrl: Scalars['String']['output'];
+};
+
+export type WhatsappChannelInput = {
+  /** Blank keeps the stored token. */
+  accessToken: Scalars['String']['input'];
+  /** Blank keeps the stored secret. */
+  appSecret: Scalars['String']['input'];
+  displayPhone: Scalars['String']['input'];
+  enabled: Scalars['Boolean']['input'];
+  phoneNumberId: Scalars['String']['input'];
+  verifyToken: Scalars['String']['input'];
+};
+
+export type WhatsappChannelSettings = {
+  __typename?: 'WhatsappChannelSettings';
+  channel?: Maybe<WhatsappChannel>;
+  /** Where the Meta app's webhook has to point. */
+  webhookUrl: Scalars['String']['output'];
+};
+
 export type WhatsappCount = {
   __typename?: 'WhatsappCount';
   count: Scalars['Int']['output'];
@@ -15484,6 +15526,9 @@ export type ResolversTypes = ResolversObject<{
   WhatsappAiIntentInput: WhatsappAiIntentInput;
   WhatsappAiStats: ResolverTypeWrapper<WhatsappAiStats>;
   WhatsappAiStatus: ResolverTypeWrapper<WhatsappAiStatus>;
+  WhatsappChannel: ResolverTypeWrapper<WhatsappChannel>;
+  WhatsappChannelInput: WhatsappChannelInput;
+  WhatsappChannelSettings: ResolverTypeWrapper<WhatsappChannelSettings>;
   WhatsappCount: ResolverTypeWrapper<WhatsappCount>;
   WhatsappDayPoint: ResolverTypeWrapper<WhatsappDayPoint>;
   WhatsappDemo: ResolverTypeWrapper<WhatsappDemo>;
@@ -16112,6 +16157,9 @@ export type ResolversParentTypes = ResolversObject<{
   WhatsappAiIntentInput: WhatsappAiIntentInput;
   WhatsappAiStats: WhatsappAiStats;
   WhatsappAiStatus: WhatsappAiStatus;
+  WhatsappChannel: WhatsappChannel;
+  WhatsappChannelInput: WhatsappChannelInput;
+  WhatsappChannelSettings: WhatsappChannelSettings;
   WhatsappCount: WhatsappCount;
   WhatsappDayPoint: WhatsappDayPoint;
   WhatsappDemo: WhatsappDemo;
@@ -18917,6 +18965,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteUser?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteUserArgs, 'id'>>;
   deleteWebhook?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebhookArgs, 'id'>>;
   deleteWebsiteSubmission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebsiteSubmissionArgs, 'id'>>;
+  deleteWhatsappChannel?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   deleteWhatsappWorkflow?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWhatsappWorkflowArgs, 'id'>>;
   disableMfa?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisableMfaArgs, 'password'>>;
   discardWhatsappWorkflowDraft?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationDiscardWhatsappWorkflowDraftArgs, 'id'>>;
@@ -18975,6 +19024,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   saveEmployeeSalary?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationSaveEmployeeSalaryArgs, 'employeeId' | 'input'>>;
   saveSocialAppConfig?: Resolver<ResolversTypes['SocialAppConfig'], ParentType, ContextType, RequireFields<MutationSaveSocialAppConfigArgs, 'input'>>;
   saveTrackerBuildSettings?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType, RequireFields<MutationSaveTrackerBuildSettingsArgs, 'slackChannels'>>;
+  saveWhatsappChannel?: Resolver<ResolversTypes['WhatsappChannel'], ParentType, ContextType, RequireFields<MutationSaveWhatsappChannelArgs, 'input'>>;
   saveWhatsappWorkflowDraft?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationSaveWhatsappWorkflowDraftArgs, 'id' | 'input'>>;
   sendAdminCredentials?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sendCampaign?: Resolver<ResolversTypes['CampaignSendResult'], ParentType, ContextType, RequireFields<MutationSendCampaignArgs, 'id'>>;
@@ -20398,6 +20448,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   webhookEvents?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   websiteCaptcha?: Resolver<ResolversTypes['WebsiteCaptcha'], ParentType, ContextType>;
   websiteFormTypes?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  whatsappChannel?: Resolver<ResolversTypes['WhatsappChannelSettings'], ParentType, ContextType>;
   whatsappDemoAiStatus?: Resolver<ResolversTypes['WhatsappAiStatus'], ParentType, ContextType>;
   whatsappDemoCatalog?: Resolver<Array<ResolversTypes['WhatsappDemoBundle']>, ParentType, ContextType>;
   whatsappDemoFunnel?: Resolver<Array<ResolversTypes['WhatsappFunnelStep']>, ParentType, ContextType, RequireFields<QueryWhatsappDemoFunnelArgs, 'demoKey' | 'from' | 'to' | 'workflow'>>;
@@ -21984,6 +22035,27 @@ export type WhatsappAiStatusResolvers<ContextType = GraphQLContext, ParentType e
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type WhatsappChannelResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappChannel'] = ResolversParentTypes['WhatsappChannel']> = ResolversObject<{
+  accessTokenHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  displayPhone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  hasAccessToken?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  hasAppSecret?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  phoneNumberId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  updatedByName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  verifyToken?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  webhookUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WhatsappChannelSettingsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappChannelSettings'] = ResolversParentTypes['WhatsappChannelSettings']> = ResolversObject<{
+  channel?: Resolver<Maybe<ResolversTypes['WhatsappChannel']>, ParentType, ContextType>;
+  webhookUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type WhatsappCountResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappCount'] = ResolversParentTypes['WhatsappCount']> = ResolversObject<{
   count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -22576,6 +22648,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   WebsiteSubmissionPage?: WebsiteSubmissionPageResolvers<ContextType>;
   WhatsappAiStats?: WhatsappAiStatsResolvers<ContextType>;
   WhatsappAiStatus?: WhatsappAiStatusResolvers<ContextType>;
+  WhatsappChannel?: WhatsappChannelResolvers<ContextType>;
+  WhatsappChannelSettings?: WhatsappChannelSettingsResolvers<ContextType>;
   WhatsappCount?: WhatsappCountResolvers<ContextType>;
   WhatsappDayPoint?: WhatsappDayPointResolvers<ContextType>;
   WhatsappDemo?: WhatsappDemoResolvers<ContextType>;

@@ -122,6 +122,10 @@ import { socialTypeDefs, socialResolvers } from '../modules/social';
 import { approvalsTypeDefs, approvalsResolvers } from '../modules/approvals';
 import { logsTypeDefs, logsResolvers } from '../modules/logs';
 import { whatsappDemoTypeDefs, whatsappDemoResolvers } from '../modules/whatsapp-demo';
+import {
+  whatsappChannelTypeDefs,
+  whatsappChannelResolvers,
+} from '../modules/whatsapp-demo/channel';
 import { JSONScalar } from './jsonScalar';
 
 type ResolverGroup = Record<string, Record<string, unknown> | undefined>;
@@ -243,6 +247,7 @@ export const typeDefs = [
   approvalsTypeDefs,
   logsTypeDefs,
   whatsappDemoTypeDefs,
+  whatsappChannelTypeDefs,
   ...itsmTypeDefs,
   analyticsTypeDefs,
   socialAccountsTypeDefs,
@@ -320,6 +325,7 @@ export const resolvers = mergeResolvers([
   approvalsResolvers,
   logsResolvers,
   whatsappDemoResolvers,
+  whatsappChannelResolvers,
   itsmResolvers,
   analyticsResolvers,
   socialAccountsResolvers,

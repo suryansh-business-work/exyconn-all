@@ -1,6 +1,6 @@
 /**
- * Validation for free-text capture. Patterns come from @exyconn/regex (which is why the engine
- * is a browser-side entry: that package ships source only).
+ * Validation for free-text capture. Patterns come from @exyconn/regex, so the browser chat and
+ * the real WhatsApp channel accept exactly what every portal form does.
  */
 import { z } from 'zod';
 import {

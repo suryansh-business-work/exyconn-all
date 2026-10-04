@@ -26,6 +26,7 @@ import { runOnce } from './lib/migrations';
 import { startReminderSweep } from './modules/reminders';
 import { startAuditRetention } from './modules/audit';
 import { ensureWhatsappDemoSeeds } from './modules/whatsapp-demo';
+import { startWhatsappReminders } from './modules/whatsapp-demo/channel';
 import { env } from './config/env';
 import { logger } from './utils/logger';
 
@@ -104,6 +105,9 @@ async function bootstrap(): Promise<void> {
   // Mail sent to the support address has to become a ticket even when nobody is watching
   // the mailbox, so the importer runs on the same terms as the schedulers above.
   startInboundMail();
+  // A reminder a demo workflow scheduled on the real WhatsApp number has to arrive whether or
+  // not anyone has the demo open.
+  startWhatsappReminders();
   // A run with no price on file costs zero, so the prices have to exist before the first
   // job does. Insert-only, so a price corrected in Tech survives every restart.
   await runAsPlatform(ensureAiModelPrices);

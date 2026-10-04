@@ -4881,6 +4881,7 @@ export type Mutation = {
   deleteUser: Scalars['Boolean']['output'];
   deleteWebhook: Scalars['Boolean']['output'];
   deleteWebsiteSubmission: Scalars['Boolean']['output'];
+  deleteWhatsappChannel: Scalars['Boolean']['output'];
   deleteWhatsappWorkflow: Scalars['Boolean']['output'];
   /** Switches two-factor off. Needs the password: a borrowed screen must not be enough. */
   disableMfa: Scalars['Boolean']['output'];
@@ -5030,6 +5031,7 @@ export type Mutation = {
   saveEmployeeSalary: SalaryStructure;
   saveSocialAppConfig: SocialAppConfig;
   saveTrackerBuildSettings: TrackerBuildSettings;
+  saveWhatsappChannel: WhatsappChannel;
   saveWhatsappWorkflowDraft: WhatsappWorkflow;
   /**
    * Recovery for a portal with no administrator: mails a fresh password for the
@@ -6931,6 +6933,11 @@ export type MutationSaveSocialAppConfigArgs = {
 export type MutationSaveTrackerBuildSettingsArgs = {
   slackChannels: Array<Scalars['String']['input']>;
   statusAlertChannels?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+
+export type MutationSaveWhatsappChannelArgs = {
+  input: WhatsappChannelInput;
 };
 
 
@@ -10118,6 +10125,7 @@ export type Query = {
   websiteCaptcha: WebsiteCaptcha;
   /** The form identifiers the public website may submit under — the one allow-list. */
   websiteFormTypes: Array<Scalars['String']['output']>;
+  whatsappChannel: WhatsappChannelSettings;
   whatsappDemoAiStatus: WhatsappAiStatus;
   /** Every active demo with its published workflows, for the chat. */
   whatsappDemoCatalog: Array<WhatsappDemoBundle>;
@@ -14387,6 +14395,40 @@ export type WhatsappAiStatus = {
   __typename?: 'WhatsappAiStatus';
   configured: Scalars['Boolean']['output'];
   model?: Maybe<Scalars['String']['output']>;
+};
+
+export type WhatsappChannel = {
+  __typename?: 'WhatsappChannel';
+  /** The last characters of the stored token, to tell two apart; never the token. */
+  accessTokenHint?: Maybe<Scalars['String']['output']>;
+  displayPhone: Scalars['String']['output'];
+  enabled: Scalars['Boolean']['output'];
+  hasAccessToken: Scalars['Boolean']['output'];
+  hasAppSecret: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  phoneNumberId: Scalars['String']['output'];
+  updatedAt?: Maybe<Scalars['String']['output']>;
+  updatedByName?: Maybe<Scalars['String']['output']>;
+  verifyToken: Scalars['String']['output'];
+  webhookUrl: Scalars['String']['output'];
+};
+
+export type WhatsappChannelInput = {
+  /** Blank keeps the stored token. */
+  accessToken: Scalars['String']['input'];
+  /** Blank keeps the stored secret. */
+  appSecret: Scalars['String']['input'];
+  displayPhone: Scalars['String']['input'];
+  enabled: Scalars['Boolean']['input'];
+  phoneNumberId: Scalars['String']['input'];
+  verifyToken: Scalars['String']['input'];
+};
+
+export type WhatsappChannelSettings = {
+  __typename?: 'WhatsappChannelSettings';
+  channel?: Maybe<WhatsappChannel>;
+  /** Where the Meta app's webhook has to point. */
+  webhookUrl: Scalars['String']['output'];
 };
 
 export type WhatsappCount = {
@@ -21025,6 +21067,25 @@ export type DeleteWhatsappWorkflowMutationVariables = Exact<{
 
 export type DeleteWhatsappWorkflowMutation = { __typename?: 'Mutation', deleteWhatsappWorkflow: boolean };
 
+export type WhatsappChannelFieldsFragment = { __typename?: 'WhatsappChannel', id: string, phoneNumberId: string, displayPhone: string, verifyToken: string, enabled: boolean, hasAccessToken: boolean, accessTokenHint?: string | null, hasAppSecret: boolean, webhookUrl: string, updatedAt?: string | null, updatedByName?: string | null };
+
+export type WhatsappChannelQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type WhatsappChannelQuery = { __typename?: 'Query', whatsappChannel: { __typename?: 'WhatsappChannelSettings', webhookUrl: string, channel?: { __typename?: 'WhatsappChannel', id: string, phoneNumberId: string, displayPhone: string, verifyToken: string, enabled: boolean, hasAccessToken: boolean, accessTokenHint?: string | null, hasAppSecret: boolean, webhookUrl: string, updatedAt?: string | null, updatedByName?: string | null } | null } };
+
+export type SaveWhatsappChannelMutationVariables = Exact<{
+  input: WhatsappChannelInput;
+}>;
+
+
+export type SaveWhatsappChannelMutation = { __typename?: 'Mutation', saveWhatsappChannel: { __typename?: 'WhatsappChannel', id: string, phoneNumberId: string, displayPhone: string, verifyToken: string, enabled: boolean, hasAccessToken: boolean, accessTokenHint?: string | null, hasAppSecret: boolean, webhookUrl: string, updatedAt?: string | null, updatedByName?: string | null } };
+
+export type DeleteWhatsappChannelMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type DeleteWhatsappChannelMutation = { __typename?: 'Mutation', deleteWhatsappChannel: boolean };
+
 export const UserFieldsFragmentDoc = gql`
     fragment UserFields on User {
   id
@@ -23005,6 +23066,21 @@ export const WhatsappDemoSessionFieldsFragmentDoc = gql`
   flowsCompleted
   events
   status
+}
+    `;
+export const WhatsappChannelFieldsFragmentDoc = gql`
+    fragment WhatsappChannelFields on WhatsappChannel {
+  id
+  phoneNumberId
+  displayPhone
+  verifyToken
+  enabled
+  hasAccessToken
+  accessTokenHint
+  hasAppSecret
+  webhookUrl
+  updatedAt
+  updatedByName
 }
     `;
 export const ListUsersDocument = gql`
@@ -58760,3 +58836,106 @@ export function useDeleteWhatsappWorkflowMutation(baseOptions?: ApolloReactHooks
         return ApolloReactHooks.useMutation<DeleteWhatsappWorkflowMutation, DeleteWhatsappWorkflowMutationVariables>(DeleteWhatsappWorkflowDocument, options);
       }
 export type DeleteWhatsappWorkflowMutationHookResult = ReturnType<typeof useDeleteWhatsappWorkflowMutation>;
+export const WhatsappChannelDocument = gql`
+    query WhatsappChannel {
+  whatsappChannel {
+    webhookUrl
+    channel {
+      ...WhatsappChannelFields
+    }
+  }
+}
+    ${WhatsappChannelFieldsFragmentDoc}`;
+
+/**
+ * __useWhatsappChannelQuery__
+ *
+ * To run a query within a React component, call `useWhatsappChannelQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWhatsappChannelQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWhatsappChannelQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useWhatsappChannelQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<WhatsappChannelQuery, WhatsappChannelQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WhatsappChannelQuery, WhatsappChannelQueryVariables>(WhatsappChannelDocument, options);
+      }
+export function useWhatsappChannelLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WhatsappChannelQuery, WhatsappChannelQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WhatsappChannelQuery, WhatsappChannelQueryVariables>(WhatsappChannelDocument, options);
+        }
+// @ts-ignore
+export function useWhatsappChannelSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WhatsappChannelQuery, WhatsappChannelQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappChannelQuery, WhatsappChannelQueryVariables>;
+// @ts-ignore
+export function useWhatsappChannelSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappChannelQuery, WhatsappChannelQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WhatsappChannelQuery | undefined, WhatsappChannelQueryVariables>;
+export function useWhatsappChannelSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WhatsappChannelQuery, WhatsappChannelQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WhatsappChannelQuery, WhatsappChannelQueryVariables>(WhatsappChannelDocument, options);
+        }
+export type WhatsappChannelQueryHookResult = ReturnType<typeof useWhatsappChannelQuery>;
+export type WhatsappChannelLazyQueryHookResult = ReturnType<typeof useWhatsappChannelLazyQuery>;
+export type WhatsappChannelSuspenseQueryHookResult = ReturnType<typeof useWhatsappChannelSuspenseQuery>;
+export const SaveWhatsappChannelDocument = gql`
+    mutation SaveWhatsappChannel($input: WhatsappChannelInput!) {
+  saveWhatsappChannel(input: $input) {
+    ...WhatsappChannelFields
+  }
+}
+    ${WhatsappChannelFieldsFragmentDoc}`;
+
+/**
+ * __useSaveWhatsappChannelMutation__
+ *
+ * To run a mutation, you first call `useSaveWhatsappChannelMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveWhatsappChannelMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveWhatsappChannelMutation, { data, loading, error }] = useSaveWhatsappChannelMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSaveWhatsappChannelMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SaveWhatsappChannelMutation, SaveWhatsappChannelMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SaveWhatsappChannelMutation, SaveWhatsappChannelMutationVariables>(SaveWhatsappChannelDocument, options);
+      }
+export type SaveWhatsappChannelMutationHookResult = ReturnType<typeof useSaveWhatsappChannelMutation>;
+export const DeleteWhatsappChannelDocument = gql`
+    mutation DeleteWhatsappChannel {
+  deleteWhatsappChannel
+}
+    `;
+
+/**
+ * __useDeleteWhatsappChannelMutation__
+ *
+ * To run a mutation, you first call `useDeleteWhatsappChannelMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteWhatsappChannelMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteWhatsappChannelMutation, { data, loading, error }] = useDeleteWhatsappChannelMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useDeleteWhatsappChannelMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteWhatsappChannelMutation, DeleteWhatsappChannelMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteWhatsappChannelMutation, DeleteWhatsappChannelMutationVariables>(DeleteWhatsappChannelDocument, options);
+      }
+export type DeleteWhatsappChannelMutationHookResult = ReturnType<typeof useDeleteWhatsappChannelMutation>;

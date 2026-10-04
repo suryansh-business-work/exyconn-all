@@ -108,8 +108,15 @@ async function insertNew(events: StoredEvent[]): Promise<StoredEvent[]> {
   }
 }
 
+/** Whose events these are: a signed-in portal user, or a person on the real WhatsApp number. */
+export interface EventActor {
+  id: string;
+  name: string;
+  email: string;
+}
+
 /** Folds one session's newly stored events into its running aggregate. */
-async function foldSession(user: TokenPayload, userName: string, events: StoredEvent[]) {
+async function foldSession(actor: EventActor, events: StoredEvent[]) {
   const times = events.map((event) => event.at.getTime());
   const start = events.find((event) => event.type === 'SESSION_START');
   const count = (type: WhatsappEventType) => events.filter((event) => event.type === type).length;
@@ -118,9 +125,9 @@ async function foldSession(user: TokenPayload, userName: string, events: StoredE
   ];
   const sessionId = events[0].sessionId;
   await WhatsappDemoSessionModel.updateOne(
-    { sessionId, userId: user.id },
+    { sessionId, userId: actor.id },
     {
-      $setOnInsert: { userName, userEmail: user.email },
+      $setOnInsert: { userName: actor.name, userEmail: actor.email },
       $min: { startedAt: new Date(Math.min(...times)) },
       $max: { lastEventAt: new Date(Math.max(...times)) },
       $inc: {
@@ -135,27 +142,22 @@ async function foldSession(user: TokenPayload, userName: string, events: StoredE
     },
     { upsert: true },
   );
-  await WhatsappDemoSessionModel.updateOne({ sessionId, userId: user.id }, [
+  await WhatsappDemoSessionModel.updateOne({ sessionId, userId: actor.id }, [
     { $set: { durationMs: { $subtract: ['$lastEventAt', '$startedAt'] } } },
   ]);
 }
 
 /**
- * Stores events for the signed-in user and updates their sessions. Events for a session
- * somebody else owns are dropped: the user always comes from the token, never the client.
- * Returns how many events were new.
+ * Stores an actor's events and updates their sessions. Events for a session somebody else
+ * owns are dropped. Returns how many events were new.
  */
-export async function storeEvents(
-  ctx: GraphQLContext,
-  user: TokenPayload,
-  events: StoredEvent[],
-): Promise<number> {
+export async function storeActorEvents(actor: EventActor, events: StoredEvent[]): Promise<number> {
   const sessionIds = [...new Set(events.map((event) => event.sessionId))];
   const foreign = new Set(
     (
       await WhatsappDemoSessionModel.find({
         sessionId: { $in: sessionIds },
-        userId: { $ne: user.id },
+        userId: { $ne: actor.id },
       })
         .select('sessionId')
         .lean()
@@ -166,18 +168,23 @@ export async function storeEvents(
     return 0;
   }
   const stored = await insertNew(own);
-  if (stored.length === 0) {
-    return 0;
-  }
-  const userName = await actorNameOf(ctx);
   for (const sessionId of new Set(stored.map((event) => event.sessionId))) {
     await foldSession(
-      user,
-      userName,
+      actor,
       stored.filter((event) => event.sessionId === sessionId),
     );
   }
   return stored.length;
+}
+
+/** The same for the signed-in user: the user always comes from the token, never the client. */
+export async function storeEvents(
+  ctx: GraphQLContext,
+  user: TokenPayload,
+  events: StoredEvent[],
+): Promise<number> {
+  const name = await actorNameOf(ctx);
+  return storeActorEvents({ id: user.id, name, email: user.email }, events);
 }
 
 export async function recordEvents(
