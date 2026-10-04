@@ -36,6 +36,8 @@ export const organizationsTypeDefs = gql`
     fiscalYearStartMonth: Int!
     taxSystem: TaxSystem!
     contactEmail: String!
+    "Its logo (an https URL), or empty when none was uploaded."
+    logoUrl: String!
     "Whether this is the company that operates the platform itself. Read-only; set at boot."
     isPlatformOperator: Boolean!
     createdAt: DateTime!
@@ -53,6 +55,7 @@ export const organizationsTypeDefs = gql`
     fiscalYearStartMonth: Int
     taxSystem: TaxSystem
     contactEmail: String
+    logoUrl: String
   }
 
   input OrganizationUpdateInput {
@@ -65,6 +68,7 @@ export const organizationsTypeDefs = gql`
     fiscalYearStartMonth: Int
     taxSystem: TaxSystem
     contactEmail: String
+    logoUrl: String
   }
 
   "The person a company is handed over to — its first administrator."
@@ -83,7 +87,7 @@ export const organizationsTypeDefs = gql`
     organizations: [Organization!]!
     "One organization (SUPER_ADMIN)."
     organization(id: ID!): Organization!
-    "The signed-in person's own company, or null for a platform administrator."
+    "The company this request works in: the person's own, or for a SUPER_ADMIN the one the portal's address names. Null for a platform administrator with no company."
     myOrganization: Organization
   }
 

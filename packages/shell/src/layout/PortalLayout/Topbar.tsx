@@ -23,6 +23,7 @@ import { useAuth } from '@/auth/AuthContext';
 import { useColorMode } from '@/theme/ColorModeContext';
 import { TopbarSearch } from './TopbarSearch';
 import { CommandPalette, useCommandPalette } from '../CommandPalette';
+import { OrganizationSwitcher } from '../OrganizationSwitcher';
 import { NotificationBell } from './NotificationBell';
 import { ApprovalsBell } from './ApprovalsBell';
 import { PAGE_GUTTER, TOPBAR_HEIGHT } from './metrics';
@@ -115,6 +116,7 @@ export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
         <Box aria-hidden sx={{ flexGrow: 1, display: { xs: 'block', md: 'none' } }} />
         {/* Left out on a phone rather than squeezed: the palette's own shortcut has no
             meaning on a touch keyboard, and the hamburger beside it opens the same modules. */}
+        {user && <OrganizationSwitcher />}
         {user && !onPhone && <TopbarSearch onOpen={() => palette.setOpen(true)} />}
         <Box sx={{ textAlign: 'right', mx: 1.5, display: { xs: 'none', sm: 'block' } }}>
           <Typography

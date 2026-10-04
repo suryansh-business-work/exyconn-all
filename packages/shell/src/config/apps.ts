@@ -1,5 +1,6 @@
 import appsRegistry from '@exyconn/config/apps.json';
 import { env } from './env';
+import { ORGANIZATION_BASENAME } from './organizationPath';
 
 /**
  * Every micro-frontend that makes up the portal. Each one is its own Vite build,
@@ -21,10 +22,15 @@ export function appOrigin(app: PortalAppKey): string {
   return `https://${subdomain}.${env.portalDomain}`;
 }
 
+/** Where an app's pages start for the company this page shows: its origin plus the company prefix. */
+export function appBaseUrl(app: PortalAppKey): string {
+  return `${appOrigin(app)}${ORGANIZATION_BASENAME}`;
+}
+
 /** Relative path when the target is this app, absolute URL when it is another one. */
 export function appUrl(app: PortalAppKey, path: string): string {
-  return app === env.portalApp ? path : `${appOrigin(app)}${path}`;
+  return app === env.portalApp ? path : `${appBaseUrl(app)}${path}`;
 }
 
 /** Landing app that hosts the module launcher. */
-export const HUB_URL = appOrigin('hub');
+export const HUB_URL = appBaseUrl('hub');

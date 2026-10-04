@@ -8347,6 +8347,8 @@ export type Organization = {
   legalName: Scalars['String']['output'];
   /** BCP 47 language tag the company reads by default. */
   locale: Scalars['String']['output'];
+  /** Its logo (an https URL), or empty when none was uploaded. */
+  logoUrl: Scalars['String']['output'];
   name: Scalars['String']['output'];
   /** URL-safe handle, unique across the platform. */
   slug: Scalars['String']['output'];
@@ -8370,6 +8372,7 @@ export type OrganizationInput = {
   fiscalYearStartMonth?: InputMaybe<Scalars['Int']['input']>;
   legalName?: InputMaybe<Scalars['String']['input']>;
   locale?: InputMaybe<Scalars['String']['input']>;
+  logoUrl?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   slug?: InputMaybe<Scalars['String']['input']>;
   taxSystem?: InputMaybe<TaxSystem>;
@@ -8388,6 +8391,7 @@ export type OrganizationUpdateInput = {
   fiscalYearStartMonth?: InputMaybe<Scalars['Int']['input']>;
   legalName?: InputMaybe<Scalars['String']['input']>;
   locale?: InputMaybe<Scalars['String']['input']>;
+  logoUrl?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   taxSystem?: InputMaybe<TaxSystem>;
   timezone?: InputMaybe<Scalars['String']['input']>;
@@ -9888,7 +9892,7 @@ export type Query = {
   myNotifications: Array<Notification>;
   /** Self-service: the signed-in employee's own checklist. Null when they have none. */
   myOnboarding?: Maybe<OnboardingChecklist>;
-  /** The signed-in person's own company, or null for a platform administrator. */
+  /** The company this request works in: the person's own, or for a SUPER_ADMIN the one the portal's address names. Null for a platform administrator with no company. */
   myOrganization?: Maybe<Organization>;
   /** Self-service: the signed-in employee's salary structure (null if unset). */
   myPayroll?: Maybe<SalaryStructure>;
@@ -19384,6 +19388,7 @@ export type OrganizationResolvers<ContextType = GraphQLContext, ParentType exten
   isPlatformOperator?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   legalName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   locale?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  logoUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['OrganizationStatus'], ParentType, ContextType>;

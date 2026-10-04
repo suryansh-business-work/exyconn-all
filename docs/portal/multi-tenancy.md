@@ -5,8 +5,25 @@ record carries the organization it belongs to. A person belongs to exactly one c
 platform's own administrators (`SUPER_ADMIN`) stand above all of them, create them, and appoint
 each one's first administrator — who then administers that company without the platform's help.
 
-URLs did not change: `hr.exyconn.com` is still the HR portal, and which company you see comes
-from who you signed in as.
+Every portal address names the company it shows: `hr.exyconn.com/organization/acme/hr/leave`.
+An address without the prefix (a bookmark, an email link) is moved onto the signed-in person's
+company as soon as the portal knows it.
+
+## Working in another company (SUPER_ADMIN)
+
+A platform administrator picks a company from the switcher in the top bar (shown once there is
+more than one open company). It loads the same page under that company's address — a full page
+load, so nothing of the previous company stays in the Apollo cache.
+
+| Piece                                           | What it does                                                                                                                                                                                                |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `packages/shell/src/config/organizationPath.ts` | Reads `/organization/:slug` from the address once; it is the router's `basename`, so routes and links are written without it. Cross-app links get it through `appBaseUrl()`.                                |
+| Apollo `authLink`                               | Sends the slug as the `x-organization` header.                                                                                                                                                              |
+| `server/src/middleware/actingOrganization.ts`   | Honours the header only for a `SUPER_ADMIN`, and only for an ACTIVE company; anyone else stays in their own company.                                                                                        |
+| `OrganizationUrlSync` (shell)                   | When `myOrganization` (the company the API answered for) differs from the address, replaces the address with that company's — so a person cannot sit on another company's URL.                              |
+| `TenantScope.self`                              | While a platform administrator works in another company, a lookup of **their own** account by its id still reaches it in their own company (profile, `me`). Lists of a company's people never include them. |
+
+Each company's logo is uploaded in Admin › Organizations (ImageKit) and shown in the switcher.
 
 ## How isolation is enforced
 
@@ -47,8 +64,9 @@ companies can both have an `INV-001`.
 ## Roles
 
 `SUPER_ADMIN` is the platform's role: create organizations, appoint their administrators,
-suspend them. It is **not** a way to read a company's data — a platform administrator's session
-carries no organization, so company queries are refused. `ADMIN` remains the top of one company.
+suspend them, and work inside any open company by choosing it in the switcher — every request is
+still confined to that ONE company. Their own roles (normally `ADMIN` alongside `SUPER_ADMIN`)
+apply there. `ADMIN` remains the top of one company.
 
 ## Scheduled work
 

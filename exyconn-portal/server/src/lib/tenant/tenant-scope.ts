@@ -14,6 +14,18 @@ export interface TenantScope {
   organizationId: string | null;
   /** True when the caller deliberately works across organizations. */
   platform: boolean;
+  /**
+   * Set only while a platform administrator works inside a company other than their own: their
+   * account record still lives in their own company, and they must keep reaching it (see
+   * tenant-plugin.ts). Nothing else of theirs crosses over.
+   */
+  self?: TenantSelf | null;
+}
+
+/** The caller's own account, and the company it is filed under. */
+export interface TenantSelf {
+  userId: string;
+  organizationId: string;
 }
 
 /** Thrown when data is touched with no organization decided. */
@@ -115,6 +127,14 @@ export function setScopeOrganization(organizationId: string | null, platform = f
   }
   scope.organizationId = organizationId;
   scope.platform = platform;
+}
+
+/** Lets the CURRENT scope reach the caller's own account while it works in another company. */
+export function setScopeSelf(self: TenantSelf | null): void {
+  const scope = storage.getStore();
+  if (scope !== undefined) {
+    scope.self = self;
+  }
 }
 
 /**

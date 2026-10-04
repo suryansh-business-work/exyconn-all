@@ -5,6 +5,7 @@ import { onError } from '@apollo/client/link/error';
 import { env } from './env';
 import { activityLink, BACKGROUND_REQUEST } from './networkActivity';
 import { tokenStore } from '@/auth/tokenStore';
+import { CURRENT_ORGANIZATION_SLUG, ORGANIZATION_HEADER } from './organizationPath';
 import { ReportClientLogsDocument } from '@/graphql/generated';
 import { setLogTransport } from '@/logging/portalLogger';
 import { reportApolloError } from '@/logging/reportApolloError';
@@ -12,9 +13,21 @@ import { reportApolloError } from '@/logging/reportApolloError';
 /** Single ApolloClient instance shared across the app (singleton). */
 const httpLink = createHttpLink({ uri: env.graphqlUrl });
 
+// The company the address names travels with every request; the API decides whether the
+// caller may work in it (only a SUPER_ADMIN may leave their own).
+const organizationHeader = CURRENT_ORGANIZATION_SLUG
+  ? { [ORGANIZATION_HEADER]: CURRENT_ORGANIZATION_SLUG }
+  : {};
+
 const authLink = setContext((_operation, { headers }) => {
   const token = tokenStore.get();
-  return { headers: { ...headers, ...(token ? { authorization: `Bearer ${token}` } : {}) } };
+  return {
+    headers: {
+      ...headers,
+      ...organizationHeader,
+      ...(token ? { authorization: `Bearer ${token}` } : {}),
+    },
+  };
 });
 
 // Apollo 4 hands the handler one `error` rather than separate GraphQL and network lists;

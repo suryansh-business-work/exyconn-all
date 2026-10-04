@@ -1719,6 +1719,7 @@ export type OrganizationInput = {
   fiscalYearStartMonth: InputMaybe<Scalars['Int']['input']>;
   legalName: InputMaybe<Scalars['String']['input']>;
   locale: InputMaybe<Scalars['String']['input']>;
+  logoUrl: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   slug: InputMaybe<Scalars['String']['input']>;
   taxSystem: InputMaybe<TaxSystem>;
@@ -1736,6 +1737,7 @@ export type OrganizationUpdateInput = {
   fiscalYearStartMonth: InputMaybe<Scalars['Int']['input']>;
   legalName: InputMaybe<Scalars['String']['input']>;
   locale: InputMaybe<Scalars['String']['input']>;
+  logoUrl: InputMaybe<Scalars['String']['input']>;
   name: InputMaybe<Scalars['String']['input']>;
   taxSystem: InputMaybe<TaxSystem>;
   timezone: InputMaybe<Scalars['String']['input']>;

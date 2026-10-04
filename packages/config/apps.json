@@ -3,97 +3,97 @@
     "subdomain": "portal",
     "port": 4003,
     "title": "Exyconn Track",
-    "description": "Exyconn Track — internal role-based operations portal."
+    "description": "Exyconn Track — one sign-in for every Exyconn portal: HR, finance, CRM, support, projects and more, each opened by role."
   },
   "admin": {
     "subdomain": "admin",
     "port": 4020,
     "title": "Admin · Exyconn Track",
-    "description": "Exyconn Track — Admin module."
+    "description": "Exyconn Track Admin — organizations, users, roles and permissions, branding, localization, integrations and the audit log."
   },
   "employee": {
     "subdomain": "employee",
     "port": 4021,
     "title": "My Workspace · Exyconn Track",
-    "description": "Exyconn Track — My Workspace module."
+    "description": "Exyconn Track My Workspace — leave, attendance, payslips, expenses, requests, goals, learning and team updates in one place."
   },
   "finance": {
     "subdomain": "finance",
     "port": 4022,
     "title": "Finance · Exyconn Track",
-    "description": "Exyconn Track — Finance module."
+    "description": "Exyconn Track Finance — invoices, recurring billing, payments, receivables, expenses, cost centres and budget vs actual."
   },
   "support": {
     "subdomain": "support",
     "port": 4023,
     "title": "Support · Exyconn Track",
-    "description": "Exyconn Track — Support module."
+    "description": "Exyconn Track Support — customer tickets with SLA policies, a knowledge base and canned replies."
   },
   "crm": {
     "subdomain": "crm",
     "port": 4024,
     "title": "CRM · Exyconn Track",
-    "description": "Exyconn Track — CRM module."
+    "description": "Exyconn Track CRM — leads, deals, activities, companies and contacts across the sales pipeline."
   },
   "products": {
     "subdomain": "products",
     "port": 4025,
     "title": "Products · Exyconn Track",
-    "description": "Exyconn Track — Products module."
+    "description": "Exyconn Track Products — the product catalogue, suppliers, purchase orders and stock levels."
   },
   "legal": {
     "subdomain": "legal",
     "port": 4026,
     "title": "Legal · Exyconn Track",
-    "description": "Exyconn Track — Legal module."
+    "description": "Exyconn Track Legal — policies, documents, contracts and electronic signatures."
   },
   "hr": {
     "subdomain": "hr",
     "port": 4027,
     "title": "HR · Exyconn Track",
-    "description": "Exyconn Track — HR module."
+    "description": "Exyconn Track HR — employee records, org chart, onboarding, hiring, attendance, shifts, leave and payroll."
   },
   "marketing": {
     "subdomain": "marketing",
     "port": 4028,
     "title": "Marketing · Exyconn Track",
-    "description": "Exyconn Track — Marketing module."
+    "description": "Exyconn Track Marketing — email campaigns, audiences, suppression lists and social media scheduling."
   },
   "projects": {
     "subdomain": "projects",
     "port": 4029,
     "title": "Projects · Exyconn Track",
-    "description": "Exyconn Track — Projects module."
+    "description": "Exyconn Track Projects — projects, tasks, bugs and logged time for every team."
   },
   "ai": {
     "subdomain": "ai",
     "port": 4030,
     "title": "AI · Exyconn Track",
-    "description": "Exyconn Track — AI module."
+    "description": "Exyconn Track AI — AI jobs and a shared prompt library for the whole company."
   },
   "website": {
     "subdomain": "website",
     "port": 4031,
     "title": "Website · Exyconn Track",
-    "description": "Exyconn Track — Website module."
+    "description": "Exyconn Track Website — the exyconn.com content desk: blog, case studies, jobs, tools, navigation and form submissions."
   },
   "tracker": {
     "subdomain": "tracker",
     "port": 4032,
     "title": "Time Tracker · Exyconn Track",
-    "description": "Exyconn Track — Time Tracker module."
+    "description": "Exyconn Track Time Tracker — desktop and phone time tracking with activity, devices, billing and app downloads."
   },
   "tech": {
     "subdomain": "tech",
     "port": 4033,
     "title": "Tech · Exyconn Track",
-    "description": "Exyconn Track — Tech module."
+    "description": "Exyconn Track Tech — environment variables, email templates, DNS, status monitors, background jobs, logs and builds."
   },
   "it": {
     "subdomain": "it",
     "port": 4034,
     "title": "IT · Exyconn Track",
-    "description": "Exyconn Track — IT module."
+    "description": "Exyconn Track IT — helpdesk, assets, software licences, access management, onboarding, incidents and security."
   },
   "compliance": {
     "subdomain": "compliance",

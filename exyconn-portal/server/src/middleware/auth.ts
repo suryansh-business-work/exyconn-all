@@ -4,7 +4,8 @@ import { UserModel } from '../modules/admin/user.model';
 import { recordActivity } from '../modules/admin/presence';
 import type { Role } from '../constants/roles';
 import { principalForApiKey } from '../modules/integrations/api-key.service';
-import { organizationOf, runAsPlatform, setScopeOrganization } from '../lib/tenant';
+import { organizationOf, runAsPlatform, setScopeOrganization, setScopeSelf } from '../lib/tenant';
+import { actingOrganization } from './actingOrganization';
 import { OrganizationModel } from '../modules/organizations/organization.model';
 import { deviceMayRun, deviceTokenIsLive } from '../modules/tracker/tracker.auth';
 import { sessionIsLive } from '../modules/auth/session.service';
@@ -168,11 +169,18 @@ export async function buildContext({ req }: { req: Request }): Promise<GraphQLCo
 
   const roles = fresh.roles as Role[];
   // The record is the authority on which company a person is in, not the week-old token.
-  const organizationId = organizationOf(fresh);
+  const home = organizationOf(fresh);
+  // A platform administrator may work inside the company the portal's address names; anyone
+  // else always works in their own (see actingOrganization).
+  const organizationId = await actingOrganization(req, roles, home);
   // Never a platform scope, not even for a platform administrator: their console asks for one
-  // where it means to (organizations.service), and everything else stays confined to their own
+  // where it means to (organizations.service), and everything else stays confined to ONE
   // company — so "list the employees" can never quietly mean every company's employees at once.
   setScopeOrganization(organizationId, false);
+  // Inside another company their own account is still theirs to read and edit (profile, me).
+  setScopeSelf(
+    home !== null && home !== organizationId ? { userId: decoded.id, organizationId: home } : null,
+  );
   // Drives "online" on profiles. Not awaited: it never slows or fails the request.
   recordActivity(decoded.id).catch(() => undefined);
 

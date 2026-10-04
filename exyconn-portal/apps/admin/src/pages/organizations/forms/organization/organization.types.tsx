@@ -12,6 +12,7 @@ export interface OrganizationFormValues {
   timezone: string;
   fiscalYearStartMonth: number;
   contactEmail: string;
+  logoUrl: string;
 }
 
 export type { OrganizationStatus };

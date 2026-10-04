@@ -26,6 +26,7 @@ export interface OrganizationInput {
   fiscalYearStartMonth?: number;
   taxSystem?: TaxSystem;
   contactEmail?: string;
+  logoUrl?: string;
 }
 
 export interface OrganizationAdminInput {
@@ -59,6 +60,20 @@ function validate(input: Partial<OrganizationInput>): void {
   }
   if (input.locale !== undefined && canonicalLocale(input.locale) === null) {
     badRequest(`"${input.locale}" is not a language tag this system knows.`);
+  }
+  if (input.logoUrl !== undefined && input.logoUrl !== '' && !isWebAddress(input.logoUrl)) {
+    badRequest('The logo must be a web address (http or https).');
+  }
+}
+
+const WEB_PROTOCOLS = new Set(['http:', 'https:']);
+
+/** Whether a value is an absolute web address — the only kind a logo may be served from. */
+function isWebAddress(value: string): boolean {
+  try {
+    return WEB_PROTOCOLS.has(new URL(value).protocol);
+  } catch {
+    return false;
   }
 }
 

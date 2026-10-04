@@ -30,9 +30,53 @@ const THEME_COLOR = { light: "#ffffff", dark: "#09090b" };
 /** What a cold start paints before the first frame — the light page background. */
 const BACKGROUND_COLOR = THEME_COLOR.light;
 
+/** The share image every portal shows in a link preview: the app icon, 512px square. */
+const SHARE_IMAGE = { path: "/pwa/icon-any-512.png", size: "512" };
+
+/**
+ * Where an app is served from: its subdomain of VITE_PORTAL_DOMAIN (set by the Docker build),
+ * or its localhost port in dev. Link previews need absolute addresses.
+ */
+function appOrigin(app) {
+  const { subdomain, port } = PORTAL_APPS[app];
+  const domain = process.env.VITE_PORTAL_DOMAIN;
+  return domain ? `https://${subdomain}.${domain}` : `http://localhost:${port}`;
+}
+
+const metaTag = (attr, key, content) => ({
+  tag: "meta",
+  attrs: { [attr]: key, content },
+  injectTo: "head",
+});
+
+/**
+ * Open Graph + Twitter card tags, so a link pasted into WhatsApp, Slack, LinkedIn or X shows
+ * the app's own title, description and icon instead of whatever text a scraper finds first.
+ */
+function shareTags(app) {
+  const { title, description } = PORTAL_APPS[app];
+  const origin = appOrigin(app);
+  const image = `${origin}${SHARE_IMAGE.path}`;
+  return [
+    metaTag("property", "og:type", "website"),
+    metaTag("property", "og:site_name", PORTAL_APPS.hub.title),
+    metaTag("property", "og:title", title),
+    metaTag("property", "og:description", description),
+    metaTag("property", "og:url", `${origin}/`),
+    metaTag("property", "og:image", image),
+    metaTag("property", "og:image:width", SHARE_IMAGE.size),
+    metaTag("property", "og:image:height", SHARE_IMAGE.size),
+    metaTag("property", "og:image:alt", title),
+    metaTag("name", "twitter:card", "summary"),
+    metaTag("name", "twitter:title", title),
+    metaTag("name", "twitter:description", description),
+    metaTag("name", "twitter:image", image),
+  ];
+}
+
 /**
  * Injects the `<head>` every portal app shares — favicon, description, the Inter
- * webfont and the page title — from the app registry, so the per-app `index.html`
+ * webfont, the page title and the link-preview tags — from the app registry, so the per-app `index.html`
  * stays a bare mount point and there is one place to change the shared metadata.
  */
 function portalHtml(app) {
@@ -112,6 +156,7 @@ function portalHtml(app) {
             injectTo: "head",
           },
           { tag: "title", children: title, injectTo: "head" },
+          ...shareTags(app),
         ],
       }),
     },

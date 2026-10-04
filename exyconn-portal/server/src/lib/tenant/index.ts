@@ -14,5 +14,7 @@ export {
   runInScope,
   setDefaultScope,
   setScopeOrganization,
+  setScopeSelf,
   type TenantScope,
+  type TenantSelf,
 } from './tenant-scope';
