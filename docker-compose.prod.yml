@@ -274,6 +274,16 @@ services:
       # Only the status directory, never the archive directory: a dump of the whole
       # company has no business being readable inside a web-facing container.
       - /opt/exyconn-backup-status:/var/lib/exyconn/backup:ro
+    # Boot writes every company's defaults and repairs before the API listens (server.ts), so
+    # startup grows with the number of organizations and outran the image's 20s start period
+    # (deploy 37204180164). Failures inside start_period do not count, and the first passing
+    # check marks the API healthy at once, so a fast boot is not slowed down.
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '--spider', 'http://127.0.0.1:4004/health']
+      interval: 30s
+      timeout: 10s
+      start_period: 300s
+      retries: 3
     depends_on:
       - docker-proxy
     # default: the host-published port; docker-api: the only route to the socket proxy.
