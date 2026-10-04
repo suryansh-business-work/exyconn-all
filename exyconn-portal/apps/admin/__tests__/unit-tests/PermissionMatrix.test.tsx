@@ -152,7 +152,11 @@ describe('PermissionMatrix', () => {
     await user.click(saveBar() as HTMLElement);
     expect(await screen.findByText('Saved 2 module(s) for HR')).toBeInTheDocument();
     await waitFor(() => expect(saveBar()).toBeNull());
-    expect(within(rowOf('Activity')).getByText('Restricted')).toBeInTheDocument();
+    // The draft is cleared as the reload lands, and Apollo re-renders the reloaded rows a
+    // tick later — so the chips are waited for rather than read in the same render.
+    await waitFor(() =>
+      expect(within(rowOf('Activity')).getByText('Restricted')).toBeInTheDocument(),
+    );
     expect(within(rowOf('Budget')).getByText('Default')).toBeInTheDocument();
   });
 
