@@ -1,0 +1,53 @@
+/* The live WhatsApp demo on /services/whatsapp-chatbot: the access form and the framed demo. */
+
+.wa-access {
+  padding: var(--space-6);
+}
+
+@media (min-width: 640px) {
+  .wa-access {
+    padding: var(--space-8);
+  }
+}
+
+.wa-live {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.wa-live__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.wa-live__dot {
+  display: inline-block;
+  width: var(--space-2);
+  height: var(--space-2);
+  margin-right: var(--space-2);
+  border-radius: var(--radius-circle);
+  background: var(--color-green);
+  box-shadow: 0 0 0 var(--space-1) var(--color-green-soft);
+  vertical-align: middle;
+}
+
+/* The demo app is WhatsApp-width on a phone and WhatsApp Web on a wide screen; the frame
+   follows the page width and keeps a screen's worth of height. */
+.wa-live__device {
+  overflow: hidden;
+  border: var(--border-width-heavy) solid var(--color-line-strong);
+  border-radius: var(--radius-3xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-xl);
+}
+
+.wa-live__frame {
+  display: block;
+  width: 100%;
+  height: clamp(32rem, 80vh, 48rem);
+  border: 0;
+}

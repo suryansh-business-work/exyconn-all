@@ -100,14 +100,15 @@ export const tabForKey = (key: string, current: number, total: number): number |
   TAB_KEYS[key]?.(current, total);
 
 export type DetailChapter =
-  "intro" | "architecture" | "offerings" | "tabs" | "process" | "faq" | "related";
+  "intro" | "live" | "architecture" | "offerings" | "tabs" | "process" | "faq" | "related";
 
 /** Chapter numbers in page order; chapters a page does not have get no number. */
 export const detailChapters = (
-  page: Pick<DetailPage, "section" | "architecture" | "tabs">
+  page: Pick<DetailPage, "section" | "architecture" | "tabs" | "liveDemo">
 ): Partial<Record<DetailChapter, number>> => {
   const shown: DetailChapter[] = [
     "intro",
+    ...(page.liveDemo ? (["live"] as const) : []),
     ...(page.architecture ? (["architecture"] as const) : []),
     "offerings",
     ...(page.tabs ? (["tabs"] as const) : []),

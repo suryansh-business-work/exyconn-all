@@ -73,6 +73,7 @@ export const SITE_ROUTES: readonly SitemapSection[] = [
       link("Maintenance", "/services/maintenance"),
       link("Mobile app development", "/services/mobile-application-development"),
       link("Software as a service", "/services/software-as-a-service"),
+      link("WhatsApp chatbot", "/services/whatsapp-chatbot"),
       link("Software development outsourcing", "/services/software-development-outsourcing"),
     ],
   },

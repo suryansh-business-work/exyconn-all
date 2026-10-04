@@ -76,6 +76,11 @@ const SERVICES: NavGroup = {
       href: "/services/automation-integration",
       text: "Connect your systems",
     },
+    {
+      label: "WhatsApp chatbot",
+      href: "/services/whatsapp-chatbot",
+      text: "Live demo inside WhatsApp",
+    },
     { label: "Maintenance", href: "/services/maintenance", text: "Keep software healthy" },
     {
       label: "Digital marketing",

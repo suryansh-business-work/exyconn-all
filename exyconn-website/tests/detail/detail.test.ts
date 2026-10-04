@@ -26,7 +26,7 @@ describe("detail page modules", () => {
     const keys = DETAIL_PAGES.map((page) => detailPath(page));
     expect(new Set(keys).size).toBe(15);
     expect(DETAIL_PAGES.filter((page) => page.section === "ai")).toHaveLength(7);
-    expect(DETAIL_PAGES.filter((page) => page.section === "services")).toHaveLength(8);
+    expect(DETAIL_PAGES.filter((page) => page.section === "services")).toHaveLength(9);
   });
 
   it("gives every page a unique name and an H1 of eight words or fewer", () => {

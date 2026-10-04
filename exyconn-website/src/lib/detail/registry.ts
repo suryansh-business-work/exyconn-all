@@ -14,6 +14,7 @@ import enterpriseApplication from "./services/enterprise-application";
 import maintenance from "./services/maintenance";
 import mobileApplicationDevelopment from "./services/mobile-application-development";
 import softwareAsAService from "./services/software-as-a-service";
+import whatsappChatbot from "./services/whatsapp-chatbot";
 
 /**
  * Every capability and service detail page, in the order the related cards walk them. Page
@@ -35,4 +36,5 @@ export const DETAIL_PAGES: readonly DetailPage[] = [
   maintenance,
   mobileApplicationDevelopment,
   softwareAsAService,
+  whatsappChatbot,
 ];

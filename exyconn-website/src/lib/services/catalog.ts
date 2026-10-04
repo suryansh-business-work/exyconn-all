@@ -73,6 +73,12 @@ export const servicePillars: readonly ServicePillar[] = [
         tags: ["Workflows", "APIs", "Integration"],
       },
       {
+        title: "WhatsApp chatbot",
+        summary: "Book, sell and support customers inside WhatsApp — try the live demo.",
+        href: "/services/whatsapp-chatbot",
+        tags: ["WhatsApp", "Chatbots", "Live demo"],
+      },
+      {
         title: "Maintenance & support",
         summary: "Keep your applications running smoothly with proactive support.",
         href: "/services/maintenance",

@@ -9,6 +9,7 @@ interface Action {
 export const DETAIL_COPY = {
   chapters: {
     intro: "What it is",
+    live: "Live demo",
     architecture: "Architecture",
     offerings: { ai: "Use cases", services: "What we deliver" },
     tabs: "Explore",

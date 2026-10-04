@@ -4,6 +4,8 @@
  * detail page (src/pages/[market]/services/*). A page passes its content module from
  * src/lib/detail/<section>/<slug>.ts; the chapters it shows follow from what the module has.
  *
+ * A page with `liveDemo` gets a "Live demo" chapter after What it is, filled from its `live` slot.
+ *
  * AI: hero → tools → What it is (+ demo) → Architecture → Use cases → Explore (tabs) → FAQ →
  * related → CTA. Services: hero → tools → What it is → What we deliver → How we work → FAQ →
  * related → CTA (the lattice re-forms into the service glyph there).
@@ -92,6 +94,23 @@ const chapter = (id: DetailChapter): number => chapters[id] ?? 0;
     benefits={page.benefits}
     demo={page.demo}
   />
+
+  {
+    page.liveDemo && (
+      <section class="inner-section stage-shell" id="try-demo" aria-labelledby="detail-live">
+        <ChapterHeading
+          index={chapter("live")}
+          label={copy.chapters.live}
+          title={page.liveDemo.title}
+          lede={page.liveDemo.lede}
+          id="detail-live"
+        />
+        <div class="mt-10">
+          <slot name="live" />
+        </div>
+      </section>
+    )
+  }
 
   {
     page.architecture && (
