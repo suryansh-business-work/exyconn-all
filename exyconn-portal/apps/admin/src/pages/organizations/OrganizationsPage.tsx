@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useT } from '@exyconn/i18n';
-import { Chip, Stack } from '@exyconn/shell/components/ui';
+import { Avatar, Chip, Stack } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
@@ -29,8 +29,18 @@ function OrganizationStatusChip({ status }: Readonly<{ status: OrganizationStatu
   );
 }
 
+/** The company's uploaded logo, or its initial when it has none. */
+function OrganizationLogoCell({ row }: Readonly<{ row: OrganizationRow }>) {
+  return (
+    <Avatar src={row.logoUrl || undefined} alt={row.name} variant="rounded">
+      {row.name.charAt(0).toUpperCase()}
+    </Avatar>
+  );
+}
+
 /** What each company is filed under, and the standards its portal runs in. */
 const COLUMNS: Column<OrganizationRow>[] = [
+  { key: 'logoUrl', label: 'Logo', render: (row) => <OrganizationLogoCell row={row} /> },
   { key: 'name', label: 'Company' },
   { key: 'slug', label: 'Handle' },
   { key: 'country', label: 'Country' },

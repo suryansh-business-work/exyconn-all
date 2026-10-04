@@ -8348,6 +8348,8 @@ export type Organization = {
   legalName: Scalars['String']['output'];
   /** BCP 47 language tag the company reads by default. */
   locale: Scalars['String']['output'];
+  /** Its logo (an https URL), or empty when none was uploaded. */
+  logoUrl: Scalars['String']['output'];
   name: Scalars['String']['output'];
   /** URL-safe handle, unique across the platform. */
   slug: Scalars['String']['output'];
@@ -8371,6 +8373,7 @@ export type OrganizationInput = {
   fiscalYearStartMonth?: InputMaybe<Scalars['Int']['input']>;
   legalName?: InputMaybe<Scalars['String']['input']>;
   locale?: InputMaybe<Scalars['String']['input']>;
+  logoUrl?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   slug?: InputMaybe<Scalars['String']['input']>;
   taxSystem?: InputMaybe<TaxSystem>;
@@ -8389,6 +8392,7 @@ export type OrganizationUpdateInput = {
   fiscalYearStartMonth?: InputMaybe<Scalars['Int']['input']>;
   legalName?: InputMaybe<Scalars['String']['input']>;
   locale?: InputMaybe<Scalars['String']['input']>;
+  logoUrl?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
   taxSystem?: InputMaybe<TaxSystem>;
   timezone?: InputMaybe<Scalars['String']['input']>;
@@ -9889,7 +9893,7 @@ export type Query = {
   myNotifications: Array<Notification>;
   /** Self-service: the signed-in employee's own checklist. Null when they have none. */
   myOnboarding?: Maybe<OnboardingChecklist>;
-  /** The signed-in person's own company, or null for a platform administrator. */
+  /** The company this request works in: the person's own, or for a SUPER_ADMIN the one the portal's address names. Null for a platform administrator with no company. */
   myOrganization?: Maybe<Organization>;
   /** Self-service: the signed-in employee's salary structure (null if unset). */
   myPayroll?: Maybe<SalaryStructure>;
@@ -18268,24 +18272,24 @@ export type DeleteOnboardingChecklistMutationVariables = Exact<{
 
 export type DeleteOnboardingChecklistMutation = { __typename?: 'Mutation', deleteOnboardingChecklist: boolean };
 
-export type OrganizationFieldsFragment = { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, taxSystem: TaxSystem, contactEmail: string, createdAt: string, updatedAt: string };
+export type OrganizationFieldsFragment = { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, taxSystem: TaxSystem, contactEmail: string, logoUrl: string, createdAt: string, updatedAt: string };
 
 export type OrganizationsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type OrganizationsQuery = { __typename?: 'Query', organizations: Array<{ __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, taxSystem: TaxSystem, contactEmail: string, createdAt: string, updatedAt: string }> };
+export type OrganizationsQuery = { __typename?: 'Query', organizations: Array<{ __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, taxSystem: TaxSystem, contactEmail: string, logoUrl: string, createdAt: string, updatedAt: string }> };
 
 export type MyOrganizationQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MyOrganizationQuery = { __typename?: 'Query', myOrganization?: { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, taxSystem: TaxSystem, contactEmail: string, createdAt: string, updatedAt: string } | null };
+export type MyOrganizationQuery = { __typename?: 'Query', myOrganization?: { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, taxSystem: TaxSystem, contactEmail: string, logoUrl: string, createdAt: string, updatedAt: string } | null };
 
 export type CreateOrganizationMutationVariables = Exact<{
   input: OrganizationInput;
 }>;
 
 
-export type CreateOrganizationMutation = { __typename?: 'Mutation', createOrganization: { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, taxSystem: TaxSystem, contactEmail: string, createdAt: string, updatedAt: string } };
+export type CreateOrganizationMutation = { __typename?: 'Mutation', createOrganization: { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, taxSystem: TaxSystem, contactEmail: string, logoUrl: string, createdAt: string, updatedAt: string } };
 
 export type UpdateOrganizationMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -18293,7 +18297,7 @@ export type UpdateOrganizationMutationVariables = Exact<{
 }>;
 
 
-export type UpdateOrganizationMutation = { __typename?: 'Mutation', updateOrganization: { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, taxSystem: TaxSystem, contactEmail: string, createdAt: string, updatedAt: string } };
+export type UpdateOrganizationMutation = { __typename?: 'Mutation', updateOrganization: { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, taxSystem: TaxSystem, contactEmail: string, logoUrl: string, createdAt: string, updatedAt: string } };
 
 export type SetOrganizationStatusMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -18301,7 +18305,7 @@ export type SetOrganizationStatusMutationVariables = Exact<{
 }>;
 
 
-export type SetOrganizationStatusMutation = { __typename?: 'Mutation', setOrganizationStatus: { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, taxSystem: TaxSystem, contactEmail: string, createdAt: string, updatedAt: string } };
+export type SetOrganizationStatusMutation = { __typename?: 'Mutation', setOrganizationStatus: { __typename?: 'Organization', id: string, name: string, slug: string, legalName: string, status: OrganizationStatus, country: string, currency: string, locale: string, timezone: string, fiscalYearStartMonth: number, taxSystem: TaxSystem, contactEmail: string, logoUrl: string, createdAt: string, updatedAt: string } };
 
 export type AssignOrganizationAdminMutationVariables = Exact<{
   organizationId: Scalars['ID']['input'];
@@ -22165,6 +22169,7 @@ export const OrganizationFieldsFragmentDoc = gql`
   fiscalYearStartMonth
   taxSystem
   contactEmail
+  logoUrl
   createdAt
   updatedAt
 }

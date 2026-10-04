@@ -1,5 +1,6 @@
 # The platform console over the tenancy: every company, and who administers it.
-# SUPER_ADMIN only, except `myOrganization`, which is how a portal names the company it shows.
+# SUPER_ADMIN only, except `myOrganization`, which is how a portal names the company it shows
+# (for a SUPER_ADMIN, the one its /organization/:slug address picked).
 
 fragment OrganizationFields on Organization {
   id
@@ -14,6 +15,7 @@ fragment OrganizationFields on Organization {
   fiscalYearStartMonth
   taxSystem
   contactEmail
+  logoUrl
   createdAt
   updatedAt
 }

@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { appOrigin, type PortalAppKey } from '@/config/apps';
+import { appBaseUrl, type PortalAppKey } from '@/config/apps';
 import { env } from '@/config/env';
 
 /**
@@ -15,7 +15,7 @@ export function useCrossAppNavigate() {
         navigate(path);
         return;
       }
-      window.location.assign(`${appOrigin(app)}${path}`);
+      window.location.assign(`${appBaseUrl(app)}${path}`);
     },
     [navigate],
   );

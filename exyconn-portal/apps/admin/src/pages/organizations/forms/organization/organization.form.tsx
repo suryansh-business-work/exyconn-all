@@ -2,9 +2,14 @@ import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { EMAIL } from '@exyconn/regex';
+import { EMAIL, HTTP_URL } from '@exyconn/regex';
 import { countryOptions, currencyOptions, timezoneOptions, useI18n } from '@exyconn/i18n';
-import { RhfAutocomplete, RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
+import {
+  RhfAutocomplete,
+  RhfImageField,
+  RhfSelect,
+  RhfTextField,
+} from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
@@ -34,6 +39,8 @@ const schema = z.object({
   fiscalYearStartMonth: z.string().regex(/^([1-9]|1[0-2])$/, 'Pick a month'),
   taxSystem: z.nativeEnum(TaxSystem),
   contactEmail: z.string().trim().regex(EMAIL, 'Enter a valid email').or(z.literal('')),
+  // Filled by the upload dialog with the hosted ImageKit address; optional.
+  logoUrl: z.string().trim().regex(HTTP_URL, 'Upload the logo again').or(z.literal('')),
 });
 type Values = z.infer<typeof schema>;
 
@@ -48,6 +55,7 @@ const toInitial = (row: OrganizationRow | null): Values => ({
   fiscalYearStartMonth: String(row?.fiscalYearStartMonth ?? 1),
   taxSystem: row?.taxSystem ?? TaxSystem.None,
   contactEmail: row?.contactEmail ?? '',
+  logoUrl: row?.logoUrl ?? '',
 });
 
 /** What the server takes: the month as a number, everything else as typed. */
@@ -57,9 +65,11 @@ function toInput(values: Values) {
 
 /** An edit changes everything except the handle, which the company is filed under. */
 function toUpdateInput(values: Values) {
-  const { name, legalName, country, currency, locale, timezone, contactEmail, taxSystem } = values;
+  const { name, legalName, country, currency, locale, timezone, contactEmail, taxSystem, logoUrl } =
+    values;
   return {
     name,
+    logoUrl,
     legalName,
     country,
     currency,
@@ -110,6 +120,12 @@ export function OrganizationForm({ initial, onDone, onCancel }: Readonly<Organiz
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
+      <RhfImageField
+        name="logoUrl"
+        label="Logo"
+        folder="organizations"
+        helperText="Shown where a platform administrator picks the company"
+      />
       <RhfTextField name="name" label="Company name" />
       <RhfTextField
         name="slug"

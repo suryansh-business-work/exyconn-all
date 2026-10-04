@@ -74,6 +74,7 @@ export const organizationsResolvers = {
     country: (organization: { country?: string | null }) => organization.country ?? '',
     contactEmail: (organization: { contactEmail?: string | null }) =>
       organization.contactEmail ?? '',
+    logoUrl: (organization: { logoUrl?: string | null }) => organization.logoUrl ?? '',
     isPlatformOperator: (organization: { isPlatformOperator?: boolean | null }) =>
       organization.isPlatformOperator === true,
   },

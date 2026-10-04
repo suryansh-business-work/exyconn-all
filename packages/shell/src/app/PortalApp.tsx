@@ -21,6 +21,8 @@ import { NotificationsPage } from '@/pages/Notifications';
 import { ApprovalsPage } from '@/pages/Approvals';
 import { RouteLogger } from '@/logging/RouteLogger';
 import { OfflineBanner, PwaUpdateBanner } from '@/pwa';
+import { ORGANIZATION_BASENAME } from '@/config/organizationPath';
+import { OrganizationUrlSync } from '@/routes/OrganizationUrlSync';
 
 /**
  * Where a password reset email sends people. Public, like /login, and served by the same
@@ -76,9 +78,12 @@ export function PortalApp({
                 <NetworkActivityBar />
                 <OfflineBanner />
                 <PwaUpdateBanner />
-                <BrowserRouter>
+                {/* Every address names its company (`/organization/:slug/...`); the prefix is
+                    the basename, so the routes below are written without it. */}
+                <BrowserRouter basename={ORGANIZATION_BASENAME}>
                   <RouteLogger />
                   <AuthProvider>
+                    <OrganizationUrlSync />
                     <Routes>
                       <Route path="/login" element={loginElement} />
                       <Route path={RESET_PASSWORD_PATH} element={loginElement} />

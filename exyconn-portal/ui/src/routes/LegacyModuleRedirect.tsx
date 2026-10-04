@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom';
-import { ExternalRedirect, appOrigin, appForPath, HUB_URL } from '@exyconn/shell';
+import { ExternalRedirect, appBaseUrl, appForPath, HUB_URL } from '@exyconn/shell';
 
 const LEGACY_PREFIX = '/portal';
 
@@ -12,5 +12,5 @@ export function LegacyModuleRedirect() {
   const { pathname, search } = useLocation();
   const path = pathname.slice(LEGACY_PREFIX.length);
   const app = appForPath(path);
-  return <ExternalRedirect to={app ? `${appOrigin(app)}${path}${search}` : HUB_URL} />;
+  return <ExternalRedirect to={app ? `${appBaseUrl(app)}${path}${search}` : HUB_URL} />;
 }
