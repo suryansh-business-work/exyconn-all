@@ -126,6 +126,10 @@ import {
   whatsappChannelTypeDefs,
   whatsappChannelResolvers,
 } from '../modules/whatsapp-demo/channel';
+import {
+  whatsappDemoVisitorTypeDefs,
+  whatsappDemoVisitorResolvers,
+} from '../modules/whatsapp-demo/visitor';
 import { JSONScalar } from './jsonScalar';
 
 type ResolverGroup = Record<string, Record<string, unknown> | undefined>;
@@ -248,6 +252,7 @@ export const typeDefs = [
   logsTypeDefs,
   whatsappDemoTypeDefs,
   whatsappChannelTypeDefs,
+  whatsappDemoVisitorTypeDefs,
   ...itsmTypeDefs,
   analyticsTypeDefs,
   socialAccountsTypeDefs,
@@ -326,6 +331,7 @@ export const resolvers = mergeResolvers([
   logsResolvers,
   whatsappDemoResolvers,
   whatsappChannelResolvers,
+  whatsappDemoVisitorResolvers,
   itsmResolvers,
   analyticsResolvers,
   socialAccountsResolvers,

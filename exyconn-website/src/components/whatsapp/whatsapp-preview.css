@@ -1,0 +1,149 @@
+/* The phone preview on /services/whatsapp-chatbot. Colours are the site's roles only. */
+
+.wa-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  margin: 0;
+}
+
+.wa-preview__phone {
+  width: min(100%, 22rem);
+  overflow: hidden;
+  border: var(--border-width-heavy) solid var(--color-line-strong);
+  border-radius: var(--radius-3xl);
+  background: var(--color-surface-subtle);
+  box-shadow: var(--shadow-xl);
+}
+
+.wa-preview__header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-green-night);
+  color: var(--color-on-solid);
+}
+
+.wa-preview__avatar {
+  display: grid;
+  place-items: center;
+  width: var(--space-10);
+  height: var(--space-10);
+  border-radius: var(--radius-circle);
+  background: var(--color-green-strong);
+}
+
+.wa-preview__who {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  line-height: var(--line-height-snug);
+}
+
+.wa-preview__name {
+  font-weight: var(--font-weight-semibold);
+}
+
+.wa-preview__status {
+  font-size: var(--font-size-xs);
+  color: var(--color-on-solid-muted);
+}
+
+.wa-preview__brand {
+  font-size: var(--font-size-2xl);
+  color: var(--color-green-bright);
+}
+
+.wa-preview__chat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: 30rem;
+  margin: 0;
+  padding: var(--space-4);
+  list-style: none;
+}
+
+.wa-preview__message {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  max-width: 85%;
+  animation: wa-preview-in 16s var(--ease-standard) infinite both;
+  animation-delay: calc(var(--i) * 1.6s);
+}
+
+.wa-preview__message--bot {
+  align-self: flex-start;
+}
+
+.wa-preview__message--customer {
+  align-self: flex-end;
+}
+
+.wa-preview__bubble {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-snug);
+  color: var(--color-fg);
+  box-shadow: var(--shadow-xs);
+}
+
+.wa-preview__message--bot .wa-preview__bubble {
+  background: var(--color-surface);
+  border-top-left-radius: var(--radius-xs);
+}
+
+.wa-preview__message--customer .wa-preview__bubble {
+  background: var(--color-green-soft);
+  border-top-right-radius: var(--radius-xs);
+}
+
+.wa-preview__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+.wa-preview__button {
+  padding: var(--space-1) var(--space-3);
+  border: var(--border-width-hairline) solid var(--color-line);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-green-fg);
+}
+
+.wa-preview__caption {
+  font-size: var(--font-size-sm);
+  color: var(--color-fg-muted);
+  text-align: center;
+}
+
+/* Each message arrives in turn and the whole conversation clears before it plays again. */
+@keyframes wa-preview-in {
+  0% {
+    opacity: 0;
+    transform: translateY(var(--space-2));
+  }
+  4%,
+  88% {
+    opacity: 1;
+    transform: none;
+  }
+  94%,
+  100% {
+    opacity: 0;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wa-preview__message {
+    animation: none;
+  }
+}

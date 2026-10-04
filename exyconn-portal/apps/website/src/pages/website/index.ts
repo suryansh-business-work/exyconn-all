@@ -7,3 +7,4 @@ export { GigsPage } from './GigsPage';
 export { ToolCategoriesPage } from './ToolCategoriesPage';
 export { ToolsPage } from './ToolsPage';
 export { NavLinksPage } from './NavLinksPage';
+export { WhatsappLeadsPage } from './whatsapp-leads/WhatsappLeadsPage';

@@ -19,7 +19,7 @@ import {
   getOpenGigs,
 } from "../../../lib/portal";
 import { safeHref } from "../../../lib/safe-output";
-import { MAX_FIGURES } from "../../../scripts/stage3d/shapes/figures";
+import { MAX_OPENINGS } from "../../../scripts/stage3d/shapes/workforce";
 
 const SITE_URL = (Astro.site?.toString() ?? "https://exyconn.com/").replace(/\/$/, "");
 const [roles, jobCompanies, openGigs, branding] = await Promise.all([
@@ -39,8 +39,8 @@ const stats = liveStats([
 ]);
 const linkedIn = safeHref(branding.linkedinUrl);
 const crumbs = [{ label: "Home", href: "/" }, { label: copy.crumb }];
-// One figure per open role in the constellation of people (the shape's own count when none).
-const figures = sceneCount(roles.length, 1, MAX_FIGURES);
+// A corporate HQ and a growing org chart: one empty seat per open role (the shape's own when none).
+const openings = sceneCount(roles.length, 1, MAX_OPENINGS);
 // Chapter numbers run on when there are no companies to show.
 const next = cards.companies.length > 0 ? 3 : 2;
 ---
@@ -59,7 +59,7 @@ const next = cards.companies.length > 0 ? 3 : 2;
     lede={copy.lede}
     primary={copy.primary}
     secondary={copy.secondary}
-    scene={{ shapes: ["figures"], data: { figures: { figures } } }}
+    scene={{ shapes: ["workforce"], data: { workforce: { openings } } }}
   />
   {stats.length > 0 && <ProofStrip variant="stats" label={copy.proofLabel} items={stats} />}
 

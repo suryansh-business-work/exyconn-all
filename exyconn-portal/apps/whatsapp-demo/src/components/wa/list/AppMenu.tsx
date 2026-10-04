@@ -13,8 +13,12 @@ import { canAccess, ROLES } from '@exyconn/shell/auth/roles';
 import { HUB_URL } from '@exyconn/shell/config/apps';
 import { useColorMode } from '@exyconn/shell/theme/ColorModeContext';
 import { AboutDialog } from './AboutDialog';
+import { clearVisitorPass } from '../../../visitor/visitorPass';
 
-/** The chat list's ⋮ menu — the only way out of the demo: back to the portal, or sign out. */
+/**
+ * The chat list's ⋮ menu — the only way out of the demo: back to the portal, or sign out. A demo
+ * visitor (email-and-code sign-in) has no portal to go back to; signing out drops their pass.
+ */
 export function AppMenu({ color }: Readonly<{ color: string }>) {
   const t = useT();
   const navigate = useNavigate();
@@ -24,6 +28,16 @@ export function AppMenu({ color }: Readonly<{ color: string }>) {
   const [about, setAbout] = useState(false);
   const close = () => setAnchor(null);
   const isAdmin = user ? canAccess(user.roles, ROLES.ADMIN) : false;
+  const handleSignOut = () => {
+    close();
+    if (user) {
+      signOut();
+      return;
+    }
+    clearVisitorPass();
+    // A full load: the visitor's cached chats and profile go with the pass.
+    globalThis.location.assign('/login');
+  };
   return (
     <>
       <IconButton
@@ -70,18 +84,15 @@ export function AppMenu({ color }: Readonly<{ color: string }>) {
             {t('Demo admin')}
           </MenuItem>
         ) : null}
-        <MenuItem component="a" href={HUB_URL}>
-          <ListItemIcon>
-            <AppsIcon fontSize="small" />
-          </ListItemIcon>
-          {t('Back to portal')}
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            close();
-            signOut();
-          }}
-        >
+        {user ? (
+          <MenuItem component="a" href={HUB_URL}>
+            <ListItemIcon>
+              <AppsIcon fontSize="small" />
+            </ListItemIcon>
+            {t('Back to portal')}
+          </MenuItem>
+        ) : null}
+        <MenuItem onClick={handleSignOut}>
           <ListItemIcon>
             <LogoutIcon fontSize="small" />
           </ListItemIcon>

@@ -95,6 +95,8 @@ export const detailPageSchema = z
       })
       .optional(),
     demo: demoSchema.optional(),
+    /** A chapter the page fills itself (the `live` slot), e.g. a product running on the page. */
+    liveDemo: z.object({ title: text, lede: text }).optional(),
     faqs: z.array(z.object({ question: text, answer: text })).min(1),
     logos: z.object({ label: text, keys: z.array(z.enum(LOGO_KEYS)).min(1) }).optional(),
     scene: sceneSchema,

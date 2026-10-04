@@ -35,6 +35,7 @@ import { sampleSpace } from "./space";
 import { sampleTerrain, TERRAIN_BOUNDS, type TerrainParams } from "./terrain";
 import { sampleTokenStream, TOKEN_STREAM_BOUNDS, type TokenStreamParams } from "./token-stream";
 import { sampleTree, TREE_BOUNDS, type TreeParams } from "./tree";
+import { sampleWorkforce, WORKFORCE_BOUNDS, type WorkforceParams } from "./workforce";
 
 /**
  * Every shape a stage can show, keyed by id. A page names the ids it needs and passes the
@@ -60,6 +61,7 @@ export interface ShapeParamsMap {
   terrain: TerrainParams;
   constellation: ConstellationParams;
   figures: FiguresParams;
+  workforce: WorkforceParams;
   rings: RingsParams;
   shield: ShieldParams;
   documents: DocumentsParams;
@@ -121,6 +123,7 @@ export const SHAPES: Registry = {
   terrain: { bounds: TERRAIN_BOUNDS, motion: "sway", sample: sampleTerrain },
   constellation: { bounds: CONSTELLATION_BOUNDS, motion: "spin", sample: sampleConstellation },
   figures: { bounds: FIGURES_BOUNDS, motion: "spin", sample: sampleFigures },
+  workforce: { bounds: WORKFORCE_BOUNDS, motion: "sway", sample: sampleWorkforce, pitch: 0.1 },
   rings: { bounds: RINGS_BOUNDS, motion: "sway", sample: sampleRings },
   shield: { bounds: SHIELD_BOUNDS, motion: "sway", sample: sampleShield },
   documents: { bounds: DOCUMENTS_BOUNDS, motion: "sway", sample: sampleDocuments },

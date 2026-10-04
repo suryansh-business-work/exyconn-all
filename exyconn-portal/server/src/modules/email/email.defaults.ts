@@ -330,6 +330,25 @@ const TEMPLATES = [
           Reply to this email if the invoice needs correcting, or to tell us when it will be settled.
         </mj-text>`),
   },
+  {
+    key: 'whatsapp-demo-code',
+    name: 'WhatsApp demo — thank you and sign-in code',
+    description:
+      'Sent when a prospect asks to try the live WhatsApp demo, from the website or the demo’s own sign-in. {{code}} works once and expires in {{expiresIn}}; {{demoUrl}} is the demo.',
+    subject: '{{code}} is your {{companyName}} WhatsApp demo code',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Thank you for booking a live demo</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          Thanks for your interest in our WhatsApp automation. Enter this code where you asked for it to open the live demo
+          and try every bot yourself — booking, orders, support and more.
+        </mj-text>
+        <mj-text align="center" font-size="34px" font-weight="700" letter-spacing="10px" color="#0b0a12" padding="16px 0">{{code}}</mj-text>
+        <mj-text align="center" font-size="13px" color="#64748b" padding-top="0">The code works once and expires in {{expiresIn}}.</mj-text>
+        <mj-button background-color="#25d366" color="#0b0a12" border-radius="10px" href="{{demoUrl}}" padding="24px 0 8px">Open the live demo</mj-button>
+        <mj-text font-size="13px" color="#94a3b8">
+          If you did not ask for this, ignore this email — nobody can sign in without the code.
+        </mj-text>`),
+  },
 ];
 
 /**

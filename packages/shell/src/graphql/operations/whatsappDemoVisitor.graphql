@@ -1,0 +1,74 @@
+# Email-and-code sign-in for prospects trying the WhatsApp demo, and the leads it files.
+# Request/verify are public; WhatsappDemoVisitorMe answers for the x-demo-visitor pass;
+# the paged list, block and delete are Website > WhatsApp Leads.
+
+fragment WhatsappDemoVisitorFields on WhatsappDemoVisitor {
+  id
+  name
+  email
+  company
+  phone
+  source
+  verifiedAt
+  lastSignInAt
+  signInCount
+  blocked
+  createdAt
+  updatedAt
+}
+
+mutation RequestWhatsappDemoCode($input: WhatsappDemoCodeInput!) {
+  requestWhatsappDemoCode(input: $input)
+}
+
+mutation VerifyWhatsappDemoCode($email: String!, $code: String!) {
+  verifyWhatsappDemoCode(email: $email, code: $code) {
+    token
+    demoUrl
+    visitor {
+      ...WhatsappDemoVisitorFields
+    }
+  }
+}
+
+query WhatsappDemoVisitorMe {
+  whatsappDemoVisitorMe {
+    ...WhatsappDemoVisitorFields
+  }
+}
+
+query WhatsappDemoVisitorsPaged($input: TableQueryInput!) {
+  whatsappDemoVisitorsPaged(input: $input) {
+    totalCount
+    rows {
+      ...WhatsappDemoVisitorFields
+    }
+  }
+}
+
+query WhatsappDemoVisitorStats {
+  whatsappDemoVisitorStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation SetWhatsappDemoVisitorBlocked($id: ID!, $blocked: Boolean!) {
+  setWhatsappDemoVisitorBlocked(id: $id, blocked: $blocked) {
+    ...WhatsappDemoVisitorFields
+  }
+}
+
+mutation DeleteWhatsappDemoVisitor($id: ID!) {
+  deleteWhatsappDemoVisitor(id: $id)
+}

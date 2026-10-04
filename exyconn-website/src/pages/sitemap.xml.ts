@@ -33,6 +33,7 @@ const staticPages = [
   "/services/mobile-application-development",
   "/services/software-as-a-service",
   "/services/software-development-outsourcing",
+  "/services/whatsapp-chatbot",
   // AI
   "/ai",
   "/ai/agentic",

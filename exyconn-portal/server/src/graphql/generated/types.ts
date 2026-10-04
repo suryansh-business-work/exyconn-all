@@ -4881,6 +4881,7 @@ export type Mutation = {
   deleteWebhook: Scalars['Boolean']['output'];
   deleteWebsiteSubmission: Scalars['Boolean']['output'];
   deleteWhatsappChannel: Scalars['Boolean']['output'];
+  deleteWhatsappDemoVisitor: Scalars['Boolean']['output'];
   deleteWhatsappWorkflow: Scalars['Boolean']['output'];
   /** Switches two-factor off. Needs the password: a borrowed screen must not be enough. */
   disableMfa: Scalars['Boolean']['output'];
@@ -4974,6 +4975,8 @@ export type Mutation = {
    * Always true, so the answer does not reveal which addresses have accounts.
    */
   requestPasswordReset: Scalars['Boolean']['output'];
+  /** Public: files the visitor as a lead and emails a sign-in code. The website sends its security question's answer; the demo's own sign-in sends none and is limited per network. */
+  requestWhatsappDemoCode: Scalars['Boolean']['output'];
   /** Sets a new password from an emailed link. The link works once. */
   resetPassword: Scalars['Boolean']['output'];
   /** Generates a new temporary password, emails it, and returns it once for copying. */
@@ -5120,6 +5123,8 @@ export type Mutation = {
   setUserActive: User;
   setUserBlocked: User;
   setWebhookActive: Webhook;
+  /** Blocking retires the visitor's pass at once (website staff). */
+  setWhatsappDemoVisitorBlocked: WhatsappDemoVisitor;
   /** Shares a post onto the feed, optionally with something of your own to say. */
   shareSocialPost: SocialPost;
   /**
@@ -5355,6 +5360,8 @@ export type Mutation = {
   upsertWhatsappDemo: WhatsappDemo;
   /** The second step of a two-factor sign-in: the challenge from login, plus the code. */
   verifyMfa: AuthPayload;
+  /** Public: exchanges the emailed code for a demo-only pass. */
+  verifyWhatsappDemoCode: WhatsappDemoSignIn;
   whatsappDemoParse: WhatsappDemoParseResult;
   /** Withdraws one of the caller's OWN entries, and only while it is still pending. */
   withdrawTrackerManualEntry: Scalars['Boolean']['output'];
@@ -6629,6 +6636,11 @@ export type MutationDeleteWebsiteSubmissionArgs = {
 };
 
 
+export type MutationDeleteWhatsappDemoVisitorArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteWhatsappWorkflowArgs = {
   id: Scalars['ID']['input'];
 };
@@ -6828,6 +6840,12 @@ export type MutationRequestContractSignatureArgs = {
 
 export type MutationRequestPasswordResetArgs = {
   email: Scalars['String']['input'];
+};
+
+
+export type MutationRequestWhatsappDemoCodeArgs = {
+  captcha?: InputMaybe<WebsiteCaptchaAnswer>;
+  input: WhatsappDemoCodeInput;
 };
 
 
@@ -7137,6 +7155,12 @@ export type MutationSetUserBlockedArgs = {
 
 export type MutationSetWebhookActiveArgs = {
   active: Scalars['Boolean']['input'];
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationSetWhatsappDemoVisitorBlockedArgs = {
+  blocked: Scalars['Boolean']['input'];
   id: Scalars['ID']['input'];
 };
 
@@ -7995,6 +8019,12 @@ export type MutationUpsertWhatsappDemoArgs = {
 export type MutationVerifyMfaArgs = {
   challenge: Scalars['String']['input'];
   code: Scalars['String']['input'];
+};
+
+
+export type MutationVerifyWhatsappDemoCodeArgs = {
+  code: Scalars['String']['input'];
+  email: Scalars['String']['input'];
 };
 
 
@@ -10136,6 +10166,12 @@ export type Query = {
   whatsappDemoSession?: Maybe<WhatsappDemoSessionDetail>;
   whatsappDemoSessions: WhatsappDemoSessionPage;
   whatsappDemoStats: WhatsappDemoStats;
+  /** The signed-in demo visitor (pass in x-demo-visitor), or null. */
+  whatsappDemoVisitorMe?: Maybe<WhatsappDemoVisitor>;
+  /** Website > WhatsApp Leads: totals by source and by blocked (website staff). */
+  whatsappDemoVisitorStats: TableStats;
+  /** Website > WhatsApp Leads: every demo visitor (website staff). */
+  whatsappDemoVisitorsPaged: WhatsappDemoVisitorPage;
   whatsappDemos: Array<WhatsappDemo>;
   whatsappWorkflow?: Maybe<WhatsappWorkflow>;
   whatsappWorkflows: Array<WhatsappWorkflow>;
@@ -11571,6 +11607,11 @@ export type QueryWhatsappDemoSessionsArgs = {
 export type QueryWhatsappDemoStatsArgs = {
   from: Scalars['String']['input'];
   to: Scalars['String']['input'];
+};
+
+
+export type QueryWhatsappDemoVisitorsPagedArgs = {
+  input: TableQueryInput;
 };
 
 
@@ -14474,6 +14515,14 @@ export type WhatsappDemoBundle = {
   workflows: Array<WhatsappPublishedWorkflow>;
 };
 
+export type WhatsappDemoCodeInput = {
+  company?: InputMaybe<Scalars['String']['input']>;
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  phone?: InputMaybe<Scalars['String']['input']>;
+  source: WhatsappDemoVisitorSource;
+};
+
 export type WhatsappDemoEvent = {
   __typename?: 'WhatsappDemoEvent';
   at: Scalars['String']['output'];
@@ -14594,6 +14643,14 @@ export type WhatsappDemoSessionPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** A signed-in visitor: the demo-only pass (send it as x-demo-visitor), who they are, and where the demo is. */
+export type WhatsappDemoSignIn = {
+  __typename?: 'WhatsappDemoSignIn';
+  demoUrl: Scalars['String']['output'];
+  token: Scalars['String']['output'];
+  visitor: WhatsappDemoVisitor;
+};
+
 export type WhatsappDemoStats = {
   __typename?: 'WhatsappDemoStats';
   ai: WhatsappAiStats;
@@ -14611,6 +14668,38 @@ export type WhatsappDemoStats = {
   topDemos: Array<WhatsappCount>;
   uniqueUsers: Scalars['Int']['output'];
 };
+
+/** A prospect who signs in to the WhatsApp demo with an emailed code: a website lead. */
+export type WhatsappDemoVisitor = {
+  __typename?: 'WhatsappDemoVisitor';
+  blocked: Scalars['Boolean']['output'];
+  company: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  lastSignInAt?: Maybe<Scalars['DateTime']['output']>;
+  name: Scalars['String']['output'];
+  phone: Scalars['String']['output'];
+  signInCount: Scalars['Int']['output'];
+  source: WhatsappDemoVisitorSource;
+  updatedAt: Scalars['DateTime']['output'];
+  /** When they first entered a correct code; null until then. */
+  verifiedAt?: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type WhatsappDemoVisitorPage = {
+  __typename?: 'WhatsappDemoVisitorPage';
+  rows: Array<WhatsappDemoVisitor>;
+  totalCount: Scalars['Int']['output'];
+};
+
+/** Where a demo visitor first asked for a sign-in code. */
+export enum WhatsappDemoVisitorSource {
+  /** The demo's own sign-in screen. */
+  DemoLogin = 'DEMO_LOGIN',
+  /** The WhatsApp chatbot page on the website. */
+  Website = 'WEBSITE'
+}
 
 export type WhatsappFlowStat = {
   __typename?: 'WhatsappFlowStat';
@@ -15537,6 +15626,7 @@ export type ResolversTypes = ResolversObject<{
   WhatsappDayPoint: ResolverTypeWrapper<WhatsappDayPoint>;
   WhatsappDemo: ResolverTypeWrapper<WhatsappDemo>;
   WhatsappDemoBundle: ResolverTypeWrapper<WhatsappDemoBundle>;
+  WhatsappDemoCodeInput: WhatsappDemoCodeInput;
   WhatsappDemoEvent: ResolverTypeWrapper<WhatsappDemoEvent>;
   WhatsappDemoEventInput: WhatsappDemoEventInput;
   WhatsappDemoEventType: WhatsappDemoEventType;
@@ -15546,7 +15636,11 @@ export type ResolversTypes = ResolversObject<{
   WhatsappDemoSession: ResolverTypeWrapper<WhatsappDemoSession>;
   WhatsappDemoSessionDetail: ResolverTypeWrapper<WhatsappDemoSessionDetail>;
   WhatsappDemoSessionPage: ResolverTypeWrapper<WhatsappDemoSessionPage>;
+  WhatsappDemoSignIn: ResolverTypeWrapper<WhatsappDemoSignIn>;
   WhatsappDemoStats: ResolverTypeWrapper<WhatsappDemoStats>;
+  WhatsappDemoVisitor: ResolverTypeWrapper<WhatsappDemoVisitor>;
+  WhatsappDemoVisitorPage: ResolverTypeWrapper<WhatsappDemoVisitorPage>;
+  WhatsappDemoVisitorSource: WhatsappDemoVisitorSource;
   WhatsappFlowStat: ResolverTypeWrapper<WhatsappFlowStat>;
   WhatsappFunnelStep: ResolverTypeWrapper<WhatsappFunnelStep>;
   WhatsappPublishedWorkflow: ResolverTypeWrapper<WhatsappPublishedWorkflow>;
@@ -16168,6 +16262,7 @@ export type ResolversParentTypes = ResolversObject<{
   WhatsappDayPoint: WhatsappDayPoint;
   WhatsappDemo: WhatsappDemo;
   WhatsappDemoBundle: WhatsappDemoBundle;
+  WhatsappDemoCodeInput: WhatsappDemoCodeInput;
   WhatsappDemoEvent: WhatsappDemoEvent;
   WhatsappDemoEventInput: WhatsappDemoEventInput;
   WhatsappDemoInput: WhatsappDemoInput;
@@ -16176,7 +16271,10 @@ export type ResolversParentTypes = ResolversObject<{
   WhatsappDemoSession: WhatsappDemoSession;
   WhatsappDemoSessionDetail: WhatsappDemoSessionDetail;
   WhatsappDemoSessionPage: WhatsappDemoSessionPage;
+  WhatsappDemoSignIn: WhatsappDemoSignIn;
   WhatsappDemoStats: WhatsappDemoStats;
+  WhatsappDemoVisitor: WhatsappDemoVisitor;
+  WhatsappDemoVisitorPage: WhatsappDemoVisitorPage;
   WhatsappFlowStat: WhatsappFlowStat;
   WhatsappFunnelStep: WhatsappFunnelStep;
   WhatsappPublishedWorkflow: WhatsappPublishedWorkflow;
@@ -18970,6 +19068,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteWebhook?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebhookArgs, 'id'>>;
   deleteWebsiteSubmission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebsiteSubmissionArgs, 'id'>>;
   deleteWhatsappChannel?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  deleteWhatsappDemoVisitor?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWhatsappDemoVisitorArgs, 'id'>>;
   deleteWhatsappWorkflow?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWhatsappWorkflowArgs, 'id'>>;
   disableMfa?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisableMfaArgs, 'password'>>;
   discardWhatsappWorkflowDraft?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationDiscardWhatsappWorkflowDraftArgs, 'id'>>;
@@ -19008,6 +19107,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   reportClientLogs?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationReportClientLogsArgs, 'input'>>;
   requestContractSignature?: Resolver<ResolversTypes['ContractSignatureRequest'], ParentType, ContextType, RequireFields<MutationRequestContractSignatureArgs, 'contractId' | 'signerEmail' | 'signerName'>>;
   requestPasswordReset?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestPasswordResetArgs, 'email'>>;
+  requestWhatsappDemoCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestWhatsappDemoCodeArgs, 'input'>>;
   resetPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
   resetUserPassword?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationResetUserPasswordArgs, 'id'>>;
   reviewTrackerManualEntry?: Resolver<ResolversTypes['TrackerManualEntry'], ParentType, ContextType, RequireFields<MutationReviewTrackerManualEntryArgs, 'id' | 'status'>>;
@@ -19062,6 +19162,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setUserActive?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSetUserActiveArgs, 'id' | 'isActive'>>;
   setUserBlocked?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSetUserBlockedArgs, 'id' | 'isBlocked'>>;
   setWebhookActive?: Resolver<ResolversTypes['Webhook'], ParentType, ContextType, RequireFields<MutationSetWebhookActiveArgs, 'active' | 'id'>>;
+  setWhatsappDemoVisitorBlocked?: Resolver<ResolversTypes['WhatsappDemoVisitor'], ParentType, ContextType, RequireFields<MutationSetWhatsappDemoVisitorBlockedArgs, 'blocked' | 'id'>>;
   shareSocialPost?: Resolver<ResolversTypes['SocialPost'], ParentType, ContextType, RequireFields<MutationShareSocialPostArgs, 'id'>>;
   signContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSignContractArgs, 'id'>>;
   signContractWithToken?: Resolver<ResolversTypes['ContractSignedReceipt'], ParentType, ContextType, RequireFields<MutationSignContractWithTokenArgs, 'signedName' | 'token'>>;
@@ -19211,6 +19312,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   uploadImage?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationUploadImageArgs, 'file' | 'fileName'>>;
   upsertWhatsappDemo?: Resolver<ResolversTypes['WhatsappDemo'], ParentType, ContextType, RequireFields<MutationUpsertWhatsappDemoArgs, 'input'>>;
   verifyMfa?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationVerifyMfaArgs, 'challenge' | 'code'>>;
+  verifyWhatsappDemoCode?: Resolver<ResolversTypes['WhatsappDemoSignIn'], ParentType, ContextType, RequireFields<MutationVerifyWhatsappDemoCodeArgs, 'code' | 'email'>>;
   whatsappDemoParse?: Resolver<ResolversTypes['WhatsappDemoParseResult'], ParentType, ContextType, RequireFields<MutationWhatsappDemoParseArgs, 'input'>>;
   withdrawTrackerManualEntry?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationWithdrawTrackerManualEntryArgs, 'id'>>;
 }>;
@@ -20460,6 +20562,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   whatsappDemoSession?: Resolver<Maybe<ResolversTypes['WhatsappDemoSessionDetail']>, ParentType, ContextType, RequireFields<QueryWhatsappDemoSessionArgs, 'sessionId'>>;
   whatsappDemoSessions?: Resolver<ResolversTypes['WhatsappDemoSessionPage'], ParentType, ContextType, RequireFields<QueryWhatsappDemoSessionsArgs, 'input'>>;
   whatsappDemoStats?: Resolver<ResolversTypes['WhatsappDemoStats'], ParentType, ContextType, RequireFields<QueryWhatsappDemoStatsArgs, 'from' | 'to'>>;
+  whatsappDemoVisitorMe?: Resolver<Maybe<ResolversTypes['WhatsappDemoVisitor']>, ParentType, ContextType>;
+  whatsappDemoVisitorStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  whatsappDemoVisitorsPaged?: Resolver<ResolversTypes['WhatsappDemoVisitorPage'], ParentType, ContextType, RequireFields<QueryWhatsappDemoVisitorsPagedArgs, 'input'>>;
   whatsappDemos?: Resolver<Array<ResolversTypes['WhatsappDemo']>, ParentType, ContextType>;
   whatsappWorkflow?: Resolver<Maybe<ResolversTypes['WhatsappWorkflow']>, ParentType, ContextType, RequireFields<QueryWhatsappWorkflowArgs, 'id'>>;
   whatsappWorkflows?: Resolver<Array<ResolversTypes['WhatsappWorkflow']>, ParentType, ContextType, Partial<QueryWhatsappWorkflowsArgs>>;
@@ -22151,6 +22256,13 @@ export type WhatsappDemoSessionPageResolvers<ContextType = GraphQLContext, Paren
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type WhatsappDemoSignInResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappDemoSignIn'] = ResolversParentTypes['WhatsappDemoSignIn']> = ResolversObject<{
+  demoUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  visitor?: Resolver<ResolversTypes['WhatsappDemoVisitor'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type WhatsappDemoStatsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappDemoStats'] = ResolversParentTypes['WhatsappDemoStats']> = ResolversObject<{
   ai?: Resolver<ResolversTypes['WhatsappAiStats'], ParentType, ContextType>;
   avgSessionMs?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -22163,6 +22275,28 @@ export type WhatsappDemoStatsResolvers<ContextType = GraphQLContext, ParentType 
   sessions?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   topDemos?: Resolver<Array<ResolversTypes['WhatsappCount']>, ParentType, ContextType>;
   uniqueUsers?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WhatsappDemoVisitorResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappDemoVisitor'] = ResolversParentTypes['WhatsappDemoVisitor']> = ResolversObject<{
+  blocked?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  company?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lastSignInAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  signInCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  source?: Resolver<ResolversTypes['WhatsappDemoVisitorSource'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  verifiedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WhatsappDemoVisitorPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappDemoVisitorPage'] = ResolversParentTypes['WhatsappDemoVisitorPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['WhatsappDemoVisitor']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -22664,7 +22798,10 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   WhatsappDemoSession?: WhatsappDemoSessionResolvers<ContextType>;
   WhatsappDemoSessionDetail?: WhatsappDemoSessionDetailResolvers<ContextType>;
   WhatsappDemoSessionPage?: WhatsappDemoSessionPageResolvers<ContextType>;
+  WhatsappDemoSignIn?: WhatsappDemoSignInResolvers<ContextType>;
   WhatsappDemoStats?: WhatsappDemoStatsResolvers<ContextType>;
+  WhatsappDemoVisitor?: WhatsappDemoVisitorResolvers<ContextType>;
+  WhatsappDemoVisitorPage?: WhatsappDemoVisitorPageResolvers<ContextType>;
   WhatsappFlowStat?: WhatsappFlowStatResolvers<ContextType>;
   WhatsappFunnelStep?: WhatsappFunnelStepResolvers<ContextType>;
   WhatsappPublishedWorkflow?: WhatsappPublishedWorkflowResolvers<ContextType>;

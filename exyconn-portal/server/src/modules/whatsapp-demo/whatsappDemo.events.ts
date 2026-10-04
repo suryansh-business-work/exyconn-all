@@ -5,10 +5,7 @@ import {
   type WhatsappEventType,
 } from './whatsappDemo.analytics.model';
 import { isDuplicateKey } from './whatsappDemo.validation';
-import { actorNameOf } from '../../lib/actor';
 import { badRequest } from '../../utils/errors';
-import type { TokenPayload } from '../../utils/jwt';
-import type { GraphQLContext } from '../../middleware/auth';
 
 /** The most events one call may carry; the client flushes in batches well under this. */
 export const MAX_EVENTS_PER_CALL = 100;
@@ -177,26 +174,16 @@ export async function storeActorEvents(actor: EventActor, events: StoredEvent[])
   return stored.length;
 }
 
-/** The same for the signed-in user: the user always comes from the token, never the client. */
-export async function storeEvents(
-  ctx: GraphQLContext,
-  user: TokenPayload,
-  events: StoredEvent[],
-): Promise<number> {
-  const name = await actorNameOf(ctx);
-  return storeActorEvents({ id: user.id, name, email: user.email }, events);
-}
-
+/** Stores a chat's events for the actor the server identified — never one the client named. */
 export async function recordEvents(
-  ctx: GraphQLContext,
-  user: TokenPayload,
+  actor: EventActor,
   inputs: readonly WhatsappDemoEventInput[],
 ): Promise<number> {
   if (inputs.length > MAX_EVENTS_PER_CALL) {
     badRequest(`At most ${MAX_EVENTS_PER_CALL} events can be sent at once.`);
   }
   const events = inputs
-    .map((input) => sanitize(input, user.id))
+    .map((input) => sanitize(input, actor.id))
     .filter((event): event is StoredEvent => event !== null);
-  return events.length === 0 ? 0 : storeEvents(ctx, user, events);
+  return events.length === 0 ? 0 : storeActorEvents(actor, events);
 }

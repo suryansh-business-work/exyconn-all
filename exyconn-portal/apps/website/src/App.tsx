@@ -12,6 +12,7 @@ import {
   ToolCategoriesPage,
   ToolsPage,
   NavLinksPage,
+  WhatsappLeadsPage,
 } from './pages/website';
 import { WebsiteOverviewPage } from './pages/overview';
 import { BlogLiveEditRoute, CaseStudyLiveEditRoute } from './pages/website/live-edit';
@@ -22,6 +23,7 @@ export function App() {
     <PortalApp loginElement={<Login />} moduleRole={ROLES.WEBSITE} homePath="/website">
       <Route path="/website" element={<WebsiteOverviewPage />} />
       <Route path="/website/submissions" element={<WebsiteSubmissionsPage />} />
+      <Route path="/website/whatsapp-leads" element={<WhatsappLeadsPage />} />
       <Route path="/website/blog" element={<BlogPage />} />
       <Route path="/website/blog/:id/live-edit" element={<BlogLiveEditRoute />} />
       <Route path="/website/case-studies" element={<CaseStudiesPage />} />

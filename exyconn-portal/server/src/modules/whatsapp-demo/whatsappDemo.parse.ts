@@ -5,7 +5,6 @@ import { createLimiter } from '../../lib/rateLimiter';
 import { companyTimezone, localNow } from './whatsappDemo.zone';
 import { logger } from '../../utils/logger';
 import { storeActorEvents, type EventActor } from './whatsappDemo.events';
-import { actorNameOf } from '../../lib/actor';
 import {
   SYSTEM_PROMPT,
   answerSchema,
@@ -14,8 +13,6 @@ import {
   type ParseEntity,
   type ParseIntent,
 } from './whatsappDemo.prompt';
-import type { TokenPayload } from '../../utils/jwt';
-import type { GraphQLContext } from '../../middleware/auth';
 
 /**
  * Free text the chat engine cannot read itself — "kal shaam 5 baje 4 log" — goes to OpenAI
@@ -181,13 +178,4 @@ export async function parseAs(actor: EventActor, input: ParseInput): Promise<Par
   }
   await recordCall(actor, input, outcome.result, outcome.tokens);
   return outcome.result;
-}
-
-export async function parse(
-  ctx: GraphQLContext,
-  user: TokenPayload,
-  input: ParseInput,
-): Promise<ParseResult> {
-  const name = await actorNameOf(ctx);
-  return parseAs({ id: user.id, name, email: user.email }, input);
 }

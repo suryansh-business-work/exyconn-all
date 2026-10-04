@@ -1,0 +1,46 @@
+---
+/**
+ * The WhatsApp chatbot page's phone preview: a booking conversation that plays itself, message
+ * by message, on a loop. Content comes from lib/detail/services/whatsapp-chatbot.preview.ts.
+ * With reduced motion the whole conversation simply shows.
+ */
+import { WHATSAPP_PREVIEW } from "../../lib/detail/services/whatsapp-chatbot.preview";
+import "./whatsapp-preview.css";
+
+const { business, status, caption, messages } = WHATSAPP_PREVIEW;
+---
+
+<figure class="wa-preview" aria-label={`WhatsApp conversation with ${business}`}>
+  <div class="wa-preview__phone">
+    <div class="wa-preview__header">
+      <span class="wa-preview__avatar" aria-hidden="true">
+        <i class="fa-solid fa-tooth"></i>
+      </span>
+      <span class="wa-preview__who">
+        <span class="wa-preview__name">{business}</span>
+        <span class="wa-preview__status">{status}</span>
+      </span>
+      <i class="fa-brands fa-whatsapp wa-preview__brand" aria-hidden="true"></i>
+    </div>
+    <ol class="wa-preview__chat">
+      {
+        messages.map((message, index) => (
+          <li
+            class={`wa-preview__message wa-preview__message--${message.from}`}
+            style={`--i: ${index}`}
+          >
+            <span class="wa-preview__bubble">{message.text}</span>
+            {"buttons" in message && message.buttons && (
+              <span class="wa-preview__buttons">
+                {message.buttons.map((label) => (
+                  <span class="wa-preview__button">{label}</span>
+                ))}
+              </span>
+            )}
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+  <figcaption class="wa-preview__caption">{caption}</figcaption>
+</figure>

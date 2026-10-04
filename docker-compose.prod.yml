@@ -230,6 +230,9 @@ services:
     restart: unless-stopped
     ports:
       - '127.0.0.1:4038:4038'
+    environment:
+      # The WhatsApp chatbot page on exyconn.com runs the live demo in a frame.
+      FRAME_ANCESTORS: "'self' https://exyconn.com https://www.exyconn.com"
 
   # Public status page — no sign-in: an outage is exactly when nobody can log in.
   portal-status:
