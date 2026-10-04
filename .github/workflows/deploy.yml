@@ -345,8 +345,9 @@ jobs:
             docker compose -f docker-compose.prod.yml down --remove-orphans || true
             docker ps -aq --filter "name=exyconn-" | xargs -r docker rm -f || true
             # --wait blocks until every service reports healthy, so the verify job never
-            # races portal-server's boot (Mongo connect + admin bootstrap take a few seconds).
-            docker compose -f docker-compose.prod.yml up -d --remove-orphans --wait --wait-timeout 180
+            # races portal-server's boot (Mongo connect + every company's defaults). 420s covers
+            # portal-server's 300s start period plus its checks after it.
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans --wait --wait-timeout 420
             docker image prune -f
       # A new subdomain needs its nginx vhost + certificate before verify can reach it.
       # server-setup.sh is additive and idempotent (backs up, rolls back on a bad
