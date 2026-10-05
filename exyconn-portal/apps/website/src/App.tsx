@@ -16,6 +16,14 @@ import {
 } from './pages/website';
 import { WebsiteOverviewPage } from './pages/overview';
 import { BlogLiveEditRoute, CaseStudyLiveEditRoute } from './pages/website/live-edit';
+import {
+  ChatConversationPage,
+  ChatFaqsPage,
+  ChatKnowledgePage,
+  ChatLayout,
+  ChatSessionsPage,
+  ChatSettingsPage,
+} from './pages/chat';
 
 /** Website micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
@@ -34,6 +42,14 @@ export function App() {
       <Route path="/website/tool-categories" element={<ToolCategoriesPage />} />
       <Route path="/website/tools" element={<ToolsPage />} />
       <Route path="/website/nav-links" element={<NavLinksPage />} />
+      {/* One chat socket per tab, shared by every Chatbot screen. */}
+      <Route element={<ChatLayout />}>
+        <Route path="/website/chat/sessions" element={<ChatSessionsPage />} />
+        <Route path="/website/chat/sessions/:id/*" element={<ChatConversationPage />} />
+        <Route path="/website/chat/knowledge" element={<ChatKnowledgePage />} />
+        <Route path="/website/chat/faqs" element={<ChatFaqsPage />} />
+        <Route path="/website/chat/settings" element={<ChatSettingsPage />} />
+      </Route>
     </PortalApp>
   );
 }

@@ -26,6 +26,7 @@ import ScheduleIcon from '@mui/icons-material/Schedule';
 import SecurityIcon from '@mui/icons-material/Security';
 import SettingsIcon from '@mui/icons-material/Settings';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
 import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import TuneIcon from '@mui/icons-material/Tune';
@@ -40,6 +41,7 @@ import ViewKanbanIcon from '@mui/icons-material/ViewKanban';
 export const NAV_GROUP_ICONS = {
   Administration: AdminPanelSettingsIcon,
   Billing: ReceiptIcon,
+  Chatbot: SmartToyIcon,
   Communication: CampaignIcon,
   Configuration: TuneIcon,
   Content: ArticleIcon,
