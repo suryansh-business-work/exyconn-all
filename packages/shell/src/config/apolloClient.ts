@@ -21,6 +21,17 @@ const organizationHeader = CURRENT_ORGANIZATION_SLUG
 
 /** Headers one app adds to every request of its own (the WhatsApp demo's visitor pass). */
 let appHeaders: () => Record<string, string> = () => ({});
+/**
+ * Whether this app speaks with the portal session (the shared `.exyconn.com` cookie). The client
+ * hub does not: its contacts are not portal users, and an employee who happens to be signed in
+ * must neither have their session sent from the hub nor cleared by the hub's sign-outs.
+ */
+let portalSession = true;
+
+/** Stops this app sending — or clearing — the shared portal session. */
+export function withoutPortalSession(): void {
+  portalSession = false;
+}
 
 /** Lets an app add its own request headers; the WhatsApp demo sends its visitor pass this way. */
 export function setAppRequestHeaders(provider: () => Record<string, string>): void {
@@ -28,7 +39,7 @@ export function setAppRequestHeaders(provider: () => Record<string, string>): vo
 }
 
 const authLink = setContext((_operation, { headers }) => {
-  const token = tokenStore.get();
+  const token = portalSession ? tokenStore.get() : null;
   return {
     headers: {
       ...headers,
@@ -47,7 +58,7 @@ const errorLink = onError(({ error, operation }) => {
     return;
   }
   const unauthenticated = error.errors.some((e) => e.extensions?.code === 'UNAUTHENTICATED');
-  if (unauthenticated) {
+  if (unauthenticated && portalSession) {
     tokenStore.clear();
   }
 });
