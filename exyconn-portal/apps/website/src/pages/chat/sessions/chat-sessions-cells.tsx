@@ -12,7 +12,7 @@ export function VisitorCell({ data }: CellParams) {
   }
   const contact = [data.email, data.phone].filter(Boolean).join(' · ');
   return (
-    <Box sx={{ lineHeight: 1.2, py: 0.25 }}>
+    <Box sx={{ lineHeight: 1.2, py: 0.5 }}>
       <Text size="sm" weight="semibold" noWrap>
         {data.name}
       </Text>
@@ -32,7 +32,7 @@ export function LastMessageCell({ data, context }: CellParams) {
   const { formatRelative } = context as ChatSessionsGridContext;
   const when = data.lastMessageAt ? formatRelative(data.lastMessageAt) : '';
   return (
-    <Box sx={{ lineHeight: 1.2, py: 0.25, minWidth: 0 }}>
+    <Box sx={{ lineHeight: 1.2, py: 0.5, minWidth: 0 }}>
       <Text size="sm" noWrap>
         {data.lastMessagePreview || t('No messages yet')}
       </Text>

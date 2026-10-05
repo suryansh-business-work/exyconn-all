@@ -95,7 +95,7 @@ export function MessageBubble({
   const isAgent = message.sender === WebsiteChatSender.Agent;
   return (
     <Flex direction="column" alignItems={style.align} sx={[{ maxWidth: '100%' }, enter]}>
-      <Flex direction="row" spacing={0.5} alignItems="center" sx={{ mb: 0.25 }}>
+      <Flex direction="row" spacing={0.5} alignItems="center" sx={{ mb: 0.5 }}>
         {message.sender === WebsiteChatSender.Bot && (
           <SmartToyIcon fontSize="inherit" color="info" />
         )}
