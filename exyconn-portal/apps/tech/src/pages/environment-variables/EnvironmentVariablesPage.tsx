@@ -10,6 +10,8 @@ import SmartToyIcon from '@mui/icons-material/SmartToy';
 import PriceChangeIcon from '@mui/icons-material/PriceChange';
 import DnsIcon from '@mui/icons-material/Dns';
 import CloudIcon from '@mui/icons-material/Cloud';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
+import PaymentsIcon from '@mui/icons-material/Payments';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
@@ -23,6 +25,8 @@ import { OpenAiConfigsPanel } from './OpenAiConfigsPanel';
 import { AiPricingPanel } from './AiPricingPanel';
 import { GodaddyConfigsPanel } from './GodaddyConfigsPanel';
 import { CloudflareConfigsPanel } from './CloudflareConfigsPanel';
+import { StripeConfigsPanel } from './StripeConfigsPanel';
+import { RazorpayConfigsPanel } from './RazorpayConfigsPanel';
 import { SonarConfigsPanel } from './SonarConfigsPanel';
 
 /** Route the tabs live under; each tab is a slug beneath it. */
@@ -132,6 +136,26 @@ const TABS: TabberItem[] = [
     content: (
       <GlassPanel>
         <CloudflareConfigsPanel />
+      </GlassPanel>
+    ),
+  },
+  {
+    slug: 'stripe',
+    label: 'Stripe',
+    icon: <CreditCardIcon />,
+    content: (
+      <GlassPanel>
+        <StripeConfigsPanel />
+      </GlassPanel>
+    ),
+  },
+  {
+    slug: 'razorpay',
+    label: 'Razorpay',
+    icon: <PaymentsIcon />,
+    content: (
+      <GlassPanel>
+        <RazorpayConfigsPanel />
       </GlassPanel>
     ),
   },

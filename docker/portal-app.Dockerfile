@@ -58,6 +58,7 @@ COPY exyconn-portal/apps/tech/package.json exyconn-portal/apps/tech/
 COPY exyconn-portal/apps/tracker/package.json exyconn-portal/apps/tracker/
 COPY exyconn-portal/apps/website/package.json exyconn-portal/apps/website/
 COPY exyconn-portal/apps/whatsapp-demo/package.json exyconn-portal/apps/whatsapp-demo/
+COPY exyconn-portal/apps/clienthub/package.json exyconn-portal/apps/clienthub/
 COPY exyconn-website/package.json exyconn-website/
 COPY exyconn-tracker-app/package.json exyconn-tracker-app/
 # The root `prepare` script runs on every install, this one included; it needs its own

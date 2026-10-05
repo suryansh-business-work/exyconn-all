@@ -1,3 +1,4 @@
+import { runForOrganization } from '../../lib/tenant';
 import {
   adminService,
   assertMayAssignRoles,
@@ -83,6 +84,12 @@ export const adminResolvers = {
       return withIds(await adminService.listEmployeeOptions());
     },
     appSettings: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      // A client hub contact or demo visitor reads their company's formats inside that company;
+      // anybody else must be a signed-in user.
+      const passHolderOrg = ctx.clientContact?.organizationId ?? ctx.demoVisitor?.organizationId;
+      if (!ctx.user && passHolderOrg) {
+        return withId(await runForOrganization(passHolderOrg, () => adminService.getSettings()));
+      }
       assertAuthenticated(ctx); // any signed-in user reads the formatting settings
       return withId(await adminService.getSettings());
     },

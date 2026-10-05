@@ -1419,6 +1419,88 @@ export type Client = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+/** A person at a client who may sign in to the client hub with an emailed code. */
+export type ClientContact = {
+  __typename?: 'ClientContact';
+  active: Scalars['Boolean']['output'];
+  clientId: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  lastSignInAt?: Maybe<Scalars['DateTime']['output']>;
+  name: Scalars['String']['output'];
+  signInCount: Scalars['Int']['output'];
+};
+
+export type ClientContactInput = {
+  clientId: Scalars['ID']['input'];
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
+export type ClientHubCheckout = {
+  __typename?: 'ClientHubCheckout';
+  attemptId: Scalars['ID']['output'];
+  url: Scalars['String']['output'];
+};
+
+export type ClientHubMe = {
+  __typename?: 'ClientHubMe';
+  clientName: Scalars['String']['output'];
+  company: Scalars['String']['output'];
+  email: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+};
+
+/** Which gateways the signed-in client may pay with. */
+export type ClientHubPaymentOptions = {
+  __typename?: 'ClientHubPaymentOptions';
+  razorpay: Scalars['Boolean']['output'];
+  stripe: Scalars['Boolean']['output'];
+};
+
+/** One of the client's projects, as a share link shows it. */
+export type ClientHubProject = {
+  __typename?: 'ClientHubProject';
+  budgetHours?: Maybe<Scalars['Float']['output']>;
+  endDate?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  milestones: Array<SharedMilestone>;
+  name: Scalars['String']['output'];
+  startDate?: Maybe<Scalars['DateTime']['output']>;
+  status: ProjectStatus;
+  ticketCounts: Array<SharedTicketCount>;
+  trackedHours: Scalars['Float']['output'];
+};
+
+/** An unpaid invoice, soonest due first, for the reminders panel. */
+export type ClientHubReminder = {
+  __typename?: 'ClientHubReminder';
+  balance: Scalars['Float']['output'];
+  currency: Scalars['String']['output'];
+  /** Whole days past the due date; 0 when not yet due. */
+  daysLate: Scalars['Int']['output'];
+  dueDate: Scalars['DateTime']['output'];
+  invoiceId: Scalars['ID']['output'];
+  number: Scalars['String']['output'];
+  status: InvoiceStatus;
+};
+
+/** A signed-in contact: the client hub pass (send it as x-client-pass) and who they are. */
+export type ClientHubSignIn = {
+  __typename?: 'ClientHubSignIn';
+  email: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  token: Scalars['String']['output'];
+};
+
+export type ClientHubTicketInput = {
+  category: SupportCategory;
+  description: Scalars['String']['input'];
+  priority: SupportPriority;
+  subject: Scalars['String']['input'];
+};
+
 export type ClientInput = {
   billingAddress?: InputMaybe<Scalars['String']['input']>;
   company: Scalars['String']['input'];
@@ -4578,6 +4660,8 @@ export type Mutation = {
    * nobody can sign on somebody else's behalf; signedName is what they typed.
    */
   acknowledgePolicy: PolicyAcknowledgement;
+  /** Admin > Clients: gives a person client hub access and emails them where to sign in. */
+  addClientContact: ClientContact;
   /** Append a timeline entry, moving the incident to the given status. */
   addItIncidentUpdate: ItIncident;
   /** Self-service: continue the conversation on one of the employee's own tickets. */
@@ -4602,6 +4686,12 @@ export type Mutation = {
   cancelItAccessRequest: ItAccessRequest;
   changePassword: Scalars['Boolean']['output'];
   clearRolePermission: Scalars['Boolean']['output'];
+  /** Emails the invoice, PDF attached, to the signed-in contact's own address. */
+  clientHubEmailInvoice: Scalars['Boolean']['output'];
+  clientHubOpenTicket: SupportTicket;
+  /** Opens the gateway's hosted checkout for the invoice's whole balance. */
+  clientHubPayInvoice: ClientHubCheckout;
+  clientHubReplyToTicket: SupportReply;
   /** The employee's manager (or HR) leaves a comment on a direct report's goal. */
   commentOnTeamGoal: Goal;
   /** Completes the sprint, moving unfinished tickets on per sprintCompletionPlan. */
@@ -4723,6 +4813,7 @@ export type Mutation = {
   createProjectShare: ProjectShareCreated;
   createPrompt: Prompt;
   createPurchaseOrder: PurchaseOrder;
+  createRazorpayConfig: RazorpayConfig;
   createRecurringInvoice: RecurringInvoice;
   createRisk: Risk;
   createSalaryStructure: SalaryStructure;
@@ -4736,6 +4827,7 @@ export type Mutation = {
   /** Creating a window also emails every confirmed status subscriber. */
   createStatusMaintenance: StatusMaintenance;
   createStatusMonitor: StatusMonitor;
+  createStripeConfig: StripeConfig;
   createSupplier: Supplier;
   createSupportSlaPolicy: SupportSlaPolicy;
   /** Self-service: raise a support ticket (status forced to OPEN). */
@@ -4787,6 +4879,7 @@ export type Mutation = {
   deleteCannedReply: Scalars['Boolean']['output'];
   deleteCaseStudy: Scalars['Boolean']['output'];
   deleteClient: Scalars['Boolean']['output'];
+  deleteClientContact: Scalars['Boolean']['output'];
   deleteCloudflareConfig: Scalars['Boolean']['output'];
   deleteColumn: Scalars['Boolean']['output'];
   deleteCompany: Scalars['Boolean']['output'];
@@ -4853,6 +4946,7 @@ export type Mutation = {
   deleteProject: Scalars['Boolean']['output'];
   deletePrompt: Scalars['Boolean']['output'];
   deletePurchaseOrder: Scalars['Boolean']['output'];
+  deleteRazorpayConfig: Scalars['Boolean']['output'];
   deleteRecurringInvoice: Scalars['Boolean']['output'];
   deleteRisk: Scalars['Boolean']['output'];
   deleteSalaryStructure: Scalars['Boolean']['output'];
@@ -4867,6 +4961,7 @@ export type Mutation = {
   deleteStatusIncident: Scalars['Boolean']['output'];
   deleteStatusMaintenance: Scalars['Boolean']['output'];
   deleteStatusMonitor: Scalars['Boolean']['output'];
+  deleteStripeConfig: Scalars['Boolean']['output'];
   deleteSupplier: Scalars['Boolean']['output'];
   deleteSupportSlaPolicy: Scalars['Boolean']['output'];
   deleteTask: Scalars['Boolean']['output'];
@@ -4965,6 +5060,8 @@ export type Mutation = {
    * session when there is one. Rate-limited per user, else per IP.
    */
   reportClientLogs: Scalars['Boolean']['output'];
+  /** Public: emails a sign-in code to an address with client hub access (always true). */
+  requestClientHubCode: Scalars['Boolean']['output'];
   /**
    * LEGAL: ask a counterparty to sign. Emails them a link nobody else has and returns it,
    * so it can also be passed on by hand.
@@ -5073,6 +5170,8 @@ export type Mutation = {
   setAppLogGroupStatus: AppLogGroup;
   /** Moves an applicant along the pipeline. The applicant is emailed on INTERVIEW, OFFER and REJECTED. */
   setApplicantStage: Applicant;
+  /** Switching access off signs the person out at once. */
+  setClientContactActive: ClientContact;
   /** Marks a column as the end of the line, or takes that mark away. */
   setColumnDone: BoardColumn;
   /** Moves a deal to another pipeline stage — what a drag on the board does. Winning makes the account a client. */
@@ -5182,10 +5281,12 @@ export type Mutation = {
   testInboundMailConnection: Scalars['Boolean']['output'];
   testOpenAiConnection: Scalars['Boolean']['output'];
   testPexelsConnection: Scalars['Boolean']['output'];
+  testRazorpayConnection: Scalars['Boolean']['output'];
   /** Checks the stored client ID and secret with the provider. Platform Tech staff. */
   testSocialAppConfig: SocialAppTest;
   /** Validates the token, then checks it can see the project. */
   testSonarConnection: SonarConnectionTest;
+  testStripeConnection: Scalars['Boolean']['output'];
   /** Likes the post, or takes the like back. Returns the post as it now stands. */
   toggleSocialPostLike: SocialPost;
   /**
@@ -5333,6 +5434,7 @@ export type Mutation = {
   updateProject: Project;
   updatePrompt: Prompt;
   updatePurchaseOrder: PurchaseOrder;
+  updateRazorpayConfig: RazorpayConfig;
   updateRecurringInvoice: RecurringInvoice;
   updateRisk: Risk;
   updateSalaryStructure: SalaryStructure;
@@ -5344,6 +5446,7 @@ export type Mutation = {
   updateSprint: Sprint;
   updateStatusMaintenance: StatusMaintenance;
   updateStatusMonitor: StatusMonitor;
+  updateStripeConfig: StripeConfig;
   updateSupplier: Supplier;
   updateSupportSlaPolicy: SupportSlaPolicy;
   updateTask: Task;
@@ -5358,6 +5461,8 @@ export type Mutation = {
   uploadAvatar: Scalars['String']['output'];
   uploadImage: Scalars['String']['output'];
   upsertWhatsappDemo: WhatsappDemo;
+  /** Public: exchanges the emailed code for a client hub pass. */
+  verifyClientHubCode: ClientHubSignIn;
   /** The second step of a two-factor sign-in: the challenge from login, plus the code. */
   verifyMfa: AuthPayload;
   /** Public: exchanges the emailed code for a demo-only pass. */
@@ -5371,6 +5476,11 @@ export type Mutation = {
 export type MutationAcknowledgePolicyArgs = {
   policyId: Scalars['ID']['input'];
   signedName: Scalars['String']['input'];
+};
+
+
+export type MutationAddClientContactArgs = {
+  input: ClientContactInput;
 };
 
 
@@ -5458,6 +5568,28 @@ export type MutationChangePasswordArgs = {
 export type MutationClearRolePermissionArgs = {
   module: Scalars['String']['input'];
   role: Role;
+};
+
+
+export type MutationClientHubEmailInvoiceArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationClientHubOpenTicketArgs = {
+  input: ClientHubTicketInput;
+};
+
+
+export type MutationClientHubPayInvoiceArgs = {
+  gateway: PaymentGateway;
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationClientHubReplyToTicketArgs = {
+  body: Scalars['String']['input'];
+  ticketId: Scalars['ID']['input'];
 };
 
 
@@ -5928,6 +6060,11 @@ export type MutationCreatePurchaseOrderArgs = {
 };
 
 
+export type MutationCreateRazorpayConfigArgs = {
+  input: RazorpayConfigInput;
+};
+
+
 export type MutationCreateRecurringInvoiceArgs = {
   input: RecurringInvoiceInput;
 };
@@ -5987,6 +6124,11 @@ export type MutationCreateStatusMaintenanceArgs = {
 
 export type MutationCreateStatusMonitorArgs = {
   input: StatusMonitorInput;
+};
+
+
+export type MutationCreateStripeConfigArgs = {
+  input: StripeConfigInput;
 };
 
 
@@ -6187,6 +6329,11 @@ export type MutationDeleteCaseStudyArgs = {
 
 
 export type MutationDeleteClientArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteClientContactArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -6506,6 +6653,11 @@ export type MutationDeletePurchaseOrderArgs = {
 };
 
 
+export type MutationDeleteRazorpayConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteRecurringInvoiceArgs = {
   id: Scalars['ID']['input'];
 };
@@ -6567,6 +6719,11 @@ export type MutationDeleteStatusMaintenanceArgs = {
 
 
 export type MutationDeleteStatusMonitorArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteStripeConfigArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -6830,6 +6987,11 @@ export type MutationReportClientLogsArgs = {
 };
 
 
+export type MutationRequestClientHubCodeArgs = {
+  email: Scalars['String']['input'];
+};
+
+
 export type MutationRequestContractSignatureArgs = {
   contractId: Scalars['ID']['input'];
   message?: InputMaybe<Scalars['String']['input']>;
@@ -7040,6 +7202,12 @@ export type MutationSetApplicantStageArgs = {
   id: Scalars['ID']['input'];
   note?: InputMaybe<Scalars['String']['input']>;
   stage: ApplicantStage;
+};
+
+
+export type MutationSetClientContactActiveArgs = {
+  active: Scalars['Boolean']['input'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -7280,12 +7448,22 @@ export type MutationTestPexelsConnectionArgs = {
 };
 
 
+export type MutationTestRazorpayConnectionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationTestSocialAppConfigArgs = {
   app: SocialApp;
 };
 
 
 export type MutationTestSonarConnectionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestStripeConnectionArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -7868,6 +8046,12 @@ export type MutationUpdatePurchaseOrderArgs = {
 };
 
 
+export type MutationUpdateRazorpayConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: RazorpayConfigInput;
+};
+
+
 export type MutationUpdateRecurringInvoiceArgs = {
   id: Scalars['ID']['input'];
   input: RecurringInvoiceInput;
@@ -7930,6 +8114,12 @@ export type MutationUpdateStatusMaintenanceArgs = {
 export type MutationUpdateStatusMonitorArgs = {
   id: Scalars['ID']['input'];
   input: StatusMonitorInput;
+};
+
+
+export type MutationUpdateStripeConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: StripeConfigInput;
 };
 
 
@@ -8013,6 +8203,12 @@ export type MutationUploadImageArgs = {
 export type MutationUpsertWhatsappDemoArgs = {
   id?: InputMaybe<Scalars['ID']['input']>;
   input: WhatsappDemoInput;
+};
+
+
+export type MutationVerifyClientHubCodeArgs = {
+  code: Scalars['String']['input'];
+  email: Scalars['String']['input'];
 };
 
 
@@ -8451,6 +8647,31 @@ export type Payment = {
   recordedBy: Scalars['String']['output'];
   reference: Scalars['String']['output'];
 };
+
+export type PaymentAttempt = {
+  __typename?: 'PaymentAttempt';
+  amount: Scalars['Float']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  gateway: PaymentGateway;
+  id: Scalars['ID']['output'];
+  invoiceId: Scalars['String']['output'];
+  invoiceNumber: Scalars['String']['output'];
+  paidAt?: Maybe<Scalars['DateTime']['output']>;
+  status: PaymentAttemptStatus;
+};
+
+export enum PaymentAttemptStatus {
+  Expired = 'EXPIRED',
+  Paid = 'PAID',
+  Pending = 'PENDING',
+  Review = 'REVIEW'
+}
+
+export enum PaymentGateway {
+  Razorpay = 'RAZORPAY',
+  Stripe = 'STRIPE'
+}
 
 export type PaymentInput = {
   amount: Scalars['Float']['input'];
@@ -9411,6 +9632,20 @@ export type Query = {
    * paging, so a restricted role is refused before it reads a single row.
    */
   canExport: Scalars['Boolean']['output'];
+  /** Admin > Clients: who at a client has client hub access. */
+  clientContacts: Array<ClientContact>;
+  /** The invoice PDF as base64. */
+  clientHubInvoicePdf: Scalars['String']['output'];
+  clientHubInvoices: InvoicePage;
+  /** The signed-in client hub contact (pass in x-client-pass). */
+  clientHubMe: ClientHubMe;
+  clientHubPaymentAttempt: PaymentAttempt;
+  clientHubPaymentOptions: ClientHubPaymentOptions;
+  clientHubPayments: PaymentPage;
+  clientHubProjects: Array<ClientHubProject>;
+  clientHubReminders: Array<ClientHubReminder>;
+  clientHubTicketReplies: Array<SupportReply>;
+  clientHubTickets: SupportTicketPage;
   /**
    * Unauthenticated — a customer follows their ticket with the reference they were given
    * and the address they raised it from. Null unless both match.
@@ -9807,6 +10042,7 @@ export type Query = {
   listPurchaseOrders: Array<PurchaseOrder>;
   listPurchaseOrdersPaged: PurchaseOrderPage;
   listPurchaseOrdersStats: TableStats;
+  listRazorpayConfigs: Array<RazorpayConfig>;
   listRecurringInvoices: Array<RecurringInvoice>;
   listRecurringInvoicesPaged: RecurringInvoicePage;
   listRisks: Array<Risk>;
@@ -9838,6 +10074,8 @@ export type Query = {
   listStockMovements: Array<StockMovement>;
   listStockMovementsPaged: StockMovementPage;
   listStockMovementsStats: TableStats;
+  /** Tech > Environment Variables: Exyconn's payment gateway accounts. */
+  listStripeConfigs: Array<StripeConfig>;
   listSuppliers: Array<Supplier>;
   listSuppliersPaged: SupplierPage;
   listSuppliersStats: TableStats;
@@ -10235,6 +10473,41 @@ export type QueryCampaignTopLinksArgs = {
 
 export type QueryCanExportArgs = {
   module: Scalars['String']['input'];
+};
+
+
+export type QueryClientContactsArgs = {
+  clientId: Scalars['ID']['input'];
+};
+
+
+export type QueryClientHubInvoicePdfArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryClientHubInvoicesArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryClientHubPaymentAttemptArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryClientHubPaymentsArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryClientHubTicketRepliesArgs = {
+  ticketId: Scalars['ID']['input'];
+};
+
+
+export type QueryClientHubTicketsArgs = {
+  input: TableQueryInput;
 };
 
 
@@ -11629,6 +11902,30 @@ export type QueryWorkspaceAnalyticsArgs = {
   days?: InputMaybe<Scalars['Int']['input']>;
 };
 
+/** Exyconn's Razorpay account (Tech > Environment Variables). Secrets are write-only. */
+export type RazorpayConfig = {
+  __typename?: 'RazorpayConfig';
+  createdAt: Scalars['DateTime']['output'];
+  hasKeySecret: Scalars['Boolean']['output'];
+  hasWebhookSecret: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  keyId: Scalars['String']['output'];
+  keySecretHint?: Maybe<Scalars['String']['output']>;
+  label: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  webhookSecretHint?: Maybe<Scalars['String']['output']>;
+};
+
+export type RazorpayConfigInput = {
+  isActive: Scalars['Boolean']['input'];
+  keyId: Scalars['String']['input'];
+  /** Left blank on an edit, the stored secret is kept. */
+  keySecret?: InputMaybe<Scalars['String']['input']>;
+  label: Scalars['String']['input'];
+  webhookSecret?: InputMaybe<Scalars['String']['input']>;
+};
+
 /** What is owed, and how late it is. */
 export type Receivables = {
   __typename?: 'Receivables';
@@ -12825,6 +13122,28 @@ export type StockMovementPage = {
   __typename?: 'StockMovementPage';
   rows: Array<StockMovement>;
   totalCount: Scalars['Int']['output'];
+};
+
+/** Exyconn's Stripe account (Tech > Environment Variables). Secrets are write-only. */
+export type StripeConfig = {
+  __typename?: 'StripeConfig';
+  createdAt: Scalars['DateTime']['output'];
+  hasSecretKey: Scalars['Boolean']['output'];
+  hasWebhookSecret: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  secretKeyHint?: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
+  webhookSecretHint?: Maybe<Scalars['String']['output']>;
+};
+
+export type StripeConfigInput = {
+  isActive: Scalars['Boolean']['input'];
+  label: Scalars['String']['input'];
+  /** Left blank on an edit, the stored key is kept. */
+  secretKey?: InputMaybe<Scalars['String']['input']>;
+  webhookSecret?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** What the public status page submits. Everything else is set by the server. */
@@ -14994,6 +15313,15 @@ export type ResolversTypes = ResolversObject<{
   CaseStudyInput: CaseStudyInput;
   CaseStudyPage: ResolverTypeWrapper<CaseStudyPage>;
   Client: ResolverTypeWrapper<Client>;
+  ClientContact: ResolverTypeWrapper<ClientContact>;
+  ClientContactInput: ClientContactInput;
+  ClientHubCheckout: ResolverTypeWrapper<ClientHubCheckout>;
+  ClientHubMe: ResolverTypeWrapper<ClientHubMe>;
+  ClientHubPaymentOptions: ResolverTypeWrapper<ClientHubPaymentOptions>;
+  ClientHubProject: ResolverTypeWrapper<ClientHubProject>;
+  ClientHubReminder: ResolverTypeWrapper<ClientHubReminder>;
+  ClientHubSignIn: ResolverTypeWrapper<ClientHubSignIn>;
+  ClientHubTicketInput: ClientHubTicketInput;
   ClientInput: ClientInput;
   ClientPage: ResolverTypeWrapper<ClientPage>;
   ClientStatus: ClientStatus;
@@ -15315,6 +15643,9 @@ export type ResolversTypes = ResolversObject<{
   OrganizationUpdateInput: OrganizationUpdateInput;
   PayType: PayType;
   Payment: ResolverTypeWrapper<Payment>;
+  PaymentAttempt: ResolverTypeWrapper<PaymentAttempt>;
+  PaymentAttemptStatus: PaymentAttemptStatus;
+  PaymentGateway: PaymentGateway;
   PaymentInput: PaymentInput;
   PaymentMethod: PaymentMethod;
   PaymentPage: ResolverTypeWrapper<PaymentPage>;
@@ -15390,6 +15721,8 @@ export type ResolversTypes = ResolversObject<{
   PurchaseOrderStatus: PurchaseOrderStatus;
   PurchaseReceiptLineInput: PurchaseReceiptLineInput;
   Query: ResolverTypeWrapper<{}>;
+  RazorpayConfig: ResolverTypeWrapper<RazorpayConfig>;
+  RazorpayConfigInput: RazorpayConfigInput;
   Receivables: ResolverTypeWrapper<Receivables>;
   ReceivablesBucket: ResolverTypeWrapper<ReceivablesBucket>;
   RecurrenceFrequency: RecurrenceFrequency;
@@ -15494,6 +15827,8 @@ export type ResolversTypes = ResolversObject<{
   StockMovementInput: StockMovementInput;
   StockMovementPage: ResolverTypeWrapper<StockMovementPage>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
+  StripeConfig: ResolverTypeWrapper<StripeConfig>;
+  StripeConfigInput: StripeConfigInput;
   SubmitProblemReportInput: SubmitProblemReportInput;
   SummaryStyle: SummaryStyle;
   Supplier: ResolverTypeWrapper<Supplier>;
@@ -15748,6 +16083,15 @@ export type ResolversParentTypes = ResolversObject<{
   CaseStudyInput: CaseStudyInput;
   CaseStudyPage: CaseStudyPage;
   Client: Client;
+  ClientContact: ClientContact;
+  ClientContactInput: ClientContactInput;
+  ClientHubCheckout: ClientHubCheckout;
+  ClientHubMe: ClientHubMe;
+  ClientHubPaymentOptions: ClientHubPaymentOptions;
+  ClientHubProject: ClientHubProject;
+  ClientHubReminder: ClientHubReminder;
+  ClientHubSignIn: ClientHubSignIn;
+  ClientHubTicketInput: ClientHubTicketInput;
   ClientInput: ClientInput;
   ClientPage: ClientPage;
   ClientSupportTicketInput: ClientSupportTicketInput;
@@ -16005,6 +16349,7 @@ export type ResolversParentTypes = ResolversObject<{
   OrganizationInput: OrganizationInput;
   OrganizationUpdateInput: OrganizationUpdateInput;
   Payment: Payment;
+  PaymentAttempt: PaymentAttempt;
   PaymentInput: PaymentInput;
   PaymentPage: PaymentPage;
   PayrollCandidate: PayrollCandidate;
@@ -16064,6 +16409,8 @@ export type ResolversParentTypes = ResolversObject<{
   PurchaseOrderPage: PurchaseOrderPage;
   PurchaseReceiptLineInput: PurchaseReceiptLineInput;
   Query: {};
+  RazorpayConfig: RazorpayConfig;
+  RazorpayConfigInput: RazorpayConfigInput;
   Receivables: Receivables;
   ReceivablesBucket: ReceivablesBucket;
   RecurringInvoice: RecurringInvoice;
@@ -16148,6 +16495,8 @@ export type ResolversParentTypes = ResolversObject<{
   StockMovementInput: StockMovementInput;
   StockMovementPage: StockMovementPage;
   String: Scalars['String']['output'];
+  StripeConfig: StripeConfig;
+  StripeConfigInput: StripeConfigInput;
   SubmitProblemReportInput: SubmitProblemReportInput;
   Supplier: Supplier;
   SupplierInput: SupplierInput;
@@ -17059,6 +17408,69 @@ export type ClientResolvers<ContextType = GraphQLContext, ParentType extends Res
   stateCode?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['ClientStatus'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClientContactResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClientContact'] = ResolversParentTypes['ClientContact']> = ResolversObject<{
+  active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  clientId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lastSignInAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  signInCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClientHubCheckoutResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClientHubCheckout'] = ResolversParentTypes['ClientHubCheckout']> = ResolversObject<{
+  attemptId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClientHubMeResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClientHubMe'] = ResolversParentTypes['ClientHubMe']> = ResolversObject<{
+  clientName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  company?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClientHubPaymentOptionsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClientHubPaymentOptions'] = ResolversParentTypes['ClientHubPaymentOptions']> = ResolversObject<{
+  razorpay?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  stripe?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClientHubProjectResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClientHubProject'] = ResolversParentTypes['ClientHubProject']> = ResolversObject<{
+  budgetHours?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  endDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  milestones?: Resolver<Array<ResolversTypes['SharedMilestone']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  startDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['ProjectStatus'], ParentType, ContextType>;
+  ticketCounts?: Resolver<Array<ResolversTypes['SharedTicketCount']>, ParentType, ContextType>;
+  trackedHours?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClientHubReminderResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClientHubReminder'] = ResolversParentTypes['ClientHubReminder']> = ResolversObject<{
+  balance?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  daysLate?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  dueDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  invoiceId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  number?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['InvoiceStatus'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClientHubSignInResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClientHubSignIn'] = ResolversParentTypes['ClientHubSignIn']> = ResolversObject<{
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -18824,6 +19236,7 @@ export type ModulePermissionResolvers<ContextType = GraphQLContext, ParentType e
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   _empty?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   acknowledgePolicy?: Resolver<ResolversTypes['PolicyAcknowledgement'], ParentType, ContextType, RequireFields<MutationAcknowledgePolicyArgs, 'policyId' | 'signedName'>>;
+  addClientContact?: Resolver<ResolversTypes['ClientContact'], ParentType, ContextType, RequireFields<MutationAddClientContactArgs, 'input'>>;
   addItIncidentUpdate?: Resolver<ResolversTypes['ItIncident'], ParentType, ContextType, RequireFields<MutationAddItIncidentUpdateArgs, 'id' | 'note' | 'status'>>;
   addMySupportReply?: Resolver<ResolversTypes['SupportReply'], ParentType, ContextType, RequireFields<MutationAddMySupportReplyArgs, 'body' | 'ticketId'>>;
   addStatusIncidentUpdate?: Resolver<ResolversTypes['StatusIncident'], ParentType, ContextType, RequireFields<MutationAddStatusIncidentUpdateArgs, 'body' | 'id' | 'status'>>;
@@ -18838,6 +19251,10 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   cancelItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationCancelItAccessRequestArgs, 'id'>>;
   changePassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'currentPassword' | 'newPassword'>>;
   clearRolePermission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationClearRolePermissionArgs, 'module' | 'role'>>;
+  clientHubEmailInvoice?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationClientHubEmailInvoiceArgs, 'id'>>;
+  clientHubOpenTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationClientHubOpenTicketArgs, 'input'>>;
+  clientHubPayInvoice?: Resolver<ResolversTypes['ClientHubCheckout'], ParentType, ContextType, RequireFields<MutationClientHubPayInvoiceArgs, 'gateway' | 'id'>>;
+  clientHubReplyToTicket?: Resolver<ResolversTypes['SupportReply'], ParentType, ContextType, RequireFields<MutationClientHubReplyToTicketArgs, 'body' | 'ticketId'>>;
   commentOnTeamGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationCommentOnTeamGoalArgs, 'comment' | 'id'>>;
   completeSprint?: Resolver<ResolversTypes['Sprint'], ParentType, ContextType, RequireFields<MutationCompleteSprintArgs, 'id'>>;
   composeSocialMediaPost?: Resolver<Array<ResolversTypes['SocialMediaPost']>, ParentType, ContextType, RequireFields<MutationComposeSocialMediaPostArgs, 'input'>>;
@@ -18929,6 +19346,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createProjectShare?: Resolver<ResolversTypes['ProjectShareCreated'], ParentType, ContextType, RequireFields<MutationCreateProjectShareArgs, 'expiresInDays' | 'label' | 'projectId'>>;
   createPrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<MutationCreatePromptArgs, 'input'>>;
   createPurchaseOrder?: Resolver<ResolversTypes['PurchaseOrder'], ParentType, ContextType, RequireFields<MutationCreatePurchaseOrderArgs, 'input'>>;
+  createRazorpayConfig?: Resolver<ResolversTypes['RazorpayConfig'], ParentType, ContextType, RequireFields<MutationCreateRazorpayConfigArgs, 'input'>>;
   createRecurringInvoice?: Resolver<ResolversTypes['RecurringInvoice'], ParentType, ContextType, RequireFields<MutationCreateRecurringInvoiceArgs, 'input'>>;
   createRisk?: Resolver<ResolversTypes['Risk'], ParentType, ContextType, RequireFields<MutationCreateRiskArgs, 'input'>>;
   createSalaryStructure?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationCreateSalaryStructureArgs, 'input'>>;
@@ -18941,6 +19359,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createStatusIncident?: Resolver<ResolversTypes['StatusIncident'], ParentType, ContextType, RequireFields<MutationCreateStatusIncidentArgs, 'input'>>;
   createStatusMaintenance?: Resolver<ResolversTypes['StatusMaintenance'], ParentType, ContextType, RequireFields<MutationCreateStatusMaintenanceArgs, 'input'>>;
   createStatusMonitor?: Resolver<ResolversTypes['StatusMonitor'], ParentType, ContextType, RequireFields<MutationCreateStatusMonitorArgs, 'input'>>;
+  createStripeConfig?: Resolver<ResolversTypes['StripeConfig'], ParentType, ContextType, RequireFields<MutationCreateStripeConfigArgs, 'input'>>;
   createSupplier?: Resolver<ResolversTypes['Supplier'], ParentType, ContextType, RequireFields<MutationCreateSupplierArgs, 'input'>>;
   createSupportSlaPolicy?: Resolver<ResolversTypes['SupportSlaPolicy'], ParentType, ContextType, RequireFields<MutationCreateSupportSlaPolicyArgs, 'input'>>;
   createSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationCreateSupportTicketArgs, 'input'>>;
@@ -18978,6 +19397,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteCannedReply?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCannedReplyArgs, 'id'>>;
   deleteCaseStudy?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCaseStudyArgs, 'id'>>;
   deleteClient?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClientArgs, 'id'>>;
+  deleteClientContact?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClientContactArgs, 'id'>>;
   deleteCloudflareConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCloudflareConfigArgs, 'id'>>;
   deleteColumn?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteColumnArgs, 'id'>>;
   deleteCompany?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCompanyArgs, 'id'>>;
@@ -19041,6 +19461,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteProject?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProjectArgs, 'id'>>;
   deletePrompt?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePromptArgs, 'id'>>;
   deletePurchaseOrder?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePurchaseOrderArgs, 'id'>>;
+  deleteRazorpayConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteRazorpayConfigArgs, 'id'>>;
   deleteRecurringInvoice?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteRecurringInvoiceArgs, 'id'>>;
   deleteRisk?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteRiskArgs, 'id'>>;
   deleteSalaryStructure?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSalaryStructureArgs, 'id'>>;
@@ -19054,6 +19475,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteStatusIncident?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteStatusIncidentArgs, 'id'>>;
   deleteStatusMaintenance?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteStatusMaintenanceArgs, 'id'>>;
   deleteStatusMonitor?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteStatusMonitorArgs, 'id'>>;
+  deleteStripeConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteStripeConfigArgs, 'id'>>;
   deleteSupplier?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSupplierArgs, 'id'>>;
   deleteSupportSlaPolicy?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSupportSlaPolicyArgs, 'id'>>;
   deleteTask?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTaskArgs, 'id'>>;
@@ -19105,6 +19527,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   renameColumn?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationRenameColumnArgs, 'id' | 'name'>>;
   reorderColumns?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationReorderColumnsArgs, 'columnIds' | 'projectId'>>;
   reportClientLogs?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationReportClientLogsArgs, 'input'>>;
+  requestClientHubCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestClientHubCodeArgs, 'email'>>;
   requestContractSignature?: Resolver<ResolversTypes['ContractSignatureRequest'], ParentType, ContextType, RequireFields<MutationRequestContractSignatureArgs, 'contractId' | 'signerEmail' | 'signerName'>>;
   requestPasswordReset?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestPasswordResetArgs, 'email'>>;
   requestWhatsappDemoCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestWhatsappDemoCodeArgs, 'input'>>;
@@ -19144,6 +19567,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   sendUserMail?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendUserMailArgs, 'id' | 'input'>>;
   setAppLogGroupStatus?: Resolver<ResolversTypes['AppLogGroup'], ParentType, ContextType, RequireFields<MutationSetAppLogGroupStatusArgs, 'id' | 'status'>>;
   setApplicantStage?: Resolver<ResolversTypes['Applicant'], ParentType, ContextType, RequireFields<MutationSetApplicantStageArgs, 'id' | 'stage'>>;
+  setClientContactActive?: Resolver<ResolversTypes['ClientContact'], ParentType, ContextType, RequireFields<MutationSetClientContactActiveArgs, 'active' | 'id'>>;
   setColumnDone?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationSetColumnDoneArgs, 'id' | 'isDone'>>;
   setDealStage?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationSetDealStageArgs, 'id' | 'stage'>>;
   setDomainNameservers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationSetDomainNameserversArgs, 'domain' | 'target'>>;
@@ -19186,8 +19610,10 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   testInboundMailConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestInboundMailConnectionArgs, 'id'>>;
   testOpenAiConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestOpenAiConnectionArgs, 'id'>>;
   testPexelsConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestPexelsConnectionArgs, 'id'>>;
+  testRazorpayConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestRazorpayConnectionArgs, 'id'>>;
   testSocialAppConfig?: Resolver<ResolversTypes['SocialAppTest'], ParentType, ContextType, RequireFields<MutationTestSocialAppConfigArgs, 'app'>>;
   testSonarConnection?: Resolver<ResolversTypes['SonarConnectionTest'], ParentType, ContextType, RequireFields<MutationTestSonarConnectionArgs, 'id'>>;
+  testStripeConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestStripeConnectionArgs, 'id'>>;
   toggleSocialPostLike?: Resolver<ResolversTypes['SocialPost'], ParentType, ContextType, RequireFields<MutationToggleSocialPostLikeArgs, 'id'>>;
   trackerAcceptConsent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, Partial<MutationTrackerAcceptConsentArgs>>;
   trackerHeartbeat?: Resolver<ResolversTypes['TrackerMe'], ParentType, ContextType, Partial<MutationTrackerHeartbeatArgs>>;
@@ -19286,6 +19712,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateProject?: Resolver<ResolversTypes['Project'], ParentType, ContextType, RequireFields<MutationUpdateProjectArgs, 'id' | 'input'>>;
   updatePrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<MutationUpdatePromptArgs, 'id' | 'input'>>;
   updatePurchaseOrder?: Resolver<ResolversTypes['PurchaseOrder'], ParentType, ContextType, RequireFields<MutationUpdatePurchaseOrderArgs, 'id' | 'input'>>;
+  updateRazorpayConfig?: Resolver<ResolversTypes['RazorpayConfig'], ParentType, ContextType, RequireFields<MutationUpdateRazorpayConfigArgs, 'id' | 'input'>>;
   updateRecurringInvoice?: Resolver<ResolversTypes['RecurringInvoice'], ParentType, ContextType, RequireFields<MutationUpdateRecurringInvoiceArgs, 'id' | 'input'>>;
   updateRisk?: Resolver<ResolversTypes['Risk'], ParentType, ContextType, RequireFields<MutationUpdateRiskArgs, 'id' | 'input'>>;
   updateSalaryStructure?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationUpdateSalaryStructureArgs, 'id' | 'input'>>;
@@ -19297,6 +19724,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateSprint?: Resolver<ResolversTypes['Sprint'], ParentType, ContextType, RequireFields<MutationUpdateSprintArgs, 'id' | 'input'>>;
   updateStatusMaintenance?: Resolver<ResolversTypes['StatusMaintenance'], ParentType, ContextType, RequireFields<MutationUpdateStatusMaintenanceArgs, 'id' | 'input'>>;
   updateStatusMonitor?: Resolver<ResolversTypes['StatusMonitor'], ParentType, ContextType, RequireFields<MutationUpdateStatusMonitorArgs, 'id' | 'input'>>;
+  updateStripeConfig?: Resolver<ResolversTypes['StripeConfig'], ParentType, ContextType, RequireFields<MutationUpdateStripeConfigArgs, 'id' | 'input'>>;
   updateSupplier?: Resolver<ResolversTypes['Supplier'], ParentType, ContextType, RequireFields<MutationUpdateSupplierArgs, 'id' | 'input'>>;
   updateSupportSlaPolicy?: Resolver<ResolversTypes['SupportSlaPolicy'], ParentType, ContextType, RequireFields<MutationUpdateSupportSlaPolicyArgs, 'id' | 'input'>>;
   updateTask?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationUpdateTaskArgs, 'id' | 'input'>>;
@@ -19311,6 +19739,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   uploadAvatar?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationUploadAvatarArgs, 'file'>>;
   uploadImage?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationUploadImageArgs, 'file' | 'fileName'>>;
   upsertWhatsappDemo?: Resolver<ResolversTypes['WhatsappDemo'], ParentType, ContextType, RequireFields<MutationUpsertWhatsappDemoArgs, 'input'>>;
+  verifyClientHubCode?: Resolver<ResolversTypes['ClientHubSignIn'], ParentType, ContextType, RequireFields<MutationVerifyClientHubCodeArgs, 'code' | 'email'>>;
   verifyMfa?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationVerifyMfaArgs, 'challenge' | 'code'>>;
   verifyWhatsappDemoCode?: Resolver<ResolversTypes['WhatsappDemoSignIn'], ParentType, ContextType, RequireFields<MutationVerifyWhatsappDemoCodeArgs, 'code' | 'email'>>;
   whatsappDemoParse?: Resolver<ResolversTypes['WhatsappDemoParseResult'], ParentType, ContextType, RequireFields<MutationWhatsappDemoParseArgs, 'input'>>;
@@ -19513,6 +19942,19 @@ export type PaymentResolvers<ContextType = GraphQLContext, ParentType extends Re
   receivedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   recordedBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   reference?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PaymentAttemptResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PaymentAttempt'] = ResolversParentTypes['PaymentAttempt']> = ResolversObject<{
+  amount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  gateway?: Resolver<ResolversTypes['PaymentGateway'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  invoiceId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  invoiceNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  paidAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['PaymentAttemptStatus'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -20021,6 +20463,17 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   campaignSendSummary?: Resolver<ResolversTypes['CampaignSendSummary'], ParentType, ContextType, RequireFields<QueryCampaignSendSummaryArgs, 'campaignId'>>;
   campaignTopLinks?: Resolver<Array<ResolversTypes['CampaignLinkStat']>, ParentType, ContextType, RequireFields<QueryCampaignTopLinksArgs, 'campaignId'>>;
   canExport?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<QueryCanExportArgs, 'module'>>;
+  clientContacts?: Resolver<Array<ResolversTypes['ClientContact']>, ParentType, ContextType, RequireFields<QueryClientContactsArgs, 'clientId'>>;
+  clientHubInvoicePdf?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryClientHubInvoicePdfArgs, 'id'>>;
+  clientHubInvoices?: Resolver<ResolversTypes['InvoicePage'], ParentType, ContextType, RequireFields<QueryClientHubInvoicesArgs, 'input'>>;
+  clientHubMe?: Resolver<ResolversTypes['ClientHubMe'], ParentType, ContextType>;
+  clientHubPaymentAttempt?: Resolver<ResolversTypes['PaymentAttempt'], ParentType, ContextType, RequireFields<QueryClientHubPaymentAttemptArgs, 'id'>>;
+  clientHubPaymentOptions?: Resolver<ResolversTypes['ClientHubPaymentOptions'], ParentType, ContextType>;
+  clientHubPayments?: Resolver<ResolversTypes['PaymentPage'], ParentType, ContextType, RequireFields<QueryClientHubPaymentsArgs, 'input'>>;
+  clientHubProjects?: Resolver<Array<ResolversTypes['ClientHubProject']>, ParentType, ContextType>;
+  clientHubReminders?: Resolver<Array<ResolversTypes['ClientHubReminder']>, ParentType, ContextType>;
+  clientHubTicketReplies?: Resolver<Array<ResolversTypes['SupportReply']>, ParentType, ContextType, RequireFields<QueryClientHubTicketRepliesArgs, 'ticketId'>>;
+  clientHubTickets?: Resolver<ResolversTypes['SupportTicketPage'], ParentType, ContextType, RequireFields<QueryClientHubTicketsArgs, 'input'>>;
   clientSupportTicketStatus?: Resolver<Maybe<ResolversTypes['ClientTicketStatus']>, ParentType, ContextType, RequireFields<QueryClientSupportTicketStatusArgs, 'email' | 'reference'>>;
   companyFinance?: Resolver<ResolversTypes['CompanyFinance'], ParentType, ContextType, RequireFields<QueryCompanyFinanceArgs, 'from' | 'to'>>;
   complianceOverview?: Resolver<ResolversTypes['ComplianceOverview'], ParentType, ContextType>;
@@ -20356,6 +20809,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listPurchaseOrders?: Resolver<Array<ResolversTypes['PurchaseOrder']>, ParentType, ContextType>;
   listPurchaseOrdersPaged?: Resolver<ResolversTypes['PurchaseOrderPage'], ParentType, ContextType, RequireFields<QueryListPurchaseOrdersPagedArgs, 'input'>>;
   listPurchaseOrdersStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listRazorpayConfigs?: Resolver<Array<ResolversTypes['RazorpayConfig']>, ParentType, ContextType>;
   listRecurringInvoices?: Resolver<Array<ResolversTypes['RecurringInvoice']>, ParentType, ContextType>;
   listRecurringInvoicesPaged?: Resolver<ResolversTypes['RecurringInvoicePage'], ParentType, ContextType, RequireFields<QueryListRecurringInvoicesPagedArgs, 'input'>>;
   listRisks?: Resolver<Array<ResolversTypes['Risk']>, ParentType, ContextType>;
@@ -20385,6 +20839,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listStockMovements?: Resolver<Array<ResolversTypes['StockMovement']>, ParentType, ContextType>;
   listStockMovementsPaged?: Resolver<ResolversTypes['StockMovementPage'], ParentType, ContextType, RequireFields<QueryListStockMovementsPagedArgs, 'input'>>;
   listStockMovementsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listStripeConfigs?: Resolver<Array<ResolversTypes['StripeConfig']>, ParentType, ContextType>;
   listSuppliers?: Resolver<Array<ResolversTypes['Supplier']>, ParentType, ContextType>;
   listSuppliersPaged?: Resolver<ResolversTypes['SupplierPage'], ParentType, ContextType, RequireFields<QueryListSuppliersPagedArgs, 'input'>>;
   listSuppliersStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -20569,6 +21024,20 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   whatsappWorkflow?: Resolver<Maybe<ResolversTypes['WhatsappWorkflow']>, ParentType, ContextType, RequireFields<QueryWhatsappWorkflowArgs, 'id'>>;
   whatsappWorkflows?: Resolver<Array<ResolversTypes['WhatsappWorkflow']>, ParentType, ContextType, Partial<QueryWhatsappWorkflowsArgs>>;
   workspaceAnalytics?: Resolver<ResolversTypes['WorkspaceAnalytics'], ParentType, ContextType, RequireFields<QueryWorkspaceAnalyticsArgs, 'days'>>;
+}>;
+
+export type RazorpayConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['RazorpayConfig'] = ResolversParentTypes['RazorpayConfig']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  hasKeySecret?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  hasWebhookSecret?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  keyId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  keySecretHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  webhookSecretHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type ReceivablesResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Receivables'] = ResolversParentTypes['Receivables']> = ResolversObject<{
@@ -21296,6 +21765,19 @@ export type StockMovementResolvers<ContextType = GraphQLContext, ParentType exte
 export type StockMovementPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['StockMovementPage'] = ResolversParentTypes['StockMovementPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['StockMovement']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type StripeConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['StripeConfig'] = ResolversParentTypes['StripeConfig']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  hasSecretKey?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  hasWebhookSecret?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  secretKeyHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  webhookSecretHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -22426,6 +22908,13 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   CaseStudy?: CaseStudyResolvers<ContextType>;
   CaseStudyPage?: CaseStudyPageResolvers<ContextType>;
   Client?: ClientResolvers<ContextType>;
+  ClientContact?: ClientContactResolvers<ContextType>;
+  ClientHubCheckout?: ClientHubCheckoutResolvers<ContextType>;
+  ClientHubMe?: ClientHubMeResolvers<ContextType>;
+  ClientHubPaymentOptions?: ClientHubPaymentOptionsResolvers<ContextType>;
+  ClientHubProject?: ClientHubProjectResolvers<ContextType>;
+  ClientHubReminder?: ClientHubReminderResolvers<ContextType>;
+  ClientHubSignIn?: ClientHubSignInResolvers<ContextType>;
   ClientPage?: ClientPageResolvers<ContextType>;
   ClientTicketStatus?: ClientTicketStatusResolvers<ContextType>;
   CloudflareConfig?: CloudflareConfigResolvers<ContextType>;
@@ -22605,6 +23094,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   OrgNode?: OrgNodeResolvers<ContextType>;
   Organization?: OrganizationResolvers<ContextType>;
   Payment?: PaymentResolvers<ContextType>;
+  PaymentAttempt?: PaymentAttemptResolvers<ContextType>;
   PaymentPage?: PaymentPageResolvers<ContextType>;
   PayrollCandidate?: PayrollCandidateResolvers<ContextType>;
   PayrollDispatchResult?: PayrollDispatchResultResolvers<ContextType>;
@@ -22648,6 +23138,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   PurchaseOrderLine?: PurchaseOrderLineResolvers<ContextType>;
   PurchaseOrderPage?: PurchaseOrderPageResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  RazorpayConfig?: RazorpayConfigResolvers<ContextType>;
   Receivables?: ReceivablesResolvers<ContextType>;
   ReceivablesBucket?: ReceivablesBucketResolvers<ContextType>;
   RecurringInvoice?: RecurringInvoiceResolvers<ContextType>;
@@ -22714,6 +23205,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   StatusServiceSummary?: StatusServiceSummaryResolvers<ContextType>;
   StockMovement?: StockMovementResolvers<ContextType>;
   StockMovementPage?: StockMovementPageResolvers<ContextType>;
+  StripeConfig?: StripeConfigResolvers<ContextType>;
   Supplier?: SupplierResolvers<ContextType>;
   SupplierPage?: SupplierPageResolvers<ContextType>;
   SupportAgent?: SupportAgentResolvers<ContextType>;

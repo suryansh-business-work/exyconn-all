@@ -17,6 +17,12 @@ import {
   marketingTrackingRouter,
 } from './modules/marketing/marketing.tracking.routes';
 import { WEBHOOK_PATH, whatsappWebhookRouter } from './modules/whatsapp-demo/channel';
+import {
+  RAZORPAY_WEBHOOK_PATH,
+  STRIPE_WEBHOOK_PATH,
+  razorpayWebhookRouter,
+  stripeWebhookRouter,
+} from './modules/clienthub/payments/webhook';
 
 /**
  * Builds the Express app with the Apollo GraphQL middleware mounted at /graphql.
@@ -66,6 +72,9 @@ export async function createApp(): Promise<Express> {
   app.use(SOCIAL_CALLBACK_PATH, socialCallbackRouter());
   // Meta's WhatsApp Cloud API delivers messages here; each delivery is signed (no session).
   app.use(WEBHOOK_PATH, whatsappWebhookRouter());
+  // Stripe and Razorpay confirm client hub payments here; each delivery is signed (no session).
+  app.use(STRIPE_WEBHOOK_PATH, stripeWebhookRouter());
+  app.use(RAZORPAY_WEBHOOK_PATH, razorpayWebhookRouter());
   app.use(
     '/graphql',
     // The default 100kb body limit is far too small for the tracker: a compressed

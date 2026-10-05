@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
@@ -10,6 +11,7 @@ import {
 import { ClientForm, type ClientRow } from './forms/client';
 import { CLIENT_COLUMNS, type PagedClientRow, type ClientsGridContext } from './clients-grid';
 import { color } from '@exyconn/shell/components/ui';
+import { ClientHubAccessDialog } from './hub-access/ClientHubAccessDialog';
 
 /** Clients module — client directory dashboard with a server-side clients grid. */
 export function ClientsPage() {
@@ -20,6 +22,7 @@ export function ClientsPage() {
     refetch: refetchStats,
   } = useListClientsStatsQuery();
   const [deleteClient] = useDeleteClientMutation();
+  const [hubAccessFor, setHubAccessFor] = useState<PagedClientRow | null>(null);
   const crud = useCrudResource<ClientRow, PagedClientRow>({
     label: 'Client',
     onDelete: (row) => deleteClient({ variables: { id: row.id } }),
@@ -52,7 +55,7 @@ export function ClientsPage() {
   ];
 
   const gridContext: ClientsGridContext = {
-    actions: { edit: crud.openEdit, delete: crud.remove },
+    actions: { hubAccess: setHubAccessFor, edit: crud.openEdit, delete: crud.remove },
   };
 
   return (
@@ -72,6 +75,9 @@ export function ClientsPage() {
       fetchRows={fetchRows}
       context={gridContext}
       searchPlaceholder="Search clients…"
+      extraDialogs={
+        <ClientHubAccessDialog client={hubAccessFor} onClose={() => setHubAccessFor(null)} />
+      }
     />
   );
 }

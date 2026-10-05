@@ -1420,6 +1420,88 @@ export type Client = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+/** A person at a client who may sign in to the client hub with an emailed code. */
+export type ClientContact = {
+  __typename?: 'ClientContact';
+  active: Scalars['Boolean']['output'];
+  clientId: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  lastSignInAt?: Maybe<Scalars['DateTime']['output']>;
+  name: Scalars['String']['output'];
+  signInCount: Scalars['Int']['output'];
+};
+
+export type ClientContactInput = {
+  clientId: Scalars['ID']['input'];
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
+export type ClientHubCheckout = {
+  __typename?: 'ClientHubCheckout';
+  attemptId: Scalars['ID']['output'];
+  url: Scalars['String']['output'];
+};
+
+export type ClientHubMe = {
+  __typename?: 'ClientHubMe';
+  clientName: Scalars['String']['output'];
+  company: Scalars['String']['output'];
+  email: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+};
+
+/** Which gateways the signed-in client may pay with. */
+export type ClientHubPaymentOptions = {
+  __typename?: 'ClientHubPaymentOptions';
+  razorpay: Scalars['Boolean']['output'];
+  stripe: Scalars['Boolean']['output'];
+};
+
+/** One of the client's projects, as a share link shows it. */
+export type ClientHubProject = {
+  __typename?: 'ClientHubProject';
+  budgetHours?: Maybe<Scalars['Float']['output']>;
+  endDate?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  milestones: Array<SharedMilestone>;
+  name: Scalars['String']['output'];
+  startDate?: Maybe<Scalars['DateTime']['output']>;
+  status: ProjectStatus;
+  ticketCounts: Array<SharedTicketCount>;
+  trackedHours: Scalars['Float']['output'];
+};
+
+/** An unpaid invoice, soonest due first, for the reminders panel. */
+export type ClientHubReminder = {
+  __typename?: 'ClientHubReminder';
+  balance: Scalars['Float']['output'];
+  currency: Scalars['String']['output'];
+  /** Whole days past the due date; 0 when not yet due. */
+  daysLate: Scalars['Int']['output'];
+  dueDate: Scalars['DateTime']['output'];
+  invoiceId: Scalars['ID']['output'];
+  number: Scalars['String']['output'];
+  status: InvoiceStatus;
+};
+
+/** A signed-in contact: the client hub pass (send it as x-client-pass) and who they are. */
+export type ClientHubSignIn = {
+  __typename?: 'ClientHubSignIn';
+  email: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  token: Scalars['String']['output'];
+};
+
+export type ClientHubTicketInput = {
+  category: SupportCategory;
+  description: Scalars['String']['input'];
+  priority: SupportPriority;
+  subject: Scalars['String']['input'];
+};
+
 export type ClientInput = {
   billingAddress?: InputMaybe<Scalars['String']['input']>;
   company: Scalars['String']['input'];
@@ -4579,6 +4661,8 @@ export type Mutation = {
    * nobody can sign on somebody else's behalf; signedName is what they typed.
    */
   acknowledgePolicy: PolicyAcknowledgement;
+  /** Admin > Clients: gives a person client hub access and emails them where to sign in. */
+  addClientContact: ClientContact;
   /** Append a timeline entry, moving the incident to the given status. */
   addItIncidentUpdate: ItIncident;
   /** Self-service: continue the conversation on one of the employee's own tickets. */
@@ -4603,6 +4687,12 @@ export type Mutation = {
   cancelItAccessRequest: ItAccessRequest;
   changePassword: Scalars['Boolean']['output'];
   clearRolePermission: Scalars['Boolean']['output'];
+  /** Emails the invoice, PDF attached, to the signed-in contact's own address. */
+  clientHubEmailInvoice: Scalars['Boolean']['output'];
+  clientHubOpenTicket: SupportTicket;
+  /** Opens the gateway's hosted checkout for the invoice's whole balance. */
+  clientHubPayInvoice: ClientHubCheckout;
+  clientHubReplyToTicket: SupportReply;
   /** The employee's manager (or HR) leaves a comment on a direct report's goal. */
   commentOnTeamGoal: Goal;
   /** Completes the sprint, moving unfinished tickets on per sprintCompletionPlan. */
@@ -4724,6 +4814,7 @@ export type Mutation = {
   createProjectShare: ProjectShareCreated;
   createPrompt: Prompt;
   createPurchaseOrder: PurchaseOrder;
+  createRazorpayConfig: RazorpayConfig;
   createRecurringInvoice: RecurringInvoice;
   createRisk: Risk;
   createSalaryStructure: SalaryStructure;
@@ -4737,6 +4828,7 @@ export type Mutation = {
   /** Creating a window also emails every confirmed status subscriber. */
   createStatusMaintenance: StatusMaintenance;
   createStatusMonitor: StatusMonitor;
+  createStripeConfig: StripeConfig;
   createSupplier: Supplier;
   createSupportSlaPolicy: SupportSlaPolicy;
   /** Self-service: raise a support ticket (status forced to OPEN). */
@@ -4788,6 +4880,7 @@ export type Mutation = {
   deleteCannedReply: Scalars['Boolean']['output'];
   deleteCaseStudy: Scalars['Boolean']['output'];
   deleteClient: Scalars['Boolean']['output'];
+  deleteClientContact: Scalars['Boolean']['output'];
   deleteCloudflareConfig: Scalars['Boolean']['output'];
   deleteColumn: Scalars['Boolean']['output'];
   deleteCompany: Scalars['Boolean']['output'];
@@ -4854,6 +4947,7 @@ export type Mutation = {
   deleteProject: Scalars['Boolean']['output'];
   deletePrompt: Scalars['Boolean']['output'];
   deletePurchaseOrder: Scalars['Boolean']['output'];
+  deleteRazorpayConfig: Scalars['Boolean']['output'];
   deleteRecurringInvoice: Scalars['Boolean']['output'];
   deleteRisk: Scalars['Boolean']['output'];
   deleteSalaryStructure: Scalars['Boolean']['output'];
@@ -4868,6 +4962,7 @@ export type Mutation = {
   deleteStatusIncident: Scalars['Boolean']['output'];
   deleteStatusMaintenance: Scalars['Boolean']['output'];
   deleteStatusMonitor: Scalars['Boolean']['output'];
+  deleteStripeConfig: Scalars['Boolean']['output'];
   deleteSupplier: Scalars['Boolean']['output'];
   deleteSupportSlaPolicy: Scalars['Boolean']['output'];
   deleteTask: Scalars['Boolean']['output'];
@@ -4966,6 +5061,8 @@ export type Mutation = {
    * session when there is one. Rate-limited per user, else per IP.
    */
   reportClientLogs: Scalars['Boolean']['output'];
+  /** Public: emails a sign-in code to an address with client hub access (always true). */
+  requestClientHubCode: Scalars['Boolean']['output'];
   /**
    * LEGAL: ask a counterparty to sign. Emails them a link nobody else has and returns it,
    * so it can also be passed on by hand.
@@ -5074,6 +5171,8 @@ export type Mutation = {
   setAppLogGroupStatus: AppLogGroup;
   /** Moves an applicant along the pipeline. The applicant is emailed on INTERVIEW, OFFER and REJECTED. */
   setApplicantStage: Applicant;
+  /** Switching access off signs the person out at once. */
+  setClientContactActive: ClientContact;
   /** Marks a column as the end of the line, or takes that mark away. */
   setColumnDone: BoardColumn;
   /** Moves a deal to another pipeline stage — what a drag on the board does. Winning makes the account a client. */
@@ -5183,10 +5282,12 @@ export type Mutation = {
   testInboundMailConnection: Scalars['Boolean']['output'];
   testOpenAiConnection: Scalars['Boolean']['output'];
   testPexelsConnection: Scalars['Boolean']['output'];
+  testRazorpayConnection: Scalars['Boolean']['output'];
   /** Checks the stored client ID and secret with the provider. Platform Tech staff. */
   testSocialAppConfig: SocialAppTest;
   /** Validates the token, then checks it can see the project. */
   testSonarConnection: SonarConnectionTest;
+  testStripeConnection: Scalars['Boolean']['output'];
   /** Likes the post, or takes the like back. Returns the post as it now stands. */
   toggleSocialPostLike: SocialPost;
   /**
@@ -5334,6 +5435,7 @@ export type Mutation = {
   updateProject: Project;
   updatePrompt: Prompt;
   updatePurchaseOrder: PurchaseOrder;
+  updateRazorpayConfig: RazorpayConfig;
   updateRecurringInvoice: RecurringInvoice;
   updateRisk: Risk;
   updateSalaryStructure: SalaryStructure;
@@ -5345,6 +5447,7 @@ export type Mutation = {
   updateSprint: Sprint;
   updateStatusMaintenance: StatusMaintenance;
   updateStatusMonitor: StatusMonitor;
+  updateStripeConfig: StripeConfig;
   updateSupplier: Supplier;
   updateSupportSlaPolicy: SupportSlaPolicy;
   updateTask: Task;
@@ -5359,6 +5462,8 @@ export type Mutation = {
   uploadAvatar: Scalars['String']['output'];
   uploadImage: Scalars['String']['output'];
   upsertWhatsappDemo: WhatsappDemo;
+  /** Public: exchanges the emailed code for a client hub pass. */
+  verifyClientHubCode: ClientHubSignIn;
   /** The second step of a two-factor sign-in: the challenge from login, plus the code. */
   verifyMfa: AuthPayload;
   /** Public: exchanges the emailed code for a demo-only pass. */
@@ -5372,6 +5477,11 @@ export type Mutation = {
 export type MutationAcknowledgePolicyArgs = {
   policyId: Scalars['ID']['input'];
   signedName: Scalars['String']['input'];
+};
+
+
+export type MutationAddClientContactArgs = {
+  input: ClientContactInput;
 };
 
 
@@ -5459,6 +5569,28 @@ export type MutationChangePasswordArgs = {
 export type MutationClearRolePermissionArgs = {
   module: Scalars['String']['input'];
   role: Role;
+};
+
+
+export type MutationClientHubEmailInvoiceArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationClientHubOpenTicketArgs = {
+  input: ClientHubTicketInput;
+};
+
+
+export type MutationClientHubPayInvoiceArgs = {
+  gateway: PaymentGateway;
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationClientHubReplyToTicketArgs = {
+  body: Scalars['String']['input'];
+  ticketId: Scalars['ID']['input'];
 };
 
 
@@ -5929,6 +6061,11 @@ export type MutationCreatePurchaseOrderArgs = {
 };
 
 
+export type MutationCreateRazorpayConfigArgs = {
+  input: RazorpayConfigInput;
+};
+
+
 export type MutationCreateRecurringInvoiceArgs = {
   input: RecurringInvoiceInput;
 };
@@ -5988,6 +6125,11 @@ export type MutationCreateStatusMaintenanceArgs = {
 
 export type MutationCreateStatusMonitorArgs = {
   input: StatusMonitorInput;
+};
+
+
+export type MutationCreateStripeConfigArgs = {
+  input: StripeConfigInput;
 };
 
 
@@ -6188,6 +6330,11 @@ export type MutationDeleteCaseStudyArgs = {
 
 
 export type MutationDeleteClientArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteClientContactArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -6507,6 +6654,11 @@ export type MutationDeletePurchaseOrderArgs = {
 };
 
 
+export type MutationDeleteRazorpayConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteRecurringInvoiceArgs = {
   id: Scalars['ID']['input'];
 };
@@ -6568,6 +6720,11 @@ export type MutationDeleteStatusMaintenanceArgs = {
 
 
 export type MutationDeleteStatusMonitorArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteStripeConfigArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -6831,6 +6988,11 @@ export type MutationReportClientLogsArgs = {
 };
 
 
+export type MutationRequestClientHubCodeArgs = {
+  email: Scalars['String']['input'];
+};
+
+
 export type MutationRequestContractSignatureArgs = {
   contractId: Scalars['ID']['input'];
   message?: InputMaybe<Scalars['String']['input']>;
@@ -7041,6 +7203,12 @@ export type MutationSetApplicantStageArgs = {
   id: Scalars['ID']['input'];
   note?: InputMaybe<Scalars['String']['input']>;
   stage: ApplicantStage;
+};
+
+
+export type MutationSetClientContactActiveArgs = {
+  active: Scalars['Boolean']['input'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -7281,12 +7449,22 @@ export type MutationTestPexelsConnectionArgs = {
 };
 
 
+export type MutationTestRazorpayConnectionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationTestSocialAppConfigArgs = {
   app: SocialApp;
 };
 
 
 export type MutationTestSonarConnectionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestStripeConnectionArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -7869,6 +8047,12 @@ export type MutationUpdatePurchaseOrderArgs = {
 };
 
 
+export type MutationUpdateRazorpayConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: RazorpayConfigInput;
+};
+
+
 export type MutationUpdateRecurringInvoiceArgs = {
   id: Scalars['ID']['input'];
   input: RecurringInvoiceInput;
@@ -7931,6 +8115,12 @@ export type MutationUpdateStatusMaintenanceArgs = {
 export type MutationUpdateStatusMonitorArgs = {
   id: Scalars['ID']['input'];
   input: StatusMonitorInput;
+};
+
+
+export type MutationUpdateStripeConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: StripeConfigInput;
 };
 
 
@@ -8014,6 +8204,12 @@ export type MutationUploadImageArgs = {
 export type MutationUpsertWhatsappDemoArgs = {
   id?: InputMaybe<Scalars['ID']['input']>;
   input: WhatsappDemoInput;
+};
+
+
+export type MutationVerifyClientHubCodeArgs = {
+  code: Scalars['String']['input'];
+  email: Scalars['String']['input'];
 };
 
 
@@ -8452,6 +8648,31 @@ export type Payment = {
   recordedBy: Scalars['String']['output'];
   reference: Scalars['String']['output'];
 };
+
+export type PaymentAttempt = {
+  __typename?: 'PaymentAttempt';
+  amount: Scalars['Float']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  gateway: PaymentGateway;
+  id: Scalars['ID']['output'];
+  invoiceId: Scalars['String']['output'];
+  invoiceNumber: Scalars['String']['output'];
+  paidAt?: Maybe<Scalars['DateTime']['output']>;
+  status: PaymentAttemptStatus;
+};
+
+export enum PaymentAttemptStatus {
+  Expired = 'EXPIRED',
+  Paid = 'PAID',
+  Pending = 'PENDING',
+  Review = 'REVIEW'
+}
+
+export enum PaymentGateway {
+  Razorpay = 'RAZORPAY',
+  Stripe = 'STRIPE'
+}
 
 export type PaymentInput = {
   amount: Scalars['Float']['input'];
@@ -9412,6 +9633,20 @@ export type Query = {
    * paging, so a restricted role is refused before it reads a single row.
    */
   canExport: Scalars['Boolean']['output'];
+  /** Admin > Clients: who at a client has client hub access. */
+  clientContacts: Array<ClientContact>;
+  /** The invoice PDF as base64. */
+  clientHubInvoicePdf: Scalars['String']['output'];
+  clientHubInvoices: InvoicePage;
+  /** The signed-in client hub contact (pass in x-client-pass). */
+  clientHubMe: ClientHubMe;
+  clientHubPaymentAttempt: PaymentAttempt;
+  clientHubPaymentOptions: ClientHubPaymentOptions;
+  clientHubPayments: PaymentPage;
+  clientHubProjects: Array<ClientHubProject>;
+  clientHubReminders: Array<ClientHubReminder>;
+  clientHubTicketReplies: Array<SupportReply>;
+  clientHubTickets: SupportTicketPage;
   /**
    * Unauthenticated — a customer follows their ticket with the reference they were given
    * and the address they raised it from. Null unless both match.
@@ -9808,6 +10043,7 @@ export type Query = {
   listPurchaseOrders: Array<PurchaseOrder>;
   listPurchaseOrdersPaged: PurchaseOrderPage;
   listPurchaseOrdersStats: TableStats;
+  listRazorpayConfigs: Array<RazorpayConfig>;
   listRecurringInvoices: Array<RecurringInvoice>;
   listRecurringInvoicesPaged: RecurringInvoicePage;
   listRisks: Array<Risk>;
@@ -9839,6 +10075,8 @@ export type Query = {
   listStockMovements: Array<StockMovement>;
   listStockMovementsPaged: StockMovementPage;
   listStockMovementsStats: TableStats;
+  /** Tech > Environment Variables: Exyconn's payment gateway accounts. */
+  listStripeConfigs: Array<StripeConfig>;
   listSuppliers: Array<Supplier>;
   listSuppliersPaged: SupplierPage;
   listSuppliersStats: TableStats;
@@ -10236,6 +10474,41 @@ export type QueryCampaignTopLinksArgs = {
 
 export type QueryCanExportArgs = {
   module: Scalars['String']['input'];
+};
+
+
+export type QueryClientContactsArgs = {
+  clientId: Scalars['ID']['input'];
+};
+
+
+export type QueryClientHubInvoicePdfArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryClientHubInvoicesArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryClientHubPaymentAttemptArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryClientHubPaymentsArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryClientHubTicketRepliesArgs = {
+  ticketId: Scalars['ID']['input'];
+};
+
+
+export type QueryClientHubTicketsArgs = {
+  input: TableQueryInput;
 };
 
 
@@ -11630,6 +11903,30 @@ export type QueryWorkspaceAnalyticsArgs = {
   days?: InputMaybe<Scalars['Int']['input']>;
 };
 
+/** Exyconn's Razorpay account (Tech > Environment Variables). Secrets are write-only. */
+export type RazorpayConfig = {
+  __typename?: 'RazorpayConfig';
+  createdAt: Scalars['DateTime']['output'];
+  hasKeySecret: Scalars['Boolean']['output'];
+  hasWebhookSecret: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  keyId: Scalars['String']['output'];
+  keySecretHint?: Maybe<Scalars['String']['output']>;
+  label: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  webhookSecretHint?: Maybe<Scalars['String']['output']>;
+};
+
+export type RazorpayConfigInput = {
+  isActive: Scalars['Boolean']['input'];
+  keyId: Scalars['String']['input'];
+  /** Left blank on an edit, the stored secret is kept. */
+  keySecret?: InputMaybe<Scalars['String']['input']>;
+  label: Scalars['String']['input'];
+  webhookSecret?: InputMaybe<Scalars['String']['input']>;
+};
+
 /** What is owed, and how late it is. */
 export type Receivables = {
   __typename?: 'Receivables';
@@ -12826,6 +13123,28 @@ export type StockMovementPage = {
   __typename?: 'StockMovementPage';
   rows: Array<StockMovement>;
   totalCount: Scalars['Int']['output'];
+};
+
+/** Exyconn's Stripe account (Tech > Environment Variables). Secrets are write-only. */
+export type StripeConfig = {
+  __typename?: 'StripeConfig';
+  createdAt: Scalars['DateTime']['output'];
+  hasSecretKey: Scalars['Boolean']['output'];
+  hasWebhookSecret: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  secretKeyHint?: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
+  webhookSecretHint?: Maybe<Scalars['String']['output']>;
+};
+
+export type StripeConfigInput = {
+  isActive: Scalars['Boolean']['input'];
+  label: Scalars['String']['input'];
+  /** Left blank on an edit, the stored key is kept. */
+  secretKey?: InputMaybe<Scalars['String']['input']>;
+  webhookSecret?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** What the public status page submits. Everything else is set by the server. */
@@ -15571,6 +15890,144 @@ export type PromoteBugToTaskMutationVariables = Exact<{
 
 
 export type PromoteBugToTaskMutation = { __typename?: 'Mutation', promoteBugToTask: { __typename?: 'Task', id: string, key: string } };
+
+export type ClientContactFieldsFragment = { __typename?: 'ClientContact', id: string, clientId: string, name: string, email: string, active: boolean, lastSignInAt?: string | null, signInCount: number, createdAt: string };
+
+export type ClientContactsQueryVariables = Exact<{
+  clientId: Scalars['ID']['input'];
+}>;
+
+
+export type ClientContactsQuery = { __typename?: 'Query', clientContacts: Array<{ __typename?: 'ClientContact', id: string, clientId: string, name: string, email: string, active: boolean, lastSignInAt?: string | null, signInCount: number, createdAt: string }> };
+
+export type AddClientContactMutationVariables = Exact<{
+  input: ClientContactInput;
+}>;
+
+
+export type AddClientContactMutation = { __typename?: 'Mutation', addClientContact: { __typename?: 'ClientContact', id: string, clientId: string, name: string, email: string, active: boolean, lastSignInAt?: string | null, signInCount: number, createdAt: string } };
+
+export type SetClientContactActiveMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  active: Scalars['Boolean']['input'];
+}>;
+
+
+export type SetClientContactActiveMutation = { __typename?: 'Mutation', setClientContactActive: { __typename?: 'ClientContact', id: string, clientId: string, name: string, email: string, active: boolean, lastSignInAt?: string | null, signInCount: number, createdAt: string } };
+
+export type DeleteClientContactMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteClientContactMutation = { __typename?: 'Mutation', deleteClientContact: boolean };
+
+export type RequestClientHubCodeMutationVariables = Exact<{
+  email: Scalars['String']['input'];
+}>;
+
+
+export type RequestClientHubCodeMutation = { __typename?: 'Mutation', requestClientHubCode: boolean };
+
+export type VerifyClientHubCodeMutationVariables = Exact<{
+  email: Scalars['String']['input'];
+  code: Scalars['String']['input'];
+}>;
+
+
+export type VerifyClientHubCodeMutation = { __typename?: 'Mutation', verifyClientHubCode: { __typename?: 'ClientHubSignIn', token: string, name: string, email: string } };
+
+export type ClientHubMeQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ClientHubMeQuery = { __typename?: 'Query', clientHubMe: { __typename?: 'ClientHubMe', name: string, email: string, clientName: string, company: string } };
+
+export type ClientHubInvoicesQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ClientHubInvoicesQuery = { __typename?: 'Query', clientHubInvoices: { __typename?: 'InvoicePage', totalCount: number, rows: Array<{ __typename?: 'Invoice', id: string, number: string, amount: number, amountPaid: number, currency: string, status: InvoiceStatus, issuedDate: string, dueDate: string }> } };
+
+export type ClientHubInvoicePdfQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type ClientHubInvoicePdfQuery = { __typename?: 'Query', clientHubInvoicePdf: string };
+
+export type ClientHubEmailInvoiceMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type ClientHubEmailInvoiceMutation = { __typename?: 'Mutation', clientHubEmailInvoice: boolean };
+
+export type ClientHubPaymentsQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ClientHubPaymentsQuery = { __typename?: 'Query', clientHubPayments: { __typename?: 'PaymentPage', totalCount: number, rows: Array<{ __typename?: 'Payment', id: string, invoiceNumber: string, amount: number, currency: string, method: PaymentMethod, reference: string, receivedAt: string }> } };
+
+export type ClientHubRemindersQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ClientHubRemindersQuery = { __typename?: 'Query', clientHubReminders: Array<{ __typename?: 'ClientHubReminder', invoiceId: string, number: string, currency: string, balance: number, dueDate: string, daysLate: number, status: InvoiceStatus }> };
+
+export type ClientHubPaymentOptionsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ClientHubPaymentOptionsQuery = { __typename?: 'Query', clientHubPaymentOptions: { __typename?: 'ClientHubPaymentOptions', stripe: boolean, razorpay: boolean } };
+
+export type ClientHubPayInvoiceMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  gateway: PaymentGateway;
+}>;
+
+
+export type ClientHubPayInvoiceMutation = { __typename?: 'Mutation', clientHubPayInvoice: { __typename?: 'ClientHubCheckout', attemptId: string, url: string } };
+
+export type ClientHubPaymentAttemptQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type ClientHubPaymentAttemptQuery = { __typename?: 'Query', clientHubPaymentAttempt: { __typename?: 'PaymentAttempt', id: string, gateway: PaymentGateway, invoiceNumber: string, amount: number, currency: string, status: PaymentAttemptStatus, paidAt?: string | null } };
+
+export type ClientHubTicketsQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type ClientHubTicketsQuery = { __typename?: 'Query', clientHubTickets: { __typename?: 'SupportTicketPage', totalCount: number, rows: Array<{ __typename?: 'SupportTicket', id: string, reference: string, subject: string, category: SupportCategory, description: string, priority: SupportPriority, status: SupportStatus, createdAt: string, updatedAt: string }> } };
+
+export type ClientHubTicketRepliesQueryVariables = Exact<{
+  ticketId: Scalars['ID']['input'];
+}>;
+
+
+export type ClientHubTicketRepliesQuery = { __typename?: 'Query', clientHubTicketReplies: Array<{ __typename?: 'SupportReply', id: string, authorName: string, body: string, createdAt: string }> };
+
+export type ClientHubOpenTicketMutationVariables = Exact<{
+  input: ClientHubTicketInput;
+}>;
+
+
+export type ClientHubOpenTicketMutation = { __typename?: 'Mutation', clientHubOpenTicket: { __typename?: 'SupportTicket', id: string, reference: string } };
+
+export type ClientHubReplyToTicketMutationVariables = Exact<{
+  ticketId: Scalars['ID']['input'];
+  body: Scalars['String']['input'];
+}>;
+
+
+export type ClientHubReplyToTicketMutation = { __typename?: 'Mutation', clientHubReplyToTicket: { __typename?: 'SupportReply', id: string, authorName: string, body: string, createdAt: string } };
+
+export type ClientHubProjectsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ClientHubProjectsQuery = { __typename?: 'Query', clientHubProjects: Array<{ __typename?: 'ClientHubProject', id: string, name: string, status: ProjectStatus, startDate?: string | null, endDate?: string | null, budgetHours?: number | null, trackedHours: number, milestones: Array<{ __typename?: 'SharedMilestone', name: string, dueOn?: string | null, state: MilestoneState }>, ticketCounts: Array<{ __typename?: 'SharedTicketCount', status: string, count: number }> }> };
 
 export type ListClientsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -18635,6 +19092,78 @@ export type OrgMasterOptionsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type OrgMasterOptionsQuery = { __typename?: 'Query', listLocations: Array<{ __typename?: 'Location', id: string, name: string, code: string, active: boolean }>, listTeams: Array<{ __typename?: 'Team', id: string, name: string, department: string, active: boolean }>, listGrades: Array<{ __typename?: 'Grade', id: string, name: string, code: string, active: boolean }>, listEmploymentTypes: Array<{ __typename?: 'EmploymentType', id: string, name: string, code: string, active: boolean }>, listShifts: Array<{ __typename?: 'Shift', id: string, name: string, code: string, startTime: string, endTime: string, active: boolean }> };
 
+export type StripeConfigFieldsFragment = { __typename?: 'StripeConfig', id: string, label: string, hasSecretKey: boolean, secretKeyHint?: string | null, hasWebhookSecret: boolean, webhookSecretHint?: string | null, isActive: boolean, createdAt: string, updatedAt: string };
+
+export type RazorpayConfigFieldsFragment = { __typename?: 'RazorpayConfig', id: string, label: string, keyId: string, hasKeySecret: boolean, keySecretHint?: string | null, hasWebhookSecret: boolean, webhookSecretHint?: string | null, isActive: boolean, createdAt: string, updatedAt: string };
+
+export type ListStripeConfigsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListStripeConfigsQuery = { __typename?: 'Query', listStripeConfigs: Array<{ __typename?: 'StripeConfig', id: string, label: string, hasSecretKey: boolean, secretKeyHint?: string | null, hasWebhookSecret: boolean, webhookSecretHint?: string | null, isActive: boolean, createdAt: string, updatedAt: string }> };
+
+export type CreateStripeConfigMutationVariables = Exact<{
+  input: StripeConfigInput;
+}>;
+
+
+export type CreateStripeConfigMutation = { __typename?: 'Mutation', createStripeConfig: { __typename?: 'StripeConfig', id: string, label: string, hasSecretKey: boolean, secretKeyHint?: string | null, hasWebhookSecret: boolean, webhookSecretHint?: string | null, isActive: boolean, createdAt: string, updatedAt: string } };
+
+export type UpdateStripeConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: StripeConfigInput;
+}>;
+
+
+export type UpdateStripeConfigMutation = { __typename?: 'Mutation', updateStripeConfig: { __typename?: 'StripeConfig', id: string, label: string, hasSecretKey: boolean, secretKeyHint?: string | null, hasWebhookSecret: boolean, webhookSecretHint?: string | null, isActive: boolean, createdAt: string, updatedAt: string } };
+
+export type DeleteStripeConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteStripeConfigMutation = { __typename?: 'Mutation', deleteStripeConfig: boolean };
+
+export type TestStripeConnectionMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TestStripeConnectionMutation = { __typename?: 'Mutation', testStripeConnection: boolean };
+
+export type ListRazorpayConfigsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListRazorpayConfigsQuery = { __typename?: 'Query', listRazorpayConfigs: Array<{ __typename?: 'RazorpayConfig', id: string, label: string, keyId: string, hasKeySecret: boolean, keySecretHint?: string | null, hasWebhookSecret: boolean, webhookSecretHint?: string | null, isActive: boolean, createdAt: string, updatedAt: string }> };
+
+export type CreateRazorpayConfigMutationVariables = Exact<{
+  input: RazorpayConfigInput;
+}>;
+
+
+export type CreateRazorpayConfigMutation = { __typename?: 'Mutation', createRazorpayConfig: { __typename?: 'RazorpayConfig', id: string, label: string, keyId: string, hasKeySecret: boolean, keySecretHint?: string | null, hasWebhookSecret: boolean, webhookSecretHint?: string | null, isActive: boolean, createdAt: string, updatedAt: string } };
+
+export type UpdateRazorpayConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: RazorpayConfigInput;
+}>;
+
+
+export type UpdateRazorpayConfigMutation = { __typename?: 'Mutation', updateRazorpayConfig: { __typename?: 'RazorpayConfig', id: string, label: string, keyId: string, hasKeySecret: boolean, keySecretHint?: string | null, hasWebhookSecret: boolean, webhookSecretHint?: string | null, isActive: boolean, createdAt: string, updatedAt: string } };
+
+export type DeleteRazorpayConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteRazorpayConfigMutation = { __typename?: 'Mutation', deleteRazorpayConfig: boolean };
+
+export type TestRazorpayConnectionMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TestRazorpayConnectionMutation = { __typename?: 'Mutation', testRazorpayConnection: boolean };
+
 export type SalaryStructureFieldsFragment = { __typename?: 'SalaryStructure', id: string, employeeId: string, currency: string, payType: PayType, payTypeNote?: string | null, basic: number, hra: number, allowances: number, deductions: number, rate: number, billingRate: number, gross: number, net: number, pfApplicable: boolean, esiApplicable: boolean, tdsPercent: number, taxRegimeKey?: string | null, taxExempt: boolean, pfNumber?: string | null, esiNumber?: string | null, panNumber?: string | null, effectiveFrom: string };
 
 export type ListSalaryStructuresPagedQueryVariables = Exact<{
@@ -21450,6 +21979,18 @@ export const BrandingFieldsFragmentDoc = gql`
   }
 }
     `;
+export const ClientContactFieldsFragmentDoc = gql`
+    fragment ClientContactFields on ClientContact {
+  id
+  clientId
+  name
+  email
+  active
+  lastSignInAt
+  signInCount
+  createdAt
+}
+    `;
 export const RiskFieldsFragmentDoc = gql`
     fragment RiskFields on Risk {
   id
@@ -22308,6 +22849,33 @@ export const OrganizationFieldsFragmentDoc = gql`
   taxSystem
   contactEmail
   logoUrl
+  createdAt
+  updatedAt
+}
+    `;
+export const StripeConfigFieldsFragmentDoc = gql`
+    fragment StripeConfigFields on StripeConfig {
+  id
+  label
+  hasSecretKey
+  secretKeyHint
+  hasWebhookSecret
+  webhookSecretHint
+  isActive
+  createdAt
+  updatedAt
+}
+    `;
+export const RazorpayConfigFieldsFragmentDoc = gql`
+    fragment RazorpayConfigFields on RazorpayConfig {
+  id
+  label
+  keyId
+  hasKeySecret
+  keySecretHint
+  hasWebhookSecret
+  webhookSecretHint
+  isActive
   createdAt
   updatedAt
 }
@@ -27703,6 +28271,823 @@ export function usePromoteBugToTaskMutation(baseOptions?: ApolloReactHooks.Mutat
         return ApolloReactHooks.useMutation<PromoteBugToTaskMutation, PromoteBugToTaskMutationVariables>(PromoteBugToTaskDocument, options);
       }
 export type PromoteBugToTaskMutationHookResult = ReturnType<typeof usePromoteBugToTaskMutation>;
+export const ClientContactsDocument = gql`
+    query ClientContacts($clientId: ID!) {
+  clientContacts(clientId: $clientId) {
+    ...ClientContactFields
+  }
+}
+    ${ClientContactFieldsFragmentDoc}`;
+
+/**
+ * __useClientContactsQuery__
+ *
+ * To run a query within a React component, call `useClientContactsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useClientContactsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useClientContactsQuery({
+ *   variables: {
+ *      clientId: // value for 'clientId'
+ *   },
+ * });
+ */
+export function useClientContactsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ClientContactsQuery, ClientContactsQueryVariables> & ({ variables: ClientContactsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ClientContactsQuery, ClientContactsQueryVariables>(ClientContactsDocument, options);
+      }
+export function useClientContactsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ClientContactsQuery, ClientContactsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ClientContactsQuery, ClientContactsQueryVariables>(ClientContactsDocument, options);
+        }
+// @ts-ignore
+export function useClientContactsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ClientContactsQuery, ClientContactsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientContactsQuery, ClientContactsQueryVariables>;
+// @ts-ignore
+export function useClientContactsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientContactsQuery, ClientContactsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientContactsQuery | undefined, ClientContactsQueryVariables>;
+export function useClientContactsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientContactsQuery, ClientContactsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ClientContactsQuery, ClientContactsQueryVariables>(ClientContactsDocument, options);
+        }
+export type ClientContactsQueryHookResult = ReturnType<typeof useClientContactsQuery>;
+export type ClientContactsLazyQueryHookResult = ReturnType<typeof useClientContactsLazyQuery>;
+export type ClientContactsSuspenseQueryHookResult = ReturnType<typeof useClientContactsSuspenseQuery>;
+export const AddClientContactDocument = gql`
+    mutation AddClientContact($input: ClientContactInput!) {
+  addClientContact(input: $input) {
+    ...ClientContactFields
+  }
+}
+    ${ClientContactFieldsFragmentDoc}`;
+
+/**
+ * __useAddClientContactMutation__
+ *
+ * To run a mutation, you first call `useAddClientContactMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddClientContactMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addClientContactMutation, { data, loading, error }] = useAddClientContactMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useAddClientContactMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<AddClientContactMutation, AddClientContactMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<AddClientContactMutation, AddClientContactMutationVariables>(AddClientContactDocument, options);
+      }
+export type AddClientContactMutationHookResult = ReturnType<typeof useAddClientContactMutation>;
+export const SetClientContactActiveDocument = gql`
+    mutation SetClientContactActive($id: ID!, $active: Boolean!) {
+  setClientContactActive(id: $id, active: $active) {
+    ...ClientContactFields
+  }
+}
+    ${ClientContactFieldsFragmentDoc}`;
+
+/**
+ * __useSetClientContactActiveMutation__
+ *
+ * To run a mutation, you first call `useSetClientContactActiveMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetClientContactActiveMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setClientContactActiveMutation, { data, loading, error }] = useSetClientContactActiveMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      active: // value for 'active'
+ *   },
+ * });
+ */
+export function useSetClientContactActiveMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SetClientContactActiveMutation, SetClientContactActiveMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SetClientContactActiveMutation, SetClientContactActiveMutationVariables>(SetClientContactActiveDocument, options);
+      }
+export type SetClientContactActiveMutationHookResult = ReturnType<typeof useSetClientContactActiveMutation>;
+export const DeleteClientContactDocument = gql`
+    mutation DeleteClientContact($id: ID!) {
+  deleteClientContact(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteClientContactMutation__
+ *
+ * To run a mutation, you first call `useDeleteClientContactMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteClientContactMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteClientContactMutation, { data, loading, error }] = useDeleteClientContactMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteClientContactMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteClientContactMutation, DeleteClientContactMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteClientContactMutation, DeleteClientContactMutationVariables>(DeleteClientContactDocument, options);
+      }
+export type DeleteClientContactMutationHookResult = ReturnType<typeof useDeleteClientContactMutation>;
+export const RequestClientHubCodeDocument = gql`
+    mutation RequestClientHubCode($email: String!) {
+  requestClientHubCode(email: $email)
+}
+    `;
+
+/**
+ * __useRequestClientHubCodeMutation__
+ *
+ * To run a mutation, you first call `useRequestClientHubCodeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRequestClientHubCodeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [requestClientHubCodeMutation, { data, loading, error }] = useRequestClientHubCodeMutation({
+ *   variables: {
+ *      email: // value for 'email'
+ *   },
+ * });
+ */
+export function useRequestClientHubCodeMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RequestClientHubCodeMutation, RequestClientHubCodeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RequestClientHubCodeMutation, RequestClientHubCodeMutationVariables>(RequestClientHubCodeDocument, options);
+      }
+export type RequestClientHubCodeMutationHookResult = ReturnType<typeof useRequestClientHubCodeMutation>;
+export const VerifyClientHubCodeDocument = gql`
+    mutation VerifyClientHubCode($email: String!, $code: String!) {
+  verifyClientHubCode(email: $email, code: $code) {
+    token
+    name
+    email
+  }
+}
+    `;
+
+/**
+ * __useVerifyClientHubCodeMutation__
+ *
+ * To run a mutation, you first call `useVerifyClientHubCodeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useVerifyClientHubCodeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [verifyClientHubCodeMutation, { data, loading, error }] = useVerifyClientHubCodeMutation({
+ *   variables: {
+ *      email: // value for 'email'
+ *      code: // value for 'code'
+ *   },
+ * });
+ */
+export function useVerifyClientHubCodeMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<VerifyClientHubCodeMutation, VerifyClientHubCodeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<VerifyClientHubCodeMutation, VerifyClientHubCodeMutationVariables>(VerifyClientHubCodeDocument, options);
+      }
+export type VerifyClientHubCodeMutationHookResult = ReturnType<typeof useVerifyClientHubCodeMutation>;
+export const ClientHubMeDocument = gql`
+    query ClientHubMe {
+  clientHubMe {
+    name
+    email
+    clientName
+    company
+  }
+}
+    `;
+
+/**
+ * __useClientHubMeQuery__
+ *
+ * To run a query within a React component, call `useClientHubMeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useClientHubMeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useClientHubMeQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useClientHubMeQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ClientHubMeQuery, ClientHubMeQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ClientHubMeQuery, ClientHubMeQueryVariables>(ClientHubMeDocument, options);
+      }
+export function useClientHubMeLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ClientHubMeQuery, ClientHubMeQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ClientHubMeQuery, ClientHubMeQueryVariables>(ClientHubMeDocument, options);
+        }
+// @ts-ignore
+export function useClientHubMeSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ClientHubMeQuery, ClientHubMeQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientHubMeQuery, ClientHubMeQueryVariables>;
+// @ts-ignore
+export function useClientHubMeSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientHubMeQuery, ClientHubMeQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientHubMeQuery | undefined, ClientHubMeQueryVariables>;
+export function useClientHubMeSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientHubMeQuery, ClientHubMeQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ClientHubMeQuery, ClientHubMeQueryVariables>(ClientHubMeDocument, options);
+        }
+export type ClientHubMeQueryHookResult = ReturnType<typeof useClientHubMeQuery>;
+export type ClientHubMeLazyQueryHookResult = ReturnType<typeof useClientHubMeLazyQuery>;
+export type ClientHubMeSuspenseQueryHookResult = ReturnType<typeof useClientHubMeSuspenseQuery>;
+export const ClientHubInvoicesDocument = gql`
+    query ClientHubInvoices($input: TableQueryInput!) {
+  clientHubInvoices(input: $input) {
+    totalCount
+    rows {
+      id
+      number
+      amount
+      amountPaid
+      currency
+      status
+      issuedDate
+      dueDate
+    }
+  }
+}
+    `;
+
+/**
+ * __useClientHubInvoicesQuery__
+ *
+ * To run a query within a React component, call `useClientHubInvoicesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useClientHubInvoicesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useClientHubInvoicesQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useClientHubInvoicesQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ClientHubInvoicesQuery, ClientHubInvoicesQueryVariables> & ({ variables: ClientHubInvoicesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ClientHubInvoicesQuery, ClientHubInvoicesQueryVariables>(ClientHubInvoicesDocument, options);
+      }
+export function useClientHubInvoicesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ClientHubInvoicesQuery, ClientHubInvoicesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ClientHubInvoicesQuery, ClientHubInvoicesQueryVariables>(ClientHubInvoicesDocument, options);
+        }
+// @ts-ignore
+export function useClientHubInvoicesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ClientHubInvoicesQuery, ClientHubInvoicesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientHubInvoicesQuery, ClientHubInvoicesQueryVariables>;
+// @ts-ignore
+export function useClientHubInvoicesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientHubInvoicesQuery, ClientHubInvoicesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientHubInvoicesQuery | undefined, ClientHubInvoicesQueryVariables>;
+export function useClientHubInvoicesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientHubInvoicesQuery, ClientHubInvoicesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ClientHubInvoicesQuery, ClientHubInvoicesQueryVariables>(ClientHubInvoicesDocument, options);
+        }
+export type ClientHubInvoicesQueryHookResult = ReturnType<typeof useClientHubInvoicesQuery>;
+export type ClientHubInvoicesLazyQueryHookResult = ReturnType<typeof useClientHubInvoicesLazyQuery>;
+export type ClientHubInvoicesSuspenseQueryHookResult = ReturnType<typeof useClientHubInvoicesSuspenseQuery>;
+export const ClientHubInvoicePdfDocument = gql`
+    query ClientHubInvoicePdf($id: ID!) {
+  clientHubInvoicePdf(id: $id)
+}
+    `;
+
+/**
+ * __useClientHubInvoicePdfQuery__
+ *
+ * To run a query within a React component, call `useClientHubInvoicePdfQuery` and pass it any options that fit your needs.
+ * When your component renders, `useClientHubInvoicePdfQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useClientHubInvoicePdfQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useClientHubInvoicePdfQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ClientHubInvoicePdfQuery, ClientHubInvoicePdfQueryVariables> & ({ variables: ClientHubInvoicePdfQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ClientHubInvoicePdfQuery, ClientHubInvoicePdfQueryVariables>(ClientHubInvoicePdfDocument, options);
+      }
+export function useClientHubInvoicePdfLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ClientHubInvoicePdfQuery, ClientHubInvoicePdfQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ClientHubInvoicePdfQuery, ClientHubInvoicePdfQueryVariables>(ClientHubInvoicePdfDocument, options);
+        }
+// @ts-ignore
+export function useClientHubInvoicePdfSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ClientHubInvoicePdfQuery, ClientHubInvoicePdfQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientHubInvoicePdfQuery, ClientHubInvoicePdfQueryVariables>;
+// @ts-ignore
+export function useClientHubInvoicePdfSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientHubInvoicePdfQuery, ClientHubInvoicePdfQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientHubInvoicePdfQuery | undefined, ClientHubInvoicePdfQueryVariables>;
+export function useClientHubInvoicePdfSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientHubInvoicePdfQuery, ClientHubInvoicePdfQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ClientHubInvoicePdfQuery, ClientHubInvoicePdfQueryVariables>(ClientHubInvoicePdfDocument, options);
+        }
+export type ClientHubInvoicePdfQueryHookResult = ReturnType<typeof useClientHubInvoicePdfQuery>;
+export type ClientHubInvoicePdfLazyQueryHookResult = ReturnType<typeof useClientHubInvoicePdfLazyQuery>;
+export type ClientHubInvoicePdfSuspenseQueryHookResult = ReturnType<typeof useClientHubInvoicePdfSuspenseQuery>;
+export const ClientHubEmailInvoiceDocument = gql`
+    mutation ClientHubEmailInvoice($id: ID!) {
+  clientHubEmailInvoice(id: $id)
+}
+    `;
+
+/**
+ * __useClientHubEmailInvoiceMutation__
+ *
+ * To run a mutation, you first call `useClientHubEmailInvoiceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useClientHubEmailInvoiceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [clientHubEmailInvoiceMutation, { data, loading, error }] = useClientHubEmailInvoiceMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useClientHubEmailInvoiceMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ClientHubEmailInvoiceMutation, ClientHubEmailInvoiceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ClientHubEmailInvoiceMutation, ClientHubEmailInvoiceMutationVariables>(ClientHubEmailInvoiceDocument, options);
+      }
+export type ClientHubEmailInvoiceMutationHookResult = ReturnType<typeof useClientHubEmailInvoiceMutation>;
+export const ClientHubPaymentsDocument = gql`
+    query ClientHubPayments($input: TableQueryInput!) {
+  clientHubPayments(input: $input) {
+    totalCount
+    rows {
+      id
+      invoiceNumber
+      amount
+      currency
+      method
+      reference
+      receivedAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useClientHubPaymentsQuery__
+ *
+ * To run a query within a React component, call `useClientHubPaymentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useClientHubPaymentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useClientHubPaymentsQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useClientHubPaymentsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ClientHubPaymentsQuery, ClientHubPaymentsQueryVariables> & ({ variables: ClientHubPaymentsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ClientHubPaymentsQuery, ClientHubPaymentsQueryVariables>(ClientHubPaymentsDocument, options);
+      }
+export function useClientHubPaymentsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ClientHubPaymentsQuery, ClientHubPaymentsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ClientHubPaymentsQuery, ClientHubPaymentsQueryVariables>(ClientHubPaymentsDocument, options);
+        }
+// @ts-ignore
+export function useClientHubPaymentsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ClientHubPaymentsQuery, ClientHubPaymentsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientHubPaymentsQuery, ClientHubPaymentsQueryVariables>;
+// @ts-ignore
+export function useClientHubPaymentsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientHubPaymentsQuery, ClientHubPaymentsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientHubPaymentsQuery | undefined, ClientHubPaymentsQueryVariables>;
+export function useClientHubPaymentsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientHubPaymentsQuery, ClientHubPaymentsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ClientHubPaymentsQuery, ClientHubPaymentsQueryVariables>(ClientHubPaymentsDocument, options);
+        }
+export type ClientHubPaymentsQueryHookResult = ReturnType<typeof useClientHubPaymentsQuery>;
+export type ClientHubPaymentsLazyQueryHookResult = ReturnType<typeof useClientHubPaymentsLazyQuery>;
+export type ClientHubPaymentsSuspenseQueryHookResult = ReturnType<typeof useClientHubPaymentsSuspenseQuery>;
+export const ClientHubRemindersDocument = gql`
+    query ClientHubReminders {
+  clientHubReminders {
+    invoiceId
+    number
+    currency
+    balance
+    dueDate
+    daysLate
+    status
+  }
+}
+    `;
+
+/**
+ * __useClientHubRemindersQuery__
+ *
+ * To run a query within a React component, call `useClientHubRemindersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useClientHubRemindersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useClientHubRemindersQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useClientHubRemindersQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ClientHubRemindersQuery, ClientHubRemindersQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ClientHubRemindersQuery, ClientHubRemindersQueryVariables>(ClientHubRemindersDocument, options);
+      }
+export function useClientHubRemindersLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ClientHubRemindersQuery, ClientHubRemindersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ClientHubRemindersQuery, ClientHubRemindersQueryVariables>(ClientHubRemindersDocument, options);
+        }
+// @ts-ignore
+export function useClientHubRemindersSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ClientHubRemindersQuery, ClientHubRemindersQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientHubRemindersQuery, ClientHubRemindersQueryVariables>;
+// @ts-ignore
+export function useClientHubRemindersSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientHubRemindersQuery, ClientHubRemindersQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientHubRemindersQuery | undefined, ClientHubRemindersQueryVariables>;
+export function useClientHubRemindersSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientHubRemindersQuery, ClientHubRemindersQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ClientHubRemindersQuery, ClientHubRemindersQueryVariables>(ClientHubRemindersDocument, options);
+        }
+export type ClientHubRemindersQueryHookResult = ReturnType<typeof useClientHubRemindersQuery>;
+export type ClientHubRemindersLazyQueryHookResult = ReturnType<typeof useClientHubRemindersLazyQuery>;
+export type ClientHubRemindersSuspenseQueryHookResult = ReturnType<typeof useClientHubRemindersSuspenseQuery>;
+export const ClientHubPaymentOptionsDocument = gql`
+    query ClientHubPaymentOptions {
+  clientHubPaymentOptions {
+    stripe
+    razorpay
+  }
+}
+    `;
+
+/**
+ * __useClientHubPaymentOptionsQuery__
+ *
+ * To run a query within a React component, call `useClientHubPaymentOptionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useClientHubPaymentOptionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useClientHubPaymentOptionsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useClientHubPaymentOptionsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ClientHubPaymentOptionsQuery, ClientHubPaymentOptionsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ClientHubPaymentOptionsQuery, ClientHubPaymentOptionsQueryVariables>(ClientHubPaymentOptionsDocument, options);
+      }
+export function useClientHubPaymentOptionsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ClientHubPaymentOptionsQuery, ClientHubPaymentOptionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ClientHubPaymentOptionsQuery, ClientHubPaymentOptionsQueryVariables>(ClientHubPaymentOptionsDocument, options);
+        }
+// @ts-ignore
+export function useClientHubPaymentOptionsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ClientHubPaymentOptionsQuery, ClientHubPaymentOptionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientHubPaymentOptionsQuery, ClientHubPaymentOptionsQueryVariables>;
+// @ts-ignore
+export function useClientHubPaymentOptionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientHubPaymentOptionsQuery, ClientHubPaymentOptionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientHubPaymentOptionsQuery | undefined, ClientHubPaymentOptionsQueryVariables>;
+export function useClientHubPaymentOptionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientHubPaymentOptionsQuery, ClientHubPaymentOptionsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ClientHubPaymentOptionsQuery, ClientHubPaymentOptionsQueryVariables>(ClientHubPaymentOptionsDocument, options);
+        }
+export type ClientHubPaymentOptionsQueryHookResult = ReturnType<typeof useClientHubPaymentOptionsQuery>;
+export type ClientHubPaymentOptionsLazyQueryHookResult = ReturnType<typeof useClientHubPaymentOptionsLazyQuery>;
+export type ClientHubPaymentOptionsSuspenseQueryHookResult = ReturnType<typeof useClientHubPaymentOptionsSuspenseQuery>;
+export const ClientHubPayInvoiceDocument = gql`
+    mutation ClientHubPayInvoice($id: ID!, $gateway: PaymentGateway!) {
+  clientHubPayInvoice(id: $id, gateway: $gateway) {
+    attemptId
+    url
+  }
+}
+    `;
+
+/**
+ * __useClientHubPayInvoiceMutation__
+ *
+ * To run a mutation, you first call `useClientHubPayInvoiceMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useClientHubPayInvoiceMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [clientHubPayInvoiceMutation, { data, loading, error }] = useClientHubPayInvoiceMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      gateway: // value for 'gateway'
+ *   },
+ * });
+ */
+export function useClientHubPayInvoiceMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ClientHubPayInvoiceMutation, ClientHubPayInvoiceMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ClientHubPayInvoiceMutation, ClientHubPayInvoiceMutationVariables>(ClientHubPayInvoiceDocument, options);
+      }
+export type ClientHubPayInvoiceMutationHookResult = ReturnType<typeof useClientHubPayInvoiceMutation>;
+export const ClientHubPaymentAttemptDocument = gql`
+    query ClientHubPaymentAttempt($id: ID!) {
+  clientHubPaymentAttempt(id: $id) {
+    id
+    gateway
+    invoiceNumber
+    amount
+    currency
+    status
+    paidAt
+  }
+}
+    `;
+
+/**
+ * __useClientHubPaymentAttemptQuery__
+ *
+ * To run a query within a React component, call `useClientHubPaymentAttemptQuery` and pass it any options that fit your needs.
+ * When your component renders, `useClientHubPaymentAttemptQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useClientHubPaymentAttemptQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useClientHubPaymentAttemptQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ClientHubPaymentAttemptQuery, ClientHubPaymentAttemptQueryVariables> & ({ variables: ClientHubPaymentAttemptQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ClientHubPaymentAttemptQuery, ClientHubPaymentAttemptQueryVariables>(ClientHubPaymentAttemptDocument, options);
+      }
+export function useClientHubPaymentAttemptLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ClientHubPaymentAttemptQuery, ClientHubPaymentAttemptQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ClientHubPaymentAttemptQuery, ClientHubPaymentAttemptQueryVariables>(ClientHubPaymentAttemptDocument, options);
+        }
+// @ts-ignore
+export function useClientHubPaymentAttemptSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ClientHubPaymentAttemptQuery, ClientHubPaymentAttemptQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientHubPaymentAttemptQuery, ClientHubPaymentAttemptQueryVariables>;
+// @ts-ignore
+export function useClientHubPaymentAttemptSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientHubPaymentAttemptQuery, ClientHubPaymentAttemptQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientHubPaymentAttemptQuery | undefined, ClientHubPaymentAttemptQueryVariables>;
+export function useClientHubPaymentAttemptSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientHubPaymentAttemptQuery, ClientHubPaymentAttemptQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ClientHubPaymentAttemptQuery, ClientHubPaymentAttemptQueryVariables>(ClientHubPaymentAttemptDocument, options);
+        }
+export type ClientHubPaymentAttemptQueryHookResult = ReturnType<typeof useClientHubPaymentAttemptQuery>;
+export type ClientHubPaymentAttemptLazyQueryHookResult = ReturnType<typeof useClientHubPaymentAttemptLazyQuery>;
+export type ClientHubPaymentAttemptSuspenseQueryHookResult = ReturnType<typeof useClientHubPaymentAttemptSuspenseQuery>;
+export const ClientHubTicketsDocument = gql`
+    query ClientHubTickets($input: TableQueryInput!) {
+  clientHubTickets(input: $input) {
+    totalCount
+    rows {
+      id
+      reference
+      subject
+      category
+      description
+      priority
+      status
+      createdAt
+      updatedAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useClientHubTicketsQuery__
+ *
+ * To run a query within a React component, call `useClientHubTicketsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useClientHubTicketsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useClientHubTicketsQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useClientHubTicketsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ClientHubTicketsQuery, ClientHubTicketsQueryVariables> & ({ variables: ClientHubTicketsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ClientHubTicketsQuery, ClientHubTicketsQueryVariables>(ClientHubTicketsDocument, options);
+      }
+export function useClientHubTicketsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ClientHubTicketsQuery, ClientHubTicketsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ClientHubTicketsQuery, ClientHubTicketsQueryVariables>(ClientHubTicketsDocument, options);
+        }
+// @ts-ignore
+export function useClientHubTicketsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ClientHubTicketsQuery, ClientHubTicketsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientHubTicketsQuery, ClientHubTicketsQueryVariables>;
+// @ts-ignore
+export function useClientHubTicketsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientHubTicketsQuery, ClientHubTicketsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientHubTicketsQuery | undefined, ClientHubTicketsQueryVariables>;
+export function useClientHubTicketsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientHubTicketsQuery, ClientHubTicketsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ClientHubTicketsQuery, ClientHubTicketsQueryVariables>(ClientHubTicketsDocument, options);
+        }
+export type ClientHubTicketsQueryHookResult = ReturnType<typeof useClientHubTicketsQuery>;
+export type ClientHubTicketsLazyQueryHookResult = ReturnType<typeof useClientHubTicketsLazyQuery>;
+export type ClientHubTicketsSuspenseQueryHookResult = ReturnType<typeof useClientHubTicketsSuspenseQuery>;
+export const ClientHubTicketRepliesDocument = gql`
+    query ClientHubTicketReplies($ticketId: ID!) {
+  clientHubTicketReplies(ticketId: $ticketId) {
+    id
+    authorName
+    body
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useClientHubTicketRepliesQuery__
+ *
+ * To run a query within a React component, call `useClientHubTicketRepliesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useClientHubTicketRepliesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useClientHubTicketRepliesQuery({
+ *   variables: {
+ *      ticketId: // value for 'ticketId'
+ *   },
+ * });
+ */
+export function useClientHubTicketRepliesQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ClientHubTicketRepliesQuery, ClientHubTicketRepliesQueryVariables> & ({ variables: ClientHubTicketRepliesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ClientHubTicketRepliesQuery, ClientHubTicketRepliesQueryVariables>(ClientHubTicketRepliesDocument, options);
+      }
+export function useClientHubTicketRepliesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ClientHubTicketRepliesQuery, ClientHubTicketRepliesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ClientHubTicketRepliesQuery, ClientHubTicketRepliesQueryVariables>(ClientHubTicketRepliesDocument, options);
+        }
+// @ts-ignore
+export function useClientHubTicketRepliesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ClientHubTicketRepliesQuery, ClientHubTicketRepliesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientHubTicketRepliesQuery, ClientHubTicketRepliesQueryVariables>;
+// @ts-ignore
+export function useClientHubTicketRepliesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientHubTicketRepliesQuery, ClientHubTicketRepliesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientHubTicketRepliesQuery | undefined, ClientHubTicketRepliesQueryVariables>;
+export function useClientHubTicketRepliesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientHubTicketRepliesQuery, ClientHubTicketRepliesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ClientHubTicketRepliesQuery, ClientHubTicketRepliesQueryVariables>(ClientHubTicketRepliesDocument, options);
+        }
+export type ClientHubTicketRepliesQueryHookResult = ReturnType<typeof useClientHubTicketRepliesQuery>;
+export type ClientHubTicketRepliesLazyQueryHookResult = ReturnType<typeof useClientHubTicketRepliesLazyQuery>;
+export type ClientHubTicketRepliesSuspenseQueryHookResult = ReturnType<typeof useClientHubTicketRepliesSuspenseQuery>;
+export const ClientHubOpenTicketDocument = gql`
+    mutation ClientHubOpenTicket($input: ClientHubTicketInput!) {
+  clientHubOpenTicket(input: $input) {
+    id
+    reference
+  }
+}
+    `;
+
+/**
+ * __useClientHubOpenTicketMutation__
+ *
+ * To run a mutation, you first call `useClientHubOpenTicketMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useClientHubOpenTicketMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [clientHubOpenTicketMutation, { data, loading, error }] = useClientHubOpenTicketMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useClientHubOpenTicketMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ClientHubOpenTicketMutation, ClientHubOpenTicketMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ClientHubOpenTicketMutation, ClientHubOpenTicketMutationVariables>(ClientHubOpenTicketDocument, options);
+      }
+export type ClientHubOpenTicketMutationHookResult = ReturnType<typeof useClientHubOpenTicketMutation>;
+export const ClientHubReplyToTicketDocument = gql`
+    mutation ClientHubReplyToTicket($ticketId: ID!, $body: String!) {
+  clientHubReplyToTicket(ticketId: $ticketId, body: $body) {
+    id
+    authorName
+    body
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useClientHubReplyToTicketMutation__
+ *
+ * To run a mutation, you first call `useClientHubReplyToTicketMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useClientHubReplyToTicketMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [clientHubReplyToTicketMutation, { data, loading, error }] = useClientHubReplyToTicketMutation({
+ *   variables: {
+ *      ticketId: // value for 'ticketId'
+ *      body: // value for 'body'
+ *   },
+ * });
+ */
+export function useClientHubReplyToTicketMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ClientHubReplyToTicketMutation, ClientHubReplyToTicketMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ClientHubReplyToTicketMutation, ClientHubReplyToTicketMutationVariables>(ClientHubReplyToTicketDocument, options);
+      }
+export type ClientHubReplyToTicketMutationHookResult = ReturnType<typeof useClientHubReplyToTicketMutation>;
+export const ClientHubProjectsDocument = gql`
+    query ClientHubProjects {
+  clientHubProjects {
+    id
+    name
+    status
+    startDate
+    endDate
+    budgetHours
+    trackedHours
+    milestones {
+      name
+      dueOn
+      state
+    }
+    ticketCounts {
+      status
+      count
+    }
+  }
+}
+    `;
+
+/**
+ * __useClientHubProjectsQuery__
+ *
+ * To run a query within a React component, call `useClientHubProjectsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useClientHubProjectsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useClientHubProjectsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useClientHubProjectsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ClientHubProjectsQuery, ClientHubProjectsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ClientHubProjectsQuery, ClientHubProjectsQueryVariables>(ClientHubProjectsDocument, options);
+      }
+export function useClientHubProjectsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ClientHubProjectsQuery, ClientHubProjectsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ClientHubProjectsQuery, ClientHubProjectsQueryVariables>(ClientHubProjectsDocument, options);
+        }
+// @ts-ignore
+export function useClientHubProjectsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ClientHubProjectsQuery, ClientHubProjectsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientHubProjectsQuery, ClientHubProjectsQueryVariables>;
+// @ts-ignore
+export function useClientHubProjectsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientHubProjectsQuery, ClientHubProjectsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientHubProjectsQuery | undefined, ClientHubProjectsQueryVariables>;
+export function useClientHubProjectsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientHubProjectsQuery, ClientHubProjectsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ClientHubProjectsQuery, ClientHubProjectsQueryVariables>(ClientHubProjectsDocument, options);
+        }
+export type ClientHubProjectsQueryHookResult = ReturnType<typeof useClientHubProjectsQuery>;
+export type ClientHubProjectsLazyQueryHookResult = ReturnType<typeof useClientHubProjectsLazyQuery>;
+export type ClientHubProjectsSuspenseQueryHookResult = ReturnType<typeof useClientHubProjectsSuspenseQuery>;
 export const ListClientsDocument = gql`
     query ListClients {
   listClients {
@@ -45391,6 +46776,326 @@ export function useOrgMasterOptionsSuspenseQuery(baseOptions?: ApolloReactHooks.
 export type OrgMasterOptionsQueryHookResult = ReturnType<typeof useOrgMasterOptionsQuery>;
 export type OrgMasterOptionsLazyQueryHookResult = ReturnType<typeof useOrgMasterOptionsLazyQuery>;
 export type OrgMasterOptionsSuspenseQueryHookResult = ReturnType<typeof useOrgMasterOptionsSuspenseQuery>;
+export const ListStripeConfigsDocument = gql`
+    query ListStripeConfigs {
+  listStripeConfigs {
+    ...StripeConfigFields
+  }
+}
+    ${StripeConfigFieldsFragmentDoc}`;
+
+/**
+ * __useListStripeConfigsQuery__
+ *
+ * To run a query within a React component, call `useListStripeConfigsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListStripeConfigsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListStripeConfigsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListStripeConfigsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ListStripeConfigsQuery, ListStripeConfigsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListStripeConfigsQuery, ListStripeConfigsQueryVariables>(ListStripeConfigsDocument, options);
+      }
+export function useListStripeConfigsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListStripeConfigsQuery, ListStripeConfigsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListStripeConfigsQuery, ListStripeConfigsQueryVariables>(ListStripeConfigsDocument, options);
+        }
+// @ts-ignore
+export function useListStripeConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListStripeConfigsQuery, ListStripeConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListStripeConfigsQuery, ListStripeConfigsQueryVariables>;
+// @ts-ignore
+export function useListStripeConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListStripeConfigsQuery, ListStripeConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListStripeConfigsQuery | undefined, ListStripeConfigsQueryVariables>;
+export function useListStripeConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListStripeConfigsQuery, ListStripeConfigsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListStripeConfigsQuery, ListStripeConfigsQueryVariables>(ListStripeConfigsDocument, options);
+        }
+export type ListStripeConfigsQueryHookResult = ReturnType<typeof useListStripeConfigsQuery>;
+export type ListStripeConfigsLazyQueryHookResult = ReturnType<typeof useListStripeConfigsLazyQuery>;
+export type ListStripeConfigsSuspenseQueryHookResult = ReturnType<typeof useListStripeConfigsSuspenseQuery>;
+export const CreateStripeConfigDocument = gql`
+    mutation CreateStripeConfig($input: StripeConfigInput!) {
+  createStripeConfig(input: $input) {
+    ...StripeConfigFields
+  }
+}
+    ${StripeConfigFieldsFragmentDoc}`;
+
+/**
+ * __useCreateStripeConfigMutation__
+ *
+ * To run a mutation, you first call `useCreateStripeConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateStripeConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createStripeConfigMutation, { data, loading, error }] = useCreateStripeConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateStripeConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateStripeConfigMutation, CreateStripeConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateStripeConfigMutation, CreateStripeConfigMutationVariables>(CreateStripeConfigDocument, options);
+      }
+export type CreateStripeConfigMutationHookResult = ReturnType<typeof useCreateStripeConfigMutation>;
+export const UpdateStripeConfigDocument = gql`
+    mutation UpdateStripeConfig($id: ID!, $input: StripeConfigInput!) {
+  updateStripeConfig(id: $id, input: $input) {
+    ...StripeConfigFields
+  }
+}
+    ${StripeConfigFieldsFragmentDoc}`;
+
+/**
+ * __useUpdateStripeConfigMutation__
+ *
+ * To run a mutation, you first call `useUpdateStripeConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateStripeConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateStripeConfigMutation, { data, loading, error }] = useUpdateStripeConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateStripeConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateStripeConfigMutation, UpdateStripeConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateStripeConfigMutation, UpdateStripeConfigMutationVariables>(UpdateStripeConfigDocument, options);
+      }
+export type UpdateStripeConfigMutationHookResult = ReturnType<typeof useUpdateStripeConfigMutation>;
+export const DeleteStripeConfigDocument = gql`
+    mutation DeleteStripeConfig($id: ID!) {
+  deleteStripeConfig(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteStripeConfigMutation__
+ *
+ * To run a mutation, you first call `useDeleteStripeConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteStripeConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteStripeConfigMutation, { data, loading, error }] = useDeleteStripeConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteStripeConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteStripeConfigMutation, DeleteStripeConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteStripeConfigMutation, DeleteStripeConfigMutationVariables>(DeleteStripeConfigDocument, options);
+      }
+export type DeleteStripeConfigMutationHookResult = ReturnType<typeof useDeleteStripeConfigMutation>;
+export const TestStripeConnectionDocument = gql`
+    mutation TestStripeConnection($id: ID!) {
+  testStripeConnection(id: $id)
+}
+    `;
+
+/**
+ * __useTestStripeConnectionMutation__
+ *
+ * To run a mutation, you first call `useTestStripeConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestStripeConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testStripeConnectionMutation, { data, loading, error }] = useTestStripeConnectionMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTestStripeConnectionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TestStripeConnectionMutation, TestStripeConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TestStripeConnectionMutation, TestStripeConnectionMutationVariables>(TestStripeConnectionDocument, options);
+      }
+export type TestStripeConnectionMutationHookResult = ReturnType<typeof useTestStripeConnectionMutation>;
+export const ListRazorpayConfigsDocument = gql`
+    query ListRazorpayConfigs {
+  listRazorpayConfigs {
+    ...RazorpayConfigFields
+  }
+}
+    ${RazorpayConfigFieldsFragmentDoc}`;
+
+/**
+ * __useListRazorpayConfigsQuery__
+ *
+ * To run a query within a React component, call `useListRazorpayConfigsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListRazorpayConfigsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListRazorpayConfigsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListRazorpayConfigsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ListRazorpayConfigsQuery, ListRazorpayConfigsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListRazorpayConfigsQuery, ListRazorpayConfigsQueryVariables>(ListRazorpayConfigsDocument, options);
+      }
+export function useListRazorpayConfigsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListRazorpayConfigsQuery, ListRazorpayConfigsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListRazorpayConfigsQuery, ListRazorpayConfigsQueryVariables>(ListRazorpayConfigsDocument, options);
+        }
+// @ts-ignore
+export function useListRazorpayConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListRazorpayConfigsQuery, ListRazorpayConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListRazorpayConfigsQuery, ListRazorpayConfigsQueryVariables>;
+// @ts-ignore
+export function useListRazorpayConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListRazorpayConfigsQuery, ListRazorpayConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListRazorpayConfigsQuery | undefined, ListRazorpayConfigsQueryVariables>;
+export function useListRazorpayConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListRazorpayConfigsQuery, ListRazorpayConfigsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListRazorpayConfigsQuery, ListRazorpayConfigsQueryVariables>(ListRazorpayConfigsDocument, options);
+        }
+export type ListRazorpayConfigsQueryHookResult = ReturnType<typeof useListRazorpayConfigsQuery>;
+export type ListRazorpayConfigsLazyQueryHookResult = ReturnType<typeof useListRazorpayConfigsLazyQuery>;
+export type ListRazorpayConfigsSuspenseQueryHookResult = ReturnType<typeof useListRazorpayConfigsSuspenseQuery>;
+export const CreateRazorpayConfigDocument = gql`
+    mutation CreateRazorpayConfig($input: RazorpayConfigInput!) {
+  createRazorpayConfig(input: $input) {
+    ...RazorpayConfigFields
+  }
+}
+    ${RazorpayConfigFieldsFragmentDoc}`;
+
+/**
+ * __useCreateRazorpayConfigMutation__
+ *
+ * To run a mutation, you first call `useCreateRazorpayConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateRazorpayConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createRazorpayConfigMutation, { data, loading, error }] = useCreateRazorpayConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateRazorpayConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateRazorpayConfigMutation, CreateRazorpayConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateRazorpayConfigMutation, CreateRazorpayConfigMutationVariables>(CreateRazorpayConfigDocument, options);
+      }
+export type CreateRazorpayConfigMutationHookResult = ReturnType<typeof useCreateRazorpayConfigMutation>;
+export const UpdateRazorpayConfigDocument = gql`
+    mutation UpdateRazorpayConfig($id: ID!, $input: RazorpayConfigInput!) {
+  updateRazorpayConfig(id: $id, input: $input) {
+    ...RazorpayConfigFields
+  }
+}
+    ${RazorpayConfigFieldsFragmentDoc}`;
+
+/**
+ * __useUpdateRazorpayConfigMutation__
+ *
+ * To run a mutation, you first call `useUpdateRazorpayConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateRazorpayConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateRazorpayConfigMutation, { data, loading, error }] = useUpdateRazorpayConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateRazorpayConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateRazorpayConfigMutation, UpdateRazorpayConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateRazorpayConfigMutation, UpdateRazorpayConfigMutationVariables>(UpdateRazorpayConfigDocument, options);
+      }
+export type UpdateRazorpayConfigMutationHookResult = ReturnType<typeof useUpdateRazorpayConfigMutation>;
+export const DeleteRazorpayConfigDocument = gql`
+    mutation DeleteRazorpayConfig($id: ID!) {
+  deleteRazorpayConfig(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteRazorpayConfigMutation__
+ *
+ * To run a mutation, you first call `useDeleteRazorpayConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteRazorpayConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteRazorpayConfigMutation, { data, loading, error }] = useDeleteRazorpayConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteRazorpayConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteRazorpayConfigMutation, DeleteRazorpayConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteRazorpayConfigMutation, DeleteRazorpayConfigMutationVariables>(DeleteRazorpayConfigDocument, options);
+      }
+export type DeleteRazorpayConfigMutationHookResult = ReturnType<typeof useDeleteRazorpayConfigMutation>;
+export const TestRazorpayConnectionDocument = gql`
+    mutation TestRazorpayConnection($id: ID!) {
+  testRazorpayConnection(id: $id)
+}
+    `;
+
+/**
+ * __useTestRazorpayConnectionMutation__
+ *
+ * To run a mutation, you first call `useTestRazorpayConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestRazorpayConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testRazorpayConnectionMutation, { data, loading, error }] = useTestRazorpayConnectionMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTestRazorpayConnectionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TestRazorpayConnectionMutation, TestRazorpayConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TestRazorpayConnectionMutation, TestRazorpayConnectionMutationVariables>(TestRazorpayConnectionDocument, options);
+      }
+export type TestRazorpayConnectionMutationHookResult = ReturnType<typeof useTestRazorpayConnectionMutation>;
 export const ListSalaryStructuresPagedDocument = gql`
     query ListSalaryStructuresPaged($input: TableQueryInput!) {
   listSalaryStructuresPaged(input: $input) {

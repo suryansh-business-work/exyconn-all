@@ -476,6 +476,19 @@ export type CaseStudyInput = {
   title: Scalars['String']['input'];
 };
 
+export type ClientContactInput = {
+  clientId: Scalars['ID']['input'];
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
+export type ClientHubTicketInput = {
+  category: SupportCategory;
+  description: Scalars['String']['input'];
+  priority: SupportPriority;
+  subject: Scalars['String']['input'];
+};
+
 export type ClientInput = {
   billingAddress: InputMaybe<Scalars['String']['input']>;
   company: Scalars['String']['input'];
@@ -1750,6 +1763,16 @@ export type PayType =
   | 'OTHER'
   | 'STIPEND';
 
+export type PaymentAttemptStatus =
+  | 'EXPIRED'
+  | 'PAID'
+  | 'PENDING'
+  | 'REVIEW';
+
+export type PaymentGateway =
+  | 'RAZORPAY'
+  | 'STRIPE';
+
 export type PaymentInput = {
   amount: Scalars['Float']['input'];
   invoiceId: Scalars['ID']['input'];
@@ -2044,6 +2067,15 @@ export type PurchaseOrderStatus =
 export type PurchaseReceiptLineInput = {
   productId: Scalars['String']['input'];
   quantity: Scalars['Int']['input'];
+};
+
+export type RazorpayConfigInput = {
+  isActive: Scalars['Boolean']['input'];
+  keyId: Scalars['String']['input'];
+  /** Left blank on an edit, the stored secret is kept. */
+  keySecret: InputMaybe<Scalars['String']['input']>;
+  label: Scalars['String']['input'];
+  webhookSecret: InputMaybe<Scalars['String']['input']>;
 };
 
 /** How often a retainer bills. A small fixed list, deliberately — not a cron expression. */
@@ -2366,6 +2398,14 @@ export type StockMovementInput = {
   reason: MovementReason;
   reference: InputMaybe<Scalars['String']['input']>;
   supplierId: InputMaybe<Scalars['String']['input']>;
+};
+
+export type StripeConfigInput = {
+  isActive: Scalars['Boolean']['input'];
+  label: Scalars['String']['input'];
+  /** Left blank on an edit, the stored key is kept. */
+  secretKey: InputMaybe<Scalars['String']['input']>;
+  webhookSecret: InputMaybe<Scalars['String']['input']>;
 };
 
 /** What the public status page submits. Everything else is set by the server. */

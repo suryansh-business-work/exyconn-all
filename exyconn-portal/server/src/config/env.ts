@@ -118,6 +118,8 @@ export const env = Object.freeze({
   appUrl: process.env.APP_URL ?? 'https://portal.exyconn.com',
   /** The WhatsApp demo a verified visitor is sent to, from the code email and after sign-in. */
   whatsappDemoUrl: process.env.WHATSAPP_DEMO_URL ?? 'https://whatsapp-demo.exyconn.com',
+  /** The client hub: where invoice emails' "Pay now" links and payment gateways send a client. */
+  clientHubUrl: (process.env.CLIENT_HUB_URL ?? 'https://clienthub.exyconn.com').replace(/\/$/, ''),
   /**
    * Where a self-service password reset link opens when the request did not come from a
    * portal origin CORS trusts (a curl, say). A request from a portal links back to itself.

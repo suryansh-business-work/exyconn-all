@@ -50,7 +50,7 @@ export interface AuditEntry {
   actor?: Actor;
 }
 
-type Actor = { id: string; name?: string; email?: string };
+export type Actor = { id: string; name?: string; email?: string };
 
 /** Who a scheduled job's changes are logged under — no person made them. */
 export const SYSTEM_ACTOR: Actor = Object.freeze({ id: 'system', name: 'System' });

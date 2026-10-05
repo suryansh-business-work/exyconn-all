@@ -75,7 +75,7 @@ function assertLength(value: string, label: string, { min, max }: { min: number;
 }
 
 /** Trims the free text once, so what is validated and what is stored are the same string. */
-function normalize(input: ClientSupportTicketInput): ClientSupportTicketInput {
+export function normalize(input: ClientSupportTicketInput): ClientSupportTicketInput {
   return {
     requesterName: input.requesterName.trim(),
     requesterEmail: input.requesterEmail.trim().toLowerCase(),
@@ -86,7 +86,7 @@ function normalize(input: ClientSupportTicketInput): ClientSupportTicketInput {
   };
 }
 
-function assertValid(input: ClientSupportTicketInput): void {
+export function assertValid(input: ClientSupportTicketInput): void {
   assertLength(input.requesterName, 'Name', LIMITS.name);
   assertLength(input.subject, 'Subject', LIMITS.subject);
   assertLength(input.description, 'Description', LIMITS.description);
@@ -130,8 +130,10 @@ export async function fileClientTicket(
   input: ClientSupportTicketInput,
   channel: TicketChannel,
   attachments: Attachment[] = [],
+  /** Set by the client hub, whose signed-in contact already names the client. */
+  knownClient?: { id: string; name: string },
 ) {
-  const client = await resolveClient(input.requesterEmail);
+  const client = knownClient ?? (await resolveClient(input.requesterEmail));
   const createdAt = new Date();
   const ticket = await SupportTicketModel.create({
     ...input,

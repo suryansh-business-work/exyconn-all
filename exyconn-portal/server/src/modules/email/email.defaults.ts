@@ -59,6 +59,37 @@ ${body}
 </mjml>`;
 }
 
+/**
+ * The overdue chase as first seeded, before it carried a payment link. Kept so
+ * `ensureEmailDefaults` can recognise an untouched copy and give it the link (OVERDUE_BODY);
+ * a copy somebody edited is never overwritten.
+ */
+const OVERDUE_BODY_V1 = `        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Invoice {{invoiceNumber}} is overdue</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{clientName}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          Our records show invoice {{invoiceNumber}} is still unpaid, {{daysLate}} days after it was due.
+          If it is already on its way, thank you — please ignore this note.
+        </mj-text>
+        <mj-divider border-color="#e2e8f0" />
+        <mj-text font-size="14px" color="#64748b" padding-bottom="4px">Balance due</mj-text>
+        <mj-text font-size="16px" font-weight="600" color="#0b0a12" padding-top="0">{{balanceDue}}</mj-text>
+        <mj-text font-size="14px" color="#64748b" padding-bottom="4px">Was due by</mj-text>
+        <mj-text font-size="16px" font-weight="600" color="#0b0a12" padding-top="0">{{dueDate}}</mj-text>
+        <mj-text font-size="13px" color="#94a3b8">
+          Reply to this email if the invoice needs correcting, or to tell us when it will be settled.
+        </mj-text>`;
+
+/** A "Pay now" button into the client hub, for the chase and the due-soon reminder. */
+const PAY_BUTTON = `        <mj-button background-color="#155dfc" border-radius="10px" href="{{payUrl}}" padding="24px 0 8px">Pay now</mj-button>
+`;
+
+const OVERDUE_BODY = OVERDUE_BODY_V1.replace(
+  `        <mj-text font-size="13px" color="#94a3b8">
+          Reply to this email if the invoice needs correcting`,
+  `${PAY_BUTTON}        <mj-text font-size="13px" color="#94a3b8">
+          Reply to this email if the invoice needs correcting`,
+);
+
 const TEMPLATES = [
   {
     key: 'tracker-digest',
@@ -313,22 +344,9 @@ const TEMPLATES = [
     key: 'invoice-overdue',
     name: 'Invoice overdue — payment chase',
     description:
-      'Sent to a client by the overdue invoice sweep, once at each chase stage after the due date. {{daysLate}} is the whole days since the date; the same wording carries every stage, so an edit here changes all of them.',
+      'Sent to a client by the overdue invoice sweep, once at each chase stage after the due date. {{daysLate}} is the whole days since the date; {{payUrl}} opens the invoice in the client hub to pay it. The same wording carries every stage, so an edit here changes all of them.',
     subject: 'Invoice {{invoiceNumber}} is now {{daysLate}} days overdue',
-    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Invoice {{invoiceNumber}} is overdue</mj-text>
-        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{clientName}},</mj-text>
-        <mj-text font-size="15px" color="#334155" line-height="24px">
-          Our records show invoice {{invoiceNumber}} is still unpaid, {{daysLate}} days after it was due.
-          If it is already on its way, thank you — please ignore this note.
-        </mj-text>
-        <mj-divider border-color="#e2e8f0" />
-        <mj-text font-size="14px" color="#64748b" padding-bottom="4px">Balance due</mj-text>
-        <mj-text font-size="16px" font-weight="600" color="#0b0a12" padding-top="0">{{balanceDue}}</mj-text>
-        <mj-text font-size="14px" color="#64748b" padding-bottom="4px">Was due by</mj-text>
-        <mj-text font-size="16px" font-weight="600" color="#0b0a12" padding-top="0">{{dueDate}}</mj-text>
-        <mj-text font-size="13px" color="#94a3b8">
-          Reply to this email if the invoice needs correcting, or to tell us when it will be settled.
-        </mj-text>`),
+    mjml: shell(OVERDUE_BODY),
   },
   {
     key: 'whatsapp-demo-code',
@@ -347,6 +365,58 @@ const TEMPLATES = [
         <mj-button background-color="#25d366" color="#0b0a12" border-radius="10px" href="{{demoUrl}}" padding="24px 0 8px">Open the live demo</mj-button>
         <mj-text font-size="13px" color="#94a3b8">
           If you did not ask for this, ignore this email — nobody can sign in without the code.
+        </mj-text>`),
+  },
+  {
+    key: 'invoice-due-soon',
+    name: 'Invoice due soon — payment reminder',
+    description:
+      'Sent to a client once, a few days before an unpaid invoice falls due. {{payUrl}} opens the invoice in the client hub to pay it online.',
+    subject: 'Invoice {{invoiceNumber}} is due on {{dueDate}}',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Invoice {{invoiceNumber}} is due soon</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{clientName}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          A friendly reminder that invoice {{invoiceNumber}} falls due on {{dueDate}}. You can pay it online in a minute.
+        </mj-text>
+        <mj-divider border-color="#e2e8f0" />
+        <mj-text font-size="14px" color="#64748b" padding-bottom="4px">Balance due</mj-text>
+        <mj-text font-size="16px" font-weight="600" color="#0b0a12" padding-top="0">{{balanceDue}}</mj-text>
+${PAY_BUTTON}        <mj-text font-size="13px" color="#94a3b8">
+          Already paid? Thank you — please ignore this reminder.
+        </mj-text>`),
+  },
+  {
+    key: 'client-hub-code',
+    name: 'Client hub — sign-in code',
+    description:
+      'Sent when a client contact signs in to the client hub. {{code}} works once and expires in {{expiresIn}}.',
+    subject: '{{code}} is your {{companyName}} client hub code',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Your sign-in code</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          Enter this code in the client hub to see your invoices, payments, support tickets and projects.
+        </mj-text>
+        <mj-text align="center" font-size="34px" font-weight="700" letter-spacing="10px" color="#0b0a12" padding="16px 0">{{code}}</mj-text>
+        <mj-text align="center" font-size="13px" color="#64748b" padding-top="0">The code works once and expires in {{expiresIn}}.</mj-text>
+        <mj-text font-size="13px" color="#94a3b8">
+          If you did not ask for this, ignore this email — nobody can sign in without the code.
+        </mj-text>`),
+  },
+  {
+    key: 'client-hub-invite',
+    name: 'Client hub — access granted',
+    description:
+      'Sent when an administrator gives a client contact access to the client hub. {{hubUrl}} is where they sign in with their email.',
+    subject: 'Your {{companyName}} client hub is ready',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Welcome to your client hub</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          You now have access to the {{companyName}} client hub for {{clientName}}: pay invoices online, download them,
+          see every transaction, raise support tickets and follow your projects.
+        </mj-text>
+        <mj-button background-color="#155dfc" border-radius="10px" href="{{hubUrl}}" padding="24px 0 8px">Open the client hub</mj-button>
+        <mj-text font-size="13px" color="#94a3b8">
+          Sign in with this email address — we send you a one-time code, no password needed.
         </mj-text>`),
   },
 ];
@@ -376,7 +446,15 @@ export async function ensureEmailDefaults(): Promise<void> {
     created += result.upsertedCount ?? 0;
   }
 
-  if (created > 0) {
-    logger.info(`Seeded ${created} email fragment(s)/template(s)`);
+  // The chase gained a "Pay now" link; an untouched copy of the first version gets it too.
+  const upgraded = await EmailTemplateModel.updateOne(
+    { key: 'invoice-overdue', mjml: shell(OVERDUE_BODY_V1) },
+    { $set: { mjml: shell(OVERDUE_BODY) } },
+  );
+
+  if (created > 0 || upgraded.modifiedCount > 0) {
+    logger.info(
+      `Seeded ${created} email fragment(s)/template(s), upgraded ${upgraded.modifiedCount}`,
+    );
   }
 }

@@ -6,6 +6,7 @@ import {
   type InvoiceStatus,
 } from './finance.model';
 import { chaseOverdueInvoices } from './finance.dunning';
+import { remindDueSoonInvoices } from './finance.dueSoon';
 import { recordSystemAudit } from '../audit';
 import { forEachOrganization } from '../organizations';
 import { logger } from '../../utils/logger';
@@ -136,17 +137,19 @@ export async function sweepOverdueInvoices(now = new Date()): Promise<OverdueSwe
 /** Starts the hourly receivables sweep across every company. */
 export function startOverdueSweep(): void {
   const tick = () => {
-    const totals = { marked: 0, cleared: 0, chased: 0 };
+    const totals = { marked: 0, cleared: 0, chased: 0, reminded: 0 };
     forEachOrganization(async () => {
       const result = await sweepOverdueInvoices();
       totals.marked += result.marked;
       totals.cleared += result.cleared;
       totals.chased += result.chased;
+      // Before the due date rather than after it: the gentle note with a "Pay now" link.
+      totals.reminded += await remindDueSoonInvoices();
     }, 'Overdue invoices')
       .then(() =>
         recordJobRun(
           JOB_KEYS.overdueInvoices,
-          `${totals.marked} marked overdue, ${totals.cleared} cleared, ${totals.chased} chased`,
+          `${totals.marked} marked overdue, ${totals.cleared} cleared, ${totals.chased} chased, ${totals.reminded} reminded`,
         ),
       )
       .catch((error: unknown) => logger.error(error, 'Overdue invoice sweep failed'));

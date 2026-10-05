@@ -219,6 +219,14 @@ jobs:
               APP_DIR=exyconn-portal/apps/whatsapp-demo
               PORT=4038
               VITE_PORTAL_APP=whatsapp-demo
+          - service: portal-clienthub
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/portal-app-clienthub
+              APP_DIR=exyconn-portal/apps/clienthub
+              PORT=4039
+              VITE_PORTAL_APP=clienthub
           - service: portal-status
             dockerfile: docker/portal-app.Dockerfile
             context: .
@@ -408,6 +416,7 @@ jobs:
             "https://compliance.exyconn.com"
             "https://social.exyconn.com"
             "https://whatsapp-demo.exyconn.com"
+            "https://clienthub.exyconn.com"
             "https://status.exyconn.com"
             "https://hr.exyconn.com"
             "https://marketing.exyconn.com"

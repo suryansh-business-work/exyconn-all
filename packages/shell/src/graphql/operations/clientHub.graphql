@@ -1,0 +1,197 @@
+# The client hub (clienthub.exyconn.com): a client's people sign in with an emailed code and
+# see their invoices, transactions, support tickets and projects. Everything except the two
+# sign-in mutations needs the x-client-pass header. Admin > Clients manages who has access.
+
+fragment ClientContactFields on ClientContact {
+  id
+  clientId
+  name
+  email
+  active
+  lastSignInAt
+  signInCount
+  createdAt
+}
+
+query ClientContacts($clientId: ID!) {
+  clientContacts(clientId: $clientId) {
+    ...ClientContactFields
+  }
+}
+
+mutation AddClientContact($input: ClientContactInput!) {
+  addClientContact(input: $input) {
+    ...ClientContactFields
+  }
+}
+
+mutation SetClientContactActive($id: ID!, $active: Boolean!) {
+  setClientContactActive(id: $id, active: $active) {
+    ...ClientContactFields
+  }
+}
+
+mutation DeleteClientContact($id: ID!) {
+  deleteClientContact(id: $id)
+}
+
+mutation RequestClientHubCode($email: String!) {
+  requestClientHubCode(email: $email)
+}
+
+mutation VerifyClientHubCode($email: String!, $code: String!) {
+  verifyClientHubCode(email: $email, code: $code) {
+    token
+    name
+    email
+  }
+}
+
+query ClientHubMe {
+  clientHubMe {
+    name
+    email
+    clientName
+    company
+  }
+}
+
+query ClientHubInvoices($input: TableQueryInput!) {
+  clientHubInvoices(input: $input) {
+    totalCount
+    rows {
+      id
+      number
+      amount
+      amountPaid
+      currency
+      status
+      issuedDate
+      dueDate
+    }
+  }
+}
+
+query ClientHubInvoicePdf($id: ID!) {
+  clientHubInvoicePdf(id: $id)
+}
+
+mutation ClientHubEmailInvoice($id: ID!) {
+  clientHubEmailInvoice(id: $id)
+}
+
+query ClientHubPayments($input: TableQueryInput!) {
+  clientHubPayments(input: $input) {
+    totalCount
+    rows {
+      id
+      invoiceNumber
+      amount
+      currency
+      method
+      reference
+      receivedAt
+    }
+  }
+}
+
+query ClientHubReminders {
+  clientHubReminders {
+    invoiceId
+    number
+    currency
+    balance
+    dueDate
+    daysLate
+    status
+  }
+}
+
+query ClientHubPaymentOptions {
+  clientHubPaymentOptions {
+    stripe
+    razorpay
+  }
+}
+
+mutation ClientHubPayInvoice($id: ID!, $gateway: PaymentGateway!) {
+  clientHubPayInvoice(id: $id, gateway: $gateway) {
+    attemptId
+    url
+  }
+}
+
+query ClientHubPaymentAttempt($id: ID!) {
+  clientHubPaymentAttempt(id: $id) {
+    id
+    gateway
+    invoiceNumber
+    amount
+    currency
+    status
+    paidAt
+  }
+}
+
+query ClientHubTickets($input: TableQueryInput!) {
+  clientHubTickets(input: $input) {
+    totalCount
+    rows {
+      id
+      reference
+      subject
+      category
+      description
+      priority
+      status
+      createdAt
+      updatedAt
+    }
+  }
+}
+
+query ClientHubTicketReplies($ticketId: ID!) {
+  clientHubTicketReplies(ticketId: $ticketId) {
+    id
+    authorName
+    body
+    createdAt
+  }
+}
+
+mutation ClientHubOpenTicket($input: ClientHubTicketInput!) {
+  clientHubOpenTicket(input: $input) {
+    id
+    reference
+  }
+}
+
+mutation ClientHubReplyToTicket($ticketId: ID!, $body: String!) {
+  clientHubReplyToTicket(ticketId: $ticketId, body: $body) {
+    id
+    authorName
+    body
+    createdAt
+  }
+}
+
+query ClientHubProjects {
+  clientHubProjects {
+    id
+    name
+    status
+    startDate
+    endDate
+    budgetHours
+    trackedHours
+    milestones {
+      name
+      dueOn
+      state
+    }
+    ticketCounts {
+      status
+      count
+    }
+  }
+}

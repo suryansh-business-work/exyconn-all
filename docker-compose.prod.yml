@@ -234,6 +234,15 @@ services:
       # The WhatsApp chatbot page on exyconn.com runs the live demo in a frame.
       FRAME_ANCESTORS: "'self' https://exyconn.com https://www.exyconn.com"
 
+  # The client hub: a client's people pay invoices, raise tickets and follow projects.
+  portal-clienthub:
+    <<: *hardened
+    image: ${DOCKERHUB_USERNAME}/exyconn-portal-clienthub:${TAG:-latest}
+    container_name: exyconn-portal-clienthub
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4039:4039'
+
   # Public status page — no sign-in: an outage is exactly when nobody can log in.
   portal-status:
     <<: *hardened
@@ -257,7 +266,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: 7d
       # Every portal micro-frontend calls this API from its own origin.
-      CORS_ORIGIN: https://portal.exyconn.com,https://admin.exyconn.com,https://employee.exyconn.com,https://finance.exyconn.com,https://support.exyconn.com,https://crm.exyconn.com,https://products.exyconn.com,https://legal.exyconn.com,https://hr.exyconn.com,https://marketing.exyconn.com,https://projects.exyconn.com,https://ai.exyconn.com,https://website.exyconn.com,https://tracker.exyconn.com,https://tech.exyconn.com,https://it.exyconn.com,https://compliance.exyconn.com,https://social.exyconn.com,https://whatsapp-demo.exyconn.com,https://status.exyconn.com
+      CORS_ORIGIN: https://portal.exyconn.com,https://admin.exyconn.com,https://employee.exyconn.com,https://finance.exyconn.com,https://support.exyconn.com,https://crm.exyconn.com,https://products.exyconn.com,https://legal.exyconn.com,https://hr.exyconn.com,https://marketing.exyconn.com,https://projects.exyconn.com,https://ai.exyconn.com,https://website.exyconn.com,https://tracker.exyconn.com,https://tech.exyconn.com,https://it.exyconn.com,https://compliance.exyconn.com,https://social.exyconn.com,https://whatsapp-demo.exyconn.com,https://clienthub.exyconn.com,https://status.exyconn.com
       APP_URL: https://portal.exyconn.com
       TRACKER_DOWNLOAD_URL: https://employee.exyconn.com/me/tracker
       # Where the payslip email sends an employee for the rest of their payslips.

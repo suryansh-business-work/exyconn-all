@@ -28,6 +28,7 @@ is built as a downloadable Windows installer artifact by the same workflow.
 | Portal · Compliance | 4037 | compliance.exyconn.com | `exyconn-portal-compliance` |
 | Portal · Social | 4036 | social.exyconn.com | `exyconn-portal-social` |
 | Portal · WhatsApp Demo | 4038 | whatsapp-demo.exyconn.com | `exyconn-portal-whatsapp-demo` |
+| Portal · Client Hub | 4039 | clienthub.exyconn.com | `exyconn-portal-clienthub` |
 | Status page (public, no sign-in) | 4035 | status.exyconn.com | `exyconn-portal-status` |
 | Portal API | 4004 | portal-server.exyconn.com | `exyconn-portal-server` |
 | Docker socket proxy (internal, GET-only) | — | — | `tecnativa/docker-socket-proxy` |
@@ -169,7 +170,7 @@ that answer from the internet are:
 | 8883 | MQTT over TLS (certificate `CN=iot.exyconn.com`) |
 
 Nothing else leaks: `docker-compose.prod.yml` binds every container to `127.0.0.1`, so
-the 4000–4038 app ports, MongoDB and the Docker API are all unreachable.
+the 4000–4039 app ports, MongoDB and the Docker API are all unreachable.
 
 The MQTT broker belongs to the Infinity Home stack, not this repo. It does require
 credentials (an anonymous CONNECT is refused with CONNACK `0x05`), but 1883 carries

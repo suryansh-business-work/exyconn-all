@@ -7,11 +7,11 @@ import { badRequest, notFound } from '../../utils/errors';
 import { tableQuery, type TableConfig, type TableQueryInput } from '../../utils/tableQuery';
 import type { GraphQLContext } from '../../middleware/auth';
 import { emitWebhookBestEffort } from '../integrations';
-import { diffChanges, recordAudit } from '../audit';
+import { diffChanges, recordAudit, type Actor } from '../audit';
 
 const financeRoles = [ROLES.FINANCE];
 
-interface PaymentInput {
+export interface PaymentInput {
   invoiceId: string;
   amount: number;
   method: string;
@@ -89,7 +89,15 @@ export function settleStatus(
  */
 async function recordPayment(_p: unknown, { input }: { input: PaymentInput }, ctx: GraphQLContext) {
   assertRole(ctx, financeRoles);
+  return applyPayment(input, ctx);
+}
 
+/**
+ * The receipt itself, for whoever records it: finance staff through `recordPayment`, or a
+ * payment gateway's signed webhook (modules/clienthub), which passes the actor to file the
+ * audit rows under because no person is signed in.
+ */
+export async function applyPayment(input: PaymentInput, ctx: GraphQLContext, actor?: Actor) {
   if (input.amount === 0) {
     badRequest('A payment of zero records nothing. Enter an amount, or a negative for a refund.');
   }
@@ -122,7 +130,7 @@ async function recordPayment(_p: unknown, { input }: { input: PaymentInput }, ct
     reference: input.reference ?? '',
     notes: input.notes ?? '',
     receivedAt: input.receivedAt ?? new Date(),
-    recordedBy: ctx.user?.email ?? '',
+    recordedBy: actor?.email ?? ctx.user?.email ?? '',
   });
 
   const before = { amountPaid: paidBefore, status: invoice.status };
@@ -132,6 +140,7 @@ async function recordPayment(_p: unknown, { input }: { input: PaymentInput }, ct
 
   // Two rows: the receipt itself, and what it did to the invoice it was paid against.
   await recordAudit(ctx, {
+    actor,
     action: 'CREATE',
     module: 'Payment',
     entityId: payment._id,
@@ -139,6 +148,7 @@ async function recordPayment(_p: unknown, { input }: { input: PaymentInput }, ct
     summary: `Recorded ${payment.amount} ${payment.currency} against ${invoice.number}`,
   });
   await recordAudit(ctx, {
+    actor,
     action: 'UPDATE',
     module: 'Invoice',
     entityId: invoice._id,

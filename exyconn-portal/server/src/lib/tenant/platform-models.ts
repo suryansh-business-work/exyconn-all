@@ -25,6 +25,9 @@ export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   'CloudflareConfig',
   'NameserverChange',
   'SonarConfig',
+  // Exyconn's own payment gateway accounts, which clients pay invoices through (client hub).
+  'StripeConfig',
+  'RazorpayConfig',
   // The social networks' OAuth apps, registered once for the install, and the short-lived
   // state of a connection in progress (looked up by the provider's callback, before any scope).
   'SocialAppConfig',
@@ -69,4 +72,6 @@ export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
  */
 export const PLATFORM_UNIQUE_PATHS: ReadonlyMap<string, ReadonlySet<string>> = new Map([
   ['User', new Set(['email'])],
+  // A client hub contact signs in by address alone, so an address names one contact.
+  ['ClientContact', new Set(['email'])],
 ]);

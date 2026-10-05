@@ -7,6 +7,7 @@ import { principalForApiKey } from '../modules/integrations/api-key.service';
 import { organizationOf, runAsPlatform, setScopeOrganization, setScopeSelf } from '../lib/tenant';
 import { actingOrganization } from './actingOrganization';
 import { VISITOR_HEADER, visitorForPass, type DemoVisitor } from '../modules/whatsapp-demo/visitor';
+import { CLIENT_PASS_HEADER, contactForPass, type ClientHubContact } from '../modules/clienthub';
 import { OrganizationModel } from '../modules/organizations/organization.model';
 import { deviceMayRun, deviceTokenIsLive } from '../modules/tracker/tracker.auth';
 import { sessionIsLive } from '../modules/auth/session.service';
@@ -46,6 +47,12 @@ export interface GraphQLContext {
    * so every role guard refuses it; only the demo's chat operations accept it.
    */
   demoVisitor?: DemoVisitor;
+  /**
+   * Set when the caller is a client hub contact (email-and-code sign-in, see
+   * modules/clienthub). Like a demo visitor, no `user` and no company in scope: only the
+   * client hub's own operations accept it, and they enter the client's company themselves.
+   */
+  clientContact?: ClientHubContact;
 }
 
 /** How long a company's ACTIVE/SUSPENDED status is trusted before it is read again. */
@@ -166,12 +173,12 @@ export async function buildContext({ req }: { req: Request }): Promise<GraphQLCo
   const token = header.startsWith('Bearer ') ? header.slice(7) : '';
   const decoded = token ? verifyToken(token) : null;
   if (!decoded) {
-    return visitorOrAnonymous(req, ip, origin, userAgent);
+    return passHolderOrAnonymous(req, ip, origin, userAgent);
   }
 
   const fresh = await currentHolder(decoded, token, req);
   if (!fresh) {
-    return visitorOrAnonymous(req, ip, origin, userAgent);
+    return passHolderOrAnonymous(req, ip, origin, userAgent);
   }
 
   const roles = fresh.roles as Role[];
@@ -201,23 +208,33 @@ export async function buildContext({ req }: { req: Request }): Promise<GraphQLCo
   };
 }
 
+/** A request header's single string value, or ''. */
+const headerValue = (req: Request, name: string): string => {
+  const value = req.headers[name];
+  return typeof value === 'string' ? value : '';
+};
+
 /**
- * No portal session: a WhatsApp demo visitor when the request carries a live pass, and otherwise
- * nobody. Either way NO company is put in scope — the data layer keeps refusing company data to
- * this request, and the demo's chat resolvers enter the demo owner's company themselves.
+ * No portal session: a client hub contact or a WhatsApp demo visitor when the request carries
+ * a live pass, and otherwise nobody. Either way NO company is put in scope — the data layer
+ * keeps refusing company data to this request, and the client hub's and the demo's own
+ * resolvers enter the right company themselves.
  */
-async function visitorOrAnonymous(
+async function passHolderOrAnonymous(
   req: Request,
   ip: string,
   origin?: string,
   userAgent?: string,
 ): Promise<GraphQLContext> {
-  const pass = req.headers[VISITOR_HEADER];
-  const demoVisitor = typeof pass === 'string' && pass !== '' ? await visitorForPass(pass) : null;
-  if (!demoVisitor) {
-    return anonymous(ip, origin, userAgent);
+  const base = anonymous(ip, origin, userAgent);
+  const clientPass = headerValue(req, CLIENT_PASS_HEADER);
+  if (clientPass !== '') {
+    const clientContact = await contactForPass(clientPass);
+    return clientContact ? { ...base, clientContact } : base;
   }
-  return { ...anonymous(ip, origin, userAgent), demoVisitor };
+  const visitorPass = headerValue(req, VISITOR_HEADER);
+  const demoVisitor = visitorPass === '' ? null : await visitorForPass(visitorPass);
+  return demoVisitor ? { ...base, demoVisitor } : base;
 }
 
 /**

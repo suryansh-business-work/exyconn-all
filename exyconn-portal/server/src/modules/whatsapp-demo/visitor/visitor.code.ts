@@ -1,24 +1,16 @@
-import { createHmac, randomInt, timingSafeEqual } from 'node:crypto';
-import { createLimiter, tooManyRequests } from '../../../lib/rateLimiter';
+import { createLimiter, enforceLimit } from '../../../lib/rateLimiter';
 import { assertCaptcha } from '../../website/website.captcha';
 import { runForOrganization } from '../../../lib/tenant';
 import { platformOperatorOrganizationId } from '../../../lib/platformAccess';
-import { derivedKey } from '../../../utils/derivedKey';
 import { isEmailAddress } from '../../../utils/emailAddress';
 import { badRequest } from '../../../utils/errors';
 import { logger } from '../../../utils/logger';
 import { env } from '../../../config/env';
 import { emailer } from '../../email/email.service';
 import { WhatsappDemoVisitorModel, type VisitorSource } from './visitor.model';
-import { WhatsappDemoVisitorCodeModel } from './visitor-code.model';
+import { EMAIL_CODE_TTL_LABEL, consumeEmailCode, issueEmailCode } from '../../../lib/emailCode';
 import { signVisitorPass } from './visitor.token';
 
-/** Long enough to switch to the inbox and back; short enough that an old email is worthless. */
-const CODE_TTL_MS = 10 * 60 * 1000;
-const CODE_TTL_LABEL = '10 minutes';
-/** Wrong guesses one code survives; a million codes against five guesses is not a search. */
-const MAX_ATTEMPTS = 5;
-const CODE_DIGITS = 6;
 /** The same phone shape as @exyconn/regex PHONE, which the forms check first. */
 const PHONE = /^\+?\(?\d[\d\s()-]{5,18}\d$/;
 const LIMITS = { name: 120, company: 120 } as const;
@@ -68,16 +60,7 @@ export interface VisitorCodeInput {
   source: VisitorSource;
 }
 
-const codeHash = (email: string, code: string): string =>
-  createHmac('sha256', derivedKey('whatsapp-demo-code')).update(`${email}:${code}`).digest('hex');
-
 const normalEmail = (email: string): string => email.trim().toLowerCase();
-
-async function throttle(limiter: typeof codeIpLimiter, key: string, what: string): Promise<void> {
-  if (!(await limiter.allow(key))) {
-    tooManyRequests(await limiter.retryAfterMs(key), what);
-  }
-}
 
 /** The company the demos and their visitors belong to: the one that runs the website. */
 async function demoOwner(): Promise<string> {
@@ -132,12 +115,12 @@ export async function requestVisitorCode(
   validate(input);
   const email = normalEmail(input.email);
   if (captcha) {
-    await throttle(codeWebsiteLimiter, 'website', 'code requests');
+    await enforceLimit(codeWebsiteLimiter, 'website', 'code requests');
     await assertCaptcha(captcha.token, captcha.answer);
   } else {
-    await throttle(codeIpLimiter, ip, 'code requests');
+    await enforceLimit(codeIpLimiter, ip, 'code requests');
   }
-  await throttle(codeAddressLimiter, email, 'codes for this address');
+  await enforceLimit(codeAddressLimiter, email, 'codes for this address');
   const operatorId = await demoOwner();
 
   await runForOrganization(operatorId, async () => {
@@ -149,13 +132,7 @@ export async function requestVisitorCode(
     if (visitor.blocked) {
       return;
     }
-    await WhatsappDemoVisitorCodeModel.updateMany({ email, usedAt: null }, { usedAt: new Date() });
-    const code = String(randomInt(0, 10 ** CODE_DIGITS)).padStart(CODE_DIGITS, '0');
-    await WhatsappDemoVisitorCodeModel.create({
-      email,
-      codeHash: codeHash(email, code),
-      expiresAt: new Date(Date.now() + CODE_TTL_MS),
-    });
+    const code = await issueEmailCode('whatsapp-demo', email);
     try {
       await emailer.send({
         template: 'whatsapp-demo-code',
@@ -163,7 +140,7 @@ export async function requestVisitorCode(
         variables: {
           name: visitor.name,
           code,
-          expiresIn: CODE_TTL_LABEL,
+          expiresIn: EMAIL_CODE_TTL_LABEL,
           demoUrl: env.whatsappDemoUrl,
         },
         triggeredBy: 'WhatsApp demo sign-in',
@@ -176,44 +153,13 @@ export async function requestVisitorCode(
   return true;
 }
 
-/** Checks a code against the newest one sent to the address, spending a guess either way. */
-async function consumeCode(email: string, code: string): Promise<void> {
-  const row = await WhatsappDemoVisitorCodeModel.findOne({
-    email,
-    usedAt: null,
-    expiresAt: { $gt: new Date() },
-  })
-    .sort({ createdAt: -1 })
-    .lean();
-  if (!row) {
-    badRequest('That code has expired. Ask for a new one.');
-  }
-  if (row.attempts >= MAX_ATTEMPTS) {
-    await WhatsappDemoVisitorCodeModel.updateOne({ _id: row._id }, { usedAt: new Date() });
-    badRequest('Too many wrong codes. Ask for a new one.');
-  }
-  const expected = Buffer.from(row.codeHash, 'hex');
-  const given = Buffer.from(codeHash(email, code.trim()), 'hex');
-  if (!timingSafeEqual(expected, given)) {
-    await WhatsappDemoVisitorCodeModel.updateOne({ _id: row._id }, { $inc: { attempts: 1 } });
-    badRequest('That code is not right.');
-  }
-  const spent = await WhatsappDemoVisitorCodeModel.findOneAndUpdate(
-    { _id: row._id, usedAt: null },
-    { usedAt: new Date() },
-  );
-  if (!spent) {
-    badRequest('That code has already been used. Ask for a new one.');
-  }
-}
-
 /** Signs a visitor in with the code from their email, and hands back their demo pass. */
 export async function verifyVisitorCode(rawEmail: string, code: string) {
   const email = normalEmail(rawEmail);
-  await throttle(verifyAddressLimiter, email, 'code attempts');
+  await enforceLimit(verifyAddressLimiter, email, 'code attempts');
   const operatorId = await demoOwner();
   return runForOrganization(operatorId, async () => {
-    await consumeCode(email, code);
+    await consumeEmailCode('whatsapp-demo', email, code);
     const now = new Date();
     const visitor = await WhatsappDemoVisitorModel.findOneAndUpdate(
       { email },
