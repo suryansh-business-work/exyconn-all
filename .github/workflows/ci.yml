@@ -17,84 +17,58 @@ permissions:
   contents: read
 
 jobs:
+  # What this change can break: the workspace packages it touched and everything depending on
+  # them, measured against main (see .github/scripts/ci-scope.mjs). Every job below runs only
+  # when its part of the repository is in scope; a docs-only change runs nothing else.
+  scope:
+    name: Scope
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      filter: ${{ steps.scope.outputs.filter }}
+      test-filter: ${{ steps.scope.outputs.test-filter }}
+      checks: ${{ steps.scope.outputs.checks }}
+      server: ${{ steps.scope.outputs.server }}
+      codegen: ${{ steps.scope.outputs.codegen }}
+      mobile: ${{ steps.scope.outputs.mobile }}
+      ct-groups: ${{ steps.scope.outputs.ct-groups }}
+      e2e: ${{ steps.scope.outputs.e2e }}
+      website: ${{ steps.scope.outputs.website }}
+      tools: ${{ steps.scope.outputs.tools }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          fetch-depth: 0
+      - id: scope
+        run: node .github/scripts/ci-scope.mjs
+
   workspace:
-    # The last green runs took 23–47 minutes; double the worst case, so a slow runner
-    # finishes and only a hang is cut short.
-    timeout-minutes: 90
-    name: Typecheck · Lint · Test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
-        with:
-          version: 9.15.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      # The server resolves @exyconn/wa-flow through its compiled dist (types included), and
-      # dist is never committed, so it is built before anything typechecks or tests the server.
-      - name: Build @exyconn/wa-flow
-        run: pnpm --filter @exyconn/wa-flow build
-      # The codegen output is committed and no build step regenerates it, so a
-      # `.graphql` operation added without re-running codegen only surfaces as a
-      # type error later, inside the deploy image build. Catch the drift here.
-      # A workspace package the portal image does not copy the manifest for builds
-      # an image with nothing installed, and dies on "tsc: not found" — 20 minutes
-      # into a deploy, pointing nowhere near the cause. Catch it in seconds here.
-      - name: Docker images copy every workspace package they build from
-        run: node scripts/check-docker-manifests.mjs
+    needs: scope
+    name: Workspace
+    uses: ./.github/workflows/workspace-checks.yml
+    with:
+      filter: ${{ needs.scope.outputs.filter }}
+      test-filter: ${{ needs.scope.outputs.test-filter }}
+      checks: ${{ needs.scope.outputs.checks == 'true' }}
+      server: ${{ needs.scope.outputs.server == 'true' }}
+      codegen: ${{ needs.scope.outputs.codegen == 'true' }}
+      mobile: ${{ needs.scope.outputs.mobile == 'true' }}
+      coverage: true
 
-      # An app that imports a workspace package outside its install closure resolves fine
-      # here (CI installs everything) and dies inside the deploy image, which installs one
-      # app's closure at a time. That is how portal-support blocked production for days.
-      - name: Workspace imports are installable
-        run: node scripts/check-workspace-imports.mjs
-
-      # A bad typeDefs block is a runtime parse error, so tsc passes and then every
-      # server test fails at once with the same message. Name the file instead.
-      - name: GraphQL SDL parses
-        run: node scripts/check-graphql-sdl.cjs
-
-      - name: GraphQL codegen is in sync
-        run: |
-          pnpm codegen
-          git diff --exit-code -- exyconn-portal/server/src/graphql/generated packages/shell/src/graphql/generated packages/tracker-core/src/graphql/generated \
-            || { echo "::error::Committed GraphQL codegen output is stale — run 'pnpm codegen' and commit the result."; exit 1; }
-      # The phone app only ever builds in tracker-release.yml, twenty minutes into a native build.
-      # Evaluating its Expo config (every config plugin included) here catches a broken config
-      # in seconds, on every push.
-      - name: Mobile app config evaluates
-        working-directory: exyconn-tracker-mobile
-        run: pnpm exec expo config --type prebuild > /dev/null
-      - name: Tracker versions agree
-        run: node .github/scripts/check-tracker-versions.mjs
-      - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --filter exyconn-tracker-mobile --workspace-concurrency=2 run typecheck
-      - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --filter exyconn-tracker-mobile --workspace-concurrency=3 run lint
-      # Coverage is measured on the same run, for the PR's quality report — reported, not gated.
-      - name: Unit tests (with coverage)
-        run: |
-          pnpm --filter '@exyconn/*' --filter exyconn-portal-ui --filter exyconn-tracker-app --filter exyconn-tracker-mobile --workspace-concurrency=1 run test \
-            --coverage.enabled --coverage.reporter=json-summary --coverage.reporter=text-summary \
-            '--coverage.include=src/**/*.{ts,tsx}' '--coverage.exclude=**/*.{test,cy}.{ts,tsx}' '--coverage.exclude=**/graphql/generated/**'
-          pnpm --filter exyconn-portal-server run test \
-            --coverage --coverageReporters=json-summary --coverageReporters=text-summary \
-            '--collectCoverageFrom=src/**/*.ts' '--collectCoverageFrom=!src/graphql/generated/**'
-      - if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: coverage-summaries
-          path: |
-            **/coverage/coverage-summary.json
-            !**/node_modules/**
-          if-no-files-found: ignore
-          retention-days: 7
-
+  # Every form ships a .form.cy.tsx (CLAUDE.md rule 10). The packages in scope are split into
+  # groups of about the same number of specs, one runner each.
   component-tests:
-    timeout-minutes: 90
-    name: Component Tests (Cypress)
+    needs: scope
+    if: needs.scope.outputs.ct-groups != '[]'
+    name: Component tests · group ${{ matrix.group.id }}
     runs-on: ubuntu-latest
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        group: ${{ fromJSON(needs.scope.outputs.ct-groups) }}
+    env:
+      FILTER: ${{ matrix.group.filter }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
@@ -104,7 +78,6 @@ jobs:
         with:
           node-version: 22
           cache: pnpm
-
       # The Electron binary is ~700MB and is not in the pnpm store, so it is cached
       # separately from node_modules or every run re-downloads it.
       - name: Cache Cypress binary
@@ -113,49 +86,99 @@ jobs:
           path: ~/.cache/Cypress
           key: cypress-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: cypress-${{ runner.os }}-
-
       - run: pnpm install --frozen-lockfile
-
-      # A cache hit skips the postinstall download, so install explicitly — it is a
-      # no-op when the binary is already in the cache.
-      - name: Install Cypress binary
-        run: pnpm --filter @exyconn/ui exec cypress install
-
-      # ELECTRON_RUN_AS_NODE in the environment silently turns the Cypress binary into
-      # plain node, which fails much later with an unhelpful "bad option" error.
-      - name: Verify Cypress can start
-        run: pnpm --filter @exyconn/ui exec cypress verify
-
-      # Every form ships a .form.cy.tsx (CLAUDE.md rule 10). This is the job that runs
-      # them; it is deliberately separate from the workspace job so a slow browser run
-      # does not sit on the typecheck/lint/test feedback loop.
-      - name: Component suites
-        run: pnpm test:ct
-
-      # The one spec that renders whole pages — sign-in, and the portal layout after it —
-      # so axe checks page structure too (skip link, landmarks, headings, language). Its
-      # GraphQL is mocked; it needs a build of the hub, not a server.
-      - name: Portal pages end to end (with WCAG 2.2 AA)
+      # A cache hit skips the postinstall download, so install explicitly — a no-op when the
+      # binary is already cached. Verify catches ELECTRON_RUN_AS_NODE turning it into plain node.
+      - name: Install and verify Cypress
         run: |
-          pnpm --filter exyconn-portal-ui build
-          pnpm --filter exyconn-portal-ui test:e2e
-
-      # Written by the shared Cypress support after every test, pass or fail.
+          pnpm --filter @exyconn/ui exec cypress install
+          pnpm --filter @exyconn/ui exec cypress verify
+      - name: Component suites
+        run: pnpm $FILTER --workspace-concurrency=1 run test:ct
+      # Collected with find (pruning node_modules) rather than a ** glob in upload-artifact,
+      # which walked every node_modules tree and spent twenty minutes doing it.
+      - name: Collect accessibility results and screenshots
+        if: always()
+        run: |
+          mkdir -p ci-a11y ci-screenshots
+          find . -path '*/node_modules' -prune -o -path './ci-*' -prune \
+            -o -path '*/cypress/a11y/report.jsonl' -print | xargs -r -I{} cp --parents {} ci-a11y/
+          find . -path '*/node_modules' -prune -o -path './ci-*' -prune \
+            -o -type d -path '*/cypress/screenshots' -print | xargs -r -I{} cp -r --parents {} ci-screenshots/
       - if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: a11y-results
-          path: |
-            **/cypress/a11y/report.jsonl
-            !**/node_modules/**
+          name: a11y-results-${{ matrix.group.id }}
+          path: ci-a11y/
           if-no-files-found: ignore
           retention-days: 7
-
       - if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: cypress-screenshots
-          path: '**/cypress/screenshots/**'
+          name: cypress-screenshots-${{ matrix.group.id }}
+          path: ci-screenshots/
+          if-no-files-found: ignore
+          retention-days: 7
+
+  # The one spec that renders whole pages — sign-in, and the portal layout after it — so axe
+  # checks page structure too (skip link, landmarks, headings, language). Its GraphQL is
+  # mocked; it needs a build of the hub, not a server.
+  e2e:
+    needs: scope
+    if: needs.scope.outputs.e2e == 'true'
+    name: Portal pages end to end (WCAG 2.2 AA)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
+        with:
+          version: 9.15.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 22
+          cache: pnpm
+      # The Electron binary is ~700MB and is not in the pnpm store, so it is cached
+      # separately from node_modules or every run re-downloads it.
+      - name: Cache Cypress binary
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: cypress-${{ runner.os }}-
+      - run: pnpm install --frozen-lockfile
+      # A cache hit skips the postinstall download, so install explicitly — a no-op when the
+      # binary is already cached. Verify catches ELECTRON_RUN_AS_NODE turning it into plain node.
+      - name: Install and verify Cypress
+        run: |
+          pnpm --filter @exyconn/ui exec cypress install
+          pnpm --filter @exyconn/ui exec cypress verify
+      - name: Portal pages end to end
+        run: |
+          pnpm --filter exyconn-portal-ui build
+          pnpm --filter exyconn-portal-ui test:e2e
+      # Collected with find (pruning node_modules) rather than a ** glob in upload-artifact,
+      # which walked every node_modules tree and spent twenty minutes doing it.
+      - name: Collect accessibility results and screenshots
+        if: always()
+        run: |
+          mkdir -p ci-a11y ci-screenshots
+          find . -path '*/node_modules' -prune -o -path './ci-*' -prune \
+            -o -path '*/cypress/a11y/report.jsonl' -print | xargs -r -I{} cp --parents {} ci-a11y/
+          find . -path '*/node_modules' -prune -o -path './ci-*' -prune \
+            -o -type d -path '*/cypress/screenshots' -print | xargs -r -I{} cp -r --parents {} ci-screenshots/
+      - if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: a11y-results-e2e
+          path: ci-a11y/
+          if-no-files-found: ignore
+          retention-days: 7
+      - if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: cypress-screenshots-e2e
+          path: ci-screenshots/
           if-no-files-found: ignore
           retention-days: 7
 
@@ -165,7 +188,7 @@ jobs:
   quality-report:
     timeout-minutes: 15
     name: Quality report (a11y · coverage · duplication)
-    needs: [workspace, component-tests]
+    needs: [workspace, component-tests, e2e]
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     permissions:
@@ -178,10 +201,25 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
+      # A job that was out of scope uploaded nothing, so a pattern may match no artifact.
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        continue-on-error: true
         with:
-          pattern: '{coverage-summaries,a11y-results}'
+          pattern: '{coverage-unit,a11y-results-*}'
           merge-multiple: true
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        continue-on-error: true
+        with:
+          pattern: server-coverage-*
+          path: ci-coverage
+          merge-multiple: true
+      # The server suite runs in four shards; their raw coverage is merged into one summary.
+      - name: Merge server coverage
+        run: |
+          if ls ci-coverage/*.json > /dev/null 2>&1; then
+            npx --yes nyc@17.1.0 report --temp-dir ci-coverage --reporter=json-summary \
+              --report-dir exyconn-portal/server/coverage
+          fi
       - name: Accessibility section
         run: node .github/scripts/pr-reports/a11y.mjs
       - name: Coverage section
@@ -209,6 +247,8 @@ jobs:
           retention-days: 14
 
   website:
+    needs: scope
+    if: needs.scope.outputs.website == 'true'
     timeout-minutes: 20
     name: Website · Typecheck · Lint · Test
     runs-on: ubuntu-latest
@@ -238,6 +278,8 @@ jobs:
         run: pnpm test
 
   tools:
+    needs: scope
+    if: needs.scope.outputs.tools == 'true'
     name: Tools · Typecheck · Lint · Test
     runs-on: ubuntu-latest
     timeout-minutes: 20
