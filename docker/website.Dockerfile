@@ -17,6 +17,7 @@ COPY exyconn-website/package.json exyconn-website/
 COPY exyconn-tracker-app/package.json exyconn-tracker-app/
 COPY packages/regex/package.json packages/regex/
 COPY packages/seo/package.json packages/seo/
+COPY packages/chat-widget/package.json packages/chat-widget/
 COPY packages/config/package.json packages/config/
 # The root `prepare` script runs on every install, this one included; it needs its own
 # file present. It no-ops without a .git directory, which an image never has.
@@ -24,12 +25,14 @@ COPY scripts/install-git-hooks.mjs scripts/
 RUN pnpm install --frozen-lockfile --filter exyconn...
 
 FROM deps AS build
-# The forms' validation patterns and the head renderer (@exyconn/seo): TS source that Vite
-# inlines into the build, so it is only needed here, never at runtime. Their tsconfigs may
+# The forms' validation patterns, the head renderer (@exyconn/seo) and the visitor chat bubble
+# (@exyconn/chat-widget): TS source that Vite inlines into the build, so it is only needed
+# here, never at runtime. Their tsconfigs may
 # extend @exyconn/config's, which esbuild resolves while transforming them — without config
 # the build fails before emitting a page.
 COPY packages/regex packages/regex
 COPY packages/seo packages/seo
+COPY packages/chat-widget packages/chat-widget
 COPY packages/config packages/config
 COPY exyconn-website exyconn-website
 # `pnpm deploy` packs with gitignore semantics and the website gitignores `dist/`, so it

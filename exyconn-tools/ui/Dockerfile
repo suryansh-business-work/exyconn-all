@@ -3,7 +3,8 @@
 # Service: tools-ui | Port: 4001 | Domain: tools.exyconn.com
 # Build context: the monorepo ROOT (deploy.yml / exyconn-tools/docker-compose.yml), because
 # the build reads packages/seo — the zero-dependency head renderer the prerender and the SPA
-# share — straight from source through a tsconfig `paths` entry and a Vite alias.
+# share — and packages/chat-widget (the visitor chat bubble) straight from source through
+# tsconfig `paths` entries and Vite aliases.
 # Tools itself stays an npm project outside the pnpm workspace.
 # =============================================================================
 
@@ -19,11 +20,14 @@ FROM node:22-alpine AS builder
 WORKDIR /repo/exyconn-tools/ui
 RUN apk add --no-cache libc6-compat
 COPY packages/seo /repo/packages/seo
+COPY packages/chat-widget /repo/packages/chat-widget
 COPY --from=deps /repo/exyconn-tools/ui/node_modules ./node_modules
 # Includes scripts/ (SEO prerender: build = tsc && vite build && tsx scripts/prerender.ts)
 COPY exyconn-tools/ui ./
 ARG VITE_API_BASE_URL
 ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+ARG VITE_CHAT_SOCKET_URL
+ENV VITE_CHAT_SOCKET_URL=$VITE_CHAT_SOCKET_URL
 RUN npm run build
 
 # Stage 3: Production (Nginx)
@@ -46,8 +50,9 @@ RUN echo 'server { \
     root /usr/share/nginx/html; \
     index index.html; \
     absolute_redirect off; \
+    add_header Permissions-Policy "camera=(), microphone=(self), geolocation=()" always; \
     location / { try_files $uri $uri/index.html /index.html; } \
-    location ~* \\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2)$ { expires 1y; add_header Cache-Control "public, immutable"; } \
+    location ~* \\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2)$ { expires 1y; add_header Cache-Control "public, immutable"; add_header Permissions-Policy "camera=(), microphone=(self), geolocation=()" always; } \
     gzip on; \
     gzip_types text/plain text/css application/json application/javascript text/xml application/xml; \
     gzip_min_length 256; \

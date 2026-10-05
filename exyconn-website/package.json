@@ -24,6 +24,7 @@
   "dependencies": {
     "@astrojs/node": "^9.5.2",
     "@astrojs/react": "^4.4.2",
+    "@exyconn/chat-widget": "workspace:*",
     "@exyconn/config": "workspace:*",
     "@exyconn/regex": "workspace:*",
     "@exyconn/seo": "workspace:*",
