@@ -3,6 +3,7 @@ import { ImageConfigModel, type ImageConfigDocument } from '../modules/tech/imag
 import { TRACKER_LIMITS } from '../modules/tracker/tracker.constants';
 import {
   AVATAR_UPLOAD,
+  CHAT_UPLOAD,
   MEDIA_UPLOAD,
   RESUME_UPLOAD,
   TEST_UPLOAD,
@@ -16,6 +17,7 @@ const TEST_FOLDER = '/exyconn-portal/tests';
 const TRACKER_FOLDER = '/exyconn-portal/tracker';
 const MEDIA_FOLDER = '/exyconn-portal/media';
 const RESUME_FOLDER = '/exyconn-portal/resumes';
+const CHAT_FOLDER = '/exyconn-portal/website-chat';
 
 /**
  * Server-side image uploader (singleton). The provider credentials are loaded
@@ -90,6 +92,23 @@ class ImageUploader {
       file,
       fileName,
       folder: RESUME_FOLDER,
+      useUniqueFileName: true,
+    });
+    return result.url;
+  }
+
+  /**
+   * Uploads a picture, clip or voice note sent in a website chat (checked like every upload)
+   * and returns its hosted URL. The unique file name keeps one chat's media from being found
+   * by guessing another's.
+   */
+  async uploadChatMedia(file: string, fileName: string): Promise<string> {
+    assertUpload(file, CHAT_UPLOAD);
+    const client = await this.getClient();
+    const result = await client.upload({
+      file,
+      fileName,
+      folder: CHAT_FOLDER,
       useUniqueFileName: true,
     });
     return result.url;

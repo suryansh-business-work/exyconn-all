@@ -268,6 +268,9 @@ services:
       # Every portal micro-frontend calls this API from its own origin.
       CORS_ORIGIN: https://portal.exyconn.com,https://admin.exyconn.com,https://employee.exyconn.com,https://finance.exyconn.com,https://support.exyconn.com,https://crm.exyconn.com,https://products.exyconn.com,https://legal.exyconn.com,https://hr.exyconn.com,https://marketing.exyconn.com,https://projects.exyconn.com,https://ai.exyconn.com,https://website.exyconn.com,https://tracker.exyconn.com,https://tech.exyconn.com,https://it.exyconn.com,https://compliance.exyconn.com,https://social.exyconn.com,https://whatsapp-demo.exyconn.com,https://clienthub.exyconn.com,https://status.exyconn.com
       APP_URL: https://portal.exyconn.com
+      # The public sites the website chat widget opens its socket from (Website > Chatbot).
+      CHAT_ORIGINS: https://exyconn.com,https://tools.exyconn.com
+      WEBSITE_URL: https://exyconn.com
       TRACKER_DOWNLOAD_URL: https://employee.exyconn.com/me/tracker
       # Where the payslip email sends an employee for the rest of their payslips.
       SALARY_SLIPS_URL: https://employee.exyconn.com/me/salary-slips

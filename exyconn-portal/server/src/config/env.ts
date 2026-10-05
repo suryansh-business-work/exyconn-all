@@ -118,6 +118,22 @@ export const env = Object.freeze({
   appUrl: process.env.APP_URL ?? 'https://portal.exyconn.com',
   /** The WhatsApp demo a verified visitor is sent to, from the code email and after sign-in. */
   whatsappDemoUrl: process.env.WHATSAPP_DEMO_URL ?? 'https://whatsapp-demo.exyconn.com',
+  /** exyconn.com: the site the website chat's knowledge bot learns from (sitemap + pages). */
+  websiteUrl: (process.env.WEBSITE_URL ?? 'https://exyconn.com').replace(/\/$/, ''),
+  /** The one market whose pages the knowledge sync reads, rather than all eighty-six copies. */
+  chatKnowledgeMarket: process.env.CHAT_KNOWLEDGE_MARKET ?? 'en-us',
+  /**
+   * Public sites the website chat widget may open its socket from. The portals in CORS_ORIGIN
+   * are allowed as well (Website > Chatbot answers over the same socket).
+   */
+  chatOrigins: (process.env.CHAT_ORIGINS ?? 'https://exyconn.com,https://tools.exyconn.com')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean),
+  /** Website > Chatbot > Sessions, linked from the support ticket every chat opens. */
+  websiteChatConsoleUrl: (
+    process.env.WEBSITE_CHAT_CONSOLE_URL ?? 'https://website.exyconn.com/website/chat/sessions'
+  ).replace(/\/$/, ''),
   /** The client hub: where invoice emails' "Pay now" links and payment gateways send a client. */
   clientHubUrl: (process.env.CLIENT_HUB_URL ?? 'https://clienthub.exyconn.com').replace(/\/$/, ''),
   /**

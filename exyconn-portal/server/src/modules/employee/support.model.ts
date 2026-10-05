@@ -9,8 +9,11 @@ export const SUPPORT_PRIORITIES = ['LOW', 'MEDIUM', 'HIGH'] as const;
 export const SUPPORT_STATUSES = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'] as const;
 /** Who raised it: somebody who works here, or a customer off the public form. */
 export const SUPPORT_REQUESTERS = ['EMPLOYEE', 'CLIENT'] as const;
-/** How it reached the desk: a portal form, the support mailbox, or an agent typing it in. */
-export const SUPPORT_CHANNELS = ['PORTAL', 'EMAIL', 'AGENT'] as const;
+/**
+ * How it reached the desk: a portal form, the support mailbox, an agent typing it in, or a
+ * chat started on the website.
+ */
+export const SUPPORT_CHANNELS = ['PORTAL', 'EMAIL', 'AGENT', 'CHAT'] as const;
 /** Mirrors the GraphQL `TicketChannel` enum. */
 export type TicketChannel = (typeof SUPPORT_CHANNELS)[number];
 /** The statuses that count as "the ticket is done". */

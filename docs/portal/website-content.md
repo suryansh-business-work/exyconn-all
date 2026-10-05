@@ -73,3 +73,30 @@ A portal Tool row records the app path (`/tools/<slug>`) in its `url`. The site 
 against `tools.exyconn.com` instead: the directory card and the "Open" button on the detail
 page both deep-link to the tool itself. `/our-tools` rather than `/tools` remains the
 directory's address so that redirect — and the inbound links it preserves — stays intact.
+
+## The chat widget (Website > Chatbot)
+
+exyconn.com and tools.exyconn.com carry a chat bubble from
+[`packages/chat-widget`](../../packages/chat-widget). It talks to portal-server over one
+WebSocket, `/chat/ws` ([`modules/website-chat`](../../exyconn-portal/server/src/modules/website-chat)),
+which only accepts the origins in `CHAT_ORIGINS` (the public sites) and `CORS_ORIGIN` (the
+portals, whose Website > Chatbot console answers over the same socket).
+
+- **Sign-in.** A visitor gives a name, an email and optionally a phone; the email is proved with
+  a one-time code (`website-chat-code`). That opens a session, files a support ticket on the
+  `CHAT` channel (linked back to the session) and sends `website-chat-started` with the ticket
+  reference. Closing the chat emails `website-chat-transcript` when the settings ask for it.
+- **Three tabs.** "Chat with us" is people only; "Knowledge Bot" is the configured OpenAI model
+  (gpt-4o by default, key from Tech > Environment Variables) answering only from the knowledge
+  below and refusing anything else with the configured message; "FAQs" are Website > Chatbot >
+  FAQs and need no sign-in.
+- **Handoff.** A live question nobody answers within the configured wait, or one asked outside
+  the opening hours, is handed to the bot: the widget switches tabs and the bot answers there.
+  The team can still reply in the live thread.
+- **Knowledge.** "Sync website content" reads every sitemap page of one market
+  (`CHAT_KNOWLEDGE_MARKET`, default `en-us`) from `WEBSITE_URL` plus every published blog post
+  and case study, replacing the previous sync. Rows written in the portal (CUSTOM) are never
+  touched by a sync.
+- **Records.** Sessions, both threads, settings, FAQs and knowledge live in MongoDB under the
+  platform operator's company; pictures, clips and voice notes go to ImageKit
+  (`/exyconn-portal/website-chat`).

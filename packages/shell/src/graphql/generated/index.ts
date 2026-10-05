@@ -4686,6 +4686,8 @@ export type Mutation = {
   /** Withdraw a request that has not been carried out. */
   cancelItAccessRequest: ItAccessRequest;
   changePassword: Scalars['Boolean']['output'];
+  /** Takes the chat: it is shown as yours to answer. */
+  claimWebsiteChatSession: WebsiteChatSession;
   clearRolePermission: Scalars['Boolean']['output'];
   /** Emails the invoice, PDF attached, to the signed-in contact's own address. */
   clientHubEmailInvoice: Scalars['Boolean']['output'];
@@ -4693,6 +4695,8 @@ export type Mutation = {
   /** Opens the gateway's hosted checkout for the invoice's whole balance. */
   clientHubPayInvoice: ClientHubCheckout;
   clientHubReplyToTicket: SupportReply;
+  /** Ends the chat; the visitor is emailed the conversation when the settings say so. */
+  closeWebsiteChatSession: WebsiteChatSession;
   /** The employee's manager (or HR) leaves a comment on a direct report's goal. */
   commentOnTeamGoal: Goal;
   /** Completes the sprint, moving unfinished tickets on per sprintCompletionPlan. */
@@ -4848,6 +4852,9 @@ export type Mutation = {
   /** Creates a user, emails a temporary password, and returns it once for copying. */
   createUser: UserCredentials;
   createWebhook: CreatedWebhook;
+  createWebsiteChatFaq: WebsiteChatFaq;
+  /** Knowledge written here is always CUSTOM; a sync never touches it. */
+  createWebsiteChatKnowledge: WebsiteChatKnowledge;
   /** Public. Refused unless `captcha` answers a question from `websiteCaptcha`. `resume` (PDF, DOC or DOCX, max 5 MB) is accepted with a job application only. */
   createWebsiteSubmission: WebsiteSubmission;
   createWhatsappWorkflow: WhatsappWorkflow;
@@ -4975,6 +4982,9 @@ export type Mutation = {
   deleteTraining: Scalars['Boolean']['output'];
   deleteUser: Scalars['Boolean']['output'];
   deleteWebhook: Scalars['Boolean']['output'];
+  deleteWebsiteChatFaq: Scalars['Boolean']['output'];
+  deleteWebsiteChatKnowledge: Scalars['Boolean']['output'];
+  deleteWebsiteChatSession: Scalars['Boolean']['output'];
   deleteWebsiteSubmission: Scalars['Boolean']['output'];
   deleteWhatsappChannel: Scalars['Boolean']['output'];
   deleteWhatsappDemoVisitor: Scalars['Boolean']['output'];
@@ -5274,6 +5284,8 @@ export type Mutation = {
   syncAllSocialAccounts: Array<SocialSyncResult>;
   /** Reads one account's posts and numbers from the network now. MARKETING. */
   syncSocialAccount: SocialSyncResult;
+  /** Re-reads exyconn.com (pages, blog posts, case studies) into the knowledge bot. */
+  syncWebsiteChatKnowledge: WebsiteChatSyncResult;
   testCloudflareConnection: Scalars['Boolean']['output'];
   testGithubConnection: Scalars['Boolean']['output'];
   testGodaddyConnection: Scalars['Boolean']['output'];
@@ -5459,6 +5471,9 @@ export type Mutation = {
   updateTrackerSettings: TrackerSettings;
   updateTraining: Training;
   updateUser: User;
+  updateWebsiteChatFaq: WebsiteChatFaq;
+  updateWebsiteChatKnowledge: WebsiteChatKnowledge;
+  updateWebsiteChatSettings: WebsiteChatSettings;
   uploadAvatar: Scalars['String']['output'];
   uploadImage: Scalars['String']['output'];
   upsertWhatsappDemo: WhatsappDemo;
@@ -5566,6 +5581,11 @@ export type MutationChangePasswordArgs = {
 };
 
 
+export type MutationClaimWebsiteChatSessionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationClearRolePermissionArgs = {
   module: Scalars['String']['input'];
   role: Role;
@@ -5591,6 +5611,11 @@ export type MutationClientHubPayInvoiceArgs = {
 export type MutationClientHubReplyToTicketArgs = {
   body: Scalars['String']['input'];
   ticketId: Scalars['ID']['input'];
+};
+
+
+export type MutationCloseWebsiteChatSessionArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -6202,6 +6227,16 @@ export type MutationCreateWebhookArgs = {
 };
 
 
+export type MutationCreateWebsiteChatFaqArgs = {
+  input: WebsiteChatFaqInput;
+};
+
+
+export type MutationCreateWebsiteChatKnowledgeArgs = {
+  input: WebsiteChatKnowledgeInput;
+};
+
+
 export type MutationCreateWebsiteSubmissionArgs = {
   captcha: WebsiteCaptchaAnswer;
   input: WebsiteSubmissionInput;
@@ -6785,6 +6820,21 @@ export type MutationDeleteUserArgs = {
 
 
 export type MutationDeleteWebhookArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteWebsiteChatFaqArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteWebsiteChatKnowledgeArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteWebsiteChatSessionArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -8186,6 +8236,23 @@ export type MutationUpdateTrainingArgs = {
 export type MutationUpdateUserArgs = {
   id: Scalars['ID']['input'];
   input: UpdateUserInput;
+};
+
+
+export type MutationUpdateWebsiteChatFaqArgs = {
+  id: Scalars['ID']['input'];
+  input: WebsiteChatFaqInput;
+};
+
+
+export type MutationUpdateWebsiteChatKnowledgeArgs = {
+  id: Scalars['ID']['input'];
+  input: WebsiteChatKnowledgeInput;
+};
+
+
+export type MutationUpdateWebsiteChatSettingsArgs = {
+  input: WebsiteChatSettingsInput;
 };
 
 
@@ -9771,6 +9838,8 @@ export type Query = {
   getToolCategory: ToolCategory;
   getTraining: Training;
   getUser: User;
+  getWebsiteChatFaq: WebsiteChatFaq;
+  getWebsiteChatKnowledge: WebsiteChatKnowledge;
   getWebsiteSubmission: WebsiteSubmission;
   /** India's GST state codes, for a place-of-supply or state picker. */
   gstStates: Array<GstState>;
@@ -10115,6 +10184,11 @@ export type Query = {
   listUsersStats: TableStats;
   listWebhookDeliveries: Array<WebhookDelivery>;
   listWebhooks: Array<Webhook>;
+  listWebsiteChatFaqs: Array<WebsiteChatFaq>;
+  listWebsiteChatFaqsPaged: WebsiteChatFaqPage;
+  listWebsiteChatKnowledgeEntries: Array<WebsiteChatKnowledge>;
+  listWebsiteChatKnowledgeEntriesPaged: WebsiteChatKnowledgePage;
+  listWebsiteChatKnowledgeEntriesStats: TableStats;
   listWebsiteSubmissions: Array<WebsiteSubmission>;
   listWebsiteSubmissionsPaged: WebsiteSubmissionPage;
   listWebsiteSubmissionsStats: TableStats;
@@ -10395,6 +10469,14 @@ export type Query = {
   webhookEvents: Array<Scalars['String']['output']>;
   /** A fresh security question for a public form. Public; each is good for one answer, 10 minutes. */
   websiteCaptcha: WebsiteCaptcha;
+  /** Both threads of one chat, oldest first. */
+  websiteChatMessages: Array<WebsiteChatMessage>;
+  websiteChatSession: WebsiteChatSession;
+  /** Website > Chatbot > Sessions: totals by status and site. */
+  websiteChatSessionStats: TableStats;
+  /** Website > Chatbot > Sessions (website staff). */
+  websiteChatSessionsPaged: WebsiteChatSessionPage;
+  websiteChatSettings: WebsiteChatSettings;
   /** The form identifiers the public website may submit under — the one allow-list. */
   websiteFormTypes: Array<Scalars['String']['output']>;
   whatsappChannel: WhatsappChannelSettings;
@@ -10980,6 +11062,16 @@ export type QueryGetUserArgs = {
 };
 
 
+export type QueryGetWebsiteChatFaqArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetWebsiteChatKnowledgeArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QueryGetWebsiteSubmissionArgs = {
   id: Scalars['ID']['input'];
 };
@@ -11480,6 +11572,16 @@ export type QueryListWebhookDeliveriesArgs = {
 };
 
 
+export type QueryListWebsiteChatFaqsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListWebsiteChatKnowledgeEntriesPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListWebsiteSubmissionsPagedArgs = {
   input: TableQueryInput;
 };
@@ -11855,6 +11957,21 @@ export type QueryTranslationsArgs = {
   locale: Scalars['String']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
   skip?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryWebsiteChatMessagesArgs = {
+  sessionId: Scalars['ID']['input'];
+};
+
+
+export type QueryWebsiteChatSessionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryWebsiteChatSessionsPagedArgs = {
+  input: TableQueryInput;
 };
 
 
@@ -13647,6 +13764,8 @@ export type TeamPage = {
 export enum TicketChannel {
   /** Typed into the console by an agent, usually off a call. */
   Agent = 'AGENT',
+  /** Opened by a chat on exyconn.com or tools.exyconn.com (Website > Chatbot). */
+  Chat = 'CHAT',
   /** Arrived in the support mailbox and was imported. */
   Email = 'EMAIL',
   /** Raised on a form in the portal — the employee desk or the public customer form. */
@@ -14693,6 +14812,221 @@ export type WebsiteCaptcha = {
 export type WebsiteCaptchaAnswer = {
   answer: Scalars['String']['input'];
   token: Scalars['String']['input'];
+};
+
+export type WebsiteChatAttachment = {
+  __typename?: 'WebsiteChatAttachment';
+  kind: WebsiteChatAttachmentKind;
+  name: Scalars['String']['output'];
+  /** Size in bytes. */
+  size: Scalars['Int']['output'];
+  url: Scalars['String']['output'];
+};
+
+export enum WebsiteChatAttachmentKind {
+  Audio = 'AUDIO',
+  Image = 'IMAGE',
+  Video = 'VIDEO'
+}
+
+/** The two threads of a chat: the team answering, and the knowledge bot answering. */
+export enum WebsiteChatChannel {
+  Knowledge = 'KNOWLEDGE',
+  Live = 'LIVE'
+}
+
+/** One weekday's opening hours. day is 0 (Sunday) to 6; times are 24-hour HH:mm in the settings' timezone. */
+export type WebsiteChatDay = {
+  __typename?: 'WebsiteChatDay';
+  day: Scalars['Int']['output'];
+  enabled: Scalars['Boolean']['output'];
+  end: Scalars['String']['output'];
+  start: Scalars['String']['output'];
+};
+
+export type WebsiteChatDayInput = {
+  day: Scalars['Int']['input'];
+  enabled: Scalars['Boolean']['input'];
+  end: Scalars['String']['input'];
+  start: Scalars['String']['input'];
+};
+
+/** A question and answer in the chat widget's FAQs tab. */
+export type WebsiteChatFaq = {
+  __typename?: 'WebsiteChatFaq';
+  answer: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  question: Scalars['String']['output'];
+  sortOrder: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type WebsiteChatFaqInput = {
+  answer: Scalars['String']['input'];
+  isActive: Scalars['Boolean']['input'];
+  question: Scalars['String']['input'];
+  sortOrder: Scalars['Int']['input'];
+};
+
+export type WebsiteChatFaqPage = {
+  __typename?: 'WebsiteChatFaqPage';
+  rows: Array<WebsiteChatFaq>;
+  totalCount: Scalars['Int']['output'];
+};
+
+/** Something the knowledge bot may answer from. */
+export type WebsiteChatKnowledge = {
+  __typename?: 'WebsiteChatKnowledge';
+  content: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  source: WebsiteChatKnowledgeSource;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  url: Scalars['String']['output'];
+};
+
+export type WebsiteChatKnowledgeInput = {
+  content: Scalars['String']['input'];
+  isActive: Scalars['Boolean']['input'];
+  title: Scalars['String']['input'];
+  url?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type WebsiteChatKnowledgePage = {
+  __typename?: 'WebsiteChatKnowledgePage';
+  rows: Array<WebsiteChatKnowledge>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum WebsiteChatKnowledgeSource {
+  /** Written by the website team. */
+  Custom = 'CUSTOM',
+  /** Read from exyconn.com by the last sync. */
+  Website = 'WEBSITE'
+}
+
+export type WebsiteChatMessage = {
+  __typename?: 'WebsiteChatMessage';
+  attachments: Array<WebsiteChatAttachment>;
+  body: Scalars['String']['output'];
+  channel: WebsiteChatChannel;
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  readAt?: Maybe<Scalars['DateTime']['output']>;
+  sender: WebsiteChatSender;
+  senderName: Scalars['String']['output'];
+  sessionId: Scalars['ID']['output'];
+};
+
+/** Who wrote a chat message. SYSTEM is the chat itself (welcome, handoff and offline notices). */
+export enum WebsiteChatSender {
+  Agent = 'AGENT',
+  Bot = 'BOT',
+  System = 'SYSTEM',
+  Visitor = 'VISITOR'
+}
+
+/** A conversation with a visitor of exyconn.com or tools.exyconn.com, opened after their email was verified. */
+export type WebsiteChatSession = {
+  __typename?: 'WebsiteChatSession';
+  assigneeId: Scalars['String']['output'];
+  assigneeName: Scalars['String']['output'];
+  /** Set while a visitor waits for a person; the handoff moves the question to the bot when it is too old. */
+  awaitingReplySince?: Maybe<Scalars['DateTime']['output']>;
+  closedAt?: Maybe<Scalars['DateTime']['output']>;
+  closedBy: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  email: Scalars['String']['output'];
+  handedOffAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  lastMessageAt?: Maybe<Scalars['DateTime']['output']>;
+  lastMessagePreview: Scalars['String']['output'];
+  lastSender: Scalars['String']['output'];
+  messageCount: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+  pageUrl: Scalars['String']['output'];
+  phone: Scalars['String']['output'];
+  site: WebsiteChatSite;
+  /** Live-thread visitor messages nobody on the team has read. */
+  staffUnread: Scalars['Int']['output'];
+  status: WebsiteChatStatus;
+  /** The support ticket the chat opened. */
+  ticketId: Scalars['String']['output'];
+  ticketReference: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type WebsiteChatSessionPage = {
+  __typename?: 'WebsiteChatSessionPage';
+  rows: Array<WebsiteChatSession>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type WebsiteChatSettings = {
+  __typename?: 'WebsiteChatSettings';
+  allowUploads: Scalars['Boolean']['output'];
+  botModel: Scalars['String']['output'];
+  botName: Scalars['String']['output'];
+  customInstructions: Scalars['String']['output'];
+  enabled: Scalars['Boolean']['output'];
+  handoffMessage: Scalars['String']['output'];
+  knowledgeSyncCount: Scalars['Int']['output'];
+  knowledgeSyncError: Scalars['String']['output'];
+  knowledgeSyncedAt?: Maybe<Scalars['DateTime']['output']>;
+  /** How many characters of knowledge go to the bot with each question. */
+  maxContextChars: Scalars['Int']['output'];
+  maxUploadMb: Scalars['Int']['output'];
+  noReplyTimeoutSeconds: Scalars['Int']['output'];
+  offlineMessage: Scalars['String']['output'];
+  /** Whether the team is on duty right now, by the opening hours. */
+  online: Scalars['Boolean']['output'];
+  refusalMessage: Scalars['String']['output'];
+  soundEnabledByDefault: Scalars['Boolean']['output'];
+  timezone: Scalars['String']['output'];
+  transcriptOnClose: Scalars['Boolean']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  weeklyHours: Array<WebsiteChatDay>;
+  welcomeMessage: Scalars['String']['output'];
+};
+
+export type WebsiteChatSettingsInput = {
+  allowUploads: Scalars['Boolean']['input'];
+  botModel: Scalars['String']['input'];
+  botName: Scalars['String']['input'];
+  customInstructions: Scalars['String']['input'];
+  enabled: Scalars['Boolean']['input'];
+  handoffMessage: Scalars['String']['input'];
+  maxContextChars: Scalars['Int']['input'];
+  maxUploadMb: Scalars['Int']['input'];
+  noReplyTimeoutSeconds: Scalars['Int']['input'];
+  offlineMessage: Scalars['String']['input'];
+  refusalMessage: Scalars['String']['input'];
+  soundEnabledByDefault: Scalars['Boolean']['input'];
+  timezone: Scalars['String']['input'];
+  transcriptOnClose: Scalars['Boolean']['input'];
+  weeklyHours: Array<WebsiteChatDayInput>;
+  welcomeMessage: Scalars['String']['input'];
+};
+
+/** The public site a website chat was started on. */
+export enum WebsiteChatSite {
+  Tools = 'TOOLS',
+  Website = 'WEBSITE'
+}
+
+export enum WebsiteChatStatus {
+  Closed = 'CLOSED',
+  Open = 'OPEN'
+}
+
+export type WebsiteChatSyncResult = {
+  __typename?: 'WebsiteChatSyncResult';
+  count: Scalars['Int']['output'];
+  syncedAt: Scalars['DateTime']['output'];
 };
 
 /** A file sent with a public form: its name and its bytes as a base64 data URL. */
@@ -21555,6 +21889,143 @@ export type ConvertWebsiteSubmissionToLeadMutationVariables = Exact<{
 
 export type ConvertWebsiteSubmissionToLeadMutation = { __typename?: 'Mutation', convertWebsiteSubmissionToLead: { __typename?: 'Lead', id: string, name: string } };
 
+export type WebsiteChatSessionFieldsFragment = { __typename?: 'WebsiteChatSession', id: string, name: string, email: string, phone: string, site: WebsiteChatSite, pageUrl: string, status: WebsiteChatStatus, ticketId: string, ticketReference: string, assigneeId: string, assigneeName: string, lastMessageAt?: string | null, lastMessagePreview: string, lastSender: string, staffUnread: number, messageCount: number, awaitingReplySince?: string | null, handedOffAt?: string | null, closedAt?: string | null, closedBy: string, createdAt: string, updatedAt: string };
+
+export type WebsiteChatMessageFieldsFragment = { __typename?: 'WebsiteChatMessage', id: string, sessionId: string, channel: WebsiteChatChannel, sender: WebsiteChatSender, senderName: string, body: string, createdAt: string, readAt?: string | null, attachments: Array<{ __typename?: 'WebsiteChatAttachment', url: string, name: string, kind: WebsiteChatAttachmentKind, size: number }> };
+
+export type WebsiteChatSettingsFieldsFragment = { __typename?: 'WebsiteChatSettings', enabled: boolean, botName: string, welcomeMessage: string, offlineMessage: string, handoffMessage: string, refusalMessage: string, customInstructions: string, timezone: string, noReplyTimeoutSeconds: number, botModel: string, maxContextChars: number, allowUploads: boolean, maxUploadMb: number, soundEnabledByDefault: boolean, transcriptOnClose: boolean, online: boolean, knowledgeSyncedAt?: string | null, knowledgeSyncCount: number, knowledgeSyncError: string, updatedAt: string, weeklyHours: Array<{ __typename?: 'WebsiteChatDay', day: number, enabled: boolean, start: string, end: string }> };
+
+export type WebsiteChatFaqFieldsFragment = { __typename?: 'WebsiteChatFaq', id: string, question: string, answer: string, sortOrder: number, isActive: boolean, createdAt: string, updatedAt: string };
+
+export type WebsiteChatKnowledgeFieldsFragment = { __typename?: 'WebsiteChatKnowledge', id: string, title: string, url: string, content: string, source: WebsiteChatKnowledgeSource, isActive: boolean, createdAt: string, updatedAt: string };
+
+export type WebsiteChatSessionsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type WebsiteChatSessionsPagedQuery = { __typename?: 'Query', websiteChatSessionsPaged: { __typename?: 'WebsiteChatSessionPage', totalCount: number, rows: Array<{ __typename?: 'WebsiteChatSession', id: string, name: string, email: string, phone: string, site: WebsiteChatSite, pageUrl: string, status: WebsiteChatStatus, ticketId: string, ticketReference: string, assigneeId: string, assigneeName: string, lastMessageAt?: string | null, lastMessagePreview: string, lastSender: string, staffUnread: number, messageCount: number, awaitingReplySince?: string | null, handedOffAt?: string | null, closedAt?: string | null, closedBy: string, createdAt: string, updatedAt: string }> } };
+
+export type WebsiteChatSessionStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type WebsiteChatSessionStatsQuery = { __typename?: 'Query', websiteChatSessionStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type WebsiteChatSessionQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type WebsiteChatSessionQuery = { __typename?: 'Query', websiteChatSession: { __typename?: 'WebsiteChatSession', id: string, name: string, email: string, phone: string, site: WebsiteChatSite, pageUrl: string, status: WebsiteChatStatus, ticketId: string, ticketReference: string, assigneeId: string, assigneeName: string, lastMessageAt?: string | null, lastMessagePreview: string, lastSender: string, staffUnread: number, messageCount: number, awaitingReplySince?: string | null, handedOffAt?: string | null, closedAt?: string | null, closedBy: string, createdAt: string, updatedAt: string } };
+
+export type WebsiteChatMessagesQueryVariables = Exact<{
+  sessionId: Scalars['ID']['input'];
+}>;
+
+
+export type WebsiteChatMessagesQuery = { __typename?: 'Query', websiteChatMessages: Array<{ __typename?: 'WebsiteChatMessage', id: string, sessionId: string, channel: WebsiteChatChannel, sender: WebsiteChatSender, senderName: string, body: string, createdAt: string, readAt?: string | null, attachments: Array<{ __typename?: 'WebsiteChatAttachment', url: string, name: string, kind: WebsiteChatAttachmentKind, size: number }> }> };
+
+export type WebsiteChatSettingsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type WebsiteChatSettingsQuery = { __typename?: 'Query', websiteChatSettings: { __typename?: 'WebsiteChatSettings', enabled: boolean, botName: string, welcomeMessage: string, offlineMessage: string, handoffMessage: string, refusalMessage: string, customInstructions: string, timezone: string, noReplyTimeoutSeconds: number, botModel: string, maxContextChars: number, allowUploads: boolean, maxUploadMb: number, soundEnabledByDefault: boolean, transcriptOnClose: boolean, online: boolean, knowledgeSyncedAt?: string | null, knowledgeSyncCount: number, knowledgeSyncError: string, updatedAt: string, weeklyHours: Array<{ __typename?: 'WebsiteChatDay', day: number, enabled: boolean, start: string, end: string }> } };
+
+export type UpdateWebsiteChatSettingsMutationVariables = Exact<{
+  input: WebsiteChatSettingsInput;
+}>;
+
+
+export type UpdateWebsiteChatSettingsMutation = { __typename?: 'Mutation', updateWebsiteChatSettings: { __typename?: 'WebsiteChatSettings', enabled: boolean, botName: string, welcomeMessage: string, offlineMessage: string, handoffMessage: string, refusalMessage: string, customInstructions: string, timezone: string, noReplyTimeoutSeconds: number, botModel: string, maxContextChars: number, allowUploads: boolean, maxUploadMb: number, soundEnabledByDefault: boolean, transcriptOnClose: boolean, online: boolean, knowledgeSyncedAt?: string | null, knowledgeSyncCount: number, knowledgeSyncError: string, updatedAt: string, weeklyHours: Array<{ __typename?: 'WebsiteChatDay', day: number, enabled: boolean, start: string, end: string }> } };
+
+export type ClaimWebsiteChatSessionMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type ClaimWebsiteChatSessionMutation = { __typename?: 'Mutation', claimWebsiteChatSession: { __typename?: 'WebsiteChatSession', id: string, name: string, email: string, phone: string, site: WebsiteChatSite, pageUrl: string, status: WebsiteChatStatus, ticketId: string, ticketReference: string, assigneeId: string, assigneeName: string, lastMessageAt?: string | null, lastMessagePreview: string, lastSender: string, staffUnread: number, messageCount: number, awaitingReplySince?: string | null, handedOffAt?: string | null, closedAt?: string | null, closedBy: string, createdAt: string, updatedAt: string } };
+
+export type CloseWebsiteChatSessionMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type CloseWebsiteChatSessionMutation = { __typename?: 'Mutation', closeWebsiteChatSession: { __typename?: 'WebsiteChatSession', id: string, name: string, email: string, phone: string, site: WebsiteChatSite, pageUrl: string, status: WebsiteChatStatus, ticketId: string, ticketReference: string, assigneeId: string, assigneeName: string, lastMessageAt?: string | null, lastMessagePreview: string, lastSender: string, staffUnread: number, messageCount: number, awaitingReplySince?: string | null, handedOffAt?: string | null, closedAt?: string | null, closedBy: string, createdAt: string, updatedAt: string } };
+
+export type DeleteWebsiteChatSessionMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteWebsiteChatSessionMutation = { __typename?: 'Mutation', deleteWebsiteChatSession: boolean };
+
+export type SyncWebsiteChatKnowledgeMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type SyncWebsiteChatKnowledgeMutation = { __typename?: 'Mutation', syncWebsiteChatKnowledge: { __typename?: 'WebsiteChatSyncResult', count: number, syncedAt: string } };
+
+export type WebsiteChatFaqsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type WebsiteChatFaqsPagedQuery = { __typename?: 'Query', listWebsiteChatFaqsPaged: { __typename?: 'WebsiteChatFaqPage', totalCount: number, rows: Array<{ __typename?: 'WebsiteChatFaq', id: string, question: string, answer: string, sortOrder: number, isActive: boolean, createdAt: string, updatedAt: string }> } };
+
+export type CreateWebsiteChatFaqMutationVariables = Exact<{
+  input: WebsiteChatFaqInput;
+}>;
+
+
+export type CreateWebsiteChatFaqMutation = { __typename?: 'Mutation', createWebsiteChatFaq: { __typename?: 'WebsiteChatFaq', id: string, question: string, answer: string, sortOrder: number, isActive: boolean, createdAt: string, updatedAt: string } };
+
+export type UpdateWebsiteChatFaqMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: WebsiteChatFaqInput;
+}>;
+
+
+export type UpdateWebsiteChatFaqMutation = { __typename?: 'Mutation', updateWebsiteChatFaq: { __typename?: 'WebsiteChatFaq', id: string, question: string, answer: string, sortOrder: number, isActive: boolean, createdAt: string, updatedAt: string } };
+
+export type DeleteWebsiteChatFaqMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteWebsiteChatFaqMutation = { __typename?: 'Mutation', deleteWebsiteChatFaq: boolean };
+
+export type WebsiteChatKnowledgePagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type WebsiteChatKnowledgePagedQuery = { __typename?: 'Query', listWebsiteChatKnowledgeEntriesPaged: { __typename?: 'WebsiteChatKnowledgePage', totalCount: number, rows: Array<{ __typename?: 'WebsiteChatKnowledge', id: string, title: string, url: string, content: string, source: WebsiteChatKnowledgeSource, isActive: boolean, createdAt: string, updatedAt: string }> } };
+
+export type WebsiteChatKnowledgeStatsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type WebsiteChatKnowledgeStatsQuery = { __typename?: 'Query', listWebsiteChatKnowledgeEntriesStats: { __typename?: 'TableStats', total: number, counts: Array<{ __typename?: 'StatFieldCounts', field: string, buckets: Array<{ __typename?: 'StatBucket', value: string, count: number }> }>, sums: Array<{ __typename?: 'StatFieldSum', field: string, total: number }> } };
+
+export type CreateWebsiteChatKnowledgeMutationVariables = Exact<{
+  input: WebsiteChatKnowledgeInput;
+}>;
+
+
+export type CreateWebsiteChatKnowledgeMutation = { __typename?: 'Mutation', createWebsiteChatKnowledge: { __typename?: 'WebsiteChatKnowledge', id: string, title: string, url: string, content: string, source: WebsiteChatKnowledgeSource, isActive: boolean, createdAt: string, updatedAt: string } };
+
+export type UpdateWebsiteChatKnowledgeMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: WebsiteChatKnowledgeInput;
+}>;
+
+
+export type UpdateWebsiteChatKnowledgeMutation = { __typename?: 'Mutation', updateWebsiteChatKnowledge: { __typename?: 'WebsiteChatKnowledge', id: string, title: string, url: string, content: string, source: WebsiteChatKnowledgeSource, isActive: boolean, createdAt: string, updatedAt: string } };
+
+export type DeleteWebsiteChatKnowledgeMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteWebsiteChatKnowledgeMutation = { __typename?: 'Mutation', deleteWebsiteChatKnowledge: boolean };
+
 export type WhatsappDemoFieldsFragment = { __typename?: 'WhatsappDemo', id: string, key: string, industry: string, business: any, greeting: string, menuText: string, menuButton: string, order: number, active: boolean, updatedAt: string };
 
 export type WhatsappWorkflowFieldsFragment = { __typename?: 'WhatsappWorkflow', id: string, demoId: string, demoKey: string, key: string, name: string, description: string, keywords: Array<string>, order: number, status: WhatsappWorkflowStatus, version: number, draft: any, published?: any | null, publishedAt?: string | null, updatedAt: string, updatedByName?: string | null };
@@ -23725,6 +24196,103 @@ export const WebsiteSubmissionFieldsFragmentDoc = gql`
   leadId
   applicantId
   createdAt
+}
+    `;
+export const WebsiteChatSessionFieldsFragmentDoc = gql`
+    fragment WebsiteChatSessionFields on WebsiteChatSession {
+  id
+  name
+  email
+  phone
+  site
+  pageUrl
+  status
+  ticketId
+  ticketReference
+  assigneeId
+  assigneeName
+  lastMessageAt
+  lastMessagePreview
+  lastSender
+  staffUnread
+  messageCount
+  awaitingReplySince
+  handedOffAt
+  closedAt
+  closedBy
+  createdAt
+  updatedAt
+}
+    `;
+export const WebsiteChatMessageFieldsFragmentDoc = gql`
+    fragment WebsiteChatMessageFields on WebsiteChatMessage {
+  id
+  sessionId
+  channel
+  sender
+  senderName
+  body
+  attachments {
+    url
+    name
+    kind
+    size
+  }
+  createdAt
+  readAt
+}
+    `;
+export const WebsiteChatSettingsFieldsFragmentDoc = gql`
+    fragment WebsiteChatSettingsFields on WebsiteChatSettings {
+  enabled
+  botName
+  welcomeMessage
+  offlineMessage
+  handoffMessage
+  refusalMessage
+  customInstructions
+  timezone
+  weeklyHours {
+    day
+    enabled
+    start
+    end
+  }
+  noReplyTimeoutSeconds
+  botModel
+  maxContextChars
+  allowUploads
+  maxUploadMb
+  soundEnabledByDefault
+  transcriptOnClose
+  online
+  knowledgeSyncedAt
+  knowledgeSyncCount
+  knowledgeSyncError
+  updatedAt
+}
+    `;
+export const WebsiteChatFaqFieldsFragmentDoc = gql`
+    fragment WebsiteChatFaqFields on WebsiteChatFaq {
+  id
+  question
+  answer
+  sortOrder
+  isActive
+  createdAt
+  updatedAt
+}
+    `;
+export const WebsiteChatKnowledgeFieldsFragmentDoc = gql`
+    fragment WebsiteChatKnowledgeFields on WebsiteChatKnowledge {
+  id
+  title
+  url
+  content
+  source
+  isActive
+  createdAt
+  updatedAt
 }
     `;
 export const WhatsappDemoFieldsFragmentDoc = gql`
@@ -59962,6 +60530,712 @@ export function useConvertWebsiteSubmissionToLeadMutation(baseOptions?: ApolloRe
         return ApolloReactHooks.useMutation<ConvertWebsiteSubmissionToLeadMutation, ConvertWebsiteSubmissionToLeadMutationVariables>(ConvertWebsiteSubmissionToLeadDocument, options);
       }
 export type ConvertWebsiteSubmissionToLeadMutationHookResult = ReturnType<typeof useConvertWebsiteSubmissionToLeadMutation>;
+export const WebsiteChatSessionsPagedDocument = gql`
+    query WebsiteChatSessionsPaged($input: TableQueryInput!) {
+  websiteChatSessionsPaged(input: $input) {
+    rows {
+      ...WebsiteChatSessionFields
+    }
+    totalCount
+  }
+}
+    ${WebsiteChatSessionFieldsFragmentDoc}`;
+
+/**
+ * __useWebsiteChatSessionsPagedQuery__
+ *
+ * To run a query within a React component, call `useWebsiteChatSessionsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWebsiteChatSessionsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWebsiteChatSessionsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useWebsiteChatSessionsPagedQuery(baseOptions: ApolloReactHooks.QueryHookOptions<WebsiteChatSessionsPagedQuery, WebsiteChatSessionsPagedQueryVariables> & ({ variables: WebsiteChatSessionsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WebsiteChatSessionsPagedQuery, WebsiteChatSessionsPagedQueryVariables>(WebsiteChatSessionsPagedDocument, options);
+      }
+export function useWebsiteChatSessionsPagedLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WebsiteChatSessionsPagedQuery, WebsiteChatSessionsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WebsiteChatSessionsPagedQuery, WebsiteChatSessionsPagedQueryVariables>(WebsiteChatSessionsPagedDocument, options);
+        }
+// @ts-ignore
+export function useWebsiteChatSessionsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatSessionsPagedQuery, WebsiteChatSessionsPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WebsiteChatSessionsPagedQuery, WebsiteChatSessionsPagedQueryVariables>;
+// @ts-ignore
+export function useWebsiteChatSessionsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatSessionsPagedQuery, WebsiteChatSessionsPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WebsiteChatSessionsPagedQuery | undefined, WebsiteChatSessionsPagedQueryVariables>;
+export function useWebsiteChatSessionsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatSessionsPagedQuery, WebsiteChatSessionsPagedQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WebsiteChatSessionsPagedQuery, WebsiteChatSessionsPagedQueryVariables>(WebsiteChatSessionsPagedDocument, options);
+        }
+export type WebsiteChatSessionsPagedQueryHookResult = ReturnType<typeof useWebsiteChatSessionsPagedQuery>;
+export type WebsiteChatSessionsPagedLazyQueryHookResult = ReturnType<typeof useWebsiteChatSessionsPagedLazyQuery>;
+export type WebsiteChatSessionsPagedSuspenseQueryHookResult = ReturnType<typeof useWebsiteChatSessionsPagedSuspenseQuery>;
+export const WebsiteChatSessionStatsDocument = gql`
+    query WebsiteChatSessionStats {
+  websiteChatSessionStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useWebsiteChatSessionStatsQuery__
+ *
+ * To run a query within a React component, call `useWebsiteChatSessionStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWebsiteChatSessionStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWebsiteChatSessionStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useWebsiteChatSessionStatsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<WebsiteChatSessionStatsQuery, WebsiteChatSessionStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WebsiteChatSessionStatsQuery, WebsiteChatSessionStatsQueryVariables>(WebsiteChatSessionStatsDocument, options);
+      }
+export function useWebsiteChatSessionStatsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WebsiteChatSessionStatsQuery, WebsiteChatSessionStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WebsiteChatSessionStatsQuery, WebsiteChatSessionStatsQueryVariables>(WebsiteChatSessionStatsDocument, options);
+        }
+// @ts-ignore
+export function useWebsiteChatSessionStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatSessionStatsQuery, WebsiteChatSessionStatsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WebsiteChatSessionStatsQuery, WebsiteChatSessionStatsQueryVariables>;
+// @ts-ignore
+export function useWebsiteChatSessionStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatSessionStatsQuery, WebsiteChatSessionStatsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WebsiteChatSessionStatsQuery | undefined, WebsiteChatSessionStatsQueryVariables>;
+export function useWebsiteChatSessionStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatSessionStatsQuery, WebsiteChatSessionStatsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WebsiteChatSessionStatsQuery, WebsiteChatSessionStatsQueryVariables>(WebsiteChatSessionStatsDocument, options);
+        }
+export type WebsiteChatSessionStatsQueryHookResult = ReturnType<typeof useWebsiteChatSessionStatsQuery>;
+export type WebsiteChatSessionStatsLazyQueryHookResult = ReturnType<typeof useWebsiteChatSessionStatsLazyQuery>;
+export type WebsiteChatSessionStatsSuspenseQueryHookResult = ReturnType<typeof useWebsiteChatSessionStatsSuspenseQuery>;
+export const WebsiteChatSessionDocument = gql`
+    query WebsiteChatSession($id: ID!) {
+  websiteChatSession(id: $id) {
+    ...WebsiteChatSessionFields
+  }
+}
+    ${WebsiteChatSessionFieldsFragmentDoc}`;
+
+/**
+ * __useWebsiteChatSessionQuery__
+ *
+ * To run a query within a React component, call `useWebsiteChatSessionQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWebsiteChatSessionQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWebsiteChatSessionQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useWebsiteChatSessionQuery(baseOptions: ApolloReactHooks.QueryHookOptions<WebsiteChatSessionQuery, WebsiteChatSessionQueryVariables> & ({ variables: WebsiteChatSessionQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WebsiteChatSessionQuery, WebsiteChatSessionQueryVariables>(WebsiteChatSessionDocument, options);
+      }
+export function useWebsiteChatSessionLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WebsiteChatSessionQuery, WebsiteChatSessionQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WebsiteChatSessionQuery, WebsiteChatSessionQueryVariables>(WebsiteChatSessionDocument, options);
+        }
+// @ts-ignore
+export function useWebsiteChatSessionSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatSessionQuery, WebsiteChatSessionQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WebsiteChatSessionQuery, WebsiteChatSessionQueryVariables>;
+// @ts-ignore
+export function useWebsiteChatSessionSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatSessionQuery, WebsiteChatSessionQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WebsiteChatSessionQuery | undefined, WebsiteChatSessionQueryVariables>;
+export function useWebsiteChatSessionSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatSessionQuery, WebsiteChatSessionQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WebsiteChatSessionQuery, WebsiteChatSessionQueryVariables>(WebsiteChatSessionDocument, options);
+        }
+export type WebsiteChatSessionQueryHookResult = ReturnType<typeof useWebsiteChatSessionQuery>;
+export type WebsiteChatSessionLazyQueryHookResult = ReturnType<typeof useWebsiteChatSessionLazyQuery>;
+export type WebsiteChatSessionSuspenseQueryHookResult = ReturnType<typeof useWebsiteChatSessionSuspenseQuery>;
+export const WebsiteChatMessagesDocument = gql`
+    query WebsiteChatMessages($sessionId: ID!) {
+  websiteChatMessages(sessionId: $sessionId) {
+    ...WebsiteChatMessageFields
+  }
+}
+    ${WebsiteChatMessageFieldsFragmentDoc}`;
+
+/**
+ * __useWebsiteChatMessagesQuery__
+ *
+ * To run a query within a React component, call `useWebsiteChatMessagesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWebsiteChatMessagesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWebsiteChatMessagesQuery({
+ *   variables: {
+ *      sessionId: // value for 'sessionId'
+ *   },
+ * });
+ */
+export function useWebsiteChatMessagesQuery(baseOptions: ApolloReactHooks.QueryHookOptions<WebsiteChatMessagesQuery, WebsiteChatMessagesQueryVariables> & ({ variables: WebsiteChatMessagesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WebsiteChatMessagesQuery, WebsiteChatMessagesQueryVariables>(WebsiteChatMessagesDocument, options);
+      }
+export function useWebsiteChatMessagesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WebsiteChatMessagesQuery, WebsiteChatMessagesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WebsiteChatMessagesQuery, WebsiteChatMessagesQueryVariables>(WebsiteChatMessagesDocument, options);
+        }
+// @ts-ignore
+export function useWebsiteChatMessagesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatMessagesQuery, WebsiteChatMessagesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WebsiteChatMessagesQuery, WebsiteChatMessagesQueryVariables>;
+// @ts-ignore
+export function useWebsiteChatMessagesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatMessagesQuery, WebsiteChatMessagesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WebsiteChatMessagesQuery | undefined, WebsiteChatMessagesQueryVariables>;
+export function useWebsiteChatMessagesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatMessagesQuery, WebsiteChatMessagesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WebsiteChatMessagesQuery, WebsiteChatMessagesQueryVariables>(WebsiteChatMessagesDocument, options);
+        }
+export type WebsiteChatMessagesQueryHookResult = ReturnType<typeof useWebsiteChatMessagesQuery>;
+export type WebsiteChatMessagesLazyQueryHookResult = ReturnType<typeof useWebsiteChatMessagesLazyQuery>;
+export type WebsiteChatMessagesSuspenseQueryHookResult = ReturnType<typeof useWebsiteChatMessagesSuspenseQuery>;
+export const WebsiteChatSettingsDocument = gql`
+    query WebsiteChatSettings {
+  websiteChatSettings {
+    ...WebsiteChatSettingsFields
+  }
+}
+    ${WebsiteChatSettingsFieldsFragmentDoc}`;
+
+/**
+ * __useWebsiteChatSettingsQuery__
+ *
+ * To run a query within a React component, call `useWebsiteChatSettingsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWebsiteChatSettingsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWebsiteChatSettingsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useWebsiteChatSettingsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<WebsiteChatSettingsQuery, WebsiteChatSettingsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WebsiteChatSettingsQuery, WebsiteChatSettingsQueryVariables>(WebsiteChatSettingsDocument, options);
+      }
+export function useWebsiteChatSettingsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WebsiteChatSettingsQuery, WebsiteChatSettingsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WebsiteChatSettingsQuery, WebsiteChatSettingsQueryVariables>(WebsiteChatSettingsDocument, options);
+        }
+// @ts-ignore
+export function useWebsiteChatSettingsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatSettingsQuery, WebsiteChatSettingsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WebsiteChatSettingsQuery, WebsiteChatSettingsQueryVariables>;
+// @ts-ignore
+export function useWebsiteChatSettingsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatSettingsQuery, WebsiteChatSettingsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WebsiteChatSettingsQuery | undefined, WebsiteChatSettingsQueryVariables>;
+export function useWebsiteChatSettingsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatSettingsQuery, WebsiteChatSettingsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WebsiteChatSettingsQuery, WebsiteChatSettingsQueryVariables>(WebsiteChatSettingsDocument, options);
+        }
+export type WebsiteChatSettingsQueryHookResult = ReturnType<typeof useWebsiteChatSettingsQuery>;
+export type WebsiteChatSettingsLazyQueryHookResult = ReturnType<typeof useWebsiteChatSettingsLazyQuery>;
+export type WebsiteChatSettingsSuspenseQueryHookResult = ReturnType<typeof useWebsiteChatSettingsSuspenseQuery>;
+export const UpdateWebsiteChatSettingsDocument = gql`
+    mutation UpdateWebsiteChatSettings($input: WebsiteChatSettingsInput!) {
+  updateWebsiteChatSettings(input: $input) {
+    ...WebsiteChatSettingsFields
+  }
+}
+    ${WebsiteChatSettingsFieldsFragmentDoc}`;
+
+/**
+ * __useUpdateWebsiteChatSettingsMutation__
+ *
+ * To run a mutation, you first call `useUpdateWebsiteChatSettingsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateWebsiteChatSettingsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateWebsiteChatSettingsMutation, { data, loading, error }] = useUpdateWebsiteChatSettingsMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateWebsiteChatSettingsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateWebsiteChatSettingsMutation, UpdateWebsiteChatSettingsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateWebsiteChatSettingsMutation, UpdateWebsiteChatSettingsMutationVariables>(UpdateWebsiteChatSettingsDocument, options);
+      }
+export type UpdateWebsiteChatSettingsMutationHookResult = ReturnType<typeof useUpdateWebsiteChatSettingsMutation>;
+export const ClaimWebsiteChatSessionDocument = gql`
+    mutation ClaimWebsiteChatSession($id: ID!) {
+  claimWebsiteChatSession(id: $id) {
+    ...WebsiteChatSessionFields
+  }
+}
+    ${WebsiteChatSessionFieldsFragmentDoc}`;
+
+/**
+ * __useClaimWebsiteChatSessionMutation__
+ *
+ * To run a mutation, you first call `useClaimWebsiteChatSessionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useClaimWebsiteChatSessionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [claimWebsiteChatSessionMutation, { data, loading, error }] = useClaimWebsiteChatSessionMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useClaimWebsiteChatSessionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ClaimWebsiteChatSessionMutation, ClaimWebsiteChatSessionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ClaimWebsiteChatSessionMutation, ClaimWebsiteChatSessionMutationVariables>(ClaimWebsiteChatSessionDocument, options);
+      }
+export type ClaimWebsiteChatSessionMutationHookResult = ReturnType<typeof useClaimWebsiteChatSessionMutation>;
+export const CloseWebsiteChatSessionDocument = gql`
+    mutation CloseWebsiteChatSession($id: ID!) {
+  closeWebsiteChatSession(id: $id) {
+    ...WebsiteChatSessionFields
+  }
+}
+    ${WebsiteChatSessionFieldsFragmentDoc}`;
+
+/**
+ * __useCloseWebsiteChatSessionMutation__
+ *
+ * To run a mutation, you first call `useCloseWebsiteChatSessionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCloseWebsiteChatSessionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [closeWebsiteChatSessionMutation, { data, loading, error }] = useCloseWebsiteChatSessionMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useCloseWebsiteChatSessionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CloseWebsiteChatSessionMutation, CloseWebsiteChatSessionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CloseWebsiteChatSessionMutation, CloseWebsiteChatSessionMutationVariables>(CloseWebsiteChatSessionDocument, options);
+      }
+export type CloseWebsiteChatSessionMutationHookResult = ReturnType<typeof useCloseWebsiteChatSessionMutation>;
+export const DeleteWebsiteChatSessionDocument = gql`
+    mutation DeleteWebsiteChatSession($id: ID!) {
+  deleteWebsiteChatSession(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteWebsiteChatSessionMutation__
+ *
+ * To run a mutation, you first call `useDeleteWebsiteChatSessionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteWebsiteChatSessionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteWebsiteChatSessionMutation, { data, loading, error }] = useDeleteWebsiteChatSessionMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteWebsiteChatSessionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteWebsiteChatSessionMutation, DeleteWebsiteChatSessionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteWebsiteChatSessionMutation, DeleteWebsiteChatSessionMutationVariables>(DeleteWebsiteChatSessionDocument, options);
+      }
+export type DeleteWebsiteChatSessionMutationHookResult = ReturnType<typeof useDeleteWebsiteChatSessionMutation>;
+export const SyncWebsiteChatKnowledgeDocument = gql`
+    mutation SyncWebsiteChatKnowledge {
+  syncWebsiteChatKnowledge {
+    count
+    syncedAt
+  }
+}
+    `;
+
+/**
+ * __useSyncWebsiteChatKnowledgeMutation__
+ *
+ * To run a mutation, you first call `useSyncWebsiteChatKnowledgeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSyncWebsiteChatKnowledgeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [syncWebsiteChatKnowledgeMutation, { data, loading, error }] = useSyncWebsiteChatKnowledgeMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useSyncWebsiteChatKnowledgeMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SyncWebsiteChatKnowledgeMutation, SyncWebsiteChatKnowledgeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SyncWebsiteChatKnowledgeMutation, SyncWebsiteChatKnowledgeMutationVariables>(SyncWebsiteChatKnowledgeDocument, options);
+      }
+export type SyncWebsiteChatKnowledgeMutationHookResult = ReturnType<typeof useSyncWebsiteChatKnowledgeMutation>;
+export const WebsiteChatFaqsPagedDocument = gql`
+    query WebsiteChatFaqsPaged($input: TableQueryInput!) {
+  listWebsiteChatFaqsPaged(input: $input) {
+    rows {
+      ...WebsiteChatFaqFields
+    }
+    totalCount
+  }
+}
+    ${WebsiteChatFaqFieldsFragmentDoc}`;
+
+/**
+ * __useWebsiteChatFaqsPagedQuery__
+ *
+ * To run a query within a React component, call `useWebsiteChatFaqsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWebsiteChatFaqsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWebsiteChatFaqsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useWebsiteChatFaqsPagedQuery(baseOptions: ApolloReactHooks.QueryHookOptions<WebsiteChatFaqsPagedQuery, WebsiteChatFaqsPagedQueryVariables> & ({ variables: WebsiteChatFaqsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WebsiteChatFaqsPagedQuery, WebsiteChatFaqsPagedQueryVariables>(WebsiteChatFaqsPagedDocument, options);
+      }
+export function useWebsiteChatFaqsPagedLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WebsiteChatFaqsPagedQuery, WebsiteChatFaqsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WebsiteChatFaqsPagedQuery, WebsiteChatFaqsPagedQueryVariables>(WebsiteChatFaqsPagedDocument, options);
+        }
+// @ts-ignore
+export function useWebsiteChatFaqsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatFaqsPagedQuery, WebsiteChatFaqsPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WebsiteChatFaqsPagedQuery, WebsiteChatFaqsPagedQueryVariables>;
+// @ts-ignore
+export function useWebsiteChatFaqsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatFaqsPagedQuery, WebsiteChatFaqsPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WebsiteChatFaqsPagedQuery | undefined, WebsiteChatFaqsPagedQueryVariables>;
+export function useWebsiteChatFaqsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatFaqsPagedQuery, WebsiteChatFaqsPagedQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WebsiteChatFaqsPagedQuery, WebsiteChatFaqsPagedQueryVariables>(WebsiteChatFaqsPagedDocument, options);
+        }
+export type WebsiteChatFaqsPagedQueryHookResult = ReturnType<typeof useWebsiteChatFaqsPagedQuery>;
+export type WebsiteChatFaqsPagedLazyQueryHookResult = ReturnType<typeof useWebsiteChatFaqsPagedLazyQuery>;
+export type WebsiteChatFaqsPagedSuspenseQueryHookResult = ReturnType<typeof useWebsiteChatFaqsPagedSuspenseQuery>;
+export const CreateWebsiteChatFaqDocument = gql`
+    mutation CreateWebsiteChatFaq($input: WebsiteChatFaqInput!) {
+  createWebsiteChatFaq(input: $input) {
+    ...WebsiteChatFaqFields
+  }
+}
+    ${WebsiteChatFaqFieldsFragmentDoc}`;
+
+/**
+ * __useCreateWebsiteChatFaqMutation__
+ *
+ * To run a mutation, you first call `useCreateWebsiteChatFaqMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateWebsiteChatFaqMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createWebsiteChatFaqMutation, { data, loading, error }] = useCreateWebsiteChatFaqMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateWebsiteChatFaqMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateWebsiteChatFaqMutation, CreateWebsiteChatFaqMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateWebsiteChatFaqMutation, CreateWebsiteChatFaqMutationVariables>(CreateWebsiteChatFaqDocument, options);
+      }
+export type CreateWebsiteChatFaqMutationHookResult = ReturnType<typeof useCreateWebsiteChatFaqMutation>;
+export const UpdateWebsiteChatFaqDocument = gql`
+    mutation UpdateWebsiteChatFaq($id: ID!, $input: WebsiteChatFaqInput!) {
+  updateWebsiteChatFaq(id: $id, input: $input) {
+    ...WebsiteChatFaqFields
+  }
+}
+    ${WebsiteChatFaqFieldsFragmentDoc}`;
+
+/**
+ * __useUpdateWebsiteChatFaqMutation__
+ *
+ * To run a mutation, you first call `useUpdateWebsiteChatFaqMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateWebsiteChatFaqMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateWebsiteChatFaqMutation, { data, loading, error }] = useUpdateWebsiteChatFaqMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateWebsiteChatFaqMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateWebsiteChatFaqMutation, UpdateWebsiteChatFaqMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateWebsiteChatFaqMutation, UpdateWebsiteChatFaqMutationVariables>(UpdateWebsiteChatFaqDocument, options);
+      }
+export type UpdateWebsiteChatFaqMutationHookResult = ReturnType<typeof useUpdateWebsiteChatFaqMutation>;
+export const DeleteWebsiteChatFaqDocument = gql`
+    mutation DeleteWebsiteChatFaq($id: ID!) {
+  deleteWebsiteChatFaq(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteWebsiteChatFaqMutation__
+ *
+ * To run a mutation, you first call `useDeleteWebsiteChatFaqMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteWebsiteChatFaqMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteWebsiteChatFaqMutation, { data, loading, error }] = useDeleteWebsiteChatFaqMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteWebsiteChatFaqMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteWebsiteChatFaqMutation, DeleteWebsiteChatFaqMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteWebsiteChatFaqMutation, DeleteWebsiteChatFaqMutationVariables>(DeleteWebsiteChatFaqDocument, options);
+      }
+export type DeleteWebsiteChatFaqMutationHookResult = ReturnType<typeof useDeleteWebsiteChatFaqMutation>;
+export const WebsiteChatKnowledgePagedDocument = gql`
+    query WebsiteChatKnowledgePaged($input: TableQueryInput!) {
+  listWebsiteChatKnowledgeEntriesPaged(input: $input) {
+    rows {
+      ...WebsiteChatKnowledgeFields
+    }
+    totalCount
+  }
+}
+    ${WebsiteChatKnowledgeFieldsFragmentDoc}`;
+
+/**
+ * __useWebsiteChatKnowledgePagedQuery__
+ *
+ * To run a query within a React component, call `useWebsiteChatKnowledgePagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWebsiteChatKnowledgePagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWebsiteChatKnowledgePagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useWebsiteChatKnowledgePagedQuery(baseOptions: ApolloReactHooks.QueryHookOptions<WebsiteChatKnowledgePagedQuery, WebsiteChatKnowledgePagedQueryVariables> & ({ variables: WebsiteChatKnowledgePagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WebsiteChatKnowledgePagedQuery, WebsiteChatKnowledgePagedQueryVariables>(WebsiteChatKnowledgePagedDocument, options);
+      }
+export function useWebsiteChatKnowledgePagedLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WebsiteChatKnowledgePagedQuery, WebsiteChatKnowledgePagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WebsiteChatKnowledgePagedQuery, WebsiteChatKnowledgePagedQueryVariables>(WebsiteChatKnowledgePagedDocument, options);
+        }
+// @ts-ignore
+export function useWebsiteChatKnowledgePagedSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatKnowledgePagedQuery, WebsiteChatKnowledgePagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WebsiteChatKnowledgePagedQuery, WebsiteChatKnowledgePagedQueryVariables>;
+// @ts-ignore
+export function useWebsiteChatKnowledgePagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatKnowledgePagedQuery, WebsiteChatKnowledgePagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WebsiteChatKnowledgePagedQuery | undefined, WebsiteChatKnowledgePagedQueryVariables>;
+export function useWebsiteChatKnowledgePagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatKnowledgePagedQuery, WebsiteChatKnowledgePagedQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WebsiteChatKnowledgePagedQuery, WebsiteChatKnowledgePagedQueryVariables>(WebsiteChatKnowledgePagedDocument, options);
+        }
+export type WebsiteChatKnowledgePagedQueryHookResult = ReturnType<typeof useWebsiteChatKnowledgePagedQuery>;
+export type WebsiteChatKnowledgePagedLazyQueryHookResult = ReturnType<typeof useWebsiteChatKnowledgePagedLazyQuery>;
+export type WebsiteChatKnowledgePagedSuspenseQueryHookResult = ReturnType<typeof useWebsiteChatKnowledgePagedSuspenseQuery>;
+export const WebsiteChatKnowledgeStatsDocument = gql`
+    query WebsiteChatKnowledgeStats {
+  listWebsiteChatKnowledgeEntriesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+    `;
+
+/**
+ * __useWebsiteChatKnowledgeStatsQuery__
+ *
+ * To run a query within a React component, call `useWebsiteChatKnowledgeStatsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWebsiteChatKnowledgeStatsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWebsiteChatKnowledgeStatsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useWebsiteChatKnowledgeStatsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<WebsiteChatKnowledgeStatsQuery, WebsiteChatKnowledgeStatsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WebsiteChatKnowledgeStatsQuery, WebsiteChatKnowledgeStatsQueryVariables>(WebsiteChatKnowledgeStatsDocument, options);
+      }
+export function useWebsiteChatKnowledgeStatsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WebsiteChatKnowledgeStatsQuery, WebsiteChatKnowledgeStatsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WebsiteChatKnowledgeStatsQuery, WebsiteChatKnowledgeStatsQueryVariables>(WebsiteChatKnowledgeStatsDocument, options);
+        }
+// @ts-ignore
+export function useWebsiteChatKnowledgeStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatKnowledgeStatsQuery, WebsiteChatKnowledgeStatsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WebsiteChatKnowledgeStatsQuery, WebsiteChatKnowledgeStatsQueryVariables>;
+// @ts-ignore
+export function useWebsiteChatKnowledgeStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatKnowledgeStatsQuery, WebsiteChatKnowledgeStatsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WebsiteChatKnowledgeStatsQuery | undefined, WebsiteChatKnowledgeStatsQueryVariables>;
+export function useWebsiteChatKnowledgeStatsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatKnowledgeStatsQuery, WebsiteChatKnowledgeStatsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WebsiteChatKnowledgeStatsQuery, WebsiteChatKnowledgeStatsQueryVariables>(WebsiteChatKnowledgeStatsDocument, options);
+        }
+export type WebsiteChatKnowledgeStatsQueryHookResult = ReturnType<typeof useWebsiteChatKnowledgeStatsQuery>;
+export type WebsiteChatKnowledgeStatsLazyQueryHookResult = ReturnType<typeof useWebsiteChatKnowledgeStatsLazyQuery>;
+export type WebsiteChatKnowledgeStatsSuspenseQueryHookResult = ReturnType<typeof useWebsiteChatKnowledgeStatsSuspenseQuery>;
+export const CreateWebsiteChatKnowledgeDocument = gql`
+    mutation CreateWebsiteChatKnowledge($input: WebsiteChatKnowledgeInput!) {
+  createWebsiteChatKnowledge(input: $input) {
+    ...WebsiteChatKnowledgeFields
+  }
+}
+    ${WebsiteChatKnowledgeFieldsFragmentDoc}`;
+
+/**
+ * __useCreateWebsiteChatKnowledgeMutation__
+ *
+ * To run a mutation, you first call `useCreateWebsiteChatKnowledgeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateWebsiteChatKnowledgeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createWebsiteChatKnowledgeMutation, { data, loading, error }] = useCreateWebsiteChatKnowledgeMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateWebsiteChatKnowledgeMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateWebsiteChatKnowledgeMutation, CreateWebsiteChatKnowledgeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateWebsiteChatKnowledgeMutation, CreateWebsiteChatKnowledgeMutationVariables>(CreateWebsiteChatKnowledgeDocument, options);
+      }
+export type CreateWebsiteChatKnowledgeMutationHookResult = ReturnType<typeof useCreateWebsiteChatKnowledgeMutation>;
+export const UpdateWebsiteChatKnowledgeDocument = gql`
+    mutation UpdateWebsiteChatKnowledge($id: ID!, $input: WebsiteChatKnowledgeInput!) {
+  updateWebsiteChatKnowledge(id: $id, input: $input) {
+    ...WebsiteChatKnowledgeFields
+  }
+}
+    ${WebsiteChatKnowledgeFieldsFragmentDoc}`;
+
+/**
+ * __useUpdateWebsiteChatKnowledgeMutation__
+ *
+ * To run a mutation, you first call `useUpdateWebsiteChatKnowledgeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateWebsiteChatKnowledgeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateWebsiteChatKnowledgeMutation, { data, loading, error }] = useUpdateWebsiteChatKnowledgeMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateWebsiteChatKnowledgeMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateWebsiteChatKnowledgeMutation, UpdateWebsiteChatKnowledgeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateWebsiteChatKnowledgeMutation, UpdateWebsiteChatKnowledgeMutationVariables>(UpdateWebsiteChatKnowledgeDocument, options);
+      }
+export type UpdateWebsiteChatKnowledgeMutationHookResult = ReturnType<typeof useUpdateWebsiteChatKnowledgeMutation>;
+export const DeleteWebsiteChatKnowledgeDocument = gql`
+    mutation DeleteWebsiteChatKnowledge($id: ID!) {
+  deleteWebsiteChatKnowledge(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteWebsiteChatKnowledgeMutation__
+ *
+ * To run a mutation, you first call `useDeleteWebsiteChatKnowledgeMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteWebsiteChatKnowledgeMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteWebsiteChatKnowledgeMutation, { data, loading, error }] = useDeleteWebsiteChatKnowledgeMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteWebsiteChatKnowledgeMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteWebsiteChatKnowledgeMutation, DeleteWebsiteChatKnowledgeMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteWebsiteChatKnowledgeMutation, DeleteWebsiteChatKnowledgeMutationVariables>(DeleteWebsiteChatKnowledgeDocument, options);
+      }
+export type DeleteWebsiteChatKnowledgeMutationHookResult = ReturnType<typeof useDeleteWebsiteChatKnowledgeMutation>;
 export const WhatsappDemoCatalogDocument = gql`
     query WhatsappDemoCatalog {
   whatsappDemoCatalog {

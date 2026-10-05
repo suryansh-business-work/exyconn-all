@@ -3,13 +3,13 @@ import { derivedKey } from '../utils/derivedKey';
 
 /**
  * A pass for somebody who is not a portal user — a WhatsApp demo visitor, a client hub
- * contact — each signed with its own derived key and audience, so no pass can be presented
+ * contact, a website chat visitor — each signed with its own derived key and audience, so no pass can be presented
  * as a portal session, as another kind of pass, or the other way round.
  *
  * A pass names its holder and the holder's token version; the holder's record is read on
  * every request, so blocking the holder or raising the version retires it at once.
  */
-export type PassPurpose = 'whatsapp-demo-visitor' | 'client-hub';
+export type PassPurpose = 'whatsapp-demo-visitor' | 'client-hub' | 'website-chat';
 
 const ALGORITHM = 'HS256';
 const ISSUER = 'exyconn-portal';

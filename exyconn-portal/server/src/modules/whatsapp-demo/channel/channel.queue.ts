@@ -1,19 +1,5 @@
 /**
- * One conversation's work, one piece at a time. A person who taps two buttons quickly sends
- * two webhooks; running them side by side would let the second read the chat before the first
- * saved it. Per process: the API runs as a single container.
+ * One WhatsApp conversation's work, one piece at a time: a person who taps two buttons quickly
+ * sends two webhooks, and the second must not read the chat before the first saved it.
  */
-const tails = new Map<string, Promise<unknown>>();
-
-export function inTurn<T>(key: string, work: () => Promise<T>): Promise<T> {
-  const previous = tails.get(key) ?? Promise.resolve();
-  const next = previous.catch(() => undefined).then(work);
-  tails.set(key, next);
-  const forget = () => {
-    if (tails.get(key) === next) {
-      tails.delete(key);
-    }
-  };
-  next.then(forget, forget);
-  return next;
-}
+export { inTurn } from '../../../lib/inTurn';

@@ -3,6 +3,7 @@ import { assertCaptcha } from '../../website/website.captcha';
 import { runForOrganization } from '../../../lib/tenant';
 import { platformOperatorOrganizationId } from '../../../lib/platformAccess';
 import { isEmailAddress } from '../../../utils/emailAddress';
+import { isPhoneNumber } from '../../../utils/phoneNumber';
 import { badRequest } from '../../../utils/errors';
 import { logger } from '../../../utils/logger';
 import { env } from '../../../config/env';
@@ -11,8 +12,6 @@ import { WhatsappDemoVisitorModel, type VisitorSource } from './visitor.model';
 import { EMAIL_CODE_TTL_LABEL, consumeEmailCode, issueEmailCode } from '../../../lib/emailCode';
 import { signVisitorPass } from './visitor.token';
 
-/** The same phone shape as @exyconn/regex PHONE, which the forms check first. */
-const PHONE = /^\+?\(?\d[\d\s()-]{5,18}\d$/;
 const LIMITS = { name: 120, company: 120 } as const;
 const LINK_LIKE = /[@/]|www\.|\.(?:com|net|org|io|ru|xyz)\b/i;
 
@@ -87,7 +86,7 @@ function validate(input: VisitorCodeInput): void {
     badRequest(`Keep the company name under ${LIMITS.company} characters.`);
   }
   const phone = (input.phone ?? '').trim();
-  if (phone !== '' && !PHONE.test(phone)) {
+  if (phone !== '' && !isPhoneNumber(phone)) {
     badRequest('Enter a valid phone number.');
   }
 }

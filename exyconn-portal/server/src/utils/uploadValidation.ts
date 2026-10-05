@@ -11,7 +11,20 @@ import { badRequest } from './errors';
  */
 
 /** A kind of file, identified by its leading bytes. */
-export type UploadKind = 'png' | 'jpeg' | 'gif' | 'webp' | 'svg' | 'pdf' | 'doc' | 'docx';
+export type UploadKind =
+  | 'png'
+  | 'jpeg'
+  | 'gif'
+  | 'webp'
+  | 'svg'
+  | 'pdf'
+  | 'doc'
+  | 'docx'
+  | 'mp4'
+  | 'webm'
+  | 'ogg'
+  | 'mp3'
+  | 'wav';
 
 export interface UploadPolicy {
   readonly kinds: ReadonlySet<UploadKind>;
@@ -48,6 +61,15 @@ export const RESUME_UPLOAD: UploadPolicy = {
   maxBytes: 5 * MB,
 };
 
+/**
+ * A picture, video clip or voice note sent in a website chat (Website > Chatbot). 10 MB keeps
+ * the base64 frame inside the chat socket's payload cap.
+ */
+export const CHAT_UPLOAD: UploadPolicy = {
+  kinds: new Set<UploadKind>([...RASTER_KINDS, 'mp4', 'webm', 'ogg', 'mp3', 'wav']),
+  maxBytes: 10 * MB,
+};
+
 /** A desktop-tracker capture: PNG at quality 100, JPEG below it. */
 export function screenshotUpload(maxBytes: number): UploadPolicy {
   return { kinds: new Set<UploadKind>(['png', 'jpeg']), maxBytes };
@@ -63,6 +85,20 @@ const MIME_KINDS: Readonly<Record<string, UploadKind>> = {
   'application/pdf': 'pdf',
   'application/msword': 'doc',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx',
+  'video/mp4': 'mp4',
+  'video/quicktime': 'mp4',
+  'audio/mp4': 'mp4',
+  'audio/m4a': 'mp4',
+  'audio/x-m4a': 'mp4',
+  'video/webm': 'webm',
+  'audio/webm': 'webm',
+  'video/ogg': 'ogg',
+  'audio/ogg': 'ogg',
+  'audio/mpeg': 'mp3',
+  'audio/mp3': 'mp3',
+  'audio/wav': 'wav',
+  'audio/wave': 'wav',
+  'audio/x-wav': 'wav',
 };
 
 /** The kind a MIME type names, or undefined when it is not one this module knows. */
@@ -103,6 +139,14 @@ const MATCHERS: Readonly<Record<UploadKind, (head: Buffer) => boolean>> = {
   // Word 97–2003 is an OLE compound file; a .docx is a ZIP package.
   doc: (head) => startsWith(head, '\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1'),
   docx: (head) => startsWith(head, 'PK\x03\x04'),
+  // ISO base media (MP4, MOV, M4A) carries its `ftyp` box right after the box size.
+  mp4: (head) => startsWith(head, 'ftyp', 4),
+  // WebM is Matroska: the EBML magic number.
+  webm: (head) => startsWith(head, '\x1A\x45\xDF\xA3'),
+  ogg: (head) => startsWith(head, 'OggS'),
+  // An ID3 tag, or straight into an MPEG audio frame (11 sync bits set).
+  mp3: (head) => startsWith(head, 'ID3') || (head[0] === 0xff && ((head[1] ?? 0) & 0xe0) === 0xe0),
+  wav: (head) => startsWith(head, 'RIFF') && startsWith(head, 'WAVE', 8),
 };
 
 /** Decoded size of a base64 payload, without decoding it. */

@@ -1,0 +1,235 @@
+# Website > Chatbot: the chat widget on exyconn.com and tools.exyconn.com. Sessions, their
+# conversations, settings, FAQs and the knowledge bot's knowledge. Live messages and typing
+# travel over the chat socket (/chat/ws); everything here is the console's request/response side.
+
+fragment WebsiteChatSessionFields on WebsiteChatSession {
+  id
+  name
+  email
+  phone
+  site
+  pageUrl
+  status
+  ticketId
+  ticketReference
+  assigneeId
+  assigneeName
+  lastMessageAt
+  lastMessagePreview
+  lastSender
+  staffUnread
+  messageCount
+  awaitingReplySince
+  handedOffAt
+  closedAt
+  closedBy
+  createdAt
+  updatedAt
+}
+
+fragment WebsiteChatMessageFields on WebsiteChatMessage {
+  id
+  sessionId
+  channel
+  sender
+  senderName
+  body
+  attachments {
+    url
+    name
+    kind
+    size
+  }
+  createdAt
+  readAt
+}
+
+fragment WebsiteChatSettingsFields on WebsiteChatSettings {
+  enabled
+  botName
+  welcomeMessage
+  offlineMessage
+  handoffMessage
+  refusalMessage
+  customInstructions
+  timezone
+  weeklyHours {
+    day
+    enabled
+    start
+    end
+  }
+  noReplyTimeoutSeconds
+  botModel
+  maxContextChars
+  allowUploads
+  maxUploadMb
+  soundEnabledByDefault
+  transcriptOnClose
+  online
+  knowledgeSyncedAt
+  knowledgeSyncCount
+  knowledgeSyncError
+  updatedAt
+}
+
+fragment WebsiteChatFaqFields on WebsiteChatFaq {
+  id
+  question
+  answer
+  sortOrder
+  isActive
+  createdAt
+  updatedAt
+}
+
+fragment WebsiteChatKnowledgeFields on WebsiteChatKnowledge {
+  id
+  title
+  url
+  content
+  source
+  isActive
+  createdAt
+  updatedAt
+}
+
+query WebsiteChatSessionsPaged($input: TableQueryInput!) {
+  websiteChatSessionsPaged(input: $input) {
+    rows {
+      ...WebsiteChatSessionFields
+    }
+    totalCount
+  }
+}
+
+query WebsiteChatSessionStats {
+  websiteChatSessionStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+query WebsiteChatSession($id: ID!) {
+  websiteChatSession(id: $id) {
+    ...WebsiteChatSessionFields
+  }
+}
+
+query WebsiteChatMessages($sessionId: ID!) {
+  websiteChatMessages(sessionId: $sessionId) {
+    ...WebsiteChatMessageFields
+  }
+}
+
+query WebsiteChatSettings {
+  websiteChatSettings {
+    ...WebsiteChatSettingsFields
+  }
+}
+
+mutation UpdateWebsiteChatSettings($input: WebsiteChatSettingsInput!) {
+  updateWebsiteChatSettings(input: $input) {
+    ...WebsiteChatSettingsFields
+  }
+}
+
+mutation ClaimWebsiteChatSession($id: ID!) {
+  claimWebsiteChatSession(id: $id) {
+    ...WebsiteChatSessionFields
+  }
+}
+
+mutation CloseWebsiteChatSession($id: ID!) {
+  closeWebsiteChatSession(id: $id) {
+    ...WebsiteChatSessionFields
+  }
+}
+
+mutation DeleteWebsiteChatSession($id: ID!) {
+  deleteWebsiteChatSession(id: $id)
+}
+
+mutation SyncWebsiteChatKnowledge {
+  syncWebsiteChatKnowledge {
+    count
+    syncedAt
+  }
+}
+
+query WebsiteChatFaqsPaged($input: TableQueryInput!) {
+  listWebsiteChatFaqsPaged(input: $input) {
+    rows {
+      ...WebsiteChatFaqFields
+    }
+    totalCount
+  }
+}
+
+mutation CreateWebsiteChatFaq($input: WebsiteChatFaqInput!) {
+  createWebsiteChatFaq(input: $input) {
+    ...WebsiteChatFaqFields
+  }
+}
+
+mutation UpdateWebsiteChatFaq($id: ID!, $input: WebsiteChatFaqInput!) {
+  updateWebsiteChatFaq(id: $id, input: $input) {
+    ...WebsiteChatFaqFields
+  }
+}
+
+mutation DeleteWebsiteChatFaq($id: ID!) {
+  deleteWebsiteChatFaq(id: $id)
+}
+
+query WebsiteChatKnowledgePaged($input: TableQueryInput!) {
+  listWebsiteChatKnowledgeEntriesPaged(input: $input) {
+    rows {
+      ...WebsiteChatKnowledgeFields
+    }
+    totalCount
+  }
+}
+
+query WebsiteChatKnowledgeStats {
+  listWebsiteChatKnowledgeEntriesStats {
+    total
+    counts {
+      field
+      buckets {
+        value
+        count
+      }
+    }
+    sums {
+      field
+      total
+    }
+  }
+}
+
+mutation CreateWebsiteChatKnowledge($input: WebsiteChatKnowledgeInput!) {
+  createWebsiteChatKnowledge(input: $input) {
+    ...WebsiteChatKnowledgeFields
+  }
+}
+
+mutation UpdateWebsiteChatKnowledge($id: ID!, $input: WebsiteChatKnowledgeInput!) {
+  updateWebsiteChatKnowledge(id: $id, input: $input) {
+    ...WebsiteChatKnowledgeFields
+  }
+}
+
+mutation DeleteWebsiteChatKnowledge($id: ID!) {
+  deleteWebsiteChatKnowledge(id: $id)
+}

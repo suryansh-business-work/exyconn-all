@@ -22,6 +22,8 @@ export const supportTypeDefs = gql`
     EMAIL
     "Typed into the console by an agent, usually off a call."
     AGENT
+    "Opened by a chat on exyconn.com or tools.exyconn.com (Website > Chatbot)."
+    CHAT
   }
 
   "How a ticket stands against the resolution time promised for its priority."

@@ -419,6 +419,52 @@ ${PAY_BUTTON}        <mj-text font-size="13px" color="#94a3b8">
           Sign in with this email address — we send you a one-time code, no password needed.
         </mj-text>`),
   },
+  {
+    key: 'website-chat-code',
+    name: 'Website chat — sign-in code',
+    description:
+      'Sent when a visitor starts a chat on exyconn.com or tools.exyconn.com. {{code}} works once and expires in {{expiresIn}}.',
+    subject: '{{code}} is your {{companyName}} chat code',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Confirm your email to start chatting</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          Enter this code in the chat window to talk to our team and our knowledge bot.
+        </mj-text>
+        <mj-text align="center" font-size="34px" font-weight="700" letter-spacing="10px" color="#0b0a12" padding="16px 0">{{code}}</mj-text>
+        <mj-text align="center" font-size="13px" color="#64748b" padding-top="0">The code works once and expires in {{expiresIn}}.</mj-text>
+        <mj-text font-size="13px" color="#94a3b8">
+          If you did not ask for this, ignore this email — nobody can chat as you without the code.
+        </mj-text>`),
+  },
+  {
+    key: 'website-chat-started',
+    name: 'Website chat — chat started',
+    description:
+      'Sent when a visitor confirms their email and their chat opens. {{reference}} is the support ticket the chat filed.',
+    subject: 'Your chat with {{companyName}} has started ({{reference}})',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Thanks for reaching out</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          Your chat with our team is open. We have filed it as ticket <strong>{{reference}}</strong>, so nothing you
+          tell us gets lost — even if you close the window, a person will follow up.
+        </mj-text>
+        <mj-text font-size="13px" color="#94a3b8">
+          Quote {{reference}} if you write to us about this conversation.
+        </mj-text>`),
+  },
+  {
+    key: 'website-chat-transcript',
+    name: 'Website chat — conversation transcript',
+    description:
+      'Sent when a website chat ends, if Website > Chatbot > Settings asks for it. The whole conversation is attached as a text file. {{reference}} is the chat’s support ticket.',
+    subject: 'Your chat with {{companyName}} ({{reference}})',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">Your chat transcript</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">Hi {{name}},</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          Thanks for chatting with us. The whole conversation is attached to this email for your records.
+          Your ticket reference is <strong>{{reference}}</strong>.
+        </mj-text>`),
+  },
 ];
 
 /**
