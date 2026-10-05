@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useMyPermissionsQuery } from '@/graphql/generated';
-import { useAuth } from '@/auth/AuthContext';
+import { tokenStore } from '@/auth/tokenStore';
 
 /** One column of the admin permission matrix, as `myPermissions` returns it. */
 export type PermissionActionKey = 'view' | 'create' | 'edit' | 'delete' | 'approve' | 'export';
@@ -16,10 +16,13 @@ export type PermissionActionKey = 'view' | 'create' | 'edit' | 'delete' | 'appro
  * authority; this only decides what is worth showing.
  */
 export function usePermissions() {
-  const { user } = useAuth();
-  // Only a portal user has permissions to ask about; the client hub's contacts and the demo's
-  // visitors are signed in without one, and get the shared screens' defaults.
-  const { data, loading } = useMyPermissionsQuery({ fetchPolicy: 'cache-first', skip: !user });
+  // Only a portal session has permissions to ask about; the client hub's contacts and the
+  // demo's visitors hold no portal token, and get the shared screens' defaults. Read from the
+  // token store rather than the auth context, so a screen mounted on its own still works.
+  const { data, loading } = useMyPermissionsQuery({
+    fetchPolicy: 'cache-first',
+    skip: !tokenStore.get(),
+  });
   const rows = data?.myPermissions;
 
   const can = useCallback(
