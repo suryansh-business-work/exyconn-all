@@ -476,6 +476,19 @@ export type CaseStudyInput = {
   title: Scalars['String']['input'];
 };
 
+export type ClientContactInput = {
+  clientId: Scalars['ID']['input'];
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
+export type ClientHubTicketInput = {
+  category: SupportCategory;
+  description: Scalars['String']['input'];
+  priority: SupportPriority;
+  subject: Scalars['String']['input'];
+};
+
 export type ClientInput = {
   billingAddress: InputMaybe<Scalars['String']['input']>;
   company: Scalars['String']['input'];
@@ -1750,6 +1763,16 @@ export type PayType =
   | 'OTHER'
   | 'STIPEND';
 
+export type PaymentAttemptStatus =
+  | 'EXPIRED'
+  | 'PAID'
+  | 'PENDING'
+  | 'REVIEW';
+
+export type PaymentGateway =
+  | 'RAZORPAY'
+  | 'STRIPE';
+
 export type PaymentInput = {
   amount: Scalars['Float']['input'];
   invoiceId: Scalars['ID']['input'];
@@ -2044,6 +2067,15 @@ export type PurchaseOrderStatus =
 export type PurchaseReceiptLineInput = {
   productId: Scalars['String']['input'];
   quantity: Scalars['Int']['input'];
+};
+
+export type RazorpayConfigInput = {
+  isActive: Scalars['Boolean']['input'];
+  keyId: Scalars['String']['input'];
+  /** Left blank on an edit, the stored secret is kept. */
+  keySecret: InputMaybe<Scalars['String']['input']>;
+  label: Scalars['String']['input'];
+  webhookSecret: InputMaybe<Scalars['String']['input']>;
 };
 
 /** How often a retainer bills. A small fixed list, deliberately — not a cron expression. */
@@ -2368,6 +2400,14 @@ export type StockMovementInput = {
   supplierId: InputMaybe<Scalars['String']['input']>;
 };
 
+export type StripeConfigInput = {
+  isActive: Scalars['Boolean']['input'];
+  label: Scalars['String']['input'];
+  /** Left blank on an edit, the stored key is kept. */
+  secretKey: InputMaybe<Scalars['String']['input']>;
+  webhookSecret: InputMaybe<Scalars['String']['input']>;
+};
+
 /** What the public status page submits. Everything else is set by the server. */
 export type SubmitProblemReportInput = {
   category: ProblemCategory;
@@ -2562,6 +2602,8 @@ export type TeamInput = {
 export type TicketChannel =
   /** Typed into the console by an agent, usually off a call. */
   | 'AGENT'
+  /** Opened by a chat on exyconn.com or tools.exyconn.com (Website > Chatbot). */
+  | 'CHAT'
   /** Arrived in the support mailbox and was imported. */
   | 'EMAIL'
   /** Raised on a form in the portal — the employee desk or the public customer form. */
@@ -2828,6 +2870,78 @@ export type WebsiteCaptchaAnswer = {
   answer: Scalars['String']['input'];
   token: Scalars['String']['input'];
 };
+
+export type WebsiteChatAttachmentKind =
+  | 'AUDIO'
+  | 'IMAGE'
+  | 'VIDEO';
+
+/** The two threads of a chat: the team answering, and the knowledge bot answering. */
+export type WebsiteChatChannel =
+  | 'KNOWLEDGE'
+  | 'LIVE';
+
+export type WebsiteChatDayInput = {
+  day: Scalars['Int']['input'];
+  enabled: Scalars['Boolean']['input'];
+  end: Scalars['String']['input'];
+  start: Scalars['String']['input'];
+};
+
+export type WebsiteChatFaqInput = {
+  answer: Scalars['String']['input'];
+  isActive: Scalars['Boolean']['input'];
+  question: Scalars['String']['input'];
+  sortOrder: Scalars['Int']['input'];
+};
+
+export type WebsiteChatKnowledgeInput = {
+  content: Scalars['String']['input'];
+  isActive: Scalars['Boolean']['input'];
+  title: Scalars['String']['input'];
+  url: InputMaybe<Scalars['String']['input']>;
+};
+
+export type WebsiteChatKnowledgeSource =
+  /** Written by the website team. */
+  | 'CUSTOM'
+  /** Read from exyconn.com by the last sync. */
+  | 'WEBSITE';
+
+/** Who wrote a chat message. SYSTEM is the chat itself (welcome, handoff and offline notices). */
+export type WebsiteChatSender =
+  | 'AGENT'
+  | 'BOT'
+  | 'SYSTEM'
+  | 'VISITOR';
+
+export type WebsiteChatSettingsInput = {
+  allowUploads: Scalars['Boolean']['input'];
+  botModel: Scalars['String']['input'];
+  botName: Scalars['String']['input'];
+  customInstructions: Scalars['String']['input'];
+  enabled: Scalars['Boolean']['input'];
+  handoffMessage: Scalars['String']['input'];
+  maxContextChars: Scalars['Int']['input'];
+  maxUploadMb: Scalars['Int']['input'];
+  noReplyTimeoutSeconds: Scalars['Int']['input'];
+  offlineMessage: Scalars['String']['input'];
+  refusalMessage: Scalars['String']['input'];
+  soundEnabledByDefault: Scalars['Boolean']['input'];
+  timezone: Scalars['String']['input'];
+  transcriptOnClose: Scalars['Boolean']['input'];
+  weeklyHours: Array<WebsiteChatDayInput>;
+  welcomeMessage: Scalars['String']['input'];
+};
+
+/** The public site a website chat was started on. */
+export type WebsiteChatSite =
+  | 'TOOLS'
+  | 'WEBSITE';
+
+export type WebsiteChatStatus =
+  | 'CLOSED'
+  | 'OPEN';
 
 /** A file sent with a public form: its name and its bytes as a base64 data URL. */
 export type WebsiteFileInput = {

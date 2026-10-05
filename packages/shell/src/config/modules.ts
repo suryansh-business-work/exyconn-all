@@ -81,6 +81,8 @@ import BuildIcon from '@mui/icons-material/Build';
 import LinkIcon from '@mui/icons-material/Link';
 import MarkEmailUnreadIcon from '@mui/icons-material/MarkEmailUnread';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
+import QuizIcon from '@mui/icons-material/Quiz';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import VerifiedUserIcon from '@mui/icons-material/VerifiedUser';
 import DevicesIcon from '@mui/icons-material/Devices';
@@ -945,6 +947,34 @@ export const MODULES: ModuleDefinition[] = [
         path: '/website/nav-links',
         icon: LinkIcon,
         group: 'Site',
+      },
+      {
+        key: 'website-chat-sessions',
+        label: 'Chat Sessions',
+        path: '/website/chat/sessions',
+        icon: ForumIcon,
+        group: 'Chatbot',
+      },
+      {
+        key: 'website-chat-knowledge',
+        label: 'Knowledge Base',
+        path: '/website/chat/knowledge',
+        icon: LibraryBooksIcon,
+        group: 'Chatbot',
+      },
+      {
+        key: 'website-chat-faqs',
+        label: 'FAQs',
+        path: '/website/chat/faqs',
+        icon: QuizIcon,
+        group: 'Chatbot',
+      },
+      {
+        key: 'website-chat-settings',
+        label: 'Chatbot Settings',
+        path: '/website/chat/settings',
+        icon: TuneIcon,
+        group: 'Chatbot',
       },
     ],
   },

@@ -8,6 +8,7 @@ import { companyProfile } from '../../lib/company';
 import { formatAmount } from '../../utils/money';
 import { logger } from '../../utils/logger';
 import { recordSystemAudit } from '../audit';
+import { invoicePayUrl } from './invoice.payLink';
 
 /**
  * How long after the due date the customer hears from us, in days.
@@ -88,7 +89,7 @@ async function targets(now: Date): Promise<ChaseTarget[]> {
 }
 
 /** Where to write, by client id. A client with no address on file cannot be chased. */
-async function emailsByClient(clientIds: string[]): Promise<Map<string, string>> {
+export async function emailsByClient(clientIds: string[]): Promise<Map<string, string>> {
   const ids = [...new Set(clientIds)].filter((id) => isValidObjectId(id));
   if (ids.length === 0) {
     return new Map();
@@ -113,6 +114,7 @@ async function sendChase(target: ChaseTarget, to: string, locale: string): Promi
         balanceDue: formatAmount(target.balance, target.currency, locale),
         dueDate: target.dueDate.toISOString().slice(0, 10),
         daysLate: String(target.late),
+        payUrl: invoicePayUrl(target.id),
       },
       triggeredBy: 'Overdue invoice sweep',
     });

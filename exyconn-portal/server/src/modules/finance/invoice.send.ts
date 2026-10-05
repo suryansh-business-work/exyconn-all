@@ -11,7 +11,7 @@ import { ROLES } from '../../constants/roles';
 import { withId } from '../../utils/serialize';
 import { notFound } from '../../utils/errors';
 import type { GraphQLContext } from '../../middleware/auth';
-import { diffChanges, recordAudit } from '../audit';
+import { diffChanges, recordAudit, type Actor } from '../audit';
 
 const financeRoles = [ROLES.FINANCE];
 
@@ -26,7 +26,7 @@ interface RenderedInvoice {
  * Loads everything the PDF prints. The client row is read for its company and email; if it
  * has since been deleted the invoice still prints, under the name it was written with.
  */
-async function renderInvoice(id: string): Promise<RenderedInvoice> {
+export async function renderInvoice(id: string): Promise<RenderedInvoice> {
   const invoice = await InvoiceModel.findById(id).lean();
   if (!invoice) {
     notFound('Invoice');
@@ -98,6 +98,20 @@ export async function sendInvoice(
   ctx: GraphQLContext,
 ) {
   assertRole(ctx, financeRoles);
+  return emailInvoice(id, email, message, ctx);
+}
+
+/**
+ * The send itself, for finance staff (`sendInvoice`) and for a client hub contact asking for
+ * their own copy (modules/clienthub), who passes the actor the audit row is filed under.
+ */
+export async function emailInvoice(
+  id: string,
+  email: string,
+  message: string | null | undefined,
+  ctx: GraphQLContext,
+  actor?: Actor,
+) {
   const { filename, pdf, data } = await renderInvoice(id);
   const { invoice, client } = data;
 
@@ -113,7 +127,7 @@ export async function sendInvoice(
       message: message ?? `Please find invoice ${invoice.number} attached.`,
     },
     attachments: [{ filename, content: pdf }],
-    triggeredBy: ctx.user?.email ?? '',
+    triggeredBy: actor?.email ?? ctx.user?.email ?? '',
   });
 
   const update: Record<string, unknown> = { sentAt: new Date() };
@@ -125,6 +139,7 @@ export async function sendInvoice(
     notFound('Invoice');
   }
   await recordAudit(ctx, {
+    actor,
     action: 'UPDATE',
     module: 'Invoice',
     entityId: id,

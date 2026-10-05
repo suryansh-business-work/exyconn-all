@@ -1,0 +1,79 @@
+# Exyconn's Stripe and Razorpay accounts (Tech > Environment Variables), which clients pay
+# invoices through in the client hub. Secrets are write-only: only a hint comes back.
+
+fragment StripeConfigFields on StripeConfig {
+  id
+  label
+  hasSecretKey
+  secretKeyHint
+  hasWebhookSecret
+  webhookSecretHint
+  isActive
+  createdAt
+  updatedAt
+}
+
+fragment RazorpayConfigFields on RazorpayConfig {
+  id
+  label
+  keyId
+  hasKeySecret
+  keySecretHint
+  hasWebhookSecret
+  webhookSecretHint
+  isActive
+  createdAt
+  updatedAt
+}
+
+query ListStripeConfigs {
+  listStripeConfigs {
+    ...StripeConfigFields
+  }
+}
+
+mutation CreateStripeConfig($input: StripeConfigInput!) {
+  createStripeConfig(input: $input) {
+    ...StripeConfigFields
+  }
+}
+
+mutation UpdateStripeConfig($id: ID!, $input: StripeConfigInput!) {
+  updateStripeConfig(id: $id, input: $input) {
+    ...StripeConfigFields
+  }
+}
+
+mutation DeleteStripeConfig($id: ID!) {
+  deleteStripeConfig(id: $id)
+}
+
+mutation TestStripeConnection($id: ID!) {
+  testStripeConnection(id: $id)
+}
+
+query ListRazorpayConfigs {
+  listRazorpayConfigs {
+    ...RazorpayConfigFields
+  }
+}
+
+mutation CreateRazorpayConfig($input: RazorpayConfigInput!) {
+  createRazorpayConfig(input: $input) {
+    ...RazorpayConfigFields
+  }
+}
+
+mutation UpdateRazorpayConfig($id: ID!, $input: RazorpayConfigInput!) {
+  updateRazorpayConfig(id: $id, input: $input) {
+    ...RazorpayConfigFields
+  }
+}
+
+mutation DeleteRazorpayConfig($id: ID!) {
+  deleteRazorpayConfig(id: $id)
+}
+
+mutation TestRazorpayConnection($id: ID!) {
+  testRazorpayConnection(id: $id)
+}

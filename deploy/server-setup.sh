@@ -97,6 +97,7 @@ DOMAINS=(
   "compliance.exyconn.com"
   "social.exyconn.com"
   "whatsapp-demo.exyconn.com"
+  "clienthub.exyconn.com"
   "status.exyconn.com"
 )
 

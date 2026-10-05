@@ -1419,6 +1419,88 @@ export type Client = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+/** A person at a client who may sign in to the client hub with an emailed code. */
+export type ClientContact = {
+  __typename?: 'ClientContact';
+  active: Scalars['Boolean']['output'];
+  clientId: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  lastSignInAt?: Maybe<Scalars['DateTime']['output']>;
+  name: Scalars['String']['output'];
+  signInCount: Scalars['Int']['output'];
+};
+
+export type ClientContactInput = {
+  clientId: Scalars['ID']['input'];
+  email: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+};
+
+export type ClientHubCheckout = {
+  __typename?: 'ClientHubCheckout';
+  attemptId: Scalars['ID']['output'];
+  url: Scalars['String']['output'];
+};
+
+export type ClientHubMe = {
+  __typename?: 'ClientHubMe';
+  clientName: Scalars['String']['output'];
+  company: Scalars['String']['output'];
+  email: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+};
+
+/** Which gateways the signed-in client may pay with. */
+export type ClientHubPaymentOptions = {
+  __typename?: 'ClientHubPaymentOptions';
+  razorpay: Scalars['Boolean']['output'];
+  stripe: Scalars['Boolean']['output'];
+};
+
+/** One of the client's projects, as a share link shows it. */
+export type ClientHubProject = {
+  __typename?: 'ClientHubProject';
+  budgetHours?: Maybe<Scalars['Float']['output']>;
+  endDate?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  milestones: Array<SharedMilestone>;
+  name: Scalars['String']['output'];
+  startDate?: Maybe<Scalars['DateTime']['output']>;
+  status: ProjectStatus;
+  ticketCounts: Array<SharedTicketCount>;
+  trackedHours: Scalars['Float']['output'];
+};
+
+/** An unpaid invoice, soonest due first, for the reminders panel. */
+export type ClientHubReminder = {
+  __typename?: 'ClientHubReminder';
+  balance: Scalars['Float']['output'];
+  currency: Scalars['String']['output'];
+  /** Whole days past the due date; 0 when not yet due. */
+  daysLate: Scalars['Int']['output'];
+  dueDate: Scalars['DateTime']['output'];
+  invoiceId: Scalars['ID']['output'];
+  number: Scalars['String']['output'];
+  status: InvoiceStatus;
+};
+
+/** A signed-in contact: the client hub pass (send it as x-client-pass) and who they are. */
+export type ClientHubSignIn = {
+  __typename?: 'ClientHubSignIn';
+  email: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  token: Scalars['String']['output'];
+};
+
+export type ClientHubTicketInput = {
+  category: SupportCategory;
+  description: Scalars['String']['input'];
+  priority: SupportPriority;
+  subject: Scalars['String']['input'];
+};
+
 export type ClientInput = {
   billingAddress?: InputMaybe<Scalars['String']['input']>;
   company: Scalars['String']['input'];
@@ -4578,6 +4660,8 @@ export type Mutation = {
    * nobody can sign on somebody else's behalf; signedName is what they typed.
    */
   acknowledgePolicy: PolicyAcknowledgement;
+  /** Admin > Clients: gives a person client hub access and emails them where to sign in. */
+  addClientContact: ClientContact;
   /** Append a timeline entry, moving the incident to the given status. */
   addItIncidentUpdate: ItIncident;
   /** Self-service: continue the conversation on one of the employee's own tickets. */
@@ -4601,7 +4685,17 @@ export type Mutation = {
   /** Withdraw a request that has not been carried out. */
   cancelItAccessRequest: ItAccessRequest;
   changePassword: Scalars['Boolean']['output'];
+  /** Takes the chat: it is shown as yours to answer. */
+  claimWebsiteChatSession: WebsiteChatSession;
   clearRolePermission: Scalars['Boolean']['output'];
+  /** Emails the invoice, PDF attached, to the signed-in contact's own address. */
+  clientHubEmailInvoice: Scalars['Boolean']['output'];
+  clientHubOpenTicket: SupportTicket;
+  /** Opens the gateway's hosted checkout for the invoice's whole balance. */
+  clientHubPayInvoice: ClientHubCheckout;
+  clientHubReplyToTicket: SupportReply;
+  /** Ends the chat; the visitor is emailed the conversation when the settings say so. */
+  closeWebsiteChatSession: WebsiteChatSession;
   /** The employee's manager (or HR) leaves a comment on a direct report's goal. */
   commentOnTeamGoal: Goal;
   /** Completes the sprint, moving unfinished tickets on per sprintCompletionPlan. */
@@ -4723,6 +4817,7 @@ export type Mutation = {
   createProjectShare: ProjectShareCreated;
   createPrompt: Prompt;
   createPurchaseOrder: PurchaseOrder;
+  createRazorpayConfig: RazorpayConfig;
   createRecurringInvoice: RecurringInvoice;
   createRisk: Risk;
   createSalaryStructure: SalaryStructure;
@@ -4736,6 +4831,7 @@ export type Mutation = {
   /** Creating a window also emails every confirmed status subscriber. */
   createStatusMaintenance: StatusMaintenance;
   createStatusMonitor: StatusMonitor;
+  createStripeConfig: StripeConfig;
   createSupplier: Supplier;
   createSupportSlaPolicy: SupportSlaPolicy;
   /** Self-service: raise a support ticket (status forced to OPEN). */
@@ -4755,6 +4851,9 @@ export type Mutation = {
   /** Creates a user, emails a temporary password, and returns it once for copying. */
   createUser: UserCredentials;
   createWebhook: CreatedWebhook;
+  createWebsiteChatFaq: WebsiteChatFaq;
+  /** Knowledge written here is always CUSTOM; a sync never touches it. */
+  createWebsiteChatKnowledge: WebsiteChatKnowledge;
   /** Public. Refused unless `captcha` answers a question from `websiteCaptcha`. `resume` (PDF, DOC or DOCX, max 5 MB) is accepted with a job application only. */
   createWebsiteSubmission: WebsiteSubmission;
   createWhatsappWorkflow: WhatsappWorkflow;
@@ -4787,6 +4886,7 @@ export type Mutation = {
   deleteCannedReply: Scalars['Boolean']['output'];
   deleteCaseStudy: Scalars['Boolean']['output'];
   deleteClient: Scalars['Boolean']['output'];
+  deleteClientContact: Scalars['Boolean']['output'];
   deleteCloudflareConfig: Scalars['Boolean']['output'];
   deleteColumn: Scalars['Boolean']['output'];
   deleteCompany: Scalars['Boolean']['output'];
@@ -4853,6 +4953,7 @@ export type Mutation = {
   deleteProject: Scalars['Boolean']['output'];
   deletePrompt: Scalars['Boolean']['output'];
   deletePurchaseOrder: Scalars['Boolean']['output'];
+  deleteRazorpayConfig: Scalars['Boolean']['output'];
   deleteRecurringInvoice: Scalars['Boolean']['output'];
   deleteRisk: Scalars['Boolean']['output'];
   deleteSalaryStructure: Scalars['Boolean']['output'];
@@ -4867,6 +4968,7 @@ export type Mutation = {
   deleteStatusIncident: Scalars['Boolean']['output'];
   deleteStatusMaintenance: Scalars['Boolean']['output'];
   deleteStatusMonitor: Scalars['Boolean']['output'];
+  deleteStripeConfig: Scalars['Boolean']['output'];
   deleteSupplier: Scalars['Boolean']['output'];
   deleteSupportSlaPolicy: Scalars['Boolean']['output'];
   deleteTask: Scalars['Boolean']['output'];
@@ -4879,6 +4981,9 @@ export type Mutation = {
   deleteTraining: Scalars['Boolean']['output'];
   deleteUser: Scalars['Boolean']['output'];
   deleteWebhook: Scalars['Boolean']['output'];
+  deleteWebsiteChatFaq: Scalars['Boolean']['output'];
+  deleteWebsiteChatKnowledge: Scalars['Boolean']['output'];
+  deleteWebsiteChatSession: Scalars['Boolean']['output'];
   deleteWebsiteSubmission: Scalars['Boolean']['output'];
   deleteWhatsappChannel: Scalars['Boolean']['output'];
   deleteWhatsappDemoVisitor: Scalars['Boolean']['output'];
@@ -4965,6 +5070,8 @@ export type Mutation = {
    * session when there is one. Rate-limited per user, else per IP.
    */
   reportClientLogs: Scalars['Boolean']['output'];
+  /** Public: emails a sign-in code to an address with client hub access (always true). */
+  requestClientHubCode: Scalars['Boolean']['output'];
   /**
    * LEGAL: ask a counterparty to sign. Emails them a link nobody else has and returns it,
    * so it can also be passed on by hand.
@@ -5073,6 +5180,8 @@ export type Mutation = {
   setAppLogGroupStatus: AppLogGroup;
   /** Moves an applicant along the pipeline. The applicant is emailed on INTERVIEW, OFFER and REJECTED. */
   setApplicantStage: Applicant;
+  /** Switching access off signs the person out at once. */
+  setClientContactActive: ClientContact;
   /** Marks a column as the end of the line, or takes that mark away. */
   setColumnDone: BoardColumn;
   /** Moves a deal to another pipeline stage — what a drag on the board does. Winning makes the account a client. */
@@ -5174,6 +5283,8 @@ export type Mutation = {
   syncAllSocialAccounts: Array<SocialSyncResult>;
   /** Reads one account's posts and numbers from the network now. MARKETING. */
   syncSocialAccount: SocialSyncResult;
+  /** Re-reads exyconn.com (pages, blog posts, case studies) into the knowledge bot. */
+  syncWebsiteChatKnowledge: WebsiteChatSyncResult;
   testCloudflareConnection: Scalars['Boolean']['output'];
   testGithubConnection: Scalars['Boolean']['output'];
   testGodaddyConnection: Scalars['Boolean']['output'];
@@ -5182,10 +5293,12 @@ export type Mutation = {
   testInboundMailConnection: Scalars['Boolean']['output'];
   testOpenAiConnection: Scalars['Boolean']['output'];
   testPexelsConnection: Scalars['Boolean']['output'];
+  testRazorpayConnection: Scalars['Boolean']['output'];
   /** Checks the stored client ID and secret with the provider. Platform Tech staff. */
   testSocialAppConfig: SocialAppTest;
   /** Validates the token, then checks it can see the project. */
   testSonarConnection: SonarConnectionTest;
+  testStripeConnection: Scalars['Boolean']['output'];
   /** Likes the post, or takes the like back. Returns the post as it now stands. */
   toggleSocialPostLike: SocialPost;
   /**
@@ -5333,6 +5446,7 @@ export type Mutation = {
   updateProject: Project;
   updatePrompt: Prompt;
   updatePurchaseOrder: PurchaseOrder;
+  updateRazorpayConfig: RazorpayConfig;
   updateRecurringInvoice: RecurringInvoice;
   updateRisk: Risk;
   updateSalaryStructure: SalaryStructure;
@@ -5344,6 +5458,7 @@ export type Mutation = {
   updateSprint: Sprint;
   updateStatusMaintenance: StatusMaintenance;
   updateStatusMonitor: StatusMonitor;
+  updateStripeConfig: StripeConfig;
   updateSupplier: Supplier;
   updateSupportSlaPolicy: SupportSlaPolicy;
   updateTask: Task;
@@ -5355,9 +5470,14 @@ export type Mutation = {
   updateTrackerSettings: TrackerSettings;
   updateTraining: Training;
   updateUser: User;
+  updateWebsiteChatFaq: WebsiteChatFaq;
+  updateWebsiteChatKnowledge: WebsiteChatKnowledge;
+  updateWebsiteChatSettings: WebsiteChatSettings;
   uploadAvatar: Scalars['String']['output'];
   uploadImage: Scalars['String']['output'];
   upsertWhatsappDemo: WhatsappDemo;
+  /** Public: exchanges the emailed code for a client hub pass. */
+  verifyClientHubCode: ClientHubSignIn;
   /** The second step of a two-factor sign-in: the challenge from login, plus the code. */
   verifyMfa: AuthPayload;
   /** Public: exchanges the emailed code for a demo-only pass. */
@@ -5371,6 +5491,11 @@ export type Mutation = {
 export type MutationAcknowledgePolicyArgs = {
   policyId: Scalars['ID']['input'];
   signedName: Scalars['String']['input'];
+};
+
+
+export type MutationAddClientContactArgs = {
+  input: ClientContactInput;
 };
 
 
@@ -5455,9 +5580,41 @@ export type MutationChangePasswordArgs = {
 };
 
 
+export type MutationClaimWebsiteChatSessionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationClearRolePermissionArgs = {
   module: Scalars['String']['input'];
   role: Role;
+};
+
+
+export type MutationClientHubEmailInvoiceArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationClientHubOpenTicketArgs = {
+  input: ClientHubTicketInput;
+};
+
+
+export type MutationClientHubPayInvoiceArgs = {
+  gateway: PaymentGateway;
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationClientHubReplyToTicketArgs = {
+  body: Scalars['String']['input'];
+  ticketId: Scalars['ID']['input'];
+};
+
+
+export type MutationCloseWebsiteChatSessionArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -5928,6 +6085,11 @@ export type MutationCreatePurchaseOrderArgs = {
 };
 
 
+export type MutationCreateRazorpayConfigArgs = {
+  input: RazorpayConfigInput;
+};
+
+
 export type MutationCreateRecurringInvoiceArgs = {
   input: RecurringInvoiceInput;
 };
@@ -5987,6 +6149,11 @@ export type MutationCreateStatusMaintenanceArgs = {
 
 export type MutationCreateStatusMonitorArgs = {
   input: StatusMonitorInput;
+};
+
+
+export type MutationCreateStripeConfigArgs = {
+  input: StripeConfigInput;
 };
 
 
@@ -6056,6 +6223,16 @@ export type MutationCreateWebhookArgs = {
   events: Array<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   url: Scalars['String']['input'];
+};
+
+
+export type MutationCreateWebsiteChatFaqArgs = {
+  input: WebsiteChatFaqInput;
+};
+
+
+export type MutationCreateWebsiteChatKnowledgeArgs = {
+  input: WebsiteChatKnowledgeInput;
 };
 
 
@@ -6187,6 +6364,11 @@ export type MutationDeleteCaseStudyArgs = {
 
 
 export type MutationDeleteClientArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteClientContactArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -6506,6 +6688,11 @@ export type MutationDeletePurchaseOrderArgs = {
 };
 
 
+export type MutationDeleteRazorpayConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteRecurringInvoiceArgs = {
   id: Scalars['ID']['input'];
 };
@@ -6571,6 +6758,11 @@ export type MutationDeleteStatusMonitorArgs = {
 };
 
 
+export type MutationDeleteStripeConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteSupplierArgs = {
   id: Scalars['ID']['input'];
 };
@@ -6627,6 +6819,21 @@ export type MutationDeleteUserArgs = {
 
 
 export type MutationDeleteWebhookArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteWebsiteChatFaqArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteWebsiteChatKnowledgeArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteWebsiteChatSessionArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -6827,6 +7034,11 @@ export type MutationReorderColumnsArgs = {
 
 export type MutationReportClientLogsArgs = {
   input: AppLogBatchInput;
+};
+
+
+export type MutationRequestClientHubCodeArgs = {
+  email: Scalars['String']['input'];
 };
 
 
@@ -7040,6 +7252,12 @@ export type MutationSetApplicantStageArgs = {
   id: Scalars['ID']['input'];
   note?: InputMaybe<Scalars['String']['input']>;
   stage: ApplicantStage;
+};
+
+
+export type MutationSetClientContactActiveArgs = {
+  active: Scalars['Boolean']['input'];
+  id: Scalars['ID']['input'];
 };
 
 
@@ -7280,12 +7498,22 @@ export type MutationTestPexelsConnectionArgs = {
 };
 
 
+export type MutationTestRazorpayConnectionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationTestSocialAppConfigArgs = {
   app: SocialApp;
 };
 
 
 export type MutationTestSonarConnectionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestStripeConnectionArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -7868,6 +8096,12 @@ export type MutationUpdatePurchaseOrderArgs = {
 };
 
 
+export type MutationUpdateRazorpayConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: RazorpayConfigInput;
+};
+
+
 export type MutationUpdateRecurringInvoiceArgs = {
   id: Scalars['ID']['input'];
   input: RecurringInvoiceInput;
@@ -7930,6 +8164,12 @@ export type MutationUpdateStatusMaintenanceArgs = {
 export type MutationUpdateStatusMonitorArgs = {
   id: Scalars['ID']['input'];
   input: StatusMonitorInput;
+};
+
+
+export type MutationUpdateStripeConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: StripeConfigInput;
 };
 
 
@@ -7998,6 +8238,23 @@ export type MutationUpdateUserArgs = {
 };
 
 
+export type MutationUpdateWebsiteChatFaqArgs = {
+  id: Scalars['ID']['input'];
+  input: WebsiteChatFaqInput;
+};
+
+
+export type MutationUpdateWebsiteChatKnowledgeArgs = {
+  id: Scalars['ID']['input'];
+  input: WebsiteChatKnowledgeInput;
+};
+
+
+export type MutationUpdateWebsiteChatSettingsArgs = {
+  input: WebsiteChatSettingsInput;
+};
+
+
 export type MutationUploadAvatarArgs = {
   file: Scalars['String']['input'];
 };
@@ -8013,6 +8270,12 @@ export type MutationUploadImageArgs = {
 export type MutationUpsertWhatsappDemoArgs = {
   id?: InputMaybe<Scalars['ID']['input']>;
   input: WhatsappDemoInput;
+};
+
+
+export type MutationVerifyClientHubCodeArgs = {
+  code: Scalars['String']['input'];
+  email: Scalars['String']['input'];
 };
 
 
@@ -8451,6 +8714,31 @@ export type Payment = {
   recordedBy: Scalars['String']['output'];
   reference: Scalars['String']['output'];
 };
+
+export type PaymentAttempt = {
+  __typename?: 'PaymentAttempt';
+  amount: Scalars['Float']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  currency: Scalars['String']['output'];
+  gateway: PaymentGateway;
+  id: Scalars['ID']['output'];
+  invoiceId: Scalars['String']['output'];
+  invoiceNumber: Scalars['String']['output'];
+  paidAt?: Maybe<Scalars['DateTime']['output']>;
+  status: PaymentAttemptStatus;
+};
+
+export enum PaymentAttemptStatus {
+  Expired = 'EXPIRED',
+  Paid = 'PAID',
+  Pending = 'PENDING',
+  Review = 'REVIEW'
+}
+
+export enum PaymentGateway {
+  Razorpay = 'RAZORPAY',
+  Stripe = 'STRIPE'
+}
 
 export type PaymentInput = {
   amount: Scalars['Float']['input'];
@@ -9411,6 +9699,20 @@ export type Query = {
    * paging, so a restricted role is refused before it reads a single row.
    */
   canExport: Scalars['Boolean']['output'];
+  /** Admin > Clients: who at a client has client hub access. */
+  clientContacts: Array<ClientContact>;
+  /** The invoice PDF as base64. */
+  clientHubInvoicePdf: Scalars['String']['output'];
+  clientHubInvoices: InvoicePage;
+  /** The signed-in client hub contact (pass in x-client-pass). */
+  clientHubMe: ClientHubMe;
+  clientHubPaymentAttempt: PaymentAttempt;
+  clientHubPaymentOptions: ClientHubPaymentOptions;
+  clientHubPayments: PaymentPage;
+  clientHubProjects: Array<ClientHubProject>;
+  clientHubReminders: Array<ClientHubReminder>;
+  clientHubTicketReplies: Array<SupportReply>;
+  clientHubTickets: SupportTicketPage;
   /**
    * Unauthenticated — a customer follows their ticket with the reference they were given
    * and the address they raised it from. Null unless both match.
@@ -9535,6 +9837,8 @@ export type Query = {
   getToolCategory: ToolCategory;
   getTraining: Training;
   getUser: User;
+  getWebsiteChatFaq: WebsiteChatFaq;
+  getWebsiteChatKnowledge: WebsiteChatKnowledge;
   getWebsiteSubmission: WebsiteSubmission;
   /** India's GST state codes, for a place-of-supply or state picker. */
   gstStates: Array<GstState>;
@@ -9807,6 +10111,7 @@ export type Query = {
   listPurchaseOrders: Array<PurchaseOrder>;
   listPurchaseOrdersPaged: PurchaseOrderPage;
   listPurchaseOrdersStats: TableStats;
+  listRazorpayConfigs: Array<RazorpayConfig>;
   listRecurringInvoices: Array<RecurringInvoice>;
   listRecurringInvoicesPaged: RecurringInvoicePage;
   listRisks: Array<Risk>;
@@ -9838,6 +10143,8 @@ export type Query = {
   listStockMovements: Array<StockMovement>;
   listStockMovementsPaged: StockMovementPage;
   listStockMovementsStats: TableStats;
+  /** Tech > Environment Variables: Exyconn's payment gateway accounts. */
+  listStripeConfigs: Array<StripeConfig>;
   listSuppliers: Array<Supplier>;
   listSuppliersPaged: SupplierPage;
   listSuppliersStats: TableStats;
@@ -9876,6 +10183,11 @@ export type Query = {
   listUsersStats: TableStats;
   listWebhookDeliveries: Array<WebhookDelivery>;
   listWebhooks: Array<Webhook>;
+  listWebsiteChatFaqs: Array<WebsiteChatFaq>;
+  listWebsiteChatFaqsPaged: WebsiteChatFaqPage;
+  listWebsiteChatKnowledgeEntries: Array<WebsiteChatKnowledge>;
+  listWebsiteChatKnowledgeEntriesPaged: WebsiteChatKnowledgePage;
+  listWebsiteChatKnowledgeEntriesStats: TableStats;
   listWebsiteSubmissions: Array<WebsiteSubmission>;
   listWebsiteSubmissionsPaged: WebsiteSubmissionPage;
   listWebsiteSubmissionsStats: TableStats;
@@ -10156,6 +10468,14 @@ export type Query = {
   webhookEvents: Array<Scalars['String']['output']>;
   /** A fresh security question for a public form. Public; each is good for one answer, 10 minutes. */
   websiteCaptcha: WebsiteCaptcha;
+  /** Both threads of one chat, oldest first. */
+  websiteChatMessages: Array<WebsiteChatMessage>;
+  websiteChatSession: WebsiteChatSession;
+  /** Website > Chatbot > Sessions: totals by status and site. */
+  websiteChatSessionStats: TableStats;
+  /** Website > Chatbot > Sessions (website staff). */
+  websiteChatSessionsPaged: WebsiteChatSessionPage;
+  websiteChatSettings: WebsiteChatSettings;
   /** The form identifiers the public website may submit under — the one allow-list. */
   websiteFormTypes: Array<Scalars['String']['output']>;
   whatsappChannel: WhatsappChannelSettings;
@@ -10235,6 +10555,41 @@ export type QueryCampaignTopLinksArgs = {
 
 export type QueryCanExportArgs = {
   module: Scalars['String']['input'];
+};
+
+
+export type QueryClientContactsArgs = {
+  clientId: Scalars['ID']['input'];
+};
+
+
+export type QueryClientHubInvoicePdfArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryClientHubInvoicesArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryClientHubPaymentAttemptArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryClientHubPaymentsArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryClientHubTicketRepliesArgs = {
+  ticketId: Scalars['ID']['input'];
+};
+
+
+export type QueryClientHubTicketsArgs = {
+  input: TableQueryInput;
 };
 
 
@@ -10702,6 +11057,16 @@ export type QueryGetTrainingArgs = {
 
 
 export type QueryGetUserArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetWebsiteChatFaqArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGetWebsiteChatKnowledgeArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -11206,6 +11571,16 @@ export type QueryListWebhookDeliveriesArgs = {
 };
 
 
+export type QueryListWebsiteChatFaqsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
+export type QueryListWebsiteChatKnowledgeEntriesPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryListWebsiteSubmissionsPagedArgs = {
   input: TableQueryInput;
 };
@@ -11584,6 +11959,21 @@ export type QueryTranslationsArgs = {
 };
 
 
+export type QueryWebsiteChatMessagesArgs = {
+  sessionId: Scalars['ID']['input'];
+};
+
+
+export type QueryWebsiteChatSessionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryWebsiteChatSessionsPagedArgs = {
+  input: TableQueryInput;
+};
+
+
 export type QueryWhatsappDemoFunnelArgs = {
   demoKey: Scalars['String']['input'];
   from: Scalars['String']['input'];
@@ -11627,6 +12017,30 @@ export type QueryWhatsappWorkflowsArgs = {
 
 export type QueryWorkspaceAnalyticsArgs = {
   days?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** Exyconn's Razorpay account (Tech > Environment Variables). Secrets are write-only. */
+export type RazorpayConfig = {
+  __typename?: 'RazorpayConfig';
+  createdAt: Scalars['DateTime']['output'];
+  hasKeySecret: Scalars['Boolean']['output'];
+  hasWebhookSecret: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  keyId: Scalars['String']['output'];
+  keySecretHint?: Maybe<Scalars['String']['output']>;
+  label: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  webhookSecretHint?: Maybe<Scalars['String']['output']>;
+};
+
+export type RazorpayConfigInput = {
+  isActive: Scalars['Boolean']['input'];
+  keyId: Scalars['String']['input'];
+  /** Left blank on an edit, the stored secret is kept. */
+  keySecret?: InputMaybe<Scalars['String']['input']>;
+  label: Scalars['String']['input'];
+  webhookSecret?: InputMaybe<Scalars['String']['input']>;
 };
 
 /** What is owed, and how late it is. */
@@ -12827,6 +13241,28 @@ export type StockMovementPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** Exyconn's Stripe account (Tech > Environment Variables). Secrets are write-only. */
+export type StripeConfig = {
+  __typename?: 'StripeConfig';
+  createdAt: Scalars['DateTime']['output'];
+  hasSecretKey: Scalars['Boolean']['output'];
+  hasWebhookSecret: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  secretKeyHint?: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
+  webhookSecretHint?: Maybe<Scalars['String']['output']>;
+};
+
+export type StripeConfigInput = {
+  isActive: Scalars['Boolean']['input'];
+  label: Scalars['String']['input'];
+  /** Left blank on an edit, the stored key is kept. */
+  secretKey?: InputMaybe<Scalars['String']['input']>;
+  webhookSecret?: InputMaybe<Scalars['String']['input']>;
+};
+
 /** What the public status page submits. Everything else is set by the server. */
 export type SubmitProblemReportInput = {
   category: ProblemCategory;
@@ -13327,6 +13763,8 @@ export type TeamPage = {
 export enum TicketChannel {
   /** Typed into the console by an agent, usually off a call. */
   Agent = 'AGENT',
+  /** Opened by a chat on exyconn.com or tools.exyconn.com (Website > Chatbot). */
+  Chat = 'CHAT',
   /** Arrived in the support mailbox and was imported. */
   Email = 'EMAIL',
   /** Raised on a form in the portal — the employee desk or the public customer form. */
@@ -14375,6 +14813,221 @@ export type WebsiteCaptchaAnswer = {
   token: Scalars['String']['input'];
 };
 
+export type WebsiteChatAttachment = {
+  __typename?: 'WebsiteChatAttachment';
+  kind: WebsiteChatAttachmentKind;
+  name: Scalars['String']['output'];
+  /** Size in bytes. */
+  size: Scalars['Int']['output'];
+  url: Scalars['String']['output'];
+};
+
+export enum WebsiteChatAttachmentKind {
+  Audio = 'AUDIO',
+  Image = 'IMAGE',
+  Video = 'VIDEO'
+}
+
+/** The two threads of a chat: the team answering, and the knowledge bot answering. */
+export enum WebsiteChatChannel {
+  Knowledge = 'KNOWLEDGE',
+  Live = 'LIVE'
+}
+
+/** One weekday's opening hours. day is 0 (Sunday) to 6; times are 24-hour HH:mm in the settings' timezone. */
+export type WebsiteChatDay = {
+  __typename?: 'WebsiteChatDay';
+  day: Scalars['Int']['output'];
+  enabled: Scalars['Boolean']['output'];
+  end: Scalars['String']['output'];
+  start: Scalars['String']['output'];
+};
+
+export type WebsiteChatDayInput = {
+  day: Scalars['Int']['input'];
+  enabled: Scalars['Boolean']['input'];
+  end: Scalars['String']['input'];
+  start: Scalars['String']['input'];
+};
+
+/** A question and answer in the chat widget's FAQs tab. */
+export type WebsiteChatFaq = {
+  __typename?: 'WebsiteChatFaq';
+  answer: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  question: Scalars['String']['output'];
+  sortOrder: Scalars['Int']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type WebsiteChatFaqInput = {
+  answer: Scalars['String']['input'];
+  isActive: Scalars['Boolean']['input'];
+  question: Scalars['String']['input'];
+  sortOrder: Scalars['Int']['input'];
+};
+
+export type WebsiteChatFaqPage = {
+  __typename?: 'WebsiteChatFaqPage';
+  rows: Array<WebsiteChatFaq>;
+  totalCount: Scalars['Int']['output'];
+};
+
+/** Something the knowledge bot may answer from. */
+export type WebsiteChatKnowledge = {
+  __typename?: 'WebsiteChatKnowledge';
+  content: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  source: WebsiteChatKnowledgeSource;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  url: Scalars['String']['output'];
+};
+
+export type WebsiteChatKnowledgeInput = {
+  content: Scalars['String']['input'];
+  isActive: Scalars['Boolean']['input'];
+  title: Scalars['String']['input'];
+  url?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type WebsiteChatKnowledgePage = {
+  __typename?: 'WebsiteChatKnowledgePage';
+  rows: Array<WebsiteChatKnowledge>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum WebsiteChatKnowledgeSource {
+  /** Written by the website team. */
+  Custom = 'CUSTOM',
+  /** Read from exyconn.com by the last sync. */
+  Website = 'WEBSITE'
+}
+
+export type WebsiteChatMessage = {
+  __typename?: 'WebsiteChatMessage';
+  attachments: Array<WebsiteChatAttachment>;
+  body: Scalars['String']['output'];
+  channel: WebsiteChatChannel;
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  readAt?: Maybe<Scalars['DateTime']['output']>;
+  sender: WebsiteChatSender;
+  senderName: Scalars['String']['output'];
+  sessionId: Scalars['ID']['output'];
+};
+
+/** Who wrote a chat message. SYSTEM is the chat itself (welcome, handoff and offline notices). */
+export enum WebsiteChatSender {
+  Agent = 'AGENT',
+  Bot = 'BOT',
+  System = 'SYSTEM',
+  Visitor = 'VISITOR'
+}
+
+/** A conversation with a visitor of exyconn.com or tools.exyconn.com, opened after their email was verified. */
+export type WebsiteChatSession = {
+  __typename?: 'WebsiteChatSession';
+  assigneeId: Scalars['String']['output'];
+  assigneeName: Scalars['String']['output'];
+  /** Set while a visitor waits for a person; the handoff moves the question to the bot when it is too old. */
+  awaitingReplySince?: Maybe<Scalars['DateTime']['output']>;
+  closedAt?: Maybe<Scalars['DateTime']['output']>;
+  closedBy: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  email: Scalars['String']['output'];
+  handedOffAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  lastMessageAt?: Maybe<Scalars['DateTime']['output']>;
+  lastMessagePreview: Scalars['String']['output'];
+  lastSender: Scalars['String']['output'];
+  messageCount: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+  pageUrl: Scalars['String']['output'];
+  phone: Scalars['String']['output'];
+  site: WebsiteChatSite;
+  /** Live-thread visitor messages nobody on the team has read. */
+  staffUnread: Scalars['Int']['output'];
+  status: WebsiteChatStatus;
+  /** The support ticket the chat opened. */
+  ticketId: Scalars['String']['output'];
+  ticketReference: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type WebsiteChatSessionPage = {
+  __typename?: 'WebsiteChatSessionPage';
+  rows: Array<WebsiteChatSession>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type WebsiteChatSettings = {
+  __typename?: 'WebsiteChatSettings';
+  allowUploads: Scalars['Boolean']['output'];
+  botModel: Scalars['String']['output'];
+  botName: Scalars['String']['output'];
+  customInstructions: Scalars['String']['output'];
+  enabled: Scalars['Boolean']['output'];
+  handoffMessage: Scalars['String']['output'];
+  knowledgeSyncCount: Scalars['Int']['output'];
+  knowledgeSyncError: Scalars['String']['output'];
+  knowledgeSyncedAt?: Maybe<Scalars['DateTime']['output']>;
+  /** How many characters of knowledge go to the bot with each question. */
+  maxContextChars: Scalars['Int']['output'];
+  maxUploadMb: Scalars['Int']['output'];
+  noReplyTimeoutSeconds: Scalars['Int']['output'];
+  offlineMessage: Scalars['String']['output'];
+  /** Whether the team is on duty right now, by the opening hours. */
+  online: Scalars['Boolean']['output'];
+  refusalMessage: Scalars['String']['output'];
+  soundEnabledByDefault: Scalars['Boolean']['output'];
+  timezone: Scalars['String']['output'];
+  transcriptOnClose: Scalars['Boolean']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  weeklyHours: Array<WebsiteChatDay>;
+  welcomeMessage: Scalars['String']['output'];
+};
+
+export type WebsiteChatSettingsInput = {
+  allowUploads: Scalars['Boolean']['input'];
+  botModel: Scalars['String']['input'];
+  botName: Scalars['String']['input'];
+  customInstructions: Scalars['String']['input'];
+  enabled: Scalars['Boolean']['input'];
+  handoffMessage: Scalars['String']['input'];
+  maxContextChars: Scalars['Int']['input'];
+  maxUploadMb: Scalars['Int']['input'];
+  noReplyTimeoutSeconds: Scalars['Int']['input'];
+  offlineMessage: Scalars['String']['input'];
+  refusalMessage: Scalars['String']['input'];
+  soundEnabledByDefault: Scalars['Boolean']['input'];
+  timezone: Scalars['String']['input'];
+  transcriptOnClose: Scalars['Boolean']['input'];
+  weeklyHours: Array<WebsiteChatDayInput>;
+  welcomeMessage: Scalars['String']['input'];
+};
+
+/** The public site a website chat was started on. */
+export enum WebsiteChatSite {
+  Tools = 'TOOLS',
+  Website = 'WEBSITE'
+}
+
+export enum WebsiteChatStatus {
+  Closed = 'CLOSED',
+  Open = 'OPEN'
+}
+
+export type WebsiteChatSyncResult = {
+  __typename?: 'WebsiteChatSyncResult';
+  count: Scalars['Int']['output'];
+  syncedAt: Scalars['DateTime']['output'];
+};
+
 /** A file sent with a public form: its name and its bytes as a base64 data URL. */
 export type WebsiteFileInput = {
   data: Scalars['String']['input'];
@@ -14994,6 +15647,15 @@ export type ResolversTypes = ResolversObject<{
   CaseStudyInput: CaseStudyInput;
   CaseStudyPage: ResolverTypeWrapper<CaseStudyPage>;
   Client: ResolverTypeWrapper<Client>;
+  ClientContact: ResolverTypeWrapper<ClientContact>;
+  ClientContactInput: ClientContactInput;
+  ClientHubCheckout: ResolverTypeWrapper<ClientHubCheckout>;
+  ClientHubMe: ResolverTypeWrapper<ClientHubMe>;
+  ClientHubPaymentOptions: ResolverTypeWrapper<ClientHubPaymentOptions>;
+  ClientHubProject: ResolverTypeWrapper<ClientHubProject>;
+  ClientHubReminder: ResolverTypeWrapper<ClientHubReminder>;
+  ClientHubSignIn: ResolverTypeWrapper<ClientHubSignIn>;
+  ClientHubTicketInput: ClientHubTicketInput;
   ClientInput: ClientInput;
   ClientPage: ResolverTypeWrapper<ClientPage>;
   ClientStatus: ClientStatus;
@@ -15315,6 +15977,9 @@ export type ResolversTypes = ResolversObject<{
   OrganizationUpdateInput: OrganizationUpdateInput;
   PayType: PayType;
   Payment: ResolverTypeWrapper<Payment>;
+  PaymentAttempt: ResolverTypeWrapper<PaymentAttempt>;
+  PaymentAttemptStatus: PaymentAttemptStatus;
+  PaymentGateway: PaymentGateway;
   PaymentInput: PaymentInput;
   PaymentMethod: PaymentMethod;
   PaymentPage: ResolverTypeWrapper<PaymentPage>;
@@ -15390,6 +16055,8 @@ export type ResolversTypes = ResolversObject<{
   PurchaseOrderStatus: PurchaseOrderStatus;
   PurchaseReceiptLineInput: PurchaseReceiptLineInput;
   Query: ResolverTypeWrapper<{}>;
+  RazorpayConfig: ResolverTypeWrapper<RazorpayConfig>;
+  RazorpayConfigInput: RazorpayConfigInput;
   Receivables: ResolverTypeWrapper<Receivables>;
   ReceivablesBucket: ResolverTypeWrapper<ReceivablesBucket>;
   RecurrenceFrequency: RecurrenceFrequency;
@@ -15494,6 +16161,8 @@ export type ResolversTypes = ResolversObject<{
   StockMovementInput: StockMovementInput;
   StockMovementPage: ResolverTypeWrapper<StockMovementPage>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
+  StripeConfig: ResolverTypeWrapper<StripeConfig>;
+  StripeConfigInput: StripeConfigInput;
   SubmitProblemReportInput: SubmitProblemReportInput;
   SummaryStyle: SummaryStyle;
   Supplier: ResolverTypeWrapper<Supplier>;
@@ -15610,6 +16279,27 @@ export type ResolversTypes = ResolversObject<{
   WebhookDelivery: ResolverTypeWrapper<WebhookDelivery>;
   WebsiteCaptcha: ResolverTypeWrapper<WebsiteCaptcha>;
   WebsiteCaptchaAnswer: WebsiteCaptchaAnswer;
+  WebsiteChatAttachment: ResolverTypeWrapper<WebsiteChatAttachment>;
+  WebsiteChatAttachmentKind: WebsiteChatAttachmentKind;
+  WebsiteChatChannel: WebsiteChatChannel;
+  WebsiteChatDay: ResolverTypeWrapper<WebsiteChatDay>;
+  WebsiteChatDayInput: WebsiteChatDayInput;
+  WebsiteChatFaq: ResolverTypeWrapper<WebsiteChatFaq>;
+  WebsiteChatFaqInput: WebsiteChatFaqInput;
+  WebsiteChatFaqPage: ResolverTypeWrapper<WebsiteChatFaqPage>;
+  WebsiteChatKnowledge: ResolverTypeWrapper<WebsiteChatKnowledge>;
+  WebsiteChatKnowledgeInput: WebsiteChatKnowledgeInput;
+  WebsiteChatKnowledgePage: ResolverTypeWrapper<WebsiteChatKnowledgePage>;
+  WebsiteChatKnowledgeSource: WebsiteChatKnowledgeSource;
+  WebsiteChatMessage: ResolverTypeWrapper<WebsiteChatMessage>;
+  WebsiteChatSender: WebsiteChatSender;
+  WebsiteChatSession: ResolverTypeWrapper<WebsiteChatSession>;
+  WebsiteChatSessionPage: ResolverTypeWrapper<WebsiteChatSessionPage>;
+  WebsiteChatSettings: ResolverTypeWrapper<WebsiteChatSettings>;
+  WebsiteChatSettingsInput: WebsiteChatSettingsInput;
+  WebsiteChatSite: WebsiteChatSite;
+  WebsiteChatStatus: WebsiteChatStatus;
+  WebsiteChatSyncResult: ResolverTypeWrapper<WebsiteChatSyncResult>;
   WebsiteFileInput: WebsiteFileInput;
   WebsiteSubmission: ResolverTypeWrapper<WebsiteSubmission>;
   WebsiteSubmissionInput: WebsiteSubmissionInput;
@@ -15748,6 +16438,15 @@ export type ResolversParentTypes = ResolversObject<{
   CaseStudyInput: CaseStudyInput;
   CaseStudyPage: CaseStudyPage;
   Client: Client;
+  ClientContact: ClientContact;
+  ClientContactInput: ClientContactInput;
+  ClientHubCheckout: ClientHubCheckout;
+  ClientHubMe: ClientHubMe;
+  ClientHubPaymentOptions: ClientHubPaymentOptions;
+  ClientHubProject: ClientHubProject;
+  ClientHubReminder: ClientHubReminder;
+  ClientHubSignIn: ClientHubSignIn;
+  ClientHubTicketInput: ClientHubTicketInput;
   ClientInput: ClientInput;
   ClientPage: ClientPage;
   ClientSupportTicketInput: ClientSupportTicketInput;
@@ -16005,6 +16704,7 @@ export type ResolversParentTypes = ResolversObject<{
   OrganizationInput: OrganizationInput;
   OrganizationUpdateInput: OrganizationUpdateInput;
   Payment: Payment;
+  PaymentAttempt: PaymentAttempt;
   PaymentInput: PaymentInput;
   PaymentPage: PaymentPage;
   PayrollCandidate: PayrollCandidate;
@@ -16064,6 +16764,8 @@ export type ResolversParentTypes = ResolversObject<{
   PurchaseOrderPage: PurchaseOrderPage;
   PurchaseReceiptLineInput: PurchaseReceiptLineInput;
   Query: {};
+  RazorpayConfig: RazorpayConfig;
+  RazorpayConfigInput: RazorpayConfigInput;
   Receivables: Receivables;
   ReceivablesBucket: ReceivablesBucket;
   RecurringInvoice: RecurringInvoice;
@@ -16148,6 +16850,8 @@ export type ResolversParentTypes = ResolversObject<{
   StockMovementInput: StockMovementInput;
   StockMovementPage: StockMovementPage;
   String: Scalars['String']['output'];
+  StripeConfig: StripeConfig;
+  StripeConfigInput: StripeConfigInput;
   SubmitProblemReportInput: SubmitProblemReportInput;
   Supplier: Supplier;
   SupplierInput: SupplierInput;
@@ -16246,6 +16950,21 @@ export type ResolversParentTypes = ResolversObject<{
   WebhookDelivery: WebhookDelivery;
   WebsiteCaptcha: WebsiteCaptcha;
   WebsiteCaptchaAnswer: WebsiteCaptchaAnswer;
+  WebsiteChatAttachment: WebsiteChatAttachment;
+  WebsiteChatDay: WebsiteChatDay;
+  WebsiteChatDayInput: WebsiteChatDayInput;
+  WebsiteChatFaq: WebsiteChatFaq;
+  WebsiteChatFaqInput: WebsiteChatFaqInput;
+  WebsiteChatFaqPage: WebsiteChatFaqPage;
+  WebsiteChatKnowledge: WebsiteChatKnowledge;
+  WebsiteChatKnowledgeInput: WebsiteChatKnowledgeInput;
+  WebsiteChatKnowledgePage: WebsiteChatKnowledgePage;
+  WebsiteChatMessage: WebsiteChatMessage;
+  WebsiteChatSession: WebsiteChatSession;
+  WebsiteChatSessionPage: WebsiteChatSessionPage;
+  WebsiteChatSettings: WebsiteChatSettings;
+  WebsiteChatSettingsInput: WebsiteChatSettingsInput;
+  WebsiteChatSyncResult: WebsiteChatSyncResult;
   WebsiteFileInput: WebsiteFileInput;
   WebsiteSubmission: WebsiteSubmission;
   WebsiteSubmissionInput: WebsiteSubmissionInput;
@@ -17059,6 +17778,69 @@ export type ClientResolvers<ContextType = GraphQLContext, ParentType extends Res
   stateCode?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['ClientStatus'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClientContactResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClientContact'] = ResolversParentTypes['ClientContact']> = ResolversObject<{
+  active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  clientId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lastSignInAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  signInCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClientHubCheckoutResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClientHubCheckout'] = ResolversParentTypes['ClientHubCheckout']> = ResolversObject<{
+  attemptId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClientHubMeResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClientHubMe'] = ResolversParentTypes['ClientHubMe']> = ResolversObject<{
+  clientName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  company?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClientHubPaymentOptionsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClientHubPaymentOptions'] = ResolversParentTypes['ClientHubPaymentOptions']> = ResolversObject<{
+  razorpay?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  stripe?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClientHubProjectResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClientHubProject'] = ResolversParentTypes['ClientHubProject']> = ResolversObject<{
+  budgetHours?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  endDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  milestones?: Resolver<Array<ResolversTypes['SharedMilestone']>, ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  startDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['ProjectStatus'], ParentType, ContextType>;
+  ticketCounts?: Resolver<Array<ResolversTypes['SharedTicketCount']>, ParentType, ContextType>;
+  trackedHours?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClientHubReminderResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClientHubReminder'] = ResolversParentTypes['ClientHubReminder']> = ResolversObject<{
+  balance?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  daysLate?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  dueDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  invoiceId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  number?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['InvoiceStatus'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ClientHubSignInResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ClientHubSignIn'] = ResolversParentTypes['ClientHubSignIn']> = ResolversObject<{
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -18824,6 +19606,7 @@ export type ModulePermissionResolvers<ContextType = GraphQLContext, ParentType e
 export type MutationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   _empty?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   acknowledgePolicy?: Resolver<ResolversTypes['PolicyAcknowledgement'], ParentType, ContextType, RequireFields<MutationAcknowledgePolicyArgs, 'policyId' | 'signedName'>>;
+  addClientContact?: Resolver<ResolversTypes['ClientContact'], ParentType, ContextType, RequireFields<MutationAddClientContactArgs, 'input'>>;
   addItIncidentUpdate?: Resolver<ResolversTypes['ItIncident'], ParentType, ContextType, RequireFields<MutationAddItIncidentUpdateArgs, 'id' | 'note' | 'status'>>;
   addMySupportReply?: Resolver<ResolversTypes['SupportReply'], ParentType, ContextType, RequireFields<MutationAddMySupportReplyArgs, 'body' | 'ticketId'>>;
   addStatusIncidentUpdate?: Resolver<ResolversTypes['StatusIncident'], ParentType, ContextType, RequireFields<MutationAddStatusIncidentUpdateArgs, 'body' | 'id' | 'status'>>;
@@ -18837,7 +19620,13 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   assignSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationAssignSupportTicketArgs, 'assigneeId' | 'id'>>;
   cancelItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationCancelItAccessRequestArgs, 'id'>>;
   changePassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'currentPassword' | 'newPassword'>>;
+  claimWebsiteChatSession?: Resolver<ResolversTypes['WebsiteChatSession'], ParentType, ContextType, RequireFields<MutationClaimWebsiteChatSessionArgs, 'id'>>;
   clearRolePermission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationClearRolePermissionArgs, 'module' | 'role'>>;
+  clientHubEmailInvoice?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationClientHubEmailInvoiceArgs, 'id'>>;
+  clientHubOpenTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationClientHubOpenTicketArgs, 'input'>>;
+  clientHubPayInvoice?: Resolver<ResolversTypes['ClientHubCheckout'], ParentType, ContextType, RequireFields<MutationClientHubPayInvoiceArgs, 'gateway' | 'id'>>;
+  clientHubReplyToTicket?: Resolver<ResolversTypes['SupportReply'], ParentType, ContextType, RequireFields<MutationClientHubReplyToTicketArgs, 'body' | 'ticketId'>>;
+  closeWebsiteChatSession?: Resolver<ResolversTypes['WebsiteChatSession'], ParentType, ContextType, RequireFields<MutationCloseWebsiteChatSessionArgs, 'id'>>;
   commentOnTeamGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationCommentOnTeamGoalArgs, 'comment' | 'id'>>;
   completeSprint?: Resolver<ResolversTypes['Sprint'], ParentType, ContextType, RequireFields<MutationCompleteSprintArgs, 'id'>>;
   composeSocialMediaPost?: Resolver<Array<ResolversTypes['SocialMediaPost']>, ParentType, ContextType, RequireFields<MutationComposeSocialMediaPostArgs, 'input'>>;
@@ -18929,6 +19718,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createProjectShare?: Resolver<ResolversTypes['ProjectShareCreated'], ParentType, ContextType, RequireFields<MutationCreateProjectShareArgs, 'expiresInDays' | 'label' | 'projectId'>>;
   createPrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<MutationCreatePromptArgs, 'input'>>;
   createPurchaseOrder?: Resolver<ResolversTypes['PurchaseOrder'], ParentType, ContextType, RequireFields<MutationCreatePurchaseOrderArgs, 'input'>>;
+  createRazorpayConfig?: Resolver<ResolversTypes['RazorpayConfig'], ParentType, ContextType, RequireFields<MutationCreateRazorpayConfigArgs, 'input'>>;
   createRecurringInvoice?: Resolver<ResolversTypes['RecurringInvoice'], ParentType, ContextType, RequireFields<MutationCreateRecurringInvoiceArgs, 'input'>>;
   createRisk?: Resolver<ResolversTypes['Risk'], ParentType, ContextType, RequireFields<MutationCreateRiskArgs, 'input'>>;
   createSalaryStructure?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationCreateSalaryStructureArgs, 'input'>>;
@@ -18941,6 +19731,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createStatusIncident?: Resolver<ResolversTypes['StatusIncident'], ParentType, ContextType, RequireFields<MutationCreateStatusIncidentArgs, 'input'>>;
   createStatusMaintenance?: Resolver<ResolversTypes['StatusMaintenance'], ParentType, ContextType, RequireFields<MutationCreateStatusMaintenanceArgs, 'input'>>;
   createStatusMonitor?: Resolver<ResolversTypes['StatusMonitor'], ParentType, ContextType, RequireFields<MutationCreateStatusMonitorArgs, 'input'>>;
+  createStripeConfig?: Resolver<ResolversTypes['StripeConfig'], ParentType, ContextType, RequireFields<MutationCreateStripeConfigArgs, 'input'>>;
   createSupplier?: Resolver<ResolversTypes['Supplier'], ParentType, ContextType, RequireFields<MutationCreateSupplierArgs, 'input'>>;
   createSupportSlaPolicy?: Resolver<ResolversTypes['SupportSlaPolicy'], ParentType, ContextType, RequireFields<MutationCreateSupportSlaPolicyArgs, 'input'>>;
   createSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationCreateSupportTicketArgs, 'input'>>;
@@ -18954,6 +19745,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createTraining?: Resolver<ResolversTypes['Training'], ParentType, ContextType, RequireFields<MutationCreateTrainingArgs, 'input'>>;
   createUser?: Resolver<ResolversTypes['UserCredentials'], ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'input'>>;
   createWebhook?: Resolver<ResolversTypes['CreatedWebhook'], ParentType, ContextType, RequireFields<MutationCreateWebhookArgs, 'events' | 'name' | 'url'>>;
+  createWebsiteChatFaq?: Resolver<ResolversTypes['WebsiteChatFaq'], ParentType, ContextType, RequireFields<MutationCreateWebsiteChatFaqArgs, 'input'>>;
+  createWebsiteChatKnowledge?: Resolver<ResolversTypes['WebsiteChatKnowledge'], ParentType, ContextType, RequireFields<MutationCreateWebsiteChatKnowledgeArgs, 'input'>>;
   createWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<MutationCreateWebsiteSubmissionArgs, 'captcha' | 'input'>>;
   createWhatsappWorkflow?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationCreateWhatsappWorkflowArgs, 'input'>>;
   decideApproval?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDecideApprovalArgs, 'decision' | 'id'>>;
@@ -18978,6 +19771,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteCannedReply?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCannedReplyArgs, 'id'>>;
   deleteCaseStudy?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCaseStudyArgs, 'id'>>;
   deleteClient?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClientArgs, 'id'>>;
+  deleteClientContact?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClientContactArgs, 'id'>>;
   deleteCloudflareConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCloudflareConfigArgs, 'id'>>;
   deleteColumn?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteColumnArgs, 'id'>>;
   deleteCompany?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCompanyArgs, 'id'>>;
@@ -19041,6 +19835,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteProject?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProjectArgs, 'id'>>;
   deletePrompt?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePromptArgs, 'id'>>;
   deletePurchaseOrder?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePurchaseOrderArgs, 'id'>>;
+  deleteRazorpayConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteRazorpayConfigArgs, 'id'>>;
   deleteRecurringInvoice?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteRecurringInvoiceArgs, 'id'>>;
   deleteRisk?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteRiskArgs, 'id'>>;
   deleteSalaryStructure?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSalaryStructureArgs, 'id'>>;
@@ -19054,6 +19849,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteStatusIncident?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteStatusIncidentArgs, 'id'>>;
   deleteStatusMaintenance?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteStatusMaintenanceArgs, 'id'>>;
   deleteStatusMonitor?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteStatusMonitorArgs, 'id'>>;
+  deleteStripeConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteStripeConfigArgs, 'id'>>;
   deleteSupplier?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSupplierArgs, 'id'>>;
   deleteSupportSlaPolicy?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteSupportSlaPolicyArgs, 'id'>>;
   deleteTask?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTaskArgs, 'id'>>;
@@ -19066,6 +19862,9 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteTraining?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteTrainingArgs, 'id'>>;
   deleteUser?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteUserArgs, 'id'>>;
   deleteWebhook?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebhookArgs, 'id'>>;
+  deleteWebsiteChatFaq?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebsiteChatFaqArgs, 'id'>>;
+  deleteWebsiteChatKnowledge?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebsiteChatKnowledgeArgs, 'id'>>;
+  deleteWebsiteChatSession?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebsiteChatSessionArgs, 'id'>>;
   deleteWebsiteSubmission?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWebsiteSubmissionArgs, 'id'>>;
   deleteWhatsappChannel?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   deleteWhatsappDemoVisitor?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWhatsappDemoVisitorArgs, 'id'>>;
@@ -19105,6 +19904,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   renameColumn?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationRenameColumnArgs, 'id' | 'name'>>;
   reorderColumns?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationReorderColumnsArgs, 'columnIds' | 'projectId'>>;
   reportClientLogs?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationReportClientLogsArgs, 'input'>>;
+  requestClientHubCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestClientHubCodeArgs, 'email'>>;
   requestContractSignature?: Resolver<ResolversTypes['ContractSignatureRequest'], ParentType, ContextType, RequireFields<MutationRequestContractSignatureArgs, 'contractId' | 'signerEmail' | 'signerName'>>;
   requestPasswordReset?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestPasswordResetArgs, 'email'>>;
   requestWhatsappDemoCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestWhatsappDemoCodeArgs, 'input'>>;
@@ -19144,6 +19944,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   sendUserMail?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSendUserMailArgs, 'id' | 'input'>>;
   setAppLogGroupStatus?: Resolver<ResolversTypes['AppLogGroup'], ParentType, ContextType, RequireFields<MutationSetAppLogGroupStatusArgs, 'id' | 'status'>>;
   setApplicantStage?: Resolver<ResolversTypes['Applicant'], ParentType, ContextType, RequireFields<MutationSetApplicantStageArgs, 'id' | 'stage'>>;
+  setClientContactActive?: Resolver<ResolversTypes['ClientContact'], ParentType, ContextType, RequireFields<MutationSetClientContactActiveArgs, 'active' | 'id'>>;
   setColumnDone?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationSetColumnDoneArgs, 'id' | 'isDone'>>;
   setDealStage?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationSetDealStageArgs, 'id' | 'stage'>>;
   setDomainNameservers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationSetDomainNameserversArgs, 'domain' | 'target'>>;
@@ -19179,6 +19980,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   subscribeToStatus?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSubscribeToStatusArgs, 'email'>>;
   syncAllSocialAccounts?: Resolver<Array<ResolversTypes['SocialSyncResult']>, ParentType, ContextType>;
   syncSocialAccount?: Resolver<ResolversTypes['SocialSyncResult'], ParentType, ContextType, RequireFields<MutationSyncSocialAccountArgs, 'id'>>;
+  syncWebsiteChatKnowledge?: Resolver<ResolversTypes['WebsiteChatSyncResult'], ParentType, ContextType>;
   testCloudflareConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestCloudflareConnectionArgs, 'id'>>;
   testGithubConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGithubConnectionArgs, 'id'>>;
   testGodaddyConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGodaddyConnectionArgs, 'id'>>;
@@ -19186,8 +19988,10 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   testInboundMailConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestInboundMailConnectionArgs, 'id'>>;
   testOpenAiConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestOpenAiConnectionArgs, 'id'>>;
   testPexelsConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestPexelsConnectionArgs, 'id'>>;
+  testRazorpayConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestRazorpayConnectionArgs, 'id'>>;
   testSocialAppConfig?: Resolver<ResolversTypes['SocialAppTest'], ParentType, ContextType, RequireFields<MutationTestSocialAppConfigArgs, 'app'>>;
   testSonarConnection?: Resolver<ResolversTypes['SonarConnectionTest'], ParentType, ContextType, RequireFields<MutationTestSonarConnectionArgs, 'id'>>;
+  testStripeConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestStripeConnectionArgs, 'id'>>;
   toggleSocialPostLike?: Resolver<ResolversTypes['SocialPost'], ParentType, ContextType, RequireFields<MutationToggleSocialPostLikeArgs, 'id'>>;
   trackerAcceptConsent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, Partial<MutationTrackerAcceptConsentArgs>>;
   trackerHeartbeat?: Resolver<ResolversTypes['TrackerMe'], ParentType, ContextType, Partial<MutationTrackerHeartbeatArgs>>;
@@ -19286,6 +20090,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateProject?: Resolver<ResolversTypes['Project'], ParentType, ContextType, RequireFields<MutationUpdateProjectArgs, 'id' | 'input'>>;
   updatePrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<MutationUpdatePromptArgs, 'id' | 'input'>>;
   updatePurchaseOrder?: Resolver<ResolversTypes['PurchaseOrder'], ParentType, ContextType, RequireFields<MutationUpdatePurchaseOrderArgs, 'id' | 'input'>>;
+  updateRazorpayConfig?: Resolver<ResolversTypes['RazorpayConfig'], ParentType, ContextType, RequireFields<MutationUpdateRazorpayConfigArgs, 'id' | 'input'>>;
   updateRecurringInvoice?: Resolver<ResolversTypes['RecurringInvoice'], ParentType, ContextType, RequireFields<MutationUpdateRecurringInvoiceArgs, 'id' | 'input'>>;
   updateRisk?: Resolver<ResolversTypes['Risk'], ParentType, ContextType, RequireFields<MutationUpdateRiskArgs, 'id' | 'input'>>;
   updateSalaryStructure?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationUpdateSalaryStructureArgs, 'id' | 'input'>>;
@@ -19297,6 +20102,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateSprint?: Resolver<ResolversTypes['Sprint'], ParentType, ContextType, RequireFields<MutationUpdateSprintArgs, 'id' | 'input'>>;
   updateStatusMaintenance?: Resolver<ResolversTypes['StatusMaintenance'], ParentType, ContextType, RequireFields<MutationUpdateStatusMaintenanceArgs, 'id' | 'input'>>;
   updateStatusMonitor?: Resolver<ResolversTypes['StatusMonitor'], ParentType, ContextType, RequireFields<MutationUpdateStatusMonitorArgs, 'id' | 'input'>>;
+  updateStripeConfig?: Resolver<ResolversTypes['StripeConfig'], ParentType, ContextType, RequireFields<MutationUpdateStripeConfigArgs, 'id' | 'input'>>;
   updateSupplier?: Resolver<ResolversTypes['Supplier'], ParentType, ContextType, RequireFields<MutationUpdateSupplierArgs, 'id' | 'input'>>;
   updateSupportSlaPolicy?: Resolver<ResolversTypes['SupportSlaPolicy'], ParentType, ContextType, RequireFields<MutationUpdateSupportSlaPolicyArgs, 'id' | 'input'>>;
   updateTask?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationUpdateTaskArgs, 'id' | 'input'>>;
@@ -19308,9 +20114,13 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateTrackerSettings?: Resolver<ResolversTypes['TrackerSettings'], ParentType, ContextType, RequireFields<MutationUpdateTrackerSettingsArgs, 'input'>>;
   updateTraining?: Resolver<ResolversTypes['Training'], ParentType, ContextType, RequireFields<MutationUpdateTrainingArgs, 'id' | 'input'>>;
   updateUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'id' | 'input'>>;
+  updateWebsiteChatFaq?: Resolver<ResolversTypes['WebsiteChatFaq'], ParentType, ContextType, RequireFields<MutationUpdateWebsiteChatFaqArgs, 'id' | 'input'>>;
+  updateWebsiteChatKnowledge?: Resolver<ResolversTypes['WebsiteChatKnowledge'], ParentType, ContextType, RequireFields<MutationUpdateWebsiteChatKnowledgeArgs, 'id' | 'input'>>;
+  updateWebsiteChatSettings?: Resolver<ResolversTypes['WebsiteChatSettings'], ParentType, ContextType, RequireFields<MutationUpdateWebsiteChatSettingsArgs, 'input'>>;
   uploadAvatar?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationUploadAvatarArgs, 'file'>>;
   uploadImage?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationUploadImageArgs, 'file' | 'fileName'>>;
   upsertWhatsappDemo?: Resolver<ResolversTypes['WhatsappDemo'], ParentType, ContextType, RequireFields<MutationUpsertWhatsappDemoArgs, 'input'>>;
+  verifyClientHubCode?: Resolver<ResolversTypes['ClientHubSignIn'], ParentType, ContextType, RequireFields<MutationVerifyClientHubCodeArgs, 'code' | 'email'>>;
   verifyMfa?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationVerifyMfaArgs, 'challenge' | 'code'>>;
   verifyWhatsappDemoCode?: Resolver<ResolversTypes['WhatsappDemoSignIn'], ParentType, ContextType, RequireFields<MutationVerifyWhatsappDemoCodeArgs, 'code' | 'email'>>;
   whatsappDemoParse?: Resolver<ResolversTypes['WhatsappDemoParseResult'], ParentType, ContextType, RequireFields<MutationWhatsappDemoParseArgs, 'input'>>;
@@ -19513,6 +20323,19 @@ export type PaymentResolvers<ContextType = GraphQLContext, ParentType extends Re
   receivedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   recordedBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   reference?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PaymentAttemptResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PaymentAttempt'] = ResolversParentTypes['PaymentAttempt']> = ResolversObject<{
+  amount?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  currency?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  gateway?: Resolver<ResolversTypes['PaymentGateway'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  invoiceId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  invoiceNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  paidAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['PaymentAttemptStatus'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -20021,6 +20844,17 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   campaignSendSummary?: Resolver<ResolversTypes['CampaignSendSummary'], ParentType, ContextType, RequireFields<QueryCampaignSendSummaryArgs, 'campaignId'>>;
   campaignTopLinks?: Resolver<Array<ResolversTypes['CampaignLinkStat']>, ParentType, ContextType, RequireFields<QueryCampaignTopLinksArgs, 'campaignId'>>;
   canExport?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<QueryCanExportArgs, 'module'>>;
+  clientContacts?: Resolver<Array<ResolversTypes['ClientContact']>, ParentType, ContextType, RequireFields<QueryClientContactsArgs, 'clientId'>>;
+  clientHubInvoicePdf?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryClientHubInvoicePdfArgs, 'id'>>;
+  clientHubInvoices?: Resolver<ResolversTypes['InvoicePage'], ParentType, ContextType, RequireFields<QueryClientHubInvoicesArgs, 'input'>>;
+  clientHubMe?: Resolver<ResolversTypes['ClientHubMe'], ParentType, ContextType>;
+  clientHubPaymentAttempt?: Resolver<ResolversTypes['PaymentAttempt'], ParentType, ContextType, RequireFields<QueryClientHubPaymentAttemptArgs, 'id'>>;
+  clientHubPaymentOptions?: Resolver<ResolversTypes['ClientHubPaymentOptions'], ParentType, ContextType>;
+  clientHubPayments?: Resolver<ResolversTypes['PaymentPage'], ParentType, ContextType, RequireFields<QueryClientHubPaymentsArgs, 'input'>>;
+  clientHubProjects?: Resolver<Array<ResolversTypes['ClientHubProject']>, ParentType, ContextType>;
+  clientHubReminders?: Resolver<Array<ResolversTypes['ClientHubReminder']>, ParentType, ContextType>;
+  clientHubTicketReplies?: Resolver<Array<ResolversTypes['SupportReply']>, ParentType, ContextType, RequireFields<QueryClientHubTicketRepliesArgs, 'ticketId'>>;
+  clientHubTickets?: Resolver<ResolversTypes['SupportTicketPage'], ParentType, ContextType, RequireFields<QueryClientHubTicketsArgs, 'input'>>;
   clientSupportTicketStatus?: Resolver<Maybe<ResolversTypes['ClientTicketStatus']>, ParentType, ContextType, RequireFields<QueryClientSupportTicketStatusArgs, 'email' | 'reference'>>;
   companyFinance?: Resolver<ResolversTypes['CompanyFinance'], ParentType, ContextType, RequireFields<QueryCompanyFinanceArgs, 'from' | 'to'>>;
   complianceOverview?: Resolver<ResolversTypes['ComplianceOverview'], ParentType, ContextType>;
@@ -20119,6 +20953,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getToolCategory?: Resolver<ResolversTypes['ToolCategory'], ParentType, ContextType, RequireFields<QueryGetToolCategoryArgs, 'id'>>;
   getTraining?: Resolver<ResolversTypes['Training'], ParentType, ContextType, RequireFields<QueryGetTrainingArgs, 'id'>>;
   getUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<QueryGetUserArgs, 'id'>>;
+  getWebsiteChatFaq?: Resolver<ResolversTypes['WebsiteChatFaq'], ParentType, ContextType, RequireFields<QueryGetWebsiteChatFaqArgs, 'id'>>;
+  getWebsiteChatKnowledge?: Resolver<ResolversTypes['WebsiteChatKnowledge'], ParentType, ContextType, RequireFields<QueryGetWebsiteChatKnowledgeArgs, 'id'>>;
   getWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<QueryGetWebsiteSubmissionArgs, 'id'>>;
   gstStates?: Resolver<Array<ResolversTypes['GstState']>, ParentType, ContextType>;
   hrDashboard?: Resolver<ResolversTypes['HrDashboard'], ParentType, ContextType>;
@@ -20356,6 +21192,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listPurchaseOrders?: Resolver<Array<ResolversTypes['PurchaseOrder']>, ParentType, ContextType>;
   listPurchaseOrdersPaged?: Resolver<ResolversTypes['PurchaseOrderPage'], ParentType, ContextType, RequireFields<QueryListPurchaseOrdersPagedArgs, 'input'>>;
   listPurchaseOrdersStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listRazorpayConfigs?: Resolver<Array<ResolversTypes['RazorpayConfig']>, ParentType, ContextType>;
   listRecurringInvoices?: Resolver<Array<ResolversTypes['RecurringInvoice']>, ParentType, ContextType>;
   listRecurringInvoicesPaged?: Resolver<ResolversTypes['RecurringInvoicePage'], ParentType, ContextType, RequireFields<QueryListRecurringInvoicesPagedArgs, 'input'>>;
   listRisks?: Resolver<Array<ResolversTypes['Risk']>, ParentType, ContextType>;
@@ -20385,6 +21222,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listStockMovements?: Resolver<Array<ResolversTypes['StockMovement']>, ParentType, ContextType>;
   listStockMovementsPaged?: Resolver<ResolversTypes['StockMovementPage'], ParentType, ContextType, RequireFields<QueryListStockMovementsPagedArgs, 'input'>>;
   listStockMovementsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listStripeConfigs?: Resolver<Array<ResolversTypes['StripeConfig']>, ParentType, ContextType>;
   listSuppliers?: Resolver<Array<ResolversTypes['Supplier']>, ParentType, ContextType>;
   listSuppliersPaged?: Resolver<ResolversTypes['SupplierPage'], ParentType, ContextType, RequireFields<QueryListSuppliersPagedArgs, 'input'>>;
   listSuppliersStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -20416,6 +21254,11 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listUsersStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listWebhookDeliveries?: Resolver<Array<ResolversTypes['WebhookDelivery']>, ParentType, ContextType, RequireFields<QueryListWebhookDeliveriesArgs, 'webhookId'>>;
   listWebhooks?: Resolver<Array<ResolversTypes['Webhook']>, ParentType, ContextType>;
+  listWebsiteChatFaqs?: Resolver<Array<ResolversTypes['WebsiteChatFaq']>, ParentType, ContextType>;
+  listWebsiteChatFaqsPaged?: Resolver<ResolversTypes['WebsiteChatFaqPage'], ParentType, ContextType, RequireFields<QueryListWebsiteChatFaqsPagedArgs, 'input'>>;
+  listWebsiteChatKnowledgeEntries?: Resolver<Array<ResolversTypes['WebsiteChatKnowledge']>, ParentType, ContextType>;
+  listWebsiteChatKnowledgeEntriesPaged?: Resolver<ResolversTypes['WebsiteChatKnowledgePage'], ParentType, ContextType, RequireFields<QueryListWebsiteChatKnowledgeEntriesPagedArgs, 'input'>>;
+  listWebsiteChatKnowledgeEntriesStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   listWebsiteSubmissions?: Resolver<Array<ResolversTypes['WebsiteSubmission']>, ParentType, ContextType>;
   listWebsiteSubmissionsPaged?: Resolver<ResolversTypes['WebsiteSubmissionPage'], ParentType, ContextType, RequireFields<QueryListWebsiteSubmissionsPagedArgs, 'input'>>;
   listWebsiteSubmissionsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
@@ -20554,6 +21397,11 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   translations?: Resolver<ResolversTypes['TranslationPage'], ParentType, ContextType, RequireFields<QueryTranslationsArgs, 'locale'>>;
   webhookEvents?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   websiteCaptcha?: Resolver<ResolversTypes['WebsiteCaptcha'], ParentType, ContextType>;
+  websiteChatMessages?: Resolver<Array<ResolversTypes['WebsiteChatMessage']>, ParentType, ContextType, RequireFields<QueryWebsiteChatMessagesArgs, 'sessionId'>>;
+  websiteChatSession?: Resolver<ResolversTypes['WebsiteChatSession'], ParentType, ContextType, RequireFields<QueryWebsiteChatSessionArgs, 'id'>>;
+  websiteChatSessionStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  websiteChatSessionsPaged?: Resolver<ResolversTypes['WebsiteChatSessionPage'], ParentType, ContextType, RequireFields<QueryWebsiteChatSessionsPagedArgs, 'input'>>;
+  websiteChatSettings?: Resolver<ResolversTypes['WebsiteChatSettings'], ParentType, ContextType>;
   websiteFormTypes?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   whatsappChannel?: Resolver<ResolversTypes['WhatsappChannelSettings'], ParentType, ContextType>;
   whatsappDemoAiStatus?: Resolver<ResolversTypes['WhatsappAiStatus'], ParentType, ContextType>;
@@ -20569,6 +21417,20 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   whatsappWorkflow?: Resolver<Maybe<ResolversTypes['WhatsappWorkflow']>, ParentType, ContextType, RequireFields<QueryWhatsappWorkflowArgs, 'id'>>;
   whatsappWorkflows?: Resolver<Array<ResolversTypes['WhatsappWorkflow']>, ParentType, ContextType, Partial<QueryWhatsappWorkflowsArgs>>;
   workspaceAnalytics?: Resolver<ResolversTypes['WorkspaceAnalytics'], ParentType, ContextType, RequireFields<QueryWorkspaceAnalyticsArgs, 'days'>>;
+}>;
+
+export type RazorpayConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['RazorpayConfig'] = ResolversParentTypes['RazorpayConfig']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  hasKeySecret?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  hasWebhookSecret?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  keyId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  keySecretHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  webhookSecretHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
 export type ReceivablesResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Receivables'] = ResolversParentTypes['Receivables']> = ResolversObject<{
@@ -21296,6 +22158,19 @@ export type StockMovementResolvers<ContextType = GraphQLContext, ParentType exte
 export type StockMovementPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['StockMovementPage'] = ResolversParentTypes['StockMovementPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['StockMovement']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type StripeConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['StripeConfig'] = ResolversParentTypes['StripeConfig']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  hasSecretKey?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  hasWebhookSecret?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  secretKeyHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  webhookSecretHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -22111,6 +22986,133 @@ export type WebsiteCaptchaResolvers<ContextType = GraphQLContext, ParentType ext
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type WebsiteChatAttachmentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WebsiteChatAttachment'] = ResolversParentTypes['WebsiteChatAttachment']> = ResolversObject<{
+  kind?: Resolver<ResolversTypes['WebsiteChatAttachmentKind'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  size?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WebsiteChatDayResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WebsiteChatDay'] = ResolversParentTypes['WebsiteChatDay']> = ResolversObject<{
+  day?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  end?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  start?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WebsiteChatFaqResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WebsiteChatFaq'] = ResolversParentTypes['WebsiteChatFaq']> = ResolversObject<{
+  answer?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  question?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sortOrder?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WebsiteChatFaqPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WebsiteChatFaqPage'] = ResolversParentTypes['WebsiteChatFaqPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['WebsiteChatFaq']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WebsiteChatKnowledgeResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WebsiteChatKnowledge'] = ResolversParentTypes['WebsiteChatKnowledge']> = ResolversObject<{
+  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  source?: Resolver<ResolversTypes['WebsiteChatKnowledgeSource'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WebsiteChatKnowledgePageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WebsiteChatKnowledgePage'] = ResolversParentTypes['WebsiteChatKnowledgePage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['WebsiteChatKnowledge']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WebsiteChatMessageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WebsiteChatMessage'] = ResolversParentTypes['WebsiteChatMessage']> = ResolversObject<{
+  attachments?: Resolver<Array<ResolversTypes['WebsiteChatAttachment']>, ParentType, ContextType>;
+  body?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  channel?: Resolver<ResolversTypes['WebsiteChatChannel'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  readAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  sender?: Resolver<ResolversTypes['WebsiteChatSender'], ParentType, ContextType>;
+  senderName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sessionId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WebsiteChatSessionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WebsiteChatSession'] = ResolversParentTypes['WebsiteChatSession']> = ResolversObject<{
+  assigneeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  assigneeName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  awaitingReplySince?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  closedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  closedBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  handedOffAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lastMessageAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  lastMessagePreview?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lastSender?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  messageCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  pageUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  site?: Resolver<ResolversTypes['WebsiteChatSite'], ParentType, ContextType>;
+  staffUnread?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['WebsiteChatStatus'], ParentType, ContextType>;
+  ticketId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ticketReference?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WebsiteChatSessionPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WebsiteChatSessionPage'] = ResolversParentTypes['WebsiteChatSessionPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['WebsiteChatSession']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WebsiteChatSettingsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WebsiteChatSettings'] = ResolversParentTypes['WebsiteChatSettings']> = ResolversObject<{
+  allowUploads?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  botModel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  botName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  customInstructions?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  handoffMessage?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  knowledgeSyncCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  knowledgeSyncError?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  knowledgeSyncedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  maxContextChars?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  maxUploadMb?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  noReplyTimeoutSeconds?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  offlineMessage?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  online?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  refusalMessage?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  soundEnabledByDefault?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  transcriptOnClose?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  weeklyHours?: Resolver<Array<ResolversTypes['WebsiteChatDay']>, ParentType, ContextType>;
+  welcomeMessage?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WebsiteChatSyncResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WebsiteChatSyncResult'] = ResolversParentTypes['WebsiteChatSyncResult']> = ResolversObject<{
+  count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  syncedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type WebsiteSubmissionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WebsiteSubmission'] = ResolversParentTypes['WebsiteSubmission']> = ResolversObject<{
   applicantId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
@@ -22426,6 +23428,13 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   CaseStudy?: CaseStudyResolvers<ContextType>;
   CaseStudyPage?: CaseStudyPageResolvers<ContextType>;
   Client?: ClientResolvers<ContextType>;
+  ClientContact?: ClientContactResolvers<ContextType>;
+  ClientHubCheckout?: ClientHubCheckoutResolvers<ContextType>;
+  ClientHubMe?: ClientHubMeResolvers<ContextType>;
+  ClientHubPaymentOptions?: ClientHubPaymentOptionsResolvers<ContextType>;
+  ClientHubProject?: ClientHubProjectResolvers<ContextType>;
+  ClientHubReminder?: ClientHubReminderResolvers<ContextType>;
+  ClientHubSignIn?: ClientHubSignInResolvers<ContextType>;
   ClientPage?: ClientPageResolvers<ContextType>;
   ClientTicketStatus?: ClientTicketStatusResolvers<ContextType>;
   CloudflareConfig?: CloudflareConfigResolvers<ContextType>;
@@ -22605,6 +23614,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   OrgNode?: OrgNodeResolvers<ContextType>;
   Organization?: OrganizationResolvers<ContextType>;
   Payment?: PaymentResolvers<ContextType>;
+  PaymentAttempt?: PaymentAttemptResolvers<ContextType>;
   PaymentPage?: PaymentPageResolvers<ContextType>;
   PayrollCandidate?: PayrollCandidateResolvers<ContextType>;
   PayrollDispatchResult?: PayrollDispatchResultResolvers<ContextType>;
@@ -22648,6 +23658,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   PurchaseOrderLine?: PurchaseOrderLineResolvers<ContextType>;
   PurchaseOrderPage?: PurchaseOrderPageResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
+  RazorpayConfig?: RazorpayConfigResolvers<ContextType>;
   Receivables?: ReceivablesResolvers<ContextType>;
   ReceivablesBucket?: ReceivablesBucketResolvers<ContextType>;
   RecurringInvoice?: RecurringInvoiceResolvers<ContextType>;
@@ -22714,6 +23725,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   StatusServiceSummary?: StatusServiceSummaryResolvers<ContextType>;
   StockMovement?: StockMovementResolvers<ContextType>;
   StockMovementPage?: StockMovementPageResolvers<ContextType>;
+  StripeConfig?: StripeConfigResolvers<ContextType>;
   Supplier?: SupplierResolvers<ContextType>;
   SupplierPage?: SupplierPageResolvers<ContextType>;
   SupportAgent?: SupportAgentResolvers<ContextType>;
@@ -22783,6 +23795,17 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Webhook?: WebhookResolvers<ContextType>;
   WebhookDelivery?: WebhookDeliveryResolvers<ContextType>;
   WebsiteCaptcha?: WebsiteCaptchaResolvers<ContextType>;
+  WebsiteChatAttachment?: WebsiteChatAttachmentResolvers<ContextType>;
+  WebsiteChatDay?: WebsiteChatDayResolvers<ContextType>;
+  WebsiteChatFaq?: WebsiteChatFaqResolvers<ContextType>;
+  WebsiteChatFaqPage?: WebsiteChatFaqPageResolvers<ContextType>;
+  WebsiteChatKnowledge?: WebsiteChatKnowledgeResolvers<ContextType>;
+  WebsiteChatKnowledgePage?: WebsiteChatKnowledgePageResolvers<ContextType>;
+  WebsiteChatMessage?: WebsiteChatMessageResolvers<ContextType>;
+  WebsiteChatSession?: WebsiteChatSessionResolvers<ContextType>;
+  WebsiteChatSessionPage?: WebsiteChatSessionPageResolvers<ContextType>;
+  WebsiteChatSettings?: WebsiteChatSettingsResolvers<ContextType>;
+  WebsiteChatSyncResult?: WebsiteChatSyncResultResolvers<ContextType>;
   WebsiteSubmission?: WebsiteSubmissionResolvers<ContextType>;
   WebsiteSubmissionPage?: WebsiteSubmissionPageResolvers<ContextType>;
   WhatsappAiStats?: WhatsappAiStatsResolvers<ContextType>;

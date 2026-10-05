@@ -23,6 +23,7 @@ const HAND_WRITTEN_MODULES = [
   'TechConfig',
   'Tracker',
   'User',
+  'WebsiteChatSession',
   'WebsiteSubmission',
 ] as const;
 

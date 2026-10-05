@@ -27,6 +27,7 @@ import { startReminderSweep } from './modules/reminders';
 import { startAuditRetention } from './modules/audit';
 import { ensureWhatsappDemoSeeds } from './modules/whatsapp-demo';
 import { startWhatsappReminders } from './modules/whatsapp-demo/channel';
+import { attachChatSocket, startChatHandoff } from './modules/website-chat';
 import { env } from './config/env';
 import { logger } from './utils/logger';
 
@@ -108,6 +109,9 @@ async function bootstrap(): Promise<void> {
   // A reminder a demo workflow scheduled on the real WhatsApp number has to arrive whether or
   // not anyone has the demo open.
   startWhatsappReminders();
+  // A website chat question nobody on the team answers in time goes to the knowledge bot, so
+  // the visitor is never left waiting on an empty desk.
+  startChatHandoff();
   // A run with no price on file costs zero, so the prices have to exist before the first
   // job does. Insert-only, so a price corrected in Tech survives every restart.
   await runAsPlatform(ensureAiModelPrices);
@@ -121,9 +125,11 @@ async function bootstrap(): Promise<void> {
   // Does nothing until somebody sets a window in Admin > Settings; see audit.retention.ts.
   startAuditRetention();
   const app = await createApp();
-  app.listen(env.port, () => {
+  const server = app.listen(env.port, () => {
     logger.info(`GraphQL server ready at http://localhost:${env.port}/graphql`);
   });
+  // The website chat's socket shares the API's port (see modules/website-chat).
+  attachChatSocket(server);
 }
 
 bootstrap().catch((error) => {

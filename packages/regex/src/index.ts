@@ -30,6 +30,15 @@ export const HEX_COLOR = /^#[\da-f]{6}$/i;
 /** A URL segment or lookup key: lower-case letters, digits and hyphens, e.g. `ai-writing`. */
 export const SLUG = /^[a-z\d-]+$/;
 
+/** A Stripe secret or restricted API key, live or test, e.g. `sk_live_…` or `rk_test_…`. */
+export const STRIPE_SECRET_KEY = /^(?:sk|rk)_(?:live|test)_\w+$/;
+
+/** A Stripe webhook signing secret, e.g. `whsec_…`. */
+export const STRIPE_WEBHOOK_SECRET = /^whsec_\w+$/;
+
+/** A Razorpay key id, live or test, e.g. `rzp_live_…`. */
+export const RAZORPAY_KEY_ID = /^rzp_(?:live|test)_\w+$/;
+
 /** A six-digit one-time code, as emailed for the WhatsApp demo sign-in, e.g. `042917`. */
 export const ONE_TIME_CODE = /^\d{6}$/;
 

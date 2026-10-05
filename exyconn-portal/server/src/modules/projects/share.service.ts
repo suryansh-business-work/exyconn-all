@@ -1,5 +1,6 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { ProjectShareModel } from './share.model';
+import type { InferSchemaType } from 'mongoose';
 import { ProjectModel } from './projects.model';
 import { MilestoneModel } from './sprints.model';
 import { BoardColumnModel, TaskModel } from './board.model';
@@ -149,30 +150,42 @@ export const shareService = {
     if (!share || !isShareLive(share)) {
       return null;
     }
-    const projectId = String(share.projectId);
-    const project = await ProjectModel.findById(projectId).lean();
-    if (!project) {
-      return null;
-    }
-    const [trackedHours, ticketCounts, milestones] = await Promise.all([
-      trackedHoursOf(projectId),
-      ticketCountsOf(projectId),
-      MilestoneModel.find({ projectId }).sort({ dueOn: 1, createdAt: 1 }).lean(),
-    ]);
-    return {
-      name: project.name,
-      clientName: project.clientName ?? '',
-      status: project.status,
-      startDate: project.startDate ?? null,
-      endDate: project.endDate ?? null,
-      budgetHours: project.budgetHours ?? null,
-      trackedHours,
-      milestones: milestones.map((one) => ({
-        name: one.name,
-        dueOn: one.dueOn ?? null,
-        state: one.state,
-      })),
-      ticketCounts,
-    };
+    const project = await ProjectModel.findById(String(share.projectId)).lean();
+    return project ? projectView(project) : null;
   },
 };
+
+/**
+ * What a client may see of a project — through a share link, or signed in to the client hub:
+ * names, dates, budget against tracked hours, milestones and tickets per column. Nothing
+ * per person, no comments, no ticket titles.
+ */
+export async function projectView(project: ProjectViewSource): Promise<SharedProjectView> {
+  const projectId = String(project._id);
+  const [trackedHours, ticketCounts, milestones] = await Promise.all([
+    trackedHoursOf(projectId),
+    ticketCountsOf(projectId),
+    MilestoneModel.find({ projectId }).sort({ dueOn: 1, createdAt: 1 }).lean(),
+  ]);
+  return {
+    name: project.name,
+    clientName: project.clientName ?? '',
+    status: project.status,
+    startDate: project.startDate ?? null,
+    endDate: project.endDate ?? null,
+    budgetHours: project.budgetHours ?? null,
+    trackedHours,
+    milestones: milestones.map((one) => ({
+      name: one.name,
+      dueOn: one.dueOn ?? null,
+      state: one.state,
+    })),
+    ticketCounts,
+  };
+}
+
+/** The project fields the client view is built from. */
+type ProjectViewSource = Pick<
+  InferSchemaType<typeof ProjectModel.schema>,
+  'name' | 'clientName' | 'status' | 'startDate' | 'endDate' | 'budgetHours'
+> & { _id: unknown };

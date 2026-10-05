@@ -5,11 +5,12 @@
 services:
   exyconn-tools-ui:
     build:
-      # Repo root: the ui build reads packages/seo (shared head renderer) from source.
+      # Repo root: the ui build reads packages/seo (shared head renderer) and packages/chat-widget from source.
       context: ..
       dockerfile: exyconn-tools/ui/Dockerfile
       args:
         VITE_API_BASE_URL: http://localhost:4002
+        VITE_CHAT_SOCKET_URL: ws://localhost:4004/chat/ws
     container_name: exyconn-tools-ui
     ports:
       - '4001:4001'

@@ -118,3 +118,10 @@ export function tooManyRequests(retryAfterMs: number, what = 'attempts'): never 
     extensions: { code: 'TOO_MANY_REQUESTS', retryAfterSeconds: Math.ceil(retryAfterMs / 1000) },
   });
 }
+
+/** Spends one point for `key`, refusing with TOO_MANY_REQUESTS once the limit is reached. */
+export async function enforceLimit(limiter: Limiter, key: string, what: string): Promise<void> {
+  if (!(await limiter.allow(key))) {
+    tooManyRequests(await limiter.retryAfterMs(key), what);
+  }
+}

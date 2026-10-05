@@ -144,7 +144,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set(
     "Permissions-Policy",
-    "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+    "camera=(), microphone=(self), geolocation=(), interest-cohort=()"
   );
   response.headers.set("X-Frame-Options", "SAMEORIGIN");
 
@@ -162,7 +162,7 @@ function withSecurityHeaders(response: Response): Response {
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set(
     "Permissions-Policy",
-    "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+    "camera=(), microphone=(self), geolocation=(), interest-cohort=()"
   );
   response.headers.set("X-Frame-Options", "SAMEORIGIN");
   response.headers.set("X-DNS-Prefetch-Control", "on");

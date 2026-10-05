@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { env } from '@exyconn/shell/config/env';
 
 /**
  * The platform credentials on these screens are write-only: the API says whether one is stored
@@ -33,4 +34,9 @@ export function maskedSecret(stored: boolean, hint?: string | null): string {
     return `••••${hint}`;
   }
   return stored ? '••••' : '—';
+}
+
+/** Where a gateway posts its webhooks: the API's own address, which the gateway must be given. */
+export function webhookUrl(path: string): string {
+  return new URL(path, env.graphqlUrl).toString();
 }

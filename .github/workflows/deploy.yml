@@ -219,6 +219,14 @@ jobs:
               APP_DIR=exyconn-portal/apps/whatsapp-demo
               PORT=4038
               VITE_PORTAL_APP=whatsapp-demo
+          - service: portal-clienthub
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/portal-app-clienthub
+              APP_DIR=exyconn-portal/apps/clienthub
+              PORT=4039
+              VITE_PORTAL_APP=clienthub
           - service: portal-status
             dockerfile: docker/portal-app.Dockerfile
             context: .
@@ -257,9 +265,11 @@ jobs:
             build_args: ''
           - service: tools-ui
             dockerfile: exyconn-tools/ui/Dockerfile
-            # Root context: the build reads packages/seo (shared head renderer) from source.
+            # Root context: the build reads packages/seo (shared head renderer) and packages/chat-widget from source.
             context: .
-            build_args: VITE_API_BASE_URL=https://tools-api.exyconn.com
+            build_args: |
+              VITE_API_BASE_URL=https://tools-api.exyconn.com
+              VITE_CHAT_SOCKET_URL=wss://portal-server.exyconn.com/chat/ws
           - service: tools-api
             dockerfile: exyconn-tools/server/Dockerfile
             context: exyconn-tools/server
@@ -408,6 +418,7 @@ jobs:
             "https://compliance.exyconn.com"
             "https://social.exyconn.com"
             "https://whatsapp-demo.exyconn.com"
+            "https://clienthub.exyconn.com"
             "https://status.exyconn.com"
             "https://hr.exyconn.com"
             "https://marketing.exyconn.com"
