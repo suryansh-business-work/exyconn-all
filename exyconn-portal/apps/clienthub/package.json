@@ -10,8 +10,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",
-    "test": "vitest run --passWithNoTests",
-    "test:ct": "cypress run --component"
+    "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
     "@apollo/client": "^4.2.12",
