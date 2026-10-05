@@ -37,7 +37,7 @@ export function RemindersPanel({ reminders }: Readonly<{ reminders: Reminder[] }
   const [paying, setPaying] = useState<PayableInvoice | null>(null);
 
   return (
-    <Card sx={{ p: 2.5 }}>
+    <Card sx={{ p: 2 }}>
       <Stack spacing={2}>
         <Text weight="semibold" size="lg">
           {t('Payment reminders')}

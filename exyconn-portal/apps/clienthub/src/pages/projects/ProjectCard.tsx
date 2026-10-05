@@ -20,7 +20,7 @@ export function ProjectCard({ project }: Readonly<{ project: ClientProject }>) {
     .join(' – ');
 
   return (
-    <Card sx={{ p: 2.5, height: '100%' }}>
+    <Card sx={{ p: 2, height: '100%' }}>
       <Stack spacing={1.5}>
         <Stack
           direction="row"
@@ -53,7 +53,7 @@ export function ProjectCard({ project }: Readonly<{ project: ClientProject }>) {
           )}
         </Stack>
         {project.ticketCounts.length > 0 && (
-          <Stack direction="row" spacing={0.75} sx={{ flexWrap: 'wrap', rowGap: 0.75 }}>
+          <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', rowGap: 1 }}>
             {project.ticketCounts.map((column) => (
               <Chip key={column.status} size="small" label={`${column.status}: ${column.count}`} />
             ))}
