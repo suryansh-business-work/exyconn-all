@@ -34,6 +34,31 @@ import LegalDocument from "./legal/LegalDocument.astro";
 import LegalFaq from "./legal/LegalFaq.astro";
 import LegalSectionBlock from "./legal/LegalSectionBlock.astro";
 import OfferPage from "./offer/OfferPage.astro";
+import DetailArchitecture from "../detail/DetailArchitecture.astro";
+import DetailIntro from "../detail/DetailIntro.astro";
+import DetailLogos from "../detail/DetailLogos.astro";
+import DetailOfferings from "../detail/DetailOfferings.astro";
+import DetailProcess from "../detail/DetailProcess.astro";
+import DetailRelated from "../detail/DetailRelated.astro";
+import DetailTabs from "../detail/DetailTabs.astro";
+import DetailCta from "./detail/DetailCta.astro";
+import DetailFaq from "./detail/DetailFaq.astro";
+import DetailLive from "./detail/DetailLive.astro";
+import DetailProof from "./detail/DetailProof.astro";
+import DetailStage from "./detail/DetailStage.astro";
+import ServiceBenefits from "./service/ServiceBenefits.astro";
+import ServiceDefinition from "./service/ServiceDefinition.astro";
+import ServiceFaq from "./service/ServiceFaq.astro";
+import ServiceGroupedCards from "./service/ServiceGroupedCards.astro";
+import ServiceInfoGrid from "./service/ServiceInfoGrid.astro";
+import ServiceRelatedHubs from "./service/ServiceRelatedHubs.astro";
+import ServiceSteps from "./service/ServiceSteps.astro";
+import WhatsappDemo from "./service/WhatsappDemo.astro";
+import AiGovernance from "./ai/AiGovernance.astro";
+import AiServiceApproach from "./aiservice/AiServiceApproach.astro";
+import AiServiceCatalogue from "./aiservice/AiServiceCatalogue.astro";
+import AiServiceOutcomes from "./aiservice/AiServiceOutcomes.astro";
+import AiServiceRelated from "./aiservice/AiServiceRelated.astro";
 
 /** Any Astro component, whatever its props. */
 type CmsRenderer = (props: never) => unknown;
@@ -81,6 +106,31 @@ const REGISTRY = {
   "forms.grievance": GrievanceForm,
   "agents.order": OrderAgents,
   "offer.page": OfferPage,
+  "detail.stage": DetailStage,
+  "detail.proof": DetailProof,
+  "detail.logos": DetailLogos,
+  "detail.intro": DetailIntro,
+  "detail.live": DetailLive,
+  "detail.architecture": DetailArchitecture,
+  "detail.offerings": DetailOfferings,
+  "detail.tabs": DetailTabs,
+  "detail.process": DetailProcess,
+  "detail.faq": DetailFaq,
+  "detail.related": DetailRelated,
+  "detail.cta": DetailCta,
+  "service.grouped-cards": ServiceGroupedCards,
+  "service.steps": ServiceSteps,
+  "service.info-grid": ServiceInfoGrid,
+  "service.benefits": ServiceBenefits,
+  "service.definition": ServiceDefinition,
+  "service.faq": ServiceFaq,
+  "service.related-hubs": ServiceRelatedHubs,
+  "service.whatsapp-demo": WhatsappDemo,
+  "ai.governance": AiGovernance,
+  "aiservice.catalogue": AiServiceCatalogue,
+  "aiservice.approach": AiServiceApproach,
+  "aiservice.outcomes": AiServiceOutcomes,
+  "aiservice.related": AiServiceRelated,
 } satisfies Record<CmsComponentKey, CmsRenderer>;
 
 /**

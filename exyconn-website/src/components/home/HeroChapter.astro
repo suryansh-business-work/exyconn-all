@@ -4,6 +4,7 @@ import { fillCopy } from "../../lib/cms/variables";
 import ChapterIntro from "./ChapterIntro.astro";
 import GlassList from "./GlassList.astro";
 import StageButton from "./StageButton.astro";
+import type { CmsRenderContext } from "../../lib/cms/types";
 import type { HomeAction, HomeItem, HomeStat } from "./types";
 
 interface Props {
@@ -17,9 +18,10 @@ interface Props {
   stats: readonly HomeStat[];
   features: readonly HomeItem[];
   scrollHint: string;
+  cms: CmsRenderContext;
 }
 
-const { id, badge, headline, headlineSecond, lead, actions, stats, features, scrollHint } =
+const { id, badge, headline, headlineSecond, lead, actions, stats, features, scrollHint, cms } =
   Astro.props;
 const VARIANTS = ["solid", "glass", "accent"] as const;
 ---
@@ -31,7 +33,7 @@ const VARIANTS = ["solid", "glass", "accent"] as const;
       label={badge}
       title={headline}
       accent={headlineSecond}
-      lead={fillCopy(lead)}
+      lead={fillCopy(lead, cms.variables)}
       level="h1"
     >
       <div class="mt-8 flex flex-col sm:flex-row flex-wrap gap-3">

@@ -1,0 +1,54 @@
+---
+/**
+ * The AI hub's governance chapter (CMS "ai.governance"): the platform's promises as cards
+ * beside a panel linking the trust and security services.
+ */
+import ChapterHeading from "../../inner/ChapterHeading.astro";
+import InfoGrid from "../../hubs/InfoGrid.astro";
+import type { InnerAction } from "../../inner/types";
+
+type Props = Readonly<{
+  index: number;
+  id: string;
+  label: string;
+  title: string;
+  promises: readonly { title: string; text: string }[];
+  /** The panel: the category's name over its title, description and service links. */
+  category: string;
+  servicesTitle: string;
+  description: string;
+  services: readonly { title: string; href: string }[];
+  more: InnerAction;
+}>;
+
+const { index, id, label, title, promises, category, servicesTitle, description, services, more } =
+  Astro.props;
+---
+
+<section class="inner-section stage-shell" aria-labelledby={id}>
+  <ChapterHeading index={index} id={id} label={label} title={title} />
+  <div class="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+    <InfoGrid items={promises} columns={2} />
+    <aside class="inner-panel p-6 mt-10 self-start" aria-labelledby={`${id}-services`}>
+      <p class="stage-label inner-index">{category}</p>
+      <h3 id={`${id}-services`} class="inner-h3 mt-2">
+        {servicesTitle}
+      </h3>
+      <p class="inner-card__text mt-2">{description}</p>
+      <ul class="inner-points hub-link-list">
+        {
+          services.map((service) => (
+            <li>
+              <a href={service.href} class="hub-link">
+                {service.title}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <a href={more.href} class="hub-link inline-flex mt-6">
+        {more.label}
+      </a>
+    </aside>
+  </div>
+</section>

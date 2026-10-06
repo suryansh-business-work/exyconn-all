@@ -1,0 +1,44 @@
+---
+/**
+ * An AI service page's approach chapter (CMS "aiservice.approach"): the description under a
+ * numbered heading, beside a panel to scope the work and the service's category.
+ */
+import ActionLink from "../../inner/ActionLink.astro";
+import ChapterHeading from "../../inner/ChapterHeading.astro";
+import type { InnerAction } from "../../inner/types";
+
+type Props = Readonly<{
+  index: number;
+  label: string;
+  title: string;
+  description: string;
+  scopeTitle: string;
+  scopeText: string;
+  primary: InnerAction;
+  secondary: InnerAction;
+  category: { title: string; description: string; href: string; link: string };
+}>;
+
+const { index, label, title, description, scopeTitle, scopeText, primary, secondary, category } =
+  Astro.props;
+---
+
+<section class="inner-section stage-shell" aria-labelledby="approach">
+  <div class="grid gap-10 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:items-start">
+    <div>
+      <ChapterHeading index={index} id="approach" label={label} title={title} lede={description} />
+    </div>
+    <aside class="inner-panel p-6 lg:mt-10" aria-labelledby="scope-title">
+      <h3 id="scope-title" class="inner-h3">{scopeTitle}</h3>
+      <p class="inner-card__text mt-3">{scopeText}</p>
+      <div class="inner-stage__actions">
+        <ActionLink action={primary} />
+        <ActionLink action={secondary} variant="ghost" />
+      </div>
+      <div class="stage-rule mt-6" aria-hidden="true"></div>
+      <p class="stage-label inner-index mt-6">{category.title}</p>
+      <p class="inner-card__text mt-2">{category.description}</p>
+      <a href={category.href} class="hub-link mt-2">{category.link}</a>
+    </aside>
+  </div>
+</section>

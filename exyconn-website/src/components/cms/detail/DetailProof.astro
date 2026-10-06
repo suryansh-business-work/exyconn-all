@@ -1,0 +1,20 @@
+---
+/**
+ * Stat counters under the hero (CMS "detail.proof"). A value may name a number the site counts
+ * for itself, e.g. "{serviceCount}".
+ */
+import ProofStrip from "../../inner/ProofStrip.astro";
+import { fillCopy } from "../../../lib/cms/variables";
+import type { CmsRenderContext } from "../../../lib/cms/types";
+
+type Props = Readonly<{
+  label: string;
+  items: readonly { value: string; label: string }[];
+  cms: CmsRenderContext;
+}>;
+
+const { label, items, cms } = Astro.props;
+const stats = items.map((item) => ({ ...item, value: fillCopy(item.value, cms.variables) }));
+---
+
+<ProofStrip variant="stats" label={label} items={stats} />

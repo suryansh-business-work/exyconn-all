@@ -10,6 +10,7 @@ import type { JsonLdNode } from "@exyconn/seo";
 import SiteShell from "./SiteShell.astro";
 import CmsBlocks from "../components/cms/CmsBlocks.astro";
 import {
+  cmsVariables,
   designSystemCss,
   fillCopy,
   fillJsonLd,
@@ -34,12 +35,13 @@ const { site, designSystem } = siteData;
 const { page } = pageData;
 
 const branding = await getBrandingSafe();
+const variables = await cmsVariables(site.id);
 const fragments = [...siteData.fragments, ...pageData.fragments];
-const context = renderContext(branding, page.params, fragments);
+const context = renderContext(site.id, branding, variables, page.params, fragments);
 const headerBlocks = context.fragments.get(site.headerFragmentId) ?? [];
 const footerBlocks = context.fragments.get(site.footerFragmentId) ?? [];
 
-const pageTitle = fillCopy(page.seo.title || page.title);
+const pageTitle = fillCopy(page.seo.title || page.title, variables);
 const title = (site.seo.titleTemplate || "%s").replaceAll("%s", pageTitle);
 // A site served without markets is canonical on its own first domain.
 const siteUrl =
@@ -47,6 +49,8 @@ const siteUrl =
 const origin = siteUrl ?? (Astro.site?.toString() ?? "https://exyconn.com/").replace(/\/$/, "");
 const market = site.markets ? (Astro.locals.market ?? DEFAULT_MARKET) : null;
 const jsonLdValues = {
+  ...variables,
+  market: market?.path ?? "",
   siteUrl: origin,
   marketUrl: market ? `${origin}${marketUrl(market, "/")}` : origin,
   businessName: branding.businessName || BRANDING_FALLBACK.businessName,
@@ -72,7 +76,7 @@ const styles = [
 
 <SiteShell
   title={title}
-  description={fillCopy(page.seo.description || site.seo.description)}
+  description={fillCopy(page.seo.description || site.seo.description, variables)}
   keywords={page.seo.keywords}
   metaImage={page.seo.ogImageUrl || site.seo.ogImageUrl}
   canonical={page.seo.canonical}

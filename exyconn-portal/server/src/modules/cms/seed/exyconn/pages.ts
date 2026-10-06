@@ -13,6 +13,9 @@ import { OUR_SERVICES_PAGE } from './pages/our-services';
 import { OUR_VISION_PAGE } from './pages/our-vision';
 import { PRIVACY_POLICY_PAGE } from './pages/privacy-policy';
 import { SITEMAP_PAGE } from './pages/sitemap';
+import { SERVICE_PAGES } from './pages/services';
+import { AI_PAGES } from './pages/ai';
+import { AI_SERVICE_PAGES } from './pages/ai-services';
 
 /** Every migrated page of exyconn.com, one file per page or area under pages/. */
 export const EXYCONN_PAGES: CmsSeedPage[] = [
@@ -31,4 +34,7 @@ export const EXYCONN_PAGES: CmsSeedPage[] = [
   COOKIES_PAGE,
   LEGAL_PAGE,
   GRIEVANCE_PAGE,
+  ...SERVICE_PAGES,
+  ...AI_PAGES,
+  ...AI_SERVICE_PAGES,
 ];

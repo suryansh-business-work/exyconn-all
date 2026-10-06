@@ -251,7 +251,7 @@ describe("tools", () => {
 
 describe("sitemap", () => {
   it("groups the portal's safe links by category", () => {
-    const sections = sitemapSections(FIXTURE_NAV_LINKS);
+    const sections = sitemapSections(FIXTURE_NAV_LINKS, []);
     expect(sections.map((section) => section.label)).toEqual([
       "General",
       "AI",
@@ -264,12 +264,12 @@ describe("sitemap", () => {
     ).toBe(false);
     expect(pageCount(sections)).toBe(9);
     expect(sections[0].links[0]).toEqual({ label: "Home", href: "/", description: "Start here." });
-    const noDescription = sitemapSections([{ ...FIXTURE_NAV_LINKS[0], description: "" }]);
+    const noDescription = sitemapSections([{ ...FIXTURE_NAV_LINKS[0], description: "" }], []);
     expect(noDescription[0].links[0].description).toBeUndefined();
   });
 
   it("falls back to the site's own routes, never the retired products page", () => {
-    const sections = sitemapSections([]);
+    const sections = sitemapSections([], []);
     expect(sections).toEqual(SITE_ROUTES);
     const hrefs = sections.flatMap((section) => section.links.map((link) => link.href));
     expect(hrefs).toContain("/our-tools");

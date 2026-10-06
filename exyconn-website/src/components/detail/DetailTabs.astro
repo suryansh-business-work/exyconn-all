@@ -7,25 +7,25 @@
 import "../../styles/inner-stage.css";
 import "./tabs.css";
 import ChapterHeading from "../inner/ChapterHeading.astro";
-import { DETAIL_COPY } from "../../lib/detail/copy";
-import { splitPoint } from "../../lib/detail/helpers";
-import { DETAIL_LOGOS } from "../../lib/detail/logos";
-import type { DetailTab } from "../../lib/detail/schema";
+import { splitPoint, tabPosition } from "../../lib/detail/helpers";
+import type { DetailTab } from "./types";
 
 type Props = Readonly<{
   index: number;
   label: string;
   title: string;
   items: readonly DetailTab[];
+  /** The pager's buttons. */
+  previous: string;
+  next: string;
 }>;
 
-const { index, label, title, items } = Astro.props;
-const copy = DETAIL_COPY.tabs;
+const { index, label, title, items, previous, next } = Astro.props;
 const panels = items.map((item, i) => ({
   ...item,
   tabId: `detail-tab-${i}`,
   panelId: `detail-panel-${i}`,
-  logo: item.logo ? DETAIL_LOGOS[item.logo] : undefined,
+  logo: item.logo.src ? item.logo : undefined,
   points: item.points.map(splitPoint),
 }));
 ---
@@ -90,16 +90,16 @@ const panels = items.map((item, i) => ({
           <div class="detail-tabs__pager" hidden>
             <button type="button" class="detail-tabs__step" data-tab-step="-1" disabled={i === 0}>
               <i class="fa-solid fa-arrow-left icon-xs" aria-hidden="true" />
-              {copy.previous}
+              {previous}
             </button>
-            <span class="stage-label">{copy.position(i + 1, panels.length)}</span>
+            <span class="stage-label">{tabPosition(i + 1, panels.length)}</span>
             <button
               type="button"
               class="detail-tabs__step"
               data-tab-step="1"
               disabled={i === panels.length - 1}
             >
-              {copy.next}
+              {next}
               <i class="fa-solid fa-arrow-right icon-xs" aria-hidden="true" />
             </button>
           </div>

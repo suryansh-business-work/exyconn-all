@@ -1,16 +1,25 @@
 ---
 /**
  * The WhatsApp chatbot page's phone preview: a booking conversation that plays itself, message
- * by message, on a loop. Content comes from lib/detail/services/whatsapp-chatbot.preview.ts.
+ * by message, on a loop. The conversation is the page's CMS props ("service.whatsapp-demo").
  * With reduced motion the whole conversation simply shows.
  */
-import { WHATSAPP_PREVIEW } from "../../lib/detail/services/whatsapp-chatbot.preview";
 import "./whatsapp-preview.css";
+import type { PreviewMessage } from "./types";
 
-const { business, status, caption, messages } = WHATSAPP_PREVIEW;
+type Props = Readonly<{
+  business: string;
+  status: string;
+  caption: string;
+  /** The figure's accessible name; "{business}" is replaced by the business's name. */
+  ariaLabel: string;
+  messages: readonly PreviewMessage[];
+}>;
+
+const { business, status, caption, ariaLabel, messages } = Astro.props;
 ---
 
-<figure class="wa-preview" aria-label={`WhatsApp conversation with ${business}`}>
+<figure class="wa-preview" aria-label={ariaLabel.replaceAll("{business}", business)}>
   <div class="wa-preview__phone">
     <div class="wa-preview__header">
       <span class="wa-preview__avatar" aria-hidden="true">
@@ -30,7 +39,7 @@ const { business, status, caption, messages } = WHATSAPP_PREVIEW;
             style={`--i: ${index}`}
           >
             <span class="wa-preview__bubble">{message.text}</span>
-            {"buttons" in message && message.buttons && (
+            {message.buttons.length > 0 && (
               <span class="wa-preview__buttons">
                 {message.buttons.map((label) => (
                   <span class="wa-preview__button">{label}</span>

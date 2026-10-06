@@ -6,6 +6,10 @@ import { COMPANY_COMPONENTS } from './company';
 import { FORMS_COMPONENTS } from './forms';
 import { LEGAL_COMPONENTS } from './legal';
 import { OFFER_COMPONENTS } from './offer';
+import { DETAIL_COMPONENTS } from './detail';
+import { SERVICE_COMPONENTS } from './service';
+import { AI_COMPONENTS } from './ai';
+import { AISERVICE_COMPONENTS } from './aiservice';
 
 export type { CmsComponentDef } from './types';
 
@@ -21,6 +25,10 @@ const CATALOGUE = [
   ...FORMS_COMPONENTS,
   ...AGENTS_COMPONENTS,
   ...OFFER_COMPONENTS,
+  ...DETAIL_COMPONENTS,
+  ...SERVICE_COMPONENTS,
+  ...AI_COMPONENTS,
+  ...AISERVICE_COMPONENTS,
 ] as const;
 
 export const CMS_COMPONENTS: readonly CmsComponentDef[] = CATALOGUE;

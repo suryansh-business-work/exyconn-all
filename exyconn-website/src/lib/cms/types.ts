@@ -110,11 +110,15 @@ export interface CmsPath {
 
 /**
  * What every component on a CMS page can read besides its own props (passed as `cms`): the
- * company's branding (fetched once per page), the params a template bound, and the
- * published fragments the page places.
+ * site, the company's branding (fetched once per page), the copy variables, the params a
+ * template bound, and the published fragments the page places.
  */
 export interface CmsRenderContext {
+  /** The site the page belongs to. */
+  siteId: string;
   branding: Branding;
+  /** The values copy may name in braces, e.g. {serviceCount} (see variables.ts). */
+  variables: Readonly<Record<string, string>>;
   params: Readonly<Record<string, string>>;
   fragments: ReadonlyMap<string, readonly CmsBlock[]>;
 }

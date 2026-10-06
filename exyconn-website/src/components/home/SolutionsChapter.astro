@@ -3,6 +3,7 @@
 import { fillCopy } from "../../lib/cms/variables";
 import ChapterIntro from "./ChapterIntro.astro";
 import ServiceCatalogue from "./ServiceCatalogue.astro";
+import type { CmsRenderContext } from "../../lib/cms/types";
 import type { CatalogueHeading, HomeHeading } from "./types";
 
 interface Pillar {
@@ -29,9 +30,14 @@ interface Props extends HomeHeading {
   pillars: readonly Pillar[];
   quickLinks: readonly QuickLink[];
   catalogue: CatalogueHeading;
+  cms: CmsRenderContext;
 }
 
-const { id, badge, title, accent, lead, pillars, quickLinks, catalogue } = Astro.props;
+const { id, badge, title, accent, lead, quickLinks, catalogue, cms } = Astro.props;
+const pillars = Astro.props.pillars.map((pillar) => ({
+  ...pillar,
+  text: fillCopy(pillar.text, cms.variables),
+}));
 ---
 
 <section id={id} data-chapter="1" class="stage-chapter">
@@ -51,7 +57,7 @@ const { id, badge, title, accent, lead, pillars, quickLinks, catalogue } = Astro
               {pillar.flag && <span class="stage-label text-amber-bright">{pillar.flag}</span>}
             </div>
             <h3 class="text-xl font-bold text-fg">{pillar.title}</h3>
-            <p class="mt-2 text-sm text-fg-secondary leading-relaxed">{fillCopy(pillar.text)}</p>
+            <p class="mt-2 text-sm text-fg-secondary leading-relaxed">{pillar.text}</p>
             <ul class="mt-4 space-y-1.5">
               {pillar.points.map((point) => (
                 <li class="flex items-start gap-2 text-sm text-fg-secondary">
@@ -91,6 +97,6 @@ const { id, badge, title, accent, lead, pillars, quickLinks, catalogue } = Astro
       }
     </ul>
 
-    <ServiceCatalogue heading={catalogue} />
+    <ServiceCatalogue heading={catalogue} cms={cms} />
   </div>
 </section>

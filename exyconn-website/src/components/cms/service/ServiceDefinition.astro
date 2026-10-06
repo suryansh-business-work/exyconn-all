@@ -1,0 +1,15 @@
+---
+/** A numbered chapter heading beside one paragraph — "what it is" (CMS "service.definition"). */
+import ChapterHeading from "../../inner/ChapterHeading.astro";
+
+type Props = Readonly<{ index: number; id: string; label: string; title: string; text: string }>;
+
+const { index, id, label, title, text } = Astro.props;
+---
+
+<section class="inner-section stage-shell" aria-labelledby={id}>
+  <div class="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-end">
+    <ChapterHeading index={index} id={id} label={label} title={title} />
+    <p class="inner-lede">{text}</p>
+  </div>
+</section>

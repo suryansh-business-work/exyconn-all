@@ -1,11 +1,11 @@
 /**
  * The human sitemap: the portal's navigation links grouped by category when it has any,
- * otherwise the site's own routes (the same pages sitemap.xml lists). Also the node-graph
- * scene's branch counts. The page's words are the CMS component's props ('company.sitemap').
+ * otherwise the site's own routes (the same pages sitemap.xml lists), with the AI service
+ * pages from the CMS catalogue. Also the node-graph scene's branch counts. The page's words are
+ * the CMS component's props ('company.sitemap').
  */
 import type { NavLink } from "../portal/types";
 import { safeHref } from "../safe-output";
-import { aiServices } from "../services/aiServices";
 
 export interface SitemapLink {
   label: string;
@@ -22,6 +22,9 @@ const MAX_BRANCHES = 12;
 const MAX_LEAVES = 24;
 
 const link = (label: string, href: string): SitemapLink => ({ label, href });
+
+/** The section the AI service pages join, after its "All AI services" link. */
+const AI_SERVICES_HREF = "/ai-services";
 
 /** Every page this site serves (unprefixed — the middleware adds the reader's market). */
 export const SITE_ROUTES: readonly SitemapSection[] = [
@@ -53,10 +56,7 @@ export const SITE_ROUTES: readonly SitemapSection[] = [
   },
   {
     label: "AI services",
-    links: [
-      link("All AI services", "/ai-services"),
-      ...aiServices.map((service) => link(service.title, `/ai-services/${service.slug}`)),
-    ],
+    links: [link("All AI services", AI_SERVICES_HREF)],
   },
   {
     label: "Services",
@@ -98,8 +98,14 @@ export const SITE_ROUTES: readonly SitemapSection[] = [
   },
 ];
 
-/** The portal's links grouped by category (unsafe hrefs dropped), else the site's routes. */
-export const sitemapSections = (navLinks: readonly NavLink[]): SitemapSection[] => {
+/**
+ * The portal's links grouped by category (unsafe hrefs dropped), else the site's routes with
+ * `aiServices` (the CMS catalogue's pages) in the AI services section.
+ */
+export const sitemapSections = (
+  navLinks: readonly NavLink[],
+  aiServices: readonly SitemapLink[]
+): SitemapSection[] => {
   const sections = new Map<string, SitemapLink[]>();
   navLinks
     .filter((one) => safeHref(one.href) !== "")
@@ -108,7 +114,13 @@ export const sitemapSections = (navLinks: readonly NavLink[]): SitemapSection[] 
       sections.set(one.category, [...(sections.get(one.category) ?? []), entry]);
     });
   if (sections.size === 0) {
-    return SITE_ROUTES.map((section) => ({ ...section, links: [...section.links] }));
+    return SITE_ROUTES.map((section) => ({
+      ...section,
+      links:
+        section.links[0]?.href === AI_SERVICES_HREF
+          ? [...section.links, ...aiServices]
+          : [...section.links],
+    }));
   }
   return [...sections.entries()].map(([label, links]) => ({ label, links }));
 };

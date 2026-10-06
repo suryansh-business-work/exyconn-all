@@ -1,0 +1,22 @@
+---
+/** An AI service page's deliverables (CMS "aiservice.outcomes"): numbered outcome cards. */
+import ChapterHeading from "../../inner/ChapterHeading.astro";
+
+type Props = Readonly<{ index: number; label: string; title: string; outcomes: readonly string[] }>;
+
+const { index, label, title, outcomes } = Astro.props;
+---
+
+<section class="inner-section stage-shell" aria-labelledby="outcomes">
+  <ChapterHeading index={index} id="outcomes" label={label} title={title} />
+  <ol class="grid gap-4 mt-10 md:grid-cols-2">
+    {
+      outcomes.map((outcome, position) => (
+        <li class="inner-card">
+          <span class="stage-label inner-index">{String(position + 1).padStart(2, "0")}</span>
+          <p class="text-fg leading-relaxed">{outcome}</p>
+        </li>
+      ))
+    }
+  </ol>
+</section>

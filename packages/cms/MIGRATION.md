@@ -33,8 +33,9 @@ the recipe it followed, with the home page as the worked example.
 2. **Make each section take all its copy as props.** Move every string, list and link the
    component used to import into its `Props` (typed in the component; shared shapes in a
    `types.ts` beside the components, e.g. `components/home/types.ts`). Keep in the component:
-   markup, Tailwind classes, icons-as-classes chosen by position, and data that drives routing or
-   is shared with other pages (e.g. the AI service catalogue, `lib/services/aiServices.ts`).
+   markup, Tailwind classes, icons-as-classes chosen by position, and behaviour. A list other
+   code needs (a catalogue) lives in one CMS block that code reads back — see "Catalogue-driven
+   pages" below.
    - **Never move Tailwind class names into props.** Tailwind only generates classes it finds in
      `exyconn-website/src`; a class that exists only in the seed renders unstyled.
    - Data the company edits elsewhere stays there: the closing chapter still reads Admin › Branding
@@ -60,7 +61,7 @@ the recipe it followed, with the home page as the worked example.
    `canonical`, `ogImageUrl`, `jsonLd` only if the old page passed them). The seed is insert-only
    and per key: a new page arrives on the next boot, an edited one is never overwritten.
 6. **Delete the page file** and every lib data file nothing else imports any more (grep first —
-   e.g. `lib/home/process.ts` stayed because `DetailProcess.astro` still reads it).
+   e.g. `lib/services/catalog.ts` stays while hand-written pages still read it).
 7. **Check** `pnpm --filter exyconn <script>` for `typecheck`, `lint`, `format:check`, `test` and
    `build`; server
    `tsc --noEmit` + `eslint src/modules/cms` + `prettier --check src/modules/cms`, and
@@ -72,6 +73,15 @@ Worked example — home: `[market]/index.astro` deleted; `HomeStage`, `HeroChapt
 `PlatformsMarquee`, `ClosingChapter` take props; catalogue `catalogue/home.ts` + `home.copy.ts` +
 `home.copy-more.ts`; seed `seed/exyconn/pages/home.ts`; `lib/home/{hero,solutions,industries,
 platforms,why-choose-us}.ts` and `lib/tech-logos.ts` deleted.
+
+**Catalogue-driven pages** (services, AI, AI services): one CMS page per item, keeping every
+URL — each `/services/<x>`, `/ai/<x>` and `/ai-services/<slug>` is its own page whose section
+props hold that item's detail (seeds generated once from the old lib data into
+`seed/exyconn/pages/{services,ai,ai-services}/`). A new item is a duplicated page. A list the
+code needs is read from the CMS: the AI service catalogue is the `aiservice.catalogue` block on
+`/ai-services` (`src/lib/cms/ai-services.ts`), which the home catalogue, sitemap.xml, the human
+sitemap and the `{serviceCount}`/`{categoryCount}` variables read. JSON-LD URLs that carry the
+reader's market are written with `{market}` (filled by `CmsPage`, with the copy variables).
 
 ## Proving parity (two steps)
 

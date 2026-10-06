@@ -11,6 +11,7 @@ import InnerStage from "../../inner/InnerStage.astro";
 import { slugify } from "../../../lib/inner/headings";
 import { pageCount, sitemapSections, treeBranches } from "../../../lib/content/sitemap";
 import { getNavLinks } from "../../../lib/portal";
+import { aiServiceLinks } from "../../../lib/cms/ai-services";
 import type { CmsCrumb } from "./types";
 
 type Props = Readonly<{
@@ -29,7 +30,10 @@ type Props = Readonly<{
 }>;
 
 const copy = Astro.props;
-const sections = sitemapSections(await getNavLinks());
+// The portal's navigation links when it has any; the site's own routes (with the AI service
+// pages from the CMS catalogue) otherwise.
+const host = Astro.request.headers.get("host") ?? "";
+const sections = sitemapSections(await getNavLinks(), await aiServiceLinks(host));
 const stats = copy.stats
   .replace("{pages}", String(pageCount(sections)))
   .replace("{sections}", String(sections.length));

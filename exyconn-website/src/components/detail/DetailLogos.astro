@@ -1,10 +1,10 @@
 ---
 /**
  * The tools strip under the hero: a few one-colour marks in a still row (a marquee needs more
- * logos than these pages have). Marks come from src/lib/detail/logos.ts.
+ * logos than these pages have). The marks are the page's own CMS props.
  */
 import "../../styles/inner-stage.css";
-import type { DetailLogo } from "../../lib/detail/logos";
+import type { DetailLogo } from "./types";
 
 type Props = Readonly<{ label: string; logos: readonly DetailLogo[] }>;
 

@@ -1,0 +1,27 @@
+---
+/**
+ * A numbered chapter of grouped link cards (CMS "service.grouped-cards"): the services hub's
+ * pillars and the AI hub's capability map. With `highlight`, a hovered group lights its
+ * cluster in the stage scene.
+ */
+import ChapterHeading from "../../inner/ChapterHeading.astro";
+import GroupedCards, { type CardGroup } from "../../hubs/GroupedCards.astro";
+
+type Props = Readonly<{
+  index: number;
+  id: string;
+  label: string;
+  title: string;
+  lede: string;
+  more: string;
+  highlight: boolean;
+  groups: readonly CardGroup[];
+}>;
+
+const { index, id, label, title, lede, more, highlight, groups } = Astro.props;
+---
+
+<section class="inner-section stage-shell" aria-labelledby={id}>
+  <ChapterHeading index={index} id={id} label={label} title={title} lede={lede || undefined} />
+  <GroupedCards groups={groups} more={more} highlight={highlight} />
+</section>

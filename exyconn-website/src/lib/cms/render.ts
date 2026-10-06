@@ -4,12 +4,16 @@ import type { CmsFragment, CmsRenderContext } from "./types";
 
 /** Everything a page's components can read besides their props (see CmsRenderContext). */
 export function renderContext(
+  siteId: string,
   branding: Branding,
+  variables: Readonly<Record<string, string>>,
   params: Readonly<Record<string, string>>,
   fragments: readonly CmsFragment[]
 ): CmsRenderContext {
   return {
+    siteId,
     branding,
+    variables,
     params,
     fragments: new Map<string, readonly CmsBlock[]>(fragments.map((f) => [f.id, f.blocks])),
   };

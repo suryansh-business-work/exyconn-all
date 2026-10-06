@@ -1,19 +1,23 @@
 ---
 /**
  * The AI service catalogue, dense and narrow: one glass panel per category in the reading
- * column, its services as compact rows. The services are read straight from lib/services so
- * the home page and /ai-services never drift; the heading is CMS copy.
+ * column, its services as compact rows. The services are the CMS's own catalogue (the
+ * /ai-services page, src/lib/cms/ai-services.ts) so the home page and /ai-services never
+ * drift; the heading is CMS copy.
  */
+import { aiServiceCategories } from "../../lib/cms/ai-services";
 import { fillCopy } from "../../lib/cms/variables";
-import { aiServiceCategories, servicesInCategory } from "../../lib/services/aiServices";
+import type { CmsRenderContext } from "../../lib/cms/types";
 import type { CatalogueHeading } from "./types";
 
 interface Props {
   /** The panel above the catalogue; its title may name {serviceCount}. */
   heading: CatalogueHeading;
+  cms: CmsRenderContext;
 }
 
-const { heading } = Astro.props;
+const { heading, cms } = Astro.props;
+const categories = await aiServiceCategories(cms.siteId);
 ---
 
 <div class="stage-column stage-gap">
@@ -23,7 +27,7 @@ const { heading } = Astro.props;
       <span>{heading.badge}</span>
     </p>
     <h2 class="stage-title stage-title--md">
-      <span class="block" data-reveal-line>{fillCopy(heading.title)}</span>
+      <span class="block" data-reveal-line>{fillCopy(heading.title, cms.variables)}</span>
       <span class="block stage-accent" data-reveal-line>{heading.accent}</span>
     </h2>
     <p class="mt-4 text-fg-secondary leading-relaxed">{heading.lead}</p>
@@ -38,7 +42,7 @@ const { heading } = Astro.props;
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
     {
-      aiServiceCategories.map((category) => (
+      categories.map((category) => (
         <section class="glass p-4" aria-labelledby={`category-${category.slug}`}>
           <div class="flex items-start gap-3 pb-3 border-b border-line">
             <span class="shrink-0 w-9 h-9 rounded-lg bg-violet-soft text-violet-fg flex items-center justify-center">
@@ -52,7 +56,7 @@ const { heading } = Astro.props;
             </div>
           </div>
           <ul class="mt-1">
-            {servicesInCategory(category.slug).map((service) => (
+            {category.services.map((service) => (
               <li>
                 <a
                   href={`/ai-services/${service.slug}`}

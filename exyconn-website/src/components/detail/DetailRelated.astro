@@ -1,16 +1,16 @@
 ---
-/** Chapter "Related": three link cards to the next pages of the same section. */
+/** Chapter "Related": link cards to other pages of the same section. */
 import "../../styles/inner-stage.css";
 import ChapterHeading from "../inner/ChapterHeading.astro";
 import LinkCard from "../inner/LinkCard.astro";
-import type { RelatedCard } from "../../lib/detail/helpers";
+import type { DetailRelatedCard } from "./types";
 
 type Props = Readonly<{
   index: number;
   label: string;
   title: string;
   more: string;
-  cards: readonly RelatedCard[];
+  cards: readonly DetailRelatedCard[];
 }>;
 
 const { index, label, title, more, cards } = Astro.props;
