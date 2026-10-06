@@ -9,7 +9,7 @@ import type { ColorMode } from "./types";
  * The chat's MUI theme, built from the website's own tokens (styles/tokens/*.ts) so the iframe
  * wears exactly the site's colours, type, radii and shadows in both modes.
  *
- * The tokens are CSS (`var(--palette-gray-900)`, `color-mix(...)`, `oklch(...)`), and the
+ * The tokens are CSS (palette ramp variables, colour mixes, OKLCH colours), and the
  * iframe does not load the site's stylesheet, so each role is resolved to its literal value
  * per mode here. MUI's `nativeColor` lets it work with those CSS colours directly (it mixes in
  * CSS instead of parsing hex), and the colour scheme follows `<html data-theme>` like the site.
@@ -56,7 +56,7 @@ export interface ChatPalette {
 
 const TOKEN = /var\(--([a-z\d-]+)\)/g;
 
-/** `var(--palette-gray-900)` → `gray`, `900`. */
+/** A palette ramp variable's hue and step, e.g. the gray ramp's step 900 → `gray`, `900`. */
 function paletteValue(name: string): string {
   const rest = name.slice("palette-".length);
   const cut = rest.lastIndexOf("-");
