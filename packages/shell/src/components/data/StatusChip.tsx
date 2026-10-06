@@ -68,6 +68,11 @@ const COLOR_MAP: Record<string, 'default' | 'success' | 'warning' | 'error' | 'i
     UNHEALTHY: 'error',
     DEAD: 'error',
     NONE: 'default',
+    // Website › Pages and Fragments: live, live with unpublished edits; newsletter sign-ups.
+    PUBLISHED: 'success',
+    CHANGED: 'info',
+    SUBSCRIBED: 'success',
+    UNSUBSCRIBED: 'default',
   };
 
 /** Renders an enum status value as a color-coded MUI chip. */

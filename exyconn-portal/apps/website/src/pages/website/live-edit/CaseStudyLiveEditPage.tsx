@@ -1,12 +1,14 @@
 import { useParams } from 'react-router-dom';
 import { useGetCaseStudyQuery, useUpdateCaseStudyMutation } from '@exyconn/shell/graphql/generated';
 import type { LiveDesign } from '@exyconn/live-editor';
+import { useSitePath } from '../../cms/site';
 import { LiveEditScreen } from './LiveEditScreen';
 import { RecordState } from './RecordState';
 import { MEDIA_FOLDERS, siteUrl } from './live-edit.config';
 
-/** Live-edits a case study's body at /website/case-studies/:id/live-edit. */
+/** Live-edits a case study's body at /website/s/:siteSlug/case-studies/:id/live-edit. */
 export function CaseStudyLiveEditPage() {
+  const to = useSitePath();
   const { id = '' } = useParams();
   const { data, loading, error } = useGetCaseStudyQuery({
     variables: { id },
@@ -39,7 +41,7 @@ export function CaseStudyLiveEditPage() {
       key={study.id}
       title={study.title}
       pageUrl={siteUrl(`/case-studies/${study.slug}`)}
-      backPath="/website/case-studies"
+      backPath={to('case-studies')}
       folder={MEDIA_FOLDERS.caseStudies}
       initial={{ html: study.content, css: study.contentCss }}
       onSave={save}

@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { Divider } from '@exyconn/shell/components/ui';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
+import { useCurrentSiteId } from '../../../cms/site';
 import {
   useCreateJobMutation,
   useUpdateJobMutation,
@@ -77,6 +78,7 @@ interface JobFormProps {
 
 /** React Hook Form + Zod form to create or update a job posting. */
 export function JobForm({ initial, onDone, onCancel }: Readonly<JobFormProps>) {
+  const siteId = useCurrentSiteId();
   const [createJob] = useCreateJobMutation();
   const [updateJob] = useUpdateJobMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
@@ -88,7 +90,7 @@ export function JobForm({ initial, onDone, onCancel }: Readonly<JobFormProps>) {
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Job',
     initial,
-    create: (values: Values) => createJob({ variables: { input: toInput(values) } }),
+    create: (values: Values) => createJob({ variables: { input: { ...toInput(values), siteId } } }),
     update: (row, values) => updateJob({ variables: { id: row.id, input: toInput(values) } }),
     onDone,
   });

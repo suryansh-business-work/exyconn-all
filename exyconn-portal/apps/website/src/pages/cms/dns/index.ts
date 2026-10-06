@@ -1,0 +1,1 @@
+export { DomainsDnsPanel } from './DomainsDnsPanel';

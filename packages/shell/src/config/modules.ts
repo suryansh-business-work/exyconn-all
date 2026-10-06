@@ -96,6 +96,14 @@ import CloudSyncIcon from '@mui/icons-material/CloudSync';
 import DnsIcon from '@mui/icons-material/Dns';
 import ScheduleSendIcon from '@mui/icons-material/ScheduleSend';
 import PaletteIcon from '@mui/icons-material/Palette';
+import PublicIcon from '@mui/icons-material/Public';
+import SettingsIcon from '@mui/icons-material/Settings';
+import WebIcon from '@mui/icons-material/Web';
+import WidgetsIcon from '@mui/icons-material/Widgets';
+import PermMediaIcon from '@mui/icons-material/PermMedia';
+import NewspaperIcon from '@mui/icons-material/Newspaper';
+import PeopleIcon from '@mui/icons-material/People';
+import WorkOutlineIcon from '@mui/icons-material/WorkOutlined';
 import SavingsIcon from '@mui/icons-material/Savings';
 import QuickreplyIcon from '@mui/icons-material/Quickreply';
 import ForumIcon from '@mui/icons-material/Forum';
@@ -142,6 +150,12 @@ export interface ModuleDefinition {
   icon: SvgIconComponent;
   description: string;
   accent: string;
+  /**
+   * A path prefix whose next segment scopes the module's pages to one record — the Website
+   * portal's `/website/s/<site>/pages`. Nav paths leave the segment out (`/website/pages`), and
+   * the sidebar strips it before matching, so the entry stays highlighted on every site.
+   */
+  scopedPrefix?: string;
   children?: ModuleChild[];
 }
 
@@ -876,21 +890,54 @@ export const MODULES: ModuleDefinition[] = [
     path: '/website',
     role: ROLES.WEBSITE,
     icon: LanguageIcon,
-    description: 'exyconn.com content & form submissions',
+    description: 'Websites, pages, content & form submissions',
     accent: color.orange[600],
+    // Site pages live at /website/s/<site>/…; their nav paths leave the site out.
+    scopedPrefix: '/website/s',
     children: [
       { key: 'website-overview', label: 'Overview', path: '/website', icon: DashboardIcon },
+      { key: 'website-sites', label: 'Websites', path: '/website/sites', icon: PublicIcon },
       {
-        key: 'website-submissions',
-        label: 'Form Submissions',
-        path: '/website/submissions',
-        icon: MarkEmailUnreadIcon,
+        key: 'website-pages',
+        label: 'Pages',
+        path: '/website/pages',
+        icon: WebIcon,
+        group: 'Site',
       },
       {
-        key: 'website-whatsapp-leads',
-        label: 'WhatsApp Leads',
-        path: '/website/whatsapp-leads',
-        icon: WhatsAppIcon,
+        key: 'website-fragments',
+        label: 'Fragments',
+        path: '/website/fragments',
+        icon: WidgetsIcon,
+        group: 'Site',
+      },
+      {
+        key: 'website-design-system',
+        label: 'Design System',
+        path: '/website/design-system',
+        icon: PaletteIcon,
+        group: 'Site',
+      },
+      {
+        key: 'website-media',
+        label: 'Media',
+        path: '/website/media',
+        icon: PermMediaIcon,
+        group: 'Site',
+      },
+      {
+        key: 'website-nav-links',
+        label: 'Navigation',
+        path: '/website/nav-links',
+        icon: LinkIcon,
+        group: 'Site',
+      },
+      {
+        key: 'website-settings',
+        label: 'Settings',
+        path: '/website/settings',
+        icon: SettingsIcon,
+        group: 'Site',
       },
       {
         key: 'website-blog',
@@ -907,46 +954,77 @@ export const MODULES: ModuleDefinition[] = [
         group: 'Content',
       },
       {
-        key: 'website-jobs',
-        label: 'Jobs',
-        path: '/website/jobs',
+        key: 'website-newsletter',
+        label: 'Newsletter',
+        path: '/website/newsletter',
+        icon: MarkEmailReadIcon,
+        group: 'Content',
+        children: [
+          {
+            key: 'website-newsletter-issues',
+            label: 'Issues',
+            path: '/website/newsletter/issues',
+            icon: NewspaperIcon,
+          },
+          {
+            key: 'website-newsletter-subscribers',
+            label: 'Subscribers',
+            path: '/website/newsletter/subscribers',
+            icon: PeopleIcon,
+          },
+        ],
+      },
+      {
+        key: 'website-careers',
+        label: 'Careers',
+        path: '/website/careers',
         icon: WorkIcon,
         group: 'Content',
+        children: [
+          { key: 'website-jobs', label: 'Jobs', path: '/website/jobs', icon: WorkOutlineIcon },
+          {
+            key: 'website-companies',
+            label: 'Companies',
+            path: '/website/companies',
+            icon: ApartmentIcon,
+          },
+          {
+            key: 'website-gigs',
+            label: 'Freelance Gigs',
+            path: '/website/gigs',
+            icon: HandymanIcon,
+          },
+        ],
       },
       {
-        key: 'website-gigs',
-        label: 'Freelance Gigs',
-        path: '/website/gigs',
-        icon: HandymanIcon,
-        group: 'Content',
-      },
-      {
-        key: 'website-companies',
-        label: 'Companies',
-        path: '/website/companies',
-        icon: ApartmentIcon,
-        group: 'Directory',
-      },
-      {
-        key: 'website-tool-categories',
-        label: 'Tool Categories',
-        path: '/website/tool-categories',
-        icon: CategoryIcon,
-        group: 'Directory',
-      },
-      {
-        key: 'website-tools',
+        key: 'website-tools-branch',
         label: 'Tools',
-        path: '/website/tools',
+        path: '/website/tools-directory',
         icon: BuildIcon,
-        group: 'Directory',
+        group: 'Content',
+        children: [
+          { key: 'website-tools', label: 'Tools', path: '/website/tools', icon: BuildIcon },
+          {
+            key: 'website-tool-categories',
+            label: 'Tool Categories',
+            path: '/website/tool-categories',
+            icon: CategoryIcon,
+          },
+        ],
       },
       {
-        key: 'website-nav-links',
-        label: 'Navigation Links',
-        path: '/website/nav-links',
-        icon: LinkIcon,
-        group: 'Site',
+        key: 'website-submissions',
+        label: 'Form Submissions',
+        path: '/website/submissions',
+        icon: MarkEmailUnreadIcon,
+        group: 'Inbox',
+      },
+      {
+        key: 'website-whatsapp-leads',
+        label: 'WhatsApp Leads',
+        path: '/website/whatsapp-leads',
+        icon: WhatsAppIcon,
+        group: 'Inbox',
       },
       {
         key: 'website-chat-sessions',

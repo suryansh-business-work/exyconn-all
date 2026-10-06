@@ -1652,6 +1652,12 @@ export type CloudflareZone = {
   status: Scalars['String']['output'];
 };
 
+export type CmsARecord = {
+  __typename?: 'CmsARecord';
+  ip: Scalars['String']['output'];
+  ttl: Scalars['Int']['output'];
+};
+
 /** An image in a site's media library. */
 export type CmsAsset = {
   __typename?: 'CmsAsset';
@@ -1723,6 +1729,23 @@ export enum CmsDocumentStatus {
   Published = 'PUBLISHED'
 }
 
+/** One domain of a site, where its DNS is served and the A records it points to. */
+export type CmsDomainDns = {
+  __typename?: 'CmsDomainDns';
+  /** GODADDY, CLOUDFLARE, OTHER — or UNKNOWN when it could not be read. */
+  authority: Scalars['String']['output'];
+  domain: Scalars['String']['output'];
+  /** Why the records could not be read; empty when they were. */
+  error: Scalars['String']['output'];
+  /** The host within it: @ for the domain itself, else e.g. www. */
+  name: Scalars['String']['output'];
+  /** Every A record is the websites' server address. */
+  pointsHere: Scalars['Boolean']['output'];
+  records: Array<CmsARecord>;
+  /** The registered domain on the GoDaddy account it lives under. */
+  zone: Scalars['String']['output'];
+};
+
 /** What the editor last saved: GrapesJS's project, and the HTML and CSS it produced. */
 export type CmsDraft = {
   __typename?: 'CmsDraft';
@@ -1735,6 +1758,13 @@ export type CmsDraftInput = {
   css: Scalars['String']['input'];
   html: Scalars['String']['input'];
   projectData?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+export type CmsFontAxis = {
+  __typename?: 'CmsFontAxis';
+  max: Scalars['Float']['output'];
+  min: Scalars['Float']['output'];
+  tag: Scalars['String']['output'];
 };
 
 /** A reusable header, footer or section, placed into pages and published once for all of them. */
@@ -1764,6 +1794,24 @@ export enum CmsFragmentKind {
   Section = 'SECTION',
   Snippet = 'SNIPPET'
 }
+
+/** A Google Fonts family: its styles (400, 700i…), subsets and variable axes. */
+export type CmsGoogleFont = {
+  __typename?: 'CmsGoogleFont';
+  axes: Array<CmsFontAxis>;
+  category: Scalars['String']['output'];
+  family: Scalars['String']['output'];
+  /** Rank by use on the web; 1 is the most used. */
+  popularity: Scalars['Int']['output'];
+  subsets: Array<Scalars['String']['output']>;
+  variants: Array<Scalars['String']['output']>;
+};
+
+export type CmsGoogleFontPage = {
+  __typename?: 'CmsGoogleFontPage';
+  rows: Array<CmsGoogleFont>;
+  totalCount: Scalars['Int']['output'];
+};
 
 export type CmsPage = {
   __typename?: 'CmsPage';
@@ -1927,6 +1975,13 @@ export type CmsSite = {
   slug: Scalars['String']['output'];
   status: CmsSiteStatus;
   updatedAt: Scalars['DateTime']['output'];
+};
+
+export type CmsSiteDns = {
+  __typename?: 'CmsSiteDns';
+  domains: Array<CmsDomainDns>;
+  /** The address websites are served from (WEBSITE_SERVER_IP); empty when not configured. */
+  serverIp: Scalars['String']['output'];
 };
 
 export type CmsSiteInput = {
@@ -5615,6 +5670,8 @@ export type Mutation = {
   setClientContactActive: ClientContact;
   /** Makes these exactly the projects linked to the client (others are unlinked from it). */
   setClientProjects: Scalars['Boolean']['output'];
+  /** Points one of the site's domains at an IPv4 address, at whichever provider serves its DNS. */
+  setCmsSiteARecord: CmsDomainDns;
   /** Marks a column as the end of the line, or takes that mark away. */
   setColumnDone: BoardColumn;
   /** Moves a deal to another pipeline stage — what a drag on the board does. Winning makes the account a client. */
@@ -7837,6 +7894,14 @@ export type MutationSetClientContactActiveArgs = {
 export type MutationSetClientProjectsArgs = {
   clientId: Scalars['ID']['input'];
   projectIds: Array<Scalars['ID']['input']>;
+};
+
+
+export type MutationSetCmsSiteARecordArgs = {
+  domain: Scalars['String']['input'];
+  ip: Scalars['String']['input'];
+  siteId: Scalars['ID']['input'];
+  ttl: Scalars['Int']['input'];
 };
 
 
@@ -10521,6 +10586,8 @@ export type Query = {
   cmsDesignSystems: Array<CmsDesignSystem>;
   cmsFragment: CmsFragment;
   cmsFragments: Array<CmsFragment>;
+  /** The Google Fonts catalogue, most used first; category is Sans Serif, Serif, Display, Handwriting or Monospace. */
+  cmsGoogleFonts: CmsGoogleFontPage;
   cmsPage: CmsPage;
   cmsPageRevisions: Array<CmsPageRevision>;
   cmsPages: CmsPagePage;
@@ -10528,6 +10595,8 @@ export type Query = {
   cmsPreviewToken: Scalars['String']['output'];
   cmsSite: CmsSite;
   cmsSiteBySlug: CmsSite;
+  /** Website › Settings › Domains: each domain's DNS provider and A records (through GoDaddy/Cloudflare in Tech). */
+  cmsSiteDns: CmsSiteDns;
   cmsSites: Array<CmsSite>;
   /**
    * The company's finances between two dates. Both bounds are inclusive of the days they
@@ -11451,6 +11520,13 @@ export type QueryCmsFragmentsArgs = {
 };
 
 
+export type QueryCmsGoogleFontsArgs = {
+  category?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryCmsPageArgs = {
   id: Scalars['ID']['input'];
 };
@@ -11479,6 +11555,11 @@ export type QueryCmsSiteArgs = {
 
 export type QueryCmsSiteBySlugArgs = {
   slug: Scalars['String']['input'];
+};
+
+
+export type QueryCmsSiteDnsArgs = {
+  siteId: Scalars['ID']['input'];
 };
 
 
@@ -16678,6 +16759,7 @@ export type ResolversTypes = ResolversObject<{
   CloudflareConfig: ResolverTypeWrapper<CloudflareConfig>;
   CloudflareConfigInput: CloudflareConfigInput;
   CloudflareZone: ResolverTypeWrapper<CloudflareZone>;
+  CmsARecord: ResolverTypeWrapper<CmsARecord>;
   CmsAsset: ResolverTypeWrapper<CmsAsset>;
   CmsAssetPage: ResolverTypeWrapper<CmsAssetPage>;
   CmsAssetUploadInput: CmsAssetUploadInput;
@@ -16685,11 +16767,15 @@ export type ResolversTypes = ResolversObject<{
   CmsDesignSystem: ResolverTypeWrapper<CmsDesignSystem>;
   CmsDesignSystemInput: CmsDesignSystemInput;
   CmsDocumentStatus: CmsDocumentStatus;
+  CmsDomainDns: ResolverTypeWrapper<CmsDomainDns>;
   CmsDraft: ResolverTypeWrapper<CmsDraft>;
   CmsDraftInput: CmsDraftInput;
+  CmsFontAxis: ResolverTypeWrapper<CmsFontAxis>;
   CmsFragment: ResolverTypeWrapper<CmsFragment>;
   CmsFragmentInput: CmsFragmentInput;
   CmsFragmentKind: CmsFragmentKind;
+  CmsGoogleFont: ResolverTypeWrapper<CmsGoogleFont>;
+  CmsGoogleFontPage: ResolverTypeWrapper<CmsGoogleFontPage>;
   CmsPage: ResolverTypeWrapper<CmsPage>;
   CmsPageKind: CmsPageKind;
   CmsPageLayout: CmsPageLayout;
@@ -16706,6 +16792,7 @@ export type ResolversTypes = ResolversObject<{
   CmsPublicSite: ResolverTypeWrapper<CmsPublicSite>;
   CmsPublished: ResolverTypeWrapper<CmsPublished>;
   CmsSite: ResolverTypeWrapper<CmsSite>;
+  CmsSiteDns: ResolverTypeWrapper<CmsSiteDns>;
   CmsSiteInput: CmsSiteInput;
   CmsSiteSeo: ResolverTypeWrapper<CmsSiteSeo>;
   CmsSiteSeoInput: CmsSiteSeoInput;
@@ -17516,16 +17603,21 @@ export type ResolversParentTypes = ResolversObject<{
   CloudflareConfig: CloudflareConfig;
   CloudflareConfigInput: CloudflareConfigInput;
   CloudflareZone: CloudflareZone;
+  CmsARecord: CmsARecord;
   CmsAsset: CmsAsset;
   CmsAssetPage: CmsAssetPage;
   CmsAssetUploadInput: CmsAssetUploadInput;
   CmsComponentDef: CmsComponentDef;
   CmsDesignSystem: CmsDesignSystem;
   CmsDesignSystemInput: CmsDesignSystemInput;
+  CmsDomainDns: CmsDomainDns;
   CmsDraft: CmsDraft;
   CmsDraftInput: CmsDraftInput;
+  CmsFontAxis: CmsFontAxis;
   CmsFragment: CmsFragment;
   CmsFragmentInput: CmsFragmentInput;
+  CmsGoogleFont: CmsGoogleFont;
+  CmsGoogleFontPage: CmsGoogleFontPage;
   CmsPage: CmsPage;
   CmsPageListInput: CmsPageListInput;
   CmsPagePage: CmsPagePage;
@@ -17540,6 +17632,7 @@ export type ResolversParentTypes = ResolversObject<{
   CmsPublicSite: CmsPublicSite;
   CmsPublished: CmsPublished;
   CmsSite: CmsSite;
+  CmsSiteDns: CmsSiteDns;
   CmsSiteInput: CmsSiteInput;
   CmsSiteSeo: CmsSiteSeo;
   CmsSiteSeoInput: CmsSiteSeoInput;
@@ -19001,6 +19094,12 @@ export type CloudflareZoneResolvers<ContextType = GraphQLContext, ParentType ext
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type CmsARecordResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsARecord'] = ResolversParentTypes['CmsARecord']> = ResolversObject<{
+  ip?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ttl?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type CmsAssetResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsAsset'] = ResolversParentTypes['CmsAsset']> = ResolversObject<{
   alt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
@@ -19042,10 +19141,28 @@ export type CmsDesignSystemResolvers<ContextType = GraphQLContext, ParentType ex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type CmsDomainDnsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsDomainDns'] = ResolversParentTypes['CmsDomainDns']> = ResolversObject<{
+  authority?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  domain?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  error?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  pointsHere?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  records?: Resolver<Array<ResolversTypes['CmsARecord']>, ParentType, ContextType>;
+  zone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type CmsDraftResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsDraft'] = ResolversParentTypes['CmsDraft']> = ResolversObject<{
   css?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   html?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   projectData?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsFontAxisResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsFontAxis'] = ResolversParentTypes['CmsFontAxis']> = ResolversObject<{
+  max?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  min?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  tag?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -19060,6 +19177,22 @@ export type CmsFragmentResolvers<ContextType = GraphQLContext, ParentType extend
   status?: Resolver<ResolversTypes['CmsDocumentStatus'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   updatedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsGoogleFontResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsGoogleFont'] = ResolversParentTypes['CmsGoogleFont']> = ResolversObject<{
+  axes?: Resolver<Array<ResolversTypes['CmsFontAxis']>, ParentType, ContextType>;
+  category?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  family?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  popularity?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  subsets?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  variants?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsGoogleFontPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsGoogleFontPage'] = ResolversParentTypes['CmsGoogleFontPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['CmsGoogleFont']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -19172,6 +19305,12 @@ export type CmsSiteResolvers<ContextType = GraphQLContext, ParentType extends Re
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['CmsSiteStatus'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsSiteDnsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsSiteDns'] = ResolversParentTypes['CmsSiteDns']> = ResolversObject<{
+  domains?: Resolver<Array<ResolversTypes['CmsDomainDns']>, ParentType, ContextType>;
+  serverIp?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -21275,6 +21414,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setApplicantStage?: Resolver<ResolversTypes['Applicant'], ParentType, ContextType, RequireFields<MutationSetApplicantStageArgs, 'id' | 'stage'>>;
   setClientContactActive?: Resolver<ResolversTypes['ClientContact'], ParentType, ContextType, RequireFields<MutationSetClientContactActiveArgs, 'active' | 'id'>>;
   setClientProjects?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSetClientProjectsArgs, 'clientId' | 'projectIds'>>;
+  setCmsSiteARecord?: Resolver<ResolversTypes['CmsDomainDns'], ParentType, ContextType, RequireFields<MutationSetCmsSiteARecordArgs, 'domain' | 'ip' | 'siteId' | 'ttl'>>;
   setColumnDone?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationSetColumnDoneArgs, 'id' | 'isDone'>>;
   setDealStage?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationSetDealStageArgs, 'id' | 'stage'>>;
   setDefaultCmsSite?: Resolver<ResolversTypes['CmsSite'], ParentType, ContextType, RequireFields<MutationSetDefaultCmsSiteArgs, 'id'>>;
@@ -22278,12 +22418,14 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   cmsDesignSystems?: Resolver<Array<ResolversTypes['CmsDesignSystem']>, ParentType, ContextType, RequireFields<QueryCmsDesignSystemsArgs, 'siteId'>>;
   cmsFragment?: Resolver<ResolversTypes['CmsFragment'], ParentType, ContextType, RequireFields<QueryCmsFragmentArgs, 'id'>>;
   cmsFragments?: Resolver<Array<ResolversTypes['CmsFragment']>, ParentType, ContextType, RequireFields<QueryCmsFragmentsArgs, 'siteId'>>;
+  cmsGoogleFonts?: Resolver<ResolversTypes['CmsGoogleFontPage'], ParentType, ContextType, Partial<QueryCmsGoogleFontsArgs>>;
   cmsPage?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<QueryCmsPageArgs, 'id'>>;
   cmsPageRevisions?: Resolver<Array<ResolversTypes['CmsPageRevision']>, ParentType, ContextType, RequireFields<QueryCmsPageRevisionsArgs, 'pageId'>>;
   cmsPages?: Resolver<ResolversTypes['CmsPagePage'], ParentType, ContextType, RequireFields<QueryCmsPagesArgs, 'input' | 'siteId'>>;
   cmsPreviewToken?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryCmsPreviewTokenArgs, 'pageId'>>;
   cmsSite?: Resolver<ResolversTypes['CmsSite'], ParentType, ContextType, RequireFields<QueryCmsSiteArgs, 'id'>>;
   cmsSiteBySlug?: Resolver<ResolversTypes['CmsSite'], ParentType, ContextType, RequireFields<QueryCmsSiteBySlugArgs, 'slug'>>;
+  cmsSiteDns?: Resolver<ResolversTypes['CmsSiteDns'], ParentType, ContextType, RequireFields<QueryCmsSiteDnsArgs, 'siteId'>>;
   cmsSites?: Resolver<Array<ResolversTypes['CmsSite']>, ParentType, ContextType>;
   companyFinance?: Resolver<ResolversTypes['CompanyFinance'], ParentType, ContextType, RequireFields<QueryCompanyFinanceArgs, 'from' | 'to'>>;
   complianceOverview?: Resolver<ResolversTypes['ComplianceOverview'], ParentType, ContextType>;
@@ -24905,12 +25047,17 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ClientTicketStatus?: ClientTicketStatusResolvers<ContextType>;
   CloudflareConfig?: CloudflareConfigResolvers<ContextType>;
   CloudflareZone?: CloudflareZoneResolvers<ContextType>;
+  CmsARecord?: CmsARecordResolvers<ContextType>;
   CmsAsset?: CmsAssetResolvers<ContextType>;
   CmsAssetPage?: CmsAssetPageResolvers<ContextType>;
   CmsComponentDef?: CmsComponentDefResolvers<ContextType>;
   CmsDesignSystem?: CmsDesignSystemResolvers<ContextType>;
+  CmsDomainDns?: CmsDomainDnsResolvers<ContextType>;
   CmsDraft?: CmsDraftResolvers<ContextType>;
+  CmsFontAxis?: CmsFontAxisResolvers<ContextType>;
   CmsFragment?: CmsFragmentResolvers<ContextType>;
+  CmsGoogleFont?: CmsGoogleFontResolvers<ContextType>;
+  CmsGoogleFontPage?: CmsGoogleFontPageResolvers<ContextType>;
   CmsPage?: CmsPageResolvers<ContextType>;
   CmsPagePage?: CmsPagePageResolvers<ContextType>;
   CmsPageRevision?: CmsPageRevisionResolvers<ContextType>;
@@ -24922,6 +25069,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   CmsPublicSite?: CmsPublicSiteResolvers<ContextType>;
   CmsPublished?: CmsPublishedResolvers<ContextType>;
   CmsSite?: CmsSiteResolvers<ContextType>;
+  CmsSiteDns?: CmsSiteDnsResolvers<ContextType>;
   CmsSiteSeo?: CmsSiteSeoResolvers<ContextType>;
   Company?: CompanyResolvers<ContextType>;
   CompanyBenefit?: CompanyBenefitResolvers<ContextType>;

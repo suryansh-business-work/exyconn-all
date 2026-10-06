@@ -1,4 +1,5 @@
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
+import { useSiteScope } from '../cms/site';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import {
@@ -13,6 +14,7 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Website CMS — freelance gigs published on the public site (server-side grid). */
 export function GigsPage() {
+  const scope = useSiteScope();
   // Stat cards still summarise all gigs; the grid itself is server-paged.
   const { data, loading } = useListGigsQuery();
   const [deleteGig] = useDeleteGigMutation();
@@ -25,9 +27,10 @@ export function GigsPage() {
   const fetchRows = usePagedFetcher(
     ListGigsPagedDocument,
     (result: ListGigsPagedQuery) => result.listGigsPaged,
+    scope.filters,
   );
 
-  const rows = data?.listGigs ?? [];
+  const rows = (data?.listGigs ?? []).filter(scope.owns);
   const categories = new Set(rows.map((r) => r.category));
   const stats: StatItem[] = [
     { label: 'Gigs', value: String(rows.length), accent: color.blue[400] },

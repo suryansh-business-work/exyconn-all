@@ -1,4 +1,5 @@
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
+import { useSiteScope } from '../cms/site';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import {
   useListJobCompaniesQuery,
@@ -16,6 +17,7 @@ import {
 
 /** Website module — job companies powering the public careers pages (server-side grid). */
 export function JobCompaniesPage() {
+  const scope = useSiteScope();
   // Stat cards still summarise all companies; the grid itself is server-paged.
   const { data, loading } = useListJobCompaniesQuery();
   const [deleteJobCompany] = useDeleteJobCompanyMutation();
@@ -27,9 +29,10 @@ export function JobCompaniesPage() {
   const fetchRows = usePagedFetcher(
     ListJobCompaniesPagedDocument,
     (result: ListJobCompaniesPagedQuery) => result.listJobCompaniesPaged,
+    scope.filters,
   );
 
-  const rows = data?.listJobCompanies ?? [];
+  const rows = (data?.listJobCompanies ?? []).filter(scope.owns);
   const benefitCount = rows.reduce((sum, r) => sum + r.benefits.length, 0);
   const industries = new Set(rows.map((r) => r.industry).filter(Boolean));
   const stats: StatItem[] = [

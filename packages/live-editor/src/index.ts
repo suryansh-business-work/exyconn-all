@@ -7,4 +7,21 @@
  * styles need; the website scopes that CSS to the article when it renders it.
  */
 export { LiveEditor } from './LiveEditor';
-export type { LiveDesign, LiveEditorHandle, LiveEditorProps, UploadImage } from './types';
+export type {
+  LiveDesign,
+  LiveEditorHandle,
+  LiveEditorPlugin,
+  LiveEditorProps,
+  UploadImage,
+} from './types';
+export {
+  cmsBlocks,
+  cmsEditorPlugin,
+  PLACEHOLDER_CSS,
+  COMPONENT_TYPE,
+  FRAGMENT_TYPE,
+  type CmsCatalogueEntry,
+  type CmsEditRequest,
+  type CmsFragmentOption,
+  type CmsPluginOptions,
+} from './cms';

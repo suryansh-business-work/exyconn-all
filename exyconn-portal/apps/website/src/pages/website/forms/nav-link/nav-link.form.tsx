@@ -5,6 +5,7 @@ import { LINK } from '@exyconn/regex';
 import { RhfTextField, RhfSelect, RhfSwitch } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
+import { useCurrentSiteId } from '../../../cms/site';
 import {
   useCreateNavLinkMutation,
   useUpdateNavLinkMutation,
@@ -47,6 +48,7 @@ interface NavLinkFormProps {
 
 /** React Hook Form + Zod form to create or update a website navigation link. */
 export function NavLinkForm({ initial, onDone, onCancel }: Readonly<NavLinkFormProps>) {
+  const siteId = useCurrentSiteId();
   const [createNavLink] = useCreateNavLinkMutation();
   const [updateNavLink] = useUpdateNavLinkMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
@@ -58,7 +60,7 @@ export function NavLinkForm({ initial, onDone, onCancel }: Readonly<NavLinkFormP
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Nav link',
     initial,
-    create: (values: Values) => createNavLink({ variables: { input: values } }),
+    create: (values: Values) => createNavLink({ variables: { input: { ...values, siteId } } }),
     update: (row, values) => updateNavLink({ variables: { id: row.id, input: values } }),
     onDone,
   });

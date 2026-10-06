@@ -1,0 +1,386 @@
+fragment CmsSiteFields on CmsSite {
+  id
+  name
+  slug
+  domains
+  isDefault
+  status
+  markets
+  defaultLocale
+  faviconUrl
+  seo {
+    titleTemplate
+    description
+    ogImageUrl
+  }
+  headerFragmentId
+  footerFragmentId
+  designSystemId
+  headHtml
+  bodyEndHtml
+  globalCss
+  notFoundPageId
+  updatedAt
+}
+
+query CmsSites {
+  cmsSites {
+    ...CmsSiteFields
+  }
+}
+
+query CmsSite($id: ID!) {
+  cmsSite(id: $id) {
+    ...CmsSiteFields
+  }
+}
+
+mutation CreateCmsSite($input: CmsSiteInput!) {
+  createCmsSite(input: $input) {
+    ...CmsSiteFields
+  }
+}
+
+mutation UpdateCmsSite($id: ID!, $input: CmsSiteInput!) {
+  updateCmsSite(id: $id, input: $input) {
+    ...CmsSiteFields
+  }
+}
+
+mutation SetDefaultCmsSite($id: ID!) {
+  setDefaultCmsSite(id: $id) {
+    id
+    isDefault
+  }
+}
+
+mutation DeleteCmsSite($id: ID!) {
+  deleteCmsSite(id: $id)
+}
+
+fragment CmsDesignSystemFields on CmsDesignSystem {
+  id
+  siteId
+  name
+  tokens
+  extraCss
+  updatedAt
+}
+
+query CmsDesignSystems($siteId: ID!) {
+  cmsDesignSystems(siteId: $siteId) {
+    ...CmsDesignSystemFields
+  }
+}
+
+query CmsDesignSystem($id: ID!) {
+  cmsDesignSystem(id: $id) {
+    ...CmsDesignSystemFields
+  }
+}
+
+mutation CreateCmsDesignSystem($input: CmsDesignSystemInput!) {
+  createCmsDesignSystem(input: $input) {
+    ...CmsDesignSystemFields
+  }
+}
+
+mutation UpdateCmsDesignSystem($id: ID!, $input: CmsDesignSystemInput!) {
+  updateCmsDesignSystem(id: $id, input: $input) {
+    ...CmsDesignSystemFields
+  }
+}
+
+mutation DeleteCmsDesignSystem($id: ID!) {
+  deleteCmsDesignSystem(id: $id)
+}
+
+fragment CmsPageListFields on CmsPage {
+  id
+  siteId
+  path
+  kind
+  title
+  layout
+  status
+  seo {
+    noindex
+  }
+  published {
+    publishedAt
+  }
+  updatedByName
+  updatedAt
+}
+
+fragment CmsPageFields on CmsPage {
+  id
+  siteId
+  path
+  kind
+  title
+  layout
+  status
+  seo {
+    title
+    description
+    keywords
+    ogImageUrl
+    canonical
+    noindex
+    jsonLd
+  }
+  draft {
+    projectData
+    html
+    css
+  }
+  published {
+    publishedAt
+  }
+  updatedByName
+  updatedAt
+}
+
+query CmsPages($siteId: ID!, $input: CmsPageListInput!) {
+  cmsPages(siteId: $siteId, input: $input) {
+    totalCount
+    rows {
+      ...CmsPageListFields
+    }
+  }
+}
+
+query CmsPage($id: ID!) {
+  cmsPage(id: $id) {
+    ...CmsPageFields
+  }
+}
+
+query CmsPageRevisions($pageId: ID!) {
+  cmsPageRevisions(pageId: $pageId) {
+    id
+    version
+    title
+    publishedByName
+    createdAt
+  }
+}
+
+query CmsPreviewToken($pageId: ID!) {
+  cmsPreviewToken(pageId: $pageId)
+}
+
+mutation CreateCmsPage($siteId: ID!, $input: CmsPageSettingsInput!) {
+  createCmsPage(siteId: $siteId, input: $input) {
+    ...CmsPageListFields
+  }
+}
+
+mutation UpdateCmsPageSettings($id: ID!, $input: CmsPageSettingsInput!) {
+  updateCmsPageSettings(id: $id, input: $input) {
+    ...CmsPageFields
+  }
+}
+
+mutation SaveCmsPageDraft($id: ID!, $draft: CmsDraftInput!) {
+  saveCmsPageDraft(id: $id, draft: $draft) {
+    id
+    status
+    updatedByName
+    updatedAt
+  }
+}
+
+mutation PublishCmsPage($id: ID!) {
+  publishCmsPage(id: $id) {
+    id
+    status
+    published {
+      publishedAt
+    }
+  }
+}
+
+mutation UnpublishCmsPage($id: ID!) {
+  unpublishCmsPage(id: $id) {
+    id
+    status
+    published {
+      publishedAt
+    }
+  }
+}
+
+mutation DuplicateCmsPage($id: ID!, $path: String!) {
+  duplicateCmsPage(id: $id, path: $path) {
+    id
+    path
+  }
+}
+
+mutation DeleteCmsPage($id: ID!) {
+  deleteCmsPage(id: $id)
+}
+
+mutation RestoreCmsPageRevision($revisionId: ID!) {
+  restoreCmsPageRevision(revisionId: $revisionId) {
+    ...CmsPageFields
+  }
+}
+
+fragment CmsFragmentListFields on CmsFragment {
+  id
+  siteId
+  name
+  kind
+  status
+  published {
+    publishedAt
+  }
+  updatedByName
+  updatedAt
+}
+
+query CmsFragments($siteId: ID!) {
+  cmsFragments(siteId: $siteId) {
+    ...CmsFragmentListFields
+  }
+}
+
+query CmsFragment($id: ID!) {
+  cmsFragment(id: $id) {
+    ...CmsFragmentListFields
+    draft {
+      projectData
+      html
+      css
+    }
+  }
+}
+
+mutation CreateCmsFragment($siteId: ID!, $input: CmsFragmentInput!) {
+  createCmsFragment(siteId: $siteId, input: $input) {
+    ...CmsFragmentListFields
+  }
+}
+
+mutation UpdateCmsFragment($id: ID!, $input: CmsFragmentInput!) {
+  updateCmsFragment(id: $id, input: $input) {
+    ...CmsFragmentListFields
+  }
+}
+
+mutation SaveCmsFragmentDraft($id: ID!, $draft: CmsDraftInput!) {
+  saveCmsFragmentDraft(id: $id, draft: $draft) {
+    id
+    status
+    updatedByName
+    updatedAt
+  }
+}
+
+mutation PublishCmsFragment($id: ID!) {
+  publishCmsFragment(id: $id) {
+    id
+    status
+    published {
+      publishedAt
+    }
+  }
+}
+
+mutation DeleteCmsFragment($id: ID!) {
+  deleteCmsFragment(id: $id)
+}
+
+fragment CmsAssetFields on CmsAsset {
+  id
+  siteId
+  url
+  name
+  mime
+  size
+  width
+  height
+  alt
+  createdAt
+}
+
+query CmsAssets($siteId: ID!, $page: Int!, $pageSize: Int!, $search: String) {
+  cmsAssets(siteId: $siteId, page: $page, pageSize: $pageSize, search: $search) {
+    totalCount
+    rows {
+      ...CmsAssetFields
+    }
+  }
+}
+
+mutation UploadCmsAsset($input: CmsAssetUploadInput!) {
+  uploadCmsAsset(input: $input) {
+    ...CmsAssetFields
+  }
+}
+
+mutation UpdateCmsAssetAlt($id: ID!, $alt: String!) {
+  updateCmsAssetAlt(id: $id, alt: $alt) {
+    id
+    alt
+  }
+}
+
+mutation DeleteCmsAsset($id: ID!) {
+  deleteCmsAsset(id: $id)
+}
+
+query CmsComponents {
+  cmsComponents {
+    key
+    label
+    category
+    description
+    defaultProps
+    acceptsChildren
+  }
+}
+
+fragment CmsDomainDnsFields on CmsDomainDns {
+  domain
+  zone
+  name
+  authority
+  records {
+    ip
+    ttl
+  }
+  pointsHere
+  error
+}
+
+query CmsSiteDns($siteId: ID!) {
+  cmsSiteDns(siteId: $siteId) {
+    serverIp
+    domains {
+      ...CmsDomainDnsFields
+    }
+  }
+}
+
+mutation SetCmsSiteARecord($siteId: ID!, $domain: String!, $ip: String!, $ttl: Int!) {
+  setCmsSiteARecord(siteId: $siteId, domain: $domain, ip: $ip, ttl: $ttl) {
+    ...CmsDomainDnsFields
+  }
+}
+
+query CmsGoogleFonts($search: String, $category: String, $limit: Int) {
+  cmsGoogleFonts(search: $search, category: $category, limit: $limit) {
+    totalCount
+    rows {
+      family
+      category
+      variants
+      subsets
+      popularity
+    }
+  }
+}

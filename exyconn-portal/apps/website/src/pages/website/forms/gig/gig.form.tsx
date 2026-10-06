@@ -11,6 +11,7 @@ import {
 } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
+import { useCurrentSiteId } from '../../../cms/site';
 import {
   useCreateGigMutation,
   useUpdateGigMutation,
@@ -80,6 +81,7 @@ interface GigFormProps {
 
 /** React Hook Form + Zod form to create or update a gig. */
 export function GigForm({ initial, onDone, onCancel }: Readonly<GigFormProps>) {
+  const siteId = useCurrentSiteId();
   const [createGig] = useCreateGigMutation();
   const [updateGig] = useUpdateGigMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
@@ -91,7 +93,7 @@ export function GigForm({ initial, onDone, onCancel }: Readonly<GigFormProps>) {
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Gig',
     initial,
-    create: (values: Values) => createGig({ variables: { input: toInput(values) } }),
+    create: (values: Values) => createGig({ variables: { input: { ...toInput(values), siteId } } }),
     update: (row, values) => updateGig({ variables: { id: row.id, input: toInput(values) } }),
     onDone,
   });

@@ -931,6 +931,8 @@ export type BlogPost = {
   isActive: Scalars['Boolean']['output'];
   publishedAt: Scalars['DateTime']['output'];
   readTime: Scalars['String']['output'];
+  /** The website it belongs to (Website > Websites). */
+  siteId: Scalars['String']['output'];
   slug: Scalars['String']['output'];
   summary: Scalars['String']['output'];
   tags: Array<Scalars['String']['output']>;
@@ -947,6 +949,7 @@ export type BlogPostInput = {
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>;
   readTime?: InputMaybe<Scalars['String']['input']>;
+  siteId?: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
   summary?: InputMaybe<Scalars['String']['input']>;
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -1375,6 +1378,8 @@ export type CaseStudy = {
   isActive: Scalars['Boolean']['output'];
   pdfUrl: Scalars['String']['output'];
   publishedAt: Scalars['DateTime']['output'];
+  /** The website it belongs to (Website > Websites). */
+  siteId: Scalars['String']['output'];
   slug: Scalars['String']['output'];
   tags: Array<Scalars['String']['output']>;
   title: Scalars['String']['output'];
@@ -1392,6 +1397,7 @@ export type CaseStudyInput = {
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   pdfUrl?: InputMaybe<Scalars['String']['input']>;
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  siteId?: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
   title: Scalars['String']['input'];
@@ -1646,6 +1652,375 @@ export type CloudflareZone = {
   originalNameServers: Array<Scalars['String']['output']>;
   status: Scalars['String']['output'];
 };
+
+export type CmsARecord = {
+  __typename?: 'CmsARecord';
+  ip: Scalars['String']['output'];
+  ttl: Scalars['Int']['output'];
+};
+
+/** An image in a site's media library. */
+export type CmsAsset = {
+  __typename?: 'CmsAsset';
+  alt: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  height: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  mime: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  siteId: Scalars['String']['output'];
+  size: Scalars['Int']['output'];
+  url: Scalars['String']['output'];
+  width: Scalars['Int']['output'];
+};
+
+export type CmsAssetPage = {
+  __typename?: 'CmsAssetPage';
+  rows: Array<CmsAsset>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type CmsAssetUploadInput = {
+  alt?: InputMaybe<Scalars['String']['input']>;
+  /** A data: URL (image or PDF, up to 12 MB). */
+  file: Scalars['String']['input'];
+  fileName: Scalars['String']['input'];
+  height?: InputMaybe<Scalars['Int']['input']>;
+  siteId: Scalars['String']['input'];
+  width?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** A dynamic component the website can render (the @exyconn/cms catalogue). */
+export type CmsComponentDef = {
+  __typename?: 'CmsComponentDef';
+  acceptsChildren: Scalars['Boolean']['output'];
+  category: Scalars['String']['output'];
+  defaultProps: Scalars['JSON']['output'];
+  description: Scalars['String']['output'];
+  key: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+};
+
+/** A site's colours (light and dark), type, radii, shadows and spacing, as CSS custom properties. */
+export type CmsDesignSystem = {
+  __typename?: 'CmsDesignSystem';
+  createdAt: Scalars['DateTime']['output'];
+  extraCss: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  siteId: Scalars['String']['output'];
+  /** { colors: { light, dark }, fonts, radii, shadows, spacing } — each a map of name to CSS value. */
+  tokens: Scalars['JSON']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type CmsDesignSystemInput = {
+  extraCss?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  siteId: Scalars['String']['input'];
+  tokens: Scalars['JSON']['input'];
+};
+
+export enum CmsDocumentStatus {
+  /** Live, with newer edits waiting to be published. */
+  Changed = 'CHANGED',
+  /** Never published. */
+  Draft = 'DRAFT',
+  /** Live, and unchanged since it was published. */
+  Published = 'PUBLISHED'
+}
+
+/** One domain of a site, where its DNS is served and the A records it points to. */
+export type CmsDomainDns = {
+  __typename?: 'CmsDomainDns';
+  /** GODADDY, CLOUDFLARE, OTHER — or UNKNOWN when it could not be read. */
+  authority: Scalars['String']['output'];
+  domain: Scalars['String']['output'];
+  /** Why the records could not be read; empty when they were. */
+  error: Scalars['String']['output'];
+  /** The host within it: @ for the domain itself, else e.g. www. */
+  name: Scalars['String']['output'];
+  /** Every A record is the websites' server address. */
+  pointsHere: Scalars['Boolean']['output'];
+  records: Array<CmsARecord>;
+  /** The registered domain on the GoDaddy account it lives under. */
+  zone: Scalars['String']['output'];
+};
+
+/** What the editor last saved: GrapesJS's project, and the HTML and CSS it produced. */
+export type CmsDraft = {
+  __typename?: 'CmsDraft';
+  css: Scalars['String']['output'];
+  html: Scalars['String']['output'];
+  projectData?: Maybe<Scalars['JSON']['output']>;
+};
+
+export type CmsDraftInput = {
+  css: Scalars['String']['input'];
+  html: Scalars['String']['input'];
+  projectData?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+export type CmsFontAxis = {
+  __typename?: 'CmsFontAxis';
+  max: Scalars['Float']['output'];
+  min: Scalars['Float']['output'];
+  tag: Scalars['String']['output'];
+};
+
+/** A reusable header, footer or section, placed into pages and published once for all of them. */
+export type CmsFragment = {
+  __typename?: 'CmsFragment';
+  createdAt: Scalars['DateTime']['output'];
+  /** Only on a single fragment (cmsFragment), never in lists. */
+  draft?: Maybe<CmsDraft>;
+  id: Scalars['ID']['output'];
+  kind: CmsFragmentKind;
+  name: Scalars['String']['output'];
+  published?: Maybe<CmsPublished>;
+  siteId: Scalars['String']['output'];
+  status: CmsDocumentStatus;
+  updatedAt: Scalars['DateTime']['output'];
+  updatedByName: Scalars['String']['output'];
+};
+
+export type CmsFragmentInput = {
+  kind: CmsFragmentKind;
+  name: Scalars['String']['input'];
+};
+
+export enum CmsFragmentKind {
+  Footer = 'FOOTER',
+  Header = 'HEADER',
+  Section = 'SECTION',
+  Snippet = 'SNIPPET'
+}
+
+/** A Google Fonts family: its styles (400, 700i…), subsets and variable axes. */
+export type CmsGoogleFont = {
+  __typename?: 'CmsGoogleFont';
+  axes: Array<CmsFontAxis>;
+  category: Scalars['String']['output'];
+  family: Scalars['String']['output'];
+  /** Rank by use on the web; 1 is the most used. */
+  popularity: Scalars['Int']['output'];
+  subsets: Array<Scalars['String']['output']>;
+  variants: Array<Scalars['String']['output']>;
+};
+
+export type CmsGoogleFontPage = {
+  __typename?: 'CmsGoogleFontPage';
+  rows: Array<CmsGoogleFont>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type CmsPage = {
+  __typename?: 'CmsPage';
+  createdAt: Scalars['DateTime']['output'];
+  /** Only on a single page (cmsPage), never in lists. */
+  draft?: Maybe<CmsDraft>;
+  id: Scalars['ID']['output'];
+  kind: CmsPageKind;
+  layout: CmsPageLayout;
+  path: Scalars['String']['output'];
+  published?: Maybe<CmsPublished>;
+  seo: CmsPageSeo;
+  siteId: Scalars['String']['output'];
+  status: CmsDocumentStatus;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  updatedByName: Scalars['String']['output'];
+};
+
+export enum CmsPageKind {
+  /** One page at one path. */
+  Page = 'PAGE',
+  /** A family of pages, e.g. /blog/:slug; its components read the matching item. */
+  Template = 'TEMPLATE'
+}
+
+export enum CmsPageLayout {
+  /** Without them (a landing page, an embed). */
+  Bare = 'bare',
+  /** With the site's header and footer. */
+  Default = 'default'
+}
+
+export type CmsPageListInput = {
+  kind?: InputMaybe<CmsPageKind>;
+  page: Scalars['Int']['input'];
+  pageSize: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<CmsDocumentStatus>;
+};
+
+export type CmsPagePage = {
+  __typename?: 'CmsPagePage';
+  rows: Array<CmsPage>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type CmsPageRevision = {
+  __typename?: 'CmsPageRevision';
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  publishedByName: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  version: Scalars['Int']['output'];
+};
+
+export type CmsPageSeo = {
+  __typename?: 'CmsPageSeo';
+  canonical: Scalars['String']['output'];
+  description: Scalars['String']['output'];
+  jsonLd?: Maybe<Scalars['JSON']['output']>;
+  keywords: Scalars['String']['output'];
+  noindex: Scalars['Boolean']['output'];
+  ogImageUrl: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
+export type CmsPageSeoInput = {
+  canonical?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  jsonLd?: InputMaybe<Scalars['JSON']['input']>;
+  keywords?: InputMaybe<Scalars['String']['input']>;
+  noindex?: InputMaybe<Scalars['Boolean']['input']>;
+  ogImageUrl?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CmsPageSettingsInput = {
+  kind: CmsPageKind;
+  layout: CmsPageLayout;
+  path: Scalars['String']['input'];
+  seo?: InputMaybe<CmsPageSeoInput>;
+  title: Scalars['String']['input'];
+};
+
+/** A published fragment's block tree (@exyconn/cms CmsBlock[]) and CSS. */
+export type CmsPublicFragment = {
+  __typename?: 'CmsPublicFragment';
+  blocks: Scalars['JSON']['output'];
+  css: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+};
+
+export type CmsPublicPage = {
+  __typename?: 'CmsPublicPage';
+  /** Every published fragment the page places, nested ones included. */
+  fragments: Array<CmsPublicFragment>;
+  page: CmsPublicPageData;
+};
+
+export type CmsPublicPageData = {
+  __typename?: 'CmsPublicPageData';
+  blocks: Scalars['JSON']['output'];
+  css: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  kind: CmsPageKind;
+  layout: CmsPageLayout;
+  /** The values a template path bound, e.g. { slug: 'hello' } for /blog/:slug. */
+  params: Scalars['JSON']['output'];
+  path: Scalars['String']['output'];
+  /** True for a draft shown through a preview link (never index it). */
+  preview: Scalars['Boolean']['output'];
+  publishedAt: Scalars['DateTime']['output'];
+  seo: CmsPageSeo;
+  title: Scalars['String']['output'];
+};
+
+export type CmsPublicPath = {
+  __typename?: 'CmsPublicPath';
+  path: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/** Everything every page of a site shares. */
+export type CmsPublicSite = {
+  __typename?: 'CmsPublicSite';
+  designSystem?: Maybe<CmsDesignSystem>;
+  /** The header and footer, and the fragments they place. */
+  fragments: Array<CmsPublicFragment>;
+  site: CmsSite;
+};
+
+export type CmsPublished = {
+  __typename?: 'CmsPublished';
+  publishedAt: Scalars['DateTime']['output'];
+};
+
+/** A website the CMS serves, with its domains, design system, header and footer. */
+export type CmsSite = {
+  __typename?: 'CmsSite';
+  /** Markup added before every page's closing body tag (scripts). */
+  bodyEndHtml: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  defaultLocale: Scalars['String']['output'];
+  designSystemId: Scalars['String']['output'];
+  domains: Array<Scalars['String']['output']>;
+  faviconUrl: Scalars['String']['output'];
+  footerFragmentId: Scalars['String']['output'];
+  globalCss: Scalars['String']['output'];
+  /** Markup added to every page's head (meta tags, analytics). */
+  headHtml: Scalars['String']['output'];
+  headerFragmentId: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  /** The site unknown hosts (localhost) are served as. */
+  isDefault: Scalars['Boolean']['output'];
+  /** Pages are served under a market prefix (/en-us/…) with alternates for every market. */
+  markets: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  notFoundPageId: Scalars['String']['output'];
+  seo: CmsSiteSeo;
+  slug: Scalars['String']['output'];
+  status: CmsSiteStatus;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type CmsSiteDns = {
+  __typename?: 'CmsSiteDns';
+  domains: Array<CmsDomainDns>;
+  /** The address websites are served from (WEBSITE_SERVER_IP); empty when not configured. */
+  serverIp: Scalars['String']['output'];
+};
+
+export type CmsSiteInput = {
+  bodyEndHtml?: InputMaybe<Scalars['String']['input']>;
+  defaultLocale: Scalars['String']['input'];
+  designSystemId?: InputMaybe<Scalars['String']['input']>;
+  domains: Array<Scalars['String']['input']>;
+  faviconUrl?: InputMaybe<Scalars['String']['input']>;
+  footerFragmentId?: InputMaybe<Scalars['String']['input']>;
+  globalCss?: InputMaybe<Scalars['String']['input']>;
+  headHtml?: InputMaybe<Scalars['String']['input']>;
+  headerFragmentId?: InputMaybe<Scalars['String']['input']>;
+  markets: Scalars['Boolean']['input'];
+  name: Scalars['String']['input'];
+  notFoundPageId?: InputMaybe<Scalars['String']['input']>;
+  seo?: InputMaybe<CmsSiteSeoInput>;
+  slug: Scalars['String']['input'];
+  status: CmsSiteStatus;
+};
+
+export type CmsSiteSeo = {
+  __typename?: 'CmsSiteSeo';
+  description: Scalars['String']['output'];
+  ogImageUrl: Scalars['String']['output'];
+  /** The title pattern; %s is the page title. */
+  titleTemplate: Scalars['String']['output'];
+};
+
+export type CmsSiteSeoInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  ogImageUrl?: InputMaybe<Scalars['String']['input']>;
+  titleTemplate?: InputMaybe<Scalars['String']['input']>;
+};
+
+export enum CmsSiteStatus {
+  Active = 'ACTIVE',
+  Draft = 'DRAFT'
+}
 
 export type Company = {
   __typename?: 'Company';
@@ -2977,6 +3352,8 @@ export type Gig = {
   postedDate: Scalars['DateTime']['output'];
   requirements: Array<Scalars['String']['output']>;
   shortDescription: Scalars['String']['output'];
+  /** The website it belongs to (Website > Websites). */
+  siteId: Scalars['String']['output'];
   status: Scalars['String']['output'];
   tags: Array<Scalars['String']['output']>;
   title: Scalars['String']['output'];
@@ -2997,6 +3374,7 @@ export type GigInput = {
   postedDate?: InputMaybe<Scalars['DateTime']['input']>;
   requirements?: InputMaybe<Array<Scalars['String']['input']>>;
   shortDescription?: InputMaybe<Scalars['String']['input']>;
+  siteId?: InputMaybe<Scalars['String']['input']>;
   status: Scalars['String']['input'];
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
   title: Scalars['String']['input'];
@@ -4126,6 +4504,8 @@ export type Job = {
   requirements: Array<Scalars['String']['output']>;
   salaryRange: Scalars['String']['output'];
   shortJobDescription: Scalars['String']['output'];
+  /** The website it belongs to (Website > Websites). */
+  siteId: Scalars['String']['output'];
   skillSet: Array<Scalars['String']['output']>;
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
@@ -4150,6 +4530,8 @@ export type JobCompany = {
   name: Scalars['String']['output'];
   order: Scalars['Int']['output'];
   secondaryColor: Scalars['String']['output'];
+  /** The website it belongs to (Website > Websites). */
+  siteId: Scalars['String']['output'];
   slug: Scalars['String']['output'];
   socialLinks: CompanySocialLinks;
   tagline: Scalars['String']['output'];
@@ -4172,6 +4554,7 @@ export type JobCompanyInput = {
   name: Scalars['String']['input'];
   order?: InputMaybe<Scalars['Int']['input']>;
   secondaryColor?: InputMaybe<Scalars['String']['input']>;
+  siteId?: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
   socialLinks?: InputMaybe<CompanySocialLinksInput>;
   tagline?: InputMaybe<Scalars['String']['input']>;
@@ -4202,6 +4585,7 @@ export type JobInput = {
   requirements?: InputMaybe<Array<Scalars['String']['input']>>;
   salaryRange?: InputMaybe<Scalars['String']['input']>;
   shortJobDescription?: InputMaybe<Scalars['String']['input']>;
+  siteId?: InputMaybe<Scalars['String']['input']>;
   skillSet?: InputMaybe<Array<Scalars['String']['input']>>;
   title: Scalars['String']['input'];
   workMode: Scalars['String']['input'];
@@ -4744,6 +5128,8 @@ export type Mutation = {
   addItIncidentUpdate: ItIncident;
   /** Self-service: continue the conversation on one of the employee's own tickets. */
   addMySupportReply: SupportReply;
+  /** Adds somebody by hand (they agreed elsewhere); signing up again re-subscribes. */
+  addNewsletterSubscriber: Scalars['Boolean']['output'];
   /** RESOLVED closes the incident and alerts the team like the monitor does. */
   addStatusIncidentUpdate: StatusIncident;
   /** SUPPORT/ADMIN: reply on a ticket, or leave an internal note. */
@@ -4813,6 +5199,10 @@ export type Mutation = {
    */
   createClientSupportTicket: Scalars['String']['output'];
   createCloudflareConfig: CloudflareConfig;
+  createCmsDesignSystem: CmsDesignSystem;
+  createCmsFragment: CmsFragment;
+  createCmsPage: CmsPage;
+  createCmsSite: CmsSite;
   createColumn: BoardColumn;
   createCompany: Company;
   createCompanyExpense: CompanyExpense;
@@ -4880,6 +5270,7 @@ export type Mutation = {
    */
   createMyRequest: EmployeeRequest;
   createNavLink: NavLink;
+  createNewsletterIssue: NewsletterIssue;
   createObjective: Objective;
   createOnboardingTemplate: OnboardingTemplate;
   createOpenAiConfig: OpenAiConfig;
@@ -4968,6 +5359,11 @@ export type Mutation = {
   deleteClient: Scalars['Boolean']['output'];
   deleteClientContact: Scalars['Boolean']['output'];
   deleteCloudflareConfig: Scalars['Boolean']['output'];
+  deleteCmsAsset: Scalars['Boolean']['output'];
+  deleteCmsDesignSystem: Scalars['Boolean']['output'];
+  deleteCmsFragment: Scalars['Boolean']['output'];
+  deleteCmsPage: Scalars['Boolean']['output'];
+  deleteCmsSite: Scalars['Boolean']['output'];
   deleteColumn: Scalars['Boolean']['output'];
   deleteCompany: Scalars['Boolean']['output'];
   deleteCompanyExpense: Scalars['Boolean']['output'];
@@ -5019,6 +5415,8 @@ export type Mutation = {
   deleteMarketingSuppression: Scalars['Boolean']['output'];
   deleteMilestone: Scalars['Boolean']['output'];
   deleteNavLink: Scalars['Boolean']['output'];
+  deleteNewsletterIssue: Scalars['Boolean']['output'];
+  deleteNewsletterSubscriber: Scalars['Boolean']['output'];
   deleteObjective: Scalars['Boolean']['output'];
   /** HR: removes a checklist entirely — for one started against the wrong person. */
   deleteOnboardingChecklist: Scalars['Boolean']['output'];
@@ -5075,6 +5473,7 @@ export type Mutation = {
   /** Puts the published graph back into the draft. */
   discardWhatsappWorkflowDraft: WhatsappWorkflow;
   disconnectSocialAccount: Scalars['Boolean']['output'];
+  duplicateCmsPage: CmsPage;
   /** Copies a workflow as a never-published draft keyed key-copy. */
   duplicateWhatsappWorkflow: WhatsappWorkflow;
   /** Calls off a delegation. Only whoever arranged it may. */
@@ -5125,6 +5524,8 @@ export type Mutation = {
   promoteBugToTask: Task;
   /** Makes an Admin client of the account, or reuses the one it already has. */
   promoteCompanyToClient: Company;
+  publishCmsFragment: CmsFragment;
+  publishCmsPage: CmsPage;
   /**
    * Publishes a policy. raiseVersion asks everybody who already signed to sign again,
    * which is what a change in wording means — leave it off for a typo fix.
@@ -5170,6 +5571,8 @@ export type Mutation = {
   resetPassword: Scalars['Boolean']['output'];
   /** Generates a new temporary password, emails it, and returns it once for copying. */
   resetUserPassword: Scalars['String']['output'];
+  /** Copies a published version back into the draft (publish it to put it live). */
+  restoreCmsPageRevision: CmsPage;
   /**
    * Approves or rejects an off-computer claim (TRACKER role). A decision is final — an
    * entry that has already been decided is refused rather than flipped, so hours somebody
@@ -5212,6 +5615,8 @@ export type Mutation = {
   runRecurringInvoiceNow: RecurringInvoice;
   saveAiModelPrice: AiModelPrice;
   saveAiSpendLimit: AiSpendLimit;
+  saveCmsFragmentDraft: CmsFragment;
+  saveCmsPageDraft: CmsPage;
   /**
    * Creates or replaces ONE employee's salary structure, keyed on the employee.
    *
@@ -5266,10 +5671,13 @@ export type Mutation = {
   setClientContactActive: ClientContact;
   /** Makes these exactly the projects linked to the client (others are unlinked from it). */
   setClientProjects: Scalars['Boolean']['output'];
+  /** Points one of the site's domains at an IPv4 address, at whichever provider serves its DNS. */
+  setCmsSiteARecord: CmsDomainDns;
   /** Marks a column as the end of the line, or takes that mark away. */
   setColumnDone: BoardColumn;
   /** Moves a deal to another pipeline stage — what a drag on the board does. Winning makes the account a client. */
   setDealStage: Deal;
+  setDefaultCmsSite: CmsSite;
   /** Points the domain's nameservers at Cloudflare, back at GoDaddy, or at a custom set. */
   setDomainNameservers: Array<Scalars['String']['output']>;
   /**
@@ -5288,6 +5696,7 @@ export type Mutation = {
    * keeps counting while somebody is at lunch is billing lunch as work.
    */
   setMyTrackerPresence: TrackerPresenceState;
+  setNewsletterSubscriberStatus: NewsletterSubscriber;
   /**
    * Ticks one item off (or back on) and records who did it.
    *
@@ -5359,6 +5768,8 @@ export type Mutation = {
    * still OPEN, and it never touches the manager's assessment or the rating.
    */
   submitSelfAssessment: PerformanceReview;
+  /** Public, from the website's server: signs somebody up, answering the site's security question. */
+  subscribeNewsletter: Scalars['Boolean']['output'];
   /**
    * Public: asks for incident emails. Always answers true — a different answer would say
    * whether an address is already subscribed. Nothing is sent until the link is confirmed.
@@ -5431,6 +5842,7 @@ export type Mutation = {
    */
   translateMissing: Array<Translation>;
   triageWebsiteSubmission: WebsiteSubmission;
+  unpublishCmsPage: CmsPage;
   /**
    * Public: honours the unsubscribe link in a campaign email. Idempotent — the link is
    * clicked twice, forwarded and prefetched, and none of that is an error worth showing.
@@ -5438,6 +5850,8 @@ export type Mutation = {
   unsubscribeFromMarketing: Scalars['Boolean']['output'];
   /** Public: removes a subscription. Answers true whether or not one was there. */
   unsubscribeFromStatus: Scalars['Boolean']['output'];
+  /** Public: the unsubscribe link in a newsletter email. */
+  unsubscribeNewsletter: Scalars['Boolean']['output'];
   updateActivity: Activity;
   updateAiJob: AiJob;
   updateAnnouncement: Announcement;
@@ -5454,6 +5868,11 @@ export type Mutation = {
   updateCaseStudy: CaseStudy;
   updateClient: Client;
   updateCloudflareConfig: CloudflareConfig;
+  updateCmsAssetAlt: CmsAsset;
+  updateCmsDesignSystem: CmsDesignSystem;
+  updateCmsFragment: CmsFragment;
+  updateCmsPageSettings: CmsPage;
+  updateCmsSite: CmsSite;
   updateCompany: Company;
   updateCompanyExpense: CompanyExpense;
   updateContact: Contact;
@@ -5510,6 +5929,7 @@ export type Mutation = {
   /** The employee marking their own progress. Completing it stamps completedOn. */
   updateMyTrainingStatus: Training;
   updateNavLink: NavLink;
+  updateNewsletterIssue: NewsletterIssue;
   updateObjective: Objective;
   updateOnboardingTemplate: OnboardingTemplate;
   updateOpenAiConfig: OpenAiConfig;
@@ -5562,6 +5982,7 @@ export type Mutation = {
   updateWebsiteChatKnowledge: WebsiteChatKnowledge;
   updateWebsiteChatSettings: WebsiteChatSettings;
   uploadAvatar: Scalars['String']['output'];
+  uploadCmsAsset: CmsAsset;
   uploadImage: Scalars['String']['output'];
   upsertWhatsappDemo: WhatsappDemo;
   /** Public: exchanges the emailed code for a client hub pass. */
@@ -5598,6 +6019,13 @@ export type MutationAddMySupportReplyArgs = {
   attachments?: InputMaybe<Array<FileAttachmentInput>>;
   body: Scalars['String']['input'];
   ticketId: Scalars['ID']['input'];
+};
+
+
+export type MutationAddNewsletterSubscriberArgs = {
+  email: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  siteId: Scalars['ID']['input'];
 };
 
 
@@ -5827,6 +6255,28 @@ export type MutationCreateClientSupportTicketArgs = {
 
 export type MutationCreateCloudflareConfigArgs = {
   input: CloudflareConfigInput;
+};
+
+
+export type MutationCreateCmsDesignSystemArgs = {
+  input: CmsDesignSystemInput;
+};
+
+
+export type MutationCreateCmsFragmentArgs = {
+  input: CmsFragmentInput;
+  siteId: Scalars['ID']['input'];
+};
+
+
+export type MutationCreateCmsPageArgs = {
+  input: CmsPageSettingsInput;
+  siteId: Scalars['ID']['input'];
+};
+
+
+export type MutationCreateCmsSiteArgs = {
+  input: CmsSiteInput;
 };
 
 
@@ -6098,6 +6548,11 @@ export type MutationCreateMyRequestArgs = {
 
 export type MutationCreateNavLinkArgs = {
   input: NavLinkInput;
+};
+
+
+export type MutationCreateNewsletterIssueArgs = {
+  input: NewsletterIssueInput;
 };
 
 
@@ -6476,6 +6931,31 @@ export type MutationDeleteCloudflareConfigArgs = {
 };
 
 
+export type MutationDeleteCmsAssetArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteCmsDesignSystemArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteCmsFragmentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteCmsPageArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteCmsSiteArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteColumnArgs = {
   id: Scalars['ID']['input'];
 };
@@ -6717,6 +7197,16 @@ export type MutationDeleteMilestoneArgs = {
 
 
 export type MutationDeleteNavLinkArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteNewsletterIssueArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteNewsletterSubscriberArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -6976,6 +7466,12 @@ export type MutationDisconnectSocialAccountArgs = {
 };
 
 
+export type MutationDuplicateCmsPageArgs = {
+  id: Scalars['ID']['input'];
+  path: Scalars['String']['input'];
+};
+
+
 export type MutationDuplicateWhatsappWorkflowArgs = {
   id: Scalars['ID']['input'];
 };
@@ -7091,6 +7587,16 @@ export type MutationPromoteCompanyToClientArgs = {
 };
 
 
+export type MutationPublishCmsFragmentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationPublishCmsPageArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationPublishPolicyArgs = {
   id: Scalars['ID']['input'];
   raiseVersion?: InputMaybe<Scalars['Boolean']['input']>;
@@ -7180,6 +7686,11 @@ export type MutationResetUserPasswordArgs = {
 };
 
 
+export type MutationRestoreCmsPageRevisionArgs = {
+  revisionId: Scalars['ID']['input'];
+};
+
+
 export type MutationReviewTrackerManualEntryArgs = {
   id: Scalars['ID']['input'];
   reviewNote?: InputMaybe<Scalars['String']['input']>;
@@ -7253,6 +7764,18 @@ export type MutationSaveAiModelPriceArgs = {
 
 export type MutationSaveAiSpendLimitArgs = {
   input: AiSpendLimitInput;
+};
+
+
+export type MutationSaveCmsFragmentDraftArgs = {
+  draft: CmsDraftInput;
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationSaveCmsPageDraftArgs = {
+  draft: CmsDraftInput;
+  id: Scalars['ID']['input'];
 };
 
 
@@ -7375,6 +7898,14 @@ export type MutationSetClientProjectsArgs = {
 };
 
 
+export type MutationSetCmsSiteARecordArgs = {
+  domain: Scalars['String']['input'];
+  ip: Scalars['String']['input'];
+  siteId: Scalars['ID']['input'];
+  ttl: Scalars['Int']['input'];
+};
+
+
 export type MutationSetColumnDoneArgs = {
   id: Scalars['ID']['input'];
   isDone: Scalars['Boolean']['input'];
@@ -7384,6 +7915,11 @@ export type MutationSetColumnDoneArgs = {
 export type MutationSetDealStageArgs = {
   id: Scalars['ID']['input'];
   stage: DealStage;
+};
+
+
+export type MutationSetDefaultCmsSiteArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -7415,6 +7951,12 @@ export type MutationSetMyNotificationPreferenceArgs = {
 export type MutationSetMyTrackerPresenceArgs = {
   note?: InputMaybe<Scalars['String']['input']>;
   status: TrackerPresence;
+};
+
+
+export type MutationSetNewsletterSubscriberStatusArgs = {
+  id: Scalars['ID']['input'];
+  status: NewsletterSubscriberStatus;
 };
 
 
@@ -7562,6 +8104,12 @@ export type MutationSubmitProblemReportArgs = {
 export type MutationSubmitSelfAssessmentArgs = {
   id: Scalars['ID']['input'];
   text: Scalars['String']['input'];
+};
+
+
+export type MutationSubscribeNewsletterArgs = {
+  captcha: WebsiteCaptchaAnswer;
+  input: NewsletterSignupInput;
 };
 
 
@@ -7716,12 +8264,22 @@ export type MutationTriageWebsiteSubmissionArgs = {
 };
 
 
+export type MutationUnpublishCmsPageArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationUnsubscribeFromMarketingArgs = {
   token: Scalars['String']['input'];
 };
 
 
 export type MutationUnsubscribeFromStatusArgs = {
+  token: Scalars['String']['input'];
+};
+
+
+export type MutationUnsubscribeNewsletterArgs = {
   token: Scalars['String']['input'];
 };
 
@@ -7818,6 +8376,36 @@ export type MutationUpdateClientArgs = {
 export type MutationUpdateCloudflareConfigArgs = {
   id: Scalars['ID']['input'];
   input: CloudflareConfigInput;
+};
+
+
+export type MutationUpdateCmsAssetAltArgs = {
+  alt: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationUpdateCmsDesignSystemArgs = {
+  id: Scalars['ID']['input'];
+  input: CmsDesignSystemInput;
+};
+
+
+export type MutationUpdateCmsFragmentArgs = {
+  id: Scalars['ID']['input'];
+  input: CmsFragmentInput;
+};
+
+
+export type MutationUpdateCmsPageSettingsArgs = {
+  id: Scalars['ID']['input'];
+  input: CmsPageSettingsInput;
+};
+
+
+export type MutationUpdateCmsSiteArgs = {
+  id: Scalars['ID']['input'];
+  input: CmsSiteInput;
 };
 
 
@@ -8127,6 +8715,12 @@ export type MutationUpdateNavLinkArgs = {
 };
 
 
+export type MutationUpdateNewsletterIssueArgs = {
+  id: Scalars['ID']['input'];
+  input: NewsletterIssueInput;
+};
+
+
 export type MutationUpdateObjectiveArgs = {
   id: Scalars['ID']['input'];
   input: ObjectiveInput;
@@ -8396,6 +8990,11 @@ export type MutationUploadAvatarArgs = {
 };
 
 
+export type MutationUploadCmsAssetArgs = {
+  input: CmsAssetUploadInput;
+};
+
+
 export type MutationUploadImageArgs = {
   file: Scalars['String']['input'];
   fileName: Scalars['String']['input'];
@@ -8494,6 +9093,8 @@ export type NavLink = {
   keywords: Scalars['String']['output'];
   label: Scalars['String']['output'];
   order: Scalars['Int']['output'];
+  /** The website it belongs to (Website > Websites). */
+  siteId: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
 
@@ -8505,7 +9106,76 @@ export type NavLinkInput = {
   keywords?: InputMaybe<Scalars['String']['input']>;
   label: Scalars['String']['input'];
   order?: InputMaybe<Scalars['Int']['input']>;
+  siteId?: InputMaybe<Scalars['String']['input']>;
 };
+
+/** A newsletter issue published on a site (/newsletter/<slug>). The body is HTML, as a blog post's. */
+export type NewsletterIssue = {
+  __typename?: 'NewsletterIssue';
+  content: Scalars['String']['output'];
+  contentCss: Scalars['String']['output'];
+  coverImage: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  publishedAt: Scalars['DateTime']['output'];
+  siteId: Scalars['String']['output'];
+  slug: Scalars['String']['output'];
+  summary: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type NewsletterIssueInput = {
+  content: Scalars['String']['input'];
+  contentCss?: InputMaybe<Scalars['String']['input']>;
+  coverImage?: InputMaybe<Scalars['String']['input']>;
+  isActive: Scalars['Boolean']['input'];
+  publishedAt?: InputMaybe<Scalars['String']['input']>;
+  siteId: Scalars['String']['input'];
+  slug: Scalars['String']['input'];
+  summary?: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
+};
+
+export type NewsletterIssuePage = {
+  __typename?: 'NewsletterIssuePage';
+  rows: Array<NewsletterIssue>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type NewsletterSignupInput = {
+  email: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  /** The site's key; the default site when empty. */
+  site?: InputMaybe<Scalars['String']['input']>;
+  /** The page they signed up on. */
+  source?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type NewsletterSubscriber = {
+  __typename?: 'NewsletterSubscriber';
+  consentAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  siteId: Scalars['String']['output'];
+  /** Where they signed up: the page, or portal. */
+  source: Scalars['String']['output'];
+  status: NewsletterSubscriberStatus;
+};
+
+export type NewsletterSubscriberPage = {
+  __typename?: 'NewsletterSubscriberPage';
+  rows: Array<NewsletterSubscriber>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum NewsletterSubscriberStatus {
+  Subscribed = 'SUBSCRIBED',
+  Unsubscribed = 'UNSUBSCRIBED'
+}
 
 export type Notification = {
   __typename?: 'Notification';
@@ -9910,6 +10580,25 @@ export type Query = {
    * and the address they raised it from. Null unless both match.
    */
   clientSupportTicketStatus?: Maybe<ClientTicketStatus>;
+  cmsAssets: CmsAssetPage;
+  /** The dynamic components an editor can drop into a page. */
+  cmsComponents: Array<CmsComponentDef>;
+  cmsDesignSystem: CmsDesignSystem;
+  cmsDesignSystems: Array<CmsDesignSystem>;
+  cmsFragment: CmsFragment;
+  cmsFragments: Array<CmsFragment>;
+  /** The Google Fonts catalogue, most used first; category is Sans Serif, Serif, Display, Handwriting or Monospace. */
+  cmsGoogleFonts: CmsGoogleFontPage;
+  cmsPage: CmsPage;
+  cmsPageRevisions: Array<CmsPageRevision>;
+  cmsPages: CmsPagePage;
+  /** A link token that shows the page's draft on the website for two hours. */
+  cmsPreviewToken: Scalars['String']['output'];
+  cmsSite: CmsSite;
+  cmsSiteBySlug: CmsSite;
+  /** Website › Settings › Domains: each domain's DNS provider and A records (through GoDaddy/Cloudflare in Tech). */
+  cmsSiteDns: CmsSiteDns;
+  cmsSites: Array<CmsSite>;
   /**
    * The company's finances between two dates. Both bounds are inclusive of the days they
    * fall on, as the caller sends them.
@@ -10464,6 +11153,8 @@ export type Query = {
   myTrackerTotals: TrackerTotals;
   myTrainings: Array<Training>;
   myUnreadNotificationCount: Scalars['Int']['output'];
+  newsletterIssues: NewsletterIssuePage;
+  newsletterSubscribers: NewsletterSubscriberPage;
   /** Markdown describing every OPEN error (optionally from one source), ready to paste to Claude. */
   openAppLogsFixPrompt: Scalars['String']['output'];
   /** HR/ADMIN: every active user with their managerId, for the org chart. */
@@ -10521,6 +11212,11 @@ export type Query = {
   publicBranding: Branding;
   publicCaseStudies: Array<CaseStudy>;
   publicCaseStudy?: Maybe<CaseStudy>;
+  /** The page at a path, else the template it fits; a draft with a valid preview token. Null for 404. */
+  publicCmsPage?: Maybe<CmsPublicPage>;
+  publicCmsPaths: Array<CmsPublicPath>;
+  /** The site served at a host (the default site for an unknown one). */
+  publicCmsSite: CmsPublicSite;
   publicGig?: Maybe<Gig>;
   publicGigs: Array<Gig>;
   publicJob?: Maybe<Job>;
@@ -10528,6 +11224,8 @@ export type Query = {
   publicJobCompany?: Maybe<JobCompany>;
   publicJobs: Array<Job>;
   publicNavLinks: Array<NavLink>;
+  publicNewsletterIssue?: Maybe<NewsletterIssue>;
+  publicNewsletterIssues: Array<NewsletterIssue>;
   publicPolicies: Array<PublicPolicy>;
   publicPolicy?: Maybe<PublicPolicy>;
   publicTool?: Maybe<Tool>;
@@ -10792,6 +11490,77 @@ export type QueryClientHubTicketsArgs = {
 export type QueryClientSupportTicketStatusArgs = {
   email: Scalars['String']['input'];
   reference: Scalars['String']['input'];
+};
+
+
+export type QueryCmsAssetsArgs = {
+  page: Scalars['Int']['input'];
+  pageSize: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  siteId: Scalars['ID']['input'];
+};
+
+
+export type QueryCmsDesignSystemArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryCmsDesignSystemsArgs = {
+  siteId: Scalars['ID']['input'];
+};
+
+
+export type QueryCmsFragmentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryCmsFragmentsArgs = {
+  siteId: Scalars['ID']['input'];
+};
+
+
+export type QueryCmsGoogleFontsArgs = {
+  category?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryCmsPageArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryCmsPageRevisionsArgs = {
+  pageId: Scalars['ID']['input'];
+};
+
+
+export type QueryCmsPagesArgs = {
+  input: CmsPageListInput;
+  siteId: Scalars['ID']['input'];
+};
+
+
+export type QueryCmsPreviewTokenArgs = {
+  pageId: Scalars['ID']['input'];
+};
+
+
+export type QueryCmsSiteArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryCmsSiteBySlugArgs = {
+  slug: Scalars['String']['input'];
+};
+
+
+export type QueryCmsSiteDnsArgs = {
+  siteId: Scalars['ID']['input'];
 };
 
 
@@ -11826,6 +12595,22 @@ export type QueryMyTrackerMessagesArgs = {
 };
 
 
+export type QueryNewsletterIssuesArgs = {
+  page: Scalars['Int']['input'];
+  pageSize: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  siteId: Scalars['ID']['input'];
+};
+
+
+export type QueryNewsletterSubscribersArgs = {
+  page: Scalars['Int']['input'];
+  pageSize: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  siteId: Scalars['ID']['input'];
+};
+
+
 export type QueryOpenAppLogsFixPromptArgs = {
   source?: InputMaybe<AppLogSource>;
 };
@@ -11927,32 +12712,91 @@ export type QueryProjectTimeLogSessionsArgs = {
 
 
 export type QueryPublicBlogPostArgs = {
+  site?: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
 };
 
 
+export type QueryPublicBlogPostsArgs = {
+  site?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryPublicCaseStudiesArgs = {
+  site?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryPublicCaseStudyArgs = {
+  site?: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
+};
+
+
+export type QueryPublicCmsPageArgs = {
+  path: Scalars['String']['input'];
+  previewToken?: InputMaybe<Scalars['String']['input']>;
+  siteId: Scalars['ID']['input'];
+};
+
+
+export type QueryPublicCmsPathsArgs = {
+  siteId: Scalars['ID']['input'];
+};
+
+
+export type QueryPublicCmsSiteArgs = {
+  host: Scalars['String']['input'];
 };
 
 
 export type QueryPublicGigArgs = {
   gigCode: Scalars['String']['input'];
+  site?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryPublicGigsArgs = {
+  site?: InputMaybe<Scalars['String']['input']>;
 };
 
 
 export type QueryPublicJobArgs = {
   jobCode: Scalars['String']['input'];
+  site?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryPublicJobCompaniesArgs = {
+  site?: InputMaybe<Scalars['String']['input']>;
 };
 
 
 export type QueryPublicJobCompanyArgs = {
+  site?: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
 };
 
 
 export type QueryPublicJobsArgs = {
   companySlug?: InputMaybe<Scalars['String']['input']>;
+  site?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryPublicNavLinksArgs = {
+  site?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryPublicNewsletterIssueArgs = {
+  site?: InputMaybe<Scalars['String']['input']>;
+  slug: Scalars['String']['input'];
+};
+
+
+export type QueryPublicNewsletterIssuesArgs = {
+  site?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -16671,6 +17515,301 @@ export type SetClientProjectsMutationVariables = Exact<{
 
 export type SetClientProjectsMutation = { __typename?: 'Mutation', setClientProjects: boolean };
 
+export type CmsSiteFieldsFragment = { __typename?: 'CmsSite', id: string, name: string, slug: string, domains: Array<string>, isDefault: boolean, status: CmsSiteStatus, markets: boolean, defaultLocale: string, faviconUrl: string, headerFragmentId: string, footerFragmentId: string, designSystemId: string, headHtml: string, bodyEndHtml: string, globalCss: string, notFoundPageId: string, updatedAt: string, seo: { __typename?: 'CmsSiteSeo', titleTemplate: string, description: string, ogImageUrl: string } };
+
+export type CmsSitesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CmsSitesQuery = { __typename?: 'Query', cmsSites: Array<{ __typename?: 'CmsSite', id: string, name: string, slug: string, domains: Array<string>, isDefault: boolean, status: CmsSiteStatus, markets: boolean, defaultLocale: string, faviconUrl: string, headerFragmentId: string, footerFragmentId: string, designSystemId: string, headHtml: string, bodyEndHtml: string, globalCss: string, notFoundPageId: string, updatedAt: string, seo: { __typename?: 'CmsSiteSeo', titleTemplate: string, description: string, ogImageUrl: string } }> };
+
+export type CmsSiteQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type CmsSiteQuery = { __typename?: 'Query', cmsSite: { __typename?: 'CmsSite', id: string, name: string, slug: string, domains: Array<string>, isDefault: boolean, status: CmsSiteStatus, markets: boolean, defaultLocale: string, faviconUrl: string, headerFragmentId: string, footerFragmentId: string, designSystemId: string, headHtml: string, bodyEndHtml: string, globalCss: string, notFoundPageId: string, updatedAt: string, seo: { __typename?: 'CmsSiteSeo', titleTemplate: string, description: string, ogImageUrl: string } } };
+
+export type CreateCmsSiteMutationVariables = Exact<{
+  input: CmsSiteInput;
+}>;
+
+
+export type CreateCmsSiteMutation = { __typename?: 'Mutation', createCmsSite: { __typename?: 'CmsSite', id: string, name: string, slug: string, domains: Array<string>, isDefault: boolean, status: CmsSiteStatus, markets: boolean, defaultLocale: string, faviconUrl: string, headerFragmentId: string, footerFragmentId: string, designSystemId: string, headHtml: string, bodyEndHtml: string, globalCss: string, notFoundPageId: string, updatedAt: string, seo: { __typename?: 'CmsSiteSeo', titleTemplate: string, description: string, ogImageUrl: string } } };
+
+export type UpdateCmsSiteMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: CmsSiteInput;
+}>;
+
+
+export type UpdateCmsSiteMutation = { __typename?: 'Mutation', updateCmsSite: { __typename?: 'CmsSite', id: string, name: string, slug: string, domains: Array<string>, isDefault: boolean, status: CmsSiteStatus, markets: boolean, defaultLocale: string, faviconUrl: string, headerFragmentId: string, footerFragmentId: string, designSystemId: string, headHtml: string, bodyEndHtml: string, globalCss: string, notFoundPageId: string, updatedAt: string, seo: { __typename?: 'CmsSiteSeo', titleTemplate: string, description: string, ogImageUrl: string } } };
+
+export type SetDefaultCmsSiteMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type SetDefaultCmsSiteMutation = { __typename?: 'Mutation', setDefaultCmsSite: { __typename?: 'CmsSite', id: string, isDefault: boolean } };
+
+export type DeleteCmsSiteMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteCmsSiteMutation = { __typename?: 'Mutation', deleteCmsSite: boolean };
+
+export type CmsDesignSystemFieldsFragment = { __typename?: 'CmsDesignSystem', id: string, siteId: string, name: string, tokens: any, extraCss: string, updatedAt: string };
+
+export type CmsDesignSystemsQueryVariables = Exact<{
+  siteId: Scalars['ID']['input'];
+}>;
+
+
+export type CmsDesignSystemsQuery = { __typename?: 'Query', cmsDesignSystems: Array<{ __typename?: 'CmsDesignSystem', id: string, siteId: string, name: string, tokens: any, extraCss: string, updatedAt: string }> };
+
+export type CmsDesignSystemQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type CmsDesignSystemQuery = { __typename?: 'Query', cmsDesignSystem: { __typename?: 'CmsDesignSystem', id: string, siteId: string, name: string, tokens: any, extraCss: string, updatedAt: string } };
+
+export type CreateCmsDesignSystemMutationVariables = Exact<{
+  input: CmsDesignSystemInput;
+}>;
+
+
+export type CreateCmsDesignSystemMutation = { __typename?: 'Mutation', createCmsDesignSystem: { __typename?: 'CmsDesignSystem', id: string, siteId: string, name: string, tokens: any, extraCss: string, updatedAt: string } };
+
+export type UpdateCmsDesignSystemMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: CmsDesignSystemInput;
+}>;
+
+
+export type UpdateCmsDesignSystemMutation = { __typename?: 'Mutation', updateCmsDesignSystem: { __typename?: 'CmsDesignSystem', id: string, siteId: string, name: string, tokens: any, extraCss: string, updatedAt: string } };
+
+export type DeleteCmsDesignSystemMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteCmsDesignSystemMutation = { __typename?: 'Mutation', deleteCmsDesignSystem: boolean };
+
+export type CmsPageListFieldsFragment = { __typename?: 'CmsPage', id: string, siteId: string, path: string, kind: CmsPageKind, title: string, layout: CmsPageLayout, status: CmsDocumentStatus, updatedByName: string, updatedAt: string, seo: { __typename?: 'CmsPageSeo', noindex: boolean }, published?: { __typename?: 'CmsPublished', publishedAt: string } | null };
+
+export type CmsPageFieldsFragment = { __typename?: 'CmsPage', id: string, siteId: string, path: string, kind: CmsPageKind, title: string, layout: CmsPageLayout, status: CmsDocumentStatus, updatedByName: string, updatedAt: string, seo: { __typename?: 'CmsPageSeo', title: string, description: string, keywords: string, ogImageUrl: string, canonical: string, noindex: boolean, jsonLd?: any | null }, draft?: { __typename?: 'CmsDraft', projectData?: any | null, html: string, css: string } | null, published?: { __typename?: 'CmsPublished', publishedAt: string } | null };
+
+export type CmsPagesQueryVariables = Exact<{
+  siteId: Scalars['ID']['input'];
+  input: CmsPageListInput;
+}>;
+
+
+export type CmsPagesQuery = { __typename?: 'Query', cmsPages: { __typename?: 'CmsPagePage', totalCount: number, rows: Array<{ __typename?: 'CmsPage', id: string, siteId: string, path: string, kind: CmsPageKind, title: string, layout: CmsPageLayout, status: CmsDocumentStatus, updatedByName: string, updatedAt: string, seo: { __typename?: 'CmsPageSeo', noindex: boolean }, published?: { __typename?: 'CmsPublished', publishedAt: string } | null }> } };
+
+export type CmsPageQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type CmsPageQuery = { __typename?: 'Query', cmsPage: { __typename?: 'CmsPage', id: string, siteId: string, path: string, kind: CmsPageKind, title: string, layout: CmsPageLayout, status: CmsDocumentStatus, updatedByName: string, updatedAt: string, seo: { __typename?: 'CmsPageSeo', title: string, description: string, keywords: string, ogImageUrl: string, canonical: string, noindex: boolean, jsonLd?: any | null }, draft?: { __typename?: 'CmsDraft', projectData?: any | null, html: string, css: string } | null, published?: { __typename?: 'CmsPublished', publishedAt: string } | null } };
+
+export type CmsPageRevisionsQueryVariables = Exact<{
+  pageId: Scalars['ID']['input'];
+}>;
+
+
+export type CmsPageRevisionsQuery = { __typename?: 'Query', cmsPageRevisions: Array<{ __typename?: 'CmsPageRevision', id: string, version: number, title: string, publishedByName: string, createdAt: string }> };
+
+export type CmsPreviewTokenQueryVariables = Exact<{
+  pageId: Scalars['ID']['input'];
+}>;
+
+
+export type CmsPreviewTokenQuery = { __typename?: 'Query', cmsPreviewToken: string };
+
+export type CreateCmsPageMutationVariables = Exact<{
+  siteId: Scalars['ID']['input'];
+  input: CmsPageSettingsInput;
+}>;
+
+
+export type CreateCmsPageMutation = { __typename?: 'Mutation', createCmsPage: { __typename?: 'CmsPage', id: string, siteId: string, path: string, kind: CmsPageKind, title: string, layout: CmsPageLayout, status: CmsDocumentStatus, updatedByName: string, updatedAt: string, seo: { __typename?: 'CmsPageSeo', noindex: boolean }, published?: { __typename?: 'CmsPublished', publishedAt: string } | null } };
+
+export type UpdateCmsPageSettingsMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: CmsPageSettingsInput;
+}>;
+
+
+export type UpdateCmsPageSettingsMutation = { __typename?: 'Mutation', updateCmsPageSettings: { __typename?: 'CmsPage', id: string, siteId: string, path: string, kind: CmsPageKind, title: string, layout: CmsPageLayout, status: CmsDocumentStatus, updatedByName: string, updatedAt: string, seo: { __typename?: 'CmsPageSeo', title: string, description: string, keywords: string, ogImageUrl: string, canonical: string, noindex: boolean, jsonLd?: any | null }, draft?: { __typename?: 'CmsDraft', projectData?: any | null, html: string, css: string } | null, published?: { __typename?: 'CmsPublished', publishedAt: string } | null } };
+
+export type SaveCmsPageDraftMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  draft: CmsDraftInput;
+}>;
+
+
+export type SaveCmsPageDraftMutation = { __typename?: 'Mutation', saveCmsPageDraft: { __typename?: 'CmsPage', id: string, status: CmsDocumentStatus, updatedByName: string, updatedAt: string } };
+
+export type PublishCmsPageMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type PublishCmsPageMutation = { __typename?: 'Mutation', publishCmsPage: { __typename?: 'CmsPage', id: string, status: CmsDocumentStatus, published?: { __typename?: 'CmsPublished', publishedAt: string } | null } };
+
+export type UnpublishCmsPageMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type UnpublishCmsPageMutation = { __typename?: 'Mutation', unpublishCmsPage: { __typename?: 'CmsPage', id: string, status: CmsDocumentStatus, published?: { __typename?: 'CmsPublished', publishedAt: string } | null } };
+
+export type DuplicateCmsPageMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  path: Scalars['String']['input'];
+}>;
+
+
+export type DuplicateCmsPageMutation = { __typename?: 'Mutation', duplicateCmsPage: { __typename?: 'CmsPage', id: string, path: string } };
+
+export type DeleteCmsPageMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteCmsPageMutation = { __typename?: 'Mutation', deleteCmsPage: boolean };
+
+export type RestoreCmsPageRevisionMutationVariables = Exact<{
+  revisionId: Scalars['ID']['input'];
+}>;
+
+
+export type RestoreCmsPageRevisionMutation = { __typename?: 'Mutation', restoreCmsPageRevision: { __typename?: 'CmsPage', id: string, siteId: string, path: string, kind: CmsPageKind, title: string, layout: CmsPageLayout, status: CmsDocumentStatus, updatedByName: string, updatedAt: string, seo: { __typename?: 'CmsPageSeo', title: string, description: string, keywords: string, ogImageUrl: string, canonical: string, noindex: boolean, jsonLd?: any | null }, draft?: { __typename?: 'CmsDraft', projectData?: any | null, html: string, css: string } | null, published?: { __typename?: 'CmsPublished', publishedAt: string } | null } };
+
+export type CmsFragmentListFieldsFragment = { __typename?: 'CmsFragment', id: string, siteId: string, name: string, kind: CmsFragmentKind, status: CmsDocumentStatus, updatedByName: string, updatedAt: string, published?: { __typename?: 'CmsPublished', publishedAt: string } | null };
+
+export type CmsFragmentsQueryVariables = Exact<{
+  siteId: Scalars['ID']['input'];
+}>;
+
+
+export type CmsFragmentsQuery = { __typename?: 'Query', cmsFragments: Array<{ __typename?: 'CmsFragment', id: string, siteId: string, name: string, kind: CmsFragmentKind, status: CmsDocumentStatus, updatedByName: string, updatedAt: string, published?: { __typename?: 'CmsPublished', publishedAt: string } | null }> };
+
+export type CmsFragmentQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type CmsFragmentQuery = { __typename?: 'Query', cmsFragment: { __typename?: 'CmsFragment', id: string, siteId: string, name: string, kind: CmsFragmentKind, status: CmsDocumentStatus, updatedByName: string, updatedAt: string, draft?: { __typename?: 'CmsDraft', projectData?: any | null, html: string, css: string } | null, published?: { __typename?: 'CmsPublished', publishedAt: string } | null } };
+
+export type CreateCmsFragmentMutationVariables = Exact<{
+  siteId: Scalars['ID']['input'];
+  input: CmsFragmentInput;
+}>;
+
+
+export type CreateCmsFragmentMutation = { __typename?: 'Mutation', createCmsFragment: { __typename?: 'CmsFragment', id: string, siteId: string, name: string, kind: CmsFragmentKind, status: CmsDocumentStatus, updatedByName: string, updatedAt: string, published?: { __typename?: 'CmsPublished', publishedAt: string } | null } };
+
+export type UpdateCmsFragmentMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: CmsFragmentInput;
+}>;
+
+
+export type UpdateCmsFragmentMutation = { __typename?: 'Mutation', updateCmsFragment: { __typename?: 'CmsFragment', id: string, siteId: string, name: string, kind: CmsFragmentKind, status: CmsDocumentStatus, updatedByName: string, updatedAt: string, published?: { __typename?: 'CmsPublished', publishedAt: string } | null } };
+
+export type SaveCmsFragmentDraftMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  draft: CmsDraftInput;
+}>;
+
+
+export type SaveCmsFragmentDraftMutation = { __typename?: 'Mutation', saveCmsFragmentDraft: { __typename?: 'CmsFragment', id: string, status: CmsDocumentStatus, updatedByName: string, updatedAt: string } };
+
+export type PublishCmsFragmentMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type PublishCmsFragmentMutation = { __typename?: 'Mutation', publishCmsFragment: { __typename?: 'CmsFragment', id: string, status: CmsDocumentStatus, published?: { __typename?: 'CmsPublished', publishedAt: string } | null } };
+
+export type DeleteCmsFragmentMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteCmsFragmentMutation = { __typename?: 'Mutation', deleteCmsFragment: boolean };
+
+export type CmsAssetFieldsFragment = { __typename?: 'CmsAsset', id: string, siteId: string, url: string, name: string, mime: string, size: number, width: number, height: number, alt: string, createdAt: string };
+
+export type CmsAssetsQueryVariables = Exact<{
+  siteId: Scalars['ID']['input'];
+  page: Scalars['Int']['input'];
+  pageSize: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type CmsAssetsQuery = { __typename?: 'Query', cmsAssets: { __typename?: 'CmsAssetPage', totalCount: number, rows: Array<{ __typename?: 'CmsAsset', id: string, siteId: string, url: string, name: string, mime: string, size: number, width: number, height: number, alt: string, createdAt: string }> } };
+
+export type UploadCmsAssetMutationVariables = Exact<{
+  input: CmsAssetUploadInput;
+}>;
+
+
+export type UploadCmsAssetMutation = { __typename?: 'Mutation', uploadCmsAsset: { __typename?: 'CmsAsset', id: string, siteId: string, url: string, name: string, mime: string, size: number, width: number, height: number, alt: string, createdAt: string } };
+
+export type UpdateCmsAssetAltMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  alt: Scalars['String']['input'];
+}>;
+
+
+export type UpdateCmsAssetAltMutation = { __typename?: 'Mutation', updateCmsAssetAlt: { __typename?: 'CmsAsset', id: string, alt: string } };
+
+export type DeleteCmsAssetMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteCmsAssetMutation = { __typename?: 'Mutation', deleteCmsAsset: boolean };
+
+export type CmsComponentsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CmsComponentsQuery = { __typename?: 'Query', cmsComponents: Array<{ __typename?: 'CmsComponentDef', key: string, label: string, category: string, description: string, defaultProps: any, acceptsChildren: boolean }> };
+
+export type CmsDomainDnsFieldsFragment = { __typename?: 'CmsDomainDns', domain: string, zone: string, name: string, authority: string, pointsHere: boolean, error: string, records: Array<{ __typename?: 'CmsARecord', ip: string, ttl: number }> };
+
+export type CmsSiteDnsQueryVariables = Exact<{
+  siteId: Scalars['ID']['input'];
+}>;
+
+
+export type CmsSiteDnsQuery = { __typename?: 'Query', cmsSiteDns: { __typename?: 'CmsSiteDns', serverIp: string, domains: Array<{ __typename?: 'CmsDomainDns', domain: string, zone: string, name: string, authority: string, pointsHere: boolean, error: string, records: Array<{ __typename?: 'CmsARecord', ip: string, ttl: number }> }> } };
+
+export type SetCmsSiteARecordMutationVariables = Exact<{
+  siteId: Scalars['ID']['input'];
+  domain: Scalars['String']['input'];
+  ip: Scalars['String']['input'];
+  ttl: Scalars['Int']['input'];
+}>;
+
+
+export type SetCmsSiteARecordMutation = { __typename?: 'Mutation', setCmsSiteARecord: { __typename?: 'CmsDomainDns', domain: string, zone: string, name: string, authority: string, pointsHere: boolean, error: string, records: Array<{ __typename?: 'CmsARecord', ip: string, ttl: number }> } };
+
+export type CmsGoogleFontsQueryVariables = Exact<{
+  search?: InputMaybe<Scalars['String']['input']>;
+  category?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type CmsGoogleFontsQuery = { __typename?: 'Query', cmsGoogleFonts: { __typename?: 'CmsGoogleFontPage', totalCount: number, rows: Array<{ __typename?: 'CmsGoogleFont', family: string, category: string, variants: Array<string>, subsets: Array<string>, popularity: number }> } };
+
 export type RiskFieldsFragment = { __typename?: 'Risk', id: string, reference: string, title: string, description: string, standards: Array<ManagementStandard>, category: ComplianceCategory, subject: string, ownerId: string, ownerName: string, likelihood: number, impact: number, inherentScore: number, inherentLevel: RiskLevel, treatment: RiskTreatment, controls: string, residualLikelihood: number, residualImpact: number, residualScore: number, residualLevel: RiskLevel, status: RiskStatus, identifiedOn: string, reviewDueOn?: string | null, closedOn?: string | null };
 
 export type ObjectiveFieldsFragment = { __typename?: 'Objective', id: string, title: string, description: string, standards: Array<ManagementStandard>, category: ComplianceCategory, scope: ObjectiveScope, area: string, ownerId: string, ownerName: string, measure: string, unit: string, baseline: number, target: number, actual: number, achievementPercent: number, frequency: ObjectiveFrequency, periodStart: string, periodEnd: string, status: ObjectiveStatus, plan: string };
@@ -19329,6 +20468,76 @@ export type CampaignMetricsQueryVariables = Exact<{
 
 export type CampaignMetricsQuery = { __typename?: 'Query', campaignMetrics: { __typename?: 'CampaignMetrics', campaignId: string, sent: number, opened: number, clicked: number, totalOpens: number, totalClicks: number, openRate: number, clickRate: number, clickThroughRate: number }, campaignTopLinks: Array<{ __typename?: 'CampaignLinkStat', url: string, clicks: number, people: number }> };
 
+export type NewsletterIssueFieldsFragment = { __typename?: 'NewsletterIssue', id: string, siteId: string, slug: string, title: string, summary: string, coverImage: string, content: string, contentCss: string, isActive: boolean, publishedAt: string, updatedAt: string };
+
+export type NewsletterIssuesQueryVariables = Exact<{
+  siteId: Scalars['ID']['input'];
+  page: Scalars['Int']['input'];
+  pageSize: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type NewsletterIssuesQuery = { __typename?: 'Query', newsletterIssues: { __typename?: 'NewsletterIssuePage', totalCount: number, rows: Array<{ __typename?: 'NewsletterIssue', id: string, siteId: string, slug: string, title: string, summary: string, coverImage: string, content: string, contentCss: string, isActive: boolean, publishedAt: string, updatedAt: string }> } };
+
+export type CreateNewsletterIssueMutationVariables = Exact<{
+  input: NewsletterIssueInput;
+}>;
+
+
+export type CreateNewsletterIssueMutation = { __typename?: 'Mutation', createNewsletterIssue: { __typename?: 'NewsletterIssue', id: string } };
+
+export type UpdateNewsletterIssueMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: NewsletterIssueInput;
+}>;
+
+
+export type UpdateNewsletterIssueMutation = { __typename?: 'Mutation', updateNewsletterIssue: { __typename?: 'NewsletterIssue', id: string } };
+
+export type DeleteNewsletterIssueMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteNewsletterIssueMutation = { __typename?: 'Mutation', deleteNewsletterIssue: boolean };
+
+export type NewsletterSubscriberFieldsFragment = { __typename?: 'NewsletterSubscriber', id: string, siteId: string, email: string, name: string, status: NewsletterSubscriberStatus, source: string, consentAt: string, createdAt: string };
+
+export type NewsletterSubscribersQueryVariables = Exact<{
+  siteId: Scalars['ID']['input'];
+  page: Scalars['Int']['input'];
+  pageSize: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type NewsletterSubscribersQuery = { __typename?: 'Query', newsletterSubscribers: { __typename?: 'NewsletterSubscriberPage', totalCount: number, rows: Array<{ __typename?: 'NewsletterSubscriber', id: string, siteId: string, email: string, name: string, status: NewsletterSubscriberStatus, source: string, consentAt: string, createdAt: string }> } };
+
+export type AddNewsletterSubscriberMutationVariables = Exact<{
+  siteId: Scalars['ID']['input'];
+  email: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type AddNewsletterSubscriberMutation = { __typename?: 'Mutation', addNewsletterSubscriber: boolean };
+
+export type SetNewsletterSubscriberStatusMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  status: NewsletterSubscriberStatus;
+}>;
+
+
+export type SetNewsletterSubscriberStatusMutation = { __typename?: 'Mutation', setNewsletterSubscriberStatus: { __typename?: 'NewsletterSubscriber', id: string, status: NewsletterSubscriberStatus } };
+
+export type DeleteNewsletterSubscriberMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteNewsletterSubscriberMutation = { __typename?: 'Mutation', deleteNewsletterSubscriber: boolean };
+
 export type OnboardingTemplateFieldsFragment = { __typename?: 'OnboardingTemplate', id: string, name: string, active: boolean, taskCount: number, createdAt: string, tasks: Array<{ __typename?: 'OnboardingTask', key: string, label: string, owner: OnboardingOwner, dueDaysFromJoin: number }> };
 
 export type OnboardingChecklistFieldsFragment = { __typename?: 'OnboardingChecklist', id: string, employeeId: string, employeeName: string, templateName: string, joinDate: string, progressPercent: number, complete: boolean, items: Array<{ __typename?: 'OnboardingItem', key: string, label: string, owner: OnboardingOwner, dueOn: string, done: boolean, doneAt?: string | null, doneByName?: string | null, notes: string }> };
@@ -21859,19 +23068,19 @@ export type SendTrackerNoticeMutationVariables = Exact<{
 
 export type SendTrackerNoticeMutation = { __typename?: 'Mutation', sendTrackerNotice: number };
 
-export type BlogPostFieldsFragment = { __typename?: 'BlogPost', id: string, slug: string, title: string, summary: string, content: string, contentCss: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } };
+export type BlogPostFieldsFragment = { __typename?: 'BlogPost', id: string, siteId: string, slug: string, title: string, summary: string, content: string, contentCss: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } };
 
 export type ListBlogPostsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListBlogPostsQuery = { __typename?: 'Query', listBlogPosts: Array<{ __typename?: 'BlogPost', id: string, slug: string, title: string, summary: string, content: string, contentCss: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } }> };
+export type ListBlogPostsQuery = { __typename?: 'Query', listBlogPosts: Array<{ __typename?: 'BlogPost', id: string, siteId: string, slug: string, title: string, summary: string, content: string, contentCss: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } }> };
 
 export type ListBlogPostsPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListBlogPostsPagedQuery = { __typename?: 'Query', listBlogPostsPaged: { __typename?: 'BlogPostPage', totalCount: number, rows: Array<{ __typename?: 'BlogPost', id: string, slug: string, title: string, summary: string, content: string, contentCss: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } }> } };
+export type ListBlogPostsPagedQuery = { __typename?: 'Query', listBlogPostsPaged: { __typename?: 'BlogPostPage', totalCount: number, rows: Array<{ __typename?: 'BlogPost', id: string, siteId: string, slug: string, title: string, summary: string, content: string, contentCss: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } }> } };
 
 export type ListBlogPostsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -21883,7 +23092,7 @@ export type GetBlogPostQueryVariables = Exact<{
 }>;
 
 
-export type GetBlogPostQuery = { __typename?: 'Query', getBlogPost: { __typename?: 'BlogPost', id: string, slug: string, title: string, summary: string, content: string, contentCss: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } } };
+export type GetBlogPostQuery = { __typename?: 'Query', getBlogPost: { __typename?: 'BlogPost', id: string, siteId: string, slug: string, title: string, summary: string, content: string, contentCss: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } } };
 
 export type CreateBlogPostMutationVariables = Exact<{
   input: BlogPostInput;
@@ -21907,19 +23116,19 @@ export type DeleteBlogPostMutationVariables = Exact<{
 
 export type DeleteBlogPostMutation = { __typename?: 'Mutation', deleteBlogPost: boolean };
 
-export type CaseStudyFieldsFragment = { __typename?: 'CaseStudy', id: string, slug: string, title: string, excerpt: string, content: string, contentCss: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string };
+export type CaseStudyFieldsFragment = { __typename?: 'CaseStudy', id: string, siteId: string, slug: string, title: string, excerpt: string, content: string, contentCss: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string };
 
 export type ListCaseStudiesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListCaseStudiesQuery = { __typename?: 'Query', listCaseStudies: Array<{ __typename?: 'CaseStudy', id: string, slug: string, title: string, excerpt: string, content: string, contentCss: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string }> };
+export type ListCaseStudiesQuery = { __typename?: 'Query', listCaseStudies: Array<{ __typename?: 'CaseStudy', id: string, siteId: string, slug: string, title: string, excerpt: string, content: string, contentCss: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string }> };
 
 export type ListCaseStudiesPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListCaseStudiesPagedQuery = { __typename?: 'Query', listCaseStudiesPaged: { __typename?: 'CaseStudyPage', totalCount: number, rows: Array<{ __typename?: 'CaseStudy', id: string, slug: string, title: string, excerpt: string, content: string, contentCss: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string }> } };
+export type ListCaseStudiesPagedQuery = { __typename?: 'Query', listCaseStudiesPaged: { __typename?: 'CaseStudyPage', totalCount: number, rows: Array<{ __typename?: 'CaseStudy', id: string, siteId: string, slug: string, title: string, excerpt: string, content: string, contentCss: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string }> } };
 
 export type ListCaseStudiesStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -21931,7 +23140,7 @@ export type GetCaseStudyQueryVariables = Exact<{
 }>;
 
 
-export type GetCaseStudyQuery = { __typename?: 'Query', getCaseStudy: { __typename?: 'CaseStudy', id: string, slug: string, title: string, excerpt: string, content: string, contentCss: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string } };
+export type GetCaseStudyQuery = { __typename?: 'Query', getCaseStudy: { __typename?: 'CaseStudy', id: string, siteId: string, slug: string, title: string, excerpt: string, content: string, contentCss: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string } };
 
 export type CreateCaseStudyMutationVariables = Exact<{
   input: CaseStudyInput;
@@ -21955,19 +23164,19 @@ export type DeleteCaseStudyMutationVariables = Exact<{
 
 export type DeleteCaseStudyMutation = { __typename?: 'Mutation', deleteCaseStudy: boolean };
 
-export type JobCompanyFieldsFragment = { __typename?: 'JobCompany', id: string, companyCode: string, slug: string, name: string, logo: string, tagline: string, description: string, culture: string, website: string, founded: string, employees: string, industry: string, headquarters: string, brandColor: string, secondaryColor: string, isActive: boolean, order: number, benefits: Array<{ __typename?: 'CompanyBenefit', icon: string, title: string, description: string }>, socialLinks: { __typename?: 'CompanySocialLinks', linkedin: string, twitter: string, facebook: string, instagram: string } };
+export type JobCompanyFieldsFragment = { __typename?: 'JobCompany', id: string, siteId: string, companyCode: string, slug: string, name: string, logo: string, tagline: string, description: string, culture: string, website: string, founded: string, employees: string, industry: string, headquarters: string, brandColor: string, secondaryColor: string, isActive: boolean, order: number, benefits: Array<{ __typename?: 'CompanyBenefit', icon: string, title: string, description: string }>, socialLinks: { __typename?: 'CompanySocialLinks', linkedin: string, twitter: string, facebook: string, instagram: string } };
 
 export type ListJobCompaniesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListJobCompaniesQuery = { __typename?: 'Query', listJobCompanies: Array<{ __typename?: 'JobCompany', id: string, companyCode: string, slug: string, name: string, logo: string, tagline: string, description: string, culture: string, website: string, founded: string, employees: string, industry: string, headquarters: string, brandColor: string, secondaryColor: string, isActive: boolean, order: number, benefits: Array<{ __typename?: 'CompanyBenefit', icon: string, title: string, description: string }>, socialLinks: { __typename?: 'CompanySocialLinks', linkedin: string, twitter: string, facebook: string, instagram: string } }> };
+export type ListJobCompaniesQuery = { __typename?: 'Query', listJobCompanies: Array<{ __typename?: 'JobCompany', id: string, siteId: string, companyCode: string, slug: string, name: string, logo: string, tagline: string, description: string, culture: string, website: string, founded: string, employees: string, industry: string, headquarters: string, brandColor: string, secondaryColor: string, isActive: boolean, order: number, benefits: Array<{ __typename?: 'CompanyBenefit', icon: string, title: string, description: string }>, socialLinks: { __typename?: 'CompanySocialLinks', linkedin: string, twitter: string, facebook: string, instagram: string } }> };
 
 export type ListJobCompaniesPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListJobCompaniesPagedQuery = { __typename?: 'Query', listJobCompaniesPaged: { __typename?: 'JobCompanyPage', totalCount: number, rows: Array<{ __typename?: 'JobCompany', id: string, companyCode: string, slug: string, name: string, logo: string, tagline: string, description: string, culture: string, website: string, founded: string, employees: string, industry: string, headquarters: string, brandColor: string, secondaryColor: string, isActive: boolean, order: number, benefits: Array<{ __typename?: 'CompanyBenefit', icon: string, title: string, description: string }>, socialLinks: { __typename?: 'CompanySocialLinks', linkedin: string, twitter: string, facebook: string, instagram: string } }> } };
+export type ListJobCompaniesPagedQuery = { __typename?: 'Query', listJobCompaniesPaged: { __typename?: 'JobCompanyPage', totalCount: number, rows: Array<{ __typename?: 'JobCompany', id: string, siteId: string, companyCode: string, slug: string, name: string, logo: string, tagline: string, description: string, culture: string, website: string, founded: string, employees: string, industry: string, headquarters: string, brandColor: string, secondaryColor: string, isActive: boolean, order: number, benefits: Array<{ __typename?: 'CompanyBenefit', icon: string, title: string, description: string }>, socialLinks: { __typename?: 'CompanySocialLinks', linkedin: string, twitter: string, facebook: string, instagram: string } }> } };
 
 export type ListJobCompaniesStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -21996,19 +23205,19 @@ export type DeleteJobCompanyMutationVariables = Exact<{
 
 export type DeleteJobCompanyMutation = { __typename?: 'Mutation', deleteJobCompany: boolean };
 
-export type JobFieldsFragment = { __typename?: 'Job', id: string, jobCode: string, companySlug: string, title: string, category: string, skillSet: Array<string>, shortJobDescription: string, jobDescription: string, jobResponsibilities: string, requirements: Array<string>, niceToHave: Array<string>, benefits: Array<string>, location: string, jobType: string, experienceLevel: string, workMode: string, salaryRange: string, jobPostDate: string, applicationDeadline?: string | null, isActive: boolean, isFeatured: boolean };
+export type JobFieldsFragment = { __typename?: 'Job', id: string, siteId: string, jobCode: string, companySlug: string, title: string, category: string, skillSet: Array<string>, shortJobDescription: string, jobDescription: string, jobResponsibilities: string, requirements: Array<string>, niceToHave: Array<string>, benefits: Array<string>, location: string, jobType: string, experienceLevel: string, workMode: string, salaryRange: string, jobPostDate: string, applicationDeadline?: string | null, isActive: boolean, isFeatured: boolean };
 
 export type ListJobsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListJobsQuery = { __typename?: 'Query', listJobs: Array<{ __typename?: 'Job', id: string, jobCode: string, companySlug: string, title: string, category: string, skillSet: Array<string>, shortJobDescription: string, jobDescription: string, jobResponsibilities: string, requirements: Array<string>, niceToHave: Array<string>, benefits: Array<string>, location: string, jobType: string, experienceLevel: string, workMode: string, salaryRange: string, jobPostDate: string, applicationDeadline?: string | null, isActive: boolean, isFeatured: boolean }> };
+export type ListJobsQuery = { __typename?: 'Query', listJobs: Array<{ __typename?: 'Job', id: string, siteId: string, jobCode: string, companySlug: string, title: string, category: string, skillSet: Array<string>, shortJobDescription: string, jobDescription: string, jobResponsibilities: string, requirements: Array<string>, niceToHave: Array<string>, benefits: Array<string>, location: string, jobType: string, experienceLevel: string, workMode: string, salaryRange: string, jobPostDate: string, applicationDeadline?: string | null, isActive: boolean, isFeatured: boolean }> };
 
 export type ListJobsPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListJobsPagedQuery = { __typename?: 'Query', listJobsPaged: { __typename?: 'JobPage', totalCount: number, rows: Array<{ __typename?: 'Job', id: string, jobCode: string, companySlug: string, title: string, category: string, skillSet: Array<string>, shortJobDescription: string, jobDescription: string, jobResponsibilities: string, requirements: Array<string>, niceToHave: Array<string>, benefits: Array<string>, location: string, jobType: string, experienceLevel: string, workMode: string, salaryRange: string, jobPostDate: string, applicationDeadline?: string | null, isActive: boolean, isFeatured: boolean }> } };
+export type ListJobsPagedQuery = { __typename?: 'Query', listJobsPaged: { __typename?: 'JobPage', totalCount: number, rows: Array<{ __typename?: 'Job', id: string, siteId: string, jobCode: string, companySlug: string, title: string, category: string, skillSet: Array<string>, shortJobDescription: string, jobDescription: string, jobResponsibilities: string, requirements: Array<string>, niceToHave: Array<string>, benefits: Array<string>, location: string, jobType: string, experienceLevel: string, workMode: string, salaryRange: string, jobPostDate: string, applicationDeadline?: string | null, isActive: boolean, isFeatured: boolean }> } };
 
 export type ListJobsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -22037,19 +23246,19 @@ export type DeleteJobMutationVariables = Exact<{
 
 export type DeleteJobMutation = { __typename?: 'Mutation', deleteJob: boolean };
 
-export type GigFieldsFragment = { __typename?: 'Gig', id: string, gigCode: string, title: string, category: string, shortDescription: string, fullDescription: string, deliverables: Array<string>, requirements: Array<string>, tags: Array<string>, budget: string, duration: string, status: string, applicationType: string, applicationContact: string, postedDate: string, deadline?: string | null, isUrgent: boolean };
+export type GigFieldsFragment = { __typename?: 'Gig', id: string, siteId: string, gigCode: string, title: string, category: string, shortDescription: string, fullDescription: string, deliverables: Array<string>, requirements: Array<string>, tags: Array<string>, budget: string, duration: string, status: string, applicationType: string, applicationContact: string, postedDate: string, deadline?: string | null, isUrgent: boolean };
 
 export type ListGigsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListGigsQuery = { __typename?: 'Query', listGigs: Array<{ __typename?: 'Gig', id: string, gigCode: string, title: string, category: string, shortDescription: string, fullDescription: string, deliverables: Array<string>, requirements: Array<string>, tags: Array<string>, budget: string, duration: string, status: string, applicationType: string, applicationContact: string, postedDate: string, deadline?: string | null, isUrgent: boolean }> };
+export type ListGigsQuery = { __typename?: 'Query', listGigs: Array<{ __typename?: 'Gig', id: string, siteId: string, gigCode: string, title: string, category: string, shortDescription: string, fullDescription: string, deliverables: Array<string>, requirements: Array<string>, tags: Array<string>, budget: string, duration: string, status: string, applicationType: string, applicationContact: string, postedDate: string, deadline?: string | null, isUrgent: boolean }> };
 
 export type ListGigsPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListGigsPagedQuery = { __typename?: 'Query', listGigsPaged: { __typename?: 'GigPage', totalCount: number, rows: Array<{ __typename?: 'Gig', id: string, gigCode: string, title: string, category: string, shortDescription: string, fullDescription: string, deliverables: Array<string>, requirements: Array<string>, tags: Array<string>, budget: string, duration: string, status: string, applicationType: string, applicationContact: string, postedDate: string, deadline?: string | null, isUrgent: boolean }> } };
+export type ListGigsPagedQuery = { __typename?: 'Query', listGigsPaged: { __typename?: 'GigPage', totalCount: number, rows: Array<{ __typename?: 'Gig', id: string, siteId: string, gigCode: string, title: string, category: string, shortDescription: string, fullDescription: string, deliverables: Array<string>, requirements: Array<string>, tags: Array<string>, budget: string, duration: string, status: string, applicationType: string, applicationContact: string, postedDate: string, deadline?: string | null, isUrgent: boolean }> } };
 
 export type ListGigsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -22148,12 +23357,12 @@ export type DeleteToolMutationVariables = Exact<{
 
 export type DeleteToolMutation = { __typename?: 'Mutation', deleteTool: boolean };
 
-export type NavLinkFieldsFragment = { __typename?: 'NavLink', id: string, label: string, href: string, description: string, category: string, keywords: string, isActive: boolean, order: number };
+export type NavLinkFieldsFragment = { __typename?: 'NavLink', id: string, siteId: string, label: string, href: string, description: string, category: string, keywords: string, isActive: boolean, order: number };
 
 export type ListNavLinksQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListNavLinksQuery = { __typename?: 'Query', listNavLinks: Array<{ __typename?: 'NavLink', id: string, label: string, href: string, description: string, category: string, keywords: string, isActive: boolean, order: number }> };
+export type ListNavLinksQuery = { __typename?: 'Query', listNavLinks: Array<{ __typename?: 'NavLink', id: string, siteId: string, label: string, href: string, description: string, category: string, keywords: string, isActive: boolean, order: number }> };
 
 export type CreateNavLinkMutationVariables = Exact<{
   input: NavLinkInput;
@@ -22799,6 +24008,133 @@ export const ClientContactFieldsFragmentDoc = gql`
   lastSignInAt
   signInCount
   createdAt
+}
+    `;
+export const CmsSiteFieldsFragmentDoc = gql`
+    fragment CmsSiteFields on CmsSite {
+  id
+  name
+  slug
+  domains
+  isDefault
+  status
+  markets
+  defaultLocale
+  faviconUrl
+  seo {
+    titleTemplate
+    description
+    ogImageUrl
+  }
+  headerFragmentId
+  footerFragmentId
+  designSystemId
+  headHtml
+  bodyEndHtml
+  globalCss
+  notFoundPageId
+  updatedAt
+}
+    `;
+export const CmsDesignSystemFieldsFragmentDoc = gql`
+    fragment CmsDesignSystemFields on CmsDesignSystem {
+  id
+  siteId
+  name
+  tokens
+  extraCss
+  updatedAt
+}
+    `;
+export const CmsPageListFieldsFragmentDoc = gql`
+    fragment CmsPageListFields on CmsPage {
+  id
+  siteId
+  path
+  kind
+  title
+  layout
+  status
+  seo {
+    noindex
+  }
+  published {
+    publishedAt
+  }
+  updatedByName
+  updatedAt
+}
+    `;
+export const CmsPageFieldsFragmentDoc = gql`
+    fragment CmsPageFields on CmsPage {
+  id
+  siteId
+  path
+  kind
+  title
+  layout
+  status
+  seo {
+    title
+    description
+    keywords
+    ogImageUrl
+    canonical
+    noindex
+    jsonLd
+  }
+  draft {
+    projectData
+    html
+    css
+  }
+  published {
+    publishedAt
+  }
+  updatedByName
+  updatedAt
+}
+    `;
+export const CmsFragmentListFieldsFragmentDoc = gql`
+    fragment CmsFragmentListFields on CmsFragment {
+  id
+  siteId
+  name
+  kind
+  status
+  published {
+    publishedAt
+  }
+  updatedByName
+  updatedAt
+}
+    `;
+export const CmsAssetFieldsFragmentDoc = gql`
+    fragment CmsAssetFields on CmsAsset {
+  id
+  siteId
+  url
+  name
+  mime
+  size
+  width
+  height
+  alt
+  createdAt
+}
+    `;
+export const CmsDomainDnsFieldsFragmentDoc = gql`
+    fragment CmsDomainDnsFields on CmsDomainDns {
+  domain
+  zone
+  name
+  authority
+  records {
+    ip
+    ttl
+  }
+  pointsHere
+  error
 }
     `;
 export const RiskFieldsFragmentDoc = gql`
@@ -23608,6 +24944,33 @@ export const MarketingSuppressionFieldsFragmentDoc = gql`
   createdAt
 }
     `;
+export const NewsletterIssueFieldsFragmentDoc = gql`
+    fragment NewsletterIssueFields on NewsletterIssue {
+  id
+  siteId
+  slug
+  title
+  summary
+  coverImage
+  content
+  contentCss
+  isActive
+  publishedAt
+  updatedAt
+}
+    `;
+export const NewsletterSubscriberFieldsFragmentDoc = gql`
+    fragment NewsletterSubscriberFields on NewsletterSubscriber {
+  id
+  siteId
+  email
+  name
+  status
+  source
+  consentAt
+  createdAt
+}
+    `;
 export const OnboardingTemplateFieldsFragmentDoc = gql`
     fragment OnboardingTemplateFields on OnboardingTemplate {
   id
@@ -24395,6 +25758,7 @@ export const TrackerMessageFieldsFragmentDoc = gql`
 export const BlogPostFieldsFragmentDoc = gql`
     fragment BlogPostFields on BlogPost {
   id
+  siteId
   slug
   title
   summary
@@ -24416,6 +25780,7 @@ export const BlogPostFieldsFragmentDoc = gql`
 export const CaseStudyFieldsFragmentDoc = gql`
     fragment CaseStudyFields on CaseStudy {
   id
+  siteId
   slug
   title
   excerpt
@@ -24434,6 +25799,7 @@ export const CaseStudyFieldsFragmentDoc = gql`
 export const JobCompanyFieldsFragmentDoc = gql`
     fragment JobCompanyFields on JobCompany {
   id
+  siteId
   companyCode
   slug
   name
@@ -24466,6 +25832,7 @@ export const JobCompanyFieldsFragmentDoc = gql`
 export const JobFieldsFragmentDoc = gql`
     fragment JobFields on Job {
   id
+  siteId
   jobCode
   companySlug
   title
@@ -24491,6 +25858,7 @@ export const JobFieldsFragmentDoc = gql`
 export const GigFieldsFragmentDoc = gql`
     fragment GigFields on Gig {
   id
+  siteId
   gigCode
   title
   category
@@ -24543,6 +25911,7 @@ export const ToolFieldsFragmentDoc = gql`
 export const NavLinkFieldsFragmentDoc = gql`
     fragment NavLinkFields on NavLink {
   id
+  siteId
   label
   href
   description
@@ -30426,6 +31795,1398 @@ export function useSetClientProjectsMutation(baseOptions?: ApolloReactHooks.Muta
         return ApolloReactHooks.useMutation<SetClientProjectsMutation, SetClientProjectsMutationVariables>(SetClientProjectsDocument, options);
       }
 export type SetClientProjectsMutationHookResult = ReturnType<typeof useSetClientProjectsMutation>;
+export const CmsSitesDocument = gql`
+    query CmsSites {
+  cmsSites {
+    ...CmsSiteFields
+  }
+}
+    ${CmsSiteFieldsFragmentDoc}`;
+
+/**
+ * __useCmsSitesQuery__
+ *
+ * To run a query within a React component, call `useCmsSitesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCmsSitesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCmsSitesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useCmsSitesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<CmsSitesQuery, CmsSitesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CmsSitesQuery, CmsSitesQueryVariables>(CmsSitesDocument, options);
+      }
+export function useCmsSitesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CmsSitesQuery, CmsSitesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CmsSitesQuery, CmsSitesQueryVariables>(CmsSitesDocument, options);
+        }
+// @ts-ignore
+export function useCmsSitesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CmsSitesQuery, CmsSitesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsSitesQuery, CmsSitesQueryVariables>;
+// @ts-ignore
+export function useCmsSitesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsSitesQuery, CmsSitesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsSitesQuery | undefined, CmsSitesQueryVariables>;
+export function useCmsSitesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsSitesQuery, CmsSitesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CmsSitesQuery, CmsSitesQueryVariables>(CmsSitesDocument, options);
+        }
+export type CmsSitesQueryHookResult = ReturnType<typeof useCmsSitesQuery>;
+export type CmsSitesLazyQueryHookResult = ReturnType<typeof useCmsSitesLazyQuery>;
+export type CmsSitesSuspenseQueryHookResult = ReturnType<typeof useCmsSitesSuspenseQuery>;
+export const CmsSiteDocument = gql`
+    query CmsSite($id: ID!) {
+  cmsSite(id: $id) {
+    ...CmsSiteFields
+  }
+}
+    ${CmsSiteFieldsFragmentDoc}`;
+
+/**
+ * __useCmsSiteQuery__
+ *
+ * To run a query within a React component, call `useCmsSiteQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCmsSiteQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCmsSiteQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useCmsSiteQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CmsSiteQuery, CmsSiteQueryVariables> & ({ variables: CmsSiteQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CmsSiteQuery, CmsSiteQueryVariables>(CmsSiteDocument, options);
+      }
+export function useCmsSiteLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CmsSiteQuery, CmsSiteQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CmsSiteQuery, CmsSiteQueryVariables>(CmsSiteDocument, options);
+        }
+// @ts-ignore
+export function useCmsSiteSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CmsSiteQuery, CmsSiteQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsSiteQuery, CmsSiteQueryVariables>;
+// @ts-ignore
+export function useCmsSiteSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsSiteQuery, CmsSiteQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsSiteQuery | undefined, CmsSiteQueryVariables>;
+export function useCmsSiteSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsSiteQuery, CmsSiteQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CmsSiteQuery, CmsSiteQueryVariables>(CmsSiteDocument, options);
+        }
+export type CmsSiteQueryHookResult = ReturnType<typeof useCmsSiteQuery>;
+export type CmsSiteLazyQueryHookResult = ReturnType<typeof useCmsSiteLazyQuery>;
+export type CmsSiteSuspenseQueryHookResult = ReturnType<typeof useCmsSiteSuspenseQuery>;
+export const CreateCmsSiteDocument = gql`
+    mutation CreateCmsSite($input: CmsSiteInput!) {
+  createCmsSite(input: $input) {
+    ...CmsSiteFields
+  }
+}
+    ${CmsSiteFieldsFragmentDoc}`;
+
+/**
+ * __useCreateCmsSiteMutation__
+ *
+ * To run a mutation, you first call `useCreateCmsSiteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCmsSiteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCmsSiteMutation, { data, loading, error }] = useCreateCmsSiteMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCmsSiteMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateCmsSiteMutation, CreateCmsSiteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateCmsSiteMutation, CreateCmsSiteMutationVariables>(CreateCmsSiteDocument, options);
+      }
+export type CreateCmsSiteMutationHookResult = ReturnType<typeof useCreateCmsSiteMutation>;
+export const UpdateCmsSiteDocument = gql`
+    mutation UpdateCmsSite($id: ID!, $input: CmsSiteInput!) {
+  updateCmsSite(id: $id, input: $input) {
+    ...CmsSiteFields
+  }
+}
+    ${CmsSiteFieldsFragmentDoc}`;
+
+/**
+ * __useUpdateCmsSiteMutation__
+ *
+ * To run a mutation, you first call `useUpdateCmsSiteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCmsSiteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCmsSiteMutation, { data, loading, error }] = useUpdateCmsSiteMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCmsSiteMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateCmsSiteMutation, UpdateCmsSiteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateCmsSiteMutation, UpdateCmsSiteMutationVariables>(UpdateCmsSiteDocument, options);
+      }
+export type UpdateCmsSiteMutationHookResult = ReturnType<typeof useUpdateCmsSiteMutation>;
+export const SetDefaultCmsSiteDocument = gql`
+    mutation SetDefaultCmsSite($id: ID!) {
+  setDefaultCmsSite(id: $id) {
+    id
+    isDefault
+  }
+}
+    `;
+
+/**
+ * __useSetDefaultCmsSiteMutation__
+ *
+ * To run a mutation, you first call `useSetDefaultCmsSiteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetDefaultCmsSiteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setDefaultCmsSiteMutation, { data, loading, error }] = useSetDefaultCmsSiteMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useSetDefaultCmsSiteMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SetDefaultCmsSiteMutation, SetDefaultCmsSiteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SetDefaultCmsSiteMutation, SetDefaultCmsSiteMutationVariables>(SetDefaultCmsSiteDocument, options);
+      }
+export type SetDefaultCmsSiteMutationHookResult = ReturnType<typeof useSetDefaultCmsSiteMutation>;
+export const DeleteCmsSiteDocument = gql`
+    mutation DeleteCmsSite($id: ID!) {
+  deleteCmsSite(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteCmsSiteMutation__
+ *
+ * To run a mutation, you first call `useDeleteCmsSiteMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCmsSiteMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCmsSiteMutation, { data, loading, error }] = useDeleteCmsSiteMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteCmsSiteMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteCmsSiteMutation, DeleteCmsSiteMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteCmsSiteMutation, DeleteCmsSiteMutationVariables>(DeleteCmsSiteDocument, options);
+      }
+export type DeleteCmsSiteMutationHookResult = ReturnType<typeof useDeleteCmsSiteMutation>;
+export const CmsDesignSystemsDocument = gql`
+    query CmsDesignSystems($siteId: ID!) {
+  cmsDesignSystems(siteId: $siteId) {
+    ...CmsDesignSystemFields
+  }
+}
+    ${CmsDesignSystemFieldsFragmentDoc}`;
+
+/**
+ * __useCmsDesignSystemsQuery__
+ *
+ * To run a query within a React component, call `useCmsDesignSystemsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCmsDesignSystemsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCmsDesignSystemsQuery({
+ *   variables: {
+ *      siteId: // value for 'siteId'
+ *   },
+ * });
+ */
+export function useCmsDesignSystemsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CmsDesignSystemsQuery, CmsDesignSystemsQueryVariables> & ({ variables: CmsDesignSystemsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CmsDesignSystemsQuery, CmsDesignSystemsQueryVariables>(CmsDesignSystemsDocument, options);
+      }
+export function useCmsDesignSystemsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CmsDesignSystemsQuery, CmsDesignSystemsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CmsDesignSystemsQuery, CmsDesignSystemsQueryVariables>(CmsDesignSystemsDocument, options);
+        }
+// @ts-ignore
+export function useCmsDesignSystemsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CmsDesignSystemsQuery, CmsDesignSystemsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsDesignSystemsQuery, CmsDesignSystemsQueryVariables>;
+// @ts-ignore
+export function useCmsDesignSystemsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsDesignSystemsQuery, CmsDesignSystemsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsDesignSystemsQuery | undefined, CmsDesignSystemsQueryVariables>;
+export function useCmsDesignSystemsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsDesignSystemsQuery, CmsDesignSystemsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CmsDesignSystemsQuery, CmsDesignSystemsQueryVariables>(CmsDesignSystemsDocument, options);
+        }
+export type CmsDesignSystemsQueryHookResult = ReturnType<typeof useCmsDesignSystemsQuery>;
+export type CmsDesignSystemsLazyQueryHookResult = ReturnType<typeof useCmsDesignSystemsLazyQuery>;
+export type CmsDesignSystemsSuspenseQueryHookResult = ReturnType<typeof useCmsDesignSystemsSuspenseQuery>;
+export const CmsDesignSystemDocument = gql`
+    query CmsDesignSystem($id: ID!) {
+  cmsDesignSystem(id: $id) {
+    ...CmsDesignSystemFields
+  }
+}
+    ${CmsDesignSystemFieldsFragmentDoc}`;
+
+/**
+ * __useCmsDesignSystemQuery__
+ *
+ * To run a query within a React component, call `useCmsDesignSystemQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCmsDesignSystemQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCmsDesignSystemQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useCmsDesignSystemQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CmsDesignSystemQuery, CmsDesignSystemQueryVariables> & ({ variables: CmsDesignSystemQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CmsDesignSystemQuery, CmsDesignSystemQueryVariables>(CmsDesignSystemDocument, options);
+      }
+export function useCmsDesignSystemLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CmsDesignSystemQuery, CmsDesignSystemQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CmsDesignSystemQuery, CmsDesignSystemQueryVariables>(CmsDesignSystemDocument, options);
+        }
+// @ts-ignore
+export function useCmsDesignSystemSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CmsDesignSystemQuery, CmsDesignSystemQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsDesignSystemQuery, CmsDesignSystemQueryVariables>;
+// @ts-ignore
+export function useCmsDesignSystemSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsDesignSystemQuery, CmsDesignSystemQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsDesignSystemQuery | undefined, CmsDesignSystemQueryVariables>;
+export function useCmsDesignSystemSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsDesignSystemQuery, CmsDesignSystemQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CmsDesignSystemQuery, CmsDesignSystemQueryVariables>(CmsDesignSystemDocument, options);
+        }
+export type CmsDesignSystemQueryHookResult = ReturnType<typeof useCmsDesignSystemQuery>;
+export type CmsDesignSystemLazyQueryHookResult = ReturnType<typeof useCmsDesignSystemLazyQuery>;
+export type CmsDesignSystemSuspenseQueryHookResult = ReturnType<typeof useCmsDesignSystemSuspenseQuery>;
+export const CreateCmsDesignSystemDocument = gql`
+    mutation CreateCmsDesignSystem($input: CmsDesignSystemInput!) {
+  createCmsDesignSystem(input: $input) {
+    ...CmsDesignSystemFields
+  }
+}
+    ${CmsDesignSystemFieldsFragmentDoc}`;
+
+/**
+ * __useCreateCmsDesignSystemMutation__
+ *
+ * To run a mutation, you first call `useCreateCmsDesignSystemMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCmsDesignSystemMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCmsDesignSystemMutation, { data, loading, error }] = useCreateCmsDesignSystemMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCmsDesignSystemMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateCmsDesignSystemMutation, CreateCmsDesignSystemMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateCmsDesignSystemMutation, CreateCmsDesignSystemMutationVariables>(CreateCmsDesignSystemDocument, options);
+      }
+export type CreateCmsDesignSystemMutationHookResult = ReturnType<typeof useCreateCmsDesignSystemMutation>;
+export const UpdateCmsDesignSystemDocument = gql`
+    mutation UpdateCmsDesignSystem($id: ID!, $input: CmsDesignSystemInput!) {
+  updateCmsDesignSystem(id: $id, input: $input) {
+    ...CmsDesignSystemFields
+  }
+}
+    ${CmsDesignSystemFieldsFragmentDoc}`;
+
+/**
+ * __useUpdateCmsDesignSystemMutation__
+ *
+ * To run a mutation, you first call `useUpdateCmsDesignSystemMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCmsDesignSystemMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCmsDesignSystemMutation, { data, loading, error }] = useUpdateCmsDesignSystemMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCmsDesignSystemMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateCmsDesignSystemMutation, UpdateCmsDesignSystemMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateCmsDesignSystemMutation, UpdateCmsDesignSystemMutationVariables>(UpdateCmsDesignSystemDocument, options);
+      }
+export type UpdateCmsDesignSystemMutationHookResult = ReturnType<typeof useUpdateCmsDesignSystemMutation>;
+export const DeleteCmsDesignSystemDocument = gql`
+    mutation DeleteCmsDesignSystem($id: ID!) {
+  deleteCmsDesignSystem(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteCmsDesignSystemMutation__
+ *
+ * To run a mutation, you first call `useDeleteCmsDesignSystemMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCmsDesignSystemMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCmsDesignSystemMutation, { data, loading, error }] = useDeleteCmsDesignSystemMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteCmsDesignSystemMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteCmsDesignSystemMutation, DeleteCmsDesignSystemMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteCmsDesignSystemMutation, DeleteCmsDesignSystemMutationVariables>(DeleteCmsDesignSystemDocument, options);
+      }
+export type DeleteCmsDesignSystemMutationHookResult = ReturnType<typeof useDeleteCmsDesignSystemMutation>;
+export const CmsPagesDocument = gql`
+    query CmsPages($siteId: ID!, $input: CmsPageListInput!) {
+  cmsPages(siteId: $siteId, input: $input) {
+    totalCount
+    rows {
+      ...CmsPageListFields
+    }
+  }
+}
+    ${CmsPageListFieldsFragmentDoc}`;
+
+/**
+ * __useCmsPagesQuery__
+ *
+ * To run a query within a React component, call `useCmsPagesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCmsPagesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCmsPagesQuery({
+ *   variables: {
+ *      siteId: // value for 'siteId'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCmsPagesQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CmsPagesQuery, CmsPagesQueryVariables> & ({ variables: CmsPagesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CmsPagesQuery, CmsPagesQueryVariables>(CmsPagesDocument, options);
+      }
+export function useCmsPagesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CmsPagesQuery, CmsPagesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CmsPagesQuery, CmsPagesQueryVariables>(CmsPagesDocument, options);
+        }
+// @ts-ignore
+export function useCmsPagesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CmsPagesQuery, CmsPagesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsPagesQuery, CmsPagesQueryVariables>;
+// @ts-ignore
+export function useCmsPagesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsPagesQuery, CmsPagesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsPagesQuery | undefined, CmsPagesQueryVariables>;
+export function useCmsPagesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsPagesQuery, CmsPagesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CmsPagesQuery, CmsPagesQueryVariables>(CmsPagesDocument, options);
+        }
+export type CmsPagesQueryHookResult = ReturnType<typeof useCmsPagesQuery>;
+export type CmsPagesLazyQueryHookResult = ReturnType<typeof useCmsPagesLazyQuery>;
+export type CmsPagesSuspenseQueryHookResult = ReturnType<typeof useCmsPagesSuspenseQuery>;
+export const CmsPageDocument = gql`
+    query CmsPage($id: ID!) {
+  cmsPage(id: $id) {
+    ...CmsPageFields
+  }
+}
+    ${CmsPageFieldsFragmentDoc}`;
+
+/**
+ * __useCmsPageQuery__
+ *
+ * To run a query within a React component, call `useCmsPageQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCmsPageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCmsPageQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useCmsPageQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CmsPageQuery, CmsPageQueryVariables> & ({ variables: CmsPageQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CmsPageQuery, CmsPageQueryVariables>(CmsPageDocument, options);
+      }
+export function useCmsPageLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CmsPageQuery, CmsPageQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CmsPageQuery, CmsPageQueryVariables>(CmsPageDocument, options);
+        }
+// @ts-ignore
+export function useCmsPageSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CmsPageQuery, CmsPageQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsPageQuery, CmsPageQueryVariables>;
+// @ts-ignore
+export function useCmsPageSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsPageQuery, CmsPageQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsPageQuery | undefined, CmsPageQueryVariables>;
+export function useCmsPageSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsPageQuery, CmsPageQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CmsPageQuery, CmsPageQueryVariables>(CmsPageDocument, options);
+        }
+export type CmsPageQueryHookResult = ReturnType<typeof useCmsPageQuery>;
+export type CmsPageLazyQueryHookResult = ReturnType<typeof useCmsPageLazyQuery>;
+export type CmsPageSuspenseQueryHookResult = ReturnType<typeof useCmsPageSuspenseQuery>;
+export const CmsPageRevisionsDocument = gql`
+    query CmsPageRevisions($pageId: ID!) {
+  cmsPageRevisions(pageId: $pageId) {
+    id
+    version
+    title
+    publishedByName
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useCmsPageRevisionsQuery__
+ *
+ * To run a query within a React component, call `useCmsPageRevisionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCmsPageRevisionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCmsPageRevisionsQuery({
+ *   variables: {
+ *      pageId: // value for 'pageId'
+ *   },
+ * });
+ */
+export function useCmsPageRevisionsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CmsPageRevisionsQuery, CmsPageRevisionsQueryVariables> & ({ variables: CmsPageRevisionsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CmsPageRevisionsQuery, CmsPageRevisionsQueryVariables>(CmsPageRevisionsDocument, options);
+      }
+export function useCmsPageRevisionsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CmsPageRevisionsQuery, CmsPageRevisionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CmsPageRevisionsQuery, CmsPageRevisionsQueryVariables>(CmsPageRevisionsDocument, options);
+        }
+// @ts-ignore
+export function useCmsPageRevisionsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CmsPageRevisionsQuery, CmsPageRevisionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsPageRevisionsQuery, CmsPageRevisionsQueryVariables>;
+// @ts-ignore
+export function useCmsPageRevisionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsPageRevisionsQuery, CmsPageRevisionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsPageRevisionsQuery | undefined, CmsPageRevisionsQueryVariables>;
+export function useCmsPageRevisionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsPageRevisionsQuery, CmsPageRevisionsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CmsPageRevisionsQuery, CmsPageRevisionsQueryVariables>(CmsPageRevisionsDocument, options);
+        }
+export type CmsPageRevisionsQueryHookResult = ReturnType<typeof useCmsPageRevisionsQuery>;
+export type CmsPageRevisionsLazyQueryHookResult = ReturnType<typeof useCmsPageRevisionsLazyQuery>;
+export type CmsPageRevisionsSuspenseQueryHookResult = ReturnType<typeof useCmsPageRevisionsSuspenseQuery>;
+export const CmsPreviewTokenDocument = gql`
+    query CmsPreviewToken($pageId: ID!) {
+  cmsPreviewToken(pageId: $pageId)
+}
+    `;
+
+/**
+ * __useCmsPreviewTokenQuery__
+ *
+ * To run a query within a React component, call `useCmsPreviewTokenQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCmsPreviewTokenQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCmsPreviewTokenQuery({
+ *   variables: {
+ *      pageId: // value for 'pageId'
+ *   },
+ * });
+ */
+export function useCmsPreviewTokenQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CmsPreviewTokenQuery, CmsPreviewTokenQueryVariables> & ({ variables: CmsPreviewTokenQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CmsPreviewTokenQuery, CmsPreviewTokenQueryVariables>(CmsPreviewTokenDocument, options);
+      }
+export function useCmsPreviewTokenLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CmsPreviewTokenQuery, CmsPreviewTokenQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CmsPreviewTokenQuery, CmsPreviewTokenQueryVariables>(CmsPreviewTokenDocument, options);
+        }
+// @ts-ignore
+export function useCmsPreviewTokenSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CmsPreviewTokenQuery, CmsPreviewTokenQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsPreviewTokenQuery, CmsPreviewTokenQueryVariables>;
+// @ts-ignore
+export function useCmsPreviewTokenSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsPreviewTokenQuery, CmsPreviewTokenQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsPreviewTokenQuery | undefined, CmsPreviewTokenQueryVariables>;
+export function useCmsPreviewTokenSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsPreviewTokenQuery, CmsPreviewTokenQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CmsPreviewTokenQuery, CmsPreviewTokenQueryVariables>(CmsPreviewTokenDocument, options);
+        }
+export type CmsPreviewTokenQueryHookResult = ReturnType<typeof useCmsPreviewTokenQuery>;
+export type CmsPreviewTokenLazyQueryHookResult = ReturnType<typeof useCmsPreviewTokenLazyQuery>;
+export type CmsPreviewTokenSuspenseQueryHookResult = ReturnType<typeof useCmsPreviewTokenSuspenseQuery>;
+export const CreateCmsPageDocument = gql`
+    mutation CreateCmsPage($siteId: ID!, $input: CmsPageSettingsInput!) {
+  createCmsPage(siteId: $siteId, input: $input) {
+    ...CmsPageListFields
+  }
+}
+    ${CmsPageListFieldsFragmentDoc}`;
+
+/**
+ * __useCreateCmsPageMutation__
+ *
+ * To run a mutation, you first call `useCreateCmsPageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCmsPageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCmsPageMutation, { data, loading, error }] = useCreateCmsPageMutation({
+ *   variables: {
+ *      siteId: // value for 'siteId'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCmsPageMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateCmsPageMutation, CreateCmsPageMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateCmsPageMutation, CreateCmsPageMutationVariables>(CreateCmsPageDocument, options);
+      }
+export type CreateCmsPageMutationHookResult = ReturnType<typeof useCreateCmsPageMutation>;
+export const UpdateCmsPageSettingsDocument = gql`
+    mutation UpdateCmsPageSettings($id: ID!, $input: CmsPageSettingsInput!) {
+  updateCmsPageSettings(id: $id, input: $input) {
+    ...CmsPageFields
+  }
+}
+    ${CmsPageFieldsFragmentDoc}`;
+
+/**
+ * __useUpdateCmsPageSettingsMutation__
+ *
+ * To run a mutation, you first call `useUpdateCmsPageSettingsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCmsPageSettingsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCmsPageSettingsMutation, { data, loading, error }] = useUpdateCmsPageSettingsMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCmsPageSettingsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateCmsPageSettingsMutation, UpdateCmsPageSettingsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateCmsPageSettingsMutation, UpdateCmsPageSettingsMutationVariables>(UpdateCmsPageSettingsDocument, options);
+      }
+export type UpdateCmsPageSettingsMutationHookResult = ReturnType<typeof useUpdateCmsPageSettingsMutation>;
+export const SaveCmsPageDraftDocument = gql`
+    mutation SaveCmsPageDraft($id: ID!, $draft: CmsDraftInput!) {
+  saveCmsPageDraft(id: $id, draft: $draft) {
+    id
+    status
+    updatedByName
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useSaveCmsPageDraftMutation__
+ *
+ * To run a mutation, you first call `useSaveCmsPageDraftMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveCmsPageDraftMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveCmsPageDraftMutation, { data, loading, error }] = useSaveCmsPageDraftMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      draft: // value for 'draft'
+ *   },
+ * });
+ */
+export function useSaveCmsPageDraftMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SaveCmsPageDraftMutation, SaveCmsPageDraftMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SaveCmsPageDraftMutation, SaveCmsPageDraftMutationVariables>(SaveCmsPageDraftDocument, options);
+      }
+export type SaveCmsPageDraftMutationHookResult = ReturnType<typeof useSaveCmsPageDraftMutation>;
+export const PublishCmsPageDocument = gql`
+    mutation PublishCmsPage($id: ID!) {
+  publishCmsPage(id: $id) {
+    id
+    status
+    published {
+      publishedAt
+    }
+  }
+}
+    `;
+
+/**
+ * __usePublishCmsPageMutation__
+ *
+ * To run a mutation, you first call `usePublishCmsPageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePublishCmsPageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [publishCmsPageMutation, { data, loading, error }] = usePublishCmsPageMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function usePublishCmsPageMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<PublishCmsPageMutation, PublishCmsPageMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<PublishCmsPageMutation, PublishCmsPageMutationVariables>(PublishCmsPageDocument, options);
+      }
+export type PublishCmsPageMutationHookResult = ReturnType<typeof usePublishCmsPageMutation>;
+export const UnpublishCmsPageDocument = gql`
+    mutation UnpublishCmsPage($id: ID!) {
+  unpublishCmsPage(id: $id) {
+    id
+    status
+    published {
+      publishedAt
+    }
+  }
+}
+    `;
+
+/**
+ * __useUnpublishCmsPageMutation__
+ *
+ * To run a mutation, you first call `useUnpublishCmsPageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUnpublishCmsPageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [unpublishCmsPageMutation, { data, loading, error }] = useUnpublishCmsPageMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useUnpublishCmsPageMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UnpublishCmsPageMutation, UnpublishCmsPageMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UnpublishCmsPageMutation, UnpublishCmsPageMutationVariables>(UnpublishCmsPageDocument, options);
+      }
+export type UnpublishCmsPageMutationHookResult = ReturnType<typeof useUnpublishCmsPageMutation>;
+export const DuplicateCmsPageDocument = gql`
+    mutation DuplicateCmsPage($id: ID!, $path: String!) {
+  duplicateCmsPage(id: $id, path: $path) {
+    id
+    path
+  }
+}
+    `;
+
+/**
+ * __useDuplicateCmsPageMutation__
+ *
+ * To run a mutation, you first call `useDuplicateCmsPageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDuplicateCmsPageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [duplicateCmsPageMutation, { data, loading, error }] = useDuplicateCmsPageMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      path: // value for 'path'
+ *   },
+ * });
+ */
+export function useDuplicateCmsPageMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DuplicateCmsPageMutation, DuplicateCmsPageMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DuplicateCmsPageMutation, DuplicateCmsPageMutationVariables>(DuplicateCmsPageDocument, options);
+      }
+export type DuplicateCmsPageMutationHookResult = ReturnType<typeof useDuplicateCmsPageMutation>;
+export const DeleteCmsPageDocument = gql`
+    mutation DeleteCmsPage($id: ID!) {
+  deleteCmsPage(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteCmsPageMutation__
+ *
+ * To run a mutation, you first call `useDeleteCmsPageMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCmsPageMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCmsPageMutation, { data, loading, error }] = useDeleteCmsPageMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteCmsPageMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteCmsPageMutation, DeleteCmsPageMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteCmsPageMutation, DeleteCmsPageMutationVariables>(DeleteCmsPageDocument, options);
+      }
+export type DeleteCmsPageMutationHookResult = ReturnType<typeof useDeleteCmsPageMutation>;
+export const RestoreCmsPageRevisionDocument = gql`
+    mutation RestoreCmsPageRevision($revisionId: ID!) {
+  restoreCmsPageRevision(revisionId: $revisionId) {
+    ...CmsPageFields
+  }
+}
+    ${CmsPageFieldsFragmentDoc}`;
+
+/**
+ * __useRestoreCmsPageRevisionMutation__
+ *
+ * To run a mutation, you first call `useRestoreCmsPageRevisionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRestoreCmsPageRevisionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [restoreCmsPageRevisionMutation, { data, loading, error }] = useRestoreCmsPageRevisionMutation({
+ *   variables: {
+ *      revisionId: // value for 'revisionId'
+ *   },
+ * });
+ */
+export function useRestoreCmsPageRevisionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RestoreCmsPageRevisionMutation, RestoreCmsPageRevisionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RestoreCmsPageRevisionMutation, RestoreCmsPageRevisionMutationVariables>(RestoreCmsPageRevisionDocument, options);
+      }
+export type RestoreCmsPageRevisionMutationHookResult = ReturnType<typeof useRestoreCmsPageRevisionMutation>;
+export const CmsFragmentsDocument = gql`
+    query CmsFragments($siteId: ID!) {
+  cmsFragments(siteId: $siteId) {
+    ...CmsFragmentListFields
+  }
+}
+    ${CmsFragmentListFieldsFragmentDoc}`;
+
+/**
+ * __useCmsFragmentsQuery__
+ *
+ * To run a query within a React component, call `useCmsFragmentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCmsFragmentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCmsFragmentsQuery({
+ *   variables: {
+ *      siteId: // value for 'siteId'
+ *   },
+ * });
+ */
+export function useCmsFragmentsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CmsFragmentsQuery, CmsFragmentsQueryVariables> & ({ variables: CmsFragmentsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CmsFragmentsQuery, CmsFragmentsQueryVariables>(CmsFragmentsDocument, options);
+      }
+export function useCmsFragmentsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CmsFragmentsQuery, CmsFragmentsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CmsFragmentsQuery, CmsFragmentsQueryVariables>(CmsFragmentsDocument, options);
+        }
+// @ts-ignore
+export function useCmsFragmentsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CmsFragmentsQuery, CmsFragmentsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsFragmentsQuery, CmsFragmentsQueryVariables>;
+// @ts-ignore
+export function useCmsFragmentsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsFragmentsQuery, CmsFragmentsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsFragmentsQuery | undefined, CmsFragmentsQueryVariables>;
+export function useCmsFragmentsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsFragmentsQuery, CmsFragmentsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CmsFragmentsQuery, CmsFragmentsQueryVariables>(CmsFragmentsDocument, options);
+        }
+export type CmsFragmentsQueryHookResult = ReturnType<typeof useCmsFragmentsQuery>;
+export type CmsFragmentsLazyQueryHookResult = ReturnType<typeof useCmsFragmentsLazyQuery>;
+export type CmsFragmentsSuspenseQueryHookResult = ReturnType<typeof useCmsFragmentsSuspenseQuery>;
+export const CmsFragmentDocument = gql`
+    query CmsFragment($id: ID!) {
+  cmsFragment(id: $id) {
+    ...CmsFragmentListFields
+    draft {
+      projectData
+      html
+      css
+    }
+  }
+}
+    ${CmsFragmentListFieldsFragmentDoc}`;
+
+/**
+ * __useCmsFragmentQuery__
+ *
+ * To run a query within a React component, call `useCmsFragmentQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCmsFragmentQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCmsFragmentQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useCmsFragmentQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CmsFragmentQuery, CmsFragmentQueryVariables> & ({ variables: CmsFragmentQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CmsFragmentQuery, CmsFragmentQueryVariables>(CmsFragmentDocument, options);
+      }
+export function useCmsFragmentLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CmsFragmentQuery, CmsFragmentQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CmsFragmentQuery, CmsFragmentQueryVariables>(CmsFragmentDocument, options);
+        }
+// @ts-ignore
+export function useCmsFragmentSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CmsFragmentQuery, CmsFragmentQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsFragmentQuery, CmsFragmentQueryVariables>;
+// @ts-ignore
+export function useCmsFragmentSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsFragmentQuery, CmsFragmentQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsFragmentQuery | undefined, CmsFragmentQueryVariables>;
+export function useCmsFragmentSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsFragmentQuery, CmsFragmentQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CmsFragmentQuery, CmsFragmentQueryVariables>(CmsFragmentDocument, options);
+        }
+export type CmsFragmentQueryHookResult = ReturnType<typeof useCmsFragmentQuery>;
+export type CmsFragmentLazyQueryHookResult = ReturnType<typeof useCmsFragmentLazyQuery>;
+export type CmsFragmentSuspenseQueryHookResult = ReturnType<typeof useCmsFragmentSuspenseQuery>;
+export const CreateCmsFragmentDocument = gql`
+    mutation CreateCmsFragment($siteId: ID!, $input: CmsFragmentInput!) {
+  createCmsFragment(siteId: $siteId, input: $input) {
+    ...CmsFragmentListFields
+  }
+}
+    ${CmsFragmentListFieldsFragmentDoc}`;
+
+/**
+ * __useCreateCmsFragmentMutation__
+ *
+ * To run a mutation, you first call `useCreateCmsFragmentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCmsFragmentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCmsFragmentMutation, { data, loading, error }] = useCreateCmsFragmentMutation({
+ *   variables: {
+ *      siteId: // value for 'siteId'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCmsFragmentMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateCmsFragmentMutation, CreateCmsFragmentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateCmsFragmentMutation, CreateCmsFragmentMutationVariables>(CreateCmsFragmentDocument, options);
+      }
+export type CreateCmsFragmentMutationHookResult = ReturnType<typeof useCreateCmsFragmentMutation>;
+export const UpdateCmsFragmentDocument = gql`
+    mutation UpdateCmsFragment($id: ID!, $input: CmsFragmentInput!) {
+  updateCmsFragment(id: $id, input: $input) {
+    ...CmsFragmentListFields
+  }
+}
+    ${CmsFragmentListFieldsFragmentDoc}`;
+
+/**
+ * __useUpdateCmsFragmentMutation__
+ *
+ * To run a mutation, you first call `useUpdateCmsFragmentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCmsFragmentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCmsFragmentMutation, { data, loading, error }] = useUpdateCmsFragmentMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCmsFragmentMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateCmsFragmentMutation, UpdateCmsFragmentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateCmsFragmentMutation, UpdateCmsFragmentMutationVariables>(UpdateCmsFragmentDocument, options);
+      }
+export type UpdateCmsFragmentMutationHookResult = ReturnType<typeof useUpdateCmsFragmentMutation>;
+export const SaveCmsFragmentDraftDocument = gql`
+    mutation SaveCmsFragmentDraft($id: ID!, $draft: CmsDraftInput!) {
+  saveCmsFragmentDraft(id: $id, draft: $draft) {
+    id
+    status
+    updatedByName
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useSaveCmsFragmentDraftMutation__
+ *
+ * To run a mutation, you first call `useSaveCmsFragmentDraftMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveCmsFragmentDraftMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveCmsFragmentDraftMutation, { data, loading, error }] = useSaveCmsFragmentDraftMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      draft: // value for 'draft'
+ *   },
+ * });
+ */
+export function useSaveCmsFragmentDraftMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SaveCmsFragmentDraftMutation, SaveCmsFragmentDraftMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SaveCmsFragmentDraftMutation, SaveCmsFragmentDraftMutationVariables>(SaveCmsFragmentDraftDocument, options);
+      }
+export type SaveCmsFragmentDraftMutationHookResult = ReturnType<typeof useSaveCmsFragmentDraftMutation>;
+export const PublishCmsFragmentDocument = gql`
+    mutation PublishCmsFragment($id: ID!) {
+  publishCmsFragment(id: $id) {
+    id
+    status
+    published {
+      publishedAt
+    }
+  }
+}
+    `;
+
+/**
+ * __usePublishCmsFragmentMutation__
+ *
+ * To run a mutation, you first call `usePublishCmsFragmentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `usePublishCmsFragmentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [publishCmsFragmentMutation, { data, loading, error }] = usePublishCmsFragmentMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function usePublishCmsFragmentMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<PublishCmsFragmentMutation, PublishCmsFragmentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<PublishCmsFragmentMutation, PublishCmsFragmentMutationVariables>(PublishCmsFragmentDocument, options);
+      }
+export type PublishCmsFragmentMutationHookResult = ReturnType<typeof usePublishCmsFragmentMutation>;
+export const DeleteCmsFragmentDocument = gql`
+    mutation DeleteCmsFragment($id: ID!) {
+  deleteCmsFragment(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteCmsFragmentMutation__
+ *
+ * To run a mutation, you first call `useDeleteCmsFragmentMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCmsFragmentMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCmsFragmentMutation, { data, loading, error }] = useDeleteCmsFragmentMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteCmsFragmentMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteCmsFragmentMutation, DeleteCmsFragmentMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteCmsFragmentMutation, DeleteCmsFragmentMutationVariables>(DeleteCmsFragmentDocument, options);
+      }
+export type DeleteCmsFragmentMutationHookResult = ReturnType<typeof useDeleteCmsFragmentMutation>;
+export const CmsAssetsDocument = gql`
+    query CmsAssets($siteId: ID!, $page: Int!, $pageSize: Int!, $search: String) {
+  cmsAssets(siteId: $siteId, page: $page, pageSize: $pageSize, search: $search) {
+    totalCount
+    rows {
+      ...CmsAssetFields
+    }
+  }
+}
+    ${CmsAssetFieldsFragmentDoc}`;
+
+/**
+ * __useCmsAssetsQuery__
+ *
+ * To run a query within a React component, call `useCmsAssetsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCmsAssetsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCmsAssetsQuery({
+ *   variables: {
+ *      siteId: // value for 'siteId'
+ *      page: // value for 'page'
+ *      pageSize: // value for 'pageSize'
+ *      search: // value for 'search'
+ *   },
+ * });
+ */
+export function useCmsAssetsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CmsAssetsQuery, CmsAssetsQueryVariables> & ({ variables: CmsAssetsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CmsAssetsQuery, CmsAssetsQueryVariables>(CmsAssetsDocument, options);
+      }
+export function useCmsAssetsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CmsAssetsQuery, CmsAssetsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CmsAssetsQuery, CmsAssetsQueryVariables>(CmsAssetsDocument, options);
+        }
+// @ts-ignore
+export function useCmsAssetsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CmsAssetsQuery, CmsAssetsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsAssetsQuery, CmsAssetsQueryVariables>;
+// @ts-ignore
+export function useCmsAssetsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsAssetsQuery, CmsAssetsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsAssetsQuery | undefined, CmsAssetsQueryVariables>;
+export function useCmsAssetsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsAssetsQuery, CmsAssetsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CmsAssetsQuery, CmsAssetsQueryVariables>(CmsAssetsDocument, options);
+        }
+export type CmsAssetsQueryHookResult = ReturnType<typeof useCmsAssetsQuery>;
+export type CmsAssetsLazyQueryHookResult = ReturnType<typeof useCmsAssetsLazyQuery>;
+export type CmsAssetsSuspenseQueryHookResult = ReturnType<typeof useCmsAssetsSuspenseQuery>;
+export const UploadCmsAssetDocument = gql`
+    mutation UploadCmsAsset($input: CmsAssetUploadInput!) {
+  uploadCmsAsset(input: $input) {
+    ...CmsAssetFields
+  }
+}
+    ${CmsAssetFieldsFragmentDoc}`;
+
+/**
+ * __useUploadCmsAssetMutation__
+ *
+ * To run a mutation, you first call `useUploadCmsAssetMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUploadCmsAssetMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [uploadCmsAssetMutation, { data, loading, error }] = useUploadCmsAssetMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUploadCmsAssetMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UploadCmsAssetMutation, UploadCmsAssetMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UploadCmsAssetMutation, UploadCmsAssetMutationVariables>(UploadCmsAssetDocument, options);
+      }
+export type UploadCmsAssetMutationHookResult = ReturnType<typeof useUploadCmsAssetMutation>;
+export const UpdateCmsAssetAltDocument = gql`
+    mutation UpdateCmsAssetAlt($id: ID!, $alt: String!) {
+  updateCmsAssetAlt(id: $id, alt: $alt) {
+    id
+    alt
+  }
+}
+    `;
+
+/**
+ * __useUpdateCmsAssetAltMutation__
+ *
+ * To run a mutation, you first call `useUpdateCmsAssetAltMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCmsAssetAltMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCmsAssetAltMutation, { data, loading, error }] = useUpdateCmsAssetAltMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      alt: // value for 'alt'
+ *   },
+ * });
+ */
+export function useUpdateCmsAssetAltMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateCmsAssetAltMutation, UpdateCmsAssetAltMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateCmsAssetAltMutation, UpdateCmsAssetAltMutationVariables>(UpdateCmsAssetAltDocument, options);
+      }
+export type UpdateCmsAssetAltMutationHookResult = ReturnType<typeof useUpdateCmsAssetAltMutation>;
+export const DeleteCmsAssetDocument = gql`
+    mutation DeleteCmsAsset($id: ID!) {
+  deleteCmsAsset(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteCmsAssetMutation__
+ *
+ * To run a mutation, you first call `useDeleteCmsAssetMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCmsAssetMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCmsAssetMutation, { data, loading, error }] = useDeleteCmsAssetMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteCmsAssetMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteCmsAssetMutation, DeleteCmsAssetMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteCmsAssetMutation, DeleteCmsAssetMutationVariables>(DeleteCmsAssetDocument, options);
+      }
+export type DeleteCmsAssetMutationHookResult = ReturnType<typeof useDeleteCmsAssetMutation>;
+export const CmsComponentsDocument = gql`
+    query CmsComponents {
+  cmsComponents {
+    key
+    label
+    category
+    description
+    defaultProps
+    acceptsChildren
+  }
+}
+    `;
+
+/**
+ * __useCmsComponentsQuery__
+ *
+ * To run a query within a React component, call `useCmsComponentsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCmsComponentsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCmsComponentsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useCmsComponentsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<CmsComponentsQuery, CmsComponentsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CmsComponentsQuery, CmsComponentsQueryVariables>(CmsComponentsDocument, options);
+      }
+export function useCmsComponentsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CmsComponentsQuery, CmsComponentsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CmsComponentsQuery, CmsComponentsQueryVariables>(CmsComponentsDocument, options);
+        }
+// @ts-ignore
+export function useCmsComponentsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CmsComponentsQuery, CmsComponentsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsComponentsQuery, CmsComponentsQueryVariables>;
+// @ts-ignore
+export function useCmsComponentsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsComponentsQuery, CmsComponentsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsComponentsQuery | undefined, CmsComponentsQueryVariables>;
+export function useCmsComponentsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsComponentsQuery, CmsComponentsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CmsComponentsQuery, CmsComponentsQueryVariables>(CmsComponentsDocument, options);
+        }
+export type CmsComponentsQueryHookResult = ReturnType<typeof useCmsComponentsQuery>;
+export type CmsComponentsLazyQueryHookResult = ReturnType<typeof useCmsComponentsLazyQuery>;
+export type CmsComponentsSuspenseQueryHookResult = ReturnType<typeof useCmsComponentsSuspenseQuery>;
+export const CmsSiteDnsDocument = gql`
+    query CmsSiteDns($siteId: ID!) {
+  cmsSiteDns(siteId: $siteId) {
+    serverIp
+    domains {
+      ...CmsDomainDnsFields
+    }
+  }
+}
+    ${CmsDomainDnsFieldsFragmentDoc}`;
+
+/**
+ * __useCmsSiteDnsQuery__
+ *
+ * To run a query within a React component, call `useCmsSiteDnsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCmsSiteDnsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCmsSiteDnsQuery({
+ *   variables: {
+ *      siteId: // value for 'siteId'
+ *   },
+ * });
+ */
+export function useCmsSiteDnsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CmsSiteDnsQuery, CmsSiteDnsQueryVariables> & ({ variables: CmsSiteDnsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CmsSiteDnsQuery, CmsSiteDnsQueryVariables>(CmsSiteDnsDocument, options);
+      }
+export function useCmsSiteDnsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CmsSiteDnsQuery, CmsSiteDnsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CmsSiteDnsQuery, CmsSiteDnsQueryVariables>(CmsSiteDnsDocument, options);
+        }
+// @ts-ignore
+export function useCmsSiteDnsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CmsSiteDnsQuery, CmsSiteDnsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsSiteDnsQuery, CmsSiteDnsQueryVariables>;
+// @ts-ignore
+export function useCmsSiteDnsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsSiteDnsQuery, CmsSiteDnsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsSiteDnsQuery | undefined, CmsSiteDnsQueryVariables>;
+export function useCmsSiteDnsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsSiteDnsQuery, CmsSiteDnsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CmsSiteDnsQuery, CmsSiteDnsQueryVariables>(CmsSiteDnsDocument, options);
+        }
+export type CmsSiteDnsQueryHookResult = ReturnType<typeof useCmsSiteDnsQuery>;
+export type CmsSiteDnsLazyQueryHookResult = ReturnType<typeof useCmsSiteDnsLazyQuery>;
+export type CmsSiteDnsSuspenseQueryHookResult = ReturnType<typeof useCmsSiteDnsSuspenseQuery>;
+export const SetCmsSiteARecordDocument = gql`
+    mutation SetCmsSiteARecord($siteId: ID!, $domain: String!, $ip: String!, $ttl: Int!) {
+  setCmsSiteARecord(siteId: $siteId, domain: $domain, ip: $ip, ttl: $ttl) {
+    ...CmsDomainDnsFields
+  }
+}
+    ${CmsDomainDnsFieldsFragmentDoc}`;
+
+/**
+ * __useSetCmsSiteARecordMutation__
+ *
+ * To run a mutation, you first call `useSetCmsSiteARecordMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetCmsSiteARecordMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setCmsSiteARecordMutation, { data, loading, error }] = useSetCmsSiteARecordMutation({
+ *   variables: {
+ *      siteId: // value for 'siteId'
+ *      domain: // value for 'domain'
+ *      ip: // value for 'ip'
+ *      ttl: // value for 'ttl'
+ *   },
+ * });
+ */
+export function useSetCmsSiteARecordMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SetCmsSiteARecordMutation, SetCmsSiteARecordMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SetCmsSiteARecordMutation, SetCmsSiteARecordMutationVariables>(SetCmsSiteARecordDocument, options);
+      }
+export type SetCmsSiteARecordMutationHookResult = ReturnType<typeof useSetCmsSiteARecordMutation>;
+export const CmsGoogleFontsDocument = gql`
+    query CmsGoogleFonts($search: String, $category: String, $limit: Int) {
+  cmsGoogleFonts(search: $search, category: $category, limit: $limit) {
+    totalCount
+    rows {
+      family
+      category
+      variants
+      subsets
+      popularity
+    }
+  }
+}
+    `;
+
+/**
+ * __useCmsGoogleFontsQuery__
+ *
+ * To run a query within a React component, call `useCmsGoogleFontsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCmsGoogleFontsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCmsGoogleFontsQuery({
+ *   variables: {
+ *      search: // value for 'search'
+ *      category: // value for 'category'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useCmsGoogleFontsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<CmsGoogleFontsQuery, CmsGoogleFontsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CmsGoogleFontsQuery, CmsGoogleFontsQueryVariables>(CmsGoogleFontsDocument, options);
+      }
+export function useCmsGoogleFontsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CmsGoogleFontsQuery, CmsGoogleFontsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CmsGoogleFontsQuery, CmsGoogleFontsQueryVariables>(CmsGoogleFontsDocument, options);
+        }
+// @ts-ignore
+export function useCmsGoogleFontsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CmsGoogleFontsQuery, CmsGoogleFontsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsGoogleFontsQuery, CmsGoogleFontsQueryVariables>;
+// @ts-ignore
+export function useCmsGoogleFontsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsGoogleFontsQuery, CmsGoogleFontsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CmsGoogleFontsQuery | undefined, CmsGoogleFontsQueryVariables>;
+export function useCmsGoogleFontsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CmsGoogleFontsQuery, CmsGoogleFontsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CmsGoogleFontsQuery, CmsGoogleFontsQueryVariables>(CmsGoogleFontsDocument, options);
+        }
+export type CmsGoogleFontsQueryHookResult = ReturnType<typeof useCmsGoogleFontsQuery>;
+export type CmsGoogleFontsLazyQueryHookResult = ReturnType<typeof useCmsGoogleFontsLazyQuery>;
+export type CmsGoogleFontsSuspenseQueryHookResult = ReturnType<typeof useCmsGoogleFontsSuspenseQuery>;
 export const ListRisksPagedDocument = gql`
     query ListRisksPaged($input: TableQueryInput!) {
   listRisksPaged(input: $input) {
@@ -45681,6 +48442,295 @@ export function useCampaignMetricsSuspenseQuery(baseOptions?: ApolloReactHooks.S
 export type CampaignMetricsQueryHookResult = ReturnType<typeof useCampaignMetricsQuery>;
 export type CampaignMetricsLazyQueryHookResult = ReturnType<typeof useCampaignMetricsLazyQuery>;
 export type CampaignMetricsSuspenseQueryHookResult = ReturnType<typeof useCampaignMetricsSuspenseQuery>;
+export const NewsletterIssuesDocument = gql`
+    query NewsletterIssues($siteId: ID!, $page: Int!, $pageSize: Int!, $search: String) {
+  newsletterIssues(
+    siteId: $siteId
+    page: $page
+    pageSize: $pageSize
+    search: $search
+  ) {
+    totalCount
+    rows {
+      ...NewsletterIssueFields
+    }
+  }
+}
+    ${NewsletterIssueFieldsFragmentDoc}`;
+
+/**
+ * __useNewsletterIssuesQuery__
+ *
+ * To run a query within a React component, call `useNewsletterIssuesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useNewsletterIssuesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useNewsletterIssuesQuery({
+ *   variables: {
+ *      siteId: // value for 'siteId'
+ *      page: // value for 'page'
+ *      pageSize: // value for 'pageSize'
+ *      search: // value for 'search'
+ *   },
+ * });
+ */
+export function useNewsletterIssuesQuery(baseOptions: ApolloReactHooks.QueryHookOptions<NewsletterIssuesQuery, NewsletterIssuesQueryVariables> & ({ variables: NewsletterIssuesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<NewsletterIssuesQuery, NewsletterIssuesQueryVariables>(NewsletterIssuesDocument, options);
+      }
+export function useNewsletterIssuesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<NewsletterIssuesQuery, NewsletterIssuesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<NewsletterIssuesQuery, NewsletterIssuesQueryVariables>(NewsletterIssuesDocument, options);
+        }
+// @ts-ignore
+export function useNewsletterIssuesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<NewsletterIssuesQuery, NewsletterIssuesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<NewsletterIssuesQuery, NewsletterIssuesQueryVariables>;
+// @ts-ignore
+export function useNewsletterIssuesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<NewsletterIssuesQuery, NewsletterIssuesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<NewsletterIssuesQuery | undefined, NewsletterIssuesQueryVariables>;
+export function useNewsletterIssuesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<NewsletterIssuesQuery, NewsletterIssuesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<NewsletterIssuesQuery, NewsletterIssuesQueryVariables>(NewsletterIssuesDocument, options);
+        }
+export type NewsletterIssuesQueryHookResult = ReturnType<typeof useNewsletterIssuesQuery>;
+export type NewsletterIssuesLazyQueryHookResult = ReturnType<typeof useNewsletterIssuesLazyQuery>;
+export type NewsletterIssuesSuspenseQueryHookResult = ReturnType<typeof useNewsletterIssuesSuspenseQuery>;
+export const CreateNewsletterIssueDocument = gql`
+    mutation CreateNewsletterIssue($input: NewsletterIssueInput!) {
+  createNewsletterIssue(input: $input) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useCreateNewsletterIssueMutation__
+ *
+ * To run a mutation, you first call `useCreateNewsletterIssueMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateNewsletterIssueMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createNewsletterIssueMutation, { data, loading, error }] = useCreateNewsletterIssueMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateNewsletterIssueMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateNewsletterIssueMutation, CreateNewsletterIssueMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateNewsletterIssueMutation, CreateNewsletterIssueMutationVariables>(CreateNewsletterIssueDocument, options);
+      }
+export type CreateNewsletterIssueMutationHookResult = ReturnType<typeof useCreateNewsletterIssueMutation>;
+export const UpdateNewsletterIssueDocument = gql`
+    mutation UpdateNewsletterIssue($id: ID!, $input: NewsletterIssueInput!) {
+  updateNewsletterIssue(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useUpdateNewsletterIssueMutation__
+ *
+ * To run a mutation, you first call `useUpdateNewsletterIssueMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateNewsletterIssueMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateNewsletterIssueMutation, { data, loading, error }] = useUpdateNewsletterIssueMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateNewsletterIssueMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateNewsletterIssueMutation, UpdateNewsletterIssueMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateNewsletterIssueMutation, UpdateNewsletterIssueMutationVariables>(UpdateNewsletterIssueDocument, options);
+      }
+export type UpdateNewsletterIssueMutationHookResult = ReturnType<typeof useUpdateNewsletterIssueMutation>;
+export const DeleteNewsletterIssueDocument = gql`
+    mutation DeleteNewsletterIssue($id: ID!) {
+  deleteNewsletterIssue(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteNewsletterIssueMutation__
+ *
+ * To run a mutation, you first call `useDeleteNewsletterIssueMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteNewsletterIssueMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteNewsletterIssueMutation, { data, loading, error }] = useDeleteNewsletterIssueMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteNewsletterIssueMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteNewsletterIssueMutation, DeleteNewsletterIssueMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteNewsletterIssueMutation, DeleteNewsletterIssueMutationVariables>(DeleteNewsletterIssueDocument, options);
+      }
+export type DeleteNewsletterIssueMutationHookResult = ReturnType<typeof useDeleteNewsletterIssueMutation>;
+export const NewsletterSubscribersDocument = gql`
+    query NewsletterSubscribers($siteId: ID!, $page: Int!, $pageSize: Int!, $search: String) {
+  newsletterSubscribers(
+    siteId: $siteId
+    page: $page
+    pageSize: $pageSize
+    search: $search
+  ) {
+    totalCount
+    rows {
+      ...NewsletterSubscriberFields
+    }
+  }
+}
+    ${NewsletterSubscriberFieldsFragmentDoc}`;
+
+/**
+ * __useNewsletterSubscribersQuery__
+ *
+ * To run a query within a React component, call `useNewsletterSubscribersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useNewsletterSubscribersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useNewsletterSubscribersQuery({
+ *   variables: {
+ *      siteId: // value for 'siteId'
+ *      page: // value for 'page'
+ *      pageSize: // value for 'pageSize'
+ *      search: // value for 'search'
+ *   },
+ * });
+ */
+export function useNewsletterSubscribersQuery(baseOptions: ApolloReactHooks.QueryHookOptions<NewsletterSubscribersQuery, NewsletterSubscribersQueryVariables> & ({ variables: NewsletterSubscribersQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<NewsletterSubscribersQuery, NewsletterSubscribersQueryVariables>(NewsletterSubscribersDocument, options);
+      }
+export function useNewsletterSubscribersLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<NewsletterSubscribersQuery, NewsletterSubscribersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<NewsletterSubscribersQuery, NewsletterSubscribersQueryVariables>(NewsletterSubscribersDocument, options);
+        }
+// @ts-ignore
+export function useNewsletterSubscribersSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<NewsletterSubscribersQuery, NewsletterSubscribersQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<NewsletterSubscribersQuery, NewsletterSubscribersQueryVariables>;
+// @ts-ignore
+export function useNewsletterSubscribersSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<NewsletterSubscribersQuery, NewsletterSubscribersQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<NewsletterSubscribersQuery | undefined, NewsletterSubscribersQueryVariables>;
+export function useNewsletterSubscribersSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<NewsletterSubscribersQuery, NewsletterSubscribersQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<NewsletterSubscribersQuery, NewsletterSubscribersQueryVariables>(NewsletterSubscribersDocument, options);
+        }
+export type NewsletterSubscribersQueryHookResult = ReturnType<typeof useNewsletterSubscribersQuery>;
+export type NewsletterSubscribersLazyQueryHookResult = ReturnType<typeof useNewsletterSubscribersLazyQuery>;
+export type NewsletterSubscribersSuspenseQueryHookResult = ReturnType<typeof useNewsletterSubscribersSuspenseQuery>;
+export const AddNewsletterSubscriberDocument = gql`
+    mutation AddNewsletterSubscriber($siteId: ID!, $email: String!, $name: String) {
+  addNewsletterSubscriber(siteId: $siteId, email: $email, name: $name)
+}
+    `;
+
+/**
+ * __useAddNewsletterSubscriberMutation__
+ *
+ * To run a mutation, you first call `useAddNewsletterSubscriberMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAddNewsletterSubscriberMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [addNewsletterSubscriberMutation, { data, loading, error }] = useAddNewsletterSubscriberMutation({
+ *   variables: {
+ *      siteId: // value for 'siteId'
+ *      email: // value for 'email'
+ *      name: // value for 'name'
+ *   },
+ * });
+ */
+export function useAddNewsletterSubscriberMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<AddNewsletterSubscriberMutation, AddNewsletterSubscriberMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<AddNewsletterSubscriberMutation, AddNewsletterSubscriberMutationVariables>(AddNewsletterSubscriberDocument, options);
+      }
+export type AddNewsletterSubscriberMutationHookResult = ReturnType<typeof useAddNewsletterSubscriberMutation>;
+export const SetNewsletterSubscriberStatusDocument = gql`
+    mutation SetNewsletterSubscriberStatus($id: ID!, $status: NewsletterSubscriberStatus!) {
+  setNewsletterSubscriberStatus(id: $id, status: $status) {
+    id
+    status
+  }
+}
+    `;
+
+/**
+ * __useSetNewsletterSubscriberStatusMutation__
+ *
+ * To run a mutation, you first call `useSetNewsletterSubscriberStatusMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetNewsletterSubscriberStatusMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setNewsletterSubscriberStatusMutation, { data, loading, error }] = useSetNewsletterSubscriberStatusMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      status: // value for 'status'
+ *   },
+ * });
+ */
+export function useSetNewsletterSubscriberStatusMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SetNewsletterSubscriberStatusMutation, SetNewsletterSubscriberStatusMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SetNewsletterSubscriberStatusMutation, SetNewsletterSubscriberStatusMutationVariables>(SetNewsletterSubscriberStatusDocument, options);
+      }
+export type SetNewsletterSubscriberStatusMutationHookResult = ReturnType<typeof useSetNewsletterSubscriberStatusMutation>;
+export const DeleteNewsletterSubscriberDocument = gql`
+    mutation DeleteNewsletterSubscriber($id: ID!) {
+  deleteNewsletterSubscriber(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteNewsletterSubscriberMutation__
+ *
+ * To run a mutation, you first call `useDeleteNewsletterSubscriberMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteNewsletterSubscriberMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteNewsletterSubscriberMutation, { data, loading, error }] = useDeleteNewsletterSubscriberMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteNewsletterSubscriberMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteNewsletterSubscriberMutation, DeleteNewsletterSubscriberMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteNewsletterSubscriberMutation, DeleteNewsletterSubscriberMutationVariables>(DeleteNewsletterSubscriberDocument, options);
+      }
+export type DeleteNewsletterSubscriberMutationHookResult = ReturnType<typeof useDeleteNewsletterSubscriberMutation>;
 export const ListOnboardingTemplatesDocument = gql`
     query ListOnboardingTemplates {
   listOnboardingTemplates {

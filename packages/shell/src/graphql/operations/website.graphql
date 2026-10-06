@@ -1,5 +1,6 @@
 fragment BlogPostFields on BlogPost {
   id
+  siteId
   slug
   title
   summary
@@ -74,6 +75,7 @@ mutation DeleteBlogPost($id: ID!) {
 
 fragment CaseStudyFields on CaseStudy {
   id
+  siteId
   slug
   title
   excerpt
@@ -145,6 +147,7 @@ mutation DeleteCaseStudy($id: ID!) {
 
 fragment JobCompanyFields on JobCompany {
   id
+  siteId
   companyCode
   slug
   name
@@ -224,6 +227,7 @@ mutation DeleteJobCompany($id: ID!) {
 
 fragment JobFields on Job {
   id
+  siteId
   jobCode
   companySlug
   title
@@ -296,6 +300,7 @@ mutation DeleteJob($id: ID!) {
 
 fragment GigFields on Gig {
   id
+  siteId
   gigCode
   title
   category
@@ -463,6 +468,7 @@ mutation DeleteTool($id: ID!) {
 
 fragment NavLinkFields on NavLink {
   id
+  siteId
   label
   href
   description

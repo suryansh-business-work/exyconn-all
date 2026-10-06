@@ -7,6 +7,7 @@ import { Divider, Typography } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSwitch, RhfRichText } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
+import { useCurrentSiteId } from '../../../cms/site';
 import {
   useCreateJobCompanyMutation,
   useUpdateJobCompanyMutation,
@@ -122,6 +123,7 @@ interface JobCompanyFormProps {
 
 /** React Hook Form + Zod form to create or update a job company. */
 export function JobCompanyForm({ initial, onDone, onCancel }: Readonly<JobCompanyFormProps>) {
+  const siteId = useCurrentSiteId();
   const t = useT();
   const [createJobCompany] = useCreateJobCompanyMutation();
   const [updateJobCompany] = useUpdateJobCompanyMutation();
@@ -134,7 +136,7 @@ export function JobCompanyForm({ initial, onDone, onCancel }: Readonly<JobCompan
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Company',
     initial,
-    create: (values: Values) => createJobCompany({ variables: { input: values } }),
+    create: (values: Values) => createJobCompany({ variables: { input: { ...values, siteId } } }),
     update: (row, values) => updateJobCompany({ variables: { id: row.id, input: values } }),
     onDone,
   });
