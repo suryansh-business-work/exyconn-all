@@ -1,0 +1,10 @@
+---
+/** 'forms.legal' — the legal request form; every word is a prop, the sending stays in code. */
+import { LegalFormReact, type LegalFormCopy } from "../../forms/legal";
+
+type Props = Readonly<{ copy: LegalFormCopy }>;
+
+const { copy } = Astro.props;
+---
+
+<LegalFormReact client:load copy={copy} />

@@ -2,12 +2,10 @@ import { useFormContext } from "react-hook-form";
 import { FormField } from "../../forms/shared";
 import { CONTROL_CLASS } from "../../forms/legal/legal-form.styles";
 import { DURATION_PRESETS, HOURS_OPTIONS, QUOTE_LIMITS } from "../../../lib/company/quote";
-import { quoteText } from "../../../lib/company/quote-copy";
+import { useQuoteText } from "./quote-text";
 import { ChoiceCards } from "./ChoiceCards";
 import { TeamFields } from "./TeamFields";
 import type { QuoteFormValues } from "./quote.types";
-
-const text = quoteText.scope;
 
 const DURATIONS = DURATION_PRESETS.map(({ id, label, description }) => ({
   id,
@@ -15,14 +13,14 @@ const DURATIONS = DURATION_PRESETS.map(({ id, label, description }) => ({
   detail: description,
 }));
 
-const HOURS = HOURS_OPTIONS.map(({ id, label, hours }) => ({
-  id,
-  label,
-  detail: `${hours} ${text.hoursUnit}`,
-}));
-
 /** Step 2: the team, how long and how many hours a month. */
 export function ScopeStep() {
+  const text = useQuoteText().scope;
+  const hours = HOURS_OPTIONS.map(({ id, label, hours: perMonth }) => ({
+    id,
+    label,
+    detail: `${perMonth} ${text.hoursUnit}`,
+  }));
   const {
     register,
     watch,
@@ -48,7 +46,7 @@ export function ScopeStep() {
           />
         </FormField>
       )}
-      <ChoiceCards name="hoursId" legend={text.hours} options={HOURS} columns={3} />
+      <ChoiceCards name="hoursId" legend={text.hours} options={hours} columns={3} />
     </>
   );
 }

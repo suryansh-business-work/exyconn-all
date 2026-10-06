@@ -1,0 +1,18 @@
+---
+/**
+ * 'agents.order' — build-your-suite: the agents on offer and the request form. The agents'
+ * ids are what a request names; every word is a prop. The section keeps .inner-section's own
+ * bottom padding (the hand-written page's .company-tail never won the cascade there).
+ */
+import "../../company/company.css";
+import { OrderAgentsForm, type OrderAgentsText } from "../../company/order-agents";
+import type { Agent } from "../../../lib/company/agents";
+
+type Props = Readonly<{ agents: readonly Agent[]; text: OrderAgentsText }>;
+
+const { agents, text } = Astro.props;
+---
+
+<div class="inner-section stage-shell">
+  <OrderAgentsForm client:load agents={agents} text={text} />
+</div>

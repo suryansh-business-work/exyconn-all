@@ -1,14 +1,26 @@
 import { describe, expect, it } from "vitest";
 import {
   ORDER_AGENTS_DEFAULTS,
-  orderAgentsSchema,
+  orderAgentsSchema as agentsSchema,
 } from "../../src/components/company/order-agents/order-agents.schema";
+import type { OrderAgentsText } from "../../src/components/company/order-agents";
+import type { QuoteText } from "../../src/components/company/quote";
+import type { Agent } from "../../src/lib/company/agents";
+import { cmsDefaults } from "../cms-defaults";
 import {
   QUOTE_FORM_DEFAULTS,
   STEP_FIELDS,
   quoteFormSchema,
 } from "../../src/components/company/quote/quote.schema";
-import { QUOTE_STEPS, quoteNextSteps } from "../../src/lib/company/quote-copy";
+
+const agentsPage = cmsDefaults<{ agents: Agent[]; text: OrderAgentsText }>("agents.order");
+const orderAgentsSchema = agentsSchema(
+  agentsPage.agents.map((agent) => agent.id),
+  agentsPage.text.messages
+);
+const quotePage = cmsDefaults<{ text: QuoteText; nextSteps: unknown[] }>("company.quote");
+const QUOTE_STEPS = quotePage.text.steps;
+const quoteNextSteps = quotePage.nextSteps;
 
 /** The first message per field path, the way the form shows it. */
 const errorsOf = (result: { error?: { issues: { path: PropertyKey[]; message: string }[] } }) => {

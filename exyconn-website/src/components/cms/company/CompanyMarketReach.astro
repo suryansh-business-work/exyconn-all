@@ -1,0 +1,26 @@
+---
+/**
+ * 'company.market-reach' — how many markets, countries and languages the site is published
+ * for. The figures come from the market registry; the sentence may name {markets},
+ * {countries} and {languages}.
+ */
+import MarketReach from "../../company/MarketReach.astro";
+import { fillTemplate, marketFacts, type MarketFacts } from "../../../lib/company/markets-globe";
+import { MARKETS } from "../../../lib/i18n/markets";
+
+type Props = Readonly<{
+  labels: Readonly<Record<keyof MarketFacts, string>>;
+  text: string;
+  caption: string;
+}>;
+
+const { labels, text, caption } = Astro.props;
+const facts = marketFacts(MARKETS);
+---
+
+<MarketReach
+  facts={facts}
+  labels={labels}
+  text={fillTemplate(text, { ...facts })}
+  caption={caption}
+/>

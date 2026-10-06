@@ -22,6 +22,9 @@ the recipe it followed, with the home page as the worked example.
   fragments — and children in the default slot), `fragment` blocks as their published blocks.
 - Copy may name `{serviceCount}`; `fillCopy` (src/lib/cms/variables.ts) fills it, in component
   copy and in the page's SEO title/description.
+- A page's JSON-LD may also name `{siteUrl}`, `{marketUrl}` (site + the reader's market, e.g.
+  `https://exyconn.com/en-us`) and `{businessName}`; `fillJsonLd` fills them per request, so a
+  breadcrumb is seeded as `"item": "{siteUrl}/about-us"`, never with a hard-coded domain.
 
 ## The recipe
 

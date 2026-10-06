@@ -1,10 +1,29 @@
 import { describe, expect, it } from "vitest";
 import type { z } from "zod";
 import { careerFormSchema, resumeError } from "../src/components/forms/career/career.schema";
-import { contactFormSchema } from "../src/components/forms/contact/contact.schema";
-import { grievanceFormSchema } from "../src/components/forms/grievance/grievance.schema";
-import { indiaOfferFormSchema } from "../src/components/forms/india-offer/india-offer.schema";
-import { legalFormSchema } from "../src/components/forms/legal/legal.schema";
+import { contactFormSchema as contactSchema } from "../src/components/forms/contact/contact.schema";
+import type { ContactFormCopy } from "../src/components/forms/contact";
+import { grievanceFormSchema as grievanceSchema } from "../src/components/forms/grievance/grievance.schema";
+import type { GrievanceFormCopy } from "../src/components/forms/grievance";
+import { indiaOfferFormSchema as indiaOfferSchema } from "../src/components/forms/india-offer/india-offer.schema";
+import type { IndiaOfferFormCopy } from "../src/components/forms/india-offer";
+import { legalFormSchema as legalSchema } from "../src/components/forms/legal/legal.schema";
+import type { LegalFormCopy } from "../src/components/forms/legal";
+import { cmsDefaults } from "./cms-defaults";
+
+// Each form's rules with the messages its CMS page is seeded with.
+const contactFormSchema = contactSchema(
+  cmsDefaults<{ form: ContactFormCopy }>("company.contact").form.messages
+);
+const grievanceFormSchema = grievanceSchema(
+  cmsDefaults<{ copy: GrievanceFormCopy }>("forms.grievance").copy.messages
+);
+const legalFormSchema = legalSchema(
+  cmsDefaults<{ copy: LegalFormCopy }>("forms.legal").copy.messages
+);
+const indiaOfferFormSchema = indiaOfferSchema(
+  cmsDefaults<{ form: IndiaOfferFormCopy }>("offer.page").form.messages
+);
 
 /** The first message per field, the way the form shows it. */
 const errorsOf = (schema: z.ZodType, values: Record<string, string>) => {

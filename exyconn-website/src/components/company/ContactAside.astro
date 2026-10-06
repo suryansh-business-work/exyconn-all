@@ -5,7 +5,13 @@
  */
 import "../../styles/inner-stage.css";
 import "./company.css";
-import type { ContactChannel } from "../../lib/company/contact";
+
+export interface ContactChannel {
+  title: string;
+  description: string;
+  value: string;
+  href: string;
+}
 
 type Props = Readonly<{
   channelsTitle: string;

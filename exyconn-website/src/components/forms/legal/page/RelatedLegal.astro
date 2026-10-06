@@ -1,12 +1,19 @@
 ---
-/** "Related policies": the other legal pages as cards, at the end of each legal page. */
+/**
+ * "Related policies": the other legal pages as cards, at the end of each legal page. A CMS
+ * page passes its own `links`; the policies pages list every legal page but `current`.
+ */
 import { relatedLegalLinks, type LegalLink } from "../../../../lib/legal";
 import "./legal-page.css";
 
-type Props = Readonly<{ current: LegalLink["key"]; title?: string }>;
+type Props = Readonly<{
+  current?: LegalLink["key"];
+  title?: string;
+  links?: readonly Pick<LegalLink, "label" | "text" | "href">[];
+}>;
 
-const { current, title = "Related policies" } = Astro.props;
-const links = relatedLegalLinks(current);
+const { current, title = "Related policies", links: given } = Astro.props;
+const links = given ?? (current ? relatedLegalLinks(current) : []);
 ---
 
 <section class="legal-related" aria-labelledby="legal-related-title">

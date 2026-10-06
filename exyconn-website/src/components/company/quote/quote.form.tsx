@@ -3,7 +3,6 @@ import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SubmitButton, SubmitStatusAlert, useCaptchaSubmit } from "../../forms/shared";
 import { estimate, toQuoteInput } from "../../../lib/company/quote";
-import { QUOTE_STEPS, quoteText } from "../../../lib/company/quote-copy";
 import { quoteSubmission } from "../../../lib/company/quote-summary";
 import { announceFormStep } from "../../../scripts/inner/form-step";
 import { highlightStage } from "../../../scripts/stage3d/events";
@@ -15,13 +14,15 @@ import { ServiceStep } from "./ServiceStep";
 import { draftSummary } from "./download";
 import { QUOTE_FORM_DEFAULTS, STEP_FIELDS, quoteFormSchema } from "./quote.schema";
 import { setQuoteDraft } from "./quote-store";
-import type { QuoteFormValues } from "./quote.types";
+import type { QuoteFormValues, QuoteText } from "./quote.types";
+import { QuoteTextContext } from "./quote-text";
 import { SUBMIT_CLASS } from "../../forms/legal/legal-form.styles";
 import "./quote.css";
 
-const LAST = QUOTE_STEPS.length - 1;
+/** The last of the four steps (STEP_FIELDS): review and send. */
+const LAST = STEP_FIELDS.length - 1;
 /** The beacon's outermost ring: lit when the estimate is sent. */
-const SENT_RING = QUOTE_STEPS.length;
+const SENT_RING = STEP_FIELDS.length;
 
 const draftOf = (values: Partial<QuoteFormValues>) => ({
   input: toQuoteInput(values),
@@ -31,9 +32,10 @@ const draftOf = (values: Partial<QuoteFormValues>) => ({
 /**
  * The get-a-quote form (React Hook Form + Zod): service → scope → contact → review. Each
  * step is checked before the next; the estimate goes to /api/form-submit as a contact
- * enquiry, captcha and all. The summary panel follows along through the shared draft.
+ * enquiry, captcha and all. The summary panel follows along through the shared draft. Every
+ * word is the CMS page's copy.
  */
-export function QuoteForm() {
+export function QuoteForm({ text }: Readonly<{ text: QuoteText }>) {
   const methods = useForm<QuoteFormValues>({
     resolver: zodResolver(quoteFormSchema),
     defaultValues: QUOTE_FORM_DEFAULTS,
@@ -48,6 +50,11 @@ export function QuoteForm() {
     () => {
       setSent(true);
       highlightStage(SENT_RING);
+    },
+    {
+      incorrectAnswer: text.status.incorrect,
+      loading: text.status.loading,
+      loadFailed: text.status.loadFailed,
     }
   );
 
@@ -79,7 +86,11 @@ export function QuoteForm() {
 
   const send = (values: QuoteFormValues) => {
     const draft = draftOf(values);
-    const payload = quoteSubmission(values, estimate(draft.input), draftSummary(draft));
+    const payload = quoteSubmission(
+      values,
+      estimate(draft.input),
+      draftSummary(draft, text.contactEmail)
+    );
     return submit(values.captcha, payload);
   };
 
@@ -90,56 +101,62 @@ export function QuoteForm() {
   };
 
   if (sent) {
-    return <QuoteSent headingRef={headingRef} message={quoteText.sent} />;
+    return <QuoteSent headingRef={headingRef} message={text.sent} />;
   }
 
   return (
-    <FormProvider {...methods}>
-      <div className="legal-form quote-form">
-        <SubmitStatusAlert status={status} successMessage={quoteText.sent} />
-        <form aria-label={quoteText.formLabel} onSubmit={onSubmit} noValidate>
-          <h2 ref={headingRef} tabIndex={-1} className="inner-h3 quote-step-title">
-            {QUOTE_STEPS[step]}
-          </h2>
-          {step === 0 && <ServiceStep />}
-          {step === 1 && <ScopeStep />}
-          {step === 2 && <ContactStep />}
-          {step === LAST && (
-            <ReviewStep
-              steps={QUOTE_STEPS}
-              onEdit={show}
-              captcha={{
-                question: captcha.question,
-                error: captchaError,
-                onRefresh: refreshCaptcha,
-              }}
-            />
-          )}
-          <div className="quote-nav">
-            {step > 0 && (
-              <button
-                type="button"
-                className="inner-action inner-action--ghost"
-                onClick={() => show(step - 1)}
-              >
-                {quoteText.back}
-              </button>
-            )}
-            {step < LAST ? (
-              <button type="submit" className="inner-action inner-action--primary">
-                {quoteText.next}
-              </button>
-            ) : (
-              <SubmitButton
-                isSubmitting={methods.formState.isSubmitting}
-                className={SUBMIT_CLASS}
-                label={quoteText.send}
-                busyLabel={quoteText.sending}
+    <QuoteTextContext value={text}>
+      <FormProvider {...methods}>
+        <div className="legal-form quote-form">
+          <SubmitStatusAlert
+            status={status}
+            successMessage={text.sent}
+            errorMessage={text.status.failed}
+          />
+          <form aria-label={text.formLabel} onSubmit={onSubmit} noValidate>
+            <h2 ref={headingRef} tabIndex={-1} className="inner-h3 quote-step-title">
+              {text.steps[step]}
+            </h2>
+            {step === 0 && <ServiceStep />}
+            {step === 1 && <ScopeStep />}
+            {step === 2 && <ContactStep />}
+            {step === LAST && (
+              <ReviewStep
+                steps={text.steps}
+                onEdit={show}
+                captcha={{
+                  question: captcha.question,
+                  error: captchaError,
+                  onRefresh: refreshCaptcha,
+                }}
               />
             )}
-          </div>
-        </form>
-      </div>
-    </FormProvider>
+            <div className="quote-nav">
+              {step > 0 && (
+                <button
+                  type="button"
+                  className="inner-action inner-action--ghost"
+                  onClick={() => show(step - 1)}
+                >
+                  {text.back}
+                </button>
+              )}
+              {step < LAST ? (
+                <button type="submit" className="inner-action inner-action--primary">
+                  {text.next}
+                </button>
+              ) : (
+                <SubmitButton
+                  isSubmitting={methods.formState.isSubmitting}
+                  className={SUBMIT_CLASS}
+                  label={text.send}
+                  busyLabel={text.sending}
+                />
+              )}
+            </div>
+          </form>
+        </div>
+      </FormProvider>
+    </QuoteTextContext>
   );
 }

@@ -32,11 +32,11 @@ import { NOT_FOUND_COPY, NOT_FOUND_LINKS } from "../../src/lib/content/not-found
 import {
   pageCount,
   SITE_ROUTES,
-  SITEMAP_COPY,
   sitemapSections,
   treeBranches,
 } from "../../src/lib/content/sitemap";
 import { articleJsonLd } from "../../src/lib/content/structured-data";
+import { cmsDefaults } from "../cms-defaults";
 import {
   cssColor,
   cubeCount,
@@ -166,7 +166,7 @@ describe("blog", () => {
       BLOG_COPY.title,
       CASE_STUDIES_COPY.title,
       TOOLS_COPY.heading,
-      SITEMAP_COPY.title,
+      cmsDefaults<{ title: string }>("company.sitemap").title,
       NOT_FOUND_COPY.title,
     ].forEach((title) => expect(title.split(" ").length).toBeLessThanOrEqual(8));
     expect(ARTICLE_COPY.toc).not.toBe("");

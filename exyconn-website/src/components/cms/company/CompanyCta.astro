@@ -1,0 +1,24 @@
+---
+/** 'company.cta' — the closing call to action of an inner page (CtaBand). */
+import CtaBand from "../../inner/CtaBand.astro";
+import type { PageFamily } from "../../inner/types";
+import { cmsAction, cmsText, type CmsAction } from "./types";
+
+type Props = Readonly<{
+  family: PageFamily;
+  title: string;
+  text?: string;
+  primary?: CmsAction;
+  secondary?: CmsAction;
+}>;
+
+const { family, title, text, primary, secondary } = Astro.props;
+---
+
+<CtaBand
+  family={family}
+  title={title}
+  text={cmsText(text)}
+  primary={cmsAction(primary)}
+  secondary={cmsAction(secondary)}
+/>

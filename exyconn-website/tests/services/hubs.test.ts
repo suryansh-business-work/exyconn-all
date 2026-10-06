@@ -16,11 +16,11 @@ import { hubStats } from "../../src/lib/services/hub";
 import {
   categorySlug,
   groupPlatformServices,
-  platformCategories,
-  platformServices,
   platformStats,
   type PlatformService,
+  type PlatformStatusLabels,
 } from "../../src/lib/services/platform";
+import { cmsDefaults } from "../cms-defaults";
 import {
   catalogueScene,
   catalogueStats,
@@ -37,7 +37,17 @@ import {
 import { aiServiceCategories, aiServices } from "../../src/lib/services/aiServices";
 import { capabilityGroups, governance } from "../../src/lib/services/aiHub";
 import { marketingServices, marketingStats } from "../../src/lib/services/digitalMarketing";
-import { portfolioGroups } from "../../src/lib/services/ourServices";
+
+const platform = cmsDefaults<{
+  categories: string[];
+  services: PlatformService[];
+  statusLabels: PlatformStatusLabels;
+}>("company.platform-hub");
+const platformCategories = platform.categories;
+const platformServices = platform.services;
+const portfolioGroups = cmsDefaults<{ groups: { services: { href: string }[] }[] }>(
+  "company.link-rows"
+).groups;
 import { isShapeId } from "../../src/scripts/stage3d/shapes/registry";
 
 const service = (overrides: Partial<PlatformService>): PlatformService => ({
@@ -132,7 +142,7 @@ describe("infrastructure platform", () => {
   it("shows only the statuses that have services, then the category count", () => {
     const services = [service({}), service({ status: "soon" }), service({ status: "live" })];
     const groups = groupPlatformServices(services, ["A"]);
-    expect(platformStats(services, groups)).toEqual([
+    expect(platformStats(services, groups, platform.statusLabels, "Categories")).toEqual([
       { value: "2", label: "Live" },
       { value: "1", label: "Coming soon" },
       { value: "1", label: "Categories" },

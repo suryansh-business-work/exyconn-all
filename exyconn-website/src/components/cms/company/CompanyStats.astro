@@ -1,0 +1,13 @@
+---
+/** 'company.stats' — a row of counted-up figures under a stage (ProofStrip, stats variant). */
+import ProofStrip from "../../inner/ProofStrip.astro";
+
+type Props = Readonly<{
+  label: string;
+  items: readonly { value: string; label: string }[];
+}>;
+
+const { label, items } = Astro.props;
+---
+
+<ProofStrip variant="stats" label={label} items={items} />

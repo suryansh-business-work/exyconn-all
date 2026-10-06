@@ -1,7 +1,7 @@
 /**
  * The human sitemap: the portal's navigation links grouped by category when it has any,
  * otherwise the site's own routes (the same pages sitemap.xml lists). Also the node-graph
- * scene's branch counts and the page copy.
+ * scene's branch counts. The page's words are the CMS component's props ('company.sitemap').
  */
 import type { NavLink } from "../portal/types";
 import { safeHref } from "../safe-output";
@@ -119,20 +119,3 @@ export const treeBranches = (sections: readonly SitemapSection[]): number[] =>
 
 export const pageCount = (sections: readonly SitemapSection[]): number =>
   sections.reduce((sum, section) => sum + section.links.length, 0);
-
-export const SITEMAP_COPY = {
-  metaTitle: "Sitemap | Exyconn",
-  metaDescription:
-    "Browse all pages and sections of Exyconn. Find services, products, careers, and more.",
-  home: "Home",
-  crumb: "Sitemap",
-  title: "Every page, one map",
-  stats: "{pages} pages in {sections} sections",
-  filterLabel: "Search the sitemap",
-  searchLabel: "Search pages",
-  searchPlaceholder: "Page name",
-  countTemplate: "{shown} of {total} pages",
-  noMatch: "No page matches that search.",
-  pages: "{count} pages",
-  page: "1 page",
-} as const;

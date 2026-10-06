@@ -61,3 +61,10 @@ export const marketFacts = (markets: readonly Market[]): MarketFacts => ({
   countries: new Set(markets.flatMap((market) => (market.country ? [market.country] : []))).size,
   languages: new Set(markets.map((market) => market.language)).size,
 });
+
+/** Fills a sentence's {markets}, {countries} and {languages} (any {placeholder} in `values`). */
+export const fillTemplate = (template: string, values: Readonly<Record<string, number>>): string =>
+  Object.entries(values).reduce(
+    (text, [key, value]) => text.replaceAll(`{${key}}`, String(value)),
+    template
+  );

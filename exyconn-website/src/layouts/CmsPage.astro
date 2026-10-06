@@ -12,13 +12,15 @@ import CmsBlocks from "../components/cms/CmsBlocks.astro";
 import {
   designSystemCss,
   fillCopy,
+  fillJsonLd,
   fragmentsCss,
   renderContext,
   safeCss,
   type CmsPublicPage,
   type CmsPublicSite,
 } from "../lib/cms";
-import { getBrandingSafe } from "../lib/portal";
+import { DEFAULT_MARKET, marketUrl } from "../lib/i18n/markets";
+import { BRANDING_FALLBACK, getBrandingSafe } from "../lib/portal";
 
 interface Props {
   site: CmsPublicSite;
@@ -39,13 +41,20 @@ const footerBlocks = context.fragments.get(site.footerFragmentId) ?? [];
 
 const pageTitle = fillCopy(page.seo.title || page.title);
 const title = (site.seo.titleTemplate || "%s").replaceAll("%s", pageTitle);
-const jsonLd =
-  page.seo.jsonLd && typeof page.seo.jsonLd === "object"
-    ? (page.seo.jsonLd as JsonLdNode | JsonLdNode[])
-    : undefined;
 // A site served without markets is canonical on its own first domain.
 const siteUrl =
   site.markets || site.domains.length === 0 ? undefined : `https://${site.domains[0]}`;
+const origin = siteUrl ?? (Astro.site?.toString() ?? "https://exyconn.com/").replace(/\/$/, "");
+const market = site.markets ? (Astro.locals.market ?? DEFAULT_MARKET) : null;
+const jsonLdValues = {
+  siteUrl: origin,
+  marketUrl: market ? `${origin}${marketUrl(market, "/")}` : origin,
+  businessName: branding.businessName || BRANDING_FALLBACK.businessName,
+};
+const jsonLd =
+  page.seo.jsonLd && typeof page.seo.jsonLd === "object"
+    ? (fillJsonLd(page.seo.jsonLd, jsonLdValues) as JsonLdNode | JsonLdNode[])
+    : undefined;
 
 // The design system's own fonts: Google Fonts in one stylesheet, uploaded families as @font-face.
 const googleFonts = googleFontsHref(designSystem?.tokens);

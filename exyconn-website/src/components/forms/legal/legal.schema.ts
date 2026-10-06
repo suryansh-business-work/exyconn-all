@@ -1,20 +1,22 @@
 import { z } from "zod";
 import { HTTP_URL } from "@exyconn/regex";
 import { captchaAnswer, optionalMatch, requiredEmail } from "../shared/fieldSchemas";
-import type { LegalFormValues } from "./legal.types";
+import type { LegalFormMessages, LegalFormValues } from "./legal.types";
 
-export const legalFormSchema = z.object({
-  name: z.string().min(1, "Name is required").min(2, "Too short!").max(100, "Too long!"),
-  email: requiredEmail(),
-  legalType: z.string().min(1, "Please select a type of legal request"),
-  url: optionalMatch(HTTP_URL, "Please enter a valid URL"),
-  details: z
-    .string()
-    .min(1, "Details are required")
-    .min(20, "Please provide more details")
-    .max(5000, "Details are too long!"),
-  captcha: captchaAnswer(),
-});
+/** The legal request form's rules, with the messages the page's copy gives them. */
+export const legalFormSchema = (m: LegalFormMessages) =>
+  z.object({
+    name: z.string().min(1, m.nameRequired).min(2, m.tooShort).max(100, m.tooLong),
+    email: requiredEmail(m.emailRequired, m.emailInvalid),
+    legalType: z.string().min(1, m.typeRequired),
+    url: optionalMatch(HTTP_URL, m.urlInvalid),
+    details: z
+      .string()
+      .min(1, m.detailsRequired)
+      .min(20, m.detailsTooShort)
+      .max(5000, m.detailsTooLong),
+    captcha: captchaAnswer(m.captchaRequired),
+  });
 
 export const LEGAL_FORM_DEFAULTS: LegalFormValues = {
   name: "",

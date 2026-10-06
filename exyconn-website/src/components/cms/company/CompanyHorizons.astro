@@ -1,0 +1,10 @@
+---
+/** 'company.horizons' — the vision's horizons as a step track beside the sunrise (HorizonMorph). */
+import HorizonMorph from "../../company/HorizonMorph.astro";
+
+type Props = Readonly<{ horizons: readonly { when: string; title: string; text: string }[] }>;
+
+const { horizons } = Astro.props;
+---
+
+<HorizonMorph horizons={horizons} />

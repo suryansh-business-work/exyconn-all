@@ -1,6 +1,11 @@
 import type { CmsComponentDef } from './types';
 import { CHROME_COMPONENTS } from './chrome';
 import { HOME_COMPONENTS } from './home';
+import { AGENTS_COMPONENTS } from './agents';
+import { COMPANY_COMPONENTS } from './company';
+import { FORMS_COMPONENTS } from './forms';
+import { LEGAL_COMPONENTS } from './legal';
+import { OFFER_COMPONENTS } from './offer';
 
 export type { CmsComponentDef } from './types';
 
@@ -8,7 +13,15 @@ export type { CmsComponentDef } from './types';
  * Every dynamic component the website can render, by area. A new area adds its file here and
  * its renderers to the website's registry.
  */
-const CATALOGUE = [...CHROME_COMPONENTS, ...HOME_COMPONENTS] as const;
+const CATALOGUE = [
+  ...CHROME_COMPONENTS,
+  ...HOME_COMPONENTS,
+  ...COMPANY_COMPONENTS,
+  ...LEGAL_COMPONENTS,
+  ...FORMS_COMPONENTS,
+  ...AGENTS_COMPONENTS,
+  ...OFFER_COMPONENTS,
+] as const;
 
 export const CMS_COMPONENTS: readonly CmsComponentDef[] = CATALOGUE;
 

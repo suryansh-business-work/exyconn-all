@@ -1,0 +1,39 @@
+---
+/**
+ * 'company.link-cards' — cards that are each one link. Layout "work" is the about page's
+ * numbered list ("W/01"); "grid" is three cards a row.
+ */
+import "../../company/company.css";
+import LinkCard from "../../inner/LinkCard.astro";
+import { cmsText, type CmsCard } from "./types";
+
+type Props = Readonly<{
+  layout: "work" | "grid";
+  /** Mono index prefix, e.g. "W" → "W/01"; empty for none. */
+  indexPrefix?: string;
+  /** The words beside each card's arrow; empty for the arrow alone. */
+  more?: string;
+  items: readonly CmsCard[];
+}>;
+
+const { layout, indexPrefix, more, items } = Astro.props;
+const listClass = layout === "work" ? "company-work" : "grid gap-4 mt-10 md:grid-cols-3";
+const indexOf = (index: number) =>
+  indexPrefix ? `${indexPrefix}/${String(index + 1).padStart(2, "0")}` : undefined;
+---
+
+<ul class={listClass}>
+  {
+    items.map((item, index) => (
+      <li>
+        <LinkCard
+          href={item.href}
+          index={indexOf(index)}
+          title={item.title}
+          text={item.text}
+          more={cmsText(more)}
+        />
+      </li>
+    ))
+  }
+</ul>

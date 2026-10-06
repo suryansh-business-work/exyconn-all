@@ -1,0 +1,40 @@
+---
+/**
+ * 'company.quote' — the project budget calculator: the four-step form, the live summary
+ * beside it and what happens after an estimate is sent. Every word is a prop; the options,
+ * rates and arithmetic are code (src/lib/company/quote.ts). The section keeps .inner-section's
+ * own bottom padding (the hand-written page's .company-tail never won the cascade there).
+ */
+import "../../company/company.css";
+import { QuoteForm, QuoteSummary, type QuoteText } from "../../company/quote";
+import ActionLink from "../../inner/ActionLink.astro";
+import ChapterHeading from "../../inner/ChapterHeading.astro";
+import MultiStepFormShell from "../../inner/MultiStepFormShell.astro";
+import StepTrack from "../../inner/StepTrack.astro";
+import type { CmsAction } from "./types";
+
+type Props = Readonly<{
+  text: QuoteText;
+  after: { label: string; title: string; talkText: string; talkAction: CmsAction };
+  nextSteps: readonly { title: string; text: string }[];
+}>;
+
+const { text, after, nextSteps } = Astro.props;
+---
+
+<div class="inner-section stage-shell">
+  <MultiStepFormShell steps={text.steps} progressTemplate={text.progress}>
+    <QuoteForm client:load text={text} />
+    <QuoteSummary slot="summary" client:load text={text.summary} contactEmail={text.contactEmail} />
+    <section slot="after" class="mt-8 lg:col-span-2" aria-labelledby="next-steps">
+      <ChapterHeading index={1} id="next-steps" label={after.label} title={after.title} />
+      <div class="mt-10">
+        <StepTrack steps={nextSteps} />
+      </div>
+      <div class="mt-10 flex flex-wrap items-center gap-4">
+        <p class="inner-card__text">{after.talkText}</p>
+        <ActionLink action={after.talkAction} variant="ghost" />
+      </div>
+    </section>
+  </MultiStepFormShell>
+</div>

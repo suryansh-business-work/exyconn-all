@@ -1,0 +1,134 @@
+---
+/**
+ * 'offer.page' — the Hindi India offer: problems, the three packages, how it works, the
+ * comparison, every service, the enquiry form and the closing call. One component because
+ * the plans and features are one list read by the cards, the comparison and the form. The
+ * phone line appears only when Admin › Branding has a contact number.
+ */
+import "../../india/india-offer.css";
+import ChapterHeading from "../../inner/ChapterHeading.astro";
+import CtaBand from "../../inner/CtaBand.astro";
+import InnerStage from "../../inner/InnerStage.astro";
+import SplitFormShell from "../../inner/SplitFormShell.astro";
+import StepTrack from "../../inner/StepTrack.astro";
+import ContactChannels from "../../india/ContactChannels.astro";
+import OfferServices from "../../india/OfferServices.astro";
+import PlanCard from "../../india/PlanCard.astro";
+import PlanComparison from "../../india/PlanComparison.astro";
+import { IndiaOfferForm } from "../../forms/india-offer";
+import type { OfferPageProps } from "./types";
+import { contactChannels } from "../../../lib/india/contact";
+import { planFeaturesFromCms } from "../../../lib/india/plans";
+import type { CmsRenderContext } from "../../../lib/cms/types";
+
+type Props = OfferPageProps & Readonly<{ cms: CmsRenderContext }>;
+
+const { hero, problems, pricing, plans, steps, comparison, services, enquiry, cta, form } =
+  Astro.props;
+const features = planFeaturesFromCms(Astro.props.features);
+const channels = contactChannels(Astro.props.cms.branding.contactPhone, Astro.props.contact);
+---
+
+<div class="india-offer" lang="hi">
+  <InnerStage
+    family="contact"
+    crumbs={hero.crumbs}
+    title={hero.title}
+    lede={hero.lede}
+    primary={hero.primary}
+    secondary={hero.secondary}
+    scene={{ shapes: ["cubes"], data: { cubes: { cubes: plans.length } } }}
+  />
+
+  <section class="inner-section stage-shell" aria-labelledby="offer-problems">
+    <ChapterHeading index={1} label={problems.label} title={problems.title} id="offer-problems" />
+    <ul class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        problems.items.map((item) => (
+          <li class="inner-card">
+            <span class="offer-icon">
+              <i class={`fa-solid ${item.icon} icon-lg`} aria-hidden="true" />
+            </span>
+            <h3 class="inner-h3">{item.title}</h3>
+            <p class="inner-card__text">{item.text}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section id="plans" class="inner-section stage-shell" aria-labelledby="offer-plans">
+    <ChapterHeading
+      index={2}
+      label={pricing.label}
+      title={pricing.title}
+      lede={pricing.lede}
+      id="offer-plans"
+    />
+    <div class="mt-10 grid gap-4 md:grid-cols-3">
+      {
+        plans.map((plan, index) => (
+          <PlanCard
+            plan={plan}
+            features={features}
+            highlight={index + 1}
+            popularLabel={pricing.popular}
+            href={pricing.planHref}
+          />
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="inner-section stage-shell" aria-labelledby="offer-steps">
+    <ChapterHeading index={3} label={steps.label} title={steps.title} id="offer-steps" />
+    <div class="mt-10">
+      <StepTrack steps={steps.steps} />
+    </div>
+  </section>
+
+  <section class="inner-section stage-shell" aria-labelledby="offer-compare">
+    <ChapterHeading
+      index={4}
+      label={comparison.label}
+      title={comparison.title}
+      id="offer-compare"
+    />
+    <PlanComparison
+      plans={plans}
+      features={features}
+      caption={comparison.title}
+      featureLabel={comparison.feature}
+      yes={comparison.yes}
+      no={comparison.no}
+    />
+  </section>
+
+  <section class="inner-section stage-shell" aria-labelledby="offer-services">
+    <ChapterHeading
+      index={5}
+      label={services.label}
+      title={services.title}
+      lede={services.lede}
+      id="offer-services"
+    />
+    <OfferServices groups={services.groups} more={services.more} all={services.all} />
+  </section>
+
+  <section id="enquiry-form" class="inner-section">
+    <SplitFormShell
+      label={enquiry.label}
+      title={enquiry.title}
+      lede={enquiry.lede}
+      points={enquiry.points}
+      formLabel={enquiry.formLabel}
+    >
+      <IndiaOfferForm client:visible plans={plans} copy={form} />
+      <ContactChannels slot="aside" channels={channels} />
+    </SplitFormShell>
+  </section>
+
+  <CtaBand family="contact" title={cta.title} text={cta.text} primary={cta.primary}>
+    <ContactChannels channels={channels} />
+  </CtaBand>
+</div>

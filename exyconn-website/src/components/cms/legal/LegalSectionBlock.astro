@@ -1,0 +1,12 @@
+---
+/** 'legal.section' — a numbered legal section whose content is the blocks dropped inside it. */
+import LegalSection from "../../inner/LegalSection.astro";
+
+type Props = Readonly<{ id: string; number: number; title: string; anchorLabel: string }>;
+
+const { id, number, title, anchorLabel } = Astro.props;
+---
+
+<LegalSection id={id} number={number} title={title} anchorLabel={anchorLabel}>
+  <slot />
+</LegalSection>

@@ -1,21 +1,19 @@
 import { z } from "zod";
 import { INDIAN_MOBILE } from "@exyconn/regex";
 import { captchaAnswer, requiredEmail } from "../shared/fieldSchemas";
-import type { IndiaOfferFormValues } from "./india-offer.types";
+import type { IndiaOfferFormMessages, IndiaOfferFormValues } from "./india-offer.types";
 
-export const indiaOfferFormSchema = z.object({
-  name: z.string().min(1, "नाम ज़रूरी है").min(2, "नाम बहुत छोटा है").max(50, "नाम बहुत लंबा है"),
-  phone: z
-    .string()
-    .trim()
-    .min(1, "फ़ोन नंबर ज़रूरी है")
-    .regex(INDIAN_MOBILE, "सही 10 अंकों का मोबाइल नंबर डालें"),
-  email: requiredEmail("ईमेल ज़रूरी है", "सही ईमेल डालें"),
-  business: z.string().max(100, "बहुत लंबा है"),
-  plan: z.string().min(1, "कोई प्लान चुनें"),
-  message: z.string().max(500, "संदेश बहुत लंबा है"),
-  captcha: captchaAnswer("कैप्चा हल करें"),
-});
+/** The offer form's rules, with the messages the page's copy gives them. */
+export const indiaOfferFormSchema = (m: IndiaOfferFormMessages) =>
+  z.object({
+    name: z.string().min(1, m.nameRequired).min(2, m.nameTooShort).max(50, m.nameTooLong),
+    phone: z.string().trim().min(1, m.phoneRequired).regex(INDIAN_MOBILE, m.phoneInvalid),
+    email: requiredEmail(m.emailRequired, m.emailInvalid),
+    business: z.string().max(100, m.businessTooLong),
+    plan: z.string().min(1, m.planRequired),
+    message: z.string().max(500, m.messageTooLong),
+    captcha: captchaAnswer(m.captchaRequired),
+  });
 
 export const INDIA_OFFER_FORM_DEFAULTS: IndiaOfferFormValues = {
   name: "",
