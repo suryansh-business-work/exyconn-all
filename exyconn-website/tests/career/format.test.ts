@@ -1,7 +1,7 @@
 /** Careers text helpers, company facts and the JobPosting structured data. */
 import { describe, expect, it } from "vitest";
 import { companyFacts, hasText, socialLinks } from "../../src/lib/career/company";
-import { COMPANY_COPY } from "../../src/lib/career/copy";
+import { cmsComponent } from "@exyconn/cms";
 import {
   chapterNumbers,
   countLabel,
@@ -11,6 +11,12 @@ import {
 } from "../../src/lib/career/format";
 import { jobPostingJsonLd, placeParts } from "../../src/lib/career/structured-data";
 import { FIXTURE_COMPANIES, FIXTURE_JOBS } from "../fixtures/careers";
+
+// The company page's wording is the CMS's (catalogue defaults = what exyconn.com is seeded with).
+const COMPANY_COPY = cmsComponent("career.company")?.defaultProps as {
+  employees: string;
+  founded: string;
+};
 
 describe("format", () => {
   it("fills placeholders and leaves unknown ones", () => {

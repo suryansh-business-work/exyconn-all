@@ -5,6 +5,7 @@
  */
 import CmsPage from "../layouts/CmsPage.astro";
 import { getCmsPreview, getCmsSite } from "../lib/cms";
+import { loadCmsPage, routeLoadInput } from "../lib/cms/loaders";
 import { PortalRequestError } from "../lib/portal";
 
 const token = Astro.url.searchParams.get("token") ?? "";
@@ -26,11 +27,18 @@ try {
   throw error;
 }
 
-if (!page) {
+// A template's draft binds no params, so it has no item to show: a 404 like any missing item.
+const load = page
+  ? await loadCmsPage(
+      page.page,
+      routeLoadInput(site.site, { market: undefined, astroSite: Astro.site })
+    )
+  : null;
+if (!page || !load) {
   return new Response(null, { status: 404 });
 }
 Astro.response.headers.set("Cache-Control", "no-store");
 const path = page.page.path === "/" ? "" : page.page.path;
 ---
 
-<CmsPage site={site} page={page} path={path} />
+<CmsPage site={site} page={page} path={path} load={load} />

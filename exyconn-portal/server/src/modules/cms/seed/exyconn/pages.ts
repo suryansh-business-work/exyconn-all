@@ -16,6 +16,12 @@ import { SITEMAP_PAGE } from './pages/sitemap';
 import { SERVICE_PAGES } from './pages/services';
 import { AI_PAGES } from './pages/ai';
 import { AI_SERVICE_PAGES } from './pages/ai-services';
+import { BLOG_PAGES } from './pages/blog';
+import { CASE_STUDY_PAGES } from './pages/case-studies';
+import { CAREER_PAGES } from './pages/career';
+import { TOOLS_PAGES } from './pages/tools';
+import { POLICY_PAGES } from './pages/policies';
+import { NEWSLETTER_PAGES } from './pages/newsletter';
 
 /** Every migrated page of exyconn.com, one file per page or area under pages/. */
 export const EXYCONN_PAGES: CmsSeedPage[] = [
@@ -37,4 +43,10 @@ export const EXYCONN_PAGES: CmsSeedPage[] = [
   ...SERVICE_PAGES,
   ...AI_PAGES,
   ...AI_SERVICE_PAGES,
+  ...BLOG_PAGES,
+  ...CASE_STUDY_PAGES,
+  ...CAREER_PAGES,
+  ...TOOLS_PAGES,
+  ...POLICY_PAGES,
+  ...NEWSLETTER_PAGES,
 ];

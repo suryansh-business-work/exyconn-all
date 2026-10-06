@@ -1,4 +1,7 @@
-/* Portal-content blocks (cards, empty states, share, device frame). Colour only from roles. */
+/* Portal-content blocks (cards, empty states, share, device frame). Colour only from roles.
+   A card is also an .inner-card, and its labels .stage-label (inner-stage.css, home-stage.css):
+   the rules that override those name both classes, so they win wherever the stylesheets land
+   in a page (a CMS page bundles every section's stylesheet). */
 .content-card {
   list-style: none;
 }
@@ -9,7 +12,7 @@
 
 /* The lead item: cover left, text right, across the whole grid. */
 @media (min-width: 1024px) {
-  .content-card--wide .content-card__body {
+  .content-card--wide .inner-card.content-card__body {
     display: grid;
     grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
     grid-auto-rows: min-content;
@@ -31,7 +34,7 @@
   }
 }
 
-.content-card__body {
+.inner-card.content-card__body {
   position: relative;
   padding: var(--space-4) var(--space-4) var(--space-6);
   transition:
@@ -73,13 +76,13 @@
   transform: scale(1.03);
 }
 
-.content-card__placeholder {
+.content-card__placeholder.stage-label {
   position: absolute;
   inset: auto var(--space-4) var(--space-4);
   color: var(--color-fg);
 }
 
-.content-card__badge {
+.content-card__badge.stage-label {
   position: absolute;
   top: var(--space-3);
   left: var(--space-3);
@@ -89,7 +92,7 @@
   color: var(--color-fg);
 }
 
-.content-card__title--wide {
+.inner-h3.content-card__title--wide {
   font-size: clamp(1.4rem, 2.6vw, 2rem);
 }
 
@@ -156,7 +159,7 @@
   }
 }
 
-.content-empty__label {
+.content-empty__label.stage-label {
   color: var(--accent-a-ink, var(--color-fg-secondary));
 }
 

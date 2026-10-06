@@ -10,6 +10,12 @@ import { DETAIL_COMPONENTS } from './detail';
 import { SERVICE_COMPONENTS } from './service';
 import { AI_COMPONENTS } from './ai';
 import { AISERVICE_COMPONENTS } from './aiservice';
+import { BLOG_COMPONENTS } from './blog';
+import { CASESTUDY_COMPONENTS } from './casestudy';
+import { CAREER_COMPONENTS } from './career';
+import { TOOLS_COMPONENTS } from './tools';
+import { POLICY_COMPONENTS } from './policy';
+import { NEWSLETTER_COMPONENTS } from './newsletter';
 
 export type { CmsComponentDef } from './types';
 
@@ -29,6 +35,12 @@ const CATALOGUE = [
   ...SERVICE_COMPONENTS,
   ...AI_COMPONENTS,
   ...AISERVICE_COMPONENTS,
+  ...BLOG_COMPONENTS,
+  ...CASESTUDY_COMPONENTS,
+  ...CAREER_COMPONENTS,
+  ...TOOLS_COMPONENTS,
+  ...POLICY_COMPONENTS,
+  ...NEWSLETTER_COMPONENTS,
 ] as const;
 
 export const CMS_COMPONENTS: readonly CmsComponentDef[] = CATALOGUE;
@@ -45,3 +57,9 @@ const BY_KEY = new Map(CMS_COMPONENTS.map((component) => [component.key, compone
 export function cmsComponent(key: string): CmsComponentDef | undefined {
   return BY_KEY.get(key);
 }
+
+/** The props a component takes, as its catalogue defaults shape them. */
+export type CmsComponentProps<K extends CmsComponentKey> = Extract<
+  (typeof CATALOGUE)[number],
+  { key: K }
+>['defaultProps'];

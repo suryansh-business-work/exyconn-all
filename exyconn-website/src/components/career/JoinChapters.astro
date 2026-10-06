@@ -4,45 +4,33 @@ import ChapterHeading from "../inner/ChapterHeading.astro";
 import FaqAccordion from "../inner/FaqAccordion.astro";
 import StepTrack from "../inner/StepTrack.astro";
 import PerkGrid from "./PerkGrid.astro";
-import {
-  CAREER_PERKS,
-  CAREERS_COPY as copy,
-  CAREERS_EMAIL,
-  CAREERS_FAQ,
-  HIRING_STEPS,
-} from "../../lib/career/copy";
-import { fill } from "../../lib/career/format";
+import type { CareerIndexCopy } from "./types";
 
-type Props = Readonly<{ start: number }>;
+type Props = Readonly<{ start: number } & Pick<CareerIndexCopy, "why" | "hiring" | "faq">>;
 
-const { start } = Astro.props;
+const { start, why, hiring, faq } = Astro.props;
 ---
 
 <section class="inner-section stage-shell" aria-labelledby="why-title">
   <ChapterHeading
     index={start}
-    label={copy.whyLabel}
-    title={copy.whyTitle}
-    lede={copy.whyLede}
+    label={why.label}
+    title={why.title}
+    lede={why.lede}
     id="why-title"
   />
-  <PerkGrid items={CAREER_PERKS} />
+  <PerkGrid items={why.perks} />
 </section>
 
 <section class="inner-section stage-shell" aria-labelledby="hiring-title">
-  <ChapterHeading
-    index={start + 1}
-    label={copy.hiringLabel}
-    title={copy.hiringTitle}
-    id="hiring-title"
-  />
-  <div class="mt-10"><StepTrack steps={HIRING_STEPS} /></div>
+  <ChapterHeading index={start + 1} label={hiring.label} title={hiring.title} id="hiring-title" />
+  <div class="mt-10"><StepTrack steps={hiring.steps} /></div>
 </section>
 
 <section class="inner-section stage-shell" aria-labelledby="faq-title">
-  <ChapterHeading index={start + 2} label={copy.faqLabel} title={copy.faqTitle} id="faq-title" />
+  <ChapterHeading index={start + 2} label={faq.label} title={faq.title} id="faq-title" />
   <div class="mt-10 career-column">
-    <FaqAccordion items={CAREERS_FAQ} />
-    <p class="inner-card__text mt-8">{fill(copy.accommodations, { email: CAREERS_EMAIL })}</p>
+    <FaqAccordion items={faq.items} />
+    <p class="inner-card__text mt-8">{faq.accommodations}</p>
   </div>
 </section>

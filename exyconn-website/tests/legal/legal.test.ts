@@ -1,3 +1,4 @@
+import { cmsComponent } from "@exyconn/cms";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { readerDate } from "../../src/lib/legal/dates";
 import {
@@ -11,6 +12,10 @@ import { LEGAL_LINKS, relatedLegalLinks } from "../../src/lib/legal/related";
 import * as legal from "../../src/lib/legal";
 import type { PublicPolicy } from "../../src/lib/portal/types";
 import { cmsDefaults } from "../cms-defaults";
+
+// The policies pages' wording is the CMS's (catalogue defaults = what exyconn.com is seeded with).
+const LIST = cmsComponent("policy.list")?.defaultProps as { meta: string };
+const DETAIL = cmsComponent("policy.detail")?.defaultProps as { versionLine: string };
 
 const policy: PublicPolicy = {
   title: "Acceptable use",
@@ -87,18 +92,18 @@ describe("policies", () => {
   });
 
   it("formats a row and the plain summary in the reader's locale", () => {
-    expect(policyRow(policy, "en-GB")).toEqual({
+    expect(policyRow(policy, "en-GB", LIST.meta)).toEqual({
       href: "/policies/acceptable-use",
       title: "Acceptable use",
       summary: "What you may do with our services.",
       meta: "Version 3 · Effective 5 January 2026 · Updated 10 February 2026",
       updatedIso: "2026-02-10",
     });
-    expect(policySummary(policy, "en-US")).toEqual([
+    expect(policySummary(policy, "en-US", DETAIL.versionLine)).toEqual([
       "What you may do with our services.",
       "Version 3, in effect from January 5, 2026.",
     ]);
-    expect(policySummary({ ...policy, summary: "" }, "en-US")).toHaveLength(1);
+    expect(policySummary({ ...policy, summary: "" }, "en-US", DETAIL.versionLine)).toHaveLength(1);
   });
 
   it("stacks one sheet per policy, up to eight", () => {

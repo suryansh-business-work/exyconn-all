@@ -1,0 +1,18 @@
+---
+/**
+ * One newsletter issue (CMS component 'newsletter.issue', the /newsletter/:slug template).
+ * The page's loader read the issue; an unknown slug is a 404 before this renders.
+ */
+import type { CmsComponentProps } from "@exyconn/cms";
+import NewsletterIssueBody from "./NewsletterIssueBody.astro";
+import { detailOf } from "../../lib/cms/loaders";
+import type { IssueDetail } from "../../lib/cms/loaders/newsletter";
+import type { CmsRenderContext } from "../../lib/cms/types";
+
+type Props = Readonly<CmsComponentProps<"newsletter.issue"> & { cms: CmsRenderContext }>;
+
+const { cms, ...props } = Astro.props;
+const detail = detailOf<IssueDetail>(cms, "newsletter.issue");
+---
+
+{detail && <NewsletterIssueBody {...props} detail={detail} />}

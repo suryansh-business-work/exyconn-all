@@ -1,0 +1,131 @@
+---
+/**
+ * The tools directory (CMS component 'tools.list'): the band with one cube per tool, the
+ * filterable directory by category or the empty state, and the call to action. Words from the
+ * props; tools and categories from Website › Tools.
+ */
+import type { CmsComponentProps } from "@exyconn/cms";
+import ContentEmpty from "../content/ContentEmpty.astro";
+import ToolCard from "../content/ToolCard.astro";
+import ChapterHeading from "../inner/ChapterHeading.astro";
+import CtaBand from "../inner/CtaBand.astro";
+import FilterBar from "../inner/FilterBar.astro";
+import InnerStage from "../inner/InnerStage.astro";
+import { cssColor, cubeCount, MAX_CUBES, monogram, toolCatalogue } from "../../lib/content/tools";
+import { getToolCategories, getToolLaunchUrl, getTools, isToolAppSlug } from "../../lib/portal";
+
+type Props = Readonly<CmsComponentProps<"tools.list">>;
+
+const copy = Astro.props;
+const { filters, empty, cta } = copy;
+const [categories, tools] = await Promise.all([getToolCategories(), getTools()]);
+const catalogue = toolCatalogue(categories, tools);
+const total = catalogue.entries.length;
+const early = catalogue.entries.filter(({ tool }) => tool.isMVP).length;
+const stats = copy.stats
+  .replace("{tools}", String(total))
+  .replace("{categories}", String(catalogue.categories.length));
+---
+
+<InnerStage
+  family="services"
+  crumbs={copy.crumbs}
+  title={copy.title}
+  lede={copy.lede}
+  primary={total > 0 ? copy.appLink : undefined}
+  scene={{ shapes: ["cubes"], data: { cubes: { cubes: cubeCount(total) } } }}
+>
+  {
+    total > 0 && (
+      <p class="inner-meta stage-label">
+        <span>{stats}</span>
+        {early > 0 && <span>{copy.early.replace("{count}", String(early))}</span>}
+      </p>
+    )
+  }
+</InnerStage>
+
+<section class="inner-section stage-shell" aria-labelledby="tools-directory">
+  <ChapterHeading
+    index={1}
+    label={copy.chapterLabel}
+    title={copy.chapterTitle}
+    id="tools-directory"
+  />
+  {
+    total === 0 ? (
+      <div class="mt-10">
+        <ContentEmpty
+          label={empty.label}
+          title={empty.title}
+          text={empty.text}
+          primary={empty.primary}
+          secondary={empty.secondary}
+          level="h3"
+        />
+      </div>
+    ) : (
+      <>
+        <div class="mt-10">
+          <FilterBar
+            target="tools"
+            label={filters.label}
+            sheetLabel={filters.sheetLabel}
+            groups={[
+              {
+                param: "cat",
+                label: filters.categoryLabel,
+                allLabel: filters.all,
+                options: catalogue.categories.map(({ category }) => ({
+                  value: category.slug,
+                  label: category.category,
+                })),
+              },
+            ]}
+            search={{
+              param: "q",
+              label: filters.searchLabel,
+              placeholder: filters.searchPlaceholder,
+            }}
+            countTemplate={filters.countTemplate}
+          />
+        </div>
+        <ul id="tools" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-8">
+          {catalogue.entries.map(({ tool, category }, index) => (
+            <ToolCard
+              href={`/our-tools/${tool.toolCode}`}
+              name={tool.name}
+              description={tool.description}
+              category={category.category}
+              mark={monogram(tool.name)}
+              tint={cssColor(tool.color || category.color)}
+              badge={tool.isMVP ? copy.mvp : undefined}
+              details={copy.details}
+              open={
+                isToolAppSlug(tool)
+                  ? { label: copy.open, href: getToolLaunchUrl(tool), note: copy.opensApp }
+                  : undefined
+              }
+              highlight={index < MAX_CUBES ? index + 1 : undefined}
+              data-filter-item
+              data-filter-cat={category.slug}
+              data-search={`${tool.name} ${tool.description} ${tool.keywords.join(" ")}`}
+            />
+          ))}
+        </ul>
+        <p data-filter-empty="tools" class="inner-panel p-6 mt-6 text-fg-secondary" hidden>
+          {copy.noMatch}
+        </p>
+      </>
+    )
+  }
+</section>
+
+<CtaBand
+  family="services"
+  label={cta.label}
+  title={cta.title}
+  text={cta.text}
+  primary={cta.primary}
+  secondary={cta.secondary}
+/>

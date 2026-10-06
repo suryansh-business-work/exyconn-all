@@ -1,5 +1,6 @@
 import { getPublicPolicies, getPublicPolicy } from "../portal/queries";
 import type { PublicPolicy } from "../portal/types";
+import { fill } from "../career/format";
 import { readerDate } from "./dates";
 
 export type PolicyListResult =
@@ -49,22 +50,37 @@ export interface PolicyRow {
   updatedIso: string;
 }
 
-export function policyRow(policy: PublicPolicy, locale: string): PolicyRow {
+/**
+ * One row of the policies index. `metaTemplate` is the page's copy, e.g.
+ * "Version {version} · Effective {effective} · Updated {updated}".
+ */
+export function policyRow(policy: PublicPolicy, locale: string, metaTemplate: string): PolicyRow {
   const effective = readerDate(policy.effectiveDate, locale);
   const updated = readerDate(policy.updatedAt, locale);
   return {
     href: `/policies/${policy.slug}`,
     title: policy.title,
     summary: policy.summary,
-    meta: `Version ${policy.version} · Effective ${effective.text} · Updated ${updated.text}`,
+    meta: fill(metaTemplate, {
+      version: policy.version,
+      effective: effective.text,
+      updated: updated.text,
+    }),
     updatedIso: updated.iso,
   };
 }
 
-/** The plain-words points above a policy: its own summary, then its version and start date. */
-export function policySummary(policy: PublicPolicy, locale: string): string[] {
+/**
+ * The plain-words points above a policy: its own summary, then its version and start date
+ * (`versionTemplate`, e.g. "Version {version}, in effect from {effective}.").
+ */
+export function policySummary(
+  policy: PublicPolicy,
+  locale: string,
+  versionTemplate: string
+): string[] {
   const effective = readerDate(policy.effectiveDate, locale).text;
-  const version = `Version ${policy.version}, in effect from ${effective}.`;
+  const version = fill(versionTemplate, { version: policy.version, effective });
   return policy.summary ? [policy.summary, version] : [version];
 }
 

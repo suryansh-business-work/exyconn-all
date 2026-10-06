@@ -1,0 +1,18 @@
+---
+/**
+ * One tool (CMS component 'tools.detail', the /our-tools/:toolCode template). The page's
+ * loader read the tool; an unknown code is a 404 before this renders.
+ */
+import type { CmsComponentProps } from "@exyconn/cms";
+import ToolDetailBody from "./ToolDetailBody.astro";
+import { detailOf } from "../../lib/cms/loaders";
+import type { ToolDetail } from "../../lib/cms/loaders/tools";
+import type { CmsRenderContext } from "../../lib/cms/types";
+
+type Props = Readonly<CmsComponentProps<"tools.detail"> & { cms: CmsRenderContext }>;
+
+const { cms, ...props } = Astro.props;
+const detail = detailOf<ToolDetail>(cms, "tools.detail");
+---
+
+{detail && <ToolDetailBody {...props} detail={detail} />}

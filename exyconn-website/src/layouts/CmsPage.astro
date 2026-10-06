@@ -6,20 +6,19 @@
  * fragments around it — unless the page's layout is "bare".
  */
 import { customFontCss, googleFontsHref } from "../lib/cms/fonts";
-import type { JsonLdNode } from "@exyconn/seo";
 import SiteShell from "./SiteShell.astro";
 import CmsBlocks from "../components/cms/CmsBlocks.astro";
 import {
   cmsVariables,
   designSystemCss,
-  fillCopy,
-  fillJsonLd,
   fragmentsCss,
   renderContext,
   safeCss,
   type CmsPublicPage,
   type CmsPublicSite,
 } from "../lib/cms";
+import { filledSeo } from "../lib/cms/loaders/seo";
+import type { PageLoad } from "../lib/cms/loaders";
 import { DEFAULT_MARKET, marketUrl } from "../lib/i18n/markets";
 import { BRANDING_FALLBACK, getBrandingSafe } from "../lib/portal";
 
@@ -28,21 +27,29 @@ interface Props {
   page: CmsPublicPage;
   /** The page's path without a market prefix; "" for the home page. */
   path: string;
+  /** What the page's loader read before rendering (lib/cms/loaders). */
+  load?: PageLoad;
 }
 
-const { site: siteData, page: pageData, path } = Astro.props;
+const { site: siteData, page: pageData, path, load = {} } = Astro.props;
 const { site, designSystem } = siteData;
 const { page } = pageData;
 
 const branding = await getBrandingSafe();
 const variables = await cmsVariables(site.id);
 const fragments = [...siteData.fragments, ...pageData.fragments];
-const context = renderContext(site.id, branding, variables, page.params, fragments);
+const detail = load.source ? { key: load.source, item: load.item } : null;
+const context = renderContext(
+  site.id,
+  branding,
+  variables,
+  page.params,
+  fragments,
+  site.slug,
+  detail
+);
 const headerBlocks = context.fragments.get(site.headerFragmentId) ?? [];
 const footerBlocks = context.fragments.get(site.footerFragmentId) ?? [];
-
-const pageTitle = fillCopy(page.seo.title || page.title, variables);
-const title = (site.seo.titleTemplate || "%s").replaceAll("%s", pageTitle);
 // A site served without markets is canonical on its own first domain.
 const siteUrl =
   site.markets || site.domains.length === 0 ? undefined : `https://${site.domains[0]}`;
@@ -55,10 +62,8 @@ const jsonLdValues = {
   marketUrl: market ? `${origin}${marketUrl(market, "/")}` : origin,
   businessName: branding.businessName || BRANDING_FALLBACK.businessName,
 };
-const jsonLd =
-  page.seo.jsonLd && typeof page.seo.jsonLd === "object"
-    ? (fillJsonLd(page.seo.jsonLd, jsonLdValues) as JsonLdNode | JsonLdNode[])
-    : undefined;
+const seo = filledSeo(page, site.seo, load, jsonLdValues);
+const title = (site.seo.titleTemplate || "%s").replaceAll("%s", seo.title);
 
 // The design system's own fonts: Google Fonts in one stylesheet, uploaded families as @font-face.
 const googleFonts = googleFontsHref(designSystem?.tokens);
@@ -76,12 +81,13 @@ const styles = [
 
 <SiteShell
   title={title}
-  description={fillCopy(page.seo.description || site.seo.description, variables)}
-  keywords={page.seo.keywords}
-  metaImage={page.seo.ogImageUrl || site.seo.ogImageUrl}
+  description={seo.description}
+  keywords={seo.keywords}
+  metaImage={seo.metaImage}
   canonical={page.seo.canonical}
-  noindex={page.seo.noindex || page.preview}
-  jsonLd={jsonLd}
+  noindex={page.seo.noindex || page.preview || load.noindex === true}
+  ogType={load.ogType}
+  jsonLd={seo.jsonLd}
   branding={branding}
   siteFavicon={site.faviconUrl}
   markets={site.markets}

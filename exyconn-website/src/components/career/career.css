@@ -1,5 +1,7 @@
 /* Careers pages (index, gigs, gig, company, job) on top of styles/inner-stage.css. Body blocks
-   follow the site theme; the chips in the night band read the band's dark tokens. Tokens only. */
+   follow the site theme; the chips in the night band read the band's dark tokens. Tokens only.
+   A rule that overrides an inner-stage.css class names both classes, so it wins wherever the
+   two stylesheets land in a page (a CMS page bundles every section's stylesheet). */
 
 .career-anchor {
   scroll-margin-top: var(--inner-sticky-top);
@@ -73,7 +75,8 @@
   color: var(--color-fg-secondary);
 }
 
-.career-flag {
+.career-flag,
+.inner-chip.career-flag {
   display: inline-flex;
   align-items: center;
   min-height: 1.75rem;

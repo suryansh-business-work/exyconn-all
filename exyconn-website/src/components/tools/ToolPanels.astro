@@ -1,0 +1,52 @@
+---
+/** A tool's about, use-case and pricing panels — whichever it has. */
+import type { Tool } from "../../lib/portal/types";
+
+type Props = Readonly<{ tool: Tool; about: string; useCases: string; pricing: string }>;
+
+const { tool, about, useCases, pricing: pricingTitle } = Astro.props;
+const pricing = tool.pricing;
+---
+
+<div class="grid gap-6 lg:grid-cols-3">
+  <div class="grid gap-6 lg:col-span-2 content-start">
+    {
+      tool.longDescription && (
+        <div class="inner-panel p-6 md:p-8">
+          <h2 class="inner-h3">{about}</h2>
+          <p class="inner-card__text mt-3 whitespace-pre-line">{tool.longDescription}</p>
+        </div>
+      )
+    }
+    {
+      tool.useCases.length > 0 && (
+        <div class="inner-panel p-6 md:p-8">
+          <h2 class="inner-h3">{useCases}</h2>
+          <ul class="inner-chips mt-4">
+            {tool.useCases.map((useCase) => (
+              <li class="inner-chip">{useCase}</li>
+            ))}
+          </ul>
+        </div>
+      )
+    }
+  </div>
+  {
+    pricing && (
+      <div class="inner-panel p-6 md:p-8 self-start">
+        <h2 class="inner-h3">{pricingTitle}</h2>
+        <p class="inner-metric__value mt-4">
+          {pricing.currency} {pricing.price}
+        </p>
+        {pricing.alterationNote && <p class="inner-card__text mt-3">{pricing.alterationNote}</p>}
+        {pricing.features.length > 0 && (
+          <ul class="content-checks mt-5">
+            {pricing.features.map((feature) => (
+              <li>{feature}</li>
+            ))}
+          </ul>
+        )}
+      </div>
+    )
+  }
+</div>

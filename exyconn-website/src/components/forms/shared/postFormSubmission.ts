@@ -15,16 +15,17 @@ export async function fetchCaptcha(): Promise<CaptchaChallenge> {
 }
 
 /**
- * Hands a website form to the server route that stores it. Resolves "captcha" when the
- * security answer was refused — the caller shows a new question — and throws on any other
- * failure.
+ * Hands a website form to the server route that stores it (`endpoint`: the form inbox, or
+ * another route such as the newsletter's). Resolves "captcha" when the security answer was
+ * refused — the caller shows a new question — and throws on any other failure.
  */
 export async function postFormSubmission(
   formType: string,
   payload: Record<string, unknown>,
-  captcha: { token: string; answer: string }
+  captcha: { token: string; answer: string },
+  endpoint = "/api/form-submit"
 ): Promise<SendOutcome> {
-  const res = await fetch("/api/form-submit", {
+  const res = await fetch(endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

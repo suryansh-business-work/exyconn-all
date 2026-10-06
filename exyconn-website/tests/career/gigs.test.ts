@@ -1,6 +1,6 @@
 /** Gig shaping for the careers pages: the shared category map, pay, apply links, filters. */
 import { describe, expect, it } from "vitest";
-import { GIG_COPY } from "../../src/lib/career/copy";
+import { cmsComponent } from "@exyconn/cms";
 import {
   gigApplyLink,
   gigCategoryOptions,
@@ -13,6 +13,9 @@ import {
 } from "../../src/lib/career/gigs";
 import { gigCategoryColors, groupByGigCategory } from "../../src/lib/gigCategoryColors";
 import { FIXTURE_GIGS } from "../fixtures/careers";
+
+// The gig page's wording is the CMS's (catalogue defaults = what exyconn.com is seeded with).
+const GIG_COPY = cmsComponent("career.gig")?.defaultProps as { apply: { subject: string } };
 
 const [first] = FIXTURE_GIGS;
 const open = FIXTURE_GIGS.filter(isOpenGig);
@@ -101,7 +104,7 @@ describe("gig facts", () => {
 });
 
 describe("gig apply link", () => {
-  const subject = GIG_COPY.applySubject;
+  const subject = GIG_COPY.apply.subject;
 
   it("emails the contact with the subject filled in", () => {
     expect(gigApplyLink(first, subject)).toEqual({

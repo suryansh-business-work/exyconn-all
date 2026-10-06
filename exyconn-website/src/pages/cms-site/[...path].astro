@@ -6,14 +6,25 @@
  */
 import CmsPage from "../../layouts/CmsPage.astro";
 import { getCmsPage } from "../../lib/cms";
+import { loadCmsPage, routeLoadInput } from "../../lib/cms/loaders";
 
 const site = Astro.locals.cmsSite;
 const rest = Astro.params.path ?? "";
 const page = site ? await getCmsPage(site.site.id, `/${rest}`) : null;
 
-if (!site || !page) {
+const load =
+  site && page
+    ? await loadCmsPage(
+        page.page,
+        routeLoadInput(site.site, { market: undefined, astroSite: Astro.site })
+      )
+    : null;
+if (!site || !page || !load) {
   return new Response(null, { status: 404 });
+}
+if (load.status) {
+  Astro.response.status = load.status;
 }
 ---
 
-<CmsPage site={site} page={page} path={rest === "" ? "" : `/${rest}`} />
+<CmsPage site={site} page={page} path={rest === "" ? "" : `/${rest}`} load={load} />

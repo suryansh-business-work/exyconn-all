@@ -15,8 +15,15 @@ export interface MountedCaptcha {
 const LOAD_FAILED = "The security question could not be loaded. Please try a new one.";
 const WRONG_ANSWER = "That answer was not right. Please try the new question.";
 
-/** Brings a CaptchaBlock to life. Returns null if the block is not on the page. */
-export function mountCaptcha(root: ParentNode, id: string): MountedCaptcha | null {
+/**
+ * Brings a CaptchaBlock to life; its sends go to `endpoint` (the form inbox unless given).
+ * Returns null if the block is not on the page.
+ */
+export function mountCaptcha(
+  root: ParentNode,
+  id: string,
+  endpoint?: string
+): MountedCaptcha | null {
   const block = root.querySelector<HTMLElement>(`[data-captcha="${id}"]`);
   const question = block?.querySelector<HTMLElement>("[data-captcha-question]");
   const input = block?.querySelector<HTMLInputElement>("[data-captcha-answer]");
@@ -54,10 +61,8 @@ export function mountCaptcha(root: ParentNode, id: string): MountedCaptcha | nul
     send: async (formType, payload) => {
       setError("");
       try {
-        const outcome = await postFormSubmission(formType, payload, {
-          token,
-          answer: input.value.trim(),
-        });
+        const answer = { token, answer: input.value.trim() };
+        const outcome = await postFormSubmission(formType, payload, answer, endpoint);
         if (outcome === "captcha") setError(WRONG_ANSWER);
         return outcome;
       } finally {

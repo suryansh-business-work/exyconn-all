@@ -9,7 +9,7 @@ import ChapterHeading from "../inner/ChapterHeading.astro";
 import FilterBar from "../inner/FilterBar.astro";
 import type { InnerAction } from "../inner/types";
 import RoleGroups from "./RoleGroups.astro";
-import { CAREERS_COPY as copy } from "../../lib/career/copy";
+import type { RoleListCopy } from "./types";
 import { groupRolesByDepartment, roleFilterOptions } from "../../lib/career/roles";
 import type { JobWithCompany } from "../../lib/portal/types";
 
@@ -28,9 +28,10 @@ type Props = Readonly<{
     secondary?: InnerAction;
   };
   showCompany?: boolean;
+  copy: RoleListCopy;
 }>;
 
-const { id, index, label, title, lede, roles, empty, showCompany = true } = Astro.props;
+const { id, index, label, title, lede, roles, empty, showCompany = true, copy } = Astro.props;
 const groups = groupRolesByDepartment(roles);
 const filters = roleFilterOptions(roles);
 const chipGroups = [

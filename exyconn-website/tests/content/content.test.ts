@@ -3,17 +3,15 @@
  * functions over portal rows. The populated cases use the local fixtures; empty cases use [].
  */
 import { describe, expect, it } from "vitest";
+import { cmsComponent } from "@exyconn/cms";
 import {
-  ARTICLE_COPY,
   articleSheets,
-  BLOG_COPY,
   blogConstellation,
   GENERIC_CONSTELLATION,
   leadPost,
   relatedPosts,
 } from "../../src/lib/content/blog";
 import {
-  CASE_STUDIES_COPY,
   extractMetrics,
   listTerrain,
   storyMetrics,
@@ -37,13 +35,7 @@ import {
 } from "../../src/lib/content/sitemap";
 import { articleJsonLd } from "../../src/lib/content/structured-data";
 import { cmsDefaults } from "../cms-defaults";
-import {
-  cssColor,
-  cubeCount,
-  monogram,
-  toolCatalogue,
-  TOOLS_COPY,
-} from "../../src/lib/content/tools";
+import { cssColor, cubeCount, monogram, toolCatalogue } from "../../src/lib/content/tools";
 import { marketByPath } from "../../src/lib/i18n/markets";
 import {
   FIXTURE_NAV_LINKS,
@@ -162,14 +154,16 @@ describe("blog", () => {
   });
 
   it("keeps outcome-led titles of at most eight words", () => {
+    // The list pages' titles are the CMS's (catalogue defaults = exyconn.com's seeded pages).
+    const cmsTitle = (key: string) => String(cmsComponent(key)?.defaultProps.title ?? "");
     [
-      BLOG_COPY.title,
-      CASE_STUDIES_COPY.title,
-      TOOLS_COPY.heading,
+      cmsTitle("blog.list"),
+      cmsTitle("casestudy.list"),
+      cmsTitle("tools.list"),
       cmsDefaults<{ title: string }>("company.sitemap").title,
       NOT_FOUND_COPY.title,
     ].forEach((title) => expect(title.split(" ").length).toBeLessThanOrEqual(8));
-    expect(ARTICLE_COPY.toc).not.toBe("");
+    expect(cmsComponent("blog.article")?.defaultProps.tocLabel).not.toBe("");
   });
 });
 

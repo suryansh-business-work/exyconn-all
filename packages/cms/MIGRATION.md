@@ -82,6 +82,24 @@ code needs is read from the CMS: the AI service catalogue is the `aiservice.cata
 `/ai-services` (`src/lib/cms/ai-services.ts`), which the home catalogue, sitemap.xml, the human
 sitemap and the `{serviceCount}`/`{categoryCount}` variables read. JSON-LD URLs that carry the
 reader's market are written with `{market}` (filled by `CmsPage`, with the copy variables).
+## Templates and pages that read before rendering
+
+A detail route (`/blog/:slug`) becomes a TEMPLATE page whose component reads the item. The head
+is written before the body, so whatever the head or the status needs is read first by the
+component's **page loader** (`exyconn-website/src/lib/cms/loaders`, keyed by component key in
+`PAGE_LOADERS`): the routes run the loader of the page's first component that has one.
+
+- It returns `null` for a missing item — the route answers the usual 404 — or a `PageLoad`:
+  `item` (reaches the component as `cms.detail`; read it with `detailOf(cms, key)`), `vars`
+  (fill `{placeholders}` in the page's SEO: the seeded template title is `{title} | Exyconn Blog`),
+  `jsonLd` (after the page's own), `ogType`, `noindex` and `status` (e.g. 503 with a notice).
+- A list page's loader can build its breadcrumb JSON-LD from the same `crumbs` prop its band
+  shows (`crumbsLoader`), so editing a crumb edits both.
+- Collections are read for the page's site: `cms.site` (the site's slug) goes to the portal's
+  public queries as `site`.
+- Render a component's markup in one file where the old page did: a `<script>` of a component
+  rendered inside a sub-component moves in the HTML, and prettier re-wraps short text children
+  (whitespace in the output). Worked examples: blog, case studies, careers, tools, policies.
 
 ## Proving parity (two steps)
 

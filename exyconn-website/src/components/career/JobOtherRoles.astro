@@ -1,0 +1,44 @@
+---
+/** "Other roles at {name}" under a role: up to three of the company's other roles. */
+import ChapterHeading from "../inner/ChapterHeading.astro";
+import RoleRow from "../inner/RoleRow.astro";
+import { fill } from "../../lib/career/format";
+import { roleHref } from "../../lib/career/roles";
+import type { Job, JobCompany } from "../../lib/portal/types";
+
+type Props = Readonly<{
+  roles: readonly Job[];
+  company: JobCompany;
+  label: string;
+  /** e.g. "Other roles at {name}". */
+  title: string;
+  /** e.g. "All roles at {name}". */
+  more: string;
+}>;
+
+const { roles, company, label, title, more } = Astro.props;
+const name = company.name;
+---
+
+{
+  roles.length > 0 && (
+    <section class="inner-section stage-shell" aria-labelledby="other-roles">
+      <ChapterHeading index={2} label={label} title={fill(title, { name })} id="other-roles" />
+      <ul class="career-group__list mt-10">
+        {roles.map((other) => (
+          <RoleRow
+            href={roleHref(other)}
+            title={other.title}
+            department={other.category}
+            location={other.location || other.workMode}
+            type={`${other.jobType} · ${other.workMode}`}
+            pay={other.salaryRange || undefined}
+          />
+        ))}
+      </ul>
+      <a href={`/career/company/${company.slug}`} class="inner-action inner-action--ghost mt-8">
+        {fill(more, { name })}
+      </a>
+    </section>
+  )
+}

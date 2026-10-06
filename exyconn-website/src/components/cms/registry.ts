@@ -59,6 +59,22 @@ import AiServiceApproach from "./aiservice/AiServiceApproach.astro";
 import AiServiceCatalogue from "./aiservice/AiServiceCatalogue.astro";
 import AiServiceOutcomes from "./aiservice/AiServiceOutcomes.astro";
 import AiServiceRelated from "./aiservice/AiServiceRelated.astro";
+import BlogArticle from "../blog/BlogArticle.astro";
+import BlogList from "../blog/BlogList.astro";
+import CaseStudyArticle from "../case-studies/CaseStudyArticle.astro";
+import CaseStudyList from "../case-studies/CaseStudyList.astro";
+import CareerCompany from "../career/CareerCompany.astro";
+import CareerGig from "../career/CareerGig.astro";
+import CareerGigs from "../career/CareerGigs.astro";
+import CareerIndex from "../career/CareerIndex.astro";
+import CareerJob from "../career/CareerJob.astro";
+import ToolDetail from "../tools/ToolDetail.astro";
+import ToolsList from "../tools/ToolsList.astro";
+import PolicyDetail from "../policies/PolicyDetail.astro";
+import PolicyList from "../policies/PolicyList.astro";
+import NewsletterIssue from "../newsletter/NewsletterIssue.astro";
+import NewsletterList from "../newsletter/NewsletterList.astro";
+import NewsletterSignup from "../newsletter/NewsletterSignup.astro";
 
 /** Any Astro component, whatever its props. */
 type CmsRenderer = (props: never) => unknown;
@@ -131,6 +147,22 @@ const REGISTRY = {
   "aiservice.approach": AiServiceApproach,
   "aiservice.outcomes": AiServiceOutcomes,
   "aiservice.related": AiServiceRelated,
+  "blog.list": BlogList,
+  "blog.article": BlogArticle,
+  "casestudy.list": CaseStudyList,
+  "casestudy.article": CaseStudyArticle,
+  "career.index": CareerIndex,
+  "career.gigs": CareerGigs,
+  "career.gig": CareerGig,
+  "career.company": CareerCompany,
+  "career.job": CareerJob,
+  "tools.list": ToolsList,
+  "tools.detail": ToolDetail,
+  "policy.list": PolicyList,
+  "policy.detail": PolicyDetail,
+  "newsletter.list": NewsletterList,
+  "newsletter.issue": NewsletterIssue,
+  "newsletter.signup": NewsletterSignup,
 } satisfies Record<CmsComponentKey, CmsRenderer>;
 
 /**

@@ -1,6 +1,6 @@
 import type { CmsBlock } from "@exyconn/cms";
 import type { Branding } from "../portal/types";
-import type { CmsFragment, CmsRenderContext } from "./types";
+import type { CmsFragment, CmsPageDetail, CmsRenderContext } from "./types";
 
 /** Everything a page's components can read besides their props (see CmsRenderContext). */
 export function renderContext(
@@ -8,7 +8,9 @@ export function renderContext(
   branding: Branding,
   variables: Readonly<Record<string, string>>,
   params: Readonly<Record<string, string>>,
-  fragments: readonly CmsFragment[]
+  fragments: readonly CmsFragment[],
+  site: string,
+  detail: CmsPageDetail | null
 ): CmsRenderContext {
   return {
     siteId,
@@ -16,6 +18,8 @@ export function renderContext(
     variables,
     params,
     fragments: new Map<string, readonly CmsBlock[]>(fragments.map((f) => [f.id, f.blocks])),
+    site,
+    detail,
   };
 }
 

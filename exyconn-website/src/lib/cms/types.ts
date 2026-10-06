@@ -111,7 +111,7 @@ export interface CmsPath {
 /**
  * What every component on a CMS page can read besides its own props (passed as `cms`): the
  * site, the company's branding (fetched once per page), the copy variables, the params a
- * template bound, and the published fragments the page places.
+ * template bound, the published fragments the page places and what the page's loader read.
  */
 export interface CmsRenderContext {
   /** The site the page belongs to. */
@@ -121,4 +121,14 @@ export interface CmsRenderContext {
   variables: Readonly<Record<string, string>>;
   params: Readonly<Record<string, string>>;
   fragments: ReadonlyMap<string, readonly CmsBlock[]>;
+  /** The site's key (slug): collections are read for this site. */
+  site: string;
+  /** What the page's loader read before rendering (lib/cms/loaders), e.g. a template's item. */
+  detail: CmsPageDetail | null;
+}
+
+/** A loader's item, with the key of the component whose loader read it. */
+export interface CmsPageDetail {
+  key: string;
+  item: unknown;
 }

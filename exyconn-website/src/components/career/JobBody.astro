@@ -8,18 +8,24 @@ import "../../styles/article.css";
 import "./career.css";
 import ShareLinks from "../content/ShareLinks.astro";
 import DetailSection from "./DetailSection.astro";
-import { JOB_COPY as copy } from "../../lib/career/copy";
+import { fill } from "../../lib/career/format";
+import type { CareerJobCopy } from "./types";
 import { hasText } from "../../lib/career/company";
 import { ARTICLE_CLASS, sanitizeArticleHtml } from "../../lib/portal";
 import type { Job, JobCompany } from "../../lib/portal/types";
 
-type Props = Readonly<{ job: Job; company: JobCompany; url: string }>;
+type Props = Readonly<{
+  job: Job;
+  company: JobCompany;
+  url: string;
+  copy: Pick<CareerJobCopy, "skills" | "body" | "share" | "shareTitle">;
+}>;
 
-const { job, company, url } = Astro.props;
+const { job, company, url, copy } = Astro.props;
 const lists = [
-  { title: copy.requirements, items: job.requirements },
-  { title: copy.niceToHave, items: job.niceToHave },
-  { title: copy.benefits, items: job.benefits },
+  { title: copy.body.requirements, items: job.requirements },
+  { title: copy.body.niceToHave, items: job.niceToHave },
+  { title: copy.body.benefits, items: job.benefits },
 ].filter((list) => list.items.length > 0);
 ---
 
@@ -37,14 +43,14 @@ const lists = [
   }
   {
     hasText(job.jobDescription) && (
-      <DetailSection title={copy.about}>
+      <DetailSection title={copy.body.about}>
         <div class={ARTICLE_CLASS} set:html={sanitizeArticleHtml(job.jobDescription)} />
       </DetailSection>
     )
   }
   {
     hasText(job.jobResponsibilities) && (
-      <DetailSection title={copy.responsibilities}>
+      <DetailSection title={copy.body.responsibilities}>
         <div class={ARTICLE_CLASS} set:html={sanitizeArticleHtml(job.jobResponsibilities)} />
       </DetailSection>
     )
@@ -63,15 +69,8 @@ const lists = [
   <div class="career-block">
     <ShareLinks
       url={url}
-      title={`${job.title} at ${company.name}`}
-      labels={{
-        heading: copy.share,
-        x: copy.shareX,
-        linkedIn: copy.shareLinkedIn,
-        copy: copy.copy,
-        copied: copy.copied,
-        copyFailed: copy.copyFailed,
-      }}
+      title={fill(copy.shareTitle, { title: job.title, name: company.name })}
+      labels={copy.share}
     />
   </div>
 </div>

@@ -11,6 +11,8 @@ The website CMS's shared model (zero runtime dependencies):
 - `CMS_COMPONENTS` / `cmsComponent(key)` — the catalogue of dynamic components (data only); the
   website maps each key to its Astro component in `src/components/cms/registry.ts`, typed against
   `CmsComponentKey` (the union of every key) so the two cannot disagree.
+  `CmsComponentProps<'blog.list'>` is a component's props as its catalogue defaults shape them —
+  the website types each renderer with it.
 
 Moving a page of exyconn.com into the CMS: see [MIGRATION.md](./MIGRATION.md).
 

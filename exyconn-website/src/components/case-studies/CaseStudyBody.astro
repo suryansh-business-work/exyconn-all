@@ -1,0 +1,98 @@
+---
+/**
+ * The case study: band with its own stated results as terrain, the results strip, the
+ * snapshot and contents beside the story (sanitised, its live-editor CSS scoped to the
+ * article), and the call to action.
+ */
+import type { CmsComponentProps } from "@exyconn/cms";
+import StudySnapshot from "../content/StudySnapshot.astro";
+import CtaBand from "../inner/CtaBand.astro";
+import InnerStage from "../inner/InnerStage.astro";
+import ProofStrip from "../inner/ProofStrip.astro";
+import ReadingProgress from "../inner/ReadingProgress.astro";
+import StickyToc from "../inner/StickyToc.astro";
+import type { CaseStudyDetail } from "../../lib/cms/loaders/case-studies";
+import { storyMetrics, storyTerrain } from "../../lib/content/case-studies";
+import { displayDate } from "../../lib/content/format";
+import { DEFAULT_MARKET } from "../../lib/i18n/markets";
+import { withHeadingIds } from "../../lib/inner/headings";
+import { ARTICLE_CLASS, sanitizeArticleHtml, scopeArticleCss } from "../../lib/portal";
+import { safeHref } from "../../lib/safe-output";
+import "../../styles/article.css";
+
+type Props = Readonly<CmsComponentProps<"casestudy.article"> & { detail: CaseStudyDetail }>;
+
+const { crumbs, tocLabel, resultsLabel, snapshot, back, cta } = Astro.props;
+const { study } = Astro.props.detail;
+const market = Astro.locals.market ?? DEFAULT_MARKET;
+const { html, toc } = withHeadingIds(sanitizeArticleHtml(study.content));
+// A body designed in the portal's live editor brings its own CSS, scoped to the article.
+const designCss = scopeArticleCss(study.contentCss);
+const metrics = storyMetrics(study);
+const pdfHref = safeHref(study.pdfUrl);
+const published = displayDate(study.publishedAt, market.locale);
+---
+
+<InnerStage
+  family="proof"
+  variant="band"
+  crumbs={[...crumbs, { label: study.title }]}
+  title={study.title}
+  lede={study.excerpt}
+  scene={{ shapes: ["terrain"], data: { terrain: { values: storyTerrain(metrics) } } }}
+>
+  <p class="inner-meta stage-label">
+    <span>{study.category}</span>
+    {published.text && <time datetime={published.iso}>{published.text}</time>}
+  </p>
+</InnerStage>
+
+{metrics.length > 0 && <ProofStrip variant="stats" label={resultsLabel} items={metrics} />}
+
+<ReadingProgress target="study-reading" />
+<div class="inner-section stage-shell">
+  <div class="content-study">
+    <aside class="content-study__aside">
+      <StudySnapshot
+        title={snapshot.title}
+        rows={[
+          { term: snapshot.industry, value: study.category },
+          { term: snapshot.services, value: study.tags.join(", ") },
+          { term: snapshot.author, value: study.author },
+        ]}
+        published={{ term: snapshot.published, date: published }}
+        pdf={pdfHref ? { label: snapshot.pdf, href: pdfHref } : undefined}
+      />
+      {toc.length > 1 && <StickyToc label={tocLabel} items={toc} />}
+    </aside>
+    <div id="study-reading" class="inner-article-column w-full">
+      {
+        study.coverImage && (
+          <img
+            src={study.coverImage}
+            alt=""
+            width="1600"
+            height="900"
+            class="w-full h-auto rounded-2xl mb-10"
+            decoding="async"
+          />
+        )
+      }
+      {designCss && <style is:inline set:html={designCss} />}
+      <article class={ARTICLE_CLASS} set:html={html} />
+      <a href={back.href} class="content-share__button mt-12">
+        <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+        {back.label}
+      </a>
+    </div>
+  </div>
+</div>
+
+<CtaBand
+  family="proof"
+  label={cta.label}
+  title={cta.title}
+  text={cta.text}
+  primary={cta.primary}
+  secondary={cta.secondary}
+/>

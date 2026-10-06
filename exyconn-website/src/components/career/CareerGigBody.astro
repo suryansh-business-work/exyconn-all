@@ -1,0 +1,159 @@
+---
+/**
+ * The gig: its band with status and facts, the brief (description, deliverables,
+ * requirements, skills), the apply panel — the gig's own apply link while open, the open gigs
+ * once closed — and more open gigs.
+ */
+import ApplyBar from "./ApplyBar.astro";
+import DetailSection from "./DetailSection.astro";
+import GigTile from "./GigTile.astro";
+import StageChips from "./StageChips.astro";
+import type { CareerGigCopy } from "./types";
+import ChapterHeading from "../inner/ChapterHeading.astro";
+import InnerStage from "../inner/InnerStage.astro";
+import type { InnerAction } from "../inner/types";
+import type { GigDetail } from "../../lib/cms/loaders/career";
+import { fill, sceneCount } from "../../lib/career/format";
+import { gigApplyLink, gigHref, gigPay, isOpenGig, relatedGigs } from "../../lib/career/gigs";
+import { displayDate } from "../../lib/content/format";
+import { DEFAULT_MARKET } from "../../lib/i18n/markets";
+import { ARTICLE_CLASS, sanitizeArticleHtml } from "../../lib/portal";
+import "../../styles/article.css";
+
+type Props = Readonly<CareerGigCopy & { detail: GigDetail }>;
+
+const copy = Astro.props;
+const { crumbs, facts: factLabels, sections, labels, apply: applyCopy, closed } = copy;
+const { gig, openGigs } = Astro.props.detail;
+const market = Astro.locals.market ?? DEFAULT_MARKET;
+const open = isOpenGig(gig);
+const apply = open ? gigApplyLink(gig, applyCopy.subject) : null;
+const applyLabels = { email: applyCopy.email, whatsapp: applyCopy.whatsapp, form: applyCopy.form };
+// Open: the gig's own apply link (none when its contact is unusable). Closed: the open gigs.
+let action: InnerAction | undefined;
+if (apply) {
+  action = { label: applyLabels[apply.kind], href: apply.href, external: apply.external };
+} else if (!open) {
+  action = closed.action;
+}
+const pay = gigPay(gig);
+const posted = displayDate(gig.postedDate, market.locale).text;
+// A closed gig takes no applications, so it shows no "apply by" date.
+const deadline = open && gig.deadline ? displayDate(gig.deadline, market.locale).text : "";
+const related = relatedGigs(gig, openGigs);
+const status = open ? labels.open : labels.closed;
+const facts = [
+  ...(pay ? [{ term: factLabels.budget, value: pay }] : []),
+  { term: factLabels.duration, value: gig.duration },
+  { term: factLabels.category, value: gig.category },
+  { term: factLabels.status, value: status },
+];
+---
+
+<InnerStage
+  family="company"
+  variant="band"
+  crumbs={[...crumbs, { label: gig.title }]}
+  title={gig.title}
+  lede={gig.shortDescription}
+  scene={{
+    shapes: ["orbits"],
+    data: { orbits: { agents: sceneCount(gig.tags.length, 3, 12) } },
+  }}
+>
+  <StageChips
+    label={factLabels.status}
+    status={{ label: status, open }}
+    flag={gig.isUrgent && open ? labels.urgent : undefined}
+    items={[
+      pay ?? "",
+      gig.category,
+      gig.duration,
+      posted ? fill(labels.posted, { date: posted }) : "",
+      deadline ? fill(labels.deadline, { date: deadline }) : "",
+    ]}
+  />
+</InnerStage>
+
+<div class="stage-shell inner-section career-detail">
+  <div class="career-detail__main">
+    {
+      gig.fullDescription && (
+        <DetailSection title={sections.description}>
+          <div class={ARTICLE_CLASS} set:html={sanitizeArticleHtml(gig.fullDescription)} />
+        </DetailSection>
+      )
+    }
+    {
+      gig.deliverables.length > 0 && (
+        <DetailSection title={sections.deliverables}>
+          <ul class="inner-points">
+            {gig.deliverables.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </DetailSection>
+      )
+    }
+    {
+      gig.requirements.length > 0 && (
+        <DetailSection title={sections.requirements}>
+          <ul class="inner-points">
+            {gig.requirements.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </DetailSection>
+      )
+    }
+    {
+      gig.tags.length > 0 && (
+        <DetailSection title={sections.skills}>
+          <ul class="inner-chips">
+            {gig.tags.map((tag) => (
+              <li class="inner-chip">{tag}</li>
+            ))}
+          </ul>
+        </DetailSection>
+      )
+    }
+  </div>
+  <ApplyBar
+    label={open ? applyCopy.title : closed.title}
+    title={gig.title}
+    facts={facts}
+    note={open ? applyCopy.text : closed.text}
+    action={action}
+  />
+</div>
+
+{
+  related.length > 0 && (
+    <section class="inner-section stage-shell" aria-labelledby="related-gigs">
+      <ChapterHeading
+        index={1}
+        label={copy.relatedLabel}
+        title={copy.relatedTitle}
+        id="related-gigs"
+      />
+      <ul class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-10">
+        {related.map((other) => (
+          <GigTile
+            href={gigHref(other)}
+            title={other.title}
+            category={other.category}
+            scope={other.shortDescription}
+            pay={gigPay(other)}
+            duration={other.duration}
+            skills={other.tags}
+            skillsLabel={labels.skills}
+            urgent={other.isUrgent ? labels.urgent : undefined}
+          />
+        ))}
+      </ul>
+      <a href={copy.allGigs.href} class="inner-action inner-action--ghost mt-8">
+        {copy.allGigs.label}
+      </a>
+    </section>
+  )
+}

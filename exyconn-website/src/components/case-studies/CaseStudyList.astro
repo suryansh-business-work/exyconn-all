@@ -1,0 +1,162 @@
+---
+/**
+ * The case studies (CMS component 'casestudy.list'): the band with the terrain of the
+ * stories' stated results, the headline results strip, the filterable list (featured stories
+ * first) or the empty state, and the call to action. Words from the props; stories from
+ * Website › Case Studies, for the page's site.
+ */
+import type { CmsComponentProps } from "@exyconn/cms";
+import ContentEmpty from "../content/ContentEmpty.astro";
+import PostCard from "../content/PostCard.astro";
+import ChapterHeading from "../inner/ChapterHeading.astro";
+import CtaBand from "../inner/CtaBand.astro";
+import FilterBar from "../inner/FilterBar.astro";
+import InnerStage from "../inner/InnerStage.astro";
+import ProofStrip from "../inner/ProofStrip.astro";
+import type { CmsRenderContext } from "../../lib/cms/types";
+import { listTerrain, storyMetrics } from "../../lib/content/case-studies";
+import { chipOptions, displayDate, filterTokens, sortableDate } from "../../lib/content/format";
+import { DEFAULT_MARKET } from "../../lib/i18n/markets";
+import { getCaseStudies } from "../../lib/portal";
+
+type Props = Readonly<CmsComponentProps<"casestudy.list"> & { cms: CmsRenderContext }>;
+
+const copy = Astro.props;
+const { filters, empty, cta } = copy;
+const market = Astro.locals.market ?? DEFAULT_MARKET;
+const studies = await getCaseStudies(copy.cms.site);
+// Featured stories lead; every story stays in the one filterable list.
+const ordered = [...studies.filter((s) => s.featured), ...studies.filter((s) => !s.featured)];
+const cards = ordered.map((study) => ({ study, metrics: storyMetrics(study, 2) }));
+const headline = cards.flatMap(({ study, metrics }) =>
+  metrics
+    .slice(0, 1)
+    .map((metric) => ({ value: metric.value, label: `${study.category}: ${metric.label}` }))
+);
+const industries = chipOptions(
+  studies.map((s) => s.category),
+  8
+);
+const services = chipOptions(
+  studies.flatMap((s) => s.tags),
+  8
+);
+---
+
+<InnerStage
+  family="proof"
+  crumbs={copy.crumbs}
+  title={copy.title}
+  lede={copy.lede}
+  scene={{ shapes: ["terrain"], data: { terrain: { values: listTerrain(studies) } } }}
+>
+  {
+    studies.length > 0 && (
+      <p class="inner-meta stage-label">
+        {copy.countLabel.replace("{count}", String(studies.length))}
+      </p>
+    )
+  }
+</InnerStage>
+
+{
+  headline.length > 0 && (
+    <ProofStrip variant="stats" label={copy.resultsLabel} items={headline.slice(0, 4)} />
+  )
+}
+
+<section class="inner-section stage-shell" aria-labelledby="case-study-list">
+  <ChapterHeading
+    index={1}
+    label={copy.chapterLabel}
+    title={cards.length > 0 ? copy.chapterTitle : copy.emptyChapterTitle}
+    id="case-study-list"
+  />
+  {
+    cards.length === 0 ? (
+      <div class="mt-10">
+        <ContentEmpty
+          label={empty.label}
+          title={empty.title}
+          text={empty.text}
+          primary={empty.primary}
+          secondary={empty.secondary}
+          level="h3"
+        />
+      </div>
+    ) : (
+      <>
+        <div class="mt-10">
+          <FilterBar
+            target="case-studies"
+            label={filters.label}
+            sheetLabel={filters.sheetLabel}
+            groups={[
+              {
+                param: "industry",
+                label: filters.industryLabel,
+                allLabel: filters.all,
+                options: industries,
+              },
+              {
+                param: "service",
+                label: filters.serviceLabel,
+                allLabel: filters.all,
+                options: services,
+              },
+            ]}
+            search={{
+              param: "q",
+              label: filters.searchLabel,
+              placeholder: filters.searchPlaceholder,
+            }}
+            sort={{
+              param: "sort",
+              label: filters.sortLabel,
+              options: [
+                { value: "", label: filters.sortFeatured },
+                { value: "-date", label: filters.sortNewest },
+                { value: "date", label: filters.sortOldest },
+              ],
+            }}
+            countTemplate={filters.countTemplate}
+          />
+        </div>
+        <ul id="case-studies" class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-8">
+          {cards.map(({ study, metrics }, index) => (
+            <PostCard
+              href={`/case-studies/${study.slug}`}
+              title={study.title}
+              summary={study.excerpt}
+              image={study.coverImage}
+              kicker={study.category}
+              badge={study.featured ? copy.featured : undefined}
+              metrics={metrics}
+              meta={[displayDate(study.publishedAt, market.locale).text, ...study.tags.slice(0, 2)]}
+              more={copy.read}
+              wide={index === 0 && study.featured}
+              eager={index === 0}
+              data-filter-item
+              data-filter-industry={filterTokens([study.category])}
+              data-filter-service={filterTokens(study.tags)}
+              data-search={`${study.title} ${study.excerpt} ${study.category} ${study.tags.join(" ")}`}
+              data-sort-date={sortableDate(study.publishedAt)}
+            />
+          ))}
+        </ul>
+        <p data-filter-empty="case-studies" class="inner-panel p-6 mt-6 text-fg-secondary" hidden>
+          {copy.noMatch}
+        </p>
+      </>
+    )
+  }
+</section>
+
+<CtaBand
+  family="proof"
+  label={cta.label}
+  title={cta.title}
+  text={cta.text}
+  primary={cta.primary}
+  secondary={cta.secondary}
+/>
