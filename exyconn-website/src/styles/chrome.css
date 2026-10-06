@@ -681,6 +681,21 @@ html.chrome-locked {
     visibility 0s linear var(--duration-slow);
 }
 
+/*
+ * The chat iframe (public/embed/chat.js) floats over the page like the old bubble did, but
+ * under the site's own drawers and dialogs (cookie preferences, search, menu), which must
+ * never be covered. The loader's inline z-index suits sites that have no such scale.
+ */
+iframe[data-exyconn-chat] {
+  z-index: var(--z-overlay) !important;
+}
+
+/* The chat launcher (a 96px iframe) owns the corner: sit above it. */
+body:has(> iframe[data-exyconn-chat]) .back-to-top {
+  bottom: calc(max(var(--space-4), env(safe-area-inset-bottom)) + 6rem);
+  right: max(1.75rem, env(safe-area-inset-right));
+}
+
 .back-to-top[data-visible="true"] {
   opacity: 1;
   visibility: visible;

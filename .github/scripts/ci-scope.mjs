@@ -33,8 +33,8 @@ const SERVER = 'exyconn-portal-server';
 const CODEGEN_OWNERS = new Set([SERVER, '@exyconn/shell', '@exyconn/tracker-core']);
 const E2E_OWNER = 'exyconn-portal-ui';
 const MOBILE = 'exyconn-tracker-mobile';
-/** The tools site is an npm project outside the workspace that compiles these from source. */
-const TOOLS = [/^exyconn-tools\//, /^packages\/seo\//, /^packages\/chat-widget\//];
+/** The tools site is an npm project outside the workspace that compiles @exyconn/seo from source. */
+const TOOLS = [/^exyconn-tools\//, /^packages\/seo\//];
 const CT_GROUPS = 3;
 
 const sh = (command) => execSync(command, { encoding: 'utf8' }).trim();

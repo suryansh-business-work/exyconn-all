@@ -8,10 +8,8 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, './src'),
       // Tools is an npm project outside the pnpm workspace; the zero-dependency head
-      // renderer and chat bubble are consumed straight from source (the Dockerfile copies
-      // packages/seo and packages/chat-widget).
+      // renderer is consumed straight from source (the Dockerfile copies packages/seo).
       '@exyconn/seo': path.resolve(__dirname, '../../packages/seo/src/index.ts'),
-      '@exyconn/chat-widget': path.resolve(__dirname, '../../packages/chat-widget/src/index.ts'),
     },
   },
   server: {

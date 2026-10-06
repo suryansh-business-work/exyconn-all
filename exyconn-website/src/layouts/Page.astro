@@ -121,11 +121,6 @@ const pageMeta: PageMeta = {
   themeColor,
   jsonLd: [...baselineLd, ...pageLd],
 };
-
-// The portal API, read at request time (it is a server setting, absent from the client
-// bundle): scripts/chat-widget.ts derives the chat socket from it.
-const portalGraphqlUrl =
-  import.meta.env.PUBLIC_PORTAL_GRAPHQL_URL ?? process.env.PUBLIC_PORTAL_GRAPHQL_URL;
 ---
 
 <!doctype html>
@@ -142,7 +137,6 @@ const portalGraphqlUrl =
 
     <!-- Title, description, canonical, hreflang, robots, Open Graph, Twitter, JSON-LD -->
     <Fragment set:html={renderHead(pageMeta)} />
-    {portalGraphqlUrl && <meta name="exyconn-portal-graphql" content={portalGraphqlUrl} />}
   </head>
   <body>
     <!-- Google Tag Manager (noscript) -->
@@ -182,10 +176,9 @@ const portalGraphqlUrl =
 
     <BackToTop />
 
-    <!-- Visitor chat bubble (@exyconn/chat-widget), mounted when the browser is idle -->
-    <script>
-      import "../scripts/chat-widget.ts";
-    </script>
+    <!-- Visitor chat: the same one-line loader every site uses; it opens /embed/chat in an
+         iframe when the browser is idle (public/embed/chat.js). -->
+    <script is:inline src="/embed/chat.js" data-site="WEBSITE" defer></script>
   </body>
 </html>
 

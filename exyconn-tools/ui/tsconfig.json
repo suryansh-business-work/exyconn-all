@@ -24,8 +24,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
-      "@exyconn/seo": ["../../packages/seo/src/index.ts"],
-      "@exyconn/chat-widget": ["../../packages/chat-widget/src/index.ts"]
+      "@exyconn/seo": ["../../packages/seo/src/index.ts"]
     }
   },
   "include": ["src"],

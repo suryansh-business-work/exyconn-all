@@ -76,11 +76,32 @@ directory's address so that redirect — and the inbound links it preserves — 
 
 ## The chat widget (Website > Chatbot)
 
-exyconn.com and tools.exyconn.com carry a chat bubble from
-[`packages/chat-widget`](../../packages/chat-widget). It talks to portal-server over one
-WebSocket, `/chat/ws` ([`modules/website-chat`](../../exyconn-portal/server/src/modules/website-chat)),
-which only accepts the origins in `CHAT_ORIGINS` (the public sites) and `CORS_ORIGIN` (the
-portals, whose Website > Chatbot console answers over the same socket).
+exyconn.com and tools.exyconn.com carry the same chat, served by the website as an iframe
+page, [`/embed/chat`](../../exyconn-website/src/pages/embed/chat.astro): a React + MUI app
+(`exyconn-website/src/components/chat-embed`) themed from the site's tokens. Any site embeds
+it with one line:
+
+```html
+<script src="https://exyconn.com/embed/chat.js" data-site="TOOLS" defer></script>
+```
+
+The loader ([`public/embed/chat.js`](../../exyconn-website/public/embed/chat.js), dependency
+free) waits for an idle moment, adds one fixed iframe in the bottom-right corner and resizes it
+when the chat opens or closes (full screen on phones). The two sides talk over `postMessage`
+only with the embed origin: the iframe sends `ready`, `resize` and `unread` (the loader puts
+"(n) " in front of the host page's title), and the loader sends the page URL (recorded as the
+session's page) and the host's light/dark theme. The website itself uses the same loader from
+`src/layouts/Page.astro` (`data-site="WEBSITE"`); tools reads the loader URL from
+`VITE_CHAT_EMBED_URL`. The middleware lets only the origins in `CHAT_FRAME_ANCESTORS` (default
+`https://tools.exyconn.com`, plus the site itself) frame `/embed/*`, marks it `noindex` and
+allows the microphone there for voice notes.
+
+The chat talks to portal-server over one WebSocket, `/chat/ws`
+([`modules/website-chat`](../../exyconn-portal/server/src/modules/website-chat)), derived at
+request time from `PUBLIC_PORTAL_GRAPHQL_URL`. The socket only accepts the origins in
+`CHAT_ORIGINS` (the public sites) and `CORS_ORIGIN` (the portals, whose Website > Chatbot
+console answers over the same socket); since the iframe always runs on exyconn.com, that is
+the origin the server sees from every host site.
 
 - **Sign-in.** A visitor gives a name, an email and optionally a phone; the email is proved with
   a one-time code (`website-chat-code`). That opens a session, files a support ticket on the
@@ -91,8 +112,9 @@ portals, whose Website > Chatbot console answers over the same socket).
   below and refusing anything else with the configured message; "FAQs" are Website > Chatbot >
   FAQs and need no sign-in.
 - **Handoff.** A live question nobody answers within the configured wait, or one asked outside
-  the opening hours, is handed to the bot: the widget switches tabs and the bot answers there.
-  The team can still reply in the live thread.
+  the opening hours, is handed to the bot inside the live thread itself (a notice, then the
+  bot's answer). The team can still reply there. Each thread only ever holds what was asked
+  in it.
 - **Knowledge.** "Sync website content" reads every sitemap page of one market
   (`CHAT_KNOWLEDGE_MARKET`, default `en-us`) from `WEBSITE_URL` plus every published blog post
   and case study, replacing the previous sync. Rows written in the portal (CUSTOM) are never

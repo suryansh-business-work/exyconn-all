@@ -264,11 +264,11 @@ jobs:
             build_args: ''
           - service: tools-ui
             dockerfile: exyconn-tools/ui/Dockerfile
-            # Root context: the build reads packages/seo (shared head renderer) and packages/chat-widget from source.
+            # Root context: the build reads packages/seo (shared head renderer) from source.
             context: .
             build_args: |
               VITE_API_BASE_URL=https://tools-api.exyconn.com
-              VITE_CHAT_SOCKET_URL=wss://portal-server.exyconn.com/chat/ws
+              VITE_CHAT_EMBED_URL=https://exyconn.com/embed/chat.js
           - service: tools-api
             dockerfile: exyconn-tools/server/Dockerfile
             context: exyconn-tools/server

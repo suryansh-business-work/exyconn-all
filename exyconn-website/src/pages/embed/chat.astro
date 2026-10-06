@@ -1,0 +1,72 @@
+---
+/**
+ * The visitor chat as a page of its own, made to be framed: public/embed/chat.js (the one-line
+ * loader any site adds) opens it in an iframe in the corner. A bare document — no header,
+ * footer, analytics or cookie banner — that mounts the React + MUI chat (components/chat-embed)
+ * and nothing else, so MUI only ever loads here. The middleware lets the allowed origins frame
+ * /embed/* and marks it noindex.
+ *
+ * Query: `site` (WEBSITE | TOOLS, default WEBSITE) and `theme` (light | dark) — the host
+ * page's mode when the iframe opened; the loader sends later changes over postMessage.
+ */
+import ChatApp from "../../components/chat-embed/ChatApp";
+import type { ChatSite, ColorMode } from "../../components/chat-embed/types";
+import { BRANDING_FALLBACK, getBrandingSafe } from "../../lib/portal";
+
+const SITES: readonly ChatSite[] = ["WEBSITE", "TOOLS"];
+const MODES: readonly ColorMode[] = ["light", "dark"];
+
+const params = Astro.url.searchParams;
+const site = SITES.find((value) => value === params.get("site")) ?? "WEBSITE";
+const theme = MODES.find((value) => value === params.get("theme")) ?? "light";
+
+/** http(s)://host/graphql → ws(s)://host/chat/ws: the chat socket beside the portal's API. */
+function socketUrlFrom(graphqlUrl: string): string {
+  const url = new URL(graphqlUrl);
+  url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
+  url.pathname = url.pathname.replace(/\/graphql\/?$/, "/chat/ws");
+  return url.toString();
+}
+
+// A runtime setting of the server (see lib/portal/client.ts), read per request.
+const graphqlUrl =
+  import.meta.env.PUBLIC_PORTAL_GRAPHQL_URL ?? process.env.PUBLIC_PORTAL_GRAPHQL_URL ?? "";
+const socketUrl = graphqlUrl ? socketUrlFrom(graphqlUrl) : "";
+
+// The same mark the site uses as its icon (Admin > Branding), for the chat's avatars.
+const branding = await getBrandingSafe();
+const brandMark = branding.faviconUrl || BRANDING_FALLBACK.faviconUrl;
+---
+
+<!doctype html>
+<html lang="en" data-theme={theme}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Chat with Exyconn</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap"
+    />
+    <style is:global>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: transparent;
+      }
+    </style>
+  </head>
+  <body>
+    <ChatApp
+      client:only="react"
+      socketUrl={socketUrl}
+      site={site}
+      theme={theme}
+      brandMark={brandMark}
+    />
+  </body>
+</html>
