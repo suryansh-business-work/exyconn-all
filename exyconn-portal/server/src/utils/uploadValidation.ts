@@ -24,7 +24,11 @@ export type UploadKind =
   | 'webm'
   | 'ogg'
   | 'mp3'
-  | 'wav';
+  | 'wav'
+  | 'woff2'
+  | 'woff'
+  | 'ttf'
+  | 'otf';
 
 export interface UploadPolicy {
   readonly kinds: ReadonlySet<UploadKind>;
@@ -70,6 +74,12 @@ export const CHAT_UPLOAD: UploadPolicy = {
   maxBytes: 10 * MB,
 };
 
+/** A web font for a site's design system (Website › Design System): WOFF2, WOFF, TTF or OTF. */
+export const FONT_UPLOAD: UploadPolicy = {
+  kinds: new Set<UploadKind>(['woff2', 'woff', 'ttf', 'otf']),
+  maxBytes: 5 * MB,
+};
+
 /** A desktop-tracker capture: PNG at quality 100, JPEG below it. */
 export function screenshotUpload(maxBytes: number): UploadPolicy {
   return { kinds: new Set<UploadKind>(['png', 'jpeg']), maxBytes };
@@ -99,6 +109,15 @@ const MIME_KINDS: Readonly<Record<string, UploadKind>> = {
   'audio/wav': 'wav',
   'audio/wave': 'wav',
   'audio/x-wav': 'wav',
+  'font/woff2': 'woff2',
+  'font/woff': 'woff',
+  'application/font-woff': 'woff',
+  'font/ttf': 'ttf',
+  'font/sfnt': 'ttf',
+  'application/x-font-ttf': 'ttf',
+  'font/otf': 'otf',
+  'application/x-font-otf': 'otf',
+  'application/vnd.ms-opentype': 'otf',
 };
 
 /** The kind a MIME type names, or undefined when it is not one this module knows. */
@@ -147,6 +166,11 @@ const MATCHERS: Readonly<Record<UploadKind, (head: Buffer) => boolean>> = {
   // An ID3 tag, or straight into an MPEG audio frame (11 sync bits set).
   mp3: (head) => startsWith(head, 'ID3') || (head[0] === 0xff && ((head[1] ?? 0) & 0xe0) === 0xe0),
   wav: (head) => startsWith(head, 'RIFF') && startsWith(head, 'WAVE', 8),
+  woff2: (head) => startsWith(head, 'wOF2'),
+  woff: (head) => startsWith(head, 'wOFF'),
+  // TrueType opens with the version 1.0 tag (or Apple's 'true'); CFF-flavoured OpenType with 'OTTO'.
+  ttf: (head) => startsWith(head, '\x00\x01\x00\x00') || startsWith(head, 'true'),
+  otf: (head) => startsWith(head, 'OTTO'),
 };
 
 /** Decoded size of a base64 payload, without decoding it. */

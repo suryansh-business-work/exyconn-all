@@ -4,6 +4,7 @@ import { TRACKER_LIMITS } from '../modules/tracker/tracker.constants';
 import {
   AVATAR_UPLOAD,
   CHAT_UPLOAD,
+  FONT_UPLOAD,
   MEDIA_UPLOAD,
   RESUME_UPLOAD,
   TEST_UPLOAD,
@@ -92,6 +93,22 @@ class ImageUploader {
       file,
       fileName,
       folder: RESUME_FOLDER,
+      useUniqueFileName: true,
+    });
+    return result.url;
+  }
+
+  /**
+   * Uploads a web font for a site's design system (checked like every upload) into the portal's
+   * media namespace, and returns its hosted URL for an @font-face rule.
+   */
+  async uploadFont(file: string, fileName: string, folder: string): Promise<string> {
+    assertUpload(file, FONT_UPLOAD);
+    const client = await this.getClient();
+    const result = await client.upload({
+      file,
+      fileName,
+      folder: this.mediaFolder(folder),
       useUniqueFileName: true,
     });
     return result.url;

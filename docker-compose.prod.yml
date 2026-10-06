@@ -271,6 +271,8 @@ services:
       # The public sites the website chat widget opens its socket from (Website > Chatbot).
       CHAT_ORIGINS: https://exyconn.com,https://tools.exyconn.com
       WEBSITE_URL: https://exyconn.com
+      # The address Website › Settings offers as a site's A record (the deploy writes it to .env).
+      WEBSITE_SERVER_IP: ${WEBSITE_SERVER_IP:-}
       TRACKER_DOWNLOAD_URL: https://employee.exyconn.com/me/tracker
       # Where the payslip email sends an employee for the rest of their payslips.
       SALARY_SLIPS_URL: https://employee.exyconn.com/me/salary-slips

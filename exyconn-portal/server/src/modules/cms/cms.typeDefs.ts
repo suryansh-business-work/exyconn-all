@@ -256,7 +256,60 @@ export const cmsTypeDefs = gql`
     acceptsChildren: Boolean!
   }
 
+  type CmsARecord {
+    ip: String!
+    ttl: Int!
+  }
+
+  "One domain of a site, where its DNS is served and the A records it points to."
+  type CmsDomainDns {
+    domain: String!
+    "The registered domain on the GoDaddy account it lives under."
+    zone: String!
+    "The host within it: @ for the domain itself, else e.g. www."
+    name: String!
+    "GODADDY, CLOUDFLARE, OTHER — or UNKNOWN when it could not be read."
+    authority: String!
+    records: [CmsARecord!]!
+    "Every A record is the websites' server address."
+    pointsHere: Boolean!
+    "Why the records could not be read; empty when they were."
+    error: String!
+  }
+
+  type CmsSiteDns {
+    "The address websites are served from (WEBSITE_SERVER_IP); empty when not configured."
+    serverIp: String!
+    domains: [CmsDomainDns!]!
+  }
+
+  "A Google Fonts family: its styles (400, 700i…), subsets and variable axes."
+  type CmsGoogleFont {
+    family: String!
+    category: String!
+    variants: [String!]!
+    subsets: [String!]!
+    axes: [CmsFontAxis!]!
+    "Rank by use on the web; 1 is the most used."
+    popularity: Int!
+  }
+
+  type CmsFontAxis {
+    tag: String!
+    min: Float!
+    max: Float!
+  }
+
+  type CmsGoogleFontPage {
+    rows: [CmsGoogleFont!]!
+    totalCount: Int!
+  }
+
   extend type Query {
+    "Website › Settings › Domains: each domain's DNS provider and A records (through GoDaddy/Cloudflare in Tech)."
+    cmsSiteDns(siteId: ID!): CmsSiteDns!
+    "The Google Fonts catalogue, most used first; category is Sans Serif, Serif, Display, Handwriting or Monospace."
+    cmsGoogleFonts(search: String, category: String, limit: Int): CmsGoogleFontPage!
     cmsSites: [CmsSite!]!
     cmsSite(id: ID!): CmsSite!
     cmsSiteBySlug(slug: String!): CmsSite!
@@ -275,6 +328,8 @@ export const cmsTypeDefs = gql`
   }
 
   extend type Mutation {
+    "Points one of the site's domains at an IPv4 address, at whichever provider serves its DNS."
+    setCmsSiteARecord(siteId: ID!, domain: String!, ip: String!, ttl: Int!): CmsDomainDns!
     createCmsSite(input: CmsSiteInput!): CmsSite!
     updateCmsSite(id: ID!, input: CmsSiteInput!): CmsSite!
     setDefaultCmsSite(id: ID!): CmsSite!

@@ -9,6 +9,9 @@ import { cmsFragments, type CmsFragmentInput } from './cms.fragments';
 import { cmsPages, type CmsPageListInput, type CmsPageSettingsInput } from './cms.pages';
 import { signPreviewToken } from './cms.preview';
 import { cmsSites, type CmsSiteInput } from './cms.sites';
+import { setSiteARecord, siteDns } from './cms.dns';
+import { googleFonts } from './cms.fonts';
+import { recordAudit } from '../audit';
 
 type Id = { id: string };
 type Ctx = GraphQLContext;
@@ -20,6 +23,18 @@ const many = (docs: Lean[]) => withIds(docs);
 /** Website › Websites, Pages, Fragments, Design System and Media, for the website team. */
 export const cmsResolvers = {
   Query: {
+    cmsSiteDns: async (_p: unknown, { siteId }: { siteId: string }, ctx: Ctx) => {
+      await cmsEditor(ctx, 'CmsSite', 'VIEW');
+      return siteDns(siteId);
+    },
+    cmsGoogleFonts: async (
+      _p: unknown,
+      a: { search?: string | null; category?: string | null; limit?: number | null },
+      ctx: Ctx,
+    ) => {
+      await cmsEditor(ctx, 'CmsDesignSystem', 'VIEW');
+      return googleFonts(a.search, a.category, a.limit ?? undefined);
+    },
     cmsSites: async (_p: unknown, _a: unknown, ctx: Ctx) => {
       await cmsEditor(ctx, 'CmsSite', 'VIEW');
       return many(await cmsSites.list());
@@ -86,6 +101,21 @@ export const cmsResolvers = {
     },
   },
   Mutation: {
+    setCmsSiteARecord: async (
+      _p: unknown,
+      a: { siteId: string; domain: string; ip: string; ttl: number },
+      ctx: Ctx,
+    ) => {
+      await cmsEditor(ctx, 'CmsSite', 'EDIT');
+      const result = await setSiteARecord(a.siteId, a.domain, a.ip, a.ttl);
+      await recordAudit(ctx, {
+        action: 'UPDATE',
+        module: 'CmsSite',
+        entityId: a.siteId,
+        summary: `Pointed ${a.domain} at ${a.ip} (A record, TTL ${a.ttl}s)`,
+      });
+      return result;
+    },
     createCmsSite: async (_p: unknown, { input }: { input: CmsSiteInput }, ctx: Ctx) => {
       await cmsEditor(ctx, 'CmsSite', 'CREATE');
       return one(await cmsSites.create(input));

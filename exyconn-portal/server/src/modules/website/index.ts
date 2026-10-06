@@ -40,7 +40,7 @@ const blogResolvers = createCrudResolvers(blogService, {
   ...websiteRoles,
   table: {
     searchFields: ['slug', 'title', 'summary', 'content', 'readTime'],
-    filterFields: ['slug', 'title', 'summary', 'content', 'readTime'],
+    filterFields: ['siteId', 'slug', 'title', 'summary', 'content', 'readTime'],
     sortFields: ['slug', 'title', 'readTime', 'featured', 'isActive', 'publishedAt', 'createdAt'],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
@@ -57,7 +57,7 @@ const caseStudyResolvers = createCrudResolvers(caseStudyService, {
   ...websiteRoles,
   table: {
     searchFields: ['slug', 'title', 'excerpt', 'content', 'category', 'author'],
-    filterFields: ['slug', 'title', 'excerpt', 'content', 'category', 'author'],
+    filterFields: ['siteId', 'slug', 'title', 'excerpt', 'content', 'category', 'author'],
     sortFields: [
       'slug',
       'title',
@@ -83,7 +83,7 @@ const jobCompanyResolvers = createCrudResolvers(jobCompanyService, {
   ...websiteRoles,
   table: {
     searchFields: ['companyCode', 'slug', 'name', 'tagline', 'industry', 'headquarters'],
-    filterFields: ['companyCode', 'slug', 'name', 'tagline', 'industry', 'headquarters'],
+    filterFields: ['siteId', 'companyCode', 'slug', 'name', 'tagline', 'industry', 'headquarters'],
     sortFields: [
       'companyCode',
       'slug',
@@ -114,6 +114,7 @@ const jobResolvers = createCrudResolvers(jobService, {
       'shortJobDescription',
     ],
     filterFields: [
+      'siteId',
       'jobCode',
       'companySlug',
       'title',
@@ -149,7 +150,7 @@ const gigResolvers = createCrudResolvers(gigService, {
   ...websiteRoles,
   table: {
     searchFields: ['gigCode', 'title', 'category', 'shortDescription', 'budget'],
-    filterFields: ['gigCode', 'title', 'category', 'budget', 'status', 'applicationType'],
+    filterFields: ['siteId', 'gigCode', 'title', 'category', 'budget', 'status', 'applicationType'],
     sortFields: [
       'gigCode',
       'title',

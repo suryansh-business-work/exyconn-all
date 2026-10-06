@@ -6,10 +6,12 @@ import { CmsAssetModel, CmsSiteModel } from './models';
 
 const MAX_PAGE_SIZE = 200;
 const DATA_URL = /^data:([\w.+-]+\/[\w.+-]+);base64,(.*)$/s;
+/** A font file by its name, for browsers that report no MIME type for fonts. */
+const FONT_FILE = /\.(?:woff2?|ttf|otf)$/i;
 
 export interface CmsAssetUpload {
   siteId: string;
-  /** A data: URL; checked by the shared upload policy (images and PDFs, size-capped). */
+  /** A data: URL; checked by the shared upload policy (images and PDFs, or WOFF2/WOFF/TTF/OTF fonts). */
   file: string;
   fileName: string;
   alt?: string | null;
@@ -17,7 +19,7 @@ export interface CmsAssetUpload {
   height?: number | null;
 }
 
-/** A site's media library: images uploaded once and picked from in every editor. */
+/** A site's media library: images (and the design system's web fonts) uploaded once and reused. */
 export const cmsAssets = {
   async paged(siteId: string, page: number, pageSize: number, search?: string | null) {
     const filter: Record<string, unknown> = { siteId };
@@ -41,8 +43,11 @@ export const cmsAssets = {
   async upload(input: CmsAssetUpload) {
     const site = await CmsSiteModel.findById(input.siteId).select('slug').lean();
     if (!site) notFound('Website');
-    const url = await imageUploader.uploadImage(input.file, input.fileName, `cms-${site.slug}`);
     const match = DATA_URL.exec(input.file);
+    const isFont = (match?.[1] ?? '').startsWith('font/') || FONT_FILE.test(input.fileName);
+    const url = isFont
+      ? await imageUploader.uploadFont(input.file, input.fileName, `cms-${site.slug}-fonts`)
+      : await imageUploader.uploadImage(input.file, input.fileName, `cms-${site.slug}`);
     const payload = match?.[2] ?? '';
     const asset = await CmsAssetModel.create({
       siteId: input.siteId,

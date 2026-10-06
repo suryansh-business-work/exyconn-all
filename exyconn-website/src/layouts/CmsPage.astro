@@ -5,6 +5,7 @@
  * and body markup, the page's and its fragments' CSS, and the site's header and footer
  * fragments around it — unless the page's layout is "bare".
  */
+import { customFontCss, googleFontsHref } from "../lib/cms/fonts";
 import type { JsonLdNode } from "@exyconn/seo";
 import SiteShell from "./SiteShell.astro";
 import CmsBlocks from "../components/cms/CmsBlocks.astro";
@@ -46,7 +47,11 @@ const jsonLd =
 const siteUrl =
   site.markets || site.domains.length === 0 ? undefined : `https://${site.domains[0]}`;
 
+// The design system's own fonts: Google Fonts in one stylesheet, uploaded families as @font-face.
+const googleFonts = googleFontsHref(designSystem?.tokens);
+
 const styles = [
+  customFontCss(designSystem?.tokens),
   designSystemCss(designSystem),
   safeCss(site.globalCss),
   safeCss(fragmentsCss(fragments)),
@@ -73,6 +78,15 @@ const styles = [
   chrome={page.layout !== "bare"}
 >
   <Fragment slot="head">
+    {
+      googleFonts && (
+        <>
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+          <link rel="stylesheet" href={googleFonts} />
+        </>
+      )
+    }
     {styles && <style is:inline set:html={styles} />}
     {site.headHtml && <Fragment set:html={site.headHtml} />}
   </Fragment>

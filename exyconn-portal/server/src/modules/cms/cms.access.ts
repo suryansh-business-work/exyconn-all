@@ -1,6 +1,7 @@
 import { ROLES } from '../../constants/roles';
 import { actorNameOf } from '../../lib/actor';
 import { assertPlatformStaff } from '../../lib/platformAccess';
+import { runAsPlatform } from '../../lib/tenant';
 import type { GraphQLContext } from '../../middleware/auth';
 import type { PermissionAction } from '../permissions/permission.model';
 
@@ -18,5 +19,7 @@ export async function cmsEditor(
   action: PermissionAction,
 ): Promise<string> {
   await assertPlatformStaff(ctx, module, [ROLES.WEBSITE], action);
-  return actorNameOf(ctx);
+  // Read as the platform: a platform administrator stands in no company, and their user record
+  // would otherwise be out of scope for the name lookup.
+  return runAsPlatform(() => actorNameOf(ctx));
 }

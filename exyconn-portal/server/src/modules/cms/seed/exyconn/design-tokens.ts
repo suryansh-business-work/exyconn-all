@@ -9,7 +9,10 @@
  * Generated from the website's token files when the CMS was introduced; edit the design
  * system in Website › Design System from then on.
  */
+import { EXYCONN_PALETTE } from './palette';
+
 export const EXYCONN_TOKENS = {
+  palette: EXYCONN_PALETTE,
   colors: {
     light: {
       page: 'var(--palette-base-white)',

@@ -31,12 +31,28 @@ export interface CmsSite {
 
 /** `{ colors: { light, dark }, fonts, radii, shadows, spacing }`, each a map of name → CSS value. */
 export interface CmsDesignTokens {
+  /** The raw colour ramps (gray-900, brand-500…) the colour roles may point at. */
+  palette?: Record<string, string>;
   colors?: { light?: Record<string, string>; dark?: Record<string, string> };
   fonts?: Record<string, string>;
   radii?: Record<string, string>;
   shadows?: Record<string, string>;
   spacing?: Record<string, string>;
+  /** The families the site loads: from Google Fonts, or uploaded to its media library. */
+  fontSources?: CmsFontSource[];
 }
+
+/** One file of an uploaded family: one weight and style. */
+export interface CmsFontFile {
+  url: string;
+  weight: string;
+  style: "normal" | "italic";
+  format: "woff2" | "woff" | "truetype" | "opentype";
+}
+
+export type CmsFontSource =
+  | { family: string; provider: "GOOGLE"; variants: string[] }
+  | { family: string; provider: "CUSTOM"; files: CmsFontFile[] };
 
 export interface CmsDesignSystem {
   id: string;

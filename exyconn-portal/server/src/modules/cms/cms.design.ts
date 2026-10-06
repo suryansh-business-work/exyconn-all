@@ -8,7 +8,86 @@ export interface CmsDesignSystemInput {
   extraCss?: string | null;
 }
 
-const TOKEN_GROUPS = new Set(['colors', 'fonts', 'radii', 'shadows', 'spacing']);
+const TOKEN_GROUPS = new Set([
+  'palette',
+  'colors',
+  'fonts',
+  'radii',
+  'shadows',
+  'spacing',
+  'fontSources',
+]);
+
+const FONT_FAMILY = /^[\p{L}\d][\p{L}\d .'&-]{0,79}$/u;
+const FONT_VARIANT = /^[1-9]00i?$/;
+const FONT_WEIGHT = /^[1-9]00$/;
+const FONT_FORMATS = new Set(['woff2', 'woff', 'truetype', 'opentype']);
+const FONT_STYLES = new Set(['normal', 'italic']);
+const MAX_FONT_SOURCES = 30;
+const MAX_FONT_FILES = 40;
+
+interface FontFile {
+  url?: unknown;
+  weight?: unknown;
+  style?: unknown;
+  format?: unknown;
+}
+
+interface FontSource {
+  family?: unknown;
+  provider?: unknown;
+  variants?: unknown;
+  files?: unknown;
+}
+
+function assertFontFile(family: string, file: FontFile): void {
+  const url = typeof file.url === 'string' ? file.url : '';
+  if (!url.startsWith('https://') || /[\s"'()<>]/.test(url)) {
+    badRequest(`A file of ${family} has no valid https address.`);
+  }
+  if (typeof file.weight !== 'string' || !FONT_WEIGHT.test(file.weight)) {
+    badRequest(`A file of ${family} needs a weight from 100 to 900.`);
+  }
+  if (typeof file.style !== 'string' || !FONT_STYLES.has(file.style)) {
+    badRequest(`A file of ${family} must be normal or italic.`);
+  }
+  if (typeof file.format !== 'string' || !FONT_FORMATS.has(file.format)) {
+    badRequest(`A file of ${family} must be WOFF2, WOFF, TTF or OTF.`);
+  }
+}
+
+/**
+ * The fonts a design system loads: Google Fonts families (with the styles to load) and custom
+ * families uploaded to the media library (one file per weight and style).
+ */
+function assertFontSources(values: unknown): void {
+  if (!Array.isArray(values) || values.length > MAX_FONT_SOURCES) {
+    badRequest(`Load at most ${MAX_FONT_SOURCES} font families.`);
+  }
+  for (const source of values as FontSource[]) {
+    const family = typeof source.family === 'string' ? source.family : '';
+    if (!FONT_FAMILY.test(family)) {
+      badRequest(`"${family}" is not a valid font family name.`);
+    }
+    if (source.provider === 'GOOGLE') {
+      const variants = Array.isArray(source.variants) ? source.variants : [];
+      if (
+        variants.length === 0 ||
+        variants.some((v) => typeof v !== 'string' || !FONT_VARIANT.test(v))
+      ) {
+        badRequest(`Choose the styles of ${family} to load (400, 700, 400i …).`);
+      }
+    } else if (source.provider === 'CUSTOM') {
+      const files = Array.isArray(source.files) ? (source.files as FontFile[]) : [];
+      if (files.length === 0 || files.length > MAX_FONT_FILES) {
+        badRequest(`Upload at least one file for ${family}.`);
+      }
+      files.forEach((file) => assertFontFile(family, file));
+    } else {
+      badRequest(`${family} must come from Google Fonts or an upload.`);
+    }
+  }
+}
 /** A token key becomes a CSS custom property name: letters, digits and dashes only. */
 const TOKEN_KEY = /^[a-z\d][a-z\d-]{0,60}$/i;
 /** A token value is a CSS value; nothing that could close the declaration or the rule. */
@@ -33,6 +112,10 @@ function assertTokens(tokens: Record<string, unknown>): void {
   for (const [group, values] of Object.entries(tokens)) {
     if (!TOKEN_GROUPS.has(group)) {
       badRequest(`"${group}" is not a design token group.`);
+    }
+    if (group === 'fontSources') {
+      assertFontSources(values);
+      continue;
     }
     if (group === 'colors') {
       const modes = (values ?? {}) as Record<string, unknown>;

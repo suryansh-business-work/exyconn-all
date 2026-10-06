@@ -47,6 +47,19 @@ function frameAncestors(): string {
  */
 const PREVIEW_PATH = /^\/cms-preview$/;
 
+/**
+ * The page builder shows the draft beside its canvas, so the portal may frame a preview.
+ * `CMS_PREVIEW_ANCESTORS` (space or comma separated) overrides the default — set it to the
+ * portal's local origin in development.
+ */
+const DEFAULT_PREVIEW_ANCESTORS = ["https://website.exyconn.com"];
+
+function previewAncestors(): string {
+  const configured = (process.env.CMS_PREVIEW_ANCESTORS ?? "").split(/[\s,]+/).filter(Boolean);
+  const origins = configured.length > 0 ? configured : DEFAULT_PREVIEW_ANCESTORS;
+  return ["'self'", ...origins].join(" ");
+}
+
 /** Where the pages of a CMS site served without markets are rendered (src/pages/cms-site). */
 const OFF_MARKET_ROUTE = "/cms-site";
 
@@ -84,6 +97,9 @@ async function offMarketResponse(
   if (PREVIEW_PATH.test(pathname)) {
     const response = withSecurityHeaders(await next());
     response.headers.set("X-Robots-Tag", "noindex");
+    // Framed by the page builder's live preview; CSP frame-ancestors names the portal.
+    response.headers.delete("X-Frame-Options");
+    response.headers.set("Content-Security-Policy", `frame-ancestors ${previewAncestors()}`);
     return response;
   }
   const site = isPageRequest ? await offMarketSite(host) : null;

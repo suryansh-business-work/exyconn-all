@@ -10,6 +10,7 @@ import type { CmsDesignSystem } from "./types";
  * it nothing changes; another site's design system repaints every role.
  */
 const GROUP_PREFIXES = {
+  palette: "palette",
   fonts: "font-family",
   radii: "radius",
   shadows: "shadow",

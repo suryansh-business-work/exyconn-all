@@ -118,6 +118,28 @@ class CloudflareClient {
     return records;
   }
 
+  /** The A records of one fully qualified host name in a zone. */
+  async aRecords(zoneId: string, fqdn: string): Promise<CloudflareRecord[]> {
+    const body = await this.request<CloudflareRecord[]>(
+      await this.activeKey(),
+      `/zones/${zoneId}/dns_records?type=A&name=${encodeURIComponent(fqdn)}`,
+    );
+    return body.result;
+  }
+
+  async updateRecord(zoneId: string, recordId: string, payload: Record<string, unknown>) {
+    await this.request(await this.activeKey(), `/zones/${zoneId}/dns_records/${recordId}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+  }
+
+  async deleteRecord(zoneId: string, recordId: string): Promise<void> {
+    await this.request(await this.activeKey(), `/zones/${zoneId}/dns_records/${recordId}`, {
+      method: 'DELETE',
+    });
+  }
+
   async createRecord(zoneId: string, payload: Record<string, unknown>): Promise<void> {
     await this.request(await this.activeKey(), `/zones/${zoneId}/dns_records`, {
       method: 'POST',

@@ -130,6 +130,11 @@ export const env = Object.freeze({
     .split(',')
     .map((origin) => origin.trim())
     .filter(Boolean),
+  /**
+   * The public IPv4 address websites are served from, which Website › Settings offers as the
+   * A record for a site's domains. Empty leaves the address to type.
+   */
+  websiteServerIp: process.env.WEBSITE_SERVER_IP ?? '',
   /** Website > Chatbot > Sessions, linked from the support ticket every chat opens. */
   websiteChatConsoleUrl: (
     process.env.WEBSITE_CHAT_CONSOLE_URL ?? 'https://website.exyconn.com/website/chat/sessions'
