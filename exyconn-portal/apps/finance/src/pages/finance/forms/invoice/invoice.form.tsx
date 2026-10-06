@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -89,8 +90,25 @@ export function InvoiceForm({ initial, onDone, onCancel }: Readonly<InvoiceFormP
   });
   const currency = useWatch({ control: methods.control, name: 'currency' }) || companyCurrency;
   const stateOptions = useGstStateOptions();
+  const clients = clientsData?.listClients;
 
-  const clientOptions = (clientsData?.listClients ?? []).map((client) => ({
+  // Picking a client defaults the invoice to the currency that client is invoiced in, when it
+  // has one. Only a change of client does this, so an invoice opened for editing keeps its own.
+  const clientId = useWatch({ control: methods.control, name: 'clientId' });
+  const pickedClientId = useRef(clientId);
+  const { setValue } = methods;
+  useEffect(() => {
+    if (clientId === pickedClientId.current) {
+      return;
+    }
+    pickedClientId.current = clientId;
+    const clientCurrency = clients?.find((client) => client.id === clientId)?.currency;
+    if (clientCurrency) {
+      setValue('currency', clientCurrency, { shouldDirty: true });
+    }
+  }, [clientId, clients, setValue]);
+
+  const clientOptions = (clients ?? []).map((client) => ({
     value: client.id,
     label: `${client.name} · ${client.company}`,
   }));

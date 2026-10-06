@@ -22,7 +22,8 @@ const data = (overrides: Partial<InvoicePdfData['invoice']> = {}): InvoicePdfDat
     name: 'Priya',
     company: 'Acme',
     email: 'priya@acme.test',
-    gstin: '27AAACA9876B1Z2',
+    taxId: '27AAACA9876B1Z2',
+    taxIdLabel: 'GSTIN',
     billingAddress: '4 Marine Drive, Mumbai',
   },
   invoice: {
@@ -161,7 +162,8 @@ describe('invoiceDocument', () => {
 
     expect(document.title).toBe('Invoice');
     expect(document.supplier).not.toContain('GSTIN: 23AAACE1234F1Z5');
-    expect(labels(document.parties)).not.toContain('Client GSTIN');
+    // The client's own tax number is theirs to have printed, whatever country bills them.
+    expect(labels(document.parties)).toContain('Client GSTIN');
     expect(labels(document.parties)).not.toContain('Place of supply');
     expect(labels(document.totals)).toContain('Tax');
     expect(labels(document.totals)).not.toContain('IGST');
@@ -172,7 +174,7 @@ describe('invoiceDocument', () => {
     const bare = data();
     bare.company.gstin = '';
     bare.company.bankDetails = '';
-    bare.client.gstin = '';
+    bare.client.taxId = '';
 
     const document = invoiceDocument(bare);
 

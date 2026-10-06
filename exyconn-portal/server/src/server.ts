@@ -23,6 +23,7 @@ import { ensureAiModelPrices, startAiWorker } from './modules/ai';
 import { backfillAppLogGroupUsers } from './modules/logs';
 import { backfillPositionDefaults } from './modules/hr';
 import { runOnce } from './lib/migrations';
+import { migrateClientTaxIds } from './modules/clients';
 import { startReminderSweep } from './modules/reminders';
 import { startAuditRetention } from './modules/audit';
 import { ensureWhatsappDemoSeeds } from './modules/whatsapp-demo';
@@ -78,6 +79,12 @@ async function bootstrap(): Promise<void> {
   await forEachOrganization(
     () => runOnce('position-defaults', backfillPositionDefaults),
     'backfillPositionDefaults',
+  );
+  // Clients from before the portal was multi-country carry only a GSTIN: each becomes an
+  // Indian client with it as their tax number, once per company.
+  await forEachOrganization(
+    () => runOnce('client-tax-ids', migrateClientTaxIds),
+    'migrateClientTaxIds',
   );
   // The WhatsApp demo opens on its default industries. Each industry is seeded into a company
   // once (ledger line per industry key), so a new one ships on the next boot and an edited

@@ -69,9 +69,6 @@ export const YEAR_MONTH = /^\d{4}-(?:0[1-9]|1[0-2])$/;
 /** An Indian financial year as `YYYY-YY`, e.g. `2026-27`. */
 export const FINANCIAL_YEAR = /^\d{4}-\d{2}$/;
 
-/** A GSTIN — state code, PAN, entity number, the letter Z and a check character. */
-export const GSTIN = /^\d{2}[A-Z]{5}\d{4}[A-Z][1-9A-Z]Z[\dA-Z]$/;
-
 /** A two-digit GST state code, as the `gstStates` query lists them. */
 export const GST_STATE_CODE = /^\d{2}$/;
 
@@ -86,3 +83,5 @@ export const INDIAN_PINCODE = /^[1-9]\d{5}$/;
 
 /** A date typed as day/month/year, e.g. `14/08/1990` or `4-8-1990`. */
 export const DAY_MONTH_YEAR = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})$/;
+
+export * from './taxIds';

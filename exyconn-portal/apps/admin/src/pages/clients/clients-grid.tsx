@@ -4,11 +4,14 @@ import {
   DELETE_ACTION,
   EDIT_ACTION,
   actionsColumn,
+  derivedColumn,
   statusColumn,
   textColumn,
+  valueColumn,
   type CrudGridContext,
   type RowActionSpec,
 } from '@exyconn/crud';
+import { countryName } from '@exyconn/i18n';
 import type { ListClientsPagedQuery } from '@exyconn/shell/graphql/generated';
 
 export type PagedClientRow = ListClientsPagedQuery['listClientsPaged']['rows'][number];
@@ -30,6 +33,8 @@ export const CLIENT_COLUMNS: ColDef<PagedClientRow>[] = [
   textColumn('company', 'Company'),
   textColumn('email', 'Email'),
   textColumn('phone', 'Phone'),
+  valueColumn('country', 'Country', (row) => (row.country ? countryName(row.country) : '')),
+  derivedColumn('taxId', 'Tax ID', (row) => (row.taxId ? `${row.taxIdLabel} ${row.taxId}` : '')),
   statusColumn('status', 'Status'),
   actionsColumn([HUB_ACCESS_ACTION, EDIT_ACTION, DELETE_ACTION]),
 ];

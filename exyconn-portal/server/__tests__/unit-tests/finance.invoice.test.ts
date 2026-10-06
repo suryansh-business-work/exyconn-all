@@ -108,7 +108,8 @@ describe('invoice pdf', () => {
         name: 'Priya',
         company: 'Acme',
         email: 'priya@acme.test',
-        gstin: '',
+        taxId: '',
+        taxIdLabel: '',
         billingAddress: 'Mumbai',
       },
       invoice: {
