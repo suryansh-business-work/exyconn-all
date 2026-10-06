@@ -106,6 +106,7 @@ query ListSlackConfigs {
     label
     hasBotToken
     botTokenHint
+    hasSigningSecret
     defaultChannel
     isActive
   }

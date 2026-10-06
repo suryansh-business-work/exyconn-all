@@ -8,7 +8,8 @@ import {
 } from './models';
 import type { ChatAttachment } from './chat.media';
 import { chatHub } from './chat.hub';
-import { toMessage, toStaffSession } from './chat.serialize';
+import { toMessage, toStaffSession, toVisitorSession } from './chat.serialize';
+import { readChatSettings } from './chat.settings';
 
 export interface NewChatMessage {
   sessionId: string;
@@ -18,7 +19,12 @@ export interface NewChatMessage {
   senderId?: string;
   body: string;
   attachments?: ChatAttachment[];
+  sources?: Array<{ title: string; url: string }>;
+  suggestions?: string[];
 }
+
+/** Who keeps a chat alive by writing: a SYSTEM notice does not. */
+const ACTIVE_SENDERS: ReadonlySet<ChatSender> = new Set(['VISITOR', 'AGENT', 'BOT']);
 
 const PREVIEW_LENGTH = 140;
 const HISTORY_LIMIT = 1000;
@@ -35,13 +41,23 @@ function previewOf(message: NewChatMessage): string {
   return text.slice(0, PREVIEW_LENGTH);
 }
 
-/** How one new message changes its session: the list's preview, counts and reply clock. */
-function sessionChange(message: NewChatMessage, at: Date): UpdateQuery<ChatSessionDocument> {
+/**
+ * How one new message changes its session: the list's preview, counts, the reply clock and
+ * when the chat times out.
+ */
+function sessionChange(
+  message: NewChatMessage,
+  at: Date,
+  timeoutMinutes: number,
+): UpdateQuery<ChatSessionDocument> {
   const set: Record<string, unknown> = {
     lastMessageAt: at,
     lastMessagePreview: previewOf(message),
     lastSender: message.sender,
   };
+  if (ACTIVE_SENDERS.has(message.sender)) {
+    set.expiresAt = new Date(at.getTime() + timeoutMinutes * 60_000);
+  }
   const inc: Record<string, number> = { messageCount: 1 };
   if (message.sender === 'VISITOR' && message.channel === 'LIVE') {
     inc.staffUnread = 1;
@@ -52,9 +68,10 @@ function sessionChange(message: NewChatMessage, at: Date): UpdateQuery<ChatSessi
   return { $set: set, $inc: inc };
 }
 
-/** Tells the console a session changed (status, counts, assignee). */
+/** Tells the console and the visitor's widgets a session changed (status, assignee, timeout). */
 export function announceSession(session: Parameters<typeof toStaffSession>[0]): void {
   chatHub.toStaff({ t: 'session', session: toStaffSession(session) });
+  chatHub.toVisitors(String(session._id), { t: 'session', session: toVisitorSession(session) });
 }
 
 /**
@@ -66,7 +83,10 @@ export async function postMessage(message: NewChatMessage, clientId?: string) {
     ...message,
     senderId: message.senderId ?? '',
     attachments: message.attachments ?? [],
+    sources: message.sources ?? [],
+    suggestions: message.suggestions ?? [],
   });
+  const { sessionTimeoutMinutes } = await readChatSettings();
   if (message.sender === 'VISITOR' && message.channel === 'LIVE') {
     await ChatSessionModel.updateOne(
       { _id: message.sessionId, awaitingReplySince: null },
@@ -75,7 +95,7 @@ export async function postMessage(message: NewChatMessage, clientId?: string) {
   }
   const session = await ChatSessionModel.findByIdAndUpdate(
     message.sessionId,
-    sessionChange(message, created.createdAt),
+    sessionChange(message, created.createdAt, sessionTimeoutMinutes),
     { new: true },
   ).lean();
   const frame = { t: 'message', message: toMessage(created.toObject()), clientId };
@@ -112,6 +132,21 @@ export async function markReadByStaff(sessionId: string): Promise<void> {
     announceSession(session);
   }
   chatHub.toVisitors(sessionId, { t: 'read', by: 'AGENT', at: now });
+}
+
+/** The visitor's thumbs up or down on one of the bot's answers in their own session. */
+export async function rateAnswer(sessionId: string, messageId: string, helpful: boolean) {
+  const message = await ChatMessageModel.findOneAndUpdate(
+    { _id: messageId, sessionId, sender: 'BOT' },
+    { feedback: helpful ? 'UP' : 'DOWN' },
+    { new: true },
+  ).lean();
+  if (!message) {
+    return;
+  }
+  const frame = { t: 'messageUpdated', message: toMessage(message) };
+  chatHub.toVisitors(sessionId, frame);
+  chatHub.toStaff(frame);
 }
 
 /** The visitor has read the replies: shows "Seen" in the console. */

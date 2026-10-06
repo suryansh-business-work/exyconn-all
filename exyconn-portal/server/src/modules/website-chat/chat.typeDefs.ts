@@ -47,6 +47,27 @@ export const websiteChatTypeDefs = gql`
     size: Int!
   }
 
+  "A page the knowledge bot answered from."
+  type WebsiteChatSource {
+    title: String!
+    url: String!
+  }
+
+  enum WebsiteChatFeedback {
+    UP
+    DOWN
+  }
+
+  "A team member a chat can be handed to, and how busy they are right now."
+  type WebsiteChatAgent {
+    id: ID!
+    name: String!
+    email: String!
+    "Used a portal in the last few minutes."
+    online: Boolean!
+    openChats: Int!
+  }
+
   "A conversation with a visitor of exyconn.com or tools.exyconn.com, opened after their email was verified."
   type WebsiteChatSession {
     id: ID!
@@ -70,6 +91,11 @@ export const websiteChatTypeDefs = gql`
     "Set while a visitor waits for a person; the handoff moves the question to the bot when it is too old."
     awaitingReplySince: DateTime
     handedOffAt: DateTime
+    assignedAt: DateTime
+    "When the chat closes if neither side writes again (the session timeout)."
+    expiresAt: DateTime
+    "Whether the assigned agent follows this chat in a Slack thread."
+    slackLinked: Boolean!
     closedAt: DateTime
     closedBy: String!
     createdAt: DateTime!
@@ -89,6 +115,12 @@ export const websiteChatTypeDefs = gql`
     senderName: String!
     body: String!
     attachments: [WebsiteChatAttachment!]!
+    "A bot answer's sources."
+    sources: [WebsiteChatSource!]!
+    "Follow-up questions the bot suggested."
+    suggestions: [String!]!
+    "The visitor's rating of a bot answer; null until they rate it."
+    feedback: WebsiteChatFeedback
     createdAt: DateTime!
     readAt: DateTime
   }
@@ -126,6 +158,14 @@ export const websiteChatTypeDefs = gql`
     maxUploadMb: Int!
     soundEnabledByDefault: Boolean!
     transcriptOnClose: Boolean!
+    "Minutes without a message from either side before a chat closes (2 to 120)."
+    sessionTimeoutMinutes: Int!
+    "The OpenAI model the knowledge is embedded with."
+    embeddingModel: String!
+    "Portal users a new chat may be handed to; the freest of them gets it."
+    agentIds: [ID!]!
+    "Opens a Slack thread for the assigned agent, which they can answer the visitor from."
+    slackEnabled: Boolean!
     "Whether the team is on duty right now, by the opening hours."
     online: Boolean!
     knowledgeSyncedAt: DateTime
@@ -151,6 +191,14 @@ export const websiteChatTypeDefs = gql`
     maxUploadMb: Int!
     soundEnabledByDefault: Boolean!
     transcriptOnClose: Boolean!
+    "Minutes without a message from either side before a chat closes (2 to 120)."
+    sessionTimeoutMinutes: Int!
+    "The OpenAI model the knowledge is embedded with."
+    embeddingModel: String!
+    "Portal users a new chat may be handed to; the freest of them gets it."
+    agentIds: [ID!]!
+    "Opens a Slack thread for the assigned agent, which they can answer the visitor from."
+    slackEnabled: Boolean!
   }
 
   "A question and answer in the chat widget's FAQs tab."
@@ -214,6 +262,8 @@ export const websiteChatTypeDefs = gql`
     "Both threads of one chat, oldest first."
     websiteChatMessages(sessionId: ID!): [WebsiteChatMessage!]!
     websiteChatSettings: WebsiteChatSettings!
+    "Support and website team members a chat can be handed to, with their current load."
+    websiteChatAgentCandidates: [WebsiteChatAgent!]!
   }
 
   extend type Mutation {

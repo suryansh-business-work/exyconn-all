@@ -16,7 +16,13 @@ import {
   WebsiteChatStatus,
   type WebsiteChatSessionsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
-import { LastMessageCell, UnreadCell, VisitorCell } from './chat-sessions-cells';
+import {
+  AssigneeCell,
+  ClosesInCell,
+  LastMessageCell,
+  UnreadCell,
+  VisitorCell,
+} from './chat-sessions-cells';
 
 export type ChatSessionRow =
   WebsiteChatSessionsPagedQuery['websiteChatSessionsPaged']['rows'][number];
@@ -52,6 +58,14 @@ const relativeLastMessage = (params: ValueFormatterParams<ChatSessionRow>): stri
   return [row.lastMessagePreview, when].filter(Boolean).join(' · ');
 };
 
+const relativeExpiry = (params: ValueFormatterParams<ChatSessionRow>): string => {
+  const row = params.data;
+  if (row?.status !== WebsiteChatStatus.Open || !row.expiresAt) {
+    return '';
+  }
+  return (params.context as ChatSessionsGridContext).formatRelative(row.expiresAt);
+};
+
 /**
  * Column model for Website > Chatbot > Chat Sessions. Name, email, phone, ticket and the last
  * message are what the search box looks through; the toolbar holds the other filters. Only the
@@ -77,6 +91,7 @@ export const CHAT_SESSION_COLUMNS: ColDef<ChatSessionRow>[] = [
       'Assignee',
       (row, t) => row.assigneeName || t('Unassigned'),
     ),
+    cellRenderer: AssigneeCell,
     sortable: false,
   },
   {
@@ -87,6 +102,15 @@ export const CHAT_SESSION_COLUMNS: ColDef<ChatSessionRow>[] = [
     filter: false,
     floatingFilter: false,
     minWidth: 240,
+  },
+  {
+    field: 'expiresAt',
+    headerName: 'Closes',
+    cellRenderer: ClosesInCell,
+    valueFormatter: relativeExpiry,
+    sortable: false,
+    filter: false,
+    floatingFilter: false,
   },
   {
     ...valueColumn<ChatSessionRow>('staffUnread', 'Unread', (row) => String(row.staffUnread)),

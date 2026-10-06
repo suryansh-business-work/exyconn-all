@@ -1,15 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useApolloClient } from '@apollo/client/react';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import {
+  WebsiteChatMessagesDocument,
   WebsiteChatSender,
   useWebsiteChatMessagesQuery,
   useWebsiteChatSessionQuery,
+  type WebsiteChatMessagesQuery,
+  type WebsiteChatMessagesQueryVariables,
 } from '@exyconn/shell/graphql/generated';
 import { useChatFrames } from '../chat.context';
 import type { ChatMessage, ChatSession } from '../socket/chatSocket.types';
 import {
   mergeMessages,
   newerSession,
+  toCachedMessage,
   withVisitorRead,
   type PendingMessage,
 } from './conversation.messages';
@@ -24,6 +29,7 @@ const TYPING_TIMEOUT_MS = 8000;
  */
 export function useConversation(sessionId: string) {
   const notify = useNotify();
+  const { cache } = useApolloClient();
   const sessionQuery = useWebsiteChatSessionQuery({ variables: { id: sessionId } });
   const messagesQuery = useWebsiteChatMessagesQuery({
     variables: { sessionId },
@@ -59,6 +65,24 @@ export function useConversation(sessionId: string) {
     }
   };
 
+  /** A message changed in place (a rated bot answer): swap it in the cached history and here. */
+  const update = (message: ChatMessage) => {
+    const cached = toCachedMessage(message);
+    cache.updateQuery<WebsiteChatMessagesQuery, WebsiteChatMessagesQueryVariables>(
+      { query: WebsiteChatMessagesDocument, variables: { sessionId: message.sessionId } },
+      (data) =>
+        data && {
+          ...data,
+          websiteChatMessages: data.websiteChatMessages.map((known) =>
+            known.id === message.id ? cached : known,
+          ),
+        },
+    );
+    if (message.sessionId === sessionId) {
+      setLive((previous) => previous.map((known) => (known.id === message.id ? message : known)));
+    }
+  };
+
   /** Shows the refusal; when it names one of this page's replies, marks that reply failed. */
   const refuse = (reason: string, clientId?: string) => {
     notify(reason, 'error');
@@ -74,13 +98,16 @@ export function useConversation(sessionId: string) {
           receive(frame.message, frame.clientId);
         }
         return;
+      case 'messageUpdated':
+        update(frame.message);
+        return;
       case 'session':
         if (frame.session.id === sessionId) {
           setSocketSession(frame.session);
         }
         return;
       case 'typing':
-        if (frame.sessionId === sessionId) {
+        if (frame.sessionId === sessionId && frame.who === 'VISITOR') {
           setTypingName(frame.on ? frame.name : null);
         }
         return;

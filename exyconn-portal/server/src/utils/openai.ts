@@ -12,6 +12,10 @@ interface CompletionResponse {
   usage?: { prompt_tokens: number; completion_tokens: number; total_tokens: number };
 }
 
+interface EmbeddingResponse {
+  data: Array<{ index: number; embedding: number[] }>;
+}
+
 /** What one finished completion produced, in the shape an AI job stores. */
 export interface CompletionResult {
   text: string;
@@ -76,6 +80,24 @@ class OpenAiClient {
   async listModels(apiKey: string): Promise<string[]> {
     const body = await this.request<ModelListResponse>(apiKey, '/v1/models');
     return body.data.map((model) => model.id).sort((a, b) => a.localeCompare(b));
+  }
+
+  /** Embeds each text (one vector per input, in order) with an embedding model. */
+  async embed(
+    apiKey: string,
+    model: string,
+    input: string[],
+    signal?: AbortSignal,
+  ): Promise<number[][]> {
+    const body = await this.request<EmbeddingResponse>(
+      apiKey,
+      '/v1/embeddings',
+      { model, input },
+      signal,
+    );
+    // The response is ours to reorder: sorting it in place changes nothing anybody else holds.
+    body.data.sort((a, b) => a.index - b.index);
+    return body.data.map((row) => row.embedding);
   }
 
   /** Runs one prompt and returns the answer with the token usage it cost. */

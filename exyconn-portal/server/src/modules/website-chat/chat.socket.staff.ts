@@ -33,6 +33,7 @@ export async function handleStaffFrame(peer: ChatPeer, raw: unknown): Promise<vo
         t: 'typing',
         who: 'AGENT',
         name: agent.name,
+        channel: 'LIVE',
         on: frame.on,
       });
       return;

@@ -3,13 +3,17 @@ import { Link as RouterLink } from 'react-router-dom';
 import { useT } from '@exyconn/i18n';
 import { HTTP_URL } from '@exyconn/regex';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Box, Button, Flex, Grid, Heading, Link, Text } from '@exyconn/shell/components/ui';
+import ForumOutlinedIcon from '@mui/icons-material/ForumOutlined';
+import { Box, Button, Chip, Flex, Grid, Heading, Link, Text } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { panel } from '@exyconn/shell/components/glass/glass';
+import { useSettings } from '@exyconn/shell/hooks/useSettings';
+import { WebsiteChatStatus } from '@exyconn/shell/graphql/generated';
 import { CHAT_PATHS } from '../chat.routes';
 import { ChatConsoleStatus } from '../alerts/ChatConsoleStatus';
 import { SITE_LABEL } from '../sessions/chat-sessions-grid';
 import type { ChatSession } from '../socket/chatSocket.types';
+import { ClosesCountdown } from './ClosesCountdown';
 import { ConversationActions, type ConversationActionsProps } from './ConversationActions';
 
 interface ConversationHeaderProps extends ConversationActionsProps {
@@ -34,6 +38,14 @@ function Detail({ label, children }: Readonly<{ label: string; children: ReactNo
 /** Who the visitor is, where they wrote from, who has the chat, and what can be done with it. */
 export function ConversationHeader({ session, ...actions }: Readonly<ConversationHeaderProps>) {
   const t = useT();
+  const { formatDateTime } = useSettings();
+  const since = session.assignedAt
+    ? t('since {time}', { time: formatDateTime(session.assignedAt) })
+    : '';
+  const assignee = session.assigneeName
+    ? [session.assigneeName, since].filter(Boolean).join(' · ')
+    : t('Unassigned');
+  const closesAt = session.status === WebsiteChatStatus.Open ? session.expiresAt : null;
 
   return (
     <Box sx={{ mb: 2 }}>
@@ -51,11 +63,20 @@ export function ConversationHeader({ session, ...actions }: Readonly<Conversatio
           alignItems={{ xs: 'flex-start', md: 'center' }}
           sx={{ mb: 2 }}
         >
-          <Flex direction="row" spacing={1} alignItems="center">
+          <Flex direction="row" spacing={1} wrap alignItems="center">
             <Heading level={1} sx={{ typography: 'h5' }}>
               {session.name}
             </Heading>
             <StatusChip value={session.status} />
+            {session.slackLinked && (
+              <Chip
+                size="small"
+                variant="outlined"
+                icon={<ForumOutlinedIcon />}
+                label={t('Slack thread')}
+              />
+            )}
+            {closesAt && <ClosesCountdown expiresAt={closesAt} />}
           </Flex>
           <ConversationActions {...actions} />
         </Flex>
@@ -75,7 +96,7 @@ export function ConversationHeader({ session, ...actions }: Readonly<Conversatio
             )}
           </Detail>
           <Detail label="Ticket">{session.ticketReference || '—'}</Detail>
-          <Detail label="Assignee">{session.assigneeName || t('Unassigned')}</Detail>
+          <Detail label="Assignee">{assignee}</Detail>
         </Grid>
       </Box>
     </Box>

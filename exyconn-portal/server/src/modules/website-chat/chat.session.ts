@@ -7,10 +7,10 @@ import { emailer } from '../email/email.service';
 import { fileClientTicket } from '../support/client-ticket.service';
 import { ChatSessionModel, type ChatSite } from './models';
 import { readChatPass, signChatPass } from './chat.token';
-import { chatHub } from './chat.hub';
 import { announceSession, listMessages, postMessage } from './chat.messages';
 import { readChatSettings } from './chat.settings';
 import { emailTranscript } from './chat.transcript';
+import { assignFreeAgent } from './chat.assign';
 import { toVisitorSession } from './chat.serialize';
 import type { ChatIdentity } from './chat.validation';
 
@@ -88,7 +88,11 @@ async function openTicket(sessionId: string, identity: ChatIdentity) {
  */
 export async function openSession(identity: ChatIdentity) {
   await enforceLimit(sessionLimiter, identity.email, 'new chats for this address');
-  const session = await ChatSessionModel.create({ ...identity });
+  const settings = await readChatSettings();
+  const session = await ChatSessionModel.create({
+    ...identity,
+    expiresAt: new Date(Date.now() + settings.sessionTimeoutMinutes * 60_000),
+  });
   const sessionId = String(session._id);
   const ticket = await openTicket(sessionId, identity);
   const saved = await ChatSessionModel.findByIdAndUpdate(
@@ -99,7 +103,6 @@ export async function openSession(identity: ChatIdentity) {
   if (!saved) {
     notFound('Chat');
   }
-  const settings = await readChatSettings();
   await postMessage({
     sessionId,
     channel: 'LIVE',
@@ -116,7 +119,9 @@ export async function openSession(identity: ChatIdentity) {
     })
     .catch((error: unknown) => logger.error({ err: error }, 'Website chat confirmation failed'));
   announceSession(saved);
-  return signedIn(saved);
+  await assignFreeAgent(sessionId);
+  const current = await ChatSessionModel.findById(sessionId).lean();
+  return signedIn(current ?? saved);
 }
 
 /** What the widget gets on signing in or reconnecting: its pass, session and conversation. */
@@ -170,10 +175,11 @@ export async function startNewChat(token: string) {
 }
 
 /**
- * Ends a chat — the visitor or the team — and, when the settings say so, emails the visitor
- * the conversation. The ticket stays with the desk: ending the chat is not resolving it.
+ * Ends a chat — the visitor, the team or the session timeout — and, when the settings say so,
+ * emails the visitor the conversation. The ticket stays with the desk: ending the chat is not
+ * resolving it. `notice` is what the visitor reads; by default, who ended it.
  */
-export async function closeSession(sessionId: string, closedBy: string) {
+export async function closeSession(sessionId: string, closedBy: string, notice?: string) {
   const session = await ChatSessionModel.findOneAndUpdate(
     { _id: sessionId, status: 'OPEN' },
     { status: 'CLOSED', closedAt: new Date(), closedBy, awaitingReplySince: null },
@@ -191,9 +197,12 @@ export async function closeSession(sessionId: string, closedBy: string) {
     channel: 'LIVE',
     sender: 'SYSTEM',
     senderName: '',
-    body: `Chat ended by ${closedBy}.`,
+    body: notice ?? `Chat ended by ${closedBy}.`,
   });
-  chatHub.toVisitors(sessionId, { t: 'session', session: toVisitorSession(session) });
+  const closed = await ChatSessionModel.findById(sessionId).lean();
+  if (closed) {
+    announceSession(closed);
+  }
   const { transcriptOnClose } = await readChatSettings();
   if (transcriptOnClose) {
     emailTranscript(session).catch((error: unknown) =>

@@ -4,6 +4,7 @@ import { Box, Button, Flex, Text, enterAnimation } from '@exyconn/shell/componen
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { WebsiteChatSender } from '@exyconn/shell/graphql/generated';
 import type { ChatMessage } from '../socket/chatSocket.types';
+import { BotMessageDetails } from './BotMessageDetails';
 import { MessageAttachments } from './MessageAttachments';
 
 /** Where a reply is: on its way, refused by the server, or delivered (from the server). */
@@ -117,6 +118,7 @@ export function MessageBubble({
         )}
         <MessageAttachments attachments={message.attachments} />
       </Box>
+      {message.sender === WebsiteChatSender.Bot && <BotMessageDetails message={message} />}
       {isAgent && <DeliveryNote message={message} delivery={delivery} onDismiss={onDismiss} />}
     </Flex>
   );

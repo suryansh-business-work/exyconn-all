@@ -107,6 +107,8 @@ const TRACKER_BUILD_HISTORY = 10;
 export interface SlackConfigInput {
   label: string;
   botToken: string;
+  /** Optional; lets Slack thread replies reach website chat visitors. */
+  signingSecret?: string | null;
   defaultChannel: string;
   isActive?: boolean;
 }
@@ -237,7 +239,10 @@ class TechService {
     if (input.isActive) {
       await SlackConfigModel.updateMany({ _id: { $ne: id } }, { isActive: false });
     }
-    const update = withoutBlankSecret(input, 'botToken');
+    const update = withoutBlankSecret(
+      withoutBlankSecret(input, 'botToken') as SlackConfigInput,
+      'signingSecret',
+    );
     const doc = await SlackConfigModel.findByIdAndUpdate(id, update, { new: true }).lean();
     if (!doc) notFound('Slack config');
     return doc;

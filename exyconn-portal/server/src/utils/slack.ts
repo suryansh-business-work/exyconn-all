@@ -29,8 +29,38 @@ interface ConversationsListResponse extends SlackApiResponse {
   response_metadata?: { next_cursor?: string };
 }
 
+interface PostMessageResponse extends SlackApiResponse {
+  channel: string;
+  ts: string;
+}
+
+interface UserLookupResponse extends SlackApiResponse {
+  user?: { id: string; real_name?: string; profile?: { email?: string; real_name?: string } };
+}
+
+/** Where a posted message landed: the conversation and the message's timestamp (its id). */
+export interface SlackPost {
+  channel: string;
+  ts: string;
+}
+
+/** A Slack member as the website chat knows them. */
+export interface SlackMember {
+  id: string;
+  name: string;
+  email: string;
+}
+
 /** Slack pages this endpoint; 200 per page keeps a typical workspace to one call. */
 const CHANNELS_PAGE_SIZE = 200;
+
+function toMember(user: NonNullable<UserLookupResponse['user']>): SlackMember {
+  return {
+    id: user.id,
+    name: user.profile?.real_name || user.real_name || user.id,
+    email: user.profile?.email ?? '',
+  };
+}
 
 /**
  * Slack notifier (singleton). The bot token is loaded from the active Slack
@@ -76,6 +106,47 @@ class SlackNotifier {
     const target = channel ?? config.defaultChannel;
     await this.call(config, 'chat.postMessage', { channel: target, text });
     logger.info(`Slack message posted to ${target}`);
+  }
+
+  /**
+   * Posts to a conversation (a channel, or a member's id for a direct message from the app),
+   * optionally as a reply in a thread, and says where it landed.
+   */
+  async post(channel: string, text: string, threadTs?: string): Promise<SlackPost> {
+    const config = await this.getActiveConfig();
+    const result = await this.call<PostMessageResponse>(config, 'chat.postMessage', {
+      channel,
+      text,
+      ...(threadTs ? { thread_ts: threadTs } : {}),
+    });
+    return { channel: result.channel, ts: result.ts };
+  }
+
+  /** The Slack member with this email (needs the users:read.email scope), or null. */
+  async memberByEmail(email: string): Promise<SlackMember | null> {
+    const config = await this.getActiveConfig();
+    try {
+      const result = await this.call<UserLookupResponse>(config, 'users.lookupByEmail', { email });
+      return result.user ? toMember(result.user) : null;
+    } catch (error) {
+      logger.warn({ err: error }, 'Slack member lookup by email failed');
+      return null;
+    }
+  }
+
+  /** The Slack member behind an id, as their profile says (name and email). */
+  async member(id: string): Promise<SlackMember | null> {
+    const config = await this.getActiveConfig();
+    const result = await this.call<UserLookupResponse>(config, 'users.info', { user: id });
+    return result.user ? toMember(result.user) : null;
+  }
+
+  /** The active config's signing secret, or '' when none is stored. */
+  async signingSecret(): Promise<string> {
+    const config = await SlackConfigModel.findOne({ isActive: true })
+      .select('signingSecret')
+      .lean();
+    return config?.signingSecret ?? '';
   }
 
   /**

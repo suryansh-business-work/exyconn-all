@@ -50,6 +50,12 @@ const chatSessionSchema = new Schema(
      */
     awaitingReplySince: { type: Date, default: null, index: true },
     handedOffAt: { type: Date, default: null },
+    assignedAt: { type: Date, default: null },
+    /** When the chat closes if neither side writes again (the settings' session timeout). */
+    expiresAt: { type: Date, default: null, index: true },
+    /** The Slack DM thread the assigned agent follows this chat in, when Slack is on. */
+    slackChannel: { type: String, default: '', trim: true },
+    slackThreadTs: { type: String, default: '', trim: true, index: true },
     closedAt: { type: Date, default: null },
     closedBy: { type: String, default: '', trim: true },
     /** Raised to retire every pass issued for this session. */

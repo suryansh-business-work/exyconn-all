@@ -5,7 +5,8 @@ import { handOff } from './chat.handoff';
 import { isWithinHours } from './chat.hours';
 import { chatHub, type ChatPeer } from './chat.hub';
 import { uploadChatFiles } from './chat.media';
-import { markReadByVisitor, postMessage } from './chat.messages';
+import { markReadByVisitor, postMessage, rateAnswer } from './chat.messages';
+import { relayToSlack } from './chat.slack';
 import {
   closeSession,
   requestChatCode,
@@ -89,9 +90,10 @@ async function send(peer: ChatPeer, frame: SendFrame): Promise<void> {
   };
   await postMessage({ ...message, channel: frame.channel, attachments }, frame.clientId);
   if (frame.channel === 'KNOWLEDGE') {
-    await answerQuestion(sessionId, frame.body);
+    await answerQuestion(sessionId, frame.body, 'KNOWLEDGE');
     return;
   }
+  relayToSlack(session, session.name, frame.body, attachments);
   if (!isWithinHours(settings)) {
     await handOff(sessionId, settings.offlineMessage);
   }
@@ -129,6 +131,11 @@ export async function handleVisitorFrame(peer: ChatPeer, raw: unknown): Promise<
     case 'read':
       if (peer.sessionId) {
         await markReadByVisitor(peer.sessionId);
+      }
+      return;
+    case 'feedback':
+      if (peer.sessionId) {
+        await rateAnswer(peer.sessionId, frame.messageId, frame.helpful);
       }
       return;
     case 'end': {

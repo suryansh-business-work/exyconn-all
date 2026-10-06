@@ -13,6 +13,7 @@ const stored: SlackConfigRow = {
   label: 'Workspace',
   hasBotToken: true,
   botTokenHint: 'wxyz',
+  hasSigningSecret: false,
   defaultChannel: '#releases',
   isActive: true,
 };

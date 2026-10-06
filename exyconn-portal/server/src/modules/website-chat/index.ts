@@ -13,3 +13,4 @@ export { websiteChatResolvers } from './chat.resolvers';
 export { websiteChatLibraryResolvers } from './chat.library';
 export { attachChatSocket, CHAT_SOCKET_PATH } from './chat.socket';
 export { startChatHandoff } from './chat.handoff';
+export { SLACK_EVENTS_PATH, slackEventsRouter } from './chat.slack';
