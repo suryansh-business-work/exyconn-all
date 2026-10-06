@@ -2,6 +2,7 @@ import type { APIRoute } from "astro";
 
 import { aiServices } from "../lib/services/aiServices";
 import { DEFAULT_MARKET, MARKETS, marketUrl } from "../lib/i18n/markets";
+import { publishedPaths, withPaths } from "../lib/cms";
 
 const SITE_URL = "https://exyconn.com";
 
@@ -81,12 +82,26 @@ ${alternates}
   ).join("\n");
 }
 
-export const GET: APIRoute = async () => {
+/** A page of a CMS site served without markets: one URL, on the site's own domain. */
+function plainEntry(origin: string, page: string, lastmod: string): string {
+  return `  <url>
+    <loc>${origin}${page === "" ? "/" : page}</loc>
+    <lastmod>${lastmod}</lastmod>
+  </url>`;
+}
+
+export const GET: APIRoute = async ({ request }) => {
   const lastmod = new Date().toISOString().split("T")[0];
+  // The pages published in the CMS, beside the hand-written ones (each listed once).
+  const { site, paths } = await publishedPaths(request.headers.get("host") ?? "");
+  const offMarket = site !== null && !site.markets && site.domains.length > 0;
+  const entries = offMarket
+    ? paths.map((page) => plainEntry(`https://${site.domains[0]}`, page, lastmod))
+    : withPaths(staticPages, paths).map((page) => urlEntry(page, lastmod));
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-${staticPages.map((page) => urlEntry(page, lastmod)).join("\n")}
+${entries.join("\n")}
 </urlset>`;
 
   return new Response(sitemap, {

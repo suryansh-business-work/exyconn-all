@@ -15,6 +15,7 @@ COPY exyconn-portal/server/package.json exyconn-portal/server/
 COPY exyconn-portal/ui/package.json exyconn-portal/ui/
 COPY exyconn-website/package.json exyconn-website/
 COPY exyconn-tracker-app/package.json exyconn-tracker-app/
+COPY packages/cms/package.json packages/cms/
 COPY packages/regex/package.json packages/regex/
 COPY packages/seo/package.json packages/seo/
 COPY packages/config/package.json packages/config/
@@ -24,10 +25,11 @@ COPY scripts/install-git-hooks.mjs scripts/
 RUN pnpm install --frozen-lockfile --filter exyconn...
 
 FROM deps AS build
-# The forms' validation patterns and the head renderer (@exyconn/seo): TS source that Vite
-# inlines into the build, so it is only needed here, never at runtime. Their tsconfigs may
-# extend @exyconn/config's, which esbuild resolves while transforming them — without config
-# the build fails before emitting a page.
+# The forms' validation patterns, the CMS model (@exyconn/cms) and the head renderer
+# (@exyconn/seo): TS source that Vite inlines into the build, so it is only needed here,
+# never at runtime. Their tsconfigs may extend @exyconn/config's, which esbuild resolves
+# while transforming them — without config the build fails before emitting a page.
+COPY packages/cms packages/cms
 COPY packages/regex packages/regex
 COPY packages/seo packages/seo
 COPY packages/config packages/config

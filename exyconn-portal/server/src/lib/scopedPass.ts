@@ -9,7 +9,7 @@ import { derivedKey } from '../utils/derivedKey';
  * A pass names its holder and the holder's token version; the holder's record is read on
  * every request, so blocking the holder or raising the version retires it at once.
  */
-export type PassPurpose = 'whatsapp-demo-visitor' | 'client-hub' | 'website-chat';
+export type PassPurpose = 'whatsapp-demo-visitor' | 'client-hub' | 'website-chat' | 'cms-preview';
 
 const ALGORITHM = 'HS256';
 const ISSUER = 'exyconn-portal';

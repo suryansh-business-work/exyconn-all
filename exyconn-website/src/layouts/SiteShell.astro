@@ -1,0 +1,168 @@
+---
+/**
+ * The document every page is served in — hand-written pages through Page.astro, CMS pages
+ * through CmsPage.astro: head (preference scripts, analytics, favicon, every meta tag), skip
+ * link, header, main, footer, and the site-wide modals and scripts.
+ *
+ * Slots: `head` (extra head markup), `header` / `footer` (default: the site's own), the page
+ * itself, and `body-end` (markup before </body>).
+ */
+import "../styles/global.scss";
+import "../styles/global.css";
+import "../styles/chrome.css";
+import BackToTop from "../components/fragments/BackToTop.astro";
+import Footer from "../components/header-and-footer/Footer.astro";
+import MarketSuggestion from "../components/MarketSuggestion.astro";
+import Header from "../components/header-and-footer/Header.astro";
+import SearchModal from "../components/SearchModal.astro";
+import HeadScripts from "../components/header-and-footer/HeadScripts.astro";
+import { getBrandingSafe, type Branding } from "../lib/portal";
+import { renderHead } from "@exyconn/seo";
+import { buildPageMeta, faviconOf, type PageSeoInput } from "../lib/chrome/page-meta";
+import { DEFAULT_MARKET, splitMarketPath } from "../lib/i18n/markets";
+
+interface Props extends PageSeoInput {
+  /** Fetched here when the page has not already fetched it. */
+  branding?: Branding;
+  /** The site's own favicon (a CMS site's); else Admin › Branding's. */
+  siteFavicon?: string;
+  /** False for a site served without markets: no hreflang alternates, `locale` as language. */
+  markets?: boolean;
+  /** The site's origin, no trailing slash; defaults to astro.config's `site`. */
+  siteUrl?: string;
+  /** The path without a market prefix; derived from the URL when omitted. */
+  path?: string;
+  locale?: string;
+  /** False drops the header and footer (a CMS page with the "bare" layout). */
+  chrome?: boolean;
+}
+
+const {
+  branding: givenBranding,
+  siteFavicon = "",
+  markets = true,
+  siteUrl,
+  path,
+  locale = DEFAULT_MARKET.locale,
+  chrome = true,
+  ...seo
+} = Astro.props;
+
+const SITE_URL = siteUrl ?? (Astro.site?.toString() || "https://exyconn.com/").replace(/\/$/, "");
+
+// Branding is fetched once per page and passed down to Header/Footer. `getBrandingSafe` never
+// throws — see queries.ts for why branding is the one portal query allowed a fallback.
+const branding = givenBranding ?? (await getBrandingSafe());
+const faviconUrl = faviconOf(branding, siteFavicon);
+
+// Only tag the icon as SVG when it actually is one; an uploaded PNG/ICO favicon would be
+// ignored by some browsers if mislabelled, and Astro drops the attribute when undefined.
+const faviconType = faviconUrl.toLowerCase().includes(".svg") ? "image/svg+xml" : undefined;
+
+// The market the middleware resolved is on `locals`; the path without it is the page's own.
+// Canonical: query/hash and trailing slashes stripped (root stays "/").
+const market = markets ? (Astro.locals.market ?? DEFAULT_MARKET) : null;
+const rawPath = Astro.url.pathname.replace(/\/+$/, "") || "/";
+const pagePath = path ?? splitMarketPath(rawPath).rest;
+const pageMeta = buildPageMeta(seo, branding, {
+  siteUrl: SITE_URL,
+  pagePath,
+  market,
+  locale,
+});
+---
+
+<!doctype html>
+<html lang={pageMeta.locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <HeadScripts />
+    <link rel="icon" type={faviconType} href={faviconUrl} />
+    <meta name="generator" content={Astro.generator} />
+    <!-- Apple touch icon for iOS -->
+    <link rel="apple-touch-icon" href={faviconUrl} />
+
+    <!-- Title, description, canonical, hreflang, robots, Open Graph, Twitter, JSON-LD -->
+    <Fragment set:html={renderHead(pageMeta)} />
+    <slot name="head" />
+  </head>
+  <body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript
+      ><iframe
+        src="https://www.googletagmanager.com/ns.html?id=GTM-5LF624ZH"
+        height="0"
+        width="0"
+        style="display:none;visibility:hidden"></iframe></noscript
+    >
+    <!-- End Google Tag Manager (noscript) -->
+
+    <!-- Skip to main content link for keyboard users -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    {
+      chrome && (
+        <slot name="header">
+          <Header branding={branding} />
+        </slot>
+      )
+    }
+
+    <main id="main-content" role="main" tabindex="-1">
+      <slot />
+    </main>
+
+    {
+      chrome && (
+        <slot name="footer">
+          <Footer branding={branding} />
+        </slot>
+      )
+    }
+    <MarketSuggestion />
+
+    <!-- Global search modal (Ctrl/Cmd+K, /, or [data-search-open] triggers) -->
+    <SearchModal />
+
+    <!-- Global anime.js scroll-reveal animations (lazy, respects reduced motion) -->
+    <script>
+      import "../scripts/anime-init.ts";
+    </script>
+
+    <!-- Focus containment for every modal (mobile menu, search, cookie + accessibility drawers) -->
+    <script>
+      import "../scripts/modal-dialogs.ts";
+    </script>
+
+    <BackToTop />
+
+    <!-- Visitor chat: the same one-line loader every site uses; it opens /embed/chat in an
+         iframe when the browser is idle (public/embed/chat.js). -->
+    <script is:inline src="/embed/chat.js" data-site="WEBSITE" defer></script>
+    <slot name="body-end" />
+  </body>
+</html>
+
+<style>
+  /* `min-height`, not `height`: a 100%-tall body ends the sticky header one screen down. */
+  html,
+  body {
+    margin: 0;
+    width: 100%;
+    min-height: 100%;
+  }
+
+  /* Smooth scroll only when user hasn't disabled it */
+  @media (prefers-reduced-motion: no-preference) {
+    html {
+      scroll-behavior: smooth;
+    }
+  }
+
+  /* Remove focus outline on main content after navigation */
+  #main-content:focus {
+    outline: none;
+  }
+</style>

@@ -29,6 +29,8 @@ export const jobCompanyTypeDefs = gql`
 
   type JobCompany {
     id: ID!
+    "The website it belongs to (Website > Websites)."
+    siteId: String!
     companyCode: String!
     slug: String!
     name: String!
@@ -52,6 +54,7 @@ export const jobCompanyTypeDefs = gql`
   }
 
   input JobCompanyInput {
+    siteId: String
     companyCode: String!
     slug: String!
     name: String!
@@ -82,8 +85,8 @@ export const jobCompanyTypeDefs = gql`
     listJobCompaniesPaged(input: TableQueryInput!): JobCompanyPage!
     listJobCompaniesStats: TableStats!
     getJobCompany(id: ID!): JobCompany!
-    publicJobCompanies: [JobCompany!]!
-    publicJobCompany(slug: String!): JobCompany
+    publicJobCompanies(site: String): [JobCompany!]!
+    publicJobCompany(slug: String!, site: String): JobCompany
   }
 
   extend type Mutation {

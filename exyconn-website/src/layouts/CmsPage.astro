@@ -1,0 +1,85 @@
+---
+/**
+ * A page from the CMS, in the same document as every other page (SiteShell): its title and
+ * SEO from the page (and the site's defaults), the site's design system, global CSS and head
+ * and body markup, the page's and its fragments' CSS, and the site's header and footer
+ * fragments around it — unless the page's layout is "bare".
+ */
+import type { JsonLdNode } from "@exyconn/seo";
+import SiteShell from "./SiteShell.astro";
+import CmsBlocks from "../components/cms/CmsBlocks.astro";
+import {
+  designSystemCss,
+  fillCopy,
+  fragmentsCss,
+  renderContext,
+  safeCss,
+  type CmsPublicPage,
+  type CmsPublicSite,
+} from "../lib/cms";
+import { getBrandingSafe } from "../lib/portal";
+
+interface Props {
+  site: CmsPublicSite;
+  page: CmsPublicPage;
+  /** The page's path without a market prefix; "" for the home page. */
+  path: string;
+}
+
+const { site: siteData, page: pageData, path } = Astro.props;
+const { site, designSystem } = siteData;
+const { page } = pageData;
+
+const branding = await getBrandingSafe();
+const fragments = [...siteData.fragments, ...pageData.fragments];
+const context = renderContext(branding, page.params, fragments);
+const headerBlocks = context.fragments.get(site.headerFragmentId) ?? [];
+const footerBlocks = context.fragments.get(site.footerFragmentId) ?? [];
+
+const pageTitle = fillCopy(page.seo.title || page.title);
+const title = (site.seo.titleTemplate || "%s").replaceAll("%s", pageTitle);
+const jsonLd =
+  page.seo.jsonLd && typeof page.seo.jsonLd === "object"
+    ? (page.seo.jsonLd as JsonLdNode | JsonLdNode[])
+    : undefined;
+// A site served without markets is canonical on its own first domain.
+const siteUrl =
+  site.markets || site.domains.length === 0 ? undefined : `https://${site.domains[0]}`;
+
+const styles = [
+  designSystemCss(designSystem),
+  safeCss(site.globalCss),
+  safeCss(fragmentsCss(fragments)),
+  safeCss(page.css),
+]
+  .filter(Boolean)
+  .join("\n");
+---
+
+<SiteShell
+  title={title}
+  description={fillCopy(page.seo.description || site.seo.description)}
+  keywords={page.seo.keywords}
+  metaImage={page.seo.ogImageUrl || site.seo.ogImageUrl}
+  canonical={page.seo.canonical}
+  noindex={page.seo.noindex || page.preview}
+  jsonLd={jsonLd}
+  branding={branding}
+  siteFavicon={site.faviconUrl}
+  markets={site.markets}
+  siteUrl={siteUrl}
+  path={path}
+  locale={site.defaultLocale}
+  chrome={page.layout !== "bare"}
+>
+  <Fragment slot="head">
+    {styles && <style is:inline set:html={styles} />}
+    {site.headHtml && <Fragment set:html={site.headHtml} />}
+  </Fragment>
+  <CmsBlocks slot="header" blocks={headerBlocks} context={context} />
+  <CmsBlocks blocks={page.blocks} context={context} />
+  <CmsBlocks slot="footer" blocks={footerBlocks} context={context} />
+  <Fragment slot="body-end">
+    {site.bodyEndHtml && <Fragment set:html={site.bodyEndHtml} />}
+  </Fragment>
+</SiteShell>

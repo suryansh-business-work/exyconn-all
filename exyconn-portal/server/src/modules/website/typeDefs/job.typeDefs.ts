@@ -9,6 +9,8 @@ import gql from 'graphql-tag';
 export const jobTypeDefs = gql`
   type Job {
     id: ID!
+    "The website it belongs to (Website > Websites)."
+    siteId: String!
     jobCode: String!
     companySlug: String!
     title: String!
@@ -34,6 +36,7 @@ export const jobTypeDefs = gql`
   }
 
   input JobInput {
+    siteId: String
     jobCode: String!
     companySlug: String!
     title: String!
@@ -66,8 +69,8 @@ export const jobTypeDefs = gql`
     listJobsPaged(input: TableQueryInput!): JobPage!
     listJobsStats: TableStats!
     getJob(id: ID!): Job!
-    publicJobs(companySlug: String): [Job!]!
-    publicJob(jobCode: String!): Job
+    publicJobs(companySlug: String, site: String): [Job!]!
+    publicJob(jobCode: String!, site: String): Job
   }
 
   extend type Mutation {

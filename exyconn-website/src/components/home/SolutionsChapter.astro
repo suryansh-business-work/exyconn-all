@@ -1,26 +1,43 @@
 ---
 /** Chapter 1 — aviation. "What We Offer": the pillars, the quick links and the catalogue. */
-import { pillars, quickSolutions, solutionsHeader } from "../../lib/home/solutions";
+import { fillCopy } from "../../lib/cms/variables";
 import ChapterIntro from "./ChapterIntro.astro";
 import ServiceCatalogue from "./ServiceCatalogue.astro";
+import type { CatalogueHeading, HomeHeading } from "./types";
 
-interface Props {
-  id: string;
+interface Pillar {
+  href: string;
+  icon: string;
+  /** A short tag beside the icon ("FEATURED"); empty for none. */
+  flag: string;
+  title: string;
+  /** May name {serviceCount}. */
+  text: string;
+  points: readonly string[];
+  cta: string;
 }
 
-const { id } = Astro.props;
+interface QuickLink {
+  href: string;
+  icon: string;
+  title: string;
+  text: string;
+}
+
+interface Props extends HomeHeading {
+  id: string;
+  pillars: readonly Pillar[];
+  quickLinks: readonly QuickLink[];
+  catalogue: CatalogueHeading;
+}
+
+const { id, badge, title, accent, lead, pillars, quickLinks, catalogue } = Astro.props;
 ---
 
 <section id={id} data-chapter="1" class="stage-chapter">
   <div class="stage-shell">
     <div class="stage-intro">
-      <ChapterIntro
-        index={1}
-        label={solutionsHeader.badge}
-        title={solutionsHeader.title}
-        accent={solutionsHeader.accent}
-        lead={solutionsHeader.lead}
-      />
+      <ChapterIntro index={1} label={badge} title={title} accent={accent} lead={lead} />
     </div>
 
     <div class="stage-column stage-gap grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -34,7 +51,7 @@ const { id } = Astro.props;
               {pillar.flag && <span class="stage-label text-amber-bright">{pillar.flag}</span>}
             </div>
             <h3 class="text-xl font-bold text-fg">{pillar.title}</h3>
-            <p class="mt-2 text-sm text-fg-secondary leading-relaxed">{pillar.text}</p>
+            <p class="mt-2 text-sm text-fg-secondary leading-relaxed">{fillCopy(pillar.text)}</p>
             <ul class="mt-4 space-y-1.5">
               {pillar.points.map((point) => (
                 <li class="flex items-start gap-2 text-sm text-fg-secondary">
@@ -60,7 +77,7 @@ const { id } = Astro.props;
 
     <ul class="stage-column mt-3 grid grid-cols-2 gap-3">
       {
-        quickSolutions.map((item) => (
+        quickLinks.map((item) => (
           <li>
             <a href={item.href} class="glass flex items-center gap-3 p-3.5 h-full">
               <i class={`fa-solid ${item.icon} shrink-0 text-sky-bright`} aria-hidden="true" />
@@ -74,6 +91,6 @@ const { id } = Astro.props;
       }
     </ul>
 
-    <ServiceCatalogue />
+    <ServiceCatalogue heading={catalogue} />
   </div>
 </section>

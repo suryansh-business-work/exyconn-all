@@ -1,0 +1,26 @@
+import type { CmsComponentDef } from './types';
+import { CHROME_COMPONENTS } from './chrome';
+import { HOME_COMPONENTS } from './home';
+
+export type { CmsComponentDef } from './types';
+
+/**
+ * Every dynamic component the website can render, by area. A new area adds its file here and
+ * its renderers to the website's registry.
+ */
+const CATALOGUE = [...CHROME_COMPONENTS, ...HOME_COMPONENTS] as const;
+
+export const CMS_COMPONENTS: readonly CmsComponentDef[] = CATALOGUE;
+
+/**
+ * The union of every catalogue key. The website's registry is typed against it, so a key
+ * without a renderer (or a renderer without a key) fails the website's typecheck.
+ */
+export type CmsComponentKey = (typeof CATALOGUE)[number]['key'];
+
+const BY_KEY = new Map(CMS_COMPONENTS.map((component) => [component.key, component]));
+
+/** The catalogue entry for a key, or undefined. */
+export function cmsComponent(key: string): CmsComponentDef | undefined {
+  return BY_KEY.get(key);
+}

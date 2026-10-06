@@ -3,6 +3,8 @@ import gql from 'graphql-tag';
 export const gigTypeDefs = gql`
   type Gig {
     id: ID!
+    "The website it belongs to (Website > Websites)."
+    siteId: String!
     gigCode: String!
     title: String!
     category: String!
@@ -24,6 +26,7 @@ export const gigTypeDefs = gql`
   }
 
   input GigInput {
+    siteId: String
     gigCode: String!
     title: String!
     category: String!
@@ -52,8 +55,8 @@ export const gigTypeDefs = gql`
     listGigsPaged(input: TableQueryInput!): GigPage!
     listGigsStats: TableStats!
     getGig(id: ID!): Gig!
-    publicGigs: [Gig!]!
-    publicGig(gigCode: String!): Gig
+    publicGigs(site: String): [Gig!]!
+    publicGig(gigCode: String!, site: String): Gig
   }
 
   extend type Mutation {

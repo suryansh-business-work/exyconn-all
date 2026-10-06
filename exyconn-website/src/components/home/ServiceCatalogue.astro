@@ -1,29 +1,37 @@
 ---
 /**
  * The AI service catalogue, dense and narrow: one glass panel per category in the reading
- * column, its services as compact rows. Read straight from lib/services so the home page
- * and /ai-services never drift.
+ * column, its services as compact rows. The services are read straight from lib/services so
+ * the home page and /ai-services never drift; the heading is CMS copy.
  */
-import { catalogueHeader } from "../../lib/home/solutions";
+import { fillCopy } from "../../lib/cms/variables";
 import { aiServiceCategories, servicesInCategory } from "../../lib/services/aiServices";
+import type { CatalogueHeading } from "./types";
+
+interface Props {
+  /** The panel above the catalogue; its title may name {serviceCount}. */
+  heading: CatalogueHeading;
+}
+
+const { heading } = Astro.props;
 ---
 
 <div class="stage-column stage-gap">
   <div class="glass p-5 md:p-6 mb-3">
     <p class="stage-label flex items-center gap-3 mb-3">
       <span class="text-orange-bright" aria-hidden="true">—</span>
-      <span>{catalogueHeader.badge}</span>
+      <span>{heading.badge}</span>
     </p>
     <h2 class="stage-title stage-title--md">
-      <span class="block" data-reveal-line>{catalogueHeader.title}</span>
-      <span class="block stage-accent" data-reveal-line>{catalogueHeader.accent}</span>
+      <span class="block" data-reveal-line>{fillCopy(heading.title)}</span>
+      <span class="block stage-accent" data-reveal-line>{heading.accent}</span>
     </h2>
-    <p class="mt-4 text-fg-secondary leading-relaxed">{catalogueHeader.lead}</p>
+    <p class="mt-4 text-fg-secondary leading-relaxed">{heading.lead}</p>
     <a
-      href={catalogueHeader.cta.href}
+      href={heading.ctaHref}
       class="mt-5 inline-flex items-center gap-2 min-h-11 font-semibold text-sky-bright"
     >
-      {catalogueHeader.cta.label}
+      {heading.ctaLabel}
       <i class="fa-solid fa-arrow-right icon-xs" aria-hidden="true"></i>
     </a>
   </div>

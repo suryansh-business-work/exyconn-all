@@ -3,6 +3,8 @@ import { EXPERIENCE_LEVELS, JOB_CATEGORIES, JOB_TYPES, WORK_MODES } from '../web
 
 const jobSchema = new Schema(
   {
+    /** The website this belongs to (Website › Websites); the default site when ''. */
+    siteId: { type: String, default: '', index: true },
     /** Stable business key from the website data, e.g. "GRP-SM-001". */
     jobCode: { type: String, required: true, unique: true, trim: true },
     /** Slug of the owning JobCompany — matches /career/company/[companySlug]. */

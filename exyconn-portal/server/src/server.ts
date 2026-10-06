@@ -24,6 +24,7 @@ import { backfillAppLogGroupUsers } from './modules/logs';
 import { backfillPositionDefaults } from './modules/hr';
 import { runOnce } from './lib/migrations';
 import { migrateClientTaxIds } from './modules/clients';
+import { ensureCmsDefaults } from './modules/cms';
 import { startReminderSweep } from './modules/reminders';
 import { startAuditRetention } from './modules/audit';
 import { ensureWhatsappDemoSeeds } from './modules/whatsapp-demo';
@@ -86,6 +87,9 @@ async function bootstrap(): Promise<void> {
     () => runOnce('client-tax-ids', migrateClientTaxIds),
     'migrateClientTaxIds',
   );
+  // exyconn.com is the CMS's first site: seeded insert-only from the migrated pages, so an
+  // editor's change is never undone and a page added in a later release still arrives.
+  await ensureCmsDefaults();
   // The WhatsApp demo opens on its default industries. Each industry is seeded into a company
   // once (ledger line per industry key), so a new one ships on the next boot and an edited
   // one is never overwritten.

@@ -3,6 +3,8 @@ import { NAV_CATEGORIES } from '../website.constants';
 
 const navLinkSchema = new Schema(
   {
+    /** The website this belongs to (Website › Websites); the default site when ''. */
+    siteId: { type: String, default: '', index: true },
     label: { type: String, required: true, trim: true },
     /** Site-relative path; unique because it identifies the page. */
     href: { type: String, required: true, unique: true, trim: true },

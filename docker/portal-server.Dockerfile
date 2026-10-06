@@ -19,6 +19,7 @@ COPY exyconn-tracker-app/package.json exyconn-tracker-app/
 # The server imports @exyconn/wa-flow's compiled build; its workspace dependencies (regex,
 # and config through both as a dev dependency) are resolved by the filtered install too.
 COPY packages/wa-flow/package.json packages/wa-flow/
+COPY packages/cms/package.json packages/cms/
 COPY packages/regex/package.json packages/regex/
 COPY packages/config/package.json packages/config/
 # The root `prepare` script runs on every install, this one included; it needs its own
@@ -34,7 +35,9 @@ FROM deps AS build
 # standalone, so their source is all they need.
 COPY packages/regex packages/regex
 COPY packages/wa-flow packages/wa-flow
-RUN pnpm --filter @exyconn/regex run build && pnpm --filter @exyconn/wa-flow run build
+COPY packages/cms packages/cms
+RUN pnpm --filter @exyconn/regex run build && pnpm --filter @exyconn/wa-flow run build \
+  && pnpm --filter @exyconn/cms run build
 COPY exyconn-portal/server exyconn-portal/server
 RUN pnpm --filter exyconn-portal-server run build \
   && pnpm --filter exyconn-portal-server deploy --prod /app

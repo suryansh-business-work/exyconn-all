@@ -6,13 +6,17 @@
  * the second copy is hidden from assistive technology so every logo is announced once. A row
  * pauses while it is hovered or has focus, and under reduced motion the rows stop and wrap.
  */
-import { platformRows, platformsCopy } from "../../lib/home/platforms";
+import type { HomeLogo } from "./types";
 
 interface Props {
   id: string;
+  title: string;
+  lead: string;
+  /** Each row slides on its own, every second one against the first. */
+  rows: readonly { logos: readonly HomeLogo[] }[];
 }
 
-const { id } = Astro.props;
+const { id, title, lead, rows } = Astro.props;
 const headingId = `${id}-title`;
 ---
 
@@ -20,18 +24,18 @@ const headingId = `${id}-title`;
   <div class="stage-shell">
     <div class="glass p-5 md:p-8">
       <h2 id={headingId} class="stage-title stage-title--md text-center">
-        <span class="block" data-reveal-line>{platformsCopy.title}</span>
+        <span class="block" data-reveal-line>{title}</span>
       </h2>
-      <p class="mt-3 text-center text-fg-secondary max-w-2xl mx-auto">{platformsCopy.lead}</p>
+      <p class="mt-3 text-center text-fg-secondary max-w-2xl mx-auto">{lead}</p>
 
       <div class="mt-8 flex flex-col gap-4">
         {
-          platformRows.map((row, rowIndex) => (
+          rows.map((row, rowIndex) => (
             <div class:list={["platforms__row", { "platforms__row--reverse": rowIndex % 2 === 1 }]}>
               <div class="platforms__track">
                 {[false, true].map((copy) => (
                   <ul class="platforms__list" aria-hidden={copy ? "true" : undefined}>
-                    {row.map((logo) => (
+                    {row.logos.map((logo) => (
                       <li class="tech-logo-item platforms__card border border-line-subtle">
                         <img
                           src={logo.src}

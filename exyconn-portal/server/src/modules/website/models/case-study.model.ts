@@ -2,6 +2,8 @@ import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
 
 const caseStudySchema = new Schema(
   {
+    /** The website this belongs to (Website › Websites); the default site when ''. */
+    siteId: { type: String, default: '', index: true },
     slug: { type: String, required: true, unique: true, trim: true },
     title: { type: String, required: true, trim: true },
     excerpt: { type: String, default: '', trim: true },

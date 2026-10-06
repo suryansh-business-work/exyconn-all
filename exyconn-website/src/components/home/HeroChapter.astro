@@ -1,16 +1,26 @@
 ---
 /** Chapter 0 — the blueprint core. The hero banner's words, over the opening scene. */
-import { heroActions, heroCopy, heroFeatures, heroStats } from "../../lib/home/hero";
-import { aiServices } from "../../lib/services/aiServices";
+import { fillCopy } from "../../lib/cms/variables";
 import ChapterIntro from "./ChapterIntro.astro";
 import GlassList from "./GlassList.astro";
 import StageButton from "./StageButton.astro";
+import type { HomeAction, HomeItem, HomeStat } from "./types";
 
 interface Props {
   id: string;
+  badge: string;
+  headline: string;
+  headlineSecond: string;
+  /** May name {serviceCount}. */
+  lead: string;
+  actions: readonly HomeAction[];
+  stats: readonly HomeStat[];
+  features: readonly HomeItem[];
+  scrollHint: string;
 }
 
-const { id } = Astro.props;
+const { id, badge, headline, headlineSecond, lead, actions, stats, features, scrollHint } =
+  Astro.props;
 const VARIANTS = ["solid", "glass", "accent"] as const;
 ---
 
@@ -18,22 +28,18 @@ const VARIANTS = ["solid", "glass", "accent"] as const;
   <div class="stage-shell">
     <ChapterIntro
       index={0}
-      label={heroCopy.badge}
-      title={heroCopy.headline}
-      accent={heroCopy.headlineSecond}
-      lead={heroCopy.description(aiServices.length)}
+      label={badge}
+      title={headline}
+      accent={headlineSecond}
+      lead={fillCopy(lead)}
       level="h1"
     >
       <div class="mt-8 flex flex-col sm:flex-row flex-wrap gap-3">
-        {
-          heroActions.map((action, index) => (
-            <StageButton action={action} variant={VARIANTS[index]} />
-          ))
-        }
+        {actions.map((action, index) => <StageButton action={action} variant={VARIANTS[index]} />)}
       </div>
       <dl class="glass mt-8 grid grid-cols-3 max-w-xl divide-x divide-line">
         {
-          heroStats.map((stat) => (
+          stats.map((stat) => (
             <div class="px-4 py-4 text-center">
               <dt class="stage-label">{stat.label}</dt>
               <dd class="mt-1 text-2xl md:text-3xl font-bold text-fg">{stat.value}</dd>
@@ -44,7 +50,7 @@ const VARIANTS = ["solid", "glass", "accent"] as const;
     </ChapterIntro>
 
     <GlassList
-      items={heroFeatures}
+      items={features}
       tile="bg-violet-soft text-violet-fg"
       titleTag="p"
       class="stage-column mt-10 lg:mt-12"
@@ -52,7 +58,7 @@ const VARIANTS = ["solid", "glass", "accent"] as const;
 
     <p class="stage-label mt-10 hidden lg:flex items-center gap-3" aria-hidden="true">
       <span class="block w-10 h-px bg-orange-bright"></span>
-      {heroCopy.scrollHint}
+      {scrollHint}
     </p>
   </div>
 </section>
