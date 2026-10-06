@@ -13,6 +13,11 @@ import { MODULES, type ModuleDefinition } from '../../src/config/modules';
 import { ROLES } from '../../src/auth/roles';
 
 const moduleFor = (key: string) => MODULES.find((m) => m.key === key)!;
+
+/** A page's path, or the paths of the pages beneath it when it is a branch. */
+type NavEntry = Readonly<{ path: string; children?: readonly NavEntry[] }>;
+const pagePaths = (entry: NavEntry): string[] =>
+  entry.children?.length ? entry.children.flatMap(pagePaths) : [entry.path];
 const hr = moduleFor('hr');
 
 /** HR with one page nested three deep under its People section: four levels in all. */
@@ -73,7 +78,7 @@ describe('moduleNavTree', () => {
   it('keeps every page exactly once, whatever the grouping', () => {
     for (const module of MODULES) {
       const paths = navPaths(moduleNavTree(module));
-      const expected = module.children?.length ? module.children.map((c) => c.path) : [module.path];
+      const expected = module.children?.length ? module.children.flatMap(pagePaths) : [module.path];
       expect(paths.toSorted((a, b) => a.localeCompare(b))).toEqual(
         expected.toSorted((a, b) => a.localeCompare(b)),
       );
