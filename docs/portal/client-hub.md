@@ -21,7 +21,8 @@ export their transactions as CSV, raise and follow support tickets, and see thei
 Payments use Exyconn's own gateway accounts, so online payment is offered only on invoices
 issued by Exyconn's own (platform operator) company.
 
-1. In **Tech › Environment Variables**, open the **Stripe** and/or **Razorpay** tab and add
+1. In **Tech › Environment Variables**, open the **Stripe**, **Razorpay**, **PayPal** and/or
+   **Payoneer** tab and add
    the account. One account of each kind is active at a time. Secrets are stored encrypted
    and only their last four characters are ever shown. **Test connection** checks the keys.
 2. Register the webhook on the gateway's dashboard, using the address shown on the form:
@@ -31,7 +32,19 @@ issued by Exyconn's own (platform operator) company.
    - **Razorpay**: `https://portal-server.exyconn.com/webhooks/razorpay`, events
      `payment_link.paid`, `payment_link.expired` and `payment_link.cancelled`, with the same
      secret entered on the form.
-3. A client clicks **Pay**, chooses Stripe (card) or Razorpay (UPI, card, netbanking), and pays
+   - **PayPal** (client id + secret from a REST app, Sandbox or Live):
+     `https://portal-server.exyconn.com/webhooks/paypal`, events `CHECKOUT.ORDER.APPROVED`,
+     `PAYMENT.CAPTURE.COMPLETED`, `PAYMENT.CAPTURE.DENIED` and `CHECKOUT.ORDER.VOIDED`; paste the
+     webhook's id on the form. Every delivery is verified with PayPal before anything is
+     recorded, and the order is also captured the moment the payer returns to the client hub.
+   - **Payoneer Checkout** (merchant code + API token, optional division, Sandbox or Live):
+     nothing to register — each checkout tells Payoneer to notify
+     `https://portal-server.exyconn.com/webhooks/payoneer`. Notifications are not signed, so the
+     server reads the charge back from Payoneer and records it only when Payoneer reports it
+     charged for that attempt, in its amount and currency. Payoneer needs the payer's country:
+     the client's country (Admin › Clients), else the company's.
+3. A client clicks **Pay**, chooses Stripe (card), Razorpay (UPI, card, netbanking), PayPal or
+   Payoneer, and pays
    the whole balance on the gateway's hosted page. Card details never reach our servers.
 4. The signed webhook records the payment on the invoice exactly once, through the same
    `applyPayment` that finance uses: ledger row, invoice status, audit log and the

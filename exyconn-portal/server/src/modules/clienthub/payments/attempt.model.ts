@@ -1,6 +1,6 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
 
-export const PAYMENT_GATEWAYS = ['STRIPE', 'RAZORPAY'] as const;
+export const PAYMENT_GATEWAYS = ['STRIPE', 'RAZORPAY', 'PAYPAL', 'PAYONEER'] as const;
 export type PaymentGateway = (typeof PAYMENT_GATEWAYS)[number];
 
 /**
@@ -25,7 +25,7 @@ const paymentAttemptSchema = new Schema(
     contactId: { type: String, required: true },
     amount: { type: Number, required: true },
     currency: { type: String, required: true },
-    /** The gateway's id for the checkout (Stripe session, Razorpay payment link). */
+    /** The gateway's id for the checkout (Stripe session, Razorpay link, PayPal order, Payoneer list). */
     externalId: { type: String, default: '', index: true },
     url: { type: String, default: '' },
     status: { type: String, enum: ATTEMPT_STATUSES, required: true, default: 'PENDING' },

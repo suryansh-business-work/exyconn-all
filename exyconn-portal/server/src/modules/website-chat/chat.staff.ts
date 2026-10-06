@@ -10,6 +10,7 @@ import { ChatSessionModel } from './models';
 import { uploadChatFiles, type ChatFileInput } from './chat.media';
 import { announceSession, markReadByStaff, postMessage } from './chat.messages';
 import { readChatSettings } from './chat.settings';
+import { relayToSlack } from './chat.slack';
 
 /** The permission matrix row Website > Chatbot is governed by. */
 export const CHAT_MODULE = 'WebsiteChatSession';
@@ -78,7 +79,9 @@ export async function agentReply(
   files: ChatFileInput[],
   clientId: string,
 ): Promise<void> {
-  const session = await ChatSessionModel.findById(sessionId).select('status assigneeId').lean();
+  const session = await ChatSessionModel.findById(sessionId)
+    .select('status assigneeId slackChannel slackThreadTs')
+    .lean();
   if (!session) {
     notFound('Chat');
   }
@@ -105,5 +108,6 @@ export async function agentReply(
     },
     clientId,
   );
+  relayToSlack(session, `${agent.name} (portal)`, body, attachments);
   await markReadByStaff(sessionId);
 }

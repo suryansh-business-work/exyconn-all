@@ -1,4 +1,5 @@
 import type {
+  WebsiteChatChannel,
   WebsiteChatMessageFieldsFragment,
   WebsiteChatSessionFieldsFragment,
 } from '@exyconn/shell/graphql/generated';
@@ -26,8 +27,18 @@ export type StaffClientFrame =
 export type StaffServerFrame =
   | { t: 'ready' }
   | { t: 'message'; message: ChatMessage; clientId?: string }
+  /** A message changed in place, e.g. the visitor rated a bot answer: replace it by id. */
+  | { t: 'messageUpdated'; message: ChatMessage }
   | { t: 'session'; session: ChatSession }
-  | { t: 'typing'; sessionId: string; who: 'VISITOR'; name: string; on: boolean }
+  | {
+      t: 'typing';
+      sessionId: string;
+      who: 'VISITOR' | 'BOT';
+      name: string;
+      on: boolean;
+      /** Which thread the bot is answering in; the visitor's typing carries none. */
+      channel?: WebsiteChatChannel;
+    }
   | { t: 'read'; sessionId: string; by: 'VISITOR'; at: string }
   | { t: 'error'; message: string; code?: string; clientId?: string }
   | { t: 'pong' };

@@ -4,6 +4,7 @@ import { InvoiceModel } from './finance.model';
 import { formatAmount } from '../../utils/money';
 import { buildInvoicePdf, invoiceFilename, type InvoicePdfData } from './invoice.pdf';
 import { ClientModel } from '../clients/clients.model';
+import { taxIdLabel } from '../clients/client-tax-id';
 import { getBranding } from '../branding/branding.service';
 import { emailer } from '../email';
 import { assertRole } from '../../middleware/roleGuard';
@@ -58,7 +59,8 @@ export async function renderInvoice(id: string): Promise<RenderedInvoice> {
       name: invoice.clientName || client?.name || invoice.clientId,
       company: client?.company ?? '',
       email: client?.email ?? '',
-      gstin: client?.gstin ?? '',
+      taxId: client?.taxId ?? '',
+      taxIdLabel: taxIdLabel(client?.taxIdType),
       billingAddress: client?.billingAddress ?? '',
     },
     invoice: {

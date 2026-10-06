@@ -12,6 +12,9 @@ import { chatSettingsView, updateChatSettings } from './chat.settings';
 import { syncWebsiteKnowledge } from './chat.knowledge';
 import { forgetKnowledgeCache } from './chat.retrieve';
 import { toStaffSession } from './chat.serialize';
+import { agentLoads } from './chat.assign';
+import { UserModel } from '../admin/user.model';
+import { ROLES } from '../../constants/roles';
 
 const SESSION_TABLE = {
   searchFields: ['name', 'email', 'phone', 'ticketReference', 'lastMessagePreview'],
@@ -40,6 +43,21 @@ async function sessionById(id: string) {
 
 type Id = { id: string };
 
+/** Who may be picked as a chat agent: the company's support and website people. */
+async function agentCandidates() {
+  const users = await UserModel.find({
+    roles: { $in: [ROLES.SUPPORT, ROLES.WEBSITE] },
+    isActive: true,
+    isBlocked: { $ne: true },
+  })
+    .select('_id')
+    .sort({ name: 1 })
+    .limit(200)
+    .lean();
+  const loads = await agentLoads(users.map((user) => String(user._id)));
+  return loads.sort((a, b) => a.name.localeCompare(b.name));
+}
+
 /** Website > Chatbot: sessions, conversations and settings, for the website team. */
 export const websiteChatResolvers = {
   Query: {
@@ -60,6 +78,8 @@ export const websiteChatResolvers = {
       asAgent(ctx, 'VIEW', () => listMessages(sessionId)),
     websiteChatSettings: (_p: unknown, _a: unknown, ctx: GraphQLContext) =>
       asAgent(ctx, 'VIEW', chatSettingsView),
+    websiteChatAgentCandidates: (_p: unknown, _a: unknown, ctx: GraphQLContext) =>
+      asAgent(ctx, 'VIEW', agentCandidates),
   },
   Mutation: {
     updateWebsiteChatSettings: (_p: unknown, { input }: { input: unknown }, ctx: GraphQLContext) =>

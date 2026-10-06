@@ -16,9 +16,20 @@ export function ChatBehaviourFields() {
         helperText="30–3600. If nobody on the team replies within this time, the Knowledge Bot takes over."
       />
       <RhfTextField
+        name="sessionTimeoutMinutes"
+        label="Session timeout (minutes)"
+        type="number"
+        helperText="2–120. A chat closes after this long without a message from either side; the visitor sees a countdown."
+      />
+      <RhfTextField
         name="botModel"
         label="Bot model"
         helperText="The OpenAI model the Knowledge Bot uses, e.g. gpt-4o."
+      />
+      <RhfTextField
+        name="embeddingModel"
+        label="Embedding model"
+        helperText="The OpenAI model used to find the knowledge a question is about, e.g. text-embedding-3-small."
       />
       <RhfTextField
         name="maxContextChars"

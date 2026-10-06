@@ -7,17 +7,25 @@ import { activeRazorpay, activeStripe } from './gateway.service';
 import { validStripeSignature } from './stripe.client';
 import { validRazorpaySignature } from './razorpay.client';
 
-export const STRIPE_WEBHOOK_PATH = '/webhooks/stripe';
-export const RAZORPAY_WEBHOOK_PATH = '/webhooks/razorpay';
+export { STRIPE_WEBHOOK_PATH, RAZORPAY_WEBHOOK_PATH } from './webhook.paths';
 const BODY_LIMIT = '1mb';
 
 /** Who online payments are recorded under: no person is signed in when the money arrives. */
 const GATEWAY_ACTOR: Record<PaymentGateway, { id: string; name: string }> = {
   STRIPE: { id: 'gateway:stripe', name: 'Stripe (client hub)' },
   RAZORPAY: { id: 'gateway:razorpay', name: 'Razorpay (client hub)' },
+  PAYPAL: { id: 'gateway:paypal', name: 'PayPal (client hub)' },
+  PAYONEER: { id: 'gateway:payoneer', name: 'Payoneer (client hub)' },
 };
 
-interface Settlement {
+const GATEWAY_NAME: Record<PaymentGateway, string> = {
+  STRIPE: 'Stripe',
+  RAZORPAY: 'Razorpay',
+  PAYPAL: 'PayPal',
+  PAYONEER: 'Payoneer',
+};
+
+export interface Settlement {
   gateway: PaymentGateway;
   externalId: string;
   gatewayPaymentId: string;
@@ -31,7 +39,7 @@ interface Settlement {
  * hand meanwhile, say) the attempt goes to REVIEW for finance to reconcile — the money is
  * real either way, so the failure is kept, never dropped.
  */
-async function settle(settlement: Settlement): Promise<void> {
+export async function settle(settlement: Settlement): Promise<void> {
   const found = await runAsPlatform(() =>
     PaymentAttemptModel.findOne({
       gateway: settlement.gateway,
@@ -59,7 +67,7 @@ async function settle(settlement: Settlement): Promise<void> {
           amount: claimed.amount,
           method: settlement.method,
           reference: settlement.gatewayPaymentId || settlement.externalId,
-          notes: `Paid online through ${settlement.gateway === 'STRIPE' ? 'Stripe' : 'Razorpay'} from the client hub.`,
+          notes: `Paid online through ${GATEWAY_NAME[settlement.gateway]} from the client hub.`,
         },
         { user: null },
         GATEWAY_ACTOR[settlement.gateway],
@@ -75,7 +83,7 @@ async function settle(settlement: Settlement): Promise<void> {
 }
 
 /** A checkout the client abandoned: marked so it no longer reads as in progress. */
-async function expire(gateway: PaymentGateway, externalId: string): Promise<void> {
+export async function expire(gateway: PaymentGateway, externalId: string): Promise<void> {
   await runAsPlatform(() =>
     PaymentAttemptModel.updateOne(
       { gateway, externalId, status: 'PENDING' },

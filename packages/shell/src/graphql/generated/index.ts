@@ -1406,17 +1406,31 @@ export type CaseStudyPage = {
 export type Client = {
   __typename?: 'Client';
   billingAddress: Scalars['String']['output'];
+  city: Scalars['String']['output'];
   company: Scalars['String']['output'];
+  /** ISO 3166-1 alpha-2 country the client is established in; empty when not recorded. */
+  country: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
+  /** ISO 4217 currency their invoices default to; empty for the company's own. */
+  currency: Scalars['String']['output'];
   email: Scalars['String']['output'];
-  /** The client's GST registration, printed on invoices to them. */
+  /** The GSTIN when the client is Indian (same as taxId then); kept for older callers. */
   gstin: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   phone: Scalars['String']['output'];
-  /** Two-digit GST state code — the default place of supply on their invoices. */
+  postalCode: Scalars['String']['output'];
+  /** State, province or region. */
+  region: Scalars['String']['output'];
+  /** Two-digit GST state code (Indian clients only) — the default place of supply. */
   stateCode: Scalars['String']['output'];
   status: ClientStatus;
+  /** Their business tax number, printed on invoices to them. */
+  taxId: Scalars['String']['output'];
+  /** What the number is called (GSTIN, VAT number, EIN…), for an invoice or a grid. */
+  taxIdLabel: Scalars['String']['output'];
+  /** The kind of tax number on file; null when there is none. */
+  taxIdType?: Maybe<ClientTaxIdType>;
   updatedAt: Scalars['DateTime']['output'];
 };
 
@@ -1456,6 +1470,8 @@ export type ClientHubMe = {
 /** Which gateways the signed-in client may pay with. */
 export type ClientHubPaymentOptions = {
   __typename?: 'ClientHubPaymentOptions';
+  payoneer: Scalars['Boolean']['output'];
+  paypal: Scalars['Boolean']['output'];
   razorpay: Scalars['Boolean']['output'];
   stripe: Scalars['Boolean']['output'];
 };
@@ -1504,19 +1520,38 @@ export type ClientHubTicketInput = {
 
 export type ClientInput = {
   billingAddress?: InputMaybe<Scalars['String']['input']>;
+  city?: InputMaybe<Scalars['String']['input']>;
   company: Scalars['String']['input'];
+  country?: InputMaybe<Scalars['String']['input']>;
+  currency?: InputMaybe<Scalars['String']['input']>;
   email: Scalars['String']['input'];
+  /** Deprecated: send taxIdType IN_GST and taxId instead. */
   gstin?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   phone: Scalars['String']['input'];
+  postalCode?: InputMaybe<Scalars['String']['input']>;
+  region?: InputMaybe<Scalars['String']['input']>;
   stateCode?: InputMaybe<Scalars['String']['input']>;
   status: ClientStatus;
+  taxId?: InputMaybe<Scalars['String']['input']>;
+  taxIdType?: InputMaybe<ClientTaxIdType>;
 };
 
 export type ClientPage = {
   __typename?: 'ClientPage';
   rows: Array<Client>;
   totalCount: Scalars['Int']['output'];
+};
+
+/** A project a client can be linked to, with the client it is linked to now. */
+export type ClientProjectOption = {
+  __typename?: 'ClientProjectOption';
+  /** Empty when the project belongs to no client. */
+  clientId: Scalars['String']['output'];
+  clientName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  key: Scalars['String']['output'];
+  name: Scalars['String']['output'];
 };
 
 export enum ClientStatus {
@@ -1534,6 +1569,42 @@ export type ClientSupportTicketInput = {
   requesterName: Scalars['String']['input'];
   subject: Scalars['String']['input'];
 };
+
+/** The kind of business tax number a client is registered under (the same codes as @exyconn/regex TAX_ID_TYPES). */
+export enum ClientTaxIdType {
+  /** United Arab Emirates: Tax Registration Number */
+  AeTrn = 'AE_TRN',
+  /** Australia: Australian Business Number */
+  AuAbn = 'AU_ABN',
+  /** Brazil: CNPJ */
+  BrCnpj = 'BR_CNPJ',
+  /** Canada: Business Number (GST/HST) */
+  CaBn = 'CA_BN',
+  /** Switzerland and Liechtenstein: UID / VAT number */
+  ChUid = 'CH_UID',
+  /** European Union: VAT number */
+  EuVat = 'EU_VAT',
+  /** United Kingdom: VAT number */
+  GbVat = 'GB_VAT',
+  /** India: GSTIN */
+  InGst = 'IN_GST',
+  /** Japan: Corporate Number */
+  JpCn = 'JP_CN',
+  /** Mexico: RFC */
+  MxRfc = 'MX_RFC',
+  /** New Zealand: GST number */
+  NzGst = 'NZ_GST',
+  /** Any other country's business tax number */
+  Other = 'OTHER',
+  /** Saudi Arabia: VAT number */
+  SaVat = 'SA_VAT',
+  /** Singapore: UEN / GST registration */
+  SgUen = 'SG_UEN',
+  /** United States: Employer Identification Number */
+  UsEin = 'US_EIN',
+  /** South Africa: VAT number */
+  ZaVat = 'ZA_VAT'
+}
 
 /** A customer following their own ticket: where it stands and what has been said publicly. */
 export type ClientTicketStatus = {
@@ -2881,6 +2952,12 @@ export enum FindingType {
   MinorNonconformity = 'MINOR_NONCONFORMITY',
   Observation = 'OBSERVATION',
   Opportunity = 'OPPORTUNITY'
+}
+
+/** Whether a gateway account talks to the gateway's test environment or takes real money. */
+export enum GatewayMode {
+  Live = 'LIVE',
+  Sandbox = 'SANDBOX'
 }
 
 export type Gig = {
@@ -4808,6 +4885,8 @@ export type Mutation = {
   createOpenAiConfig: OpenAiConfig;
   /** Creates a company and provisions its defaults (SUPER_ADMIN). */
   createOrganization: Organization;
+  createPayoneerConfig: PayoneerConfig;
+  createPaypalConfig: PaypalConfig;
   createPerformanceReview: PerformanceReview;
   createPexelsConfig: PexelsConfig;
   createPolicy: Policy;
@@ -4945,6 +5024,8 @@ export type Mutation = {
   deleteOnboardingChecklist: Scalars['Boolean']['output'];
   deleteOnboardingTemplate: Scalars['Boolean']['output'];
   deleteOpenAiConfig: Scalars['Boolean']['output'];
+  deletePayoneerConfig: Scalars['Boolean']['output'];
+  deletePaypalConfig: Scalars['Boolean']['output'];
   deletePerformanceReview: Scalars['Boolean']['output'];
   deletePexelsConfig: Scalars['Boolean']['output'];
   deletePolicy: Scalars['Boolean']['output'];
@@ -5183,6 +5264,8 @@ export type Mutation = {
   setApplicantStage: Applicant;
   /** Switching access off signs the person out at once. */
   setClientContactActive: ClientContact;
+  /** Makes these exactly the projects linked to the client (others are unlinked from it). */
+  setClientProjects: Scalars['Boolean']['output'];
   /** Marks a column as the end of the line, or takes that mark away. */
   setColumnDone: BoardColumn;
   /** Moves a deal to another pipeline stage — what a drag on the board does. Winning makes the account a client. */
@@ -5293,6 +5376,8 @@ export type Mutation = {
   /** Signs in and opens the mailbox, so credentials are checked before the poller relies on them. */
   testInboundMailConnection: Scalars['Boolean']['output'];
   testOpenAiConnection: Scalars['Boolean']['output'];
+  testPayoneerConnection: Scalars['Boolean']['output'];
+  testPaypalConnection: Scalars['Boolean']['output'];
   testPexelsConnection: Scalars['Boolean']['output'];
   testRazorpayConnection: Scalars['Boolean']['output'];
   /** Checks the stored client ID and secret with the provider. Platform Tech staff. */
@@ -5429,6 +5514,8 @@ export type Mutation = {
   updateOnboardingTemplate: OnboardingTemplate;
   updateOpenAiConfig: OpenAiConfig;
   updateOrganization: Organization;
+  updatePayoneerConfig: PayoneerConfig;
+  updatePaypalConfig: PaypalConfig;
   /** Saves when payslip emails go out. Turning it off stops the scheduled run. */
   updatePayrollSchedule: PayrollSchedule;
   /**
@@ -6031,6 +6118,16 @@ export type MutationCreateOpenAiConfigArgs = {
 
 export type MutationCreateOrganizationArgs = {
   input: OrganizationInput;
+};
+
+
+export type MutationCreatePayoneerConfigArgs = {
+  input: PayoneerConfigInput;
+};
+
+
+export type MutationCreatePaypalConfigArgs = {
+  input: PaypalConfigInput;
 };
 
 
@@ -6640,6 +6737,16 @@ export type MutationDeleteOnboardingTemplateArgs = {
 
 
 export type MutationDeleteOpenAiConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeletePayoneerConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeletePaypalConfigArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -7262,6 +7369,12 @@ export type MutationSetClientContactActiveArgs = {
 };
 
 
+export type MutationSetClientProjectsArgs = {
+  clientId: Scalars['ID']['input'];
+  projectIds: Array<Scalars['ID']['input']>;
+};
+
+
 export type MutationSetColumnDoneArgs = {
   id: Scalars['ID']['input'];
   isDone: Scalars['Boolean']['input'];
@@ -7490,6 +7603,16 @@ export type MutationTestInboundMailConnectionArgs = {
 
 
 export type MutationTestOpenAiConnectionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestPayoneerConnectionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestPaypalConnectionArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -8025,6 +8148,18 @@ export type MutationUpdateOpenAiConfigArgs = {
 export type MutationUpdateOrganizationArgs = {
   id: Scalars['ID']['input'];
   input: OrganizationUpdateInput;
+};
+
+
+export type MutationUpdatePayoneerConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: PayoneerConfigInput;
+};
+
+
+export type MutationUpdatePaypalConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: PaypalConfigInput;
 };
 
 
@@ -8737,6 +8872,8 @@ export enum PaymentAttemptStatus {
 }
 
 export enum PaymentGateway {
+  Payoneer = 'PAYONEER',
+  Paypal = 'PAYPAL',
   Razorpay = 'RAZORPAY',
   Stripe = 'STRIPE'
 }
@@ -8763,6 +8900,58 @@ export type PaymentPage = {
   __typename?: 'PaymentPage';
   rows: Array<Payment>;
   totalCount: Scalars['Int']['output'];
+};
+
+/** Exyconn's Payoneer Checkout account (Tech > Environment Variables). The API token is write-only. */
+export type PayoneerConfig = {
+  __typename?: 'PayoneerConfig';
+  apiTokenHint?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  /** The merchant division payments are taken under; empty for an account without divisions. */
+  division: Scalars['String']['output'];
+  hasApiToken: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  merchantCode: Scalars['String']['output'];
+  mode: GatewayMode;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type PayoneerConfigInput = {
+  /** Left blank on an edit, the stored token is kept. */
+  apiToken?: InputMaybe<Scalars['String']['input']>;
+  division?: InputMaybe<Scalars['String']['input']>;
+  isActive: Scalars['Boolean']['input'];
+  label: Scalars['String']['input'];
+  merchantCode: Scalars['String']['input'];
+  mode: GatewayMode;
+};
+
+/** Exyconn's PayPal account (Tech > Environment Variables). The client secret is write-only. */
+export type PaypalConfig = {
+  __typename?: 'PaypalConfig';
+  clientId: Scalars['String']['output'];
+  clientSecretHint?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['DateTime']['output'];
+  hasClientSecret: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  mode: GatewayMode;
+  updatedAt: Scalars['DateTime']['output'];
+  /** The webhook registered in the PayPal app; PayPal verifies each delivery against it. */
+  webhookId: Scalars['String']['output'];
+};
+
+export type PaypalConfigInput = {
+  clientId: Scalars['String']['input'];
+  /** Left blank on an edit, the stored secret is kept. */
+  clientSecret?: InputMaybe<Scalars['String']['input']>;
+  isActive: Scalars['Boolean']['input'];
+  label: Scalars['String']['input'];
+  mode: GatewayMode;
+  webhookId: Scalars['String']['input'];
 };
 
 /** One active employee in a run plan. Amounts are worked out for READY employees only. */
@@ -9714,6 +9903,8 @@ export type Query = {
   clientHubReminders: Array<ClientHubReminder>;
   clientHubTicketReplies: Array<SupportReply>;
   clientHubTickets: SupportTicketPage;
+  /** Every project, for the Clients form's project picker. */
+  clientProjectOptions: Array<ClientProjectOption>;
   /**
    * Unauthenticated — a customer follows their ticket with the reference they were given
    * and the address they raised it from. Null unless both match.
@@ -10084,6 +10275,8 @@ export type Query = {
   listPayments: Array<Payment>;
   listPaymentsPaged: PaymentPage;
   listPaymentsStats: TableStats;
+  listPayoneerConfigs: Array<PayoneerConfig>;
+  listPaypalConfigs: Array<PaypalConfig>;
   listPerformanceReviews: Array<PerformanceReview>;
   listPerformanceReviewsPaged: PerformanceReviewPage;
   listPerformanceReviewsStats: TableStats;
@@ -10469,6 +10662,8 @@ export type Query = {
   webhookEvents: Array<Scalars['String']['output']>;
   /** A fresh security question for a public form. Public; each is good for one answer, 10 minutes. */
   websiteCaptcha: WebsiteCaptcha;
+  /** Support and website team members a chat can be handed to, with their current load. */
+  websiteChatAgentCandidates: Array<WebsiteChatAgent>;
   /** Both threads of one chat, oldest first. */
   websiteChatMessages: Array<WebsiteChatMessage>;
   websiteChatSession: WebsiteChatSession;
@@ -12535,6 +12730,8 @@ export type SlackConfig = {
   defaultChannel: Scalars['String']['output'];
   /** Whether a bot token is stored. The token itself is write-only and never returned. */
   hasBotToken: Scalars['Boolean']['output'];
+  /** Whether a signing secret is stored (write-only). With one, website chat agents can answer visitors from Slack threads. */
+  hasSigningSecret: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   label: Scalars['String']['output'];
@@ -12547,6 +12744,8 @@ export type SlackConfigInput = {
   defaultChannel: Scalars['String']['input'];
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   label: Scalars['String']['input'];
+  /** Write-only and optional. Leave empty when editing to keep the stored secret. */
+  signingSecret?: InputMaybe<Scalars['String']['input']>;
 };
 
 export enum SlipStatus {
@@ -14814,6 +15013,17 @@ export type WebsiteCaptchaAnswer = {
   token: Scalars['String']['input'];
 };
 
+/** A team member a chat can be handed to, and how busy they are right now. */
+export type WebsiteChatAgent = {
+  __typename?: 'WebsiteChatAgent';
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  /** Used a portal in the last few minutes. */
+  online: Scalars['Boolean']['output'];
+  openChats: Scalars['Int']['output'];
+};
+
 export type WebsiteChatAttachment = {
   __typename?: 'WebsiteChatAttachment';
   kind: WebsiteChatAttachmentKind;
@@ -14876,6 +15086,11 @@ export type WebsiteChatFaqPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+export enum WebsiteChatFeedback {
+  Down = 'DOWN',
+  Up = 'UP'
+}
+
 /** Something the knowledge bot may answer from. */
 export type WebsiteChatKnowledge = {
   __typename?: 'WebsiteChatKnowledge';
@@ -14915,11 +15130,17 @@ export type WebsiteChatMessage = {
   body: Scalars['String']['output'];
   channel: WebsiteChatChannel;
   createdAt: Scalars['DateTime']['output'];
+  /** The visitor's rating of a bot answer; null until they rate it. */
+  feedback?: Maybe<WebsiteChatFeedback>;
   id: Scalars['ID']['output'];
   readAt?: Maybe<Scalars['DateTime']['output']>;
   sender: WebsiteChatSender;
   senderName: Scalars['String']['output'];
   sessionId: Scalars['ID']['output'];
+  /** A bot answer's sources. */
+  sources: Array<WebsiteChatSource>;
+  /** Follow-up questions the bot suggested. */
+  suggestions: Array<Scalars['String']['output']>;
 };
 
 /** Who wrote a chat message. SYSTEM is the chat itself (welcome, handoff and offline notices). */
@@ -14933,6 +15154,7 @@ export enum WebsiteChatSender {
 /** A conversation with a visitor of exyconn.com or tools.exyconn.com, opened after their email was verified. */
 export type WebsiteChatSession = {
   __typename?: 'WebsiteChatSession';
+  assignedAt?: Maybe<Scalars['DateTime']['output']>;
   assigneeId: Scalars['String']['output'];
   assigneeName: Scalars['String']['output'];
   /** Set while a visitor waits for a person; the handoff moves the question to the bot when it is too old. */
@@ -14941,6 +15163,8 @@ export type WebsiteChatSession = {
   closedBy: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   email: Scalars['String']['output'];
+  /** When the chat closes if neither side writes again (the session timeout). */
+  expiresAt?: Maybe<Scalars['DateTime']['output']>;
   handedOffAt?: Maybe<Scalars['DateTime']['output']>;
   id: Scalars['ID']['output'];
   lastMessageAt?: Maybe<Scalars['DateTime']['output']>;
@@ -14951,6 +15175,8 @@ export type WebsiteChatSession = {
   pageUrl: Scalars['String']['output'];
   phone: Scalars['String']['output'];
   site: WebsiteChatSite;
+  /** Whether the assigned agent follows this chat in a Slack thread. */
+  slackLinked: Scalars['Boolean']['output'];
   /** Live-thread visitor messages nobody on the team has read. */
   staffUnread: Scalars['Int']['output'];
   status: WebsiteChatStatus;
@@ -14968,10 +15194,14 @@ export type WebsiteChatSessionPage = {
 
 export type WebsiteChatSettings = {
   __typename?: 'WebsiteChatSettings';
+  /** Portal users a new chat may be handed to; the freest of them gets it. */
+  agentIds: Array<Scalars['ID']['output']>;
   allowUploads: Scalars['Boolean']['output'];
   botModel: Scalars['String']['output'];
   botName: Scalars['String']['output'];
   customInstructions: Scalars['String']['output'];
+  /** The OpenAI model the knowledge is embedded with. */
+  embeddingModel: Scalars['String']['output'];
   enabled: Scalars['Boolean']['output'];
   handoffMessage: Scalars['String']['output'];
   knowledgeSyncCount: Scalars['Int']['output'];
@@ -14985,6 +15215,10 @@ export type WebsiteChatSettings = {
   /** Whether the team is on duty right now, by the opening hours. */
   online: Scalars['Boolean']['output'];
   refusalMessage: Scalars['String']['output'];
+  /** Minutes without a message from either side before a chat closes (2 to 120). */
+  sessionTimeoutMinutes: Scalars['Int']['output'];
+  /** Opens a Slack thread for the assigned agent, which they can answer the visitor from. */
+  slackEnabled: Scalars['Boolean']['output'];
   soundEnabledByDefault: Scalars['Boolean']['output'];
   timezone: Scalars['String']['output'];
   transcriptOnClose: Scalars['Boolean']['output'];
@@ -14994,10 +15228,14 @@ export type WebsiteChatSettings = {
 };
 
 export type WebsiteChatSettingsInput = {
+  /** Portal users a new chat may be handed to; the freest of them gets it. */
+  agentIds: Array<Scalars['ID']['input']>;
   allowUploads: Scalars['Boolean']['input'];
   botModel: Scalars['String']['input'];
   botName: Scalars['String']['input'];
   customInstructions: Scalars['String']['input'];
+  /** The OpenAI model the knowledge is embedded with. */
+  embeddingModel: Scalars['String']['input'];
   enabled: Scalars['Boolean']['input'];
   handoffMessage: Scalars['String']['input'];
   maxContextChars: Scalars['Int']['input'];
@@ -15005,6 +15243,10 @@ export type WebsiteChatSettingsInput = {
   noReplyTimeoutSeconds: Scalars['Int']['input'];
   offlineMessage: Scalars['String']['input'];
   refusalMessage: Scalars['String']['input'];
+  /** Minutes without a message from either side before a chat closes (2 to 120). */
+  sessionTimeoutMinutes: Scalars['Int']['input'];
+  /** Opens a Slack thread for the assigned agent, which they can answer the visitor from. */
+  slackEnabled: Scalars['Boolean']['input'];
   soundEnabledByDefault: Scalars['Boolean']['input'];
   timezone: Scalars['String']['input'];
   transcriptOnClose: Scalars['Boolean']['input'];
@@ -15017,6 +15259,13 @@ export enum WebsiteChatSite {
   Tools = 'TOOLS',
   Website = 'WEBSITE'
 }
+
+/** A page the knowledge bot answered from. */
+export type WebsiteChatSource = {
+  __typename?: 'WebsiteChatSource';
+  title: Scalars['String']['output'];
+  url: Scalars['String']['output'];
+};
 
 export enum WebsiteChatStatus {
   Closed = 'CLOSED',
@@ -16312,7 +16561,7 @@ export type ClientHubRemindersQuery = { __typename?: 'Query', clientHubReminders
 export type ClientHubPaymentOptionsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ClientHubPaymentOptionsQuery = { __typename?: 'Query', clientHubPaymentOptions: { __typename?: 'ClientHubPaymentOptions', stripe: boolean, razorpay: boolean } };
+export type ClientHubPaymentOptionsQuery = { __typename?: 'Query', clientHubPaymentOptions: { __typename?: 'ClientHubPaymentOptions', stripe: boolean, razorpay: boolean, paypal: boolean, payoneer: boolean } };
 
 export type ClientHubPayInvoiceMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -16366,14 +16615,14 @@ export type ClientHubProjectsQuery = { __typename?: 'Query', clientHubProjects: 
 export type ListClientsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListClientsQuery = { __typename?: 'Query', listClients: Array<{ __typename?: 'Client', id: string, name: string, email: string, phone: string, company: string, status: ClientStatus, gstin: string, stateCode: string, billingAddress: string }> };
+export type ListClientsQuery = { __typename?: 'Query', listClients: Array<{ __typename?: 'Client', id: string, name: string, email: string, phone: string, company: string, status: ClientStatus, country: string, currency: string, taxIdType?: ClientTaxIdType | null, taxId: string, taxIdLabel: string, gstin: string, stateCode: string, region: string, city: string, postalCode: string, billingAddress: string }> };
 
 export type ListClientsPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListClientsPagedQuery = { __typename?: 'Query', listClientsPaged: { __typename?: 'ClientPage', totalCount: number, rows: Array<{ __typename?: 'Client', id: string, name: string, email: string, phone: string, company: string, status: ClientStatus, gstin: string, stateCode: string, billingAddress: string }> } };
+export type ListClientsPagedQuery = { __typename?: 'Query', listClientsPaged: { __typename?: 'ClientPage', totalCount: number, rows: Array<{ __typename?: 'Client', id: string, name: string, email: string, phone: string, company: string, status: ClientStatus, country: string, currency: string, taxIdType?: ClientTaxIdType | null, taxId: string, taxIdLabel: string, gstin: string, stateCode: string, region: string, city: string, postalCode: string, billingAddress: string }> } };
 
 export type ListClientsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -16408,6 +16657,19 @@ export type GetClientQueryVariables = Exact<{
 
 
 export type GetClientQuery = { __typename?: 'Query', getClient: { __typename?: 'Client', id: string, name: string, email: string, company: string } };
+
+export type ClientProjectOptionsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ClientProjectOptionsQuery = { __typename?: 'Query', clientProjectOptions: Array<{ __typename?: 'ClientProjectOption', id: string, name: string, key: string, clientId: string, clientName: string }> };
+
+export type SetClientProjectsMutationVariables = Exact<{
+  clientId: Scalars['ID']['input'];
+  projectIds: Array<Scalars['ID']['input']> | Scalars['ID']['input'];
+}>;
+
+
+export type SetClientProjectsMutation = { __typename?: 'Mutation', setClientProjects: boolean };
 
 export type RiskFieldsFragment = { __typename?: 'Risk', id: string, reference: string, title: string, description: string, standards: Array<ManagementStandard>, category: ComplianceCategory, subject: string, ownerId: string, ownerName: string, likelihood: number, impact: number, inherentScore: number, inherentLevel: RiskLevel, treatment: RiskTreatment, controls: string, residualLikelihood: number, residualImpact: number, residualScore: number, residualLevel: RiskLevel, status: RiskStatus, identifiedOn: string, reviewDueOn?: string | null, closedOn?: string | null };
 
@@ -19498,6 +19760,78 @@ export type TestRazorpayConnectionMutationVariables = Exact<{
 
 export type TestRazorpayConnectionMutation = { __typename?: 'Mutation', testRazorpayConnection: boolean };
 
+export type PaypalConfigFieldsFragment = { __typename?: 'PaypalConfig', id: string, label: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, webhookId: string, mode: GatewayMode, isActive: boolean, createdAt: string, updatedAt: string };
+
+export type PayoneerConfigFieldsFragment = { __typename?: 'PayoneerConfig', id: string, label: string, merchantCode: string, hasApiToken: boolean, apiTokenHint?: string | null, division: string, mode: GatewayMode, isActive: boolean, createdAt: string, updatedAt: string };
+
+export type ListPaypalConfigsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListPaypalConfigsQuery = { __typename?: 'Query', listPaypalConfigs: Array<{ __typename?: 'PaypalConfig', id: string, label: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, webhookId: string, mode: GatewayMode, isActive: boolean, createdAt: string, updatedAt: string }> };
+
+export type CreatePaypalConfigMutationVariables = Exact<{
+  input: PaypalConfigInput;
+}>;
+
+
+export type CreatePaypalConfigMutation = { __typename?: 'Mutation', createPaypalConfig: { __typename?: 'PaypalConfig', id: string, label: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, webhookId: string, mode: GatewayMode, isActive: boolean, createdAt: string, updatedAt: string } };
+
+export type UpdatePaypalConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: PaypalConfigInput;
+}>;
+
+
+export type UpdatePaypalConfigMutation = { __typename?: 'Mutation', updatePaypalConfig: { __typename?: 'PaypalConfig', id: string, label: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, webhookId: string, mode: GatewayMode, isActive: boolean, createdAt: string, updatedAt: string } };
+
+export type DeletePaypalConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeletePaypalConfigMutation = { __typename?: 'Mutation', deletePaypalConfig: boolean };
+
+export type TestPaypalConnectionMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TestPaypalConnectionMutation = { __typename?: 'Mutation', testPaypalConnection: boolean };
+
+export type ListPayoneerConfigsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListPayoneerConfigsQuery = { __typename?: 'Query', listPayoneerConfigs: Array<{ __typename?: 'PayoneerConfig', id: string, label: string, merchantCode: string, hasApiToken: boolean, apiTokenHint?: string | null, division: string, mode: GatewayMode, isActive: boolean, createdAt: string, updatedAt: string }> };
+
+export type CreatePayoneerConfigMutationVariables = Exact<{
+  input: PayoneerConfigInput;
+}>;
+
+
+export type CreatePayoneerConfigMutation = { __typename?: 'Mutation', createPayoneerConfig: { __typename?: 'PayoneerConfig', id: string, label: string, merchantCode: string, hasApiToken: boolean, apiTokenHint?: string | null, division: string, mode: GatewayMode, isActive: boolean, createdAt: string, updatedAt: string } };
+
+export type UpdatePayoneerConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: PayoneerConfigInput;
+}>;
+
+
+export type UpdatePayoneerConfigMutation = { __typename?: 'Mutation', updatePayoneerConfig: { __typename?: 'PayoneerConfig', id: string, label: string, merchantCode: string, hasApiToken: boolean, apiTokenHint?: string | null, division: string, mode: GatewayMode, isActive: boolean, createdAt: string, updatedAt: string } };
+
+export type DeletePayoneerConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeletePayoneerConfigMutation = { __typename?: 'Mutation', deletePayoneerConfig: boolean };
+
+export type TestPayoneerConnectionMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TestPayoneerConnectionMutation = { __typename?: 'Mutation', testPayoneerConnection: boolean };
+
 export type SalaryStructureFieldsFragment = { __typename?: 'SalaryStructure', id: string, employeeId: string, currency: string, payType: PayType, payTypeNote?: string | null, basic: number, hra: number, allowances: number, deductions: number, rate: number, billingRate: number, gross: number, net: number, pfApplicable: boolean, esiApplicable: boolean, tdsPercent: number, taxRegimeKey?: string | null, taxExempt: boolean, pfNumber?: string | null, esiNumber?: string | null, panNumber?: string | null, effectiveFrom: string };
 
 export type ListSalaryStructuresPagedQueryVariables = Exact<{
@@ -21085,7 +21419,7 @@ export type TestImageUploadMutation = { __typename?: 'Mutation', testImageUpload
 export type ListSlackConfigsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListSlackConfigsQuery = { __typename?: 'Query', listSlackConfigs: Array<{ __typename?: 'SlackConfig', id: string, label: string, hasBotToken: boolean, botTokenHint?: string | null, defaultChannel: string, isActive: boolean }> };
+export type ListSlackConfigsQuery = { __typename?: 'Query', listSlackConfigs: Array<{ __typename?: 'SlackConfig', id: string, label: string, hasBotToken: boolean, botTokenHint?: string | null, hasSigningSecret: boolean, defaultChannel: string, isActive: boolean }> };
 
 export type CreateSlackConfigMutationVariables = Exact<{
   input: SlackConfigInput;
@@ -21889,11 +22223,11 @@ export type ConvertWebsiteSubmissionToLeadMutationVariables = Exact<{
 
 export type ConvertWebsiteSubmissionToLeadMutation = { __typename?: 'Mutation', convertWebsiteSubmissionToLead: { __typename?: 'Lead', id: string, name: string } };
 
-export type WebsiteChatSessionFieldsFragment = { __typename?: 'WebsiteChatSession', id: string, name: string, email: string, phone: string, site: WebsiteChatSite, pageUrl: string, status: WebsiteChatStatus, ticketId: string, ticketReference: string, assigneeId: string, assigneeName: string, lastMessageAt?: string | null, lastMessagePreview: string, lastSender: string, staffUnread: number, messageCount: number, awaitingReplySince?: string | null, handedOffAt?: string | null, closedAt?: string | null, closedBy: string, createdAt: string, updatedAt: string };
+export type WebsiteChatSessionFieldsFragment = { __typename?: 'WebsiteChatSession', id: string, name: string, email: string, phone: string, site: WebsiteChatSite, pageUrl: string, status: WebsiteChatStatus, ticketId: string, ticketReference: string, assigneeId: string, assigneeName: string, lastMessageAt?: string | null, lastMessagePreview: string, lastSender: string, staffUnread: number, messageCount: number, awaitingReplySince?: string | null, handedOffAt?: string | null, assignedAt?: string | null, expiresAt?: string | null, slackLinked: boolean, closedAt?: string | null, closedBy: string, createdAt: string, updatedAt: string };
 
-export type WebsiteChatMessageFieldsFragment = { __typename?: 'WebsiteChatMessage', id: string, sessionId: string, channel: WebsiteChatChannel, sender: WebsiteChatSender, senderName: string, body: string, createdAt: string, readAt?: string | null, attachments: Array<{ __typename?: 'WebsiteChatAttachment', url: string, name: string, kind: WebsiteChatAttachmentKind, size: number }> };
+export type WebsiteChatMessageFieldsFragment = { __typename?: 'WebsiteChatMessage', id: string, sessionId: string, channel: WebsiteChatChannel, sender: WebsiteChatSender, senderName: string, body: string, suggestions: Array<string>, feedback?: WebsiteChatFeedback | null, createdAt: string, readAt?: string | null, attachments: Array<{ __typename?: 'WebsiteChatAttachment', url: string, name: string, kind: WebsiteChatAttachmentKind, size: number }>, sources: Array<{ __typename?: 'WebsiteChatSource', title: string, url: string }> };
 
-export type WebsiteChatSettingsFieldsFragment = { __typename?: 'WebsiteChatSettings', enabled: boolean, botName: string, welcomeMessage: string, offlineMessage: string, handoffMessage: string, refusalMessage: string, customInstructions: string, timezone: string, noReplyTimeoutSeconds: number, botModel: string, maxContextChars: number, allowUploads: boolean, maxUploadMb: number, soundEnabledByDefault: boolean, transcriptOnClose: boolean, online: boolean, knowledgeSyncedAt?: string | null, knowledgeSyncCount: number, knowledgeSyncError: string, updatedAt: string, weeklyHours: Array<{ __typename?: 'WebsiteChatDay', day: number, enabled: boolean, start: string, end: string }> };
+export type WebsiteChatSettingsFieldsFragment = { __typename?: 'WebsiteChatSettings', enabled: boolean, botName: string, welcomeMessage: string, offlineMessage: string, handoffMessage: string, refusalMessage: string, customInstructions: string, timezone: string, noReplyTimeoutSeconds: number, botModel: string, maxContextChars: number, allowUploads: boolean, maxUploadMb: number, soundEnabledByDefault: boolean, transcriptOnClose: boolean, sessionTimeoutMinutes: number, embeddingModel: string, agentIds: Array<string>, slackEnabled: boolean, online: boolean, knowledgeSyncedAt?: string | null, knowledgeSyncCount: number, knowledgeSyncError: string, updatedAt: string, weeklyHours: Array<{ __typename?: 'WebsiteChatDay', day: number, enabled: boolean, start: string, end: string }> };
 
 export type WebsiteChatFaqFieldsFragment = { __typename?: 'WebsiteChatFaq', id: string, question: string, answer: string, sortOrder: number, isActive: boolean, createdAt: string, updatedAt: string };
 
@@ -21904,7 +22238,7 @@ export type WebsiteChatSessionsPagedQueryVariables = Exact<{
 }>;
 
 
-export type WebsiteChatSessionsPagedQuery = { __typename?: 'Query', websiteChatSessionsPaged: { __typename?: 'WebsiteChatSessionPage', totalCount: number, rows: Array<{ __typename?: 'WebsiteChatSession', id: string, name: string, email: string, phone: string, site: WebsiteChatSite, pageUrl: string, status: WebsiteChatStatus, ticketId: string, ticketReference: string, assigneeId: string, assigneeName: string, lastMessageAt?: string | null, lastMessagePreview: string, lastSender: string, staffUnread: number, messageCount: number, awaitingReplySince?: string | null, handedOffAt?: string | null, closedAt?: string | null, closedBy: string, createdAt: string, updatedAt: string }> } };
+export type WebsiteChatSessionsPagedQuery = { __typename?: 'Query', websiteChatSessionsPaged: { __typename?: 'WebsiteChatSessionPage', totalCount: number, rows: Array<{ __typename?: 'WebsiteChatSession', id: string, name: string, email: string, phone: string, site: WebsiteChatSite, pageUrl: string, status: WebsiteChatStatus, ticketId: string, ticketReference: string, assigneeId: string, assigneeName: string, lastMessageAt?: string | null, lastMessagePreview: string, lastSender: string, staffUnread: number, messageCount: number, awaitingReplySince?: string | null, handedOffAt?: string | null, assignedAt?: string | null, expiresAt?: string | null, slackLinked: boolean, closedAt?: string | null, closedBy: string, createdAt: string, updatedAt: string }> } };
 
 export type WebsiteChatSessionStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -21916,40 +22250,45 @@ export type WebsiteChatSessionQueryVariables = Exact<{
 }>;
 
 
-export type WebsiteChatSessionQuery = { __typename?: 'Query', websiteChatSession: { __typename?: 'WebsiteChatSession', id: string, name: string, email: string, phone: string, site: WebsiteChatSite, pageUrl: string, status: WebsiteChatStatus, ticketId: string, ticketReference: string, assigneeId: string, assigneeName: string, lastMessageAt?: string | null, lastMessagePreview: string, lastSender: string, staffUnread: number, messageCount: number, awaitingReplySince?: string | null, handedOffAt?: string | null, closedAt?: string | null, closedBy: string, createdAt: string, updatedAt: string } };
+export type WebsiteChatSessionQuery = { __typename?: 'Query', websiteChatSession: { __typename?: 'WebsiteChatSession', id: string, name: string, email: string, phone: string, site: WebsiteChatSite, pageUrl: string, status: WebsiteChatStatus, ticketId: string, ticketReference: string, assigneeId: string, assigneeName: string, lastMessageAt?: string | null, lastMessagePreview: string, lastSender: string, staffUnread: number, messageCount: number, awaitingReplySince?: string | null, handedOffAt?: string | null, assignedAt?: string | null, expiresAt?: string | null, slackLinked: boolean, closedAt?: string | null, closedBy: string, createdAt: string, updatedAt: string } };
 
 export type WebsiteChatMessagesQueryVariables = Exact<{
   sessionId: Scalars['ID']['input'];
 }>;
 
 
-export type WebsiteChatMessagesQuery = { __typename?: 'Query', websiteChatMessages: Array<{ __typename?: 'WebsiteChatMessage', id: string, sessionId: string, channel: WebsiteChatChannel, sender: WebsiteChatSender, senderName: string, body: string, createdAt: string, readAt?: string | null, attachments: Array<{ __typename?: 'WebsiteChatAttachment', url: string, name: string, kind: WebsiteChatAttachmentKind, size: number }> }> };
+export type WebsiteChatMessagesQuery = { __typename?: 'Query', websiteChatMessages: Array<{ __typename?: 'WebsiteChatMessage', id: string, sessionId: string, channel: WebsiteChatChannel, sender: WebsiteChatSender, senderName: string, body: string, suggestions: Array<string>, feedback?: WebsiteChatFeedback | null, createdAt: string, readAt?: string | null, attachments: Array<{ __typename?: 'WebsiteChatAttachment', url: string, name: string, kind: WebsiteChatAttachmentKind, size: number }>, sources: Array<{ __typename?: 'WebsiteChatSource', title: string, url: string }> }> };
+
+export type WebsiteChatAgentCandidatesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type WebsiteChatAgentCandidatesQuery = { __typename?: 'Query', websiteChatAgentCandidates: Array<{ __typename?: 'WebsiteChatAgent', id: string, name: string, email: string, online: boolean, openChats: number }> };
 
 export type WebsiteChatSettingsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type WebsiteChatSettingsQuery = { __typename?: 'Query', websiteChatSettings: { __typename?: 'WebsiteChatSettings', enabled: boolean, botName: string, welcomeMessage: string, offlineMessage: string, handoffMessage: string, refusalMessage: string, customInstructions: string, timezone: string, noReplyTimeoutSeconds: number, botModel: string, maxContextChars: number, allowUploads: boolean, maxUploadMb: number, soundEnabledByDefault: boolean, transcriptOnClose: boolean, online: boolean, knowledgeSyncedAt?: string | null, knowledgeSyncCount: number, knowledgeSyncError: string, updatedAt: string, weeklyHours: Array<{ __typename?: 'WebsiteChatDay', day: number, enabled: boolean, start: string, end: string }> } };
+export type WebsiteChatSettingsQuery = { __typename?: 'Query', websiteChatSettings: { __typename?: 'WebsiteChatSettings', enabled: boolean, botName: string, welcomeMessage: string, offlineMessage: string, handoffMessage: string, refusalMessage: string, customInstructions: string, timezone: string, noReplyTimeoutSeconds: number, botModel: string, maxContextChars: number, allowUploads: boolean, maxUploadMb: number, soundEnabledByDefault: boolean, transcriptOnClose: boolean, sessionTimeoutMinutes: number, embeddingModel: string, agentIds: Array<string>, slackEnabled: boolean, online: boolean, knowledgeSyncedAt?: string | null, knowledgeSyncCount: number, knowledgeSyncError: string, updatedAt: string, weeklyHours: Array<{ __typename?: 'WebsiteChatDay', day: number, enabled: boolean, start: string, end: string }> } };
 
 export type UpdateWebsiteChatSettingsMutationVariables = Exact<{
   input: WebsiteChatSettingsInput;
 }>;
 
 
-export type UpdateWebsiteChatSettingsMutation = { __typename?: 'Mutation', updateWebsiteChatSettings: { __typename?: 'WebsiteChatSettings', enabled: boolean, botName: string, welcomeMessage: string, offlineMessage: string, handoffMessage: string, refusalMessage: string, customInstructions: string, timezone: string, noReplyTimeoutSeconds: number, botModel: string, maxContextChars: number, allowUploads: boolean, maxUploadMb: number, soundEnabledByDefault: boolean, transcriptOnClose: boolean, online: boolean, knowledgeSyncedAt?: string | null, knowledgeSyncCount: number, knowledgeSyncError: string, updatedAt: string, weeklyHours: Array<{ __typename?: 'WebsiteChatDay', day: number, enabled: boolean, start: string, end: string }> } };
+export type UpdateWebsiteChatSettingsMutation = { __typename?: 'Mutation', updateWebsiteChatSettings: { __typename?: 'WebsiteChatSettings', enabled: boolean, botName: string, welcomeMessage: string, offlineMessage: string, handoffMessage: string, refusalMessage: string, customInstructions: string, timezone: string, noReplyTimeoutSeconds: number, botModel: string, maxContextChars: number, allowUploads: boolean, maxUploadMb: number, soundEnabledByDefault: boolean, transcriptOnClose: boolean, sessionTimeoutMinutes: number, embeddingModel: string, agentIds: Array<string>, slackEnabled: boolean, online: boolean, knowledgeSyncedAt?: string | null, knowledgeSyncCount: number, knowledgeSyncError: string, updatedAt: string, weeklyHours: Array<{ __typename?: 'WebsiteChatDay', day: number, enabled: boolean, start: string, end: string }> } };
 
 export type ClaimWebsiteChatSessionMutationVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type ClaimWebsiteChatSessionMutation = { __typename?: 'Mutation', claimWebsiteChatSession: { __typename?: 'WebsiteChatSession', id: string, name: string, email: string, phone: string, site: WebsiteChatSite, pageUrl: string, status: WebsiteChatStatus, ticketId: string, ticketReference: string, assigneeId: string, assigneeName: string, lastMessageAt?: string | null, lastMessagePreview: string, lastSender: string, staffUnread: number, messageCount: number, awaitingReplySince?: string | null, handedOffAt?: string | null, closedAt?: string | null, closedBy: string, createdAt: string, updatedAt: string } };
+export type ClaimWebsiteChatSessionMutation = { __typename?: 'Mutation', claimWebsiteChatSession: { __typename?: 'WebsiteChatSession', id: string, name: string, email: string, phone: string, site: WebsiteChatSite, pageUrl: string, status: WebsiteChatStatus, ticketId: string, ticketReference: string, assigneeId: string, assigneeName: string, lastMessageAt?: string | null, lastMessagePreview: string, lastSender: string, staffUnread: number, messageCount: number, awaitingReplySince?: string | null, handedOffAt?: string | null, assignedAt?: string | null, expiresAt?: string | null, slackLinked: boolean, closedAt?: string | null, closedBy: string, createdAt: string, updatedAt: string } };
 
 export type CloseWebsiteChatSessionMutationVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type CloseWebsiteChatSessionMutation = { __typename?: 'Mutation', closeWebsiteChatSession: { __typename?: 'WebsiteChatSession', id: string, name: string, email: string, phone: string, site: WebsiteChatSite, pageUrl: string, status: WebsiteChatStatus, ticketId: string, ticketReference: string, assigneeId: string, assigneeName: string, lastMessageAt?: string | null, lastMessagePreview: string, lastSender: string, staffUnread: number, messageCount: number, awaitingReplySince?: string | null, handedOffAt?: string | null, closedAt?: string | null, closedBy: string, createdAt: string, updatedAt: string } };
+export type CloseWebsiteChatSessionMutation = { __typename?: 'Mutation', closeWebsiteChatSession: { __typename?: 'WebsiteChatSession', id: string, name: string, email: string, phone: string, site: WebsiteChatSite, pageUrl: string, status: WebsiteChatStatus, ticketId: string, ticketReference: string, assigneeId: string, assigneeName: string, lastMessageAt?: string | null, lastMessagePreview: string, lastSender: string, staffUnread: number, messageCount: number, awaitingReplySince?: string | null, handedOffAt?: string | null, assignedAt?: string | null, expiresAt?: string | null, slackLinked: boolean, closedAt?: string | null, closedBy: string, createdAt: string, updatedAt: string } };
 
 export type DeleteWebsiteChatSessionMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -23351,6 +23690,34 @@ export const RazorpayConfigFieldsFragmentDoc = gql`
   updatedAt
 }
     `;
+export const PaypalConfigFieldsFragmentDoc = gql`
+    fragment PaypalConfigFields on PaypalConfig {
+  id
+  label
+  clientId
+  hasClientSecret
+  clientSecretHint
+  webhookId
+  mode
+  isActive
+  createdAt
+  updatedAt
+}
+    `;
+export const PayoneerConfigFieldsFragmentDoc = gql`
+    fragment PayoneerConfigFields on PayoneerConfig {
+  id
+  label
+  merchantCode
+  hasApiToken
+  apiTokenHint
+  division
+  mode
+  isActive
+  createdAt
+  updatedAt
+}
+    `;
 export const SalaryStructureFieldsFragmentDoc = gql`
     fragment SalaryStructureFields on SalaryStructure {
   id
@@ -24218,6 +24585,9 @@ export const WebsiteChatSessionFieldsFragmentDoc = gql`
   messageCount
   awaitingReplySince
   handedOffAt
+  assignedAt
+  expiresAt
+  slackLinked
   closedAt
   closedBy
   createdAt
@@ -24238,6 +24608,12 @@ export const WebsiteChatMessageFieldsFragmentDoc = gql`
     kind
     size
   }
+  sources {
+    title
+    url
+  }
+  suggestions
+  feedback
   createdAt
   readAt
 }
@@ -24265,6 +24641,10 @@ export const WebsiteChatSettingsFieldsFragmentDoc = gql`
   maxUploadMb
   soundEnabledByDefault
   transcriptOnClose
+  sessionTimeoutMinutes
+  embeddingModel
+  agentIds
+  slackEnabled
   online
   knowledgeSyncedAt
   knowledgeSyncCount
@@ -29310,6 +29690,8 @@ export const ClientHubPaymentOptionsDocument = gql`
   clientHubPaymentOptions {
     stripe
     razorpay
+    paypal
+    payoneer
   }
 }
     `;
@@ -29665,8 +30047,16 @@ export const ListClientsDocument = gql`
     phone
     company
     status
+    country
+    currency
+    taxIdType
+    taxId
+    taxIdLabel
     gstin
     stateCode
+    region
+    city
+    postalCode
     billingAddress
   }
 }
@@ -29718,8 +30108,16 @@ export const ListClientsPagedDocument = gql`
       phone
       company
       status
+      country
+      currency
+      taxIdType
+      taxId
+      taxIdLabel
       gstin
       stateCode
+      region
+      city
+      postalCode
       billingAddress
     }
   }
@@ -29952,6 +30350,82 @@ export function useGetClientSuspenseQuery(baseOptions?: ApolloReactHooks.SkipTok
 export type GetClientQueryHookResult = ReturnType<typeof useGetClientQuery>;
 export type GetClientLazyQueryHookResult = ReturnType<typeof useGetClientLazyQuery>;
 export type GetClientSuspenseQueryHookResult = ReturnType<typeof useGetClientSuspenseQuery>;
+export const ClientProjectOptionsDocument = gql`
+    query ClientProjectOptions {
+  clientProjectOptions {
+    id
+    name
+    key
+    clientId
+    clientName
+  }
+}
+    `;
+
+/**
+ * __useClientProjectOptionsQuery__
+ *
+ * To run a query within a React component, call `useClientProjectOptionsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useClientProjectOptionsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useClientProjectOptionsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useClientProjectOptionsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ClientProjectOptionsQuery, ClientProjectOptionsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ClientProjectOptionsQuery, ClientProjectOptionsQueryVariables>(ClientProjectOptionsDocument, options);
+      }
+export function useClientProjectOptionsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ClientProjectOptionsQuery, ClientProjectOptionsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ClientProjectOptionsQuery, ClientProjectOptionsQueryVariables>(ClientProjectOptionsDocument, options);
+        }
+// @ts-ignore
+export function useClientProjectOptionsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ClientProjectOptionsQuery, ClientProjectOptionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientProjectOptionsQuery, ClientProjectOptionsQueryVariables>;
+// @ts-ignore
+export function useClientProjectOptionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientProjectOptionsQuery, ClientProjectOptionsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ClientProjectOptionsQuery | undefined, ClientProjectOptionsQueryVariables>;
+export function useClientProjectOptionsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ClientProjectOptionsQuery, ClientProjectOptionsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ClientProjectOptionsQuery, ClientProjectOptionsQueryVariables>(ClientProjectOptionsDocument, options);
+        }
+export type ClientProjectOptionsQueryHookResult = ReturnType<typeof useClientProjectOptionsQuery>;
+export type ClientProjectOptionsLazyQueryHookResult = ReturnType<typeof useClientProjectOptionsLazyQuery>;
+export type ClientProjectOptionsSuspenseQueryHookResult = ReturnType<typeof useClientProjectOptionsSuspenseQuery>;
+export const SetClientProjectsDocument = gql`
+    mutation SetClientProjects($clientId: ID!, $projectIds: [ID!]!) {
+  setClientProjects(clientId: $clientId, projectIds: $projectIds)
+}
+    `;
+
+/**
+ * __useSetClientProjectsMutation__
+ *
+ * To run a mutation, you first call `useSetClientProjectsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetClientProjectsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setClientProjectsMutation, { data, loading, error }] = useSetClientProjectsMutation({
+ *   variables: {
+ *      clientId: // value for 'clientId'
+ *      projectIds: // value for 'projectIds'
+ *   },
+ * });
+ */
+export function useSetClientProjectsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SetClientProjectsMutation, SetClientProjectsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SetClientProjectsMutation, SetClientProjectsMutationVariables>(SetClientProjectsDocument, options);
+      }
+export type SetClientProjectsMutationHookResult = ReturnType<typeof useSetClientProjectsMutation>;
 export const ListRisksPagedDocument = gql`
     query ListRisksPaged($input: TableQueryInput!) {
   listRisksPaged(input: $input) {
@@ -47664,6 +48138,326 @@ export function useTestRazorpayConnectionMutation(baseOptions?: ApolloReactHooks
         return ApolloReactHooks.useMutation<TestRazorpayConnectionMutation, TestRazorpayConnectionMutationVariables>(TestRazorpayConnectionDocument, options);
       }
 export type TestRazorpayConnectionMutationHookResult = ReturnType<typeof useTestRazorpayConnectionMutation>;
+export const ListPaypalConfigsDocument = gql`
+    query ListPaypalConfigs {
+  listPaypalConfigs {
+    ...PaypalConfigFields
+  }
+}
+    ${PaypalConfigFieldsFragmentDoc}`;
+
+/**
+ * __useListPaypalConfigsQuery__
+ *
+ * To run a query within a React component, call `useListPaypalConfigsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListPaypalConfigsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListPaypalConfigsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListPaypalConfigsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ListPaypalConfigsQuery, ListPaypalConfigsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListPaypalConfigsQuery, ListPaypalConfigsQueryVariables>(ListPaypalConfigsDocument, options);
+      }
+export function useListPaypalConfigsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListPaypalConfigsQuery, ListPaypalConfigsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListPaypalConfigsQuery, ListPaypalConfigsQueryVariables>(ListPaypalConfigsDocument, options);
+        }
+// @ts-ignore
+export function useListPaypalConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListPaypalConfigsQuery, ListPaypalConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListPaypalConfigsQuery, ListPaypalConfigsQueryVariables>;
+// @ts-ignore
+export function useListPaypalConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListPaypalConfigsQuery, ListPaypalConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListPaypalConfigsQuery | undefined, ListPaypalConfigsQueryVariables>;
+export function useListPaypalConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListPaypalConfigsQuery, ListPaypalConfigsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListPaypalConfigsQuery, ListPaypalConfigsQueryVariables>(ListPaypalConfigsDocument, options);
+        }
+export type ListPaypalConfigsQueryHookResult = ReturnType<typeof useListPaypalConfigsQuery>;
+export type ListPaypalConfigsLazyQueryHookResult = ReturnType<typeof useListPaypalConfigsLazyQuery>;
+export type ListPaypalConfigsSuspenseQueryHookResult = ReturnType<typeof useListPaypalConfigsSuspenseQuery>;
+export const CreatePaypalConfigDocument = gql`
+    mutation CreatePaypalConfig($input: PaypalConfigInput!) {
+  createPaypalConfig(input: $input) {
+    ...PaypalConfigFields
+  }
+}
+    ${PaypalConfigFieldsFragmentDoc}`;
+
+/**
+ * __useCreatePaypalConfigMutation__
+ *
+ * To run a mutation, you first call `useCreatePaypalConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreatePaypalConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createPaypalConfigMutation, { data, loading, error }] = useCreatePaypalConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreatePaypalConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreatePaypalConfigMutation, CreatePaypalConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreatePaypalConfigMutation, CreatePaypalConfigMutationVariables>(CreatePaypalConfigDocument, options);
+      }
+export type CreatePaypalConfigMutationHookResult = ReturnType<typeof useCreatePaypalConfigMutation>;
+export const UpdatePaypalConfigDocument = gql`
+    mutation UpdatePaypalConfig($id: ID!, $input: PaypalConfigInput!) {
+  updatePaypalConfig(id: $id, input: $input) {
+    ...PaypalConfigFields
+  }
+}
+    ${PaypalConfigFieldsFragmentDoc}`;
+
+/**
+ * __useUpdatePaypalConfigMutation__
+ *
+ * To run a mutation, you first call `useUpdatePaypalConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePaypalConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePaypalConfigMutation, { data, loading, error }] = useUpdatePaypalConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdatePaypalConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdatePaypalConfigMutation, UpdatePaypalConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdatePaypalConfigMutation, UpdatePaypalConfigMutationVariables>(UpdatePaypalConfigDocument, options);
+      }
+export type UpdatePaypalConfigMutationHookResult = ReturnType<typeof useUpdatePaypalConfigMutation>;
+export const DeletePaypalConfigDocument = gql`
+    mutation DeletePaypalConfig($id: ID!) {
+  deletePaypalConfig(id: $id)
+}
+    `;
+
+/**
+ * __useDeletePaypalConfigMutation__
+ *
+ * To run a mutation, you first call `useDeletePaypalConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeletePaypalConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deletePaypalConfigMutation, { data, loading, error }] = useDeletePaypalConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeletePaypalConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeletePaypalConfigMutation, DeletePaypalConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeletePaypalConfigMutation, DeletePaypalConfigMutationVariables>(DeletePaypalConfigDocument, options);
+      }
+export type DeletePaypalConfigMutationHookResult = ReturnType<typeof useDeletePaypalConfigMutation>;
+export const TestPaypalConnectionDocument = gql`
+    mutation TestPaypalConnection($id: ID!) {
+  testPaypalConnection(id: $id)
+}
+    `;
+
+/**
+ * __useTestPaypalConnectionMutation__
+ *
+ * To run a mutation, you first call `useTestPaypalConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestPaypalConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testPaypalConnectionMutation, { data, loading, error }] = useTestPaypalConnectionMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTestPaypalConnectionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TestPaypalConnectionMutation, TestPaypalConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TestPaypalConnectionMutation, TestPaypalConnectionMutationVariables>(TestPaypalConnectionDocument, options);
+      }
+export type TestPaypalConnectionMutationHookResult = ReturnType<typeof useTestPaypalConnectionMutation>;
+export const ListPayoneerConfigsDocument = gql`
+    query ListPayoneerConfigs {
+  listPayoneerConfigs {
+    ...PayoneerConfigFields
+  }
+}
+    ${PayoneerConfigFieldsFragmentDoc}`;
+
+/**
+ * __useListPayoneerConfigsQuery__
+ *
+ * To run a query within a React component, call `useListPayoneerConfigsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListPayoneerConfigsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListPayoneerConfigsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListPayoneerConfigsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ListPayoneerConfigsQuery, ListPayoneerConfigsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListPayoneerConfigsQuery, ListPayoneerConfigsQueryVariables>(ListPayoneerConfigsDocument, options);
+      }
+export function useListPayoneerConfigsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListPayoneerConfigsQuery, ListPayoneerConfigsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListPayoneerConfigsQuery, ListPayoneerConfigsQueryVariables>(ListPayoneerConfigsDocument, options);
+        }
+// @ts-ignore
+export function useListPayoneerConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListPayoneerConfigsQuery, ListPayoneerConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListPayoneerConfigsQuery, ListPayoneerConfigsQueryVariables>;
+// @ts-ignore
+export function useListPayoneerConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListPayoneerConfigsQuery, ListPayoneerConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListPayoneerConfigsQuery | undefined, ListPayoneerConfigsQueryVariables>;
+export function useListPayoneerConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListPayoneerConfigsQuery, ListPayoneerConfigsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListPayoneerConfigsQuery, ListPayoneerConfigsQueryVariables>(ListPayoneerConfigsDocument, options);
+        }
+export type ListPayoneerConfigsQueryHookResult = ReturnType<typeof useListPayoneerConfigsQuery>;
+export type ListPayoneerConfigsLazyQueryHookResult = ReturnType<typeof useListPayoneerConfigsLazyQuery>;
+export type ListPayoneerConfigsSuspenseQueryHookResult = ReturnType<typeof useListPayoneerConfigsSuspenseQuery>;
+export const CreatePayoneerConfigDocument = gql`
+    mutation CreatePayoneerConfig($input: PayoneerConfigInput!) {
+  createPayoneerConfig(input: $input) {
+    ...PayoneerConfigFields
+  }
+}
+    ${PayoneerConfigFieldsFragmentDoc}`;
+
+/**
+ * __useCreatePayoneerConfigMutation__
+ *
+ * To run a mutation, you first call `useCreatePayoneerConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreatePayoneerConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createPayoneerConfigMutation, { data, loading, error }] = useCreatePayoneerConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreatePayoneerConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreatePayoneerConfigMutation, CreatePayoneerConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreatePayoneerConfigMutation, CreatePayoneerConfigMutationVariables>(CreatePayoneerConfigDocument, options);
+      }
+export type CreatePayoneerConfigMutationHookResult = ReturnType<typeof useCreatePayoneerConfigMutation>;
+export const UpdatePayoneerConfigDocument = gql`
+    mutation UpdatePayoneerConfig($id: ID!, $input: PayoneerConfigInput!) {
+  updatePayoneerConfig(id: $id, input: $input) {
+    ...PayoneerConfigFields
+  }
+}
+    ${PayoneerConfigFieldsFragmentDoc}`;
+
+/**
+ * __useUpdatePayoneerConfigMutation__
+ *
+ * To run a mutation, you first call `useUpdatePayoneerConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdatePayoneerConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updatePayoneerConfigMutation, { data, loading, error }] = useUpdatePayoneerConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdatePayoneerConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdatePayoneerConfigMutation, UpdatePayoneerConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdatePayoneerConfigMutation, UpdatePayoneerConfigMutationVariables>(UpdatePayoneerConfigDocument, options);
+      }
+export type UpdatePayoneerConfigMutationHookResult = ReturnType<typeof useUpdatePayoneerConfigMutation>;
+export const DeletePayoneerConfigDocument = gql`
+    mutation DeletePayoneerConfig($id: ID!) {
+  deletePayoneerConfig(id: $id)
+}
+    `;
+
+/**
+ * __useDeletePayoneerConfigMutation__
+ *
+ * To run a mutation, you first call `useDeletePayoneerConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeletePayoneerConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deletePayoneerConfigMutation, { data, loading, error }] = useDeletePayoneerConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeletePayoneerConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeletePayoneerConfigMutation, DeletePayoneerConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeletePayoneerConfigMutation, DeletePayoneerConfigMutationVariables>(DeletePayoneerConfigDocument, options);
+      }
+export type DeletePayoneerConfigMutationHookResult = ReturnType<typeof useDeletePayoneerConfigMutation>;
+export const TestPayoneerConnectionDocument = gql`
+    mutation TestPayoneerConnection($id: ID!) {
+  testPayoneerConnection(id: $id)
+}
+    `;
+
+/**
+ * __useTestPayoneerConnectionMutation__
+ *
+ * To run a mutation, you first call `useTestPayoneerConnectionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestPayoneerConnectionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testPayoneerConnectionMutation, { data, loading, error }] = useTestPayoneerConnectionMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTestPayoneerConnectionMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TestPayoneerConnectionMutation, TestPayoneerConnectionMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TestPayoneerConnectionMutation, TestPayoneerConnectionMutationVariables>(TestPayoneerConnectionDocument, options);
+      }
+export type TestPayoneerConnectionMutationHookResult = ReturnType<typeof useTestPayoneerConnectionMutation>;
 export const ListSalaryStructuresPagedDocument = gql`
     query ListSalaryStructuresPaged($input: TableQueryInput!) {
   listSalaryStructuresPaged(input: $input) {
@@ -56169,6 +56963,7 @@ export const ListSlackConfigsDocument = gql`
     label
     hasBotToken
     botTokenHint
+    hasSigningSecret
     defaultChannel
     isActive
   }
@@ -60719,6 +61514,53 @@ export function useWebsiteChatMessagesSuspenseQuery(baseOptions?: ApolloReactHoo
 export type WebsiteChatMessagesQueryHookResult = ReturnType<typeof useWebsiteChatMessagesQuery>;
 export type WebsiteChatMessagesLazyQueryHookResult = ReturnType<typeof useWebsiteChatMessagesLazyQuery>;
 export type WebsiteChatMessagesSuspenseQueryHookResult = ReturnType<typeof useWebsiteChatMessagesSuspenseQuery>;
+export const WebsiteChatAgentCandidatesDocument = gql`
+    query WebsiteChatAgentCandidates {
+  websiteChatAgentCandidates {
+    id
+    name
+    email
+    online
+    openChats
+  }
+}
+    `;
+
+/**
+ * __useWebsiteChatAgentCandidatesQuery__
+ *
+ * To run a query within a React component, call `useWebsiteChatAgentCandidatesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useWebsiteChatAgentCandidatesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useWebsiteChatAgentCandidatesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useWebsiteChatAgentCandidatesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<WebsiteChatAgentCandidatesQuery, WebsiteChatAgentCandidatesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<WebsiteChatAgentCandidatesQuery, WebsiteChatAgentCandidatesQueryVariables>(WebsiteChatAgentCandidatesDocument, options);
+      }
+export function useWebsiteChatAgentCandidatesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<WebsiteChatAgentCandidatesQuery, WebsiteChatAgentCandidatesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<WebsiteChatAgentCandidatesQuery, WebsiteChatAgentCandidatesQueryVariables>(WebsiteChatAgentCandidatesDocument, options);
+        }
+// @ts-ignore
+export function useWebsiteChatAgentCandidatesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatAgentCandidatesQuery, WebsiteChatAgentCandidatesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WebsiteChatAgentCandidatesQuery, WebsiteChatAgentCandidatesQueryVariables>;
+// @ts-ignore
+export function useWebsiteChatAgentCandidatesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatAgentCandidatesQuery, WebsiteChatAgentCandidatesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<WebsiteChatAgentCandidatesQuery | undefined, WebsiteChatAgentCandidatesQueryVariables>;
+export function useWebsiteChatAgentCandidatesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<WebsiteChatAgentCandidatesQuery, WebsiteChatAgentCandidatesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<WebsiteChatAgentCandidatesQuery, WebsiteChatAgentCandidatesQueryVariables>(WebsiteChatAgentCandidatesDocument, options);
+        }
+export type WebsiteChatAgentCandidatesQueryHookResult = ReturnType<typeof useWebsiteChatAgentCandidatesQuery>;
+export type WebsiteChatAgentCandidatesLazyQueryHookResult = ReturnType<typeof useWebsiteChatAgentCandidatesLazyQuery>;
+export type WebsiteChatAgentCandidatesSuspenseQueryHookResult = ReturnType<typeof useWebsiteChatAgentCandidatesSuspenseQuery>;
 export const WebsiteChatSettingsDocument = gql`
     query WebsiteChatSettings {
   websiteChatSettings {

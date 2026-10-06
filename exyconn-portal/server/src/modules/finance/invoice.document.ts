@@ -20,7 +20,15 @@ export interface InvoicePdfData {
     stateCode: string;
     bankDetails: string;
   };
-  client: { name: string; company: string; email: string; gstin: string; billingAddress: string };
+  /** The client's tax number and what it is called (GSTIN, VAT number, EIN…), when on file. */
+  client: {
+    name: string;
+    company: string;
+    email: string;
+    taxId: string;
+    taxIdLabel: string;
+    billingAddress: string;
+  };
   invoice: {
     number: string;
     currency: string;
@@ -90,8 +98,9 @@ function partiesBlock({ client, invoice, indianTaxRules }: InvoicePdfData): Docu
       value: client.company ? `${client.name}, ${client.company}` : client.name,
     },
   ];
-  if (indianTaxRules && client.gstin) {
-    fields.push({ label: 'Client GSTIN', value: client.gstin });
+  // Printed in every country: an EU VAT number or a US EIN belongs on an invoice as much as a GSTIN.
+  if (client.taxId) {
+    fields.push({ label: `Client ${client.taxIdLabel || 'tax ID'}`, value: client.taxId });
   }
   if (client.billingAddress) {
     fields.push({ label: 'Billing address', value: client.billingAddress });

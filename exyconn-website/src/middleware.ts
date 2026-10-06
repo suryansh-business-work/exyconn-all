@@ -20,6 +20,25 @@ const HAS_EXTENSION = /\.[a-zA-Z0-9]+$/;
  */
 const ERROR_PAGE = /^\/(?:404|500)$/;
 
+/**
+ * Pages made to be framed by other sites — the visitor chat at /embed/chat, opened by the
+ * one-line loader public/embed/chat.js. They are not market pages: no redirect, no
+ * translation, never indexed, and framable only by the origins below.
+ */
+const EMBED_PATH = /^\/embed\//;
+
+/**
+ * Origins allowed to frame /embed/*, besides the site itself. `CHAT_FRAME_ANCESTORS` (space or
+ * comma separated) overrides the default, read per request because it is a server setting.
+ */
+const DEFAULT_FRAME_ANCESTORS = ["https://tools.exyconn.com"];
+
+function frameAncestors(): string {
+  const configured = (process.env.CHAT_FRAME_ANCESTORS ?? "").split(/[\s,]+/).filter(Boolean);
+  const origins = configured.length > 0 ? configured : DEFAULT_FRAME_ANCESTORS;
+  return ["'self'", ...origins].join(" ");
+}
+
 const isPage = (pathname: string) =>
   !NOT_A_PAGE.test(pathname) && (!HAS_EXTENSION.test(pathname) || pathname.endsWith(".html"));
 
@@ -120,7 +139,12 @@ export const onRequest = defineMiddleware(async (context, next) => {
     });
   }
 
-  // 3. Every page lives under a market — exyconn.com/en-in/about-us — which Astro routes
+  // 3. Embeddable pages skip markets entirely and may be framed by the allowed origins.
+  if (EMBED_PATH.test(url.pathname)) {
+    return withEmbedHeaders(await next());
+  }
+
+  // 4. Every page lives under a market — exyconn.com/en-in/about-us — which Astro routes
   // through src/pages/[market]. A URL with no market is sent on to the reader's market.
   const { market, rest } = splitMarketPath(url.pathname);
   const buildingErrorPage = context.isPrerendered && ERROR_PAGE.test(url.pathname);
@@ -137,7 +161,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   const response = await next();
 
-  // 4. Apply security headers to all HTML responses (don't mutate redirects/streams unnecessarily)
+  // 5. Apply security headers to all HTML responses (don't mutate redirects/streams unnecessarily)
   const contentType = response.headers.get("content-type") || "";
   response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
   response.headers.set("X-Content-Type-Options", "nosniff");
@@ -157,14 +181,35 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
 /** The same headers every response carries, applied to one that bypassed `next()`. */
 function withSecurityHeaders(response: Response): Response {
-  response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
-  response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  setBaselineHeaders(response.headers);
   response.headers.set(
     "Permissions-Policy",
     "camera=(), microphone=(self), geolocation=(), interest-cohort=()"
   );
   response.headers.set("X-Frame-Options", "SAMEORIGIN");
-  response.headers.set("X-DNS-Prefetch-Control", "on");
   return response;
+}
+
+/**
+ * An /embed page: framable by the allowed origins (CSP `frame-ancestors`, so no
+ * `X-Frame-Options`, which cannot name another origin), kept out of search results, and
+ * allowed the microphone for the chat's voice notes when the host page delegates it.
+ */
+function withEmbedHeaders(response: Response): Response {
+  setBaselineHeaders(response.headers);
+  response.headers.delete("X-Frame-Options");
+  response.headers.set("Content-Security-Policy", `frame-ancestors ${frameAncestors()}`);
+  response.headers.set("X-Robots-Tag", "noindex");
+  response.headers.set(
+    "Permissions-Policy",
+    "camera=(), microphone=(self), geolocation=(), interest-cohort=()"
+  );
+  return response;
+}
+
+function setBaselineHeaders(headers: Headers): void {
+  headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
+  headers.set("X-Content-Type-Options", "nosniff");
+  headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  headers.set("X-DNS-Prefetch-Control", "on");
 }

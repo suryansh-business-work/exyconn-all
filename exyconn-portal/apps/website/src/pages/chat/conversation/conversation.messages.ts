@@ -21,6 +21,19 @@ export function mergeMessages(history: readonly ChatMessage[], live: readonly Ch
   return [...byId.values()].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 }
 
+/** A message as the Apollo cache holds it: the socket's copy carries no `__typename`s. */
+export function toCachedMessage(message: ChatMessage): ChatMessage {
+  return {
+    ...message,
+    __typename: 'WebsiteChatMessage',
+    attachments: message.attachments.map((file) => ({
+      ...file,
+      __typename: 'WebsiteChatAttachment',
+    })),
+    sources: message.sources.map((source) => ({ ...source, __typename: 'WebsiteChatSource' })),
+  };
+}
+
 /** After the visitor reads the replies, every reply so far shows as seen. */
 export function withVisitorRead(messages: ChatMessage[], visitorReadAt: string | null) {
   if (!visitorReadAt) {
@@ -81,6 +94,9 @@ export function optimisticMessage(input: OptimisticInput): ChatMessage {
       // Base64 carries 3 bytes in every 4 characters.
       size: Math.round((file.data.length * 3) / 4),
     })),
+    sources: [],
+    suggestions: [],
+    feedback: null,
     createdAt: new Date().toISOString(),
     readAt: null,
   };

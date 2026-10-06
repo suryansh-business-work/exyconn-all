@@ -6,8 +6,16 @@ query ListClients {
     phone
     company
     status
+    country
+    currency
+    taxIdType
+    taxId
+    taxIdLabel
     gstin
     stateCode
+    region
+    city
+    postalCode
     billingAddress
   }
 }
@@ -22,8 +30,16 @@ query ListClientsPaged($input: TableQueryInput!) {
       phone
       company
       status
+      country
+      currency
+      taxIdType
+      taxId
+      taxIdLabel
       gstin
       stateCode
+      region
+      city
+      postalCode
       billingAddress
     }
   }
@@ -69,4 +85,18 @@ query GetClient($id: ID!) {
     email
     company
   }
+}
+
+query ClientProjectOptions {
+  clientProjectOptions {
+    id
+    name
+    key
+    clientId
+    clientName
+  }
+}
+
+mutation SetClientProjects($clientId: ID!, $projectIds: [ID!]!) {
+  setClientProjects(clientId: $clientId, projectIds: $projectIds)
 }

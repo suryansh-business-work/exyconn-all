@@ -3,19 +3,19 @@ import { JOB_KEYS, recordJobRun } from '../../utils/jobHeartbeat';
 import { logger } from '../../utils/logger';
 import { ChatMessageModel, ChatSessionModel } from './models';
 import { answerQuestion } from './chat.bot';
-import { chatHub } from './chat.hub';
 import { postMessage } from './chat.messages';
 import { asChatOwner } from './chat.owner';
 import { readChatSettings } from './chat.settings';
+import { closeSession } from './chat.session';
 
 const TICK_MS = 15_000;
 /** Sessions one pass hands over; the rest wait for the next tick. */
 const BATCH = 50;
 
 /**
- * Moves an unanswered live conversation to the knowledge bot: the visitor is told why, their
- * widget switches to the Knowledge Bot tab, and the questions nobody answered are put to the
- * bot there. The team can still reply in the live thread at any time.
+ * Hands an unanswered live question to the knowledge bot, in the same thread: the visitor is
+ * told why, and the bot answers what nobody on the team has. Nothing is copied to the
+ * Knowledge Bot tab — each thread holds only what was asked in it. The team can still reply.
  *
  * Claimed atomically (the reply clock is cleared in the same write that finds it running), so
  * a sweep and an offline message racing each other hand a question over once.
@@ -38,25 +38,35 @@ export async function handOff(sessionId: string, notice: string): Promise<void> 
     .select('body')
     .lean();
   await postMessage({ sessionId, channel: 'LIVE', sender: 'SYSTEM', senderName: '', body: notice });
-  chatHub.toVisitors(sessionId, { t: 'switch', channel: 'KNOWLEDGE' });
   const question = pending
     .map((message) => message.body)
     .filter(Boolean)
     .join('\n');
-  if (question === '') {
-    return;
+  if (question !== '') {
+    await answerQuestion(sessionId, question, 'LIVE');
   }
-  await postMessage({
-    sessionId,
-    channel: 'KNOWLEDGE',
-    sender: 'VISITOR',
-    senderName: session.name,
-    body: question,
-  });
-  await answerQuestion(sessionId, question);
 }
 
-/** One pass: every open session whose visitor has waited longer than the settings allow. */
+/** Closes every open chat nobody has written in for the settings' session timeout. */
+export async function closeExpiredSessions(timeoutMinutes: number): Promise<number> {
+  const expired = await ChatSessionModel.find({ status: 'OPEN', expiresAt: { $lte: new Date() } })
+    .select('_id')
+    .limit(BATCH)
+    .lean();
+  for (const session of expired) {
+    await closeSession(
+      String(session._id),
+      'Session timeout',
+      `This chat ended after ${timeoutMinutes} minutes without a message. Start a new chat any time.`,
+    );
+  }
+  return expired.length;
+}
+
+/**
+ * One pass: every open session whose visitor has waited longer than the settings allow goes to
+ * the bot, and every chat past its session timeout is closed.
+ */
 export async function sweepHandoffs(): Promise<void> {
   const settings = await readChatSettings();
   const cutoff = new Date(Date.now() - settings.noReplyTimeoutSeconds * 1000);
@@ -70,7 +80,11 @@ export async function sweepHandoffs(): Promise<void> {
   for (const session of due) {
     await handOff(String(session._id), settings.handoffMessage);
   }
-  recordJobRun(JOB_KEYS.websiteChatHandoff, `Handed ${due.length} website chats to the bot`);
+  const closed = await closeExpiredSessions(settings.sessionTimeoutMinutes);
+  recordJobRun(
+    JOB_KEYS.websiteChatHandoff,
+    `Handed ${due.length} website chats to the bot, closed ${closed} timed out`,
+  );
 }
 
 export function startChatHandoff(): void {
@@ -85,8 +99,8 @@ export function startChatHandoff(): void {
 
 registerBackgroundJob({
   key: JOB_KEYS.websiteChatHandoff,
-  label: 'Website chat handoff',
+  label: 'Website chat handoff and timeouts',
   description:
-    'Passes website chat questions nobody on the team answered in time to the knowledge bot.',
+    'Passes website chat questions nobody on the team answered in time to the knowledge bot, and closes chats past their session timeout.',
   runOnce: sweepHandoffs,
 });

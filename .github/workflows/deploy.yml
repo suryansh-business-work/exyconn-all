@@ -49,34 +49,33 @@ jobs:
           npm run lint
           npm run test
 
-  test-workspace:
-    timeout-minutes: 90
-    name: Test workspace
+  # Main is checked again before anything ships, in full (CI_SCOPE_ALL), through the same
+  # parallel jobs CI uses: a push straight to main has had no CI run at all.
+  scope:
+    timeout-minutes: 5
+    name: Scope
     runs-on: ubuntu-latest
+    outputs:
+      filter: ${{ steps.scope.outputs.filter }}
+      test-filter: ${{ steps.scope.outputs.test-filter }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
-      - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
-        with:
-          version: 9.15.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: 22
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      # The server resolves @exyconn/wa-flow through its compiled dist (types included), and
-      # dist is never committed, so it is built before anything typechecks or tests the server.
-      - name: Build @exyconn/wa-flow
-        run: pnpm --filter @exyconn/wa-flow build
-      # CI skips main (it deploys instead), so this is the only gate on a push
-      # straight to main — without it a type error is first seen by the image build.
-      - name: GraphQL codegen is in sync
-        run: |
-          pnpm codegen
-          git diff --exit-code -- exyconn-portal/server/src/graphql/generated packages/shell/src/graphql/generated packages/tracker-core/src/graphql/generated \
-            || { echo "::error::Committed GraphQL codegen output is stale — run 'pnpm codegen' and commit the result."; exit 1; }
-      - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --workspace-concurrency=2 run typecheck
-      - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --workspace-concurrency=3 run lint
-      - run: pnpm --filter '@exyconn/*' --filter exyconn-portal-server --filter exyconn-portal-ui --filter exyconn-tracker-app --workspace-concurrency=1 run test
+      - id: scope
+        env:
+          CI_SCOPE_ALL: 'true'
+        run: node .github/scripts/ci-scope.mjs
+
+  test-workspace:
+    needs: scope
+    name: Test workspace
+    uses: ./.github/workflows/workspace-checks.yml
+    with:
+      filter: ${{ needs.scope.outputs.filter }}
+      test-filter: ${{ needs.scope.outputs.test-filter }}
+      checks: true
+      server: true
+      codegen: true
+      mobile: true
 
   build:
     timeout-minutes: 40
@@ -265,11 +264,11 @@ jobs:
             build_args: ''
           - service: tools-ui
             dockerfile: exyconn-tools/ui/Dockerfile
-            # Root context: the build reads packages/seo (shared head renderer) and packages/chat-widget from source.
+            # Root context: the build reads packages/seo (shared head renderer) from source.
             context: .
             build_args: |
               VITE_API_BASE_URL=https://tools-api.exyconn.com
-              VITE_CHAT_SOCKET_URL=wss://portal-server.exyconn.com/chat/ws
+              VITE_CHAT_EMBED_URL=https://exyconn.com/embed/chat.js
           - service: tools-api
             dockerfile: exyconn-tools/server/Dockerfile
             context: exyconn-tools/server

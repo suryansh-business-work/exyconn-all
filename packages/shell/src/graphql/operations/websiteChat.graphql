@@ -21,6 +21,9 @@ fragment WebsiteChatSessionFields on WebsiteChatSession {
   messageCount
   awaitingReplySince
   handedOffAt
+  assignedAt
+  expiresAt
+  slackLinked
   closedAt
   closedBy
   createdAt
@@ -40,6 +43,12 @@ fragment WebsiteChatMessageFields on WebsiteChatMessage {
     kind
     size
   }
+  sources {
+    title
+    url
+  }
+  suggestions
+  feedback
   createdAt
   readAt
 }
@@ -66,6 +75,10 @@ fragment WebsiteChatSettingsFields on WebsiteChatSettings {
   maxUploadMb
   soundEnabledByDefault
   transcriptOnClose
+  sessionTimeoutMinutes
+  embeddingModel
+  agentIds
+  slackEnabled
   online
   knowledgeSyncedAt
   knowledgeSyncCount
@@ -129,6 +142,16 @@ query WebsiteChatSession($id: ID!) {
 query WebsiteChatMessages($sessionId: ID!) {
   websiteChatMessages(sessionId: $sessionId) {
     ...WebsiteChatMessageFields
+  }
+}
+
+query WebsiteChatAgentCandidates {
+  websiteChatAgentCandidates {
+    id
+    name
+    email
+    online
+    openChats
   }
 }
 

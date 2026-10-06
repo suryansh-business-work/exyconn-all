@@ -16,6 +16,17 @@ const chatAttachmentSchema = new Schema(
   { _id: false },
 );
 
+/** A page the knowledge bot answered from, shown under its answer. */
+const chatSourceSchema = new Schema(
+  {
+    title: { type: String, required: true, trim: true },
+    url: { type: String, default: '', trim: true },
+  },
+  { _id: false },
+);
+
+export const CHAT_FEEDBACK = ['UP', 'DOWN', ''] as const;
+
 /** One message in a chat session, in either of its two threads. */
 const chatMessageSchema = new Schema(
   {
@@ -27,6 +38,11 @@ const chatMessageSchema = new Schema(
     senderId: { type: String, default: '', trim: true },
     body: { type: String, default: '' },
     attachments: { type: [chatAttachmentSchema], default: [] },
+    /** A bot answer's sources, and the follow-up questions it suggests. */
+    sources: { type: [chatSourceSchema], default: [] },
+    suggestions: { type: [String], default: [] },
+    /** The visitor's thumbs up or down on a bot answer. */
+    feedback: { type: String, enum: CHAT_FEEDBACK, default: '' },
     /** When the other side read it: the team for a visitor message, the visitor otherwise. */
     readAt: { type: Date, default: null },
   },

@@ -145,6 +145,13 @@ export async function buildContext({ req }: { req: Request }): Promise<GraphQLCo
   const userAgent = req.headers['user-agent'];
   const header = req.headers.authorization ?? '';
 
+  // The client hub speaks only for its contact. A browser that is also signed in to a portal
+  // (the shared .exyconn.com cookie) must not turn a client hub request into a staff one — the
+  // hub's operations would refuse it and sign the contact straight back out.
+  if (headerValue(req, CLIENT_PASS_HEADER) !== '') {
+    return passHolderOrAnonymous(req, ip, origin, userAgent);
+  }
+
   // A machine presents a key instead of a session. It resolves to the SAME shape a person
   // does, carrying portal roles, so every assertRole and permission check downstream applies
   // to an integration exactly as it does to a human — one authorisation model, not two.

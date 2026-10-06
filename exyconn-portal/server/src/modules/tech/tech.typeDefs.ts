@@ -56,6 +56,8 @@ export const techTypeDefs = gql`
     hasBotToken: Boolean!
     "The token's last four characters, to tell two apart; null when too short to show safely."
     botTokenHint: String
+    "Whether a signing secret is stored (write-only). With one, website chat agents can answer visitors from Slack threads."
+    hasSigningSecret: Boolean!
     defaultChannel: String!
     isActive: Boolean!
     createdAt: DateTime!
@@ -194,6 +196,8 @@ export const techTypeDefs = gql`
     label: String!
     "Write-only. Leave empty when editing to keep the stored token."
     botToken: String!
+    "Write-only and optional. Leave empty when editing to keep the stored secret."
+    signingSecret: String
     defaultChannel: String!
     isActive: Boolean
   }

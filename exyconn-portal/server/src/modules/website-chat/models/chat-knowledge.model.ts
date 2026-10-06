@@ -15,6 +15,12 @@ const chatKnowledgeSchema = new Schema(
     content: { type: String, required: true, maxlength: 20000 },
     source: { type: String, enum: KNOWLEDGE_SOURCES, required: true, default: 'CUSTOM' },
     isActive: { type: Boolean, required: true, default: true },
+    /**
+     * The text's embedding, for finding the knowledge a question is about, and a hash of the
+     * text it was made from: a row whose text changed is embedded again before it is used.
+     */
+    embedding: { type: [Number], default: [], select: false },
+    embeddedHash: { type: String, default: '', select: false },
   },
   { timestamps: true },
 );

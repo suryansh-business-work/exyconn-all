@@ -15,9 +15,11 @@ import {
   type ChatSettingsFormValues,
   type ChatSettingsRow,
 } from './chat-settings.types';
+import { ChatAgentsFields } from './chat-agents.fields';
 import { ChatBehaviourFields } from './chat-behaviour.fields';
 import { ChatHoursFields } from './chat-hours.fields';
 import { ChatMessagesFields } from './chat-messages.fields';
+import { ChatSlackFields } from './chat-slack.fields';
 
 interface ChatSettingsFormProps {
   initial: ChatSettingsRow;
@@ -61,6 +63,10 @@ export function ChatSettingsForm({ initial }: Readonly<ChatSettingsFormProps>) {
       <ChatMessagesFields />
       <Divider />
       <ChatHoursFields savedTimezone={initial.timezone} />
+      <Divider />
+      <ChatAgentsFields />
+      <Divider />
+      <ChatSlackFields />
     </EntityForm>
   );
 }

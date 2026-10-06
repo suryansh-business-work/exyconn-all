@@ -53,6 +53,11 @@ export function SlackConfigsPanel() {
       render: (r) => maskedSecret(r.hasBotToken, r.botTokenHint),
     },
     {
+      key: 'hasSigningSecret',
+      label: 'Signing secret',
+      render: (r) => maskedSecret(r.hasSigningSecret),
+    },
+    {
       key: 'isActive',
       label: 'Active',
       render: (r) => <StatusChip value={r.isActive ? 'ACTIVE' : 'INACTIVE'} />,

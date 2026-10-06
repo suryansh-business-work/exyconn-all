@@ -41,6 +41,7 @@ export const techSecretResolvers = {
   SlackConfig: {
     hasBotToken: hasSecret('botToken'),
     botTokenHint: hintOf('botToken'),
+    hasSigningSecret: hasSecret('signingSecret'),
   },
   GithubConfig: {
     hasToken: hasSecret('token'),

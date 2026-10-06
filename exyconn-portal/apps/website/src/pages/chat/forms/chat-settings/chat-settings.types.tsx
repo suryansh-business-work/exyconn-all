@@ -68,6 +68,12 @@ export const chatSettingsSchema = z.object({
   maxUploadMb: whole('Largest upload', 1, 10),
   soundEnabledByDefault: z.boolean(),
   transcriptOnClose: z.boolean(),
+  sessionTimeoutMinutes: whole('Session timeout', 2, 120),
+  embeddingModel: text('Embedding model', 2, 60),
+  agentIds: z
+    .array(z.string().min(1, 'Choose agents from the list'))
+    .max(50, 'Choose at most 50 agents'),
+  slackEnabled: z.boolean(),
 });
 
 export type ChatSettingsFormInput = z.input<typeof chatSettingsSchema>;
@@ -94,5 +100,9 @@ export function toChatSettingsValues(row: ChatSettingsRow): ChatSettingsFormValu
     maxUploadMb: row.maxUploadMb,
     soundEnabledByDefault: row.soundEnabledByDefault,
     transcriptOnClose: row.transcriptOnClose,
+    sessionTimeoutMinutes: row.sessionTimeoutMinutes,
+    embeddingModel: row.embeddingModel,
+    agentIds: [...row.agentIds],
+    slackEnabled: row.slackEnabled,
   };
 }

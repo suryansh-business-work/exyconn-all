@@ -52,8 +52,9 @@ async function contactByEmail(email: string) {
 }
 
 /**
- * Emails a sign-in code to a contact with client hub access. An address without access is
- * answered the same way and sent nothing, so the form never confirms who is a client.
+ * Emails a sign-in code to a contact with client hub access. An address without access is told
+ * so plainly — a client who waits for a code that will never come cannot sign in either way,
+ * and the limits above keep the answer from being used to sweep for addresses.
  */
 export async function requestClientHubCode(rawEmail: string, ip: string): Promise<boolean> {
   const email = normalEmail(rawEmail);
@@ -64,7 +65,9 @@ export async function requestClientHubCode(rawEmail: string, ip: string): Promis
   await enforceLimit(codeAddressLimiter, email, 'codes for this address');
   const found = await contactByEmail(email);
   if (!found) {
-    return true;
+    badRequest(
+      'This email does not have client hub access yet. Ask your Exyconn account manager to add it.',
+    );
   }
   await runForOrganization(found.organizationId, async () => {
     const code = await issueEmailCode('client-hub', email);

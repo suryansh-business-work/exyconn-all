@@ -14,6 +14,7 @@ import {
   useClientHubPaymentAttemptQuery,
 } from '@exyconn/shell/graphql/generated';
 import { money } from '../money';
+import { GATEWAY_NAMES } from './gateways';
 import { PATHS } from '../../paths';
 
 /** How often to ask whether the gateway has confirmed the payment yet. */
@@ -41,10 +42,13 @@ export function PaymentReturnPage() {
     if (!pending || error) stopPolling();
   }, [pending, error, stopPolling]);
 
+  const confirming = attempt
+    ? t('Confirming your payment with {gateway}…', { gateway: GATEWAY_NAMES[attempt.gateway] })
+    : t('Confirming your payment with the gateway…');
   let body = (
     <Stack direction="row" spacing={2} sx={{ alignItems: 'center' }}>
       <CircularProgress size={24} />
-      <Text>{t('Confirming your payment with the gateway…')}</Text>
+      <Text>{confirming}</Text>
     </Stack>
   );
   if (error || id === '') {

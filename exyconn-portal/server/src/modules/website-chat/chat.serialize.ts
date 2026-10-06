@@ -12,6 +12,10 @@ export function toMessage(doc: WithMeta<ChatMessageDocument>) {
     senderName: doc.senderName,
     body: doc.body,
     attachments: doc.attachments.map(({ url, name, kind, size }) => ({ url, name, kind, size })),
+    sources: (doc.sources ?? []).map(({ title, url }) => ({ title, url })),
+    suggestions: [...(doc.suggestions ?? [])],
+    // Stored as '' until rated; read as null so it is never an unknown enum value.
+    feedback: doc.feedback || null,
     createdAt: doc.createdAt,
     readAt: doc.readAt ?? null,
   };
@@ -26,6 +30,9 @@ export function toVisitorSession(doc: WithMeta<ChatSessionDocument>) {
     phone: doc.phone,
     status: doc.status,
     ticketReference: doc.ticketReference,
+    /** Who on the team has the chat, so the widget can say who the visitor is talking to. */
+    agentName: doc.assigneeName,
+    expiresAt: doc.expiresAt ?? null,
     createdAt: doc.createdAt,
     closedAt: doc.closedAt ?? null,
   };
@@ -54,6 +61,9 @@ export function toStaffSession(doc: WithMeta<ChatSessionDocument>) {
     handedOffAt: doc.handedOffAt ?? null,
     closedAt: doc.closedAt ?? null,
     closedBy: doc.closedBy,
+    assignedAt: doc.assignedAt ?? null,
+    expiresAt: doc.expiresAt ?? null,
+    slackLinked: doc.slackThreadTs !== '',
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
   };

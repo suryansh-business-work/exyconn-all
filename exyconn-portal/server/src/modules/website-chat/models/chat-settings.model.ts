@@ -73,6 +73,17 @@ const chatSettingsSchema = new Schema(
     soundEnabledByDefault: { type: Boolean, required: true, default: true },
     /** Emails the visitor the whole conversation when the chat is closed. */
     transcriptOnClose: { type: Boolean, required: true, default: true },
+    /** A chat with no message from either side for this long is closed. */
+    sessionTimeoutMinutes: { type: Number, required: true, default: 10, min: 2, max: 120 },
+    /** The OpenAI model the knowledge is embedded with, for finding what a question is about. */
+    embeddingModel: { type: String, required: true, trim: true, default: 'text-embedding-3-small' },
+    /**
+     * The team members a new chat may be handed to (portal user ids). Each chat goes to the
+     * freest of them: online first, then the fewest open chats. Empty leaves chats unassigned.
+     */
+    agentIds: { type: [String], default: [] },
+    /** Tells the assigned agent on Slack, in a thread they can answer the visitor from. */
+    slackEnabled: { type: Boolean, required: true, default: false },
     knowledgeSyncedAt: { type: Date, default: null },
     knowledgeSyncCount: { type: Number, required: true, default: 0 },
     knowledgeSyncError: { type: String, default: '' },

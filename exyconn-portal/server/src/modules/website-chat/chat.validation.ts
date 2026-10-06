@@ -35,6 +35,9 @@ const files = z
   .max(CHAT_LIMITS.files, 'Send at most four files at a time.')
   .default([]);
 
+const objectId = (message: string) => z.string().regex(/^[a-f\d]{24}$/i, message);
+const sessionId = objectId('Unknown chat.');
+
 /** Who the visitor says they are; the email is what the code proves. */
 export const identitySchema = z.object({ name, email, phone, pageUrl, site: z.enum(CHAT_SITES) });
 export type ChatIdentity = z.infer<typeof identitySchema>;
@@ -72,14 +75,17 @@ export const visitorFrameSchema = z.discriminatedUnion('t', [
   }),
   z.object({ t: z.literal('typing'), on: z.boolean() }),
   z.object({ t: z.literal('read') }),
+  z.object({
+    t: z.literal('feedback'),
+    messageId: objectId('Unknown message.'),
+    helpful: z.boolean(),
+  }),
   z.object({ t: z.literal('end') }),
   z.object({ t: z.literal('newChat') }),
   z.object({ t: z.literal('getConfig') }),
   z.object({ t: z.literal('ping') }),
 ]);
 export type VisitorFrame = z.infer<typeof visitorFrameSchema>;
-
-const sessionId = z.string().regex(/^[a-f\d]{24}$/i, 'Unknown chat.');
 
 /** What Website > Chatbot > Sessions may send over the socket. */
 export const staffFrameSchema = z.discriminatedUnion('t', [
@@ -123,6 +129,10 @@ export const settingsSchema = z.object({
   maxUploadMb: z.number().int().min(1).max(10),
   soundEnabledByDefault: z.boolean(),
   transcriptOnClose: z.boolean(),
+  sessionTimeoutMinutes: z.number().int().min(2).max(120),
+  embeddingModel: text(2, 60),
+  agentIds: z.array(objectId('Choose agents from the list.')).max(50),
+  slackEnabled: z.boolean(),
 });
 export type ChatSettingsInput = z.infer<typeof settingsSchema>;
 

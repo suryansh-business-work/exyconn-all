@@ -27,6 +27,8 @@ const makeSchema = (isEdit: boolean) =>
       test: (value) => value.startsWith(BOT_TOKEN_PREFIX),
       message: `A Slack bot token starts with "${BOT_TOKEN_PREFIX}"`,
     }),
+    // Optional on create and edit alike; blank on an edit keeps the stored one.
+    signingSecret: z.string().trim(),
     defaultChannel: z
       .string()
       .trim()
@@ -41,14 +43,27 @@ type Values = z.infer<Schema>;
 const toInput = (values: Values) => ({
   label: values.label,
   botToken: values.botToken,
+  // Sent only when typed, so a blank field never replaces the stored secret.
+  signingSecret: values.signingSecret || undefined,
   defaultChannel: values.defaultChannel,
   isActive: values.isActive === 'true',
 });
+
+/** Optional either way; on an edit, says whether one is stored and that blank keeps it. */
+const signingSecretHint = (row: SlackConfigRow | null): string => {
+  if (!row) {
+    return 'Optional. Lets website chat agents reply from Slack threads.';
+  }
+  return row.hasSigningSecret
+    ? 'Signing secret stored. Optional; lets website chat agents reply from Slack threads. Leave empty to keep the stored one.'
+    : 'Optional. Lets website chat agents reply from Slack threads. No signing secret stored yet.';
+};
 
 const toInitial = (row: SlackConfigRow | null): Values => ({
   label: row?.label ?? '',
   // Never prefilled: the API does not return it, and blank keeps the stored token.
   botToken: '',
+  signingSecret: '',
   defaultChannel: row?.defaultChannel ?? '',
   isActive: row ? (row.isActive ? 'true' : 'false') : 'true',
 });
@@ -87,6 +102,12 @@ export function SlackConfigForm({ initial, onDone, onCancel }: Readonly<SlackCon
         helperText={
           isEdit ? KEEP_SECRET_HINT : 'Slack app bot token (xoxb-…) with the chat:write scope'
         }
+      />
+      <RhfTextField
+        name="signingSecret"
+        label="Signing secret"
+        type="password"
+        helperText={signingSecretHint(initial)}
       />
       <RhfTextField
         name="defaultChannel"

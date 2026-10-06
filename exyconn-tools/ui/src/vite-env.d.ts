@@ -1,8 +1,11 @@
 /// <reference types="vite/client" />
 
 interface ImportMetaEnv {
-  /** The portal's visitor chat socket, e.g. wss://portal-server.exyconn.com/chat/ws. */
-  readonly VITE_CHAT_SOCKET_URL?: string;
+  /**
+   * The visitor chat loader, e.g. https://exyconn.com/embed/chat.js. Only index.html reads it
+   * (`%VITE_CHAT_EMBED_URL%`): the loader opens the chat in an iframe served by the website.
+   */
+  readonly VITE_CHAT_EMBED_URL?: string;
 }
 
 interface ImportMeta {

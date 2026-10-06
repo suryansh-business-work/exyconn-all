@@ -47,10 +47,7 @@ export function ClientCodeStep({
       <form onSubmit={methods.handleSubmit(onSubmit)} noValidate>
         <Flex direction="column" spacing={1.5}>
           <Text size="sm" color="text.secondary">
-            {t(
-              'If {email} has client hub access, a six-digit code is on its way. It works for 10 minutes.',
-              { email },
-            )}
+            {t('We emailed a six-digit code to {email}. It works for 10 minutes.', { email })}
           </Text>
           {error && <Alert severity="error">{error}</Alert>}
           <RhfTextField

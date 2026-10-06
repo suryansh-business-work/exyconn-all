@@ -15,6 +15,7 @@ import {
   useSetClientContactActiveMutation,
 } from '@exyconn/shell/graphql/generated';
 import { ClientContactForm, type ClientContactRow } from './forms/client-contact';
+import { ClientProjectsPicker } from './ClientProjectsPicker';
 
 interface ClientHubAccessDialogProps {
   client: { id: string; name: string } | null;
@@ -120,6 +121,8 @@ export function ClientHubAccessDialog({ client, onClose }: Readonly<ClientHubAcc
         />
         <Divider />
         {client && <ClientContactForm clientId={client.id} onAdded={() => refetch()} />}
+        <Divider />
+        {client && <ClientProjectsPicker clientId={client.id} />}
       </Stack>
     </CrudDialog>
   );
