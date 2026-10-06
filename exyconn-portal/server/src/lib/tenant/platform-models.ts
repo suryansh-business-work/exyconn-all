@@ -28,6 +28,8 @@ export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   // Exyconn's own payment gateway accounts, which clients pay invoices through (client hub).
   'StripeConfig',
   'RazorpayConfig',
+  'PaypalConfig',
+  'PayoneerConfig',
   // The social networks' OAuth apps, registered once for the install, and the short-lived
   // state of a connection in progress (looked up by the provider's callback, before any scope).
   'SocialAppConfig',

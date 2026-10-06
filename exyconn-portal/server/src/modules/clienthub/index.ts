@@ -1,7 +1,6 @@
 import { ROLES } from '../../constants/roles';
 import { runForOrganization } from '../../lib/tenant';
 import { assertPermission } from '../../lib/permissions';
-import { assertPlatformStaff } from '../../lib/platformAccess';
 import { unauthenticated } from '../../utils/errors';
 import { withId, withIds } from '../../utils/serialize';
 import type { GraphQLContext } from '../../middleware/auth';
@@ -18,8 +17,11 @@ import {
   type StripeConfigInput,
 } from './payments/gateway.service';
 import type { PaymentGateway } from './payments/attempt.model';
+import { auditGateway, hasValue, hintOf, techGuard } from './payments/gateway.access';
 
 export { clientHubTypeDefs } from './clienthub.typeDefs';
+export { walletGatewayTypeDefs } from './payments/wallets.typeDefs';
+export { walletGatewayResolvers } from './payments/wallets.resolvers';
 export { CLIENT_PASS_HEADER, contactForPass, type ClientHubContact } from './clienthub.auth';
 
 type Id = { id: string };
@@ -41,18 +43,6 @@ function asContact<T>(ctx: GraphQLContext, work: (contact: ClientHubContact) => 
 /** Giving and taking client hub access is an administrator's call, on the Clients module. */
 const contactsGuard = (ctx: GraphQLContext, action: PermissionAction) =>
   assertPermission(ctx, 'Client', [ROLES.ADMIN], action);
-
-/** Exyconn's gateway accounts are platform settings, kept by the Tech team. */
-const techGuard = (ctx: GraphQLContext, action: PermissionAction) =>
-  assertPlatformStaff(ctx, 'TechConfig', [ROLES.TECH], action);
-
-const auditGateway = (ctx: GraphQLContext, summary: string, entityId?: unknown) =>
-  recordAudit(ctx, { action: 'UPDATE', module: 'TechConfig', entityId, summary });
-
-type Row = Record<string, unknown>;
-const hasValue = (field: string) => (row: Row) =>
-  typeof row[field] === 'string' && row[field] !== '';
-const hintOf = (field: string) => (row: Row) => (row[field] as string | undefined) || null;
 
 export const clientHubResolvers = {
   Query: {

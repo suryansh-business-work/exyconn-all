@@ -61,6 +61,8 @@ export const clientHubTypeDefs = gql`
   enum PaymentGateway {
     STRIPE
     RAZORPAY
+    PAYPAL
+    PAYONEER
   }
 
   enum PaymentAttemptStatus {
@@ -74,6 +76,8 @@ export const clientHubTypeDefs = gql`
   type ClientHubPaymentOptions {
     stripe: Boolean!
     razorpay: Boolean!
+    paypal: Boolean!
+    payoneer: Boolean!
   }
 
   type ClientHubCheckout {

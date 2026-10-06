@@ -23,6 +23,15 @@ import {
   razorpayWebhookRouter,
   stripeWebhookRouter,
 } from './modules/clienthub/payments/webhook';
+import {
+  PAYONEER_NOTIFY_PATH,
+  PAYPAL_WEBHOOK_PATH,
+} from './modules/clienthub/payments/webhook.paths';
+import {
+  payoneerNotifyRouter,
+  paypalWebhookRouter,
+} from './modules/clienthub/payments/webhook.wallets';
+import { SLACK_EVENTS_PATH, slackEventsRouter } from './modules/website-chat';
 
 /**
  * Builds the Express app with the Apollo GraphQL middleware mounted at /graphql.
@@ -75,6 +84,11 @@ export async function createApp(): Promise<Express> {
   // Stripe and Razorpay confirm client hub payments here; each delivery is signed (no session).
   app.use(STRIPE_WEBHOOK_PATH, stripeWebhookRouter());
   app.use(RAZORPAY_WEBHOOK_PATH, razorpayWebhookRouter());
+  // PayPal (verified with PayPal) and Payoneer (re-read from Payoneer) confirm payments here.
+  app.use(PAYPAL_WEBHOOK_PATH, paypalWebhookRouter());
+  app.use(PAYONEER_NOTIFY_PATH, payoneerNotifyRouter());
+  // Agents' replies in website chat Slack threads; each delivery is signed (no session).
+  app.use(SLACK_EVENTS_PATH, slackEventsRouter());
   app.use(
     '/graphql',
     // The default 100kb body limit is far too small for the tracker: a compressed

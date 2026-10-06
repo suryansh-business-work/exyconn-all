@@ -13,6 +13,8 @@ import CloudIcon from '@mui/icons-material/Cloud';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import PaymentsIcon from '@mui/icons-material/Payments';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import PublicIcon from '@mui/icons-material/Public';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
 import { SlackConfigsPanel } from './SlackConfigsPanel';
@@ -27,6 +29,8 @@ import { GodaddyConfigsPanel } from './GodaddyConfigsPanel';
 import { CloudflareConfigsPanel } from './CloudflareConfigsPanel';
 import { StripeConfigsPanel } from './StripeConfigsPanel';
 import { RazorpayConfigsPanel } from './RazorpayConfigsPanel';
+import { PaypalConfigsPanel } from './PaypalConfigsPanel';
+import { PayoneerConfigsPanel } from './PayoneerConfigsPanel';
 import { SonarConfigsPanel } from './SonarConfigsPanel';
 
 /** Route the tabs live under; each tab is a slug beneath it. */
@@ -37,138 +41,36 @@ function GlassPanel({ children }: Readonly<{ children: ReactNode }>) {
   return <Box sx={readingPanel}>{children}</Box>;
 }
 
+/** A tab whose panel sits in the shared card. */
+const panelTab = (
+  slug: string,
+  label: string,
+  icon: TabberItem['icon'],
+  panel: ReactNode,
+): TabberItem => ({
+  slug,
+  label,
+  icon,
+  content: <GlassPanel>{panel}</GlassPanel>,
+});
+
 /** One tab per integration, in the order they appear on the Environment Variables screen. */
 const TABS: TabberItem[] = [
-  {
-    slug: 'slack',
-    label: 'Slack',
-    icon: <ChatIcon />,
-    content: (
-      <GlassPanel>
-        <SlackConfigsPanel />
-      </GlassPanel>
-    ),
-  },
-  {
-    slug: 'imagekit',
-    label: 'ImageKit',
-    icon: <ImageIcon />,
-    content: (
-      <GlassPanel>
-        <ImageConfigsPanel />
-      </GlassPanel>
-    ),
-  },
-  {
-    slug: 'pexels',
-    label: 'Pexels',
-    icon: <PhotoLibraryIcon />,
-    content: (
-      <GlassPanel>
-        <PexelsConfigsPanel />
-      </GlassPanel>
-    ),
-  },
-  {
-    slug: 'openai',
-    label: 'OpenAI',
-    icon: <SmartToyIcon />,
-    content: (
-      <GlassPanel>
-        <OpenAiConfigsPanel />
-      </GlassPanel>
-    ),
-  },
-  {
-    slug: 'ai-pricing',
-    label: 'AI Pricing',
-    icon: <PriceChangeIcon />,
-    content: (
-      <GlassPanel>
-        <AiPricingPanel />
-      </GlassPanel>
-    ),
-  },
-  {
-    slug: 'smtp',
-    label: 'SMTP',
-    icon: <EmailIcon />,
-    content: (
-      <GlassPanel>
-        <EmailConfigsPanel />
-      </GlassPanel>
-    ),
-  },
-  {
-    slug: 'inbound-mail',
-    label: 'Inbound Mail',
-    icon: <MoveToInboxIcon />,
-    content: (
-      <GlassPanel>
-        <InboundMailConfigsPanel />
-      </GlassPanel>
-    ),
-  },
-  {
-    slug: 'github',
-    label: 'GitHub',
-    icon: <GitHubIcon />,
-    content: (
-      <GlassPanel>
-        <GithubConfigsPanel />
-      </GlassPanel>
-    ),
-  },
-  {
-    slug: 'godaddy',
-    label: 'GoDaddy',
-    icon: <DnsIcon />,
-    content: (
-      <GlassPanel>
-        <GodaddyConfigsPanel />
-      </GlassPanel>
-    ),
-  },
-  {
-    slug: 'cloudflare',
-    label: 'Cloudflare',
-    icon: <CloudIcon />,
-    content: (
-      <GlassPanel>
-        <CloudflareConfigsPanel />
-      </GlassPanel>
-    ),
-  },
-  {
-    slug: 'stripe',
-    label: 'Stripe',
-    icon: <CreditCardIcon />,
-    content: (
-      <GlassPanel>
-        <StripeConfigsPanel />
-      </GlassPanel>
-    ),
-  },
-  {
-    slug: 'razorpay',
-    label: 'Razorpay',
-    icon: <PaymentsIcon />,
-    content: (
-      <GlassPanel>
-        <RazorpayConfigsPanel />
-      </GlassPanel>
-    ),
-  },
-  {
-    slug: 'sonarqube',
-    label: 'SonarQube',
-    icon: <FactCheckIcon />,
-    content: (
-      <GlassPanel>
-        <SonarConfigsPanel />
-      </GlassPanel>
-    ),
-  },
+  panelTab('slack', 'Slack', <ChatIcon />, <SlackConfigsPanel />),
+  panelTab('imagekit', 'ImageKit', <ImageIcon />, <ImageConfigsPanel />),
+  panelTab('pexels', 'Pexels', <PhotoLibraryIcon />, <PexelsConfigsPanel />),
+  panelTab('openai', 'OpenAI', <SmartToyIcon />, <OpenAiConfigsPanel />),
+  panelTab('ai-pricing', 'AI Pricing', <PriceChangeIcon />, <AiPricingPanel />),
+  panelTab('smtp', 'SMTP', <EmailIcon />, <EmailConfigsPanel />),
+  panelTab('inbound-mail', 'Inbound Mail', <MoveToInboxIcon />, <InboundMailConfigsPanel />),
+  panelTab('github', 'GitHub', <GitHubIcon />, <GithubConfigsPanel />),
+  panelTab('godaddy', 'GoDaddy', <DnsIcon />, <GodaddyConfigsPanel />),
+  panelTab('cloudflare', 'Cloudflare', <CloudIcon />, <CloudflareConfigsPanel />),
+  panelTab('stripe', 'Stripe', <CreditCardIcon />, <StripeConfigsPanel />),
+  panelTab('razorpay', 'Razorpay', <PaymentsIcon />, <RazorpayConfigsPanel />),
+  panelTab('paypal', 'PayPal', <AccountBalanceWalletIcon />, <PaypalConfigsPanel />),
+  panelTab('payoneer', 'Payoneer', <PublicIcon />, <PayoneerConfigsPanel />),
+  panelTab('sonarqube', 'SonarQube', <FactCheckIcon />, <SonarConfigsPanel />),
 ];
 
 /**

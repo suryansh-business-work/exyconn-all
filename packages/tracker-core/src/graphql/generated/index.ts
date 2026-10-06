@@ -491,13 +491,21 @@ export type ClientHubTicketInput = {
 
 export type ClientInput = {
   billingAddress: InputMaybe<Scalars['String']['input']>;
+  city: InputMaybe<Scalars['String']['input']>;
   company: Scalars['String']['input'];
+  country: InputMaybe<Scalars['String']['input']>;
+  currency: InputMaybe<Scalars['String']['input']>;
   email: Scalars['String']['input'];
+  /** Deprecated: send taxIdType IN_GST and taxId instead. */
   gstin: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   phone: Scalars['String']['input'];
+  postalCode: InputMaybe<Scalars['String']['input']>;
+  region: InputMaybe<Scalars['String']['input']>;
   stateCode: InputMaybe<Scalars['String']['input']>;
   status: ClientStatus;
+  taxId: InputMaybe<Scalars['String']['input']>;
+  taxIdType: InputMaybe<ClientTaxIdType>;
 };
 
 export type ClientStatus =
@@ -514,6 +522,41 @@ export type ClientSupportTicketInput = {
   requesterName: Scalars['String']['input'];
   subject: Scalars['String']['input'];
 };
+
+/** The kind of business tax number a client is registered under (the same codes as @exyconn/regex TAX_ID_TYPES). */
+export type ClientTaxIdType =
+  /** United Arab Emirates: Tax Registration Number */
+  | 'AE_TRN'
+  /** Australia: Australian Business Number */
+  | 'AU_ABN'
+  /** Brazil: CNPJ */
+  | 'BR_CNPJ'
+  /** Canada: Business Number (GST/HST) */
+  | 'CA_BN'
+  /** Switzerland and Liechtenstein: UID / VAT number */
+  | 'CH_UID'
+  /** European Union: VAT number */
+  | 'EU_VAT'
+  /** United Kingdom: VAT number */
+  | 'GB_VAT'
+  /** India: GSTIN */
+  | 'IN_GST'
+  /** Japan: Corporate Number */
+  | 'JP_CN'
+  /** Mexico: RFC */
+  | 'MX_RFC'
+  /** New Zealand: GST number */
+  | 'NZ_GST'
+  /** Any other country's business tax number */
+  | 'OTHER'
+  /** Saudi Arabia: VAT number */
+  | 'SA_VAT'
+  /** Singapore: UEN / GST registration */
+  | 'SG_UEN'
+  /** United States: Employer Identification Number */
+  | 'US_EIN'
+  /** South Africa: VAT number */
+  | 'ZA_VAT';
 
 export type CloudflareConfigInput = {
   accountId: Scalars['String']['input'];
@@ -952,6 +995,11 @@ export type FindingType =
   | 'MINOR_NONCONFORMITY'
   | 'OBSERVATION'
   | 'OPPORTUNITY';
+
+/** Whether a gateway account talks to the gateway's test environment or takes real money. */
+export type GatewayMode =
+  | 'LIVE'
+  | 'SANDBOX';
 
 export type GigInput = {
   applicationContact: Scalars['String']['input'];
@@ -1770,6 +1818,8 @@ export type PaymentAttemptStatus =
   | 'REVIEW';
 
 export type PaymentGateway =
+  | 'PAYONEER'
+  | 'PAYPAL'
   | 'RAZORPAY'
   | 'STRIPE';
 
@@ -1789,6 +1839,26 @@ export type PaymentMethod =
   | 'CHEQUE'
   | 'OTHER'
   | 'UPI';
+
+export type PayoneerConfigInput = {
+  /** Left blank on an edit, the stored token is kept. */
+  apiToken: InputMaybe<Scalars['String']['input']>;
+  division: InputMaybe<Scalars['String']['input']>;
+  isActive: Scalars['Boolean']['input'];
+  label: Scalars['String']['input'];
+  merchantCode: Scalars['String']['input'];
+  mode: GatewayMode;
+};
+
+export type PaypalConfigInput = {
+  clientId: Scalars['String']['input'];
+  /** Left blank on an edit, the stored secret is kept. */
+  clientSecret: InputMaybe<Scalars['String']['input']>;
+  isActive: Scalars['Boolean']['input'];
+  label: Scalars['String']['input'];
+  mode: GatewayMode;
+  webhookId: Scalars['String']['input'];
+};
 
 /**
  * Where one active employee stands for a month's run. READY can be run; ALREADY_RUN has a
@@ -2247,6 +2317,8 @@ export type SlackConfigInput = {
   defaultChannel: Scalars['String']['input'];
   isActive: InputMaybe<Scalars['Boolean']['input']>;
   label: Scalars['String']['input'];
+  /** Write-only and optional. Leave empty when editing to keep the stored secret. */
+  signingSecret: InputMaybe<Scalars['String']['input']>;
 };
 
 export type SlipStatus =
@@ -2895,6 +2967,10 @@ export type WebsiteChatFaqInput = {
   sortOrder: Scalars['Int']['input'];
 };
 
+export type WebsiteChatFeedback =
+  | 'DOWN'
+  | 'UP';
+
 export type WebsiteChatKnowledgeInput = {
   content: Scalars['String']['input'];
   isActive: Scalars['Boolean']['input'];
@@ -2916,10 +2992,14 @@ export type WebsiteChatSender =
   | 'VISITOR';
 
 export type WebsiteChatSettingsInput = {
+  /** Portal users a new chat may be handed to; the freest of them gets it. */
+  agentIds: Array<Scalars['ID']['input']>;
   allowUploads: Scalars['Boolean']['input'];
   botModel: Scalars['String']['input'];
   botName: Scalars['String']['input'];
   customInstructions: Scalars['String']['input'];
+  /** The OpenAI model the knowledge is embedded with. */
+  embeddingModel: Scalars['String']['input'];
   enabled: Scalars['Boolean']['input'];
   handoffMessage: Scalars['String']['input'];
   maxContextChars: Scalars['Int']['input'];
@@ -2927,6 +3007,10 @@ export type WebsiteChatSettingsInput = {
   noReplyTimeoutSeconds: Scalars['Int']['input'];
   offlineMessage: Scalars['String']['input'];
   refusalMessage: Scalars['String']['input'];
+  /** Minutes without a message from either side before a chat closes (2 to 120). */
+  sessionTimeoutMinutes: Scalars['Int']['input'];
+  /** Opens a Slack thread for the assigned agent, which they can answer the visitor from. */
+  slackEnabled: Scalars['Boolean']['input'];
   soundEnabledByDefault: Scalars['Boolean']['input'];
   timezone: Scalars['String']['input'];
   transcriptOnClose: Scalars['Boolean']['input'];

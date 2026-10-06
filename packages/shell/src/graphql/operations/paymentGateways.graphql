@@ -1,4 +1,4 @@
-# Exyconn's Stripe and Razorpay accounts (Tech > Environment Variables), which clients pay
+# Exyconn's Stripe, Razorpay, PayPal and Payoneer accounts (Tech > Environment Variables), which clients pay
 # invoices through in the client hub. Secrets are write-only: only a hint comes back.
 
 fragment StripeConfigFields on StripeConfig {
@@ -76,4 +76,82 @@ mutation DeleteRazorpayConfig($id: ID!) {
 
 mutation TestRazorpayConnection($id: ID!) {
   testRazorpayConnection(id: $id)
+}
+
+fragment PaypalConfigFields on PaypalConfig {
+  id
+  label
+  clientId
+  hasClientSecret
+  clientSecretHint
+  webhookId
+  mode
+  isActive
+  createdAt
+  updatedAt
+}
+
+fragment PayoneerConfigFields on PayoneerConfig {
+  id
+  label
+  merchantCode
+  hasApiToken
+  apiTokenHint
+  division
+  mode
+  isActive
+  createdAt
+  updatedAt
+}
+
+query ListPaypalConfigs {
+  listPaypalConfigs {
+    ...PaypalConfigFields
+  }
+}
+
+mutation CreatePaypalConfig($input: PaypalConfigInput!) {
+  createPaypalConfig(input: $input) {
+    ...PaypalConfigFields
+  }
+}
+
+mutation UpdatePaypalConfig($id: ID!, $input: PaypalConfigInput!) {
+  updatePaypalConfig(id: $id, input: $input) {
+    ...PaypalConfigFields
+  }
+}
+
+mutation DeletePaypalConfig($id: ID!) {
+  deletePaypalConfig(id: $id)
+}
+
+mutation TestPaypalConnection($id: ID!) {
+  testPaypalConnection(id: $id)
+}
+
+query ListPayoneerConfigs {
+  listPayoneerConfigs {
+    ...PayoneerConfigFields
+  }
+}
+
+mutation CreatePayoneerConfig($input: PayoneerConfigInput!) {
+  createPayoneerConfig(input: $input) {
+    ...PayoneerConfigFields
+  }
+}
+
+mutation UpdatePayoneerConfig($id: ID!, $input: PayoneerConfigInput!) {
+  updatePayoneerConfig(id: $id, input: $input) {
+    ...PayoneerConfigFields
+  }
+}
+
+mutation DeletePayoneerConfig($id: ID!) {
+  deletePayoneerConfig(id: $id)
+}
+
+mutation TestPayoneerConnection($id: ID!) {
+  testPayoneerConnection(id: $id)
 }
