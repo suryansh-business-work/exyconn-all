@@ -1,16 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { aboutWork, fillTemplate, withSummaries } from "../../src/lib/company/about";
-import { AGENTS, agentRequest, selectedAgentNames } from "../../src/lib/company/agents";
-import { SERVICES_EMAIL, contactChannels } from "../../src/lib/company/contact";
+import { agentRequest, selectedAgentNames, type Agent } from "../../src/lib/company/agents";
 import { COUNTRY_POINTS } from "../../src/lib/company/country-points";
 import {
   MAX_GLOBE_ARCS,
   countriesByLanguage,
+  fillTemplate,
   marketArcs,
   marketFacts,
 } from "../../src/lib/company/markets-globe";
-import { visionHorizons } from "../../src/lib/company/vision";
 import { MARKETS, type Market } from "../../src/lib/i18n/markets";
+import { cmsDefaults } from "../cms-defaults";
+
+const AGENTS = cmsDefaults<{ agents: Agent[] }>("agents.order").agents;
 
 const market = (path: string, language: string, country: string | null): Market => ({
   path,
@@ -21,17 +22,6 @@ const market = (path: string, language: string, country: string | null): Market 
 });
 
 describe("about page data", () => {
-  it("gives every 'what we do' item the summary its own page uses", () => {
-    expect(aboutWork).toHaveLength(5);
-    expect(aboutWork.every((item) => item.text.length > 0)).toBe(true);
-  });
-
-  it("refuses an item whose page lost its summary", () => {
-    expect(() => withSummaries([{ title: "Gone", href: "/gone" }], [])).toThrow(
-      "No summary for /gone"
-    );
-  });
-
   it("fills every placeholder in a sentence", () => {
     expect(fillTemplate("{a} of {b}, {a}", { a: 1, b: 2 })).toBe("1 of 2, 1");
   });
@@ -90,7 +80,7 @@ describe("markets globe", () => {
 
 describe("order agents", () => {
   it("names the chosen agents in catalogue order", () => {
-    expect(selectedAgentNames(["hr-onboarding", "sales-automation", "nope"])).toEqual([
+    expect(selectedAgentNames(["hr-onboarding", "sales-automation", "nope"], AGENTS)).toEqual([
       "Sales Automation Agent",
       "HR Onboarding Agent",
     ]);
@@ -117,14 +107,16 @@ describe("order agents", () => {
 
 describe("company copy", () => {
   it("keeps the HR and services addresses the contact page has always listed", () => {
-    expect(contactChannels.map((channel) => channel.href)).toEqual([
+    const { channels } = cmsDefaults<{ channels: { href: string }[] }>("company.contact");
+    expect(channels.map((channel) => channel.href)).toEqual([
       "mailto:hr@exyconn.com",
-      `mailto:${SERVICES_EMAIL}`,
+      "mailto:services@exyconn.com",
       "/legal",
     ]);
   });
 
   it("lays the vision's goals out as three horizons", () => {
-    expect(visionHorizons.map((horizon) => horizon.when)).toEqual(["Now", "Next", "Later"]);
+    const { horizons } = cmsDefaults<{ horizons: { when: string }[] }>("company.horizons");
+    expect(horizons.map((horizon) => horizon.when)).toEqual(["Now", "Next", "Later"]);
   });
 });

@@ -1,0 +1,15 @@
+---
+/** 'company.related-hubs' — the other service hubs as link cards in a numbered chapter. */
+import RelatedHubs from "../../hubs/RelatedHubs.astro";
+
+type Props = Readonly<{
+  index: number;
+  label: string;
+  title: string;
+  links: readonly { href: string; title: string; text: string; more: string }[];
+}>;
+
+const { index, label, title, links } = Astro.props;
+---
+
+<RelatedHubs index={index} label={label} title={title} links={links} />

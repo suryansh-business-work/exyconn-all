@@ -1,7 +1,8 @@
 /**
- * The India offer's three packages — the ONE source for their prices and what each includes.
- * The plan cards, the comparison table, the form's plan picker and the Offer JSON-LD all read
- * from here, so a price or a feature changes in exactly one place.
+ * The India offer's three packages: their shapes and how the cards, the comparison table and
+ * the form's plan picker read them. The plans and features themselves are the CMS page's
+ * props ('offer.page'), one list read by all three, so a price or a feature changes in
+ * exactly one place.
  */
 export type PlanId = "basic" | "smart" | "pro";
 
@@ -35,103 +36,43 @@ export interface PlanFeature {
   values: Readonly<Record<PlanId, PlanCell>>;
 }
 
-export const OFFER_PLANS: readonly OfferPlan[] = [
-  {
-    id: "basic",
-    tier: "FOUNDATION",
-    name: "Basic Biz",
-    price: 4999,
-    period: "एक बार",
-    cta: "प्लान चुनें",
-  },
-  {
-    id: "smart",
-    tier: "ACCELERATOR",
-    name: "Smart Biz",
-    price: 9999,
-    period: "एक बार",
-    cta: "अभी शुरू करें",
-    popular: true,
-  },
-  {
-    id: "pro",
-    tier: "DOMINANCE",
-    name: "Pro Biz",
-    price: 14999,
-    period: "एक बार",
-    cta: "सेल्स से बात करें",
-  },
-];
+/** One plan's cell as the CMS stores it: every field present, so the editor shows them all. */
+export interface CmsPlanCell {
+  included: boolean;
+  /** A quantity for the table ("5 तक"); empty when the plan simply includes the feature. */
+  short: string;
+  /** The quantity on the plan card ("5 फ़ॉर्म तक"). */
+  long: string;
+}
 
-const all = { basic: true, smart: true, pro: true } as const;
-const smartUp = { basic: false, smart: true, pro: true } as const;
-const proOnly = { basic: false, smart: false, pro: true } as const;
-const amount = (short: string, long: string): PlanAmount => ({ short, long });
+/** A feature as the CMS stores it ('offer.page' props). */
+export interface CmsPlanFeature {
+  id: string;
+  label: string;
+  /** The plan card's bullet when included without a quantity; empty = the label. */
+  card: string;
+  values: Readonly<Record<PlanId, CmsPlanCell>>;
+}
 
-export const PLAN_FEATURES: readonly PlanFeature[] = [
-  { id: "logo", label: "लोगो डिज़ाइन", values: all },
-  {
-    id: "hosting",
-    label: "वेबसाइट + होस्टिंग (1 साल)",
-    card: "1 साल वेबसाइट* + होस्टिंग",
-    values: all,
-  },
-  {
-    id: "pages",
-    label: "पेज",
+const toCell = (cell: CmsPlanCell): PlanCell => {
+  if (!cell.included) {
+    return false;
+  }
+  return cell.short ? { short: cell.short, long: cell.long } : true;
+};
+
+/** The CMS's features as the cards and the comparison read them. */
+export const planFeaturesFromCms = (features: readonly CmsPlanFeature[]): PlanFeature[] =>
+  features.map((feature) => ({
+    id: feature.id,
+    label: feature.label,
+    card: feature.card || undefined,
     values: {
-      basic: amount("3-5", "3-5 पेज वेबसाइट"),
-      smart: amount("5-10", "5-10 पेज वेबसाइट"),
-      pro: amount("5-10", "5-10 पेज वेबसाइट"),
+      basic: toCell(feature.values.basic),
+      smart: toCell(feature.values.smart),
+      pro: toCell(feature.values.pro),
     },
-  },
-  { id: "blog", label: "ब्लॉग", values: smartUp },
-  { id: "mobile", label: "मोबाइल फ्रेंडली", card: "मोबाइल फ्रेंडली डिज़ाइन", values: all },
-  {
-    id: "cards",
-    label: "विज़िटिंग कार्ड",
-    values: {
-      basic: amount("100", "विज़िटिंग कार्ड डिज़ाइन (100)"),
-      smart: amount("500", "विज़िटिंग कार्ड डिज़ाइन (500)"),
-      pro: amount("500", "विज़िटिंग कार्ड डिज़ाइन (500)"),
-    },
-  },
-  {
-    id: "forms",
-    label: "फ़ॉर्म",
-    values: {
-      basic: amount("1", "1 फ़ॉर्म (संपर्क करें)"),
-      smart: amount("5 तक", "5 फ़ॉर्म तक"),
-      pro: amount("10 तक", "10 फ़ॉर्म तक"),
-    },
-  },
-  {
-    id: "email",
-    label: "बिज़नेस ईमेल",
-    values: {
-      basic: false,
-      smart: amount("1", "1 बिज़नेस ईमेल"),
-      pro: amount("2", "2 बिज़नेस ईमेल"),
-    },
-  },
-  { id: "seo", label: "बेसिक SEO", values: smartUp },
-  { id: "analytics", label: "गूगल एनालिटिक्स", values: smartUp },
-  { id: "chat", label: "लाइव चैट", card: "लाइव चैट इंटीग्रेशन", values: smartUp },
-  { id: "ecommerce", label: "ई-कॉमर्स", card: "ई-कॉमर्स साइट", values: proOnly },
-  { id: "payments", label: "पेमेंट गेटवे", values: proOnly },
-  {
-    id: "messaging",
-    label: "WhatsApp व SMS इंटीग्रेशन",
-    card: "ईमेल, WhatsApp व SMS इंटीग्रेशन",
-    values: proOnly,
-  },
-  {
-    id: "barcode",
-    label: "बारकोड रीडर ऐप",
-    card: "बारकोड रीडर व क्रिएटर मोबाइल ऐप",
-    values: proOnly,
-  },
-];
+  }));
 
 const RUPEES = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 });
 
@@ -141,7 +82,7 @@ export const formatRupees = (price: number): string => RUPEES.format(price);
 /** The plan card's bullets: every feature the plan includes, in table order. */
 export function planHighlights(
   plan: Pick<OfferPlan, "id">,
-  features: readonly PlanFeature[] = PLAN_FEATURES
+  features: readonly PlanFeature[]
 ): string[] {
   return features.flatMap((feature) => {
     const cell = feature.values[plan.id];

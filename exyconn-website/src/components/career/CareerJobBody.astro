@@ -1,0 +1,104 @@
+---
+/**
+ * A role's page: its band with the facts, the reading column beside the apply panel, the
+ * application form and the company's other roles.
+ */
+import ApplyBar from "./ApplyBar.astro";
+import JobApplicationForm from "./JobApplicationForm.astro";
+import JobBody from "./JobBody.astro";
+import JobOtherRoles from "./JobOtherRoles.astro";
+import StageChips from "./StageChips.astro";
+import type { CareerJobCopy } from "./types";
+import "./career.css";
+import ChapterHeading from "../inner/ChapterHeading.astro";
+import InnerStage from "../inner/InnerStage.astro";
+import type { JobDetail } from "../../lib/cms/loaders/career";
+import { fill, sceneCount } from "../../lib/career/format";
+import { otherRoles } from "../../lib/career/roles";
+import { displayDate } from "../../lib/content/format";
+import { DEFAULT_MARKET } from "../../lib/i18n/markets";
+
+type Props = Readonly<CareerJobCopy & { detail: JobDetail }>;
+
+const copy = Astro.props;
+const { job, company, companyJobs, url } = Astro.props.detail;
+const market = Astro.locals.market ?? DEFAULT_MARKET;
+const posted = displayDate(job.jobPostDate, market.locale).text;
+const deadline = job.applicationDeadline
+  ? displayDate(job.applicationDeadline, market.locale).text
+  : "";
+const crumbs = [
+  ...copy.crumbs,
+  { label: company.name, href: `/career/company/${company.slug}` },
+  { label: job.title },
+];
+const facts = [
+  { term: copy.facts.company, value: company.name },
+  { term: copy.facts.location, value: job.location },
+  { term: copy.facts.type, value: `${job.jobType} · ${job.workMode}` },
+  { term: copy.facts.level, value: job.experienceLevel },
+  { term: copy.facts.salary, value: job.salaryRange },
+].filter((fact) => fact.value.trim() !== "");
+---
+
+<InnerStage
+  family="company"
+  variant="band"
+  crumbs={crumbs}
+  title={job.title}
+  lede={job.shortJobDescription || undefined}
+  scene={{
+    shapes: ["orbits"],
+    data: { orbits: { agents: sceneCount(job.skillSet.length, 3, 12) } },
+  }}
+>
+  <StageChips
+    label={copy.skills}
+    items={[
+      job.location,
+      job.jobType,
+      job.workMode,
+      job.experienceLevel,
+      job.salaryRange,
+      posted ? fill(copy.posted, { date: posted }) : "",
+      deadline ? fill(copy.deadline, { date: deadline }) : "",
+    ]}
+  />
+</InnerStage>
+
+<div class="stage-shell inner-section career-detail">
+  <JobBody job={job} company={company} url={url} copy={copy} />
+  <ApplyBar
+    label={copy.applyFor}
+    title={job.title}
+    facts={facts}
+    action={{ label: copy.apply, href: "#apply" }}
+    watch="apply"
+  />
+</div>
+
+<section id="apply" class="inner-section stage-shell career-anchor" aria-labelledby="apply-title">
+  <ChapterHeading
+    index={1}
+    label={copy.apply}
+    title={copy.applyTitle}
+    lede={copy.applyLede}
+    id="apply-title"
+  />
+  <div class="mt-10 career-form-column">
+    <JobApplicationForm
+      jobId={job.jobCode}
+      jobTitle={job.title}
+      companyName={company.name}
+      companySlug={company.slug}
+    />
+  </div>
+</section>
+
+<JobOtherRoles
+  roles={otherRoles(job, companyJobs)}
+  company={company}
+  label={copy.relatedLabel}
+  title={copy.relatedTitle}
+  more={copy.companyMore}
+/>

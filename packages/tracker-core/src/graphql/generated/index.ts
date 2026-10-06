@@ -338,6 +338,7 @@ export type BlogPostInput = {
   isActive: InputMaybe<Scalars['Boolean']['input']>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
   readTime: InputMaybe<Scalars['String']['input']>;
+  siteId: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
   summary: InputMaybe<Scalars['String']['input']>;
   tags: InputMaybe<Array<Scalars['String']['input']>>;
@@ -471,6 +472,7 @@ export type CaseStudyInput = {
   isActive: InputMaybe<Scalars['Boolean']['input']>;
   pdfUrl: InputMaybe<Scalars['String']['input']>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
+  siteId: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
   tags: InputMaybe<Array<Scalars['String']['input']>>;
   title: Scalars['String']['input'];
@@ -565,6 +567,114 @@ export type CloudflareConfigInput = {
   isActive: InputMaybe<Scalars['Boolean']['input']>;
   label: Scalars['String']['input'];
 };
+
+export type CmsAssetUploadInput = {
+  alt: InputMaybe<Scalars['String']['input']>;
+  /** A data: URL (image or PDF, up to 12 MB). */
+  file: Scalars['String']['input'];
+  fileName: Scalars['String']['input'];
+  height: InputMaybe<Scalars['Int']['input']>;
+  siteId: Scalars['String']['input'];
+  width: InputMaybe<Scalars['Int']['input']>;
+};
+
+export type CmsDesignSystemInput = {
+  extraCss: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  siteId: Scalars['String']['input'];
+  tokens: Scalars['JSON']['input'];
+};
+
+export type CmsDocumentStatus =
+  /** Live, with newer edits waiting to be published. */
+  | 'CHANGED'
+  /** Never published. */
+  | 'DRAFT'
+  /** Live, and unchanged since it was published. */
+  | 'PUBLISHED';
+
+export type CmsDraftInput = {
+  css: Scalars['String']['input'];
+  html: Scalars['String']['input'];
+  projectData: InputMaybe<Scalars['JSON']['input']>;
+};
+
+export type CmsFragmentInput = {
+  kind: CmsFragmentKind;
+  name: Scalars['String']['input'];
+};
+
+export type CmsFragmentKind =
+  | 'FOOTER'
+  | 'HEADER'
+  | 'SECTION'
+  | 'SNIPPET';
+
+export type CmsPageKind =
+  /** One page at one path. */
+  | 'PAGE'
+  /** A family of pages, e.g. /blog/:slug; its components read the matching item. */
+  | 'TEMPLATE';
+
+export type CmsPageLayout =
+  /** Without them (a landing page, an embed). */
+  | 'bare'
+  /** With the site's header and footer. */
+  | 'default';
+
+export type CmsPageListInput = {
+  kind: InputMaybe<CmsPageKind>;
+  page: Scalars['Int']['input'];
+  pageSize: Scalars['Int']['input'];
+  search: InputMaybe<Scalars['String']['input']>;
+  status: InputMaybe<CmsDocumentStatus>;
+};
+
+export type CmsPageSeoInput = {
+  canonical: InputMaybe<Scalars['String']['input']>;
+  description: InputMaybe<Scalars['String']['input']>;
+  jsonLd: InputMaybe<Scalars['JSON']['input']>;
+  keywords: InputMaybe<Scalars['String']['input']>;
+  noindex: InputMaybe<Scalars['Boolean']['input']>;
+  ogImageUrl: InputMaybe<Scalars['String']['input']>;
+  title: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CmsPageSettingsInput = {
+  kind: CmsPageKind;
+  layout: CmsPageLayout;
+  path: Scalars['String']['input'];
+  seo: InputMaybe<CmsPageSeoInput>;
+  title: Scalars['String']['input'];
+};
+
+export type CmsSiteInput = {
+  bodyEndHtml: InputMaybe<Scalars['String']['input']>;
+  defaultLocale: Scalars['String']['input'];
+  designSystemId: InputMaybe<Scalars['String']['input']>;
+  domains: Array<Scalars['String']['input']>;
+  faviconUrl: InputMaybe<Scalars['String']['input']>;
+  footerFragmentId: InputMaybe<Scalars['String']['input']>;
+  globalCss: InputMaybe<Scalars['String']['input']>;
+  headHtml: InputMaybe<Scalars['String']['input']>;
+  headerFragmentId: InputMaybe<Scalars['String']['input']>;
+  markets: Scalars['Boolean']['input'];
+  name: Scalars['String']['input'];
+  notFoundPageId: InputMaybe<Scalars['String']['input']>;
+  seo: InputMaybe<CmsSiteSeoInput>;
+  slug: Scalars['String']['input'];
+  status: CmsSiteStatus;
+};
+
+export type CmsSiteSeoInput = {
+  description: InputMaybe<Scalars['String']['input']>;
+  ogImageUrl: InputMaybe<Scalars['String']['input']>;
+  titleTemplate: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CmsSiteStatus =
+  | 'ACTIVE'
+  | 'DRAFT';
 
 export type CompanyBenefitInput = {
   description: InputMaybe<Scalars['String']['input']>;
@@ -1015,6 +1125,7 @@ export type GigInput = {
   postedDate: InputMaybe<Scalars['DateTime']['input']>;
   requirements: InputMaybe<Array<Scalars['String']['input']>>;
   shortDescription: InputMaybe<Scalars['String']['input']>;
+  siteId: InputMaybe<Scalars['String']['input']>;
   status: Scalars['String']['input'];
   tags: InputMaybe<Array<Scalars['String']['input']>>;
   title: Scalars['String']['input'];
@@ -1419,6 +1530,7 @@ export type JobCompanyInput = {
   name: Scalars['String']['input'];
   order: InputMaybe<Scalars['Int']['input']>;
   secondaryColor: InputMaybe<Scalars['String']['input']>;
+  siteId: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
   socialLinks: InputMaybe<CompanySocialLinksInput>;
   tagline: InputMaybe<Scalars['String']['input']>;
@@ -1443,6 +1555,7 @@ export type JobInput = {
   requirements: InputMaybe<Array<Scalars['String']['input']>>;
   salaryRange: InputMaybe<Scalars['String']['input']>;
   shortJobDescription: InputMaybe<Scalars['String']['input']>;
+  siteId: InputMaybe<Scalars['String']['input']>;
   skillSet: InputMaybe<Array<Scalars['String']['input']>>;
   title: Scalars['String']['input'];
   workMode: Scalars['String']['input'];
@@ -1666,7 +1779,33 @@ export type NavLinkInput = {
   keywords: InputMaybe<Scalars['String']['input']>;
   label: Scalars['String']['input'];
   order: InputMaybe<Scalars['Int']['input']>;
+  siteId: InputMaybe<Scalars['String']['input']>;
 };
+
+export type NewsletterIssueInput = {
+  content: Scalars['String']['input'];
+  contentCss: InputMaybe<Scalars['String']['input']>;
+  coverImage: InputMaybe<Scalars['String']['input']>;
+  isActive: Scalars['Boolean']['input'];
+  publishedAt: InputMaybe<Scalars['String']['input']>;
+  siteId: Scalars['String']['input'];
+  slug: Scalars['String']['input'];
+  summary: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
+};
+
+export type NewsletterSignupInput = {
+  email: Scalars['String']['input'];
+  name: InputMaybe<Scalars['String']['input']>;
+  /** The site's key; the default site when empty. */
+  site: InputMaybe<Scalars['String']['input']>;
+  /** The page they signed up on. */
+  source: InputMaybe<Scalars['String']['input']>;
+};
+
+export type NewsletterSubscriberStatus =
+  | 'SUBSCRIBED'
+  | 'UNSUBSCRIBED';
 
 export type NotificationAudience =
   | 'ALL'

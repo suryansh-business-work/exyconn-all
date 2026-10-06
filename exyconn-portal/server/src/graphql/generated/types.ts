@@ -930,6 +930,8 @@ export type BlogPost = {
   isActive: Scalars['Boolean']['output'];
   publishedAt: Scalars['DateTime']['output'];
   readTime: Scalars['String']['output'];
+  /** The website it belongs to (Website > Websites). */
+  siteId: Scalars['String']['output'];
   slug: Scalars['String']['output'];
   summary: Scalars['String']['output'];
   tags: Array<Scalars['String']['output']>;
@@ -946,6 +948,7 @@ export type BlogPostInput = {
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>;
   readTime?: InputMaybe<Scalars['String']['input']>;
+  siteId?: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
   summary?: InputMaybe<Scalars['String']['input']>;
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -1374,6 +1377,8 @@ export type CaseStudy = {
   isActive: Scalars['Boolean']['output'];
   pdfUrl: Scalars['String']['output'];
   publishedAt: Scalars['DateTime']['output'];
+  /** The website it belongs to (Website > Websites). */
+  siteId: Scalars['String']['output'];
   slug: Scalars['String']['output'];
   tags: Array<Scalars['String']['output']>;
   title: Scalars['String']['output'];
@@ -1391,6 +1396,7 @@ export type CaseStudyInput = {
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   pdfUrl?: InputMaybe<Scalars['String']['input']>;
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  siteId?: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
   title: Scalars['String']['input'];
@@ -1645,6 +1651,375 @@ export type CloudflareZone = {
   originalNameServers: Array<Scalars['String']['output']>;
   status: Scalars['String']['output'];
 };
+
+export type CmsARecord = {
+  __typename?: 'CmsARecord';
+  ip: Scalars['String']['output'];
+  ttl: Scalars['Int']['output'];
+};
+
+/** An image in a site's media library. */
+export type CmsAsset = {
+  __typename?: 'CmsAsset';
+  alt: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  height: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  mime: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  siteId: Scalars['String']['output'];
+  size: Scalars['Int']['output'];
+  url: Scalars['String']['output'];
+  width: Scalars['Int']['output'];
+};
+
+export type CmsAssetPage = {
+  __typename?: 'CmsAssetPage';
+  rows: Array<CmsAsset>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type CmsAssetUploadInput = {
+  alt?: InputMaybe<Scalars['String']['input']>;
+  /** A data: URL (image or PDF, up to 12 MB). */
+  file: Scalars['String']['input'];
+  fileName: Scalars['String']['input'];
+  height?: InputMaybe<Scalars['Int']['input']>;
+  siteId: Scalars['String']['input'];
+  width?: InputMaybe<Scalars['Int']['input']>;
+};
+
+/** A dynamic component the website can render (the @exyconn/cms catalogue). */
+export type CmsComponentDef = {
+  __typename?: 'CmsComponentDef';
+  acceptsChildren: Scalars['Boolean']['output'];
+  category: Scalars['String']['output'];
+  defaultProps: Scalars['JSON']['output'];
+  description: Scalars['String']['output'];
+  key: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+};
+
+/** A site's colours (light and dark), type, radii, shadows and spacing, as CSS custom properties. */
+export type CmsDesignSystem = {
+  __typename?: 'CmsDesignSystem';
+  createdAt: Scalars['DateTime']['output'];
+  extraCss: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  siteId: Scalars['String']['output'];
+  /** { colors: { light, dark }, fonts, radii, shadows, spacing } — each a map of name to CSS value. */
+  tokens: Scalars['JSON']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type CmsDesignSystemInput = {
+  extraCss?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  siteId: Scalars['String']['input'];
+  tokens: Scalars['JSON']['input'];
+};
+
+export enum CmsDocumentStatus {
+  /** Live, with newer edits waiting to be published. */
+  Changed = 'CHANGED',
+  /** Never published. */
+  Draft = 'DRAFT',
+  /** Live, and unchanged since it was published. */
+  Published = 'PUBLISHED'
+}
+
+/** One domain of a site, where its DNS is served and the A records it points to. */
+export type CmsDomainDns = {
+  __typename?: 'CmsDomainDns';
+  /** GODADDY, CLOUDFLARE, OTHER — or UNKNOWN when it could not be read. */
+  authority: Scalars['String']['output'];
+  domain: Scalars['String']['output'];
+  /** Why the records could not be read; empty when they were. */
+  error: Scalars['String']['output'];
+  /** The host within it: @ for the domain itself, else e.g. www. */
+  name: Scalars['String']['output'];
+  /** Every A record is the websites' server address. */
+  pointsHere: Scalars['Boolean']['output'];
+  records: Array<CmsARecord>;
+  /** The registered domain on the GoDaddy account it lives under. */
+  zone: Scalars['String']['output'];
+};
+
+/** What the editor last saved: GrapesJS's project, and the HTML and CSS it produced. */
+export type CmsDraft = {
+  __typename?: 'CmsDraft';
+  css: Scalars['String']['output'];
+  html: Scalars['String']['output'];
+  projectData?: Maybe<Scalars['JSON']['output']>;
+};
+
+export type CmsDraftInput = {
+  css: Scalars['String']['input'];
+  html: Scalars['String']['input'];
+  projectData?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+export type CmsFontAxis = {
+  __typename?: 'CmsFontAxis';
+  max: Scalars['Float']['output'];
+  min: Scalars['Float']['output'];
+  tag: Scalars['String']['output'];
+};
+
+/** A reusable header, footer or section, placed into pages and published once for all of them. */
+export type CmsFragment = {
+  __typename?: 'CmsFragment';
+  createdAt: Scalars['DateTime']['output'];
+  /** Only on a single fragment (cmsFragment), never in lists. */
+  draft?: Maybe<CmsDraft>;
+  id: Scalars['ID']['output'];
+  kind: CmsFragmentKind;
+  name: Scalars['String']['output'];
+  published?: Maybe<CmsPublished>;
+  siteId: Scalars['String']['output'];
+  status: CmsDocumentStatus;
+  updatedAt: Scalars['DateTime']['output'];
+  updatedByName: Scalars['String']['output'];
+};
+
+export type CmsFragmentInput = {
+  kind: CmsFragmentKind;
+  name: Scalars['String']['input'];
+};
+
+export enum CmsFragmentKind {
+  Footer = 'FOOTER',
+  Header = 'HEADER',
+  Section = 'SECTION',
+  Snippet = 'SNIPPET'
+}
+
+/** A Google Fonts family: its styles (400, 700i…), subsets and variable axes. */
+export type CmsGoogleFont = {
+  __typename?: 'CmsGoogleFont';
+  axes: Array<CmsFontAxis>;
+  category: Scalars['String']['output'];
+  family: Scalars['String']['output'];
+  /** Rank by use on the web; 1 is the most used. */
+  popularity: Scalars['Int']['output'];
+  subsets: Array<Scalars['String']['output']>;
+  variants: Array<Scalars['String']['output']>;
+};
+
+export type CmsGoogleFontPage = {
+  __typename?: 'CmsGoogleFontPage';
+  rows: Array<CmsGoogleFont>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type CmsPage = {
+  __typename?: 'CmsPage';
+  createdAt: Scalars['DateTime']['output'];
+  /** Only on a single page (cmsPage), never in lists. */
+  draft?: Maybe<CmsDraft>;
+  id: Scalars['ID']['output'];
+  kind: CmsPageKind;
+  layout: CmsPageLayout;
+  path: Scalars['String']['output'];
+  published?: Maybe<CmsPublished>;
+  seo: CmsPageSeo;
+  siteId: Scalars['String']['output'];
+  status: CmsDocumentStatus;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  updatedByName: Scalars['String']['output'];
+};
+
+export enum CmsPageKind {
+  /** One page at one path. */
+  Page = 'PAGE',
+  /** A family of pages, e.g. /blog/:slug; its components read the matching item. */
+  Template = 'TEMPLATE'
+}
+
+export enum CmsPageLayout {
+  /** Without them (a landing page, an embed). */
+  Bare = 'bare',
+  /** With the site's header and footer. */
+  Default = 'default'
+}
+
+export type CmsPageListInput = {
+  kind?: InputMaybe<CmsPageKind>;
+  page: Scalars['Int']['input'];
+  pageSize: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  status?: InputMaybe<CmsDocumentStatus>;
+};
+
+export type CmsPagePage = {
+  __typename?: 'CmsPagePage';
+  rows: Array<CmsPage>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type CmsPageRevision = {
+  __typename?: 'CmsPageRevision';
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  publishedByName: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  version: Scalars['Int']['output'];
+};
+
+export type CmsPageSeo = {
+  __typename?: 'CmsPageSeo';
+  canonical: Scalars['String']['output'];
+  description: Scalars['String']['output'];
+  jsonLd?: Maybe<Scalars['JSON']['output']>;
+  keywords: Scalars['String']['output'];
+  noindex: Scalars['Boolean']['output'];
+  ogImageUrl: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
+export type CmsPageSeoInput = {
+  canonical?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  jsonLd?: InputMaybe<Scalars['JSON']['input']>;
+  keywords?: InputMaybe<Scalars['String']['input']>;
+  noindex?: InputMaybe<Scalars['Boolean']['input']>;
+  ogImageUrl?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CmsPageSettingsInput = {
+  kind: CmsPageKind;
+  layout: CmsPageLayout;
+  path: Scalars['String']['input'];
+  seo?: InputMaybe<CmsPageSeoInput>;
+  title: Scalars['String']['input'];
+};
+
+/** A published fragment's block tree (@exyconn/cms CmsBlock[]) and CSS. */
+export type CmsPublicFragment = {
+  __typename?: 'CmsPublicFragment';
+  blocks: Scalars['JSON']['output'];
+  css: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+};
+
+export type CmsPublicPage = {
+  __typename?: 'CmsPublicPage';
+  /** Every published fragment the page places, nested ones included. */
+  fragments: Array<CmsPublicFragment>;
+  page: CmsPublicPageData;
+};
+
+export type CmsPublicPageData = {
+  __typename?: 'CmsPublicPageData';
+  blocks: Scalars['JSON']['output'];
+  css: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  kind: CmsPageKind;
+  layout: CmsPageLayout;
+  /** The values a template path bound, e.g. { slug: 'hello' } for /blog/:slug. */
+  params: Scalars['JSON']['output'];
+  path: Scalars['String']['output'];
+  /** True for a draft shown through a preview link (never index it). */
+  preview: Scalars['Boolean']['output'];
+  publishedAt: Scalars['DateTime']['output'];
+  seo: CmsPageSeo;
+  title: Scalars['String']['output'];
+};
+
+export type CmsPublicPath = {
+  __typename?: 'CmsPublicPath';
+  path: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+/** Everything every page of a site shares. */
+export type CmsPublicSite = {
+  __typename?: 'CmsPublicSite';
+  designSystem?: Maybe<CmsDesignSystem>;
+  /** The header and footer, and the fragments they place. */
+  fragments: Array<CmsPublicFragment>;
+  site: CmsSite;
+};
+
+export type CmsPublished = {
+  __typename?: 'CmsPublished';
+  publishedAt: Scalars['DateTime']['output'];
+};
+
+/** A website the CMS serves, with its domains, design system, header and footer. */
+export type CmsSite = {
+  __typename?: 'CmsSite';
+  /** Markup added before every page's closing body tag (scripts). */
+  bodyEndHtml: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  defaultLocale: Scalars['String']['output'];
+  designSystemId: Scalars['String']['output'];
+  domains: Array<Scalars['String']['output']>;
+  faviconUrl: Scalars['String']['output'];
+  footerFragmentId: Scalars['String']['output'];
+  globalCss: Scalars['String']['output'];
+  /** Markup added to every page's head (meta tags, analytics). */
+  headHtml: Scalars['String']['output'];
+  headerFragmentId: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  /** The site unknown hosts (localhost) are served as. */
+  isDefault: Scalars['Boolean']['output'];
+  /** Pages are served under a market prefix (/en-us/…) with alternates for every market. */
+  markets: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  notFoundPageId: Scalars['String']['output'];
+  seo: CmsSiteSeo;
+  slug: Scalars['String']['output'];
+  status: CmsSiteStatus;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type CmsSiteDns = {
+  __typename?: 'CmsSiteDns';
+  domains: Array<CmsDomainDns>;
+  /** The address websites are served from (WEBSITE_SERVER_IP); empty when not configured. */
+  serverIp: Scalars['String']['output'];
+};
+
+export type CmsSiteInput = {
+  bodyEndHtml?: InputMaybe<Scalars['String']['input']>;
+  defaultLocale: Scalars['String']['input'];
+  designSystemId?: InputMaybe<Scalars['String']['input']>;
+  domains: Array<Scalars['String']['input']>;
+  faviconUrl?: InputMaybe<Scalars['String']['input']>;
+  footerFragmentId?: InputMaybe<Scalars['String']['input']>;
+  globalCss?: InputMaybe<Scalars['String']['input']>;
+  headHtml?: InputMaybe<Scalars['String']['input']>;
+  headerFragmentId?: InputMaybe<Scalars['String']['input']>;
+  markets: Scalars['Boolean']['input'];
+  name: Scalars['String']['input'];
+  notFoundPageId?: InputMaybe<Scalars['String']['input']>;
+  seo?: InputMaybe<CmsSiteSeoInput>;
+  slug: Scalars['String']['input'];
+  status: CmsSiteStatus;
+};
+
+export type CmsSiteSeo = {
+  __typename?: 'CmsSiteSeo';
+  description: Scalars['String']['output'];
+  ogImageUrl: Scalars['String']['output'];
+  /** The title pattern; %s is the page title. */
+  titleTemplate: Scalars['String']['output'];
+};
+
+export type CmsSiteSeoInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  ogImageUrl?: InputMaybe<Scalars['String']['input']>;
+  titleTemplate?: InputMaybe<Scalars['String']['input']>;
+};
+
+export enum CmsSiteStatus {
+  Active = 'ACTIVE',
+  Draft = 'DRAFT'
+}
 
 export type Company = {
   __typename?: 'Company';
@@ -2976,6 +3351,8 @@ export type Gig = {
   postedDate: Scalars['DateTime']['output'];
   requirements: Array<Scalars['String']['output']>;
   shortDescription: Scalars['String']['output'];
+  /** The website it belongs to (Website > Websites). */
+  siteId: Scalars['String']['output'];
   status: Scalars['String']['output'];
   tags: Array<Scalars['String']['output']>;
   title: Scalars['String']['output'];
@@ -2996,6 +3373,7 @@ export type GigInput = {
   postedDate?: InputMaybe<Scalars['DateTime']['input']>;
   requirements?: InputMaybe<Array<Scalars['String']['input']>>;
   shortDescription?: InputMaybe<Scalars['String']['input']>;
+  siteId?: InputMaybe<Scalars['String']['input']>;
   status: Scalars['String']['input'];
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
   title: Scalars['String']['input'];
@@ -4125,6 +4503,8 @@ export type Job = {
   requirements: Array<Scalars['String']['output']>;
   salaryRange: Scalars['String']['output'];
   shortJobDescription: Scalars['String']['output'];
+  /** The website it belongs to (Website > Websites). */
+  siteId: Scalars['String']['output'];
   skillSet: Array<Scalars['String']['output']>;
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
@@ -4149,6 +4529,8 @@ export type JobCompany = {
   name: Scalars['String']['output'];
   order: Scalars['Int']['output'];
   secondaryColor: Scalars['String']['output'];
+  /** The website it belongs to (Website > Websites). */
+  siteId: Scalars['String']['output'];
   slug: Scalars['String']['output'];
   socialLinks: CompanySocialLinks;
   tagline: Scalars['String']['output'];
@@ -4171,6 +4553,7 @@ export type JobCompanyInput = {
   name: Scalars['String']['input'];
   order?: InputMaybe<Scalars['Int']['input']>;
   secondaryColor?: InputMaybe<Scalars['String']['input']>;
+  siteId?: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
   socialLinks?: InputMaybe<CompanySocialLinksInput>;
   tagline?: InputMaybe<Scalars['String']['input']>;
@@ -4201,6 +4584,7 @@ export type JobInput = {
   requirements?: InputMaybe<Array<Scalars['String']['input']>>;
   salaryRange?: InputMaybe<Scalars['String']['input']>;
   shortJobDescription?: InputMaybe<Scalars['String']['input']>;
+  siteId?: InputMaybe<Scalars['String']['input']>;
   skillSet?: InputMaybe<Array<Scalars['String']['input']>>;
   title: Scalars['String']['input'];
   workMode: Scalars['String']['input'];
@@ -4743,6 +5127,8 @@ export type Mutation = {
   addItIncidentUpdate: ItIncident;
   /** Self-service: continue the conversation on one of the employee's own tickets. */
   addMySupportReply: SupportReply;
+  /** Adds somebody by hand (they agreed elsewhere); signing up again re-subscribes. */
+  addNewsletterSubscriber: Scalars['Boolean']['output'];
   /** RESOLVED closes the incident and alerts the team like the monitor does. */
   addStatusIncidentUpdate: StatusIncident;
   /** SUPPORT/ADMIN: reply on a ticket, or leave an internal note. */
@@ -4812,6 +5198,10 @@ export type Mutation = {
    */
   createClientSupportTicket: Scalars['String']['output'];
   createCloudflareConfig: CloudflareConfig;
+  createCmsDesignSystem: CmsDesignSystem;
+  createCmsFragment: CmsFragment;
+  createCmsPage: CmsPage;
+  createCmsSite: CmsSite;
   createColumn: BoardColumn;
   createCompany: Company;
   createCompanyExpense: CompanyExpense;
@@ -4879,6 +5269,7 @@ export type Mutation = {
    */
   createMyRequest: EmployeeRequest;
   createNavLink: NavLink;
+  createNewsletterIssue: NewsletterIssue;
   createObjective: Objective;
   createOnboardingTemplate: OnboardingTemplate;
   createOpenAiConfig: OpenAiConfig;
@@ -4967,6 +5358,11 @@ export type Mutation = {
   deleteClient: Scalars['Boolean']['output'];
   deleteClientContact: Scalars['Boolean']['output'];
   deleteCloudflareConfig: Scalars['Boolean']['output'];
+  deleteCmsAsset: Scalars['Boolean']['output'];
+  deleteCmsDesignSystem: Scalars['Boolean']['output'];
+  deleteCmsFragment: Scalars['Boolean']['output'];
+  deleteCmsPage: Scalars['Boolean']['output'];
+  deleteCmsSite: Scalars['Boolean']['output'];
   deleteColumn: Scalars['Boolean']['output'];
   deleteCompany: Scalars['Boolean']['output'];
   deleteCompanyExpense: Scalars['Boolean']['output'];
@@ -5018,6 +5414,8 @@ export type Mutation = {
   deleteMarketingSuppression: Scalars['Boolean']['output'];
   deleteMilestone: Scalars['Boolean']['output'];
   deleteNavLink: Scalars['Boolean']['output'];
+  deleteNewsletterIssue: Scalars['Boolean']['output'];
+  deleteNewsletterSubscriber: Scalars['Boolean']['output'];
   deleteObjective: Scalars['Boolean']['output'];
   /** HR: removes a checklist entirely — for one started against the wrong person. */
   deleteOnboardingChecklist: Scalars['Boolean']['output'];
@@ -5074,6 +5472,7 @@ export type Mutation = {
   /** Puts the published graph back into the draft. */
   discardWhatsappWorkflowDraft: WhatsappWorkflow;
   disconnectSocialAccount: Scalars['Boolean']['output'];
+  duplicateCmsPage: CmsPage;
   /** Copies a workflow as a never-published draft keyed key-copy. */
   duplicateWhatsappWorkflow: WhatsappWorkflow;
   /** Calls off a delegation. Only whoever arranged it may. */
@@ -5124,6 +5523,8 @@ export type Mutation = {
   promoteBugToTask: Task;
   /** Makes an Admin client of the account, or reuses the one it already has. */
   promoteCompanyToClient: Company;
+  publishCmsFragment: CmsFragment;
+  publishCmsPage: CmsPage;
   /**
    * Publishes a policy. raiseVersion asks everybody who already signed to sign again,
    * which is what a change in wording means — leave it off for a typo fix.
@@ -5169,6 +5570,8 @@ export type Mutation = {
   resetPassword: Scalars['Boolean']['output'];
   /** Generates a new temporary password, emails it, and returns it once for copying. */
   resetUserPassword: Scalars['String']['output'];
+  /** Copies a published version back into the draft (publish it to put it live). */
+  restoreCmsPageRevision: CmsPage;
   /**
    * Approves or rejects an off-computer claim (TRACKER role). A decision is final — an
    * entry that has already been decided is refused rather than flipped, so hours somebody
@@ -5211,6 +5614,8 @@ export type Mutation = {
   runRecurringInvoiceNow: RecurringInvoice;
   saveAiModelPrice: AiModelPrice;
   saveAiSpendLimit: AiSpendLimit;
+  saveCmsFragmentDraft: CmsFragment;
+  saveCmsPageDraft: CmsPage;
   /**
    * Creates or replaces ONE employee's salary structure, keyed on the employee.
    *
@@ -5265,10 +5670,13 @@ export type Mutation = {
   setClientContactActive: ClientContact;
   /** Makes these exactly the projects linked to the client (others are unlinked from it). */
   setClientProjects: Scalars['Boolean']['output'];
+  /** Points one of the site's domains at an IPv4 address, at whichever provider serves its DNS. */
+  setCmsSiteARecord: CmsDomainDns;
   /** Marks a column as the end of the line, or takes that mark away. */
   setColumnDone: BoardColumn;
   /** Moves a deal to another pipeline stage — what a drag on the board does. Winning makes the account a client. */
   setDealStage: Deal;
+  setDefaultCmsSite: CmsSite;
   /** Points the domain's nameservers at Cloudflare, back at GoDaddy, or at a custom set. */
   setDomainNameservers: Array<Scalars['String']['output']>;
   /**
@@ -5287,6 +5695,7 @@ export type Mutation = {
    * keeps counting while somebody is at lunch is billing lunch as work.
    */
   setMyTrackerPresence: TrackerPresenceState;
+  setNewsletterSubscriberStatus: NewsletterSubscriber;
   /**
    * Ticks one item off (or back on) and records who did it.
    *
@@ -5358,6 +5767,8 @@ export type Mutation = {
    * still OPEN, and it never touches the manager's assessment or the rating.
    */
   submitSelfAssessment: PerformanceReview;
+  /** Public, from the website's server: signs somebody up, answering the site's security question. */
+  subscribeNewsletter: Scalars['Boolean']['output'];
   /**
    * Public: asks for incident emails. Always answers true — a different answer would say
    * whether an address is already subscribed. Nothing is sent until the link is confirmed.
@@ -5430,6 +5841,7 @@ export type Mutation = {
    */
   translateMissing: Array<Translation>;
   triageWebsiteSubmission: WebsiteSubmission;
+  unpublishCmsPage: CmsPage;
   /**
    * Public: honours the unsubscribe link in a campaign email. Idempotent — the link is
    * clicked twice, forwarded and prefetched, and none of that is an error worth showing.
@@ -5437,6 +5849,8 @@ export type Mutation = {
   unsubscribeFromMarketing: Scalars['Boolean']['output'];
   /** Public: removes a subscription. Answers true whether or not one was there. */
   unsubscribeFromStatus: Scalars['Boolean']['output'];
+  /** Public: the unsubscribe link in a newsletter email. */
+  unsubscribeNewsletter: Scalars['Boolean']['output'];
   updateActivity: Activity;
   updateAiJob: AiJob;
   updateAnnouncement: Announcement;
@@ -5453,6 +5867,11 @@ export type Mutation = {
   updateCaseStudy: CaseStudy;
   updateClient: Client;
   updateCloudflareConfig: CloudflareConfig;
+  updateCmsAssetAlt: CmsAsset;
+  updateCmsDesignSystem: CmsDesignSystem;
+  updateCmsFragment: CmsFragment;
+  updateCmsPageSettings: CmsPage;
+  updateCmsSite: CmsSite;
   updateCompany: Company;
   updateCompanyExpense: CompanyExpense;
   updateContact: Contact;
@@ -5509,6 +5928,7 @@ export type Mutation = {
   /** The employee marking their own progress. Completing it stamps completedOn. */
   updateMyTrainingStatus: Training;
   updateNavLink: NavLink;
+  updateNewsletterIssue: NewsletterIssue;
   updateObjective: Objective;
   updateOnboardingTemplate: OnboardingTemplate;
   updateOpenAiConfig: OpenAiConfig;
@@ -5561,6 +5981,7 @@ export type Mutation = {
   updateWebsiteChatKnowledge: WebsiteChatKnowledge;
   updateWebsiteChatSettings: WebsiteChatSettings;
   uploadAvatar: Scalars['String']['output'];
+  uploadCmsAsset: CmsAsset;
   uploadImage: Scalars['String']['output'];
   upsertWhatsappDemo: WhatsappDemo;
   /** Public: exchanges the emailed code for a client hub pass. */
@@ -5597,6 +6018,13 @@ export type MutationAddMySupportReplyArgs = {
   attachments?: InputMaybe<Array<FileAttachmentInput>>;
   body: Scalars['String']['input'];
   ticketId: Scalars['ID']['input'];
+};
+
+
+export type MutationAddNewsletterSubscriberArgs = {
+  email: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  siteId: Scalars['ID']['input'];
 };
 
 
@@ -5826,6 +6254,28 @@ export type MutationCreateClientSupportTicketArgs = {
 
 export type MutationCreateCloudflareConfigArgs = {
   input: CloudflareConfigInput;
+};
+
+
+export type MutationCreateCmsDesignSystemArgs = {
+  input: CmsDesignSystemInput;
+};
+
+
+export type MutationCreateCmsFragmentArgs = {
+  input: CmsFragmentInput;
+  siteId: Scalars['ID']['input'];
+};
+
+
+export type MutationCreateCmsPageArgs = {
+  input: CmsPageSettingsInput;
+  siteId: Scalars['ID']['input'];
+};
+
+
+export type MutationCreateCmsSiteArgs = {
+  input: CmsSiteInput;
 };
 
 
@@ -6097,6 +6547,11 @@ export type MutationCreateMyRequestArgs = {
 
 export type MutationCreateNavLinkArgs = {
   input: NavLinkInput;
+};
+
+
+export type MutationCreateNewsletterIssueArgs = {
+  input: NewsletterIssueInput;
 };
 
 
@@ -6475,6 +6930,31 @@ export type MutationDeleteCloudflareConfigArgs = {
 };
 
 
+export type MutationDeleteCmsAssetArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteCmsDesignSystemArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteCmsFragmentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteCmsPageArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteCmsSiteArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteColumnArgs = {
   id: Scalars['ID']['input'];
 };
@@ -6716,6 +7196,16 @@ export type MutationDeleteMilestoneArgs = {
 
 
 export type MutationDeleteNavLinkArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteNewsletterIssueArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteNewsletterSubscriberArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -6975,6 +7465,12 @@ export type MutationDisconnectSocialAccountArgs = {
 };
 
 
+export type MutationDuplicateCmsPageArgs = {
+  id: Scalars['ID']['input'];
+  path: Scalars['String']['input'];
+};
+
+
 export type MutationDuplicateWhatsappWorkflowArgs = {
   id: Scalars['ID']['input'];
 };
@@ -7090,6 +7586,16 @@ export type MutationPromoteCompanyToClientArgs = {
 };
 
 
+export type MutationPublishCmsFragmentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationPublishCmsPageArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationPublishPolicyArgs = {
   id: Scalars['ID']['input'];
   raiseVersion?: InputMaybe<Scalars['Boolean']['input']>;
@@ -7179,6 +7685,11 @@ export type MutationResetUserPasswordArgs = {
 };
 
 
+export type MutationRestoreCmsPageRevisionArgs = {
+  revisionId: Scalars['ID']['input'];
+};
+
+
 export type MutationReviewTrackerManualEntryArgs = {
   id: Scalars['ID']['input'];
   reviewNote?: InputMaybe<Scalars['String']['input']>;
@@ -7252,6 +7763,18 @@ export type MutationSaveAiModelPriceArgs = {
 
 export type MutationSaveAiSpendLimitArgs = {
   input: AiSpendLimitInput;
+};
+
+
+export type MutationSaveCmsFragmentDraftArgs = {
+  draft: CmsDraftInput;
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationSaveCmsPageDraftArgs = {
+  draft: CmsDraftInput;
+  id: Scalars['ID']['input'];
 };
 
 
@@ -7374,6 +7897,14 @@ export type MutationSetClientProjectsArgs = {
 };
 
 
+export type MutationSetCmsSiteARecordArgs = {
+  domain: Scalars['String']['input'];
+  ip: Scalars['String']['input'];
+  siteId: Scalars['ID']['input'];
+  ttl: Scalars['Int']['input'];
+};
+
+
 export type MutationSetColumnDoneArgs = {
   id: Scalars['ID']['input'];
   isDone: Scalars['Boolean']['input'];
@@ -7383,6 +7914,11 @@ export type MutationSetColumnDoneArgs = {
 export type MutationSetDealStageArgs = {
   id: Scalars['ID']['input'];
   stage: DealStage;
+};
+
+
+export type MutationSetDefaultCmsSiteArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -7414,6 +7950,12 @@ export type MutationSetMyNotificationPreferenceArgs = {
 export type MutationSetMyTrackerPresenceArgs = {
   note?: InputMaybe<Scalars['String']['input']>;
   status: TrackerPresence;
+};
+
+
+export type MutationSetNewsletterSubscriberStatusArgs = {
+  id: Scalars['ID']['input'];
+  status: NewsletterSubscriberStatus;
 };
 
 
@@ -7561,6 +8103,12 @@ export type MutationSubmitProblemReportArgs = {
 export type MutationSubmitSelfAssessmentArgs = {
   id: Scalars['ID']['input'];
   text: Scalars['String']['input'];
+};
+
+
+export type MutationSubscribeNewsletterArgs = {
+  captcha: WebsiteCaptchaAnswer;
+  input: NewsletterSignupInput;
 };
 
 
@@ -7715,12 +8263,22 @@ export type MutationTriageWebsiteSubmissionArgs = {
 };
 
 
+export type MutationUnpublishCmsPageArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationUnsubscribeFromMarketingArgs = {
   token: Scalars['String']['input'];
 };
 
 
 export type MutationUnsubscribeFromStatusArgs = {
+  token: Scalars['String']['input'];
+};
+
+
+export type MutationUnsubscribeNewsletterArgs = {
   token: Scalars['String']['input'];
 };
 
@@ -7817,6 +8375,36 @@ export type MutationUpdateClientArgs = {
 export type MutationUpdateCloudflareConfigArgs = {
   id: Scalars['ID']['input'];
   input: CloudflareConfigInput;
+};
+
+
+export type MutationUpdateCmsAssetAltArgs = {
+  alt: Scalars['String']['input'];
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationUpdateCmsDesignSystemArgs = {
+  id: Scalars['ID']['input'];
+  input: CmsDesignSystemInput;
+};
+
+
+export type MutationUpdateCmsFragmentArgs = {
+  id: Scalars['ID']['input'];
+  input: CmsFragmentInput;
+};
+
+
+export type MutationUpdateCmsPageSettingsArgs = {
+  id: Scalars['ID']['input'];
+  input: CmsPageSettingsInput;
+};
+
+
+export type MutationUpdateCmsSiteArgs = {
+  id: Scalars['ID']['input'];
+  input: CmsSiteInput;
 };
 
 
@@ -8126,6 +8714,12 @@ export type MutationUpdateNavLinkArgs = {
 };
 
 
+export type MutationUpdateNewsletterIssueArgs = {
+  id: Scalars['ID']['input'];
+  input: NewsletterIssueInput;
+};
+
+
 export type MutationUpdateObjectiveArgs = {
   id: Scalars['ID']['input'];
   input: ObjectiveInput;
@@ -8395,6 +8989,11 @@ export type MutationUploadAvatarArgs = {
 };
 
 
+export type MutationUploadCmsAssetArgs = {
+  input: CmsAssetUploadInput;
+};
+
+
 export type MutationUploadImageArgs = {
   file: Scalars['String']['input'];
   fileName: Scalars['String']['input'];
@@ -8493,6 +9092,8 @@ export type NavLink = {
   keywords: Scalars['String']['output'];
   label: Scalars['String']['output'];
   order: Scalars['Int']['output'];
+  /** The website it belongs to (Website > Websites). */
+  siteId: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
 };
 
@@ -8504,7 +9105,76 @@ export type NavLinkInput = {
   keywords?: InputMaybe<Scalars['String']['input']>;
   label: Scalars['String']['input'];
   order?: InputMaybe<Scalars['Int']['input']>;
+  siteId?: InputMaybe<Scalars['String']['input']>;
 };
+
+/** A newsletter issue published on a site (/newsletter/<slug>). The body is HTML, as a blog post's. */
+export type NewsletterIssue = {
+  __typename?: 'NewsletterIssue';
+  content: Scalars['String']['output'];
+  contentCss: Scalars['String']['output'];
+  coverImage: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  publishedAt: Scalars['DateTime']['output'];
+  siteId: Scalars['String']['output'];
+  slug: Scalars['String']['output'];
+  summary: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type NewsletterIssueInput = {
+  content: Scalars['String']['input'];
+  contentCss?: InputMaybe<Scalars['String']['input']>;
+  coverImage?: InputMaybe<Scalars['String']['input']>;
+  isActive: Scalars['Boolean']['input'];
+  publishedAt?: InputMaybe<Scalars['String']['input']>;
+  siteId: Scalars['String']['input'];
+  slug: Scalars['String']['input'];
+  summary?: InputMaybe<Scalars['String']['input']>;
+  title: Scalars['String']['input'];
+};
+
+export type NewsletterIssuePage = {
+  __typename?: 'NewsletterIssuePage';
+  rows: Array<NewsletterIssue>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export type NewsletterSignupInput = {
+  email: Scalars['String']['input'];
+  name?: InputMaybe<Scalars['String']['input']>;
+  /** The site's key; the default site when empty. */
+  site?: InputMaybe<Scalars['String']['input']>;
+  /** The page they signed up on. */
+  source?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type NewsletterSubscriber = {
+  __typename?: 'NewsletterSubscriber';
+  consentAt: Scalars['DateTime']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  email: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  siteId: Scalars['String']['output'];
+  /** Where they signed up: the page, or portal. */
+  source: Scalars['String']['output'];
+  status: NewsletterSubscriberStatus;
+};
+
+export type NewsletterSubscriberPage = {
+  __typename?: 'NewsletterSubscriberPage';
+  rows: Array<NewsletterSubscriber>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum NewsletterSubscriberStatus {
+  Subscribed = 'SUBSCRIBED',
+  Unsubscribed = 'UNSUBSCRIBED'
+}
 
 export type Notification = {
   __typename?: 'Notification';
@@ -9909,6 +10579,25 @@ export type Query = {
    * and the address they raised it from. Null unless both match.
    */
   clientSupportTicketStatus?: Maybe<ClientTicketStatus>;
+  cmsAssets: CmsAssetPage;
+  /** The dynamic components an editor can drop into a page. */
+  cmsComponents: Array<CmsComponentDef>;
+  cmsDesignSystem: CmsDesignSystem;
+  cmsDesignSystems: Array<CmsDesignSystem>;
+  cmsFragment: CmsFragment;
+  cmsFragments: Array<CmsFragment>;
+  /** The Google Fonts catalogue, most used first; category is Sans Serif, Serif, Display, Handwriting or Monospace. */
+  cmsGoogleFonts: CmsGoogleFontPage;
+  cmsPage: CmsPage;
+  cmsPageRevisions: Array<CmsPageRevision>;
+  cmsPages: CmsPagePage;
+  /** A link token that shows the page's draft on the website for two hours. */
+  cmsPreviewToken: Scalars['String']['output'];
+  cmsSite: CmsSite;
+  cmsSiteBySlug: CmsSite;
+  /** Website › Settings › Domains: each domain's DNS provider and A records (through GoDaddy/Cloudflare in Tech). */
+  cmsSiteDns: CmsSiteDns;
+  cmsSites: Array<CmsSite>;
   /**
    * The company's finances between two dates. Both bounds are inclusive of the days they
    * fall on, as the caller sends them.
@@ -10463,6 +11152,8 @@ export type Query = {
   myTrackerTotals: TrackerTotals;
   myTrainings: Array<Training>;
   myUnreadNotificationCount: Scalars['Int']['output'];
+  newsletterIssues: NewsletterIssuePage;
+  newsletterSubscribers: NewsletterSubscriberPage;
   /** Markdown describing every OPEN error (optionally from one source), ready to paste to Claude. */
   openAppLogsFixPrompt: Scalars['String']['output'];
   /** HR/ADMIN: every active user with their managerId, for the org chart. */
@@ -10520,6 +11211,11 @@ export type Query = {
   publicBranding: Branding;
   publicCaseStudies: Array<CaseStudy>;
   publicCaseStudy?: Maybe<CaseStudy>;
+  /** The page at a path, else the template it fits; a draft with a valid preview token. Null for 404. */
+  publicCmsPage?: Maybe<CmsPublicPage>;
+  publicCmsPaths: Array<CmsPublicPath>;
+  /** The site served at a host (the default site for an unknown one). */
+  publicCmsSite: CmsPublicSite;
   publicGig?: Maybe<Gig>;
   publicGigs: Array<Gig>;
   publicJob?: Maybe<Job>;
@@ -10527,6 +11223,8 @@ export type Query = {
   publicJobCompany?: Maybe<JobCompany>;
   publicJobs: Array<Job>;
   publicNavLinks: Array<NavLink>;
+  publicNewsletterIssue?: Maybe<NewsletterIssue>;
+  publicNewsletterIssues: Array<NewsletterIssue>;
   publicPolicies: Array<PublicPolicy>;
   publicPolicy?: Maybe<PublicPolicy>;
   publicTool?: Maybe<Tool>;
@@ -10791,6 +11489,77 @@ export type QueryClientHubTicketsArgs = {
 export type QueryClientSupportTicketStatusArgs = {
   email: Scalars['String']['input'];
   reference: Scalars['String']['input'];
+};
+
+
+export type QueryCmsAssetsArgs = {
+  page: Scalars['Int']['input'];
+  pageSize: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  siteId: Scalars['ID']['input'];
+};
+
+
+export type QueryCmsDesignSystemArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryCmsDesignSystemsArgs = {
+  siteId: Scalars['ID']['input'];
+};
+
+
+export type QueryCmsFragmentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryCmsFragmentsArgs = {
+  siteId: Scalars['ID']['input'];
+};
+
+
+export type QueryCmsGoogleFontsArgs = {
+  category?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  search?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryCmsPageArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryCmsPageRevisionsArgs = {
+  pageId: Scalars['ID']['input'];
+};
+
+
+export type QueryCmsPagesArgs = {
+  input: CmsPageListInput;
+  siteId: Scalars['ID']['input'];
+};
+
+
+export type QueryCmsPreviewTokenArgs = {
+  pageId: Scalars['ID']['input'];
+};
+
+
+export type QueryCmsSiteArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryCmsSiteBySlugArgs = {
+  slug: Scalars['String']['input'];
+};
+
+
+export type QueryCmsSiteDnsArgs = {
+  siteId: Scalars['ID']['input'];
 };
 
 
@@ -11825,6 +12594,22 @@ export type QueryMyTrackerMessagesArgs = {
 };
 
 
+export type QueryNewsletterIssuesArgs = {
+  page: Scalars['Int']['input'];
+  pageSize: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  siteId: Scalars['ID']['input'];
+};
+
+
+export type QueryNewsletterSubscribersArgs = {
+  page: Scalars['Int']['input'];
+  pageSize: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  siteId: Scalars['ID']['input'];
+};
+
+
 export type QueryOpenAppLogsFixPromptArgs = {
   source?: InputMaybe<AppLogSource>;
 };
@@ -11926,32 +12711,91 @@ export type QueryProjectTimeLogSessionsArgs = {
 
 
 export type QueryPublicBlogPostArgs = {
+  site?: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
 };
 
 
+export type QueryPublicBlogPostsArgs = {
+  site?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryPublicCaseStudiesArgs = {
+  site?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryPublicCaseStudyArgs = {
+  site?: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
+};
+
+
+export type QueryPublicCmsPageArgs = {
+  path: Scalars['String']['input'];
+  previewToken?: InputMaybe<Scalars['String']['input']>;
+  siteId: Scalars['ID']['input'];
+};
+
+
+export type QueryPublicCmsPathsArgs = {
+  siteId: Scalars['ID']['input'];
+};
+
+
+export type QueryPublicCmsSiteArgs = {
+  host: Scalars['String']['input'];
 };
 
 
 export type QueryPublicGigArgs = {
   gigCode: Scalars['String']['input'];
+  site?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryPublicGigsArgs = {
+  site?: InputMaybe<Scalars['String']['input']>;
 };
 
 
 export type QueryPublicJobArgs = {
   jobCode: Scalars['String']['input'];
+  site?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryPublicJobCompaniesArgs = {
+  site?: InputMaybe<Scalars['String']['input']>;
 };
 
 
 export type QueryPublicJobCompanyArgs = {
+  site?: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
 };
 
 
 export type QueryPublicJobsArgs = {
   companySlug?: InputMaybe<Scalars['String']['input']>;
+  site?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryPublicNavLinksArgs = {
+  site?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type QueryPublicNewsletterIssueArgs = {
+  site?: InputMaybe<Scalars['String']['input']>;
+  slug: Scalars['String']['input'];
+};
+
+
+export type QueryPublicNewsletterIssuesArgs = {
+  site?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -15915,6 +16759,44 @@ export type ResolversTypes = ResolversObject<{
   CloudflareConfig: ResolverTypeWrapper<CloudflareConfig>;
   CloudflareConfigInput: CloudflareConfigInput;
   CloudflareZone: ResolverTypeWrapper<CloudflareZone>;
+  CmsARecord: ResolverTypeWrapper<CmsARecord>;
+  CmsAsset: ResolverTypeWrapper<CmsAsset>;
+  CmsAssetPage: ResolverTypeWrapper<CmsAssetPage>;
+  CmsAssetUploadInput: CmsAssetUploadInput;
+  CmsComponentDef: ResolverTypeWrapper<CmsComponentDef>;
+  CmsDesignSystem: ResolverTypeWrapper<CmsDesignSystem>;
+  CmsDesignSystemInput: CmsDesignSystemInput;
+  CmsDocumentStatus: CmsDocumentStatus;
+  CmsDomainDns: ResolverTypeWrapper<CmsDomainDns>;
+  CmsDraft: ResolverTypeWrapper<CmsDraft>;
+  CmsDraftInput: CmsDraftInput;
+  CmsFontAxis: ResolverTypeWrapper<CmsFontAxis>;
+  CmsFragment: ResolverTypeWrapper<CmsFragment>;
+  CmsFragmentInput: CmsFragmentInput;
+  CmsFragmentKind: CmsFragmentKind;
+  CmsGoogleFont: ResolverTypeWrapper<CmsGoogleFont>;
+  CmsGoogleFontPage: ResolverTypeWrapper<CmsGoogleFontPage>;
+  CmsPage: ResolverTypeWrapper<CmsPage>;
+  CmsPageKind: CmsPageKind;
+  CmsPageLayout: CmsPageLayout;
+  CmsPageListInput: CmsPageListInput;
+  CmsPagePage: ResolverTypeWrapper<CmsPagePage>;
+  CmsPageRevision: ResolverTypeWrapper<CmsPageRevision>;
+  CmsPageSeo: ResolverTypeWrapper<CmsPageSeo>;
+  CmsPageSeoInput: CmsPageSeoInput;
+  CmsPageSettingsInput: CmsPageSettingsInput;
+  CmsPublicFragment: ResolverTypeWrapper<CmsPublicFragment>;
+  CmsPublicPage: ResolverTypeWrapper<CmsPublicPage>;
+  CmsPublicPageData: ResolverTypeWrapper<CmsPublicPageData>;
+  CmsPublicPath: ResolverTypeWrapper<CmsPublicPath>;
+  CmsPublicSite: ResolverTypeWrapper<CmsPublicSite>;
+  CmsPublished: ResolverTypeWrapper<CmsPublished>;
+  CmsSite: ResolverTypeWrapper<CmsSite>;
+  CmsSiteDns: ResolverTypeWrapper<CmsSiteDns>;
+  CmsSiteInput: CmsSiteInput;
+  CmsSiteSeo: ResolverTypeWrapper<CmsSiteSeo>;
+  CmsSiteSeoInput: CmsSiteSeoInput;
+  CmsSiteStatus: CmsSiteStatus;
   Company: ResolverTypeWrapper<Company>;
   CompanyBenefit: ResolverTypeWrapper<CompanyBenefit>;
   CompanyBenefitInput: CompanyBenefitInput;
@@ -16199,6 +17081,13 @@ export type ResolversTypes = ResolversObject<{
   NameserverTarget: NameserverTarget;
   NavLink: ResolverTypeWrapper<NavLink>;
   NavLinkInput: NavLinkInput;
+  NewsletterIssue: ResolverTypeWrapper<NewsletterIssue>;
+  NewsletterIssueInput: NewsletterIssueInput;
+  NewsletterIssuePage: ResolverTypeWrapper<NewsletterIssuePage>;
+  NewsletterSignupInput: NewsletterSignupInput;
+  NewsletterSubscriber: ResolverTypeWrapper<NewsletterSubscriber>;
+  NewsletterSubscriberPage: ResolverTypeWrapper<NewsletterSubscriberPage>;
+  NewsletterSubscriberStatus: NewsletterSubscriberStatus;
   Notification: ResolverTypeWrapper<Notification>;
   NotificationAudience: NotificationAudience;
   NotificationKind: NotificationKind;
@@ -16714,6 +17603,39 @@ export type ResolversParentTypes = ResolversObject<{
   CloudflareConfig: CloudflareConfig;
   CloudflareConfigInput: CloudflareConfigInput;
   CloudflareZone: CloudflareZone;
+  CmsARecord: CmsARecord;
+  CmsAsset: CmsAsset;
+  CmsAssetPage: CmsAssetPage;
+  CmsAssetUploadInput: CmsAssetUploadInput;
+  CmsComponentDef: CmsComponentDef;
+  CmsDesignSystem: CmsDesignSystem;
+  CmsDesignSystemInput: CmsDesignSystemInput;
+  CmsDomainDns: CmsDomainDns;
+  CmsDraft: CmsDraft;
+  CmsDraftInput: CmsDraftInput;
+  CmsFontAxis: CmsFontAxis;
+  CmsFragment: CmsFragment;
+  CmsFragmentInput: CmsFragmentInput;
+  CmsGoogleFont: CmsGoogleFont;
+  CmsGoogleFontPage: CmsGoogleFontPage;
+  CmsPage: CmsPage;
+  CmsPageListInput: CmsPageListInput;
+  CmsPagePage: CmsPagePage;
+  CmsPageRevision: CmsPageRevision;
+  CmsPageSeo: CmsPageSeo;
+  CmsPageSeoInput: CmsPageSeoInput;
+  CmsPageSettingsInput: CmsPageSettingsInput;
+  CmsPublicFragment: CmsPublicFragment;
+  CmsPublicPage: CmsPublicPage;
+  CmsPublicPageData: CmsPublicPageData;
+  CmsPublicPath: CmsPublicPath;
+  CmsPublicSite: CmsPublicSite;
+  CmsPublished: CmsPublished;
+  CmsSite: CmsSite;
+  CmsSiteDns: CmsSiteDns;
+  CmsSiteInput: CmsSiteInput;
+  CmsSiteSeo: CmsSiteSeo;
+  CmsSiteSeoInput: CmsSiteSeoInput;
   Company: Company;
   CompanyBenefit: CompanyBenefit;
   CompanyBenefitInput: CompanyBenefitInput;
@@ -16942,6 +17864,12 @@ export type ResolversParentTypes = ResolversObject<{
   MyRequestInput: MyRequestInput;
   NavLink: NavLink;
   NavLinkInput: NavLinkInput;
+  NewsletterIssue: NewsletterIssue;
+  NewsletterIssueInput: NewsletterIssueInput;
+  NewsletterIssuePage: NewsletterIssuePage;
+  NewsletterSignupInput: NewsletterSignupInput;
+  NewsletterSubscriber: NewsletterSubscriber;
+  NewsletterSubscriberPage: NewsletterSubscriberPage;
   Notification: Notification;
   NotificationPreference: NotificationPreference;
   NotificationPreferenceInput: NotificationPreferenceInput;
@@ -17770,6 +18698,7 @@ export type BlogPostResolvers<ContextType = GraphQLContext, ParentType extends R
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   publishedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   readTime?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  siteId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   tags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
@@ -18019,6 +18948,7 @@ export type CaseStudyResolvers<ContextType = GraphQLContext, ParentType extends 
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   pdfUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   publishedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  siteId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   tags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -18161,6 +19091,233 @@ export type CloudflareZoneResolvers<ContextType = GraphQLContext, ParentType ext
   nameServers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   originalNameServers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsARecordResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsARecord'] = ResolversParentTypes['CmsARecord']> = ResolversObject<{
+  ip?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ttl?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsAssetResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsAsset'] = ResolversParentTypes['CmsAsset']> = ResolversObject<{
+  alt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  height?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  mime?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  siteId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  size?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  url?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  width?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsAssetPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsAssetPage'] = ResolversParentTypes['CmsAssetPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['CmsAsset']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsComponentDefResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsComponentDef'] = ResolversParentTypes['CmsComponentDef']> = ResolversObject<{
+  acceptsChildren?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  category?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  defaultProps?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsDesignSystemResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsDesignSystem'] = ResolversParentTypes['CmsDesignSystem']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  extraCss?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  siteId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  tokens?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsDomainDnsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsDomainDns'] = ResolversParentTypes['CmsDomainDns']> = ResolversObject<{
+  authority?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  domain?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  error?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  pointsHere?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  records?: Resolver<Array<ResolversTypes['CmsARecord']>, ParentType, ContextType>;
+  zone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsDraftResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsDraft'] = ResolversParentTypes['CmsDraft']> = ResolversObject<{
+  css?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  html?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  projectData?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsFontAxisResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsFontAxis'] = ResolversParentTypes['CmsFontAxis']> = ResolversObject<{
+  max?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  min?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  tag?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsFragmentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsFragment'] = ResolversParentTypes['CmsFragment']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  draft?: Resolver<Maybe<ResolversTypes['CmsDraft']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['CmsFragmentKind'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  published?: Resolver<Maybe<ResolversTypes['CmsPublished']>, ParentType, ContextType>;
+  siteId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['CmsDocumentStatus'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  updatedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsGoogleFontResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsGoogleFont'] = ResolversParentTypes['CmsGoogleFont']> = ResolversObject<{
+  axes?: Resolver<Array<ResolversTypes['CmsFontAxis']>, ParentType, ContextType>;
+  category?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  family?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  popularity?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  subsets?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  variants?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsGoogleFontPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsGoogleFontPage'] = ResolversParentTypes['CmsGoogleFontPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['CmsGoogleFont']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsPage'] = ResolversParentTypes['CmsPage']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  draft?: Resolver<Maybe<ResolversTypes['CmsDraft']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['CmsPageKind'], ParentType, ContextType>;
+  layout?: Resolver<ResolversTypes['CmsPageLayout'], ParentType, ContextType>;
+  path?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  published?: Resolver<Maybe<ResolversTypes['CmsPublished']>, ParentType, ContextType>;
+  seo?: Resolver<ResolversTypes['CmsPageSeo'], ParentType, ContextType>;
+  siteId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['CmsDocumentStatus'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  updatedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsPagePageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsPagePage'] = ResolversParentTypes['CmsPagePage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['CmsPage']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsPageRevisionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsPageRevision'] = ResolversParentTypes['CmsPageRevision']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  publishedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  version?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsPageSeoResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsPageSeo'] = ResolversParentTypes['CmsPageSeo']> = ResolversObject<{
+  canonical?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  jsonLd?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
+  keywords?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  noindex?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  ogImageUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsPublicFragmentResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsPublicFragment'] = ResolversParentTypes['CmsPublicFragment']> = ResolversObject<{
+  blocks?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
+  css?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsPublicPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsPublicPage'] = ResolversParentTypes['CmsPublicPage']> = ResolversObject<{
+  fragments?: Resolver<Array<ResolversTypes['CmsPublicFragment']>, ParentType, ContextType>;
+  page?: Resolver<ResolversTypes['CmsPublicPageData'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsPublicPageDataResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsPublicPageData'] = ResolversParentTypes['CmsPublicPageData']> = ResolversObject<{
+  blocks?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
+  css?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['CmsPageKind'], ParentType, ContextType>;
+  layout?: Resolver<ResolversTypes['CmsPageLayout'], ParentType, ContextType>;
+  params?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
+  path?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  preview?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  publishedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  seo?: Resolver<ResolversTypes['CmsPageSeo'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsPublicPathResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsPublicPath'] = ResolversParentTypes['CmsPublicPath']> = ResolversObject<{
+  path?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsPublicSiteResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsPublicSite'] = ResolversParentTypes['CmsPublicSite']> = ResolversObject<{
+  designSystem?: Resolver<Maybe<ResolversTypes['CmsDesignSystem']>, ParentType, ContextType>;
+  fragments?: Resolver<Array<ResolversTypes['CmsPublicFragment']>, ParentType, ContextType>;
+  site?: Resolver<ResolversTypes['CmsSite'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsPublishedResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsPublished'] = ResolversParentTypes['CmsPublished']> = ResolversObject<{
+  publishedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsSiteResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsSite'] = ResolversParentTypes['CmsSite']> = ResolversObject<{
+  bodyEndHtml?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  defaultLocale?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  designSystemId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  domains?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  faviconUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  footerFragmentId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  globalCss?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  headHtml?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  headerFragmentId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isDefault?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  markets?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  notFoundPageId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  seo?: Resolver<ResolversTypes['CmsSiteSeo'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['CmsSiteStatus'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsSiteDnsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsSiteDns'] = ResolversParentTypes['CmsSiteDns']> = ResolversObject<{
+  domains?: Resolver<Array<ResolversTypes['CmsDomainDns']>, ParentType, ContextType>;
+  serverIp?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CmsSiteSeoResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CmsSiteSeo'] = ResolversParentTypes['CmsSiteSeo']> = ResolversObject<{
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ogImageUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  titleTemplate?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -18930,6 +20087,7 @@ export type GigResolvers<ContextType = GraphQLContext, ParentType extends Resolv
   postedDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   requirements?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   shortDescription?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  siteId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   tags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -19567,6 +20725,7 @@ export type JobResolvers<ContextType = GraphQLContext, ParentType extends Resolv
   requirements?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   salaryRange?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   shortJobDescription?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  siteId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   skillSet?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
@@ -19591,6 +20750,7 @@ export type JobCompanyResolvers<ContextType = GraphQLContext, ParentType extends
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   order?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   secondaryColor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  siteId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   socialLinks?: Resolver<ResolversTypes['CompanySocialLinks'], ParentType, ContextType>;
   tagline?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -19894,6 +21054,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   addClientContact?: Resolver<ResolversTypes['ClientContact'], ParentType, ContextType, RequireFields<MutationAddClientContactArgs, 'input'>>;
   addItIncidentUpdate?: Resolver<ResolversTypes['ItIncident'], ParentType, ContextType, RequireFields<MutationAddItIncidentUpdateArgs, 'id' | 'note' | 'status'>>;
   addMySupportReply?: Resolver<ResolversTypes['SupportReply'], ParentType, ContextType, RequireFields<MutationAddMySupportReplyArgs, 'body' | 'ticketId'>>;
+  addNewsletterSubscriber?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationAddNewsletterSubscriberArgs, 'email' | 'siteId'>>;
   addStatusIncidentUpdate?: Resolver<ResolversTypes['StatusIncident'], ParentType, ContextType, RequireFields<MutationAddStatusIncidentUpdateArgs, 'body' | 'id' | 'status'>>;
   addSupportReply?: Resolver<ResolversTypes['SupportReply'], ParentType, ContextType, RequireFields<MutationAddSupportReplyArgs, 'body' | 'internal' | 'ticketId'>>;
   addTaskComment?: Resolver<ResolversTypes['TaskComment'], ParentType, ContextType, RequireFields<MutationAddTaskCommentArgs, 'body' | 'taskId'>>;
@@ -19936,6 +21097,10 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createClient?: Resolver<ResolversTypes['Client'], ParentType, ContextType, RequireFields<MutationCreateClientArgs, 'input'>>;
   createClientSupportTicket?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationCreateClientSupportTicketArgs, 'input'>>;
   createCloudflareConfig?: Resolver<ResolversTypes['CloudflareConfig'], ParentType, ContextType, RequireFields<MutationCreateCloudflareConfigArgs, 'input'>>;
+  createCmsDesignSystem?: Resolver<ResolversTypes['CmsDesignSystem'], ParentType, ContextType, RequireFields<MutationCreateCmsDesignSystemArgs, 'input'>>;
+  createCmsFragment?: Resolver<ResolversTypes['CmsFragment'], ParentType, ContextType, RequireFields<MutationCreateCmsFragmentArgs, 'input' | 'siteId'>>;
+  createCmsPage?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationCreateCmsPageArgs, 'input' | 'siteId'>>;
+  createCmsSite?: Resolver<ResolversTypes['CmsSite'], ParentType, ContextType, RequireFields<MutationCreateCmsSiteArgs, 'input'>>;
   createColumn?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationCreateColumnArgs, 'name' | 'projectId'>>;
   createCompany?: Resolver<ResolversTypes['Company'], ParentType, ContextType, RequireFields<MutationCreateCompanyArgs, 'input'>>;
   createCompanyExpense?: Resolver<ResolversTypes['CompanyExpense'], ParentType, ContextType, RequireFields<MutationCreateCompanyExpenseArgs, 'input'>>;
@@ -19989,6 +21154,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createMyExpenseClaim?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationCreateMyExpenseClaimArgs, 'input'>>;
   createMyRequest?: Resolver<ResolversTypes['EmployeeRequest'], ParentType, ContextType, RequireFields<MutationCreateMyRequestArgs, 'input'>>;
   createNavLink?: Resolver<ResolversTypes['NavLink'], ParentType, ContextType, RequireFields<MutationCreateNavLinkArgs, 'input'>>;
+  createNewsletterIssue?: Resolver<ResolversTypes['NewsletterIssue'], ParentType, ContextType, RequireFields<MutationCreateNewsletterIssueArgs, 'input'>>;
   createObjective?: Resolver<ResolversTypes['Objective'], ParentType, ContextType, RequireFields<MutationCreateObjectiveArgs, 'input'>>;
   createOnboardingTemplate?: Resolver<ResolversTypes['OnboardingTemplate'], ParentType, ContextType, RequireFields<MutationCreateOnboardingTemplateArgs, 'input'>>;
   createOpenAiConfig?: Resolver<ResolversTypes['OpenAiConfig'], ParentType, ContextType, RequireFields<MutationCreateOpenAiConfigArgs, 'input'>>;
@@ -20060,6 +21226,11 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteClient?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClientArgs, 'id'>>;
   deleteClientContact?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteClientContactArgs, 'id'>>;
   deleteCloudflareConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCloudflareConfigArgs, 'id'>>;
+  deleteCmsAsset?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCmsAssetArgs, 'id'>>;
+  deleteCmsDesignSystem?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCmsDesignSystemArgs, 'id'>>;
+  deleteCmsFragment?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCmsFragmentArgs, 'id'>>;
+  deleteCmsPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCmsPageArgs, 'id'>>;
+  deleteCmsSite?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCmsSiteArgs, 'id'>>;
   deleteColumn?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteColumnArgs, 'id'>>;
   deleteCompany?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCompanyArgs, 'id'>>;
   deleteCompanyExpense?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCompanyExpenseArgs, 'id'>>;
@@ -20109,6 +21280,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteMarketingSuppression?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteMarketingSuppressionArgs, 'id'>>;
   deleteMilestone?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteMilestoneArgs, 'id'>>;
   deleteNavLink?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteNavLinkArgs, 'id'>>;
+  deleteNewsletterIssue?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteNewsletterIssueArgs, 'id'>>;
+  deleteNewsletterSubscriber?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteNewsletterSubscriberArgs, 'id'>>;
   deleteObjective?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteObjectiveArgs, 'id'>>;
   deleteOnboardingChecklist?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteOnboardingChecklistArgs, 'id'>>;
   deleteOnboardingTemplate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteOnboardingTemplateArgs, 'id'>>;
@@ -20161,6 +21334,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   disableMfa?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisableMfaArgs, 'password'>>;
   discardWhatsappWorkflowDraft?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationDiscardWhatsappWorkflowDraftArgs, 'id'>>;
   disconnectSocialAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisconnectSocialAccountArgs, 'id'>>;
+  duplicateCmsPage?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationDuplicateCmsPageArgs, 'id' | 'path'>>;
   duplicateWhatsappWorkflow?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationDuplicateWhatsappWorkflowArgs, 'id'>>;
   endApprovalDelegation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationEndApprovalDelegationArgs, 'id'>>;
   escalateSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationEscalateSupportTicketArgs, 'id' | 'reason'>>;
@@ -20183,6 +21357,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   moveTask?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationMoveTaskArgs, 'id' | 'toColumnId' | 'toIndex'>>;
   promoteBugToTask?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationPromoteBugToTaskArgs, 'id'>>;
   promoteCompanyToClient?: Resolver<ResolversTypes['Company'], ParentType, ContextType, RequireFields<MutationPromoteCompanyToClientArgs, 'id'>>;
+  publishCmsFragment?: Resolver<ResolversTypes['CmsFragment'], ParentType, ContextType, RequireFields<MutationPublishCmsFragmentArgs, 'id'>>;
+  publishCmsPage?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationPublishCmsPageArgs, 'id'>>;
   publishPolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationPublishPolicyArgs, 'id'>>;
   publishSocialMediaPostNow?: Resolver<ResolversTypes['SocialMediaPost'], ParentType, ContextType, RequireFields<MutationPublishSocialMediaPostNowArgs, 'id'>>;
   publishWhatsappWorkflow?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationPublishWhatsappWorkflowArgs, 'id'>>;
@@ -20199,6 +21375,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   requestWhatsappDemoCode?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRequestWhatsappDemoCodeArgs, 'input'>>;
   resetPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
   resetUserPassword?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationResetUserPasswordArgs, 'id'>>;
+  restoreCmsPageRevision?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationRestoreCmsPageRevisionArgs, 'revisionId'>>;
   reviewTrackerManualEntry?: Resolver<ResolversTypes['TrackerManualEntry'], ParentType, ContextType, RequireFields<MutationReviewTrackerManualEntryArgs, 'id' | 'status'>>;
   revokeApiKey?: Resolver<ResolversTypes['ApiKey'], ParentType, ContextType, RequireFields<MutationRevokeApiKeyArgs, 'id'>>;
   revokeContractSignature?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRevokeContractSignatureArgs, 'id'>>;
@@ -20214,6 +21391,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   runRecurringInvoiceNow?: Resolver<ResolversTypes['RecurringInvoice'], ParentType, ContextType, RequireFields<MutationRunRecurringInvoiceNowArgs, 'id'>>;
   saveAiModelPrice?: Resolver<ResolversTypes['AiModelPrice'], ParentType, ContextType, RequireFields<MutationSaveAiModelPriceArgs, 'input'>>;
   saveAiSpendLimit?: Resolver<ResolversTypes['AiSpendLimit'], ParentType, ContextType, RequireFields<MutationSaveAiSpendLimitArgs, 'input'>>;
+  saveCmsFragmentDraft?: Resolver<ResolversTypes['CmsFragment'], ParentType, ContextType, RequireFields<MutationSaveCmsFragmentDraftArgs, 'draft' | 'id'>>;
+  saveCmsPageDraft?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationSaveCmsPageDraftArgs, 'draft' | 'id'>>;
   saveEmployeeSalary?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationSaveEmployeeSalaryArgs, 'employeeId' | 'input'>>;
   saveSocialAppConfig?: Resolver<ResolversTypes['SocialAppConfig'], ParentType, ContextType, RequireFields<MutationSaveSocialAppConfigArgs, 'input'>>;
   saveTrackerBuildSettings?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType, RequireFields<MutationSaveTrackerBuildSettingsArgs, 'slackChannels'>>;
@@ -20235,13 +21414,16 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setApplicantStage?: Resolver<ResolversTypes['Applicant'], ParentType, ContextType, RequireFields<MutationSetApplicantStageArgs, 'id' | 'stage'>>;
   setClientContactActive?: Resolver<ResolversTypes['ClientContact'], ParentType, ContextType, RequireFields<MutationSetClientContactActiveArgs, 'active' | 'id'>>;
   setClientProjects?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSetClientProjectsArgs, 'clientId' | 'projectIds'>>;
+  setCmsSiteARecord?: Resolver<ResolversTypes['CmsDomainDns'], ParentType, ContextType, RequireFields<MutationSetCmsSiteARecordArgs, 'domain' | 'ip' | 'siteId' | 'ttl'>>;
   setColumnDone?: Resolver<ResolversTypes['BoardColumn'], ParentType, ContextType, RequireFields<MutationSetColumnDoneArgs, 'id' | 'isDone'>>;
   setDealStage?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationSetDealStageArgs, 'id' | 'stage'>>;
+  setDefaultCmsSite?: Resolver<ResolversTypes['CmsSite'], ParentType, ContextType, RequireFields<MutationSetDefaultCmsSiteArgs, 'id'>>;
   setDomainNameservers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationSetDomainNameserversArgs, 'domain' | 'target'>>;
   setExpenseClaimStatus?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationSetExpenseClaimStatusArgs, 'id' | 'status'>>;
   setLeaveStatus?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationSetLeaveStatusArgs, 'id' | 'status'>>;
   setMyNotificationPreference?: Resolver<Array<ResolversTypes['NotificationPreference']>, ParentType, ContextType, RequireFields<MutationSetMyNotificationPreferenceArgs, 'input'>>;
   setMyTrackerPresence?: Resolver<ResolversTypes['TrackerPresenceState'], ParentType, ContextType, RequireFields<MutationSetMyTrackerPresenceArgs, 'status'>>;
+  setNewsletterSubscriberStatus?: Resolver<ResolversTypes['NewsletterSubscriber'], ParentType, ContextType, RequireFields<MutationSetNewsletterSubscriberStatusArgs, 'id' | 'status'>>;
   setOnboardingItem?: Resolver<ResolversTypes['OnboardingChecklist'], ParentType, ContextType, RequireFields<MutationSetOnboardingItemArgs, 'checklistId' | 'done' | 'key'>>;
   setOrganizationStatus?: Resolver<ResolversTypes['Organization'], ParentType, ContextType, RequireFields<MutationSetOrganizationStatusArgs, 'id' | 'status'>>;
   setRolePermission?: Resolver<ResolversTypes['RolePermission'], ParentType, ContextType, RequireFields<MutationSetRolePermissionArgs, 'actions' | 'module' | 'role'>>;
@@ -20267,6 +21449,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   submitManagerAssessment?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<MutationSubmitManagerAssessmentArgs, 'id' | 'managerAssessment'>>;
   submitProblemReport?: Resolver<ResolversTypes['ProblemReportReceipt'], ParentType, ContextType, RequireFields<MutationSubmitProblemReportArgs, 'input'>>;
   submitSelfAssessment?: Resolver<ResolversTypes['PerformanceReview'], ParentType, ContextType, RequireFields<MutationSubmitSelfAssessmentArgs, 'id' | 'text'>>;
+  subscribeNewsletter?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSubscribeNewsletterArgs, 'captcha' | 'input'>>;
   subscribeToStatus?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationSubscribeToStatusArgs, 'email'>>;
   syncAllSocialAccounts?: Resolver<Array<ResolversTypes['SocialSyncResult']>, ParentType, ContextType>;
   syncSocialAccount?: Resolver<ResolversTypes['SocialSyncResult'], ParentType, ContextType, RequireFields<MutationSyncSocialAccountArgs, 'id'>>;
@@ -20297,8 +21480,10 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   translateEverything?: Resolver<ResolversTypes['TranslationFill'], ParentType, ContextType, RequireFields<MutationTranslateEverythingArgs, 'locale'>>;
   translateMissing?: Resolver<Array<ResolversTypes['Translation']>, ParentType, ContextType, RequireFields<MutationTranslateMissingArgs, 'locale' | 'sources'>>;
   triageWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<MutationTriageWebsiteSubmissionArgs, 'id' | 'input'>>;
+  unpublishCmsPage?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationUnpublishCmsPageArgs, 'id'>>;
   unsubscribeFromMarketing?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationUnsubscribeFromMarketingArgs, 'token'>>;
   unsubscribeFromStatus?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationUnsubscribeFromStatusArgs, 'token'>>;
+  unsubscribeNewsletter?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationUnsubscribeNewsletterArgs, 'token'>>;
   updateActivity?: Resolver<ResolversTypes['Activity'], ParentType, ContextType, RequireFields<MutationUpdateActivityArgs, 'id' | 'input'>>;
   updateAiJob?: Resolver<ResolversTypes['AiJob'], ParentType, ContextType, RequireFields<MutationUpdateAiJobArgs, 'id' | 'input'>>;
   updateAnnouncement?: Resolver<ResolversTypes['Announcement'], ParentType, ContextType, RequireFields<MutationUpdateAnnouncementArgs, 'id' | 'input'>>;
@@ -20315,6 +21500,11 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateCaseStudy?: Resolver<ResolversTypes['CaseStudy'], ParentType, ContextType, RequireFields<MutationUpdateCaseStudyArgs, 'id' | 'input'>>;
   updateClient?: Resolver<ResolversTypes['Client'], ParentType, ContextType, RequireFields<MutationUpdateClientArgs, 'id' | 'input'>>;
   updateCloudflareConfig?: Resolver<ResolversTypes['CloudflareConfig'], ParentType, ContextType, RequireFields<MutationUpdateCloudflareConfigArgs, 'id' | 'input'>>;
+  updateCmsAssetAlt?: Resolver<ResolversTypes['CmsAsset'], ParentType, ContextType, RequireFields<MutationUpdateCmsAssetAltArgs, 'alt' | 'id'>>;
+  updateCmsDesignSystem?: Resolver<ResolversTypes['CmsDesignSystem'], ParentType, ContextType, RequireFields<MutationUpdateCmsDesignSystemArgs, 'id' | 'input'>>;
+  updateCmsFragment?: Resolver<ResolversTypes['CmsFragment'], ParentType, ContextType, RequireFields<MutationUpdateCmsFragmentArgs, 'id' | 'input'>>;
+  updateCmsPageSettings?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationUpdateCmsPageSettingsArgs, 'id' | 'input'>>;
+  updateCmsSite?: Resolver<ResolversTypes['CmsSite'], ParentType, ContextType, RequireFields<MutationUpdateCmsSiteArgs, 'id' | 'input'>>;
   updateCompany?: Resolver<ResolversTypes['Company'], ParentType, ContextType, RequireFields<MutationUpdateCompanyArgs, 'id' | 'input'>>;
   updateCompanyExpense?: Resolver<ResolversTypes['CompanyExpense'], ParentType, ContextType, RequireFields<MutationUpdateCompanyExpenseArgs, 'id' | 'input'>>;
   updateContact?: Resolver<ResolversTypes['Contact'], ParentType, ContextType, RequireFields<MutationUpdateContactArgs, 'id' | 'input'>>;
@@ -20366,6 +21556,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateMyGoalProgress?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationUpdateMyGoalProgressArgs, 'id' | 'progress'>>;
   updateMyTrainingStatus?: Resolver<ResolversTypes['Training'], ParentType, ContextType, RequireFields<MutationUpdateMyTrainingStatusArgs, 'id' | 'status'>>;
   updateNavLink?: Resolver<ResolversTypes['NavLink'], ParentType, ContextType, RequireFields<MutationUpdateNavLinkArgs, 'id' | 'input'>>;
+  updateNewsletterIssue?: Resolver<ResolversTypes['NewsletterIssue'], ParentType, ContextType, RequireFields<MutationUpdateNewsletterIssueArgs, 'id' | 'input'>>;
   updateObjective?: Resolver<ResolversTypes['Objective'], ParentType, ContextType, RequireFields<MutationUpdateObjectiveArgs, 'id' | 'input'>>;
   updateOnboardingTemplate?: Resolver<ResolversTypes['OnboardingTemplate'], ParentType, ContextType, RequireFields<MutationUpdateOnboardingTemplateArgs, 'id' | 'input'>>;
   updateOpenAiConfig?: Resolver<ResolversTypes['OpenAiConfig'], ParentType, ContextType, RequireFields<MutationUpdateOpenAiConfigArgs, 'id' | 'input'>>;
@@ -20412,6 +21603,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateWebsiteChatKnowledge?: Resolver<ResolversTypes['WebsiteChatKnowledge'], ParentType, ContextType, RequireFields<MutationUpdateWebsiteChatKnowledgeArgs, 'id' | 'input'>>;
   updateWebsiteChatSettings?: Resolver<ResolversTypes['WebsiteChatSettings'], ParentType, ContextType, RequireFields<MutationUpdateWebsiteChatSettingsArgs, 'input'>>;
   uploadAvatar?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationUploadAvatarArgs, 'file'>>;
+  uploadCmsAsset?: Resolver<ResolversTypes['CmsAsset'], ParentType, ContextType, RequireFields<MutationUploadCmsAssetArgs, 'input'>>;
   uploadImage?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationUploadImageArgs, 'file' | 'fileName'>>;
   upsertWhatsappDemo?: Resolver<ResolversTypes['WhatsappDemo'], ParentType, ContextType, RequireFields<MutationUpsertWhatsappDemoArgs, 'input'>>;
   verifyClientHubCode?: Resolver<ResolversTypes['ClientHubSignIn'], ParentType, ContextType, RequireFields<MutationVerifyClientHubCodeArgs, 'code' | 'email'>>;
@@ -20451,7 +21643,48 @@ export type NavLinkResolvers<ContextType = GraphQLContext, ParentType extends Re
   keywords?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   order?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  siteId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type NewsletterIssueResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['NewsletterIssue'] = ResolversParentTypes['NewsletterIssue']> = ResolversObject<{
+  content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  contentCss?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  coverImage?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  publishedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  siteId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type NewsletterIssuePageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['NewsletterIssuePage'] = ResolversParentTypes['NewsletterIssuePage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['NewsletterIssue']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type NewsletterSubscriberResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['NewsletterSubscriber'] = ResolversParentTypes['NewsletterSubscriber']> = ResolversObject<{
+  consentAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  siteId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  source?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['NewsletterSubscriberStatus'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type NewsletterSubscriberPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['NewsletterSubscriberPage'] = ResolversParentTypes['NewsletterSubscriberPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['NewsletterSubscriber']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -21179,6 +22412,21 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   clientHubTickets?: Resolver<ResolversTypes['SupportTicketPage'], ParentType, ContextType, RequireFields<QueryClientHubTicketsArgs, 'input'>>;
   clientProjectOptions?: Resolver<Array<ResolversTypes['ClientProjectOption']>, ParentType, ContextType>;
   clientSupportTicketStatus?: Resolver<Maybe<ResolversTypes['ClientTicketStatus']>, ParentType, ContextType, RequireFields<QueryClientSupportTicketStatusArgs, 'email' | 'reference'>>;
+  cmsAssets?: Resolver<ResolversTypes['CmsAssetPage'], ParentType, ContextType, RequireFields<QueryCmsAssetsArgs, 'page' | 'pageSize' | 'siteId'>>;
+  cmsComponents?: Resolver<Array<ResolversTypes['CmsComponentDef']>, ParentType, ContextType>;
+  cmsDesignSystem?: Resolver<ResolversTypes['CmsDesignSystem'], ParentType, ContextType, RequireFields<QueryCmsDesignSystemArgs, 'id'>>;
+  cmsDesignSystems?: Resolver<Array<ResolversTypes['CmsDesignSystem']>, ParentType, ContextType, RequireFields<QueryCmsDesignSystemsArgs, 'siteId'>>;
+  cmsFragment?: Resolver<ResolversTypes['CmsFragment'], ParentType, ContextType, RequireFields<QueryCmsFragmentArgs, 'id'>>;
+  cmsFragments?: Resolver<Array<ResolversTypes['CmsFragment']>, ParentType, ContextType, RequireFields<QueryCmsFragmentsArgs, 'siteId'>>;
+  cmsGoogleFonts?: Resolver<ResolversTypes['CmsGoogleFontPage'], ParentType, ContextType, Partial<QueryCmsGoogleFontsArgs>>;
+  cmsPage?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<QueryCmsPageArgs, 'id'>>;
+  cmsPageRevisions?: Resolver<Array<ResolversTypes['CmsPageRevision']>, ParentType, ContextType, RequireFields<QueryCmsPageRevisionsArgs, 'pageId'>>;
+  cmsPages?: Resolver<ResolversTypes['CmsPagePage'], ParentType, ContextType, RequireFields<QueryCmsPagesArgs, 'input' | 'siteId'>>;
+  cmsPreviewToken?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<QueryCmsPreviewTokenArgs, 'pageId'>>;
+  cmsSite?: Resolver<ResolversTypes['CmsSite'], ParentType, ContextType, RequireFields<QueryCmsSiteArgs, 'id'>>;
+  cmsSiteBySlug?: Resolver<ResolversTypes['CmsSite'], ParentType, ContextType, RequireFields<QueryCmsSiteBySlugArgs, 'slug'>>;
+  cmsSiteDns?: Resolver<ResolversTypes['CmsSiteDns'], ParentType, ContextType, RequireFields<QueryCmsSiteDnsArgs, 'siteId'>>;
+  cmsSites?: Resolver<Array<ResolversTypes['CmsSite']>, ParentType, ContextType>;
   companyFinance?: Resolver<ResolversTypes['CompanyFinance'], ParentType, ContextType, RequireFields<QueryCompanyFinanceArgs, 'from' | 'to'>>;
   complianceOverview?: Resolver<ResolversTypes['ComplianceOverview'], ParentType, ContextType>;
   contractSignatures?: Resolver<Array<ResolversTypes['ContractSignature']>, ParentType, ContextType, RequireFields<QueryContractSignaturesArgs, 'contractId'>>;
@@ -21627,6 +22875,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   myTrackerTotals?: Resolver<ResolversTypes['TrackerTotals'], ParentType, ContextType>;
   myTrainings?: Resolver<Array<ResolversTypes['Training']>, ParentType, ContextType>;
   myUnreadNotificationCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  newsletterIssues?: Resolver<ResolversTypes['NewsletterIssuePage'], ParentType, ContextType, RequireFields<QueryNewsletterIssuesArgs, 'page' | 'pageSize' | 'siteId'>>;
+  newsletterSubscribers?: Resolver<ResolversTypes['NewsletterSubscriberPage'], ParentType, ContextType, RequireFields<QueryNewsletterSubscribersArgs, 'page' | 'pageSize' | 'siteId'>>;
   openAppLogsFixPrompt?: Resolver<ResolversTypes['String'], ParentType, ContextType, Partial<QueryOpenAppLogsFixPromptArgs>>;
   orgChart?: Resolver<Array<ResolversTypes['OrgNode']>, ParentType, ContextType>;
   organization?: Resolver<ResolversTypes['Organization'], ParentType, ContextType, RequireFields<QueryOrganizationArgs, 'id'>>;
@@ -21652,17 +22902,22 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   projectTimeLogScreenshots?: Resolver<Array<ResolversTypes['ProjectTimeLogScreenshot']>, ParentType, ContextType, RequireFields<QueryProjectTimeLogScreenshotsArgs, 'projectId' | 'sessionId'>>;
   projectTimeLogSessions?: Resolver<Array<ResolversTypes['ProjectTimeLogSession']>, ParentType, ContextType, RequireFields<QueryProjectTimeLogSessionsArgs, 'from' | 'projectId' | 'to'>>;
   publicBlogPost?: Resolver<Maybe<ResolversTypes['BlogPost']>, ParentType, ContextType, RequireFields<QueryPublicBlogPostArgs, 'slug'>>;
-  publicBlogPosts?: Resolver<Array<ResolversTypes['BlogPost']>, ParentType, ContextType>;
+  publicBlogPosts?: Resolver<Array<ResolversTypes['BlogPost']>, ParentType, ContextType, Partial<QueryPublicBlogPostsArgs>>;
   publicBranding?: Resolver<ResolversTypes['Branding'], ParentType, ContextType>;
-  publicCaseStudies?: Resolver<Array<ResolversTypes['CaseStudy']>, ParentType, ContextType>;
+  publicCaseStudies?: Resolver<Array<ResolversTypes['CaseStudy']>, ParentType, ContextType, Partial<QueryPublicCaseStudiesArgs>>;
   publicCaseStudy?: Resolver<Maybe<ResolversTypes['CaseStudy']>, ParentType, ContextType, RequireFields<QueryPublicCaseStudyArgs, 'slug'>>;
+  publicCmsPage?: Resolver<Maybe<ResolversTypes['CmsPublicPage']>, ParentType, ContextType, RequireFields<QueryPublicCmsPageArgs, 'path' | 'siteId'>>;
+  publicCmsPaths?: Resolver<Array<ResolversTypes['CmsPublicPath']>, ParentType, ContextType, RequireFields<QueryPublicCmsPathsArgs, 'siteId'>>;
+  publicCmsSite?: Resolver<ResolversTypes['CmsPublicSite'], ParentType, ContextType, RequireFields<QueryPublicCmsSiteArgs, 'host'>>;
   publicGig?: Resolver<Maybe<ResolversTypes['Gig']>, ParentType, ContextType, RequireFields<QueryPublicGigArgs, 'gigCode'>>;
-  publicGigs?: Resolver<Array<ResolversTypes['Gig']>, ParentType, ContextType>;
+  publicGigs?: Resolver<Array<ResolversTypes['Gig']>, ParentType, ContextType, Partial<QueryPublicGigsArgs>>;
   publicJob?: Resolver<Maybe<ResolversTypes['Job']>, ParentType, ContextType, RequireFields<QueryPublicJobArgs, 'jobCode'>>;
-  publicJobCompanies?: Resolver<Array<ResolversTypes['JobCompany']>, ParentType, ContextType>;
+  publicJobCompanies?: Resolver<Array<ResolversTypes['JobCompany']>, ParentType, ContextType, Partial<QueryPublicJobCompaniesArgs>>;
   publicJobCompany?: Resolver<Maybe<ResolversTypes['JobCompany']>, ParentType, ContextType, RequireFields<QueryPublicJobCompanyArgs, 'slug'>>;
   publicJobs?: Resolver<Array<ResolversTypes['Job']>, ParentType, ContextType, Partial<QueryPublicJobsArgs>>;
-  publicNavLinks?: Resolver<Array<ResolversTypes['NavLink']>, ParentType, ContextType>;
+  publicNavLinks?: Resolver<Array<ResolversTypes['NavLink']>, ParentType, ContextType, Partial<QueryPublicNavLinksArgs>>;
+  publicNewsletterIssue?: Resolver<Maybe<ResolversTypes['NewsletterIssue']>, ParentType, ContextType, RequireFields<QueryPublicNewsletterIssueArgs, 'slug'>>;
+  publicNewsletterIssues?: Resolver<Array<ResolversTypes['NewsletterIssue']>, ParentType, ContextType, Partial<QueryPublicNewsletterIssuesArgs>>;
   publicPolicies?: Resolver<Array<ResolversTypes['PublicPolicy']>, ParentType, ContextType>;
   publicPolicy?: Resolver<Maybe<ResolversTypes['PublicPolicy']>, ParentType, ContextType, RequireFields<QueryPublicPolicyArgs, 'slug'>>;
   publicTool?: Resolver<Maybe<ResolversTypes['Tool']>, ParentType, ContextType, RequireFields<QueryPublicToolArgs, 'toolCode'>>;
@@ -23792,6 +25047,30 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ClientTicketStatus?: ClientTicketStatusResolvers<ContextType>;
   CloudflareConfig?: CloudflareConfigResolvers<ContextType>;
   CloudflareZone?: CloudflareZoneResolvers<ContextType>;
+  CmsARecord?: CmsARecordResolvers<ContextType>;
+  CmsAsset?: CmsAssetResolvers<ContextType>;
+  CmsAssetPage?: CmsAssetPageResolvers<ContextType>;
+  CmsComponentDef?: CmsComponentDefResolvers<ContextType>;
+  CmsDesignSystem?: CmsDesignSystemResolvers<ContextType>;
+  CmsDomainDns?: CmsDomainDnsResolvers<ContextType>;
+  CmsDraft?: CmsDraftResolvers<ContextType>;
+  CmsFontAxis?: CmsFontAxisResolvers<ContextType>;
+  CmsFragment?: CmsFragmentResolvers<ContextType>;
+  CmsGoogleFont?: CmsGoogleFontResolvers<ContextType>;
+  CmsGoogleFontPage?: CmsGoogleFontPageResolvers<ContextType>;
+  CmsPage?: CmsPageResolvers<ContextType>;
+  CmsPagePage?: CmsPagePageResolvers<ContextType>;
+  CmsPageRevision?: CmsPageRevisionResolvers<ContextType>;
+  CmsPageSeo?: CmsPageSeoResolvers<ContextType>;
+  CmsPublicFragment?: CmsPublicFragmentResolvers<ContextType>;
+  CmsPublicPage?: CmsPublicPageResolvers<ContextType>;
+  CmsPublicPageData?: CmsPublicPageDataResolvers<ContextType>;
+  CmsPublicPath?: CmsPublicPathResolvers<ContextType>;
+  CmsPublicSite?: CmsPublicSiteResolvers<ContextType>;
+  CmsPublished?: CmsPublishedResolvers<ContextType>;
+  CmsSite?: CmsSiteResolvers<ContextType>;
+  CmsSiteDns?: CmsSiteDnsResolvers<ContextType>;
+  CmsSiteSeo?: CmsSiteSeoResolvers<ContextType>;
   Company?: CompanyResolvers<ContextType>;
   CompanyBenefit?: CompanyBenefitResolvers<ContextType>;
   CompanyExpense?: CompanyExpenseResolvers<ContextType>;
@@ -23953,6 +25232,10 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   MyApprovalDelegations?: MyApprovalDelegationsResolvers<ContextType>;
   MyPolicy?: MyPolicyResolvers<ContextType>;
   NavLink?: NavLinkResolvers<ContextType>;
+  NewsletterIssue?: NewsletterIssueResolvers<ContextType>;
+  NewsletterIssuePage?: NewsletterIssuePageResolvers<ContextType>;
+  NewsletterSubscriber?: NewsletterSubscriberResolvers<ContextType>;
+  NewsletterSubscriberPage?: NewsletterSubscriberPageResolvers<ContextType>;
   Notification?: NotificationResolvers<ContextType>;
   NotificationPreference?: NotificationPreferenceResolvers<ContextType>;
   Objective?: ObjectiveResolvers<ContextType>;

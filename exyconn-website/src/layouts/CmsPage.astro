@@ -1,0 +1,118 @@
+---
+/**
+ * A page from the CMS, in the same document as every other page (SiteShell): its title and
+ * SEO from the page (and the site's defaults), the site's design system, global CSS and head
+ * and body markup, the page's and its fragments' CSS, and the site's header and footer
+ * fragments around it — unless the page's layout is "bare".
+ */
+import { customFontCss, googleFontsHref } from "../lib/cms/fonts";
+import SiteShell from "./SiteShell.astro";
+import CmsBlocks from "../components/cms/CmsBlocks.astro";
+import {
+  cmsVariables,
+  designSystemCss,
+  fragmentsCss,
+  renderContext,
+  safeCss,
+  type CmsPublicPage,
+  type CmsPublicSite,
+} from "../lib/cms";
+import { filledSeo } from "../lib/cms/loaders/seo";
+import type { PageLoad } from "../lib/cms/loaders";
+import { DEFAULT_MARKET, marketUrl } from "../lib/i18n/markets";
+import { BRANDING_FALLBACK, getBrandingSafe } from "../lib/portal";
+
+interface Props {
+  site: CmsPublicSite;
+  page: CmsPublicPage;
+  /** The page's path without a market prefix; "" for the home page. */
+  path: string;
+  /** What the page's loader read before rendering (lib/cms/loaders). */
+  load?: PageLoad;
+}
+
+const { site: siteData, page: pageData, path, load = {} } = Astro.props;
+const { site, designSystem } = siteData;
+const { page } = pageData;
+
+const branding = await getBrandingSafe();
+const variables = await cmsVariables(site.id);
+const fragments = [...siteData.fragments, ...pageData.fragments];
+const detail = load.source ? { key: load.source, item: load.item } : null;
+const context = renderContext(
+  site.id,
+  branding,
+  variables,
+  page.params,
+  fragments,
+  site.slug,
+  detail
+);
+const headerBlocks = context.fragments.get(site.headerFragmentId) ?? [];
+const footerBlocks = context.fragments.get(site.footerFragmentId) ?? [];
+// A site served without markets is canonical on its own first domain.
+const siteUrl =
+  site.markets || site.domains.length === 0 ? undefined : `https://${site.domains[0]}`;
+const origin = siteUrl ?? (Astro.site?.toString() ?? "https://exyconn.com/").replace(/\/$/, "");
+const market = site.markets ? (Astro.locals.market ?? DEFAULT_MARKET) : null;
+const jsonLdValues = {
+  ...variables,
+  market: market?.path ?? "",
+  siteUrl: origin,
+  marketUrl: market ? `${origin}${marketUrl(market, "/")}` : origin,
+  businessName: branding.businessName || BRANDING_FALLBACK.businessName,
+};
+const seo = filledSeo(page, site.seo, load, jsonLdValues);
+const title = (site.seo.titleTemplate || "%s").replaceAll("%s", seo.title);
+
+// The design system's own fonts: Google Fonts in one stylesheet, uploaded families as @font-face.
+const googleFonts = googleFontsHref(designSystem?.tokens);
+
+const styles = [
+  customFontCss(designSystem?.tokens),
+  designSystemCss(designSystem),
+  safeCss(site.globalCss),
+  safeCss(fragmentsCss(fragments)),
+  safeCss(page.css),
+]
+  .filter(Boolean)
+  .join("\n");
+---
+
+<SiteShell
+  title={title}
+  description={seo.description}
+  keywords={seo.keywords}
+  metaImage={seo.metaImage}
+  canonical={page.seo.canonical}
+  noindex={page.seo.noindex || page.preview || load.noindex === true}
+  ogType={load.ogType}
+  jsonLd={seo.jsonLd}
+  branding={branding}
+  siteFavicon={site.faviconUrl}
+  markets={site.markets}
+  siteUrl={siteUrl}
+  path={path}
+  locale={site.defaultLocale}
+  chrome={page.layout !== "bare"}
+>
+  <Fragment slot="head">
+    {
+      googleFonts && (
+        <>
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+          <link rel="stylesheet" href={googleFonts} />
+        </>
+      )
+    }
+    {styles && <style is:inline set:html={styles} />}
+    {site.headHtml && <Fragment set:html={site.headHtml} />}
+  </Fragment>
+  <CmsBlocks slot="header" blocks={headerBlocks} context={context} />
+  <CmsBlocks blocks={page.blocks} context={context} />
+  <CmsBlocks slot="footer" blocks={footerBlocks} context={context} />
+  <Fragment slot="body-end">
+    {site.bodyEndHtml && <Fragment set:html={site.bodyEndHtml} />}
+  </Fragment>
+</SiteShell>

@@ -1,0 +1,13 @@
+---
+/** 'chrome.header' — the site header, worn by a CMS site's header fragment. */
+import Header from "../../header-and-footer/Header.astro";
+import type { CmsRenderContext } from "../../../lib/cms/types";
+
+interface Props {
+  cms: CmsRenderContext;
+}
+
+const { cms } = Astro.props;
+---
+
+<Header branding={cms.branding} />

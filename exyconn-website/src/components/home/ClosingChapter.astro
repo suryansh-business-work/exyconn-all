@@ -1,18 +1,28 @@
 ---
-/** Chapter 4 — the core again, complete. The company's own slogan and the way in. */
-import { heroActions } from "../../lib/home/hero";
-import { processCopy } from "../../lib/home/process";
+/**
+ * Chapter 4 — the core again, complete. The company's own name, slogan and description
+ * (Admin › Branding) and the way in.
+ */
+import { BRANDING_FALLBACK } from "../../lib/portal";
+import type { CmsRenderContext } from "../../lib/cms/types";
 import ChapterIntro from "./ChapterIntro.astro";
 import StageButton from "./StageButton.astro";
+import type { HomeAction } from "./types";
 
 interface Props {
   id: string;
-  slogan: string;
-  description: string;
-  businessName: string;
+  /** The first is the solid button, the second the glass one. */
+  actions: readonly HomeAction[];
+  cms: CmsRenderContext;
 }
 
-const { id, slogan, description, businessName } = Astro.props;
+const { id, actions, cms } = Astro.props;
+// Every branding field can be empty until an admin fills it in.
+const { branding } = cms;
+const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
+const slogan = branding.slogan || BRANDING_FALLBACK.slogan;
+const description = branding.description || BRANDING_FALLBACK.description;
+const VARIANTS = ["solid", "glass"] as const;
 ---
 
 <section id={id} data-chapter="4" class="stage-chapter stage-chapter--closing">
@@ -27,8 +37,11 @@ const { id, slogan, description, businessName } = Astro.props;
         centered
       >
         <div class="mt-8 flex flex-col sm:flex-row justify-center gap-3">
-          <StageButton action={processCopy.cta} variant="solid" />
-          <StageButton action={heroActions[0]} variant="glass" />
+          {
+            actions.map((action, index) => (
+              <StageButton action={action} variant={VARIANTS[index]} />
+            ))
+          }
         </div>
       </ChapterIntro>
     </div>

@@ -1,28 +1,27 @@
 ---
 /** Chapter 2 — robotics and automation. The industries served, then how the work runs. */
-import { industries, industriesCta, industriesHeader } from "../../lib/home/industries";
 import ChapterIntro from "./ChapterIntro.astro";
 import GlassList from "./GlassList.astro";
+import type { ComponentProps } from "astro/types";
 import ProcessTrack from "./ProcessTrack.astro";
 import StageButton from "./StageButton.astro";
+import type { HomeAction, HomeHeading, HomeItem } from "./types";
 
-interface Props {
+interface Props extends HomeHeading {
   id: string;
+  industries: readonly HomeItem[];
+  /** The closing prompt: a sentence and its button. */
+  cta: HomeAction & { text: string };
+  process: ComponentProps<typeof ProcessTrack>;
 }
 
-const { id } = Astro.props;
+const { id, badge, title, accent, lead, industries, cta, process } = Astro.props;
 ---
 
 <section id={id} data-chapter="2" class="stage-chapter">
   <div class="stage-shell">
     <div class="stage-intro">
-      <ChapterIntro
-        index={2}
-        label={industriesHeader.badge}
-        title={industriesHeader.title}
-        accent={industriesHeader.accent}
-        lead={industriesHeader.lead}
-      />
+      <ChapterIntro index={2} label={badge} title={title} accent={accent} lead={lead} />
     </div>
 
     <div class="stage-column stage-gap">
@@ -31,11 +30,11 @@ const { id } = Astro.props;
       <div
         class="glass mt-3 p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
       >
-        <p class="text-fg-secondary">{industriesCta.text}</p>
-        <StageButton action={industriesCta} variant="solid" />
+        <p class="text-fg-secondary">{cta.text}</p>
+        <StageButton action={cta} variant="solid" />
       </div>
     </div>
 
-    <ProcessTrack />
+    <ProcessTrack {...process} />
   </div>
 </section>

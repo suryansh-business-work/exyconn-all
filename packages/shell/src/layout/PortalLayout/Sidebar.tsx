@@ -7,6 +7,7 @@ import { useCrossAppNavigate } from '@/hooks/useCrossAppNavigate';
 import { PortalSwitcher } from '@/layout/PortalSwitcher';
 import { navModules, navTree, type NavNode } from './moduleNav';
 import { useNavState } from './useNavState';
+import { unscopedNavPath } from './activeNavPath';
 import { SidebarHeader } from './SidebarHeader';
 import { SidebarRail } from './SidebarRail';
 import { SidebarNav } from './SidebarNav';
@@ -39,7 +40,11 @@ export function Sidebar({
   const isHub = env.portalApp === 'hub';
   const scoped = useMemo(() => navModules(roles, env.portalApp), [roles]);
   const tree = useMemo(() => navTree(scoped, isHub), [scoped, isHub]);
-  const nav = useNavState(tree, pathname, query);
+  const scopedPrefixes = useMemo(
+    () => scoped.flatMap((module) => (module.scopedPrefix ? [module.scopedPrefix] : [])),
+    [scoped],
+  );
+  const nav = useNavState(tree, unscopedNavPath(pathname, scopedPrefixes), query);
 
   const go = (node: NavNode) => {
     navigateTo(node.app, node.path);

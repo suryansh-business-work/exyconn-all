@@ -1,0 +1,66 @@
+---
+/**
+ * The company policies (CMS component 'policy.list'): the band with one sheet per published
+ * policy and every policy Legal published — or a notice when there are none or the library
+ * cannot be reached (the page's loader then answers 503) — and the related legal pages.
+ */
+import type { CmsComponentProps } from "@exyconn/cms";
+import PolicyNotice from "../forms/legal/page/PolicyNotice.astro";
+import RelatedLegal from "../forms/legal/page/RelatedLegal.astro";
+import InnerStage from "../inner/InnerStage.astro";
+import { detailOf } from "../../lib/cms/loaders";
+import type { PolicyListDetail } from "../../lib/cms/loaders/policies";
+import type { CmsRenderContext } from "../../lib/cms/types";
+import { DEFAULT_MARKET } from "../../lib/i18n/markets";
+import { policyRow, policySheets } from "../../lib/legal";
+import "../forms/legal/page/legal-page.css";
+
+type Props = Readonly<CmsComponentProps<"policy.list"> & { cms: CmsRenderContext }>;
+
+const { crumbs, title, lede, heading, meta, notice, related, cms } = Astro.props;
+const result = detailOf<PolicyListDetail>(cms, "policy.list") ?? { status: "error" as const };
+const market = Astro.locals.market ?? DEFAULT_MARKET;
+const rows =
+  result.status === "ok"
+    ? result.policies.map((policy) => policyRow(policy, market.locale, meta))
+    : [];
+const sheets = policySheets(rows.length);
+---
+
+<InnerStage
+  family="company"
+  variant="band"
+  crumbs={crumbs}
+  title={title}
+  lede={lede}
+  scene={{ shapes: ["documents"], data: sheets ? { documents: { sheets } } : undefined }}
+/>
+<section class="inner-section stage-shell">
+  <h2 class="inner-h3">{heading}</h2>
+  <div class="mt-6">
+    {result.status === "error" && <PolicyNotice kind="error" headingLevel="h3" copy={notice} />}
+    {
+      result.status === "ok" && rows.length === 0 && (
+        <PolicyNotice kind="empty" headingLevel="h3" copy={notice} />
+      )
+    }
+    {
+      rows.length > 0 && (
+        <ul class="legal-policies">
+          {rows.map((row) => (
+            <li>
+              <a class="inner-card" href={row.href}>
+                <h3 class="inner-h3">{row.title}</h3>
+                {row.summary && <p class="inner-card__text">{row.summary}</p>}
+                <p class="legal-policies__meta">{row.meta}</p>
+              </a>
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </div>
+  <div class="max-w-[70ch]">
+    <RelatedLegal title={related.title} links={related.links} />
+  </div>
+</section>

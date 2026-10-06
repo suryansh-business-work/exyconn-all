@@ -1,3 +1,7 @@
 export { GrievanceFormReact } from "./grievance.form";
 export { GRIEVANCE_FORM_DEFAULTS, grievanceFormSchema } from "./grievance.schema";
-export type { GrievanceFormValues } from "./grievance.types";
+export type {
+  GrievanceFormCopy,
+  GrievanceFormMessages,
+  GrievanceFormValues,
+} from "./grievance.types";

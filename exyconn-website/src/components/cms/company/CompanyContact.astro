@@ -1,0 +1,45 @@
+---
+/**
+ * 'company.contact' — the contact page's body: the split panel with its promises, the
+ * contact form and the direct channels and quick links beside it.
+ */
+import "../../company/company.css";
+import ContactAside, { type ContactChannel } from "../../company/ContactAside.astro";
+import ContactFormReact from "../../forms/ContactFormReact.tsx";
+import type { ContactFormCopy } from "../../forms/contact";
+import SplitFormShell from "../../inner/SplitFormShell.astro";
+
+type Props = Readonly<{
+  label: string;
+  title: string;
+  lede: string;
+  points: readonly string[];
+  formLabel: string;
+  channelsTitle: string;
+  channels: readonly ContactChannel[];
+  linksTitle: string;
+  links: readonly { label: string; href: string }[];
+  form: ContactFormCopy;
+}>;
+
+const props = Astro.props;
+---
+
+<div class="inner-section company-tail">
+  <SplitFormShell
+    label={props.label}
+    title={props.title}
+    lede={props.lede}
+    points={props.points}
+    formLabel={props.formLabel}
+  >
+    <ContactFormReact client:load copy={props.form} />
+    <ContactAside
+      slot="aside"
+      channelsTitle={props.channelsTitle}
+      channels={props.channels}
+      linksTitle={props.linksTitle}
+      links={props.links}
+    />
+  </SplitFormShell>
+</div>

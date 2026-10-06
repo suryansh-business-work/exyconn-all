@@ -1,0 +1,22 @@
+---
+/** 'company.statement' — large statement paragraphs, then an optional list of points. */
+import "../../company/company.css";
+
+type Props = Readonly<{
+  paragraphs: readonly string[];
+  points?: readonly string[];
+}>;
+
+const { paragraphs, points = [] } = Astro.props;
+---
+
+{paragraphs.map((line) => <p class="company-statement">{line}</p>)}
+{
+  points.length > 0 && (
+    <ul class="inner-points">
+      {points.map((point) => (
+        <li>{point}</li>
+      ))}
+    </ul>
+  )
+}

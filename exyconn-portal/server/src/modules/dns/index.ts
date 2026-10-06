@@ -4,3 +4,4 @@ export { dnsService } from './dns.service';
 export { GodaddyConfigModel } from './godaddy-config.model';
 export { CloudflareConfigModel } from './cloudflare-config.model';
 export { NameserverChangeModel } from './nameserver-change.model';
+export { readARecords, setARecord, MIN_A_TTL, type HostARecords } from './dns.arecords';

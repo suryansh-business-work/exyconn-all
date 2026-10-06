@@ -321,6 +321,8 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GOOGLE_MAP_API: ${{ secrets.GOOGLE_MAP_API }}
+          # The server's own address: Website › Settings offers it as the A record for a site.
+          WEBSITE_SERVER_IP: ${{ secrets.SSH_HOST }}
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
@@ -329,14 +331,14 @@ jobs:
           # Secrets reach the server as environment variables (the action single-quotes
           # each value), never spliced into the script text, so a `$` or backtick in a
           # secret is not expanded by the remote shell.
-          envs: TAG,DOCKERHUB_USERNAME,DOCKERHUB_TOKEN,MONGODB_URI,JWT_SECRET,OPENAI_API_KEY,GOOGLE_MAP_API
+          envs: TAG,DOCKERHUB_USERNAME,DOCKERHUB_TOKEN,MONGODB_URI,JWT_SECRET,OPENAI_API_KEY,GOOGLE_MAP_API,WEBSITE_SERVER_IP
           script: |
             set -e
             umask 077
             cd /opt/exyconn
             # Single-quoted .env values are taken literally by docker compose (no ${...}
             # interpolation); such a value cannot itself contain a quote or a newline.
-            for name in DOCKERHUB_USERNAME TAG MONGODB_URI JWT_SECRET OPENAI_API_KEY GOOGLE_MAP_API; do
+            for name in DOCKERHUB_USERNAME TAG MONGODB_URI JWT_SECRET OPENAI_API_KEY GOOGLE_MAP_API WEBSITE_SERVER_IP; do
               value="$(printenv "$name" || true)"
               case "$value" in
                 *"'"* | *"

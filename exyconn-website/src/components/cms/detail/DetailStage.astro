@@ -1,0 +1,37 @@
+---
+/**
+ * The night stage at the top of a capability, service or catalogue page (CMS "detail.stage"):
+ * breadcrumb, title, lede, two actions and the particle scene, with an optional tagline under
+ * the actions. `glyph` names the 2D mark a scene's `glyph` shape draws ("" for none).
+ */
+import InnerStage from "../../inner/InnerStage.astro";
+import type { InnerAction, PageFamily, SceneConfig } from "../../inner/types";
+import { sceneWithGlyph } from "../../../lib/detail/scenes";
+
+type Props = Readonly<{
+  family: PageFamily;
+  /** The trail above the title; the last crumb (href "") is the current page. */
+  crumbs: readonly { label: string; href: string }[];
+  title: string;
+  lede: string;
+  primary: InnerAction;
+  secondary: InnerAction;
+  scene: SceneConfig;
+  glyph: string;
+  tagline: string;
+}>;
+
+const { family, crumbs, title, lede, primary, secondary, scene, glyph, tagline } = Astro.props;
+---
+
+<InnerStage
+  family={family}
+  crumbs={crumbs}
+  title={title}
+  lede={lede}
+  primary={primary}
+  secondary={secondary}
+  scene={sceneWithGlyph(scene, glyph)}
+>
+  {tagline && <p class="stage-label mt-8 text-fg-secondary">{tagline}</p>}
+</InnerStage>

@@ -1,15 +1,15 @@
 import type { SceneConfig } from "../../scripts/stage3d/inner/config";
-import type { ShapeId } from "../../scripts/stage3d/shapes/registry";
-import { GLYPHS, type GlyphId } from "./glyphs";
+import { GLYPHS } from "./glyphs";
 
 /**
- * Service detail stages: the hero builds the service as a scene — an enterprise district, a
- * server room feeding its charts, phones running an app — and the closing CTA band re-forms
- * it into the service's own glyph (shape index 1).
+ * A stage scene as the CMS stores it, plus the 2D mark its `glyph` shape draws, named — the
+ * marks are geometry, kept in code (./glyphs.ts). Service stages build the service as a scene
+ * and their closing CTA band re-forms it into the glyph (shape index 1).
  */
-export const SERVICE_GLYPH_SHAPE = 1;
-
-export const serviceScene = (hero: ShapeId, glyph: GlyphId): SceneConfig => ({
-  shapes: [hero, "glyph"],
-  data: { glyph: { paths: GLYPHS[glyph] } },
-});
+export const sceneWithGlyph = (scene: SceneConfig, glyph: string): SceneConfig => {
+  if (!Object.hasOwn(GLYPHS, glyph)) {
+    return scene;
+  }
+  const paths = GLYPHS[glyph as keyof typeof GLYPHS];
+  return { ...scene, data: { ...scene.data, glyph: { paths } } };
+};

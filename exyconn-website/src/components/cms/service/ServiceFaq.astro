@@ -1,0 +1,21 @@
+---
+/** A numbered chapter of questions in one column (CMS "service.faq"). */
+import ChapterHeading from "../../inner/ChapterHeading.astro";
+import FaqAccordion from "../../inner/FaqAccordion.astro";
+import type { FaqItem } from "../../inner/types";
+
+type Props = Readonly<{
+  index: number;
+  id: string;
+  label: string;
+  title: string;
+  items: readonly FaqItem[];
+}>;
+
+const { index, id, label, title, items } = Astro.props;
+---
+
+<section class="inner-section stage-shell" aria-labelledby={id}>
+  <ChapterHeading index={index} id={id} label={label} title={title} />
+  <div class="mt-10 max-w-3xl"><FaqAccordion items={items} /></div>
+</section>

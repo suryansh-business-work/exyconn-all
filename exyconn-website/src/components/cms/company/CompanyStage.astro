@@ -1,0 +1,41 @@
+---
+/**
+ * 'company.stage' — the night stage at the top of an inner page (InnerStage) with every word
+ * from props. `globeFromMarkets` draws the globe's arcs from the market registry (the about
+ * page), so the scene follows the markets the site is published for.
+ */
+import InnerStage from "../../inner/InnerStage.astro";
+import type { PageFamily, SceneConfig } from "../../inner/types";
+import { marketArcs } from "../../../lib/company/markets-globe";
+import { MARKETS } from "../../../lib/i18n/markets";
+import { cmsAction, cmsText, type CmsAction, type CmsCrumb } from "./types";
+
+type Props = Readonly<{
+  family: PageFamily;
+  variant?: "hero" | "band";
+  crumbs: readonly CmsCrumb[];
+  title: string;
+  lede?: string;
+  primary?: CmsAction;
+  secondary?: CmsAction;
+  scene: SceneConfig;
+  globeFromMarkets?: boolean;
+}>;
+
+const { family, variant, crumbs, title, lede, primary, secondary, scene, globeFromMarkets } =
+  Astro.props;
+const resolved: SceneConfig = globeFromMarkets
+  ? { ...scene, data: { ...scene.data, globe: { arcs: marketArcs(MARKETS) } } }
+  : scene;
+---
+
+<InnerStage
+  family={family}
+  variant={variant}
+  crumbs={crumbs}
+  title={title}
+  lede={cmsText(lede)}
+  primary={cmsAction(primary)}
+  secondary={cmsAction(secondary)}
+  scene={resolved}
+/>

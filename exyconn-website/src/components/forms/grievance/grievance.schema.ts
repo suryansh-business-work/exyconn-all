@@ -1,22 +1,24 @@
 import { z } from "zod";
 import { captchaAnswer, requiredEmail } from "../shared/fieldSchemas";
-import type { GrievanceFormValues } from "./grievance.types";
+import type { GrievanceFormMessages, GrievanceFormValues } from "./grievance.types";
 
-export const grievanceFormSchema = z.object({
-  name: z.string().min(1, "Name is required").min(2, "Too short!").max(100, "Too long!"),
-  email: requiredEmail(),
-  subject: z
-    .string()
-    .min(1, "Subject is required")
-    .min(5, "Subject is too short!")
-    .max(200, "Subject is too long!"),
-  message: z
-    .string()
-    .min(1, "Grievance details are required")
-    .min(20, "Please provide more details about your grievance")
-    .max(3000, "Message is too long!"),
-  captcha: captchaAnswer(),
-});
+/** The grievance form's rules, with the messages the page's copy gives them. */
+export const grievanceFormSchema = (m: GrievanceFormMessages) =>
+  z.object({
+    name: z.string().min(1, m.nameRequired).min(2, m.tooShort).max(100, m.tooLong),
+    email: requiredEmail(m.emailRequired, m.emailInvalid),
+    subject: z
+      .string()
+      .min(1, m.subjectRequired)
+      .min(5, m.subjectTooShort)
+      .max(200, m.subjectTooLong),
+    message: z
+      .string()
+      .min(1, m.messageRequired)
+      .min(20, m.messageTooShort)
+      .max(3000, m.messageTooLong),
+    captcha: captchaAnswer(m.captchaRequired),
+  });
 
 export const GRIEVANCE_FORM_DEFAULTS: GrievanceFormValues = {
   name: "",

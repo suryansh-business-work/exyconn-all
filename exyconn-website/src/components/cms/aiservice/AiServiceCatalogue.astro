@@ -1,0 +1,40 @@
+---
+/**
+ * The /ai-services catalogue chapter (CMS "aiservice.catalogue"): every category and its
+ * service cards, filterable. This block is also the list the home page, the sitemaps and
+ * {serviceCount} read (src/lib/cms/ai-services.ts).
+ */
+import ChapterHeading from "../../inner/ChapterHeading.astro";
+import AiCatalogue from "../../hubs/AiCatalogue.astro";
+import type { AiServiceCategory } from "../../../lib/cms/ai-services";
+
+type Props = Readonly<{
+  index: number;
+  id: string;
+  label: string;
+  title: string;
+  copy: {
+    filterLabel: string;
+    sheetLabel: string;
+    chipsLabel: string;
+    allLabel: string;
+    searchLabel: string;
+    searchPlaceholder: string;
+    countTemplate: string;
+    empty: string;
+    more: string;
+    serviceOne: string;
+    serviceMany: string;
+  };
+  categories: readonly AiServiceCategory[];
+}>;
+
+const { index, id, label, title, copy, categories } = Astro.props;
+---
+
+<section class="inner-section stage-shell" aria-labelledby={id}>
+  <ChapterHeading index={index} id={id} label={label} title={title} />
+  <div class="mt-10">
+    <AiCatalogue copy={copy} categories={categories} />
+  </div>
+</section>

@@ -1,14 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LiveEditor, type LiveDesign, type LiveEditorHandle } from '@exyconn/live-editor';
-import { useT } from '@exyconn/i18n';
-import { Box, Button, Text, useMediaQuery, useTheme } from '@exyconn/shell/components/ui';
-import { CenteredState } from '@exyconn/shell/components/feedback/CenteredState';
+import { Box, useMediaQuery, useTheme } from '@exyconn/shell/components/ui';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useImageKitUpload } from '@exyconn/shell/hooks/useImageKitUpload';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { LiveEditToolbar } from './LiveEditToolbar';
+import { NeedsBiggerScreen } from './NeedsBiggerScreen';
+import { useUnloadGuard } from './useUnloadGuard';
 import { ARTICLE_CANVAS_STYLES, ARTICLE_CLASS } from './live-edit.config';
 
 interface LiveEditScreenProps {
@@ -23,18 +23,6 @@ interface LiveEditScreenProps {
   onSave: (design: LiveDesign) => Promise<unknown>;
 }
 
-/** Warns before the tab closes or reloads while there is unsaved work. */
-function useUnloadGuard(active: boolean) {
-  useEffect(() => {
-    if (!active) {
-      return undefined;
-    }
-    const warn = (event: BeforeUnloadEvent) => event.preventDefault();
-    globalThis.addEventListener('beforeunload', warn);
-    return () => globalThis.removeEventListener('beforeunload', warn);
-  }, [active]);
-}
-
 /**
  * Full-screen live editor for one article body: the GrapesJS canvas styled by the
  * website's own article stylesheet, with save, view-on-site and a guarded way back.
@@ -47,7 +35,6 @@ export function LiveEditScreen({
   initial,
   onSave,
 }: Readonly<LiveEditScreenProps>) {
-  const t = useT();
   const editor = useRef<LiveEditorHandle>(null);
   const navigate = useNavigate();
   const confirm = useConfirm();
@@ -89,21 +76,8 @@ export function LiveEditScreen({
     }
   };
 
-  // GrapesJS is a canvas with two rails of controls either side of it. There is no version of
-  // that which works on a phone, and a half-usable editor over somebody's live page is worse
-  // than being told where to open it.
   if (small) {
-    return (
-      <CenteredState>
-        <Text weight="bold">{t('Live editing needs a bigger screen')}</Text>
-        <Text size="sm" color="text.secondary" sx={{ mt: 1, textAlign: 'center' }}>
-          {t('Open this page on a laptop to edit its design. You can still edit its content here.')}
-        </Text>
-        <Button onClick={() => navigate(backPath)} sx={{ mt: 2 }}>
-          {t('Back')}
-        </Button>
-      </CenteredState>
-    );
+    return <NeedsBiggerScreen onBack={() => navigate(backPath)} />;
   }
 
   return (

@@ -2,7 +2,7 @@
 /** Up to three open gigs on the careers index, and the way to all of them (never "0 gigs"). */
 import ChapterHeading from "../inner/ChapterHeading.astro";
 import GigTile from "./GigTile.astro";
-import { CAREERS_COPY as copy, GIG_LABELS } from "../../lib/career/copy";
+import type { CareerIndexCopy } from "./types";
 import { countLabel } from "../../lib/career/format";
 import { gigHref, gigPay } from "../../lib/career/gigs";
 import type { Gig } from "../../lib/portal/types";
@@ -11,22 +11,23 @@ type Props = Readonly<{
   index: number;
   gigs: readonly Gig[];
   total: number;
+  copy: CareerIndexCopy["gigs"];
 }>;
 
-const { index, gigs, total } = Astro.props;
+const { index, gigs, total, copy } = Astro.props;
 ---
 
 <section class="inner-section stage-shell" aria-labelledby="gigs-title">
   <ChapterHeading
     index={index}
-    label={copy.gigsLabel}
-    title={copy.gigsTitle}
-    lede={copy.gigsLede}
+    label={copy.label}
+    title={copy.title}
+    lede={copy.lede}
     id="gigs-title"
   />
   {
     gigs.length === 0 ? (
-      <p class="inner-panel p-6 mt-10 text-fg-secondary">{copy.emptyGigsText}</p>
+      <p class="inner-panel p-6 mt-10 text-fg-secondary">{copy.empty}</p>
     ) : (
       <>
         <ul class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-10">
@@ -39,13 +40,13 @@ const { index, gigs, total } = Astro.props;
               pay={gigPay(gig)}
               duration={gig.duration}
               skills={gig.tags}
-              skillsLabel={GIG_LABELS.skills}
-              urgent={gig.isUrgent ? GIG_LABELS.urgent : undefined}
+              skillsLabel={copy.skillsLabel}
+              urgent={gig.isUrgent ? copy.urgent : undefined}
             />
           ))}
         </ul>
-        <a href="/career/gigs" class="inner-action inner-action--ghost mt-8">
-          {countLabel(total, copy.allGig, copy.allGigs)}
+        <a href={copy.href} class="inner-action inner-action--ghost mt-8">
+          {countLabel(total, copy.one, copy.all)}
         </a>
       </>
     )

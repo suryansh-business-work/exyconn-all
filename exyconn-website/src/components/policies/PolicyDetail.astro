@@ -1,0 +1,62 @@
+---
+/**
+ * One company policy (CMS component 'policy.detail', the /policies/:slug template). The
+ * wording lives in Legal. An unknown slug is a 404 before this renders; when the library
+ * cannot be reached the page's loader answers 503 and this shows a notice instead.
+ */
+import type { CmsComponentProps } from "@exyconn/cms";
+import PolicyNotice from "../forms/legal/page/PolicyNotice.astro";
+import RelatedLegal from "../forms/legal/page/RelatedLegal.astro";
+import InnerStage from "../inner/InnerStage.astro";
+import LegalLayout from "../inner/LegalLayout.astro";
+import { detailOf } from "../../lib/cms/loaders";
+import type { PolicyDetail } from "../../lib/cms/loaders/policies";
+import type { CmsRenderContext } from "../../lib/cms/types";
+import { DEFAULT_MARKET } from "../../lib/i18n/markets";
+import { withHeadingIds } from "../../lib/inner/headings";
+import { policySummary, readerDate } from "../../lib/legal";
+import { ARTICLE_CLASS, sanitizeArticleHtml } from "../../lib/portal";
+import "../../styles/article.css";
+
+type Props = Readonly<CmsComponentProps<"policy.detail"> & { cms: CmsRenderContext }>;
+
+const { crumbs: baseCrumbs, updatedLabel, summaryTitle, versionLine, tocLabel } = Astro.props;
+const { notice, related, cms } = Astro.props;
+const detail = detailOf<PolicyDetail>(cms, "policy.detail");
+const policy = detail?.policy ?? null;
+const market = Astro.locals.market ?? DEFAULT_MARKET;
+const body = policy ? withHeadingIds(sanitizeArticleHtml(policy.body)) : null;
+const crumbs = [...baseCrumbs, { label: detail?.title ?? "" }];
+---
+
+{
+  policy && body ? (
+    <LegalLayout
+      title={policy.title}
+      crumbs={crumbs}
+      updatedLabel={updatedLabel}
+      updated={readerDate(policy.updatedAt, market.locale)}
+      summaryTitle={summaryTitle}
+      summary={policySummary(policy, market.locale, versionLine)}
+      tocLabel={tocLabel}
+      sections={body.toc}
+      scene={{ shapes: ["documents"] }}
+    >
+      <article class={ARTICLE_CLASS} set:html={body.html} />
+      <RelatedLegal title={related.title} links={related.links} slot="after" />
+    </LegalLayout>
+  ) : (
+    <>
+      <InnerStage
+        family="company"
+        variant="band"
+        crumbs={crumbs}
+        title={detail?.title ?? ""}
+        scene={{ shapes: ["documents"] }}
+      />
+      <section class="inner-section stage-shell">
+        <PolicyNotice kind="error" copy={notice} />
+      </section>
+    </>
+  )
+}

@@ -1,0 +1,10 @@
+---
+/** 'company.beliefs' — numbered beliefs or principles (BeliefList). */
+import BeliefList from "../../company/BeliefList.astro";
+
+type Props = Readonly<{ items: readonly { title: string; text: string }[] }>;
+
+const { items } = Astro.props;
+---
+
+<BeliefList items={items} />

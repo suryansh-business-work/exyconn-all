@@ -1,9 +1,9 @@
 /**
  * Tools directory shaping: the catalogue grouped by the portal's categories, a safe accent
- * colour per tool (admins type any colour), the cube scene's count, and the page copy.
+ * colour per tool (admins type any colour) and the cube scene's count. The page copy is the
+ * CMS's (components tools.list / tools.detail).
  */
 import type { Tool, ToolCategory } from "../portal/types";
-import { TOOLS_SITE_URL } from "../site";
 
 export const MAX_CUBES = 12;
 
@@ -63,58 +63,3 @@ export const monogram = (name: string): string =>
     .slice(0, 2)
     .map((word) => word.charAt(0).toUpperCase())
     .join("");
-
-export const TOOLS_COPY = {
-  title: "Tools | Exyconn",
-  description: "Every tool Exyconn builds and maintains, grouped by what it is for.",
-  crumb: "Tools",
-  heading: "Free tools we build and maintain",
-  lede: "Small, focused tools for writing, building and branding — grouped by what they are for.",
-  countTemplate: "{shown} of {total} tools",
-  stats: "{tools} tools · {categories} categories",
-  early: "{count} in early release",
-  filterLabel: "Filter tools",
-  sheetLabel: "Categories",
-  categoryLabel: "Category",
-  all: "All",
-  searchLabel: "Search tools",
-  searchPlaceholder: "Name or purpose",
-  chapterLabel: "Directory",
-  chapterTitle: "Pick a tool, open it, done",
-  mvp: "Early release",
-  details: "Details",
-  open: "Open tool",
-  opensApp: "(opens tools.exyconn.com)",
-  noMatch: "No tool matches those filters.",
-  emptyLabel: "Nothing published yet",
-  emptyTitle: "The directory is being stocked",
-  emptyText:
-    "Tools appear here as they are published. The tools app already runs everything we have built.",
-  emptyPrimary: { label: "Open the tools app", href: TOOLS_SITE_URL, external: true },
-  emptySecondary: { label: "Our services", href: "/services" },
-  appLink: { label: "Browse the tools app", href: TOOLS_SITE_URL, external: true },
-  ctaLabel: "Need something bespoke?",
-  ctaTitle: "Need a tool built for your team?",
-  ctaText: "We build internal tools and SaaS products end to end.",
-  ctaPrimary: { label: "Request a tool", href: "/contact" },
-  ctaSecondary: { label: "Software as a service", href: "/services/software-as-a-service" },
-} as const;
-
-export const TOOL_COPY = {
-  home: "Home",
-  list: "Tools",
-  open: "Open tool",
-  details: "Details",
-  previewLabel: "Where it runs",
-  about: "About this tool",
-  features: "What it does",
-  useCases: "Where people use it",
-  pricing: "Pricing",
-  related: "More in this category",
-  mvp: "Early release",
-  back: "All tools",
-  ctaLabel: "Need something bespoke?",
-  ctaTitle: "Need a tool built for your team?",
-  ctaPrimary: { label: "Request a tool", href: "/contact" },
-  ctaSecondary: { label: "All tools", href: "/our-tools" },
-} as const;

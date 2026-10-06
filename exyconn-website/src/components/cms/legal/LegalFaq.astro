@@ -1,0 +1,10 @@
+---
+/** 'legal.faq' — questions and answers as an accordion, published as FAQPage data too. */
+import FaqAccordion from "../../inner/FaqAccordion.astro";
+
+type Props = Readonly<{ items: readonly { question: string; answer: string }[] }>;
+
+const { items } = Astro.props;
+---
+
+<FaqAccordion items={items} />

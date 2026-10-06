@@ -1,0 +1,13 @@
+---
+/** 'chrome.footer' — the site footer, worn by a CMS site's footer fragment. */
+import Footer from "../../header-and-footer/Footer.astro";
+import type { CmsRenderContext } from "../../../lib/cms/types";
+
+interface Props {
+  cms: CmsRenderContext;
+}
+
+const { cms } = Astro.props;
+---
+
+<Footer branding={cms.branding} />

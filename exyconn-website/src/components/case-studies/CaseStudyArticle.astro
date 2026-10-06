@@ -1,0 +1,18 @@
+---
+/**
+ * One case study (CMS component 'casestudy.article', the /case-studies/:slug template). The
+ * page's loader read the story — an unknown slug is a 404 before this renders.
+ */
+import type { CmsComponentProps } from "@exyconn/cms";
+import CaseStudyBody from "./CaseStudyBody.astro";
+import { detailOf } from "../../lib/cms/loaders";
+import type { CaseStudyDetail } from "../../lib/cms/loaders/case-studies";
+import type { CmsRenderContext } from "../../lib/cms/types";
+
+type Props = Readonly<CmsComponentProps<"casestudy.article"> & { cms: CmsRenderContext }>;
+
+const { cms, ...props } = Astro.props;
+const detail = detailOf<CaseStudyDetail>(cms, "casestudy.article");
+---
+
+{detail && <CaseStudyBody {...props} detail={detail} />}

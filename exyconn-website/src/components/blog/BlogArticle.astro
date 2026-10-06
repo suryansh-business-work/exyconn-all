@@ -1,0 +1,18 @@
+---
+/**
+ * One blog post (CMS component 'blog.article', the /blog/:slug template). The page's loader
+ * read the post (lib/cms/loaders/blog.ts) — a slug with no post never gets here, it is a 404.
+ */
+import type { CmsComponentProps } from "@exyconn/cms";
+import BlogArticleBody from "./BlogArticleBody.astro";
+import { detailOf } from "../../lib/cms/loaders";
+import type { BlogArticleDetail } from "../../lib/cms/loaders/blog";
+import type { CmsRenderContext } from "../../lib/cms/types";
+
+type Props = Readonly<CmsComponentProps<"blog.article"> & { cms: CmsRenderContext }>;
+
+const { cms, ...props } = Astro.props;
+const detail = detailOf<BlogArticleDetail>(cms, "blog.article");
+---
+
+{detail && <BlogArticleBody {...props} detail={detail} />}

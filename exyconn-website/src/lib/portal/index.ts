@@ -6,3 +6,11 @@ export { getCaptcha, submitForm, type Captcha, type CaptchaAnswer } from "./subm
 export { PortalRequestError } from "./client";
 export { getWebsiteFormTypes } from "./form-types";
 export { requestDemoCode, verifyDemoCode, type DemoLead, type DemoSignIn } from "./whatsappDemo";
+export {
+  getNewsletterIssue,
+  getNewsletterIssues,
+  subscribeNewsletter,
+  type NewsletterIssue,
+  type NewsletterIssueSummary,
+  type NewsletterSignup,
+} from "./newsletter";

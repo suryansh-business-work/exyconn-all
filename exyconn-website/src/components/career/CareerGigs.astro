@@ -1,0 +1,153 @@
+---
+/**
+ * The freelance gigs board (CMS component 'career.gigs'): the band with one orbiting node per
+ * open gig, the live counts, the filterable list or the empty state, the freelance perks and
+ * the call to action. Words from the props; gigs from Website › Careers for the page's site.
+ */
+import GigTile from "./GigTile.astro";
+import PerkGrid from "./PerkGrid.astro";
+import type { CareerGigsCopy } from "./types";
+import ContentEmpty from "../content/ContentEmpty.astro";
+import ChapterHeading from "../inner/ChapterHeading.astro";
+import CtaBand from "../inner/CtaBand.astro";
+import FilterBar from "../inner/FilterBar.astro";
+import InnerStage from "../inner/InnerStage.astro";
+import ProofStrip from "../inner/ProofStrip.astro";
+import type { CmsRenderContext } from "../../lib/cms/types";
+import { fill, liveStats, sceneCount } from "../../lib/career/format";
+import {
+  gigCategoryOptions,
+  gigFilterData,
+  gigHref,
+  gigPay,
+  orderedGigs,
+} from "../../lib/career/gigs";
+import { displayDate } from "../../lib/content/format";
+import { DEFAULT_MARKET } from "../../lib/i18n/markets";
+import { getOpenGigs } from "../../lib/portal";
+
+type Props = Readonly<CareerGigsCopy & { cms: CmsRenderContext }>;
+
+const { crumbs, title, lede, primary, secondary, proofLabel, stats, listLabel, listTitle } =
+  Astro.props;
+const { filters, noMatch, labels, empty, why, cta, cms } = Astro.props;
+const market = Astro.locals.market ?? DEFAULT_MARKET;
+const gigs = orderedGigs(await getOpenGigs(cms.site));
+const categories = gigCategoryOptions(gigs);
+const live = liveStats([
+  { count: gigs.length, label: stats.open },
+  { count: gigs.filter((gig) => gig.isUrgent).length, label: stats.urgent },
+  { count: categories.length, label: stats.categories },
+]);
+const deadlineOf = (iso: string | null) => {
+  const text = iso ? displayDate(iso, market.locale).text : "";
+  return text ? fill(labels.deadline, { date: text }) : undefined;
+};
+const categoryGroups =
+  categories.length > 1
+    ? [
+        {
+          param: "category",
+          label: filters.categoryLabel,
+          allLabel: filters.allCategories,
+          options: categories,
+        },
+      ]
+    : [];
+// One orbiting node per open gig (2–12), the shape's own count when there are none.
+const agents = sceneCount(gigs.length, 2, 12);
+---
+
+<InnerStage
+  family="company"
+  crumbs={crumbs}
+  title={title}
+  lede={lede}
+  primary={primary}
+  secondary={secondary}
+  scene={{ shapes: ["orbits"], data: { orbits: { agents } } }}
+/>
+{live.length > 0 && <ProofStrip variant="stats" label={proofLabel} items={live} />}
+
+<section
+  id="open-gigs"
+  class="inner-section stage-shell career-anchor"
+  aria-labelledby="gigs-list-title"
+>
+  <ChapterHeading index={1} label={listLabel} title={listTitle} id="gigs-list-title" />
+  {
+    gigs.length === 0 ? (
+      <div class="mt-10">
+        <ContentEmpty
+          label={empty.label}
+          title={empty.title}
+          text={empty.text}
+          primary={empty.primary}
+          secondary={empty.secondary}
+          level="h3"
+        />
+      </div>
+    ) : (
+      <>
+        <div class="mt-10">
+          <FilterBar
+            target="gig-list"
+            label={filters.label}
+            sheetLabel={filters.sheetLabel}
+            groups={categoryGroups}
+            search={{
+              param: "q",
+              label: filters.searchLabel,
+              placeholder: filters.searchPlaceholder,
+            }}
+            sort={{
+              param: "sort",
+              label: filters.sortLabel,
+              options: [
+                { value: "order", label: filters.sortCategory },
+                { value: "-posted", label: filters.sortNewest },
+                { value: "deadline", label: filters.sortDeadline },
+              ],
+            }}
+            countTemplate={filters.countTemplate}
+          />
+        </div>
+        <ul id="gig-list" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-8">
+          {gigs.map((gig, order) => (
+            <GigTile
+              href={gigHref(gig)}
+              title={gig.title}
+              category={gig.category}
+              scope={gig.shortDescription}
+              pay={gigPay(gig)}
+              duration={gig.duration}
+              skills={gig.tags}
+              skillsLabel={labels.skills}
+              deadline={deadlineOf(gig.deadline)}
+              urgent={gig.isUrgent ? labels.urgent : undefined}
+              {...gigFilterData(gig)}
+              data-sort-order={order}
+            />
+          ))}
+        </ul>
+        <p data-filter-empty="gig-list" class="inner-panel p-6 mt-6 text-fg-secondary" hidden>
+          {noMatch}
+        </p>
+      </>
+    )
+  }
+</section>
+
+<section class="inner-section stage-shell" aria-labelledby="gigs-why-title">
+  <ChapterHeading index={2} label={why.label} title={why.title} id="gigs-why-title" />
+  <PerkGrid items={why.perks} />
+</section>
+
+<CtaBand
+  family="company"
+  label={cta.label}
+  title={cta.title}
+  text={cta.text}
+  primary={cta.primary}
+  secondary={cta.secondary}
+/>

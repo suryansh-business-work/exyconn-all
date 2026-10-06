@@ -1,0 +1,18 @@
+---
+/**
+ * One freelance gig (CMS component 'career.gig', the /career/gig/:gigId template — the gig
+ * code). The page's loader read the gig; an unknown code is a 404 before this renders.
+ */
+import CareerGigBody from "./CareerGigBody.astro";
+import type { CareerGigCopy } from "./types";
+import { detailOf } from "../../lib/cms/loaders";
+import type { GigDetail } from "../../lib/cms/loaders/career";
+import type { CmsRenderContext } from "../../lib/cms/types";
+
+type Props = Readonly<CareerGigCopy & { cms: CmsRenderContext }>;
+
+const { cms, ...props } = Astro.props;
+const detail = detailOf<GigDetail>(cms, "career.gig");
+---
+
+{detail && <CareerGigBody {...props} detail={detail} />}

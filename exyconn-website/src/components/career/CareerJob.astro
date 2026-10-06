@@ -1,0 +1,19 @@
+---
+/**
+ * One role (CMS component 'career.job', the /career/company/:companySlug/job/:jobId template
+ * — the job code). The page's loader read the role and its company; a role of another
+ * company, or an unknown one, is a 404 before this renders.
+ */
+import CareerJobBody from "./CareerJobBody.astro";
+import type { CareerJobCopy } from "./types";
+import { detailOf } from "../../lib/cms/loaders";
+import type { JobDetail } from "../../lib/cms/loaders/career";
+import type { CmsRenderContext } from "../../lib/cms/types";
+
+type Props = Readonly<CareerJobCopy & { cms: CmsRenderContext }>;
+
+const { cms, ...props } = Astro.props;
+const detail = detailOf<JobDetail>(cms, "career.job");
+---
+
+{detail && <CareerJobBody {...props} detail={detail} />}

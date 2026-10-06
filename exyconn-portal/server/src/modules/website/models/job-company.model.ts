@@ -21,6 +21,8 @@ const socialLinksSchema = new Schema(
 
 const jobCompanySchema = new Schema(
   {
+    /** The website this belongs to (Website › Websites); the default site when ''. */
+    siteId: { type: String, default: '', index: true },
     /** Stable business key from the website data, e.g. "exyconn-group". */
     companyCode: { type: String, required: true, unique: true, trim: true },
     /** URL segment used by /career/company/[companySlug]. */

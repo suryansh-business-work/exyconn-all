@@ -20,3 +20,20 @@ export function activeNavPath(pathname: string, paths: readonly string[]): strin
   }
   return best;
 }
+
+/**
+ * The URL as the sidebar matches it: a module's scope segment taken out, so
+ * `/website/s/exyconn/pages` is matched as `/website/pages` (see `scopedPrefix` in the modules
+ * config). A URL under no scoped prefix is returned unchanged.
+ */
+export function unscopedNavPath(pathname: string, scopedPrefixes: readonly string[]): string {
+  for (const prefix of scopedPrefixes) {
+    if (pathname.startsWith(`${prefix}/`)) {
+      const rest = pathname.slice(prefix.length + 1);
+      const slash = rest.indexOf('/');
+      const parent = prefix.slice(0, prefix.lastIndexOf('/'));
+      return slash === -1 ? parent : `${parent}${rest.slice(slash)}`;
+    }
+  }
+  return pathname;
+}

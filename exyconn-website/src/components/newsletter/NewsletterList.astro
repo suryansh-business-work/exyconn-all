@@ -1,0 +1,66 @@
+---
+/**
+ * The newsletter (CMS component 'newsletter.list'): a band like the blog's and the site's
+ * published issues, newest first, or the empty state. Words from the props; issues from
+ * Website › Newsletter › Issues, for the page's site.
+ */
+import type { CmsComponentProps } from "@exyconn/cms";
+import ContentEmpty from "../content/ContentEmpty.astro";
+import PostCard from "../content/PostCard.astro";
+import ChapterHeading from "../inner/ChapterHeading.astro";
+import InnerStage from "../inner/InnerStage.astro";
+import type { CmsRenderContext } from "../../lib/cms/types";
+import { GENERIC_CONSTELLATION } from "../../lib/content/blog";
+import { displayDate } from "../../lib/content/format";
+import { DEFAULT_MARKET } from "../../lib/i18n/markets";
+import { getNewsletterIssues } from "../../lib/portal";
+
+type Props = Readonly<CmsComponentProps<"newsletter.list"> & { cms: CmsRenderContext }>;
+
+const { crumbs, title, lede, chapterLabel, chapterTitle, read, empty, cms } = Astro.props;
+const market = Astro.locals.market ?? DEFAULT_MARKET;
+const issues = await getNewsletterIssues(cms.site);
+const constellation = { groups: [...GENERIC_CONSTELLATION], links: [] };
+---
+
+<InnerStage
+  family="blog"
+  variant="band"
+  crumbs={crumbs}
+  title={title}
+  lede={lede}
+  scene={{ shapes: ["constellation"], data: { constellation } }}
+/>
+
+<section class="inner-section stage-shell" aria-labelledby="newsletter-issues">
+  <ChapterHeading index={1} label={chapterLabel} title={chapterTitle} id="newsletter-issues" />
+  {
+    issues.length === 0 ? (
+      <div class="mt-10">
+        <ContentEmpty
+          label={empty.label}
+          title={empty.title}
+          text={empty.text}
+          primary={empty.primary}
+          secondary={empty.secondary}
+          level="h3"
+        />
+      </div>
+    ) : (
+      <ul class="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-10">
+        {issues.map((issue, index) => (
+          <PostCard
+            href={`/newsletter/${issue.slug}`}
+            title={issue.title}
+            summary={issue.summary}
+            image={issue.coverImage}
+            meta={[displayDate(issue.publishedAt, market.locale).text]}
+            more={read}
+            wide={index === 0}
+            eager={index === 0}
+          />
+        ))}
+      </ul>
+    )
+  }
+</section>

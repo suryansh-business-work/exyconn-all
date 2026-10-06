@@ -1,17 +1,24 @@
 ---
 /** One India offer package: tier, name, price, everything it includes and its call to action. */
 import ActionLink from "../inner/ActionLink.astro";
-import { formatRupees, planHighlights, type OfferPlan } from "../../lib/india/plans";
+import {
+  formatRupees,
+  planHighlights,
+  type OfferPlan,
+  type PlanFeature,
+} from "../../lib/india/plans";
 
 type Props = Readonly<{
   plan: OfferPlan;
+  /** Every feature, in table order; the card lists the ones the plan includes. */
+  features: readonly PlanFeature[];
   /** The cube this card lights in the stage scene (1-based). */
   highlight: number;
   popularLabel: string;
   href: string;
 }>;
 
-const { plan, highlight, popularLabel, href } = Astro.props;
+const { plan, features, highlight, popularLabel, href } = Astro.props;
 const headingId = `plan-${plan.id}`;
 ---
 
@@ -36,7 +43,7 @@ const headingId = `plan-${plan.id}`;
   </p>
   <ul class="offer-plan__list">
     {
-      planHighlights(plan).map((item) => (
+      planHighlights(plan, features).map((item) => (
         <li>
           <i class="fa-solid fa-check icon-xs" aria-hidden="true" />
           <span>{item}</span>

@@ -1,58 +1,11 @@
 import type { APIRoute } from "astro";
 
-import { aiServices } from "../lib/services/aiServices";
 import { DEFAULT_MARKET, MARKETS, marketUrl } from "../lib/i18n/markets";
+import { publishedPaths, withPaths } from "../lib/cms";
+import { aiServicePaths } from "../lib/cms/ai-services";
+import { sitePages } from "../lib/content/site-pages";
 
 const SITE_URL = "https://exyconn.com";
-
-// All static pages
-const staticPages = [
-  "",
-  "/about-us",
-  "/contact",
-  "/cookies",
-  "/exyconn-services",
-  "/get-a-quote",
-  "/grievance",
-  "/legal",
-  "/our-services",
-  "/our-vision",
-  "/privacy-policy",
-  // AI Services
-  "/ai-services",
-  ...aiServices.map((service) => `/ai-services/${service.slug}`),
-  // Services
-  "/services",
-  "/services/application-modernization",
-  "/services/automation-integration",
-  "/services/data-analytics",
-  "/services/digital-consulting",
-  "/services/digital-marketing",
-  "/services/enterprise-application",
-  "/services/maintenance",
-  "/services/mobile-application-development",
-  "/services/software-as-a-service",
-  "/services/software-development-outsourcing",
-  "/services/whatsapp-chatbot",
-  // AI
-  "/ai",
-  "/ai/agentic",
-  "/ai/bot-creation",
-  "/ai/custom-model-training",
-  "/ai/llms",
-  "/ai/mcp-server",
-  "/ai/models",
-  "/ai/workflows",
-  // Career
-  "/career",
-  "/career/gigs",
-  // Case Studies
-  "/case-studies",
-  // Blog
-  "/blog",
-  // Order Agents
-  "/order-agents",
-];
 
 /**
  * One entry per page per market, each listing every other market as an alternate.
@@ -81,12 +34,28 @@ ${alternates}
   ).join("\n");
 }
 
-export const GET: APIRoute = async () => {
+/** A page of a CMS site served without markets: one URL, on the site's own domain. */
+function plainEntry(origin: string, page: string, lastmod: string): string {
+  return `  <url>
+    <loc>${origin}${page === "" ? "/" : page}</loc>
+    <lastmod>${lastmod}</lastmod>
+  </url>`;
+}
+
+export const GET: APIRoute = async ({ request }) => {
   const lastmod = new Date().toISOString().split("T")[0];
+  // The pages published in the CMS, beside the hand-written ones (each listed once).
+  const { site, paths } = await publishedPaths(request.headers.get("host") ?? "");
+  const offMarket = site !== null && !site.markets && site.domains.length > 0;
+  const entries = offMarket
+    ? paths.map((page) => plainEntry(`https://${site.domains[0]}`, page, lastmod))
+    : withPaths(sitePages(await aiServicePaths(site?.id)), paths).map((page) =>
+        urlEntry(page, lastmod)
+      );
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-${staticPages.map((page) => urlEntry(page, lastmod)).join("\n")}
+${entries.join("\n")}
 </urlset>`;
 
   return new Response(sitemap, {

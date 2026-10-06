@@ -1,0 +1,101 @@
+---
+/**
+ * The tool: its band (open it, its category, early release), where it runs, about, use
+ * cases, pricing, more tools of its category and the call to action.
+ */
+import type { CmsComponentProps } from "@exyconn/cms";
+import ToolPanels from "./ToolPanels.astro";
+import DeviceFrame from "../content/DeviceFrame.astro";
+import ActionLink from "../inner/ActionLink.astro";
+import CtaBand from "../inner/CtaBand.astro";
+import InnerStage from "../inner/InnerStage.astro";
+import LinkCard from "../inner/LinkCard.astro";
+import type { ToolDetail } from "../../lib/cms/loaders/tools";
+import { cubeCount, monogram } from "../../lib/content/tools";
+import { getToolLaunchUrl } from "../../lib/portal";
+
+type Props = Readonly<CmsComponentProps<"tools.detail"> & { detail: ToolDetail }>;
+
+const copy = Astro.props;
+const { crumbs, cta } = copy;
+const { tool, category, siblings } = Astro.props.detail;
+const related = siblings.filter((one) => one.toolCode !== tool.toolCode).slice(0, 3);
+// "" when the tool has no URL, or one with an unsafe scheme — then there is no Open button.
+const launchUrl = getToolLaunchUrl(tool);
+const open = launchUrl ? { label: copy.open, href: launchUrl } : undefined;
+---
+
+<InnerStage
+  family="services"
+  variant="band"
+  crumbs={[...crumbs, { label: tool.name }]}
+  title={tool.name}
+  lede={tool.description}
+  primary={open}
+  secondary={cta.secondary}
+  scene={{ shapes: ["cubes"], data: { cubes: { cubes: cubeCount(siblings.length) } } }}
+>
+  <p class="inner-meta stage-label">
+    {category && <a href={`/our-tools?cat=${category.slug}`}>{category.category}</a>}
+    {tool.isMVP && <span>{copy.mvp}</span>}
+    <span>#{tool.toolCode}</span>
+  </p>
+</InnerStage>
+
+<section class="inner-section stage-shell grid gap-12">
+  {
+    launchUrl && (
+      <DeviceFrame url={launchUrl} label={copy.previewLabel}>
+        <div class="content-tool">
+          <span class="content-tool__mark" aria-hidden="true">
+            {monogram(tool.name)}
+          </span>
+          <h2 class="inner-h3 mt-5">{tool.name}</h2>
+          <p class="inner-card__text mt-2">{tool.description}</p>
+          <div class="mt-6">
+            <ActionLink action={{ label: copy.open, href: launchUrl }} />
+          </div>
+        </div>
+        {tool.features.length > 0 && (
+          <ul class="content-checks" aria-label={copy.features}>
+            {tool.features.map((feature) => (
+              <li>{feature}</li>
+            ))}
+          </ul>
+        )}
+      </DeviceFrame>
+    )
+  }
+
+  <ToolPanels tool={tool} about={copy.about} useCases={copy.useCases} pricing={copy.pricing} />
+
+  {
+    related.length > 0 && (
+      <div>
+        <h2 class="inner-h3">{copy.related}</h2>
+        <ul class="grid gap-6 md:grid-cols-3 mt-6">
+          {related.map((one) => (
+            <li>
+              <LinkCard
+                href={`/our-tools/${one.toolCode}`}
+                index={monogram(one.name)}
+                title={one.name}
+                text={one.description}
+                more={copy.details}
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
+    )
+  }
+</section>
+
+<CtaBand
+  family="services"
+  label={cta.label}
+  title={cta.title}
+  text={cta.text}
+  primary={cta.primary}
+  secondary={cta.secondary}
+/>

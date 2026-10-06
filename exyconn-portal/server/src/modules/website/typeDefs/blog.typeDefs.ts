@@ -16,6 +16,8 @@ export const blogTypeDefs = gql`
 
   type BlogPost {
     id: ID!
+    "The website it belongs to (Website > Websites)."
+    siteId: String!
     slug: String!
     title: String!
     summary: String!
@@ -34,6 +36,7 @@ export const blogTypeDefs = gql`
   }
 
   input BlogPostInput {
+    siteId: String
     slug: String!
     title: String!
     summary: String
@@ -58,8 +61,8 @@ export const blogTypeDefs = gql`
     listBlogPostsPaged(input: TableQueryInput!): BlogPostPage!
     listBlogPostsStats: TableStats!
     getBlogPost(id: ID!): BlogPost!
-    publicBlogPosts: [BlogPost!]!
-    publicBlogPost(slug: String!): BlogPost
+    publicBlogPosts(site: String): [BlogPost!]!
+    publicBlogPost(slug: String!, site: String): BlogPost
   }
 
   extend type Mutation {

@@ -19,6 +19,8 @@ export const env = Object.freeze({
   /** Icon-only mark (no text) for favicon and the post-login sidebar. */
   iconUrl: '/exyconn-icon.svg',
   brandUrl: 'https://exyconn.com/',
+  /** The website a CMS preview opens on, overriding the site's own domain (local dev). */
+  websiteOrigin: import.meta.env.VITE_WEBSITE_ORIGIN ?? '',
   tokenStorageKey: 'exyconn-track.token',
   userStorageKey: 'exyconn-track.user',
 });

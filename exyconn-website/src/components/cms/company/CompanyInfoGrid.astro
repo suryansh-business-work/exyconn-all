@@ -1,0 +1,29 @@
+---
+/** 'company.info-grid' — cards of a title, text, optional points and an optional link (InfoGrid). */
+import InfoGrid from "../../hubs/InfoGrid.astro";
+import { cmsText, type CmsAction } from "./types";
+
+interface Item {
+  title: string;
+  text: string;
+  points?: readonly string[];
+  link?: CmsAction;
+}
+
+type Props = Readonly<{
+  items: readonly Item[];
+  columns?: 2 | 3 | 4;
+  /** Mono index prefix, e.g. "P" → "P/01"; empty for none. */
+  indexPrefix?: string;
+}>;
+
+const { items, columns, indexPrefix } = Astro.props;
+const cards = items.map((item) => ({
+  title: item.title,
+  text: item.text,
+  points: item.points?.length ? item.points : undefined,
+  link: item.link?.label ? { label: item.link.label, href: item.link.href } : undefined,
+}));
+---
+
+<InfoGrid items={cards} columns={columns} indexPrefix={cmsText(indexPrefix)} />

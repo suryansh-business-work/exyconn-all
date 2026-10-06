@@ -1,0 +1,25 @@
+---
+/**
+ * A numbered chapter with a process as stations on a line (CMS "service.steps"). With
+ * `highlight`, each step lights its station in the stage scene (a pipeline hero).
+ */
+import ChapterHeading from "../../inner/ChapterHeading.astro";
+import StepTrack from "../../inner/StepTrack.astro";
+
+type Props = Readonly<{
+  index: number;
+  id: string;
+  label: string;
+  title: string;
+  highlight: boolean;
+  steps: readonly { title: string; text: string; when?: string }[];
+}>;
+
+const { index, id, label, title, highlight, steps } = Astro.props;
+const highlights = highlight ? steps.map((_, position) => position + 1) : undefined;
+---
+
+<section class="inner-section stage-shell" aria-labelledby={id}>
+  <ChapterHeading index={index} id={id} label={label} title={title} />
+  <div class="mt-10"><StepTrack steps={steps} highlights={highlights} /></div>
+</section>

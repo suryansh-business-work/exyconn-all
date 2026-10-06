@@ -16,6 +16,7 @@ import DevicesOtherIcon from '@mui/icons-material/DevicesOther';
 import FolderSharedIcon from '@mui/icons-material/FolderShared';
 import GavelIcon from '@mui/icons-material/Gavel';
 import GroupsIcon from '@mui/icons-material/Groups';
+import InboxIcon from '@mui/icons-material/Inbox';
 import LanguageIcon from '@mui/icons-material/Language';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import NewReleasesIcon from '@mui/icons-material/NewReleases';
@@ -49,6 +50,7 @@ export const NAV_GROUP_ICONS = {
   Estate: DevicesOtherIcon,
   Growth: TrendingUpIcon,
   'Hiring & onboarding': PersonAddIcon,
+  Inbox: InboxIcon,
   Leave: BeachAccessIcon,
   'My record': FolderSharedIcon,
   Operations: EngineeringIcon,

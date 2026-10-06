@@ -1,0 +1,31 @@
+---
+/**
+ * The closing call to action on a night band (CMS "detail.cta"). `echoShape` picks which of
+ * the hero scene's shapes re-forms in the band (service pages: 1, their glyph); an empty
+ * label shows none.
+ */
+import CtaBand from "../../inner/CtaBand.astro";
+import type { InnerAction, PageFamily } from "../../inner/types";
+
+type Props = Readonly<{
+  family: PageFamily;
+  label: string;
+  title: string;
+  text: string;
+  primary: InnerAction;
+  secondary: InnerAction;
+  echoShape: number;
+}>;
+
+const { family, label, title, text, primary, secondary, echoShape } = Astro.props;
+---
+
+<CtaBand
+  family={family}
+  label={label || undefined}
+  title={title}
+  text={text}
+  primary={primary}
+  secondary={secondary}
+  echoShape={echoShape}
+/>

@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
+import { useSitePath, useSiteScope } from '../cms/site';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import {
@@ -14,6 +15,8 @@ import { color } from '@exyconn/shell/components/ui';
 
 /** Website CMS — blog posts with a server-side grid. */
 export function BlogPage() {
+  const scope = useSiteScope();
+  const to = useSitePath();
   // Stat cards still summarise all posts; the grid itself is server-paged.
   const { data, loading } = useListBlogPostsQuery();
   const [deleteBlogPost] = useDeleteBlogPostMutation();
@@ -30,9 +33,10 @@ export function BlogPage() {
   const fetchRows = usePagedFetcher(
     ListBlogPostsPagedDocument,
     (result: ListBlogPostsPagedQuery) => result.listBlogPostsPaged,
+    scope.filters,
   );
 
-  const rows = data?.listBlogPosts ?? [];
+  const rows = (data?.listBlogPosts ?? []).filter(scope.owns);
   const tagCount = new Set(rows.flatMap((r) => r.tags)).size;
   const stats: StatItem[] = [
     { label: 'Posts', value: String(rows.length), accent: color.blue[400] },
@@ -52,7 +56,7 @@ export function BlogPage() {
   const gridContext: BlogGridContext = {
     actions: {
       edit: crud.openEdit,
-      liveEdit: (row) => navigate(`/website/blog/${row.id}/live-edit`),
+      liveEdit: (row) => navigate(to(`blog/${row.id}/live-edit`)),
       delete: crud.remove,
     },
     formatDate,

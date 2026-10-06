@@ -1,0 +1,36 @@
+---
+/** A numbered chapter of benefit cards with a strip of assurances under them (CMS "service.benefits"). */
+import ChapterHeading from "../../inner/ChapterHeading.astro";
+import InfoGrid from "../../hubs/InfoGrid.astro";
+
+interface TitledText {
+  title: string;
+  text: string;
+}
+
+type Props = Readonly<{
+  index: number;
+  id: string;
+  label: string;
+  title: string;
+  items: readonly TitledText[];
+  assurances: readonly TitledText[];
+}>;
+
+const { index, id, label, title, items, assurances } = Astro.props;
+---
+
+<section class="inner-section stage-shell" aria-labelledby={id}>
+  <ChapterHeading index={index} id={id} label={label} title={title} />
+  <InfoGrid items={items} />
+  <ul class="inner-panel p-6 mt-4 grid gap-6 md:grid-cols-2 lg:grid-cols-5">
+    {
+      assurances.map((item) => (
+        <li>
+          <p class="font-semibold text-fg">{item.title}</p>
+          <p class="inner-card__text text-sm mt-1">{item.text}</p>
+        </li>
+      ))
+    }
+  </ul>
+</section>

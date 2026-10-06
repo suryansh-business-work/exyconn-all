@@ -1,0 +1,40 @@
+---
+/**
+ * Every market page that has no page file of its own is a CMS page: the page published at
+ * this path for the site this host serves, or the template the path fits (its params reach
+ * the components through `cms.params`). Nothing published there is the 404.
+ *
+ * Explicit page files win over this route, which is how pages move to the CMS one by one:
+ * seed the page (exyconn-portal/server/src/modules/cms/seed), delete its file. See
+ * packages/cms/MIGRATION.md.
+ */
+import CmsPage from "../../layouts/CmsPage.astro";
+import { getCmsPage, getCmsSite } from "../../lib/cms";
+import { loadCmsPage, routeLoadInput } from "../../lib/cms/loaders";
+import { marketFrom } from "./_market";
+
+if (!marketFrom(Astro.params)) {
+  return new Response(null, { status: 404 });
+}
+
+// "/en-us" binds no path: that is the home page, "/" in the CMS.
+const rest = Astro.params.path ?? "";
+const site = await getCmsSite(Astro.request.headers.get("host") ?? "");
+const page = await getCmsPage(site.site.id, `/${rest}`);
+
+// A template whose item does not exist (a blog slug with no post) is the same 404.
+const load = page
+  ? await loadCmsPage(
+      page.page,
+      routeLoadInput(site.site, { market: Astro.locals.market, astroSite: Astro.site })
+    )
+  : null;
+if (!page || !load) {
+  return new Response(null, { status: 404 });
+}
+if (load.status) {
+  Astro.response.status = load.status;
+}
+---
+
+<CmsPage site={site} page={page} path={rest === "" ? "" : `/${rest}`} load={load} />

@@ -1,0 +1,105 @@
+---
+/**
+ * A company's careers page: its band with facts, about, culture and benefits (whichever it
+ * has, numbered in order), its open roles and the call to action.
+ */
+import CompanyAbout from "./CompanyAbout.astro";
+import PerkGrid from "./PerkGrid.astro";
+import RolesChapter from "./RolesChapter.astro";
+import StageChips from "./StageChips.astro";
+import type { CareerCompanyCopy } from "./types";
+import "./career.css";
+import ActionLink from "../inner/ActionLink.astro";
+import ChapterHeading from "../inner/ChapterHeading.astro";
+import CtaBand from "../inner/CtaBand.astro";
+import InnerStage from "../inner/InnerStage.astro";
+import type { CompanyDetail } from "../../lib/cms/loaders/career";
+import { companyFacts, hasText } from "../../lib/career/company";
+import { chapterNumbers, countLabel, fill } from "../../lib/career/format";
+import { safeHref } from "../../lib/safe-output";
+
+type Props = Readonly<CareerCompanyCopy & { detail: CompanyDetail }>;
+
+const copy = Astro.props;
+const { crumbs, benefits: benefitsCopy, openings, noFit, cta } = copy;
+const { company, jobs } = Astro.props.detail;
+const name = company.name;
+const roles = jobs.map((job) => ({ job, company }));
+const website = safeHref(company.website);
+const chapters = chapterNumbers(["about", "culture", "benefits", "roles"], {
+  about: hasText(company.description),
+  culture: hasText(company.culture),
+  benefits: company.benefits.length > 0,
+});
+const benefits = company.benefits.map(({ title, description }) => ({ title, text: description }));
+const primary =
+  jobs.length > 0
+    ? { label: countLabel(jobs.length, copy.role, copy.roles), href: "#open-positions" }
+    : undefined;
+const secondary = website ? { label: copy.website, href: website, external: true } : undefined;
+const empty = {
+  ...openings.empty,
+  title: fill(openings.empty.title, { name }),
+};
+---
+
+<InnerStage
+  family="company"
+  variant="band"
+  crumbs={[...crumbs, { label: name }]}
+  title={fill(copy.title, { name })}
+  lede={company.tagline || undefined}
+  primary={primary}
+  secondary={secondary}
+  scene={{ shapes: ["globe"] }}
+>
+  <StageChips label={name} items={companyFacts(company, copy)} />
+</InnerStage>
+
+{chapters.about && <CompanyAbout index={chapters.about} company={company} copy={copy} />}
+{
+  chapters.culture && (
+    <CompanyAbout index={chapters.culture} company={company} part="culture" copy={copy} />
+  )
+}
+{
+  chapters.benefits && (
+    <section class="inner-section stage-shell" aria-labelledby="benefits-title">
+      <ChapterHeading
+        index={chapters.benefits}
+        label={benefitsCopy.label}
+        title={fill(benefitsCopy.title, { name })}
+        id="benefits-title"
+      />
+      <PerkGrid items={benefits} />
+    </section>
+  )
+}
+<RolesChapter
+  id="open-positions"
+  index={chapters.roles ?? 1}
+  label={openings.label}
+  title={fill(openings.title, { name })}
+  roles={roles}
+  showCompany={false}
+  empty={empty}
+  copy={openings.list}
+>
+  {
+    jobs.length > 0 && (
+      <div class="career-nofit">
+        <p class="inner-card__text">{noFit.text}</p>
+        <ActionLink action={noFit.action} variant="ghost" />
+      </div>
+    )
+  }
+</RolesChapter>
+
+<CtaBand
+  family="company"
+  label={cta.label}
+  title={cta.title}
+  text={cta.text}
+  primary={cta.primary}
+  secondary={cta.secondary}
+/>

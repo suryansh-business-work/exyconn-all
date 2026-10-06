@@ -2,22 +2,25 @@
 /**
  * Cross-links between the overlapping hubs (user decision 2): every hub except this one,
  * as link cards in a numbered chapter. The default slot goes between the heading and the cards.
+ * A CMS page passes its own `links`; a hand-written page names its `current` hub.
  */
 import "./hubs.css";
 import ChapterHeading from "../inner/ChapterHeading.astro";
 import LinkCard from "../inner/LinkCard.astro";
-import { otherHubs } from "../../lib/services/catalog";
+import { otherHubs, type HubLink } from "../../lib/services/catalog";
 
 type Props = Readonly<{
   /** This page's hub href, left out of the list. */
-  current: string;
+  current?: string;
+  /** The cards to show instead (a CMS page's own list). */
+  links?: readonly HubLink[];
   index: number;
   label: string;
   title: string;
 }>;
 
-const { current, index, label, title } = Astro.props;
-const links = otherHubs(current);
+const { current = "", links: given, index, label, title } = Astro.props;
+const links = given ?? otherHubs(current);
 ---
 
 <section class="inner-section stage-shell" aria-labelledby="related-hubs">

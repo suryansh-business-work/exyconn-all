@@ -1,5 +1,5 @@
 import type { UseFormRegisterReturn } from "react-hook-form";
-import { FormField, inputClassName } from "../shared";
+import { type CaptchaCopy, FormField, inputClassName } from "../shared";
 
 interface OfferCaptchaProps {
   question: string;
@@ -9,6 +9,7 @@ interface OfferCaptchaProps {
   /** Set when the answer was wrong on submit. */
   captchaError: string;
   onRefresh: () => void;
+  copy: Omit<CaptchaCopy, "hint">;
 }
 
 /** The offer form's security check in Hindi: the maths question, the answer and a refresh. */
@@ -18,10 +19,11 @@ export function OfferCaptcha({
   error,
   captchaError,
   onRefresh,
+  copy,
 }: Readonly<OfferCaptchaProps>) {
   const invalid = Boolean(error) || Boolean(captchaError);
   return (
-    <FormField id="offer-captcha" label="सुरक्षा जाँच" marker="required" error={error}>
+    <FormField id="offer-captcha" label={copy.label} marker="required" error={error}>
       <div className="flex flex-wrap items-center gap-3">
         {/* Announced when a new question replaces the old one. */}
         <span
@@ -36,7 +38,7 @@ export function OfferCaptcha({
             type="text"
             id="offer-captcha"
             inputMode="numeric"
-            placeholder="जवाब"
+            placeholder={copy.placeholder}
             autoComplete="off"
             aria-describedby="offer-captcha-question"
             aria-invalid={invalid}
@@ -48,8 +50,8 @@ export function OfferCaptcha({
           type="button"
           onClick={onRefresh}
           className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-line text-fg-secondary transition-colors hover:text-fg"
-          title="नया सवाल"
-          aria-label="कैप्चा रीफ्रेश करें"
+          title={copy.refreshTitle}
+          aria-label={copy.refreshLabel}
         >
           <i className="fa-solid fa-rotate-right" aria-hidden="true"></i>
         </button>

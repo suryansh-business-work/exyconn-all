@@ -7,6 +7,8 @@ interface ImportMetaEnv {
   readonly VITE_PORTAL_APP?: string;
   /** Parent domain the portal is served from; empty in local dev. */
   readonly VITE_PORTAL_DOMAIN?: string;
+  /** Where the Website portal opens CMS previews (local dev); else the site's first domain. */
+  readonly VITE_WEBSITE_ORIGIN?: string;
 }
 
 interface ImportMeta {

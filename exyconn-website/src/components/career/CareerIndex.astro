@@ -1,0 +1,100 @@
+---
+/**
+ * The careers index (CMS component 'career.index'): the band with the org chart of open
+ * roles, the live counts, the site's open roles, the companies hiring, a few open gigs, why
+ * join, how hiring works, the FAQ and the call to action. Words from the props; roles,
+ * companies and gigs from Website › Careers for the page's site.
+ */
+import CompaniesChapter from "./CompaniesChapter.astro";
+import GigsTeaser from "./GigsTeaser.astro";
+import JoinChapters from "./JoinChapters.astro";
+import RolesChapter from "./RolesChapter.astro";
+import type { CareerIndexCopy } from "./types";
+import CtaBand from "../inner/CtaBand.astro";
+import InnerStage from "../inner/InnerStage.astro";
+import ProofStrip from "../inner/ProofStrip.astro";
+import type { CmsRenderContext } from "../../lib/cms/types";
+import { liveStats, sceneCount } from "../../lib/career/format";
+import { orderedGigs } from "../../lib/career/gigs";
+import { companyCards } from "../../lib/career/roles";
+import { getJobCompanies, getJobsWithCompanies, getOpenGigs } from "../../lib/portal";
+import { safeHref } from "../../lib/safe-output";
+import { MAX_OPENINGS } from "../../scripts/stage3d/shapes/workforce";
+
+type Props = Readonly<CareerIndexCopy & { cms: CmsRenderContext }>;
+
+const {
+  crumbs,
+  title,
+  lede,
+  primary,
+  secondary,
+  proofLabel,
+  stats,
+  roles: rolesCopy,
+} = Astro.props;
+const { companies, gigs, why, hiring, faq, cta, cms } = Astro.props;
+const [roles, jobCompanies, openGigs] = await Promise.all([
+  getJobsWithCompanies(cms.site),
+  getJobCompanies(cms.site),
+  getOpenGigs(cms.site),
+]);
+const cards = companyCards(
+  jobCompanies,
+  roles.map(({ job }) => job)
+);
+const live = liveStats([
+  { count: roles.length, label: stats.roles },
+  { count: cards.companies.length, label: stats.companies },
+  { count: openGigs.length, label: stats.gigs },
+]);
+const linkedIn = safeHref(cms.branding.linkedinUrl);
+// A corporate HQ and a growing org chart: one empty seat per open role (the shape's own when none).
+const openings = sceneCount(roles.length, 1, MAX_OPENINGS);
+// Chapter numbers run on when there are no companies to show.
+const next = cards.companies.length > 0 ? 3 : 2;
+const ctaSecondary = linkedIn ? { label: cta.linkedIn, href: linkedIn, external: true } : undefined;
+---
+
+<InnerStage
+  family="company"
+  crumbs={crumbs}
+  title={title}
+  lede={lede}
+  primary={primary}
+  secondary={secondary}
+  scene={{ shapes: ["workforce"], data: { workforce: { openings } } }}
+/>
+{live.length > 0 && <ProofStrip variant="stats" label={proofLabel} items={live} />}
+
+<RolesChapter
+  id="open-roles"
+  index={1}
+  label={rolesCopy.label}
+  title={rolesCopy.title}
+  lede={rolesCopy.lede}
+  roles={roles}
+  empty={rolesCopy.empty}
+  copy={rolesCopy.list}
+/>
+{
+  cards.companies.length > 0 && (
+    <CompaniesChapter index={2} companies={cards.companies} group={cards.group} copy={companies} />
+  )
+}
+<GigsTeaser
+  index={next}
+  gigs={orderedGigs(openGigs).slice(0, 3)}
+  total={openGigs.length}
+  copy={gigs}
+/>
+<JoinChapters start={next + 1} why={why} hiring={hiring} faq={faq} />
+
+<CtaBand
+  family="company"
+  label={cta.label}
+  title={cta.title}
+  text={cta.text}
+  primary={cta.primary}
+  secondary={ctaSecondary}
+/>

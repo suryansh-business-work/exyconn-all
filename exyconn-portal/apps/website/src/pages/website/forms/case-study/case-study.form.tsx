@@ -10,6 +10,7 @@ import {
 } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
+import { useCurrentSiteId } from '../../../cms/site';
 import {
   useCreateCaseStudyMutation,
   useUpdateCaseStudyMutation,
@@ -78,6 +79,7 @@ interface CaseStudyFormProps {
 
 /** React Hook Form + Zod form to create or update a case study. */
 export function CaseStudyForm({ initial, onDone, onCancel }: Readonly<CaseStudyFormProps>) {
+  const siteId = useCurrentSiteId();
   const [createCaseStudy] = useCreateCaseStudyMutation();
   const [updateCaseStudy] = useUpdateCaseStudyMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
@@ -89,7 +91,8 @@ export function CaseStudyForm({ initial, onDone, onCancel }: Readonly<CaseStudyF
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Case study',
     initial,
-    create: (values: Values) => createCaseStudy({ variables: { input: toInput(values) } }),
+    create: (values: Values) =>
+      createCaseStudy({ variables: { input: { ...toInput(values), siteId } } }),
     update: (row, values) => updateCaseStudy({ variables: { id: row.id, input: toInput(values) } }),
     onDone,
   });

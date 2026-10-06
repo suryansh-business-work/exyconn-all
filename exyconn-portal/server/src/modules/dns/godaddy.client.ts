@@ -92,6 +92,28 @@ class GodaddyClient {
     );
   }
 
+  /** The A records of one host of the domain ('@' for the domain itself). */
+  async aRecords(domain: string, name: string): Promise<Array<{ data: string; ttl: number }>> {
+    const rows = await this.request<Array<{ data: string; ttl: number }>>(
+      await this.activeKey(),
+      `/v1/domains/${encodeURIComponent(domain)}/records/A/${encodeURIComponent(name)}`,
+    );
+    return (rows ?? []).map((row) => ({ data: row.data, ttl: row.ttl }));
+  }
+
+  /** Replaces every A record of one host with these (GoDaddy's minimum TTL is 600 seconds). */
+  async setARecords(
+    domain: string,
+    name: string,
+    records: ReadonlyArray<{ data: string; ttl: number }>,
+  ): Promise<void> {
+    await this.request(
+      await this.activeKey(),
+      `/v1/domains/${encodeURIComponent(domain)}/records/A/${encodeURIComponent(name)}`,
+      { method: 'PUT', body: JSON.stringify(records) },
+    );
+  }
+
   /** Points the domain at these nameservers. Takes effect at the registry within minutes. */
   async setNameServers(domain: string, nameServers: readonly string[]): Promise<void> {
     await this.request(await this.activeKey(), `/v1/domains/${encodeURIComponent(domain)}`, {

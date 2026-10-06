@@ -2,7 +2,7 @@ import { useFormContext } from "react-hook-form";
 import { CaptchaField } from "../../forms/shared";
 import { CAPTCHA_CLASS } from "../../forms/legal/legal-form.styles";
 import { estimate, formatUsd, toQuoteInput } from "../../../lib/company/quote";
-import { quoteText } from "../../../lib/company/quote-copy";
+import { useQuoteText } from "./quote-text";
 import { SummaryList } from "./SummaryList";
 import type { QuoteFormValues } from "./quote.types";
 
@@ -15,6 +15,7 @@ interface ReviewStepProps {
 
 /** Step 4: everything at a glance, a way back to each step, the security question. */
 export function ReviewStep({ captcha, onEdit, steps }: Readonly<ReviewStepProps>) {
+  const text = useQuoteText();
   const {
     register,
     getValues,
@@ -24,10 +25,10 @@ export function ReviewStep({ captcha, onEdit, steps }: Readonly<ReviewStepProps>
   const quote = estimate(toQuoteInput(values));
   return (
     <>
-      <p className="inner-card__text">{quoteText.review.lede}</p>
+      <p className="inner-card__text">{text.review.lede}</p>
       <div className="quote-review">
         <p className="quote-total">{formatUsd(quote.total)}</p>
-        <SummaryList quote={quote} />
+        <SummaryList quote={quote} text={text.summary} />
         <p className="inner-card__text text-sm">
           {values.firstName} {values.lastName} · {values.email}
           {values.company && ` · ${values.company}`}
@@ -36,7 +37,7 @@ export function ReviewStep({ captcha, onEdit, steps }: Readonly<ReviewStepProps>
           {steps.slice(0, -1).map((step, index) => (
             <li key={step}>
               <button type="button" className="inner-chip" onClick={() => onEdit(index)}>
-                {`${quoteText.review.edit} ${step.toLowerCase()}`}
+                {`${text.review.edit} ${step.toLowerCase()}`}
               </button>
             </li>
           ))}
@@ -50,6 +51,7 @@ export function ReviewStep({ captcha, onEdit, steps }: Readonly<ReviewStepProps>
           captchaError={captcha.error}
           onRefresh={captcha.onRefresh}
           accent="amber"
+          copy={text.captcha}
         />
       </div>
     </>

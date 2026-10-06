@@ -137,6 +137,14 @@ import {
   walletGatewayResolvers,
 } from '../modules/clienthub';
 import {
+  cmsTypeDefs,
+  cmsContentTypeDefs,
+  cmsPublicTypeDefs,
+  cmsResolvers,
+  cmsContentResolvers,
+  cmsPublicResolvers,
+} from '../modules/cms';
+import {
   websiteChatTypeDefs,
   websiteChatResolvers,
   websiteChatLibraryTypeDefs,
@@ -269,6 +277,9 @@ export const typeDefs = [
   walletGatewayTypeDefs,
   websiteChatTypeDefs,
   websiteChatLibraryTypeDefs,
+  cmsTypeDefs,
+  cmsContentTypeDefs,
+  cmsPublicTypeDefs,
   ...itsmTypeDefs,
   analyticsTypeDefs,
   socialAccountsTypeDefs,
@@ -352,6 +363,9 @@ export const resolvers = mergeResolvers([
   walletGatewayResolvers,
   websiteChatResolvers,
   websiteChatLibraryResolvers,
+  cmsResolvers,
+  cmsContentResolvers,
+  cmsPublicResolvers,
   itsmResolvers,
   analyticsResolvers,
   socialAccountsResolvers,

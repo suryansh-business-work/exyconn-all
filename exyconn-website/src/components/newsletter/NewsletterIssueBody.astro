@@ -1,0 +1,62 @@
+---
+/**
+ * The issue, read like a blog article: the reading layout with its sanitised body (its
+ * live-editor CSS scoped to the article) and earlier issues.
+ */
+import type { CmsComponentProps } from "@exyconn/cms";
+import ArticleLayout from "../inner/ArticleLayout.astro";
+import ChapterHeading from "../inner/ChapterHeading.astro";
+import LinkCard from "../inner/LinkCard.astro";
+import type { IssueDetail } from "../../lib/cms/loaders/newsletter";
+import { articleSheets } from "../../lib/content/blog";
+import { displayDate } from "../../lib/content/format";
+import { DEFAULT_MARKET } from "../../lib/i18n/markets";
+import { withHeadingIds } from "../../lib/inner/headings";
+import { ARTICLE_CLASS, sanitizeArticleHtml, scopeArticleCss } from "../../lib/portal";
+
+type Props = Readonly<CmsComponentProps<"newsletter.issue"> & { detail: IssueDetail }>;
+
+const { crumbs, tocLabel, relatedLabel, relatedTitle, read } = Astro.props;
+const { issue, earlier } = Astro.props.detail;
+const market = Astro.locals.market ?? DEFAULT_MARKET;
+const { html, toc } = withHeadingIds(sanitizeArticleHtml(issue.content));
+const designCss = scopeArticleCss(issue.contentCss);
+const image = issue.coverImage
+  ? { src: issue.coverImage, alt: "", width: 1600, height: 900 }
+  : undefined;
+---
+
+<ArticleLayout
+  title={issue.title}
+  crumbs={[...crumbs, { label: issue.title }]}
+  published={displayDate(issue.publishedAt, market.locale)}
+  image={image}
+  tocLabel={tocLabel}
+  toc={toc}
+  scene={{ shapes: ["documents"], data: { documents: { sheets: articleSheets(toc) } } }}
+>
+  {designCss && <style is:inline set:html={designCss} />}
+  {issue.summary && <p class="inner-lede mb-10">{issue.summary}</p>}
+  <article class={ARTICLE_CLASS} set:html={html} />
+</ArticleLayout>
+
+{
+  earlier.length > 0 && (
+    <section class="inner-section stage-shell" aria-labelledby="earlier-issues">
+      <ChapterHeading index={1} label={relatedLabel} title={relatedTitle} id="earlier-issues" />
+      <ul class="grid gap-6 md:grid-cols-3 mt-10">
+        {earlier.map((other) => (
+          <li>
+            <LinkCard
+              href={`/newsletter/${other.slug}`}
+              index={displayDate(other.publishedAt, market.locale).text}
+              title={other.title}
+              text={other.summary}
+              more={read}
+            />
+          </li>
+        ))}
+      </ul>
+    </section>
+  )
+}

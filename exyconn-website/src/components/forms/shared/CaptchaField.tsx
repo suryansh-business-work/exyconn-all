@@ -1,6 +1,7 @@
 import type { UseFormRegisterReturn } from "react-hook-form";
 import { type Accent, ERROR_CLASSES, LABEL_CLASSES, inputClassName } from "./fieldClasses";
 import { SvgIcon } from "./SvgIcon";
+import { CAPTCHA_COPY, type CaptchaCopy } from "./copy";
 
 const REFRESH_BASE =
   "inline-flex size-11 items-center justify-center rounded-lg text-fg-subtle transition-colors";
@@ -25,6 +26,7 @@ interface CaptchaFieldProps {
   captchaError: string;
   onRefresh: () => void;
   accent: Accent;
+  copy?: CaptchaCopy;
 }
 
 /** The "Security Check" block: the maths question, the answer box and a new-question button. */
@@ -35,12 +37,14 @@ export function CaptchaField({
   captchaError,
   onRefresh,
   accent,
+  copy = CAPTCHA_COPY,
 }: Readonly<CaptchaFieldProps>) {
   const invalid = Boolean(error) || Boolean(captchaError);
   return (
     <div className="bg-surface-subtle rounded-xl p-4 border border-line">
       <label className={LABEL_CLASSES} htmlFor="captcha">
-        Security Check <span className="text-red-fg">*</span>
+        {`${copy.label} `}
+        <span className="text-red-fg">*</span>
       </label>
       <div className="flex items-center gap-4 flex-wrap">
         <div className="flex items-center gap-2 bg-surface px-4 py-2 rounded-lg border border-line">
@@ -55,7 +59,7 @@ export function CaptchaField({
           id="captcha"
           inputMode="numeric"
           autoComplete="off"
-          placeholder="Answer"
+          placeholder={copy.placeholder}
           aria-describedby="captcha-question captcha-hint"
           aria-invalid={invalid}
           className={`w-24 ${inputClassName(accent, invalid)}`}
@@ -65,14 +69,14 @@ export function CaptchaField({
           type="button"
           onClick={onRefresh}
           className={ACCENT_CLASSES[accent].refresh}
-          title="New question"
-          aria-label="Show a new security question"
+          title={copy.refreshTitle}
+          aria-label={copy.refreshLabel}
         >
           <SvgIcon name="refresh" className="icon-md" />
         </button>
       </div>
       <p id="captcha-hint" className="mt-2 text-xs text-fg-subtle">
-        Type the answer to the sum. It stops automated spam.
+        {copy.hint}
       </p>
       {error && (
         <div role="alert" className={ERROR_CLASSES}>

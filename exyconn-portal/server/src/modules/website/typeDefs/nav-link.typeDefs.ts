@@ -3,6 +3,8 @@ import gql from 'graphql-tag';
 export const navLinkTypeDefs = gql`
   type NavLink {
     id: ID!
+    "The website it belongs to (Website > Websites)."
+    siteId: String!
     label: String!
     href: String!
     description: String!
@@ -15,6 +17,7 @@ export const navLinkTypeDefs = gql`
   }
 
   input NavLinkInput {
+    siteId: String
     label: String!
     href: String!
     description: String
@@ -27,7 +30,7 @@ export const navLinkTypeDefs = gql`
   extend type Query {
     listNavLinks: [NavLink!]!
     getNavLink(id: ID!): NavLink!
-    publicNavLinks: [NavLink!]!
+    publicNavLinks(site: String): [NavLink!]!
   }
 
   extend type Mutation {

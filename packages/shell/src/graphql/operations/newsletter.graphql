@@ -1,0 +1,73 @@
+fragment NewsletterIssueFields on NewsletterIssue {
+  id
+  siteId
+  slug
+  title
+  summary
+  coverImage
+  content
+  contentCss
+  isActive
+  publishedAt
+  updatedAt
+}
+
+query NewsletterIssues($siteId: ID!, $page: Int!, $pageSize: Int!, $search: String) {
+  newsletterIssues(siteId: $siteId, page: $page, pageSize: $pageSize, search: $search) {
+    totalCount
+    rows {
+      ...NewsletterIssueFields
+    }
+  }
+}
+
+mutation CreateNewsletterIssue($input: NewsletterIssueInput!) {
+  createNewsletterIssue(input: $input) {
+    id
+  }
+}
+
+mutation UpdateNewsletterIssue($id: ID!, $input: NewsletterIssueInput!) {
+  updateNewsletterIssue(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteNewsletterIssue($id: ID!) {
+  deleteNewsletterIssue(id: $id)
+}
+
+fragment NewsletterSubscriberFields on NewsletterSubscriber {
+  id
+  siteId
+  email
+  name
+  status
+  source
+  consentAt
+  createdAt
+}
+
+query NewsletterSubscribers($siteId: ID!, $page: Int!, $pageSize: Int!, $search: String) {
+  newsletterSubscribers(siteId: $siteId, page: $page, pageSize: $pageSize, search: $search) {
+    totalCount
+    rows {
+      ...NewsletterSubscriberFields
+    }
+  }
+}
+
+mutation AddNewsletterSubscriber($siteId: ID!, $email: String!, $name: String) {
+  addNewsletterSubscriber(siteId: $siteId, email: $email, name: $name)
+}
+
+mutation SetNewsletterSubscriberStatus($id: ID!, $status: NewsletterSubscriberStatus!) {
+  setNewsletterSubscriberStatus(id: $id, status: $status) {
+    id
+    status
+  }
+}
+
+mutation DeleteNewsletterSubscriber($id: ID!) {
+  deleteNewsletterSubscriber(id: $id)
+}

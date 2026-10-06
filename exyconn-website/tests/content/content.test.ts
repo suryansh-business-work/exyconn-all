@@ -3,17 +3,15 @@
  * functions over portal rows. The populated cases use the local fixtures; empty cases use [].
  */
 import { describe, expect, it } from "vitest";
+import { cmsComponent } from "@exyconn/cms";
 import {
-  ARTICLE_COPY,
   articleSheets,
-  BLOG_COPY,
   blogConstellation,
   GENERIC_CONSTELLATION,
   leadPost,
   relatedPosts,
 } from "../../src/lib/content/blog";
 import {
-  CASE_STUDIES_COPY,
   extractMetrics,
   listTerrain,
   storyMetrics,
@@ -32,18 +30,12 @@ import { NOT_FOUND_COPY, NOT_FOUND_LINKS } from "../../src/lib/content/not-found
 import {
   pageCount,
   SITE_ROUTES,
-  SITEMAP_COPY,
   sitemapSections,
   treeBranches,
 } from "../../src/lib/content/sitemap";
 import { articleJsonLd } from "../../src/lib/content/structured-data";
-import {
-  cssColor,
-  cubeCount,
-  monogram,
-  toolCatalogue,
-  TOOLS_COPY,
-} from "../../src/lib/content/tools";
+import { cmsDefaults } from "../cms-defaults";
+import { cssColor, cubeCount, monogram, toolCatalogue } from "../../src/lib/content/tools";
 import { marketByPath } from "../../src/lib/i18n/markets";
 import {
   FIXTURE_NAV_LINKS,
@@ -162,14 +154,16 @@ describe("blog", () => {
   });
 
   it("keeps outcome-led titles of at most eight words", () => {
+    // The list pages' titles are the CMS's (catalogue defaults = exyconn.com's seeded pages).
+    const cmsTitle = (key: string) => String(cmsComponent(key)?.defaultProps.title ?? "");
     [
-      BLOG_COPY.title,
-      CASE_STUDIES_COPY.title,
-      TOOLS_COPY.heading,
-      SITEMAP_COPY.title,
+      cmsTitle("blog.list"),
+      cmsTitle("casestudy.list"),
+      cmsTitle("tools.list"),
+      cmsDefaults<{ title: string }>("company.sitemap").title,
       NOT_FOUND_COPY.title,
     ].forEach((title) => expect(title.split(" ").length).toBeLessThanOrEqual(8));
-    expect(ARTICLE_COPY.toc).not.toBe("");
+    expect(cmsComponent("blog.article")?.defaultProps.tocLabel).not.toBe("");
   });
 });
 
@@ -251,7 +245,7 @@ describe("tools", () => {
 
 describe("sitemap", () => {
   it("groups the portal's safe links by category", () => {
-    const sections = sitemapSections(FIXTURE_NAV_LINKS);
+    const sections = sitemapSections(FIXTURE_NAV_LINKS, []);
     expect(sections.map((section) => section.label)).toEqual([
       "General",
       "AI",
@@ -264,12 +258,12 @@ describe("sitemap", () => {
     ).toBe(false);
     expect(pageCount(sections)).toBe(9);
     expect(sections[0].links[0]).toEqual({ label: "Home", href: "/", description: "Start here." });
-    const noDescription = sitemapSections([{ ...FIXTURE_NAV_LINKS[0], description: "" }]);
+    const noDescription = sitemapSections([{ ...FIXTURE_NAV_LINKS[0], description: "" }], []);
     expect(noDescription[0].links[0].description).toBeUndefined();
   });
 
   it("falls back to the site's own routes, never the retired products page", () => {
-    const sections = sitemapSections([]);
+    const sections = sitemapSections([], []);
     expect(sections).toEqual(SITE_ROUTES);
     const hrefs = sections.flatMap((section) => section.links.map((link) => link.href));
     expect(hrefs).toContain("/our-tools");

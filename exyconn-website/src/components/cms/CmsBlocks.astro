@@ -1,0 +1,59 @@
+---
+/**
+ * Renders a CMS block tree (@exyconn/cms CmsBlock[]) in order: an html block as it was
+ * written (segments may open a tag that a later one closes), a component through the
+ * registry with its children in its slot, and a fragment as its own published blocks.
+ *
+ * A component this build does not know, or a fragment that is not published, renders nothing
+ * and logs a warning — one stale block never takes a page down.
+ */
+import type { CmsBlock } from "@exyconn/cms";
+import type { CmsRenderContext } from "../../lib/cms/types";
+import { cmsRenderer } from "./registry";
+
+interface Props {
+  blocks: readonly CmsBlock[];
+  context: CmsRenderContext;
+  /** How many fragments and containers deep this list is; cuts a fragment cycle short. */
+  depth?: number;
+}
+
+const MAX_DEPTH = 12;
+
+const { blocks, context, depth = 0 } = Astro.props;
+
+if (depth > MAX_DEPTH) {
+  console.warn(`CMS blocks nested deeper than ${MAX_DEPTH} levels were not rendered.`);
+}
+
+const visible = depth > MAX_DEPTH ? [] : blocks;
+---
+
+{
+  visible.map((block) => {
+    if (block.kind === "html") {
+      return <Fragment set:html={block.html} />;
+    }
+    if (block.kind === "fragment") {
+      const fragment = context.fragments.get(block.fragmentId);
+      if (!fragment) {
+        console.warn(`CMS fragment ${block.fragmentId} is not published; it was skipped.`);
+        return null;
+      }
+      return <Astro.self blocks={fragment} context={context} depth={depth + 1} />;
+    }
+    const Component = cmsRenderer(block.key);
+    if (!Component) {
+      console.warn(`CMS component "${block.key}" has no renderer in this build; it was skipped.`);
+      return null;
+    }
+    if (block.children.length === 0) {
+      return <Component {...block.props} cms={context} />;
+    }
+    return (
+      <Component {...block.props} cms={context}>
+        <Astro.self blocks={block.children} context={context} depth={depth + 1} />
+      </Component>
+    );
+  })
+}

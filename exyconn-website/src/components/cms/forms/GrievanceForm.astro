@@ -1,0 +1,10 @@
+---
+/** 'forms.grievance' — the grievance form; every word is a prop, the sending stays in code. */
+import { GrievanceFormReact, type GrievanceFormCopy } from "../../forms/grievance";
+
+type Props = Readonly<{ copy: GrievanceFormCopy }>;
+
+const { copy } = Astro.props;
+---
+
+<GrievanceFormReact client:load copy={copy} />

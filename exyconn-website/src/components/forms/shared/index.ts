@@ -1,4 +1,13 @@
 export { CaptchaField } from "./CaptchaField";
+export {
+  CAPTCHA_COPY,
+  SUBMIT_COPY,
+  type CaptchaCopy,
+  type FieldCopy,
+  type FinePrintCopy,
+  type OptionCopy,
+  type SubmitCopy,
+} from "./copy";
 export { FormField } from "./FormField";
 export { SubmitButton } from "./SubmitButton";
 export { SubmitStatusAlert } from "./SubmitStatusAlert";

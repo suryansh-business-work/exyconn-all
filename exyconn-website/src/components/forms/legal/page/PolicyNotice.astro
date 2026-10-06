@@ -1,36 +1,41 @@
 ---
 /**
  * The policies pages' empty or error state: what happened, and where the site's own privacy
- * and cookie policies are in the meantime.
+ * and cookie policies are in the meantime. Every word comes from the page (its CMS props).
  */
-import { LEGAL_LINKS } from "../../../../lib/legal";
 import "./legal-page.css";
 
-type Props = Readonly<{ kind: "empty" | "error"; headingLevel?: "h2" | "h3" }>;
+interface NoticeLink {
+  label: string;
+  text: string;
+  href: string;
+}
 
-const COPY = {
-  empty: {
-    title: "No company policies are published yet",
-    text: "When Legal publishes a policy it appears here with its version and the date it took effect.",
-  },
-  error: {
-    title: "Policies can't be loaded right now",
-    text: "We couldn't reach the policy library. Please try again in a few minutes.",
-  },
-} as const;
+/** The notice's words: one title and line per state, and the links offered meanwhile. */
+export interface PolicyNoticeCopy {
+  empty: { title: string; text: string };
+  error: { title: string; text: string };
+  fallbackIntro: string;
+  fallbacks: readonly NoticeLink[];
+}
 
-const { kind, headingLevel: Heading = "h2" } = Astro.props;
-const copy = COPY[kind];
-const fallbacks = LEGAL_LINKS.filter((link) => link.key === "privacy" || link.key === "cookies");
+type Props = Readonly<{
+  kind: "empty" | "error";
+  headingLevel?: "h2" | "h3";
+  copy: PolicyNoticeCopy;
+}>;
+
+const { kind, headingLevel: Heading = "h2", copy } = Astro.props;
+const state = copy[kind];
 ---
 
 <div class="inner-panel legal-empty" role={kind === "error" ? "alert" : undefined}>
-  <Heading class="inner-h3">{copy.title}</Heading>
-  <p>{copy.text}</p>
-  <p>Our website's own policies are always available:</p>
+  <Heading class="inner-h3">{state.title}</Heading>
+  <p>{state.text}</p>
+  <p>{copy.fallbackIntro}</p>
   <ul class="legal-list">
     {
-      fallbacks.map((link) => (
+      copy.fallbacks.map((link) => (
         <li>
           <a href={link.href}>{link.label}</a> — {link.text}
         </li>

@@ -1,0 +1,76 @@
+---
+/**
+ * The newsletter sign-up (CMS component 'newsletter.signup'), for any page: name (optional),
+ * email and the site's security question. scripts/newsletter-signup.ts sends it to
+ * /api/newsletter-subscribe, which adds the reader to the page's site's subscribers.
+ */
+import type { CmsComponentProps } from "@exyconn/cms";
+import CaptchaBlock from "../forms/shared/CaptchaBlock.astro";
+import { LABEL_CLASSES, inputClassName } from "../forms/shared/fieldClasses";
+import Icon from "../inner/Icon.astro";
+
+type Props = Readonly<CmsComponentProps<"newsletter.signup">>;
+
+const { label, title, text, nameLabel, emailLabel, emailPlaceholder, submit, busy } = Astro.props;
+const { success, failure, invalidEmail } = Astro.props;
+// Several sign-ups may share a page: every id is the instance's own.
+const id = `newsletter-signup-${crypto.randomUUID().slice(0, 8)}`;
+const inputClasses = inputClassName("blue");
+---
+
+<section class="inner-section stage-shell" aria-labelledby={`${id}-title`}>
+  <div class="inner-panel grid gap-8 p-6 md:p-10 lg:grid-cols-2 lg:gap-16">
+    <div>
+      <p class="stage-label">{label}</p>
+      <h2 id={`${id}-title`} class="inner-h3 mt-3">{title}</h2>
+      <p class="inner-card__text mt-3">{text}</p>
+    </div>
+    <div>
+      <form
+        class="grid gap-4"
+        data-newsletter-signup={id}
+        data-invalid-email={invalidEmail}
+        novalidate
+      >
+        <div>
+          <label for={`${id}-name`} class={LABEL_CLASSES}>{nameLabel}</label>
+          <input
+            type="text"
+            id={`${id}-name`}
+            name="name"
+            autocomplete="name"
+            maxlength="120"
+            class={inputClasses}
+          />
+        </div>
+        <div>
+          <label for={`${id}-email`} class={LABEL_CLASSES}>{emailLabel}</label>
+          <input
+            type="email"
+            id={`${id}-email`}
+            name="email"
+            autocomplete="email"
+            placeholder={emailPlaceholder}
+            required
+            aria-required="true"
+            aria-describedby={`${id}-email-error`}
+            class={inputClasses}
+          />
+          <p id={`${id}-email-error`} data-email-error class="text-red-fg text-xs mt-1" hidden></p>
+        </div>
+        <CaptchaBlock id={id} />
+        <button type="submit" class="inner-action inner-action--primary group" data-busy="false">
+          <span class="group-data-[busy=true]:hidden">{submit}</span>
+          <span class="hidden group-data-[busy=true]:inline">{busy}</span>
+          <Icon name="arrow-right" class="icon-xs group-data-[busy=true]:hidden" />
+        </button>
+        <p data-signup-success role="status" class="text-sm text-green-fg" hidden>{success}</p>
+        <p data-signup-failure role="alert" class="text-sm text-red-fg" hidden>{failure}</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<script>
+  import "../../scripts/newsletter-signup";
+</script>

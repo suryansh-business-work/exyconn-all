@@ -2,14 +2,14 @@
 /**
  * The AI service catalogue, one group per category, filtered by a FilterBar (category chips
  * and search, kept in the URL). Each card carries its category for the chips and lights its
- * category's cluster in the stage's lattice; a group with no matches hides with its heading.
+ * category's cluster in the stage's lattice (the category's position, counted from 1); a group
+ * with no matches hides with its heading. The categories are the CMS page's props.
  */
 import "./hubs.css";
 import FilterBar from "../inner/FilterBar.astro";
 import LinkCard from "../inner/LinkCard.astro";
-import { categoryTag } from "../../lib/services/aiCatalogue";
 import { countLabel } from "../../lib/services/catalog";
-import { aiServiceCategories, servicesInCategory } from "../../lib/services/aiServices";
+import type { AiServiceCategory } from "../../lib/cms/ai-services";
 
 type Props = Readonly<{
   copy: {
@@ -25,12 +25,14 @@ type Props = Readonly<{
     serviceOne: string;
     serviceMany: string;
   };
+  categories: readonly AiServiceCategory[];
 }>;
 
-const { copy } = Astro.props;
-const groups = aiServiceCategories.map((category) => ({
+const { copy, categories } = Astro.props;
+const groups = categories.map((category, position) => ({
   category,
-  services: servicesInCategory(category.slug),
+  services: category.services,
+  tag: position + 1,
 }));
 ---
 
@@ -43,7 +45,7 @@ const groups = aiServiceCategories.map((category) => ({
       param: "cat",
       label: copy.chipsLabel,
       allLabel: copy.allLabel,
-      options: aiServiceCategories.map((category) => ({
+      options: categories.map((category) => ({
         value: category.slug,
         label: category.title,
       })),
@@ -55,7 +57,7 @@ const groups = aiServiceCategories.map((category) => ({
 
 <div id="ai-catalogue" class="mt-12">
   {
-    groups.map(({ category, services }) => (
+    groups.map(({ category, services, tag }) => (
       <section
         id={category.slug}
         class="hub-group scroll-mt-28"
@@ -63,7 +65,7 @@ const groups = aiServiceCategories.map((category) => ({
       >
         <div class="max-w-3xl">
           <p class="stage-label inner-index">
-            {String(categoryTag(category.slug)).padStart(2, "0")} ·{" "}
+            {String(tag).padStart(2, "0")} ·{" "}
             {countLabel(services.length, copy.serviceOne, copy.serviceMany)}
           </p>
           <h2 id={`${category.slug}-title`} class="inner-h3 mt-2">
@@ -78,7 +80,7 @@ const groups = aiServiceCategories.map((category) => ({
               title={service.title}
               text={service.summary}
               more={copy.more}
-              highlight={categoryTag(category.slug)}
+              highlight={tag}
               data-filter-item
               data-filter-cat={category.slug}
               data-search={`${service.title} ${service.summary} ${category.title}`}

@@ -1,0 +1,26 @@
+---
+/** More services of the same category (CMS "aiservice.related"): link cards in a numbered chapter. */
+import ChapterHeading from "../../inner/ChapterHeading.astro";
+import LinkCard from "../../inner/LinkCard.astro";
+
+type Props = Readonly<{
+  index: number;
+  label: string;
+  title: string;
+  more: string;
+  services: readonly { href: string; title: string; text: string }[];
+}>;
+
+const { index, label, title, more, services } = Astro.props;
+---
+
+<section class="inner-section stage-shell" aria-labelledby="related">
+  <ChapterHeading index={index} id="related" label={label} title={title} />
+  <div class="grid gap-4 mt-10 md:grid-cols-3">
+    {
+      services.map((service) => (
+        <LinkCard href={service.href} title={service.title} text={service.text} more={more} />
+      ))
+    }
+  </div>
+</section>

@@ -1,0 +1,44 @@
+---
+/**
+ * A CMS page's draft, through the short-lived link the page editor opens
+ * (/cms-preview?token=…). Never indexed and never cached; an expired or forged link says so.
+ */
+import CmsPage from "../layouts/CmsPage.astro";
+import { getCmsPreview, getCmsSite } from "../lib/cms";
+import { loadCmsPage, routeLoadInput } from "../lib/cms/loaders";
+import { PortalRequestError } from "../lib/portal";
+
+const token = Astro.url.searchParams.get("token") ?? "";
+if (token === "") {
+  return new Response(null, { status: 404 });
+}
+
+const site = await getCmsSite(Astro.request.headers.get("host") ?? "");
+let page;
+try {
+  page = await getCmsPreview(site.site.id, token);
+} catch (error) {
+  if (error instanceof PortalRequestError) {
+    return new Response(error.message.replace(/^Portal request failed: /, ""), {
+      status: 400,
+      headers: { "Content-Type": "text/plain; charset=utf-8", "X-Robots-Tag": "noindex" },
+    });
+  }
+  throw error;
+}
+
+// A template's draft binds no params, so it has no item to show: a 404 like any missing item.
+const load = page
+  ? await loadCmsPage(
+      page.page,
+      routeLoadInput(site.site, { market: undefined, astroSite: Astro.site })
+    )
+  : null;
+if (!page || !load) {
+  return new Response(null, { status: 404 });
+}
+Astro.response.headers.set("Cache-Control", "no-store");
+const path = page.page.path === "/" ? "" : page.page.path;
+---
+
+<CmsPage site={site} page={page} path={path} load={load} />

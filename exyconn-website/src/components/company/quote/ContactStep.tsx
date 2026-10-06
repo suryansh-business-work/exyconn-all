@@ -1,10 +1,8 @@
 import { useFormContext } from "react-hook-form";
 import { FormField } from "../../forms/shared";
 import { CONTROL_CLASS, ROW_CLASS } from "../../forms/legal/legal-form.styles";
-import { quoteText } from "../../../lib/company/quote-copy";
+import { useQuoteText } from "./quote-text";
 import type { QuoteFormValues } from "./quote.types";
-
-const text = quoteText.contact;
 
 type TextField = "firstName" | "lastName" | "email" | "company";
 
@@ -22,6 +20,7 @@ const FIELDS: readonly {
 
 /** Step 3: who to reply to. */
 export function ContactStep() {
+  const text = useQuoteText().contact;
   const {
     register,
     formState: { errors },
@@ -35,6 +34,7 @@ export function ContactStep() {
             id={`quote-${field.name}`}
             label={text[field.name]}
             marker={field.required ? "required" : "optional"}
+            optionalLabel={text.optional}
             error={errors[field.name]?.message}
           >
             <input
@@ -52,6 +52,7 @@ export function ContactStep() {
         id="quote-notes"
         label={text.notes}
         marker="optional"
+        optionalLabel={text.optional}
         error={errors.notes?.message}
       >
         <textarea

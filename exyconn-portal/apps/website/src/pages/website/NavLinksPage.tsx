@@ -4,12 +4,15 @@ import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useCrudResource } from '@exyconn/crud';
+import { useCurrentSite, useSiteScope } from '../cms/site';
 import { useListNavLinksQuery, useDeleteNavLinkMutation } from '@exyconn/shell/graphql/generated';
 import { NavLinkForm, type NavLinkRow } from './forms/nav-link';
 import { color } from '@exyconn/shell/components/ui';
 
 /** Website module — navigation links surfaced in the exyconn.com menu and search. */
 export function NavLinksPage() {
+  const scope = useSiteScope();
+  const { site } = useCurrentSite();
   const { data, loading, refetch } = useListNavLinksQuery();
   const [deleteNavLink] = useDeleteNavLinkMutation();
   const crud = useCrudResource<NavLinkRow>({
@@ -22,7 +25,7 @@ export function NavLinksPage() {
     refetch,
   });
 
-  const rows = data?.listNavLinks ?? [];
+  const rows = (data?.listNavLinks ?? []).filter(scope.owns);
   const categories = new Set(rows.map((r) => r.category));
   const stats: StatItem[] = [
     { label: 'Links', value: String(rows.length), accent: color.blue[400] },
@@ -61,7 +64,8 @@ export function NavLinksPage() {
   return (
     <ModuleDashboard
       title="Navigation links"
-      subtitle="Menu & search links on exyconn.com"
+      subtitle="Menu & search links on {site}"
+      subtitleValues={{ site: site.name }}
       actionLabel="New nav link"
       onAction={crud.openCreate}
       stats={stats}

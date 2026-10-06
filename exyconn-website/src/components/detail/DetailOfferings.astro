@@ -6,12 +6,12 @@
  */
 import "../../styles/inner-stage.css";
 import ChapterHeading from "../inner/ChapterHeading.astro";
-import type { DetailPage } from "../../lib/detail/schema";
+import type { DetailOfferingList } from "./types";
 
 type Props = Readonly<{
   index: number;
   label: string;
-  offerings: DetailPage["offerings"];
+  offerings: DetailOfferingList;
 }>;
 
 const { index, label, offerings } = Astro.props;

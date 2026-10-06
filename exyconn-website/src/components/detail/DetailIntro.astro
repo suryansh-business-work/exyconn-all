@@ -8,14 +8,14 @@ import "../../styles/inner-stage.css";
 import ChapterHeading from "../inner/ChapterHeading.astro";
 import DemoArtefact from "../inner/DemoArtefact.astro";
 import DetailIconList from "./DetailIconList.astro";
-import type { DetailPage } from "../../lib/detail/schema";
+import type { DetailBenefits, DetailDemo, DetailIntroCopy } from "./types";
 
 type Props = Readonly<{
   index: number;
   label: string;
-  intro: DetailPage["intro"];
-  benefits: DetailPage["benefits"];
-  demo?: DetailPage["demo"];
+  intro: DetailIntroCopy;
+  benefits: DetailBenefits;
+  demo?: DetailDemo;
 }>;
 
 const { index, label, intro, benefits, demo } = Astro.props;

@@ -1,12 +1,14 @@
 import { useParams } from 'react-router-dom';
 import { useGetBlogPostQuery, useUpdateBlogPostMutation } from '@exyconn/shell/graphql/generated';
 import type { LiveDesign } from '@exyconn/live-editor';
+import { useSitePath } from '../../cms/site';
 import { LiveEditScreen } from './LiveEditScreen';
 import { RecordState } from './RecordState';
 import { MEDIA_FOLDERS, siteUrl } from './live-edit.config';
 
-/** Live-edits a blog post's body at /website/blog/:id/live-edit. */
+/** Live-edits a blog post's body at /website/s/:siteSlug/blog/:id/live-edit. */
 export function BlogLiveEditPage() {
+  const to = useSitePath();
   const { id = '' } = useParams();
   const { data, loading, error } = useGetBlogPostQuery({
     variables: { id },
@@ -44,7 +46,7 @@ export function BlogLiveEditPage() {
       key={post.id}
       title={post.title}
       pageUrl={siteUrl(`/blog/${post.slug}`)}
-      backPath="/website/blog"
+      backPath={to('blog')}
       folder={MEDIA_FOLDERS.blog}
       initial={{ html: post.content, css: post.contentCss }}
       onSave={save}

@@ -1,25 +1,28 @@
 ---
-/**
- * How the work runs, drawn as stations on a line — four steps from the shared process data,
- * each with its timing in mono.
- */
-import { processCopy, processSteps } from "../../lib/home/process";
+/** How the work runs, drawn as stations on a line — each step with its timing in mono. */
+import type { HomeHeading, HomeItem } from "./types";
+
+interface Props extends HomeHeading {
+  steps: readonly (HomeItem & { when: string })[];
+}
+
+const { badge, title, accent, lead, steps } = Astro.props;
 ---
 
 <div class="stage-column stage-gap glass p-5 md:p-6">
   <p class="stage-label flex items-center gap-3 mb-3">
     <span class="text-orange-bright" aria-hidden="true">—</span>
-    <span>{processCopy.badge}</span>
+    <span>{badge}</span>
   </p>
   <h2 class="stage-title stage-title--md">
-    <span class="block" data-reveal-line>{processCopy.title}</span>
-    <span class="block stage-accent" data-reveal-line>{processCopy.accent}</span>
+    <span class="block" data-reveal-line>{title}</span>
+    <span class="block stage-accent" data-reveal-line>{accent}</span>
   </h2>
-  <p class="mt-4 text-fg-secondary leading-relaxed">{processCopy.lead}</p>
+  <p class="mt-4 text-fg-secondary leading-relaxed">{lead}</p>
 
   <ol class="mt-6 border-l border-line-strong ml-3">
     {
-      processSteps.map((step, index) => (
+      steps.map((step, index) => (
         <li class="relative pl-7 pb-6 last:pb-0">
           <span class="absolute -left-3 top-0 w-6 h-6 rounded-full border-2 border-orange-bright bg-inverse flex items-center justify-center">
             <span class="w-2 h-2 rounded-full bg-orange-bright" />

@@ -1,4 +1,7 @@
 import type { APIRoute } from "astro";
+import { publishedPaths } from "../lib/cms";
+import { aiServicePaths } from "../lib/cms/ai-services";
+import { sitePages } from "../lib/content/site-pages";
 
 const SITE_URL = "https://exyconn.com";
 
@@ -36,8 +39,26 @@ Exyconn is a B2B technology services company offering AI agents, an infrastructu
 - [Legal](${SITE_URL}/legal)
 `;
 
-export const GET: APIRoute = async () => {
-  return new Response(content, {
+/** True when this file already links to the page (home as ""). */
+const isLinked = (path: string): boolean => content.includes(`](${SITE_URL}${path || "/"})`);
+
+/**
+ * The CMS pages this file does not already describe, as one more section. The site's own
+ * pages (the sitemap's list) are left out: this file names the main ones on purpose.
+ */
+function morePages(paths: readonly string[], known: ReadonlySet<string>): string {
+  const extra = paths.filter((path) => !isLinked(path) && !known.has(path));
+  if (extra.length === 0) {
+    return "";
+  }
+  const lines = extra.map((path) => `- [${path || "/"}](${SITE_URL}${path || "/"})`);
+  return `\n## More pages\n${lines.join("\n")}\n`;
+}
+
+export const GET: APIRoute = async ({ request }) => {
+  const { site, paths } = await publishedPaths(request.headers.get("host") ?? "");
+  const known = new Set(sitePages(await aiServicePaths(site?.id)));
+  return new Response(content + morePages(paths, known), {
     status: 200,
     headers: {
       "Content-Type": "text/plain; charset=utf-8",

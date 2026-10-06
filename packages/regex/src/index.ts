@@ -51,6 +51,32 @@ export const UPPER_SNAKE = /^[A-Z\d_]+$/;
 /** A bare domain, not a URL — `exyconn.com`, no scheme and no path. */
 export const DOMAIN = /^[a-z\d-]+(?:\.[a-z\d-]+)+$/i;
 
+/** A design token name, written into CSS as a custom property: letters, digits and dashes. */
+export const CSS_TOKEN_KEY = /^[a-z\d][a-z\d-]{0,60}$/i;
+
+/** A design token value: any CSS value that cannot close its declaration or rule (≤300 chars). */
+export const CSS_TOKEN_VALUE = /^[^;{}<>]{1,300}$/;
+
+/**
+ * A CMS page path: `/`, or lower-case segments like `/services/data-analytics`; a template's
+ * segments may be parameters, like `/blog/:slug`.
+ */
+export const PAGE_PATH =
+  /^\/(?:(?:[a-z\d][a-z\d._-]*|:[a-z][a-zA-Z\d]*)(?:\/(?:[a-z\d][a-z\d._-]*|:[a-z][a-zA-Z\d]*))*)?$/;
+
+/** A font family name, e.g. `Inter Tight` or `Noto Sans JP`: letters, digits, spaces, `.'&-`. */
+export const FONT_FAMILY = /^[\p{L}\d][\p{L}\d .'&-]{0,79}$/u;
+
+/** A font style to load, as Google Fonts names it: a weight, `i` for italic — `400`, `700i`. */
+export const FONT_VARIANT = /^[1-9]00i?$/;
+
+/** A font weight from 100 to 900, in hundreds. */
+export const FONT_WEIGHT = /^[1-9]00$/;
+
+/** An IPv4 address, each part 0–255, e.g. `203.0.113.10`. */
+export const IPV4 =
+  /^(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$/;
+
 /** A Cloudflare account or zone id: 32 hexadecimal characters. */
 export const CLOUDFLARE_ID = /^[\da-f]{32}$/i;
 

@@ -25,6 +25,11 @@ export function LiveEditor({
   uploadImage,
   onError,
   onDirty,
+  projectData,
+  blocks,
+  canvasCss,
+  assets,
+  plugins,
   ref,
 }: Readonly<LiveEditorProps>) {
   const container = useRef<HTMLDivElement>(null);
@@ -35,20 +40,25 @@ export function LiveEditor({
     uploadImage,
     onError,
     onDirty,
+    projectData,
+    blocks,
+    canvasCss,
+    assets,
+    plugins,
   });
 
-  useImperativeHandle(
-    ref,
-    () => ({
-      getDesign: () => {
-        if (!editor.current) {
-          throw new Error('The live editor is not ready yet');
-        }
-        return readDesign(editor.current);
-      },
-    }),
-    [editor],
-  );
+  useImperativeHandle(ref, () => {
+    const ready = () => {
+      if (!editor.current) {
+        throw new Error('The live editor is not ready yet');
+      }
+      return editor.current;
+    };
+    return {
+      getDesign: () => readDesign(ready()),
+      getProjectData: () => ready().getProjectData(),
+    };
+  }, [editor]);
 
   return <Box ref={container} sx={{ height: '100%', ...PANEL_THEME }} />;
 }

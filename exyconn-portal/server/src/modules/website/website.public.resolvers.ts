@@ -9,6 +9,7 @@ import {
   ToolModel,
 } from './models';
 import { withId, withIds } from '../../utils/serialize';
+import { siteIdsFor } from '../cms/cms.sites';
 
 /**
  * Unauthenticated read API consumed by the public Astro website. Every query is
@@ -28,6 +29,11 @@ type LeanDoc = { _id: unknown };
  */
 const publishedBy = (now: Date) => ({ isActive: true, publishedAt: { $lte: now } });
 
+type Site = { site?: string | null };
+
+/** Records of one website (by slug; the default site when none is named). */
+const ofSite = async ({ site }: Site) => ({ siteId: { $in: await siteIdsFor(site) } });
+
 /** Serializes a nullable lean document, mapping `_id` onto `id`. */
 function serializeOne<T extends LeanDoc>(doc: T | null): (T & { id: string }) | null {
   return doc ? withId(doc) : null;
@@ -35,61 +41,80 @@ function serializeOne<T extends LeanDoc>(doc: T | null): (T & { id: string }) | 
 
 export const websitePublicResolvers = {
   Query: {
-    publicBlogPosts: async () =>
+    publicBlogPosts: async (_p?: unknown, args: Site = {}) =>
       withIds(
-        (await BlogPostModel.find(publishedBy(new Date()))
+        (await BlogPostModel.find({ ...publishedBy(new Date()), ...(await ofSite(args)) })
           .sort({ publishedAt: -1 })
           .lean()) as LeanDoc[],
       ),
 
-    publicBlogPost: async (_p: unknown, { slug }: { slug: string }) =>
+    publicBlogPost: async (_p: unknown, { slug, ...args }: { slug: string } & Site) =>
       serializeOne(
         (await BlogPostModel.findOne({
           slug,
+          ...(await ofSite(args)),
           ...publishedBy(new Date()),
         }).lean()) as LeanDoc | null,
       ),
 
-    publicCaseStudies: async () =>
+    publicCaseStudies: async (_p?: unknown, args: Site = {}) =>
       withIds(
-        (await CaseStudyModel.find(publishedBy(new Date()))
+        (await CaseStudyModel.find({ ...publishedBy(new Date()), ...(await ofSite(args)) })
           .sort({ publishedAt: -1 })
           .lean()) as LeanDoc[],
       ),
 
-    publicCaseStudy: async (_p: unknown, { slug }: { slug: string }) =>
+    publicCaseStudy: async (_p: unknown, { slug, ...args }: { slug: string } & Site) =>
       serializeOne(
         (await CaseStudyModel.findOne({
           slug,
+          ...(await ofSite(args)),
           ...publishedBy(new Date()),
         }).lean()) as LeanDoc | null,
       ),
 
-    publicJobCompanies: async () =>
+    publicJobCompanies: async (_p?: unknown, args: Site = {}) =>
       withIds(
-        (await JobCompanyModel.find({ isActive: true })
+        (await JobCompanyModel.find({ isActive: true, ...(await ofSite(args)) })
           .sort({ order: 1, name: 1 })
           .lean()) as LeanDoc[],
       ),
 
-    publicJobCompany: async (_p: unknown, { slug }: { slug: string }) =>
+    publicJobCompany: async (_p: unknown, { slug, ...args }: { slug: string } & Site) =>
       serializeOne(
-        (await JobCompanyModel.findOne({ slug, isActive: true }).lean()) as LeanDoc | null,
+        (await JobCompanyModel.findOne({
+          slug,
+          isActive: true,
+          ...(await ofSite(args)),
+        }).lean()) as LeanDoc | null,
       ),
 
-    publicJobs: async (_p: unknown, { companySlug }: { companySlug?: string }) => {
-      const filter = companySlug ? { isActive: true, companySlug } : { isActive: true };
+    publicJobs: async (_p: unknown, { companySlug, ...args }: { companySlug?: string } & Site) => {
+      const base = { isActive: true, ...(await ofSite(args)) };
+      const filter = companySlug ? { ...base, companySlug } : base;
       return withIds((await JobModel.find(filter).sort({ jobPostDate: -1 }).lean()) as LeanDoc[]);
     },
 
-    publicJob: async (_p: unknown, { jobCode }: { jobCode: string }) =>
-      serializeOne((await JobModel.findOne({ jobCode, isActive: true }).lean()) as LeanDoc | null),
+    publicJob: async (_p: unknown, { jobCode, ...args }: { jobCode: string } & Site) =>
+      serializeOne(
+        (await JobModel.findOne({
+          jobCode,
+          isActive: true,
+          ...(await ofSite(args)),
+        }).lean()) as LeanDoc | null,
+      ),
 
-    publicGigs: async () =>
-      withIds((await GigModel.find().sort({ postedDate: -1 }).lean()) as LeanDoc[]),
+    publicGigs: async (_p?: unknown, args: Site = {}) =>
+      withIds(
+        (await GigModel.find(await ofSite(args))
+          .sort({ postedDate: -1 })
+          .lean()) as LeanDoc[],
+      ),
 
-    publicGig: async (_p: unknown, { gigCode }: { gigCode: string }) =>
-      serializeOne((await GigModel.findOne({ gigCode }).lean()) as LeanDoc | null),
+    publicGig: async (_p: unknown, { gigCode, ...args }: { gigCode: string } & Site) =>
+      serializeOne(
+        (await GigModel.findOne({ gigCode, ...(await ofSite(args)) }).lean()) as LeanDoc | null,
+      ),
 
     publicToolCategories: async () =>
       withIds(
@@ -106,7 +131,11 @@ export const websitePublicResolvers = {
         (await ToolModel.findOne({ toolCode, isActive: true }).lean()) as LeanDoc | null,
       ),
 
-    publicNavLinks: async () =>
-      withIds((await NavLinkModel.find({ isActive: true }).sort({ order: 1 }).lean()) as LeanDoc[]),
+    publicNavLinks: async (_p?: unknown, args: Site = {}) =>
+      withIds(
+        (await NavLinkModel.find({ isActive: true, ...(await ofSite(args)) })
+          .sort({ order: 1 })
+          .lean()) as LeanDoc[],
+      ),
   },
 };

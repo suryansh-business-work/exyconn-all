@@ -1,0 +1,75 @@
+---
+/**
+ * 'legal.document' — a whole legal page: the night band, "Last updated" in the reader's
+ * locale, the plain-words summary, the table of contents and every section with a body.
+ * Sections without a body are listed in the contents and rendered by the 'legal.section'
+ * blocks dropped inside (a FAQ, a form), numbered by their place in `sections`.
+ */
+import "../../forms/legal/page/legal-page.css";
+import RelatedLegal from "../../forms/legal/page/RelatedLegal.astro";
+import LegalLayout from "../../inner/LegalLayout.astro";
+import LegalSection from "../../inner/LegalSection.astro";
+import type { PageFamily, SceneConfig } from "../../inner/types";
+import { DEFAULT_MARKET } from "../../../lib/i18n/markets";
+import { readerDate } from "../../../lib/legal";
+import type { CmsCrumb } from "../company/types";
+
+interface Section {
+  /** The anchor: stable, because readers share links to a clause. */
+  id: string;
+  label: string;
+  /** The section's text (rich text); empty for a section a block inside renders. */
+  bodyHtml: string;
+}
+
+type Props = Readonly<{
+  crumbs: readonly CmsCrumb[];
+  title: string;
+  family: PageFamily;
+  scene: SceneConfig;
+  /** ISO date the wording last changed; empty when nobody recorded it — never guessed. */
+  updated: string;
+  updatedLabel: string;
+  summaryTitle: string;
+  summary: readonly string[];
+  tocLabel: string;
+  anchorLabel: string;
+  sections: readonly Section[];
+  relatedTitle: string;
+  related: readonly { label: string; text: string; href: string }[];
+}>;
+
+const props = Astro.props;
+const market = Astro.locals.market ?? DEFAULT_MARKET;
+const numbered = props.sections.map((section, index) => ({ ...section, number: index + 1 }));
+---
+
+<LegalLayout
+  title={props.title}
+  crumbs={props.crumbs}
+  updatedLabel={props.updatedLabel}
+  updated={props.updated ? readerDate(props.updated, market.locale) : undefined}
+  summaryTitle={props.summaryTitle}
+  summary={props.summary}
+  tocLabel={props.tocLabel}
+  sections={props.sections}
+  family={props.family}
+  scene={props.scene}
+>
+  {
+    numbered
+      .filter((section) => section.bodyHtml !== "")
+      .map((section) => (
+        <LegalSection
+          id={section.id}
+          number={section.number}
+          title={section.label}
+          anchorLabel={props.anchorLabel}
+        >
+          <Fragment set:html={section.bodyHtml} />
+        </LegalSection>
+      ))
+  }
+  <slot />
+  <RelatedLegal slot="after" title={props.relatedTitle} links={props.related} />
+</LegalLayout>

@@ -1,23 +1,21 @@
 import { z } from "zod";
 import { captchaAnswer, requiredEmail } from "../../forms/shared/fieldSchemas";
-import { AGENTS, agentsText } from "../../../lib/company/agents";
-import type { OrderAgentsValues } from "./order-agents.types";
+import type { OrderAgentsMessages, OrderAgentsValues } from "./order-agents.types";
 
-const AGENT_IDS = AGENTS.map((agent) => agent.id) as [string, ...string[]];
-
-const personName = (label: string) =>
-  z.string().trim().min(1, `${label} is required`).min(2, "Too short!").max(50, "Too long!");
-
-/** A suite request: at least one agent, who to reply to, and the security answer. */
-export const orderAgentsSchema = z.object({
-  agentIds: z.array(z.enum(AGENT_IDS)).min(1, agentsText.pickOne),
-  firstName: personName("First name"),
-  lastName: personName("Last name"),
-  email: requiredEmail(),
-  company: z.string().trim().max(100, "Too long!"),
-  notes: z.string().trim().max(1000, "Too long!"),
-  captcha: captchaAnswer(),
-});
+/** A suite request: at least one of the agents on offer, who to reply to, the security answer. */
+export const orderAgentsSchema = (agentIds: readonly string[], m: OrderAgentsMessages) => {
+  const personName = (required: string) =>
+    z.string().trim().min(1, required).min(2, m.tooShort).max(50, m.tooLong);
+  return z.object({
+    agentIds: z.array(z.enum(agentIds as [string, ...string[]])).min(1, m.pickOne),
+    firstName: personName(m.firstNameRequired),
+    lastName: personName(m.lastNameRequired),
+    email: requiredEmail(m.emailRequired, m.emailInvalid),
+    company: z.string().trim().max(100, m.tooLong),
+    notes: z.string().trim().max(1000, m.tooLong),
+    captcha: captchaAnswer(m.captchaRequired),
+  });
+};
 
 export const ORDER_AGENTS_DEFAULTS: OrderAgentsValues = {
   agentIds: [],

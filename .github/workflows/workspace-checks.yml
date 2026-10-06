@@ -55,9 +55,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
       # The server resolves @exyconn/wa-flow through its compiled dist (types included), and
       # dist is never committed, so it is built before anything typechecks the server.
-      - name: Build @exyconn/wa-flow
+      - name: Build @exyconn/wa-flow and @exyconn/cms
         if: inputs.server
-        run: pnpm --filter @exyconn/wa-flow build
+        run: pnpm --filter @exyconn/wa-flow --filter @exyconn/cms build
       # A workspace package the portal image does not copy the manifest for builds an image with
       # nothing installed, and dies on "tsc: not found" twenty minutes into a deploy.
       - name: Docker images copy every workspace package they build from
@@ -166,8 +166,8 @@ jobs:
           key: mongoms-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: mongoms-${{ runner.os }}-
       - run: pnpm install --frozen-lockfile
-      - name: Build @exyconn/wa-flow
-        run: pnpm --filter @exyconn/wa-flow build
+      - name: Build @exyconn/wa-flow and @exyconn/cms
+        run: pnpm --filter @exyconn/wa-flow --filter @exyconn/cms build
       # A quarter of the suites per job, two workers each: the suite was the slowest step of CI.
       - name: Server tests
         if: ${{ !inputs.coverage }}

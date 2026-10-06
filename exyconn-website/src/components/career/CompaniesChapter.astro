@@ -2,7 +2,7 @@
 /** The careers index's company cards, the group company's cross-brand card last. */
 import ChapterHeading from "../inner/ChapterHeading.astro";
 import CompanyCard from "./CompanyCard.astro";
-import { CAREERS_COPY as copy } from "../../lib/career/copy";
+import type { CareerIndexCopy } from "./types";
 import { countLabel } from "../../lib/career/format";
 import type { CompanyCard as Card } from "../../lib/career/roles";
 
@@ -10,19 +10,19 @@ type Props = Readonly<{
   index: number;
   companies: readonly Card[];
   group?: Card;
+  copy: CareerIndexCopy["companies"];
 }>;
 
-const { index, companies, group } = Astro.props;
-const openings = (n: number) =>
-  n === 0 ? copy.companyNoRoles : countLabel(n, copy.companyRole, copy.companyRoles);
+const { index, companies, group, copy } = Astro.props;
+const openings = (n: number) => (n === 0 ? copy.noRoles : countLabel(n, copy.role, copy.roles));
 ---
 
 <section class="inner-section stage-shell" aria-labelledby="companies-title">
   <ChapterHeading
     index={index}
-    label={copy.companiesLabel}
-    title={copy.companiesTitle}
-    lede={copy.companiesLede}
+    label={copy.label}
+    title={copy.title}
+    lede={copy.lede}
     id="companies-title"
   />
   <ul class="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-10">

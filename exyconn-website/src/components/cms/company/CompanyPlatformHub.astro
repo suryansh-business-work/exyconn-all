@@ -1,0 +1,73 @@
+---
+/**
+ * 'company.platform-hub' — the infrastructure platform's stage, its figures and the service
+ * directory, from one list of services: the cube count, the stats and the directory are all
+ * derived from `services`, so adding a service in the CMS updates every count on the page.
+ */
+import ChapterHeading from "../../inner/ChapterHeading.astro";
+import InnerStage from "../../inner/InnerStage.astro";
+import ProofStrip from "../../inner/ProofStrip.astro";
+import PlatformDirectory from "../../hubs/PlatformDirectory.astro";
+import {
+  groupPlatformServices,
+  platformStats,
+  type PlatformService,
+  type PlatformStatusLabels,
+} from "../../../lib/services/platform";
+import { cmsAction, type CmsAction, type CmsCrumb } from "./types";
+
+type Props = Readonly<{
+  crumbs: readonly CmsCrumb[];
+  title: string;
+  lede: string;
+  primary: CmsAction;
+  secondary: CmsAction;
+  statsLabel: string;
+  statusLabels: PlatformStatusLabels;
+  categoriesLabel: string;
+  chapter: { index: number; id: string; label: string; title: string; lede: string };
+  directory: {
+    filterLabel: string;
+    sheetLabel: string;
+    chipsLabel: string;
+    allLabel: string;
+    searchLabel: string;
+    searchPlaceholder: string;
+    countTemplate: string;
+    empty: string;
+    serviceOne: string;
+    serviceMany: string;
+  };
+  categories: readonly string[];
+  services: readonly PlatformService[];
+}>;
+
+const props = Astro.props;
+const { chapter } = props;
+const groups = groupPlatformServices(props.services, props.categories);
+const stats = platformStats(props.services, groups, props.statusLabels, props.categoriesLabel);
+---
+
+<InnerStage
+  family="services"
+  crumbs={props.crumbs}
+  title={props.title}
+  lede={props.lede}
+  primary={cmsAction(props.primary)}
+  secondary={cmsAction(props.secondary)}
+  scene={{ shapes: ["cubes"], data: { cubes: { cubes: groups.length } } }}
+/>
+<ProofStrip variant="stats" label={props.statsLabel} items={stats} />
+
+<section class="inner-section stage-shell" aria-labelledby={chapter.id}>
+  <ChapterHeading
+    index={chapter.index}
+    id={chapter.id}
+    label={chapter.label}
+    title={chapter.title}
+    lede={chapter.lede}
+  />
+  <div class="mt-10">
+    <PlatformDirectory groups={groups} statusLabels={props.statusLabels} copy={props.directory} />
+  </div>
+</section>

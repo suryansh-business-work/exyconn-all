@@ -79,42 +79,44 @@ async function read<T>(label: string, empty: T, run: () => Promise<T>): Promise<
 // ── Blog & case studies ─────────────────────────────────────────────────────
 
 /** Every published blog post, newest first — the portal already applies that order. */
-export async function getBlogPosts(): Promise<BlogPost[]> {
+export async function getBlogPosts(site?: string): Promise<BlogPost[]> {
   return read("getBlogPosts", [], async () => {
     const data = await portalRequest<{ publicBlogPosts: BlogPost[] }>(
-      `query { publicBlogPosts { ${BLOG_FIELDS} } }`
+      `query BlogPosts($site: String) { publicBlogPosts(site: $site) { ${BLOG_FIELDS} } }`,
+      { site }
     );
     return data.publicBlogPosts;
   });
 }
 
 /** One post by slug, or null when the portal has no published post at that address. */
-export async function getBlogPost(slug: string): Promise<BlogPost | null> {
+export async function getBlogPost(slug: string, site?: string): Promise<BlogPost | null> {
   return read("getBlogPost", null, async () => {
     const data = await portalRequest<{ publicBlogPost: BlogPost | null }>(
-      `query GetBlogPost($slug: String!) { publicBlogPost(slug: $slug) { ${BLOG_FIELDS} } }`,
-      { slug }
+      `query GetBlogPost($slug: String!, $site: String) { publicBlogPost(slug: $slug, site: $site) { ${BLOG_FIELDS} } }`,
+      { slug, site }
     );
     return data.publicBlogPost;
   });
 }
 
 /** Every published case study, newest first. */
-export async function getCaseStudies(): Promise<CaseStudy[]> {
+export async function getCaseStudies(site?: string): Promise<CaseStudy[]> {
   return read("getCaseStudies", [], async () => {
     const data = await portalRequest<{ publicCaseStudies: CaseStudy[] }>(
-      `query { publicCaseStudies { ${CASE_STUDY_FIELDS} } }`
+      `query CaseStudies($site: String) { publicCaseStudies(site: $site) { ${CASE_STUDY_FIELDS} } }`,
+      { site }
     );
     return data.publicCaseStudies;
   });
 }
 
 /** One case study by slug, or null when the portal has not published one at that address. */
-export async function getCaseStudy(slug: string): Promise<CaseStudy | null> {
+export async function getCaseStudy(slug: string, site?: string): Promise<CaseStudy | null> {
   return read("getCaseStudy", null, async () => {
     const data = await portalRequest<{ publicCaseStudy: CaseStudy | null }>(
-      `query GetCaseStudy($slug: String!) { publicCaseStudy(slug: $slug) { ${CASE_STUDY_FIELDS} } }`,
-      { slug }
+      `query GetCaseStudy($slug: String!, $site: String) { publicCaseStudy(slug: $slug, site: $site) { ${CASE_STUDY_FIELDS} } }`,
+      { slug, site }
     );
     return data.publicCaseStudy;
   });
@@ -122,48 +124,49 @@ export async function getCaseStudy(slug: string): Promise<CaseStudy | null> {
 
 // ── Careers ─────────────────────────────────────────────────────────────────
 
-export async function getJobCompanies(): Promise<JobCompany[]> {
+export async function getJobCompanies(site?: string): Promise<JobCompany[]> {
   return read("getJobCompanies", [], async () => {
     const data = await portalRequest<{ publicJobCompanies: JobCompany[] }>(
-      `query { publicJobCompanies { ${COMPANY_FIELDS} } }`
+      `query JobCompanies($site: String) { publicJobCompanies(site: $site) { ${COMPANY_FIELDS} } }`,
+      { site }
     );
     return data.publicJobCompanies;
   });
 }
 
-export async function getJobCompany(slug: string): Promise<JobCompany | null> {
+export async function getJobCompany(slug: string, site?: string): Promise<JobCompany | null> {
   return read("getJobCompany", null, async () => {
     const data = await portalRequest<{ publicJobCompany: JobCompany | null }>(
-      `query GetJobCompany($slug: String!) { publicJobCompany(slug: $slug) { ${COMPANY_FIELDS} } }`,
-      { slug }
+      `query GetJobCompany($slug: String!, $site: String) { publicJobCompany(slug: $slug, site: $site) { ${COMPANY_FIELDS} } }`,
+      { slug, site }
     );
     return data.publicJobCompany;
   });
 }
 
-export async function getJobs(companySlug?: string): Promise<Job[]> {
+export async function getJobs(companySlug?: string, site?: string): Promise<Job[]> {
   return read("getJobs", [], async () => {
     const data = await portalRequest<{ publicJobs: Job[] }>(
-      `query GetJobs($companySlug: String) { publicJobs(companySlug: $companySlug) { ${JOB_FIELDS} } }`,
-      { companySlug }
+      `query GetJobs($companySlug: String, $site: String) { publicJobs(companySlug: $companySlug, site: $site) { ${JOB_FIELDS} } }`,
+      { companySlug, site }
     );
     return data.publicJobs;
   });
 }
 
-export async function getJob(jobCode: string): Promise<Job | null> {
+export async function getJob(jobCode: string, site?: string): Promise<Job | null> {
   return read("getJob", null, async () => {
     const data = await portalRequest<{ publicJob: Job | null }>(
-      `query GetJob($jobCode: String!) { publicJob(jobCode: $jobCode) { ${JOB_FIELDS} } }`,
-      { jobCode }
+      `query GetJob($jobCode: String!, $site: String) { publicJob(jobCode: $jobCode, site: $site) { ${JOB_FIELDS} } }`,
+      { jobCode, site }
     );
     return data.publicJob;
   });
 }
 
 /** Every active job paired with its company, newest first — powers the careers index. */
-export async function getJobsWithCompanies(): Promise<JobWithCompany[]> {
-  const [jobs, companies] = await Promise.all([getJobs(), getJobCompanies()]);
+export async function getJobsWithCompanies(site?: string): Promise<JobWithCompany[]> {
+  const [jobs, companies] = await Promise.all([getJobs(undefined, site), getJobCompanies(site)]);
   const bySlug = new Map(companies.map((company) => [company.slug, company]));
 
   return jobs
@@ -176,26 +179,27 @@ export async function getJobsWithCompanies(): Promise<JobWithCompany[]> {
 
 // ── Gigs ────────────────────────────────────────────────────────────────────
 
-export async function getGigs(): Promise<Gig[]> {
+export async function getGigs(site?: string): Promise<Gig[]> {
   return read("getGigs", [], async () => {
     const data = await portalRequest<{ publicGigs: Gig[] }>(
-      `query { publicGigs { ${GIG_FIELDS} } }`
+      `query Gigs($site: String) { publicGigs(site: $site) { ${GIG_FIELDS} } }`,
+      { site }
     );
     return data.publicGigs;
   });
 }
 
 /** Only gigs that are still open for applications. */
-export async function getOpenGigs(): Promise<Gig[]> {
-  const gigs = await getGigs();
+export async function getOpenGigs(site?: string): Promise<Gig[]> {
+  const gigs = await getGigs(site);
   return gigs.filter((gig) => gig.status === "open");
 }
 
-export async function getGig(gigCode: string): Promise<Gig | null> {
+export async function getGig(gigCode: string, site?: string): Promise<Gig | null> {
   return read("getGig", null, async () => {
     const data = await portalRequest<{ publicGig: Gig | null }>(
-      `query GetGig($gigCode: String!) { publicGig(gigCode: $gigCode) { ${GIG_FIELDS} } }`,
-      { gigCode }
+      `query GetGig($gigCode: String!, $site: String) { publicGig(gigCode: $gigCode, site: $site) { ${GIG_FIELDS} } }`,
+      { gigCode, site }
     );
     return data.publicGig;
   });

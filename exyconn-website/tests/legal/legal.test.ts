@@ -1,5 +1,5 @@
+import { cmsComponent } from "@exyconn/cms";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { RESPONSE_BUSINESS_DAYS } from "../../src/lib/legal/commitments";
 import { readerDate } from "../../src/lib/legal/dates";
 import {
   loadPolicies,
@@ -9,13 +9,13 @@ import {
   policySummary,
 } from "../../src/lib/legal/policies";
 import { LEGAL_LINKS, relatedLegalLinks } from "../../src/lib/legal/related";
-import { sectionById, sectionNumber } from "../../src/lib/legal/sections";
 import * as legal from "../../src/lib/legal";
-import { getLegalDocument } from "../../src/lib/legal/source";
-import type { LegalDocumentKey } from "../../src/lib/legal/types";
 import type { PublicPolicy } from "../../src/lib/portal/types";
+import { cmsDefaults } from "../cms-defaults";
 
-const KEYS: LegalDocumentKey[] = ["privacy", "cookies", "legal", "grievance"];
+// The policies pages' wording is the CMS's (catalogue defaults = what exyconn.com is seeded with).
+const LIST = cmsComponent("policy.list")?.defaultProps as { meta: string };
+const DETAIL = cmsComponent("policy.detail")?.defaultProps as { versionLine: string };
 
 const policy: PublicPolicy = {
   title: "Acceptable use",
@@ -31,52 +31,10 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("legal documents", () => {
-  it.each(KEYS)(
-    "%s has a plain summary, unique anchors and any date it claims is real",
-    async (key) => {
-      const doc = await getLegalDocument(key);
-      expect(doc.summary.length).toBeGreaterThanOrEqual(3);
-      expect(doc.summary.length).toBeLessThanOrEqual(5);
-      const ids = doc.sections.map((section) => section.id);
-      expect(new Set(ids).size).toBe(ids.length);
-      if (doc.updated !== undefined) {
-        expect(Number.isNaN(Date.parse(doc.updated))).toBe(false);
-      }
-      expect(doc.title.split(" ").length).toBeLessThanOrEqual(8);
-    }
-  );
-
-  it("quotes one response time on the legal and grievance pages", async () => {
-    const texts = await Promise.all(
-      (["legal", "grievance"] as const).map(async (key) =>
-        JSON.stringify(await getLegalDocument(key))
-      )
-    );
-    for (const text of texts) {
-      expect(text).toContain(`${RESPONSE_BUSINESS_DAYS} business days`);
-      expect(text).not.toMatch(/3-5 business days|7 business days/);
-    }
-  });
-});
-
 describe("barrel", () => {
   it("exposes the page API from one entry point", () => {
-    expect(legal.getLegalDocument).toBe(getLegalDocument);
-    expect(legal.PRIVACY_CONTACT_EMAIL).toContain("@");
-  });
-});
-
-describe("sections", () => {
-  it("numbers a section by its place in the document", async () => {
-    const doc = await getLegalDocument("legal");
-    expect(sectionNumber(doc, "submit-a-request")).toBe(3);
-    expect(sectionById(doc, "how-requests-are-handled").label).toBe("How requests are handled");
-  });
-
-  it("refuses a section the document does not have", async () => {
-    const doc = await getLegalDocument("grievance");
-    expect(() => sectionNumber(doc, "nope")).toThrow('No section "nope"');
+    expect(legal.readerDate).toBe(readerDate);
+    expect(legal.relatedLegalLinks).toBe(relatedLegalLinks);
   });
 });
 
@@ -134,18 +92,18 @@ describe("policies", () => {
   });
 
   it("formats a row and the plain summary in the reader's locale", () => {
-    expect(policyRow(policy, "en-GB")).toEqual({
+    expect(policyRow(policy, "en-GB", LIST.meta)).toEqual({
       href: "/policies/acceptable-use",
       title: "Acceptable use",
       summary: "What you may do with our services.",
       meta: "Version 3 · Effective 5 January 2026 · Updated 10 February 2026",
       updatedIso: "2026-02-10",
     });
-    expect(policySummary(policy, "en-US")).toEqual([
+    expect(policySummary(policy, "en-US", DETAIL.versionLine)).toEqual([
       "What you may do with our services.",
       "Version 3, in effect from January 5, 2026.",
     ]);
-    expect(policySummary({ ...policy, summary: "" }, "en-US")).toHaveLength(1);
+    expect(policySummary({ ...policy, summary: "" }, "en-US", DETAIL.versionLine)).toHaveLength(1);
   });
 
   it("stacks one sheet per policy, up to eight", () => {
@@ -156,9 +114,7 @@ describe("policies", () => {
 });
 
 describe("last-updated dates", () => {
-  it("shows only the dates the pages actually recorded", async () => {
-    expect((await getLegalDocument("privacy")).updated).toBe("2025-06-27");
-    expect((await getLegalDocument("cookies")).updated).toBeUndefined();
-    expect((await getLegalDocument("grievance")).updated).toBeUndefined();
+  it("shows only the dates the pages actually recorded", () => {
+    expect(cmsDefaults<{ updated: string }>("legal.document").updated).toBe("2025-06-27");
   });
 });

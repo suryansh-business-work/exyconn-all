@@ -1,20 +1,22 @@
 import { z } from "zod";
 import { captchaAnswer, requiredEmail } from "../shared/fieldSchemas";
-import type { ContactFormValues } from "./contact.types";
+import type { ContactFormMessages, ContactFormValues } from "./contact.types";
 
-export const contactFormSchema = z.object({
-  firstName: z.string().min(1, "First name is required").min(2, "Too short!").max(50, "Too long!"),
-  lastName: z.string().min(1, "Last name is required").min(2, "Too short!").max(50, "Too long!"),
-  email: requiredEmail(),
-  company: z.string().max(100, "Too long!"),
-  subject: z.string().min(1, "Please select a subject"),
-  message: z
-    .string()
-    .min(1, "Message is required")
-    .min(10, "Message is too short!")
-    .max(1000, "Message is too long!"),
-  captcha: captchaAnswer(),
-});
+/** The contact form's rules, with the messages the page's copy gives them. */
+export const contactFormSchema = (m: ContactFormMessages) =>
+  z.object({
+    firstName: z.string().min(1, m.firstNameRequired).min(2, m.tooShort).max(50, m.tooLong),
+    lastName: z.string().min(1, m.lastNameRequired).min(2, m.tooShort).max(50, m.tooLong),
+    email: requiredEmail(m.emailRequired, m.emailInvalid),
+    company: z.string().max(100, m.tooLong),
+    subject: z.string().min(1, m.subjectRequired),
+    message: z
+      .string()
+      .min(1, m.messageRequired)
+      .min(10, m.messageTooShort)
+      .max(1000, m.messageTooLong),
+    captcha: captchaAnswer(m.captchaRequired),
+  });
 
 export const CONTACT_FORM_DEFAULTS: ContactFormValues = {
   firstName: "",

@@ -6,10 +6,11 @@
 import "./hubs.css";
 import FilterBar from "../inner/FilterBar.astro";
 import { countLabel } from "../../lib/services/catalog";
-import { STATUS_LABELS, type PlatformGroup } from "../../lib/services/platform";
+import type { PlatformGroup, PlatformStatusLabels } from "../../lib/services/platform";
 
 type Props = Readonly<{
   groups: readonly PlatformGroup[];
+  statusLabels: PlatformStatusLabels;
   copy: {
     filterLabel: string;
     sheetLabel: string;
@@ -24,7 +25,7 @@ type Props = Readonly<{
   };
 }>;
 
-const { groups, copy } = Astro.props;
+const { groups, statusLabels, copy } = Astro.props;
 ---
 
 <FilterBar
@@ -69,7 +70,7 @@ const { groups, copy } = Astro.props;
             >
               <p class="flex flex-wrap items-center gap-x-3 gap-y-1">
                 <span class="font-semibold text-fg">{service.name}</span>
-                <span class="hub-status stage-label">{STATUS_LABELS[service.status]}</span>
+                <span class="hub-status stage-label">{statusLabels[service.status]}</span>
               </p>
               <p class="inner-card__text">{service.description}</p>
               <ul class="inner-chips" aria-label={`${service.name} features`}>

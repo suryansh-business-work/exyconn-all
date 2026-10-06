@@ -8,13 +8,12 @@ import {
   formatUsd,
   nextRole,
 } from "../../../lib/company/quote";
-import { quoteText } from "../../../lib/company/quote-copy";
+import { useQuoteText } from "./quote-text";
 import type { QuoteFormValues } from "./quote.types";
-
-const text = quoteText.scope;
 
 /** The team: one row per role with its head count and hourly rate; add and remove rows. */
 export function TeamFields() {
+  const text = useQuoteText().scope;
   const {
     control,
     register,
@@ -115,7 +114,7 @@ export function TeamFields() {
                     <input
                       id={`team-${field.id}-name`}
                       type="text"
-                      placeholder="Enter custom role name..."
+                      placeholder={text.customNamePlaceholder}
                       className={CONTROL_CLASS}
                       {...register(`team.${index}.customLabel`)}
                     />

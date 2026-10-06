@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
+import { useSitePath, useSiteScope } from '../cms/site';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import {
@@ -18,6 +19,8 @@ import {
 
 /** Website CMS — case studies with a server-side grid. */
 export function CaseStudiesPage() {
+  const scope = useSiteScope();
+  const to = useSitePath();
   // Stat cards still summarise all case studies; the grid itself is server-paged.
   const { data, loading } = useListCaseStudiesQuery();
   const [deleteCaseStudy] = useDeleteCaseStudyMutation();
@@ -34,9 +37,10 @@ export function CaseStudiesPage() {
   const fetchRows = usePagedFetcher(
     ListCaseStudiesPagedDocument,
     (result: ListCaseStudiesPagedQuery) => result.listCaseStudiesPaged,
+    scope.filters,
   );
 
-  const rows = data?.listCaseStudies ?? [];
+  const rows = (data?.listCaseStudies ?? []).filter(scope.owns);
   const categoryCount = new Set(rows.map((r) => r.category).filter(Boolean)).size;
   const stats: StatItem[] = [
     { label: 'Case studies', value: String(rows.length), accent: color.blue[400] },
@@ -56,7 +60,7 @@ export function CaseStudiesPage() {
   const gridContext: CaseStudiesGridContext = {
     actions: {
       edit: crud.openEdit,
-      liveEdit: (row) => navigate(`/website/case-studies/${row.id}/live-edit`),
+      liveEdit: (row) => navigate(to(`case-studies/${row.id}/live-edit`)),
       delete: crud.remove,
     },
     formatDate,

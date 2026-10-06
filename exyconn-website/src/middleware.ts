@@ -1,9 +1,11 @@
+import type { APIContext, MiddlewareNext } from "astro";
 import { defineMiddleware } from "astro:middleware";
 import { splitMarketPath, type Market } from "./lib/i18n/markets";
 import { collectStrings, translateHtml } from "./lib/i18n/html-translate";
 import { cachePage, cachedPage } from "./lib/i18n/page-cache";
 import { loadMessages, translateMissing, type Messages } from "./lib/i18n/translations";
 import { localiseLinks, marketRedirect } from "./lib/i18n/market-links";
+import { getCmsSite, type CmsPublicSite } from "./lib/cms";
 
 const APEX_HOST = "exyconn.com";
 
@@ -37,6 +39,76 @@ function frameAncestors(): string {
   const configured = (process.env.CHAT_FRAME_ANCESTORS ?? "").split(/[\s,]+/).filter(Boolean);
   const origins = configured.length > 0 ? configured : DEFAULT_FRAME_ANCESTORS;
   return ["'self'", ...origins].join(" ");
+}
+
+/**
+ * A CMS draft through the page editor's preview link: served as it is — no market, no
+ * translation — and never indexed.
+ */
+const PREVIEW_PATH = /^\/cms-preview$/;
+
+/**
+ * The page builder shows the draft beside its canvas, so the portal may frame a preview.
+ * `CMS_PREVIEW_ANCESTORS` (space or comma separated) overrides the default — set it to the
+ * portal's local origin in development.
+ */
+const DEFAULT_PREVIEW_ANCESTORS = ["https://website.exyconn.com"];
+
+function previewAncestors(): string {
+  const configured = (process.env.CMS_PREVIEW_ANCESTORS ?? "").split(/[\s,]+/).filter(Boolean);
+  const origins = configured.length > 0 ? configured : DEFAULT_PREVIEW_ANCESTORS;
+  return ["'self'", ...origins].join(" ");
+}
+
+/** Where the pages of a CMS site served without markets are rendered (src/pages/cms-site). */
+const OFF_MARKET_ROUTE = "/cms-site";
+
+/**
+ * The CMS site a host is claimed by when it is served without markets, else null (exyconn.com
+ * and every host the CMS does not claim keep the market routing). The CMS being unreachable
+ * must not take exyconn.com's own pages down with it, so a failed lookup is logged and the
+ * request routed as it always was.
+ */
+async function offMarketSite(host: string): Promise<CmsPublicSite | null> {
+  if (host === "") {
+    return null;
+  }
+  try {
+    const site = await getCmsSite(host);
+    return site.site.markets ? null : site;
+  } catch (error) {
+    console.error(`CMS site lookup failed for host ${host}`, error);
+    return null;
+  }
+}
+
+/**
+ * A CMS page served outside the markets, or null for everything else: a draft preview
+ * (no market, no translation, never indexed), or any page of a host claimed by a CMS site
+ * without markets, rendered by the off-market route with the site on `locals`.
+ */
+async function offMarketResponse(
+  context: APIContext,
+  next: MiddlewareNext,
+  host: string,
+  isPageRequest: boolean
+): Promise<Response | null> {
+  const { pathname } = context.url;
+  if (PREVIEW_PATH.test(pathname)) {
+    const response = withSecurityHeaders(await next());
+    response.headers.set("X-Robots-Tag", "noindex");
+    // Framed by the page builder's live preview; CSP frame-ancestors names the portal.
+    response.headers.delete("X-Frame-Options");
+    response.headers.set("Content-Security-Policy", `frame-ancestors ${previewAncestors()}`);
+    return response;
+  }
+  const site = isPageRequest ? await offMarketSite(host) : null;
+  if (!site) {
+    return null;
+  }
+  context.locals.cmsSite = site;
+  const rest = pathname === "/" ? "" : pathname;
+  return withSecurityHeaders(await next(`${OFF_MARKET_ROUTE}${rest}`));
 }
 
 const isPage = (pathname: string) =>
@@ -144,11 +216,18 @@ export const onRequest = defineMiddleware(async (context, next) => {
     return withEmbedHeaders(await next());
   }
 
-  // 4. Every page lives under a market — exyconn.com/en-in/about-us — which Astro routes
+  // 4. CMS pages outside the markets: a draft preview, or a site with its own domain.
+  const isPageRequest =
+    isPage(url.pathname) && !(context.isPrerendered && ERROR_PAGE.test(url.pathname));
+  const offMarket = await offMarketResponse(context, next, lowerHost, isPageRequest);
+  if (offMarket) {
+    return offMarket;
+  }
+
+  // 5. Every page lives under a market — exyconn.com/en-in/about-us — which Astro routes
   // through src/pages/[market]. A URL with no market is sent on to the reader's market.
   const { market, rest } = splitMarketPath(url.pathname);
-  const buildingErrorPage = context.isPrerendered && ERROR_PAGE.test(url.pathname);
-  if (isPage(url.pathname) && !buildingErrorPage) {
+  if (isPageRequest) {
     if (!market) {
       // An old link, or somebody typing exyconn.com/about-us: send them to the market they
       // chose, else the one their browser asks for, keeping the page (see marketForRequest).
@@ -161,7 +240,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   const response = await next();
 
-  // 5. Apply security headers to all HTML responses (don't mutate redirects/streams unnecessarily)
+  // 6. Apply security headers to all HTML responses (don't mutate redirects/streams unnecessarily)
   const contentType = response.headers.get("content-type") || "";
   response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
   response.headers.set("X-Content-Type-Options", "nosniff");

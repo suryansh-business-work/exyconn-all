@@ -1,0 +1,34 @@
+---
+/**
+ * Cross-links to the other hubs (CMS "service.related-hubs"), optionally with one featured
+ * card above them (`featured.href` "" for none).
+ */
+import RelatedHubs from "../../hubs/RelatedHubs.astro";
+import LinkCard from "../../inner/LinkCard.astro";
+import type { HubLink } from "../../../lib/services/catalog";
+
+type Props = Readonly<{
+  index: number;
+  label: string;
+  title: string;
+  links: readonly HubLink[];
+  featured: HubLink;
+}>;
+
+const { index, label, title, links, featured } = Astro.props;
+---
+
+<RelatedHubs index={index} label={label} title={title} links={links}>
+  {
+    featured.href && (
+      <div class="mt-10 max-w-xl">
+        <LinkCard
+          href={featured.href}
+          title={featured.title}
+          text={featured.text}
+          more={featured.more}
+        />
+      </div>
+    )
+  }
+</RelatedHubs>

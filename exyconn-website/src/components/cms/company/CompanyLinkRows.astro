@@ -1,0 +1,11 @@
+---
+/** 'company.link-rows' — grouped rows of linked services (LinkRows). */
+import LinkRows from "../../hubs/LinkRows.astro";
+import type { RowGroup } from "../../hubs/LinkRows.astro";
+
+type Props = Readonly<{ groups: readonly RowGroup[] }>;
+
+const { groups } = Astro.props;
+---
+
+<LinkRows groups={groups} />

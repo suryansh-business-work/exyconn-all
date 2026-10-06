@@ -10,6 +10,7 @@ import {
 } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
+import { useCurrentSiteId } from '../../../cms/site';
 import {
   useCreateBlogPostMutation,
   useUpdateBlogPostMutation,
@@ -80,6 +81,7 @@ interface BlogPostFormProps {
 
 /** React Hook Form + Zod form to create or update a blog post. */
 export function BlogPostForm({ initial, onDone, onCancel }: Readonly<BlogPostFormProps>) {
+  const siteId = useCurrentSiteId();
   const [createBlogPost] = useCreateBlogPostMutation();
   const [updateBlogPost] = useUpdateBlogPostMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
@@ -91,7 +93,8 @@ export function BlogPostForm({ initial, onDone, onCancel }: Readonly<BlogPostFor
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Blog post',
     initial,
-    create: (values: Values) => createBlogPost({ variables: { input: toInput(values) } }),
+    create: (values: Values) =>
+      createBlogPost({ variables: { input: { ...toInput(values), siteId } } }),
     update: (row, values) => updateBlogPost({ variables: { id: row.id, input: toInput(values) } }),
     onDone,
   });

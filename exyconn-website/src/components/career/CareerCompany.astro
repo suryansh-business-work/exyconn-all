@@ -1,0 +1,19 @@
+---
+/**
+ * One company's careers (CMS component 'career.company', the
+ * /career/company/:companySlug template). The page's loader read the company and its roles;
+ * an unknown company is a 404 before this renders.
+ */
+import CareerCompanyBody from "./CareerCompanyBody.astro";
+import type { CareerCompanyCopy } from "./types";
+import { detailOf } from "../../lib/cms/loaders";
+import type { CompanyDetail } from "../../lib/cms/loaders/career";
+import type { CmsRenderContext } from "../../lib/cms/types";
+
+type Props = Readonly<CareerCompanyCopy & { cms: CmsRenderContext }>;
+
+const { cms, ...props } = Astro.props;
+const detail = detailOf<CompanyDetail>(cms, "career.company");
+---
+
+{detail && <CareerCompanyBody {...props} detail={detail} />}

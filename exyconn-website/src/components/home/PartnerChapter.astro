@@ -1,38 +1,44 @@
 ---
 /** Chapter 3 — space. Why Exyconn, and the platforms the work runs on. */
-import {
-  whyChooseUsActions,
-  whyChooseUsCopy,
-  whyChooseUsStats,
-  whyChooseUsValues,
-} from "../../lib/home/why-choose-us";
-import { defaultTechLogos } from "../../lib/tech-logos";
 import ChapterIntro from "./ChapterIntro.astro";
 import GlassList from "./GlassList.astro";
 import StageButton from "./StageButton.astro";
+import type { HomeAction, HomeHeading, HomeItem, HomeLogo, HomeStat } from "./types";
 
-interface Props {
+interface Props extends HomeHeading {
   id: string;
+  actions: readonly HomeAction[];
+  values: readonly HomeItem[];
+  image: { src: string; alt: string };
+  stats: readonly HomeStat[];
   techTitle: string;
   techSubtitle: string;
+  techLogos: readonly HomeLogo[];
 }
 
-const { id, techTitle, techSubtitle } = Astro.props;
+const {
+  id,
+  badge,
+  title,
+  accent,
+  lead,
+  actions,
+  values,
+  image,
+  stats,
+  techTitle,
+  techSubtitle,
+  techLogos,
+} = Astro.props;
 ---
 
 <section id={id} data-chapter="3" class="stage-chapter">
   <div class="stage-shell">
     <div class="stage-intro">
-      <ChapterIntro
-        index={3}
-        label={whyChooseUsCopy.badge}
-        title={whyChooseUsCopy.title}
-        accent={whyChooseUsCopy.accent}
-        lead={whyChooseUsCopy.lead}
-      >
+      <ChapterIntro index={3} label={badge} title={title} accent={accent} lead={lead}>
         <div class="mt-8 flex flex-col sm:flex-row gap-3">
           {
-            whyChooseUsActions.map((action, index) => (
+            actions.map((action, index) => (
               <StageButton action={action} variant={index === 0 ? "solid" : "glass"} />
             ))
           }
@@ -41,17 +47,17 @@ const { id, techTitle, techSubtitle } = Astro.props;
     </div>
 
     <div class="stage-column stage-gap">
-      <GlassList items={whyChooseUsValues} tile="bg-fuchsia-soft text-fuchsia-fg" />
+      <GlassList items={values} tile="bg-fuchsia-soft text-fuchsia-fg" />
       <figure class="glass mt-3 p-2 grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-2 items-center">
         <img
-          src={whyChooseUsCopy.image.src}
-          alt={whyChooseUsCopy.image.alt}
+          src={image.src}
+          alt={image.alt}
           class="w-full h-44 object-cover rounded-xl"
           loading="lazy"
         />
         <dl class="grid grid-cols-2 sm:grid-cols-1 gap-2 px-2">
           {
-            whyChooseUsStats.map((stat) => (
+            stats.map((stat) => (
               <div class="px-3 py-2 text-center">
                 <dt class="stage-label">{stat.label}</dt>
                 <dd class="mt-1 text-3xl font-black text-fg">{stat.value}</dd>
@@ -69,7 +75,7 @@ const { id, techTitle, techSubtitle } = Astro.props;
       <p class="mt-3 text-fg-secondary">{techSubtitle}</p>
       <ul class="mt-5 grid grid-cols-2 sm:grid-cols-3 gap-2">
         {
-          defaultTechLogos.map((logo) => (
+          techLogos.map((logo) => (
             <li class="tech-logo-item flex items-center justify-center h-16 rounded-xl border border-line-subtle px-4">
               <img
                 src={logo.src}

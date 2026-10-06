@@ -1,36 +1,48 @@
 ---
 /**
  * The AI service catalogue, dense and narrow: one glass panel per category in the reading
- * column, its services as compact rows. Read straight from lib/services so the home page
- * and /ai-services never drift.
+ * column, its services as compact rows. The services are the CMS's own catalogue (the
+ * /ai-services page, src/lib/cms/ai-services.ts) so the home page and /ai-services never
+ * drift; the heading is CMS copy.
  */
-import { catalogueHeader } from "../../lib/home/solutions";
-import { aiServiceCategories, servicesInCategory } from "../../lib/services/aiServices";
+import { aiServiceCategories } from "../../lib/cms/ai-services";
+import { fillCopy } from "../../lib/cms/variables";
+import type { CmsRenderContext } from "../../lib/cms/types";
+import type { CatalogueHeading } from "./types";
+
+interface Props {
+  /** The panel above the catalogue; its title may name {serviceCount}. */
+  heading: CatalogueHeading;
+  cms: CmsRenderContext;
+}
+
+const { heading, cms } = Astro.props;
+const categories = await aiServiceCategories(cms.siteId);
 ---
 
 <div class="stage-column stage-gap">
   <div class="glass p-5 md:p-6 mb-3">
     <p class="stage-label flex items-center gap-3 mb-3">
       <span class="text-orange-bright" aria-hidden="true">—</span>
-      <span>{catalogueHeader.badge}</span>
+      <span>{heading.badge}</span>
     </p>
     <h2 class="stage-title stage-title--md">
-      <span class="block" data-reveal-line>{catalogueHeader.title}</span>
-      <span class="block stage-accent" data-reveal-line>{catalogueHeader.accent}</span>
+      <span class="block" data-reveal-line>{fillCopy(heading.title, cms.variables)}</span>
+      <span class="block stage-accent" data-reveal-line>{heading.accent}</span>
     </h2>
-    <p class="mt-4 text-fg-secondary leading-relaxed">{catalogueHeader.lead}</p>
+    <p class="mt-4 text-fg-secondary leading-relaxed">{heading.lead}</p>
     <a
-      href={catalogueHeader.cta.href}
+      href={heading.ctaHref}
       class="mt-5 inline-flex items-center gap-2 min-h-11 font-semibold text-sky-bright"
     >
-      {catalogueHeader.cta.label}
+      {heading.ctaLabel}
       <i class="fa-solid fa-arrow-right icon-xs" aria-hidden="true"></i>
     </a>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
     {
-      aiServiceCategories.map((category) => (
+      categories.map((category) => (
         <section class="glass p-4" aria-labelledby={`category-${category.slug}`}>
           <div class="flex items-start gap-3 pb-3 border-b border-line">
             <span class="shrink-0 w-9 h-9 rounded-lg bg-violet-soft text-violet-fg flex items-center justify-center">
@@ -44,7 +56,7 @@ import { aiServiceCategories, servicesInCategory } from "../../lib/services/aiSe
             </div>
           </div>
           <ul class="mt-1">
-            {servicesInCategory(category.slug).map((service) => (
+            {category.services.map((service) => (
               <li>
                 <a
                   href={`/ai-services/${service.slug}`}

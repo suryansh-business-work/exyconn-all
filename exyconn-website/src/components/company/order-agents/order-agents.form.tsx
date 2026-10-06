@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -13,12 +14,12 @@ import {
   ROW_CLASS,
   SUBMIT_CLASS,
 } from "../../forms/legal/legal-form.styles";
-import { AGENTS, agentRequest, agentsText, selectedAgentNames } from "../../../lib/company/agents";
+import { agentRequest, selectedAgentNames, type Agent } from "../../../lib/company/agents";
 import { highlightStage } from "../../../scripts/stage3d/events";
 import { AgentPicker } from "./AgentPicker";
 import { SuiteList } from "./SuiteList";
 import { ORDER_AGENTS_DEFAULTS, orderAgentsSchema } from "./order-agents.schema";
-import type { OrderAgentsValues } from "./order-agents.types";
+import type { OrderAgentsText, OrderAgentsValues } from "./order-agents.types";
 import "./order-agents.css";
 
 type TextField = "firstName" | "lastName" | "email" | "company";
@@ -38,9 +39,21 @@ const FIELDS: readonly {
 /**
  * Build-your-suite (React Hook Form + Zod): pick agents, say who you are, answer the
  * security question. The request goes to /api/form-submit as a contact enquiry — the same
- * path and captcha as the contact form — and the result shows in the page.
+ * path and captcha as the contact form — and the result shows in the page. The agents and
+ * every word are the CMS page's props.
  */
-export function OrderAgentsForm() {
+export function OrderAgentsForm({
+  agents,
+  text,
+}: Readonly<{ agents: readonly Agent[]; text: OrderAgentsText }>) {
+  const schema = useMemo(
+    () =>
+      orderAgentsSchema(
+        agents.map((agent) => agent.id),
+        text.messages
+      ),
+    [agents, text.messages]
+  );
   const {
     register,
     handleSubmit,
@@ -49,17 +62,22 @@ export function OrderAgentsForm() {
     watch,
     formState: { errors, isSubmitting, isSubmitted },
   } = useForm<OrderAgentsValues>({
-    resolver: zodResolver(orderAgentsSchema),
+    resolver: zodResolver(schema),
     defaultValues: ORDER_AGENTS_DEFAULTS,
     mode: "onTouched",
   });
   const { captcha, captchaError, refreshCaptcha, status, submit } = useCaptchaSubmit(
     "contact",
     () => reset(),
-    { successResetMs: 15000 }
+    {
+      incorrectAnswer: text.status.incorrect,
+      loading: text.status.loading,
+      loadFailed: text.status.loadFailed,
+      successResetMs: 15000,
+    }
   );
   const selected = watch("agentIds");
-  const chosen = AGENTS.filter((agent) => selected.includes(agent.id));
+  const chosen = agents.filter((agent) => selected.includes(agent.id));
 
   const toggle = (id: string) => {
     const next = selected.includes(id)
@@ -70,27 +88,29 @@ export function OrderAgentsForm() {
   };
 
   const send = ({ captcha: answer, agentIds, ...contact }: OrderAgentsValues) =>
-    submit(answer, agentRequest(contact, selectedAgentNames(agentIds)));
+    submit(answer, agentRequest(contact, selectedAgentNames(agentIds, agents)));
 
   return (
     <div className="agents-layout">
-      <AgentPicker agents={AGENTS} selected={selected} onToggle={toggle} />
+      <AgentPicker agents={agents} selected={selected} onToggle={toggle} text={text} />
       <section className="inner-panel agents-suite legal-form" aria-labelledby="agents-suite">
         <SuiteList
           names={chosen}
-          total={AGENTS.length}
+          total={agents.length}
           error={errors.agentIds?.message}
           onRemove={toggle}
+          text={text}
         />
-        <form aria-label={agentsText.submit} onSubmit={handleSubmit(send)}>
-          <h3 className="stage-label inner-index">{agentsText.detailsTitle}</h3>
+        <form aria-label={text.submit} onSubmit={handleSubmit(send)}>
+          <h3 className="stage-label inner-index">{text.detailsTitle}</h3>
           <div className={ROW_CLASS}>
             {FIELDS.map((field) => (
               <FormField
                 key={field.name}
                 id={`agents-${field.name}`}
-                label={agentsText[field.name]}
+                label={text[field.name]}
                 marker={field.required ? "required" : "optional"}
+                optionalLabel={text.optional}
                 error={errors[field.name]?.message}
               >
                 <input
@@ -106,8 +126,9 @@ export function OrderAgentsForm() {
           </div>
           <FormField
             id="agents-notes"
-            label={agentsText.notes}
+            label={text.notes}
             marker="optional"
+            optionalLabel={text.optional}
             error={errors.notes?.message}
           >
             <textarea
@@ -126,14 +147,19 @@ export function OrderAgentsForm() {
               captchaError={captchaError}
               onRefresh={refreshCaptcha}
               accent="amber"
+              copy={text.captcha}
             />
           </div>
-          <SubmitStatusAlert status={status} successMessage={agentsText.sent} />
+          <SubmitStatusAlert
+            status={status}
+            successMessage={text.sent}
+            errorMessage={text.status.failed}
+          />
           <SubmitButton
             isSubmitting={isSubmitting}
             className={SUBMIT_CLASS}
-            label={agentsText.submit}
-            busyLabel={agentsText.sending}
+            label={text.submit}
+            busyLabel={text.sending}
           />
         </form>
       </section>
