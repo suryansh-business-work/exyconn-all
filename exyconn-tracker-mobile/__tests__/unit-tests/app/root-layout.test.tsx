@@ -185,7 +185,7 @@ describe('RootLayout', () => {
       trackerState({ preferences: preferences({ themeMode }) }),
     );
     render(<RootLayout />);
-    expect(screen.getByTestId('status-bar')).toHaveAttribute('content', style);
+    expect(screen.getByTestId('status-bar')).toHaveAttribute('data-style', style);
   });
 
   it('exports the root error boundary', () => {

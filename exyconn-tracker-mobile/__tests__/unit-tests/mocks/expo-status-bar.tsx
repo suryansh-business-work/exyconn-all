@@ -1,4 +1,7 @@
-/** `expo-status-bar`: renders a marker carrying the chosen style. */
+/**
+ * `expo-status-bar`: renders a marker carrying the chosen style. A plain element, not `<meta>`,
+ * which React 19 hoists into `document.head`, out of reach of `screen` queries.
+ */
 export function StatusBar({ style }: Readonly<{ style?: string }>) {
-  return <meta data-testid="status-bar" content={style} />;
+  return <div data-testid="status-bar" data-style={style} />;
 }

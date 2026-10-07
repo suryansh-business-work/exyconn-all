@@ -65,7 +65,10 @@ export function Pressable({
 export const TouchableOpacity = Pressable;
 
 export function ActivityIndicator(props: Readonly<HostProps & { size?: unknown; color?: string }>) {
-  return <div role="progressbar" {...domA11yProps(props)} />;
+  // `domA11yProps` always carries a `role` key (undefined when none is given), so the
+  // spinner's own role is applied after the spread rather than overwritten by it.
+  const a11y = domA11yProps(props);
+  return <div {...a11y} role={typeof a11y.role === 'string' ? a11y.role : 'progressbar'} />;
 }
 
 export function Image({

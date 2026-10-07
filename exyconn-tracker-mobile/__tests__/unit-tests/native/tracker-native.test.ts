@@ -1,9 +1,12 @@
-import { describe, expect, it } from 'vitest';
-import { KEEP_ALIVE_TASK, TrackerNative } from '../../../src/native/tracker-native';
-import { requireOptionalNativeModule } from '../mocks/expo';
+import { describe, expect, it, vi } from 'vitest';
+import { KEEP_ALIVE_TASK } from '../../../src/native/tracker-native';
 
 describe('the tracker-native module', () => {
-  it('is looked up by name, optionally, so iOS gets null instead of a crash', () => {
+  it('is looked up by name, optionally, so iOS gets null instead of a crash', async () => {
+    // The lookup runs at import, and vitest clears spy calls before each test: import afresh.
+    vi.resetModules();
+    const { requireOptionalNativeModule } = await import('../mocks/expo');
+    const { TrackerNative } = await import('../../../src/native/tracker-native');
     expect(requireOptionalNativeModule).toHaveBeenCalledWith('TrackerNative');
     expect(TrackerNative).toBeNull();
   });
