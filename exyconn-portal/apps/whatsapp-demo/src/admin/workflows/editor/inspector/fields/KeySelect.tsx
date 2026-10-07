@@ -1,4 +1,4 @@
-import { Controller, useFormContext } from 'react-hook-form';
+import { Controller, useFormContext, useWatch } from 'react-hook-form';
 import { useT } from '@exyconn/i18n';
 import { ListItemIcon, MenuItem, TextField } from '@exyconn/shell/components/ui';
 import { WA_ICONS } from '../../../../../components/wa/icons';
@@ -30,6 +30,9 @@ export function KeySelect({
 }: Readonly<KeySelectProps>) {
   const t = useT();
   const { control } = useFormContext();
+  // Read without a fallback: a Controller's `field.value` falls back to the default value once
+  // "not set" is picked (stored as `undefined`), which would keep showing the old option.
+  const value = useWatch({ control, name }) as string | undefined;
   return (
     <Controller
       name={name}
@@ -39,7 +42,7 @@ export function KeySelect({
         return (
           <TextField
             {...field}
-            value={field.value ?? ''}
+            value={value ?? ''}
             onChange={(event) =>
               field.onChange(event.target.value === '' ? undefined : event.target.value)
             }

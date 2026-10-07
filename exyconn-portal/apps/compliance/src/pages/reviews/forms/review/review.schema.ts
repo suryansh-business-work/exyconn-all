@@ -1,11 +1,12 @@
 import { z } from 'zod';
 import { ManagementReviewStatus, ManagementStandard } from '@exyconn/shell/graphql/generated';
+import { optionalPickedDate, pickedDate } from '../../../compliance.dates';
 import type { ReviewRow } from './review.types';
 
 const actionSchema = z.object({
   description: z.string().trim().min(1, 'Say what the action is'),
   ownerName: z.string().trim(),
-  dueOn: z.date().nullable(),
+  dueOn: optionalPickedDate(),
   done: z.boolean(),
 });
 
@@ -13,7 +14,7 @@ export const reviewSchema = z
   .object({
     title: z.string().trim().min(1, 'Name the review'),
     standards: z.array(z.nativeEnum(ManagementStandard)).min(1, 'Pick at least one standard'),
-    heldOn: z.date({ message: 'Say when it was held' }),
+    heldOn: pickedDate('Say when it was held'),
     chairName: z.string().trim(),
     attendees: z.string().trim(),
     inputs: z.string().trim(),

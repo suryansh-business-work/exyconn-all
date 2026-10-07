@@ -26,6 +26,15 @@ describe('assetKind', () => {
       primary: true,
     });
   });
+
+  it('reads the extension case-insensitively and treats a name without one as an installer', () => {
+    expect(assetKind('EXYCONN-TRACKER.APK', 'Android').label).toBe('Download APK');
+    expect(assetKind('exyconn-tracker', 'Linux')).toEqual({
+      label: 'Download for Linux',
+      caption: '',
+      primary: true,
+    });
+  });
 });
 
 describe('orderAssets', () => {
@@ -35,5 +44,13 @@ describe('orderAssets', () => {
       'Exyconn-Tracker-1.9.9.apk',
       'Exyconn-Tracker-1.9.9.aab',
     ]);
+  });
+
+  it('returns a sorted copy and leaves the release list as it came', () => {
+    const files = [{ name: 'Exyconn-Tracker-1.9.9.aab' }, { name: 'Exyconn-Tracker-1.9.9.apk' }];
+    const ordered = orderAssets(files, 'Android');
+
+    expect(ordered).not.toBe(files);
+    expect(files[0].name).toBe('Exyconn-Tracker-1.9.9.aab');
   });
 });

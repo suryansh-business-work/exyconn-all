@@ -114,12 +114,12 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - name: Unit tests
         if: ${{ !inputs.coverage }}
-        run: pnpm $FILTER --workspace-concurrency=1 run test
+        run: pnpm $FILTER --no-bail --workspace-concurrency=1 run test
       # Coverage is reported on the PR, not gated.
       - name: Unit tests (with coverage)
         if: inputs.coverage
         run: |
-          pnpm $FILTER --workspace-concurrency=1 run test \
+          pnpm $FILTER --no-bail --workspace-concurrency=1 run test \
             --coverage.enabled --coverage.reporter=json-summary --coverage.reporter=text-summary \
             '--coverage.include=src/**/*.{ts,tsx}' '--coverage.exclude=**/*.{test,cy}.{ts,tsx}' '--coverage.exclude=**/graphql/generated/**'
       # Collected with find (pruning node_modules) rather than a ** glob in upload-artifact,

@@ -1,4 +1,4 @@
-import { Controller, useFormContext } from 'react-hook-form';
+import { Controller, useFormContext, useWatch } from 'react-hook-form';
 import { useT } from '@exyconn/i18n';
 import { TextField } from '@exyconn/shell/components/ui';
 
@@ -36,6 +36,9 @@ export function NumberField({
 }: Readonly<NumberFieldProps>) {
   const t = useT();
   const { control } = useFormContext();
+  // Read without a fallback: a Controller's `field.value` falls back to the default value once
+  // the field is emptied (stored as `undefined`), which would put the old number back.
+  const value = useWatch({ control, name }) as number | string | undefined;
   return (
     <Controller
       name={name}
@@ -47,7 +50,7 @@ export function NumberField({
             name={field.name}
             inputRef={field.ref}
             onBlur={field.onBlur}
-            value={field.value ?? ''}
+            value={value ?? ''}
             onChange={(event) => field.onChange(parse(event.target.value, allowTemplate))}
             label={t(label)}
             size="small"

@@ -23,6 +23,14 @@ describe('todayAttendance', () => {
   it('returns null when nothing is marked today', () => {
     expect(todayAttendance([{ date: '2026-03-01T09:00:00.000Z', status: 'WFH' }], REF)).toBeNull();
   });
+
+  it('skips a record whose date cannot be read', () => {
+    const rows = [
+      { date: 'not-a-date', status: 'ABSENT' as const },
+      { date: '2026-03-15T09:00:00.000Z', status: 'WFH' as const },
+    ];
+    expect(todayAttendance(rows, REF)?.status).toBe('WFH');
+  });
 });
 
 describe('monthAttendance', () => {

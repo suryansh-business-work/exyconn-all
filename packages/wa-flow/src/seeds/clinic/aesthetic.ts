@@ -19,7 +19,7 @@ const ADVICE = 'advice';
 const DESK = 'desk';
 
 /** What picking a treatment stores, including the aftercare the check-in will need. */
-function chosen(item: Treatment) {
+export function chosen(item: Treatment) {
   const care = PROCEDURES.find((p) => p.id === item.aftercare);
   return {
     treatment: item.title,

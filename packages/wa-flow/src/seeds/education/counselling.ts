@@ -12,7 +12,7 @@ const SESSION = 'session';
 const DAY = 'day';
 const NOW = 'now';
 
-const byId = (id: string) => {
+export const byId = (id: string) => {
   const course = ALL_COURSES.find((c) => c.id === id);
   if (!course) {
     throw new Error(`Unknown course ${id}`);

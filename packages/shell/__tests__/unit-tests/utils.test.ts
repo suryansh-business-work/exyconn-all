@@ -34,4 +34,9 @@ describe('formatBytes', () => {
   it('shows whole bytes without decimals', () => {
     expect(formatBytes(0)).toBe('0 B');
   });
+
+  it('stays in gigabytes past the largest unit instead of running off the list', () => {
+    expect(formatBytes(1023)).toBe('1023 B');
+    expect(formatBytes(2048 * 1024 ** 3)).toBe('2048.0 GB');
+  });
 });
