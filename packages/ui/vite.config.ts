@@ -17,9 +17,11 @@ export default defineConfig({
     setupFiles: ['@testing-library/jest-dom/vitest'],
     include: ['__tests__/unit-tests/**/*.{test,spec}.{ts,tsx}'],
     coverage: {
-      // Component specs run under Cypress, not here; counting them as source would hold the
-      // tokens below their threshold for a file no unit test can execute.
-      exclude: ['**/*.cy.{ts,tsx}'],
+      // Mirrors CI: every source file counts, including ones no test imports yet. Component
+      // specs (*.cy.tsx) run under Cypress, not here, so they are not source.
+      provider: 'v8',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['**/*.{test,cy}.{ts,tsx}', '**/graphql/generated/**'],
       // The tokens and the theme are read in two modes from two files; a line nobody ran in
       // one of them is how a dark-only bug ships. Held at 100% for both — every override's
       // every branch is driven in each mode by theme-overrides.test.ts.
