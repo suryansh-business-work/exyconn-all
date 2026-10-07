@@ -37,7 +37,7 @@ export function imageSources(blocks: readonly Block[]): string[] {
 
 function base64Bytes(dataUrl: string): Uint8Array {
   const binary = globalThis.atob(dataUrl.slice(dataUrl.indexOf(',') + 1));
-  return Uint8Array.from(binary, (char) => char.codePointAt(0) ?? 0);
+  return Uint8Array.from(binary, (char) => Number(char.codePointAt(0)));
 }
 
 /**
