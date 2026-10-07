@@ -45,8 +45,11 @@ export const srgbOf = (color: Color): Rgb => {
 export const declaredUniforms = (source: string): string[] =>
   [...source.matchAll(/uniform\s+\w+\s+(\w+);/g)].map((match) => match[1]);
 
-/** Channels equal to `expected` within float rounding. */
+/**
+ * Channels equal to `expected` within float rounding. A colour read back through three's
+ * sRGB -> linear -> sRGB round trip drifts by about 6e-6, so compare to 4 decimal places.
+ */
 export const expectRgb = (actual: readonly number[], expected: Rgb): void => {
   expect(actual).toHaveLength(3);
-  actual.forEach((channel, index) => expect(channel).toBeCloseTo(expected[index], 5));
+  actual.forEach((channel, index) => expect(channel).toBeCloseTo(expected[index], 4));
 };

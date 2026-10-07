@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 /** The job application form's validation: required fields, formats and the résumé. */
-import { fireEvent, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { JobApplicationForm } from "../../../../../src/components/career/job-application";
 import { renderWithUser } from "../../../test-utils";
@@ -104,10 +105,11 @@ describe("JobApplicationForm validation", () => {
 
   it("refuses a picked file of the wrong type, then takes a PDF in its place", async () => {
     const { user } = await renderForm();
-    const input = field(/^Résumé \/ CV/);
-    fireEvent.change(input, {
-      target: { files: [new File(["x"], "photo.png", { type: "image/png" })] },
-    });
+    // The picker's `accept` would filter the PNG out; a visitor can still choose "All files".
+    // Uploading through user-event keeps input.files a real FileList for the next upload.
+    await userEvent
+      .setup({ applyAccept: false })
+      .upload(field(/^Résumé \/ CV/), new File(["x"], "photo.png", { type: "image/png" }));
     expect(
       await screen.findByText("Only PDF, DOC, and DOCX files are allowed")
     ).toBeInTheDocument();

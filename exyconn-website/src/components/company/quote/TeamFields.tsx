@@ -24,6 +24,9 @@ export function TeamFields() {
   } = useFormContext<QuoteFormValues>();
   const { fields, append, remove } = useFieldArray({ control, name: "team" });
   const team = watch("team");
+  // trigger() on the field array files the array's own error under `root`; a full-form
+  // resolver run with no rows mounted files it on `team` itself.
+  const teamError = errors.team?.root?.message ?? errors.team?.message;
 
   const onRoleChange = (index: number, roleId: string) => {
     setValue(`team.${index}.rate`, findRole(roleId).rate, { shouldValidate: true });
@@ -125,7 +128,7 @@ export function TeamFields() {
           );
         })}
       </ul>
-      {errors.team?.message && <p className="quote-error">{errors.team.message}</p>}
+      {teamError && <p className="quote-error">{teamError}</p>}
       {fields.length < QUOTE_LIMITS.maxTeam && (
         <button
           type="button"

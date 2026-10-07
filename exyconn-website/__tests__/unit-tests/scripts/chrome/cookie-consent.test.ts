@@ -30,6 +30,19 @@ const click = (id: string) => document.getElementById(id)?.click();
 const storedPreferences = () =>
   JSON.parse(localStorage.getItem(COOKIE_PREFS_STORAGE_KEY) ?? "null") as unknown;
 
+const FIRST_VISIT_DELAY_MS = 600;
+
+/**
+ * Watches for the first-visit open. `vi.getTimerCount()` cannot tell it apart from the timers
+ * the test runner itself starts while it imports the module afresh, so look for this one call.
+ */
+const watchSchedule = () => vi.spyOn(globalThis, "setTimeout");
+const expectNoFirstVisitOpen = (schedule: ReturnType<typeof watchSchedule>) => {
+  expect(schedule).not.toHaveBeenCalledWith(expect.any(Function), FIRST_VISIT_DELAY_MS);
+  // Back to the bare fake before afterEach swaps the real timers in.
+  schedule.mockRestore();
+};
+
 const boot = async (html = MARKUP) => {
   document.body.innerHTML = html;
   vi.resetModules();
@@ -53,7 +66,7 @@ afterEach(() => {
 describe("cookie drawer on load", () => {
   it("opens by itself shortly after a first visit", async () => {
     await boot();
-    vi.advanceTimersByTime(599);
+    vi.advanceTimersByTime(FIRST_VISIT_DELAY_MS - 1);
     expect(drawerOpen()).toBe("false");
     vi.advanceTimersByTime(1);
     expect(drawerOpen()).toBe("true");
@@ -61,8 +74,10 @@ describe("cookie drawer on load", () => {
 
   it("stays closed for a visitor who already chose", async () => {
     localStorage.setItem(CONSENT_STORAGE_KEY, "rejected");
+    const schedule = watchSchedule();
     await boot();
-    expect(vi.getTimerCount()).toBe(0);
+    expectNoFirstVisitOpen(schedule);
+    vi.advanceTimersByTime(FIRST_VISIT_DELAY_MS);
     expect(drawerOpen()).toBe("false");
   });
 });
@@ -124,8 +139,9 @@ describe("cookie choices", () => {
 
   it("still records a choice on a page without the drawer", async () => {
     localStorage.removeItem(CONSENT_STORAGE_KEY);
+    const schedule = watchSchedule();
     await boot(BUTTONS);
-    expect(vi.getTimerCount()).toBe(0);
+    expectNoFirstVisitOpen(schedule);
     click("cookie-save-preferences");
     expect(storedPreferences()).toEqual({ analytics: false, functional: false, marketing: false });
     expect(localStorage.getItem(CONSENT_STORAGE_KEY)).toBe("custom");

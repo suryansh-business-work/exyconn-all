@@ -106,8 +106,12 @@ describe("Thread", () => {
     const actions = makeActions();
     const first = view("LIVE", [visitor("v1")], actions);
     const { user, rerender } = renderInChatTheme(first.ui);
-    // Hidden by its Fade until there is something new, so look it up among hidden nodes too.
-    const chip = screen.getByRole("button", { name: strings.newMessages, hidden: true });
+    // Hidden by its Fade until there is something new. A hidden label gives the button no
+    // accessible name, so find it by its text; its name is checked once it shows.
+    const chip = screen.getByText(strings.newMessages).closest<HTMLElement>('[role="button"]');
+    if (!chip) {
+      throw new Error("the New messages chip was not rendered");
+    }
     expect(chip).not.toBeVisible();
     const log = screen.getByRole("log");
     Object.defineProperty(log, "scrollHeight", { value: 1000, configurable: true });
@@ -115,6 +119,7 @@ describe("Thread", () => {
     fireEvent.scroll(log);
     rerender(view("LIVE", [visitor("v1"), visitor("v2")], actions).ui);
     await waitFor(() => expect(chip).toBeVisible());
+    expect(screen.getByRole("button", { name: strings.newMessages })).toBe(chip);
     await user.click(chip);
     await waitFor(() => expect(chip).not.toBeVisible());
   });
