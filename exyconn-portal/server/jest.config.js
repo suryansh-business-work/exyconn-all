@@ -2,8 +2,10 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  roots: ['<rootDir>/__tests__'],
-  testMatch: ['**/*.test.ts'],
+  // src is a root so coverage counts every source file, including ones no test imports yet;
+  // jest only reports untested files it finds under its roots. Tests still live in __tests__.
+  roots: ['<rootDir>/__tests__', '<rootDir>/src'],
+  testMatch: ['<rootDir>/__tests__/**/*.test.ts'],
   moduleFileExtensions: ['ts', 'js', 'json'],
   setupFiles: ['<rootDir>/__tests__/env.setup.ts'],
   setupFilesAfterEnv: ['<rootDir>/__tests__/setup.ts'],

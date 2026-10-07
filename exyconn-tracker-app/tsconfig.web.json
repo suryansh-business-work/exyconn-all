@@ -29,6 +29,9 @@
   "include": [
     "src/renderer/**/*",
     "src/shared/**/*",
-    "src/preload/**/*.d.ts"
+    "src/preload/**/*.d.ts",
+    "__tests__/unit-tests/renderer/**/*",
+    "__tests__/unit-tests/shared/**/*",
+    "__tests__/unit-tests/test-utils.tsx"
   ]
 }

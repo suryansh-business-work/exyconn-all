@@ -11,6 +11,10 @@ export default {
     ...base.test,
     coverage: {
       ...base.test?.coverage,
+      // Mirrors CI: every source file counts, including ones no test imports yet.
+      provider: 'v8' as const,
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['**/*.{test,cy}.{ts,tsx}', '**/graphql/generated/**'],
       // Only enforced when coverage runs (CI's unit-test step), and only for this folder.
       thresholds: { 'src/pages/permissions/**/*.{ts,tsx}': FULL },
     },

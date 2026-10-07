@@ -10,7 +10,15 @@ export default defineConfig({
   },
   esbuild: { jsx: 'automatic' },
   test: {
+    // Main-process code runs under node; renderer tests opt into jsdom per file with
+    // `// @vitest-environment jsdom`.
     environment: 'node',
-    include: ['src/**/*.test.{ts,tsx}'],
+    include: ['src/**/*.test.{ts,tsx}', '__tests__/unit-tests/**/*.test.{ts,tsx}'],
+    coverage: {
+      provider: 'v8',
+      // Mirrors CI: every source file counts, including the ones no test imports yet.
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['**/*.{test,cy}.{ts,tsx}', '**/graphql/generated/**'],
+    },
   },
 });

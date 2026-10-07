@@ -8,10 +8,12 @@ const HOURS_PER_DAY = 24;
  * apply to it (timestamps on the same screen do go through `formatDateTime`).
  */
 export function formatUptime(seconds: number): string {
-  if (seconds < SECONDS_PER_MINUTE) {
-    return `${Math.max(Math.round(seconds), 0)}s`;
+  // Rounded once, up front: rounding only the seconds left 119.6s reading "1m 0s".
+  const whole = Math.max(Math.round(seconds), 0);
+  if (whole < SECONDS_PER_MINUTE) {
+    return `${whole}s`;
   }
-  const totalMinutes = Math.floor(seconds / SECONDS_PER_MINUTE);
+  const totalMinutes = Math.floor(whole / SECONDS_PER_MINUTE);
   const totalHours = Math.floor(totalMinutes / MINUTES_PER_HOUR);
   const days = Math.floor(totalHours / HOURS_PER_DAY);
   if (days > 0) {
@@ -20,5 +22,5 @@ export function formatUptime(seconds: number): string {
   if (totalHours > 0) {
     return `${totalHours}h ${totalMinutes % MINUTES_PER_HOUR}m`;
   }
-  return `${totalMinutes}m ${Math.round(seconds) % SECONDS_PER_MINUTE}s`;
+  return `${totalMinutes}m ${whole % SECONDS_PER_MINUTE}s`;
 }
