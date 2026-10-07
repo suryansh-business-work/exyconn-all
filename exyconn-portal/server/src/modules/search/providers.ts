@@ -172,7 +172,8 @@ const DECLARATIONS: Declaration[] = [
     hit: (row) => ({
       title: subtitle(row.key, row.title),
       subtitle: subtitle(row.type, row.priority, row.assigneeName),
-      link: `/projects/${text(row.projectId)}/tickets`,
+      // projectId is an ObjectId on the task, so text() would drop it and break the link.
+      link: `/projects/${String(row.projectId)}/tickets`,
     }),
   },
   {

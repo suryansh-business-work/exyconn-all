@@ -13,10 +13,12 @@ export interface Range {
 /** A plain `YYYY-MM-DD` is a whole day on the company's clock. */
 const isDateOnly = (value: string) => value.length === 10 && !value.includes('T');
 
-/** The day after a `YYYY-MM-DD`, in the same form. */
+/** The day after a `YYYY-MM-DD`, in the same form; an unreadable value is returned as-is. */
 function nextDay(date: string): string {
   const [year, month, day] = date.split('-').map(Number);
-  return new Date(Date.UTC(year, month - 1, day + 1)).toISOString().slice(0, 10);
+  const next = new Date(Date.UTC(year, month - 1, day + 1));
+  // Left unchanged, it fails to parse in instantOf and parseRange refuses it as bad input.
+  return Number.isNaN(next.getTime()) ? date : next.toISOString().slice(0, 10);
 }
 
 /** Start of a date-only value's day in `timeZone`, or the instant an ISO date-time names. */

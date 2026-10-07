@@ -101,7 +101,7 @@ export async function funnel(demoKey: string, workflow: string, from: string, to
       },
       {
         $group: {
-          _id: { $ifNull: ['$node', START_NODE] },
+          _id: { $ifNull: ['$node', { $literal: START_NODE }] },
           sessions: { $addToSet: '$sessionId' },
           firstAt: { $min: '$at' },
         },

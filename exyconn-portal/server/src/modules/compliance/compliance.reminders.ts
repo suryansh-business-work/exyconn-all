@@ -57,9 +57,10 @@ async function findingsOverdue(now: Date): Promise<Reminder[]> {
 
 /** Actions minuted in a management review, which live inside the review record. */
 async function reviewActionsOverdue(now: Date): Promise<Reminder[]> {
+  // `$elemMatch`, because `$ne: null` on the bare array path is false for the whole review as
+  // soon as ANY action has no date, which hid every overdue action beside an undated one.
   const reviews = await ManagementReviewModel.find({
-    'actions.done': false,
-    'actions.dueOn': { $ne: null, $lte: now },
+    actions: { $elemMatch: { done: false, dueOn: { $ne: null, $lte: now } } },
   })
     .select('title actions')
     .lean();

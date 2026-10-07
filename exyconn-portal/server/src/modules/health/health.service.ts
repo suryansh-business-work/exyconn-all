@@ -88,7 +88,8 @@ async function jobs(): Promise<HealthJob[]> {
     TrackerSettingsModel.findOne({ key: 'global' }).lean(),
     InboundMailConfigModel.exists({ isActive: true }),
   ]);
-  const digestEnabled = Boolean(tracker?.dailyDigestEnabled ?? tracker?.weeklyDigestEnabled);
+  const digestEnabled =
+    tracker?.dailyDigestEnabled === true || tracker?.weeklyDigestEnabled === true;
   const digestLastRun = tracker?.dailyDigestLastRun ?? '';
   return [
     jobRow('statusMonitor', 'Status page monitor', env.status.enabled, runs),
