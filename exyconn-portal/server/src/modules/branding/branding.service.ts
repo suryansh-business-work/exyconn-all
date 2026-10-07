@@ -128,5 +128,7 @@ export async function getPublicBranding(): Promise<BrandingLean> {
   const doc = await runAsPlatform(() =>
     BrandingModel.findOne({ key: 'global' }).sort({ createdAt: 1 }).lean(),
   );
-  return withDefaults((doc ?? {}) as BrandingLean);
+  // No company has saved a brand yet: the defaults, under the singleton's key as their id
+  // (Branding.id is non-null, and the resolver serialises `_id`).
+  return withDefaults((doc ?? { _id: 'global' }) as BrandingLean);
 }

@@ -110,10 +110,11 @@ async function recordOpen(token: string): Promise<void> {
   if (!token) {
     return;
   }
-  await CampaignSendModel.updateOne(
-    { trackingTokenHash: hashTrackingToken(token) },
-    { $inc: { openCount: 1 }, $min: { openedAt: new Date() } },
-  );
+  const filter = { trackingTokenHash: hashTrackingToken(token) };
+  // Not `$min`: the row is written with `openedAt: null`, and null sorts below every date,
+  // so `$min` would never replace it and no open would ever be dated.
+  await CampaignSendModel.updateOne({ ...filter, openedAt: null }, { openedAt: new Date() });
+  await CampaignSendModel.updateOne(filter, { $inc: { openCount: 1 } });
 }
 
 /** Counts a click, and keeps the URL so "which link" is answerable. */

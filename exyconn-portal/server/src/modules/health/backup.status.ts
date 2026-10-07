@@ -43,6 +43,15 @@ const NOT_CONFIGURED: BackupStatus = {
   message: 'No backup status file is mounted. Run deploy/install-backups.sh on the host.',
 };
 
+/** The file's JSON, or null when it is not JSON at all (a half-written file, say). */
+function parseJson(raw: string): unknown {
+  try {
+    return JSON.parse(raw) as unknown;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Reads the status file, if there is one.
  *
@@ -60,7 +69,7 @@ export function readBackupStatus(path: string): BackupStatus {
   } catch {
     return NOT_CONFIGURED;
   }
-  const parsed = statusSchema.safeParse(JSON.parse(raw) as unknown);
+  const parsed = statusSchema.safeParse(parseJson(raw));
   if (!parsed.success) {
     logger.error({ path }, 'Backup status file could not be read');
     return { ...NOT_CONFIGURED, configured: true, message: 'The status file is unreadable.' };
