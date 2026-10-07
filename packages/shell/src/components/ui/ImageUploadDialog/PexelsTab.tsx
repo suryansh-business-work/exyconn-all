@@ -170,7 +170,7 @@ function PexelsPanel({
           textAlign: 'center',
         }}
       >
-        No {noun}matched that search.
+        No {noun} matched that search.
       </Typography>
     );
   }

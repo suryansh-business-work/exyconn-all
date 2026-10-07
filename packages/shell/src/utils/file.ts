@@ -35,7 +35,8 @@ export function downloadBase64File(filename: string, contentType: string, base64
   const binary = globalThis.atob(base64);
   const bytes = new Uint8Array(binary.length);
   for (let index = 0; index < binary.length; index += 1) {
-    bytes[index] = binary.codePointAt(index) ?? 0;
+    // `index` is always inside the string, so the code point is always defined.
+    bytes[index] = Number(binary.codePointAt(index));
   }
   const url = URL.createObjectURL(new Blob([bytes], { type: contentType }));
   const anchor = document.createElement('a');
