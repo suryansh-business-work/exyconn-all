@@ -24,6 +24,7 @@ const demo = (fields: Partial<DemoRow> = {}): DemoRow => ({
   menuButton: 'Menu',
   order: 2,
   active: true,
+  createdAt: UPDATED,
   updatedAt: UPDATED,
   ...fields,
 });
@@ -43,6 +44,7 @@ const workflow = (fields: Partial<WorkflowRow> = {}): WorkflowRow => ({
   publishedAt: UPDATED,
   updatedById: 'u-1',
   updatedByName: 'Asha',
+  createdAt: UPDATED,
   updatedAt: UPDATED,
   ...fields,
 });

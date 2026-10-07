@@ -144,9 +144,9 @@ describe('Incident deletion', () => {
     });
     const id = String(incident._id);
 
-    await expect(codeOf(Mutation.deleteStatusIncident(null, { id } as never, sales))).resolves.toBe(
-      'FORBIDDEN',
-    );
+    await expect(
+      codeOf(Promise.resolve(Mutation.deleteStatusIncident(null, { id } as never, sales))),
+    ).resolves.toBe('FORBIDDEN');
     await expect(Mutation.deleteStatusIncident(null, { id } as never, tech)).resolves.toBe(true);
     expect(await StatusIncidentModel.countDocuments()).toBe(0);
   });
