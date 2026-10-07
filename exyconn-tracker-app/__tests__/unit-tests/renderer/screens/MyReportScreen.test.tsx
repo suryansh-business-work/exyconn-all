@@ -11,6 +11,10 @@ import {
   unmountAll,
 } from '../../test-utils';
 
+// jsdom has no canvas, so Chart.js cannot build a chart and crashes when its data changes on a
+// month switch; the chart's own drawing is not what is under test here.
+vi.mock('react-chartjs-2', () => ({ Bar: () => null, Line: () => null }));
+
 beforeAll(installDomShims);
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ['Date'] });

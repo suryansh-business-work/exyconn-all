@@ -16,6 +16,9 @@ describe('StatusChip', () => {
   ])('labels %s as "%s"', async (status, label) => {
     await render(<StatusChip status={status} />);
     expect(document.querySelector('.MuiChip-label')?.textContent).toBe(label);
-    expect(document.querySelector('.MuiChip-icon')).not.toBeNull();
+    // The status dot sits in the chip's icon slot, just before the label. StatusDot does not
+    // forward MUI's className, so it carries no .MuiChip-icon class to look it up by.
+    const dot = document.querySelector('.MuiChip-label')?.previousElementSibling;
+    expect(dot).toBeInstanceOf(HTMLDivElement);
   });
 });

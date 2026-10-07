@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useI18n, type Messages } from '@exyconn/i18n';
 import { deviceLocale } from '@exyconn/tracker-core';
 import TrackerI18nProvider from '../../../../src/renderer/i18n/TrackerI18nProvider';
-import { render, stubTracker, unmountAll } from '../../test-utils';
+import { deferred, render, stubTracker, unmountAll } from '../../test-utils';
 
 vi.mock('../../../../src/renderer/logger', () => ({ logger: { error: vi.fn() } }));
 
@@ -51,13 +51,17 @@ afterEach(() => {
 
 describe('TrackerI18nProvider', () => {
   it('reads in the employee’s language, right to left where it should, in their zone', async () => {
-    getTranslations.mockResolvedValue({ Hello: 'مرحبا' });
+    // Held open by hand: render's act would otherwise let the catalogue land before the
+    // first look, and the English the screen paints while it loads would never be seen.
+    const catalogue = deferred<Messages>();
+    getTranslations.mockReturnValue(catalogue.promise);
     await render(
       <TrackerI18nProvider locale="ar" timezone="Asia/Dubai">
         <Greeting />
       </TrackerI18nProvider>,
     );
     expect(text('hello')).toBe('Hello');
+    await act(async () => catalogue.resolve({ Hello: 'مرحبا' }));
     await advance(0);
     expect(getTranslations).toHaveBeenCalledWith('ar');
     expect(text('hello')).toBe('مرحبا');
