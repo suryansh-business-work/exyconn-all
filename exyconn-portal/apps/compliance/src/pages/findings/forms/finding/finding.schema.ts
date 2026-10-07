@@ -6,6 +6,7 @@ import {
   FindingType,
   ManagementStandard,
 } from '@exyconn/shell/graphql/generated';
+import { optionalPickedDate, pickedDate } from '../../../compliance.dates';
 import type { FindingRow } from './finding.types';
 
 /** "Was it effective?" has three answers until somebody has checked: yes, no, and not yet. */
@@ -29,10 +30,10 @@ export const findingSchema = z
     correctiveAction: z.string().trim(),
     ownerId: z.string().trim(),
     ownerName: z.string().trim().min(1, 'Somebody has to own putting it right'),
-    raisedOn: z.date({ message: 'Say when it was raised' }),
-    dueOn: z.date().nullable(),
+    raisedOn: pickedDate('Say when it was raised'),
+    dueOn: optionalPickedDate(),
     status: z.nativeEnum(FindingStatus),
-    verifiedOn: z.date().nullable(),
+    verifiedOn: optionalPickedDate(),
     verifiedByName: z.string().trim(),
     effective: z.enum([EFFECTIVE_UNANSWERED, EFFECTIVE_YES, EFFECTIVE_NO]),
     effectivenessNote: z.string().trim(),

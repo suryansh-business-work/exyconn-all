@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { AuditKind, AuditStatus, ManagementStandard } from '@exyconn/shell/graphql/generated';
+import { optionalPickedDate, pickedDate } from '../../../compliance.dates';
 import type { AuditRow } from './audit.types';
 
 /** Once an audit is reported it has been done, so it must say when and what it concluded. */
@@ -15,8 +16,8 @@ export const auditSchema = z
     leadAuditorId: z.string().trim(),
     leadAuditorName: z.string().trim().min(1, 'Name the lead auditor'),
     auditeeName: z.string().trim(),
-    plannedOn: z.date({ message: 'Say when it is planned for' }),
-    performedOn: z.date().nullable(),
+    plannedOn: pickedDate('Say when it is planned for'),
+    performedOn: optionalPickedDate(),
     status: z.nativeEnum(AuditStatus),
     summary: z.string().trim(),
     conclusion: z.string().trim(),

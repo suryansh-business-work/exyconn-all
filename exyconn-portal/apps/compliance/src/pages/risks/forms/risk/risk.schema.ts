@@ -5,6 +5,7 @@ import {
   RiskStatus,
   RiskTreatment,
 } from '@exyconn/shell/graphql/generated';
+import { optionalPickedDate, pickedDate } from '../../../compliance.dates';
 import type { RiskRow } from './risk.types';
 
 /** Both axes are scored 1-5; the picker sends the number as a string, as selects do. */
@@ -29,8 +30,8 @@ export const riskSchema = z.object({
   residualLikelihood: scale('Residual likelihood'),
   residualImpact: scale('Residual impact'),
   status: z.nativeEnum(RiskStatus),
-  identifiedOn: z.date({ message: 'Say when it was identified' }),
-  reviewDueOn: z.date().nullable(),
+  identifiedOn: pickedDate('Say when it was identified'),
+  reviewDueOn: optionalPickedDate(),
 });
 
 type Values = z.infer<typeof riskSchema>;

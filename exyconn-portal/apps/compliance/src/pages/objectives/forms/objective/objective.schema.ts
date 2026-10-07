@@ -6,6 +6,7 @@ import {
   ObjectiveScope,
   ObjectiveStatus,
 } from '@exyconn/shell/graphql/generated';
+import { pickedDate } from '../../../compliance.dates';
 import type { ObjectiveRow } from './objective.types';
 
 export const objectiveSchema = z
@@ -24,8 +25,8 @@ export const objectiveSchema = z
     target: z.coerce.number({ message: 'Target must be a number' }),
     actual: z.coerce.number({ message: 'Current value must be a number' }),
     frequency: z.nativeEnum(ObjectiveFrequency),
-    periodStart: z.date({ message: 'Say when the period starts' }),
-    periodEnd: z.date({ message: 'Say when the period ends' }),
+    periodStart: pickedDate('Say when the period starts'),
+    periodEnd: pickedDate('Say when the period ends'),
     status: z.nativeEnum(ObjectiveStatus),
     plan: z.string().trim(),
   })
