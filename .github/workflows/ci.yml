@@ -94,7 +94,7 @@ jobs:
           pnpm --filter @exyconn/ui exec cypress install
           pnpm --filter @exyconn/ui exec cypress verify
       - name: Component suites
-        run: pnpm $FILTER --workspace-concurrency=1 run test:ct
+        run: pnpm $FILTER --no-bail --workspace-concurrency=1 run test:ct
       # Collected with find (pruning node_modules) rather than a ** glob in upload-artifact,
       # which walked every node_modules tree and spent twenty minutes doing it.
       - name: Collect accessibility results and screenshots
