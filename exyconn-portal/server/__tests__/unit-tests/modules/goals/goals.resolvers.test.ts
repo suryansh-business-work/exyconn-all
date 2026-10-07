@@ -139,9 +139,10 @@ describe('HR goal writes', () => {
   it('refuses HR creating a goal for themselves', async () => {
     const me = newId();
 
-    await expect(G.createGoal(null, { input: input(me) }, ctx(me, [ROLES.HR]))).rejects.toThrow(
-      /cannot edit your own Goal/,
-    );
+    // The create guard throws synchronously, so call it inside an async function.
+    await expect(async () =>
+      G.createGoal(null, { input: input(me) }, ctx(me, [ROLES.HR])),
+    ).rejects.toThrow(/cannot edit your own Goal/);
     expect(await GoalModel.countDocuments()).toBe(0);
   });
 

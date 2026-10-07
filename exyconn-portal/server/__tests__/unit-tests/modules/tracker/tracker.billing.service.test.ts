@@ -25,7 +25,12 @@ async function employee(name: string, billingRate?: number) {
   });
   const id = String(user._id);
   if (billingRate !== undefined) {
-    await SalaryStructureModel.create({ employeeId: id, currency: 'EUR', billingRate });
+    await SalaryStructureModel.create({
+      employeeId: id,
+      currency: 'EUR',
+      billingRate,
+      effectiveFrom: FROM,
+    });
   }
   return id;
 }

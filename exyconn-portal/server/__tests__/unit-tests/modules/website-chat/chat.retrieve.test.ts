@@ -156,6 +156,6 @@ describe('knowledgeFor', () => {
     expect(cached.sources.map((s) => s.title)).toEqual(['Pricing']);
     forgetKnowledgeCache();
     const knowledge = await knowledgeFor('pricing', 12000, ORG, embedder);
-    expect(knowledge.sources.map((s) => s.title)).toEqual(['Pricing', 'Plans FAQ']);
+    expect(knowledge.sources.map((s) => s.title)).toEqual(['Plans FAQ', 'Pricing']);
   });
 });

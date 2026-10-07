@@ -3,7 +3,8 @@ import { cmsDesignSystems } from '../../../../src/modules/cms/cms.design';
 
 const SITE = 'site-1';
 
-const create = (tokens: Record<string, unknown>, extraCss?: string | null) =>
+// `create` checks the tokens synchronously; the async wrapper turns that throw into a rejection.
+const create = async (tokens: Record<string, unknown>, extraCss?: string | null) =>
   cmsDesignSystems.create({ siteId: SITE, name: 'Brand', tokens, extraCss });
 
 const missingId = () => String(new Types.ObjectId());

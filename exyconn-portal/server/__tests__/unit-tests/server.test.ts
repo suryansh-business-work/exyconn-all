@@ -68,7 +68,6 @@ const MODULES = {
   tenant: '../../src/lib/tenant',
   organizations: '../../src/modules/organizations',
   app: '../../src/app',
-  logger: '../../src/utils/logger',
   migrations: '../../src/lib/migrations',
   chat: '../../src/modules/website-chat',
   ai: '../../src/modules/ai',
@@ -77,7 +76,11 @@ const MODULES = {
   clients: '../../src/modules/clients',
 } as const;
 
-type Loaded = Record<keyof typeof MODULES, Mocked> & { connect: jest.Mock; starters: jest.Mock[] };
+type Loaded = Record<keyof typeof MODULES, Mocked> & {
+  connect: jest.Mock;
+  log: Mocked;
+  starters: jest.Mock[];
+};
 
 const STARTERS: Array<[string, string]> = [
   ['../../src/modules/status', 'startStatusMonitor'],
@@ -107,6 +110,7 @@ async function boot(databaseFails = false): Promise<Loaded> {
       Object.entries(MODULES).map(([key, path]) => [key, require(path) as Mocked]),
     ) as Record<keyof typeof MODULES, Mocked>;
     const connect = (require('../../src/config/database') as { database: Mocked }).database.connect;
+    const log = (require('../../src/utils/logger') as { logger: Mocked }).logger;
     connect.mockImplementation(() =>
       databaseFails ? Promise.reject(new Error('no database')) : Promise.resolve(),
     );
@@ -117,7 +121,7 @@ async function boot(databaseFails = false): Promise<Loaded> {
       }),
     });
     const starters = STARTERS.map(([path, name]) => (require(path) as Mocked)[name]);
-    loaded = { ...mods, connect, starters };
+    loaded = { ...mods, connect, log, starters };
     require('../../src/server');
   });
   await new Promise((resolve) => setImmediate(resolve));
@@ -148,7 +152,7 @@ describe('server bootstrap', () => {
       expect(order(starter)).toBeLessThan(order(m.app.createApp));
     }
     expect(order(m.ai.ensureAiModelPrices)).toBeLessThan(order(m.ai.startAiWorker));
-    expect(m.logger.info).toHaveBeenCalledWith(
+    expect(m.log.info).toHaveBeenCalledWith(
       'GraphQL server ready at http://localhost:4321/graphql',
     );
     expect(m.chat.attachChatSocket).toHaveBeenCalledWith(httpServer);
@@ -180,7 +184,7 @@ describe('server bootstrap', () => {
 
   it('logs and exits when the database cannot be reached, serving nothing', async () => {
     const m = await boot(true);
-    expect(m.logger.error).toHaveBeenCalledWith(
+    expect(m.log.error).toHaveBeenCalledWith(
       expect.objectContaining({ message: 'no database' }),
       'Failed to start server',
     );

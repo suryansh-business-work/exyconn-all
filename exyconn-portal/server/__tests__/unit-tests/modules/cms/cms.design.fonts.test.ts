@@ -1,6 +1,7 @@
 import { cmsDesignSystems } from '../../../../src/modules/cms/cms.design';
 
-const withFonts = (fontSources: unknown) =>
+// `create` checks the tokens synchronously; the async wrapper turns that throw into a rejection.
+const withFonts = async (fontSources: unknown) =>
   cmsDesignSystems.create({ siteId: 'site-1', name: 'Brand', tokens: { fontSources } });
 
 const file = (fields: Record<string, unknown> = {}) => ({

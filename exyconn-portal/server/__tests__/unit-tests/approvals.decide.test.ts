@@ -42,8 +42,8 @@ describe('off-computer time in the queue', () => {
     const queue = await myApprovals(ctx(tracker, [ROLES.TRACKER]), 'MANUAL_TIME');
 
     expect(queue.items.map((item) => item.title).sort((a, b) => a.localeCompare(b))).toEqual([
-      '90 min on Website',
       '90 min on no project',
+      '90 min on Website',
     ]);
     expect(queue.items[0]).toMatchObject({
       link: '/tracker/approvals',

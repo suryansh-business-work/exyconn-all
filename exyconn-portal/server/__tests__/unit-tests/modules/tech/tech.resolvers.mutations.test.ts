@@ -105,7 +105,7 @@ describe('the Tech mutations', () => {
     ['createEmailConfig', assertPlatformStaff],
     ['deleteInboundMailConfig', assertPermission],
   ] as const)('%s changes nothing when its guard refuses', async (name, guard) => {
-    jest.mocked(guard).mockRejectedValueOnce(forbidden());
+    jest.mocked(guard).mockImplementationOnce(async () => forbidden());
 
     await expect(Mutation[name](null, { id, input }, ctx)).rejects.toThrow(
       'You do not have access to this resource',
@@ -145,7 +145,7 @@ describe('running a background job on request', () => {
   });
 
   it('runs nothing when the guard refuses', async () => {
-    jest.mocked(assertPlatformStaff).mockRejectedValueOnce(forbidden());
+    jest.mocked(assertPlatformStaff).mockImplementationOnce(async () => forbidden());
 
     await expect(Mutation.runBackgroundJob(null, { key: 'reminders' }, ctx)).rejects.toThrow(
       'You do not have access to this resource',

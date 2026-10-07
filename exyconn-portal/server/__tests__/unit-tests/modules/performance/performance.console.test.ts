@@ -31,7 +31,11 @@ describe('the HR console may not write the caller’s own appraisal', () => {
     const other = newId();
 
     expect(
-      await codeOf(R.createPerformanceReview(null, { input: baseInput(me) }, ctx(me, [ROLES.HR]))),
+      // The create guard throws synchronously, so call it inside an async function.
+      await codeOf(
+        (async () =>
+          R.createPerformanceReview(null, { input: baseInput(me) }, ctx(me, [ROLES.HR])))(),
+      ),
     ).toBe('FORBIDDEN');
     const created = (await R.createPerformanceReview(
       null,

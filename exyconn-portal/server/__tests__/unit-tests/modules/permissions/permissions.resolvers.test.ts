@@ -40,7 +40,10 @@ describe('the permission matrix reads', () => {
 
     expect(modules).toContain(MODULE);
     expect(modules).toEqual([...modules].sort((a, b) => a.localeCompare(b)));
-    expect(await codeOf(P.listPermissionModules(null, {}, hr))).toBe('FORBIDDEN');
+    // This resolver is synchronous, so its guard throws on the call rather than rejecting.
+    expect(await codeOf(Promise.resolve().then(() => P.listPermissionModules(null, {}, hr)))).toBe(
+      'FORBIDDEN',
+    );
   });
 
   it('lists the restriction rows ordered by role then module', async () => {

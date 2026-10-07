@@ -63,7 +63,7 @@ describe('the Tech config lists', () => {
   });
 
   it('reads nothing when the guard refuses', async () => {
-    jest.mocked(assertPlatformStaff).mockRejectedValueOnce(forbidden());
+    jest.mocked(assertPlatformStaff).mockImplementationOnce(async () => forbidden());
 
     await expect(Query.listEmailConfigs(null, {}, ctx)).rejects.toThrow(
       'You do not have access to this resource',

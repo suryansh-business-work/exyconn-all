@@ -31,8 +31,8 @@ async function setup() {
   return { sessionId, visitor };
 }
 
-/** The bot's answer as stored. */
-const botLine = async () => ChatMessageModel.findOne({ sender: 'BOT' }).lean();
+/** The bot's latest answer as stored (a test may seed earlier bot lines). */
+const botLine = async () => ChatMessageModel.findOne({ sender: 'BOT' }).sort({ _id: -1 }).lean();
 
 beforeEach(async () => {
   botAllow.mockResolvedValue(true);
