@@ -35,16 +35,19 @@ export function SocialLinkButtons({
   justifyContent = 'flex-start',
 }: Readonly<SocialLinkButtonsProps>) {
   const t = useT();
-  const shared = SOCIAL_NETWORKS.filter((network) => links?.[network.key]);
+  const shared = SOCIAL_NETWORKS.flatMap((network) => {
+    const href = links?.[network.key];
+    return href ? [{ ...network, href }] : [];
+  });
   if (shared.length === 0) {
     return null;
   }
   return (
     <Flex direction="row" spacing={0.5} justifyContent={justifyContent}>
-      {shared.map(({ key, label, icon: Icon }) => (
+      {shared.map(({ key, label, icon: Icon, href }) => (
         <Tooltip key={key} title={t(label)}>
           <Link
-            href={links?.[key] ?? undefined}
+            href={href}
             target="_blank"
             rel="noopener noreferrer"
             aria-label={t(label)}

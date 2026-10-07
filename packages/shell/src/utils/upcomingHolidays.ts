@@ -19,8 +19,9 @@ export function upcomingHolidays<T extends HolidayLike>(
         const date = toDate(h.date);
         return date ? isAfter(date, today) : false;
       })
-      // filter() returned a fresh array, so sorting it cannot touch the caller's.
-      .sort((a, b) => (toDate(a.date)?.getTime() ?? 0) - (toDate(b.date)?.getTime() ?? 0))
+      // filter() returned a fresh array, so sorting it cannot touch the caller's. Every date
+      // left parsed, so Number() of each is its timestamp.
+      .sort((a, b) => Number(toDate(a.date)) - Number(toDate(b.date)))
       .slice(0, limit)
   );
 }

@@ -29,6 +29,7 @@ describe('sanitizeRichHtml', () => {
   it('allows only https images', () => {
     expect(sanitizeRichHtml('<img src="http://a.test/x.png" alt="x">')).toBe('<img alt="x">');
     expect(sanitizeRichHtml('<img src="data:image/png;base64,AAAA">')).toBe('<img>');
+    expect(sanitizeRichHtml('<img alt="no source">')).toBe('<img alt="no source">');
   });
 
   it('adds rel to a link that opens a new tab', () => {

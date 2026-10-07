@@ -23,7 +23,7 @@ export interface ToolbarState {
 
 const selectState = (editor: Editor): ToolbarState => ({
   active: Object.fromEntries(
-    TOGGLES.map((action) => [action.key, action.isActive?.(editor) ?? false]),
+    TOGGLES.map((action) => [action.key, Boolean(action.isActive?.(editor))]),
   ),
   blockType: activeBlockType(editor),
   canUndo: editor.can().undo(),

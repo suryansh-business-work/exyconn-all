@@ -58,7 +58,7 @@ function heading(element: HTMLElement): Block[] {
   return [
     {
       kind: 'heading',
-      level: HEADING_LEVELS[element.tagName] ?? 1,
+      level: HEADING_LEVELS[element.tagName],
       inlines: parseInlines(element),
       align: alignOf(element),
     },

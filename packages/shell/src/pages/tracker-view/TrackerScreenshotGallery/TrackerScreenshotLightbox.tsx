@@ -67,7 +67,14 @@ export function TrackerScreenshotLightbox({
 
   return (
     // Escape and a backdrop click both close it, which is what a full-screen viewer owes.
-    <Dialog open fullScreen onClose={onClose} aria-label="Screenshot, full screen">
+    // The name goes on the paper, which is the element with role="dialog"; on the Dialog
+    // itself it would land on the presentation wrapper and leave the dialog unnamed.
+    <Dialog
+      open
+      fullScreen
+      onClose={onClose}
+      slotProps={{ paper: { 'aria-label': 'Screenshot, full screen' } }}
+    >
       <Box
         sx={{
           position: 'relative',

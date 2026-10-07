@@ -27,7 +27,7 @@ export function addDeviceButtons(editor: Editor): void {
       togglable: false,
       active: id === 'desktop',
       attributes: { title: `${device.name} preview` },
-      command: () => editor.setDevice(device.name ?? ''),
+      command: () => editor.setDevice(device.name),
     });
   }
 }

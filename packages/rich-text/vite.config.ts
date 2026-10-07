@@ -21,5 +21,10 @@ export default defineConfig({
     // Mounting a TipTap editor and driving its toolbar is seconds of work; the default five
     // was enough alone and not when CI runs three packages at once.
     testTimeout: 20_000,
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['**/*.{test,cy}.{ts,tsx}', '**/graphql/generated/**'],
+    },
   },
 });

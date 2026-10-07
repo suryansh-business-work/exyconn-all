@@ -92,7 +92,8 @@ export function useMediaUpload(folder: string | undefined, onUploaded: (url: str
   const sendToImageKit = async (current: MediaSelection, crop: CropRect | null) => {
     if (current.isVideo) {
       const { data } = await importMedia({
-        variables: { url: current.stockUrl ?? '', fileName: current.fileName, folder },
+        // A clip only ever comes from a stock pick, which always carries its Pexels URL.
+        variables: { url: current.stockUrl!, fileName: current.fileName, folder },
       });
       return data?.importMediaFromUrl;
     }

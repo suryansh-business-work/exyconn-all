@@ -31,7 +31,7 @@ export function spanGrid(rows: readonly TableCell[][]): Slot[][] {
   rows.forEach((row, rowIndex) => {
     let column = 0;
     for (const cell of row) {
-      column = nextFree(grid[rowIndex] ?? [], column);
+      column = nextFree(grid[rowIndex], column);
       place(grid, rowIndex, column, cell);
       column += cell.colSpan;
     }
