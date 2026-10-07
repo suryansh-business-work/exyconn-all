@@ -46,3 +46,11 @@ describe('describeLoginFailure', () => {
     expect(describeLoginFailure(new Error('Portal returned no data.'))).toContain('Sign in failed');
   });
 });
+
+describe('describeLoginFailure — an empty refusal', () => {
+  it('uses the plain fallback when the portal refused without saying why', () => {
+    expect(describeLoginFailure(new TrackerAuthError(''))).toBe(
+      'Sign in failed. Please try again, or contact your administrator.',
+    );
+  });
+});

@@ -44,6 +44,7 @@ export function initials(name: string): string {
   if (parts.length === 0) {
     return '?';
   }
-  const last = parts.length > 1 ? (parts.at(-1)?.[0] ?? '') : '';
-  return `${parts[0][0]}${last}`.toUpperCase();
+  const [first, ...rest] = parts;
+  const last = rest.at(-1)?.[0] ?? '';
+  return `${first[0]}${last}`.toUpperCase();
 }

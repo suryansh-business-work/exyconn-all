@@ -716,7 +716,7 @@ export class TrackerController<Permissions, Preferences, PermissionKind> {
       stopHour: settings.autoStopHour,
       hour,
       status: this.status,
-      attendanceMarked: this.workday?.attendanceMarked ?? false,
+      attendanceMarked: Boolean(this.workday?.attendanceMarked),
       overridden: this.autoOverride,
     });
 
