@@ -1,42 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  captureConsole,
-  createLogger,
-  MAX_QUEUED_LOGS,
-  type LogBatch,
-  type LoggerConfig,
-} from '../../src';
-
-const device = () => ({
-  appVersion: '1.9.8',
-  platform: 'android',
-  osVersion: '14',
-  deviceModel: 'Pixel 7',
-  deviceId: 'd1',
-});
-
-function memoryStorage(initial: string | null = null) {
-  let value = initial;
-  return { read: () => value, write: (next: string) => (value = next), peek: () => value };
-}
-
-function setup(overrides: Partial<LoggerConfig> = {}) {
-  const batches: LogBatch[] = [];
-  const send = vi.fn(async (batch: LogBatch) => {
-    batches.push(batch);
-  });
-  const storage = memoryStorage();
-  const logger = createLogger({
-    source: 'MOBILE',
-    app: 'tracker-mobile',
-    send,
-    device,
-    user: () => ({ id: 'u1', name: 'Asha', email: 'asha@exyconn.com' }),
-    storage,
-    ...overrides,
-  });
-  return { logger, send, batches, storage };
-}
+import { captureConsole, MAX_QUEUED_LOGS } from '../../src';
+import { memoryStorage, setup } from './helpers';
 
 beforeEach(() => {
   vi.useFakeTimers();
