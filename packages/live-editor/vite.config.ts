@@ -18,5 +18,11 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: ['@testing-library/jest-dom/vitest'],
     include: ['__tests__/unit-tests/**/*.{test,spec}.{ts,tsx}'],
+    /** Counts every src file, imported by a test or not, exactly as CI does. */
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['**/*.{test,cy}.{ts,tsx}', '**/graphql/generated/**'],
+    },
   },
 });
