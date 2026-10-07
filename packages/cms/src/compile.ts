@@ -37,7 +37,7 @@ function decodeAttribute(value: string): string {
 function attributesOf(tagBody: string): Map<string, string> {
   const attributes = new Map<string, string>();
   for (const match of tagBody.matchAll(ATTRIBUTE)) {
-    attributes.set(match[1].toLowerCase(), decodeAttribute(match[2] ?? match[3] ?? ''));
+    attributes.set(match[1].toLowerCase(), decodeAttribute(match[2] ?? match[3]));
   }
   return attributes;
 }
@@ -91,7 +91,7 @@ export function compileHtml(html: string, css: string): CmsCompiled {
   for (const match of html.matchAll(TAG)) {
     const [whole, closing, rawName, body] = match;
     const name = rawName.toLowerCase();
-    const index = match.index ?? 0;
+    const index = match.index;
     if (fragmentDepth === 0) {
       pushHtml(current(), html.slice(cursor, index));
     }
@@ -144,9 +144,10 @@ export function compileHtml(html: string, css: string): CmsCompiled {
     const open = stack[stack.length - 1].block.key;
     throw new CmsCompileError(`Component "${open}" is never closed.`);
   }
-  if (fragmentDepth === 0) {
-    pushHtml(root, html.slice(cursor));
+  if (fragmentDepth > 0) {
+    throw new CmsCompileError('A fragment is never closed.');
   }
+  pushHtml(root, html.slice(cursor));
   return { blocks: root, css };
 }
 

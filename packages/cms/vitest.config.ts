@@ -1,13 +1,10 @@
 import { defineConfig } from 'vitest/config';
 
-/** Consumed as source by the apps; this config only runs the package's tests. */
+/** Zero-dependency model and compiler, so plain node; coverage counts every src file as CI does. */
 export default defineConfig({
   test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: ['@testing-library/jest-dom/vitest'],
-    include: ['__tests__/unit-tests/**/*.{test,spec}.{ts,tsx}'],
-    // Mirrors CI: every source file counts, including ones no test imports yet.
+    environment: 'node',
+    include: ['__tests__/**/*.test.ts'],
     coverage: {
       provider: 'v8',
       include: ['src/**/*.{ts,tsx}'],

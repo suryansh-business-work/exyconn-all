@@ -1,13 +1,15 @@
 import { defineConfig } from 'vitest/config';
 
-/** Consumed as source by the apps; this config only runs the package's tests. */
+/**
+ * Node by default (the logger has no DOM dependency); React tests opt into jsdom with a
+ * `// @vitest-environment jsdom` header. Coverage counts every src file as CI does.
+ */
 export default defineConfig({
   test: {
+    environment: 'node',
     globals: true,
-    environment: 'jsdom',
-    setupFiles: ['@testing-library/jest-dom/vitest'],
-    include: ['__tests__/unit-tests/**/*.{test,spec}.{ts,tsx}'],
-    // Mirrors CI: every source file counts, including ones no test imports yet.
+    include: ['__tests__/**/*.test.{ts,tsx}'],
+    setupFiles: ['./__tests__/unit-tests/setup.ts'],
     coverage: {
       provider: 'v8',
       include: ['src/**/*.{ts,tsx}'],
