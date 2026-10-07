@@ -1,5 +1,5 @@
 {
   "extends": "@exyconn/config/tsconfig.app.json",
   "compilerOptions": { "types": [] },
-  "include": ["src"]
+  "include": ["src", "__tests__"]
 }

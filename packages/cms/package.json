@@ -28,6 +28,7 @@
   "prettier": "@exyconn/config/prettier.json",
   "devDependencies": {
     "@exyconn/config": "workspace:*",
+    "@vitest/coverage-v8": "^5.0.0",
     "eslint": "^10.9.1",
     "prettier": "^3.4.2",
     "typescript": "^6.0.3",
