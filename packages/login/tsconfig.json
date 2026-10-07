@@ -1,5 +1,5 @@
 {
   "extends": "@exyconn/config/tsconfig.app.json",
-  "include": ["src", "../shell/src/vite-env.d.ts"],
+  "include": ["src", "__tests__", "../shell/src/vite-env.d.ts"],
   "exclude": ["**/*.cy.ts", "**/*.cy.tsx"]
 }
