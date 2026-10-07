@@ -7,7 +7,8 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   // Astro's tsconfig sets `jsx: "preserve"` (its React integration compiles islands); Vitest
   // has no such plugin, so the React islands are compiled with the automatic runtime here.
-  oxc: { jsx: { runtime: "automatic", importSource: "react" } },
+  // Vitest runs on the website's Vite 6, which transforms with esbuild.
+  esbuild: { jsx: "automatic", jsxImportSource: "react" },
   resolve: {
     alias: {
       "astro:middleware": fileURLToPath(
