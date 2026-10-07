@@ -359,7 +359,14 @@ jobs:
             # races portal-server's boot (Mongo connect + every company's defaults). 420s covers
             # portal-server's 300s start period plus its checks after it.
             docker compose -f docker-compose.prod.yml up -d --remove-orphans --wait --wait-timeout 420
-            docker image prune -f
+            # Docker runs one prune at a time and refuses a second ("a prune operation is
+            # already running"), which failed a deploy whose stack was already healthy. Wait
+            # for the other prune to finish (up to a minute) before giving up.
+            for attempt in 1 2 3 4 5 6; do
+              docker image prune -f && break
+              [ "$attempt" -eq 6 ] && exit 1
+              sleep 10
+            done
       # A new subdomain needs its nginx vhost + certificate before verify can reach it.
       # server-setup.sh is additive and idempotent (backs up, rolls back on a bad
       # `nginx -t`, certbot --keep-until-expiring skips valid certs), so it runs every deploy.
