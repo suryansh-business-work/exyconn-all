@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fireEvent, screen } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import { UptimeBars } from '../../../../src/pages/status/UptimeBars';
 import { renderWithProviders } from '../../test-utils';
 import { dayPoint } from './status.fixtures';
@@ -21,7 +21,9 @@ describe('UptimeBars wording and range', () => {
       <UptimeBars days={[dayPoint('2026-09-01', 4), dayPoint('2026-09-02', 4, 1)]} />,
     );
     const bars = screen.getAllByRole('img');
-    bars[0].focus();
+    // The newest day holds the tab stop until another bar takes focus.
+    expect(bars.map((bar) => bar.tabIndex)).toEqual([-1, 0]);
+    act(() => bars[0].focus());
     expect(bars.map((bar) => bar.tabIndex)).toEqual([0, -1]);
 
     expect(fireEvent.keyDown(bars[0], { key: 'ArrowRight' })).toBe(false);

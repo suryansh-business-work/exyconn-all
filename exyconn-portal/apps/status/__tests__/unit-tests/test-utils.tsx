@@ -25,6 +25,8 @@ export function createWrapper({ mocks = [], route = '/', path }: Readonly<Provid
     const routed = path ? (
       <Routes>
         <Route path={path} element={children} />
+        {/* Where a page navigated to once it left its own route (read with currentUrl()). */}
+        <Route path="*" element={<LeftTo />} />
       </Routes>
     ) : (
       children
@@ -59,6 +61,10 @@ export function renderHookWithProviders<Result>(
 }
 
 /** Reads the router's current location, for asserting redirects and query-driven state. */
+function LeftTo() {
+  return <span data-testid="current-url">{useCurrentUrl()}</span>;
+}
+
 export function useCurrentUrl(): string {
   const { pathname, search } = useLocation();
   return `${pathname}${search}`;
