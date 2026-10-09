@@ -31,13 +31,6 @@ import {
   licencesTypeDefs,
   licencesResolvers,
 } from '../modules/assets';
-import { crmEntitiesTypeDefs, crmEntitiesResolvers } from '../modules/crm';
-import {
-  productsInventoryTypeDefs,
-  productsInventoryResolvers,
-  productsPurchasingTypeDefs,
-  productsPurchasingResolvers,
-} from '../modules/products';
 import { integrationsTypeDefs, integrationsResolvers } from '../modules/integrations';
 import { hrTypeDefs, hrResolvers } from '../modules/hr';
 import { attendanceTypeDefs } from '../modules/hr/attendance.typeDefs';
@@ -67,8 +60,20 @@ import { searchTypeDefs, searchResolvers } from '../modules/search';
 // Imported for its side effect: every module's records become findable from the search box.
 import '../modules/search/providers';
 import { aiTypeDefs, aiResolvers } from '../modules/ai';
-import { crmTypeDefs, crmResolvers } from '../modules/crm';
-import { productsTypeDefs, productsResolvers } from '../modules/products';
+import {
+  crmEntitiesTypeDefs,
+  crmEntitiesResolvers,
+  crmTypeDefs,
+  crmResolvers,
+} from '../modules/crm';
+import {
+  productsInventoryTypeDefs,
+  productsInventoryResolvers,
+  productsPurchasingTypeDefs,
+  productsPurchasingResolvers,
+  productsTypeDefs,
+  productsResolvers,
+} from '../modules/products';
 import {
   projectsTypeDefs,
   projectsResolvers,

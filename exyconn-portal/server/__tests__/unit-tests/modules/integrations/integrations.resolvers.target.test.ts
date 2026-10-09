@@ -27,7 +27,7 @@ describe('createWebhook address check', () => {
     const failure = new Error('resolver crashed');
     jest.mocked(assertPublicHttpsUrl).mockRejectedValueOnce(failure);
 
-    const error = await create().catch((caught: unknown) => caught);
+    const error = await create().catch((error_: unknown) => error_);
 
     expect(error).toBe(failure);
     expect(error).not.toBeInstanceOf(GraphQLError);

@@ -9,6 +9,7 @@ import { ROLES } from '../../../../src/constants/roles';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
 import { codeOf } from '../codeOf';
 import { M, buyer, orderInput, seedCatalogue, type OrderRow } from './purchasing.fixtures';
+import { asArg } from '../../../mockAs';
 
 jest.mock('../../../../src/modules/integrations', () => ({
   ...jest.requireActual('../../../../src/modules/integrations'),
@@ -125,9 +126,9 @@ describe('receivePurchaseOrder', () => {
     const { productId, orderId } = await seedOrder();
     const hr = { user: { id: 'u3', email: 'hr@exyconn.com', roles: [ROLES.HR] } };
 
-    expect(
-      await codeOf(receive(orderId, [{ productId, quantity: 1 }], hr as unknown as GraphQLContext)),
-    ).toBe('FORBIDDEN');
+    expect(await codeOf(receive(orderId, [{ productId, quantity: 1 }], asArg(hr)))).toBe(
+      'FORBIDDEN',
+    );
     expect((await PurchaseOrderModel.findById(orderId).lean())?.status).toBe('ORDERED');
   });
 });

@@ -14,12 +14,12 @@ export default function useUpdateState(): UpdateState {
 
   useEffect(() => {
     let active = true;
-    const unsubscribe = window.tracker.onUpdateChanged((next) => {
+    const unsubscribe = globalThis.tracker.onUpdateChanged((next) => {
       if (active) {
         setUpdate(next);
       }
     });
-    window.tracker
+    globalThis.tracker
       .getUpdate()
       .then((initial) => {
         if (active) {

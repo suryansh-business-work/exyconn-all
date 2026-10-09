@@ -103,7 +103,7 @@ const UploadArea = ({
         {label}
       </Typography>
       <Button variant="outlined" component="label" size="small" sx={{ color: COLOR, borderColor: COLOR }}>
-        Browse
+        {'Browse'}
         <input hidden accept="application/pdf" type="file" onChange={onChange} />
       </Button>
       {file && (
@@ -223,8 +223,8 @@ export default function ComparePdf() {
                       <TableRow
                         key={r.prop}
                         sx={{
-                          bgcolor: r.v1 !== r.v2 ? 'error.main' : 'transparent',
-                          '& td': { color: r.v1 !== r.v2 ? 'error.contrastText' : 'inherit' },
+                          bgcolor: r.v1 === r.v2 ? 'transparent' : 'error.main',
+                          '& td': { color: r.v1 === r.v2 ? 'inherit' : 'error.contrastText' },
                         }}
                       >
                         <TableCell>{r.prop}</TableCell>

@@ -1,6 +1,5 @@
 import { ContractModel } from './legal.model';
 import { LegalDocumentModel } from './document.model';
-import { legalTypeDefs } from './legal.typeDefs';
 import { legalCustomResolvers } from './legal.resolvers';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
@@ -78,6 +77,6 @@ export const legalResolvers = {
   },
 };
 
-export { legalTypeDefs };
+export { legalTypeDefs } from './legal.typeDefs';
 export { policyTypeDefs } from './policy.typeDefs';
 export { policyResolvers, policiesService } from './policy.resolvers';

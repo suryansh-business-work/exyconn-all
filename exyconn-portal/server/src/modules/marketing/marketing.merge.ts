@@ -6,9 +6,8 @@
  * including its Map-of-own-entries lookup, so `{{constructor}}` renders as nothing rather
  * than putting a function into somebody's inbox.
  */
-import { renderMergeFields } from '../../utils/mergeFields';
 
-export { renderMergeFields };
+export { renderMergeFields } from '../../utils/mergeFields';
 
 /** The values every campaign email can merge, whichever recipient it is going to. */
 export type MergeVars = {

@@ -17,10 +17,10 @@ import {
  * another. Built monolith first, then the stream, the services, and the mesh last. The
  * monolith carries tag 1, the services 2.
  */
-export const MODERNIZE_BOUNDS: Vec3 = [2.45, 1.35, 1.0];
+export const MODERNIZE_BOUNDS: Vec3 = [2.45, 1.35, 1];
 
 const MONOLITH: Vec3 = [-1.65, -0.05, 0];
-const MONOLITH_SIZE: Vec3 = [1.0, 2.2, 0.8];
+const MONOLITH_SIZE: Vec3 = [1, 2.2, 0.8];
 const SERVICE = 0.32;
 /** A 3 × 3 grid of services, staggered in depth. */
 const SERVICES: readonly Vec3[] = Array.from({ length: 9 }, (_, i): Vec3 => [

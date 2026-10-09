@@ -53,7 +53,7 @@ interface TopbarProps {
  * Top app bar with global search, the bells and the user account menu — shadcn's site header:
  * the page's own ground over a hairline, with ghost icon buttons (the theme's IconButton).
  */
-export function Topbar({ drawerWidth, onMenuClick }: TopbarProps) {
+export function Topbar({ drawerWidth, onMenuClick }: Readonly<TopbarProps>) {
   const { user, signOut } = useAuth();
   const { mode, toggle } = useColorMode();
   const install = useInstallPrompt();

@@ -31,7 +31,7 @@ export function PageHeader({
   actionLabelValues,
   onAction,
   children,
-}: PageHeaderProps) {
+}: Readonly<PageHeaderProps>) {
   // Titles arrive as English props from ~sixty screens. Translating them here means no page
   // has to remember to, and none of them can be the one that forgot.
   const t = useT();

@@ -76,7 +76,7 @@ describe('generateDueInvoices', () => {
 
   it('raises nothing when another process claimed the period first', async () => {
     await schedule();
-    jest.spyOn(RecurringInvoiceModel, 'findOneAndUpdate').mockResolvedValueOnce(null as never);
+    jest.spyOn(RecurringInvoiceModel, 'findOneAndUpdate').mockResolvedValueOnce(null);
 
     await expect(generateDueInvoices(NOW)).resolves.toBe(0);
     expect(await InvoiceModel.countDocuments()).toBe(0);

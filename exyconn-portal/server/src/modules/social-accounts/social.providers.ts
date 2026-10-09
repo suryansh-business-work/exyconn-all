@@ -1,5 +1,5 @@
 import { THREADS_GRAPH, type SocialApp, type SocialNetwork } from './social.constants';
-import { getJson, postForm } from './social.http';
+import { basicAuthHeader, getJson, postForm } from './social.http';
 
 /** What the tokens are, as the provider answered. */
 export interface ProviderTokens {
@@ -252,9 +252,7 @@ const x: Provider = {
           code_verifier: verifier,
           client_id: app.clientId,
         },
-        {
-          Authorization: `Basic ${Buffer.from(`${app.clientId}:${app.clientSecret}`).toString('base64')}`,
-        },
+        basicAuthHeader(app.clientId, app.clientSecret),
       ),
     ),
   accounts: async (tokens) => {

@@ -18,7 +18,7 @@ import {
  * takes. Built idea first, then each milestone in turn, the route, and the flag last.
  * Milestone `i` carries tag `i + 1`, the idea 6, the flag 7.
  */
-export const ROADMAP_BOUNDS: Vec3 = [2.45, 1.55, 1.0];
+export const ROADMAP_BOUNDS: Vec3 = [2.45, 1.55, 1];
 
 const STEPS: readonly Vec3[] = Array.from({ length: 5 }, (_, i): Vec3 => [
   -1.85 + i * 0.95,

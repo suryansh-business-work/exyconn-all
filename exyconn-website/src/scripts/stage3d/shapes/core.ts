@@ -35,7 +35,7 @@ export const linkNodes = (nodes: readonly Vec3[], maxLength: number, limit: numb
     }
   });
   return links
-    .sort((x, y) => x.length - y.length)
+    .toSorted((x, y) => x.length - y.length)
     .slice(0, limit)
     .map(({ link }) => link);
 };

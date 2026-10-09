@@ -40,7 +40,7 @@ const confirmDialog = async () => within(await screen.findByRole('dialog'));
 
 describe('WebhooksPanel', () => {
   it('shows a loader, then each endpoint with its events, deliveries and failures', async () => {
-    renderWithProviders(<WebhooksPanel />, {
+    const { container } = renderWithProviders(<WebhooksPanel />, {
       mocks: [
         list(
           [
@@ -51,7 +51,7 @@ describe('WebhooksPanel', () => {
         ),
       ],
     });
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
     const row = (await screen.findByText('CRM bridge')).closest('tr') as HTMLElement;
     expect(within(row).getByText('https://crm.example.com/hooks')).toBeInTheDocument();
     expect(within(row).getByText('lead.created, invoice.paid')).toBeInTheDocument();
@@ -141,7 +141,7 @@ describe('WebhooksPanel', () => {
   it('deletes an endpoint only once confirmed', async () => {
     const user = userEvent.setup();
     renderWithProviders(<WebhooksPanel />, { mocks: [list(), deleted(), list([])] });
-    await user.click(await screen.findByRole('button', { name: 'Delete' }));
+    await user.click(await screen.findByRole('button', { name: 'delete' }));
     const first = await confirmDialog();
     expect(
       first.getByText('Delete this endpoint? Deliveries to it stop at once.'),
@@ -150,7 +150,7 @@ describe('WebhooksPanel', () => {
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(screen.getByText('CRM bridge')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'Delete' }));
+    await user.click(screen.getByRole('button', { name: 'delete' }));
     await user.click((await confirmDialog()).getByRole('button', { name: 'Delete' }));
     await waitFor(() => expect(screen.queryByText('CRM bridge')).toBeNull());
   });
@@ -160,7 +160,7 @@ describe('WebhooksPanel', () => {
     renderWithProviders(<WebhooksPanel />, {
       mocks: [list(), deleted(new Error('Delete refused'))],
     });
-    await user.click(await screen.findByRole('button', { name: 'Delete' }));
+    await user.click(await screen.findByRole('button', { name: 'delete' }));
     await user.click((await confirmDialog()).getByRole('button', { name: 'Delete' }));
     expect(await screen.findByText('Delete refused')).toBeInTheDocument();
     expect(screen.getByText('CRM bridge')).toBeInTheDocument();

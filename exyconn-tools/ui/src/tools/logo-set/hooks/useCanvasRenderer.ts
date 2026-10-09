@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { LogoSettings, ExportFormat } from '../types';
+import { LogoSettings, ExportFormat, CanvasCategory } from '../types';
 
 interface RenderOptions {
   image: string;
@@ -7,8 +7,22 @@ interface RenderOptions {
   height: number;
   settings: LogoSettings;
   isCropped?: boolean;
-  category?: 'favicon' | 'icon' | 'logo' | 'splash';
+  category?: CanvasCategory;
 }
+
+const buildFilter = (settings: LogoSettings): string => {
+  const filters: string[] = [];
+  if (settings.brightness !== undefined && settings.brightness !== 100) {
+    filters.push(`brightness(${settings.brightness}%)`);
+  }
+  if (settings.contrast !== undefined && settings.contrast !== 100) {
+    filters.push(`contrast(${settings.contrast}%)`);
+  }
+  if (settings.grayscale !== undefined && settings.grayscale > 0) {
+    filters.push(`grayscale(${settings.grayscale}%)`);
+  }
+  return filters.join(' ');
+};
 
 export const useCanvasRenderer = () => {
   const renderCanvas = useCallback((canvas: HTMLCanvasElement, options: RenderOptions) => {
@@ -86,18 +100,9 @@ export const useCanvasRenderer = () => {
       ctx.translate(width / 2 + settings.x * scaleRatio, height / 2 + settings.y * scaleRatio);
       ctx.rotate((settings.rotation * Math.PI) / 180);
       // Apply image filters (brightness, contrast, grayscale)
-      const filters: string[] = [];
-      if (settings.brightness !== undefined && settings.brightness !== 100) {
-        filters.push(`brightness(${settings.brightness}%)`);
-      }
-      if (settings.contrast !== undefined && settings.contrast !== 100) {
-        filters.push(`contrast(${settings.contrast}%)`);
-      }
-      if (settings.grayscale !== undefined && settings.grayscale > 0) {
-        filters.push(`grayscale(${settings.grayscale}%)`);
-      }
-      if (filters.length > 0) {
-        ctx.filter = filters.join(' ');
+      const filter = buildFilter(settings);
+      if (filter) {
+        ctx.filter = filter;
       }
 
       if (applyBoxShadow) {

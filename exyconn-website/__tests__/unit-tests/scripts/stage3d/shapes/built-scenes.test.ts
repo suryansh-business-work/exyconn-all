@@ -5,7 +5,7 @@ import {
   SHAPES,
   type ShapeId,
 } from "../../../../../src/scripts/stage3d/shapes/registry";
-import type { Cloud, Random } from "../../../../../src/scripts/stage3d/shapes/sampling";
+import type { Cloud } from "../../../../../src/scripts/stage3d/shapes/sampling";
 import { points } from "./helpers";
 
 /**
@@ -28,8 +28,7 @@ const BUILT: readonly ShapeId[] = [
 const N = 1500;
 const MOTIONS: ReadonlySet<string> = new Set(["spin", "sway"]);
 
-const sample = (id: ShapeId): Cloud =>
-  (SHAPES[id].sample as (n: number, r: Random) => Cloud)(N, createRandom(8));
+const sample = (id: ShapeId): Cloud => SHAPES[id].sample(N, createRandom(8));
 
 const present = <T>(value: T | undefined): T => {
   expect(value).toBeDefined();
@@ -61,7 +60,7 @@ describe("built scenes", () => {
     expect(inUnit(lines.order)).toBe(true);
     expect(inUnit(lines.along)).toBe(true);
     expect([...lines.flow].every((value) => value === 0 || value === 1)).toBe(true);
-    expect([...lines.flow].some((value) => value === 1)).toBe(true);
+    expect([...lines.flow].includes(1)).toBe(true);
     const [bx, by, bz] = SHAPES[id].bounds;
     const outside = points(lines.positions).filter(
       ([x, y, z]) => Math.abs(x) > bx + 1e-5 || Math.abs(y) > by + 1e-5 || Math.abs(z) > bz + 1e-5

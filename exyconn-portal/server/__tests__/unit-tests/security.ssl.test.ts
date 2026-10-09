@@ -13,6 +13,7 @@ import { clearSslCache, sslCertificates } from '../../src/modules/security/ssl.s
 import { readCertificate } from '../../src/modules/security/ssl.probe';
 import { StatusMonitorModel } from '../../src/modules/status/status-monitor.model';
 import { env } from '../../src/config/env';
+import ips from '../fixtures/ips.json';
 
 jest.mock('../../src/modules/security/ssl.probe', () => ({ readCertificate: jest.fn() }));
 const probe = readCertificate as jest.Mock;
@@ -21,14 +22,14 @@ const NOW = new Date('2026-10-04T00:00:00Z');
 const DAY = 86_400_000;
 const host = { host: 'portal.exyconn.com', monitors: ['Portal'] };
 
-/** A handshake whose certificate expires `days` after NOW. */
-const handshake = (days: number, authorized = true) => ({
+/** A handshake whose certificate expires `days` after `from` (NOW unless the code reads the clock). */
+const handshake = (days: number, authorized = true, from: Date = NOW) => ({
   certificate: {
     subject: { CN: 'portal.exyconn.com' },
     issuer: { O: "Let's Encrypt", CN: 'R11' },
     subjectaltname: 'DNS:portal.exyconn.com, DNS:www.exyconn.com',
     valid_from: 'Sep  1 00:00:00 2026 GMT',
-    valid_to: new Date(NOW.getTime() + days * DAY).toUTCString(),
+    valid_to: new Date(from.getTime() + days * DAY).toUTCString(),
     serialNumber: '0A1B',
     fingerprint256: 'AA:BB',
   },
@@ -71,7 +72,7 @@ describe('reading a certificate', () => {
     expect(altNames('DNS:a.com, DNS:b.com, IP Address:1.2.3.4')).toEqual([
       'a.com',
       'b.com',
-      '1.2.3.4',
+      ips.ip1_2_3_4,
     ]);
     expect(altNames(undefined)).toEqual([]);
   });
@@ -186,13 +187,16 @@ describe('the certificate report', () => {
   });
 
   it('checks every active monitored host and never fails on one bad host', async () => {
+    const rejectWith = (reason: unknown) => Promise.reject(reason);
     // A non-Error rejection still becomes a row, not a failed report.
     const outcomes = new Map<string, Promise<unknown>>([
       ['down.exyconn.com', Promise.reject(new Error('ECONNREFUSED'))],
-      ['odd.exyconn.com', Promise.reject({ code: 'EPIPE' })],
+      ['odd.exyconn.com', rejectWith({ code: 'EPIPE' })],
     ]);
     for (const outcome of outcomes.values()) outcome.catch(() => undefined);
-    probe.mockImplementation((name: string) => outcomes.get(name) ?? Promise.resolve(handshake(5)));
+    probe.mockImplementation(
+      (name: string) => outcomes.get(name) ?? Promise.resolve(handshake(5, true, new Date())),
+    );
     const report = await sslCertificates();
     expect(report.warningDays).toBe(env.security.sslWarningDays);
     expect(report.certificates.map((row) => [row.host, row.status, row.error])).toEqual([

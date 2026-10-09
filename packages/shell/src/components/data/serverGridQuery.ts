@@ -6,6 +6,7 @@ import {
   type TableQueryInput,
   type TableSortInput,
 } from '@/graphql/generated';
+import { cellText } from '../../utils/cellText';
 
 export const SEARCH_DEBOUNCE_MS = 300;
 
@@ -35,7 +36,7 @@ export function toFilters(
 ): TableFilterInput[] {
   const filters: TableFilterInput[] = [];
   for (const [field, def] of Object.entries(model)) {
-    const value = def.filter == null ? '' : String(def.filter);
+    const value = cellText(def.filter);
     if (value !== '') {
       filters.push({ field, op: toFilterOp(def.type), value });
     }

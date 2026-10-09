@@ -18,6 +18,7 @@ import Grid from '@mui/material/Grid';
 import { LocationOn, CheckCircle, ContentCopy } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
+import { withUniqueKeys } from '../../shared/utils/uniqueKeys';
 
 interface GBPDescription {
   variant: number;
@@ -208,8 +209,8 @@ const GBPDescriptionGenerator: React.FC = () => {
                     Tips
                   </Typography>
                   <List dense>
-                    {result.tips.map((tip, idx) => (
-                      <ListItem key={idx} disablePadding sx={{ mb: 0.5 }}>
+                    {withUniqueKeys(result.tips, (tip) => tip).map(({ key, item: tip }) => (
+                      <ListItem key={key} disablePadding sx={{ mb: 0.5 }}>
                         <ListItemIcon sx={{ minWidth: 28 }}>
                           <CheckCircle sx={{ fontSize: 14, color: 'success.main' }} />
                         </ListItemIcon>

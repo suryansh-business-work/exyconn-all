@@ -1,0 +1,98 @@
+{
+  "ipv4": [
+    {
+      "network": "0.0.0.0",
+      "prefix": 8
+    },
+    {
+      "network": "10.0.0.0",
+      "prefix": 8
+    },
+    {
+      "network": "100.64.0.0",
+      "prefix": 10
+    },
+    {
+      "network": "127.0.0.0",
+      "prefix": 8
+    },
+    {
+      "network": "169.254.0.0",
+      "prefix": 16
+    },
+    {
+      "network": "172.16.0.0",
+      "prefix": 12
+    },
+    {
+      "network": "192.0.0.0",
+      "prefix": 24
+    },
+    {
+      "network": "192.0.2.0",
+      "prefix": 24
+    },
+    {
+      "network": "192.88.99.0",
+      "prefix": 24
+    },
+    {
+      "network": "192.168.0.0",
+      "prefix": 16
+    },
+    {
+      "network": "198.18.0.0",
+      "prefix": 15
+    },
+    {
+      "network": "198.51.100.0",
+      "prefix": 24
+    },
+    {
+      "network": "203.0.113.0",
+      "prefix": 24
+    },
+    {
+      "network": "224.0.0.0",
+      "prefix": 4
+    },
+    {
+      "network": "240.0.0.0",
+      "prefix": 4
+    }
+  ],
+  "ipv6": [
+    {
+      "network": "100::",
+      "prefix": 64
+    },
+    {
+      "network": "2001::",
+      "prefix": 23
+    },
+    {
+      "network": "2001:db8::",
+      "prefix": 32
+    },
+    {
+      "network": "2002::",
+      "prefix": 16
+    },
+    {
+      "network": "fc00::",
+      "prefix": 7
+    },
+    {
+      "network": "fe80::",
+      "prefix": 10
+    },
+    {
+      "network": "fec0::",
+      "prefix": 10
+    },
+    {
+      "network": "ff00::",
+      "prefix": 8
+    }
+  ]
+}

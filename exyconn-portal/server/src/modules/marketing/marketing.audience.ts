@@ -1,7 +1,6 @@
 import { ClientModel } from '../clients/clients.model';
 import { CompanyModel } from '../crm/company.model';
 import { ContactModel } from '../crm/contact.model';
-import type { AudienceSegment } from './audience.model';
 
 /** Which register a member came out of. The two have different consent rules. */
 export type AudienceMemberKind = 'CLIENT' | 'CONTACT';
@@ -21,7 +20,7 @@ export interface AudienceMember {
 export interface AudienceShape {
   clientIds?: readonly string[];
   contactIds?: readonly string[];
-  dynamicSegment?: AudienceSegment | string | null;
+  dynamicSegment?: string | null;
   segmentValue?: string | null;
 }
 

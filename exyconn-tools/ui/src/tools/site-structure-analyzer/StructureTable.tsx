@@ -92,8 +92,8 @@ const StructureTable: React.FC<StructureTableProps> = ({ pages }) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {paginatedPages.map((p, i) => (
-                  <TableRow key={i} hover>
+                {paginatedPages.map((p) => (
+                  <TableRow key={p.url} hover>
                     <TableCell>
                       <Typography
                         variant="body2"
@@ -166,7 +166,7 @@ const StructureTable: React.FC<StructureTableProps> = ({ pages }) => {
             onPageChange={(_, newPage) => setPage(newPage)}
             rowsPerPage={rowsPerPage}
             onRowsPerPageChange={(e) => {
-              setRowsPerPage(parseInt(e.target.value, 10));
+              setRowsPerPage(Number.parseInt(e.target.value, 10));
               setPage(0);
             }}
             rowsPerPageOptions={[10, 25, 50]}

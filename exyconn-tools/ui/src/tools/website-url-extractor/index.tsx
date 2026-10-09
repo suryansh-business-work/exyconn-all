@@ -46,7 +46,7 @@ const WebsiteUrlExtractor: React.FC = () => {
   const handleExportCSV = (urls: ExtractedUrl[]) => {
     const csv = [
       'URL,Text,Type,Is Resource',
-      ...urls.map((u) => `"${u.url}","${u.text.replace(/"/g, '""')}",${u.type},${u.isResource}`),
+      ...urls.map((u) => `"${u.url}","${u.text.replaceAll('"', '""')}",${u.type},${u.isResource}`),
     ].join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);

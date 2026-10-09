@@ -11,7 +11,7 @@ interface MarkdownOutputProps {
 const MarkdownOutput: React.FC<MarkdownOutputProps> = ({ markdown, onCopy, onDownload }) => {
   return (
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, height: '100%', minHeight: 400 }}>
-      {!markdown ? (
+      {markdown === '' ? (
         <Box
           sx={{
             p: 4,

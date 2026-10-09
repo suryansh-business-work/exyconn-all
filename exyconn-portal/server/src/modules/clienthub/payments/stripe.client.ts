@@ -19,7 +19,8 @@ async function call<T>(secretKey: string, path: string, body?: URLSearchParams):
   });
   const payload = (await response.json().catch(() => ({}))) as T & { error?: { message?: string } };
   if (!response.ok) {
-    throw new Error(`Stripe: ${payload.error?.message ?? `HTTP ${response.status}`}`);
+    const reason = payload.error?.message ?? `HTTP ${response.status}`;
+    throw new Error(`Stripe: ${reason}`);
   }
   return payload;
 }

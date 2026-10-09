@@ -31,7 +31,7 @@ describe('RhfChipsInput', () => {
     );
 
     const chip = screen.getByRole('button', { name: 'Go' });
-    await user.click(chip.querySelector('.MuiChip-deleteIcon')!);
+    await user.click(chip.querySelector('.MuiChip-deleteIcon'));
 
     expect(formValues().skills).toEqual(['Rust']);
   });

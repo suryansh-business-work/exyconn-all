@@ -58,7 +58,7 @@ export default function ThemeToggleButton({ mode, round = false }: Readonly<Prop
         size="small"
         aria-label={hint}
         sx={round ? roundButton : COMPACT_SX}
-        onClick={() => run(() => window.tracker.setPreferences({ themeMode: step.next }))}
+        onClick={() => run(() => globalThis.tracker.setPreferences({ themeMode: step.next }))}
       >
         <Icon sx={{ fontSize: iconSize.md }} />
       </IconButton>

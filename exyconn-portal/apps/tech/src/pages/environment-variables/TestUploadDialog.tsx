@@ -15,7 +15,12 @@ interface TestUploadDialogProps {
 }
 
 /** Uploads a chosen file through a specific image config to validate it. */
-export function TestUploadDialog({ configId, configLabel, open, onClose }: TestUploadDialogProps) {
+export function TestUploadDialog({
+  configId,
+  configLabel,
+  open,
+  onClose,
+}: Readonly<TestUploadDialogProps>) {
   const t = useT();
   const notify = useNotify();
   const inputRef = useRef<HTMLInputElement>(null);

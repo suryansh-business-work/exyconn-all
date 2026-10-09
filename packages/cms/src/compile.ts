@@ -15,7 +15,7 @@ export class CmsCompileError extends Error {
 }
 
 /** Every placeholder tag, opening or closing (GrapesJS writes them lower-case). */
-const TAG = new RegExp(`<(/?)(${COMPONENT_TAG}|${FRAGMENT_TAG})\\b([^>]*)>`, 'gi');
+const TAG = new RegExp(String.raw`<(/?)(${COMPONENT_TAG}|${FRAGMENT_TAG})\b([^>]*)>`, 'gi');
 const ATTRIBUTE = /([\w:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
 
 const ENTITIES: Readonly<Record<string, string>> = {
@@ -63,7 +63,7 @@ function pushHtml(blocks: CmsBlock[], html: string): void {
   if (html.trim() === '') {
     return;
   }
-  const last = blocks[blocks.length - 1];
+  const last = blocks.at(-1);
   if (last?.kind === 'html') {
     last.html += html;
     return;
@@ -76,79 +76,96 @@ interface OpenComponent {
   parent: CmsBlock[];
 }
 
+interface CompileState {
+  root: CmsBlock[];
+  stack: OpenComponent[];
+  fragmentDepth: number;
+}
+
+const isSelfClosing = (body: string) => body.trimEnd().endsWith('/');
+
+/** The list a block read next belongs in: the open component's slot, or the page itself. */
+const currentList = (state: CompileState) => state.stack.at(-1)?.block.children ?? state.root;
+
+/** A fragment tag: adds a reference at the top level, and tracks how deep its preview runs. */
+function readFragmentTag(state: CompileState, closing: string, body: string): void {
+  if (closing) {
+    state.fragmentDepth = Math.max(0, state.fragmentDepth - 1);
+    return;
+  }
+  if (state.fragmentDepth === 0) {
+    const fragmentId = attributesOf(body).get('data-fragment-id') ?? '';
+    if (fragmentId === '') {
+      throw new CmsCompileError('A fragment has no fragment selected.');
+    }
+    currentList(state).push({ kind: 'fragment', fragmentId });
+  }
+  state.fragmentDepth += isSelfClosing(body) ? 0 : 1;
+}
+
+/** A component tag: closes the open component, or adds one (and opens it unless self-closing). */
+function readComponentTag(state: CompileState, closing: string, body: string): void {
+  if (closing) {
+    if (state.stack.length === 0) {
+      throw new CmsCompileError('A component is closed that was never opened.');
+    }
+    state.stack.pop();
+    return;
+  }
+  const attributes = attributesOf(body);
+  const key = attributes.get('data-key') ?? '';
+  if (key === '') {
+    throw new CmsCompileError('A component has no component selected.');
+  }
+  const block: CmsComponentBlock = {
+    kind: 'component',
+    key,
+    props: propsOf(attributes.get('data-props'), key),
+    children: [],
+  };
+  const parent = currentList(state);
+  parent.push(block);
+  if (!isSelfClosing(body)) {
+    state.stack.push({ block, parent });
+  }
+}
+
+function assertAllClosed(state: CompileState): void {
+  if (state.stack.length > 0) {
+    const open = state.stack.at(-1)?.block.key;
+    throw new CmsCompileError(`Component "${open}" is never closed.`);
+  }
+  if (state.fragmentDepth > 0) {
+    throw new CmsCompileError('A fragment is never closed.');
+  }
+}
+
 /**
  * Turns the editor's HTML into the block tree the website renders. Components nest (a
  * container's children are its slot); a fragment's own content in the editor is only a preview
  * and is dropped. Throws CmsCompileError on a placeholder that is malformed or left open.
  */
 export function compileHtml(html: string, css: string): CmsCompiled {
-  const root: CmsBlock[] = [];
-  const stack: OpenComponent[] = [];
-  let fragmentDepth = 0;
+  const state: CompileState = { root: [], stack: [], fragmentDepth: 0 };
   let cursor = 0;
-  const current = () => stack[stack.length - 1]?.block.children ?? root;
 
   for (const match of html.matchAll(TAG)) {
     const [whole, closing, rawName, body] = match;
-    const name = rawName.toLowerCase();
-    const index = match.index;
-    if (fragmentDepth === 0) {
-      pushHtml(current(), html.slice(cursor, index));
+    if (state.fragmentDepth === 0) {
+      pushHtml(currentList(state), html.slice(cursor, match.index));
     }
-    cursor = index + whole.length;
+    cursor = match.index + whole.length;
 
-    if (name === FRAGMENT_TAG) {
-      if (closing) {
-        fragmentDepth = Math.max(0, fragmentDepth - 1);
-        continue;
-      }
-      if (fragmentDepth === 0) {
-        const fragmentId = attributesOf(body).get('data-fragment-id') ?? '';
-        if (fragmentId === '') {
-          throw new CmsCompileError('A fragment has no fragment selected.');
-        }
-        current().push({ kind: 'fragment', fragmentId });
-      }
-      fragmentDepth += body.trimEnd().endsWith('/') ? 0 : 1;
-      continue;
-    }
-
-    if (fragmentDepth > 0) {
-      continue;
-    }
-    if (closing) {
-      if (stack.length === 0) {
-        throw new CmsCompileError('A component is closed that was never opened.');
-      }
-      stack.pop();
-      continue;
-    }
-    const attributes = attributesOf(body);
-    const key = attributes.get('data-key') ?? '';
-    if (key === '') {
-      throw new CmsCompileError('A component has no component selected.');
-    }
-    const block: CmsComponentBlock = {
-      kind: 'component',
-      key,
-      props: propsOf(attributes.get('data-props'), key),
-      children: [],
-    };
-    current().push(block);
-    if (!body.trimEnd().endsWith('/')) {
-      stack.push({ block, parent: current() });
+    if (rawName.toLowerCase() === FRAGMENT_TAG) {
+      readFragmentTag(state, closing, body);
+    } else if (state.fragmentDepth === 0) {
+      readComponentTag(state, closing, body);
     }
   }
 
-  if (stack.length > 0) {
-    const open = stack[stack.length - 1].block.key;
-    throw new CmsCompileError(`Component "${open}" is never closed.`);
-  }
-  if (fragmentDepth > 0) {
-    throw new CmsCompileError('A fragment is never closed.');
-  }
-  pushHtml(root, html.slice(cursor));
-  return { blocks: root, css };
+  assertAllClosed(state);
+  pushHtml(state.root, html.slice(cursor));
+  return { blocks: state.root, css };
 }
 
 /** The placeholder HTML for a component: what the editor writes and the seed is made of. */

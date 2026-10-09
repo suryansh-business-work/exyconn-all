@@ -71,9 +71,7 @@ describe('seeding the default industries', () => {
   });
 
   it('leaves nothing half-seeded when the workflows cannot be written, and retries later', async () => {
-    jest
-      .spyOn(WhatsappWorkflowModel, 'insertMany')
-      .mockRejectedValueOnce(new Error('disk full') as never);
+    jest.spyOn(WhatsappWorkflowModel, 'insertMany').mockRejectedValueOnce(new Error('disk full'));
     await expect(ensureWhatsappDemoSeeds()).rejects.toThrow('disk full');
     expect(await WhatsappDemoModel.countDocuments()).toBe(0);
     expect(await MigrationModel.countDocuments()).toBe(0);
@@ -83,7 +81,7 @@ describe('seeding the default industries', () => {
   });
 
   it('lets a concurrent seed that lost the race on a unique key pass quietly', async () => {
-    jest.spyOn(WhatsappDemoModel, 'create').mockRejectedValueOnce({ code: 11000 } as never);
+    jest.spyOn(WhatsappDemoModel, 'create').mockRejectedValueOnce({ code: 11000 });
     await expect(ensureWhatsappDemoSeeds()).resolves.toBeUndefined();
     expect(await WhatsappDemoModel.findOne({ key: second.key })).not.toBeNull();
   });

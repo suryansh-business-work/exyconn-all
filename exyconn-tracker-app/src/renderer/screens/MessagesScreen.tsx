@@ -47,11 +47,11 @@ export default function MessagesScreen({ timezone }: Readonly<Props>): ReactElem
         <Tab value="NOTICE" label={t('Announcements')} {...tabProps(tabs, 'NOTICE')} />
       </Tabs>
 
-      {error !== null ? (
+      {error === null ? null : (
         <Alert severity="error" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
           {error}
         </Alert>
-      ) : null}
+      )}
 
       <Stack spacing={2} {...panelProps(tabs, tab)}>
         {tab === 'CHAT' ? (

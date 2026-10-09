@@ -6,7 +6,7 @@
  * The pickers' theme augmentation is pulled in here so `createTheme` accepts
  * `MuiPickerDay` & co. wherever a theme is built.
  */
-import type {} from '@mui/x-date-pickers/themeAugmentation';
+export type { PickersComponentNameToClassKey } from '@mui/x-date-pickers/themeAugmentation';
 
 export { styled, alpha, useTheme, ThemeProvider, createTheme } from '@mui/material/styles';
 export { default as CssBaseline } from '@mui/material/CssBaseline';

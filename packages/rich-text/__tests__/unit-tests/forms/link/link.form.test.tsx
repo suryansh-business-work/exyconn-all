@@ -3,7 +3,9 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { LINK_MESSAGES, LinkForm } from '../../../../src/forms/link';
 
-const renderForm = (initial = { href: '', openInNewTab: false }) => {
+const BLANK_LINK = { href: '', openInNewTab: false };
+
+const renderForm = (initial = BLANK_LINK) => {
   const onSubmit = vi.fn();
   const onClose = vi.fn();
   render(<LinkForm initial={initial} onSubmit={onSubmit} onClose={onClose} />);

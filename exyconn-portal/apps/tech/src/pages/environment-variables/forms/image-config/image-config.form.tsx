@@ -54,7 +54,7 @@ const toInitial = (row: ImageConfigRow | null): Values => ({
   // Never prefilled: the API does not return it, and blank keeps the stored key.
   privateKey: '',
   urlEndpoint: row?.urlEndpoint ?? '',
-  isActive: row ? (row.isActive ? 'true' : 'false') : 'true',
+  isActive: row?.isActive === false ? 'false' : 'true',
 });
 
 interface ImageConfigFormProps {

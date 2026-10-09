@@ -81,8 +81,8 @@ const DomainAvailability: React.FC = () => {
                       >
                         Resolves to:
                       </Typography>
-                      {(result.ips as string[]).map((ip, i) => (
-                        <Chip key={i} label={ip} size="small" variant="outlined" sx={{ m: 0.5 }} />
+                      {(result.ips as string[]).map((ip) => (
+                        <Chip key={ip} label={ip} size="small" variant="outlined" sx={{ m: 0.5 }} />
                       ))}
                     </Box>
                   )}

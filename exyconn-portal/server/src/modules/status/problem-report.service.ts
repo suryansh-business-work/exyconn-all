@@ -3,7 +3,7 @@ import { logger } from '../../utils/logger';
 import { ProblemReportModel } from './problem-report.model';
 import { StatusMonitorModel } from './status-monitor.model';
 import { newReference } from './reference';
-import { allowReport } from './report-rate-limit';
+import { allowReportAttempt } from './report-rate-limit';
 
 /** What the public form sends. Every field is re-validated here — the client is untrusted. */
 export interface ProblemReportInput {
@@ -69,7 +69,7 @@ function normalize(input: ProblemReportInput): ProblemReportInput {
  * reporter never sees anyone else's report.
  */
 export async function submitProblemReport(raw: ProblemReportInput, client = 'unknown') {
-  if (!allowReport(client)) {
+  if (!(await allowReportAttempt(client))) {
     badRequest('Too many reports from this connection. Try again in an hour.');
   }
   const input = normalize(raw);

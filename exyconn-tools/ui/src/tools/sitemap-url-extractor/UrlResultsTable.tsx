@@ -35,12 +35,7 @@ const UrlResultsTable: React.FC<UrlResultsTableProps> = ({
   onExportCSV,
 }) => (
   <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, minHeight: 480 }}>
-    {!hasResult ? (
-      <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
-        <Link sx={{ fontSize: 48, mb: 2, opacity: 0.3 }} />
-        <Typography variant="body1">Enter a sitemap URL to extract all URLs</Typography>
-      </Box>
-    ) : (
+    {hasResult ? (
       <>
         <Box sx={{ p: 1.5, borderBottom: 1, borderColor: 'divider', display: 'flex', alignItems: 'center', gap: 1 }}>
           <FilterList fontSize="small" color="action" />
@@ -85,8 +80,8 @@ const UrlResultsTable: React.FC<UrlResultsTableProps> = ({
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredUrls.slice(0, 200).map((u, i) => (
-                <TableRow key={i} hover>
+              {filteredUrls.slice(0, 200).map((u) => (
+                <TableRow key={u.loc} hover>
                   <TableCell>
                     <Typography variant="body2" noWrap sx={{ maxWidth: 350 }}>
                       {u.loc}
@@ -124,6 +119,11 @@ const UrlResultsTable: React.FC<UrlResultsTableProps> = ({
           </Box>
         )}
       </>
+    ) : (
+      <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
+        <Link sx={{ fontSize: 48, mb: 2, opacity: 0.3 }} />
+        <Typography variant="body1">Enter a sitemap URL to extract all URLs</Typography>
+      </Box>
     )}
   </Paper>
 );

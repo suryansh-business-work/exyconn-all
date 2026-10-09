@@ -29,12 +29,18 @@ describe('LogsToolbar', () => {
     onCopyOpenErrors.mockReset();
   });
 
-  it('shows the current scope of each filter', () => {
+  it('shows the current scope of each filter', async () => {
     renderToolbar();
 
-    expect(screen.getByRole('combobox', { name: /^Source/ })).toHaveTextContent('All');
-    expect(screen.getByRole('combobox', { name: /^Level/ })).toHaveTextContent('All');
     expect(screen.getByRole('combobox', { name: /^Status/ })).toHaveTextContent('Open');
+    // An empty scope shows no text when closed, so it is read off the open list.
+    for (const name of [/^Source/, /^Level/]) {
+      await userEvent.click(screen.getByRole('combobox', { name }));
+      expect(
+        within(screen.getByRole('listbox')).getByRole('option', { name: 'All' }),
+      ).toHaveAttribute('aria-selected', 'true');
+      await userEvent.keyboard('{Escape}');
+    }
   });
 
   it('offers every value the API accepts, plus All', async () => {

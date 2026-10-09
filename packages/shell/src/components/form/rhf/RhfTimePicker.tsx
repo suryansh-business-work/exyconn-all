@@ -3,6 +3,7 @@ import { format, isValid, parse } from 'date-fns';
 import { useFieldCopy } from './useFieldCopy';
 import { TimePicker } from '@/components/ui';
 import { useSettings } from '@/hooks/useSettings';
+import { cellText } from '../../../utils/cellText';
 
 interface RhfTimePickerProps {
   name: string;
@@ -20,7 +21,7 @@ function toTime(value: unknown, hoursOnly: boolean): Date | null {
     date.setHours(Number(value), 0, 0, 0);
     return date;
   }
-  const date = parse(String(value), 'HH:mm', new Date());
+  const date = parse(cellText(value), 'HH:mm', new Date());
   return isValid(date) ? date : null;
 }
 

@@ -50,12 +50,12 @@ const toInitial = (row: EmailConfigRow | null): Values => ({
   label: row?.label ?? '',
   host: row?.host ?? '',
   port: row?.port ?? 587,
-  secure: row ? (row.secure ? 'true' : 'false') : 'false',
+  secure: row?.secure ? 'true' : 'false',
   username: row?.username ?? '',
   // Never prefilled: the API does not return it, and blank keeps the stored password.
   password: '',
   fromAddress: row?.fromAddress ?? '',
-  isActive: row ? (row.isActive ? 'true' : 'false') : 'true',
+  isActive: row?.isActive === false ? 'false' : 'true',
 });
 
 interface EmailConfigFormProps {

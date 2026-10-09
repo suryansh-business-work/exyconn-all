@@ -15,10 +15,7 @@ import {
   startConnect,
   type SocialAppConfigInput,
 } from './social.service';
-import { socialAccountsTypeDefs } from './social.typeDefs';
 import { testAppConnection } from './social.test-connection';
-import { socialPostsResolvers } from './social.posts.resolvers';
-import { socialPostsTypeDefs } from './social.posts.typeDefs';
 
 export { socialCallbackRouter } from './social.routes';
 export { SOCIAL_CALLBACK_PATH } from './social.constants';
@@ -92,4 +89,6 @@ export const socialAccountsResolvers = {
     clientSecretHint: (row: { clientSecret: string }) => secretHint(row.clientSecret),
   },
 };
-export { socialAccountsTypeDefs, socialPostsTypeDefs, socialPostsResolvers };
+export { socialAccountsTypeDefs } from './social.typeDefs';
+export { socialPostsTypeDefs } from './social.posts.typeDefs';
+export { socialPostsResolvers } from './social.posts.resolvers';

@@ -22,7 +22,7 @@ export default function useTotals(lastSyncAt: string | null): TotalsQuery {
   useEffect(() => {
     let active = true;
     setError(null);
-    window.tracker
+    globalThis.tracker
       .getTotals()
       .then((next) => {
         if (active) {

@@ -17,13 +17,10 @@ export function SubmitStatusAlert({
 }: Readonly<SubmitStatusAlertProps>) {
   if (status === "success") {
     return (
-      <div
-        role="status"
-        className="mb-6 p-4 bg-green-subtle border border-green-muted rounded-xl text-green-fg-strong flex items-center gap-2"
-      >
+      <output className="mb-6 p-4 bg-green-subtle border border-green-muted rounded-xl text-green-fg-strong flex items-center gap-2">
         <SvgIcon name="check-circle" />
         <span>{successMessage}</span>
-      </div>
+      </output>
     );
   }
   if (status === "error") {

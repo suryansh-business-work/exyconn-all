@@ -2,15 +2,18 @@
 import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
 
 /** A stand-in <audio>: jsdom cannot play sound. */
+const fakeAudio = {
+  all: [] as FakeAudio[],
+  play: (): Promise<void> => Promise.resolve(),
+};
+
 class FakeAudio {
-  static all: FakeAudio[] = [];
-  static play: () => Promise<void> = () => Promise.resolve();
   preload = '';
   currentTime = 12;
   readonly listeners = new Map<string, () => void>();
-  readonly play = vi.fn(() => FakeAudio.play());
+  readonly play = vi.fn(() => fakeAudio.play());
   constructor(readonly src: string) {
-    FakeAudio.all.push(this);
+    fakeAudio.all.push(this);
   }
   addEventListener(type: string, fn: () => void): void {
     this.listeners.set(type, fn);
@@ -26,8 +29,8 @@ async function load() {
 }
 
 beforeEach(() => {
-  FakeAudio.all = [];
-  FakeAudio.play = () => Promise.resolve();
+  fakeAudio.all = [];
+  fakeAudio.play = () => Promise.resolve();
   vi.stubGlobal('Audio', FakeAudio);
   warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 });
@@ -42,21 +45,21 @@ describe('playShutter', () => {
     const { playShutter } = await load();
 
     playShutter();
-    const [audio] = FakeAudio.all;
+    const [audio] = fakeAudio.all;
     expect(audio.src).toContain('camera-sound');
     expect(audio.preload).toBe('auto');
     expect(audio.currentTime).toBe(0);
 
     audio.currentTime = 0.4;
     playShutter();
-    expect(FakeAudio.all).toHaveLength(1);
+    expect(fakeAudio.all).toHaveLength(1);
     expect(audio.currentTime).toBe(0);
     expect(audio.play).toHaveBeenCalledTimes(2);
   });
 
   it('warns, and never rejects unhandled, when the browser refuses to play', async () => {
     const blocked = new Error('NotAllowedError');
-    FakeAudio.play = () => Promise.reject(blocked);
+    fakeAudio.play = () => Promise.reject(blocked);
     const { playShutter } = await load();
 
     playShutter();
@@ -68,7 +71,7 @@ describe('playShutter', () => {
 
   it('warns when play throws outright', async () => {
     const broken = new Error('not supported');
-    FakeAudio.play = () => {
+    fakeAudio.play = () => {
       throw broken;
     };
     const { playShutter } = await load();
@@ -80,7 +83,7 @@ describe('playShutter', () => {
   it('stops trying once the file has failed to load', async () => {
     const { playShutter } = await load();
     playShutter();
-    const [audio] = FakeAudio.all;
+    const [audio] = fakeAudio.all;
 
     audio.listeners.get('error')?.();
     playShutter();
@@ -89,6 +92,6 @@ describe('playShutter', () => {
       'Camera shutter sound could not be loaded; captures stay silent.',
     );
     expect(audio.play).toHaveBeenCalledTimes(1);
-    expect(FakeAudio.all).toHaveLength(1);
+    expect(fakeAudio.all).toHaveLength(1);
   });
 });

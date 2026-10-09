@@ -116,18 +116,18 @@ describe('tracker device auth', () => {
   });
 });
 
-describe('tracker sync', () => {
-  /** A signed-in employee who has cleared BOTH gates: the disclosure and today's attendance. */
-  async function grantedSession() {
-    const user = await makeEmployee();
-    await trackerAdminService.grantAccess(user.id, 'admin');
-    await trackerDeviceService.login('emp@exyconn.com', PASSWORD, DEVICE);
-    await trackerDeviceService.acceptConsent(user.id);
-    await trackerDeviceService.markAttendance(user.id, 'UTC', 'PRESENT', null);
-    const session = await trackerDeviceService.startSession(user.id, 'device-1', new Date());
-    return { user, sessionId: String((session as { _id: unknown })._id) };
-  }
+/** A signed-in employee who has cleared BOTH gates: the disclosure and today's attendance. */
+async function grantedSession() {
+  const user = await makeEmployee();
+  await trackerAdminService.grantAccess(user.id, 'admin');
+  await trackerDeviceService.login('emp@exyconn.com', PASSWORD, DEVICE);
+  await trackerDeviceService.acceptConsent(user.id);
+  await trackerDeviceService.markAttendance(user.id, 'UTC', 'PRESENT', null);
+  const session = await trackerDeviceService.startSession(user.id, 'device-1', new Date());
+  return { user, sessionId: String((session as { _id: unknown })._id) };
+}
 
+describe('tracker sync', () => {
   it('gates session start on accepted consent', async () => {
     const user = await makeEmployee();
     await trackerAdminService.grantAccess(user.id, 'admin');

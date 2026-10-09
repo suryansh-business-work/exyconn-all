@@ -9,6 +9,7 @@ import { totpCode, stepAt } from '../../src/utils/totp';
 import { ROLES } from '../../src/constants/roles';
 import { seedUser } from '../helpers';
 import type { GraphQLContext } from '../../src/middleware/auth';
+import ips from '../fixtures/ips.json';
 
 jest.mock('../../src/modules/email', () => ({
   emailer: { send: jest.fn().mockResolvedValue(undefined) },
@@ -26,7 +27,7 @@ beforeEach(async () => {
   await Promise.all([resetRequestLimiter.reset(), resetIpLimiter.reset()]);
   const seeded = await seedUser(`${randomUUID()}@exyconn.com`, PASSWORD, [ROLES.HR]);
   user = { id: seeded.id, email: seeded.email };
-  ctx = { user: { id: user.id, email: user.email, roles: [ROLES.HR] }, ip: '10.2.2.2' };
+  ctx = { user: { id: user.id, email: user.email, roles: [ROLES.HR] }, ip: ips.ip10_2_2_2 };
 });
 
 afterEach(() => jest.restoreAllMocks());
@@ -125,7 +126,7 @@ describe('the unauthenticated recovery mutations', () => {
   });
 
   it('emails a reset link and sets the new password from it', async () => {
-    const anonymous: GraphQLContext = { user: null, ip: '10.3.3.3' };
+    const anonymous: GraphQLContext = { user: null, ip: ips.ip10_3_3_3 };
     const next = `reset-${randomUUID()}`;
 
     await expect(

@@ -5,6 +5,10 @@ import {
   assertMayChangeSignInFields,
   assertMayManageAccount,
   type AccountActor,
+  type CreateUserInput,
+  type UpdateUserInput,
+  type UpdateSettingsInput,
+  type SendMailInput,
 } from './admin.service';
 import { assertAuthenticated } from '../../middleware/roleGuard';
 import { assertPermission } from '../../lib/permissions';
@@ -15,12 +19,6 @@ import { diffChanges, recordAudit } from '../audit';
 import type { GraphQLContext } from '../../middleware/auth';
 import type { TableQueryInput } from '../../utils/tableQuery';
 import type { TokenPayload } from '../../utils/jwt';
-import type {
-  CreateUserInput,
-  UpdateUserInput,
-  UpdateSettingsInput,
-  SendMailInput,
-} from './admin.service';
 
 type LeanDoc = { _id: unknown };
 
@@ -40,7 +38,8 @@ const USER_MODULE = 'User';
 /** The formatting singleton is its own module in the matrix, not part of User. */
 const SETTINGS_MODULE = 'AppSettings';
 
-const sortedRoles = (roles: readonly string[] | undefined) => [...(roles ?? [])].sort().join(', ');
+const sortedRoles = (roles: readonly string[] | undefined) =>
+  [...(roles ?? [])].sort((a, b) => a.localeCompare(b)).join(', ');
 
 /** The caller as the account rules see them, with the company the request is confined to. */
 const actorOf = (user: TokenPayload, ctx: GraphQLContext): AccountActor => ({

@@ -28,9 +28,9 @@ interface Findable {
 }
 
 /** Answers the model's next search with `rows`, recording the filter and limit it was given. */
-function stubFind(model: unknown, rows: Row[]) {
+function stubFind(model: Findable, rows: Row[]) {
   const limit = jest.fn(() => ({ lean: async () => rows }));
-  const find = jest.spyOn(model as Findable, 'find').mockReturnValue({ limit });
+  const find = jest.spyOn(model, 'find').mockReturnValue({ limit });
   return { find, limit };
 }
 
@@ -44,7 +44,7 @@ const projectId = new Types.ObjectId();
 const taskLink = `/projects/${String(projectId)}/tickets`;
 
 /** key, model, the row the collection returns, and the hit the palette must show. */
-const CASES: Array<[string, unknown, Row, { title: string; subtitle: string; link: string }]> = [
+const CASES: Array<[string, Findable, Row, { title: string; subtitle: string; link: string }]> = [
   [
     'people',
     UserModel,

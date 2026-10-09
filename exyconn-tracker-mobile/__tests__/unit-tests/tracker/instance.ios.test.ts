@@ -6,13 +6,11 @@ import { settings } from '../dashboard/fixtures';
 const h = await vi.hoisted(async () => (await import('./instance-fixtures')).createHarness());
 
 vi.mock('@exyconn/tracker-core', () => ({
-  TrackerController: class {
-    constructor(deps: unknown) {
-      h.deps = deps as ControllerDepsSeen;
-      return h.controller;
-    }
+  TrackerController: function TrackerController(deps: unknown) {
+    h.deps = deps as ControllerDepsSeen;
+    return h.controller;
   },
-  TrackerEngine: class {},
+  TrackerEngine: vi.fn(),
 }));
 vi.mock('../../../src/tracker/capture', () => ({ composeWithWebcam: vi.fn() }));
 vi.mock('../../../src/tracker/device-info', () => ({

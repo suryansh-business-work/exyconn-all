@@ -19,8 +19,8 @@ const answer = (status: number, body = '') => ({
   text: async () => body,
 });
 
-const sitemap = (urls: string[]) =>
-  `<urlset>${urls.map((url) => `<url><loc> ${url} </loc></url>`).join('')}</urlset>`;
+const sitemapEntry = (url: string) => `<url><loc> ${url} </loc></url>`;
+const sitemap = (urls: string[]) => `<urlset>${urls.map(sitemapEntry).join('')}</urlset>`;
 
 /** Serves each URL from the table; anything else was never meant to be fetched. */
 function serve(routes: Record<string, () => unknown>) {

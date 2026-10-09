@@ -36,7 +36,7 @@ const BusinessList: React.FC<BusinessListProps> = ({ businesses, selectedBusines
 
     const csvContent = [
       headers.join(','),
-      ...rows.map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(',')),
+      ...rows.map((row) => row.map((cell) => `"${cell.replaceAll('"', '""')}"`).join(',')),
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -46,7 +46,7 @@ const BusinessList: React.FC<BusinessListProps> = ({ businesses, selectedBusines
     link.setAttribute('download', `leads_${new Date().toISOString().split('T')[0]}.csv`);
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    link.remove();
   };
 
   const toggleExpanded = (id: string) => {

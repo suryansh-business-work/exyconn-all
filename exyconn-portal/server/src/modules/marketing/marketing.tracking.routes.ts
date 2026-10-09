@@ -4,7 +4,6 @@ import { CampaignClickModel } from './campaign-click.model';
 import { CampaignModel } from './marketing.model';
 import {
   PIXEL,
-  TRACKING_PATH,
   extractLinks,
   hashTrackingToken,
   safeRedirectTarget,
@@ -12,7 +11,7 @@ import {
 } from './marketing.tracking';
 import { logger } from '../../utils/logger';
 
-export { TRACKING_PATH };
+export { TRACKING_PATH } from './marketing.tracking';
 
 /**
  * The two public endpoints a sent campaign points at.

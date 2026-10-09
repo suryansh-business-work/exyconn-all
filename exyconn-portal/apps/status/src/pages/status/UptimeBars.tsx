@@ -55,7 +55,7 @@ export function UptimeBars({ days }: Readonly<UptimeBarsProps>) {
   const t = useT();
   const theme = useTheme();
   const first = days[0];
-  const last = days[days.length - 1];
+  const last = days.at(-1);
   const roving = useRovingFocus(days.length);
 
   return (

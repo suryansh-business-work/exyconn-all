@@ -29,7 +29,7 @@ const TextInputPanel: React.FC<TextInputPanelProps> = ({
           Plain Text Content
         </Typography>
         <Button component="label" size="small" variant="outlined">
-          Upload TXT
+          {'Upload TXT'}
           <input type="file" accept=".txt" hidden onChange={onFileUpload} />
         </Button>
       </Box>

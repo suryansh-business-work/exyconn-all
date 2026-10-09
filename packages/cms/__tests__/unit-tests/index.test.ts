@@ -16,7 +16,7 @@ describe('@exyconn/cms entry point', () => {
   it('exports nothing beyond those three modules', () => {
     const names = [blocks, compile, catalogue].flatMap((module) => Object.keys(module));
     expect(Object.keys(cms).sort((a, b) => a.localeCompare(b))).toEqual(
-      names.sort((a, b) => a.localeCompare(b)),
+      names.toSorted((a, b) => a.localeCompare(b)),
     );
   });
 

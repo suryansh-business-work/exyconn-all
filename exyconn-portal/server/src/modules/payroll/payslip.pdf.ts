@@ -226,9 +226,7 @@ function columnHeight(
  */
 function drawBreakdownColumn(
   doc: PDFKit.PDFDocument,
-  left: number,
-  top: number,
-  height: number,
+  { left, top, height }: { left: number; top: number; height: number },
   title: string,
   lines: PayslipLine[],
   currency: string,
@@ -274,8 +272,15 @@ function drawBreakdown(doc: PDFKit.PDFDocument, top: number, data: PayslipData):
     columnHeight(doc, earnings, currency, locale),
     columnHeight(doc, deductions, currency, locale),
   );
-  drawBreakdownColumn(doc, MARGIN, top, height, 'Earnings', earnings, currency, locale);
-  drawBreakdownColumn(doc, RIGHT_COLUMN, top, height, 'Deductions', deductions, currency, locale);
+  drawBreakdownColumn(doc, { left: MARGIN, top, height }, 'Earnings', earnings, currency, locale);
+  drawBreakdownColumn(
+    doc,
+    { left: RIGHT_COLUMN, top, height },
+    'Deductions',
+    deductions,
+    currency,
+    locale,
+  );
   return top + height + SPACE.lg;
 }
 

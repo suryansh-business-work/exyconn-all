@@ -1,11 +1,11 @@
 import React from 'react';
 import { FormControl, InputLabel, Select, MenuItem, SelectChangeEvent } from '@mui/material';
-import { ApplyScope, SCOPE_OPTIONS } from '../../types';
+import { SCOPE_OPTIONS } from '../../types';
 import { ScopeSelectorProps } from './types';
 
 const ScopeSelector: React.FC<ScopeSelectorProps> = ({ applyScope, onApplyScopeChange }) => {
-  const handleScopeChange = (e: SelectChangeEvent<ApplyScope>) => {
-    onApplyScopeChange(e.target.value as ApplyScope);
+  const handleScopeChange = (e: SelectChangeEvent) => {
+    onApplyScopeChange(e.target.value);
   };
 
   return (

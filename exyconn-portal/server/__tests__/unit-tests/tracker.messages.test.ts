@@ -64,7 +64,9 @@ describe('tracker messages', () => {
     );
 
     expect(sent).toHaveLength(2);
-    expect(sent.map((message) => message.userId).sort()).toEqual([asha, dev].sort());
+    expect(sent.map((message) => message.userId).sort((a, b) => a.localeCompare(b))).toEqual(
+      [asha, dev].sort((a, b) => a.localeCompare(b)),
+    );
   });
 
   it('leaves out a revoked grant, whose announcement nobody would ever open', async () => {

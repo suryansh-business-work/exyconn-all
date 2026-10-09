@@ -1,12 +1,12 @@
-import { LogoSettings, ExportFormat, ApplyScope, CustomSize } from '../../types';
+import { LogoSettings, ExportFormat, CustomSize } from '../../types';
 
 export interface GlobalSettingsProps {
   settings: LogoSettings;
   onChange: (settings: LogoSettings) => void;
   format: ExportFormat;
   onFormatChange: (format: ExportFormat) => void;
-  applyScope: ApplyScope;
-  onApplyScopeChange: (scope: ApplyScope) => void;
+  applyScope: string;
+  onApplyScopeChange: (scope: string) => void;
   customSizes: CustomSize[];
   onCustomSizesChange: (sizes: CustomSize[]) => void;
   onOpenCustomSizesDialog: () => void;
@@ -15,9 +15,7 @@ export interface GlobalSettingsProps {
   currentImage?: string;
 }
 
-export interface SettingsUpdateFn {
-  (key: keyof LogoSettings, value: number | string | boolean): void;
-}
+export type SettingsUpdateFn = (key: keyof LogoSettings, value: number | string | boolean) => void;
 
 export interface SliderControlProps {
   icon: React.ReactNode;
@@ -31,8 +29,8 @@ export interface SliderControlProps {
 }
 
 export interface ScopeSelectorProps {
-  applyScope: ApplyScope;
-  onApplyScopeChange: (scope: ApplyScope) => void;
+  applyScope: string;
+  onApplyScopeChange: (scope: string) => void;
 }
 
 export interface ExportFormatSelectorProps {

@@ -14,6 +14,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import { ContentCopy, CheckCircle, Download } from '@mui/icons-material';
+import { toText } from '../../utils/toText';
 
 interface ResultDisplayProps {
   title: string;
@@ -21,6 +22,20 @@ interface ResultDisplayProps {
   data: Record<string, unknown> | null;
   children?: React.ReactNode;
 }
+
+const ResultValue: React.FC<Readonly<{ value: unknown }>> = ({ value }) => {
+  if (typeof value === 'boolean') {
+    return <Chip label={value ? 'Yes' : 'No'} size="small" color={value ? 'success' : 'error'} />;
+  }
+  if (typeof value === 'object') {
+    return (
+      <Typography variant="body2" sx={{ fontFamily: 'monospace', fontSize: 12 }}>
+        {JSON.stringify(value, null, 2)}
+      </Typography>
+    );
+  }
+  return <>{toText(value)}</>;
+};
 
 const DomainResultDisplay: React.FC<ResultDisplayProps> = ({ title, icon, data, children }) => {
   const [copied, setCopied] = React.useState(false);
@@ -112,15 +127,7 @@ export const KeyValueTable: React.FC<KeyValueTableProps> = ({ data, excludeKeys 
                 {key.replace(/([A-Z])/g, ' $1').trim()}
               </TableCell>
               <TableCell>
-                {typeof value === 'boolean' ? (
-                  <Chip label={value ? 'Yes' : 'No'} size="small" color={value ? 'success' : 'error'} />
-                ) : typeof value === 'object' ? (
-                  <Typography variant="body2" sx={{ fontFamily: 'monospace', fontSize: 12 }}>
-                    {JSON.stringify(value, null, 2)}
-                  </Typography>
-                ) : (
-                  String(value)
-                )}
+                <ResultValue value={value} />
               </TableCell>
             </TableRow>
           ))}

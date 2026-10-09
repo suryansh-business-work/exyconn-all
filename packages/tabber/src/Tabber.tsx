@@ -13,7 +13,10 @@ export interface TabberProps {
   variant?: TabberVariant;
   /** Names the tab strip for screen readers. */
   ariaLabel: string;
-  /** Styling for the row that holds the tab strip and its search, e.g. the gap below it. */
+  /**
+   * Styling for the row that holds the tab strip and its search. The strip already keeps a
+   * panel's gap (spacing step 2) from its content, so pass this only to change that.
+   */
   sx?: SxProps<Theme>;
 }
 
@@ -63,7 +66,10 @@ export function Tabber({
   return (
     <>
       <Box
-        sx={[{ display: 'flex', alignItems: 'center', gap: 1 }, ...(Array.isArray(sx) ? sx : [sx])]}
+        sx={[
+          { display: 'flex', alignItems: 'center', gap: 1, mb: 2 },
+          ...(Array.isArray(sx) ? sx : [sx]),
+        ]}
       >
         <Tabs
           id={stripId}

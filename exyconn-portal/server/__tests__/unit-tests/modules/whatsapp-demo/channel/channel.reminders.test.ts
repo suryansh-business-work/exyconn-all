@@ -13,6 +13,7 @@ import { JOB_KEYS, clearJobRuns, readJobRuns } from '../../../../../src/utils/jo
 import { runAsPlatform } from '../../../../../src/lib/tenant';
 import { logger } from '../../../../../src/utils/logger';
 import { useTestOrganization } from '../../../../helpers';
+import { asArg } from '../../../../mockAs';
 
 jest.mock('../../../../../src/modules/whatsapp-demo/channel/channel.service', () => ({
   activeSender: jest.fn(),
@@ -134,20 +135,22 @@ describe('deliverReminders', () => {
   });
 });
 
-describe('startWhatsappReminders', () => {
-  function start() {
-    const unref = jest.fn();
-    let tick: () => void = () => undefined;
-    const timer = jest.spyOn(globalThis, 'setInterval').mockImplementation(((fn: () => void) => {
+function start() {
+  const unref = jest.fn();
+  let tick: () => void = () => undefined;
+  const timer = jest.spyOn(globalThis, 'setInterval').mockImplementation(
+    asArg((fn: () => void) => {
       tick = fn;
       return { unref };
-    }) as never);
-    startWhatsappReminders();
-    const interval = timer.mock.calls[0]?.[1];
-    timer.mockRestore();
-    return { tick, unref, interval };
-  }
+    }),
+  );
+  startWhatsappReminders();
+  const interval = timer.mock.calls[0]?.[1];
+  timer.mockRestore();
+  return { tick, unref, interval };
+}
 
+describe('startWhatsappReminders', () => {
   it('ticks every thirty seconds without keeping the process alive', () => {
     const info = jest.spyOn(logger, 'info').mockImplementation(() => undefined);
     const passes = jest.spyOn(organizationEach, 'forEachOrganization').mockResolvedValue(undefined);

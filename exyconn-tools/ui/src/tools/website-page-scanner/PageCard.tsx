@@ -109,8 +109,8 @@ const PageCard: React.FC<PageCardProps> = ({ page, isExpanded, onToggle }) => {
                     flexWrap: 'wrap',
                   }}
                 >
-                  {page.headings.h1.map((h, i) => (
-                    <Chip key={i} label={h} size="small" variant="outlined" />
+                  {page.headings.h1.map((h) => (
+                    <Chip key={h} label={h} size="small" variant="outlined" />
                   ))}
                 </Stack>
               </Box>
@@ -135,8 +135,8 @@ const PageCard: React.FC<PageCardProps> = ({ page, isExpanded, onToggle }) => {
                     flexWrap: 'wrap',
                   }}
                 >
-                  {page.headings.h2.slice(0, 5).map((h, i) => (
-                    <Chip key={i} label={h} size="small" variant="outlined" sx={{ fontSize: 10 }} />
+                  {page.headings.h2.slice(0, 5).map((h) => (
+                    <Chip key={h} label={h} size="small" variant="outlined" sx={{ fontSize: 10 }} />
                   ))}
                   {page.headings.h2.length > 5 && <Chip label={`+${page.headings.h2.length - 5} more`} size="small" />}
                 </Stack>

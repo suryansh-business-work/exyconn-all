@@ -19,6 +19,12 @@ const BackgroundColorPicker: React.FC<BackgroundColorPickerProps> = ({
   const contrastWithWhite = calculateContrastRatio(backgroundColor, '#ffffff');
   const contrastWithBlack = calculateContrastRatio(backgroundColor, '#000000');
   const contrastRating = getContrastRating(Math.max(contrastWithWhite, contrastWithBlack));
+  let contrastSeverity: 'success' | 'warning' | 'error' = 'error';
+  if (contrastRating.passes.aa) {
+    contrastSeverity = 'success';
+  } else if (contrastRating.passes.aaLarge) {
+    contrastSeverity = 'warning';
+  }
 
   return (
     <Box sx={{ mb: 1 }}>
@@ -43,7 +49,7 @@ const BackgroundColorPicker: React.FC<BackgroundColorPickerProps> = ({
       </Box>
 
       <Alert
-        severity={contrastRating.passes.aa ? 'success' : contrastRating.passes.aaLarge ? 'warning' : 'error'}
+        severity={contrastSeverity}
         icon={<Warning sx={{ fontSize: 16 }} />}
         sx={{
           py: 0,
@@ -71,8 +77,8 @@ const BackgroundColorPicker: React.FC<BackgroundColorPickerProps> = ({
           >
             From Image:
           </Typography>
-          {extractedColors.map((color, index) => (
-            <Tooltip key={index} title={`${color} - Click to use`}>
+          {extractedColors.map((color) => (
+            <Tooltip key={color} title={`${color} - Click to use`}>
               <IconButton
                 size="small"
                 onClick={() => onUpdate('backgroundColor', color)}

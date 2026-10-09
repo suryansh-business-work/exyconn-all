@@ -37,7 +37,7 @@ const DEFAULT_PREFERENCES: MobilePreferences = {
  */
 class MobileStore implements TrackerStore<MobilePreferences> {
   private readonly file = documentFile('tracker-state.json');
-  private state: PersistedState;
+  private readonly state: PersistedState;
   private token: string | null;
   private rememberedToken: boolean;
 

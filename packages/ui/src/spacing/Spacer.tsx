@@ -8,7 +8,7 @@ export interface SpacerProps {
   axis?: 'horizontal' | 'vertical';
 }
 
-export function Spacer({ size = 'md', axis = 'vertical' }: SpacerProps) {
+export function Spacer({ size = 'md', axis = 'vertical' }: Readonly<SpacerProps>) {
   const value = space[size];
   return (
     <Box

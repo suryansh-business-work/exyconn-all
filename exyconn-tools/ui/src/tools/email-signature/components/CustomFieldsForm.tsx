@@ -36,6 +36,12 @@ const typeIcons: Record<string, React.ReactNode> = {
   phone: <Phone fontSize="small" />,
 };
 
+const valuePlaceholders: Record<CustomField['type'], string> = {
+  text: 'Value',
+  link: 'https://...',
+  phone: '+1 234 567 890',
+};
+
 const CustomFieldsForm: React.FC<CustomFieldsFormProps> = ({ formik }) => {
   const { values, setFieldValue } = formik;
 
@@ -148,9 +154,7 @@ const CustomFieldsForm: React.FC<CustomFieldsFormProps> = ({ formik }) => {
                       fullWidth
                       size="small"
                       label="Value"
-                      placeholder={
-                        field.type === 'link' ? 'https://...' : field.type === 'phone' ? '+1 234 567 890' : 'Value'
-                      }
+                      placeholder={valuePlaceholders[field.type]}
                       value={field.value}
                       onChange={(e) => updateField(field.id, { value: e.target.value })}
                       slotProps={{

@@ -60,7 +60,7 @@ export function useBoardDnd(api: ProjectBoardApi) {
   const moveTask = useCallback(
     (taskId: string, toColumnId: string, toIndex: number) => {
       setTasks((prev) => applyTaskMove(prev, taskId, toColumnId, toIndex));
-      persistTaskMove(taskId, toColumnId, toIndex < 0 ? 0 : toIndex);
+      persistTaskMove(taskId, toColumnId, Math.max(0, toIndex));
     },
     [setTasks, persistTaskMove],
   );

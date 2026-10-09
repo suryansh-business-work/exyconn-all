@@ -14,7 +14,7 @@ export interface ThemeProviderProps {
   children: ReactNode;
 }
 
-export function ThemeProvider({ theme = defaultTheme, children }: ThemeProviderProps) {
+export function ThemeProvider({ theme = defaultTheme, children }: Readonly<ThemeProviderProps>) {
   return (
     <MuiThemeProvider theme={theme}>
       <CssBaseline />

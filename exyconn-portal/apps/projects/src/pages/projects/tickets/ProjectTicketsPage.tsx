@@ -34,7 +34,10 @@ export function ProjectTicketsPage({ projectId }: Readonly<ProjectTicketsPagePro
   const rows: TicketRow[] = useMemo(() => data?.projectTasks ?? [], [data]);
 
   const assignees = useMemo(
-    () => [...new Set(rows.map((row) => row.assigneeName).filter((name) => name !== ''))].sort(),
+    () =>
+      [...new Set(rows.map((row) => row.assigneeName).filter((name) => name !== ''))].sort((a, b) =>
+        a.localeCompare(b),
+      ),
     [rows],
   );
 

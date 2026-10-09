@@ -28,14 +28,14 @@ describe("sendDemoCode", () => {
 
   it("throws the route's message, flagged when the captcha was refused", async () => {
     serveSite(() => reply(400, { error: "captcha", message: "Wrong answer" }));
-    const error = await sendDemoCode({}).catch((caught: unknown) => caught);
+    const error = await sendDemoCode({}).catch((error_: unknown) => error_);
     expect(error).toBeInstanceOf(DemoStepError);
     expect(error).toMatchObject({ name: "DemoStepError", message: "Wrong answer", captcha: true });
   });
 
   it("throws a general message when the failure has no JSON body", async () => {
     serveSite(() => reply(502));
-    const error = await sendDemoCode({}).catch((caught: unknown) => caught);
+    const error = await sendDemoCode({}).catch((error_: unknown) => error_);
     expect(error).toMatchObject({
       message: "Something went wrong. Please try again.",
       captcha: false,

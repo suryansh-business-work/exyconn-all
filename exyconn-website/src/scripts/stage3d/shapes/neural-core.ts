@@ -187,7 +187,7 @@ const orbitParts = (): Part[] =>
 const moduleParts = (index: number, total: number): Part[] => {
   const centre = modulePosition(index, total);
   const link = linkPoints(centre);
-  const reach = distance(centre, link[link.length - 1]);
+  const reach = distance(centre, link.at(-1) as Vec3);
   const tag = index + 1;
   const start = 0.44 + (index / total) * 0.18;
   return [

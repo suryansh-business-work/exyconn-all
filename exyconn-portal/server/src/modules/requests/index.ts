@@ -1,5 +1,4 @@
 import { EmployeeRequestModel } from './request.model';
-import { requestsTypeDefs } from './requests.typeDefs';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { createMyRecordsResolver } from '../../lib/employeeScope';
@@ -140,4 +139,4 @@ export const requestsResolvers = {
   },
   Mutation: { ...crud.Mutation, createMyRequest, updateEmployeeRequest, decideEmployeeRequest },
 };
-export { requestsTypeDefs };
+export { requestsTypeDefs } from './requests.typeDefs';

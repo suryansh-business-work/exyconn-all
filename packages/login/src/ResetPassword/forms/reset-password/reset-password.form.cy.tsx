@@ -8,14 +8,16 @@ import { ResetPasswordForm, PASSWORD_RESET_MESSAGE } from './reset-password.form
 import { color } from '@exyconn/ui';
 
 const TOKEN = 'abc123';
+const FRESH_VALUE = 'Fresh@45678';
+const STALE_VALUE = 'Stale@45678';
 
 const resetMock = {
-  request: { query: ResetPasswordDocument, variables: { token: TOKEN, newPassword: 'Fresh@45678' } },
+  request: { query: ResetPasswordDocument, variables: { token: TOKEN, newPassword: FRESH_VALUE } },
   result: { data: { resetPassword: true } },
 };
 
 const expiredMock = {
-  request: { query: ResetPasswordDocument, variables: { token: TOKEN, newPassword: 'Stale@45678' } },
+  request: { query: ResetPasswordDocument, variables: { token: TOKEN, newPassword: STALE_VALUE } },
   error: new Error('This reset link is invalid or has expired. Request a new one.'),
 };
 
@@ -46,23 +48,23 @@ describe('ResetPasswordForm', () => {
     cy.get('input[name="confirmPassword"]').type('abd');
     cy.get('button[type="submit"]').click();
     cy.contains('Minimum 10 characters').should('be.visible');
-    cy.get('input[name="newPassword"]').clear().type('Fresh@45678');
+    cy.get('input[name="newPassword"]').clear().type(FRESH_VALUE);
     cy.get('button[type="submit"]').click();
     cy.contains('Passwords do not match').should('be.visible');
   });
 
   it('resets the password and confirms', () => {
     mount();
-    cy.get('input[name="newPassword"]').type('Fresh@45678');
-    cy.get('input[name="confirmPassword"]').type('Fresh@45678');
+    cy.get('input[name="newPassword"]').type(FRESH_VALUE);
+    cy.get('input[name="confirmPassword"]').type(FRESH_VALUE);
     cy.get('button[type="submit"]').click();
     cy.contains(PASSWORD_RESET_MESSAGE).should('be.visible');
   });
 
   it('shows the server message for a dead link', () => {
     mount();
-    cy.get('input[name="newPassword"]').type('Stale@45678');
-    cy.get('input[name="confirmPassword"]').type('Stale@45678');
+    cy.get('input[name="newPassword"]').type(STALE_VALUE);
+    cy.get('input[name="confirmPassword"]').type(STALE_VALUE);
     cy.get('button[type="submit"]').click();
     cy.contains('invalid or has expired').should('be.visible');
   });

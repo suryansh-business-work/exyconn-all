@@ -6,6 +6,16 @@ import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { DomainInputForm, DomainResultDisplay, KeyValueTable } from '../../shared/components/DomainToolShared';
 import { APIs } from '../../shared/config/apis';
 
+const getDaysColor = (days: number) => {
+  if (days > 30) {
+    return 'success';
+  }
+  if (days > 7) {
+    return 'warning';
+  }
+  return 'error';
+};
+
 const SSLChecker: React.FC = () => {
   const [result, setResult] = useState<Record<string, unknown> | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -59,13 +69,7 @@ const SSLChecker: React.FC = () => {
                   />
                   <Chip
                     label={`${result.daysRemaining} days remaining`}
-                    color={
-                      Number(result.daysRemaining) > 30
-                        ? 'success'
-                        : Number(result.daysRemaining) > 7
-                          ? 'warning'
-                          : 'error'
-                    }
+                    color={getDaysColor(Number(result.daysRemaining))}
                   />
                 </Box>
                 <KeyValueTable data={result} excludeKeys={['subjectAltNames', 'subject', 'issuer']} />

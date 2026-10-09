@@ -9,6 +9,7 @@ import { ContactModel } from '../../../../src/modules/crm/contact.model';
 import { ClientModel } from '../../../../src/modules/clients/clients.model';
 import { ROLES } from '../../../../src/constants/roles';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
+import { asArg } from '../../../mockAs';
 
 const asSales: GraphQLContext = {
   user: { id: 'user-1', roles: [ROLES.CRM], email: 'sales@exyconn.com' },
@@ -119,7 +120,7 @@ describe('promoteCompanyToClient', () => {
     jest
       .spyOn(CompanyModel, 'findById')
       .mockImplementationOnce(realFindById as never)
-      .mockReturnValueOnce({ lean: () => Promise.resolve(null) } as never);
+      .mockReturnValueOnce(asArg({ lean: () => Promise.resolve(null) }));
 
     await expect(
       promoteCompanyToClient(null, { id: String(company._id) }, asSales),

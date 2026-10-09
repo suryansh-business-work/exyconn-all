@@ -54,7 +54,9 @@ async function tracked(userId: string, project: { id: string; name: string }, ac
   });
 }
 
-function approved(userId: string, durationMs: number, project = { id: '', name: '' }) {
+const NO_PROJECT = { id: '', name: '' };
+
+function approved(userId: string, durationMs: number, project = NO_PROJECT) {
   return TrackerManualEntryModel.create({
     userId,
     projectId: project.id,
@@ -92,19 +94,19 @@ describe('per-employee billing with off-computer time', () => {
   });
 });
 
-describe('billing grouped by project', () => {
-  async function apollo() {
-    const project = await ProjectModel.create({
-      name: 'Apollo',
-      status: 'ACTIVE',
-      clientId: 'client-1',
-      clientName: 'Acme Ltd',
-      budgetAmount: 10_000,
-      budgetHours: 80,
-    });
-    return { id: String(project._id), name: 'Apollo (as booked)' };
-  }
+async function apollo() {
+  const project = await ProjectModel.create({
+    name: 'Apollo',
+    status: 'ACTIVE',
+    clientId: 'client-1',
+    clientName: 'Acme Ltd',
+    budgetAmount: 10_000,
+    budgetHours: 80,
+  });
+  return { id: String(project._id), name: 'Apollo (as booked)' };
+}
 
+describe('billing grouped by project', () => {
   it('files tracked and approved time under each project, priced per employee', async () => {
     const asha = await employee('Asha', 100);
     const dev = await employee('Dev', 40);

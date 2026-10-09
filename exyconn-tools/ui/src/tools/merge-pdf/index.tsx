@@ -137,7 +137,7 @@ export default function MergePdf() {
                 or click to browse
               </Typography>
               <Button variant="outlined" component="label" color="error">
-                Browse Files
+                {'Browse Files'}
                 <input hidden multiple accept="application/pdf" type="file" onChange={onFileChange} />
               </Button>
             </Paper>

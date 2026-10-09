@@ -49,8 +49,8 @@ describe('pdfTable', () => {
 
   it('draws hairline borders in the border ink', () => {
     const node = { table: { body: [] } };
-    expect(GRID_LAYOUT.hLineWidth?.(0, node as never)).toBe(0.5);
-    expect(GRID_LAYOUT.vLineWidth?.(0, node as never)).toBe(0.5);
+    expect(GRID_LAYOUT.hLineWidth?.(0, node)).toBe(0.5);
+    expect(GRID_LAYOUT.vLineWidth?.(0, node)).toBe(0.5);
     expect(GRID_LAYOUT.hLineColor).toBeTypeOf('function');
     const hColor = GRID_LAYOUT.hLineColor as (...args: unknown[]) => string;
     const vColor = GRID_LAYOUT.vLineColor as (...args: unknown[]) => string;

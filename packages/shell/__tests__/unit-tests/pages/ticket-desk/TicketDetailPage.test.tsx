@@ -36,7 +36,7 @@ vi.mock('@/pages/ticket-desk/TicketDetailBody', () => ({
 }));
 
 function renderAt(route: string, result: ReturnType<typeof queryResult>) {
-  vi.mocked(useGetSupportTicketQuery).mockReturnValue(result as never);
+  vi.mocked(useGetSupportTicketQuery).mockReturnValue(result);
   renderWithProviders(
     <Routes>
       <Route

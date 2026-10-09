@@ -57,7 +57,7 @@ export default function DayDetailPanel({
   // The gallery is a separate window that loads its own data, so it is handed the same bounds
   // this panel used — the day as it runs in the EMPLOYEE'S zone, not this computer's.
   const openGallery = (): void => {
-    run(() => window.tracker.openScreenshots(dayBounds(date, timezone)));
+    run(() => globalThis.tracker.openScreenshots(dayBounds(date, timezone)));
   };
 
   if (error !== null) {

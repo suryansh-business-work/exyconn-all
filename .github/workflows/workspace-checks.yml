@@ -99,7 +99,8 @@ jobs:
     if: inputs.test-filter != ''
     name: Unit tests
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # A full run (every package, with coverage) goes past the half hour a scoped one needs.
+    timeout-minutes: 60
     env:
       FILTER: ${{ inputs.test-filter }}
     steps:
@@ -120,7 +121,7 @@ jobs:
         if: inputs.coverage
         run: |
           pnpm $FILTER --no-bail --workspace-concurrency=1 run test \
-            --coverage.enabled --coverage.reporter=json-summary --coverage.reporter=text-summary \
+            --coverage.enabled --coverage.reporter=json-summary --coverage.reporter=text-summary --coverage.reporter=lcov \
             '--coverage.include=src/**/*.{ts,tsx}' '--coverage.exclude=**/*.{test,cy}.{ts,tsx}' '--coverage.exclude=**/graphql/generated/**'
       # Collected with find (pruning node_modules) rather than a ** glob in upload-artifact,
       # which walked every node_modules tree and spent twenty minutes doing it.
@@ -129,7 +130,8 @@ jobs:
         run: |
           mkdir -p ci-artifacts
           find . -path '*/node_modules' -prune -o -path ./ci-artifacts -prune \
-            -o -path '*/coverage/coverage-summary.json' -print | xargs -r -I{} cp --parents {} ci-artifacts/
+            \( -path '*/coverage/coverage-summary.json' -o -path '*/coverage/lcov.info' \) -print \
+            | xargs -r -I{} cp --parents {} ci-artifacts/
       - if: always() && inputs.coverage
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:

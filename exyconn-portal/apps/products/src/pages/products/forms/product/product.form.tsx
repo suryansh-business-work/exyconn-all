@@ -52,7 +52,7 @@ interface ProductFormProps {
 }
 
 /** React Hook Form + Zod form to create or update a product. */
-export function ProductForm({ initial, onDone, onCancel }: ProductFormProps) {
+export function ProductForm({ initial, onDone, onCancel }: Readonly<ProductFormProps>) {
   const [createProduct] = useCreateProductMutation();
   const [updateProduct] = useUpdateProductMutation();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({

@@ -51,7 +51,7 @@ export default function TicketPicker({
       value={selectedTaskId}
       disabled={disabled || loading}
       helperText={ticketHint(t, { loading, locked: disabled })}
-      onChange={(event) => run(() => window.tracker.setTask(event.target.value))}
+      onChange={(event) => run(() => globalThis.tracker.setTask(event.target.value))}
       slotProps={{ select: { IconComponent: loading ? SelectSpinner : undefined } }}
     >
       <MenuItem value="">{t('No ticket')}</MenuItem>

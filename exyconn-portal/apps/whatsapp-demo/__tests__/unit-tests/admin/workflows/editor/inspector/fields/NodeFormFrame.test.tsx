@@ -18,7 +18,7 @@ describe('NodeFormFrame', () => {
     expect(screen.getByRole('status')).toHaveTextContent(PENDING);
     await user.click(screen.getByRole('button', { name: 'Reset' }));
     expect(message).toHaveValue('Hi');
-    expect(screen.queryByText(PENDING)).toBeNull();
+    await waitFor(() => expect(screen.queryByText(PENDING)).toBeNull());
     expect(onApply).not.toHaveBeenCalled();
   });
 

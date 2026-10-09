@@ -73,8 +73,8 @@ describe('notifyStatusSubscribers', () => {
   });
 
   it('counts only the notices that went out when some bounce', async () => {
-    const error = jest.spyOn(logger, 'error').mockImplementation((() => undefined) as never);
-    jest.spyOn(logger, 'info').mockImplementation((() => undefined) as never);
+    const error = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
+    jest.spyOn(logger, 'info').mockImplementation(() => undefined);
     await seedSubscribers(3);
     sendTemplate.mockRejectedValueOnce(new Error('mailbox full'));
 

@@ -14,10 +14,10 @@ type ControlAction = 'start' | 'pause' | 'resume' | 'stop';
 
 /** What each button does, and the sentence shown when it fails without saying why. */
 const ACTIONS: Readonly<Record<ControlAction, { run: () => Promise<unknown>; failed: string }>> = {
-  start: { run: () => window.tracker.start(), failed: 'Could not start tracking.' },
-  pause: { run: () => window.tracker.pause(), failed: 'Could not pause tracking.' },
-  resume: { run: () => window.tracker.resume(), failed: 'Could not resume tracking.' },
-  stop: { run: () => window.tracker.stop(), failed: 'Could not stop tracking.' },
+  start: { run: () => globalThis.tracker.start(), failed: 'Could not start tracking.' },
+  pause: { run: () => globalThis.tracker.pause(), failed: 'Could not pause tracking.' },
+  resume: { run: () => globalThis.tracker.resume(), failed: 'Could not resume tracking.' },
+  stop: { run: () => globalThis.tracker.stop(), failed: 'Could not stop tracking.' },
 };
 
 interface Props {

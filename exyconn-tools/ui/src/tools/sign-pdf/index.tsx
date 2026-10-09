@@ -63,7 +63,7 @@ export default function SignPdf() {
     try {
       const pngDataUrl = canvasRef.current.toDataURL('image/png');
       const base64 = pngDataUrl.split(',')[1];
-      const pngBytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+      const pngBytes = Uint8Array.from(atob(base64), (c) => c.codePointAt(0) ?? 0);
       const bytes = await file.arrayBuffer();
       const doc = await PDFDocument.load(bytes);
       const pngImage = await doc.embedPng(pngBytes);
@@ -72,8 +72,12 @@ export default function SignPdf() {
       const w = dim;
       const h = dim / ratio;
       const pages = doc.getPages();
-      const targets =
-        pageTarget === 'first' ? [0] : pageTarget === 'last' ? [pages.length - 1] : pages.map((_, i) => i);
+      let targets = pages.map((_, i) => i);
+      if (pageTarget === 'first') {
+        targets = [0];
+      } else if (pageTarget === 'last') {
+        targets = [pages.length - 1];
+      }
       for (const idx of targets) {
         const page = pages[idx];
         if (!page) continue;
@@ -141,7 +145,7 @@ export default function SignPdf() {
                 or click to browse
               </Typography>
               <Button variant="outlined" component="label" sx={{ color: '#0ea5e9', borderColor: '#0ea5e9' }}>
-                Browse Files
+                {'Browse Files'}
                 <input hidden accept="application/pdf" type="file" onChange={onFileChange} />
               </Button>
             </Paper>

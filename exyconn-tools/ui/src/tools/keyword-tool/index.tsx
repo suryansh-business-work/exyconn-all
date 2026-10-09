@@ -21,6 +21,7 @@ import Grid from '@mui/material/Grid';
 import { Search, TrendingUp, ContentCopy } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
+import { withUniqueKeys } from '../../shared/utils/uniqueKeys';
 
 interface KeywordSuggestion {
   keyword: string;
@@ -121,8 +122,8 @@ const KeywordTool: React.FC = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {results.map((r, i) => (
-                        <TableRow key={i} hover>
+                      {withUniqueKeys(results, (r) => r.keyword).map(({ key, item: r }, i) => (
+                        <TableRow key={key} hover>
                           <TableCell>{i + 1}</TableCell>
                           <TableCell>{r.keyword}</TableCell>
                           <TableCell align="center">

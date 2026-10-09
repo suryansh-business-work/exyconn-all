@@ -33,6 +33,26 @@ interface PlagiarismResult {
   note: string;
 }
 
+const getReadabilityColor = (level: string) => {
+  if (level === 'Easy') {
+    return 'success';
+  }
+  if (level === 'Moderate') {
+    return 'warning';
+  }
+  return 'error';
+};
+
+const getUniquenessBgColor = (score: number) => {
+  if (score >= 80) {
+    return 'success.main';
+  }
+  if (score >= 50) {
+    return 'warning.main';
+  }
+  return 'error.main';
+};
+
 const PlagiarismChecker: React.FC = () => {
   const [text, setText] = useState('');
   const [result, setResult] = useState<PlagiarismResult | null>(null);
@@ -136,12 +156,7 @@ const PlagiarismChecker: React.FC = () => {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        bgcolor:
-                          result.uniquenessScore >= 80
-                            ? 'success.main'
-                            : result.uniquenessScore >= 50
-                              ? 'warning.main'
-                              : 'error.main',
+                        bgcolor: getUniquenessBgColor(result.uniquenessScore),
                         color: 'white',
                       }}
                     >
@@ -180,13 +195,7 @@ const PlagiarismChecker: React.FC = () => {
                     <Chip
                       size="small"
                       label={`Readability: ${result.readabilityLevel}`}
-                      color={
-                        result.readabilityLevel === 'Easy'
-                          ? 'success'
-                          : result.readabilityLevel === 'Moderate'
-                            ? 'warning'
-                            : 'error'
-                      }
+                      color={getReadabilityColor(result.readabilityLevel)}
                     />
                   </Box>
                 </Paper>
@@ -213,8 +222,8 @@ const PlagiarismChecker: React.FC = () => {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {result.repeatedPhrases.map((item, idx) => (
-                            <TableRow key={idx}>
+                          {result.repeatedPhrases.map((item) => (
+                            <TableRow key={item.phrase}>
                               <TableCell sx={{ fontSize: '0.75rem' }}>{item.phrase}</TableCell>
                               <TableCell sx={{ fontSize: '0.75rem' }} align="right">
                                 {item.count}

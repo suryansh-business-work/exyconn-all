@@ -172,7 +172,7 @@ describe('Product catalogue', () => {
 
     const updated = (await productsResolvers.Mutation.updateProduct(
       null,
-      { id: product.id, input: { ...base, stock: 99, reorderLevel: 2 } } as never,
+      { id: product.id, input: { ...base, stock: 99, reorderLevel: 2 } },
       asProducts,
     )) as { stock: number; reorderLevel: number };
 

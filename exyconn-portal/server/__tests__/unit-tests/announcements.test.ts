@@ -83,7 +83,7 @@ describe('activeAnnouncements targeting', () => {
     const engCtx = {
       user: { id: String(eng._id), email: 'eng@exyconn.com', roles: [ROLES.EMPLOYEE] },
     } as unknown as GraphQLContext;
-    const titles = (await active(engCtx)).map((a) => a.title).sort();
+    const titles = (await active(engCtx)).map((a) => a.title).sort((a, b) => a.localeCompare(b));
     expect(titles).toEqual(['Eng only', 'Everyone', 'Just eng person']);
   });
 });

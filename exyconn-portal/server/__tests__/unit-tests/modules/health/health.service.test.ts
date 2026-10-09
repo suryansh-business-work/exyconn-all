@@ -5,6 +5,7 @@ import { PayrollScheduleModel } from '../../../../src/modules/payroll/payroll-sc
 import { TrackerSettingsModel } from '../../../../src/modules/tracker/models';
 import { InboundMailConfigModel } from '../../../../src/modules/tech/inbound-mail-config.model';
 import { clearJobRuns, recordJobRun } from '../../../../src/utils/jobHeartbeat';
+import { asArg } from '../../../mockAs';
 
 type Overview = Awaited<ReturnType<typeof healthService.overview>>;
 
@@ -117,7 +118,7 @@ describe('System Health database and process', () => {
     if (!db) {
       throw new Error('The test database is not connected');
     }
-    jest.spyOn(db, 'stats').mockResolvedValue({} as never);
+    jest.spyOn(db, 'stats').mockResolvedValue({});
 
     expect((await healthService.overview()).mongo).toMatchObject({
       ok: true,
@@ -133,7 +134,7 @@ describe('System Health database and process', () => {
       .mockImplementation(((file: fs.PathOrFileDescriptor, options?: unknown) =>
         String(file).endsWith('package.json')
           ? '{}'
-          : realRead(file, options as never)) as typeof fs.readFileSync);
+          : realRead(file, asArg(options))) as typeof fs.readFileSync);
 
     expect((await healthService.overview()).serverVersion).toBe('');
   });

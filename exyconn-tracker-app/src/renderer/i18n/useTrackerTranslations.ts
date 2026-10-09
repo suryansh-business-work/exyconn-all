@@ -31,7 +31,7 @@ export default function useTrackerTranslations(locale: string): {
     pending.current.clear();
     asked.current.clear();
     setMessages({});
-    window.tracker
+    globalThis.tracker
       .getTranslations(locale)
       .then((loaded) => live && setMessages(loaded))
       .catch((error: unknown) => logger.error('Could not load translations', error));
@@ -46,7 +46,7 @@ export default function useTrackerTranslations(locale: string): {
     if (sources.length === 0) {
       return;
     }
-    window.tracker
+    globalThis.tracker
       .translateMissing(locale, sources)
       .then((filled) => {
         if (Object.keys(filled).length > 0) {

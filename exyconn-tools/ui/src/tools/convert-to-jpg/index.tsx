@@ -126,7 +126,7 @@ export default function ConvertToJpg() {
                 PNG, WEBP, GIF, or BMP — up to {MAX_FILES} files
               </Typography>
               <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
-                Browse Files
+                {'Browse Files'}
                 <input
                   hidden
                   multiple

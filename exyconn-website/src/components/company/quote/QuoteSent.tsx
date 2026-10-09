@@ -8,10 +8,10 @@ interface QuoteSentProps {
 /** What replaces the form once the estimate is sent; focus moves to its heading. */
 export function QuoteSent({ headingRef, message }: Readonly<QuoteSentProps>) {
   return (
-    <div className="quote-sent" role="status">
+    <output className="quote-sent">
       <h2 ref={headingRef} tabIndex={-1} className="inner-h3">
         <i className="fa-solid fa-circle-check" aria-hidden="true"></i> {message}
       </h2>
-    </div>
+    </output>
   );
 }

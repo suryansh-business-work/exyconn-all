@@ -296,7 +296,7 @@ export const analyzeStructure = async (
     totalInternalLinks,
     totalExternalLinks,
     maxDepth: Math.max(...pages.map((p) => p.depth)),
-    pages: pages.sort((a, b) => b.incomingLinks - a.incomingLinks),
+    pages: [...pages].sort((a, b) => b.incomingLinks - a.incomingLinks),
     linkMap,
     orphanPages,
   };

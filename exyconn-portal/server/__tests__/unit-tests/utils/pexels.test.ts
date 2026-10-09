@@ -4,6 +4,7 @@ import {
   PexelsConfigModel,
   type PexelsConfigDocument,
 } from '../../../src/modules/tech/pexels-config.model';
+import { asArg } from '../../mockAs';
 
 const apiKey = `pexels-${Date.now()}`;
 const json = (body: unknown) => new Response(JSON.stringify(body), { status: 200 });
@@ -13,7 +14,7 @@ let fetchMock: jest.SpyInstance;
 function activeKey(key: string | null) {
   return jest
     .spyOn(PexelsConfigModel, 'findOne')
-    .mockReturnValue({ lean: jest.fn().mockResolvedValue(key ? { apiKey: key } : null) } as never);
+    .mockReturnValue(asArg({ lean: jest.fn().mockResolvedValue(key ? { apiKey: key } : null) }));
 }
 
 /** The query string of the one request made. */
@@ -87,7 +88,7 @@ describe('searchPhotos', () => {
     activeKey(apiKey);
     fetchMock.mockResolvedValue(new Response('y'.repeat(300), { status: 401 }));
     await expect(pexelsClient.searchPhotos('desk', 1, {})).rejects.toThrow(
-      new RegExp(String.raw`^Pexels /v1/search\?.* failed \(401\): y{200}$`),
+      /^Pexels \/v1\/search\?.* failed \(401\): y{200}$/,
     );
   });
 });

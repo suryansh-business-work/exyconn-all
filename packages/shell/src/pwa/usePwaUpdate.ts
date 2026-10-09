@@ -40,21 +40,23 @@ export function usePwaUpdate(): PwaUpdate {
       }
     };
 
+    const watchInstalling = (registration: ServiceWorkerRegistration) => {
+      const installing = registration.installing;
+      installing?.addEventListener('statechange', () => {
+        // "installed" with a controller means a replacement, not the first install —
+        // there is nothing to announce to somebody who just arrived.
+        if (installing.state === 'installed' && container.controller) {
+          offer(installing);
+        }
+      });
+    };
+
     container
       .register(SERVICE_WORKER_URL)
       .then((registration) => {
         // Already waiting: this tab was opened after a newer build was installed elsewhere.
         offer(registration.waiting);
-        registration.addEventListener('updatefound', () => {
-          const installing = registration.installing;
-          installing?.addEventListener('statechange', () => {
-            // "installed" with a controller means a replacement, not the first install —
-            // there is nothing to announce to somebody who just arrived.
-            if (installing.state === 'installed' && container.controller) {
-              offer(installing);
-            }
-          });
-        });
+        registration.addEventListener('updatefound', () => watchInstalling(registration));
       })
       .catch(() => {
         // No worker in this build, or the browser refused it. The portal still works.

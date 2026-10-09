@@ -14,6 +14,7 @@ import { ROLES } from '../../src/constants/roles';
 import { runInScope } from '../../src/lib/tenant';
 import { seedUser } from '../helpers';
 import type { GraphQLContext } from '../../src/middleware/auth';
+import ips from '../fixtures/ips.json';
 
 // The templated emailer needs SMTP and a stored template; capture the link instead.
 jest.mock('../../src/modules/email', () => ({
@@ -24,7 +25,7 @@ const send = emailer.send as jest.Mock;
 const EMAIL = 'jane@exyconn.com';
 const OLD_PASSWORD = 'Secret@123';
 const NEW_PASSWORD = process.env.TEST_RESET_PASSWORD ?? 'Fresh@45678';
-const ctx: GraphQLContext = { user: null, ip: '10.0.0.9', origin: env.corsOrigins[0] };
+const ctx: GraphQLContext = { user: null, ip: ips.ip10_0_0_9, origin: env.corsOrigins[0] };
 
 /** The token the emailed link carries — the only place it exists in plaintext. */
 function sentToken(): string {
@@ -39,11 +40,11 @@ beforeEach(async () => {
 
 describe('self-service password reset', () => {
   it('emails a link to the portal that asked and resets the password once', async () => {
-    await expect(requestPasswordReset(EMAIL, ctx)).resolves.toBe(true);
+    await expect(requestPasswordReset(EMAIL, ctx)).resolves.toBeUndefined();
     expect(send).toHaveBeenCalledTimes(1);
     expect(send.mock.calls[0][0]).toMatchObject({ template: 'password-reset', to: EMAIL });
     expect(send.mock.calls[0][0].variables.link).toMatch(
-      new RegExp(`^${env.corsOrigins[0]}/reset-password\\?token=`),
+      new RegExp(String.raw`^${env.corsOrigins[0]}/reset-password\?token=`),
     );
 
     const token = sentToken();
@@ -52,7 +53,7 @@ describe('self-service password reset', () => {
     await expect(authService.login(EMAIL, OLD_PASSWORD)).rejects.toThrow('Invalid email');
 
     const audit = await AuditLogModel.findOne({ action: 'PASSWORD_RESET' }).lean();
-    expect(audit).toMatchObject({ actorEmail: EMAIL, entityLabel: EMAIL, ip: '10.0.0.9' });
+    expect(audit).toMatchObject({ actorEmail: EMAIL, entityLabel: EMAIL, ip: ips.ip10_0_0_9 });
 
     // Single use: the same link cannot set a second password.
     await expect(resetPassword(token, 'Another@7890', ctx)).rejects.toThrow(
@@ -91,14 +92,14 @@ describe('self-service password reset', () => {
   });
 
   it('answers true for an unknown address and sends nothing', async () => {
-    await expect(requestPasswordReset('nobody@exyconn.com', ctx)).resolves.toBe(true);
+    await expect(requestPasswordReset('nobody@exyconn.com', ctx)).resolves.toBeUndefined();
     expect(send).not.toHaveBeenCalled();
     expect(await PasswordResetTokenModel.countDocuments()).toBe(0);
   });
 
   it('sends at most three links an hour per address', async () => {
     for (let i = 0; i < 4; i += 1) {
-      await expect(requestPasswordReset(EMAIL, ctx)).resolves.toBe(true);
+      await expect(requestPasswordReset(EMAIL, ctx)).resolves.toBeUndefined();
     }
     expect(send).toHaveBeenCalledTimes(3);
   });
@@ -106,6 +107,6 @@ describe('self-service password reset', () => {
   it('links back only to an origin CORS trusts', () => {
     expect(resetLinkOrigin(env.corsOrigins[0])).toBe(env.corsOrigins[0]);
     expect(resetLinkOrigin('https://evil.example')).toBe(env.portalHubUrl);
-    expect(resetLinkOrigin(undefined)).toBe(env.portalHubUrl);
+    expect(resetLinkOrigin()).toBe(env.portalHubUrl);
   });
 });

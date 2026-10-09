@@ -20,7 +20,7 @@ describe('escapeText', () => {
 describe('serializeJsonLd', () => {
   it('cannot be broken out of with </script> or an HTML comment', () => {
     const json = serializeJsonLd({ name: '</script><script>alert(1)</script><!--' });
-    expect(json).not.toMatch(/<|>/);
+    expect(json).not.toMatch(/[<>]/);
     expect(json).toContain(String.raw`\u003c/script\u003e`);
   });
 

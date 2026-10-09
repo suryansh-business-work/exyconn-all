@@ -52,6 +52,9 @@ function submit(): void {
   fireEvent.click(screen.getByRole('button', { name: 'Submit claim' }));
 }
 
+/** An error that carries no text, so the screen has to fall back to its own words. */
+const NO_MESSAGE = '';
+
 describe('ManualEntryForm', () => {
   it('starts on the first project with no ticket, loading its tickets', async () => {
     vi.mocked(tracker.getTasks).mockResolvedValue([TASK]);
@@ -115,7 +118,7 @@ describe('ManualEntryForm', () => {
     vi.mocked(tracker.getTasks).mockResolvedValue([]);
     vi.mocked(tracker.createManualEntry)
       .mockRejectedValueOnce(new Error('That window overlaps another claim.'))
-      .mockRejectedValueOnce(new Error(''));
+      .mockRejectedValueOnce(new Error(NO_MESSAGE));
     const { onDone } = renderForm();
     pickDateTime('From', new Date(Date.now() - 3 * HOUR).toISOString());
     pickDateTime('To', new Date(Date.now() - 2 * HOUR).toISOString());

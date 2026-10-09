@@ -3,6 +3,11 @@ import { Box, Button } from '@mui/material';
 import { Draw, MyLocation, Delete } from '@mui/icons-material';
 import { MapControlsProps } from './types';
 
+const getDrawLabel = (isDrawing: boolean, hasPolygon: boolean): string => {
+  if (isDrawing) return 'Drawing... Click on map';
+  return hasPolygon ? 'Redraw Polygon' : 'Draw Polygon';
+};
+
 const DrawPolygonButton: React.FC<{
   isDrawing: boolean;
   hasPolygon: boolean;
@@ -30,7 +35,7 @@ const DrawPolygonButton: React.FC<{
         },
       }}
     >
-      {isDrawing ? 'Drawing... Click on map' : hasPolygon ? 'Redraw Polygon' : 'Draw Polygon'}
+      {getDrawLabel(isDrawing, hasPolygon)}
     </Button>
   </Box>
 );

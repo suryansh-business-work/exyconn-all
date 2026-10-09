@@ -1,6 +1,7 @@
 import React from 'react';
 import { Paper, Box, Typography, TextField, Button, IconButton } from '@mui/material';
 import { Add, Delete } from '@mui/icons-material';
+import { useStableKeys } from './useStableKeys';
 
 interface SitemapUrlsSectionProps {
   sitemaps: string[];
@@ -10,6 +11,12 @@ interface SitemapUrlsSectionProps {
 }
 
 const SitemapUrlsSection: React.FC<SitemapUrlsSectionProps> = ({ sitemaps, onAdd, onRemove, onUpdate }) => {
+  const { keys, removeKey } = useStableKeys(sitemaps.length);
+  const handleRemove = (index: number) => {
+    removeKey(index);
+    onRemove(index);
+  };
+  const items = sitemaps.map((sitemap, index) => ({ sitemap, index, key: keys[index] }));
   return (
     <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2, mb: 2 }}>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
@@ -25,8 +32,8 @@ const SitemapUrlsSection: React.FC<SitemapUrlsSectionProps> = ({ sitemaps, onAdd
           Add
         </Button>
       </Box>
-      {sitemaps.map((sitemap, index) => (
-        <Box key={index} sx={{ display: 'flex', gap: 1, mb: 1 }}>
+      {items.map(({ sitemap, index, key }) => (
+        <Box key={key} sx={{ display: 'flex', gap: 1, mb: 1 }}>
           <TextField
             fullWidth
             size="small"
@@ -34,7 +41,7 @@ const SitemapUrlsSection: React.FC<SitemapUrlsSectionProps> = ({ sitemaps, onAdd
             value={sitemap}
             onChange={(e) => onUpdate(index, e.target.value)}
           />
-          <IconButton size="small" onClick={() => onRemove(index)} disabled={sitemaps.length === 1}>
+          <IconButton size="small" onClick={() => handleRemove(index)} disabled={sitemaps.length === 1}>
             <Delete fontSize="small" />
           </IconButton>
         </Box>

@@ -103,7 +103,8 @@ function signedBySlack(req: Request, raw: string, secret: string): boolean {
   ) {
     return false;
   }
-  const expected = `v0=${createHmac('sha256', secret).update(`v0:${timestamp}:${raw}`).digest('hex')}`;
+  const digest = createHmac('sha256', secret).update(`v0:${timestamp}:${raw}`).digest('hex');
+  const expected = `v0=${digest}`;
   const given = Buffer.from(signature);
   const wanted = Buffer.from(expected);
   return given.length === wanted.length && timingSafeEqual(given, wanted);

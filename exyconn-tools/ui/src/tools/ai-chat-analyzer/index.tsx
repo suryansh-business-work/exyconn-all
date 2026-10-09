@@ -49,7 +49,8 @@ const AIChatAnalyzer: React.FC = () => {
       setMessages((prev) => [...prev, userMsg]);
       setIsLoading(true);
       try {
-        const userPrompt = `Chat Log to Analyze:\n${chatLog.substring(0, 10000)}\n\n${focusArea ? `Focus: ${focusArea}\n\n` : ''}Question: ${question}`;
+        const focusLine = focusArea ? `Focus: ${focusArea}\n\n` : '';
+        const userPrompt = `Chat Log to Analyze:\n${chatLog.substring(0, 10000)}\n\n${focusLine}Question: ${question}`;
         const response = await generateWithOpenAI(apiKey, SYSTEM_PROMPT, userPrompt);
         const assistantMsg: ChatMessage = {
           id: (Date.now() + 1).toString(),

@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { Column, RowAction } from '@exyconn/shell/components/data/DataTable';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import type { TabberProps } from '@exyconn/tabber';
+import { cellText } from '@exyconn/shell/utils/cellText';
 
 /** A table row as the stand-in table reads it: an id plus whatever the page's columns name. */
 export type StubRow = { id: string } & Record<string, unknown>;
@@ -85,7 +86,7 @@ function cellOf(column: Column<StubRow>, row: StubRow): ReactNode {
   if (column.render) {
     return column.render(row);
   }
-  return String(row[column.key] ?? '');
+  return cellText(row[column.key]);
 }
 
 /** Stands in for the shell's DataTable: every cell, every row action, and a row opener. */

@@ -65,14 +65,10 @@ const HtmlToMarkdown: React.FC = () => {
     a.click();
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setContent(event.target?.result as string);
-      };
-      reader.readAsText(file);
+      setContent(await file.text());
     }
   };
 
@@ -92,7 +88,7 @@ const HtmlToMarkdown: React.FC = () => {
                   HTML Content
                 </Typography>
                 <Button component="label" size="small" variant="outlined">
-                  Upload HTML
+                  {'Upload HTML'}
                   <input type="file" accept=".html,.htm" hidden onChange={handleFileUpload} />
                 </Button>
               </Box>
@@ -124,7 +120,7 @@ const HtmlToMarkdown: React.FC = () => {
               elevation={0}
               sx={{ border: 1, borderColor: 'divider', borderRadius: 2, height: '100%', minHeight: 400 }}
             >
-              {!markdown ? (
+              {markdown === '' ? (
                 <Box
                   sx={{
                     p: 4,

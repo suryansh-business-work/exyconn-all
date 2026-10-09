@@ -165,7 +165,7 @@ describe('AttachmentPicker', () => {
     const onChange = renderPicker([PHOTO, PDF]);
 
     const chip = screen.getByRole('button', { name: 'screen.png' });
-    await userEvent.click(chip.querySelector('.MuiChip-deleteIcon')!);
+    await userEvent.click(chip.querySelector('.MuiChip-deleteIcon'));
 
     expect(onChange).toHaveBeenCalledWith([PDF]);
   });
@@ -180,7 +180,7 @@ describe('RhfAttachmentPicker', () => {
     );
 
     const chip = screen.getByRole('button', { name: 'invoice.pdf' });
-    await userEvent.click(chip.querySelector('.MuiChip-deleteIcon')!);
+    await userEvent.click(chip.querySelector('.MuiChip-deleteIcon'));
 
     expect(formValues().files).toEqual([PHOTO]);
   });

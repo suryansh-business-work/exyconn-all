@@ -15,7 +15,7 @@ async function getTransporter(): Promise<{
 }> {
   const config = await getActiveEmailConfig();
   const key = `${config.host}:${config.port}:${config.username}:${config.password}`;
-  if (!cached || cached.key !== key) {
+  if (cached?.key !== key) {
     cached = {
       key,
       transporter: nodemailer.createTransport({

@@ -42,7 +42,7 @@ export default function useMyReport(month: Date, zone: string): ReportQuery {
     let active = true;
     setLoading(true);
     setError(null);
-    window.tracker
+    globalThis.tracker
       .getReport(fromISO, toISO)
       .then((rows) => {
         if (active) {

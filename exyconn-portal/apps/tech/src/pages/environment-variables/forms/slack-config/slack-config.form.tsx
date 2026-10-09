@@ -65,7 +65,7 @@ const toInitial = (row: SlackConfigRow | null): Values => ({
   botToken: '',
   signingSecret: '',
   defaultChannel: row?.defaultChannel ?? '',
-  isActive: row ? (row.isActive ? 'true' : 'false') : 'true',
+  isActive: row?.isActive === false ? 'false' : 'true',
 });
 
 interface SlackConfigFormProps {

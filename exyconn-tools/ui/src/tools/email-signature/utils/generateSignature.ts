@@ -130,6 +130,7 @@ function generateProfessionalTemplate(
   bannerHTML: string,
   disclaimerHTML: string
 ): string {
+  const departmentSuffix = values.department ? ` | ${values.department}` : '';
   return `
 <table cellpadding="0" cellspacing="0" border="0" style="font-family: ${values.fontFamily}; max-width: 500px;">
   <tr>
@@ -157,7 +158,7 @@ function generateProfessionalTemplate(
                   ? `
               <tr>
                 <td style="font-size: ${sizes.name}px; color: #334155; padding-bottom: 2px;">
-                  ${values.jobTitle}${values.department ? ` | ${values.department}` : ''}
+                  ${values.jobTitle}${departmentSuffix}
                 </td>
               </tr>
               `
@@ -257,6 +258,7 @@ function generateModernTemplate(
   bannerHTML: string,
   disclaimerHTML: string
 ): string {
+  const departmentSuffix = values.department ? ` • ${values.department}` : '';
   return `
 <table cellpadding="0" cellspacing="0" border="0" style="font-family: ${values.fontFamily}; max-width: 500px;">
   <tr>
@@ -295,7 +297,7 @@ function generateModernTemplate(
                   ? `
               <tr>
                 <td style="font-size: ${sizes.company}px; color: ${values.secondaryColor}; padding-top: 2px;">
-                  ${values.company}${values.department ? ` • ${values.department}` : ''}
+                  ${values.company}${departmentSuffix}
                 </td>
               </tr>
               `

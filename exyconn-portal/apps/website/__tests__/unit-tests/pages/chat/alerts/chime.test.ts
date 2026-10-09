@@ -11,11 +11,13 @@ interface FakeOscillator {
   stop: ReturnType<typeof vi.fn>;
 }
 
+/** What the next fake Web Audio context starts out as. */
+const contextSetup = { initialState: 'running' };
+
 /** A Web Audio context that records the notes it is asked to play. */
 class FakeAudioContext {
-  static instances: FakeAudioContext[] = [];
-  static initialState = 'running';
-  state = FakeAudioContext.initialState;
+  static readonly instances: FakeAudioContext[] = [];
+  state = contextSetup.initialState;
   currentTime = 0;
   readonly destination = { name: 'speakers' };
   readonly oscillators: FakeOscillator[] = [];
@@ -61,8 +63,8 @@ describe('playChime', () => {
   beforeEach(() => {
     vi.resetModules();
     logger.warn.mockClear();
-    FakeAudioContext.instances = [];
-    FakeAudioContext.initialState = 'running';
+    FakeAudioContext.instances.length = 0;
+    contextSetup.initialState = 'running';
     vi.stubGlobal('AudioContext', FakeAudioContext);
   });
 
@@ -95,7 +97,7 @@ describe('playChime', () => {
   });
 
   it('unlocks suspended audio before playing', async () => {
-    FakeAudioContext.initialState = 'suspended';
+    contextSetup.initialState = 'suspended';
     const playChime = await loadChime();
     playChime();
 
@@ -104,7 +106,7 @@ describe('playChime', () => {
   });
 
   it('stays quiet and logs while the browser keeps audio locked', async () => {
-    FakeAudioContext.initialState = 'suspended';
+    contextSetup.initialState = 'suspended';
     const playChime = await loadChime();
     const locked = new Error('The page has not been clicked yet');
     playChime();

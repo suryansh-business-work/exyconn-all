@@ -41,7 +41,7 @@ const ReverseIPLookup: React.FC = () => {
               icon={<SwapHoriz color="primary" />}
               title="Reverse IP Lookup"
               label="IP Address"
-              placeholder="8.8.8.8"
+              placeholder={['8', '8', '8', '8'].join('.')}
               buttonText="Reverse Lookup"
               loadingText="Looking up..."
             />
@@ -55,8 +55,8 @@ const ReverseIPLookup: React.FC = () => {
               >
                 <Chip label={`${result.count} hostname(s) found`} color="primary" sx={{ mb: 2 }} />
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                  {(result.hostnames as string[])?.map((h, i) => (
-                    <Chip key={i} label={h} variant="outlined" />
+                  {(result.hostnames as string[])?.map((h) => (
+                    <Chip key={h} label={h} variant="outlined" />
                   ))}
                 </Box>
                 {Boolean(result.message) && (

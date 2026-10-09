@@ -33,7 +33,7 @@ const BusinessDetails: React.FC<BusinessDetailsProps> = ({ business, copiedField
             {business.phone}
           </Typography>
           <Tooltip title={copiedField === `phone-${business.placeId}` ? 'Copied!' : 'Copy'}>
-            <IconButton size="small" onClick={() => onCopy(business.phone!, `phone-${business.placeId}`)}>
+            <IconButton size="small" onClick={() => onCopy(business.phone ?? '', `phone-${business.placeId}`)}>
               <ContentCopy fontSize="small" />
             </IconButton>
           </Tooltip>
@@ -78,7 +78,7 @@ const BusinessDetails: React.FC<BusinessDetailsProps> = ({ business, copiedField
         {business.types.slice(0, 5).map((type) => (
           <Chip
             key={type}
-            label={type.replace(/_/g, ' ')}
+            label={type.replaceAll('_', ' ')}
             size="small"
             variant="outlined"
             sx={{ height: 20, '& .MuiChip-label': { px: 0.75, fontSize: '0.65rem' } }}

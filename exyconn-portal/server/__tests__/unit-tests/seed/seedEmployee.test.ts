@@ -120,7 +120,8 @@ describe('seedEmployeeData: each person', () => {
     await seedEmployeeData();
 
     const slips = await SalarySlipModel.find({ employeeId: String(person._id) }).lean();
-    expect(slips.map((s) => `${s.year}-${s.month}`).sort(byText)).toEqual(expected.sort(byText));
+    expected.sort(byText);
+    expect(slips.map((s) => `${s.year}-${s.month}`).sort(byText)).toEqual(expected);
   });
 
   it('keeps what a person already has on a second run', async () => {

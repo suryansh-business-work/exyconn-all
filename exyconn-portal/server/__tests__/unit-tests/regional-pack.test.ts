@@ -4,6 +4,7 @@ import { readPayrollSettings } from '../../src/modules/payroll';
 import { ensureTaxSlabs } from '../../src/modules/payroll/tax-slab.seed';
 import { TaxRegimeModel } from '../../src/modules/payroll/tax-slab.model';
 import { runForOrganization } from '../../src/lib/tenant';
+import { asArg } from '../mockAs';
 
 /**
  * India's GST, PF, ESI and income-tax slabs used to be what the portal WAS. They are now one
@@ -11,11 +12,13 @@ import { runForOrganization } from '../../src/lib/tenant';
  * financial year opens — is the company's own.
  */
 async function company(fields: Record<string, unknown>): Promise<string> {
-  const created = await organizationService.create({
-    name: `Co ${Math.random().toString(36).slice(2, 8)}`,
-    currency: 'USD',
-    ...fields,
-  } as Parameters<typeof organizationService.create>[0]);
+  const created = await organizationService.create(
+    asArg({
+      name: `Co ${Math.random().toString(36).slice(2, 8)}`,
+      currency: 'USD',
+      ...fields,
+    }),
+  );
   return String(created._id);
 }
 

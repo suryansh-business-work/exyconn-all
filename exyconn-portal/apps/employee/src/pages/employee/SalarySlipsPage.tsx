@@ -30,7 +30,11 @@ type SalarySlipRow = {
 const periodLabel = (r: SalarySlipRow) => format(new Date(r.year, r.month - 1, 1), 'MMMM yyyy');
 
 /** A single label/value row inside the payslip breakdown drawer. */
-function DetailRow({ label, value, strong }: { label: string; value: string; strong?: boolean }) {
+function DetailRow({
+  label,
+  value,
+  strong,
+}: Readonly<{ label: string; value: string; strong?: boolean }>) {
   return (
     <Flex justifyContent="space-between" alignItems="center">
       <Text size="sm" color="text.secondary">

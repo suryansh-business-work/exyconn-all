@@ -17,7 +17,7 @@ type Props = Readonly<JobApplicationRole>;
 /** The success panel that replaces the form once the portal has the application. */
 function Sent({ jobTitle, companyName, companySlug }: Props) {
   return (
-    <div className={`${FORM_CLASS} job-apply__sent`} role="status">
+    <output className={`${FORM_CLASS} job-apply__sent`}>
       <p className="stage-label">{copy.successTitle}</p>
       <p className="inner-h3">
         {fill(copy.successText, { title: jobTitle, company: companyName })}
@@ -25,7 +25,7 @@ function Sent({ jobTitle, companyName, companySlug }: Props) {
       <a href={`/career/company/${companySlug}`} className="inner-action inner-action--ghost">
         {fill(copy.successAction, { company: companyName })}
       </a>
-    </div>
+    </output>
   );
 }
 

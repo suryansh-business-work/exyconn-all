@@ -17,11 +17,8 @@ import { trackerManualService } from './tracker.manual.service';
 /** Fire-and-forget email — mirrors the admin module's tryEmail helper. */
 function tryEmail(action: string, send: () => Promise<void>): void {
   const onError = (error: unknown) => logger.error({ error }, `${action} email failed`);
-  try {
-    Promise.resolve(send()).catch(onError);
-  } catch (error) {
-    onError(error);
-  }
+  const run = async (): Promise<void> => send();
+  run().catch(onError);
 }
 
 /** A screenshot as it comes back from `.lean()`. */

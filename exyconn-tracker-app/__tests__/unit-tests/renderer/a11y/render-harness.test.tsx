@@ -22,7 +22,7 @@ function Probe(): ReactElement {
   const [clicks, setClicks] = useState(0);
   const [lastKey, setLastKey] = useState('none');
   useEffect(() => {
-    window.tracker
+    globalThis.tracker
       .getAppVersion()
       .then(setVersion)
       .catch(() => setVersion('failed'));

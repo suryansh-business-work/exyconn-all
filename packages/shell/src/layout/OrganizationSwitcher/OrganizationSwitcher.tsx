@@ -64,7 +64,7 @@ export function OrganizationSwitcher() {
   const choose = (slug: string) => {
     setAnchorEl(null);
     if (slug !== active?.slug) {
-      window.location.assign(organizationLocation(slug));
+      globalThis.location.assign(organizationLocation(slug));
     }
   };
 

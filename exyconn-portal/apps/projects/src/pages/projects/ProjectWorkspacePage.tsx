@@ -118,12 +118,7 @@ export function ProjectWorkspacePage() {
       </Flex>
 
       <Box sx={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
-        <Tabber
-          basePath={`/projects/${id}`}
-          items={tabs}
-          ariaLabel="Project views"
-          sx={{ mb: 2 }}
-        />
+        <Tabber basePath={`/projects/${id}`} items={tabs} ariaLabel="Project views" />
       </Box>
     </Flex>
   );

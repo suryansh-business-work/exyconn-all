@@ -28,6 +28,9 @@ Cypress.Commands.add(
   },
 );
 
+/** The MUI class is on both a `<label>` and the `<div>` MUI 9 renders for a non-native select. */
+export const FIELD_LABEL_SELECTOR = 'label, .MuiInputLabel-root';
+
 /**
  * A field's label, whichever element MUI put it in.
  *
@@ -35,9 +38,7 @@ Cypress.Commands.add(
  * there is no form control for a `for` to point at — so `cy.contains('label', …)` finds
  * nothing on exactly the fields a spec most wants to assert about. The MUI class is on both.
  */
-Cypress.Commands.add('fieldLabel', (text: string) =>
-  cy.contains('label, .MuiInputLabel-root', text),
-);
+Cypress.Commands.add('fieldLabel', (text: string) => cy.contains(FIELD_LABEL_SELECTOR, text));
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -48,5 +49,3 @@ declare global {
     }
   }
 }
-
-export {};

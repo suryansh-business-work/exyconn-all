@@ -25,7 +25,7 @@ const JsonInputPanel: React.FC<JsonInputPanelProps> = ({ content, onContentChang
             Format
           </Button>
           <Button component="label" size="small" variant="outlined">
-            Upload
+            {'Upload'}
             <input type="file" accept=".json" hidden onChange={onFileUpload} />
           </Button>
         </Box>

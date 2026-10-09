@@ -1,5 +1,4 @@
-import type { ReactElement } from 'react';
-import { useState, type FormEvent } from 'react';
+import { useState, type FormEvent, type ReactElement } from 'react';
 import {
   Alert,
   Button,
@@ -62,7 +61,7 @@ export default function LoginScreen({
     setLoading(true);
     setError(null);
     try {
-      const result = await window.tracker.login(email.trim(), password, remember);
+      const result = await globalThis.tracker.login(email.trim(), password, remember);
       if (!result.ok) {
         setError(
           result.error
@@ -109,7 +108,7 @@ export default function LoginScreen({
             {t('Use your Exyconn portal email and password.')}
           </Typography>
 
-          {signedOutReason !== null ? (
+          {signedOutReason === null ? null : (
             <Alert
               severity="warning"
               variant="outlined"
@@ -117,7 +116,7 @@ export default function LoginScreen({
             >
               {t(signedOutReason)}
             </Alert>
-          ) : null}
+          )}
 
           <Stack component="form" noValidate onSubmit={handleSubmit} spacing={1.75}>
             <TextField
@@ -152,7 +151,7 @@ export default function LoginScreen({
               label={<Typography variant="body2">{t('Remember me on this computer')}</Typography>}
             />
 
-            {error !== null ? (
+            {error === null ? null : (
               <Alert
                 severity="error"
                 variant="outlined"
@@ -160,7 +159,7 @@ export default function LoginScreen({
               >
                 {error}
               </Alert>
-            ) : null}
+            )}
 
             <Button
               type="submit"

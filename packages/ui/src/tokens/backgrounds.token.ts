@@ -44,4 +44,4 @@ export function scrim(level: ScrimLevel = 'base'): string {
 }
 
 /** Ink that sits ON a scrim. Always white: the scrim guarantees the ground beneath it. */
-export const onScrim = white;
+export { white as onScrim } from './colors.tokens';

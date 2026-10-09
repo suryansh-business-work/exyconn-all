@@ -17,7 +17,7 @@ const STAMPED_BY_MAIN: LogDevice = {
 
 /** One queue per window — both windows share an origin, and so a localStorage. */
 function windowStorage(): LogStorage {
-  const key = `exyconn.tracker.logs:${window.location.pathname}`;
+  const key = `exyconn.tracker.logs:${globalThis.location.pathname}`;
   return {
     read: () => localStorage.getItem(key),
     write: (value) => localStorage.setItem(key, value),
@@ -31,7 +31,7 @@ function windowStorage(): LogStorage {
 export const logger = createLogger({
   source: 'DESKTOP',
   app: 'tracker-desktop',
-  send: (batch) => window.tracker.reportLogs(batch),
+  send: (batch) => globalThis.tracker.reportLogs(batch),
   device: () => STAMPED_BY_MAIN,
   user: () => null,
   storage: windowStorage(),
@@ -40,6 +40,6 @@ export const logger = createLogger({
 /** Uncaught errors, unhandled rejections and `console.error`/`warn` in this window. */
 export function installRendererCrashHandlers(windowName: string): void {
   captureConsole(logger);
-  captureBrowserErrors(logger, window);
+  captureBrowserErrors(logger, globalThis);
   logger.setRoute(windowName);
 }

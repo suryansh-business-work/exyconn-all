@@ -27,7 +27,7 @@ export function useDayDetail(
     let active = true;
     setLoading(true);
     setError(null);
-    window.tracker
+    globalThis.tracker
       .getDay(startISO, endISO)
       .then((day) => {
         if (active) {

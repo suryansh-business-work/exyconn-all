@@ -9,6 +9,7 @@ import { SocialMediaPostModel } from '../../../../src/modules/social-accounts/so
 import { useTestOrganization } from '../../../helpers';
 import { codeOf } from '../codeOf';
 import { HOUR, composedPost, connectAccount } from './social.fixtures';
+import { asArg } from '../../../mockAs';
 
 useTestOrganization();
 
@@ -100,7 +101,7 @@ describe('editing', () => {
     const post = await composedPost(String(account._id));
     jest
       .spyOn(SocialMediaPostModel, 'findByIdAndUpdate')
-      .mockReturnValueOnce({ lean: async () => null } as never);
+      .mockReturnValueOnce(asArg({ lean: async () => null }));
     expect(await codeOf(updatePost(String(post._id), draft()))).toBe('NOT_FOUND');
   });
 });

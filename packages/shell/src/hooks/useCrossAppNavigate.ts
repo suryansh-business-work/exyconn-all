@@ -15,7 +15,7 @@ export function useCrossAppNavigate() {
         navigate(path);
         return;
       }
-      window.location.assign(`${appBaseUrl(app)}${path}`);
+      globalThis.location.assign(`${appBaseUrl(app)}${path}`);
     },
     [navigate],
   );

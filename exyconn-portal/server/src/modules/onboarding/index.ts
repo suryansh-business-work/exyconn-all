@@ -4,7 +4,6 @@ import {
   progressPercent,
   type OnboardingOwner,
 } from './onboarding.model';
-import { onboardingTypeDefs } from './onboarding.typeDefs';
 import { setOnboardingItem, startOnboarding } from './onboarding.service';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
@@ -123,5 +122,6 @@ export const onboardingResolvers = {
   },
 };
 
-export { onboardingTypeDefs, OnboardingChecklistModel, OnboardingTemplateModel };
+export { onboardingTypeDefs } from './onboarding.typeDefs';
+export { OnboardingChecklistModel, OnboardingTemplateModel } from './onboarding.model';
 export { ensureOnboardingDefaults } from './onboarding.defaults';

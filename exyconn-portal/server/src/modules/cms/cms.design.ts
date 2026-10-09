@@ -56,6 +56,38 @@ function assertFontFile(family: string, file: FontFile): void {
   }
 }
 
+function assertGoogleVariants(family: string, source: FontSource): void {
+  const variants = Array.isArray(source.variants) ? source.variants : [];
+  if (
+    variants.length === 0 ||
+    variants.some((v) => typeof v !== 'string' || !FONT_VARIANT.test(v))
+  ) {
+    badRequest(`Choose the styles of ${family} to load (400, 700, 400i …).`);
+  }
+}
+
+function assertCustomFiles(family: string, source: FontSource): void {
+  const files = Array.isArray(source.files) ? (source.files as FontFile[]) : [];
+  if (files.length === 0 || files.length > MAX_FONT_FILES) {
+    badRequest(`Upload at least one file for ${family}.`);
+  }
+  files.forEach((file) => assertFontFile(family, file));
+}
+
+function assertFontSource(source: FontSource): void {
+  const family = typeof source.family === 'string' ? source.family : '';
+  if (!FONT_FAMILY.test(family)) {
+    badRequest(`"${family}" is not a valid font family name.`);
+  }
+  if (source.provider === 'GOOGLE') {
+    assertGoogleVariants(family, source);
+  } else if (source.provider === 'CUSTOM') {
+    assertCustomFiles(family, source);
+  } else {
+    badRequest(`${family} must come from Google Fonts or an upload.`);
+  }
+}
+
 /**
  * The fonts a design system loads: Google Fonts families (with the styles to load) and custom
  * families uploaded to the media library (one file per weight and style).
@@ -65,27 +97,7 @@ function assertFontSources(values: unknown): void {
     badRequest(`Load at most ${MAX_FONT_SOURCES} font families.`);
   }
   for (const source of values as FontSource[]) {
-    const family = typeof source.family === 'string' ? source.family : '';
-    if (!FONT_FAMILY.test(family)) {
-      badRequest(`"${family}" is not a valid font family name.`);
-    }
-    if (source.provider === 'GOOGLE') {
-      const variants = Array.isArray(source.variants) ? source.variants : [];
-      if (
-        variants.length === 0 ||
-        variants.some((v) => typeof v !== 'string' || !FONT_VARIANT.test(v))
-      ) {
-        badRequest(`Choose the styles of ${family} to load (400, 700, 400i …).`);
-      }
-    } else if (source.provider === 'CUSTOM') {
-      const files = Array.isArray(source.files) ? (source.files as FontFile[]) : [];
-      if (files.length === 0 || files.length > MAX_FONT_FILES) {
-        badRequest(`Upload at least one file for ${family}.`);
-      }
-      files.forEach((file) => assertFontFile(family, file));
-    } else {
-      badRequest(`${family} must come from Google Fonts or an upload.`);
-    }
+    assertFontSource(source);
   }
 }
 /** A token key becomes a CSS custom property name: letters, digits and dashes only. */
@@ -104,6 +116,16 @@ function assertFlat(group: string, values: unknown): void {
   }
 }
 
+function assertColorModes(values: unknown): void {
+  const modes = (values ?? {}) as Record<string, unknown>;
+  for (const mode of Object.keys(modes)) {
+    if (mode !== 'light' && mode !== 'dark') {
+      badRequest('Colours are given for light and dark only.');
+    }
+    assertFlat(`${mode} colours`, modes[mode]);
+  }
+}
+
 /**
  * Checks a design system's tokens: known groups only, and every name and value safe to write
  * into a stylesheet as a custom property.
@@ -115,16 +137,8 @@ function assertTokens(tokens: Record<string, unknown>): void {
     }
     if (group === 'fontSources') {
       assertFontSources(values);
-      continue;
-    }
-    if (group === 'colors') {
-      const modes = (values ?? {}) as Record<string, unknown>;
-      for (const mode of Object.keys(modes)) {
-        if (mode !== 'light' && mode !== 'dark') {
-          badRequest('Colours are given for light and dark only.');
-        }
-        assertFlat(`${mode} colours`, modes[mode]);
-      }
+    } else if (group === 'colors') {
+      assertColorModes(values);
     } else {
       assertFlat(group, values);
     }

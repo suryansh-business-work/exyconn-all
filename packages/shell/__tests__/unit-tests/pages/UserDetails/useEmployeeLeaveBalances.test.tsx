@@ -23,7 +23,7 @@ const held = makeBalance();
 
 function mockData(balances: unknown, policies: unknown, extras = {}) {
   const result = queryResult(balances && { employeeLeaveBalances: balances }, extras);
-  vi.mocked(useEmployeeLeaveBalancesQuery).mockReturnValue(result as never);
+  vi.mocked(useEmployeeLeaveBalancesQuery).mockReturnValue(result);
   vi.mocked(useListLeavePoliciesQuery).mockReturnValue(
     queryResult(policies && { listLeavePolicies: policies }) as never,
   );

@@ -16,14 +16,20 @@ describe("finding what to translate", () => {
         <span>42</span>
       </main>`;
 
-    expect(collectStrings(html).sort()).toEqual(["AI that works.", "Build with Exyconn"]);
+    expect(collectStrings(html).sort((a, b) => a.localeCompare(b))).toEqual([
+      "AI that works.",
+      "Build with Exyconn",
+    ]);
   });
 
   it("reads the attributes a person sees", () => {
     const html =
       '<img src="/a.png" alt="A laptop on a desk"><button aria-label="Open the menu"></button>';
 
-    expect(collectStrings(html).sort()).toEqual(["A laptop on a desk", "Open the menu"]);
+    expect(collectStrings(html).sort((a, b) => a.localeCompare(b))).toEqual([
+      "A laptop on a desk",
+      "Open the menu",
+    ]);
   });
 
   it("reads the meta tags a search result shows, and leaves the machine ones alone", () => {
@@ -34,7 +40,10 @@ describe("finding what to translate", () => {
       '<meta name="theme-color" content="#4f46e5">',
     ].join("");
 
-    expect(collectStrings(html).sort()).toEqual(["Exyconn", "Exyconn builds AI systems."]);
+    expect(collectStrings(html).sort((a, b) => a.localeCompare(b))).toEqual([
+      "Exyconn",
+      "Exyconn builds AI systems.",
+    ]);
   });
 });
 
@@ -88,7 +97,7 @@ describe("translating a rendered page", () => {
   });
 });
 
-describe('a subtree the page asked us to leave alone', () => {
+describe("a subtree the page asked us to leave alone", () => {
   it('skips everything inside translate="no", however deeply nested', () => {
     const html =
       '<p>Hello</p><div translate="no"><ul><li><a>Italia - Italiano</a></li>' +
@@ -100,7 +109,7 @@ describe('a subtree the page asked us to leave alone', () => {
     );
   });
 
-  it('does not offer its strings for translation either', () => {
+  it("does not offer its strings for translation either", () => {
     const html = '<p>Hello</p><nav translate="no"><a>España - Español</a></nav>';
 
     expect(collectStrings(html)).toEqual(["Hello"]);

@@ -22,7 +22,7 @@ const page = (overrides: Partial<TableQueryInput> = {}): TableQueryInput => ({
 
 describe('escapeRegex', () => {
   it('escapes every regex metacharacter so user text matches literally', () => {
-    expect(escapeRegex('a.b*c+d?e^f$g{h}i(j)k|l[m]n\\o')).toBe(
+    expect(escapeRegex(String.raw`a.b*c+d?e^f$g{h}i(j)k|l[m]n\o`)).toBe(
       String.raw`a\.b\*c\+d\?e\^f\$g\{h\}i\(j\)k\|l\[m\]n\\o`,
     );
   });

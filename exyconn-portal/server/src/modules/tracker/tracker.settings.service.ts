@@ -61,10 +61,10 @@ function withDefaults(doc: TrackerSettingsLean): TrackerSettingsLean {
 export async function getTrackerSettings(): Promise<TrackerSettingsLean> {
   const existing = await TrackerSettingsModel.findOne({ key: 'global' }).lean();
   if (existing) {
-    return withDefaults(existing as TrackerSettingsLean);
+    return withDefaults(existing);
   }
   const created = await TrackerSettingsModel.create({ key: 'global' });
-  return created.toObject() as TrackerSettingsLean;
+  return created.toObject();
 }
 
 /** Updates the global tracker settings (portal, TRACKER role). */
@@ -88,5 +88,5 @@ export async function updateTrackerSettings(
     upsert: true,
     setDefaultsOnInsert: true,
   }).lean();
-  return withDefaults(updated as TrackerSettingsLean);
+  return withDefaults(updated);
 }

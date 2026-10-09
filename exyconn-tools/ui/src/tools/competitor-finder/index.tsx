@@ -21,6 +21,7 @@ import Grid from '@mui/material/Grid';
 import { Biotech, Search, OpenInNew, ContentCopy } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
+import { withUniqueKeys } from '../../shared/utils/uniqueKeys';
 
 interface RelatedSite {
   domain: string;
@@ -158,8 +159,8 @@ const CompetitorFinder: React.FC = () => {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {result.relatedSites.map((r, i) => (
-                          <TableRow key={i} hover>
+                        {result.relatedSites.map((r) => (
+                          <TableRow key={r.domain} hover>
                             <TableCell>
                               <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                                 <Typography variant="body2">{r.domain}</Typography>
@@ -174,8 +175,8 @@ const CompetitorFinder: React.FC = () => {
                             </TableCell>
                             <TableCell>
                               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                {r.anchors.slice(0, 3).map((a, j) => (
-                                  <Chip key={j} label={a || '(no text)'} size="small" variant="outlined" />
+                                {withUniqueKeys(r.anchors.slice(0, 3), (a) => a).map(({ key, item: a }) => (
+                                  <Chip key={key} label={a || '(no text)'} size="small" variant="outlined" />
                                 ))}
                                 {r.anchors.length > 3 && <Chip label={`+${r.anchors.length - 3}`} size="small" />}
                               </Box>

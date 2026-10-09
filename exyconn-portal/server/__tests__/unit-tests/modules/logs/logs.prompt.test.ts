@@ -117,7 +117,7 @@ describe('buildFixPrompt', () => {
     ]);
 
     expect(rows).toContain(
-      '| 2026-09-11T10:00:00.000Z | Asha (unverified) | — | darwin 15.1 MacBook | /a\\|b /c | 1 |',
+      String.raw`| 2026-09-11T10:00:00.000Z | Asha (unverified) | — | darwin 15.1 MacBook | /a\|b /c | 1 |`,
     );
     expect(rows).toContain('| ravi@exyconn.com | 1.9.8 |');
     expect(rows).toContain('| 7 |');

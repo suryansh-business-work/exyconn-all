@@ -10,7 +10,7 @@ interface AddItemInputProps {
 }
 
 /** Inline "+ Add" control that expands into a text field on click. */
-export function AddItemInput({ label, placeholder, onAdd }: AddItemInputProps) {
+export function AddItemInput({ label, placeholder, onAdd }: Readonly<AddItemInputProps>) {
   const t = useT();
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('');

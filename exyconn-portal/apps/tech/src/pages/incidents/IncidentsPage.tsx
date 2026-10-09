@@ -29,7 +29,7 @@ const TABS: TabberItem[] = [
 export function IncidentsPage() {
   return (
     <Box>
-      <Tabber basePath={INCIDENTS_PATH} items={TABS} ariaLabel="Incidents" sx={{ mb: 2 }} />
+      <Tabber basePath={INCIDENTS_PATH} items={TABS} ariaLabel="Incidents" />
     </Box>
   );
 }

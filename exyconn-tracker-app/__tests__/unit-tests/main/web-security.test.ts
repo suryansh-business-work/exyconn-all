@@ -81,21 +81,21 @@ describe('onTrusted', () => {
   });
 });
 
-describe('installNavigationGuards', () => {
-  function guardedContents() {
-    const on = new Map<string, Listener>();
-    let openHandler: (() => unknown) | undefined;
-    const contents = {
-      setWindowOpenHandler: (fn: () => unknown) => {
-        openHandler = fn;
-      },
-      on: (event: string, fn: Listener) => on.set(event, fn),
-    };
-    installNavigationGuards();
-    appListeners.get('web-contents-created')?.({}, contents);
-    return { on, openWindow: () => openHandler?.() };
-  }
+function guardedContents() {
+  const on = new Map<string, Listener>();
+  let openHandler: (() => unknown) | undefined;
+  const contents = {
+    setWindowOpenHandler: (fn: () => unknown) => {
+      openHandler = fn;
+    },
+    on: (event: string, fn: Listener) => on.set(event, fn),
+  };
+  installNavigationGuards();
+  appListeners.get('web-contents-created')?.({}, contents);
+  return { on, openWindow: () => openHandler?.() };
+}
 
+describe('installNavigationGuards', () => {
   it('denies every new window', () => {
     const { openWindow } = guardedContents();
 

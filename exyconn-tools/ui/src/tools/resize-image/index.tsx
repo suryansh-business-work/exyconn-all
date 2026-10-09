@@ -163,7 +163,7 @@ export default function ResizeImage() {
                 JPG, PNG, WEBP, or GIF
               </Typography>
               <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
-                Browse Files
+                {'Browse Files'}
                 <input hidden accept="image/jpeg,image/png,image/webp,image/gif" type="file" onChange={onFileChange} />
               </Button>
             </Paper>

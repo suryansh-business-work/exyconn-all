@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2021",
-    "lib": ["ES2021", "ES2022.Intl"],
+    "lib": ["ES2021", "ES2022.Array", "ES2022.Intl"],
     "module": "node20",
     "moduleResolution": "node16",
     "strict": true,

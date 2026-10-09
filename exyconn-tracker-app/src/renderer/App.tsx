@@ -90,7 +90,7 @@ export default function App(): ReactElement {
             groundOpacity={
               state === null
                 ? 1
-                : groundOpacity(window.tracker.transparencySupported, state.preferences)
+                : groundOpacity(globalThis.tracker.transparencySupported, state.preferences)
             }
           >
             {/* Above the router: a new version matters on the login screen too. */}

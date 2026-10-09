@@ -64,7 +64,7 @@ const event = {
   appVersion: '1.9.10',
   sessionId: 's1',
   userAgent: 'okhttp/4.12',
-  ip: '10.0.0.9',
+  ip: '203.0.113.9',
 };
 
 const mocks = [

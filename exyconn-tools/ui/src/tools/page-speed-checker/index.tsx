@@ -6,6 +6,16 @@ import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { DomainInputForm, DomainResultDisplay, KeyValueTable } from '../../shared/components/DomainToolShared';
 import { APIs } from '../../shared/config/apis';
 
+const getRatingColor = (rating?: unknown) => {
+  if (rating === 'Fast') {
+    return 'success';
+  }
+  if (rating === 'Average') {
+    return 'warning';
+  }
+  return 'error';
+};
+
 const PageSpeedChecker: React.FC = () => {
   const [result, setResult] = useState<Record<string, unknown> | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -56,24 +66,14 @@ const PageSpeedChecker: React.FC = () => {
                 <Box sx={{ textAlign: 'center', py: 2, mb: 2 }}>
                   <Typography
                     variant="h3"
-                    color={
-                      perf?.rating === 'Fast'
-                        ? 'success.main'
-                        : perf?.rating === 'Average'
-                          ? 'warning.main'
-                          : 'error.main'
-                    }
+                    color={`${getRatingColor(perf?.rating)}.main`}
                     sx={{
                       fontWeight: 700,
                     }}
                   >
                     {String(result.loadTime)}ms
                   </Typography>
-                  <Chip
-                    label={perf?.rating as string}
-                    sx={{ mt: 1 }}
-                    color={perf?.rating === 'Fast' ? 'success' : perf?.rating === 'Average' ? 'warning' : 'error'}
-                  />
+                  <Chip label={perf?.rating as string} sx={{ mt: 1 }} color={getRatingColor(perf?.rating)} />
                   <Typography
                     variant="body2"
                     sx={{

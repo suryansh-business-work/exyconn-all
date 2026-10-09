@@ -6,11 +6,7 @@ import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable
 
 import { useLanguageOptions } from '@exyconn/shell/components/localization';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
-import {
-  TranslationsDocument,
-  useTranslationsQuery,
-  type TranslationsQuery,
-} from '@exyconn/shell/graphql/generated';
+import { useTranslationsQuery, type TranslationsQuery } from '@exyconn/shell/graphql/generated';
 import { TranslationEditor } from './TranslationEditor';
 import { TranslateEverythingButton } from './TranslateEverythingButton';
 import { densePanel } from '@exyconn/shell/components/glass/glass';
@@ -136,4 +132,4 @@ export function LocalizationPage() {
 }
 
 /** Re-exported so a saved correction can refetch the list it came from. */
-export { TranslationsDocument };
+export { TranslationsDocument } from '@exyconn/shell/graphql/generated';

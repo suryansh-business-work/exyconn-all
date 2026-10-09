@@ -28,11 +28,11 @@ const input = (over: Record<string, unknown> = {}) => ({
 });
 
 const create = (ctx: GraphQLContext, over: Record<string, unknown> = {}) =>
-  reviewResolvers.Mutation.createManagementReview(
-    null,
-    { input: input(over) } as never,
-    ctx,
-  ) as Promise<{ id: string; reference: string; actions: { description: string }[] }>;
+  reviewResolvers.Mutation.createManagementReview(null, { input: input(over) }, ctx) as Promise<{
+    id: string;
+    reference: string;
+    actions: { description: string }[];
+  }>;
 
 describe('management reviews', () => {
   it('numbers each minute from its own series and keeps what was agreed', async () => {

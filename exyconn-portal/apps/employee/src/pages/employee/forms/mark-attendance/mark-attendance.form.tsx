@@ -18,10 +18,10 @@ type Values = z.infer<typeof schema>;
 export function MarkAttendanceForm({
   onCancel,
   onDone,
-}: {
+}: Readonly<{
   onCancel: () => void;
   onDone: () => void;
-}) {
+}>) {
   const notify = useNotify();
   const [markAttendance] = useMarkAttendanceMutation();
   const methods = useForm<Values>({

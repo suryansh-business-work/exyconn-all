@@ -30,15 +30,15 @@ describe('skeletonWhileLoading', () => {
   });
 });
 
-describe('useGridTheme', () => {
-  function themeFor(mode: 'light' | 'dark') {
-    const theme = createTheme({ palette: { mode } });
-    const { result } = renderHook(() => useGridTheme(), {
-      wrapper: ({ children }) => <ThemeProvider theme={theme}>{children}</ThemeProvider>,
-    });
-    return { grid: result.current, theme };
-  }
+function themeFor(mode: 'light' | 'dark') {
+  const theme = createTheme({ palette: { mode } });
+  const { result } = renderHook(() => useGridTheme(), {
+    wrapper: ({ children }) => <ThemeProvider theme={theme}>{children}</ThemeProvider>,
+  });
+  return { grid: result.current, theme };
+}
 
+describe('useGridTheme', () => {
   it('paints the Quartz grid from the active MUI palette', () => {
     const { grid, theme } = themeFor('dark');
     const resolved = (grid as unknown as ModeParamsReader)._getModeParams().$default;

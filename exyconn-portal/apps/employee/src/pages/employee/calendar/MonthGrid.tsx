@@ -6,7 +6,7 @@ import type { DayMarker } from './buildMonth';
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
 
 /** A single day cell — dims out-of-month days and overlays holiday / leave markers. */
-function DayCell({ day }: { day: DayMarker }) {
+function DayCell({ day }: Readonly<{ day: DayMarker }>) {
   const t = useT();
   return (
     <Box
@@ -77,7 +77,7 @@ function DayCell({ day }: { day: DayMarker }) {
 }
 
 /** Renders a 7-column month grid: a weekday header row followed by day cells. */
-export function MonthGrid({ days }: { days: DayMarker[] }) {
+export function MonthGrid({ days }: Readonly<{ days: DayMarker[] }>) {
   const t = useT();
   return (
     <Box

@@ -24,10 +24,14 @@ describe('initialsOf', () => {
   });
 });
 
+const byName = (a: string, b: string) => a.localeCompare(b);
+
 describe('ticket facets', () => {
   it('draws every type and priority the schema has, each with a label, icon and colour', () => {
-    expect(Object.keys(TICKET_TYPES).sort()).toEqual(Object.values(TaskType).sort());
-    expect(Object.keys(TICKET_PRIORITIES).sort()).toEqual(Object.values(TaskPriority).sort());
+    expect(Object.keys(TICKET_TYPES).sort(byName)).toEqual(Object.values(TaskType).sort(byName));
+    expect(Object.keys(TICKET_PRIORITIES).sort(byName)).toEqual(
+      Object.values(TaskPriority).sort(byName),
+    );
     for (const facet of [...Object.values(TICKET_TYPES), ...Object.values(TICKET_PRIORITIES)]) {
       expect(facet.label).not.toBe('');
       expect(facet.icon).toBeTruthy();

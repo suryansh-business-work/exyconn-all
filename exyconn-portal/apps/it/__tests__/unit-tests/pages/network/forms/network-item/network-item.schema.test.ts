@@ -15,8 +15,8 @@ function firstError(value: unknown): string | null {
 
 describe('networkItemSchema', () => {
   it('accepts a named item and trims what was typed', () => {
-    expect(networkItemSchema.parse({ ...valid, address: ' 10.0.0.0/24 ' }).address).toBe(
-      '10.0.0.0/24',
+    expect(networkItemSchema.parse({ ...valid, address: ' 203.0.113.0/24 ' }).address).toBe(
+      '203.0.113.0/24',
     );
   });
 

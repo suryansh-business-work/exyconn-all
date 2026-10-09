@@ -12,10 +12,13 @@ import { findBackgroundJob } from '../../../../src/modules/tech/jobs.registry';
 import { JOB_KEYS } from '../../../../src/utils/jobHeartbeat';
 import { logger } from '../../../../src/utils/logger';
 import { runAsPlatform, runForOrganization } from '../../../../src/lib/tenant';
+import { asArg } from '../../../mockAs';
 
-jest.mock('node:dns/promises', () => ({
-  lookup: jest.fn().mockResolvedValue([{ address: '93.184.215.14', family: 4 }]),
-}));
+jest.mock('node:dns/promises', () =>
+  jest
+    .requireActual<typeof import('../../../fixtures/publicDns')>('../../../fixtures/publicDns')
+    .publicDnsMock(),
+);
 
 const originalFetch = globalThis.fetch;
 afterEach(() => {
@@ -28,7 +31,7 @@ function captureInterval() {
   const unref = jest.fn();
   const interval = jest
     .spyOn(globalThis, 'setInterval')
-    .mockImplementation((() => ({ unref })) as never);
+    .mockImplementation(asArg(() => ({ unref })));
   return { interval, unref };
 }
 

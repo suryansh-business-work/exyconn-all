@@ -90,7 +90,9 @@ describe('EditorWorkspace — leaving the editor', () => {
     const dialog = await screen.findByRole('dialog');
     expect(dialog).toHaveTextContent('Leave without saving?');
     await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
-    expect(url()).toHaveTextContent('/admin/bot-workflows/wf-1');
+    expect(await screen.findByRole('status', { name: 'url' })).toHaveTextContent(
+      '/admin/bot-workflows/wf-1',
+    );
   });
 
   it('leaves once losing the unsaved edits is confirmed', async () => {

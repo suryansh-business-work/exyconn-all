@@ -5,6 +5,7 @@ import {
   recordKey,
   type DnsRecord,
 } from '../../../../src/modules/dns/dns.records';
+import ips from '../../../fixtures/ips.json';
 
 const DOMAIN = 'example.com';
 
@@ -106,7 +107,7 @@ describe('fromGodaddy', () => {
 describe('fromCloudflare', () => {
   const cf = (fields: Partial<Parameters<typeof fromCloudflare>[0]>) =>
     fromCloudflare(
-      { id: 'r1', type: 'A', name: DOMAIN, content: '1.1.1.1', ttl: 1, ...fields },
+      { id: 'r1', type: 'A', name: DOMAIN, content: ips.ip1_1_1_1, ttl: 1, ...fields },
       DOMAIN,
     );
 
@@ -134,7 +135,7 @@ describe('fromCloudflare', () => {
     });
     expect(cf({ type: 'SRV', content: '1 2 t.example.com' })).toMatchObject({ priority: 0 });
     expect(cf({ proxied: true })).toMatchObject({ priority: null, proxied: true });
-    expect(cf({})).toMatchObject({ proxied: null, content: '1.1.1.1' });
+    expect(cf({})).toMatchObject({ proxied: null, content: ips.ip1_1_1_1 });
   });
 });
 

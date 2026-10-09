@@ -17,7 +17,7 @@ export interface CanvasSize {
   width: number;
   height: number;
   label: string;
-  category: 'favicon' | 'icon' | 'logo' | 'splash';
+  category: CanvasCategory;
 }
 
 export interface CustomSize {
@@ -27,21 +27,8 @@ export interface CustomSize {
   label: string;
 }
 
+export type CanvasCategory = 'favicon' | 'icon' | 'logo' | 'splash';
 export type ExportFormat = 'png' | 'jpg' | 'webp' | 'ico';
-export type ApplyScope =
-  | 'all'
-  | 'favicon'
-  | 'favicon-all'
-  | 'icon'
-  | 'icon-all'
-  | 'logo'
-  | 'logo-all'
-  | 'splash'
-  | 'splash-all'
-  | 'custom'
-  | 'custom-all'
-  | string;
-
 export interface ScopeOption {
   value: string;
   label: string;
@@ -199,9 +186,9 @@ export const hexToRgb = (hex: string): { r: number; g: number; b: number } | nul
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result
     ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16),
+        r: Number.parseInt(result[1], 16),
+        g: Number.parseInt(result[2], 16),
+        b: Number.parseInt(result[3], 16),
       }
     : null;
 };

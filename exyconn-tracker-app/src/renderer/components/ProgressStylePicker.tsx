@@ -45,7 +45,7 @@ export default function ProgressStylePicker({ style }: Readonly<Props>): ReactEl
         // `next` is null when the active button is pressed again; keeping the current style
         // means the group can never end up with nothing selected.
         onChange={(_event, next: ProgressStyle | null) =>
-          run(() => window.tracker.setPreferences({ progressStyle: next ?? style }))
+          run(() => globalThis.tracker.setPreferences({ progressStyle: next ?? style }))
         }
       >
         {OPTIONS.map((option) => {

@@ -4,6 +4,7 @@ import {
   type DockerContainerInspect,
   type DockerStats,
 } from '../../../../src/modules/infra/docker.client';
+import ips from '../../../fixtures/ips.json';
 
 afterEach(() => {
   jest.restoreAllMocks();
@@ -31,7 +32,7 @@ const inspect: DockerContainerInspect = {
     NanoCpus: 1_500_000_000,
     LogConfig: { Type: 'json-file' },
   },
-  NetworkSettings: { Networks: { exyconn_default: { IPAddress: '172.18.0.5' } } },
+  NetworkSettings: { Networks: { exyconn_default: { IPAddress: ips.ip172_18_0_5 } } },
   Mounts: [
     { Type: 'bind', Source: '/opt/exyconn/uploads', Destination: '/app/uploads', RW: true },
     { Type: 'volume', Destination: '/data', RW: false },
@@ -71,7 +72,7 @@ describe('container detail', () => {
       memoryLimitBytes: 1_073_741_824,
       cpuLimit: 1.5,
       networks: ['exyconn_default'],
-      ipAddress: '172.18.0.5',
+      ipAddress: ips.ip172_18_0_5,
       mounts: [
         {
           type: 'bind',

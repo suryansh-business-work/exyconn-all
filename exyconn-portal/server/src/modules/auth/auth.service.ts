@@ -277,8 +277,16 @@ class AuthService {
    * Unauthenticated by necessity (nobody can sign in to authorise it), so it is
    * a no-op the moment any ADMIN exists. That makes it useless both as a way to
    * reset a live administrator's password and as a mail-flooding endpoint.
+   *
+   * Nobody is signed in, so it runs as the platform — the same scope boot's
+   * ensureAdminAccess creates this account in. A request scope here has no organization,
+   * and every account query would be refused.
    */
-  async sendAdminCredentials(): Promise<string> {
+  sendAdminCredentials(): Promise<string> {
+    return runAsPlatform(() => this.issueAdminCredentials());
+  }
+
+  private async issueAdminCredentials(): Promise<string> {
     if (await UserModel.exists({ roles: ROLES.ADMIN })) {
       return 'An administrator already exists. Ask them to reset your password from Admin > Users.';
     }

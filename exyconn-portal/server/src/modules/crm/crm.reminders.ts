@@ -28,7 +28,10 @@ registerReminderSource({
 
     const named = rows
       .slice(0, NAMED)
-      .map((row) => `${row.subject}${row.relatedName ? ` (${row.relatedName})` : ''}`)
+      .map((row) => {
+        const related = row.relatedName ? ` (${row.relatedName})` : '';
+        return `${row.subject}${related}`;
+      })
       .join(', ');
     const rest = rows.length - Math.min(rows.length, NAMED);
     const tail = rest > 0 ? ` and ${rest} more` : '';

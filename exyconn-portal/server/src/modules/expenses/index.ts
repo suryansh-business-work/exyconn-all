@@ -1,5 +1,4 @@
 import { ExpenseClaimModel } from './expense.model';
-import { expensesTypeDefs } from './expenses.typeDefs';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { createMyRecordsResolver } from '../../lib/employeeScope';
@@ -126,4 +125,4 @@ export const expensesResolvers = {
     setExpenseClaimStatus: decideExpenseClaim,
   },
 };
-export { expensesTypeDefs };
+export { expensesTypeDefs } from './expenses.typeDefs';

@@ -103,7 +103,7 @@ describe('ApiKeysPanel when the layers below misbehave', () => {
     hooks.revokeKey.mockRejectedValue({ code: 500 });
     const user = userEvent.setup();
     renderWithProviders(<ApiKeysPanel />);
-    await user.click(screen.getByRole('button', { name: 'Revoke' }));
+    await user.click(screen.getByRole('button', { name: 'Revoke key' }));
     await waitFor(() =>
       expect(hooks.notify).toHaveBeenCalledWith('Could not revoke the key', 'error'),
     );
@@ -116,7 +116,7 @@ describe('ApiKeysPanel when the layers below misbehave', () => {
     hooks.confirm.mockRejectedValue(broken);
     const user = userEvent.setup();
     renderWithProviders(<ApiKeysPanel />);
-    await user.click(screen.getByRole('button', { name: 'Revoke' }));
+    await user.click(screen.getByRole('button', { name: 'Revoke key' }));
     await waitFor(() => expect(logged).toHaveBeenCalledWith('Revoke', broken));
     expect(hooks.revokeKey).not.toHaveBeenCalled();
   });

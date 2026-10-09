@@ -46,14 +46,16 @@ afterEach(() => jest.restoreAllMocks());
 
 describe('asking for a reset link', () => {
   it('quietly ignores an address too long to be real', async () => {
-    await expect(requestPasswordReset(`${'a'.repeat(260)}@exyconn.com`, bare)).resolves.toBe(true);
+    await expect(
+      requestPasswordReset(`${'a'.repeat(260)}@exyconn.com`, bare),
+    ).resolves.toBeUndefined();
 
     expect(send).not.toHaveBeenCalled();
     expect(await PasswordResetTokenModel.countDocuments()).toBe(0);
   });
 
   it('sends a link to a request that gives no address of its own, trimming the email', async () => {
-    await expect(requestPasswordReset(`  ${email.toUpperCase()}  `, bare)).resolves.toBe(true);
+    await expect(requestPasswordReset(`  ${email.toUpperCase()}  `, bare)).resolves.toBeUndefined();
 
     expect(send).toHaveBeenCalledTimes(1);
     expect(send.mock.calls[0][0]).toMatchObject({
@@ -75,7 +77,7 @@ describe('asking for a reset link', () => {
     send.mockRejectedValueOnce(new Error('SMTP refused'));
     const logged = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
 
-    await expect(requestPasswordReset(email, bare)).resolves.toBe(true);
+    await expect(requestPasswordReset(email, bare)).resolves.toBeUndefined();
     await settle();
 
     expect(logged).toHaveBeenCalledWith(
@@ -88,7 +90,9 @@ describe('asking for a reset link', () => {
     const warned = jest.spyOn(logger, 'warn').mockImplementation(() => undefined);
 
     for (let attempt = 0; attempt < 11; attempt += 1) {
-      await expect(requestPasswordReset(`${randomUUID()}@exyconn.com`, bare)).resolves.toBe(true);
+      await expect(
+        requestPasswordReset(`${randomUUID()}@exyconn.com`, bare),
+      ).resolves.toBeUndefined();
     }
 
     expect(warned).toHaveBeenCalledWith('Password reset from unknown rate-limited');
@@ -97,7 +101,7 @@ describe('asking for a reset link', () => {
   it('sends nothing for a deactivated account', async () => {
     await runAsPlatform(() => UserModel.updateOne({ email }, { isActive: false }));
 
-    await expect(requestPasswordReset(email, bare)).resolves.toBe(true);
+    await expect(requestPasswordReset(email, bare)).resolves.toBeUndefined();
     expect(send).not.toHaveBeenCalled();
   });
 });
@@ -105,7 +109,7 @@ describe('asking for a reset link', () => {
 describe('using a reset link', () => {
   it('refuses a link that another request spent a moment earlier', async () => {
     await requestPasswordReset(email, bare);
-    jest.spyOn(PasswordResetTokenModel, 'findOneAndUpdate').mockResolvedValueOnce(null as never);
+    jest.spyOn(PasswordResetTokenModel, 'findOneAndUpdate').mockResolvedValueOnce(null);
 
     await expect(resetPassword(sentToken(), NEW_PASSWORD, bare)).rejects.toThrow(
       /invalid or has expired/,

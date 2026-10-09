@@ -11,21 +11,7 @@ interface GeneratedOutputProps {
 const GeneratedOutput: React.FC<GeneratedOutputProps> = ({ generatedTxt, onCopy, onDownload }) => {
   return (
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, height: '100%', minHeight: 500 }}>
-      {!generatedTxt ? (
-        <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
-          <SmartToy sx={{ fontSize: 48, mb: 2, opacity: 0.3, color: '#84cc16' }} />
-          <Typography variant="body1">Configure and generate your robots.txt</Typography>
-          <Typography
-            variant="body2"
-            sx={{
-              color: 'text.secondary',
-              mt: 1,
-            }}
-          >
-            Add sitemaps, set crawl rules for different bots
-          </Typography>
-        </Box>
-      ) : (
+      {generatedTxt ? (
         <>
           <Box
             sx={{
@@ -70,6 +56,20 @@ const GeneratedOutput: React.FC<GeneratedOutputProps> = ({ generatedTxt, onCopy,
             />
           </Box>
         </>
+      ) : (
+        <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
+          <SmartToy sx={{ fontSize: 48, mb: 2, opacity: 0.3, color: '#84cc16' }} />
+          <Typography variant="body1">Configure and generate your robots.txt</Typography>
+          <Typography
+            variant="body2"
+            sx={{
+              color: 'text.secondary',
+              mt: 1,
+            }}
+          >
+            Add sitemaps, set crawl rules for different bots
+          </Typography>
+        </Box>
       )}
     </Paper>
   );

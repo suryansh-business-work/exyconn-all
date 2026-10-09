@@ -14,7 +14,7 @@ const create = editorFactory();
 const blockAction = (key: string) => BLOCK_ACTIONS.find((action) => action.key === key);
 const tableAction = (key: string) =>
   TABLE_ACTIONS.find((action) => action.key === key) ?? INSERT_TABLE;
-const count = (html: string, needle: RegExp) => html.match(needle)?.length ?? 0;
+const count = (html: string, needle: RegExp) => [...html.matchAll(needle)].length;
 
 describe('block actions', () => {
   it('toggles lists, task lists and quotes, reporting each as active', () => {

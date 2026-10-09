@@ -13,6 +13,31 @@ const MAX_TEXT = 63_206;
 export const postLength = (text: string, link: string): number =>
   (link && !text.includes(link) ? `${text}\n\n${link}` : text).length;
 
+/** What one chosen network refuses about this post: its image, or its length. */
+function addRuleIssues(ctx: z.RefinementCtx, rule: NetworkRule, mediaUrl: string, length: number) {
+  if (rule.requiresImage && !mediaUrl) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['mediaUrl'],
+      message: `${rule.network} needs an image`,
+    });
+  }
+  if (!rule.allowsImage && mediaUrl) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['mediaUrl'],
+      message: `${rule.network} posts from here cannot carry an image`,
+    });
+  }
+  if (length > rule.maxChars) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['text'],
+      message: `${rule.network} allows ${rule.maxChars} characters; this is ${length}`,
+    });
+  }
+}
+
 /**
  * The composer's rules. The limits are the server's (socialNetworkRules), looked up per chosen
  * account, so a draft Instagram or X would refuse is flagged before it is sent.
@@ -47,28 +72,7 @@ export function makeSocialPostSchema(ruleOf: (accountId: string) => NetworkRule 
       }
       const length = postLength(values.text, values.link);
       for (const rule of values.accountIds.map(ruleOf)) {
-        if (!rule) continue;
-        if (rule.requiresImage && !values.mediaUrl) {
-          ctx.addIssue({
-            code: 'custom',
-            path: ['mediaUrl'],
-            message: `${rule.network} needs an image`,
-          });
-        }
-        if (!rule.allowsImage && values.mediaUrl) {
-          ctx.addIssue({
-            code: 'custom',
-            path: ['mediaUrl'],
-            message: `${rule.network} posts from here cannot carry an image`,
-          });
-        }
-        if (length > rule.maxChars) {
-          ctx.addIssue({
-            code: 'custom',
-            path: ['text'],
-            message: `${rule.network} allows ${rule.maxChars} characters; this is ${length}`,
-          });
-        }
+        if (rule) addRuleIssues(ctx, rule, values.mediaUrl, length);
       }
       const at = new Date(values.scheduledAt);
       if (values.timing === 'SCHEDULE' && (!values.scheduledAt || at.getTime() <= Date.now())) {

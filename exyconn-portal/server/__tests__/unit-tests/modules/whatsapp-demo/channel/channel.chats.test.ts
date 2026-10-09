@@ -13,6 +13,7 @@ import { catalog } from '../../../../../src/modules/whatsapp-demo/whatsappDemo.s
 import { logger } from '../../../../../src/utils/logger';
 import { useTestOrganization } from '../../../../helpers';
 import { demoBundle, option } from './channel.fixtures';
+import { asArg } from '../../../../mockAs';
 
 jest.mock('@exyconn/wa-flow', () => ({
   ...jest.requireActual('@exyconn/wa-flow'),
@@ -84,7 +85,7 @@ describe('claimMessage', () => {
   it('passes on a failure that is not a redelivery', async () => {
     jest
       .spyOn(WhatsappChatModel, 'findOneAndUpdate')
-      .mockReturnValueOnce({ lean: () => Promise.reject(new Error('db down')) } as never);
+      .mockReturnValueOnce(asArg({ lean: () => Promise.reject(new Error('db down')) }));
 
     await expect(claimMessage(WA_ID, 'Asha', 'wamid.1')).rejects.toThrow('db down');
   });
@@ -92,7 +93,7 @@ describe('claimMessage', () => {
   it('claims nothing when the database hands no chat back', async () => {
     jest
       .spyOn(WhatsappChatModel, 'findOneAndUpdate')
-      .mockReturnValueOnce({ lean: () => Promise.resolve(null) } as never);
+      .mockReturnValueOnce(asArg({ lean: () => Promise.resolve(null) }));
 
     await expect(claimMessage(WA_ID, 'Asha', 'wamid.1')).resolves.toBeNull();
   });

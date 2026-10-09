@@ -159,7 +159,7 @@ export default function WatermarkImage() {
                   or click to browse
                 </Typography>
                 <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
-                  Browse Files
+                  {'Browse Files'}
                   <input hidden accept="image/*" type="file" onChange={onFileChange} />
                 </Button>
               </Paper>
@@ -173,7 +173,7 @@ export default function WatermarkImage() {
                   sx={{ maxWidth: '100%', maxHeight: 480, borderRadius: 1, border: 1, borderColor: 'divider' }}
                 />
                 <Button size="small" component="label" sx={{ display: 'block', mx: 'auto', mt: 1, color: COLOR }}>
-                  Choose a different image
+                  {'Choose a different image'}
                   <input hidden accept="image/*" type="file" onChange={onFileChange} />
                 </Button>
               </Paper>

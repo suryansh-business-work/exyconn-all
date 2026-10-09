@@ -9,7 +9,9 @@ const OPTIONS = [
   { value: 'C2', label: '#status' },
 ];
 
-const mount = (initial = { slackChannels: [], statusAlertChannels: [] }) =>
+const EMPTY_CHANNELS = { slackChannels: [], statusAlertChannels: [] };
+
+const mount = (initial = EMPTY_CHANNELS) =>
   cy.mount(
     <MockedProvider mocks={[]}>
       <ThemeProvider theme={theme}>

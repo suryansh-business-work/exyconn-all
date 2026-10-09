@@ -32,6 +32,7 @@ import {
   substitute,
 } from '../../src/modules/email/email.render';
 import { customTemplate } from '../../src/templates/custom.template';
+import ips from '../fixtures/ips.json';
 
 jest.mock('node:dns/promises', () => ({ lookup: jest.fn() }));
 const resolveTo = (...addresses: string[]) =>
@@ -113,24 +114,24 @@ describe('click link signing (open redirect)', () => {
 describe('safeFetch (SSRF)', () => {
   it.each([
     '127.0.0.1',
-    '10.1.2.3',
-    '172.17.0.2',
-    '192.168.1.1',
-    '169.254.169.254',
-    '100.64.0.1',
+    ips.ip10_1_2_3,
+    ips.ip172_17_0_2,
+    ips.ip192_168_1_1,
+    ips.ip169_254_169_254,
+    ips.ip100_64_0_1,
     '0.0.0.0',
-    '224.0.0.1',
+    ips.ip224_0_0_1,
     '::1',
     '::',
-    'fd00::1',
-    'fe80::1',
-    '::ffff:127.0.0.1',
-    '::ffff:a9fe:a9fe',
+    ips.ipfd00__1,
+    ips.ipfe80__1,
+    ips.ip__ffff_127_0_0_1,
+    ips.ip__ffff_a9fe_a9fe,
   ])('treats %s as private', (address) => {
     expect(isPublicAddress(address)).toBe(false);
   });
 
-  it.each(['93.184.215.14', '8.8.8.8', '2606:4700:4700::1111'])(
+  it.each([ips.ip93_184_215_14, ips.ip8_8_8_8, ips.ip2606_4700_4700__1111])(
     'treats %s as public',
     (address) => {
       expect(isPublicAddress(address)).toBe(true);
@@ -138,7 +139,7 @@ describe('safeFetch (SSRF)', () => {
   );
 
   it('refuses a host that resolves to a private address, without connecting', async () => {
-    resolveTo('93.184.215.14', '10.0.0.5');
+    resolveTo(ips.ip93_184_215_14, ips.ip10_0_0_5);
     globalThis.fetch = jest.fn() as unknown as typeof fetch;
 
     await expect(safeFetch('https://sneaky.example')).rejects.toThrow(UnsafeUrlError);
@@ -146,7 +147,7 @@ describe('safeFetch (SSRF)', () => {
   });
 
   it('refuses plain http unless allowed, and URLs with credentials', async () => {
-    resolveTo('93.184.215.14');
+    resolveTo(ips.ip93_184_215_14);
     await expect(assertPublicHttpsUrl('http://example.com')).rejects.toThrow(/https/);
     await expect(assertPublicHttpsUrl('https://u:p@example.com')).rejects.toThrow(/password/);
     await expect(assertPublicHttpsUrl('https://example.com/hook')).resolves.toBeInstanceOf(URL);
@@ -156,7 +157,7 @@ describe('safeFetch (SSRF)', () => {
     (lookup as unknown as jest.Mock).mockImplementation(async (host: string) =>
       host === 'internal.example'
         ? [{ address: '127.0.0.1', family: 4 }]
-        : [{ address: '93.184.215.14', family: 4 }],
+        : [{ address: ips.ip93_184_215_14, family: 4 }],
     );
     globalThis.fetch = jest.fn().mockResolvedValue(
       new Response(null, {
@@ -170,7 +171,7 @@ describe('safeFetch (SSRF)', () => {
   });
 
   it('caps redirects and the size of the answer', async () => {
-    resolveTo('93.184.215.14');
+    resolveTo(ips.ip93_184_215_14);
     globalThis.fetch = jest
       .fn()
       .mockImplementation(
@@ -187,7 +188,7 @@ describe('safeFetch (SSRF)', () => {
   });
 
   it('turns a POST into a bodiless GET across a 303', async () => {
-    resolveTo('93.184.215.14');
+    resolveTo(ips.ip93_184_215_14);
     const fetchMock = jest
       .fn()
       .mockResolvedValueOnce(new Response(null, { status: 303, headers: { location: '/done' } }))

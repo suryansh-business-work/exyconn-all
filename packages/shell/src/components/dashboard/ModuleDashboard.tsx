@@ -40,7 +40,7 @@ export function ModuleDashboard({
   chartColor = color.orange[500],
   children,
   dialog,
-}: ModuleDashboardProps) {
+}: Readonly<ModuleDashboardProps>) {
   const t = useT();
   const statCols = 12 / Math.min(Math.max(stats.length, 1), 4);
   return (

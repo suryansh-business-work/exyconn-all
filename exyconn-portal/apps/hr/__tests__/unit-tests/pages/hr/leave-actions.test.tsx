@@ -33,6 +33,11 @@ function renderCell(target: LeaveRequestRow, onDecide = vi.fn().mockResolvedValu
   const onRowClick = vi.fn();
   renderWithProviders(
     <table>
+      <thead>
+        <tr>
+          <th scope="col">Decision</th>
+        </tr>
+      </thead>
       <tbody>
         <tr onClick={onRowClick}>
           <td>

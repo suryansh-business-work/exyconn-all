@@ -62,15 +62,15 @@ export default function TotalsPanel({ lastSyncAt }: Readonly<Props>): ReactEleme
         </Typography>
       </Stack>
 
-      {error !== null ? (
+      {error === null ? null : (
         <Alert severity="warning" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
           {error}
         </Alert>
-      ) : null}
+      )}
 
       {loading && error === null ? <LoadingTiles /> : null}
 
-      {totals !== null ? <StatGrid tiles={totalTiles(totals)} /> : null}
+      {totals === null ? null : <StatGrid tiles={totalTiles(totals)} />}
     </Stack>
   );
 }

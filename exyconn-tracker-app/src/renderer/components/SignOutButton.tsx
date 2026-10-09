@@ -30,7 +30,7 @@ export default function SignOutButton(): ReactElement {
           run(() =>
             perform(
               'sign-out',
-              () => window.tracker.logout(),
+              () => globalThis.tracker.logout(),
               t('Sign out did not finish. Try again.'),
             ),
           )

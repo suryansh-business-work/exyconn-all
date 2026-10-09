@@ -1,11 +1,11 @@
 import { activityPercent, type ReportDay } from '@exyconn/tracker-core';
 // By path, as the theme's tokens are: the design system's entry imports MUI. These two files
 // are pure, and they are the ONE conversion and rounding rule the portal and both trackers plot.
-import { formatHours, msToHours } from '@exyconn/ui/src/charts/duration';
+import { msToHours } from '@exyconn/ui/src/charts/duration';
 import type { ChartData, ValueFormatter } from '@exyconn/ui/src/charts/chart.types';
 
 export type { ChartData, ChartSeries, ValueFormatter } from '@exyconn/ui/src/charts/chart.types';
-export { formatHours };
+export { formatHours } from '@exyconn/ui/src/charts/duration';
 
 /**
  * Shaping the employee's own tracked time into chart series. Pure — no React, no colour.

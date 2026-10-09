@@ -29,8 +29,8 @@ describe('useCrossAppNavigate', () => {
   it("loads the other app's page when the target belongs to another app", () => {
     const result = setup();
     const assign = vi.fn();
-    // jsdom's location cannot be spied on, so the page-load call meets a stand-in window.
-    vi.stubGlobal('window', { location: { assign } });
+    // jsdom's location cannot be spied on, so the page-load call meets a stand-in location.
+    vi.stubGlobal('location', { assign });
     result.current.go('hr', '/hr/leave');
     vi.unstubAllGlobals();
 

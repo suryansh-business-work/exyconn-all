@@ -20,7 +20,7 @@ describe('cmsBlocks', () => {
 
   it('adds one block per catalogue entry, in its category, with its default props', () => {
     const blocks = cmsBlocks([hero], []);
-    const block = blocks[blocks.length - 1];
+    const block = blocks.at(-1);
     expect(blocks).toHaveLength(PAGE_BLOCKS.length + 1);
     expect(block).toMatchObject({
       id: 'cms-component-hero',
@@ -37,14 +37,14 @@ describe('cmsBlocks', () => {
 
   it('adds one block per fragment after the components, named by its kind', () => {
     const blocks = cmsBlocks([hero], [{ id: 'f1', name: 'Site footer', kind: 'FOOTER' }]);
-    expect(blocks[blocks.length - 1]).toMatchObject({
+    expect(blocks.at(-1)).toMatchObject({
       id: 'cms-fragment-f1',
       label: 'Site footer',
       category: 'Fragments',
       attributes: { title: 'footer fragment' },
       content: { type: 'exy-fragment', attributes: { 'data-fragment-id': 'f1' } },
     });
-    expect(blocks[blocks.length - 2].id).toBe('cms-component-hero');
+    expect(blocks.at(-2)?.id).toBe('cms-component-hero');
   });
 });
 
@@ -68,7 +68,7 @@ describe('PLACEHOLDER_CSS', () => {
   it('styles both placeholder tags and labels them from data attributes', () => {
     expect(PLACEHOLDER_CSS).toContain('exy-component, exy-fragment {');
     expect(PLACEHOLDER_CSS).toContain(
-      'content: attr(data-exy-title) "\\A" attr(data-exy-summary);',
+      String.raw`content: attr(data-exy-title) "\A" attr(data-exy-summary);`,
     );
     expect(PLACEHOLDER_CSS).toContain('exy-component[data-exy-container]:empty::after');
   });

@@ -1,4 +1,4 @@
-import { statusResolvers } from '../../src/modules/status';
+import { getStatusOverview, runStatusChecks, statusResolvers } from '../../src/modules/status';
 import { StatusMonitorModel } from '../../src/modules/status/status-monitor.model';
 import { StatusIncidentModel } from '../../src/modules/status/status-incident.model';
 import { StatusMaintenanceModel } from '../../src/modules/status/status-maintenance.model';
@@ -7,7 +7,6 @@ import { subscribeLimiter } from '../../src/modules/status/status.subscribers';
 import { ProblemReportModel } from '../../src/modules/status/problem-report.model';
 import { resetReportLimits } from '../../src/modules/status/report-rate-limit';
 import { TrackerBuildSettingsModel } from '../../src/modules/tech/tracker-build-settings.model';
-import { getStatusOverview, runStatusChecks } from '../../src/modules/status';
 import { emailer } from '../../src/modules/email';
 import { slackNotifier } from '../../src/utils/slack';
 import { mailer } from '../../src/utils/mailer';
@@ -18,9 +17,11 @@ import type { GraphQLContext } from '../../src/middleware/auth';
 
 // Probes go through safeFetch, which resolves the host before connecting. The hosts here are
 // fictional, so resolve them to a public address.
-jest.mock('node:dns/promises', () => ({
-  lookup: jest.fn().mockResolvedValue([{ address: '93.184.215.14', family: 4 }]),
-}));
+jest.mock('node:dns/promises', () =>
+  jest
+    .requireActual<typeof import('../fixtures/publicDns')>('../fixtures/publicDns')
+    .publicDnsMock(),
+);
 
 jest.mock('../../src/utils/slack', () => ({
   slackNotifier: { sendMessage: jest.fn() },

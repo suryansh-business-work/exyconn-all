@@ -43,7 +43,7 @@ const toInitial = (row: PexelsConfigRow | null): Values => ({
   label: row?.label ?? '',
   // Never prefilled: the API does not return it, and blank keeps the stored key.
   apiKey: '',
-  isActive: row ? (row.isActive ? 'true' : 'false') : 'true',
+  isActive: row?.isActive === false ? 'false' : 'true',
 });
 
 interface PexelsConfigFormProps {

@@ -21,9 +21,18 @@ async function read(provider: string, response: Response): Promise<Json> {
       body.error_description ??
       body.message ??
       `HTTP ${response.status}`;
-    throw new SocialProviderError(provider, String(detail));
+    throw new SocialProviderError(
+      provider,
+      typeof detail === 'string' ? detail : JSON.stringify(detail),
+    );
   }
   return body;
+}
+
+/** The `Authorization` header for providers that take the app's id and secret as Basic auth. */
+export function basicAuthHeader(clientId: string, clientSecret: string): Record<string, string> {
+  const credentials = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
+  return { Authorization: `Basic ${credentials}` };
 }
 
 export async function postForm(

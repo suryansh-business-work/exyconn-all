@@ -18,9 +18,12 @@ const leaves = [
   { id: 'l1', fromDate: '2026-01-12T00:00:00', toDate: '2026-01-13T00:00:00', status: 'APPROVED' },
 ];
 
+const DEFAULT_HOLIDAY_QUERY: QueryShape = { data: { myHolidays: holidays } };
+const DEFAULT_LEAVE_QUERY: QueryShape = { data: { myLeaveRequests: leaves } };
+
 function renderCalendar(
-  holidayQuery: QueryShape = { data: { myHolidays: holidays } },
-  leaveQuery: QueryShape = { data: { myLeaveRequests: leaves } },
+  holidayQuery: QueryShape = DEFAULT_HOLIDAY_QUERY,
+  leaveQuery: QueryShape = DEFAULT_LEAVE_QUERY,
 ) {
   vi.mocked(useMyHolidaysQuery).mockReturnValue(queryResult(holidayQuery));
   vi.mocked(useMyLeaveRequestsQuery).mockReturnValue(queryResult(leaveQuery));

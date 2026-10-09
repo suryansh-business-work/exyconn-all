@@ -3,6 +3,7 @@ import {
   testPaypalKeys,
 } from '../../../../../src/modules/clienthub/payments/paypal.client';
 import { TOKEN_URL, freshKeys, json, token, useQueuedFetch } from './paypal.helpers';
+import { asArg } from '../../../../mockAs';
 
 const request = {
   amount: 120.5,
@@ -76,9 +77,7 @@ describe('createPaypalOrder', () => {
   });
 
   it('writes amounts with two decimals when the runtime reports none for the currency', async () => {
-    jest
-      .spyOn(Intl.NumberFormat.prototype, 'resolvedOptions')
-      .mockReturnValue({} as Intl.ResolvedNumberFormatOptions);
+    jest.spyOn(Intl.NumberFormat.prototype, 'resolvedOptions').mockReturnValue(asArg({}));
     queue(token(3600), json({ id: 'O', links: [{ rel: 'approve', href: 'x' }] }));
 
     await createPaypalOrder(freshKeys(), { ...request, amount: 7 });

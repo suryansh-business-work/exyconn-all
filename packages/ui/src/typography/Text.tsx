@@ -3,6 +3,7 @@ import MuiTypography, {
   type TypographyProps as MuiTypographyProps,
 } from '@mui/material/Typography';
 import { fontWeight } from '../tokens/typography.token';
+import { toSxArray } from '../layout/sx';
 
 /** Inline text size scale, mapped to a MUI Typography variant. */
 export type TextSize = 'sm' | 'md' | 'lg' | 'caption' | 'overline' | 'label';
@@ -31,10 +32,7 @@ export const Text = forwardRef<HTMLSpanElement, TextProps>(
       ref={ref}
       variant={SIZE_VARIANT[size]}
       component={component}
-      sx={[
-        weight ? { fontWeight: fontWeight[weight] } : {},
-        ...(Array.isArray(sx) ? sx : sx ? [sx] : []),
-      ]}
+      sx={[weight ? { fontWeight: fontWeight[weight] } : {}, ...toSxArray(sx)]}
       {...props}
     />
   ),

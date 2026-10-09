@@ -1,4 +1,2 @@
-import { employeeTypeDefs } from './employee.typeDefs';
-import { employeeResolvers } from './employee.resolvers';
-
-export { employeeTypeDefs, employeeResolvers };
+export { employeeTypeDefs } from './employee.typeDefs';
+export { employeeResolvers } from './employee.resolvers';

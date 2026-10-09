@@ -18,7 +18,7 @@ export function formatCell<TRow>(
   const column = columns.find((candidate) => (candidate.field ?? candidate.colId) === id);
   const format = column?.valueFormatter;
   if (typeof format !== 'function') {
-    throw new Error(`Column ${id} has no formatter`);
+    throw new TypeError(`Column ${id} has no formatter`);
   }
   return format({ data: row, context: { t: translate } } as ValueFormatterParams<TRow>);
 }

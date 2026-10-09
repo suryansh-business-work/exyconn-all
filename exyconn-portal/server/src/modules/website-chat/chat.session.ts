@@ -150,7 +150,7 @@ export async function sessionForPass(token: string) {
     return null;
   }
   const session = await ChatSessionModel.findById(claims.sessionId).lean();
-  return session && session.tokenVersion === claims.tv ? session : null;
+  return session?.tokenVersion === claims.tv ? session : null;
 }
 
 /** Reconnects a widget to its session, closed or not. */

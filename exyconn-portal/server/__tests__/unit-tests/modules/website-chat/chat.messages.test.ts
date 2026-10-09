@@ -26,7 +26,7 @@ const visitorLine = (sessionId: string, body = 'Hello?') =>
   ({ sessionId, channel: 'LIVE', sender: 'VISITOR', senderName: 'Dana', body }) as const;
 
 afterEach(() => {
-  for (const peer of [...chatHub.all()]) {
+  for (const peer of chatHub.all()) {
     chatHub.leave(peer);
   }
 });

@@ -71,11 +71,12 @@ export default function RotatePdf() {
       .filter(Boolean)) {
       if (part.includes('-')) {
         const [a, b] = part.split('-').map(Number);
-        if (isNaN(a) || isNaN(b) || a < 1 || b > pageCount || a > b) throw new Error(`Invalid range: ${part}`);
+        if (Number.isNaN(a) || Number.isNaN(b) || a < 1 || b > pageCount || a > b)
+          throw new Error(`Invalid range: ${part}`);
         for (let i = a; i <= b; i++) pages.add(i - 1);
       } else {
         const n = Number(part);
-        if (isNaN(n) || n < 1 || n > pageCount) throw new Error(`Invalid page: ${part}`);
+        if (Number.isNaN(n) || n < 1 || n > pageCount) throw new Error(`Invalid page: ${part}`);
         pages.add(n - 1);
       }
     }
@@ -146,7 +147,7 @@ export default function RotatePdf() {
                 or click to browse
               </Typography>
               <Button variant="outlined" component="label" sx={{ color: '#f97316', borderColor: '#f97316' }}>
-                Browse Files
+                {'Browse Files'}
                 <input hidden accept="application/pdf" type="file" onChange={onFileChange} />
               </Button>
             </Paper>

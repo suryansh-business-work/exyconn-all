@@ -37,6 +37,9 @@ const TestEmailDialog: React.FC<TestEmailDialogProps> = ({
   onMethodChange,
   onSend,
 }) => {
+  const idleLabel = emailMethod === 'server' ? 'Send Email' : 'Open Email Client';
+  const sendLabel = isSending ? 'Sending...' : idleLabel;
+
   return (
     <Dialog open={open} onClose={() => !isSending && onClose()} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -102,7 +105,7 @@ const TestEmailDialog: React.FC<TestEmailDialogProps> = ({
           startIcon={isSending ? <CircularProgress size={16} color="inherit" /> : <Send />}
           disabled={!testEmail || isSending}
         >
-          {isSending ? 'Sending...' : emailMethod === 'server' ? 'Send Email' : 'Open Email Client'}
+          {sendLabel}
         </Button>
       </DialogActions>
     </Dialog>

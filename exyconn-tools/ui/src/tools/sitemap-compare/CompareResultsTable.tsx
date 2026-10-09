@@ -45,7 +45,7 @@ const CompareResultsTable: React.FC<CompareResultsTableProps> = ({ result }) => 
     );
   }
 
-  const activeData = activeTab === 0 ? result.added : activeTab === 1 ? result.removed : result.modified;
+  const activeData = [result.added, result.removed, result.modified][activeTab] ?? result.modified;
   const totalCount = activeData.length;
   const paginatedData = activeData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
@@ -87,8 +87,8 @@ const CompareResultsTable: React.FC<CompareResultsTableProps> = ({ result }) => 
           </TableHead>
           <TableBody>
             {activeTab === 0 &&
-              paginatedData.map((u, i) => (
-                <TableRow key={i} hover sx={{ bgcolor: 'success.50' }}>
+              paginatedData.map((u) => (
+                <TableRow key={'loc' in u ? u.loc : ''} hover sx={{ bgcolor: 'success.50' }}>
                   <TableCell>
                     <Typography variant="body2" noWrap sx={{ maxWidth: 400 }}>
                       {'loc' in u ? u.loc : ''}
@@ -100,8 +100,8 @@ const CompareResultsTable: React.FC<CompareResultsTableProps> = ({ result }) => 
                 </TableRow>
               ))}
             {activeTab === 1 &&
-              paginatedData.map((u, i) => (
-                <TableRow key={i} hover sx={{ bgcolor: 'error.50' }}>
+              paginatedData.map((u) => (
+                <TableRow key={'loc' in u ? u.loc : ''} hover sx={{ bgcolor: 'error.50' }}>
                   <TableCell>
                     <Typography variant="body2" noWrap sx={{ maxWidth: 400 }}>
                       {'loc' in u ? u.loc : ''}
@@ -113,8 +113,8 @@ const CompareResultsTable: React.FC<CompareResultsTableProps> = ({ result }) => 
                 </TableRow>
               ))}
             {activeTab === 2 &&
-              paginatedData.map((u, i) => (
-                <TableRow key={i} hover sx={{ bgcolor: 'warning.50' }}>
+              paginatedData.map((u) => (
+                <TableRow key={'url' in u ? u.url : ''} hover sx={{ bgcolor: 'warning.50' }}>
                   <TableCell>
                     <Typography variant="body2" noWrap sx={{ maxWidth: 300 }}>
                       {'url' in u ? u.url : ''}
@@ -138,7 +138,7 @@ const CompareResultsTable: React.FC<CompareResultsTableProps> = ({ result }) => 
         onPageChange={(_, newPage) => setPage(newPage)}
         rowsPerPage={rowsPerPage}
         onRowsPerPageChange={(e) => {
-          setRowsPerPage(parseInt(e.target.value, 10));
+          setRowsPerPage(Number.parseInt(e.target.value, 10));
           setPage(0);
         }}
         rowsPerPageOptions={[10, 25, 50, 100]}

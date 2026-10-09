@@ -67,9 +67,9 @@ const TXTRecordChecker: React.FC = () => {
                     <Typography variant="body2">{(result.spf as string[])?.length || 0} record(s)</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
-                    {(result.spf as string[])?.map((r, i) => (
+                    {(result.spf as string[])?.map((r) => (
                       <Typography
-                        key={i}
+                        key={r}
                         variant="body2"
                         sx={{ fontFamily: 'monospace', fontSize: 12, mb: 1, wordBreak: 'break-all' }}
                       >
@@ -94,12 +94,12 @@ const TXTRecordChecker: React.FC = () => {
                     <Typography variant="body2">{(result.dkim as unknown[])?.length || 0} record(s)</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
-                    {(result.dkim as Array<{ selector: string; record: string[] }>)?.map((d, i) => (
-                      <Box key={i} sx={{ mb: 1 }}>
+                    {(result.dkim as Array<{ selector: string; record: string[] }>)?.map((d) => (
+                      <Box key={d.selector} sx={{ mb: 1 }}>
                         <Chip label={d.selector} size="small" variant="outlined" sx={{ mr: 1 }} />
-                        {d.record.map((r, j) => (
+                        {d.record.map((r) => (
                           <Typography
-                            key={j}
+                            key={r}
                             variant="body2"
                             sx={{ fontFamily: 'monospace', fontSize: 12, mt: 0.5, wordBreak: 'break-all' }}
                           >
@@ -126,9 +126,9 @@ const TXTRecordChecker: React.FC = () => {
                     <Typography variant="body2">{(result.dmarc as string[])?.length || 0} record(s)</Typography>
                   </AccordionSummary>
                   <AccordionDetails>
-                    {(result.dmarc as string[])?.map((r, i) => (
+                    {(result.dmarc as string[])?.map((r) => (
                       <Typography
-                        key={i}
+                        key={r}
                         variant="body2"
                         sx={{ fontFamily: 'monospace', fontSize: 12, mb: 1, wordBreak: 'break-all' }}
                       >
@@ -155,9 +155,9 @@ const TXTRecordChecker: React.FC = () => {
                     </Typography>
                   </AccordionSummary>
                   <AccordionDetails>
-                    {(result.txtRecords as string[])?.map((r, i) => (
+                    {(result.txtRecords as string[])?.map((r) => (
                       <Typography
-                        key={i}
+                        key={r}
                         variant="body2"
                         sx={{
                           fontFamily: 'monospace',

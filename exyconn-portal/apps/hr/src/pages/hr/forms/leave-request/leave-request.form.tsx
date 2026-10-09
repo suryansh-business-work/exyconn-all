@@ -46,7 +46,7 @@ interface LeaveRequestFormProps {
 }
 
 /** React Hook Form + Zod form to create/update a leave request (searchable employee). */
-export function LeaveRequestForm({ initial, onDone, onCancel }: LeaveRequestFormProps) {
+export function LeaveRequestForm({ initial, onDone, onCancel }: Readonly<LeaveRequestFormProps>) {
   const [createLeaveRequest] = useCreateLeaveRequestMutation();
   const [updateLeaveRequest] = useUpdateLeaveRequestMutation();
   const { data } = useListUsersQuery();

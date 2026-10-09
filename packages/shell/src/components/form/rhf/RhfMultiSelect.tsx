@@ -11,7 +11,12 @@ interface RhfMultiSelectProps {
 }
 
 /** React Hook Form-bound MUI multi-select rendering selected values as chips. */
-export function RhfMultiSelect({ name, label, options, helperText }: RhfMultiSelectProps) {
+export function RhfMultiSelect({
+  name,
+  label,
+  options,
+  helperText,
+}: Readonly<RhfMultiSelectProps>) {
   const { control } = useFormContext();
   const copy = useFieldCopy();
   const labelFor = (value: string) => options.find((o) => o.value === value)?.label ?? value;

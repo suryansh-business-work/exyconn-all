@@ -40,8 +40,8 @@ export function TicketTriage({
 }: Readonly<TicketTriageProps>) {
   const notify = useNotify();
   const t = useT();
-  const [setTriage, { loading }] = useSetSupportTicketTriageMutation();
-  const [triage, setTriageValue] = useState<Triage>({
+  const [saveTriage, { loading }] = useSetSupportTicketTriageMutation();
+  const [triage, setTriage] = useState<Triage>({
     category: initialCategory,
     priority: initialPriority,
     topic: initialTopic,
@@ -49,7 +49,7 @@ export function TicketTriage({
 
   const save = async (next: Triage) => {
     try {
-      await setTriage({
+      await saveTriage({
         variables: {
           id: ticketId,
           category: next.category as SupportCategory,
@@ -57,7 +57,7 @@ export function TicketTriage({
           topic: topics ? next.topic : undefined,
         },
       });
-      setTriageValue(next);
+      setTriage(next);
       notify('Ticket triage updated');
       onChanged();
     } catch (err) {

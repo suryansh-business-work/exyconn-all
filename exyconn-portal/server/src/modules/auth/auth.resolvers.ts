@@ -152,8 +152,14 @@ export const authResolvers = {
     // in. The service guards it by doing nothing once an ADMIN exists.
     sendAdminCredentials: () => authService.sendAdminCredentials(),
     // Unauthenticated by nature: both exist for people who cannot sign in.
-    requestPasswordReset: (_p: unknown, { email }: { email: string }, ctx: GraphQLContext) =>
-      requestPasswordReset(email, ctx),
+    requestPasswordReset: async (
+      _p: unknown,
+      { email }: { email: string },
+      ctx: GraphQLContext,
+    ) => {
+      await requestPasswordReset(email, ctx);
+      return true;
+    },
     resetPassword: (
       _p: unknown,
       { token, newPassword }: { token: string; newPassword: string },

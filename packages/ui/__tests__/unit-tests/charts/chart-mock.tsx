@@ -17,7 +17,7 @@ export function fakeChart(testId: string, calls: CapturedChart[]) {
 
 /** The props of the most recent render. */
 export function lastCall(calls: readonly CapturedChart[]): CapturedChart {
-  const call = calls[calls.length - 1];
+  const call = calls.at(-1);
   if (!call) {
     throw new Error('The chart was never rendered');
   }

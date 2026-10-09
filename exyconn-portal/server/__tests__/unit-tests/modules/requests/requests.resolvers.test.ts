@@ -4,6 +4,7 @@ import { NotificationModel } from '../../../../src/modules/notifications';
 import { ROLES } from '../../../../src/constants/roles';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
 import { codeOf } from '../codeOf';
+import { asArg } from '../../../mockAs';
 
 type Resolver = (p: unknown, a: unknown, c: GraphQLContext) => Promise<unknown>;
 const createMyRequest = requestsResolvers.Mutation.createMyRequest as unknown as Resolver;
@@ -157,7 +158,7 @@ describe('deciding a request', () => {
     const row = await raise(EMP);
     jest
       .spyOn(EmployeeRequestModel, 'findByIdAndUpdate')
-      .mockReturnValueOnce({ lean: async () => null } as never);
+      .mockReturnValueOnce(asArg({ lean: async () => null }));
 
     await expect(
       codeOf(decideRequest(null, { id: String(row._id), status: 'APPROVED' }, ctx(HR, [ROLES.HR]))),

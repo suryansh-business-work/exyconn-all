@@ -1,4 +1,5 @@
 import { isValidObjectId, type FilterQuery } from 'mongoose';
+import { stringOf } from '../../utils/serialize';
 import { AuditLogModel, type AuditAction, type AuditLogDocument } from './audit.model';
 import { UserModel } from '../admin/user.model';
 import { logger } from '../../utils/logger';
@@ -143,7 +144,7 @@ export async function recordAudit(ctx: GraphQLContext, entry: AuditEntry): Promi
       actorEmail: actor?.email ?? '',
       action: entry.action,
       module: entry.module,
-      entityId: entry.entityId === undefined ? '' : String(entry.entityId),
+      entityId: entry.entityId === undefined ? '' : stringOf(entry.entityId),
       entityLabel: entry.entityLabel ?? '',
       summary: entry.summary,
       changes: changes ? JSON.stringify(changes) : '',

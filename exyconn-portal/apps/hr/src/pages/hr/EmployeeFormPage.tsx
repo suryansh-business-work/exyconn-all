@@ -5,7 +5,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 
 import { useGetUserQuery } from '@exyconn/shell/graphql/generated';
-import { UserForm, type UserRow } from '@exyconn/shell/pages/user-forms/user';
+import { UserForm } from '@exyconn/shell/pages/user-forms/user';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
 
 const RECORDS_PATH = '/hr/employees';
@@ -29,7 +29,7 @@ export function EmployeeFormPage() {
     fetchPolicy: 'cache-and-network',
   });
 
-  const initial = (data?.getUser ?? null) as UserRow | null;
+  const initial = data?.getUser ?? null;
   const done = () => navigate(isEdit ? `${RECORDS_PATH}/${id}` : RECORDS_PATH);
 
   return (

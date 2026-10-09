@@ -12,13 +12,10 @@ interface OfferStatusAlertProps {
 export function OfferStatusAlert({ status, success, failed }: Readonly<OfferStatusAlertProps>) {
   if (status === "success") {
     return (
-      <div
-        role="status"
-        className={`${BANNER} border-green-muted bg-green-subtle text-green-fg-strong`}
-      >
+      <output className={`${BANNER} border-green-muted bg-green-subtle text-green-fg-strong`}>
         <i className="fa-solid fa-circle-check" aria-hidden="true"></i>
         <span>{success}</span>
-      </div>
+      </output>
     );
   }
   if (status === "error") {

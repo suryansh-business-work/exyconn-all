@@ -9,7 +9,9 @@ const INDUSTRIES = [
   { key: 'salon', industry: 'Beauty' },
 ];
 
-function mount(values = { industry: ANY, status: ANY }) {
+const ANY_FILTERS = { industry: ANY, status: ANY };
+
+function mount(values = ANY_FILTERS) {
   const onChange = vi.fn();
   const user = userEvent.setup();
   renderWithProviders(

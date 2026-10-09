@@ -16,10 +16,8 @@ const ROOTS = [join(REPO_ROOT, 'packages'), join(REPO_ROOT, 'exyconn-portal/apps
 const SKIP = new Set(['node_modules', 'dist', 'coverage', '.turbo', 'cypress']);
 
 /** The sx shorthands and the props that take a spacing factor. */
-const SX_SPACING =
-  /\b(?:p|px|py|pt|pb|pl|pr|m|mx|my|mt|mb|ml|mr|gap|rowGap|columnGap): ?(\d+(?:\.\d+)?)\b/g;
-const SX_RESPONSIVE =
-  /\b(?:p|px|py|pt|pb|pl|pr|m|mx|my|mt|mb|ml|mr|gap|rowGap|columnGap): \{([^}]*)\}/g;
+const SX_SPACING = /\b(?:[pm][xytblr]?|gap|rowGap|columnGap): ?(\d+(?:\.\d+)?)\b/g;
+const SX_RESPONSIVE = /\b(?:[pm][xytblr]?|gap|rowGap|columnGap): \{([^}]*)\}/g;
 const BREAKPOINT_VALUE = /\b(?:xs|sm|md|lg|xl): ?(\d+(?:\.\d+)?)\b/g;
 const SPACING_PROP = /spacing=\{(\d+(?:\.\d+)?)\}/g;
 

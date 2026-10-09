@@ -1,5 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 
+const isUpdater = <T>(value: T | ((prev: T) => T)): value is (prev: T) => T => typeof value === 'function';
+
 export function useLocalStorage<T>(
   key: string,
   initialValue: T
@@ -7,7 +9,7 @@ export function useLocalStorage<T>(
   // Get stored value or use initial value
   const getStoredValue = useCallback((): T => {
     try {
-      const item = window.localStorage.getItem(key);
+      const item = globalThis.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
     } catch (error) {
       console.warn(`Error reading localStorage key "${key}":`, error);
@@ -21,9 +23,9 @@ export function useLocalStorage<T>(
   const setValue = useCallback(
     (value: T | ((prev: T) => T)) => {
       try {
-        const valueToStore = value instanceof Function ? value(storedValue) : value;
+        const valueToStore = isUpdater(value) ? value(storedValue) : value;
         setStoredValue(valueToStore);
-        window.localStorage.setItem(key, JSON.stringify(valueToStore));
+        globalThis.localStorage.setItem(key, JSON.stringify(valueToStore));
       } catch (error) {
         console.warn(`Error setting localStorage key "${key}":`, error);
       }
@@ -34,7 +36,7 @@ export function useLocalStorage<T>(
   // Clear the stored value
   const clearValue = useCallback(() => {
     try {
-      window.localStorage.removeItem(key);
+      globalThis.localStorage.removeItem(key);
       setStoredValue(initialValue);
     } catch (error) {
       console.warn(`Error clearing localStorage key "${key}":`, error);
@@ -53,8 +55,8 @@ export function useLocalStorage<T>(
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    globalThis.addEventListener('storage', handleStorageChange);
+    return () => globalThis.removeEventListener('storage', handleStorageChange);
   }, [key]);
 
   return [storedValue, setValue, clearValue];

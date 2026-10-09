@@ -32,7 +32,6 @@ const platformServices = platform.services;
 const portfolioGroups = cmsDefaults<{ groups: { services: { href: string }[] }[] }>(
   "company.link-rows"
 ).groups;
-import { isShapeId } from "../../src/scripts/stage3d/shapes/registry";
 
 const service = (overrides: Partial<PlatformService>): PlatformService => ({
   id: "x",

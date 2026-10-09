@@ -1,6 +1,5 @@
 import { OrganizationModel, type TaxSystem } from '../modules/organizations/organization.model';
-import { currentOrganizationId, runAsPlatform } from './tenant';
-import { TenantScopeError } from './tenant';
+import { currentOrganizationId, runAsPlatform, TenantScopeError } from './tenant';
 
 /** What a company writes its paperwork in, and whose tax rules it follows. */
 export interface CompanyProfile {

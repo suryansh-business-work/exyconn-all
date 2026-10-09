@@ -1,4 +1,4 @@
-import { Schema, model, Types, type InferSchemaType, type Model } from 'mongoose';
+import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
 
 /** What a ticket is. Mirrors the issue types a board is normally organised around. */
 export const TASK_TYPES = ['TASK', 'STORY', 'BUG', 'EPIC'] as const;
@@ -134,4 +134,4 @@ export const TaskActivityModel: Model<TaskActivityDocument> = model<TaskActivity
   taskActivitySchema,
 );
 
-export { Types };
+export { Types } from 'mongoose';

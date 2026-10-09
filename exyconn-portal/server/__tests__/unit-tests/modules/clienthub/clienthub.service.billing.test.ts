@@ -6,6 +6,7 @@ import { PaymentModel } from '../../../../src/modules/finance/payment.model';
 import { emailInvoice, renderInvoice } from '../../../../src/modules/finance/invoice.send';
 import type { ClientHubContact } from '../../../../src/modules/clienthub/clienthub.auth';
 import { useTestOrganization } from '../../../helpers';
+import { asArg } from '../../../mockAs';
 
 jest.mock('../../../../src/modules/finance/invoice.send', () => ({
   ...jest.requireActual('../../../../src/modules/finance/invoice.send'),
@@ -96,7 +97,7 @@ describe('ownInvoice', () => {
 describe('invoicePdf and emailInvoice', () => {
   it('returns the rendered PDF as base64', async () => {
     const sent = await invoice({});
-    jest.mocked(renderInvoice).mockResolvedValue({ pdf: Buffer.from('%PDF') } as never);
+    jest.mocked(renderInvoice).mockResolvedValue(asArg({ pdf: Buffer.from('%PDF') }));
 
     expect(await clientHubService.invoicePdf(contact, String(sent._id))).toBe(
       Buffer.from('%PDF').toString('base64'),

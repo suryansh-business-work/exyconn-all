@@ -16,10 +16,15 @@ const ImageUpload: React.FC<Props> = ({ onImageUpload, onDelete, currentImage })
   const [showEraser, setShowEraser] = useState(false);
   const [showBgRemovalDialog, setShowBgRemovalDialog] = useState(false);
 
-  const handleFile = (file: File) => {
+  const handleFile = (file?: File) => {
     if (file?.type.startsWith('image/')) {
       const reader = new FileReader();
-      reader.onload = (e) => e.target?.result && onImageUpload(e.target.result as string);
+      reader.onload = (e) => {
+        const result = e.target?.result;
+        if (typeof result === 'string' && result) {
+          onImageUpload(result);
+        }
+      };
       reader.readAsDataURL(file);
     }
   };
@@ -38,6 +43,9 @@ const ImageUpload: React.FC<Props> = ({ onImageUpload, onDelete, currentImage })
   const handleBgRemovalSuccess = (processedImage: string) => {
     onImageUpload(processedImage);
   };
+
+  const idleBorderColor = currentImage ? 'success.main' : 'divider';
+  const dropBorderColor = isDragging ? 'primary.main' : idleBorderColor;
 
   return (
     <Paper elevation={0} sx={{ p: 1.5, border: 1, borderColor: 'divider' }}>
@@ -87,7 +95,7 @@ const ImageUpload: React.FC<Props> = ({ onImageUpload, onDelete, currentImage })
           textAlign: 'center',
           cursor: 'pointer',
           transition: 'all 0.2s',
-          borderColor: isDragging ? 'primary.main' : currentImage ? 'success.main' : 'divider',
+          borderColor: dropBorderColor,
           bgcolor: isDragging ? 'action.hover' : 'transparent',
           '&:hover': { borderColor: 'primary.main', bgcolor: 'action.hover' },
         }}
@@ -97,7 +105,7 @@ const ImageUpload: React.FC<Props> = ({ onImageUpload, onDelete, currentImage })
           type="file"
           accept="image/*"
           hidden
-          onChange={(e) => handleFile(e.target.files?.[0]!)}
+          onChange={(e) => handleFile(e.target.files?.[0])}
         />
 
         {currentImage ? (

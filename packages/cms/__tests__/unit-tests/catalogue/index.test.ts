@@ -50,7 +50,7 @@ describe('CMS_COMPONENTS', () => {
   it.each(AREAS)('gives every %s entry a key prefixed with its area', (area, components) => {
     expect(components.length).toBeGreaterThan(0);
     for (const component of components) {
-      expect(component.key).toMatch(new RegExp(`^${area}\\.[a-z][a-z-]*$`));
+      expect(component.key).toMatch(new RegExp(String.raw`^${area}\.[a-z][a-z-]*$`));
     }
   });
 

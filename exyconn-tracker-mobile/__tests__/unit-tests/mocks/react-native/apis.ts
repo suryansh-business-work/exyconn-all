@@ -116,7 +116,7 @@ export const I18nManager = { isRTL: false, allowRTL: vi.fn(), forceRTL: vi.fn() 
 export const InteractionManager = {
   runAfterInteractions: vi.fn((task?: () => void) => {
     task?.();
-    return { cancel: vi.fn(), then: (done: () => void) => done() };
+    return Object.assign(Promise.resolve(), { cancel: vi.fn() });
   }),
 };
 

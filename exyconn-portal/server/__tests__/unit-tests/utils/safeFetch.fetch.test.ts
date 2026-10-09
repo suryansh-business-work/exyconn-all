@@ -1,5 +1,6 @@
 import { lookup } from 'node:dns/promises';
 import { UnsafeUrlError, safeFetch } from '../../../src/utils/safeFetch';
+import ips from '../../fixtures/ips.json';
 
 jest.mock('node:dns/promises', () => ({ lookup: jest.fn() }));
 
@@ -16,7 +17,7 @@ function hop(index: number): { url: string; init: RequestInit } {
 }
 
 beforeEach(() => {
-  lookupMock.mockResolvedValue([{ address: '93.184.216.34', family: 4 }]);
+  lookupMock.mockResolvedValue([{ address: ips.ip93_184_216_34, family: 4 }]);
   fetchMock = jest.spyOn(globalThis, 'fetch');
 });
 
@@ -71,8 +72,8 @@ describe('safeFetch', () => {
   it('refuses a redirect that points at a private address', async () => {
     fetchMock.mockResolvedValueOnce(redirect(301, 'https://internal.test/admin'));
     lookupMock
-      .mockResolvedValueOnce([{ address: '93.184.216.34', family: 4 }])
-      .mockResolvedValueOnce([{ address: '169.254.169.254', family: 4 }]);
+      .mockResolvedValueOnce([{ address: ips.ip93_184_216_34, family: 4 }])
+      .mockResolvedValueOnce([{ address: ips.ip169_254_169_254, family: 4 }]);
     await expect(safeFetch('https://example.com')).rejects.toThrow(
       'The host internal.test is not a public internet address',
     );

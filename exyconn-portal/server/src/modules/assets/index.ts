@@ -1,5 +1,4 @@
 import { AssetModel } from './asset.model';
-import { assetsTypeDefs } from './assets.typeDefs';
 import { assignmentsFor, syncAssignment, type AssetHolder } from './assignments';
 import { LicenceModel } from './licence.model';
 import { createCrudService } from '../../lib/crudService';
@@ -124,6 +123,7 @@ export const assetsResolvers = {
   Mutation: { ...crud.Mutation, createAsset, updateAsset },
 };
 
-export { assetsTypeDefs, AssetModel };
+export { assetsTypeDefs } from './assets.typeDefs';
+export { AssetModel } from './asset.model';
 export { licencesTypeDefs } from './licences.typeDefs';
 export { licencesResolvers, licencesService } from './licences';

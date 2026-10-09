@@ -16,12 +16,12 @@ afterEach(() => resetVisitorForms());
 
 describe("visitorAddress", () => {
   it("takes the last hop, the one nginx appended", () => {
-    expect(visitorAddress(request("1.1.1.1, 2.2.2.2 , 3.3.3.3"))).toBe("3.3.3.3");
-    expect(visitorAddress(request("9.9.9.9"))).toBe("9.9.9.9");
+    expect(visitorAddress(request("192.0.2.1, 192.0.2.2 , 192.0.2.3"))).toBe("192.0.2.3");
+    expect(visitorAddress(request("192.0.2.9"))).toBe("192.0.2.9");
   });
 
   it("ignores empty hops", () => {
-    expect(visitorAddress(request("1.1.1.1, ,"))).toBe("1.1.1.1");
+    expect(visitorAddress(request("192.0.2.1, ,"))).toBe("192.0.2.1");
   });
 
   it("is unknown without the header", () => {

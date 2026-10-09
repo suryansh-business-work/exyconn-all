@@ -53,12 +53,7 @@ export const createHeavyLimiter = () =>
     message: TRY_LATER,
   });
 
-export const createUploadLimiter = () =>
-  createLimiter({
-    windowMs: FIFTEEN_MINUTES_MS,
-    limit: 20,
-    message: TRY_LATER,
-  });
+export const createUploadLimiter = createHeavyLimiter;
 
 export const createSignatureEmailLimiters = (): RequestHandler[] => [
   createLimiter({

@@ -20,7 +20,15 @@ const EVERYONE = 'every employee with tracker access';
 const fill = (label: string, value: string) =>
   fireEvent.change(screen.getByLabelText(label), { target: { value } });
 const press = (name: string) => userEvent.click(screen.getByRole('button', { name }));
-const toast = () => screen.findByRole('alert', { hidden: true });
+/** The snackbar's alert; the form's own info banner is an alert too, so it is picked by container. */
+const toast = () =>
+  waitFor(() => {
+    const alert = document.querySelector('.MuiSnackbar-root [role="alert"]');
+    if (!(alert instanceof HTMLElement)) {
+      throw new TypeError('The snackbar has not appeared');
+    }
+    return alert;
+  });
 
 /** Fills a valid notice, submits it and answers the confirmation; returns the dialog's text. */
 async function submitAndAnswer(answer: 'Send' | 'Cancel') {

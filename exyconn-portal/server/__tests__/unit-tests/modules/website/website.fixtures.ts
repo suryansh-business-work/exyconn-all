@@ -31,10 +31,12 @@ export const customerEditorCtx = (): GraphQLContext => {
   };
 };
 
+const CONTACT_SUBMISSION: Record<string, unknown> = { email: 'visitor@example.com' };
+
 /** Files a submission straight into the inbox, the way the public mutation leaves one. */
 export const seedSubmission = (
   formType = 'contact',
-  submissionData: Record<string, unknown> = { email: 'visitor@example.com' },
+  submissionData: Record<string, unknown> = CONTACT_SUBMISSION,
   extra: Record<string, unknown> = {},
 ) => WebsiteSubmissionModel.create({ formType, submissionData, ...extra });
 

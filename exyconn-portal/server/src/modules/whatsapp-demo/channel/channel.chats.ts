@@ -1,6 +1,11 @@
 import { randomBytes } from 'node:crypto';
-import type { ChatState, PendingPush, RenderedOption } from '@exyconn/wa-flow';
-import { toDemoBundle, type CatalogWarn } from '@exyconn/wa-flow';
+import {
+  toDemoBundle,
+  type CatalogWarn,
+  type ChatState,
+  type PendingPush,
+  type RenderedOption,
+} from '@exyconn/wa-flow';
 import type { DemoBundle } from '@exyconn/wa-flow/engine';
 import { WhatsappChatModel } from './chat.model';
 import { catalog } from '../whatsappDemo.service';

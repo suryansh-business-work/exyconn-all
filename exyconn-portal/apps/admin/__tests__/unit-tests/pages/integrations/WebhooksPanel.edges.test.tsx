@@ -50,11 +50,12 @@ const mount = () => {
 };
 
 describe('WebhooksPanel when the layers below misbehave', () => {
-  it('renders an empty table and no event chips when the list failed to load', () => {
+  it('renders the empty state and no event chips when the list failed to load', () => {
     hooks.list = { data: undefined, loading: false };
     mount();
     expect(screen.queryByRole('progressbar')).toBeNull();
-    expect(screen.getAllByRole('row')).toHaveLength(1);
+    expect(screen.getByText('No webhook endpoints yet.')).toBeInTheDocument();
+    expect(screen.queryAllByRole('row')).toHaveLength(0);
   });
 
   it('falls back to its own words for a create that rejects with a non-Error', async () => {
@@ -95,7 +96,7 @@ describe('WebhooksPanel when the layers below misbehave', () => {
       expect(hooks.notify).toHaveBeenCalledWith('Could not change the endpoint', 'error'),
     );
     expect(hooks.setActive).toHaveBeenCalledWith({ variables: { id: 'hook-1', active: false } });
-    await user.click(screen.getByRole('button', { name: 'Delete' }));
+    await user.click(screen.getByRole('button', { name: 'delete' }));
     await waitFor(() =>
       expect(hooks.notify).toHaveBeenCalledWith('Could not delete the endpoint', 'error'),
     );
@@ -107,7 +108,7 @@ describe('WebhooksPanel when the layers below misbehave', () => {
     const broken = new Error('no dialog');
     hooks.confirm.mockRejectedValue(broken);
     const user = mount();
-    await user.click(screen.getByRole('button', { name: 'Delete' }));
+    await user.click(screen.getByRole('button', { name: 'delete' }));
     await waitFor(() => expect(logged).toHaveBeenCalledWith('Delete', broken));
     expect(hooks.deleteWebhook).not.toHaveBeenCalled();
   });

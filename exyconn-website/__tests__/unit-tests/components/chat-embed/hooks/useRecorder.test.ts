@@ -75,7 +75,9 @@ describe("useRecorder", () => {
 
   it("reports a note that fails to finish", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
-    recording(async () => Promise.reject(new Error("encoder")));
+    recording(async () => {
+      throw new Error("encoder");
+    });
     const view = mount();
     await started(view);
     await act(async () => view.result.current.stop());

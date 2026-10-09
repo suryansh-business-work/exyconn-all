@@ -1,5 +1,4 @@
-import { NotificationModel } from '../../src/modules/notifications';
-import { notificationsResolvers } from '../../src/modules/notifications';
+import { NotificationModel, notificationsResolvers } from '../../src/modules/notifications';
 import { UserModel } from '../../src/modules/admin/user.model';
 import { ROLES } from '../../src/constants/roles';
 import { seedUser } from '../helpers';

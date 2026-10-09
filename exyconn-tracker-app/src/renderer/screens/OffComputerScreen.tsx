@@ -67,7 +67,7 @@ export default function OffComputerScreen({ projects, timezone }: Readonly<Props
     withdrawal
       .perform(
         entry.id,
-        () => window.tracker.withdrawManualEntry(entry.id),
+        () => globalThis.tracker.withdrawManualEntry(entry.id),
         t('The claim could not be withdrawn.'),
       )
       .then((done) => {

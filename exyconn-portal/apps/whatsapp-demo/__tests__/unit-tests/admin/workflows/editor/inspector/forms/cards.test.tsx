@@ -28,11 +28,12 @@ describe('Product form', () => {
   });
 
   it('takes a {{var}} price and rejects an empty one', async () => {
-    // A price is `number | template`; an empty one fails both, which Zod reports as a union.
+    // A price is `number | template`; an empty one fails both, and the resolver reports the
+    // first branch's error (the form's own message for a wrong type).
     const { user, onApply } = renderNodeForm(makeNode('product'));
     await user.clear(textbox('Price (₹)'));
     await user.click(screen.getByRole('button', { name: 'Apply' }));
-    expect(await screen.findByText('Invalid input')).toBeInTheDocument();
+    expect(await screen.findByText('Enter a valid value')).toBeInTheDocument();
     expect(onApply).not.toHaveBeenCalled();
     await replaceText(user, textbox('Price (₹)'), '{{fee}}');
     const data = (await applyForm(user, onApply)) as { product: { price: unknown } };

@@ -30,7 +30,12 @@ const SSLExpiryMonitor: React.FC = () => {
     }
   };
 
-  const statusColor = (s: string) => (s === 'valid' ? 'success' : s === 'warning' ? 'warning' : 'error');
+  const statusColor = (s: string) => {
+    if (s === 'valid') {
+      return 'success';
+    }
+    return s === 'warning' ? 'warning' : 'error';
+  };
 
   return (
     <ToolLayout toolName="SSL Expiry Monitor" toolIcon={<Timer />} toolColor="#f97316">

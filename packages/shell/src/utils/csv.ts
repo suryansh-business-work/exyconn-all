@@ -1,3 +1,5 @@
+import { cellText } from './cellText';
+
 export interface CsvColumn<Row> {
   header: string;
   value: (row: Row) => unknown;
@@ -12,7 +14,7 @@ const FORMULA_START = /^[=+\-@\t\r]/;
 /** RFC 4180 quoting: wrap when the cell holds a comma, quote or line break; double the quotes. */
 function cell(value: unknown): string {
   if (value === null || value === undefined) return '';
-  const raw = value instanceof Date ? value.toISOString() : String(value);
+  const raw = value instanceof Date ? value.toISOString() : cellText(value);
   const text = typeof value !== 'number' && FORMULA_START.test(raw) ? `'${raw}` : raw;
   return /[",\r\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
 }

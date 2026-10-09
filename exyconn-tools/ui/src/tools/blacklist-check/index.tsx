@@ -18,6 +18,7 @@ import { GppBad } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { DomainInputForm, DomainResultDisplay } from '../../shared/components/DomainToolShared';
 import { APIs } from '../../shared/config/apis';
+import { withUniqueKeys } from '../../shared/utils/uniqueKeys';
 
 const BlacklistCheck: React.FC = () => {
   const [result, setResult] = useState<Record<string, unknown> | null>(null);
@@ -98,8 +99,11 @@ const BlacklistCheck: React.FC = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {(result.results as Array<{ blacklist: string; listed: boolean }>)?.map((r, i) => (
-                        <TableRow key={i}>
+                      {withUniqueKeys(
+                        (result.results ?? []) as Array<{ blacklist: string; listed: boolean }>,
+                        (r) => r.blacklist
+                      ).map(({ key, item: r }) => (
+                        <TableRow key={key}>
                           <TableCell sx={{ fontFamily: 'monospace' }}>{r.blacklist}</TableCell>
                           <TableCell>
                             <Chip

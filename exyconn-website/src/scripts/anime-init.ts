@@ -29,10 +29,9 @@ const PRESETS: Record<AnimeName, Record<string, unknown>> = {
 };
 
 function isMotionDisabled(): boolean {
-  if (typeof window === "undefined") return true;
-  if (document.documentElement.getAttribute("data-a11y-motion") === "on") return true;
-  if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)
-    return true;
+  if (globalThis.window === undefined) return true;
+  if (document.documentElement.dataset.a11yMotion === "on") return true;
+  if (globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return true;
   return false;
 }
 
@@ -80,7 +79,7 @@ function playStagger(el: HTMLElement) {
 }
 
 function init() {
-  if (typeof window === "undefined") return;
+  if (globalThis.window === undefined) return;
 
   const singles = Array.from(document.querySelectorAll<HTMLElement>("[data-anime]"));
   const staggered = Array.from(document.querySelectorAll<HTMLElement>("[data-anime-stagger]"));
@@ -97,7 +96,7 @@ function init() {
   // Pre-hide
   singles.forEach((el) => setInitialHidden(el, (el.dataset.anime as AnimeName) || "fade-up"));
 
-  if (!("IntersectionObserver" in window)) {
+  if (!("IntersectionObserver" in globalThis)) {
     // Fallback: animate immediately
     singles.forEach(playSingle);
     staggered.forEach(playStagger);
@@ -110,8 +109,8 @@ function init() {
         if (!entry.isIntersecting) return;
         const el = entry.target as HTMLElement;
         io.unobserve(el);
-        if (el.hasAttribute("data-anime-stagger")) playStagger(el);
-        else playSingle(el);
+        if (el.dataset.animeStagger === undefined) playSingle(el);
+        else playStagger(el);
       });
     },
     { rootMargin: "0px 0px -10% 0px", threshold: 0.05 }

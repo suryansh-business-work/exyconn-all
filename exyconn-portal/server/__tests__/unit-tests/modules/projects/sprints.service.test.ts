@@ -4,6 +4,7 @@ import { SprintModel } from '../../../../src/modules/projects/sprints.model';
 import { TaskModel } from '../../../../src/modules/projects/board.model';
 import { codeOf } from '../codeOf';
 import { missingId, newProject } from './projects.fixtures';
+import { asArg } from '../../../mockAs';
 
 const day = (iso: string) => new Date(`${iso}T00:00:00.000Z`);
 
@@ -21,7 +22,7 @@ const looseTicket = (projectId: string, title: string, sprintId: string | null =
 const vanishOnWrite = () =>
   jest
     .spyOn(SprintModel, 'findByIdAndUpdate')
-    .mockReturnValueOnce({ lean: () => Promise.resolve(null) } as never);
+    .mockReturnValueOnce(asArg({ lean: () => Promise.resolve(null) }));
 
 afterEach(() => jest.restoreAllMocks());
 

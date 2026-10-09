@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { ROLES } from '../../../src/constants/roles';
+import { asArg } from '../../mockAs';
 
 type UserModule = typeof import('../../../src/modules/admin/user.model');
 type SettingsModule = typeof import('../../../src/modules/admin/settings.model');
@@ -65,7 +66,7 @@ async function runSeed(): Promise<void> {
 const infoLines = () => mockLogger.info.mock.calls.map(([line]) => line);
 
 beforeEach(() => {
-  exit = jest.spyOn(process, 'exit').mockImplementation((() => undefined) as never);
+  exit = jest.spyOn(process, 'exit').mockImplementation(asArg(() => undefined));
   mockEnv.seedAdmin.password = randomUUID();
   for (const step of Object.values(mockSteps)) {
     step.mockResolvedValue(undefined);

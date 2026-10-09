@@ -1,5 +1,4 @@
 import { NotificationModel } from './notification.model';
-import { notificationsTypeDefs } from './notifications.typeDefs';
 import { createMyRecordsResolver } from '../../lib/employeeScope';
 import { assertAuthenticated, assertRole } from '../../middleware/roleGuard';
 import { ROLES } from '../../constants/roles';
@@ -57,7 +56,8 @@ export const notificationsResolvers = {
     },
   },
 };
-export { notificationsTypeDefs, NotificationModel };
+export { notificationsTypeDefs } from './notifications.typeDefs';
+export { NotificationModel } from './notification.model';
 export { notify, notifyBestEffort, notifyEveryone } from './notifications.service';
 export { deliver } from './delivery';
 export { readPreferences, setPreference, channelsFor } from './preferences.service';

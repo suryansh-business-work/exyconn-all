@@ -2,7 +2,7 @@ import { defineConfig } from "astro/config"
 import tailwindcss from "@tailwindcss/vite";
 import node from '@astrojs/node';
 import react from '@astrojs/react';
-import { execSync } from 'child_process';
+import { execSync } from 'node:child_process';
 import pkg from './package.json' with { type: 'json' };
 import { TOOLS_SITE_URL } from './src/lib/site.ts';
 

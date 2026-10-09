@@ -64,7 +64,6 @@ export function DesignSystemForm({
             basePath={basePath}
             items={designTabs(design.siteId)}
             ariaLabel="Design token groups"
-            sx={{ mb: 2 }}
           />
         </Grid>
         <Grid size={{ xs: 12, lg: 4 }}>

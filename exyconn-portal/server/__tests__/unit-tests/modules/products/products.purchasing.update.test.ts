@@ -8,17 +8,17 @@ import { M, buyer, orderInput, seedCatalogue, type OrderRow } from './purchasing
 
 beforeEach(() => invalidatePermissionCache());
 
-describe('updatePurchaseOrder', () => {
-  async function seedOrder() {
-    const { supplierId, productId } = await seedCatalogue();
-    const order = (await M.createPurchaseOrder(
-      null,
-      { input: orderInput(supplierId, productId) },
-      buyer,
-    )) as OrderRow;
-    return { supplierId, productId, order };
-  }
+async function seedOrder() {
+  const { supplierId, productId } = await seedCatalogue();
+  const order = (await M.createPurchaseOrder(
+    null,
+    { input: orderInput(supplierId, productId) },
+    buyer,
+  )) as OrderRow;
+  return { supplierId, productId, order };
+}
 
+describe('updatePurchaseOrder', () => {
   it('rewrites the lines but keeps the drawn number', async () => {
     const { supplierId, productId, order } = await seedOrder();
 

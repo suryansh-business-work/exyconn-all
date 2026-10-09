@@ -30,8 +30,8 @@ const RecommendationsSection: React.FC<RecommendationsSectionProps> = ({ recomme
       </Typography>
       <Box sx={{ mt: 1 }}>
         {recommendations.length > 0 ? (
-          recommendations.map((rec, i) => (
-            <Box key={i} sx={{ display: 'flex', gap: 1, alignItems: 'flex-start', mb: 1 }}>
+          recommendations.map((rec) => (
+            <Box key={rec} sx={{ display: 'flex', gap: 1, alignItems: 'flex-start', mb: 1 }}>
               {getIcon(rec)}
               <Typography variant="body2">{rec}</Typography>
             </Box>

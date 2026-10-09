@@ -20,12 +20,7 @@ const TABS: TabberItem[] = [
 export function LeaveSettingsPage() {
   return (
     <Box>
-      <Tabber
-        basePath={LEAVE_SETTINGS_PATH}
-        items={TABS}
-        ariaLabel="Leave settings"
-        sx={{ mb: 2 }}
-      />
+      <Tabber basePath={LEAVE_SETTINGS_PATH} items={TABS} ariaLabel="Leave settings" />
     </Box>
   );
 }

@@ -167,7 +167,7 @@ describe('createCrudResolvers mutations', () => {
 
   it('labels a row by the configured fields when it has no usual one', async () => {
     const { mutation, service } = build({ labelFields: ['vendor'] });
-    service.get.mockResolvedValueOnce({ _id: 'b1', vendor: 'Acme' } as never);
+    service.get.mockResolvedValueOnce({ _id: 'b1', vendor: 'Acme' });
     await expect(mutation.deleteBudget(null, { id: 'b1' }, admin)).resolves.toBe(true);
     expect(service.remove).toHaveBeenCalledWith('b1');
     expect(recordAudit).toHaveBeenCalledWith(admin, {

@@ -15,7 +15,7 @@ type RowProps = {
 };
 
 /** A single label/value line in the salary breakdown. */
-function Row({ label, value, strong, tone }: RowProps) {
+function Row({ label, value, strong, tone }: Readonly<RowProps>) {
   return (
     <Flex direction="row" justifyContent="space-between" alignItems="center" sx={{ py: 1 }}>
       <Text color="text.secondary">{label}</Text>
@@ -38,15 +38,7 @@ export function PayrollPage() {
     <Box>
       <PageHeader title="Payroll" subtitle="Your current monthly salary structure" />
 
-      {!p ? (
-        <Box sx={readingPanel}>
-          {loading ? (
-            <Text>{t('Loading…')}</Text>
-          ) : (
-            <Text color="text.secondary">{t('No salary structure on file yet.')}</Text>
-          )}
-        </Box>
-      ) : (
+      {p ? (
         <Card sx={{ maxWidth: 520 }}>
           <CardHeader
             title={<Heading level={5}>{t('Monthly salary')}</Heading>}
@@ -76,6 +68,14 @@ export function PayrollPage() {
             </Flex>
           </Box>
         </Card>
+      ) : (
+        <Box sx={readingPanel}>
+          {loading ? (
+            <Text>{t('Loading…')}</Text>
+          ) : (
+            <Text color="text.secondary">{t('No salary structure on file yet.')}</Text>
+          )}
+        </Box>
       )}
     </Box>
   );

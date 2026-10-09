@@ -36,7 +36,7 @@ const ctxFor = (roles: Role[], organizationId: string | null, id = String(new Ty
   }) as GraphQLContext;
 
 afterEach(() => {
-  for (const peer of [...chatHub.all()]) {
+  for (const peer of chatHub.all()) {
     chatHub.leave(peer);
   }
 });

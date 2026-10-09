@@ -1,5 +1,6 @@
 export const SERVICE_UNAVAILABLE = 'SERVICE_UNAVAILABLE';
-export const INCORRECT_PASSWORD = 'INCORRECT_PASSWORD';
+const UNLOCK_REJECTED = 'INCORRECT_PASSWORD';
+export { UNLOCK_REJECTED as INCORRECT_PASSWORD };
 
 export const formatSize = (b: number): string =>
   b < 1024 * 1024 ? `${(b / 1024).toFixed(1)} KB` : `${(b / (1024 * 1024)).toFixed(2)} MB`;
@@ -24,7 +25,7 @@ export const requestUnlockedPdf = async (url: string, file: File, password: stri
   formData.append('password', password);
   const res = await fetch(url, { method: 'POST', body: formData });
   if (res.status === 503) throw new Error(SERVICE_UNAVAILABLE);
-  if (res.status === 400) throw new Error(INCORRECT_PASSWORD);
+  if (res.status === 400) throw new Error(UNLOCK_REJECTED);
   if (!res.ok) throw new Error(await readErrorMessage(res));
   return res.blob();
 };

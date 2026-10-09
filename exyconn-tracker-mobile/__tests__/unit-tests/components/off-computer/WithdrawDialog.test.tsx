@@ -37,6 +37,9 @@ beforeEach(() => {
   vi.spyOn(console, 'error').mockImplementation(() => undefined);
 });
 
+/** An error that carries no text, so the screen has to fall back to its own words. */
+const NO_MESSAGE = '';
+
 describe('WithdrawDialog', () => {
   it('stays closed while no claim is being withdrawn', () => {
     renderWithProviders(
@@ -111,7 +114,7 @@ describe('WithdrawDialog', () => {
   });
 
   it('falls back to its own sentence when the failure says nothing', async () => {
-    vi.mocked(tracker.withdrawManualEntry).mockRejectedValue(new Error(''));
+    vi.mocked(tracker.withdrawManualEntry).mockRejectedValue(new Error(NO_MESSAGE));
     const handlers = renderDialog();
     confirm();
     await waitFor(() =>

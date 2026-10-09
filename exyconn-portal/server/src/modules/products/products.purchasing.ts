@@ -1,7 +1,7 @@
 import { ProductModel } from './products.model';
 import { SupplierModel } from './supplier.model';
 import { StockMovementModel } from './stock-movement.model';
-import { PurchaseOrderModel, type PurchaseOrderDocument } from './purchase-order.model';
+import { PurchaseOrderModel } from './purchase-order.model';
 import {
   movingAverageCost,
   orderTotal,
@@ -202,10 +202,7 @@ const receivePurchaseOrder = async (_p: unknown, args: never, ctx: GraphQLContex
 
   const now = new Date();
   const statusBefore = order.status;
-  order.status = statusFromReceipts(
-    order.lines as unknown as PurchaseLineShape[],
-    order.status,
-  ) as typeof order.status;
+  order.status = statusFromReceipts(order.lines, order.status) as typeof order.status;
   order.firstReceivedAt = order.firstReceivedAt ?? now;
   order.receivedAt = order.status === 'RECEIVED' ? now : null;
   await order.save();
@@ -218,7 +215,7 @@ const receivePurchaseOrder = async (_p: unknown, args: never, ctx: GraphQLContex
       number: order.number,
       supplierId: order.supplierId,
       supplierName: order.supplierName,
-      total: orderTotal(order.lines as unknown as PurchaseLineShape[]),
+      total: orderTotal(order.lines),
       currency: order.currency,
       receivedAt: now.toISOString(),
     });
@@ -243,4 +240,4 @@ export const productsPurchasingResolvers = {
   },
 };
 
-export type { PurchaseOrderDocument };
+export type { PurchaseOrderDocument } from './purchase-order.model';

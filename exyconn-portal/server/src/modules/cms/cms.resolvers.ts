@@ -17,7 +17,7 @@ type Id = { id: string };
 type Ctx = GraphQLContext;
 type Lean = { _id: unknown };
 
-const one = <T extends Lean | null>(doc: T) => (doc ? withId(doc as Lean) : doc);
+const one = <T extends Lean | null>(doc: T) => (doc ? withId(doc) : doc);
 const many = (docs: Lean[]) => withIds(docs);
 
 /** Website › Websites, Pages, Fragments, Design System and Media, for the website team. */

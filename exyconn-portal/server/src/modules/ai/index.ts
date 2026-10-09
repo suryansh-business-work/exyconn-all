@@ -1,6 +1,5 @@
 import { AiJobModel } from './ai.model';
 import { PromptModel } from './prompt.model';
-import { aiTypeDefs } from './ai.typeDefs';
 import { aiCustomResolvers } from './ai.resolvers';
 import { aiPricingResolvers } from './ai.pricing.resolvers';
 import { createCrudService } from '../../lib/crudService';
@@ -72,6 +71,6 @@ export const aiResolvers = {
   },
 };
 
-export { aiTypeDefs };
+export { aiTypeDefs } from './ai.typeDefs';
 export { ensureAiModelPrices } from './ai.pricing';
 export { startAiWorker, runNextAiJob } from './ai.worker';

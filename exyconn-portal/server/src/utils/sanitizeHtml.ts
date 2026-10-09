@@ -1,8 +1,13 @@
 import sanitizeHtml from 'sanitize-html';
 
 /** A colour as the editors write it: hex, or the rgb / rgba function a browser normalises it to. */
-const COLOR =
-  /^(#[\da-f]{3,8}|rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(,\s*(0|1|0?\.\d+)\s*)?\))$/i;
+const HEX_COLOR = /^#[\da-f]{3,8}$/i;
+const CHANNEL = String.raw`\s*\d{1,3}\s*`;
+const ALPHA = String.raw`,\s*(?:0|1|0?\.\d+)\s*`;
+const RGB_COLOR = new RegExp(
+  String.raw`^rgba?\(${CHANNEL},${CHANNEL},${CHANNEL}(?:${ALPHA})?\)$`,
+  'i',
+);
 const LENGTH = /^\d+(\.\d+)?(px|%|em|rem)$/;
 const ALIGN = /^(left|right|center|justify)$/;
 
@@ -41,7 +46,11 @@ const RICH_TEXT_OPTIONS: sanitizeHtml.IOptions = {
     input: ['type', 'checked', 'disabled'],
   },
   allowedStyles: {
-    '*': { 'text-align': [ALIGN], color: [COLOR], 'background-color': [COLOR] },
+    '*': {
+      'text-align': [ALIGN],
+      color: [HEX_COLOR, RGB_COLOR],
+      'background-color': [HEX_COLOR, RGB_COLOR],
+    },
     table: { width: [LENGTH], 'min-width': [LENGTH] },
     col: { width: [LENGTH], 'min-width': [LENGTH] },
   },

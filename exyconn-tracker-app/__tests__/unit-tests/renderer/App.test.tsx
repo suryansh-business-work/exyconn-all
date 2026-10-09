@@ -37,7 +37,7 @@ function seeThroughState(): TrackerState {
 
 /** Puts the OS's answer about transparency in front of the fixture bridge. */
 function supportTransparency(): void {
-  const base = window.tracker;
+  const base = globalThis.tracker;
   const api = new Proxy(base, {
     get: (target, name: string) =>
       name === 'transparencySupported' ? true : target[name as keyof typeof target],

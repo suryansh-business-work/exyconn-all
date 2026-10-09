@@ -200,8 +200,10 @@ async function copyKey(demoId: string, key: string): Promise<string> {
   );
   const base = `${key}-copy`;
   let candidate = base;
-  for (let n = 2; taken.has(candidate); n += 1) {
+  let n = 2;
+  while (taken.has(candidate)) {
     candidate = `${base}-${n}`;
+    n += 1;
   }
   return candidate;
 }

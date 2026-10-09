@@ -34,12 +34,18 @@ export interface CmsPageListInput {
 }
 
 /** '/', or '/a/b-c' — lower-case segments, ':param' segments allowed in a template. */
-const PATH =
-  /^\/(?:[a-z\d][a-z\d._-]*|:[a-z][a-zA-Z\d]*)(?:\/(?:[a-z\d][a-z\d._-]*|:[a-z][a-zA-Z\d]*))*$/;
+const PATH_SEGMENT = /^(?:[a-z\d][a-z\d._-]*|:[a-z][a-zA-Z\d]*)$/;
+
+const isValidPath = (path: string): boolean =>
+  path.startsWith('/') &&
+  path
+    .slice(1)
+    .split('/')
+    .every((segment) => PATH_SEGMENT.test(segment));
 
 function settingsFields(input: CmsPageSettingsInput) {
   const path = input.path.trim().replace(/\/+$/, '') || '/';
-  if (path !== '/' && !PATH.test(path)) {
+  if (path !== '/' && !isValidPath(path)) {
     badRequest('Use a path like /about-us — lower-case letters, digits and dashes.');
   }
   const isPattern = path.includes('/:');

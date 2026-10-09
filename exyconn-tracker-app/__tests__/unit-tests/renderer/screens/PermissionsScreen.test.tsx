@@ -37,6 +37,9 @@ function grantButtons(): HTMLButtonElement[] {
   );
 }
 
+/** An error that carries no text, so the screen has to fall back to its own words. */
+const NO_MESSAGE = '';
+
 describe('PermissionsScreen rows', () => {
   it('asks only for what is still missing, the camera included when it is', async () => {
     await open(NONE);
@@ -66,7 +69,7 @@ describe('PermissionsScreen rows', () => {
   it('says what to do when macOS gives no answer', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
     await open({ ...NONE, accessibility: true, camera: true });
-    overrideTracker({ requestPermission: () => Promise.reject(new Error('')) });
+    overrideTracker({ requestPermission: () => Promise.reject(new Error(NO_MESSAGE)) });
     await pressButton(buttonNamed('Grant'));
     await finish(() => undefined);
     expect(errorText()).toBe(

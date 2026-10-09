@@ -2,7 +2,6 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   LogoSettings,
   ExportFormat,
-  ApplyScope,
   CustomSize,
   DEFAULT_SETTINGS,
   DEFAULT_CUSTOM_SIZES,
@@ -21,7 +20,7 @@ export const useLogoState = () => {
   const [image, setImage] = useState<string | null>(null);
   const [settings, setSettings] = useState<LogoSettings>(DEFAULT_SETTINGS);
   const [format, setFormat] = useState<ExportFormat>('png');
-  const [applyScope, setApplyScope] = useState<ApplyScope>('all');
+  const [applyScope, setApplyScope] = useState('all');
   const [customSizes, setCustomSizes] = useState<CustomSize[]>(DEFAULT_CUSTOM_SIZES);
   const [customSizesDialogOpen, setCustomSizesDialogOpen] = useState(false);
   const [croppedImages, setCroppedImages] = useState<Record<string, string>>({});

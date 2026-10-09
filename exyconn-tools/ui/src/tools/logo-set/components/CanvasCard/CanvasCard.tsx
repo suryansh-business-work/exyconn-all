@@ -22,6 +22,12 @@ interface Props {
   globalSettings?: LogoSettings;
 }
 
+const getBorderColor = (isCropped: boolean, isSelected?: boolean, hasCustomSettings?: boolean): string => {
+  if (isCropped) return 'warning.main';
+  if (isSelected) return 'primary.main';
+  return hasCustomSettings ? 'success.main' : 'divider';
+};
+
 const CanvasCard: React.FC<Props> = ({
   image,
   size,
@@ -101,13 +107,7 @@ const CanvasCard: React.FC<Props> = ({
         sx={{
           p: 1,
           border: 2,
-          borderColor: isCropped
-            ? 'warning.main'
-            : isSelected
-              ? 'primary.main'
-              : hasCustomSettings
-                ? 'success.main'
-                : 'divider',
+          borderColor: getBorderColor(isCropped, isSelected, hasCustomSettings),
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',

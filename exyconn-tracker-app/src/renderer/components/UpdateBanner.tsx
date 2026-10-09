@@ -32,7 +32,7 @@ export default function UpdateBanner({ update }: Readonly<Props>): ReactElement 
 
   const download = (): void => {
     setRequested(true);
-    window.tracker
+    globalThis.tracker
       .downloadUpdate()
       .catch((error: unknown) => console.error('Could not start the update download', error))
       .finally(() => setRequested(false));
@@ -89,7 +89,7 @@ export default function UpdateBanner({ update }: Readonly<Props>): ReactElement 
       busy={restarting}
       onAction={() => {
         setRestarting(true);
-        window.tracker.installUpdate().catch((error: unknown) => {
+        globalThis.tracker.installUpdate().catch((error: unknown) => {
           console.error('Could not restart into the new version', error);
           setRestarting(false);
         });

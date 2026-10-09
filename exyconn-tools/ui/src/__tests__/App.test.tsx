@@ -8,7 +8,7 @@ import React from 'react';
 describe('UI Application', () => {
   describe('Environment', () => {
     it('should have Node.js version 20 or higher', () => {
-      const nodeVersion = parseInt(process.version.slice(1).split('.')[0], 10);
+      const nodeVersion = Number.parseInt(process.version.slice(1).split('.')[0], 10);
       expect(nodeVersion).toBeGreaterThanOrEqual(20);
     });
 

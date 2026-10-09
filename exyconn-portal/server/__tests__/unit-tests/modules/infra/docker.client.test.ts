@@ -93,7 +93,7 @@ describe('docker client reads', () => {
     const foreign: unknown = runInNewContext('new Error("socket hang up")');
     stubFetch(() => Promise.reject(foreign));
 
-    const error = await docker.containers().catch((caught: unknown) => caught);
+    const error = await docker.containers().catch((error_: unknown) => error_);
 
     expect(error).toBeInstanceOf(DockerUnavailableError);
     expect((error as Error).name).toBe('DockerUnavailableError');

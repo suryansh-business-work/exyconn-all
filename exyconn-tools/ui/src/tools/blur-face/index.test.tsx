@@ -1,3 +1,4 @@
+import { mockCanvasContext } from '../../__tests__/canvasMock';
 import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import {
@@ -36,7 +37,7 @@ beforeAll(() => {
   URL.createObjectURL = vi.fn(() => 'blob:mock') as typeof URL.createObjectURL;
   URL.revokeObjectURL = vi.fn();
   vi.stubGlobal('Image', MockImage);
-  HTMLCanvasElement.prototype.getContext = vi.fn(function (this: HTMLCanvasElement) {
+  mockCanvasContext(function (this: HTMLCanvasElement) {
     return {
       canvas: this,
       imageSmoothingEnabled: true,
@@ -52,7 +53,7 @@ beforeAll(() => {
       strokeRect: vi.fn(),
       setLineDash: vi.fn(),
     };
-  }) as unknown as typeof HTMLCanvasElement.prototype.getContext;
+  });
 });
 
 describe('blur-face utils', () => {

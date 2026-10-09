@@ -45,7 +45,7 @@ vi.mock('@/pages/Settings/forms/two-factor', () => ({
 
 function mockStatus(status: unknown, extras = {}) {
   const result = queryResult(status && { myMfaStatus: status }, extras);
-  vi.mocked(useMyMfaStatusQuery).mockReturnValue(result as never);
+  vi.mocked(useMyMfaStatusQuery).mockReturnValue(result);
   return result;
 }
 

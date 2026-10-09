@@ -5,7 +5,6 @@ import {
   EmploymentTypeModel,
   ShiftModel,
 } from './orgmaster.models';
-import { orgMasterTypeDefs } from './orgmaster.typeDefs';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { ROLES } from '../../constants/roles';
@@ -92,4 +91,4 @@ export const orgMasterResolvers = {
   Query: Object.assign({}, ...groups.map((g) => g.Query)),
   Mutation: Object.assign({}, ...groups.map((g) => g.Mutation)),
 };
-export { orgMasterTypeDefs };
+export { orgMasterTypeDefs } from './orgmaster.typeDefs';

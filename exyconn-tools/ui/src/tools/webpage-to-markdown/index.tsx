@@ -144,31 +144,7 @@ const WebpageToMarkdown: React.FC = () => {
               elevation={0}
               sx={{ border: 1, borderColor: 'divider', borderRadius: 2, height: '100%', minHeight: 450 }}
             >
-              {!markdown ? (
-                <Box
-                  sx={{
-                    p: 4,
-                    textAlign: 'center',
-                    color: 'text.secondary',
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <Language sx={{ fontSize: 48, mb: 2, opacity: 0.3, color: '#06b6d4' }} />
-                  <Typography variant="body1">Enter a URL to convert</Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: 'text.secondary',
-                      mt: 1,
-                    }}
-                  >
-                    Extracts main content and converts to clean Markdown
-                  </Typography>
-                </Box>
-              ) : (
+              {markdown ? (
                 <>
                   <Box
                     sx={{
@@ -207,6 +183,30 @@ const WebpageToMarkdown: React.FC = () => {
                     </pre>
                   </Box>
                 </>
+              ) : (
+                <Box
+                  sx={{
+                    p: 4,
+                    textAlign: 'center',
+                    color: 'text.secondary',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <Language sx={{ fontSize: 48, mb: 2, opacity: 0.3, color: '#06b6d4' }} />
+                  <Typography variant="body1">Enter a URL to convert</Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                      mt: 1,
+                    }}
+                  >
+                    Extracts main content and converts to clean Markdown
+                  </Typography>
+                </Box>
               )}
             </Paper>
           </Grid>

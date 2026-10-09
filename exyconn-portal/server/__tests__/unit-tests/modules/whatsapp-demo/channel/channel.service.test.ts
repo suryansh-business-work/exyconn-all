@@ -17,6 +17,7 @@ import { ROLES } from '../../../../../src/constants/roles';
 import type { GraphQLContext } from '../../../../../src/middleware/auth';
 import { codeOf } from '../../codeOf';
 import { seedUser, useTestOrganization } from '../../../../helpers';
+import { asArg } from '../../../../mockAs';
 
 const organizationId = useTestOrganization();
 const accessToken = randomBytes(24).toString('hex');
@@ -159,7 +160,7 @@ describe('saveChannel', () => {
     await saveChannel(ctx, input());
     jest
       .spyOn(WhatsappChannelModel, 'findByIdAndUpdate')
-      .mockReturnValueOnce({ lean: () => Promise.resolve(null) } as never);
+      .mockReturnValueOnce(asArg({ lean: () => Promise.resolve(null) }));
 
     expect(await codeOf(saveChannel(ctx, input()))).toBe('NOT_FOUND');
   });

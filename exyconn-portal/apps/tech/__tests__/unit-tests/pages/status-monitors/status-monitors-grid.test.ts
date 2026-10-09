@@ -22,7 +22,7 @@ describe('STATUS_MONITOR_COLUMNS', () => {
       'Shown',
       '',
     ]);
-    expect(STATUS_MONITOR_COLUMNS[STATUS_MONITOR_COLUMNS.length - 1].colId).toBe('actions');
+    expect(STATUS_MONITOR_COLUMNS.at(-1)?.colId).toBe('actions');
   });
 
   it('shows the last response time in milliseconds', () => {

@@ -176,7 +176,7 @@ export function SocialPostForm({
           helperText="In your own timezone. It goes out within a minute of this time."
         />
       )}
-      {accountIds.map((id) => ruleOf(id)).filter(Boolean).length > 0 && (
+      {accountIds.some((id) => ruleOf(id)) && (
         <Text size="caption" color="text.secondary">
           {[...new Set(accountIds.map((id) => ruleOf(id)?.note).filter(Boolean))]
             .map((note) => t(String(note)))

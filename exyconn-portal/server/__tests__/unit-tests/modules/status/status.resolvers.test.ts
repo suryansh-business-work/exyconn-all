@@ -15,6 +15,7 @@ import { env } from '../../../../src/config/env';
 import { OPERATOR_ORGANIZATION_ID, seedPlatformOperator } from '../../security-authz.operator';
 import { codeOf } from '../codeOf';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
+import { asArg } from '../../../mockAs';
 
 jest.mock('../../../../src/modules/email', () => ({
   emailer: { send: jest.fn() },
@@ -173,9 +174,11 @@ describe('Problem report triage', () => {
 
   it('emails nobody when there was no earlier status to compare against', async () => {
     const saved = await ProblemReportModel.create(record);
-    jest.spyOn(ProblemReportModel, 'findById').mockReturnValueOnce({
-      select: () => ({ lean: () => Promise.resolve(null) }),
-    } as never);
+    jest.spyOn(ProblemReportModel, 'findById').mockReturnValueOnce(
+      asArg({
+        select: () => ({ lean: () => Promise.resolve(null) }),
+      }),
+    );
 
     const updated = await Mutation.updateProblemReport(
       null,

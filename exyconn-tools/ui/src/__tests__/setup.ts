@@ -96,10 +96,10 @@ HTMLCanvasElement.prototype.toDataURL = vi.fn(
 
 HTMLCanvasElement.prototype.toBlob = vi.fn(function (callback: BlobCallback, type?: string) {
   callback(new Blob(['canvas'], { type: type ?? 'image/png' }));
-}) as unknown as typeof HTMLCanvasElement.prototype.toBlob;
+});
 
-URL.createObjectURL = vi.fn(() => 'blob:mock-object-url') as typeof URL.createObjectURL;
-URL.revokeObjectURL = vi.fn() as typeof URL.revokeObjectURL;
+URL.createObjectURL = vi.fn(() => 'blob:mock-object-url');
+URL.revokeObjectURL = vi.fn();
 
 globalThis.matchMedia = vi.fn((query: string) => ({
   matches: false,
@@ -110,7 +110,7 @@ globalThis.matchMedia = vi.fn((query: string) => ({
   addEventListener: vi.fn(),
   removeEventListener: vi.fn(),
   dispatchEvent: vi.fn(() => false),
-})) as unknown as typeof globalThis.matchMedia;
+}));
 
 class MockResizeObserver {
   observe = vi.fn();
@@ -136,12 +136,12 @@ class MockIntersectionObserver {
   takeRecords = vi.fn(() => [] as IntersectionObserverEntry[]);
 }
 
-globalThis.ResizeObserver = MockResizeObserver as unknown as typeof globalThis.ResizeObserver;
-globalThis.IntersectionObserver = MockIntersectionObserver as unknown as typeof globalThis.IntersectionObserver;
+globalThis.ResizeObserver = MockResizeObserver;
+globalThis.IntersectionObserver = MockIntersectionObserver;
 
 // jsdom leaves these unimplemented and prints noisy "not implemented" errors.
 Element.prototype.scrollIntoView = vi.fn();
-globalThis.scrollTo = vi.fn() as unknown as typeof globalThis.scrollTo;
+globalThis.scrollTo = vi.fn();
 
 /**
  * Default network stub. Suites that assert on requests override this with

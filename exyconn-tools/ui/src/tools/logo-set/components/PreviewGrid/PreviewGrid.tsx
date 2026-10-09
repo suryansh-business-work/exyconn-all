@@ -4,7 +4,6 @@ import { DownloadForOffline } from '@mui/icons-material';
 import {
   LogoSettings,
   ExportFormat,
-  ApplyScope,
   CustomSize,
   FAVICON_SIZES,
   ICON_SIZES,
@@ -20,13 +19,21 @@ interface Props {
   image: string;
   settings: LogoSettings;
   format: ExportFormat;
-  applyScope: ApplyScope;
+  applyScope: string;
   customSizes: CustomSize[];
   croppedImages: Record<string, string>;
   onCroppedImage: (sizeKey: string, croppedImage: string) => void;
   sizeSettings: Record<string, LogoSettings>;
   onSizeSettings: (sizeKey: string, settings: LogoSettings | null) => void;
 }
+
+const getSizeKey = (size: CanvasSize, customSizes: CustomSize[]): string => {
+  const custom =
+    size.category === 'splash'
+      ? customSizes.find((cs) => cs.width === size.width && cs.height === size.height)
+      : undefined;
+  return custom ? `custom-${custom.id}` : `${size.category}-${size.width}`;
+};
 
 const PreviewGrid: React.FC<Props> = ({
   image,
@@ -62,10 +69,7 @@ const PreviewGrid: React.FC<Props> = ({
     const sizesToDownload = [...allSizes, ...customCanvasSizes];
     sizesToDownload.forEach((size, index) => {
       setTimeout(() => {
-        const sizeKey =
-          size.category === 'splash' && customSizes.some((cs) => cs.width === size.width && cs.height === size.height)
-            ? `custom-${customSizes.find((cs) => cs.width === size.width && cs.height === size.height)?.id}`
-            : `${size.category}-${size.width}`;
+        const sizeKey = getSizeKey(size, customSizes);
         const imageToUse = croppedImages[sizeKey] || image;
         const isCropped = !!croppedImages[sizeKey];
         const effectiveSettings = getEffectiveSettings(sizeKey);

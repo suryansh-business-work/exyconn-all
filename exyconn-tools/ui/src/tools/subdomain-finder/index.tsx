@@ -78,12 +78,12 @@ const SubdomainFinder: React.FC = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {(result.subdomains as Array<{ subdomain: string; ips: string[] }>)?.map((s, i) => (
-                        <TableRow key={i}>
+                      {(result.subdomains as Array<{ subdomain: string; ips: string[] }>)?.map((s) => (
+                        <TableRow key={s.subdomain}>
                           <TableCell sx={{ fontFamily: 'monospace' }}>{s.subdomain}</TableCell>
                           <TableCell>
-                            {s.ips.map((ip, j) => (
-                              <Chip key={j} label={ip} size="small" sx={{ mr: 0.5, mb: 0.5 }} variant="outlined" />
+                            {s.ips.map((ip) => (
+                              <Chip key={ip} label={ip} size="small" sx={{ mr: 0.5, mb: 0.5 }} variant="outlined" />
                             ))}
                           </TableCell>
                         </TableRow>

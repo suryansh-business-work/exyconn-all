@@ -1,4 +1,5 @@
 import type { Model, PipelineStage } from 'mongoose';
+import { stringOf } from '../../utils/serialize';
 import { AppSettingsModel } from '../admin/settings.model';
 import { FALLBACK_TIMEZONE, zonedDateKey } from '../tracker/tracker.timezone';
 
@@ -28,7 +29,8 @@ interface GroupRow {
 /** Aggregation rows as metrics, largest first, with an empty group labelled as such. */
 export function toMetrics(rows: readonly GroupRow[]): Metric[] {
   const metrics = rows.map((row) => ({
-    label: row._id === null || row._id === undefined || row._id === '' ? NOT_SET : String(row._id),
+    label:
+      row._id === null || row._id === undefined || row._id === '' ? NOT_SET : stringOf(row._id),
     value: row.value,
   }));
   metrics.sort((a, b) => b.value - a.value || a.label.localeCompare(b.label));

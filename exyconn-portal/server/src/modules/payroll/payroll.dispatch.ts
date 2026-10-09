@@ -123,7 +123,7 @@ export async function renderPayslip(slipId: string): Promise<RenderedPayslip> {
   if (!slip) {
     notFound('Salary slip');
   }
-  return render(slip as unknown as SlipRow);
+  return render(slip);
 }
 
 /** Emails one already-rendered payslip to the employee it belongs to. */

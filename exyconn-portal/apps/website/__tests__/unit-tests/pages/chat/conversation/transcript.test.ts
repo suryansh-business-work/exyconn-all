@@ -13,7 +13,7 @@ import {
 } from '../../../../../src/pages/chat/conversation/transcript';
 import { chatMessage, chatSession } from '../chat-fixtures';
 
-const formatDateTime = (value: string) => `[${value.slice(11, 16)}]`;
+const formatDateTime = (value: string) => value.slice(11, 16);
 /** Writes what the viewer would read, marking each translated string. */
 const t = (source: string, values?: Record<string, string | number>) =>
   `«${interpolate(source, values)}»`;
@@ -68,7 +68,7 @@ describe('transcriptText', () => {
         '«Page»: https://exyconn.com/pricing',
         '«Ticket»: TCK-12',
         '«Assignee»: Ravi',
-        '«Started»: [09:59]',
+        '«Started»: 09:59',
         '',
         '=== «Chat with us» ===',
         '[10:00] Asha: Do you build bots?',

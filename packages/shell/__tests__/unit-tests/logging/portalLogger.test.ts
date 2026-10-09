@@ -122,6 +122,6 @@ describe('the portal logger', () => {
     installPortalCrashHandlers();
 
     expect(captureConsole).toHaveBeenCalledWith(portalLogger);
-    expect(captureBrowserErrors).toHaveBeenCalledWith(portalLogger, window);
+    expect(captureBrowserErrors).toHaveBeenCalledWith(portalLogger, globalThis);
   });
 });

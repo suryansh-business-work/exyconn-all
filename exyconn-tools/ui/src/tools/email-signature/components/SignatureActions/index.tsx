@@ -49,12 +49,12 @@ const SignatureActions: React.FC<SignatureActionsProps> = ({ values, isValid: _i
 
       const range = document.createRange();
       range.selectNodeContents(tempDiv);
-      const selection = window.getSelection();
+      const selection = globalThis.getSelection();
       selection?.removeAllRanges();
       selection?.addRange(range);
       document.execCommand('copy');
       selection?.removeAllRanges();
-      document.body.removeChild(tempDiv);
+      tempDiv.remove();
 
       setCopied('text');
       setSnackbar({
@@ -76,13 +76,13 @@ const SignatureActions: React.FC<SignatureActionsProps> = ({ values, isValid: _i
     a.download = `email-signature-${values.fullName.replace(/\s+/g, '-').toLowerCase()}.html`;
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
+    a.remove();
     URL.revokeObjectURL(url);
     setSnackbar({ open: true, message: 'HTML file downloaded!', severity: 'success' });
   };
 
   const handleSendTestEmail = async () => {
-    if (!testEmail || !testEmail.includes('@')) {
+    if (!testEmail?.includes('@')) {
       setSnackbar({ open: true, message: 'Please enter a valid email address.', severity: 'error' });
       return;
     }
@@ -113,7 +113,7 @@ const SignatureActions: React.FC<SignatureActionsProps> = ({ values, isValid: _i
         `Hi,\n\nThis is a test email to preview my new email signature.\n\nBest regards,\n\n---\n[Note: Open in your email client to see the formatted signature. The HTML version has been copied to your clipboard.]\n`
       );
       navigator.clipboard.writeText(signatureHTML);
-      window.location.href = `mailto:${testEmail}?subject=${subject}&body=${body}`;
+      globalThis.location.href = `mailto:${testEmail}?subject=${subject}&body=${body}`;
       setTestEmailDialog(false);
       setSnackbar({
         open: true,
@@ -124,7 +124,7 @@ const SignatureActions: React.FC<SignatureActionsProps> = ({ values, isValid: _i
   };
 
   const handleReset = () => {
-    if (window.confirm('Are you sure you want to reset all fields? This cannot be undone.')) {
+    if (globalThis.confirm('Are you sure you want to reset all fields? This cannot be undone.')) {
       onReset();
       setSnackbar({ open: true, message: 'Form has been reset.', severity: 'info' });
     }

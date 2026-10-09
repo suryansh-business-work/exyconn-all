@@ -124,7 +124,7 @@ export default function ProtectPdf() {
                 or click to browse
               </Typography>
               <Button variant="outlined" component="label" color="success">
-                Browse Files
+                {'Browse Files'}
                 <input hidden accept="application/pdf" type="file" onChange={onFileChange} />
               </Button>
             </Paper>

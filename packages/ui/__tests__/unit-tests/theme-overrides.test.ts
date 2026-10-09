@@ -21,7 +21,7 @@ function override(mode: 'light' | 'dark', family: string, slot: string): StyleFn
   >;
   const fn = components[family]?.styleOverrides?.[slot];
   if (typeof fn !== 'function') {
-    throw new Error(`${family}.${slot} is not a style function`);
+    throw new TypeError(`${family}.${slot} is not a style function`);
   }
   return (args) => (fn as StyleFn)({ ...args, theme });
 }

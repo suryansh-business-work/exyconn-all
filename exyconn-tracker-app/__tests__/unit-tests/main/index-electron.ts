@@ -25,7 +25,7 @@ export function gate(): Gate {
 export const env = { lock: true, packaged: true, ready: gate() };
 
 export class FakeWindow {
-  static all: FakeWindow[] = [];
+  static readonly all: FakeWindow[] = [];
   readonly events = new Map<string, Fn>();
   readonly webContents = { send: vi.fn() };
   destroyed = false;

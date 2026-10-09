@@ -5,6 +5,7 @@ import { readJobRuns } from '../../../../src/utils/jobHeartbeat';
 import { safeFetch } from '../../../../src/utils/safeFetch';
 import { logger } from '../../../../src/utils/logger';
 import { env } from '../../../../src/config/env';
+import { asArg } from '../../../mockAs';
 
 jest.mock('../../../../src/utils/safeFetch', () => ({ safeFetch: jest.fn() }));
 jest.mock('../../../../src/modules/status/status.alerts', () => ({
@@ -28,9 +29,11 @@ function loopInterval(scheduled: ReturnType<typeof watchIntervals>) {
 /** Resolves with the first message the given logger level receives. */
 function nextLog(level: 'debug' | 'error') {
   return new Promise<unknown[]>((resolve) => {
-    jest.spyOn(logger, level).mockImplementation(((...args: unknown[]) => {
-      resolve(args);
-    }) as never);
+    jest.spyOn(logger, level).mockImplementation(
+      asArg((...args: unknown[]) => {
+        resolve(args);
+      }),
+    );
   });
 }
 
@@ -46,7 +49,7 @@ afterEach(() => {
 describe('startStatusMonitor', () => {
   it('does nothing but say so when the monitor is switched off', () => {
     env.status.enabled = false;
-    const info = jest.spyOn(logger, 'info').mockImplementation((() => undefined) as never);
+    const info = jest.spyOn(logger, 'info').mockImplementation(() => undefined);
     const scheduled = watchIntervals();
 
     startStatusMonitor();
@@ -63,7 +66,7 @@ describe('startStatusMonitor', () => {
       category: 'API',
       url: 'https://api.example.test',
     });
-    jest.spyOn(logger, 'info').mockImplementation((() => undefined) as never);
+    jest.spyOn(logger, 'info').mockImplementation(() => undefined);
     const scheduled = watchIntervals();
     const logged = nextLog('debug');
 
@@ -80,7 +83,7 @@ describe('startStatusMonitor', () => {
 
   it('logs a failed round instead of letting it escape', async () => {
     env.status.enabled = true;
-    jest.spyOn(logger, 'info').mockImplementation((() => undefined) as never);
+    jest.spyOn(logger, 'info').mockImplementation(() => undefined);
     const scheduled = watchIntervals();
     const failure = new Error('database unavailable');
     jest.spyOn(StatusMonitorModel, 'find').mockImplementation(() => {

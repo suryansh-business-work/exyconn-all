@@ -11,7 +11,7 @@ const CAPTCHA_FAILED = "The security question could not be loaded. Please refres
 const readAsDataUrl = (file: File): Promise<string> =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
+    reader.onload = () => resolve(reader.result as string);
     reader.onerror = () => reject(reader.error ?? new Error("The file could not be read"));
     reader.readAsDataURL(file);
   });

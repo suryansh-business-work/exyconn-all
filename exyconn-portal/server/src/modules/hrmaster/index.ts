@@ -1,7 +1,6 @@
 import { HolidayModel } from '../employee/holiday.model';
 import { LeavePolicyModel } from './leavePolicy.model';
 import { LeaveBalanceModel } from './leaveBalance.model';
-import { hrMasterTypeDefs } from './hrmaster.typeDefs';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { createMyRecordsResolver } from '../../lib/employeeScope';
@@ -173,4 +172,4 @@ export const hrMasterResolvers = {
     }) => balance.allocated + balance.carriedForward + balance.adjustment - balance.used,
   },
 };
-export { hrMasterTypeDefs };
+export { hrMasterTypeDefs } from './hrmaster.typeDefs';

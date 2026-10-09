@@ -47,7 +47,7 @@ beforeEach(() => {
 });
 afterEach(() => {
   jest.restoreAllMocks();
-  for (const peer of [...chatHub.all()]) {
+  for (const peer of chatHub.all()) {
     chatHub.leave(peer);
   }
 });

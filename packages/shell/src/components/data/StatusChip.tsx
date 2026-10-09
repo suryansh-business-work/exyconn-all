@@ -76,7 +76,7 @@ const COLOR_MAP: Record<string, 'default' | 'success' | 'warning' | 'error' | 'i
   };
 
 /** Renders an enum status value as a color-coded MUI chip. */
-export function StatusChip({ value }: { value: string }) {
+export function StatusChip({ value }: Readonly<{ value: string }>) {
   // "PAID", "IN_PROGRESS" — the words a person actually scans a list for, so they translate
   // like any other. The catalogue is keyed on what is shown ("In progress"), not the enum.
   const t = useT();

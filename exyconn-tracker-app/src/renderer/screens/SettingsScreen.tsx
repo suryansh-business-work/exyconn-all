@@ -112,7 +112,7 @@ export default function SettingsScreen({
             variant="contained"
             fullWidth
             startIcon={<OpenInNewRounded />}
-            onClick={() => run(() => window.tracker.openPrivacy())}
+            onClick={() => run(() => globalThis.tracker.openPrivacy())}
           >
             {t('View my data in the portal')}
           </Button>
@@ -126,7 +126,7 @@ export default function SettingsScreen({
         </Typography>
         <Divider sx={{ my: 1.5 }} />
         <Stack spacing={0.5}>
-          {appVersion !== '' ? (
+          {appVersion === '' ? null : (
             <Typography
               variant="body2"
               sx={{
@@ -135,8 +135,8 @@ export default function SettingsScreen({
             >
               {t('Version {version}', { version: appVersion })}
             </Typography>
-          ) : null}
-          {legalName !== '' ? (
+          )}
+          {legalName === '' ? null : (
             <Typography
               variant="body2"
               sx={{
@@ -145,8 +145,8 @@ export default function SettingsScreen({
             >
               {legalName}
             </Typography>
-          ) : null}
-          {supportEmail !== '' ? (
+          )}
+          {supportEmail === '' ? null : (
             <Typography
               variant="body2"
               sx={{
@@ -155,7 +155,7 @@ export default function SettingsScreen({
             >
               {t('Support: {email}', { email: supportEmail })}
             </Typography>
-          ) : null}
+          )}
           <Typography
             variant="caption"
             sx={{

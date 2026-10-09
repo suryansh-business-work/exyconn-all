@@ -1,3 +1,4 @@
+import { mockCanvasContext } from '../../__tests__/canvasMock';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
@@ -40,9 +41,7 @@ beforeEach(() => {
   ctxStub.fillStyle = '';
   ctxStub.filter = 'none';
   vi.stubGlobal('Image', MockImage);
-  HTMLCanvasElement.prototype.getContext = vi.fn(
-    () => ctxStub
-  ) as unknown as typeof HTMLCanvasElement.prototype.getContext;
+  mockCanvasContext(() => ctxStub);
   HTMLCanvasElement.prototype.toBlob = function (cb: BlobCallback) {
     cb(new Blob(['img'], { type: 'image/png' }));
   };
@@ -126,9 +125,7 @@ describe('photo-editor utils', () => {
   });
 
   it('drawFiltered throws when the 2d context is unavailable', () => {
-    HTMLCanvasElement.prototype.getContext = vi.fn(
-      () => null
-    ) as unknown as typeof HTMLCanvasElement.prototype.getContext;
+    mockCanvasContext(() => null);
     const canvas = document.createElement('canvas');
     expect(() => drawFiltered(new MockImage() as unknown as HTMLImageElement, canvas, 'none')).toThrow(
       'Canvas is not supported'

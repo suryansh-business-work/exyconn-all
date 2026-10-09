@@ -134,11 +134,11 @@ describe('screen routes', () => {
   });
 });
 
-describe('index route', () => {
-  function target(): string | undefined {
-    return screen.getByTestId('redirect').dataset.href;
-  }
+function target(): string | undefined {
+  return screen.getByTestId('redirect').dataset.href;
+}
 
+describe('index route', () => {
   it('sends a launch with no state yet to sign-in', () => {
     vi.mocked(useTrackerState).mockReturnValue(null);
     render(<Index />);

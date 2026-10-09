@@ -1,5 +1,4 @@
 import { ProjectModel } from './projects.model';
-import { projectsTypeDefs } from './projects.typeDefs';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { ROLES } from '../../constants/roles';
@@ -67,7 +66,7 @@ export const projectsResolvers = {
   Query: crud.Query,
   Mutation: { ...crud.Mutation, createProject, updateProject },
 };
-export { projectsTypeDefs };
+export { projectsTypeDefs } from './projects.typeDefs';
 export { boardTypeDefs } from './board.typeDefs';
 export { boardResolvers } from './board.resolvers';
 export { docsTypeDefs } from './docs.typeDefs';

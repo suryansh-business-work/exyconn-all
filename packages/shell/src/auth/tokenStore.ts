@@ -5,7 +5,7 @@ const MAX_AGE_SECONDS = 7 * 24 * 60 * 60;
 
 /** Scopes the cookie to the parent domain so every portal subdomain shares it. */
 function cookieScope(): string {
-  const { hostname, protocol } = window.location;
+  const { hostname, protocol } = globalThis.location;
   const shared = env.portalDomain && hostname.endsWith(env.portalDomain);
   const domain = shared ? `; domain=.${env.portalDomain}` : '';
   const secure = protocol === 'https:' ? '; secure' : '';

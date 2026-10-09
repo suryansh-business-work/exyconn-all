@@ -74,7 +74,7 @@ function categoryCarousel(category: Category): AuthorNode {
 
 /** Every category but the last gets a condition case; the last one is the `else`. */
 const ROUTED = CATEGORIES.slice(0, -1);
-const LAST = CATEGORIES[CATEGORIES.length - 1];
+const [LAST] = CATEGORIES.slice(-1);
 
 const askAi: AuthorNode = {
   id: 'ask-ai',

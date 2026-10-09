@@ -7,7 +7,6 @@ import {
   useMyNotificationPreferencesQuery,
   useSetMyNotificationPreferenceMutation,
   type MyNotificationPreferencesQuery,
-  type NotificationKind,
 } from '@/graphql/generated';
 
 type Preference = MyNotificationPreferencesQuery['myNotificationPreferences'][number];
@@ -103,7 +102,7 @@ export function NotificationPreferencesPanel() {
     try {
       await save({
         variables: {
-          input: { kind: preference.kind as NotificationKind, ...channels },
+          input: { kind: preference.kind, ...channels },
         },
       });
     } catch (err) {

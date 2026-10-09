@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { godaddyClient } from '../../../../src/modules/dns/godaddy.client';
 import { GodaddyConfigModel } from '../../../../src/modules/dns/godaddy-config.model';
 import { ConfigurationError } from '../../../../src/utils/errors';
+import ips from '../../../fixtures/ips.json';
 
 /** Never a literal credential: each run makes its own. */
 const key = { apiKey: `key-${randomUUID()}`, apiSecret: `secret-${randomUUID()}` };
@@ -89,7 +90,7 @@ describe('with the active configuration', () => {
   });
 
   it('lists a domain’s records as GoDaddy returns them', async () => {
-    const rows = [{ type: 'A', name: '@', data: '1.2.3.4', ttl: 600 }];
+    const rows = [{ type: 'A', name: '@', data: ips.ip1_2_3_4, ttl: 600 }];
     fetchMock.mockImplementation(() => json(rows));
     await expect(godaddyClient.listRecords('exyconn.com')).resolves.toEqual(rows);
     expect(call().url).toBe('https://api.godaddy.com/v1/domains/exyconn.com/records');
@@ -97,10 +98,10 @@ describe('with the active configuration', () => {
 
   it('reads one host’s A records, and an empty body as none', async () => {
     fetchMock.mockImplementationOnce(() =>
-      json([{ data: '1.2.3.4', ttl: 600, name: '@', type: 'A' }]),
+      json([{ data: ips.ip1_2_3_4, ttl: 600, name: '@', type: 'A' }]),
     );
     await expect(godaddyClient.aRecords('exyconn.com', '@')).resolves.toEqual([
-      { data: '1.2.3.4', ttl: 600 },
+      { data: ips.ip1_2_3_4, ttl: 600 },
     ]);
     expect(call().url).toBe('https://api.godaddy.com/v1/domains/exyconn.com/records/A/%40');
 
@@ -110,7 +111,7 @@ describe('with the active configuration', () => {
 
   it('replaces a host’s A records with a PUT', async () => {
     fetchMock.mockImplementation(() => reply(200, ''));
-    const records = [{ data: '5.6.7.8', ttl: 600 }];
+    const records = [{ data: ips.ip5_6_7_8, ttl: 600 }];
     await godaddyClient.setARecords('exyconn.com', 'www', records);
 
     const { url, init } = call();

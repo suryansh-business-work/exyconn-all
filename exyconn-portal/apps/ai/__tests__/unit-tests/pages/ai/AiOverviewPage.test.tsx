@@ -83,7 +83,9 @@ const JOB_STATS = tableStats(
 );
 const SUMMARY = { totalUsd: 12.3, byUser: [], byModel: [] };
 
-function answerEverything(limit = { monthlyUsdCap: 50, perUserDailyUsdCap: 5, enabled: true }) {
+const DEFAULT_LIMIT = { monthlyUsdCap: 50, perUserDailyUsdCap: 5, enabled: true };
+
+function answerEverything(limit = DEFAULT_LIMIT) {
   q.jobStats = { data: { listAiJobsStats: JOB_STATS }, loading: false };
   q.promptStats = { data: { listPromptsStats: tableStats(6, {}) }, loading: false };
   q.spend = { data: { aiSpendSummary: SUMMARY }, loading: false };

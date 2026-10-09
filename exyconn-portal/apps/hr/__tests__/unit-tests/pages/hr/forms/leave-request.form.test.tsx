@@ -78,9 +78,10 @@ beforeEach(() => {
 describe('LeaveRequestForm', () => {
   it('offers HR’s leave types and every status', async () => {
     renderForm(null);
+    // Read before the select is opened: leaving it empty is an error that replaces the hint.
+    expect(screen.getByText('Leave types are managed under Leave Settings.')).toBeInTheDocument();
     expect(await optionsOf('Type')).toEqual(['Sick leave (SICK)', 'Casual leave (CASUAL)']);
     expect(await optionsOf('Status')).toEqual(['Approved', 'Pending', 'Rejected']);
-    expect(screen.getByText('Leave types are managed under Leave Settings.')).toBeInTheDocument();
   });
 
   it('files a pending request for the chosen employee', async () => {

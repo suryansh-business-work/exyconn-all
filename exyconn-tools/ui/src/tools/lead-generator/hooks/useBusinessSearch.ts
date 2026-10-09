@@ -42,6 +42,97 @@ const isPointInPolygon = (point: { lat: number; lng: number }, polygon: PolygonC
   return inside;
 };
 
+const getMaxDistance = (coords: PolygonCoordinates[], center: { lat: number; lng: number }): number => {
+  let maxDistance = 0;
+  coords.forEach((coord) => {
+    const distance = Math.sqrt(Math.pow(coord.lat - center.lat, 2) + Math.pow(coord.lng - center.lng, 2));
+    if (distance > maxDistance) maxDistance = distance;
+  });
+  return maxDistance;
+};
+
+const resolveSearchTerms = (searchQuery: string, selectedTypes: string[]): string[] => {
+  if (searchQuery.trim()) return [searchQuery];
+  if (selectedTypes.length > 0) return selectedTypes;
+  return ['business'];
+};
+
+interface SearchContext {
+  placesService: google.maps.places.PlacesService;
+  center: { lat: number; lng: number };
+  radiusMeters: number;
+  polygon: PolygonCoordinates[];
+  maxResults: number;
+  allResults: Business[];
+  onUpdate: (items: Business[]) => void;
+}
+
+const toBusiness = (
+  place: google.maps.places.PlaceResult,
+  details: google.maps.places.PlaceResult | null,
+  location: { lat: number; lng: number }
+): Business => ({
+  placeId: place.place_id || crypto.randomUUID(),
+  name: place.name || 'Unknown',
+  address: place.vicinity || place.formatted_address || '',
+  location,
+  phone: details?.formatted_phone_number,
+  website: details?.website,
+  rating: place.rating,
+  totalRatings: place.user_ratings_total,
+  types: place.types || [],
+  isOpen: place.opening_hours?.isOpen?.(),
+});
+
+const addPlace = (ctx: SearchContext, place: google.maps.places.PlaceResult): void => {
+  if (!place.geometry?.location) return;
+
+  const location = {
+    lat: place.geometry.location.lat(),
+    lng: place.geometry.location.lng(),
+  };
+
+  if (!isPointInPolygon(location, ctx.polygon)) return;
+  if (ctx.allResults.some((b) => b.placeId === place.place_id)) return;
+
+  ctx.placesService.getDetails(
+    { placeId: place.place_id as string, fields: ['formatted_phone_number', 'website'] },
+    (details: google.maps.places.PlaceResult | null) => {
+      if (ctx.allResults.length >= ctx.maxResults) return;
+
+      ctx.allResults.push(toBusiness(place, details, location));
+      ctx.onUpdate([...ctx.allResults].slice(0, ctx.maxResults));
+    }
+  );
+};
+
+const handleNearbyResults = (
+  ctx: SearchContext,
+  results: google.maps.places.PlaceResult[] | null,
+  status: google.maps.places.PlacesServiceStatus
+): void => {
+  if (status !== google.maps.places.PlacesServiceStatus.OK || !results) return;
+
+  for (const place of results) {
+    if (ctx.allResults.length >= ctx.maxResults) break;
+    addPlace(ctx, place);
+  }
+};
+
+const searchTerm = (ctx: SearchContext, term: string): Promise<void> =>
+  new Promise<void>((resolve) => {
+    const request = {
+      location: new google.maps.LatLng(ctx.center.lat, ctx.center.lng),
+      radius: ctx.radiusMeters,
+      keyword: term.replaceAll('_', ' '),
+    };
+
+    ctx.placesService.nearbySearch(request, (results, status) => {
+      handleNearbyResults(ctx, results, status);
+      resolve();
+    });
+  });
+
 export const useBusinessSearch = (): UseBusinessSearchResult => {
   const [businesses, setBusinesses] = useState<Business[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -66,85 +157,30 @@ export const useBusinessSearch = (): UseBusinessSearchResult => {
 
       try {
         const center = calculatePolygonCenter(polygonCoordinates);
-
-        let maxDistance = 0;
-        polygonCoordinates.forEach((coord) => {
-          const distance = Math.sqrt(Math.pow(coord.lat - center.lat, 2) + Math.pow(coord.lng - center.lng, 2));
-          if (distance > maxDistance) maxDistance = distance;
-        });
-        const radiusMeters = Math.min(maxDistance * 111000, 50000);
+        const radiusMeters = Math.min(getMaxDistance(polygonCoordinates, center) * 111000, 50000);
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const google = (window as any).google;
+        const google = (globalThis as any).google;
 
-        if (!google || !google.maps || !google.maps.places) {
+        if (!google?.maps?.places) {
           setError('Google Places library not loaded. Please refresh the page.');
           setIsSearching(false);
           return;
         }
 
-        const mapDiv = document.createElement('div');
-        const placesService = new google.maps.places.PlacesService(mapDiv);
-
         const allResults: Business[] = [];
-        const searchTerms = searchQuery.trim()
-          ? [searchQuery]
-          : selectedTypes.length > 0
-            ? selectedTypes
-            : ['business'];
+        const ctx: SearchContext = {
+          placesService: new google.maps.places.PlacesService(document.createElement('div')),
+          center,
+          radiusMeters,
+          polygon: polygonCoordinates,
+          maxResults,
+          allResults,
+          onUpdate: setBusinesses,
+        };
 
-        for (const term of searchTerms) {
-          await new Promise<void>((resolve) => {
-            const request = {
-              location: new google.maps.LatLng(center.lat, center.lng),
-              radius: radiusMeters,
-              keyword: term.replace(/_/g, ' '),
-            };
-
-            placesService.nearbySearch(
-              request,
-              (results: google.maps.places.PlaceResult[] | null, status: google.maps.places.PlacesServiceStatus) => {
-                if (status === google.maps.places.PlacesServiceStatus.OK && results) {
-                  for (const place of results) {
-                    if (allResults.length >= maxResults) break;
-                    if (!place.geometry?.location) continue;
-
-                    const location = {
-                      lat: place.geometry.location.lat(),
-                      lng: place.geometry.location.lng(),
-                    };
-
-                    if (!isPointInPolygon(location, polygonCoordinates)) continue;
-                    if (allResults.some((b) => b.placeId === place.place_id)) continue;
-
-                    placesService.getDetails(
-                      { placeId: place.place_id, fields: ['formatted_phone_number', 'website'] },
-                      (details: google.maps.places.PlaceResult | null) => {
-                        if (allResults.length >= maxResults) return;
-
-                        const business: Business = {
-                          placeId: place.place_id || crypto.randomUUID(),
-                          name: place.name || 'Unknown',
-                          address: place.vicinity || place.formatted_address || '',
-                          location,
-                          phone: details?.formatted_phone_number,
-                          website: details?.website,
-                          rating: place.rating,
-                          totalRatings: place.user_ratings_total,
-                          types: place.types || [],
-                          isOpen: place.opening_hours?.isOpen?.(),
-                        };
-
-                        allResults.push(business);
-                        setBusinesses([...allResults].slice(0, maxResults));
-                      }
-                    );
-                  }
-                }
-                resolve();
-              }
-            );
-          });
+        for (const term of resolveSearchTerms(searchQuery, selectedTypes)) {
+          await searchTerm(ctx, term);
 
           if (allResults.length >= maxResults) break;
           await new Promise((r) => setTimeout(r, 200));

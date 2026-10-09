@@ -24,9 +24,9 @@ export function ChatLayout() {
   }, [client]);
   const connection = useSyncExternalStore(client.onStateChange, () => client.state);
 
-  const [prefs, setPrefsState] = useState<ChatAlertPrefs>(readChatAlertPrefs);
-  const setPrefs = useCallback((next: ChatAlertPrefs) => {
-    setPrefsState(next);
+  const [prefs, setPrefs] = useState<ChatAlertPrefs>(readChatAlertPrefs);
+  const savePrefs = useCallback((next: ChatAlertPrefs) => {
+    setPrefs(next);
     saveChatAlertPrefs(next);
   }, []);
 
@@ -36,8 +36,8 @@ export function ChatLayout() {
     [client],
   );
   const value = useMemo<ChatConsole>(
-    () => ({ connection, send, subscribe, prefs, setPrefs }),
-    [connection, send, subscribe, prefs, setPrefs],
+    () => ({ connection, send, subscribe, prefs, setPrefs: savePrefs }),
+    [connection, send, subscribe, prefs, savePrefs],
   );
 
   return (

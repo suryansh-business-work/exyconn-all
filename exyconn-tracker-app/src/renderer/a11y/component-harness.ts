@@ -86,7 +86,7 @@ export function deferred<T = void>(): Deferred<T> {
  * answers from the fixture.
  */
 export function overrideTracker(overrides: Partial<Record<keyof TrackerApi, Command>>): void {
-  const base = window.tracker;
+  const base = globalThis.tracker;
   const api = new Proxy(
     {},
     {

@@ -138,15 +138,12 @@
   max-width: 44rem;
 }
 
+/* A long trail wraps between crumbs, and a long crumb (an article title) within itself. */
 .inner-crumbs ol {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-1) var(--space-2);
   line-height: var(--line-height-snug);
-}
-
-/* A long trail wraps between crumbs, and a long crumb (an article title) within itself. */
-.inner-crumbs ol {
   align-items: center;
 }
 
@@ -160,6 +157,7 @@
 .inner-crumbs a {
   display: inline-block;
   padding-block: var(--space-1);
+  color: var(--color-fg-secondary);
 }
 
 @media (max-width: 639px) {
@@ -172,10 +170,6 @@
   content: "/";
   margin-right: var(--space-2);
   color: var(--color-fg-subtle);
-}
-
-.inner-crumbs a {
-  color: var(--color-fg-secondary);
 }
 
 .inner-crumbs a:hover,

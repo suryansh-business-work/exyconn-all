@@ -264,6 +264,7 @@
 }
 
 .quote-sent {
+  display: block;
   padding: var(--space-6);
   border: var(--border-width-hairline) solid var(--color-line);
   border-radius: var(--radius-xl);

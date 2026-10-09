@@ -1,4 +1,5 @@
 import { ApprovalDelegateModel } from './delegate.model';
+import { stringOf } from '../../utils/serialize';
 import { UserModel } from '../admin/user.model';
 import { directReportIds } from '../admin/reporting';
 import { badRequest, notFound } from '../../utils/errors';
@@ -48,7 +49,7 @@ const withNames = async (
       toName: names.get(String(row.toEmployeeId)) ?? '',
       fromDate,
       toDate,
-      note: String(row.note ?? ''),
+      note: stringOf(row.note ?? ''),
       active: fromDate <= now && toDate >= now,
     };
   });

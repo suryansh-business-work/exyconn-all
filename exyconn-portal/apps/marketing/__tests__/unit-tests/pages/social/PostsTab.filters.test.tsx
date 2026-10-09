@@ -95,7 +95,7 @@ describe('PostsTab filters and editing', () => {
     renderWithProviders(<PostsTab />);
 
     await editFailedPost();
-    expect(await screen.findByText('1 accounts, 1 rules, edit p-failed')).toBeInTheDocument();
+    expect(await screen.findByText('2 accounts, 1 rules, edit p-failed')).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: 'Edit post' })).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Cancel form' }));

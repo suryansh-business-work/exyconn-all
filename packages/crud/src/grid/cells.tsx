@@ -6,6 +6,7 @@ import { Flex, IconButton } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { BoolChip } from '@exyconn/shell/components/data/BoolChip';
 import type { CrudGridContext, DatedCrudGridContext, RowActionSpec } from './types';
+import { cellText } from '@exyconn/shell/utils/cellText';
 
 /** Renders the column's value as the shared colour-coded status chip. */
 export function StatusCell(params: Readonly<ICellRendererParams>) {
@@ -13,7 +14,7 @@ export function StatusCell(params: Readonly<ICellRendererParams>) {
   if (value == null) {
     return null;
   }
-  return <StatusChip value={String(value)} />;
+  return <StatusChip value={cellText(value)} />;
 }
 
 /** Renders the column's boolean value as a Yes/No chip. */

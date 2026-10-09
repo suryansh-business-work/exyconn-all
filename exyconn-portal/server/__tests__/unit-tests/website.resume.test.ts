@@ -49,7 +49,7 @@ describe('Résumé sent with a job application', () => {
 
   it('hosts the file and files the applicant with its URL', async () => {
     const submission = await submit('job-application', application, {
-      name: 'C:\\fakepath\\meera-iyer.pdf',
+      name: String.raw`C:\fakepath\meera-iyer.pdf`,
       data: PDF,
     });
 

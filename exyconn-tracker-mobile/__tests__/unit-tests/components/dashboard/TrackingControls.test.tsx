@@ -36,6 +36,9 @@ beforeEach(() => {
   vi.spyOn(console, 'error').mockImplementation(() => undefined);
 });
 
+/** An error that carries no text, so the screen has to fall back to its own words. */
+const NO_MESSAGE = '';
+
 describe('TrackingControls', () => {
   it.each([
     ['idle', true, ['Start']],
@@ -98,7 +101,7 @@ describe('TrackingControls', () => {
 
   it('reports a pause that throws', async () => {
     vi.mocked(tracker.pause).mockImplementation(() => {
-      throw new Error('');
+      throw new Error(NO_MESSAGE);
     });
     renderWithProviders(<TrackingControls status="tracking" attendanceMarked />);
     fireEvent.click(button('Pause'));

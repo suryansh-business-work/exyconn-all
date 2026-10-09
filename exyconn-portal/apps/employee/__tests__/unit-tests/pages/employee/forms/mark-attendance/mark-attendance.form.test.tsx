@@ -3,7 +3,7 @@ import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { AttendanceStatus, useMarkAttendanceMutation } from '@exyconn/shell/graphql/generated';
 import { renderWithProviders } from '../../../../test-utils';
-import { localIso, mutationTuple, pickerInput } from '../../apolloHookMocks';
+import { mutationTuple, pickerInput } from '../../apolloHookMocks';
 import { MarkAttendanceForm } from '../../../../../../src/pages/employee/forms/mark-attendance';
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
@@ -62,15 +62,18 @@ describe('MarkAttendanceForm', () => {
     await save();
 
     await waitFor(() => expect(markAttendance).toHaveBeenCalledTimes(1));
+    // The picker keeps the clock time of the value it replaces, so only the day is fixed.
     expect(markAttendance).toHaveBeenCalledWith({
       variables: {
         input: {
-          date: localIso(2026, 2, 4),
+          date: expect.any(String),
           status: AttendanceStatus.HalfDay,
           note: 'Doctor visit',
         },
       },
     });
+    const sent = new Date(sentInput().date);
+    expect([sent.getFullYear(), sent.getMonth(), sent.getDate()]).toEqual([2026, 2, 4]);
   });
 
   it('requires a date', async () => {

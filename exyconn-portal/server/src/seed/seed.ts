@@ -36,13 +36,11 @@ async function seed(): Promise<void> {
                   input: '$roles',
                   as: 'r',
                   in: {
-                    $switch: {
-                      branches: [
-                        { case: { $eq: ['$$r', 'BUGS'] }, then: 'PROJECTS' },
-                        { case: { $eq: ['$$r', 'CLIENTS'] }, then: 'ADMIN' },
-                      ],
-                      default: '$$r',
-                    },
+                    $cond: [
+                      { $eq: ['$$r', 'BUGS'] },
+                      'PROJECTS',
+                      { $cond: [{ $eq: ['$$r', 'CLIENTS'] }, 'ADMIN', '$$r'] },
+                    ],
                   },
                 },
               },

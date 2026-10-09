@@ -154,9 +154,10 @@ class TrackerTimeLogService {
       rows.set(key, row);
     }
 
-    return this.named([...rows.values()]).then((named) =>
-      named.sort((a, b) => b.activeMs + b.manualMs - (a.activeMs + a.manualMs)),
-    );
+    return this.named([...rows.values()]).then((named) => {
+      named.sort((a, b) => b.activeMs + b.manualMs - (a.activeMs + a.manualMs));
+      return named;
+    });
   }
 
   /** Fills in employee names in one query, whatever the rows turned out to be. */

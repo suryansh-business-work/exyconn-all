@@ -15,6 +15,7 @@ import { AuditLogModel } from '../../../../src/modules/audit';
 import { ROLES } from '../../../../src/constants/roles';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
 import { codeOf } from '../codeOf';
+import { asArg } from '../../../mockAs';
 
 const ctx: GraphQLContext = {
   user: {
@@ -135,7 +136,7 @@ describe('creating and editing a demo', () => {
     const salon = await upsertDemo(ctx, null, input());
     const update = jest
       .spyOn(WhatsappDemoModel, 'findByIdAndUpdate')
-      .mockReturnValueOnce({ lean: () => Promise.resolve(null) } as never);
+      .mockReturnValueOnce(asArg({ lean: () => Promise.resolve(null) }));
     expect(await codeOf(upsertDemo(ctx, salon.id, input()))).toBe('NOT_FOUND');
     update.mockRestore();
   });
@@ -143,7 +144,7 @@ describe('creating and editing a demo', () => {
   it('passes on a failure that is not a duplicate key', async () => {
     const create = jest
       .spyOn(WhatsappDemoModel, 'create')
-      .mockRejectedValueOnce(new Error('disk full') as never);
+      .mockRejectedValueOnce(new Error('disk full'));
     await expect(upsertDemo(ctx, null, input())).rejects.toThrow('disk full');
     create.mockRestore();
   });

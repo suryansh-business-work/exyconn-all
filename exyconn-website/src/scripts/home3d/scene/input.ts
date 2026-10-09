@@ -38,6 +38,6 @@ export const trackPointer = (pointer: Pointer): (() => void) => {
     pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
     pointer.y = -((event.clientY / window.innerHeight) * 2 - 1);
   };
-  window.addEventListener("pointermove", onMove, { passive: true });
-  return () => window.removeEventListener("pointermove", onMove);
+  globalThis.addEventListener("pointermove", onMove, { passive: true });
+  return () => globalThis.removeEventListener("pointermove", onMove);
 };

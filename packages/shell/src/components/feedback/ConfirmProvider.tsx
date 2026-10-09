@@ -37,7 +37,7 @@ const ConfirmContext = createContext<((options: ConfirmOptions) => Promise<boole
 );
 
 /** MUI confirmation dialog — replaces native confirm() (CLAUDE.md rule 12). */
-export function ConfirmProvider({ children }: { children: ReactNode }) {
+export function ConfirmProvider({ children }: Readonly<{ children: ReactNode }>) {
   const t = useT();
   const [options, setOptions] = useState<ConfirmOptions | null>(null);
   const resolver = useRef<Resolver | null>(null);

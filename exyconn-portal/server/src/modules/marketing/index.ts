@@ -1,7 +1,6 @@
 import { CampaignModel } from './marketing.model';
 import { AudienceListModel } from './audience.model';
 import { MarketingSuppressionModel } from './suppression.model';
-import { marketingTypeDefs } from './marketing.typeDefs';
 import { marketingCustomResolvers } from './marketing.resolvers';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
@@ -109,7 +108,7 @@ export const marketingResolvers = {
   },
 };
 
-export { marketingTypeDefs };
+export { marketingTypeDefs } from './marketing.typeDefs';
 export { startCampaignSchedule } from './marketing.schedule';
 export { marketingMetricsTypeDefs } from './marketing.metrics.typeDefs';
 export { marketingMetricsResolvers, campaignMetricsFor } from './marketing.metrics';

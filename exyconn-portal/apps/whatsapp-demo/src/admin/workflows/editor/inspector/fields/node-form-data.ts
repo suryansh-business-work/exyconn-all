@@ -87,19 +87,44 @@ export function compact(value: unknown): unknown {
   return Object.fromEntries(kept.map(([key, child]) => [key, compact(child)]));
 }
 
+/** The same data whatever order its keys were added in, so two copies compare as text. */
+const canonical = (value: unknown): string =>
+  JSON.stringify(compact(fromFormValues(value)), (_key, child) =>
+    isRecord(child)
+      ? Object.fromEntries(Object.entries(child).sort(([a], [b]) => a.localeCompare(b)))
+      : child,
+  );
+
+/**
+ * Whether Apply would hand the canvas something different from `baseline`. React Hook Form's
+ * own `isDirty` cannot say: once a form has been reset, the empty values its fields register
+ * (an unset note, an empty `set` list) are keys the defaults lack, so it reads dirty for good.
+ */
+export function hasChanges(values: unknown, baseline: unknown): boolean {
+  return canonical(values) !== canonical(baseline);
+}
+
+const tooSmallMessage = (origin: string, minimum: number | bigint) => {
+  if (origin === 'string') {
+    return Number(minimum) <= 1 ? 'This is required' : 'Too short';
+  }
+  return origin === 'array' ? 'Add at least one' : 'Too small';
+};
+
+const tooBigMessage = (origin: string) => {
+  if (origin === 'string') {
+    return 'Too long for WhatsApp';
+  }
+  return origin === 'array' ? 'Too many items' : 'Too large';
+};
+
 /** Plain-English messages for the schema's limits; the field translates them. */
 const formError: z.core.$ZodErrorMap = (issue) => {
   if (issue.code === 'too_small') {
-    if (issue.origin === 'string') {
-      return Number(issue.minimum) <= 1 ? 'This is required' : 'Too short';
-    }
-    return issue.origin === 'array' ? 'Add at least one' : 'Too small';
+    return tooSmallMessage(issue.origin, issue.minimum);
   }
   if (issue.code === 'too_big') {
-    if (issue.origin === 'string') {
-      return 'Too long for WhatsApp';
-    }
-    return issue.origin === 'array' ? 'Too many items' : 'Too large';
+    return tooBigMessage(issue.origin);
   }
   if (issue.code === 'invalid_type') {
     return issue.input === undefined ? 'This is required' : 'Enter a valid value';

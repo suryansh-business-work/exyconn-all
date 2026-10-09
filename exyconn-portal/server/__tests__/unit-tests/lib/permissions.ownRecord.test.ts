@@ -76,7 +76,7 @@ describe('refuseOwnRecordWrites', () => {
 
   it('creates without an input employee', async () => {
     const { wrapped } = build(null);
-    await expect(wrapped.createLeave(null, {} as never, caller)).resolves.toBe('created');
+    await expect(wrapped.createLeave(null, {}, caller)).resolves.toBe('created');
   });
 
   it('updates somebody else’s stored record', async () => {
@@ -103,9 +103,9 @@ describe('refuseOwnRecordWrites', () => {
 
   it('skips the stored-record read when nobody is signed in', async () => {
     const { wrapped, employeeIdOf } = build(CALLER);
-    await expect(
-      wrapped.updateLeave(null, { id: 'leave-1' } as never, { user: null }),
-    ).resolves.toBe('updated');
+    await expect(wrapped.updateLeave(null, { id: 'leave-1' }, { user: null })).resolves.toBe(
+      'updated',
+    );
     expect(employeeIdOf).not.toHaveBeenCalled();
   });
 

@@ -70,7 +70,7 @@ describe('notifyReporterOfStatus', () => {
   });
 
   it('logs a failed email rather than failing the saved triage', async () => {
-    const error = jest.spyOn(logger, 'error').mockImplementation((() => undefined) as never);
+    const error = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
     const outage = new Error('SMTP down');
     sendTemplate.mockRejectedValueOnce(outage);
 

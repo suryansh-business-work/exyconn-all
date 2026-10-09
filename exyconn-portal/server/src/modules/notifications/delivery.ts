@@ -14,8 +14,13 @@ export interface NotificationInput {
 }
 
 /** Where a link in a notification email has to point to be clickable. */
-const portalUrl = (link: string | undefined): string =>
-  link ? `${env.appUrl}${link.startsWith('/') ? link : `/${link}`}` : env.appUrl;
+const portalUrl = (link: string | undefined): string => {
+  if (!link) {
+    return env.appUrl;
+  }
+  const path = link.startsWith('/') ? link : `/${link}`;
+  return `${env.appUrl}${path}`;
+};
 
 /**
  * Delivers one notification to a set of people, on the channels each of them chose.

@@ -1,7 +1,6 @@
-import { BrowserWindow, dialog } from 'electron';
+import { app, BrowserWindow, dialog } from 'electron';
 import { writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
-import { app } from 'electron';
 import type { ReportExport, SavedReport } from '@shared/types';
 
 /** The one format offered. A spreadsheet opens it, and so does anything else. */

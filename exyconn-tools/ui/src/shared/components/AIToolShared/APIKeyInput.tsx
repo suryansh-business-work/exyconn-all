@@ -14,7 +14,7 @@ import { OPENAI_SECRET_KEY } from '../../services/openai';
  */
 const APIKeyInput: React.FC = () => {
   const { setApiKey: rememberKey, clearApiKey: forgetKey } = useOpenAI();
-  const [apiKey, setStoredKey] = useState(() => readSecret(OPENAI_SECRET_KEY));
+  const [storedKey, setStoredKey] = useState(() => readSecret(OPENAI_SECRET_KEY));
   const [inputValue, setInputValue] = useState('');
   const [showKey, setShowKey] = useState(false);
 
@@ -35,8 +35,8 @@ const APIKeyInput: React.FC = () => {
     forgetKey();
   };
 
-  const isKeySet = apiKey.length > 0;
-  const maskedKey = isKeySet ? `sk-...${apiKey.slice(-8)}` : '';
+  const isKeySet = storedKey.length > 0;
+  const maskedKey = isKeySet ? `sk-...${storedKey.slice(-8)}` : '';
 
   return (
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', p: 2, mb: 2 }}>

@@ -18,7 +18,7 @@ function renderRecorder() {
 
 describe('useVoiceRecorder when the microphone misbehaves', () => {
   beforeEach(() => {
-    FakeMediaRecorder.instances = [];
+    FakeMediaRecorder.instances.length = 0;
     vi.stubGlobal('MediaRecorder', FakeMediaRecorder);
     mic.getUserMedia.mockReset().mockResolvedValue(fakeStream().stream);
     installMicrophone(mic.getUserMedia);
@@ -34,8 +34,9 @@ describe('useVoiceRecorder when the microphone misbehaves', () => {
   it('counts the seconds while recording', async () => {
     vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
     const result = renderRecorder();
-    act(() => result.current.start());
-    await waitFor(() => expect(result.current.recording).toBe(true));
+    // The faked interval would also freeze waitFor's polling, so the microphone is awaited in act.
+    await act(async () => result.current.start());
+    expect(result.current.recording).toBe(true);
 
     act(() => vi.advanceTimersByTime(3000));
     expect(result.current.seconds).toBe(3);

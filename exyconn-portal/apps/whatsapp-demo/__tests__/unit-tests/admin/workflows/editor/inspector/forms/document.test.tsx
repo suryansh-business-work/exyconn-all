@@ -58,7 +58,7 @@ describe('Document form', () => {
     await user.click(screen.getAllByRole('button', { name: 'Add' })[1]);
     expect(textbox('Id')).toHaveValue('row-1');
     await user.type(screen.getByRole('combobox', { name: 'Cells' }), 'Sugar{Enter}110{Enter}');
-    expect(screen.getByRole('combobox', { name: 'Flag' })).toHaveTextContent('None');
+    expect(screen.getByRole('combobox', { name: 'Flag' })).not.toHaveTextContent(/\w/);
     await pickOption(user, 'Flag', 'high');
     expect(await applyForm(user, onApply)).toEqual({
       document: {

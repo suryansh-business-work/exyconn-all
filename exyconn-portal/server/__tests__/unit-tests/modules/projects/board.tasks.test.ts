@@ -4,6 +4,7 @@ import { boardService } from '../../../../src/modules/projects/board.service';
 import { TaskActivityModel, TaskModel } from '../../../../src/modules/projects/board.model';
 import { codeOf } from '../codeOf';
 import { addTicket, boardWithLead, missingId, seedMember } from './projects.fixtures';
+import { asArg } from '../../../mockAs';
 
 const DUE = new Date('2026-11-30T00:00:00.000Z');
 const spec = {
@@ -118,7 +119,7 @@ describe('editing a ticket', () => {
     const raised = await addTicket(ctx, projectId, todo.id, { title: 'Racing' });
     jest
       .spyOn(TaskModel, 'findByIdAndUpdate')
-      .mockReturnValueOnce({ lean: () => Promise.resolve(null) } as never);
+      .mockReturnValueOnce(asArg({ lean: () => Promise.resolve(null) }));
 
     const attempt = boardService.updateTask(raised.id, { title: 'x' }, '', {
       id: lead.id,

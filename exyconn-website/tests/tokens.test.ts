@@ -74,8 +74,56 @@ describe("semantic roles", () => {
 });
 
 describe("components paint only with roles", () => {
-  const PALETTE_CLASS =
-    /(?<![\w-])(?:[\w-]+:)*!?(?:bg|text|border(?:-[trblxy])?|from|via|to|ring|fill|stroke|shadow|divide|outline|placeholder|decoration|accent|caret)-(?:white|black|slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}(?![\w-])/g;
+  /** A utility class, with its variants: `dark:hover:!bg-` and so on. */
+  const UTILITY_START = String.raw`(?<![\w-])(?:[\w-]+:)*!?`;
+  const PALETTE_PREFIXES = [
+    "bg",
+    "text",
+    String.raw`border(?:-[trblxy])?`,
+    "from",
+    "via",
+    "to",
+    "ring",
+    "fill",
+    "stroke",
+    "shadow",
+    "divide",
+    "outline",
+    "placeholder",
+    "decoration",
+    "accent",
+    "caret",
+  ].join("|");
+  const PALETTE_HUES = [
+    "white",
+    "black",
+    "slate",
+    "gray",
+    "zinc",
+    "neutral",
+    "stone",
+    "red",
+    "orange",
+    "amber",
+    "yellow",
+    "lime",
+    "green",
+    "emerald",
+    "teal",
+    "cyan",
+    "sky",
+    "blue",
+    "indigo",
+    "violet",
+    "purple",
+    "fuchsia",
+    "pink",
+    "rose",
+  ].join("|");
+  const PALETTE_CLASS = new RegExp(
+    String.raw`${UTILITY_START}(?:${PALETTE_PREFIXES})-(?:${PALETTE_HUES})-\d{2,3}(?![\w-])`,
+    "g"
+  );
 
   /**
    * Tailwind's own palette is switched off in global.css, so a raw `text-gray-600` silently
@@ -90,14 +138,24 @@ describe("components paint only with roles", () => {
   });
 
   it("writes no colour literals", () => {
-    const literals =
-      /(?<![\w&-])(?:#(?:[0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{3})|%23[0-9a-f]{3,8}|(?:rgba?|hsla?|oklch)\()(?![\w-])/gi;
+    const hex = "#(?:[0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{3})";
+    const encodedHex = "%23[0-9a-f]{3,8}";
+    const colourFunction = String.raw`(?:rgba?|hsla?|oklch)\(`;
+    const literals = new RegExp(
+      String.raw`(?<![\w&-])(?:${hex}|${encodedHex}|${colourFunction})(?![\w-])`,
+      "gi"
+    );
     expect(findAll(literals)).toEqual([]);
   });
 
   it("names only roles that exist, in utilities and in var()", () => {
-    const utility =
-      /(?<![\w-])(?:[\w-]+:)*!?(?:bg|text|border|from|via|to|ring|fill|stroke|shadow|divide|placeholder)-((?:page|surface|inverse|fg|line|on-solid|on-primary|scrim|primary|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)(?:-[a-z]+)*)(?:\/[\d.]+)?(?![\w-])/g;
+    const prefixes = "bg|text|border|from|via|to|ring|fill|stroke|shadow|divide|placeholder";
+    const roleStems =
+      "page|surface|inverse|fg|line|on-solid|on-primary|scrim|primary|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose";
+    const utility = new RegExp(
+      String.raw`${UTILITY_START}(?:${prefixes})-((?:${roleStems})(?:-[a-z]+)*)(?:\/[\d.]+)?(?![\w-])`,
+      "g"
+    );
     const unknownUtilities = findAll(utility, 1).filter(
       (hit) => !roleNames.has(hit.split(": ")[1])
     );

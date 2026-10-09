@@ -15,6 +15,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import type { CampaignRow } from './forms/campaign';
 import { color } from '@exyconn/shell/components/ui';
+import { cellText } from '@exyconn/shell/utils/cellText';
 
 /** How many of the newest campaigns the overview lists before sending you to the register. */
 const RECENT_CAMPAIGNS = 8;
@@ -66,7 +67,7 @@ export function MarketingOverviewPage() {
     { key: 'status', label: 'Status', render: (r) => <StatusChip value={r.status} /> },
     { key: 'startDate', label: 'Starts', render: (r) => formatDate(r.startDate) },
     { key: 'recipientsCount', label: 'Recipients' },
-    { key: 'leads', label: 'Leads', render: (r) => String(leadsFor.get(r.id) ?? 0) },
+    { key: 'leads', label: 'Leads', render: (r) => cellText(leadsFor.get(r.id) ?? 0) },
   ];
 
   return (

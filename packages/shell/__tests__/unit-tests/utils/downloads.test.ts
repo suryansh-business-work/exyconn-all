@@ -34,7 +34,7 @@ describe('downloadCsv', () => {
     const [blob] = tracked.blobs;
     expect(blob.type).toBe('text/csv;charset=utf-8');
     const bytes = new Uint8Array(await blob.arrayBuffer());
-    expect([...bytes.slice(0, 3)]).toEqual([0xef, 0xbb, 0xbf]);
+    expect(Array.from(bytes.slice(0, 3))).toEqual([0xef, 0xbb, 0xbf]);
     expect(new TextDecoder().decode(bytes.slice(3))).toBe('a,b');
     expect(tracked.anchors[0].download).toBe('payroll.csv');
     expect(tracked.anchors[0].href).toBe('blob:test/1');
@@ -75,6 +75,18 @@ describe('downloadBase64File', () => {
   });
 });
 
+/** A reader that fails the way the browser does, with or without an error object. */
+function failingReader(error: DOMException | null) {
+  return class {
+    error = error;
+    onload: (() => void) | null = null;
+    onerror: (() => void) | null = null;
+    readAsDataURL() {
+      queueMicrotask(() => this.onerror?.());
+    }
+  };
+}
+
 describe('fileToDataUrl', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -84,18 +96,6 @@ describe('fileToDataUrl', () => {
     const file = new File(['hi'], 'a.txt', { type: 'text/plain' });
     await expect(fileToDataUrl(file)).resolves.toBe('data:text/plain;base64,aGk=');
   });
-
-  /** A reader that fails the way the browser does, with or without an error object. */
-  function failingReader(error: DOMException | null) {
-    return class {
-      error = error;
-      onload: (() => void) | null = null;
-      onerror: (() => void) | null = null;
-      readAsDataURL() {
-        queueMicrotask(() => this.onerror?.());
-      }
-    };
-  }
 
   it("rejects with the reader's own error", async () => {
     const error = new DOMException('Unreadable', 'NotReadableError');

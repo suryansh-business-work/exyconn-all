@@ -52,7 +52,13 @@ describe('DocTree', () => {
   it('cannot fold a page with nothing under it', () => {
     renderTree();
 
-    expect(screen.getByRole('button', { name: 'Collapse Decisions', hidden: true })).toBeDisabled();
+    // A leaf's toggle is `visibility: hidden`, which also strips its accessible name.
+    const leafToggles = screen.getAllByRole('button', { name: '', hidden: true });
+
+    expect(leafToggles).toHaveLength(2);
+    for (const toggle of leafToggles) {
+      expect(toggle).toBeDisabled();
+    }
   });
 
   it('opens a page when its row is clicked, at any depth', async () => {

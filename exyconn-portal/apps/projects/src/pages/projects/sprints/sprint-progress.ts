@@ -34,7 +34,7 @@ const sum = (tasks: TaskFieldsFragment[]): number =>
  * same rule the server applies when it decides what carries over from a completed sprint.
  */
 export function doneColumnIdOf(columns: ReadonlyArray<{ id: string }>): string | null {
-  return columns.length === 0 ? null : columns[columns.length - 1].id;
+  return columns.at(-1)?.id ?? null;
 }
 
 /**

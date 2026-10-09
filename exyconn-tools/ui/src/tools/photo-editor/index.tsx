@@ -87,6 +87,8 @@ export default function PhotoEditor() {
     }
   };
 
+  const formatLabel = format === 'png' ? 'PNG' : 'JPG';
+
   return (
     <ToolLayout toolName="Photo Editor" toolIcon={<FiSliders />} toolColor={COLOR}>
       <Container maxWidth="xl" sx={{ py: 3 }}>
@@ -123,7 +125,7 @@ export default function PhotoEditor() {
                   or click to browse
                 </Typography>
                 <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
-                  Browse Files
+                  {'Browse Files'}
                   <input hidden accept="image/*" type="file" onChange={onFileChange} />
                 </Button>
               </Paper>
@@ -137,7 +139,7 @@ export default function PhotoEditor() {
                   sx={{ maxWidth: '100%', maxHeight: 480, borderRadius: 1, filter: buildFilter(adjustments) }}
                 />
                 <Button size="small" component="label" sx={{ display: 'block', mx: 'auto', mt: 1, color: COLOR }}>
-                  Choose a different image
+                  {'Choose a different image'}
                   <input hidden accept="image/*" type="file" onChange={onFileChange} />
                 </Button>
               </Paper>
@@ -202,7 +204,7 @@ export default function PhotoEditor() {
                 disabled={!imageSrc || processing}
                 sx={{ bgcolor: COLOR, '&:hover': { bgcolor: '#db2777' } }}
               >
-                {processing ? 'Exporting…' : `Download ${format === 'png' ? 'PNG' : 'JPG'}`}
+                {processing ? 'Exporting…' : `Download ${formatLabel}`}
               </Button>
               <Typography
                 variant="caption"

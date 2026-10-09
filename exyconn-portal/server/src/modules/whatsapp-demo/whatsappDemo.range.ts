@@ -69,16 +69,14 @@ export function daysOf(range: Range, timeZone: string): string[] {
   const last = dayKey(new Date(range.to.getTime() - 1), timeZone);
   const [year, month, day] = dayKey(range.from, timeZone).split('-').map(Number);
   const days: string[] = [];
-  for (
-    let cursor = Date.UTC(year, month - 1, day);
-    days.length <= MAX_RANGE_DAYS;
-    cursor += DAY_MS
-  ) {
+  let cursor = Date.UTC(year, month - 1, day);
+  while (days.length <= MAX_RANGE_DAYS) {
     const key = new Date(cursor).toISOString().slice(0, 10);
     days.push(key);
     if (key >= last) {
       break;
     }
+    cursor += DAY_MS;
   }
   return days;
 }

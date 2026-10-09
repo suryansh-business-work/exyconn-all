@@ -103,6 +103,18 @@ describe("pairs written in components", () => {
   const written = new Set<string>();
   /* Gradient-clipped headings: every stop is the ink, on the page it sits on. */
   const clipped = new Set<string>();
+  /** Every text-role over a background role named in one class list. */
+  const recordPairs = (classes: string) => {
+    const fg = [...classes.matchAll(TEXT_ROLE)].map((m) => m[1]).find((name) => roles.has(name));
+    if (!fg) {
+      return;
+    }
+    for (const [, bg] of classes.matchAll(BG)) {
+      if (roles.has(bg)) {
+        written.add(`${fg}|${bg}`);
+      }
+    }
+  };
   readdirSync(SRC, { recursive: true, encoding: "utf8" })
     .filter((file) => /\.(astro|tsx?|jsx)$/.test(file))
     .forEach((file) => {
@@ -114,17 +126,7 @@ describe("pairs written in components", () => {
             }
           }
         }
-        const fg = [...classes.matchAll(TEXT_ROLE)]
-          .map((m) => m[1])
-          .find((name) => roles.has(name));
-        if (!fg) {
-          continue;
-        }
-        for (const [, bg] of classes.matchAll(BG)) {
-          if (roles.has(bg)) {
-            written.add(`${fg}|${bg}`);
-          }
-        }
+        recordPairs(classes);
       }
     });
 

@@ -52,7 +52,7 @@ const toInitial = (row: GithubConfigRow | null): Values => ({
   repo: row?.repo ?? '',
   // Never prefilled: the API does not return it, and blank keeps the stored token.
   token: '',
-  isActive: row ? (row.isActive ? 'true' : 'false') : 'true',
+  isActive: row?.isActive === false ? 'false' : 'true',
 });
 
 interface GithubConfigFormProps {

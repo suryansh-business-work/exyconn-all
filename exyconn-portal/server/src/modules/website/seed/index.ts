@@ -37,7 +37,7 @@ async function seedCollection<T extends object>(
   for (const fixture of fixtures) {
     const result = await writable.updateOne(
       { [naturalKey]: fixture[naturalKey] } as never,
-      { $setOnInsert: fixture as never },
+      { $setOnInsert: fixture },
       { upsert: true },
     );
     if (result.upsertedCount > 0) {

@@ -1,5 +1,4 @@
 import { ExitRecordModel } from './exit.model';
-import { exitTypeDefs } from './exit.typeDefs';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { assertAuthenticated } from '../../middleware/roleGuard';
@@ -119,4 +118,4 @@ export const exitResolvers = {
     },
   },
 };
-export { exitTypeDefs };
+export { exitTypeDefs } from './exit.typeDefs';

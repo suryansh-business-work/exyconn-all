@@ -14,7 +14,7 @@ const MIN_OPACITY = GROUND_OPACITY.min * 100;
 const MAX_OPACITY = GROUND_OPACITY.max * 100;
 
 function save(update: Partial<AppPreferences>): void {
-  run(() => window.tracker.setPreferences(update));
+  run(() => globalThis.tracker.setPreferences(update));
 }
 
 /**
@@ -32,7 +32,7 @@ export default function TransparencyPreference({
     setOpacity(Math.round(preferences.backgroundOpacity * 100));
   }, [preferences.backgroundOpacity]);
 
-  if (!window.tracker.transparencySupported) {
+  if (!globalThis.tracker.transparencySupported) {
     return null;
   }
   const on = preferences.transparentBackground;

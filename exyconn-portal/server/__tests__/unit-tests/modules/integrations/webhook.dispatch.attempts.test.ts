@@ -13,9 +13,11 @@ import { readJobRuns, JOB_KEYS } from '../../../../src/utils/jobHeartbeat';
 import { logger } from '../../../../src/utils/logger';
 
 // safeFetch resolves the receiver's host first; these hosts are fictional, so make them public.
-jest.mock('node:dns/promises', () => ({
-  lookup: jest.fn().mockResolvedValue([{ address: '93.184.215.14', family: 4 }]),
-}));
+jest.mock('node:dns/promises', () =>
+  jest
+    .requireActual<typeof import('../../../fixtures/publicDns')>('../../../fixtures/publicDns')
+    .publicDnsMock(),
+);
 
 const originalFetch = globalThis.fetch;
 afterEach(() => {

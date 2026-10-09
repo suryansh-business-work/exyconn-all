@@ -2,6 +2,7 @@ import { infraResolvers, infraService, infraTypeDefs } from '../../../../src/mod
 import { ROLES } from '../../../../src/constants/roles';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
 import { codeOf } from '../codeOf';
+import { asArg } from '../../../mockAs';
 
 /** A platform administrator stands above the companies and passes the platform guard. */
 const platformAdmin: GraphQLContext = {
@@ -44,7 +45,7 @@ describe('infrastructure resolvers', () => {
   it('passes the requested container id through to the detail read', async () => {
     const detail = jest
       .spyOn(infraService, 'containerDetail')
-      .mockResolvedValue({ id: 'abc' } as Awaited<ReturnType<typeof infraService.containerDetail>>);
+      .mockResolvedValue(asArg({ id: 'abc' }));
 
     await expect(Query.dockerContainerDetail(null, { id: 'abc' }, platformAdmin)).resolves.toEqual({
       id: 'abc',

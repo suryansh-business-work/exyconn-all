@@ -64,23 +64,23 @@ export async function subscribeToStatus(
   origin?: string,
   /** The caller's address. Absent for an internal caller, which is not limited per IP. */
   ip?: string,
-): Promise<boolean> {
+): Promise<void> {
   const address = email.trim().toLowerCase();
   if (address.length > MAX_EMAIL_LENGTH || !EMAIL_PATTERN.exec(address)) {
-    return true;
+    return;
   }
   if (ip !== undefined && !(await subscribeIpLimiter.allow(ip))) {
     logger.warn(`Status subscription from ${ip} rate-limited`);
-    return true;
+    return;
   }
   if (!(await subscribeLimiter.allow(address))) {
     logger.warn(`Status subscription for ${address} rate-limited`);
-    return true;
+    return;
   }
 
   const existing = await StatusSubscriberModel.findOne({ email: address }).lean();
   if (existing?.confirmedAt) {
-    return true;
+    return;
   }
 
   const token = randomBytes(24).toString('hex');
@@ -105,7 +105,6 @@ export async function subscribeToStatus(
   } catch (error) {
     logger.error({ err: error }, `Status confirmation email to ${address} failed`);
   }
-  return true;
 }
 
 /**
@@ -115,7 +114,7 @@ export async function subscribeToStatus(
  */
 export async function confirmStatusSubscription(token: string): Promise<boolean> {
   const row = await StatusSubscriberModel.findOne({ tokenHash: hashToken(token) });
-  if (!row || !row.tokenHash) {
+  if (!row?.tokenHash) {
     badRequest(BAD_TOKEN);
   }
   row.confirmedAt = new Date();

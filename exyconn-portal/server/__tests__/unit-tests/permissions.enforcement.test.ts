@@ -55,7 +55,7 @@ beforeEach(async () => {
 
 describe('the hand-written half of the API', () => {
   it('registers its module names, so the admin matrix can restrict them', async () => {
-    expect((await P.listPermissionModules(null, {}, admin)) as string[]).toEqual(
+    expect(await P.listPermissionModules(null, {}, admin)).toEqual(
       expect.arrayContaining([
         'AppSettings',
         'AuditLog',

@@ -19,7 +19,7 @@ interface CustomMailFormProps {
 }
 
 /** React Hook Form + Zod form to send an admin-composed email to a single user. */
-export function CustomMailForm({ userId, onDone, onCancel }: CustomMailFormProps) {
+export function CustomMailForm({ userId, onDone, onCancel }: Readonly<CustomMailFormProps>) {
   const notify = useNotify();
   const [sendUserMail] = useSendUserMailMutation();
   const methods = useForm<Values>({

@@ -35,7 +35,8 @@ const AIBlogTitleGenerator: React.FC = () => {
     setError(null);
 
     try {
-      const userPrompt = `Generate ${count} SEO-friendly blog titles for: "${topic}"${keywords ? `\n\nInclude these keywords where natural: ${keywords}` : ''}`;
+      const keywordsLine = keywords ? `\n\nInclude these keywords where natural: ${keywords}` : '';
+      const userPrompt = `Generate ${count} SEO-friendly blog titles for: "${topic}"${keywordsLine}`;
       const response = await generateWithOpenAI(apiKey, SYSTEM_PROMPT, userPrompt);
       setResult(response.content);
       setTokenUsage(response.usage);

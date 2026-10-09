@@ -5,6 +5,7 @@ import {
   ImageConfigModel,
   type ImageConfigDocument,
 } from '../../../src/modules/tech/image-config.model';
+import { asArg } from '../../mockAs';
 
 const mockUpload = jest.fn();
 const mockDeleteFile = jest.fn();
@@ -38,7 +39,7 @@ const WOFF2 = dataUrl('font/woff2', 'wOF2 font body');
 function active(value: ImageConfigDocument | null) {
   return jest
     .spyOn(ImageConfigModel, 'findOne')
-    .mockReturnValue({ lean: jest.fn().mockResolvedValue(value) } as never);
+    .mockReturnValue(asArg({ lean: jest.fn().mockResolvedValue(value) }));
 }
 
 /** The folder of the one upload made. */

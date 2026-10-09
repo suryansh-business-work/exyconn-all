@@ -36,7 +36,7 @@ const PageDetails: React.FC<PageDetailsProps> = ({ pages }) => {
 
         return (
           <Accordion
-            key={idx}
+            key={page.url}
             expanded={expanded === `panel-${idx}`}
             onChange={handleChange(`panel-${idx}`)}
             elevation={0}
@@ -103,8 +103,8 @@ const PageDetails: React.FC<PageDetailsProps> = ({ pages }) => {
                     Emails:
                   </Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                    {page.contacts.emails.map((email, i) => (
-                      <Chip key={i} label={email} size="small" variant="outlined" />
+                    {page.contacts.emails.map((email) => (
+                      <Chip key={email} label={email} size="small" variant="outlined" />
                     ))}
                   </Box>
                 </Box>
@@ -123,8 +123,8 @@ const PageDetails: React.FC<PageDetailsProps> = ({ pages }) => {
                     Phones:
                   </Typography>
                   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                    {page.contacts.phones.map((phone, i) => (
-                      <Chip key={i} label={phone} size="small" variant="outlined" />
+                    {page.contacts.phones.map((phone) => (
+                      <Chip key={phone} label={phone} size="small" variant="outlined" />
                     ))}
                   </Box>
                 </Box>

@@ -36,7 +36,7 @@ describe('verify', () => {
   it('throws with the status and at most 200 characters of the answer', async () => {
     fetchMock.mockResolvedValue(new Response('x'.repeat(500), { status: 404 }));
     const config = { apiKey, defaultModel: 'gpt-x' } as OpenAiConfigDocument;
-    const error = await openAiClient.verify(config).catch((caught: Error) => caught);
+    const error = await openAiClient.verify(config).catch((error_: Error) => error_);
     expect(error).toBeInstanceOf(Error);
     expect((error as Error).message).toBe(
       `OpenAI /v1/models/gpt-x failed (404): ${'x'.repeat(200)}`,

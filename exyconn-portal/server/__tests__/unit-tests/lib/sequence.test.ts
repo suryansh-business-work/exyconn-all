@@ -2,6 +2,7 @@ import { Types } from 'mongoose';
 import { nextSequence } from '../../../src/lib/sequence';
 import { CounterModel } from '../../../src/lib/counter.model';
 import { runForOrganization } from '../../../src/lib/tenant';
+import { asArg } from '../../mockAs';
 
 describe('nextSequence', () => {
   afterEach(() => jest.restoreAllMocks());
@@ -45,7 +46,7 @@ describe('nextSequence', () => {
   it('starts at one when the store hands back no counter', async () => {
     jest
       .spyOn(CounterModel, 'findOneAndUpdate')
-      .mockReturnValueOnce({ lean: () => Promise.resolve(null) } as never);
+      .mockReturnValueOnce(asArg({ lean: () => Promise.resolve(null) }));
     await expect(nextSequence('empty', 'E-', 3)).resolves.toBe('E-001');
   });
 });

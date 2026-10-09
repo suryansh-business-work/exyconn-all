@@ -172,8 +172,10 @@ export const statusResolvers = {
     ) => submitProblemReport(input, ctx.ip ?? 'unknown'),
 
     /** Unauthenticated — following a status page needs no account. Double opt-in. */
-    subscribeToStatus: (_p: unknown, { email }: { email: string }, ctx: GraphQLContext) =>
-      subscribeToStatus(email, ctx.origin, ctx.ip),
+    subscribeToStatus: async (_p: unknown, { email }: { email: string }, ctx: GraphQLContext) => {
+      await subscribeToStatus(email, ctx.origin, ctx.ip);
+      return true;
+    },
 
     /** Unauthenticated — the emailed link is the only credential either of these needs. */
     confirmStatusSubscription: (_p: unknown, { token }: { token: string }) =>

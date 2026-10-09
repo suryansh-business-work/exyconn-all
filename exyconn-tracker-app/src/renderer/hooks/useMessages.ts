@@ -34,7 +34,7 @@ export default function useMessages(kind: TrackerMessageKind): MessagesQuery {
   const mounted = useRef(true);
 
   const load = useCallback(async (): Promise<void> => {
-    const rows = await window.tracker.getMessages(kind);
+    const rows = await globalThis.tracker.getMessages(kind);
     if (mounted.current) {
       setMessages(rows);
       setError(null);
@@ -60,7 +60,7 @@ export default function useMessages(kind: TrackerMessageKind): MessagesQuery {
       });
     // Reading them IS the act that clears the badge; a separate "mark as read" button would
     // only ask the employee to confirm something they have already done.
-    window.tracker.markMessagesRead(kind).catch((cause: unknown) => {
+    globalThis.tracker.markMessagesRead(kind).catch((cause: unknown) => {
       console.error('Marking messages read failed', cause);
     });
 
@@ -80,7 +80,7 @@ export default function useMessages(kind: TrackerMessageKind): MessagesQuery {
       try {
         // The portal's copy is what the thread shows — never a local echo, which would put a
         // message on screen that nobody else can see if the send actually failed.
-        await window.tracker.sendMessage(body);
+        await globalThis.tracker.sendMessage(body);
         await load();
       } finally {
         if (mounted.current) {

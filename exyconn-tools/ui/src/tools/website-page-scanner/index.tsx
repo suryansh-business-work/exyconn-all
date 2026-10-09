@@ -66,12 +66,7 @@ const WebsitePageScanner: React.FC = () => {
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
             <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, minHeight: 480 }}>
-              {!result ? (
-                <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
-                  <Scanner sx={{ fontSize: 48, mb: 2, opacity: 0.3 }} />
-                  <Typography variant="body1">Enter a website URL and click Scan to analyze pages</Typography>
-                </Box>
-              ) : (
+              {result ? (
                 <Box sx={{ maxHeight: 500, overflow: 'auto', p: 2 }}>
                   <Stack spacing={1.5}>
                     {result.pages.map((page) => (
@@ -83,6 +78,11 @@ const WebsitePageScanner: React.FC = () => {
                       />
                     ))}
                   </Stack>
+                </Box>
+              ) : (
+                <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
+                  <Scanner sx={{ fontSize: 48, mb: 2, opacity: 0.3 }} />
+                  <Typography variant="body1">Enter a website URL and click Scan to analyze pages</Typography>
                 </Box>
               )}
             </Paper>

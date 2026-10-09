@@ -39,7 +39,7 @@ const PdfFAQGenerator: React.FC = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
-    if (f && f.type === 'application/pdf') setFile(f);
+    if (f?.type === 'application/pdf') setFile(f);
     else setError('Please upload a valid PDF file');
   };
 

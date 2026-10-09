@@ -11,7 +11,7 @@ interface RhfSelectProps {
 }
 
 /** React Hook Form-bound MUI select with inline validation feedback. */
-export function RhfSelect({ name, label, options, helperText }: RhfSelectProps) {
+export function RhfSelect({ name, label, options, helperText }: Readonly<RhfSelectProps>) {
   const { control } = useFormContext();
   const copy = useFieldCopy();
   return (

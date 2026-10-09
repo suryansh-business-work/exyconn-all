@@ -27,7 +27,6 @@ const ERROR_PAGE = /^\/(?:404|500)$/;
  * one-line loader public/embed/chat.js. They are not market pages: no redirect, no
  * translation, never indexed, and framable only by the origins below.
  */
-const EMBED_PATH = /^\/embed\//;
 
 /**
  * Origins allowed to frame /embed/*, besides the site itself. `CHAT_FRAME_ANCESTORS` (space or
@@ -212,7 +211,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // 3. Embeddable pages skip markets entirely and may be framed by the allowed origins.
-  if (EMBED_PATH.test(url.pathname)) {
+  if (url.pathname.startsWith("/embed/")) {
     return withEmbedHeaders(await next());
   }
 

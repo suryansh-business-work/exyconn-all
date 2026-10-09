@@ -1,5 +1,4 @@
 import { EmployeeDocumentModel } from './document.model';
-import { documentsTypeDefs } from './documents.typeDefs';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { createMyRecordsResolver } from '../../lib/employeeScope';
@@ -37,5 +36,6 @@ export const documentsResolvers = {
   },
   Mutation: crud.Mutation,
 };
-export { documentsTypeDefs, EmployeeDocumentModel };
+export { documentsTypeDefs } from './documents.typeDefs';
+export { EmployeeDocumentModel } from './document.model';
 export { ensurePayslipDocument } from './payslip-document';

@@ -16,6 +16,16 @@ function cleanDomain(input: string): string {
 }
 
 // ---- SEO Checker ----
+function severityPenalty(severity: string): number {
+  if (severity === "critical") return 15;
+  return severity === "warning" ? 8 : 3;
+}
+
+function readabilityFor(wordsPerSentence: number): string {
+  if (wordsPerSentence < 15) return "Easy";
+  return wordsPerSentence < 20 ? "Moderate" : "Complex";
+}
+
 export async function seoCheck(url: string) {
   const targetUrl = cleanUrl(url);
   const { data: html } = await safeRequest<string>(targetUrl, {
@@ -51,7 +61,7 @@ export async function seoCheck(url: string) {
   $("img").each((_, el) => {
     images.total++;
     const alt = $(el).attr("alt");
-    if (alt && alt.trim()) images.withAlt++;
+    if (alt?.trim()) images.withAlt++;
     else {
       images.withoutAlt++;
       const src = $(el).attr("src") || "unknown";
@@ -107,7 +117,7 @@ export async function seoCheck(url: string) {
   if (!favicon) issues.push({ type: "favicon", severity: "info", message: "Missing favicon" });
   if (schemaMarkup.length === 0) issues.push({ type: "schema", severity: "info", message: "No structured data (schema.org) found" });
 
-  const score = Math.max(0, 100 - issues.reduce((acc, i) => acc + (i.severity === "critical" ? 15 : i.severity === "warning" ? 8 : 3), 0));
+  const score = Math.max(0, 100 - issues.reduce((acc, i) => acc + severityPenalty(i.severity), 0));
 
   return {
     url: targetUrl,
@@ -183,7 +193,7 @@ export function checkPlagiarism(text: string) {
     totalSentences: sentences.length,
     averageWordsPerSentence: sentences.length ? Math.round(words.length / sentences.length) : 0,
     repeatedPhrases: repeatedPhrases.slice(0, 20),
-    readabilityLevel: words.length / sentences.length < 15 ? "Easy" : words.length / sentences.length < 20 ? "Moderate" : "Complex",
+    readabilityLevel: readabilityFor(words.length / sentences.length),
     note: "This is a basic uniqueness analysis. For comprehensive plagiarism detection, consider using a dedicated plagiarism detection API.",
   };
 }
@@ -229,12 +239,12 @@ export function rewriteText(text: string, style: string = "professional") {
     wordCount: words.length,
     sentenceCount: sentences.length,
     averageSentenceLength: sentences.length ? Math.round(words.length / sentences.length) : 0,
-    readability: words.length / (sentences.length || 1) < 15 ? "Easy" : words.length / (sentences.length || 1) < 20 ? "Moderate" : "Complex",
+    readability: readabilityFor(words.length / (sentences.length || 1)),
     suggestions: [
       sentences.some((s) => s.split(/\s+/).length > 25) ? "Break long sentences into shorter ones" : null,
       words.length < 50 ? "Consider adding more detail" : null,
       new Set(words.map((w) => w.toLowerCase())).size / words.length < 0.5 ? "Use more varied vocabulary" : null,
-      !text.includes(",") ? "Add commas for better readability" : null,
+      text.includes(",") ? null : "Add commas for better readability",
     ].filter(Boolean),
     style,
     note: "For AI-powered rewriting, configure your OpenAI API key in API Keys & Secrets. This tool provides text analysis and suggestions.",

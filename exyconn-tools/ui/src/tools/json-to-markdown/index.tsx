@@ -57,14 +57,10 @@ const JsonToMarkdown: React.FC = () => {
     a.click();
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setContent(event.target?.result as string);
-      };
-      reader.readAsText(file);
+      setContent(await file.text());
     }
   };
 

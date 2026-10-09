@@ -16,12 +16,12 @@ import { run } from '../run';
 export default function useCaptureNotification(timezone: string): void {
   useEffect(
     () =>
-      window.tracker.onOpenCaptureDay((capturedAt) => {
+      globalThis.tracker.onOpenCaptureDay((capturedAt) => {
         const range = dayBoundsOfInstant(capturedAt, timezone);
         if (range === null) {
           return;
         }
-        run(() => window.tracker.openScreenshots(range));
+        run(() => globalThis.tracker.openScreenshots(range));
       }),
     [timezone],
   );

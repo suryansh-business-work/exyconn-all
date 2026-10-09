@@ -76,7 +76,7 @@ describe('the permission matrix reads', () => {
   });
 
   it('myPermissions leaves a caller with no roles nothing to do', async () => {
-    const matrix = (await P.myPermissions(null, {}, as(undefined))) as MatrixRow[];
+    const matrix = (await P.myPermissions(null, {}, as())) as MatrixRow[];
 
     expect(matrix.length).toBeGreaterThan(0);
     expect(matrix.every((row) => !row.view && !row.create)).toBe(true);
@@ -101,7 +101,7 @@ describe('canExport', () => {
     await RolePermissionModel.create({ role: ROLES.HR, module: MODULE, actions: [] });
 
     await expect(P.canExport(null, { module: MODULE }, admin)).resolves.toBe(true);
-    await expect(P.canExport(null, { module: MODULE }, as(undefined))).resolves.toBe(false);
+    await expect(P.canExport(null, { module: MODULE }, as())).resolves.toBe(false);
   });
 
   it('refuses an unknown module and an anonymous caller', async () => {

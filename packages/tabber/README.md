@@ -29,6 +29,9 @@ const TABS: TabberItem[] = [
 Landing on `/environment-variables` rewrites the URL to the first tab with
 `replace`, so the correction never becomes its own history entry.
 
+The strip keeps a panel's gap (spacing step `2`, 16px) from the content below
+it, so no page needs to add its own margin. Pass `sx` only to change that.
+
 When the page renders its own body from the active tab rather than a panel per
 tab, use the hook instead:
 

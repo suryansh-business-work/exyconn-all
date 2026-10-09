@@ -14,7 +14,7 @@ import { organizationOf, runAsPlatform, runForOrganizationOf } from '../../lib/t
 import type { GraphQLContext } from '../../middleware/auth';
 
 /** The template the link is emailed with. Authored in Tech → Email. */
-export const PASSWORD_RESET_TEMPLATE = 'password-reset';
+export const RESET_LINK_TEMPLATE = 'password-reset';
 
 const HOUR_SEC = 60 * 60;
 const TOKEN_TTL_MS = HOUR_SEC * 1000;
@@ -46,18 +46,18 @@ export const resetLinkOrigin = portalOrigin;
  * address would tell a stranger which emails have accounts. The email itself is
  * best-effort: a failed send is logged, and the caller sees the same message either way.
  */
-export async function requestPasswordReset(email: string, ctx: GraphQLContext): Promise<boolean> {
+export async function requestPasswordReset(email: string, ctx: GraphQLContext): Promise<void> {
   const address = email.trim().toLowerCase();
   if (address.length > MAX_EMAIL_LENGTH) {
-    return true;
+    return;
   }
   if (!(await resetIpLimiter.allow(ctx.ip ?? 'unknown'))) {
     logger.warn(`Password reset from ${ctx.ip ?? 'unknown'} rate-limited`);
-    return true;
+    return;
   }
   if (!(await resetRequestLimiter.allow(address))) {
     logger.warn(`Password reset for ${address} rate-limited`);
-    return true;
+    return;
   }
   // Nobody is signed in, so the person is looked up platform-wide; their token and email
   // then belong to their own company (the template is that company's).
@@ -67,10 +67,9 @@ export async function requestPasswordReset(email: string, ctx: GraphQLContext): 
       .lean(),
   );
   if (!user) {
-    return true;
+    return;
   }
   await runForOrganizationOf(organizationOf(user), () => sendResetLink(user, ctx));
-  return true;
 }
 
 /**
@@ -99,7 +98,7 @@ async function sendResetLink(
 
   emailer
     .send({
-      template: PASSWORD_RESET_TEMPLATE,
+      template: RESET_LINK_TEMPLATE,
       to: user.email,
       variables: { name: user.name || user.email, link, expiresIn: '1 hour' },
       triggeredBy: 'password reset request',

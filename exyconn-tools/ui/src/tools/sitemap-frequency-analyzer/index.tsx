@@ -35,7 +35,7 @@ const getChangefreqColor = (freq: string): string => {
 };
 
 const getPriorityColor = (priority: string): string => {
-  const val = parseFloat(priority);
+  const val = Number.parseFloat(priority);
   if (val >= 0.8) return '#dc2626';
   if (val >= 0.6) return '#ea580c';
   if (val >= 0.4) return '#d97706';
@@ -182,7 +182,7 @@ const SitemapFrequencyAnalyzer: React.FC = () => {
               <DistributionChart
                 title="Priority Distribution"
                 data={Object.fromEntries(
-                  Object.entries(stats.priority).sort((a, b) => parseFloat(b[0]) - parseFloat(a[0]))
+                  Object.entries(stats.priority).sort((a, b) => Number.parseFloat(b[0]) - Number.parseFloat(a[0]))
                 )}
                 totalUrls={stats.totalUrls}
                 getColor={getPriorityColor}

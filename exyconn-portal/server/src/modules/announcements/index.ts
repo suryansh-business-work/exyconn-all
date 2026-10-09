@@ -1,5 +1,4 @@
 import { ANNOUNCEMENT_IT_CATEGORIES, AnnouncementModel } from './announcement.model';
-import { announcementsTypeDefs } from './announcements.typeDefs';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { assertAuthenticated } from '../../middleware/roleGuard';
@@ -142,4 +141,4 @@ export const announcementsResolvers = {
   Query: { ...crud.Query, activeAnnouncements },
   Mutation: { ...crud.Mutation, createAnnouncement, updateAnnouncement, deleteAnnouncement },
 };
-export { announcementsTypeDefs };
+export { announcementsTypeDefs } from './announcements.typeDefs';

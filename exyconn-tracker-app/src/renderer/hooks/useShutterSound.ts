@@ -13,7 +13,7 @@ import { playShutter } from '../shutter';
 export default function useShutterSound(): void {
   useEffect(
     () =>
-      window.tracker.onScreenshotCaptured((capture) => {
+      globalThis.tracker.onScreenshotCaptured((capture) => {
         if (!capture.silent) {
           playShutter();
         }

@@ -68,6 +68,14 @@ const SecretsDrawer: React.FC<Readonly<SecretsDrawerProps>> = ({ open, onClose, 
     setSaved((prev) => ({ ...prev, [field.key]: false }));
   };
 
+  const handleValueChange = (key: string, value: string) => {
+    setValues((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleToggleVisibility = (key: string) => {
+    setVisibility((prev) => ({ ...prev, [key]: !prev[key] }));
+  };
+
   const handleCopy = (key: string) => {
     navigator.clipboard.writeText(values[key] || '');
     setCopied(key);
@@ -213,8 +221,8 @@ const SecretsDrawer: React.FC<Readonly<SecretsDrawerProps>> = ({ open, onClose, 
                         isVisible={!!visibility[field.key]}
                         isSaved={!!saved[field.key]}
                         isCopied={copied === field.key}
-                        onValueChange={(val) => setValues((prev) => ({ ...prev, [field.key]: val }))}
-                        onToggleVisibility={() => setVisibility((prev) => ({ ...prev, [field.key]: !prev[field.key] }))}
+                        onValueChange={(val) => handleValueChange(field.key, val)}
+                        onToggleVisibility={() => handleToggleVisibility(field.key)}
                         onSave={() => handleSave(field)}
                         onClear={() => handleClear(field)}
                         onCopy={() => handleCopy(field.key)}

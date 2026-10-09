@@ -61,15 +61,15 @@ function output(): string | null | undefined {
 describe('stubTracker and overrideTracker', () => {
   it('stubTracker installs exactly the stand-in it is given', async () => {
     stubTracker({ getAppVersion: () => Promise.resolve('2.0.0') });
-    await expect(window.tracker.getAppVersion()).resolves.toBe('2.0.0');
+    await expect(globalThis.tracker.getAppVersion()).resolves.toBe('2.0.0');
   });
 
   it('overrideTracker swaps the chosen commands and keeps the rest of the fixture', async () => {
     const state = trackerState('idle');
     installTracker(state);
     overrideTracker({ getAppVersion: () => Promise.resolve('3.1.4') });
-    await expect(window.tracker.getAppVersion()).resolves.toBe('3.1.4');
-    await expect(window.tracker.getState()).resolves.toBe(state);
+    await expect(globalThis.tracker.getAppVersion()).resolves.toBe('3.1.4');
+    await expect(globalThis.tracker.getState()).resolves.toBe(state);
   });
 });
 

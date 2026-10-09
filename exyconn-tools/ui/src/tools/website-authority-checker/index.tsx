@@ -63,7 +63,12 @@ const WebsiteAuthorityChecker: React.FC = () => {
     }
   };
 
-  const getScoreColor = (s: number) => (s >= 80 ? '#22c55e' : s >= 50 ? '#f59e0b' : '#ef4444');
+  const getScoreColor = (s: number) => {
+    if (s >= 80) {
+      return '#22c55e';
+    }
+    return s >= 50 ? '#f59e0b' : '#ef4444';
+  };
 
   return (
     <ToolLayout toolName="Website Authority Checker" toolIcon={<Leaderboard />} toolColor="#3b82f6">
@@ -148,8 +153,8 @@ const WebsiteAuthorityChecker: React.FC = () => {
                     <Typography variant="subtitle2" gutterBottom>
                       Improvement Tips
                     </Typography>
-                    {result.tips.slice(0, 8).map((tip, i) => (
-                      <Alert key={i} severity="warning" sx={{ mb: 1, py: 0 }}>
+                    {result.tips.slice(0, 8).map((tip) => (
+                      <Alert key={tip} severity="warning" sx={{ mb: 1, py: 0 }}>
                         {tip}
                       </Alert>
                     ))}

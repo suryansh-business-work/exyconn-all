@@ -1,8 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { LiveStats } from '../../src/types';
+import type { LiveStats, TrackerSettings } from '../../src/types';
 import { TrackerEngine, type EngineDeps, type EngineHooks } from '../../src/engine';
 import { Outbox } from '../../src/outbox';
-import type { TrackerSettings } from '../../src/types';
 
 const SETTINGS: TrackerSettings = {
   intervalMinutes: 10,

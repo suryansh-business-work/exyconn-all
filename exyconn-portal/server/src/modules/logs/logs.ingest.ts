@@ -15,7 +15,7 @@ import {
 import { UserModel } from '../admin/user.model';
 import { badRequest } from '../../utils/errors';
 import { logger } from '../../utils/logger';
-import { createRateLimiter } from '../../utils/rateLimit';
+import { createLimiter } from '../../lib/rateLimiter';
 import type { TokenPayload } from '../../utils/jwt';
 
 export interface LogBreadcrumbInput {
@@ -67,7 +67,11 @@ interface ResolvedUser {
 /** One entry can stand for this many identical ones; anything above is a client bug. */
 const MAX_FOLDED_COUNT = 100_000;
 
-const limiter = createRateLimiter(INGEST_WINDOW_MS, INGEST_MAX_BATCHES);
+const limiter = createLimiter({
+  keyPrefix: 'logs_ingest',
+  points: INGEST_MAX_BATCHES,
+  durationSec: INGEST_WINDOW_MS / 1000,
+});
 
 const MINUTE_MS = 60_000;
 
@@ -101,10 +105,11 @@ const serverWriteBudget = createTokenBucket(SERVER_ERROR_WRITES_PER_MINUTE);
 let budgetWarnedAt = 0;
 
 /** Test seam: forgets every recorded batch and refills the server error budget. */
-export function resetLogIngestLimits(): void {
-  limiter.reset();
+export async function resetLogIngestLimits(): Promise<void> {
+  // The in-memory state first: callers that do not await this still start with a full budget.
   serverWriteBudget.reset();
   budgetWarnedAt = 0;
+  await limiter.reset();
 }
 
 function cut(value: string | null | undefined, max: number): string {
@@ -284,7 +289,7 @@ export async function ingestLogBatch(batch: LogBatchInput, req: LogRequest): Pro
     badRequest(`At most ${MAX_ENTRIES_PER_BATCH} log entries per call`);
   }
   const caller = req.user?.id ?? req.ip ?? 'unknown';
-  if (!limiter.allow(caller)) {
+  if (!(await limiter.allow(caller))) {
     logger.warn({ caller, app: batch.app }, 'Client log batch rate-limited');
     return false;
   }

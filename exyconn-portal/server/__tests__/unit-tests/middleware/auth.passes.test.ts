@@ -4,6 +4,7 @@ import { principalForApiKey } from '../../../src/modules/integrations/api-key.se
 import { signToken } from '../../../src/utils/jwt';
 import { ROLES } from '../../../src/constants/roles';
 import { contextOf, requestWith, seedPerson } from './authHarness';
+import { asArg } from '../../mockAs';
 
 jest.mock('../../../src/modules/clienthub', () => ({
   CLIENT_PASS_HEADER: 'x-client-pass',
@@ -56,7 +57,7 @@ describe('buildContext without a session', () => {
 
 describe('buildContext for pass holders', () => {
   it('speaks only for the client hub contact, even with a portal session alongside', async () => {
-    jest.mocked(contactForPass).mockResolvedValueOnce(contact as never);
+    jest.mocked(contactForPass).mockResolvedValueOnce(asArg(contact));
     const person = await seedPerson(null, [ROLES.ADMIN]);
     const token = signToken({ id: person.id, email: person.email, roles: [ROLES.ADMIN] });
     const { ctx, scope } = await contextOf(
@@ -79,7 +80,7 @@ describe('buildContext for pass holders', () => {
   });
 
   it('recognises a WhatsApp demo visitor, and nobody with a dead pass', async () => {
-    jest.mocked(visitorForPass).mockResolvedValueOnce(visitor as never);
+    jest.mocked(visitorForPass).mockResolvedValueOnce(asArg(visitor));
     const live = await contextOf(requestWith({ headers: { 'x-demo-visitor': 'v-pass' } }));
     expect(live.ctx.demoVisitor).toEqual(visitor);
     expect(live.ctx.user).toBeNull();

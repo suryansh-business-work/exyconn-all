@@ -43,7 +43,7 @@ describe('settleStatus', () => {
   it('marks an invoice paid once the money is all in', () => {
     expect(settleStatus('SENT', 1000, 1000)).toBe('PAID');
     // Slightly over (a rounding overshoot upstream) still settles it.
-    expect(settleStatus('PARTIALLY_PAID', 1000, 1000.0)).toBe('PAID');
+    expect(settleStatus('PARTIALLY_PAID', 1000, 1000)).toBe('PAID');
   });
 
   it('marks a part payment as such, instead of leaving it looking unpaid', () => {

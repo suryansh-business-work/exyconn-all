@@ -99,7 +99,7 @@ async function manual(userId: string, projectId: string, durationMs: number, sta
 const raise = (projectId: string) =>
   financeResolvers.Mutation.createInvoiceFromTimeLog(
     null,
-    { projectId, from: FROM, to: TO } as never,
+    { projectId, from: FROM, to: TO },
     asFinance,
   );
 
@@ -204,7 +204,7 @@ describe('createInvoiceFromTimeLog', () => {
     await expect(
       financeResolvers.Mutation.createInvoiceFromTimeLog(
         null,
-        { projectId: 'x', from: FROM, to: TO } as never,
+        { projectId: 'x', from: FROM, to: TO },
         asHr,
       ),
     ).rejects.toThrow();

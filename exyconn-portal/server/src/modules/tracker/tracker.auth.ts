@@ -123,7 +123,7 @@ export async function assertTrackerDevice(ctx: GraphQLContext): Promise<TrackerD
   }
 
   const device = await TrackerDeviceModel.findOne({ deviceId, userId }).lean();
-  if (!device || !device.isActive || device.revokedAt) {
+  if (!device?.isActive || device.revokedAt) {
     unauthenticated('This device has been revoked. Please sign in again.');
   }
 

@@ -39,7 +39,7 @@ export default function usePeriodInsights(length: PeriodLength, zone: string): P
     let active = true;
     setLoading(true);
     setError(null);
-    window.tracker
+    globalThis.tracker
       .getReport(range.fromISO, range.toISO)
       .then((rows) => {
         if (active) {

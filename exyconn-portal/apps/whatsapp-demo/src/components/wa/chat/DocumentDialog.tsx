@@ -6,6 +6,8 @@ import type { DocSection, DocumentAttachment } from '@exyconn/wa-flow';
 import { useCompact, useWaPalette } from '../../../theme/useWa';
 import { WA_FONT, WA_SPACE } from '../../../theme/wa.tokens';
 
+const FLAG_LETTER = { high: 'H', low: 'L' } as const;
+
 function Section({ section }: Readonly<{ section: DocSection }>) {
   const c = useWaPalette();
   let body;
@@ -48,7 +50,7 @@ function Section({ section }: Readonly<{ section: DocSection }>) {
           }}
         >
           {row.cells[index]}
-          {row.flag && index === 1 ? ` (${row.flag === 'high' ? 'H' : 'L'})` : ''}
+          {row.flag && index === 1 ? ` (${FLAG_LETTER[row.flag]})` : ''}
         </Box>
       ),
     }));

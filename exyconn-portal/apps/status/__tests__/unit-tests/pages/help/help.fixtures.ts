@@ -39,9 +39,11 @@ export const ticket = (overrides: Partial<ClientTicket> = {}): ClientTicket => (
   ...overrides,
 });
 
+const DEFAULT_VARIABLES = { reference: REFERENCE, email: EMAIL };
+
 export const lookedUp = (
   answer: ClientTicket | null | Error,
-  variables = { reference: REFERENCE, email: EMAIL },
+  variables = DEFAULT_VARIABLES,
 ): MockLink.MockedResponse => ({
   request: { query: ClientSupportTicketStatusDocument, variables },
   ...(answer instanceof Error

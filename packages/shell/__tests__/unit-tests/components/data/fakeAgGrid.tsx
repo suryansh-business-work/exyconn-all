@@ -45,11 +45,17 @@ export function FakeAgGrid(props: Readonly<FakeGridProps>) {
   }, [onGridReady]);
   return (
     <div data-testid="ag-grid">
-      {props.columnDefs.map((column) => (
-        <span key={column.colId} role="columnheader">
-          {column.headerName ?? column.colId}
-        </span>
-      ))}
+      <table>
+        <thead>
+          <tr>
+            {props.columnDefs.map((column) => (
+              <th key={column.colId} scope="col">
+                {column.headerName ?? column.colId}
+              </th>
+            ))}
+          </tr>
+        </thead>
+      </table>
     </div>
   );
 }

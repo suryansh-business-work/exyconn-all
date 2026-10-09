@@ -1,8 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act } from '@testing-library/react';
 import type { DragEndEvent, DragStartEvent } from '@dnd-kit/core';
-import { useBoardDnd, type ProjectBoardApi } from '../../../../../src/pages/projects/board';
-import type { TaskView } from '../../../../../src/pages/projects/board';
+import {
+  useBoardDnd,
+  type ProjectBoardApi,
+  type TaskView,
+} from '../../../../../src/pages/projects/board';
 import { renderHookWithProviders } from '../../../test-utils';
 import { taskRow } from '../../../fixtures';
 

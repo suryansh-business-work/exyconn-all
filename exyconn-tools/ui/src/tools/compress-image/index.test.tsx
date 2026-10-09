@@ -1,3 +1,4 @@
+import { mockCanvasContext } from '../../__tests__/canvasMock';
 import { describe, it, expect, vi, beforeAll } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { formatBytes, computeScaledDimensions, computeSavedPercent, outputFileName, compressImage } from './utils';
@@ -25,11 +26,11 @@ beforeAll(() => {
   URL.createObjectURL = vi.fn(() => 'blob:mock') as typeof URL.createObjectURL;
   URL.revokeObjectURL = vi.fn();
   vi.stubGlobal('Image', MockImage);
-  HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
+  mockCanvasContext(() => ({
     drawImage: vi.fn(),
     fillRect: vi.fn(),
     fillStyle: '',
-  })) as unknown as typeof HTMLCanvasElement.prototype.getContext;
+  }));
   HTMLCanvasElement.prototype.toBlob = function (cb: BlobCallback, type?: string) {
     cb(new Blob(['x'.repeat(50)], { type: type ?? 'image/png' }));
   };

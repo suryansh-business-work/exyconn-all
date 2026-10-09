@@ -19,7 +19,7 @@ function versionCode(semver: string): number {
   return major * 10_000 + minor * 100 + patch;
 }
 
-export default ({ config }: ConfigContext): ExpoConfig => ({
+const appConfig = ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
   name: 'Exyconn Tracker',
   slug: 'exyconn-tracker',
@@ -83,3 +83,5 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     portalWebUrl: process.env.PORTAL_WEB_URL ?? PRODUCTION_PORTAL_URL,
   },
 });
+
+export default appConfig;

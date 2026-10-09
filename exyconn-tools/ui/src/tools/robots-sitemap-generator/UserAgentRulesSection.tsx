@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import { Add, Delete } from '@mui/icons-material';
 import { UserAgentRule } from './types';
+import { useStableKeys } from './useStableKeys';
 
 interface UserAgentRulesSectionProps {
   rules: UserAgentRule[];
@@ -34,49 +35,57 @@ const PathEditor: React.FC<{
   onAdd: (ruleId: string, type: 'allow' | 'disallow') => void;
   onUpdate: (ruleId: string, type: 'allow' | 'disallow', index: number, value: string) => void;
   onRemove: (ruleId: string, type: 'allow' | 'disallow', index: number) => void;
-}> = ({ label, paths, ruleId, type, onAdd, onUpdate, onRemove }) => (
-  <Box sx={{ mb: 1 }}>
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
-      <Typography
-        variant="caption"
+}> = ({ label, paths, ruleId, type, onAdd, onUpdate, onRemove }) => {
+  const { keys, removeKey } = useStableKeys(paths.length);
+  const handleRemove = (index: number) => {
+    removeKey(index);
+    onRemove(ruleId, type, index);
+  };
+  const items = paths.map((path, index) => ({ path, index, key: keys[index] }));
+  return (
+    <Box sx={{ mb: 1 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.5 }}>
+        <Typography
+          variant="caption"
+          sx={{
+            fontWeight: 600,
+          }}
+        >
+          {label}:
+        </Typography>
+        <Chip size="small" label="+" onClick={() => onAdd(ruleId, type)} />
+      </Box>
+      <Stack
+        direction="row"
+        spacing={0.5}
+        useFlexGap
         sx={{
-          fontWeight: 600,
+          flexWrap: 'wrap',
         }}
       >
-        {label}:
-      </Typography>
-      <Chip size="small" label="+" onClick={() => onAdd(ruleId, type)} />
+        {items.map(({ path, index, key }) => (
+          <Chip
+            key={key}
+            size="small"
+            label={
+              <TextField
+                variant="standard"
+                size="small"
+                value={path}
+                onChange={(e) => onUpdate(ruleId, type, index, e.target.value)}
+                sx={{ width: 80 }}
+                slotProps={{
+                  input: { disableUnderline: true, sx: { fontSize: 12 } },
+                }}
+              />
+            }
+            onDelete={() => handleRemove(index)}
+          />
+        ))}
+      </Stack>
     </Box>
-    <Stack
-      direction="row"
-      spacing={0.5}
-      useFlexGap
-      sx={{
-        flexWrap: 'wrap',
-      }}
-    >
-      {paths.map((path, i) => (
-        <Chip
-          key={i}
-          size="small"
-          label={
-            <TextField
-              variant="standard"
-              size="small"
-              value={path}
-              onChange={(e) => onUpdate(ruleId, type, i, e.target.value)}
-              sx={{ width: 80 }}
-              slotProps={{
-                input: { disableUnderline: true, sx: { fontSize: 12 } },
-              }}
-            />
-          }
-          onDelete={() => onRemove(ruleId, type, i)}
-        />
-      ))}
-    </Stack>
-  </Box>
-);
+  );
+};
 
 const UserAgentRulesSection: React.FC<UserAgentRulesSectionProps> = ({
   rules,

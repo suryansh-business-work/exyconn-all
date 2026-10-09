@@ -1,4 +1,4 @@
-import type { OrganizationsQuery, OrganizationStatus } from '@exyconn/shell/graphql/generated';
+import type { OrganizationsQuery } from '@exyconn/shell/graphql/generated';
 
 export type OrganizationRow = OrganizationsQuery['organizations'][number];
 
@@ -15,4 +15,4 @@ export interface OrganizationFormValues {
   logoUrl: string;
 }
 
-export type { OrganizationStatus };
+export type { OrganizationStatus } from '@exyconn/shell/graphql/generated';

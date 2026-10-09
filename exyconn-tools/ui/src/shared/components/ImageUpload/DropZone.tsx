@@ -31,6 +31,13 @@ const DropZone: React.FC<DropZoneProps> = ({
   onDragLeave,
   onClick,
 }) => {
+  let borderColor = 'divider';
+  if (isDragOver) {
+    borderColor = 'primary.main';
+  } else if (error) {
+    borderColor = 'error.main';
+  }
+
   return (
     <Box
       onDrop={onDrop}
@@ -40,7 +47,7 @@ const DropZone: React.FC<DropZoneProps> = ({
       sx={{
         border: 2,
         borderStyle: 'dashed',
-        borderColor: isDragOver ? 'primary.main' : error ? 'error.main' : 'divider',
+        borderColor,
         borderRadius: circular ? '50%' : borderRadius,
         width: maxWidth,
         height: maxHeight,
