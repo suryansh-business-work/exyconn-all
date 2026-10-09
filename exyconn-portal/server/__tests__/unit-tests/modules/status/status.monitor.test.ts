@@ -5,6 +5,7 @@ import { announceIncident } from '../../../../src/modules/status/status.alerts';
 import { dayKey, probe, runStatusChecks } from '../../../../src/modules/status/status.monitor';
 import { safeFetch } from '../../../../src/utils/safeFetch';
 import { env } from '../../../../src/config/env';
+import { asArg } from '../../../mockAs';
 
 jest.mock('../../../../src/utils/safeFetch', () => ({ safeFetch: jest.fn() }));
 jest.mock('../../../../src/modules/status/status.alerts', () => ({
@@ -122,7 +123,7 @@ describe('runStatusChecks', () => {
   });
 
   it('says "no response" when a failure carries no message', async () => {
-    fetchMock.mockRejectedValue(new Error(''));
+    fetchMock.mockRejectedValue(Object.assign(new Error('unused'), { message: '' }));
 
     await runStatusChecks();
     await runStatusChecks();
@@ -148,9 +149,11 @@ describe('runStatusChecks', () => {
 
   it('opens nothing for a monitor deleted while it was being probed', async () => {
     fetchMock.mockRejectedValue(new Error('ECONNRESET'));
-    jest.spyOn(StatusMonitorModel, 'findOneAndUpdate').mockReturnValue({
-      select: () => ({ lean: () => Promise.resolve(null) }),
-    } as never);
+    jest.spyOn(StatusMonitorModel, 'findOneAndUpdate').mockReturnValue(
+      asArg({
+        select: () => ({ lean: () => Promise.resolve(null) }),
+      }),
+    );
 
     await expect(runStatusChecks()).resolves.toBe(1);
 

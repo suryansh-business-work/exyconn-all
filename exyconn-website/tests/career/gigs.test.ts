@@ -107,9 +107,12 @@ describe("gig apply link", () => {
   const subject = GIG_COPY.apply.subject;
 
   it("emails the contact with the subject filled in", () => {
+    const applicationSubject = encodeURIComponent(
+      `Application for ${first.title} (${first.gigCode})`
+    );
     expect(gigApplyLink(first, subject)).toEqual({
       kind: "email",
-      href: `mailto:gigs@example.com?subject=${encodeURIComponent(`Application for ${first.title} (${first.gigCode})`)}`,
+      href: `mailto:gigs@example.com?subject=${applicationSubject}`,
       external: false,
     });
   });

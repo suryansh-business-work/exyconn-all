@@ -57,7 +57,7 @@ describe("portal requests", () => {
       ],
     });
 
-    const error = await portalRequest("mutation { x }").catch((caught: unknown) => caught);
+    const error = await portalRequest("mutation { x }").catch((error_: unknown) => error_);
     expect(error).toBeInstanceOf(PortalRequestError);
     expect(error).toMatchObject({
       name: "PortalRequestError",

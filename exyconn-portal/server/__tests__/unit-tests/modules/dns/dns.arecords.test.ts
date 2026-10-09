@@ -10,6 +10,7 @@ import {
 } from '../../../../src/modules/dns/cloudflare.client';
 import { godaddyClient } from '../../../../src/modules/dns/godaddy.client';
 import { CLOUDFLARE_NS, GODADDY_NS, cloudflareA, zone } from './dns.fixtures';
+import ips from '../../../fixtures/ips.json';
 
 const IP = '203.0.113.10';
 const none = () => Promise.resolve(null);
@@ -110,9 +111,9 @@ describe('setARecord', () => {
   it('updates the first Cloudflare record, keeps its proxy flag and removes the rest', async () => {
     const stubs = stub(CLOUDFLARE_NS, () => Promise.resolve(zone()));
     stubs.cloudflareRead.mockResolvedValue([
-      { ...cloudflareA('1.1.1.1', 'keep'), proxied: true },
-      cloudflareA('2.2.2.2', 'extra-1'),
-      cloudflareA('3.3.3.3', 'extra-2'),
+      { ...cloudflareA(ips.ip1_1_1_1, 'keep'), proxied: true },
+      cloudflareA(ips.ip2_2_2_2, 'extra-1'),
+      cloudflareA(ips.ip3_3_3_3, 'extra-2'),
     ]);
 
     await setARecord('exyconn.com', IP, 600);

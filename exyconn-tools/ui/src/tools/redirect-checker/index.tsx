@@ -6,6 +6,16 @@ import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { DomainInputForm, DomainResultDisplay } from '../../shared/components/DomainToolShared';
 import { APIs } from '../../shared/config/apis';
 
+const getStatusCodeColor = (statusCode: number) => {
+  if (statusCode >= 300 && statusCode < 400) {
+    return 'warning';
+  }
+  if (statusCode >= 200 && statusCode < 300) {
+    return 'success';
+  }
+  return 'error';
+};
+
 const RedirectChecker: React.FC = () => {
   const [result, setResult] = useState<Record<string, unknown> | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -60,20 +70,14 @@ const RedirectChecker: React.FC = () => {
                   <Chip label={`Final: ${result.finalUrl}`} variant="outlined" sx={{ maxWidth: 300 }} />
                 </Box>
                 <Stepper orientation="vertical" activeStep={chain.length - 1}>
-                  {chain.map((step, i) => (
-                    <Step key={i} completed>
+                  {chain.map((step) => (
+                    <Step key={`${step.url}-${step.statusCode}`} completed>
                       <StepLabel>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
                           <Chip
                             label={step.statusCode || 'Error'}
                             size="small"
-                            color={
-                              step.statusCode >= 300 && step.statusCode < 400
-                                ? 'warning'
-                                : step.statusCode >= 200 && step.statusCode < 300
-                                  ? 'success'
-                                  : 'error'
-                            }
+                            color={getStatusCodeColor(step.statusCode)}
                           />
                           <Typography
                             variant="body2"

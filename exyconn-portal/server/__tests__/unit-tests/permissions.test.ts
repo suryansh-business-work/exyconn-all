@@ -129,7 +129,7 @@ describe('permissions', () => {
     await expect(
       P.setRolePermission(null, { role: ROLES.HR, module: 'Nope', actions: [] }, admin),
     ).rejects.toThrow(/Unknown module/);
-    expect((await P.listPermissionModules(null, {}, admin)) as string[]).toEqual(
+    expect(await P.listPermissionModules(null, {}, admin)).toEqual(
       expect.arrayContaining(['Goal', 'Announcement', 'SalaryStructure']),
     );
   });

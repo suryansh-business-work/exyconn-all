@@ -1,6 +1,6 @@
 import { open, seal } from '../../utils/secretBox';
 import { THREADS_GRAPH, type SocialApp } from './social.constants';
-import { SocialProviderError, getJson, postForm } from './social.http';
+import { SocialProviderError, basicAuthHeader, getJson, postForm } from './social.http';
 import { SocialAccountModel } from './social.models';
 import { PROVIDERS, type AppCredentials } from './social.providers';
 import { usableApp } from './social.service';
@@ -20,9 +20,7 @@ const REFRESH: Partial<Record<SocialApp, Refresh>> = {
       'X',
       'https://api.x.com/2/oauth2/token',
       { grant_type: 'refresh_token', refresh_token: refreshToken, client_id: app.clientId },
-      {
-        Authorization: `Basic ${Buffer.from(`${app.clientId}:${app.clientSecret}`).toString('base64')}`,
-      },
+      basicAuthHeader(app.clientId, app.clientSecret),
     ),
   YOUTUBE: (app, refreshToken) =>
     postForm('YouTube', 'https://oauth2.googleapis.com/token', {

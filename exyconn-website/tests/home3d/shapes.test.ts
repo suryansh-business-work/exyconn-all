@@ -169,7 +169,7 @@ describe("robotics", () => {
 
   it("has an arm-only cloud for the background robots", () => {
     const cloud = sampleRobotArm(400, createRandom(6));
-    expect(cloud.tags.some((t) => t === CONVEYOR)).toBe(false);
+    expect(cloud.tags.includes(CONVEYOR)).toBe(false);
   });
 });
 

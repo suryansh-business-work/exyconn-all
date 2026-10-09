@@ -12,6 +12,7 @@ import { AppLogEventModel } from '../../../../src/modules/logs/app-log-event.mod
 import { FIELD_LIMITS, MAX_BREADCRUMBS } from '../../../../src/modules/logs/logs.constants';
 import { ROLES } from '../../../../src/constants/roles';
 import { seedUser } from '../../../helpers';
+import ips from '../../../fixtures/ips.json';
 
 const entry = (overrides: Partial<LogEntryInput> = {}): LogEntryInput => ({
   level: 'ERROR',
@@ -61,7 +62,7 @@ describe('cleaning an entry', () => {
   it('keeps a folded count between one and a hundred thousand', async () => {
     await ingestLogBatch(
       batch([entry({ count: 0 }), entry({ count: 5_000_000 }), entry({ count: -4 })]),
-      { user: null, ip: '10.0.0.2' },
+      { user: null, ip: ips.ip10_0_0_2 },
     );
 
     const counts = (await AppLogEventModel.find().sort({ _id: 1 }).lean()).map((row) => row.count);
@@ -77,7 +78,7 @@ describe('cleaning an entry', () => {
       batch([entry({ message: 'm'.repeat(FIELD_LIMITS.message + 10), breadcrumbs })], {
         app: `  ${'a'.repeat(FIELD_LIMITS.short + 10)}  `,
       }),
-      { user: null, ip: '10.0.0.3' },
+      { user: null, ip: ips.ip10_0_0_3 },
     );
 
     const group = await AppLogGroupModel.findOne().lean();
@@ -158,12 +159,12 @@ describe('who sent it', () => {
 
 describe('recordServerErrors', () => {
   it('stores the API’s own errors under the server source', async () => {
-    await recordServerErrors([entry({ route: 'listBugs' })], { user: null, ip: '10.0.0.8' });
+    await recordServerErrors([entry({ route: 'listBugs' })], { user: null, ip: ips.ip10_0_0_8 });
 
     const group = await AppLogGroupModel.findOne().lean();
     expect(group).toMatchObject({ source: 'SERVER', app: 'portal-server', route: 'listBugs' });
     expect(group?.platform.startsWith('node ')).toBe(true);
-    expect((await AppLogEventModel.findOne().lean())?.ip).toBe('10.0.0.8');
+    expect((await AppLogEventModel.findOne().lean())?.ip).toBe(ips.ip10_0_0_8);
   });
 
   it('writes nothing for an empty list', async () => {

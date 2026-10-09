@@ -156,7 +156,7 @@ async function sendDigest(digest: Digest): Promise<void> {
 
 /** The window the daily digest covers: the local day that has just ended. */
 export function dailyWindow(now: Date, timezone: string) {
-  const endedAt = new Date(now.getTime());
+  const endedAt = new Date(now);
   const from = new Date(endedAt.getTime() - DAY_MS);
   return { from, to: endedAt, label: `on ${zonedDateKey(from, timezone)}` };
 }

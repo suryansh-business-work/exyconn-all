@@ -17,6 +17,8 @@ import {
 } from '../../src/modules/logs/logs.constants';
 import { ROLES } from '../../src/constants/roles';
 import type { GraphQLContext } from '../../src/middleware/auth';
+import { asArg } from '../mockAs';
+import ips from '../fixtures/ips.json';
 
 const CONFIG: TableConfig = {
   searchFields: ['name'],
@@ -68,17 +70,17 @@ describe('crudService.list', () => {
 });
 
 describe('server error logging amplification', () => {
-  const anonymous: GraphQLContext = { user: null, ip: '10.0.0.9' };
+  const anonymous: GraphQLContext = { user: null, ip: ips.ip10_0_0_9 };
   const signedIn: GraphQLContext = {
     user: { id: new mongoose.Types.ObjectId().toHexString(), email: 'a@x.com', roles: [ROLES.HR] },
-    ip: '10.0.0.1',
+    ip: ips.ip10_0_0_1,
   };
   const refusal = (code: string) =>
     new GraphQLError('You do not have access', { extensions: { code } });
 
   async function runPlugin(errors: GraphQLError[], contextValue: GraphQLContext) {
-    const hooks = await serverErrorLogPlugin.requestDidStart?.({} as never);
-    await hooks?.didEncounterErrors?.({ errors, contextValue, operationName: 'Op' } as never);
+    const hooks = await serverErrorLogPlugin.requestDidStart?.(asArg({}));
+    await hooks?.didEncounterErrors?.(asArg({ errors, contextValue, operationName: 'Op' }));
     await settleServerErrorLogs();
   }
 
@@ -113,13 +115,15 @@ describe('server error logging amplification', () => {
     jest
       .spyOn(ingest, 'recordServerErrors')
       .mockReturnValue(new Promise<void>((resolve) => (finish = resolve)));
-    const hooks = await serverErrorLogPlugin.requestDidStart?.({} as never);
+    const hooks = await serverErrorLogPlugin.requestDidStart?.(asArg({}));
     await expect(
-      hooks?.didEncounterErrors?.({
-        errors: [new GraphQLError('boom')],
-        contextValue: signedIn,
-        operationName: 'Op',
-      } as never),
+      hooks?.didEncounterErrors?.(
+        asArg({
+          errors: [new GraphQLError('boom')],
+          contextValue: signedIn,
+          operationName: 'Op',
+        }),
+      ),
     ).resolves.toBeUndefined();
     finish();
     await settleServerErrorLogs();

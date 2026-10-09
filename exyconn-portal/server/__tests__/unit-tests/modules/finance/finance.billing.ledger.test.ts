@@ -74,7 +74,7 @@ describe('the payments ledger queries', () => {
 
     const page = await Q.listPaymentsPaged(
       null,
-      { input: { page: 0, pageSize: 1, search: 'NEFT-2' } } as never,
+      { input: { page: 0, pageSize: 1, search: 'NEFT-2' } },
       asFinance,
     );
 
@@ -119,7 +119,7 @@ describe('the payments ledger queries', () => {
       /do not have access/,
     );
     await expect(
-      Q.listPaymentsPaged(null, { input: { page: 0, pageSize: 10 } } as never, asHr),
+      Q.listPaymentsPaged(null, { input: { page: 0, pageSize: 10 } }, asHr),
     ).rejects.toThrow(/do not have access/);
     await expect(Q.receivables(null, {}, asHr)).rejects.toThrow(/do not have access/);
   });

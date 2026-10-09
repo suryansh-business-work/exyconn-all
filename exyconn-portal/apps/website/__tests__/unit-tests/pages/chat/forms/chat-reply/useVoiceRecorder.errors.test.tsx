@@ -18,7 +18,7 @@ function renderRecorder() {
 
 describe('useVoiceRecorder when the microphone misbehaves', () => {
   beforeEach(() => {
-    FakeMediaRecorder.instances = [];
+    FakeMediaRecorder.instances.length = 0;
     vi.stubGlobal('MediaRecorder', FakeMediaRecorder);
     mic.getUserMedia.mockReset().mockResolvedValue(fakeStream().stream);
     installMicrophone(mic.getUserMedia);

@@ -23,14 +23,14 @@ export function organizationBasename(slug: string | null): string {
 }
 
 /** The company this page was loaded for. */
-export const CURRENT_ORGANIZATION_SLUG = organizationSlugOf(window.location.pathname);
+export const CURRENT_ORGANIZATION_SLUG = organizationSlugOf(globalThis.location.pathname);
 
 /** The router basename for this page. */
 export const ORGANIZATION_BASENAME = organizationBasename(CURRENT_ORGANIZATION_SLUG);
 
 /** Where the page is, inside the app: the path after the company prefix, plus query and hash. */
 export function pathInApp(): string {
-  const { pathname, search, hash } = window.location;
+  const { pathname, search, hash } = globalThis.location;
   const path = pathname.slice(ORGANIZATION_BASENAME.length) || '/';
   return `${path}${search}${hash}`;
 }

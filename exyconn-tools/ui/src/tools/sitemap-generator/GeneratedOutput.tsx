@@ -10,12 +10,7 @@ interface GeneratedOutputProps {
 
 const GeneratedOutput: React.FC<GeneratedOutputProps> = ({ generatedXml, onCopy, onDownload }) => (
   <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, height: '100%', minHeight: 500 }}>
-    {!generatedXml ? (
-      <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
-        <ListAlt sx={{ fontSize: 48, mb: 2, opacity: 0.3 }} />
-        <Typography variant="body1">Add URLs and click Generate to create your sitemap</Typography>
-      </Box>
-    ) : (
+    {generatedXml ? (
       <>
         <Box
           sx={{
@@ -60,6 +55,11 @@ const GeneratedOutput: React.FC<GeneratedOutputProps> = ({ generatedXml, onCopy,
           />
         </Box>
       </>
+    ) : (
+      <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
+        <ListAlt sx={{ fontSize: 48, mb: 2, opacity: 0.3 }} />
+        <Typography variant="body1">Add URLs and click Generate to create your sitemap</Typography>
+      </Box>
     )}
   </Paper>
 );

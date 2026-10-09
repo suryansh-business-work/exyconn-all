@@ -41,7 +41,7 @@ const CACHES: Record<ThemeDirection, ReturnType<typeof createCache>> = {
 };
 
 /** Holds the active color mode (persisted) and supplies the matching MUI theme. */
-export function ColorModeProvider({ children }: { children: ReactNode }) {
+export function ColorModeProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [mode, setMode] = useState<ColorMode>(readInitialMode);
 
   useEffect(() => {

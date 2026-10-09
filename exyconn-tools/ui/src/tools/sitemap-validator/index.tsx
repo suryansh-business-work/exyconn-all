@@ -27,9 +27,9 @@ const SitemapValidator: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url: sitemapUrl }),
       });
-      const data = (await res.json()) as { error?: string };
+      const data = (await res.json()) as ValidationResult & { error?: string };
       if (!res.ok) throw new Error(data.error || 'Validation failed');
-      setResult(data as unknown as ValidationResult);
+      setResult(data);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Validation failed');
     } finally {
@@ -55,7 +55,9 @@ const SitemapValidator: React.FC = () => {
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
             <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, minHeight: 400 }}>
-              {!result ? (
+              {result ? (
+                <IssuesPanel result={result} errors={errors} warnings={warnings} />
+              ) : (
                 <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
                   <CheckCircle sx={{ fontSize: 48, mb: 2, opacity: 0.3 }} />
                   <Typography variant="body1">Enter a sitemap URL to validate</Typography>
@@ -69,8 +71,6 @@ const SitemapValidator: React.FC = () => {
                     Checks XML syntax, URL format, lastmod, changefreq, priority, and size limits
                   </Typography>
                 </Box>
-              ) : (
-                <IssuesPanel result={result} errors={errors} warnings={warnings} />
               )}
             </Paper>
           </Grid>

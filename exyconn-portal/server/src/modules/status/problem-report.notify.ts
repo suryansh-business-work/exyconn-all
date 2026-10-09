@@ -2,7 +2,7 @@ import { ProblemReportModel } from './problem-report.model';
 import { emailer } from '../email';
 import { badRequest } from '../../utils/errors';
 import { logger } from '../../utils/logger';
-import { allowReport } from './report-rate-limit';
+import { allowReportAttempt } from './report-rate-limit';
 
 /** The template a reporter is emailed with when their report's status changes. */
 export const PROBLEM_REPORT_UPDATE_TEMPLATE = 'problem-report-update';
@@ -55,7 +55,7 @@ export async function notifyReporterOfStatus(report: UpdatedReport): Promise<voi
  * never the description or another reporter's details.
  */
 export async function problemReportStatus(reference: string, client = 'unknown') {
-  if (!allowReport(`status:${client}`)) {
+  if (!(await allowReportAttempt(`status:${client}`))) {
     badRequest('Too many lookups from this connection. Try again in an hour.');
   }
   const report = await ProblemReportModel.findOne({ reference: reference.trim().toUpperCase() })

@@ -3,6 +3,7 @@ import {
   GithubConfigModel,
   type GithubConfigDocument,
 } from '../../../src/modules/tech/github-config.model';
+import { asArg } from '../../mockAs';
 
 /** Shared doubles for the GitHub Actions suites. */
 export const config = {
@@ -38,7 +39,7 @@ export const release = (tag: string, names: string[], draft = false) => ({
 export function active(value: GithubConfigDocument | null) {
   return jest
     .spyOn(GithubConfigModel, 'findOne')
-    .mockReturnValue({ lean: jest.fn().mockResolvedValue(value) } as never);
+    .mockReturnValue(asArg({ lean: jest.fn().mockResolvedValue(value) }));
 }
 
 /** Spies on fetch and quiets the info log; returns the fetch spy. */

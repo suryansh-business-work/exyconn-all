@@ -101,13 +101,13 @@ describe('DayProgress', () => {
   });
 });
 
-describe('ProgressRing', () => {
-  function geometry(size: number) {
-    const diameter = ringDiameter(size, 1, 390);
-    const radius = (diameter - 6) / 2;
-    return { diameter, radius, circumference: 2 * Math.PI * radius };
-  }
+function geometry(size: number) {
+  const diameter = ringDiameter(size, 1, 390);
+  const radius = (diameter - 6) / 2;
+  return { diameter, radius, circumference: 2 * Math.PI * radius };
+}
 
+describe('ProgressRing', () => {
   it('draws a full track and an arc from the top, clockwise, as far as the value', () => {
     const { container } = renderWithProviders(
       <ProgressRing value={25} label="25%" caption="2h 0m" color="#00aa00" />,

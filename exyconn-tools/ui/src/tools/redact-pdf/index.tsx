@@ -154,7 +154,7 @@ export default function RedactPdf() {
                 or click to browse
               </Typography>
               <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
-                Browse Files
+                {'Browse Files'}
                 <input hidden accept="application/pdf" type="file" onChange={onFileChange} />
               </Button>
             </Paper>
@@ -255,7 +255,7 @@ export default function RedactPdf() {
                 <List dense sx={{ mb: 2, maxHeight: 180, overflow: 'auto' }}>
                   {redactions.map((r, i) => (
                     <ListItem
-                      key={i}
+                      key={`${r.page}-${r.x}-${r.y}-${r.width}-${r.height}`}
                       secondaryAction={
                         <IconButton edge="end" onClick={() => removeRedaction(i)}>
                           <Delete fontSize="small" />

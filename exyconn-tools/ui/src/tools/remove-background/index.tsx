@@ -114,7 +114,7 @@ export default function RemoveBackground() {
                 JPG, PNG, or WEBP — one image
               </Typography>
               <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
-                Browse Files
+                {'Browse Files'}
                 <input hidden accept="image/jpeg,image/png,image/webp" type="file" onChange={onFileChange} />
               </Button>
             </Paper>

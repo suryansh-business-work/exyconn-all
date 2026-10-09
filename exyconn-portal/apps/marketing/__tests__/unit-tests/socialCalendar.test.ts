@@ -51,7 +51,7 @@ describe('social calendar', () => {
     ]);
     expect(days.filter((d) => d.isToday).map((d) => d.key)).toEqual(['2026-09-19']);
     expect(days.find((d) => d.key === '2026-08-30')?.inMonth).toBe(false);
-    expect(days.filter((d) => !d.isPast)[0].key).toBe('2026-09-19');
+    expect(days.find((d) => !d.isPast)?.key).toBe('2026-09-19');
     expect(days.find((d) => d.key === '2026-09-18')?.isPast).toBe(true);
     expect(postTime({ id: 'x', status: 'DRAFT', network: 'X' })).toBeNull();
   });

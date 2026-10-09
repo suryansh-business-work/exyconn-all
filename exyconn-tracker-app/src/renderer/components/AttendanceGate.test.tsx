@@ -21,6 +21,9 @@ afterEach(cleanup);
 const state = trackerState('idle');
 const unmarked = state.workday;
 
+/** An error that carries no text, so the screen has to fall back to its own words. */
+const NO_MESSAGE = '';
+
 describe('AttendanceGate', () => {
   it('says it is checking while the portal has not told it what today is', async () => {
     await mount(<AttendanceGate workday={null} />, state);
@@ -46,7 +49,7 @@ describe('AttendanceGate', () => {
 
   it('shows why marking in failed', async () => {
     await mount(<AttendanceGate workday={unmarked} />, state);
-    overrideTracker({ markAttendance: () => Promise.reject(new Error('')) });
+    overrideTracker({ markAttendance: () => Promise.reject(new Error(NO_MESSAGE)) });
 
     await press(buttonNamed('Mark attendance'));
     await finish(() => undefined);

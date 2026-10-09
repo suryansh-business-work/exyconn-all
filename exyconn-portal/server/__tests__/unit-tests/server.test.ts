@@ -1,3 +1,4 @@
+import { asArg } from '../mockAs';
 /* eslint-disable @typescript-eslint/no-require-imports */
 type Mocked = Record<string, jest.Mock>;
 
@@ -132,7 +133,7 @@ async function boot(databaseFails = false): Promise<Loaded> {
 
 let exit: jest.SpyInstance;
 beforeEach(() => {
-  exit = jest.spyOn(process, 'exit').mockImplementation((() => undefined) as never);
+  exit = jest.spyOn(process, 'exit').mockImplementation(asArg(() => undefined));
 });
 afterEach(() => exit.mockRestore());
 

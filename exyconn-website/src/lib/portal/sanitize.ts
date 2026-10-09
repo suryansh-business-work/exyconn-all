@@ -8,8 +8,12 @@ import sanitizeHtml from "sanitize-html";
 export const ARTICLE_CLASS = "article-body";
 
 /** A colour as the editors write it: hex, or the rgb / rgba function a browser normalises it to. */
-const COLOR =
-  /^(#[\da-f]{3,8}|rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*(,\s*(0|1|0?\.\d+)\s*)?\))$/i;
+const CHANNEL = String.raw`\s*\d{1,3}\s*`;
+const ALPHA = String.raw`(,\s*(0|1|0?\.\d+)\s*)?`;
+const COLOR = new RegExp(
+  String.raw`^(#[\da-f]{3,8}|rgba?\(${CHANNEL},${CHANNEL},${CHANNEL}${ALPHA}\))$`,
+  "i"
+);
 const LENGTH = /^\d+(\.\d+)?(px|%|em|rem)$/;
 const ALIGN = /^(left|right|center|justify)$/;
 
@@ -104,5 +108,6 @@ export function scopeArticleCss(css: string): string {
   if (!rules || !hasBalancedBraces(rules)) {
     return "";
   }
-  return `.${ARTICLE_CLASS}{${rules.replaceAll("<", String.raw`\3c `)}}`;
+  const escaped = rules.replaceAll("<", String.raw`\3c `);
+  return `.${ARTICLE_CLASS}{${escaped}}`;
 }

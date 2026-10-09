@@ -13,10 +13,10 @@ function paragraphs(message: string): string {
     .split(/\n{2,}/)
     .map((block) => {
       const safe = block
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/\n/g, '<br />');
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('\n', '<br />');
       return `<mj-text font-size="15px" color="#334155" line-height="24px">${safe}</mj-text>`;
     })
     .join('');

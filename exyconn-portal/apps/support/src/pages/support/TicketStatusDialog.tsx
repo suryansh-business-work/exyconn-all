@@ -21,20 +21,24 @@ interface TicketStatusDialogProps {
 }
 
 /** Small drawer to move a support ticket to a new lifecycle status. */
-export function TicketStatusDialog({ ticket, onClose, onSaved }: TicketStatusDialogProps) {
+export function TicketStatusDialog({
+  ticket,
+  onClose,
+  onSaved,
+}: Readonly<TicketStatusDialogProps>) {
   const notify = useNotify();
   const t = useT();
-  const [setStatus, { loading }] = useSetSupportTicketStatusMutation();
-  const [status, setStatusValue] = useState('');
+  const [saveStatus, { loading }] = useSetSupportTicketStatusMutation();
+  const [status, setStatus] = useState('');
 
   useEffect(() => {
-    if (ticket) setStatusValue(ticket.status);
+    if (ticket) setStatus(ticket.status);
   }, [ticket]);
 
   const save = async () => {
     if (!ticket) return;
     try {
-      await setStatus({ variables: { id: ticket.id, status: status as SupportStatus } });
+      await saveStatus({ variables: { id: ticket.id, status: status as SupportStatus } });
       notify('Ticket status updated');
       onSaved();
     } catch (err) {
@@ -53,7 +57,7 @@ export function TicketStatusDialog({ ticket, onClose, onSaved }: TicketStatusDia
           fullWidth
           label={t('Status')}
           value={status}
-          onChange={(e) => setStatusValue(e.target.value)}
+          onChange={(e) => setStatus(e.target.value)}
         >
           {STATUS_OPTIONS.map((o) => (
             <MenuItem key={o.value} value={o.value}>

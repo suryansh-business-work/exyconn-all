@@ -103,12 +103,10 @@ export const mocks = {
   handleTrusted: (channel: string, fn: Fn) => ipc.set(channel, fn),
 };
 
-export const TrackerController = class {
-  constructor(...args: unknown[]) {
-    controller.args = args;
-    Object.assign(this, controller);
-  }
-};
+export function TrackerController(this: object, ...args: unknown[]): void {
+  controller.args = args;
+  Object.assign(this, controller);
+}
 
 export const TrackerTray = class {
   update = tray.update;
@@ -117,12 +115,10 @@ export const TrackerTray = class {
   }
 };
 
-export const AppUpdater = class {
-  constructor(onChange: (update: unknown) => void) {
-    updater.onChange = onChange;
-    return updater;
-  }
-};
+export function AppUpdater(onChange: (update: unknown) => void): typeof updater {
+  updater.onChange = onChange;
+  return updater;
+}
 
 /** Lets the startup promise chain, and anything it scheduled, run to the end. */
 export async function flush(): Promise<void> {
@@ -138,7 +134,7 @@ export async function launch(
   vi.clearAllMocks();
   ipc.clear();
   appEvents.clear();
-  FakeWindow.all = [];
+  FakeWindow.all.length = 0;
   world.state = idleState();
   updater.installsAutomatically = false;
   store.preferences = {
@@ -172,7 +168,7 @@ export function mainWindow(): FakeWindow {
 
 /** Invokes one registered IPC channel the way a trusted renderer would. */
 export function invoke(channel: string, ...args: unknown[]): unknown {
-  const handler = ipc.get(channel) as ((...all: unknown[]) => unknown) | undefined;
+  const handler = ipc.get(channel);
   if (handler === undefined) {
     throw new Error(`No handler for ${channel}`);
   }

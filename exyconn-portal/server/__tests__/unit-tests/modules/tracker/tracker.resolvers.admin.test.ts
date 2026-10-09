@@ -6,6 +6,7 @@ import { recordAudit } from '../../../../src/modules/audit';
 import { updateTrackerSettings } from '../../../../src/modules/tracker/tracker.settings.service';
 import { trackerResolvers } from '../../../../src/modules/tracker/tracker.resolvers';
 import { codeOf } from '../codeOf';
+import { asArg } from '../../../mockAs';
 
 const Mutation = trackerResolvers.Mutation;
 const monitor = as(ROLES.TRACKER);
@@ -131,7 +132,7 @@ describe('reviewing claims and messaging employees', () => {
   });
 
   it('saves settings for the tracker role only', async () => {
-    jest.mocked(updateTrackerSettings).mockResolvedValue({ _id: 'settings-1' } as never);
+    jest.mocked(updateTrackerSettings).mockResolvedValue(asArg({ _id: 'settings-1' }));
 
     await expect(
       Mutation.updateTrackerSettings(null, { input: { intervalMinutes: 5 } }, monitor),

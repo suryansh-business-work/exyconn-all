@@ -25,7 +25,7 @@ export default function useProjectTasks(projectId: string): ProjectTasks {
       return undefined;
     }
     setLoading(true);
-    window.tracker
+    globalThis.tracker
       .getTasks(projectId)
       .then((rows) => {
         if (active) {

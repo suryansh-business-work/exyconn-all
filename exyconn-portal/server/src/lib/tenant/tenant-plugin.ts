@@ -1,4 +1,5 @@
 import { Schema, Types, type Query } from 'mongoose';
+import { stringOf } from '../../utils/serialize';
 import { PLATFORM_UNIQUE_PATHS } from './platform-models';
 import { TenantScopeError, currentScope, requireScope } from './tenant-scope';
 
@@ -68,7 +69,7 @@ function scopeUniqueIndexes(name: string, schema: Schema): void {
     // what was written in the model file.
     // `index: true` leaves a boolean here; only an object can carry `unique`.
     const declared = (type as unknown as { _index?: PathIndex })._index;
-    if (typeof declared !== 'object' || declared === null || declared.unique !== true) {
+    if (typeof declared !== 'object' || declared?.unique !== true) {
       return;
     }
     if (global.has(path)) {
@@ -152,7 +153,7 @@ export function tenantPlugin(schema: Schema, options: { name: string }): void {
       }
       next();
     } catch (error) {
-      next(error as Error);
+      next(error instanceof Error ? error : new Error(stringOf(error)));
     }
   });
 }
@@ -171,7 +172,7 @@ function stamp(doc: Record<string, unknown>, what: string): void {
     doc[ORGANIZATION_FIELD] = new Types.ObjectId(organizationId);
     return;
   }
-  if (String(current) !== organizationId) {
+  if (stringOf(current) !== organizationId) {
     throw new TenantScopeError(`${what} tried to write another organization's record`);
   }
 }

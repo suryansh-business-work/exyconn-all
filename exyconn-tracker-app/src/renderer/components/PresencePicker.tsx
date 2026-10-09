@@ -62,7 +62,7 @@ export default function PresencePicker({ presence, timezone }: Readonly<Props>):
   const save = async (status: PresenceStatus, withNote: string): Promise<void> => {
     const saved = await perform(
       'presence',
-      () => window.tracker.setPresence(status, withNote),
+      () => globalThis.tracker.setPresence(status, withNote),
       t('Could not update your status.'),
     );
     if (!saved) {

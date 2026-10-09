@@ -76,7 +76,7 @@ function isInline(payload: StoredShot | ScreenshotPayload): payload is Screensho
  * server already saw is harmless.
  */
 export class Outbox {
-  private items: StoredItem[];
+  private readonly items: StoredItem[];
 
   constructor(
     private readonly storage: OutboxStorage,

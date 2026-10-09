@@ -29,7 +29,7 @@ export default function useManualEntries(): ManualEntriesQuery {
     setLoading(true);
     setError(null);
     const now = new Date();
-    window.tracker
+    globalThis.tracker
       .getManualEntries(subDays(now, WINDOW_DAYS).toISOString(), now.toISOString())
       .then((rows) => {
         if (active) {

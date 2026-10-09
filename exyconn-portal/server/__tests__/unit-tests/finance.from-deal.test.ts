@@ -99,12 +99,12 @@ describe('createInvoiceFromDeal', () => {
     const { deal } = await seedWonDeal();
     const invoice = await fromDeal(String(deal._id));
 
-    const row = await InvoiceModel.findById(invoice.id).lean();
+    const row = await InvoiceModel.findById(invoice.id).lean().orFail();
 
-    expect(financeResolvers.Invoice.subtotal(row!)).toBe(100000);
-    expect(financeResolvers.Invoice.cgst(row!)).toBe(9000);
-    expect(financeResolvers.Invoice.sgst(row!)).toBe(9000);
-    expect(financeResolvers.Invoice.igst(row!)).toBe(0);
+    expect(financeResolvers.Invoice.subtotal(row)).toBe(100000);
+    expect(financeResolvers.Invoice.cgst(row)).toBe(9000);
+    expect(financeResolvers.Invoice.sgst(row)).toBe(9000);
+    expect(financeResolvers.Invoice.igst(row)).toBe(0);
   });
 
   it('refuses to bill the same deal twice, naming the invoice that exists', async () => {

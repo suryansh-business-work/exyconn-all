@@ -5,6 +5,7 @@ import { GoalModel } from '../../src/modules/goals/goal.model';
 import { ROLES } from '../../src/constants/roles';
 import { seedUser } from '../helpers';
 import type { GraphQLContext } from '../../src/middleware/auth';
+import ips from '../fixtures/ips.json';
 
 type Resolver = (p: unknown, a: unknown, c: GraphQLContext) => Promise<unknown>;
 const G = { ...goalsResolvers.Query, ...goalsResolvers.Mutation } as unknown as Record<
@@ -27,7 +28,7 @@ const goalInput = {
 
 async function adminCtx(): Promise<GraphQLContext> {
   const admin = await seedUser('root@exyconn.com', 'Root@1234', [ROLES.ADMIN]);
-  return { user: { id: admin.id, email: admin.email, roles: [ROLES.ADMIN] }, ip: '10.0.0.1' };
+  return { user: { id: admin.id, email: admin.email, roles: [ROLES.ADMIN] }, ip: ips.ip10_0_0_1 };
 }
 
 describe('audit log', () => {
@@ -48,7 +49,7 @@ describe('audit log', () => {
     expect(update.entityLabel).toBe('Ship it');
     expect(update.actorName).toBe('root');
     expect(update.actorEmail).toBe('root@exyconn.com');
-    expect(update.ip).toBe('10.0.0.1');
+    expect(update.ip).toBe(ips.ip10_0_0_1);
     expect(update.summary).toBe('Updated Goal (title, progress)');
     expect(JSON.parse(update.changes)).toEqual({
       title: { from: 'Ship', to: 'Ship it' },

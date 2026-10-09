@@ -121,7 +121,7 @@ export default function RepairPdf() {
                 Upload even potentially corrupt PDFs
               </Typography>
               <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
-                Browse Files
+                {'Browse Files'}
                 <input hidden accept="application/pdf,.pdf" type="file" onChange={onFileChange} />
               </Button>
             </Paper>

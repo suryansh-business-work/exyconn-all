@@ -101,6 +101,7 @@ export default function ConvertFromJpg() {
   };
 
   const doneCount = items.filter((i) => i.status === 'done').length;
+  const formatLabel = format === 'image/webp' ? 'WEBP' : 'PNG';
 
   return (
     <ToolLayout toolName="Convert from JPG" toolIcon={<MdPhotoLibrary />} toolColor={COLOR}>
@@ -137,7 +138,7 @@ export default function ConvertFromJpg() {
                 JPG or JPEG — up to {MAX_FILES} files
               </Typography>
               <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
-                Browse Files
+                {'Browse Files'}
                 <input hidden multiple accept="image/jpeg" type="file" onChange={onFileChange} />
               </Button>
             </Paper>
@@ -225,7 +226,7 @@ export default function ConvertFromJpg() {
                 disabled={items.length === 0 || processing}
                 sx={{ bgcolor: COLOR, '&:hover': { bgcolor: '#7c3aed' }, mt: 2 }}
               >
-                {processing ? 'Converting…' : `Convert to ${format === 'image/webp' ? 'WEBP' : 'PNG'}`}
+                {processing ? 'Converting…' : `Convert to ${formatLabel}`}
               </Button>
 
               {doneCount > 0 && (

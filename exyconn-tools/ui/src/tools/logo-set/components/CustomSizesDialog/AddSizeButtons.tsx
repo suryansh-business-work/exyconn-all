@@ -9,7 +9,7 @@ interface AddSizeButtonsProps {
 }
 
 const generateId = (): string => {
-  return 'custom-' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+  return 'custom-' + Math.random().toString(36).slice(2, 11) + Date.now().toString(36);
 };
 
 const AddSizeButtons: React.FC<AddSizeButtonsProps> = ({ sizesCount, onAddSize }) => {

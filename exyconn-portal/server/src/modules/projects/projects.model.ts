@@ -42,7 +42,7 @@ projectSchema.pre('validate', async function assignKey() {
     return;
   }
   const base = deriveKey(this.name);
-  const taken = await ProjectModel.countDocuments({ key: new RegExp(`^${base}\\d*$`) });
+  const taken = await ProjectModel.countDocuments({ key: new RegExp(String.raw`^${base}\d*$`) });
   this.key = taken === 0 ? base : `${base}${taken + 1}`;
 });
 

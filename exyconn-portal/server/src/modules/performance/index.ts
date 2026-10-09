@@ -1,5 +1,4 @@
 import { PerformanceReviewModel } from './review.model';
-import { performanceTypeDefs } from './performance.typeDefs';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { createMyRecordsResolver, findOwnRecord } from '../../lib/employeeScope';
@@ -132,4 +131,4 @@ export const performanceResolvers = {
     submitManagerAssessment,
   },
 };
-export { performanceTypeDefs };
+export { performanceTypeDefs } from './performance.typeDefs';

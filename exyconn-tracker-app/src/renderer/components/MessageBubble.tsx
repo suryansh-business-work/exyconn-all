@@ -35,11 +35,11 @@ export default function MessageBubble({ message, timezone }: Readonly<Props>): R
           border: `${borderWidth.hairline}px solid ${alpha(theme.palette.text.primary, 0.1)}`,
         })}
       >
-        {message.title !== '' ? (
+        {message.title === '' ? null : (
           <Typography variant="subtitle2" component="p" sx={{ mb: 0.25 }}>
             {message.title}
           </Typography>
-        ) : null}
+        )}
         <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
           {message.body}
         </Typography>

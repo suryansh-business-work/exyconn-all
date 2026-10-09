@@ -87,7 +87,7 @@ const ResultsSummary: React.FC<ResultsSummaryProps> = ({ result }) => {
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
             {result.totalEmails.map((email, idx) => (
               <Chip
-                key={idx}
+                key={email}
                 label={email}
                 size="small"
                 variant="outlined"
@@ -123,7 +123,7 @@ const ResultsSummary: React.FC<ResultsSummaryProps> = ({ result }) => {
           <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
             {result.totalPhones.map((phone, idx) => (
               <Chip
-                key={idx}
+                key={phone}
                 label={phone}
                 size="small"
                 variant="outlined"

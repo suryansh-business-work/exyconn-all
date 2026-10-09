@@ -41,13 +41,10 @@ export function DemoCodeStep({ email, onVerified, onStartOver }: Readonly<DemoCo
 
   return (
     <form aria-label="Enter your demo code" onSubmit={handleSubmit(onSubmit)} noValidate>
-      <p
-        role="status"
-        className="mb-5 rounded-xl border border-green-muted bg-green-subtle p-4 text-sm text-green-fg-strong"
-      >
+      <output className="mb-5 block rounded-xl border border-green-muted bg-green-subtle p-4 text-sm text-green-fg-strong">
         Thank you! We emailed a six-digit code to <strong>{email}</strong>. It works once, for 10
         minutes.
-      </p>
+      </output>
       <FormField
         id="demo-code"
         label="Code from the email"

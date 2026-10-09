@@ -48,7 +48,8 @@ describe('portal and device tokens', () => {
   });
 
   it('refuses an unsigned token and one signed with another algorithm', () => {
-    const unsigned = jwt.sign(payload, '', { algorithm: 'none' });
+    const encode = (part: object) => Buffer.from(JSON.stringify(part)).toString('base64url');
+    const unsigned = `${encode({ alg: 'none', typ: 'JWT' })}.${encode(payload)}.`;
     const hs512 = jwt.sign(payload, SECRET, { algorithm: 'HS512' });
 
     expect(verifyToken(unsigned)).toBeNull();

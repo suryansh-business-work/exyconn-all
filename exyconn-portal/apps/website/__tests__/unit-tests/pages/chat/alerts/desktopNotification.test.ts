@@ -8,12 +8,21 @@ import {
 
 vi.mock('@exyconn/shell/logging/portalLogger', () => ({ portalLogger: { warn: vi.fn() } }));
 
+/** What the browser's Notification API currently grants, and what asking it answers. */
+const browser: { permission: NotificationPermission; answer: NotificationPermission } = {
+  permission: 'default',
+  answer: 'granted',
+};
+
 /** The browser's Notification API, recording what it shows. */
 class FakeNotification {
-  static permission: NotificationPermission = 'default';
-  static answer: NotificationPermission = 'granted';
-  static shown: FakeNotification[] = [];
-  static readonly requestPermission = vi.fn(() => Promise.resolve(FakeNotification.answer));
+  static readonly shown: FakeNotification[] = [];
+  static readonly requestPermission = vi.fn(() => Promise.resolve(browser.answer));
+
+  static get permission() {
+    return browser.permission;
+  }
+
   onclick: (() => void) | null = null;
   readonly close = vi.fn();
 
@@ -26,7 +35,7 @@ class FakeNotification {
 }
 
 function installNotifications(permission: NotificationPermission) {
-  FakeNotification.permission = permission;
+  browser.permission = permission;
   Object.defineProperty(globalThis, 'Notification', {
     value: FakeNotification,
     configurable: true,
@@ -44,7 +53,7 @@ function setVisibility(state: DocumentVisibilityState) {
 
 describe('desktop notifications', () => {
   beforeEach(() => {
-    FakeNotification.shown = [];
+    FakeNotification.shown.length = 0;
     FakeNotification.requestPermission.mockClear();
     vi.mocked(portalLogger.warn).mockClear();
   });
@@ -75,10 +84,10 @@ describe('desktop notifications', () => {
 
   it('asks, and is allowed only when the person says yes', async () => {
     installNotifications('default');
-    FakeNotification.answer = 'granted';
+    browser.answer = 'granted';
     await expect(requestDesktopPermission()).resolves.toBe(true);
 
-    FakeNotification.answer = 'denied';
+    browser.answer = 'denied';
     await expect(requestDesktopPermission()).resolves.toBe(false);
     expect(FakeNotification.requestPermission).toHaveBeenCalledTimes(2);
   });
@@ -115,7 +124,7 @@ describe('desktop notifications', () => {
     notifyDesktop('Title', 'Body', 's1', vi.fn());
 
     setVisibility('hidden');
-    FakeNotification.permission = 'denied';
+    browser.permission = 'denied';
     notifyDesktop('Title', 'Body', 's1', vi.fn());
 
     removeNotifications();

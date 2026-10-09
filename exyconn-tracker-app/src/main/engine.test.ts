@@ -17,8 +17,8 @@ vi.mock('electron', () => ({
 // The native input hook and screen capture cannot run in a test process.
 vi.mock('./trackers/input-counter', () => ({
   InputCounter: class {
-    start(): void {}
-    stop(): void {}
+    start = vi.fn();
+    stop = vi.fn();
     peek(): { keys: number; clicks: number } {
       return { keys: 0, clicks: 0 };
     }
@@ -253,6 +253,15 @@ describe('TrackerEngine webcam capture', () => {
   });
 });
 
+/** Tracks for a minute, goes idle for `idleSeconds`, and ticks once more. */
+async function walkAway(built: Built, idleSeconds: number): Promise<void> {
+  vi.useFakeTimers();
+  await built.engine.start('p-global');
+  await vi.advanceTimersByTimeAsync(60_000);
+  idle.seconds = idleSeconds;
+  await vi.advanceTimersByTimeAsync(1_000);
+}
+
 describe('TrackerEngine idle auto-pause', () => {
   beforeEach(() => {
     rmSync(OUTBOX_FILE, { force: true });
@@ -264,15 +273,6 @@ describe('TrackerEngine idle auto-pause', () => {
     idle.seconds = 0;
     vi.useRealTimers();
   });
-
-  /** Tracks for a minute, goes idle for `idleSeconds`, and ticks once more. */
-  async function walkAway(built: Built, idleSeconds: number): Promise<void> {
-    vi.useFakeTimers();
-    await built.engine.start('p-global');
-    await vi.advanceTimersByTimeAsync(60_000);
-    idle.seconds = idleSeconds;
-    await vi.advanceTimersByTimeAsync(1_000);
-  }
 
   it('pauses itself once the idle run reaches the workspace’s limit', async () => {
     const paused: number[] = [];

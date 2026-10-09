@@ -19,6 +19,9 @@ afterEach(cleanup);
 
 const state = trackerState('consent-required');
 
+/** An error that carries no text, so the screen has to fall back to its own words. */
+const NO_MESSAGE = '';
+
 describe('ConsentScreen', () => {
   it('spins on the agree button and holds "Not now" while the agreement is recorded', async () => {
     await mount(<ConsentScreen branding={null} settings={state.settings} policy={null} />, state);
@@ -29,7 +32,7 @@ describe('ConsentScreen', () => {
     expect(isLoading(buttonNamed('I understand and agree'))).toBe(true);
     expect(buttonNamed('Not now').disabled).toBe(true);
 
-    await finish(() => recording.reject(new Error('')));
+    await finish(() => recording.reject(new Error(NO_MESSAGE)));
     expect(errorText()).toBe('Could not record your agreement.');
   });
 
@@ -41,7 +44,7 @@ describe('ConsentScreen', () => {
     await press(buttonNamed('Not now'));
     expect(isLoading(buttonNamed('Not now'))).toBe(true);
 
-    await finish(() => leaving.reject(new Error('')));
+    await finish(() => leaving.reject(new Error(NO_MESSAGE)));
     expect(errorText()).toBe('Could not sign out. Check your connection and try again.');
   });
 });

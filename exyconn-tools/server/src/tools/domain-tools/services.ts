@@ -31,7 +31,7 @@ export async function checkSSL(domain: string) {
   return new Promise((resolve, reject) => {
     const socket = tls.connect({ host: address, port: 443, servername }, () => {
       const cert = socket.getPeerCertificate();
-      if (!cert || !cert.subject) {
+      if (!cert?.subject) {
         socket.end();
         return reject(new Error("No certificate found"));
       }
@@ -284,6 +284,13 @@ export async function checkWebsiteStatus(url: string) {
   }
 }
 
+function getLoadRating(loadTime: number): string {
+  if (loadTime < 1000) {
+    return "Fast";
+  }
+  return loadTime < 3000 ? "Average" : "Slow";
+}
+
 // 2L - Page Speed Checker
 export async function checkPageSpeed(url: string) {
   const start = Date.now();
@@ -313,7 +320,7 @@ export async function checkPageSpeed(url: string) {
         inlineStyles: inlineStyleCount,
       },
       performance: {
-        rating: loadTime < 1000 ? "Fast" : loadTime < 3000 ? "Average" : "Slow",
+        rating: getLoadRating(loadTime),
         ttfb: loadTime,
       },
     };

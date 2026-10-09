@@ -28,6 +28,16 @@ interface KeywordResult {
   charCount: number;
 }
 
+const getRankColor = (index: number) => {
+  if (index < 3) {
+    return 'success';
+  }
+  if (index < 10) {
+    return 'primary';
+  }
+  return 'default';
+};
+
 const SerpChecker: React.FC = () => {
   const [keyword, setKeyword] = useState('');
   const [results, setResults] = useState<KeywordResult[]>([]);
@@ -119,13 +129,9 @@ const SerpChecker: React.FC = () => {
                     </TableHead>
                     <TableBody>
                       {results.map((r, i) => (
-                        <TableRow key={i} hover>
+                        <TableRow key={r.keyword} hover>
                           <TableCell>
-                            <Chip
-                              label={i + 1}
-                              size="small"
-                              color={i < 3 ? 'success' : i < 10 ? 'primary' : 'default'}
-                            />
+                            <Chip label={i + 1} size="small" color={getRankColor(i)} />
                           </TableCell>
                           <TableCell>{r.keyword}</TableCell>
                           <TableCell align="center">

@@ -25,9 +25,11 @@ import { ROLES } from '../../src/constants/roles';
 import type { GraphQLContext } from '../../src/middleware/auth';
 
 // safeFetch resolves the host before connecting; the hosts here are fictional.
-jest.mock('node:dns/promises', () => ({
-  lookup: jest.fn().mockResolvedValue([{ address: '93.184.215.14', family: 4 }]),
-}));
+jest.mock('node:dns/promises', () =>
+  jest
+    .requireActual<typeof import('../fixtures/publicDns')>('../fixtures/publicDns')
+    .publicDnsMock(),
+);
 
 /** Never a literal credential: the value only has to look like a long token. */
 const TOKEN = process.env.TEST_SONAR_TOKEN ?? `squ_${'x'.repeat(24)}wxyz`;
@@ -233,7 +235,7 @@ describe('the SonarQube client', () => {
     mockSonar({ '/api/x': json({}, status) });
     const error = await client()
       .get('/api/x')
-      .catch((caught: unknown) => caught);
+      .catch((error_: unknown) => error_);
     expect(error).toBeInstanceOf(SonarError);
     expect(error).toMatchObject({ problem, message: expect.stringContaining(message) });
   });

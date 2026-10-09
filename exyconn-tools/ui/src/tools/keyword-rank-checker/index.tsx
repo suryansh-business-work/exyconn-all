@@ -15,6 +15,7 @@ import Grid from '@mui/material/Grid';
 import { TrendingUp, Search, Info } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
+import { getScoreColor } from '../../shared/utils/scoreColor';
 
 interface SeoResult {
   title: string;
@@ -108,7 +109,7 @@ const KeywordRankChecker: React.FC = () => {
                   <Paper variant="outlined" sx={{ p: 2, flex: '1 1 120px', textAlign: 'center' }}>
                     <Typography
                       variant="h4"
-                      color={result.score >= 70 ? '#22c55e' : result.score >= 40 ? '#f59e0b' : '#ef4444'}
+                      color={getScoreColor(result.score)}
                       sx={{
                         fontWeight: 'bold',
                       }}

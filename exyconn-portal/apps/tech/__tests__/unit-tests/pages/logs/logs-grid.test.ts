@@ -21,7 +21,7 @@ function column(id: string): ColDef<AppLogRow> {
 function cell(id: string, row: AppLogRow | undefined): string {
   const format = column(id).valueFormatter;
   if (typeof format !== 'function') {
-    throw new Error(`Column ${id} has no formatter`);
+    throw new TypeError(`Column ${id} has no formatter`);
   }
   return format({ data: row, value: undefined, context: {} } as ValueFormatterParams<AppLogRow>);
 }

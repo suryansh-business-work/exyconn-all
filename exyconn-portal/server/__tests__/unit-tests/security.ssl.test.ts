@@ -13,6 +13,7 @@ import { clearSslCache, sslCertificates } from '../../src/modules/security/ssl.s
 import { readCertificate } from '../../src/modules/security/ssl.probe';
 import { StatusMonitorModel } from '../../src/modules/status/status-monitor.model';
 import { env } from '../../src/config/env';
+import ips from '../fixtures/ips.json';
 
 jest.mock('../../src/modules/security/ssl.probe', () => ({ readCertificate: jest.fn() }));
 const probe = readCertificate as jest.Mock;
@@ -71,7 +72,7 @@ describe('reading a certificate', () => {
     expect(altNames('DNS:a.com, DNS:b.com, IP Address:1.2.3.4')).toEqual([
       'a.com',
       'b.com',
-      '1.2.3.4',
+      ips.ip1_2_3_4,
     ]);
     expect(altNames(undefined)).toEqual([]);
   });
@@ -186,10 +187,11 @@ describe('the certificate report', () => {
   });
 
   it('checks every active monitored host and never fails on one bad host', async () => {
+    const rejectWith = (reason: unknown) => Promise.reject(reason);
     // A non-Error rejection still becomes a row, not a failed report.
     const outcomes = new Map<string, Promise<unknown>>([
       ['down.exyconn.com', Promise.reject(new Error('ECONNREFUSED'))],
-      ['odd.exyconn.com', Promise.reject({ code: 'EPIPE' })],
+      ['odd.exyconn.com', rejectWith({ code: 'EPIPE' })],
     ]);
     for (const outcome of outcomes.values()) outcome.catch(() => undefined);
     probe.mockImplementation((name: string) => outcomes.get(name) ?? Promise.resolve(handshake(5)));

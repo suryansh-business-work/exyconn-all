@@ -48,7 +48,7 @@ export default function TrayPreference({ preferences }: Readonly<Props>): ReactE
       <Switch
         checked={preferences.closeToTray}
         onChange={(event) =>
-          run(() => window.tracker.setPreferences({ closeToTray: event.target.checked }))
+          run(() => globalThis.tracker.setPreferences({ closeToTray: event.target.checked }))
         }
         slotProps={{
           input: { 'aria-label': t('Keep running in the tray when the window is closed') },

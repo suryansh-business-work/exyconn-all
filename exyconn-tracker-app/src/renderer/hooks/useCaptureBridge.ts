@@ -15,11 +15,13 @@ import { composeCapture } from '../capture/compose';
 export default function useCaptureBridge(): void {
   useEffect(
     () =>
-      window.tracker.onCaptureRequested((request) => {
+      globalThis.tracker.onCaptureRequested((request) => {
         composeCapture(request)
-          .then((image) => window.tracker.sendCaptureResult({ id: request.id, image, error: null }))
+          .then((image) =>
+            globalThis.tracker.sendCaptureResult({ id: request.id, image, error: null }),
+          )
           .catch((error: unknown) => {
-            window.tracker.sendCaptureResult({
+            globalThis.tracker.sendCaptureResult({
               id: request.id,
               image: null,
               error: error instanceof Error ? error.message : 'The webcam photo failed.',

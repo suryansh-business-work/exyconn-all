@@ -217,7 +217,7 @@ async function settle(
   uid: number,
 ): Promise<void> {
   const range = String(uid);
-  await client.messageFlagsAdd(range, ['\\Seen'], { uid: true });
+  await client.messageFlagsAdd(range, [String.raw`\Seen`], { uid: true });
   if (config.deleteAfterImport) {
     await client.messageDelete(range, { uid: true });
   }

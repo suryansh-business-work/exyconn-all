@@ -69,7 +69,9 @@ describe('campaignTopLinks', () => {
 
 describe('the marketing schema', () => {
   it('declares the operations the resolvers serve', () => {
-    const schema = [marketingTypeDefs, marketingMetricsTypeDefs].map(print).join('\n');
+    const schema = [marketingTypeDefs, marketingMetricsTypeDefs]
+      .map((typeDefs) => print(typeDefs))
+      .join('\n');
 
     for (const operation of [
       'sendCampaign',

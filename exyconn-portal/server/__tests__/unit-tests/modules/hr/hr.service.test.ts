@@ -5,6 +5,7 @@ import { AttendanceModel } from '../../../../src/modules/hr/attendance.model';
 import { UserModel } from '../../../../src/modules/admin/user.model';
 import { ROLES } from '../../../../src/constants/roles';
 import { freezeClock, useTestOrganization } from '../../../helpers';
+import { asArg } from '../../../mockAs';
 
 useTestOrganization({ locale: 'en-US' });
 
@@ -76,7 +77,7 @@ describe('setLeaveStatus edge cases', () => {
     const row = await leave(EMP, 'Family');
     jest
       .spyOn(LeaveRequestModel, 'findByIdAndUpdate')
-      .mockReturnValue({ lean: () => Promise.resolve(null) } as never);
+      .mockReturnValue(asArg({ lean: () => Promise.resolve(null) }));
 
     await expect(hrService.setLeaveStatus(String(row._id), 'REJECTED')).rejects.toThrow(
       'LeaveRequest not found',

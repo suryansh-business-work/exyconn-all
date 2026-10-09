@@ -20,7 +20,7 @@ const formatSize = (b: number) =>
   b < 1024 * 1024 ? `${(b / 1024).toFixed(1)} KB` : `${(b / (1024 * 1024)).toFixed(2)} MB`;
 
 function hexToRgb(hex: string) {
-  const v = parseInt(hex.replace('#', ''), 16);
+  const v = Number.parseInt(hex.replace('#', ''), 16);
   return { r: ((v >> 16) & 255) / 255, g: ((v >> 8) & 255) / 255, b: (v & 255) / 255 };
 }
 
@@ -137,7 +137,7 @@ export default function WatermarkPdf() {
                 or click to browse
               </Typography>
               <Button variant="outlined" component="label" sx={{ color: '#64748b', borderColor: '#64748b' }}>
-                Browse Files
+                {'Browse Files'}
                 <input hidden accept="application/pdf" type="file" onChange={onFileChange} />
               </Button>
             </Paper>

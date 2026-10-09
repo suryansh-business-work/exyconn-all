@@ -37,12 +37,10 @@ const HtmlFAQGenerator: React.FC = () => {
   const [count, setCount] = useState(10);
   const [tone, setTone] = useState('professional');
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (f) {
-      const reader = new FileReader();
-      reader.onload = (event) => setHtmlContent(event.target?.result as string);
-      reader.readAsText(f);
+      setHtmlContent(await f.text());
     }
   };
 
@@ -95,7 +93,7 @@ const HtmlFAQGenerator: React.FC = () => {
                 </Typography>
               </Box>
               <Button component="label" variant="outlined" fullWidth startIcon={<UploadFile />} sx={{ mb: 2 }}>
-                Upload HTML File
+                {'Upload HTML File'}
                 <input type="file" accept=".html,.htm" hidden onChange={handleFileUpload} />
               </Button>
               <TextField

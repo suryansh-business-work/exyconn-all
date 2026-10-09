@@ -44,14 +44,14 @@ vi.mock('@/components/ui', async (importOriginal) => {
       onUploaded: (url: string) => void;
     }>) =>
       open ? (
-        <div role="dialog" aria-label={title} data-current={currentUrl ?? ''}>
+        <dialog open aria-label={title} data-current={currentUrl ?? ''}>
           <button type="button" onClick={() => onUploaded(NEW_PHOTO)}>
             Finish upload
           </button>
           <button type="button" onClick={onClose}>
             Close upload
           </button>
-        </div>
+        </dialog>
       ) : null,
   };
 });

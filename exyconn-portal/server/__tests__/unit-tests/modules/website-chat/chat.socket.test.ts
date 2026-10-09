@@ -13,6 +13,7 @@ import {
 import { logger } from '../../../../src/utils/logger';
 import { until } from './chat.fixtures';
 import { ORIGIN, attach, connect, framesOf, handleUpgrade, message } from './chat.socket.harness';
+import ips from '../../../fixtures/ips.json';
 
 jest.mock('ws', () => {
   const handleUpgrade = jest.fn();
@@ -35,7 +36,7 @@ beforeEach(() => {
 });
 afterEach(() => {
   jest.restoreAllMocks();
-  for (const peer of [...chatHub.all()]) {
+  for (const peer of chatHub.all()) {
     chatHub.leave(peer);
   }
 });
@@ -56,9 +57,9 @@ describe('attachChatSocket upgrades', () => {
 
   it("joins a socket from an allowed origin, addressed by nginx's real IP", () => {
     const { server } = attach();
-    const { peer } = connect(server, { 'x-real-ip': '203.0.113.1' }, '10.0.0.1');
-    expect(peer).toMatchObject({ ip: '203.0.113.1', role: null, site: 'WEBSITE', alive: true });
-    expect(connect(server, {}, '10.0.0.2').peer.ip).toBe('10.0.0.2');
+    const { peer } = connect(server, { 'x-real-ip': ips.ip203_0_113_1 }, ips.ip10_0_0_1);
+    expect(peer).toMatchObject({ ip: ips.ip203_0_113_1, role: null, site: 'WEBSITE', alive: true });
+    expect(connect(server, {}, ips.ip10_0_0_2).peer.ip).toBe(ips.ip10_0_0_2);
     expect(connect(server).peer.ip).toBe('unknown');
   });
 });

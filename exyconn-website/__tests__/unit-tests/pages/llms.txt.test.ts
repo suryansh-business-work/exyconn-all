@@ -13,7 +13,9 @@ vi.mock("../../../src/lib/cms/ai-services", async (importOriginal) => ({
 import { GET } from "../../../src/pages/llms.txt";
 import { routeContext } from "./route-helpers";
 
-const llms = async (headers: Record<string, string> = { host: "exyconn.com" }) => {
+const DEFAULT_HEADERS = { host: "exyconn.com" };
+
+const llms = async (headers: Record<string, string> = DEFAULT_HEADERS) => {
   const response = await GET(
     routeContext(new Request("https://exyconn.com/llms.txt", { headers }))
   );

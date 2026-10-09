@@ -6,6 +6,17 @@ import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { DomainInputForm, DomainResultDisplay, KeyValueTable } from '../../shared/components/DomainToolShared';
 import { APIs } from '../../shared/config/apis';
 
+interface ExpiryStatus {
+  color: 'success' | 'warning' | 'error';
+  label: string;
+}
+
+const getExpiryStatus = (days: number): ExpiryStatus => {
+  if (days > 90) return { color: 'success', label: 'Safe' };
+  if (days > 30) return { color: 'warning', label: 'Renew Soon' };
+  return { color: 'error', label: 'Critical' };
+};
+
 const DomainExpiryChecker: React.FC = () => {
   const [result, setResult] = useState<Record<string, unknown> | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,6 +42,7 @@ const DomainExpiryChecker: React.FC = () => {
   };
 
   const days = result?.daysUntilExpiry as number | null;
+  const status = days === null ? null : getExpiryStatus(days);
 
   return (
     <ToolLayout toolName="Domain Expiry Checker" toolIcon={<Schedule />} toolColor="#f59e0b">
@@ -53,11 +65,11 @@ const DomainExpiryChecker: React.FC = () => {
                 icon={<Schedule fontSize="small" />}
                 data={result}
               >
-                {days !== null && (
+                {days !== null && status && (
                   <Box sx={{ mb: 2, textAlign: 'center' }}>
                     <Typography
                       variant="h3"
-                      color={days > 90 ? 'success.main' : days > 30 ? 'warning.main' : 'error.main'}
+                      color={`${status.color}.main`}
                       sx={{
                         fontWeight: 700,
                       }}
@@ -72,11 +84,7 @@ const DomainExpiryChecker: React.FC = () => {
                     >
                       days until expiry
                     </Typography>
-                    <Chip
-                      label={days > 90 ? 'Safe' : days > 30 ? 'Renew Soon' : 'Critical'}
-                      color={days > 90 ? 'success' : days > 30 ? 'warning' : 'error'}
-                      sx={{ mt: 1 }}
-                    />
+                    <Chip label={status.label} color={status.color} sx={{ mt: 1 }} />
                   </Box>
                 )}
                 <KeyValueTable

@@ -56,8 +56,9 @@ export async function createApp(): Promise<Express> {
   app.disable('x-powered-by');
   app.use(
     helmet({
-      // The API answers JSON, a redirect or a 1x1 GIF — no HTML for a CSP to protect.
-      contentSecurityPolicy: false,
+      // The API answers JSON, a redirect or a 1x1 GIF, so no document may load anything from
+      // it and none may frame it.
+      contentSecurityPolicy: { directives: { defaultSrc: ["'none'"], frameAncestors: ["'none'"] } },
       // Tracking pixels (/m/o/*.gif) and tracker update redirects are loaded from other
       // origins (mail clients, the desktop app), so 'same-origin' would break them.
       crossOriginResourcePolicy: { policy: 'cross-origin' },

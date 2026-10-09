@@ -71,7 +71,7 @@ export const parseScene = (json: string): ResolvedScene => {
   }
   return {
     shapes,
-    data: typeof data === "object" && data !== null ? (data as ShapeData) : {},
+    data: typeof data === "object" && data !== null ? data : {},
     accent,
     seed: typeof seed === "number" ? seed : undefined,
   };

@@ -222,7 +222,7 @@ export function statusTargets(domain: string, trackerDownloadUrl: string): Statu
       key: 'tracker-app',
       name: 'Tracker Desktop App',
       description: 'Download and update channel for the desktop time tracker',
-      category: 'DESKTOP_APP' as StatusCategory,
+      category: 'DESKTOP_APP',
       url: trackerDownloadUrl,
       order: resolved.length,
     },

@@ -20,21 +20,7 @@ interface SplitResultsPanelProps {
 
 const SplitResultsPanel: React.FC<SplitResultsPanelProps> = ({ result, onDownloadFile, onCopyContent }) => (
   <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, minHeight: 480 }}>
-    {!result ? (
-      <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
-        <CallSplit sx={{ fontSize: 48, mb: 2, opacity: 0.3 }} />
-        <Typography variant="body1">Enter a large sitemap URL to split it</Typography>
-        <Typography
-          variant="body2"
-          sx={{
-            color: 'text.secondary',
-            mt: 1,
-          }}
-        >
-          Creates multiple smaller sitemaps and a sitemap index file
-        </Typography>
-      </Box>
-    ) : (
+    {result ? (
       <Box sx={{ p: 2, maxHeight: 480, overflow: 'auto' }}>
         <Accordion defaultExpanded>
           <AccordionSummary expandIcon={<ExpandMore />}>
@@ -117,6 +103,20 @@ const SplitResultsPanel: React.FC<SplitResultsPanelProps> = ({ result, onDownloa
             </AccordionDetails>
           </Accordion>
         ))}
+      </Box>
+    ) : (
+      <Box sx={{ p: 4, textAlign: 'center', color: 'text.secondary' }}>
+        <CallSplit sx={{ fontSize: 48, mb: 2, opacity: 0.3 }} />
+        <Typography variant="body1">Enter a large sitemap URL to split it</Typography>
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+            mt: 1,
+          }}
+        >
+          Creates multiple smaller sitemaps and a sitemap index file
+        </Typography>
       </Box>
     )}
   </Paper>

@@ -144,7 +144,7 @@ export default function CompressImage() {
                 JPG, PNG, WEBP, or GIF — up to {MAX_FILES} files
               </Typography>
               <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
-                Browse Files
+                {'Browse Files'}
                 <input
                   hidden
                   multiple

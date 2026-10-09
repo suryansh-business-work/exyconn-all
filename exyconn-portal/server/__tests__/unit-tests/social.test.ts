@@ -381,7 +381,7 @@ describe('social notifications', () => {
     // preferences and writes the batch, so that is the call a broken store breaks.
     const insert = jest
       .spyOn(NotificationModel, 'insertMany')
-      .mockRejectedValueOnce(new Error('notification store is down') as never);
+      .mockRejectedValueOnce(new Error('notification store is down'));
 
     const liked: Post = await M.toggleSocialPostLike(null, { id: created.id }, ctx(asha));
 

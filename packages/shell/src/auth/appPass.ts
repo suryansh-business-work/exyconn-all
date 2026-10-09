@@ -48,11 +48,11 @@ export function createAppPass({ storageKey, header, fragmentKey }: AppPassOption
   };
   const adoptFromAddress = () => {
     if (!fragmentKey) return;
-    const pass = new URLSearchParams(window.location.hash.slice(1)).get(fragmentKey);
+    const pass = new URLSearchParams(globalThis.location.hash.slice(1)).get(fragmentKey);
     if (!pass) return;
     store(pass);
-    const { pathname, search } = window.location;
-    window.history.replaceState(null, '', `${pathname}${search}`);
+    const { pathname, search } = globalThis.location;
+    globalThis.history.replaceState(null, '', `${pathname}${search}`);
   };
   return {
     has: () => read() !== null,

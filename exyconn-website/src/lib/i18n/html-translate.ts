@@ -76,7 +76,7 @@ function translatable(text: string): boolean {
 
 /** Replaces one attribute's value in a tag, leaving the quoting style as the author wrote it. */
 function replaceAttribute(tag: string, name: string, replace: Lookup): string {
-  const pattern = new RegExp(`(\\s${name}\\s*=\\s*)(["'])([^"']*)\\2`, "i");
+  const pattern = new RegExp(String.raw`(\s${name}\s*=\s*)(["'])([^"']*)\2`, "i");
   return tag.replace(pattern, (whole, prefix: string, quote: string, value: string) => {
     if (!translatable(value)) {
       return whole;
@@ -110,15 +110,26 @@ function translateTag(tag: string, lookup: Lookup): string {
  * byte-identical apart from the runs that were translated, and a parse-and-serialise round
  * trip through any library rewrites quoting, self-closing tags and entities along the way.
  */
+function nextTagStart(html: string, from: number): number {
+  let start = html.indexOf("<", from);
+  while (start >= 0 && !TAG_START.test(html.charAt(start + 1))) {
+    start = html.indexOf("<", start + 1);
+  }
+  return start;
+}
+
+/** Where a raw-text element (a script, a style) ends: after its closing tag, or the document. */
+function opaqueEnd(html: string, name: string, from: number): number {
+  const closeAt = html.toLowerCase().indexOf(`</${name}`, from);
+  return closeAt < 0 ? html.length : html.indexOf(">", closeAt) + 1;
+}
+
 function walk(html: string, lookup: Lookup): string {
   let out = "";
   let index = 0;
 
   while (index < html.length) {
-    let start = html.indexOf("<", index);
-    while (start >= 0 && !TAG_START.test(html.charAt(start + 1))) {
-      start = html.indexOf("<", start + 1);
-    }
+    const start = nextTagStart(html, index);
     if (start < 0) {
       out += translateText(html.slice(index), lookup);
       break;
@@ -142,9 +153,7 @@ function walk(html: string, lookup: Lookup): string {
     }
 
     if (OPAQUE.has(name) && !tag.startsWith("</")) {
-      const closing = `</${name}`;
-      const closeAt = html.toLowerCase().indexOf(closing, end);
-      const stop = closeAt < 0 ? html.length : html.indexOf(">", closeAt) + 1;
+      const stop = opaqueEnd(html, name, end);
       out += html.slice(start, stop);
       index = stop;
       continue;
@@ -163,8 +172,8 @@ function walk(html: string, lookup: Lookup): string {
  * tag, which is what keeps this a scanner rather than a parser.
  */
 function endOfElement(html: string, name: string, from: number): number {
-  const open = new RegExp(`<${name}[\\s/>]`, "gi");
-  const close = new RegExp(`</${name}\\s*>`, "gi");
+  const open = new RegExp(String.raw`<${name}[\s/>]`, "gi");
+  const close = new RegExp(String.raw`</${name}\s*>`, "gi");
   let depth = 1;
   let cursor = from;
   while (depth > 0) {

@@ -11,7 +11,12 @@ interface RhfAutocompleteProps {
 }
 
 /** React Hook Form-bound MUI Autocomplete — a searchable single-select. */
-export function RhfAutocomplete({ name, label, options, helperText }: RhfAutocompleteProps) {
+export function RhfAutocomplete({
+  name,
+  label,
+  options,
+  helperText,
+}: Readonly<RhfAutocompleteProps>) {
   const { control } = useFormContext();
   const copy = useFieldCopy();
   return (

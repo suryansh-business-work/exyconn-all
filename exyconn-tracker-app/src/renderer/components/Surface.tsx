@@ -1,6 +1,5 @@
 import type { ReactElement } from 'react';
-import { Paper, type PaperProps } from '@exyconn/ui';
-import type { SxProps, Theme } from '@exyconn/ui';
+import { Paper, type PaperProps, type SxProps, type Theme } from '@exyconn/ui';
 import { surface } from '../theme';
 
 /** MUI's `sx` is either a single style or an array of them. */

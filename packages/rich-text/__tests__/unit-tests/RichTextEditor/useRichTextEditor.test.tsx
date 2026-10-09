@@ -95,7 +95,9 @@ describe('useRichTextEditor', () => {
 
   it('shows a failed upload until it is dismissed', async () => {
     const { dom } = mount({
-      uploadImage: vi.fn(async () => Promise.reject(new Error('Quota exceeded'))),
+      uploadImage: vi.fn(async () => {
+        throw new Error('Quota exceeded');
+      }),
     });
     fireEvent.paste(dom, { clipboardData: clipboard([png('a.png')]) });
     expect(await screen.findByText(/Image upload failed: Quota exceeded/)).toBeInTheDocument();

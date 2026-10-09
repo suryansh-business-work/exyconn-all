@@ -10,31 +10,7 @@ interface MarkdownOutputProps {
 
 const MarkdownOutput: React.FC<MarkdownOutputProps> = ({ markdown, onCopy, onDownload }) => (
   <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, height: '100%', minHeight: 400 }}>
-    {!markdown ? (
-      <Box
-        sx={{
-          p: 4,
-          textAlign: 'center',
-          color: 'text.secondary',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'center',
-        }}
-      >
-        <TextFields sx={{ fontSize: 48, mb: 2, opacity: 0.3, color: '#6b7280' }} />
-        <Typography variant="body1">Paste plain text to convert</Typography>
-        <Typography
-          variant="body2"
-          sx={{
-            color: 'text.secondary',
-            mt: 1,
-          }}
-        >
-          Automatically detects and formats common patterns
-        </Typography>
-      </Box>
-    ) : (
+    {markdown ? (
       <>
         <Box
           sx={{
@@ -71,6 +47,30 @@ const MarkdownOutput: React.FC<MarkdownOutputProps> = ({ markdown, onCopy, onDow
           <pre style={{ margin: 0, whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: 13 }}>{markdown}</pre>
         </Box>
       </>
+    ) : (
+      <Box
+        sx={{
+          p: 4,
+          textAlign: 'center',
+          color: 'text.secondary',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+        }}
+      >
+        <TextFields sx={{ fontSize: 48, mb: 2, opacity: 0.3, color: '#6b7280' }} />
+        <Typography variant="body1">Paste plain text to convert</Typography>
+        <Typography
+          variant="body2"
+          sx={{
+            color: 'text.secondary',
+            mt: 1,
+          }}
+        >
+          Automatically detects and formats common patterns
+        </Typography>
+      </Box>
     )}
   </Paper>
 );

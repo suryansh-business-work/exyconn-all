@@ -8,19 +8,16 @@ export interface DetailAction {
   href: string;
 }
 
-/** A Font Awesome free solid icon name without its prefix, e.g. "chart-line". */
-export type DetailIconName = string;
-
 export interface DetailIntroCopy {
   title: string;
-  icon: DetailIconName;
+  icon: string;
   term: string;
   definition: string;
 }
 
 export interface DetailBenefits {
   title: string;
-  items: readonly { icon: DetailIconName; text: string }[];
+  items: readonly { icon: string; text: string }[];
 }
 
 export type DetailDemo =
@@ -39,7 +36,7 @@ export type DetailDemo =
 
 export interface DetailOfferingList {
   title: string;
-  items: readonly { icon: DetailIconName; title: string; text: string }[];
+  items: readonly { icon: string; title: string; text: string }[];
 }
 
 /** A logo with its intrinsic size (for the aspect ratio); an empty `src` shows none. */

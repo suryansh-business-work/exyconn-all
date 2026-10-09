@@ -6,6 +6,8 @@ import {
 import { recordServerErrors } from '../../../../src/modules/logs/logs.ingest';
 import { logger } from '../../../../src/utils/logger';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
+import { asArg } from '../../../mockAs';
+import ips from '../../../fixtures/ips.json';
 
 // The write itself is what fails here, so the store is replaced and nothing reaches Mongo.
 jest.mock('../../../../src/modules/logs/logs.ingest', () => ({
@@ -17,17 +19,19 @@ const recorded = recordServerErrors as jest.Mock;
 
 const signedIn: GraphQLContext = {
   user: { id: 'u1', roles: ['EMPLOYEE'], email: 'u1@exyconn.com' },
-  ip: '10.0.0.5',
+  ip: ips.ip10_0_0_5,
   userAgent: 'jest',
 };
 
 async function encounter(errors: GraphQLError[]) {
-  const hooks = await serverErrorLogPlugin.requestDidStart?.({} as never);
-  await hooks?.didEncounterErrors?.({
-    errors,
-    contextValue: signedIn,
-    operationName: 'SaveThing',
-  } as never);
+  const hooks = await serverErrorLogPlugin.requestDidStart?.(asArg({}));
+  await hooks?.didEncounterErrors?.(
+    asArg({
+      errors,
+      contextValue: signedIn,
+      operationName: 'SaveThing',
+    }),
+  );
 }
 
 describe('a server error log write that fails', () => {
@@ -40,7 +44,7 @@ describe('a server error log write that fails', () => {
 
     expect(recorded).toHaveBeenCalledWith(
       [expect.objectContaining({ level: 'WARN', route: 'SaveThing' })],
-      { user: signedIn.user, ip: '10.0.0.5', userAgent: 'jest' },
+      { user: signedIn.user, ip: ips.ip10_0_0_5, userAgent: 'jest' },
     );
     expect(logged).toHaveBeenCalledWith(
       expect.objectContaining({ err: expect.any(Error) }),

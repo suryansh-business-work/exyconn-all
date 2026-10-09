@@ -4,6 +4,7 @@ import { CountedField } from '../../fields/CountedField';
 import { KindSwitch } from '../../fields/KindSwitch';
 import { NumberField } from '../../fields/NumberField';
 import { ctaStarter, type CtaKind } from './cta-starter';
+import { cellText } from '@exyconn/shell/utils/cellText';
 
 /** Schema limits (schema.ts `ctaActionSchema`). */
 const MAX = { title: 25, url: 500, phone: 40, eventTitle: 120, start: 120, location: 200 } as const;
@@ -35,7 +36,7 @@ function CalendarFields({ name }: Readonly<{ name: string }>) {
 }
 
 const switchKind = (kind: string, current: Record<string, unknown>) =>
-  ctaStarter(kind as CtaKind, String(current.title ?? ''));
+  ctaStarter(kind as CtaKind, cellText(current.title));
 
 /** One call-to-action button: a link, a phone call or a calendar event. */
 export function CtaActionItem({ name }: Readonly<ArrayItemProps>) {

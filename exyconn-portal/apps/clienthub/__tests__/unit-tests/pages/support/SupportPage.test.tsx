@@ -142,7 +142,7 @@ describe('TICKET_COLUMNS', () => {
       'updatedAt',
       'actions',
     ]);
-    const actions = TICKET_COLUMNS[TICKET_COLUMNS.length - 1].cellRendererParams as {
+    const actions = TICKET_COLUMNS.at(-1)?.cellRendererParams as {
       actionSpecs: { key: string; label: string }[];
     };
     expect(actions.actionSpecs).toEqual([

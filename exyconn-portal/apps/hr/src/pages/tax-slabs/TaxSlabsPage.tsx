@@ -47,12 +47,11 @@ export function TaxSlabsPage() {
   );
 
   const regimes = regimesQuery.data?.listTaxRegimes ?? [];
-  const applied = regimes.filter((regime) => regime.active);
   const regimeOptions: SelectOption[] = regimes.map((regime) => ({
     value: regime.regimeKey,
     label: `${regime.name} (${regime.financialYear})`,
   }));
-  const newest = applied[0] ?? regimes[0];
+  const newest = regimes.find((regime) => regime.active) ?? regimes[0];
 
   const stats = statsData?.listTaxSlabsStats;
   const statItems: StatItem[] = [

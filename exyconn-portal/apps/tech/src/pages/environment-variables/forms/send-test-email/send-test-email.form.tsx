@@ -29,7 +29,7 @@ export function SendTestEmailForm({
   defaultTo = '',
   onDone,
   onCancel,
-}: SendTestEmailFormProps) {
+}: Readonly<SendTestEmailFormProps>) {
   const t = useT();
   const notify = useNotify();
   const [sendTest] = useSendTestEmailMutation();

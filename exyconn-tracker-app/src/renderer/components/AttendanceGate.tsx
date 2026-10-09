@@ -69,7 +69,7 @@ export default function AttendanceGate({ workday }: Readonly<Props>): ReactEleme
   const mark = (): Promise<boolean> =>
     perform(
       'mark',
-      () => window.tracker.markAttendance(status, note.trim() || null),
+      () => globalThis.tracker.markAttendance(status, note.trim() || null),
       t('Could not mark your attendance.'),
     );
 

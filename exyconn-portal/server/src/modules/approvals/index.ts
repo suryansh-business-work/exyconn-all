@@ -1,4 +1,3 @@
-import { approvalsTypeDefs } from './approvals.typeDefs';
 import { decideApproval, myApprovals, myPendingApprovalCount } from './approvals.service';
 import { delegateApprovals, endDelegation, myDelegations } from './delegates.service';
 import { assertAuthenticated } from '../../middleware/roleGuard';
@@ -38,7 +37,7 @@ export const approvalsResolvers = {
   },
 };
 
-export { approvalsTypeDefs };
+export { approvalsTypeDefs } from './approvals.typeDefs';
 export { APPROVAL_SOURCES } from './approvals.registry';
 export { delegatedFromIds, reportsInScope } from './delegates.service';
 export { ApprovalDelegateModel } from './delegate.model';

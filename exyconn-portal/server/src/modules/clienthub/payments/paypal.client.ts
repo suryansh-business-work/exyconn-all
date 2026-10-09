@@ -37,7 +37,8 @@ async function accessToken(keys: PaypalKeys): Promise<string> {
     error_description?: string;
   };
   if (!response.ok || !payload.access_token) {
-    throw new Error(`PayPal: ${payload.error_description ?? `HTTP ${response.status}`}`);
+    const reason = payload.error_description ?? `HTTP ${response.status}`;
+    throw new Error(`PayPal: ${reason}`);
   }
   const lifetimeMs = ((payload.expires_in ?? 300) - 60) * 1000;
   tokens.set(key, { token: payload.access_token, expiresAt: Date.now() + lifetimeMs });

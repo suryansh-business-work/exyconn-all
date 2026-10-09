@@ -127,7 +127,7 @@ export default function CropPdf() {
                 or click to browse
               </Typography>
               <Button variant="outlined" component="label" sx={{ color: '#f97316', borderColor: '#f97316' }}>
-                Browse Files
+                {'Browse Files'}
                 <input hidden accept="application/pdf" type="file" onChange={onFileChange} />
               </Button>
             </Paper>

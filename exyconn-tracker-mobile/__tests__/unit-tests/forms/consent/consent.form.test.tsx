@@ -15,6 +15,9 @@ function press(name: string | RegExp): void {
   fireEvent.click(screen.getByRole('button', { name }));
 }
 
+/** An error that carries no text, so the screen has to fall back to its own words. */
+const NO_MESSAGE = '';
+
 describe('ConsentForm', () => {
   it('exports the schema it validates with', () => {
     expect(consentSchema(true).safeParse({ signedName: ' ' }).success).toBe(false);
@@ -88,7 +91,7 @@ describe('ConsentForm', () => {
   it('stays on the screen and says why when signing out fails', async () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     vi.mocked(tracker.logout)
-      .mockRejectedValueOnce(new Error(''))
+      .mockRejectedValueOnce(new Error(NO_MESSAGE))
       .mockRejectedValueOnce(new Error('Portal unreachable.'));
     renderWithProviders(<ConsentForm mustSign={false} canAgree />);
     press(/^Not now/);

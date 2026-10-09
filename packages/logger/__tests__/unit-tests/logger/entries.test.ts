@@ -101,7 +101,7 @@ describe('createLogger entries', () => {
     const crumbs = storedQueue(storage)[0].breadcrumbs.map((crumb) => crumb.message);
     expect(crumbs).toHaveLength(30);
     expect(crumbs[0]).toBe('step 2');
-    expect(crumbs[crumbs.length - 1]).toBe('');
+    expect(crumbs.at(-1)).toBe('');
   });
 
   it('cuts a long breadcrumb to the limit', () => {

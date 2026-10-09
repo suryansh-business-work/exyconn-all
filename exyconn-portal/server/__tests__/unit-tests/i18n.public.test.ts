@@ -5,6 +5,7 @@ import * as translate from '../../src/modules/i18n/i18n.translate';
 import { runAsPlatform, setDefaultScope } from '../../src/lib/tenant';
 import { upsertTranslation } from '../../src/modules/i18n/i18n.service';
 import type { GraphQLContext } from '../../src/middleware/auth';
+import { asArg } from '../mockAs';
 
 /**
  * `translateMissing` is public — the website and every sign-in screen need it — and each call
@@ -86,9 +87,7 @@ describe('asking for translations without signing in', () => {
       );
     const member = { user: { id: 'u1', email: 'a@b.com', roles: [] }, ip: '198.51.100.5' };
 
-    await expect(
-      ask(['Contact us'], member as unknown as GraphQLContext, 'en-NZ'),
-    ).resolves.toHaveLength(1);
+    await expect(ask(['Contact us'], asArg(member), 'en-NZ')).resolves.toHaveLength(1);
     expect(machine).toHaveBeenCalledTimes(1);
   });
 });

@@ -29,7 +29,7 @@ const sampleOne = <K extends ShapeId>(
   count: number,
   random: () => number,
   data: ShapeData
-) => (SHAPES[id] as (typeof SHAPES)[K]).sample(count, random, data[id] as ShapeParamsMap[K]);
+) => SHAPES[id].sample(count, random, data[id]);
 
 export const buildTargets = (
   shapeIds: readonly ShapeId[],

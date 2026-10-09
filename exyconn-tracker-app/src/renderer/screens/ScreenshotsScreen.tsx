@@ -60,11 +60,11 @@ export default function ScreenshotsScreen({
         </Typography>
       </Stack>
 
-      {error !== null ? (
+      {error === null ? null : (
         <Alert severity="error" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
           {error}
         </Alert>
-      ) : null}
+      )}
 
       {loading && error === null ? (
         <Box sx={GRID}>

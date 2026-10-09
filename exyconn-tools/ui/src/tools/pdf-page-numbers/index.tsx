@@ -157,7 +157,7 @@ export default function PdfPageNumbers() {
                 or click to browse
               </Typography>
               <Button variant="outlined" component="label" color="info">
-                Browse Files
+                {'Browse Files'}
                 <input hidden accept="application/pdf" type="file" onChange={onFileChange} />
               </Button>
             </Paper>

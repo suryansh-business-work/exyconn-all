@@ -23,16 +23,12 @@ const native = vi.hoisted(() => ({
 }));
 
 vi.mock('@exyconn/tracker-core', () => ({
-  TrackerController: class {
-    constructor(deps: unknown) {
-      h.deps = deps as ControllerDepsSeen;
-      return h.controller;
-    }
+  TrackerController: function TrackerController(deps: unknown) {
+    h.deps = deps as ControllerDepsSeen;
+    return h.controller;
   },
-  TrackerEngine: class {
-    constructor(...args: unknown[]) {
-      h.engineArgs.push(args);
-    }
+  TrackerEngine: function TrackerEngine(...args: unknown[]) {
+    h.engineArgs.push(args);
   },
 }));
 vi.mock('../../../src/native/tracker-native', () => ({ TrackerNative: native }));

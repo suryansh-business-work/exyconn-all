@@ -87,19 +87,27 @@ export function compact(value: unknown): unknown {
   return Object.fromEntries(kept.map(([key, child]) => [key, compact(child)]));
 }
 
+const tooSmallMessage = (origin: string, minimum: number | bigint) => {
+  if (origin === 'string') {
+    return Number(minimum) <= 1 ? 'This is required' : 'Too short';
+  }
+  return origin === 'array' ? 'Add at least one' : 'Too small';
+};
+
+const tooBigMessage = (origin: string) => {
+  if (origin === 'string') {
+    return 'Too long for WhatsApp';
+  }
+  return origin === 'array' ? 'Too many items' : 'Too large';
+};
+
 /** Plain-English messages for the schema's limits; the field translates them. */
 const formError: z.core.$ZodErrorMap = (issue) => {
   if (issue.code === 'too_small') {
-    if (issue.origin === 'string') {
-      return Number(issue.minimum) <= 1 ? 'This is required' : 'Too short';
-    }
-    return issue.origin === 'array' ? 'Add at least one' : 'Too small';
+    return tooSmallMessage(issue.origin, issue.minimum);
   }
   if (issue.code === 'too_big') {
-    if (issue.origin === 'string') {
-      return 'Too long for WhatsApp';
-    }
-    return issue.origin === 'array' ? 'Too many items' : 'Too large';
+    return tooBigMessage(issue.origin);
   }
   if (issue.code === 'invalid_type') {
     return issue.input === undefined ? 'This is required' : 'Enter a valid value';

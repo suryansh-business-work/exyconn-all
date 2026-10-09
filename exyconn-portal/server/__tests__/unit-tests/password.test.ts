@@ -6,7 +6,7 @@ describe('password utils', () => {
     expect(pw).toHaveLength(12);
     expect(pw).toMatch(/[A-Z]/);
     expect(pw).toMatch(/[a-z]/);
-    expect(pw).toMatch(/[0-9]/);
+    expect(pw).toMatch(/\d/);
     expect(pw).toMatch(/[!@#$%&*]/);
   });
 

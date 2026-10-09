@@ -132,7 +132,7 @@ export default function CropImage() {
                   or click to browse
                 </Typography>
                 <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
-                  Browse Files
+                  {'Browse Files'}
                   <input hidden accept="image/*" type="file" onChange={onFileChange} />
                 </Button>
               </Paper>
@@ -161,7 +161,7 @@ export default function CropImage() {
                   />
                 </Box>
                 <Button size="small" component="label" sx={{ mt: 1, color: COLOR }}>
-                  Choose a different image
+                  {'Choose a different image'}
                   <input hidden accept="image/*" type="file" onChange={onFileChange} />
                 </Button>
               </Paper>

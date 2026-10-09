@@ -11,6 +11,7 @@ import { AuditLogModel } from '../../../../src/modules/audit';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
 import { codeOf } from '../codeOf';
 import { END_GRAPH, createDemo, draftInput, signedInAdmin } from './workflowFixtures';
+import { asArg } from '../../../mockAs';
 
 let ctx: GraphQLContext;
 let demoId: string;
@@ -96,7 +97,7 @@ describe('creating a workflow', () => {
   it('passes on a failure that is not a duplicate key', async () => {
     const create = jest
       .spyOn(WhatsappWorkflowModel, 'create')
-      .mockRejectedValueOnce(new Error('disk full') as never);
+      .mockRejectedValueOnce(new Error('disk full'));
     await expect(createWorkflow(ctx, createInput())).rejects.toThrow('disk full');
     create.mockRestore();
   });
@@ -167,7 +168,7 @@ describe('saving a draft', () => {
     const created = await createWorkflow(ctx, createInput());
     const update = jest
       .spyOn(WhatsappWorkflowModel, 'findByIdAndUpdate')
-      .mockReturnValueOnce({ lean: () => Promise.resolve(null) } as never);
+      .mockReturnValueOnce(asArg({ lean: () => Promise.resolve(null) }));
     expect(await codeOf(saveDraft(ctx, created.id, draftInput()))).toBe('NOT_FOUND');
     update.mockRestore();
   });

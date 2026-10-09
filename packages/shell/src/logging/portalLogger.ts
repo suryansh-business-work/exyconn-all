@@ -58,5 +58,5 @@ export const portalLogger = createLogger({
 /** Uncaught errors, unhandled rejections and `console.error`/`warn` anywhere in the page. */
 export function installPortalCrashHandlers(): void {
   captureConsole(portalLogger);
-  captureBrowserErrors(portalLogger, window);
+  captureBrowserErrors(portalLogger, globalThis);
 }

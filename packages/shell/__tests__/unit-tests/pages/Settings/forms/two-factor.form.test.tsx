@@ -38,9 +38,7 @@ async function submitCode(code: string) {
 }
 
 beforeEach(() => {
-  vi.mocked(QRCode.toDataURL)
-    .mockReset()
-    .mockResolvedValue(QR_DATA as never);
+  vi.mocked(QRCode.toDataURL).mockReset().mockResolvedValue(QR_DATA);
   start.mockReset().mockResolvedValue({ data: enrolment });
   confirm.mockReset().mockResolvedValue({ data: { confirmMfaEnrolment: ['r-1', 'r-2'] } });
   vi.mocked(useStartMfaEnrolmentMutation).mockReturnValue(mutationTuple(start) as never);

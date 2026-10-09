@@ -6,7 +6,7 @@ import { defineWorkflow } from '../../author';
 import { CITIES, EVENTS, INTERESTS } from './data';
 
 const ALERT = 'alert';
-const FEATURED = EVENTS[EVENTS.length - 1];
+const [FEATURED] = EVENTS.slice(-1);
 
 export const eventAlerts = defineWorkflow({
   key: 'event-alerts',

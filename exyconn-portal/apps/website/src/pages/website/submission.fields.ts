@@ -1,3 +1,5 @@
+import { cellText } from '@exyconn/shell/utils/cellText';
+
 /** One field of a submission as the inbox shows it. */
 export interface SubmissionEntry {
   key: string;
@@ -22,7 +24,8 @@ const asRecord = (data: unknown): Payload =>
 
 const text = (value: unknown): string => {
   if (value === null || value === undefined) return '';
-  return typeof value === 'object' ? JSON.stringify(value) : String(value).trim();
+  if (typeof value === 'object') return JSON.stringify(value);
+  return cellText(value).trim();
 };
 
 /** `firstName` → `First name`, `india-offer` → `India offer`. */

@@ -26,7 +26,8 @@ async function call<T>(keys: RazorpayKeys, path: string, body?: unknown): Promis
     error?: { description?: string };
   };
   if (!response.ok) {
-    throw new Error(`Razorpay: ${payload.error?.description ?? `HTTP ${response.status}`}`);
+    const reason = payload.error?.description ?? `HTTP ${response.status}`;
+    throw new Error(`Razorpay: ${reason}`);
   }
   return payload;
 }

@@ -46,18 +46,18 @@ export const resetLinkOrigin = portalOrigin;
  * address would tell a stranger which emails have accounts. The email itself is
  * best-effort: a failed send is logged, and the caller sees the same message either way.
  */
-export async function requestPasswordReset(email: string, ctx: GraphQLContext): Promise<boolean> {
+export async function requestPasswordReset(email: string, ctx: GraphQLContext): Promise<void> {
   const address = email.trim().toLowerCase();
   if (address.length > MAX_EMAIL_LENGTH) {
-    return true;
+    return;
   }
   if (!(await resetIpLimiter.allow(ctx.ip ?? 'unknown'))) {
     logger.warn(`Password reset from ${ctx.ip ?? 'unknown'} rate-limited`);
-    return true;
+    return;
   }
   if (!(await resetRequestLimiter.allow(address))) {
     logger.warn(`Password reset for ${address} rate-limited`);
-    return true;
+    return;
   }
   // Nobody is signed in, so the person is looked up platform-wide; their token and email
   // then belong to their own company (the template is that company's).
@@ -67,10 +67,10 @@ export async function requestPasswordReset(email: string, ctx: GraphQLContext): 
       .lean(),
   );
   if (!user) {
-    return true;
+    return;
   }
   await runForOrganizationOf(organizationOf(user), () => sendResetLink(user, ctx));
-  return true;
+  return;
 }
 
 /**

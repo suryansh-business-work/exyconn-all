@@ -219,6 +219,10 @@ describe('applyLeave', () => {
 describe('myHolidays', () => {
   const holiday = (name: string, over: Record<string, unknown> = {}) =>
     HolidayModel.create({ name, date: new Date('2026-08-15'), ...over });
+  const namesFor = async (id: string) =>
+    ((await Q.myHolidays(null, {}, ctx(id))) as { name: string }[])
+      .map((row) => row.name)
+      .sort((a, b) => a.localeCompare(b));
 
   it("shows company-wide holidays plus the employee's own country's", async () => {
     await holiday('Founders Day');
@@ -239,10 +243,6 @@ describe('myHolidays', () => {
     await holiday('Karnataka Rajyotsava', { country: 'IN', cities: ['Bengaluru'] });
     await holiday('Gudi Padwa', { country: 'IN', cities: ['Mumbai', 'Pune'] });
     await holiday('Pioneer Day', { country: 'US', cities: ['Bengaluru'] });
-    const namesFor = async (id: string) =>
-      ((await Q.myHolidays(null, {}, ctx(id))) as { name: string }[])
-        .map((row) => row.name)
-        .sort((a, b) => a.localeCompare(b));
 
     expect(await namesFor(await employee(null, ' pune '))).toEqual(['Diwali', 'Gudi Padwa']);
     expect(await namesFor(await employee('IN', 'bengaluru'))).toEqual([
@@ -260,10 +260,6 @@ describe('myHolidays', () => {
       regions: ['Maharashtra'],
       cities: ['Bengaluru'],
     });
-    const namesFor = async (id: string) =>
-      ((await Q.myHolidays(null, {}, ctx(id))) as { name: string }[])
-        .map((row) => row.name)
-        .sort((a, b) => a.localeCompare(b));
 
     expect(await namesFor(await employee(null, 'Pune', 'maharashtra'))).toEqual([
       'Diwali',

@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { AA_TEXT, contrastRatio } from '@exyconn/ui';
+import { AA_TEXT, color, contrastRatio } from '@exyconn/ui';
 import { buildTheme } from './theme';
-import { color } from '@exyconn/ui';
 
 /** A workspace whose brand background is light, so `system` would resolve to a light palette. */
 const LIGHT_BRAND = {

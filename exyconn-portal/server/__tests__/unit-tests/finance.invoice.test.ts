@@ -135,7 +135,7 @@ describe('invoice pdf', () => {
 
     const base64 = (await financeResolvers.Query.invoicePdf(
       null,
-      { id: String(invoice._id) } as never,
+      { id: String(invoice._id) },
       asFinance,
     )) as string;
 
@@ -150,7 +150,7 @@ describe('invoice pdf', () => {
     };
 
     await expect(
-      financeResolvers.Query.invoicePdf(null, { id: String(invoice._id) } as never, asHr),
+      financeResolvers.Query.invoicePdf(null, { id: String(invoice._id) }, asHr),
     ).rejects.toThrow();
   });
 });
@@ -159,7 +159,7 @@ describe('sendInvoice', () => {
   beforeEach(() => send.mockClear());
 
   const sendTo = (id: string, email = 'priya@acme.test', message?: string) =>
-    financeResolvers.Mutation.sendInvoice(null, { id, email, message } as never, asFinance);
+    financeResolvers.Mutation.sendInvoice(null, { id, email, message }, asFinance);
 
   it('emails the PDF through the invoice template and stamps sentAt', async () => {
     const invoice = await seedInvoice();

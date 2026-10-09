@@ -1,4 +1,5 @@
 import { BoardColumnModel, TaskActivityModel, TaskCommentModel, TaskModel } from './board.model';
+import { stringOf } from '../../utils/serialize';
 import { ProjectModel } from './projects.model';
 import { notifyAssignment, notifyComment, notifyTicketDone } from './projects.notify';
 import { badRequest, notFound } from '../../utils/errors';
@@ -103,7 +104,7 @@ function display(value: unknown): string {
   if (value instanceof Date) {
     return value.toISOString().slice(0, 10);
   }
-  return String(value)
+  return stringOf(value)
     .replaceAll(/<[^>]*>/g, ' ')
     .replaceAll(/\s+/g, ' ')
     .trim()
@@ -156,7 +157,7 @@ function attachmentNames(value: unknown): string[] {
   if (!Array.isArray(value)) {
     return [];
   }
-  return value.map((item) => String((item as { name?: unknown }).name ?? ''));
+  return value.map((item) => stringOf((item as { name?: unknown }).name ?? ''));
 }
 
 /**
@@ -188,14 +189,14 @@ function mergeAttachments(
   const known = new Map(
     (Array.isArray(previous) ? previous : []).map((item) => {
       const file = item as { url?: unknown; uploadedByName?: unknown; uploadedAt?: unknown };
-      return [String(file.url ?? ''), file];
+      return [stringOf(file.url ?? ''), file];
     }),
   );
   return incoming.map((file) => {
     const existing = known.get(file.url);
     return {
       ...file,
-      uploadedByName: String(existing?.uploadedByName ?? actorName),
+      uploadedByName: stringOf(existing?.uploadedByName ?? actorName),
       uploadedAt: (existing?.uploadedAt as Date | undefined) ?? new Date(),
     };
   });

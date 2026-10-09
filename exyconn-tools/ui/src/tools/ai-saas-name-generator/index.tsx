@@ -35,7 +35,8 @@ const AISaasNameGenerator: React.FC = () => {
     setError(null);
 
     try {
-      const userPrompt = `Generate ${count} brandable SaaS names for:\n\nProduct: ${description}\nStyle: ${style}${keywords ? `\nKeywords to consider: ${keywords}` : ''}`;
+      const keywordsLine = keywords ? `\nKeywords to consider: ${keywords}` : '';
+      const userPrompt = `Generate ${count} brandable SaaS names for:\n\nProduct: ${description}\nStyle: ${style}${keywordsLine}`;
       const response = await generateWithOpenAI(apiKey, SYSTEM_PROMPT, userPrompt);
       setResult(response.content);
       setTokenUsage(response.usage);

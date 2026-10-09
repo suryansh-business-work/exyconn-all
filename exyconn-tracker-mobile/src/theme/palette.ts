@@ -75,7 +75,7 @@ export const FALLBACK_BRAND = {
 } as const;
 
 /** Ink that reads on a brand-coloured button, whichever brand the workspace picked. */
-export const ON_DARK = white;
+export { white as ON_DARK } from '@exyconn/ui/src/tokens/colors.tokens';
 export const ON_LIGHT = slate[900];
 
 /** Behind a dialog or sheet: the design system's black at half strength. */

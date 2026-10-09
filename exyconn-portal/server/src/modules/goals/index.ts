@@ -1,5 +1,4 @@
 import { GoalModel } from './goal.model';
-import { goalsTypeDefs } from './goals.typeDefs';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { createMyRecordsResolver, findOwnRecord } from '../../lib/employeeScope';
@@ -94,4 +93,4 @@ export const goalsResolvers = {
     commentOnTeamGoal,
   },
 };
-export { goalsTypeDefs };
+export { goalsTypeDefs } from './goals.typeDefs';

@@ -50,7 +50,7 @@ beforeEach(() => {
 
 afterEach(() => {
   releaseListeners();
-  document.documentElement.removeAttribute("data-a11y-motion");
+  delete document.documentElement.dataset.a11yMotion;
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
   anime.animate.mockClear();
@@ -59,7 +59,7 @@ afterEach(() => {
 
 describe("anime-init with motion switched off", () => {
   it("shows everything at once when the accessibility drawer pauses animations", async () => {
-    document.documentElement.setAttribute("data-a11y-motion", "on");
+    document.documentElement.dataset.a11yMotion = "on";
     await boot(
       '<p id="a" data-anime="zoom-in" style="opacity:0"></p><ul id="b" data-anime-stagger></ul>'
     );

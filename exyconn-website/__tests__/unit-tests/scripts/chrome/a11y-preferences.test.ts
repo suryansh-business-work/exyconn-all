@@ -59,8 +59,8 @@ describe("a11y preferences on load", () => {
   it("applies what was stored to the page and to the drawer's controls", async () => {
     localStorage.setItem(A11Y_STORAGE_KEY, JSON.stringify({ contrast: true, fontSize: 115 }));
     await boot();
-    expect(root.getAttribute("data-a11y-contrast")).toBe("on");
-    expect(root.hasAttribute("data-a11y-links")).toBe(false);
+    expect(root.dataset.a11yContrast).toBe("on");
+    expect(root.dataset.a11yLinks).toBeUndefined();
     expect(toggle("contrast").checked).toBe(true);
     expect(toggle("links").checked).toBe(false);
     expect(root.style.fontSize).toBe("115%");
@@ -81,7 +81,7 @@ describe("a11y preferences on load", () => {
         ""
       )
     );
-    expect(root.getAttribute("data-a11y-cursor")).toBe("on");
+    expect(root.dataset.a11yCursor).toBe("on");
   });
 });
 
@@ -90,10 +90,10 @@ describe("a11y preference changes", () => {
     await boot();
     flip("links", true);
     expect(stored()).toEqual({ links: true });
-    expect(root.getAttribute("data-a11y-links")).toBe("on");
+    expect(root.dataset.a11yLinks).toBe("on");
     flip("links", false);
     expect(stored()).toEqual({ links: false });
-    expect(root.hasAttribute("data-a11y-links")).toBe(false);
+    expect(root.dataset.a11yLinks).toBeUndefined();
   });
 
   it("steps the text size up, down and back to the default", async () => {
@@ -122,7 +122,7 @@ describe("a11y preference changes", () => {
     await boot();
     document.getElementById("a11y-reset-btn")?.click();
     expect(stored()).toEqual({});
-    expect(root.hasAttribute("data-a11y-grayscale")).toBe(false);
+    expect(root.dataset.a11yGrayscale).toBeUndefined();
     expect(toggle("grayscale").checked).toBe(false);
     expect(root.style.fontSize).toBe("");
   });
@@ -132,6 +132,6 @@ describe("a11y preference changes", () => {
     localStorage.setItem(A11Y_STORAGE_KEY, JSON.stringify({ readable: true }));
     document.getElementById("open")?.click();
     expect(toggle("readable").checked).toBe(true);
-    expect(root.getAttribute("data-a11y-readable")).toBe("on");
+    expect(root.dataset.a11yReadable).toBe("on");
   });
 });

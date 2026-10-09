@@ -6,6 +6,7 @@ import { pollOnce, startInboundMail } from '../../../../src/modules/support/inbo
 import { inboundMailbox, type InboundMessage } from '../../../../src/utils/inboundMail';
 import { readJobRuns } from '../../../../src/utils/jobHeartbeat';
 import { logger } from '../../../../src/utils/logger';
+import { asArg } from '../../../mockAs';
 
 jest.mock('../../../../src/modules/organizations', () => ({ forEachOrganization: jest.fn() }));
 jest.mock('../../../../src/utils/imagekit', () => ({ imageUploader: { uploadImage: jest.fn() } }));
@@ -59,7 +60,7 @@ const config = (pollSeconds: number) => ({
 function configsInTurn(...rows: Array<ReturnType<typeof config> | null>) {
   const findOne = jest.spyOn(InboundMailConfigModel, 'findOne');
   for (const row of rows) {
-    findOne.mockReturnValueOnce({ lean: () => Promise.resolve(row) } as never);
+    findOne.mockReturnValueOnce(asArg({ lean: () => Promise.resolve(row) }));
   }
 }
 

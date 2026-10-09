@@ -17,7 +17,7 @@ describe('roles', () => {
 
   it('multiple roles unlock multiple modules', () => {
     const modules = accessibleModules([ROLES.FINANCE, ROLES.HR]);
-    expect(modules.map((m) => m.key).sort()).toEqual(['finance', 'hr']);
+    expect(modules.map((m) => m.key).sort((a, b) => a.localeCompare(b))).toEqual(['finance', 'hr']);
     expect(canAccess([ROLES.FINANCE, ROLES.HR], ROLES.HR)).toBe(true);
   });
 });

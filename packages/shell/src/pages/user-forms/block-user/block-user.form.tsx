@@ -18,7 +18,7 @@ interface BlockUserFormProps {
 }
 
 /** React Hook Form + Zod form to temporarily block a user with a recorded reason. */
-export function BlockUserForm({ userId, onDone, onCancel }: BlockUserFormProps) {
+export function BlockUserForm({ userId, onDone, onCancel }: Readonly<BlockUserFormProps>) {
   const notify = useNotify();
   const [setUserBlocked] = useSetUserBlockedMutation();
   const methods = useForm<Values>({

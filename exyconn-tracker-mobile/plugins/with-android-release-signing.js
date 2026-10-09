@@ -42,8 +42,9 @@ function applyReleaseSigning(gradle) {
     .replace(RELEASE_BUILD_TYPE, '$1signingConfig signingConfigs.release');
 }
 
-module.exports = (config) =>
-  withAppBuildGradle(config, (mod) => {
+module.exports = function withAndroidReleaseSigning(config) {
+  return withAppBuildGradle(config, (mod) => {
     mod.modResults.contents = applyReleaseSigning(mod.modResults.contents);
     return mod;
   });
+};

@@ -60,13 +60,13 @@ export default function PermissionsScreen({ permissions }: Readonly<Props>): Rea
   const grant = (kind: PermissionKind): Promise<boolean> =>
     perform(
       kind,
-      () => window.tracker.requestPermission(kind),
+      () => globalThis.tracker.requestPermission(kind),
       t('macOS did not answer the request. Try again, or allow it in System Settings.'),
     );
   const recheck = (): Promise<boolean> =>
     perform(
       'recheck',
-      () => window.tracker.getPermissions(),
+      () => globalThis.tracker.getPermissions(),
       t('Could not re-check the permissions. Try again.'),
     );
 

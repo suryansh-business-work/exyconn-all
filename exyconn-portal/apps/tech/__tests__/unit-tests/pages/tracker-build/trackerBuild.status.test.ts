@@ -37,7 +37,7 @@ describe('tracker build constants', () => {
   it('offers every platform the server can build, once each', () => {
     const values = BUILD_PLATFORMS.map((platform) => platform.value);
     const byName = (a: string, b: string) => a.localeCompare(b);
-    expect([...values].sort(byName)).toEqual([...Object.values(TrackerPlatform)].sort(byName));
+    expect(values.sort(byName)).toEqual(Object.values(TrackerPlatform).sort(byName));
     expect(BUILD_PLATFORMS[0]).toEqual({
       value: TrackerPlatform.Windows,
       label: 'Windows',

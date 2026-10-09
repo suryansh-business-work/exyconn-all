@@ -118,7 +118,7 @@ describe('TrackerBillingByProject', () => {
     const banner = await screen.findByText('Invoice INV-7 was created as a draft.');
     const alert = banner.closest('[role="alert"]');
     if (!(alert instanceof HTMLElement)) {
-      throw new Error('The invoice banner is not an alert');
+      throw new TypeError('The invoice banner is not an alert');
     }
     expect(state.create).toHaveBeenCalledWith({
       variables: { projectId: 'p1', from: range.from, to: range.to },

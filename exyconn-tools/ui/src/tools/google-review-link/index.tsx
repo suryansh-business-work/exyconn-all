@@ -295,11 +295,10 @@ const GoogleReviewLink: React.FC = () => {
                     size="small"
                     label="Share via WhatsApp"
                     sx={{ mr: 0.5, mb: 0.5 }}
-                    onClick={() =>
-                      window.open(
-                        `https://wa.me/?text=${encodeURIComponent(`Please leave us a review: ${generatedLink}`)}`
-                      )
-                    }
+                    onClick={() => {
+                      const message = `Please leave us a review: ${generatedLink}`;
+                      window.open(`https://wa.me/?text=${encodeURIComponent(message)}`);
+                    }}
                   />
                 </Box>
               </Paper>

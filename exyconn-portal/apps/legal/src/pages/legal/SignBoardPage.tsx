@@ -10,6 +10,7 @@ import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useListContractsQuery } from '@exyconn/shell/graphql/generated';
+import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import { SignContractForm } from './forms/sign-contract';
 import { SignatureEvidence } from './SignatureEvidence';
 import type { ContractRow } from './forms/contract';
@@ -83,7 +84,9 @@ export function SignBoardPage() {
             contract={signTarget}
             onCancel={() => setSignTarget(null)}
             onDone={() => {
-              void refetch();
+              refetch().catch((error: unknown) =>
+                portalLogger.warn('Could not reload the contracts after signing', error),
+              );
               setSignTarget(null);
               notify('Signature recorded');
             }}

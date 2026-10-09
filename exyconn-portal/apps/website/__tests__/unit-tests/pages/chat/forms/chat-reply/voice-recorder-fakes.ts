@@ -8,7 +8,7 @@ export function fakeStream() {
 
 /** The browser's MediaRecorder: records nothing, but runs the same events in the same order. */
 export class FakeMediaRecorder {
-  static instances: FakeMediaRecorder[] = [];
+  static readonly instances: FakeMediaRecorder[] = [];
   state: 'inactive' | 'recording' = 'inactive';
   ondataavailable: ((event: { data: Blob }) => void) | null = null;
   onstop: (() => void) | null = null;

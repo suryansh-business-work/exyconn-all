@@ -15,6 +15,7 @@ import { seedUser } from '../../../helpers';
 import { seedPlatformOperator } from '../../security-authz.operator';
 import { codeOf } from '../codeOf';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
+import ips from '../../../fixtures/ips.json';
 
 type Resolver = (p: unknown, a: unknown, c: GraphQLContext) => Promise<unknown>;
 const R = { ...logsResolvers.Query, ...logsResolvers.Mutation } as unknown as Record<
@@ -22,7 +23,7 @@ const R = { ...logsResolvers.Query, ...logsResolvers.Mutation } as unknown as Re
   Resolver
 >;
 
-const anonymous = { user: null, ip: '10.0.0.9' };
+const anonymous = { user: null, ip: ips.ip10_0_0_9 };
 
 const entry = (overrides: Partial<LogEntryInput> = {}): LogEntryInput => ({
   level: 'ERROR',
@@ -47,7 +48,7 @@ async function staff(roles: Role[]): Promise<GraphQLContext> {
   const user = await seedUser(`${randomUUID()}@exyconn.com`, randomUUID(), roles);
   const organizationId = String(organizationOf(user));
   await seedPlatformOperator(organizationId);
-  return { user: { id: user.id, email: user.email, roles }, organizationId, ip: '10.0.0.1' };
+  return { user: { id: user.id, email: user.email, roles }, organizationId, ip: ips.ip10_0_0_1 };
 }
 
 const onlyGroup = async () => String((await AppLogGroupModel.findOne().lean())?._id);

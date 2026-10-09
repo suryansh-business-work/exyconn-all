@@ -107,7 +107,7 @@ export function mountScene(container: HTMLElement, { variant, quality, still }: 
     cubes.dispose();
     particles.dispose();
     grid?.geometry.dispose();
-    (grid?.material as THREE.Material | undefined)?.dispose();
+    grid?.material.dispose();
     renderer.dispose();
     renderer.domElement.remove();
   };

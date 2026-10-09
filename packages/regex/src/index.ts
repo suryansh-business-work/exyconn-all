@@ -61,8 +61,10 @@ export const CSS_TOKEN_VALUE = /^[^;{}<>]{1,300}$/;
  * A CMS page path: `/`, or lower-case segments like `/services/data-analytics`; a template's
  * segments may be parameters, like `/blog/:slug`.
  */
-export const PAGE_PATH =
-  /^\/(?:(?:[a-z\d][a-z\d._-]*|:[a-z][a-zA-Z\d]*)(?:\/(?:[a-z\d][a-z\d._-]*|:[a-z][a-zA-Z\d]*))*)?$/;
+const PAGE_PATH_SEGMENT = String.raw`(?:[a-z\d][a-z\d._-]*|:[a-z][a-zA-Z\d]*)`;
+export const PAGE_PATH = new RegExp(
+  String.raw`^\/(?:${PAGE_PATH_SEGMENT}(?:\/${PAGE_PATH_SEGMENT})*)?$`,
+);
 
 /** A font family name, e.g. `Inter Tight` or `Noto Sans JP`: letters, digits, spaces, `.'&-`. */
 export const FONT_FAMILY = /^[\p{L}\d][\p{L}\d .'&-]{0,79}$/u;
@@ -175,7 +177,7 @@ export const TAX_ID_TYPES: readonly TaxIdType[] = [
     code: 'EU_VAT',
     label: 'VAT number',
     countries: EU_COUNTRIES,
-    pattern: new RegExp(`^(?:${EU_VAT_PREFIXES.join('|')})[\\dA-Z]{2,13}$`),
+    pattern: new RegExp(String.raw`^(?:${EU_VAT_PREFIXES.join('|')})[\dA-Z]{2,13}$`),
     example: 'DE123456789',
   },
   {
@@ -293,5 +295,5 @@ export function taxIdTypesFor(country: string): TaxIdType[] {
 /** Whether `value` is a well-formed number of kind `code` (after normalizeTaxId). */
 export function isValidTaxId(code: string, value: string): boolean {
   const type = BY_CODE.get(code);
-  return type !== undefined && type.pattern.test(normalizeTaxId(value));
+  return type?.pattern.test(normalizeTaxId(value)) ?? false;
 }

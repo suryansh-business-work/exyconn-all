@@ -30,7 +30,7 @@ export function withoutTypeParams(blob: Blob): Blob {
 export function readDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.addEventListener("load", () => resolve(String(reader.result)));
+    reader.addEventListener("load", () => resolve(reader.result as string));
     reader.addEventListener("error", () => reject(reader.error ?? new Error("read failed")));
     reader.readAsDataURL(blob);
   });

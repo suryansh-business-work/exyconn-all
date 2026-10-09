@@ -1,6 +1,5 @@
 import { SalaryStructureModel } from '../employee/salary.model';
 import { SalarySlipModel } from '../employee/salarySlip.model';
-import { payrollTypeDefs } from './payroll.typeDefs';
 import {
   grossOf,
   monthlyEarnings,
@@ -331,7 +330,7 @@ function assertPayrollSettings(input: PayrollSettingsInput) {
     if (input[field] < 0) badRequest(`${field} cannot be negative`);
   }
   if (!TDS_MODE_SET.has(input.tdsMode)) badRequest('tdsMode must be NONE, FLAT_PERCENT or SLAB');
-  if (input.tdsRegimeKey !== undefined && input.tdsRegimeKey.trim() === '') {
+  if (input.tdsRegimeKey?.trim() === '') {
     badRequest('tdsRegimeKey must name a regime in the tax table');
   }
   const startMonth = input.financialYearStartMonth;
@@ -472,7 +471,7 @@ export const payrollResolvers = {
     taxExempt: (s: { taxExempt?: boolean | null }) => s.taxExempt ?? false,
   },
 };
-export { payrollTypeDefs };
+export { payrollTypeDefs } from './payroll.typeDefs';
 export { PayrollScheduleModel, MAX_SCHEDULE_DAY } from './payroll-schedule.model';
 export { PayrollSettingsModel, readPayrollSettings } from './payroll-settings.model';
 export { TaxRegimeModel, TaxSlabModel } from './tax-slab.model';

@@ -16,6 +16,9 @@ import {
 beforeAll(installDomShims);
 afterEach(cleanup);
 
+/** An error that carries no text, so the screen has to fall back to its own words. */
+const NO_MESSAGE = '';
+
 describe('SignOutButton', () => {
   it('shows the final upload as one while sign-out runs', async () => {
     await mount(<SignOutButton />, trackerState('tracking'));
@@ -29,7 +32,7 @@ describe('SignOutButton', () => {
 
   it('says so when sign-out did not finish, and lets them try again', async () => {
     await mount(<SignOutButton />, trackerState('idle'));
-    overrideTracker({ logout: () => Promise.reject(new Error('')) });
+    overrideTracker({ logout: () => Promise.reject(new Error(NO_MESSAGE)) });
 
     await press(buttonNamed('Sign out'));
     await finish(() => undefined);

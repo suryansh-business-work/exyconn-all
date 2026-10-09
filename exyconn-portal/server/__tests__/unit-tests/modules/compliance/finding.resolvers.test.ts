@@ -35,17 +35,13 @@ const input = (over: Record<string, unknown> = {}) => ({
 });
 
 const create = (over: Record<string, unknown> = {}, ctx: GraphQLContext = officer) =>
-  findingResolvers.Mutation.createFinding(null, { input: input(over) } as never, ctx) as Promise<{
+  findingResolvers.Mutation.createFinding(null, { input: input(over) }, ctx) as Promise<{
     id: string;
     reference: string;
   }>;
 
 const update = (id: string, over: Record<string, unknown>, ctx: GraphQLContext = officer) =>
-  findingResolvers.Mutation.updateFinding(
-    null,
-    { id, input: input(over) } as never,
-    ctx,
-  ) as Promise<{
+  findingResolvers.Mutation.updateFinding(null, { id, input: input(over) }, ctx) as Promise<{
     status: string;
   }>;
 

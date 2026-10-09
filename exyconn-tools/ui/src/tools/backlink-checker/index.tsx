@@ -21,6 +21,7 @@ import Grid from '@mui/material/Grid';
 import { Link, Search, OpenInNew } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
+import { withUniqueKeys } from '../../shared/utils/uniqueKeys';
 
 interface LinkItem {
   url: string;
@@ -166,29 +167,31 @@ const BacklinkChecker: React.FC = () => {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {result.externalLinks.links.map((b, i) => (
-                          <TableRow key={i} hover>
-                            <TableCell>
-                              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, maxWidth: 300 }}>
-                                <Typography variant="body2" noWrap>
-                                  {b.url}
-                                </Typography>
-                                <OpenInNew
-                                  sx={{ fontSize: 14, color: 'action.disabled', cursor: 'pointer' }}
-                                  onClick={() => window.open(b.url, '_blank')}
+                        {withUniqueKeys(result.externalLinks.links, (b) => `${b.url}|${b.anchor}|${b.rel}`).map(
+                          ({ key, item: b }) => (
+                            <TableRow key={key} hover>
+                              <TableCell>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, maxWidth: 300 }}>
+                                  <Typography variant="body2" noWrap>
+                                    {b.url}
+                                  </Typography>
+                                  <OpenInNew
+                                    sx={{ fontSize: 14, color: 'action.disabled', cursor: 'pointer' }}
+                                    onClick={() => window.open(b.url, '_blank')}
+                                  />
+                                </Box>
+                              </TableCell>
+                              <TableCell>{b.anchor || '(no anchor)'}</TableCell>
+                              <TableCell>
+                                <Chip
+                                  label={b.rel || 'dofollow'}
+                                  color={b.rel === 'nofollow' ? 'default' : 'success'}
+                                  size="small"
                                 />
-                              </Box>
-                            </TableCell>
-                            <TableCell>{b.anchor || '(no anchor)'}</TableCell>
-                            <TableCell>
-                              <Chip
-                                label={b.rel || 'dofollow'}
-                                color={b.rel === 'nofollow' ? 'default' : 'success'}
-                                size="small"
-                              />
-                            </TableCell>
-                          </TableRow>
-                        ))}
+                              </TableCell>
+                            </TableRow>
+                          )
+                        )}
                       </TableBody>
                     </Table>
                   </TableContainer>

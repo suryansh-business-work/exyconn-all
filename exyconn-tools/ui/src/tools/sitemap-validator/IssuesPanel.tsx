@@ -33,8 +33,8 @@ const IssueTable: React.FC<{ issues: ValidationIssue[]; max: number }> = ({ issu
           </TableRow>
         </TableHead>
         <TableBody>
-          {issues.slice(0, max).map((issue, i) => (
-            <TableRow key={i}>
+          {issues.slice(0, max).map((issue) => (
+            <TableRow key={`${issue.message}-${issue.url}`}>
               <TableCell>{issue.message}</TableCell>
               <TableCell sx={{ maxWidth: 200 }}>
                 <Typography variant="caption" noWrap>

@@ -43,6 +43,30 @@ const validationSchema = Yup.object().shape({
   ),
 });
 
+interface SizesListProps {
+  sizes: CustomSize[];
+  errors: string | string[] | FormikErrors<CustomSize>[] | undefined;
+  touched: FormikTouched<CustomSize>[] | undefined;
+  onRemove: (index: number) => void;
+  setFieldValue: (field: string, value: number) => void;
+}
+
+const SizesList: React.FC<Readonly<SizesListProps>> = ({ sizes, errors, touched, onRemove, setFieldValue }) => (
+  <List disablePadding>
+    {sizes.map((size, index) => (
+      <SizeItem
+        key={size.id}
+        size={size}
+        index={index}
+        sizeErrors={(errors?.[index] as FormikErrors<CustomSize>) || {}}
+        sizeTouched={(touched?.[index] as FormikTouched<CustomSize>) || {}}
+        onRemove={() => onRemove(index)}
+        setFieldValue={setFieldValue}
+      />
+    ))}
+  </List>
+);
+
 const CustomSizesDialog: React.FC<Props> = ({ open, onClose, customSizes, onSave }) => {
   const initialValues = {
     sizes: customSizes.length > 0 ? customSizes : [],
@@ -102,19 +126,13 @@ const CustomSizesDialog: React.FC<Props> = ({ open, onClose, customSizes, onSave
                         <Typography variant="caption">Click "Add Size" to create custom export dimensions.</Typography>
                       </Paper>
                     ) : (
-                      <List disablePadding>
-                        {values.sizes.map((size, index) => (
-                          <SizeItem
-                            key={size.id}
-                            size={size}
-                            index={index}
-                            sizeErrors={(errors.sizes?.[index] as FormikErrors<CustomSize>) || {}}
-                            sizeTouched={(touched.sizes?.[index] as FormikTouched<CustomSize>) || {}}
-                            onRemove={() => remove(index)}
-                            setFieldValue={setFieldValue}
-                          />
-                        ))}
-                      </List>
+                      <SizesList
+                        sizes={values.sizes}
+                        errors={errors.sizes}
+                        touched={touched.sizes}
+                        onRemove={remove}
+                        setFieldValue={setFieldValue}
+                      />
                     )}
                   </>
                 )}

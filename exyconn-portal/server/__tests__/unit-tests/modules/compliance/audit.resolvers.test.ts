@@ -40,14 +40,14 @@ type AuditRow = { id: string; reference: string; status: string };
 const create = (over: Record<string, unknown> = {}, ctx: GraphQLContext = auditor) =>
   auditResolvers.Mutation.createInternalAudit(
     null,
-    { input: input(over) } as never,
+    { input: input(over) },
     ctx,
   ) as Promise<AuditRow>;
 
 const update = (id: string, over: Record<string, unknown>, ctx: GraphQLContext = auditor) =>
   auditResolvers.Mutation.updateInternalAudit(
     null,
-    { id, input: input(over) } as never,
+    { id, input: input(over) },
     ctx,
   ) as Promise<AuditRow>;
 

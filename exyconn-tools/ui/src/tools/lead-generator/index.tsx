@@ -9,7 +9,6 @@ import { readSecret } from '../../shared/services/secrets';
 import APISettingsPanel from './components/APISettingsPanel';
 import MapComponent from './components/MapComponent';
 import SearchStepper from './components/SearchStepper';
-import { LocationMode } from './components/SearchStepper/types';
 import BusinessList from './components/BusinessList';
 import NotificationSnackbars from './components/NotificationSnackbars';
 import { Business, PolygonCoordinates } from './types';
@@ -38,9 +37,6 @@ const LeadGenerator: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [maxResults, setMaxResults] = useState(10);
   const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(null);
-  // Only the setter is used: the stepper reports its mode up so the re-render
-  // keeps the wizard in sync, but no consumer here reads the value back.
-  const [, setLocationMode] = useState<LocationMode | null>(null);
 
   const triggerDrawPolygonRef = useRef<(() => void) | null>(null);
 
@@ -75,10 +71,6 @@ const LeadGenerator: React.FC = () => {
     setMapCenter({ lat, lng });
   }, []);
 
-  const handleLocationModeChange = useCallback((mode: LocationMode) => {
-    setLocationMode(mode);
-  }, []);
-
   const handleSearch = () => {
     const placesKey = readSecret(PLACES_KEY);
     if (!placesKey) {
@@ -109,7 +101,6 @@ const LeadGenerator: React.FC = () => {
                 onDrawPolygon={handleDrawPolygon}
                 hasApiKey={!!mapsKey}
                 onLocationChange={handleLocationChange}
-                onLocationModeChange={handleLocationModeChange}
               />
               {needsPlacesKey && (
                 <MissingKeyAlert

@@ -65,14 +65,10 @@ const XmlToMarkdown: React.FC = () => {
     a.click();
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setContent(event.target?.result as string);
-      };
-      reader.readAsText(file);
+      setContent(await file.text());
     }
   };
 
@@ -92,7 +88,7 @@ const XmlToMarkdown: React.FC = () => {
                   XML Content
                 </Typography>
                 <Button component="label" size="small" variant="outlined">
-                  Upload XML
+                  {'Upload XML'}
                   <input type="file" accept=".xml" hidden onChange={handleFileUpload} />
                 </Button>
               </Box>
@@ -124,31 +120,7 @@ const XmlToMarkdown: React.FC = () => {
               elevation={0}
               sx={{ border: 1, borderColor: 'divider', borderRadius: 2, height: '100%', minHeight: 400 }}
             >
-              {!markdown ? (
-                <Box
-                  sx={{
-                    p: 4,
-                    textAlign: 'center',
-                    color: 'text.secondary',
-                    height: '100%',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <DataObject sx={{ fontSize: 48, mb: 2, opacity: 0.3, color: '#22c55e' }} />
-                  <Typography variant="body1">Paste XML content to convert</Typography>
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: 'text.secondary',
-                      mt: 1,
-                    }}
-                  >
-                    XML structure becomes formatted Markdown
-                  </Typography>
-                </Box>
-              ) : (
+              {markdown ? (
                 <>
                   <Box
                     sx={{
@@ -187,6 +159,30 @@ const XmlToMarkdown: React.FC = () => {
                     </pre>
                   </Box>
                 </>
+              ) : (
+                <Box
+                  sx={{
+                    p: 4,
+                    textAlign: 'center',
+                    color: 'text.secondary',
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <DataObject sx={{ fontSize: 48, mb: 2, opacity: 0.3, color: '#22c55e' }} />
+                  <Typography variant="body1">Paste XML content to convert</Typography>
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'text.secondary',
+                      mt: 1,
+                    }}
+                  >
+                    XML structure becomes formatted Markdown
+                  </Typography>
+                </Box>
               )}
             </Paper>
           </Grid>

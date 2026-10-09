@@ -1,3 +1,4 @@
+import { mockCanvasContext } from '../../__tests__/canvasMock';
 import { describe, it, expect, vi, beforeAll, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
@@ -43,7 +44,7 @@ const mockImage = (width: number, height: number): HTMLImageElement =>
 beforeAll(() => {
   URL.createObjectURL = vi.fn(() => 'blob:mock') as typeof URL.createObjectURL;
   URL.revokeObjectURL = vi.fn();
-  HTMLCanvasElement.prototype.getContext = vi.fn(() => {
+  mockCanvasContext(() => {
     lastCtx = {
       drawImage: vi.fn(),
       fillText: vi.fn(),
@@ -58,7 +59,7 @@ beforeAll(() => {
       fillStyle: '',
     };
     return lastCtx;
-  }) as unknown as typeof HTMLCanvasElement.prototype.getContext;
+  });
   HTMLCanvasElement.prototype.toBlob = function (cb: BlobCallback, type?: string) {
     cb(new Blob(['x'.repeat(25)], { type: type ?? 'image/png' }));
   };

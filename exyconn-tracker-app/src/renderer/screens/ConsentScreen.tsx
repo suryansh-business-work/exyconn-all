@@ -56,13 +56,13 @@ export default function ConsentScreen({
   const accept = (): Promise<boolean> =>
     perform(
       'agree',
-      () => window.tracker.acceptConsent(signedName.trim()),
+      () => globalThis.tracker.acceptConsent(signedName.trim()),
       t('Could not record your agreement.'),
     );
   const decline = (): Promise<boolean> =>
     perform(
       'decline',
-      () => window.tracker.logout(),
+      () => globalThis.tracker.logout(),
       t('Could not sign out. Check your connection and try again.'),
     );
 

@@ -1,5 +1,4 @@
 import { InvoiceModel } from './finance.model';
-import { financeTypeDefs } from './finance.typeDefs';
 import { gstBreakdown, invoiceAmount, lineAmount, type InvoiceLineInput } from './invoice.lines';
 import { invoicePdf, sendInvoice } from './invoice.send';
 import { createInvoiceFromDeal } from './invoice.from-deal';
@@ -163,7 +162,7 @@ export const financeResolvers = {
     createInvoiceFromTimeLog,
   },
 };
-export { financeTypeDefs };
+export { financeTypeDefs } from './finance.typeDefs';
 export { nextInvoiceNumber } from './invoice.number';
 export { GST_STATES, gstStateLabel } from './gst.constants';
 export { financeBillingTypeDefs } from './finance.billing.typeDefs';

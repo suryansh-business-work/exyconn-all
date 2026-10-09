@@ -26,7 +26,6 @@ import EventNoteIcon from '@mui/icons-material/EventNote';
 import HandshakeIcon from '@mui/icons-material/Handshake';
 import BusinessIcon from '@mui/icons-material/Business';
 import ContactPhoneIcon from '@mui/icons-material/ContactPhone';
-import InventoryIcon from '@mui/icons-material/Inventory2';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import PasswordIcon from '@mui/icons-material/Password';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
@@ -510,7 +509,7 @@ export const MODULES: ModuleDefinition[] = [
         key: 'products-catalogue',
         label: 'Catalogue',
         path: '/products/catalogue',
-        icon: InventoryIcon,
+        icon: Inventory2Icon,
       },
       {
         key: 'products-suppliers',
@@ -1334,7 +1333,7 @@ export const MODULES: ModuleDefinition[] = [
         key: 'it-assets',
         label: 'Asset Management',
         path: '/it/assets',
-        icon: InventoryIcon,
+        icon: Inventory2Icon,
         group: 'Estate',
       },
       {

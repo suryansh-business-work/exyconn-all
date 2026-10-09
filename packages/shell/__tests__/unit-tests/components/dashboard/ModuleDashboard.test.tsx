@@ -41,9 +41,15 @@ describe('ModuleDashboard', () => {
         chartTitle="Billed"
         chartSeries={[4, 8, 6]}
         chartColor="#abcdef"
-        dialog={<div role="dialog">dialog</div>}
+        dialog={<dialog open>dialog</dialog>}
       >
-        <table aria-label="invoices" />
+        <table aria-label="invoices">
+          <thead>
+            <tr>
+              <th scope="col">Invoice</th>
+            </tr>
+          </thead>
+        </table>
       </ModuleDashboard>,
       { Billed: 'Facturado', 'Last 16 periods': 'Últimos 16 periodos' },
     );

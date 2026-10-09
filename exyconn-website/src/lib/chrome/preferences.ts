@@ -31,7 +31,8 @@ export type FontAction = "inc" | "dec" | "reset";
 
 /** The next text size for a button press; an unknown current size counts as the default. */
 export function nextFontSize(current: number | undefined, action: FontAction): number {
-  const found = FONT_STEPS.findIndex((step) => step === current);
+  const steps: readonly (number | undefined)[] = FONT_STEPS;
+  const found = steps.indexOf(current);
   const index = found === -1 ? FONT_STEPS.indexOf(DEFAULT_FONT) : found;
   if (action === "inc") {
     return FONT_STEPS[Math.min(FONT_STEPS.length - 1, index + 1)];

@@ -129,25 +129,25 @@ describe('recordStockMovement', () => {
   });
 });
 
-describe('reading the movement ledger', () => {
-  async function seedLedger() {
-    const product = await seedProduct(10);
-    const productId = String(product._id);
-    const moves = [
-      { reason: 'RECEIPT', quantity: 5, at: '2026-01-01' },
-      { reason: 'ISSUE', quantity: 2, at: '2026-01-02' },
-      { reason: 'ISSUE', quantity: 1, at: '2026-01-03' },
-    ];
-    for (const move of moves) {
-      const movement = await record({ productId, reason: move.reason, quantity: move.quantity });
-      // Written apart in time, so "newest first" does not hang on the same millisecond.
-      await StockMovementModel.collection.updateOne(
-        { _id: new Types.ObjectId(String(movement.id)) },
-        { $set: { createdAt: new Date(move.at) } },
-      );
-    }
+async function seedLedger() {
+  const product = await seedProduct(10);
+  const productId = String(product._id);
+  const moves = [
+    { reason: 'RECEIPT', quantity: 5, at: '2026-01-01' },
+    { reason: 'ISSUE', quantity: 2, at: '2026-01-02' },
+    { reason: 'ISSUE', quantity: 1, at: '2026-01-03' },
+  ];
+  for (const move of moves) {
+    const movement = await record({ productId, reason: move.reason, quantity: move.quantity });
+    // Written apart in time, so "newest first" does not hang on the same millisecond.
+    await StockMovementModel.collection.updateOne(
+      { _id: new Types.ObjectId(String(movement.id)) },
+      { $set: { createdAt: new Date(move.at) } },
+    );
   }
+}
 
+describe('reading the movement ledger', () => {
   it('lists every movement, newest first', async () => {
     await seedLedger();
 

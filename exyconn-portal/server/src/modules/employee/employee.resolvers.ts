@@ -36,7 +36,7 @@ function withTotals<
 async function ownTicket(ticketId: string, ctx: GraphQLContext) {
   const user = assertAuthenticated(ctx);
   const ticket = await SupportTicketModel.findById(ticketId).lean();
-  if (!ticket || ticket.employeeId !== user.id) notFound('SupportTicket');
+  if (ticket?.employeeId !== user.id) notFound('SupportTicket');
   return { ticket, user };
 }
 

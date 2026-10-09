@@ -25,8 +25,8 @@ vi.mock('@/components/ui', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@/components/ui')>()),
   ImageUploadDialog: (props: Readonly<DialogStubProps>) =>
     props.open ? (
-      <div
-        role="dialog"
+      <dialog
+        open
         aria-label={props.title}
         data-folder={props.folder ?? ''}
         data-current={String(props.currentUrl)}
@@ -38,7 +38,7 @@ vi.mock('@/components/ui', async (importOriginal) => ({
         <button type="button" onClick={props.onClose}>
           close dialog
         </button>
-      </div>
+      </dialog>
     ) : null,
 }));
 

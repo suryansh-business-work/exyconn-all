@@ -94,7 +94,7 @@ describe('announceIncident', () => {
   });
 
   it('logs a failed channel without stopping the others', async () => {
-    const error = jest.spyOn(logger, 'error').mockImplementation((() => undefined) as never);
+    const error = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
     const bounce = new Error('mailbox full');
     notify.mockRejectedValueOnce(bounce);
 
@@ -136,7 +136,7 @@ describe('announceMaintenance', () => {
   });
 
   it('logs a failed notice instead of failing the saved plan', async () => {
-    const error = jest.spyOn(logger, 'error').mockImplementation((() => undefined) as never);
+    const error = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
     const outage = new Error('SMTP down');
     notify.mockRejectedValueOnce(outage);
 

@@ -23,7 +23,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.mj
 const SCALE = 1.5;
 
 const hexToRgb = (hex: string) => {
-  const v = parseInt(hex.replace('#', ''), 16);
+  const v = Number.parseInt(hex.replace('#', ''), 16);
   return rgb(((v >> 16) & 255) / 255, ((v >> 8) & 255) / 255, (v & 255) / 255);
 };
 
@@ -159,44 +159,7 @@ export default function EditPdf() {
   return (
     <ToolLayout toolName="Edit PDF" toolIcon={<Edit />} toolColor="#6366f1">
       <Container maxWidth="xl" sx={{ py: 3 }}>
-        {!file ? (
-          <Paper
-            sx={{
-              p: 6,
-              textAlign: 'center',
-              border: '2px dashed',
-              borderColor: dragOver ? '#6366f1' : 'divider',
-              cursor: 'pointer',
-              transition: '0.2s',
-              maxWidth: 600,
-              mx: 'auto',
-            }}
-            onDragOver={(e: DragEvent) => {
-              e.preventDefault();
-              setDragOver(true);
-            }}
-            onDragLeave={() => setDragOver(false)}
-            onDrop={onDrop}
-          >
-            <CloudUpload sx={{ fontSize: 48, color: '#6366f1', mb: 1 }} />
-            <Typography variant="h6" gutterBottom>
-              Drag & Drop PDF Here
-            </Typography>
-            <Typography
-              variant="body2"
-              sx={{
-                color: 'text.secondary',
-                mb: 2,
-              }}
-            >
-              or click to browse
-            </Typography>
-            <Button variant="outlined" component="label" sx={{ color: '#6366f1', borderColor: '#6366f1' }}>
-              Browse Files
-              <input hidden accept="application/pdf" type="file" onChange={onFileChange} />
-            </Button>
-          </Paper>
-        ) : (
+        {file ? (
           <Grid container spacing={3}>
             <Grid size={{ xs: 12, md: 7 }}>
               <Paper sx={{ p: 2 }}>
@@ -207,7 +170,7 @@ export default function EditPdf() {
                     size="small"
                     sx={{ color: '#6366f1', borderColor: '#6366f1' }}
                   >
-                    Change PDF
+                    {'Change PDF'}
                     <input hidden accept="application/pdf" type="file" onChange={onFileChange} />
                   </Button>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -275,6 +238,43 @@ export default function EditPdf() {
               />
             </Grid>
           </Grid>
+        ) : (
+          <Paper
+            sx={{
+              p: 6,
+              textAlign: 'center',
+              border: '2px dashed',
+              borderColor: dragOver ? '#6366f1' : 'divider',
+              cursor: 'pointer',
+              transition: '0.2s',
+              maxWidth: 600,
+              mx: 'auto',
+            }}
+            onDragOver={(e: DragEvent) => {
+              e.preventDefault();
+              setDragOver(true);
+            }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={onDrop}
+          >
+            <CloudUpload sx={{ fontSize: 48, color: '#6366f1', mb: 1 }} />
+            <Typography variant="h6" gutterBottom>
+              Drag & Drop PDF Here
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                color: 'text.secondary',
+                mb: 2,
+              }}
+            >
+              or click to browse
+            </Typography>
+            <Button variant="outlined" component="label" sx={{ color: '#6366f1', borderColor: '#6366f1' }}>
+              {'Browse Files'}
+              <input hidden accept="application/pdf" type="file" onChange={onFileChange} />
+            </Button>
+          </Paper>
         )}
 
         <Snackbar

@@ -6,6 +6,7 @@ import {
   supportSlaSummary,
 } from '../../../../src/modules/support/sla.service';
 import { logger } from '../../../../src/utils/logger';
+import { asArg } from '../../../mockAs';
 
 const HOUR = 60 * 60 * 1000;
 const NOW = new Date('2026-09-01T12:00:00.000Z');
@@ -37,9 +38,7 @@ describe('ensureSupportSlaPolicies', () => {
   });
 
   it('counts nothing when the driver reports no upsert count', async () => {
-    jest
-      .spyOn(SupportSlaPolicyModel, 'updateOne')
-      .mockResolvedValue({ acknowledged: true } as never);
+    jest.spyOn(SupportSlaPolicyModel, 'updateOne').mockResolvedValue(asArg({ acknowledged: true }));
 
     await expect(ensureSupportSlaPolicies()).resolves.toBe(0);
   });

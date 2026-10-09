@@ -1,6 +1,5 @@
 import { assertRole } from '../../middleware/roleGuard';
 import { ROLES } from '../../constants/roles';
-import { whatsappDemoTypeDefs } from './whatsappDemo.typeDefs';
 import * as demos from './whatsappDemo.service';
 import * as workflows from './whatsappDemo.workflows';
 import { recordEvents, type EventActor, type WhatsappDemoEventInput } from './whatsappDemo.events';
@@ -151,7 +150,7 @@ export const whatsappDemoResolvers = {
   },
 };
 
-export { whatsappDemoTypeDefs };
+export { whatsappDemoTypeDefs } from './whatsappDemo.typeDefs';
 export { ensureWhatsappDemoSeeds } from './whatsappDemo.seed';
 export { WhatsappDemoModel, WhatsappWorkflowModel } from './whatsappDemo.model';
 export { WhatsappDemoEventModel, WhatsappDemoSessionModel } from './whatsappDemo.analytics.model';

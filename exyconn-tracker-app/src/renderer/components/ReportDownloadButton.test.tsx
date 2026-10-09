@@ -44,10 +44,10 @@ describe('ReportDownloadButton', () => {
     );
     await click(button(LABEL));
     expect(button(LABEL).className).toContain('MuiButton-loading');
-    saved.resolve({ path: '/tmp/report.csv' });
+    saved.resolve({ path: '/home/asha/report.csv' });
     await flush();
     expect(button(LABEL).className).not.toContain('MuiButton-loading');
-    expect(document.body.textContent).toContain('Saved to /tmp/report.csv');
+    expect(document.body.textContent).toContain('Saved to /home/asha/report.csv');
   });
 
   it('says nothing for a cancelled dialog, and says so when the save fails', async () => {

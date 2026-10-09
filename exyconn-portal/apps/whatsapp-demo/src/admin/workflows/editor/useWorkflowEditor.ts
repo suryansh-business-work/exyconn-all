@@ -28,7 +28,7 @@ const revisionOf = (row: WorkflowRow) => `${row.id}:${row.updatedAt}`;
 
 export function useWorkflowEditor(workflow: WorkflowRow | null | undefined) {
   const [graph, setGraph] = useState<WaGraph>(EMPTY_GRAPH);
-  const [meta, setMetaState] = useState<WorkflowMeta | null>(null);
+  const [meta, setMeta] = useState<WorkflowMeta | null>(null);
   const [dirty, setDirty] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [revision, setRevision] = useState<string | null>(null);
@@ -36,7 +36,7 @@ export function useWorkflowEditor(workflow: WorkflowRow | null | undefined) {
   const adopt = useCallback((row: WorkflowRow) => {
     setRevision(revisionOf(row));
     setGraph(asGraph(row.draft));
-    setMetaState(metaOf(row));
+    setMeta(metaOf(row));
     setDirty(false);
   }, []);
 
@@ -50,8 +50,8 @@ export function useWorkflowEditor(workflow: WorkflowRow | null | undefined) {
     setDirty(true);
   }, []);
 
-  const setMeta = useCallback((next: WorkflowMeta) => {
-    setMetaState(next);
+  const saveMeta = useCallback((next: WorkflowMeta) => {
+    setMeta(next);
     setDirty(true);
   }, []);
 
@@ -62,7 +62,7 @@ export function useWorkflowEditor(workflow: WorkflowRow | null | undefined) {
     selectedId,
     select: setSelectedId,
     update,
-    setMeta,
+    setMeta: saveMeta,
     adopt,
   };
 }

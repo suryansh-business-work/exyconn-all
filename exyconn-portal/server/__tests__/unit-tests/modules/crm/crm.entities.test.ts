@@ -7,6 +7,7 @@ import { ClientModel } from '../../../../src/modules/clients/clients.model';
 import { emitWebhookBestEffort } from '../../../../src/modules/integrations';
 import { ROLES } from '../../../../src/constants/roles';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
+import { asArg } from '../../../mockAs';
 
 // Webhook delivery is an outbound side effect; the announcement itself is what is asserted.
 jest.mock('../../../../src/modules/integrations', () => ({
@@ -103,7 +104,7 @@ describe('moving a deal on the board', () => {
     const { deal } = await seedWinnableDeal();
     jest
       .spyOn(DealModel, 'findByIdAndUpdate')
-      .mockReturnValueOnce({ lean: () => Promise.resolve(null) } as never);
+      .mockReturnValueOnce(asArg({ lean: () => Promise.resolve(null) }));
 
     await expect(setStage(String(deal._id), 'PROPOSAL')).rejects.toThrow('Deal not found');
     expect(emitted).not.toHaveBeenCalled();

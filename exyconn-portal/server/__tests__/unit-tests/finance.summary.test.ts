@@ -1,10 +1,9 @@
-import { financeCompanyResolvers } from '../../src/modules/finance';
+import { financeBillingResolvers, financeCompanyResolvers } from '../../src/modules/finance';
 import { monthKey, monthLabel, monthsBetween } from '../../src/modules/finance/finance.summary';
 import { InvoiceModel } from '../../src/modules/finance/finance.model';
 import { CompanyExpenseModel } from '../../src/modules/finance/company-expense.model';
 import { SalarySlipModel } from '../../src/modules/employee/salarySlip.model';
 import { ExpenseClaimModel } from '../../src/modules/expenses/expense.model';
-import { financeBillingResolvers } from '../../src/modules/finance';
 import { ROLES } from '../../src/constants/roles';
 import type { GraphQLContext } from '../../src/middleware/auth';
 import { useTestOrganization } from '../helpers';

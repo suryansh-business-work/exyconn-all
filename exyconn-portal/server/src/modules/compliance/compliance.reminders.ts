@@ -71,14 +71,17 @@ async function reviewActionsOverdue(now: Date): Promise<Reminder[]> {
       // in one review must not chase under the same key.
       .map((action, index) => ({ action, index }))
       .filter(({ action }) => !action.done && action.dueOn && action.dueOn <= now)
-      .map(({ action, index }) => ({
-        dedupeKey: `review-action:${String(review._id)}:${index}:${dayKey(now)}`,
-        kind: 'COMPLIANCE',
-        title: `An action from "${review.title}" is overdue`,
-        body: `${action.description} — due ${dueInWords(daysUntil(now, action.dueOn as Date))}${action.ownerName ? `, with ${action.ownerName}` : ''}.`,
-        link: '/compliance/reviews',
-        roles: [ROLES.COMPLIANCE],
-      })),
+      .map(({ action, index }) => {
+        const owner = action.ownerName ? `, with ${action.ownerName}` : '';
+        return {
+          dedupeKey: `review-action:${String(review._id)}:${index}:${dayKey(now)}`,
+          kind: 'COMPLIANCE',
+          title: `An action from "${review.title}" is overdue`,
+          body: `${action.description} — due ${dueInWords(daysUntil(now, action.dueOn as Date))}${owner}.`,
+          link: '/compliance/reviews',
+          roles: [ROLES.COMPLIANCE],
+        };
+      }),
   );
 }
 

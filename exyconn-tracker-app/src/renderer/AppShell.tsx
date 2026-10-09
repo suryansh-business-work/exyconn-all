@@ -51,6 +51,10 @@ function titleOf(section: Section): string {
   return item?.label ?? '';
 }
 
+function renderCrash(error: Error, reset: () => void): ReactElement {
+  return <CrashFallback error={error} onRetry={reset} />;
+}
+
 interface Props {
   state: TrackerState;
 }
@@ -91,11 +95,7 @@ export default function AppShell({ state }: Readonly<Props>): ReactElement {
         }}
       >
         {/* Keyed by section: a crashed pane leaves the tab bar working, and moving on clears it. */}
-        <LogErrorBoundary
-          key={section}
-          logger={logger}
-          fallback={(error, reset) => <CrashFallback error={error} onRetry={reset} />}
-        >
+        <LogErrorBoundary key={section} logger={logger} fallback={renderCrash}>
           <Box {...panelProps(SECTIONS_TABS, section)}>
             <SectionView section={section} state={state} />
           </Box>

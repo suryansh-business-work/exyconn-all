@@ -53,7 +53,7 @@ describe('useVoiceRecorder', () => {
   let stream: ReturnType<typeof fakeStream>;
 
   beforeEach(() => {
-    FakeMediaRecorder.instances = [];
+    FakeMediaRecorder.instances.length = 0;
     vi.stubGlobal('MediaRecorder', FakeMediaRecorder);
     stream = fakeStream();
     mic.getUserMedia.mockReset().mockResolvedValue(stream.stream);

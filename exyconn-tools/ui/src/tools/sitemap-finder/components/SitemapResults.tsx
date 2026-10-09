@@ -87,7 +87,13 @@ const SitemapResults: React.FC<SitemapResultsProps> = ({ result }) => {
 
           <List disablePadding>
             {result.sitemapsFound.map((sitemap, idx) => (
-              <SitemapListItem key={idx} sitemap={sitemap} index={idx} copiedItem={copiedItem} onCopy={handleCopy} />
+              <SitemapListItem
+                key={sitemap.url}
+                sitemap={sitemap}
+                index={idx}
+                copiedItem={copiedItem}
+                onCopy={handleCopy}
+              />
             ))}
           </List>
         </>

@@ -52,8 +52,8 @@ const WhoisLookup: React.FC = () => {
                 data={result}
               >
                 <Box sx={{ mb: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                  {(result.status as string[])?.map((s, i) => (
-                    <Chip key={i} label={s} size="small" variant="outlined" />
+                  {(result.status as string[])?.map((s) => (
+                    <Chip key={s} label={s} size="small" variant="outlined" />
                   ))}
                 </Box>
                 <KeyValueTable
@@ -74,8 +74,8 @@ const WhoisLookup: React.FC = () => {
                     >
                       Nameservers
                     </Typography>
-                    {(result.nameservers as string[]).map((ns, i) => (
-                      <Chip key={i} label={ns} size="small" sx={{ mr: 1, mb: 1 }} variant="outlined" />
+                    {(result.nameservers as string[]).map((ns) => (
+                      <Chip key={ns} label={ns} size="small" sx={{ mr: 1, mb: 1 }} variant="outlined" />
                     ))}
                   </Box>
                 )}
@@ -90,8 +90,8 @@ const WhoisLookup: React.FC = () => {
                     >
                       Events
                     </Typography>
-                    {(result.events as Array<{ eventAction: string; eventDate: string }>).map((e, i) => (
-                      <Box key={i} sx={{ mb: 0.5 }}>
+                    {(result.events as Array<{ eventAction: string; eventDate: string }>).map((e) => (
+                      <Box key={`${e.eventAction}-${e.eventDate}`} sx={{ mb: 0.5 }}>
                         <Chip label={e.eventAction} size="small" color="primary" sx={{ mr: 1 }} />
                         <Typography variant="body2" component="span">
                           {new Date(e.eventDate).toLocaleDateString()}

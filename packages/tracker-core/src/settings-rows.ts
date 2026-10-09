@@ -34,7 +34,7 @@ function screenshotCount(t: Translate, count: number): string {
 }
 
 function yesNo(t: Translate, value: boolean): string {
-  return value ? t('On') : t('Off');
+  return [t('Off'), t('On')][Number(value)];
 }
 
 /** The quality dial, said out loud — 100 is not "100 of something", it is lossless. */

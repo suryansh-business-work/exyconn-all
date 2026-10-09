@@ -3,6 +3,7 @@ import { ROLES } from '../../../../src/constants/roles';
 import { trackerResolvers } from '../../../../src/modules/tracker/tracker.resolvers';
 import { getTrackerSettings } from '../../../../src/modules/tracker/tracker.settings.service';
 import { codeOf } from '../codeOf';
+import { asArg } from '../../../mockAs';
 
 const Query = trackerResolvers.Query;
 
@@ -18,7 +19,7 @@ describe('portal reads guarded by the TRACKER role', () => {
   });
 
   it('serializes settings, grants and devices with GraphQL ids', async () => {
-    jest.mocked(getTrackerSettings).mockResolvedValue({ _id: 'settings-1' } as never);
+    jest.mocked(getTrackerSettings).mockResolvedValue(asArg({ _id: 'settings-1' }));
     admin.listAccess.mockResolvedValue([{ _id: 'grant-1', userId: 'u1' }]);
     admin.listDevices.mockResolvedValue([{ _id: 'row-1', deviceId: 'laptop-1' }]);
 

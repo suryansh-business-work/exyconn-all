@@ -58,9 +58,9 @@ const ProviderOption: React.FC<ProviderOptionProps> = ({
             >
               {title}
             </Typography>
-            {chips.map((chip, index) => (
+            {chips.map((chip) => (
               <Chip
-                key={index}
+                key={chip.label}
                 label={chip.label}
                 size="small"
                 color={chip.color}

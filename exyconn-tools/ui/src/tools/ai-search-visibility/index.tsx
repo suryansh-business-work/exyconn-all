@@ -15,6 +15,7 @@ import Grid from '@mui/material/Grid';
 import { Visibility, Search } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
+import { getScoreColor } from '../../shared/utils/scoreColor';
 
 interface VisibilityResult {
   title: string;
@@ -120,7 +121,7 @@ const AISearchVisibility: React.FC = () => {
                     <Paper variant="outlined" sx={{ p: 2, flex: '1 1 100px', textAlign: 'center' }}>
                       <Typography
                         variant="h4"
-                        color={result.score >= 70 ? '#22c55e' : result.score >= 40 ? '#f59e0b' : '#ef4444'}
+                        color={getScoreColor(result.score)}
                         sx={{
                           fontWeight: 'bold',
                         }}
@@ -190,8 +191,8 @@ const AISearchVisibility: React.FC = () => {
                   >
                     Tips to Improve AI Visibility
                   </Typography>
-                  {tips.map((tip, i) => (
-                    <Alert key={i} severity="info" sx={{ mb: 1, py: 0 }}>
+                  {tips.map((tip) => (
+                    <Alert key={tip} severity="info" sx={{ mb: 1, py: 0 }}>
                       {tip}
                     </Alert>
                   ))}

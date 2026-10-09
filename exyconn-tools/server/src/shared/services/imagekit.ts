@@ -11,7 +11,7 @@ let cached: { key: string; client: ImageKit } | null = null;
 async function getClient(): Promise<ImageKit> {
   const config = await getActiveImageConfig();
   const key = `${config.publicKey}:${config.privateKey}:${config.urlEndpoint}`;
-  if (!cached || cached.key !== key) {
+  if (cached?.key !== key) {
     cached = {
       key,
       client: new ImageKit({

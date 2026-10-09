@@ -6,7 +6,6 @@ import { MS_PER_DAY, dayKeys, houseTimezone } from './analytics.metrics';
 import { employeeAnalytics, userAnalytics } from './analytics.people';
 import { trackerAnalytics } from './analytics.tracker';
 import { platformAnalytics } from './analytics.platform';
-import { analyticsTypeDefs } from './analytics.typeDefs';
 
 const MIN_DAYS = 1;
 const MAX_DAYS = 365;
@@ -37,4 +36,4 @@ export const analyticsResolvers = {
     },
   },
 };
-export { analyticsTypeDefs };
+export { analyticsTypeDefs } from './analytics.typeDefs';

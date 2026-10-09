@@ -39,8 +39,10 @@ const slip = (id: string, employeeId: string, status: SlipStatus) => ({
   issuedDate: '2026-10-31T12:00:00.000Z',
 });
 
+const DEFAULT_USERS = { listUsers: [{ id: 'e1', name: 'Asha Rao' }] };
+
 /** Answers the slip and user queries the table makes. */
-function answer(slips: unknown, users: unknown = { listUsers: [{ id: 'e1', name: 'Asha Rao' }] }) {
+function answer(slips: unknown, users: unknown = DEFAULT_USERS) {
   apollo.query.mockImplementation(({ query }: { query: unknown }) =>
     Promise.resolve({ data: query === ListUsersDocument ? users : slips }),
   );

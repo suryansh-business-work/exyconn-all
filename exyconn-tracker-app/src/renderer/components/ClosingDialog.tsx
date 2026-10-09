@@ -25,8 +25,8 @@ export default function ClosingDialog(): ReactElement | null {
   const t = useT();
   const [pending, setPending] = useState<number | null>(null);
 
-  useEffect(() => window.tracker.onCloseBlocked((count) => setPending(count)), []);
-  useEffect(() => window.tracker.onCloseReleased(() => setPending(null)), []);
+  useEffect(() => globalThis.tracker.onCloseBlocked((count) => setPending(count)), []);
+  useEffect(() => globalThis.tracker.onCloseReleased(() => setPending(null)), []);
 
   if (pending === null) {
     return null;

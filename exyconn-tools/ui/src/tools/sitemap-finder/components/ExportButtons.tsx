@@ -27,7 +27,7 @@ const ExportButtons: React.FC<ExportButtonsProps> = ({ result }) => {
     link.download = filename;
     document.body.appendChild(link);
     link.click();
-    document.body.removeChild(link);
+    link.remove();
     URL.revokeObjectURL(url);
     handleClose();
   };

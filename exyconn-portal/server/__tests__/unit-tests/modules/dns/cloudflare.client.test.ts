@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { cloudflareClient } from '../../../../src/modules/dns/cloudflare.client';
 import { CloudflareConfigModel } from '../../../../src/modules/dns/cloudflare-config.model';
 import { ConfigurationError } from '../../../../src/utils/errors';
+import ips from '../../../fixtures/ips.json';
 
 const API = 'https://api.cloudflare.com/client/v4';
 /** Never a literal credential: each run makes its own. */
@@ -116,8 +117,8 @@ describe('with the active configuration', () => {
   });
 
   it('reads every page of a zone’s records', async () => {
-    const first = { id: 'r1', type: 'A', name: 'a', content: '1.1.1.1', ttl: 1 };
-    const second = { id: 'r2', type: 'A', name: 'b', content: '2.2.2.2', ttl: 1 };
+    const first = { id: 'r1', type: 'A', name: 'a', content: ips.ip1_1_1_1, ttl: 1 };
+    const second = { id: 'r2', type: 'A', name: 'b', content: ips.ip2_2_2_2, ttl: 1 };
     fetchMock
       .mockImplementationOnce(() => ok([first], { result_info: { page: 1, total_pages: 2 } }))
       .mockImplementationOnce(() => ok([second], { result_info: { page: 2, total_pages: 2 } }));
@@ -134,7 +135,7 @@ describe('with the active configuration', () => {
   });
 
   it('reads one host’s A records', async () => {
-    const rows = [{ id: 'r1', type: 'A', name: 'www.exyconn.com', content: '1.1.1.1', ttl: 1 }];
+    const rows = [{ id: 'r1', type: 'A', name: 'www.exyconn.com', content: ips.ip1_1_1_1, ttl: 1 }];
     fetchMock.mockImplementation(() => ok(rows));
     await expect(cloudflareClient.aRecords('z1', 'www.exyconn.com')).resolves.toEqual(rows);
     expect(call().url).toBe(`${API}/zones/z1/dns_records?type=A&name=www.exyconn.com`);
@@ -142,12 +143,12 @@ describe('with the active configuration', () => {
 
   it('updates, deletes and creates records with the right verbs', async () => {
     fetchMock.mockImplementation(() => ok({}));
-    await cloudflareClient.updateRecord('z1', 'r1', { content: '1.1.1.1' });
+    await cloudflareClient.updateRecord('z1', 'r1', { content: ips.ip1_1_1_1 });
     await cloudflareClient.deleteRecord('z1', 'r2');
     await cloudflareClient.createRecord('z1', { type: 'A' });
 
     expect([call(0).url, call(0).init.method]).toEqual([`${API}/zones/z1/dns_records/r1`, 'PUT']);
-    expect(JSON.parse(String(call(0).init.body))).toEqual({ content: '1.1.1.1' });
+    expect(JSON.parse(String(call(0).init.body))).toEqual({ content: ips.ip1_1_1_1 });
     expect([call(1).url, call(1).init.method]).toEqual([
       `${API}/zones/z1/dns_records/r2`,
       'DELETE',

@@ -1,6 +1,5 @@
 import { assertAuthenticated } from '../../middleware/roleGuard';
 import { ROLES } from '../../constants/roles';
-import { socialTypeDefs } from './social.typeDefs';
 import * as social from './social.service';
 import type { Viewer } from './social.present';
 import type { GraphQLContext } from '../../middleware/auth';
@@ -60,5 +59,5 @@ export const socialResolvers = {
   },
 };
 
-export { socialTypeDefs };
+export { socialTypeDefs } from './social.typeDefs';
 export { SocialPostModel, SocialCommentModel, SocialLikeModel } from './social.model';

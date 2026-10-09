@@ -1,3 +1,4 @@
+import { mockCanvasContext } from '../../__tests__/canvasMock';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
@@ -38,9 +39,7 @@ const ctxStub = { drawImage: vi.fn() };
 
 beforeEach(() => {
   vi.stubGlobal('Image', MockImage);
-  HTMLCanvasElement.prototype.getContext = vi.fn(
-    () => ctxStub
-  ) as unknown as typeof HTMLCanvasElement.prototype.getContext;
+  mockCanvasContext(() => ctxStub);
   HTMLCanvasElement.prototype.toBlob = function (cb: BlobCallback) {
     cb(new Blob(['img'], { type: 'image/png' }));
   };
@@ -113,9 +112,7 @@ describe('crop-image utils', () => {
   });
 
   it('drawCroppedImage throws when the 2d context is unavailable', () => {
-    HTMLCanvasElement.prototype.getContext = vi.fn(
-      () => null
-    ) as unknown as typeof HTMLCanvasElement.prototype.getContext;
+    mockCanvasContext(() => null);
     const canvas = document.createElement('canvas');
     expect(() =>
       drawCroppedImage(new MockImage() as unknown as CanvasImageSource, { x: 0, y: 0, width: 1, height: 1 }, canvas)

@@ -69,8 +69,8 @@ describe('PayPal accounts', () => {
     expect(created).toMatchObject({ clientId: 'paypal-client', webhookId: 'WH-1' });
     expect(updated).toMatchObject({ id, label: 'Wallet 2' });
     expect(listed.map((row) => row.id)).toEqual([id]);
-    expect(PaypalConfig.hasClientSecret(listed[0] as never)).toBe(true);
-    expect(PaypalConfig.clientSecretHint(listed[0] as never)).toBe('pppp');
+    expect(PaypalConfig.hasClientSecret(listed[0])).toBe(true);
+    expect(PaypalConfig.clientSecretHint(listed[0])).toBe('pppp');
     expect(tested).toBe(true);
     expect(String(fetchMock.mock.calls[0][0])).toBe(
       'https://api-m.sandbox.paypal.com/v1/oauth2/token',
@@ -119,8 +119,8 @@ describe('Payoneer accounts', () => {
 
     expect(created).toMatchObject({ merchantCode: 'MERCHANT', division: 'EU' });
     expect(updated).toMatchObject({ id, label: 'Payoneer 2', division: '' });
-    expect(PayoneerConfig.hasApiToken(listed[0] as never)).toBe(true);
-    expect(PayoneerConfig.apiTokenHint(listed[0] as never)).toBe('tttt');
+    expect(PayoneerConfig.hasApiToken(listed[0])).toBe(true);
+    expect(PayoneerConfig.apiTokenHint(listed[0])).toBe('tttt');
     expect(tested).toBe(true);
     expect(String(fetchMock.mock.calls[0][0])).toBe(
       'https://api.live.oscato.com/api/charges/credential-check',

@@ -38,7 +38,7 @@ export default function ProjectPicker({
       value={selectedProjectId}
       disabled={disabled || loading || projects.length === 0}
       helperText={projectHint(t, { loading, locked: disabled })}
-      onChange={(event) => run(() => window.tracker.setProject(event.target.value))}
+      onChange={(event) => run(() => globalThis.tracker.setProject(event.target.value))}
       slotProps={{ select: { IconComponent: loading ? SelectSpinner : undefined } }}
     >
       {projects.map((project) => (

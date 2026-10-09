@@ -69,7 +69,7 @@ const SearchStepper: React.FC<SearchStepperProps> = ({
     setLocationError(null);
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const google = (window as any).google;
+    const google = (globalThis as any).google;
     if (!google?.maps?.Geocoder) {
       setLocationError('Google Maps not loaded');
       setIsGettingLocation(false);

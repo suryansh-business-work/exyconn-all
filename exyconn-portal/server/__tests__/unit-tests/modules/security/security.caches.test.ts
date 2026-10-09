@@ -14,9 +14,11 @@ import { StatusMonitorModel } from '../../../../src/modules/status/status-monito
 import { freezeClock } from '../../../helpers';
 
 // safeFetch resolves the host before connecting; the hosts here are fictional.
-jest.mock('node:dns/promises', () => ({
-  lookup: jest.fn().mockResolvedValue([{ address: '93.184.215.14', family: 4 }]),
-}));
+jest.mock('node:dns/promises', () =>
+  jest
+    .requireActual<typeof import('../../../fixtures/publicDns')>('../../../fixtures/publicDns')
+    .publicDnsMock(),
+);
 jest.mock('../../../../src/modules/security/ssl.probe', () => ({ readCertificate: jest.fn() }));
 const probe = readCertificate as jest.Mock;
 

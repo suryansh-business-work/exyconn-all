@@ -44,7 +44,9 @@ const SitemapInsights: React.FC = () => {
           onUrlChange={setSitemapUrl}
           onAnalyze={handleAnalyze}
         />
-        {!result ? (
+        {result ? (
+          <InsightsResultsGrid result={result} />
+        ) : (
           <Paper elevation={0} sx={{ p: 4, textAlign: 'center', border: 1, borderColor: 'divider', borderRadius: 2 }}>
             <Insights sx={{ fontSize: 48, mb: 2, opacity: 0.3, color: '#14b8a6' }} />
             <Typography
@@ -65,8 +67,6 @@ const SitemapInsights: React.FC = () => {
               Analyze URL patterns, depth, freshness, and more
             </Typography>
           </Paper>
-        ) : (
-          <InsightsResultsGrid result={result} />
         )}
       </Container>
       <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>

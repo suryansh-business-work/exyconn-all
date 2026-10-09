@@ -35,13 +35,12 @@ const PHONE_REGEX =
   /(?:\+?\d{1,3}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}/g;
 
 const SOCIAL_PATTERNS = {
-  facebook: /(?:https?:\/\/)?(?:www\.)?facebook\.com\/[a-zA-Z0-9._-]+/gi,
-  twitter: /(?:https?:\/\/)?(?:www\.)?(?:twitter\.com|x\.com)\/[a-zA-Z0-9_]+/gi,
-  linkedin:
-    /(?:https?:\/\/)?(?:www\.)?linkedin\.com\/(?:company|in)\/[a-zA-Z0-9_-]+/gi,
-  instagram: /(?:https?:\/\/)?(?:www\.)?instagram\.com\/[a-zA-Z0-9._]+/gi,
+  facebook: /(?:https?:\/\/)?(?:www\.)?facebook\.com\/[\w.-]+/gi,
+  twitter: /(?:https?:\/\/)?(?:www\.)?(?:twitter\.com|x\.com)\/\w+/gi,
+  linkedin: /(?:https?:\/\/)?(?:www\.)?linkedin\.com\/(?:company|in)\/[\w-]+/gi,
+  instagram: /(?:https?:\/\/)?(?:www\.)?instagram\.com\/[\w.]+/gi,
   youtube:
-    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/(?:channel|c|user)\/[a-zA-Z0-9_-]+/gi,
+    /(?:https?:\/\/)?(?:www\.)?youtube\.com\/(?:channel|c|user)\/[\w-]+/gi,
 };
 
 // User agent to avoid being blocked
@@ -139,6 +138,18 @@ function extractInternalLinks(html: string, baseUrl: string): string[] {
   return [...new Set(links)];
 }
 
+function queueNewLinks(
+  links: string[],
+  visitedUrls: Set<string>,
+  urlsToVisit: string[],
+): void {
+  for (const link of links) {
+    if (!visitedUrls.has(link) && !urlsToVisit.includes(link)) {
+      urlsToVisit.push(link);
+    }
+  }
+}
+
 export async function extractContacts(
   url: string,
   maxPages: number,
@@ -176,11 +187,7 @@ export async function extractContacts(
     // Add internal links to queue if following links
     if (followLinks && visitedUrls.size < maxPages) {
       const internalLinks = extractInternalLinks(html, currentUrl);
-      for (const link of internalLinks) {
-        if (!visitedUrls.has(link) && !urlsToVisit.includes(link)) {
-          urlsToVisit.push(link);
-        }
-      }
+      queueNewLinks(internalLinks, visitedUrls, urlsToVisit);
     }
 
     // Small delay to be polite

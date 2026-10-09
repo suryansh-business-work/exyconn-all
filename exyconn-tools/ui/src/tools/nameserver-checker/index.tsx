@@ -72,12 +72,12 @@ const NameserverChecker: React.FC = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {(result.nameservers as Array<{ nameserver: string; ips: string[] }>)?.map((ns, i) => (
-                        <TableRow key={i}>
+                      {(result.nameservers as Array<{ nameserver: string; ips: string[] }>)?.map((ns) => (
+                        <TableRow key={ns.nameserver}>
                           <TableCell sx={{ fontFamily: 'monospace' }}>{ns.nameserver}</TableCell>
                           <TableCell>
-                            {ns.ips.map((ip, j) => (
-                              <Chip key={j} label={ip} size="small" sx={{ mr: 0.5, mb: 0.5 }} variant="outlined" />
+                            {ns.ips.map((ip) => (
+                              <Chip key={ip} label={ip} size="small" sx={{ mr: 0.5, mb: 0.5 }} variant="outlined" />
                             ))}
                           </TableCell>
                         </TableRow>

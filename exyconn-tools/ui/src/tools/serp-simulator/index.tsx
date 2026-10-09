@@ -30,6 +30,16 @@ interface SERPResult {
   score: number;
 }
 
+const getScoreColor = (score: number) => {
+  if (score >= 80) {
+    return 'success';
+  }
+  if (score >= 50) {
+    return 'warning';
+  }
+  return 'error';
+};
+
 const SERPSimulator: React.FC = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -166,11 +176,7 @@ const SERPSimulator: React.FC = () => {
                   Analysis
                 </Typography>
                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 2 }}>
-                  <Chip
-                    size="small"
-                    label={`Score: ${result.score}/100`}
-                    color={result.score >= 80 ? 'success' : result.score >= 50 ? 'warning' : 'error'}
-                  />
+                  <Chip size="small" label={`Score: ${result.score}/100`} color={getScoreColor(result.score)} />
                   <Chip
                     size="small"
                     label={`Title: ${result.analysis.title.length}/${result.analysis.title.maxLength}`}
@@ -189,8 +195,11 @@ const SERPSimulator: React.FC = () => {
                   />
                 </Box>
                 <Divider sx={{ mb: 1.5 }} />
-                {result.issues.map((issue, idx) => (
-                  <Box key={idx} sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75 }}>
+                {result.issues.map((issue) => (
+                  <Box
+                    key={`${issue.field}-${issue.message}`}
+                    sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.75 }}
+                  >
                     {issue.severity === 'warning' ? (
                       <Warning sx={{ fontSize: 14, color: 'warning.main' }} />
                     ) : (

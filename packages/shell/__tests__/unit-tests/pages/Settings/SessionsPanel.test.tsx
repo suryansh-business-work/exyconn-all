@@ -34,7 +34,7 @@ const revokeOthers = vi.fn();
 
 function mockSessions(sessions: unknown[] | undefined, extras = {}) {
   const result = queryResult(sessions && { mySessions: sessions }, extras);
-  vi.mocked(useMySessionsQuery).mockReturnValue(result as never);
+  vi.mocked(useMySessionsQuery).mockReturnValue(result);
   return result;
 }
 

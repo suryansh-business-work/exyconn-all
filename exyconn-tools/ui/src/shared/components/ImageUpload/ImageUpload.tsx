@@ -13,7 +13,6 @@ interface ImageUploadProps {
   helperText?: string;
   maxSize?: number;
   accept?: string;
-  aspectRatio?: string;
   maxWidth?: number;
   maxHeight?: number;
   circular?: boolean;
@@ -63,6 +62,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         setError(result.error || 'Upload failed');
       }
     } catch (err) {
+      console.error('Image upload failed', err);
       setError('Upload failed. Please try again.');
     } finally {
       setIsUploading(false);

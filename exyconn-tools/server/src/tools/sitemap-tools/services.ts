@@ -1,5 +1,6 @@
 import { PublicError } from "../../shared/errors";
 import { safeRequest } from "../../shared/security/safe-http";
+import { toText } from "../../shared/text";
 import { XMLParser, XMLBuilder } from "fast-xml-parser";
 
 const USER_AGENT =
@@ -44,7 +45,7 @@ export interface ValidationResult {
   encoding?: string;
 }
 
-const VALID_CHANGEFREQ = [
+const VALID_CHANGEFREQ = new Set([
   "always",
   "hourly",
   "daily",
@@ -52,7 +53,26 @@ const VALID_CHANGEFREQ = [
   "monthly",
   "yearly",
   "never",
-];
+]);
+
+const W3C_DATE = /^\d{4}-\d{2}-\d{2}$/;
+const W3C_DATETIME =
+  /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:[+-]\d{2}:\d{2}|Z)?$/;
+
+/** A parsed `<url>` node is a single object, a list, or absent. */
+const priorityRange = (priority: number): string => {
+  if (priority >= 0.8) {
+    return "High (0.8-1.0)";
+  }
+  return priority >= 0.5 ? "Medium (0.5-0.7)" : "Low (0.0-0.4)";
+};
+
+const toEntryList = (node: unknown): Record<string, unknown>[] => {
+  if (Array.isArray(node)) {
+    return node;
+  }
+  return node ? [node as Record<string, unknown>] : [];
+};
 
 export const validateSitemap = async (
   sitemapUrl: string,
@@ -109,11 +129,7 @@ export const validateSitemap = async (
     }
 
     // Extract URLs
-    const urlEntries = Array.isArray(parsed.urlset.url)
-      ? parsed.urlset.url
-      : parsed.urlset.url
-        ? [parsed.urlset.url]
-        : [];
+    const urlEntries = toEntryList(parsed.urlset.url);
 
     // Check URL count (50,000 limit)
     if (urlEntries.length > 50000) {
@@ -127,13 +143,8 @@ export const validateSitemap = async (
       const url: SitemapUrl = { loc: "" };
 
       // Check loc (required)
-      if (!entry.loc) {
-        issues.push({
-          type: "error",
-          message: `URL #${index + 1}: Missing required <loc> tag`,
-        });
-      } else {
-        url.loc = String(entry.loc);
+      if (entry.loc) {
+        url.loc = toText(entry.loc);
         try {
           new URL(url.loc);
         } catch {
@@ -143,14 +154,17 @@ export const validateSitemap = async (
             url: url.loc,
           });
         }
+      } else {
+        issues.push({
+          type: "error",
+          message: `URL #${index + 1}: Missing required <loc> tag`,
+        });
       }
 
       // Check lastmod format
       if (entry.lastmod) {
-        url.lastmod = String(entry.lastmod);
-        const dateRegex =
-          /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}([+-]\d{2}:\d{2}|Z)?)?$/;
-        if (!dateRegex.test(url.lastmod)) {
+        url.lastmod = toText(entry.lastmod);
+        if (!W3C_DATE.test(url.lastmod) && !W3C_DATETIME.test(url.lastmod)) {
           issues.push({
             type: "warning",
             message: `Invalid lastmod format (should be W3C date)`,
@@ -161,11 +175,11 @@ export const validateSitemap = async (
 
       // Check changefreq
       if (entry.changefreq) {
-        url.changefreq = String(entry.changefreq).toLowerCase();
-        if (!VALID_CHANGEFREQ.includes(url.changefreq)) {
+        url.changefreq = toText(entry.changefreq).toLowerCase();
+        if (!VALID_CHANGEFREQ.has(url.changefreq)) {
           issues.push({
             type: "warning",
-            message: `Invalid changefreq value: ${entry.changefreq}`,
+            message: `Invalid changefreq value: ${toText(entry.changefreq)}`,
             url: url.loc,
           });
         }
@@ -173,11 +187,11 @@ export const validateSitemap = async (
 
       // Check priority
       if (entry.priority !== undefined) {
-        const priority = parseFloat(String(entry.priority));
-        if (isNaN(priority) || priority < 0 || priority > 1) {
+        const priority = Number.parseFloat(toText(entry.priority));
+        if (Number.isNaN(priority) || priority < 0 || priority > 1) {
           issues.push({
             type: "warning",
-            message: `Invalid priority (must be 0.0-1.0): ${entry.priority}`,
+            message: `Invalid priority (must be 0.0-1.0): ${toText(entry.priority)}`,
             url: url.loc,
           });
         } else {
@@ -215,6 +229,16 @@ export interface ExtractedUrls {
   childSitemaps?: string[];
 }
 
+const toSitemapUrl = (entry: Record<string, unknown>): SitemapUrl => ({
+  loc: toText(entry.loc || ""),
+  lastmod: entry.lastmod ? toText(entry.lastmod) : undefined,
+  changefreq: entry.changefreq ? toText(entry.changefreq) : undefined,
+  priority:
+    entry.priority === undefined
+      ? undefined
+      : Number.parseFloat(toText(entry.priority)),
+});
+
 export const extractSitemapUrls = async (
   sitemapUrl: string,
   followIndex: boolean = true,
@@ -235,7 +259,7 @@ export const extractSitemapUrls = async (
       : [parsed.sitemapindex.sitemap];
 
     childSitemaps = sitemaps
-      .map((s: Record<string, unknown>) => String(s.loc))
+      .map((s: Record<string, unknown>) => toText(s.loc))
       .filter(Boolean);
 
     if (followIndex) {
@@ -258,23 +282,9 @@ export const extractSitemapUrls = async (
       childSitemaps,
     };
   } else if (parsed.urlset) {
-    const urlEntries = Array.isArray(parsed.urlset.url)
-      ? parsed.urlset.url
-      : parsed.urlset.url
-        ? [parsed.urlset.url]
-        : [];
+    const urlEntries = toEntryList(parsed.urlset.url);
 
-    urlEntries.forEach((entry: Record<string, unknown>) => {
-      urls.push({
-        loc: String(entry.loc || ""),
-        lastmod: entry.lastmod ? String(entry.lastmod) : undefined,
-        changefreq: entry.changefreq ? String(entry.changefreq) : undefined,
-        priority:
-          entry.priority !== undefined
-            ? parseFloat(String(entry.priority))
-            : undefined,
-      });
-    });
+    urls.push(...urlEntries.map(toSitemapUrl));
 
     return { urls, totalCount: urls.length, sitemapType: "urlset" };
   }
@@ -319,16 +329,16 @@ export const compareSitemaps = async (
   // Find added and modified
   result2.urls.forEach((url2) => {
     const url1 = urls1Map.get(url2.loc);
-    if (!url1) {
+    if (url1 === undefined) {
       added.push(url2);
-    } else if (url1.lastmod !== url2.lastmod) {
+    } else if (url1.lastmod === url2.lastmod) {
+      unchanged++;
+    } else {
       modified.push({
         url: url2.loc,
         oldLastmod: url1.lastmod,
         newLastmod: url2.lastmod,
       });
-    } else {
-      unchanged++;
     }
   });
 
@@ -419,12 +429,7 @@ export const analyzeSitemapInsights = async (
 
     // Priority ranges
     if (u.priority !== undefined) {
-      const range =
-        u.priority >= 0.8
-          ? "High (0.8-1.0)"
-          : u.priority >= 0.5
-            ? "Medium (0.5-0.7)"
-            : "Low (0.0-0.4)";
+      const range = priorityRange(u.priority);
       priorityMap.set(range, (priorityMap.get(range) || 0) + 1);
     }
 
@@ -649,19 +654,14 @@ export const analyzeFrequency = async (
       urlsWithoutChangefreq++;
     }
 
-    if (u.priority !== undefined) {
-      const range =
-        u.priority >= 0.8
-          ? "High (0.8-1.0)"
-          : u.priority >= 0.5
-            ? "Medium (0.5-0.7)"
-            : "Low (0.0-0.4)";
+    if (u.priority === undefined) {
+      urlsWithoutPriority++;
+    } else {
+      const range = priorityRange(u.priority);
       const bucket = priorityBuckets.get(range) || { count: 0, sum: 0 };
       bucket.count++;
       bucket.sum += u.priority;
       priorityBuckets.set(range, bucket);
-    } else {
-      urlsWithoutPriority++;
     }
   });
 

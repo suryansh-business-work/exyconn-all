@@ -73,7 +73,7 @@ export default function ManualEntryForm({
     setSaving(true);
     setError(null);
     try {
-      await window.tracker.createManualEntry(draftFrom(startedAt, endedAt));
+      await globalThis.tracker.createManualEntry(draftFrom(startedAt, endedAt));
       onDone();
     } catch (cause: unknown) {
       console.error('Filing the claim failed', cause);

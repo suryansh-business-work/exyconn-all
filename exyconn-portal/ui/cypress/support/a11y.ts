@@ -15,6 +15,16 @@ import axe, { type Result } from 'axe-core';
  * `npx cypress run --component --expose A11Y=audit` — which only records, to measure every app
  * in one pass.
  */
+/** Resolves once every animation on the page that has an end has finished. */
+function settleAnimations(doc: Document) {
+  return Promise.all(
+    doc
+      .getAnimations()
+      .filter((animation) => animation.effect?.getComputedTiming().endTime !== Infinity)
+      .map((animation) => animation.finished.catch(() => undefined)),
+  );
+}
+
 const WCAG_AA = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'];
 
 type A11yEntry = { spec: string; test: string; violations: object[] };
@@ -40,14 +50,7 @@ afterEach(() => {
   // Measure what the user settles on, not a frame of an animation: a snackbar caught while it
   // fades in reads as 1.05:1. Every CSS transition and animation on the page is waited out.
   // Only animations that END: a spinner or a skeleton pulse runs forever and would never settle.
-  cy.document({ log: false }).then({ timeout: 10_000 }, (doc) =>
-    Promise.all(
-      doc
-        .getAnimations()
-        .filter((animation) => animation.effect?.getComputedTiming().endTime !== Infinity)
-        .map((animation) => animation.finished.catch(() => undefined)),
-    ),
-  );
+  cy.document({ log: false }).then({ timeout: 10_000 }, settleAnimations);
   if (Cypress.testingType === 'component') {
     cy.window({ log: false }).then((win) => {
       if (!('axe' in win)) {

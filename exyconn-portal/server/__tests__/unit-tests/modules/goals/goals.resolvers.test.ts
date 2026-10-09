@@ -4,6 +4,7 @@ import { goalsResolvers } from '../../../../src/modules/goals';
 import { UserModel } from '../../../../src/modules/admin/user.model';
 import { ROLES } from '../../../../src/constants/roles';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
+import { asArg } from '../../../mockAs';
 
 type Resolver = (p: unknown, a: unknown, c: GraphQLContext) => Promise<unknown>;
 const G = { ...goalsResolvers.Query, ...goalsResolvers.Mutation } as unknown as Record<
@@ -61,9 +62,9 @@ describe('teamGoals', () => {
   });
 
   it('refuses a caller who is not signed in', async () => {
-    await expect(
-      G.teamGoals(null, {}, { user: null } as unknown as GraphQLContext),
-    ).rejects.toThrow(/Authentication required/);
+    await expect(G.teamGoals(null, {}, asArg({ user: null }))).rejects.toThrow(
+      /Authentication required/,
+    );
   });
 });
 

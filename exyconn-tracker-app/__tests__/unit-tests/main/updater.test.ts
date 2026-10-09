@@ -76,13 +76,13 @@ describe('AppUpdater before a feed is wired (a development build)', () => {
   });
 });
 
-describe('AppUpdater with a feed', () => {
-  function started(): AppUpdater {
-    const updater = new AppUpdater((state) => seen.push(state));
-    updater.start(FEED, false);
-    return updater;
-  }
+function started(): AppUpdater {
+  const updater = new AppUpdater((state) => seen.push(state));
+  updater.start(FEED, false);
+  return updater;
+}
 
+describe('AppUpdater with a feed', () => {
   it('does not re-check while a version is downloading or waiting to install', async () => {
     const updater = started();
     emit('update-available', { version: '2.0.0' });

@@ -62,8 +62,9 @@ describe("designSystemCss", () => {
   });
 
   it("omits an empty side and still appends the extra CSS, escaped", () => {
+    const escapedExtra = String.raw`p{}<\/style>`;
     expect(designSystemCss(design({ colors: { dark: { ink: "#eee" } } }, "p{}</style>"))).toBe(
-      `[data-theme="dark"]{--color-ink:#eee;}\n${String.raw`p{}<\/style>`}`
+      `[data-theme="dark"]{--color-ink:#eee;}\n${escapedExtra}`
     );
     expect(designSystemCss(design({}, ".x{}"))).toBe(".x{}");
     expect(designSystemCss(design({}))).toBe("");

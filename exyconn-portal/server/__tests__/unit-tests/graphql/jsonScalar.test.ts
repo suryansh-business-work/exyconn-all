@@ -33,7 +33,7 @@ describe('JSONScalar serialize and parseValue', () => {
 describe('JSONScalar parseLiteral', () => {
   it('reads scalars written inline in a document', () => {
     expect(literal('"hello"')).toBe('hello');
-    expect(literal('"{\\"k\\":2}"')).toEqual({ k: 2 });
+    expect(literal(String.raw`"{\"k\":2}"`)).toEqual({ k: 2 });
     expect(literal('12')).toBe(12);
     expect(literal('1.5')).toBe(1.5);
     expect(literal('true')).toBe(true);

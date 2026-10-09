@@ -1,5 +1,4 @@
 import { ClientModel } from './clients.model';
-import { clientsTypeDefs } from './clients.typeDefs';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { assertPermission } from '../../lib/permissions';
@@ -75,7 +74,7 @@ export const clientsResolvers = {
     },
   },
 };
-export { clientsTypeDefs };
+export { clientsTypeDefs } from './clients.typeDefs';
 export { clientNameFor } from './client-name';
 export { taxIdLabel } from './client-tax-id';
 export { migrateClientTaxIds } from './client.migrate';

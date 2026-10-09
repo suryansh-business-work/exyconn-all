@@ -23,6 +23,9 @@ const permissions = {
   allGranted: false,
 };
 
+/** An error that carries no text, so the screen has to fall back to its own words. */
+const NO_MESSAGE = '';
+
 describe('PermissionsScreen', () => {
   it('spins on the grant being asked for and holds Re-check until macOS answers', async () => {
     await mount(<PermissionsScreen permissions={permissions} />, trackerState('idle'));
@@ -46,7 +49,7 @@ describe('PermissionsScreen', () => {
     await press(buttonNamed('Re-check'));
     expect(isLoading(buttonNamed('Re-check'))).toBe(true);
 
-    await finish(() => checking.reject(new Error('')));
+    await finish(() => checking.reject(new Error(NO_MESSAGE)));
     expect(errorText()).toBe('Could not re-check the permissions. Try again.');
   });
 });

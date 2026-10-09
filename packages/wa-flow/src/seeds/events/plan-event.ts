@@ -257,7 +257,7 @@ export const planEvent = defineWorkflow({
                     cells: [
                       'Decor and florals',
                       'Theme package',
-                      `${rupees(45000)} – ${rupees(2_50_000)}`,
+                      `${rupees(45000)} – ${rupees(250_000)}`,
                     ],
                   },
                   {
@@ -265,7 +265,7 @@ export const planEvent = defineWorkflow({
                     cells: [
                       'Sound, lights and stage',
                       'Per event',
-                      `${rupees(35000)} – ${rupees(1_80_000)}`,
+                      `${rupees(35000)} – ${rupees(180_000)}`,
                     ],
                   },
                   {
@@ -273,7 +273,7 @@ export const planEvent = defineWorkflow({
                     cells: [
                       'Photo and video',
                       'Per event',
-                      `${rupees(25000)} – ${rupees(1_20_000)}`,
+                      `${rupees(25000)} – ${rupees(120_000)}`,
                     ],
                   },
                   {

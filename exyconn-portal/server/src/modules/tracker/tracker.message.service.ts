@@ -94,7 +94,7 @@ class TrackerMessageService {
       authorId,
       authorName: await this.authorNameOf(authorId),
     });
-    return created.toObject() as MessageLean;
+    return created.toObject();
   }
 
   /**
@@ -130,8 +130,8 @@ class TrackerMessageService {
     const created = await TrackerMessageModel.insertMany(
       recipients.map((userId) => ({
         userId,
-        kind: 'NOTICE' as TrackerMessageKind,
-        direction: 'TO_EMPLOYEE' as TrackerMessageDirection,
+        kind: 'NOTICE',
+        direction: 'TO_EMPLOYEE',
         title,
         body,
         authorId,

@@ -68,7 +68,7 @@ describe('createProduct', () => {
   it('passes an error that is not a duplicate SKU through unchanged', async () => {
     const error = await M.createProduct(null, { input: { ...base, name: undefined } }, buyer).then(
       () => null,
-      (caught: unknown) => caught as { name: string },
+      (error_: unknown) => error_ as { name: string },
     );
 
     expect(error?.name).toBe('ValidationError');

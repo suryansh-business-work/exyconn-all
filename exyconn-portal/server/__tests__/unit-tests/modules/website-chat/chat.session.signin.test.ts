@@ -36,7 +36,9 @@ const identity = (fields: Record<string, string> = {}) =>
 /** Asks for a code and reads it back out of the email that was sent. */
 async function codeFor(who = identity()): Promise<string> {
   await requestChatCode(who, IP);
-  const sent = send.mock.calls.filter(([input]) => input.template === 'website-chat-code').pop();
+  const sent = [...send.mock.calls]
+    .reverse()
+    .find(([input]) => input.template === 'website-chat-code');
   return sent?.[0].variables.code as string;
 }
 

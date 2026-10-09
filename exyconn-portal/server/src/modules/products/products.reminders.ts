@@ -39,13 +39,14 @@ registerReminderSource({
       .map((row) => `${row.name} (${row.stock} left, reorder at ${row.reorderLevel})`)
       .join(', ');
     const rest = rows.length - Math.min(rows.length, NAMED);
+    const more = rest > 0 ? ` and ${rest} more` : '';
 
     return [
       {
         dedupeKey: `products-low-stock:${dayKey(now)}`,
         kind: 'GENERAL',
         title: `${rows.length} product${rows.length === 1 ? '' : 's'} at the reorder level`,
-        body: `${named}${rest > 0 ? ` and ${rest} more` : ''}. Raise a purchase order before they run out.`,
+        body: `${named}${more}. Raise a purchase order before they run out.`,
         link: '/products/catalogue',
         roles: [ROLES.PRODUCTS],
       },

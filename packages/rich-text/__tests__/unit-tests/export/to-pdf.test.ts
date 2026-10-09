@@ -6,8 +6,11 @@ import { CONTENT_WIDTH_PT, HEADING_SIZES, INK, PAGE } from '../../../src/export/
 import { buildPdfDefinition } from '../../../src/export/to-pdf';
 
 const NO_IMAGES: ImageMap = new Map();
-const run = (text: string, marks: Partial<Inline> = {}): Inline =>
-  ({ kind: 'text', text, ...marks }) as Inline;
+const run = (text: string, marks: Partial<Inline> = {}): Inline => ({
+  kind: 'text',
+  text,
+  ...marks,
+});
 const para = (text: string): Block => ({ kind: 'paragraph', inlines: [run(text)] });
 const content = (blocks: Block[], images: ImageMap = NO_IMAGES): Content[] =>
   buildPdfDefinition(blocks, images, 'Doc').content as Content[];

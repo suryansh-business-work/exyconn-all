@@ -7,7 +7,7 @@ export const orderAgentsSchema = (agentIds: readonly string[], m: OrderAgentsMes
   const personName = (required: string) =>
     z.string().trim().min(1, required).min(2, m.tooShort).max(50, m.tooLong);
   return z.object({
-    agentIds: z.array(z.enum(agentIds as [string, ...string[]])).min(1, m.pickOne),
+    agentIds: z.array(z.enum(agentIds)).min(1, m.pickOne),
     firstName: personName(m.firstNameRequired),
     lastName: personName(m.lastNameRequired),
     email: requiredEmail(m.emailRequired, m.emailInvalid),

@@ -8,12 +8,15 @@ import {
 import { ROLES, type Role } from '../../../../src/constants/roles';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
 import { codeOf } from '../codeOf';
+import ips from '../../../fixtures/ips.json';
 
 // The endpoint's host is resolved before it is accepted; the hosts here are fictional, so they
 // resolve to a public address unless a test says otherwise.
-jest.mock('node:dns/promises', () => ({
-  lookup: jest.fn().mockResolvedValue([{ address: '93.184.215.14', family: 4 }]),
-}));
+jest.mock('node:dns/promises', () =>
+  jest
+    .requireActual<typeof import('../../../fixtures/publicDns')>('../../../fixtures/publicDns')
+    .publicDnsMock(),
+);
 
 const as = (roles: Role[]): GraphQLContext => ({
   user: { id: 'u1', email: 'admin@acme.test', roles },
@@ -47,7 +50,7 @@ describe('createWebhook', () => {
   });
 
   it('refuses an address that resolves into a private network', async () => {
-    jest.mocked(lookup).mockResolvedValueOnce([{ address: '10.0.0.7', family: 4 }] as never);
+    jest.mocked(lookup).mockResolvedValueOnce([{ address: ips.ip10_0_0_7, family: 4 }] as never);
 
     await expect(codeOf(create(['invoice.paid']))).resolves.toBe('BAD_USER_INPUT');
     expect(await WebhookModel.countDocuments()).toBe(0);

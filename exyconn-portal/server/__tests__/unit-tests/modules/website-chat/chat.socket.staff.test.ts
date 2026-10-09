@@ -29,7 +29,7 @@ beforeEach(() => {
   checkToken.mockResolvedValue({ id: 'u1', name: 'Sam' });
 });
 afterEach(() => {
-  for (const peer of [...chatHub.all()]) {
+  for (const peer of chatHub.all()) {
     chatHub.leave(peer);
   }
 });

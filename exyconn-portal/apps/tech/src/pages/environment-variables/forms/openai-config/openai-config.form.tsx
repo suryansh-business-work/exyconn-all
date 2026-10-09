@@ -46,7 +46,7 @@ const toInitial = (row: OpenAiConfigRow | null): Values => ({
   // Never prefilled: the API does not return it, and blank keeps the stored key.
   apiKey: '',
   defaultModel: row?.defaultModel ?? '',
-  isActive: row ? (row.isActive ? 'true' : 'false') : 'true',
+  isActive: row?.isActive === false ? 'false' : 'true',
 });
 
 interface OpenAiConfigFormProps {

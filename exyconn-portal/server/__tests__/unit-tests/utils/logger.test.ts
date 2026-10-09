@@ -42,18 +42,18 @@ describe('log redaction', () => {
   });
 });
 
-describe('logger configuration', () => {
-  function loadWith(isProduction: boolean) {
-    const factory = jest.fn((_options: unknown) => ({ info: jest.fn() }));
-    jest.isolateModules(() => {
-      jest.doMock('pino', () => factory);
-      jest.doMock('../../../src/config/env', () => ({ env: { isProduction } }));
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      require('../../../src/utils/logger');
-    });
-    return factory.mock.calls[0];
-  }
+function loadWith(isProduction: boolean) {
+  const factory = jest.fn((_options: unknown) => ({ info: jest.fn() }));
+  jest.isolateModules(() => {
+    jest.doMock('pino', () => factory);
+    jest.doMock('../../../src/config/env', () => ({ env: { isProduction } }));
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../../../src/utils/logger');
+  });
+  return factory.mock.calls[0];
+}
 
+describe('logger configuration', () => {
   afterEach(() => {
     jest.dontMock('pino');
     jest.dontMock('../../../src/config/env');

@@ -21,6 +21,9 @@ const onScreen = new Set<Notification>();
 
 /** Shows a notification and keeps it referenced until the OS is finished with it. */
 function present(notification: Notification): void {
+  if (onScreen.has(notification)) {
+    return;
+  }
   onScreen.add(notification);
   const forget = (): void => {
     onScreen.delete(notification);

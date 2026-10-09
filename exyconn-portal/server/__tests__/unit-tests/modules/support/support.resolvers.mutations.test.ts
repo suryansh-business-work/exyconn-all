@@ -5,6 +5,7 @@ import { supportResolvers } from '../../../../src/modules/support/support.resolv
 import { resetClientTicketLimits } from '../../../../src/modules/support/client-ticket.service';
 import { ROLES } from '../../../../src/constants/roles';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
+import { asArg } from '../../../mockAs';
 
 jest.mock('../../../../src/modules/email', () => ({ emailer: { send: jest.fn() } }));
 
@@ -27,7 +28,7 @@ const ticket = () =>
 const deletedMidWrite = () =>
   jest
     .spyOn(SupportTicketModel, 'findByIdAndUpdate')
-    .mockReturnValueOnce({ lean: () => Promise.resolve(null) } as never);
+    .mockReturnValueOnce(asArg({ lean: () => Promise.resolve(null) }));
 
 afterEach(() => {
   jest.restoreAllMocks();

@@ -1,13 +1,20 @@
 import { useState } from 'react';
 import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { CARD_RADIUS, Box, IconButton, Flex, TextField, Text } from '@exyconn/shell/components/ui';
+import {
+  CARD_RADIUS,
+  Box,
+  IconButton,
+  Flex,
+  TextField,
+  Text,
+  Tooltip,
+} from '@exyconn/shell/components/ui';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutlineOutlined';
 import { useT } from '@exyconn/i18n';
-import { Tooltip } from '@exyconn/shell/components/ui';
 import { TaskCard } from './TaskCard';
 import { AddItemInput } from './AddItemInput';
 import { ColumnMoveButtons } from './ColumnMoveButtons';

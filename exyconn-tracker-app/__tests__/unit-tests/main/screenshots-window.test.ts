@@ -38,7 +38,7 @@ vi.mock('electron', () => ({
     close = vi.fn();
     constructor(options: Record<string, unknown>) {
       this.options = options;
-      windows.push(this as unknown as FakeWindow);
+      windows.push(this);
     }
     on(event: string, fn: () => void): void {
       this.events.set(event, fn);

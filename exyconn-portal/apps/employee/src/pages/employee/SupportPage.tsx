@@ -12,6 +12,7 @@ import {
   useMySupportTicketsQuery,
   type MySupportTicketsQuery,
 } from '@exyconn/shell/graphql/generated';
+import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import { SupportTicketForm } from './forms/support-ticket';
 import { SupportThread } from './SupportThread';
 import { densePanel } from '@exyconn/shell/components/glass/glass';
@@ -67,7 +68,9 @@ export function SupportPage() {
         <SupportTicketForm
           onCancel={close}
           onDone={() => {
-            void refetch();
+            refetch().catch((error: unknown) =>
+              portalLogger.warn('Could not reload the support tickets', error),
+            );
             close();
           }}
         />

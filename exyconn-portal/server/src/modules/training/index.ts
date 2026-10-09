@@ -1,5 +1,4 @@
 import { TrainingModel } from './training.model';
-import { trainingTypeDefs } from './training.typeDefs';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { createMyRecordsResolver, findOwnRecord } from '../../lib/employeeScope';
@@ -60,4 +59,4 @@ export const trainingResolvers = {
   },
   Mutation: { ...crud.Mutation, updateMyTrainingStatus },
 };
-export { trainingTypeDefs };
+export { trainingTypeDefs } from './training.typeDefs';

@@ -1,5 +1,4 @@
-import type { ReactElement } from 'react';
-import { useMemo, useState, type HTMLAttributes } from 'react';
+import { useMemo, useState, type HTMLAttributes, type ReactElement } from 'react';
 import {
   Alert,
   Autocomplete,
@@ -59,7 +58,7 @@ export default function TimezonePicker({ timezone }: Readonly<Props>): ReactElem
     try {
       // The main process pushes the new state, which re-renders this whole app in the new
       // zone — including the `timezone` prop above. We never set it locally.
-      await window.tracker.setTimezone(zone);
+      await globalThis.tracker.setTimezone(zone);
     } catch (cause: unknown) {
       console.error('Failed to save the timezone', cause);
       setFailed(true);

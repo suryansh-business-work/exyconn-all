@@ -6,6 +6,7 @@ import {
   EmailConfigModel,
   type EmailConfigDocument,
 } from '../../../src/modules/tech/email-config.model';
+import { asArg } from '../../mockAs';
 
 const mockSendMail = jest.fn();
 const mockCreateTransport = jest.fn((_options: unknown) => ({ sendMail: mockSendMail }));
@@ -42,7 +43,7 @@ const config = {
 function activeConfig(value: EmailConfigDocument | null) {
   return jest
     .spyOn(EmailConfigModel, 'findOne')
-    .mockReturnValue({ lean: jest.fn().mockResolvedValue(value) } as never);
+    .mockReturnValue(asArg({ lean: jest.fn().mockResolvedValue(value) }));
 }
 
 const lastMjml = () => mockMjml.mock.calls[0][0];

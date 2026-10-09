@@ -17,6 +17,9 @@ function send(): void {
   fireEvent.click(screen.getByRole('button', { name: /^Send/ }));
 }
 
+/** An error that carries no text, so the screen has to fall back to its own words. */
+const NO_MESSAGE = '';
+
 describe('MessageForm', () => {
   it('will not send an empty or blank message', () => {
     const onSend = vi.fn(() => Promise.resolve());
@@ -51,7 +54,7 @@ describe('MessageForm', () => {
 
   it('falls back to a plain sentence when the failure has no reason', async () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
-    renderWithProviders(<MessageForm onSend={() => Promise.reject(new Error(''))} />);
+    renderWithProviders(<MessageForm onSend={() => Promise.reject(new Error(NO_MESSAGE))} />);
     compose('Hello');
     send();
     expect(

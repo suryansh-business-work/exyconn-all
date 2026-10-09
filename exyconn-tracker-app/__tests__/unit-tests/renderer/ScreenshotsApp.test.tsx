@@ -29,7 +29,7 @@ vi.mock('../../../src/renderer/screens/ScreenshotsScreen', () => ({
 
 import ScreenshotsApp from '../../../src/renderer/ScreenshotsApp';
 
-const gallery = () => document.querySelector('[data-testid="gallery"]');
+const gallery = () => document.querySelector<HTMLElement>('[data-testid="gallery"]');
 
 beforeAll(installDomShims);
 
@@ -42,8 +42,8 @@ describe('ScreenshotsApp', { timeout: 30_000 }, () => {
     await render(<ScreenshotsApp />);
     await settle();
 
-    expect(gallery()?.getAttribute('data-start')).toBe('2026-09-14T00:00:00.000Z');
-    expect(gallery()?.getAttribute('data-end')).toBe('2026-09-15T00:00:00.000Z');
+    expect(gallery()?.dataset.start).toBe('2026-09-14T00:00:00.000Z');
+    expect(gallery()?.dataset.end).toBe('2026-09-15T00:00:00.000Z');
     expect(gallery()?.textContent).toBe('Asia/Kolkata');
     expect(document.body.textContent).toContain('My screenshots — Exyconn Tracker');
   });

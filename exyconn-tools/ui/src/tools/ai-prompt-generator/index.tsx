@@ -33,7 +33,8 @@ const AIPromptGenerator: React.FC = () => {
     setError(null);
 
     try {
-      const userPrompt = `Generate a high-quality AI prompt for: "${topic}"${context ? `\n\nAdditional context: ${context}` : ''}`;
+      const contextLine = context ? `\n\nAdditional context: ${context}` : '';
+      const userPrompt = `Generate a high-quality AI prompt for: "${topic}"${contextLine}`;
       const response = await generateWithOpenAI(apiKey, SYSTEM_PROMPT, userPrompt);
       setResult(response.content);
       setTokenUsage(response.usage);

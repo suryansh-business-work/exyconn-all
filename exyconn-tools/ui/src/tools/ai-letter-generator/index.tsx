@@ -32,7 +32,8 @@ const AILetterGenerator: React.FC = () => {
     setError(null);
 
     try {
-      const userPrompt = `Write a formal ${letterType} to ${recipient}.\n\nPurpose: ${purpose}${details ? `\n\nAdditional details: ${details}` : ''}`;
+      const detailsLine = details ? `\n\nAdditional details: ${details}` : '';
+      const userPrompt = `Write a formal ${letterType} to ${recipient}.\n\nPurpose: ${purpose}${detailsLine}`;
       const response = await generateWithOpenAI(apiKey, SYSTEM_PROMPT, userPrompt);
       setResult(response.content);
       setTokenUsage(response.usage);

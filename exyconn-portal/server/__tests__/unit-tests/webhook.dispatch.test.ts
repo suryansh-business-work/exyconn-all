@@ -8,9 +8,11 @@ import {
 
 // Outbound calls go through safeFetch, which resolves the host before connecting. The hosts in
 // these tests are fictional, so resolve them to a public address.
-jest.mock('node:dns/promises', () => ({
-  lookup: jest.fn().mockResolvedValue([{ address: '93.184.215.14', family: 4 }]),
-}));
+jest.mock('node:dns/promises', () =>
+  jest
+    .requireActual<typeof import('../fixtures/publicDns')>('../fixtures/publicDns')
+    .publicDnsMock(),
+);
 
 const SECRET = 'whsec_test';
 

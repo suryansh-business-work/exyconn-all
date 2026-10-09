@@ -152,7 +152,7 @@ export default function OrganizePdf() {
                 or click to browse
               </Typography>
               <Button variant="outlined" component="label" color="primary">
-                Browse Files
+                {'Browse Files'}
                 <input hidden accept="application/pdf" type="file" onChange={onFileChange} />
               </Button>
             </Paper>

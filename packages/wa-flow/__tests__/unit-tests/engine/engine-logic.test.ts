@@ -63,7 +63,7 @@ describe('respond — conditions', () => {
     expect(outcome('gt', '10', '5')).toBe('hit');
     expect(outcome('gt', '5', '10')).toBe('miss');
     expect(outcome('lt', '5', '10')).toBe('hit');
-    expect(outcome('lt', '5', undefined)).toBe('miss');
+    expect(outcome('lt', '5')).toBe('miss');
   });
 });
 
@@ -130,7 +130,7 @@ describe('respond — logic nodes', () => {
       'FLOW_COMPLETED',
     ]);
     expect(texts(result)).toEqual(['In B']);
-    expect(result.replies[result.replies.length - 1].message.content.type).toBe('list');
+    expect(result.replies.at(-1)?.message.content.type).toBe('list');
   });
 
   it('shows the menu when an edge points at a node that is gone', () => {

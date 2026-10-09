@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import type { ReactNode } from 'react';
 import { useApolloClient } from '@apollo/client/react';
 import { useMeLazyQuery } from '@/graphql/generated';
+import { portalLogger } from '@/logging/portalLogger';
 import { tokenStore } from './tokenStore';
 import { userStore } from './userStore';
 import type { Role } from './roles';
@@ -26,7 +27,7 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({ children }: Readonly<{ children: ReactNode }>) {
   // Rehydrate synchronously from localStorage so a refresh keeps the session
   // without a flash of the login screen.
   const [user, setUser] = useState<AuthUser | null>(() => userStore.get());
@@ -74,7 +75,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = useCallback(() => {
     clearSession();
-    void client.clearStore();
+    client
+      .clearStore()
+      .catch((error: unknown) => portalLogger.warn('Could not clear the cache on sign-out', error));
   }, [client, clearSession]);
 
   const updateUser = useCallback((patch: Partial<AuthUser>) => {

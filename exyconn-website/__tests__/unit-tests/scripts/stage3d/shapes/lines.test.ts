@@ -81,7 +81,7 @@ describe("createLines", () => {
       expect(top[1]).toBe(2);
     }
     expect([...set.order]).toEqual(
-      [...Array(16).fill(0.1), ...Array(8).fill(0.9)].map((v) => expect.closeTo(v, 6))
+      [...new Array(16).fill(0.1), ...new Array(8).fill(0.9)].map((v) => expect.closeTo(v, 6))
     );
     expect([...set.flow].every((value) => value === 0)).toBe(true);
   });

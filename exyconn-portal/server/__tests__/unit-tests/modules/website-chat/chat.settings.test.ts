@@ -11,7 +11,7 @@ import { fakePeer, framesOf, validSettings } from './chat.fixtures';
 
 afterEach(() => {
   jest.useRealTimers();
-  for (const peer of [...chatHub.all()]) {
+  for (const peer of chatHub.all()) {
     chatHub.leave(peer);
   }
 });

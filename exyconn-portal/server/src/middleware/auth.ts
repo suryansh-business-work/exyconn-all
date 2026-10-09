@@ -2,7 +2,6 @@ import type { Request } from 'express';
 import { verifyToken, type TokenPayload } from '../utils/jwt';
 import { UserModel } from '../modules/admin/user.model';
 import { recordActivity } from '../modules/admin/presence';
-import type { Role } from '../constants/roles';
 import { principalForApiKey } from '../modules/integrations/api-key.service';
 import { organizationOf, runAsPlatform, setScopeOrganization, setScopeSelf } from '../lib/tenant';
 import { actingOrganization } from './actingOrganization';
@@ -169,7 +168,7 @@ export async function buildContext({ req }: { req: Request }): Promise<GraphQLCo
         email: `${principal.name} (API key)`,
         roles: principal.roles,
         organizationId,
-      } as TokenPayload,
+      },
       organizationId,
       ip,
       origin,
@@ -188,7 +187,7 @@ export async function buildContext({ req }: { req: Request }): Promise<GraphQLCo
     return passHolderOrAnonymous(req, ip, origin, userAgent);
   }
 
-  const roles = fresh.roles as Role[];
+  const roles = fresh.roles;
   // The record is the authority on which company a person is in, not the week-old token.
   const home = organizationOf(fresh);
   // A platform administrator may work inside the company the portal's address names; anyone

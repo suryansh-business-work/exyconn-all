@@ -8,7 +8,7 @@ import { CHECKLISTS, FIRM, type Checklist } from './data';
 const SEND = 'send';
 /** Six purposes, at most six condition cases: the last purpose is the `else`. */
 const ROUTED = CHECKLISTS.slice(0, -1);
-const DEFAULT_LIST = CHECKLISTS[CHECKLISTS.length - 1];
+const [DEFAULT_LIST] = CHECKLISTS.slice(-1);
 
 function checklistDoc(list: Checklist): AuthorNode {
   return {

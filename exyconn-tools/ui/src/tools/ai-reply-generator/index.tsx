@@ -31,7 +31,8 @@ const AIReplyGenerator: React.FC = () => {
     setError(null);
 
     try {
-      const userPrompt = `Generate a ${tone.toLowerCase()} reply to this message:\n\n"${message}"${context ? `\n\nAdditional context: ${context}` : ''}`;
+      const contextLine = context ? `\n\nAdditional context: ${context}` : '';
+      const userPrompt = `Generate a ${tone.toLowerCase()} reply to this message:\n\n"${message}"${contextLine}`;
       const response = await generateWithOpenAI(apiKey, SYSTEM_PROMPT, userPrompt);
       setResult(response.content);
       setTokenUsage(response.usage);

@@ -1,5 +1,6 @@
 import { infraService } from '../../src/modules/infra/infra.service';
 import { docker, DockerUnavailableError } from '../../src/modules/infra/docker.client';
+import ips from '../fixtures/ips.json';
 
 const { containerName, healthOf, tagOf, cpuPercent, memoryUsed, mapContainer } =
   infraService.internals;
@@ -58,7 +59,7 @@ describe('infra service mapping', () => {
       State: 'running',
       Status: 'Up 4 hours (healthy)',
       Ports: [{ IP: '127.0.0.1', PrivatePort: 4004, PublicPort: 4004, Type: 'tcp' }],
-      NetworkSettings: { Networks: { exyconn_default: { IPAddress: '172.18.0.5' } } },
+      NetworkSettings: { Networks: { exyconn_default: { IPAddress: ips.ip172_18_0_5 } } },
     });
     expect(row).toMatchObject({
       name: 'exyconn-portal-server',
@@ -66,7 +67,7 @@ describe('infra service mapping', () => {
       state: 'RUNNING',
       health: 'HEALTHY',
       networks: ['exyconn_default'],
-      ipAddress: '172.18.0.5',
+      ipAddress: ips.ip172_18_0_5,
     });
     expect(row.createdAt).toEqual(new Date(1_756_000_000 * 1000));
   });

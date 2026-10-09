@@ -53,7 +53,9 @@ describe('insertUploadedImages', () => {
 
   it('rejects that file and inserts nothing when its upload fails', async () => {
     const target = create('<p>Hello</p>');
-    const upload = vi.fn(async () => Promise.reject(new Error('Quota exceeded')));
+    const upload = vi.fn(async () => {
+      throw new Error('Quota exceeded');
+    });
     const [result] = insertUploadedImages(target, [png('a.png')], upload);
     await expect(result).rejects.toThrow('Quota exceeded');
     expect(target.getHTML()).toBe('<p>Hello</p>');

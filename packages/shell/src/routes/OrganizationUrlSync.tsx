@@ -18,7 +18,7 @@ export function OrganizationUrlSync() {
 
   useEffect(() => {
     if (slug && slug !== CURRENT_ORGANIZATION_SLUG) {
-      window.location.replace(organizationLocation(slug));
+      globalThis.location.replace(organizationLocation(slug));
     }
   }, [slug]);
 

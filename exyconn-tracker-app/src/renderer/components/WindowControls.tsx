@@ -31,7 +31,7 @@ export default function WindowControls(): ReactElement {
 
   // Main is the authority: the window can also be maximised by a double-click on the title
   // bar or an OS snap gesture, and the icon has to follow those too.
-  useEffect(() => window.tracker.onWindowMaximized(setMaximized), []);
+  useEffect(() => globalThis.tracker.onWindowMaximized(setMaximized), []);
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.25, ...NO_DRAG }}>
@@ -39,7 +39,7 @@ export default function WindowControls(): ReactElement {
         size="small"
         aria-label={t('Minimise')}
         sx={BUTTON_SX}
-        onClick={() => run(() => window.tracker.minimizeWindow())}
+        onClick={() => run(() => globalThis.tracker.minimizeWindow())}
       >
         <RemoveRounded sx={{ fontSize: iconSize.md }} />
       </IconButton>
@@ -47,7 +47,7 @@ export default function WindowControls(): ReactElement {
         size="small"
         aria-label={maximized ? t('Restore') : t('Maximise')}
         sx={BUTTON_SX}
-        onClick={() => run(() => window.tracker.toggleMaximizeWindow())}
+        onClick={() => run(() => globalThis.tracker.toggleMaximizeWindow())}
       >
         {maximized ? (
           <FilterNoneRounded sx={{ fontSize: iconSize.xs }} />
@@ -62,7 +62,7 @@ export default function WindowControls(): ReactElement {
           ...BUTTON_SX,
           '&:hover': { backgroundColor: 'error.main', color: 'error.contrastText' },
         }}
-        onClick={() => run(() => window.tracker.closeWindow())}
+        onClick={() => run(() => globalThis.tracker.closeWindow())}
       >
         <CloseRounded sx={{ fontSize: iconSize.md }} />
       </IconButton>

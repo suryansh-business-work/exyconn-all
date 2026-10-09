@@ -3,6 +3,7 @@ import { publishDuePosts } from '../../../../src/modules/social-accounts/social.
 import { syncAllAccounts } from '../../../../src/modules/social-accounts/social.sync';
 import { forEachOrganization } from '../../../../src/modules/organizations';
 import { logger } from '../../../../src/utils/logger';
+import { asArg } from '../../../mockAs';
 
 jest.mock('../../../../src/modules/organizations', () => ({ forEachOrganization: jest.fn() }));
 jest.mock('../../../../src/modules/social-accounts/social.publish', () => ({
@@ -24,14 +25,13 @@ interface Tick {
 /** Starts the schedule with the intervals captured instead of armed. */
 function start(): Tick[] {
   const ticks: Tick[] = [];
-  const armed = jest.spyOn(globalThis, 'setInterval').mockImplementation(((
-    run: () => void,
-    ms: number,
-  ) => {
-    const unref = jest.fn();
-    ticks.push({ run, ms, unref });
-    return { unref };
-  }) as never);
+  const armed = jest.spyOn(globalThis, 'setInterval').mockImplementation(
+    asArg((run: () => void, ms: number) => {
+      const unref = jest.fn();
+      ticks.push({ run, ms, unref });
+      return { unref };
+    }),
+  );
   try {
     startSocialSchedule();
   } finally {

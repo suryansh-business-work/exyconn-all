@@ -49,29 +49,27 @@ const CategoryStep: React.FC<CategoryStepProps> = ({
 
   const popularTypes = businessTypes.filter((t) => t.popular);
 
+  let categorySummary: string | null = null;
+  if (selectedTypes.length > 0) {
+    categorySummary = `${selectedTypes.length} categories selected`;
+  } else if (searchQuery.trim()) {
+    categorySummary = '✓ Custom query set';
+  }
+
   return (
     <Step completed={canProceed}>
       <StepLabel
         optional={
-          selectedTypes.length > 0 ? (
+          categorySummary === null ? null : (
             <Typography
               variant="caption"
               sx={{
                 color: 'success.main',
               }}
             >
-              {selectedTypes.length} categories selected
+              {categorySummary}
             </Typography>
-          ) : searchQuery.trim() ? (
-            <Typography
-              variant="caption"
-              sx={{
-                color: 'success.main',
-              }}
-            >
-              ✓ Custom query set
-            </Typography>
-          ) : null
+          )
         }
       >
         Select Business Categories

@@ -15,6 +15,19 @@ import {
  * website. If a fixture is dropped, mis-keyed, or the seed stops being idempotent, this
  * fails before the content reaches a real database.
  */
+async function counts() {
+  return {
+    blogPosts: await BlogPostModel.countDocuments(),
+    caseStudies: await CaseStudyModel.countDocuments(),
+    jobCompanies: await JobCompanyModel.countDocuments(),
+    jobs: await JobModel.countDocuments(),
+    gigs: await GigModel.countDocuments(),
+    toolCategories: await ToolCategoryModel.countDocuments(),
+    tools: await ToolModel.countDocuments(),
+    navLinks: await NavLinkModel.countDocuments(),
+  };
+}
+
 describe('seedWebsiteContent', () => {
   /** Expected counts, from the hardcoded data the website used to ship. */
   const EXPECTED = {
@@ -27,19 +40,6 @@ describe('seedWebsiteContent', () => {
     tools: 52,
     navLinks: 35,
   };
-
-  async function counts() {
-    return {
-      blogPosts: await BlogPostModel.countDocuments(),
-      caseStudies: await CaseStudyModel.countDocuments(),
-      jobCompanies: await JobCompanyModel.countDocuments(),
-      jobs: await JobModel.countDocuments(),
-      gigs: await GigModel.countDocuments(),
-      toolCategories: await ToolCategoryModel.countDocuments(),
-      tools: await ToolModel.countDocuments(),
-      navLinks: await NavLinkModel.countDocuments(),
-    };
-  }
 
   it('migrates every piece of the website content', async () => {
     await seedWebsiteContent();

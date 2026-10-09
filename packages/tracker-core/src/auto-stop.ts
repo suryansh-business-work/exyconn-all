@@ -68,7 +68,7 @@ export function autoStopNotice(
   status: TrackerStatus,
   now: Date = new Date(),
 ): AutoStopNotice | null {
-  if (settings === null || !settings.autoStartEnabled) {
+  if (!settings?.autoStartEnabled) {
     return null;
   }
 

@@ -10,6 +10,7 @@ import { AppLogGroupModel } from '../../../../src/modules/logs/app-log-group.mod
 import { MAX_SERVER_ERRORS_PER_REQUEST } from '../../../../src/modules/logs/logs.constants';
 import { logger } from '../../../../src/utils/logger';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
+import { asArg } from '../../../mockAs';
 
 const refused = (code: string, message = 'You do not have access to this resource') =>
   new GraphQLError(message, { extensions: { code } });
@@ -122,14 +123,16 @@ describe('foldRequestErrors', () => {
 
 describe('serverErrorLogPlugin', () => {
   it('writes nothing when every error is an anonymous refusal', async () => {
-    const hooks = await serverErrorLogPlugin.requestDidStart?.({} as never);
+    const hooks = await serverErrorLogPlugin.requestDidStart?.(asArg({}));
     const contextValue: GraphQLContext = { user: null };
 
-    await hooks?.didEncounterErrors?.({
-      errors: [refused('UNAUTHENTICATED')],
-      contextValue,
-      operationName: 'Me',
-    } as never);
+    await hooks?.didEncounterErrors?.(
+      asArg({
+        errors: [refused('UNAUTHENTICATED')],
+        contextValue,
+        operationName: 'Me',
+      }),
+    );
     await settleServerErrorLogs();
 
     expect(await AppLogGroupModel.countDocuments()).toBe(0);

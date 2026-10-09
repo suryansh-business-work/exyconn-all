@@ -1,3 +1,4 @@
+import { asArg } from '../../mockAs';
 const mockConnect = jest.fn();
 const mockDisconnect = jest.fn();
 const mockMigrate = jest.fn();
@@ -28,7 +29,7 @@ async function runScript(): Promise<void> {
 let exit: jest.SpyInstance;
 
 beforeEach(() => {
-  exit = jest.spyOn(process, 'exit').mockImplementation((() => undefined) as never);
+  exit = jest.spyOn(process, 'exit').mockImplementation(asArg(() => undefined));
   mockConnect.mockResolvedValue(undefined);
   mockDisconnect.mockResolvedValue(undefined);
   mockMigrate.mockResolvedValue(undefined);

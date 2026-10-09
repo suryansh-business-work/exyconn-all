@@ -85,7 +85,8 @@ function portalHtml(app) {
     name: "exyconn:portal-html",
     transformIndexHtml: {
       order: "pre",
-      handler: () => ({
+      handler: (html) => ({
+        html: html.replace(/<title>[^<]*<\/title>/, `<title>${title}</title>`),
         tags: [
           {
             tag: "link",
@@ -155,7 +156,6 @@ function portalHtml(app) {
             },
             injectTo: "head",
           },
-          { tag: "title", children: title, injectTo: "head" },
           ...shareTags(app),
         ],
       }),

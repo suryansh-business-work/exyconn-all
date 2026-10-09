@@ -84,7 +84,7 @@ export function containerDetail(overrides: Partial<Detail> = {}): Detail {
     memoryLimitBytes: 512 * MB,
     cpuLimit: 1.5,
     networks: ['exyconn', 'proxy'],
-    ipAddress: '172.18.0.4',
+    ipAddress: '203.0.113.4',
     cpuPercent: 3.2,
     memoryBytes: 128 * MB,
     mounts: [

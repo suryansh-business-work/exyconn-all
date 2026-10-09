@@ -154,9 +154,9 @@ describe("startInnerScene highlights and resizing", () => {
     const { renderer } = await start(false);
     const renders = renderer.render.mock.calls.length;
     setSize(host, 1200, 600);
-    window.dispatchEvent(new Event("resize"));
+    globalThis.dispatchEvent(new Event("resize"));
     vi.advanceTimersByTime(100);
-    window.dispatchEvent(new Event("resize"));
+    globalThis.dispatchEvent(new Event("resize"));
     vi.advanceTimersByTime(100);
     expect(renderer.setSize).not.toHaveBeenCalledWith(1200, 600, false);
     vi.advanceTimersByTime(60);
@@ -167,9 +167,9 @@ describe("startInnerScene highlights and resizing", () => {
   it("drops a pending resize when disposed", async () => {
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
     const { renderer, stop } = await start(false);
-    window.dispatchEvent(new Event("resize"));
+    globalThis.dispatchEvent(new Event("resize"));
     stop();
-    window.dispatchEvent(new Event("resize"));
+    globalThis.dispatchEvent(new Event("resize"));
     vi.advanceTimersByTime(500);
     expect(renderer.setSize).toHaveBeenCalledTimes(1);
   });

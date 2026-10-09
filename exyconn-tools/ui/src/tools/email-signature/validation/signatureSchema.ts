@@ -1,6 +1,6 @@
 import * as Yup from 'yup';
 
-const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
+const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})[/\w .-]*\/?$/;
 
 export const signatureValidationSchema = Yup.object().shape({
   // Personal Info - Name is required

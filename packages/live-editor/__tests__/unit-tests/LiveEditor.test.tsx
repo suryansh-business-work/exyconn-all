@@ -36,7 +36,7 @@ const props = (overrides: Partial<LiveEditorProps> = {}): LiveEditorProps => ({
 const uploadFile = (fake: FakeEditor) => {
   const hook = fake.config.assetManager?.uploadFile;
   if (typeof hook !== 'function') {
-    throw new Error('The editor has no upload hook');
+    throw new TypeError('The editor has no upload hook');
   }
   return hook;
 };

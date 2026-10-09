@@ -24,7 +24,7 @@ interface NotificationContextValue {
 const NotificationContext = createContext<NotificationContextValue | undefined>(undefined);
 
 /** App-wide MUI snackbar feedback — replaces any native alert() usage (rule 12). */
-export function NotificationProvider({ children }: { children: ReactNode }) {
+export function NotificationProvider({ children }: Readonly<{ children: ReactNode }>) {
   // Every "Saved", "Could not delete that" and error message in the portal arrives here as an
   // English string from whichever module raised it, which makes this the one place to
   // translate them all.

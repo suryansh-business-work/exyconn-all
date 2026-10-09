@@ -15,9 +15,7 @@ export interface GlobalSettingsProps {
   currentImage?: string;
 }
 
-export interface SettingsUpdateFn {
-  (key: keyof LogoSettings, value: number | string | boolean): void;
-}
+export type SettingsUpdateFn = (key: keyof LogoSettings, value: number | string | boolean) => void;
 
 export interface SliderControlProps {
   icon: React.ReactNode;

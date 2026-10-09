@@ -30,6 +30,16 @@ interface RewriteResult {
   note: string;
 }
 
+const getReadabilityColor = (level: string) => {
+  if (level === 'Easy') {
+    return 'success';
+  }
+  if (level === 'Moderate') {
+    return 'warning';
+  }
+  return 'error';
+};
+
 const ParagraphRewriter: React.FC = () => {
   const [text, setText] = useState('');
   const [result, setResult] = useState<RewriteResult | null>(null);
@@ -119,13 +129,7 @@ const ParagraphRewriter: React.FC = () => {
                     <Chip
                       size="small"
                       label={`Readability: ${result.readability}`}
-                      color={
-                        result.readability === 'Easy'
-                          ? 'success'
-                          : result.readability === 'Moderate'
-                            ? 'warning'
-                            : 'error'
-                      }
+                      color={getReadabilityColor(result.readability)}
                     />
                   </Box>
                 </Paper>
@@ -142,8 +146,8 @@ const ParagraphRewriter: React.FC = () => {
                       Suggestions
                     </Typography>
                     <List dense>
-                      {result.suggestions.map((s, idx) => (
-                        <ListItem key={idx} disablePadding sx={{ mb: 0.5 }}>
+                      {result.suggestions.map((s) => (
+                        <ListItem key={s} disablePadding sx={{ mb: 0.5 }}>
                           <ListItemIcon sx={{ minWidth: 28 }}>
                             <Lightbulb sx={{ fontSize: 16, color: 'warning.main' }} />
                           </ListItemIcon>

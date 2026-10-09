@@ -18,6 +18,16 @@ import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { DomainInputForm, DomainResultDisplay } from '../../shared/components/DomainToolShared';
 import { APIs } from '../../shared/config/apis';
 
+const getStatusColor = (status: string) => {
+  if (status === 'open') {
+    return 'success';
+  }
+  if (status === 'filtered') {
+    return 'warning';
+  }
+  return 'default';
+};
+
 const OpenPortsCheck: React.FC = () => {
   const [result, setResult] = useState<Record<string, unknown> | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -79,16 +89,12 @@ const OpenPortsCheck: React.FC = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {(result.results as Array<{ port: number; service: string; status: string }>)?.map((r, i) => (
-                        <TableRow key={i}>
+                      {(result.results as Array<{ port: number; service: string; status: string }>)?.map((r) => (
+                        <TableRow key={r.port}>
                           <TableCell sx={{ fontFamily: 'monospace' }}>{r.port}</TableCell>
                           <TableCell>{r.service}</TableCell>
                           <TableCell>
-                            <Chip
-                              size="small"
-                              label={r.status}
-                              color={r.status === 'open' ? 'success' : r.status === 'filtered' ? 'warning' : 'default'}
-                            />
+                            <Chip size="small" label={r.status} color={getStatusColor(r.status)} />
                           </TableCell>
                         </TableRow>
                       ))}

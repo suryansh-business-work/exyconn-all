@@ -21,6 +21,10 @@ import {
 
 const DEFAULT_SAMPLE = 'The quick brown fox jumps over the lazy dog';
 
+/** The chosen variants after one checkbox is ticked or cleared. */
+const withVariant = (chosen: string[], variant: string, checked: boolean) =>
+  checked ? [...chosen, variant] : chosen.filter((v) => v !== variant);
+
 /** The chosen family: which styles to load, and a live sample in each of them. */
 export function GoogleFontDetails({ row }: Readonly<{ row: GoogleFontRow | null }>) {
   const t = useT();
@@ -77,11 +81,7 @@ export function GoogleFontDetails({ row }: Readonly<{ row: GoogleFontRow | null 
                       size="small"
                       checked={field.value.includes(variant)}
                       onChange={(_event, checked) =>
-                        field.onChange(
-                          checked
-                            ? [...field.value, variant]
-                            : field.value.filter((v) => v !== variant),
-                        )
+                        field.onChange(withVariant(field.value, variant, checked))
                       }
                     />
                   }

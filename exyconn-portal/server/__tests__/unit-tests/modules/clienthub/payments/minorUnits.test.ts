@@ -1,6 +1,7 @@
 import { createHmac } from 'node:crypto';
 import { majorUnits, minorUnits } from '../../../../../src/modules/clienthub/payments/minorUnits';
 import { hmacHex, sameHex } from '../../../../../src/modules/clienthub/payments/signature';
+import { asArg } from '../../../../mockAs';
 
 afterEach(() => {
   jest.restoreAllMocks();
@@ -25,9 +26,7 @@ describe('minorUnits and majorUnits', () => {
   });
 
   it('falls back to two decimals when the runtime reports none for a currency', () => {
-    jest
-      .spyOn(Intl.NumberFormat.prototype, 'resolvedOptions')
-      .mockReturnValue({} as Intl.ResolvedNumberFormatOptions);
+    jest.spyOn(Intl.NumberFormat.prototype, 'resolvedOptions').mockReturnValue(asArg({}));
 
     expect(minorUnits(1.5, 'USD')).toBe(150);
     expect(majorUnits(150, 'USD')).toBe(1.5);

@@ -26,7 +26,7 @@ class PolicyAcknowledgementService {
    */
   async sign(userId: string, policyId: string, signedName: string) {
     const policy = await PolicyModel.findById(policyId).lean();
-    if (!policy || policy.status !== 'PUBLISHED') {
+    if (policy?.status !== 'PUBLISHED') {
       notFound('Policy');
     }
     const name = signedName.trim();

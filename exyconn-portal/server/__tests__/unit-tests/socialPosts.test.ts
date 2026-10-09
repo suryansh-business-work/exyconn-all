@@ -184,7 +184,7 @@ describe('composing and publishing', () => {
     const ig = await account('INSTAGRAM', 'META');
     fakeNetwork([
       [/instagram-1\/media_publish/, 200, { id: 'ig-media-1' }],
-      [/instagram-1\/media\?|instagram-1\/media$/, 200, { id: 'container-1' }],
+      [/instagram-1\/media(?:\?|$)/, 200, { id: 'container-1' }],
       [/ig-media-1\?/, 200, { permalink: 'https://instagram.com/p/abc' }],
     ]);
     const [post] = (await composePosts(

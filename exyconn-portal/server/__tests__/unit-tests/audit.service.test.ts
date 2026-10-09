@@ -11,6 +11,7 @@ import { UserModel } from '../../src/modules/admin/user.model';
 import { logger } from '../../src/utils/logger';
 import { ROLES } from '../../src/constants/roles';
 import type { GraphQLContext } from '../../src/middleware/auth';
+import ips from '../fixtures/ips.json';
 
 afterEach(() => jest.restoreAllMocks());
 
@@ -80,7 +81,7 @@ describe('recordAudit', () => {
     const lookup = jest.spyOn(UserModel, 'findById');
 
     await recordAudit(
-      { user: null, ip: '10.1.1.1' },
+      { user: null, ip: ips.ip10_1_1_1 },
       {
         ...entry,
         entityId: 42,
@@ -96,7 +97,7 @@ describe('recordAudit', () => {
       actorEmail: 'a@x.com',
       entityId: '42',
       entityLabel: 'INV-9',
-      ip: '10.1.1.1',
+      ip: ips.ip10_1_1_1,
       changes: '',
     });
     expect(lookup).not.toHaveBeenCalled();

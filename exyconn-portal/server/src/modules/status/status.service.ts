@@ -95,7 +95,7 @@ function sumDays(points: StatusDayPoint[], totals: Map<string, DayTotals>): DayT
 
 /** The worst state among the monitors, which is what the page's headline reports. */
 function overallState(states: StatusState[]): StatusState {
-  if (states.length === 0 || states.every((state) => state === 'UNKNOWN')) {
+  if (states.every((state) => state === 'UNKNOWN')) {
     return 'UNKNOWN';
   }
   if (states.includes('DOWN')) {

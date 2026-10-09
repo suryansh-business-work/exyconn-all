@@ -35,7 +35,8 @@ export const absoluteAsset = (siteUrl: string, src: string): string => {
   if (src === "" || /^(https?:|data:)/i.test(src)) {
     return src;
   }
-  return `${siteUrl.replace(/\/$/, "")}${src.startsWith("/") ? src : `/${src}`}`;
+  const path = src.startsWith("/") ? src : `/${src}`;
+  return `${siteUrl.replace(/\/$/, "")}${path}`;
 };
 
 /** Space-separated filter tokens for FilterBar's `data-filter-<param>`. */

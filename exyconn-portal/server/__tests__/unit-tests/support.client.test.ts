@@ -167,9 +167,11 @@ describe('Replying to a customer', () => {
   });
 });
 
+/** A context with no address stands for an internal caller, which is never limited. */
+const INTERNAL_CALLER: GraphQLContext = { user: null };
+
 describe('Following a customer ticket', () => {
-  /** A context with no address stands for an internal caller, which is never limited. */
-  const status = (reference: string, email: string, ctx: GraphQLContext = { user: null }) =>
+  const status = (reference: string, email: string, ctx: GraphQLContext = INTERNAL_CALLER) =>
     supportResolvers.Query.clientSupportTicketStatus(null, { reference, email }, ctx) as Promise<{
       status: string;
       subject: string;

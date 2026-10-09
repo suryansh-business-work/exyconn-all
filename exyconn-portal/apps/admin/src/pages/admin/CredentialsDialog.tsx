@@ -22,7 +22,11 @@ export interface Credentials {
 }
 
 /** A copyable credential field: label, monospace value, and a copy button. */
-function Field({ label, value, onCopy }: { label: string; value: string; onCopy: () => void }) {
+function Field({
+  label,
+  value,
+  onCopy,
+}: Readonly<{ label: string; value: string; onCopy: () => void }>) {
   const t = useT();
   const fieldName = t(label);
   return (
@@ -56,7 +60,7 @@ interface CredentialsDialogProps {
  * The password is never persisted in plaintext — it can only be copied here or
  * regenerated via a reset, so this is the single chance to hand it over.
  */
-export function CredentialsDialog({ credentials, onClose }: CredentialsDialogProps) {
+export function CredentialsDialog({ credentials, onClose }: Readonly<CredentialsDialogProps>) {
   const notify = useNotify();
   const t = useT();
   if (!credentials) return null;

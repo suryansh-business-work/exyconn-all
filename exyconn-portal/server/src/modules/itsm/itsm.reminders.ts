@@ -24,14 +24,17 @@ async function warrantiesEnding(now: Date, days: number): Promise<Reminder[]> {
     .select('assetTag name warrantyExpiry assignedToName')
     .lean();
 
-  return rows.map((asset) => ({
-    dedupeKey: `asset-warranty:${String(asset._id)}:${dayKey(now)}`,
-    kind: 'IT',
-    title: `${asset.assetTag} is out of warranty ${dueInWords(daysUntil(now, asset.warrantyExpiry as Date))}`,
-    body: `${asset.name}${asset.assignedToName ? `, with ${asset.assignedToName}` : ''}. Decide whether to extend the cover, replace it or accept the risk.`,
-    link: `/it/assets/${String(asset._id)}`,
-    roles: [ROLES.IT],
-  }));
+  return rows.map((asset) => {
+    const holder = asset.assignedToName ? `, with ${asset.assignedToName}` : '';
+    return {
+      dedupeKey: `asset-warranty:${String(asset._id)}:${dayKey(now)}`,
+      kind: 'IT',
+      title: `${asset.assetTag} is out of warranty ${dueInWords(daysUntil(now, asset.warrantyExpiry as Date))}`,
+      body: `${asset.name}${holder}. Decide whether to extend the cover, replace it or accept the risk.`,
+      link: `/it/assets/${String(asset._id)}`,
+      roles: [ROLES.IT],
+    };
+  });
 }
 
 /** Subscriptions coming up for renewal, which is when the seat count is worth re-reading. */
@@ -46,13 +49,14 @@ async function licencesRenewing(now: Date, days: number): Promise<Reminder[]> {
   return rows.map((licence) => {
     const used = licence.assigneeIds?.length ?? 0;
     const spare = (licence.seatsTotal ?? 0) - used;
+    const vendor = licence.vendor ? `${licence.vendor}. ` : '';
     const seats =
       spare > 0 ? `${spare} of ${licence.seatsTotal} seats are unused` : 'every seat is in use';
     return {
       dedupeKey: `licence-renewal:${String(licence._id)}:${dayKey(now)}`,
       kind: 'IT',
       title: `${licence.name} renews ${dueInWords(daysUntil(now, licence.renewalDate))}`,
-      body: `${licence.vendor ? `${licence.vendor}. ` : ''}${seats} — reclaim what nobody needs before it is paid for again.`,
+      body: `${vendor}${seats} — reclaim what nobody needs before it is paid for again.`,
       link: '/it/licences',
       roles: [ROLES.IT],
     };

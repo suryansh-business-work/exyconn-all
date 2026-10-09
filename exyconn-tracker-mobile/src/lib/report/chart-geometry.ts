@@ -56,12 +56,12 @@ export function plotArea(width: number, height: number): PlotArea {
 
 /** A round axis ceiling at or above `value` — 1, 2, 2.5 or 5 of its power of ten. */
 export function niceCeiling(value: number): number {
-  if (!(value > 0)) {
-    return 1;
+  if (value > 0) {
+    const magnitude = 10 ** Math.floor(Math.log10(value));
+    const step = [1, 2, 2.5, 5, 10].find((candidate) => value <= candidate * magnitude) ?? 10;
+    return step * magnitude;
   }
-  const magnitude = 10 ** Math.floor(Math.log10(value));
-  const step = [1, 2, 2.5, 5, 10].find((candidate) => value <= candidate * magnitude) ?? 10;
-  return step * magnitude;
+  return 1;
 }
 
 /** The tallest stack across every label — what the bar axis has to reach. */

@@ -50,10 +50,10 @@ export function bundle(
 export function message(
   id: string,
   at: number,
-  content: BotContent | UserContent = { type: 'text', text: id },
+  content?: BotContent | UserContent,
   from: ChatMessage['from'] = 'bot',
 ): ChatMessage {
-  return { id, from, at, content };
+  return { id, from, at, content: content ?? { type: 'text', text: id } };
 }
 
 export function chatRecord(demoKey: string, messages: ChatMessage[], unread = 0): ChatRecord {

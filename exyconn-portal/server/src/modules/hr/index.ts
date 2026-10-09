@@ -1,7 +1,6 @@
 import { LeaveRequestModel } from './hr.model';
 import { DepartmentModel } from './department.model';
 import { PositionModel } from './position.model';
-import { hrTypeDefs } from './hr.typeDefs';
 import { hrCustomResolvers } from './hr.resolvers';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
@@ -132,5 +131,5 @@ export const hrResolvers = {
     ...hrCustomResolvers.Mutation,
   },
 };
-export { hrTypeDefs };
+export { hrTypeDefs } from './hr.typeDefs';
 export { backfillPositionDefaults } from './department.service';

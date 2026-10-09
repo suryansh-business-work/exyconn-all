@@ -31,8 +31,8 @@ vi.mock('./trackers/permissions', () => ({
 // The native input hook and screen capture cannot run in a test process.
 vi.mock('./trackers/input-counter', () => ({
   InputCounter: class {
-    start(): void {}
-    stop(): void {}
+    start = vi.fn();
+    stop = vi.fn();
     peek() {
       return { keys: 0, clicks: 0 };
     }

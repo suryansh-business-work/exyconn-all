@@ -36,7 +36,7 @@ const CONTAINERS = [
     health: 'HEALTHY',
     createdAt: '2026-10-01T09:00:00.000Z',
     networks: ['exyconn'],
-    ipAddress: '172.18.0.4',
+    ipAddress: '203.0.113.4',
     ports: [
       { ip: '127.0.0.1', privatePort: 4004, publicPort: 4004, protocol: 'tcp' },
       { ip: '', privatePort: 9229, publicPort: 0, protocol: 'tcp' },
@@ -111,7 +111,7 @@ describe('ContainersPanel', () => {
     expect(screen.getByTestId('c-1-ports')).toHaveTextContent(
       '127.0.0.1:4004 → 4004/tcp, 9229/tcp',
     );
-    expect(screen.getByTestId('c-1-ipAddress')).toHaveTextContent('172.18.0.4');
+    expect(screen.getByTestId('c-1-ipAddress')).toHaveTextContent('203.0.113.4');
     expect(screen.getByTestId('c-2-ports')).toHaveTextContent('—');
     expect(screen.getByTestId('c-2-ipAddress')).toHaveTextContent('—');
   });

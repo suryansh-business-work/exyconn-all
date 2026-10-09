@@ -13,7 +13,7 @@ const ImagePreviewDialog: React.FC<Props> = ({ open, onClose, imageUrl, label })
   const handleDownload = () => {
     const link = document.createElement('a');
     link.href = imageUrl;
-    link.download = `${label.replace(/[×]/g, 'x')}.png`;
+    link.download = `${label.replaceAll('×', 'x')}.png`;
     link.click();
   };
 

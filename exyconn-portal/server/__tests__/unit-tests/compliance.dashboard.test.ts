@@ -8,6 +8,7 @@ import { ManagementReviewModel } from '../../src/modules/compliance/review.model
 import { ROLES } from '../../src/constants/roles';
 import { useTestOrganization } from '../helpers';
 import type { GraphQLContext } from '../../src/middleware/auth';
+import { asArg } from '../mockAs';
 
 const DAY = 86_400_000;
 const officer: GraphQLContext = {
@@ -171,7 +172,7 @@ describe('evidence on a finding', () => {
   it('stamps who attached it and when, whatever the client sent', async () => {
     const created = (await findingResolvers.Mutation.createFinding(
       null,
-      {
+      asArg({
         input: {
           title: 'Access review not evidenced',
           description: '',
@@ -197,7 +198,7 @@ describe('evidence on a finding', () => {
             },
           ],
         },
-      } as never,
+      }),
       officer,
     )) as { id: string };
 

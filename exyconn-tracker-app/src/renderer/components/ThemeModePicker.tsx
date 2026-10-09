@@ -43,7 +43,7 @@ export default function ThemeModePicker({ mode }: Readonly<Props>): ReactElement
         // `next` is null when the active button is pressed again; keeping the current mode
         // means the group can never end up with nothing selected.
         onChange={(_event, next: ThemeMode | null) =>
-          run(() => window.tracker.setPreferences({ themeMode: next ?? mode }))
+          run(() => globalThis.tracker.setPreferences({ themeMode: next ?? mode }))
         }
       >
         {OPTIONS.map((option) => {

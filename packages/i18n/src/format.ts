@@ -24,8 +24,11 @@ export const DEFAULT_FORMAT_SETTINGS: FormatSettings = {
   currency: '',
 };
 
+/** Anything a caller may hand a formatter as an instant. */
+export type DateInput = string | number | Date | null | undefined;
+
 /** What the caller handed us, as a Date — or null when it is not a usable instant. */
-function toDate(value: string | number | Date | null | undefined): Date | null {
+function toDate(value: DateInput): Date | null {
   if (value === null || value === undefined || value === '') {
     return null;
   }
@@ -39,10 +42,7 @@ function toDate(value: string | number | Date | null | undefined): Date | null {
  * Empty string for anything that is not an instant: a table cell reading "Invalid Date" is
  * a bug report, and one reading nothing is a missing value, which is what it actually is.
  */
-export function formatDate(
-  value: string | number | Date | null | undefined,
-  settings: FormatSettings,
-): string {
+export function formatDate(value: DateInput, settings: FormatSettings): string {
   const date = toDate(value);
   if (!date) {
     return '';
@@ -51,10 +51,7 @@ export function formatDate(
 }
 
 /** The same, with the time of day. */
-export function formatDateTime(
-  value: string | number | Date | null | undefined,
-  settings: FormatSettings,
-): string {
+export function formatDateTime(value: DateInput, settings: FormatSettings): string {
   const date = toDate(value);
   if (!date) {
     return '';
@@ -63,10 +60,7 @@ export function formatDateTime(
 }
 
 /** Just the clock time, in the person's own zone. */
-export function formatTime(
-  value: string | number | Date | null | undefined,
-  settings: FormatSettings,
-): string {
+export function formatTime(value: DateInput, settings: FormatSettings): string {
   const date = toDate(value);
   if (!date) {
     return '';
@@ -148,7 +142,7 @@ export function formatPercent(
 
 /** How long ago, in the person's own language: "3 days ago", "vor 3 Tagen". */
 export function formatRelative(
-  value: string | number | Date | null | undefined,
+  value: DateInput,
   settings: FormatSettings,
   now: Date = new Date(),
 ): string {

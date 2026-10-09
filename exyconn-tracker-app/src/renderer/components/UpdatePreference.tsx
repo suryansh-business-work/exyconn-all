@@ -74,7 +74,7 @@ export default function UpdatePreference({ preferences, update }: Readonly<Props
               checked={preferences.updateAutomatically}
               onChange={(event) =>
                 run(() =>
-                  window.tracker.setPreferences({ updateAutomatically: event.target.checked }),
+                  globalThis.tracker.setPreferences({ updateAutomatically: event.target.checked }),
                 )
               }
             />
@@ -106,7 +106,7 @@ export default function UpdatePreference({ preferences, update }: Readonly<Props
         startIcon={<RefreshRounded />}
         loading={checking}
         disabled={downloading}
-        onClick={() => run(() => window.tracker.checkForUpdate())}
+        onClick={() => run(() => globalThis.tracker.checkForUpdate())}
       >
         {t('Check for updates')}
       </Button>

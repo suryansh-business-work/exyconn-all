@@ -43,7 +43,7 @@ describe("tree", () => {
     expect(leafAt(1, 0, 3, 0.8)[0]).toBeCloseTo(0.6);
     expect(tagSet(sampleTree(N, rng()).tags)).toEqual([0, 1, 2, 3]);
     expect(tagSet(sampleTree(N, rng(), { branches: [4, 0, 30.2] }).tags)).toEqual([0, 1, 2, 3]);
-    expect(tagSet(sampleTree(N, rng(), { branches: Array(20).fill(1) }).tags)).toHaveLength(13);
+    expect(tagSet(sampleTree(N, rng(), { branches: new Array(20).fill(1) }).tags)).toHaveLength(13);
     expect(() => sampleTree(N, rng(), { branches: [] })).toThrow(/tree/);
   });
 });

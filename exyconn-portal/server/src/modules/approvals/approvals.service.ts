@@ -107,7 +107,7 @@ export async function myApprovals(
   kind?: string | null,
 ): Promise<ApprovalQueue> {
   const user = assertAuthenticated(ctx);
-  const roles = (user.roles ?? []) as Role[];
+  const roles = user.roles ?? [];
   // Only sources the caller may actually act on: a filter chip for a queue they can never
   // open is a promise the server would refuse.
   const scoped = (await scopedSources(roles, user.id)).filter((entry) => entry.scope !== null);
@@ -132,7 +132,7 @@ export async function myApprovals(
 /** The badge number. Counts the same rows the queue would show, without resolving names. */
 export async function myPendingApprovalCount(ctx: GraphQLContext): Promise<number> {
   const user = assertAuthenticated(ctx);
-  const roles = (user.roles ?? []) as Role[];
+  const roles = user.roles ?? [];
   const scoped = await scopedSources(roles, user.id);
   const counts = await Promise.all(scoped.map((e) => itemsFrom(e.source, e.scope)));
   return counts.reduce((total, rows) => total + rows.length, 0);
@@ -162,7 +162,7 @@ export async function decideApproval(
   note?: string | null,
 ): Promise<boolean> {
   const user = assertAuthenticated(ctx);
-  const roles = (user.roles ?? []) as Role[];
+  const roles = user.roles ?? [];
   const { kind, recordId } = parseApprovalId(id);
 
   const source = sourceByKind(kind);

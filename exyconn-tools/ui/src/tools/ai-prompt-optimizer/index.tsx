@@ -34,7 +34,8 @@ const AIPromptOptimizer: React.FC = () => {
     setError(null);
 
     try {
-      const userPrompt = `Optimize this prompt:\n\n"${prompt}"${goal ? `\n\nOptimization goal: ${goal}` : ''}`;
+      const goalLine = goal ? `\n\nOptimization goal: ${goal}` : '';
+      const userPrompt = `Optimize this prompt:\n\n"${prompt}"${goalLine}`;
       const response = await generateWithOpenAI(apiKey, SYSTEM_PROMPT, userPrompt);
       setResult(response.content);
       setTokenUsage(response.usage);

@@ -89,7 +89,7 @@ describe('consumeEmailCode', () => {
 
   it('refuses a code another request spent at the same moment', async () => {
     const code = await issueEmailCode('client-hub', EMAIL);
-    jest.spyOn(EmailCodeModel, 'findOneAndUpdate').mockResolvedValueOnce(null as never);
+    jest.spyOn(EmailCodeModel, 'findOneAndUpdate').mockResolvedValueOnce(null);
     await expect(consumeEmailCode('client-hub', EMAIL, code)).rejects.toThrow(
       'That code has already been used. Ask for a new one.',
     );

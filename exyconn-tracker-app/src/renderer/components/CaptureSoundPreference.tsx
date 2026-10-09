@@ -59,7 +59,7 @@ export default function CaptureSoundPreference({
         checked={preferences.muteCaptureSound}
         disabled={mutedByWorkspace}
         onChange={(event) =>
-          run(() => window.tracker.setPreferences({ muteCaptureSound: event.target.checked }))
+          run(() => globalThis.tracker.setPreferences({ muteCaptureSound: event.target.checked }))
         }
         slotProps={{
           input: { 'aria-label': t('Mute the camera shutter on this computer') },

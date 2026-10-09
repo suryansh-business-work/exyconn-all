@@ -130,8 +130,8 @@ const OverviewPanel: React.FC<OverviewPanelProps> = ({ result, onExportJSON }) =
             Pages with no incoming links (hard to discover):
           </Typography>
           <Stack spacing={0.5} sx={{ mt: 1 }}>
-            {result.orphanPages.slice(0, 3).map((p, i) => (
-              <Typography key={i} variant="caption" noWrap>
+            {result.orphanPages.slice(0, 3).map((p) => (
+              <Typography key={p} variant="caption" noWrap>
                 {p}
               </Typography>
             ))}

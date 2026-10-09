@@ -33,11 +33,11 @@ function parseRanges(input: string, max: number): number[][] {
     .filter(Boolean)) {
     if (part.includes('-')) {
       const [a, b] = part.split('-').map(Number);
-      if (isNaN(a) || isNaN(b) || a < 1 || b > max || a > b) throw new Error(`Invalid range: ${part}`);
+      if (Number.isNaN(a) || Number.isNaN(b) || a < 1 || b > max || a > b) throw new Error(`Invalid range: ${part}`);
       groups.push(Array.from({ length: b - a + 1 }, (_, i) => a + i));
     } else {
       const n = Number(part);
-      if (isNaN(n) || n < 1 || n > max) throw new Error(`Invalid page: ${part}`);
+      if (Number.isNaN(n) || n < 1 || n > max) throw new Error(`Invalid page: ${part}`);
       groups.push([n]);
     }
   }
@@ -90,16 +90,15 @@ export default function SplitPdf() {
       const groups: number[][] =
         mode === 'all' ? Array.from({ length: pageCount }, (_, i) => [i + 1]) : parseRanges(customRange, pageCount);
       const out: { name: string; data: Uint8Array }[] = [];
-      for (let g = 0; g < groups.length; g++) {
+      for (const group of groups) {
         const newDoc = await PDFDocument.create();
         const src = await PDFDocument.load(srcBytes);
         const pages = await newDoc.copyPages(
           src,
-          groups[g].map((p) => p - 1)
+          group.map((p) => p - 1)
         );
         pages.forEach((p) => newDoc.addPage(p));
-        const label =
-          groups[g].length === 1 ? `page-${groups[g][0]}` : `pages-${groups[g][0]}-${groups[g][groups[g].length - 1]}`;
+        const label = group.length === 1 ? `page-${group[0]}` : `pages-${group[0]}-${group.at(-1)}`;
         out.push({ name: `${label}.pdf`, data: await newDoc.save() });
       }
       setResults(out);
@@ -154,7 +153,7 @@ export default function SplitPdf() {
                 or click to browse
               </Typography>
               <Button variant="outlined" component="label" sx={{ color: '#f97316', borderColor: '#f97316' }}>
-                Browse Files
+                {'Browse Files'}
                 <input hidden accept="application/pdf" type="file" onChange={onFileChange} />
               </Button>
             </Paper>
@@ -212,9 +211,9 @@ export default function SplitPdf() {
             {results.length > 0 && (
               <Paper sx={{ mt: 2, maxHeight: 300, overflow: 'auto' }}>
                 <List dense>
-                  {results.map((r, i) => (
+                  {results.map((r) => (
                     <ListItem
-                      key={i}
+                      key={r.name}
                       secondaryAction={
                         <IconButton size="small" onClick={() => downloadOne(r)}>
                           <Download fontSize="small" />

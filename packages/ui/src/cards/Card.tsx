@@ -1,6 +1,7 @@
 import { forwardRef } from 'react';
 import MuiCard, { type CardProps as MuiCardProps } from '@mui/material/Card';
 import { CARD_RADIUS } from '../tokens/border.token';
+import { toSxArray } from '../layout/sx';
 
 /**
  * Brand card — strict superset of MuiCardProps (all props forwarded), with the card corner
@@ -9,10 +10,6 @@ import { CARD_RADIUS } from '../tokens/border.token';
 export type CardProps = MuiCardProps;
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(({ sx, ...props }, ref) => (
-  <MuiCard
-    ref={ref}
-    sx={[{ borderRadius: `${CARD_RADIUS}px` }, ...(Array.isArray(sx) ? sx : sx ? [sx] : [])]}
-    {...props}
-  />
+  <MuiCard ref={ref} sx={[{ borderRadius: `${CARD_RADIUS}px` }, ...toSxArray(sx)]} {...props} />
 ));
 Card.displayName = 'Card';

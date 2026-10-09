@@ -109,8 +109,8 @@ const SeoResultDisplay: React.FC<SeoResultDisplayProps> = ({ result }) => (
               </TableRow>
             </TableHead>
             <TableBody>
-              {result.issues.map((issue, idx) => (
-                <TableRow key={idx}>
+              {result.issues.map((issue) => (
+                <TableRow key={`${issue.type}-${issue.message}`}>
                   <TableCell>
                     <SeverityIcon severity={issue.severity} />
                   </TableCell>
@@ -216,9 +216,9 @@ const SeoResultDisplay: React.FC<SeoResultDisplayProps> = ({ result }) => (
         {Object.entries(result.headings).map(([tag, items]) => (
           <Box key={tag} sx={{ mb: 1 }}>
             <Chip size="small" label={`${tag.toUpperCase()} (${items.length})`} sx={{ mb: 0.5 }} />
-            {items.map((text, i) => (
+            {items.map((text) => (
               <Typography
-                key={i}
+                key={text}
                 variant="caption"
                 sx={{
                   display: 'block',

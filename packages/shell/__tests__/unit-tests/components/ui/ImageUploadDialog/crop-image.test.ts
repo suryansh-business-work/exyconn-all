@@ -1,16 +1,17 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cropImageToDataUrl } from '@/components/ui/ImageUploadDialog/crop-image';
 
+/** Whether the next decode fails, and the image the code under test created last. */
+const decoder: { fail: boolean; last: FakeImage | null } = { fail: false, last: null };
+
 /** Stands in for the browser's image decoder: loads (or fails) as soon as a src is set. */
 class FakeImage extends EventTarget {
-  static fail = false;
-  static last: FakeImage | null = null;
   crossOrigin: string | null = null;
   private source = '';
 
   constructor() {
     super();
-    FakeImage.last = this;
+    decoder.last = this;
   }
 
   get src(): string {
@@ -19,14 +20,14 @@ class FakeImage extends EventTarget {
 
   set src(value: string) {
     this.source = value;
-    queueMicrotask(() => this.dispatchEvent(new Event(FakeImage.fail ? 'error' : 'load')));
+    queueMicrotask(() => this.dispatchEvent(new Event(decoder.fail ? 'error' : 'load')));
   }
 }
 
 const rect = { x: 10.4, y: 20, width: 99.6, height: 50.2 };
 
 beforeEach(() => {
-  FakeImage.fail = false;
+  decoder.fail = false;
   vi.stubGlobal('Image', FakeImage);
 });
 
@@ -48,9 +49,9 @@ describe('cropImageToDataUrl', () => {
     const result = await cropImageToDataUrl('https://images.pexels.com/1.jpg', rect, 'image/jpeg');
 
     expect(result).toBe('data:image/jpeg;base64,AAAA');
-    expect(FakeImage.last?.crossOrigin).toBe('anonymous');
+    expect(decoder.last?.crossOrigin).toBe('anonymous');
     expect(context.drawImage).toHaveBeenCalledWith(
-      FakeImage.last,
+      decoder.last,
       10.4,
       20,
       99.6,
@@ -85,7 +86,7 @@ describe('cropImageToDataUrl', () => {
   });
 
   it('rejects when the image cannot be loaded', async () => {
-    FakeImage.fail = true;
+    decoder.fail = true;
 
     await expect(cropImageToDataUrl('broken.jpg', rect, 'image/jpeg')).rejects.toThrow(
       'Could not load the image to crop',

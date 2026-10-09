@@ -136,19 +136,19 @@ describe('sweepHandoffs', () => {
   });
 });
 
-describe('startChatHandoff', () => {
-  function start() {
-    const unref = jest.fn();
-    const interval = jest
-      .spyOn(globalThis, 'setInterval')
-      .mockImplementation((() => ({ unref })) as unknown as typeof setInterval);
-    jest.spyOn(logger, 'info').mockImplementation(() => undefined);
-    startChatHandoff();
-    const [tick, ms] = interval.mock.calls[0];
-    interval.mockRestore();
-    return { tick: tick as () => void, ms, unref };
-  }
+function start() {
+  const unref = jest.fn();
+  const interval = jest
+    .spyOn(globalThis, 'setInterval')
+    .mockImplementation((() => ({ unref })) as unknown as typeof setInterval);
+  jest.spyOn(logger, 'info').mockImplementation(() => undefined);
+  startChatHandoff();
+  const [tick, ms] = interval.mock.calls[0];
+  interval.mockRestore();
+  return { tick: tick as () => void, ms, unref };
+}
 
+describe('startChatHandoff', () => {
   it("runs a pass every fifteen seconds in the operator's company", async () => {
     const { tick, ms, unref } = start();
     expect(ms).toBe(15_000);

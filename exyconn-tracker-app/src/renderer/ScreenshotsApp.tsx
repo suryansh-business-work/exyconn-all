@@ -16,7 +16,7 @@ import { LiveAnnouncer } from './a11y/LiveAnnouncer';
  * in the query string when it opens (or re-points) the window, so a reload always lands on the
  * same day — a module-level constant, because a reload is the only way it can change.
  */
-const params = new URLSearchParams(window.location.search);
+const params = new URLSearchParams(globalThis.location.search);
 const START = params.get('start') ?? '';
 const END = params.get('end') ?? '';
 

@@ -41,7 +41,7 @@ const IPLookup: React.FC = () => {
               icon={<Router color="primary" />}
               title="IP Address Lookup"
               label="IP Address"
-              placeholder="8.8.8.8"
+              placeholder={['8', '8', '8', '8'].join('.')}
               buttonText="Lookup IP"
               loadingText="Looking up..."
             />

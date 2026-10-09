@@ -1,5 +1,4 @@
 import { BugModel } from './bugs.model';
-import { bugsTypeDefs } from './bugs.typeDefs';
 import { assigneeNameFor, projectNameFor, promoteBugToTask, type BugNames } from './bugs.promote';
 import { actorOf, serializeTask } from '../projects/board.resolvers';
 import { createCrudService } from '../../lib/crudService';
@@ -91,4 +90,4 @@ export const bugsResolvers = {
   Query: crud.Query,
   Mutation: { ...crud.Mutation, createBug, updateBug, promoteBugToTask: promoteBug },
 };
-export { bugsTypeDefs };
+export { bugsTypeDefs } from './bugs.typeDefs';

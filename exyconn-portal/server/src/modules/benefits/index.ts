@@ -1,5 +1,4 @@
 import { BenefitModel } from './benefit.model';
-import { benefitsTypeDefs } from './benefits.typeDefs';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { createMyRecordsResolver } from '../../lib/employeeScope';
@@ -38,4 +37,4 @@ export const benefitsResolvers = {
   },
   Mutation: crud.Mutation,
 };
-export { benefitsTypeDefs };
+export { benefitsTypeDefs } from './benefits.typeDefs';

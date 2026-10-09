@@ -50,7 +50,7 @@ const page = ({
 };
 
 const pagehide = (persisted: boolean) =>
-  window.dispatchEvent(new PageTransitionEvent("pagehide", { persisted }));
+  globalThis.dispatchEvent(new PageTransitionEvent("pagehide", { persisted }));
 
 beforeEach(() => {
   vi.mocked(readDeviceProfile).mockReturnValue(desktop);
@@ -125,7 +125,7 @@ describe("bootInnerStage", () => {
     page();
     const stop = vi.fn();
     vi.mocked(startInnerScene).mockResolvedValue(stop);
-    const listening = vi.spyOn(window, "addEventListener");
+    const listening = vi.spyOn(globalThis, "addEventListener");
     bootInnerStage();
     await vi.waitFor(() =>
       expect(listening).toHaveBeenCalledWith("pagehide", expect.any(Function))

@@ -70,8 +70,8 @@ const CNAMEChecker: React.FC = () => {
                       >
                         CNAME Records
                       </Typography>
-                      {(result.records as string[]).map((r, i) => (
-                        <Chip key={i} label={r} sx={{ m: 0.5 }} variant="outlined" />
+                      {(result.records as string[]).map((r) => (
+                        <Chip key={r} label={r} sx={{ m: 0.5 }} variant="outlined" />
                       ))}
                     </Box>
                   )}

@@ -9,7 +9,7 @@ import { panel } from '@/components/glass/glass';
 type AttendanceRow = { id: string; date: string; status: string; note?: string | null };
 
 /** HR/ADMIN panel: an employee's recorded attendance entries (read-only). */
-export function EmployeeAttendancePanel({ employeeId }: { employeeId: string }) {
+export function EmployeeAttendancePanel({ employeeId }: Readonly<{ employeeId: string }>) {
   const { data, loading, refetch } = useAttendanceByEmployeeQuery({
     variables: { employeeId },
     fetchPolicy: 'cache-and-network',

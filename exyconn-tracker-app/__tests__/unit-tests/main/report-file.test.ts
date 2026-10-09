@@ -8,7 +8,7 @@ const { showSaveDialog, writeFile } = vi.hoisted(() => ({
 }));
 
 vi.mock('electron', () => ({
-  BrowserWindow: class {},
+  BrowserWindow: vi.fn(),
   dialog: { showSaveDialog },
   app: { getPath: (name: string) => `/home/asha/${name}` },
 }));
@@ -41,7 +41,7 @@ describe('saveReportFile', () => {
   });
 
   it('opens a free-standing dialog when there is no window to attach it to', async () => {
-    showSaveDialog.mockResolvedValue({ canceled: false, filePath: '/tmp/r.csv' });
+    showSaveDialog.mockResolvedValue({ canceled: false, filePath: '/home/asha/r.csv' });
 
     await saveReportFile(null, REPORT);
 

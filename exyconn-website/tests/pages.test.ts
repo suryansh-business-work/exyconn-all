@@ -5,8 +5,8 @@
  * without runtime or SSR errors. No deep logic testing - only render checks.
  */
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { exec } from "child_process";
-import { promisify } from "util";
+import { exec } from "node:child_process";
+import { promisify } from "node:util";
 
 const execAsync = promisify(exec);
 

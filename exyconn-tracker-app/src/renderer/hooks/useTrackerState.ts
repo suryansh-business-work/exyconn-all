@@ -11,12 +11,12 @@ export default function useTrackerState(): TrackerState | null {
 
   useEffect(() => {
     let active = true;
-    const unsubscribe = window.tracker.onStateChanged((next) => {
+    const unsubscribe = globalThis.tracker.onStateChanged((next) => {
       if (active) {
         setState(next);
       }
     });
-    window.tracker
+    globalThis.tracker
       .getState()
       .then((initial) => {
         if (active) {

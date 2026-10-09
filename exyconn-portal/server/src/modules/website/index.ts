@@ -8,7 +8,6 @@ import {
   ToolCategoryModel,
   ToolModel,
 } from './models';
-import { websiteTypeDefs } from './typeDefs';
 import { websitePublicResolvers } from './website.public.resolvers';
 import { websiteSubmissionResolvers } from './website.submissions.resolvers';
 import { convertWebsiteSubmissionToLead } from './website.lead';
@@ -232,5 +231,5 @@ export const websiteResolvers = {
   },
 };
 
-export { websiteTypeDefs };
+export { websiteTypeDefs } from './typeDefs';
 export * from './models';

@@ -42,7 +42,7 @@ vi.mock('electron', () => ({
   // The template itself stands in for the built menu, so the test can read every entry.
   Menu: { buildFromTemplate: (template: MenuItemConstructorOptions[]) => template },
   nativeImage: { createFromPath },
-  BrowserWindow: class {},
+  BrowserWindow: vi.fn(),
 }));
 
 import { TrackerTray } from '../../../src/main/tray';

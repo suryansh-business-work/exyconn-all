@@ -120,7 +120,7 @@ export default function RotateImage() {
                   JPG, PNG, WEBP, or GIF
                 </Typography>
                 <Button variant="outlined" component="label" sx={{ color: COLOR, borderColor: COLOR }}>
-                  Browse Files
+                  {'Browse Files'}
                   <input
                     hidden
                     accept="image/jpeg,image/png,image/webp,image/gif"
@@ -160,7 +160,7 @@ export default function RotateImage() {
                   />
                 </Box>
                 <Button size="small" component="label" sx={{ mt: 1 }}>
-                  Choose Another Image
+                  {'Choose Another Image'}
                   <input
                     hidden
                     accept="image/jpeg,image/png,image/webp,image/gif"

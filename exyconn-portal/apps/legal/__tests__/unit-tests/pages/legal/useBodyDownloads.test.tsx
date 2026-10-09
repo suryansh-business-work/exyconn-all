@@ -18,7 +18,7 @@ const ROW = { id: 'contract-1', title: 'Master services agreement' };
 async function fetchedBy(call: number) {
   const source = exporter.save.mock.calls[call][0];
   if (typeof source === 'string') {
-    throw new Error('Expected the body to be fetched, not handed over');
+    throw new TypeError('Expected the body to be fetched, not handed over');
   }
   return source();
 }

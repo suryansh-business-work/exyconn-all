@@ -9,7 +9,7 @@ afterEach(() => {
 describe('fileStem', () => {
   it('replaces every character a file system refuses', () => {
     expect(fileStem('NDA: Acme / 2026')).toBe('NDA- Acme - 2026');
-    expect(fileStem('a\\b*c?d"e<f>g|h')).toBe('a-b-c-d-e-f-g-h');
+    expect(fileStem(String.raw`a\b*c?d"e<f>g|h`)).toBe('a-b-c-d-e-f-g-h');
   });
 
   it('trims the title and falls back to "document" when nothing is left', () => {

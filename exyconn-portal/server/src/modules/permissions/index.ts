@@ -1,5 +1,4 @@
 import { RolePermissionModel } from './permission.model';
-import { permissionsTypeDefs } from './permissions.typeDefs';
 import {
   PERMISSION_MODULES,
   invalidatePermissionCache,
@@ -10,7 +9,7 @@ import { assertAuthenticated, assertRole } from '../../middleware/roleGuard';
 import { badRequest } from '../../utils/errors';
 import { withId, withIds } from '../../utils/serialize';
 import { recordAudit } from '../audit';
-import { ROLES, type Role } from '../../constants/roles';
+import { ROLES } from '../../constants/roles';
 import type { GraphQLContext } from '../../middleware/auth';
 
 type Args = { role: string; module: string; actions?: string[] };
@@ -36,7 +35,7 @@ export const permissionsResolvers = {
     /** The caller's own matrix — what the client hides buttons with. */
     myPermissions: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       const user = assertAuthenticated(ctx);
-      return permissionsFor((user.roles ?? []) as Role[]);
+      return permissionsFor(user.roles ?? []);
     },
     /**
      * The export guard. `usePagedFetcher` reads an export's pages through the module's
@@ -46,7 +45,7 @@ export const permissionsResolvers = {
     canExport: async (_p: unknown, { module }: { module: string }, ctx: GraphQLContext) => {
       const user = assertAuthenticated(ctx);
       assertKnownModule(module);
-      return isAllowed((user.roles ?? []) as Role[], module, 'EXPORT');
+      return isAllowed(user.roles ?? [], module, 'EXPORT');
     },
   },
   Mutation: {
@@ -88,4 +87,4 @@ export const permissionsResolvers = {
     },
   },
 };
-export { permissionsTypeDefs };
+export { permissionsTypeDefs } from './permissions.typeDefs';

@@ -96,11 +96,11 @@ export default function MyReportScreen({ timezone }: Readonly<Props>): ReactElem
           <Tab value="days" label={t('Days')} {...tabProps(tabs, 'days')} />
         </Tabs>
 
-        {error !== null ? (
+        {error === null ? null : (
           <Alert severity="error" variant="outlined" sx={{ borderRadius: `${TRACKER_RADIUS}px` }}>
             {error}
           </Alert>
-        ) : null}
+        )}
 
         <Stack spacing={2} {...panelProps(tabs, tab)}>
           {tab === 'overview' && <ReportOverview timezone={timezone} />}

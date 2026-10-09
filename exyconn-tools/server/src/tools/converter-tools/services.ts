@@ -1,5 +1,6 @@
 import { PublicError } from "../../shared/errors";
 import { safeRequest } from "../../shared/security/safe-http";
+import { toText } from "../../shared/text";
 import * as cheerio from "cheerio";
 import TurndownService from "turndown";
 import mammoth from "mammoth";
@@ -34,8 +35,7 @@ export function csvToMarkdown(
     let current = "";
     let inQuotes = false;
 
-    for (let i = 0; i < line.length; i++) {
-      const char = line[i];
+    for (const char of line) {
       if (char === '"') {
         inQuotes = !inQuotes;
       } else if (char === "," && !inQuotes) {
@@ -88,63 +88,84 @@ function convertJsonValue(value: unknown, indent: number = 0): string {
   const prefix = "  ".repeat(indent);
 
   if (value === null) return `${prefix}\`null\`\n`;
-  if (typeof value === "undefined") return `${prefix}\`undefined\`\n`;
+  if (value === undefined) return `${prefix}\`undefined\`\n`;
   if (typeof value === "boolean") return `${prefix}\`${value}\`\n`;
   if (typeof value === "number") return `${prefix}\`${value}\`\n`;
   if (typeof value === "string") return `${prefix}${value}\n`;
 
-  if (Array.isArray(value)) {
-    if (value.length === 0) return `${prefix}*(empty array)*\n`;
-
-    // Check if array of objects with same keys - render as table
-    if (
-      value.every(
-        (item) =>
-          typeof item === "object" && item !== null && !Array.isArray(item),
-      )
-    ) {
-      const keys = [
-        ...new Set(
-          value.flatMap((item) => Object.keys(item as Record<string, unknown>)),
-        ),
-      ];
-      if (keys.length > 0 && keys.length <= 10) {
-        let table = `${prefix}| ${keys.join(" | ")} |\n`;
-        table += `${prefix}| ${keys.map(() => "---").join(" | ")} |\n`;
-        for (const item of value) {
-          const row = keys.map((k) => {
-            const v = (item as Record<string, unknown>)[k];
-            return v === undefined ? "" : String(v);
-          });
-          table += `${prefix}| ${row.join(" | ")} |\n`;
-        }
-        return table;
-      }
-    }
-
-    let md = "";
-    value.forEach((item, i) => {
-      md += `${prefix}- **Item ${i + 1}**\n`;
-      md += convertJsonValue(item, indent + 1);
-    });
-    return md;
-  }
+  if (Array.isArray(value)) return convertJsonArray(value, prefix, indent);
 
   if (typeof value === "object") {
-    let md = "";
-    const obj = value as Record<string, unknown>;
-    for (const [key, val] of Object.entries(obj)) {
-      if (typeof val === "object" && val !== null) {
-        md += `${prefix}### ${key}\n\n`;
-        md += convertJsonValue(val, indent);
-      } else {
-        md += `${prefix}- **${key}**: ${val}\n`;
-      }
-    }
-    return md;
+    return convertJsonObject(value as Record<string, unknown>, prefix, indent);
   }
 
-  return `${prefix}${String(value)}\n`;
+  return `${prefix}${toText(value)}\n`;
+}
+
+function convertJsonArray(
+  value: unknown[],
+  prefix: string,
+  indent: number,
+): string {
+  if (value.length === 0) return `${prefix}*(empty array)*\n`;
+
+  // Check if array of objects with same keys - render as table
+  if (
+    value.every(
+      (item) =>
+        typeof item === "object" && item !== null && !Array.isArray(item),
+    )
+  ) {
+    const keys = [
+      ...new Set(
+        value.flatMap((item) => Object.keys(item as Record<string, unknown>)),
+      ),
+    ];
+    if (keys.length > 0 && keys.length <= 10) {
+      return convertJsonTable(value as Record<string, unknown>[], keys, prefix);
+    }
+  }
+
+  let md = "";
+  value.forEach((item, i) => {
+    md += `${prefix}- **Item ${i + 1}**\n`;
+    md += convertJsonValue(item, indent + 1);
+  });
+  return md;
+}
+
+function convertJsonTable(
+  items: Record<string, unknown>[],
+  keys: string[],
+  prefix: string,
+): string {
+  let table = `${prefix}| ${keys.join(" | ")} |\n`;
+  table += `${prefix}| ${keys.map(() => "---").join(" | ")} |\n`;
+  for (const item of items) {
+    const row = keys.map((k) => {
+      const v = item[k];
+      return v === undefined ? "" : toText(v);
+    });
+    table += `${prefix}| ${row.join(" | ")} |\n`;
+  }
+  return table;
+}
+
+function convertJsonObject(
+  obj: Record<string, unknown>,
+  prefix: string,
+  indent: number,
+): string {
+  let md = "";
+  for (const [key, val] of Object.entries(obj)) {
+    if (typeof val === "object" && val !== null) {
+      md += `${prefix}### ${key}\n\n`;
+      md += convertJsonValue(val, indent);
+    } else {
+      md += `${prefix}- **${key}**: ${toText(val)}\n`;
+    }
+  }
+  return md;
 }
 
 /**
@@ -231,7 +252,7 @@ export function rtfToMarkdown(rtfContent: string): string {
 
   // Clean up special characters
   text = text.replace(/\\'([0-9a-fA-F]{2})/g, (_, hex) =>
-    String.fromCharCode(parseInt(hex, 16)),
+    String.fromCodePoint(Number.parseInt(hex, 16)),
   );
 
   // Clean up whitespace
@@ -244,74 +265,65 @@ export function rtfToMarkdown(rtfContent: string): string {
   return text.trim();
 }
 
+interface XmlNode {
+  type: string;
+  data?: string;
+  name?: string;
+  attribs?: Record<string, string>;
+  children?: XmlNode[];
+}
+
+function processXmlNode(node: XmlNode, depth: number = 0): string {
+  if (node.type === "text") {
+    const text = node.data?.trim();
+    return text ? text + "\n" : "";
+  }
+
+  if (node.type !== "tag") {
+    return "";
+  }
+
+  const prefix = "  ".repeat(depth);
+  let md = depth === 0 ? `## ${node.name}\n\n` : `${prefix}- **${node.name}**`;
+
+  // Add attributes
+  const attrs = node.attribs ?? {};
+  if (Object.keys(attrs).length > 0) {
+    const attrStr = Object.entries(attrs)
+      .map(([k, v]) => `${k}="${v}"`)
+      .join(", ");
+    md += ` _(${attrStr})_`;
+  }
+
+  // Process children
+  const children = node.children ?? [];
+  const textChildren = children.filter(
+    (c) => c.type === "text" && c.data?.trim(),
+  );
+  const tagChildren = children.filter((c) => c.type === "tag");
+
+  if (textChildren.length > 0 && tagChildren.length === 0) {
+    const text = textChildren.map((c) => c.data?.trim()).join(" ");
+    return `${md}: ${text}\n`;
+  }
+
+  md += "\n";
+  for (const child of children) {
+    md += processXmlNode(child, depth + 1);
+  }
+  return md;
+}
+
 /**
  * Convert XML to Markdown
  */
 export function xmlToMarkdown(xmlContent: string): string {
   const $ = cheerio.load(xmlContent, { xmlMode: true });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function processNode(node: any, depth: number = 0): string {
-    if (node.type === "text") {
-      const text = node.data?.trim();
-      return text ? text + "\n" : "";
-    }
-
-    if (node.type === "tag") {
-      const el = node;
-      const tagName = el.name;
-      const prefix = "  ".repeat(depth);
-      let md = "";
-
-      // Add heading for tag
-      if (depth === 0) {
-        md += `## ${tagName}\n\n`;
-      } else {
-        md += `${prefix}- **${tagName}**`;
-      }
-
-      // Add attributes
-      const attrs = el.attribs;
-      if (Object.keys(attrs).length > 0) {
-        const attrStr = Object.entries(attrs)
-          .map(([k, v]) => `${k}="${v}"`)
-          .join(", ");
-        md += ` _(${attrStr})_`;
-      }
-
-      // Process children
-      const children = el.children || [];
-       
-      const textChildren = children.filter(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (c: any) => c.type === "text" && c.data?.trim(),
-      );
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const tagChildren = children.filter((c: any) => c.type === "tag");
-
-      if (textChildren.length > 0 && tagChildren.length === 0) {
-        const text = textChildren
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          .map((c: any) => c.data?.trim())
-          .join(" ");
-        md += `: ${text}\n`;
-      } else {
-        md += "\n";
-        for (const child of children) {
-          md += processNode(child, depth + 1);
-        }
-      }
-
-      return md;
-    }
-
-    return "";
-  }
-
   const root = $.root().children();
   let markdown = "";
   root.each((_, el) => {
-    markdown += processNode(el);
+    markdown += processXmlNode(el);
   });
 
   return markdown.trim() || "*Empty XML document*";
@@ -487,7 +499,7 @@ export async function googleDocsToMarkdown(
   docsUrl: string,
 ): Promise<{ markdown: string; title: string }> {
   // Convert to export URL
-  const docIdMatch = docsUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
+  const docIdMatch = /\/d\/([a-zA-Z0-9-_]+)/.exec(docsUrl);
   if (!docIdMatch) {
     throw new PublicError("Invalid Google Docs URL");
   }

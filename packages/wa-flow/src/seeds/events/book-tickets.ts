@@ -65,7 +65,7 @@ function tierList(event: LiveEvent): AuthorNode {
 /** One condition case per event but the last, which is the `else`. */
 function eventRoute(id: string, prefix: string, note: string): AuthorNode {
   const cased = EVENTS.slice(0, -1);
-  const last = EVENTS[EVENTS.length - 1].key;
+  const last = EVENTS.at(-1)?.key;
   return {
     id,
     type: 'condition',

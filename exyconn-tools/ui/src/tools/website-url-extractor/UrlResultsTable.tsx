@@ -124,8 +124,8 @@ const UrlResultsTable: React.FC<UrlResultsTableProps> = ({ urls, onCopyAll, onEx
             </TableRow>
           </TableHead>
           <TableBody>
-            {paginatedUrls.map((u, i) => (
-              <TableRow key={i} hover>
+            {paginatedUrls.map((u) => (
+              <TableRow key={u.url} hover>
                 <TableCell>
                   <Typography variant="body2" noWrap sx={{ maxWidth: 400 }}>
                     {u.url}
@@ -165,7 +165,7 @@ const UrlResultsTable: React.FC<UrlResultsTableProps> = ({ urls, onCopyAll, onEx
         onPageChange={(_, newPage) => setPage(newPage)}
         rowsPerPage={rowsPerPage}
         onRowsPerPageChange={(e) => {
-          setRowsPerPage(parseInt(e.target.value, 10));
+          setRowsPerPage(Number.parseInt(e.target.value, 10));
           setPage(0);
         }}
         rowsPerPageOptions={[10, 25, 50, 100]}

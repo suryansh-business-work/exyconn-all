@@ -74,8 +74,10 @@ export function leaveSummary(requests: LeaveRecord[], ref: Date) {
 /** Most recent slip by year then month. */
 export function latestSalarySlip<T extends SalarySlipRecord>(slips: T[]): T | null {
   if (slips.length === 0) return null;
-  return slips.reduce((latest, slip) =>
-    slip.year * 12 + slip.month > latest.year * 12 + latest.month ? slip : latest,
+  return slips.reduce(
+    (latest, slip) =>
+      slip.year * 12 + slip.month > latest.year * 12 + latest.month ? slip : latest,
+    slips[0],
   );
 }
 

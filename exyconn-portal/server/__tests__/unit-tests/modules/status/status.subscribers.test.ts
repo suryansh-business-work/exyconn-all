@@ -42,8 +42,8 @@ describe('statusSiteOrigin', () => {
 
 describe('subscribeToStatus', () => {
   it('answers true for a malformed address without storing or sending anything', async () => {
-    await expect(subscribeToStatus('not-an-email')).resolves.toBe(true);
-    await expect(subscribeToStatus(`${'a'.repeat(250)}@example.com`)).resolves.toBe(true);
+    await expect(subscribeToStatus('not-an-email')).resolves.toBeUndefined();
+    await expect(subscribeToStatus(`${'a'.repeat(250)}@example.com`)).resolves.toBeUndefined();
 
     expect(await StatusSubscriberModel.countDocuments()).toBe(0);
     expect(sendTemplate).not.toHaveBeenCalled();
@@ -59,11 +59,11 @@ describe('subscribeToStatus', () => {
   });
 
   it('stops one machine from mailing links to a list of strangers', async () => {
-    const warn = jest.spyOn(logger, 'warn').mockImplementation((() => undefined) as never);
+    const warn = jest.spyOn(logger, 'warn').mockImplementation(() => undefined);
     for (let index = 0; index < 11; index += 1) {
       await expect(
         subscribeToStatus(`person${index}@example.com`, undefined, '198.51.100.7'),
-      ).resolves.toBe(true);
+      ).resolves.toBeUndefined();
     }
 
     expect(sendTemplate).toHaveBeenCalledTimes(10);
@@ -72,10 +72,10 @@ describe('subscribeToStatus', () => {
   });
 
   it('keeps the subscription when the confirmation email fails', async () => {
-    const error = jest.spyOn(logger, 'error').mockImplementation((() => undefined) as never);
+    const error = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
     sendTemplate.mockRejectedValueOnce(new Error('SMTP down'));
 
-    await expect(subscribeToStatus('asha@example.com')).resolves.toBe(true);
+    await expect(subscribeToStatus('asha@example.com')).resolves.toBeUndefined();
 
     expect(await StatusSubscriberModel.countDocuments({ email: 'asha@example.com' })).toBe(1);
     expect(error).toHaveBeenCalledWith(
@@ -104,7 +104,7 @@ describe('confirmStatusSubscription', () => {
   });
 
   it('refuses a row whose token has already been spent', async () => {
-    jest.spyOn(StatusSubscriberModel, 'findOne').mockResolvedValueOnce({ tokenHash: '' } as never);
+    jest.spyOn(StatusSubscriberModel, 'findOne').mockResolvedValueOnce({ tokenHash: '' });
 
     await expect(confirmStatusSubscription('replayed')).rejects.toThrow(
       'This link is invalid or has already been used.',

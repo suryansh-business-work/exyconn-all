@@ -23,12 +23,14 @@ function urlEntry(page: string, lastmod: string): string {
     `    <xhtml:link rel="alternate" hreflang="x-default" href="${SITE_URL}${marketUrl(DEFAULT_MARKET, path)}" />`,
   ].join("\n");
 
+  const depthPriority = page.split("/").length <= 2 ? "0.8" : "0.6";
+  const priority = page === "" ? "1.0" : depthPriority;
   return MARKETS.map(
     (market) => `  <url>
     <loc>${SITE_URL}${marketUrl(market, path)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>${page === "" ? "daily" : "weekly"}</changefreq>
-    <priority>${page === "" ? "1.0" : page.split("/").length <= 2 ? "0.8" : "0.6"}</priority>
+    <priority>${priority}</priority>
 ${alternates}
   </url>`
   ).join("\n");

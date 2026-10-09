@@ -12,7 +12,7 @@ export default function useAppVersion(): string {
 
   useEffect(() => {
     let active = true;
-    window.tracker
+    globalThis.tracker
       .getAppVersion()
       .then((value) => {
         if (active) {

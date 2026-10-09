@@ -5,6 +5,7 @@ import { recordAudit } from '../../../../src/modules/audit';
 import { ROLES } from '../../../../src/constants/roles';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
 import { zone } from './dns.fixtures';
+import { asArg } from '../../../mockAs';
 
 jest.mock('../../../../src/modules/audit', () => ({
   ...jest.requireActual('../../../../src/modules/audit'),
@@ -60,7 +61,7 @@ describe('dns queries', () => {
 
   it('passes domains and overviews through', async () => {
     jest.spyOn(dnsService, 'listDomains').mockResolvedValue([]);
-    const overview = jest.spyOn(dnsService, 'overview').mockResolvedValue({ domain: 'x' } as never);
+    const overview = jest.spyOn(dnsService, 'overview').mockResolvedValue(asArg({ domain: 'x' }));
     await expect(Q.dnsDomains(null, {}, platform)).resolves.toEqual([]);
     await expect(Q.dnsOverview(null, { domain: 'exyconn.com' }, platform)).resolves.toEqual({
       domain: 'x',
@@ -73,8 +74,8 @@ describe('dns credential mutations', () => {
   const input = { label: 'Main', apiKey: `key-${randomUUID()}`, apiSecret: '', isActive: true };
 
   it('creates, updates and deletes a GoDaddy credential, auditing which fields moved', async () => {
-    jest.spyOn(dnsService, 'createGodaddyConfig').mockResolvedValue({ _id: 'g1' } as never);
-    jest.spyOn(dnsService, 'updateGodaddyConfig').mockResolvedValue({ _id: 'g1' } as never);
+    jest.spyOn(dnsService, 'createGodaddyConfig').mockResolvedValue(asArg({ _id: 'g1' }));
+    jest.spyOn(dnsService, 'updateGodaddyConfig').mockResolvedValue(asArg({ _id: 'g1' }));
     jest.spyOn(dnsService, 'deleteGodaddyConfig').mockResolvedValue(true);
 
     await expect(M.createGodaddyConfig(null, { input }, platform)).resolves.toMatchObject({
@@ -95,8 +96,8 @@ describe('dns credential mutations', () => {
 
   it('creates, updates and deletes a Cloudflare credential', async () => {
     const cf = { label: 'CF', apiToken: `tok-${randomUUID()}`, accountId: 'acc' };
-    jest.spyOn(dnsService, 'createCloudflareConfig').mockResolvedValue({ _id: 'c1' } as never);
-    jest.spyOn(dnsService, 'updateCloudflareConfig').mockResolvedValue({ _id: 'c1' } as never);
+    jest.spyOn(dnsService, 'createCloudflareConfig').mockResolvedValue(asArg({ _id: 'c1' }));
+    jest.spyOn(dnsService, 'updateCloudflareConfig').mockResolvedValue(asArg({ _id: 'c1' }));
     jest.spyOn(dnsService, 'deleteCloudflareConfig').mockResolvedValue(true);
 
     await M.createCloudflareConfig(null, { input: cf }, platform);

@@ -10,6 +10,8 @@
  */
 .india-offer {
   font-family: "Inter Tight", "Hind", "Noto Sans Devanagari", "Kohinoor Devanagari", sans-serif;
+  /* Room above the floating a11y / back-to-top buttons. */
+  padding-bottom: var(--space-4);
 }
 
 /*
@@ -43,11 +45,6 @@
 
 .india-offer :is(#plans, #enquiry-form) {
   scroll-margin-top: var(--inner-sticky-top);
-}
-
-/* Room above the floating a11y / back-to-top buttons. */
-.india-offer {
-  padding-bottom: var(--space-4);
 }
 
 /* ---------- Problem cards ---------- */

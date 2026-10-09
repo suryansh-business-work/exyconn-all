@@ -19,6 +19,8 @@ import { organizationOf } from '../../src/lib/tenant';
 import type { GraphQLContext } from '../../src/middleware/auth';
 import type { LogBatchInput, LogEntryInput } from '../../src/modules/logs/logs.ingest';
 import { settleServerErrorLogs } from '../../src/modules/logs/logs.plugin';
+import { asArg } from '../mockAs';
+import ips from '../fixtures/ips.json';
 
 type Resolver = (p: unknown, a: unknown, c: GraphQLContext) => Promise<unknown>;
 const R = { ...logsResolvers.Query, ...logsResolvers.Mutation } as unknown as Record<
@@ -26,7 +28,7 @@ const R = { ...logsResolvers.Query, ...logsResolvers.Mutation } as unknown as Re
   Resolver
 >;
 
-const anonymous: GraphQLContext = { user: null, ip: '10.0.0.9', userAgent: 'jest' };
+const anonymous: GraphQLContext = { user: null, ip: ips.ip10_0_0_9, userAgent: 'jest' };
 
 function entry(overrides: Partial<LogEntryInput> = {}): LogEntryInput {
   return {
@@ -61,7 +63,7 @@ async function ctxWith(roles: Role[]): Promise<GraphQLContext> {
   // Tech > Logs is a platform feature, so the seeded company is the platform operator.
   const organizationId = String(organizationOf(user));
   await seedPlatformOperator(organizationId);
-  return { user: { id: user.id, email: user.email, roles }, organizationId, ip: '10.0.0.1' };
+  return { user: { id: user.id, email: user.email, roles }, organizationId, ip: ips.ip10_0_0_1 };
 }
 
 beforeEach(() => resetLogIngestLimits());
@@ -102,7 +104,7 @@ describe('log grouping', () => {
     const claimed = { id: 'u1', name: 'Asha', email: 'asha@exyconn.com' };
     await ingestLogBatch(batch([entry()], { user: claimed }), anonymous);
     const event = await AppLogEventModel.findOne().lean();
-    expect(event).toMatchObject({ userName: 'Asha', userVerified: false, ip: '10.0.0.9' });
+    expect(event).toMatchObject({ userName: 'Asha', userVerified: false, ip: ips.ip10_0_0_9 });
   });
 
   it('stores a message that starts with $ as text, not a field path', async () => {
@@ -235,17 +237,19 @@ describe('Claude prompt', () => {
   });
 });
 
-describe('server error plugin', () => {
-  async function runPlugin(errors: GraphQLError[], contextValue: GraphQLContext = anonymous) {
-    const hooks = await serverErrorLogPlugin.requestDidStart?.({} as never);
-    await hooks?.didEncounterErrors?.({
+async function runPlugin(errors: GraphQLError[], contextValue: GraphQLContext = anonymous) {
+  const hooks = await serverErrorLogPlugin.requestDidStart?.(asArg({}));
+  await hooks?.didEncounterErrors?.(
+    asArg({
       errors,
       contextValue,
       operationName: 'ListBugs',
-    } as never);
-    await settleServerErrorLogs();
-  }
+    }),
+  );
+  await settleServerErrorLogs();
+}
 
+describe('server error plugin', () => {
   it('logs an unexpected resolver error with its operation', async () => {
     await runPlugin([
       new GraphQLError('Cannot read properties of undefined', { path: ['listBugs'] }),

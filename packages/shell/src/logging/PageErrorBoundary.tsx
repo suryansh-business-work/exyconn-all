@@ -25,16 +25,17 @@ function PageCrashed({ error, onRetry }: Readonly<FallbackProps>) {
   );
 }
 
+const renderFallback = (error: Error, reset: () => void) => (
+  <PageCrashed error={error} onRetry={reset} />
+);
+
 /**
  * Catches a render error, sends it to Tech > Logs with its component stack, and shows a
  * retry instead of a blank page. Key it by the path to clear it on navigation.
  */
 export function PageErrorBoundary({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <LogErrorBoundary
-      logger={portalLogger}
-      fallback={(error, reset) => <PageCrashed error={error} onRetry={reset} />}
-    >
+    <LogErrorBoundary logger={portalLogger} fallback={renderFallback}>
       {children}
     </LogErrorBoundary>
   );

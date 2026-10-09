@@ -28,9 +28,10 @@ interface SpawnBehavior {
 
 function mockSpawn(behavior: SpawnBehavior) {
   spawnMock.mockImplementation(((_command: string, args: string[]) => {
-    const child = new EventEmitter() as FakeChild;
-    child.stderr = new EventEmitter();
-    child.kill = () => undefined;
+    const child: FakeChild = Object.assign(new EventEmitter(), {
+      stderr: new EventEmitter(),
+      kill: () => undefined,
+    });
     process.nextTick(() => {
       if (behavior.errorCode) {
         const error: NodeJS.ErrnoException = new Error("spawn error");
@@ -56,7 +57,7 @@ describe("POST /api/tools/pdf-tools/protect", () => {
     mockSpawn({
       exitCode: 0,
       onSpawn: (args) => {
-        fs.writeFileSync(args[args.length - 1], "%PDF-1.7 encrypted");
+        fs.writeFileSync(args.at(-1)!, "%PDF-1.7 encrypted");
       },
     });
 
@@ -97,7 +98,7 @@ describe("POST /api/tools/pdf-tools/protect", () => {
     mockSpawn({
       exitCode: 0,
       onSpawn: (args) => {
-        fs.writeFileSync(args[args.length - 1], "%PDF-1.7 encrypted");
+        fs.writeFileSync(args.at(-1)!, "%PDF-1.7 encrypted");
       },
     });
 
@@ -152,7 +153,7 @@ describe("POST /api/tools/pdf-tools/unlock", () => {
     mockSpawn({
       exitCode: 0,
       onSpawn: (args) => {
-        fs.writeFileSync(args[args.length - 1], "%PDF-1.7 decrypted");
+        fs.writeFileSync(args.at(-1)!, "%PDF-1.7 decrypted");
       },
     });
 

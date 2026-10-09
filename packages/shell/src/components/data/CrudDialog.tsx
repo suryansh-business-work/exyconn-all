@@ -11,7 +11,7 @@ interface CrudDialogProps {
 }
 
 /** Right-anchored MUI drawer that hosts a module's create/edit form. */
-export function CrudDialog({ open, title, onClose, children }: CrudDialogProps) {
+export function CrudDialog({ open, title, onClose, children }: Readonly<CrudDialogProps>) {
   const t = useT();
   return (
     <Drawer

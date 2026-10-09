@@ -35,7 +35,7 @@ module.exports = {
   // pnpm keeps every package under node_modules/.pnpm/<name>@<version>/, so the exemption is
   // written against that layout: everything is ignored except those six packages.
   transformIgnorePatterns: [
-    '/node_modules/\\.pnpm/(?!(htmlparser2|domhandler|domutils|domelementtype|entities|dom-serializer)@)',
-    '/node_modules/(?!\\.pnpm/)(?!(htmlparser2|domhandler|domutils|domelementtype|entities|dom-serializer)/)',
+    String.raw`/node_modules/\.pnpm/(?!(htmlparser2|domhandler|domutils|domelementtype|entities|dom-serializer)@)`,
+    String.raw`/node_modules/(?!\.pnpm/)(?!(htmlparser2|domhandler|domutils|domelementtype|entities|dom-serializer)/)`,
   ],
 };

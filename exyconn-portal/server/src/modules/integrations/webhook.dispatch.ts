@@ -90,7 +90,7 @@ async function claimDue(now: Date): Promise<WebhookDeliveryDoc | null> {
 /** Posts one delivery, signed, and records what the receiver said. */
 async function attempt(delivery: WebhookDeliveryDoc): Promise<void> {
   const hook = await WebhookModel.findById(delivery.webhookId);
-  if (!hook || !hook.active) {
+  if (!hook?.active) {
     // The endpoint is gone or switched off; there is nothing to retry into.
     await WebhookDeliveryModel.updateOne(
       { _id: delivery._id },

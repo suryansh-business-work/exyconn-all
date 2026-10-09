@@ -39,7 +39,7 @@ describe('compileHtml: attribute entities', () => {
 describe('componentPlaceholder', () => {
   it('writes the tag with escaped JSON props and the children inside', () => {
     expect(componentPlaceholder('a.b', { t: '<"&">' }, '<p>c</p>')).toBe(
-      '<exy-component data-key="a.b" data-props="{&quot;t&quot;:&quot;&lt;\\&quot;&amp;\\&quot;&gt;&quot;}"><p>c</p></exy-component>',
+      String.raw`<exy-component data-key="a.b" data-props="{&quot;t&quot;:&quot;&lt;\&quot;&amp;\&quot;&gt;&quot;}"><p>c</p></exy-component>`,
     );
   });
 

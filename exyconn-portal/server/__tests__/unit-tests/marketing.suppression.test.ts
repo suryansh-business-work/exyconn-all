@@ -130,6 +130,18 @@ describe('Consent and suppression', () => {
   });
 });
 
+async function sentCampaignToken(): Promise<string> {
+  const campaign = await seedCampaign();
+  const contact = await seedContact('Ada', 'ada@example.com');
+  const audience = await AudienceListModel.create({
+    name: 'Newsletter',
+    contactIds: [String(contact._id)],
+  });
+  await send(String(campaign._id), String(audience._id));
+  const [payload] = sendCustomEmail.mock.calls[0] as [{ message: string }];
+  return /unsubscribe\?t=(\w+)/.exec(payload.message)?.[1] ?? '';
+}
+
 describe('Unsubscribing from a link', () => {
   const unsubscribe = (token: string) =>
     marketingCustomResolvers.Mutation.unsubscribeFromMarketing(
@@ -145,18 +157,6 @@ describe('Unsubscribing from a link', () => {
     await unsubscribeLimiter.reset();
     sendCustomEmail.mockResolvedValue(undefined);
   });
-
-  async function sentCampaignToken(): Promise<string> {
-    const campaign = await seedCampaign();
-    const contact = await seedContact('Ada', 'ada@example.com');
-    const audience = await AudienceListModel.create({
-      name: 'Newsletter',
-      contactIds: [String(contact._id)],
-    });
-    await send(String(campaign._id), String(audience._id));
-    const [payload] = sendCustomEmail.mock.calls[0] as [{ message: string }];
-    return /unsubscribe\?t=(\w+)/.exec(payload.message)?.[1] ?? '';
-  }
 
   it('suppresses the address and marks the CRM contact unsubscribed', async () => {
     const token = await sentCampaignToken();

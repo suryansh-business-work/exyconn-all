@@ -8,6 +8,7 @@ import { ROLES } from '../../src/constants/roles';
 import { runAsPlatform } from '../../src/lib/tenant';
 import type { GraphQLContext } from '../../src/middleware/auth';
 import { seedUser } from '../helpers';
+import ips from '../fixtures/ips.json';
 
 jest.mock('../../src/modules/email', () => ({
   emailer: { send: jest.fn().mockResolvedValue(undefined) },
@@ -17,7 +18,11 @@ const send = emailer.send as jest.Mock;
 const EMAIL = 'reset@exyconn.com';
 const OLD_PASSWORD = process.env.TEST_SECURITY_PASSWORD ?? 'Correct@Horse1';
 const NEW_PASSWORD = process.env.TEST_RESET_PASSWORD ?? 'Fresh@45678';
-const ctx = (ip = '10.0.0.9'): GraphQLContext => ({ user: null, ip, origin: env.corsOrigins[0] });
+const ctx = (ip = ips.ip10_0_0_9): GraphQLContext => ({
+  user: null,
+  ip,
+  origin: env.corsOrigins[0],
+});
 
 /** The token carried by the Nth link emailed so far. */
 function tokenFromEmail(index: number): string {
@@ -65,12 +70,12 @@ describe('password reset hardening', () => {
     for (let index = 0; index < 11; index += 1) {
       await requestPasswordReset(
         index === 10 ? EMAIL : `other${index}@exyconn.com`,
-        ctx('10.9.9.9'),
+        ctx(ips.ip10_9_9_9),
       );
     }
 
     expect(send).not.toHaveBeenCalled();
-    await requestPasswordReset(EMAIL, ctx('10.9.9.10'));
+    await requestPasswordReset(EMAIL, ctx(ips.ip10_9_9_10));
     expect(send).toHaveBeenCalledTimes(1);
   });
 

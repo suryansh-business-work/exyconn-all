@@ -21,14 +21,15 @@ function fakeGain() {
   };
 }
 
+const fakeAudio = { resumeFails: false };
+
 class FakeAudioContext {
-  static resumeFails = false;
   readonly currentTime = 2;
   readonly destination = { name: "speakers" };
   readonly oscillators: ReturnType<typeof fakeOscillator>[] = [];
   readonly gains: ReturnType<typeof fakeGain>[] = [];
   readonly resume = vi.fn(() =>
-    FakeAudioContext.resumeFails ? Promise.reject(new Error("blocked")) : Promise.resolve()
+    fakeAudio.resumeFails ? Promise.reject(new Error("blocked")) : Promise.resolve()
   );
 
   constructor() {
@@ -54,7 +55,7 @@ const loadSound = () => import("../../../../../src/components/chat-embed/lib/sou
 beforeEach(() => {
   vi.resetModules();
   contexts.length = 0;
-  FakeAudioContext.resumeFails = false;
+  fakeAudio.resumeFails = false;
 });
 
 afterEach(() => {
@@ -107,7 +108,7 @@ describe("chime", () => {
   it("warns instead of throwing when the browser will not play", async () => {
     const warn = vi.spyOn(console, "warn").mockImplementation(() => undefined);
     vi.stubGlobal("AudioContext", FakeAudioContext);
-    FakeAudioContext.resumeFails = true;
+    fakeAudio.resumeFails = true;
     const { primeAudio, chime } = await loadSound();
     primeAudio();
     chime();

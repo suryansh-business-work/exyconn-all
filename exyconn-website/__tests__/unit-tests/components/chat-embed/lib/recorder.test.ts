@@ -11,11 +11,14 @@ import {
 type Listener = (event: { data?: Blob }) => void;
 
 /** A MediaRecorder that hands over one chunk of audio when it stops. */
+const fakeRecorder: { mimeType: string; last: FakeRecorder | undefined } = {
+  mimeType: "audio/webm;codecs=opus",
+  last: undefined,
+};
+
 class FakeRecorder {
-  static mimeType = "audio/webm;codecs=opus";
-  static last: FakeRecorder | undefined;
   state: "inactive" | "recording" = "inactive";
-  readonly mimeType = FakeRecorder.mimeType;
+  readonly mimeType = fakeRecorder.mimeType;
   readonly stop = vi.fn(() => {
     this.state = "inactive";
     this.emit("dataavailable", { data: new Blob(["abc"], { type: this.mimeType }) });
@@ -24,7 +27,7 @@ class FakeRecorder {
   private readonly listeners = new Map<string, Listener>();
 
   constructor() {
-    FakeRecorder.last = this;
+    fakeRecorder.last = this;
   }
 
   addEventListener(type: string, listener: Listener): void {
@@ -52,7 +55,7 @@ function allowMicrophone(): void {
 }
 
 beforeEach(() => {
-  FakeRecorder.mimeType = "audio/webm;codecs=opus";
+  fakeRecorder.mimeType = "audio/webm;codecs=opus";
   getUserMedia.mockReset().mockResolvedValue({ getTracks: () => tracks });
   tracks.forEach((track) => track.stop.mockReset());
 });
@@ -82,7 +85,7 @@ describe("startRecording", () => {
     vi.spyOn(Date, "now").mockReturnValue(1_700_000_000_000);
     const recording = await startRecording();
     expect(getUserMedia).toHaveBeenCalledWith({ audio: true });
-    expect(FakeRecorder.last?.state).toBe("recording");
+    expect(fakeRecorder.last?.state).toBe("recording");
 
     await expect(recording.stop()).resolves.toEqual({
       name: "voice-note-1700000000000.webm",
@@ -97,7 +100,7 @@ describe("startRecording", () => {
     ["audio/x-unknown", "webm"],
   ])("names a %s note with the .%s extension", async (mimeType, extension) => {
     allowMicrophone();
-    FakeRecorder.mimeType = mimeType;
+    fakeRecorder.mimeType = mimeType;
     const note = await (await startRecording()).stop();
     expect(note.name.endsWith(`.${extension}`)).toBe(true);
     expect(note.data.startsWith(`data:${mimeType};base64,`)).toBe(true);
@@ -108,7 +111,7 @@ describe("startRecording", () => {
     const recording = await startRecording();
     recording.cancel();
     recording.cancel();
-    expect(FakeRecorder.last?.stop).toHaveBeenCalledTimes(1);
+    expect(fakeRecorder.last?.stop).toHaveBeenCalledTimes(1);
     expect(tracks[0].stop).toHaveBeenCalledTimes(2);
   });
 

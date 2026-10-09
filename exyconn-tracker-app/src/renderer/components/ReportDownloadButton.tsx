@@ -39,7 +39,7 @@ export default function ReportDownloadButton({
 
   const save = (): void => {
     setSaving(true);
-    window.tracker
+    globalThis.tracker
       .saveReport(buildReportCsv(days, monthKey))
       .then((result) => {
         if (result.path !== null) {

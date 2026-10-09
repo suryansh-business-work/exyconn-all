@@ -14,6 +14,7 @@ import { DataTableRowActions, type RowAction } from './DataTableRowActions';
 import { TableRefreshButton } from './TableRefreshButton';
 import { TableSkeletonRows } from './TableSkeletonRows';
 import { EmptyState } from '../feedback/EmptyState';
+import { cellText } from '../../utils/cellText';
 
 export type { RowAction } from './DataTableRowActions';
 
@@ -130,7 +131,7 @@ export function DataTable<T extends { id: string }>({
                     <TableCell key={col.key}>
                       {col.render
                         ? col.render(row)
-                        : String((row as Record<string, unknown>)[col.key] ?? '')}
+                        : cellText((row as Record<string, unknown>)[col.key])}
                     </TableCell>
                   ))}
                   {hasActions && (

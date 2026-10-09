@@ -5,6 +5,9 @@ import { deferred } from './deferred';
 
 const FALLBACK = 'Could not start tracking.';
 
+/** An error that carries no text, so the screen has to fall back to its own words. */
+const NO_MESSAGE = '';
+
 describe('usePendingAction', () => {
   it('marks the running action, then resolves true when it succeeds', async () => {
     const work = deferred<undefined>();
@@ -40,7 +43,7 @@ describe('usePendingAction', () => {
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const { result } = renderHook(() => usePendingAction());
     await act(async () => {
-      await result.current.perform('start', () => Promise.reject(new Error('')), FALLBACK);
+      await result.current.perform('start', () => Promise.reject(new Error(NO_MESSAGE)), FALLBACK);
     });
     expect(result.current.error).toBe(FALLBACK);
   });

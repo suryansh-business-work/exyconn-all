@@ -15,7 +15,9 @@ export const CRUMBS = [
   { label: "Section", href: "/section" },
 ];
 
+const DEFAULT_PROPS: Record<string, unknown> = { crumbs: CRUMBS };
+
 export const loaderInput = (
   params: Record<string, string>,
-  props: Record<string, unknown> = { crumbs: CRUMBS }
+  props: Record<string, unknown> = DEFAULT_PROPS
 ): PageLoadInput => ({ props, params, site: "exyconn", market: EN_IN, siteUrl: SITE_URL });

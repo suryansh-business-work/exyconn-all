@@ -68,8 +68,12 @@ describe('Reading the support mailbox', () => {
     const result = await inboundMailbox.importAll(config, async () => undefined);
 
     expect(result).toEqual({ imported: 2, failed: 0 });
-    expect(mockClient.messageFlagsAdd).toHaveBeenCalledWith('11', ['\\Seen'], { uid: true });
-    expect(mockClient.messageFlagsAdd).toHaveBeenCalledWith('12', ['\\Seen'], { uid: true });
+    expect(mockClient.messageFlagsAdd).toHaveBeenCalledWith('11', [String.raw`\Seen`], {
+      uid: true,
+    });
+    expect(mockClient.messageFlagsAdd).toHaveBeenCalledWith('12', [String.raw`\Seen`], {
+      uid: true,
+    });
     expect(mockClient.messageDelete).not.toHaveBeenCalled();
     expect(release).toHaveBeenCalled();
     expect(mockClient.logout).toHaveBeenCalled();
@@ -85,7 +89,9 @@ describe('Reading the support mailbox', () => {
 
     expect(result).toEqual({ imported: 1, failed: 1 });
     expect(mockClient.messageFlagsAdd).toHaveBeenCalledTimes(1);
-    expect(mockClient.messageFlagsAdd).toHaveBeenCalledWith('12', ['\\Seen'], { uid: true });
+    expect(mockClient.messageFlagsAdd).toHaveBeenCalledWith('12', [String.raw`\Seen`], {
+      uid: true,
+    });
   });
 
   it('deletes an imported message only when the config asks for it', async () => {

@@ -119,6 +119,6 @@ export function createCrudResolvers<TInput extends object>(
         });
         return removed;
       },
-    } as ResolverMap,
+    },
   };
 }

@@ -12,12 +12,13 @@ import { bundleOf, waitingNodes } from './harness';
 
 /** The walk replays every branch, several thousand engine turns for the larger industries. */
 const WALK_TIMEOUT_MS = 30_000;
+const DEFAULT_WALK: WalkOptions = { seeds: ['a'], followMenu: false };
 const byName = (a: string, b: string) => a.localeCompare(b);
 
 export function checkSeedDeep(
   seed: SeedDemo,
   keys: readonly string[],
-  options: WalkOptions = { seeds: ['a'], followMenu: false },
+  options: WalkOptions = DEFAULT_WALK,
 ): void {
   it('lists its workflows in menu order', () => {
     expect(seed.workflows.map((w) => w.key)).toEqual(keys);

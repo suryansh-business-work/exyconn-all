@@ -4,7 +4,7 @@ import { fakePeer, framesOf } from './chat.fixtures';
 const frame = { t: 'hello', n: 1 };
 
 afterEach(() => {
-  for (const peer of [...chatHub.all()]) {
+  for (const peer of chatHub.all()) {
     chatHub.leave(peer);
   }
 });

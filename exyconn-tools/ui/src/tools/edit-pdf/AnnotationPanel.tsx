@@ -14,6 +14,7 @@ import Download from '@mui/icons-material/Download';
 import Add from '@mui/icons-material/Add';
 import Delete from '@mui/icons-material/Delete';
 import { TextAnnotation } from './types';
+import { withUniqueKeys } from '../../shared/utils/uniqueKeys';
 
 interface AnnotationPanelProps {
   text: string;
@@ -118,11 +119,11 @@ const AnnotationPanel: React.FC<AnnotationPanelProps> = ({
           Annotations ({annotations.length})
         </Typography>
         <List dense disablePadding sx={{ maxHeight: 200, overflow: 'auto' }}>
-          {annotations.map((a, i) => (
+          {withUniqueKeys(annotations, (a) => `${a.page}|${a.x}|${a.y}|${a.text}`).map(({ key, item: a }) => (
             <ListItem
-              key={i}
+              key={key}
               secondaryAction={
-                <IconButton edge="end" size="small" onClick={() => onRemoveAnnotation(i)}>
+                <IconButton edge="end" size="small" onClick={() => onRemoveAnnotation(annotations.indexOf(a))}>
                   <Delete fontSize="small" />
                 </IconButton>
               }

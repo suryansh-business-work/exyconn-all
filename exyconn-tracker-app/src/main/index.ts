@@ -186,9 +186,13 @@ function createWindow(placement: Placement | null = null): BrowserWindow {
   });
 
   if (process.env.ELECTRON_RENDERER_URL) {
-    void win.loadURL(process.env.ELECTRON_RENDERER_URL);
+    win
+      .loadURL(process.env.ELECTRON_RENDERER_URL)
+      .catch((error: unknown) => console.error('Window load failed', error));
   } else {
-    void win.loadFile(join(__dirname, '../renderer/index.html'));
+    win
+      .loadFile(join(__dirname, '../renderer/index.html'))
+      .catch((error: unknown) => console.error('Window load failed', error));
   }
   return win;
 }
@@ -341,52 +345,57 @@ installMainCrashHandlers();
 installNavigationGuards();
 
 // A single instance only — a second launch focuses the existing window.
-if (!app.requestSingleInstanceLock()) {
-  app.quit();
-} else {
+if (app.requestSingleInstanceLock()) {
   app.on('second-instance', () => {
     window?.show();
     window?.focus();
   });
 
-  void app.whenReady().then(async () => {
-    // Windows silently drops every toast from an app it cannot identify, which is one of the
-    // ways "the tracker never notifies me" happens. Must match electron-builder's appId — the
-    // installer stamps that same id on the Start Menu shortcut, and the two have to agree.
-    app.setAppUserModelId(APP_USER_MODEL_ID);
-    lockDownPermissions();
-    registerCaptureBridge();
-    registerWindowControls();
-    controller = new TrackerController(broadcast, announceCapture, (input) =>
-      composeWithWebcam(window, input),
-    );
-    window = createWindow();
-    tray = new TrackerTray(() => window, {
-      // Start can now be refused — attendance has to be marked for the day first — so the
-      // tray's own Start must not drop that rejection on the floor.
-      start: () => {
-        controller?.start().catch((error: unknown) => console.error('Tray start refused', error));
-      },
-      pause: () => controller?.pause(),
-      resume: () => controller?.resume(),
-      stop: () => void controller?.stop(),
-      quit: () => {
-        // Same hold as the window's close button: the tray must not be a way around it.
-        if (window !== null && holdForUpload(window, uploadHooks())) {
-          return;
-        }
-        isQuitting = true;
-        app.quit();
-      },
-    });
-    registerIpc(controller);
-    // Only a packaged app has an installer to replace; in dev there is nothing to update.
-    if (app.isPackaged) {
-      updater.start(PORTAL_GRAPHQL_URL, secureStore().preferences.updateAutomatically);
-    }
-    await controller.restore();
-    broadcast(controller.getState());
-  });
+  app
+    .whenReady()
+    .then(async () => {
+      // Windows silently drops every toast from an app it cannot identify, which is one of the
+      // ways "the tracker never notifies me" happens. Must match electron-builder's appId — the
+      // installer stamps that same id on the Start Menu shortcut, and the two have to agree.
+      app.setAppUserModelId(APP_USER_MODEL_ID);
+      lockDownPermissions();
+      registerCaptureBridge();
+      registerWindowControls();
+      controller = new TrackerController(broadcast, announceCapture, (input) =>
+        composeWithWebcam(window, input),
+      );
+      window = createWindow();
+      tray = new TrackerTray(() => window, {
+        // Start can now be refused — attendance has to be marked for the day first — so the
+        // tray's own Start must not drop that rejection on the floor.
+        start: () => {
+          controller?.start().catch((error: unknown) => console.error('Tray start refused', error));
+        },
+        pause: () => controller?.pause(),
+        resume: () => controller?.resume(),
+        stop: () => {
+          controller?.stop().catch((error: unknown) => console.error('Tray stop failed', error));
+        },
+        quit: () => {
+          // Same hold as the window's close button: the tray must not be a way around it.
+          if (window !== null && holdForUpload(window, uploadHooks())) {
+            return;
+          }
+          isQuitting = true;
+          app.quit();
+        },
+      });
+      registerIpc(controller);
+      // Only a packaged app has an installer to replace; in dev there is nothing to update.
+      if (app.isPackaged) {
+        updater.start(PORTAL_GRAPHQL_URL, secureStore().preferences.updateAutomatically);
+      }
+      await controller.restore();
+      broadcast(controller.getState());
+    })
+    .catch((error: unknown) => console.error('Startup failed', error));
+} else {
+  app.quit();
 }
 
 app.on('before-quit', () => {

@@ -42,36 +42,36 @@ describe('When a scheduled campaign is due', () => {
   });
 });
 
+async function seedDueCampaign(scheduledAt: Date) {
+  const client = await ClientModel.create({
+    name: 'Ada',
+    email: 'ada@example.com',
+    phone: '000',
+    company: 'Acme',
+    status: 'ACTIVE',
+  });
+  const audience = await AudienceListModel.create({
+    name: `Newsletter ${String(scheduledAt.getTime())}`,
+    clientIds: [String(client._id)],
+  });
+  return CampaignModel.create({
+    name: 'Spring newsletter',
+    channel: 'EMAIL',
+    budget: 100,
+    startDate: new Date('2027-03-01'),
+    endDate: new Date('2027-05-01'),
+    status: 'ACTIVE',
+    subject: 'Spring news',
+    body: 'Hello {{name}}',
+    scheduledAt,
+    scheduledAudienceListId: String(audience._id),
+  });
+}
+
 describe('Dispatching scheduled campaigns', () => {
   beforeEach(() => {
     sendCustomEmail.mockResolvedValue(undefined);
   });
-
-  async function seedDueCampaign(scheduledAt: Date) {
-    const client = await ClientModel.create({
-      name: 'Ada',
-      email: 'ada@example.com',
-      phone: '000',
-      company: 'Acme',
-      status: 'ACTIVE',
-    });
-    const audience = await AudienceListModel.create({
-      name: `Newsletter ${String(scheduledAt.getTime())}`,
-      clientIds: [String(client._id)],
-    });
-    return CampaignModel.create({
-      name: 'Spring newsletter',
-      channel: 'EMAIL',
-      budget: 100,
-      startDate: new Date('2027-03-01'),
-      endDate: new Date('2027-05-01'),
-      status: 'ACTIVE',
-      subject: 'Spring news',
-      body: 'Hello {{name}}',
-      scheduledAt,
-      scheduledAudienceListId: String(audience._id),
-    });
-  }
 
   it('sends a campaign whose moment has passed and stamps it', async () => {
     const campaign = await seedDueCampaign(new Date(Date.now() - 60_000));

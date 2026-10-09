@@ -40,7 +40,7 @@ vi.mock('@/pages/UserDetails/EmployeeLeaveBalancePanel', () => ({
 }));
 
 function renderAt(route: string, result: ReturnType<typeof queryResult>) {
-  vi.mocked(useGetUserQuery).mockReturnValue(result as never);
+  vi.mocked(useGetUserQuery).mockReturnValue(result);
   renderWithProviders(
     <Routes>
       <Route path="/admin/users/:id" element={<UserDetailsPage />} />

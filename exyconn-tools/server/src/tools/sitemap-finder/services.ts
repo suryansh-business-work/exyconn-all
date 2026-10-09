@@ -72,7 +72,9 @@ function formatBytes(bytes: number): string {
   const k = 1024;
   const sizes = ["Bytes", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  return (
+    Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+  );
 }
 
 async function fetchWithTimeout(
@@ -195,6 +197,63 @@ function countUrlsInSitemap(
   }
 }
 
+type FetchedSitemap = NonNullable<Awaited<ReturnType<typeof fetchWithTimeout>>>;
+
+interface IndexContext {
+  baseUrl: string;
+  visitedUrls: Set<string>;
+  maxDepth: number;
+}
+
+function sizeFromHeaders(headers: Record<string, string>): string | undefined {
+  const length = headers["content-length"];
+  return length ? formatBytes(Number.parseInt(length)) : undefined;
+}
+
+function failedSitemap(url: string, lastModified?: string): SitemapInfo {
+  return {
+    url,
+    type: "xml",
+    urlCount: 0,
+    lastModified,
+    isValid: false,
+    errorMessage: "Failed to fetch sitemap",
+  };
+}
+
+/** Records a fetched sitemap and, when it is an index, every sitemap nested in it. */
+async function recordSitemap(
+  url: string,
+  result: FetchedSitemap,
+  type: SitemapInfo["type"],
+  ctx: IndexContext,
+  nestedDepth: number,
+  found: SitemapInfo[],
+  lastModified?: string,
+): Promise<void> {
+  found.push({
+    url,
+    type,
+    urlCount: countUrlsInSitemap(result.data, type),
+    lastModified,
+    isValid: true,
+    size: sizeFromHeaders(result.headers),
+  });
+
+  // Recursively parse nested sitemap indexes
+  if (type === "index") {
+    found.push(
+      ...(await parseSitemapIndex(
+        result.data,
+        ctx.baseUrl,
+        ctx.visitedUrls,
+        nestedDepth,
+        ctx.maxDepth,
+      )),
+    );
+  }
+}
+
 async function parseSitemapIndex(
   content: string,
   baseUrl: string,
@@ -207,6 +266,7 @@ async function parseSitemapIndex(
   }
 
   const sitemaps: SitemapInfo[] = [];
+  const ctx: IndexContext = { baseUrl, visitedUrls, maxDepth };
 
   try {
     const parsed = xmlParser.parse(content);
@@ -231,40 +291,17 @@ async function parseSitemapIndex(
       const result = await fetchWithTimeout(loc);
       if (result) {
         const type = detectSitemapType(result.data, loc);
-        const urlCount = countUrlsInSitemap(result.data, type);
-        const size = result.headers["content-length"]
-          ? formatBytes(parseInt(result.headers["content-length"]))
-          : undefined;
-
-        sitemaps.push({
-          url: loc,
+        await recordSitemap(
+          loc,
+          result,
           type,
-          urlCount,
-          lastModified: entry?.lastmod,
-          isValid: true,
-          size,
-        });
-
-        // Recursively parse nested sitemap indexes
-        if (type === "index") {
-          const nestedSitemaps = await parseSitemapIndex(
-            result.data,
-            baseUrl,
-            visitedUrls,
-            depth + 1,
-            maxDepth,
-          );
-          sitemaps.push(...nestedSitemaps);
-        }
+          ctx,
+          depth + 1,
+          sitemaps,
+          entry?.lastmod,
+        );
       } else {
-        sitemaps.push({
-          url: loc,
-          type: "xml",
-          urlCount: 0,
-          lastModified: entry?.lastmod,
-          isValid: false,
-          errorMessage: "Failed to fetch sitemap",
-        });
+        sitemaps.push(failedSitemap(loc, entry?.lastmod));
       }
     }
   } catch (error) {
@@ -294,6 +331,61 @@ async function parseRobotsTxt(
   return sitemapUrls;
 }
 
+/** Fetches every sitemap that robots.txt points at. */
+async function scanRobotsSitemaps(
+  sitemapUrls: string[],
+  ctx: IndexContext,
+  checkedLocations: string[],
+  found: SitemapInfo[],
+): Promise<void> {
+  for (const sitemapUrl of sitemapUrls) {
+    if (ctx.visitedUrls.has(sitemapUrl)) continue;
+    ctx.visitedUrls.add(sitemapUrl);
+    checkedLocations.push(sitemapUrl);
+
+    const result = await fetchWithTimeout(sitemapUrl);
+    if (result) {
+      const type = detectSitemapType(result.data, sitemapUrl);
+      await recordSitemap(sitemapUrl, result, type, ctx, 1, found);
+    } else {
+      found.push(failedSitemap(sitemapUrl));
+    }
+  }
+}
+
+/** HTML answers that are not real sitemaps (like soft 404 pages). */
+function isSoftNotFoundPage(html: string): boolean {
+  const lowerContent = html.toLowerCase();
+  return (
+    !lowerContent.includes("sitemap") ||
+    lowerContent.includes("not found") ||
+    lowerContent.includes("404")
+  );
+}
+
+/** Probes the well-known sitemap locations. */
+async function scanCommonPaths(
+  ctx: IndexContext,
+  checkedLocations: string[],
+  found: SitemapInfo[],
+): Promise<void> {
+  for (const path of COMMON_SITEMAP_PATHS) {
+    const sitemapUrl = `${ctx.baseUrl}${path}`;
+
+    if (ctx.visitedUrls.has(sitemapUrl)) continue;
+    ctx.visitedUrls.add(sitemapUrl);
+    checkedLocations.push(sitemapUrl);
+
+    const result = await fetchWithTimeout(sitemapUrl);
+    if (result?.status !== 200) continue;
+
+    const type = detectSitemapType(result.data, sitemapUrl);
+    if (type === "html" && isSoftNotFoundPage(result.data)) continue;
+
+    await recordSitemap(sitemapUrl, result, type, ctx, 1, found);
+  }
+}
+
 export async function findSitemaps(
   url: string,
   checkCommonPaths: boolean,
@@ -302,7 +394,11 @@ export async function findSitemaps(
 ): Promise<SitemapResult> {
   const startTime = Date.now();
   const baseUrl = getBaseUrl(url);
-  const visitedUrls = new Set<string>();
+  const ctx: IndexContext = {
+    baseUrl,
+    visitedUrls: new Set<string>(),
+    maxDepth,
+  };
   const checkedLocations: string[] = [];
   const sitemapsFound: SitemapInfo[] = [];
   let robotsTxtExists = false;
@@ -314,108 +410,23 @@ export async function findSitemaps(
     checkedLocations.push(robotsUrl);
 
     const robotsResult = await fetchWithTimeout(robotsUrl);
-    if (robotsResult && robotsResult.status === 200) {
+    if (robotsResult?.status === 200) {
       robotsTxtExists = true;
       robotsTxtUrl = robotsUrl;
 
       const sitemapUrls = await parseRobotsTxt(robotsResult.data, baseUrl);
-
-      for (const sitemapUrl of sitemapUrls) {
-        if (visitedUrls.has(sitemapUrl)) continue;
-        visitedUrls.add(sitemapUrl);
-        checkedLocations.push(sitemapUrl);
-
-        const result = await fetchWithTimeout(sitemapUrl);
-        if (result) {
-          const type = detectSitemapType(result.data, sitemapUrl);
-          const urlCount = countUrlsInSitemap(result.data, type);
-          const size = result.headers["content-length"]
-            ? formatBytes(parseInt(result.headers["content-length"]))
-            : undefined;
-
-          sitemapsFound.push({
-            url: sitemapUrl,
-            type,
-            urlCount,
-            isValid: true,
-            size,
-          });
-
-          // Parse sitemap index if found
-          if (type === "index") {
-            const nestedSitemaps = await parseSitemapIndex(
-              result.data,
-              baseUrl,
-              visitedUrls,
-              1,
-              maxDepth,
-            );
-            sitemapsFound.push(...nestedSitemaps);
-          }
-        } else {
-          sitemapsFound.push({
-            url: sitemapUrl,
-            type: "xml",
-            urlCount: 0,
-            isValid: false,
-            errorMessage: "Failed to fetch sitemap",
-          });
-        }
-      }
+      await scanRobotsSitemaps(
+        sitemapUrls,
+        ctx,
+        checkedLocations,
+        sitemapsFound,
+      );
     }
   }
 
   // Step 2: Check common sitemap paths
   if (checkCommonPaths) {
-    for (const path of COMMON_SITEMAP_PATHS) {
-      const sitemapUrl = `${baseUrl}${path}`;
-
-      if (visitedUrls.has(sitemapUrl)) continue;
-      visitedUrls.add(sitemapUrl);
-      checkedLocations.push(sitemapUrl);
-
-      const result = await fetchWithTimeout(sitemapUrl);
-      if (result && result.status === 200) {
-        const type = detectSitemapType(result.data, sitemapUrl);
-
-        // Skip HTML pages that aren't actual sitemaps (like 404 pages)
-        if (type === "html") {
-          const lowerContent = result.data.toLowerCase();
-          if (
-            !lowerContent.includes("sitemap") ||
-            lowerContent.includes("not found") ||
-            lowerContent.includes("404")
-          ) {
-            continue;
-          }
-        }
-
-        const urlCount = countUrlsInSitemap(result.data, type);
-        const size = result.headers["content-length"]
-          ? formatBytes(parseInt(result.headers["content-length"]))
-          : undefined;
-
-        sitemapsFound.push({
-          url: sitemapUrl,
-          type,
-          urlCount,
-          isValid: true,
-          size,
-        });
-
-        // Parse sitemap index if found
-        if (type === "index") {
-          const nestedSitemaps = await parseSitemapIndex(
-            result.data,
-            baseUrl,
-            visitedUrls,
-            1,
-            maxDepth,
-          );
-          sitemapsFound.push(...nestedSitemaps);
-        }
-      }
-    }
+    await scanCommonPaths(ctx, checkedLocations, sitemapsFound);
   }
 
   // Calculate total URLs

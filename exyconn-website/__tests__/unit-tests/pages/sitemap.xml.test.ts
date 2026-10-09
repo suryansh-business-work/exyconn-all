@@ -23,7 +23,9 @@ const site = (overrides: Partial<CmsSite>) => ({
   ...overrides,
 });
 
-const sitemap = async (headers: Record<string, string> = { host: "exyconn.com" }) => {
+const DEFAULT_HEADERS = { host: "exyconn.com" };
+
+const sitemap = async (headers: Record<string, string> = DEFAULT_HEADERS) => {
   const response = await GET(
     routeContext(new Request("https://exyconn.com/sitemap.xml", { headers }))
   );

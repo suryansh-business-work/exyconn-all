@@ -29,7 +29,7 @@ const approved = { ...pending, id: 'lr-2', reason: 'Wedding', status: LeaveStatu
 
 function renderPanel(viewerId: string, requests: unknown[] | null = [pending, approved]) {
   const result = queryResult(requests ? { leaveRequestsByEmployee: requests } : undefined);
-  vi.mocked(useLeaveRequestsByEmployeeQuery).mockReturnValue(result as never);
+  vi.mocked(useLeaveRequestsByEmployeeQuery).mockReturnValue(result);
   renderWithProviders(<EmployeeLeavePanel employeeId="emp-1" />, {
     user: makeUser({ id: viewerId, roles: ['HR'] }),
   });

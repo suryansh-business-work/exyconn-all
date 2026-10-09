@@ -22,10 +22,13 @@ const secret = randomUUID();
 const app = express().use(SLACK_EVENTS_PATH, slackEventsRouter());
 const THREAD = '1700000000.0001';
 
-const sign = (raw: string, at = Math.floor(Date.now() / 1000)) => ({
-  timestamp: String(at),
-  signature: `v0=${createHmac('sha256', secret).update(`v0:${at}:${raw}`).digest('hex')}`,
-});
+const sign = (raw: string, at = Math.floor(Date.now() / 1000)) => {
+  const base = `v0:${at}:${raw}`;
+  return {
+    timestamp: String(at),
+    signature: `v0=${createHmac('sha256', secret).update(base).digest('hex')}`,
+  };
+};
 
 function deliver(payload: unknown, at?: number) {
   const raw = typeof payload === 'string' ? payload : JSON.stringify(payload);

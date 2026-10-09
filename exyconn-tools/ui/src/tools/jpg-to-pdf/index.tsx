@@ -135,6 +135,9 @@ export default function JpgToPdf() {
     URL.revokeObjectURL(url);
   };
 
+  const imageNoun = images.length === 1 ? 'Image' : 'Images';
+  const convertLabel = `Convert ${images.length} ${imageNoun} to PDF`;
+
   return (
     <ToolLayout toolName="JPG to PDF" toolIcon={<InsertPhoto />} toolColor="#06b6d4">
       <Container maxWidth="xl" sx={{ py: 3 }}>
@@ -170,7 +173,7 @@ export default function JpgToPdf() {
                 JPG, PNG, or WebP
               </Typography>
               <Button variant="outlined" component="label" color="info">
-                Browse Files
+                {'Browse Files'}
                 <input hidden accept={ACCEPT} type="file" multiple onChange={onFileChange} />
               </Button>
             </Paper>
@@ -239,7 +242,7 @@ export default function JpgToPdf() {
               onClick={convert}
               disabled={images.length === 0 || processing}
             >
-              {processing ? 'Converting...' : `Convert ${images.length} Image${images.length !== 1 ? 's' : ''} to PDF`}
+              {processing ? 'Converting...' : convertLabel}
             </Button>
             {result && (
               <Button variant="outlined" fullWidth startIcon={<Download />} color="info" onClick={download}>

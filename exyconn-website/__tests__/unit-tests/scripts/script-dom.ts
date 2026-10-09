@@ -130,7 +130,7 @@ export function stubAnimationFrames(): FrameControl {
  * an element marked `data-no-box` stays boxless, like one under `display: none`.
  */
 export function giveElementsBoxes(): void {
-  vi.spyOn(Element.prototype, "getClientRects").mockImplementation(function (this: Element) {
-    return { length: this.hasAttribute("data-no-box") ? 0 : 1 } as unknown as DOMRectList;
+  vi.spyOn(Element.prototype, "getClientRects").mockImplementation(function (this: HTMLElement) {
+    return { length: this.dataset.noBox !== undefined ? 0 : 1 } as unknown as DOMRectList;
   });
 }

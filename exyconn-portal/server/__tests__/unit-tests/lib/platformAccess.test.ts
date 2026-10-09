@@ -166,15 +166,13 @@ describe('restrictToPlatform', () => {
     const wrapped = restrictToPlatform({ listThings: list });
 
     const inside = ctxFor([ROLES.TECH], id);
-    await expect(wrapped.listThings(null as never, { a: 1 } as never, inside)).resolves.toEqual([
-      'row',
-    ]);
+    await expect(wrapped.listThings(null, { a: 1 }, inside)).resolves.toEqual(['row']);
     expect(list).toHaveBeenCalledWith(null, { a: 1 }, inside);
 
     const outside = ctxFor([ROLES.TECH], String(new Types.ObjectId()));
-    await expect(
-      codeOf(wrapped.listThings(null as never, {} as never, outside) as Promise<unknown>),
-    ).resolves.toBe('FORBIDDEN');
+    await expect(codeOf(wrapped.listThings(null, {}, outside) as Promise<unknown>)).resolves.toBe(
+      'FORBIDDEN',
+    );
     expect(list).toHaveBeenCalledTimes(1);
   });
 });

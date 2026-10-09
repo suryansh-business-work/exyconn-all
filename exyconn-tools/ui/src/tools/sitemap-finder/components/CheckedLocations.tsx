@@ -34,9 +34,9 @@ const CheckedLocations: React.FC<CheckedLocationsProps> = ({ locations }) => {
       </Box>
       <Collapse in={showCheckedLocations}>
         <Box sx={{ mt: 1, pl: 2, borderLeft: 2, borderColor: 'divider' }}>
-          {locations.map((loc, idx) => (
+          {locations.map((loc) => (
             <Typography
-              key={idx}
+              key={loc}
               variant="caption"
               sx={{ display: 'block', fontFamily: 'monospace', color: 'text.secondary' }}
             >

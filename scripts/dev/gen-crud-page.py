@@ -4,7 +4,7 @@ import json, pathlib, re, sys
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 SPECS = json.loads(pathlib.Path(sys.argv[1]).read_text())
 def kebab(n): return re.sub(r'(?<!^)(?=[A-Z])', '-', n).lower()
-def zod(field, label, kind, enum, optional):
+def zod(label, kind, enum, optional):
     if kind == 'emp': return "z.string().min(1, 'Employee is required')"
     if kind in ('text','area'): return "z.string().trim()" if optional else f"z.string().trim().min(1, '{label} is required')"
     if kind == 'num': return "z.union([z.literal(''), z.coerce.number().min(0, 'Must be ≥ 0')])" if optional else f"z.coerce.number({{ message: '{label} must be a number' }}).min(0, 'Must be ≥ 0')"
@@ -62,7 +62,7 @@ import {{
 import type {{ {E}Row }} from './{fname}.types';
 
 const schema = z.object({{
-{''.join(f"  {f[0]}: {zod(*f)}," + chr(10) for f in s['fields'])}}});
+{''.join(f"  {f[0]}: {zod(*f[1:])}," + chr(10) for f in s['fields'])}}});
 type Values = z.infer<typeof schema>;
 
 const toInitial = (row: {E}Row | null) => ({{

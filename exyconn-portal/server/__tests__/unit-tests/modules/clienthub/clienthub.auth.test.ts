@@ -9,6 +9,7 @@ import { emailer } from '../../../../src/modules/email/email.service';
 import { signPass } from '../../../../src/lib/scopedPass';
 import { runAsPlatform } from '../../../../src/lib/tenant';
 import { useTestOrganization } from '../../../helpers';
+import { asArg } from '../../../mockAs';
 
 const organizationId = useTestOrganization();
 const IP = 'test-connection';
@@ -121,7 +122,7 @@ describe('verifyClientHubCode', () => {
     await requestClientHubCode(EMAIL, IP);
     jest
       .spyOn(ClientContactModel, 'findOneAndUpdate')
-      .mockReturnValueOnce({ lean: () => Promise.resolve(null) } as never);
+      .mockReturnValueOnce(asArg({ lean: () => Promise.resolve(null) }));
 
     await expect(verifyClientHubCode(EMAIL, sentCode())).rejects.toThrow(/switched off/);
   });

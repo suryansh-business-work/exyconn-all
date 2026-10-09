@@ -30,16 +30,22 @@ const textOf = (html: string): string =>
 export const withHeadingIds = (html: string): { html: string; toc: TocEntry[] } => {
   const toc: TocEntry[] = [];
   const used = new Set<string>();
-  const out = html.replaceAll(HEADING, (whole, level: string, attrs = "", inner: string) => {
-    const label = textOf(inner);
-    const existing = ID_ATTR.exec(attrs)?.[1];
-    let id = existing ?? slugify(label);
-    for (let n = 2; !existing && used.has(id); n += 1) {
-      id = `${slugify(label)}-${n}`;
+  const out = html.replaceAll(
+    HEADING,
+    (whole, level: string, matchedAttrs: string | undefined, inner: string) => {
+      const attrs = matchedAttrs ?? "";
+      const label = textOf(inner);
+      const existing = ID_ATTR.exec(attrs)?.[1];
+      let id = existing ?? slugify(label);
+      let n = 2;
+      while (!existing && used.has(id)) {
+        id = `${slugify(label)}-${n}`;
+        n += 1;
+      }
+      used.add(id);
+      toc.push({ id, label, level: level === "2" ? 2 : 3 });
+      return existing ? whole : `<h${level} id="${id}"${attrs}>${inner}</h${level}>`;
     }
-    used.add(id);
-    toc.push({ id, label, level: level === "2" ? 2 : 3 });
-    return existing ? whole : `<h${level} id="${id}"${attrs}>${inner}</h${level}>`;
-  });
+  );
   return { html: out, toc };
 };

@@ -84,10 +84,10 @@ describe('pointing the current scope', () => {
       setScopeOrganization('org-e');
       const first = { ...currentScope() };
       setScopeOrganization(null, true);
-      return { first, then: { ...currentScope() } };
+      return { first, second: { ...currentScope() } };
     });
     expect(scope.first).toEqual({ organizationId: 'org-e', platform: false });
-    expect(scope.then).toEqual({ organizationId: null, platform: true });
+    expect(scope.second).toEqual({ organizationId: null, platform: true });
   });
 
   it('opens a scope for the rest of the call when none was opened', async () => {

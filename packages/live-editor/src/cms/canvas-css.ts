@@ -12,7 +12,7 @@ const fragmentLine = color.violet[300];
  * section). The label and summary are attributes of the canvas element only, drawn by a
  * pseudo-element, so nothing of the card reaches the saved HTML or can be typed into.
  */
-export const PLACEHOLDER_CSS = `
+export const PLACEHOLDER_CSS = String.raw`
 ${COMPONENT_TAG}, ${FRAGMENT_TAG} {
   display: block;
   margin: 8px 0;
@@ -26,7 +26,7 @@ ${COMPONENT_TAG}, ${FRAGMENT_TAG} {
 }
 ${FRAGMENT_TAG} { border-color: ${fragmentLine}; }
 ${COMPONENT_TAG}::before, ${FRAGMENT_TAG}::before {
-  content: attr(data-exy-title) "\\A" attr(data-exy-summary);
+  content: attr(data-exy-title) "\A" attr(data-exy-summary);
   display: block;
   white-space: pre-wrap;
   color: ${ink};

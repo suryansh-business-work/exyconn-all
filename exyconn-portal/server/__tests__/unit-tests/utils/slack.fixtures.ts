@@ -3,6 +3,7 @@ import {
   SlackConfigModel,
   type SlackConfigDocument,
 } from '../../../src/modules/tech/slack-config.model';
+import { asArg } from '../../mockAs';
 
 /** Shared doubles for the Slack notifier suites. */
 export const config = {
@@ -22,7 +23,7 @@ export function active(value: SlackConfigDocument | null) {
   const lean = jest.fn().mockResolvedValue(value);
   return jest
     .spyOn(SlackConfigModel, 'findOne')
-    .mockReturnValue({ lean, select: () => ({ lean }) } as never);
+    .mockReturnValue(asArg({ lean, select: () => ({ lean }) }));
 }
 
 /** Spies on fetch and quiets the info log; returns the fetch spy. */

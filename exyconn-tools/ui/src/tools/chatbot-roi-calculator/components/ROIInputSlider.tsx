@@ -24,8 +24,8 @@ const ROIInputSlider: React.FC<ROIInputSliderProps> = ({
   helperText,
   marks,
 }) => {
-  const handleSliderChange = (_: Event, newValue: number | number[]) => {
-    onChange(newValue as number);
+  const handleSliderChange = (_: Event, newValue: number) => {
+    onChange(newValue);
   };
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {

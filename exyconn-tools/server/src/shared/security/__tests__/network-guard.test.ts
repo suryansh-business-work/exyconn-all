@@ -19,6 +19,7 @@ import {
   resolvePublicAddresses,
 } from "../network-guard";
 import { safeRequest } from "../safe-http";
+import fixtures from "./network-guard.fixtures.json";
 
 const lookupMock = vi.mocked(dns.lookup) as unknown as ReturnType<typeof vi.fn>;
 const requestMock = vi.mocked(axios.request);
@@ -29,33 +30,13 @@ afterEach(() => {
 });
 
 describe("isPublicAddress", () => {
-  it.each([
-    "127.0.0.1",
-    "10.1.2.3",
-    "172.20.0.5",
-    "192.168.1.1",
-    "169.254.169.254",
-    "100.64.0.1",
-    "0.0.0.0",
-    "224.0.0.1",
-    "255.255.255.255",
-    "::1",
-    "::",
-    "::ffff:127.0.0.1",
-    "fd00::1",
-    "fe80::1",
-    "ff02::1",
-    "2002:7f00:1::",
-  ])("rejects %s", (address) => {
+  it.each(fixtures.rejected)("rejects %s", (address) => {
     expect(isPublicAddress(address)).toBe(false);
   });
 
-  it.each(["93.184.216.34", "1.1.1.1", "2606:4700:4700::1111"])(
-    "accepts %s",
-    (address) => {
-      expect(isPublicAddress(address)).toBe(true);
-    },
-  );
+  it.each(fixtures.accepted)("accepts %s", (address) => {
+    expect(isPublicAddress(address)).toBe(true);
+  });
 
   it("rejects something that is not an IP", () => {
     expect(isPublicAddress("example.com")).toBe(false);
@@ -90,8 +71,8 @@ describe("assertSafeUrl", () => {
 describe("resolvePublicAddresses", () => {
   it("rejects a name when any of its addresses is private", async () => {
     lookupMock.mockResolvedValue([
-      { address: "93.184.216.34", family: 4 },
-      { address: "10.0.0.8", family: 4 },
+      { address: fixtures.publicAddress, family: 4 },
+      { address: fixtures.privateAddress, family: 4 },
     ]);
     await expect(resolvePublicAddresses("mixed.example")).rejects.toThrow(
       UnsafeTargetError,
@@ -99,9 +80,11 @@ describe("resolvePublicAddresses", () => {
   });
 
   it("returns every address of a public name", async () => {
-    lookupMock.mockResolvedValue([{ address: "93.184.216.34", family: 4 }]);
+    lookupMock.mockResolvedValue([
+      { address: fixtures.publicAddress, family: 4 },
+    ]);
     await expect(resolvePublicAddresses("example.com")).resolves.toEqual([
-      "93.184.216.34",
+      fixtures.publicAddress,
     ]);
   });
 
@@ -123,13 +106,15 @@ describe("publicOnlyLookup", () => {
   });
 
   it("returns all vetted addresses when asked for all", async () => {
-    lookupMock.mockResolvedValue([{ address: "93.184.216.34", family: 4 }]);
+    lookupMock.mockResolvedValue([
+      { address: fixtures.publicAddress, family: 4 },
+    ]);
     const addresses = await new Promise((resolve) => {
       publicOnlyLookup("example.com", { all: true }, (_err, result) =>
         resolve(result),
       );
     });
-    expect(addresses).toEqual([{ address: "93.184.216.34", family: 4 }]);
+    expect(addresses).toEqual([{ address: fixtures.publicAddress, family: 4 }]);
   });
 });
 
@@ -147,7 +132,7 @@ describe("safeRequest", () => {
     requestMock.mockResolvedValueOnce(
       response(302, {
         location: "http://169.254.169.254/latest/meta-data/",
-      }) as never,
+      }),
     );
     await expect(safeRequest("https://example.com/")).rejects.toThrow(
       UnsafeTargetError,
@@ -157,7 +142,7 @@ describe("safeRequest", () => {
 
   it("follows at most five redirects", async () => {
     requestMock.mockResolvedValue(
-      response(301, { location: "https://example.com/loop" }) as never,
+      response(301, { location: "https://example.com/loop" }),
     );
     await expect(safeRequest("https://example.com/")).rejects.toThrow(
       "status code 301",
@@ -166,7 +151,7 @@ describe("safeRequest", () => {
   });
 
   it("never lets axios follow redirects or use a proxy itself", async () => {
-    requestMock.mockResolvedValueOnce(response(200) as never);
+    requestMock.mockResolvedValueOnce(response(200));
     const result = await safeRequest("https://example.com/", {
       maxRedirects: 20,
     });

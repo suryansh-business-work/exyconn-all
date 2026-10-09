@@ -24,7 +24,7 @@ const ROWS = [
 ];
 
 function answer(result: Partial<QueryResult>) {
-  vi.mocked(useMyPermissionsQuery).mockReturnValue(result as QueryResult);
+  vi.mocked(useMyPermissionsQuery).mockReturnValue(result);
 }
 
 beforeEach(() => {

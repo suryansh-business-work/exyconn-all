@@ -71,7 +71,11 @@ describe('ImageForm', () => {
   });
 
   it('shows an upload failure on the address field', async () => {
-    renderForm(vi.fn(async () => Promise.reject(new Error('File too large'))));
+    renderForm(
+      vi.fn(async () => {
+        throw new Error('File too large');
+      }),
+    );
     upload(new File(['x'], 'big.png', { type: 'image/png' }));
     expect(await screen.findByText('File too large')).toBeInTheDocument();
   });

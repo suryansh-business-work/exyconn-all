@@ -38,7 +38,7 @@ interface NavigatorHints {
 
 /** The OS setting or the site's own accessibility drawer switch. */
 export const prefersReducedMotion = (): boolean =>
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+  globalThis.matchMedia("(prefers-reduced-motion: reduce)").matches ||
   document.documentElement.dataset.a11yMotion === "on";
 
 export const readDeviceProfile = (): DeviceProfile => ({

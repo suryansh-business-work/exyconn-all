@@ -102,7 +102,7 @@ describe('ContainerDetailDialog', () => {
     expect(rowFor('CPU now')).toHaveTextContent('3.2% of 1.5 cores');
     expect(rowFor('Memory now')).toHaveTextContent('128.0 MB of 512.0 MB');
     expect(rowFor('Networks')).toHaveTextContent('exyconn, proxy');
-    expect(rowFor('Internal IP')).toHaveTextContent('172.18.0.4');
+    expect(rowFor('Internal IP')).toHaveTextContent('203.0.113.4');
     expect(rowFor('Log driver')).toHaveTextContent('json-file');
   });
 

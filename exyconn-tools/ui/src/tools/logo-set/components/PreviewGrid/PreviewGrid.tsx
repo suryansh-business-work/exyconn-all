@@ -28,6 +28,14 @@ interface Props {
   onSizeSettings: (sizeKey: string, settings: LogoSettings | null) => void;
 }
 
+const getSizeKey = (size: CanvasSize, customSizes: CustomSize[]): string => {
+  const custom =
+    size.category === 'splash'
+      ? customSizes.find((cs) => cs.width === size.width && cs.height === size.height)
+      : undefined;
+  return custom ? `custom-${custom.id}` : `${size.category}-${size.width}`;
+};
+
 const PreviewGrid: React.FC<Props> = ({
   image,
   settings,
@@ -62,10 +70,7 @@ const PreviewGrid: React.FC<Props> = ({
     const sizesToDownload = [...allSizes, ...customCanvasSizes];
     sizesToDownload.forEach((size, index) => {
       setTimeout(() => {
-        const sizeKey =
-          size.category === 'splash' && customSizes.some((cs) => cs.width === size.width && cs.height === size.height)
-            ? `custom-${customSizes.find((cs) => cs.width === size.width && cs.height === size.height)?.id}`
-            : `${size.category}-${size.width}`;
+        const sizeKey = getSizeKey(size, customSizes);
         const imageToUse = croppedImages[sizeKey] || image;
         const isCropped = !!croppedImages[sizeKey];
         const effectiveSettings = getEffectiveSettings(sizeKey);

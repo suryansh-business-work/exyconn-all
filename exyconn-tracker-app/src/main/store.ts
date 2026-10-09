@@ -51,7 +51,7 @@ const DEFAULT_PREFERENCES: AppPreferences = {
  */
 class SecureStore {
   private readonly file = join(app.getPath('userData'), 'tracker-state.json');
-  private state: PersistedState;
+  private readonly state: PersistedState;
   /** Set only when "Remember me" was unchecked — never written to disk. */
   private sessionToken: string | null = null;
 

@@ -121,6 +121,8 @@ export function assertMayManageAccount(actor: AccountActor, target: AccountTarge
   }
 }
 
+const NO_TARGET: AccountTarget = { roles: [] };
+
 /**
  * Who may grant which roles.
  *
@@ -134,7 +136,7 @@ export function assertMayManageAccount(actor: AccountActor, target: AccountTarge
 export function assertMayAssignRoles(
   actor: AccountActor,
   roles: readonly string[] | undefined,
-  target: AccountTarget = { roles: [] },
+  target: AccountTarget = NO_TARGET,
 ): void {
   if (isPlatformActor(actor)) {
     return;
@@ -192,12 +194,8 @@ export function assertMayChangeSignInFields(
 function tryEmail(action: string, send: () => Promise<void>): void {
   const onError = (error: unknown) =>
     logger.error({ error }, `${action} email failed — credentials still available to copy`);
-  try {
-    // Invoke synchronously, then handle the SMTP round-trip in the background.
-    void Promise.resolve(send()).catch(onError);
-  } catch (error) {
-    onError(error);
-  }
+  // The executor invokes send() synchronously; a throw or a rejection both reach onError.
+  new Promise<void>((resolve) => resolve(send())).catch(onError);
 }
 
 export interface SendMailInput {

@@ -2,6 +2,7 @@ import {
   RolePermissionModel,
   type PermissionAction,
 } from '../modules/permissions/permission.model';
+import { stringOf } from '../utils/serialize';
 import { assertRole } from '../middleware/roleGuard';
 import { forbidden } from '../utils/errors';
 import { ROLES, type Role } from '../constants/roles';
@@ -95,7 +96,7 @@ export async function assertPermission(
   action: PermissionAction,
 ) {
   const user = assertRole(ctx, baseRoles);
-  const roles = (user.roles ?? []) as Role[];
+  const roles = user.roles ?? [];
   if (roles.includes(ROLES.ADMIN)) return user;
 
   const map = await restrictions();
@@ -119,7 +120,7 @@ export async function assertApprovePermission(
   module: string,
   baseRoles: Role[],
 ): Promise<void> {
-  const roles = (ctx.user?.roles ?? []) as Role[];
+  const roles = ctx.user?.roles ?? [];
   if (roles.includes(ROLES.ADMIN) || !roles.some((role) => baseRoles.includes(role))) {
     return;
   }
@@ -165,7 +166,7 @@ export async function permissionsFor(roles: Role[]): Promise<ModulePermission[]>
  */
 export function assertNotOwnRecord(ctx: GraphQLContext, employeeId: unknown, what: string): void {
   const callerId = ctx.user?.id;
-  if (callerId !== undefined && employeeId != null && String(employeeId) === callerId) {
+  if (callerId !== undefined && employeeId != null && stringOf(employeeId) === callerId) {
     forbidden(`You cannot ${what} for yourself.`);
   }
 }

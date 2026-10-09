@@ -1,5 +1,4 @@
 import { ProductModel } from './products.model';
-import { productsTypeDefs } from './products.typeDefs';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { assertRole } from '../../middleware/roleGuard';
@@ -106,7 +105,7 @@ export const productsResolvers = {
     },
   },
 };
-export { productsTypeDefs };
+export { productsTypeDefs } from './products.typeDefs';
 export { productsInventoryTypeDefs } from './products.inventory.typeDefs';
 export { productsInventoryResolvers, suppliersService } from './products.inventory';
 export { productsPurchasingTypeDefs } from './products.purchasing.typeDefs';

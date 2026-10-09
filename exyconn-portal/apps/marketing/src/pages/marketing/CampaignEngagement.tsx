@@ -146,13 +146,13 @@ export function CampaignEngagement({ campaignId }: Readonly<CampaignEngagementPr
             title={t('Most clicked links')}
             subtitle={t('Where the campaign actually sent people')}
             data={linkChart}
-            formatValue={(clicks) => String(clicks)}
+            formatValue={String}
             labelHeading={t('Link')}
             emptyText={t('No links were clicked.')}
           >
             <BarChart
               data={linkChart}
-              formatValue={(clicks) => String(clicks)}
+              formatValue={String}
               horizontal
               height={Math.max(160, links.length * 30 + 60)}
             />

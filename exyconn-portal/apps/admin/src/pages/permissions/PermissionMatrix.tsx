@@ -56,7 +56,7 @@ export function PermissionMatrix({ role }: Readonly<{ role: Role }>) {
       notify(errorMessage(error, 'Could not save'), 'error');
     } finally {
       await rows.refetch();
-      done.forEach(draft.forget);
+      done.forEach((module) => draft.forget(module));
       setBusy(false);
     }
   };

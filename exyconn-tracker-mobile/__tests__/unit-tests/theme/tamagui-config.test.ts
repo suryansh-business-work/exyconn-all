@@ -7,7 +7,7 @@ type ThemeValues = Record<string, unknown>;
 function valueOf(theme: ThemeValues, key: string): unknown {
   const entry = theme[key];
   if (typeof entry === 'object' && entry !== null && 'val' in entry) {
-    return (entry as { val: unknown }).val;
+    return entry.val;
   }
   return entry;
 }

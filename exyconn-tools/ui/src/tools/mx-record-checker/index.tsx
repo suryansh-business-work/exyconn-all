@@ -77,8 +77,8 @@ const MXRecordChecker: React.FC = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {(result.records as MXRecord[])?.map((r, i) => (
-                        <TableRow key={i}>
+                      {(result.records as MXRecord[])?.map((r) => (
+                        <TableRow key={`${r.priority}-${r.exchange}`}>
                           <TableCell>
                             <Chip label={r.priority} size="small" variant="outlined" />
                           </TableCell>

@@ -37,7 +37,8 @@ export function inPageChecks() {
       .trim()
       .replaceAll(/\s+/g, " ")
       .slice(0, 40);
-    return `${el.tagName.toLowerCase()}${id}${cls ? `.${cls}` : ""} "${text}"`;
+    const classes = cls ? `.${cls}` : "";
+    return `${el.tagName.toLowerCase()}${id}${classes} "${text}"`;
   };
   const hiddenFromAt = (el) => Boolean(el.closest('[aria-hidden="true"]'));
   const accessibleName = (el) =>
@@ -208,8 +209,9 @@ export function focusSnapshot() {
     .trim()
     .replaceAll(/\s+/g, " ")
     .slice(0, 40);
+  const idPart = el.id ? `#${el.id}` : "";
   return {
-    el: `${el.tagName.toLowerCase()}${el.id ? `#${el.id}` : ""} "${text}"`,
+    el: `${el.tagName.toLowerCase()}${idPart} "${text}"`,
     indicator: outline || ring,
     obscured: Boolean(cover),
   };

@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import {
+  type DateInput,
   formatCurrency,
   formatDate,
   formatDateTime,
@@ -10,8 +11,6 @@ import {
   formatTime,
 } from './format';
 import { useI18n } from './I18nProvider';
-
-type DateInput = string | number | Date | null | undefined;
 
 /**
  * The formatters, already bound to the person's locale and zone.

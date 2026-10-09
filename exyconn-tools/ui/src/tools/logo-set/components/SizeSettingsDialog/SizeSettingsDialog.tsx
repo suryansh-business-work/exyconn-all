@@ -12,8 +12,8 @@ interface Props {
   settings: LogoSettings;
   onSave: (settings: LogoSettings) => void;
   onReset: () => void;
-  hasCustomSettings?: boolean | undefined;
-  globalSettings?: LogoSettings | undefined;
+  hasCustomSettings?: boolean;
+  globalSettings?: LogoSettings;
 }
 
 const SizeSettingsDialog: React.FC<Props> = ({

@@ -67,15 +67,15 @@ describe('the registered background job', () => {
   });
 });
 
-describe('startCampaignSchedule', () => {
-  function fakeInterval() {
-    const unref = jest.fn();
-    const setIntervalSpy = jest
-      .spyOn(globalThis, 'setInterval')
-      .mockReturnValue({ unref } as unknown as ReturnType<typeof setInterval>);
-    return { unref, setIntervalSpy };
-  }
+function fakeInterval() {
+  const unref = jest.fn();
+  const setIntervalSpy = jest
+    .spyOn(globalThis, 'setInterval')
+    .mockReturnValue({ unref } as unknown as ReturnType<typeof setInterval>);
+  return { unref, setIntervalSpy };
+}
 
+describe('startCampaignSchedule', () => {
   it('checks every company at once, then every minute, and reports what it sent', async () => {
     const { unref, setIntervalSpy } = fakeInterval();
     const organization = await seedOrganization('Schedule Co');

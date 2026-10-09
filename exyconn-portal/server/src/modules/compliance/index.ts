@@ -4,10 +4,6 @@ import { auditResolvers } from './audit.resolvers';
 import { findingResolvers } from './finding.resolvers';
 import { reviewResolvers } from './review.resolvers';
 import { complianceDashboardResolvers } from './compliance.dashboard';
-import { complianceDashboardTypeDefs } from './compliance.dashboard.typeDefs';
-import { complianceTypeDefs } from './compliance.typeDefs';
-import { complianceAuditsTypeDefs } from './compliance.audits.typeDefs';
-import { complianceReviewsTypeDefs } from './compliance.reviews.typeDefs';
 // Imported for its side effect: the module registers what it wants chased.
 import './compliance.reminders';
 import type { GraphQLContext } from '../../middleware/auth';
@@ -37,7 +33,7 @@ const groups: ResolverGroup[] = [
  */
 export const complianceResolvers = {
   Query: groups.reduce<ResolverMap>((all, group) => ({ ...all, ...group.Query }), {}),
-  Mutation: groups.reduce<ResolverMap>((all, group) => ({ ...all, ...(group.Mutation ?? {}) }), {}),
+  Mutation: groups.reduce<ResolverMap>((all, group) => ({ ...all, ...group.Mutation }), {}),
   Finding: findingResolvers.Finding,
   Risk: riskResolvers.Risk,
   Objective: objectiveResolvers.Objective,
@@ -45,12 +41,10 @@ export const complianceResolvers = {
   ManagementReview: reviewResolvers.ManagementReview,
 };
 
-export {
-  complianceTypeDefs,
-  complianceAuditsTypeDefs,
-  complianceReviewsTypeDefs,
-  complianceDashboardTypeDefs,
-};
+export { complianceTypeDefs } from './compliance.typeDefs';
+export { complianceAuditsTypeDefs } from './compliance.audits.typeDefs';
+export { complianceReviewsTypeDefs } from './compliance.reviews.typeDefs';
+export { complianceDashboardTypeDefs } from './compliance.dashboard.typeDefs';
 export { RiskModel } from './risk.model';
 export { ObjectiveModel } from './objective.model';
 export { InternalAuditModel } from './audit.model';

@@ -2,6 +2,7 @@ import type { ColDef } from 'ag-grid-community';
 import { cellValue, isDisplayColumn, type DisplayColDef } from '../grid/cellValue';
 import { BoolCell, StatusCell } from '../grid/cells';
 import type { RowActionSpec } from '../grid/types';
+import { cellText } from '@exyconn/shell/utils/cellText';
 
 /** One line of a record card: what the column is called, and what this row says for it. */
 export interface CardField {
@@ -20,13 +21,6 @@ export interface RecordCard {
 
 /** How many facts fit under a heading before a card stops being glanceable. */
 const MAX_FIELDS = 5;
-
-function text(value: unknown): string {
-  if (value === null || value === undefined) {
-    return '';
-  }
-  return String(value);
-}
 
 const isChipColumn = <Row>(column: ColDef<Row>) =>
   column.cellRenderer === StatusCell || column.cellRenderer === BoolCell;
@@ -49,12 +43,12 @@ export function toRecordCard<Row>(
 ): RecordCard {
   const columns = columnDefs.filter(isDisplayColumn);
   const [heading, ...rest] = columns;
-  const title = heading ? text(cellValue(heading, row, context)) : '';
+  const title = heading ? cellText(cellValue(heading, row, context)) : '';
   const all = rest
     .map((column, index) => ({
       key: columnKey(column, index),
       label: column.headerName,
-      value: text(cellValue(column, row, context)),
+      value: cellText(cellValue(column, row, context)),
       chip: isChipColumn(column),
     }))
     .filter((field) => field.value !== '');

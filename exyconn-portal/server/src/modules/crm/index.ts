@@ -1,5 +1,4 @@
 import { LeadModel } from './crm.model';
-import { crmTypeDefs } from './crm.typeDefs';
 import { withCampaignName, type LeadAttribution } from './crm.attribution';
 import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
@@ -69,7 +68,7 @@ export const crmResolvers = {
   Mutation: { ...leads.Mutation, createLead, updateLead },
 };
 
-export { crmTypeDefs };
+export { crmTypeDefs } from './crm.typeDefs';
 export { crmEntitiesTypeDefs } from './crm.entities.typeDefs';
 export {
   crmEntitiesResolvers,
