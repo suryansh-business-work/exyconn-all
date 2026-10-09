@@ -88,7 +88,7 @@ const TABS: TabberItem[] = [
 export function EmailPage() {
   return (
     <Box>
-      <Tabber basePath={EMAIL_PATH} items={TABS} ariaLabel="Email system" sx={{ mb: 2 }} />
+      <Tabber basePath={EMAIL_PATH} items={TABS} ariaLabel="Email system" />
     </Box>
   );
 }

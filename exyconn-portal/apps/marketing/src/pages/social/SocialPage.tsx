@@ -30,7 +30,7 @@ export function SocialPage() {
         title="Social media"
         subtitle="Connect accounts, plan and publish posts, and see how they do"
       />
-      <Tabber basePath={SOCIAL_PATH} items={TABS} ariaLabel="Social media" sx={{ mb: 2 }} />
+      <Tabber basePath={SOCIAL_PATH} items={TABS} ariaLabel="Social media" />
     </Box>
   );
 }

@@ -63,12 +63,7 @@ export function InfrastructurePage() {
         title="Infrastructure"
         subtitle="The host, the running stack and the database this portal runs on"
       />
-      <Tabber
-        basePath={INFRASTRUCTURE_PATH}
-        items={TABS}
-        ariaLabel="Infrastructure"
-        sx={{ mb: 2 }}
-      />
+      <Tabber basePath={INFRASTRUCTURE_PATH} items={TABS} ariaLabel="Infrastructure" />
     </Box>
   );
 }

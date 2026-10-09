@@ -85,7 +85,6 @@ export function EnvironmentVariablesPage() {
         basePath={ENVIRONMENT_VARIABLES_PATH}
         items={TABS}
         ariaLabel="Integration credentials"
-        sx={{ mb: 2 }}
       />
     </Box>
   );
