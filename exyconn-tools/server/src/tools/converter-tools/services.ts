@@ -329,6 +329,60 @@ export function xmlToMarkdown(xmlContent: string): string {
   return markdown.trim() || "*Empty XML document*";
 }
 
+/** Turns "Title\n=====", "Title\n-----" and ALL-CAPS lines into markdown headings. */
+function markHeadings(markdown: string): string {
+  const lines = markdown.split("\n");
+  const processed: string[] = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const nextLine = lines[i + 1];
+
+    if (nextLine && /^=+$/.test(nextLine.trim())) {
+      processed.push(`# ${line}`);
+      i++; // Skip the === line
+    } else if (
+      nextLine &&
+      /^-+$/.test(nextLine.trim()) &&
+      nextLine.trim().length >= 3
+    ) {
+      processed.push(`## ${line}`);
+      i++; // Skip the --- line
+    } else if (/^[A-Z][A-Z\s]+$/.test(line.trim()) && line.trim().length > 3) {
+      processed.push(`## ${line.trim()}`);
+    } else {
+      processed.push(line);
+    }
+  }
+  return processed.join("\n");
+}
+
+/** Fences runs of lines indented by a tab or four spaces as code blocks. */
+function fenceIndentedCode(markdown: string): string {
+  const lines = markdown.split("\n");
+  const processed: string[] = [];
+  let inCodeBlock = false;
+
+  for (const line of lines) {
+    const isIndented = /^(\t| {4})/.test(line);
+
+    if (isIndented && !inCodeBlock) {
+      processed.push("```");
+      inCodeBlock = true;
+    } else if (!isIndented && inCodeBlock && line.trim() !== "") {
+      processed.push("```");
+      inCodeBlock = false;
+    }
+
+    processed.push(isIndented ? line.replace(/^(\t| {4})/, "") : line);
+  }
+
+  if (inCodeBlock) {
+    processed.push("```");
+  }
+  return processed.join("\n");
+}
+
 /**
  * Convert plain text to Markdown
  */
@@ -357,33 +411,7 @@ export function textToMarkdown(
 
   // Detect headings (lines that are all caps or followed by === or ---)
   if (detectHeadings) {
-    const lines = markdown.split("\n");
-    const processed: string[] = [];
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      const nextLine = lines[i + 1];
-
-      if (nextLine && /^=+$/.test(nextLine.trim())) {
-        processed.push(`# ${line}`);
-        i++; // Skip the === line
-      } else if (
-        nextLine &&
-        /^-+$/.test(nextLine.trim()) &&
-        nextLine.trim().length >= 3
-      ) {
-        processed.push(`## ${line}`);
-        i++; // Skip the --- line
-      } else if (
-        /^[A-Z][A-Z\s]+$/.test(line.trim()) &&
-        line.trim().length > 3
-      ) {
-        processed.push(`## ${line.trim()}`);
-      } else {
-        processed.push(line);
-      }
-    }
-    markdown = processed.join("\n");
+    markdown = markHeadings(markdown);
   }
 
   // Detect lists (lines starting with *, -, numbers, or letters)
@@ -395,29 +423,7 @@ export function textToMarkdown(
 
   // Detect code blocks (lines with consistent indentation of 4+ spaces)
   if (detectCodeBlocks) {
-    const lines = markdown.split("\n");
-    const processed: string[] = [];
-    let inCodeBlock = false;
-
-    for (const line of lines) {
-      const isIndented = /^(\t| {4})/.test(line);
-
-      if (isIndented && !inCodeBlock) {
-        processed.push("```");
-        inCodeBlock = true;
-      } else if (!isIndented && inCodeBlock && line.trim() !== "") {
-        processed.push("```");
-        inCodeBlock = false;
-      }
-
-      processed.push(isIndented ? line.replace(/^(\t| {4})/, "") : line);
-    }
-
-    if (inCodeBlock) {
-      processed.push("```");
-    }
-
-    markdown = processed.join("\n");
+    markdown = fenceIndentedCode(markdown);
   }
 
   return markdown;

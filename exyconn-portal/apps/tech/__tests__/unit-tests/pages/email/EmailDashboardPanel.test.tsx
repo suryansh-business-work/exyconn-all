@@ -108,7 +108,8 @@ describe('EmailDashboardPanel', () => {
     renderWithProviders(<EmailDashboardPanel />);
     const chart = within(screen.getByRole('region', { name: 'Sent per day' }));
     expect(chart.getByText('Table heading: Day')).toBeInTheDocument();
-    expect(chart.getByText('Sent — 04 Sep: 5, 05 Sep: 12')).toBeInTheDocument();
+    // Newer ICU spells September "Sept" in en-GB, older ICU "Sep".
+    expect(chart.getByText(/^Sent — 04 Sept?: 5, 05 Sept?: 12$/)).toBeInTheDocument();
   });
 
   it('ranks templates by everything they tried to send, by name or else by key', () => {

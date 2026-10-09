@@ -4,7 +4,6 @@ import { DownloadForOffline } from '@mui/icons-material';
 import {
   LogoSettings,
   ExportFormat,
-  ApplyScope,
   CustomSize,
   FAVICON_SIZES,
   ICON_SIZES,
@@ -20,7 +19,7 @@ interface Props {
   image: string;
   settings: LogoSettings;
   format: ExportFormat;
-  applyScope: ApplyScope;
+  applyScope: string;
   customSizes: CustomSize[];
   croppedImages: Record<string, string>;
   onCroppedImage: (sizeKey: string, croppedImage: string) => void;

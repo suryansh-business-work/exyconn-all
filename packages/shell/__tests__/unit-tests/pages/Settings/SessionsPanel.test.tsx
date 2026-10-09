@@ -23,7 +23,7 @@ const FIREFOX_WIN = 'Mozilla/5.0 (Windows NT 10.0) Firefox/121';
 const current = {
   id: 's-1',
   userAgent: CHROME_MAC,
-  ip: '10.0.0.1',
+  ip: '203.0.113.1',
   current: true,
   lastSeenAt: '2026-10-01T09:00:00.000Z',
 };

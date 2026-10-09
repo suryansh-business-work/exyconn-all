@@ -13,6 +13,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { roleLabel, roleList } from '@exyconn/shell/auth/roles';
+import { toggleValue } from './toggleValue';
 
 /** The roles a key can be granted. Mirrors the portal's own list — a key is never more. */
 const GRANTABLE_ROLES = [
@@ -157,13 +158,7 @@ export function ApiKeysPanel() {
               label={t(roleLabel(role))}
               aria-pressed={roles.includes(role)}
               color={roles.includes(role) ? 'primary' : 'default'}
-              onClick={() =>
-                setRoles((current) =>
-                  current.includes(role)
-                    ? current.filter((value) => value !== role)
-                    : [...current, role],
-                )
-              }
+              onClick={() => setRoles((current) => toggleValue(current, role))}
             />
           ))}
         </Flex>

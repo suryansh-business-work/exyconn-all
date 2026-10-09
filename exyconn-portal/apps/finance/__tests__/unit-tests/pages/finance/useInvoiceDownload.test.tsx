@@ -14,7 +14,10 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   },
 }));
 
-vi.mock('@exyconn/shell/utils/file', () => file);
+vi.mock('@exyconn/shell/utils/file', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@exyconn/shell/utils/file')>()),
+  ...file,
+}));
 
 async function download(id: string, number: string) {
   const { result } = renderHookWithProviders(() => useInvoiceDownload());

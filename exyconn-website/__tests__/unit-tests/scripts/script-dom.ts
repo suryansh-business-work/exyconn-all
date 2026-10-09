@@ -131,6 +131,6 @@ export function stubAnimationFrames(): FrameControl {
  */
 export function giveElementsBoxes(): void {
   vi.spyOn(Element.prototype, "getClientRects").mockImplementation(function (this: HTMLElement) {
-    return { length: this.dataset.noBox !== undefined ? 0 : 1 } as unknown as DOMRectList;
+    return { length: this.dataset.noBox === undefined ? 1 : 0 } as unknown as DOMRectList;
   });
 }

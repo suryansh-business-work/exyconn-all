@@ -2,7 +2,6 @@ import { StatusMonitorModel } from '../../../../src/modules/status/status-monito
 import { ProblemReportModel } from '../../../../src/modules/status/problem-report.model';
 import { submitProblemReport } from '../../../../src/modules/status/problem-report.service';
 import {
-  allowReport,
   allowReportAttempt,
   resetReportLimits,
 } from '../../../../src/modules/status/report-rate-limit';
@@ -105,20 +104,5 @@ describe('report rate limits', () => {
 
     await resetReportLimits();
     await expect(allowReportAttempt('198.51.100.1')).resolves.toBe(true);
-  });
-
-  it('forgets in-memory attempts once the hour has passed', () => {
-    const now = Date.now();
-    const clock = jest.spyOn(Date, 'now').mockReturnValue(now);
-    for (let attempt = 0; attempt < 10; attempt += 1) {
-      expect(allowReport('198.51.100.3')).toBe(true);
-    }
-    expect(allowReport('198.51.100.3')).toBe(false);
-
-    clock.mockReturnValue(now + HOUR_MS - 1);
-    expect(allowReport('198.51.100.3')).toBe(false);
-
-    clock.mockReturnValue(now + HOUR_MS);
-    expect(allowReport('198.51.100.3')).toBe(true);
   });
 });

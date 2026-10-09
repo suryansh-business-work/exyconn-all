@@ -8,7 +8,7 @@ import { renderWithProviders } from '../../test-utils';
 
 const gql = vi.hoisted(() => ({ report: vi.fn() }));
 
-vi.mock('react-chartjs-2', () => ({ Line: () => <output data-testid="trend" /> }));
+vi.mock('react-chartjs-2', () => ({ Line: () => <canvas data-testid="trend" /> }));
 vi.mock('@exyconn/shell/components/dashboard/MetricChart', async () =>
   (await import('./charts.mocks')).metricChartMock(),
 );

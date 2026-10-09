@@ -27,7 +27,8 @@ describe('KeySelect', () => {
     );
     expect(screen.getByRole('combobox', { name: 'Flag' })).toHaveTextContent('Hoch');
     await pickOption(user, 'Flag', 'Keins');
-    expect(screen.getByRole('combobox', { name: 'Flag' })).toHaveTextContent('Keins');
+    // "Not set" stores `undefined`, so the select shows nothing rather than the old option.
+    expect(screen.getByRole('combobox', { name: 'Flag' })).not.toHaveTextContent('Hoch');
     await submit();
     expect((await submitted(onSubmit)).flag).toBeUndefined();
   });

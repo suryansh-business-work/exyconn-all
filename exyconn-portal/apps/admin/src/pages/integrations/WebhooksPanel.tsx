@@ -13,6 +13,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { WebhookSecretAlert } from './WebhookSecretAlert';
+import { toggleValue } from './toggleValue';
 
 type WebhookRow = ListWebhooksQuery['listWebhooks'][number];
 
@@ -153,13 +154,7 @@ export function WebhooksPanel() {
             size="small"
             aria-pressed={events.includes(event)}
             color={events.includes(event) ? 'primary' : 'default'}
-            onClick={() =>
-              setEvents((current) =>
-                current.includes(event)
-                  ? current.filter((value) => value !== event)
-                  : [...current, event],
-              )
-            }
+            onClick={() => setEvents((current) => toggleValue(current, event))}
           />
         ))}
       </Flex>

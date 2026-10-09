@@ -29,9 +29,6 @@ export interface CustomSize {
 
 export type CanvasCategory = 'favicon' | 'icon' | 'logo' | 'splash';
 export type ExportFormat = 'png' | 'jpg' | 'webp' | 'ico';
-// Scope keys: 'all', '<category>', '<category>-all', 'custom', 'custom-all' or a specific size key.
-export type ApplyScope = string;
-
 export interface ScopeOption {
   value: string;
   label: string;

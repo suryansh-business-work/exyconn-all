@@ -1,10 +1,10 @@
-import { useMemo, type ReactNode } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import { useMemo, useState, type ReactNode } from 'react';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import type { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { Box, Button, Flex, Text } from '@exyconn/shell/components/ui';
 import { CommonFields } from './CommonFields';
-import { compact, nodeResolver, toFormValues } from './node-form-data';
+import { compact, hasChanges, nodeResolver, toFormValues } from './node-form-data';
 
 interface NodeFormFrameProps<D> {
   /** The node type's data schema — `NODE_SCHEMAS[type].shape.data`. */
@@ -27,17 +27,19 @@ export function NodeFormFrame<D>({
 }: Readonly<NodeFormFrameProps<D>>) {
   const t = useT();
   const resolver = useMemo(() => nodeResolver(schema), [schema]);
-  const methods = useForm({
-    mode: 'onTouched',
-    resolver,
-    defaultValues: toFormValues(data),
-  });
-  const { isDirty, isSubmitting } = methods.formState;
+  // What the form is measured against: the node's data, then whatever was last applied.
+  const [baseline, setBaseline] = useState(() => toFormValues(data));
+  const methods = useForm({ mode: 'onTouched', resolver, defaultValues: baseline });
+  const values = useWatch({ control: methods.control });
+  const isDirty = hasChanges(values, baseline);
+  const { isSubmitting } = methods.formState;
 
-  const submit = methods.handleSubmit((values) => {
-    const next = compact(values) as D;
+  const submit = methods.handleSubmit((submitted) => {
+    const next = compact(submitted) as D;
+    const applied = toFormValues(next);
     onApply(next);
-    methods.reset(toFormValues(next));
+    setBaseline(applied);
+    methods.reset(applied);
   });
 
   return (
@@ -68,7 +70,7 @@ export function NodeFormFrame<D>({
               </Text>
             )}
             <Flex direction="row" spacing={1} justifyContent="flex-end">
-              <Button color="inherit" disabled={!isDirty} onClick={() => methods.reset()}>
+              <Button color="inherit" disabled={!isDirty} onClick={() => methods.reset(baseline)}>
                 {t('Reset')}
               </Button>
               <Button type="submit" variant="contained" disabled={!isDirty} loading={isSubmitting}>

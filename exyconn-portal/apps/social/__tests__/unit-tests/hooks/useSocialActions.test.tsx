@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { SocialFeedDocument } from '@exyconn/shell/graphql/generated';
-import { renderHookWithProviders } from '../test-utils';
+import { renderHookWithProviders, renderWithProviders } from '../test-utils';
 import { useSocialActions } from '../../../src/hooks/useSocialActions';
 
 const api = vi.hoisted(() => ({
@@ -37,14 +37,27 @@ beforeEach(() => {
   api.hookOptions.mockReset();
 });
 
+/** Starts `remove` from a click, the way a post's menu does, so React handles it like a real one. */
+function RemoveButton({ onDone }: Readonly<{ onDone: (removed: boolean) => void }>) {
+  const { remove } = useSocialActions();
+  return (
+    <button type="button" onClick={() => remove('post-1').then(onDone)}>
+      Remove post
+    </button>
+  );
+}
+
 /** Starts a delete, which waits on the confirm dialog, and hands back its pending result. */
-async function startRemove(remove: (id: string) => Promise<boolean>) {
-  let pending: Promise<boolean> = Promise.resolve(false);
-  act(() => {
-    pending = remove('post-1');
+async function startRemove(user: ReturnType<typeof userEvent.setup>) {
+  let settle: (removed: boolean) => void = () => undefined;
+  const pending = new Promise<boolean>((resolve) => {
+    settle = resolve;
   });
+  renderWithProviders(<RemoveButton onDone={settle} />);
+  await user.click(screen.getByRole('button', { name: 'Remove post' }));
   expect(await screen.findByRole('dialog')).toHaveTextContent('Delete this post?');
-  return pending;
+  // Wrapped so the async function does not await the still-unanswered delete.
+  return { pending };
 }
 
 describe('useSocialActions', () => {
@@ -93,8 +106,7 @@ describe('useSocialActions', () => {
 
   it('asks first and deletes nothing when the reader backs out', async () => {
     const user = userEvent.setup();
-    const { result } = renderHookWithProviders(() => useSocialActions());
-    const pending = await startRemove(result.current.remove);
+    const { pending } = await startRemove(user);
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
     await expect(pending).resolves.toBe(false);
     expect(api.remove).not.toHaveBeenCalled();
@@ -102,8 +114,7 @@ describe('useSocialActions', () => {
 
   it('deletes the post once confirmed and reports it gone', async () => {
     const user = userEvent.setup();
-    const { result } = renderHookWithProviders(() => useSocialActions());
-    const pending = await startRemove(result.current.remove);
+    const { pending } = await startRemove(user);
     expect(screen.getByRole('dialog')).toHaveTextContent(
       'It disappears from everyone’s feed, along with its likes and comments.',
     );
@@ -116,8 +127,7 @@ describe('useSocialActions', () => {
   it('reports a delete that failed and says the post is still there', async () => {
     api.remove.mockRejectedValue(new Error('Not allowed'));
     const user = userEvent.setup();
-    const { result } = renderHookWithProviders(() => useSocialActions());
-    const pending = await startRemove(result.current.remove);
+    const { pending } = await startRemove(user);
     await user.click(screen.getByRole('button', { name: 'Delete' }));
     await expect(pending).resolves.toBe(false);
     await waitFor(() => expect(snackbar()).toHaveTextContent('Not allowed'));
@@ -126,8 +136,7 @@ describe('useSocialActions', () => {
   it('falls back to a plain message when a delete fails without an Error', async () => {
     api.remove.mockRejectedValue('offline');
     const user = userEvent.setup();
-    const { result } = renderHookWithProviders(() => useSocialActions());
-    const pending = await startRemove(result.current.remove);
+    const { pending } = await startRemove(user);
     await user.click(screen.getByRole('button', { name: 'Delete' }));
     await expect(pending).resolves.toBe(false);
     await waitFor(() => expect(snackbar()).toHaveTextContent('Could not delete that post'));

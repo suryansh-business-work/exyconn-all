@@ -105,7 +105,6 @@ export async function subscribeToStatus(
   } catch (error) {
     logger.error({ err: error }, `Status confirmation email to ${address} failed`);
   }
-  return;
 }
 
 /**

@@ -20,27 +20,7 @@ export function allowReportAttempt(client: string): Promise<boolean> {
   return reportLimiter.allow(client);
 }
 
-const recent = new Map<string, number[]>();
-
-/**
- * @deprecated In-memory and per-process — use `await allowReportAttempt(client)`. Kept only
- * until problem-report.service.ts and problem-report.notify.ts switch over; an un-awaited
- * promise in their `if (!allowReport(...))` would silently stop limiting, so this stays sync.
- */
-export function allowReport(client: string): boolean {
-  const now = Date.now();
-  const times = (recent.get(client) ?? []).filter((time) => now - time < WINDOW_SEC * 1000);
-  if (times.length >= MAX_PER_WINDOW) {
-    recent.set(client, times);
-    return false;
-  }
-  times.push(now);
-  recent.set(client, times);
-  return true;
-}
-
 /** Test seam: forgets every recorded attempt. */
 export async function resetReportLimits(): Promise<void> {
-  recent.clear();
   await reportLimiter.reset();
 }

@@ -29,7 +29,7 @@ const PRESETS: Record<AnimeName, Record<string, unknown>> = {
 };
 
 function isMotionDisabled(): boolean {
-  if (typeof globalThis.window === "undefined") return true;
+  if (globalThis.window === undefined) return true;
   if (document.documentElement.dataset.a11yMotion === "on") return true;
   if (globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return true;
   return false;
@@ -79,7 +79,7 @@ function playStagger(el: HTMLElement) {
 }
 
 function init() {
-  if (typeof globalThis.window === "undefined") return;
+  if (globalThis.window === undefined) return;
 
   const singles = Array.from(document.querySelectorAll<HTMLElement>("[data-anime]"));
   const staggered = Array.from(document.querySelectorAll<HTMLElement>("[data-anime-stagger]"));
@@ -109,8 +109,8 @@ function init() {
         if (!entry.isIntersecting) return;
         const el = entry.target as HTMLElement;
         io.unobserve(el);
-        if (el.dataset.animeStagger !== undefined) playStagger(el);
-        else playSingle(el);
+        if (el.dataset.animeStagger === undefined) playSingle(el);
+        else playStagger(el);
       });
     },
     { rootMargin: "0px 0px -10% 0px", threshold: 0.05 }

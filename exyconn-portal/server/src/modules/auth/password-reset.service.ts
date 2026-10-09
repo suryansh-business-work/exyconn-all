@@ -14,7 +14,7 @@ import { organizationOf, runAsPlatform, runForOrganizationOf } from '../../lib/t
 import type { GraphQLContext } from '../../middleware/auth';
 
 /** The template the link is emailed with. Authored in Tech → Email. */
-export const PASSWORD_RESET_TEMPLATE = 'password-reset';
+export const RESET_LINK_TEMPLATE = 'password-reset';
 
 const HOUR_SEC = 60 * 60;
 const TOKEN_TTL_MS = HOUR_SEC * 1000;
@@ -70,7 +70,6 @@ export async function requestPasswordReset(email: string, ctx: GraphQLContext): 
     return;
   }
   await runForOrganizationOf(organizationOf(user), () => sendResetLink(user, ctx));
-  return;
 }
 
 /**
@@ -99,7 +98,7 @@ async function sendResetLink(
 
   emailer
     .send({
-      template: PASSWORD_RESET_TEMPLATE,
+      template: RESET_LINK_TEMPLATE,
       to: user.email,
       variables: { name: user.name || user.email, link, expiresIn: '1 hour' },
       triggeredBy: 'password reset request',

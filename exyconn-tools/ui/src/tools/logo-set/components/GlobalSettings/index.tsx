@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Paper } from '@mui/material';
-import { LogoSettings, ExportFormat, ApplyScope, CustomSize } from '../../types';
+import { LogoSettings, ExportFormat, CustomSize } from '../../types';
 import SettingsHeader from './SettingsHeader';
 import ScopeSelector from './ScopeSelector';
 import TransformSection from './TransformSection';
@@ -14,8 +14,9 @@ interface Props {
   onChange: (settings: LogoSettings) => void;
   format: ExportFormat;
   onFormatChange: (format: ExportFormat) => void;
-  applyScope: ApplyScope;
-  onApplyScopeChange: (scope: ApplyScope) => void;
+  /** 'all', '<category>', '<category>-all', 'custom', 'custom-all' or a specific size key. */
+  applyScope: string;
+  onApplyScopeChange: (scope: string) => void;
   customSizes: CustomSize[];
   onCustomSizesChange: (sizes: CustomSize[]) => void;
   onOpenCustomSizesDialog: () => void;

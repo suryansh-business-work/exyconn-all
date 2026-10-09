@@ -194,8 +194,9 @@ export function assertMayChangeSignInFields(
 function tryEmail(action: string, send: () => Promise<void>): void {
   const onError = (error: unknown) =>
     logger.error({ error }, `${action} email failed — credentials still available to copy`);
-  // The executor invokes send() synchronously; a throw or a rejection both reach onError.
-  new Promise<void>((resolve) => resolve(send())).catch(onError);
+  // An async wrapper calls send() synchronously; a throw or a rejection both reach onError.
+  const run = async (): Promise<void> => send();
+  run().catch(onError);
 }
 
 export interface SendMailInput {

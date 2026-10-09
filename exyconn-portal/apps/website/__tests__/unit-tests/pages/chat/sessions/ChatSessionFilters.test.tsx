@@ -45,8 +45,8 @@ describe('ChatSessionFilters selects', () => {
     fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Status' }));
     expect(screen.getAllByRole('option').map((option) => option.textContent)).toEqual([
       'All statuses',
-      'Open',
       'Closed',
+      'Open',
     ]);
   });
 

@@ -87,6 +87,23 @@ export function compact(value: unknown): unknown {
   return Object.fromEntries(kept.map(([key, child]) => [key, compact(child)]));
 }
 
+/** The same data whatever order its keys were added in, so two copies compare as text. */
+const canonical = (value: unknown): string =>
+  JSON.stringify(compact(fromFormValues(value)), (_key, child) =>
+    isRecord(child)
+      ? Object.fromEntries(Object.entries(child).sort(([a], [b]) => a.localeCompare(b)))
+      : child,
+  );
+
+/**
+ * Whether Apply would hand the canvas something different from `baseline`. React Hook Form's
+ * own `isDirty` cannot say: once a form has been reset, the empty values its fields register
+ * (an unset note, an empty `set` list) are keys the defaults lack, so it reads dirty for good.
+ */
+export function hasChanges(values: unknown, baseline: unknown): boolean {
+  return canonical(values) !== canonical(baseline);
+}
+
 const tooSmallMessage = (origin: string, minimum: number | bigint) => {
   if (origin === 'string') {
     return Number(minimum) <= 1 ? 'This is required' : 'Too short';

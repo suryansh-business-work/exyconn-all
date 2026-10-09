@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
 import { useT } from '@exyconn/i18n';
 import { ExportCsvButton } from '@exyconn/crud';
 import {
@@ -7,6 +8,7 @@ import {
   Button,
   CircularProgress,
   Flex,
+  IconButton,
   Table,
   TableBody,
   TableCell,
@@ -52,11 +54,20 @@ export function TrackerBillingByProject({ range }: Readonly<{ range: BillingRang
       {invoice.raised ? (
         <Alert
           severity="success"
-          onClose={invoice.dismiss}
           action={
-            <Button color="inherit" size="small" href={invoice.raised.url}>
-              {t('Open in Finance')}
-            </Button>
+            <>
+              <Button color="inherit" size="small" href={invoice.raised.url}>
+                {t('Open in Finance')}
+              </Button>
+              <IconButton
+                color="inherit"
+                size="small"
+                aria-label={t('Close')}
+                onClick={invoice.dismiss}
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </>
           }
           sx={{ mb: 1.5 }}
         >

@@ -13,7 +13,7 @@ const row: AuditLogRow = {
   entityLabel: 'INV-001',
   summary: 'Payment recorded on Invoice INV-001',
   changes: JSON.stringify({ status: { from: 'SENT', to: 'PAID' } }),
-  ip: '10.0.0.1',
+  ip: '203.0.113.1',
   createdAt: '2026-09-01T10:00:00.000Z',
 };
 
