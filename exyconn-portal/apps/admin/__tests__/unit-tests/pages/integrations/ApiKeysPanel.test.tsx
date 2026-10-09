@@ -39,7 +39,7 @@ const rowOf = (name: string) => screen.getByText(name).closest('tr') as HTMLElem
 
 describe('ApiKeysPanel', () => {
   it('shows a loader, then each key with its roles, last use and state', async () => {
-    renderWithProviders(<ApiKeysPanel />, {
+    const { container } = renderWithProviders(<ApiKeysPanel />, {
       mocks: [
         list(
           [apiKey(), apiKey({ id: 'key-9', name: 'Old', lastUsedAt: null, revokedAt: 'r' })],
@@ -47,17 +47,17 @@ describe('ApiKeysPanel', () => {
         ),
       ],
     });
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
     const active = await screen.findByText('Payroll sync');
-    expect(screen.queryByRole('progressbar')).toBeNull();
+    expect(container.querySelector('[aria-busy="true"]')).toBeNull();
     const row = active.closest('tr') as HTMLElement;
     expect(within(row).getByText('exy_ab12')).toBeInTheDocument();
     expect(within(row).getByText('HR, Finance')).toBeInTheDocument();
     expect(within(row).getByText(/Sep 2026/)).toBeInTheDocument();
-    expect(within(row).getByRole('button', { name: 'Revoke' })).toBeInTheDocument();
+    expect(within(row).getByRole('button', { name: 'Revoke key' })).toBeInTheDocument();
     expect(within(rowOf('Old')).getByText('Never')).toBeInTheDocument();
     expect(within(rowOf('Old')).getByText('Revoked')).toBeInTheDocument();
-    expect(within(rowOf('Old')).queryByRole('button', { name: 'Revoke' })).toBeNull();
+    expect(within(rowOf('Old')).queryByRole('button', { name: 'Revoke key' })).toBeNull();
   });
 
   it('refuses a key without a name or without a role', async () => {
@@ -123,16 +123,16 @@ describe('ApiKeysPanel', () => {
     renderWithProviders(<ApiKeysPanel />, {
       mocks: [list(), revoked(), list([apiKey({ revokedAt: '2026-09-20T00:00:00.000Z' })])],
     });
-    await user.click(await screen.findByRole('button', { name: 'Revoke' }));
+    await user.click(await screen.findByRole('button', { name: 'Revoke key' }));
     const dialog = await screen.findByRole('dialog');
     expect(
       within(dialog).getByText('Revoke this key? Anything using it stops working immediately.'),
     ).toBeInTheDocument();
     await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(screen.getByRole('button', { name: 'Revoke' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Revoke key' })).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'Revoke' }));
+    await user.click(screen.getByRole('button', { name: 'Revoke key' }));
     await user.click(
       within(await screen.findByRole('dialog')).getByRole('button', { name: 'Revoke' }),
     );
@@ -147,7 +147,7 @@ describe('ApiKeysPanel', () => {
     renderWithProviders(<ApiKeysPanel />, {
       mocks: [list(), revoked(new Error('Already revoked'))],
     });
-    await user.click(await screen.findByRole('button', { name: 'Revoke' }));
+    await user.click(await screen.findByRole('button', { name: 'Revoke key' }));
     await user.click(
       within(await screen.findByRole('dialog')).getByRole('button', { name: 'Revoke' }),
     );

@@ -22,14 +22,14 @@ const NOW = new Date('2026-10-04T00:00:00Z');
 const DAY = 86_400_000;
 const host = { host: 'portal.exyconn.com', monitors: ['Portal'] };
 
-/** A handshake whose certificate expires `days` after NOW. */
-const handshake = (days: number, authorized = true) => ({
+/** A handshake whose certificate expires `days` after `from` (NOW unless the code reads the clock). */
+const handshake = (days: number, authorized = true, from: Date = NOW) => ({
   certificate: {
     subject: { CN: 'portal.exyconn.com' },
     issuer: { O: "Let's Encrypt", CN: 'R11' },
     subjectaltname: 'DNS:portal.exyconn.com, DNS:www.exyconn.com',
     valid_from: 'Sep  1 00:00:00 2026 GMT',
-    valid_to: new Date(NOW.getTime() + days * DAY).toUTCString(),
+    valid_to: new Date(from.getTime() + days * DAY).toUTCString(),
     serialNumber: '0A1B',
     fingerprint256: 'AA:BB',
   },
@@ -194,7 +194,9 @@ describe('the certificate report', () => {
       ['odd.exyconn.com', rejectWith({ code: 'EPIPE' })],
     ]);
     for (const outcome of outcomes.values()) outcome.catch(() => undefined);
-    probe.mockImplementation((name: string) => outcomes.get(name) ?? Promise.resolve(handshake(5)));
+    probe.mockImplementation(
+      (name: string) => outcomes.get(name) ?? Promise.resolve(handshake(5, true, new Date())),
+    );
     const report = await sslCertificates();
     expect(report.warningDays).toBe(env.security.sslWarningDays);
     expect(report.certificates.map((row) => [row.host, row.status, row.error])).toEqual([

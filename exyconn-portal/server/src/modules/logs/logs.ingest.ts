@@ -106,9 +106,10 @@ let budgetWarnedAt = 0;
 
 /** Test seam: forgets every recorded batch and refills the server error budget. */
 export async function resetLogIngestLimits(): Promise<void> {
-  await limiter.reset();
+  // The in-memory state first: callers that do not await this still start with a full budget.
   serverWriteBudget.reset();
   budgetWarnedAt = 0;
+  await limiter.reset();
 }
 
 function cut(value: string | null | undefined, max: number): string {

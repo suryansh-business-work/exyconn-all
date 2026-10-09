@@ -28,9 +28,16 @@ export function currencyOptions(locale: string): IsoOption[] {
     .sort(byLabel);
 }
 
+/** Whether ICU treats `code` as itself, not a retired alias: "DD" (East Germany) is "DE". */
+function isCanonicalRegion(code: string): boolean {
+  return Intl.getCanonicalLocales(`und-${code}`)[0] === `und-${code}`;
+}
+
 /**
  * Every ISO 3166-1 alpha-2 country, named in `locale`. ICU answers with the code itself for
  * anything it does not recognise, which is how the reserved and unassigned ranges drop out.
+ * It also names the retired codes that now point at a country ("DD", "UK", "SU"), so those are
+ * skipped, or the same country would be offered twice.
  */
 export function countryOptions(locale: string): IsoOption[] {
   const names = new Intl.DisplayNames([locale], { type: 'region' });
@@ -39,7 +46,7 @@ export function countryOptions(locale: string): IsoOption[] {
     for (let second = 65; second <= 90; second += 1) {
       const code = String.fromCodePoint(first) + String.fromCodePoint(second);
       const label = names.of(code);
-      if (label !== undefined && label !== code) {
+      if (label !== undefined && label !== code && isCanonicalRegion(code)) {
         codes.push({ code, label });
       }
     }
