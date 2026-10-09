@@ -46,3 +46,4 @@ exyconn-tracker-app/dist/
 
 # CI quality reports (.github/scripts/pr-reports)
 /reports/
+sonar-coverage/
