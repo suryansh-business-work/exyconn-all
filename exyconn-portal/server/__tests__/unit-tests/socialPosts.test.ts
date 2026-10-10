@@ -134,9 +134,9 @@ describe('test connection', () => {
 describe('composing and publishing', () => {
   it('refuses a draft any chosen network would refuse, before creating anything', async () => {
     const ig = await account('INSTAGRAM', 'META');
-    await expect(composePosts({ ...draft(), accountIds: [String(ig._id)] }, 'u1')).rejects.toThrow(
-      'needs an image',
-    );
+    await expect(
+      composePosts({ ...draft(), accountIds: [ig._id.toHexString()] }, 'u1'),
+    ).rejects.toThrow('needs an image');
     await expect(composePosts({ ...draft(), accountIds: [] }, 'u1')).rejects.toThrow(
       'at least one account',
     );
@@ -147,7 +147,7 @@ describe('composing and publishing', () => {
       composePosts(
         {
           ...draft(),
-          accountIds: [String((await account('FACEBOOK', 'META'))._id)],
+          accountIds: [(await account('FACEBOOK', 'META'))._id.toHexString()],
           scheduledAt: new Date(Date.now() - HOUR),
         },
         'u1',
@@ -164,7 +164,10 @@ describe('composing and publishing', () => {
       [/ugcPosts/, 403, { message: 'Not enough permissions' }],
     ]);
     const posts = (await composePosts(
-      { ...draft({ link: 'https://exyconn.com' }), accountIds: [String(fb._id), String(li._id)] },
+      {
+        ...draft({ link: 'https://exyconn.com' }),
+        accountIds: [fb._id.toHexString(), li._id.toHexString()],
+      },
       'u1',
     )) as Array<Record<string, unknown>>;
     const byNetwork = Object.fromEntries(posts.map((p) => [p.network, p]));
@@ -188,7 +191,7 @@ describe('composing and publishing', () => {
       [/ig-media-1\?/, 200, { permalink: 'https://instagram.com/p/abc' }],
     ]);
     const [post] = (await composePosts(
-      { ...draft({ mediaUrl: 'https://i/a.png' }), accountIds: [String(ig._id)] },
+      { ...draft({ mediaUrl: 'https://i/a.png' }), accountIds: [ig._id.toHexString()] },
       'u1',
     )) as Array<Record<string, unknown>>;
     expect(post).toMatchObject({ status: 'PUBLISHED', permalink: 'https://instagram.com/p/abc' });
@@ -198,11 +201,11 @@ describe('composing and publishing', () => {
     const xAcc = await account('X', 'X');
     const later = new Date(Date.now() + HOUR);
     const [scheduled] = (await composePosts(
-      { ...draft(), accountIds: [String(xAcc._id)], scheduledAt: later },
+      { ...draft(), accountIds: [xAcc._id.toHexString()], scheduledAt: later },
       'u1',
     )) as Array<{ _id: unknown; status: string }>;
     const [kept] = (await composePosts(
-      { ...draft(), accountIds: [String(xAcc._id)], draft: true },
+      { ...draft(), accountIds: [xAcc._id.toHexString()], draft: true },
       'u1',
     )) as Array<{ _id: unknown; status: string }>;
     expect([scheduled.status, kept.status]).toEqual(['SCHEDULED', 'DRAFT']);
@@ -221,7 +224,7 @@ describe('composing and publishing', () => {
   it('edits, publishes and deletes only posts that have not gone out', async () => {
     const xAcc = await account('X', 'X');
     const [kept] = (await composePosts(
-      { ...draft(), accountIds: [String(xAcc._id)], draft: true },
+      { ...draft(), accountIds: [xAcc._id.toHexString()], draft: true },
       'u1',
     )) as Array<{ _id: unknown }>;
     const id = String(kept._id);
@@ -243,7 +246,7 @@ describe('composing and publishing', () => {
     await expect(deletePost(id)).rejects.toThrow('Only a draft');
     await expect(updatePost(new Types.ObjectId().toHexString(), draft())).rejects.toThrow();
     const [other] = (await composePosts(
-      { ...draft(), accountIds: [String(xAcc._id)], draft: true },
+      { ...draft(), accountIds: [xAcc._id.toHexString()], draft: true },
       'u1',
     )) as Array<{ _id: unknown }>;
     expect(await deletePost(String(other._id))).toBe(true);
@@ -253,7 +256,7 @@ describe('composing and publishing', () => {
     const fb = await account('FACEBOOK', 'META');
     const later = new Date(Date.now() + HOUR);
     const [post] = (await composePosts(
-      { ...draft(), accountIds: [String(fb._id)], scheduledAt: later },
+      { ...draft(), accountIds: [fb._id.toHexString()], scheduledAt: later },
       'u1',
     )) as Array<{ _id: unknown }>;
     await SocialAccountModel.deleteOne({ _id: fb._id });
@@ -265,14 +268,14 @@ describe('composing and publishing', () => {
 
     const yt = await account('YOUTUBE', 'YOUTUBE');
     const ytPost = await SocialMediaPostModel.create({
-      accountId: String(yt._id),
+      accountId: yt._id.toHexString(),
       network: 'YOUTUBE',
       app: 'YOUTUBE',
       origin: 'COMPOSED',
       status: 'DRAFT',
       text: 'Hi',
     });
-    expect(await publishNow(String(ytPost._id))).toMatchObject({
+    expect(await publishNow(ytPost._id.toHexString())).toMatchObject({
       status: 'FAILED',
       error: expect.stringMatching('does not take posts'),
     });
@@ -283,7 +286,7 @@ describe('syncing', () => {
   it("files an account's posts with their numbers, and matches a post published from here", async () => {
     const fb = await account('FACEBOOK', 'META');
     await SocialMediaPostModel.create({
-      accountId: String(fb._id),
+      accountId: fb._id.toHexString(),
       network: 'FACEBOOK',
       app: 'META',
       origin: 'COMPOSED',
@@ -310,7 +313,7 @@ describe('syncing', () => {
       },
     ];
     fakeNetwork([[/facebook-1\/posts/, 200, { data: posts }]]);
-    expect(await syncAccount(String(fb._id))).toMatchObject({ synced: 2, error: '' });
+    expect(await syncAccount(fb._id.toHexString())).toMatchObject({ synced: 2, error: '' });
     expect(await SocialMediaPostModel.countDocuments()).toBe(2);
     expect(await SocialMediaPostModel.findOne({ externalId: 'p1' }).lean()).toMatchObject({
       origin: 'SYNCED',
@@ -333,8 +336,8 @@ describe('syncing', () => {
       ],
     ]);
     const results = await syncAllAccounts();
-    expect(results.find((r) => r.accountId === String(xAcc._id))?.error).toMatch('X refused');
-    expect(results.find((r) => r.accountId === String(li._id))).toMatchObject({
+    expect(results.find((r) => r.accountId === xAcc._id.toHexString())?.error).toMatch('X refused');
+    expect(results.find((r) => r.accountId === li._id.toHexString())).toMatchObject({
       synced: 0,
       error: '',
     });
@@ -384,7 +387,7 @@ describe('syncing', () => {
         },
       ],
     ]);
-    expect(await syncAccount(String(yt._id))).toMatchObject({ synced: 1 });
+    expect(await syncAccount(yt._id.toHexString())).toMatchObject({ synced: 1 });
     const stored = await SocialAccountModel.findById(yt._id).lean();
     expect(open(String(stored?.accessToken))).toBe('fresh');
     expect(await SocialMediaPostModel.findOne({ externalId: 'v1' }).lean()).toMatchObject({
@@ -394,7 +397,7 @@ describe('syncing', () => {
 
   it('asks for a reconnect when a token expired and cannot be refreshed', async () => {
     const fb = await account('FACEBOOK', 'META', { expiresAt: new Date(Date.now() - HOUR) });
-    expect(await syncAccount(String(fb._id))).toMatchObject({
+    expect(await syncAccount(fb._id.toHexString())).toMatchObject({
       error: expect.stringMatching('connect the account again'),
     });
   });
@@ -406,7 +409,7 @@ describe('analytics and AI', () => {
     const recent = new Date(Date.now() - HOUR);
     await SocialMediaPostModel.create([
       {
-        accountId: String(fb._id),
+        accountId: fb._id.toHexString(),
         network: 'FACEBOOK',
         app: 'META',
         origin: 'SYNCED',
@@ -417,7 +420,7 @@ describe('analytics and AI', () => {
         metrics: { likes: 10, comments: 3, shares: 2, views: 100 },
       },
       {
-        accountId: String(fb._id),
+        accountId: fb._id.toHexString(),
         network: 'FACEBOOK',
         app: 'META',
         origin: 'SYNCED',
@@ -428,7 +431,7 @@ describe('analytics and AI', () => {
         metrics: { likes: 1 },
       },
       {
-        accountId: String(fb._id),
+        accountId: fb._id.toHexString(),
         network: 'FACEBOOK',
         app: 'META',
         origin: 'COMPOSED',

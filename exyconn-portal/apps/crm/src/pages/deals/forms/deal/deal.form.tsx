@@ -25,7 +25,7 @@ const schema = z.object({
   title: z.string().trim().min(1, 'Title is required'),
   companyId: z.string().trim(),
   contactId: z.string().trim(),
-  stage: z.nativeEnum(DealStage),
+  stage: z.enum(DealStage),
   value: z.coerce.number({ message: 'Value must be a number' }).min(0, 'Value cannot be negative'),
   probability: z.coerce
     .number({ message: 'Probability must be a number' })

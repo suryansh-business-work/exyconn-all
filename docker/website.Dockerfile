@@ -44,7 +44,7 @@ FROM node:22-alpine AS runtime
 RUN apk add --no-cache wget && \
     addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
 WORKDIR /app
-COPY --from=build --chown=root:nodejs --chmod=550 /app /app
+COPY --from=build --chown=nodejs:nodejs /app /app
 USER nodejs
 
 # Astro's standalone node server reads HOST and PORT from the environment.

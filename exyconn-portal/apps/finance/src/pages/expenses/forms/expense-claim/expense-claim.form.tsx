@@ -33,7 +33,7 @@ const schema = z.object({
     .trim()
     .regex(HTTP_URL, 'Enter a full URL starting with https://')
     .or(z.literal('')),
-  status: z.nativeEnum(ExpenseStatus),
+  status: z.enum(ExpenseStatus),
   approvedAmount: z.union([z.literal(''), z.coerce.number().min(0, 'Must be ≥ 0')]),
 });
 type Values = z.infer<typeof schema>;

@@ -81,12 +81,11 @@ export function PayDialog({ invoice, onClose }: Readonly<PayDialogProps>) {
   const available = GATEWAY_CHOICES.filter((choice) => options?.[choice.option]);
   const noneAvailable = !loading && options && available.length === 0;
 
-  const start = async (gateway: PaymentGateway) => {
-    if (!invoice) return;
+  const start = async (invoiceId: string, gateway: PaymentGateway) => {
     setBusy(gateway);
     setError(null);
     try {
-      const result = await pay({ variables: { id: invoice.id, gateway } });
+      const result = await pay({ variables: { id: invoiceId, gateway } });
       const url = result.data?.clientHubPayInvoice.url;
       if (url) globalThis.location.assign(url);
     } catch (err) {
@@ -118,7 +117,7 @@ export function PayDialog({ invoice, onClose }: Readonly<PayDialogProps>) {
               startIcon={choice.icon}
               loading={busy === choice.gateway}
               disabled={busy !== null}
-              onClick={() => start(choice.gateway)}
+              onClick={() => start(invoice.id, choice.gateway)}
             >
               {t(choice.label)}
             </Button>

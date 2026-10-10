@@ -10,7 +10,7 @@ import {
 import { trackerTimeLogService } from '../../../../src/modules/tracker/tracker.timelog.service';
 
 const HOUR = 3_600_000;
-const PROJECT = new Types.ObjectId().toString();
+const PROJECT = new Types.ObjectId().toHexString();
 const FROM = new Date('2026-09-01T00:00:00.000Z');
 const TO = new Date('2026-09-30T00:00:00.000Z');
 
@@ -20,7 +20,7 @@ async function employee(name: string) {
     email: `${randomUUID()}@exyconn.com`,
     passwordHash: randomUUID(),
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 function session(userId: string, startedAt: string, endedAt: Date | null = null) {
@@ -37,11 +37,11 @@ function session(userId: string, startedAt: string, endedAt: Date | null = null)
 describe('the drill-down', () => {
   it('lists every run on the project, newest first, when no row is picked', async () => {
     const asha = await employee('Asha');
-    const gone = new Types.ObjectId().toString();
+    const gone = new Types.ObjectId().toHexString();
     const older = await session(asha, '2026-09-03T09:00:00.000Z', new Date('2026-09-03T10:00:00Z'));
     await TrackerIntervalModel.create({
       userId: asha,
-      sessionId: String(older._id),
+      sessionId: older._id.toHexString(),
       startedAt: new Date('2026-09-03T09:00:00.000Z'),
       endedAt: new Date('2026-09-03T09:10:00.000Z'),
       activeMs: HOUR,
@@ -49,7 +49,7 @@ describe('the drill-down', () => {
     });
     await TrackerScreenshotModel.create({
       userId: asha,
-      sessionId: String(older._id),
+      sessionId: older._id.toHexString(),
       intervalStartedAt: new Date('2026-09-03T09:00:00.000Z'),
       capturedAt: new Date('2026-09-03T09:05:00.000Z'),
       imageUrl: 'https://ik.example/a.png',
@@ -77,7 +77,7 @@ describe('the drill-down', () => {
         screenshotCount: 0,
       }),
       expect.objectContaining({
-        id: String(older._id),
+        id: older._id.toHexString(),
         userName: 'Asha',
         activeMs: HOUR,
         idleMs: 60_000,
@@ -95,7 +95,7 @@ describe('the drill-down', () => {
 
 describe('the summary', () => {
   it('credits time to a deleted account rather than dropping it', async () => {
-    const gone = new Types.ObjectId().toString();
+    const gone = new Types.ObjectId().toHexString();
     await session(gone, '2026-09-03T09:00:00.000Z', new Date('2026-09-03T10:00:00Z'));
 
     const [row] = await trackerTimeLogService.summary(PROJECT, FROM, TO);
@@ -155,7 +155,7 @@ describe('a session’s screenshots', () => {
     const shot = (minute: number, blurred: boolean) =>
       TrackerScreenshotModel.create({
         userId: asha,
-        sessionId: String(run._id),
+        sessionId: run._id.toHexString(),
         intervalStartedAt: new Date('2026-09-03T09:00:00.000Z'),
         capturedAt: new Date(Date.UTC(2026, 8, 3, 9, minute)),
         imageUrl: `https://ik.example/${minute}.png`,
@@ -164,7 +164,7 @@ describe('a session’s screenshots', () => {
     await shot(7, false);
     await shot(2, true);
 
-    const shots = await trackerTimeLogService.screenshots(PROJECT, String(run._id));
+    const shots = await trackerTimeLogService.screenshots(PROJECT, run._id.toHexString());
 
     expect(shots.map((s) => [s.imageUrl, s.blurred])).toEqual([
       ['https://ik.example/2.png', true],

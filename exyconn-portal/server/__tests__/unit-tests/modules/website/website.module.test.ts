@@ -32,7 +32,7 @@ const operationFields = (docs: DocumentNode[], type: 'Query' | 'Mutation'): stri
 /** A platform administrator who also holds the website role the content guards ask for. */
 const platformEditorCtx = (): GraphQLContext => ({
   user: {
-    id: String(new Types.ObjectId()),
+    id: new Types.ObjectId().toHexString(),
     roles: [ROLES.SUPER_ADMIN, ROLES.WEBSITE],
     email: ADMIN_EMAIL,
   },

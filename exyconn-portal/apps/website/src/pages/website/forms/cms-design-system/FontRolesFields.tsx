@@ -90,7 +90,7 @@ export function FontRolesFields({ families }: Readonly<{ families: readonly stri
                   error={Boolean(fieldState.error)}
                   helperText={
                     fieldState.error
-                      ? t(fieldState.error.message ?? '')
+                      ? t(String(fieldState.error.message))
                       : `--font-family-${input.value}`
                   }
                   sx={{ width: 180 }}

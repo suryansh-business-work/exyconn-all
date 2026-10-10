@@ -7,7 +7,7 @@ const SITE = 'site-1';
 const create = async (tokens: Record<string, unknown>, extraCss?: string | null) =>
   cmsDesignSystems.create({ siteId: SITE, name: 'Brand', tokens, extraCss });
 
-const missingId = () => String(new Types.ObjectId());
+const missingId = () => new Types.ObjectId().toHexString();
 
 describe('design system CRUD', () => {
   it('creates, reads, lists, updates and removes a design system', async () => {
@@ -17,7 +17,7 @@ describe('design system CRUD', () => {
       radii: { sm: '4px' },
     };
     const created = await create(tokens);
-    const id = String(created._id);
+    const id = created._id.toHexString();
     await cmsDesignSystems.create({ siteId: SITE, name: 'Alt', tokens: {}, extraCss: '.a{}' });
 
     expect(created).toMatchObject({ siteId: SITE, name: 'Brand', tokens, extraCss: '' });
@@ -53,7 +53,7 @@ describe('design system CRUD', () => {
   it('clears the extra CSS when an update sends none', async () => {
     const created = await create({}, 'p{}');
 
-    const updated = await cmsDesignSystems.update(String(created._id), {
+    const updated = await cmsDesignSystems.update(created._id.toHexString(), {
       siteId: SITE,
       name: 'Brand',
       tokens: {},
@@ -108,7 +108,7 @@ describe('token checks', () => {
     const created = await create({});
 
     await expect(
-      cmsDesignSystems.update(String(created._id), {
+      cmsDesignSystems.update(created._id.toHexString(), {
         siteId: SITE,
         name: 'Brand',
         tokens: { shadows: { lg: '<script>' } },

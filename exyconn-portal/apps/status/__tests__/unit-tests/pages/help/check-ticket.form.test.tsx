@@ -7,7 +7,7 @@ import { CheckTicketForm } from '../../../../src/pages/help/forms/check-ticket';
 import { TIME_FORMAT } from '../../../../src/status.constants';
 import { renderWithProviders } from '../../test-utils';
 import { fill, findSnackbar } from '../../form-helpers';
-import { EMAIL, REFERENCE, lookedUp, ticket } from './help.fixtures';
+import { EMAIL, REFERENCE, lookedUp, refusedLookup, ticket } from './help.fixtures';
 
 const NO_MATCH = 'No ticket matches that reference and address. Check both and try again.';
 
@@ -97,6 +97,13 @@ describe('CheckTicketForm', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Check' }));
     expect(await findSnackbar('Lookup is rate limited')).toBeInTheDocument();
     expect(screen.queryByText('Payslip is missing')).not.toBeInTheDocument();
+    expect(screen.queryByText(NO_MATCH)).not.toBeInTheDocument();
+  });
+
+  it('reports a GraphQL error the server answered with', async () => {
+    renderForm([refusedLookup('Lookup refused')]);
+    await check();
+    expect(await findSnackbar('Lookup refused')).toBeInTheDocument();
     expect(screen.queryByText(NO_MATCH)).not.toBeInTheDocument();
   });
 

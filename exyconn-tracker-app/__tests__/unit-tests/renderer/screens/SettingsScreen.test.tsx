@@ -98,4 +98,11 @@ describe('SettingsScreen', () => {
     expect(about?.textContent).not.toContain('Version');
     expect(about?.textContent).not.toContain('Support:');
   });
+
+  it('names the business when the portal has no legal name, rather than an empty line', async () => {
+    await open(trackerState('idle'), { ...BRANDING, legalName: '' });
+    const text = document.body.textContent ?? '';
+    expect(text).toContain('Acme');
+    expect(text).not.toContain('Acme Holdings Ltd');
+  });
 });

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { PublicError } from "../../shared/errors";
 import { safeRequest } from "../../shared/security/safe-http";
+import { extractPdfText } from "../../shared/pdf-text";
 import * as cheerio from "cheerio";
 
 export const scrapeWebsite = async (url: string): Promise<string> => {
@@ -87,11 +88,8 @@ export const extractTextFromBase64 = async (
 };
 
 const extractPDFText = async (buffer: Buffer): Promise<string> => {
-  // Using pdf-parse for PDF text extraction
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const pdfParse = require("pdf-parse");
-  const data = await pdfParse(buffer);
-  return data.text.trim();
+  const { text } = await extractPdfText(buffer);
+  return text.trim();
 };
 
 const extractWordText = async (buffer: Buffer): Promise<string> => {

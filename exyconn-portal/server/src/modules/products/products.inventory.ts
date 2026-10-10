@@ -162,5 +162,3 @@ export const productsInventoryResolvers = {
     recordStockMovement,
   },
 };
-
-export { productsInventoryTypeDefs } from './products.inventory.typeDefs';

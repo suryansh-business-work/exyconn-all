@@ -11,7 +11,7 @@ export interface ActionRowItem {
 }
 
 /** The buttons hanging under an interactive message — one full-width row each. */
-export function ActionRows({ mine, items }: Readonly<{ mine: boolean; items: ActionRowItem[] }>) {
+export function ActionRows({ items }: Readonly<{ items: ActionRowItem[] }>) {
   const c = useWaPalette();
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: WA_SPACE.hair, mt: WA_SPACE.hair }}>
@@ -23,7 +23,7 @@ export function ActionRows({ mine, items }: Readonly<{ mine: boolean; items: Act
             gap: WA_SPACE.xs,
             py: WA_SPACE.sm,
             px: WA_SPACE.md,
-            bgcolor: mine ? c.bubbleOut : c.bubbleIn,
+            bgcolor: c.bubbleIn,
             color: c.link,
             borderRadius: WA_RADIUS.bubble,
             boxShadow: WA_SHADOW.bubble,

@@ -24,18 +24,25 @@ type Answer = { data?: unknown; loading: boolean };
 
 type Job = ListAiJobsQuery['listAiJobs'][number];
 
-const q = vi.hoisted(() => ({
-  jobStats: { loading: false } as Answer,
-  promptStats: { loading: false } as Answer,
-  jobs: { loading: false } as Answer,
-  spend: { loading: false } as Answer,
-  limit: { loading: false } as Answer,
-  spendOptions: undefined as unknown,
-  refetchJobs: vi.fn(),
-  refetchSpend: vi.fn(),
-  overview: null as unknown,
-  panel: null as unknown,
-}));
+const q = vi.hoisted(() => {
+  const jobStats: Answer = { loading: false };
+  const promptStats: Answer = { loading: false };
+  const jobs: Answer = { loading: false };
+  const spend: Answer = { loading: false };
+  const limit: Answer = { loading: false };
+  return {
+    jobStats,
+    promptStats,
+    jobs,
+    spend,
+    limit,
+    spendOptions: undefined as unknown,
+    refetchJobs: vi.fn(),
+    refetchSpend: vi.fn(),
+    overview: null as unknown,
+    panel: null as unknown,
+  };
+});
 
 vi.mock('@exyconn/shell/graphql/generated', async (orig) => ({
   ...(await orig<typeof import('@exyconn/shell/graphql/generated')>()),

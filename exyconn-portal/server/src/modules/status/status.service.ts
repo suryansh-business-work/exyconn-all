@@ -155,13 +155,15 @@ export async function getStatusOverview(days?: number | null) {
   ]);
 
   const byService = indexRollups(rollups as StatusDailyDocument[]);
-  const platform = new Map(dates.map((date) => [date, emptyTotals()]));
+  const platform: Record<string, DayTotals> = Object.fromEntries(
+    dates.map((date) => [date, emptyTotals()]),
+  );
 
   const services = monitors.map((monitor) => {
     const totals = byService.get(monitor.key) ?? new Map<string, DayTotals>();
     const points = dates.map((date) => {
       const day = totals.get(date) ?? emptyTotals();
-      platform.set(date, addTotals(platform.get(date) ?? emptyTotals(), day));
+      platform[date] = addTotals(platform[date], day);
       return toPoint(date, day);
     });
     const last30 = points.slice(-30);
@@ -176,17 +178,17 @@ export async function getStatusOverview(days?: number | null) {
       responseMs: monitor.lastResponseMs,
       lastCheckedAt: monitor.lastCheckedAt,
       lastError: publicServiceError(monitor.lastError),
-      uptimeToday: uptimeOf(totals.get(dates[dates.length - 1]) ?? emptyTotals()),
+      uptimeToday: uptimeOf(totals.get(dates.at(-1)!) ?? emptyTotals()),
       uptime30d: uptimeOf(sumDays(last30, totals)),
       days: points,
     };
   });
 
-  const daily = dates.map((date) => toPoint(date, platform.get(date) ?? emptyTotals()));
-  const today = platform.get(dates[dates.length - 1]) ?? emptyTotals();
+  const daily = dates.map((date) => toPoint(date, platform[date]));
+  const today = platform[dates.at(-1)!];
   const last30 = dates
     .slice(-30)
-    .reduce((acc, date) => addTotals(acc, platform.get(date) ?? emptyTotals()), emptyTotals());
+    .reduce((acc, date) => addTotals(acc, platform[date]), emptyTotals());
   const states = services.map((service) => service.state as StatusState);
 
   return {

@@ -19,9 +19,7 @@ const PLATFORM_OPTIONS = BUILD_PLATFORMS.map((p) => ({
 }));
 
 const schema = z.object({
-  platforms: z
-    .array(z.nativeEnum(TrackerPlatform))
-    .min(1, 'Choose at least one installer to build'),
+  platforms: z.array(z.enum(TrackerPlatform)).min(1, 'Choose at least one installer to build'),
   ref: z.string().trim().min(1, 'Branch is required'),
 });
 type Values = z.infer<typeof schema>;

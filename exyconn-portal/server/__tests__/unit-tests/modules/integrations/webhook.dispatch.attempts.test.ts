@@ -26,7 +26,7 @@ afterEach(() => {
 });
 
 const answer = (handler: () => Promise<Response>) => {
-  globalThis.fetch = (() => handler()) as unknown as typeof fetch;
+  globalThis.fetch = () => handler();
 };
 
 const hook = () =>
@@ -139,7 +139,7 @@ describe('a delivery attempt', () => {
     await emitWebhook('invoice.paid', {});
     await WebhookDeliveryModel.updateMany({}, { nextAttemptAt: new Date(Date.now() + 60_000) });
     const fetched = jest.fn();
-    globalThis.fetch = fetched as unknown as typeof fetch;
+    globalThis.fetch = fetched;
 
     await expect(deliverDueWebhooks()).resolves.toBe(0);
     expect(fetched).not.toHaveBeenCalled();

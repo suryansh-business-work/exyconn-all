@@ -16,11 +16,11 @@ describe('withCampaignName', () => {
   it('resolves the name of the campaign the id points at, keeping the other fields', async () => {
     const campaign = await seedCampaign();
 
-    const result = await withCampaignName({ name: 'Ada', campaignId: String(campaign._id) });
+    const result = await withCampaignName({ name: 'Ada', campaignId: campaign._id.toHexString() });
 
     expect(result).toEqual({
       name: 'Ada',
-      campaignId: String(campaign._id),
+      campaignId: campaign._id.toHexString(),
       campaignName: 'Spring webinar',
     });
   });

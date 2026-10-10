@@ -27,7 +27,7 @@ const schema = z.object({
   assignedOn: z.string().min(1, 'Assigned on is required'),
   dueOn: z.string(),
   completedOn: z.string(),
-  status: z.nativeEnum(TrainingStatus),
+  status: z.enum(TrainingStatus),
   certificateUrl: z
     .string()
     .trim()

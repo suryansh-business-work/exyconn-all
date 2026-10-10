@@ -24,7 +24,7 @@ internal object ScreenFrame {
     val cursor: Buffer = source
     for (row in 0 until image.height) {
       cursor.position(row * plane.rowStride)
-      source.get(pixels, row * rowBytes, rowBytes)
+      source[pixels, row * rowBytes, rowBytes]
     }
     return Bitmap.createBitmap(image.width, image.height, Bitmap.Config.ARGB_8888).apply {
       copyPixelsFromBuffer(ByteBuffer.wrap(pixels))

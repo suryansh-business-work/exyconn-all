@@ -13,14 +13,14 @@ const actionSchema = z.object({
 export const reviewSchema = z
   .object({
     title: z.string().trim().min(1, 'Name the review'),
-    standards: z.array(z.nativeEnum(ManagementStandard)).min(1, 'Pick at least one standard'),
+    standards: z.array(z.enum(ManagementStandard)).min(1, 'Pick at least one standard'),
     heldOn: pickedDate('Say when it was held'),
     chairName: z.string().trim(),
     attendees: z.string().trim(),
     inputs: z.string().trim(),
     decisions: z.string().trim(),
     actions: z.array(actionSchema),
-    status: z.nativeEnum(ManagementReviewStatus),
+    status: z.enum(ManagementReviewStatus),
   })
   // A minute is the record of what was considered and decided, so it cannot be empty of both.
   .refine(

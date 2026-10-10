@@ -8,8 +8,8 @@ import { ProblemCategory, ProblemSeverity } from '@exyconn/shell/graphql/generat
  */
 export const reportProblemSchema = z.object({
   serviceKey: z.string(),
-  category: z.nativeEnum(ProblemCategory),
-  severity: z.nativeEnum(ProblemSeverity),
+  category: z.enum(ProblemCategory),
+  severity: z.enum(ProblemSeverity),
   subject: z
     .string()
     .trim()

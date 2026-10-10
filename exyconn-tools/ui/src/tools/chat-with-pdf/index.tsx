@@ -26,9 +26,9 @@ const ChatWithPDF: React.FC = () => {
     if (!file) return;
     setIsLoadingContent(true);
     setError(null);
-    try {
-      const reader = new FileReader();
-      reader.onload = async () => {
+    const reader = new FileReader();
+    reader.onload = async () => {
+      try {
         const base64 = (reader.result as string).split(',')[1];
         const res = await fetch(APIs.chatTools.extractDocument, {
           method: 'POST',
@@ -40,18 +40,17 @@ const ChatWithPDF: React.FC = () => {
         setPdfContent(data.text);
         setFileName(file.name);
         setMessages([]);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to extract PDF');
+      } finally {
         setIsLoadingContent(false);
-      };
-      reader.readAsDataURL(file);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to extract PDF');
-      setIsLoadingContent(false);
-    }
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleSendMessage = useCallback(
     async (question: string) => {
-      if (!pdfContent) return;
       const apiKey = requireKey();
       if (!apiKey) return;
       const userMsg: ChatMessage = {

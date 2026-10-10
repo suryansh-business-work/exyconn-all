@@ -49,17 +49,20 @@ describe('agentLoads', () => {
     const blocked = await user('Bea', { isBlocked: true });
     const inactive = await user('Ian', { isActive: false });
     const assignedAt = new Date('2026-10-05T09:00:00Z');
-    await createSession({ assigneeId: String(online._id), assignedAt });
-    await createSession({ assigneeId: String(online._id), assignedAt: new Date('2026-10-01') });
-    await createSession({ assigneeId: String(online._id), status: 'CLOSED' });
+    await createSession({ assigneeId: online._id.toHexString(), assignedAt });
+    await createSession({
+      assigneeId: online._id.toHexString(),
+      assignedAt: new Date('2026-10-01'),
+    });
+    await createSession({ assigneeId: online._id.toHexString(), status: 'CLOSED' });
 
     const loads = await agentLoads(
-      [online, offline, blocked, inactive].map((agent) => String(agent._id)),
+      [online, offline, blocked, inactive].map((agent) => agent._id.toHexString()),
     );
     const byName = new Map(loads.map((entry) => [entry.name, entry]));
     expect([...byName.keys()].sort((a, b) => a.localeCompare(b))).toEqual(['Olive', 'Otto']);
     expect(byName.get('Olive')).toEqual({
-      id: String(online._id),
+      id: online._id.toHexString(),
       name: 'Olive',
       email: 'olive@exyconn.test',
       online: true,
@@ -98,33 +101,33 @@ describe('freestAgent', () => {
 describe('assignFreeAgent', () => {
   it('leaves the chat unassigned when no agents are listed', async () => {
     const session = await createSession();
-    await assignFreeAgent(String(session._id));
+    await assignFreeAgent(session._id.toHexString());
     expect((await ChatSessionModel.findById(session._id).lean())?.assigneeId).toBe('');
   });
 
   it('gives the chat to the freest agent without Slack when Slack is off', async () => {
     const agent = await user('Olive', { lastActiveAt: new Date() });
-    await ChatSettingsModel.create({ agentIds: [String(agent._id)] });
+    await ChatSettingsModel.create({ agentIds: [agent._id.toHexString()] });
     const session = await createSession();
-    await assignFreeAgent(String(session._id));
+    await assignFreeAgent(session._id.toHexString());
     const saved = await ChatSessionModel.findById(session._id).lean();
-    expect(saved).toMatchObject({ assigneeId: String(agent._id), assigneeName: 'Olive' });
+    expect(saved).toMatchObject({ assigneeId: agent._id.toHexString(), assigneeName: 'Olive' });
     expect(saved?.assignedAt).toBeInstanceOf(Date);
     expect(notify).not.toHaveBeenCalled();
   });
 
   it("opens the agent's Slack thread when Slack is on, logging a failure", async () => {
     const agent = await user('Olive');
-    await ChatSettingsModel.create({ agentIds: [String(agent._id)], slackEnabled: true });
+    await ChatSettingsModel.create({ agentIds: [agent._id.toHexString()], slackEnabled: true });
     const session = await createSession();
     notify.mockRejectedValueOnce(new Error('Slack down'));
     const logged = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
 
-    await assignFreeAgent(String(session._id));
+    await assignFreeAgent(session._id.toHexString());
 
     expect(notify).toHaveBeenCalledWith(
       expect.objectContaining({ assigneeName: 'Olive' }),
-      expect.objectContaining({ id: String(agent._id), email: 'olive@exyconn.test' }),
+      expect.objectContaining({ id: agent._id.toHexString(), email: 'olive@exyconn.test' }),
     );
     await new Promise((resolve) => setImmediate(resolve));
     expect(logged).toHaveBeenCalledWith(
@@ -135,9 +138,9 @@ describe('assignFreeAgent', () => {
 
   it('does not take a chat somebody already has', async () => {
     const agent = await user('Olive');
-    await ChatSettingsModel.create({ agentIds: [String(agent._id)], slackEnabled: true });
+    await ChatSettingsModel.create({ agentIds: [agent._id.toHexString()], slackEnabled: true });
     const session = await createSession({ assigneeId: 'someone', assigneeName: 'Sam' });
-    await assignFreeAgent(String(session._id));
+    await assignFreeAgent(session._id.toHexString());
     expect((await ChatSessionModel.findById(session._id).lean())?.assigneeName).toBe('Sam');
     expect(notify).not.toHaveBeenCalled();
   });

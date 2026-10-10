@@ -28,7 +28,7 @@ async function person(name: string, managerId: string | null = null, isActive = 
     managerId,
     isActive,
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 afterEach(() => jest.restoreAllMocks());

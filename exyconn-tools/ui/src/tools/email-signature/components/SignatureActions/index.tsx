@@ -40,21 +40,19 @@ const SignatureActions: React.FC<SignatureActionsProps> = ({ values, isValid: _i
   };
 
   const handleCopyRichText = async () => {
-    try {
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = signatureHTML;
-      tempDiv.style.position = 'absolute';
-      tempDiv.style.left = '-9999px';
-      document.body.appendChild(tempDiv);
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = signatureHTML;
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.left = '-9999px';
+    document.body.appendChild(tempDiv);
+    const selection = globalThis.getSelection();
 
+    try {
       const range = document.createRange();
       range.selectNodeContents(tempDiv);
-      const selection = globalThis.getSelection();
       selection?.removeAllRanges();
       selection?.addRange(range);
       document.execCommand('copy');
-      selection?.removeAllRanges();
-      tempDiv.remove();
 
       setCopied('text');
       setSnackbar({
@@ -65,6 +63,9 @@ const SignatureActions: React.FC<SignatureActionsProps> = ({ values, isValid: _i
       setTimeout(() => setCopied(null), 2000);
     } catch {
       setSnackbar({ open: true, message: 'Failed to copy. Please try again.', severity: 'error' });
+    } finally {
+      selection?.removeAllRanges();
+      tempDiv.remove();
     }
   };
 
@@ -82,7 +83,7 @@ const SignatureActions: React.FC<SignatureActionsProps> = ({ values, isValid: _i
   };
 
   const handleSendTestEmail = async () => {
-    if (!testEmail?.includes('@')) {
+    if (!testEmail.includes('@')) {
       setSnackbar({ open: true, message: 'Please enter a valid email address.', severity: 'error' });
       return;
     }
@@ -102,8 +103,6 @@ const SignatureActions: React.FC<SignatureActionsProps> = ({ values, isValid: _i
             severity: 'error',
           });
         }
-      } catch {
-        setSnackbar({ open: true, message: 'Server error. Try the client method instead.', severity: 'error' });
       } finally {
         setIsSending(false);
       }

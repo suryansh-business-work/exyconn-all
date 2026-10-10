@@ -51,7 +51,7 @@ function morePages(paths: readonly string[], known: ReadonlySet<string>): string
   if (extra.length === 0) {
     return "";
   }
-  const lines = extra.map((path) => `- [${path || "/"}](${SITE_URL}${path || "/"})`);
+  const lines = extra.map((path) => `- [${path}](${SITE_URL}${path})`);
   return `\n## More pages\n${lines.join("\n")}\n`;
 }
 

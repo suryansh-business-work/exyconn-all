@@ -56,7 +56,7 @@ describe('effectivePolicy', () => {
 
 describe('where an unknown employee works', () => {
   it("falls back to the company's country with no region or city", async () => {
-    const id = String(new Types.ObjectId());
+    const id = new Types.ObjectId().toHexString();
 
     await expect(employeePlace(id)).resolves.toEqual({ country: 'DE', region: '', city: '' });
     await expect(employeeCountry(id)).resolves.toBe('DE');

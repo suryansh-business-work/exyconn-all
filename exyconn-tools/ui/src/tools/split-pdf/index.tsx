@@ -59,11 +59,11 @@ export default function SplitPdf() {
       setError('Please select a PDF file.');
       return;
     }
-    setFile(f);
-    setResults([]);
     try {
       const doc = await PDFDocument.load(await f.arrayBuffer());
       setPageCount(doc.getPageCount());
+      setFile(f);
+      setResults([]);
     } catch {
       setError('Could not read PDF.');
     }
@@ -83,10 +83,9 @@ export default function SplitPdf() {
   };
 
   const split = async () => {
-    if (!file) return;
     setProcessing(true);
     try {
-      const srcBytes = await file.arrayBuffer();
+      const srcBytes = await file!.arrayBuffer();
       const groups: number[][] =
         mode === 'all' ? Array.from({ length: pageCount }, (_, i) => [i + 1]) : parseRanges(customRange, pageCount);
       const out: { name: string; data: Uint8Array }[] = [];

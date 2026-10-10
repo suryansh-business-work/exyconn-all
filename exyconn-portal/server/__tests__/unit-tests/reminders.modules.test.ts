@@ -25,7 +25,7 @@ async function seed(role: Role, email: string) {
     roles: [role],
     isActive: true,
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 const titlesFor = async (employeeId: string) =>

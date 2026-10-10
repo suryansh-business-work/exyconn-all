@@ -1,4 +1,4 @@
-import type { FormEvent } from 'react';
+import type { SyntheticEvent } from 'react';
 import type { FieldValues, SubmitHandler, UseFormReturn } from 'react-hook-form';
 
 /**
@@ -11,7 +11,7 @@ export function isolatedSubmit<TValues extends FieldValues>(
   methods: UseFormReturn<TValues>,
   onValid: SubmitHandler<TValues>,
 ) {
-  return (event: FormEvent<HTMLFormElement>) => {
+  return (event: SyntheticEvent<HTMLFormElement>) => {
     event.stopPropagation();
     return methods.handleSubmit(onValid)(event);
   };

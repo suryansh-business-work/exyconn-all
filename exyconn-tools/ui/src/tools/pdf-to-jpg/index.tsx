@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import LinearProgress from '@mui/material/LinearProgress';
@@ -32,14 +33,20 @@ export default function PdfToJpg() {
   const [images, setImages] = useState<ConvertedImage[]>([]);
   const [scale, setScale] = useState(2);
   const [quality, setQuality] = useState(0.85);
+  const [error, setError] = useState('');
 
   const handleFile = useCallback(async (f: File) => {
     if (f.type !== 'application/pdf') return;
-    setFile(f);
-    setImages([]);
-    const buf = await f.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-    setPageCount(pdf.numPages);
+    try {
+      const buf = await f.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+      setPageCount(pdf.numPages);
+      setFile(f);
+      setImages([]);
+      setError('');
+    } catch {
+      setError('Could not read PDF.');
+    }
   }, []);
 
   const onDrop = useCallback(
@@ -52,26 +59,31 @@ export default function PdfToJpg() {
   );
 
   const convert = useCallback(async () => {
-    if (!file) return;
     setConverting(true);
     setImages([]);
-    const buf = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
-    const results: ConvertedImage[] = [];
-    for (let i = 1; i <= pdf.numPages; i++) {
-      setProgress(i);
-      const page = await pdf.getPage(i);
-      const viewport = page.getViewport({ scale });
-      const canvas = document.createElement('canvas');
-      canvas.width = viewport.width;
-      canvas.height = viewport.height;
-      const ctx = canvas.getContext('2d')!;
-      await page.render({ canvas, canvasContext: ctx, viewport }).promise;
-      const blob = await new Promise<Blob>((res) => canvas.toBlob((b) => res(b!), 'image/jpeg', quality));
-      results.push({ pageNum: i, url: URL.createObjectURL(blob), blob });
+    setError('');
+    try {
+      const buf = await file!.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+      const results: ConvertedImage[] = [];
+      for (let i = 1; i <= pdf.numPages; i++) {
+        setProgress(i);
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale });
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d')!;
+        await page.render({ canvas, canvasContext: ctx, viewport }).promise;
+        const blob = await new Promise<Blob>((res) => canvas.toBlob((b) => res(b!), 'image/jpeg', quality));
+        results.push({ pageNum: i, url: URL.createObjectURL(blob), blob });
+      }
+      setImages(results);
+    } catch {
+      setError('Failed to convert PDF.');
+    } finally {
+      setConverting(false);
     }
-    setImages(results);
-    setConverting(false);
   }, [file, scale, quality]);
 
   const downloadOne = (img: ConvertedImage) => {
@@ -124,6 +136,14 @@ export default function PdfToJpg() {
             )}
           </Paper>
         </Grid>
+
+        {error && (
+          <Grid size={12}>
+            <Alert severity="error" onClose={() => setError('')}>
+              {error}
+            </Alert>
+          </Grid>
+        )}
 
         {/* Options */}
         {file && (

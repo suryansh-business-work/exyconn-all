@@ -7,14 +7,20 @@ import { AdminOverviewPage } from '../../../../src/pages/overview';
 
 type Answer = { data: unknown; loading: boolean };
 
-const hooks = vi.hoisted(() => ({
-  users: { data: undefined, loading: false } as { data: unknown; loading: boolean },
-  clients: { data: undefined, loading: false } as { data: unknown; loading: boolean },
-  auditStats: { data: undefined, loading: false } as { data: unknown; loading: boolean },
-  audit: { data: undefined, loading: false } as { data: unknown; loading: boolean },
-  auditQuery: vi.fn(),
-  refetch: vi.fn(),
-}));
+const hooks = vi.hoisted(() => {
+  const users: { data: unknown; loading: boolean } = { data: undefined, loading: false };
+  const clients: { data: unknown; loading: boolean } = { data: undefined, loading: false };
+  const auditStats: { data: unknown; loading: boolean } = { data: undefined, loading: false };
+  const audit: { data: unknown; loading: boolean } = { data: undefined, loading: false };
+  return {
+    users,
+    clients,
+    auditStats,
+    audit,
+    auditQuery: vi.fn(),
+    refetch: vi.fn(),
+  };
+});
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<object>()),

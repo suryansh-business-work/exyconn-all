@@ -325,7 +325,7 @@ async function employeeOn(email: string, joinDate: Date): Promise<string> {
   const user = await seedUser(email, 'whatever123', [ROLES.EMPLOYEE]);
   await UserModel.updateOne({ _id: user._id }, { joinDate });
   await SalaryStructureModel.create({
-    employeeId: String(user._id),
+    employeeId: user._id.toHexString(),
     currency: 'INR',
     basic: 50_000,
     hra: 20_000,
@@ -333,7 +333,7 @@ async function employeeOn(email: string, joinDate: Date): Promise<string> {
     deductions: 0,
     effectiveFrom: joinDate,
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 describe('a payroll run in SLAB mode', () => {

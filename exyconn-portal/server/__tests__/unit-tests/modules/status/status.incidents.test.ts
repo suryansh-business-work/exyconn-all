@@ -72,7 +72,7 @@ describe('createStatusIncident', () => {
 describe('addStatusIncidentUpdate', () => {
   it('refuses an incident that does not exist', async () => {
     await expect(
-      addStatusIncidentUpdate(String(new Types.ObjectId()), 'IDENTIFIED', 'Found it', author),
+      addStatusIncidentUpdate(new Types.ObjectId().toHexString(), 'IDENTIFIED', 'Found it', author),
     ).rejects.toThrow('Incident not found');
   });
 
@@ -80,7 +80,7 @@ describe('addStatusIncidentUpdate', () => {
     const incident = await createStatusIncident(input, author);
 
     const updated = await addStatusIncidentUpdate(
-      String(incident._id),
+      incident._id.toHexString(),
       'IDENTIFIED',
       '  A bad cache node  ',
       author,
@@ -98,7 +98,7 @@ describe('addStatusIncidentUpdate', () => {
     const incident = await createStatusIncident(input, author);
 
     const updated = await addStatusIncidentUpdate(
-      String(incident._id),
+      incident._id.toHexString(),
       'RESOLVED',
       ' Cache replaced ',
       author,
@@ -116,7 +116,7 @@ describe('addStatusIncidentUpdate', () => {
     const incident = await createStatusIncident(input, author);
     await StatusMonitorModel.deleteOne({ key: 'hr' });
 
-    await addStatusIncidentUpdate(String(incident._id), 'RESOLVED', 'Done', author);
+    await addStatusIncidentUpdate(incident._id.toHexString(), 'RESOLVED', 'Done', author);
 
     expect(announce).toHaveBeenCalledWith(
       'RESOLVED',

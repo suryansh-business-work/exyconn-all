@@ -213,11 +213,15 @@ export const dnsService = {
     const zone =
       (await cloudflareClient.findZone(domain)) ?? (await cloudflareClient.createZone(domain));
     const { records } = await readBothSides(domain);
-    const missing = records.filter((record) => record.status === 'MISSING_ON_CLOUDFLARE');
+    // A record missing on Cloudflare is one GoDaddy has, so it always carries its source.
+    const missing = records.flatMap((record) =>
+      record.status === 'MISSING_ON_CLOUDFLARE' && record.source
+        ? [{ ...record, source: record.source }]
+        : [],
+    );
     const failed: DnsMigrationResult['failed'] = [];
     // One at a time: Cloudflare rate-limits record writes, and a failure must name its record.
     for (const record of missing) {
-      if (!record.source) continue;
       try {
         await cloudflareClient.createRecord(zone.id, toCloudflarePayload(record.source));
       } catch (error) {

@@ -20,9 +20,9 @@ export const incidentSchema = z
   .object({
     title: z.string().trim().min(4, 'Give the incident a title').max(160, 'Too long'),
     description: z.string().trim().min(10, 'Describe what is happening').max(4000, 'Too long'),
-    severity: z.nativeEnum(ItIncidentSeverity),
-    category: z.nativeEnum(ItIncidentCategory),
-    status: z.nativeEnum(ItIncidentStatus),
+    severity: z.enum(ItIncidentSeverity),
+    category: z.enum(ItIncidentCategory),
+    status: z.enum(ItIncidentStatus),
     startedAt: z.string().min(1, 'When did it start?'),
     impact: z.string().trim().max(2000, 'Too long'),
     affectedSystems: z.array(z.string().trim().min(1)),

@@ -125,7 +125,7 @@ describe('Slack events', () => {
     const lines = await agentLines();
     expect(lines).toHaveLength(1);
     expect(lines[0]).toMatchObject({
-      sessionId: String(session._id),
+      sessionId: session._id.toHexString(),
       channel: 'LIVE',
       senderName: 'Sam Portal',
       body: 'See our pricing (https://exyconn.com/pricing) & https://exyconn.com @someone <3',

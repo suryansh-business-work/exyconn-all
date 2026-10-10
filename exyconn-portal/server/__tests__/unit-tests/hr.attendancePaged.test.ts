@@ -7,8 +7,8 @@ import { FilterOp } from '../../src/graphql/generated/types';
 import { currentOrganizationId } from '../../src/lib/tenant';
 
 const HOUR = 3_600_000;
-const ACME = new Types.ObjectId().toString();
-const BETA = new Types.ObjectId().toString();
+const ACME = new Types.ObjectId().toHexString();
+const BETA = new Types.ObjectId().toHexString();
 /** Attendance is keyed at midnight UTC of the employee's local day. */
 const DAY = new Date('2026-09-10T00:00:00.000Z');
 const NEXT_DAY = new Date('2026-09-11T00:00:00.000Z');
@@ -27,7 +27,7 @@ async function employee(name: string, timezone: string | null = null) {
     designation: 'Engineer',
     timezone,
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 async function session(userId: string, projectId: string, startedAt: string, activeMs: number) {
@@ -143,7 +143,9 @@ describe('HR attendance register', () => {
   });
 
   it('matches nothing for a project nobody tracked on', async () => {
-    const result = await page({ filters: [filter('projectId', new Types.ObjectId().toString())] });
+    const result = await page({
+      filters: [filter('projectId', new Types.ObjectId().toHexString())],
+    });
 
     expect(result.totalCount).toBe(0);
   });

@@ -15,7 +15,7 @@ const G = { ...goalsResolvers.Query, ...goalsResolvers.Mutation } as unknown as 
 const ctx = (id: string, roles: string[] = [ROLES.EMPLOYEE]) =>
   ({ user: { id, email: `${id}@exyconn.com`, roles } }) as unknown as GraphQLContext;
 
-const newId = () => String(new Types.ObjectId());
+const newId = () => new Types.ObjectId().toHexString();
 
 const goal = (employeeId: string, over: Record<string, unknown> = {}) =>
   GoalModel.create({
@@ -41,18 +41,18 @@ describe('teamGoals', () => {
     const loner = await person('Lone');
     await goal(newId());
 
-    await expect(G.teamGoals(null, {}, ctx(String(loner._id)))).resolves.toEqual([]);
+    await expect(G.teamGoals(null, {}, ctx(loner._id.toHexString()))).resolves.toEqual([]);
   });
 
   it("lists only the direct reports' goals, latest end date first", async () => {
     const manager = await person('Meera');
-    const report = await person('Ravi', String(manager._id));
-    const reportId = String(report._id);
+    const report = await person('Ravi', manager._id.toHexString());
+    const reportId = report._id.toHexString();
     await goal(reportId, { title: 'Early', endDate: new Date('2026-02-01') });
     await goal(reportId, { title: 'Late', endDate: new Date('2026-09-01') });
     await goal(newId(), { title: 'Stranger' });
 
-    const rows = (await G.teamGoals(null, {}, ctx(String(manager._id)))) as Array<{
+    const rows = (await G.teamGoals(null, {}, ctx(manager._id.toHexString()))) as Array<{
       id: string;
       title: string;
     }>;
@@ -74,7 +74,7 @@ describe('updateMyGoalProgress', () => {
     const row = await goal(me);
 
     await expect(
-      G.updateMyGoalProgress(null, { id: String(row._id), progress }, ctx(me)),
+      G.updateMyGoalProgress(null, { id: row._id.toHexString(), progress }, ctx(me)),
     ).rejects.toThrow(/between 0 and 100/);
     expect((await GoalModel.findById(row._id))?.progress).toBe(0);
   });
@@ -85,11 +85,11 @@ describe('updateMyGoalProgress', () => {
 
     const updated = (await G.updateMyGoalProgress(
       null,
-      { id: String(row._id), progress: 100 },
+      { id: row._id.toHexString(), progress: 100 },
       ctx(me),
     )) as { id: string; progress: number };
 
-    expect(updated).toMatchObject({ id: String(row._id), progress: 100 });
+    expect(updated).toMatchObject({ id: row._id.toHexString(), progress: 100 });
     expect((await GoalModel.findById(row._id))?.progress).toBe(100);
   });
 });
@@ -106,7 +106,11 @@ describe('commentOnTeamGoal', () => {
     const row = await goal(me);
 
     await expect(
-      G.commentOnTeamGoal(null, { id: String(row._id), comment: 'Great' }, ctx(me, [ROLES.HR])),
+      G.commentOnTeamGoal(
+        null,
+        { id: row._id.toHexString(), comment: 'Great' },
+        ctx(me, [ROLES.HR]),
+      ),
     ).rejects.toThrow(/cannot write the manager’s comment for yourself/);
     expect((await GoalModel.findById(row._id))?.managerComment).toBeNull();
   });
@@ -116,7 +120,7 @@ describe('commentOnTeamGoal', () => {
 
     const updated = (await G.commentOnTeamGoal(
       null,
-      { id: String(row._id), comment: 'Keep going' },
+      { id: row._id.toHexString(), comment: 'Keep going' },
       ctx(newId(), [ROLES.HR]),
     )) as { managerComment: string };
 
@@ -154,7 +158,7 @@ describe('HR goal writes', () => {
     await expect(
       G.updateGoal(
         null,
-        { id: String(row._id), input: { title: 'Mine now' } },
+        { id: row._id.toHexString(), input: { title: 'Mine now' } },
         ctx(me, [ROLES.HR]),
       ),
     ).rejects.toThrow(/cannot edit your own Goal/);
@@ -166,7 +170,7 @@ describe('HR goal writes', () => {
 
     const updated = (await G.updateGoal(
       null,
-      { id: String(row._id), input: { title: 'Ship it twice' } },
+      { id: row._id.toHexString(), input: { title: 'Ship it twice' } },
       ctx(newId(), [ROLES.HR]),
     )) as { title: string };
 

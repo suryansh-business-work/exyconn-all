@@ -12,7 +12,7 @@ const R = {
   ...performanceResolvers.Mutation,
 } as unknown as Record<string, Resolver>;
 
-const newId = () => String(new Types.ObjectId());
+const newId = () => new Types.ObjectId().toHexString();
 const ctx = (id: string, roles: string[] = [ROLES.EMPLOYEE]) =>
   ({ user: { id, email: `${id}@exyconn.com`, roles } }) as unknown as GraphQLContext;
 const anonymous = { user: null } as unknown as GraphQLContext;
@@ -33,12 +33,12 @@ describe('submitSelfAssessment', () => {
 
     const updated = (await R.submitSelfAssessment(
       null,
-      { id: String(row._id), text: 'Shipped the tracker' },
+      { id: row._id.toHexString(), text: 'Shipped the tracker' },
       ctx(me),
     )) as { id: string; status: string; selfAssessment: string };
 
     expect(updated).toMatchObject({
-      id: String(row._id),
+      id: row._id.toHexString(),
       status: 'SELF_SUBMITTED',
       selfAssessment: 'Shipped the tracker',
     });
@@ -50,7 +50,7 @@ describe('submitSelfAssessment', () => {
     const row = await review(me, { status: 'MANAGER_SUBMITTED', selfAssessment: 'Kept' });
 
     await expect(
-      R.submitSelfAssessment(null, { id: String(row._id), text: 'Late edit' }, ctx(me)),
+      R.submitSelfAssessment(null, { id: row._id.toHexString(), text: 'Late edit' }, ctx(me)),
     ).rejects.toThrow(/no longer open/);
     expect((await PerformanceReviewModel.findById(row._id).lean())?.selfAssessment).toBe('Kept');
   });
@@ -59,7 +59,9 @@ describe('submitSelfAssessment', () => {
     const row = await review(newId());
 
     expect(
-      await codeOf(R.submitSelfAssessment(null, { id: String(row._id), text: 'x' }, ctx(newId()))),
+      await codeOf(
+        R.submitSelfAssessment(null, { id: row._id.toHexString(), text: 'x' }, ctx(newId())),
+      ),
     ).toBe('NOT_FOUND');
   });
 
@@ -67,7 +69,9 @@ describe('submitSelfAssessment', () => {
     const row = await review(newId());
 
     expect(
-      await codeOf(R.submitSelfAssessment(null, { id: String(row._id), text: 'x' }, anonymous)),
+      await codeOf(
+        R.submitSelfAssessment(null, { id: row._id.toHexString(), text: 'x' }, anonymous),
+      ),
     ).toBe('UNAUTHENTICATED');
   });
 });
@@ -87,7 +91,11 @@ describe('submitManagerAssessment', () => {
 
     expect(
       await codeOf(
-        R.submitManagerAssessment(null, { id: String(row._id), managerAssessment: 'x' }, hr(me)),
+        R.submitManagerAssessment(
+          null,
+          { id: row._id.toHexString(), managerAssessment: 'x' },
+          hr(me),
+        ),
       ),
     ).toBe('FORBIDDEN');
   });
@@ -96,7 +104,11 @@ describe('submitManagerAssessment', () => {
     const row = await review(newId(), { status: 'SELF_SUBMITTED' });
 
     await expect(
-      R.submitManagerAssessment(null, { id: String(row._id), managerAssessment: 'x', score }, hr()),
+      R.submitManagerAssessment(
+        null,
+        { id: row._id.toHexString(), managerAssessment: 'x', score },
+        hr(),
+      ),
     ).rejects.toThrow('Score must be between 0 and 10');
     expect((await PerformanceReviewModel.findById(row._id).lean())?.status).toBe('SELF_SUBMITTED');
   });
@@ -106,7 +118,7 @@ describe('submitManagerAssessment', () => {
 
     const updated = (await R.submitManagerAssessment(
       null,
-      { id: String(row._id), managerAssessment: 'Edge', score },
+      { id: row._id.toHexString(), managerAssessment: 'Edge', score },
       hr(),
     )) as { score: number; status: string };
 
@@ -119,7 +131,7 @@ describe('submitManagerAssessment', () => {
 
     const updated = (await R.submitManagerAssessment(
       null,
-      { id: String(row._id), managerAssessment: 'Steady', score: null },
+      { id: row._id.toHexString(), managerAssessment: 'Steady', score: null },
       hr(),
     )) as { score: number; managerAssessment: string };
 

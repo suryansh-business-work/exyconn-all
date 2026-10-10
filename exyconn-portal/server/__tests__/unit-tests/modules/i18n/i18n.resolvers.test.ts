@@ -21,7 +21,7 @@ const superAdmin: GraphQLContext = {
 const nobody = { user: null } as unknown as GraphQLContext;
 
 const inCompany = <T>(settings: Record<string, unknown>, fn: () => Promise<T>) =>
-  runForOrganization(String(new Types.ObjectId()), async () => {
+  runForOrganization(new Types.ObjectId().toHexString(), async () => {
     await AppSettingsModel.create(settings);
     return fn();
   });

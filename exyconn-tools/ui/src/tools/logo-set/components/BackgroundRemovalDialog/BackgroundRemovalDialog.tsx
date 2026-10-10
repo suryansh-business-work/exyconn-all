@@ -43,10 +43,6 @@ const BackgroundRemovalDialog: React.FC<Props> = ({ open, onClose, currentImage,
 
   const handleRemoveBackground = async () => {
     if (!currentImage) return;
-    if (provider === 'removebg' && !removeBgApiKey.trim()) {
-      setError('Please enter your Remove.bg API key');
-      return;
-    }
 
     setIsProcessing(true);
     setError(null);

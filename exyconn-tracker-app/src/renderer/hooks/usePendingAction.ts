@@ -34,7 +34,6 @@ export default function usePendingAction<K extends string = string>(): PendingAc
       setError(null);
       try {
         await action();
-        return true;
       } catch (cause: unknown) {
         console.error(`Action "${key}" failed`, cause);
         setError(messageOf(cause, fallback));
@@ -43,6 +42,7 @@ export default function usePendingAction<K extends string = string>(): PendingAc
         running.current = false;
         setPending(null);
       }
+      return true;
     },
     [],
   );

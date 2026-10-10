@@ -115,7 +115,7 @@ export async function delegateApprovals(input: {
     toDate: endOfDay(input.toDate),
     note: input.note ?? '',
   });
-  const [row] = await withNames([created.toObject() as never], new Date());
+  const [row] = await withNames([created.toObject()], new Date());
   return row;
 }
 

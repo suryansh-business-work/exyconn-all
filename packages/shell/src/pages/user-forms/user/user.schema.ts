@@ -23,7 +23,7 @@ const identitySchema = z
     name: z.string().trim().min(1, 'Name is required'),
     email: z.string().trim().min(1, 'Email is required').regex(EMAIL, 'Enter a valid email'),
     password: z.string().refine((v) => !v || v.length >= 6, 'Minimum 6 characters'),
-    roles: z.array(z.nativeEnum(Role)).min(1, 'Select at least one role'),
+    roles: z.array(z.enum(Role)).min(1, 'Select at least one role'),
     isActive: z.enum(['true', 'false']),
     avatarUrl: z.string(),
     address: z.string().trim(),
@@ -41,10 +41,10 @@ const identitySchema = z
     joinDate: z.string().min(1, 'Join date is required'),
     dateOfBirth: z.string(),
     probationEndDate: z.string(),
-    employmentStatus: z.nativeEnum(EmploymentStatus),
-    workingTime: z.nativeEnum(WorkingTime),
+    employmentStatus: z.enum(EmploymentStatus),
+    workingTime: z.enum(WorkingTime),
     workingTimeNote: z.string().trim(),
-    workLocation: z.nativeEnum(WorkLocation),
+    workLocation: z.enum(WorkLocation),
     workLocationNote: z.string().trim(),
     // Empty means "follow the workspace default" — see toUserInput.
     timezone: z

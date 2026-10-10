@@ -34,7 +34,7 @@ describe('HTML embed type', () => {
     const embed = first(editor);
     embed.set('embedHtml', '<form action="/x"><p>Sign up</p></form>');
     expect(embed.getInnerHTML()).toBe('<form action="/x"><p>Sign up</p></form>');
-    embed.set('embedHtml', undefined);
+    embed.unset('embedHtml');
     expect(embed.components()).toHaveLength(0);
   });
 });

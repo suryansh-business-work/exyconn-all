@@ -40,8 +40,8 @@ describe('Stock movements', () => {
       category: 'Office',
       stock: 2,
     });
-    await record({ productId: String(lamp._id), reason: 'RECEIPT', quantity: 1 });
-    await record({ productId: String(chair._id), reason: 'RECEIPT', quantity: 1 });
+    await record({ productId: lamp._id.toHexString(), reason: 'RECEIPT', quantity: 1 });
+    await record({ productId: chair._id.toHexString(), reason: 'RECEIPT', quantity: 1 });
 
     const page = (await productsInventoryResolvers.Query.listStockMovementsPaged(
       null,
@@ -49,7 +49,7 @@ describe('Stock movements', () => {
         input: {
           page: 0,
           pageSize: 20,
-          filters: [{ field: 'productId', op: 'EQUALS', value: String(lamp._id) }],
+          filters: [{ field: 'productId', op: 'EQUALS', value: lamp._id.toHexString() }],
         },
       },
       asProducts,
@@ -63,7 +63,7 @@ describe('Stock movements', () => {
     const product = await seedProduct(10);
 
     const movement = await record({
-      productId: String(product._id),
+      productId: product._id.toHexString(),
       reason: 'RECEIPT',
       quantity: 5,
     });
@@ -75,7 +75,7 @@ describe('Stock movements', () => {
   it('takes off the level on an issue', async () => {
     const product = await seedProduct(10);
 
-    await record({ productId: String(product._id), reason: 'ISSUE', quantity: 4 });
+    await record({ productId: product._id.toHexString(), reason: 'ISSUE', quantity: 4 });
 
     expect((await ProductModel.findById(product._id).lean())?.stock).toBe(6);
   });
@@ -83,7 +83,7 @@ describe('Stock movements', () => {
   it('sets the level outright on a stocktake', async () => {
     const product = await seedProduct(10);
 
-    await record({ productId: String(product._id), reason: 'COUNT', quantity: 7 });
+    await record({ productId: product._id.toHexString(), reason: 'COUNT', quantity: 7 });
 
     expect((await ProductModel.findById(product._id).lean())?.stock).toBe(7);
   });
@@ -92,7 +92,7 @@ describe('Stock movements', () => {
     const product = await seedProduct(3);
 
     await expect(
-      record({ productId: String(product._id), reason: 'ISSUE', quantity: 5 }),
+      record({ productId: product._id.toHexString(), reason: 'ISSUE', quantity: 5 }),
     ).rejects.toThrow();
 
     expect((await ProductModel.findById(product._id).lean())?.stock).toBe(3);
@@ -102,7 +102,7 @@ describe('Stock movements', () => {
     const product = await seedProduct(3);
 
     await expect(
-      record({ productId: String(product._id), reason: 'WRITE_OFF', quantity: 9 }),
+      record({ productId: product._id.toHexString(), reason: 'WRITE_OFF', quantity: 9 }),
     ).rejects.toThrow();
 
     expect(await StockMovementModel.countDocuments()).toBe(0);
@@ -117,7 +117,7 @@ describe('Stock movements', () => {
     const product = await seedProduct(0);
 
     const movement = await record({
-      productId: String(product._id),
+      productId: product._id.toHexString(),
       reason: 'RECEIPT',
       quantity: 12,
       supplierId: String((supplier as { _id: unknown })._id),

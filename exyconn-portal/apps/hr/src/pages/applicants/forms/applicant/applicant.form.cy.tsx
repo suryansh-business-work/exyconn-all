@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import { type MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
@@ -8,7 +8,7 @@ import { ApplicantForm } from './applicant.form';
 
 const VALID = { name: 'Meera Iyer', email: 'meera@example.com', jobTitle: 'Senior Engineer' };
 
-const createMock: MockedResponse = {
+const createMock: MockLink.MockedResponse = {
   request: {
     query: CreateApplicantDocument,
     variables: {
@@ -27,7 +27,7 @@ const createMock: MockedResponse = {
   result: { data: { createApplicant: { id: 'a1' } } },
 };
 
-const mount = (mocks: MockedResponse[] = []) =>
+const mount = (mocks: MockLink.MockedResponse[] = []) =>
   cy.mount(
     <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>

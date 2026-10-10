@@ -16,7 +16,6 @@ interface SizeSectionProps {
   globalSettings: LogoSettings;
   isInScope: (sizeKey: string, category: string) => boolean;
   getEffectiveSettings: (sizeKey: string) => LogoSettings;
-  borderColor?: string;
 }
 
 const SizeSection: React.FC<SizeSectionProps> = ({
@@ -32,17 +31,14 @@ const SizeSection: React.FC<SizeSectionProps> = ({
   globalSettings,
   isInScope,
   getEffectiveSettings,
-  borderColor = 'divider',
 }) => {
-  if (sizes.length === 0) return null;
-
   return (
     <Paper
       elevation={0}
       sx={{
         p: 1.5,
         border: 1,
-        borderColor,
+        borderColor: 'divider',
         mb: 1.5,
         bgcolor: 'background.paper',
       }}
@@ -57,12 +53,7 @@ const SizeSection: React.FC<SizeSectionProps> = ({
         >
           {title}
         </Typography>
-        <Chip
-          label={sizes.length}
-          size="small"
-          color={borderColor === 'primary.main' ? 'primary' : 'default'}
-          sx={{ height: 18, fontSize: '0.65rem' }}
-        />
+        <Chip label={sizes.length} size="small" sx={{ height: 18, fontSize: '0.65rem' }} />
       </Box>
       <Box
         sx={{

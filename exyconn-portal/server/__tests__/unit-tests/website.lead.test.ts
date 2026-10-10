@@ -16,7 +16,7 @@ const seedEditor = async () => {
     roles: [ROLES.WEBSITE],
   });
   const ctx: GraphQLContext = {
-    user: { id: String(user._id), roles: [ROLES.WEBSITE], email: user.email },
+    user: { id: user._id.toHexString(), roles: [ROLES.WEBSITE], email: user.email },
     // The website inbox is a platform feature, run from the platform operator company.
     organizationId: OPERATOR_ORGANIZATION_ID,
   };
@@ -46,7 +46,7 @@ describe('Converting a website submission into a lead', () => {
     const ctx = await seedEditor();
     const submission = await seedContact();
 
-    const lead = await convert(String(submission._id), ctx);
+    const lead = await convert(submission._id.toHexString(), ctx);
 
     const saved = await LeadModel.findById(lead.id).lean();
     expect(saved).toMatchObject({
@@ -66,7 +66,7 @@ describe('Converting a website submission into a lead', () => {
     const ctx = await seedEditor();
     const submission = await seedContact();
 
-    const lead = await convert(String(submission._id), ctx);
+    const lead = await convert(submission._id.toHexString(), ctx);
 
     const saved = await WebsiteSubmissionModel.findById(submission._id).lean();
     expect(saved?.leadId).toBe(lead.id);
@@ -76,9 +76,9 @@ describe('Converting a website submission into a lead', () => {
   it('refuses a second conversion and names the lead that already exists', async () => {
     const ctx = await seedEditor();
     const submission = await seedContact();
-    await convert(String(submission._id), ctx);
+    await convert(submission._id.toHexString(), ctx);
 
-    await expect(convert(String(submission._id), ctx)).rejects.toThrow(
+    await expect(convert(submission._id.toHexString(), ctx)).rejects.toThrow(
       /already converted to lead "Ravi Kumar"/,
     );
     await expect(LeadModel.countDocuments()).resolves.toBe(1);
@@ -91,7 +91,7 @@ describe('Converting a website submission into a lead', () => {
       submissionData: {},
     });
 
-    await expect(convert(String(submission._id), ctx)).rejects.toThrow(/no email address/);
+    await expect(convert(submission._id.toHexString(), ctx)).rejects.toThrow(/no email address/);
   });
 
   it('reads the fields each form calls by a different name', () => {

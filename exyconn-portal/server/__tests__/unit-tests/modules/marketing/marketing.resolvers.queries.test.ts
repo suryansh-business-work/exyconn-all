@@ -48,10 +48,10 @@ describe('audienceMembers', () => {
     const client = await seedClient('Ada', 'Ada@Example.com');
     const audience = await AudienceListModel.create({
       name: 'Newsletter',
-      clientIds: [String(client._id)],
+      clientIds: [client._id.toHexString()],
     });
 
-    const members = await Q.audienceMembers(null, { id: String(audience._id) }, asMarketing);
+    const members = await Q.audienceMembers(null, { id: audience._id.toHexString() }, asMarketing);
 
     expect(members).toEqual([
       expect.objectContaining({ email: 'ada@example.com', name: 'Ada', kind: 'CLIENT' }),
@@ -59,7 +59,7 @@ describe('audienceMembers', () => {
   });
 
   it('refuses an audience that does not exist', async () => {
-    const id = String(new Types.ObjectId());
+    const id = new Types.ObjectId().toHexString();
 
     await expect(Q.audienceMembers(null, { id }, asMarketing)).rejects.toThrow(
       'Audience list not found',
@@ -94,8 +94,8 @@ describe('campaignOptions', () => {
     const alpha = await seedCampaign({ name: 'Alpha launch' });
 
     await expect(Q.campaignOptions(null, {}, asCrm)).resolves.toEqual([
-      { id: String(alpha._id), name: 'Alpha launch' },
-      { id: String(zeta._id), name: 'Zeta launch' },
+      { id: alpha._id.toHexString(), name: 'Alpha launch' },
+      { id: zeta._id.toHexString(), name: 'Zeta launch' },
     ]);
   });
 
@@ -113,11 +113,11 @@ describe('campaignPreview', () => {
     const client = await seedClient('Ada', 'ada@example.com');
     const audience = await AudienceListModel.create({
       name: 'Newsletter',
-      clientIds: [String(client._id)],
+      clientIds: [client._id.toHexString()],
     });
     const origin = 'https://spoofed.example';
 
-    const rendered = await preview(String(campaign._id), String(audience._id), origin);
+    const rendered = await preview(campaign._id.toHexString(), audience._id.toHexString(), origin);
 
     expect(rendered).toEqual({
       recipient: 'ada@example.com',
@@ -130,23 +130,25 @@ describe('campaignPreview', () => {
     const campaign = await seedCampaign();
     const audience = await AudienceListModel.create({ name: 'Empty' });
 
-    await expect(preview(String(campaign._id), String(audience._id))).resolves.toBeNull();
+    await expect(
+      preview(campaign._id.toHexString(), audience._id.toHexString()),
+    ).resolves.toBeNull();
   });
 
   it('refuses a campaign that does not exist', async () => {
     const audience = await AudienceListModel.create({ name: 'Empty' });
 
-    await expect(preview(String(new Types.ObjectId()), String(audience._id))).rejects.toThrow(
-      'Campaign not found',
-    );
+    await expect(
+      preview(new Types.ObjectId().toHexString(), audience._id.toHexString()),
+    ).rejects.toThrow('Campaign not found');
   });
 
   it('refuses an audience that does not exist', async () => {
     const campaign = await seedCampaign();
 
-    await expect(preview(String(campaign._id), String(new Types.ObjectId()))).rejects.toThrow(
-      'Audience list not found',
-    );
+    await expect(
+      preview(campaign._id.toHexString(), new Types.ObjectId().toHexString()),
+    ).rejects.toThrow('Audience list not found');
   });
 });
 

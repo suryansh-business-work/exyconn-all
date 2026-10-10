@@ -18,7 +18,6 @@ const SitemapSplitMerge: React.FC = () => {
   const [copied, setCopied] = useState(false);
 
   const handleSplit = async () => {
-    if (!sitemapUrl.trim()) return;
     setIsLoading(true);
     setError(null);
     setResult(null);
@@ -48,10 +47,9 @@ const SitemapSplitMerge: React.FC = () => {
     a.click();
   };
 
-  const downloadAll = () => {
-    if (!result) return;
-    result.sitemaps.forEach((s) => downloadFile(s.content, `sitemap-${s.index}.xml`));
-    downloadFile(result.indexFile, 'sitemap-index.xml');
+  const downloadAll = (split: SplitResult) => {
+    split.sitemaps.forEach((s) => downloadFile(s.content, `sitemap-${s.index}.xml`));
+    downloadFile(split.indexFile, 'sitemap-index.xml');
   };
 
   const copyContent = (content: string) => {
@@ -72,7 +70,7 @@ const SitemapSplitMerge: React.FC = () => {
               onUrlsPerFileChange={setUrlsPerFile}
               onSplit={handleSplit}
             />
-            {result && <SplitSummary result={result} onDownloadAll={downloadAll} />}
+            {result && <SplitSummary result={result} onDownloadAll={() => downloadAll(result)} />}
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
             <SplitResultsPanel result={result} onDownloadFile={downloadFile} onCopyContent={copyContent} />

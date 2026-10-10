@@ -41,7 +41,6 @@ const KeywordVolumeChecker: React.FC = () => {
       .split('\n')
       .map((k) => k.trim())
       .filter(Boolean);
-    if (kwList.length === 0) return;
     setIsLoading(true);
     setError(null);
     setResults([]);

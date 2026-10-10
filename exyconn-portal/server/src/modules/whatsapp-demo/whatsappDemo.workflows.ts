@@ -220,7 +220,8 @@ export async function duplicate(ctx: GraphQLContext, id: string) {
     name: doc.name,
     description: doc.description,
     keywords: doc.keywords,
-    order: (last?.order ?? doc.order) + 1,
+    // The workflow being copied is itself in the query, so there is always a last one.
+    order: (last as { order: number }).order + 1,
     draft: doc.draft,
     ...(await stamp(ctx)),
   });

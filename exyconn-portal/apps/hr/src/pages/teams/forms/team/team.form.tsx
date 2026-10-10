@@ -28,12 +28,6 @@ const toInitial = (row: TeamRow | null) => ({
   active: row?.active ?? false,
 });
 
-/** Only the genuinely nullable inputs become null; the rest are `String!`. */
-const toInput = (values: Values) => ({
-  ...values,
-  leadEmployeeId: values.leadEmployeeId === '' ? null : values.leadEmployeeId,
-});
-
 interface TeamFormProps {
   initial: TeamRow | null;
   onDone: () => void;
@@ -60,8 +54,8 @@ export function TeamForm({ initial, onDone, onCancel }: Readonly<TeamFormProps>)
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Team',
     initial,
-    create: (values: Values) => createTeam({ variables: { input: toInput(values) } }),
-    update: (row, values) => updateTeam({ variables: { id: row.id, input: toInput(values) } }),
+    create: (values: Values) => createTeam({ variables: { input: values } }),
+    update: (row, values) => updateTeam({ variables: { id: row.id, input: values } }),
     onDone,
   });
 

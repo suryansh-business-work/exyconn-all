@@ -60,7 +60,7 @@ export async function requestContractSignature(input: {
   }
   const token = randomBytes(32).toString('base64url');
   const request = await ContractSignatureModel.create({
-    contractId: String(contract._id),
+    contractId: contract._id.toHexString(),
     tokenHash: hashToken(token),
     signerName: input.signerName.trim(),
     signerEmail: input.signerEmail.trim().toLowerCase(),
@@ -84,7 +84,7 @@ export async function requestContractSignature(input: {
 
   contract.sentAt = new Date();
   await contract.save();
-  return { id: String(request._id), token, url: signingUrl(token) };
+  return { id: request._id.toHexString(), token, url: signingUrl(token) };
 }
 
 /** A live request, or null. Read as the platform: a signer has no company scope. */
@@ -221,11 +221,11 @@ export async function signContractInternally(input: {
   const signedAt = new Date();
 
   await ContractSignatureModel.create({
-    contractId: String(contract._id),
+    contractId: contract._id.toHexString(),
     // No link was issued, so there is no token to hash; the row still needs a unique value,
     // and the hash of "internal" plus the moment is one nobody can present as a link.
     tokenHash: createHash('sha256')
-      .update(`internal:${String(contract._id)}:${signedAt.toISOString()}`)
+      .update(`internal:${contract._id.toHexString()}:${signedAt.toISOString()}`)
       .digest('hex'),
     signerName: input.signerEmail,
     signerEmail: input.signerEmail,

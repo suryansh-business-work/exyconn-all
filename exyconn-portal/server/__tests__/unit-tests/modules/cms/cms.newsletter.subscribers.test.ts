@@ -3,7 +3,7 @@ import { newsletter } from '../../../../src/modules/cms/cms.newsletter';
 import { NewsletterSubscriberModel } from '../../../../src/modules/cms/models';
 
 const SITE = 'site-1';
-const missingId = () => String(new Types.ObjectId());
+const missingId = () => new Types.ObjectId().toHexString();
 
 interface SubscriberRow {
   id: string;

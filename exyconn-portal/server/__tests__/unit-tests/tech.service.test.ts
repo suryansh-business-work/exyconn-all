@@ -63,7 +63,7 @@ describe('TechService', () => {
 
     const active = await EmailConfigModel.find({ isActive: true }).lean();
     expect(active).toHaveLength(1);
-    expect(active[0]._id.toString()).toBe(second._id.toString());
+    expect(active[0]._id.toString()).toBe(second._id.toHexString());
     expect(first.label).toBe('Primary');
   });
 
@@ -71,7 +71,7 @@ describe('TechService', () => {
     const a = await techService.createEmailConfig({ ...emailInput, isActive: true });
     const b = await techService.createEmailConfig({ ...emailInput, label: 'B', isActive: false });
 
-    await techService.updateEmailConfig(String(b._id), {
+    await techService.updateEmailConfig(b._id.toHexString(), {
       ...emailInput,
       label: 'B',
       isActive: true,
@@ -103,7 +103,7 @@ describe('TechService', () => {
     const a = await techService.createSlackConfig({ ...slackInput, isActive: true });
     const b = await techService.createSlackConfig({ ...slackInput, label: 'B', isActive: false });
 
-    await techService.updateSlackConfig(String(b._id), {
+    await techService.updateSlackConfig(b._id.toHexString(), {
       ...slackInput,
       label: 'B',
       isActive: true,
@@ -176,7 +176,7 @@ describe('TechService', () => {
   it('keeps the stored mailbox password when an edit sends an empty one', async () => {
     const config = await techService.createInboundMailConfig(inboundInput);
 
-    await techService.updateInboundMailConfig(String(config._id), {
+    await techService.updateInboundMailConfig(config._id.toHexString(), {
       ...inboundInput,
       password: '',
       mailbox: 'Support',

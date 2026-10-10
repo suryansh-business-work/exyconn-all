@@ -99,11 +99,11 @@ export const useLogoState = () => {
       if (applyScope !== 'all') {
         const allSizes = [...FAVICON_SIZES, ...ICON_SIZES, ...LOGO_SIZES, ...SPLASH_SIZES];
         const targetSizes: string[] = [];
-        if (applyScope.endsWith('-all')) {
+        if (applyScope === 'custom-all') {
+          customSizes.forEach((s) => targetSizes.push(`custom-${s.id}`));
+        } else if (applyScope.endsWith('-all')) {
           const category = applyScope.replace('-all', '');
           allSizes.filter((s) => s.category === category).forEach((s) => targetSizes.push(`${s.category}-${s.width}`));
-        } else if (applyScope === 'custom-all') {
-          customSizes.forEach((s) => targetSizes.push(`custom-${s.id}`));
         } else if (applyScope.match(/^(\w+)-(\d+)$/)) {
           targetSizes.push(applyScope);
         }

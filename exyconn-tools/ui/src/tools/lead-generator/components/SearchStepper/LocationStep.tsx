@@ -15,6 +15,8 @@ import { MyLocation, LocationOn, Place } from '@mui/icons-material';
 import { LocationStepProps } from './types';
 
 const LocationStep: React.FC<LocationStepProps> = ({
+  index,
+  last,
   locationMode,
   locationName,
   locationError,
@@ -30,7 +32,7 @@ const LocationStep: React.FC<LocationStepProps> = ({
   const canProceed = locationMode !== null;
 
   return (
-    <Step completed={canProceed}>
+    <Step index={index} last={last} completed={canProceed}>
       <StepLabel
         optional={
           locationName ? (

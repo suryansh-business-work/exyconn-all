@@ -20,7 +20,7 @@ async function company(fields: Record<string, unknown>): Promise<string> {
       ...fields,
     }),
   );
-  return String(created._id);
+  return created._id.toHexString();
 }
 
 describe('the company a record belongs to', () => {

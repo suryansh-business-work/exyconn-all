@@ -88,4 +88,12 @@ describe('TrainingPage', () => {
     renderWithProviders(<TrainingPage />);
     expect(screen.getByText('No training assigned to you yet.')).toBeInTheDocument();
   });
+
+  it('holds the table busy and does not claim the list is empty while the first response loads', () => {
+    vi.mocked(useMyTrainingsQuery).mockReturnValue(queryResult({ loading: true }));
+    vi.mocked(useUpdateMyTrainingStatusMutation).mockReturnValue(mutationResult(vi.fn()));
+    const { container } = renderWithProviders(<TrainingPage />);
+    expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
+    expect(screen.queryByText('No training assigned to you yet.')).toBeNull();
+  });
 });

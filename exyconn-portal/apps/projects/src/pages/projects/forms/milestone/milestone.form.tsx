@@ -16,7 +16,7 @@ const schema = z.object({
   name: z.string().trim().min(1, 'Name is required').max(80, 'Keep the name under 80 characters'),
   description: z.string().trim().max(300, 'Keep the description under 300 characters'),
   dueOn: z.string(),
-  state: z.nativeEnum(MilestoneState),
+  state: z.enum(MilestoneState),
 });
 
 type Values = z.infer<typeof schema>;

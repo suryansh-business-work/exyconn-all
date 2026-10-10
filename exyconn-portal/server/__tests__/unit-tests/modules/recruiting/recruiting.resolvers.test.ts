@@ -45,11 +45,11 @@ describe('applicant resolvers', () => {
 
     const moved = await recruitingResolvers.Mutation.setApplicantStage(
       null,
-      { id: String(applicant._id), stage: 'SCREENING' },
+      { id: applicant._id.toHexString(), stage: 'SCREENING' },
       as([ROLES.HR]),
     );
 
-    expect(moved).toMatchObject({ id: String(applicant._id), stage: 'SCREENING' });
+    expect(moved).toMatchObject({ id: applicant._id.toHexString(), stage: 'SCREENING' });
     expect(moved.notes).toMatch(/Screening by hr@exyconn\.com$/);
   });
 

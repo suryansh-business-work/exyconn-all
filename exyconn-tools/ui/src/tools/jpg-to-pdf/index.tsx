@@ -68,7 +68,6 @@ export default function JpgToPdf() {
   const move = (i: number, dir: -1 | 1) => {
     const arr = [...images];
     const j = i + dir;
-    if (j < 0 || j >= arr.length) return;
     [arr[i], arr[j]] = [arr[j], arr[i]];
     setImages(arr);
     setResult(null);
@@ -83,7 +82,6 @@ export default function JpgToPdf() {
   };
 
   const convert = async () => {
-    if (images.length === 0) return;
     setProcessing(true);
     try {
       const doc = await PDFDocument.create();
@@ -126,8 +124,7 @@ export default function JpgToPdf() {
   };
 
   const download = () => {
-    if (!result) return;
-    const url = URL.createObjectURL(new Blob([result.buffer as ArrayBuffer], { type: 'application/pdf' }));
+    const url = URL.createObjectURL(new Blob([result!.buffer as ArrayBuffer], { type: 'application/pdf' }));
     const a = document.createElement('a');
     a.href = url;
     a.download = 'images.pdf';

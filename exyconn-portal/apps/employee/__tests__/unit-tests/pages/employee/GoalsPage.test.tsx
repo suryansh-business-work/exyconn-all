@@ -86,4 +86,12 @@ describe('GoalsPage', () => {
     renderWithProviders(<GoalsPage />);
     expect(screen.getByText('No goals have been set for you yet.')).toBeInTheDocument();
   });
+
+  it('holds the table busy and does not claim the list is empty while the first response loads', () => {
+    vi.mocked(useMyGoalsQuery).mockReturnValue(queryResult({ loading: true }));
+    vi.mocked(useUpdateMyGoalProgressMutation).mockReturnValue(mutationResult(vi.fn()));
+    const { container } = renderWithProviders(<GoalsPage />);
+    expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
+    expect(screen.queryByText('No goals have been set for you yet.')).toBeNull();
+  });
 });

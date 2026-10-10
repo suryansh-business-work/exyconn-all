@@ -43,17 +43,17 @@ describe('project client', () => {
   it('writes the client name next to its id', async () => {
     const client = await seedClient('Priya');
 
-    const saved = await create({ clientId: String(client._id) });
+    const saved = await create({ clientId: client._id.toHexString() });
 
-    expect(saved).toMatchObject({ clientId: String(client._id), clientName: 'Priya' });
+    expect(saved).toMatchObject({ clientId: client._id.toHexString(), clientName: 'Priya' });
   });
 
   it('refreshes the name when the project is moved to another client', async () => {
     const first = await seedClient('Priya');
     const second = await seedClient('Rahul');
-    const saved = await create({ clientId: String(first._id) });
+    const saved = await create({ clientId: first._id.toHexString() });
 
-    const moved = await update(saved.id, { clientId: String(second._id) });
+    const moved = await update(saved.id, { clientId: second._id.toHexString() });
 
     expect(moved.clientName).toBe('Rahul');
   });

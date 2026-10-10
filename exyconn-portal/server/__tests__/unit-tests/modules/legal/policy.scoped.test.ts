@@ -13,7 +13,7 @@ const P = { ...policyResolvers.Query, ...policyResolvers.Mutation } as unknown a
 >;
 
 const as = (roles: Role[], email = 'staff@exyconn.com'): GraphQLContext => ({
-  user: { id: String(new Types.ObjectId()), roles, email },
+  user: { id: new Types.ObjectId().toHexString(), roles, email },
 });
 const itStaff = as([ROLES.IT], 'it@exyconn.com');
 const legal = as([ROLES.LEGAL], 'legal@exyconn.com');
@@ -115,11 +115,17 @@ describe('writing the register', () => {
     const grievance = await policy('grievance', 'HR');
 
     expect(
-      await codeOf(P.updatePolicy(null, { id: String(vpn._id), ...input('vpn', 'HR') }, itStaff)),
+      await codeOf(
+        P.updatePolicy(null, { id: vpn._id.toHexString(), ...input('vpn', 'HR') }, itStaff),
+      ),
     ).toBe('FORBIDDEN');
     expect(
       await codeOf(
-        P.updatePolicy(null, { id: String(grievance._id), ...input('grievance', 'IT') }, itStaff),
+        P.updatePolicy(
+          null,
+          { id: grievance._id.toHexString(), ...input('grievance', 'IT') },
+          itStaff,
+        ),
       ),
     ).toBe('FORBIDDEN');
     expect((await PolicyModel.findById(grievance._id).lean())?.category).toBe('HR');
@@ -130,7 +136,7 @@ describe('writing the register', () => {
 
     const updated = (await P.updatePolicy(
       null,
-      { id: String(vpn._id), ...input('vpn', 'SECURITY') },
+      { id: vpn._id.toHexString(), ...input('vpn', 'SECURITY') },
       itStaff,
     )) as { category: string };
 
@@ -141,10 +147,10 @@ describe('writing the register', () => {
     const vpn = await policy('vpn', 'IT');
     const grievance = await policy('grievance', 'HR');
 
-    expect(await codeOf(P.deletePolicy(null, { id: String(grievance._id) }, itStaff))).toBe(
+    expect(await codeOf(P.deletePolicy(null, { id: grievance._id.toHexString() }, itStaff))).toBe(
       'FORBIDDEN',
     );
-    await expect(P.deletePolicy(null, { id: String(vpn._id) }, itStaff)).resolves.toBe(true);
+    await expect(P.deletePolicy(null, { id: vpn._id.toHexString() }, itStaff)).resolves.toBe(true);
     expect(await PolicyModel.countDocuments()).toBe(1);
   });
 });
@@ -152,7 +158,7 @@ describe('writing the register', () => {
 describe('publishing and archiving', () => {
   it('refuses IT publishing or archiving another team’s policy', async () => {
     const grievance = await policy('grievance', 'HR');
-    const id = String(grievance._id);
+    const id = grievance._id.toHexString();
 
     expect(await codeOf(P.publishPolicy(null, { id, raiseVersion: true }, itStaff))).toBe(
       'FORBIDDEN',
@@ -162,7 +168,7 @@ describe('publishing and archiving', () => {
   });
 
   it('is NOT_FOUND for a policy that does not exist', async () => {
-    const id = String(new Types.ObjectId());
+    const id = new Types.ObjectId().toHexString();
 
     expect(await codeOf(P.publishPolicy(null, { id }, legal))).toBe('NOT_FOUND');
     expect(await codeOf(P.archivePolicy(null, { id }, legal))).toBe('NOT_FOUND');
@@ -170,12 +176,12 @@ describe('publishing and archiving', () => {
 
   it('names the account id as approver when the token carries no email', async () => {
     const row = await policy('handbook', 'GENERAL');
-    const userId = String(new Types.ObjectId());
+    const userId = new Types.ObjectId().toHexString();
     const noEmail = {
       user: { id: userId, roles: [ROLES.LEGAL] },
     } as unknown as GraphQLContext;
 
-    const published = (await P.publishPolicy(null, { id: String(row._id) }, noEmail)) as {
+    const published = (await P.publishPolicy(null, { id: row._id.toHexString() }, noEmail)) as {
       approvedByName: string;
       updatedBy: string;
       publishedAt: Date;
@@ -190,7 +196,7 @@ describe('publishing and archiving', () => {
 
     const published = (await P.publishPolicy(
       null,
-      { id: String(row._id), raiseVersion: true },
+      { id: row._id.toHexString(), raiseVersion: true },
       legal,
     )) as { version: number };
 

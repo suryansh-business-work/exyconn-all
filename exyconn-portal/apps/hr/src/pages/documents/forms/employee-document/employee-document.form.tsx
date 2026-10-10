@@ -21,7 +21,7 @@ import type { EmployeeDocumentRow } from './employee-document.types';
 
 const schema = z.object({
   employeeId: z.string().min(1, 'Employee is required'),
-  kind: z.nativeEnum(DocumentKind),
+  kind: z.enum(DocumentKind),
   title: z.string().trim().min(1, 'Title is required'),
   url: z
     .string()

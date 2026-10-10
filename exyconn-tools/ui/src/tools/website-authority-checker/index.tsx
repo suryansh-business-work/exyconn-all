@@ -30,7 +30,6 @@ const WebsiteAuthorityChecker: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleCheck = async () => {
-    if (!domain.trim()) return;
     setIsLoading(true);
     setError(null);
     setResult(null);

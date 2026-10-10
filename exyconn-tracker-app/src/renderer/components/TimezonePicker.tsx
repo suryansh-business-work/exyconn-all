@@ -49,10 +49,7 @@ export default function TimezonePicker({ timezone }: Readonly<Props>): ReactElem
     [zones],
   );
 
-  async function choose(zone: string | null): Promise<void> {
-    if (zone === null || zone === timezone) {
-      return;
-    }
+  async function choose(zone: string): Promise<void> {
     setSaving(true);
     setFailed(false);
     try {

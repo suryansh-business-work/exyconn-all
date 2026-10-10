@@ -48,7 +48,7 @@ export function LicenceForm({ initial, onDone, onCancel }: Readonly<LicenceFormP
     label: `${u.name} (${u.email})`,
   }));
   const seatsTotal = useWatch({ control: methods.control, name: 'seatsTotal' });
-  const held = useWatch({ control: methods.control, name: 'assigneeIds' })?.length ?? 0;
+  const held = useWatch({ control: methods.control, name: 'assigneeIds' }).length;
   const total = Number(seatsTotal) || 0;
   const seatsHelper =
     held === 1

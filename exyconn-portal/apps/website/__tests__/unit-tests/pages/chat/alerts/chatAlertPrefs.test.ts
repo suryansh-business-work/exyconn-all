@@ -38,6 +38,11 @@ describe('chat alert preferences', () => {
     expect(readChatAlertPrefs()).toEqual({ sound: true, desktop: true, animate: true });
   });
 
+  it('fills in desktop notifications as off when an older save only knew sound', () => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ sound: false }));
+    expect(readChatAlertPrefs()).toEqual({ sound: false, desktop: false, animate: true });
+  });
+
   it('falls back to the defaults and logs when the saved value is not JSON', () => {
     localStorage.setItem(STORAGE_KEY, '{not json');
 

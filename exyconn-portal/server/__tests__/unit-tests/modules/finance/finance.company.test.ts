@@ -36,11 +36,15 @@ describe('markExpensePaid', () => {
 
     const saved = await financeCompanyResolvers.Mutation.markExpensePaid(
       null,
-      { id: String(bill._id) },
+      { id: bill._id.toHexString() },
       noEmail,
     );
 
-    expect(saved).toMatchObject({ id: String(bill._id), status: 'PAID', recordedBy: 'fin-7' });
+    expect(saved).toMatchObject({
+      id: bill._id.toHexString(),
+      status: 'PAID',
+      recordedBy: 'fin-7',
+    });
     expect(saved.paidOn).toEqual(new Date('2026-09-18T10:00:00.000Z'));
   });
 
@@ -48,7 +52,7 @@ describe('markExpensePaid', () => {
     const bill = await seedBill();
 
     await expect(
-      financeCompanyResolvers.Mutation.markExpensePaid(null, { id: String(bill._id) }, asHr),
+      financeCompanyResolvers.Mutation.markExpensePaid(null, { id: bill._id.toHexString() }, asHr),
     ).rejects.toThrow(/do not have access/);
     expect((await CompanyExpenseModel.findById(bill._id).lean())?.status).toBe('UNPAID');
   });

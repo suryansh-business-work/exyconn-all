@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import { type MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { ToolForm } from './tool.form';
 import { CreateToolDocument, ListToolCategoriesDocument } from '@exyconn/shell/graphql/generated';
@@ -10,7 +10,7 @@ const CATEGORY = { slug: 'ai-writing', category: 'AI Writing' };
 const NEW_TOOL = { toolCode: 'TL-001', name: 'Headline Generator' };
 
 /** The dynamic category select is populated from this query, not a hardcoded list. */
-const categoriesMock: MockedResponse = {
+const categoriesMock: MockLink.MockedResponse = {
   request: { query: ListToolCategoriesDocument },
   result: {
     data: {
@@ -34,7 +34,7 @@ const categoriesMock: MockedResponse = {
 };
 
 /** Exactly what ToolForm submits when only the required fields are filled in. */
-const createMock: MockedResponse = {
+const createMock: MockLink.MockedResponse = {
   request: {
     query: CreateToolDocument,
     variables: {
@@ -59,7 +59,7 @@ const createMock: MockedResponse = {
   result: { data: { createTool: { id: 'tool-1' } } },
 };
 
-const mount = (mocks: MockedResponse[]) =>
+const mount = (mocks: MockLink.MockedResponse[]) =>
   cy.mount(
     <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>

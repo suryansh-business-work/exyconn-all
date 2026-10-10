@@ -66,7 +66,7 @@ describe('the compliance reminder source', () => {
 
     expect(reminders).toEqual([
       {
-        dedupeKey: `risk-review:${String(row._id)}:2026-09-20`,
+        dedupeKey: `risk-review:${row._id.toHexString()}:2026-09-20`,
         kind: 'COMPLIANCE',
         title: 'RISK-0002 is due for review',
         body: '"Single payroll supplier" was due to be reviewed 3 days ago. Re-score it, or close it if it no longer applies.',
@@ -90,7 +90,7 @@ describe('the compliance reminder source', () => {
 
     expect(reminders).toEqual([
       {
-        dedupeKey: `finding-due:${String(row._id)}:2026-09-20`,
+        dedupeKey: `finding-due:${row._id.toHexString()}:2026-09-20`,
         kind: 'COMPLIANCE',
         title: 'NC-0002 is past its date',
         body: 'The corrective action for "Access review not evidenced" was due yesterday. Record what was done, or agree a new date.',
@@ -115,7 +115,7 @@ describe('the compliance reminder source', () => {
         { description: 'Retrain the team', ownerName: 'Ravi', dueOn: daysAgo(1), done: false },
       ],
     });
-    const id = String(review._id);
+    const id = review._id.toHexString();
 
     const reminders = await dueNow();
 

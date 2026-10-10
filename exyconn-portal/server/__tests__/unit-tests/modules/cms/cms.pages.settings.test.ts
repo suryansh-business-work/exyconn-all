@@ -106,7 +106,7 @@ describe('page settings', () => {
     const page = await create();
 
     const updated = await cmsPages.updateSettings(
-      String(page._id),
+      page._id.toHexString(),
       settings({ title: 'About', layout: 'bare' }),
       'Ravi',
     );
@@ -118,11 +118,11 @@ describe('page settings', () => {
     await create();
     const other = await create({ path: '/team' });
 
-    await expect(cmsPages.updateSettings(String(other._id), settings(), EDITOR)).rejects.toThrow(
-      'Another page already lives at /about-us.',
-    );
     await expect(
-      cmsPages.updateSettings(String(new Types.ObjectId()), settings(), EDITOR),
+      cmsPages.updateSettings(other._id.toHexString(), settings(), EDITOR),
+    ).rejects.toThrow('Another page already lives at /about-us.');
+    await expect(
+      cmsPages.updateSettings(new Types.ObjectId().toHexString(), settings(), EDITOR),
     ).rejects.toThrow('Page not found');
   });
 });

@@ -95,7 +95,7 @@ export function rowHeight(
   width: number,
   label: string,
   value: string,
-  valueWidth = valueWidthOf(width),
+  valueWidth: number,
 ): number {
   const size = halves(width, valueWidth);
   const labelHeight = doc

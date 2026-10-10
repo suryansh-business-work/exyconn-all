@@ -88,7 +88,7 @@ describe('campaign metrics', () => {
     const row = await send('a@x.com');
     await CampaignClickModel.create({
       campaignId: CAMPAIGN,
-      sendId: String(row._id),
+      sendId: row._id.toHexString(),
       to: 'a@x.com',
       url: 'https://example.com/offer',
     });

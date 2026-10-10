@@ -17,6 +17,6 @@ export type ButtonProps = MuiButtonProps & {
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => (
-  <MuiButton ref={ref} {...(props as MuiButtonProps)} />
+  <MuiButton ref={ref} {...props} />
 ));
 Button.displayName = 'Button';

@@ -12,7 +12,7 @@ async function person(name: string, managerId: string | null = null): Promise<st
     roles: [ROLES.EMPLOYEE],
     managerId,
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 describe('the reporting-cycle walk on data written before the guard', () => {

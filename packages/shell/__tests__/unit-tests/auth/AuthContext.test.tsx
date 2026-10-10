@@ -1,9 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render, renderHook, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { ApolloClient } from '@apollo/client';
 import { MockedProvider } from '@apollo/client/testing/react';
 import type { MockLink } from '@apollo/client/testing';
 import { AuthProvider, useAuth, type AuthUser } from '@/auth/AuthContext';
+import { portalLogger } from '@/logging/portalLogger';
 import { tokenStore } from '@/auth/tokenStore';
 import { userStore } from '@/auth/userStore';
 import { MeDocument } from '@/graphql/generated';
@@ -159,6 +161,24 @@ describe('AuthProvider actions', () => {
     expect(screen.getByText('user: none')).toBeInTheDocument();
     expect(tokenStore.get()).toBeNull();
     expect(userStore.get()).toBeNull();
+  });
+
+  it('still signs out and logs a warning when the cache cannot be cleared', async () => {
+    const user = userEvent.setup();
+    const failure = new Error('store busy');
+    vi.spyOn(ApolloClient.prototype, 'clearStore').mockRejectedValue(failure);
+    const warn = vi.spyOn(portalLogger, 'warn').mockImplementation(() => undefined);
+    renderAuth();
+    await screen.findByText('loading: false');
+    await user.click(screen.getByRole('button', { name: 'sign in' }));
+
+    await user.click(screen.getByRole('button', { name: 'sign out' }));
+
+    expect(screen.getByText('user: none')).toBeInTheDocument();
+    await waitFor(() =>
+      expect(warn).toHaveBeenCalledWith('Could not clear the cache on sign-out', failure),
+    );
+    vi.restoreAllMocks();
   });
 
   it('ignores a profile update while nobody is signed in', async () => {

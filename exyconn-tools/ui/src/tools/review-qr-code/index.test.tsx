@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { clickAway } from '../../__tests__/helpers/toolHarness';
 import QRCode from 'qrcode';
 import { QR_SIZE_DEFAULT, buildReviewUrl, clampQrSize, buildQrOptions } from './utils';
 import ReviewQRCode from './index';
@@ -127,5 +128,81 @@ describe('ReviewQRCode component', () => {
     render(<ReviewQRCode />);
     generate();
     expect(await screen.findByText('Failed to render the QR code.')).toBeInTheDocument();
+  });
+
+  it('re-renders the QR code with the new size and colours', async () => {
+    render(<ReviewQRCode />);
+    generate();
+    await waitFor(() => expect(QRCode.toCanvas).toHaveBeenCalledTimes(1));
+    fireEvent.change(screen.getByRole('slider', { name: 'QR code size' }), { target: { value: 500 } });
+    fireEvent.change(screen.getByLabelText('Foreground color'), { target: { value: '#112233' } });
+    fireEvent.change(screen.getByLabelText('Background color'), { target: { value: '#ffeedd' } });
+    await waitFor(() => {
+      const last = vi.mocked(QRCode.toCanvas).mock.calls.at(-1) as unknown as [
+        HTMLCanvasElement,
+        string,
+        { width: number; color: { dark: string; light: string } },
+      ];
+      expect(last[2].width).toBe(500);
+      expect(last[2].color).toEqual({ dark: '#112233', light: '#ffeedd' });
+    });
+    expect(screen.getByText('Size: 500px')).toBeInTheDocument();
+    expect(screen.getByText('#112233')).toBeInTheDocument();
+  });
+
+  it('shows an error when exporting the PNG fails', async () => {
+    vi.mocked(QRCode.toDataURL).mockImplementationOnce(() => Promise.reject(new Error('no export')));
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
+    render(<ReviewQRCode />);
+    generate();
+    fireEvent.click(await screen.findByRole('button', { name: 'Download PNG' }));
+    expect(await screen.findByText('Failed to export the QR code.')).toBeInTheDocument();
+    expect(clickSpy).not.toHaveBeenCalled();
+    clickSpy.mockRestore();
+  });
+
+  it('shows an error when the clipboard is unavailable', async () => {
+    Object.defineProperty(globalThis.navigator, 'clipboard', {
+      value: { writeText: vi.fn(() => Promise.reject(new Error('denied'))) },
+      configurable: true,
+    });
+    render(<ReviewQRCode />);
+    generate();
+    fireEvent.click(await screen.findByRole('button', { name: 'Copy Link' }));
+    expect(await screen.findByText('Could not copy the link to the clipboard.')).toBeInTheDocument();
+    expect(screen.queryByText('Link copied to clipboard')).toBeNull();
+  });
+
+  it('dismisses the error notice with its close button and by clicking away', async () => {
+    vi.mocked(QRCode.toCanvas).mockImplementationOnce(() => Promise.reject(new Error('x')));
+    render(<ReviewQRCode />);
+    generate();
+    await screen.findByText('Failed to render the QR code.');
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+    await waitFor(() => expect(screen.queryByText('Failed to render the QR code.')).toBeNull());
+
+    vi.mocked(QRCode.toCanvas).mockImplementationOnce(() => Promise.reject(new Error('y')));
+    fireEvent.change(screen.getByLabelText('Foreground color'), { target: { value: '#123456' } });
+    await screen.findByText('Failed to render the QR code.');
+    await clickAway();
+    await waitFor(() => expect(screen.queryByText('Failed to render the QR code.')).toBeNull());
+  });
+
+  it('dismisses the copied notice with its close button and by clicking away', async () => {
+    Object.defineProperty(globalThis.navigator, 'clipboard', {
+      value: { writeText: vi.fn(() => Promise.resolve()) },
+      configurable: true,
+    });
+    render(<ReviewQRCode />);
+    generate();
+    fireEvent.click(await screen.findByRole('button', { name: 'Copy Link' }));
+    await screen.findByText('Link copied to clipboard');
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+    await waitFor(() => expect(screen.queryByText('Link copied to clipboard')).toBeNull());
+
+    fireEvent.click(screen.getByRole('button', { name: 'Copy Link' }));
+    await screen.findByText('Link copied to clipboard');
+    await clickAway();
+    await waitFor(() => expect(screen.queryByText('Link copied to clipboard')).toBeNull());
   });
 });

@@ -16,7 +16,7 @@ const person = async (name: string) => {
     passwordHash: 'x',
     roles: [ROLES.EMPLOYEE],
   });
-  return String(user._id);
+  return user._id.toHexString();
 };
 
 const day = (iso: string) => new Date(`${iso}T00:00:00.000Z`);
@@ -57,7 +57,7 @@ describe('off-computer time in the queue', () => {
 
     await decideApproval(
       ctx(tracker, [ROLES.TRACKER]),
-      `MANUAL_TIME:${entry._id}`,
+      `MANUAL_TIME:${entry._id.toHexString()}`,
       'REJECTED',
       'No evidence',
     );
@@ -74,7 +74,11 @@ describe('off-computer time in the queue', () => {
     const tracker = await person('Tara');
     const entry = await manualFor(await person('Wes'));
 
-    await decideApproval(ctx(tracker, [ROLES.TRACKER]), `MANUAL_TIME:${entry._id}`, 'APPROVED');
+    await decideApproval(
+      ctx(tracker, [ROLES.TRACKER]),
+      `MANUAL_TIME:${entry._id.toHexString()}`,
+      'APPROVED',
+    );
 
     const after = await TrackerManualEntryModel.findById(entry._id).lean();
     expect(after).toMatchObject({ status: 'APPROVED', reviewNote: '' });
@@ -95,7 +99,11 @@ describe('expense claims through the queue', () => {
     });
 
     await expect(
-      decideApproval(ctx(finance, [ROLES.FINANCE]), `EXPENSE:${claim._id}`, 'APPROVED'),
+      decideApproval(
+        ctx(finance, [ROLES.FINANCE]),
+        `EXPENSE:${claim._id.toHexString()}`,
+        'APPROVED',
+      ),
     ).resolves.toBe(true);
 
     const after = await ExpenseClaimModel.findById(claim._id).lean();

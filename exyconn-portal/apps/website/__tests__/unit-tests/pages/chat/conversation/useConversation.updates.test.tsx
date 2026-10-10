@@ -58,18 +58,25 @@ describe('useConversation refusals and edits', () => {
       channel: WebsiteChatChannel.Knowledge,
       sender: WebsiteChatSender.Bot,
     });
+    const earlier = chatMessage({ id: 'b0' });
     const { chat, current, client } = renderConversation();
     const query = { query: WebsiteChatMessagesDocument, variables: { sessionId: 's1' } };
     client().cache.writeQuery<WebsiteChatMessagesQuery, WebsiteChatMessagesQueryVariables>({
       ...query,
-      data: { websiteChatMessages: [toCachedMessage(answer)] },
+      data: { websiteChatMessages: [toCachedMessage(earlier), toCachedMessage(answer)] },
     });
+    chat.emit({ t: 'message', message: earlier });
     chat.emit({ t: 'message', message: answer });
 
     chat.emit({ t: 'messageUpdated', message: { ...answer, feedback: WebsiteChatFeedback.Up } });
 
     const cached = client().cache.readQuery<WebsiteChatMessagesQuery>(query);
-    expect(cached?.websiteChatMessages[0].feedback).toBe(WebsiteChatFeedback.Up);
+    expect(cached?.websiteChatMessages.map((message) => message.id)).toEqual(['b0', 'b1']);
+    expect(cached?.websiteChatMessages[0].feedback).toBe(earlier.feedback);
+    expect(cached?.websiteChatMessages[1].feedback).toBe(WebsiteChatFeedback.Up);
+    expect(current().messages.find((message) => message.id === 'b0')?.feedback).toBe(
+      earlier.feedback,
+    );
     const shown = current().messages.find((message) => message.id === 'b1');
     expect(shown?.feedback).toBe(WebsiteChatFeedback.Up);
   });

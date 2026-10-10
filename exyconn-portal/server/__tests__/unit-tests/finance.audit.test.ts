@@ -77,7 +77,7 @@ describe('finance mutations write the change log', () => {
 
     const payment = await M.recordPayment(
       null,
-      { input: { invoiceId: String(invoice._id), amount: 400, method: 'UPI' } },
+      { input: { invoiceId: invoice._id.toHexString(), amount: 400, method: 'UPI' } },
       asFinance,
     );
 
@@ -92,7 +92,7 @@ describe('finance mutations write the change log', () => {
     const [update] = await logOf('Invoice');
     expect(update).toMatchObject({
       action: 'UPDATE',
-      entityId: String(invoice._id),
+      entityId: invoice._id.toHexString(),
       summary: 'Payment recorded on Invoice INV-001',
       changes: {
         amountPaid: { from: 0, to: 400 },
@@ -105,8 +105,8 @@ describe('finance mutations write the change log', () => {
     const draft = await seedInvoice({ status: 'DRAFT' });
     const sent = await seedInvoice({ number: 'INV-002' });
 
-    await M.sendInvoice(null, { id: String(draft._id), email: 'a@acme.com' }, asFinance);
-    await M.sendInvoice(null, { id: String(sent._id), email: 'b@acme.com' }, asFinance);
+    await M.sendInvoice(null, { id: draft._id.toHexString(), email: 'a@acme.com' }, asFinance);
+    await M.sendInvoice(null, { id: sent._id.toHexString(), email: 'b@acme.com' }, asFinance);
 
     const [first, second] = await logOf('Invoice');
     expect(first).toMatchObject({
@@ -127,10 +127,14 @@ describe('finance mutations write the change log', () => {
       value: 1000,
       probability: 100,
       owner: 'Asha',
-      clientId: String(client._id),
+      clientId: client._id.toHexString(),
     });
 
-    const invoice = await M.createInvoiceFromDeal(null, { dealId: String(deal._id) }, asFinance);
+    const invoice = await M.createInvoiceFromDeal(
+      null,
+      { dealId: deal._id.toHexString() },
+      asFinance,
+    );
 
     const [row] = await logOf('Invoice');
     expect(row).toMatchObject({
@@ -146,7 +150,7 @@ describe('finance mutations write the change log', () => {
     const project = await ProjectModel.create({
       name: 'Portal',
       status: 'ACTIVE',
-      clientId: String(client._id),
+      clientId: client._id.toHexString(),
     });
     jest
       .spyOn(trackerBillingService, 'billingByProject')
@@ -158,7 +162,7 @@ describe('finance mutations write the change log', () => {
 
     const invoice = await M.createInvoiceFromTimeLog(
       null,
-      { projectId: String(project._id), from, to },
+      { projectId: project._id.toHexString(), from, to },
       asFinance,
     );
 
@@ -181,7 +185,7 @@ describe('finance mutations write the change log', () => {
     });
     const paidOn = new Date('2026-09-25T00:00:00.000Z');
 
-    await M.markExpensePaid(null, { id: String(bill._id), paidOn }, asFinance);
+    await M.markExpensePaid(null, { id: bill._id.toHexString(), paidOn }, asFinance);
 
     const [row] = await logOf('CompanyExpense');
     expect(row).toMatchObject({
@@ -209,7 +213,7 @@ describe('finance mutations write the change log', () => {
       active: true,
     });
 
-    await M.runRecurringInvoiceNow(null, { id: String(schedule._id) }, asFinance);
+    await M.runRecurringInvoiceNow(null, { id: schedule._id.toHexString() }, asFinance);
 
     const invoice = await InvoiceModel.findOne().lean();
     const [created] = await logOf('Invoice');
@@ -221,7 +225,7 @@ describe('finance mutations write the change log', () => {
     const [run] = await logOf('RecurringInvoice');
     expect(run).toMatchObject({
       action: 'UPDATE',
-      entityId: String(schedule._id),
+      entityId: schedule._id.toHexString(),
       entityLabel: 'Acme retainer',
       summary: `RecurringInvoice raised ${invoice?.number}`,
       changes: {

@@ -77,7 +77,7 @@ export async function principalForApiKey(
   );
 
   return {
-    id: String(row._id),
+    id: row._id.toHexString(),
     name: row.name,
     roles: row.roles as Role[],
     organizationId: organizationOf(row),

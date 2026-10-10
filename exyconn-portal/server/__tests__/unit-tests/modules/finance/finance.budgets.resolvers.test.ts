@@ -47,7 +47,7 @@ describe('budgetVsActual resolver', () => {
   it('reports budget against actual for finance', async () => {
     const centre = await CostCenterModel.create({ code: 'eng', name: 'Engineering' });
     await BudgetModel.create({
-      costCenterId: String(centre._id),
+      costCenterId: centre._id.toHexString(),
       month: '2026-03',
       amount: 1000,
       currency: 'USD',
@@ -57,7 +57,7 @@ describe('budgetVsActual resolver', () => {
 
     expect(rows).toEqual([
       {
-        costCenterId: String(centre._id),
+        costCenterId: centre._id.toHexString(),
         code: 'ENG',
         name: 'Engineering',
         budgeted: 1000,

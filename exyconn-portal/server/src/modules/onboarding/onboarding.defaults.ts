@@ -49,7 +49,7 @@ export async function ensureOnboardingDefaults(): Promise<void> {
     { $setOnInsert: { name: DEFAULT_TEMPLATE_NAME, active: true, tasks: DEFAULT_TASKS } },
     { upsert: true },
   );
-  if ((result.upsertedCount ?? 0) > 0) {
+  if (result.upsertedCount > 0) {
     logger.info(`Seeded the "${DEFAULT_TEMPLATE_NAME}" onboarding template`);
   }
 }

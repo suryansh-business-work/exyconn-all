@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import { type MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
@@ -21,7 +21,7 @@ const contract = (documentUrl = 'https://cdn.example.com/msa.pdf') =>
     signedAt: null,
   }) as never;
 
-const requested: MockedResponse = {
+const requested: MockLink.MockedResponse = {
   request: {
     query: RequestContractSignatureDocument,
     variables: {
@@ -38,7 +38,7 @@ const requested: MockedResponse = {
   },
 };
 
-const mount = (mocks: MockedResponse[] = [], documentUrl?: string) =>
+const mount = (mocks: MockLink.MockedResponse[] = [], documentUrl?: string) =>
   cy.mount(
     <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>

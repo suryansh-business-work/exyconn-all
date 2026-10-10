@@ -37,6 +37,7 @@ export function PayrollPage() {
   const [markPaid, { loading: paying }] = useMarkPayrollPaidMutation();
   const [sendSlips, { loading: sending }] = useSendSalarySlipsMutation();
   const s = summary.data?.payrollSummary;
+  const slips = s?.slips ?? 0;
   const monthName = t(MONTHS[month - 1]);
   const period = t('{month} {year}', { month: monthName, year });
 
@@ -132,14 +133,14 @@ export function PayrollPage() {
           <Button
             startIcon={<PaidIcon />}
             onClick={pay}
-            disabled={paying || (s?.slips ?? 0) === 0 || (s?.paid ?? 0) === (s?.slips ?? 0)}
+            disabled={paying || slips === 0 || s?.paid === slips}
           >
             {t('Mark paid')}
           </Button>
           <Button
             startIcon={<ForwardToInboxIcon />}
             onClick={email}
-            disabled={sending || (s?.slips ?? 0) === 0}
+            disabled={sending || slips === 0}
           >
             {sending ? t('Emailing…') : t('Email payslips')}
           </Button>

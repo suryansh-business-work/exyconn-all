@@ -1,12 +1,12 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import { type MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { CreateNavLinkDocument } from '@exyconn/shell/graphql/generated';
 import { NavLinkForm } from './nav-link.form';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
 
-const createMock: MockedResponse = {
+const createMock: MockLink.MockedResponse = {
   request: {
     query: CreateNavLinkDocument,
     variables: {
@@ -24,7 +24,7 @@ const createMock: MockedResponse = {
   result: { data: { createNavLink: { id: 'n1' } } },
 };
 
-const mount = (mocks: MockedResponse[]) =>
+const mount = (mocks: MockLink.MockedResponse[]) =>
   cy.mount(
     <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>

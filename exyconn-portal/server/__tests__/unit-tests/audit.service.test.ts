@@ -52,7 +52,7 @@ describe('diffChanges', () => {
       address: { city: 'Pune', since: new Date('2026-01-01') },
     };
 
-    expect(diffChanges(before, { ownerId: new Types.ObjectId(String(id)) })).toEqual({});
+    expect(diffChanges(before, { ownerId: new Types.ObjectId(id.toHexString()) })).toEqual({});
     expect(
       diffChanges(before, {
         tags: ['a', 'b'],
@@ -111,7 +111,7 @@ describe('recordAudit', () => {
       roles: [ROLES.FINANCE],
     });
     const ctx: GraphQLContext = {
-      user: { id: String(user._id), roles: [], email: 'ravi@exyconn.com' },
+      user: { id: user._id.toHexString(), roles: [], email: 'ravi@exyconn.com' },
     };
 
     await recordAudit(ctx, { ...entry, changes: { amount: { from: 1, to: 2 } } });
@@ -124,7 +124,7 @@ describe('recordAudit', () => {
   it('leaves the name blank for an id that is not a user id, or a user who has gone', async () => {
     await recordAudit({ user: { id: 'api-key', roles: [], email: '' } }, entry);
     await recordAudit(
-      { user: { id: String(new Types.ObjectId()), roles: [], email: '' } },
+      { user: { id: new Types.ObjectId().toHexString(), roles: [], email: '' } },
       { ...entry, changes: {} },
     );
 

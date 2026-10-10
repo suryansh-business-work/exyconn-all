@@ -38,13 +38,13 @@ const USER_MODULE = 'User';
 /** The formatting singleton is its own module in the matrix, not part of User. */
 const SETTINGS_MODULE = 'AppSettings';
 
-const sortedRoles = (roles: readonly string[] | undefined) =>
-  [...(roles ?? [])].sort((a, b) => a.localeCompare(b)).join(', ');
+const sortedRoles = (roles: readonly string[]) =>
+  [...roles].sort((a, b) => a.localeCompare(b)).join(', ');
 
 /** The caller as the account rules see them, with the company the request is confined to. */
 const actorOf = (user: TokenPayload, ctx: GraphQLContext): AccountActor => ({
   id: user.id,
-  roles: user.roles ?? [],
+  roles: user.roles,
   organizationId: callerOrganization(ctx, user),
 });
 

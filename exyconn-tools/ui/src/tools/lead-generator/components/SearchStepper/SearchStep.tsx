@@ -4,6 +4,8 @@ import { PlayArrow } from '@mui/icons-material';
 import { SearchStepProps } from './types';
 
 const SearchStep: React.FC<SearchStepProps> = ({
+  index,
+  last,
   maxResults,
   onMaxResultsChange,
   locationName,
@@ -15,7 +17,7 @@ const SearchStep: React.FC<SearchStepProps> = ({
   onSearch,
   onBack,
 }) => (
-  <Step>
+  <Step index={index} last={last}>
     <StepLabel>Search Businesses</StepLabel>
     <StepContent>
       <Typography

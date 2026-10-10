@@ -22,13 +22,13 @@ export const raiseTicketSchema = z.object({
     .trim()
     .min(5, 'One line about what is wrong')
     .max(120, 'Keep the title under 120 characters'),
-  category: z.nativeEnum(SupportCategory),
+  category: z.enum(SupportCategory),
   description: z
     .string()
     .trim()
     .min(20, 'A few sentences help us pick it up faster')
     .max(4000, 'Keep it under 4000 characters'),
-  priority: z.nativeEnum(SupportPriority),
+  priority: z.enum(SupportPriority),
 });
 
 export const RAISE_TICKET_DEFAULTS = {

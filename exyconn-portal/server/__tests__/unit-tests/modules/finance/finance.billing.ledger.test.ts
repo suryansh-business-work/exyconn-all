@@ -55,12 +55,16 @@ describe('the payments ledger queries', () => {
   it('lists every receipt newest first, and the receipts of one invoice', async () => {
     const first = await seedInvoice('INV-001');
     const second = await seedInvoice('INV-002');
-    await pay(String(first._id), 100, { receivedAt: new Date('2026-09-01T00:00:00.000Z') });
-    await pay(String(second._id), 200, { receivedAt: new Date('2026-09-05T00:00:00.000Z') });
-    await pay(String(first._id), 300, { receivedAt: new Date('2026-09-10T00:00:00.000Z') });
+    await pay(first._id.toHexString(), 100, { receivedAt: new Date('2026-09-01T00:00:00.000Z') });
+    await pay(second._id.toHexString(), 200, { receivedAt: new Date('2026-09-05T00:00:00.000Z') });
+    await pay(first._id.toHexString(), 300, { receivedAt: new Date('2026-09-10T00:00:00.000Z') });
 
     const all = await Q.listPayments(null, {}, asFinance);
-    const ofFirst = await Q.invoicePayments(null, { invoiceId: String(first._id) }, asFinance);
+    const ofFirst = await Q.invoicePayments(
+      null,
+      { invoiceId: first._id.toHexString() },
+      asFinance,
+    );
 
     expect(all.map((row) => row.amount)).toEqual([300, 200, 100]);
     expect(all[0].id).toEqual(expect.any(String));
@@ -69,8 +73,8 @@ describe('the payments ledger queries', () => {
 
   it('pages the ledger through the grid query', async () => {
     const invoice = await seedInvoice('INV-001');
-    await pay(String(invoice._id), 100, { reference: 'NEFT-1' });
-    await pay(String(invoice._id), 200, { reference: 'NEFT-2' });
+    await pay(invoice._id.toHexString(), 100, { reference: 'NEFT-1' });
+    await pay(invoice._id.toHexString(), 200, { reference: 'NEFT-2' });
 
     const page = await Q.listPaymentsPaged(
       null,
@@ -85,9 +89,9 @@ describe('the payments ledger queries', () => {
 
   it('counts receipts by method and sums what came in', async () => {
     const invoice = await seedInvoice('INV-001');
-    await pay(String(invoice._id), 100.1, { method: 'CARD' });
-    await pay(String(invoice._id), 200.2, { method: 'CARD' });
-    await pay(String(invoice._id), 50, { method: 'CASH' });
+    await pay(invoice._id.toHexString(), 100.1, { method: 'CARD' });
+    await pay(invoice._id.toHexString(), 200.2, { method: 'CARD' });
+    await pay(invoice._id.toHexString(), 50, { method: 'CASH' });
 
     const stats = await Q.listPaymentsStats(null, {}, asFinance);
 
@@ -132,7 +136,7 @@ describe('applyPayment for a gateway', () => {
     const invoice = await seedInvoice('INV-001');
 
     await applyPayment(
-      { invoiceId: String(invoice._id), amount: 1000, method: 'CARD' },
+      { invoiceId: invoice._id.toHexString(), amount: 1000, method: 'CARD' },
       { user: null },
       gateway,
     );
@@ -152,7 +156,7 @@ describe('applyPayment for a gateway', () => {
     const invoice = await seedInvoice('INV-001');
 
     await applyPayment(
-      { invoiceId: String(invoice._id), amount: 10, method: 'CASH' },
+      { invoiceId: invoice._id.toHexString(), amount: 10, method: 'CASH' },
       { user: null },
     );
 
@@ -163,7 +167,7 @@ describe('applyPayment for a gateway', () => {
     const invoice = await seedInvoice('INV-OLD');
     await InvoiceModel.collection.updateOne({ _id: invoice._id }, { $unset: { amountPaid: '' } });
 
-    await pay(String(invoice._id), 250);
+    await pay(invoice._id.toHexString(), 250);
 
     expect(await InvoiceModel.findById(invoice._id).lean()).toMatchObject({
       amountPaid: 250,

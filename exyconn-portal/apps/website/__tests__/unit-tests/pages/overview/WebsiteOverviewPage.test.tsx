@@ -29,11 +29,10 @@ interface TableProps {
   onRefresh: () => unknown;
 }
 
-const recorded = vi.hoisted(() => ({
-  overview: null as unknown,
-  table: null as unknown,
-  hooks: {} as Record<string, (options?: unknown) => unknown>,
-}));
+const recorded = vi.hoisted(() => {
+  const hooks: Record<string, (options?: unknown) => unknown> = {};
+  return { overview: null as unknown, table: null as unknown, hooks };
+});
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),

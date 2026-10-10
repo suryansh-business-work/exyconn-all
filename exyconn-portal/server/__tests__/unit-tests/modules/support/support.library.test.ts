@@ -11,7 +11,7 @@ const Q = supportLibraryResolvers.Query as unknown as Record<string, Resolver>;
 const fields = supportLibraryResolvers.KbArticle;
 
 const ctx = (roles: Role[], email = 'desk@exyconn.com'): GraphQLContext => ({
-  user: { id: String(new Types.ObjectId()), email, roles },
+  user: { id: new Types.ObjectId().toHexString(), email, roles },
 });
 const asIt = () => ctx([ROLES.IT]);
 const asSupport = () => ctx([ROLES.SUPPORT]);
@@ -49,7 +49,7 @@ describe('updateKbArticle', () => {
     const row = await article('IT');
     const itCtx = asIt();
 
-    await M.updateKbArticle(null, { id: String(row._id), input: edit('IT') }, itCtx);
+    await M.updateKbArticle(null, { id: row._id.toHexString(), input: edit('IT') }, itCtx);
 
     const saved = await KbArticleModel.findById(row._id).lean();
     expect(saved).toMatchObject({ title: 'Reworded', updatedById: itCtx.user?.id });
@@ -59,21 +59,29 @@ describe('updateKbArticle', () => {
     const row = await article('HR');
 
     await expect(
-      M.updateKbArticle(null, { id: String(row._id), input: edit('IT') }, asIt()),
+      M.updateKbArticle(null, { id: row._id.toHexString(), input: edit('IT') }, asIt()),
     ).rejects.toThrow('IT category');
     expect((await KbArticleModel.findById(row._id).lean())?.title).toBe('HR how-to');
   });
 
   it('treats a missing article as out of IT’s reach', async () => {
     await expect(
-      M.updateKbArticle(null, { id: String(new Types.ObjectId()), input: edit('IT') }, asIt()),
+      M.updateKbArticle(
+        null,
+        { id: new Types.ObjectId().toHexString(), input: edit('IT') },
+        asIt(),
+      ),
     ).rejects.toThrow('IT category');
   });
 
   it('lets the support desk move any article to any category', async () => {
     const row = await article('HR');
 
-    await M.updateKbArticle(null, { id: String(row._id), input: edit('PAYROLL') }, asSupport());
+    await M.updateKbArticle(
+      null,
+      { id: row._id.toHexString(), input: edit('PAYROLL') },
+      asSupport(),
+    );
 
     expect((await KbArticleModel.findById(row._id).lean())?.category).toBe('PAYROLL');
   });
@@ -82,7 +90,7 @@ describe('updateKbArticle', () => {
     const row = await article('HR');
     const noEmail = { user: { id: 'u1', roles: [ROLES.SUPPORT] } } as unknown as GraphQLContext;
 
-    await M.updateKbArticle(null, { id: String(row._id), input: edit('HR') }, noEmail);
+    await M.updateKbArticle(null, { id: row._id.toHexString(), input: edit('HR') }, noEmail);
 
     expect((await KbArticleModel.findById(row._id).lean())?.updatedByName).toBe('');
   });
@@ -93,8 +101,10 @@ describe('deleteKbArticle', () => {
     const mine = await article('IT');
     const theirs = await article('HR');
 
-    await expect(M.deleteKbArticle(null, { id: String(mine._id) }, asIt())).resolves.toBe(true);
-    await expect(M.deleteKbArticle(null, { id: String(theirs._id) }, asIt())).rejects.toThrow(
+    await expect(M.deleteKbArticle(null, { id: mine._id.toHexString() }, asIt())).resolves.toBe(
+      true,
+    );
+    await expect(M.deleteKbArticle(null, { id: theirs._id.toHexString() }, asIt())).rejects.toThrow(
       'IT category',
     );
     expect(await KbArticleModel.countDocuments()).toBe(1);

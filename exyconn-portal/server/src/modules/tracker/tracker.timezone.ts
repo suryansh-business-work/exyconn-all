@@ -22,7 +22,7 @@ function zonedParts(instant: Date, timeZone: string): { year: number; month: num
     month: '2-digit',
     day: '2-digit',
   }).formatToParts(instant);
-  const read = (type: string) => Number(parts.find((part) => part.type === type)?.value ?? '0');
+  const read = (type: string) => Number(parts.find((part) => part.type === type)?.value);
   return { year: read('year'), month: read('month'), day: read('day') };
 }
 
@@ -49,7 +49,7 @@ export function zonedHour(instant: Date, timeZone: string): number {
     hour: '2-digit',
     hour12: false,
   }).formatToParts(instant);
-  return Number(parts.find((part) => part.type === 'hour')?.value ?? '0');
+  return Number(parts.find((part) => part.type === 'hour')?.value);
 }
 
 /**

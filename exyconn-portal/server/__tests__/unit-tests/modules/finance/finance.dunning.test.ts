@@ -31,7 +31,7 @@ async function seedClient(email = 'accounts@nimbus.test') {
     company: 'Nimbus Ltd',
     status: 'ACTIVE',
   });
-  return String(client._id);
+  return client._id.toHexString();
 }
 
 const seedOverdue = (
@@ -103,14 +103,14 @@ describe('chaseOverdueInvoices', () => {
         clientName: 'there',
         invoiceNumber: 'INV-014',
         daysLate: '15',
-        payUrl: invoicePayUrl(String(invoice._id)),
+        payUrl: invoicePayUrl(invoice._id.toHexString()),
       },
     });
     expect(letter.variables.balanceDue).toContain('600');
     const claim = await ReminderLogModel.findOne().lean();
     expect(claim).toMatchObject({
       source: RECEIVABLES_SOURCE,
-      dedupeKey: `invoice-dunning:${String(invoice._id)}:14`,
+      dedupeKey: `invoice-dunning:${invoice._id.toHexString()}:14`,
     });
   });
 

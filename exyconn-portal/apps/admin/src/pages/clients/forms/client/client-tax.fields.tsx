@@ -33,7 +33,10 @@ function useCountryDefaults(country: string) {
       setValue('stateCode', '');
     }
     if (getValues('taxId').trim() === '') {
-      setValue('taxIdType', taxIdTypesFor(country)[0]?.code ?? '');
+      // Every country is offered the generic "Tax ID" kind, so the list is never empty.
+      for (const { code } of taxIdTypesFor(country).slice(0, 1)) {
+        setValue('taxIdType', code);
+      }
     }
   }, [country, getValues, setValue]);
 }

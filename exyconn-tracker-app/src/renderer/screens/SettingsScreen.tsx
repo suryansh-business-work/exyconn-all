@@ -36,7 +36,8 @@ export default function SettingsScreen({
   const appVersion = useAppVersion();
   const update = useUpdateState();
   const supportEmail = branding?.supportEmail ?? '';
-  const legalName = branding?.legalName ?? branding?.businessName ?? '';
+  const legal = branding?.legalName ?? '';
+  const legalName = legal === '' ? (branding?.businessName ?? '') : legal;
 
   return (
     <Stack spacing={2}>

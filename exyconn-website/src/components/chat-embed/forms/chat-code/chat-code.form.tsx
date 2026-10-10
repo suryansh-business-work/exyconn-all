@@ -29,7 +29,8 @@ export function ChatCodeForm(props: Readonly<ChatCodeFormProps>) {
   const { email, codeSentAt, busy, onVerify, onResend, onChangeEmail } = props;
   const id = useId();
   const resendAt = new Date(codeSentAt + RESEND_AFTER_SECONDS * 1000).toISOString();
-  const wait = useCountdown(resendAt) ?? 0;
+  // null only means "no deadline", and the deadline above is always a real time.
+  const wait = Number(useCountdown(resendAt));
   const { control, handleSubmit } = useForm<ChatCodeValues>({
     resolver: zodResolver(chatCodeSchema),
     defaultValues: CHAT_CODE_DEFAULTS,

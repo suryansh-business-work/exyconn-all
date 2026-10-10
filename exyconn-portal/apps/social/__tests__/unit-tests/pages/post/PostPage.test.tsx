@@ -13,13 +13,16 @@ interface PostState {
   error?: Error;
 }
 
-const api = vi.hoisted(() => ({
-  state: { loading: false } as PostState,
-  queryOptions: vi.fn<(options: unknown) => void>(),
-  like: vi.fn<(id: string) => Promise<void>>(),
-  share: vi.fn<(id: string) => Promise<void>>(),
-  remove: vi.fn<(id: string) => Promise<boolean>>(),
-}));
+const api = vi.hoisted(() => {
+  const state: PostState = { loading: false };
+  return {
+    state,
+    queryOptions: vi.fn<(options: unknown) => void>(),
+    like: vi.fn<(id: string) => Promise<void>>(),
+    share: vi.fn<(id: string) => Promise<void>>(),
+    remove: vi.fn<(id: string) => Promise<boolean>>(),
+  };
+});
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@exyconn/shell/graphql/generated')>();

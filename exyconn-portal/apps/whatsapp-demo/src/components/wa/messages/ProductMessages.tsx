@@ -22,7 +22,6 @@ export function ProductMessage({ content, frame }: ContentProps<'product'>) {
       </Bubble>
       {option ? (
         <ActionRows
-          mine={false}
           items={[
             {
               id: option.id,
@@ -82,7 +81,6 @@ export function CarouselMessage({ content, frame }: ContentProps<'carousel'>) {
             </Box>
             {option ? (
               <ActionRows
-                mine={false}
                 items={[
                   {
                     id: option.id,

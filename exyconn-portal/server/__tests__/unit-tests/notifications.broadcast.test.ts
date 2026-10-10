@@ -21,7 +21,7 @@ async function people() {
   await UserModel.updateOne({ _id: a._id }, { department: 'Engineering' });
   await UserModel.updateOne({ _id: b._id }, { department: 'Engineering' });
   await UserModel.updateOne({ _id: c._id }, { department: 'Sales', isActive: false });
-  return { a: String(a._id), b: String(b._id), c: String(c._id) };
+  return { a: a._id.toHexString(), b: b._id.toHexString(), c: c._id.toHexString() };
 }
 
 describe('sendNotification', () => {

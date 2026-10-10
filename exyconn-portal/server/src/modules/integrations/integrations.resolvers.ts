@@ -23,7 +23,10 @@ const MAX_KEY_LIFETIME_MS = 365 * 24 * 60 * 60 * 1000;
  * creator does not hold — a key is never more powerful than the person who minted it. ADMIN
  * holds every company role, so an administrator may grant any of them.
  */
-function assertGrantableRoles(creatorRoles: readonly string[], roles: readonly string[]): void {
+export function assertGrantableRoles(
+  creatorRoles: readonly string[],
+  roles: readonly string[],
+): void {
   const unknown = roles.filter((role) => !GRANTABLE.has(role));
   if (unknown.length > 0) {
     badRequest(`Not a role an API key may be granted: ${unknown.join(', ')}`);
@@ -103,7 +106,7 @@ export const integrationsResolvers = {
       ctx: GraphQLContext,
     ) => {
       const user = assertRole(ctx, integrationRoles);
-      assertGrantableRoles(user.roles ?? [], roles);
+      assertGrantableRoles(user.roles, roles);
       const expiry = checkedExpiry(expiresAt);
       const issued = generateApiKey();
       // The tenant scope stamps the creator's organization on the key, and principalForApiKey

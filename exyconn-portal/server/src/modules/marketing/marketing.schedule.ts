@@ -60,7 +60,7 @@ async function dispatch(campaign: CampaignDoc): Promise<void> {
   try {
     const result = await runCampaignSend(
       campaign,
-      campaign.scheduledAudienceListId ?? '',
+      campaign.scheduledAudienceListId,
       portalOrigin(),
     );
     logger.info(

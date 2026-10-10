@@ -19,15 +19,14 @@ import SliderControl from './SliderControl';
 interface TransformSectionProps {
   settings: LogoSettings;
   onUpdate: (key: keyof LogoSettings, value: number | string | boolean) => void;
+  onUpdateMany: (patch: Partial<LogoSettings>) => void;
 }
 
-const TransformSection: React.FC<TransformSectionProps> = ({ settings, onUpdate }) => {
+const TransformSection: React.FC<TransformSectionProps> = ({ settings, onUpdate, onUpdateMany }) => {
   const [showMoreTransform, setShowMoreTransform] = useState(false);
 
   const handleResetAdjustments = () => {
-    onUpdate('brightness', 100);
-    onUpdate('contrast', 100);
-    onUpdate('grayscale', 0);
+    onUpdateMany({ brightness: 100, contrast: 100, grayscale: 0 });
   };
 
   const hasAdjustments = settings.brightness !== 100 || settings.contrast !== 100 || settings.grayscale !== 0;

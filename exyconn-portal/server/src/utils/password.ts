@@ -106,7 +106,7 @@ export function assertPasswordPolicy(password: string, email: string): void {
   if (password.length > PASSWORD_MAX_LENGTH) {
     badRequest(`New password must be at most ${PASSWORD_MAX_LENGTH} characters`);
   }
-  const localPart = (email.split('@')[0] ?? '').toLowerCase();
+  const localPart = email.split('@')[0].toLowerCase();
   if (localPart.length >= MIN_CHECKED_LOCAL_PART && password.toLowerCase().includes(localPart)) {
     badRequest('New password must not contain your email address');
   }

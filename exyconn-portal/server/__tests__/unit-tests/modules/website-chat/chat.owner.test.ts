@@ -21,7 +21,7 @@ describe('chat owner', () => {
         isPlatformOperator: true,
       }),
     );
-    const id = String(operator._id);
+    const id = operator._id.toHexString();
     await expect(chatOwnerId()).resolves.toBe(id);
     await expect(asChatOwner(async () => currentOrganizationId())).resolves.toBe(id);
   });

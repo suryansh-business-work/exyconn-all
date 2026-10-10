@@ -127,3 +127,16 @@ describe("DemoLeadForm", () => {
     await waitFor(() => expect(log.mock.calls.filter(([arg]) => arg === thrown)).toHaveLength(2));
   });
 });
+
+describe("DemoLeadForm length limits", () => {
+  it("refuses a company name over 120 characters once the field is left", async () => {
+    const { user, fetchMock } = await setup();
+    await user.click(field(/^Company/));
+    await user.paste("c".repeat(121));
+    await user.tab();
+
+    expect(await screen.findByText("Too long!")).toBeInTheDocument();
+    expect(field(/^Company/)).toHaveAttribute("aria-invalid", "true");
+    expect(postedTo(fetchMock, CODE_ROUTE)).toEqual([]);
+  });
+});

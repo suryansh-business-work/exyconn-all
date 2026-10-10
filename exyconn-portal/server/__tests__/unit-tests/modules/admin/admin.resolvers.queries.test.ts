@@ -26,7 +26,7 @@ async function person(name: string, roles: Role[] = [ROLES.EMPLOYEE]) {
     passwordHash: 'x',
     roles,
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 describe('reading the user database', () => {
@@ -90,7 +90,7 @@ describe('appSettings', () => {
     const settings = (await Q.appSettings(
       null,
       {},
-      passHolder('clientContact', String(organization._id)),
+      passHolder('clientContact', organization._id.toHexString()),
     )) as { id: string; currency: string };
 
     expect(settings.currency).toBe('USD');
@@ -103,7 +103,7 @@ describe('appSettings', () => {
     const settings = (await Q.appSettings(
       null,
       {},
-      passHolder('demoVisitor', String(organization._id)),
+      passHolder('demoVisitor', organization._id.toHexString()),
     )) as { currency: string };
 
     expect(settings.currency).toBe('USD');
@@ -113,7 +113,7 @@ describe('appSettings', () => {
     const organization = await seedOrganization('Client Co');
     const both = {
       ...ctx([ROLES.EMPLOYEE]),
-      clientContact: { organizationId: String(organization._id) },
+      clientContact: { organizationId: organization._id.toHexString() },
     } as unknown as GraphQLContext;
 
     const settings = (await Q.appSettings(null, {}, both)) as Record<string, unknown>;

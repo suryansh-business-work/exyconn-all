@@ -109,9 +109,9 @@ describe('receivePurchaseOrder', () => {
   it('reports an order that does not exist', async () => {
     const { productId } = await seedCatalogue();
 
-    expect(await codeOf(receive(String(new Types.ObjectId()), [{ productId, quantity: 1 }]))).toBe(
-      'NOT_FOUND',
-    );
+    expect(
+      await codeOf(receive(new Types.ObjectId().toHexString(), [{ productId, quantity: 1 }])),
+    ).toBe('NOT_FOUND');
   });
 
   it('reports a product deleted after it was ordered', async () => {

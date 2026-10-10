@@ -127,7 +127,7 @@ describe('revokeApiKey', () => {
   });
 
   it('reports a key that does not exist', async () => {
-    const id = String(new Types.ObjectId());
+    const id = new Types.ObjectId().toHexString();
 
     await expect(codeOf(Mutation.revokeApiKey(null, { id }, admin))).resolves.toBe('NOT_FOUND');
   });

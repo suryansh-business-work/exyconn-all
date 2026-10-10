@@ -186,7 +186,7 @@ describe('Inbound mail on an existing ticket', () => {
     await supportResolvers.Mutation.addSupportReply(
       null,
       { ticketId: ticket.id, body: 'We are on it.', internal: false },
-      asSupport(String(agent._id)),
+      asSupport(agent._id.toHexString()),
     );
 
     expect((await onlyTicket())?.firstRespondedAt).toBeInstanceOf(Date);
@@ -207,7 +207,7 @@ describe('Inbound mail on an existing ticket', () => {
   it('recognises the employee’s own address on an employee ticket', async () => {
     const employee = await seedUser('ravi@exyconn.com', AGENT_PASSWORD, [ROLES.EMPLOYEE]);
     const ticket = await SupportTicketModel.create({
-      employeeId: String(employee._id),
+      employeeId: employee._id.toHexString(),
       reference: 'EXY-AAA222',
       subject: 'Laptop will not boot',
       category: 'IT',
@@ -220,7 +220,7 @@ describe('Inbound mail on an existing ticket', () => {
     );
 
     expect(outcome).toBe('REPLIED');
-    expect(await SupportReplyModel.countDocuments({ ticketId: String(ticket._id) })).toBe(1);
+    expect(await SupportReplyModel.countDocuments({ ticketId: ticket._id.toHexString() })).toBe(1);
   });
 });
 

@@ -32,7 +32,7 @@ describe('runOnce', () => {
     const work = jest.fn(async () => undefined);
 
     await runOnce('per-company', work);
-    await runForOrganization(String(other._id), () => runOnce('per-company', work));
+    await runForOrganization(other._id.toHexString(), () => runOnce('per-company', work));
     await runAsPlatform(() => runOnce('platform-wide', work));
     await runAsPlatform(() => runOnce('platform-wide', work));
 

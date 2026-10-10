@@ -72,14 +72,15 @@ const crud = createCrudResolvers(recurringInvoiceService, {
  * is how a period gets billed twice or skipped entirely.
  */
 async function completeInput(input: RecurringInvoiceInput): Promise<RecurringInvoiceInput> {
-  if (!input.lines || input.lines.length === 0) {
+  const { lines } = input;
+  if (!lines || lines.length === 0) {
     badRequest('Add at least one line — a retainer with nothing on it bills nothing.');
   }
   const clientName = await clientNameFor(input.clientId);
   return {
     ...input,
     clientName,
-    lines: input.lines ?? [],
+    lines,
     placeOfSupplyStateCode: input.placeOfSupplyStateCode ?? '',
   };
 }
@@ -109,7 +110,7 @@ async function writeInvoice(
   schedule: RecurringInvoiceDocument,
   issuedDate: Date,
 ): Promise<{ id: string; number: string }> {
-  const lines = (schedule.lines ?? []) as InvoiceLineInput[];
+  const lines = schedule.lines as InvoiceLineInput[];
   const [number, branding] = await Promise.all([nextInvoiceNumber(), getBranding()]);
 
   const created = await InvoiceModel.create({
@@ -123,10 +124,10 @@ async function writeInvoice(
     status: 'DRAFT',
     issuedDate,
     dueDate: dueDateFor(issuedDate, schedule.dueDays),
-    placeOfSupplyStateCode: schedule.placeOfSupplyStateCode ?? '',
+    placeOfSupplyStateCode: schedule.placeOfSupplyStateCode,
     supplierStateCode: branding.stateCode,
   });
-  return { id: String(created._id), number };
+  return { id: created._id.toHexString(), number };
 }
 
 /** Writes one audit row, as a person (Run now) or as the system (the hourly tick). */
@@ -173,7 +174,7 @@ async function auditRaised(
 async function claimDue(
   now: Date,
   /** Schedules that have already caught up as far as one tick allows. */
-  exhausted: string[] = [],
+  exhausted: string[],
 ): Promise<{ id: string; schedule: RecurringInvoiceDocument; issuedDate: Date } | null> {
   const candidate = await RecurringInvoiceModel.findOne({
     active: true,
@@ -197,7 +198,7 @@ async function claimDue(
     { new: true },
   );
 
-  return claimed ? { id: String(candidate._id), schedule: claimed, issuedDate } : null;
+  return claimed ? { id: candidate._id.toHexString(), schedule: claimed, issuedDate } : null;
 }
 
 /** Raises an invoice for every period every retainer is owed, bounded per tick. */
@@ -244,7 +245,7 @@ const runRecurringInvoiceNow = async (_p: unknown, args: never, ctx: GraphQLCont
   // Dates the invoice to the period the schedule is currently on, then moves it along — the
   // same order the unattended path uses, so pressing the button cannot double-bill either.
   const issuedDate = new Date(schedule.nextRunAt);
-  const nextRunAt = nextOccurrence(issuedDate, schedule.frequency as never);
+  const nextRunAt = nextOccurrence(issuedDate, schedule.frequency);
   await RecurringInvoiceModel.updateOne(
     { _id: schedule._id },
     {
@@ -258,14 +259,12 @@ const runRecurringInvoiceNow = async (_p: unknown, args: never, ctx: GraphQLCont
     from: issuedDate,
     to: nextRunAt,
   });
-  return withIdOf(await RecurringInvoiceModel.findById(id).lean());
+  const updated = await RecurringInvoiceModel.findById(id).lean();
+  if (!updated) {
+    notFound('Recurring invoice');
+  }
+  return { ...updated, id: updated._id.toHexString() };
 };
-
-/** Mongo's `_id` as the `id` every GraphQL type here exposes. */
-function withIdOf(row: unknown): unknown {
-  const doc = row as { _id?: unknown } | null;
-  return doc ? { ...doc, id: String(doc._id) } : null;
-}
 
 /** Starts the hourly check that raises invoices on the schedules finance set. */
 export function startRecurringInvoiceSchedule(): void {

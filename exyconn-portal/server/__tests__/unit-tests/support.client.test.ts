@@ -141,7 +141,7 @@ describe('Replying to a customer', () => {
     await supportResolvers.Mutation.addSupportReply(
       null,
       { ticketId: String(ticket?._id), body: 'We are on it.', internal: false },
-      asSupport(String(agent._id)),
+      asSupport(agent._id.toHexString()),
     );
 
     expect(sendEmail).toHaveBeenCalledTimes(1);
@@ -160,7 +160,7 @@ describe('Replying to a customer', () => {
     await supportResolvers.Mutation.addSupportReply(
       null,
       { ticketId: String(ticket?._id), body: 'Looks like their proxy.', internal: true },
-      asSupport(String(agent._id)),
+      asSupport(agent._id.toHexString()),
     );
 
     expect(sendEmail).not.toHaveBeenCalled();
@@ -189,12 +189,12 @@ describe('Following a customer ticket', () => {
     await supportResolvers.Mutation.addSupportReply(
       null,
       { ticketId: String(ticket?._id), body: 'Public answer', internal: false },
-      asSupport(String(agent._id)),
+      asSupport(agent._id.toHexString()),
     );
     await supportResolvers.Mutation.addSupportReply(
       null,
       { ticketId: String(ticket?._id), body: 'Team only', internal: true },
-      asSupport(String(agent._id)),
+      asSupport(agent._id.toHexString()),
     );
 
     const result = await status(reference, 'DANA@acme.test');

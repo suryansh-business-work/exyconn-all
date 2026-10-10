@@ -68,10 +68,7 @@ export function CheckTicketForm({ onCancel }: Readonly<CheckTicketFormProps>) {
 
   const onSubmit = async (values: Values) => {
     try {
-      const { data, error } = await lookup({ variables: values });
-      if (error) {
-        throw error;
-      }
+      const { data } = await lookup({ variables: values });
       const found = data?.clientSupportTicketStatus ?? null;
       setTicket(found);
       setMissing(found === null);

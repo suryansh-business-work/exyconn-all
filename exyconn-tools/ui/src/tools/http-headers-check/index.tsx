@@ -89,7 +89,7 @@ const HTTPHeadersCheck: React.FC = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {Object.entries(result.securityHeaders as Record<string, string>).map(([key, value]) => (
+                      {Object.entries((result.securityHeaders ?? {}) as Record<string, string>).map(([key, value]) => (
                         <TableRow key={key}>
                           <TableCell sx={{ fontFamily: 'monospace', fontSize: 12 }}>{key}</TableCell>
                           <TableCell
@@ -121,7 +121,7 @@ const HTTPHeadersCheck: React.FC = () => {
                 <TableContainer>
                   <Table size="small">
                     <TableBody>
-                      {Object.entries(result.headers as Record<string, string>).map(([key, value]) => (
+                      {Object.entries((result.headers ?? {}) as Record<string, string>).map(([key, value]) => (
                         <TableRow key={key}>
                           <TableCell sx={{ fontWeight: 500, fontFamily: 'monospace', fontSize: 12 }}>{key}</TableCell>
                           <TableCell sx={{ fontFamily: 'monospace', fontSize: 12, wordBreak: 'break-all' }}>

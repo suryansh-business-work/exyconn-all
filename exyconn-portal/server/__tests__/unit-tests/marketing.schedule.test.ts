@@ -52,7 +52,7 @@ async function seedDueCampaign(scheduledAt: Date) {
   });
   const audience = await AudienceListModel.create({
     name: `Newsletter ${String(scheduledAt.getTime())}`,
-    clientIds: [String(client._id)],
+    clientIds: [client._id.toHexString()],
   });
   return CampaignModel.create({
     name: 'Spring newsletter',
@@ -64,7 +64,7 @@ async function seedDueCampaign(scheduledAt: Date) {
     subject: 'Spring news',
     body: 'Hello {{name}}',
     scheduledAt,
-    scheduledAudienceListId: String(audience._id),
+    scheduledAudienceListId: audience._id.toHexString(),
   });
 }
 
@@ -93,7 +93,7 @@ describe('Dispatching scheduled campaigns', () => {
 
     expect(sendCustomEmail).toHaveBeenCalledTimes(1);
     await expect(
-      CampaignSendModel.countDocuments({ campaignId: String(campaign._id) }),
+      CampaignSendModel.countDocuments({ campaignId: campaign._id.toHexString() }),
     ).resolves.toBe(1);
   });
 

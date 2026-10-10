@@ -43,8 +43,7 @@ export default function EditPdf() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const renderPage = useCallback(async (doc: pdfjsLib.PDFDocumentProxy, pageNum: number, annots: TextAnnotation[]) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const canvas = canvasRef.current!;
     const page = await doc.getPage(pageNum);
     const viewport = page.getViewport({ scale: SCALE });
     canvas.width = viewport.width;
@@ -99,8 +98,7 @@ export default function EditPdf() {
   };
 
   const onCanvasClick = (e: MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const canvas = canvasRef.current!;
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
@@ -112,17 +110,9 @@ export default function EditPdf() {
   };
 
   const addAnnotation = () => {
-    if (!text.trim()) {
-      setError('Enter text to add.');
-      return;
-    }
-    if (!clickPos) {
-      setError('Click on the PDF to set position.');
-      return;
-    }
     setAnnotations((prev) => [
       ...prev,
-      { text, x: clickPos.x, y: clickPos.y, size: fontSize, color, page: currentPage },
+      { text, x: clickPos!.x, y: clickPos!.y, size: fontSize, color, page: currentPage },
     ]);
     setText('');
     setClickPos(null);
@@ -131,10 +121,9 @@ export default function EditPdf() {
   const removeAnnotation = (idx: number) => setAnnotations((prev) => prev.filter((_, i) => i !== idx));
 
   const downloadPdf = async () => {
-    if (!file || !annotations.length) return;
     setProcessing(true);
     try {
-      const bytes = await file.arrayBuffer();
+      const bytes = await file!.arrayBuffer();
       const doc = await PDFDocument.load(bytes);
       const font = await doc.embedFont(StandardFonts.Helvetica);
       const pages = doc.getPages();
@@ -146,7 +135,7 @@ export default function EditPdf() {
       const url = URL.createObjectURL(new Blob([saved.buffer as ArrayBuffer], { type: 'application/pdf' }));
       const link = document.createElement('a');
       link.href = url;
-      link.download = `edited-${file.name}`;
+      link.download = `edited-${file!.name}`;
       link.click();
       URL.revokeObjectURL(url);
     } catch {

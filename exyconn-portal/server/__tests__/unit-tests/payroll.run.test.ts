@@ -36,7 +36,7 @@ const MARCH = { month: 3, year: 2026 };
 
 async function employee(email: string) {
   const u = await seedUser(email, 'whatever123', [ROLES.EMPLOYEE]);
-  return String(u._id);
+  return u._id.toHexString();
 }
 
 /** A salary structure with every amount it does not name at zero. */
@@ -243,7 +243,7 @@ describe('runPayroll — statutory deductions', () => {
     expect(documents).toHaveLength(1);
     expect(documents[0]).toMatchObject({ kind: 'SALARY_SLIP', title: 'Payslip March 2026' });
     const slip = await SalarySlipModel.findOne({ employeeId: a });
-    expect(documents[0].salarySlipId).toBe(String(slip?._id));
+    expect(documents[0].salarySlipId).toBe(slip?._id.toHexString());
   });
 
   it('stamps the day the salary left the company when the month is marked paid', async () => {

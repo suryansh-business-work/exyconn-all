@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import { type MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { LocalizationProvider, AdapterDateFns } from '@exyconn/shell/components/ui';
@@ -11,7 +11,7 @@ import {
 import { MaintenanceForm } from './maintenance.form';
 import type { MaintenanceRow } from './maintenance.types';
 
-const monitorsMock: MockedResponse = {
+const monitorsMock: MockLink.MockedResponse = {
   request: { query: ListStatusMonitorsDocument },
   result: { data: { listStatusMonitors: [{ id: 'm1', key: 'api', name: 'Portal API' }] } },
 };
@@ -27,7 +27,7 @@ const existing: MaintenanceRow = {
   createdAt: '2026-09-07T10:00:00.000Z',
 };
 
-const updateMock: MockedResponse = {
+const updateMock: MockLink.MockedResponse = {
   request: {
     query: UpdateStatusMaintenanceDocument,
     variables: {
@@ -44,7 +44,7 @@ const updateMock: MockedResponse = {
   result: { data: { updateStatusMaintenance: { id: 'w1' } } },
 };
 
-const mount = (initial: MaintenanceRow | null, mocks: MockedResponse[] = []) =>
+const mount = (initial: MaintenanceRow | null, mocks: MockLink.MockedResponse[] = []) =>
   cy.mount(
     <MockedProvider mocks={[monitorsMock, ...mocks]}>
       <ThemeProvider theme={theme}>

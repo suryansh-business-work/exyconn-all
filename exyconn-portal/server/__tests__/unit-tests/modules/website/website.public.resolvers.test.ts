@@ -58,7 +58,7 @@ describe('public blog posts and case studies', () => {
 
     expect(column(await Q.publicBlogPosts(), 'slug')).toEqual(['newer', 'older']);
     const post = await Q.publicBlogPost(null, { slug: 'older' });
-    expect(post?.id).toBe(String(older._id));
+    expect(post?.id).toBe(older._id.toHexString());
     expect(post).toMatchObject({ title: 'Older', author: { name: 'Exyconn' } });
   });
 
@@ -157,8 +157,14 @@ describe('public navigation, per website', () => {
     const shop = await CmsSiteModel.create({ name: 'Shop', slug: 'shop' });
     await NavLinkModel.create([
       { label: 'Home', href: '/', category: 'General', order: 1 },
-      { label: 'About', href: '/about', category: 'Company', order: 2, siteId: String(main._id) },
-      { label: 'Store', href: '/store', category: 'Products', siteId: String(shop._id) },
+      {
+        label: 'About',
+        href: '/about',
+        category: 'Company',
+        order: 2,
+        siteId: main._id.toHexString(),
+      },
+      { label: 'Store', href: '/store', category: 'Products', siteId: shop._id.toHexString() },
       { label: 'Old', href: '/old', category: 'General', isActive: false },
     ]);
 
@@ -176,7 +182,7 @@ describe('public navigation, per website', () => {
     await BlogPostModel.create({
       slug: 'sale',
       title: 'Sale',
-      siteId: String(shop._id),
+      siteId: shop._id.toHexString(),
       publishedAt: new Date(Date.now() - DAY),
     });
 

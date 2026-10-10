@@ -59,7 +59,7 @@ describe('updatePurchaseOrder', () => {
       await codeOf(
         M.updatePurchaseOrder(
           null,
-          { id: String(new Types.ObjectId()), input: orderInput(supplierId, productId) },
+          { id: new Types.ObjectId().toHexString(), input: orderInput(supplierId, productId) },
           buyer,
         ),
       ),
@@ -104,7 +104,7 @@ describe('updatePurchaseOrder', () => {
       await codeOf(
         M.updatePurchaseOrder(
           null,
-          { id: String(new Types.ObjectId()), input: orderInput(supplierId, productId) },
+          { id: new Types.ObjectId().toHexString(), input: orderInput(supplierId, productId) },
           buyer,
         ),
       ),

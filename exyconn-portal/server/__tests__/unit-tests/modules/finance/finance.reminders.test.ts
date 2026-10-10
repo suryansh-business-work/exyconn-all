@@ -49,7 +49,7 @@ describe('the overdue-invoice reminder source', () => {
     const [reminder] = await source().due(NOW);
 
     expect(reminder).toMatchObject({
-      dedupeKey: `invoice-overdue:${String(invoice._id)}`,
+      dedupeKey: `invoice-overdue:${invoice._id.toHexString()}`,
       kind: 'FINANCE',
       title: 'Invoice INV-007 is overdue',
       link: '/finance',

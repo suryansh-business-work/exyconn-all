@@ -24,7 +24,7 @@ async function seedEmployee(email: string) {
     roles: [ROLES.EMPLOYEE],
     isActive: true,
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 const notice = { kind: 'LEAVE', title: 'Leave approved', body: 'Enjoy it.', link: '/me/leave' };

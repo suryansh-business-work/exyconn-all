@@ -125,3 +125,16 @@ describe("CareerFormReact", () => {
     expect(await screen.findByText("Something went wrong. Please try again.")).toBeInTheDocument();
   });
 });
+
+describe("CareerFormReact length limits", () => {
+  it("refuses a cover letter over 2000 characters once the field is left", async () => {
+    const { user, fetchMock } = await setup();
+    await user.click(field(/^Cover Letter/));
+    await user.paste("m".repeat(2001));
+    await user.tab();
+
+    expect(await screen.findByText("Message is too long!")).toBeInTheDocument();
+    expect(field(/^Cover Letter/)).toHaveAttribute("aria-invalid", "true");
+    expect(postedTo(fetchMock)).toEqual([]);
+  });
+});

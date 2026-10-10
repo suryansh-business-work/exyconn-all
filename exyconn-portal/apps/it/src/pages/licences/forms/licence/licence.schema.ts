@@ -12,10 +12,10 @@ export const licenceSchema = z
       .min(1, 'A licence needs at least one seat'),
     assigneeIds: z.array(z.string()),
     cost: z.coerce.number({ message: 'Cost must be a number' }).min(0, 'Cost cannot be negative'),
-    billingCycle: z.nativeEnum(LicenceBillingCycle),
+    billingCycle: z.enum(LicenceBillingCycle),
     /** ISO string from the picker. */
     renewalDate: z.string().min(1, 'A renewal date is required'),
-    status: z.nativeEnum(LicenceStatus),
+    status: z.enum(LicenceStatus),
     notes: z.string().trim(),
   })
   // The server refuses this too; catching it here means the answer arrives while the

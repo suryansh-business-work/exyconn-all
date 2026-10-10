@@ -8,7 +8,7 @@ import { CloudflareConfigModel } from '../../../../src/modules/dns/cloudflare-co
 
 /** Never a literal credential: each value is made at runtime. */
 const secret = (prefix: string) => `${prefix}-${randomUUID()}`;
-const missingId = () => String(new Types.ObjectId());
+const missingId = () => new Types.ObjectId().toHexString();
 /** Rows land in the same millisecond, so the list is compared without its order. */
 const activeByLabel = (rows: ReadonlyArray<{ label: string; isActive: boolean }>) =>
   Object.fromEntries(rows.map((row) => [row.label, row.isActive]));
@@ -47,7 +47,7 @@ describe('GoDaddy configurations', () => {
     const first = await create('First', true);
     const second = await create('Second');
 
-    const updated = await dnsService.updateGodaddyConfig(String(second._id), {
+    const updated = await dnsService.updateGodaddyConfig(second._id.toHexString(), {
       label: 'Renamed',
       apiKey: '',
       apiSecret: '   ',
@@ -63,7 +63,7 @@ describe('GoDaddy configurations', () => {
   it('leaves the others alone when an update does not activate', async () => {
     const first = await create('First', true);
     const second = await create('Second');
-    await dnsService.updateGodaddyConfig(String(second._id), { label: 'Quiet' });
+    await dnsService.updateGodaddyConfig(second._id.toHexString(), { label: 'Quiet' });
     expect((await GodaddyConfigModel.findById(first._id).lean())?.isActive).toBe(true);
   });
 
@@ -83,10 +83,10 @@ describe('GoDaddy configurations', () => {
     const config = await create('Main');
     const verify = jest.spyOn(godaddyClient, 'verify').mockResolvedValue(undefined);
 
-    await expect(dnsService.testGodaddyConnection(String(config._id))).resolves.toBe(true);
+    await expect(dnsService.testGodaddyConnection(config._id.toHexString())).resolves.toBe(true);
     expect(verify.mock.calls[0][0]).toMatchObject({ apiKey: config.apiKey });
 
-    await expect(dnsService.deleteGodaddyConfig(String(config._id))).resolves.toBe(true);
+    await expect(dnsService.deleteGodaddyConfig(config._id.toHexString())).resolves.toBe(true);
     expect(await GodaddyConfigModel.countDocuments()).toBe(0);
   });
 
@@ -125,7 +125,7 @@ describe('Cloudflare configurations', () => {
     const first = await create('First', true);
     const second = await create('Second');
 
-    const updated = await dnsService.updateCloudflareConfig(String(second._id), {
+    const updated = await dnsService.updateCloudflareConfig(second._id.toHexString(), {
       label: 'Renamed',
       apiToken: '',
       accountId: 'acc-2',
@@ -135,7 +135,10 @@ describe('Cloudflare configurations', () => {
     expect(updated).toMatchObject({ apiToken: second.apiToken, accountId: 'acc-2' });
     expect((await CloudflareConfigModel.findById(first._id).lean())?.isActive).toBe(false);
 
-    await dnsService.updateCloudflareConfig(String(first._id), { label: 'F', accountId: 'acc' });
+    await dnsService.updateCloudflareConfig(first._id.toHexString(), {
+      label: 'F',
+      accountId: 'acc',
+    });
     expect((await CloudflareConfigModel.findById(second._id).lean())?.isActive).toBe(true);
   });
 
@@ -156,10 +159,10 @@ describe('Cloudflare configurations', () => {
     const config = await create('Main');
     const verify = jest.spyOn(cloudflareClient, 'verify').mockResolvedValue(undefined);
 
-    await expect(dnsService.testCloudflareConnection(String(config._id))).resolves.toBe(true);
+    await expect(dnsService.testCloudflareConnection(config._id.toHexString())).resolves.toBe(true);
     expect(verify.mock.calls[0][0]).toMatchObject({ apiToken: config.apiToken });
 
-    await expect(dnsService.deleteCloudflareConfig(String(config._id))).resolves.toBe(true);
+    await expect(dnsService.deleteCloudflareConfig(config._id.toHexString())).resolves.toBe(true);
     expect(await CloudflareConfigModel.countDocuments()).toBe(0);
   });
 });

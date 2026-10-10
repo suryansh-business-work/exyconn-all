@@ -88,7 +88,7 @@ export async function promoteBugToTask(id: string, actor: Actor) {
     actor,
     bug.assigneeName,
   );
-  bug.taskId = String(task._id);
+  bug.taskId = task._id.toHexString();
   bug.taskKey = task.key;
   await bug.save();
   return task;

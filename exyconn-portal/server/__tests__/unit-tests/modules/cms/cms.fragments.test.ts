@@ -5,10 +5,10 @@ import { KNOWN_COMPONENT, componentHtml, fragmentHtml, seedSite } from './cms.fi
 
 const SITE = 'site-1';
 const EDITOR = 'Asha';
-const missingId = () => String(new Types.ObjectId());
+const missingId = () => new Types.ObjectId().toHexString();
 
 const newFragment = async (name = 'Header', kind: 'HEADER' | 'FOOTER' | 'SECTION' = 'HEADER') =>
-  String((await cmsFragments.create(SITE, { name, kind }, EDITOR))._id);
+  (await cmsFragments.create(SITE, { name, kind }, EDITOR))._id.toHexString();
 
 describe('fragment settings', () => {
   it('creates a fragment with a trimmed name and who made it', async () => {

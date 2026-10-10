@@ -31,7 +31,7 @@ describe('an enquiry that is a sales lead', () => {
   it('is filed as one the moment it arrives', async () => {
     const row = await submission('contact', enquiry);
 
-    const leadId = await autoFileLead(String(row._id), 'contact', enquiry);
+    const leadId = await autoFileLead(row._id.toHexString(), 'contact', enquiry);
 
     const lead = await LeadModel.findById(leadId).lean();
     expect(lead).toMatchObject({
@@ -48,7 +48,7 @@ describe('an enquiry that is a sales lead', () => {
   it('is linked back, so the inbox will not file it twice', async () => {
     const row = await submission('contact', enquiry);
 
-    const leadId = await autoFileLead(String(row._id), 'contact', enquiry);
+    const leadId = await autoFileLead(row._id.toHexString(), 'contact', enquiry);
 
     const stored = await WebsiteSubmissionModel.findById(row._id).lean();
     expect(stored?.leadId).toBe(leadId);
@@ -58,7 +58,7 @@ describe('an enquiry that is a sales lead', () => {
     const data = { fullName: 'Priya Nair', email: 'priya@nimbus.in', business: 'Nimbus Pvt' };
     const row = await submission('india-offer', data);
 
-    const leadId = await autoFileLead(String(row._id), 'india-offer', data);
+    const leadId = await autoFileLead(row._id.toHexString(), 'india-offer', data);
 
     const lead = await LeadModel.findById(leadId).lean();
     expect(lead?.name).toBe('Priya Nair');
@@ -73,7 +73,7 @@ describe('an enquiry that is not', () => {
     for (const formType of ['grievance', 'legal', 'job-application', 'newsletter', 'career']) {
       const row = await submission(formType, enquiry);
 
-      expect(await autoFileLead(String(row._id), formType, enquiry)).toBeNull();
+      expect(await autoFileLead(row._id.toHexString(), formType, enquiry)).toBeNull();
     }
 
     expect(await LeadModel.countDocuments()).toBe(0);
@@ -83,7 +83,7 @@ describe('an enquiry that is not', () => {
     const data = { name: 'Anonymous', message: 'Something is wrong.' };
     const row = await submission('contact', data);
 
-    expect(await autoFileLead(String(row._id), 'contact', data)).toBeNull();
+    expect(await autoFileLead(row._id.toHexString(), 'contact', data)).toBeNull();
     expect(await LeadModel.countDocuments()).toBe(0);
   });
 });

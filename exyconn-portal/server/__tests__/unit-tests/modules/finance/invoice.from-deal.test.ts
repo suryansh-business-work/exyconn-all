@@ -36,7 +36,7 @@ describe('createInvoiceFromDeal', () => {
   it('refuses a won deal whose client has since been deleted', async () => {
     const deal = await seedDeal('64b7f9c2f1a2b3c4d5e6f7a8');
 
-    await expect(fromDeal(String(deal._id))).rejects.toThrow(/Client not found/);
+    await expect(fromDeal(deal._id.toHexString())).rejects.toThrow(/Client not found/);
     expect(await InvoiceModel.countDocuments()).toBe(0);
   });
 
@@ -49,9 +49,9 @@ describe('createInvoiceFromDeal', () => {
       status: 'ACTIVE',
     });
     await ClientModel.collection.updateOne({ _id: client._id }, { $unset: { stateCode: '' } });
-    const deal = await seedDeal(String(client._id));
+    const deal = await seedDeal(client._id.toHexString());
 
-    const invoice = await fromDeal(String(deal._id));
+    const invoice = await fromDeal(deal._id.toHexString());
 
     const stored = await InvoiceModel.findById(invoice.id).lean();
     expect(stored).toMatchObject({

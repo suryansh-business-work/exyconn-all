@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react';
-import type { DocumentNode } from 'graphql';
+import type { TypedDocumentNode } from '@apollo/client';
 import { useApolloClient } from '@apollo/client/react';
 import type { TablePageResult } from '@exyconn/shell/components/data/ServerDataGrid';
 import type { TableQueryInput } from '@exyconn/shell/graphql/generated';
@@ -19,7 +19,7 @@ export interface SitePageVariables {
  * filters have no server counterpart there, so those columns are display-only.
  */
 export function useSitePagedFetcher<TQuery, TRow>(
-  document: DocumentNode,
+  document: TypedDocumentNode<TQuery, SitePageVariables>,
   select: (data: TQuery) => TablePageResult<TRow>,
   siteId: string,
 ): (input: TableQueryInput) => Promise<TablePageResult<TRow>> {
@@ -29,7 +29,7 @@ export function useSitePagedFetcher<TQuery, TRow>(
 
   return useCallback(
     async (input: TableQueryInput) => {
-      const result = await client.query<TQuery, SitePageVariables>({
+      const result = await client.query({
         query: document,
         variables: {
           siteId,

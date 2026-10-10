@@ -69,6 +69,18 @@ export function useHostRef(ref: Ref<HostElement> | undefined, onLayout?: HostPro
   );
 }
 
+/** A key handler that presses the element on Enter or Space, as a keyboard user would. */
+export function pressOnKey(onPress?: () => void) {
+  if (onPress === undefined) {
+    return undefined;
+  }
+  return (event: { key: string }) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      onPress();
+    }
+  };
+}
+
 export function View({ children, onLayout, onTouchStart, ref, ...rest }: Readonly<HostProps>) {
   const hostRef = useHostRef(ref, onLayout);
   return (
@@ -90,7 +102,7 @@ export function Text({
 }: Readonly<HostProps & { onPress?: () => void; numberOfLines?: number }>) {
   const hostRef = useHostRef(ref);
   return (
-    <span ref={hostRef} onClick={onPress} {...domA11yProps(rest)}>
+    <span ref={hostRef} onClick={onPress} onKeyDown={pressOnKey(onPress)} {...domA11yProps(rest)}>
       {children}
     </span>
   );

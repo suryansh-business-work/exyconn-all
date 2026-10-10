@@ -88,6 +88,22 @@ describe('IT onboarding and offboarding lists', () => {
     expect(joiners[0].missingApplications).toEqual(['Jira']);
   });
 
+  it('lists a joiner nothing has been granted to yet, with every application still to request', async () => {
+    await OnboardingChecklistModel.create({
+      employeeId: 'joiner-3',
+      employeeName: 'Dev Patel',
+      templateName: 'Default',
+      joinDate: new Date(),
+      items: [item('laptop', 'IT')],
+    });
+
+    const joiners = (await q.itOnboarding(null, {}, ctx)) as Joiner[];
+
+    expect(joiners).toHaveLength(1);
+    expect(joiners[0].access).toEqual([]);
+    expect(joiners[0].missingApplications).toEqual(['Email', 'Slack', 'Jira']);
+  });
+
   it('lists leavers still being worked, with devices, access and revokes in flight', async () => {
     const asha = await person('Asha Rao');
     await ExitRecordModel.create([
@@ -131,7 +147,7 @@ describe('IT onboarding and offboarding lists', () => {
     const provision = (employeeId: string) => m.itProvisionOnboarding(null, { employeeId }, ctx);
 
     expect(await codeOf(provision('nope'))).toBe('NOT_FOUND');
-    expect(await codeOf(provision(String(new Types.ObjectId())))).toBe('NOT_FOUND');
+    expect(await codeOf(provision(new Types.ObjectId().toHexString()))).toBe('NOT_FOUND');
   });
 
   it('revokes only what has no revoke open, under the offboarding policy', async () => {

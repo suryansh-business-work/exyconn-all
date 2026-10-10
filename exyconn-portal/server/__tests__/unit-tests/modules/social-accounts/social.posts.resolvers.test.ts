@@ -86,7 +86,7 @@ describe('changing posts through the API', () => {
           text: 'Hi',
           mediaUrl: '',
           link: '',
-          accountIds: [String(account._id)],
+          accountIds: [account._id.toHexString()],
           draft: true,
         },
       },
@@ -115,7 +115,7 @@ describe('changing posts through the API', () => {
           text: 'Bye',
           mediaUrl: '',
           link: '',
-          accountIds: [String(account._id)],
+          accountIds: [account._id.toHexString()],
           draft: true,
         },
       },
@@ -127,12 +127,14 @@ describe('changing posts through the API', () => {
 
   it('syncs one account or all of them on request', async () => {
     const li = await connectAccount('LINKEDIN', 'LINKEDIN');
-    expect(await M.syncSocialAccount(null, { id: String(li._id) }, marketing())).toMatchObject({
+    expect(
+      await M.syncSocialAccount(null, { id: li._id.toHexString() }, marketing()),
+    ).toMatchObject({
       synced: 0,
       error: '',
     });
     expect(await M.syncAllSocialAccounts(null, {}, marketing())).toEqual([
-      { accountId: String(li._id), synced: 0, error: '' },
+      { accountId: li._id.toHexString(), synced: 0, error: '' },
     ]);
     expect(
       await M.syncSocialAccount(null, { id: new Types.ObjectId().toHexString() }, marketing()),

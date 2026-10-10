@@ -26,7 +26,7 @@ function field(key: string, value: unknown): string {
   const safe = escape(text).replaceAll('\n', '<br />');
   return `
     <mj-text font-size="13px" color="#64748b" padding-bottom="2px">${escape(humanise(key))}</mj-text>
-    <mj-text font-size="15px" color="#0b0a12" padding-top="0" padding-bottom="12px">${safe || '—'}</mj-text>`;
+    <mj-text font-size="15px" color="#0b0a12" padding-top="0" padding-bottom="12px">${safe}</mj-text>`;
 }
 
 /**

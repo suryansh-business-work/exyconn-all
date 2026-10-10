@@ -314,7 +314,7 @@ export const boardService = {
   async moveTask(id: string, toColumnId: string, toIndex: number, actor: Actor) {
     const task = await TaskModel.findById(id);
     if (!task) notFound('Task');
-    const fromColumnId = task.columnId.toString();
+    const fromColumnId = task.columnId.toHexString();
 
     task.columnId = toColumnId as never;
     await task.save();

@@ -53,9 +53,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     chown -R nodejs:nodejs /app
 
 # Copy production files
-COPY --from=prod-deps --chown=root:nodejs --chmod=550 /app/node_modules ./node_modules
-COPY --from=builder --chown=root:nodejs --chmod=550 /app/dist ./dist
-COPY --from=builder --chown=root:nodejs --chmod=550 /app/package.json ./
+COPY --from=prod-deps --chown=nodejs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nodejs:nodejs /app/package.json ./
 
 USER nodejs
 

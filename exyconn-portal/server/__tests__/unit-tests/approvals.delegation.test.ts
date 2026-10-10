@@ -25,7 +25,7 @@ async function person(name: string, managerId?: string) {
     isActive: true,
     managerId: managerId ?? null,
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 const asEmployee = (id: string): GraphQLContext => ({
@@ -164,7 +164,7 @@ describe('covering somebody else s approvals', () => {
     await expect(
       delegateApprovals({
         fromEmployeeId: manager,
-        toEmployeeId: String(gone._id),
+        toEmployeeId: gone._id.toHexString(),
         ...window,
       }),
     ).rejects.toThrow('active account');

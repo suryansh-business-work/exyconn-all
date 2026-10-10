@@ -293,7 +293,8 @@ export const supportResolvers = {
       // The token carries no display name, so the author is resolved once here and
       // stored on the reply — a thread has to stay readable years later. A lookup
       // that fails must not lose the reply, which is the part that matters.
-      const authorId = ctx.user?.id ?? '';
+      // deskScope has already refused a caller who is not signed in.
+      const authorId = ctx.user?.id as string;
       const author = await UserModel.findById(authorId)
         .select('name')
         .lean()

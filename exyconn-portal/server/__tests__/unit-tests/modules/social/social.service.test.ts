@@ -28,7 +28,7 @@ function ctx(id: string, roles: string[] = [ROLES.EMPLOYEE]): GraphQLContext {
 
 async function employee(email: string): Promise<string> {
   const user = await seedUser(email, `pw-${randomUUID()}`, [ROLES.EMPLOYEE]);
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 const missingId = () => new Types.ObjectId().toHexString();

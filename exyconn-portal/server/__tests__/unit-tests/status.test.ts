@@ -56,9 +56,7 @@ const sendEmail = mailer.sendCustomEmail as jest.Mock;
 
 /** Replaces the network for one probe round. */
 function mockFetch(response: { ok: boolean; status: number }) {
-  globalThis.fetch = jest
-    .fn()
-    .mockResolvedValue(new Response(null, { status: response.status })) as unknown as typeof fetch;
+  globalThis.fetch = jest.fn().mockResolvedValue(new Response(null, { status: response.status }));
 }
 
 describe('Status catalogue', () => {

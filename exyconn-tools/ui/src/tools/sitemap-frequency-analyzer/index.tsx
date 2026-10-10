@@ -17,7 +17,7 @@ import Grid from '@mui/material/Grid';
 import { Speed, ContentCopy, Download } from '@mui/icons-material';
 import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
 import { APIs } from '../../shared/config/apis';
-import { FrequencyStats } from './types';
+import { FrequencyResponse, FrequencyStats } from './types';
 import DistributionChart from './DistributionChart';
 import RecommendationsSection from './RecommendationsSection';
 
@@ -34,14 +34,20 @@ const getChangefreqColor = (freq: string): string => {
   return colors[freq] || '#9ca3af';
 };
 
-const getPriorityColor = (priority: string): string => {
-  const val = Number.parseFloat(priority);
-  if (val >= 0.8) return '#dc2626';
-  if (val >= 0.6) return '#ea580c';
-  if (val >= 0.4) return '#d97706';
-  if (val >= 0.2) return '#65a30d';
+/** The priority ranges the endpoint reports are labelled "High (0.8-1.0)", "Medium (…)" and "Low (…)". */
+const getPriorityColor = (range: string): string => {
+  if (range.startsWith('High')) return '#dc2626';
+  if (range.startsWith('Medium')) return '#d97706';
   return '#6b7280';
 };
+
+/** Every URL has a changefreq or is counted as lacking one, so together they are all the URLs. */
+const toFrequencyStats = (data: FrequencyResponse): FrequencyStats => ({
+  changefreq: Object.fromEntries(data.changefreqStats.map((entry) => [entry.freq, entry.count])),
+  priority: Object.fromEntries(data.priorityStats.map((entry) => [entry.range, entry.count])),
+  totalUrls: data.changefreqStats.reduce((sum, entry) => sum + entry.count, 0) + data.urlsWithoutChangefreq,
+  recommendations: data.recommendations,
+});
 
 const SitemapFrequencyAnalyzer: React.FC = () => {
   const [url, setUrl] = useState('');
@@ -66,7 +72,7 @@ const SitemapFrequencyAnalyzer: React.FC = () => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Frequency analysis failed');
-      setStats(data.data);
+      setStats(toFrequencyStats(data));
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to analyze sitemap');
     } finally {
@@ -74,15 +80,13 @@ const SitemapFrequencyAnalyzer: React.FC = () => {
     }
   };
 
-  const handleCopy = () => {
-    if (!stats) return;
-    navigator.clipboard.writeText(JSON.stringify(stats, null, 2));
+  const handleCopy = (analysis: FrequencyStats) => {
+    navigator.clipboard.writeText(JSON.stringify(analysis, null, 2));
     setCopied(true);
   };
 
-  const handleDownload = () => {
-    if (!stats) return;
-    const blob = new Blob([JSON.stringify(stats, null, 2)], { type: 'application/json' });
+  const handleDownload = (analysis: FrequencyStats) => {
+    const blob = new Blob([JSON.stringify(analysis, null, 2)], { type: 'application/json' });
     const u = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = u;
@@ -156,12 +160,12 @@ const SitemapFrequencyAnalyzer: React.FC = () => {
                   </Box>
                   <Box>
                     <Tooltip title="Copy JSON">
-                      <IconButton size="small" onClick={handleCopy}>
+                      <IconButton size="small" onClick={() => handleCopy(stats)}>
                         <ContentCopy fontSize="small" />
                       </IconButton>
                     </Tooltip>
                     <Tooltip title="Download">
-                      <IconButton size="small" onClick={handleDownload}>
+                      <IconButton size="small" onClick={() => handleDownload(stats)}>
                         <Download fontSize="small" />
                       </IconButton>
                     </Tooltip>
@@ -181,9 +185,7 @@ const SitemapFrequencyAnalyzer: React.FC = () => {
             <Grid size={{ xs: 12, md: 6 }}>
               <DistributionChart
                 title="Priority Distribution"
-                data={Object.fromEntries(
-                  Object.entries(stats.priority).sort((a, b) => Number.parseFloat(b[0]) - Number.parseFloat(a[0]))
-                )}
+                data={stats.priority}
                 totalUrls={stats.totalUrls}
                 getColor={getPriorityColor}
                 emptyMessage="No priority values found in sitemap"

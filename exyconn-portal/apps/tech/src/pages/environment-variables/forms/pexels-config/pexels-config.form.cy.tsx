@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import { type MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { UpdatePexelsConfigDocument } from '@exyconn/shell/graphql/generated';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { PexelsConfigForm } from './pexels-config.form';
@@ -17,7 +17,7 @@ const stored: PexelsConfigRow = {
 };
 
 /** Saving the stored config untouched sends a blank secret, which the server reads as "keep". */
-const keepSecretMock: MockedResponse = {
+const keepSecretMock: MockLink.MockedResponse = {
   request: {
     query: UpdatePexelsConfigDocument,
     variables: { id: 'c1', input: { label: 'Stock', apiKey: '', isActive: true } },
@@ -25,7 +25,7 @@ const keepSecretMock: MockedResponse = {
   result: { data: { updatePexelsConfig: { id: 'c1' } } },
 };
 
-const mount = (initial: PexelsConfigRow | null = null, mocks: MockedResponse[] = []) =>
+const mount = (initial: PexelsConfigRow | null = null, mocks: MockLink.MockedResponse[] = []) =>
   cy.mount(
     <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>

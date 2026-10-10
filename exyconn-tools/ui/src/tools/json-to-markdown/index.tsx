@@ -15,10 +15,6 @@ const JsonToMarkdown: React.FC = () => {
   const [copied, setCopied] = useState(false);
 
   const handleConvert = async () => {
-    if (!content.trim()) {
-      setError('Please enter JSON content');
-      return;
-    }
     try {
       JSON.parse(content);
     } catch {

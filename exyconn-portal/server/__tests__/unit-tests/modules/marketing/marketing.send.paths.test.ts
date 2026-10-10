@@ -28,9 +28,9 @@ async function audienceOf(email: string) {
   const client = await seedClient('Ada', email);
   const audience = await AudienceListModel.create({
     name: 'Newsletter',
-    clientIds: [String(client._id)],
+    clientIds: [client._id.toHexString()],
   });
-  return String(audience._id);
+  return audience._id.toHexString();
 }
 
 beforeEach(() => {
@@ -80,18 +80,18 @@ describe('sending through a stored template', () => {
     const templateSend = jest.spyOn(emailer, 'send').mockResolvedValue(undefined);
     const campaign = await seedCampaign({ templateKey: 'newsletter' });
 
-    const result = await send(String(campaign._id), {
+    const result = await send(campaign._id.toHexString(), {
       audienceListId: await audienceOf('ada@x.com'),
     });
 
     expect(result).toMatchObject({ sent: 1, failed: 0, skipped: 0 });
-    expect(result.campaign.id).toBe(String(campaign._id));
+    expect(result.campaign.id).toBe(campaign._id.toHexString());
     expect(sendCustomEmail).not.toHaveBeenCalled();
     const [input] = templateSend.mock.calls[0];
     expect(input).toMatchObject({
       template: 'newsletter',
       to: 'ada@x.com',
-      triggeredBy: `campaign:${String(campaign._id)}`,
+      triggeredBy: `campaign:${campaign._id.toHexString()}`,
       variables: expect.objectContaining({ name: 'Ada', subject: 'Hello Ada' }),
     });
     expect(input.variables.body).toBeInstanceOf(RawHtml);
@@ -103,12 +103,12 @@ describe('when a copy does not go out', () => {
     sendCustomEmail.mockRejectedValue('connection reset');
     const campaign = await seedCampaign();
 
-    const result = await send(String(campaign._id), {
+    const result = await send(campaign._id.toHexString(), {
       audienceListId: await audienceOf('ada@x.com'),
     });
 
     expect(result.failed).toBe(1);
-    const [row] = await CampaignSendModel.find({ campaignId: String(campaign._id) }).lean();
+    const [row] = await CampaignSendModel.find({ campaignId: campaign._id.toHexString() }).lean();
     expect(row).toMatchObject({ status: 'FAILED', error: 'Send failed' });
     expect(row.trackingTokenHash).toHaveLength(64);
   });
@@ -119,12 +119,12 @@ describe('when a copy does not go out', () => {
     });
     const campaign = await seedCampaign();
 
-    const result = await send(String(campaign._id), {
+    const result = await send(campaign._id.toHexString(), {
       audienceListId: await audienceOf('ada@x.com'),
     });
 
     expect(result).toMatchObject({ sent: 0, failed: 0, skipped: 1 });
-    const [row] = await CampaignSendModel.find({ campaignId: String(campaign._id) }).lean();
+    const [row] = await CampaignSendModel.find({ campaignId: campaign._id.toHexString() }).lean();
     expect(row).toMatchObject({ to: 'ada@x.com', status: 'SKIPPED' });
     expect(row.error).toBe('The send never completed');
     expect(sendCustomEmail).not.toHaveBeenCalled();
@@ -133,7 +133,7 @@ describe('when a copy does not go out', () => {
   it('sends a test copy to the address as typed, trimmed and lower-cased', async () => {
     const campaign = await seedCampaign();
 
-    await send(String(campaign._id), { testEmail: '  Me@Exyconn.com ' });
+    await send(campaign._id.toHexString(), { testEmail: '  Me@Exyconn.com ' });
 
     expect(sendCustomEmail).toHaveBeenCalledWith(
       expect.objectContaining({ email: 'me@exyconn.com', name: 'me@exyconn.com' }),
@@ -143,13 +143,13 @@ describe('when a copy does not go out', () => {
 
 describe('refusals', () => {
   it('refuses a campaign that does not exist', async () => {
-    await expect(send(String(new Types.ObjectId()), { testEmail: 'a@x.com' })).rejects.toThrow(
-      'Campaign not found',
-    );
+    await expect(
+      send(new Types.ObjectId().toHexString(), { testEmail: 'a@x.com' }),
+    ).rejects.toThrow('Campaign not found');
   });
 
   it('refuses a send to an audience that does not exist', async () => {
-    await expect(loadAudience(String(new Types.ObjectId()))).rejects.toThrow(
+    await expect(loadAudience(new Types.ObjectId().toHexString())).rejects.toThrow(
       'Audience list not found',
     );
   });
@@ -157,7 +157,7 @@ describe('refusals', () => {
   it('refuses a campaign with a subject but no body', async () => {
     const campaign = await seedCampaign({ body: '' });
 
-    await expect(send(String(campaign._id), { testEmail: 'a@x.com' })).rejects.toThrow(
+    await expect(send(campaign._id.toHexString(), { testEmail: 'a@x.com' })).rejects.toThrow(
       /subject and body/,
     );
   });

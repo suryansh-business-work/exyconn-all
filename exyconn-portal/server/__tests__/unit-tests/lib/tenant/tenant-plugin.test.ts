@@ -95,6 +95,19 @@ describe('reads and writes', () => {
     );
   });
 
+  it('reports a bulk insert that fails on something other than an Error object', async () => {
+    const fail = (reason: unknown): never => {
+      throw reason;
+    };
+    const broken = {
+      code: 'b',
+      get organizationId(): never {
+        return fail('organization unreadable');
+      },
+    };
+    await expect(inA(() => Probe.insertMany([broken]))).rejects.toThrow('organization unreadable');
+  });
+
   it('refuses to save a record into another organization, but accepts its own', async () => {
     const foreign = new Probe({ code: 'f', organizationId: new Types.ObjectId(orgB) });
     await expect(inA(() => foreign.save())).rejects.toBeInstanceOf(TenantScopeError);

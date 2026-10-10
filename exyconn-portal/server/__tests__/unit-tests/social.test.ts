@@ -41,7 +41,7 @@ function ctx(id: string, roles: string[] = [ROLES.EMPLOYEE]): GraphQLContext {
 
 async function employee(email: string): Promise<string> {
   const user = await seedUser(email, 'whatever123', [ROLES.EMPLOYEE]);
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 async function post(author: string, body: string): Promise<Post> {

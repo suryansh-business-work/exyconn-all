@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import type { MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { MemoryRouter } from 'react-router-dom';
 import type { ReactNode } from 'react';
 import { LocalizationProvider, AdapterDateFns } from '@exyconn/shell/components/ui';
@@ -17,7 +17,7 @@ import { PostsTab } from './PostsTab';
 import { AnalyticsTab } from './AnalyticsTab';
 import { ACCOUNTS, RULES, post } from './social.fixtures.cy';
 
-const mount = (children: ReactNode, mocks: MockedResponse[]) =>
+const mount = (children: ReactNode, mocks: MockLink.MockedResponse[]) =>
   cy.mount(
     <MemoryRouter>
       <MockedProvider mocks={mocks}>
@@ -32,7 +32,7 @@ const mount = (children: ReactNode, mocks: MockedResponse[]) =>
     </MemoryRouter>,
   );
 
-const composerMocks: MockedResponse[] = [
+const composerMocks: MockLink.MockedResponse[] = [
   {
     request: { query: SocialAccountsDocument },
     result: { data: { socialAccounts: ACCOUNTS } },

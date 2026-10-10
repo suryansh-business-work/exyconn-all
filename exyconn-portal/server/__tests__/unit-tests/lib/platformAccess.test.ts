@@ -16,7 +16,7 @@ import { ROLES, type Role } from '../../../src/constants/roles';
 import type { GraphQLContext } from '../../../src/middleware/auth';
 
 const ctxFor = (roles: Role[], organizationId: string | null): GraphQLContext => ({
-  user: { id: String(new Types.ObjectId()), email: 'u@example.com', roles, organizationId },
+  user: { id: new Types.ObjectId().toHexString(), email: 'u@example.com', roles, organizationId },
   organizationId,
 });
 
@@ -32,7 +32,7 @@ const operator = () =>
     slug: 'exyconn',
     currency: 'USD',
     isPlatformOperator: true,
-  }).then((org) => String(org._id));
+  }).then((org) => org._id.toHexString());
 
 beforeEach(() => {
   invalidatePlatformOperatorCache();
@@ -70,7 +70,7 @@ describe('callerOrganization', () => {
     ).toBe('ctx');
     expect(callerOrganization({ user }, { ...user, organizationId: 'tok' })).toBe('tok');
     expect(callerOrganization({ user }, user)).toBeNull();
-    const scoped = String(new Types.ObjectId());
+    const scoped = new Types.ObjectId().toHexString();
     await expect(
       runForOrganization(scoped, () => callerOrganization({ user }, user)),
     ).resolves.toBe(scoped);
@@ -99,7 +99,7 @@ describe('assertPlatformOrganization', () => {
 
   it('refuses a customer company, a SUPER_ADMIN inside one, and an orphan account', async () => {
     await operator();
-    const customer = String(new Types.ObjectId());
+    const customer = new Types.ObjectId().toHexString();
     await expect(codeOf(assertPlatformOrganization(ctxFor([ROLES.ADMIN], customer)))).resolves.toBe(
       'FORBIDDEN',
     );
@@ -111,8 +111,18 @@ describe('assertPlatformOrganization', () => {
     );
   });
 
+  it('does not take an account with no roles on its token for a platform administrator', async () => {
+    await operator();
+    const ctx = {
+      user: { id: String(new Types.ObjectId()), email: 'u@example.com', organizationId: null },
+      organizationId: null,
+    } as unknown as GraphQLContext;
+
+    await expect(codeOf(assertPlatformOrganization(ctx))).resolves.toBe('FORBIDDEN');
+  });
+
   it('refuses everyone in a company when no operator is flagged', async () => {
-    const customer = String(new Types.ObjectId());
+    const customer = new Types.ObjectId().toHexString();
     await expect(codeOf(assertPlatformOrganization(ctxFor([ROLES.ADMIN], customer)))).resolves.toBe(
       'FORBIDDEN',
     );
@@ -149,7 +159,7 @@ describe('assertPlatformStaff', () => {
 
   it('refuses module staff of a customer company', async () => {
     await operator();
-    const ctx = ctxFor([ROLES.TECH], String(new Types.ObjectId()));
+    const ctx = ctxFor([ROLES.TECH], new Types.ObjectId().toHexString());
     await expect(
       codeOf(assertPlatformStaff(ctx, 'TechConfig', [ROLES.TECH], 'VIEW')),
     ).resolves.toBe('FORBIDDEN');
@@ -169,7 +179,7 @@ describe('restrictToPlatform', () => {
     await expect(wrapped.listThings(null, { a: 1 }, inside)).resolves.toEqual(['row']);
     expect(list).toHaveBeenCalledWith(null, { a: 1 }, inside);
 
-    const outside = ctxFor([ROLES.TECH], String(new Types.ObjectId()));
+    const outside = ctxFor([ROLES.TECH], new Types.ObjectId().toHexString());
     await expect(codeOf(wrapped.listThings(null, {}, outside) as Promise<unknown>)).resolves.toBe(
       'FORBIDDEN',
     );

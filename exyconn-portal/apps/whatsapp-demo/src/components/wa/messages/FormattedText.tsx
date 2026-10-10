@@ -19,7 +19,7 @@ function pieces(text: string): Piece[] {
   const out: Piece[] = [];
   let last = 0;
   for (const match of text.matchAll(MARKUP)) {
-    const start = match.index ?? 0;
+    const start = match.index;
     if (start > last) {
       out.push({ key: `t${last}`, text: text.slice(last, start) });
     }

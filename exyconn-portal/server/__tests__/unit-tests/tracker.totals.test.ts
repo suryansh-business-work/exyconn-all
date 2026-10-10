@@ -41,7 +41,7 @@ async function trackedInterval(
     activeMs,
     idleMs,
   });
-  const sessionId = String(session._id);
+  const sessionId = session._id.toHexString();
   await TrackerIntervalModel.create({
     userId,
     sessionId,

@@ -12,7 +12,7 @@ import type { IncidentUpdateValues } from './incident-update.types';
 const STATUS_OPTIONS = enumOptions(Object.values(ItIncidentStatus));
 
 export const incidentUpdateSchema = z.object({
-  status: z.nativeEnum(ItIncidentStatus),
+  status: z.enum(ItIncidentStatus),
   note: z.string().trim().min(3, 'Say what happened').max(2000, 'Too long'),
 });
 

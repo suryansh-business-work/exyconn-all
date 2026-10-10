@@ -29,7 +29,7 @@ const makeSchema = (isEdit: boolean) =>
       message: `API token must be at least ${MIN_TOKEN_LENGTH} characters`,
     }),
     division: z.string().trim().max(80, 'Check the division'),
-    mode: z.nativeEnum(GatewayMode),
+    mode: z.enum(GatewayMode),
     isActive: z.enum(['true', 'false']),
   });
 type Schema = ReturnType<typeof makeSchema>;

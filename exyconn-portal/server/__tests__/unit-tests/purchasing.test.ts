@@ -30,11 +30,11 @@ async function seed(unitCost = 100, quantity = 10) {
   });
   const order = await PurchaseOrderModel.create({
     number: `PO-${randomBytes(3).toString('hex')}`,
-    supplierId: String(supplier._id),
+    supplierId: supplier._id.toHexString(),
     supplierName: supplier.name,
     lines: [
       {
-        productId: String(product._id),
+        productId: product._id.toHexString(),
         productName: product.name,
         quantity,
         unitCost,
@@ -55,7 +55,10 @@ describe('receiving a purchase order', () => {
 
     const result = await receive(
       null,
-      { id: String(order._id), lines: [{ productId: String(product._id), quantity: 10 }] },
+      {
+        id: order._id.toHexString(),
+        lines: [{ productId: product._id.toHexString(), quantity: 10 }],
+      },
       ctx,
     );
 
@@ -71,11 +74,16 @@ describe('receiving a purchase order', () => {
 
     await receive(
       null,
-      { id: String(order._id), lines: [{ productId: String(product._id), quantity: 5 }] },
+      {
+        id: order._id.toHexString(),
+        lines: [{ productId: product._id.toHexString(), quantity: 5 }],
+      },
       ctx,
     );
 
-    const movement = await StockMovementModel.findOne({ productId: String(product._id) }).lean();
+    const movement = await StockMovementModel.findOne({
+      productId: product._id.toHexString(),
+    }).lean();
     expect(movement?.reason).toBe('RECEIPT');
     expect(movement?.unitCost).toBe(100);
     expect(movement?.purchaseOrderNumber).toBe(order.number);
@@ -87,14 +95,20 @@ describe('receiving a purchase order', () => {
 
     const partial = await receive(
       null,
-      { id: String(order._id), lines: [{ productId: String(product._id), quantity: 4 }] },
+      {
+        id: order._id.toHexString(),
+        lines: [{ productId: product._id.toHexString(), quantity: 4 }],
+      },
       ctx,
     );
     expect(partial.status).toBe('PARTIALLY_RECEIVED');
 
     const complete = await receive(
       null,
-      { id: String(order._id), lines: [{ productId: String(product._id), quantity: 6 }] },
+      {
+        id: order._id.toHexString(),
+        lines: [{ productId: product._id.toHexString(), quantity: 6 }],
+      },
       ctx,
     );
     expect(complete.status).toBe('RECEIVED');
@@ -105,7 +119,10 @@ describe('receiving a purchase order', () => {
     const { product, order } = await seed(100, 10);
     await receive(
       null,
-      { id: String(order._id), lines: [{ productId: String(product._id), quantity: 10 }] },
+      {
+        id: order._id.toHexString(),
+        lines: [{ productId: product._id.toHexString(), quantity: 10 }],
+      },
       ctx,
     );
 
@@ -116,7 +133,7 @@ describe('receiving a purchase order', () => {
       supplierName: order.supplierName,
       lines: [
         {
-          productId: String(product._id),
+          productId: product._id.toHexString(),
           productName: product.name,
           quantity: 10,
           unitCost: 200,
@@ -131,7 +148,10 @@ describe('receiving a purchase order', () => {
 
     await receive(
       null,
-      { id: String(second._id), lines: [{ productId: String(product._id), quantity: 10 }] },
+      {
+        id: second._id.toHexString(),
+        lines: [{ productId: product._id.toHexString(), quantity: 10 }],
+      },
       ctx,
     );
 
@@ -147,7 +167,10 @@ describe('receiving a purchase order', () => {
     await expect(
       receive(
         null,
-        { id: String(order._id), lines: [{ productId: String(product._id), quantity: 1 }] },
+        {
+          id: order._id.toHexString(),
+          lines: [{ productId: product._id.toHexString(), quantity: 1 }],
+        },
         ctx,
       ),
     ).rejects.toThrow(/cancelled/i);
@@ -166,7 +189,10 @@ describe('receiving a purchase order', () => {
     await expect(
       receive(
         null,
-        { id: String(order._id), lines: [{ productId: String(other._id), quantity: 1 }] },
+        {
+          id: order._id.toHexString(),
+          lines: [{ productId: other._id.toHexString(), quantity: 1 }],
+        },
         ctx,
       ),
     ).rejects.toThrow(/not on this order/i);
@@ -175,7 +201,7 @@ describe('receiving a purchase order', () => {
   it('refuses a receipt of nothing', async () => {
     const { order } = await seed();
 
-    await expect(receive(null, { id: String(order._id), lines: [] }, ctx)).rejects.toThrow(
+    await expect(receive(null, { id: order._id.toHexString(), lines: [] }, ctx)).rejects.toThrow(
       /what arrived/i,
     );
   });

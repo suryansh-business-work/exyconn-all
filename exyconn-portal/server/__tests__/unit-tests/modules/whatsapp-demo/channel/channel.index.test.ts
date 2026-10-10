@@ -18,7 +18,7 @@ const { Query, Mutation } = whatsappChannelResolvers;
 
 async function asUser(roles: Role[]): Promise<GraphQLContext> {
   const user = await seedUser(`${roles.join('-').toLowerCase()}@test.co`, randomUUID(), roles);
-  return { user: { id: String(user._id), email: user.email, roles, organizationId } };
+  return { user: { id: user._id.toHexString(), email: user.email, roles, organizationId } };
 }
 
 const input = {

@@ -20,7 +20,8 @@ const echo = (prefix: string) =>
       sources.map((source) => ({ source, text: `${prefix}:${source}`, model: 'gpt-test' })),
     );
 
-const inCompany = <T>(fn: () => Promise<T>) => runForOrganization(String(new Types.ObjectId()), fn);
+const inCompany = <T>(fn: () => Promise<T>) =>
+  runForOrganization(new Types.ObjectId().toHexString(), fn);
 
 beforeEach(() => {
   jest.spyOn(logger, 'info').mockImplementation(() => undefined);

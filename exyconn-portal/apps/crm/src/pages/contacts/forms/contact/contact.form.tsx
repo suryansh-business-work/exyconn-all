@@ -22,7 +22,7 @@ const schema = z.object({
   phone: z.string().trim().regex(PHONE, 'Enter a valid phone number').or(z.literal('')),
   title: z.string().trim(),
   companyId: z.string().trim(),
-  status: z.nativeEnum(ContactStatus),
+  status: z.enum(ContactStatus),
   owner: z.string().trim().min(1, 'Owner is required'),
   notes: z.string().trim(),
 });

@@ -5,7 +5,7 @@ import { DEFAULT_FORMAT_SETTINGS, formatDateTime } from '@exyconn/i18n';
 import { CampaignSendStatus } from '@exyconn/shell/graphql/generated';
 import { CampaignDeliveryLog } from '../../../../src/pages/marketing/CampaignDeliveryLog';
 import { renderWithProviders } from '../../test-utils';
-import { answered } from '../../fixtures';
+import { answered, pending } from '../../fixtures';
 
 const gql = vi.hoisted(() => ({ sends: vi.fn(), summary: vi.fn(), refetch: vi.fn() }));
 
@@ -82,5 +82,14 @@ describe('CampaignDeliveryLog', () => {
 
     expect(screen.getByText('This campaign has not been sent yet.')).toBeInTheDocument();
     expect(screen.queryByText(/sent ·/)).not.toBeInTheDocument();
+  });
+
+  it('holds the table busy and does not say nothing was sent while the first answer loads', () => {
+    gql.sends.mockReturnValue(pending());
+    gql.summary.mockReturnValue(pending());
+    const { container } = renderWithProviders(<CampaignDeliveryLog campaignId="campaign-5" />);
+
+    expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
+    expect(screen.queryByText('This campaign has not been sent yet.')).not.toBeInTheDocument();
   });
 });

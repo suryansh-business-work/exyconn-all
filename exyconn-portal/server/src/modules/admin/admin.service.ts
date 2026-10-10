@@ -273,7 +273,7 @@ function localeFields(input: HrFields) {
   }
   return {
     timezone: timezone === '' ? null : timezone,
-    locale: locale === '' ? null : (canonicalLocale(locale) ?? null),
+    locale: locale === '' ? null : canonicalLocale(locale),
     country: country === '' ? null : country,
     region: region === '' ? null : region,
     city: city === '' ? null : city,

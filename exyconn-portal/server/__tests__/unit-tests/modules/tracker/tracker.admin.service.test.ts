@@ -24,7 +24,7 @@ async function employee(name = 'Asha') {
     email: `${randomUUID()}@exyconn.com`,
     passwordHash: randomUUID(),
   });
-  return { id: String(user._id), email: user.email };
+  return { id: user._id.toHexString(), email: user.email };
 }
 
 const settle = () => new Promise((resolve) => setImmediate(resolve));
@@ -73,7 +73,7 @@ describe('granting tracker access', () => {
   });
 
   it('refuses an account that does not exist', async () => {
-    const attempt = trackerAdminService.grantAccess(new Types.ObjectId().toString(), 'admin-1');
+    const attempt = trackerAdminService.grantAccess(new Types.ObjectId().toHexString(), 'admin-1');
 
     await expect(codeOf(attempt)).resolves.toBe('NOT_FOUND');
   });
@@ -81,7 +81,7 @@ describe('granting tracker access', () => {
 
 describe('revoking', () => {
   it('refuses to revoke access that was never granted', async () => {
-    const attempt = trackerAdminService.revokeAccess(new Types.ObjectId().toString(), 'admin-1');
+    const attempt = trackerAdminService.revokeAccess(new Types.ObjectId().toHexString(), 'admin-1');
 
     await expect(attempt).rejects.toThrow('Tracker access not found');
   });

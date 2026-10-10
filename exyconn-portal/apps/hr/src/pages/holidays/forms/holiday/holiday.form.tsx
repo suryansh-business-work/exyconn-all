@@ -24,7 +24,7 @@ import type { HolidayRow } from './holiday.types';
 const schema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
   date: z.string().min(1, 'Date is required'),
-  type: z.nativeEnum(HolidayType),
+  type: z.enum(HolidayType),
   description: z.string().trim(),
   // Empty is a holiday the whole company observes.
   country: z.string(),

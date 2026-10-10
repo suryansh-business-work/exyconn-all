@@ -20,7 +20,7 @@ const issue = (siteId: string, slug: string, fields: Record<string, unknown> = {
 describe('public site and pages', () => {
   it('serves the site for a host, a page at a path and the sitemap paths', async () => {
     const site = await seedSite('main', { isDefault: true });
-    const siteId = String(site._id);
+    const siteId = site._id.toHexString();
     await CmsPageModel.create({
       siteId,
       path: '/',
@@ -46,10 +46,10 @@ describe('public newsletter issues', () => {
   it('lists the active issues of the named or default site, newest first, without bodies', async () => {
     const home = await seedSite('home', { isDefault: true });
     const docs = await seedSite('docs');
-    await issue(String(home._id), 'old', { publishedAt: new Date('2026-01-01') });
-    await issue(String(home._id), 'new', { publishedAt: new Date('2026-02-01') });
-    await issue(String(home._id), 'hidden', { isActive: false });
-    await issue(String(docs._id), 'docs-only');
+    await issue(home._id.toHexString(), 'old', { publishedAt: new Date('2026-01-01') });
+    await issue(home._id.toHexString(), 'new', { publishedAt: new Date('2026-02-01') });
+    await issue(home._id.toHexString(), 'hidden', { isActive: false });
+    await issue(docs._id.toHexString(), 'docs-only');
 
     const byDefault = await Query.publicNewsletterIssues(null, {});
     const byName = await Query.publicNewsletterIssues(null, { site: 'docs' });
@@ -62,8 +62,8 @@ describe('public newsletter issues', () => {
 
   it('serves one active issue by its address, or nothing', async () => {
     const home = await seedSite('home', { isDefault: true });
-    await issue(String(home._id), 'live');
-    await issue(String(home._id), 'hidden', { isActive: false });
+    await issue(home._id.toHexString(), 'live');
+    await issue(home._id.toHexString(), 'hidden', { isActive: false });
 
     await expect(Query.publicNewsletterIssue(null, { slug: 'live' })).resolves.toMatchObject({
       slug: 'live',
@@ -87,7 +87,7 @@ describe('newsletter sign-up from the website', () => {
     ).resolves.toBe(true);
 
     await expect(NewsletterSubscriberModel.findOne().lean()).resolves.toMatchObject({
-      siteId: String(site._id),
+      siteId: site._id.toHexString(),
       email: 'reader@example.test',
       name: 'Reader',
       source: '/blog',
@@ -129,14 +129,14 @@ describe('newsletter sign-up from the website', () => {
       Mutation.subscribeNewsletter(null, { input: { site: 'nope', email: 'a@b.test' }, captcha }),
     ).rejects.toThrow('Website not found');
     await expect(
-      publicSubscribe(String(new Types.ObjectId()), { email: 'a@b.test' }, captcha),
+      publicSubscribe(new Types.ObjectId().toHexString(), { email: 'a@b.test' }, captcha),
     ).rejects.toThrow('Website not found');
   });
 
   it('unsubscribes by the link token', async () => {
     const site = await seedSite('home', { isDefault: true });
     await NewsletterSubscriberModel.create({
-      siteId: String(site._id),
+      siteId: site._id.toHexString(),
       email: 'reader@example.test',
       unsubscribeToken: 'link-token-1',
     });

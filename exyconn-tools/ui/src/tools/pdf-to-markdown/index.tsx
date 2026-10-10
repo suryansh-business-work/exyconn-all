@@ -36,12 +36,11 @@ const PdfToMarkdown: React.FC = () => {
   };
 
   const handleConvert = async () => {
-    if (!file) return;
     setLoading(true);
     setError(null);
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', file as File);
       const res = await fetch(APIs.converterTools.pdfToMarkdown, {
         method: 'POST',
         body: formData,

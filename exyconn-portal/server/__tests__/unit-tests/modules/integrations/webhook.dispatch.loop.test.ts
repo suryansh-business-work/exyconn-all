@@ -52,7 +52,7 @@ async function queuedForCompany() {
   const company = await runAsPlatform(() =>
     OrganizationModel.create({ name: 'Acme', slug: 'acme', currency: 'USD' }),
   );
-  await runForOrganization(String(company._id), async () => {
+  await runForOrganization(company._id.toHexString(), async () => {
     await WebhookModel.create({
       name: 'Ops',
       url: 'https://receiver.example.com/hook',
@@ -69,8 +69,7 @@ const deliveredCount = () =>
 describe('startWebhookDelivery', () => {
   it('delivers for every company at once, then every minute without holding the process', async () => {
     await queuedForCompany();
-    globalThis.fetch = (() =>
-      Promise.resolve(new Response('', { status: 200 }))) as unknown as typeof fetch;
+    globalThis.fetch = () => Promise.resolve(new Response('', { status: 200 }));
     const { interval, unref } = captureInterval();
     const info = jest.spyOn(logger, 'info').mockImplementation(() => undefined);
 
@@ -90,8 +89,7 @@ describe('startWebhookDelivery', () => {
     jest.spyOn(OrganizationModel, 'find').mockImplementationOnce(() => {
       throw failure;
     });
-    globalThis.fetch = (() =>
-      Promise.resolve(new Response('', { status: 200 }))) as unknown as typeof fetch;
+    globalThis.fetch = () => Promise.resolve(new Response('', { status: 200 }));
 
     expect(() => startWebhookDelivery()).not.toThrow();
 

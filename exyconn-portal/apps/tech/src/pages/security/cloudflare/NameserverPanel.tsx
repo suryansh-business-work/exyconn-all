@@ -106,8 +106,9 @@ export function NameserverPanel({ overview, onChanged }: Readonly<NameserverPane
     }
   };
 
-  const other = SWITCH_TARGETS.find((target) => AUTHORITY_OF[target] !== authority);
-  const blocked = other ? blockedReason(overview, other) : null;
+  const other =
+    authority === DnsAuthority.Godaddy ? NameserverTarget.Cloudflare : NameserverTarget.Godaddy;
+  const blocked = blockedReason(overview, other);
 
   return (
     <Box component="section" aria-labelledby="dns-ns-title">

@@ -69,4 +69,11 @@ describe('BenefitsPage', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Refresh table' }));
     expect(refetch).toHaveBeenCalledTimes(1);
   });
+
+  it('holds the table busy and does not claim the list is empty while the first response loads', () => {
+    vi.mocked(useMyBenefitsQuery).mockReturnValue(queryResult({ loading: true }));
+    const { container } = renderWithProviders(<BenefitsPage />);
+    expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
+    expect(screen.queryByText('No benefits recorded for you yet.')).toBeNull();
+  });
 });

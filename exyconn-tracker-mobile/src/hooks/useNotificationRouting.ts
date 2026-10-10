@@ -1,5 +1,5 @@
 import * as Notifications from 'expo-notifications';
-import { useRouter, type Href } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
 
 /**
@@ -22,7 +22,7 @@ export function useNotificationRouting(): void {
     Notifications.clearLastNotificationResponse();
     const url: unknown = response.notification.request.content.data?.url;
     if (typeof url === 'string') {
-      router.push(url as Href);
+      router.push(url);
     }
   }, [response, router]);
 }

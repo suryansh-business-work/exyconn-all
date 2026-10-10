@@ -23,7 +23,7 @@ const schema = z.object({
   amount: z.coerce
     .number({ message: 'Amount must be a number' })
     .refine((value) => value !== 0, 'A payment of zero records nothing'),
-  method: z.nativeEnum(PaymentMethod),
+  method: z.enum(PaymentMethod),
   reference: z.string().trim(),
   notes: z.string().trim(),
 });

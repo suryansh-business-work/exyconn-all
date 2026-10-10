@@ -30,7 +30,7 @@ const taskSchema = z.object({
     .trim()
     .min(1, 'Describe the task')
     .max(120, 'Keep the task under 120 characters'),
-  owner: z.nativeEnum(OnboardingOwner),
+  owner: z.enum(OnboardingOwner),
   dueDaysFromJoin: z.coerce
     .number()
     .int('Whole days only')

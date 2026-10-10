@@ -38,7 +38,7 @@ export async function person(
     roles,
     ...extra,
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 /** Seeds an IT user and returns their id with a context acting as them. */

@@ -45,10 +45,10 @@ export async function signedInAdmin(): Promise<GraphQLContext> {
     passwordHash: randomUUID(),
     roles: [ROLES.ADMIN],
   });
-  return { user: { id: String(user._id), roles: [ROLES.ADMIN], email: user.email } };
+  return { user: { id: user._id.toHexString(), roles: [ROLES.ADMIN], email: user.email } };
 }
 
 export async function createDemo(key = 'salon'): Promise<string> {
   const demo = await WhatsappDemoModel.create({ ...toDemoProfile(SEED_DEMOS[0], 0), key });
-  return String(demo._id);
+  return demo._id.toHexString();
 }

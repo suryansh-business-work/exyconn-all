@@ -13,7 +13,6 @@ const RobotsSitemapGenerator: React.FC = () => {
   const [rules, setRules] = useState<UserAgentRule[]>([{ id: '1', userAgent: '*', allow: ['/'], disallow: [] }]);
   const [crawlDelay, setCrawlDelay] = useState<number>(0);
   const [generatedTxt, setGeneratedTxt] = useState('');
-  const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
   const addSitemap = () => setSitemaps([...sitemaps, '']);
@@ -136,11 +135,6 @@ const RobotsSitemapGenerator: React.FC = () => {
           </Grid>
         </Grid>
       </Container>
-      <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>
-          {error}
-        </Alert>
-      </Snackbar>
       <Snackbar open={copied} autoHideDuration={2000} onClose={() => setCopied(false)}>
         <Alert severity="success">Copied to clipboard!</Alert>
       </Snackbar>

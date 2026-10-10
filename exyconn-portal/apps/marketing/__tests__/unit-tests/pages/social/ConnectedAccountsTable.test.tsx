@@ -37,7 +37,7 @@ function socialWith(overrides: Partial<Social> = {}): Social {
     disconnect: vi.fn().mockResolvedValue(undefined),
     sync: vi.fn().mockResolvedValue(undefined),
     ...overrides,
-  } as Social;
+  };
 }
 
 const rowOf = (name: string) => screen.getByText(name).closest('tr') as HTMLElement;

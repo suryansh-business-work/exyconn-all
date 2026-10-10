@@ -131,10 +131,9 @@ describe('System Health database and process', () => {
     const realRead = fs.readFileSync;
     jest
       .spyOn(fs, 'readFileSync')
-      .mockImplementation(((file: fs.PathOrFileDescriptor, options?: unknown) =>
-        String(file).endsWith('package.json')
-          ? '{}'
-          : realRead(file, asArg(options))) as typeof fs.readFileSync);
+      .mockImplementation((file: fs.PathOrFileDescriptor, options?: unknown) =>
+        String(file).endsWith('package.json') ? '{}' : realRead(file, asArg(options)),
+      );
 
     expect((await healthService.overview()).serverVersion).toBe('');
   });

@@ -33,7 +33,7 @@ async function person(name: string) {
     roles: [ROLES.EMPLOYEE],
     department: 'Engineering',
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 const asset = (tag: string, extra: Record<string, unknown> = {}) =>
@@ -45,14 +45,14 @@ describe('IT read models', () => {
   it('counts what the dashboard shows', async () => {
     await SupportTicketModel.create([
       {
-        employeeId: new Types.ObjectId().toString(),
+        employeeId: new Types.ObjectId().toHexString(),
         subject: 'a',
         description: 'd',
         category: 'IT',
         dueAt: inDays(-1),
       },
       {
-        employeeId: new Types.ObjectId().toString(),
+        employeeId: new Types.ObjectId().toHexString(),
         subject: 'b',
         description: 'd',
         category: 'HR',
@@ -185,7 +185,7 @@ describe('IT read models', () => {
     const created = new Date(Date.now() - 10 * 3_600_000);
     await SupportTicketModel.create([
       {
-        employeeId: new Types.ObjectId().toString(),
+        employeeId: new Types.ObjectId().toHexString(),
         subject: 'met',
         description: 'd',
         category: 'IT',
@@ -194,7 +194,7 @@ describe('IT read models', () => {
         resolvedAt: new Date(created.getTime() + 4 * 3_600_000),
       },
       {
-        employeeId: new Types.ObjectId().toString(),
+        employeeId: new Types.ObjectId().toHexString(),
         subject: 'late',
         description: 'd',
         category: 'IT',

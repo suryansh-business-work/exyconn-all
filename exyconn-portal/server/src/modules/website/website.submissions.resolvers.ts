@@ -155,9 +155,9 @@ async function fileApplicant(submissionId: string, data: Record<string, unknown>
     const applicant = await createApplicantFromSubmission(submissionId, data);
     await WebsiteSubmissionModel.updateOne(
       { _id: submissionId },
-      { applicantId: String(applicant._id) },
+      { applicantId: applicant._id.toHexString() },
     );
-    return String(applicant._id);
+    return applicant._id.toHexString();
   } catch (error) {
     logger.error({ error }, `Submission ${submissionId} stored, but its applicant failed`);
     return null;
@@ -258,12 +258,12 @@ export const websiteSubmissionResolvers = {
       });
       const applicantId =
         input.formType === JOB_APPLICATION_FORM_TYPE
-          ? await fileApplicant(String(created._id), submissionData)
+          ? await fileApplicant(created._id.toHexString(), submissionData)
           : null;
       // A sales enquiry becomes a lead now rather than when somebody next opens the inbox:
       // an enquiry that arrives on Friday evening should not wait for Monday to exist in
       // the CRM. Best-effort, and the inbox's own button still covers everything else.
-      await autoFileLead(String(created._id), input.formType, submissionData);
+      await autoFileLead(created._id.toHexString(), input.formType, submissionData);
       try {
         await mailer.sendFormSubmissionEmail({
           formType: input.formType,

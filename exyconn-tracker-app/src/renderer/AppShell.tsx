@@ -47,8 +47,9 @@ function SectionView({ section, state }: Readonly<SectionProps>): ReactElement {
 }
 
 function titleOf(section: Section): string {
-  const item = NAV_ITEMS.find((entry) => entry.id === section);
-  return item?.label ?? '';
+  return NAV_ITEMS.filter((entry) => entry.id === section)
+    .map((entry) => entry.label)
+    .join('');
 }
 
 function renderCrash(error: Error, reset: () => void): ReactElement {

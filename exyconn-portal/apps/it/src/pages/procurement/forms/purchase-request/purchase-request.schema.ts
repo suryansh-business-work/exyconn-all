@@ -23,7 +23,7 @@ const quoteSchema = z.object({
 export const purchaseRequestSchema = z
   .object({
     title: z.string().trim().min(3, 'Say what is being bought').max(160, 'Too long'),
-    kind: z.nativeEnum(ItPurchaseKind),
+    kind: z.enum(ItPurchaseKind),
     quantity: z.coerce
       .number({ message: 'Quantity must be a number' })
       .int('Whole numbers only')
@@ -34,7 +34,7 @@ export const purchaseRequestSchema = z
     requestedForName: z.string().trim().max(120, 'Too long'),
     justification: z.string().trim().min(10, 'Say why it is needed').max(2000, 'Too long'),
     quotes: z.array(quoteSchema),
-    status: z.nativeEnum(ItPurchaseStatus),
+    status: z.enum(ItPurchaseStatus),
     orderReference: z.string().trim().max(120, 'Too long'),
   })
   // "Quoted" with no quote on it is a status nobody can check.

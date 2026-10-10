@@ -96,7 +96,7 @@ export async function assertPermission(
   action: PermissionAction,
 ) {
   const user = assertRole(ctx, baseRoles);
-  const roles = user.roles ?? [];
+  const { roles } = user;
   if (roles.includes(ROLES.ADMIN)) return user;
 
   const map = await restrictions();

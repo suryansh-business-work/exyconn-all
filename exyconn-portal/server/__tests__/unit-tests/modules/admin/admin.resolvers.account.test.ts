@@ -26,7 +26,7 @@ async function person(roles: Role[] = [ROLES.EMPLOYEE]) {
     passwordHash: 'x',
     roles,
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 const summaries = async () =>
@@ -57,7 +57,7 @@ describe('setUserActive', () => {
 
     await expect(M.setUserActive(null, { id, isActive: false }, asHr)).rejects.toThrow();
     await expect(
-      M.setUserActive(null, { id: String(root._id), isActive: false }, asAdmin),
+      M.setUserActive(null, { id: root._id.toHexString(), isActive: false }, asAdmin),
     ).rejects.toThrow(/platform administrator/);
   });
 });

@@ -63,12 +63,12 @@ describe('filing a lead', () => {
       status: 'ACTIVE',
     });
 
-    await createLead(leadInput({ campaignId: String(campaign._id) }));
+    await createLead(leadInput({ campaignId: campaign._id.toHexString() }));
 
     expect(emitted).toHaveBeenCalledWith(
       'lead.created',
       expect.objectContaining({
-        campaignId: String(campaign._id),
+        campaignId: campaign._id.toHexString(),
         campaignName: 'Autumn webinar',
       }),
     );

@@ -6,6 +6,9 @@ import { renderWithProviders } from '../../test-utils';
 import { queryResult } from './helpers/apollo';
 import { SupportPage } from '../../../../src/pages/employee/SupportPage';
 
+const logger = vi.hoisted(() => ({ warn: vi.fn() }));
+
+vi.mock('@exyconn/shell/logging/portalLogger', () => ({ portalLogger: logger }));
 vi.mock('@exyconn/shell/hooks/useSettings', () => import('./helpers/settings'));
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
@@ -117,5 +120,25 @@ describe('SupportPage', () => {
 
     expect(screen.getByRole('heading', { level: 1, name: 'Support' })).toBeInTheDocument();
     expect(refetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('holds the table busy and does not claim the list is empty while the first response loads', () => {
+    vi.mocked(useMySupportTicketsQuery).mockReturnValue(queryResult({ loading: true }));
+    const { container } = renderWithProviders(<SupportPage />);
+    expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
+    expect(screen.queryByText('You have no support tickets yet.')).toBeNull();
+  });
+
+  it('logs a failed reload after a ticket is raised instead of failing the page', async () => {
+    const failure = new Error('offline');
+    const { user } = renderPage(vi.fn(() => Promise.reject(failure)));
+
+    await user.click(screen.getByRole('button', { name: 'Raise ticket' }));
+    await user.click(screen.getByRole('button', { name: 'Stub done' }));
+
+    await waitFor(() =>
+      expect(logger.warn).toHaveBeenCalledWith('Could not reload the support tickets', failure),
+    );
+    expect(screen.getByRole('heading', { level: 1, name: 'Support' })).toBeInTheDocument();
   });
 });

@@ -58,13 +58,12 @@ export default function SignPdf() {
   };
 
   const signPdf = async () => {
-    if (!file || !canvasRef.current) return;
     setProcessing(true);
     try {
-      const pngDataUrl = canvasRef.current.toDataURL('image/png');
+      const pngDataUrl = canvasRef.current!.toDataURL('image/png');
       const base64 = pngDataUrl.split(',')[1];
-      const pngBytes = Uint8Array.from(atob(base64), (c) => c.codePointAt(0) ?? 0);
-      const bytes = await file.arrayBuffer();
+      const pngBytes = Uint8Array.from(atob(base64), (c) => c.codePointAt(0)!);
+      const bytes = await file!.arrayBuffer();
       const doc = await PDFDocument.load(bytes);
       const pngImage = await doc.embedPng(pngBytes);
       const dim = SIG_SIZES[sigSize];
@@ -80,7 +79,6 @@ export default function SignPdf() {
       }
       for (const idx of targets) {
         const page = pages[idx];
-        if (!page) continue;
         const { width, height } = page.getSize();
         let x = 30,
           y = 30;
@@ -100,12 +98,11 @@ export default function SignPdf() {
   };
 
   const download = () => {
-    if (!result) return;
-    const blob = new Blob([result.buffer as ArrayBuffer], { type: 'application/pdf' });
+    const blob = new Blob([result!.buffer as ArrayBuffer], { type: 'application/pdf' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `signed-${file?.name ?? 'document.pdf'}`;
+    a.download = `signed-${file!.name}`;
     a.click();
     URL.revokeObjectURL(url);
   };

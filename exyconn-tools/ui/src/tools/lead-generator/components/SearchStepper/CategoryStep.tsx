@@ -19,6 +19,8 @@ import { businessTypes } from '../../types';
 import { CategoryStepProps } from './types';
 
 const CategoryStep: React.FC<CategoryStepProps> = ({
+  index,
+  last,
   selectedTypes,
   onTypesChange,
   searchQuery,
@@ -57,7 +59,7 @@ const CategoryStep: React.FC<CategoryStepProps> = ({
   }
 
   return (
-    <Step completed={canProceed}>
+    <Step index={index} last={last} completed={canProceed}>
       <StepLabel
         optional={
           categorySummary === null ? null : (

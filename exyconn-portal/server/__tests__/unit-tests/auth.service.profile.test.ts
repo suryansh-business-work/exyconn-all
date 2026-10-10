@@ -72,7 +72,7 @@ describe('editing one s own profile', () => {
 
   it('refuses to edit an account that does not exist', async () => {
     await expect(
-      authService.updateProfile(String(new Types.ObjectId()), { name: 'Ghost' }),
+      authService.updateProfile(new Types.ObjectId().toHexString(), { name: 'Ghost' }),
     ).rejects.toThrow('User not found');
   });
 });
@@ -82,14 +82,18 @@ describe('reading and securing one s own account', () => {
     const user = await person();
 
     await expect(authService.me(user.id)).resolves.toMatchObject({ email: user.email });
-    await expect(authService.me(String(new Types.ObjectId()))).rejects.toThrow(
+    await expect(authService.me(new Types.ObjectId().toHexString())).rejects.toThrow(
       'Authentication required',
     );
   });
 
   it('refuses a password change for an account that does not exist', async () => {
     await expect(
-      authService.changePassword(String(new Types.ObjectId()), PASSWORD, `new-${randomUUID()}`),
+      authService.changePassword(
+        new Types.ObjectId().toHexString(),
+        PASSWORD,
+        `new-${randomUUID()}`,
+      ),
     ).rejects.toThrow('User not found');
   });
 

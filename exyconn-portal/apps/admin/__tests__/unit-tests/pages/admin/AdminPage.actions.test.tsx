@@ -72,6 +72,23 @@ describe('AdminPage row actions', () => {
     await waitFor(() => expect(screen.queryByText('Credentials for Asha Rao')).toBeNull());
   });
 
+  it('shows no credentials when the server issues no temporary password', async () => {
+    const person = userEvent.setup();
+    renderWithProviders(<AdminPage />, { mocks: [usersStats(), reset({ password: '' })] });
+    press('reset');
+    const dialog = await confirmDialog(
+      'Reset password for "Asha Rao"? A new temporary password will be emailed.',
+    );
+    await person.click(within(dialog).getByRole('button', { name: 'Reset' }));
+
+    await waitFor(() => expect(screen.queryByText(/Reset password for/)).toBeNull());
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(screen.queryByText('Credentials for Asha Rao')).toBeNull();
+    expect(snackbar()).toBeNull();
+  });
+
   it('leaves the password alone when the reset is cancelled', async () => {
     const person = userEvent.setup();
     renderWithProviders(<AdminPage />, { mocks: [usersStats()] });

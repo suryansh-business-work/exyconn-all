@@ -93,7 +93,7 @@ describe('seedEmployeeData: each person', () => {
     await seedEmployeeData();
 
     for (const person of people) {
-      const employeeId = String(person._id);
+      const employeeId = person._id.toHexString();
       const structure = await SalaryStructureModel.findOne({ employeeId }).lean();
       expect(structure).toEqual(
         expect.objectContaining({ currency: 'INR', basic: 60000, hra: 24000, deductions: 8000 }),
@@ -119,14 +119,14 @@ describe('seedEmployeeData: each person', () => {
 
     await seedEmployeeData();
 
-    const slips = await SalarySlipModel.find({ employeeId: String(person._id) }).lean();
+    const slips = await SalarySlipModel.find({ employeeId: person._id.toHexString() }).lean();
     expected.sort(byText);
     expect(slips.map((s) => `${s.year}-${s.month}`).sort(byText)).toEqual(expected);
   });
 
   it('keeps what a person already has on a second run', async () => {
     const [person] = await seedPeople();
-    const employeeId = String(person._id);
+    const employeeId = person._id.toHexString();
     await seedEmployeeData();
     await SalaryStructureModel.updateOne({ employeeId }, { basic: 70000 });
 

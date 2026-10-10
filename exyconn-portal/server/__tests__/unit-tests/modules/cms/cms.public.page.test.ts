@@ -26,7 +26,7 @@ describe('publicPage', () => {
 
     expect(result).toEqual({
       page: expect.objectContaining({
-        id: String(row._id),
+        id: row._id.toHexString(),
         path: '/about-us',
         kind: 'PAGE',
         title: 'About',
@@ -71,7 +71,7 @@ describe('publicPage', () => {
 
 describe('previews', () => {
   it('signs a token that names the page, and reads nothing from a forged one', () => {
-    const pageId = String(new Types.ObjectId());
+    const pageId = new Types.ObjectId().toHexString();
 
     expect(previewPageId(signPreviewToken(pageId))).toBe(pageId);
     expect(previewPageId('forged.token.value')).toBeNull();
@@ -84,7 +84,7 @@ describe('previews', () => {
       draft: { html: '<p>Draft</p>', css: 'b{}' },
     });
 
-    const result = await publicPage(SITE, '/ignored', signPreviewToken(String(row._id)));
+    const result = await publicPage(SITE, '/ignored', signPreviewToken(row._id.toHexString()));
 
     expect(result?.page).toMatchObject({
       path: '/about-us',
@@ -105,7 +105,7 @@ describe('previews', () => {
   it('refuses a preview of a page that is not on this site', async () => {
     const row = await page({ path: '/x', siteId: 'site-2' });
 
-    await expect(publicPage(SITE, '/', signPreviewToken(String(row._id)))).rejects.toThrow(
+    await expect(publicPage(SITE, '/', signPreviewToken(row._id.toHexString()))).rejects.toThrow(
       'Page not found',
     );
   });

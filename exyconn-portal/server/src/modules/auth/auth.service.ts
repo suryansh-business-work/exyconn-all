@@ -180,7 +180,7 @@ class AuthService {
     const token = signToken({
       id: user.id,
       email: user.email,
-      roles: user.roles as Role[],
+      roles: user.roles,
       organizationId,
       tv: user.tokenVersion ?? 0,
       sid: sessionId,

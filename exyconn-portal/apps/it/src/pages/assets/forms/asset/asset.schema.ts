@@ -7,8 +7,8 @@ export const assetSchema = z
   .object({
     assetTag: z.string().trim().min(1, 'Asset tag is required').max(40, 'Asset tag is too long'),
     name: z.string().trim().min(1, 'Name is required'),
-    category: z.nativeEnum(AssetCategory),
-    status: z.nativeEnum(AssetStatus),
+    category: z.enum(AssetCategory),
+    status: z.enum(AssetStatus),
     manufacturer: z.string().trim(),
     modelName: z.string().trim(),
     serialNumber: z.string().trim(),
@@ -24,7 +24,7 @@ export const assetSchema = z
     installedSoftware: z.array(
       z.string().trim().min(1).max(80, 'Keep each name under 80 characters'),
     ),
-    edrStatus: z.nativeEnum(AssetEdrStatus),
+    edrStatus: z.enum(AssetEdrStatus),
     edrCheckedAt: z.string(),
   })
   // An assigned asset without a holder is a row nobody can act on, so it is rejected

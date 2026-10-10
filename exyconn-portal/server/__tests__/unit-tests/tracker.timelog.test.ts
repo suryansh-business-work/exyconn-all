@@ -9,10 +9,10 @@ import {
 import { trackerTimeLogService } from '../../src/modules/tracker/tracker.timelog.service';
 
 const HOUR = 3_600_000;
-const PROJECT = new Types.ObjectId().toString();
-const OTHER_PROJECT = new Types.ObjectId().toString();
-const TASK_A = new Types.ObjectId().toString();
-const TASK_B = new Types.ObjectId().toString();
+const PROJECT = new Types.ObjectId().toHexString();
+const OTHER_PROJECT = new Types.ObjectId().toHexString();
+const TASK_A = new Types.ObjectId().toHexString();
+const TASK_B = new Types.ObjectId().toHexString();
 
 const WINDOW = {
   from: new Date(Date.now() - 7 * 24 * HOUR),
@@ -26,7 +26,7 @@ async function employee(name: string) {
     passwordHash: 'not-a-real-hash',
     roles: ['EMPLOYEE'],
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 /** A tracked run with its interval time, optionally against a ticket. */
@@ -53,7 +53,7 @@ async function session(
     taskKey: opts.taskKey ?? '',
     taskTitle: opts.taskKey ? `Work on ${opts.taskKey}` : '',
   });
-  const sessionId = String(doc._id);
+  const sessionId = doc._id.toHexString();
 
   await TrackerIntervalModel.create({
     userId,

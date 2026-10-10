@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { godaddyClient } from '../../../../src/modules/dns/godaddy.client';
 import { GodaddyConfigModel } from '../../../../src/modules/dns/godaddy-config.model';
 import { ConfigurationError } from '../../../../src/utils/errors';
+import { stringOf } from '../../../../src/utils/serialize';
 import ips from '../../../fixtures/ips.json';
 
 /** Never a literal credential: each run makes its own. */
@@ -14,7 +15,7 @@ let fetchMock: jest.SpiedFunction<typeof fetch>;
 
 const call = (index = 0) => {
   const [url, init] = fetchMock.mock.calls[index];
-  return { url: String(url), init: init ?? {} };
+  return { url: stringOf(url), init: init ?? {} };
 };
 
 beforeEach(async () => {

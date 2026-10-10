@@ -68,7 +68,7 @@ describe('pages for the website team', () => {
 
     expect(previewPageId(token)).toBe(idOf(created));
     await expect(
-      Query.cmsPreviewToken(null, { pageId: String(new Types.ObjectId()) }, ctx),
+      Query.cmsPreviewToken(null, { pageId: new Types.ObjectId().toHexString() }, ctx),
     ).rejects.toThrow('Page not found');
   });
 
@@ -76,7 +76,7 @@ describe('pages for the website team', () => {
     jest.spyOn(cmsPages, 'unpublish').mockResolvedValueOnce(null);
 
     await expect(
-      Mutation.unpublishCmsPage(null, { id: String(new Types.ObjectId()) }, editorCtx()),
+      Mutation.unpublishCmsPage(null, { id: new Types.ObjectId().toHexString() }, editorCtx()),
     ).resolves.toBeNull();
   });
 

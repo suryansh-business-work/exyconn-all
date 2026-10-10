@@ -14,7 +14,7 @@ const kinds = (socket: Parameters<typeof framesOf>[0]) => framesOf(socket).map((
 
 async function setup() {
   const session = await createSession();
-  const sessionId = String(session._id);
+  const sessionId = session._id.toHexString();
   const visitor = fakePeer({ role: 'visitor', sessionId });
   const staff = fakePeer({ role: 'staff', watching: sessionId });
   chatHub.join(visitor.peer);
@@ -117,7 +117,7 @@ describe('postMessage', () => {
   });
 
   it('still delivers a message whose session is gone, without a session update', async () => {
-    const sessionId = String(new Types.ObjectId());
+    const sessionId = new Types.ObjectId().toHexString();
     const staff = fakePeer({ role: 'staff' });
     chatHub.join(staff.peer);
     await postMessage(visitorLine(sessionId));
@@ -130,7 +130,7 @@ describe('listMessages', () => {
     const { sessionId } = await setup();
     await postMessage(visitorLine(sessionId, 'one'));
     await postMessage(visitorLine(sessionId, 'two'));
-    await postMessage(visitorLine(String(new Types.ObjectId()), 'elsewhere'));
+    await postMessage(visitorLine(new Types.ObjectId().toHexString(), 'elsewhere'));
     expect((await listMessages(sessionId)).map((m) => m.body)).toEqual(['one', 'two']);
   });
 });
@@ -151,7 +151,7 @@ describe('read receipts and ratings', () => {
   });
 
   it('tells the visitor about a read even when the session is gone', async () => {
-    const sessionId = String(new Types.ObjectId());
+    const sessionId = new Types.ObjectId().toHexString();
     const visitor = fakePeer({ role: 'visitor', sessionId });
     chatHub.join(visitor.peer);
     await markReadByStaff(sessionId);
@@ -178,7 +178,7 @@ describe('read receipts and ratings', () => {
     const own = await postMessage(visitorLine(sessionId, 'Question'));
     visitor.socket.send.mockClear();
 
-    await rateAnswer(sessionId, String(bot._id), true);
+    await rateAnswer(sessionId, bot._id.toHexString(), true);
     expect((await ChatMessageModel.findById(bot._id).lean())?.feedback).toBe('UP');
     expect(framesOf(visitor.socket)).toEqual([
       expect.objectContaining({
@@ -187,11 +187,11 @@ describe('read receipts and ratings', () => {
       }),
     ]);
 
-    await rateAnswer(sessionId, String(bot._id), false);
+    await rateAnswer(sessionId, bot._id.toHexString(), false);
     expect((await ChatMessageModel.findById(bot._id).lean())?.feedback).toBe('DOWN');
 
     visitor.socket.send.mockClear();
-    await rateAnswer(sessionId, String(own._id), true);
+    await rateAnswer(sessionId, own._id.toHexString(), true);
     expect((await ChatMessageModel.findById(own._id).lean())?.feedback).toBe('');
     expect(visitor.socket.send).not.toHaveBeenCalled();
   });

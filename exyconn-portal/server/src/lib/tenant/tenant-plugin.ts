@@ -120,8 +120,8 @@ export function tenantPlugin(schema: Schema, options: { name: string }): void {
 
   schema.pre(QUERY_HOOKS, function (this: Query<unknown, unknown>) {
     // `op` is the operation the query will run (find, updateMany…), for a legible refusal.
-    const { op } = this as unknown as { op?: string };
-    const scoped = scopedOrganization(`${name}.${op ?? 'query'}()`);
+    const { op } = this as unknown as { op: string };
+    const scoped = scopedOrganization(`${name}.${op}()`);
     const organizationId = selfOrganization(name, this.getFilter()._id) ?? scoped;
     if (organizationId !== null) {
       this.where({ [ORGANIZATION_FIELD]: organizationId });

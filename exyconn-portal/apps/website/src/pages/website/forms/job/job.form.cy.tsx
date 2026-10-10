@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import { type MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { JobForm } from './job.form';
 import { CreateJobDocument, ListJobCompaniesDocument } from '@exyconn/shell/graphql/generated';
@@ -47,13 +47,13 @@ const NEW_JOB = {
 };
 
 /** Feeds the dynamic company select inside JobDetailsFields. */
-const companiesMock: MockedResponse = {
+const companiesMock: MockLink.MockedResponse = {
   request: { query: ListJobCompaniesDocument },
   result: { data: { listJobCompanies: [COMPANY] } },
 };
 
 /** Exactly what JobForm submits when only the required fields are filled in. */
-const createMock: MockedResponse = {
+const createMock: MockLink.MockedResponse = {
   request: {
     query: CreateJobDocument,
     variables: {
@@ -84,7 +84,7 @@ const createMock: MockedResponse = {
   result: { data: { createJob: { id: 'job-1' } } },
 };
 
-const mount = (mocks: MockedResponse[]) =>
+const mount = (mocks: MockLink.MockedResponse[]) =>
   cy.mount(
     <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>

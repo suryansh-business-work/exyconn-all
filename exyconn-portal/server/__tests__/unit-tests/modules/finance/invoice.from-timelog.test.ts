@@ -11,9 +11,9 @@ const FROM = new Date('2026-09-01T00:00:00.000Z');
 const TO = new Date('2026-10-01T00:00:00.000Z');
 
 const seedProject = async (clientId: string | null) =>
-  String(
-    (await ProjectModel.create({ name: 'Portal', status: 'ACTIVE', clientId, clientName: '' }))._id,
-  );
+  (
+    await ProjectModel.create({ name: 'Portal', status: 'ACTIVE', clientId, clientName: '' })
+  )._id.toHexString();
 
 const seedClient = async () => {
   const client = await ClientModel.create({
@@ -51,7 +51,7 @@ describe('buildInvoiceFromTimeLog', () => {
 
   it('refuses when the project has no billing row for the period at all', async () => {
     const client = await seedClient();
-    const projectId = await seedProject(String(client._id));
+    const projectId = await seedProject(client._id.toHexString());
     jest.spyOn(trackerBillingService, 'billingByProject').mockResolvedValueOnce([]);
 
     await expect(buildInvoiceFromTimeLog(projectId, FROM, TO)).rejects.toThrow(/no billable hours/);
@@ -60,7 +60,7 @@ describe('buildInvoiceFromTimeLog', () => {
 
   it('names every unpriced employee at once', async () => {
     const client = await seedClient();
-    const projectId = await seedProject(String(client._id));
+    const projectId = await seedProject(client._id.toHexString());
     jest.spyOn(trackerBillingService, 'billingByProject').mockResolvedValueOnce([
       {
         currency: 'USD',
@@ -80,7 +80,7 @@ describe('buildInvoiceFromTimeLog', () => {
   it('raises the draft in the billing currency with a blank place of supply when none is set', async () => {
     const client = await seedClient();
     await ClientModel.collection.updateOne({ _id: client._id }, { $unset: { stateCode: '' } });
-    const projectId = await seedProject(String(client._id));
+    const projectId = await seedProject(client._id.toHexString());
     jest
       .spyOn(trackerBillingService, 'billingByProject')
       .mockResolvedValueOnce([

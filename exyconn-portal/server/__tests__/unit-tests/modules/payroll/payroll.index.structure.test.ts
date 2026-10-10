@@ -38,7 +38,7 @@ describe('employeeSalary', () => {
       id: string;
       basic: number;
     };
-    expect(found).toMatchObject({ id: String(saved._id), basic: 30_000 });
+    expect(found).toMatchObject({ id: saved._id.toHexString(), basic: 30_000 });
   });
 
   it('is refused to a plain employee', async () => {
@@ -122,7 +122,7 @@ describe('createSalaryStructure / updateSalaryStructure', () => {
 
     const own = await SalaryStructureModel.create({ ...pay, employeeId: 'hr-1' });
     await expect(
-      M.updateSalaryStructure(null, { id: String(own._id), input: { basic: 99_999 } }, hr),
+      M.updateSalaryStructure(null, { id: own._id.toHexString(), input: { basic: 99_999 } }, hr),
     ).rejects.toThrow(/for yourself/);
     expect((await SalaryStructureModel.findById(own._id).lean())?.basic).toBe(30_000);
   });
@@ -130,7 +130,7 @@ describe('createSalaryStructure / updateSalaryStructure', () => {
   it('lets HR revise somebody else’s structure', async () => {
     const other = await SalaryStructureModel.create({ ...pay, employeeId: 'emp-9' });
     await expect(
-      M.updateSalaryStructure(null, { id: String(other._id), input: { basic: 31_000 } }, hr),
+      M.updateSalaryStructure(null, { id: other._id.toHexString(), input: { basic: 31_000 } }, hr),
     ).resolves.toMatchObject({ basic: 31_000 });
   });
 });

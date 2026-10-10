@@ -18,7 +18,7 @@ function messageDoc(fields: Record<string, unknown>): MessageDoc {
     sender: 'BOT',
     ...fields,
   });
-  return { ...doc.toObject(), createdAt: at, updatedAt: at } as MessageDoc;
+  return { ...doc.toObject(), createdAt: at, updatedAt: at };
 }
 
 function sessionDoc(fields: Record<string, unknown> = {}): SessionDoc {
@@ -28,7 +28,7 @@ function sessionDoc(fields: Record<string, unknown> = {}): SessionDoc {
     site: 'TOOLS',
     ...fields,
   });
-  return { ...doc.toObject(), createdAt: at, updatedAt: at } as SessionDoc;
+  return { ...doc.toObject(), createdAt: at, updatedAt: at };
 }
 
 describe('toMessage', () => {

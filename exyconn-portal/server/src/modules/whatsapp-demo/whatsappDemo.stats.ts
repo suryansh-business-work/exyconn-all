@@ -155,7 +155,7 @@ function flowStats(buckets: FlowBucket[], workflowNames: ReadonlyMap<string, str
 }
 
 function dailySeries(range: Range, timeZone: string, sessions: Bucket[], flows: DayBucket[]) {
-  const sessionsByDay = new Map(sessions.map((b) => [b._id ?? '', b.count]));
+  const sessionsByDay = new Map(sessions.map((b) => [b._id as string, b.count]));
   const flowCount = (day: string, type: string) =>
     flows.find((b) => b._id.day === day && b._id.type === type)?.count ?? 0;
   return daysOf(range, timeZone).map((date) => ({

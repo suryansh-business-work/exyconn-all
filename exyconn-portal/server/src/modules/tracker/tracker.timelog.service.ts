@@ -131,14 +131,14 @@ class TrackerTimeLogService {
       ]);
 
       for (const entry of intervals) {
-        const row = rows.get(rowOfSession.get(entry._id) ?? '');
+        const row = rows.get(rowOfSession.get(entry._id) as string);
         if (row) {
           row.activeMs += entry.activeMs;
           row.idleMs += entry.idleMs;
         }
       }
       for (const entry of shots) {
-        const row = rows.get(rowOfSession.get(entry._id) ?? '');
+        const row = rows.get(rowOfSession.get(entry._id) as string);
         if (row) {
           row.screenshots += entry.count;
         }

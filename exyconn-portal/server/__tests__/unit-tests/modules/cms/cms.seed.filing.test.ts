@@ -17,9 +17,9 @@ describe('filing older website records under the default site', () => {
     await ensureCmsDefaults();
 
     const posts = await BlogPostModel.collection.find().sort({ title: 1 }).toArray();
-    expect(posts.map((post) => post.siteId)).toEqual(['other', String(home._id)]);
+    expect(posts.map((post) => post.siteId)).toEqual(['other', home._id.toHexString()]);
     await expect(NavLinkModel.collection.findOne({ label: 'Old link' })).resolves.toMatchObject({
-      siteId: String(home._id),
+      siteId: home._id.toHexString(),
     });
 
     await BlogPostModel.collection.insertOne({ title: 'Later post', siteId: '' });

@@ -21,7 +21,7 @@ function generator(seed: number): () => number {
 export function hashSeed(text: string): number {
   let hash = 0x811c9dc5;
   for (const char of text) {
-    hash ^= char.codePointAt(0) ?? 0;
+    hash ^= char.codePointAt(0) as number;
     hash = Math.imul(hash, 0x01000193);
   }
   return hash >>> 0;

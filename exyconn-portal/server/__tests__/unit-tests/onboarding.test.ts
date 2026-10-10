@@ -43,7 +43,7 @@ const JOIN_DATE = new Date('2026-09-01T00:00:00.000Z');
 async function joiner(email = 'joiner@exyconn.com') {
   const user = await seedUser(email, 'whatever123', [ROLES.EMPLOYEE]);
   await UserModel.updateOne({ _id: user._id }, { joinDate: JOIN_DATE, name: 'Riya Sen' });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 async function template(tasks?: Array<Record<string, unknown>>) {
@@ -55,7 +55,7 @@ async function template(tasks?: Array<Record<string, unknown>>) {
       { key: 'policies', label: 'Sign the policies', owner: 'EMPLOYEE', dueDaysFromJoin: 3 },
     ],
   });
-  return String(created._id);
+  return created._id.toHexString();
 }
 
 const start = (employeeId: string, templateId: string, ctx = hr) =>
@@ -200,11 +200,11 @@ describe('setOnboardingItem', () => {
   it('lets the joiner’s manager act on a task that is not theirs', async () => {
     const employeeId = await joiner();
     const manager = await seedUser('manager@exyconn.com', 'whatever123', [ROLES.EMPLOYEE]);
-    await UserModel.updateOne({ _id: employeeId }, { managerId: String(manager._id) });
+    await UserModel.updateOne({ _id: employeeId }, { managerId: manager._id.toHexString() });
     const checklist = await start(employeeId, await template());
 
     await expect(
-      tick(checklist.id, 'laptop', true, ctxFor(String(manager._id), [ROLES.EMPLOYEE])),
+      tick(checklist.id, 'laptop', true, ctxFor(manager._id.toHexString(), [ROLES.EMPLOYEE])),
     ).resolves.toMatchObject({ employeeId });
   });
 
@@ -214,19 +214,23 @@ describe('setOnboardingItem', () => {
     const checklist = await start(employeeId, await template());
 
     await tick(checklist.id, 'laptop', true, it_);
-    expect(await NotificationModel.countDocuments({ employeeId: String(hrLead._id) })).toBe(0);
+    expect(await NotificationModel.countDocuments({ employeeId: hrLead._id.toHexString() })).toBe(
+      0,
+    );
 
     await tick(checklist.id, 'policies', true, ctxFor(employeeId, [ROLES.EMPLOYEE]));
     expect(
       await NotificationModel.countDocuments({
-        employeeId: String(hrLead._id),
+        employeeId: hrLead._id.toHexString(),
         kind: 'ONBOARDING',
       }),
     ).toBe(1);
 
     // Ticking an already-done item again must not tell HR a second time.
     await tick(checklist.id, 'laptop', true, it_);
-    expect(await NotificationModel.countDocuments({ employeeId: String(hrLead._id) })).toBe(1);
+    expect(await NotificationModel.countDocuments({ employeeId: hrLead._id.toHexString() })).toBe(
+      1,
+    );
   });
 
   it('un-ticks an item, clearing who did it', async () => {

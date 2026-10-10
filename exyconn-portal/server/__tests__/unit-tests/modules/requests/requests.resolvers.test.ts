@@ -82,7 +82,11 @@ describe('HR editing a request', () => {
 
     await expect(
       codeOf(
-        updateRequest(null, { id: String(own._id), input: input('APPROVED') }, ctx(HR, [ROLES.HR])),
+        updateRequest(
+          null,
+          { id: own._id.toHexString(), input: input('APPROVED') },
+          ctx(HR, [ROLES.HR]),
+        ),
       ),
     ).resolves.toBe('FORBIDDEN');
     expect((await EmployeeRequestModel.findById(own._id).lean())?.status).toBe('PENDING');
@@ -93,7 +97,7 @@ describe('HR editing a request', () => {
 
     await updateRequest(
       null,
-      { id: String(row._id), input: input('REJECTED') },
+      { id: row._id.toHexString(), input: input('REJECTED') },
       ctx(HR, [ROLES.HR]),
     );
 
@@ -116,11 +120,15 @@ describe('deciding a request', () => {
 
     const updated = (await decideRequest(
       null,
-      { id: String(row._id), status: 'REJECTED' },
+      { id: row._id.toHexString(), status: 'REJECTED' },
       ctx(HR, [ROLES.HR]),
     )) as { id: string; status: string; decisionNote: string | null; decidedAt: Date };
 
-    expect(updated).toMatchObject({ id: String(row._id), status: 'REJECTED', decisionNote: null });
+    expect(updated).toMatchObject({
+      id: row._id.toHexString(),
+      status: 'REJECTED',
+      decisionNote: null,
+    });
     expect(updated.decidedAt).toBeInstanceOf(Date);
     const note = await NotificationModel.findOne({ employeeId: EMP }).lean();
     expect(note?.body).toBe('Your request was rejected.');
@@ -131,7 +139,7 @@ describe('deciding a request', () => {
 
     const updated = (await decideRequest(
       null,
-      { id: String(row._id), status: 'PENDING', decisionNote: 'Need more detail' },
+      { id: row._id.toHexString(), status: 'PENDING', decisionNote: 'Need more detail' },
       ctx(HR, [ROLES.HR]),
     )) as { decisionNote: string };
 
@@ -143,7 +151,9 @@ describe('deciding a request', () => {
     const own = await raise(HR);
 
     await expect(
-      codeOf(decideRequest(null, { id: String(own._id), status: 'APPROVED' }, ctx(HR, [ROLES.HR]))),
+      codeOf(
+        decideRequest(null, { id: own._id.toHexString(), status: 'APPROVED' }, ctx(HR, [ROLES.HR])),
+      ),
     ).resolves.toBe('FORBIDDEN');
     expect((await EmployeeRequestModel.findById(own._id).lean())?.status).toBe('PENDING');
   });
@@ -161,7 +171,9 @@ describe('deciding a request', () => {
       .mockReturnValueOnce(asArg({ lean: async () => null }));
 
     await expect(
-      codeOf(decideRequest(null, { id: String(row._id), status: 'APPROVED' }, ctx(HR, [ROLES.HR]))),
+      codeOf(
+        decideRequest(null, { id: row._id.toHexString(), status: 'APPROVED' }, ctx(HR, [ROLES.HR])),
+      ),
     ).resolves.toBe('NOT_FOUND');
     expect(await NotificationModel.countDocuments()).toBe(0);
   });

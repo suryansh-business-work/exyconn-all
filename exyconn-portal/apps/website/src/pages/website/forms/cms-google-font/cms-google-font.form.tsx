@@ -122,7 +122,7 @@ export function GoogleFontForm({ open, loaded, onClose, onAdd }: Readonly<Google
                 <GoogleFontDetails row={row} />
                 {methods.formState.errors.family && (
                   <Alert severity="error" sx={{ mt: 2 }}>
-                    {t(methods.formState.errors.family.message ?? '')}
+                    {t(String(methods.formState.errors.family.message))}
                   </Alert>
                 )}
               </Grid>

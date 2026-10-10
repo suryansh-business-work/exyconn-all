@@ -114,7 +114,7 @@ describe('the locales a workspace offers', () => {
 
   // A workspace's languages are its own, so these run inside one — the way a signed-in
   // request does.
-  const company = String(new Types.ObjectId());
+  const company = new Types.ObjectId().toHexString();
 
   it('always includes English and the workspace default, however the list was saved', async () => {
     await runForOrganization(company, async () => {

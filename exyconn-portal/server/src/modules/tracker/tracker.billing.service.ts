@@ -2,7 +2,7 @@ import { isValidObjectId } from 'mongoose';
 import { companyProfile } from '../../lib/company';
 import { ProjectModel } from '../projects/projects.model';
 import { TrackerIntervalModel, TrackerManualEntryModel, TrackerSessionModel } from './models';
-import { employeeRates, priceTime, round } from './tracker.billing.pricing';
+import { employeeRates, priceTime, round, type EmployeeRate } from './tracker.billing.pricing';
 import { trackerManualService } from './tracker.manual.service';
 
 /** One employee's priced time on one project. */
@@ -86,18 +86,18 @@ class TrackerBillingService {
       return { from, to, rows: [], totalHours: 0, totalAmount: 0, currency };
     }
 
+    // employeeRates answers for every id it is given, a deleted account included.
     const rates = await employeeRates(worked.map((row) => row._id));
-    const { currency: houseCurrency } = await companyProfile();
 
     const rows = worked.map((entry) => {
-      const employee = rates.get(entry._id);
-      const billingRate = employee?.billingRate ?? 0;
+      const employee = rates.get(entry._id) as EmployeeRate;
+      const { billingRate } = employee;
       return {
         id: entry._id,
-        name: employee?.name ?? '',
-        email: employee?.email ?? '',
-        payType: employee?.payType ?? '',
-        currency: employee?.currency ?? houseCurrency,
+        name: employee.name,
+        email: employee.email,
+        payType: employee.payType,
+        currency: employee.currency,
         billingRate,
         // `activeMs` here is billable time: measured active time plus approved off-computer
         // time. `manualMs` says how much of it was claimed rather than measured.
@@ -115,7 +115,7 @@ class TrackerBillingService {
       totalAmount: round(rows.reduce((sum, row) => sum + row.amount, 0)),
       // The house currency, taken from the rows rather than assumed. Mixed currencies are a
       // workspace's own problem; the total is only meaningful when they agree.
-      currency: rows[0]?.currency ?? houseCurrency,
+      currency: rows[0].currency,
     };
   }
 
@@ -165,7 +165,8 @@ class TrackerBillingService {
       groups.set(project, group);
     };
     for (const session of sessions) {
-      const ms = msOfSession.get(String(session._id)) ?? 0;
+      // Sessions were selected by the ids of this map, so every one has its time.
+      const ms = msOfSession.get(String(session._id)) as number;
       book(session.projectId ?? '', session.projectName ?? '', session.userId, ms);
     }
     for (const entry of manual) {
@@ -184,19 +185,18 @@ class TrackerBillingService {
         .lean(),
     ]);
     const projectOf = new Map(projects.map((project) => [String(project._id), project]));
-    const { currency: houseCurrency } = await companyProfile();
 
     return [...groups.values()]
       .map((group) => {
         const project = projectOf.get(group.projectId);
         const employees = [...group.byUser.entries()]
           .map(([employeeId, ms]) => {
-            const employee = rates.get(employeeId);
-            const rate = employee?.billingRate ?? 0;
+            const employee = rates.get(employeeId) as EmployeeRate;
+            const rate = employee.billingRate;
             const priced = priceTime(ms, rate);
             return {
               employeeId,
-              employeeName: employee?.name ?? '',
+              employeeName: employee.name,
               hours: priced.hours,
               rate,
               amount: priced.amount,
@@ -210,7 +210,8 @@ class TrackerBillingService {
           projectName: project?.name ?? (group.projectName || NO_PROJECT),
           clientId: project?.clientId ?? null,
           clientName: project?.clientName ?? '',
-          currency: rates.get(employees[0]?.employeeId ?? '')?.currency ?? houseCurrency,
+          // A group exists only once somebody has time in it, so there is always a first employee.
+          currency: (rates.get(employees[0].employeeId) as EmployeeRate).currency,
           employees,
           hours: round(employees.reduce((sum, row) => sum + row.hours, 0)),
           amount: round(employees.reduce((sum, row) => sum + row.amount, 0)),

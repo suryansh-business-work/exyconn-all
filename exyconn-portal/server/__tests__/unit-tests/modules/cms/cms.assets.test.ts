@@ -17,7 +17,7 @@ beforeEach(() => {
   uploader.uploadFont.mockResolvedValue(FONT_URL);
 });
 
-const missingId = () => String(new Types.ObjectId());
+const missingId = () => new Types.ObjectId().toHexString();
 
 describe('cmsAssets.upload', () => {
   it('uploads an image into the site folder and records it', async () => {
@@ -25,7 +25,7 @@ describe('cmsAssets.upload', () => {
     const file = 'data:image/png;base64,AAAAAAAA';
 
     const asset = await cmsAssets.upload({
-      siteId: String(site._id),
+      siteId: site._id.toHexString(),
       file,
       fileName: ' logo.png ',
       alt: ' Logo ',
@@ -49,7 +49,11 @@ describe('cmsAssets.upload', () => {
     const site = await seedSite('main');
     const file = 'data:font/woff2;base64,AAAA';
 
-    const asset = await cmsAssets.upload({ siteId: String(site._id), file, fileName: 'brand' });
+    const asset = await cmsAssets.upload({
+      siteId: site._id.toHexString(),
+      file,
+      fileName: 'brand',
+    });
 
     expect(uploader.uploadFont).toHaveBeenCalledWith(file, 'brand', 'cms-main-fonts');
     expect(asset).toMatchObject({ url: FONT_URL, mime: 'font/woff2', size: 3 });
@@ -59,7 +63,7 @@ describe('cmsAssets.upload', () => {
     const site = await seedSite('main');
     const file = 'data:application/octet-stream;base64,AAAA';
 
-    await cmsAssets.upload({ siteId: String(site._id), file, fileName: 'Brand.TTF' });
+    await cmsAssets.upload({ siteId: site._id.toHexString(), file, fileName: 'Brand.TTF' });
 
     expect(uploader.uploadFont).toHaveBeenCalledWith(file, 'Brand.TTF', 'cms-main-fonts');
     expect(uploader.uploadImage).not.toHaveBeenCalled();
@@ -69,7 +73,7 @@ describe('cmsAssets.upload', () => {
     const site = await seedSite('main');
 
     const asset = await cmsAssets.upload({
-      siteId: String(site._id),
+      siteId: site._id.toHexString(),
       file: 'https://elsewhere.test/a.png',
       fileName: '   ',
       alt: null,
@@ -137,7 +141,7 @@ describe('cmsAssets.paged', () => {
 describe('cmsAssets.updateAlt and remove', () => {
   it('trims the alt text and removes an image', async () => {
     const asset = await CmsAssetModel.create({ siteId: 's1', url: 'u1', name: 'a.png' });
-    const id = String(asset._id);
+    const id = asset._id.toHexString();
 
     await expect(cmsAssets.updateAlt(id, '  A team photo  ')).resolves.toMatchObject({
       alt: 'A team photo',

@@ -62,7 +62,7 @@ interface Plan {
 async function employee(email: string, fields: Record<string, unknown> = {}) {
   const u = await seedUser(email, 'whatever123', [ROLES.EMPLOYEE]);
   await UserModel.updateOne({ _id: u._id }, fields);
-  return String(u._id);
+  return u._id.toHexString();
 }
 
 async function structureFor(employeeId: string, amounts: Record<string, number>) {

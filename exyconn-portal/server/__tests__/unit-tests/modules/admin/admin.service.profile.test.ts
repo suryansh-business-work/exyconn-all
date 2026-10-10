@@ -20,7 +20,7 @@ async function stored() {
     passwordHash: 'x',
     roles: [ROLES.EMPLOYEE],
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 describe('issuing a temporary password', () => {

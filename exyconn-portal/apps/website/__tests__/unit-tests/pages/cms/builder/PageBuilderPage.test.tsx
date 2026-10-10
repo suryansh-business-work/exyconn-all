@@ -130,6 +130,17 @@ describe('PageBuilderPage', () => {
     expect(gql.refetch).not.toHaveBeenCalled();
   });
 
+  it('closes the settings drawer on Escape', async () => {
+    renderAt();
+    await click('Open settings');
+    await userEvent.keyboard('{Escape}');
+
+    await waitFor(() =>
+      expect(screen.queryByRole('region', { name: 'Page settings' })).not.toBeInTheDocument(),
+    );
+    expect(gql.refetch).not.toHaveBeenCalled();
+  });
+
   it('reports a reload that failed after the settings were saved', async () => {
     gql.refetch.mockRejectedValueOnce('offline');
     renderAt();

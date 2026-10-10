@@ -87,4 +87,15 @@ describe('MyOffComputerTime', () => {
     expect(screen.queryByTestId('form-stub')).toBeNull();
     expect(screen.getByRole('button', { name: 'Add time' })).toBeInTheDocument();
   });
+
+  it('holds the table busy and does not say nothing was claimed while the entries load', () => {
+    vi.mocked(useMyTrackerManualEntriesQuery).mockReturnValue(queryResult({ loading: true }));
+    vi.mocked(useWithdrawTrackerManualEntryMutation).mockReturnValue(mutationResult(vi.fn()));
+    const { container } = renderWithProviders(
+      <MyOffComputerTime from={FROM} to={TO} projects={projects} />,
+    );
+
+    expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
+    expect(screen.queryByText('No off-computer time claimed this month.')).toBeNull();
+  });
 });

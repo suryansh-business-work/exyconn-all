@@ -39,7 +39,7 @@ function mount(editor: WorkflowEditor, canvas = canvasAt(null)) {
 /** Applies the edit the editor was last handed to a graph. */
 function lastEdit(editor: WorkflowEditor, graph: WaGraph = SAMPLE_GRAPH): WaGraph {
   const calls = vi.mocked(editor.update).mock.calls;
-  return calls[calls.length - 1][0](graph);
+  return calls.at(-1)![0](graph);
 }
 
 beforeEach(() => {

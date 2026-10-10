@@ -14,7 +14,6 @@ const SitemapInsights: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleAnalyze = async () => {
-    if (!sitemapUrl.trim()) return;
     setIsLoading(true);
     setError(null);
     setResult(null);

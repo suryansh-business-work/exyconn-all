@@ -54,9 +54,7 @@ export function RecurringInvoicesPage() {
 
   const gridContext: RecurringInvoicesGridContext = {
     actions: {
-      runNow: (row: RecurringInvoiceRow) => {
-        raiseNow(row).catch((error: unknown) => console.error('Raise now failed', error));
-      },
+      runNow: raiseNow,
       edit: crud.openEdit,
       delete: crud.remove,
     },

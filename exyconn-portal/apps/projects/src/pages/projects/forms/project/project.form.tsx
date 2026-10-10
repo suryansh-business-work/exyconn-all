@@ -28,7 +28,7 @@ const schema = z
   .object({
     name: z.string().trim().min(1, 'Name is required'),
     description: z.string().trim().max(500, 'Keep the description under 500 characters'),
-    status: z.nativeEnum(ProjectStatus),
+    status: z.enum(ProjectStatus),
     clientId: z.string(),
     budgetAmount: optionalBudget,
     budgetHours: optionalBudget,

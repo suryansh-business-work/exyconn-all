@@ -94,7 +94,7 @@ describe('public policies', () => {
       OrganizationModel.create({ name: 'Exyconn', slug: 'exyconn', currency: 'USD' }),
     );
     await ensurePlatformOperatorOrganization();
-    await runForOrganization(String(operator._id), () =>
+    await runForOrganization(operator._id.toHexString(), () =>
       seedPolicy({ slug: 'privacy-policy', title: 'Privacy', audience: 'PUBLIC' }),
     );
 
@@ -126,7 +126,7 @@ describe('acknowledging a policy', () => {
     const policy = await seedPolicy({ version: 3 });
     const { user, ctx } = await makeStaff();
 
-    await sign(String(policy._id), ctx);
+    await sign(policy._id.toHexString(), ctx);
 
     const [record] = await PolicyAcknowledgementModel.find({ userId: user.id }).lean();
     expect(record).toMatchObject({
@@ -141,30 +141,30 @@ describe('acknowledging a policy', () => {
   it('refuses a second signature on the same version', async () => {
     const policy = await seedPolicy();
     const { ctx } = await makeStaff();
-    await sign(String(policy._id), ctx);
+    await sign(policy._id.toHexString(), ctx);
 
-    await expect(sign(String(policy._id), ctx)).rejects.toThrow(/already signed version 1/i);
+    await expect(sign(policy._id.toHexString(), ctx)).rejects.toThrow(/already signed version 1/i);
   });
 
   it('refuses an empty signature', async () => {
     const policy = await seedPolicy();
     const { ctx } = await makeStaff();
 
-    await expect(sign(String(policy._id), ctx, '   ')).rejects.toThrow(/Type your name/i);
+    await expect(sign(policy._id.toHexString(), ctx, '   ')).rejects.toThrow(/Type your name/i);
   });
 
   it('refuses to sign a policy this person is not meant to see', async () => {
     const policy = await seedPolicy({ audience: 'HR_ONLY' });
     const { ctx } = await makeStaff();
 
-    await expect(sign(String(policy._id), ctx)).rejects.toThrow(/Policy/i);
+    await expect(sign(policy._id.toHexString(), ctx)).rejects.toThrow(/Policy/i);
   });
 
   it('refuses to sign a draft', async () => {
     const policy = await seedPolicy({ status: 'DRAFT' });
     const { ctx } = await makeStaff();
 
-    await expect(sign(String(policy._id), ctx)).rejects.toThrow(/Policy/i);
+    await expect(sign(policy._id.toHexString(), ctx)).rejects.toThrow(/Policy/i);
   });
 });
 
@@ -172,9 +172,9 @@ describe('publishing and versions', () => {
   it('asks everyone again when the wording changes', async () => {
     const policy = await seedPolicy();
     const { ctx } = await makeStaff();
-    await sign(String(policy._id), ctx);
+    await sign(policy._id.toHexString(), ctx);
 
-    await publish(String(policy._id), true);
+    await publish(policy._id.toHexString(), true);
 
     // The old signature is still on record, but it no longer covers what is in force.
     const [mine] = await policyResolvers.Query.myPolicies(null, {}, ctx);
@@ -186,9 +186,9 @@ describe('publishing and versions', () => {
   it('keeps signatures valid for a typo fix', async () => {
     const policy = await seedPolicy();
     const { ctx } = await makeStaff();
-    await sign(String(policy._id), ctx);
+    await sign(policy._id.toHexString(), ctx);
 
-    await publish(String(policy._id), false);
+    await publish(policy._id.toHexString(), false);
 
     const [mine] = await policyResolvers.Query.myPolicies(null, {}, ctx);
     expect(mine.version).toBe(1);
@@ -198,7 +198,7 @@ describe('publishing and versions', () => {
   it('does not raise the version when publishing a draft for the first time', async () => {
     const policy = await seedPolicy({ status: 'DRAFT' });
 
-    const published = await publish(String(policy._id), true);
+    const published = await publish(policy._id.toHexString(), true);
 
     expect(published.version).toBe(1);
     expect(published.status).toBe('PUBLISHED');
@@ -207,17 +207,17 @@ describe('publishing and versions', () => {
   it('counts signatures on the current version only', async () => {
     const policy = await seedPolicy();
     const { ctx } = await makeStaff();
-    await sign(String(policy._id), ctx);
+    await sign(policy._id.toHexString(), ctx);
 
     const before = await policyResolvers.Policy.acknowledgedCount({
-      id: String(policy._id),
+      id: policy._id.toHexString(),
       version: 1,
     });
     expect(before).toBe(1);
 
-    await publish(String(policy._id), true);
+    await publish(policy._id.toHexString(), true);
     const after = await policyResolvers.Policy.acknowledgedCount({
-      id: String(policy._id),
+      id: policy._id.toHexString(),
       version: 2,
     });
     expect(after).toBe(0);
@@ -230,7 +230,7 @@ describe('publishing and versions', () => {
   it('counts signatures from a result that can be read twice', async () => {
     const policy = await seedPolicy();
     const counted = policyResolvers.Policy.acknowledgedCount({
-      id: String(policy._id),
+      id: policy._id.toHexString(),
       version: 1,
     });
 
@@ -242,7 +242,7 @@ describe('publishing and versions', () => {
     const policy = await seedPolicy();
     const { ctx } = await makeStaff();
 
-    await policyResolvers.Mutation.archivePolicy(null, { id: String(policy._id) }, asLegal);
+    await policyResolvers.Mutation.archivePolicy(null, { id: policy._id.toHexString() }, asLegal);
 
     await expect(policyResolvers.Query.myPolicies(null, {}, ctx)).resolves.toEqual([]);
   });

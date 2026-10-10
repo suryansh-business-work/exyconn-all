@@ -17,7 +17,7 @@ describe('purgeDepartments', () => {
     const created = await runAsPlatform(() =>
       OrganizationModel.create({ name: 'Other Co', slug: 'other-co', currency: 'USD' }),
     );
-    other = String(created._id);
+    other = created._id.toHexString();
     await runForOrganization(other, () => DepartmentModel.create({ name: 'Engineering' }));
   });
 

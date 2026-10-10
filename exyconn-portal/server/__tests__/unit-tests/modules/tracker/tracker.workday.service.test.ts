@@ -8,8 +8,8 @@ import { GLOBAL_PROJECT } from '../../../../src/modules/tracker/tracker.constant
 import { trackerWorkdayService } from '../../../../src/modules/tracker/tracker.workday.service';
 import { freezeClock } from '../../../helpers';
 
-const ME = new Types.ObjectId().toString();
-const COLLEAGUE = new Types.ObjectId().toString();
+const ME = new Types.ObjectId().toHexString();
+const COLLEAGUE = new Types.ObjectId().toHexString();
 
 async function projectWithTasks() {
   const project = await ProjectModel.create({ name: 'Apollo', status: 'ACTIVE' });
@@ -23,7 +23,11 @@ async function projectWithTasks() {
     });
   const theirs = await task('APO-1', COLLEAGUE);
   const mine = await task('APO-2', ME);
-  return { projectId: String(project._id), theirs: String(theirs._id), mine: String(mine._id) };
+  return {
+    projectId: project._id.toHexString(),
+    theirs: theirs._id.toHexString(),
+    mine: mine._id.toHexString(),
+  };
 }
 
 describe('the ticket picker', () => {
@@ -62,7 +66,7 @@ describe('the ticket a session books against', () => {
 
   it('refuses a ticket from another project', async () => {
     const { mine } = await projectWithTasks();
-    const other = new Types.ObjectId().toString();
+    const other = new Types.ObjectId().toHexString();
 
     await expect(trackerWorkdayService.bookableTask(other, mine)).resolves.toBeNull();
   });
@@ -73,7 +77,7 @@ describe('the ticket a session books against', () => {
     await expect(trackerWorkdayService.bookableTask(projectId)).resolves.toBeNull();
     await expect(trackerWorkdayService.bookableTask(projectId, 'EXY-14')).resolves.toBeNull();
     await expect(
-      trackerWorkdayService.bookableTask(projectId, new Types.ObjectId().toString()),
+      trackerWorkdayService.bookableTask(projectId, new Types.ObjectId().toHexString()),
     ).resolves.toBeNull();
   });
 });
@@ -118,7 +122,7 @@ describe('the tracking disclosure policy', () => {
     const policy = await publish();
     const signedAt = new Date('2026-02-01T10:00:00.000Z');
     await PolicyAcknowledgementModel.create({
-      policyId: String(policy._id),
+      policyId: policy._id.toHexString(),
       policyTitle: 'Monitoring',
       version: 1,
       userId: ME,
@@ -130,7 +134,7 @@ describe('the tracking disclosure policy', () => {
     const theirs = await trackerWorkdayService.consentPolicy(COLLEAGUE, 'monitoring');
 
     expect(mine).toMatchObject({
-      id: String(policy._id),
+      id: policy._id.toHexString(),
       title: 'Monitoring',
       summary: 'What is recorded',
       version: 1,

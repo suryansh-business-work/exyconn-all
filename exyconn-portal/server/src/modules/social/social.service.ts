@@ -43,7 +43,7 @@ async function page(
     .lean();
   const hasMore = rows.length > size;
   const posts = await presentPosts(rows.slice(0, size) as never, viewer);
-  return { posts, nextCursor: hasMore ? posts[posts.length - 1].id : null };
+  return { posts, nextCursor: hasMore ? (posts.at(-1)?.id ?? null) : null };
 }
 
 export function feed(viewer: Viewer, limit?: number | null, cursor?: string | null) {
@@ -89,7 +89,7 @@ export async function createPost(
     body: assertBody(input.body, 'post'),
     imageUrl: input.imageUrl ?? '',
   });
-  return post(String(created._id), viewer);
+  return post(created._id.toHexString(), viewer);
 }
 
 /**
@@ -163,7 +163,7 @@ export async function sharePost(
   // author of the share this one was made from.
   const root = await SocialPostModel.findById(rootId).select('authorId').lean();
   if (root) await notifyPostShared(root.authorId, viewer.userId, rootId);
-  return post(String(created._id), viewer);
+  return post(created._id.toHexString(), viewer);
 }
 
 export async function createComment(postId: string, body: string, viewer: Viewer) {

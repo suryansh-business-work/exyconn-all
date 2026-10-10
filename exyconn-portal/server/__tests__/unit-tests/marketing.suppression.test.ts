@@ -56,14 +56,14 @@ describe('Consent and suppression', () => {
     await MarketingSuppressionModel.create({ email: 'ada@example.com', reason: 'MANUAL' });
     const audience = await AudienceListModel.create({
       name: 'Newsletter',
-      contactIds: [String(contact._id)],
+      contactIds: [contact._id.toHexString()],
     });
 
-    const result = await send(String(campaign._id), String(audience._id));
+    const result = await send(campaign._id.toHexString(), audience._id.toHexString());
 
     expect(result).toMatchObject({ sent: 0, skipped: 1 });
     expect(sendCustomEmail).not.toHaveBeenCalled();
-    const [row] = await logFor(String(campaign._id));
+    const [row] = await logFor(campaign._id.toHexString());
     expect(row).toMatchObject({ status: 'SKIPPED', error: 'On the suppression list' });
   });
 
@@ -72,10 +72,10 @@ describe('Consent and suppression', () => {
     const contact = await seedContact('Bo', 'bo@example.com', 'UNSUBSCRIBED');
     const audience = await AudienceListModel.create({
       name: 'Newsletter',
-      contactIds: [String(contact._id)],
+      contactIds: [contact._id.toHexString()],
     });
 
-    await send(String(campaign._id), String(audience._id));
+    await send(campaign._id.toHexString(), audience._id.toHexString());
 
     const suppression = await MarketingSuppressionModel.findOne({ email: 'bo@example.com' }).lean();
     expect(suppression).toMatchObject({ reason: 'UNSUBSCRIBED' });
@@ -87,10 +87,10 @@ describe('Consent and suppression', () => {
     const contact = await seedContact('Cy', 'cy@example.com', 'BOUNCED');
     const audience = await AudienceListModel.create({
       name: 'Newsletter',
-      contactIds: [String(contact._id)],
+      contactIds: [contact._id.toHexString()],
     });
 
-    await send(String(campaign._id), String(audience._id));
+    await send(campaign._id.toHexString(), audience._id.toHexString());
 
     const suppression = await MarketingSuppressionModel.findOne({ email: 'cy@example.com' }).lean();
     expect(suppression?.reason).toBe('BOUNCED');
@@ -104,10 +104,10 @@ describe('Consent and suppression', () => {
     ]);
     const audience = await AudienceListModel.create({
       name: 'Newsletter',
-      contactIds: [String(ok._id), String(blocked._id)],
+      contactIds: [ok._id.toHexString(), blocked._id.toHexString()],
     });
 
-    const result = await send(String(campaign._id), String(audience._id));
+    const result = await send(campaign._id.toHexString(), audience._id.toHexString());
 
     expect(result).toMatchObject({ sent: 1, failed: 0, skipped: 1 });
     expect(sendCustomEmail).toHaveBeenCalledTimes(1);
@@ -118,10 +118,10 @@ describe('Consent and suppression', () => {
     const contact = await seedContact('Ada', 'ada@example.com');
     const audience = await AudienceListModel.create({
       name: 'Newsletter',
-      contactIds: [String(contact._id)],
+      contactIds: [contact._id.toHexString()],
     });
 
-    await send(String(campaign._id), String(audience._id));
+    await send(campaign._id.toHexString(), audience._id.toHexString());
 
     const [payload] = sendCustomEmail.mock.calls[0] as [{ subject: string; message: string }];
     expect(payload.subject).toBe('Hello Ada');
@@ -135,9 +135,9 @@ async function sentCampaignToken(): Promise<string> {
   const contact = await seedContact('Ada', 'ada@example.com');
   const audience = await AudienceListModel.create({
     name: 'Newsletter',
-    contactIds: [String(contact._id)],
+    contactIds: [contact._id.toHexString()],
   });
-  await send(String(campaign._id), String(audience._id));
+  await send(campaign._id.toHexString(), audience._id.toHexString());
   const [payload] = sendCustomEmail.mock.calls[0] as [{ message: string }];
   return /unsubscribe\?t=(\w+)/.exec(payload.message)?.[1] ?? '';
 }

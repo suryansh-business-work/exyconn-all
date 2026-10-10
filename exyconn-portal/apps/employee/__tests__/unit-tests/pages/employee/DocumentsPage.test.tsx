@@ -47,4 +47,11 @@ describe('DocumentsPage', () => {
     expect(screen.getByText('No documents have been issued to you yet.')).toBeInTheDocument();
     expect(screen.queryByRole('table')).toBeNull();
   });
+
+  it('holds the table busy and does not claim the list is empty while the first response loads', () => {
+    vi.mocked(useMyDocumentsQuery).mockReturnValue(queryResult({ loading: true }));
+    const { container } = renderWithProviders(<DocumentsPage />);
+    expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
+    expect(screen.queryByText('No documents have been issued to you yet.')).toBeNull();
+  });
 });

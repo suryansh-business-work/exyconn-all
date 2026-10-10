@@ -1,4 +1,5 @@
 import type { MockLink } from '@apollo/client/testing';
+import { GraphQLError } from 'graphql';
 import {
   ClientSupportTicketStatusDocument,
   CreateClientSupportTicketDocument,
@@ -49,4 +50,16 @@ export const lookedUp = (
   ...(answer instanceof Error
     ? { error: answer }
     : { result: { data: { clientSupportTicketStatus: answer } } }),
+});
+
+/** The server answering with a GraphQL error rather than failing at the network. */
+export const refusedLookup = (message: string): MockLink.MockedResponse => ({
+  request: { query: ClientSupportTicketStatusDocument, variables: DEFAULT_VARIABLES },
+  result: { errors: [new GraphQLError(message)] },
+});
+
+/** A mutation answer that carries no data and no error. */
+export const raisedWithoutData = (): MockLink.MockedResponse => ({
+  request: { query: CreateClientSupportTicketDocument, variables: { input: ticketInput } },
+  result: { data: null },
 });

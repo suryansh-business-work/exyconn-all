@@ -15,7 +15,7 @@ let invoiceId: string;
 
 beforeEach(async () => {
   clientId = (await seedContact(organizationId)).clientId;
-  invoiceId = String((await seedInvoice(clientId))._id);
+  invoiceId = (await seedInvoice(clientId))._id.toHexString();
 });
 
 afterEach(() => {
