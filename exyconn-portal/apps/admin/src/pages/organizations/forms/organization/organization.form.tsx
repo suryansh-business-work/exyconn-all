@@ -37,7 +37,7 @@ const schema = z.object({
   timezone: z.string().trim().min(1, 'Pick the timezone it works by'),
   // A select hands back its option's value as text; it becomes a number on the way out.
   fiscalYearStartMonth: z.string().regex(/^([1-9]|1[0-2])$/, 'Pick a month'),
-  taxSystem: z.nativeEnum(TaxSystem),
+  taxSystem: z.enum(TaxSystem),
   contactEmail: z.string().trim().regex(EMAIL, 'Enter a valid email').or(z.literal('')),
   // Filled by the upload dialog with the hosted ImageKit address; optional.
   logoUrl: z.string().trim().regex(HTTP_URL, 'Upload the logo again').or(z.literal('')),

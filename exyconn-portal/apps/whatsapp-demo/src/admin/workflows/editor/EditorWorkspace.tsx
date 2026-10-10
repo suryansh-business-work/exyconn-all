@@ -79,9 +79,10 @@ export function EditorWorkspace({
         confirmText: 'Leave',
         destructive: true,
       }));
-    if (leave) {
-      navigate(listPath(workflow.demoId));
+    if (!leave) {
+      return;
     }
+    navigate(listPath(workflow.demoId));
   };
   const details = { key: workflow.key, ...(meta ?? metaOf(workflow)) };
   const saveDetails = (values: WorkflowDetailsValues) => {

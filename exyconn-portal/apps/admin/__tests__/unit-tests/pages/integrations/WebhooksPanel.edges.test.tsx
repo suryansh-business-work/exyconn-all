@@ -112,4 +112,10 @@ describe('WebhooksPanel when the layers below misbehave', () => {
     await waitFor(() => expect(logged).toHaveBeenCalledWith('Delete', broken));
     expect(hooks.deleteWebhook).not.toHaveBeenCalled();
   });
+
+  it('reloads the list from the table’s refresh button', async () => {
+    const user = mount();
+    await user.click(screen.getByRole('button', { name: 'Refresh table' }));
+    expect(hooks.refetch).toHaveBeenCalledTimes(1);
+  });
 });

@@ -62,7 +62,7 @@ export function groupScreenshotsByHour<T extends CapturedShot>(
   ordered.forEach((shot, index) => {
     const at = new Date(shot.capturedAt);
     const key = formatInTimeZone(at, timezone, 'yyyy-MM-dd HH');
-    const current = hours[hours.length - 1];
+    const current = hours.at(-1);
     if (current?.key === key) {
       current.shots.push(shot);
       return;

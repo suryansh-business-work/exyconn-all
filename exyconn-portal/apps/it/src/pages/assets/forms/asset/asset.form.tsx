@@ -13,7 +13,6 @@ import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import {
   AssetEdrStatus,
-  AssetStatus,
   useCreateAssetMutation,
   useUpdateAssetMutation,
   useListAssetAssigneesQuery,
@@ -67,7 +66,7 @@ export function AssetForm({ initial, onDone, onCancel }: Readonly<AssetFormProps
       <RhfTextField name="name" label="Name" />
       <RhfSelect name="category" label="Category" options={CATEGORY_OPTIONS} />
       <RhfSelect name="status" label="Status" options={STATUS_OPTIONS} />
-      {isAssignedStatus(String(status ?? AssetStatus.InStock)) && (
+      {isAssignedStatus(String(status)) && (
         <RhfSelect name="assignedToId" label="Assigned to" options={assignees} />
       )}
       <RhfTextField name="manufacturer" label="Manufacturer" />

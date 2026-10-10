@@ -42,15 +42,15 @@ export function buildOrgTree(people: OrgPerson[]): OrgTree {
 
   const reachable = new Set<string>();
   const visit = (node: OrgTreeNode) => {
-    if (reachable.has(node.id)) return;
     reachable.add(node.id);
     node.reports.forEach(visit);
   };
   roots.forEach(visit);
   for (const node of [...nodes.values()].sort(byName)) {
     if (reachable.has(node.id)) continue;
-    const manager = nodes.get(node.managerId ?? '');
-    if (manager) manager.reports = manager.reports.filter((report) => report.id !== node.id);
+    for (const parent of nodes.values()) {
+      parent.reports = parent.reports.filter((report) => report.id !== node.id);
+    }
     roots.push(node);
     visit(node);
   }

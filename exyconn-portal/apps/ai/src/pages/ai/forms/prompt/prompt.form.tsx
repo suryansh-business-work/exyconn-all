@@ -18,7 +18,7 @@ import type { PromptRow } from './prompt.types';
 
 const schema = z.object({
   title: z.string().trim().min(1, 'Title is required'),
-  category: z.nativeEnum(PromptCategory),
+  category: z.enum(PromptCategory),
   content: z.string().trim().min(1, 'Prompt content is required'),
   description: z.string().trim().max(300, 'Keep the description under 300 characters'),
   tags: z.string().trim().max(200, 'Keep tags under 200 characters'),

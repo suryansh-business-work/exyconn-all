@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { positionSchema } from '../../src/pages/hr/forms/position/position.schema';
+import { positionSchema, toPositionInput } from '../../src/pages/hr/forms/position/position.schema';
 
 const valid = {
   name: 'Software Engineer',
@@ -33,5 +33,39 @@ describe('positionSchema', () => {
   it('refuses a fractional or negative headcount', () => {
     expect(positionSchema.safeParse({ ...valid, headcount: 1.5 }).success).toBe(false);
     expect(positionSchema.safeParse({ ...valid, headcount: -1 }).success).toBe(false);
+  });
+});
+
+describe('toPositionInput', () => {
+  it('sends the optional pickers that were left empty as null', () => {
+    const input = toPositionInput({
+      ...valid,
+      code: '',
+      description: '',
+      grade: '',
+      employmentType: '',
+    });
+    expect(input).toMatchObject({
+      code: null,
+      description: null,
+      grade: null,
+      employmentType: null,
+      name: 'Software Engineer',
+    });
+  });
+
+  it('keeps the optional values that were filled in', () => {
+    const input = toPositionInput({
+      ...valid,
+      description: 'Builds things',
+      grade: 'L3',
+      employmentType: 'FULL_TIME',
+    });
+    expect(input).toMatchObject({
+      code: 'SE',
+      description: 'Builds things',
+      grade: 'L3',
+      employmentType: 'FULL_TIME',
+    });
   });
 });

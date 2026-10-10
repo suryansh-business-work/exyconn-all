@@ -16,12 +16,15 @@ interface CommentsState {
   error?: Error;
 }
 
-const api = vi.hoisted(() => ({
-  state: { loading: false } as CommentsState,
-  queryOptions: vi.fn<(options: unknown) => void>(),
-  mutationOptions: vi.fn<(options: unknown) => void>(),
-  remove: vi.fn<(options: unknown) => Promise<unknown>>(),
-}));
+const api = vi.hoisted(() => {
+  const state: CommentsState = { loading: false };
+  return {
+    state,
+    queryOptions: vi.fn<(options: unknown) => void>(),
+    mutationOptions: vi.fn<(options: unknown) => void>(),
+    remove: vi.fn<(options: unknown) => Promise<unknown>>(),
+  };
+});
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@exyconn/shell/graphql/generated')>();

@@ -29,7 +29,6 @@ const PRESETS: Record<AnimeName, Record<string, unknown>> = {
 };
 
 function isMotionDisabled(): boolean {
-  if (globalThis.window === undefined) return true;
   if (document.documentElement.dataset.a11yMotion === "on") return true;
   if (globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return true;
   return false;
@@ -79,8 +78,6 @@ function playStagger(el: HTMLElement) {
 }
 
 function init() {
-  if (globalThis.window === undefined) return;
-
   const singles = Array.from(document.querySelectorAll<HTMLElement>("[data-anime]"));
   const staggered = Array.from(document.querySelectorAll<HTMLElement>("[data-anime-stagger]"));
 

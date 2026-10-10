@@ -8,7 +8,7 @@ import { checkReportSchema } from '../../../../src/pages/report/forms/check-repo
 import { TIME_FORMAT } from '../../../../src/status.constants';
 import { renderWithProviders } from '../../test-utils';
 import { fill, findSnackbar } from '../../form-helpers';
-import { REFERENCE, reportStatus, statusLookup } from './report.fixtures';
+import { REFERENCE, refusedStatusLookup, reportStatus, statusLookup } from './report.fixtures';
 
 function renderForm(mocks: MockLink.MockedResponse[] = []) {
   const onCancel = vi.fn<() => void>();
@@ -76,6 +76,12 @@ describe('CheckReportForm', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Check' }));
     expect(await findSnackbar('No report matches that reference')).toBeInTheDocument();
     expect(screen.queryByText('IN PROGRESS')).not.toBeInTheDocument();
+  });
+
+  it('reports a GraphQL error the server answered with', async () => {
+    renderForm([refusedStatusLookup('Lookup refused')]);
+    await check(REFERENCE);
+    expect(await findSnackbar('Lookup refused')).toBeInTheDocument();
   });
 
   it('cancels on request', async () => {

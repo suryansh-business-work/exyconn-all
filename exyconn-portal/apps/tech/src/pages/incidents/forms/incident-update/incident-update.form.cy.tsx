@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import { type MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
@@ -10,7 +10,7 @@ import type { UpdatedIncident } from './incident-update.types';
 const incident: UpdatedIncident = { id: 'i1', title: 'Logins failing', resolvedAt: null };
 const BODY = 'Certificate renewed; sign-in is working again.';
 
-const resolveMock: MockedResponse = {
+const resolveMock: MockLink.MockedResponse = {
   request: {
     query: AddStatusIncidentUpdateDocument,
     variables: { id: 'i1', status: 'RESOLVED', body: BODY },
@@ -20,7 +20,7 @@ const resolveMock: MockedResponse = {
   },
 };
 
-const mount = (row: UpdatedIncident, mocks: MockedResponse[] = []) =>
+const mount = (row: UpdatedIncident, mocks: MockLink.MockedResponse[] = []) =>
   cy.mount(
     <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>

@@ -5,15 +5,18 @@ import { CaseStudyLiveEditPage } from '../../../../../src/pages/website/live-edi
 import { renderWithProviders } from '../../../test-utils';
 import { liveEditScreen, screenProps } from './live-edit-screen-stub';
 
-const gql = vi.hoisted(() => ({
-  result: { data: undefined, loading: true, error: undefined } as {
-    data?: unknown;
-    loading: boolean;
-    error?: Error;
-  },
-  options: null as unknown,
-  update: vi.fn(() => Promise.resolve({ data: {} })),
-}));
+const gql = vi.hoisted(() => {
+  const result: { data?: unknown; loading: boolean; error?: Error } = {
+    data: undefined,
+    loading: true,
+    error: undefined,
+  };
+  return {
+    result,
+    options: null as unknown,
+    update: vi.fn(() => Promise.resolve({ data: {} })),
+  };
+});
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@exyconn/shell/graphql/generated')>();

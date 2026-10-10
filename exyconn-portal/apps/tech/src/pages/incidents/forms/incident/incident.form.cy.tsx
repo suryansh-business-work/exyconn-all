@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import { type MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
@@ -9,14 +9,14 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { IncidentForm } from './incident.form';
 
-const monitorsMock: MockedResponse = {
+const monitorsMock: MockLink.MockedResponse = {
   request: { query: ListStatusMonitorsDocument },
   result: { data: { listStatusMonitors: [{ id: 'm1', key: 'hr', name: 'HR Portal' }] } },
 };
 
 const BODY = 'Sign-in requests are timing out; investigating the session store.';
 
-const createMock: MockedResponse = {
+const createMock: MockLink.MockedResponse = {
   request: {
     query: CreateStatusIncidentDocument,
     variables: {
@@ -26,7 +26,7 @@ const createMock: MockedResponse = {
   result: { data: { createStatusIncident: { id: 'i1' } } },
 };
 
-const mount = (mocks: MockedResponse[] = []) =>
+const mount = (mocks: MockLink.MockedResponse[] = []) =>
   cy.mount(
     <MockedProvider mocks={[monitorsMock, ...mocks]}>
       <ThemeProvider theme={theme}>

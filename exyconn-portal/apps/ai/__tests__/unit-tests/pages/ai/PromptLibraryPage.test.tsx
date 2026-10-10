@@ -9,11 +9,14 @@ import { renderWithProviders } from '../../test-utils';
 import { crud, crudOptions, dashboardProps, paged, rowAction } from './crud-stub';
 import { pagedPrompt, tableStats } from './ai-fixtures';
 
-const gql = vi.hoisted(() => ({
-  stats: { loading: false } as { data?: unknown; loading: boolean },
-  refetchStats: vi.fn(),
-  deletePrompt: vi.fn(),
-}));
+const gql = vi.hoisted(() => {
+  const stats: { data?: unknown; loading: boolean } = { loading: false };
+  return {
+    stats,
+    refetchStats: vi.fn(),
+    deletePrompt: vi.fn(),
+  };
+});
 
 vi.mock('@exyconn/crud', async (orig) => ({
   ...(await orig<typeof import('@exyconn/crud')>()),

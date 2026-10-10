@@ -41,7 +41,7 @@ const schema = z.object({
   lines: z.array(lineSchema),
   amount: z.coerce.number({ message: 'Amount must be a number' }).min(0, 'Must be ≥ 0'),
   currency: z.string().trim().min(1, 'Currency is required'),
-  status: z.nativeEnum(InvoiceStatus),
+  status: z.enum(InvoiceStatus),
   issuedDate: z.string().min(1, 'Issued date is required'),
   dueDate: z.string().min(1, 'Due date is required'),
   placeOfSupplyStateCode: gstStateCodeField,

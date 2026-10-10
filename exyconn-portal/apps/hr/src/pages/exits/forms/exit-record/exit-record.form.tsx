@@ -27,7 +27,7 @@ const schema = z.object({
     .number({ message: 'Notice period (days) must be a number' })
     .min(0, 'Must be ≥ 0'),
   reason: z.string().trim(),
-  stage: z.nativeEnum(ExitStage),
+  stage: z.enum(ExitStage),
   assetsReturned: z.boolean(),
   knowledgeTransferDone: z.boolean(),
   exitInterviewNotes: z.string().trim(),

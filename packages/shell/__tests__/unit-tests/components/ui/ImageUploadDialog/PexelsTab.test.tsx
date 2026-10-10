@@ -41,7 +41,7 @@ describe('PexelsTab (photos)', () => {
   });
 
   it('keeps Enter from submitting a form the dialog sits in', async () => {
-    const onSubmit = vi.fn((event: React.FormEvent) => event.preventDefault());
+    const onSubmit = vi.fn((event: React.SyntheticEvent) => event.preventDefault());
     renderWithProviders(
       <form onSubmit={onSubmit}>
         <PexelsTab kind="photos" onPick={vi.fn()} />

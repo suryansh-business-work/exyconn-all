@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useListUsersQuery, useTrackerProjectOptionsQuery } from '@exyconn/shell/graphql/generated';
 import { AttendanceFilters } from '../../../../../src/pages/hr/attendance/AttendanceFilters';
@@ -92,6 +92,20 @@ describe('AttendanceFilters people and projects', () => {
     expect(combobox('Employee')).toHaveValue('Asha Rao');
     await userEvent.clear(combobox('Employee'));
     expect(onChange).toHaveBeenLastCalledWith(EMPTY_ATTENDANCE_FILTERS);
+  });
+
+  it('marks the chosen employee as the selected option when the list opens', async () => {
+    renderFilters({ employeeId: 'u2' });
+    await userEvent.click(combobox('Employee'));
+    const listbox = await screen.findByRole('listbox');
+    expect(within(listbox).getByRole('option', { name: 'Bilal Khan' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    expect(within(listbox).getByRole('option', { name: 'Asha Rao' })).toHaveAttribute(
+      'aria-selected',
+      'false',
+    );
   });
 
   it('shows nothing for an id no longer in the list', () => {

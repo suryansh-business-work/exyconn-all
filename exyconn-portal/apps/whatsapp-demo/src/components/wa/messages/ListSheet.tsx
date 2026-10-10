@@ -23,12 +23,10 @@ export function ListSheet({ content, open, onClose }: Readonly<ListSheetProps>) 
   const { choose } = useChatActions();
   const [picked, setPicked] = useState<RenderedOption | null>(null);
 
-  const send = () => {
-    if (picked) {
-      choose(picked, content.text);
-      setPicked(null);
-      onClose();
-    }
+  const send = (option: RenderedOption) => {
+    choose(option, content.text);
+    setPicked(null);
+    onClose();
   };
 
   const body = (
@@ -75,7 +73,7 @@ export function ListSheet({ content, open, onClose }: Readonly<ListSheetProps>) 
         <IconButton
           aria-label={t('Send')}
           disabled={!picked}
-          onClick={send}
+          onClick={picked ? () => send(picked) : undefined}
           sx={{
             bgcolor: c.brand,
             color: c.onBrandBar,

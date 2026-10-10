@@ -24,11 +24,11 @@ export const changeSchema = z
   .object({
     title: z.string().trim().min(4, 'Give the change a title').max(160, 'Too long'),
     description: z.string().trim().min(10, 'Describe what will change').max(4000, 'Too long'),
-    type: z.nativeEnum(ItChangeType),
-    risk: z.nativeEnum(ItRisk),
-    environment: z.nativeEnum(ItEnvironment),
+    type: z.enum(ItChangeType),
+    risk: z.enum(ItRisk),
+    environment: z.enum(ItEnvironment),
     system: z.string().trim().min(2, 'Name the system being changed').max(120, 'Too long'),
-    status: z.nativeEnum(ItChangeStatus),
+    status: z.enum(ItChangeStatus),
     /** ISO strings from the pickers. */
     plannedStart: z.string().min(1, 'When does it start?'),
     plannedEnd: z.string().min(1, 'When does it end?'),

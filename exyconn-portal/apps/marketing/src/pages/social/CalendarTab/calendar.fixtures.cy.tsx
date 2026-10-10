@@ -1,6 +1,6 @@
 /** What the CalendarTab spec mounts with: mocked answers and the labels it looks for. */
 import { MockedProvider } from '@apollo/client/testing/react';
-import type { MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { MemoryRouter, useLocation } from 'react-router-dom';
 import { DEFAULT_FORMAT_SETTINGS, formatDate, formatTime } from '@exyconn/i18n';
 import { LocalizationProvider, AdapterDateFns } from '@exyconn/shell/components/ui';
@@ -69,7 +69,7 @@ interface Options {
 function mocks(
   { delay = 0, posts = [FB_POST, X_POST] }: Options,
   state: { composed: boolean },
-): MockedResponse[] {
+): MockLink.MockedResponse[] {
   const onlyX = (vars: SocialCalendarQueryVariables) => vars.accountIds?.join() === 'x1';
   return [
     {

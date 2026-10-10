@@ -28,7 +28,7 @@ const schema = z.object({
   contactName: z.string().trim(),
   email: z.union([z.literal(''), z.string().trim().regex(EMAIL, 'Enter a valid email')]),
   phone: z.string().trim().regex(PHONE, 'Enter a valid phone number').or(z.literal('')),
-  status: z.nativeEnum(SupplierStatus),
+  status: z.enum(SupplierStatus),
   notes: z.string().trim(),
 });
 type Values = z.infer<typeof schema>;

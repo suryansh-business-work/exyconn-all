@@ -23,7 +23,7 @@ const schema = z.object({
   esiEmployeePercent: percent('The ESI rate'),
   esiWageLimit: amount('The ESI wage limit'),
   professionalTaxMonthly: amount('Professional tax'),
-  tdsMode: z.nativeEnum(TdsMode),
+  tdsMode: z.enum(TdsMode),
   tdsFlatPercent: percent('The TDS rate'),
   // An empty upper limit is the open-ended top band, not a missing value.
   tdsSlabs: z.array(

@@ -120,4 +120,11 @@ describe('ApiKeysPanel when the layers below misbehave', () => {
     await waitFor(() => expect(logged).toHaveBeenCalledWith('Revoke', broken));
     expect(hooks.revokeKey).not.toHaveBeenCalled();
   });
+
+  it('reloads the list from the table’s refresh button', async () => {
+    const user = userEvent.setup();
+    renderWithProviders(<ApiKeysPanel />);
+    await user.click(screen.getByRole('button', { name: 'Refresh table' }));
+    expect(hooks.refetch).toHaveBeenCalledTimes(1);
+  });
 });

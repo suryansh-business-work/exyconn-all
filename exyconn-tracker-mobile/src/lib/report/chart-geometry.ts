@@ -58,7 +58,9 @@ export function plotArea(width: number, height: number): PlotArea {
 export function niceCeiling(value: number): number {
   if (value > 0) {
     const magnitude = 10 ** Math.floor(Math.log10(value));
-    const step = [1, 2, 2.5, 5, 10].find((candidate) => value <= candidate * magnitude) ?? 10;
+    const step = Math.min(
+      ...[1, 2, 2.5, 5, 10].filter((candidate) => value <= candidate * magnitude),
+    );
     return step * magnitude;
   }
   return 1;
@@ -141,6 +143,6 @@ export function areaPath(points: readonly Point[], baseline: number): string {
     return '';
   }
   const first = points[0];
-  const last = points.at(-1) ?? first;
+  const last = points[points.length - 1];
   return `${linePath(points)} L${last.x} ${baseline} L${first.x} ${baseline} Z`;
 }

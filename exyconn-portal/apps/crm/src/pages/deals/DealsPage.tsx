@@ -28,14 +28,6 @@ export function DealsPage() {
   const [creating, setCreating] = useState(false);
 
   const deals = useMemo(() => data?.listDeals ?? [], [data]);
-  const byStage = useMemo(() => {
-    const map = new Map<DealStage, DealRow[]>(PIPELINE_STAGES.map((stage) => [stage, []]));
-    for (const deal of deals) {
-      map.get(deal.stage)?.push(deal);
-    }
-    return map;
-  }, [deals]);
-
   const move = async (dealId: string, stage: DealStage) => {
     const deal = deals.find((d) => d.id === dealId);
     if (!deal || deal.stage === stage) {
@@ -94,7 +86,7 @@ export function DealsPage() {
             key={stage}
             stage={stage}
             accent={STAGE_ACCENTS[stage]}
-            deals={byStage.get(stage) ?? []}
+            deals={deals.filter((deal) => deal.stage === stage)}
             onOpen={setEditing}
             onDropDeal={move}
           />

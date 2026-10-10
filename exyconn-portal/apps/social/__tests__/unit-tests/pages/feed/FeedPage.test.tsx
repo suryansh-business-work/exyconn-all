@@ -21,11 +21,14 @@ interface FeedState {
   networkStatus: number;
 }
 
-const feed = vi.hoisted(() => ({
-  state: { loading: false, networkStatus: 7 } as FeedState,
-  options: vi.fn<(options: unknown) => void>(),
-  fetchMore: vi.fn<(options: FetchMoreOptions) => Promise<unknown>>(),
-}));
+const feed = vi.hoisted(() => {
+  const state: FeedState = { loading: false, networkStatus: 7 };
+  return {
+    state,
+    options: vi.fn<(options: unknown) => void>(),
+    fetchMore: vi.fn<(options: FetchMoreOptions) => Promise<unknown>>(),
+  };
+});
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@exyconn/shell/graphql/generated')>();

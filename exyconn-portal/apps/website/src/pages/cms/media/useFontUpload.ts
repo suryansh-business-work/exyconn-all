@@ -14,7 +14,7 @@ const FONT_TYPES: Record<string, { mime: string; format: FontFile['format'] }> =
   otf: { mime: 'font/otf', format: 'opentype' },
 };
 
-const extensionOf = (name: string) => name.split('.').at(-1)?.toLowerCase() ?? '';
+const extensionOf = (name: string) => name.slice(name.lastIndexOf('.') + 1).toLowerCase();
 
 /** The @font-face format of a file, from its extension; null for anything else. */
 export const fontFormatOf = (name: string): FontFile['format'] | null =>

@@ -27,7 +27,7 @@ const schema = z.object({
   startDate: z.string().min(1, 'Start date is required'),
   endDate: z.string().min(1, 'End date is required'),
   progress: z.coerce.number({ message: 'Progress % must be a number' }).min(0, 'Must be ≥ 0'),
-  status: z.nativeEnum(GoalStatus),
+  status: z.enum(GoalStatus),
   managerComment: z.string().trim(),
 });
 type Values = z.infer<typeof schema>;

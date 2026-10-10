@@ -1,5 +1,4 @@
-import type { ApolloClient } from '@apollo/client';
-import type { DocumentNode } from 'graphql';
+import type { ApolloClient, TypedDocumentNode } from '@apollo/client';
 import type { TableQueryInput } from '@exyconn/shell/graphql/generated';
 import { queryData } from '@exyconn/shell/utils/queryData';
 
@@ -16,13 +15,13 @@ interface Page<Row> {
 /** Every row of a server-paged list, fetched page by page. */
 export async function fetchAllPages<TQuery, Row>(
   client: ApolloClient,
-  document: DocumentNode,
+  document: TypedDocumentNode<TQuery, { input: TableQueryInput }>,
   select: (data: TQuery) => Page<Row>,
 ): Promise<Row[]> {
   const rows: Row[] = [];
   for (let page = 1; page <= MAX_PAGES; page += 1) {
     const input: TableQueryInput = { page, pageSize: PAGE_SIZE };
-    const result = await client.query<TQuery, { input: TableQueryInput }>({
+    const result = await client.query({
       query: document,
       variables: { input },
       fetchPolicy: 'network-only',
@@ -37,9 +36,9 @@ export async function fetchAllPages<TQuery, Row>(
 /** A whole non-paged list query, e.g. `listUsers`. */
 export async function fetchList<TQuery, Row>(
   client: ApolloClient,
-  document: DocumentNode,
+  document: TypedDocumentNode<TQuery, Record<string, never>>,
   select: (data: TQuery) => Row[],
 ): Promise<Row[]> {
-  const result = await client.query<TQuery>({ query: document, fetchPolicy: 'network-only' });
+  const result = await client.query({ query: document, fetchPolicy: 'network-only' });
   return select(queryData(result, 'A report list'));
 }

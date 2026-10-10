@@ -27,6 +27,12 @@ export const contractLookup = (value: ContractForSigning | null): MockLink.Mocke
   result: { data: { contractToSign: value } },
 });
 
+/** A mutation answer that carries no data and no error. */
+export const signedWithoutData = (signedName: string): MockLink.MockedResponse => ({
+  request: { query: SignContractWithTokenDocument, variables: { token: TOKEN, signedName } },
+  result: { data: null },
+});
+
 export const signed = (signedName: string, error?: Error): MockLink.MockedResponse => ({
   request: { query: SignContractWithTokenDocument, variables: { token: TOKEN, signedName } },
   ...(error

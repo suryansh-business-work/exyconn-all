@@ -26,7 +26,7 @@ export const clientSchema = z
     email: z.string().trim().min(1, 'Email is required').regex(EMAIL, 'Enter a valid email'),
     phone: z.string().trim().min(1, 'Phone is required').regex(PHONE, 'Enter a valid phone'),
     company: z.string().trim().min(1, 'Company is required'),
-    status: z.nativeEnum(ClientStatus),
+    status: z.enum(ClientStatus),
     country: z
       .string()
       .refine((code) => code === '' || isValidCountry(code), 'Choose a country from the list'),

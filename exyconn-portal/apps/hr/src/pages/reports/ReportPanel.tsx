@@ -18,20 +18,20 @@ export function ReportPanel({ report }: Readonly<{ report: AnyReport }>) {
   const [rows, setRows] = useState<unknown[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const load = useCallback(async () => {
+  const load = useCallback(() => {
     setLoading(true);
-    try {
-      setRows(await report.load(client));
-    } catch (error) {
-      setRows([]);
-      notify(error instanceof Error ? error.message : 'Could not load the report', 'error');
-    } finally {
-      setLoading(false);
-    }
+    return report
+      .load(client)
+      .then(setRows)
+      .catch((error: unknown) => {
+        setRows([]);
+        notify(error instanceof Error ? error.message : 'Could not load the report', 'error');
+      })
+      .finally(() => setLoading(false));
   }, [client, notify, report]);
 
   useEffect(() => {
-    load().catch(() => undefined);
+    load();
   }, [load]);
 
   const exportCsv = () => {

@@ -19,7 +19,7 @@ interface SignupParts {
 }
 
 function partsOf(form: HTMLFormElement): SignupParts | null {
-  const id = form.dataset.newsletterSignup ?? "";
+  const id = form.dataset.newsletterSignup as string;
   const captcha = mountCaptcha(form, id, ENDPOINT);
   const name = form.querySelector<HTMLInputElement>('input[name="name"]');
   const email = form.querySelector<HTMLInputElement>('input[name="email"]');

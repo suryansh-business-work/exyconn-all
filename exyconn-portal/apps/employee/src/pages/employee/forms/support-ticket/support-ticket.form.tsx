@@ -19,13 +19,13 @@ import {
 
 const schema = z.object({
   subject: z.string().trim().min(1, 'Subject is required').min(3, 'Add a short subject'),
-  category: z.nativeEnum(SupportCategory),
+  category: z.enum(SupportCategory),
   description: z
     .string()
     .trim()
     .min(1, 'Description is required')
     .min(10, 'Describe the issue in a bit more detail'),
-  priority: z.nativeEnum(SupportPriority),
+  priority: z.enum(SupportPriority),
 });
 type Values = z.infer<typeof schema>;
 

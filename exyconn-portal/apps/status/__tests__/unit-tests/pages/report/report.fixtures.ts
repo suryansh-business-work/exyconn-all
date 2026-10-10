@@ -1,4 +1,5 @@
 import type { MockLink } from '@apollo/client/testing';
+import { GraphQLError } from 'graphql';
 import {
   ProblemCategory,
   ProblemReportStatusDocument,
@@ -57,4 +58,16 @@ export const statusLookup = (answer: ReportStatus | null | Error): MockLink.Mock
   ...(answer instanceof Error
     ? { error: answer }
     : { result: { data: { problemReportStatus: answer } } }),
+});
+
+/** The server answering with a GraphQL error rather than failing at the network. */
+export const refusedStatusLookup = (message: string): MockLink.MockedResponse => ({
+  request: { query: ProblemReportStatusDocument, variables: { reference: REFERENCE } },
+  result: { errors: [new GraphQLError(message)] },
+});
+
+/** A mutation answer that carries no data and no error. */
+export const submittedWithoutData = (): MockLink.MockedResponse => ({
+  request: { query: SubmitProblemReportDocument, variables: { input: reportInput } },
+  result: { data: null },
 });

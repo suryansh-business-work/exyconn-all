@@ -126,6 +126,7 @@ export function CareerFormReact() {
             id="message"
             rows={4}
             placeholder="Tell us why you'd be a great fit for this role..."
+            aria-invalid={Boolean(errors.message)}
             className={`${inputClassName("blue")} resize-none`}
             {...register("message")}
           />

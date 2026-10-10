@@ -27,8 +27,8 @@ const schema = z.object({
     .trim()
     .min(1, 'Description is required')
     .min(5, 'Add a little more detail'),
-  severity: z.nativeEnum(BugSeverity),
-  status: z.nativeEnum(BugStatus),
+  severity: z.enum(BugSeverity),
+  status: z.enum(BugStatus),
   projectId: z.string(),
   assigneeId: z.string().min(1, 'Assignee is required'),
   dueDate: z.string().min(1, 'Due date is required'),

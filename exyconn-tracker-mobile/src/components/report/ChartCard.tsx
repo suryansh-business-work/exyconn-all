@@ -9,7 +9,7 @@ import { SegmentedControl, type SegmentOption } from '../ui/SegmentedControl';
 
 type ChartView = 'chart' | 'table';
 
-const VIEWS: readonly SegmentOption<ChartView>[] = [
+const VIEWS: readonly (SegmentOption<ChartView> & { accessibilityLabel: string })[] = [
   { value: 'chart', label: 'Chart', accessibilityLabel: 'Show as a chart' },
   { value: 'table', label: 'Table', accessibilityLabel: 'Show the numbers as a table' },
 ];
@@ -47,7 +47,7 @@ export function ChartCard({
   const views = VIEWS.map((option) => ({
     ...option,
     label: t(option.label),
-    accessibilityLabel: t(option.accessibilityLabel ?? option.label),
+    accessibilityLabel: t(option.accessibilityLabel),
   }));
 
   let body: ReactNode = children;

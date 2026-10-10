@@ -4,13 +4,16 @@ import type { CatalogWarn } from '@exyconn/wa-flow';
 import type { DemoBundle } from '@exyconn/wa-flow/engine';
 import { useCatalog } from '../../../src/hooks/useCatalog';
 
-const api = vi.hoisted(() => ({
-  result: { data: undefined, loading: false, error: undefined } as Record<string, unknown>,
-  options: undefined as unknown,
-  refetch: vi.fn(),
-  toDemoBundle: vi.fn(),
-  warn: vi.fn(),
-}));
+const api = vi.hoisted(() => {
+  const result: Record<string, unknown> = { data: undefined, loading: false, error: undefined };
+  return {
+    result,
+    options: undefined as unknown,
+    refetch: vi.fn(),
+    toDemoBundle: vi.fn(),
+    warn: vi.fn(),
+  };
+});
 
 vi.mock('@exyconn/shell/graphql/generated', () => ({
   useWhatsappDemoCatalogQuery: (options: unknown) => {
@@ -39,9 +42,7 @@ beforeEach(() => {
   api.toDemoBundle
     .mockReset()
     .mockImplementation((e: Entry) =>
-      e.demo.key === 'broken'
-        ? null
-        : ({ demo: { key: e.demo.key }, workflows: [] } as unknown as DemoBundle),
+      e.demo.key === 'broken' ? null : { demo: { key: e.demo.key }, workflows: [] },
     );
   api.warn.mockReset();
 });

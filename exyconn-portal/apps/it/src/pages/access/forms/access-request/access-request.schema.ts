@@ -12,7 +12,7 @@ export const accessRequestSchema = z
   .object({
     employeeId: z.string().min(1, 'Pick the employee'),
     application: z.string().trim().min(1, 'Pick the application'),
-    kind: z.nativeEnum(ItAccessKind),
+    kind: z.enum(ItAccessKind),
     accessLevel: z.string().trim().max(60, 'Too long'),
     reason: z.string().trim().min(5, 'Say why it is needed').max(500, 'Too long'),
     /** ISO string from the picker; empty means the grant does not expire. */

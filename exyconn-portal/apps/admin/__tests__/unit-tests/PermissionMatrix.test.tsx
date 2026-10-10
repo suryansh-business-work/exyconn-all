@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MockedProvider } from '@apollo/client/testing/react';
-import type { MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
@@ -32,20 +32,20 @@ const STORED = [
   row('2', 'FINANCE', 'Activity', [A.View]),
 ];
 
-const modules = (names: string[]): MockedResponse => ({
+const modules = (names: string[]): MockLink.MockedResponse => ({
   request: { query: ListPermissionModulesDocument },
   result: { data: { listPermissionModules: names } },
   maxUsageCount: 10,
 });
-const stored = (rows = STORED): MockedResponse => ({
+const stored = (rows = STORED): MockLink.MockedResponse => ({
   request: { query: ListRolePermissionsDocument },
   result: { data: { listRolePermissions: rows } },
 });
-const failedReload: MockedResponse = {
+const failedReload: MockLink.MockedResponse = {
   request: { query: ListRolePermissionsDocument },
   error: new Error('reload failed'),
 };
-const restrictActivity = (error?: Error): MockedResponse => ({
+const restrictActivity = (error?: Error): MockLink.MockedResponse => ({
   request: {
     query: SetRolePermissionDocument,
     variables: {
@@ -58,12 +58,12 @@ const restrictActivity = (error?: Error): MockedResponse => ({
     ? { error }
     : { result: { data: { setRolePermission: row('3', 'HR', 'Activity', [A.Create]) } } }),
 });
-const clearBudget = (error?: Error): MockedResponse => ({
+const clearBudget = (error?: Error): MockLink.MockedResponse => ({
   request: { query: ClearRolePermissionDocument, variables: { role: 'HR', module: 'Budget' } },
   ...(error ? { error } : { result: { data: { clearRolePermission: true } } }),
 });
 
-function mount(mocks: MockedResponse[]) {
+function mount(mocks: MockLink.MockedResponse[]) {
   render(
     <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>

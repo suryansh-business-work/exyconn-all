@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import type { MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import {
   CreateSonarConfigDocument,
   UpdateSonarConfigDocument,
@@ -25,7 +25,7 @@ const stored: SonarConfigRow = {
   isActive: true,
 };
 
-const createMock: MockedResponse = {
+const createMock: MockLink.MockedResponse = {
   request: {
     query: CreateSonarConfigDocument,
     variables: {
@@ -43,7 +43,7 @@ const createMock: MockedResponse = {
 };
 
 /** Saving the stored config untouched sends a blank token, which the server reads as "keep". */
-const keepTokenMock: MockedResponse = {
+const keepTokenMock: MockLink.MockedResponse = {
   request: {
     query: UpdateSonarConfigDocument,
     variables: {
@@ -61,7 +61,7 @@ const keepTokenMock: MockedResponse = {
   result: { data: { updateSonarConfig: { id: 's1' } } },
 };
 
-const mount = (initial: SonarConfigRow | null = null, mocks: MockedResponse[] = []) =>
+const mount = (initial: SonarConfigRow | null = null, mocks: MockLink.MockedResponse[] = []) =>
   cy.mount(
     <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>

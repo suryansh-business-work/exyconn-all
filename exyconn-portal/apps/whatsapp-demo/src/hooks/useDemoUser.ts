@@ -20,7 +20,7 @@ export function useDemoUser(): DemoUser & { id: string } {
     return {
       id: user?.id ?? visitor?.id ?? '',
       fullName,
-      firstName: fullName.split(SPACES)[0] ?? '',
+      firstName: fullName.split(SPACES)[0],
       email: person?.email ?? user?.email ?? '',
       phone: person?.phone ?? '',
     };
@@ -33,6 +33,6 @@ export function initialsOf(name: string): string {
     .split(SPACES)
     .filter(Boolean)
     .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase() ?? '')
+    .map((part) => part.charAt(0).toUpperCase())
     .join('');
 }

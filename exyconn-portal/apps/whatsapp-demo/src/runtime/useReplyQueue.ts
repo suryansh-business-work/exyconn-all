@@ -3,14 +3,7 @@
  * message. Replies to a chat that is not on screen (or while the tab is hidden) count as
  * unread, and a reminder that lands there is announced.
  */
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  type Dispatch,
-  type MutableRefObject,
-} from 'react';
+import { useCallback, useEffect, useMemo, useRef, type Dispatch, type RefObject } from 'react';
 import type { OutgoingMessage } from '@exyconn/wa-flow';
 import type { StoreAction } from './store';
 import type { RuntimeOptions } from './types';
@@ -22,10 +15,7 @@ interface Lane {
   idle: (() => void)[];
 }
 
-export function useReplyQueue(
-  dispatch: Dispatch<StoreAction>,
-  opts: MutableRefObject<RuntimeOptions>,
-) {
+export function useReplyQueue(dispatch: Dispatch<StoreAction>, opts: RefObject<RuntimeOptions>) {
   const lanes = useRef(new Map<string, Lane>());
   const timers = useRef(new Set<ReturnType<typeof setTimeout>>());
 

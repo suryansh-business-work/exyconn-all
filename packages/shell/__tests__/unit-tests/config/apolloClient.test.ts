@@ -159,7 +159,7 @@ describe('log transport', () => {
     fetchMock.mockReturnValue(new Promise((resolve) => (release = resolve)));
     const client = await load();
     const transport = vi.mocked(client.setLogTransport).mock.calls[0][0];
-    const batch = { entries: [] } as unknown as Parameters<typeof transport>[0];
+    const batch = { entries: [] };
 
     const sent = transport(batch);
     await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));

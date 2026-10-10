@@ -115,4 +115,11 @@ describe('ExpensesPage', () => {
     expect(await screen.findByRole('heading', { level: 1, name: 'Expenses' })).toBeInTheDocument();
     expect(refetch).toHaveBeenCalledTimes(1);
   });
+
+  it('holds the table busy and does not claim the list is empty while the first response loads', () => {
+    vi.mocked(useMyExpenseClaimsQuery).mockReturnValue(queryResult({ loading: true }));
+    const { container } = renderWithProviders(<ExpensesPage />);
+    expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
+    expect(screen.queryByText('You have not filed any claims yet.')).toBeNull();
+  });
 });

@@ -14,25 +14,29 @@ interface PaneProps {
   onBack: () => unknown;
 }
 
-const deps = vi.hoisted(() => ({
-  aiSession: '',
-  read: vi.fn(),
-  context: vi.fn(),
-  options: undefined as
-    undefined | ({ bundles: ReadonlyMap<string, unknown> } & Record<string, unknown>),
-  pane: undefined as unknown,
-  runtime: {
-    store: {
-      chats: {} as Record<string, unknown>,
-      pending: [],
-      typing: {} as Record<string, boolean>,
+const deps = vi.hoisted(() => {
+  const chats: Record<string, unknown> = {};
+  const typing: Record<string, boolean> = {};
+  return {
+    aiSession: '',
+    read: vi.fn(),
+    context: vi.fn(),
+    options: undefined as
+      undefined | ({ bundles: ReadonlyMap<string, unknown> } & Record<string, unknown>),
+    pane: undefined as unknown,
+    runtime: {
+      store: {
+        chats,
+        pending: [],
+        typing,
+      },
+      open: vi.fn(),
+      send: vi.fn(),
+      choose: vi.fn(),
+      clear: vi.fn(),
     },
-    open: vi.fn(),
-    send: vi.fn(),
-    choose: vi.fn(),
-    clear: vi.fn(),
-  },
-}));
+  };
+});
 
 vi.mock('../../../../../src/hooks/useDemoUser', () => ({
   useDemoUser: () => ({
@@ -102,7 +106,11 @@ describe('ChatPreview', () => {
 
   it('opens the chat once per mount', () => {
     const { rerender } = renderWithProviders(<ChatPreview bundle={bundle} />);
-    rerender(<ChatPreview bundle={bundle} />);
+    const edited = {
+      ...bundle,
+      demo: { ...bundle.demo, menuText: 'What do you need?' },
+    } as DemoBundle;
+    rerender(<ChatPreview bundle={edited} startWorkflow="booking" />);
     expect(deps.runtime.open).toHaveBeenCalledTimes(1);
     expect(deps.runtime.open).toHaveBeenCalledWith('clinic');
     expect(deps.runtime.choose).not.toHaveBeenCalled();

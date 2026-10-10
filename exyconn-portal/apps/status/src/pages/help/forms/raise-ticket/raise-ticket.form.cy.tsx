@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import { type MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
@@ -15,17 +15,17 @@ const input = {
   description: 'Since this morning my password is refused on every portal. Nothing has changed.',
 };
 
-const raised: MockedResponse = {
+const raised: MockLink.MockedResponse = {
   request: { query: CreateClientSupportTicketDocument, variables: { input } },
   result: { data: { createClientSupportTicket: 'EXY-4KQ7W2' } },
 };
 
-const refused: MockedResponse = {
+const refused: MockLink.MockedResponse = {
   request: { query: CreateClientSupportTicketDocument, variables: { input } },
   error: new Error('Too many requests from this address. Try again later.'),
 };
 
-const mount = (mocks: MockedResponse[] = []) =>
+const mount = (mocks: MockLink.MockedResponse[] = []) =>
   cy.mount(
     <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>

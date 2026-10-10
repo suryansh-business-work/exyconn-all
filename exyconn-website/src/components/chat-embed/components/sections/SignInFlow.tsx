@@ -51,15 +51,13 @@ function WelcomeBubble({ text, note }: Readonly<{ text: string; note: string }>)
 
 /** The welcome, then the details form or the code form, for either chat section. */
 export function SignInFlow({ state, actions, channel }: Readonly<SignInFlowProps>) {
-  const welcome = channel === "LIVE" ? state.config?.welcomeMessage : strings.knowledgeIntro;
-  const offline = channel === "LIVE" && state.config?.online === false;
-  const note = offline ? (state.config?.offlineMessage ?? "") : "";
+  const { config } = state;
+  const welcome = (channel === "LIVE" ? config?.welcomeMessage : strings.knowledgeIntro) ?? "";
+  const note = channel === "LIVE" && config?.online === false ? config.offlineMessage : "";
 
   return (
     <Box sx={{ flex: 1, overflowY: "auto", px: 2, py: 2.5 }}>
-      {state.step !== "code" && (welcome || note) && (
-        <WelcomeBubble text={welcome ?? ""} note={note} />
-      )}
+      {state.step !== "code" && (welcome || note) && <WelcomeBubble text={welcome} note={note} />}
       <Box sx={cardSx}>
         {state.step === "code" ? (
           <ChatCodeForm

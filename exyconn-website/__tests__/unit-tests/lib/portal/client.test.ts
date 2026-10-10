@@ -98,6 +98,30 @@ describe("local design fixtures", () => {
   });
 });
 
+describe("where the portal URL comes from", () => {
+  it("falls back to the process environment when the build env does not carry it", async () => {
+    vi.stubEnv("PUBLIC_PORTAL_GRAPHQL_URL", undefined);
+    vi.stubGlobal("process", {
+      ...process,
+      env: { ...process.env, PUBLIC_PORTAL_GRAPHQL_URL: "https://runtime.test/graphql" },
+    });
+    const fetch = answer({ data: { ok: true } });
+
+    await portalRequest("query { ok }");
+
+    expect(fetch.mock.calls[0][0]).toBe("https://runtime.test/graphql");
+  });
+
+  it("ignores PORTAL_FIXTURES outside development, so a production build always asks the portal", async () => {
+    vi.stubEnv("DEV", false);
+    vi.stubEnv("PORTAL_FIXTURES", FIXTURES);
+    const fetch = answer({ data: { fromPortal: true } });
+
+    await expect(portalRequest("query { x }")).resolves.toEqual({ fromPortal: true });
+    expect(fetch).toHaveBeenCalledTimes(1);
+  });
+});
+
 describe("PortalRequestError", () => {
   it("is an Error with the portal's codes", () => {
     const error = new PortalRequestError("refused", ["BAD_USER_INPUT"]);

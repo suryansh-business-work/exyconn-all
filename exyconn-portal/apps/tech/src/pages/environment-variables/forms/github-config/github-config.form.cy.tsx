@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import { type MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { UpdateGithubConfigDocument } from '@exyconn/shell/graphql/generated';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { GithubConfigForm } from './github-config.form';
@@ -19,7 +19,7 @@ const stored: GithubConfigRow = {
 };
 
 /** Saving the stored config untouched sends a blank secret, which the server reads as "keep". */
-const keepSecretMock: MockedResponse = {
+const keepSecretMock: MockLink.MockedResponse = {
   request: {
     query: UpdateGithubConfigDocument,
     variables: {
@@ -36,7 +36,7 @@ const keepSecretMock: MockedResponse = {
   result: { data: { updateGithubConfig: { id: 'c1' } } },
 };
 
-const mount = (initial: GithubConfigRow | null = null, mocks: MockedResponse[] = []) =>
+const mount = (initial: GithubConfigRow | null = null, mocks: MockLink.MockedResponse[] = []) =>
   cy.mount(
     <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>

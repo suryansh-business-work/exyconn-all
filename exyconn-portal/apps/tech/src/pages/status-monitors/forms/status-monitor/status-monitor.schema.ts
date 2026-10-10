@@ -12,7 +12,7 @@ export const statusMonitorSchema = z.object({
     .regex(SLUG, 'Use lower-case letters, digits and hyphens only'),
   name: z.string().trim().min(2, 'Name is required').max(80, 'Keep the name under 80 characters'),
   description: z.string().trim().max(160, 'Keep the description under 160 characters'),
-  category: z.nativeEnum(StatusCategory),
+  category: z.enum(StatusCategory),
   url: z
     .string()
     .trim()

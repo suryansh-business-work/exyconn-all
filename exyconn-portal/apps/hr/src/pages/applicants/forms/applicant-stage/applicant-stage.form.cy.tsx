@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import { type MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
@@ -9,7 +9,7 @@ import type { StagedApplicant } from './applicant-stage.types';
 
 const applicant: StagedApplicant = { id: 'a1', name: 'Meera Iyer', stage: 'NEW' as never };
 
-const moveMock: MockedResponse = {
+const moveMock: MockLink.MockedResponse = {
   request: {
     query: SetApplicantStageDocument,
     variables: { id: 'a1', stage: 'OFFER', note: 'Panel agreed' },
@@ -26,7 +26,7 @@ const moveMock: MockedResponse = {
   },
 };
 
-const mount = (mocks: MockedResponse[] = []) =>
+const mount = (mocks: MockLink.MockedResponse[] = []) =>
   cy.mount(
     <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>

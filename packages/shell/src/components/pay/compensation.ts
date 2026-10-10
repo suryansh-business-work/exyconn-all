@@ -36,7 +36,7 @@ const money = (label: string) =>
 
 export const compensationSchema = z
   .object({
-    payType: z.nativeEnum(PayType),
+    payType: z.enum(PayType),
     payTypeNote: z.string().trim(),
     currency: z.string().trim().min(1, 'Currency is required'),
     basic: money('Basic'),

@@ -68,22 +68,18 @@ export function CustomFontForm({ open, siteId, onClose, onAdd }: Readonly<Custom
   };
 
   const save = async (values: CustomFontFormValues) => {
-    try {
-      const urls = await Promise.all(values.files.map((row) => upload(row.file)));
-      const files = values.files.map((row, index) => ({
-        url: urls[index],
-        weight: row.weight,
-        style: row.style,
-        format: row.format,
-      }));
-      onAdd({ provider: 'CUSTOM', family: values.family, files });
-      notify('{family} uploaded — save the design system to use it', 'success', {
-        family: values.family,
-      });
-      onClose();
-    } catch (error) {
-      notify(errorMessage(error, 'Could not upload the font'), 'error');
-    }
+    const urls = await Promise.all(values.files.map((row) => upload(row.file)));
+    const files = values.files.map((row, index) => ({
+      url: urls[index],
+      weight: row.weight,
+      style: row.style,
+      format: row.format,
+    }));
+    onAdd({ provider: 'CUSTOM', family: values.family, files });
+    notify('{family} uploaded — save the design system to use it', 'success', {
+      family: values.family,
+    });
+    onClose();
   };
 
   return (
@@ -102,7 +98,7 @@ export function CustomFontForm({ open, siteId, onClose, onAdd }: Readonly<Custom
             // Inside the design-system form in React's tree: do not submit that one too.
             event.stopPropagation();
             handleSubmit(save)(event).catch((error: unknown) =>
-              notify(errorMessage(error, 'Upload failed'), 'error'),
+              notify(errorMessage(error, 'Could not upload the font'), 'error'),
             );
           }}
         >

@@ -22,8 +22,8 @@ const MAX_POINTS = 999;
 const schema = z.object({
   title: z.string().trim().min(1, 'Summary is required'),
   description: z.string(),
-  type: z.nativeEnum(TaskType),
-  priority: z.nativeEnum(TaskPriority),
+  type: z.enum(TaskType),
+  priority: z.enum(TaskPriority),
   assigneeId: z.string(),
   labels: z.array(z.string()),
   storyPoints: z

@@ -6,12 +6,15 @@ import type { PagedTemplateRow } from '../../../../src/pages/email/email-grids';
 import { renderWithProviders } from '../../test-utils';
 import { notify, resetHarness } from '../environment-variables/panel.harness';
 
-const gql = vi.hoisted(() => ({
-  preview: vi.fn(),
-  send: vi.fn(),
-  previewState: {} as { data?: unknown; loading?: boolean; error?: Error },
-  sendState: { loading: false },
-}));
+const gql = vi.hoisted(() => {
+  const previewState: { data?: unknown; loading?: boolean; error?: Error } = {};
+  return {
+    preview: vi.fn(),
+    send: vi.fn(),
+    previewState,
+    sendState: { loading: false },
+  };
+});
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),

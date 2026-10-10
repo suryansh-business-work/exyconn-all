@@ -89,4 +89,11 @@ describe('RequestsPage', () => {
     ).toBeInTheDocument();
     expect(refetch).toHaveBeenCalledTimes(1);
   });
+
+  it('holds the table busy and does not claim the list is empty while the first response loads', () => {
+    vi.mocked(useMyRequestsQuery).mockReturnValue(queryResult({ loading: true }));
+    const { container } = renderWithProviders(<RequestsPage />);
+    expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
+    expect(screen.queryByText('You have not raised any requests yet.')).toBeNull();
+  });
 });

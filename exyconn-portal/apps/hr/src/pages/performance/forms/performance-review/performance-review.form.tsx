@@ -22,7 +22,7 @@ const schema = z.object({
   score: z.union([z.literal(''), z.coerce.number().min(0, 'Must be ≥ 0')]),
   rating: z.string().trim(),
   actionPlan: z.string().trim().min(1, 'Action plan is required'),
-  status: z.nativeEnum(ReviewStatus),
+  status: z.enum(ReviewStatus),
 });
 type Values = z.infer<typeof schema>;
 

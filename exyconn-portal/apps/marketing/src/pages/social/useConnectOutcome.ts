@@ -17,12 +17,13 @@ export function useConnectOutcome(onConnected: () => void): void {
   const count = params.get('count') ?? '1';
 
   useEffect(() => {
-    if (!connected && !error) return;
     if (connected) {
       latest.current.notify('Connected {count} account(s)', 'success', { count });
       latest.current.onConnected();
+    } else if (error) {
+      latest.current.notify(error, 'error');
     } else {
-      latest.current.notify(error ?? 'The connection failed', 'error');
+      return;
     }
     setParams({}, { replace: true });
   }, [connected, error, count, setParams]);

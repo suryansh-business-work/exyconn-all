@@ -59,6 +59,13 @@ export function WithdrawDialog({
     }
   }
 
+  const confirm =
+    entry === null
+      ? onClose
+      : () => {
+          withdraw(entry).catch((cause: unknown) => console.error('Withdraw failed', cause));
+        };
+
   return (
     <ConfirmDialog
       open={entry !== null}
@@ -69,11 +76,7 @@ export function WithdrawDialog({
       busy={busy}
       onCancel={onClose}
       returnFocusTo={returnFocusTo}
-      onConfirm={() => {
-        if (entry !== null) {
-          withdraw(entry).catch((cause: unknown) => console.error('Withdraw failed', cause));
-        }
-      }}
+      onConfirm={confirm}
     />
   );
 }

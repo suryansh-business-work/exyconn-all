@@ -55,7 +55,7 @@ describe('exportRichText', () => {
     expect(saveBlob).toHaveBeenCalledTimes(1);
     const [blob, name] = vi.mocked(saveBlob).mock.calls[0] ?? [];
     expect(name).toBe('document.docx');
-    expect(await docxPart(blob as Blob)).toContain('Clause one');
+    expect(await docxPart(blob)).toContain('Clause one');
   });
 
   it('saves nothing when an image cannot be loaded', async () => {

@@ -15,13 +15,13 @@ import {
  * `data-filter-item`, `data-filter-<param>="a b"`, `data-search="…"` and
  * `data-sort-<key>="…"`; the bar keeps the URL query in step with its chips, search and sort.
  */
-const words = (value: string | undefined): string[] => (value ?? "").split(/\s+/).filter(Boolean);
+const words = (value: string): string[] => value.split(/\s+/).filter(Boolean);
 
 const readItem = (element: HTMLElement, params: readonly string[]): FilterItem => ({
   values: Object.fromEntries(
     params.map((param) => [param, words(element.getAttribute(`data-filter-${param}`) ?? "")])
   ),
-  text: element.dataset.search ?? element.textContent ?? "",
+  text: element.dataset.search ?? (element.textContent as string),
 });
 
 /** Re-appends the items in sort order; hidden ones move too, so the order survives a reset. */
@@ -40,7 +40,7 @@ const setup = (bar: HTMLElement) => {
     return;
   }
   const chips = [...bar.querySelectorAll<HTMLButtonElement>("[data-chip-param]")];
-  const chipParams = [...new Set(chips.map((chip) => chip.dataset.chipParam ?? ""))];
+  const chipParams = [...new Set(chips.map((chip) => chip.dataset.chipParam as string))];
   const search = bar.querySelector<HTMLInputElement>("[data-filter-search]");
   const sort = bar.querySelector<HTMLSelectElement>("[data-filter-sort]");
   const count = bar.querySelector<HTMLElement>("[data-filter-count]");
@@ -51,7 +51,7 @@ const setup = (bar: HTMLElement) => {
 
   const apply = () => {
     chips.forEach((chip) => {
-      const active = (state[chip.dataset.chipParam ?? ""] ?? "") === (chip.value ?? "");
+      const active = state[chip.dataset.chipParam as string] === chip.value;
       chip.setAttribute("aria-pressed", String(active));
     });
     let shown = 0;
@@ -64,7 +64,7 @@ const setup = (bar: HTMLElement) => {
       sortItems(list, items, state[sort.name]);
     }
     if (count) {
-      count.textContent = fillCount(count.dataset.filterCount ?? "", shown, items.length);
+      count.textContent = fillCount(count.dataset.filterCount as string, shown, items.length);
     }
     if (empty) {
       empty.hidden = shown > 0;
@@ -82,10 +82,10 @@ const setup = (bar: HTMLElement) => {
   };
 
   chips.forEach((chip) =>
-    chip.addEventListener("click", () => update({ [chip.dataset.chipParam ?? ""]: chip.value }))
+    chip.addEventListener("click", () => update({ [chip.dataset.chipParam as string]: chip.value }))
   );
   if (search) {
-    search.value = state[search.name] ?? "";
+    search.value = state[search.name];
     search.addEventListener("input", () => update({ [search.name]: search.value.trim() }));
   }
   if (sort) {

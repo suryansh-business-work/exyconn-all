@@ -65,12 +65,10 @@ export default function useTrackerTranslations(locale: string): {
       }
       asked.current.add(source);
       pending.current.add(source);
-      if (timer.current === null) {
-        timer.current = setTimeout(() => {
-          timer.current = null;
-          flush();
-        }, BATCH_MS);
-      }
+      timer.current ??= setTimeout(() => {
+        timer.current = null;
+        flush();
+      }, BATCH_MS);
     },
     [flush],
   );

@@ -91,9 +91,10 @@ export function buildAttendanceMonth(
   return buildMonthDays(month, [], [], today).map(({ date }) => {
     const key = localKey(date);
     const mark = marked.get(key);
+    const leaveStatus = leave.get(key);
     let status: DayStatus = 'NONE';
     if (mark !== undefined) status = WORKED.has(mark) ? 'PRESENT' : 'ABSENT';
-    else if (leave.has(key)) status = leave.get(key) ?? 'NONE';
+    else if (leaveStatus) status = leaveStatus;
     else if (holidayName.has(key)) status = 'HOLIDAY';
     return {
       date,

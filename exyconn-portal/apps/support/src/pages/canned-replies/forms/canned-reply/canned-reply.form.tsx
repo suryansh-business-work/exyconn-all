@@ -14,7 +14,7 @@ import type { CannedReplyRow } from './canned-reply.types';
 
 const schema = z.object({
   title: z.string().trim().min(3, 'Name it for what it does — "Ask for a screenshot"'),
-  category: z.nativeEnum(SupportCategory),
+  category: z.enum(SupportCategory),
   body: z.string().trim().min(10, 'A snippet this short is quicker to type than to find'),
   isActive: z.boolean(),
 });

@@ -103,6 +103,7 @@ export function DemoLeadForm({ onCodeSent }: Readonly<DemoLeadFormProps>) {
             id="demo-company"
             type="text"
             autoComplete="organization"
+            aria-invalid={Boolean(errors.company)}
             className={inputClassName("blue", Boolean(errors.company))}
             {...register("company")}
           />

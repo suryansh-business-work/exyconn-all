@@ -23,7 +23,7 @@ import type { CompanyExpenseRow } from './company-expense.types';
 const schema = z
   .object({
     vendor: z.string().trim().min(1, 'Vendor is required'),
-    category: z.nativeEnum(ExpenseCategory),
+    category: z.enum(ExpenseCategory),
     description: z.string().trim(),
     amount: z.coerce.number({ message: 'Amount must be a number' }).min(0, 'Must be ≥ 0'),
     currency: z.string().trim().min(1, 'Currency is required'),

@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import type { MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -47,12 +47,12 @@ const FULL = report([
   certificate('gone.exyconn.com', SslCertificateStatus.Unreachable, null, 'ECONNREFUSED'),
 ]);
 
-const mock = (variables: Record<string, unknown>, data: object): MockedResponse => ({
+const mock = (variables: Record<string, unknown>, data: object): MockLink.MockedResponse => ({
   request: { query: SslCertificatesDocument, variables },
   result: { data },
 });
 
-const mount = (mocks: MockedResponse[]) => {
+const mount = (mocks: MockLink.MockedResponse[]) => {
   cy.viewport(1280, 900);
   cy.mount(
     <MemoryRouter initialEntries={['/tech/security/ssl']}>

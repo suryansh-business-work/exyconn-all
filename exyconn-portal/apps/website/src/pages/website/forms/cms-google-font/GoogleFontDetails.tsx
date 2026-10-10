@@ -105,7 +105,7 @@ export function GoogleFontDetails({ row }: Readonly<{ row: GoogleFontRow | null 
               </Box>
             ))}
             {fieldState.error && (
-              <FormHelperText error>{t(fieldState.error.message ?? '')}</FormHelperText>
+              <FormHelperText error>{t(String(fieldState.error.message))}</FormHelperText>
             )}
           </FormGroup>
         )}

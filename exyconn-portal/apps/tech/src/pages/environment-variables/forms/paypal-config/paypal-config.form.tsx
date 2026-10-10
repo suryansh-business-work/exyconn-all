@@ -29,7 +29,7 @@ const makeSchema = (isEdit: boolean) =>
       message: `Client secret must be at least ${MIN_KEY_LENGTH} characters`,
     }),
     webhookId: z.string().trim().min(1, 'Webhook id is required').max(80, 'Check the webhook id'),
-    mode: z.nativeEnum(GatewayMode),
+    mode: z.enum(GatewayMode),
     isActive: z.enum(['true', 'false']),
   });
 type Schema = ReturnType<typeof makeSchema>;

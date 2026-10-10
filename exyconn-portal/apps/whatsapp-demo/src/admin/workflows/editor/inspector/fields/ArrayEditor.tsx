@@ -59,7 +59,7 @@ export function ArrayEditor({
           size="small"
           startIcon={<AddIcon />}
           disabled={full}
-          onClick={() => append(newItem(getValues(name) ?? []))}
+          onClick={() => append(newItem(getValues(name)))}
         >
           {t('Add')}
         </Button>

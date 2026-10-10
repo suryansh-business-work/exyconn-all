@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import { type MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
@@ -8,7 +8,7 @@ import { CheckTicketForm } from './check-ticket.form';
 
 const variables = { reference: 'EXY-4KQ7W2', email: 'sam@acme.com' };
 
-const found: MockedResponse = {
+const found: MockLink.MockedResponse = {
   request: { query: ClientSupportTicketStatusDocument, variables },
   result: {
     data: {
@@ -30,7 +30,7 @@ const found: MockedResponse = {
   },
 };
 
-const nothing: MockedResponse = {
+const nothing: MockLink.MockedResponse = {
   request: {
     query: ClientSupportTicketStatusDocument,
     variables: { reference: 'EXY-ZZZZZZ', email: 'sam@acme.com' },
@@ -38,7 +38,7 @@ const nothing: MockedResponse = {
   result: { data: { clientSupportTicketStatus: null } },
 };
 
-const mount = (mocks: MockedResponse[] = []) =>
+const mount = (mocks: MockLink.MockedResponse[] = []) =>
   cy.mount(
     <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>

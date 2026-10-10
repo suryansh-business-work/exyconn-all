@@ -36,7 +36,7 @@ afterEach(() => {
 
 function sentBody() {
   const [, init] = vi.mocked(fetch).mock.calls[0];
-  return { headers: new Headers(init?.headers), body: JSON.parse(String(init?.body)) };
+  return { headers: new Headers(init?.headers), body: JSON.parse(init?.body as string) };
 }
 
 describe('createTrackerLogger', () => {

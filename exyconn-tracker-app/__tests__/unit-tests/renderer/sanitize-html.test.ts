@@ -69,4 +69,8 @@ describe('sanitizeRichHtml', () => {
       'Hi',
     );
   });
+
+  it('keeps an image that has no source as an empty image rather than failing', () => {
+    expect(sanitizeRichHtml('<img alt="logo">')).toBe('<img alt="logo">');
+  });
 });
