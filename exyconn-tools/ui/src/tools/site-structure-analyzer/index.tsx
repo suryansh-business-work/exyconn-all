@@ -17,7 +17,6 @@ const SiteStructureAnalyzer: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleAnalyze = async () => {
-    if (!websiteUrl.trim()) return;
     setIsLoading(true);
     setError(null);
     setResult(null);
@@ -38,9 +37,8 @@ const SiteStructureAnalyzer: React.FC = () => {
     }
   };
 
-  const handleExportJSON = () => {
-    if (!result) return;
-    const blob = new Blob([JSON.stringify(result, null, 2)], { type: 'application/json' });
+  const handleExportJSON = (structure: SiteStructure) => {
+    const blob = new Blob([JSON.stringify(structure, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -61,7 +59,7 @@ const SiteStructureAnalyzer: React.FC = () => {
               onMaxPagesChange={setMaxPages}
               onAnalyze={handleAnalyze}
             />
-            {result && <OverviewPanel result={result} onExportJSON={handleExportJSON} />}
+            {result && <OverviewPanel result={result} onExportJSON={() => handleExportJSON(result)} />}
           </Grid>
           <Grid size={{ xs: 12, md: 8 }}>
             <StructureTable pages={result?.pages || []} />

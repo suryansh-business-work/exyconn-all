@@ -13,7 +13,7 @@ interface Props {
   targetSize: { width: number; height: number };
 }
 
-type AspectOption = 'free' | 'square' | 'target' | '16:9' | '4:3' | '3:2';
+type AspectOption = 'free' | 'square' | 'target' | '16:9' | '4:3';
 
 const createImage = (url: string): Promise<HTMLImageElement> =>
   new Promise((resolve, reject) => {
@@ -75,10 +75,6 @@ const CropTool: React.FC<Props> = ({ image, onSave, onClose, targetSize }) => {
         return 16 / 9;
       case '4:3':
         return 4 / 3;
-      case '3:2':
-        return 3 / 2;
-      default:
-        return targetSize.width / targetSize.height;
     }
   };
 
@@ -86,26 +82,31 @@ const CropTool: React.FC<Props> = ({ image, onSave, onClose, targetSize }) => {
     setCroppedAreaPixels(croppedAreaPixels);
   }, []);
 
-  const handleSave = useCallback(async () => {
-    if (!croppedAreaPixels) return;
-    setIsSaving(true);
-    try {
-      const croppedImage = await getCroppedImg(
-        image,
-        croppedAreaPixels,
-        targetSize.width,
-        targetSize.height,
-        rotation,
-        flipH,
-        flipV
-      );
-      if (croppedImage) onSave(croppedImage);
-    } catch (e) {
-      console.error('Error creating cropped image:', e);
-    } finally {
-      setIsSaving(false);
-    }
-  }, [croppedAreaPixels, image, targetSize, rotation, flipH, flipV, onSave]);
+  const saveCrop = useCallback(
+    async (area: Area) => {
+      setIsSaving(true);
+      try {
+        const croppedImage = await getCroppedImg(
+          image,
+          area,
+          targetSize.width,
+          targetSize.height,
+          rotation,
+          flipH,
+          flipV
+        );
+        if (croppedImage) onSave(croppedImage);
+      } catch (e) {
+        console.error('Error creating cropped image:', e);
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [image, targetSize, rotation, flipH, flipV, onSave]
+  );
+
+  // Only available once the cropper has reported the area to cut.
+  const handleSave = croppedAreaPixels ? () => saveCrop(croppedAreaPixels) : undefined;
 
   const handleReset = () => {
     setCrop({ x: 0, y: 0 });
@@ -186,7 +187,7 @@ const CropTool: React.FC<Props> = ({ image, onSave, onClose, targetSize }) => {
           size="small"
           startIcon={<Check />}
           onClick={handleSave}
-          disabled={!croppedAreaPixels || isSaving}
+          disabled={!handleSave || isSaving}
         >
           {isSaving ? 'Applying...' : 'Apply Crop'}
         </Button>

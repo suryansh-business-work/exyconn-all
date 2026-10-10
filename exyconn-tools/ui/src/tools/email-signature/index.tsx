@@ -19,6 +19,10 @@ const EmailSignature: React.FC = () => {
     STORAGE_KEY,
     defaultFormValues
   );
+  // The form starts from what was saved and is never re-initialised by its own autosave:
+  // reinitialising wipes the touched flags, so validation messages vanished half a second
+  // after the visitor stopped typing.
+  const [initialValues] = React.useState(savedFormData);
 
   const handleFormChange = useCallback(
     (values: SignatureFormValues) => {
@@ -30,10 +34,9 @@ const EmailSignature: React.FC = () => {
   return (
     <ToolLayout toolName="Email Signature Generator" toolIcon={<Email />} toolColor="#10b981">
       <Formik<SignatureFormValues>
-        initialValues={savedFormData}
+        initialValues={initialValues}
         validationSchema={signatureValidationSchema}
         onSubmit={() => {}}
-        enableReinitialize
       >
         {(formik: FormikProps<SignatureFormValues>) => (
           <FormContent
@@ -43,7 +46,7 @@ const EmailSignature: React.FC = () => {
             isMobile={isMobile}
             onReset={() => {
               clearFormData();
-              formik.resetForm();
+              formik.resetForm({ values: defaultFormValues });
             }}
             onSave={handleFormChange}
           />

@@ -52,10 +52,9 @@ export default function CompressPdf() {
   };
 
   const compress = async () => {
-    if (!file) return;
     setProcessing(true);
     try {
-      const bytes = await file.arrayBuffer();
+      const bytes = await file!.arrayBuffer();
       const doc = await PDFDocument.load(bytes);
       const saved = await doc.save();
       setResult(saved);
@@ -68,11 +67,10 @@ export default function CompressPdf() {
   };
 
   const download = () => {
-    if (!result) return;
-    const url = URL.createObjectURL(new Blob([result.buffer as ArrayBuffer], { type: 'application/pdf' }));
+    const url = URL.createObjectURL(new Blob([result!.buffer as ArrayBuffer], { type: 'application/pdf' }));
     const a = document.createElement('a');
     a.href = url;
-    a.download = `compressed-${file?.name ?? 'document.pdf'}`;
+    a.download = `compressed-${file!.name}`;
     a.click();
     URL.revokeObjectURL(url);
   };

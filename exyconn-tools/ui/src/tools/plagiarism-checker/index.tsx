@@ -60,10 +60,6 @@ const PlagiarismChecker: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleCheck = async () => {
-    if (!text.trim() || text.trim().length < 10) {
-      setError('Please enter at least 10 characters of text.');
-      return;
-    }
     setIsLoading(true);
     setError(null);
     try {

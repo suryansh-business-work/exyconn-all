@@ -43,8 +43,7 @@ const SignatureControls: React.FC<SignatureControlsProps> = ({
   const drawingRef = useRef(false);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const canvas = canvasRef.current!;
     const resize = () => {
       const rect = canvas.getBoundingClientRect();
       canvas.width = rect.width;
@@ -103,8 +102,7 @@ const SignatureControls: React.FC<SignatureControlsProps> = ({
   };
 
   const clearCanvas = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+    const canvas = canvasRef.current!;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);

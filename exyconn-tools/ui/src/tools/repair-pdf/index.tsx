@@ -57,14 +57,13 @@ export default function RepairPdf() {
   };
 
   const repair = async () => {
-    if (!file) return;
     setProcessing(true);
     setStatus('idle');
     try {
-      const bytes = await file.arrayBuffer();
+      const bytes = await file!.arrayBuffer();
       const doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
       setPageCount(doc.getPageCount());
-      setMetadata({ title: doc.getTitle() ?? '—', author: doc.getAuthor() ?? '—', producer: doc.getProducer() ?? '—' });
+      setMetadata({ title: doc.getTitle() ?? '—', author: doc.getAuthor() ?? '—', producer: doc.getProducer()! });
       const saved = await doc.save();
       setResult(saved);
       setStatus('success');
@@ -77,11 +76,10 @@ export default function RepairPdf() {
   };
 
   const download = () => {
-    if (!result) return;
-    const url = URL.createObjectURL(new Blob([result.buffer as ArrayBuffer], { type: 'application/pdf' }));
+    const url = URL.createObjectURL(new Blob([result!.buffer as ArrayBuffer], { type: 'application/pdf' }));
     const a = document.createElement('a');
     a.href = url;
-    a.download = `repaired-${file?.name ?? 'document.pdf'}`;
+    a.download = `repaired-${file!.name}`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -182,8 +180,7 @@ export default function RepairPdf() {
                       Producer: <strong>{metadata.producer}</strong>
                     </Typography>
                     <Typography variant="body2">
-                      Original: <strong>{fmt(file!.size)}</strong> → Repaired:{' '}
-                      <strong>{result ? fmt(result.length) : '—'}</strong>
+                      Original: <strong>{fmt(file!.size)}</strong> → Repaired: <strong>{fmt(result!.length)}</strong>
                     </Typography>
                   </Paper>
                   <Button

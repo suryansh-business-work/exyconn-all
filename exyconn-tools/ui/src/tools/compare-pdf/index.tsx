@@ -44,8 +44,8 @@ const extractMeta = async (f: File): Promise<PdfMeta> => {
     size: fmt(f.size),
     title: doc.getTitle() ?? '—',
     author: doc.getAuthor() ?? '—',
-    creator: doc.getCreator() ?? '—',
-    producer: doc.getProducer() ?? '—',
+    creator: doc.getCreator()!,
+    producer: doc.getProducer()!,
     dims: pages.map((p) => {
       const s = p.getSize();
       return `${s.width.toFixed(0)}×${s.height.toFixed(0)}`;
@@ -145,10 +145,9 @@ export default function ComparePdf() {
   }, []);
 
   const compare = async () => {
-    if (!file1 || !file2) return;
     setProcessing(true);
     try {
-      const [m1, m2] = await Promise.all([extractMeta(file1), extractMeta(file2)]);
+      const [m1, m2] = await Promise.all([extractMeta(file1!), extractMeta(file2!)]);
       setMeta1(m1);
       setMeta2(m2);
     } catch {
@@ -208,10 +207,10 @@ export default function ComparePdf() {
                         <strong>Property</strong>
                       </TableCell>
                       <TableCell>
-                        <strong>{meta1?.name}</strong>
+                        <strong>{meta1!.name}</strong>
                       </TableCell>
                       <TableCell>
-                        <strong>{meta2?.name}</strong>
+                        <strong>{meta2!.name}</strong>
                       </TableCell>
                       <TableCell align="center">
                         <strong>Match</strong>

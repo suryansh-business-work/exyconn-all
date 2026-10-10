@@ -59,13 +59,13 @@ export default function WatermarkPdf() {
   };
 
   const apply = async () => {
-    if (!file || !text.trim()) {
-      setError('Upload a PDF and enter watermark text.');
+    if (!text.trim()) {
+      setError('Enter watermark text.');
       return;
     }
     setProcessing(true);
     try {
-      const doc = await PDFDocument.load(await file.arrayBuffer());
+      const doc = await PDFDocument.load(await file!.arrayBuffer());
       const font = await doc.embedFont(StandardFonts.Helvetica);
       const { r, g, b: blue } = hexToRgb(color);
       const pages = doc.getPages();
@@ -93,11 +93,10 @@ export default function WatermarkPdf() {
   };
 
   const download = () => {
-    if (!result) return;
-    const url = URL.createObjectURL(new Blob([result.buffer as ArrayBuffer], { type: 'application/pdf' }));
+    const url = URL.createObjectURL(new Blob([result!.buffer as ArrayBuffer], { type: 'application/pdf' }));
     const a = document.createElement('a');
     a.href = url;
-    a.download = `watermarked-${file?.name ?? 'document.pdf'}`;
+    a.download = `watermarked-${file!.name}`;
     a.click();
     URL.revokeObjectURL(url);
   };

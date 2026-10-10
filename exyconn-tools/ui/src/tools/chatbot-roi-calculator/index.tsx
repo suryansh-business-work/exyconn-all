@@ -36,7 +36,7 @@ const calculateROI = (inputs: ROIInputs): ROIResultsType => {
   const netSavings = totalSavings - SMART_EXY_BOT_ANNUAL_COST;
 
   // ROI calculation: (Net Profit / Cost) * 100
-  const annualROI = SMART_EXY_BOT_ANNUAL_COST > 0 ? Math.round((netSavings / SMART_EXY_BOT_ANNUAL_COST) * 100) : 0;
+  const annualROI = Math.round((netSavings / SMART_EXY_BOT_ANNUAL_COST) * 100);
 
   return {
     totalSavings: Math.round(totalSavings * 100) / 100,

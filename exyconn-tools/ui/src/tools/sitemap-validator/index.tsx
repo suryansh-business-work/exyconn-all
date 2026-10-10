@@ -16,7 +16,6 @@ const SitemapValidator: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleValidate = async () => {
-    if (!sitemapUrl.trim()) return;
     setIsLoading(true);
     setError(null);
     setResult(null);

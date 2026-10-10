@@ -63,10 +63,9 @@ export default function CropPdf() {
   };
 
   const cropPdf = async () => {
-    if (!file) return;
     setProcessing(true);
     try {
-      const bytes = await file.arrayBuffer();
+      const bytes = await file!.arrayBuffer();
       const doc = await PDFDocument.load(bytes);
       const pages = doc.getPages();
       pages.forEach((page, i) => {
@@ -83,11 +82,10 @@ export default function CropPdf() {
   };
 
   const download = () => {
-    if (!result) return;
-    const url = URL.createObjectURL(new Blob([result.buffer as ArrayBuffer], { type: 'application/pdf' }));
+    const url = URL.createObjectURL(new Blob([result!.buffer as ArrayBuffer], { type: 'application/pdf' }));
     const a = document.createElement('a');
     a.href = url;
-    a.download = `cropped-${file?.name ?? 'document.pdf'}`;
+    a.download = `cropped-${file!.name}`;
     a.click();
     URL.revokeObjectURL(url);
   };

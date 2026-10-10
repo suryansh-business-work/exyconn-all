@@ -25,11 +25,6 @@ const XmlToMarkdown: React.FC = () => {
   const [copied, setCopied] = useState(false);
 
   const handleConvert = async () => {
-    if (!content.trim()) {
-      setError('Please enter XML content');
-      return;
-    }
-
     setLoading(true);
     setError(null);
 

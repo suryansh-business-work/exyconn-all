@@ -26,29 +26,20 @@ type Format = 'page-x' | 'x' | 'x-of-y';
 const formatSize = (b: number) =>
   b < 1024 * 1024 ? `${(b / 1024).toFixed(1)} KB` : `${(b / (1024 * 1024)).toFixed(2)} MB`;
 
-const getCoords = (pos: Position, pw: number, ph: number, tw: number, _fs: number) => {
+const getCoords = (pos: Position, pw: number, ph: number, tw: number) => {
   const margin = 30;
-  const yBottom = margin;
-  const yTop = ph - margin;
-  const xLeft = margin;
   const xCenter = (pw - tw) / 2;
   const xRight = pw - tw - margin;
-  switch (pos) {
-    case 'bottom-center':
-      return { x: xCenter, y: yBottom };
-    case 'bottom-left':
-      return { x: xLeft, y: yBottom };
-    case 'bottom-right':
-      return { x: xRight, y: yBottom };
-    case 'top-center':
-      return { x: xCenter, y: yTop };
-    case 'top-left':
-      return { x: xLeft, y: yTop };
-    case 'top-right':
-      return { x: xRight, y: yTop };
-    default:
-      return { x: xCenter, y: yBottom };
-  }
+  const yTop = ph - margin;
+  const coords: Record<Position, { x: number; y: number }> = {
+    'bottom-center': { x: xCenter, y: margin },
+    'bottom-left': { x: margin, y: margin },
+    'bottom-right': { x: xRight, y: margin },
+    'top-center': { x: xCenter, y: yTop },
+    'top-left': { x: margin, y: yTop },
+    'top-right': { x: xRight, y: yTop },
+  };
+  return coords[pos];
 };
 
 export default function PdfPageNumbers() {
@@ -86,10 +77,9 @@ export default function PdfPageNumbers() {
   };
 
   const addNumbers = async () => {
-    if (!file) return;
     setProcessing(true);
     try {
-      const bytes = await file.arrayBuffer();
+      const bytes = await file!.arrayBuffer();
       const doc = await PDFDocument.load(bytes);
       const font = await doc.embedFont(StandardFonts.Helvetica);
       const total = doc.getPageCount();
@@ -101,7 +91,7 @@ export default function PdfPageNumbers() {
         if (format === 'page-x') text = `Page ${num}`;
         else if (format === 'x-of-y') text = `${num} of ${total + startNum - 1}`;
         const tw = font.widthOfTextAtSize(text, fontSize);
-        const { x, y } = getCoords(position, width, height, tw, fontSize);
+        const { x, y } = getCoords(position, width, height, tw);
         page.drawText(text, { x, y, size: fontSize, font, color: rgb(0, 0, 0) });
       }
       setResult(await doc.save());
@@ -113,11 +103,10 @@ export default function PdfPageNumbers() {
   };
 
   const download = () => {
-    if (!result) return;
-    const url = URL.createObjectURL(new Blob([result.buffer as ArrayBuffer], { type: 'application/pdf' }));
+    const url = URL.createObjectURL(new Blob([result!.buffer as ArrayBuffer], { type: 'application/pdf' }));
     const a = document.createElement('a');
     a.href = url;
-    a.download = `numbered-${file?.name ?? 'document.pdf'}`;
+    a.download = `numbered-${file!.name}`;
     a.click();
     URL.revokeObjectURL(url);
   };

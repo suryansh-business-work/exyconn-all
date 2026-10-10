@@ -27,11 +27,10 @@ const EraseTool: React.FC<Props> = ({ image, onSave, onClose }) => {
   const [historyIndex, setHistoryIndex] = useState(-1);
 
   const saveToHistory = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvasRef.current?.getContext('2d');
     if (!ctx) return;
 
+    const { canvas } = ctx;
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const newHistory = history.slice(0, historyIndex + 1);
     newHistory.push(imageData);
@@ -40,11 +39,10 @@ const EraseTool: React.FC<Props> = ({ image, onSave, onClose }) => {
   }, [history, historyIndex]);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvasRef.current?.getContext('2d');
     if (!ctx) return;
 
+    const { canvas } = ctx;
     const img = new Image();
     img.onload = () => {
       canvas.width = Math.min(600, img.width);
@@ -55,14 +53,11 @@ const EraseTool: React.FC<Props> = ({ image, onSave, onClose }) => {
     img.src = image;
   }, [image]);
 
-  const erase = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+  const eraseAt = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const ctx = canvasRef.current?.getContext('2d');
     if (!ctx) return;
 
-    const rect = canvas.getBoundingClientRect();
+    const rect = ctx.canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
@@ -77,9 +72,13 @@ const EraseTool: React.FC<Props> = ({ image, onSave, onClose }) => {
     ctx.globalCompositeOperation = 'source-over';
   };
 
+  const erase = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (isDrawing) eraseAt(e);
+  };
+
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     setIsDrawing(true);
-    erase(e);
+    eraseAt(e);
   };
 
   const stopDrawing = () => {
@@ -91,9 +90,7 @@ const EraseTool: React.FC<Props> = ({ image, onSave, onClose }) => {
 
   const handleUndo = () => {
     if (historyIndex > 0) {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
+      const ctx = canvasRef.current?.getContext('2d');
       if (!ctx) return;
 
       const newIndex = historyIndex - 1;
@@ -103,18 +100,16 @@ const EraseTool: React.FC<Props> = ({ image, onSave, onClose }) => {
   };
 
   const handleClear = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvasRef.current?.getContext('2d');
     if (!ctx) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     saveToHistory();
   };
 
   const handleSave = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    onSave(canvas.toDataURL('image/png'));
+    const ctx = canvasRef.current?.getContext('2d');
+    if (!ctx) return;
+    onSave(ctx.canvas.toDataURL('image/png'));
   };
 
   return (

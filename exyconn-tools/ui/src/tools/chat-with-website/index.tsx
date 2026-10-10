@@ -22,7 +22,6 @@ const ChatWithWebsite: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleFetchWebsite = async () => {
-    if (!websiteUrl.trim()) return;
     setIsLoadingContent(true);
     setError(null);
     try {
@@ -44,7 +43,6 @@ const ChatWithWebsite: React.FC = () => {
 
   const handleSendMessage = useCallback(
     async (question: string) => {
-      if (!websiteContent) return;
       const apiKey = requireKey();
       if (!apiKey) return;
       const userMsg: ChatMessage = {

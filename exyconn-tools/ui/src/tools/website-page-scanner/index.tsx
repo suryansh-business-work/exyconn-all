@@ -17,7 +17,6 @@ const WebsitePageScanner: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleScan = async () => {
-    if (!websiteUrl.trim()) return;
     setIsLoading(true);
     setError(null);
     setResult(null);
@@ -38,9 +37,8 @@ const WebsitePageScanner: React.FC = () => {
     }
   };
 
-  const handleExportJSON = () => {
-    if (!result) return;
-    const blob = new Blob([JSON.stringify(result, null, 2)], { type: 'application/json' });
+  const handleExportJSON = (scan: ScanResult) => {
+    const blob = new Blob([JSON.stringify(scan, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;

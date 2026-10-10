@@ -126,7 +126,7 @@ export const useCanvasRenderer = () => {
       settings: LogoSettings,
       format: ExportFormat,
       isCropped?: boolean,
-      category?: 'favicon' | 'icon' | 'logo'
+      category?: CanvasCategory
     ): HTMLCanvasElement => {
       const canvas = document.createElement('canvas');
       canvas.width = width;
@@ -217,18 +217,9 @@ const drawImageToContext = (
   ctx.rotate((settings.rotation * Math.PI) / 180);
 
   // Apply image filters (brightness, contrast, grayscale)
-  const filters: string[] = [];
-  if (settings.brightness !== undefined && settings.brightness !== 100) {
-    filters.push(`brightness(${settings.brightness}%)`);
-  }
-  if (settings.contrast !== undefined && settings.contrast !== 100) {
-    filters.push(`contrast(${settings.contrast}%)`);
-  }
-  if (settings.grayscale !== undefined && settings.grayscale > 0) {
-    filters.push(`grayscale(${settings.grayscale}%)`);
-  }
-  if (filters.length > 0) {
-    ctx.filter = filters.join(' ');
+  const filter = buildFilter(settings);
+  if (filter) {
+    ctx.filter = filter;
   }
 
   // Apply box shadow only for icons
@@ -264,18 +255,9 @@ const drawCroppedImageToContext = (
   ctx.rotate((settings.rotation * Math.PI) / 180);
 
   // Apply image filters (brightness, contrast, grayscale)
-  const filters: string[] = [];
-  if (settings.brightness !== undefined && settings.brightness !== 100) {
-    filters.push(`brightness(${settings.brightness}%)`);
-  }
-  if (settings.contrast !== undefined && settings.contrast !== 100) {
-    filters.push(`contrast(${settings.contrast}%)`);
-  }
-  if (settings.grayscale !== undefined && settings.grayscale > 0) {
-    filters.push(`grayscale(${settings.grayscale}%)`);
-  }
-  if (filters.length > 0) {
-    ctx.filter = filters.join(' ');
+  const filter = buildFilter(settings);
+  if (filter) {
+    ctx.filter = filter;
   }
 
   // Apply box shadow only for icons

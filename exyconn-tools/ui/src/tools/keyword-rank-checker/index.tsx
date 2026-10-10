@@ -23,7 +23,6 @@ interface SeoResult {
   score: number;
   headings: { h1: number; h2: number; h3: number };
   links: { internal: number; external: number };
-  loadTime: number;
 }
 
 const KeywordRankChecker: React.FC = () => {
@@ -48,12 +47,11 @@ const KeywordRankChecker: React.FC = () => {
       if (!data.success) throw new Error(data.error || 'Failed to analyze');
       const d = data.data;
       setResult({
-        title: d.title || '',
-        description: d.metaDescription || '',
-        score: d.score || 0,
-        headings: d.headings || { h1: 0, h2: 0, h3: 0 },
-        links: { internal: d.links?.internal || 0, external: d.links?.external || 0 },
-        loadTime: d.performance?.loadTime || 0,
+        title: d.title.text,
+        description: d.metaDescription.text,
+        score: d.score,
+        headings: { h1: d.headings.h1?.length ?? 0, h2: d.headings.h2?.length ?? 0, h3: d.headings.h3?.length ?? 0 },
+        links: { internal: d.links.internal, external: d.links.external },
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -194,13 +192,6 @@ const KeywordRankChecker: React.FC = () => {
                   <Chip label={`H1: ${result.headings.h1}`} size="small" variant="outlined" />
                   <Chip label={`H2: ${result.headings.h2}`} size="small" variant="outlined" />
                   <Chip label={`H3: ${result.headings.h3}`} size="small" variant="outlined" />
-                  {result.loadTime > 0 && (
-                    <Chip
-                      label={`Load: ${(result.loadTime / 1000).toFixed(2)}s`}
-                      size="small"
-                      color={result.loadTime < 3000 ? 'success' : 'warning'}
-                    />
-                  )}
                 </Box>
               </Paper>
             )}

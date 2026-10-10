@@ -79,7 +79,6 @@ export default function OrganizePdf() {
   const move = (i: number, dir: -1 | 1) => {
     const arr = [...pages];
     const j = i + dir;
-    if (j < 0 || j >= arr.length) return;
     [arr[i], arr[j]] = [arr[j], arr[i]];
     setPages(arr);
     setResult(null);
@@ -91,10 +90,9 @@ export default function OrganizePdf() {
   };
 
   const organize = async () => {
-    if (!pdfBytes || pages.length === 0) return;
     setProcessing(true);
     try {
-      const srcDoc = await PDFDocument.load(pdfBytes);
+      const srcDoc = await PDFDocument.load(pdfBytes!);
       const newDoc = await PDFDocument.create();
       const indices = pages.map((p) => p.index);
       const copied = await newDoc.copyPages(srcDoc, indices);
@@ -108,11 +106,10 @@ export default function OrganizePdf() {
   };
 
   const download = () => {
-    if (!result) return;
-    const url = URL.createObjectURL(new Blob([result.buffer as ArrayBuffer], { type: 'application/pdf' }));
+    const url = URL.createObjectURL(new Blob([result!.buffer as ArrayBuffer], { type: 'application/pdf' }));
     const a = document.createElement('a');
     a.href = url;
-    a.download = `organized-${file?.name ?? 'document.pdf'}`;
+    a.download = `organized-${file!.name}`;
     a.click();
     URL.revokeObjectURL(url);
   };

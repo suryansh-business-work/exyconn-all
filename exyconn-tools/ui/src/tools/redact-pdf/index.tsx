@@ -91,15 +91,13 @@ export default function RedactPdf() {
   const removeRedaction = (i: number) => setRedactions((prev) => prev.filter((_, idx) => idx !== i));
 
   const applyRedactions = async () => {
-    if (!file || redactions.length === 0) return;
     setProcessing(true);
     try {
-      const bytes = await file.arrayBuffer();
+      const bytes = await file!.arrayBuffer();
       const doc = await PDFDocument.load(bytes);
       const pages = doc.getPages();
       redactions.forEach((r) => {
-        const p = pages[r.page - 1];
-        if (p) p.drawRectangle({ x: r.x, y: r.y, width: r.width, height: r.height, color: rgb(0, 0, 0) });
+        pages[r.page - 1].drawRectangle({ x: r.x, y: r.y, width: r.width, height: r.height, color: rgb(0, 0, 0) });
       });
       setResult(await doc.save());
     } catch {
@@ -110,11 +108,10 @@ export default function RedactPdf() {
   };
 
   const download = () => {
-    if (!result) return;
-    const url = URL.createObjectURL(new Blob([result.buffer as ArrayBuffer], { type: 'application/pdf' }));
+    const url = URL.createObjectURL(new Blob([result!.buffer as ArrayBuffer], { type: 'application/pdf' }));
     const a = document.createElement('a');
     a.href = url;
-    a.download = `redacted-${file?.name ?? 'document.pdf'}`;
+    a.download = `redacted-${file!.name}`;
     a.click();
     URL.revokeObjectURL(url);
   };

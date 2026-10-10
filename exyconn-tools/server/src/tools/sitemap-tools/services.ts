@@ -259,7 +259,7 @@ export const extractSitemapUrls = async (
       : [parsed.sitemapindex.sitemap];
 
     childSitemaps = sitemaps
-      .map((s: Record<string, unknown>) => toText(s.loc))
+      .map((s: Record<string, unknown>) => toText(s.loc ?? ""))
       .filter(Boolean);
 
     if (followIndex) {

@@ -71,10 +71,6 @@ export default function MergePdf() {
   const remove = (i: number) => setFiles((prev) => prev.filter((_, idx) => idx !== i));
 
   const merge = async () => {
-    if (files.length < 2) {
-      setError('Add at least 2 PDFs to merge.');
-      return;
-    }
     setProcessing(true);
     try {
       const merged = await PDFDocument.create();
@@ -93,8 +89,7 @@ export default function MergePdf() {
   };
 
   const download = () => {
-    if (!result) return;
-    const url = URL.createObjectURL(new Blob([result.buffer as ArrayBuffer], { type: 'application/pdf' }));
+    const url = URL.createObjectURL(new Blob([result!.buffer as ArrayBuffer], { type: 'application/pdf' }));
     const a = document.createElement('a');
     a.href = url;
     a.download = 'merged.pdf';

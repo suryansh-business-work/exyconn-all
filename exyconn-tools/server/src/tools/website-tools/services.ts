@@ -59,15 +59,8 @@ const normalizeUrl = (href: string, baseUrl: string): string | null => {
   }
 };
 
-const isInternalUrl = (url: string, baseUrl: string): boolean => {
-  try {
-    const urlObj = new URL(url);
-    const baseObj = new URL(baseUrl);
-    return urlObj.hostname === baseObj.hostname;
-  } catch {
-    return false;
-  }
-};
+const isInternalUrl = (url: string, baseUrl: string): boolean =>
+  new URL(url).hostname === new URL(baseUrl).hostname;
 
 const isResourceUrl = (url: string): boolean => {
   const resourceExtensions = [
@@ -295,7 +288,7 @@ export const analyzeStructure = async (
     totalPages: pages.length,
     totalInternalLinks,
     totalExternalLinks,
-    maxDepth: Math.max(...pages.map((p) => p.depth)),
+    maxDepth: Math.max(0, ...pages.map((p) => p.depth)),
     pages: [...pages].sort((a, b) => b.incomingLinks - a.incomingLinks),
     linkMap,
     orphanPages,
