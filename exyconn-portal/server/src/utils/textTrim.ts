@@ -46,7 +46,7 @@ export function stripTags(html: string, replacement = '', minLength = 0): string
   return out + html.slice(copied);
 }
 
-const LINE_TERMINATORS = new Set(['\n', '\r', ' ', ' ']);
+const LINE_TERMINATORS = new Set(['\n', '\r', '\u2028', '\u2029']);
 
 /**
  * `value` up to its first `delimiters` character that has no line break after it — the same
