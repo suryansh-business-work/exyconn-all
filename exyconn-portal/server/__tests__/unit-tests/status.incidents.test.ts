@@ -189,9 +189,7 @@ describe('Manual incidents', () => {
 describe('Monitor-opened incidents', () => {
   it('carries the automatic updates through open and close', async () => {
     await StatusMonitorModel.deleteMany({ key: 'api' });
-    globalThis.fetch = jest
-      .fn()
-      .mockResolvedValue(new Response(null, { status: 503 })) as unknown as typeof fetch;
+    globalThis.fetch = jest.fn().mockResolvedValue(new Response(null, { status: 503 }));
 
     await runStatusChecks();
     await runStatusChecks();
@@ -209,9 +207,7 @@ describe('Monitor-opened incidents', () => {
     });
     expect(opened?.updates[0].body).toContain('HTTP 503');
 
-    globalThis.fetch = jest
-      .fn()
-      .mockResolvedValue(new Response(null, { status: 200 })) as unknown as typeof fetch;
+    globalThis.fetch = jest.fn().mockResolvedValue(new Response(null, { status: 200 }));
     await runStatusChecks();
 
     const closed = await StatusIncidentModel.findOne({ serviceKey: 'hr' }).lean();
@@ -282,7 +278,10 @@ describe('Problem report follow-up', () => {
   it('emails the reporter when the status changes, with the notes', async () => {
     const saved = await ProblemReportModel.create(report);
 
-    await update(String(saved._id), { status: 'RESOLVED', resolutionNotes: 'Session store fixed' });
+    await update(saved._id.toHexString(), {
+      status: 'RESOLVED',
+      resolutionNotes: 'Session store fixed',
+    });
 
     expect(sendTemplate).toHaveBeenCalledTimes(1);
     expect(sendTemplate.mock.calls[0][0]).toMatchObject({
@@ -300,7 +299,7 @@ describe('Problem report follow-up', () => {
   it('stays quiet when only the assignee changes', async () => {
     const saved = await ProblemReportModel.create(report);
 
-    await update(String(saved._id), { assignee: 'Dev' });
+    await update(saved._id.toHexString(), { assignee: 'Dev' });
 
     expect(sendTemplate).not.toHaveBeenCalled();
   });
@@ -419,9 +418,7 @@ describe('Status page subscribers', () => {
   it('emails confirmed subscribers when the monitor opens an incident', async () => {
     await StatusMonitorModel.deleteMany({ key: 'api' });
     await seedConfirmed('asha@example.com');
-    globalThis.fetch = jest
-      .fn()
-      .mockResolvedValue(new Response(null, { status: 503 })) as unknown as typeof fetch;
+    globalThis.fetch = jest.fn().mockResolvedValue(new Response(null, { status: 503 }));
 
     await runStatusChecks();
     await runStatusChecks();

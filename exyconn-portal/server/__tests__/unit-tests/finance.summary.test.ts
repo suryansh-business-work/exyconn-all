@@ -191,7 +191,7 @@ describe('companyFinance — cash', () => {
       null,
       {
         input: {
-          invoiceId: String(invoice._id),
+          invoiceId: invoice._id.toHexString(),
           amount: 50_000,
           method: 'BANK_TRANSFER',
           receivedAt: day('2026-09-15'),
@@ -324,7 +324,7 @@ describe('markExpensePaid', () => {
   it('records when the money left and moves the bill to PAID', async () => {
     const bill = await seedBill(12_000, '2026-09-01');
 
-    await settle(String(bill._id), day('2026-09-25'));
+    await settle(bill._id.toHexString(), day('2026-09-25'));
 
     const after = await CompanyExpenseModel.findById(bill._id).lean();
     expect(after?.status).toBe('PAID');
@@ -334,9 +334,9 @@ describe('markExpensePaid', () => {
 
   it('refuses to settle the same bill twice', async () => {
     const bill = await seedBill(12_000, '2026-09-01');
-    await settle(String(bill._id));
+    await settle(bill._id.toHexString());
 
-    await expect(settle(String(bill._id))).rejects.toThrow(/already settled/i);
+    await expect(settle(bill._id.toHexString())).rejects.toThrow(/already settled/i);
   });
 
   it('refuses a bill that does not exist', async () => {

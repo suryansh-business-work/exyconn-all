@@ -74,10 +74,7 @@ export function CheckReportForm({ onCancel }: Readonly<CheckReportFormProps>) {
 
   const onSubmit = async (values: Values) => {
     try {
-      const { data, error } = await lookup({ variables: { reference: values.reference } });
-      if (error) {
-        throw error;
-      }
+      const { data } = await lookup({ variables: { reference: values.reference } });
       setStatus(data?.problemReportStatus ?? null);
     } catch (error) {
       setStatus(null);

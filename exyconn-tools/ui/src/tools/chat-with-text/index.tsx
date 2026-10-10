@@ -28,7 +28,6 @@ const ChatWithText: React.FC = () => {
 
   const handleSendMessage = useCallback(
     async (question: string) => {
-      if (!textContent) return;
       const apiKey = requireKey();
       if (!apiKey) return;
       const userMsg: ChatMessage = {

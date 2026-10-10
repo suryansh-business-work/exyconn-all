@@ -11,8 +11,8 @@ useTestOrganization();
 type Resolver = (p: unknown, a: unknown, c: GraphQLContext) => Promise<unknown>;
 const R = { ...hrResolvers.Query, ...hrResolvers.Mutation } as unknown as Record<string, Resolver>;
 
-const EMP = String(new Types.ObjectId());
-const HR_ID = String(new Types.ObjectId());
+const EMP = new Types.ObjectId().toHexString();
+const HR_ID = new Types.ObjectId().toHexString();
 const as = (id: string, roles: string[]) =>
   ({ user: { id, email: `${id}@exyconn.com`, roles } }) as unknown as GraphQLContext;
 const hr = as(HR_ID, [ROLES.HR]);
@@ -123,14 +123,14 @@ describe('deciding leave', () => {
     const own = await leaveFor(HR_ID);
 
     await expect(
-      R.setLeaveStatus(null, { id: String(own._id), status: 'APPROVED' }, hr),
+      R.setLeaveStatus(null, { id: own._id.toHexString(), status: 'APPROVED' }, hr),
     ).rejects.toThrow(/cannot decide a leave request for yourself/);
     expect((await LeaveRequestModel.findById(own._id).lean())?.status).toBe('PENDING');
   });
 
   it('says a request that does not exist is missing', async () => {
     await expect(
-      R.setLeaveStatus(null, { id: String(new Types.ObjectId()), status: 'APPROVED' }, hr),
+      R.setLeaveStatus(null, { id: new Types.ObjectId().toHexString(), status: 'APPROVED' }, hr),
     ).rejects.toThrow('LeaveRequest not found');
   });
 
@@ -138,7 +138,7 @@ describe('deciding leave', () => {
     const own = await leaveFor(HR_ID);
 
     await expect(
-      R.updateLeaveRequest(null, { id: String(own._id), input: { reason: 'Changed' } }, hr),
+      R.updateLeaveRequest(null, { id: own._id.toHexString(), input: { reason: 'Changed' } }, hr),
     ).rejects.toThrow(/cannot edit your own LeaveRequest/);
   });
 
@@ -147,13 +147,13 @@ describe('deciding leave', () => {
 
     const updated = (await R.updateLeaveRequest(
       null,
-      { id: String(theirs._id), input: { reason: 'Clarified' } },
+      { id: theirs._id.toHexString(), input: { reason: 'Clarified' } },
       hr,
     )) as { reason: string };
 
     expect(updated.reason).toBe('Clarified');
     await expect(
-      R.updateLeaveRequest(null, { id: String(new Types.ObjectId()), input: {} }, hr),
+      R.updateLeaveRequest(null, { id: new Types.ObjectId().toHexString(), input: {} }, hr),
     ).rejects.toThrow('LeaveRequest not found');
   });
 });

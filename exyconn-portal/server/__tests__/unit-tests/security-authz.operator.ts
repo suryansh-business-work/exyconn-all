@@ -7,7 +7,7 @@ import { runAsPlatform } from '../../src/lib/tenant';
  * Suites that drive a platform feature (Tech configs, logs, the status page, the website CMS)
  * act as staff of the platform operator organization — anybody else is refused.
  */
-export const OPERATOR_ORGANIZATION_ID = String(new Types.ObjectId());
+export const OPERATOR_ORGANIZATION_ID = new Types.ObjectId().toHexString();
 
 /**
  * Writes (or flags) the operator organization. Call it in a `beforeEach`: the harness empties

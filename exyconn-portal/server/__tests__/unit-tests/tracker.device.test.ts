@@ -47,7 +47,7 @@ describe('tracker device auth', () => {
 
   it('signs in from an anonymous request, with no company in scope yet', async () => {
     const organization = await seedOrganization();
-    const organizationId = String(organization._id);
+    const organizationId = organization._id.toHexString();
     const user = await seedUser('tenant-emp@exyconn.com', PASSWORD, [ROLES.EMPLOYEE]);
     await runForOrganization(organizationId, () =>
       trackerAdminService.grantAccess(user.id, 'admin'),

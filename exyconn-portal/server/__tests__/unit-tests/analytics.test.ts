@@ -125,17 +125,17 @@ describe('workspaceAnalytics', () => {
   it('sums tracked hours, activity, top people and apps', async () => {
     const asha = await person([ROLES.EMPLOYEE], { name: 'Asha' });
     const ravi = await person([ROLES.EMPLOYEE], { name: 'Ravi' });
-    await session(String(asha._id), 6, 2);
-    await session(String(ravi._id), 2);
-    await TrackerAccessModel.create({ userId: String(asha._id), grantedBy: 'x' });
+    await session(asha._id.toHexString(), 6, 2);
+    await session(ravi._id.toHexString(), 2);
+    await TrackerAccessModel.create({ userId: asha._id.toHexString(), grantedBy: 'x' });
     await TrackerDeviceModel.create({
-      userId: String(asha._id),
+      userId: asha._id.toHexString(),
       deviceId: 'd1',
       tokenHash: 'h',
       platform: 'darwin',
     });
     await TrackerWindowUsageModel.create({
-      userId: String(asha._id),
+      userId: asha._id.toHexString(),
       sessionId: 's1',
       intervalStartedAt: new Date(),
       appName: 'Code',
@@ -191,7 +191,7 @@ describe('platformAnalytics', () => {
       }),
     );
     await person([ROLES.EMPLOYEE]);
-    await runForOrganization(String(other._id), async () => {
+    await runForOrganization(other._id.toHexString(), async () => {
       await person([ROLES.EMPLOYEE]);
       await person([ROLES.HR]);
     });

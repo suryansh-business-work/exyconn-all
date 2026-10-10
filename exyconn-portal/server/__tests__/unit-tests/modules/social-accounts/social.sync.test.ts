@@ -28,8 +28,8 @@ describe('syncing every account', () => {
 
     expect(results).toEqual(
       expect.arrayContaining([
-        { accountId: String(li._id), synced: 0, error: '' },
-        { accountId: String(ig._id), synced: 1, error: '' },
+        { accountId: li._id.toHexString(), synced: 0, error: '' },
+        { accountId: ig._id.toHexString(), synced: 1, error: '' },
       ]),
     );
     expect(warn).not.toHaveBeenCalled();
@@ -54,8 +54,8 @@ describe('syncing one account', () => {
     const xAcc = await connectAccount('X', 'X', { syncError: 'old reason' });
     jest.spyOn(globalThis, 'fetch').mockRejectedValue('connection reset');
 
-    expect(await syncAccount(String(xAcc._id))).toEqual({
-      accountId: String(xAcc._id),
+    expect(await syncAccount(xAcc._id.toHexString())).toEqual({
+      accountId: xAcc._id.toHexString(),
       synced: 0,
       error: 'connection reset',
     });
@@ -67,7 +67,7 @@ describe('syncing one account', () => {
   it('clears an old failure once a sync works again', async () => {
     const fb = await connectAccount('FACEBOOK', 'META', { syncError: 'old reason' });
     fakeFetch([[/facebook-1\/posts/, 200, { data: [] }]]);
-    expect(await syncAccount(String(fb._id))).toMatchObject({ synced: 0, error: '' });
+    expect(await syncAccount(fb._id.toHexString())).toMatchObject({ synced: 0, error: '' });
     expect((await SocialAccountModel.findById(fb._id).lean())?.syncError).toBe('');
   });
 });

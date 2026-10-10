@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { cloudflareClient } from '../../../../src/modules/dns/cloudflare.client';
 import { CloudflareConfigModel } from '../../../../src/modules/dns/cloudflare-config.model';
 import { ConfigurationError } from '../../../../src/utils/errors';
+import { stringOf } from '../../../../src/utils/serialize';
 import ips from '../../../fixtures/ips.json';
 
 const API = 'https://api.cloudflare.com/client/v4';
@@ -16,7 +17,7 @@ let fetchMock: jest.SpiedFunction<typeof fetch>;
 
 const call = (index = 0) => {
   const [url, init] = fetchMock.mock.calls[index];
-  return { url: String(url), init: init ?? {} };
+  return { url: stringOf(url), init: init ?? {} };
 };
 
 beforeEach(async () => {

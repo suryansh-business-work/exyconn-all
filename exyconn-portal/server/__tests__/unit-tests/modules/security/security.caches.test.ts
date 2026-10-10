@@ -41,7 +41,7 @@ function mockSonar() {
     async () =>
       new Response('{}', { status: 200, headers: { 'content-type': 'application/json' } }),
   );
-  globalThis.fetch = fetchMock as unknown as typeof fetch;
+  globalThis.fetch = fetchMock;
   return fetchMock;
 }
 

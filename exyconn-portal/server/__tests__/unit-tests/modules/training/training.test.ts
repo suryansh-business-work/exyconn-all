@@ -127,11 +127,11 @@ describe('an employee and their own trainings', () => {
 
     const updated = (await Mutation.updateMyTrainingStatus(
       null,
-      { id: String(own._id), status: 'COMPLETED' },
+      { id: own._id.toHexString(), status: 'COMPLETED' },
       employee,
     )) as Row;
 
-    expect(updated).toMatchObject({ id: String(own._id), status: 'COMPLETED' });
+    expect(updated).toMatchObject({ id: own._id.toHexString(), status: 'COMPLETED' });
     expect(updated.completedOn).toEqual(new Date('2026-10-05T12:00:00.000Z'));
     const saved = await TrainingModel.findById(own._id).lean();
     expect(saved?.completedOn).toEqual(new Date('2026-10-05T12:00:00.000Z'));
@@ -146,7 +146,7 @@ describe('an employee and their own trainings', () => {
 
     const updated = (await Mutation.updateMyTrainingStatus(
       null,
-      { id: String(own._id), status: 'IN_PROGRESS' },
+      { id: own._id.toHexString(), status: 'IN_PROGRESS' },
       employee,
     )) as Row;
 
@@ -159,7 +159,7 @@ describe('an employee and their own trainings', () => {
     await expect(
       Mutation.updateMyTrainingStatus(
         null,
-        { id: String(theirs._id), status: 'COMPLETED' },
+        { id: theirs._id.toHexString(), status: 'COMPLETED' },
         employee,
       ),
     ).rejects.toThrow('Record not found');
@@ -171,7 +171,11 @@ describe('an employee and their own trainings', () => {
     const own = await TrainingModel.create(training('emp-1', 'Privacy basics'));
 
     await expect(
-      Mutation.updateMyTrainingStatus(null, { id: String(own._id), status: 'SKIPPED' }, employee),
+      Mutation.updateMyTrainingStatus(
+        null,
+        { id: own._id.toHexString(), status: 'SKIPPED' },
+        employee,
+      ),
     ).rejects.toThrow();
     const saved = await TrainingModel.findById(own._id).lean();
     expect(saved?.status).toBe('ASSIGNED');
@@ -184,7 +188,7 @@ describe('an employee and their own trainings', () => {
     await expect(
       Mutation.updateMyTrainingStatus(
         null,
-        { id: String(new Types.ObjectId()), status: 'COMPLETED' },
+        { id: new Types.ObjectId().toHexString(), status: 'COMPLETED' },
         { user: null },
       ),
     ).rejects.toThrow('Authentication required');

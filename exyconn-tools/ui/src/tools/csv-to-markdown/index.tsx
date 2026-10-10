@@ -28,11 +28,6 @@ const CsvToMarkdown: React.FC = () => {
   const [copied, setCopied] = useState(false);
 
   const handleConvert = async () => {
-    if (!content.trim()) {
-      setError('Please enter CSV content');
-      return;
-    }
-
     setLoading(true);
     setError(null);
 

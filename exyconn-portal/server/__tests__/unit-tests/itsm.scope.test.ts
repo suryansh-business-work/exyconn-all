@@ -36,12 +36,12 @@ async function person(name: string, roles: string[]) {
     passwordHash: 'x',
     roles,
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 const ticket = (category: string, extra: Record<string, unknown> = {}) =>
   SupportTicketModel.create({
-    employeeId: new Types.ObjectId().toString(),
+    employeeId: new Types.ObjectId().toHexString(),
     subject: `${category} problem`,
     category,
     description: 'Help',
@@ -79,11 +79,13 @@ describe('IT scope over shared registers', () => {
     it("will not let IT open or reply on another team's ticket", async () => {
       const hr = await ticket('HR');
 
-      await expect(tickets.getSupportTicket(null, { id: String(hr._id) }, itCtx)).rejects.toThrow();
+      await expect(
+        tickets.getSupportTicket(null, { id: hr._id.toHexString() }, itCtx),
+      ).rejects.toThrow();
       await expect(
         tickets.addSupportReply(
           null,
-          { ticketId: String(hr._id), body: 'hi', internal: false },
+          { ticketId: hr._id.toHexString(), body: 'hi', internal: false },
           itCtx,
         ),
       ).rejects.toThrow();
@@ -100,12 +102,12 @@ describe('IT scope over shared registers', () => {
 
       const escalated = (await tickets.escalateSupportTicket(
         null,
-        { id: String(it._id), reason: 'CEO cannot print' },
+        { id: it._id.toHexString(), reason: 'CEO cannot print' },
         itCtx,
       )) as { priority: string; escalationLevel: number };
 
       expect(escalated).toMatchObject({ priority: 'HIGH', escalationLevel: 1 });
-      const note = await SupportReplyModel.findOne({ ticketId: String(it._id) }).lean();
+      const note = await SupportReplyModel.findOne({ ticketId: it._id.toHexString() }).lean();
       expect(note).toMatchObject({
         internal: true,
         body: 'Escalated to level 1: CEO cannot print',
@@ -118,10 +120,10 @@ describe('IT scope over shared registers', () => {
       const open = await ticket('IT');
 
       await expect(
-        tickets.escalateSupportTicket(null, { id: String(closed._id), reason: 'x' }, itCtx),
+        tickets.escalateSupportTicket(null, { id: closed._id.toHexString(), reason: 'x' }, itCtx),
       ).rejects.toThrow('Reopen');
       await expect(
-        tickets.escalateSupportTicket(null, { id: String(open._id), reason: ' ' }, itCtx),
+        tickets.escalateSupportTicket(null, { id: open._id.toHexString(), reason: ' ' }, itCtx),
       ).rejects.toThrow('why');
     });
 
@@ -130,7 +132,7 @@ describe('IT scope over shared registers', () => {
 
       const triaged = (await tickets.setSupportTicketTriage(
         null,
-        { id: String(it._id), category: 'IT', priority: 'MEDIUM', topic: ' VPN ' },
+        { id: it._id.toHexString(), category: 'IT', priority: 'MEDIUM', topic: ' VPN ' },
         itCtx,
       )) as { topic: string };
 
@@ -208,9 +210,9 @@ describe('IT scope over shared registers', () => {
       await expect(
         policies.createPolicy(null, { input: policy('leave', 'HR') }, itCtx),
       ).rejects.toThrow('IT may only maintain');
-      await expect(policies.publishPolicy(null, { id: String(hr._id) }, itCtx)).rejects.toThrow(
-        'IT may only maintain',
-      );
+      await expect(
+        policies.publishPolicy(null, { id: hr._id.toHexString() }, itCtx),
+      ).rejects.toThrow('IT may only maintain');
     });
   });
 });

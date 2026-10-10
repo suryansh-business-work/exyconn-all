@@ -480,7 +480,7 @@ export async function ensureEmailDefaults(): Promise<void> {
       { $setOnInsert: fragment },
       { upsert: true },
     );
-    created += result.upsertedCount ?? 0;
+    created += result.upsertedCount;
   }
 
   for (const template of TEMPLATES) {
@@ -489,7 +489,7 @@ export async function ensureEmailDefaults(): Promise<void> {
       { $setOnInsert: { ...template, isActive: true } },
       { upsert: true },
     );
-    created += result.upsertedCount ?? 0;
+    created += result.upsertedCount;
   }
 
   // The chase gained a "Pay now" link; an untouched copy of the first version gets it too.

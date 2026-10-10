@@ -107,7 +107,7 @@ describe('webhook queries', () => {
   });
 
   it('lists one endpoint’s latest hundred deliveries, newest first', async () => {
-    const webhookId = String(new Types.ObjectId());
+    const webhookId = new Types.ObjectId().toHexString();
     const base = Date.parse('2026-10-01T00:00:00.000Z');
     await WebhookDeliveryModel.insertMany([
       ...Array.from({ length: 101 }, (_unused, minute) => ({
@@ -149,7 +149,7 @@ describe('managing an endpoint', () => {
   });
 
   it('reports an endpoint that does not exist', async () => {
-    const id = String(new Types.ObjectId());
+    const id = new Types.ObjectId().toHexString();
 
     await expect(
       codeOf(Mutation.setWebhookActive(null, { id, active: false }, admin)),

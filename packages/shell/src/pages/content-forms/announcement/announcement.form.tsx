@@ -24,11 +24,11 @@ const schema = z
   .object({
     title: z.string().trim().min(1, 'Title is required').max(120, 'Keep it under 120 characters'),
     body: z.string().trim().min(1, 'Message is required'),
-    category: z.nativeEnum(AnnouncementCategory),
+    category: z.enum(AnnouncementCategory),
     pinned: z.boolean(),
     publishedAt: z.string().min(1, 'Publish date is required'),
     expiresAt: z.string(),
-    audience: z.nativeEnum(AnnouncementAudience),
+    audience: z.enum(AnnouncementAudience),
     department: z.string().trim(),
     employeeIds: z.array(z.string()),
   })

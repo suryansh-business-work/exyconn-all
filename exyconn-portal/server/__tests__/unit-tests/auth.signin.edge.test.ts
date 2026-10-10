@@ -41,7 +41,7 @@ describe('a workspace that is open or not', () => {
   });
 
   it('refuses a company that does not exist', async () => {
-    await expect(assertWorkspaceOpen(String(new Types.ObjectId()))).rejects.toThrow(
+    await expect(assertWorkspaceOpen(new Types.ObjectId().toHexString())).rejects.toThrow(
       'This workspace is suspended',
     );
   });
@@ -64,7 +64,7 @@ describe('a workspace that is open or not', () => {
 
 describe('finishing a two-factor sign-in', () => {
   it('refuses a challenge for an account that no longer exists', async () => {
-    const challenge = signMfaChallenge(String(new Types.ObjectId()));
+    const challenge = signMfaChallenge(new Types.ObjectId().toHexString());
 
     await expect(authService.completeMfaSignIn(challenge, '123456', FROM)).rejects.toThrow(INVALID);
   });

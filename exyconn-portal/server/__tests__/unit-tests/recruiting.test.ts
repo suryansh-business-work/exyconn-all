@@ -144,7 +144,7 @@ describe('Applicant pipeline', () => {
     const applicant = await seedApplicant();
     const before = applicant.stageChangedAt;
 
-    await setStage(String(applicant._id), 'SCREENING', asRole(ROLES.HR), 'CV looks strong');
+    await setStage(applicant._id.toHexString(), 'SCREENING', asRole(ROLES.HR), 'CV looks strong');
 
     const saved = await ApplicantModel.findById(applicant._id).lean();
     expect(saved?.stage).toBe('SCREENING');
@@ -155,10 +155,10 @@ describe('Applicant pipeline', () => {
   it('emails the applicant on an offer but not on screening', async () => {
     const applicant = await seedApplicant();
 
-    await setStage(String(applicant._id), 'SCREENING', asRole(ROLES.HR));
+    await setStage(applicant._id.toHexString(), 'SCREENING', asRole(ROLES.HR));
     expect(sendEmail).not.toHaveBeenCalled();
 
-    await setStage(String(applicant._id), 'OFFER', asRole(ROLES.HR));
+    await setStage(applicant._id.toHexString(), 'OFFER', asRole(ROLES.HR));
     expect(sendEmail).toHaveBeenCalledTimes(1);
     expect(sendEmail.mock.calls[0][0]).toMatchObject({
       template: 'applicant-stage',
@@ -172,15 +172,17 @@ describe('Applicant pipeline', () => {
     sendEmail.mockRejectedValue(new Error('SMTP down'));
 
     await expect(
-      setStage(String(applicant._id), 'REJECTED', asRole(ROLES.HR)),
+      setStage(applicant._id.toHexString(), 'REJECTED', asRole(ROLES.HR)),
     ).resolves.toMatchObject({ stage: 'REJECTED' });
   });
 
   it('is HR-only', async () => {
     const applicant = await seedApplicant();
 
-    await expect(setStage(String(applicant._id), 'OFFER', asRole(ROLES.CRM))).rejects.toThrow();
-    await expect(setStage(String(applicant._id), 'OFFER', { user: null })).rejects.toThrow();
+    await expect(
+      setStage(applicant._id.toHexString(), 'OFFER', asRole(ROLES.CRM)),
+    ).rejects.toThrow();
+    await expect(setStage(applicant._id.toHexString(), 'OFFER', { user: null })).rejects.toThrow();
     expect((await ApplicantModel.findById(applicant._id).lean())?.stage).toBe('NEW');
   });
 });

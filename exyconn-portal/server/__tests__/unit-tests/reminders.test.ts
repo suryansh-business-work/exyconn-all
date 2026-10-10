@@ -45,7 +45,7 @@ async function seedComplianceOfficer() {
     roles: [ROLES.COMPLIANCE],
     isActive: true,
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 async function seedLegalCounsel() {
@@ -56,7 +56,7 @@ async function seedLegalCounsel() {
     roles: [ROLES.LEGAL],
     isActive: true,
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 const onlySource = (key: string, due: (now: Date) => Promise<Reminder[]>) => {
@@ -266,7 +266,7 @@ describe('what each module asks to be chased', () => {
     }
 
     await sweepReminders(NOW);
-    const notices = await NotificationModel.find({ employeeId: String(user._id) }).lean();
+    const notices = await NotificationModel.find({ employeeId: user._id.toHexString() }).lean();
 
     expect(notices).toHaveLength(1);
     expect(notices[0].title).toBe('5 follow-ups due');

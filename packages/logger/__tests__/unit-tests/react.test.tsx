@@ -1,6 +1,5 @@
 // @vitest-environment jsdom
 import { fireEvent, render, screen } from '@testing-library/react';
-import type { ErrorInfo } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Logger } from '../../src';
 import { LogErrorBoundary } from '../../src/react';
@@ -80,7 +79,7 @@ describe('LogErrorBoundary', () => {
       fallback: () => null,
       children: null,
     });
-    boundary.componentDidCatch(error, {} as ErrorInfo);
+    boundary.componentDidCatch(error, {});
     expect(capture).toHaveBeenCalledWith(error, { componentStack: null });
   });
 });

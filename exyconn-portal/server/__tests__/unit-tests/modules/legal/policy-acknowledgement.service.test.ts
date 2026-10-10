@@ -15,7 +15,7 @@ jest.mock('../../../../src/modules/email', () => ({
 import { emailer } from '../../../../src/modules/email';
 
 const mailed = emailer.send as jest.Mock;
-const signer = String(new Types.ObjectId());
+const signer = new Types.ObjectId().toHexString();
 
 const policy = (overrides: Record<string, unknown> = {}) =>
   PolicyModel.create({
@@ -49,7 +49,7 @@ describe('signing a policy', () => {
 
     const record = await policyAcknowledgementService.sign(
       user.id,
-      String(row._id),
+      row._id.toHexString(),
       '  Kiran Das  ',
     );
 
@@ -81,7 +81,11 @@ describe('signing a policy', () => {
     // Written straight to the collection: the schema would refuse an empty name.
     await UserModel.collection.updateOne({ _id: user._id }, { $set: { name: '' } });
 
-    const record = await policyAcknowledgementService.sign(user.id, String(row._id), 'K. Das');
+    const record = await policyAcknowledgementService.sign(
+      user.id,
+      row._id.toHexString(),
+      'K. Das',
+    );
 
     expect(record.userName).toBe('');
     expect(mailed.mock.calls[0][0].variables.name).toBe('kiran@exyconn.com');
@@ -89,9 +93,9 @@ describe('signing a policy', () => {
 
   it('still records a signer whose account is gone, and emails nobody', async () => {
     const row = await policy();
-    const userId = String(new Types.ObjectId());
+    const userId = new Types.ObjectId().toHexString();
 
-    const record = await policyAcknowledgementService.sign(userId, String(row._id), 'Ghost');
+    const record = await policyAcknowledgementService.sign(userId, row._id.toHexString(), 'Ghost');
 
     expect(record).toMatchObject({ userId, userName: '', userEmail: '' });
     expect(mailed).not.toHaveBeenCalled();
@@ -103,7 +107,7 @@ describe('signing a policy', () => {
     const row = await policy();
     const user = await person();
 
-    await policyAcknowledgementService.sign(user.id, String(row._id), 'Kiran Das');
+    await policyAcknowledgementService.sign(user.id, row._id.toHexString(), 'Kiran Das');
     await settle();
 
     expect(await PolicyAcknowledgementModel.countDocuments()).toBe(1);
@@ -118,16 +122,16 @@ describe('signing a policy', () => {
     const draft = await policy({ slug: 'draft', status: 'DRAFT' });
     const archived = await policy({ slug: 'archived', status: 'ARCHIVED' });
     const sign = (id: string) =>
-      policyAcknowledgementService.sign(String(new Types.ObjectId()), id, 'Kiran Das');
+      policyAcknowledgementService.sign(new Types.ObjectId().toHexString(), id, 'Kiran Das');
 
-    expect(await codeOf(sign(String(new Types.ObjectId())))).toBe('NOT_FOUND');
-    expect(await codeOf(sign(String(draft._id)))).toBe('NOT_FOUND');
-    expect(await codeOf(sign(String(archived._id)))).toBe('NOT_FOUND');
+    expect(await codeOf(sign(new Types.ObjectId().toHexString()))).toBe('NOT_FOUND');
+    expect(await codeOf(sign(draft._id.toHexString()))).toBe('NOT_FOUND');
+    expect(await codeOf(sign(archived._id.toHexString()))).toBe('NOT_FOUND');
   });
 
   it('refuses a blank name, and a second signature on the same version', async () => {
     const row = await policy();
-    const id = String(row._id);
+    const id = row._id.toHexString();
 
     expect(await codeOf(policyAcknowledgementService.sign(signer, id, '   '))).toBe(
       'BAD_USER_INPUT',
@@ -140,7 +144,7 @@ describe('signing a policy', () => {
 
   it('asks again once a new version is in force', async () => {
     const row = await policy();
-    const id = String(row._id);
+    const id = row._id.toHexString();
     await policyAcknowledgementService.sign(signer, id, 'Kiran Das');
     await PolicyModel.updateOne({ _id: row._id }, { version: 4 });
 

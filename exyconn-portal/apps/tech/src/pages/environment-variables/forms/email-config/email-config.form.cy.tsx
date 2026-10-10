@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import { type MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { UpdateEmailConfigDocument } from '@exyconn/shell/graphql/generated';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { EmailConfigForm } from './email-config.form';
@@ -21,7 +21,7 @@ const stored: EmailConfigRow = {
 };
 
 /** Saving the stored config untouched sends a blank secret, which the server reads as "keep". */
-const keepSecretMock: MockedResponse = {
+const keepSecretMock: MockLink.MockedResponse = {
   request: {
     query: UpdateEmailConfigDocument,
     variables: {
@@ -41,7 +41,7 @@ const keepSecretMock: MockedResponse = {
   result: { data: { updateEmailConfig: { id: 'c1' } } },
 };
 
-const mount = (initial: EmailConfigRow | null = null, mocks: MockedResponse[] = []) =>
+const mount = (initial: EmailConfigRow | null = null, mocks: MockLink.MockedResponse[] = []) =>
   cy.mount(
     <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>

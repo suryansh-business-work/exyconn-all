@@ -129,6 +129,18 @@ describe('ChatReplyForm', () => {
     expect(screen.getByRole('button', { name: 'Record a voice note' })).toBeDisabled();
   });
 
+  it('ignores a file picker that hands back no file list', () => {
+    const { container } = renderForm();
+    const input = container.querySelector<HTMLInputElement>('input[type="file"]');
+    if (!input) throw new Error('No file input');
+    fireEvent.change(input, { target: { files: null } });
+
+    expect(screen.queryByText(/\.png ·/)).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Attach a picture or video' })).not.toHaveClass(
+      'Mui-disabled',
+    );
+  });
+
   it('records a voice note where the browser can', async () => {
     renderForm();
     await userEvent.click(screen.getByRole('button', { name: 'Record a voice note' }));

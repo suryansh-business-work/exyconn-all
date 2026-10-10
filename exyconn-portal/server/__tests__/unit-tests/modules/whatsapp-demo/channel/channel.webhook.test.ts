@@ -27,7 +27,7 @@ jest.mock('../../../../../src/modules/whatsapp-demo/channel/channel.graph', () =
 
 const PATH = '/webhooks/whatsapp';
 const app = express().use(PATH, whatsappWebhookRouter());
-const organizationId = String(new Types.ObjectId());
+const organizationId = new Types.ObjectId().toHexString();
 const appSecret = randomUUID();
 const sender = { phoneNumberId: '1098765', accessToken: randomUUID() };
 const chat = chatRecord();

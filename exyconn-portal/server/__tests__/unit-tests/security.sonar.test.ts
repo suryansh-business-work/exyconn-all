@@ -492,7 +492,7 @@ describe('who may use it', () => {
     await organization('Exyconn', new Date('2024-01-01'));
     const customer = await organization('Acme', new Date('2025-01-01'));
     await ensurePlatformOperatorOrganization();
-    const customerId = String(customer._id);
+    const customerId = customer._id.toHexString();
     const customerTech: GraphQLContext = {
       user: {
         id: 'u2',

@@ -27,7 +27,7 @@ const schema = z.object({
     .regex(DOMAIN, 'Enter the domain on its own, e.g. exyconn.com'),
   industry: z.string().trim(),
   size: z.enum(COMPANY_SIZES),
-  status: z.nativeEnum(CompanyStatus),
+  status: z.enum(CompanyStatus),
   phone: z.string().trim().regex(PHONE, 'Enter a valid phone number').or(z.literal('')),
   location: z.string().trim(),
   owner: z.string().trim().min(1, 'Owner is required'),

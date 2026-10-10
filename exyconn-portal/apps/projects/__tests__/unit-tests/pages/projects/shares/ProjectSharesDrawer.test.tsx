@@ -6,7 +6,7 @@ import { renderWithProviders } from '../../../test-utils';
 import { shareFixture } from '../projects-fixtures';
 
 const hook = vi.hoisted(() => ({
-  state: {} as Record<string, unknown>,
+  state: {},
   projectId: '',
   forget: vi.fn(),
   copyNewUrl: vi.fn(),

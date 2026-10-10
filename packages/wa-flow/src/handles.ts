@@ -36,9 +36,9 @@ function interactiveHandles(node: WaNode): OutputHandle[] | undefined {
         : rows;
     }
     case 'carousel':
-      return node.data.cards
-        .filter((c) => c.buttonTitle)
-        .map((c) => ({ id: c.id, label: c.buttonTitle ?? c.title, interactive: true }));
+      return node.data.cards.flatMap((c) =>
+        c.buttonTitle ? [{ id: c.id, label: c.buttonTitle, interactive: true }] : [],
+      );
     case 'product':
       return node.data.product.buttonTitle
         ? [{ id: node.data.product.id, label: node.data.product.buttonTitle, interactive: true }]

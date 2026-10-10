@@ -88,7 +88,7 @@ describe('project progress', () => {
 
   it('leaves resolved and closed bugs out of the open count', async () => {
     const p = await project();
-    const id = String(p._id);
+    const id = p._id.toHexString();
     const bug = (title: string, status: string) =>
       BugModel.create({
         title,

@@ -12,6 +12,9 @@ export default defineConfig({
     environment: 'jsdom',
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'src/**/*.spec.ts', 'src/**/*.spec.tsx'],
     exclude: ['node_modules', 'dist', 'build'],
+    // The first test to import the app pays for transforming MUI and the tool pages, which can
+    // pass vitest's default 5s on a busy runner (more so under coverage instrumentation).
+    testTimeout: 30000,
     // Cap workers: the per-tool suites each boot jsdom + heavy canvas/PDF mocks,
     // and an unbounded fork pool exhausts IPC handles on Windows CI runners.
     pool: 'threads',

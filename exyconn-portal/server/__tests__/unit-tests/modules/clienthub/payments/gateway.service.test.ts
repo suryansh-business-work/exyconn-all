@@ -68,7 +68,7 @@ describe('Stripe accounts', () => {
     const second = await stripe('Second', true);
     expect((await StripeConfigModel.findById(first._id).lean())?.isActive).toBe(false);
 
-    await gatewayService.updateStripe(String(first._id), {
+    await gatewayService.updateStripe(first._id.toHexString(), {
       label: 'First',
       isActive: true,
       secretKey: KEY_B,
@@ -81,7 +81,7 @@ describe('Stripe accounts', () => {
   it('keep the stored secret when an edit leaves it blank', async () => {
     const doc = await stripe('Main', false);
 
-    const edited = await gatewayService.updateStripe(String(doc._id), {
+    const edited = await gatewayService.updateStripe(doc._id.toHexString(), {
       label: 'Renamed',
       isActive: false,
       secretKey: '',
@@ -102,8 +102,8 @@ describe('Stripe accounts', () => {
   it('say whether a delete removed anything', async () => {
     const doc = await stripe('Main', false);
 
-    expect(await gatewayService.deleteStripe(String(doc._id))).toBe(true);
-    expect(await gatewayService.deleteStripe(String(doc._id))).toBe(false);
+    expect(await gatewayService.deleteStripe(doc._id.toHexString())).toBe(true);
+    expect(await gatewayService.deleteStripe(doc._id.toHexString())).toBe(false);
   });
 
   it('pass on the gateway’s refusal when the stored key is tested', async () => {
@@ -115,7 +115,7 @@ describe('Stripe accounts', () => {
           new Response(JSON.stringify({ error: { message: 'Invalid API Key' } }), { status: 401 }),
       );
 
-    await expect(gatewayService.testStripe(String(doc._id))).rejects.toThrow(
+    await expect(gatewayService.testStripe(doc._id.toHexString())).rejects.toThrow(
       'Stripe: Invalid API Key',
     );
   });
@@ -150,7 +150,7 @@ describe('Razorpay accounts', () => {
     const first = await razorpay('First', true);
     await razorpay('Second', false);
 
-    const edited = await gatewayService.updateRazorpay(String(first._id), {
+    const edited = await gatewayService.updateRazorpay(first._id.toHexString(), {
       label: 'First',
       keyId: 'rzp_new',
       isActive: true,
@@ -164,7 +164,7 @@ describe('Razorpay accounts', () => {
     const first = await razorpay('First', true);
     const second = await razorpay('Second', false);
 
-    await gatewayService.updateRazorpay(String(second._id), {
+    await gatewayService.updateRazorpay(second._id.toHexString(), {
       label: 'Second',
       keyId: 'rzp_id',
       keySecret: KEY_B,

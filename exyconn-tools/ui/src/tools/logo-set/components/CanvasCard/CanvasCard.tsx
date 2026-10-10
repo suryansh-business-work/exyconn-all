@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState } from 'react';
 import { Paper, Box, Modal, Backdrop } from '@mui/material';
 import { CanvasSize, LogoSettings, ExportFormat } from '../../types';
 import { useCanvasRenderer } from '../../hooks/useCanvasRenderer';
@@ -40,7 +40,6 @@ const CanvasCard: React.FC<Props> = ({
   onSizeSettings,
   globalSettings,
 }) => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const { renderToCanvas, downloadCanvas } = useCanvasRenderer();
   const [showCrop, setShowCrop] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -59,7 +58,7 @@ const CanvasCard: React.FC<Props> = ({
       settings,
       format,
       isCropped,
-      size.category as 'favicon' | 'icon' | 'logo'
+      size.category
     );
     downloadCanvas(exportCanvas, `logo-${size.width}x${size.height}`, format);
   };
@@ -77,16 +76,10 @@ const CanvasCard: React.FC<Props> = ({
     }
   };
 
-  const handleImageClick = () => {
-    if (canvasRef.current) {
-      setPreviewUrl(canvasRef.current.toDataURL('image/png'));
-      setShowPreview(true);
-    }
+  const handleImageClick = (canvas: HTMLCanvasElement) => {
+    setPreviewUrl(canvas.toDataURL('image/png'));
+    setShowPreview(true);
   };
-
-  const handleCanvasReady = useCallback((canvas: HTMLCanvasElement) => {
-    canvasRef.current = canvas;
-  }, []);
 
   const handleSettingsSave = (newSettings: LogoSettings) => {
     if (onSizeSettings) {
@@ -139,7 +132,6 @@ const CanvasCard: React.FC<Props> = ({
           isCropped={isCropped}
           displaySize={displaySize}
           onImageClick={handleImageClick}
-          onCanvasReady={handleCanvasReady}
         />
       </Paper>
 

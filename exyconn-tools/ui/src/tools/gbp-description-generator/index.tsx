@@ -45,10 +45,6 @@ const GBPDescriptionGenerator: React.FC = () => {
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
 
   const handleGenerate = async () => {
-    if (!businessName.trim() || !businessType.trim() || !location.trim()) {
-      setError('Business name, type, and location are required.');
-      return;
-    }
     setIsLoading(true);
     setError(null);
     try {

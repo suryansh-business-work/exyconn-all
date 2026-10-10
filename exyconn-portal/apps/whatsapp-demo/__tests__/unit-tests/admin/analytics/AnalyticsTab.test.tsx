@@ -47,7 +47,7 @@ vi.mock('../../../../src/admin/analytics/FunnelPanel', () => ({
   ),
 }));
 
-const lastVariables = () => api.variables[api.variables.length - 1];
+const lastVariables = () => api.variables.at(-1);
 
 beforeEach(() => {
   api.stats = { data: undefined, loading: false, error: undefined };

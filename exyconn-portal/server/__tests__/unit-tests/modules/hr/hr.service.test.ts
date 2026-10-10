@@ -9,8 +9,8 @@ import { asArg } from '../../../mockAs';
 
 useTestOrganization({ locale: 'en-US' });
 
-const EMP = String(new Types.ObjectId());
-const OTHER = String(new Types.ObjectId());
+const EMP = new Types.ObjectId().toHexString();
+const OTHER = new Types.ObjectId().toHexString();
 const day = (iso: string) => new Date(`${iso}T00:00:00.000Z`);
 
 const leave = (employeeId: string, reason: string, createdAt = new Date()) =>
@@ -53,8 +53,10 @@ describe('leave reads', () => {
   it('reads one request by id and says when it does not exist', async () => {
     const row = await leave(EMP, 'Family');
 
-    await expect(hrService.getLeave(String(row._id))).resolves.toMatchObject({ reason: 'Family' });
-    await expect(hrService.getLeave(String(new Types.ObjectId()))).rejects.toThrow(
+    await expect(hrService.getLeave(row._id.toHexString())).resolves.toMatchObject({
+      reason: 'Family',
+    });
+    await expect(hrService.getLeave(new Types.ObjectId().toHexString())).rejects.toThrow(
       'LeaveRequest not found',
     );
   });
@@ -69,7 +71,7 @@ describe('leave reads', () => {
 describe('setLeaveStatus edge cases', () => {
   it('refuses a request that does not exist', async () => {
     await expect(
-      hrService.setLeaveStatus(String(new Types.ObjectId()), 'APPROVED'),
+      hrService.setLeaveStatus(new Types.ObjectId().toHexString(), 'APPROVED'),
     ).rejects.toThrow('LeaveRequest not found');
   });
 
@@ -79,7 +81,7 @@ describe('setLeaveStatus edge cases', () => {
       .spyOn(LeaveRequestModel, 'findByIdAndUpdate')
       .mockReturnValue(asArg({ lean: () => Promise.resolve(null) }));
 
-    await expect(hrService.setLeaveStatus(String(row._id), 'REJECTED')).rejects.toThrow(
+    await expect(hrService.setLeaveStatus(row._id.toHexString(), 'REJECTED')).rejects.toThrow(
       'LeaveRequest not found',
     );
   });

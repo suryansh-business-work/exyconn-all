@@ -20,7 +20,7 @@ jest.mock('../../../../src/modules/email/email.service', () => ({ emailer: { sen
 
 const operatorId = useChatOperator();
 const { Query, Mutation } = websiteChatResolvers;
-const adminId = String(new Types.ObjectId());
+const adminId = new Types.ObjectId().toHexString();
 /** A website team member of the operator's company: the people this console is for. */
 const agentUser = {
   id: adminId,
@@ -61,7 +61,7 @@ describe('website chat queries', () => {
 
   it('reads one session and its conversation, refusing an unknown one', async () => {
     const session = await createSession({ tokenVersion: 4 });
-    const id = String(session._id);
+    const id = session._id.toHexString();
     await ChatMessageModel.create({
       sessionId: id,
       channel: 'LIVE',
@@ -75,7 +75,9 @@ describe('website chat queries', () => {
       (await Query.websiteChatMessages(null, { sessionId: id }, admin)).map((m) => m.body),
     ).toEqual(['Hi']);
     expect(
-      await codeOf(Query.websiteChatSession(null, { id: String(new Types.ObjectId()) }, admin)),
+      await codeOf(
+        Query.websiteChatSession(null, { id: new Types.ObjectId().toHexString() }, admin),
+      ),
     ).toBe('NOT_FOUND');
   });
 
@@ -101,7 +103,7 @@ describe('website chat queries', () => {
         id: adminId,
         email: 'x@acme.test',
         roles: ['WEBSITE'],
-        organizationId: String(new Types.ObjectId()),
+        organizationId: new Types.ObjectId().toHexString(),
       },
       organizationId: null,
     };
@@ -129,7 +131,7 @@ describe('website chat mutations', () => {
   it("claims and closes a chat in the agent's name", async () => {
     await person('Root', ['WEBSITE'], { _id: adminId });
     const session = await createSession();
-    const id = String(session._id);
+    const id = session._id.toHexString();
     expect(await Mutation.claimWebsiteChatSession(null, { id }, admin)).toMatchObject({
       assigneeId: adminId,
       assigneeName: 'Root',
@@ -142,7 +144,7 @@ describe('website chat mutations', () => {
 
   it('deletes a chat with its messages, refusing one that is gone', async () => {
     const session = await createSession();
-    const id = String(session._id);
+    const id = session._id.toHexString();
     await ChatMessageModel.create({
       sessionId: id,
       channel: 'LIVE',

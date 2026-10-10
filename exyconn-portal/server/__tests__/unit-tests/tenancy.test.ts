@@ -23,7 +23,7 @@ async function twoOrganizations() {
       { name: 'Globex', slug: 'globex', currency: 'USD' },
     ]),
   );
-  return { a: String(a._id), b: String(b._id) };
+  return { a: a._id.toHexString(), b: b._id.toHexString() };
 }
 
 function client(name: string) {

@@ -43,7 +43,7 @@ export function TeamFields() {
       <ul className="quote-team">
         {fields.map((field, index) => {
           const lineErrors = errors.team?.[index];
-          const roleId = team[index]?.roleId ?? field.roleId;
+          const roleId = team[index].roleId;
           const roleLabel = findRole(roleId).label;
           return (
             <li key={field.id} className="quote-team__row">

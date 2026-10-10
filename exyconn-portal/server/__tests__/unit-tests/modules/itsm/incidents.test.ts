@@ -90,7 +90,7 @@ describe('IT incidents', () => {
     expect(await codeOf(save('nope', 'RESOLVED'))).toBe('NOT_FOUND');
     const missing = m.addItIncidentUpdate(
       null,
-      { id: String(new Types.ObjectId()), status: 'RESOLVED', note: 'Done' },
+      { id: new Types.ObjectId().toHexString(), status: 'RESOLVED', note: 'Done' },
       ctx,
     );
     expect(await codeOf(missing)).toBe('NOT_FOUND');

@@ -68,7 +68,7 @@ export async function executeAiJob(job: HydratedDocument<AiJobDocument>) {
     job.totalTokens = result.totalTokens;
     job.costUsd = await costOfRun(job.model, result);
   } catch (err) {
-    logger.error({ err, jobId: String(job._id) }, 'AI job failed');
+    logger.error({ err, jobId: job._id.toHexString() }, 'AI job failed');
     job.status = 'FAILED';
     job.response = '';
     job.error = err instanceof Error ? err.message : 'The run failed.';

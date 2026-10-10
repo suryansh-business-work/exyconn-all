@@ -44,7 +44,7 @@ function DefaultLanguageField() {
   const { control } = useFormContext<AppSettingsFormValues>();
   const enabled = useWatch({ control, name: 'enabledLocales' });
   const options = useMemo(() => {
-    const tags = new Set(['en', ...(enabled ?? []).filter(isValidLocale)]);
+    const tags = new Set(['en', ...enabled.filter(isValidLocale)]);
     return [...tags]
       .map((tag) => ({ value: tag, label: `${endonymOf(tag)} (${tag})` }))
       .sort((a, b) => a.label.localeCompare(b.label));

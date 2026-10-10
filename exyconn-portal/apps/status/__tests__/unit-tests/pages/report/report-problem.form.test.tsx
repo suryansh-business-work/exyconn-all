@@ -6,7 +6,7 @@ import { ProblemCategory, ProblemSeverity } from '@exyconn/shell/graphql/generat
 import { ReportProblemForm } from '../../../../src/pages/report/forms/report-problem';
 import { renderWithProviders } from '../../test-utils';
 import { fill, findSnackbar, pickOption } from '../../form-helpers';
-import { REFERENCE, reportInput, submitted } from './report.fixtures';
+import { REFERENCE, reportInput, submitted, submittedWithoutData } from './report.fixtures';
 
 const SERVICES = [{ value: 'hr', label: 'HR Portal' }];
 
@@ -80,6 +80,13 @@ describe('ReportProblemForm', () => {
     expect(await findSnackbar('Service unavailable')).toBeInTheDocument();
     expect(onSubmitted).not.toHaveBeenCalled();
     expect(screen.getByLabelText('Title')).toHaveValue(reportInput.subject);
+  });
+
+  it('hands back an empty reference when the server answers without data', async () => {
+    const { onSubmitted } = renderForm([submittedWithoutData()]);
+    fillReport();
+    await submit();
+    await waitFor(() => expect(onSubmitted).toHaveBeenCalledWith(''));
   });
 
   it('cancels on request', async () => {

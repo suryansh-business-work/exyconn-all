@@ -31,10 +31,10 @@ const inputFor = (employeeId: string, stage: string) => ({
 describe('updateExitRecord reaching EXITED', () => {
   it('deactivates the account and marks the employment terminated', async () => {
     const user = await leaver();
-    const id = String(user._id);
+    const id = user._id.toHexString();
     const record = await ExitRecordModel.create(inputFor(id, 'CLEARANCE'));
 
-    await update(null, { id: String(record._id), input: inputFor(id, 'EXITED') }, hr);
+    await update(null, { id: record._id.toHexString(), input: inputFor(id, 'EXITED') }, hr);
 
     const after = await UserModel.findById(id).lean();
     expect(after?.isActive).toBe(false);
@@ -43,10 +43,10 @@ describe('updateExitRecord reaching EXITED', () => {
 
   it('leaves the account alone for every earlier stage', async () => {
     const user = await leaver();
-    const id = String(user._id);
+    const id = user._id.toHexString();
     const record = await ExitRecordModel.create(inputFor(id, 'RESIGNED'));
 
-    await update(null, { id: String(record._id), input: inputFor(id, 'NOTICE_PERIOD') }, hr);
+    await update(null, { id: record._id.toHexString(), input: inputFor(id, 'NOTICE_PERIOD') }, hr);
 
     const after = await UserModel.findById(id).lean();
     expect(after?.isActive).toBe(true);
@@ -60,7 +60,7 @@ describe('updateExitRecord reaching EXITED', () => {
     } as unknown as GraphQLContext;
 
     await expect(
-      update(null, { id: String(record._id), input: inputFor('emp-1', 'EXITED') }, emp),
+      update(null, { id: record._id.toHexString(), input: inputFor('emp-1', 'EXITED') }, emp),
     ).rejects.toThrow();
   });
 });

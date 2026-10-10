@@ -77,11 +77,14 @@ describe('activeAnnouncements targeting', () => {
     await make('Everyone');
     await make('Eng only', { audience: 'DEPARTMENT', department: 'Engineering' });
     await make('Sales only', { audience: 'DEPARTMENT', department: 'Sales' });
-    await make('Just eng person', { audience: 'EMPLOYEES', employeeIds: [String(eng._id)] });
-    await make('Just sales person', { audience: 'EMPLOYEES', employeeIds: [String(sales._id)] });
+    await make('Just eng person', { audience: 'EMPLOYEES', employeeIds: [eng._id.toHexString()] });
+    await make('Just sales person', {
+      audience: 'EMPLOYEES',
+      employeeIds: [sales._id.toHexString()],
+    });
 
     const engCtx = {
-      user: { id: String(eng._id), email: 'eng@exyconn.com', roles: [ROLES.EMPLOYEE] },
+      user: { id: eng._id.toHexString(), email: 'eng@exyconn.com', roles: [ROLES.EMPLOYEE] },
     } as unknown as GraphQLContext;
     const titles = (await active(engCtx)).map((a) => a.title).sort((a, b) => a.localeCompare(b));
     expect(titles).toEqual(['Eng only', 'Everyone', 'Just eng person']);

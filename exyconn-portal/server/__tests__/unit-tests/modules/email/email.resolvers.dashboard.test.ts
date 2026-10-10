@@ -95,7 +95,7 @@ describe('emailDashboard', () => {
   it('defaults to fourteen days and keeps the window between one and ninety', async () => {
     expect((await dashboard()).days).toHaveLength(14);
     const defaulted = (await dashboard(null)).days;
-    expect(defaulted[defaulted.length - 1]).toEqual({
+    expect(defaulted.at(-1)).toEqual({
       date: '2026-09-10',
       sent: 0,
       failed: 0,

@@ -34,6 +34,9 @@ function subtreeWidth(node: OrgTreeNode, widths: Map<string, number>): number {
   return width;
 }
 
+/** `subtreeWidth` measures every node before `place` runs, so the width is always there. */
+const widthOf = (node: OrgTreeNode, widths: Map<string, number>) => widths.get(node.id) as number;
+
 /** Places a person centred over their team, then each report's team left to right. */
 function place(
   node: OrgTreeNode,
@@ -42,21 +45,21 @@ function place(
   widths: Map<string, number>,
   out: OrgLayout,
 ): void {
-  const width = widths.get(node.id) ?? NODE_WIDTH;
+  const width = widthOf(node, widths);
   out.placed.push({
     node,
     x: left + (width - NODE_WIDTH) / 2,
     y: depth * (NODE_HEIGHT + LEVEL_GAP),
   });
   const childrenWidth = node.reports.reduce(
-    (total, report, index) => total + (widths.get(report.id) ?? 0) + (index ? SIBLING_GAP : 0),
+    (total, report, index) => total + widthOf(report, widths) + (index ? SIBLING_GAP : 0),
     0,
   );
   let cursor = left + (width - childrenWidth) / 2;
   for (const report of node.reports) {
     out.links.push({ managerId: node.id, reportId: report.id });
     place(report, cursor, depth + 1, widths, out);
-    cursor += (widths.get(report.id) ?? 0) + SIBLING_GAP;
+    cursor += widthOf(report, widths) + SIBLING_GAP;
   }
 }
 

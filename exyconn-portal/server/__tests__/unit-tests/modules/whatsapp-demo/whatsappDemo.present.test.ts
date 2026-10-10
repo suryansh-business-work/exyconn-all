@@ -71,7 +71,7 @@ describe('a demo as the API shows it', () => {
   it('carries its fields with the id as a string and the date as ISO', () => {
     const row = demo();
     expect(presentDemo(row)).toEqual({
-      id: String(row._id),
+      id: row._id.toHexString(),
       key: 'salon',
       industry: 'Salon',
       business: { name: 'Glow' },
@@ -111,7 +111,7 @@ describe('a workflow as the API shows it', () => {
   it('carries both graphs, the status and ISO dates', () => {
     const row = workflow();
     expect(presentWorkflow(row)).toMatchObject({
-      id: String(row._id),
+      id: row._id.toHexString(),
       demoKey: 'salon',
       key: 'booking',
       status: 'PUBLISHED',

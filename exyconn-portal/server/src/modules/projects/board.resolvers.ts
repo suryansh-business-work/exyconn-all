@@ -197,7 +197,7 @@ export const boardResolvers = {
       if (!comment) {
         notFound('TaskComment');
       }
-      if (comment.authorId !== user.id && !(user.roles ?? []).includes(ROLES.ADMIN)) {
+      if (comment.authorId !== user.id && !user.roles.includes(ROLES.ADMIN)) {
         forbidden('Only the author or an administrator can delete this comment.');
       }
       return boardService.deleteComment(id);

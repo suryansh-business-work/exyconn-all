@@ -77,7 +77,7 @@ export async function ensureAiModelPrices(): Promise<void> {
       { $setOnInsert: { ...price, active: true } },
       { upsert: true },
     );
-    created += result.upsertedCount ?? 0;
+    created += result.upsertedCount;
   }
   if (created > 0) {
     logger.info(`Seeded ${created} AI model price(s)`);

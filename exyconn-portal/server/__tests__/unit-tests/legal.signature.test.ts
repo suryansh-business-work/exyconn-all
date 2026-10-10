@@ -72,13 +72,13 @@ describe('asking a counterparty to sign', () => {
   it('refuses when there is nothing to sign', async () => {
     const row = await contract({ documentUrl: '' });
 
-    await expect(ask(String(row._id))).rejects.toThrow('Attach the document');
+    await expect(ask(row._id.toHexString())).rejects.toThrow('Attach the document');
   });
 
   it('emails a link and hands the same link back', async () => {
     const row = await contract();
 
-    const request = await ask(String(row._id));
+    const request = await ask(row._id.toHexString());
 
     expect(request.url).toContain(`/sign/${encodeURIComponent(request.token)}`);
     expect(mailed).toHaveBeenCalledWith(
@@ -93,7 +93,7 @@ describe('asking a counterparty to sign', () => {
   it('stores only the hash of the token', async () => {
     const row = await contract();
 
-    const request = await ask(String(row._id));
+    const request = await ask(row._id.toHexString());
     const stored = await ContractSignatureModel.findOne().lean();
 
     expect(stored?.tokenHash).toBe(createHash('sha256').update(request.token).digest('hex'));
@@ -106,7 +106,7 @@ describe('what the counterparty is shown', () => {
 
   it('shows the contract and the document, and nothing about us', async () => {
     const row = await contract();
-    const { token } = await ask(String(row._id));
+    const { token } = await ask(row._id.toHexString());
 
     const shown = await contractToSign(token);
 
@@ -122,8 +122,8 @@ describe('what the counterparty is shown', () => {
 
   it('shows nothing for a link that is unknown, withdrawn or expired', async () => {
     const row = await contract();
-    const withdrawn = await ask(String(row._id));
-    const expired = await ask(String(row._id));
+    const withdrawn = await ask(row._id.toHexString());
+    const expired = await ask(row._id.toHexString());
     await revokeContractSignature(withdrawn.id);
     await ContractSignatureModel.updateOne(
       { _id: expired.id },
@@ -141,7 +141,7 @@ describe('signing', () => {
 
   it('records the name, the address and the hash of the document', async () => {
     const row = await contract();
-    const { token } = await ask(String(row._id));
+    const { token } = await ask(row._id.toHexString());
 
     const receipt = await signContractWithToken({ token, signedName: ' Sam Khan ', ...FROM });
 
@@ -158,7 +158,7 @@ describe('signing', () => {
 
   it('makes the contract active and names the signer', async () => {
     const row = await contract();
-    const { token } = await ask(String(row._id));
+    const { token } = await ask(row._id.toHexString());
 
     await signContractWithToken({ token, signedName: 'Sam Khan', ...FROM });
     const signed = await ContractModel.findById(row._id).lean();
@@ -169,7 +169,7 @@ describe('signing', () => {
 
   it('will not sign the same request twice', async () => {
     const row = await contract();
-    const { token } = await ask(String(row._id));
+    const { token } = await ask(row._id.toHexString());
     await signContractWithToken({ token, signedName: 'Sam Khan', ...FROM });
 
     await expect(signContractWithToken({ token, signedName: 'Sam Khan', ...FROM })).rejects.toThrow(
@@ -179,7 +179,7 @@ describe('signing', () => {
 
   it('refuses a name too short to be one', async () => {
     const row = await contract();
-    const { token } = await ask(String(row._id));
+    const { token } = await ask(row._id.toHexString());
 
     await expect(signContractWithToken({ token, signedName: 'S', ...FROM })).rejects.toThrow(
       'Type your full name',
@@ -188,7 +188,7 @@ describe('signing', () => {
 
   it('refuses rather than recording an empty hash when the document cannot be read', async () => {
     const row = await contract();
-    const { token } = await ask(String(row._id));
+    const { token } = await ask(row._id.toHexString());
     fetched.mockResolvedValueOnce(documentResponse(DOCUMENT, false));
 
     await expect(signContractWithToken({ token, signedName: 'Sam Khan', ...FROM })).rejects.toThrow(
@@ -201,12 +201,12 @@ describe('signing', () => {
     const row = await contract();
 
     await signContractInternally({
-      contractId: String(row._id),
+      contractId: row._id.toHexString(),
       signerEmail: 'dev@exyconn.com',
       ...FROM,
     });
 
-    const [evidence] = await contractSignatures(String(row._id));
+    const [evidence] = await contractSignatures(row._id.toHexString());
     expect(evidence).toMatchObject({
       signedName: 'dev@exyconn.com',
       signedIp: FROM.ip,
@@ -221,7 +221,7 @@ describe('withdrawing a request', () => {
 
   it('stops an unsigned link working', async () => {
     const row = await contract();
-    const { id, token } = await ask(String(row._id));
+    const { id, token } = await ask(row._id.toHexString());
 
     await revokeContractSignature(id);
 
@@ -233,7 +233,7 @@ describe('withdrawing a request', () => {
 
   it('refuses to withdraw a signature that has been given', async () => {
     const row = await contract();
-    const { id, token } = await ask(String(row._id));
+    const { id, token } = await ask(row._id.toHexString());
     await signContractWithToken({ token, signedName: 'Sam Khan', ...FROM });
 
     await expect(revokeContractSignature(id)).rejects.toThrow('already been signed');

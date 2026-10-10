@@ -307,5 +307,3 @@ export const policyResolvers = {
     acknowledgePolicy,
   },
 };
-
-export { policyTypeDefs } from './policy.typeDefs';

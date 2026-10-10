@@ -28,7 +28,7 @@ export const countFrame = (text: string, progress: number): string => {
 };
 
 const run = (element: HTMLElement) => {
-  const final = element.textContent ?? "";
+  const final = element.textContent as string;
   const start = performance.now();
   const frame = (now: number) => {
     const progress = (now - start) / COUNT_MS;

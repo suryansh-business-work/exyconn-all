@@ -42,7 +42,7 @@ describe('employee request decisions', () => {
     await updateRequest(
       null,
       {
-        id: String(row._id),
+        id: row._id.toHexString(),
         input: { ...requestInput, status: 'APPROVED', decisionNote: 'Enjoy the day' },
       },
       as([ROLES.HR]),
@@ -59,7 +59,7 @@ describe('employee request decisions', () => {
 
     await updateRequest(
       null,
-      { id: String(row._id), input: { ...requestInput, details: 'Plumber, all day' } },
+      { id: row._id.toHexString(), input: { ...requestInput, details: 'Plumber, all day' } },
       as([ROLES.HR]),
     );
 
@@ -73,7 +73,10 @@ describe('expense claim decisions', () => {
 
     await updateClaim(
       null,
-      { id: String(row._id), input: { ...claimInput, status: 'APPROVED', approvedAmount: 600 } },
+      {
+        id: row._id.toHexString(),
+        input: { ...claimInput, status: 'APPROVED', approvedAmount: 600 },
+      },
       as([ROLES.FINANCE]),
     );
 
@@ -89,7 +92,7 @@ describe('expense claim decisions', () => {
 
     const updated = (await updateClaim(
       null,
-      { id: String(row._id), input: { ...claimInput, status: 'REJECTED' } },
+      { id: row._id.toHexString(), input: { ...claimInput, status: 'REJECTED' } },
       as([ROLES.FINANCE]),
     )) as { status: string };
 

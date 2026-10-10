@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import { type MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { JobCompanyForm } from './job-company.form';
 import { CreateJobCompanyDocument } from '@exyconn/shell/graphql/generated';
@@ -9,7 +9,7 @@ import { theme } from '@exyconn/shell/config/theme';
 const NEW_COMPANY = { companyCode: 'EXY', slug: 'exyconn', name: 'Exyconn' };
 
 /** Exactly what JobCompanyForm submits when only the required fields are filled in. */
-const createMock: MockedResponse = {
+const createMock: MockLink.MockedResponse = {
   request: {
     query: CreateJobCompanyDocument,
     variables: {
@@ -38,7 +38,7 @@ const createMock: MockedResponse = {
   result: { data: { createJobCompany: { id: 'company-1' } } },
 };
 
-const mount = (mocks: MockedResponse[] = []) =>
+const mount = (mocks: MockLink.MockedResponse[] = []) =>
   cy.mount(
     <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>

@@ -50,7 +50,7 @@ export function TrackerNoticeForm({ employees }: Readonly<TrackerNoticeFormProps
     defaultValues: { title: '', body: '', userIds: [] },
   });
 
-  const chosen = methods.watch('userIds') ?? [];
+  const chosen = methods.watch('userIds');
   const audience =
     chosen.length === 0
       ? t('every employee with tracker access')

@@ -9,14 +9,13 @@ export const LAYOUT_GAP = { x: 340, y: 200 } as const;
 
 function depths(graph: WaGraph): Map<string, number> {
   const depth = new Map<string, number>([[graph.start, 0]]);
-  const queue = [graph.start];
-  while (queue.length > 0) {
-    const current = queue.shift() as string;
-    const level = depth.get(current) ?? 0;
+  const queue: Array<[string, number]> = [[graph.start, 0]];
+  // A for-of over an array also visits what is pushed meanwhile: a breadth-first walk.
+  for (const [current, level] of queue) {
     for (const edge of graph.edges.filter((e) => e.source === current)) {
       if (!depth.has(edge.target)) {
         depth.set(edge.target, level + 1);
-        queue.push(edge.target);
+        queue.push([edge.target, level + 1]);
       }
     }
   }

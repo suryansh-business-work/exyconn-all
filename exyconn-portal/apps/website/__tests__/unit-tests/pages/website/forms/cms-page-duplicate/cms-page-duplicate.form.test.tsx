@@ -1,18 +1,35 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { UseEntitySaveOptions } from '@exyconn/shell/components/form/useEntitySave';
 import {
   DuplicatePageForm,
+  type DuplicateFormValues,
   type DuplicateSource,
 } from '../../../../../../src/pages/website/forms/cms-page-duplicate';
 import { renderWithProviders } from '../../../../test-utils';
 
-const gql = vi.hoisted(() => ({ duplicate: vi.fn() }));
+const gql = vi.hoisted(() => ({
+  duplicate: vi.fn(),
+  saveOptions: null as UseEntitySaveOptions<DuplicateFormValues, null> | null,
+}));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
   useDuplicateCmsPageMutation: () => [gql.duplicate],
 }));
+
+/** The real save hook, with the options the form hands it recorded. */
+vi.mock('@exyconn/shell/components/form/useEntitySave', async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import('@exyconn/shell/components/form/useEntitySave')>();
+  return {
+    useEntitySave: (options: UseEntitySaveOptions<DuplicateFormValues, null>) => {
+      gql.saveOptions = options;
+      return actual.useEntitySave(options);
+    },
+  };
+});
 
 const about: DuplicateSource = { id: 'page-1', path: '/about-us', title: 'About us' };
 
@@ -26,6 +43,22 @@ function setup(source: DuplicateSource | null) {
 describe('DuplicatePageForm', () => {
   beforeEach(() => {
     gql.duplicate.mockReset();
+  });
+
+  it('never edits a copy: the update step resolves without a mutation', async () => {
+    setup(about);
+
+    await expect(gql.saveOptions?.update(null, { path: '/x' })).resolves.toBeUndefined();
+    expect(gql.duplicate).not.toHaveBeenCalled();
+  });
+
+  it('has no page to copy while the dialog is closed, so it names none', async () => {
+    gql.duplicate.mockResolvedValue({ data: {} });
+    setup(null);
+
+    await gql.saveOptions?.create({ path: '/x' });
+
+    expect(gql.duplicate).toHaveBeenCalledWith({ variables: { id: '', path: '/x' } });
   });
 
   it('stays closed while no page is chosen', () => {

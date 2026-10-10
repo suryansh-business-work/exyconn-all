@@ -115,15 +115,14 @@ const onPolyline = (random: Random, points: readonly Vec3[]): Vec3 => {
     .slice(1)
     .map((p, i) => Math.hypot(p[0] - points[i][0], p[2] - points[i][2]));
   let at = random() * lengths.reduce((sum, length) => sum + length, 0);
-  for (let i = 0; i < lengths.length; i += 1) {
-    if (at <= lengths[i] || i === lengths.length - 1) {
-      const t = Math.min(1, at / lengths[i]);
-      const [a, b] = [points[i], points[i + 1]];
-      return [a[0] + (b[0] - a[0]) * t, TRACE_Y, a[2] + (b[2] - a[2]) * t];
-    }
+  let i = 0;
+  while (i < lengths.length - 1 && at > lengths[i]) {
     at -= lengths[i];
+    i += 1;
   }
-  return points[0];
+  const t = Math.min(1, at / lengths[i]);
+  const [a, b] = [points[i], points[i + 1]];
+  return [a[0] + (b[0] - a[0]) * t, TRACE_Y, a[2] + (b[2] - a[2]) * t];
 };
 
 /** How far along its trace a point is, 0 at the chip to 1 at the pad (by distance out). */

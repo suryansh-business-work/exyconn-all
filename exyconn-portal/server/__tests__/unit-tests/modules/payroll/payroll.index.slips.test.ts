@@ -33,9 +33,9 @@ const slip = (employeeId: string, extra: Record<string, unknown> = {}) =>
 
 async function employeeWithSlip(email: string) {
   const user = await seedUser(email, randomUUID(), [ROLES.EMPLOYEE]);
-  const id = String(user._id);
+  const id = user._id.toHexString();
   const created = await slip(id);
-  return { id, slipId: String(created._id), ctx: as(id, [ROLES.EMPLOYEE]) };
+  return { id, slipId: created._id.toHexString(), ctx: as(id, [ROLES.EMPLOYEE]) };
 }
 
 afterEach(() => {
@@ -123,7 +123,7 @@ describe('salarySlipPdf', () => {
 
   it('lets HR download anybody’s, and refuses another employee', async () => {
     const { slipId } = await employeeWithSlip('owner@exyconn.com');
-    const nosy = as(String(new Types.ObjectId()), [ROLES.EMPLOYEE]);
+    const nosy = as(new Types.ObjectId().toHexString(), [ROLES.EMPLOYEE]);
 
     await expect(Q.salarySlipPdf(null, { id: slipId }, hr)).resolves.toMatchObject({
       contentType: 'application/pdf',
@@ -132,7 +132,7 @@ describe('salarySlipPdf', () => {
   });
 
   it('refuses a slip that does not exist, and a caller who is not signed in', async () => {
-    const missing = String(new Types.ObjectId());
+    const missing = new Types.ObjectId().toHexString();
     await expect(Q.salarySlipPdf(null, { id: missing }, hr)).rejects.toThrow(
       'Salary slip not found',
     );

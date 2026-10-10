@@ -150,7 +150,7 @@ export async function projectHealth(
   now = new Date(),
 ): Promise<ProjectHealth> {
   const projectId = project._id;
-  const id = String(projectId);
+  const id = projectId.toHexString();
   const start = project.startDate ?? null;
   const end = project.endDate ?? null;
 

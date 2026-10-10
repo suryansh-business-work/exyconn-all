@@ -65,6 +65,14 @@ describe("Composer attachments", () => {
     expect(screen.queryByRole("img", { name: "photo.png" })).not.toBeInTheDocument();
   });
 
+  it("takes no file from a change event that carries none", async () => {
+    const { actions, input } = mount();
+    fireEvent.change(input, { target: { files: null } });
+    expect(screen.queryByRole("img")).not.toBeInTheDocument();
+    expect(actions.showError).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: strings.record })).toBeInTheDocument();
+  });
+
   it("previews a clip with its name", async () => {
     const { container, input } = mount();
     pick(input, new File(["x"], "clip.mp4", { type: "video/mp4" }));

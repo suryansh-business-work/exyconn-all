@@ -55,7 +55,7 @@ const systemRows = (module: string) =>
 
 describe('background finance jobs write the change log as the system', () => {
   it('logs a retainer raised by the hourly tick, in the company it ran for', async () => {
-    const otherCompany = String(new Types.ObjectId());
+    const otherCompany = new Types.ObjectId().toHexString();
     await runForOrganization(otherCompany, async () => {
       await RecurringInvoiceModel.create({
         name: 'Acme retainer',
@@ -110,7 +110,7 @@ describe('background finance jobs write the change log as the system', () => {
       ],
       ['INV-003', 'Overdue sweep set Invoice INV-003 to SENT', { from: 'OVERDUE', to: 'SENT' }],
     ]);
-    expect(rows[0].entityId).toBe(String(late._id));
+    expect(rows[0].entityId).toBe(late._id.toHexString());
     expect(String((rows[0] as { organizationId?: unknown }).organizationId)).toBe(organizationId);
   });
 
@@ -130,7 +130,7 @@ describe('background finance jobs write the change log as the system', () => {
     });
     const invoice = await seedInvoice('INV-009', 5, {
       status: 'OVERDUE',
-      clientId: String(client._id),
+      clientId: client._id.toHexString(),
     });
 
     await expect(chaseOverdueInvoices(NOW)).resolves.toBe(1);
@@ -138,7 +138,7 @@ describe('background finance jobs write the change log as the system', () => {
     const [row] = await systemRows('Invoice');
     expect(row).toMatchObject({
       action: 'UPDATE',
-      entityId: String(invoice._id),
+      entityId: invoice._id.toHexString(),
       entityLabel: 'INV-009',
       summary: 'Sent the 3-day overdue reminder for Invoice INV-009 to accounts@nimbus.test',
       changes: '',

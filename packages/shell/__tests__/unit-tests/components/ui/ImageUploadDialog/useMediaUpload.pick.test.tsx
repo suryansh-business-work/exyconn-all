@@ -55,7 +55,7 @@ describe('useMediaUpload picking', () => {
       isVideo: false,
       isVector: false,
     });
-    expect(isCroppable(result.current.selection!)).toBe(true);
+    expect(isCroppable(result.current.selection)).toBe(true);
   });
 
   it('selects an SVG as a vector that skips the crop step', async () => {
@@ -68,7 +68,7 @@ describe('useMediaUpload picking', () => {
     );
 
     expect(result.current.selection).toMatchObject({ isVector: true, mimeType: 'image/svg+xml' });
-    expect(isCroppable(result.current.selection!)).toBe(false);
+    expect(isCroppable(result.current.selection)).toBe(false);
   });
 
   it('says why a file could not be read', async () => {
@@ -121,7 +121,7 @@ describe('useMediaUpload picking', () => {
       isVideo: true,
       stockUrl: 'https://videos.pexels.com/9.mp4',
     });
-    expect(isCroppable(result.current.selection!)).toBe(false);
+    expect(isCroppable(result.current.selection)).toBe(false);
 
     act(() => result.current.clear());
     expect(result.current.selection).toBeNull();

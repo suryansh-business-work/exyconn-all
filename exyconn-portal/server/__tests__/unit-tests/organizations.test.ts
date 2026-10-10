@@ -49,7 +49,7 @@ describe('creating a company', () => {
 
   it('provisions its own defaults, inside its own scope', async () => {
     const organization = await organizationService.create(ACME);
-    const id = String(organization._id);
+    const id = organization._id.toHexString();
 
     const templates = await runForOrganization(id, () => EmailTemplateModel.countDocuments());
     const checklists = await runForOrganization(id, () => OnboardingTemplateModel.countDocuments());
@@ -64,25 +64,25 @@ describe('creating a company', () => {
 describe('handing a company over to its administrator', () => {
   it('creates the person inside that company, as its ADMIN', async () => {
     const organization = await organizationService.create(ACME);
-    const admin = await organizationService.assignAdmin(String(organization._id), {
+    const admin = await organizationService.assignAdmin(organization._id.toHexString(), {
       name: 'Dana',
       email: 'dana@acme.example',
     });
 
     expect(admin.roles).toContain(ROLES.ADMIN);
-    expect(organizationOf(admin)).toBe(String(organization._id));
+    expect(organizationOf(admin)).toBe(organization._id.toHexString());
   });
 
   it('will not take somebody who already belongs to another company', async () => {
     const acme = await organizationService.create(ACME);
     const globex = await organizationService.create({ ...ACME, name: 'Globex', currency: 'USD' });
-    await organizationService.assignAdmin(String(acme._id), {
+    await organizationService.assignAdmin(acme._id.toHexString(), {
       name: 'Dana',
       email: 'dana@acme.example',
     });
 
     await expect(
-      organizationService.assignAdmin(String(globex._id), {
+      organizationService.assignAdmin(globex._id.toHexString(), {
         name: 'Dana',
         email: 'dana@acme.example',
       }),
@@ -93,7 +93,7 @@ describe('handing a company over to its administrator', () => {
 describe('suspending a company', () => {
   it('stops everyone in it signing in, and lets them back in when it is lifted', async () => {
     const organization = await organizationService.create(ACME);
-    const id = String(organization._id);
+    const id = organization._id.toHexString();
     const password = `Pw-${process.env.JWT_SECRET ?? 'test'}-1`;
     await runForOrganization(id, async () =>
       UserModel.create({

@@ -25,7 +25,7 @@ const schema = z.object({
     .number({ message: 'Reorder level must be a number' })
     .int('Whole number')
     .min(0, 'Must be ≥ 0'),
-  status: z.nativeEnum(ProductStatus),
+  status: z.enum(ProductStatus),
 });
 type Values = z.infer<typeof schema>;
 

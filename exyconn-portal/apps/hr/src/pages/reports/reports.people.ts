@@ -22,6 +22,15 @@ export async function nameLookup(client: ApolloClient): Promise<Map<string, stri
   return new Map(users.map((u) => [u.id, u.name]));
 }
 
+/** Rows with `employeeName` added; an id no longer in the user list stays as the id. */
+export async function withEmployeeNames<T extends { employeeId: string }>(
+  client: ApolloClient,
+  load: Promise<T[]>,
+) {
+  const [rows, names] = await Promise.all([load, nameLookup(client)]);
+  return rows.map((r) => ({ ...r, employeeName: names.get(r.employeeId) ?? r.employeeId }));
+}
+
 export const employeesReport = defineReport<User>({
   key: 'employees',
   label: 'Employees',
@@ -76,13 +85,11 @@ export const attendanceReport = defineReport<Attendance>({
     { header: 'Status', value: (r) => r.status },
     { header: 'Note', value: (r) => r.note },
   ],
-  load: async (client) => {
-    const [rows, names] = await Promise.all([
+  load: (client) =>
+    withEmployeeNames(
+      client,
       fetchList(client, ListAttendanceDocument, (d: ListAttendanceQuery) => d.listAttendance),
-      nameLookup(client),
-    ]);
-    return rows.map((r) => ({ ...r, employeeName: names.get(r.employeeId) ?? r.employeeId }));
-  },
+    ),
 });
 
 type Leave = ListLeaveRequestsQuery['listLeaveRequests'][number] & { employeeName: string };
@@ -99,17 +106,15 @@ export const leaveReport = defineReport<Leave>({
     { header: 'Status', value: (r) => r.status },
     { header: 'Reason', value: (r) => r.reason },
   ],
-  load: async (client) => {
-    const [rows, names] = await Promise.all([
+  load: (client) =>
+    withEmployeeNames(
+      client,
       fetchList(
         client,
         ListLeaveRequestsDocument,
         (d: ListLeaveRequestsQuery) => d.listLeaveRequests,
       ),
-      nameLookup(client),
-    ]);
-    return rows.map((r) => ({ ...r, employeeName: names.get(r.employeeId) ?? r.employeeId }));
-  },
+    ),
 });
 
 type Holiday = ListHolidaysQuery['listHolidays'][number];
@@ -144,15 +149,13 @@ export const requestsReport = defineReport<Request>({
     { header: 'Raised', value: (r) => r.createdAt },
     { header: 'Decision note', value: (r) => r.decisionNote },
   ],
-  load: async (client) => {
-    const [rows, names] = await Promise.all([
+  load: (client) =>
+    withEmployeeNames(
+      client,
       fetchAllPages(
         client,
         ListEmployeeRequestsPagedDocument,
         (d: ListEmployeeRequestsPagedQuery) => d.listEmployeeRequestsPaged,
       ),
-      nameLookup(client),
-    ]);
-    return rows.map((r) => ({ ...r, employeeName: names.get(r.employeeId) ?? r.employeeId }));
-  },
+    ),
 });

@@ -13,7 +13,7 @@ import { seedUser } from '../helpers';
 
 const PASSWORD = `pw-${randomUUID()}`;
 const codeNow = (secret: string) => totpCode(secret, stepAt(new Date()));
-const nobody = () => String(new Types.ObjectId());
+const nobody = () => new Types.ObjectId().toHexString();
 
 const person = () => seedUser(`${randomUUID()}@exyconn.com`, PASSWORD, [ROLES.EMPLOYEE]);
 

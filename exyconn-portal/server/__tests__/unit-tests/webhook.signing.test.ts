@@ -61,6 +61,15 @@ describe('retry backoff', () => {
     expect(nextAttemptAfter(0, from).toISOString()).toBe('2026-03-01T00:01:00.000Z');
   });
 
+  it('counts from the current time when told no other', () => {
+    jest.useFakeTimers({ now: from, doNotFake: ['nextTick', 'setImmediate', 'setTimeout'] });
+    try {
+      expect(nextAttemptAfter(1).toISOString()).toBe('2026-03-01T00:05:00.000Z');
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
   it('stops lengthening past the last step rather than running off the scale', () => {
     expect(nextAttemptAfter(99, from).getTime()).toBe(
       nextAttemptAfter(MAX_ATTEMPTS - 1, from).getTime(),

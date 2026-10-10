@@ -132,7 +132,7 @@ interface WonDeal {
   contactName: string;
   value: number;
   owner: string;
-  clientId?: string | null;
+  clientId: string;
 }
 
 /**
@@ -150,7 +150,7 @@ function announceWon(deal: WonDeal): void {
     contactName: deal.contactName,
     value: deal.value,
     owner: deal.owner,
-    clientId: deal.clientId ?? '',
+    clientId: deal.clientId,
     wonAt: new Date().toISOString(),
   });
 }

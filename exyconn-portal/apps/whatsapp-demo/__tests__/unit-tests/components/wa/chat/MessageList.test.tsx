@@ -5,11 +5,12 @@ import { MessageList } from '../../../../../src/components/wa/chat/MessageList';
 import { renderWithProviders } from '../../../test-utils';
 import { message } from '../wa-ui.fixtures';
 
-const view = vi.hoisted(() => ({ reduced: false }));
+const view = vi.hoisted(() => ({ reduced: false, compact: false }));
 
 vi.mock('../../../../../src/theme/useWa', async (importOriginal) => ({
   ...(await importOriginal<object>()),
   useReducedMotion: () => view.reduced,
+  useCompact: () => view.compact,
 }));
 vi.mock('../../../../../src/hooks/useWaFormat', () => ({
   useWaFormat: () => ({
@@ -43,6 +44,7 @@ beforeEach(() => {
 afterEach(() => {
   vi.useRealTimers();
   view.reduced = false;
+  view.compact = false;
   scrollTo.mockReset();
 });
 
@@ -86,6 +88,16 @@ describe('MessageList', () => {
     expect(screen.getByText(`b1 tail=true time:${today}`)).toBeInTheDocument();
     expect(screen.getByText(`b2 tail=false time:${today + 1000}`)).toBeInTheDocument();
     expect(screen.getByText(`u1 tail=true time:${today + 2000}`)).toBeInTheDocument();
+  });
+
+  it('keeps a wide gutter on a wide screen and a narrow one on a phone', () => {
+    const { unmount } = renderWithProviders(<MessageList messages={[]} typing={false} />);
+    expect(screen.getByRole('region', { name: 'Messages' })).toHaveStyle({ paddingLeft: '63px' });
+    unmount();
+
+    view.compact = true;
+    renderWithProviders(<MessageList messages={[]} typing={false} />);
+    expect(screen.getByRole('region', { name: 'Messages' })).toHaveStyle({ paddingLeft: '12px' });
   });
 
   it('shows the typing bubble while the business types', () => {

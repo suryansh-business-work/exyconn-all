@@ -18,8 +18,6 @@ import { APIs } from '../../shared/config/apis';
 import { getScoreColor } from '../../shared/utils/scoreColor';
 
 interface VisibilityResult {
-  title: string;
-  description: string;
   score: number;
   hasStructuredData: boolean;
   headings: { h1: number; h2: number };
@@ -59,13 +57,11 @@ const AISearchVisibility: React.FC = () => {
       if (!data.success) throw new Error(data.error || 'Failed to analyze');
       const d = data.data;
       setResult({
-        title: d.title || '',
-        description: d.metaDescription || '',
-        score: d.score || 0,
-        hasStructuredData: d.structuredData?.length > 0 || false,
-        headings: { h1: d.headings?.h1 || 0, h2: d.headings?.h2 || 0 },
-        wordCount: d.content?.wordCount || 0,
-        links: { internal: d.links?.internal || 0, external: d.links?.external || 0 },
+        score: d.score,
+        hasStructuredData: d.schemaMarkup.length > 0,
+        headings: { h1: d.headings.h1?.length ?? 0, h2: d.headings.h2?.length ?? 0 },
+        wordCount: d.wordCount,
+        links: { internal: d.links.internal, external: d.links.external },
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');

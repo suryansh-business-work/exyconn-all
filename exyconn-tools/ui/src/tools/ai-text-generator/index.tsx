@@ -35,6 +35,8 @@ const AITextGenerator: React.FC = () => {
     { value: 'meta-description', label: 'Meta Description' },
   ];
 
+  const typeLabels: Record<string, string> = Object.fromEntries(contentTypes.map((t) => [t.value, t.label]));
+
   const tones = [
     { value: 'professional', label: 'Professional' },
     { value: 'casual', label: 'Casual' },
@@ -44,7 +46,6 @@ const AITextGenerator: React.FC = () => {
   ];
 
   const handleGenerate = async () => {
-    if (!topic.trim()) return;
     setIsLoading(true);
     setError(null);
     setResult('');
@@ -53,7 +54,7 @@ const AITextGenerator: React.FC = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          text: `Generate a ${contentTypes.find((t) => t.value === type)?.label || type} about: ${topic}. Tone: ${tone}.`,
+          text: `Generate a ${typeLabels[type]} about: ${topic}. Tone: ${tone}.`,
           style: type,
         }),
       });
@@ -61,7 +62,7 @@ const AITextGenerator: React.FC = () => {
       if (!data.success) throw new Error(data.error || 'Failed to generate');
       const d = data.data;
       const generated = [
-        `[${contentTypes.find((t) => t.value === type)?.label}] Topic: "${topic}"`,
+        `[${typeLabels[type]}] Topic: "${topic}"`,
         `Tone: ${tone}`,
         '',
         `Analysis:`,
@@ -154,7 +155,7 @@ const AITextGenerator: React.FC = () => {
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Typography variant="h6">Generated Content</Typography>
-                    <Chip label={contentTypes.find((t) => t.value === type)?.label} size="small" color="primary" />
+                    <Chip label={typeLabels[type]} size="small" color="primary" />
                   </Box>
                   <Button size="small" startIcon={<ContentCopy />} onClick={handleCopy} sx={{ textTransform: 'none' }}>
                     {copied ? 'Copied!' : 'Copy'}

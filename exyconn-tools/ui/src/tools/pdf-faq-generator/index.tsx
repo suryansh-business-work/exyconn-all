@@ -44,7 +44,6 @@ const PdfFAQGenerator: React.FC = () => {
   };
 
   const handleGenerate = async () => {
-    if (!file) return;
     const apiKey = requireKey();
     if (!apiKey) return;
     setIsLoading(true);
@@ -52,7 +51,7 @@ const PdfFAQGenerator: React.FC = () => {
 
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', file as File);
 
       const res = await fetch(APIs.converterTools.pdfToMarkdown, {
         method: 'POST',

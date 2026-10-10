@@ -29,7 +29,6 @@ export function ButtonsMessage({ content, frame }: ContentProps<'buttons'>) {
         <MessageText header={content.header} text={content.text} footer={content.footer} />
       </Bubble>
       <ActionRows
-        mine={false}
         items={content.buttons.map((b) => ({
           id: b.id,
           label: b.title,
@@ -49,7 +48,6 @@ export function ListMessage({ content, frame }: ContentProps<'list'>) {
         <MessageText header={content.header} text={content.text} footer={content.footer} />
       </Bubble>
       <ActionRows
-        mine={false}
         items={[
           {
             id: 'open',

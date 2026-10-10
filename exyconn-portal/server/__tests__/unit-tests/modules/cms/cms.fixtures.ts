@@ -12,7 +12,7 @@ export const EDITOR_EMAIL = 'editor@exyconn.test';
  * user record backs the id, so "last edited by" falls back to the token's email.
  */
 export const editorCtx = (roles: Role[] = [ROLES.SUPER_ADMIN]): GraphQLContext => ({
-  user: { id: String(new Types.ObjectId()), roles, email: EDITOR_EMAIL },
+  user: { id: new Types.ObjectId().toHexString(), roles, email: EDITOR_EMAIL },
 });
 
 export function seedSite(slug = 'main', extra: Record<string, unknown> = {}) {

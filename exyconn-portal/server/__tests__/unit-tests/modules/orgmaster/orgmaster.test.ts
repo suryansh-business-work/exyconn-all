@@ -14,7 +14,7 @@ const Q = orgMasterResolvers.Query as Record<string, Resolve>;
 const M = orgMasterResolvers.Mutation as Record<string, Resolve>;
 
 const ctxAs = (...roles: Role[]): GraphQLContext => ({
-  user: { id: String(new Types.ObjectId()), email: 'people@test.example', roles },
+  user: { id: new Types.ObjectId().toHexString(), email: 'people@test.example', roles },
   ip: '192.0.2.10',
 });
 const hr = ctxAs(ROLES.HR);

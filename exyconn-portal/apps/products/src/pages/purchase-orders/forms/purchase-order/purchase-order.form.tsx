@@ -40,7 +40,7 @@ const schema = z.object({
   // An order for nothing cannot be received, so it cannot be raised either.
   lines: z.array(lineSchema).min(1, 'Add at least one line'),
   currency: z.string().trim().min(1, 'Currency is required'),
-  status: z.nativeEnum(PurchaseOrderStatus),
+  status: z.enum(PurchaseOrderStatus),
   orderDate: z.string().min(1, 'Order date is required'),
   expectedDate: z.string(),
   notes: z.string().trim(),

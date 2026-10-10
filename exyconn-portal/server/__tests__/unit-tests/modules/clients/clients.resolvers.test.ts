@@ -146,13 +146,13 @@ describe('setClientProjects', () => {
     await expect(
       clientsResolvers.Mutation.setClientProjects(
         null,
-        { clientId: String(client._id), projectIds: [project.id] },
+        { clientId: client._id.toHexString(), projectIds: [project.id] },
         signedInAs(ROLES.PROJECTS),
       ),
     ).resolves.toBe(true);
 
     const linked = await ProjectModel.findById(project._id).lean();
-    expect(linked).toMatchObject({ clientId: String(client._id), clientName: 'Priya' });
+    expect(linked).toMatchObject({ clientId: client._id.toHexString(), clientName: 'Priya' });
   });
 
   it('refuses Finance, who may pick clients but not edit projects', async () => {
@@ -161,7 +161,7 @@ describe('setClientProjects', () => {
     await expect(
       clientsResolvers.Mutation.setClientProjects(
         null,
-        { clientId: String(client._id), projectIds: [] },
+        { clientId: client._id.toHexString(), projectIds: [] },
         signedInAs(ROLES.FINANCE),
       ),
     ).rejects.toThrow('You do not have access to this resource');

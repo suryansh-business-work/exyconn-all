@@ -28,7 +28,7 @@ beforeEach(async () => {
   const invoice = await seedInvoice(clientId);
   const attempt = await PaymentAttemptModel.create({
     gateway: 'PAYONEER',
-    invoiceId: String(invoice._id),
+    invoiceId: invoice._id.toHexString(),
     invoiceNumber: 'INV-7',
     clientId,
     contactId: 'contact-1',
@@ -36,7 +36,7 @@ beforeEach(async () => {
     currency: 'EUR',
     externalId: 'L-1',
   });
-  attemptId = String(attempt._id);
+  attemptId = attempt._id.toHexString();
 });
 
 afterEach(() => {

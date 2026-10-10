@@ -116,7 +116,7 @@ describe('Maintenance window edits', () => {
     expect(() =>
       Mutation.updateStatusMaintenance(
         null,
-        { id: String(saved._id), input: window(at(2 * HOUR), at(2 * HOUR)) },
+        { id: saved._id.toHexString(), input: window(at(2 * HOUR), at(2 * HOUR)) },
         tech,
       ),
     ).toThrow('end after it starts');
@@ -128,7 +128,7 @@ describe('Maintenance window edits', () => {
 
     await Mutation.updateStatusMaintenance(
       null,
-      { id: String(saved._id), input: window(at(HOUR), endsAt) },
+      { id: saved._id.toHexString(), input: window(at(HOUR), endsAt) },
       tech,
     );
 
@@ -143,7 +143,7 @@ describe('Incident deletion', () => {
       serviceName: 'HR Portal',
       startedAt: new Date(),
     });
-    const id = String(incident._id);
+    const id = incident._id.toHexString();
 
     await expect(
       codeOf(Promise.resolve(Mutation.deleteStatusIncident(null, { id } as never, sales))),
@@ -164,7 +164,7 @@ describe('Problem report triage', () => {
       codeOf(
         Mutation.updateProblemReport(
           null,
-          { id: String(saved._id), input: { ...record, status: 'CLOSED' } },
+          { id: saved._id.toHexString(), input: { ...record, status: 'CLOSED' } },
           sales,
         ),
       ),
@@ -182,7 +182,7 @@ describe('Problem report triage', () => {
 
     const updated = await Mutation.updateProblemReport(
       null,
-      { id: String(saved._id), input: { ...record, status: 'RESOLVED' } },
+      { id: saved._id.toHexString(), input: { ...record, status: 'RESOLVED' } },
       tech,
     );
 

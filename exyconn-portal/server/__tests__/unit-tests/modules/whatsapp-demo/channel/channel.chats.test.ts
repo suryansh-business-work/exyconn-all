@@ -34,7 +34,7 @@ describe('toRecord', () => {
   it('fills in what a freshly created chat has not stored yet', () => {
     const id = new Types.ObjectId();
     expect(toRecord({ _id: id, waId: WA_ID })).toEqual({
-      id: String(id),
+      id: id.toHexString(),
       waId: WA_ID,
       name: '',
       demoKey: null,

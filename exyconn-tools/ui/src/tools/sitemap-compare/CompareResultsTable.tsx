@@ -45,9 +45,8 @@ const CompareResultsTable: React.FC<CompareResultsTableProps> = ({ result }) => 
     );
   }
 
-  const activeData = [result.added, result.removed, result.modified][activeTab] ?? result.modified;
-  const totalCount = activeData.length;
-  const paginatedData = activeData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const totalCount = [result.added, result.removed, result.modified][activeTab].length;
+  const pageOf = <T,>(items: T[]) => items.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
@@ -87,44 +86,44 @@ const CompareResultsTable: React.FC<CompareResultsTableProps> = ({ result }) => 
           </TableHead>
           <TableBody>
             {activeTab === 0 &&
-              paginatedData.map((u) => (
-                <TableRow key={'loc' in u ? u.loc : ''} hover sx={{ bgcolor: 'success.50' }}>
+              pageOf(result.added).map((u) => (
+                <TableRow key={u.loc} hover sx={{ bgcolor: 'success.50' }}>
                   <TableCell>
                     <Typography variant="body2" noWrap sx={{ maxWidth: 400 }}>
-                      {'loc' in u ? u.loc : ''}
+                      {u.loc}
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="caption">{'lastmod' in u ? u.lastmod || '-' : '-'}</Typography>
+                    <Typography variant="caption">{u.lastmod || '-'}</Typography>
                   </TableCell>
                 </TableRow>
               ))}
             {activeTab === 1 &&
-              paginatedData.map((u) => (
-                <TableRow key={'loc' in u ? u.loc : ''} hover sx={{ bgcolor: 'error.50' }}>
+              pageOf(result.removed).map((u) => (
+                <TableRow key={u.loc} hover sx={{ bgcolor: 'error.50' }}>
                   <TableCell>
                     <Typography variant="body2" noWrap sx={{ maxWidth: 400 }}>
-                      {'loc' in u ? u.loc : ''}
+                      {u.loc}
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="caption">{'lastmod' in u ? u.lastmod || '-' : '-'}</Typography>
+                    <Typography variant="caption">{u.lastmod || '-'}</Typography>
                   </TableCell>
                 </TableRow>
               ))}
             {activeTab === 2 &&
-              paginatedData.map((u) => (
-                <TableRow key={'url' in u ? u.url : ''} hover sx={{ bgcolor: 'warning.50' }}>
+              pageOf(result.modified).map((u) => (
+                <TableRow key={u.url} hover sx={{ bgcolor: 'warning.50' }}>
                   <TableCell>
                     <Typography variant="body2" noWrap sx={{ maxWidth: 300 }}>
-                      {'url' in u ? u.url : ''}
+                      {u.url}
                     </Typography>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="caption">{'oldLastmod' in u ? u.oldLastmod || '-' : '-'}</Typography>
+                    <Typography variant="caption">{u.oldLastmod || '-'}</Typography>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="caption">{'newLastmod' in u ? u.newLastmod || '-' : '-'}</Typography>
+                    <Typography variant="caption">{u.newLastmod || '-'}</Typography>
                   </TableCell>
                 </TableRow>
               ))}

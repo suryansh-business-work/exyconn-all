@@ -57,26 +57,28 @@ describe('createCrudService', () => {
 
   it('gets one record and reports a missing one by its label', async () => {
     const created = (await service.create({ name: 'Widget' })) as { _id: Types.ObjectId };
-    await expect(service.get(String(created._id))).resolves.toMatchObject({ name: 'Widget' });
-    await expect(service.get(String(new Types.ObjectId()))).rejects.toThrow('Probe not found');
+    await expect(service.get(created._id.toHexString())).resolves.toMatchObject({ name: 'Widget' });
+    await expect(service.get(new Types.ObjectId().toHexString())).rejects.toThrow(
+      'Probe not found',
+    );
   });
 
   it('updates a record and refuses what a create would refuse', async () => {
     const created = (await service.create({ name: 'Widget' })) as { _id: Types.ObjectId };
-    const id = String(created._id);
+    const id = created._id.toHexString();
     await expect(service.update(id, { status: 'DONE' })).resolves.toMatchObject({
       name: 'Widget',
       status: 'DONE',
     });
     await expect(codeOf(service.update(id, { currency: '₹' }))).resolves.toBe('ValidationError');
     await expect(
-      codeOf(service.update(String(new Types.ObjectId()), { status: 'X' })),
+      codeOf(service.update(new Types.ObjectId().toHexString(), { status: 'X' })),
     ).resolves.toBe('NOT_FOUND');
   });
 
   it('removes a record once', async () => {
     const created = (await service.create({ name: 'Widget' })) as { _id: Types.ObjectId };
-    const id = String(created._id);
+    const id = created._id.toHexString();
     await expect(service.remove(id)).resolves.toBe(true);
     await expect(codeOf(service.remove(id))).resolves.toBe('NOT_FOUND');
   });

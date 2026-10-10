@@ -10,7 +10,7 @@ import { typeDefs } from '../../src/graphql';
 function duplicates(): string[] {
   const seen = new Map<string, number>();
   const note = (name: string) => seen.set(name, (seen.get(name) ?? 0) + 1);
-  for (const doc of (typeDefs as unknown as DocumentNode[]).flat()) {
+  for (const doc of typeDefs.flat()) {
     for (const def of doc.definitions) {
       const isDefinition =
         def.kind === Kind.OBJECT_TYPE_DEFINITION ||

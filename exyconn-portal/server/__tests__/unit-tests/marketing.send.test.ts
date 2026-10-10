@@ -51,17 +51,17 @@ describe('Sending a campaign to an audience', () => {
     ]);
     const audience = await AudienceListModel.create({
       name: 'Newsletter',
-      clientIds: [String(a._id), String(b._id)],
+      clientIds: [a._id.toHexString(), b._id.toHexString()],
     });
     sendCustomEmail.mockResolvedValue(undefined);
 
-    const result = (await send(String(campaign._id), String(audience._id))) as {
+    const result = (await send(campaign._id.toHexString(), audience._id.toHexString())) as {
       sent: number;
       failed: number;
     };
 
     expect(result).toMatchObject({ sent: 2, failed: 0 });
-    const log = await CampaignSendModel.find({ campaignId: String(campaign._id) }).lean();
+    const log = await CampaignSendModel.find({ campaignId: campaign._id.toHexString() }).lean();
     expect(log.map((row) => row.to).sort((x, y) => x.localeCompare(y))).toEqual([
       'ada@example.com',
       'bo@example.com',
@@ -73,14 +73,16 @@ describe('Sending a campaign to an audience', () => {
     const client = await seedClient('Ada', 'ada@example.com');
     const audience = await AudienceListModel.create({
       name: 'Newsletter',
-      clientIds: [String(client._id)],
+      clientIds: [client._id.toHexString()],
     });
     sendCustomEmail.mockRejectedValue(new Error('550 mailbox unavailable'));
 
-    const result = (await send(String(campaign._id), String(audience._id))) as { failed: number };
+    const result = (await send(campaign._id.toHexString(), audience._id.toHexString())) as {
+      failed: number;
+    };
 
     expect(result.failed).toBe(1);
-    const [row] = await CampaignSendModel.find({ campaignId: String(campaign._id) }).lean();
+    const [row] = await CampaignSendModel.find({ campaignId: campaign._id.toHexString() }).lean();
     expect(row.status).toBe('FAILED');
     expect(row.error).toContain('550');
   });
@@ -93,11 +95,11 @@ describe('Sending a campaign to an audience', () => {
     ]);
     const audience = await AudienceListModel.create({
       name: 'Newsletter',
-      clientIds: [String(a._id), String(b._id)],
+      clientIds: [a._id.toHexString(), b._id.toHexString()],
     });
     sendCustomEmail.mockResolvedValueOnce(undefined).mockRejectedValueOnce(new Error('nope'));
 
-    await send(String(campaign._id), String(audience._id));
+    await send(campaign._id.toHexString(), audience._id.toHexString());
 
     const saved = await CampaignModel.findById(campaign._id).lean();
     expect(saved?.recipientsCount).toBe(1);
@@ -108,7 +110,7 @@ describe('Sending a campaign to an audience', () => {
     const campaign = await seedCampaign();
     const audience = await AudienceListModel.create({ name: 'Empty', clientIds: [] });
 
-    await expect(send(String(campaign._id), String(audience._id))).rejects.toThrow(
+    await expect(send(campaign._id.toHexString(), audience._id.toHexString())).rejects.toThrow(
       /has nobody in it/,
     );
     expect(sendCustomEmail).not.toHaveBeenCalled();
@@ -125,7 +127,7 @@ describe('Sending a campaign to an audience', () => {
     });
     const audience = await AudienceListModel.create({ name: 'Newsletter', clientIds: ['x'] });
 
-    await expect(send(String(campaign._id), String(audience._id))).rejects.toThrow(
+    await expect(send(campaign._id.toHexString(), audience._id.toHexString())).rejects.toThrow(
       /subject and body/,
     );
   });
@@ -134,7 +136,9 @@ describe('Sending a campaign to an audience', () => {
     const campaign = await seedCampaign();
     sendCustomEmail.mockResolvedValue(undefined);
 
-    const result = (await sendTest(String(campaign._id), 'me@exyconn.com')) as { sent: number };
+    const result = (await sendTest(campaign._id.toHexString(), 'me@exyconn.com')) as {
+      sent: number;
+    };
 
     expect(result.sent).toBe(1);
     expect(sendCustomEmail).toHaveBeenCalledWith(
@@ -149,7 +153,7 @@ describe('Sending a campaign to an audience', () => {
     const campaign = await seedCampaign();
     sendCustomEmail.mockRejectedValue(new Error('550 mailbox unavailable'));
 
-    await expect(sendTest(String(campaign._id), 'me@exyconn.com')).rejects.toThrow(/550/);
+    await expect(sendTest(campaign._id.toHexString(), 'me@exyconn.com')).rejects.toThrow(/550/);
   });
 
   it('needs an audience when there is no test address', async () => {
@@ -158,7 +162,7 @@ describe('Sending a campaign to an audience', () => {
     await expect(
       marketingCustomResolvers.Mutation.sendCampaign(
         null,
-        { id: String(campaign._id) },
+        { id: campaign._id.toHexString() },
         asMarketing,
       ),
     ).rejects.toThrow(/Choose an audience/);
@@ -168,14 +172,14 @@ describe('Sending a campaign to an audience', () => {
     const campaign = await seedCampaign();
     await CampaignSendModel.create([
       {
-        campaignId: String(campaign._id),
+        campaignId: campaign._id.toHexString(),
         audienceListId: 'a1',
         to: 'old@example.com',
         status: 'SENT',
         sentAt: new Date('2027-01-01'),
       },
       {
-        campaignId: String(campaign._id),
+        campaignId: campaign._id.toHexString(),
         audienceListId: 'a1',
         to: 'new@example.com',
         status: 'SENT',
@@ -185,7 +189,7 @@ describe('Sending a campaign to an audience', () => {
 
     const rows = (await marketingCustomResolvers.Query.listCampaignSends(
       null,
-      { campaignId: String(campaign._id) },
+      { campaignId: campaign._id.toHexString() },
       asMarketing,
     )) as Array<{ to: string }>;
 

@@ -11,7 +11,7 @@ import { TrackerAccessModel, TrackerDeviceModel } from '../../../../src/modules/
 import type { GraphQLContext } from '../../../../src/middleware/auth';
 import { codeOf } from '../codeOf';
 
-const TOKEN = `device-token-${new Types.ObjectId().toString()}`;
+const TOKEN = `device-token-${new Types.ObjectId().toHexString()}`;
 
 /** A device row for `userId`, holding the hash of TOKEN unless told otherwise. */
 function device(userId: string, overrides: Record<string, unknown> = {}) {
@@ -58,31 +58,31 @@ describe('which requests a device token may run', () => {
 
 describe('whether a device token is still live', () => {
   it('is live while the row holds this token and is in service', async () => {
-    const userId = new Types.ObjectId().toString();
+    const userId = new Types.ObjectId().toHexString();
     await device(userId);
 
     await expect(deviceTokenIsLive(userId, 'laptop-1', TOKEN)).resolves.toBe(true);
   });
 
   it('is dead once a later sign-in replaced the token on the same device', async () => {
-    const userId = new Types.ObjectId().toString();
+    const userId = new Types.ObjectId().toHexString();
     await device(userId, { tokenHash: hashToken(`${TOKEN}-newer`) });
 
     await expect(deviceTokenIsLive(userId, 'laptop-1', TOKEN)).resolves.toBe(false);
   });
 
   it('is dead for a revoked device, or one bound to somebody else', async () => {
-    const userId = new Types.ObjectId().toString();
+    const userId = new Types.ObjectId().toHexString();
     await device(userId, { isActive: false, revokedAt: new Date() });
 
     await expect(deviceTokenIsLive(userId, 'laptop-1', TOKEN)).resolves.toBe(false);
     await expect(
-      deviceTokenIsLive(new Types.ObjectId().toString(), 'laptop-1', TOKEN),
+      deviceTokenIsLive(new Types.ObjectId().toHexString(), 'laptop-1', TOKEN),
     ).resolves.toBe(false);
   });
 
   it('is dead for an active row that still carries a revocation date', async () => {
-    const userId = new Types.ObjectId().toString();
+    const userId = new Types.ObjectId().toHexString();
     await device(userId, { revokedAt: new Date() });
 
     await expect(deviceTokenIsLive(userId, 'laptop-1', TOKEN)).resolves.toBe(false);
@@ -92,7 +92,7 @@ describe('whether a device token is still live', () => {
 describe('assertTrackerDevice', () => {
   it('refuses a portal session that carries no device', async () => {
     const ctx: GraphQLContext = {
-      user: { id: new Types.ObjectId().toString(), roles: [ROLES.EMPLOYEE], email: 'a@b.co' },
+      user: { id: new Types.ObjectId().toHexString(), roles: [ROLES.EMPLOYEE], email: 'a@b.co' },
     };
 
     await expect(codeOf(assertTrackerDevice(ctx))).resolves.toBe('UNAUTHENTICATED');
@@ -100,14 +100,14 @@ describe('assertTrackerDevice', () => {
   });
 
   it('refuses a device whose row no longer exists', async () => {
-    const userId = new Types.ObjectId().toString();
+    const userId = new Types.ObjectId().toHexString();
     await TrackerAccessModel.create({ userId, grantedBy: 'admin' });
 
     await expect(assertTrackerDevice(deviceCtx(userId))).rejects.toThrow(/revoked/);
   });
 
   it('refuses a device that is active but carries a revocation date', async () => {
-    const userId = new Types.ObjectId().toString();
+    const userId = new Types.ObjectId().toHexString();
     await TrackerAccessModel.create({ userId, grantedBy: 'admin' });
     await device(userId, { revokedAt: new Date() });
 
@@ -115,14 +115,14 @@ describe('assertTrackerDevice', () => {
   });
 
   it('refuses a device whose employee never had a tracker grant', async () => {
-    const userId = new Types.ObjectId().toString();
+    const userId = new Types.ObjectId().toHexString();
     await device(userId);
 
     await expect(codeOf(assertTrackerDevice(deviceCtx(userId)))).resolves.toBe('FORBIDDEN');
   });
 
   it('answers with the employee and device the token names', async () => {
-    const userId = new Types.ObjectId().toString();
+    const userId = new Types.ObjectId().toHexString();
     await TrackerAccessModel.create({ userId, grantedBy: 'admin' });
     await device(userId);
 
@@ -135,7 +135,7 @@ describe('assertTrackerDevice', () => {
 
 describe('assertEmployee on a portal session', () => {
   it('answers with the signed-in user without asking for a device', async () => {
-    const id = new Types.ObjectId().toString();
+    const id = new Types.ObjectId().toHexString();
     const ctx: GraphQLContext = { user: { id, roles: [ROLES.EMPLOYEE], email: 'emp@exyconn.com' } };
 
     await expect(assertEmployee(ctx)).resolves.toMatchObject({ id });

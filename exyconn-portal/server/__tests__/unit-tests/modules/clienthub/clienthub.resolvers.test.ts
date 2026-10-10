@@ -33,7 +33,7 @@ beforeEach(async () => {
     email: 'dana@acme.test',
     company: 'Acme',
   });
-  clientId = String(client._id);
+  clientId = client._id.toHexString();
   const contact: ClientHubContact = {
     id: 'contact-1',
     clientId,

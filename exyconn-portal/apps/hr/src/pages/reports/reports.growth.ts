@@ -10,7 +10,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { defineReport } from './reports.types';
 import { fetchAllPages } from './fetchAll';
-import { nameLookup } from './reports.people';
+import { withEmployeeNames } from './reports.people';
 
 type Named<T> = T & { employeeName: string };
 
@@ -29,13 +29,11 @@ export const goalsReport = defineReport<Goal>({
     { header: 'Start', value: (g) => g.startDate },
     { header: 'End', value: (g) => g.endDate },
   ],
-  load: async (client) => {
-    const [rows, names] = await Promise.all([
+  load: (client) =>
+    withEmployeeNames(
+      client,
       fetchAllPages(client, ListGoalsPagedDocument, (d: ListGoalsPagedQuery) => d.listGoalsPaged),
-      nameLookup(client),
-    ]);
-    return rows.map((r) => ({ ...r, employeeName: names.get(r.employeeId) ?? r.employeeId }));
-  },
+    ),
 });
 
 type Review = Named<
@@ -53,17 +51,15 @@ export const performanceReport = defineReport<Review>({
     { header: 'Rating', value: (r) => r.rating },
     { header: 'Updated', value: (r) => r.updatedAt },
   ],
-  load: async (client) => {
-    const [rows, names] = await Promise.all([
+  load: (client) =>
+    withEmployeeNames(
+      client,
       fetchAllPages(
         client,
         ListPerformanceReviewsPagedDocument,
         (d: ListPerformanceReviewsPagedQuery) => d.listPerformanceReviewsPaged,
       ),
-      nameLookup(client),
-    ]);
-    return rows.map((r) => ({ ...r, employeeName: names.get(r.employeeId) ?? r.employeeId }));
-  },
+    ),
 });
 
 type Training = Named<ListTrainingsPagedQuery['listTrainingsPaged']['rows'][number]>;
@@ -80,17 +76,15 @@ export const trainingReport = defineReport<Training>({
     { header: 'Due', value: (t) => t.dueOn },
     { header: 'Completed', value: (t) => t.completedOn },
   ],
-  load: async (client) => {
-    const [rows, names] = await Promise.all([
+  load: (client) =>
+    withEmployeeNames(
+      client,
       fetchAllPages(
         client,
         ListTrainingsPagedDocument,
         (d: ListTrainingsPagedQuery) => d.listTrainingsPaged,
       ),
-      nameLookup(client),
-    ]);
-    return rows.map((r) => ({ ...r, employeeName: names.get(r.employeeId) ?? r.employeeId }));
-  },
+    ),
 });
 
 type Exit = Named<ListExitRecordsPagedQuery['listExitRecordsPaged']['rows'][number]>;
@@ -108,15 +102,13 @@ export const exitsReport = defineReport<Exit>({
     { header: 'Documents issued', value: (e) => (e.documentsIssued ? 'Yes' : 'No') },
     { header: 'Final settlement', value: (e) => e.finalSettlementAmount },
   ],
-  load: async (client) => {
-    const [rows, names] = await Promise.all([
+  load: (client) =>
+    withEmployeeNames(
+      client,
       fetchAllPages(
         client,
         ListExitRecordsPagedDocument,
         (d: ListExitRecordsPagedQuery) => d.listExitRecordsPaged,
       ),
-      nameLookup(client),
-    ]);
-    return rows.map((r) => ({ ...r, employeeName: names.get(r.employeeId) ?? r.employeeId }));
-  },
+    ),
 });

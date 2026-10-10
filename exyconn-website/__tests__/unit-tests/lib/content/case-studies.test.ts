@@ -11,6 +11,17 @@ import { caseStudy } from "../cms/fixtures";
 const FLAT = [0, 0, 0, 0, 0, 0, 0, 0];
 
 describe("extractMetrics", () => {
+  it("finds nothing in a number that has no unit, even at the very end of the text", () => {
+    expect(extractMetrics("Headcount grew to 40")).toEqual([]);
+    expect(extractMetrics("Headcount grew to 40.")).toEqual([]);
+  });
+
+  it("collapses the extra spaces left where the number and its preposition were", () => {
+    expect(extractMetrics("Cutting triage time  by 62%")).toEqual([
+      { value: "62%", amount: 62, label: "Cutting triage time" },
+    ]);
+  });
+
   it("reads percentages and multipliers with the clause that states them", () => {
     expect(
       extractMetrics("Cut triage time by 62%. Applications rose 3x, costs fell 1,200.5 × overall")

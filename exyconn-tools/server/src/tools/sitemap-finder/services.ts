@@ -189,8 +189,6 @@ function countUrlsInSitemap(
         const $ = cheerio.load(content);
         return $("a[href]").length;
       }
-      default:
-        return 0;
     }
   } catch {
     return 0;

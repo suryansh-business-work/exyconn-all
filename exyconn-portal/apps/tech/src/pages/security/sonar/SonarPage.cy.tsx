@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import type { MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -12,12 +12,15 @@ import {
 import { SonarPage } from './SonarPage';
 import { HOST, issue, overview } from './SonarPage.fixtures';
 
-const overviewMock = (data: object, variables: Record<string, unknown> = {}): MockedResponse => ({
+const overviewMock = (
+  data: object,
+  variables: Record<string, unknown> = {},
+): MockLink.MockedResponse => ({
   request: { query: SonarOverviewDocument, variables },
   result: { data },
 });
 
-const mount = (mocks: MockedResponse[]) => {
+const mount = (mocks: MockLink.MockedResponse[]) => {
   cy.viewport(1280, 1000);
   cy.mount(
     <MemoryRouter initialEntries={['/tech/security/sonar']}>

@@ -62,5 +62,8 @@ export function validRazorpaySignature(
   signature: string | undefined,
   webhookSecret: string,
 ): boolean {
-  return Boolean(signature) && sameHex(signature ?? '', hmacHex(webhookSecret, raw));
+  if (!signature) {
+    return false;
+  }
+  return sameHex(signature, hmacHex(webhookSecret, raw));
 }

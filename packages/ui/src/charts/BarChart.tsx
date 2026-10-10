@@ -95,7 +95,7 @@ export function BarChart({
       interaction: { mode: 'index', intersect: false },
       plugins: sharedPlugins(palette, data.series.length, formatValue),
       scales: horizontal ? { x: value, y: category } : { x: category, y: value },
-    } as ChartOptions<'bar'>;
+    };
   }, [palette, formatValue, stacked, horizontal, integer, data.series.length]);
 
   return (

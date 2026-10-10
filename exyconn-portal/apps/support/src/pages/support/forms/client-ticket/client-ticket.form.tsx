@@ -27,13 +27,13 @@ const schema = z.object({
     .trim()
     .min(subject.min, 'Add a short subject')
     .max(subject.max, `At most ${subject.max} characters`),
-  category: z.nativeEnum(SupportCategory),
+  category: z.enum(SupportCategory),
   description: z
     .string()
     .trim()
     .min(description.min, 'Describe the issue in a bit more detail')
     .max(description.max, `At most ${description.max} characters`),
-  priority: z.nativeEnum(SupportPriority),
+  priority: z.enum(SupportPriority),
 });
 type Values = z.infer<typeof schema>;
 

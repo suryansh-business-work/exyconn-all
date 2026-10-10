@@ -24,7 +24,7 @@ const person = async (name: string, managerId: string | null = null) => {
     roles: [ROLES.EMPLOYEE],
     managerId,
   });
-  return String(user._id);
+  return user._id.toHexString();
 };
 
 const day = (iso: string) => new Date(`${iso}T00:00:00.000Z`);
@@ -88,7 +88,7 @@ describe('how far a caller reaches into a source', () => {
   it('names a requester it cannot find as Unknown', async () => {
     const admin = await person('Root');
     await leaveFor('not-an-object-id');
-    await leaveFor(String(new Types.ObjectId()));
+    await leaveFor(new Types.ObjectId().toHexString());
 
     const queue = await myApprovals(ctx(admin, [ROLES.ADMIN]));
 
@@ -104,7 +104,7 @@ describe('how far a caller reaches into a source', () => {
     const [item] = (await myApprovals(ctx(admin, [ROLES.ADMIN]), 'LEAVE')).items;
 
     expect(item).toMatchObject({
-      id: `LEAVE:${leave._id}`,
+      id: `LEAVE:${leave._id.toHexString()}`,
       kindLabel: 'Leave Request',
       link: '/hr/leave',
       title: 'unpaid leave — 3 day(s)',

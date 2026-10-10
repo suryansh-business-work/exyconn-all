@@ -54,11 +54,10 @@ export default function OcrPdf() {
   );
 
   const extractText = useCallback(async () => {
-    if (!file) return;
     setProcessing(true);
     setExtractedText('');
     try {
-      const arrayBuffer = await file.arrayBuffer();
+      const arrayBuffer = await file!.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       let fullText = '';
       for (let i = 1; i <= pdf.numPages; i++) {
@@ -93,7 +92,7 @@ export default function OcrPdf() {
     const blob = new Blob([extractedText], { type: 'text/plain' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `${file?.name.replace('.pdf', '') || 'ocr'}-extracted.txt`;
+    a.download = `${file!.name.replace('.pdf', '') || 'ocr'}-extracted.txt`;
     a.click();
     URL.revokeObjectURL(a.href);
   }, [extractedText, file]);

@@ -12,10 +12,10 @@ import { TABLE_QUERY_LIMITS } from '../../../../src/utils/tableQuery';
 import { currentOrganizationId } from '../../../../src/lib/tenant';
 
 const HOUR = 3_600_000;
-const PROJECT = new Types.ObjectId().toString();
+const PROJECT = new Types.ObjectId().toHexString();
 const DAY_9 = new Date('2026-09-09T00:00:00.000Z');
 const DAY_10 = new Date('2026-09-10T00:00:00.000Z');
-const E1 = new Types.ObjectId().toString();
+const E1 = new Types.ObjectId().toHexString();
 
 const page = (extra: Partial<Parameters<typeof attendancePage>[0]> = {}) =>
   attendancePage({ page: 0, pageSize: 25, ...extra });
@@ -29,12 +29,12 @@ async function employee(name: string) {
     passwordHash: 'not-a-real-hash',
     roles: ['EMPLOYEE'],
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 describe('attendance register edge cases', () => {
   it('names a record whose employee no longer exists by its id', async () => {
-    const gone = new Types.ObjectId().toString();
+    const gone = new Types.ObjectId().toHexString();
     await AttendanceModel.create({ employeeId: gone, date: DAY_10, status: 'PRESENT' });
 
     const [row] = (await page()).rows;

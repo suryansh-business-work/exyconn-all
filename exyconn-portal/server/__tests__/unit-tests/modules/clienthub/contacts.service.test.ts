@@ -28,7 +28,7 @@ describe('contactsService.add', () => {
     const client = await seedClient();
 
     const contact = await contactsService.add({
-      clientId: String(client._id),
+      clientId: client._id.toHexString(),
       name: '  Dana Reyes ',
       email: ' Dana@Acme.TEST ',
     });
@@ -47,7 +47,11 @@ describe('contactsService.add', () => {
     const client = await seedClient();
     await ClientModel.collection.updateOne({ _id: client._id }, { $set: { company: '' } });
 
-    await contactsService.add({ clientId: String(client._id), name: 'Dana', email: 'd@acme.test' });
+    await contactsService.add({
+      clientId: client._id.toHexString(),
+      name: 'Dana',
+      email: 'd@acme.test',
+    });
 
     expect(send.mock.calls[0][0].variables.clientName).toBe('Dana');
   });
@@ -57,7 +61,11 @@ describe('contactsService.add', () => {
     const logged = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
     send.mockRejectedValueOnce(new Error('SMTP down'));
 
-    await contactsService.add({ clientId: String(client._id), name: 'Dana', email: 'd@acme.test' });
+    await contactsService.add({
+      clientId: client._id.toHexString(),
+      name: 'Dana',
+      email: 'd@acme.test',
+    });
     await flush();
 
     expect(await ClientContactModel.countDocuments({ email: 'd@acme.test' })).toBe(1);
@@ -72,7 +80,7 @@ describe('contactsService.add', () => {
     const client = await seedClient();
 
     await expect(
-      contactsService.add({ clientId: String(client._id), name, email }),
+      contactsService.add({ clientId: client._id.toHexString(), name, email }),
     ).rejects.toThrow(message);
     expect(await ClientContactModel.countDocuments()).toBe(0);
   });
@@ -89,7 +97,7 @@ describe('contactsService.add', () => {
 
   it('refuses an address that already has access', async () => {
     const client = await seedClient();
-    const input = { clientId: String(client._id), name: 'Dana', email: 'd@acme.test' };
+    const input = { clientId: client._id.toHexString(), name: 'Dana', email: 'd@acme.test' };
     await contactsService.add(input);
 
     await expect(contactsService.add(input)).rejects.toThrow(/already has client hub access/);
@@ -99,7 +107,7 @@ describe('contactsService.add', () => {
 describe('contactsService.list', () => {
   it('lists one client’s contacts, oldest first', async () => {
     const client = await seedClient();
-    const clientId = String(client._id);
+    const clientId = client._id.toHexString();
     await ClientContactModel.create({ clientId, name: 'First', email: 'a@acme.test' });
     await ClientContactModel.create({ clientId, name: 'Second', email: 'b@acme.test' });
     await ClientContactModel.create({ clientId: 'other', name: 'Else', email: 'c@x.test' });
@@ -118,7 +126,7 @@ describe('contactsService.setActive', () => {
       email: 'd@x.test',
     });
 
-    const off = await contactsService.setActive(String(contact._id), false);
+    const off = await contactsService.setActive(contact._id.toHexString(), false);
 
     expect(off).toMatchObject({ active: false, tokenVersion: 1 });
   });
@@ -132,7 +140,7 @@ describe('contactsService.setActive', () => {
       tokenVersion: 1,
     });
 
-    const on = await contactsService.setActive(String(contact._id), true);
+    const on = await contactsService.setActive(contact._id.toHexString(), true);
 
     expect(on).toMatchObject({ active: true, tokenVersion: 1 });
   });
@@ -152,7 +160,7 @@ describe('contactsService.remove', () => {
       email: 'd@x.test',
     });
 
-    expect(await contactsService.remove(String(contact._id))).toBe(true);
+    expect(await contactsService.remove(contact._id.toHexString())).toBe(true);
     expect(await ClientContactModel.countDocuments()).toBe(0);
   });
 

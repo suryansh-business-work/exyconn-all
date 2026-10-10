@@ -66,8 +66,9 @@ const GoogleReviewLink: React.FC = () => {
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.error || 'Search failed');
-      setSearchResults(data.data.results || []);
-      if (data.data.results.length === 0) setError('No businesses found. Try a more specific search.');
+      const results: PlaceResult[] = data.data.results || [];
+      setSearchResults(results);
+      if (results.length === 0) setError('No businesses found. Try a more specific search.');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Search failed');
     } finally {
@@ -81,7 +82,6 @@ const GoogleReviewLink: React.FC = () => {
   };
 
   const handleGenerate = () => {
-    if (!placeId.trim()) return;
     setGeneratedLink(`https://search.google.com/local/writereview?placeid=${placeId.trim()}`);
   };
 

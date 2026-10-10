@@ -77,8 +77,8 @@ export const docsService = {
   async movePage(id: string, parentId: string | null, toIndex: number) {
     const page = await DocPageModel.findById(id);
     if (!page) notFound('DocPage');
-    const projectId = page.projectId.toString();
-    const fromParent = page.parentId?.toString() ?? null;
+    const projectId = page.projectId.toHexString();
+    const fromParent = page.parentId?.toHexString() ?? null;
 
     page.parentId = parentId as never;
     await page.save();

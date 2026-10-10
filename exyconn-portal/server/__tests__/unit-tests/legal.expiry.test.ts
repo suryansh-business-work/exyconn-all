@@ -4,7 +4,7 @@ import { sweepReminders } from '../../src/modules/reminders';
 import { NotificationModel } from '../../src/modules/notifications/notification.model';
 import { UserModel } from '../../src/modules/admin/user.model';
 import { ROLES } from '../../src/constants/roles';
-import { useTestOrganization } from '../helpers';
+import { freezeClock, useTestOrganization } from '../helpers';
 
 import '../../src/modules/legal/legal.reminders';
 
@@ -39,6 +39,18 @@ describe('a contract that has run out', () => {
     const running = await ContractModel.findOne({ title: 'Still running' }).lean();
     expect(lapsed?.status).toBe('EXPIRED');
     expect(running?.status).toBe('ACTIVE');
+  });
+
+  it('is judged against the current time when none is given', async () => {
+    freezeClock(NOW.toISOString());
+    try {
+      await contract('Lapsed', -1);
+      await contract('Still running', 30);
+
+      expect(await expireLapsedContracts()).toBe(1);
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   it('leaves a draft and a terminated contract alone', async () => {

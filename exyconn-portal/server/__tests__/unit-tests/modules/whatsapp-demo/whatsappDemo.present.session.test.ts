@@ -48,7 +48,7 @@ describe('a session and its events as the API shows them', () => {
         flowsStarted: undefined,
         flowsCompleted: undefined,
         events: undefined,
-      } as unknown as Partial<SessionRow>),
+      }),
     );
     expect(presented).toMatchObject({
       userName: '',

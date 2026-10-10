@@ -1,4 +1,4 @@
-import type { ReactElement, FormEvent } from 'react';
+import type { ReactElement, SyntheticEvent } from 'react';
 import { useState } from 'react';
 import {
   Alert,
@@ -63,7 +63,7 @@ export default function ManualEntryForm({
     };
   }
 
-  async function submit(event: FormEvent<HTMLFormElement>): Promise<void> {
+  async function submit(event: SyntheticEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     setSubmitted(true);
     if (startedAt === null || endedAt === null || note.trim() === '') {

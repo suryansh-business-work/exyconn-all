@@ -19,7 +19,7 @@ beforeEach(async () => {
   });
   contact = {
     id: 'contact-1',
-    clientId: String(client._id),
+    clientId: client._id.toHexString(),
     name: 'Dana Reyes',
     email: 'dana@acme.test',
     organizationId,
@@ -72,7 +72,7 @@ describe('ticketReplies', () => {
     await reply(own._id, 'Agent-only note', true, new Date('2026-09-01'));
     await reply(own._id, 'First', false, new Date('2026-09-01'));
 
-    const replies = await clientHubService.ticketReplies(contact, String(own._id));
+    const replies = await clientHubService.ticketReplies(contact, own._id.toHexString());
 
     expect(replies.map((row) => row.body)).toEqual(['First', 'Second']);
   });
@@ -80,7 +80,7 @@ describe('ticketReplies', () => {
   it('treats another client’s ticket as not found', async () => {
     const other = await ticket({ clientId: 'someone-else' });
 
-    await expect(clientHubService.ticketReplies(contact, String(other._id))).rejects.toThrow(
+    await expect(clientHubService.ticketReplies(contact, other._id.toHexString())).rejects.toThrow(
       /Ticket not found/,
     );
   });
@@ -122,7 +122,11 @@ describe('replyToTicket', () => {
   it('adds a public reply authored by the contact', async () => {
     const own = await ticket();
 
-    const added = await clientHubService.replyToTicket(contact, String(own._id), '  Thanks!  ');
+    const added = await clientHubService.replyToTicket(
+      contact,
+      own._id.toHexString(),
+      '  Thanks!  ',
+    );
 
     expect(added).toMatchObject({
       id: expect.any(String),
@@ -139,9 +143,9 @@ describe('replyToTicket', () => {
   ])('refuses %s', async (_label, body) => {
     const own = await ticket();
 
-    await expect(clientHubService.replyToTicket(contact, String(own._id), body)).rejects.toThrow(
-      /up to 5000 characters/,
-    );
+    await expect(
+      clientHubService.replyToTicket(contact, own._id.toHexString(), body),
+    ).rejects.toThrow(/up to 5000 characters/);
     expect(await SupportReplyModel.countDocuments()).toBe(0);
   });
 
@@ -149,7 +153,7 @@ describe('replyToTicket', () => {
     const other = await ticket({ clientId: 'someone-else' });
 
     await expect(
-      clientHubService.replyToTicket(contact, String(other._id), 'Hello'),
+      clientHubService.replyToTicket(contact, other._id.toHexString(), 'Hello'),
     ).rejects.toThrow(/Ticket not found/);
   });
 });
@@ -167,7 +171,7 @@ describe('projects', () => {
 
     expect(projects).toEqual([
       expect.objectContaining({
-        id: String(mine._id),
+        id: mine._id.toHexString(),
         name: 'Billing revamp',
         status: 'ACTIVE',
         milestones: [],

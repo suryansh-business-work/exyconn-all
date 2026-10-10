@@ -5,7 +5,7 @@ describe('withId', () => {
   it('maps a Mongo _id onto a string id and keeps every other field', () => {
     const _id = new Types.ObjectId();
     const result = withId({ _id, name: 'Asha' });
-    expect(result).toEqual({ _id, name: 'Asha', id: String(_id) });
+    expect(result).toEqual({ _id, name: 'Asha', id: _id.toHexString() });
   });
 
   it('falls back to an existing id when there is no _id', () => {

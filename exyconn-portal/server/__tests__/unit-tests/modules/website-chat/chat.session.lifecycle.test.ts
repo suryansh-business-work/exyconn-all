@@ -55,14 +55,14 @@ afterEach(() => {
 describe('sessionForPass', () => {
   it('finds the session a live pass names', async () => {
     const session = await createSession();
-    expect(String((await sessionForPass(passFor(session)))?._id)).toBe(String(session._id));
+    expect(String((await sessionForPass(passFor(session)))?._id)).toBe(session._id.toHexString());
   });
 
   it('refuses a forged, retired or orphaned pass', async () => {
     const session = await createSession({ tokenVersion: 1 });
     expect(await sessionForPass('forged')).toBeNull();
-    expect(await sessionForPass(signChatPass(String(session._id), 0))).toBeNull();
-    expect(await sessionForPass(signChatPass(String(new Types.ObjectId()), 0))).toBeNull();
+    expect(await sessionForPass(signChatPass(session._id.toHexString(), 0))).toBeNull();
+    expect(await sessionForPass(signChatPass(new Types.ObjectId().toHexString(), 0))).toBeNull();
   });
 });
 
@@ -70,13 +70,13 @@ describe('resumeSession', () => {
   it('reconnects to a closed chat with its conversation and a fresh pass', async () => {
     const session = await createSession({ status: 'CLOSED' });
     await ChatMessageModel.create({
-      sessionId: String(session._id),
+      sessionId: session._id.toHexString(),
       channel: 'LIVE',
       sender: 'VISITOR',
       body: 'Hi',
     });
     const resumed = await resumeSession(passFor(session));
-    expect(resumed?.session).toMatchObject({ id: String(session._id), status: 'CLOSED' });
+    expect(resumed?.session).toMatchObject({ id: session._id.toHexString(), status: 'CLOSED' });
     expect(resumed?.messages.map((m) => m.body)).toEqual(['Hi']);
     expect(typeof resumed?.token).toBe('string');
   });
@@ -95,7 +95,7 @@ describe('startNewChat', () => {
       site: 'TOOLS',
     });
     const next = await startNewChat(passFor(previous));
-    expect(next.session.id).not.toBe(String(previous._id));
+    expect(next.session.id).not.toBe(previous._id.toHexString());
     expect(await ChatSessionModel.findById(next.session.id).lean()).toMatchObject({
       name: 'Dana Reyes',
       email: 'dana@acme.test',
@@ -114,7 +114,7 @@ describe('startNewChat', () => {
 describe('closeSession', () => {
   it('ends the chat, tells everyone and emails the transcript', async () => {
     const session = await createSession({ awaitingReplySince: new Date() });
-    const sessionId = String(session._id);
+    const sessionId = session._id.toHexString();
     const visitor = fakePeer({ role: 'visitor', sessionId });
     chatHub.join(visitor.peer);
 
@@ -126,14 +126,14 @@ describe('closeSession', () => {
       body: 'Chat ended by Sam.',
     });
     const sessions = framesOf(visitor.socket).filter((frame) => frame.t === 'session');
-    expect(sessions[sessions.length - 1]).toMatchObject({ session: { status: 'CLOSED' } });
+    expect(sessions.at(-1)).toMatchObject({ session: { status: 'CLOSED' } });
     expect(transcript).toHaveBeenCalledWith(expect.objectContaining({ ticketReference: 'TCK-1' }));
   });
 
   it('uses the given notice and skips the transcript when the settings say so', async () => {
     await ChatSettingsModel.create({ transcriptOnClose: false });
     const session = await createSession();
-    await closeSession(String(session._id), 'Session timeout', 'Timed out.');
+    await closeSession(session._id.toHexString(), 'Session timeout', 'Timed out.');
     expect((await ChatMessageModel.findOne({ sender: 'SYSTEM' }).lean())?.body).toBe('Timed out.');
     expect(transcript).not.toHaveBeenCalled();
   });
@@ -142,7 +142,7 @@ describe('closeSession', () => {
     transcript.mockRejectedValueOnce(new Error('render failed'));
     const logged = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
     const session = await createSession();
-    await closeSession(String(session._id), 'Dana');
+    await closeSession(session._id.toHexString(), 'Dana');
     await until(() => logged.mock.calls.length > 0);
     expect(logged).toHaveBeenCalledWith(
       expect.objectContaining({ err: expect.any(Error) }),
@@ -152,13 +152,13 @@ describe('closeSession', () => {
 
   it('leaves a chat that already ended as it was', async () => {
     const session = await createSession({ status: 'CLOSED', closedBy: 'Dana' });
-    const result = await closeSession(String(session._id), 'Sam');
+    const result = await closeSession(session._id.toHexString(), 'Sam');
     expect(result.closedBy).toBe('Dana');
     expect(await ChatMessageModel.countDocuments()).toBe(0);
     expect(transcript).not.toHaveBeenCalled();
   });
 
   it('refuses a chat that does not exist', async () => {
-    expect(await codeOf(closeSession(String(new Types.ObjectId()), 'Sam'))).toBe('NOT_FOUND');
+    expect(await codeOf(closeSession(new Types.ObjectId().toHexString(), 'Sam'))).toBe('NOT_FOUND');
   });
 });

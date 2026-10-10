@@ -145,7 +145,7 @@ describe('sharedProject', () => {
     const created = await project();
     const { share, token } = await shareService.createShare(created.id, 'Acme', 30, 'Asha');
 
-    await shareService.revokeShare(String(share._id));
+    await shareService.revokeShare(share._id.toHexString());
 
     expect(await shareService.sharedProject(token)).toBeNull();
   });

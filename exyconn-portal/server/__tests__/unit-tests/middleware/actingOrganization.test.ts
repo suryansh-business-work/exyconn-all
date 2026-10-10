@@ -13,7 +13,7 @@ const withHeader = (value?: string | string[]) =>
 
 const company = (slug: string, status = 'ACTIVE') =>
   OrganizationModel.create({ name: slug, slug, currency: 'USD', status }).then((org) =>
-    String(org._id),
+    org._id.toHexString(),
   );
 
 beforeEach(() => resetActingOrganizationCache());

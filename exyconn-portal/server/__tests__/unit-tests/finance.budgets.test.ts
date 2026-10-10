@@ -33,8 +33,8 @@ describe('budget against actual', () => {
 
   it('reports what is left when a centre is under its budget', async () => {
     const eng = await centre('ENG', 'Engineering');
-    await budget(String(eng._id), '2026-03', 10_000);
-    await bill(String(eng._id), 4000);
+    await budget(eng._id.toHexString(), '2026-03', 10_000);
+    await bill(eng._id.toHexString(), 4000);
 
     const [row] = await budgetVsActual(FROM, TO);
 
@@ -47,8 +47,8 @@ describe('budget against actual', () => {
 
   it('reports an overspend as a negative variance', async () => {
     const mkt = await centre('MKT', 'Marketing');
-    await budget(String(mkt._id), '2026-03', 5000);
-    await bill(String(mkt._id), 7500);
+    await budget(mkt._id.toHexString(), '2026-03', 5000);
+    await bill(mkt._id.toHexString(), 7500);
 
     const [row] = await budgetVsActual(FROM, TO);
 
@@ -58,9 +58,9 @@ describe('budget against actual', () => {
 
   it('sums every month the window touches', async () => {
     const eng = await centre('ENG', 'Engineering');
-    await budget(String(eng._id), '2026-03', 1000);
-    await budget(String(eng._id), '2026-04', 2000);
-    await budget(String(eng._id), '2026-05', 4000);
+    await budget(eng._id.toHexString(), '2026-03', 1000);
+    await budget(eng._id.toHexString(), '2026-04', 2000);
+    await budget(eng._id.toHexString(), '2026-05', 4000);
 
     const [row] = await budgetVsActual(FROM, day('2026-04-30'));
 
@@ -70,7 +70,7 @@ describe('budget against actual', () => {
 
   it('leaves utilisation null where there is no budget to be a percentage of', async () => {
     const ops = await centre('OPS', 'Operations');
-    await bill(String(ops._id), 900);
+    await bill(ops._id.toHexString(), 900);
 
     const [row] = await budgetVsActual(FROM, TO);
 
@@ -81,8 +81,8 @@ describe('budget against actual', () => {
 
   it('gives untagged spend its own row so the actuals still add up', async () => {
     const eng = await centre('ENG', 'Engineering');
-    await budget(String(eng._id), '2026-03', 1000);
-    await bill(String(eng._id), 600);
+    await budget(eng._id.toHexString(), '2026-03', 1000);
+    await bill(eng._id.toHexString(), 600);
     await bill('', 250);
 
     const rows = await budgetVsActual(FROM, TO);
@@ -96,7 +96,7 @@ describe('budget against actual', () => {
   it('leaves out a centre with no money either way', async () => {
     const eng = await centre('ENG', 'Engineering');
     await centre('OLD', 'Retired team');
-    await budget(String(eng._id), '2026-03', 1000);
+    await budget(eng._id.toHexString(), '2026-03', 1000);
 
     const rows = await budgetVsActual(FROM, TO);
 
@@ -105,9 +105,9 @@ describe('budget against actual', () => {
 
   it('counts only spend inside the window', async () => {
     const eng = await centre('ENG', 'Engineering');
-    await budget(String(eng._id), '2026-03', 1000);
-    await bill(String(eng._id), 500, '2026-03-15');
-    await bill(String(eng._id), 700, '2026-04-02');
+    await budget(eng._id.toHexString(), '2026-03', 1000);
+    await bill(eng._id.toHexString(), 500, '2026-03-15');
+    await bill(eng._id.toHexString(), 700, '2026-04-02');
 
     const [row] = await budgetVsActual(FROM, TO);
 
@@ -116,8 +116,8 @@ describe('budget against actual', () => {
 
   it('refuses two budgets for the same centre and month', async () => {
     const eng = await centre('ENG', 'Engineering');
-    await budget(String(eng._id), '2026-03', 1000);
+    await budget(eng._id.toHexString(), '2026-03', 1000);
 
-    await expect(budget(String(eng._id), '2026-03', 2000)).rejects.toThrow();
+    await expect(budget(eng._id.toHexString(), '2026-03', 2000)).rejects.toThrow();
   });
 });

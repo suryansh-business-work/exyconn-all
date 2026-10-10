@@ -40,20 +40,13 @@ export default function HtmlToImage() {
   const captureRef = useRef<HTMLDivElement>(null);
 
   const renderPreview = () => {
-    if (!html.trim()) {
-      setError('Paste an HTML snippet first.');
-      return;
-    }
     setPreviewHtml(stripScripts(html));
     setResultUrl('');
   };
 
   const generate = async () => {
-    const node = captureRef.current;
-    if (!node) {
-      setError('Render the preview first.');
-      return;
-    }
+    // The Generate button is disabled until the preview (and so this node) is rendered.
+    const node = captureRef.current as HTMLDivElement;
     setGenerating(true);
     try {
       setResultUrl(await captureNode(node, { format, width, height, scale }));

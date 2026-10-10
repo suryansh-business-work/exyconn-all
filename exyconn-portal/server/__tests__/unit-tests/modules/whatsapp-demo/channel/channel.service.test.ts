@@ -28,7 +28,9 @@ let ctx: GraphQLContext;
 
 beforeEach(async () => {
   const user = await seedUser('owner@test.co', randomUUID(), [ROLES.ADMIN]);
-  ctx = { user: { id: String(user._id), email: user.email, roles: [ROLES.ADMIN], organizationId } };
+  ctx = {
+    user: { id: user._id.toHexString(), email: user.email, roles: [ROLES.ADMIN], organizationId },
+  };
 });
 
 afterEach(() => jest.restoreAllMocks());
@@ -140,7 +142,7 @@ describe('saveChannel', () => {
   });
 
   it('refuses a number another company already connected', async () => {
-    await runForOrganization(String(new Types.ObjectId()), () =>
+    await runForOrganization(new Types.ObjectId().toHexString(), () =>
       WhatsappChannelModel.create({ ...input(), accessToken: seal('a'), appSecret: seal('b') }),
     );
 

@@ -65,7 +65,7 @@ describe('startOverdueSweep', () => {
       status: 'ACTIVE',
     });
     const late = await seedInvoice('INV-LATE', 'client-1', -5);
-    await seedInvoice('INV-SOON', String(client._id), 2);
+    await seedInvoice('INV-SOON', client._id.toHexString(), 2);
 
     startOverdueSweep();
     await until(() => readJobRuns().has(JOB_KEYS.overdueInvoices));

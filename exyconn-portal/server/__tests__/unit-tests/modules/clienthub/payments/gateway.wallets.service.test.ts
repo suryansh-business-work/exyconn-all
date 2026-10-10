@@ -71,7 +71,10 @@ describe('PayPal accounts', () => {
     const second = await walletGatewayService.createPaypal(paypalInput({ label: 'Second' }));
     expect((await PaypalConfigModel.findById(first._id).lean())?.isActive).toBe(false);
 
-    await walletGatewayService.updatePaypal(String(first._id), paypalInput({ clientSecret: null }));
+    await walletGatewayService.updatePaypal(
+      first._id.toHexString(),
+      paypalInput({ clientSecret: null }),
+    );
 
     expect((await PaypalConfigModel.findById(second._id).lean())?.isActive).toBe(false);
     expect((await activePaypal())?.clientSecret).toBe(SECRET);
@@ -81,7 +84,10 @@ describe('PayPal accounts', () => {
     const active = await walletGatewayService.createPaypal(paypalInput());
     const idle = await walletGatewayService.createPaypal(paypalInput({ isActive: false }));
 
-    await walletGatewayService.updatePaypal(String(idle._id), paypalInput({ isActive: false }));
+    await walletGatewayService.updatePaypal(
+      idle._id.toHexString(),
+      paypalInput({ isActive: false }),
+    );
 
     expect((await PaypalConfigModel.findById(active._id).lean())?.isActive).toBe(true);
   });
@@ -134,7 +140,10 @@ describe('Payoneer accounts', () => {
     const first = await walletGatewayService.createPayoneer(payoneerInput({ label: 'First' }));
     await walletGatewayService.createPayoneer(payoneerInput({ label: 'Second' }));
 
-    await walletGatewayService.updatePayoneer(String(first._id), payoneerInput({ division: 'EU' }));
+    await walletGatewayService.updatePayoneer(
+      first._id.toHexString(),
+      payoneerInput({ division: 'EU' }),
+    );
 
     expect(await PayoneerConfigModel.countDocuments({ isActive: true })).toBe(1);
     expect((await activePayoneer())?.division).toBe('EU');
@@ -144,7 +153,10 @@ describe('Payoneer accounts', () => {
     const active = await walletGatewayService.createPayoneer(payoneerInput());
     const idle = await walletGatewayService.createPayoneer(payoneerInput({ isActive: false }));
 
-    await walletGatewayService.updatePayoneer(String(idle._id), payoneerInput({ isActive: false }));
+    await walletGatewayService.updatePayoneer(
+      idle._id.toHexString(),
+      payoneerInput({ isActive: false }),
+    );
 
     expect((await PayoneerConfigModel.findById(active._id).lean())?.isActive).toBe(true);
   });
@@ -157,7 +169,7 @@ describe('Payoneer accounts', () => {
         async () => new Response(JSON.stringify({ resultInfo: 'Unauthorized' }), { status: 401 }),
       );
 
-    await expect(walletGatewayService.testPayoneer(String(doc._id))).rejects.toThrow(
+    await expect(walletGatewayService.testPayoneer(doc._id.toHexString())).rejects.toThrow(
       'Payoneer: Unauthorized (HTTP 401)',
     );
   });

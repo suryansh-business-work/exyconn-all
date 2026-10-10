@@ -117,6 +117,22 @@ describe('TimezonePicker', () => {
     expect(error).toHaveBeenCalledWith('Failed to save the timezone', cause);
   });
 
+  it('logs a failure while reporting the save failure, rather than leaving it unhandled', async () => {
+    const reportingFailed = new Error('Logger unavailable');
+    const error = vi.spyOn(console, 'error').mockImplementationOnce(() => {
+      throw reportingFailed;
+    });
+    mocks.setTimezone.mockRejectedValueOnce(new Error('Offline'));
+    renderWithProviders(<TimezonePicker timezone={ZONE} />);
+    openSheet();
+
+    fireEvent.click(screen.getByRole('radio', { name: 'Europe/London' }));
+
+    await waitFor(() =>
+      expect(error).toHaveBeenCalledWith('Timezone change failed', reportingFailed),
+    );
+  });
+
   it('asks for the list again, instead of opening an empty one, when it failed to load', () => {
     mocks.list.mockReturnValue(list({ zones: null, failed: true }));
     renderWithProviders(<TimezonePicker timezone={ZONE} />);

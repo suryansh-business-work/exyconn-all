@@ -50,7 +50,7 @@ async function seedInvoice(overrides: Record<string, unknown> = {}) {
   });
   return InvoiceModel.create({
     number: 'INV-007',
-    clientId: String(client._id),
+    clientId: client._id.toHexString(),
     clientName: 'Priya',
     lines: LINES,
     amount: 2860,
@@ -133,11 +133,11 @@ describe('invoice pdf', () => {
   it('serves the invoice as base64 that decodes to a PDF', async () => {
     const invoice = await seedInvoice();
 
-    const base64 = (await financeResolvers.Query.invoicePdf(
+    const base64 = await financeResolvers.Query.invoicePdf(
       null,
-      { id: String(invoice._id) },
+      { id: invoice._id.toHexString() },
       asFinance,
-    )) as string;
+    );
 
     expect(base64.length).toBeGreaterThan(0);
     expect(Buffer.from(base64, 'base64').subarray(0, 4).toString('latin1')).toBe(PDF_MAGIC);
@@ -150,7 +150,7 @@ describe('invoice pdf', () => {
     };
 
     await expect(
-      financeResolvers.Query.invoicePdf(null, { id: String(invoice._id) }, asHr),
+      financeResolvers.Query.invoicePdf(null, { id: invoice._id.toHexString() }, asHr),
     ).rejects.toThrow();
   });
 });
@@ -164,7 +164,7 @@ describe('sendInvoice', () => {
   it('emails the PDF through the invoice template and stamps sentAt', async () => {
     const invoice = await seedInvoice();
 
-    await sendTo(String(invoice._id), 'priya@acme.test', 'Thanks for your business.');
+    await sendTo(invoice._id.toHexString(), 'priya@acme.test', 'Thanks for your business.');
 
     expect(send).toHaveBeenCalledTimes(1);
     const [input] = send.mock.calls[0];
@@ -188,7 +188,7 @@ describe('sendInvoice', () => {
   it('moves a draft to SENT — the invoice has now gone out', async () => {
     const invoice = await seedInvoice({ status: 'DRAFT' });
 
-    await sendTo(String(invoice._id));
+    await sendTo(invoice._id.toHexString());
 
     const after = await InvoiceModel.findById(invoice._id).lean();
     expect(after?.status).toBe('SENT');
@@ -197,7 +197,7 @@ describe('sendInvoice', () => {
   it('leaves the ledger-driven status of a part-paid invoice alone', async () => {
     const invoice = await seedInvoice({ status: 'PARTIALLY_PAID', amountPaid: 1000 });
 
-    await sendTo(String(invoice._id));
+    await sendTo(invoice._id.toHexString());
 
     const after = await InvoiceModel.findById(invoice._id).lean();
     expect(after?.status).toBe('PARTIALLY_PAID');
@@ -207,7 +207,7 @@ describe('sendInvoice', () => {
     const invoice = await seedInvoice();
     send.mockRejectedValueOnce(new Error('SMTP is down'));
 
-    await expect(sendTo(String(invoice._id))).rejects.toThrow(/SMTP is down/);
+    await expect(sendTo(invoice._id.toHexString())).rejects.toThrow(/SMTP is down/);
 
     const after = await InvoiceModel.findById(invoice._id).lean();
     expect(after?.sentAt).toBeNull();

@@ -71,9 +71,10 @@ export function LiveEditScreen({
         message: 'Your changes to this page have not been saved and will be lost.',
         confirmText: 'Leave',
       }));
-    if (leave) {
-      navigate(backPath);
+    if (!leave) {
+      return;
     }
+    navigate(backPath);
   };
 
   if (small) {

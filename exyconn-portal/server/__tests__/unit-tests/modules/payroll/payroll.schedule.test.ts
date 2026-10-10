@@ -48,7 +48,7 @@ function fakeMinuteTimer() {
 async function augustSlip() {
   const user = await seedUser('august@exyconn.com', randomUUID(), [ROLES.EMPLOYEE]);
   await SalarySlipModel.create({
-    employeeId: String(user._id),
+    employeeId: user._id.toHexString(),
     month: 8,
     year: 2026,
     currency: 'INR',

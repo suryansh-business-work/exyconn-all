@@ -18,16 +18,11 @@ export async function officeToPdfController(req: Request, res: Response) {
   const inputPath = path.join(workDir, `input${extension}`);
   const outputPath = path.join(workDir, "input.pdf");
 
+  let pdf: Buffer;
   try {
     await fs.writeFile(inputPath, req.file.buffer);
     await convertToPdf(inputPath, workDir);
-    const pdf = await fs.readFile(outputPath);
-
-    const baseName = path.basename(req.file.originalname, extension);
-    const safeName = `${baseName.replaceAll(/[^\w.-]/g, "_")}.pdf`;
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename="${safeName}"`);
-    return res.send(pdf);
+    pdf = await fs.readFile(outputPath);
   } catch (error) {
     if (error instanceof ToolUnavailableError) {
       return res.status(503).json({ error: UNAVAILABLE_MESSAGE });
@@ -37,4 +32,10 @@ export async function officeToPdfController(req: Request, res: Response) {
   } finally {
     await fs.rm(workDir, { recursive: true, force: true }).catch(() => undefined);
   }
+
+  const baseName = path.basename(req.file.originalname, extension);
+  const safeName = `${baseName.replaceAll(/[^\w.-]/g, "_")}.pdf`;
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition", `attachment; filename="${safeName}"`);
+  return res.send(pdf);
 }

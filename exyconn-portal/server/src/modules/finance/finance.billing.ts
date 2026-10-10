@@ -107,7 +107,7 @@ export async function applyPayment(input: PaymentInput, ctx: GraphQLContext, act
     notFound('Invoice');
   }
 
-  const paidBefore = invoice.amountPaid ?? 0;
+  const paidBefore = invoice.amountPaid;
   const paidAfter = round2(paidBefore + input.amount);
 
   if (paidAfter > invoice.amount) {
@@ -121,7 +121,7 @@ export async function applyPayment(input: PaymentInput, ctx: GraphQLContext, act
   }
 
   const payment = await PaymentModel.create({
-    invoiceId: String(invoice._id),
+    invoiceId: invoice._id.toHexString(),
     invoiceNumber: invoice.number,
     clientId: invoice.clientId,
     amount: round2(input.amount),
@@ -161,7 +161,7 @@ export async function applyPayment(input: PaymentInput, ctx: GraphQLContext, act
     // Queued, never sent inline: an integration's endpoint being down must not fail the
     // payment that was just recorded.
     emitWebhookBestEffort('invoice.paid', {
-      invoiceId: String(invoice._id),
+      invoiceId: invoice._id.toHexString(),
       number: invoice.number,
       clientId: invoice.clientId,
       clientName: invoice.clientName,
@@ -221,7 +221,8 @@ async function receivables(_p: unknown, _a: unknown, ctx: GraphQLContext) {
     .lean();
 
   const now = new Date();
-  const totals = new Map(BANDS.map((b) => [b.band, { invoices: 0, amount: 0 }]));
+  const buckets = BANDS.map((b) => ({ band: b.band, label: b.label, invoices: 0, amount: 0 }));
+  const totals = new Map(buckets.map((bucket) => [bucket.band, bucket]));
   let outstanding = 0;
   let overdue = 0;
   let invoices = 0;
@@ -248,12 +249,7 @@ async function receivables(_p: unknown, _a: unknown, ctx: GraphQLContext) {
     outstanding,
     overdue,
     invoices,
-    buckets: BANDS.map((b) => ({
-      band: b.band,
-      label: b.label,
-      invoices: totals.get(b.band)?.invoices ?? 0,
-      amount: totals.get(b.band)?.amount ?? 0,
-    })),
+    buckets,
   };
 }
 
@@ -314,5 +310,3 @@ export const financeBillingResolvers = {
     recordPayment,
   },
 };
-
-export { financeBillingTypeDefs } from './finance.billing.typeDefs';

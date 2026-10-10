@@ -133,5 +133,3 @@ export const TaskActivityModel: Model<TaskActivityDocument> = model<TaskActivity
   'TaskActivity',
   taskActivitySchema,
 );
-
-export { Types } from 'mongoose';

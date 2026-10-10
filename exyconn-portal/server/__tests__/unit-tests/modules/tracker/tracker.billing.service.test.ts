@@ -23,7 +23,7 @@ async function employee(name: string, billingRate?: number) {
     email: `${randomUUID()}@exyconn.com`,
     passwordHash: randomUUID(),
   });
-  const id = String(user._id);
+  const id = user._id.toHexString();
   if (billingRate !== undefined) {
     await SalaryStructureModel.create({
       employeeId: id,
@@ -47,7 +47,7 @@ async function tracked(userId: string, project: { id: string; name: string }, ac
   });
   await TrackerIntervalModel.create({
     userId,
-    sessionId: String(session._id),
+    sessionId: session._id.toHexString(),
     startedAt: IN_RANGE,
     endedAt: new Date(IN_RANGE.getTime() + activeMs),
     activeMs,
@@ -103,7 +103,7 @@ async function apollo() {
     budgetAmount: 10_000,
     budgetHours: 80,
   });
-  return { id: String(project._id), name: 'Apollo (as booked)' };
+  return { id: project._id.toHexString(), name: 'Apollo (as booked)' };
 }
 
 describe('billing grouped by project', () => {

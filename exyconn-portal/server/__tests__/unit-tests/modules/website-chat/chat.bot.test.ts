@@ -25,7 +25,7 @@ const reply = (answer: unknown) => complete.mockResolvedValue({ text: JSON.strin
 
 async function setup() {
   const session = await createSession();
-  const sessionId = String(session._id);
+  const sessionId = session._id.toHexString();
   const visitor = fakePeer({ role: 'visitor', sessionId });
   chatHub.join(visitor.peer);
   return { sessionId, visitor };

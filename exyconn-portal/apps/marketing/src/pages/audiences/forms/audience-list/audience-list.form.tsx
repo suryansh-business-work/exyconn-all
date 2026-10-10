@@ -27,7 +27,7 @@ const schema = z
     description: z.string().trim(),
     clientIds: z.array(z.string()),
     contactIds: z.array(z.string()),
-    dynamicSegment: z.nativeEnum(AudienceSegment),
+    dynamicSegment: z.enum(AudienceSegment),
     segmentValue: z.string().trim(),
   })
   .refine(

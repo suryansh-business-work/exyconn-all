@@ -16,7 +16,6 @@ const SitemapCompare: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleCompare = async () => {
-    if (!sitemap1.trim() || !sitemap2.trim()) return;
     setIsLoading(true);
     setError(null);
     setResult(null);

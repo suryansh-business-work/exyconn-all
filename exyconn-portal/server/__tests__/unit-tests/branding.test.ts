@@ -83,7 +83,7 @@ describe('branding', () => {
 
     // Read the non-null scalar fields from the SDL itself, so a field added to the type
     // without a default fails here instead of on the live site.
-    const brandingType = print(brandingTypeDefs).match(/type Branding \{([^}]*)\}/)?.[1] ?? '';
+    const brandingType = /type Branding \{([^}]*)\}/.exec(print(brandingTypeDefs))?.[1] ?? '';
     const nonNull = brandingType
       .split('\n')
       .map((line) => /^\s*(\w+): (?:String|Int|Float|Boolean)!/.exec(line)?.[1])

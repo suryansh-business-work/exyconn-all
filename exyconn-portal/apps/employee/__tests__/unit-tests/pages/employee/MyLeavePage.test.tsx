@@ -127,4 +127,15 @@ describe('MyLeavePage', () => {
       expect(logger.warn).toHaveBeenCalledWith('Could not reload leave after applying', failure),
     );
   });
+
+  it('holds the requests table busy and does not say there are none while they load', () => {
+    vi.mocked(useMyLeaveRequestsQuery).mockReturnValue(queryResult({ loading: true }));
+    vi.mocked(useMyLeaveBalancesQuery).mockReturnValue(
+      queryResult({ data: { myLeaveBalances: balances } }),
+    );
+    const { container } = renderWithProviders(<MyLeavePage />);
+
+    expect(screen.queryByText('You have no leave requests yet.')).toBeNull();
+    expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
+  });
 });

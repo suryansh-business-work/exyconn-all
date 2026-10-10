@@ -23,7 +23,7 @@ let invoiceId: string;
 
 beforeEach(async () => {
   contact = await seedContact(organizationId);
-  invoiceId = String((await seedInvoice(contact.clientId))._id);
+  invoiceId = (await seedInvoice(contact.clientId))._id.toHexString();
 });
 
 afterEach(() => {
@@ -47,8 +47,8 @@ describe('ownAttempt', () => {
   it('returns one of the contact’s own attempts as it stands', async () => {
     const row = await attempt('STRIPE');
 
-    expect(await ownAttempt(contact, String(row._id))).toMatchObject({
-      id: String(row._id),
+    expect(await ownAttempt(contact, row._id.toHexString())).toMatchObject({
+      id: row._id.toHexString(),
       gateway: 'STRIPE',
       status: 'PENDING',
     });
@@ -58,7 +58,7 @@ describe('ownAttempt', () => {
   it('treats another client’s attempt as not found', async () => {
     const row = await attempt('STRIPE', { clientId: 'someone-else' });
 
-    await expect(ownAttempt(contact, String(row._id))).rejects.toThrow('Payment not found');
+    await expect(ownAttempt(contact, row._id.toHexString())).rejects.toThrow('Payment not found');
   });
 
   it('captures an approved PayPal order on return and records the payment at once', async () => {
@@ -66,7 +66,7 @@ describe('ownAttempt', () => {
     const row = await attempt('PAYPAL');
     capture.mockResolvedValue({ completed: true, captureId: 'CAP-1' });
 
-    const settled = await ownAttempt(contact, String(row._id));
+    const settled = await ownAttempt(contact, row._id.toHexString());
 
     expect(capture).toHaveBeenCalledWith(
       expect.objectContaining({ clientId: 'pp-client' }),
@@ -84,13 +84,13 @@ describe('ownAttempt', () => {
     const row = await attempt('PAYPAL');
     capture.mockResolvedValue({ completed: false, captureId: '' });
 
-    expect(await ownAttempt(contact, String(row._id))).toMatchObject({ status: 'PENDING' });
+    expect(await ownAttempt(contact, row._id.toHexString())).toMatchObject({ status: 'PENDING' });
   });
 
   it('leaves the capture to the webhook when PayPal is not configured', async () => {
     const row = await attempt('PAYPAL');
 
-    expect(await ownAttempt(contact, String(row._id))).toMatchObject({ status: 'PENDING' });
+    expect(await ownAttempt(contact, row._id.toHexString())).toMatchObject({ status: 'PENDING' });
     expect(capture).not.toHaveBeenCalled();
   });
 
@@ -100,7 +100,7 @@ describe('ownAttempt', () => {
     const warned = jest.spyOn(logger, 'warn').mockImplementation(() => undefined);
     capture.mockRejectedValue(new Error('PayPal: down'));
 
-    expect(await ownAttempt(contact, String(row._id))).toMatchObject({ status: 'PENDING' });
+    expect(await ownAttempt(contact, row._id.toHexString())).toMatchObject({ status: 'PENDING' });
     expect(warned).toHaveBeenCalledWith(
       expect.anything(),
       'PayPal capture on return failed; the webhook will retry',
@@ -113,7 +113,7 @@ describe('ownAttempt', () => {
   ])('does not capture a PayPal attempt %s', async (_label, fields) => {
     const row = await attempt('PAYPAL', fields);
 
-    await ownAttempt(contact, String(row._id));
+    await ownAttempt(contact, row._id.toHexString());
 
     expect(capture).not.toHaveBeenCalled();
   });
@@ -126,8 +126,8 @@ describe('ownAttempt', () => {
       return { completed: false, captureId: '' };
     });
 
-    expect(await ownAttempt(contact, String(row._id))).toMatchObject({
-      id: String(row._id),
+    expect(await ownAttempt(contact, row._id.toHexString())).toMatchObject({
+      id: row._id.toHexString(),
       status: 'PENDING',
     });
   });

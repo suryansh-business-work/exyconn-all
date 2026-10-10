@@ -30,10 +30,10 @@ const DONE_OPTIONS: SelectOption[] = [
 ];
 
 const schema = z.object({
-  type: z.nativeEnum(ActivityType),
+  type: z.enum(ActivityType),
   subject: z.string().trim().min(1, 'Subject is required'),
   notes: z.string().trim(),
-  relatedType: z.nativeEnum(ActivitySubject),
+  relatedType: z.enum(ActivitySubject),
   relatedId: z.string().trim().min(1, 'Choose what this is about'),
   dueDate: z.date().nullable(),
   done: z.enum(['true', 'false']),
@@ -89,7 +89,7 @@ export function ActivityForm({ initial, onDone, onCancel }: Readonly<ActivityFor
       label: c.name,
     })),
   };
-  const options = relatedOptions[(relatedType as ActivitySubject) ?? ActivitySubject.Deal];
+  const options = relatedOptions[relatedType];
 
   const toInput = (values: Values) => ({
     ...values,

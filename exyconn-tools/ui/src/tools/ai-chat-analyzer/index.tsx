@@ -29,15 +29,12 @@ const AIChatAnalyzer: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleSetContent = () => {
-    if (chatLog.trim().length >= 50) {
-      setIsContentSet(true);
-      setMessages([]);
-    }
+    setIsContentSet(true);
+    setMessages([]);
   };
 
   const handleSendMessage = useCallback(
     async (question: string) => {
-      if (!chatLog) return;
       const apiKey = requireKey();
       if (!apiKey) return;
       const userMsg: ChatMessage = {

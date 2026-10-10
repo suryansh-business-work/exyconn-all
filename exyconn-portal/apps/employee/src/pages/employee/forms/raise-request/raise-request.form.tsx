@@ -8,7 +8,7 @@ import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvid
 import { RequestType, useCreateMyRequestMutation } from '@exyconn/shell/graphql/generated';
 
 const schema = z.object({
-  type: z.nativeEnum(RequestType),
+  type: z.enum(RequestType),
   subject: z.string().trim().min(1, 'Subject is required').max(120, 'Keep it under 120 characters'),
   details: z.string().trim().min(10, 'Give HR enough detail to act on (10+ characters)'),
 });

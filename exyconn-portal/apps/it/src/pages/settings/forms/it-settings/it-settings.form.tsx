@@ -27,7 +27,7 @@ export function ItSettingsForm({ settings, onSaved }: Readonly<ItSettingsFormPro
     resolver: zodResolver(itSettingsSchema),
     defaultValues: toItSettingsValues(settings),
   });
-  const applications = useWatch({ control: methods.control, name: 'applications' }) ?? [];
+  const applications = useWatch({ control: methods.control, name: 'applications' });
   const onboardingOptions = applications.map((app) => ({ value: app, label: app }));
 
   const onSubmit = async (values: ItSettingsValues) => {

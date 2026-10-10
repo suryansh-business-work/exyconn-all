@@ -62,7 +62,7 @@ export async function ensureClient(
     phone: company.phone || contact?.phone || '',
     status: 'ACTIVE',
   });
-  const clientId = String(client._id);
+  const clientId = client._id.toHexString();
   await CompanyModel.updateOne({ _id: company._id }, { clientId });
   return clientId;
 }

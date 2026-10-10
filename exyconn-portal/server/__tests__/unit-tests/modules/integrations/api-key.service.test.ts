@@ -26,7 +26,7 @@ async function storeKey(fields: Record<string, unknown> = {}) {
     roles: [ROLES.CRM],
     ...fields,
   });
-  return { key: issued.key, id: String(row._id) };
+  return { key: issued.key, id: row._id.toHexString() };
 }
 
 /** Waits for work that runs just behind the caller, such as the un-awaited usage stamp. */

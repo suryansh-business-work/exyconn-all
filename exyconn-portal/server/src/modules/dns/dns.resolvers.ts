@@ -156,8 +156,8 @@ export const dnsResolvers = {
       }: { domain: string; target: NameserverTarget; nameServers?: string[] | null },
       ctx: GraphQLContext,
     ) => {
-      await guard(ctx, 'EDIT');
-      const next = await dnsService.setNameServers(domain, target, nameServers, ctx.user?.id ?? '');
+      const user = await guard(ctx, 'EDIT');
+      const next = await dnsService.setNameServers(domain, target, nameServers, user.id);
       await audit(
         ctx,
         'UPDATE',

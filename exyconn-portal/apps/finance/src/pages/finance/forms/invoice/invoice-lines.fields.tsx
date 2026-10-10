@@ -19,11 +19,11 @@ const EMPTY_LINE: InvoiceLineValues = {
 type DraftLine = { [K in keyof InvoiceLineValues]: InvoiceLineValues[K] | string };
 
 const toLine = (draft: DraftLine): InvoiceLineValues => ({
-  description: String(draft.description ?? ''),
+  description: draft.description,
   quantity: Number(draft.quantity) || 0,
   rate: Number(draft.rate) || 0,
   taxPercent: Number(draft.taxPercent) || 0,
-  hsnSac: String(draft.hsnSac ?? ''),
+  hsnSac: draft.hsnSac,
 });
 
 interface LineRowProps {
@@ -86,7 +86,7 @@ export function InvoiceLinesFields({ currency }: Readonly<{ currency: string }>)
   const t = useT();
   const { control } = useFormContext();
   const { fields, append, remove } = useFieldArray({ control, name: 'lines' });
-  const drafts = (useWatch({ control, name: 'lines' }) ?? []) as DraftLine[];
+  const drafts = useWatch({ control, name: 'lines' }) as DraftLine[];
   const lines = drafts.map(toLine);
   const total = linesTotal(lines);
 

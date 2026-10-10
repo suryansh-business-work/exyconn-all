@@ -104,6 +104,12 @@ describe('createPaypalOrder', () => {
 
     await expect(createPaypalOrder(freshKeys(), request)).rejects.toThrow(message);
   });
+
+  it('reports the HTTP status when an order answer is not JSON', async () => {
+    queue(token(3600), new Response('<html>Bad gateway</html>', { status: 502 }));
+
+    await expect(createPaypalOrder(freshKeys(), request)).rejects.toThrow('PayPal: HTTP 502');
+  });
 });
 
 describe('access tokens', () => {

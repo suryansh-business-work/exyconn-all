@@ -18,7 +18,7 @@ async function person() {
     passwordHash: 'x',
     roles: [ROLES.EMPLOYEE],
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 const lastActive = async (id: string) => (await UserModel.findById(id).lean())?.lastActiveAt;

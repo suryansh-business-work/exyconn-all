@@ -31,18 +31,16 @@ export function OnboardingDetailDrawer({
   const { formatDate } = useSettings();
   const [setItem, { loading }] = useSetOnboardingItemMutation();
 
-  const toggle = async (item: OnboardingItem, done: boolean) => {
-    if (!checklist) return;
-    try {
-      const { data } = await setItem({
-        variables: { checklistId: checklist.id, key: item.key, done },
+  const toggle = (checklistId: string, item: OnboardingItem, done: boolean) => {
+    setItem({ variables: { checklistId, key: item.key, done } })
+      .then(({ data }) => {
+        if (data?.setOnboardingItem) {
+          onChanged(data.setOnboardingItem);
+        }
+      })
+      .catch((error: unknown) => {
+        notify(error instanceof Error ? error.message : 'Could not update the task', 'error');
       });
-      if (data?.setOnboardingItem) {
-        onChanged(data.setOnboardingItem);
-      }
-    } catch (error) {
-      notify(error instanceof Error ? error.message : 'Could not update the task', 'error');
-    }
   };
 
   return (
@@ -64,7 +62,7 @@ export function OnboardingDetailDrawer({
             progressPercent={checklist.progressPercent}
             canTick={canTickAny}
             onToggle={(item, done) => {
-              toggle(item, done).catch(() => undefined);
+              toggle(checklist.id, item, done);
             }}
             busy={loading}
             formatDate={formatDate}

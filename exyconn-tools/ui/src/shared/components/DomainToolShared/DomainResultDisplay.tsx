@@ -40,26 +40,22 @@ const ResultValue: React.FC<Readonly<{ value: unknown }>> = ({ value }) => {
 const DomainResultDisplay: React.FC<ResultDisplayProps> = ({ title, icon, data, children }) => {
   const [copied, setCopied] = React.useState(false);
 
+  if (!data) return null;
+
   const handleCopy = () => {
-    if (data) {
-      navigator.clipboard.writeText(JSON.stringify(data, null, 2));
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
+    navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleDownload = () => {
-    if (data) {
-      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${title.toLowerCase().replace(/\s+/g, '-')}-result.json`;
-      a.click();
-    }
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${title.toLowerCase().replace(/\s+/g, '-')}-result.json`;
+    a.click();
   };
-
-  if (!data) return null;
 
   return (
     <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2 }}>

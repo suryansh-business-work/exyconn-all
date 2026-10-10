@@ -36,7 +36,7 @@ const schema = z
   .superRefine((values, ctx) => {
     if (values.toAmount !== OPEN_ENDED && values.toAmount <= values.fromAmount) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: 'custom',
         path: ['toAmount'],
         message: 'The upper bound has to be above the lower one',
       });

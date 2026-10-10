@@ -10,12 +10,12 @@ async function company(name: string, fields: Record<string, unknown> = {}): Prom
   const created = await runAsPlatform(() =>
     OrganizationModel.create({ name, slug, currency: 'USD', ...fields }),
   );
-  return String(created._id);
+  return created._id.toHexString();
 }
 
 /** A hash nobody can sign in with, built at runtime rather than written in the source. */
 const unusableHash = () => `hash-${new Types.ObjectId().toHexString()}`;
-const missingId = () => String(new Types.ObjectId());
+const missingId = () => new Types.ObjectId().toHexString();
 
 describe('organizationService.create', () => {
   it('files it under the handle it is given, in canonical standards', async () => {

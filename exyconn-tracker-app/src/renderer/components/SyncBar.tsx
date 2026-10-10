@@ -53,7 +53,7 @@ export default function SyncBar({ stats, settings, timezone }: Readonly<Props>):
   const StatusIcon = settled ? CloudDoneOutlined : CloudUploadOutlined;
   const message = syncMessage(t, stats.lastSyncOutcome);
   // What the last upload came to, spoken once each time it changes.
-  useAnnounce(message?.text, message?.severity === 'error' ? 'assertive' : 'polite');
+  useAnnounce(message?.text, 'polite');
 
   return (
     <Surface sx={{ p: 2 }}>

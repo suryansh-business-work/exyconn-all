@@ -11,6 +11,14 @@ import { Linking, Platform } from '../mocks/react-native/apis';
 
 vi.mock('../../../src/tracker/platform', () => ({ portal: { fetchLatestRelease: vi.fn() } }));
 
+const installed = vi.hoisted(() => ({ version: '1.0.0' as string | null }));
+vi.mock('expo-application', async (load) => {
+  const actual = await load<Record<string, unknown>>();
+  const mocked = { ...actual };
+  Object.defineProperty(mocked, 'nativeApplicationVersion', { get: () => installed.version });
+  return mocked;
+});
+
 const fetchLatest = vi.mocked(portal.fetchLatestRelease);
 
 function release(overrides: Partial<LatestRelease> = {}): LatestRelease {
@@ -38,6 +46,7 @@ function release(overrides: Partial<LatestRelease> = {}): LatestRelease {
 
 afterEach(() => {
   vi.restoreAllMocks();
+  installed.version = '1.0.0';
 });
 
 describe('checkForUpdate', () => {
@@ -70,6 +79,13 @@ describe('checkForUpdate', () => {
     fetchLatest.mockResolvedValue(release({ assets: [] }));
     await checkForUpdate();
     expect(getUpdate().url).toBe('https://example.test/releases/1.1.0');
+  });
+
+  it('offers nothing when this build cannot say which version it is', async () => {
+    installed.version = null;
+    fetchLatest.mockResolvedValue(release());
+    await checkForUpdate();
+    expect(getUpdate()).toMatchObject({ stage: 'idle', version: '', url: '' });
   });
 
   it('settles back to idle when this build is current, or there is no release', async () => {

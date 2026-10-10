@@ -65,6 +65,24 @@ describe('ArrayEditor', () => {
     ]);
   });
 
+  it('starts the list from nothing when the form has no value for it yet', async () => {
+    const { user } = renderField(
+      <ArrayEditor
+        name="buttons"
+        title="Buttons"
+        itemLabel="Button"
+        Item={TitleItem}
+        newItem={newItem}
+        max={3}
+      />,
+      {},
+    );
+    await user.click(screen.getByRole('button', { name: 'Add' }));
+
+    expect(newItem).toHaveBeenLastCalledWith([]);
+    expect(screen.getByText('(1/3)')).toBeInTheDocument();
+  });
+
   it('removes an item but never below the minimum', async () => {
     const { user } = renderField(
       <ArrayEditor

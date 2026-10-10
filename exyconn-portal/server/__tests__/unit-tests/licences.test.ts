@@ -52,6 +52,20 @@ describe('Licence seats', () => {
     expect(saved?.assigneeIds).toEqual(['emp-1']);
   });
 
+  it('saves an update that keeps the assigned people within the seats bought', async () => {
+    const licence = (await create({ ...baseInput, assigneeIds: ['emp-1'] })) as { id: string };
+
+    await update(licence.id, {
+      ...baseInput,
+      assigneeIds: ['emp-1', 'emp-2'],
+      notes: 'Added emp-2',
+    });
+
+    const saved = await LicenceModel.findById(licence.id).lean();
+    expect(saved?.assigneeIds).toEqual(['emp-1', 'emp-2']);
+    expect(saved?.notes).toBe('Added emp-2');
+  });
+
   it('sorts the register by what renews first', async () => {
     await create({ ...baseInput, name: 'Later', renewalDate: new Date('2027-06-01') });
     await create({ ...baseInput, name: 'Sooner', renewalDate: new Date('2027-02-01') });

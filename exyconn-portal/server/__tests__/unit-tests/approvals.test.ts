@@ -81,9 +81,13 @@ const manualFor = (userId: string) =>
 /** A manager, one direct report, and a bystander who manages nobody. */
 async function team() {
   const manager = await person('Meera');
-  const report = await person('Ravi', String(manager._id));
+  const report = await person('Ravi', manager._id.toHexString());
   const other = await person('Omar');
-  return { manager: String(manager._id), report: String(report._id), other: String(other._id) };
+  return {
+    manager: manager._id.toHexString(),
+    report: report._id.toHexString(),
+    other: other._id.toHexString(),
+  };
 }
 
 describe('the shared approval queue', () => {
@@ -113,7 +117,7 @@ describe('the shared approval queue', () => {
 
   it('gathers every source into one queue and counts them per kind', async () => {
     const { report } = await team();
-    const admin = String((await person('Root'))._id);
+    const admin = (await person('Root'))._id.toHexString();
     await leaveFor(report);
     await claimFor(report);
     await requestFor(report);
@@ -137,7 +141,7 @@ describe('the shared approval queue', () => {
 
   it('carries the money on a claim so the queue can show what is at stake', async () => {
     const { report } = await team();
-    const finance = String((await person('Fin'))._id);
+    const finance = (await person('Fin'))._id.toHexString();
     await claimFor(report);
 
     const queue = (await myApprovals(
@@ -179,7 +183,11 @@ describe('deciding through the queue', () => {
     const { manager, report } = await team();
     const leave = await leaveFor(report);
 
-    await decide(null, { id: `LEAVE:${leave._id}`, decision: 'APPROVED' }, ctx(manager));
+    await decide(
+      null,
+      { id: `LEAVE:${leave._id.toHexString()}`, decision: 'APPROVED' },
+      ctx(manager),
+    );
 
     const after = await LeaveRequestModel.findById(leave._id).lean();
     expect(after?.status).toBe('APPROVED');
@@ -191,7 +199,11 @@ describe('deciding through the queue', () => {
 
     await decide(
       null,
-      { id: `REQUEST:${request._id}`, decision: 'REJECTED', note: 'Team is on site that day' },
+      {
+        id: `REQUEST:${request._id.toHexString()}`,
+        decision: 'REJECTED',
+        note: 'Team is on site that day',
+      },
       ctx(manager),
     );
 
@@ -205,7 +217,11 @@ describe('deciding through the queue', () => {
     const claim = await claimFor(report);
 
     await expect(
-      decide(null, { id: `EXPENSE:${claim._id}`, decision: 'APPROVED' }, ctx(manager)),
+      decide(
+        null,
+        { id: `EXPENSE:${claim._id.toHexString()}`, decision: 'APPROVED' },
+        ctx(manager),
+      ),
     ).rejects.toThrow(/may not decide/i);
   });
 
@@ -229,7 +245,11 @@ describe('deciding through the queue', () => {
     const { manager, report } = await team();
     const leave = await leaveFor(report);
 
-    await decide(null, { id: `LEAVE:${leave._id}`, decision: 'REJECTED' }, ctx(manager));
+    await decide(
+      null,
+      { id: `LEAVE:${leave._id.toHexString()}`, decision: 'REJECTED' },
+      ctx(manager),
+    );
     const queue = (await myApprovals(null, {}, ctx(manager))) as unknown as Queue;
 
     expect(queue.totalCount).toBe(0);

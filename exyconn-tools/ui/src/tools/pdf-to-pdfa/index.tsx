@@ -31,6 +31,15 @@ interface Meta {
   creator: string;
 }
 
+const metaOf = (doc: PDFDocument, size: string): Meta => ({
+  pages: doc.getPageCount(),
+  size,
+  title: doc.getTitle() ?? '—',
+  author: doc.getAuthor() ?? '—',
+  producer: doc.getProducer()!,
+  creator: doc.getCreator()!,
+});
+
 export default function PdfToPdfa() {
   const [file, setFile] = useState<File | null>(null);
   const [processing, setProcessing] = useState(false);
@@ -48,14 +57,7 @@ export default function PdfToPdfa() {
     try {
       const bytes = await f.arrayBuffer();
       const doc = await PDFDocument.load(bytes);
-      setBefore({
-        pages: doc.getPageCount(),
-        size: fmt(f.size),
-        title: doc.getTitle() ?? '—',
-        author: doc.getAuthor() ?? '—',
-        producer: doc.getProducer() ?? '—',
-        creator: doc.getCreator() ?? '—',
-      });
+      setBefore(metaOf(doc, fmt(f.size)));
       setFile(f);
       setResult(null);
       setAfter(null);
@@ -78,25 +80,17 @@ export default function PdfToPdfa() {
   };
 
   const convert = async () => {
-    if (!file) return;
     setProcessing(true);
     try {
-      const bytes = await file.arrayBuffer();
+      const bytes = await file!.arrayBuffer();
       const doc = await PDFDocument.load(bytes);
-      doc.setTitle(doc.getTitle() ?? file.name.replace('.pdf', ''));
+      doc.setTitle(doc.getTitle() ?? file!.name.replace('.pdf', ''));
       doc.setAuthor(doc.getAuthor() ?? 'Unknown');
       doc.setCreator('Exyconn PDF/A Tool');
       doc.setProducer('pdf-lib');
       const saved = await doc.save();
       const newDoc = await PDFDocument.load(saved);
-      setAfter({
-        pages: newDoc.getPageCount(),
-        size: fmt(saved.length),
-        title: newDoc.getTitle() ?? '—',
-        author: newDoc.getAuthor() ?? '—',
-        producer: newDoc.getProducer() ?? '—',
-        creator: newDoc.getCreator() ?? '—',
-      });
+      setAfter(metaOf(newDoc, fmt(saved.length)));
       setResult(saved);
     } catch {
       setError('Failed to process PDF.');
@@ -106,20 +100,19 @@ export default function PdfToPdfa() {
   };
 
   const download = () => {
-    if (!result) return;
-    const url = URL.createObjectURL(new Blob([result.buffer as ArrayBuffer], { type: 'application/pdf' }));
+    const url = URL.createObjectURL(new Blob([result!.buffer as ArrayBuffer], { type: 'application/pdf' }));
     const a = document.createElement('a');
     a.href = url;
-    a.download = `pdfa-${file?.name ?? 'document.pdf'}`;
+    a.download = `pdfa-${file!.name}`;
     a.click();
     URL.revokeObjectURL(url);
   };
 
-  const metaRows = (label: string, b?: string, a?: string) => (
+  const metaRows = (label: string, b: string | number, a: string | number) => (
     <TableRow>
       <TableCell>{label}</TableCell>
-      <TableCell>{b ?? '—'}</TableCell>
-      <TableCell>{a ?? '—'}</TableCell>
+      <TableCell>{b}</TableCell>
+      <TableCell>{a}</TableCell>
     </TableRow>
   );
 
@@ -226,12 +219,12 @@ export default function PdfToPdfa() {
                           <strong>After</strong>
                         </TableCell>
                       </TableRow>
-                      {metaRows('Title', before?.title, after?.title)}
-                      {metaRows('Author', before?.author, after?.author)}
-                      {metaRows('Creator', before?.creator, after?.creator)}
-                      {metaRows('Producer', before?.producer, after?.producer)}
-                      {metaRows('Pages', String(before?.pages), String(after?.pages))}
-                      {metaRows('Size', before?.size, after?.size)}
+                      {metaRows('Title', before!.title, after!.title)}
+                      {metaRows('Author', before!.author, after!.author)}
+                      {metaRows('Creator', before!.creator, after!.creator)}
+                      {metaRows('Producer', before!.producer, after!.producer)}
+                      {metaRows('Pages', before!.pages, after!.pages)}
+                      {metaRows('Size', before!.size, after!.size)}
                     </TableBody>
                   </Table>
                 </Box>

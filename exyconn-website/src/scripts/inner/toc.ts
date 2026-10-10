@@ -45,7 +45,7 @@ const watchToc = (toc: HTMLDetailsElement) => {
 };
 
 const watchProgress = (bar: HTMLElement) => {
-  const target = document.getElementById(bar.dataset.readingProgress ?? "");
+  const target = document.getElementById(bar.dataset.readingProgress as string);
   const fill = bar.firstElementChild as HTMLElement | null;
   if (!target || !fill) {
     return;

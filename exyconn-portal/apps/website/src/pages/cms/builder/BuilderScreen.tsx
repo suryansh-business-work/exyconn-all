@@ -86,7 +86,10 @@ export function BuilderScreen(props: Readonly<BuilderScreenProps>) {
         confirmText: 'Leave',
         destructive: true,
       }));
-    if (leave) navigate(props.backPath);
+    if (!leave) {
+      return;
+    }
+    navigate(props.backPath);
   };
   const report = (fallback: string) => (error: unknown) =>
     notify(errorMessage(error, fallback), 'error');

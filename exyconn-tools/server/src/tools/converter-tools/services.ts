@@ -4,6 +4,7 @@ import { toText } from "../../shared/text";
 import * as cheerio from "cheerio";
 import TurndownService from "turndown";
 import mammoth from "mammoth";
+import { extractPdfText } from "../../shared/pdf-text";
 
 // Initialize Turndown for HTML to Markdown conversion
 const turndownService = new TurndownService({
@@ -28,7 +29,6 @@ export function csvToMarkdown(
   hasHeader: boolean = true,
 ): string {
   const lines = csvContent.trim().split("\n");
-  if (lines.length === 0) return "";
 
   const rows = lines.map((line) => {
     const cells: string[] = [];
@@ -48,8 +48,6 @@ export function csvToMarkdown(
     cells.push(current.trim());
     return cells;
   });
-
-  if (rows.length === 0) return "";
 
   const maxCols = Math.max(...rows.map((r) => r.length));
   const normalizedRows = rows.map((r) => {
@@ -88,18 +86,14 @@ function convertJsonValue(value: unknown, indent: number = 0): string {
   const prefix = "  ".repeat(indent);
 
   if (value === null) return `${prefix}\`null\`\n`;
-  if (value === undefined) return `${prefix}\`undefined\`\n`;
   if (typeof value === "boolean") return `${prefix}\`${value}\`\n`;
   if (typeof value === "number") return `${prefix}\`${value}\`\n`;
   if (typeof value === "string") return `${prefix}${value}\n`;
 
   if (Array.isArray(value)) return convertJsonArray(value, prefix, indent);
 
-  if (typeof value === "object") {
-    return convertJsonObject(value as Record<string, unknown>, prefix, indent);
-  }
-
-  return `${prefix}${toText(value)}\n`;
+  // Parsed JSON has nothing else left: an object.
+  return convertJsonObject(value as Record<string, unknown>, prefix, indent);
 }
 
 function convertJsonArray(
@@ -236,19 +230,25 @@ export function rtfToMarkdown(rtfContent: string): string {
   // Basic RTF to text conversion
   let text = rtfContent;
 
-  // Remove RTF header
-  text = text.replace(/^\{\\rtf1[^}]*\}/gm, "");
+  // Remove the RTF header word and the font/colour/style tables, but keep what follows:
+  // a document with no tables is "{\rtf1\ansi Hello\par}" on one line.
+  text = text.replace(/^\{\\rtf1(?:\\[a-z]+-?\d* ?)*/gim, "");
+  text = text.replace(
+    /\{\\(?:fonttbl|colortbl|stylesheet)(?:[^{}]|\{[^{}]*\})*\}/g,
+    "",
+  );
+
+  // Convert common RTF formatting, before the control words are stripped: after that
+  // there is no \par, \line or \tab left to convert.
+  text = text.replace(/\\par(?![a-z])\s*/g, "\n\n");
+  text = text.replace(/\\line(?![a-z])\s*/g, "\n");
+  text = text.replace(/\\tab(?![a-z])\s*/g, "\t");
 
   // Remove control words
   text = text.replace(/\\[a-z]+\d*\s?/gi, "");
 
   // Remove braces
   text = text.replace(/[{}]/g, "");
-
-  // Convert common RTF formatting
-  text = text.replace(/\\par\s*/g, "\n\n");
-  text = text.replace(/\\line\s*/g, "\n");
-  text = text.replace(/\\tab\s*/g, "\t");
 
   // Clean up special characters
   text = text.replace(/\\'([0-9a-fA-F]{2})/g, (_, hex) =>
@@ -284,10 +284,11 @@ function processXmlNode(node: XmlNode, depth: number = 0): string {
   }
 
   const prefix = "  ".repeat(depth);
-  let md = depth === 0 ? `## ${node.name}\n\n` : `${prefix}- **${node.name}**`;
+  let md = depth === 0 ? `## ${node.name}` : `${prefix}- **${node.name}**`;
 
   // Add attributes
-  const attrs = node.attribs ?? {};
+  // Tags always carry both; only text and comment nodes lack them.
+  const attrs = node.attribs as Record<string, string>;
   if (Object.keys(attrs).length > 0) {
     const attrStr = Object.entries(attrs)
       .map(([k, v]) => `${k}="${v}"`)
@@ -296,7 +297,7 @@ function processXmlNode(node: XmlNode, depth: number = 0): string {
   }
 
   // Process children
-  const children = node.children ?? [];
+  const children = node.children as XmlNode[];
   const textChildren = children.filter(
     (c) => c.type === "text" && c.data?.trim(),
   );
@@ -307,7 +308,7 @@ function processXmlNode(node: XmlNode, depth: number = 0): string {
     return `${md}: ${text}\n`;
   }
 
-  md += "\n";
+  md += depth === 0 ? "\n\n" : "\n";
   for (const child of children) {
     md += processXmlNode(child, depth + 1);
   }
@@ -433,24 +434,20 @@ export function textToMarkdown(
  * Convert PDF buffer to Markdown
  */
 export async function pdfToMarkdown(buffer: Buffer): Promise<string> {
-  // Dynamic import for pdf-parse
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const pdfParse = require("pdf-parse");
-  const data = await pdfParse(buffer);
+  const { text, title, author } = await extractPdfText(buffer);
 
   let markdown = "";
 
   // Add metadata if available
-  if (data.info?.Title) {
-    markdown += `# ${data.info.Title}\n\n`;
+  if (title) {
+    markdown += `# ${title}\n\n`;
   }
 
-  if (data.info?.Author) {
-    markdown += `**Author:** ${data.info.Author}\n\n`;
+  if (author) {
+    markdown += `**Author:** ${author}\n\n`;
   }
 
   // Process text content
-  const text = data.text;
   markdown += textToMarkdown(text, {
     detectHeadings: true,
     detectLists: true,

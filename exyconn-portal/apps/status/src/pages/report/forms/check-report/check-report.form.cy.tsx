@@ -1,12 +1,12 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import { type MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
 import { ProblemReportStatusDocument } from '@exyconn/shell/graphql/generated';
 import { CheckReportForm } from './check-report.form';
 
-const foundMock: MockedResponse = {
+const foundMock: MockLink.MockedResponse = {
   request: { query: ProblemReportStatusDocument, variables: { reference: 'EXY-4KQ7W2' } },
   result: {
     data: {
@@ -20,12 +20,12 @@ const foundMock: MockedResponse = {
   },
 };
 
-const missingMock: MockedResponse = {
+const missingMock: MockLink.MockedResponse = {
   request: { query: ProblemReportStatusDocument, variables: { reference: 'EXY-ZZZZZZ' } },
   error: new Error('No report matches that reference'),
 };
 
-const mount = (mocks: MockedResponse[] = []) =>
+const mount = (mocks: MockLink.MockedResponse[] = []) =>
   cy.mount(
     <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>

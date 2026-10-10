@@ -73,7 +73,15 @@ const PreviewGrid: React.FC<Props> = ({
         const imageToUse = croppedImages[sizeKey] || image;
         const isCropped = !!croppedImages[sizeKey];
         const effectiveSettings = getEffectiveSettings(sizeKey);
-        const canvas = renderToCanvas(imageToUse, size.width, size.height, effectiveSettings, format, isCropped);
+        const canvas = renderToCanvas(
+          imageToUse,
+          size.width,
+          size.height,
+          effectiveSettings,
+          format,
+          isCropped,
+          size.category
+        );
         downloadCanvas(canvas, `logo-${size.width}x${size.height}`, format);
       }, index * 200);
     });

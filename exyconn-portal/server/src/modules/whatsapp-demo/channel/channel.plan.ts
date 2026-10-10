@@ -63,7 +63,7 @@ export function plan(input: Input, chat: ChatRecord, bundles: readonly DemoBundl
       return planText(input.text, bundles, bundle);
     default:
       // A reminder from an industry the chat has since left is dropped, as the browser does.
-      return bundle && input.push.demoKey === bundle.demo.key
+      return bundle?.demo.key === input.push.demoKey
         ? { kind: 'engine', bundle, event: { type: 'push', push: input.push } }
         : { kind: 'ignore' };
   }

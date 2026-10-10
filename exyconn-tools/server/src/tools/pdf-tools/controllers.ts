@@ -57,11 +57,11 @@ export async function protectPdfController(req: Request, res: Response) {
 
   const inputPath = tmpPdfPath("in");
   const outputPath = tmpPdfPath("out");
+  let encrypted: Buffer;
   try {
     await fs.writeFile(inputPath, req.file.buffer);
     await encryptPdf(inputPath, outputPath, userPassword, ownerPassword);
-    const encrypted = await fs.readFile(outputPath);
-    return sendPdf(res, encrypted, "protected.pdf");
+    encrypted = await fs.readFile(outputPath);
   } catch (error) {
     if (error instanceof ToolUnavailableError) {
       return res.status(503).json({ error: UNAVAILABLE_MESSAGE });
@@ -71,6 +71,7 @@ export async function protectPdfController(req: Request, res: Response) {
   } finally {
     await cleanup(inputPath, outputPath);
   }
+  return sendPdf(res, encrypted, "protected.pdf");
 }
 
 export async function unlockPdfController(req: Request, res: Response) {
@@ -88,11 +89,11 @@ export async function unlockPdfController(req: Request, res: Response) {
 
   const inputPath = tmpPdfPath("in");
   const outputPath = tmpPdfPath("out");
+  let decrypted: Buffer;
   try {
     await fs.writeFile(inputPath, req.file.buffer);
     await decryptPdf(inputPath, outputPath, password);
-    const decrypted = await fs.readFile(outputPath);
-    return sendPdf(res, decrypted, "unlocked.pdf");
+    decrypted = await fs.readFile(outputPath);
   } catch (error) {
     if (error instanceof ToolUnavailableError) {
       return res.status(503).json({ error: UNAVAILABLE_MESSAGE });
@@ -105,4 +106,5 @@ export async function unlockPdfController(req: Request, res: Response) {
   } finally {
     await cleanup(inputPath, outputPath);
   }
+  return sendPdf(res, decrypted, "unlocked.pdf");
 }

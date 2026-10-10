@@ -33,7 +33,7 @@ async function client() {
     company: 'Acme',
     status: 'ACTIVE',
   });
-  return String(created._id);
+  return created._id.toHexString();
 }
 
 async function project(clientId: string | null, extra: Record<string, unknown> = {}) {
@@ -44,12 +44,12 @@ async function project(clientId: string | null, extra: Record<string, unknown> =
     clientName: clientId ? 'Priya' : '',
     ...extra,
   });
-  return String(created._id);
+  return created._id.toHexString();
 }
 
 async function employee(name: string, billingRate?: number) {
   const user = await UserModel.create({ name, email: `${name}@exyconn.com`, passwordHash: 'x' });
-  const id = String(user._id);
+  const id = user._id.toHexString();
   if (billingRate !== undefined) {
     await SalaryStructureModel.create({
       employeeId: id,
@@ -74,7 +74,7 @@ async function session(userId: string, projectId: string, activeMs: number) {
   });
   await TrackerIntervalModel.create({
     userId,
-    sessionId: String(doc._id),
+    sessionId: doc._id.toHexString(),
     startedAt: AT,
     endedAt: new Date(AT.getTime() + activeMs),
     activeMs,

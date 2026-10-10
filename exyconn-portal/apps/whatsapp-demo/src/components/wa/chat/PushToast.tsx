@@ -24,22 +24,23 @@ const TOAST_MS = 6000;
 export function PushToast({ toast, bundle, onOpen, onClose }: Readonly<PushToastProps>) {
   const t = useT();
   const c = useWaPalette();
+  if (!toast || !bundle) {
+    return null;
+  }
   return (
     <Snackbar
-      key={toast?.id}
-      open={Boolean(toast && bundle)}
+      key={toast.id}
+      open
       autoHideDuration={TOAST_MS}
       onClose={onClose}
       anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
     >
       <ButtonBase
         onClick={() => {
-          if (toast) {
-            onOpen(toast.demoKey);
-          }
+          onOpen(toast.demoKey);
           onClose();
         }}
-        aria-label={t('New message from {name}', { name: bundle?.demo.business.name ?? '' })}
+        aria-label={t('New message from {name}', { name: bundle.demo.business.name })}
         sx={{
           display: 'flex',
           alignItems: 'center',
@@ -55,17 +56,13 @@ export function PushToast({ toast, bundle, onOpen, onClose }: Readonly<PushToast
           fontFamily: 'inherit',
         }}
       >
-        {bundle ? (
-          <WaAvatar
-            size={WA_SIZE.avatarHeader}
-            accent={bundle.demo.business.accent}
-            icon={bundle.demo.business.icon}
-          />
-        ) : null}
+        <WaAvatar
+          size={WA_SIZE.avatarHeader}
+          accent={bundle.demo.business.accent}
+          icon={bundle.demo.business.icon}
+        />
         <Box sx={{ minWidth: 0 }}>
-          <Box sx={{ fontWeight: 600, fontSize: WA_FONT.preview }}>
-            {bundle?.demo.business.name}
-          </Box>
+          <Box sx={{ fontWeight: 600, fontSize: WA_FONT.preview }}>{bundle.demo.business.name}</Box>
           <Box
             sx={{
               fontSize: WA_FONT.small,
@@ -75,7 +72,7 @@ export function PushToast({ toast, bundle, onOpen, onClose }: Readonly<PushToast
               whiteSpace: 'nowrap',
             }}
           >
-            {toast?.text}
+            {toast.text}
           </Box>
         </Box>
       </ButtonBase>

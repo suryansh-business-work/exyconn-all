@@ -20,9 +20,6 @@ const APIKeyInput: React.FC = () => {
 
   const handleSave = () => {
     const value = inputValue.trim();
-    if (!value) {
-      return;
-    }
     writeSecret(OPENAI_SECRET_KEY, value);
     setStoredKey(value);
     rememberKey(value);

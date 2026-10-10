@@ -26,10 +26,10 @@ import type { ContractFormValues, ContractRow } from './contract.types';
 const schema = z.object({
   title: z.string().trim().min(1, 'Title is required'),
   party: z.string().trim().min(1, 'Party is required'),
-  type: z.nativeEnum(ContractType),
+  type: z.enum(ContractType),
   effectiveDate: z.string().min(1, 'Effective date is required'),
   expiryDate: z.string().min(1, 'Expiry date is required'),
-  status: z.nativeEnum(ContractStatus),
+  status: z.enum(ContractStatus),
   // The file a counterparty is asked to read. Optional, because a contract is often drafted
   // before there is a PDF of it — but a signature request refuses to go out without one.
   documentUrl: z.string().trim(),

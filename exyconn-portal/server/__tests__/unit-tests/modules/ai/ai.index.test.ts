@@ -105,7 +105,7 @@ describe('prompt variables follow the content', () => {
     await M.updatePrompt(
       null,
       {
-        id: String(prompt._id),
+        id: prompt._id.toHexString(),
         input: { title: 'T', category: 'GENERAL', content: 'About {{topic}}' },
       },
       asAi,

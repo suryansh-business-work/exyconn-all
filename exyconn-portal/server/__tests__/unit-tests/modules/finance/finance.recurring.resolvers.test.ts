@@ -6,6 +6,7 @@ import { updateBranding } from '../../../../src/modules/branding/branding.servic
 import { ROLES } from '../../../../src/constants/roles';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
 import { useTestOrganization } from '../../../helpers';
+import { asArg } from '../../../mockAs';
 
 useTestOrganization();
 
@@ -38,7 +39,7 @@ async function seedClient() {
     company: 'Acme',
     status: 'ACTIVE',
   });
-  return String(client._id);
+  return client._id.toHexString();
 }
 
 const input = (clientId: string, extra: Record<string, unknown> = {}) => ({
@@ -141,6 +142,8 @@ describe('updateRecurringInvoice', () => {
 });
 
 describe('runRecurringInvoiceNow', () => {
+  afterEach(() => jest.restoreAllMocks());
+
   it('raises the current period as a draft and moves the schedule on', async () => {
     await updateBranding({ stateCode: '23' });
     const clientId = await seedClient();
@@ -172,6 +175,21 @@ describe('runRecurringInvoiceNow', () => {
     await expect(
       M.runRecurringInvoiceNow(null, { id: '64b7f9c2f1a2b3c4d5e6f7a8' }, asFinance),
     ).rejects.toThrow(/Recurring invoice not found/);
+  });
+
+  it('reports a schedule removed while its invoice was being written', async () => {
+    const clientId = await seedClient();
+    const created = await M.createRecurringInvoice(null, { input: input(clientId) }, asFinance);
+    const write = InvoiceModel.create.bind(InvoiceModel) as (...args: unknown[]) => unknown;
+    jest.spyOn(InvoiceModel, 'create').mockImplementationOnce(async (...args: unknown[]) => {
+      await RecurringInvoiceModel.deleteMany({});
+      return asArg(await write(...args));
+    });
+
+    await expect(M.runRecurringInvoiceNow(null, { id: created.id }, asFinance)).rejects.toThrow(
+      /Recurring invoice not found/,
+    );
+    expect(await InvoiceModel.countDocuments()).toBe(1);
   });
 
   it('refuses a caller outside finance before touching the schedule', async () => {

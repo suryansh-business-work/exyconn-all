@@ -45,4 +45,11 @@ describe('HolidaysPage', () => {
     renderWithProviders(<HolidaysPage />);
     expect(screen.getByText('No holidays published yet.')).toBeInTheDocument();
   });
+
+  it('holds the table busy and does not claim the list is empty while the first response loads', () => {
+    vi.mocked(useMyHolidaysQuery).mockReturnValue(queryResult({ loading: true }));
+    const { container } = renderWithProviders(<HolidaysPage />);
+    expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
+    expect(screen.queryByText('No holidays published yet.')).toBeNull();
+  });
 });

@@ -12,7 +12,7 @@ import {
 const GRAPH = 'https://graph.facebook.com/v19.0';
 
 /** The Graph API reads its token from the query, which also works with page tokens. */
-const graph = (path: string, account: NetworkAccount, params: Record<string, string> = {}) =>
+const graph = (path: string, account: NetworkAccount, params: Record<string, string>) =>
   `${GRAPH}/${path}?${new URLSearchParams({ ...params, access_token: account.accessToken }).toString()}`;
 
 const summary = (value: unknown): number =>

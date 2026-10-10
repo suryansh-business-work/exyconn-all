@@ -16,7 +16,7 @@ import {
 
 const schema = z
   .object({
-    kind: z.nativeEnum(NotificationKind),
+    kind: z.enum(NotificationKind),
     title: z.string().trim().min(1, 'Title is required').max(120, 'Keep it under 120 characters'),
     body: z.string().trim(),
     link: z
@@ -26,7 +26,7 @@ const schema = z
         (v) => v === '' || SITE_PATH.test(v),
         'Link must be an in-portal path like /me/announcements',
       ),
-    audience: z.nativeEnum(NotificationAudience),
+    audience: z.enum(NotificationAudience),
     department: z.string().trim(),
     employeeIds: z.array(z.string()),
   })

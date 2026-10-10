@@ -44,7 +44,7 @@ const schema = z
     lines: z.array(lineSchema).min(1, 'Add at least one line'),
     currency: z.string().trim().min(1, 'Currency is required'),
     placeOfSupplyStateCode: gstStateCodeField,
-    frequency: z.nativeEnum(RecurrenceFrequency),
+    frequency: z.enum(RecurrenceFrequency),
     startDate: z.string().min(1, 'Start date is required'),
     endDate: z.string(),
     dueDays: z.coerce
@@ -105,7 +105,7 @@ export function RecurringInvoiceForm({
     defaultValues: toInitial(initial, companyCurrency),
   });
   // The lines editor prints each line's total, so it needs the currency being edited.
-  const currency = useWatch({ control: methods.control, name: 'currency' }) ?? companyCurrency;
+  const currency = useWatch({ control: methods.control, name: 'currency' });
   const { data: clientsData } = useListClientsQuery();
   const gstStateOptions = useGstStateOptions();
   const [createRecurring] = useCreateRecurringInvoiceMutation();

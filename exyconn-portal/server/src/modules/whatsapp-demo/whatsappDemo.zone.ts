@@ -26,7 +26,7 @@ function wallClock(instant: number, timeZone: string) {
     minute: '2-digit',
     weekday: 'long',
   }).formatToParts(new Date(instant));
-  const read = (type: string) => parts.find((part) => part.type === type)?.value ?? '';
+  const read = (type: string) => parts.find((part) => part.type === type)?.value as string;
   return {
     year: Number(read('year')),
     month: Number(read('month')),

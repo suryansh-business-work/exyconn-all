@@ -2,6 +2,7 @@ import {
   financeBillingResolvers,
   markOverdueInvoices,
   sweepOverdueInvoices,
+  chaseOverdueInvoices,
   dunningStage,
   DUNNING_STAGE_DAYS,
 } from '../../src/modules/finance';
@@ -12,7 +13,7 @@ import { sweepReminders } from '../../src/modules/reminders';
 import { NotificationModel } from '../../src/modules/notifications/notification.model';
 import { UserModel } from '../../src/modules/admin/user.model';
 import { ROLES } from '../../src/constants/roles';
-import { useTestOrganization } from '../helpers';
+import { freezeClock, useTestOrganization } from '../helpers';
 import type { GraphQLContext } from '../../src/middleware/auth';
 
 useTestOrganization({ currency: 'INR', locale: 'en-IN' });
@@ -39,7 +40,7 @@ async function seedClient(email = 'accounts@nimbus.test') {
     company: 'Nimbus Ltd',
     status: 'ACTIVE',
   });
-  return String(client._id);
+  return client._id.toHexString();
 }
 
 interface InvoiceFields {
@@ -84,7 +85,7 @@ async function seedFinanceUser() {
     roles: [ROLES.FINANCE],
     isActive: true,
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 describe('marking an invoice overdue', () => {
@@ -158,7 +159,7 @@ describe('paying an overdue invoice', () => {
     const invoice = await seedInvoice();
     await markOverdueInvoices(NOW);
 
-    await pay(String(invoice._id), 1000);
+    await pay(invoice._id.toHexString(), 1000);
 
     expect(await statusOf(invoice._id)).toBe('PAID');
   });
@@ -167,7 +168,7 @@ describe('paying an overdue invoice', () => {
     const invoice = await seedInvoice();
     await markOverdueInvoices(NOW);
 
-    await pay(String(invoice._id), 100);
+    await pay(invoice._id.toHexString(), 100);
 
     expect(await statusOf(invoice._id)).toBe('OVERDUE');
   });
@@ -225,7 +226,7 @@ describe('chasing an overdue invoice', () => {
     const clientId = await seedClient();
     const invoice = await seedInvoice({ clientId, dueDaysAgo: 40 });
     await markOverdueInvoices(NOW);
-    await pay(String(invoice._id), 1000);
+    await pay(invoice._id.toHexString(), 1000);
 
     const result = await sweepOverdueInvoices(NOW);
 
@@ -237,7 +238,7 @@ describe('chasing an overdue invoice', () => {
     const clientId = await seedClient();
     const invoice = await seedInvoice({ clientId, dueDaysAgo: 40 });
     await markOverdueInvoices(NOW);
-    await pay(String(invoice._id), 750);
+    await pay(invoice._id.toHexString(), 750);
 
     await sweepOverdueInvoices(NOW);
 
@@ -280,5 +281,26 @@ describe('what finance is told', () => {
 
     expect(result.sent).toBe(0);
     expect(await NotificationModel.countDocuments()).toBe(0);
+  });
+});
+
+describe('when the sweep is not told what time it is', () => {
+  beforeEach(() => {
+    send.mockClear();
+    freezeClock(NOW.toISOString());
+  });
+  afterEach(() => jest.useRealTimers());
+
+  it('marks and chases against the current time', async () => {
+    const clientId = await seedClient();
+    const invoice = await seedInvoice({ clientId, dueDaysAgo: 5 });
+
+    const marked = await markOverdueInvoices();
+    const chased = await chaseOverdueInvoices();
+
+    expect(marked.marked).toBe(1);
+    expect(await statusOf(invoice._id)).toBe('OVERDUE');
+    expect(chased).toBe(1);
+    expect(send.mock.calls[0][0].variables.daysLate).toBe('5');
   });
 });

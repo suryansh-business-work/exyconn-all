@@ -20,7 +20,7 @@ const schema = z.object({
     .trim()
     .min(3, 'Slug must be at least 3 characters')
     .regex(SLUG, 'Lowercase letters, digits and hyphens only'),
-  category: z.nativeEnum(SupportCategory),
+  category: z.enum(SupportCategory),
   summary: z.string().trim().max(200, 'Keep the summary to one line'),
   body: z.string().trim().min(20, 'An answer this short will not help anybody'),
   isPublished: z.boolean(),

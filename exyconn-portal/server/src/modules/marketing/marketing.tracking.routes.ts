@@ -130,7 +130,7 @@ async function recordClick(token: string, url: string): Promise<void> {
   }
   await CampaignClickModel.create({
     campaignId: send.campaignId,
-    sendId: String(send._id),
+    sendId: send._id.toHexString(),
     to: send.to,
     url,
   });

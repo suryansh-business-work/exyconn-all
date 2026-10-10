@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import { type MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
@@ -22,7 +22,7 @@ const CONTRACT: ContractForSigning = {
   signedAt: null,
 } as ContractForSigning;
 
-const signed: MockedResponse = {
+const signed: MockLink.MockedResponse = {
   request: {
     query: SignContractWithTokenDocument,
     variables: { token: TOKEN, signedName: CONTRACT.signerName },
@@ -38,7 +38,7 @@ const signed: MockedResponse = {
   },
 };
 
-const renamed: MockedResponse = {
+const renamed: MockLink.MockedResponse = {
   request: {
     query: SignContractWithTokenDocument,
     variables: { token: TOKEN, signedName: 'Samira Khan' },
@@ -54,7 +54,7 @@ const renamed: MockedResponse = {
   },
 };
 
-const refused: MockedResponse = {
+const refused: MockLink.MockedResponse = {
   request: {
     query: SignContractWithTokenDocument,
     variables: { token: TOKEN, signedName: 'Expired Link' },

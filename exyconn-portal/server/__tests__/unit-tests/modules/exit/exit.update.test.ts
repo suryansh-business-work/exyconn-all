@@ -40,11 +40,11 @@ const accountOf = (id: string) => UserModel.findById(id).lean();
 describe('updateExitRecord offboarding an administrator', () => {
   it('refuses HR switching off an administrator and leaves the record untouched', async () => {
     const boss = await person('boss@exyconn.com', [ROLES.ADMIN]);
-    const id = String(boss._id);
+    const id = boss._id.toHexString();
     const record = await openExit(id, 'CLEARANCE');
 
     await expect(
-      update(null, { id: String(record._id), input: inputFor(id, 'EXITED') }, hr),
+      update(null, { id: record._id.toHexString(), input: inputFor(id, 'EXITED') }, hr),
     ).rejects.toThrow('Only an administrator can offboard an administrator.');
 
     expect((await accountOf(id))?.isActive).toBe(true);
@@ -53,12 +53,12 @@ describe('updateExitRecord offboarding an administrator', () => {
 
   it('lets an administrator offboard another administrator', async () => {
     const boss = await person('boss@exyconn.com', [ROLES.ADMIN]);
-    const id = String(boss._id);
+    const id = boss._id.toHexString();
     const record = await openExit(id, 'FULL_AND_FINAL');
 
     const updated = (await update(
       null,
-      { id: String(record._id), input: inputFor(id, 'EXITED') },
+      { id: record._id.toHexString(), input: inputFor(id, 'EXITED') },
       admin,
     )) as { stage: string };
 
@@ -73,27 +73,27 @@ describe('updateExitRecord choosing whom to switch off', () => {
   it('deactivates the person the stored record is about, not the id sent with the edit', async () => {
     const leaver = await person('leaver@exyconn.com', [ROLES.EMPLOYEE]);
     const bystander = await person('bystander@exyconn.com', [ROLES.EMPLOYEE]);
-    const leaverId = String(leaver._id);
+    const leaverId = leaver._id.toHexString();
     const record = await openExit(leaverId, 'CLEARANCE');
 
     await update(
       null,
-      { id: String(record._id), input: inputFor(String(bystander._id), 'EXITED') },
+      { id: record._id.toHexString(), input: inputFor(bystander._id.toHexString(), 'EXITED') },
       hr,
     );
 
     expect((await accountOf(leaverId))?.isActive).toBe(false);
-    expect((await accountOf(String(bystander._id)))?.isActive).toBe(true);
+    expect((await accountOf(bystander._id.toHexString()))?.isActive).toBe(true);
   });
 
   it('does not switch the account off again when an already exited record is edited', async () => {
     const leaver = await person('rehired@exyconn.com', [ROLES.EMPLOYEE]);
-    const id = String(leaver._id);
+    const id = leaver._id.toHexString();
     const record = await openExit(id, 'EXITED');
 
     const updated = (await update(
       null,
-      { id: String(record._id), input: inputFor(id, 'EXITED', 'Notes corrected') },
+      { id: record._id.toHexString(), input: inputFor(id, 'EXITED', 'Notes corrected') },
       hr,
     )) as { reason: string };
 
@@ -108,7 +108,7 @@ describe('updateExitRecord choosing whom to switch off', () => {
 
     const updated = (await update(
       null,
-      { id: String(record._id), input: inputFor('legacy-emp-00042', 'EXITED') },
+      { id: record._id.toHexString(), input: inputFor('legacy-emp-00042', 'EXITED') },
       hr,
     )) as { stage: string };
 
@@ -116,12 +116,12 @@ describe('updateExitRecord choosing whom to switch off', () => {
   });
 
   it('completes the exit when the account it names no longer exists', async () => {
-    const goneId = String(new Types.ObjectId());
+    const goneId = new Types.ObjectId().toHexString();
     const record = await openExit(goneId, 'CLEARANCE');
 
     const updated = (await update(
       null,
-      { id: String(record._id), input: inputFor(goneId, 'EXITED') },
+      { id: record._id.toHexString(), input: inputFor(goneId, 'EXITED') },
       hr,
     )) as { stage: string };
 
@@ -131,8 +131,8 @@ describe('updateExitRecord choosing whom to switch off', () => {
 
   it('reports a missing record instead of deactivating anybody', async () => {
     const leaver = await person('leaver@exyconn.com', [ROLES.EMPLOYEE]);
-    const id = String(leaver._id);
-    const missing = String(new Types.ObjectId());
+    const id = leaver._id.toHexString();
+    const missing = new Types.ObjectId().toHexString();
 
     await expect(update(null, { id: missing, input: inputFor(id, 'EXITED') }, hr)).rejects.toThrow(
       'ExitRecord not found',
@@ -144,7 +144,11 @@ describe('updateExitRecord choosing whom to switch off', () => {
     const record = await openExit('emp-1', 'CLEARANCE');
 
     await expect(
-      update(null, { id: String(record._id), input: inputFor('emp-1', 'EXITED') }, { user: null }),
+      update(
+        null,
+        { id: record._id.toHexString(), input: inputFor('emp-1', 'EXITED') },
+        { user: null },
+      ),
     ).rejects.toThrow('Authentication required');
   });
 });

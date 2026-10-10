@@ -109,16 +109,15 @@ describe("reading the model's answer", () => {
   it('times out when the model takes too long', async () => {
     await configure();
     const realSetTimeout = globalThis.setTimeout;
-    const timers = jest.spyOn(globalThis, 'setTimeout').mockImplementation(((
-      handler: () => void,
-      ms?: number,
-    ) => {
-      if (ms === 8000) {
-        handler();
-        return realSetTimeout(() => undefined, 0);
-      }
-      return realSetTimeout(handler, ms);
-    }) as typeof setTimeout);
+    const timers = jest
+      .spyOn(globalThis, 'setTimeout')
+      .mockImplementation((handler: () => void, ms?: number) => {
+        if (ms === 8000) {
+          handler();
+          return realSetTimeout(() => undefined, 0);
+        }
+        return realSetTimeout(handler, ms);
+      });
     complete.mockImplementationOnce(async ({ signal }) => {
       if (signal?.aborted) {
         throw new Error('aborted');

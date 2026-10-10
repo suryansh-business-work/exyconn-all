@@ -83,7 +83,7 @@ describe('IT purchase requests', () => {
 
   it('refuses to update a request that does not exist', async () => {
     expect(await codeOf(update('nope', 'QUOTED'))).toBe('NOT_FOUND');
-    expect(await codeOf(update(String(new Types.ObjectId()), 'QUOTED'))).toBe('NOT_FOUND');
+    expect(await codeOf(update(new Types.ObjectId().toHexString(), 'QUOTED'))).toBe('NOT_FOUND');
   });
 
   it('refuses a caller who is not signed in', async () => {

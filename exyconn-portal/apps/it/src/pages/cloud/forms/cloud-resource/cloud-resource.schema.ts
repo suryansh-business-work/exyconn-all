@@ -11,9 +11,9 @@ export const EXPIRING_KINDS: ReadonlySet<ItCloudKind> = new Set([
 export const cloudResourceSchema = z
   .object({
     name: z.string().trim().min(2, 'Give it a name people will recognise').max(120, 'Too long'),
-    kind: z.nativeEnum(ItCloudKind),
+    kind: z.enum(ItCloudKind),
     provider: z.string().trim().max(120, 'Too long'),
-    environment: z.nativeEnum(ItEnvironment),
+    environment: z.enum(ItEnvironment),
     region: z.string().trim().max(60, 'Too long'),
     endpoint: z.string().trim().max(300, 'Too long'),
     /** ISO string from the picker; empty means it does not expire. */
@@ -21,7 +21,7 @@ export const cloudResourceSchema = z
     monthlyCost: z.coerce
       .number({ message: 'Cost must be a number' })
       .min(0, 'Cost cannot be negative'),
-    status: z.nativeEnum(ItServiceStatus),
+    status: z.enum(ItServiceStatus),
     ownerName: z.string().trim().max(120, 'Too long'),
     notes: z.string().trim().max(2000, 'Keep notes under 2000 characters'),
   })

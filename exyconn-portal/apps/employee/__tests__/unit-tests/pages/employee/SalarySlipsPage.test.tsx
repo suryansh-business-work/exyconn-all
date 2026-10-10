@@ -102,4 +102,11 @@ describe('SalarySlipsPage', () => {
     await user.click(screen.getByRole('button', { name: 'view' }));
     expect(await screen.findByRole('button', { name: 'Preparing…' })).toBeDisabled();
   });
+
+  it('holds the table busy and does not claim the list is empty while the first response loads', () => {
+    vi.mocked(useMySalarySlipsQuery).mockReturnValue(queryResult({ loading: true }));
+    const { container } = renderWithProviders(<SalarySlipsPage />);
+    expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
+    expect(screen.queryByText('No payslips yet.')).toBeNull();
+  });
 });

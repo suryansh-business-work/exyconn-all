@@ -41,8 +41,8 @@ describe('the website reading public policies', () => {
     const operator = await organization('Exyconn', new Date('2024-01-01'));
     const customer = await organization('Acme', new Date('2025-01-01'));
     await ensurePlatformOperatorOrganization();
-    await publish(String(operator._id), 'privacy');
-    await publish(String(customer._id), 'acme-handbook');
+    await publish(operator._id.toHexString(), 'privacy');
+    await publish(customer._id.toHexString(), 'acme-handbook');
 
     const listed = (await asVisitor(() => Q.publicPolicies(null, {}))) as { slug: string }[];
     expect(listed.map((policy) => policy.slug)).toEqual(['privacy']);

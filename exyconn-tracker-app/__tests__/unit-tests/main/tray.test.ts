@@ -96,7 +96,7 @@ describe('TrackerTray', () => {
     expect(win?.focus).toHaveBeenCalledTimes(1);
 
     tracker.update(stateOf('idle', true));
-    item(tray, 'Open').click?.({} as never, undefined, {} as never);
+    item(tray, 'Open').click?.({} as never, undefined, {});
     expect(win?.show).toHaveBeenCalledTimes(2);
 
     win = null;

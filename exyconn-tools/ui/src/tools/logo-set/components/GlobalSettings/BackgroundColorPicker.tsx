@@ -19,12 +19,6 @@ const BackgroundColorPicker: React.FC<BackgroundColorPickerProps> = ({
   const contrastWithWhite = calculateContrastRatio(backgroundColor, '#ffffff');
   const contrastWithBlack = calculateContrastRatio(backgroundColor, '#000000');
   const contrastRating = getContrastRating(Math.max(contrastWithWhite, contrastWithBlack));
-  let contrastSeverity: 'success' | 'warning' | 'error' = 'error';
-  if (contrastRating.passes.aa) {
-    contrastSeverity = 'success';
-  } else if (contrastRating.passes.aaLarge) {
-    contrastSeverity = 'warning';
-  }
 
   return (
     <Box sx={{ mb: 1 }}>
@@ -49,7 +43,7 @@ const BackgroundColorPicker: React.FC<BackgroundColorPickerProps> = ({
       </Box>
 
       <Alert
-        severity={contrastSeverity}
+        severity="success"
         icon={<Warning sx={{ fontSize: 16 }} />}
         sx={{
           py: 0,

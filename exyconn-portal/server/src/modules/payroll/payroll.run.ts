@@ -214,7 +214,7 @@ async function issueSlip(candidate: ReadyCandidate, month: number, year: number)
   });
   await ensurePayslipDocument(
     candidate.employeeId,
-    String(created._id),
+    created._id.toHexString(),
     payslipTitle(month, year),
     issuedDate,
   );

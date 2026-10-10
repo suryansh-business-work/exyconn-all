@@ -19,7 +19,7 @@ useTestOrganization({ currency: 'INR', locale: 'en-IN', taxSystem: 'INDIA_GST' }
 async function employee(email: string, fields: Record<string, unknown> = {}) {
   const user = await seedUser(email, randomUUID(), [ROLES.EMPLOYEE]);
   await UserModel.updateOne({ _id: user._id }, { name: 'Ravi Kumar', ...fields });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 const slipFor = (employeeId: string, extra: Record<string, unknown> = {}) =>
@@ -45,14 +45,14 @@ afterEach(() => {
 
 describe('renderPayslip', () => {
   it('refuses a slip that does not exist', async () => {
-    await expect(renderPayslip(String(new Types.ObjectId()))).rejects.toThrow(
+    await expect(renderPayslip(new Types.ObjectId().toHexString())).rejects.toThrow(
       'Salary slip not found',
     );
   });
 
   it('refuses a slip whose employee is gone, rather than printing half a payslip', async () => {
-    const slip = await slipFor(String(new Types.ObjectId()));
-    await expect(renderPayslip(String(slip._id))).rejects.toThrow(
+    const slip = await slipFor(new Types.ObjectId().toHexString());
+    await expect(renderPayslip(slip._id.toHexString())).rejects.toThrow(
       'The employee this payslip belongs to not found',
     );
   });
@@ -76,7 +76,7 @@ describe('renderPayslip', () => {
     await BrandingModel.create({ businessName: 'Acme Payroll', address: '1 Main Street' });
     const slip = await slipFor(id, { status: 'PAID' });
 
-    const payslip = await renderPayslip(String(slip._id));
+    const payslip = await renderPayslip(slip._id.toHexString());
 
     expect(payslip).toMatchObject({
       filename: 'Payslip-Ravi-Kumar-2026-08.pdf',
@@ -99,7 +99,7 @@ describe('renderPayslip', () => {
       { $unset: { pf: '', esi: '', professionalTax: '', tds: '' } },
     );
 
-    const payslip = await renderPayslip(String(slip._id));
+    const payslip = await renderPayslip(slip._id.toHexString());
 
     expect(payslip.status).toBe('GENERATED');
     expect(payslip.netPay).toContain('75,000');
@@ -138,7 +138,7 @@ describe('dispatchSalarySlips', () => {
       { _id: new Types.ObjectId(noEmail) },
       { $set: { email: '' } },
     );
-    const ghost = String(new Types.ObjectId());
+    const ghost = new Types.ObjectId().toHexString();
     const bounced = await employee('bounce@exyconn.com');
     const fine = await employee('fine@exyconn.com');
     await Promise.all([slipFor(noEmail), slipFor(ghost), slipFor(bounced), slipFor(fine)]);

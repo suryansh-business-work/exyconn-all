@@ -416,7 +416,7 @@ export async function trafficAnalyze(url: string) {
   $("a[href]").each((_, el) => {
     const href = $(el).attr("href") || "";
     if (href.startsWith("/") || href.includes(targetDomain)) {
-      internalLinks.add(href.startsWith("/") ? href : new URL(href).pathname);
+      internalLinks.add(href.startsWith("/") ? href : new URL(href, targetUrl).pathname);
     } else if (href.startsWith("http")) {
       try { externalDomains.add(new URL(href).hostname); } catch { /* ignore */ }
     }

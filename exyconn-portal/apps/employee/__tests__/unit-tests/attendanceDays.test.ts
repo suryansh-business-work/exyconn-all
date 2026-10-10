@@ -58,3 +58,29 @@ describe('buildAttendanceMonth', () => {
     expect(statusOn(days, 20)).toBe('NONE');
   });
 });
+
+describe('buildAttendanceMonth leave edge cases', () => {
+  const build = (leaves: { fromDate: string; toDate: string; status: string }[]) =>
+    buildAttendanceMonth(month, [], leaves, [], today);
+
+  it('keeps an approved leave when a weaker one is listed after it', () => {
+    const days = build([
+      { fromDate: local(9), toDate: local(9), status: 'APPROVED' },
+      { fromDate: local(9), toDate: local(9), status: 'PENDING' },
+    ]);
+
+    expect(statusOn(days, 9)).toBe('LEAVE_APPROVED');
+  });
+
+  it('ignores a leave whose status the calendar does not know', () => {
+    const days = build([{ fromDate: local(9), toDate: local(9), status: 'CANCELLED' }]);
+
+    expect(statusOn(days, 9)).toBe('NONE');
+  });
+
+  it('ignores a leave that ends before it starts', () => {
+    const days = build([{ fromDate: local(12), toDate: local(10), status: 'APPROVED' }]);
+
+    expect([10, 11, 12].map((day) => statusOn(days, day))).toEqual(['NONE', 'NONE', 'NONE']);
+  });
+});

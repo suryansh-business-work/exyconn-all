@@ -72,6 +72,10 @@ describe('propsSummary', () => {
     );
   });
 
+  it('keeps text after a "<" that never closes', () => {
+    expect(propsSummary({ note: 'a <b>bold</b> and 1 < 2' })).toBe('note: a bold and 1 < 2');
+  });
+
   it('counts array items with the right plural', () => {
     expect(propsSummary({ one: ['a'], many: ['a', 'b'], none: [] })).toBe(
       'one: 1 item · many: 2 items · none: 0 items',

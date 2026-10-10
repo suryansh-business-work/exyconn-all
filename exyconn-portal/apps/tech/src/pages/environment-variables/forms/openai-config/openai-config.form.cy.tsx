@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import { type MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { UpdateOpenAiConfigDocument } from '@exyconn/shell/graphql/generated';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { OpenAiConfigForm } from './openai-config.form';
@@ -18,7 +18,7 @@ const stored: OpenAiConfigRow = {
 };
 
 /** Saving the stored config untouched sends a blank secret, which the server reads as "keep". */
-const keepSecretMock: MockedResponse = {
+const keepSecretMock: MockLink.MockedResponse = {
   request: {
     query: UpdateOpenAiConfigDocument,
     variables: {
@@ -29,7 +29,7 @@ const keepSecretMock: MockedResponse = {
   result: { data: { updateOpenAiConfig: { id: 'c1' } } },
 };
 
-const mount = (initial: OpenAiConfigRow | null = null, mocks: MockedResponse[] = []) =>
+const mount = (initial: OpenAiConfigRow | null = null, mocks: MockLink.MockedResponse[] = []) =>
   cy.mount(
     <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>

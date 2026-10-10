@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import { type MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { SaveSocialAppConfigDocument } from '@exyconn/shell/graphql/generated';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -28,7 +28,7 @@ const stored: SocialAppRow = {
   clientSecretHint: '6789',
   enabled: true,
 };
-const keepSecret: MockedResponse = {
+const keepSecret: MockLink.MockedResponse = {
   request: {
     query: SaveSocialAppConfigDocument,
     variables: { input: { app: 'META', clientId: 'meta-client', clientSecret: '', enabled: true } },
@@ -36,7 +36,7 @@ const keepSecret: MockedResponse = {
   result: { data: { saveSocialAppConfig: { ...stored } } },
 };
 
-const mount = (row: SocialAppRow, mocks: MockedResponse[] = []) =>
+const mount = (row: SocialAppRow, mocks: MockLink.MockedResponse[] = []) =>
   cy.mount(
     <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>

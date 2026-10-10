@@ -94,7 +94,7 @@ export function createCommonRouter(): Router {
       if (!parsed.success) {
         res.status(400).json({
           success: false,
-          error: parsed.error.issues[0]?.message ?? "Invalid request",
+          error: parsed.error.issues[0].message,
         });
         return;
       }

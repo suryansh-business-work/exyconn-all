@@ -164,7 +164,7 @@ describe('connecting an account (Marketing)', () => {
       accessToken: seal('t'),
       connectedBy: 'u1',
     });
-    await M.disconnectSocialAccount(null, { id: String(account._id) }, marketing());
+    await M.disconnectSocialAccount(null, { id: account._id.toHexString() }, marketing());
     expect(await SocialAccountModel.countDocuments()).toBe(0);
   });
 

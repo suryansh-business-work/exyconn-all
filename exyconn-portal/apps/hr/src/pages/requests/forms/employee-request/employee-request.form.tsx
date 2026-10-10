@@ -16,10 +16,10 @@ import type { EmployeeRequestRow } from './employee-request.types';
 
 const schema = z.object({
   employeeId: z.string().min(1, 'Employee is required'),
-  type: z.nativeEnum(RequestType),
+  type: z.enum(RequestType),
   subject: z.string().trim().min(1, 'Subject is required'),
   details: z.string().trim().min(1, 'Details is required'),
-  status: z.nativeEnum(RequestStatus),
+  status: z.enum(RequestStatus),
   decisionNote: z.string().trim(),
 });
 type Values = z.infer<typeof schema>;

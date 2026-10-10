@@ -47,16 +47,16 @@ beforeEach(() => invalidatePermissionCache());
 describe('M7: nobody decides about themselves', () => {
   it('refuses HR approving its own leave, by decision or through the console', async () => {
     const hr = await person([ROLES.HR]);
-    const own = await leave(String(hr._id));
-    const ctx = as(String(hr._id), [ROLES.HR]);
+    const own = await leave(hr._id.toHexString());
+    const ctx = as(hr._id.toHexString(), [ROLES.HR]);
 
     await expect(
-      HR.setLeaveStatus(null, { id: String(own._id), status: 'APPROVED' }, ctx),
+      HR.setLeaveStatus(null, { id: own._id.toHexString(), status: 'APPROVED' }, ctx),
     ).rejects.toThrow(/for yourself/);
     await expect(
       HR.updateLeaveRequest(
         null,
-        { id: String(own._id), input: { employeeId: 'someone-else', status: 'APPROVED' } },
+        { id: own._id.toHexString(), input: { employeeId: 'someone-else', status: 'APPROVED' } },
         ctx,
       ),
     ).rejects.toThrow(/for yourself/);
@@ -68,8 +68,8 @@ describe('M7: nobody decides about themselves', () => {
     const other = await leave(new Types.ObjectId().toHexString());
     const decided = (await HR.setLeaveStatus(
       null,
-      { id: String(other._id), status: 'REJECTED' },
-      as(String(hr._id), [ROLES.HR]),
+      { id: other._id.toHexString(), status: 'REJECTED' },
+      as(hr._id.toHexString(), [ROLES.HR]),
     )) as { status: string };
     expect(decided.status).toBe('REJECTED');
   });
@@ -86,7 +86,7 @@ describe('M7: nobody decides about themselves', () => {
     await expect(
       EXPENSES.setExpenseClaimStatus(
         null,
-        { id: String(claim._id), status: 'APPROVED' },
+        { id: claim._id.toHexString(), status: 'APPROVED' },
         as('fin-1', [ROLES.FINANCE]),
       ),
     ).rejects.toThrow(/for yourself/);
@@ -126,15 +126,15 @@ describe('M2: offboarding', () => {
     const leaver = await person([ROLES.EMPLOYEE], 'Leaver');
     const bystander = await person([ROLES.EMPLOYEE], 'Bystander');
     const record = await ExitRecordModel.create({
-      employeeId: String(leaver._id),
+      employeeId: leaver._id.toHexString(),
       resignationDate: new Date(),
       reason: 'Moving on',
     });
 
     await EXIT.updateExitRecord(
       null,
-      exitArgs(String(record._id), String(bystander._id)),
-      as(String(hr._id), [ROLES.HR]),
+      exitArgs(record._id.toHexString(), bystander._id.toHexString()),
+      as(hr._id.toHexString(), [ROLES.HR]),
     );
 
     expect((await UserModel.findById(leaver._id).lean())?.isActive).toBe(false);
@@ -145,15 +145,15 @@ describe('M2: offboarding', () => {
     const hr = await person([ROLES.HR], 'HR');
     const boss = await person([ROLES.ADMIN], 'Boss');
     const record = await ExitRecordModel.create({
-      employeeId: String(boss._id),
+      employeeId: boss._id.toHexString(),
       resignationDate: new Date(),
       reason: 'x',
     });
     await expect(
       EXIT.updateExitRecord(
         null,
-        exitArgs(String(record._id), String(boss._id)),
-        as(String(hr._id), [ROLES.HR]),
+        exitArgs(record._id.toHexString(), boss._id.toHexString()),
+        as(hr._id.toHexString(), [ROLES.HR]),
       ),
     ).rejects.toThrow(/administrator/);
     expect((await UserModel.findById(boss._id).lean())?.isActive).toBe(true);
@@ -173,16 +173,20 @@ describe('L4: deleting a task comment', () => {
   it('is the author’s or an administrator’s, nobody else’s', async () => {
     const mine = await comment('author-1');
     await expect(
-      BOARD.deleteTaskComment(null, { id: String(mine._id) }, as('other', [ROLES.PROJECTS])),
+      BOARD.deleteTaskComment(null, { id: mine._id.toHexString() }, as('other', [ROLES.PROJECTS])),
     ).rejects.toThrow(/author or an administrator/);
 
     await expect(
-      BOARD.deleteTaskComment(null, { id: String(mine._id) }, as('author-1', [ROLES.PROJECTS])),
+      BOARD.deleteTaskComment(
+        null,
+        { id: mine._id.toHexString() },
+        as('author-1', [ROLES.PROJECTS]),
+      ),
     ).resolves.toBe(true);
 
     const theirs = await comment('author-2');
     await expect(
-      BOARD.deleteTaskComment(null, { id: String(theirs._id) }, as('admin', [ROLES.ADMIN])),
+      BOARD.deleteTaskComment(null, { id: theirs._id.toHexString() }, as('admin', [ROLES.ADMIN])),
     ).resolves.toBe(true);
   });
 });

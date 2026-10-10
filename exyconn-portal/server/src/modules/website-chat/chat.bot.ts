@@ -50,7 +50,8 @@ async function recentTurns(sessionId: string, channel: ChatChannel): Promise<Bot
     .limit(HISTORY_TURNS)
     .select('sender body')
     .lean();
-  return rows.reverse().map((row) => ({ fromVisitor: row.sender === 'VISITOR', body: row.body }));
+  rows.reverse();
+  return rows.map((row) => ({ fromVisitor: row.sender === 'VISITOR', body: row.body }));
 }
 
 /** The blocks the model said it used, each page once, in the order it named them. */

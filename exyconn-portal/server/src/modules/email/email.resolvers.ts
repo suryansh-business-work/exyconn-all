@@ -240,5 +240,3 @@ export const emailResolvers = {
     },
   },
 };
-
-export { emailTypeDefs } from './email.typeDefs';

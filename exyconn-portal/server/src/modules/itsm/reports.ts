@@ -77,7 +77,8 @@ async function incidentReport(since: Date, months: string[]) {
   const perMonth = new Map(months.map((key) => [key, 0]));
   for (const incident of incidents) {
     const key = monthKey(incident.startedAt);
-    if (perMonth.has(key)) perMonth.set(key, (perMonth.get(key) ?? 0) + 1);
+    const count = perMonth.get(key);
+    if (count !== undefined) perMonth.set(key, count + 1);
   }
   const resolved = incidents.filter((incident) => incident.resolvedAt);
   return {

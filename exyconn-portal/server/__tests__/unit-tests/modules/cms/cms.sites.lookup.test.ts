@@ -13,7 +13,7 @@ describe('siteForHost', () => {
 
     const site = await siteForHost('https://DOCS.test:443/guide');
 
-    expect(String(site._id)).toBe(String(docs._id));
+    expect(String(site._id)).toBe(docs._id.toHexString());
   });
 
   it('serves the default site for a draft site, an unknown host or no host at all', async () => {
@@ -22,7 +22,7 @@ describe('siteForHost', () => {
 
     for (const host of ['draft.test', 'unknown.test', '']) {
       const site = await siteForHost(host);
-      expect(String(site._id)).toBe(String(home._id));
+      expect(String(site._id)).toBe(home._id.toHexString());
     }
   });
 
@@ -44,9 +44,9 @@ describe('site ids', () => {
     const home = await seedSite('home', { isDefault: true });
     const docs = await seedSite('docs');
 
-    await expect(defaultSiteId()).resolves.toBe(String(home._id));
-    await expect(siteIdFor('')).resolves.toBe(String(home._id));
-    await expect(siteIdFor('DOCS')).resolves.toBe(String(docs._id));
+    await expect(defaultSiteId()).resolves.toBe(home._id.toHexString());
+    await expect(siteIdFor('')).resolves.toBe(home._id.toHexString());
+    await expect(siteIdFor('DOCS')).resolves.toBe(docs._id.toHexString());
     await expect(siteIdFor('nope')).resolves.toBe('');
   });
 
@@ -54,8 +54,8 @@ describe('site ids', () => {
     const home = await seedSite('home', { isDefault: true });
     const docs = await seedSite('docs');
 
-    await expect(siteIdsFor('home')).resolves.toEqual([String(home._id), '']);
-    await expect(siteIdsFor(null)).resolves.toEqual([String(home._id), '']);
-    await expect(siteIdsFor('docs')).resolves.toEqual([String(docs._id)]);
+    await expect(siteIdsFor('home')).resolves.toEqual([home._id.toHexString(), '']);
+    await expect(siteIdsFor(null)).resolves.toEqual([home._id.toHexString(), '']);
+    await expect(siteIdsFor('docs')).resolves.toEqual([docs._id.toHexString()]);
   });
 });

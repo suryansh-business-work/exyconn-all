@@ -89,7 +89,7 @@ describe('SLA policies', () => {
 
 const ticketAt = (priority: string, extra: Record<string, unknown> = {}) =>
   SupportTicketModel.create({
-    employeeId: String(new Types.ObjectId()),
+    employeeId: new Types.ObjectId().toHexString(),
     subject: 'Laptop will not boot',
     category: 'IT',
     description: 'It stops at the logo.',
@@ -107,7 +107,7 @@ describe('SLA on a ticket', () => {
 
     await supportResolvers.Mutation.setSupportTicketTriage(
       null,
-      { id: String(ticket._id), category: 'IT', priority: 'HIGH' },
+      { id: ticket._id.toHexString(), category: 'IT', priority: 'HIGH' },
       asSupport(),
     );
 
@@ -121,7 +121,7 @@ describe('SLA on a ticket', () => {
 
     await supportResolvers.Mutation.setSupportTicketStatus(
       null,
-      { id: String(ticket._id), status: 'RESOLVED' },
+      { id: ticket._id.toHexString(), status: 'RESOLVED' },
       asSupport(),
     );
     const resolved = await SupportTicketModel.findById(ticket._id).lean();
@@ -129,7 +129,7 @@ describe('SLA on a ticket', () => {
 
     await supportResolvers.Mutation.setSupportTicketStatus(
       null,
-      { id: String(ticket._id), status: 'OPEN' },
+      { id: ticket._id.toHexString(), status: 'OPEN' },
       asSupport(),
     );
     const reopened = await SupportTicketModel.findById(ticket._id).lean();
@@ -140,14 +140,14 @@ describe('SLA on a ticket', () => {
     const ticket = await ticketAt('HIGH');
     await supportResolvers.Mutation.setSupportTicketStatus(
       null,
-      { id: String(ticket._id), status: 'RESOLVED' },
+      { id: ticket._id.toHexString(), status: 'RESOLVED' },
       asSupport(),
     );
     const first = await SupportTicketModel.findById(ticket._id).lean();
 
     await supportResolvers.Mutation.setSupportTicketStatus(
       null,
-      { id: String(ticket._id), status: 'CLOSED' },
+      { id: ticket._id.toHexString(), status: 'CLOSED' },
       asSupport(),
     );
     const closed = await SupportTicketModel.findById(ticket._id).lean();
@@ -171,7 +171,7 @@ describe('SLA on a ticket', () => {
 
     const row = (await supportResolvers.Query.getSupportTicket(
       null,
-      { id: String(ticket._id) },
+      { id: ticket._id.toHexString() },
       asSupport(),
     )) as { createdAt: Date; dueAt: Date | null };
 

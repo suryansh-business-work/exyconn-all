@@ -13,7 +13,7 @@ import type { ChatPeer } from '../../../../src/modules/website-chat/chat.hub';
  */
 export function useChatOperator(): string {
   const organizationId = new Types.ObjectId();
-  setDefaultScope({ organizationId: String(organizationId), platform: false });
+  setDefaultScope({ organizationId: organizationId.toHexString(), platform: false });
   beforeEach(async () => {
     invalidatePlatformOperatorCache();
     await runAsPlatform(() =>
@@ -26,7 +26,7 @@ export function useChatOperator(): string {
       }),
     );
   });
-  return String(organizationId);
+  return organizationId.toHexString();
 }
 
 export interface FakeSocket {

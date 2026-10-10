@@ -52,7 +52,9 @@ export function TokenListFields({
                   label={t('Name')}
                   error={Boolean(fieldState.error)}
                   helperText={
-                    fieldState.error ? t(fieldState.error.message ?? '') : `${prefix}${input.value}`
+                    fieldState.error
+                      ? t(String(fieldState.error.message))
+                      : `${prefix}${input.value}`
                   }
                   sx={{ width: 220, flexShrink: 0 }}
                 />
@@ -75,7 +77,7 @@ export function TokenListFields({
                     size="small"
                     label={t('Value')}
                     error={Boolean(fieldState.error)}
-                    helperText={fieldState.error ? t(fieldState.error.message ?? '') : undefined}
+                    helperText={fieldState.error ? t(String(fieldState.error.message)) : undefined}
                     sx={{ flexGrow: 1 }}
                     slotProps={{ htmlInput: { spellCheck: false } }}
                   />

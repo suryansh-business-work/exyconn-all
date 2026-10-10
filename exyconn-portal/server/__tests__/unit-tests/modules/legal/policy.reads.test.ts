@@ -15,7 +15,7 @@ jest.mock('../../../../src/modules/email', () => ({
 const { Query, Mutation, Policy } = policyResolvers;
 
 const as = (roles: Role[]): GraphQLContext => ({
-  user: { id: String(new Types.ObjectId()), roles, email: 'reader@exyconn.com' },
+  user: { id: new Types.ObjectId().toHexString(), roles, email: 'reader@exyconn.com' },
 });
 
 const policy = (slug: string, overrides: Record<string, unknown> = {}) =>
@@ -103,7 +103,7 @@ describe('myPolicy and signing in', () => {
       'UNAUTHENTICATED',
     );
     expect(await codeOf(Query.myPolicies(null, {}, { user: null }))).toBe('UNAUTHENTICATED');
-    const signing = { policyId: String(new Types.ObjectId()), signedName: 'Reader' };
+    const signing = { policyId: new Types.ObjectId().toHexString(), signedName: 'Reader' };
     expect(await codeOf(Mutation.acknowledgePolicy(null, signing, { user: null }))).toBe(
       'UNAUTHENTICATED',
     );
@@ -130,7 +130,7 @@ describe('policyAcknowledgements', () => {
 
     const rows = (await Query.policyAcknowledgements(
       null,
-      { policyId: String(row._id) },
+      { policyId: row._id.toHexString() },
       as([ROLES.LEGAL]),
     )) as Array<{ userId: string; id: string }>;
 
@@ -143,7 +143,7 @@ describe('policyAcknowledgements', () => {
     const ask = (roles: Role[]) =>
       codeOf(
         (async () =>
-          Query.policyAcknowledgements(null, { policyId: String(row._id) }, as(roles)))(),
+          Query.policyAcknowledgements(null, { policyId: row._id.toHexString() }, as(roles)))(),
       );
 
     expect(await ask([ROLES.IT])).toBe('FORBIDDEN');
@@ -169,7 +169,7 @@ describe('acknowledgePolicy', () => {
       await codeOf(
         Mutation.acknowledgePolicy(
           null,
-          { policyId: String(new Types.ObjectId()), signedName: 'Reader' },
+          { policyId: new Types.ObjectId().toHexString(), signedName: 'Reader' },
           ctx,
         ),
       ),
@@ -181,7 +181,7 @@ describe('acknowledgePolicy', () => {
 
     const record = await Mutation.acknowledgePolicy(
       null,
-      { policyId: String(row._id), signedName: 'Reader' },
+      { policyId: row._id.toHexString(), signedName: 'Reader' },
       as([ROLES.EMPLOYEE]),
     );
 

@@ -94,6 +94,29 @@ describe("resolvePublicAddresses", () => {
     ]);
   });
 
+  it("returns a public IP literal as it is, without DNS", async () => {
+    await expect(
+      resolvePublicAddresses(` [${fixtures.publicAddress}] `),
+    ).resolves.toEqual([fixtures.publicAddress]);
+    expect(lookupMock).not.toHaveBeenCalled();
+  });
+
+  it("refuses an empty host", async () => {
+    await expect(resolvePublicAddresses("  ")).rejects.toThrow(
+      "A host name is required",
+    );
+    await expect(resolvePublicAddresses("[]")).rejects.toThrow(
+      UnsafeTargetError,
+    );
+  });
+
+  it("refuses a name that resolves to nothing", async () => {
+    lookupMock.mockResolvedValue([]);
+    await expect(resolvePublicAddresses("empty.example")).rejects.toThrow(
+      UnsafeTargetError,
+    );
+  });
+
   it("checks IP literals without DNS", async () => {
     await expect(resolvePublicAddresses("[::1]")).rejects.toThrow(
       UnsafeTargetError,
@@ -109,6 +132,18 @@ describe("publicOnlyLookup", () => {
       publicOnlyLookup("localhost", { all: true }, (err) => resolve(err));
     });
     expect(error).toBeInstanceOf(UnsafeTargetError);
+  });
+
+  it("returns the first vetted address, with its family, when one is asked for", async () => {
+    lookupMock.mockResolvedValue([
+      { address: fixtures.publicAddress, family: 4 },
+    ]);
+    const answer = await new Promise<unknown[]>((resolve) => {
+      publicOnlyLookup("example.com", {}, (err, address, family) =>
+        resolve([err, address, family]),
+      );
+    });
+    expect(answer).toEqual([null, fixtures.publicAddress, 4]);
   });
 
   it("returns all vetted addresses when asked for all", async () => {
@@ -157,6 +192,27 @@ describe("safeRequest", () => {
       "status code 301",
     );
     expect(requestMock).toHaveBeenCalledTimes(6);
+  });
+
+  it("raises a bad-response error for a 5xx and a bad-request error for a 4xx", async () => {
+    requestMock.mockResolvedValueOnce(response(503));
+    await expect(safeRequest("https://example.com/")).rejects.toMatchObject({
+      code: "ERR_BAD_RESPONSE",
+      message: "Request failed with status code 503",
+    });
+    requestMock.mockResolvedValueOnce(response(404));
+    await expect(safeRequest("https://example.com/")).rejects.toMatchObject({
+      code: "ERR_BAD_REQUEST",
+    });
+  });
+
+  it("hands every status to the redirect loop rather than letting axios throw", async () => {
+    requestMock.mockResolvedValueOnce(response(200));
+    await safeRequest("https://example.com/");
+
+    const { validateStatus } = requestMock.mock.calls[0][0];
+    expect(validateStatus?.(500)).toBe(true);
+    expect(validateStatus?.(200)).toBe(true);
   });
 
   it("never lets axios follow redirects or use a proxy itself", async () => {

@@ -26,12 +26,12 @@ describe('clientNameFor', () => {
   it('reads the client name for an existing id', async () => {
     const client = await seedClient('Priya');
 
-    await expect(clientNameFor(String(client._id))).resolves.toBe('Priya');
+    await expect(clientNameFor(client._id.toHexString())).resolves.toBe('Priya');
   });
 
   it('refuses an id that is not an id, and an id that matches nobody', async () => {
     await expect(clientNameFor('not-an-id')).rejects.toThrow('That client does not exist.');
-    await expect(clientNameFor(String(new Types.ObjectId()))).rejects.toThrow(
+    await expect(clientNameFor(new Types.ObjectId().toHexString())).rejects.toThrow(
       'That client does not exist.',
     );
   });
@@ -95,7 +95,7 @@ describe('client projects', () => {
     await ProjectModel.create({
       name: 'Billing',
       status: 'ACTIVE',
-      clientId: String(client._id),
+      clientId: client._id.toHexString(),
       clientName: 'Priya',
     });
     const loose = await ProjectModel.create({ name: 'Alpha', status: 'ACTIVE' });
@@ -104,13 +104,13 @@ describe('client projects', () => {
 
     expect(options.map((option) => option.name)).toEqual(['Alpha', 'Billing']);
     expect(options[0]).toEqual({
-      id: String(loose._id),
+      id: loose._id.toHexString(),
       name: 'Alpha',
       key: loose.key,
       clientId: '',
       clientName: '',
     });
-    expect(options[1]).toMatchObject({ clientId: String(client._id), clientName: 'Priya' });
+    expect(options[1]).toMatchObject({ clientId: client._id.toHexString(), clientName: 'Priya' });
   });
 
   it('reads blanks for a project stored without key or client fields', async () => {
@@ -128,7 +128,7 @@ describe('client projects', () => {
   it('links exactly the listed projects, moving them off other clients', async () => {
     const priya = await seedClient('Priya');
     const rahul = await seedClient('Rahul');
-    const priyaId = String(priya._id);
+    const priyaId = priya._id.toHexString();
     const kept = await ProjectModel.create({ name: 'Kept', status: 'ACTIVE' });
     await ProjectModel.create({
       name: 'Dropped',
@@ -139,7 +139,7 @@ describe('client projects', () => {
     const moved = await ProjectModel.create({
       name: 'Moved',
       status: 'ACTIVE',
-      clientId: String(rahul._id),
+      clientId: rahul._id.toHexString(),
       clientName: 'Rahul',
     });
 
@@ -153,7 +153,7 @@ describe('client projects', () => {
   });
 
   it('refuses a client that does not exist', async () => {
-    await expect(setClientProjects(String(new Types.ObjectId()), [])).rejects.toThrow(
+    await expect(setClientProjects(new Types.ObjectId().toHexString(), [])).rejects.toThrow(
       'Client not found',
     );
   });

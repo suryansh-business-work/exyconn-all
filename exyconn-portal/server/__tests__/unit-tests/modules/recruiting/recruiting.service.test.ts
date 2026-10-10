@@ -99,7 +99,7 @@ describe('moving an applicant', () => {
   it('appends a move without a note under the earlier history', async () => {
     const applicant = await seedApplicant({ notes: 'Referred by Asha.' });
 
-    const saved = await setApplicantStage(String(applicant._id), 'HIRED', '  ', 'hr@x.co');
+    const saved = await setApplicantStage(applicant._id.toHexString(), 'HIRED', '  ', 'hr@x.co');
 
     const lines = saved.notes.split('\n');
     expect(lines[0]).toBe('Referred by Asha.');
@@ -110,7 +110,7 @@ describe('moving an applicant', () => {
   it('invites to interview, naming the role generically when it has no title', async () => {
     const applicant = await seedApplicant();
 
-    await setApplicantStage(String(applicant._id), 'INTERVIEW', '', 'hr@x.co');
+    await setApplicantStage(applicant._id.toHexString(), 'INTERVIEW', '', 'hr@x.co');
 
     expect(sendEmail).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -131,12 +131,12 @@ describe('moving an applicant', () => {
     const logged = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
     sendEmail.mockRejectedValueOnce(new Error('SMTP down'));
 
-    const saved = await setApplicantStage(String(applicant._id), 'REJECTED', '', 'hr@x.co');
+    const saved = await setApplicantStage(applicant._id.toHexString(), 'REJECTED', '', 'hr@x.co');
 
     expect(saved.stage).toBe('REJECTED');
     expect(logged).toHaveBeenCalledWith(
       { err: expect.any(Error) },
-      `Stage email for applicant ${String(applicant._id)} failed`,
+      `Stage email for applicant ${applicant._id.toHexString()} failed`,
     );
   });
 });

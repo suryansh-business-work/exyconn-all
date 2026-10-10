@@ -31,7 +31,7 @@ describe('milestones', () => {
     const created = await sprintsService.createMilestone(project.id, { name: 'Launch' });
     expect(created.state).toBe('PLANNED');
 
-    const hit = await sprintsService.updateMilestone(String(created._id), {
+    const hit = await sprintsService.updateMilestone(created._id.toHexString(), {
       name: 'Launch',
       state: 'HIT',
     });
@@ -42,7 +42,7 @@ describe('milestones', () => {
   it('frees its tickets when a milestone is deleted, rather than deleting them', async () => {
     const project = await newProject();
     const milestone = await sprintsService.createMilestone(project.id, { name: 'Launch' });
-    const milestoneId = String(milestone._id);
+    const milestoneId = milestone._id.toHexString();
     const counted = await ticket(project.id, 'Counted', { milestoneId });
 
     await expect(sprintsService.deleteMilestone(milestoneId)).resolves.toBe(true);
@@ -66,9 +66,9 @@ describe('ticket links', () => {
   it('takes a ticket out of its epic with a null parent', async () => {
     const project = await newProject();
     const epic = await ticket(project.id, 'Epic', { type: 'EPIC' });
-    const child = await ticket(project.id, 'Child', { parentTaskId: String(epic._id) });
+    const child = await ticket(project.id, 'Child', { parentTaskId: epic._id.toHexString() });
 
-    const saved = await sprintsService.setTaskParent(String(child._id), null);
+    const saved = await sprintsService.setTaskParent(child._id.toHexString(), null);
 
     expect(saved.parentTaskId).toBeNull();
   });
@@ -77,7 +77,7 @@ describe('ticket links', () => {
     const project = await newProject();
     const child = await ticket(project.id, 'Child');
 
-    expect(await codeOf(sprintsService.setTaskParent(String(child._id), missingId()))).toBe(
+    expect(await codeOf(sprintsService.setTaskParent(child._id.toHexString(), missingId()))).toBe(
       'NOT_FOUND',
     );
   });
@@ -86,7 +86,7 @@ describe('ticket links', () => {
     const project = await newProject();
     const epic = await ticket(project.id, 'Epic', { type: 'EPIC' });
 
-    expect(await codeOf(sprintsService.setTaskParent(missingId(), String(epic._id)))).toBe(
+    expect(await codeOf(sprintsService.setTaskParent(missingId(), epic._id.toHexString()))).toBe(
       'NOT_FOUND',
     );
   });

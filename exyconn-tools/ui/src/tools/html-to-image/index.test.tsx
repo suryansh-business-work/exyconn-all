@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { clickAway } from '../../__tests__/helpers/toolHarness';
 import { toJpeg, toPng, toSvg } from 'html-to-image';
 import { captureNode, clampDimension, outputFileName, stripScripts, MAX_DIMENSION } from './utils';
 import HtmlToImage from './index';
@@ -104,5 +105,98 @@ describe('HtmlToImage component', () => {
     expect(screen.getByText('Hello preview')).toBeInTheDocument();
     expect(document.querySelector('script')).toBeNull();
     expect(screen.getByRole('button', { name: 'Generate Image' })).toBeEnabled();
+  });
+});
+
+describe('HtmlToImage generation', () => {
+  const renderWithPreview = () => {
+    render(<HtmlToImage />);
+    fireEvent.change(screen.getByLabelText(/HTML snippet/), { target: { value: '<p>Hello</p>' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Render Preview' }));
+  };
+
+  it('captures the preview with the chosen size, scale and format and offers the result', async () => {
+    vi.mocked(toJpeg).mockClear();
+    renderWithPreview();
+    fireEvent.change(screen.getByLabelText(/Width \(px\)/), { target: { value: '320' } });
+    fireEvent.change(screen.getByLabelText(/Height \(px\)/), { target: { value: '9999999' } });
+    fireEvent.click(screen.getByRole('button', { name: '2x' }));
+    fireEvent.click(screen.getByRole('button', { name: 'JPEG' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Image' }));
+
+    const img = await screen.findByAltText('Generated snippet output');
+    expect(img).toHaveAttribute('src', 'data:image/jpeg;base64,jpg');
+    expect(toJpeg).toHaveBeenCalledWith(
+      expect.any(HTMLElement),
+      expect.objectContaining({ width: 320, height: MAX_DIMENSION, pixelRatio: 2 })
+    );
+    expect(screen.getByLabelText(/Height \(px\)/)).toHaveValue(MAX_DIMENSION);
+  });
+
+  it('keeps the selected scale and format when the selected toggle is clicked again', () => {
+    render(<HtmlToImage />);
+    fireEvent.click(screen.getByRole('button', { name: '1x' }));
+    fireEvent.click(screen.getByRole('button', { name: 'PNG' }));
+    expect(screen.getByRole('button', { name: '1x' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'PNG' })).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it('downloads the generated image under its format file name', async () => {
+    const click = vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined);
+    renderWithPreview();
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Image' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Download PNG' }));
+    expect(click).toHaveBeenCalledTimes(1);
+    expect(click.mock.contexts[0]).toMatchObject({
+      download: 'html-snippet.png',
+      href: 'data:image/png;base64,png',
+    });
+    click.mockRestore();
+  });
+
+  it('clears an earlier result when the preview is rendered again', async () => {
+    renderWithPreview();
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Image' }));
+    await screen.findByAltText('Generated snippet output');
+    fireEvent.click(screen.getByRole('button', { name: 'Render Preview' }));
+    expect(screen.queryByAltText('Generated snippet output')).toBeNull();
+  });
+
+  it('shows the error message when capturing fails', async () => {
+    vi.mocked(toPng).mockRejectedValueOnce(new Error('canvas tainted'));
+    renderWithPreview();
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Image' }));
+    expect(await screen.findByText('canvas tainted')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Generate Image' })).toBeEnabled();
+  });
+
+  it('shows a generic message when capturing fails without an Error', async () => {
+    vi.mocked(toPng).mockRejectedValueOnce('boom');
+    renderWithPreview();
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Image' }));
+    expect(await screen.findByText('Image generation failed.')).toBeInTheDocument();
+  });
+});
+
+describe('HtmlToImage error notice', () => {
+  const failOnce = async () => {
+    vi.mocked(toPng).mockRejectedValueOnce(new Error('capture failed'));
+    render(<HtmlToImage />);
+    fireEvent.change(screen.getByLabelText(/HTML snippet/), { target: { value: '<p>x</p>' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Render Preview' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Generate Image' }));
+    await screen.findByText('capture failed');
+  };
+
+  it('is dismissed with its close button', async () => {
+    await failOnce();
+    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+    await waitFor(() => expect(screen.queryByText('capture failed')).toBeNull());
+  });
+
+  it('is dismissed by clicking away', async () => {
+    await failOnce();
+    await clickAway();
+    await waitFor(() => expect(screen.queryByText('capture failed')).toBeNull());
   });
 });

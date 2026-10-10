@@ -21,7 +21,7 @@ import type { BenefitRow } from './benefit.types';
 
 const schema = z.object({
   employeeId: z.string().min(1, 'Employee is required'),
-  kind: z.nativeEnum(BenefitKind),
+  kind: z.enum(BenefitKind),
   name: z.string().trim().min(1, 'Name is required'),
   provider: z.string().trim().min(1, 'Provider is required'),
   reference: z.string().trim().min(1, 'Reference is required'),

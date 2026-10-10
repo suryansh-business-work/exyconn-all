@@ -29,7 +29,11 @@ jest.mock('../../../../src/utils/imagekit', () => ({
 const operatorId = useChatOperator();
 const agent = { id: 'u-sam', name: 'Sam' };
 
-const ctxFor = (roles: Role[], organizationId: string | null, id = String(new Types.ObjectId())) =>
+const ctxFor = (
+  roles: Role[],
+  organizationId: string | null,
+  id = new Types.ObjectId().toHexString(),
+) =>
   ({
     user: { id, email: 'sam@exyconn.test', roles, organizationId },
     organizationId,
@@ -49,9 +53,9 @@ describe('chatAgentFor', () => {
       passwordHash: randomUUID(),
       roles: ['WEBSITE'],
     });
-    const ctx = ctxFor(['WEBSITE'], operatorId, String(user._id));
+    const ctx = ctxFor(['WEBSITE'], operatorId, user._id.toHexString());
     await expect(chatAgentFor(ctx, 'EDIT')).resolves.toEqual({
-      id: String(user._id),
+      id: user._id.toHexString(),
       name: 'Sam Agent',
     });
   });
@@ -65,7 +69,7 @@ describe('chatAgentFor', () => {
 
   it('refuses anyone outside the operator, without the role, or signed out', async () => {
     expect(
-      await codeOf(chatAgentFor(ctxFor(['WEBSITE'], String(new Types.ObjectId())), 'VIEW')),
+      await codeOf(chatAgentFor(ctxFor(['WEBSITE'], new Types.ObjectId().toHexString()), 'VIEW')),
     ).toBe('FORBIDDEN');
     expect(await codeOf(chatAgentFor(ctxFor(['EMPLOYEE'], operatorId), 'VIEW'))).toBe('FORBIDDEN');
     expect(await codeOf(chatAgentFor({} as GraphQLContext, 'VIEW'))).toBe('UNAUTHENTICATED');
@@ -94,7 +98,7 @@ describe('claimSession', () => {
     const session = await createSession();
     const staff = fakePeer({ role: 'staff' });
     chatHub.join(staff.peer);
-    const claimed = await claimSession(String(session._id), agent);
+    const claimed = await claimSession(session._id.toHexString(), agent);
     expect(claimed).toMatchObject({ assigneeId: 'u-sam', assigneeName: 'Sam' });
     expect(framesOf(staff.socket)[0]).toMatchObject({
       t: 'session',
@@ -103,7 +107,7 @@ describe('claimSession', () => {
   });
 
   it('refuses a chat that does not exist', async () => {
-    expect(await codeOf(claimSession(String(new Types.ObjectId()), agent))).toBe('NOT_FOUND');
+    expect(await codeOf(claimSession(new Types.ObjectId().toHexString(), agent))).toBe('NOT_FOUND');
   });
 });
 
@@ -115,7 +119,7 @@ describe('agentReply', () => {
       slackChannel: 'D1',
       slackThreadTs: '9.9',
     });
-    const sessionId = String(session._id);
+    const sessionId = session._id.toHexString();
     const visitor = fakePeer({ role: 'visitor', sessionId });
     chatHub.join(visitor.peer);
     const file = { name: 'p.png', data: 'data:image/png;base64,AAAA' };
@@ -147,17 +151,19 @@ describe('agentReply', () => {
 
   it('leaves the chat with whoever already has it', async () => {
     const session = await createSession({ assigneeId: 'u-ann', assigneeName: 'Ann' });
-    await agentReply(String(session._id), agent, 'Covering for Ann', [], 'c-8');
+    await agentReply(session._id.toHexString(), agent, 'Covering for Ann', [], 'c-8');
     expect((await ChatSessionModel.findById(session._id).lean())?.assigneeName).toBe('Ann');
   });
 
   it('refuses a missing chat, an ended chat and an empty reply', async () => {
     const reply = (id: string, body = 'Hi') => agentReply(id, agent, body, [], 'c');
-    expect(await codeOf(reply(String(new Types.ObjectId())))).toBe('NOT_FOUND');
+    expect(await codeOf(reply(new Types.ObjectId().toHexString()))).toBe('NOT_FOUND');
     const closed = await createSession({ status: 'CLOSED' });
-    await expect(reply(String(closed._id))).rejects.toThrow('This chat has ended.');
+    await expect(reply(closed._id.toHexString())).rejects.toThrow('This chat has ended.');
     const open = await createSession();
-    await expect(reply(String(open._id), '')).rejects.toThrow('Write a message or attach a file.');
+    await expect(reply(open._id.toHexString(), '')).rejects.toThrow(
+      'Write a message or attach a file.',
+    );
     expect(await ChatMessageModel.countDocuments()).toBe(0);
   });
 });

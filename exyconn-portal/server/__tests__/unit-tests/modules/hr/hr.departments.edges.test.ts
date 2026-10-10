@@ -55,7 +55,7 @@ describe('Department.headName', () => {
   it('names the head when one is set', async () => {
     const head = await person('Meera');
 
-    await expect(hrResolvers.Department.headName({ headId: String(head._id) })).resolves.toBe(
+    await expect(hrResolvers.Department.headName({ headId: head._id.toHexString() })).resolves.toBe(
       'Meera',
     );
   });
@@ -63,7 +63,7 @@ describe('Department.headName', () => {
   it.each([
     ['no head', null],
     ['an id that is not an object id', 'not-an-id'],
-    ['a head who no longer exists', String(new Types.ObjectId())],
+    ['a head who no longer exists', new Types.ObjectId().toHexString()],
   ])('is null for %s', async (_label, headId) => {
     await expect(hrResolvers.Department.headName({ headId })).resolves.toBeNull();
   });
@@ -93,14 +93,14 @@ describe('department writes', () => {
   });
 
   it('reports a department that does not exist rather than checking its positions', async () => {
-    await expect(call('deleteDepartment', { id: String(new Types.ObjectId()) })).rejects.toThrow(
-      'Department not found',
-    );
+    await expect(
+      call('deleteDepartment', { id: new Types.ObjectId().toHexString() }),
+    ).rejects.toThrow('Department not found');
   });
 
   it.each([
-    ['updateDepartment', { id: String(new Types.ObjectId()), input: { name: 'X' } }],
-    ['deleteDepartment', { id: String(new Types.ObjectId()) }],
+    ['updateDepartment', { id: new Types.ObjectId().toHexString(), input: { name: 'X' } }],
+    ['deleteDepartment', { id: new Types.ObjectId().toHexString() }],
   ])('%s is HR only', async (name, args) => {
     await expect(call(name, args, emp)).rejects.toThrow();
   });

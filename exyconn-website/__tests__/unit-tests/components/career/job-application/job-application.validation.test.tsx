@@ -71,9 +71,10 @@ describe("JobApplicationForm validation", () => {
   it("checks formats once a field has been left", async () => {
     const { user } = await renderForm();
     await user.type(field(/^Expected CTC/), "lots");
+    await user.type(field(/^Current CTC/), "plenty");
     await user.type(field(/^LinkedIn profile/), "linkedin.com/in/meera");
     await user.type(field(/^Portfolio/), "x");
-    expect(await screen.findByText("Enter a number, e.g. 12 or 12.5")).toBeInTheDocument();
+    expect(await screen.findAllByText("Enter a number, e.g. 12 or 12.5")).toHaveLength(2);
     expect(screen.getByText("Enter a full link starting with https://")).toBeInTheDocument();
     await user.click(field(/^Why do you want to join/));
     await user.paste("Too short");
@@ -82,6 +83,15 @@ describe("JobApplicationForm validation", () => {
       await screen.findByText("A little more, please — at least 20 characters")
     ).toBeInTheDocument();
     expect(screen.getAllByText("Enter a full link starting with https://")).toHaveLength(2);
+  });
+
+  it("refuses a referral source that is not one of the options offered", async () => {
+    const { user } = await renderForm();
+    const referral = field(/^How did you hear about this position/);
+    referral.append(new Option("Not offered", "not-offered"));
+    await user.selectOptions(referral, "not-offered");
+    await user.tab();
+    expect(await screen.findByText("Select an option")).toBeInTheDocument();
   });
 
   it("asks for the résumé when everything else is valid", async () => {

@@ -75,7 +75,7 @@ export const aiCustomResolvers = {
         createdById: actor.id,
         createdByName: actor.name,
       });
-      return withId(await enqueueAiJob(String(job._id), actor));
+      return withId(await enqueueAiJob(job._id.toHexString(), actor));
     },
 
     /** Generic assist: condense text the caller already has. */

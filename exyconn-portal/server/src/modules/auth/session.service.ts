@@ -29,7 +29,7 @@ export async function startSession(input: {
       lastSeenAt: new Date(),
     }),
   );
-  return String(session._id);
+  return session._id.toHexString();
 }
 
 /** Whether this session still stands, touching `lastSeenAt` when it has gone stale. */

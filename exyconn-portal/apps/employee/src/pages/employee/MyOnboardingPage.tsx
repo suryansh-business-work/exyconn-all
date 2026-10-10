@@ -29,10 +29,9 @@ export function MyOnboardingPage() {
   const [setItem, { loading: saving }] = useSetOnboardingItemMutation();
   const checklist = data?.myOnboarding;
 
-  const toggle = async (item: OnboardingItem, done: boolean) => {
-    if (!checklist) return;
+  const toggle = async (checklistId: string, item: OnboardingItem, done: boolean) => {
     try {
-      await setItem({ variables: { checklistId: checklist.id, key: item.key, done } });
+      await setItem({ variables: { checklistId, key: item.key, done } });
       await refetch();
     } catch (err) {
       notify(err instanceof Error ? err.message : 'Could not update the task', 'error');
@@ -68,9 +67,7 @@ export function MyOnboardingPage() {
             items={checklist.items}
             progressPercent={checklist.progressPercent}
             canTick={canTickOwn}
-            onToggle={(item, done) => {
-              toggle(item, done).catch(() => undefined);
-            }}
+            onToggle={(item, done) => toggle(checklist.id, item, done)}
             busy={saving}
             formatDate={formatDate}
           />

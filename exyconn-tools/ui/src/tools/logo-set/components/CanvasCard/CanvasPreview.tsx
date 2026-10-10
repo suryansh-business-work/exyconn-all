@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box } from '@mui/material';
 import { CanvasSize, LogoSettings, ExportFormat } from '../../types';
 import { useCanvasRenderer } from '../../hooks/useCanvasRenderer';
@@ -10,8 +10,7 @@ interface CanvasPreviewProps {
   format: ExportFormat;
   isCropped: boolean;
   displaySize: number;
-  onImageClick: () => void;
-  onCanvasReady: (canvas: HTMLCanvasElement) => void;
+  onImageClick: (canvas: HTMLCanvasElement) => void;
 }
 
 const CanvasPreview: React.FC<CanvasPreviewProps> = ({
@@ -22,29 +21,25 @@ const CanvasPreview: React.FC<CanvasPreviewProps> = ({
   isCropped,
   displaySize,
   onImageClick,
-  onCanvasReady,
 }) => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
   const { renderCanvas } = useCanvasRenderer();
 
   useEffect(() => {
-    if (canvasRef.current) {
-      const exportSettings = { ...settings, transparent: format === 'png' && settings.transparent };
-      renderCanvas(canvasRef.current, {
-        image,
-        width: size.width,
-        height: size.height,
-        settings: exportSettings,
-        isCropped,
-        category: size.category,
-      });
-      onCanvasReady(canvasRef.current);
-    }
-  }, [image, size, settings, format, renderCanvas, isCropped, onCanvasReady]);
+    if (!canvas) return;
+    const exportSettings = { ...settings, transparent: format === 'png' && settings.transparent };
+    renderCanvas(canvas, {
+      image,
+      width: size.width,
+      height: size.height,
+      settings: exportSettings,
+      isCropped,
+      category: size.category,
+    });
+  }, [canvas, image, size, settings, format, renderCanvas, isCropped]);
 
   return (
     <Box
-      onClick={onImageClick}
       sx={{
         width: displaySize,
         height: displaySize,
@@ -61,10 +56,12 @@ const CanvasPreview: React.FC<CanvasPreviewProps> = ({
       }}
     >
       <canvas
-        ref={canvasRef}
+        ref={setCanvas}
         width={size.width}
         height={size.height}
+        onClick={(e) => onImageClick(e.currentTarget)}
         style={{
+          cursor: 'pointer',
           width: displaySize,
           height: displaySize,
           borderRadius: settings.borderRadius > 0 ? `${settings.borderRadius}%` : undefined,

@@ -5,12 +5,17 @@ import { MediaLibrary } from '../../../../../src/pages/cms/media/MediaLibrary';
 import { renderWithProviders } from '../../../test-utils';
 import { mediaAsset } from './media.fixtures';
 
-const spies = vi.hoisted(() => ({ assets: vi.fn(), refetch: vi.fn(), onPick: vi.fn() }));
+const spies = vi.hoisted(() => ({
+  assets: vi.fn(),
+  refetch: vi.fn(),
+  onPick: vi.fn(),
+  deleteAsset: vi.fn(),
+}));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
   useCmsAssetsQuery: (options: unknown) => spies.assets(options),
-  useDeleteCmsAssetMutation: () => [vi.fn()],
+  useDeleteCmsAssetMutation: () => [spies.deleteAsset],
 }));
 vi.mock('../../../../../src/pages/cms/media/MediaUploadButton', () => ({
   MediaUploadButton: (
@@ -60,6 +65,7 @@ describe('MediaLibrary', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     spies.refetch.mockResolvedValue({});
+    spies.deleteAsset.mockResolvedValue({ data: {} });
     answer(ASSETS);
   });
 
@@ -73,6 +79,16 @@ describe('MediaLibrary', () => {
     await userEvent.click(screen.getAllByRole('button', { name: 'Edit alt text' })[0]);
     await userEvent.click(screen.getByRole('button', { name: 'Close alt text of logo.png' }));
     expect(screen.queryByRole('button', { name: /Close alt text/ })).not.toBeInTheDocument();
+  });
+
+  it('deletes a file once confirmed, then reloads the library', async () => {
+    renderWithProviders(<MediaLibrary siteId="site-1" />);
+    await userEvent.click(screen.getByRole('button', { name: 'Delete hero.jpg' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Delete' }));
+
+    expect(await screen.findByText('File deleted')).toBeInTheDocument();
+    expect(spies.deleteAsset).toHaveBeenCalledWith({ variables: { id: 'asset-2' } });
+    expect(spies.refetch).toHaveBeenCalledTimes(1);
   });
 
   it('searches the library by what is typed', async () => {

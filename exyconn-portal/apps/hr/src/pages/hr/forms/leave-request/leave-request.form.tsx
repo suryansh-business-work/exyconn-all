@@ -26,7 +26,7 @@ const schema = z.object({
   fromDate: z.string().min(1, 'From date is required'),
   toDate: z.string().min(1, 'To date is required'),
   reason: z.string().trim().min(3, 'Add a reason'),
-  status: z.nativeEnum(LeaveStatus),
+  status: z.enum(LeaveStatus),
 });
 type Values = z.infer<typeof schema>;
 

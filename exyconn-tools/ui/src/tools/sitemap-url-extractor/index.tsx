@@ -18,7 +18,6 @@ const SitemapUrlExtractor: React.FC = () => {
   const [copied, setCopied] = useState(false);
 
   const handleExtract = async () => {
-    if (!sitemapUrl.trim()) return;
     setIsLoading(true);
     setError(null);
     setResult(null);

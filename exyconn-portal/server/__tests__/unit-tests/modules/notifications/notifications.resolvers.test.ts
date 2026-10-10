@@ -69,7 +69,9 @@ describe('marking notifications read', () => {
   it('marks one of their own as read', async () => {
     const note = await seedNote(ME, 'Hello');
 
-    await expect(M.markNotificationRead(null, { id: String(note._id) }, asMe)).resolves.toBe(true);
+    await expect(M.markNotificationRead(null, { id: note._id.toHexString() }, asMe)).resolves.toBe(
+      true,
+    );
 
     expect((await NotificationModel.findById(note._id).lean())?.read).toBe(true);
   });
@@ -77,12 +79,14 @@ describe('marking notifications read', () => {
   it('will not touch somebody else’s, and says nothing matched', async () => {
     const note = await seedNote('someone-else', 'Hello');
 
-    await expect(M.markNotificationRead(null, { id: String(note._id) }, asMe)).resolves.toBe(false);
+    await expect(M.markNotificationRead(null, { id: note._id.toHexString() }, asMe)).resolves.toBe(
+      false,
+    );
     expect((await NotificationModel.findById(note._id).lean())?.read).toBe(false);
   });
 
   it('reports false for a notification that does not exist', async () => {
-    const id = String(new Types.ObjectId());
+    const id = new Types.ObjectId().toHexString();
 
     await expect(M.markNotificationRead(null, { id }, asMe)).resolves.toBe(false);
   });

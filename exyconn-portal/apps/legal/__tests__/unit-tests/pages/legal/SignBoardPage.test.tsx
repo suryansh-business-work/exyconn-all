@@ -25,7 +25,10 @@ const recorded = vi.hoisted(() => ({
   dashboard: null as unknown,
   contracts: vi.fn(),
   refetch: vi.fn(),
+  warn: vi.fn(),
 }));
+
+vi.mock('@exyconn/shell/logging/portalLogger', () => ({ portalLogger: { warn: recorded.warn } }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
@@ -162,5 +165,21 @@ describe('SignBoardPage', () => {
     renderWithProviders(<SignBoardPage />);
     await userEvent.click(screen.getByRole('button', { name: 'Refresh table' }));
     expect(recorded.refetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('logs a failed re-read after signing and still confirms the signature', async () => {
+    const failure = new Error('offline');
+    recorded.refetch.mockRejectedValue(failure);
+    renderWithProviders(<SignBoardPage />);
+    await openSigning('Statement of work');
+    await userEvent.click(screen.getByRole('button', { name: 'Finish signing' }));
+
+    expect(await screen.findByText('Signature recorded')).toBeInTheDocument();
+    await waitFor(() =>
+      expect(recorded.warn).toHaveBeenCalledWith(
+        'Could not reload the contracts after signing',
+        failure,
+      ),
+    );
   });
 });

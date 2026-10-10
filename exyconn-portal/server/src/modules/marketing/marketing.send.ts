@@ -207,7 +207,7 @@ async function sendBatched(
   const outcomes: SendOutcome[] = [];
   for (const batch of chunk(members, SEND_CONCURRENCY)) {
     const settled = await Promise.allSettled(
-      batch.map((member) => sendOne(campaign, member, links.get(member.email) ?? '', origin)),
+      batch.map((member) => sendOne(campaign, member, links.get(member.email) as string, origin)),
     );
     for (const [index, result] of settled.entries()) {
       outcomes.push(

@@ -107,7 +107,7 @@ export async function autoFileLead(
     // real person's name on one nobody has picked up would say somebody had. Assignment is
     // the sales desk's own decision, and this is what it reads as until they make it.
     const lead = await LeadModel.create(leadFromSubmission(formType, data, UNASSIGNED));
-    const leadId = String(lead._id);
+    const leadId = lead._id.toHexString();
     await WebsiteSubmissionModel.updateOne({ _id: submissionId }, { leadId });
     return leadId;
   } catch (error) {
@@ -143,7 +143,7 @@ export const convertWebsiteSubmissionToLead = async (
   const data = (submission.submissionData ?? {}) as Payload;
   const lead = await LeadModel.create(leadFromSubmission(submission.formType, data, owner));
 
-  submission.leadId = String(lead._id);
+  submission.leadId = lead._id.toHexString();
   if (submission.status === 'new') {
     submission.status = 'in-review';
   }

@@ -64,7 +64,7 @@ describe('compileDraft', () => {
 
   it('refuses a fragment placed inside itself', async () => {
     const fragment = await CmsFragmentModel.create({ siteId: SITE, name: 'Header' });
-    const id = String(fragment._id);
+    const id = fragment._id.toHexString();
 
     await expect(compileDraft({ html: fragmentHtml(id), css: '' }, SITE, id)).rejects.toThrow(
       'A fragment cannot contain itself.',
@@ -74,11 +74,11 @@ describe('compileDraft', () => {
   it('accepts a fragment of the same site, inside another fragment too', async () => {
     const fragment = await CmsFragmentModel.create({ siteId: SITE, name: 'Header' });
     const other = await CmsFragmentModel.create({ siteId: SITE, name: 'Footer' });
-    const html = fragmentHtml(String(fragment._id));
+    const html = fragmentHtml(fragment._id.toHexString());
 
-    const compiled = await compileDraft({ html, css: '' }, SITE, String(other._id));
+    const compiled = await compileDraft({ html, css: '' }, SITE, other._id.toHexString());
 
-    expect(compiled.blocks).toEqual([{ kind: 'fragment', fragmentId: String(fragment._id) }]);
+    expect(compiled.blocks).toEqual([{ kind: 'fragment', fragmentId: fragment._id.toHexString() }]);
   });
 
   it('refuses a fragment of another site, or one that is not an id', async () => {
@@ -86,7 +86,7 @@ describe('compileDraft', () => {
     const message = 'A fragment on this page no longer exists on this site.';
 
     await expect(
-      compileDraft({ html: fragmentHtml(String(foreign._id)), css: '' }, SITE),
+      compileDraft({ html: fragmentHtml(foreign._id.toHexString()), css: '' }, SITE),
     ).rejects.toThrow(message);
     await expect(
       compileDraft({ html: fragmentHtml('seed:header'), css: '' }, SITE),

@@ -46,7 +46,7 @@ export function CtaMessage({ content, frame }: ContentProps<'cta'>) {
       <Bubble mine={false} tail={frame.tail} time={frame.time}>
         <MessageText header={content.header} text={content.text} footer={content.footer} />
       </Bubble>
-      <ActionRows mine={false} items={content.actions.map((a) => toRow(a, actions))} />
+      <ActionRows items={content.actions.map((a) => toRow(a, actions))} />
     </Box>
   );
 }

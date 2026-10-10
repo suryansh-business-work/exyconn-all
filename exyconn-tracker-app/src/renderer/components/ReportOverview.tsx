@@ -61,12 +61,12 @@ function unselectedChip(theme: Theme): CSSObject {
  */
 export default function ReportOverview({ timezone }: Readonly<Props>): ReactElement {
   const t = useT();
-  const [length, setLength] = useState<PeriodLength>(7);
-  const period = PERIODS.find((entry) => entry.length === length) ?? PERIODS[0];
+  const [period, setPeriod] = useState(PERIODS[0]);
+  const { length } = period;
   const { range, current, previous, columns, loading, error } = usePeriodInsights(length, timezone);
   useAnnounce(error, 'assertive');
   const first = range.current[0];
-  const last = range.current.at(-1) ?? first;
+  const last = range.current[range.current.length - 1];
   const middle = range.current[Math.floor(range.current.length / 2)];
 
   return (
@@ -78,7 +78,7 @@ export default function ReportOverview({ timezone }: Readonly<Props>): ReactElem
             label={t(entry.label)}
             clickable
             aria-pressed={entry.length === length}
-            onClick={() => setLength(entry.length)}
+            onClick={() => setPeriod(entry)}
             sx={(theme) => ({
               height: 40,
               px: 1,

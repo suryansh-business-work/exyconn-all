@@ -28,7 +28,7 @@ async function seedClient(email = 'accounts@nimbus.test') {
     company: 'Nimbus Ltd',
     status: 'ACTIVE',
   });
-  return String(client._id);
+  return client._id.toHexString();
 }
 
 interface Fields {
@@ -74,14 +74,14 @@ describe('remindDueSoonInvoices', () => {
         clientName: 'there',
         invoiceNumber: 'INV-001',
         dueDate: invoice.dueDate.toISOString().slice(0, 10),
-        payUrl: invoicePayUrl(String(invoice._id)),
+        payUrl: invoicePayUrl(invoice._id.toHexString()),
       },
     });
     expect(mail.variables.balanceDue).toContain('750');
     const [row] = await AuditLogModel.find({ module: 'Invoice' }).lean();
     expect(row).toMatchObject({
       action: 'UPDATE',
-      entityId: String(invoice._id),
+      entityId: invoice._id.toHexString(),
       summary: 'Sent the due-soon reminder for Invoice INV-001 to accounts@nimbus.test',
     });
   });

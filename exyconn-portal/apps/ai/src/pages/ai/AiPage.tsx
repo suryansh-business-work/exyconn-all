@@ -79,7 +79,8 @@ export function AiPage() {
     try {
       await runAiJob({ variables: { id: row.id } });
       notify('"{name}" queued', 'success', { name: row.name });
-      await Promise.all([crud.reload(), queue.refresh()]);
+      crud.reload();
+      await queue.refresh();
     } catch (error) {
       notify(errorMessage(error, 'The run could not be started'), 'error');
     }

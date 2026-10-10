@@ -46,7 +46,7 @@ const at = (hoursIn: number) => new Date(RAISED.getTime() + hoursIn * HOUR);
  */
 const ticketDueAt = (hoursIn: number, extra: Record<string, unknown> = {}) =>
   SupportTicketModel.create({
-    employeeId: new Types.ObjectId().toString(),
+    employeeId: new Types.ObjectId().toHexString(),
     subject: 'Invoices will not export',
     category: 'OTHER',
     description: 'The export button spins forever.',
@@ -64,7 +64,7 @@ async function person(name: string, roles: string[]) {
     roles,
     isActive: true,
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 /** Runs the source on its own, so no other module's reminders reach the log. */
@@ -90,11 +90,11 @@ describe('support SLA reminders', () => {
 
     expect(due).toHaveLength(1);
     expect(due[0]).toMatchObject({
-      dedupeKey: `support-sla-due:${String(ticket._id)}:2026-09-01`,
+      dedupeKey: `support-sla-due:${ticket._id.toHexString()}:2026-09-01`,
       kind: 'SUPPORT',
       title: 'SLA due in 1h: Invoices will not export',
       employeeIds: [agent],
-      link: `/support/tickets/${String(ticket._id)}`,
+      link: `/support/tickets/${ticket._id.toHexString()}`,
     });
   });
 
@@ -112,14 +112,14 @@ describe('support SLA reminders', () => {
 
     const [reminder] = await slaSource().due(at(7));
 
-    expect(reminder.link).toBe(`/it/helpdesk/${String(ticket._id)}`);
+    expect(reminder.link).toBe(`/it/helpdesk/${ticket._id.toHexString()}`);
   });
 
   it('says nothing about a ticket that is still on track, resolved, or has no deadline', async () => {
     await ticketDueAt(8);
     await ticketDueAt(8, { resolvedAt: at(2) });
     await SupportTicketModel.create({
-      employeeId: new Types.ObjectId().toString(),
+      employeeId: new Types.ObjectId().toHexString(),
       subject: 'No promise was made',
       category: 'OTHER',
       description: 'Nothing covers this priority.',
@@ -143,7 +143,7 @@ describe('support SLA reminders', () => {
     const after = await SupportTicketModel.findById(ticket._id).lean();
     expect(after).toMatchObject({ priority: 'HIGH', escalationLevel: 1 });
     expect(after?.escalatedAt).toBeInstanceOf(Date);
-    const note = await SupportReplyModel.findOne({ ticketId: String(ticket._id) }).lean();
+    const note = await SupportReplyModel.findOne({ ticketId: ticket._id.toHexString() }).lean();
     expect(note).toMatchObject({
       internal: true,
       authorId: 'sla-monitor',
@@ -164,7 +164,7 @@ describe('support SLA reminders', () => {
 
     const after = await SupportTicketModel.findById(ticket._id).lean();
     expect(after?.escalationLevel).toBe(1);
-    expect(await SupportReplyModel.countDocuments({ ticketId: String(ticket._id) })).toBe(1);
+    expect(await SupportReplyModel.countDocuments({ ticketId: ticket._id.toHexString() })).toBe(1);
   });
 
   it('leaves a ticket a person already escalated alone', async () => {
@@ -174,7 +174,7 @@ describe('support SLA reminders', () => {
 
     const after = await SupportTicketModel.findById(ticket._id).lean();
     expect(after?.escalationLevel).toBe(2);
-    expect(await SupportReplyModel.countDocuments({ ticketId: String(ticket._id) })).toBe(0);
+    expect(await SupportReplyModel.countDocuments({ ticketId: ticket._id.toHexString() })).toBe(0);
   });
 
   it('notifies once a day, not once an hour', async () => {

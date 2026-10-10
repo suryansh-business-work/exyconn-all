@@ -118,7 +118,7 @@ export const fontStack = (family: string, fallback: string): string =>
 /** Splits a stack back into its first family and its generic fallback. */
 export function parseFontStack(stack: string): { family: string; fallback: string } {
   const parts = stack.split(',').map((part) => part.trim().replaceAll(/^["']|["']$/g, ''));
-  const last = parts.at(-1) ?? '';
+  const last = parts[parts.length - 1];
   const fallback = GENERIC_SET.has(last) ? last : 'sans-serif';
   const family = parts[0] && !GENERIC_SET.has(parts[0]) ? parts[0] : '';
   return { family, fallback };

@@ -22,7 +22,7 @@ async function seedDemo(seed: SeedDemo, order: number): Promise<void> {
     return;
   }
   const demo = await WhatsappDemoModel.create(toDemoProfile(seed, order));
-  const demoId = String(demo._id);
+  const demoId = demo._id.toHexString();
   const now = new Date();
   const workflows = seed.workflows.map((workflow, index) => {
     const def = toWorkflowDef(workflow, index);

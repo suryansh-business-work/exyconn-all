@@ -1,19 +1,36 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import type { UseEntitySaveOptions } from '@exyconn/shell/components/form/useEntitySave';
 import {
   DesignSystemForm,
   type CmsDesignSystemRow,
+  type DesignSystemFormValues,
 } from '../../../../../../src/pages/website/forms/cms-design-system';
 import { renderWithProviders } from '../../../../test-utils';
 import { UrlProbe } from '../../../cms/cms-helpers';
 
-const gql = vi.hoisted(() => ({ update: vi.fn() }));
+const gql = vi.hoisted(() => ({
+  update: vi.fn(),
+  saveOptions: null as UseEntitySaveOptions<DesignSystemFormValues, CmsDesignSystemRow> | null,
+}));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
   useUpdateCmsDesignSystemMutation: () => [gql.update],
 }));
+
+/** The real save hook, with the options the form hands it recorded. */
+vi.mock('@exyconn/shell/components/form/useEntitySave', async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import('@exyconn/shell/components/form/useEntitySave')>();
+  return {
+    useEntitySave: (options: UseEntitySaveOptions<DesignSystemFormValues, CmsDesignSystemRow>) => {
+      gql.saveOptions = options;
+      return actual.useEntitySave(options);
+    },
+  };
+});
 
 const BASE = '/website/s/main/design-system';
 
@@ -122,6 +139,13 @@ describe('DesignSystemForm', () => {
 
     expect(await screen.findByText('Design system was deleted')).toBeInTheDocument();
     expect(onDone).not.toHaveBeenCalled();
+  });
+
+  it('never creates a design system: the create step resolves without a mutation', async () => {
+    setup(`${BASE}/palette`);
+
+    await expect(gql.saveOptions?.create({} as DesignSystemFormValues)).resolves.toBeUndefined();
+    expect(gql.update).not.toHaveBeenCalled();
   });
 
   it('cancels', async () => {

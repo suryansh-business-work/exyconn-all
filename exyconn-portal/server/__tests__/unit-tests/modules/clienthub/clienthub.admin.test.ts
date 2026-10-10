@@ -25,7 +25,7 @@ beforeEach(async () => {
     email: 'dana@acme.test',
     company: 'Acme',
   });
-  clientId = String(client._id);
+  clientId = client._id.toHexString();
 });
 
 afterEach(() => {
@@ -79,7 +79,7 @@ describe('client hub access administration', () => {
 
   it('audits switching access off and back on, then deletes it', async () => {
     const contact = await ClientContactModel.create({ clientId, name: 'D', email: 'd@acme.test' });
-    const id = String(contact._id);
+    const id = contact._id.toHexString();
     const admin = staff([ROLES.ADMIN]);
 
     await Mutation.setClientContactActive(null, { id, active: false }, admin);

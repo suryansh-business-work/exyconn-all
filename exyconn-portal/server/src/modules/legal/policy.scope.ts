@@ -17,7 +17,7 @@ export type PolicyScope = FilterQuery<PolicyDocument>;
  * who is only IT sees the IT and SECURITY ones — never an HR-only draft.
  */
 export function policyScope(ctx: GraphQLContext): PolicyScope {
-  const roles = assertRole(ctx, POLICY_ROLES).roles ?? [];
+  const roles = assertRole(ctx, POLICY_ROLES).roles;
   const everything = roles.includes(ROLES.ADMIN) || roles.includes(ROLES.LEGAL);
   return everything ? {} : { category: { $in: [...IT_POLICY_CATEGORIES] } };
 }

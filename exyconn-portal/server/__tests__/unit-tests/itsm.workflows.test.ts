@@ -26,7 +26,7 @@ async function person(name: string, roles: string[] = [ROLES.EMPLOYEE]) {
     passwordHash: 'x',
     roles,
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 describe('IT workflows', () => {

@@ -36,10 +36,6 @@ const ParaphrasingTool: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleAnalyze = async () => {
-    if (text.trim().length < 10) {
-      setError('Enter at least 10 characters.');
-      return;
-    }
     setIsLoading(true);
     setError(null);
     try {

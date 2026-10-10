@@ -13,9 +13,9 @@ export const objectiveSchema = z
   .object({
     title: z.string().trim().min(1, 'Say what the objective is'),
     description: z.string().trim(),
-    standards: z.array(z.nativeEnum(ManagementStandard)).min(1, 'Pick at least one standard'),
-    category: z.nativeEnum(ComplianceCategory),
-    scope: z.nativeEnum(ObjectiveScope),
+    standards: z.array(z.enum(ManagementStandard)).min(1, 'Pick at least one standard'),
+    category: z.enum(ComplianceCategory),
+    scope: z.enum(ObjectiveScope),
     area: z.string().trim(),
     ownerId: z.string().trim(),
     ownerName: z.string().trim().min(1, 'An objective needs an owner'),
@@ -24,10 +24,10 @@ export const objectiveSchema = z
     baseline: z.coerce.number({ message: 'Baseline must be a number' }),
     target: z.coerce.number({ message: 'Target must be a number' }),
     actual: z.coerce.number({ message: 'Current value must be a number' }),
-    frequency: z.nativeEnum(ObjectiveFrequency),
+    frequency: z.enum(ObjectiveFrequency),
     periodStart: pickedDate('Say when the period starts'),
     periodEnd: pickedDate('Say when the period ends'),
-    status: z.nativeEnum(ObjectiveStatus),
+    status: z.enum(ObjectiveStatus),
     plan: z.string().trim(),
   })
   // A period that ends before it starts would put the objective in no period at all, and

@@ -12,7 +12,7 @@ import type { GraphQLContext } from '../../../../src/middleware/auth';
 export const PASSWORD = process.env.TEST_USER_PASSWORD ?? `pw-${'x'.repeat(12)}`;
 
 /** An id that matches no record, for the "does not exist" paths. */
-export const missingId = () => String(new Types.ObjectId());
+export const missingId = () => new Types.ObjectId().toHexString();
 
 export const ctxFor = (
   id: string,

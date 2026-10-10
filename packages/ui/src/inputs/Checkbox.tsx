@@ -21,15 +21,14 @@ export const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
   ({ indeterminate = false, slotProps, ...props }, ref) => {
     const input = useRef<HTMLInputElement>(null);
     const given = slotProps?.input;
-    const givenRef =
-      typeof given === 'function' ? undefined : (given as InputProps | undefined)?.ref;
+    const givenRef = typeof given === 'function' ? undefined : given?.ref;
     const handleRef = useForkRef(input, givenRef);
     useEffect(() => {
       if (input.current) input.current.indeterminate = indeterminate;
     }, [indeterminate]);
     const inputSlot: InputSlot =
       typeof given === 'function'
-        ? (state) => nativeMixed(given(state) as InputProps, handleRef)
+        ? (state) => nativeMixed(given(state), handleRef)
         : nativeMixed({ ...given }, handleRef);
     return (
       <MuiCheckbox

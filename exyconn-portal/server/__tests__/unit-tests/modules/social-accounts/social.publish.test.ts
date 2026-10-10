@@ -31,10 +31,10 @@ describe('delivering', () => {
 
   it('records a failure the network gave as something other than an Error', async () => {
     const account = await connectAccount('X', 'X');
-    const post = await composedPost(String(account._id));
+    const post = await composedPost(account._id.toHexString());
     jest.spyOn(globalThis, 'fetch').mockRejectedValue('socket hang up');
 
-    expect(await publishNow(String(post._id))).toMatchObject({
+    expect(await publishNow(post._id.toHexString())).toMatchObject({
       status: 'FAILED',
       error: 'socket hang up',
     });
@@ -44,12 +44,12 @@ describe('delivering', () => {
 describe('what can be changed', () => {
   it('refuses to change or remove a post that was read from the network', async () => {
     const account = await connectAccount('X', 'X');
-    const synced = await composedPost(String(account._id), {
+    const synced = await composedPost(account._id.toHexString(), {
       origin: 'SYNCED',
       status: 'PUBLISHED',
       externalId: 'tweet-1',
     });
-    const id = String(synced._id);
+    const id = synced._id.toHexString();
     await expect(updatePost(id, draft())).rejects.toThrow('Only a draft, scheduled or failed post');
     await expect(publishNow(id)).rejects.toThrow('Only a draft, scheduled or failed post');
     await expect(deletePost(id)).rejects.toThrow('Only a draft, scheduled or failed post');
@@ -65,8 +65,8 @@ describe('what can be changed', () => {
 describe('editing', () => {
   it('keeps a draft a draft when it is edited without a time', async () => {
     const account = await connectAccount('X', 'X');
-    const post = await composedPost(String(account._id));
-    expect(await updatePost(String(post._id), draft({ text: '  Edited  ' }))).toMatchObject({
+    const post = await composedPost(account._id.toHexString());
+    expect(await updatePost(post._id.toHexString(), draft({ text: '  Edited  ' }))).toMatchObject({
       text: 'Edited',
       status: 'DRAFT',
       scheduledAt: null,
@@ -75,11 +75,13 @@ describe('editing', () => {
 
   it('keeps a failed post failed, clearing the old error, until it is retried', async () => {
     const account = await connectAccount('X', 'X');
-    const post = await composedPost(String(account._id), {
+    const post = await composedPost(account._id.toHexString(), {
       status: 'FAILED',
       error: 'X refused the connection: rate limited',
     });
-    expect(await updatePost(String(post._id), draft({ link: ' https://e.com ' }))).toMatchObject({
+    expect(
+      await updatePost(post._id.toHexString(), draft({ link: ' https://e.com ' })),
+    ).toMatchObject({
       status: 'FAILED',
       error: '',
       link: 'https://e.com',
@@ -88,9 +90,11 @@ describe('editing', () => {
 
   it('moves a failed post back onto the schedule', async () => {
     const account = await connectAccount('X', 'X');
-    const post = await composedPost(String(account._id), { status: 'FAILED' });
+    const post = await composedPost(account._id.toHexString(), { status: 'FAILED' });
     const later = new Date(Date.now() + HOUR);
-    expect(await updatePost(String(post._id), { ...draft(), scheduledAt: later })).toMatchObject({
+    expect(
+      await updatePost(post._id.toHexString(), { ...draft(), scheduledAt: later }),
+    ).toMatchObject({
       status: 'SCHEDULED',
       scheduledAt: later,
     });
@@ -98,22 +102,22 @@ describe('editing', () => {
 
   it('says not found when the post disappears between the check and the write', async () => {
     const account = await connectAccount('X', 'X');
-    const post = await composedPost(String(account._id));
+    const post = await composedPost(account._id.toHexString());
     jest
       .spyOn(SocialMediaPostModel, 'findByIdAndUpdate')
       .mockReturnValueOnce(asArg({ lean: async () => null }));
-    expect(await codeOf(updatePost(String(post._id), draft()))).toBe('NOT_FOUND');
+    expect(await codeOf(updatePost(post._id.toHexString(), draft()))).toBe('NOT_FOUND');
   });
 });
 
 describe('publishing now', () => {
   it('says not found when the post is removed while it is going out', async () => {
     const account = await connectAccount('X', 'X');
-    const post = await composedPost(String(account._id));
+    const post = await composedPost(account._id.toHexString());
     jest.spyOn(globalThis, 'fetch').mockImplementation(async () => {
       await SocialMediaPostModel.deleteOne({ _id: post._id });
       return new Response(JSON.stringify({ data: { id: 't1' } }), { status: 201 });
     });
-    expect(await codeOf(publishNow(String(post._id)))).toBe('NOT_FOUND');
+    expect(await codeOf(publishNow(post._id.toHexString()))).toBe('NOT_FOUND');
   });
 });

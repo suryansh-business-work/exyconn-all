@@ -20,7 +20,7 @@ async function person(name: string, roles: Role[] = [ROLES.EMPLOYEE]) {
     passwordHash: 'x',
     roles,
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 const lastAudit = async () => AuditLogModel.findOne().sort({ createdAt: -1, _id: -1 }).lean();

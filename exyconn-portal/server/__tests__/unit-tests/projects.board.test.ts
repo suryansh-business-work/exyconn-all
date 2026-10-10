@@ -165,7 +165,10 @@ describe('ticket history', () => {
     const trail = await boardResolvers.Query.taskActivity(null, { taskId: raised.id }, ctx);
     const changes = trail.filter((entry) => entry.field !== 'created');
 
-    expect(changes.map((entry) => entry.field).sort()).toEqual(['priority', 'story points']);
+    expect(changes.map((entry) => entry.field).sort((a, b) => a.localeCompare(b))).toEqual([
+      'priority',
+      'story points',
+    ]);
     expect(changes.find((entry) => entry.field === 'priority')).toMatchObject({
       fromValue: 'MEDIUM',
       toValue: 'HIGHEST',

@@ -75,7 +75,7 @@ export async function purgeExpiredScreenshots(cutoff: Date): Promise<PurgeResult
 /** Runs a pass if the workspace has a retention window set. Zero days means keep forever. */
 export async function runIfConfigured(): Promise<void> {
   const settings = await getTrackerSettings();
-  const days = settings.screenshotRetentionDays ?? 0;
+  const days = settings.screenshotRetentionDays;
   if (days <= 0) {
     return;
   }

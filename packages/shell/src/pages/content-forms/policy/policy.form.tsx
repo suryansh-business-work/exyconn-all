@@ -31,12 +31,12 @@ const schema = z.object({
     .regex(SLUG, 'Lower-case letters, numbers and hyphens only'),
   summary: z.string().trim(),
   body: z.string().trim().min(1, 'The policy cannot be empty'),
-  audience: z.nativeEnum(PolicyAudience),
-  category: z.nativeEnum(PolicyCategory),
+  audience: z.enum(PolicyAudience),
+  category: z.enum(PolicyCategory),
   effectiveDate: z.string().min(1, 'Effective date is required'),
   requiresAcknowledgement: z.boolean(),
   owner: z.string().trim(),
-  classification: z.nativeEnum(PolicyClassification),
+  classification: z.enum(PolicyClassification),
   /** Empty means nobody has promised to look at it again — allowed, and worth seeing. */
   nextReviewOn: z.string(),
 });

@@ -94,13 +94,13 @@ describe('recordPayment', () => {
   it('writes the receipt and moves the invoice with it', async () => {
     const invoice = await seedInvoice(1000);
 
-    await pay({ invoiceId: String(invoice._id), amount: 400, reference: 'NEFT-77' });
+    await pay({ invoiceId: invoice._id.toHexString(), amount: 400, reference: 'NEFT-77' });
 
     const after = await InvoiceModel.findById(invoice._id).lean();
     expect(after?.amountPaid).toBe(400);
     expect(after?.status).toBe('PARTIALLY_PAID');
 
-    const [receipt] = await PaymentModel.find({ invoiceId: String(invoice._id) }).lean();
+    const [receipt] = await PaymentModel.find({ invoiceId: invoice._id.toHexString() }).lean();
     expect(receipt).toMatchObject({
       amount: 400,
       invoiceNumber: 'INV-001',
@@ -112,8 +112,8 @@ describe('recordPayment', () => {
   it('settles the invoice when the last instalment lands', async () => {
     const invoice = await seedInvoice(1000);
 
-    await pay({ invoiceId: String(invoice._id), amount: 600 });
-    await pay({ invoiceId: String(invoice._id), amount: 400 });
+    await pay({ invoiceId: invoice._id.toHexString(), amount: 600 });
+    await pay({ invoiceId: invoice._id.toHexString(), amount: 400 });
 
     const after = await InvoiceModel.findById(invoice._id).lean();
     expect(after?.amountPaid).toBe(1000);
@@ -124,8 +124,8 @@ describe('recordPayment', () => {
     // 0.1 + 0.2 !== 0.3: without rounding, this invoice never reads as paid.
     const invoice = await seedInvoice(0.3);
 
-    await pay({ invoiceId: String(invoice._id), amount: 0.1 });
-    await pay({ invoiceId: String(invoice._id), amount: 0.2 });
+    await pay({ invoiceId: invoice._id.toHexString(), amount: 0.1 });
+    await pay({ invoiceId: invoice._id.toHexString(), amount: 0.2 });
 
     const after = await InvoiceModel.findById(invoice._id).lean();
     expect(after?.amountPaid).toBe(0.3);
@@ -134,9 +134,9 @@ describe('recordPayment', () => {
 
   it('refuses to take more than is owed', async () => {
     const invoice = await seedInvoice(1000);
-    await pay({ invoiceId: String(invoice._id), amount: 900 });
+    await pay({ invoiceId: invoice._id.toHexString(), amount: 900 });
 
-    await expect(pay({ invoiceId: String(invoice._id), amount: 200 })).rejects.toThrow(
+    await expect(pay({ invoiceId: invoice._id.toHexString(), amount: 200 })).rejects.toThrow(
       /Only 100 is outstanding/i,
     );
 
@@ -146,9 +146,9 @@ describe('recordPayment', () => {
 
   it('takes a refund back off the invoice', async () => {
     const invoice = await seedInvoice(1000);
-    await pay({ invoiceId: String(invoice._id), amount: 1000 });
+    await pay({ invoiceId: invoice._id.toHexString(), amount: 1000 });
 
-    await pay({ invoiceId: String(invoice._id), amount: -250 });
+    await pay({ invoiceId: invoice._id.toHexString(), amount: -250 });
 
     const after = await InvoiceModel.findById(invoice._id).lean();
     expect(after?.amountPaid).toBe(750);
@@ -157,16 +157,16 @@ describe('recordPayment', () => {
 
   it('refuses to refund more than was ever paid', async () => {
     const invoice = await seedInvoice(1000);
-    await pay({ invoiceId: String(invoice._id), amount: 100 });
+    await pay({ invoiceId: invoice._id.toHexString(), amount: 100 });
 
-    await expect(pay({ invoiceId: String(invoice._id), amount: -200 })).rejects.toThrow(
+    await expect(pay({ invoiceId: invoice._id.toHexString(), amount: -200 })).rejects.toThrow(
       /refund more than was ever paid/i,
     );
   });
 
   it('rejects a payment of nothing', async () => {
     const invoice = await seedInvoice(1000);
-    await expect(pay({ invoiceId: String(invoice._id), amount: 0 })).rejects.toThrow(
+    await expect(pay({ invoiceId: invoice._id.toHexString(), amount: 0 })).rejects.toThrow(
       /records nothing/i,
     );
   });
@@ -187,7 +187,7 @@ describe('receivables', () => {
 
   it('counts only the unpaid balance, not the whole invoice', async () => {
     const invoice = await seedInvoice(1000);
-    await pay({ invoiceId: String(invoice._id), amount: 400 });
+    await pay({ invoiceId: invoice._id.toHexString(), amount: 400 });
 
     await expect(report()).resolves.toMatchObject({ outstanding: 600, invoices: 1 });
   });
@@ -195,7 +195,7 @@ describe('receivables', () => {
   it('leaves drafts and settled invoices out of what is owed', async () => {
     await seedInvoice(500, { number: 'INV-DRAFT', status: 'DRAFT' });
     const paid = await seedInvoice(700, { number: 'INV-PAID' });
-    await pay({ invoiceId: String(paid._id), amount: 700 });
+    await pay({ invoiceId: paid._id.toHexString(), amount: 700 });
 
     await expect(report()).resolves.toMatchObject({ outstanding: 0, invoices: 0 });
   });
@@ -256,17 +256,17 @@ describe('invoice client', () => {
   it('writes the client name next to its id, so the grid never joins to read it', async () => {
     const client = await seedClient('Priya');
 
-    const saved = await create({ clientId: String(client._id), amount: 500 });
+    const saved = await create({ clientId: client._id.toHexString(), amount: 500 });
 
-    expect(saved).toMatchObject({ clientId: String(client._id), clientName: 'Priya' });
+    expect(saved).toMatchObject({ clientId: client._id.toHexString(), clientName: 'Priya' });
   });
 
   it('refreshes the name when the invoice is moved to another client', async () => {
     const first = await seedClient('Priya');
     const second = await seedClient('Rahul');
-    const saved = await create({ clientId: String(first._id), amount: 500 });
+    const saved = await create({ clientId: first._id.toHexString(), amount: 500 });
 
-    const moved = await update(saved.id, { clientId: String(second._id), amount: 500 });
+    const moved = await update(saved.id, { clientId: second._id.toHexString(), amount: 500 });
 
     expect(moved.clientName).toBe('Rahul');
   });
@@ -284,7 +284,7 @@ describe('invoice client', () => {
     const client = await seedClient('Priya');
 
     const saved = await create({
-      clientId: String(client._id),
+      clientId: client._id.toHexString(),
       amount: 1,
       lines: [
         { description: 'Design', quantity: 2, rate: 1000, taxPercent: 18 },
@@ -300,7 +300,7 @@ describe('invoice client', () => {
   it('still accepts a single typed figure for an invoice with no lines', async () => {
     const client = await seedClient('Priya');
 
-    const saved = await create({ clientId: String(client._id), amount: 750 });
+    const saved = await create({ clientId: client._id.toHexString(), amount: 750 });
 
     expect(saved.amount).toBe(750);
   });
@@ -308,7 +308,7 @@ describe('invoice client', () => {
   it('refuses an invoice that has neither an amount nor a line', async () => {
     const client = await seedClient('Priya');
 
-    await expect(create({ clientId: String(client._id), lines: [] })).rejects.toThrow(
+    await expect(create({ clientId: client._id.toHexString(), lines: [] })).rejects.toThrow(
       /Enter an amount, or add at least one line/i,
     );
   });

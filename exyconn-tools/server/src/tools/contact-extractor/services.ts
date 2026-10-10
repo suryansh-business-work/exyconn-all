@@ -224,7 +224,6 @@ export async function extractContacts(
   while (urlsToVisit.length > 0 && visitedUrls.size < maxPages) {
     const currentUrl = urlsToVisit.shift()!;
 
-    if (visitedUrls.has(currentUrl)) continue;
     visitedUrls.add(currentUrl);
 
     const html = await fetchPage(currentUrl);

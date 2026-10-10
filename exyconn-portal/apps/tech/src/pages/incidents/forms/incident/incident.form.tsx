@@ -14,7 +14,7 @@ import type { IncidentFormProps, IncidentFormValues } from './incident.types';
 
 export const incidentSchema = z.object({
   title: z.string().trim().min(5, 'Give the incident a title').max(120, 'Keep the title short'),
-  impact: z.nativeEnum(IncidentImpact),
+  impact: z.enum(IncidentImpact),
   affectedServiceKeys: z.array(z.string()).min(1, 'Choose at least one affected service'),
   body: z
     .string()

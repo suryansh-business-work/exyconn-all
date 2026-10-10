@@ -18,7 +18,7 @@ const inDays = (days: number) => new Date(Date.now() + days * DAY);
 async function employee(email: string, fields: Record<string, unknown>) {
   const user = await seedUser(email, 'whatever123', [ROLES.EMPLOYEE]);
   await UserModel.updateOne({ _id: user._id }, fields);
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 const ending = (days?: number) =>

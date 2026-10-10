@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, ToggleButton, ToggleButtonGroup, Tooltip } from '@mui/material';
 import { AspectRatio, CropSquare, CropLandscape, CropFree } from '@mui/icons-material';
 
-type AspectOption = 'free' | 'square' | 'target' | '16:9' | '4:3' | '3:2';
+type AspectOption = 'free' | 'square' | 'target' | '16:9' | '4:3';
 
 interface AspectRatioControlsProps {
   aspectOption: AspectOption;

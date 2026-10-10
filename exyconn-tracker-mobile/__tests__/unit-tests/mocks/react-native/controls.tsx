@@ -1,7 +1,7 @@
 import { useEffect, useImperativeHandle, type ReactNode, type Ref } from 'react';
 import { vi } from 'vitest';
 import { domA11yProps } from './host-props';
-import { useHostRef, type HostProps } from './host';
+import { pressOnKey, useHostRef, type HostProps } from './host';
 
 interface PressState {
   pressed: boolean;
@@ -51,6 +51,7 @@ export function Pressable({
       tabIndex={0}
       {...a11y}
       onClick={off ? undefined : onPress}
+      onKeyDown={off ? undefined : pressOnKey(onPress)}
       onContextMenu={off ? undefined : onLongPress}
       onPointerDown={off ? undefined : onPressIn}
       onPointerUp={off ? undefined : onPressOut}
@@ -176,7 +177,11 @@ export function Modal({ visible = true, children, onRequestClose, onShow }: Read
     return null;
   }
   return (
-    <div data-testid="rn-modal" onKeyDown={(event) => event.key === 'Escape' && onRequestClose?.()}>
+    <div
+      data-testid="rn-modal"
+      role="dialog"
+      onKeyDown={(event) => event.key === 'Escape' && onRequestClose?.()}
+    >
       {children}
     </div>
   );

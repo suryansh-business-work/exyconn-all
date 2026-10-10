@@ -26,7 +26,7 @@ import { safeFetch } from '../../../../src/utils/safeFetch';
 const mailed = emailer.send as jest.Mock;
 const FROM = { ip: '198.51.100.7', userAgent: 'Mozilla/5.0' };
 const LONG_AGENT = 'A'.repeat(260);
-const missingId = () => String(new Types.ObjectId());
+const missingId = () => new Types.ObjectId().toHexString();
 
 const contract = (overrides: Record<string, unknown> = {}) =>
   ContractModel.create({
@@ -73,7 +73,7 @@ describe('requestContractSignature', () => {
   it('tidies the signer, stamps the contract as sent and writes a default message', async () => {
     const row = await contract();
 
-    await ask(String(row._id));
+    await ask(row._id.toHexString());
 
     const stored = await ContractSignatureModel.findOne().lean();
     expect(stored).toMatchObject({ signerName: 'Lena Vogt', signerEmail: 'lena@helix.example' });
@@ -90,7 +90,7 @@ describe('requestContractSignature', () => {
   it('sends Legal’s own message when one is given', async () => {
     const row = await contract();
 
-    await ask(String(row._id), 'Countersigned copy attached.');
+    await ask(row._id.toHexString(), 'Countersigned copy attached.');
 
     expect(mailed.mock.calls[0][0].variables.message).toBe('Countersigned copy attached.');
   });
@@ -99,7 +99,7 @@ describe('requestContractSignature', () => {
 describe('contractToSign', () => {
   it('shows nothing once the contract behind a live link is gone', async () => {
     const row = await contract();
-    const { token } = await ask(String(row._id));
+    const { token } = await ask(row._id.toHexString());
     await ContractModel.deleteOne({ _id: row._id });
 
     await expect(contractToSign(token)).resolves.toBeNull();
@@ -109,7 +109,7 @@ describe('contractToSign', () => {
 describe('signContractWithToken', () => {
   it('is NOT_FOUND when the contract was deleted after the link went out', async () => {
     const row = await contract();
-    const { token } = await ask(String(row._id));
+    const { token } = await ask(row._id.toHexString());
     await ContractModel.deleteOne({ _id: row._id });
 
     expect(await codeOf(signContractWithToken({ token, signedName: 'Lena Vogt', ...FROM }))).toBe(
@@ -119,7 +119,7 @@ describe('signContractWithToken', () => {
 
   it('keeps at most 200 characters of the user agent', async () => {
     const row = await contract();
-    const { token } = await ask(String(row._id));
+    const { token } = await ask(row._id.toHexString());
 
     await signContractWithToken({
       token,
@@ -143,10 +143,10 @@ describe('contractSignatures and revokeContractSignature', () => {
   it('lists only the asked contract’s requests, with their evidence fields', async () => {
     const mine = await contract();
     const other = await contract({ title: 'Other' });
-    await ask(String(mine._id));
-    await ask(String(other._id));
+    await ask(mine._id.toHexString());
+    await ask(other._id.toHexString());
 
-    const rows = await contractSignatures(String(mine._id));
+    const rows = await contractSignatures(mine._id.toHexString());
 
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({

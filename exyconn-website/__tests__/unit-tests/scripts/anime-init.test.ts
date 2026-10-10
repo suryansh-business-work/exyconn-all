@@ -123,6 +123,13 @@ describe("anime-init without IntersectionObserver", () => {
     children.forEach((child) => expect(child.style.willChange).toBe(""));
   });
 
+  it("staggers an unknown preset name as the default fade-up", async () => {
+    await boot('<ul id="list" data-anime-stagger="spin"><li></li></ul>');
+    const children = [...byId("list").children] as HTMLElement[];
+    expect(children[0].style.transform).toBe("");
+    expect(callFor(children)).toMatchObject({ opacity: [0, 1], translateY: [24, 0] });
+  });
+
   it("staggers with the defaults when the list names no preset", async () => {
     await boot('<ul id="list" data-anime-stagger="" data-anime-step=""><li></li></ul>');
     const children = [...byId("list").children];

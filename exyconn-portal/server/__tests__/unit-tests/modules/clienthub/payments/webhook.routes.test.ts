@@ -20,7 +20,7 @@ let invoiceId: string;
 
 beforeEach(async () => {
   const { clientId } = await seedContact(organizationId);
-  invoiceId = String((await seedInvoice(clientId))._id);
+  invoiceId = (await seedInvoice(clientId))._id.toHexString();
   for (const gateway of ['STRIPE', 'RAZORPAY'] as const) {
     await PaymentAttemptModel.create({
       gateway,

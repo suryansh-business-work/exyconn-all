@@ -23,7 +23,7 @@ interface ScannerInputSectionProps {
   onUrlChange: (value: string) => void;
   onMaxPagesChange: (value: number) => void;
   onScan: () => void;
-  onExportJSON: () => void;
+  onExportJSON: (scan: ScanResult) => void;
 }
 
 const ScannerInputSection: React.FC<ScannerInputSectionProps> = ({
@@ -114,7 +114,7 @@ const ScannerInputSection: React.FC<ScannerInputSectionProps> = ({
               Summary
             </Typography>
             <Tooltip title="Export JSON">
-              <IconButton size="small" onClick={onExportJSON}>
+              <IconButton size="small" onClick={() => onExportJSON(result)}>
                 <Download fontSize="small" />
               </IconButton>
             </Tooltip>

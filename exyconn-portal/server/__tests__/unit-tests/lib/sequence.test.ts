@@ -32,8 +32,8 @@ describe('nextSequence', () => {
   });
 
   it('counts each company on its own series', async () => {
-    const first = String(new Types.ObjectId());
-    const second = String(new Types.ObjectId());
+    const first = new Types.ObjectId().toHexString();
+    const second = new Types.ObjectId().toHexString();
     await runForOrganization(first, () => nextSequence('invoice', 'INV-'));
     await expect(runForOrganization(first, () => nextSequence('invoice', 'INV-'))).resolves.toBe(
       'INV-0002',

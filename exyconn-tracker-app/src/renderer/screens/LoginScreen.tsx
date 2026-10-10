@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type ReactElement } from 'react';
+import { useState, type SyntheticEvent, type ReactElement } from 'react';
 import {
   Alert,
   Button,
@@ -52,7 +52,7 @@ export default function LoginScreen({
   useAnnounce(signedOutReason === null ? null : t(signedOutReason));
   useAnnounce(error, 'assertive');
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>): Promise<void> {
+  async function handleSubmit(event: SyntheticEvent<HTMLFormElement>): Promise<void> {
     event.preventDefault();
     setSubmitted(true);
     if (email.trim() === '' || password === '') {

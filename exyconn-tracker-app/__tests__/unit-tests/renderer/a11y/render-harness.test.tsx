@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import type { ReactElement } from 'react';
 import { useEffect, useState } from 'react';
-import { afterEach, beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import {
   cleanup,
   click,
@@ -105,6 +105,20 @@ describe('press', () => {
     document.body.removeEventListener('keydown', listener);
     expect(seen).toEqual(['Tab']);
     expect(text('#key')).toBe('none');
+  });
+
+  it('falls back to the body when the document reports no active element at all', async () => {
+    await mount(<Probe />, trackerState('idle'));
+    const seen: string[] = [];
+    const listener = (event: KeyboardEvent): void => {
+      seen.push(event.key);
+    };
+    document.body.addEventListener('keydown', listener);
+    const active = vi.spyOn(document, 'activeElement', 'get').mockReturnValue(null);
+    await press('Home');
+    active.mockRestore();
+    document.body.removeEventListener('keydown', listener);
+    expect(seen).toEqual(['Home']);
   });
 });
 

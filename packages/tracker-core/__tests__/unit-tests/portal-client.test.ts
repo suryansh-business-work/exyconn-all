@@ -35,7 +35,7 @@ describe('createPortalClient', () => {
     const [url, init] = vi.mocked(fetch).mock.calls[0];
     expect(url).toBe(URL);
     expect(new Headers(init?.headers).get('Authorization')).toBe('Bearer device-token');
-    expect(JSON.parse(String(init?.body)).query).toContain('myTrackerTotals');
+    expect(JSON.parse(init?.body as string).query).toContain('myTrackerTotals');
   });
 
   it('refuses an authenticated call with no token, without touching the network', async () => {

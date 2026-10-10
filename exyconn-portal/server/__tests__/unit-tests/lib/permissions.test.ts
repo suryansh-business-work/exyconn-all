@@ -13,7 +13,7 @@ import { ROLES, type Role } from '../../../src/constants/roles';
 import type { GraphQLContext } from '../../../src/middleware/auth';
 
 const ctxWith = (...roles: Role[]): GraphQLContext => ({
-  user: { id: String(new Types.ObjectId()), email: 'u@example.com', roles },
+  user: { id: new Types.ObjectId().toHexString(), email: 'u@example.com', roles },
 });
 
 const codeOf = (promise: Promise<unknown>) =>
@@ -99,8 +99,8 @@ describe('assertPermission', () => {
   });
 
   it('keeps one company’s restrictions out of another company’s cache', async () => {
-    const strict = String(new Types.ObjectId());
-    const relaxed = String(new Types.ObjectId());
+    const strict = new Types.ObjectId().toHexString();
+    const relaxed = new Types.ObjectId().toHexString();
     await runForOrganization(strict, () => restrict(ROLES.HR, 'Goal', []));
     const ctx = ctxWith(ROLES.HR);
     const check = () => codeOf(assertPermission(ctx, 'Goal', [ROLES.HR], 'VIEW'));

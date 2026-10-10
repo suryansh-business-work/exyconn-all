@@ -15,7 +15,7 @@ import type { SuppressionRow } from './suppression.types';
 
 const schema = z.object({
   email: z.string().trim().min(1, 'Email is required').regex(EMAIL, 'Enter a valid email'),
-  reason: z.nativeEnum(SuppressionReason),
+  reason: z.enum(SuppressionReason),
   source: z.string().trim().max(200, 'Keep the note under 200 characters'),
 });
 type Values = z.infer<typeof schema>;

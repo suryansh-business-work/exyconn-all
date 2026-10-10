@@ -160,3 +160,16 @@ describe("ContactFormReact", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent("Send failed");
   });
 });
+
+describe("ContactFormReact length limits", () => {
+  it("refuses a company name over 100 characters once the field is left", async () => {
+    const { user, fetchMock } = await setup();
+    await user.click(field(/^Company/));
+    await user.paste("c".repeat(101));
+    await user.tab();
+
+    expect(await screen.findByText("Too long")).toBeInTheDocument();
+    expect(field(/^Company/)).toHaveAttribute("aria-invalid", "true");
+    expect(postedTo(fetchMock)).toEqual([]);
+  });
+});

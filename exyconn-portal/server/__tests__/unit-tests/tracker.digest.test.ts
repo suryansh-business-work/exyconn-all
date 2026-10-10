@@ -17,13 +17,13 @@ async function employee(name: string) {
     passwordHash: 'not-a-real-hash',
     roles: ['EMPLOYEE'],
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 async function tracked(userId: string, activeMs: number) {
   await TrackerIntervalModel.create({
     userId,
-    sessionId: new Types.ObjectId().toString(),
+    sessionId: new Types.ObjectId().toHexString(),
     startedAt: new Date(Date.now() - 2 * HOUR),
     endedAt: new Date(Date.now() - HOUR),
     activeMs,

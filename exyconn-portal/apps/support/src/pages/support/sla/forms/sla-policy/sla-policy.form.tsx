@@ -23,7 +23,7 @@ const minutes = (label: string) =>
 
 const schema = z
   .object({
-    priority: z.nativeEnum(SupportPriority),
+    priority: z.enum(SupportPriority),
     firstResponseMinutes: minutes('First response'),
     resolutionMinutes: minutes('Resolution'),
     active: z.boolean(),

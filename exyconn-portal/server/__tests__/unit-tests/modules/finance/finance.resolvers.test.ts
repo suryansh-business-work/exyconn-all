@@ -27,16 +27,14 @@ const baseInput = {
 };
 
 const seedClient = async () =>
-  String(
-    (
-      await ClientModel.create({
-        name: 'Priya',
-        email: 'priya@acme.test',
-        company: 'Acme',
-        status: 'ACTIVE',
-      })
-    )._id,
-  );
+  (
+    await ClientModel.create({
+      name: 'Priya',
+      email: 'priya@acme.test',
+      company: 'Acme',
+      status: 'ACTIVE',
+    })
+  )._id.toHexString();
 
 const create = (input: Record<string, unknown>, ctx = asFinance) =>
   financeResolvers.Mutation.createInvoice(

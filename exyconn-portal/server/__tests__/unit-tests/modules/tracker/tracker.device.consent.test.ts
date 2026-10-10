@@ -17,7 +17,7 @@ async function grantedEmployee() {
     email: `${randomUUID()}@exyconn.com`,
     passwordHash: randomUUID(),
   });
-  const userId = String(user._id);
+  const userId = user._id.toHexString();
   await TrackerAccessModel.create({ userId, grantedBy: 'admin' });
   await TrackerDeviceModel.create({
     userId,
@@ -40,7 +40,7 @@ async function disclosurePolicy() {
     requiresAcknowledgement: true,
   });
   await updateTrackerSettings({ consentPolicySlug: SLUG });
-  return String(policy._id);
+  return policy._id.toHexString();
 }
 
 afterEach(() => {

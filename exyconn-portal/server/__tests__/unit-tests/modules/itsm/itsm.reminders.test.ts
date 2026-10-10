@@ -52,11 +52,11 @@ describe('the IT expiry reminder source', () => {
     const [reminder] = await itExpiry().due(NOW);
 
     expect(reminder).toEqual({
-      dedupeKey: `asset-warranty:${String(asset._id)}:2026-09-20`,
+      dedupeKey: `asset-warranty:${asset._id.toHexString()}:2026-09-20`,
       kind: 'IT',
       title: 'MON-2 is out of warranty yesterday',
       body: 'Dell monitor. Decide whether to extend the cover, replace it or accept the risk.',
-      link: `/it/assets/${String(asset._id)}`,
+      link: `/it/assets/${asset._id.toHexString()}`,
       roles: [ROLES.IT],
     });
   });

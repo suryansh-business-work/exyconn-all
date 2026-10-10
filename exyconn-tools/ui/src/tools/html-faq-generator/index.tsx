@@ -45,7 +45,6 @@ const HtmlFAQGenerator: React.FC = () => {
   };
 
   const handleGenerate = async () => {
-    if (!htmlContent.trim()) return;
     const apiKey = requireKey();
     if (!apiKey) return;
     setIsLoading(true);

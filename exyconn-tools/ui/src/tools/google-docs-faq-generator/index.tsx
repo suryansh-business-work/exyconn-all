@@ -38,7 +38,6 @@ const GoogleDocsFAQGenerator: React.FC = () => {
   const [tone, setTone] = useState('professional');
 
   const handleGenerate = async () => {
-    if (!url) return;
     const apiKey = requireKey();
     if (!apiKey) return;
     setIsLoading(true);

@@ -41,7 +41,7 @@ describe('online payment outside the platform operator', () => {
       paypal: false,
       payoneer: false,
     });
-    await expect(startPayment(contact, String(invoice._id), 'STRIPE')).rejects.toThrow(
+    await expect(startPayment(contact, invoice._id.toHexString(), 'STRIPE')).rejects.toThrow(
       /pay by bank transfer/,
     );
     expect(await PaymentAttemptModel.countDocuments()).toBe(0);
@@ -107,7 +107,7 @@ describe('online payment inside the platform operator', () => {
       identification: { longId: 'L-1' },
     });
 
-    await startPayment(contact, String(invoice._id), 'PAYONEER');
+    await startPayment(contact, invoice._id.toHexString(), 'PAYONEER');
 
     expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body)).country).toBe('GB');
   });

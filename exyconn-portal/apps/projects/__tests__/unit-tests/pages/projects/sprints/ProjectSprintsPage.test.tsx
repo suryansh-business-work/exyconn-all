@@ -9,7 +9,7 @@ import { sprintRow, taskRow } from '../../../fixtures';
 const api = vi.hoisted(() => ({
   board: vi.fn(),
   boardRefetch: vi.fn(),
-  state: {} as Record<string, unknown>,
+  state: {},
   onChanged: null as null | (() => void),
   reload: vi.fn(),
   start: vi.fn(),

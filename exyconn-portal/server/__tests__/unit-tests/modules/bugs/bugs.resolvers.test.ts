@@ -33,7 +33,7 @@ async function setup() {
   const lead = await seedUser('lead@exyconn.com', PASSWORD, [ROLES.PROJECTS]);
   const ctx = ctxFor(lead.id);
   const project = await ProjectModel.create({ name: 'Billing', status: 'ACTIVE' });
-  return { lead, ctx, projectId: String(project._id) };
+  return { lead, ctx, projectId: project._id.toHexString() };
 }
 
 describe('updateBug', () => {
@@ -65,7 +65,7 @@ describe('updateBug', () => {
       { input: bugInput({ assigneeId: lead.id }) },
       ctx,
     );
-    const missing = String(new Types.ObjectId());
+    const missing = new Types.ObjectId().toHexString();
 
     const attempt = mutation.updateBug(
       null,
@@ -118,7 +118,9 @@ describe('promoteBugToTask', () => {
   it('refuses a bug that does not exist', async () => {
     const { ctx } = await setup();
 
-    await expect(promote(ctx, String(new Types.ObjectId()))).rejects.toThrow(/bug does not exist/);
+    await expect(promote(ctx, new Types.ObjectId().toHexString())).rejects.toThrow(
+      /bug does not exist/,
+    );
   });
 
   it('opens an unassigned ticket for a legacy bug with no assignee id', async () => {
@@ -126,7 +128,7 @@ describe('promoteBugToTask', () => {
     await boardResolvers.Mutation.createColumn(null, { projectId, name: 'Backlog' }, ctx);
     const legacy = await BugModel.create({ ...bugInput({ projectId }), severity: 'MEDIUM' });
 
-    const task = await promote(ctx, String(legacy._id));
+    const task = await promote(ctx, legacy._id.toHexString());
 
     expect(task.priority).toBe('MEDIUM');
     expect(task.assigneeId).toBe('');
@@ -136,9 +138,9 @@ describe('promoteBugToTask', () => {
   it('refuses somebody without the Projects role', async () => {
     const { projectId } = await setup();
     const bug = await BugModel.create(bugInput({ projectId }));
-    const outsider = ctxFor(String(new Types.ObjectId()), [ROLES.HR]);
+    const outsider = ctxFor(new Types.ObjectId().toHexString(), [ROLES.HR]);
 
-    expect(await codeOf(promote(outsider, String(bug._id)))).toBe('FORBIDDEN');
+    expect(await codeOf(promote(outsider, bug._id.toHexString()))).toBe('FORBIDDEN');
     expect(await BugModel.findById(bug._id).lean()).toMatchObject({ taskId: '' });
   });
 });

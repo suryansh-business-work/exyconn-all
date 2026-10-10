@@ -108,11 +108,13 @@ class OrganizationService {
         slug,
         currency: input.currency.toUpperCase(),
         country: (input.country ?? '').toUpperCase(),
-        locale: canonicalLocale(input.locale ?? 'en') ?? 'en',
+        locale: canonicalLocale(input.locale ?? 'en') as string,
       }),
     );
     // Its own defaults, written as the company rather than as the platform.
-    await runForOrganization(String(organization._id), () => provisionOrganization(organization));
+    await runForOrganization(organization._id.toHexString(), () =>
+      provisionOrganization(organization),
+    );
     logger.info(`Created organization ${organization.name} (${slug})`);
     return organization.toObject();
   }

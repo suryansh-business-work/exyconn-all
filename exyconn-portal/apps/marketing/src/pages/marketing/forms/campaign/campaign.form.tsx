@@ -23,11 +23,11 @@ import type { CampaignRow } from './campaign.types';
 const schema = z
   .object({
     name: z.string().trim().min(1, 'Name is required'),
-    channel: z.nativeEnum(CampaignChannel),
+    channel: z.enum(CampaignChannel),
     budget: z.coerce.number({ message: 'Budget must be a number' }).min(0, 'Must be ≥ 0'),
     startDate: z.string().min(1, 'Start date is required'),
     endDate: z.string().min(1, 'End date is required'),
-    status: z.nativeEnum(CampaignStatus),
+    status: z.enum(CampaignStatus),
     subject: z.string().trim().max(150, 'Keep the subject under 150 characters'),
     body: z.string().trim().max(5000, 'Keep the body under 5000 characters'),
     templateKey: z.string().trim(),

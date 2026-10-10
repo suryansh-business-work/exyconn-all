@@ -177,3 +177,18 @@ describe("IndiaOfferForm", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(COPY.status.failed);
   });
 });
+
+describe("IndiaOfferForm length limits", () => {
+  it("refuses a business name over 100 characters and a message over 500", async () => {
+    const { user, fetchMock } = await setup();
+    await user.click(field(fields.business.label));
+    await user.paste("b".repeat(101));
+    await user.click(field(fields.message.label));
+    await user.paste("m".repeat(501));
+    await user.tab();
+
+    expect(await screen.findByText(messages.businessTooLong)).toBeInTheDocument();
+    expect(screen.getByText(messages.messageTooLong)).toBeInTheDocument();
+    expect(postedTo(fetchMock)).toEqual([]);
+  });
+});

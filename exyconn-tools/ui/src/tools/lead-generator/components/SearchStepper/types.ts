@@ -16,7 +16,16 @@ export interface SearchStepperProps {
   onLocationModeChange?: (mode: LocationMode) => void;
 }
 
-export interface LocationStepProps {
+/**
+ * MUI's Stepper clones each of its children with `index` and `last`. The step components wrap
+ * `<Step>`, so they have to hand both on or no step ever becomes the active one.
+ */
+export interface StepSlotProps {
+  index?: number;
+  last?: boolean;
+}
+
+export interface LocationStepProps extends StepSlotProps {
   locationMode: LocationMode | null;
   locationName: string | null;
   locationError: string | null;
@@ -30,7 +39,7 @@ export interface LocationStepProps {
   onClearError: () => void;
 }
 
-export interface CategoryStepProps {
+export interface CategoryStepProps extends StepSlotProps {
   selectedTypes: string[];
   onTypesChange: (types: string[]) => void;
   searchQuery: string;
@@ -40,7 +49,7 @@ export interface CategoryStepProps {
   canProceed: boolean;
 }
 
-export interface DrawAreaStepProps {
+export interface DrawAreaStepProps extends StepSlotProps {
   hasPolygon: boolean;
   hasApiKey: boolean;
   onDrawPolygon: () => void;
@@ -48,7 +57,7 @@ export interface DrawAreaStepProps {
   onNext: () => void;
 }
 
-export interface SearchStepProps {
+export interface SearchStepProps extends StepSlotProps {
   maxResults: number;
   onMaxResultsChange: (value: number) => void;
   locationName: string | null;

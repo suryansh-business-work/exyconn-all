@@ -10,14 +10,17 @@ import { renderWithProviders } from '../../test-utils';
 import { crud, crudOptions, dashboardProps, paged, rowAction } from './crud-stub';
 import { pagedJob, tableStats } from './ai-fixtures';
 
-const gql = vi.hoisted(() => ({
-  stats: { loading: false } as { data?: unknown; loading: boolean },
-  refetchStats: vi.fn(),
-  deleteAiJob: vi.fn(),
-  runAiJob: vi.fn(),
-  queue: { inFlight: 0, refresh: vi.fn(), onTick: null as null | (() => void) },
-  formatDate: vi.fn((value: string) => `on ${value}`),
-}));
+const gql = vi.hoisted(() => {
+  const stats: { data?: unknown; loading: boolean } = { loading: false };
+  return {
+    stats,
+    refetchStats: vi.fn(),
+    deleteAiJob: vi.fn(),
+    runAiJob: vi.fn(),
+    queue: { inFlight: 0, refresh: vi.fn(), onTick: null as null | (() => void) },
+    formatDate: vi.fn((value: string) => `on ${value}`),
+  };
+});
 
 vi.mock('@exyconn/crud', async (orig) => ({
   ...(await orig<typeof import('@exyconn/crud')>()),

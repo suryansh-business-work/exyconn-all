@@ -48,8 +48,7 @@ export function unmountAll(): void {
 export function button(name: string): HTMLButtonElement {
   const match = [...document.querySelectorAll<HTMLButtonElement>('button')].find(
     (node) =>
-      (node.textContent ?? '').includes(name) ||
-      (node.getAttribute('aria-label') ?? '').includes(name),
+      node.textContent.includes(name) || (node.getAttribute('aria-label') ?? '').includes(name),
   );
   if (match === undefined) {
     throw new Error(`No button named "${name}"`);
@@ -71,8 +70,8 @@ export interface Deferred<T = void> {
 
 /** A promise the test settles by hand — the window in which a loader must be showing. */
 export function deferred<T = void>(): Deferred<T> {
-  let resolve: (value: T) => void = () => undefined;
-  let reject: (cause: unknown) => void = () => undefined;
+  let resolve!: (value: T) => void;
+  let reject!: (cause: unknown) => void;
   const promise = new Promise<T>((done, fail) => {
     resolve = done;
     reject = fail;

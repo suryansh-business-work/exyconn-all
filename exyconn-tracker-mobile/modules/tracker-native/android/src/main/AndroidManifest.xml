@@ -35,7 +35,7 @@
     </intent>
   </queries>
 
-  <application android:allowBackup="false" android:usesCleartextTraffic="false">
+  <application>
     <service
       android:name="expo.modules.trackernative.KeepAliveService"
       android:exported="false"

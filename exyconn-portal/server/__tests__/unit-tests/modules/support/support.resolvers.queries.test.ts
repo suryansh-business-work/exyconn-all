@@ -11,7 +11,7 @@ const Q = supportResolvers.Query as unknown as Record<string, Resolver>;
 const HOUR = 60 * 60 * 1000;
 
 const ctx = (roles: Role[]): GraphQLContext => ({
-  user: { id: String(new Types.ObjectId()), email: 'desk@exyconn.com', roles },
+  user: { id: new Types.ObjectId().toHexString(), email: 'desk@exyconn.com', roles },
 });
 
 async function person(name: string, roles: string[]) {
@@ -21,7 +21,7 @@ async function person(name: string, roles: string[]) {
     passwordHash: 'x',
     roles,
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 const ticket = (category: string, extra: Record<string, unknown> = {}) =>
@@ -107,7 +107,7 @@ describe('getSupportTicket and listSupportReplies', () => {
       'SupportTicket not found',
     );
     await expect(
-      Q.getSupportTicket(null, { id: String(new Types.ObjectId()) }, asSupport),
+      Q.getSupportTicket(null, { id: new Types.ObjectId().toHexString() }, asSupport),
     ).rejects.toThrow('SupportTicket not found');
     await expect(Q.listSupportReplies(null, { ticketId: 'nope' }, asSupport)).rejects.toThrow(
       'SupportTicket not found',

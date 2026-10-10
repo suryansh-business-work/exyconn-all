@@ -31,7 +31,7 @@ const promptSchema = new Schema(
 // Derived, never authored: the two would drift the moment somebody edited the content
 // without touching the field, and the run dialog would ask for the wrong things.
 promptSchema.pre('save', function derive(next) {
-  this.variables = extractMergeFields(this.content ?? '');
+  this.variables = extractMergeFields(this.content);
   next();
 });
 

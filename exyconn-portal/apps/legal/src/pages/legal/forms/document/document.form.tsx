@@ -21,10 +21,10 @@ import type { LegalDocumentRow } from './document.types';
 
 const schema = z.object({
   title: z.string().trim().min(1, 'Title is required'),
-  category: z.nativeEnum(DocumentCategory),
+  category: z.enum(DocumentCategory),
   owner: z.string().trim().max(120, 'Keep the owner under 120 characters'),
   fileUrl: z.union([z.literal(''), z.string().trim().regex(HTTP_URL, 'Enter a valid URL')]),
-  status: z.nativeEnum(DocumentStatus),
+  status: z.enum(DocumentStatus),
   content: legalBody,
 });
 type Values = z.infer<typeof schema>;

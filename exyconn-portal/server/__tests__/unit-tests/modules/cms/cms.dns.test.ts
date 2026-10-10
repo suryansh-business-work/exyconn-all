@@ -38,7 +38,7 @@ describe('siteDns', () => {
       host === 'docs.test' ? found(host, [SERVER_IP]) : found(host, [SERVER_IP, ELSEWHERE_IP]),
     );
 
-    const result = await siteDns(String(site._id));
+    const result = await siteDns(site._id.toHexString());
 
     expect(result.serverIp).toBe(SERVER_IP);
     expect(result.domains).toEqual([
@@ -59,10 +59,10 @@ describe('siteDns', () => {
     const site = await seedSite('docs', { domains: ['docs.test'] });
     read.mockResolvedValueOnce(found('docs.test', []));
 
-    const empty = await siteDns(String(site._id));
+    const empty = await siteDns(site._id.toHexString());
     Object.assign(env, { websiteServerIp: '' });
     read.mockResolvedValueOnce(found('docs.test', ['']));
-    const unset = await siteDns(String(site._id));
+    const unset = await siteDns(site._id.toHexString());
 
     expect(empty.domains[0].pointsHere).toBe(false);
     expect(unset.domains[0].pointsHere).toBe(false);
@@ -74,7 +74,7 @@ describe('siteDns', () => {
     read.mockRejectedValueOnce(new Error('docs.test is not on the GoDaddy account'));
     read.mockRejectedValueOnce('timeout');
 
-    const result = await siteDns(String(site._id));
+    const result = await siteDns(site._id.toHexString());
 
     expect(result.domains).toEqual([
       {
@@ -95,7 +95,7 @@ describe('siteDns', () => {
   });
 
   it('refuses a site that does not exist', async () => {
-    await expect(siteDns(String(new Types.ObjectId()))).rejects.toThrow('Website not found');
+    await expect(siteDns(new Types.ObjectId().toHexString())).rejects.toThrow('Website not found');
   });
 });
 
@@ -106,7 +106,7 @@ describe('setSiteARecord', () => {
     read.mockResolvedValueOnce(found('docs.test', [SERVER_IP]));
 
     const result = await setSiteARecord(
-      String(site._id),
+      site._id.toHexString(),
       ' HTTPS://Docs.Test/ ',
       ` ${SERVER_IP} `,
       600,
@@ -119,7 +119,9 @@ describe('setSiteARecord', () => {
   it('refuses a domain the site does not have', async () => {
     const site = await seedSite('docs', { domains: ['docs.test'] });
 
-    await expect(setSiteARecord(String(site._id), 'other.test', SERVER_IP, 600)).rejects.toThrow(
+    await expect(
+      setSiteARecord(site._id.toHexString(), 'other.test', SERVER_IP, 600),
+    ).rejects.toThrow(
       "other.test is not one of this website's domains. Add it in the settings first.",
     );
     expect(write).not.toHaveBeenCalled();

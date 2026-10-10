@@ -70,7 +70,7 @@ const developer = async (email = 'dev@exyconn.com') => {
     roles: [ROLES.PROJECTS],
     isActive: true,
   });
-  return String(user._id);
+  return user._id.toHexString();
 };
 
 describe('what the projects-due source chases', () => {

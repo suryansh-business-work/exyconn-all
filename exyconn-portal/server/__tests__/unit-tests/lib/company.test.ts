@@ -9,7 +9,7 @@ describe('companyProfile', () => {
   });
 
   it('refuses a scope pointing at a company that does not exist', async () => {
-    const ghost = String(new Types.ObjectId());
+    const ghost = new Types.ObjectId().toHexString();
     await expect(runForOrganization(ghost, companyProfile)).rejects.toThrow(
       /Reading the company profile/,
     );
@@ -26,7 +26,7 @@ describe('companyProfile', () => {
       fiscalYearStartMonth: 4,
       taxSystem: 'INDIA_GST',
     });
-    await expect(runForOrganization(String(org._id), companyProfile)).resolves.toEqual({
+    await expect(runForOrganization(org._id.toHexString(), companyProfile)).resolves.toEqual({
       currency: 'INR',
       locale: 'en-IN',
       timezone: 'Asia/Kolkata',
@@ -38,7 +38,7 @@ describe('companyProfile', () => {
 
   it('fills in the international defaults', async () => {
     const org = await OrganizationModel.create({ name: 'Plain', slug: 'plain', currency: 'EUR' });
-    await expect(runForOrganization(String(org._id), companyProfile)).resolves.toEqual({
+    await expect(runForOrganization(org._id.toHexString(), companyProfile)).resolves.toEqual({
       currency: 'EUR',
       locale: 'en',
       timezone: 'UTC',
@@ -51,7 +51,7 @@ describe('companyProfile', () => {
   it('reads a country stored as null as empty', async () => {
     const org = await OrganizationModel.create({ name: 'Nul', slug: 'nul', currency: 'USD' });
     await OrganizationModel.collection.updateOne({ _id: org._id }, { $set: { country: null } });
-    const profile = await runForOrganization(String(org._id), companyProfile);
+    const profile = await runForOrganization(org._id.toHexString(), companyProfile);
     expect(profile.country).toBe('');
   });
 });

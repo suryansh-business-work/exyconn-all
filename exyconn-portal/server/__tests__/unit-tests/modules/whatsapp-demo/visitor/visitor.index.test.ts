@@ -26,7 +26,7 @@ beforeEach(() => {
 afterEach(() => jest.restoreAllMocks());
 
 const staff = (roles: Role[], organizationId: string | null = operatorId): GraphQLContext => ({
-  user: { id: String(new Types.ObjectId()), email: 'staff@test.co', roles, organizationId },
+  user: { id: new Types.ObjectId().toHexString(), email: 'staff@test.co', roles, organizationId },
 });
 const page = { page: 0, pageSize: 10 };
 
@@ -34,7 +34,7 @@ describe('whatsappDemoVisitorMe', () => {
   it('is the signed-in visitor, read in the demo owner company', async () => {
     const visitor = await seedVisitor();
     const demoVisitor = {
-      id: String(visitor._id),
+      id: visitor._id.toHexString(),
       name: visitor.name,
       email: visitor.email,
       phone: visitor.phone,
@@ -44,7 +44,7 @@ describe('whatsappDemoVisitorMe', () => {
 
     const me = await Query.whatsappDemoVisitorMe(null, null, { user: null, demoVisitor });
 
-    expect(me?.id).toBe(String(visitor._id));
+    expect(me?.id).toBe(visitor._id.toHexString());
   });
 
   it('is nobody for a request without a visitor pass', async () => {
@@ -56,7 +56,7 @@ describe('the leads list', () => {
   it('lets website staff of the operator company list, count, block and delete leads', async () => {
     const visitor = await seedVisitor();
     const ctx = staff([ROLES.WEBSITE]);
-    const id = String(visitor._id);
+    const id = visitor._id.toHexString();
 
     expect((await Query.whatsappDemoVisitorsPaged(null, { input: page }, ctx)).totalCount).toBe(1);
     expect((await Query.whatsappDemoVisitorStats(null, null, ctx)).total).toBe(1);
@@ -76,8 +76,8 @@ describe('the leads list', () => {
 
   it('keeps other companies and signed-out callers out', async () => {
     const visitor = await seedVisitor();
-    const outsider = staff([ROLES.ADMIN], String(new Types.ObjectId()));
-    const id = String(visitor._id);
+    const outsider = staff([ROLES.ADMIN], new Types.ObjectId().toHexString());
+    const id = visitor._id.toHexString();
 
     expect(await codeOf(Query.whatsappDemoVisitorsPaged(null, { input: page }, outsider))).toBe(
       'FORBIDDEN',

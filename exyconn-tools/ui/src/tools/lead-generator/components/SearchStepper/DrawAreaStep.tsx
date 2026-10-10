@@ -3,8 +3,16 @@ import { Box, Step, StepLabel, StepContent, Button, Typography, Alert } from '@m
 import { Draw, CheckCircle } from '@mui/icons-material';
 import { DrawAreaStepProps } from './types';
 
-const DrawAreaStep: React.FC<DrawAreaStepProps> = ({ hasPolygon, hasApiKey, onDrawPolygon, onBack, onNext }) => (
-  <Step completed={hasPolygon}>
+const DrawAreaStep: React.FC<DrawAreaStepProps> = ({
+  index,
+  last,
+  hasPolygon,
+  hasApiKey,
+  onDrawPolygon,
+  onBack,
+  onNext,
+}) => (
+  <Step index={index} last={last} completed={hasPolygon}>
     <StepLabel
       optional={
         hasPolygon ? (

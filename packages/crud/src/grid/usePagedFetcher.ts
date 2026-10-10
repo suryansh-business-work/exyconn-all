@@ -1,6 +1,6 @@
 import { useCallback, useRef } from 'react';
+import type { TypedDocumentNode } from '@apollo/client';
 import { useApolloClient } from '@apollo/client/react';
-import type { DocumentNode } from 'graphql';
 import type { TablePageResult } from '@exyconn/shell/components/data/ServerDataGrid';
 import type { TableFilterInput, TableQueryInput } from '@exyconn/shell/graphql/generated';
 import { queryData } from '@exyconn/shell/utils/queryData';
@@ -20,7 +20,7 @@ import { queryData } from '@exyconn/shell/utils/queryData';
  * time, so changing them needs a `refreshSignal` bump to make the grid re-read.
  */
 export function usePagedFetcher<TQuery, TRow>(
-  document: DocumentNode,
+  document: TypedDocumentNode<TQuery, { input: TableQueryInput }>,
   select: (data: TQuery) => TablePageResult<TRow>,
   extraFilters: readonly TableFilterInput[] = [],
 ): (input: TableQueryInput) => Promise<TablePageResult<TRow>> {
@@ -36,7 +36,7 @@ export function usePagedFetcher<TQuery, TRow>(
   return useCallback(
     async (input: TableQueryInput): Promise<TablePageResult<TRow>> => {
       const filters = [...(input.filters ?? []), ...extraFiltersRef.current];
-      const result = await client.query<TQuery, { input: TableQueryInput }>({
+      const result = await client.query({
         query: document,
         variables: { input: { ...input, filters } },
         fetchPolicy: 'network-only',

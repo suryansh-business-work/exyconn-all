@@ -42,7 +42,7 @@ describe('websites', () => {
     expect(created).toMatchObject({ id: expect.any(String), slug: 'docs' });
 
     const listed = await Query.cmsSites(null, {}, ctx);
-    expect(listed.map((site) => site.id)).toEqual([String(home._id), id]);
+    expect(listed.map((site) => site.id)).toEqual([home._id.toHexString(), id]);
     await expect(Query.cmsSite(null, { id }, ctx)).resolves.toMatchObject({
       name: 'Docs',
     });
@@ -60,7 +60,9 @@ describe('websites', () => {
     await expect(Mutation.setDefaultCmsSite(null, { id }, ctx)).resolves.toMatchObject({
       isDefault: true,
     });
-    await expect(Mutation.deleteCmsSite(null, { id: String(home._id) }, ctx)).resolves.toBe(true);
+    await expect(Mutation.deleteCmsSite(null, { id: home._id.toHexString() }, ctx)).resolves.toBe(
+      true,
+    );
     await expect(CmsSiteModel.countDocuments()).resolves.toBe(1);
   });
 
@@ -76,7 +78,7 @@ describe('website domains', () => {
     const site = await seedSite('docs', { domains: ['docs.test'] });
     jest.mocked(readARecords).mockResolvedValueOnce(records);
 
-    const result = await Query.cmsSiteDns(null, { siteId: String(site._id) }, editorCtx());
+    const result = await Query.cmsSiteDns(null, { siteId: site._id.toHexString() }, editorCtx());
 
     expect(result.domains).toEqual([
       expect.objectContaining({ domain: 'docs.test', authority: 'CLOUDFLARE', error: '' }),
@@ -90,7 +92,7 @@ describe('website domains', () => {
 
     const result = await Mutation.setCmsSiteARecord(
       null,
-      { siteId: String(site._id), domain: 'docs.test', ip: SERVER_IP, ttl: 600 },
+      { siteId: site._id.toHexString(), domain: 'docs.test', ip: SERVER_IP, ttl: 600 },
       editorCtx(),
     );
 
@@ -98,7 +100,7 @@ describe('website domains', () => {
     const audit = await AuditLogModel.findOne({ module: 'CmsSite' }).lean();
     expect(audit).toMatchObject({
       action: 'UPDATE',
-      entityId: String(site._id),
+      entityId: site._id.toHexString(),
       summary: `Pointed docs.test at ${SERVER_IP} (A record, TTL 600s)`,
     });
   });

@@ -45,6 +45,10 @@ const GlobalSettings: React.FC<Props> = ({
     onChange({ ...settings, [key]: value });
   };
 
+  const handleUpdateMany = (patch: Partial<LogoSettings>) => {
+    onChange({ ...settings, ...patch });
+  };
+
   const handleReset = () => {
     if (hasCustomChanges) {
       setResetDialogOpen(true);
@@ -64,7 +68,7 @@ const GlobalSettings: React.FC<Props> = ({
 
       <ScopeSelector applyScope={applyScope} onApplyScopeChange={onApplyScopeChange} />
 
-      <TransformSection settings={settings} onUpdate={handleUpdate} />
+      <TransformSection settings={settings} onUpdate={handleUpdate} onUpdateMany={handleUpdateMany} />
 
       <AppearanceSection settings={settings} onUpdate={handleUpdate} currentImage={currentImage} />
 

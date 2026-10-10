@@ -101,5 +101,3 @@ export const financeCompanyResolvers = {
     markExpensePaid,
   },
 };
-
-export { financeCompanyTypeDefs } from './finance.company.typeDefs';

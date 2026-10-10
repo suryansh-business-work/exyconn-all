@@ -39,11 +39,11 @@ export default function RotatePdf() {
       setError('Please select a PDF file.');
       return;
     }
-    setFile(f);
-    setResult(null);
     try {
       const doc = await PDFDocument.load(await f.arrayBuffer());
       setPageCount(doc.getPageCount());
+      setFile(f);
+      setResult(null);
     } catch {
       setError('Could not read PDF.');
     }
@@ -84,10 +84,9 @@ export default function RotatePdf() {
   };
 
   const rotate = async () => {
-    if (!file) return;
     setProcessing(true);
     try {
-      const doc = await PDFDocument.load(await file.arrayBuffer());
+      const doc = await PDFDocument.load(await file!.arrayBuffer());
       const indices = parsePages();
       const allPages = doc.getPages();
       indices.forEach((i) => {
@@ -103,11 +102,10 @@ export default function RotatePdf() {
   };
 
   const download = () => {
-    if (!result) return;
-    const url = URL.createObjectURL(new Blob([result.buffer as ArrayBuffer], { type: 'application/pdf' }));
+    const url = URL.createObjectURL(new Blob([result!.buffer as ArrayBuffer], { type: 'application/pdf' }));
     const a = document.createElement('a');
     a.href = url;
-    a.download = `rotated-${file?.name ?? 'document.pdf'}`;
+    a.download = `rotated-${file!.name}`;
     a.click();
     URL.revokeObjectURL(url);
   };

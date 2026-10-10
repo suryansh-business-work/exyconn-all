@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import type { MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -23,20 +23,20 @@ const config = (id: string, label: string) => ({
   isActive: id === 'ok',
 });
 
-const LIST: MockedResponse = {
+const LIST: MockLink.MockedResponse = {
   request: { query: ListSonarConfigsDocument },
   result: { data: { listSonarConfigs: [config('ok', 'SonarCloud'), config('bad', 'Old server')] } },
   maxUsageCount: 3,
 };
 
-const testResult = (id: string, ok: boolean, message: string): MockedResponse => ({
+const testResult = (id: string, ok: boolean, message: string): MockLink.MockedResponse => ({
   request: { query: TestSonarConnectionDocument, variables: { id } },
   result: {
     data: { testSonarConnection: { __typename: 'SonarConnectionTest', ok, message } },
   },
 });
 
-const mount = (mocks: MockedResponse[]) => {
+const mount = (mocks: MockLink.MockedResponse[]) => {
   cy.viewport(1280, 800);
   cy.mount(
     <MemoryRouter>

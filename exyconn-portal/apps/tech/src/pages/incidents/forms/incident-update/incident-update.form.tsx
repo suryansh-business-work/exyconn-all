@@ -15,7 +15,7 @@ import { UPDATE_STATUS_OPTIONS } from '../../incidents.constants';
 import type { IncidentUpdateFormProps } from './incident-update.types';
 
 export const incidentUpdateSchema = z.object({
-  status: z.nativeEnum(IncidentUpdateStatus),
+  status: z.enum(IncidentUpdateStatus),
   body: z
     .string()
     .trim()

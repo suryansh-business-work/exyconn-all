@@ -38,12 +38,12 @@ export interface SentRequest {
 /** What the client posted on its `index`-th fetch. */
 export function sent(index = 0): SentRequest {
   const [url, init] = vi.mocked(fetch).mock.calls[index];
-  const body = JSON.parse(String(init?.body)) as {
+  const body = JSON.parse(init?.body as string) as {
     query: string;
     variables: Record<string, unknown>;
   };
   return {
-    url: String(url),
+    url: url as string,
     query: body.query,
     variables: body.variables,
     authorization: new Headers(init?.headers).get('Authorization'),

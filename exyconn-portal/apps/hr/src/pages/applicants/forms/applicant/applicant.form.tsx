@@ -37,7 +37,7 @@ export const applicantSchema = z.object({
     .regex(HTTP_URL, 'Enter a full URL starting with https://')
     .or(z.literal('')),
   coverLetter: z.string().trim().max(8000, 'Keep the cover letter under 8000 characters'),
-  source: z.nativeEnum(ApplicantSource),
+  source: z.enum(ApplicantSource),
   rating: z.coerce.number().int().min(0).max(5),
 });
 

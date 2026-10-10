@@ -14,7 +14,7 @@ const NOTE_MAX = 500;
 
 export const decisionSchema = z
   .object({
-    decision: z.nativeEnum(ItDecision),
+    decision: z.enum(ItDecision),
     note: z.string().trim().max(NOTE_MAX, `Keep the note under ${NOTE_MAX} characters`),
   })
   // A rejection with no reason leaves the requester guessing, so it has to say why.

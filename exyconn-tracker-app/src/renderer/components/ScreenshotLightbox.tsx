@@ -74,7 +74,7 @@ export default function ScreenshotLightbox({
   onNavigate,
 }: Readonly<Props>): ReactElement | null {
   const t = useT();
-  const shot = index === null ? null : shots[index];
+  const shot = index === null ? undefined : shots[index];
 
   const step = useCallback(
     (delta: number) => {
@@ -99,7 +99,7 @@ export default function ScreenshotLightbox({
     return () => globalThis.removeEventListener('keydown', onKeyDown);
   }, [index, step]);
 
-  if (shot === undefined || shot === null) {
+  if (index === null || shot === undefined) {
     return null;
   }
 
@@ -158,7 +158,7 @@ export default function ScreenshotLightbox({
           >
             {many ? (
               <Typography variant="caption" sx={{ opacity: 0.7 }}>
-                {(index ?? 0) + 1} / {shots.length}
+                {index + 1} / {shots.length}
               </Typography>
             ) : null}
             <IconButton aria-label={t('Close')} onClick={onClose} sx={{ color: 'common.white' }}>

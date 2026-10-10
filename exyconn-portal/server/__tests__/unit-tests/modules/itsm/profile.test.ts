@@ -1,6 +1,7 @@
 import { Types } from 'mongoose';
 import { SupportTicketModel } from '../../../../src/modules/employee/support.model';
 import { ItAccessRequestModel } from '../../../../src/modules/itsm/models';
+import { UserModel } from '../../../../src/modules/admin/user.model';
 import { ROLES } from '../../../../src/constants/roles';
 import { useTestOrganization } from '../../../helpers';
 import { codeOf } from '../codeOf';
@@ -88,9 +89,21 @@ describe('IT employee profile', () => {
     expect(profile.openRequests.map((row) => row.application)).toEqual(['Jira', 'Slack']);
   });
 
+  it('reads an account written before roles and blocking existed as no roles, not blocked', async () => {
+    const asha = await person('Asha Rao');
+    await UserModel.collection.updateOne(
+      { _id: new Types.ObjectId(asha) },
+      { $unset: { roles: '', isBlocked: '' } },
+    );
+
+    const profile = await profileOf(asha);
+
+    expect(profile).toMatchObject({ id: asha, roles: [], isBlocked: false });
+  });
+
   it('refuses an id that is not one, and one that names nobody', async () => {
     expect(await codeOf(profileOf('nope'))).toBe('NOT_FOUND');
-    expect(await codeOf(profileOf(String(new Types.ObjectId())))).toBe('NOT_FOUND');
+    expect(await codeOf(profileOf(new Types.ObjectId().toHexString()))).toBe('NOT_FOUND');
   });
 
   it('keeps everyone outside IT out', async () => {

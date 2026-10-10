@@ -13,16 +13,16 @@ export const ADMIN_EMAIL = 'web-admin@exyconn.test';
  * No user record backs the id, so anything that names the caller falls back to the email.
  */
 export const adminCtx = (): GraphQLContext => ({
-  user: { id: String(new Types.ObjectId()), roles: [ROLES.SUPER_ADMIN], email: ADMIN_EMAIL },
+  user: { id: new Types.ObjectId().toHexString(), roles: [ROLES.SUPER_ADMIN], email: ADMIN_EMAIL },
 });
 
 /** A website editor in an ordinary customer company, which does not run the platform. */
 export const customerEditorCtx = (): GraphQLContext => {
   invalidatePlatformOperatorCache();
-  const organizationId = String(new Types.ObjectId());
+  const organizationId = new Types.ObjectId().toHexString();
   return {
     user: {
-      id: String(new Types.ObjectId()),
+      id: new Types.ObjectId().toHexString(),
       roles: [ROLES.WEBSITE],
       email: 'web@customer.test',
       organizationId,

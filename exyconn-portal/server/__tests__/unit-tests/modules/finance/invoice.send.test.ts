@@ -45,7 +45,7 @@ describe('renderInvoice', () => {
   it('prints under the stored name when the client id is not a client record', async () => {
     const invoice = await seedInvoice();
 
-    const { filename, pdf, data } = await renderInvoice(String(invoice._id));
+    const { filename, pdf, data } = await renderInvoice(invoice._id.toHexString());
 
     expect(filename).toBe('Invoice-INV-042.pdf');
     expect(pdf.subarray(0, 4).toString('latin1')).toBe('%PDF');
@@ -63,16 +63,16 @@ describe('renderInvoice', () => {
   it('falls back to the client id when neither a stored name nor a client is left', async () => {
     const invoice = await seedInvoice({ clientName: '' });
 
-    const { data } = await renderInvoice(String(invoice._id));
+    const { data } = await renderInvoice(invoice._id.toHexString());
 
     expect(data.client.name).toBe('legacy-client');
   });
 
   it("reads the client's company, email and address, and its name when none was stored", async () => {
     const client = await seedClient();
-    const invoice = await seedInvoice({ clientId: String(client._id), clientName: '' });
+    const invoice = await seedInvoice({ clientId: client._id.toHexString(), clientName: '' });
 
-    const { data } = await renderInvoice(String(invoice._id));
+    const { data } = await renderInvoice(invoice._id.toHexString());
 
     expect(data.client).toMatchObject({
       name: 'Rahul Client',
@@ -91,7 +91,7 @@ describe('renderInvoice', () => {
     });
     const invoice = await seedInvoice();
 
-    const { data } = await renderInvoice(String(invoice._id));
+    const { data } = await renderInvoice(invoice._id.toHexString());
 
     expect(data.company).toMatchObject({
       name: 'Exyconn',
@@ -104,7 +104,7 @@ describe('renderInvoice', () => {
     await updateBranding({ address: '12 MG Road, Indore', addressLine: '' });
     const invoice = await seedInvoice();
 
-    expect((await renderInvoice(String(invoice._id))).data.company.address).toBe(
+    expect((await renderInvoice(invoice._id.toHexString())).data.company.address).toBe(
       '12 MG Road, Indore',
     );
   });
@@ -116,7 +116,7 @@ describe('renderInvoice', () => {
       { $unset: { amountPaid: '', lines: '', placeOfSupplyStateCode: '', supplierStateCode: '' } },
     );
 
-    const { data } = await renderInvoice(String(invoice._id));
+    const { data } = await renderInvoice(invoice._id.toHexString());
 
     expect(data.invoice).toMatchObject({
       lines: [],
@@ -132,7 +132,7 @@ describe('emailInvoice', () => {
     const invoice = await seedInvoice();
     const contact = { id: 'contact-1', name: 'Priya', email: 'priya@acme.test' };
 
-    await emailInvoice(String(invoice._id), 'priya@acme.test', null, { user: null }, contact);
+    await emailInvoice(invoice._id.toHexString(), 'priya@acme.test', null, { user: null }, contact);
 
     const [mail] = send.mock.calls[0];
     expect(mail.triggeredBy).toBe('priya@acme.test');
@@ -152,12 +152,12 @@ describe('emailInvoice', () => {
   it('records no sender when nobody is signed in and no actor is given', async () => {
     const invoice = await seedInvoice({ status: 'SENT' });
 
-    const saved = await emailInvoice(String(invoice._id), 'priya@acme.test', undefined, {
+    const saved = await emailInvoice(invoice._id.toHexString(), 'priya@acme.test', undefined, {
       user: null,
     });
 
     expect(send.mock.calls[0][0].triggeredBy).toBe('');
-    expect(saved).toMatchObject({ id: String(invoice._id), status: 'SENT' });
+    expect(saved).toMatchObject({ id: invoice._id.toHexString(), status: 'SENT' });
   });
 
   it('reports the invoice missing when it is deleted while the email goes out', async () => {
@@ -167,7 +167,7 @@ describe('emailInvoice', () => {
     });
 
     await expect(
-      emailInvoice(String(invoice._id), 'priya@acme.test', 'Hi', { user: null }),
+      emailInvoice(invoice._id.toHexString(), 'priya@acme.test', 'Hi', { user: null }),
     ).rejects.toThrow(/Invoice not found/);
     expect(await AuditLogModel.countDocuments()).toBe(0);
   });

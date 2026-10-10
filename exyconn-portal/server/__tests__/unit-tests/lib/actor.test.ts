@@ -23,13 +23,13 @@ describe('actorNameOf', () => {
       passwordHash: randomUUID(),
       roles: [ROLES.EMPLOYEE],
     });
-    await expect(actorNameOf(ctxFor(String(user._id), 'token@example.com'))).resolves.toBe(
+    await expect(actorNameOf(ctxFor(user._id.toHexString(), 'token@example.com'))).resolves.toBe(
       'Grace Hopper',
     );
   });
 
   it('falls back to the token email when the account is gone', async () => {
-    const missing = String(new Types.ObjectId());
+    const missing = new Types.ObjectId().toHexString();
     await expect(actorNameOf(ctxFor(missing, 'gone@example.com'))).resolves.toBe(
       'gone@example.com',
     );
@@ -37,7 +37,7 @@ describe('actorNameOf', () => {
 
   it('says nothing rather than undefined when there is no email either', async () => {
     const ctx = {
-      user: { id: String(new Types.ObjectId()), roles: [] },
+      user: { id: new Types.ObjectId().toHexString(), roles: [] },
     } as unknown as GraphQLContext;
     await expect(actorNameOf(ctx)).resolves.toBe('');
   });

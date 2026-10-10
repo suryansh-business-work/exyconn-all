@@ -22,7 +22,7 @@ const ctxFor = (id: string, roles: string[]): GraphQLContext =>
 
 const hr = ctxFor('hr-user', [ROLES.HR]);
 const employee = ctxFor('emp-user', [ROLES.EMPLOYEE]);
-const missingId = () => String(new Types.ObjectId());
+const missingId = () => new Types.ObjectId().toHexString();
 
 interface Checklist {
   id: string;
@@ -45,12 +45,12 @@ async function seedTemplate() {
     name: 'Engineering onboarding',
     tasks: [{ key: 'laptop', label: 'Issue laptop', owner: 'IT', dueDaysFromJoin: 2 }],
   });
-  return String(row._id);
+  return row._id.toHexString();
 }
 
 async function seedEmployeeId() {
   const user = await seedUser('joiner@exyconn.com', randomUUID(), [ROLES.EMPLOYEE]);
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 describe('itemsFromTemplate', () => {

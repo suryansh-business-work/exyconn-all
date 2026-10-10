@@ -9,8 +9,8 @@ const REPORTED = new Set<string>([AuditStatus.Reported, AuditStatus.Closed]);
 export const auditSchema = z
   .object({
     title: z.string().trim().min(1, 'Name the audit'),
-    kind: z.nativeEnum(AuditKind),
-    standards: z.array(z.nativeEnum(ManagementStandard)).min(1, 'Pick at least one standard'),
+    kind: z.enum(AuditKind),
+    standards: z.array(z.enum(ManagementStandard)).min(1, 'Pick at least one standard'),
     scope: z.string().trim().min(1, 'Say what is being audited'),
     criteria: z.string().trim(),
     leadAuditorId: z.string().trim(),
@@ -18,7 +18,7 @@ export const auditSchema = z
     auditeeName: z.string().trim(),
     plannedOn: pickedDate('Say when it is planned for'),
     performedOn: optionalPickedDate(),
-    status: z.nativeEnum(AuditStatus),
+    status: z.enum(AuditStatus),
     summary: z.string().trim(),
     conclusion: z.string().trim(),
   })

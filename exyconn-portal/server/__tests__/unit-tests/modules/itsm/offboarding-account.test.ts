@@ -34,7 +34,7 @@ describe("disabling a leaver's account from IT", () => {
 
   it('refuses an id that is not one, and one that names nobody', async () => {
     const { ctx } = await itStaff();
-    const ghost = String(new Types.ObjectId());
+    const ghost = new Types.ObjectId().toHexString();
     await ExitRecordModel.create({ employeeId: ghost, resignationDate: new Date() });
 
     expect(await codeOf(disable('nope', ctx))).toBe('NOT_FOUND');

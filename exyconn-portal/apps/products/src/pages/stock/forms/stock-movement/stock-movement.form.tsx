@@ -21,7 +21,7 @@ const OUTGOING: ReadonlySet<string> = new Set([MovementReason.Issue, MovementRea
 
 const schema = z.object({
   productId: z.string().trim().min(1, 'Choose a product'),
-  reason: z.nativeEnum(MovementReason),
+  reason: z.enum(MovementReason),
   quantity: z.coerce
     .number({ message: 'Quantity must be a number' })
     .int('Whole units only')

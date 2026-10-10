@@ -28,7 +28,7 @@ beforeEach(async () => {
   });
   contact = {
     id: 'contact-1',
-    clientId: String(client._id),
+    clientId: client._id.toHexString(),
     name: 'Dana Reyes',
     email: 'dana@acme.test',
     organizationId,
@@ -81,7 +81,7 @@ describe('ownInvoice', () => {
   it('finds the client’s own sent invoice', async () => {
     const sent = await invoice({});
 
-    expect((await ownInvoice(contact, String(sent._id))).number).toBe('INV-1');
+    expect((await ownInvoice(contact, sent._id.toHexString())).number).toBe('INV-1');
   });
 
   it.each([
@@ -90,7 +90,9 @@ describe('ownInvoice', () => {
   ])('treats %s invoice as not found', async (_label, fields) => {
     const hidden = await invoice(fields);
 
-    await expect(ownInvoice(contact, String(hidden._id))).rejects.toThrow(/Invoice not found/);
+    await expect(ownInvoice(contact, hidden._id.toHexString())).rejects.toThrow(
+      /Invoice not found/,
+    );
   });
 });
 
@@ -99,7 +101,7 @@ describe('invoicePdf and emailInvoice', () => {
     const sent = await invoice({});
     jest.mocked(renderInvoice).mockResolvedValue(asArg({ pdf: Buffer.from('%PDF') }));
 
-    expect(await clientHubService.invoicePdf(contact, String(sent._id))).toBe(
+    expect(await clientHubService.invoicePdf(contact, sent._id.toHexString())).toBe(
       Buffer.from('%PDF').toString('base64'),
     );
   });
@@ -107,10 +109,12 @@ describe('invoicePdf and emailInvoice', () => {
   it('emails the invoice to the contact’s own address under a client actor', async () => {
     const sent = await invoice({});
 
-    expect(await clientHubService.emailInvoice(contact, String(sent._id), 'test-ip')).toBe(true);
+    expect(await clientHubService.emailInvoice(contact, sent._id.toHexString(), 'test-ip')).toBe(
+      true,
+    );
 
     expect(emailInvoice).toHaveBeenCalledWith(
-      String(sent._id),
+      sent._id.toHexString(),
       'dana@acme.test',
       null,
       { user: null, ip: 'test-ip' },
@@ -120,7 +124,7 @@ describe('invoicePdf and emailInvoice', () => {
 
   it('renders and emails nothing for an invoice that is not the contact’s', async () => {
     const hidden = await invoice({ clientId: 'someone-else' });
-    const id = String(hidden._id);
+    const id = hidden._id.toHexString();
 
     await expect(clientHubService.invoicePdf(contact, id)).rejects.toThrow(/not found/);
     await expect(clientHubService.emailInvoice(contact, id, '')).rejects.toThrow(/not found/);

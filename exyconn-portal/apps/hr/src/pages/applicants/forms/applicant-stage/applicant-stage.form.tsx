@@ -12,7 +12,7 @@ import { STAGE_OPTIONS } from '../../applicants.constants';
 import type { ApplicantStageFormProps } from './applicant-stage.types';
 
 export const applicantStageSchema = z.object({
-  stage: z.nativeEnum(ApplicantStage),
+  stage: z.enum(ApplicantStage),
   note: z.string().trim().max(2000, 'Keep the note under 2000 characters'),
 });
 

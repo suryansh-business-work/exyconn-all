@@ -24,9 +24,9 @@ const LAST = STEP_FIELDS.length - 1;
 /** The beacon's outermost ring: lit when the estimate is sent. */
 const SENT_RING = STEP_FIELDS.length;
 
-const draftOf = (values: Partial<QuoteFormValues>) => ({
+const draftOf = (values: QuoteFormValues) => ({
   input: toQuoteInput(values),
-  description: values.description ?? "",
+  description: values.description,
 });
 
 /**
@@ -60,7 +60,7 @@ export function QuoteForm({ text }: Readonly<{ text: QuoteText }>) {
 
   useEffect(() => {
     const subscription = methods.watch((values) =>
-      setQuoteDraft(draftOf(values as Partial<QuoteFormValues>))
+      setQuoteDraft(draftOf(values as QuoteFormValues))
     );
     return () => subscription.unsubscribe();
   }, [methods]);

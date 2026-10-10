@@ -53,7 +53,8 @@ export async function decideRecord(
   record.status = args.decision;
   record.decidedByName = await actorNameOf(ctx);
   record.decidedAt = new Date();
-  record.decisionNote = args.note?.trim() ?? '';
+  const note = args.note?.trim() ?? '';
+  record.decisionNote = note;
   await record.save();
 
   const saved = record.toObject();
@@ -61,7 +62,7 @@ export async function decideRecord(
     await notifyBestEffort(saved.requestedById, {
       kind: 'IT',
       title: `${spec.label} ${args.decision.toLowerCase()}: ${spec.describe(saved)}`,
-      body: saved.decisionNote ?? '',
+      body: note,
       link: spec.link,
     });
   }

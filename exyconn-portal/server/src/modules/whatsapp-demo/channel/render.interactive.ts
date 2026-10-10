@@ -41,7 +41,7 @@ function chunk(sections: Section[]): Section[][] {
         pages.push([]);
         used = 0;
       }
-      const page = pages.at(-1) ?? [];
+      const page = pages[pages.length - 1];
       const last = page.at(-1);
       if (last?.title === section.title && i > 0) {
         last.rows.push(section.rows[i]);

@@ -6,7 +6,7 @@ import { SupportCategory, SupportPriority } from '@exyconn/shell/graphql/generat
 import { RaiseTicketForm } from '../../../../src/pages/help/forms/raise-ticket';
 import { renderWithProviders } from '../../test-utils';
 import { fill, findSnackbar, pickOption } from '../../form-helpers';
-import { REFERENCE, raised, ticketInput } from './help.fixtures';
+import { REFERENCE, raised, raisedWithoutData, ticketInput } from './help.fixtures';
 
 function renderForm(mocks: MockLink.MockedResponse[] = []) {
   const onSubmitted = vi.fn<(reference: string) => void>();
@@ -69,6 +69,13 @@ describe('RaiseTicketForm', () => {
     expect(await findSnackbar('Slow down a little')).toBeInTheDocument();
     expect(onSubmitted).not.toHaveBeenCalled();
     expect(screen.getByLabelText('Title')).toHaveValue(ticketInput.subject);
+  });
+
+  it('hands back an empty reference when the server answers without data', async () => {
+    const { onSubmitted } = renderForm([raisedWithoutData()]);
+    fillTicket();
+    await submit();
+    await waitFor(() => expect(onSubmitted).toHaveBeenCalledWith(''));
   });
 
   it('cancels on request', async () => {

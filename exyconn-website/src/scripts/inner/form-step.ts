@@ -38,7 +38,7 @@ const apply = (shell: HTMLElement, index: number) => {
   });
   const label = shell.querySelector<HTMLElement>("[data-form-step-text]");
   if (label) {
-    label.textContent = stepText(label.dataset.formStepText ?? "", index, steps.length);
+    label.textContent = stepText(label.dataset.formStepText as string, index, steps.length);
   }
 };
 

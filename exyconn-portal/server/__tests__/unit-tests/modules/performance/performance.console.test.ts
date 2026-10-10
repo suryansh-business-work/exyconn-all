@@ -8,7 +8,7 @@ import { codeOf } from '../codeOf';
 type Resolver = (p: unknown, a: unknown, c: GraphQLContext) => Promise<unknown>;
 const R = performanceResolvers.Mutation as unknown as Record<string, Resolver>;
 
-const newId = () => String(new Types.ObjectId());
+const newId = () => new Types.ObjectId().toHexString();
 const ctx = (id: string, roles: string[]) =>
   ({ user: { id, email: `${id}@exyconn.com`, roles } }) as unknown as GraphQLContext;
 
@@ -53,7 +53,7 @@ describe('the HR console may not write the caller’s own appraisal', () => {
       await codeOf(
         R.updatePerformanceReview(
           null,
-          { id: String(row._id), input: baseInput(newId()) },
+          { id: row._id.toHexString(), input: baseInput(newId()) },
           ctx(me, [ROLES.HR]),
         ),
       ),
@@ -67,7 +67,7 @@ describe('the HR console may not write the caller’s own appraisal', () => {
 
     const updated = (await R.updatePerformanceReview(
       null,
-      { id: String(row._id), input: { ...baseInput(employee), rating: 'Exceeds' } },
+      { id: row._id.toHexString(), input: { ...baseInput(employee), rating: 'Exceeds' } },
       hrCtx,
     )) as { rating: string };
     expect(updated.rating).toBe('Exceeds');
@@ -87,7 +87,7 @@ describe('the HR console may not write the caller’s own appraisal', () => {
       await codeOf(
         R.updatePerformanceReview(
           null,
-          { id: String(row._id), input: baseInput(newId()) },
+          { id: row._id.toHexString(), input: baseInput(newId()) },
           anonymous,
         ),
       ),

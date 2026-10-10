@@ -85,7 +85,7 @@ async function seedFragments(seed: CmsSiteSeed, siteId: string, done: Set<string
       updatedByName: 'Seed',
     });
     done.add(key);
-    logger.info(`CMS fragment ${fragment.key} seeded (${String(row._id)})`);
+    logger.info(`CMS fragment ${fragment.key} seeded (${row._id.toHexString()})`);
   }
 }
 
@@ -127,15 +127,17 @@ async function seedSite(seed: CmsSiteSeed): Promise<void> {
   const update: Record<string, string> = {};
   if (!site.designSystemId) {
     const design = await CmsDesignSystemModel.create({ siteId, ...seed.designSystem });
-    update.designSystemId = String(design._id);
+    update.designSystemId = design._id.toHexString();
   }
   await seedFragments(seed, siteId, done);
   const ids = await fragmentIds(siteId);
-  if (!site.headerFragmentId && ids.has(seed.site.headerFragment)) {
-    update.headerFragmentId = ids.get(seed.site.headerFragment) ?? '';
+  const headerId = ids.get(seed.site.headerFragment);
+  if (!site.headerFragmentId && headerId) {
+    update.headerFragmentId = headerId;
   }
-  if (!site.footerFragmentId && ids.has(seed.site.footerFragment)) {
-    update.footerFragmentId = ids.get(seed.site.footerFragment) ?? '';
+  const footerId = ids.get(seed.site.footerFragment);
+  if (!site.footerFragmentId && footerId) {
+    update.footerFragmentId = footerId;
   }
   await seedPages(seed, siteId, done);
   await CmsSiteModel.updateOne({ _id: siteId }, { ...update, seededKeys: [...done] });

@@ -119,7 +119,7 @@ function buildFilter<T>(
   if (and.length === 0) {
     return baseFilter;
   }
-  return { ...baseFilter, $and: and } as FilterQuery<T>;
+  return { ...baseFilter, $and: and };
 }
 
 /** Refuses a request bigger than {@link TABLE_QUERY_LIMITS} before it reaches Mongo. */

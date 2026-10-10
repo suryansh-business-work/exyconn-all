@@ -35,7 +35,7 @@ export async function seedContact(organizationId: string, country = ''): Promise
   });
   return {
     id: 'contact-1',
-    clientId: String(client._id),
+    clientId: client._id.toHexString(),
     name: 'Dana Reyes',
     email: 'dana@acme.test',
     organizationId,

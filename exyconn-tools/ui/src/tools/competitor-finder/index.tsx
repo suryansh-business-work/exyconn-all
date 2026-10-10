@@ -30,7 +30,7 @@ interface RelatedSite {
 }
 interface CompetitorResult {
   analyzedDomain: string;
-  siteContext: { title: string; description: string; technologies: string[] };
+  siteContext: { title: string; description: string; h1: string; keywords: string };
   relatedSites: RelatedSite[];
   totalExternalDomains: number;
 }
@@ -64,9 +64,13 @@ const CompetitorFinder: React.FC = () => {
     }
   };
 
-  const handleCopy = () => {
-    if (!result) return;
-    const text = result.relatedSites.map((r) => r.domain).join('\n');
+  const keywords = (result?.siteContext.keywords ?? '')
+    .split(',')
+    .map((keyword) => keyword.trim())
+    .filter(Boolean);
+
+  const handleCopy = (sites: RelatedSite[]) => {
+    const text = sites.map((r) => r.domain).join('\n');
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -117,7 +121,7 @@ const CompetitorFinder: React.FC = () => {
                     <Button
                       size="small"
                       startIcon={<ContentCopy />}
-                      onClick={handleCopy}
+                      onClick={() => handleCopy(result.relatedSites)}
                       sx={{ textTransform: 'none' }}
                     >
                       {copied ? 'Copied!' : 'Copy Domains'}
@@ -130,10 +134,10 @@ const CompetitorFinder: React.FC = () => {
                     {result.siteContext.description && (
                       <Typography variant="body2">{result.siteContext.description}</Typography>
                     )}
-                    {result.siteContext.technologies.length > 0 && (
+                    {keywords.length > 0 && (
                       <Box sx={{ mt: 1, display: 'flex', gap: 0.5, flexWrap: 'wrap' }}>
-                        {result.siteContext.technologies.map((t) => (
-                          <Chip key={t} label={t} size="small" />
+                        {keywords.map((keyword) => (
+                          <Chip key={keyword} label={keyword} size="small" />
                         ))}
                       </Box>
                     )}

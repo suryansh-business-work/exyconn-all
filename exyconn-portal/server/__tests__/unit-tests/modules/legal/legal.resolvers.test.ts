@@ -17,11 +17,11 @@ jest.mock('../../../../src/utils/safeFetch', () => ({
 import { safeFetch } from '../../../../src/utils/safeFetch';
 
 const legal = (extra: Partial<GraphQLContext> = {}): GraphQLContext => ({
-  user: { id: String(new Types.ObjectId()), roles: [ROLES.LEGAL], email: 'dev@exyconn.com' },
+  user: { id: new Types.ObjectId().toHexString(), roles: [ROLES.LEGAL], email: 'dev@exyconn.com' },
   ...extra,
 });
 const employee: GraphQLContext = {
-  user: { id: String(new Types.ObjectId()), roles: [ROLES.EMPLOYEE], email: 'e@exyconn.com' },
+  user: { id: new Types.ObjectId().toHexString(), roles: [ROLES.EMPLOYEE], email: 'e@exyconn.com' },
 };
 const anonymous: GraphQLContext = { user: null };
 
@@ -44,7 +44,7 @@ const askOla = async () => {
   const row = await contract();
   return legalCustomResolvers.Mutation.requestContractSignature(
     null,
-    { contractId: String(row._id), signerName: 'Ola Berg', signerEmail: 'ola@orbit.example' },
+    { contractId: row._id.toHexString(), signerName: 'Ola Berg', signerEmail: 'ola@orbit.example' },
     legal(),
   );
 };
@@ -102,7 +102,7 @@ describe('the signature resolvers', () => {
 
     const signed = await legalCustomResolvers.Mutation.signContract(
       null,
-      { id: String(row._id) },
+      { id: row._id.toHexString() },
       legal(),
     );
 
@@ -116,7 +116,7 @@ describe('the signature resolvers', () => {
 
     await legalCustomResolvers.Mutation.signContract(
       null,
-      { id: String(row._id) },
+      { id: row._id.toHexString() },
       legal({ ip: '203.0.113.4', userAgent: 'Firefox/140' }),
     );
 

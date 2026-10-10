@@ -46,8 +46,8 @@ const createLead = async (p: unknown, args: never, ctx: GraphQLContext) => {
     stage: lead.stage,
     value: lead.value,
     owner: lead.owner,
-    campaignId: lead.campaignId ?? '',
-    campaignName: lead.campaignName ?? '',
+    campaignId: lead.campaignId,
+    campaignName: lead.campaignName,
   });
   return lead;
 };

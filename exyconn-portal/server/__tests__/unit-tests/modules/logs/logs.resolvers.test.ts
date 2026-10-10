@@ -95,7 +95,7 @@ describe('reading Tech > Logs', () => {
 
   it('is NOT_FOUND for a group that does not exist', async () => {
     const tech = await staff([ROLES.TECH]);
-    const id = String(new Types.ObjectId());
+    const id = new Types.ObjectId().toHexString();
 
     expect(await codeOf(R.getAppLogGroup(null, { id }, tech))).toBe('NOT_FOUND');
     expect(await codeOf(R.appLogFixPrompt(null, { id }, tech))).toBe('NOT_FOUND');

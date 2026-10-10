@@ -38,7 +38,7 @@ describe('Converting a lead into a deal', () => {
   it('creates the company, the contact and a deal at the top of the pipeline', async () => {
     const lead = await seedLead();
 
-    const deal = await convert(String(lead._id));
+    const deal = await convert(lead._id.toHexString());
 
     const company = await CompanyModel.findById(deal.companyId).lean();
     expect(company).toMatchObject({ name: 'Acme Ltd', domain: 'acme.com', owner: 'Asha Rao' });
@@ -61,7 +61,7 @@ describe('Converting a lead into a deal', () => {
   it('marks the lead won and remembers the deal it became', async () => {
     const lead = await seedLead();
 
-    const deal = await convert(String(lead._id));
+    const deal = await convert(lead._id.toHexString());
 
     const saved = await LeadModel.findById(lead._id).lean();
     expect(saved?.stage).toBe('WON');
@@ -76,9 +76,9 @@ describe('Converting a lead into a deal', () => {
     });
     const lead = await seedLead();
 
-    const deal = await convert(String(lead._id), { companyName: 'acme ltd' });
+    const deal = await convert(lead._id.toHexString(), { companyName: 'acme ltd' });
 
-    expect(deal.companyId).toBe(String(existing._id));
+    expect(deal.companyId).toBe(existing._id.toHexString());
     await expect(CompanyModel.countDocuments()).resolves.toBe(1);
   });
 
@@ -90,9 +90,9 @@ describe('Converting a lead into a deal', () => {
     });
     const lead = await seedLead();
 
-    const deal = await convert(String(lead._id), { companyName: 'Acme (new name)' });
+    const deal = await convert(lead._id.toHexString(), { companyName: 'Acme (new name)' });
 
-    expect(deal.companyId).toBe(String(existing._id));
+    expect(deal.companyId).toBe(existing._id.toHexString());
     await expect(CompanyModel.countDocuments()).resolves.toBe(1);
   });
 
@@ -101,24 +101,24 @@ describe('Converting a lead into a deal', () => {
     const contact = await ContactModel.create({
       name: 'Ravi K.',
       email: 'ravi@acme.com',
-      companyId: String(company._id),
+      companyId: company._id.toHexString(),
       companyName: 'Acme Ltd',
       status: 'ACTIVE',
       owner: 'A',
     });
     const lead = await seedLead();
 
-    const deal = await convert(String(lead._id));
+    const deal = await convert(lead._id.toHexString());
 
-    expect(deal.contactId).toBe(String(contact._id));
+    expect(deal.contactId).toBe(contact._id.toHexString());
     await expect(ContactModel.countDocuments()).resolves.toBe(1);
   });
 
   it('refuses to convert a lead a second time', async () => {
     const lead = await seedLead();
-    await convert(String(lead._id));
+    await convert(lead._id.toHexString());
 
-    await expect(convert(String(lead._id))).rejects.toThrow(/already been converted/);
+    await expect(convert(lead._id.toHexString())).rejects.toThrow(/already been converted/);
     await expect(DealModel.countDocuments()).resolves.toBe(1);
   });
 

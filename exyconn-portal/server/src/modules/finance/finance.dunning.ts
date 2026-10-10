@@ -36,7 +36,7 @@ export const RECEIVABLES_SOURCE = 'finance-receivables';
  */
 export function dunningStage(late: number): number | null {
   const reached = DUNNING_STAGE_DAYS.filter((days) => late >= days);
-  return reached.length > 0 ? reached[reached.length - 1] : null;
+  return reached.at(-1) ?? null;
 }
 
 /** An overdue invoice, reduced to what the letter prints. */

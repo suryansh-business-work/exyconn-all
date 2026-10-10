@@ -11,9 +11,9 @@ import type { ProblemReportRow } from './problem-report.types';
 export const problemReportSchema = z
   .object({
     serviceKey: z.string(),
-    category: z.nativeEnum(ProblemCategory),
-    severity: z.nativeEnum(ProblemSeverity),
-    status: z.nativeEnum(ProblemStatus),
+    category: z.enum(ProblemCategory),
+    severity: z.enum(ProblemSeverity),
+    status: z.enum(ProblemStatus),
     subject: z
       .string()
       .trim()

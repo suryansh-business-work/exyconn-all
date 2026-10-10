@@ -18,9 +18,8 @@ export function buildDocTree(pages: readonly DocPageFieldsFragment[]): DocNode[]
   const nodes = new Map<string, DocNode>(pages.map((page) => [page.id, { page, children: [] }]));
   const roots: DocNode[] = [];
 
-  for (const page of pages) {
-    const node = nodes.get(page.id);
-    if (!node) continue;
+  for (const node of nodes.values()) {
+    const { page } = node;
     const parent = page.parentId ? nodes.get(page.parentId) : undefined;
     if (parent) {
       parent.children.push(node);

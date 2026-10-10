@@ -9,7 +9,7 @@ import { AttendanceStatus, useMarkAttendanceMutation } from '@exyconn/shell/grap
 
 const schema = z.object({
   date: z.string().min(1, 'Date is required'),
-  status: z.nativeEnum(AttendanceStatus),
+  status: z.enum(AttendanceStatus),
   note: z.string().trim().max(200, 'Keep the note under 200 characters'),
 });
 type Values = z.infer<typeof schema>;

@@ -88,7 +88,6 @@ export function OrderMessage({ content, frame }: ContentProps<'order'>) {
       </Bubble>
       {pay ? (
         <ActionRows
-          mine={false}
           items={[
             {
               id: pay.id,

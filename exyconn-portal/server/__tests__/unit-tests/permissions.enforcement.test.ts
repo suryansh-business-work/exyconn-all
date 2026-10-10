@@ -91,7 +91,7 @@ describe('APPROVE', () => {
     const row = await claim();
     const decided = (await EXPENSES.setExpenseClaimStatus(
       null,
-      { id: String(row._id), status: 'APPROVED' },
+      { id: row._id.toHexString(), status: 'APPROVED' },
       finance,
     )) as { status: string };
     expect(decided.status).toBe('APPROVED');
@@ -102,7 +102,11 @@ describe('APPROVE', () => {
     await restrict(ROLES.FINANCE, 'ExpenseClaim', ['VIEW', 'EDIT']);
 
     await expect(
-      EXPENSES.setExpenseClaimStatus(null, { id: String(row._id), status: 'APPROVED' }, finance),
+      EXPENSES.setExpenseClaimStatus(
+        null,
+        { id: row._id.toHexString(), status: 'APPROVED' },
+        finance,
+      ),
     ).rejects.toThrow(/may not approve ExpenseClaim/);
     const after = await ExpenseClaimModel.findById(row._id).lean();
     expect(after?.status).toBe('SUBMITTED');

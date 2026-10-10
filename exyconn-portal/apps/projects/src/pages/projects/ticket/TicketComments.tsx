@@ -47,7 +47,6 @@ export function TicketComments({ taskId }: Readonly<TicketCommentsProps>) {
     notify(error instanceof Error ? error.message : 'Action failed', 'error');
 
   const submit = async () => {
-    if (body.trim() === '') return;
     try {
       await addComment({
         variables: { taskId, body: body.trim(), attachments: file ? [file] : [] },
@@ -61,7 +60,11 @@ export function TicketComments({ taskId }: Readonly<TicketCommentsProps>) {
   };
 
   const remove = async (id: string) => {
-    const ok = await confirm({ message: 'Delete this comment?', confirmText: 'Delete', destructive: true });
+    const ok = await confirm({
+      message: 'Delete this comment?',
+      confirmText: 'Delete',
+      destructive: true,
+    });
     if (!ok) return;
     try {
       await deleteComment({ variables: { id } });

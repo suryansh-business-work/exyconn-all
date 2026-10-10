@@ -49,7 +49,7 @@ describe('the hr-people reminder source', () => {
       isActive: true,
       probationEndDate: new Date(NOW.getTime() + 5 * DAY),
     });
-    const id = String(user._id);
+    const id = user._id.toHexString();
 
     await expect(due()).resolves.toEqual([
       expect.objectContaining({
@@ -70,7 +70,7 @@ describe('the hr-people reminder source', () => {
       item('policies', 'EMPLOYEE', -1),
       item('review', 'HR', 20),
     ]);
-    const id = String(row._id);
+    const id = row._id.toHexString();
 
     const reminders = await due();
 

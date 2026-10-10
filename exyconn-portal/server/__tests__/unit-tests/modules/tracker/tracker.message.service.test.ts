@@ -12,12 +12,12 @@ async function tracked(name: string) {
     email: `${randomUUID()}@exyconn.com`,
     passwordHash: randomUUID(),
   });
-  const userId = String(user._id);
+  const userId = user._id.toHexString();
   await TrackerAccessModel.create({ userId, grantedBy: 'admin' });
   return userId;
 }
 
-const ADMIN = new Types.ObjectId().toString();
+const ADMIN = new Types.ObjectId().toHexString();
 
 describe('message bounds', () => {
   it('refuses a chat line longer than the limit', async () => {
@@ -92,7 +92,7 @@ describe('notices', () => {
 
 describe('the inbox', () => {
   it('lists a conversation whose employee account has since been deleted', async () => {
-    const gone = new Types.ObjectId().toString();
+    const gone = new Types.ObjectId().toHexString();
     await trackerMessageService.send(gone, 'TO_ADMIN', 'Still here?', gone);
 
     const [thread] = await trackerMessageService.threads();

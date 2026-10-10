@@ -26,14 +26,24 @@ import { withUniqueKeys } from '../../shared/utils/uniqueKeys';
 interface LinkItem {
   url: string;
   anchor: string;
-  rel: string;
+  nofollow: boolean;
 }
 interface BacklinkResult {
   domain: string;
   internalLinks: { total: number; links: LinkItem[] };
-  externalLinks: { total: number; dofollow: number; nofollow: number; uniqueDomains: string[]; links: LinkItem[] };
-  summary: { totalLinks: number; internalPercentage: string; externalPercentage: string; nofollowPercentage: string };
+  externalLinks: {
+    total: number;
+    dofollow: number;
+    nofollow: number;
+    uniqueDomains: number;
+    domainList: string[];
+    links: LinkItem[];
+  };
+  summary: { totalLinks: number; internalCount: number; externalCount: number; uniqueExternalDomains: number };
 }
+
+/** `part` of `total` as a whole-number percentage, "0%" when there is nothing to divide. */
+const percentOf = (part: number, total: number) => `${total === 0 ? 0 : Math.round((part / total) * 100)}%`;
 
 const BacklinkChecker: React.FC = () => {
   const [domain, setDomain] = useState('');
@@ -109,17 +119,17 @@ const BacklinkChecker: React.FC = () => {
                     { label: 'Total Links', value: result.summary.totalLinks, color: '#0ea5e9' },
                     {
                       label: 'Internal',
-                      value: `${result.internalLinks.total} (${result.summary.internalPercentage})`,
+                      value: `${result.internalLinks.total} (${percentOf(result.internalLinks.total, result.summary.totalLinks)})`,
                       color: '#22c55e',
                     },
                     {
                       label: 'External',
-                      value: `${result.externalLinks.total} (${result.summary.externalPercentage})`,
+                      value: `${result.externalLinks.total} (${percentOf(result.externalLinks.total, result.summary.totalLinks)})`,
                       color: '#8b5cf6',
                     },
                     {
                       label: 'Nofollow',
-                      value: `${result.externalLinks.nofollow} (${result.summary.nofollowPercentage})`,
+                      value: `${result.externalLinks.nofollow} (${percentOf(result.externalLinks.nofollow, result.externalLinks.total)})`,
                       color: '#f59e0b',
                     },
                   ].map((m) => (
@@ -144,13 +154,13 @@ const BacklinkChecker: React.FC = () => {
                     </Paper>
                   ))}
                 </Box>
-                {result.externalLinks.uniqueDomains.length > 0 && (
+                {result.externalLinks.domainList.length > 0 && (
                   <Box sx={{ mb: 2 }}>
                     <Typography variant="subtitle2" gutterBottom>
-                      Unique External Domains ({result.externalLinks.uniqueDomains.length})
+                      Unique External Domains ({result.externalLinks.uniqueDomains})
                     </Typography>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                      {result.externalLinks.uniqueDomains.map((d) => (
+                      {result.externalLinks.domainList.map((d) => (
                         <Chip key={d} label={d} size="small" variant="outlined" />
                       ))}
                     </Box>
@@ -167,7 +177,7 @@ const BacklinkChecker: React.FC = () => {
                         </TableRow>
                       </TableHead>
                       <TableBody>
-                        {withUniqueKeys(result.externalLinks.links, (b) => `${b.url}|${b.anchor}|${b.rel}`).map(
+                        {withUniqueKeys(result.externalLinks.links, (b) => `${b.url}|${b.anchor}|${b.nofollow}`).map(
                           ({ key, item: b }) => (
                             <TableRow key={key} hover>
                               <TableCell>
@@ -184,8 +194,8 @@ const BacklinkChecker: React.FC = () => {
                               <TableCell>{b.anchor || '(no anchor)'}</TableCell>
                               <TableCell>
                                 <Chip
-                                  label={b.rel || 'dofollow'}
-                                  color={b.rel === 'nofollow' ? 'default' : 'success'}
+                                  label={b.nofollow ? 'nofollow' : 'dofollow'}
+                                  color={b.nofollow ? 'default' : 'success'}
                                   size="small"
                                 />
                               </TableCell>

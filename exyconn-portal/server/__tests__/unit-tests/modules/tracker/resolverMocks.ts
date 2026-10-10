@@ -89,7 +89,7 @@ export const timeLog = trackerTimeLogService as unknown as Mocked;
 export const workday = trackerWorkdayService as unknown as Mocked;
 
 /** The caller every suite signs in as. */
-export const ME = new Types.ObjectId().toString();
+export const ME = new Types.ObjectId().toHexString();
 export const FROM = new Date('2026-09-01T00:00:00.000Z');
 export const TO = new Date('2026-10-01T00:00:00.000Z');
 

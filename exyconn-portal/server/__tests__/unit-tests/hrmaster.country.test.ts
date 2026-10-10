@@ -35,7 +35,7 @@ async function employee(
     city,
     region,
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 const casual = (over: Record<string, unknown> = {}) =>

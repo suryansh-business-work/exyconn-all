@@ -25,11 +25,6 @@ const RtfToMarkdown: React.FC = () => {
   const [copied, setCopied] = useState(false);
 
   const handleConvert = async () => {
-    if (!content.trim()) {
-      setError('Please enter RTF content');
-      return;
-    }
-
     setLoading(true);
     setError(null);
 

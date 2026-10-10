@@ -73,7 +73,7 @@ export function TrendChart({
       interaction: { mode: 'index', intersect: false },
       plugins: sharedPlugins(palette, data.series.length, formatValue),
       scales: { x: chrome.category, y: chrome.value },
-    } as ChartOptions<'line'>;
+    };
   }, [palette, formatValue, integer, data.series.length]);
 
   return (

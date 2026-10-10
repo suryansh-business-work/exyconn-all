@@ -118,6 +118,7 @@ export function ContactFormReact({ copy }: Readonly<{ copy: ContactFormCopy }>) 
             id="company"
             autoComplete="organization"
             placeholder={fields.company.placeholder}
+            aria-invalid={Boolean(errors.company)}
             className={CONTROL_CLASS}
             {...register("company")}
           />

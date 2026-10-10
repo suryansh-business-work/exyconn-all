@@ -5,7 +5,7 @@ import type { MockLink } from '@apollo/client/testing';
 import { SignContractForm } from '../../../../src/pages/sign/forms/sign-contract';
 import { renderWithProviders } from '../../test-utils';
 import { fill, findSnackbar } from '../../form-helpers';
-import { DOCUMENT_HASH, TOKEN, contract, signed } from './contract.fixtures';
+import { DOCUMENT_HASH, TOKEN, contract, signed, signedWithoutData } from './contract.fixtures';
 
 const AGREE = 'I have read this contract and agree to be bound by it';
 
@@ -52,6 +52,13 @@ describe('SignContractForm', () => {
 
     expect(await findSnackbar('This link was withdrawn')).toBeInTheDocument();
     expect(onSigned).not.toHaveBeenCalled();
+  });
+
+  it('hands back an empty hash when the server answers without data', async () => {
+    const { onSigned } = renderForm([signedWithoutData('Ada Lovelace')]);
+    await userEvent.click(screen.getByLabelText(AGREE));
+    await sign();
+    await waitFor(() => expect(onSigned).toHaveBeenCalledWith(''));
   });
 
   it('explains what signing records, and cancels on request', async () => {

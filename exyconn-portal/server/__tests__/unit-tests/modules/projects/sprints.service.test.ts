@@ -41,7 +41,7 @@ describe('sprint records', () => {
     const project = await newProject();
     const sprint = await sprintsService.createSprint(project.id, { name: 'Sprint 1' });
 
-    const saved = await sprintsService.updateSprint(String(sprint._id), {
+    const saved = await sprintsService.updateSprint(sprint._id.toHexString(), {
       name: 'Sprint 1',
       goal: 'Ship invoices',
     });
@@ -64,7 +64,7 @@ describe('sprint records', () => {
     const sprint = await sprintsService.createSprint(project.id, { name: 'Sprint 1' });
     vanishOnWrite();
 
-    expect(await codeOf(sprintsService.startSprint(String(sprint._id)))).toBe('NOT_FOUND');
+    expect(await codeOf(sprintsService.startSprint(sprint._id.toHexString()))).toBe('NOT_FOUND');
   });
 
   it('answers not found when a sprint is deleted while it is being completed', async () => {
@@ -72,7 +72,7 @@ describe('sprint records', () => {
     const sprint = await sprintsService.createSprint(project.id, { name: 'Sprint 1' });
     vanishOnWrite();
 
-    expect(await codeOf(sprintsService.completeSprint(String(sprint._id)))).toBe('NOT_FOUND');
+    expect(await codeOf(sprintsService.completeSprint(sprint._id.toHexString()))).toBe('NOT_FOUND');
   });
 });
 
@@ -80,7 +80,7 @@ describe('where unfinished work goes', () => {
   it('counts every ticket as unfinished on a board with no columns yet', async () => {
     const project = await newProject();
     const sprint = await sprintsService.createSprint(project.id, { name: 'Sprint 1' });
-    const sprintId = String(sprint._id);
+    const sprintId = sprint._id.toHexString();
     await looseTicket(project.id, 'One', sprintId);
     await looseTicket(project.id, 'Two', sprintId);
     await looseTicket(project.id, 'Elsewhere');
@@ -105,11 +105,11 @@ describe('where unfinished work goes', () => {
     });
     await SprintModel.updateOne({ _id: running._id }, { state: 'ACTIVE' });
 
-    const plan = await sprintsService.completionPlan(String(current._id));
+    const plan = await sprintsService.completionPlan(current._id.toHexString());
 
     expect(plan).toMatchObject({
       unfinishedCount: 0,
-      targetSprintId: String(sooner._id),
+      targetSprintId: sooner._id.toHexString(),
       targetSprintName: 'Sooner',
     });
   });
@@ -119,7 +119,7 @@ describe('where unfinished work goes', () => {
     const sprint = await sprintsService.createSprint(project.id, { name: 'Sprint 1' });
     const other = await looseTicket(project.id, 'Unrelated');
 
-    const done = await sprintsService.completeSprint(String(sprint._id));
+    const done = await sprintsService.completeSprint(sprint._id.toHexString());
 
     expect(done.state).toBe('COMPLETED');
     expect((await TaskModel.findById(other._id).lean())?.sprintId).toBeNull();

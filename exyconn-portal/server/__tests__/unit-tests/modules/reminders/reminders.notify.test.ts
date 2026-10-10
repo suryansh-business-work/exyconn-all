@@ -52,7 +52,7 @@ describe('sending a reminder', () => {
 
   it('tells each person once, even when named directly and through a role', async () => {
     const user = await seedUser('asha@exyconn.com', PASSWORD, [ROLES.LEGAL]);
-    const id = String(user._id);
+    const id = user._id.toHexString();
     delivered.mockResolvedValueOnce(1);
 
     const told = await sendReminder(

@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import { type MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { TriageWebsiteSubmissionDocument } from '@exyconn/shell/graphql/generated';
 import { SubmissionTriageForm } from './submission-triage.form';
@@ -19,7 +19,7 @@ const submission: WebsiteSubmissionRow = {
 
 const NOTES = 'Replied to the customer';
 
-const triageMock: MockedResponse = {
+const triageMock: MockLink.MockedResponse = {
   request: {
     query: TriageWebsiteSubmissionDocument,
     variables: { id: 's1', input: { status: 'resolved', notes: NOTES } },
@@ -29,7 +29,7 @@ const triageMock: MockedResponse = {
   },
 };
 
-const mount = (row: WebsiteSubmissionRow, mocks: MockedResponse[]) =>
+const mount = (row: WebsiteSubmissionRow, mocks: MockLink.MockedResponse[]) =>
   cy.mount(
     <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>

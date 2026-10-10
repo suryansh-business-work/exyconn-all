@@ -40,7 +40,7 @@ async function operatorOrganization(isPlatformOperator: boolean) {
       isPlatformOperator,
     }),
   );
-  return String(organization._id);
+  return organization._id.toHexString();
 }
 
 beforeEach(() => invalidatePlatformOperatorCache());
@@ -125,7 +125,7 @@ describe('deleteAiModelPrice', () => {
     const row = await AiModelPriceModel.create(price());
 
     await expect(
-      Mutation.deleteAiModelPrice(null, { id: String(row._id) }, platformAdmin),
+      Mutation.deleteAiModelPrice(null, { id: row._id.toHexString() }, platformAdmin),
     ).resolves.toBe(true);
     expect(await AiModelPriceModel.countDocuments()).toBe(0);
   });
@@ -135,7 +135,7 @@ describe('deleteAiModelPrice', () => {
     const row = await AiModelPriceModel.create(price());
 
     await expect(
-      Mutation.deleteAiModelPrice(null, { id: String(row._id) }, ctx([ROLES.TECH], customer)),
+      Mutation.deleteAiModelPrice(null, { id: row._id.toHexString() }, ctx([ROLES.TECH], customer)),
     ).rejects.toThrow();
     expect(await AiModelPriceModel.countDocuments()).toBe(1);
   });

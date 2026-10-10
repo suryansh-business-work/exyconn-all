@@ -1,5 +1,5 @@
 import { MockedProvider } from '@apollo/client/testing/react';
-import { type MockedResponse } from '@apollo/client/testing';
+import type { MockLink } from '@apollo/client/testing';
 import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { CaseStudyForm } from './case-study.form';
 import { CreateCaseStudyDocument } from '@exyconn/shell/graphql/generated';
@@ -9,7 +9,7 @@ import { theme } from '@exyconn/shell/config/theme';
 const NEW_STUDY = { slug: 'acme-migration', title: 'Acme Migration' };
 
 /** Exactly what CaseStudyForm submits when only the required fields are filled in. */
-const createMock: MockedResponse = {
+const createMock: MockLink.MockedResponse = {
   request: {
     query: CreateCaseStudyDocument,
     variables: {
@@ -33,7 +33,7 @@ const createMock: MockedResponse = {
   result: { data: { createCaseStudy: { id: 'study-1' } } },
 };
 
-const mount = (mocks: MockedResponse[] = []) =>
+const mount = (mocks: MockLink.MockedResponse[] = []) =>
   cy.mount(
     <MockedProvider mocks={mocks}>
       <ThemeProvider theme={theme}>

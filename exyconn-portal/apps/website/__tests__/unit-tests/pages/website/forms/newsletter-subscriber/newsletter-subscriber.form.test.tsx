@@ -1,15 +1,40 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { NewsletterSubscriberForm } from '../../../../../../src/pages/website/forms/newsletter-subscriber';
+import type { UseEntitySaveOptions } from '@exyconn/shell/components/form/useEntitySave';
+import {
+  NewsletterSubscriberForm,
+  type NewsletterSubscriberFormValues,
+  type NewsletterSubscriberRow,
+} from '../../../../../../src/pages/website/forms/newsletter-subscriber';
 import { renderWithProviders } from '../../../../test-utils';
 
-const gql = vi.hoisted(() => ({ add: vi.fn() }));
+const gql = vi.hoisted(() => ({
+  add: vi.fn(),
+  saveOptions: null as UseEntitySaveOptions<
+    NewsletterSubscriberFormValues,
+    NewsletterSubscriberRow
+  > | null,
+}));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
   useAddNewsletterSubscriberMutation: () => [gql.add],
 }));
+
+/** The real save hook, with the options the form hands it recorded. */
+vi.mock('@exyconn/shell/components/form/useEntitySave', async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import('@exyconn/shell/components/form/useEntitySave')>();
+  return {
+    useEntitySave: (
+      options: UseEntitySaveOptions<NewsletterSubscriberFormValues, NewsletterSubscriberRow>,
+    ) => {
+      gql.saveOptions = options;
+      return actual.useEntitySave(options);
+    },
+  };
+});
 
 function setup() {
   const onDone = vi.fn();
@@ -25,6 +50,16 @@ const submit = () => screen.getByRole('button', { name: 'Add subscriber' });
 describe('NewsletterSubscriberForm', () => {
   beforeEach(() => {
     gql.add.mockReset();
+  });
+
+  it('never edits a subscriber: the update step resolves without a mutation', async () => {
+    setup();
+    const row = { id: 'sub-1', email: 'a@b.co' } as NewsletterSubscriberRow;
+
+    await expect(
+      gql.saveOptions?.update(row, { email: 'a@b.co', name: '' }),
+    ).resolves.toBeUndefined();
+    expect(gql.add).not.toHaveBeenCalled();
   });
 
   it('adds a subscriber with a name', async () => {

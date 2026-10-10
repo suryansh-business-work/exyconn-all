@@ -139,6 +139,21 @@ describe('BenefitForm', () => {
     expect(onDone).toHaveBeenCalledTimes(1);
   });
 
+  it('sends a benefit that never had a start date with validFrom as null', async () => {
+    renderForm({ ...row, validFrom: '' });
+
+    await press('Update');
+
+    await waitFor(() =>
+      expect(gql.update).toHaveBeenCalledWith({
+        variables: {
+          id: 'benefit-3',
+          input: expect.objectContaining({ validFrom: null, validTo: row.validTo }),
+        },
+      }),
+    );
+  });
+
   it('says why the save failed and keeps the form open', async () => {
     gql.update.mockRejectedValueOnce(new Error('That policy number is already used'));
     const { onDone } = renderForm(row);

@@ -77,7 +77,7 @@ export function RunPromptForm({ prompt, onDone, onCancel }: Readonly<RunPromptFo
       submitLabel="Run"
     >
       <Text size="sm" color="text.secondary" sx={{ whiteSpace: 'pre-wrap' }}>
-        {renderMergeFields(prompt.content, filled ?? {})}
+        {renderMergeFields(prompt.content, filled)}
       </Text>
       {prompt.variables.map((name) => (
         <RhfTextField key={name} name={`${VARIABLE_FIELD_PREFIX}${name}`} label={name} />

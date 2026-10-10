@@ -29,7 +29,7 @@ export function contextOf(req: Request): Promise<{ ctx: GraphQLContext; scope: T
 /** A company, open unless told otherwise. */
 export async function seedCompany(slug: string, status = 'ACTIVE'): Promise<string> {
   const org = await OrganizationModel.create({ name: slug, slug, currency: 'USD', status });
-  return String(org._id);
+  return org._id.toHexString();
 }
 
 /** A person filed under a company (or none), with whatever account state the test needs. */

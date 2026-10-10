@@ -46,7 +46,7 @@ describe('handOff', () => {
   it('tells the visitor why and has the bot answer every unanswered live question', async () => {
     const since = ago(5 * 60_000);
     const session = await createSession({ awaitingReplySince: since });
-    const sessionId = String(session._id);
+    const sessionId = session._id.toHexString();
     await ChatMessageModel.insertMany([
       visitorLine(sessionId, 'Answered earlier', ago(10 * 60_000)),
       visitorLine(sessionId, 'What do you charge?', since),
@@ -68,8 +68,8 @@ describe('handOff', () => {
   it('posts the notice without asking the bot when the questions carry no text', async () => {
     const since = ago(60_000);
     const session = await createSession({ awaitingReplySince: since });
-    await ChatMessageModel.insertMany([visitorLine(String(session._id), '', since)]);
-    await handOff(String(session._id), 'Notice');
+    await ChatMessageModel.insertMany([visitorLine(session._id.toHexString(), '', since)]);
+    await handOff(session._id.toHexString(), 'Notice');
     expect(await ChatMessageModel.countDocuments({ sender: 'SYSTEM' })).toBe(1);
     expect(answer).not.toHaveBeenCalled();
   });
@@ -77,8 +77,8 @@ describe('handOff', () => {
   it('hands a question over once, and never from a closed chat', async () => {
     const answered = await createSession();
     const closed = await createSession({ status: 'CLOSED', awaitingReplySince: ago(60_000) });
-    await handOff(String(answered._id), 'Notice');
-    await handOff(String(closed._id), 'Notice');
+    await handOff(answered._id.toHexString(), 'Notice');
+    await handOff(closed._id.toHexString(), 'Notice');
     expect(await ChatMessageModel.countDocuments()).toBe(0);
     expect(answer).not.toHaveBeenCalled();
     expect((await ChatSessionModel.findById(closed._id).lean())?.handedOffAt).toBeNull();
@@ -95,7 +95,7 @@ describe('closeExpiredSessions', () => {
     await expect(closeExpiredSessions(10)).resolves.toBe(1);
     expect(close).toHaveBeenCalledTimes(1);
     expect(close).toHaveBeenCalledWith(
-      String(expired._id),
+      expired._id.toHexString(),
       'Session timeout',
       'This chat ended after 10 minutes without a message. Start a new chat any time.',
     );
@@ -110,13 +110,15 @@ describe('sweepHandoffs', () => {
       handoffMessage: 'Over to the bot.',
     });
     const waiting = await createSession({ awaitingReplySince: ago(120_000) });
-    await ChatMessageModel.insertMany([visitorLine(String(waiting._id), 'Prices?', ago(120_000))]);
+    await ChatMessageModel.insertMany([
+      visitorLine(waiting._id.toHexString(), 'Prices?', ago(120_000)),
+    ]);
     const fresh = await createSession({ awaitingReplySince: ago(10_000) });
     await createSession({ expiresAt: ago(1000) });
 
     await sweepHandoffs();
 
-    expect(answer).toHaveBeenCalledWith(String(waiting._id), 'Prices?', 'LIVE');
+    expect(answer).toHaveBeenCalledWith(waiting._id.toHexString(), 'Prices?', 'LIVE');
     expect((await ChatSessionModel.findById(fresh._id).lean())?.awaitingReplySince).not.toBeNull();
     expect(await ChatMessageModel.findOne({ sender: 'SYSTEM' }).lean()).toMatchObject({
       body: 'Over to the bot.',
@@ -154,12 +156,14 @@ describe('startChatHandoff', () => {
     expect(ms).toBe(15_000);
     expect(unref).toHaveBeenCalled();
     const waiting = await createSession({ awaitingReplySince: ago(10 * 60_000) });
-    await ChatMessageModel.insertMany([visitorLine(String(waiting._id), 'Hi?', ago(10 * 60_000))]);
+    await ChatMessageModel.insertMany([
+      visitorLine(waiting._id.toHexString(), 'Hi?', ago(10 * 60_000)),
+    ]);
 
     tick();
 
     await until(() => answer.mock.calls.length > 0);
-    expect(answer).toHaveBeenCalledWith(String(waiting._id), 'Hi?', 'LIVE');
+    expect(answer).toHaveBeenCalledWith(waiting._id.toHexString(), 'Hi?', 'LIVE');
   });
 
   it('logs a pass that fails', async () => {

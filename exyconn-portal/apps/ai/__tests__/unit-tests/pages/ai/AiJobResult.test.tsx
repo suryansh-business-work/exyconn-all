@@ -6,10 +6,13 @@ import { AiJobResult } from '../../../../src/pages/ai/AiJobResult';
 import { renderWithProviders } from '../../test-utils';
 import { jobDetail } from './ai-fixtures';
 
-const watched = vi.hoisted(() => ({
-  id: '',
-  value: { loading: false, waiting: false } as WatchedAiJob,
-}));
+const watched = vi.hoisted(() => {
+  const value: WatchedAiJob = { loading: false, waiting: false };
+  return {
+    id: '',
+    value,
+  };
+});
 
 vi.mock('../../../../src/pages/ai/useAiJob', () => ({
   useAiJob: (id: string) => {

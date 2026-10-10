@@ -11,8 +11,7 @@ interface ImageType {
 const startsWith = (bytes: Buffer, signature: number[], offset = 0) =>
   signature.every((byte, i) => bytes[offset + i] === byte);
 
-const ascii = (text: string) =>
-  Array.from(text, (ch) => ch.codePointAt(0) ?? 0);
+const ascii = (text: string) => Array.from(Buffer.from(text, "latin1"));
 
 /** Raster formats only: an SVG can carry script, so it is never accepted. */
 const IMAGE_TYPES: ImageType[] = [

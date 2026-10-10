@@ -32,7 +32,7 @@ async function seedClient(): Promise<string> {
     company: 'Acme',
     status: 'ACTIVE',
   });
-  return String(client._id);
+  return client._id.toHexString();
 }
 
 async function loginAsAdmin(): Promise<string> {
