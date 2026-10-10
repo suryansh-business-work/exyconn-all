@@ -18,9 +18,9 @@ x-logging: &logging
     max-size: '10m'
     max-file: '5'
 
-# nginx-based SPA images (and the socket proxy's haproxy) start as root and drop
-# privileges themselves, so they keep their default capabilities; setuid binaries can
-# no longer raise privileges.
+# The SPA images run nginx-unprivileged (uid 101). The socket proxy's haproxy starts as
+# root and drops privileges itself, so it keeps its default capabilities; setuid binaries
+# can no longer raise privileges.
 x-hardened: &hardened
   security_opt:
     - no-new-privileges:true

@@ -31,8 +31,18 @@ async function getTransporter(): Promise<{
 
 /** "Exyconn <a@b.com>" -> "a@b.com"; a bare address passes through unchanged. */
 function addressOf(from: string): string {
-  const match = /<([^>]+)>/.exec(from);
-  return match ? match[1] : from;
+  let open = from.indexOf("<");
+  while (open >= 0) {
+    const close = from.indexOf(">", open + 1);
+    if (close < 0) {
+      break;
+    }
+    if (close > open + 1) {
+      return from.slice(open + 1, close);
+    }
+    open = from.indexOf("<", open + 1);
+  }
+  return from;
 }
 
 export interface EmailOptions {

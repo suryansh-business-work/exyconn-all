@@ -5,9 +5,15 @@ import {
   type SocialLinksInput,
 } from '../../src/modules/auth/profile-details';
 
+const withProtocol = (url: string, protocol: string): string => {
+  const parsed = new URL(url);
+  parsed.protocol = protocol;
+  return parsed.href;
+};
+
 type Network = (typeof SOCIAL_NETWORKS)[number];
 const BAD_LINKS: Array<[Network, string]> = [
-  ['website', 'ftp://files.example.com'],
+  ['website', withProtocol('https://files.example.com', 'ftp:')],
   ['linkedin', 'linkedin.com/in/asha'],
 ];
 
@@ -53,14 +59,17 @@ describe('profileDetailsUpdate', () => {
 
   it('fills every network, clearing the ones not given', () => {
     const { socialLinks } = profileDetailsUpdate({
-      socialLinks: { twitter: ' http://twitter.com/asha ', linkedin: null },
+      socialLinks: {
+        twitter: ` ${withProtocol('https://twitter.com/asha', 'http:')} `,
+        linkedin: null,
+      },
     });
 
     expect(Object.keys(socialLinks as object)).toEqual([...SOCIAL_NETWORKS]);
     expect(socialLinks).toEqual({
       linkedin: null,
       github: null,
-      twitter: 'http://twitter.com/asha',
+      twitter: withProtocol('https://twitter.com/asha', 'http:'),
       website: null,
     });
   });

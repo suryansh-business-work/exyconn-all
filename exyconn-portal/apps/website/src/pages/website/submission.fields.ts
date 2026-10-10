@@ -14,7 +14,17 @@ const NAME_KEYS = ['name', 'fullName'] as const;
 /** Keys worth a line in the list: what the enquiry is about, most specific first. */
 const SUMMARY_KEYS = ['subject', 'message', 'details', 'description', 'grievance', 'position'];
 const SUMMARY_LENGTH = 80;
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+/** `a@b.c` with no spaces. Not a regex: two overlapping `[^\s@]+` runs backtrack quadratically. */
+function isEmail(value: string): boolean {
+  const at = value.indexOf('@');
+  if (at < 1 || at !== value.lastIndexOf('@') || /\s/.test(value)) {
+    return false;
+  }
+  const dot = value.indexOf('.', at + 2);
+  return dot >= 0 && dot <= value.length - 2;
+}
+
 const PHONE_KEYS = new Set(['phone', 'mobile', 'phoneNumber', 'whatsapp']);
 
 type Payload = Record<string, unknown>;
@@ -57,7 +67,7 @@ export function summaryOf(data: unknown): string {
 }
 
 function linkOf(key: string, value: string): string | undefined {
-  if (EMAIL.test(value)) return `mailto:${value}`;
+  if (isEmail(value)) return `mailto:${value}`;
   if (PHONE_KEYS.has(key)) return `tel:${value.replaceAll(/[^\d+]/g, '')}`;
   return undefined;
 }

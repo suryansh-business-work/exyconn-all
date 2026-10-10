@@ -55,7 +55,7 @@ const METRICS = {
 const LINKS = [
   { url: 'https://exyconn.com/pricing', clicks: 3, people: 2 },
   {
-    url: 'http://exyconn.com/blog/a-very-long-article-slug-about-agents?utm=1',
+    url: 'https://exyconn.com/blog/a-very-long-article-slug-about-agents?utm=1',
     clicks: 1,
     people: 1,
   },

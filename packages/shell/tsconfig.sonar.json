@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@exyconn/config/tsconfig.app.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "../*/src",
+    "../*/__tests__",
+    "../../exyconn-portal/apps/*/src",
+    "../../exyconn-portal/apps/*/__tests__",
+    "../../exyconn-portal/ui/src"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/dist",
+    "../**/*.cy.ts",
+    "../**/*.cy.tsx",
+    "../../exyconn-portal/**/*.cy.ts",
+    "../../exyconn-portal/**/*.cy.tsx",
+    "../../exyconn-portal/**/cypress"
+  ]
+}

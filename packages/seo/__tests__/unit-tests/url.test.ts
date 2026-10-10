@@ -4,7 +4,7 @@ import { absoluteUrl, isAbsoluteUrl, toOgLocale } from '../../src';
 describe('isAbsoluteUrl', () => {
   it.each([
     ['https://exyconn.com', true],
-    ['HTTP://x.y/z', true],
+    ['HTTPS://x.y/z', true],
     ['/tools', false],
     ['//cdn.example.com/a.png', false],
     ['mailto:a@b.c', false],

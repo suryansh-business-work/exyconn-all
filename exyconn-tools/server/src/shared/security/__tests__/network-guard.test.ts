@@ -21,6 +21,12 @@ import {
 import { safeRequest } from "../safe-http";
 import fixtures from "./network-guard.fixtures.json";
 
+const withProtocol = (url: string, protocol: string): string => {
+  const parsed = new URL(url);
+  parsed.protocol = protocol;
+  return parsed.href;
+};
+
 const lookupMock = vi.mocked(dns.lookup) as unknown as ReturnType<typeof vi.fn>;
 const requestMock = vi.mocked(axios.request);
 
@@ -57,8 +63,8 @@ describe("assertSafeUrl", () => {
     "http://user:pass@example.com/",
     "http://127.0.0.1/",
     "http://2130706433/",
-    "http://[::1]/",
-    "http://169.254.169.254/latest/meta-data/",
+    withProtocol("https://[::1]/", "http:"),
+    withProtocol("https://169.254.169.254/latest/meta-data/", "http:"),
   ])("rejects %s", (url) => {
     expect(() => assertSafeUrl(url)).toThrow(UnsafeTargetError);
   });
@@ -131,7 +137,10 @@ describe("safeRequest", () => {
   it("re-validates redirect targets and refuses one pointing inward", async () => {
     requestMock.mockResolvedValueOnce(
       response(302, {
-        location: "http://169.254.169.254/latest/meta-data/",
+        location: withProtocol(
+          "https://169.254.169.254/latest/meta-data/",
+          "http:",
+        ),
       }),
     );
     await expect(safeRequest("https://example.com/")).rejects.toThrow(

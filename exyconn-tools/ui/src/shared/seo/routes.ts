@@ -23,9 +23,18 @@ export function seoRoutes(): SeoRoute[] {
 const CATEGORY_PREFIX = '/categories/';
 const TOOL_PREFIX = '/tools/';
 
+/** `value` without its trailing slashes (a loop: `/\/+$/` is quadratic on a long run of them). */
+function trimTrailingSlashes(value: string): string {
+  let end = value.length;
+  while (end > 0 && value[end - 1] === '/') {
+    end -= 1;
+  }
+  return value.slice(0, end);
+}
+
 /** The meta for whatever route `pathname` renders (the 404 page's for unknown paths). */
 export function metaForPath(pathname: string): PageMeta {
-  const path = pathname.replace(/\/+$/, '') || '/';
+  const path = trimTrailingSlashes(pathname) || '/';
   if (path === '/' || path === HUB_PATH) {
     return hubMeta();
   }

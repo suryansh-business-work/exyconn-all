@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { ProductModel } from '../../src/modules/products/products.model';
 import { SupplierModel } from '../../src/modules/products/supplier.model';
 import { StockMovementModel } from '../../src/modules/products/stock-movement.model';
@@ -20,7 +21,7 @@ async function seed(unitCost = 100, quantity = 10) {
   const supplier = await SupplierModel.create({ name: 'Widgets Ltd', code: 'WID' });
   const product = await ProductModel.create({
     name: 'Widget',
-    sku: `SKU-${Math.random().toString(36).slice(2, 8)}`,
+    sku: `SKU-${randomBytes(3).toString('hex')}`,
     price: 250,
     category: 'Parts',
     stock: 0,
@@ -28,7 +29,7 @@ async function seed(unitCost = 100, quantity = 10) {
     status: 'ACTIVE',
   });
   const order = await PurchaseOrderModel.create({
-    number: `PO-${Math.random().toString(36).slice(2, 8)}`,
+    number: `PO-${randomBytes(3).toString('hex')}`,
     supplierId: String(supplier._id),
     supplierName: supplier.name,
     lines: [

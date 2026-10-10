@@ -1,4 +1,5 @@
 import { badRequest } from '../../utils/errors';
+import { isEmailShape } from '../../utils/emailAddress';
 import { logger } from '../../utils/logger';
 import { ProblemReportModel } from './problem-report.model';
 import { StatusMonitorModel } from './status-monitor.model';
@@ -25,7 +26,6 @@ const LIMITS = {
   pageUrl: { max: 500 },
 } as const;
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 function assertLength(
   value: string,
   label: string,
@@ -44,7 +44,7 @@ function assertValid(input: ProblemReportInput): void {
   assertLength(input.subject, 'Subject', LIMITS.subject);
   assertLength(input.description, 'Description', LIMITS.description);
   assertLength(input.pageUrl, 'Page URL', LIMITS.pageUrl);
-  if (!EMAIL_PATTERN.exec(input.reporterEmail)) {
+  if (!isEmailShape(input.reporterEmail)) {
     badRequest('Enter a valid email address');
   }
 }

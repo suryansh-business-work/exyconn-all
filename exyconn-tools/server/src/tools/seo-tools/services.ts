@@ -1,6 +1,7 @@
 import axios from "axios";
 import { safeRequest } from "../../shared/security/safe-http";
 import * as cheerio from "cheerio";
+import { cleanDomain } from "../domain-tools/services";
 
 // Helper: clean URL
 function cleanUrl(input: string): string {
@@ -9,10 +10,6 @@ function cleanUrl(input: string): string {
     url = `https://${url}`;
   }
   return url;
-}
-
-function cleanDomain(input: string): string {
-  return input.replace(/^https?:\/\//, "").replace(/\/.*$/, "").trim();
 }
 
 // ---- SEO Checker ----

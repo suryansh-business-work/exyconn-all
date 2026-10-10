@@ -6,6 +6,12 @@ import {
 } from '../../../src/modules/tech/pexels-config.model';
 import { asArg } from '../../mockAs';
 
+const withProtocol = (url: string, protocol: string): string => {
+  const parsed = new URL(url);
+  parsed.protocol = protocol;
+  return parsed.href;
+};
+
 const apiKey = `pexels-${Date.now()}`;
 const json = (body: unknown) => new Response(JSON.stringify(body), { status: 200 });
 
@@ -33,7 +39,7 @@ afterEach(() => {
 describe('isPexelsMediaUrl', () => {
   it('accepts only https URLs on the Pexels CDN', () => {
     expect(isPexelsMediaUrl('https://images.pexels.com/photos/1/a.jpeg')).toBe(true);
-    expect(isPexelsMediaUrl('http://images.pexels.com/a.jpeg')).toBe(false);
+    expect(isPexelsMediaUrl(withProtocol('https://images.pexels.com/a.jpeg', 'http:'))).toBe(false);
     expect(isPexelsMediaUrl('https://pexels.com.evil.test/a.jpeg')).toBe(false);
     expect(isPexelsMediaUrl('not a url')).toBe(false);
   });

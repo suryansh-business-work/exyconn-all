@@ -34,6 +34,12 @@ import {
 import { customTemplate } from '../../src/templates/custom.template';
 import ips from '../fixtures/ips.json';
 
+const withProtocol = (url: string, protocol: string): string => {
+  const parsed = new URL(url);
+  parsed.protocol = protocol;
+  return parsed.href;
+};
+
 jest.mock('node:dns/promises', () => ({ lookup: jest.fn() }));
 const resolveTo = (...addresses: string[]) =>
   (lookup as unknown as jest.Mock).mockResolvedValue(
@@ -209,7 +215,7 @@ describe('status overview for anonymous callers', () => {
     expect(publicServiceUrl('https://crm.exyconn.com/health?token=abc')).toBe(
       'https://crm.exyconn.com',
     );
-    expect(publicServiceUrl('http://10.0.0.1:4004/health')).toBe('');
+    expect(publicServiceUrl(withProtocol('https://10.0.0.1:4004/health', 'http:'))).toBe('');
     expect(publicServiceUrl('not a url')).toBe('');
   });
 

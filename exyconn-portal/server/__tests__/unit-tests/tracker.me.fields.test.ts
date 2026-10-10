@@ -27,9 +27,10 @@ jest.mock('../../src/modules/tracker/tracker.auth', () => ({
 /** The non-null scalar fields a type declares, read from the SDL itself. */
 function nonNullScalars(typeName: string): string[] {
   const body = new RegExp(String.raw`type ${typeName} \{([^}]*)\}`).exec(print(trackerTypeDefs));
-  return [...(body?.[1] ?? '').matchAll(/^\s*(\w+): (?:String|Int|Float|Boolean)!/gm)].map(
-    (match) => match[1],
-  );
+  return (body?.[1] ?? '')
+    .split('\n')
+    .map((line) => /^\s*(\w+): (?:String|Int|Float|Boolean)!/.exec(line)?.[1])
+    .filter((field): field is string => field !== undefined);
 }
 
 describe('trackerMe payload', () => {

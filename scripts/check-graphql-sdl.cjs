@@ -29,6 +29,22 @@ const ROOT = join(SERVER, "src/modules");
 const serverRequire = createRequire(resolve(SERVER, "package.json"));
 const { parse, buildSchema } = serverRequire("graphql");
 
+const SIMPLE_ESCAPES = { n: "\n", r: "\r", t: "\t" };
+
+/**
+ * Cooks the raw text of a template literal the way JS does (backslash escapes resolve),
+ * without evaluating it as code. Interpolation is refused: SDL has no business having any.
+ */
+function cookTemplate(raw) {
+  if (raw.includes("${")) {
+    throw new Error("typeDefs must not interpolate values");
+  }
+  return raw.replaceAll(
+    /\\([\s\S])/g,
+    (_, char) => SIMPLE_ESCAPES[char] ?? char,
+  );
+}
+
 let parsed = 0;
 const failures = [];
 /** Every module's SDL, kept so the merged schema can be built once at the end. */
@@ -46,7 +62,7 @@ for (const entry of readdirSync(ROOT, { recursive: true })) {
   }
   parsed += 1;
   try {
-    const sdl = new Function(`return \`${block[1]}\``)();
+    const sdl = cookTemplate(block[1]);
     parse(sdl);
     documents.push(sdl);
   } catch (error) {
@@ -69,9 +85,7 @@ const baseBlock = /gql`([\s\S]*?)`;/.exec(base);
 try {
   // graphql-js resolves `extend type Query` against the base declaration when both are in
   // one document, which is exactly what the server ends up with after Apollo merges them.
-  buildSchema(
-    [new Function(`return \`${baseBlock[1]}\``)(), ...documents].join("\n"),
-  );
+  buildSchema([cookTemplate(baseBlock[1]), ...documents].join("\n"));
 } catch (error) {
   console.error(
     "The modules parse individually but do not build into one schema:",

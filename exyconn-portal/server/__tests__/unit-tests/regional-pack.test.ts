@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { OrganizationModel, organizationService } from '../../src/modules/organizations';
 import { companyProfile, followsIndianTaxRules } from '../../src/lib/company';
 import { readPayrollSettings } from '../../src/modules/payroll';
@@ -14,7 +15,7 @@ import { asArg } from '../mockAs';
 async function company(fields: Record<string, unknown>): Promise<string> {
   const created = await organizationService.create(
     asArg({
-      name: `Co ${Math.random().toString(36).slice(2, 8)}`,
+      name: `Co ${randomBytes(3).toString('hex')}`,
       currency: 'USD',
       ...fields,
     }),

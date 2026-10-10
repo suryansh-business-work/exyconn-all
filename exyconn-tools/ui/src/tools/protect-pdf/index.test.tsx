@@ -61,10 +61,10 @@ describe('protect-pdf utils', () => {
     it('posts the file and passwords as multipart form data', async () => {
       const blob = new Blob(['encrypted'], { type: 'application/pdf' });
       fetchMock.mockResolvedValueOnce({ ok: true, status: 200, blob: () => Promise.resolve(blob) });
-      const out = await requestProtectedPdf('http://api/protect', pdfFile(), VALID_KEY, 'owner567');
+      const out = await requestProtectedPdf('https://api/protect', pdfFile(), VALID_KEY, 'owner567');
       expect(out).toBe(blob);
       const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-      expect(url).toBe('http://api/protect');
+      expect(url).toBe('https://api/protect');
       expect(init.method).toBe('POST');
       const body = init.body as FormData;
       expect((body.get('file') as File).name).toBe('report.pdf');
@@ -73,13 +73,13 @@ describe('protect-pdf utils', () => {
     });
     it('omits the owner password when empty', async () => {
       fetchMock.mockResolvedValueOnce({ ok: true, status: 200, blob: () => Promise.resolve(new Blob()) });
-      await requestProtectedPdf('http://api/protect', pdfFile(), VALID_KEY, '');
+      await requestProtectedPdf('https://api/protect', pdfFile(), VALID_KEY, '');
       const body = (fetchMock.mock.calls[0] as [string, RequestInit])[1].body as FormData;
       expect(body.get('ownerPassword')).toBeNull();
     });
     it('throws SERVICE_UNAVAILABLE on a 503', async () => {
       fetchMock.mockResolvedValueOnce({ ok: false, status: 503, json: () => Promise.reject(new Error('no body')) });
-      await expect(requestProtectedPdf('http://api/protect', pdfFile(), VALID_KEY, '')).rejects.toThrow(
+      await expect(requestProtectedPdf('https://api/protect', pdfFile(), VALID_KEY, '')).rejects.toThrow(
         SERVICE_UNAVAILABLE
       );
     });
@@ -89,13 +89,13 @@ describe('protect-pdf utils', () => {
         status: 400,
         json: () => Promise.resolve({ error: 'Invalid PDF file' }),
       });
-      await expect(requestProtectedPdf('http://api/protect', pdfFile(), VALID_KEY, '')).rejects.toThrow(
+      await expect(requestProtectedPdf('https://api/protect', pdfFile(), VALID_KEY, '')).rejects.toThrow(
         'Invalid PDF file'
       );
     });
     it('falls back to a status message when the error body is not JSON', async () => {
       fetchMock.mockResolvedValueOnce({ ok: false, status: 500, json: () => Promise.reject(new Error('no body')) });
-      await expect(requestProtectedPdf('http://api/protect', pdfFile(), VALID_KEY, '')).rejects.toThrow(
+      await expect(requestProtectedPdf('https://api/protect', pdfFile(), VALID_KEY, '')).rejects.toThrow(
         'Request failed with status 500.'
       );
     });

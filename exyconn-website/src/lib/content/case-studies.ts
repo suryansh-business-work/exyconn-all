@@ -13,7 +13,68 @@ export interface StoryMetric {
   label: string;
 }
 
-const METRIC = /(\d[\d,]*(?:\.\d+)?)\s?(%|x\b|×)/i;
+const NUMBER_CHAR = /[\d,]/;
+const DIGIT = /\d/;
+const SPACE = /\s/;
+const WORD_CHAR = /\w/;
+const TRAILING_PREPOSITION = /\s(?:by|to|of|at|in)$/i;
+
+/** End of the run of `kind` characters that starts at `from`. */
+function runEnd(text: string, from: number, kind: RegExp): number {
+  let end = from;
+  while (end < text.length && kind.test(text[end])) {
+    end += 1;
+  }
+  return end;
+}
+
+/** Where the unit ("%", "x" or "×") that ends a metric at `from` stops, or -1 when there is none. */
+function unitEnd(text: string, from: number): number {
+  const at = SPACE.test(text[from] ?? "") ? from + 1 : from;
+  const char = text[at] ?? "";
+  if (char === "%" || char === "×") {
+    return at + 1;
+  }
+  const isX = char === "x" || char === "X";
+  return isX && !WORD_CHAR.test(text[at + 1] ?? "") ? at + 1 : -1;
+}
+
+/**
+ * The first percentage or multiplier in `text`, as [whole, number, unit] — what
+ * `/(\d[\d,]*(?:\.\d+)?)\s?(%|x\b|×)/i` finds. Each run of digits and commas is tried once;
+ * the regex retries from every digit of a long run, which is quadratic.
+ */
+function findMetric(text: string): [string, string, string] | null {
+  let start = 0;
+  while (start < text.length) {
+    if (!DIGIT.test(text[start])) {
+      start += 1;
+      continue;
+    }
+    const wholeEnd = runEnd(text, start, NUMBER_CHAR);
+    const hasDecimal = text[wholeEnd] === "." && DIGIT.test(text[wholeEnd + 1] ?? "");
+    const numberEnd = hasDecimal ? runEnd(text, wholeEnd + 1, DIGIT) : wholeEnd;
+    const end = unitEnd(text, numberEnd);
+    if (end >= 0) {
+      return [text.slice(start, end), text.slice(start, numberEnd), text[end - 1]];
+    }
+    start = wholeEnd;
+  }
+  return null;
+}
+
+/** `text` without a trailing " by" / " to" / " of" / " at" / " in" and the spaces around it. */
+function withoutTrailingPreposition(text: string): string {
+  const trimmed = text.trimEnd();
+  if (!TRAILING_PREPOSITION.test(trimmed)) {
+    return text;
+  }
+  let end = trimmed.length - 3;
+  while (end > 0 && SPACE.test(trimmed[end - 1])) {
+    end -= 1;
+  }
+  return trimmed.slice(0, end);
+}
 const CLAUSE_BREAK = /[.;:!?]\s|,\s|\s(?:and|while|with)\s/i;
 const MAX_LABEL = 72;
 const MAX_BARS = 16;
@@ -29,10 +90,7 @@ const clip = (text: string): string =>
 const labelOf = (clause: string, token: string): string =>
   clip(
     sentenceCase(
-      clause
-        .replace(token, "")
-        .replace(/\.$/, "")
-        .replace(/\s+(?:by|to|of|at|in)\s*$/i, "")
+      withoutTrailingPreposition(clause.replace(token, "").replace(/\.$/, ""))
         .replaceAll(/\s{2,}/g, " ")
         .trim()
     )
@@ -44,7 +102,7 @@ export const extractMetrics = (text: string, max = 4): StoryMetric[] =>
     .split(CLAUSE_BREAK)
     .map((clause) => clause.trim())
     .flatMap((clause) => {
-      const match = METRIC.exec(clause);
+      const match = findMetric(clause);
       if (!match) {
         return [];
       }

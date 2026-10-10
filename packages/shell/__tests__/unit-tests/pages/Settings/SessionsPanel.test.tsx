@@ -83,7 +83,7 @@ describe('SessionsPanel', () => {
 
     expect(screen.getByText('Chrome on macOS')).toBeInTheDocument();
     expect(screen.getByText('This device')).toBeInTheDocument();
-    expect(screen.getByText(/^10\.0\.0\.1 · last used/)).toBeInTheDocument();
+    expect(screen.getByText(/^203\.0\.113\.1 · last used/)).toBeInTheDocument();
     expect(screen.getByText(/^unknown address · last used/)).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: 'End' })).toHaveLength(1);
   });

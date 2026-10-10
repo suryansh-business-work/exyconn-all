@@ -291,6 +291,10 @@ export function portalViteConfig(app) {
       // matchers extend the very `expect` instance the app's vitest runs with.
       setupFiles: ["@testing-library/jest-dom/vitest"],
       include: ["__tests__/unit-tests/**/*.{test,spec}.{ts,tsx}"],
+      // The form suites render MUI inputs and run react-hook-form validation; instrumented for
+      // coverage on a shared CI runner a few of them need more than vitest's 5 seconds. The
+      // shell, crud, rich-text and login packages already allow 20.
+      testTimeout: 20_000,
     },
   };
 }

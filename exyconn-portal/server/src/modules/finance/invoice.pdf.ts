@@ -1,4 +1,5 @@
 import PDFDocument from 'pdfkit';
+import { trimLeading, trimTrailing } from '../../utils/textTrim';
 import {
   invoiceDocument,
   type DocumentField,
@@ -11,7 +12,7 @@ export { type InvoicePdfData } from './invoice.document';
 
 /** `Invoice-INV-001.pdf` — safe for any filesystem and mail client. */
 export function invoiceFilename(number: string): string {
-  const safe = number.replaceAll(/[^\w-]+/g, '-').replaceAll(/^-+|-+$/g, '');
+  const safe = trimLeading(trimTrailing(number.replaceAll(/[^\w-]+/g, '-'), '-'), '-');
   return `Invoice-${safe || 'draft'}.pdf`;
 }
 

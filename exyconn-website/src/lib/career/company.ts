@@ -5,6 +5,7 @@
 import type { JobCompany } from "../portal/types";
 import { safeHref } from "../safe-output";
 import { fill } from "./format";
+import { stripTags } from "../text-trim";
 
 export interface SocialLink {
   network: string;
@@ -38,4 +39,4 @@ export const companyFacts = (
   ].filter((fact) => fact.trim() !== "");
 
 /** True when a rich-text field holds any text (the editor saves "<p></p>" for empty). */
-export const hasText = (html: string): boolean => html.replaceAll(/<[^>]*>/g, "").trim() !== "";
+export const hasText = (html: string): boolean => stripTags(html).trim() !== "";

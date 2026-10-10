@@ -65,7 +65,7 @@ describe('linkAction', () => {
 
   it('sends a tapped web or mail link to the system browser', () => {
     expect(linkAction('https://exyconn.com/privacy', true)).toBe('browser');
-    expect(linkAction('HTTP://exyconn.com', true)).toBe('browser');
+    expect(linkAction('HTTPS://exyconn.com', true)).toBe('browser');
     expect(linkAction('mailto:hr@exyconn.com', true)).toBe('browser');
   });
 

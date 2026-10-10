@@ -85,9 +85,12 @@ COPY exyconn-portal/ui exyconn-portal/ui
 COPY exyconn-portal/apps exyconn-portal/apps
 RUN pnpm --filter "${APP_PKG}" run build
 
-FROM nginx:alpine AS runtime
+# nginx-unprivileged runs as uid 101 (pid in /tmp, cache under /tmp, conf.d writable by that
+# user so the templates/ envsubst step still works). PORT is always above 1024.
+FROM nginxinc/nginx-unprivileged:alpine AS runtime
 ARG APP_DIR
 ARG PORT
+USER root
 RUN apk add --no-cache wget
 COPY --from=build /repo/${APP_DIR}/dist /usr/share/nginx/html
 COPY docker/spa.nginx.conf /etc/nginx/templates/default.conf.template
@@ -96,6 +99,7 @@ ENV NGINX_PORT=${PORT}
 # Who may frame the app (docker/spa-security-headers.conf). Compose widens it for the
 # WhatsApp demo only, which exyconn.com embeds.
 ENV FRAME_ANCESTORS="'self'"
+USER 101
 EXPOSE ${PORT}
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
   CMD wget -q --spider "http://127.0.0.1:${NGINX_PORT}/" || exit 1

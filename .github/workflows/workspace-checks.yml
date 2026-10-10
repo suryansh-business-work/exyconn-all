@@ -14,6 +14,10 @@ on:
         description: pnpm --filter arguments for the vitest packages ('' skips them)
         type: string
         required: true
+      unit-groups:
+        description: The vitest packages split into balanced groups, one job each (ci-scope.mjs)
+        type: string
+        required: true
       checks:
         type: boolean
         required: true
@@ -97,12 +101,16 @@ jobs:
 
   unit-tests:
     if: inputs.test-filter != ''
-    name: Unit tests
+    name: Unit tests · group ${{ matrix.group.id }}
     runs-on: ubuntu-latest
-    # A full run (every package, with coverage) goes past the half hour a scoped one needs.
-    timeout-minutes: 60
+    # A group is a quarter of the packages; the half hour a whole run needed no longer applies.
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        group: ${{ fromJSON(inputs.unit-groups) }}
     env:
-      FILTER: ${{ inputs.test-filter }}
+      FILTER: ${{ matrix.group.filter }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - uses: pnpm/action-setup@b906affcce14559ad1aafd4ab0e942779e9f58b1 # v4.3.0
@@ -130,25 +138,25 @@ jobs:
         run: |
           mkdir -p ci-artifacts
           find . -path '*/node_modules' -prune -o -path ./ci-artifacts -prune \
-            \( -path '*/coverage/coverage-summary.json' -o -path '*/coverage/lcov.info' \) -print \
+            -o \( -path '*/coverage/coverage-summary.json' -o -path '*/coverage/lcov.info' \) -print \
             | xargs -r -I{} cp --parents {} ci-artifacts/
       - if: always() && inputs.coverage
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
-          name: coverage-unit
+          name: coverage-unit-${{ matrix.group.id }}
           path: ci-artifacts/
           if-no-files-found: ignore
           retention-days: 7
 
   server-tests:
     if: inputs.server
-    name: Server tests · shard ${{ matrix.shard }}/4
+    name: Server tests · shard ${{ matrix.shard }}/6
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
-        shard: [1, 2, 3, 4]
+        shard: [1, 2, 3, 4, 5, 6]
     env:
       # Kept out of node_modules so the cache below can hold it between runs.
       MONGOMS_DOWNLOAD_DIR: ${{ github.workspace }}/.cache/mongodb-binaries
@@ -173,11 +181,11 @@ jobs:
       # A quarter of the suites per job, two workers each: the suite was the slowest step of CI.
       - name: Server tests
         if: ${{ !inputs.coverage }}
-        run: pnpm --filter exyconn-portal-server run test --shard=${{ matrix.shard }}/4 --maxWorkers=2
+        run: pnpm --filter exyconn-portal-server run test --shard=${{ matrix.shard }}/6 --maxWorkers=2
       - name: Server tests (with coverage)
         if: inputs.coverage
         run: |
-          pnpm --filter exyconn-portal-server run test --shard=${{ matrix.shard }}/4 --maxWorkers=2 \
+          pnpm --filter exyconn-portal-server run test --shard=${{ matrix.shard }}/6 --maxWorkers=2 \
             --coverage --coverageReporters=json --coverageReporters=text-summary \
             '--collectCoverageFrom=src/**/*.ts' '--collectCoverageFrom=!src/graphql/generated/**'
       # Each shard's raw coverage; the quality report merges the four into one summary.

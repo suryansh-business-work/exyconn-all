@@ -1,6 +1,7 @@
 import { ImapFlow } from 'imapflow';
 import { simpleParser, type ParsedMail } from 'mailparser';
 import { logger } from './logger';
+import { stripTags } from './textTrim';
 
 /** What the mailbox reader needs off the active Inbound Mail config. */
 export interface InboundMailCredentials {
@@ -63,10 +64,10 @@ function headerText(mail: ParsedMail, name: string): string {
 
 /** `<p>Hi</p>` → `Hi`, for the clients that send no plain-text part at all. */
 function htmlToText(html: string): string {
-  return html
+  const text = html
     .replaceAll(/<(script|style)[^]*?<\/\1>/gi, ' ')
-    .replaceAll(/<br\s*\/?>|<\/p>|<\/div>|<\/tr>/gi, '\n')
-    .replaceAll(/<[^>]+>/g, '')
+    .replaceAll(/<br\s*\/?>|<\/p>|<\/div>|<\/tr>/gi, '\n');
+  return stripTags(text, '', 1)
     .replaceAll('&nbsp;', ' ')
     .replaceAll('&amp;', '&')
     .replaceAll('&lt;', '<')

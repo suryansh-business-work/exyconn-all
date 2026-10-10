@@ -6,10 +6,10 @@ import { dueAtForPriority } from './sla.service';
 import { uniqueReference } from './ticket-reference';
 import { announceTicketFiled } from './ticket-events';
 import { badRequest } from '../../utils/errors';
+import { isEmailAddress } from '../../utils/emailAddress';
 import { withIds } from '../../utils/serialize';
 import { logger } from '../../utils/logger';
 import { createLimiter } from '../../lib/rateLimiter';
-import { MAX_EMAIL_LENGTH } from '../../lib/rateLimiterSignIn';
 
 /** What the public form sends. Every field is re-validated here — the client is untrusted. */
 export interface ClientSupportTicketInput {
@@ -27,8 +27,6 @@ const LIMITS = {
   subject: { min: 5, max: 120 },
   description: { min: 20, max: 4000 },
 } as const;
-
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /** Five tickets an hour from one address is a person with a problem; more is a script. */
 const HOUR_SEC = 60 * 60;
@@ -90,7 +88,7 @@ export function assertValid(input: ClientSupportTicketInput): void {
   assertLength(input.requesterName, 'Name', LIMITS.name);
   assertLength(input.subject, 'Subject', LIMITS.subject);
   assertLength(input.description, 'Description', LIMITS.description);
-  if (input.requesterEmail.length > MAX_EMAIL_LENGTH || !EMAIL_PATTERN.exec(input.requesterEmail)) {
+  if (!isEmailAddress(input.requesterEmail)) {
     badRequest('Enter a valid email address');
   }
 }

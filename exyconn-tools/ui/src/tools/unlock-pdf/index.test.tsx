@@ -44,10 +44,10 @@ describe('unlock-pdf utils', () => {
     it('posts the file and password as multipart form data', async () => {
       const blob = new Blob(['decrypted'], { type: 'application/pdf' });
       fetchMock.mockResolvedValueOnce({ ok: true, status: 200, blob: () => Promise.resolve(blob) });
-      const out = await requestUnlockedPdf('http://api/unlock', pdfFile(), VALID_KEY);
+      const out = await requestUnlockedPdf('https://api/unlock', pdfFile(), VALID_KEY);
       expect(out).toBe(blob);
       const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
-      expect(url).toBe('http://api/unlock');
+      expect(url).toBe('https://api/unlock');
       expect(init.method).toBe('POST');
       const body = init.body as FormData;
       expect((body.get('file') as File).name).toBe('secret.pdf');
@@ -59,11 +59,11 @@ describe('unlock-pdf utils', () => {
         status: 400,
         json: () => Promise.resolve({ error: 'Incorrect password' }),
       });
-      await expect(requestUnlockedPdf('http://api/unlock', pdfFile(), 'wrong123')).rejects.toThrow(INCORRECT_PASSWORD);
+      await expect(requestUnlockedPdf('https://api/unlock', pdfFile(), 'wrong123')).rejects.toThrow(INCORRECT_PASSWORD);
     });
     it('throws SERVICE_UNAVAILABLE on a 503', async () => {
       fetchMock.mockResolvedValueOnce({ ok: false, status: 503, json: () => Promise.reject(new Error('no body')) });
-      await expect(requestUnlockedPdf('http://api/unlock', pdfFile(), VALID_KEY)).rejects.toThrow(SERVICE_UNAVAILABLE);
+      await expect(requestUnlockedPdf('https://api/unlock', pdfFile(), VALID_KEY)).rejects.toThrow(SERVICE_UNAVAILABLE);
     });
     it('surfaces the server error message on other failures', async () => {
       fetchMock.mockResolvedValueOnce({
@@ -71,7 +71,7 @@ describe('unlock-pdf utils', () => {
         status: 500,
         json: () => Promise.resolve({ error: 'Decryption failed' }),
       });
-      await expect(requestUnlockedPdf('http://api/unlock', pdfFile(), VALID_KEY)).rejects.toThrow('Decryption failed');
+      await expect(requestUnlockedPdf('https://api/unlock', pdfFile(), VALID_KEY)).rejects.toThrow('Decryption failed');
     });
   });
 });

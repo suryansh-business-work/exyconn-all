@@ -6,28 +6,54 @@
  * production on a thread that has quoted itself eight times.
  */
 
+const LINE_BREAK = /[\n\r\u2028\u2029]/;
+const OUTLOOK_DIVIDER = /^-{2,}\s*Original Message\s*-{2,}$/i;
+const UNDERSCORE_DIVIDER = /^_{5,}$/;
+const ON_PREFIX = /^on\b/i;
+const WROTE_SUFFIX = /wrote:$/i;
+const WROTE_LENGTH = 'wrote:'.length;
+const WORD_CHAR = /\w/;
+
+/** `On ... wrote:` — the line Gmail and Apple Mail put above the history (`line` is trimmed). */
+function isAttribution(line: string): boolean {
+  const start = line.length - WROTE_LENGTH;
+  return (
+    ON_PREFIX.test(line) &&
+    start >= 2 &&
+    WROTE_SUFFIX.test(line) &&
+    !WORD_CHAR.test(line[start - 1])
+  );
+}
+
 /**
- * Where the quoted history starts, in the three shapes mail clients write it:
+ * Whether a line opens the quoted history, in the three shapes mail clients write it:
  * Gmail/Apple Mail's attribution line, a block of `>` quoting, and Outlook's divider
  * (either the worded one or the row of underscores it puts above the quoted headers).
  */
-const QUOTE_MARKERS: RegExp[] = [
-  /^\s*-{2,}\s*Original Message\s*-{2,}\s*$/im,
-  /^\s*On\b.*\bwrote:\s*$/im,
-  /^\s*>/m,
-  /^\s*_{5,}\s*$/m,
-];
+function isQuoteLine(line: string): boolean {
+  const trimmed = line.trim();
+  return (
+    trimmed.startsWith('>') ||
+    UNDERSCORE_DIVIDER.test(trimmed) ||
+    OUTLOOK_DIVIDER.test(trimmed) ||
+    isAttribution(trimmed)
+  );
+}
 
-/** The offset of the earliest marker in `text`, or -1 when it quotes nothing. */
+/**
+ * The offset of the line where the quoted history starts, or -1 when `text` quotes nothing.
+ * Read line by line: a `^\s*` pattern over the whole text crosses blank lines and backtracks
+ * quadratically on a long run of them.
+ */
 function firstQuoteIndex(text: string): number {
-  let earliest = -1;
-  for (const marker of QUOTE_MARKERS) {
-    const index = marker.exec(text)?.index ?? -1;
-    if (index >= 0 && (earliest < 0 || index < earliest)) {
-      earliest = index;
+  let offset = 0;
+  for (const line of text.split(LINE_BREAK)) {
+    if (isQuoteLine(line)) {
+      return offset;
     }
+    offset += line.length + 1;
   }
-  return earliest;
+  return -1;
 }
 
 /**

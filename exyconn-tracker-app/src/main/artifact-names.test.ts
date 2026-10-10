@@ -14,7 +14,10 @@ const BUILDER = fileURLToPath(new URL('../../electron-builder.yml', import.meta.
 /** Every `artifactName:` value in electron-builder.yml. */
 function artifactNames(): string[] {
   const source = readFileSync(BUILDER, 'utf8');
-  return [...source.matchAll(/^\s*artifactName:\s*(.+?)\s*$/gm)].map((match) => match[1]);
+  return source
+    .split('\n')
+    .map((line) => /^\s*artifactName:(.*)/.exec(line)?.[1].trim())
+    .filter((name): name is string => name !== undefined && name !== '');
 }
 
 describe('installer file names', () => {

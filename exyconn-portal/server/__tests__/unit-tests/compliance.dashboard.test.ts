@@ -1,3 +1,4 @@
+import { randomInt } from 'node:crypto';
 import { complianceDashboardResolvers } from '../../src/modules/compliance/compliance.dashboard';
 import { findingResolvers } from '../../src/modules/compliance/finding.resolvers';
 import { RiskModel } from '../../src/modules/compliance/risk.model';
@@ -18,7 +19,7 @@ const overview = () => complianceDashboardResolvers.Query.complianceOverview(nul
 
 const risk = (overrides: Record<string, unknown> = {}) =>
   RiskModel.create({
-    reference: `RISK-${Math.random().toString().slice(2, 6)}`,
+    reference: `RISK-${randomInt(1000, 10000)}`,
     title: 'A risk',
     category: 'OPERATIONAL',
     ownerId: 'u1',
@@ -35,7 +36,7 @@ const risk = (overrides: Record<string, unknown> = {}) =>
 
 const finding = (overrides: Record<string, unknown> = {}) =>
   FindingModel.create({
-    reference: `NC-${Math.random().toString().slice(2, 6)}`,
+    reference: `NC-${randomInt(1000, 10000)}`,
     title: 'A finding',
     source: 'INTERNAL_AUDIT',
     type: 'MINOR_NONCONFORMITY',

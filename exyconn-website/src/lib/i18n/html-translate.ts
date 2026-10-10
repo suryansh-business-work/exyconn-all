@@ -41,8 +41,12 @@ const TRANSLATED_META = new Set([
 /** Anything with a letter in it. A price, an icon or a bullet is left as it is. */
 const HAS_LETTER = /\p{L}/u;
 
-/** One text run and the whitespace around it, so the translation keeps the page's spacing. */
-const TEXT_PARTS = /^(\s*)([\s\S]*?)(\s*)$/;
+/** One text run split into the whitespace before it, the words, and the whitespace after. */
+function textParts(text: string): [before: string, body: string, after: string] {
+  const body = text.trim();
+  const start = text.length - text.trimStart().length;
+  return [text.slice(0, start), body, text.slice(start + body.length)];
+}
 
 /**
  * What may follow a `<` for it to open a tag: a name, a closing slash, a comment or a
@@ -200,7 +204,7 @@ function translateText(text: string, lookup: Lookup): string {
   if (text === "" || !translatable(text)) {
     return text;
   }
-  const [, before = "", body = "", after = ""] = TEXT_PARTS.exec(text) ?? [];
+  const [before, body, after] = textParts(text);
   const translated = lookup(body);
   return translated === undefined ? text : `${before}${translated}${after}`;
 }

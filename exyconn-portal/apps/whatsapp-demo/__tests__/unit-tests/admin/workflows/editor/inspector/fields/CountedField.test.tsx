@@ -61,7 +61,7 @@ describe('CountedField', () => {
     expect(missing).toHaveValue('');
     expect(missing).toBeDisabled();
     expect(missing.tagName).toBe('TEXTAREA');
-    expect(screen.queryByText(/\d+\/\d+/)).toBeNull();
+    expect(screen.queryByText(/\d\/\d/)).toBeNull();
   });
 
   it('translates its label, hint and counter', () => {

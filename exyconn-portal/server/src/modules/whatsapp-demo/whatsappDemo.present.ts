@@ -100,7 +100,7 @@ export function bundleRevision(
 ): string {
   const parts = workflows.map((wf) => `${wf.key}@${wf.version}`);
   const seed = [iso(demo.updatedAt) ?? '', ...parts].join('|');
-  return createHash('sha1').update(seed).digest('hex').slice(0, 16);
+  return createHash('sha256').update(seed).digest('hex').slice(0, 16);
 }
 
 export function presentSession(doc: Stored<WhatsappDemoSessionDocument>, now = Date.now()) {

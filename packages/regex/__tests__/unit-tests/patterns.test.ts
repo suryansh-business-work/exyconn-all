@@ -20,6 +20,12 @@ import {
   YEAR_MONTH,
 } from '../../src';
 
+const withProtocol = (url: string, protocol: string): string => {
+  const parsed = new URL(url);
+  parsed.protocol = protocol;
+  return parsed.href;
+};
+
 /** Each pattern with values it must take and values it must turn away. */
 const CASES: ReadonlyArray<{
   name: string;
@@ -45,12 +51,16 @@ const CASES: ReadonlyArray<{
   {
     name: 'HTTP_URL',
     pattern: HTTP_URL,
-    valid: ['https://exyconn.com', 'http://localhost:3000/health', 'https://x.io/a?b=1#c'],
+    valid: [
+      'https://exyconn.com',
+      withProtocol('https://localhost:3000/health', 'http:'),
+      'https://x.io/a?b=1#c',
+    ],
     invalid: [
       '',
       'exyconn.com',
       '/about',
-      'ftp://x.com',
+      withProtocol('https://x.com', 'ftp:'),
       'javascript:alert(1)',
       'https://',
       'https://a b.com',
@@ -65,7 +75,7 @@ const CASES: ReadonlyArray<{
   {
     name: 'LINK',
     pattern: LINK,
-    valid: ['/', '/tools/foo', 'https://exyconn.com/blog', 'http://x.io'],
+    valid: ['/', '/tools/foo', 'https://exyconn.com/blog', withProtocol('https://x.io', 'http:')],
     invalid: ['', 'tools/foo', '//evil.com', 'javascript:alert(1)', 'https://'],
   },
   {

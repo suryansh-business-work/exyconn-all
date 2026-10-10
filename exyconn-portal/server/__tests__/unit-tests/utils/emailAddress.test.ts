@@ -1,4 +1,4 @@
-import { EMAIL_PATTERN, isEmailAddress } from '../../../src/utils/emailAddress';
+import { isEmailAddress, isEmailShape } from '../../../src/utils/emailAddress';
 import { MAX_EMAIL_LENGTH } from '../../../src/lib/rateLimiterSignIn';
 
 const DOMAIN = '@acme.test';
@@ -26,7 +26,7 @@ describe('isEmailAddress', () => {
   });
 
   it('exports the pattern every public form shares', () => {
-    expect(EMAIL_PATTERN.test('x@y.io')).toBe(true);
-    expect(EMAIL_PATTERN.test('x@y.i')).toBe(false);
+    expect(isEmailShape('x@y.io')).toBe(true);
+    expect(isEmailShape('x@y.i')).toBe(false);
   });
 });

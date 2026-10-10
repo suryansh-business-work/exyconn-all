@@ -28,12 +28,11 @@ describe('Product form', () => {
   });
 
   it('takes a {{var}} price and rejects an empty one', async () => {
-    // A price is `number | template`; an empty one fails both, and the resolver reports the
-    // first branch's error (the form's own message for a wrong type).
+    // A price is `number | template`; an empty one fails both and the form says it is required.
     const { user, onApply } = renderNodeForm(makeNode('product'));
     await user.clear(textbox('Price (₹)'));
     await user.click(screen.getByRole('button', { name: 'Apply' }));
-    expect(await screen.findByText('Enter a valid value')).toBeInTheDocument();
+    expect(await screen.findByText('This is required')).toBeInTheDocument();
     expect(onApply).not.toHaveBeenCalled();
     await replaceText(user, textbox('Price (₹)'), '{{fee}}');
     const data = (await applyForm(user, onApply)) as { product: { price: unknown } };

@@ -18,8 +18,20 @@ const resolveSrv = promisify(dns.resolveSrv);
 const reverse = promisify(dns.reverse);
 
 // Helper: strip protocol from domain
-function cleanDomain(input: string): string {
-  return input.replace(/^https?:\/\//, "").replace(/\/.*$/, "").trim();
+const LINE_TERMINATORS = new Set(["\n", "\r", "\u2028", "\u2029"]);
+
+/** Cut at the first "/" that has no line break after it — `/\/.*$/`, whose `.` stops at one. */
+function cutAtPath(input: string): string {
+  let start = input.length;
+  while (start > 0 && !LINE_TERMINATORS.has(input[start - 1])) {
+    start -= 1;
+  }
+  const slash = input.indexOf("/", start);
+  return slash < 0 ? input : input.slice(0, slash);
+}
+
+export function cleanDomain(input: string): string {
+  return cutAtPath(input.replace(/^https?:\/\//, "")).trim();
 }
 
 // 2A - SSL Checker

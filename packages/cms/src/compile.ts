@@ -16,7 +16,11 @@ export class CmsCompileError extends Error {
 
 /** Every placeholder tag, opening or closing (GrapesJS writes them lower-case). */
 const TAG = new RegExp(String.raw`<(/?)(${COMPONENT_TAG}|${FRAGMENT_TAG})\b([^>]*)>`, 'gi');
-const ATTRIBUTE = /([\w:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
+/**
+ * One `name="value"` or `name='value'`. The lookbehind starts a name only at the start of its run,
+ * so a long run of name characters is read once rather than once per character.
+ */
+const ATTRIBUTE = /(?<![\w:-])([\w:-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g;
 
 const ENTITIES: Readonly<Record<string, string>> = {
   '&quot;': '"',

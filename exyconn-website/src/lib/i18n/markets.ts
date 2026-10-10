@@ -1,4 +1,5 @@
 import marketList from "@exyconn/config/markets.json";
+import { trimTrailing } from "../text-trim";
 
 /**
  * One market the site is published for: a country and the language it is read in there.
@@ -68,7 +69,7 @@ export function splitMarketPath(pathname: string): { market: Market | null; rest
   if (!market) {
     return { market: null, rest: pathname };
   }
-  const rest = `/${others.join("/")}`.replace(/\/+$/, "");
+  const rest = trimTrailing(`/${others.join("/")}`, "/");
   return { market, rest: rest === "" ? "/" : rest };
 }
 

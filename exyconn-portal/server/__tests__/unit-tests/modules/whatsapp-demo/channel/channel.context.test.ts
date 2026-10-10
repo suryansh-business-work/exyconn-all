@@ -32,7 +32,11 @@ describe('engineContext', () => {
     expect(readBundle).toHaveBeenCalledWith('en-IN');
     expect(ctx.format.date(MOMENT)).toBe('07 Oct 2026');
     expect(ctx.format.time(MOMENT)).toBe('02:30 AM');
-    expect(ctx.format.day(MOMENT)).toMatch(/Wed.*7.*Oct/);
+    const day = ctx.format.day(MOMENT);
+    const afterWed = day.slice(day.indexOf('Wed') + 'Wed'.length);
+    expect(day).toContain('Wed');
+    expect(afterWed).toContain('7');
+    expect(afterWed.slice(afterWed.indexOf('7') + 1)).toContain('Oct');
   });
 
   it('writes demo prices in rupees in the company number style', async () => {
