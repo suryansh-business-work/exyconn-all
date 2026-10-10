@@ -7,6 +7,8 @@ name: Build
 on:
   push:
     branches: [main, staging]
+    # A docs-only push changes no code, no coverage and no issues.
+    paths-ignore: ['**.md', 'docs/**']
   workflow_dispatch:
 
 # A burst of pushes to staging queued a full-monorepo scan for each; only the newest commit's
@@ -25,6 +27,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       test-filter: ${{ steps.scope.outputs.test-filter }}
+      unit-groups: ${{ steps.scope.outputs.unit-groups }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
@@ -43,6 +46,7 @@ jobs:
     with:
       filter: ""
       test-filter: ${{ needs.scope.outputs.test-filter }}
+      unit-groups: ${{ needs.scope.outputs.unit-groups }}
       checks: false
       server: true
       codegen: false
@@ -136,7 +140,7 @@ jobs:
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         continue-on-error: true
         with:
-          pattern: "{coverage-unit,sonar-lcov-*}"
+          pattern: "{coverage-unit-*,sonar-lcov-*}"
           merge-multiple: true
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         continue-on-error: true

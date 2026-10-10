@@ -36,6 +36,7 @@ const MOBILE = 'exyconn-tracker-mobile';
 /** The tools site is an npm project outside the workspace that compiles @exyconn/seo from source. */
 const TOOLS = [/^exyconn-tools\//, /^packages\/seo\//];
 const CT_GROUPS = 3;
+const UNIT_GROUPS = 4;
 
 const sh = (command) => execSync(command, { encoding: 'utf8' }).trim();
 
@@ -104,15 +105,26 @@ function withDependents(names, packages) {
   return affected;
 }
 
-/** Splits the Cypress packages into groups of about the same number of specs, one job each. */
-function ctGroups(packages) {
-  const specs = (dir) =>
-    Number(sh(`find ${dir}/src -name '*.cy.ts' -o -name '*.cy.tsx' 2>/dev/null | wc -l`));
+/** Number of files under `dir` whose name matches `pattern` (a `find -name` glob). */
+function countFiles(dir, patterns) {
+  const names = patterns.map((pattern) => `-name '${pattern}'`).join(' -o ');
+  return Number(
+    sh(
+      `find ${dir} \\( -path '*/node_modules' -o -path '*/dist' \\) -prune -o \\( ${names} \\) -type f -print 2>/dev/null | wc -l`,
+    ),
+  );
+}
+
+/**
+ * Splits packages into at most `count` groups of about the same weight, one job each. The
+ * heaviest package goes into the lightest group first, so no group is left holding the long pole.
+ */
+function balancedGroups(packages, weightOf, count) {
   const weighted = packages
-    .map((pkg) => ({ name: pkg.name, weight: specs(pkg.dir) }))
+    .map((pkg) => ({ name: pkg.name, weight: weightOf(pkg) }))
     .filter((pkg) => pkg.weight > 0)
     .sort((a, b) => b.weight - a.weight);
-  const groups = Array.from({ length: Math.min(CT_GROUPS, weighted.length) }, () => ({
+  const groups = Array.from({ length: Math.min(count, weighted.length) }, () => ({
     weight: 0,
     names: [],
   }));
@@ -126,6 +138,18 @@ function ctGroups(packages) {
     filter: group.names.map((name) => `--filter=${name}`).join(' '),
   }));
 }
+
+/** Cypress component specs: a spec is a `*.cy.ts(x)` file under src. */
+const ctGroups = (packages) =>
+  balancedGroups(
+    packages,
+    (pkg) => countFiles(`${pkg.dir}/src`, ['*.cy.ts', '*.cy.tsx']),
+    CT_GROUPS,
+  );
+
+/** Vitest suites: every `*.test.ts(x)` file in the package, wherever it lives. */
+const unitGroups = (packages) =>
+  balancedGroups(packages, (pkg) => countFiles(pkg.dir, ['*.test.ts', '*.test.tsx']), UNIT_GROUPS);
 
 const packages = workspacePackages();
 const files = changedFiles();
@@ -144,6 +168,7 @@ const gates = everything || files.some((file) => GATES.some((re) => re.test(file
 const outputs = {
   filter: filterOf(checked),
   'test-filter': filterOf(unit),
+  'unit-groups': JSON.stringify(unitGroups(unit)),
   checks: String(checked.length > 0 || gates),
   server: String(names.has(SERVER)),
   codegen: String([...CODEGEN_OWNERS].some((name) => names.has(name))),

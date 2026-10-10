@@ -58,6 +58,7 @@ jobs:
     outputs:
       filter: ${{ steps.scope.outputs.filter }}
       test-filter: ${{ steps.scope.outputs.test-filter }}
+      unit-groups: ${{ steps.scope.outputs.unit-groups }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
       - id: scope
@@ -72,6 +73,7 @@ jobs:
     with:
       filter: ${{ needs.scope.outputs.filter }}
       test-filter: ${{ needs.scope.outputs.test-filter }}
+      unit-groups: ${{ needs.scope.outputs.unit-groups }}
       checks: true
       server: true
       codegen: true
