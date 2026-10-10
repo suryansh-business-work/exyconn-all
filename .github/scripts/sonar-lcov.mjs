@@ -9,19 +9,13 @@
  *
  * Usage: node .github/scripts/sonar-lcov.mjs <dir that holds the downloaded artifacts>
  */
-import {
-  mkdirSync,
-  readFileSync,
-  readdirSync,
-  statSync,
-  writeFileSync,
-} from "node:fs";
-import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
+import { mkdirSync, readFileSync, readdirSync, statSync, writeFileSync, existsSync } from 'node:fs';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 
 const root = process.cwd();
-const searchDir = resolve(process.argv[2] ?? ".");
-const outDir = join(root, "sonar-coverage");
-const SKIPPED = new Set(["node_modules", ".git", "sonar-coverage"]);
+const searchDir = resolve(process.argv[2] ?? '.');
+const outDir = join(root, 'sonar-coverage');
+const SKIPPED = new Set(['node_modules', '.git', 'sonar-coverage']);
 
 function findReports(dir, found = []) {
   for (const entry of readdirSync(dir)) {
@@ -29,7 +23,7 @@ function findReports(dir, found = []) {
     const full = join(dir, entry);
     if (statSync(full).isDirectory()) {
       findReports(full, found);
-    } else if (entry.endsWith(".lcov") || entry === "lcov.info") {
+    } else if (entry.endsWith('.lcov') || entry === 'lcov.info') {
       found.push(full);
     }
   }
@@ -42,26 +36,36 @@ function baseOf(report) {
   return dir.endsWith(`${sep}coverage`) ? dirname(dir) : dir;
 }
 
+/**
+ * A source path from an lcov report, as a path relative to the repository root.
+ *
+ * Vitest writes paths relative to its package, jest/nyc write absolute ones, and `nyc report`
+ * run from the repository root writes paths relative to the root. Which one a relative path is
+ * cannot be told from its text, so the one that names a file that exists wins.
+ */
 function toRepoPath(sourcePath, base) {
-  const absolute = isAbsolute(sourcePath)
-    ? sourcePath
-    : resolve(base, sourcePath);
-  // A runner checks out at one path and the sonar job at the same one, but fall back to the
-  // package-relative path rather than emit something outside the repository.
-  const rel = relative(root, absolute);
-  return rel.startsWith("..") ? relative(root, resolve(base, sourcePath)) : rel;
+  if (isAbsolute(sourcePath)) {
+    const rel = relative(root, sourcePath);
+    return rel.startsWith('..') ? sourcePath : rel;
+  }
+  const fromBase = resolve(base, sourcePath);
+  const fromRoot = resolve(root, sourcePath);
+  if (existsSync(fromBase)) {
+    return relative(root, fromBase);
+  }
+  if (existsSync(fromRoot)) {
+    return relative(root, fromRoot);
+  }
+  return relative(root, fromBase);
 }
 
 mkdirSync(outDir, { recursive: true });
 let count = 0;
 for (const report of findReports(searchDir)) {
   const base = baseOf(report);
-  const text = readFileSync(report, "utf8").replaceAll(
-    /^SF:(.*)$/gm,
-    (_all, path) => {
-      return `SF:${toRepoPath(path.trim(), base).split(sep).join("/")}`;
-    },
-  );
+  const text = readFileSync(report, 'utf8').replaceAll(/^SF:(.*)$/gm, (_all, path) => {
+    return `SF:${toRepoPath(path.trim(), base).split(sep).join('/')}`;
+  });
   count += 1;
   writeFileSync(join(outDir, `report-${count}.lcov`), text);
 }
