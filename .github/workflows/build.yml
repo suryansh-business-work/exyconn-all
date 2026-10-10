@@ -120,7 +120,9 @@ jobs:
     # the suites that did run is still worth reporting.
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # Type-aware analysis of ~630k lines across ~40 tsconfigs: well over the 25 minutes it took
+    # before it was cancelled.
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
