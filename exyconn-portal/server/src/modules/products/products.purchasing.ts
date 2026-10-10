@@ -191,13 +191,13 @@ const receivePurchaseOrder = async (_p: unknown, args: never, ctx: GraphQLContex
       unitCost: ordered.unitCost,
       supplierId: order.supplierId,
       supplierName: order.supplierName,
-      purchaseOrderId: String(order._id),
+      purchaseOrderId: order._id.toHexString(),
       purchaseOrderNumber: order.number,
       reference: order.number,
       recordedBy: ctx.user?.email ?? '',
     });
 
-    ordered.receivedQuantity = (ordered.receivedQuantity ?? 0) + receipt.quantity;
+    ordered.receivedQuantity += receipt.quantity;
   }
 
   const now = new Date();
@@ -211,7 +211,7 @@ const receivePurchaseOrder = async (_p: unknown, args: never, ctx: GraphQLContex
   // integration that files the supplier's bill must not file it per delivery.
   if (order.status === 'RECEIVED' && statusBefore !== 'RECEIVED') {
     emitWebhookBestEffort('purchase_order.received', {
-      purchaseOrderId: String(order._id),
+      purchaseOrderId: order._id.toHexString(),
       number: order.number,
       supplierId: order.supplierId,
       supplierName: order.supplierName,

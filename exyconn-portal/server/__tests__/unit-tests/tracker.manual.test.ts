@@ -4,8 +4,8 @@ import { trackerManualService } from '../../src/modules/tracker/tracker.manual.s
 
 // A real ObjectId string: userId is what ctx.user.id holds, and the service looks it up in
 // the User collection to name the entry. A made-up id would not survive that cast.
-const EMPLOYEE = new Types.ObjectId().toString();
-const OTHER = new Types.ObjectId().toString();
+const EMPLOYEE = new Types.ObjectId().toHexString();
+const OTHER = new Types.ObjectId().toHexString();
 
 const MINUTE = 60 * 1000;
 const HOUR = 60 * MINUTE;

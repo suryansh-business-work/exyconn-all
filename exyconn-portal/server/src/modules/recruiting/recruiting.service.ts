@@ -79,7 +79,8 @@ export async function createApplicantFromSubmission(submissionId: string, data: 
   return ApplicantModel.create(applicantFromSubmission(data, submissionId, job?.title ?? ''));
 }
 
-const STAGE_MESSAGES: Partial<Record<ApplicantStage, string>> = {
+/** One message per stage in NOTIFIED_STAGES: only those stages are ever emailed. */
+const STAGE_MESSAGES: Readonly<Record<string, string>> = {
   INTERVIEW:
     'We would like to invite you to an interview. We will be in touch shortly to arrange a time.',
   OFFER: 'We are pleased to offer you the position. The full details will follow separately.',
@@ -110,7 +111,7 @@ async function notifyApplicant(applicant: {
         name: applicant.name,
         jobTitle: applicant.jobTitle || 'the role you applied for',
         stageLabel: stageLabel(applicant.stage),
-        message: STAGE_MESSAGES[applicant.stage] ?? '',
+        message: STAGE_MESSAGES[applicant.stage],
       },
       triggeredBy: 'recruiting pipeline',
     });

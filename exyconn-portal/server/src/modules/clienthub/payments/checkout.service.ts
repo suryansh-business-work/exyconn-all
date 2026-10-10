@@ -69,7 +69,7 @@ export async function startPayment(
     amount: balance,
     currency: invoice.currency,
   });
-  const attemptId = String(attempt._id);
+  const attemptId = attempt._id.toHexString();
   const request = {
     amount: balance,
     currency: invoice.currency,

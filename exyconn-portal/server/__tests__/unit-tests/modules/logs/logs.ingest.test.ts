@@ -72,7 +72,7 @@ describe('cleaning an entry', () => {
 
   it('cuts long text and keeps only the latest breadcrumbs', async () => {
     const breadcrumbs = Array.from({ length: MAX_BREADCRUMBS + 5 }, (_, index) => crumb(index));
-    breadcrumbs[breadcrumbs.length - 1].message = 'y'.repeat(FIELD_LIMITS.breadcrumb + 50);
+    breadcrumbs.at(-1)!.message = 'y'.repeat(FIELD_LIMITS.breadcrumb + 50);
 
     await ingestLogBatch(
       batch([entry({ message: 'm'.repeat(FIELD_LIMITS.message + 10), breadcrumbs })], {
@@ -108,7 +108,7 @@ describe('who sent it', () => {
   });
 
   it('falls back to the token when the account has been deleted', async () => {
-    const id = String(new Types.ObjectId());
+    const id = new Types.ObjectId().toHexString();
 
     await ingestLogBatch(batch([entry()]), {
       user: { id, roles: [ROLES.EMPLOYEE], email: 'gone@exyconn.com' },

@@ -37,7 +37,7 @@ export function sameGraph(a: unknown, b: unknown): boolean {
 
 export function presentDemo(doc: Stored<WhatsappDemoDocument>) {
   return {
-    id: String(doc._id),
+    id: doc._id.toHexString(),
     key: doc.key,
     industry: doc.industry,
     business: doc.business,
@@ -59,7 +59,7 @@ export function workflowStatus(doc: WhatsappWorkflowDocument): 'DRAFT' | 'PUBLIS
 
 export function presentWorkflow(doc: Stored<WhatsappWorkflowDocument>) {
   return {
-    id: String(doc._id),
+    id: doc._id.toHexString(),
     demoId: doc.demoId,
     demoKey: doc.demoKey,
     key: doc.key,
@@ -105,7 +105,7 @@ export function bundleRevision(
 
 export function presentSession(doc: Stored<WhatsappDemoSessionDocument>, now = Date.now()) {
   return {
-    id: String(doc._id),
+    id: doc._id.toHexString(),
     sessionId: doc.sessionId,
     userId: doc.userId,
     userName: doc.userName ?? '',

@@ -15,7 +15,7 @@ export interface ChatHours {
 
 const toMinutes = (hhmm: string): number => {
   const [hours, minutes] = hhmm.split(':').map(Number);
-  return (hours ?? 0) * 60 + (minutes ?? 0);
+  return hours * 60 + (minutes ?? 0);
 };
 
 /**

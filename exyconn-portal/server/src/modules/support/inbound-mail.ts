@@ -55,7 +55,7 @@ export function isAutomated(message: InboundMessage): boolean {
   if (!message.from || message.autoReply || message.autoSubmitted.startsWith('auto-')) {
     return true;
   }
-  return ROBOT_SENDERS.has(message.from.split('@')[0] ?? '');
+  return ROBOT_SENDERS.has(message.from.split('@')[0]);
 }
 
 /** The employee's own address, so their emailed reply is recognised on their ticket. */

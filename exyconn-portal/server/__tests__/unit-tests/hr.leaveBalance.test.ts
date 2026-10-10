@@ -18,7 +18,7 @@ const hr = {
   user: { id: 'hr-1', email: 'hr@exyconn.com', roles: [ROLES.HR] },
 } as unknown as GraphQLContext;
 
-const EMP = String(new Types.ObjectId());
+const EMP = new Types.ObjectId().toHexString();
 const day = (iso: string) => new Date(`${iso}T00:00:00.000Z`);
 
 const request = (over: Record<string, unknown> = {}) =>
@@ -133,7 +133,7 @@ describe('setLeaveStatus and the leave balance', () => {
     } as unknown as GraphQLContext;
 
     await expect(
-      setLeaveStatus(null, { id: String(req._id), status: 'APPROVED' }, emp),
+      setLeaveStatus(null, { id: req._id.toHexString(), status: 'APPROVED' }, emp),
     ).rejects.toThrow();
   });
 });

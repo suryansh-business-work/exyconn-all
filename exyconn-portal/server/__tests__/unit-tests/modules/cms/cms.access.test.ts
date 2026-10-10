@@ -34,7 +34,7 @@ describe('cmsEditor', () => {
       ROLES.SUPER_ADMIN,
     ]);
     const ctx: GraphQLContext = {
-      user: { id: String(user._id), roles: [ROLES.SUPER_ADMIN], email: 'asha@exyconn.test' },
+      user: { id: user._id.toHexString(), roles: [ROLES.SUPER_ADMIN], email: 'asha@exyconn.test' },
     };
 
     await expect(cmsEditor(ctx, 'CmsPage', 'EDIT')).resolves.toBe('asha');
@@ -46,11 +46,11 @@ describe('cmsEditor', () => {
 
   it('lets the website team of the operator company in', async () => {
     const operator = await operatorOrganization();
-    const ctx = inOrganization(String(operator._id), {
-      id: String(new Types.ObjectId()),
+    const ctx = inOrganization(operator._id.toHexString(), {
+      id: new Types.ObjectId().toHexString(),
       roles: [ROLES.WEBSITE],
       email: 'web@exyconn.test',
-      organizationId: String(operator._id),
+      organizationId: operator._id.toHexString(),
     });
 
     await expect(cmsEditor(ctx, 'Newsletter', 'CREATE')).resolves.toBe('web@exyconn.test');
@@ -58,11 +58,11 @@ describe('cmsEditor', () => {
 
   it('refuses the operator company staff outside the website team', async () => {
     const operator = await operatorOrganization();
-    const ctx = inOrganization(String(operator._id), {
-      id: String(new Types.ObjectId()),
+    const ctx = inOrganization(operator._id.toHexString(), {
+      id: new Types.ObjectId().toHexString(),
       roles: [ROLES.FINANCE],
       email: 'money@exyconn.test',
-      organizationId: String(operator._id),
+      organizationId: operator._id.toHexString(),
     });
 
     await expect(cmsEditor(ctx, 'CmsPage', 'VIEW')).rejects.toThrow(
@@ -72,9 +72,9 @@ describe('cmsEditor', () => {
 
   it('refuses the website team of a customer company', async () => {
     await operatorOrganization();
-    const customer = String(new Types.ObjectId());
+    const customer = new Types.ObjectId().toHexString();
     const ctx = inOrganization(customer, {
-      id: String(new Types.ObjectId()),
+      id: new Types.ObjectId().toHexString(),
       roles: [ROLES.WEBSITE],
       email: 'web@customer.test',
       organizationId: customer,

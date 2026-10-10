@@ -72,7 +72,7 @@ async function eventually(check: () => void): Promise<void> {
 
 beforeEach(() => {
   jest.mocked(channelLookup.forNumber).mockResolvedValue({
-    organizationId: String(new Types.ObjectId()),
+    organizationId: new Types.ObjectId().toHexString(),
     appSecret,
     sender,
   });

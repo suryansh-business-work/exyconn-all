@@ -21,7 +21,7 @@ const joiner = (email = 'asha@exyconn.com') => ({
 
 async function stored(name: string, email: string) {
   const user = await UserModel.create({ name, email, passwordHash: 'x', roles: [ROLES.EMPLOYEE] });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 afterEach(() => jest.restoreAllMocks());

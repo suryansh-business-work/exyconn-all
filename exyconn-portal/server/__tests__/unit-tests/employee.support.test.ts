@@ -31,7 +31,7 @@ const reply = (ticketId: string, body: string, internal: boolean) =>
 describe('mySupportReplies', () => {
   it('shows the employee the public thread but never the internal notes', async () => {
     const ticket = await ticketFor(ME);
-    const id = String(ticket._id);
+    const id = ticket._id.toHexString();
     await reply(id, 'Looking into it.', false);
     await reply(id, 'Probably the old firmware.', true);
 
@@ -43,9 +43,9 @@ describe('mySupportReplies', () => {
   it('refuses another employee’s ticket', async () => {
     const ticket = await ticketFor(SOMEONE_ELSE);
 
-    await expect(myReplies(null, { ticketId: String(ticket._id) }, asEmployee(ME))).rejects.toThrow(
-      'SupportTicket not found',
-    );
+    await expect(
+      myReplies(null, { ticketId: ticket._id.toHexString() }, asEmployee(ME)),
+    ).rejects.toThrow('SupportTicket not found');
   });
 });
 
@@ -55,7 +55,7 @@ describe('addMySupportReply', () => {
 
     const saved = (await addReply(
       null,
-      { ticketId: String(ticket._id), body: '  Still happening today.  ' },
+      { ticketId: ticket._id.toHexString(), body: '  Still happening today.  ' },
       asEmployee(ME),
     )) as { body: string; internal: boolean; authorId: string };
 
@@ -68,7 +68,7 @@ describe('addMySupportReply', () => {
     const ticket = await ticketFor(SOMEONE_ELSE);
 
     await expect(
-      addReply(null, { ticketId: String(ticket._id), body: 'Hello?' }, asEmployee(ME)),
+      addReply(null, { ticketId: ticket._id.toHexString(), body: 'Hello?' }, asEmployee(ME)),
     ).rejects.toThrow('SupportTicket not found');
   });
 
@@ -76,7 +76,7 @@ describe('addMySupportReply', () => {
     const ticket = await ticketFor(ME);
 
     await expect(
-      addReply(null, { ticketId: String(ticket._id), body: '   ' }, asEmployee(ME)),
+      addReply(null, { ticketId: ticket._id.toHexString(), body: '   ' }, asEmployee(ME)),
     ).rejects.toThrow('A reply cannot be empty.');
   });
 });

@@ -89,7 +89,7 @@ describe('domain events reach subscribed webhooks', () => {
       {
         input: {
           number: 'INV-900',
-          clientId: String(client._id),
+          clientId: client._id.toHexString(),
           lines: [{ description: 'Retainer', quantity: 1, rate: 1000, taxPercent: 0 }],
           currency: 'INR',
           status: 'DRAFT',
@@ -132,7 +132,7 @@ describe('domain events reach subscribed webhooks', () => {
     });
     const deal = await DealModel.create({
       title: 'Acme rollout',
-      companyId: String(company._id),
+      companyId: company._id.toHexString(),
       companyName: 'Acme Ltd',
       contactName: 'Priya Nair',
       stage: 'NEGOTIATION',
@@ -140,7 +140,7 @@ describe('domain events reach subscribed webhooks', () => {
       probability: 80,
       owner: 'Asha Rao',
     });
-    const won = { id: String(deal._id), stage: 'WON' };
+    const won = { id: deal._id.toHexString(), stage: 'WON' };
 
     await crmEntitiesResolvers.Mutation.setDealStage(null, won, ctxFor(ROLES.CRM));
     await crmEntitiesResolvers.Mutation.setDealStage(null, won, ctxFor(ROLES.CRM));
@@ -184,7 +184,7 @@ describe('domain events reach subscribed webhooks', () => {
       orderDate: new Date(),
       lines: [
         {
-          productId: String(product._id),
+          productId: product._id.toHexString(),
           productName: 'Laptop',
           quantity: 2,
           unitCost: 80_000,
@@ -197,8 +197,8 @@ describe('domain events reach subscribed webhooks', () => {
       productsPurchasingResolvers.Mutation.receivePurchaseOrder(
         null,
         {
-          id: String(order._id),
-          lines: [{ productId: String(product._id), quantity }],
+          id: order._id.toHexString(),
+          lines: [{ productId: product._id.toHexString(), quantity }],
         } as never,
         ctxFor(ROLES.PRODUCTS),
       );

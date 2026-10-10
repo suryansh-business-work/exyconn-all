@@ -75,7 +75,7 @@ const updateExitRecord = async (p: unknown, args: never, ctx: GraphQLContext) =>
   const becameExited = before !== null && before.stage !== EXITED && input.stage === EXITED;
   const leaverId = before?.employeeId ?? '';
   if (becameExited && isValidObjectId(leaverId)) {
-    await assertMayDeactivate(caller.roles ?? [], leaverId);
+    await assertMayDeactivate(caller.roles, leaverId);
   }
   const updated = await crud.Mutation.updateExitRecord(p, args, ctx);
   if (becameExited && isValidObjectId(leaverId)) {

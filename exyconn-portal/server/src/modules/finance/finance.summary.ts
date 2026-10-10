@@ -132,11 +132,10 @@ async function byCategory(period: Period) {
   ]);
 
   const found = new Map(buckets.map((bucket) => [bucket._id, bucket.total]));
-  const slices = EXPENSE_CATEGORIES.filter((key) => (found.get(key) ?? 0) > 0).map((key) => ({
-    key: String(key),
-    label: humanise(key),
-    amount: round2(found.get(key) ?? 0),
-  }));
+  const slices = EXPENSE_CATEGORIES.flatMap((key) => {
+    const total = found.get(key) ?? 0;
+    return total > 0 ? [{ key: String(key), label: humanise(key), amount: round2(total) }] : [];
+  });
   // Biggest first: a spend breakdown is read to find where the money went, not alphabetically.
   slices.sort((a, b) => b.amount - a.amount);
   return slices;

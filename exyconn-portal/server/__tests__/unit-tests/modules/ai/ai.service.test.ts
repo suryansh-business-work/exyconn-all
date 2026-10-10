@@ -87,7 +87,7 @@ describe('executeAiJob', () => {
 
     expect(result).toMatchObject({ status: 'FAILED', response: '', error: 'The run failed.' });
     expect(logger.error).toHaveBeenCalledWith(
-      expect.objectContaining({ jobId: String(job._id) }),
+      expect.objectContaining({ jobId: job._id.toHexString() }),
       'AI job failed',
     );
   });
@@ -106,7 +106,9 @@ describe('runAiJobNow', () => {
     const job = await seedJob();
     complete.mockResolvedValue(usage);
 
-    await expect(runAiJobNow(String(job._id))).resolves.toMatchObject({ status: 'SUCCEEDED' });
+    await expect(runAiJobNow(job._id.toHexString())).resolves.toMatchObject({
+      status: 'SUCCEEDED',
+    });
   });
 
   it('reports a job that does not exist', async () => {
@@ -127,7 +129,7 @@ describe('enqueueAiJob', () => {
     await seedConfig();
     const job = await seedJob({ status: 'RUNNING' });
 
-    await expect(enqueueAiJob(String(job._id), actor)).rejects.toThrow(
+    await expect(enqueueAiJob(job._id.toHexString(), actor)).rejects.toThrow(
       'This job is already running.',
     );
   });
@@ -137,8 +139,8 @@ describe('enqueueAiJob', () => {
     const draft = await seedJob();
     const failed = await seedJob({ status: 'FAILED', error: 'boom', response: 'partial' });
 
-    const queuedDraft = await enqueueAiJob(String(draft._id), actor);
-    const requeued = await enqueueAiJob(String(failed._id), actor);
+    const queuedDraft = await enqueueAiJob(draft._id.toHexString(), actor);
+    const requeued = await enqueueAiJob(failed._id.toHexString(), actor);
 
     expect(queuedDraft.queuedAt).toBeInstanceOf(Date);
     expect(requeued).toMatchObject({
@@ -154,7 +156,9 @@ describe('enqueueAiJob', () => {
   it('refuses to queue without a key, leaving the job as it was', async () => {
     const job = await seedJob();
 
-    await expect(enqueueAiJob(String(job._id), actor)).rejects.toThrow(/No active OpenAI key/);
+    await expect(enqueueAiJob(job._id.toHexString(), actor)).rejects.toThrow(
+      /No active OpenAI key/,
+    );
     expect((await AiJobModel.findById(job._id).lean())?.queuedAt).toBeNull();
   });
 });

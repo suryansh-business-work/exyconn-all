@@ -13,7 +13,7 @@ const input = (fields: Partial<CmsSiteInput> = {}): CmsSiteInput => ({
   ...fields,
 });
 
-const missingId = () => String(new Types.ObjectId());
+const missingId = () => new Types.ObjectId().toHexString();
 
 describe('normalizeHost', () => {
   it('keeps only the lower-case host name', () => {
@@ -46,7 +46,7 @@ describe('cmsSites.create', () => {
       notFoundPageId: '',
     });
     const design = await CmsDesignSystemModel.findById(site.designSystemId).lean();
-    expect(design).toMatchObject({ siteId: String(site._id), name: 'Docs design system' });
+    expect(design).toMatchObject({ siteId: site._id.toHexString(), name: 'Docs design system' });
   });
 
   it('keeps a design system and the page chrome it was given', async () => {
@@ -92,7 +92,7 @@ describe('cmsSites.update', () => {
     const site = await seedSite('docs', { domains: ['docs.test'] });
 
     const updated = await cmsSites.update(
-      String(site._id),
+      site._id.toHexString(),
       input({ name: 'Docs v2', domains: ['docs.test', 'www.docs.test'], faviconUrl: ' /f.ico ' }),
     );
 
@@ -107,11 +107,11 @@ describe('cmsSites.update', () => {
     await seedSite('main', { domains: ['main.test'] });
     const site = await seedSite('docs');
 
-    await expect(cmsSites.update(String(site._id), input({ slug: 'main' }))).rejects.toThrow(
+    await expect(cmsSites.update(site._id.toHexString(), input({ slug: 'main' }))).rejects.toThrow(
       'Another website already uses this key.',
     );
     await expect(
-      cmsSites.update(String(site._id), input({ domains: ['main.test'] })),
+      cmsSites.update(site._id.toHexString(), input({ domains: ['main.test'] })),
     ).rejects.toThrow('main.test already belongs to Main.');
   });
 
@@ -134,7 +134,7 @@ describe('reading sites', () => {
   it('finds a site by id and by key, whatever the key case', async () => {
     const site = await seedSite('docs');
 
-    await expect(cmsSites.get(String(site._id))).resolves.toMatchObject({ slug: 'docs' });
+    await expect(cmsSites.get(site._id.toHexString())).resolves.toMatchObject({ slug: 'docs' });
     await expect(cmsSites.bySlug('DOCS')).resolves.toMatchObject({ name: 'Main' });
   });
 
@@ -149,7 +149,7 @@ describe('default site', () => {
     const first = await seedSite('first', { isDefault: true });
     const second = await seedSite('second');
 
-    const updated = await cmsSites.setDefault(String(second._id));
+    const updated = await cmsSites.setDefault(second._id.toHexString());
 
     expect(updated).toMatchObject({ isDefault: true });
     await expect(CmsSiteModel.findById(first._id).lean()).resolves.toMatchObject({
@@ -166,14 +166,14 @@ describe('cmsSites.remove', () => {
   it('deletes a site that is not the default', async () => {
     const site = await seedSite('docs');
 
-    await expect(cmsSites.remove(String(site._id))).resolves.toBe(true);
+    await expect(cmsSites.remove(site._id.toHexString())).resolves.toBe(true);
     await expect(CmsSiteModel.countDocuments()).resolves.toBe(0);
   });
 
   it('refuses the default site and a site that does not exist', async () => {
     const site = await seedSite('home', { isDefault: true });
 
-    await expect(cmsSites.remove(String(site._id))).rejects.toThrow(
+    await expect(cmsSites.remove(site._id.toHexString())).rejects.toThrow(
       'Make another website the default before deleting this one.',
     );
     await expect(cmsSites.remove(missingId())).rejects.toThrow('Website not found');

@@ -3,7 +3,7 @@ import { newsletter, type NewsletterIssueInput } from '../../../../src/modules/c
 import { freezeClock } from '../../../helpers';
 
 const SITE = 'site-1';
-const missingId = () => String(new Types.ObjectId());
+const missingId = () => new Types.ObjectId().toHexString();
 
 const issue = (fields: Partial<NewsletterIssueInput> = {}): NewsletterIssueInput => ({
   siteId: SITE,
@@ -95,7 +95,7 @@ describe('newsletter issues', () => {
     const created = await newsletter.createIssue(issue());
 
     const updated = await newsletter.updateIssue(
-      String(created._id),
+      created._id.toHexString(),
       issue({ title: 'October (revised)', isActive: false }),
     );
 
@@ -106,7 +106,7 @@ describe('newsletter issues', () => {
     await newsletter.createIssue(issue());
     const other = await newsletter.createIssue(issue({ slug: 'september-2026' }));
 
-    await expect(newsletter.updateIssue(String(other._id), issue())).rejects.toThrow(
+    await expect(newsletter.updateIssue(other._id.toHexString(), issue())).rejects.toThrow(
       'Another issue already uses this address.',
     );
   });
@@ -121,7 +121,7 @@ describe('newsletter issues', () => {
   it('removes an issue', async () => {
     const created = await newsletter.createIssue(issue());
 
-    await expect(newsletter.removeIssue(String(created._id))).resolves.toBe(true);
+    await expect(newsletter.removeIssue(created._id.toHexString())).resolves.toBe(true);
     await expect(newsletter.issues(SITE, 0, 10)).resolves.toEqual({ rows: [], totalCount: 0 });
   });
 });

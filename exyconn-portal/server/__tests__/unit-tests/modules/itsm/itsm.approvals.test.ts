@@ -107,7 +107,7 @@ describe('IT decisions in the shared approvals queue', () => {
     });
 
     await source('IT_PURCHASE').decide(
-      { recordId: String(created._id), decision: 'APPROVED', note: ' ok ' },
+      { recordId: created._id.toHexString(), decision: 'APPROVED', note: ' ok ' },
       ctx,
     );
 
@@ -131,7 +131,7 @@ describe('IT decisions in the shared approvals queue', () => {
     const employee = ctxFor('emp-1', [ROLES.EMPLOYEE]);
 
     const attempt = source('IT_CHANGE').decide(
-      { recordId: String(created._id), decision: 'APPROVED', note: null },
+      { recordId: created._id.toHexString(), decision: 'APPROVED', note: null },
       employee,
     );
 

@@ -92,7 +92,7 @@ export async function composePosts(input: ComposeInput, userId: string) {
     })),
   );
   if (status === 'PUBLISHING') {
-    await Promise.all(created.map((post) => deliver(String(post._id))));
+    await Promise.all(created.map((post) => deliver(post._id.toHexString())));
   }
   return SocialMediaPostModel.find({ batchId }).lean();
 }

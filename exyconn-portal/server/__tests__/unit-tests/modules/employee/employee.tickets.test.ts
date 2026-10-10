@@ -99,13 +99,13 @@ describe('addMySupportReply authorship', () => {
 
   it('signs the reply with the account’s name and files its attachments under it', async () => {
     const user = await seedUser('priya@example.com', `pw-${randomUUID()}`, [ROLES.EMPLOYEE]);
-    const id = String(user._id);
+    const id = user._id.toHexString();
     const ticket = await ticketFor(id);
 
     const reply = (await M.addMySupportReply(
       null,
       {
-        ticketId: String(ticket._id),
+        ticketId: ticket._id.toHexString(),
         body: 'Screenshot attached',
         attachments: [
           { url: 'https://files.example.com/s.png', name: 's.png', contentType: 'image/png' },
@@ -123,13 +123,13 @@ describe('addMySupportReply authorship', () => {
 
     const reply = (await M.addMySupportReply(
       null,
-      { ticketId: String(ticket._id), body: 'Any news?' },
+      { ticketId: ticket._id.toHexString(), body: 'Any news?' },
       as('legacy-employee', 'legacy@example.com'),
     )) as { authorName: string; attachments: unknown[] };
 
     expect(reply.authorName).toBe('legacy@example.com');
     expect(reply.attachments).toEqual([]);
-    expect(await SupportReplyModel.countDocuments({ ticketId: String(ticket._id) })).toBe(1);
+    expect(await SupportReplyModel.countDocuments({ ticketId: ticket._id.toHexString() })).toBe(1);
   });
 
   it('falls back to the email when the account no longer exists', async () => {
@@ -138,7 +138,7 @@ describe('addMySupportReply authorship', () => {
 
     const reply = (await M.addMySupportReply(
       null,
-      { ticketId: String(ticket._id), body: 'Hello' },
+      { ticketId: ticket._id.toHexString(), body: 'Hello' },
       as(gone, 'gone@example.com'),
     )) as { authorName: string };
 

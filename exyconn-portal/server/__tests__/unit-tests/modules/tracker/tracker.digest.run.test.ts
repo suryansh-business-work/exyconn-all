@@ -25,7 +25,7 @@ async function person(name: string, roles: Role[], isActive = true) {
     roles,
     isActive,
   });
-  return { id: String(user._id), email: user.email };
+  return { id: user._id.toHexString(), email: user.email };
 }
 
 async function workedYesterday(userId: string) {

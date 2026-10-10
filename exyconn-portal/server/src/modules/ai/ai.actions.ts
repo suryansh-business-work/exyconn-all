@@ -71,7 +71,7 @@ export async function runAssist(name: string, prompt: string, actor: AiActor): P
     createdById: actor.id,
     createdByName: actor.name,
   });
-  const finished = await runAiJobNow(String(job._id));
+  const finished = await runAiJobNow(job._id.toHexString());
   if (finished.status === 'FAILED') {
     badRequest(finished.error);
   }

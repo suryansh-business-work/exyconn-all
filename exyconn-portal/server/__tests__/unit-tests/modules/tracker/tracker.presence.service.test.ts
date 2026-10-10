@@ -4,7 +4,7 @@ import { TRACKER_MESSAGE_LIMITS } from '../../../../src/modules/tracker/tracker.
 import { presenceOf, setPresence } from '../../../../src/modules/tracker/tracker.presence.service';
 
 async function granted() {
-  const userId = new Types.ObjectId().toString();
+  const userId = new Types.ObjectId().toHexString();
   await TrackerAccessModel.create({ userId, grantedBy: 'admin' });
   return userId;
 }
@@ -39,7 +39,7 @@ describe('setPresence', () => {
   });
 
   it('refuses an employee who never had a grant', async () => {
-    await expect(setPresence(new Types.ObjectId().toString(), 'AWAY')).rejects.toThrow(
+    await expect(setPresence(new Types.ObjectId().toHexString(), 'AWAY')).rejects.toThrow(
       'Your tracker access has been revoked.',
     );
   });

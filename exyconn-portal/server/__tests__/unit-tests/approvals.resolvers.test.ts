@@ -22,7 +22,7 @@ async function person(name: string) {
     roles: [ROLES.EMPLOYEE],
     isActive: true,
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 const as = (id: string): GraphQLContext => ({
@@ -111,7 +111,7 @@ describe('delegating approvals through the API', () => {
     await expect(
       Mutation.delegateApprovals(
         null,
-        { input: { toEmployeeId: String(new Types.ObjectId()), ...span(0, 1) } },
+        { input: { toEmployeeId: new Types.ObjectId().toHexString(), ...span(0, 1) } },
         as(me),
       ),
     ).rejects.toThrow('That person does not have an active account.');
@@ -143,7 +143,7 @@ describe('delegating approvals through the API', () => {
 describe('a delegation whose people are gone', () => {
   it('shows blank names and an empty note rather than failing', async () => {
     const standIn = await person('Dev Shah');
-    const goneId = String(new Types.ObjectId());
+    const goneId = new Types.ObjectId().toHexString();
     // Written straight to the collection: an older row with no note, from somebody since removed.
     await ApprovalDelegateModel.collection.insertOne({
       fromEmployeeId: goneId,

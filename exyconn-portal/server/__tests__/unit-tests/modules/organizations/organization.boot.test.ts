@@ -17,7 +17,7 @@ async function company(name: string, fields: Record<string, unknown> = {}): Prom
   const created = await runAsPlatform(() =>
     OrganizationModel.create({ name, slug: name.toLowerCase(), currency: 'USD', ...fields }),
   );
-  return String(created._id);
+  return created._id.toHexString();
 }
 
 afterEach(() => {

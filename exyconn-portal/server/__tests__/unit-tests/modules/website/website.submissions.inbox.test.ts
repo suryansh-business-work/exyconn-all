@@ -15,7 +15,7 @@ const codeOf = (promise: Promise<unknown>, code: string) =>
 const page = (input: Partial<TableQueryInput>) =>
   Q.listWebsiteSubmissionsPaged(null, { input: { page: 0, pageSize: 25, ...input } }, adminCtx());
 
-const missingId = () => String(new Types.ObjectId());
+const missingId = () => new Types.ObjectId().toHexString();
 
 describe('reading the website inbox', () => {
   it('lists every submission, newest first, with its id', async () => {
@@ -29,7 +29,7 @@ describe('reading the website inbox', () => {
       'contact',
       'newsletter',
     ]);
-    expect(rows[1].id).toBe(String(old._id));
+    expect(rows[1].id).toBe(old._id.toHexString());
   });
 
   it('pages and filters the grid on the columns it shows', async () => {
@@ -73,9 +73,9 @@ describe('reading the website inbox', () => {
   it('opens one submission, and says so when it does not exist', async () => {
     const row = await seedSubmission('career', { email: 'cv@example.com' });
 
-    const opened = await Q.getWebsiteSubmission(null, { id: String(row._id) }, adminCtx());
+    const opened = await Q.getWebsiteSubmission(null, { id: row._id.toHexString() }, adminCtx());
 
-    expect(opened).toMatchObject({ id: String(row._id), formType: 'career' });
+    expect(opened).toMatchObject({ id: row._id.toHexString(), formType: 'career' });
     await codeOf(Q.getWebsiteSubmission(null, { id: missingId() }, adminCtx()), 'NOT_FOUND');
   });
 
@@ -94,7 +94,7 @@ describe('triaging the website inbox', () => {
 
     const updated = await M.triageWebsiteSubmission(
       null,
-      { id: String(row._id), input: { status: 'resolved', notes: 'Replied by phone' } },
+      { id: row._id.toHexString(), input: { status: 'resolved', notes: 'Replied by phone' } },
       adminCtx(),
     );
 
@@ -106,7 +106,7 @@ describe('triaging the website inbox', () => {
 
     await M.triageWebsiteSubmission(
       null,
-      { id: String(row._id), input: { status: 'archived' } },
+      { id: row._id.toHexString(), input: { status: 'archived' } },
       adminCtx(),
     );
 
@@ -119,7 +119,7 @@ describe('triaging the website inbox', () => {
     await codeOf(
       M.triageWebsiteSubmission(
         null,
-        { id: String(row._id), input: { status: 'spam' } },
+        { id: row._id.toHexString(), input: { status: 'spam' } },
         adminCtx(),
       ),
       'BAD_USER_INPUT',
@@ -138,10 +138,13 @@ describe('triaging the website inbox', () => {
     const row = await seedSubmission();
 
     await expect(
-      M.deleteWebsiteSubmission(null, { id: String(row._id) }, adminCtx()),
+      M.deleteWebsiteSubmission(null, { id: row._id.toHexString() }, adminCtx()),
     ).resolves.toBe(true);
     expect(await WebsiteSubmissionModel.countDocuments()).toBe(0);
-    await codeOf(M.deleteWebsiteSubmission(null, { id: String(row._id) }, adminCtx()), 'NOT_FOUND');
+    await codeOf(
+      M.deleteWebsiteSubmission(null, { id: row._id.toHexString() }, adminCtx()),
+      'NOT_FOUND',
+    );
   });
 });
 

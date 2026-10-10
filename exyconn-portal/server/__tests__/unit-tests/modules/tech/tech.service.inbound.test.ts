@@ -49,7 +49,7 @@ describe('the support mailbox config', () => {
     const rotated = credential('rotated-imap');
 
     await techService.updateInboundMailConfig(
-      String(config._id),
+      config._id.toHexString(),
       inboundInput({ password: rotated }),
     );
 
@@ -62,7 +62,7 @@ describe('the support mailbox config', () => {
     const next = await techService.createInboundMailConfig(inboundInput({ label: 'New' }));
 
     const updated = await techService.updateInboundMailConfig(
-      String(next._id),
+      next._id.toHexString(),
       inboundInput({ label: 'New', isActive: true }),
     );
 
@@ -80,15 +80,19 @@ describe('the support mailbox config', () => {
   it('deletes a mailbox, and answers NOT_FOUND the second time', async () => {
     const config = await techService.createInboundMailConfig(inboundInput());
 
-    await expect(techService.deleteInboundMailConfig(String(config._id))).resolves.toBe(true);
-    expect(await codeOf(techService.deleteInboundMailConfig(String(config._id)))).toBe('NOT_FOUND');
+    await expect(techService.deleteInboundMailConfig(config._id.toHexString())).resolves.toBe(true);
+    expect(await codeOf(techService.deleteInboundMailConfig(config._id.toHexString()))).toBe(
+      'NOT_FOUND',
+    );
   });
 
   it('signs in through the chosen mailbox to check it', async () => {
     const verify = jest.spyOn(inboundMailbox, 'verify').mockResolvedValue();
     const config = await techService.createInboundMailConfig(inboundInput({ label: 'Desk' }));
 
-    await expect(techService.testInboundMailConnection(String(config._id))).resolves.toBe(true);
+    await expect(techService.testInboundMailConnection(config._id.toHexString())).resolves.toBe(
+      true,
+    );
 
     expect(verify).toHaveBeenCalledTimes(1);
     expect(verify.mock.calls[0][0]).toMatchObject({ label: 'Desk', host: 'imap.example.com' });
@@ -98,7 +102,7 @@ describe('the support mailbox config', () => {
     jest.spyOn(inboundMailbox, 'verify').mockRejectedValue(new Error('Invalid credentials'));
     const config = await techService.createInboundMailConfig(inboundInput());
 
-    await expect(techService.testInboundMailConnection(String(config._id))).rejects.toThrow(
+    await expect(techService.testInboundMailConnection(config._id.toHexString())).rejects.toThrow(
       'Invalid credentials',
     );
   });

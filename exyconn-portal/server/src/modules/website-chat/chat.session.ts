@@ -93,11 +93,11 @@ export async function openSession(identity: ChatIdentity) {
     ...identity,
     expiresAt: new Date(Date.now() + settings.sessionTimeoutMinutes * 60_000),
   });
-  const sessionId = String(session._id);
+  const sessionId = session._id.toHexString();
   const ticket = await openTicket(sessionId, identity);
   const saved = await ChatSessionModel.findByIdAndUpdate(
     sessionId,
-    { ticketId: String(ticket._id), ticketReference: ticket.reference },
+    { ticketId: ticket._id.toHexString(), ticketReference: ticket.reference },
     { new: true },
   ).lean();
   if (!saved) {

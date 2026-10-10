@@ -16,7 +16,6 @@ import { presenceOf } from './tracker.presence.service';
 import { policyAcknowledgementService } from '../legal/policy-acknowledgement.service';
 import { assertWorkspaceOpen } from '../auth/workspace-status';
 import { organizationOf, runForOrganizationOf } from '../../lib/tenant';
-import type { Role } from '../../constants/roles';
 import {
   TrackerAccessModel,
   TrackerDeviceModel,
@@ -180,10 +179,10 @@ class TrackerDeviceService {
     const token = signDeviceToken({
       id: user.id,
       email: user.email,
-      roles: user.roles as Role[],
+      roles: user.roles,
       organizationId,
       deviceId: device.deviceId,
-      tv: user.tokenVersion ?? 0,
+      tv: user.tokenVersion,
     });
 
     await TrackerDeviceModel.findOneAndUpdate(
@@ -269,7 +268,7 @@ class TrackerDeviceService {
     const [workday, projects, consentPolicy, notices, unreadMessages] = await Promise.all([
       trackerWorkdayService.workday(userId, user, timezone),
       trackerWorkdayService.projects(),
-      trackerWorkdayService.consentPolicy(userId, settings.consentPolicySlug ?? ''),
+      trackerWorkdayService.consentPolicy(userId, settings.consentPolicySlug),
       // Carried on the keep-alive rather than polled separately: the app checks in once a
       // minute anyway, and an announcement that needs its own timer is an announcement that
       // stops arriving the first time that timer is forgotten.
@@ -325,10 +324,7 @@ class TrackerDeviceService {
    */
   async acceptConsent(userId: string, signedName?: string | null) {
     const settings = await getTrackerSettings();
-    const policy = await trackerWorkdayService.consentPolicy(
-      userId,
-      settings.consentPolicySlug ?? '',
-    );
+    const policy = await trackerWorkdayService.consentPolicy(userId, settings.consentPolicySlug);
 
     if (policy?.requiresAcknowledgement && !policy.acknowledged) {
       const name = signedName?.trim() ?? '';

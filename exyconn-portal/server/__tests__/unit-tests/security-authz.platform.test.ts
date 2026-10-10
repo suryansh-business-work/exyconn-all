@@ -72,8 +72,8 @@ beforeEach(async () => {
   invalidatePermissionCache();
   const operator = await organization('Exyconn', new Date('2024-01-01'));
   const customer = await organization('Acme', new Date('2025-01-01'));
-  operatorId = String(operator._id);
-  customerId = String(customer._id);
+  operatorId = operator._id.toHexString();
+  customerId = customer._id.toHexString();
   await ensurePlatformOperatorOrganization();
 });
 

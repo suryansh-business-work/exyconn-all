@@ -75,6 +75,7 @@ export function inboundMessages(body: unknown): InboundMessage[] {
   }
   return (payload.entry ?? [])
     .flatMap((entry) => entry.changes ?? [])
-    .filter((change) => change.field === 'messages' && change.value)
-    .flatMap((change) => fromValue(change.value ?? {}));
+    .flatMap((change) =>
+      change.field === 'messages' && change.value ? fromValue(change.value) : [],
+    );
 }

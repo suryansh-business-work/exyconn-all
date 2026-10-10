@@ -52,10 +52,10 @@ const win = (id: string) =>
 describe('Winning a deal makes the account a client', () => {
   it('creates one client from the company and stamps it on both records', async () => {
     const company = await seedCompany();
-    await seedContact(String(company._id));
-    const deal = await seedDeal(String(company._id));
+    await seedContact(company._id.toHexString());
+    const deal = await seedDeal(company._id.toHexString());
 
-    const won = await win(String(deal._id));
+    const won = await win(deal._id.toHexString());
 
     const client = await ClientModel.findById(won.clientId).lean();
     expect(client).toMatchObject({
@@ -72,14 +72,14 @@ describe('Winning a deal makes the account a client', () => {
 
   it('prefers the email of the contact the deal names', async () => {
     const company = await seedCompany();
-    await seedContact(String(company._id));
-    const named = await seedContact(String(company._id), {
+    await seedContact(company._id.toHexString());
+    const named = await seedContact(company._id.toHexString(), {
       name: 'Priya',
       email: 'priya@acme.com',
     });
-    const deal = await seedDeal(String(company._id), { contactId: String(named._id) });
+    const deal = await seedDeal(company._id.toHexString(), { contactId: named._id.toHexString() });
 
-    const won = await win(String(deal._id));
+    const won = await win(deal._id.toHexString());
 
     const client = await ClientModel.findById(won.clientId).lean();
     expect(client?.email).toBe('priya@acme.com');
@@ -87,12 +87,12 @@ describe('Winning a deal makes the account a client', () => {
 
   it('reuses the client on a second win for the same account', async () => {
     const company = await seedCompany();
-    await seedContact(String(company._id));
-    const first = await seedDeal(String(company._id));
-    const second = await seedDeal(String(company._id), { title: 'Acme phase two' });
+    await seedContact(company._id.toHexString());
+    const first = await seedDeal(company._id.toHexString());
+    const second = await seedDeal(company._id.toHexString(), { title: 'Acme phase two' });
 
-    const firstWon = await win(String(first._id));
-    const secondWon = await win(String(second._id));
+    const firstWon = await win(first._id.toHexString());
+    const secondWon = await win(second._id.toHexString());
 
     expect(secondWon.clientId).toBe(firstWon.clientId);
     await expect(ClientModel.countDocuments()).resolves.toBe(1);
@@ -100,9 +100,9 @@ describe('Winning a deal makes the account a client', () => {
 
   it('falls back to the domain when nobody at the account has an email', async () => {
     const company = await seedCompany();
-    const deal = await seedDeal(String(company._id));
+    const deal = await seedDeal(company._id.toHexString());
 
-    const won = await win(String(deal._id));
+    const won = await win(deal._id.toHexString());
 
     const client = await ClientModel.findById(won.clientId).lean();
     expect(client?.email).toBe('unknown@acme.com');
@@ -118,7 +118,7 @@ describe('Winning a deal makes the account a client', () => {
     });
     const deal = await seedDeal(String(insertedId));
 
-    await expect(win(String(deal._id))).rejects.toThrow(/no contact with an email/);
+    await expect(win(deal._id.toHexString())).rejects.toThrow(/no contact with an email/);
 
     const saved = await DealModel.findById(deal._id).lean();
     expect(saved?.stage).toBe('NEGOTIATION');
@@ -128,21 +128,21 @@ describe('Winning a deal makes the account a client', () => {
   it('refuses a win for a deal with no company', async () => {
     const deal = await seedDeal('');
 
-    await expect(win(String(deal._id))).rejects.toThrow(/has no company/);
+    await expect(win(deal._id.toHexString())).rejects.toThrow(/has no company/);
   });
 
   it('does the same hand-off when the form saves the deal as won', async () => {
     const company = await seedCompany();
-    await seedContact(String(company._id));
-    const deal = await seedDeal(String(company._id));
+    await seedContact(company._id.toHexString());
+    const deal = await seedDeal(company._id.toHexString());
 
     const saved = (await crmEntitiesResolvers.Mutation.updateDeal(
       null,
       {
-        id: String(deal._id),
+        id: deal._id.toHexString(),
         input: {
           title: deal.title,
-          companyId: String(company._id),
+          companyId: company._id.toHexString(),
           companyName: 'Acme Ltd',
           stage: 'WON',
           value: 300000,
@@ -161,11 +161,11 @@ describe('Winning a deal makes the account a client', () => {
 
   it('leaves a deal that is not won without a client', async () => {
     const company = await seedCompany();
-    const deal = await seedDeal(String(company._id));
+    const deal = await seedDeal(company._id.toHexString());
 
     const moved = (await crmEntitiesResolvers.Mutation.setDealStage(
       null,
-      { id: String(deal._id), stage: 'PROPOSAL' },
+      { id: deal._id.toHexString(), stage: 'PROPOSAL' },
       asSales,
     )) as { id: string; clientId: string; stage: string };
 
@@ -184,9 +184,9 @@ describe('promoteCompanyToClient', () => {
 
   it('makes a client of the account by hand, and reports it as one', async () => {
     const company = await seedCompany();
-    await seedContact(String(company._id));
+    await seedContact(company._id.toHexString());
 
-    const promoted = await promote(String(company._id));
+    const promoted = await promote(company._id.toHexString());
 
     expect(promoted.clientId).not.toBe('');
     expect(crmEntitiesResolvers.Company.isClient(promoted)).toBe(true);
@@ -195,10 +195,10 @@ describe('promoteCompanyToClient', () => {
 
   it('is a no-op the second time', async () => {
     const company = await seedCompany();
-    await seedContact(String(company._id));
+    await seedContact(company._id.toHexString());
 
-    const first = await promote(String(company._id));
-    const second = await promote(String(company._id));
+    const first = await promote(company._id.toHexString());
+    const second = await promote(company._id.toHexString());
 
     expect(second.clientId).toBe(first.clientId);
     await expect(ClientModel.countDocuments()).resolves.toBe(1);

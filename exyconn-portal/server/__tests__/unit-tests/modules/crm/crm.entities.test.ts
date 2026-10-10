@@ -31,13 +31,13 @@ async function seedWinnableDeal(stage = 'NEGOTIATION') {
   await ContactModel.create({
     name: 'Ravi',
     email: 'ravi@acme.com',
-    companyId: String(company._id),
+    companyId: company._id.toHexString(),
     status: 'ACTIVE',
     owner: 'A',
   });
   const deal = await DealModel.create({
     title: 'Acme rollout',
-    companyId: String(company._id),
+    companyId: company._id.toHexString(),
     companyName: 'Acme Ltd',
     contactName: 'Ravi',
     stage,
@@ -71,7 +71,7 @@ describe('moving a deal on the board', () => {
   it('announces the win with the client it was billed to', async () => {
     const { deal } = await seedWinnableDeal();
 
-    const won = await setStage(String(deal._id), 'WON');
+    const won = await setStage(deal._id.toHexString(), 'WON');
 
     expect(emitted).toHaveBeenCalledTimes(1);
     expect(emitted).toHaveBeenCalledWith(
@@ -92,7 +92,7 @@ describe('moving a deal on the board', () => {
   it('refuses somebody outside the CRM role', async () => {
     const { deal } = await seedWinnableDeal();
 
-    await expect(setStage(String(deal._id), 'WON', asEmployee)).rejects.toThrow();
+    await expect(setStage(deal._id.toHexString(), 'WON', asEmployee)).rejects.toThrow();
     await expect(ClientModel.countDocuments()).resolves.toBe(0);
   });
 
@@ -106,7 +106,7 @@ describe('moving a deal on the board', () => {
       .spyOn(DealModel, 'findByIdAndUpdate')
       .mockReturnValueOnce(asArg({ lean: () => Promise.resolve(null) }));
 
-    await expect(setStage(String(deal._id), 'PROPOSAL')).rejects.toThrow('Deal not found');
+    await expect(setStage(deal._id.toHexString(), 'PROPOSAL')).rejects.toThrow('Deal not found');
     expect(emitted).not.toHaveBeenCalled();
   });
 
@@ -130,7 +130,10 @@ describe('saving a deal from the form', () => {
   it('saves a deal that is not won without filing a client or announcing anything', async () => {
     const { company, deal } = await seedWinnableDeal();
 
-    const saved = await saveDeal(String(deal._id), dealInput(String(company._id), 'PROPOSAL'));
+    const saved = await saveDeal(
+      deal._id.toHexString(),
+      dealInput(company._id.toHexString(), 'PROPOSAL'),
+    );
 
     expect(saved).toMatchObject({ stage: 'PROPOSAL', value: 2000 });
     await expect(ClientModel.countDocuments()).resolves.toBe(0);
@@ -140,7 +143,10 @@ describe('saving a deal from the form', () => {
   it('announces a win saved from the form once', async () => {
     const { company, deal } = await seedWinnableDeal();
 
-    const saved = await saveDeal(String(deal._id), dealInput(String(company._id), 'WON'));
+    const saved = await saveDeal(
+      deal._id.toHexString(),
+      dealInput(company._id.toHexString(), 'WON'),
+    );
 
     expect(emitted).toHaveBeenCalledWith(
       'deal.won',
@@ -151,7 +157,10 @@ describe('saving a deal from the form', () => {
   it('does not announce a deal that was already won when it is saved again', async () => {
     const { company, deal } = await seedWinnableDeal('WON');
 
-    const saved = await saveDeal(String(deal._id), dealInput(String(company._id), 'WON'));
+    const saved = await saveDeal(
+      deal._id.toHexString(),
+      dealInput(company._id.toHexString(), 'WON'),
+    );
 
     expect(saved.clientId).not.toBe('');
     expect(emitted).not.toHaveBeenCalled();
@@ -165,7 +174,7 @@ describe('saving a deal from the form', () => {
     const { company, deal } = await seedWinnableDeal();
 
     await expect(
-      saveDeal(String(deal._id), dealInput(String(company._id), 'WON'), asEmployee),
+      saveDeal(deal._id.toHexString(), dealInput(company._id.toHexString(), 'WON'), asEmployee),
     ).rejects.toThrow();
     await expect(ClientModel.countDocuments()).resolves.toBe(0);
   });

@@ -47,7 +47,7 @@ describe('employee rates', () => {
       email: `${randomUUID()}@exyconn.com`,
       passwordHash: randomUUID(),
     });
-    const id = String(user._id);
+    const id = user._id.toHexString();
     await SalaryStructureModel.create({
       employeeId: id,
       currency: 'INR',
@@ -70,7 +70,7 @@ describe('employee rates', () => {
   });
 
   it('keeps hours of a deleted employee with no structure, in the company currency', async () => {
-    const gone = new Types.ObjectId().toString();
+    const gone = new Types.ObjectId().toHexString();
 
     const rates = await employeeRates([gone]);
 

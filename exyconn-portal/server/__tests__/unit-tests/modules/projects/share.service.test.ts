@@ -28,7 +28,7 @@ async function trackedSession(projectId: string, activeHours: number[]) {
   for (const [index, hours] of activeHours.entries()) {
     await TrackerIntervalModel.create({
       userId: 'u1',
-      sessionId: String(session._id),
+      sessionId: session._id.toHexString(),
       startedAt: at(index),
       endedAt: at(index + 1),
       activeMs: hours * HOUR,

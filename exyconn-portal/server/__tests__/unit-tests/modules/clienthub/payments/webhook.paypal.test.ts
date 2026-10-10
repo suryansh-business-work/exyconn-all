@@ -30,7 +30,7 @@ beforeEach(async () => {
   const invoice = await seedInvoice(clientId);
   await PaymentAttemptModel.create({
     gateway: 'PAYPAL',
-    invoiceId: String(invoice._id),
+    invoiceId: invoice._id.toHexString(),
     invoiceNumber: 'INV-7',
     clientId,
     contactId: 'contact-1',

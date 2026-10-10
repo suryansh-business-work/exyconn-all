@@ -7,7 +7,7 @@ import {
   leaveDays,
 } from '../../../../src/modules/hr/leave-balance.service';
 
-const EMP = String(new Types.ObjectId());
+const EMP = new Types.ObjectId().toHexString();
 const day = (iso: string) => new Date(`${iso}T00:00:00.000Z`);
 
 const span = (type: string, from: string, to: string) => ({

@@ -47,7 +47,7 @@ describe('converting a lead — the inputs it honours', () => {
   it('files the person the seller names instead of the lead itself', async () => {
     const lead = await seedLead();
 
-    const deal = await convert(String(lead._id), {
+    const deal = await convert(lead._id.toHexString(), {
       contactName: '  Priya Shah ',
       contactEmail: ' Priya@Globex.io ',
     });
@@ -60,7 +60,7 @@ describe('converting a lead — the inputs it honours', () => {
   it('falls back to the lead when the named person is blank', async () => {
     const lead = await seedLead();
 
-    const deal = await convert(String(lead._id), { contactName: '   ', contactEmail: null });
+    const deal = await convert(lead._id.toHexString(), { contactName: '   ', contactEmail: null });
 
     const contact = await ContactModel.findById(deal.contactId).lean();
     expect(contact).toMatchObject({ name: 'Ravi Kumar', email: 'ravi@globex.io' });
@@ -69,7 +69,7 @@ describe('converting a lead — the inputs it honours', () => {
   it('trims the company name and keys the new account by the lead domain', async () => {
     const lead = await seedLead();
 
-    const deal = await convert(String(lead._id));
+    const deal = await convert(lead._id.toHexString());
 
     const company = await CompanyModel.findById(deal.companyId).lean();
     expect(company).toMatchObject({ name: 'Globex', domain: 'globex.io', owner: 'Asha' });
@@ -80,8 +80,8 @@ describe('converting a lead — the inputs it honours', () => {
     const first = await seedLead();
     const second = await seedLead();
 
-    const dated = await convert(String(first._id), { expectedCloseDate: closeOn });
-    const undated = await convert(String(second._id));
+    const dated = await convert(first._id.toHexString(), { expectedCloseDate: closeOn });
+    const undated = await convert(second._id.toHexString());
 
     expect(dated.expectedCloseDate).toEqual(closeOn);
     expect(undated.expectedCloseDate).toBeNull();
@@ -97,7 +97,7 @@ describe('converting a lead — the inputs it honours', () => {
   it('is refused to somebody outside the CRM role and changes nothing', async () => {
     const lead = await seedLead();
 
-    await expect(convert(String(lead._id), {}, asEmployee)).rejects.toThrow();
+    await expect(convert(lead._id.toHexString(), {}, asEmployee)).rejects.toThrow();
 
     const saved = await LeadModel.findById(lead._id).lean();
     expect(saved?.convertedDealId).toBeNull();

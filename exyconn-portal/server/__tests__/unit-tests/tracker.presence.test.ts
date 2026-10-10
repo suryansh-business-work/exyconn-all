@@ -6,10 +6,10 @@ import {
   setPresence,
 } from '../../src/modules/tracker/tracker.presence.service';
 
-const ADMIN = new Types.ObjectId().toString();
+const ADMIN = new Types.ObjectId().toHexString();
 
 async function granted(active = true) {
-  const userId = new Types.ObjectId().toString();
+  const userId = new Types.ObjectId().toHexString();
   await TrackerAccessModel.create({ userId, grantedBy: ADMIN, isActive: active });
   return userId;
 }

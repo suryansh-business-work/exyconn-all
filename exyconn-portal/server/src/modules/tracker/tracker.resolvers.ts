@@ -61,8 +61,7 @@ const SCREENSHOT_ROLES = [ROLES.TRACKER];
 const PROJECT_BILLING_ROLES = [ROLES.TRACKER, ROLES.FINANCE, ROLES.PROJECTS];
 
 /** Whether this caller passes the narrower screenshot check, without throwing if they do not. */
-function canViewScreenshots(ctx: GraphQLContext): boolean {
-  const roles = ctx.user?.roles ?? [];
+function canViewScreenshots(roles: readonly string[]): boolean {
   return roles.includes(ROLES.ADMIN) || roles.includes(ROLES.TRACKER);
 }
 
@@ -241,13 +240,13 @@ export const trackerResolvers = {
       { projectId, from, to }: { projectId: string; from: Date; to: Date },
       ctx: GraphQLContext,
     ) => {
-      await assertPermission(ctx, TRACKER_MODULE, TIME_LOG_ROLES, 'VIEW');
+      const user = await assertPermission(ctx, TRACKER_MODULE, TIME_LOG_ROLES, 'VIEW');
       const rows = await trackerTimeLogService.summary(projectId, from, to);
       return {
         rows,
         totalActiveMs: rows.reduce((sum, row) => sum + row.activeMs, 0),
         totalManualMs: rows.reduce((sum, row) => sum + row.manualMs, 0),
-        canViewScreenshots: canViewScreenshots(ctx),
+        canViewScreenshots: canViewScreenshots(user.roles),
       };
     },
     projectTimeLogSessions: async (

@@ -38,7 +38,7 @@ describe('recordStockMovement', () => {
     const product = await seedProduct(4);
 
     const movement = await record({
-      productId: String(product._id),
+      productId: product._id.toHexString(),
       reason: 'RETURN',
       quantity: 2,
     });
@@ -58,7 +58,7 @@ describe('recordStockMovement', () => {
     const product = await seedProduct(0);
 
     const movement = await record({
-      productId: String(product._id),
+      productId: product._id.toHexString(),
       reason: 'RECEIPT',
       quantity: 3,
       reference: 'GRN-7',
@@ -72,7 +72,7 @@ describe('recordStockMovement', () => {
     const product = await seedProduct(1);
 
     const movement = await record(
-      { productId: String(product._id), reason: 'RECEIPT', quantity: 1 },
+      { productId: product._id.toHexString(), reason: 'RECEIPT', quantity: 1 },
       as([ROLES.PRODUCTS]),
     );
 
@@ -83,20 +83,24 @@ describe('recordStockMovement', () => {
     const product = await seedProduct(2);
 
     await expect(
-      record({ productId: String(product._id), reason: 'ISSUE', quantity: 3 }),
+      record({ productId: product._id.toHexString(), reason: 'ISSUE', quantity: 3 }),
     ).rejects.toThrow('That would take Desk lamp to -1. Only 2 are in stock.');
   });
 
   it('allows an issue that empties the shelf exactly', async () => {
     const product = await seedProduct(2);
 
-    const movement = await record({ productId: String(product._id), reason: 'ISSUE', quantity: 2 });
+    const movement = await record({
+      productId: product._id.toHexString(),
+      reason: 'ISSUE',
+      quantity: 2,
+    });
 
     expect(movement.stockAfter).toBe(0);
   });
 
   it('reports a product that does not exist', async () => {
-    const productId = String(new Types.ObjectId());
+    const productId = new Types.ObjectId().toHexString();
 
     expect(await codeOf(record({ productId, reason: 'RECEIPT', quantity: 1 }))).toBe('NOT_FOUND');
   });
@@ -107,10 +111,10 @@ describe('recordStockMovement', () => {
     expect(
       await codeOf(
         record({
-          productId: String(product._id),
+          productId: product._id.toHexString(),
           reason: 'RECEIPT',
           quantity: 1,
-          supplierId: String(new Types.ObjectId()),
+          supplierId: new Types.ObjectId().toHexString(),
         }),
       ),
     ).toBe('NOT_FOUND');
@@ -123,7 +127,7 @@ describe('recordStockMovement', () => {
 
     expect(
       await codeOf(
-        record({ productId: String(product._id), reason: 'RECEIPT', quantity: 1 }, outsider),
+        record({ productId: product._id.toHexString(), reason: 'RECEIPT', quantity: 1 }, outsider),
       ),
     ).toBe('FORBIDDEN');
   });
@@ -131,7 +135,7 @@ describe('recordStockMovement', () => {
 
 async function seedLedger() {
   const product = await seedProduct(10);
-  const productId = String(product._id);
+  const productId = product._id.toHexString();
   const moves = [
     { reason: 'RECEIPT', quantity: 5, at: '2026-01-01' },
     { reason: 'ISSUE', quantity: 2, at: '2026-01-02' },

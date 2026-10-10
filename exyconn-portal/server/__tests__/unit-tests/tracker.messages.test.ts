@@ -3,7 +3,7 @@ import { UserModel } from '../../src/modules/admin/user.model';
 import { TrackerAccessModel, TrackerMessageModel } from '../../src/modules/tracker/models';
 import { trackerMessageService } from '../../src/modules/tracker/tracker.message.service';
 
-const ADMIN = new Types.ObjectId().toString();
+const ADMIN = new Types.ObjectId().toHexString();
 
 /** An employee with an active tracker grant — the only kind a notice reaches. */
 async function tracked(name: string) {
@@ -12,7 +12,7 @@ async function tracked(name: string) {
     email: `${name.toLowerCase()}@exyconn.com`,
     passwordHash: 'hashed-in-real-life',
   });
-  const userId = String(user._id);
+  const userId = user._id.toHexString();
   await TrackerAccessModel.create({ userId, grantedBy: ADMIN, isActive: true });
   return userId;
 }

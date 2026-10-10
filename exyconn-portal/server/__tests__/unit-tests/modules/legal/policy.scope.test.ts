@@ -12,7 +12,7 @@ import { codeOf } from '../codeOf';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
 
 const as = (roles: Role[]): GraphQLContext => ({
-  user: { id: String(new Types.ObjectId()), roles, email: 'someone@exyconn.com' },
+  user: { id: new Types.ObjectId().toHexString(), roles, email: 'someone@exyconn.com' },
 });
 
 const IT_ONLY = { category: { $in: ['IT', 'SECURITY'] } };
@@ -81,18 +81,18 @@ describe('assertPolicyInScope', () => {
   it('lets IT touch an existing IT policy', async () => {
     const row = await policy('vpn-policy', 'IT');
 
-    expect(await codeOf(assertPolicyInScope(IT_ONLY, String(row._id)))).toBe('OK');
+    expect(await codeOf(assertPolicyInScope(IT_ONLY, row._id.toHexString()))).toBe('OK');
   });
 
   it('refuses IT an existing policy from another team', async () => {
     const row = await policy('grievance', 'HR');
 
-    expect(await codeOf(assertPolicyInScope(IT_ONLY, String(row._id)))).toBe('FORBIDDEN');
+    expect(await codeOf(assertPolicyInScope(IT_ONLY, row._id.toHexString()))).toBe('FORBIDDEN');
   });
 
   it('refuses IT an id that is malformed or names no policy', async () => {
     expect(await codeOf(assertPolicyInScope(IT_ONLY, 'not-an-id'))).toBe('FORBIDDEN');
-    expect(await codeOf(assertPolicyInScope(IT_ONLY, String(new Types.ObjectId())))).toBe(
+    expect(await codeOf(assertPolicyInScope(IT_ONLY, new Types.ObjectId().toHexString()))).toBe(
       'FORBIDDEN',
     );
   });

@@ -163,7 +163,7 @@ async function relayReply(event: SlackMessageEvent): Promise<void> {
       await slackNotifier.post(session.slackChannel, 'This chat has ended.', session.slackThreadTs);
       return;
     }
-    const agent = await agentFor(event.user ?? '');
+    const agent = await agentFor(event.user as string);
     const sessionId = String(session._id);
     await postMessage({
       sessionId,

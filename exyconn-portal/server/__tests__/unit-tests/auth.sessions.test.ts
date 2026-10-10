@@ -27,7 +27,7 @@ describe('starting a session', () => {
 
 describe('whether a session still stands', () => {
   it('is false for a session that never existed', async () => {
-    await expect(sessionIsLive(String(new Types.ObjectId()))).resolves.toBe(false);
+    await expect(sessionIsLive(new Types.ObjectId().toHexString())).resolves.toBe(false);
   });
 
   it('is false once the session has been revoked', async () => {

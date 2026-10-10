@@ -28,7 +28,7 @@ const sum = (values: number[]) => values.reduce((total, value) => total + value,
 
 const ticket = (extra: Record<string, unknown> = {}) =>
   SupportTicketModel.create({
-    employeeId: new Types.ObjectId().toString(),
+    employeeId: new Types.ObjectId().toHexString(),
     subject: 's',
     description: 'd',
     category: 'IT',

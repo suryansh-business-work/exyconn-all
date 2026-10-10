@@ -5,13 +5,12 @@ import { KNOWN_COMPONENT, componentHtml } from './cms.fixtures';
 
 const SITE = 'site-1';
 const EDITOR = 'Asha';
-const missingId = () => String(new Types.ObjectId());
+const missingId = () => new Types.ObjectId().toHexString();
 
 const newPage = async (path = '/about-us') =>
-  String(
-    (await cmsPages.create(SITE, { path, title: 'About', kind: 'PAGE', layout: 'default' }, EDITOR))
-      ._id,
-  );
+  (
+    await cmsPages.create(SITE, { path, title: 'About', kind: 'PAGE', layout: 'default' }, EDITOR)
+  )._id.toHexString();
 
 describe('drafts and publishing', () => {
   it('keeps a draft, publishes it as a revision and marks later edits CHANGED', async () => {

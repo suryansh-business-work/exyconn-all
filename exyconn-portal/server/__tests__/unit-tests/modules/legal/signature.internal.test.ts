@@ -16,7 +16,7 @@ import { safeFetch } from '../../../../src/utils/safeFetch';
 
 const FROM = { ip: '198.51.100.7', userAgent: 'Mozilla/5.0' };
 const LONG_AGENT = 'A'.repeat(260);
-const missingId = () => String(new Types.ObjectId());
+const missingId = () => new Types.ObjectId().toHexString();
 
 const contract = (overrides: Record<string, unknown> = {}) =>
   ContractModel.create({
@@ -58,7 +58,7 @@ describe('signContractInternally', () => {
     expect(
       await codeOf(
         signContractInternally({
-          contractId: String(row._id),
+          contractId: row._id.toHexString(),
           signerEmail: 'dev@exyconn.com',
           ...FROM,
         }),
@@ -71,14 +71,14 @@ describe('signContractInternally', () => {
     const row = await contract();
 
     const signed = await signContractInternally({
-      contractId: String(row._id),
+      contractId: row._id.toHexString(),
       signerEmail: 'dev@exyconn.com',
       ip: FROM.ip,
       userAgent: LONG_AGENT,
     });
 
     expect(signed).toMatchObject({
-      id: String(row._id),
+      id: row._id.toHexString(),
       signedBy: 'dev@exyconn.com',
       status: 'ACTIVE',
     });
@@ -94,7 +94,7 @@ describe('signContractInternally', () => {
     expect(
       await codeOf(
         signContractInternally({
-          contractId: String(row._id),
+          contractId: row._id.toHexString(),
           signerEmail: 'dev@exyconn.com',
           ...FROM,
         }),

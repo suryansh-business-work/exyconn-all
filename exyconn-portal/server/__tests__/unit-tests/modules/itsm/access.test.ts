@@ -41,7 +41,7 @@ describe('IT access requests', () => {
   });
 
   it('refuses an employee id that names nobody, and a caller who is not signed in', async () => {
-    const ghost = String(new Types.ObjectId());
+    const ghost = new Types.ObjectId().toHexString();
 
     await expect(m.createItAccessRequest(null, { input: input(ghost) }, ctx)).rejects.toThrow(
       'That employee no longer exists',

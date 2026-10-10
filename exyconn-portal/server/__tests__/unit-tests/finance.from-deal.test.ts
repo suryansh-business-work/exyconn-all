@@ -38,7 +38,7 @@ async function seedWonDeal(overrides: Record<string, unknown> = {}) {
     value: 100000,
     probability: 100,
     owner: 'Asha Rao',
-    clientId: String(client._id),
+    clientId: client._id.toHexString(),
     ...overrides,
   });
   return { client, deal };
@@ -69,14 +69,14 @@ describe('createInvoiceFromDeal', () => {
     await updateBranding({ defaultTaxPercent: 18, stateCode: '27' });
     const { client, deal } = await seedWonDeal();
 
-    const invoice = await fromDeal(String(deal._id));
+    const invoice = await fromDeal(deal._id.toHexString());
 
     const saved = await InvoiceModel.findById(invoice.id).lean();
     expect(saved).toMatchObject({
       number: 'INV-0001',
-      clientId: String(client._id),
+      clientId: client._id.toHexString(),
       clientName: 'Acme Ltd',
-      dealId: String(deal._id),
+      dealId: deal._id.toHexString(),
       status: 'DRAFT',
       currency: 'INR',
       amount: 118000,
@@ -97,7 +97,7 @@ describe('createInvoiceFromDeal', () => {
   it('splits the tax into its GST heads on the way back out', async () => {
     await updateBranding({ defaultTaxPercent: 18, stateCode: '27' });
     const { deal } = await seedWonDeal();
-    const invoice = await fromDeal(String(deal._id));
+    const invoice = await fromDeal(deal._id.toHexString());
 
     const row = await InvoiceModel.findById(invoice.id).lean().orFail();
 
@@ -109,22 +109,24 @@ describe('createInvoiceFromDeal', () => {
 
   it('refuses to bill the same deal twice, naming the invoice that exists', async () => {
     const { deal } = await seedWonDeal();
-    await fromDeal(String(deal._id));
+    await fromDeal(deal._id.toHexString());
 
-    await expect(fromDeal(String(deal._id))).rejects.toThrow(/already billed on invoice INV-0001/);
+    await expect(fromDeal(deal._id.toHexString())).rejects.toThrow(
+      /already billed on invoice INV-0001/,
+    );
     await expect(InvoiceModel.countDocuments()).resolves.toBe(1);
   });
 
   it('refuses a deal that is not won', async () => {
     const { deal } = await seedWonDeal({ stage: 'NEGOTIATION' });
 
-    await expect(fromDeal(String(deal._id))).rejects.toThrow(/not been won/);
+    await expect(fromDeal(deal._id.toHexString())).rejects.toThrow(/not been won/);
   });
 
   it('refuses a won deal that never became a client', async () => {
     const { deal } = await seedWonDeal({ clientId: '' });
 
-    await expect(fromDeal(String(deal._id))).rejects.toThrow(/has no client/);
+    await expect(fromDeal(deal._id.toHexString())).rejects.toThrow(/has no client/);
   });
 
   it('is open to finance as well as sales, and to nobody else', async () => {
@@ -136,8 +138,8 @@ describe('createInvoiceFromDeal', () => {
       user: { id: 'user-3', roles: [ROLES.HR], email: 'hr@exyconn.com' },
     };
 
-    await expect(fromDeal(String(deal._id), asHr)).rejects.toThrow();
-    await expect(fromDeal(String(deal._id), asFinance)).resolves.toMatchObject({
+    await expect(fromDeal(deal._id.toHexString(), asHr)).rejects.toThrow();
+    await expect(fromDeal(deal._id.toHexString(), asFinance)).resolves.toMatchObject({
       number: 'INV-0001',
     });
   });

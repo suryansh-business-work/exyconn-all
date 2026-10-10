@@ -41,7 +41,7 @@ const providerFor = (key: string) => {
 };
 
 const projectId = new Types.ObjectId();
-const taskLink = `/projects/${String(projectId)}/tickets`;
+const taskLink = `/projects/${projectId.toHexString()}/tickets`;
 
 /** key, model, the row the collection returns, and the hit the palette must show. */
 const CASES: Array<[string, Findable, Row, { title: string; subtitle: string; link: string }]> = [

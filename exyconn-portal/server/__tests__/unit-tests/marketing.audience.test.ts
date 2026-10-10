@@ -55,8 +55,8 @@ describe('Resolving an audience', () => {
     await seedContact('Cy', 'cy@example.com');
 
     const members = await resolveAudienceMembers({
-      clientIds: [String(client._id)],
-      contactIds: [String(contact._id)],
+      clientIds: [client._id.toHexString()],
+      contactIds: [contact._id.toHexString()],
       dynamicSegment: 'ALL_ACTIVE_CONTACTS',
     });
 
@@ -70,7 +70,7 @@ describe('Resolving an audience', () => {
   it('carries the kind and company each member came with', async () => {
     const contact = await seedContact('Bo', 'bo@example.com', { companyName: 'Initech' });
 
-    const [resolved] = await resolveAudienceMembers({ contactIds: [String(contact._id)] });
+    const [resolved] = await resolveAudienceMembers({ contactIds: [contact._id.toHexString()] });
 
     expect(resolved).toMatchObject({ kind: 'CONTACT', company: 'Initech', status: 'ACTIVE' });
   });
@@ -86,7 +86,7 @@ describe('Resolving an audience', () => {
   it('keeps a named contact even after they unsubscribed, so the send can say it skipped them', async () => {
     const contact = await seedContact('Bo', 'bo@example.com', { status: 'UNSUBSCRIBED' });
 
-    const members = await resolveAudienceMembers({ contactIds: [String(contact._id)] });
+    const members = await resolveAudienceMembers({ contactIds: [contact._id.toHexString()] });
 
     expect(members).toMatchObject([{ email: 'bo@example.com', status: 'UNSUBSCRIBED' }]);
   });
@@ -113,8 +113,8 @@ describe('Resolving an audience', () => {
       status: 'PROSPECT',
       owner: 'growth@exyconn.com',
     });
-    await seedContact('Bo', 'bo@initech.com', { companyId: String(customer._id) });
-    await seedContact('Cy', 'cy@acme.com', { companyId: String(prospect._id) });
+    await seedContact('Bo', 'bo@initech.com', { companyId: customer._id.toHexString() });
+    await seedContact('Cy', 'cy@acme.com', { companyId: prospect._id.toHexString() });
 
     const members = await resolveAudienceMembers({
       dynamicSegment: 'CONTACTS_BY_COMPANY_STATUS',

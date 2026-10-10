@@ -104,7 +104,7 @@ describe('the digest body', () => {
   it('credits time to a deleted account rather than dropping it', async () => {
     const now = Date.now();
     await TrackerIntervalModel.create({
-      userId: new Types.ObjectId().toString(),
+      userId: new Types.ObjectId().toHexString(),
       sessionId: 's1',
       startedAt: new Date(now - 2 * HOUR),
       endedAt: new Date(now - HOUR),

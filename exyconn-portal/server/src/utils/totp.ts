@@ -74,7 +74,7 @@ export function totpCode(secret: string, step: number): string {
   counter.writeUInt32BE(step >>> 0, 4);
   const digest = createHmac(ALGORITHM, decodeBase32(secret)).update(counter).digest();
   // The truncation RFC 4226 specifies: the last nibble picks where to read the code from.
-  const offset = digest[digest.length - 1] & 0x0f;
+  const offset = (digest.at(-1) ?? 0) & 0x0f;
   const binary = digest.readUInt32BE(offset) & 0x7f_ff_ff_ff;
   return String(binary % 10 ** TOTP_DIGITS).padStart(TOTP_DIGITS, '0');
 }

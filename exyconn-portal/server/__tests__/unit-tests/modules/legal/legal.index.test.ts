@@ -12,10 +12,10 @@ const L = { ...legalResolvers.Query, ...legalResolvers.Mutation } as unknown as 
 >;
 
 const legal = (): GraphQLContext => ({
-  user: { id: String(new Types.ObjectId()), roles: [ROLES.LEGAL], email: 'dev@exyconn.com' },
+  user: { id: new Types.ObjectId().toHexString(), roles: [ROLES.LEGAL], email: 'dev@exyconn.com' },
 });
 const employee: GraphQLContext = {
-  user: { id: String(new Types.ObjectId()), roles: [ROLES.EMPLOYEE], email: 'e@exyconn.com' },
+  user: { id: new Types.ObjectId().toHexString(), roles: [ROLES.EMPLOYEE], email: 'e@exyconn.com' },
 };
 
 useTestOrganization();

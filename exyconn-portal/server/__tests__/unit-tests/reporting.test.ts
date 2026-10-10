@@ -52,9 +52,13 @@ const leaveFor = (employeeId: string, over: Record<string, unknown> = {}) =>
 /** A manager, one direct report, and a bystander who manages nobody. */
 async function team() {
   const manager = await person('Meera');
-  const report = await person('Ravi', String(manager._id));
+  const report = await person('Ravi', manager._id.toHexString());
   const other = await person('Omar');
-  return { manager: String(manager._id), report: String(report._id), other: String(other._id) };
+  return {
+    manager: manager._id.toHexString(),
+    report: report._id.toHexString(),
+    other: other._id.toHexString(),
+  };
 }
 
 describe('the reporting line', () => {
@@ -91,7 +95,7 @@ describe('manager leave approvals', () => {
 
     const updated = (await setLeaveStatus(
       null,
-      { id: String(leave._id), status: 'APPROVED' },
+      { id: leave._id.toHexString(), status: 'APPROVED' },
       ctx(manager),
     )) as { status: string };
 
@@ -107,7 +111,7 @@ describe('manager leave approvals', () => {
     const leave = await leaveFor(report);
 
     await expect(
-      setLeaveStatus(null, { id: String(leave._id), status: 'APPROVED' }, ctx(other)),
+      setLeaveStatus(null, { id: leave._id.toHexString(), status: 'APPROVED' }, ctx(other)),
     ).rejects.toThrow(/manager/);
     expect((await LeaveRequestModel.findById(leave._id))?.status).toBe('PENDING');
   });
@@ -118,7 +122,7 @@ describe('manager leave approvals', () => {
 
     const updated = (await setLeaveStatus(
       null,
-      { id: String(leave._id), status: 'REJECTED' },
+      { id: leave._id.toHexString(), status: 'REJECTED' },
       ctx(other, [ROLES.HR]),
     )) as { status: string };
 
@@ -155,7 +159,7 @@ describe('manager request decisions', () => {
 
     const updated = (await decideRequest(
       null,
-      { id: String(row._id), status: 'APPROVED', decisionNote: 'Fine by me' },
+      { id: row._id.toHexString(), status: 'APPROVED', decisionNote: 'Fine by me' },
       ctx(manager),
     )) as { status: string; decisionNote: string; decidedAt: Date };
 
@@ -172,7 +176,7 @@ describe('manager request decisions', () => {
     const row = await request(report);
 
     await expect(
-      decideRequest(null, { id: String(row._id), status: 'REJECTED' }, ctx(other)),
+      decideRequest(null, { id: row._id.toHexString(), status: 'REJECTED' }, ctx(other)),
     ).rejects.toThrow(/manager/);
   });
 
@@ -197,7 +201,7 @@ describe('manager assessment', () => {
 
     const updated = (await submitManager(
       null,
-      { id: String(row._id), managerAssessment: 'Strong half', score: 8 },
+      { id: row._id.toHexString(), managerAssessment: 'Strong half', score: 8 },
       ctx(manager),
     )) as { status: string; score: number; managerAssessment: string };
 
@@ -215,7 +219,7 @@ describe('manager assessment', () => {
     const row = await review(report, 'OPEN');
 
     await expect(
-      submitManager(null, { id: String(row._id), managerAssessment: 'Early' }, ctx(manager)),
+      submitManager(null, { id: row._id.toHexString(), managerAssessment: 'Early' }, ctx(manager)),
     ).rejects.toThrow(/not submitted/);
   });
 
@@ -224,11 +228,11 @@ describe('manager assessment', () => {
     const row = await review(report);
 
     await expect(
-      submitManager(null, { id: String(row._id), managerAssessment: 'Nope' }, ctx(other)),
+      submitManager(null, { id: row._id.toHexString(), managerAssessment: 'Nope' }, ctx(other)),
     ).rejects.toThrow(/manager/);
     const byHr = (await submitManager(
       null,
-      { id: String(row._id), managerAssessment: 'By HR' },
+      { id: row._id.toHexString(), managerAssessment: 'By HR' },
       ctx(other, [ROLES.HR]),
     )) as { status: string };
     expect(byHr.status).toBe('MANAGER_SUBMITTED');
@@ -255,7 +259,7 @@ describe('manager goal comments', () => {
 
     const updated = (await commentOnTeamGoal(
       null,
-      { id: String(row._id), comment: 'On track' },
+      { id: row._id.toHexString(), comment: 'On track' },
       ctx(manager),
     )) as { managerComment: string };
 
@@ -267,7 +271,7 @@ describe('manager goal comments', () => {
     const row = await goal(report);
 
     await expect(
-      commentOnTeamGoal(null, { id: String(row._id), comment: 'Hi' }, ctx(other)),
+      commentOnTeamGoal(null, { id: row._id.toHexString(), comment: 'Hi' }, ctx(other)),
     ).rejects.toThrow(/manager/);
   });
 });

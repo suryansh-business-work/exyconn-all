@@ -7,7 +7,7 @@ import type { GraphQLContext } from '../../../../src/middleware/auth';
 const { Query, Mutation, Organization, User } = organizationsResolvers;
 
 const ctxAs = (roles: Role[], extra: Partial<GraphQLContext> = {}): GraphQLContext => ({
-  user: { id: String(new Types.ObjectId()), email: 'someone@platform.example', roles },
+  user: { id: new Types.ObjectId().toHexString(), email: 'someone@platform.example', roles },
   ...extra,
 });
 const superAdmin = ctxAs([ROLES.SUPER_ADMIN]);
@@ -18,7 +18,7 @@ async function company(name: string): Promise<string> {
   const created = await runAsPlatform(() =>
     OrganizationModel.create({ name, slug: name.toLowerCase(), currency: 'USD' }),
   );
-  return String(created._id);
+  return created._id.toHexString();
 }
 
 describe('the platform console guard', () => {
@@ -163,7 +163,7 @@ describe('User.organizationId', () => {
   it('names the company a person belongs to, and null for one in none', () => {
     const id = new Types.ObjectId();
 
-    expect(User.organizationId({ organizationId: id })).toBe(String(id));
+    expect(User.organizationId({ organizationId: id })).toBe(id.toHexString());
     expect(User.organizationId({})).toBeNull();
   });
 });

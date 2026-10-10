@@ -84,7 +84,7 @@ describe('ensureCmsDefaults', () => {
       designSystemId: 'ds-existing',
       headerFragmentId: 'header-existing',
     });
-    await CmsPageModel.create({ siteId: String(site._id), path: '/', title: 'Editor home' });
+    await CmsPageModel.create({ siteId: site._id.toHexString(), path: '/', title: 'Editor home' });
 
     await ensureCmsDefaults();
 

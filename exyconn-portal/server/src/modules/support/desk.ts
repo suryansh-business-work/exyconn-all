@@ -25,7 +25,7 @@ function seesEverything(roles: readonly string[]): boolean {
  */
 export function deskScope(ctx: GraphQLContext): TicketScope {
   const user = assertRole(ctx, DESK_ROLES);
-  return seesEverything(user.roles ?? []) ? {} : { category: IT_CATEGORY };
+  return seesEverything(user.roles as readonly string[]) ? {} : { category: IT_CATEGORY };
 }
 
 /** Refuses an IT-only caller moving a ticket into a category outside their desk's reach. */

@@ -108,11 +108,11 @@ export const cmsSites = {
     const site = await CmsSiteModel.create({ ...fields, isDefault: false });
     if (!fields.designSystemId) {
       const design = await CmsDesignSystemModel.create({
-        siteId: String(site._id),
+        siteId: site._id.toHexString(),
         name: `${fields.name} design system`,
         tokens: {},
       });
-      site.designSystemId = String(design._id);
+      site.designSystemId = design._id.toHexString();
       await site.save();
     }
     return site.toObject();

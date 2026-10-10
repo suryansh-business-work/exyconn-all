@@ -105,7 +105,7 @@ async function currentHolder(decoded: TokenPayload, token: string, req: Request)
   if (!(await workspaceIsOpen(organizationOf(fresh)))) {
     return null;
   }
-  if (decoded.deviceId && !(await deviceHolds(decoded, token, req))) {
+  if (decoded.deviceId && !(await deviceHolds(decoded, decoded.deviceId, token, req))) {
     return null;
   }
   // A portal token stands only while its session does, so signing one device out does not
@@ -118,13 +118,18 @@ async function currentHolder(decoded: TokenPayload, token: string, req: Request)
 }
 
 /** A device token stands only on its live device row, and only for tracker operations. */
-async function deviceHolds(decoded: TokenPayload, token: string, req: Request): Promise<boolean> {
+async function deviceHolds(
+  decoded: TokenPayload,
+  deviceId: string,
+  token: string,
+  req: Request,
+): Promise<boolean> {
   const body = req.body as { query?: unknown } | undefined;
   const query = body?.query ?? req.query?.query;
   if (!deviceMayRun(query)) {
     return false;
   }
-  return deviceTokenIsLive(decoded.id, decoded.deviceId ?? '', token);
+  return deviceTokenIsLive(decoded.id, deviceId, token);
 }
 
 /**

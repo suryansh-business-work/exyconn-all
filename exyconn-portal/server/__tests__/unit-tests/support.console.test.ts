@@ -48,8 +48,8 @@ describe('Support console', () => {
 
     const updated = await supportResolvers.Mutation.assignSupportTicket(
       null,
-      { id: String(ticket._id), assigneeId: String(agent._id) },
-      asSupport(String(agent._id)),
+      { id: ticket._id.toHexString(), assigneeId: agent._id.toHexString() },
+      asSupport(agent._id.toHexString()),
     );
 
     expect((updated as { assigneeName: string }).assigneeName).toBe(agent.name);
@@ -58,16 +58,16 @@ describe('Support console', () => {
   it('puts a ticket back in the queue when assigned to nobody', async () => {
     const agent = await supportAgent();
     const ticket = await ticketFor('emp-1');
-    const ctx = asSupport(String(agent._id));
+    const ctx = asSupport(agent._id.toHexString());
     await supportResolvers.Mutation.assignSupportTicket(
       null,
-      { id: String(ticket._id), assigneeId: String(agent._id) },
+      { id: ticket._id.toHexString(), assigneeId: agent._id.toHexString() },
       ctx,
     );
 
     const cleared = await supportResolvers.Mutation.assignSupportTicket(
       null,
-      { id: String(ticket._id), assigneeId: '' },
+      { id: ticket._id.toHexString(), assigneeId: '' },
       ctx,
     );
 
@@ -81,11 +81,11 @@ describe('Support console', () => {
 
     await supportResolvers.Mutation.addSupportReply(
       null,
-      { ticketId: String(ticket._id), body: '  Looking into it now.  ', internal: false },
-      asSupport(String(agent._id)),
+      { ticketId: ticket._id.toHexString(), body: '  Looking into it now.  ', internal: false },
+      asSupport(agent._id.toHexString()),
     );
 
-    const saved = await SupportReplyModel.findOne({ ticketId: String(ticket._id) }).lean();
+    const saved = await SupportReplyModel.findOne({ ticketId: ticket._id.toHexString() }).lean();
     expect(saved?.authorName).toBe(agent.name);
     expect(saved?.body).toBe('Looking into it now.');
     expect(saved?.internal).toBe(false);
@@ -97,7 +97,7 @@ describe('Support console', () => {
     await expect(
       supportResolvers.Mutation.addSupportReply(
         null,
-        { ticketId: String(ticket._id), body: '   ', internal: false },
+        { ticketId: ticket._id.toHexString(), body: '   ', internal: false },
         asSupport('agent-1'),
       ),
     ).rejects.toThrow();
@@ -106,21 +106,21 @@ describe('Support console', () => {
   it('returns the thread oldest first', async () => {
     const agent = await supportAgent();
     const ticket = await ticketFor('emp-1');
-    const ctx = asSupport(String(agent._id));
+    const ctx = asSupport(agent._id.toHexString());
     await supportResolvers.Mutation.addSupportReply(
       null,
-      { ticketId: String(ticket._id), body: 'First', internal: false },
+      { ticketId: ticket._id.toHexString(), body: 'First', internal: false },
       ctx,
     );
     await supportResolvers.Mutation.addSupportReply(
       null,
-      { ticketId: String(ticket._id), body: 'Second', internal: true },
+      { ticketId: ticket._id.toHexString(), body: 'Second', internal: true },
       ctx,
     );
 
     const thread = (await supportResolvers.Query.listSupportReplies(
       null,
-      { ticketId: String(ticket._id) },
+      { ticketId: ticket._id.toHexString() },
       ctx,
     )) as Array<{ body: string }>;
 
@@ -130,13 +130,17 @@ describe('Support console', () => {
   it('emails the employee when the team replies', async () => {
     const agent = await supportAgent();
     const employee = await seedUser('emp@exyconn.com', 'a-strong-password', [ROLES.EMPLOYEE]);
-    const ticket = await ticketFor(String(employee._id));
+    const ticket = await ticketFor(employee._id.toHexString());
     sendEmail.mockResolvedValue(undefined);
 
     await supportResolvers.Mutation.addSupportReply(
       null,
-      { ticketId: String(ticket._id), body: 'Try holding the power button.', internal: false },
-      asSupport(String(agent._id)),
+      {
+        ticketId: ticket._id.toHexString(),
+        body: 'Try holding the power button.',
+        internal: false,
+      },
+      asSupport(agent._id.toHexString()),
     );
 
     expect(sendEmail).toHaveBeenCalledTimes(1);
@@ -153,12 +157,12 @@ describe('Support console', () => {
   it('never emails an internal note', async () => {
     const agent = await supportAgent();
     const employee = await seedUser('emp@exyconn.com', 'a-strong-password', [ROLES.EMPLOYEE]);
-    const ticket = await ticketFor(String(employee._id));
+    const ticket = await ticketFor(employee._id.toHexString());
 
     await supportResolvers.Mutation.addSupportReply(
       null,
-      { ticketId: String(ticket._id), body: 'Probably the battery.', internal: true },
-      asSupport(String(agent._id)),
+      { ticketId: ticket._id.toHexString(), body: 'Probably the battery.', internal: true },
+      asSupport(agent._id.toHexString()),
     );
 
     expect(sendEmail).not.toHaveBeenCalled();
@@ -167,35 +171,39 @@ describe('Support console', () => {
   it('keeps the reply when the email fails', async () => {
     const agent = await supportAgent();
     const employee = await seedUser('emp@exyconn.com', 'a-strong-password', [ROLES.EMPLOYEE]);
-    const ticket = await ticketFor(String(employee._id));
+    const ticket = await ticketFor(employee._id.toHexString());
     sendEmail.mockRejectedValue(new Error('SMTP down'));
 
     await expect(
       supportResolvers.Mutation.addSupportReply(
         null,
-        { ticketId: String(ticket._id), body: 'On it.', internal: false },
-        asSupport(String(agent._id)),
+        { ticketId: ticket._id.toHexString(), body: 'On it.', internal: false },
+        asSupport(agent._id.toHexString()),
       ),
     ).resolves.toBeTruthy();
 
-    expect(await SupportReplyModel.countDocuments({ ticketId: String(ticket._id) })).toBe(1);
+    expect(await SupportReplyModel.countDocuments({ ticketId: ticket._id.toHexString() })).toBe(1);
   });
 
   it('stamps the first response only on a public reply', async () => {
     const agent = await supportAgent();
-    const ticket = await ticketFor(String(new Types.ObjectId()));
-    const ctx = asSupport(String(agent._id));
+    const ticket = await ticketFor(new Types.ObjectId().toHexString());
+    const ctx = asSupport(agent._id.toHexString());
 
     await supportResolvers.Mutation.addSupportReply(
       null,
-      { ticketId: String(ticket._id), body: 'Probably the battery.', internal: true },
+      { ticketId: ticket._id.toHexString(), body: 'Probably the battery.', internal: true },
       ctx,
     );
     expect((await SupportTicketModel.findById(ticket._id).lean())?.firstRespondedAt).toBeNull();
 
     await supportResolvers.Mutation.addSupportReply(
       null,
-      { ticketId: String(ticket._id), body: 'Try holding the power button.', internal: false },
+      {
+        ticketId: ticket._id.toHexString(),
+        body: 'Try holding the power button.',
+        internal: false,
+      },
       ctx,
     );
     const answered = await SupportTicketModel.findById(ticket._id).lean();
@@ -204,7 +212,7 @@ describe('Support console', () => {
     // A second public reply is not a first response, so the stamp must not move.
     await supportResolvers.Mutation.addSupportReply(
       null,
-      { ticketId: String(ticket._id), body: 'Any luck?', internal: false },
+      { ticketId: ticket._id.toHexString(), body: 'Any luck?', internal: false },
       ctx,
     );
     const later = await SupportTicketModel.findById(ticket._id).lean();
@@ -218,7 +226,7 @@ describe('Support console', () => {
     await supportResolvers.Mutation.addSupportReply(
       null,
       {
-        ticketId: String(ticket._id),
+        ticketId: ticket._id.toHexString(),
         body: 'Here is the driver.',
         internal: false,
         attachments: [
@@ -229,10 +237,10 @@ describe('Support console', () => {
           },
         ],
       },
-      asSupport(String(agent._id)),
+      asSupport(agent._id.toHexString()),
     );
 
-    const saved = await SupportReplyModel.findOne({ ticketId: String(ticket._id) }).lean();
+    const saved = await SupportReplyModel.findOne({ ticketId: ticket._id.toHexString() }).lean();
     expect(saved?.attachments).toHaveLength(1);
     expect(saved?.attachments[0]).toMatchObject({
       url: 'https://cdn.test/driver.pdf',
@@ -253,10 +261,10 @@ describe('Support console grid', () => {
   it('pages tickets with the employee name resolved', async () => {
     const agent = await supportAgent();
     const employee = await seedUser('emp@exyconn.com', 'a-strong-password', [ROLES.EMPLOYEE]);
-    await ticketFor(String(employee._id));
-    await ticketFor(String(new Types.ObjectId()));
+    await ticketFor(employee._id.toHexString());
+    await ticketFor(new Types.ObjectId().toHexString());
 
-    const result = await page({}, asSupport(String(agent._id)));
+    const result = await page({}, asSupport(agent._id.toHexString()));
 
     expect(result.totalCount).toBe(2);
     const names = result.rows.map((row) => row.employeeName);
@@ -265,13 +273,13 @@ describe('Support console grid', () => {
 
   it("filters the unassigned queue and one agent's own tickets", async () => {
     const agent = await supportAgent();
-    const ctx = asSupport(String(agent._id));
-    const other = String(new Types.ObjectId());
-    const mine = await ticketFor(String(agent._id));
+    const ctx = asSupport(agent._id.toHexString());
+    const other = new Types.ObjectId().toHexString();
+    const mine = await ticketFor(agent._id.toHexString());
     await ticketFor(other);
     await supportResolvers.Mutation.assignSupportTicket(
       null,
-      { id: String(mine._id), assigneeId: String(agent._id) },
+      { id: mine._id.toHexString(), assigneeId: agent._id.toHexString() },
       ctx,
     );
 
@@ -280,14 +288,14 @@ describe('Support console grid', () => {
       ctx,
     );
     const own = await page(
-      { filters: [{ field: 'assigneeId', op: 'EQUALS', value: String(agent._id) }] },
+      { filters: [{ field: 'assigneeId', op: 'EQUALS', value: agent._id.toHexString() }] },
       ctx,
     );
 
     expect(unassigned.totalCount).toBe(1);
     expect(unassigned.rows[0].employeeId).toBe(other);
     expect(own.totalCount).toBe(1);
-    expect(own.rows[0].id).toBe(String(mine._id));
+    expect(own.rows[0].id).toBe(mine._id.toHexString());
   });
 
   it('counts tickets by status, priority and category in one call', async () => {
@@ -305,7 +313,7 @@ describe('Support console grid', () => {
     const stats = (await supportResolvers.Query.listSupportTicketsStats(
       null,
       {},
-      asSupport(String(agent._id)),
+      asSupport(agent._id.toHexString()),
     )) as {
       total: number;
       counts: Array<{ field: string; buckets: Array<{ value: string; count: number }> }>;
@@ -325,8 +333,8 @@ describe('Support console grid', () => {
 
     const updated = (await supportResolvers.Mutation.setSupportTicketTriage(
       null,
-      { id: String(ticket._id), category: 'HR', priority: 'LOW' },
-      asSupport(String(agent._id)),
+      { id: ticket._id.toHexString(), category: 'HR', priority: 'LOW' },
+      asSupport(agent._id.toHexString()),
     )) as { category: string; priority: string };
 
     expect(updated).toMatchObject({ category: 'HR', priority: 'LOW' });
@@ -339,16 +347,16 @@ describe('Support console grid', () => {
     await expect(
       supportResolvers.Mutation.setSupportTicketTriage(
         null,
-        { id: String(ticket._id), category: 'LEGAL', priority: 'LOW' },
-        asSupport(String(agent._id)),
+        { id: ticket._id.toHexString(), category: 'LEGAL', priority: 'LOW' },
+        asSupport(agent._id.toHexString()),
       ),
     ).rejects.toThrow();
   });
 
   it('separates the customer queue from the employee queue', async () => {
     const agent = await supportAgent();
-    const ctx = asSupport(String(agent._id));
-    await ticketFor(String(new Types.ObjectId()));
+    const ctx = asSupport(agent._id.toHexString());
+    await ticketFor(new Types.ObjectId().toHexString());
     await SupportTicketModel.create({
       requesterType: 'CLIENT',
       requesterName: 'Dana Reyes',
@@ -378,12 +386,12 @@ describe('Support console grid', () => {
 
   it('counts an employee ticket written before requesterType existed as an employee ticket', async () => {
     const agent = await supportAgent();
-    await ticketFor(String(new Types.ObjectId()));
+    await ticketFor(new Types.ObjectId().toHexString());
     await SupportTicketModel.collection.updateMany({}, { $unset: { requesterType: '' } });
 
     const employees = await page(
       { filters: [{ field: 'requesterType', op: 'EQUALS', value: 'EMPLOYEE' }] },
-      asSupport(String(agent._id)),
+      asSupport(agent._id.toHexString()),
     );
 
     expect(employees.totalCount).toBe(1);
@@ -392,21 +400,21 @@ describe('Support console grid', () => {
   it('lists only what is unresolved and past its deadline as overdue', async () => {
     const agent = await supportAgent();
     const hourAgo = new Date(Date.now() - 60 * 60 * 1000);
-    const overdue = await ticketFor(String(new Types.ObjectId()));
+    const overdue = await ticketFor(new Types.ObjectId().toHexString());
     await SupportTicketModel.updateOne({ _id: overdue._id }, { dueAt: hourAgo });
-    const late = await ticketFor(String(new Types.ObjectId()));
+    const late = await ticketFor(new Types.ObjectId().toHexString());
     await SupportTicketModel.updateOne(
       { _id: late._id },
       { dueAt: hourAgo, resolvedAt: new Date(), status: 'RESOLVED' },
     );
-    await ticketFor(String(new Types.ObjectId()));
+    await ticketFor(new Types.ObjectId().toHexString());
 
     const result = await page(
       { filters: [{ field: 'slaState', op: 'EQUALS', value: 'BREACHED' }] },
-      asSupport(String(agent._id)),
+      asSupport(agent._id.toHexString()),
     );
 
     expect(result.totalCount).toBe(1);
-    expect(result.rows[0].id).toBe(String(overdue._id));
+    expect(result.rows[0].id).toBe(overdue._id.toHexString());
   });
 });

@@ -42,7 +42,7 @@ describe('Attributing a lead to a campaign', () => {
   it('fills the campaign name in from the id, so a lead row reads without a join', async () => {
     const campaign = await seedCampaign('Spring newsletter');
 
-    const created = await createLead(leadInput({ campaignId: String(campaign._id) }));
+    const created = await createLead(leadInput({ campaignId: campaign._id.toHexString() }));
 
     const saved = await LeadModel.findById(created.id).lean();
     expect(saved?.campaignName).toBe('Spring newsletter');
@@ -52,7 +52,7 @@ describe('Attributing a lead to a campaign', () => {
     const campaign = await seedCampaign('Spring newsletter');
 
     const created = await createLead(
-      leadInput({ campaignId: String(campaign._id), campaignName: 'Something else' }),
+      leadInput({ campaignId: campaign._id.toHexString(), campaignName: 'Something else' }),
     );
 
     const saved = await LeadModel.findById(created.id).lean();
@@ -69,7 +69,7 @@ describe('Attributing a lead to a campaign', () => {
 
   it('clears the attribution when an edit removes the campaign', async () => {
     const campaign = await seedCampaign('Spring newsletter');
-    const created = await createLead(leadInput({ campaignId: String(campaign._id) }));
+    const created = await createLead(leadInput({ campaignId: campaign._id.toHexString() }));
 
     await crmResolvers.Mutation.updateLead(
       null,
@@ -86,19 +86,19 @@ describe('Attributing a lead to a campaign', () => {
       seedCampaign('Spring newsletter'),
       seedCampaign('Autumn newsletter'),
     ]);
-    await createLead(leadInput({ campaignId: String(spring._id) }));
-    await createLead(leadInput({ email: 'bo@example.com', campaignId: String(spring._id) }));
-    await createLead(leadInput({ email: 'cy@example.com', campaignId: String(autumn._id) }));
+    await createLead(leadInput({ campaignId: spring._id.toHexString() }));
+    await createLead(leadInput({ email: 'bo@example.com', campaignId: spring._id.toHexString() }));
+    await createLead(leadInput({ email: 'cy@example.com', campaignId: autumn._id.toHexString() }));
     await createLead(leadInput({ email: 'di@example.com' }));
 
-    await expect(leadsByCampaign(String(spring._id))).resolves.toBe(2);
-    await expect(leadsByCampaign(String(autumn._id))).resolves.toBe(1);
+    await expect(leadsByCampaign(spring._id.toHexString())).resolves.toBe(2);
+    await expect(leadsByCampaign(autumn._id.toHexString())).resolves.toBe(1);
   });
 
   it('counts nothing for a campaign no lead came from', async () => {
     const campaign = await seedCampaign('Quiet campaign');
 
-    await expect(leadsByCampaign(String(campaign._id))).resolves.toBe(0);
+    await expect(leadsByCampaign(campaign._id.toHexString())).resolves.toBe(0);
   });
 
   it('reads back an empty attribution for a lead written before the field existed', () => {

@@ -28,7 +28,7 @@ afterEach(() => {
 async function seedContact(overrides: Record<string, unknown> = {}) {
   const client = await ClientModel.create({ name: 'Dana', email: EMAIL, company: 'Acme' });
   return ClientContactModel.create({
-    clientId: String(client._id),
+    clientId: client._id.toHexString(),
     name: 'Dana Reyes',
     email: EMAIL,
     ...overrides,
@@ -99,7 +99,7 @@ describe('verifyClientHubCode', () => {
     expect(stored?.signInCount).toBe(1);
     expect(stored?.lastSignInAt).toBeInstanceOf(Date);
     expect(await contactForPass(session.token)).toMatchObject({
-      id: String(contact._id),
+      id: contact._id.toHexString(),
       email: EMAIL,
       organizationId,
     });
@@ -135,7 +135,7 @@ describe('contactForPass', () => {
     const contact = await seedContact();
 
     expect(await contactForPass(passFor(contact._id))).toEqual({
-      id: String(contact._id),
+      id: contact._id.toHexString(),
       clientId: contact.clientId,
       name: 'Dana Reyes',
       email: EMAIL,

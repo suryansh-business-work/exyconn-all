@@ -33,7 +33,7 @@ describe('a signed click link', () => {
       () => CampaignClickModel.find().lean(),
       (rows) => rows.length === 1,
     );
-    expect(click).toMatchObject({ campaignId: 'camp-1', sendId: String(id), url: OFFER });
+    expect(click).toMatchObject({ campaignId: 'camp-1', sendId: id.toHexString(), url: OFFER });
     const row = await readSend(id);
     expect(row?.clickCount).toBe(1);
     expect(row?.lastClickedAt).toBeInstanceOf(Date);
@@ -98,7 +98,7 @@ describe('a click link with no usable target', () => {
 describe('an unsigned link from before signing existed', () => {
   it('follows a link that is in the stored campaign body, character for character', async () => {
     const campaign = await seedCampaign({ body: `<a href="${OFFER}">Offer</a>` });
-    const { token } = await seedSend(String(campaign._id));
+    const { token } = await seedSend(campaign._id.toHexString());
 
     const response = await request(app()).get(clickUrl(token, OFFER));
 
@@ -108,7 +108,7 @@ describe('an unsigned link from before signing existed', () => {
 
   it('refuses a link the campaign body does not contain', async () => {
     const campaign = await seedCampaign({ body: '<a href="https://example.com/other">x</a>' });
-    const { token } = await seedSend(String(campaign._id));
+    const { token } = await seedSend(campaign._id.toHexString());
 
     expect((await request(app()).get(clickUrl(token, OFFER))).status).toBe(400);
   });

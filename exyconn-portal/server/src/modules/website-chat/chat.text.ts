@@ -33,7 +33,7 @@ export function htmlToText(html: string): string {
     nonTextTags: NON_TEXT_TAGS,
   });
   return text
-    .replaceAll(/&(?:amp|lt|gt|quot|#39|nbsp);/g, (entity) => ENTITIES[entity] ?? entity)
+    .replaceAll(/&(?:amp|lt|gt|quot|#39|nbsp);/g, (entity) => ENTITIES[entity])
     .replaceAll(/\s+/g, ' ')
     .trim();
 }

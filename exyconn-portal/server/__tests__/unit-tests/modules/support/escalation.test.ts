@@ -48,9 +48,13 @@ describe('applyEscalation', () => {
       name: 'Asha',
     });
 
-    expect(updated).toMatchObject({ id: String(row._id), priority: 'HIGH', escalationLevel: 3 });
+    expect(updated).toMatchObject({
+      id: row._id.toHexString(),
+      priority: 'HIGH',
+      escalationLevel: 3,
+    });
     expect(updated.dueAt).toEqual(dueAtFrom(RAISED, 480));
-    const note = await SupportReplyModel.findOne({ ticketId: String(row._id) }).lean();
+    const note = await SupportReplyModel.findOne({ ticketId: row._id.toHexString() }).lean();
     expect(note).toMatchObject({
       authorId: 'agent-1',
       authorName: 'Asha',
@@ -90,11 +94,16 @@ describe('escalateTicket', () => {
     });
     const row = await ticket();
 
-    await escalateTicket(String(row._id), '  Customer is a VIP  ', {}, agentCtx(String(agent._id)));
+    await escalateTicket(
+      row._id.toHexString(),
+      '  Customer is a VIP  ',
+      {},
+      agentCtx(agent._id.toHexString()),
+    );
 
-    const note = await SupportReplyModel.findOne({ ticketId: String(row._id) }).lean();
+    const note = await SupportReplyModel.findOne({ ticketId: row._id.toHexString() }).lean();
     expect(note).toMatchObject({
-      authorId: String(agent._id),
+      authorId: agent._id.toHexString(),
       authorName: 'Asha Rao',
       body: 'Escalated to level 1: Customer is a VIP',
     });
@@ -103,29 +112,36 @@ describe('escalateTicket', () => {
   it('signs with the caller’s email when the account cannot be found', async () => {
     const row = await ticket();
 
-    await escalateTicket(String(row._id), 'Late', {}, agentCtx(String(new Types.ObjectId())));
+    await escalateTicket(
+      row._id.toHexString(),
+      'Late',
+      {},
+      agentCtx(new Types.ObjectId().toHexString()),
+    );
 
-    const note = await SupportReplyModel.findOne({ ticketId: String(row._id) }).lean();
+    const note = await SupportReplyModel.findOne({ ticketId: row._id.toHexString() }).lean();
     expect(note?.authorName).toBe('agent@exyconn.com');
   });
 
   it('cannot find a malformed id, an unknown id, or a ticket outside the caller’s desk', async () => {
     const hr = await ticket({ category: 'HR' });
-    const ctx = agentCtx(String(new Types.ObjectId()));
+    const ctx = agentCtx(new Types.ObjectId().toHexString());
 
     await expect(escalateTicket('not-an-id', 'why', {}, ctx)).rejects.toThrow(/SupportTicket/);
-    await expect(escalateTicket(String(new Types.ObjectId()), 'why', {}, ctx)).rejects.toThrow(
-      /SupportTicket/,
-    );
-    await expect(escalateTicket(String(hr._id), 'why', { category: 'IT' }, ctx)).rejects.toThrow(
-      /SupportTicket/,
-    );
+    await expect(
+      escalateTicket(new Types.ObjectId().toHexString(), 'why', {}, ctx),
+    ).rejects.toThrow(/SupportTicket/);
+    await expect(
+      escalateTicket(hr._id.toHexString(), 'why', { category: 'IT' }, ctx),
+    ).rejects.toThrow(/SupportTicket/);
   });
 
   it('refuses a caller with no signed-in account', async () => {
     const row = await ticket();
 
-    await expect(escalateTicket(String(row._id), 'why', {}, { user: null })).rejects.toThrow();
+    await expect(
+      escalateTicket(row._id.toHexString(), 'why', {}, { user: null }),
+    ).rejects.toThrow();
     expect(await SupportReplyModel.countDocuments()).toBe(0);
   });
 });

@@ -17,7 +17,7 @@ async function organization(slug: string, currency: string): Promise<string> {
   const created = await runAsPlatform(() =>
     OrganizationModel.create({ name: slug, slug, currency }),
   );
-  return String(created._id);
+  return created._id.toHexString();
 }
 
 /** Writes straight to the collection, the way records got in before currencies were checked. */
@@ -101,7 +101,7 @@ describe('the stored currency of a money record', () => {
       amount: 1,
       currency: 'INR',
     });
-    await expect(budgets.update(String(budget._id), { currency: 'Rupee' })).rejects.toThrow(
+    await expect(budgets.update(budget._id.toHexString(), { currency: 'Rupee' })).rejects.toThrow(
       /ISO 4217/,
     );
   });
@@ -143,7 +143,7 @@ describe('repairing stored currencies', () => {
 describe('tracker billing', () => {
   it('bills a salary structure stored with no usable currency in the company one', async () => {
     const acme = await organization('acme', 'EUR');
-    const employeeId = String(new Types.ObjectId());
+    const employeeId = new Types.ObjectId().toHexString();
     await SalaryStructureModel.collection.insertOne({
       organizationId: new Types.ObjectId(acme),
       employeeId,

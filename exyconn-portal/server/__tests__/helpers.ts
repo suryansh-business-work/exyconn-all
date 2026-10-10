@@ -44,7 +44,7 @@ export interface TestOrganization {
  */
 export function useTestOrganization(fields: TestOrganization = {}): string {
   const organizationId = new Types.ObjectId();
-  setDefaultScope({ organizationId: String(organizationId), platform: false });
+  setDefaultScope({ organizationId: organizationId.toHexString(), platform: false });
   beforeEach(async () => {
     await runAsPlatform(() =>
       OrganizationModel.create({
@@ -56,7 +56,7 @@ export function useTestOrganization(fields: TestOrganization = {}): string {
       }),
     );
   });
-  return String(organizationId);
+  return organizationId.toHexString();
 }
 
 /**

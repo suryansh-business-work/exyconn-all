@@ -46,8 +46,11 @@ afterEach(() => {
 describe('ensureClient', () => {
   it('addresses the client to the first active person when the named one is gone', async () => {
     const company = await seedCompany();
-    await seedContact(String(company._id), { email: 'left@initech.com', status: 'LEFT_COMPANY' });
-    await seedContact(String(company._id));
+    await seedContact(company._id.toHexString(), {
+      email: 'left@initech.com',
+      status: 'LEFT_COMPANY',
+    });
+    await seedContact(company._id.toHexString());
 
     const clientId = await ensureClient(await leanCompany(company._id), missingId());
 
@@ -57,7 +60,7 @@ describe('ensureClient', () => {
 
   it("takes the contact's phone when the account has none on file", async () => {
     const company = await seedCompany();
-    await seedContact(String(company._id));
+    await seedContact(company._id.toHexString());
 
     const clientId = await ensureClient(await leanCompany(company._id));
 
@@ -109,7 +112,7 @@ describe('promoteCompanyToClient', () => {
     const company = await seedCompany();
 
     await expect(
-      promoteCompanyToClient(null, { id: String(company._id) }, asEmployee),
+      promoteCompanyToClient(null, { id: company._id.toHexString() }, asEmployee),
     ).rejects.toThrow();
     await expect(ClientModel.countDocuments()).resolves.toBe(0);
   });
@@ -123,7 +126,7 @@ describe('promoteCompanyToClient', () => {
       .mockReturnValueOnce(asArg({ lean: () => Promise.resolve(null) }));
 
     await expect(
-      promoteCompanyToClient(null, { id: String(company._id) }, asSales),
+      promoteCompanyToClient(null, { id: company._id.toHexString() }, asSales),
     ).rejects.toThrow('Company not found');
     await expect(ClientModel.countDocuments()).resolves.toBe(1);
   });

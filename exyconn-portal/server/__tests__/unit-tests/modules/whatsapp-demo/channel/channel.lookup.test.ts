@@ -7,8 +7,8 @@ import { seal } from '../../../../../src/utils/secretBox';
 
 const accessToken = randomUUID();
 const appSecret = randomUUID();
-const companyA = String(new Types.ObjectId());
-const companyB = String(new Types.ObjectId());
+const companyA = new Types.ObjectId().toHexString();
+const companyB = new Types.ObjectId().toHexString();
 
 function connect(organizationId: string, fields: Record<string, unknown> = {}) {
   return runForOrganization(organizationId, () =>
@@ -83,9 +83,9 @@ describe('channelLookup.numberTakenElsewhere', () => {
   it('does not count the company own record against it', async () => {
     const own = await connect(companyA);
 
-    await expect(channelLookup.numberTakenElsewhere('1098765', String(own._id))).resolves.toBe(
-      false,
-    );
+    await expect(
+      channelLookup.numberTakenElsewhere('1098765', own._id.toHexString()),
+    ).resolves.toBe(false);
   });
 
   it('says a number nobody connected is free', async () => {

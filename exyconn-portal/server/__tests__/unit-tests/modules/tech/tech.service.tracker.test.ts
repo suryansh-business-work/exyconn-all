@@ -63,11 +63,17 @@ describe('the Slack signing secret', () => {
     const signingSecret = credential('signing');
     const config = await techService.createSlackConfig(slackInput({ signingSecret }));
 
-    await techService.updateSlackConfig(String(config._id), slackInput({ signingSecret: ' ' }));
+    await techService.updateSlackConfig(
+      config._id.toHexString(),
+      slackInput({ signingSecret: ' ' }),
+    );
     expect((await SlackConfigModel.findById(config._id).lean())?.signingSecret).toBe(signingSecret);
 
     const rotated = credential('signing-rotated');
-    await techService.updateSlackConfig(String(config._id), slackInput({ signingSecret: rotated }));
+    await techService.updateSlackConfig(
+      config._id.toHexString(),
+      slackInput({ signingSecret: rotated }),
+    );
     expect((await SlackConfigModel.findById(config._id).lean())?.signingSecret).toBe(rotated);
   });
 
@@ -77,7 +83,7 @@ describe('the Slack signing secret', () => {
     );
 
     const updated = await techService.updateSlackConfig(
-      String(config._id),
+      config._id.toHexString(),
       slackInput({ signingSecret: null }),
     );
 

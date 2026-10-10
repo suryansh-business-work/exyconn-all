@@ -68,7 +68,7 @@ describe('startAiWorker', () => {
       defaultModel: 'gpt-4o-mini',
       isActive: true,
     });
-    const job = await runForOrganization(String(organization._id), () =>
+    const job = await runForOrganization(organization._id.toHexString(), () =>
       AiJobModel.create({
         name: 'Queued',
         model: 'gpt-4o-mini',

@@ -56,7 +56,7 @@ describe('placing an employee in the org', () => {
   it('places somebody who was created before the masters were set up', async () => {
     const { user } = await adminService.createUser(joiner);
 
-    await adminService.updateUser(String(user._id), placement);
+    await adminService.updateUser(user._id.toHexString(), placement);
 
     expect(await UserModel.findById(user._id).lean()).toMatchObject(placement);
   });
@@ -90,7 +90,7 @@ describe('placing an employee in the org', () => {
   it('clears a placement when it is emptied', async () => {
     const { user } = await adminService.createUser({ ...joiner, ...placement });
 
-    await adminService.updateUser(String(user._id), { shiftCode: '' });
+    await adminService.updateUser(user._id.toHexString(), { shiftCode: '' });
 
     expect(await UserModel.findById(user._id).lean()).toMatchObject({
       shiftCode: '',

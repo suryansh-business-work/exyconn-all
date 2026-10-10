@@ -78,7 +78,7 @@ describe('Running an AI job', () => {
       totalTokens: 11,
     });
 
-    await run(String(job._id));
+    await run(job._id.toHexString());
 
     const saved = await AiJobModel.findById(job._id).lean();
     expect(saved?.status).toBe('SUCCEEDED');
@@ -97,7 +97,7 @@ describe('Running an AI job', () => {
       totalTokens: 2,
     });
 
-    await run(String(job._id));
+    await run(job._id.toHexString());
 
     expect(complete).toHaveBeenCalledWith(
       expect.objectContaining({ model: 'gpt-4o-mini', prompt: 'Say hello' }),
@@ -109,7 +109,7 @@ describe('Running an AI job', () => {
     const job = await seedJob();
     complete.mockRejectedValue(new Error('OpenAI /v1/chat/completions failed (401)'));
 
-    await run(String(job._id));
+    await run(job._id.toHexString());
 
     const saved = await AiJobModel.findById(job._id).lean();
     expect(saved?.status).toBe('FAILED');
@@ -120,7 +120,7 @@ describe('Running an AI job', () => {
   it('refuses to run when no OpenAI key is active', async () => {
     const job = await seedJob();
 
-    await expect(run(String(job._id))).rejects.toThrow(/no active openai key/i);
+    await expect(run(job._id.toHexString())).rejects.toThrow(/no active openai key/i);
     expect(complete).not.toHaveBeenCalled();
   });
 
@@ -134,7 +134,7 @@ describe('Running an AI job', () => {
       totalTokens: 2,
     });
 
-    const queued = (await queue(String(job._id))) as { status: string };
+    const queued = (await queue(job._id.toHexString())) as { status: string };
 
     expect(queued.status).toBe('QUEUED');
     expect(complete).not.toHaveBeenCalled();
@@ -144,9 +144,9 @@ describe('Running an AI job', () => {
   it('refuses to queue the same job twice', async () => {
     await seedConfig();
     const job = await seedJob();
-    await queue(String(job._id));
+    await queue(job._id.toHexString());
 
-    await expect(queue(String(job._id))).rejects.toThrow(/already waiting/i);
+    await expect(queue(job._id.toHexString())).rejects.toThrow(/already waiting/i);
   });
 
   it('leaves a job nobody queued alone', async () => {
@@ -167,7 +167,7 @@ describe('Running an AI job', () => {
       totalTokens: 2,
     });
 
-    await run(String(job._id));
+    await run(job._id.toHexString());
 
     const saved = await AiJobModel.findById(job._id).lean();
     expect(saved?.createdById).toBe('user-1');
@@ -190,12 +190,12 @@ describe('Running an AI job', () => {
 
     await aiCustomResolvers.Mutation.runPrompt(
       null,
-      { id: String(prompt._id), model: 'gpt-4o-mini' },
+      { id: prompt._id.toHexString(), model: 'gpt-4o-mini' },
       asAi,
     );
     await runNextAiJob();
 
-    const saved = await AiJobModel.findOne({ promptId: String(prompt._id) }).lean();
+    const saved = await AiJobModel.findOne({ promptId: prompt._id.toHexString() }).lean();
     expect(saved?.name).toBe('Weekly digest');
     expect(saved?.prompt).toBe('Summarise the week');
     expect(saved?.status).toBe('SUCCEEDED');
@@ -236,7 +236,7 @@ describe('What a run costs', () => {
       totalTokens: 11,
     });
 
-    await run(String(job._id));
+    await run(job._id.toHexString());
 
     expect((await AiJobModel.findById(job._id).lean())?.costUsd).toBeCloseTo(0.014, 10);
   });
@@ -251,7 +251,7 @@ describe('What a run costs', () => {
       totalTokens: 11000,
     });
 
-    await run(String(job._id));
+    await run(job._id.toHexString());
 
     expect((await AiJobModel.findById(job._id).lean())?.costUsd).toBe(0);
   });
@@ -288,7 +288,7 @@ describe('AI spend caps', () => {
     await seedFinishedJob(0.02, 'someone-else');
     const job = await seedJob();
 
-    await expect(queue(String(job._id))).rejects.toThrow(
+    await expect(queue(job._id.toHexString())).rejects.toThrow(
       /monthly AI budget of \$0\.01 is used up — \$0\.02 spent/i,
     );
     expect(complete).not.toHaveBeenCalled();
@@ -300,7 +300,7 @@ describe('AI spend caps', () => {
     await seedFinishedJob(0.02, 'user-1');
     const job = await seedJob();
 
-    await expect(queue(String(job._id))).rejects.toThrow(
+    await expect(queue(job._id.toHexString())).rejects.toThrow(
       /daily AI budget of \$0\.01 is used up — \$0\.02 spent today/i,
     );
   });
@@ -311,7 +311,7 @@ describe('AI spend caps', () => {
     await seedFinishedJob(0.02, 'someone-else');
     const job = await seedJob();
 
-    await expect(queue(String(job._id))).resolves.toMatchObject({ status: 'QUEUED' });
+    await expect(queue(job._id.toHexString())).resolves.toMatchObject({ status: 'QUEUED' });
   });
 
   it('ignores the caps while they are switched off', async () => {
@@ -325,7 +325,7 @@ describe('AI spend caps', () => {
     await seedFinishedJob(9, 'user-1');
     const job = await seedJob();
 
-    await expect(queue(String(job._id))).resolves.toMatchObject({ status: 'QUEUED' });
+    await expect(queue(job._id.toHexString())).resolves.toMatchObject({ status: 'QUEUED' });
   });
 });
 
@@ -374,7 +374,7 @@ describe('Prompt variables', () => {
     await aiCustomResolvers.Mutation.runPrompt(
       null,
       {
-        id: String(prompt._id),
+        id: prompt._id.toHexString(),
         model: 'gpt-4o-mini',
         variables: [{ name: 'company', value: 'Acme' }],
       },
@@ -382,7 +382,7 @@ describe('Prompt variables', () => {
     );
 
     // The job's prompt is trimmed on save, so the empty {{product}} leaves no trailing gap.
-    const saved = await AiJobModel.findOne({ promptId: String(prompt._id) }).lean();
+    const saved = await AiJobModel.findOne({ promptId: prompt._id.toHexString() }).lean();
     expect(saved?.prompt).toBe('Write to Acme about');
   });
 });
@@ -397,7 +397,7 @@ describe('The AI worker', () => {
       completionTokens: 2,
       totalTokens: 4,
     });
-    await queue(String(job._id));
+    await queue(job._id.toHexString());
 
     expect(await runNextAiJob()).toBe(true);
 
@@ -410,7 +410,7 @@ describe('The AI worker', () => {
     await seedConfig();
     const job = await seedJob();
     complete.mockRejectedValue(new Error('rate limited'));
-    await queue(String(job._id));
+    await queue(job._id.toHexString());
 
     await runNextAiJob();
 
@@ -429,8 +429,8 @@ describe('The AI worker', () => {
       completionTokens: 1,
       totalTokens: 2,
     });
-    await queue(String(first._id));
-    await queue(String(second._id));
+    await queue(first._id.toHexString());
+    await queue(second._id.toHexString());
 
     await runNextAiJob();
 

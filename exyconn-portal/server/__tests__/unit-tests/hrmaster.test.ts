@@ -10,7 +10,7 @@ import { useTestOrganization } from '../helpers';
 // Leave types and balances are resolved against the company's country.
 useTestOrganization({ country: 'IN' });
 
-const EMP = String(new Types.ObjectId());
+const EMP = new Types.ObjectId().toHexString();
 
 type Resolver = (p: unknown, a: unknown, c: GraphQLContext) => Promise<unknown>;
 const ctx = (roles: string[]) =>

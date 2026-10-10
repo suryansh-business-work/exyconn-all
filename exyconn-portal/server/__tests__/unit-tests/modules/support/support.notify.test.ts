@@ -51,7 +51,7 @@ describe('notifyRequesterOfReply — employees', () => {
       roles: ['EMPLOYEE'],
     });
 
-    await notifyRequesterOfReply(employeeTicket(String(user._id)), 'Try a restart.');
+    await notifyRequesterOfReply(employeeTicket(user._id.toHexString()), 'Try a restart.');
 
     expect(send).toHaveBeenCalledWith({
       template: 'support-reply',
@@ -79,7 +79,7 @@ describe('notifyRequesterOfReply — employees', () => {
   });
 
   it('logs and sends nothing when the employee account is gone', async () => {
-    await notifyRequesterOfReply(employeeTicket(String(new Types.ObjectId())), 'Hello?');
+    await notifyRequesterOfReply(employeeTicket(new Types.ObjectId().toHexString()), 'Hello?');
 
     expect(send).not.toHaveBeenCalled();
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('employee has no email'));

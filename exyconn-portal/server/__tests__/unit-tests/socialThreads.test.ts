@@ -301,7 +301,7 @@ describe('Threads connections', () => {
       [/refresh_access_token/, { access_token: 'new-token', expires_in: 5_184_000 }],
       [/th-1\/threads\?/, { data: [] }],
     ]);
-    expect(await syncAccount(String(account._id))).toMatchObject({ synced: 0, error: '' });
+    expect(await syncAccount(account._id.toHexString())).toMatchObject({ synced: 0, error: '' });
     expect(calls[0].url).toBe(
       'https://graph.threads.net/refresh_access_token?grant_type=th_refresh_token&access_token=old-token',
     );

@@ -31,7 +31,7 @@ async function seedEmployee(email: string, isActive = true) {
     roles: [ROLES.EMPLOYEE],
     isActive,
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 const emailOnly = (employeeId: string) =>

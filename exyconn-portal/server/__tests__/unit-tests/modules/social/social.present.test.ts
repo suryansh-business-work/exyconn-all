@@ -10,7 +10,7 @@ import { seedUser } from '../../../helpers';
 
 async function employee(email: string): Promise<string> {
   const user = await seedUser(email, `pw-${randomUUID()}`, [ROLES.EMPLOYEE]);
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 describe('presenting posts', () => {

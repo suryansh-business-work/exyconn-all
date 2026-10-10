@@ -111,7 +111,7 @@ describe('importInboundMessage — replies', () => {
     );
 
     expect(outcome).toBe('REPLIED');
-    const reply = await SupportReplyModel.findOne({ ticketId: String(ticket._id) }).lean();
+    const reply = await SupportReplyModel.findOne({ ticketId: ticket._id.toHexString() }).lean();
     expect(reply).toMatchObject({
       authorId: 'inbound-mail',
       authorName: 'dana@acme.test',
@@ -122,7 +122,7 @@ describe('importInboundMessage — replies', () => {
   });
 
   it('does not honour a reference on an employee ticket whose account is gone', async () => {
-    await filedTicket({ employeeId: String(new Types.ObjectId()) });
+    await filedTicket({ employeeId: new Types.ObjectId().toHexString() });
 
     expect(await importInboundMessage(arriving({ subject: 'Re: EXY-AAA222' }))).toBe('CREATED');
     expect(await SupportTicketModel.countDocuments()).toBe(2);

@@ -54,7 +54,7 @@ describe('startPayment inside the platform operator', () => {
     const invoice = await seedInvoice(contact.clientId);
     jest.mocked(createStripeCheckout).mockResolvedValue(checkout);
 
-    const started = await startPayment(contact, String(invoice._id), 'STRIPE');
+    const started = await startPayment(contact, invoice._id.toHexString(), 'STRIPE');
 
     expect(started.url).toBe(checkout.url);
     const attempt = await PaymentAttemptModel.findById(started.attemptId).lean();
@@ -85,8 +85,8 @@ describe('startPayment inside the platform operator', () => {
     jest.mocked(createRazorpayLink).mockResolvedValue(checkout);
     jest.mocked(createPaypalOrder).mockResolvedValue(checkout);
 
-    await startPayment(contact, String(invoice._id), 'RAZORPAY');
-    await startPayment(contact, String(invoice._id), 'PAYPAL');
+    await startPayment(contact, invoice._id.toHexString(), 'RAZORPAY');
+    await startPayment(contact, invoice._id.toHexString(), 'PAYPAL');
 
     expect(jest.mocked(createRazorpayLink).mock.calls[0][0]).toMatchObject({
       keyId: 'rzp_id',
@@ -105,7 +105,7 @@ describe('startPayment inside the platform operator', () => {
     const invoice = await seedInvoice(local.clientId);
     jest.mocked(createPayoneerList).mockResolvedValue(checkout);
 
-    await startPayment(local, String(invoice._id), 'PAYONEER');
+    await startPayment(local, invoice._id.toHexString(), 'PAYONEER');
 
     expect(jest.mocked(createPayoneerList).mock.calls[0][1]).toMatchObject({
       country: 'DE',
@@ -118,7 +118,7 @@ describe('startPayment inside the platform operator', () => {
     const invoice = await seedInvoice(contact.clientId);
     jest.mocked(createPayoneerList).mockResolvedValue(checkout);
 
-    await startPayment(contact, String(invoice._id), 'PAYONEER');
+    await startPayment(contact, invoice._id.toHexString(), 'PAYONEER');
 
     expect(jest.mocked(createPayoneerList).mock.calls[0][1].country).toBe('IN');
   });
@@ -127,7 +127,7 @@ describe('startPayment inside the platform operator', () => {
     await configureGateways(['STRIPE']);
     const invoice = await seedInvoice(contact.clientId, { amountPaid: 100, status: 'PAID' });
 
-    await expect(startPayment(contact, String(invoice._id), 'STRIPE')).rejects.toThrow(
+    await expect(startPayment(contact, invoice._id.toHexString(), 'STRIPE')).rejects.toThrow(
       'Invoice INV-7 is already paid.',
     );
     expect(createStripeCheckout).not.toHaveBeenCalled();
@@ -136,7 +136,7 @@ describe('startPayment inside the platform operator', () => {
   it('refuses another client’s invoice', async () => {
     const invoice = await seedInvoice('someone-else');
 
-    await expect(startPayment(contact, String(invoice._id), 'STRIPE')).rejects.toThrow(
+    await expect(startPayment(contact, invoice._id.toHexString(), 'STRIPE')).rejects.toThrow(
       /Invoice not found/,
     );
   });
@@ -147,7 +147,7 @@ describe('startPayment inside the platform operator', () => {
     const logged = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
     jest.mocked(createStripeCheckout).mockRejectedValue(new Error('Stripe: down'));
 
-    await expect(startPayment(contact, String(invoice._id), 'STRIPE')).rejects.toThrow(
+    await expect(startPayment(contact, invoice._id.toHexString(), 'STRIPE')).rejects.toThrow(
       /could not be opened just now/,
     );
     expect(await PaymentAttemptModel.findOne().lean()).toMatchObject({
@@ -163,7 +163,7 @@ describe('startPayment inside the platform operator', () => {
       jest.spyOn(logger, 'error').mockImplementation(() => undefined);
       const invoice = await seedInvoice(contact.clientId);
 
-      await expect(startPayment(contact, String(invoice._id), gateway)).rejects.toThrow(
+      await expect(startPayment(contact, invoice._id.toHexString(), gateway)).rejects.toThrow(
         /could not be opened/,
       );
       expect(await PaymentAttemptModel.findOne({ gateway }).lean()).toMatchObject({
@@ -180,7 +180,7 @@ describe('startPayment inside the platform operator', () => {
     const logged = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
     const invoice = await seedInvoice(contact.clientId);
 
-    await expect(startPayment(contact, String(invoice._id), 'PAYONEER')).rejects.toThrow(
+    await expect(startPayment(contact, invoice._id.toHexString(), 'PAYONEER')).rejects.toThrow(
       /could not be opened/,
     );
     expect(createPayoneerList).not.toHaveBeenCalled();

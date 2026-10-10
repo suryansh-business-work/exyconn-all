@@ -14,14 +14,14 @@ import { codeOf } from '../../codeOf';
 import { seedVisitor, useOperatorOrganization, withoutOperator } from './visitor.fixtures';
 
 const operatorId = useOperatorOrganization();
-const missingId = () => String(new Types.ObjectId());
+const missingId = () => new Types.ObjectId().toHexString();
 
 describe('visitorForPass', () => {
   it('is the visitor a pass was signed for, in the operator company', async () => {
     const visitor = await seedVisitor();
 
-    await expect(visitorForPass(signVisitorPass(String(visitor._id), 0))).resolves.toEqual({
-      id: String(visitor._id),
+    await expect(visitorForPass(signVisitorPass(visitor._id.toHexString(), 0))).resolves.toEqual({
+      id: visitor._id.toHexString(),
       name: 'Dana Reyes',
       email: 'dana@acme.test',
       phone: '+91 98000 00001',
@@ -34,7 +34,7 @@ describe('visitorForPass', () => {
     const visitor = await seedVisitor();
 
     await expect(visitorForPass('not-a-pass')).resolves.toBeNull();
-    const other = signPass('client-hub', { sub: String(visitor._id), tv: 0 });
+    const other = signPass('client-hub', { sub: visitor._id.toHexString(), tv: 0 });
     await expect(visitorForPass(other)).resolves.toBeNull();
   });
 
@@ -42,8 +42,8 @@ describe('visitorForPass', () => {
     const blocked = await seedVisitor({ email: 'b@acme.test', blocked: true });
     const retired = await seedVisitor({ email: 'r@acme.test', tokenVersion: 2 });
 
-    await expect(visitorForPass(signVisitorPass(String(blocked._id), 0))).resolves.toBeNull();
-    await expect(visitorForPass(signVisitorPass(String(retired._id), 1))).resolves.toBeNull();
+    await expect(visitorForPass(signVisitorPass(blocked._id.toHexString(), 0))).resolves.toBeNull();
+    await expect(visitorForPass(signVisitorPass(retired._id.toHexString(), 1))).resolves.toBeNull();
     await expect(visitorForPass(signVisitorPass(missingId(), 0))).resolves.toBeNull();
   });
 
@@ -51,7 +51,7 @@ describe('visitorForPass', () => {
     const visitor = await seedVisitor();
     await withoutOperator(operatorId);
 
-    await expect(visitorForPass(signVisitorPass(String(visitor._id), 0))).resolves.toBeNull();
+    await expect(visitorForPass(signVisitorPass(visitor._id.toHexString(), 0))).resolves.toBeNull();
   });
 });
 
@@ -59,9 +59,9 @@ describe('getVisitor', () => {
   it('reads one visitor with its id', async () => {
     const visitor = await seedVisitor();
 
-    const read = await getVisitor(String(visitor._id));
+    const read = await getVisitor(visitor._id.toHexString());
 
-    expect(read.id).toBe(String(visitor._id));
+    expect(read.id).toBe(visitor._id.toHexString());
     expect(read.email).toBe('dana@acme.test');
   });
 
@@ -108,9 +108,9 @@ describe('listVisitors and visitorStats', () => {
 describe('setVisitorBlocked', () => {
   it('blocks a visitor and retires every pass they hold', async () => {
     const visitor = await seedVisitor();
-    const pass = signVisitorPass(String(visitor._id), 0);
+    const pass = signVisitorPass(visitor._id.toHexString(), 0);
 
-    const blocked = await setVisitorBlocked(String(visitor._id), true);
+    const blocked = await setVisitorBlocked(visitor._id.toHexString(), true);
 
     expect(blocked).toEqual(expect.objectContaining({ blocked: true, tokenVersion: 1 }));
     await expect(visitorForPass(pass)).resolves.toBeNull();
@@ -119,10 +119,10 @@ describe('setVisitorBlocked', () => {
   it('unblocks a visitor without bringing an old pass back', async () => {
     const visitor = await seedVisitor({ blocked: true, tokenVersion: 1 });
 
-    const unblocked = await setVisitorBlocked(String(visitor._id), false);
+    const unblocked = await setVisitorBlocked(visitor._id.toHexString(), false);
 
     expect(unblocked).toEqual(expect.objectContaining({ blocked: false, tokenVersion: 1 }));
-    await expect(visitorForPass(signVisitorPass(String(visitor._id), 0))).resolves.toBeNull();
+    await expect(visitorForPass(signVisitorPass(visitor._id.toHexString(), 0))).resolves.toBeNull();
   });
 
   it('says so when the visitor does not exist', async () => {
@@ -134,7 +134,7 @@ describe('deleteVisitor', () => {
   it('removes the lead', async () => {
     const visitor = await seedVisitor();
 
-    await expect(deleteVisitor(String(visitor._id))).resolves.toBe(true);
+    await expect(deleteVisitor(visitor._id.toHexString())).resolves.toBe(true);
     expect(await WhatsappDemoVisitorModel.countDocuments()).toBe(0);
   });
 

@@ -15,7 +15,7 @@ async function employee(name: string) {
     email: `${randomUUID()}@exyconn.com`,
     passwordHash: randomUUID(),
   });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 /** A window that ended `endedAgoMs` ago and ran for `durationMs`. */
@@ -49,7 +49,7 @@ describe('filing off-computer time', () => {
 
   it('files an entry booked to no project, against a ticket, under the employee’s name', async () => {
     const userId = await employee('Asha Rao');
-    const task = { id: new Types.ObjectId().toString(), key: 'EXY-14', title: 'Export hangs' };
+    const task = { id: new Types.ObjectId().toHexString(), key: 'EXY-14', title: 'Export hangs' };
 
     const entry = await trackerManualService.create(
       userId,
@@ -72,7 +72,11 @@ describe('filing off-computer time', () => {
 
 describe('reviewing off-computer time', () => {
   it('refuses an entry that does not exist', async () => {
-    const attempt = trackerManualService.review(new Types.ObjectId().toString(), 'APPROVED', 'mgr');
+    const attempt = trackerManualService.review(
+      new Types.ObjectId().toHexString(),
+      'APPROVED',
+      'mgr',
+    );
 
     await expect(codeOf(attempt)).resolves.toBe('NOT_FOUND');
   });

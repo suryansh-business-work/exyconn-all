@@ -5,6 +5,7 @@ import { WebSocketServer, type RawData, type WebSocket } from 'ws';
 import { env } from '../../config/env';
 import { inTurn } from '../../lib/inTurn';
 import { logger } from '../../utils/logger';
+import { stringOf } from '../../utils/serialize';
 import { chatHub, type ChatPeer } from './chat.hub';
 import { asChatOwner } from './chat.owner';
 import { greetStaff, handleStaffFrame } from './chat.socket.staff';
@@ -30,7 +31,7 @@ function clientIp(req: IncomingMessage): string {
 /** The `clientId` a frame carried, so an error names the one message that failed. */
 function clientIdOf(data: RawData): string | undefined {
   try {
-    const clientId = (JSON.parse(data.toString()) as { clientId?: unknown }).clientId;
+    const clientId = (JSON.parse(stringOf(data)) as { clientId?: unknown }).clientId;
     return typeof clientId === 'string' ? clientId : undefined;
   } catch {
     return undefined;
@@ -55,7 +56,7 @@ function reportError(peer: ChatPeer, error: unknown, clientId?: string): void {
 async function dispatch(peer: ChatPeer, data: RawData): Promise<void> {
   let raw: unknown;
   try {
-    raw = JSON.parse(data.toString());
+    raw = JSON.parse(stringOf(data));
   } catch {
     chatHub.send(peer, { t: 'error', message: 'That message could not be read.' });
     return;

@@ -23,7 +23,7 @@ export interface Sender {
 function demoUser(sender: Sender): DemoUser {
   const fullName = sender.name.trim();
   return {
-    firstName: fullName.split(/\s+/)[0] ?? '',
+    firstName: fullName.split(/\s+/)[0],
     fullName,
     email: '',
     phone: `+${sender.waId}`,

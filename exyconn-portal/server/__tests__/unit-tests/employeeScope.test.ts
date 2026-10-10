@@ -66,7 +66,7 @@ describe('employee-scoped writes', () => {
     await expect(
       (goalsResolvers.Mutation.updateMyGoalProgress as Resolver)(
         null,
-        { id: String(theirs._id), progress: 100 },
+        { id: theirs._id.toHexString(), progress: 100 },
         ctx(ME),
       ),
     ).rejects.toThrow();
@@ -84,7 +84,7 @@ describe('employee-scoped writes', () => {
     await expect(
       (goalsResolvers.Mutation.updateMyGoalProgress as Resolver)(
         null,
-        { id: String(mine._id), progress: 140 },
+        { id: mine._id.toHexString(), progress: 140 },
         ctx(ME),
       ),
     ).rejects.toThrow();

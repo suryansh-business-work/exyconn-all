@@ -12,7 +12,7 @@ import {
 } from '../../../../src/modules/tracker/models';
 import { codeOf } from '../codeOf';
 
-const USER = new Types.ObjectId().toString();
+const USER = new Types.ObjectId().toHexString();
 const INTERVAL_START = new Date('2026-07-13T09:00:00.000Z');
 const CAPTURED = new Date('2026-07-13T09:04:00.000Z');
 const IMAGE = `data:image/jpeg;base64,${Buffer.alloc(64).toString('base64')}`;
@@ -25,7 +25,7 @@ async function session(userId = USER) {
     startedAt: INTERVAL_START,
     status: 'active',
   });
-  return String(created._id);
+  return created._id.toHexString();
 }
 
 const shot = (sessionId: string, overrides: Partial<ScreenshotInput> = {}): ScreenshotInput => ({
@@ -93,7 +93,7 @@ describe('uploading a screenshot', () => {
 
   it('refuses a session that belongs to somebody else', async () => {
     const upload = jest.spyOn(imageUploader, 'uploadTrackerScreenshot');
-    const sessionId = await session(new Types.ObjectId().toString());
+    const sessionId = await session(new Types.ObjectId().toHexString());
 
     await expect(
       codeOf(trackerDeviceService.uploadScreenshot(USER, shot(sessionId))),

@@ -64,7 +64,7 @@ describe('the legal reminder source', () => {
     const [reminder] = await dueNow();
 
     expect(reminder).toEqual({
-      dedupeKey: `contract-expiry:${String(row._id)}:2026-09-20`,
+      dedupeKey: `contract-expiry:${row._id.toHexString()}:2026-09-20`,
       kind: 'LEGAL',
       title: 'Quill NDA expires in 10 days',
       body: 'The agreement with Quill LLP expires in 10 days. Renew it, replace it or mark it terminated.',
@@ -92,7 +92,7 @@ describe('the legal reminder source', () => {
 
     expect(reminders).toEqual([
       {
-        dedupeKey: `policy-review:${String(row._id)}:2026-09-20`,
+        dedupeKey: `policy-review:${row._id.toHexString()}:2026-09-20`,
         kind: 'LEGAL',
         title: 'privacy is due for review',
         body: 'Its review date was 5 days ago. Re-read it, then either publish the new wording or push the date out.',

@@ -48,7 +48,7 @@ describe('media for the website team', () => {
   it('uploads, lists, describes and deletes an image', async () => {
     const ctx = editorCtx();
     const site = await seedSite('main');
-    const siteId = String(site._id);
+    const siteId = site._id.toHexString();
     jest.mocked(imageUploader.uploadImage).mockResolvedValueOnce('https://ik.test/a.png');
 
     const uploaded = await Mutation.uploadCmsAsset(

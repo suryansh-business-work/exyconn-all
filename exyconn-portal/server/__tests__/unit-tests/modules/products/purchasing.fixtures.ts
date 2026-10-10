@@ -33,7 +33,7 @@ export async function seedCatalogue() {
     category: 'Parts',
     status: 'ACTIVE',
   });
-  return { supplierId: String(supplier._id), productId: String(product._id) };
+  return { supplierId: supplier._id.toHexString(), productId: product._id.toHexString() };
 }
 
 export const orderInput = (

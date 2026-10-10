@@ -106,7 +106,7 @@ export const convertLead = async (
   });
 
   lead.stage = 'WON';
-  lead.convertedDealId = String(deal._id);
+  lead.convertedDealId = deal._id.toHexString();
   await lead.save();
 
   return withId(deal.toObject());

@@ -29,7 +29,7 @@ async function readyToTrack() {
     email: `${randomUUID()}@exyconn.com`,
     passwordHash: randomUUID(),
   });
-  const userId = String(user._id);
+  const userId = user._id.toHexString();
   await TrackerAccessModel.create({ userId, grantedBy: 'admin', consentedAt: new Date() });
   await TrackerDeviceModel.create({ userId, deviceId: DEVICE_ID, tokenHash: 'h', platform: 'ios' });
   await trackerDeviceService.markAttendance(userId, 'UTC', 'PRESENT', 'In the office');
@@ -38,7 +38,7 @@ async function readyToTrack() {
 
 async function openSession(userId: string) {
   const session = await trackerDeviceService.startSession(userId, DEVICE_ID, new Date());
-  return String(session._id);
+  return session._id.toHexString();
 }
 
 const interval = (overrides: Partial<IntervalInput> = {}): IntervalInput => ({
@@ -66,15 +66,15 @@ describe('starting a session', () => {
       userId,
       DEVICE_ID,
       new Date(),
-      String(project._id),
-      String(task._id),
+      project._id.toHexString(),
+      task._id.toHexString(),
     );
 
     expect(session).toMatchObject({
       status: 'active',
-      projectId: String(project._id),
+      projectId: project._id.toHexString(),
       projectName: 'Apollo',
-      taskId: String(task._id),
+      taskId: task._id.toHexString(),
       taskKey: 'APO-7',
       taskTitle: 'Wire the billing export',
     });
@@ -103,7 +103,7 @@ describe('stopping a session', () => {
     const sessionId = await openSession(userId);
 
     const attempt = trackerDeviceService.stopSession(
-      new Types.ObjectId().toString(),
+      new Types.ObjectId().toHexString(),
       sessionId,
       ENDED,
     );
@@ -125,7 +125,7 @@ describe('syncing intervals', () => {
   });
 
   it('refuses a session that is not the caller’s', async () => {
-    const attempt = trackerDeviceService.syncIntervals('u1', new Types.ObjectId().toString(), [
+    const attempt = trackerDeviceService.syncIntervals('u1', new Types.ObjectId().toHexString(), [
       interval(),
     ]);
 

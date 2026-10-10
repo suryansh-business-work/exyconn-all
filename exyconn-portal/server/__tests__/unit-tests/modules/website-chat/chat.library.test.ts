@@ -22,7 +22,12 @@ const Query = websiteChatLibraryResolvers.Query as unknown as Record<string, Res
 const Mutation = websiteChatLibraryResolvers.Mutation as unknown as Record<string, Resolver>;
 
 const ctxIn = (organizationId: string, roles: Role[] = ['WEBSITE']): GraphQLContext => ({
-  user: { id: String(new Types.ObjectId()), email: 'web@exyconn.test', roles, organizationId },
+  user: {
+    id: new Types.ObjectId().toHexString(),
+    email: 'web@exyconn.test',
+    roles,
+    organizationId,
+  },
   organizationId,
 });
 
@@ -55,7 +60,7 @@ describe('chat FAQs', () => {
 
   it('refreshes nothing when the write fails', async () => {
     const ctx = ctxIn(operatorId);
-    const missing = String(new Types.ObjectId());
+    const missing = new Types.ObjectId().toHexString();
     expect(
       await codeOf(Mutation.updateWebsiteChatFaq(null, { id: missing, input: faq }, ctx)),
     ).toBe('NOT_FOUND');
@@ -63,7 +68,7 @@ describe('chat FAQs', () => {
   });
 
   it("is confined to the operator's website team", async () => {
-    const outsider = ctxIn(String(new Types.ObjectId()));
+    const outsider = ctxIn(new Types.ObjectId().toHexString());
     expect(await codeOf(Query.listWebsiteChatFaqs(null, {}, outsider))).toBe('FORBIDDEN');
     expect(await codeOf(Mutation.createWebsiteChatFaq(null, { input: faq }, outsider))).toBe(
       'FORBIDDEN',

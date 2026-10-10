@@ -34,7 +34,7 @@ describe('notifyAgentOnSlack', () => {
       'U1',
       [
         ':speech_balloon: New website chat from *Dana &lt;b&gt;&amp;&lt;/b&gt;* (dana@acme.test) on tools.exyconn.com.',
-        `Ticket TCK-5 · <${env.websiteChatConsoleUrl}/${String(session._id)}|Open the conversation>`,
+        `Ticket TCK-5 · <${env.websiteChatConsoleUrl}/${session._id.toHexString()}|Open the conversation>`,
         'Reply in this thread to answer them in the chat.',
       ].join('\n'),
     );

@@ -50,7 +50,7 @@ export const dayKeyOf = (employeeId: string, date: Date | string): string =>
   `${employeeId}|${new Date(date).toISOString().slice(0, 10)}`;
 
 /** Each employee's effective zone: their tracker pick, their profile, then the workspace's. */
-async function timezonesOf(userIds: string[]): Promise<Map<string, string>> {
+async function timezonesOf(userIds: string[]): Promise<Record<string, string>> {
   const [settings, access, users] = await Promise.all([
     getTrackerSettings(),
     TrackerAccessModel.find({ userId: { $in: userIds } })
@@ -62,7 +62,7 @@ async function timezonesOf(userIds: string[]): Promise<Map<string, string>> {
   ]);
   const accessZone = new Map(access.map((row) => [row.userId, row.timezone]));
   const profileZone = new Map(users.map((user) => [String(user._id), user.timezone]));
-  return new Map(
+  return Object.fromEntries(
     userIds.map((userId) => [
       userId,
       resolveEffectiveTimezone({
@@ -141,7 +141,7 @@ async function byLocalDay(items: TrackedItem[]): Promise<Map<string, TrackedItem
   const zones = await timezonesOf([...new Set(items.map((item) => item.userId))]);
   const days = new Map<string, TrackedItem[]>();
   for (const item of items) {
-    const zone = zones.get(item.userId) ?? 'UTC';
+    const zone = zones[item.userId];
     const key = `${item.userId}|${zonedDateKey(item.startedAt, zone)}`;
     days.set(key, [...(days.get(key) ?? []), item]);
   }

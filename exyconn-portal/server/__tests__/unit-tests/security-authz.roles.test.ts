@@ -117,7 +117,7 @@ describe('M5: appointing a company administrator', () => {
       }),
     );
     await expect(
-      organizationService.assignAdmin(String(company._id), {
+      organizationService.assignAdmin(company._id.toHexString(), {
         name: 'Root',
         email: 'root@exyconn.com',
       }),
@@ -138,7 +138,7 @@ describe('C2: API keys', () => {
   });
 
   it('refuses SUPER_ADMIN and any expiry beyond a year', async () => {
-    const company = String((await seedOrganization('Acme'))._id);
+    const company = (await seedOrganization('Acme'))._id.toHexString();
     await runForOrganization(company, async () => {
       await expect(
         KEYS.createApiKey(null, { name: 'x', roles: [ROLES.SUPER_ADMIN] }, adminIn(company)),
@@ -155,7 +155,7 @@ describe('C2: API keys', () => {
   });
 
   it('resolves a key to the company it was minted in', async () => {
-    const company = String((await seedOrganization('Acme'))._id);
+    const company = (await seedOrganization('Acme'))._id.toHexString();
     const issued = (await runForOrganization(company, () =>
       KEYS.createApiKey(null, { name: 'CRM sync', roles: [ROLES.CRM] }, adminIn(company)),
     )) as { key: string };

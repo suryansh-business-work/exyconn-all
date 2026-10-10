@@ -24,7 +24,7 @@ const input = (over: Record<string, unknown> = {}) => ({
 });
 
 const stored = async (category: string) =>
-  String((await AnnouncementModel.create(input({ category })))._id);
+  (await AnnouncementModel.create(input({ category })))._id.toHexString();
 
 let broadcast: jest.SpyInstance;
 beforeEach(() => {

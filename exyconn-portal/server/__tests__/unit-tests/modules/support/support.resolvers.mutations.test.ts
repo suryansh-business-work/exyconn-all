@@ -12,7 +12,7 @@ jest.mock('../../../../src/modules/email', () => ({ emailer: { send: jest.fn() }
 type Resolver = (p: unknown, a: unknown, c: GraphQLContext) => Promise<unknown>;
 const M = supportResolvers.Mutation as unknown as Record<string, Resolver>;
 
-const asSupport = (id = String(new Types.ObjectId())): GraphQLContext => ({
+const asSupport = (id = new Types.ObjectId().toHexString()): GraphQLContext => ({
   user: { id, email: 'desk@exyconn.com', roles: [ROLES.SUPPORT] },
 });
 
@@ -37,7 +37,7 @@ afterEach(() => {
 describe('writes that lose the ticket half way', () => {
   it('report a 404 for status, triage and assignment', async () => {
     const row = await ticket();
-    const id = String(row._id);
+    const id = row._id.toHexString();
 
     deletedMidWrite();
     await expect(
@@ -61,7 +61,7 @@ describe('assignSupportTicket', () => {
     await expect(
       M.assignSupportTicket(
         null,
-        { id: String(row._id), assigneeId: String(new Types.ObjectId()) },
+        { id: row._id.toHexString(), assigneeId: new Types.ObjectId().toHexString() },
         asSupport(),
       ),
     ).rejects.toThrow('User not found');
@@ -75,11 +75,11 @@ describe('addSupportReply', () => {
 
     await M.addSupportReply(
       null,
-      { ticketId: String(row._id), body: 'Checking.', internal: true },
+      { ticketId: row._id.toHexString(), body: 'Checking.', internal: true },
       asSupport(),
     );
 
-    const reply = await SupportReplyModel.findOne({ ticketId: String(row._id) }).lean();
+    const reply = await SupportReplyModel.findOne({ ticketId: row._id.toHexString() }).lean();
     expect(reply?.authorName).toBe('Support');
   });
 
@@ -88,7 +88,7 @@ describe('addSupportReply', () => {
 
     const saved = (await M.addSupportReply(
       null,
-      { ticketId: String(row._id), body: 'Still here.', internal: true },
+      { ticketId: row._id.toHexString(), body: 'Still here.', internal: true },
       asSupport('not-an-object-id'),
     )) as { authorId: string; authorName: string; id: string };
 

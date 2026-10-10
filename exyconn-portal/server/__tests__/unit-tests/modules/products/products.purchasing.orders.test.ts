@@ -44,7 +44,7 @@ describe('createPurchaseOrder', () => {
 
   it('reports a supplier or product that does not exist', async () => {
     const { supplierId, productId } = await seedCatalogue();
-    const missing = String(new Types.ObjectId());
+    const missing = new Types.ObjectId().toHexString();
 
     expect(
       await codeOf(M.createPurchaseOrder(null, { input: orderInput(missing, productId) }, buyer)),

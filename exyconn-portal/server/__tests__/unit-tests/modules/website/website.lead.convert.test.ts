@@ -49,7 +49,7 @@ describe('handing a submission to sales', () => {
   });
 
   it('names the lead id when the lead it became has since been deleted', async () => {
-    const goneLeadId = String(new Types.ObjectId());
+    const goneLeadId = new Types.ObjectId().toHexString();
     const row = await seedSubmission('contact', { email: 'a@b.co' }, { leadId: goneLeadId });
 
     await expect(convert(row._id)).rejects.toThrow(`already converted to lead ${goneLeadId}.`);
@@ -71,7 +71,7 @@ describe('handing a submission to sales', () => {
     const row = await seedSubmission('contact', { email: 'a@b.co' });
 
     await expect(
-      convertWebsiteSubmissionToLead(null, { id: String(row._id) }, customerEditorCtx()),
+      convertWebsiteSubmissionToLead(null, { id: row._id.toHexString() }, customerEditorCtx()),
     ).rejects.toMatchObject({ extensions: { code: 'FORBIDDEN' } });
   });
 });
@@ -113,20 +113,22 @@ describe('filing a lead automatically', () => {
     jest.spyOn(LeadModel, 'create').mockRejectedValueOnce(new Error('CRM is down'));
     const logged = jest.spyOn(logger, 'error').mockImplementation(() => undefined);
 
-    const leadId = await autoFileLead(String(row._id), 'contact', { email: 'sam@acme.test' });
+    const leadId = await autoFileLead(row._id.toHexString(), 'contact', { email: 'sam@acme.test' });
 
     expect(leadId).toBeNull();
     expect((await WebsiteSubmissionModel.findById(row._id).lean())?.leadId).toBeNull();
     expect(logged).toHaveBeenCalledWith(
       expect.any(Error),
-      `Submission ${String(row._id)} could not be filed as a lead`,
+      `Submission ${row._id.toHexString()} could not be filed as a lead`,
     );
   });
 
   it('owns an automatic lead as unassigned', async () => {
     const row = await seedSubmission('india-offer', { email: 'p@nimbus.in' });
 
-    const leadId = await autoFileLead(String(row._id), 'india-offer', { email: 'p@nimbus.in' });
+    const leadId = await autoFileLead(row._id.toHexString(), 'india-offer', {
+      email: 'p@nimbus.in',
+    });
 
     expect((await LeadModel.findById(leadId).lean())?.owner).toBe(UNASSIGNED);
   });

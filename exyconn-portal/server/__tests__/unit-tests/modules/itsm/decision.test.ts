@@ -34,14 +34,19 @@ describe('decideRecord', () => {
       decideRecord(model, changeDecision, { id, decision: 'APPROVED' }, ctx);
 
     expect(await codeOf(decide('nope'))).toBe('NOT_FOUND');
-    await expect(decide(String(new Types.ObjectId()))).rejects.toThrow('Change not found');
+    await expect(decide(new Types.ObjectId().toHexString())).rejects.toThrow('Change not found');
   });
 
   it('refuses a record that is no longer waiting for a decision', async () => {
     const draft = await change({ status: 'DRAFT' });
 
     await expect(
-      decideRecord(model, changeDecision, { id: String(draft._id), decision: 'APPROVED' }, ctx),
+      decideRecord(
+        model,
+        changeDecision,
+        { id: draft._id.toHexString(), decision: 'APPROVED' },
+        ctx,
+      ),
     ).rejects.toThrow('This change has already been decided');
   });
 
@@ -52,12 +57,12 @@ describe('decideRecord', () => {
     const decided = (await decideRecord(
       model,
       changeDecision,
-      { id: String(pending._id), decision: 'REJECTED', note: '  Not in a freeze  ' },
+      { id: pending._id.toHexString(), decision: 'REJECTED', note: '  Not in a freeze  ' },
       ctx,
     )) as unknown as Record<string, unknown>;
 
     expect(decided).toMatchObject({
-      id: String(pending._id),
+      id: pending._id.toHexString(),
       status: 'REJECTED',
       decidedByName: 'Ira Tech',
       decisionNote: 'Not in a freeze',
@@ -78,7 +83,7 @@ describe('decideRecord', () => {
     const decided = (await decideRecord(
       model,
       changeDecision,
-      { id: String(pending._id), decision: 'APPROVED', note: null },
+      { id: pending._id.toHexString(), decision: 'APPROVED', note: null },
       ctx,
     )) as unknown as Record<string, unknown>;
 

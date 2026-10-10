@@ -140,7 +140,7 @@ export type ChatSettingsInput = z.infer<typeof settingsSchema>;
 export function parseInput<T extends z.ZodType>(schema: T, value: unknown): z.infer<T> {
   const parsed = schema.safeParse(value);
   if (!parsed.success) {
-    badRequest(parsed.error.issues[0]?.message ?? 'That request is not valid.');
+    badRequest(parsed.error.issues[0].message);
   }
   return parsed.data;
 }

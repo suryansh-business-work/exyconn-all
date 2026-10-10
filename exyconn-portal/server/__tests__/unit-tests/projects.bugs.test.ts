@@ -60,7 +60,7 @@ describe('bugs on a project', () => {
     const { id, ctx } = await lead();
     const created = await project();
 
-    const bug = await fileBug(ctx, { projectId: String(created._id), assigneeId: id });
+    const bug = await fileBug(ctx, { projectId: created._id.toHexString(), assigneeId: id });
 
     expect(bug).toMatchObject({ projectName: 'Exyconn Portal', assigneeName: 'lead' });
   });
@@ -90,7 +90,7 @@ describe('promoteBugToTask', () => {
   it('makes a BUG ticket in the first column and records its key on the bug', async () => {
     const { id, ctx } = await lead();
     const created = await project();
-    const projectId = String(created._id);
+    const projectId = created._id.toHexString();
     const first = (await column(ctx, projectId, 'To do')) as { id: string };
     await column(ctx, projectId, 'Done');
     const bug = await fileBug(ctx, { projectId, assigneeId: id });
@@ -113,7 +113,7 @@ describe('promoteBugToTask', () => {
   it('refuses to promote the same bug twice', async () => {
     const { id, ctx } = await lead();
     const created = await project();
-    const projectId = String(created._id);
+    const projectId = created._id.toHexString();
     await column(ctx, projectId, 'To do');
     const bug = await fileBug(ctx, { projectId, assigneeId: id });
     await promote(ctx, bug.id);
@@ -132,7 +132,7 @@ describe('promoteBugToTask', () => {
   it('refuses when the board has no column to put the ticket in', async () => {
     const { id, ctx } = await lead();
     const created = await project();
-    const bug = await fileBug(ctx, { projectId: String(created._id), assigneeId: id });
+    const bug = await fileBug(ctx, { projectId: created._id.toHexString(), assigneeId: id });
 
     await expect(promote(ctx, bug.id)).rejects.toThrow(/no columns/i);
   });

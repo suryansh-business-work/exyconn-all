@@ -101,7 +101,7 @@ describe('click link signing (open redirect)', () => {
         body: '<a href="https://example.com/offer">Offer</a>',
       });
       await CampaignSendModel.create({
-        campaignId: String(campaign._id),
+        campaignId: campaign._id.toHexString(),
         audienceListId: 'list',
         to: 'a@example.com',
         status: 'SENT',
@@ -146,7 +146,7 @@ describe('safeFetch (SSRF)', () => {
 
   it('refuses a host that resolves to a private address, without connecting', async () => {
     resolveTo(ips.ip93_184_215_14, ips.ip10_0_0_5);
-    globalThis.fetch = jest.fn() as unknown as typeof fetch;
+    globalThis.fetch = jest.fn();
 
     await expect(safeFetch('https://sneaky.example')).rejects.toThrow(UnsafeUrlError);
     expect(globalThis.fetch).not.toHaveBeenCalled();
@@ -170,7 +170,7 @@ describe('safeFetch (SSRF)', () => {
         status: 302,
         headers: { location: 'https://internal.example/admin' },
       }),
-    ) as unknown as typeof fetch;
+    );
 
     await expect(safeFetch('https://public.example')).rejects.toThrow(/not a public/);
     expect(globalThis.fetch).toHaveBeenCalledTimes(1);
@@ -182,14 +182,12 @@ describe('safeFetch (SSRF)', () => {
       .fn()
       .mockImplementation(
         async () => new Response(null, { status: 301, headers: { location: '/again' } }),
-      ) as unknown as typeof fetch;
+      );
     await expect(safeFetch('https://loop.example', {}, { maxRedirects: 2 })).rejects.toThrow(
       /redirects/,
     );
 
-    globalThis.fetch = jest
-      .fn()
-      .mockResolvedValue(new Response('x'.repeat(100))) as unknown as typeof fetch;
+    globalThis.fetch = jest.fn().mockResolvedValue(new Response('x'.repeat(100)));
     await expect(safeFetch('https://big.example', {}, { maxBytes: 10 })).rejects.toThrow(/larger/);
   });
 
@@ -199,7 +197,7 @@ describe('safeFetch (SSRF)', () => {
       .fn()
       .mockResolvedValueOnce(new Response(null, { status: 303, headers: { location: '/done' } }))
       .mockResolvedValueOnce(new Response('ok', { status: 200 }));
-    globalThis.fetch = fetchMock as unknown as typeof fetch;
+    globalThis.fetch = fetchMock;
 
     const response = await safeFetch('https://a.example/hook', { method: 'POST', body: '{}' });
 

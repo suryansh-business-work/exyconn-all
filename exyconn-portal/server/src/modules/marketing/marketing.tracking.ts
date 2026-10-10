@@ -70,7 +70,7 @@ export function verifyLinkSignature(token: string, url: string, signature: strin
 
 /** Every `href` value in a body, exactly as written. */
 export function extractLinks(html: string): string[] {
-  return [...html.matchAll(HREF)].map((match) => match[2] ?? match[3] ?? '');
+  return [...html.matchAll(HREF)].map((match) => match[2] ?? match[3]);
 }
 
 /**
@@ -89,7 +89,7 @@ export function rewriteLinks(
   skip: string[] = [],
 ): string {
   return html.replaceAll(HREF, (match, _quoted: string, doubled?: string, singled?: string) => {
-    const url = doubled ?? singled ?? '';
+    const url = (doubled ?? singled) as string;
     if (!isFollowable(url) || skip.some((exempt) => exempt && url.includes(exempt))) {
       return match;
     }

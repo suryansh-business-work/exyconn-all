@@ -16,29 +16,29 @@ async function publishedFragment(siteId: string, blocks: CmsBlock[] = [], css = 
     name: 'Fragment',
     published: { blocks, css, publishedAt: new Date() },
   });
-  return String(row._id);
+  return row._id.toHexString();
 }
 
 describe('publicSite', () => {
   it('serves the site, its design system and its published chrome with what it places', async () => {
     const site = await seedSite('main', { isDefault: true });
-    const siteId = String(site._id);
+    const siteId = site._id.toHexString();
     const nested = await publishedFragment(siteId, [{ kind: 'html', html: '<nav/>' }], 'nav{}');
     const header = await publishedFragment(siteId, [ref(nested)], 'header{}');
-    const draftFooter = String(
-      (await CmsFragmentModel.create({ siteId, name: 'Footer', kind: 'FOOTER' }))._id,
-    );
+    const draftFooter = (
+      await CmsFragmentModel.create({ siteId, name: 'Footer', kind: 'FOOTER' })
+    )._id.toHexString();
     const design = await CmsDesignSystemModel.create({ siteId, name: 'Brand', tokens: {} });
     await site.updateOne({
       headerFragmentId: header,
       footerFragmentId: draftFooter,
-      designSystemId: String(design._id),
+      designSystemId: design._id.toHexString(),
     });
 
     const result = await publicSite('localhost');
 
     expect(result.site).toMatchObject({ id: siteId, slug: 'main' });
-    expect(result.designSystem).toMatchObject({ id: String(design._id), name: 'Brand' });
+    expect(result.designSystem).toMatchObject({ id: design._id.toHexString(), name: 'Brand' });
     expect(result.fragments).toEqual([
       { id: header, blocks: [ref(nested)], css: 'header{}' },
       { id: nested, blocks: [{ kind: 'html', html: '<nav/>' }], css: 'nav{}' },
@@ -56,7 +56,7 @@ describe('publicSite', () => {
 
   it('reads a published fragment stored without blocks or CSS as empty', async () => {
     const site = await seedSite('main', { isDefault: true });
-    const siteId = String(site._id);
+    const siteId = site._id.toHexString();
     const header = await publishedFragment(siteId);
     await CmsFragmentModel.collection.updateOne(
       { _id: new Types.ObjectId(header) },
@@ -114,7 +114,7 @@ describe('fragments a page places', () => {
 
   it('stops at a fragment cycle and skips ids that are not ids or not published', async () => {
     const siteId = 'site-1';
-    const draft = String((await CmsFragmentModel.create({ siteId, name: 'Draft' }))._id);
+    const draft = (await CmsFragmentModel.create({ siteId, name: 'Draft' }))._id.toHexString();
     const b = await publishedFragment(siteId);
     const a = await publishedFragment(siteId, [ref(b), ref('seed:header'), ref(draft)]);
     await CmsFragmentModel.updateOne({ _id: b }, { 'published.blocks': [ref(a)] });

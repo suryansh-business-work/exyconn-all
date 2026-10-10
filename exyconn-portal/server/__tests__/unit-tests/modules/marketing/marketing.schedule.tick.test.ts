@@ -79,7 +79,7 @@ describe('startCampaignSchedule', () => {
   it('checks every company at once, then every minute, and reports what it sent', async () => {
     const { unref, setIntervalSpy } = fakeInterval();
     const organization = await seedOrganization('Schedule Co');
-    await runForOrganization(String(organization._id), () => seedBrokenDue('Org campaign'));
+    await runForOrganization(organization._id.toHexString(), () => seedBrokenDue('Org campaign'));
 
     startCampaignSchedule();
 

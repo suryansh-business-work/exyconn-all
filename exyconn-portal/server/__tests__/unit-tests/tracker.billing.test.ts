@@ -13,7 +13,7 @@ const HOUR_MS = 3_600_000;
 
 async function employee(name: string, email: string) {
   const user = await UserModel.create({ name, email, passwordHash: 'x' });
-  return String(user._id);
+  return user._id.toHexString();
 }
 
 async function tracked(userId: string, startedAt: Date, activeMs: number) {
