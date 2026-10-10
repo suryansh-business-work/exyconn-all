@@ -66,6 +66,30 @@ function splitTopLevel(text: string): string[] {
   return parts;
 }
 
+const LINE_BREAK = /[\n\r\u2028\u2029]/;
+
+/**
+ * Splits "red 40%" into its colour and weight — what `/^(.*?)\s+([\d.]+)%$/` finds, without
+ * the lazy `.*?` and `\s+` that retry quadratically on a long run of spaces.
+ */
+function splitWeight(part: string): { color: string; weight: string } | null {
+  if (!part.endsWith("%")) {
+    return null;
+  }
+  const body = part.slice(0, -1);
+  let numberStart = body.length;
+  while (numberStart > 0 && /[\d.]/.test(body[numberStart - 1])) {
+    numberStart -= 1;
+  }
+  let colorEnd = numberStart;
+  while (colorEnd > 0 && /\s/.test(body[colorEnd - 1])) {
+    colorEnd -= 1;
+  }
+  const color = body.slice(0, colorEnd);
+  const valid = numberStart < body.length && colorEnd < numberStart && !LINE_BREAK.test(color);
+  return valid ? { color, weight: body.slice(numberStart) } : null;
+}
+
 /**
  * `color-mix()` interpolated in sRGB. The site mixes in `oklab` too; for the tints measured
  * here the difference is well under one contrast hundredth, so one space serves both.
@@ -73,9 +97,9 @@ function splitTopLevel(text: string): string[] {
 function mix(text: string, lookup: RoleLookup): Rgba {
   const [, first, second] = splitTopLevel(text.slice("color-mix(".length, -1));
   const weighted = (part: string): [Rgba, number | null] => {
-    const match = /^(.*?)\s+([\d.]+)%$/.exec(part);
+    const match = splitWeight(part);
     return match
-      ? [resolveColor(match[1], lookup), Number(match[2]) / 100]
+      ? [resolveColor(match.color, lookup), Number(match.weight) / 100]
       : [resolveColor(part, lookup), null];
   };
   const [colorA, weightA] = weighted(first);

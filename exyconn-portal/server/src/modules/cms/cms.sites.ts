@@ -1,4 +1,5 @@
 import { badRequest, notFound } from '../../utils/errors';
+import { cutAtFirst } from '../../utils/textTrim';
 import { CmsDesignSystemModel, CmsSiteModel, type CmsSiteDocument } from './models';
 
 /** What Website › Websites saves for a site. */
@@ -26,11 +27,13 @@ const HOST =
 
 /** A host name as stored: lower-case, no scheme, port or path. */
 export function normalizeHost(value: string): string {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/^https?:\/\//, '')
-    .replace(/[/:].*$/, '');
+  return cutAtFirst(
+    value
+      .trim()
+      .toLowerCase()
+      .replace(/^https?:\/\//, ''),
+    '/:',
+  );
 }
 
 function siteFields(input: CmsSiteInput) {

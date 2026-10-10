@@ -2,8 +2,8 @@ import { createHash, randomBytes } from 'node:crypto';
 import { StatusSubscriberModel } from './status-subscriber.model';
 import { emailer } from '../email';
 import { badRequest } from '../../utils/errors';
+import { isEmailAddress } from '../../utils/emailAddress';
 import { createLimiter } from '../../lib/rateLimiter';
-import { MAX_EMAIL_LENGTH } from '../../lib/rateLimiterSignIn';
 import { logger } from '../../utils/logger';
 import { env } from '../../config/env';
 
@@ -14,7 +14,6 @@ export const INCIDENT_NOTICE_TEMPLATE = 'status-incident-notice';
 const HOUR_SEC = 60 * 60;
 /** How many notices go out at once. Enough to be quick, small enough not to flood SMTP. */
 const FANOUT_CHUNK = 25;
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const BAD_TOKEN = 'This link is invalid or has already been used.';
 
 /** Per-address, so one stuck form cannot flood one inbox — and cannot probe the rest. */
@@ -66,7 +65,7 @@ export async function subscribeToStatus(
   ip?: string,
 ): Promise<void> {
   const address = email.trim().toLowerCase();
-  if (address.length > MAX_EMAIL_LENGTH || !EMAIL_PATTERN.exec(address)) {
+  if (!isEmailAddress(address)) {
     return;
   }
   if (ip !== undefined && !(await subscribeIpLimiter.allow(ip))) {

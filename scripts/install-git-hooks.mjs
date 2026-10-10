@@ -19,8 +19,18 @@ if (!existsSync('.git')) {
   process.exit(0);
 }
 
-const result = spawnSync('git', ['config', 'core.hooksPath', '.githooks'], { stdio: 'inherit' });
+// Fixed install locations only: a bare `git` would be resolved through PATH.
+const GIT_LOCATIONS = [
+  '/usr/bin/git',
+  '/usr/local/bin/git',
+  '/opt/homebrew/bin/git',
+  String.raw`C:\Program Files\Git\cmd\git.exe`,
+];
+const git = GIT_LOCATIONS.find((location) => existsSync(location));
+const result = git
+  ? spawnSync(git, ['config', 'core.hooksPath', '.githooks'], { stdio: 'inherit' })
+  : undefined;
 
-if (result.error || result.status !== 0) {
+if (!result || result.error || result.status !== 0) {
   console.warn('Could not point git at .githooks — commit hooks will not run.');
 }

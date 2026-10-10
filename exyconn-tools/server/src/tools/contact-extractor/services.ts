@@ -30,7 +30,66 @@ export interface ExtractionResult {
 }
 
 // Regex patterns for extraction
-const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+const LOCAL_CHAR = /[a-zA-Z0-9._%+-]/;
+const DOMAIN_CHAR = /[a-zA-Z0-9.-]/;
+const LETTER = /[a-zA-Z]/;
+
+/** End of the run of `kind` characters that starts at `from`. */
+function runEnd(text: string, from: number, kind: RegExp): number {
+  let end = from;
+  while (end < text.length && kind.test(text[end])) {
+    end += 1;
+  }
+  return end;
+}
+
+/** Start of the run of local-part characters that ends just before `to`, never before `floor`. */
+function localStart(text: string, to: number, floor: number): number {
+  let start = to;
+  while (start > floor && LOCAL_CHAR.test(text[start - 1])) {
+    start -= 1;
+  }
+  return start;
+}
+
+/** Where the address whose domain run is text[from, end) stops, or -1 when it has no TLD. */
+function addressEnd(text: string, from: number, end: number): number {
+  for (let dot = end - 3; dot > from; dot -= 1) {
+    if (
+      text[dot] === "." &&
+      LETTER.test(text[dot + 1]) &&
+      LETTER.test(text[dot + 2])
+    ) {
+      return runEnd(text, dot + 1, LETTER);
+    }
+  }
+  return -1;
+}
+
+/**
+ * Every `name@domain.tld` in the text — what `/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g`
+ * finds, in one pass. That regex restarts from every character of a long run of address
+ * characters, which is quadratic.
+ */
+function findEmails(text: string): string[] {
+  const found: string[] = [];
+  let searchFrom = 0;
+  let at = text.indexOf("@");
+  while (at >= 0) {
+    const start = localStart(text, at, searchFrom);
+    const domainEnd = runEnd(text, at + 1, DOMAIN_CHAR);
+    const end = start < at ? addressEnd(text, at + 1, domainEnd) : -1;
+    if (end >= 0) {
+      found.push(text.slice(start, end));
+      searchFrom = end;
+      at = text.indexOf("@", end);
+    } else {
+      at = text.indexOf("@", at + 1);
+    }
+  }
+  return found;
+}
+
 const PHONE_REGEX =
   /(?:\+?\d{1,3}[-.\s]?)?\(?\d{2,4}\)?[-.\s]?\d{3,4}[-.\s]?\d{3,4}/g;
 
@@ -73,7 +132,7 @@ function extractContactsFromHtml(
   const text = $("body").text();
 
   // Extract emails
-  const emails = [...new Set(text.match(EMAIL_REGEX) || [])].filter(
+  const emails = [...new Set(findEmails(text))].filter(
     (email) => !email.includes("example") && !email.includes("test@"),
   );
 

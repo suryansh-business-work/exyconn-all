@@ -7,6 +7,15 @@ export function isAbsoluteUrl(value: string): boolean {
   return ABSOLUTE_URL.test(value);
 }
 
+/** `value` without its trailing slashes (a loop: `/\/+$/` is quadratic on a long run of them). */
+function trimTrailingSlashes(value: string): string {
+  let end = value.length;
+  while (end > 0 && value[end - 1] === '/') {
+    end -= 1;
+  }
+  return value.slice(0, end);
+}
+
 /**
  * `path` resolved against `origin`, with no trailing slash except on the root.
  * An already-absolute URL is returned unchanged.
@@ -15,8 +24,8 @@ export function absoluteUrl(origin: string, path: string): string {
   if (isAbsoluteUrl(path)) {
     return path;
   }
-  const base = origin.replace(/\/+$/, '');
-  const trimmed = path.replace(/\/+$/, '');
+  const base = trimTrailingSlashes(origin);
+  const trimmed = trimTrailingSlashes(path);
   if (trimmed === '') {
     return `${base}/`;
   }

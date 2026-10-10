@@ -1,6 +1,7 @@
 import { badRequest, notFound } from '../../utils/errors';
 import { withIds } from '../../utils/serialize';
 import { escapeRegex } from '../../utils/tableQuery';
+import { trimTrailing } from '../../utils/textTrim';
 import { CmsPageModel, CmsPageRevisionModel } from './models';
 import { assertDraft, compileDraft, statusAfterEdit, type CmsDraftInput } from './cms.documents';
 
@@ -44,7 +45,7 @@ const isValidPath = (path: string): boolean =>
     .every((segment) => PATH_SEGMENT.test(segment));
 
 function settingsFields(input: CmsPageSettingsInput) {
-  const path = input.path.trim().replace(/\/+$/, '') || '/';
+  const path = trimTrailing(input.path.trim(), '/') || '/';
   if (path !== '/' && !isValidPath(path)) {
     badRequest('Use a path like /about-us — lower-case letters, digits and dashes.');
   }

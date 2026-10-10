@@ -6,6 +6,7 @@ import { cachePage, cachedPage } from "./lib/i18n/page-cache";
 import { loadMessages, translateMissing, type Messages } from "./lib/i18n/translations";
 import { localiseLinks, marketRedirect } from "./lib/i18n/market-links";
 import { getCmsSite, type CmsPublicSite } from "./lib/cms";
+import { trimTrailing } from "./lib/text-trim";
 
 const APEX_HOST = "exyconn.com";
 
@@ -203,7 +204,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     url.pathname.endsWith("/") &&
     !/\.[a-zA-Z0-9]+\/$/.test(url.pathname)
   ) {
-    const target = url.pathname.replace(/\/+$/, "") + url.search;
+    const target = trimTrailing(url.pathname, "/") + url.search;
     return new Response(null, {
       status: 301,
       headers: { Location: target, "Cache-Control": "public, max-age=3600" },

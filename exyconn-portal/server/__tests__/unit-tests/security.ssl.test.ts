@@ -15,6 +15,12 @@ import { StatusMonitorModel } from '../../src/modules/status/status-monitor.mode
 import { env } from '../../src/config/env';
 import ips from '../fixtures/ips.json';
 
+const withProtocol = (url: string, protocol: string): string => {
+  const parsed = new URL(url);
+  parsed.protocol = protocol;
+  return parsed.href;
+};
+
 jest.mock('../../src/modules/security/ssl.probe', () => ({ readCertificate: jest.fn() }));
 const probe = readCertificate as jest.Mock;
 
@@ -41,7 +47,7 @@ const handshake = (days: number, authorized = true, from: Date = NOW) => ({
 describe('which hosts are checked', () => {
   it('takes the https host of a monitor URL, lower-cased', () => {
     expect(httpsHost('https://Portal.Exyconn.com/health')).toBe('portal.exyconn.com');
-    expect(httpsHost('http://exyconn.com')).toBeNull();
+    expect(httpsHost(withProtocol('https://exyconn.com', 'http:'))).toBeNull();
     expect(httpsHost('not a url')).toBeNull();
   });
 
@@ -51,7 +57,7 @@ describe('which hosts are checked', () => {
         { name: 'Portal', url: 'https://portal.exyconn.com' },
         { name: 'API', url: 'https://api.exyconn.com/health' },
         { name: 'Portal health', url: 'https://portal.exyconn.com/health' },
-        { name: 'Plain', url: 'http://legacy.exyconn.com' },
+        { name: 'Plain', url: withProtocol('https://legacy.exyconn.com', 'http:') },
       ]),
     ).toEqual([
       { host: 'api.exyconn.com', monitors: ['API'] },

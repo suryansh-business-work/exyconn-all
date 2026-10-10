@@ -31,9 +31,10 @@ ENV VITE_CHAT_EMBED_URL=$VITE_CHAT_EMBED_URL
 RUN npm run build
 
 # Stage 3: Production (Nginx)
-FROM nginx:alpine AS production
+FROM nginxinc/nginx-unprivileged:alpine AS production
 
-# Install curl for healthcheck
+# Install curl for healthcheck (needs root; the runtime user is restored below)
+USER root
 RUN apk add --no-cache curl
 
 # Copy built assets
@@ -44,6 +45,8 @@ COPY exyconn-tools/ui/nginx.conf /etc/nginx/conf.d/default.conf
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -f http://127.0.0.1:4001/ || exit 1
+
+USER 101
 
 EXPOSE 4001
 

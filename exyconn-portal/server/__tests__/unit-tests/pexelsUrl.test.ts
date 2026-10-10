@@ -1,5 +1,11 @@
 import { isPexelsMediaUrl } from '../../src/utils/pexels';
 
+const withProtocol = (url: string, protocol: string): string => {
+  const parsed = new URL(url);
+  parsed.protocol = protocol;
+  return parsed.href;
+};
+
 describe('isPexelsMediaUrl', () => {
   it('accepts an https Pexels CDN URL', () => {
     expect(isPexelsMediaUrl('https://videos.pexels.com/video-files/123/456.mp4')).toBe(true);
@@ -12,7 +18,9 @@ describe('isPexelsMediaUrl', () => {
   });
 
   it('rejects non-https schemes and anything unparseable', () => {
-    expect(isPexelsMediaUrl('http://images.pexels.com/photos/1.jpeg')).toBe(false);
+    expect(isPexelsMediaUrl(withProtocol('https://images.pexels.com/photos/1.jpeg', 'http:'))).toBe(
+      false,
+    );
     expect(isPexelsMediaUrl('file:///etc/passwd')).toBe(false);
     expect(isPexelsMediaUrl('not a url')).toBe(false);
   });

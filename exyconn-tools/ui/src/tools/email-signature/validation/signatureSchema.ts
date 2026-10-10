@@ -1,6 +1,34 @@
 import * as Yup from 'yup';
 
-const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})[/\w .-]*\/?$/;
+const SCHEME = /^https?:\/\//;
+const URL_CHARS = /^[/\w .-]*$/;
+const HOST_CHAR = /[\da-z.-]/;
+const TLD_CHAR = /[a-z.]/;
+
+/**
+ * `[scheme://]host.tld[/path]`: the host runs on lower-case letters, digits, dots and
+ * dashes, a dot then two letters or dots start the TLD, and the rest is path characters.
+ * Checked in one pass because the regex that says the same (`[\da-z.-]+\.[a-z.]{2,6}[/\w .-]*`)
+ * has three overlapping runs and backtracks super-linearly.
+ */
+function isUrl(value: string): boolean {
+  const rest = value.replace(SCHEME, '');
+  if (!URL_CHARS.test(rest)) {
+    return false;
+  }
+  let hostEnd = 0;
+  while (hostEnd < rest.length && HOST_CHAR.test(rest[hostEnd])) {
+    hostEnd += 1;
+  }
+  for (let dot = 1; dot < hostEnd && dot + 2 < rest.length; dot += 1) {
+    if (rest[dot] === '.' && TLD_CHAR.test(rest[dot + 1]) && TLD_CHAR.test(rest[dot + 2])) {
+      return true;
+    }
+  }
+  return false;
+}
+
+const urlMessage = 'Please enter a valid URL';
 
 export const signatureValidationSchema = Yup.object().shape({
   // Personal Info - Name is required
@@ -25,16 +53,16 @@ export const signatureValidationSchema = Yup.object().shape({
   address: Yup.string().max(200, 'Address must be less than 200 characters'),
 
   // URLs
-  logoUrl: Yup.string().matches(urlRegex, { message: 'Please enter a valid URL', excludeEmptyString: true }),
+  logoUrl: Yup.string().test('url', urlMessage, (value) => !value || isUrl(value)),
 
-  profilePhotoUrl: Yup.string().matches(urlRegex, { message: 'Please enter a valid URL', excludeEmptyString: true }),
+  profilePhotoUrl: Yup.string().test('url', urlMessage, (value) => !value || isUrl(value)),
 
-  bannerUrl: Yup.string().matches(urlRegex, { message: 'Please enter a valid URL', excludeEmptyString: true }),
+  bannerUrl: Yup.string().test('url', urlMessage, (value) => !value || isUrl(value)),
 
   // CTA
   ctaText: Yup.string().max(50, 'CTA text must be less than 50 characters'),
 
-  ctaUrl: Yup.string().matches(urlRegex, { message: 'Please enter a valid URL', excludeEmptyString: true }),
+  ctaUrl: Yup.string().test('url', urlMessage, (value) => !value || isUrl(value)),
 
   // Social Links validation
   socialLinks: Yup.array().of(
@@ -42,7 +70,7 @@ export const signatureValidationSchema = Yup.object().shape({
       platform: Yup.string().required(),
       url: Yup.string().when('enabled', {
         is: true,
-        then: (schema) => schema.matches(urlRegex, 'Please enter a valid URL'),
+        then: (schema) => schema.test('url', urlMessage, (value) => value == null || isUrl(value)),
         otherwise: (schema) => schema,
       }),
       enabled: Yup.boolean(),

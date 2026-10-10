@@ -1,4 +1,5 @@
 import { safeFetch, UnsafeUrlError } from '../../utils/safeFetch';
+import { trimTrailing } from '../../utils/textTrim';
 
 /** How long one Web API call may take before the server is reported unreachable. */
 const SONAR_TIMEOUT_MS = 10_000;
@@ -27,7 +28,7 @@ type Params = Record<string, string | number>;
 
 /** The server's base URL with any trailing slash removed, so paths join cleanly. */
 export function baseUrl(hostUrl: string): string {
-  return hostUrl.trim().replace(/\/+$/, '');
+  return trimTrailing(hostUrl.trim(), '/');
 }
 
 /**

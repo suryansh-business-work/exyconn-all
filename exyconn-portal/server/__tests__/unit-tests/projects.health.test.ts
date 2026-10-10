@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import { ProjectModel } from '../../src/modules/projects/projects.model';
 import { BoardColumnModel, TaskModel } from '../../src/modules/projects/board.model';
 import { BugModel } from '../../src/modules/bugs/bugs.model';
@@ -30,7 +31,7 @@ const task = (projectId: unknown, columnId: unknown, assigneeId = '') =>
   TaskModel.create({
     projectId,
     columnId,
-    key: `WEB-${Math.random().toString(36).slice(2, 7)}`,
+    key: `WEB-${randomBytes(3).toString('hex')}`,
     title: 'Something to do',
     assigneeId,
   });

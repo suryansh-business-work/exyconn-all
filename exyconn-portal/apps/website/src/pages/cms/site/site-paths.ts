@@ -7,6 +7,15 @@ const SAFE_STORAGE_KEY = 'exyconn.website.lastSite';
 /** A record id (a Mongo ObjectId) in a path: switching sites stops before it. */
 const RECORD_ID = /^[a-f\d]{24}$/i;
 
+/** `value` without its trailing slashes (a loop: `/\/+$/` is quadratic on a long run of them). */
+function trimTrailingSlashes(value: string): string {
+  let end = value.length;
+  while (end > 0 && value[end - 1] === '/') {
+    end -= 1;
+  }
+  return value.slice(0, end);
+}
+
 /** A page of one site: `sitePath('exyconn', 'pages')` → /website/s/exyconn/pages. */
 export const sitePath = (slug: string, rest = ''): string =>
   rest ? `${SITE_BASE}/${slug}/${rest}` : `${SITE_BASE}/${slug}`;
@@ -47,7 +56,7 @@ export function rememberSite(slug: string): void {
 /** The public origin a site is served on: the dev override, else its first domain. */
 export function siteOrigin(domains: readonly string[]): string {
   if (env.websiteOrigin) {
-    return env.websiteOrigin.replace(/\/+$/, '');
+    return trimTrailingSlashes(env.websiteOrigin);
   }
   const domain = domains[0];
   return domain ? `https://${domain}` : new URL(env.brandUrl).origin;

@@ -1,5 +1,6 @@
 import { BoardColumnModel, TaskActivityModel, TaskCommentModel, TaskModel } from './board.model';
 import { stringOf } from '../../utils/serialize';
+import { stripTags } from '../../utils/textTrim';
 import { ProjectModel } from './projects.model';
 import { notifyAssignment, notifyComment, notifyTicketDone } from './projects.notify';
 import { badRequest, notFound } from '../../utils/errors';
@@ -104,11 +105,7 @@ function display(value: unknown): string {
   if (value instanceof Date) {
     return value.toISOString().slice(0, 10);
   }
-  return stringOf(value)
-    .replaceAll(/<[^>]*>/g, ' ')
-    .replaceAll(/\s+/g, ' ')
-    .trim()
-    .slice(0, VALUE_LIMIT);
+  return stripTags(stringOf(value), ' ').replaceAll(/\s+/g, ' ').trim().slice(0, VALUE_LIMIT);
 }
 
 /** Writes one line of history. Never throws into the caller: a lost trail is not a lost edit. */

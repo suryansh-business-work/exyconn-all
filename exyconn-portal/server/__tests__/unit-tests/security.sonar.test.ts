@@ -263,7 +263,7 @@ describe('the SonarQube config', () => {
   it('never returns the token, only whether one is stored and its end', async () => {
     const source = securityTypeDefs.loc?.source.body ?? '';
     const body = /type SonarConfig \{([^}]*)\}/.exec(source)?.[1] ?? '';
-    expect(body).not.toMatch(/^\s*token:/m);
+    expect(body.split('\n').some((line) => line.trimStart().startsWith('token:'))).toBe(false);
 
     await createConfig();
     const [row] = (await SECURITY.listSonarConfigs(null, {}, platformAdmin)) as Array<

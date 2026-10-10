@@ -40,12 +40,28 @@ export function componentHtml(key: string, rawProps: unknown, childrenHtml: stri
 
 export const fragmentHtml = (fragmentId: string): string => fragmentPlaceholder(fragmentId);
 
-const TAGS = /<[^>]*>/g;
+/** `html` with every `<...>` run replaced by a space (a scan: the regex form is quadratic). */
+function stripTags(html: string): string {
+  let out = '';
+  let copied = 0;
+  let open = html.indexOf('<');
+  while (open >= 0) {
+    const close = html.indexOf('>', open + 1);
+    if (close < 0) {
+      break;
+    }
+    out += `${html.slice(copied, open)} `;
+    copied = close + 1;
+    open = html.indexOf('<', copied);
+  }
+  return out + html.slice(copied);
+}
+
 const MAX_VALUE = 48;
 
 function describe(value: unknown): string | null {
   if (typeof value === 'string') {
-    const text = value.replaceAll(TAGS, ' ').replaceAll(/\s+/g, ' ').trim();
+    const text = stripTags(value).replaceAll(/\s+/g, ' ').trim();
     if (text === '') return null;
     return text.length > MAX_VALUE ? `${text.slice(0, MAX_VALUE)}…` : text;
   }

@@ -115,10 +115,10 @@ describe("CMS draft preview", () => {
   });
 
   it("takes the portal origins from CMS_PREVIEW_ANCESTORS", async () => {
-    vi.stubEnv("CMS_PREVIEW_ANCESTORS", "http://localhost:4000,http://localhost:4001");
+    vi.stubEnv("CMS_PREVIEW_ANCESTORS", "https://localhost:4000,https://localhost:4001");
     const res = await run(onRequest, contextFor("/cms-preview").context, nextReturning("x").next);
     expect(res.headers.get("Content-Security-Policy")).toBe(
-      "frame-ancestors 'self' http://localhost:4000 http://localhost:4001"
+      "frame-ancestors 'self' https://localhost:4000 https://localhost:4001"
     );
   });
 });

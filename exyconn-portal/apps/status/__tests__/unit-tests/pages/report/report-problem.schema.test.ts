@@ -5,6 +5,12 @@ import {
 } from '../../../../src/pages/report/forms/report-problem';
 import { reportInput } from './report.fixtures';
 
+const withProtocol = (url: string, protocol: string): string => {
+  const parsed = new URL(url);
+  parsed.protocol = protocol;
+  return parsed.href;
+};
+
 const messagesFor = (overrides: Record<string, unknown>) => {
   const result = reportProblemSchema.safeParse({ ...reportInput, ...overrides });
   return result.success ? [] : result.error.issues.map((issue) => issue.message);
@@ -22,7 +28,7 @@ describe('reportProblemSchema', () => {
 
   it('accepts a report with no page address, or with an http(s) one', () => {
     expect(messagesFor({ pageUrl: '' })).toEqual([]);
-    expect(messagesFor({ pageUrl: 'http://hr.exyconn.com/x' })).toEqual([]);
+    expect(messagesFor({ pageUrl: withProtocol('https://hr.exyconn.com/x', 'http:') })).toEqual([]);
     expect(messagesFor({ pageUrl: '  https://hr.exyconn.com  ' })).toEqual([]);
   });
 

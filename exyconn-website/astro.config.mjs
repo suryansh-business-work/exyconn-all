@@ -2,14 +2,21 @@ import { defineConfig } from "astro/config"
 import tailwindcss from "@tailwindcss/vite";
 import node from '@astrojs/node';
 import react from '@astrojs/react';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
 import pkg from './package.json' with { type: 'json' };
 import { TOOLS_SITE_URL } from './src/lib/site.ts';
 
 // Compute version at build time (not runtime)
 let gitHash = 'dev';
+// Fixed install locations only: a bare `git` would be resolved through PATH.
+const GIT_LOCATIONS = ['/usr/bin/git', '/usr/local/bin/git', '/opt/homebrew/bin/git'];
 try {
-  gitHash = execSync('git rev-parse --short HEAD', { encoding: 'utf-8' }).trim();
+  const git = GIT_LOCATIONS.find((location) => existsSync(location));
+  if (!git) {
+    throw new Error('git not found');
+  }
+  gitHash = execFileSync(git, ['rev-parse', '--short', 'HEAD'], { encoding: 'utf-8' }).trim();
 } catch {
   // Fallback for CI environments without git
   gitHash = globalThis.process?.env?.GITHUB_SHA?.slice(0, 7) || 'dev';

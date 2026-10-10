@@ -4,6 +4,12 @@ import { WebsiteChatAttachmentKind } from '@exyconn/shell/graphql/generated';
 import { MessageAttachments } from '../../../../../src/pages/chat/conversation/MessageAttachments';
 import { renderWithProviders } from '../../../test-utils';
 
+const withProtocol = (url: string, protocol: string): string => {
+  const parsed = new URL(url);
+  parsed.protocol = protocol;
+  return parsed.href;
+};
+
 const file = (kind: WebsiteChatAttachmentKind, name: string, url: string) => ({
   kind,
   name,
@@ -69,7 +75,13 @@ describe('MessageAttachments', () => {
   it('renders nothing when no file can be shown', () => {
     const { container } = renderWithProviders(
       <MessageAttachments
-        attachments={[file(WebsiteChatAttachmentKind.Video, 'x.mp4', 'ftp://host/x.mp4')]}
+        attachments={[
+          file(
+            WebsiteChatAttachmentKind.Video,
+            'x.mp4',
+            withProtocol('https://host/x.mp4', 'ftp:'),
+          ),
+        ]}
       />,
     );
     expect(container.querySelector('video')).toBeNull();

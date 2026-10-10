@@ -3,6 +3,8 @@
  * portal-written article gets an "On this page" list without anyone adding anchors by hand.
  * Runs on sanitised HTML; an id a heading already has is kept.
  */
+import { stripTags, trimLeading, trimTrailing } from "../text-trim";
+
 export interface TocEntry {
   id: string;
   label: string;
@@ -12,20 +14,18 @@ export interface TocEntry {
 const HEADING = /<h([23])(\s[^>]*)?>([\s\S]*?)<\/h\1>/gi;
 const ID_ATTR = /\sid\s*=\s*["']([^"']+)["']/i;
 
-export const slugify = (text: string): string =>
+const dashed = (text: string): string =>
   text
     .toLowerCase()
     .normalize("NFKD")
     .replaceAll(/[̀-ͯ]/g, "")
-    .replaceAll(/[^a-z\d]+/g, "-")
-    .replaceAll(/^-+|-+$/g, "") || "section";
+    .replaceAll(/[^a-z\d]+/g, "-");
+
+export const slugify = (text: string): string =>
+  trimLeading(trimTrailing(dashed(text), "-"), "-") || "section";
 
 const textOf = (html: string): string =>
-  html
-    .replaceAll(/<[^>]*>/g, "")
-    .replaceAll("&amp;", "&")
-    .replaceAll("&nbsp;", " ")
-    .trim();
+  stripTags(html).replaceAll("&amp;", "&").replaceAll("&nbsp;", " ").trim();
 
 export const withHeadingIds = (html: string): { html: string; toc: TocEntry[] } => {
   const toc: TocEntry[] = [];

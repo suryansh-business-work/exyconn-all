@@ -4,6 +4,12 @@ const path = require('node:path');
 const process = require('node:process');
 
 const ROOT = path.resolve(__dirname, '..');
+const PNPM_ENTRY = process.env.npm_execpath;
+
+if (!PNPM_ENTRY) {
+  console.error('Run this through pnpm: pnpm run run:all');
+  process.exit(1);
+}
 
 /**
  * Each service owns its port in its own config (server env.PORT, vite strictPort,
@@ -58,10 +64,11 @@ function pipeWithPrefix(stream, target, service) {
 }
 
 function startService(service) {
-  const child = spawn('pnpm', ['--filter', service.pkg, 'run', 'dev'], {
+  // pnpm exports its own entry script; running it with this node avoids a PATH lookup
+  // (and the shell) for `pnpm`.
+  const child = spawn(process.execPath, [PNPM_ENTRY, '--filter', service.pkg, 'run', 'dev'], {
     cwd: ROOT,
     stdio: ['ignore', 'pipe', 'pipe'],
-    shell: true,
     // Own process group on POSIX so shutdown() can signal the whole tree, not just the shell.
     detached: process.platform !== 'win32',
   });
@@ -144,7 +151,7 @@ function renderTable(rows) {
 let shuttingDown = false;
 
 /**
- * Each service is spawned through a shell, so `child.kill()` would only kill the shell
+ * Each service is spawned through pnpm, so `child.kill()` would only kill pnpm
  * and leave the dev server holding its port (the next `run:all` then dies on EADDRINUSE).
  * Kill the whole process tree instead.
  */
@@ -154,7 +161,8 @@ function killTree(child) {
   }
 
   if (process.platform === 'win32') {
-    spawnSync('taskkill', ['/pid', String(child.pid), '/T', '/F'], { stdio: 'ignore' });
+    const taskkill = path.join(process.env.SystemRoot ?? String.raw`C:\Windows`, 'System32', 'taskkill.exe');
+    spawnSync(taskkill, ['/pid', String(child.pid), '/T', '/F'], { stdio: 'ignore' });
     return;
   }
 
