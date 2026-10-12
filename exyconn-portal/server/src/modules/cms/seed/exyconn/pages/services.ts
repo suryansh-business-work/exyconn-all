@@ -1,29 +1,30 @@
 import type { CmsSeedPage } from '../../types';
-import { SERVICES_APPLICATION_MODERNIZATION_PAGE } from './services/application-modernization';
-import { SERVICES_AUTOMATION_INTEGRATION_PAGE } from './services/automation-integration';
-import { SERVICES_DATA_ANALYTICS_PAGE } from './services/data-analytics';
-import { SERVICES_DIGITAL_CONSULTING_PAGE } from './services/digital-consulting';
-import { SERVICES_ENTERPRISE_APPLICATION_PAGE } from './services/enterprise-application';
-import { SERVICES_MAINTENANCE_PAGE } from './services/maintenance';
-import { SERVICES_MOBILE_APPLICATION_DEVELOPMENT_PAGE } from './services/mobile-application-development';
-import { SERVICES_SOFTWARE_AS_A_SERVICE_PAGE } from './services/software-as-a-service';
-import { SERVICES_WHATSAPP_CHATBOT_PAGE } from './services/whatsapp-chatbot';
-import { SERVICES_HUB_PAGE } from './services/hub';
-import { SERVICES_DIGITAL_MARKETING_PAGE } from './services/digital-marketing';
-import { SERVICES_SOFTWARE_DEVELOPMENT_OUTSOURCING_PAGE } from './services/software-development-outsourcing';
+import { seedPage } from '../page-doc';
+import applicationModernization from './services/application-modernization.json';
+import automationIntegration from './services/automation-integration.json';
+import dataAnalytics from './services/data-analytics.json';
+import digitalConsulting from './services/digital-consulting.json';
+import enterpriseApplication from './services/enterprise-application.json';
+import maintenance from './services/maintenance.json';
+import mobileApplicationDevelopment from './services/mobile-application-development.json';
+import softwareAsAService from './services/software-as-a-service.json';
+import whatsappChatbot from './services/whatsapp-chatbot.json';
+import hub from './services/hub.json';
+import digitalMarketing from './services/digital-marketing.json';
+import softwareDevelopmentOutsourcing from './services/software-development-outsourcing.json';
 
 /** The services hub and every service page (/services, /services/*). */
 export const SERVICE_PAGES: CmsSeedPage[] = [
-  SERVICES_APPLICATION_MODERNIZATION_PAGE,
-  SERVICES_AUTOMATION_INTEGRATION_PAGE,
-  SERVICES_DATA_ANALYTICS_PAGE,
-  SERVICES_DIGITAL_CONSULTING_PAGE,
-  SERVICES_ENTERPRISE_APPLICATION_PAGE,
-  SERVICES_MAINTENANCE_PAGE,
-  SERVICES_MOBILE_APPLICATION_DEVELOPMENT_PAGE,
-  SERVICES_SOFTWARE_AS_A_SERVICE_PAGE,
-  SERVICES_WHATSAPP_CHATBOT_PAGE,
-  SERVICES_HUB_PAGE,
-  SERVICES_DIGITAL_MARKETING_PAGE,
-  SERVICES_SOFTWARE_DEVELOPMENT_OUTSOURCING_PAGE,
-];
+  applicationModernization,
+  automationIntegration,
+  dataAnalytics,
+  digitalConsulting,
+  enterpriseApplication,
+  maintenance,
+  mobileApplicationDevelopment,
+  softwareAsAService,
+  whatsappChatbot,
+  hub,
+  digitalMarketing,
+  softwareDevelopmentOutsourcing,
+].map(seedPage);
