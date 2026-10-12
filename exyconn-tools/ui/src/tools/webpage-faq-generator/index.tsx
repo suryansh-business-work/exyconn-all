@@ -1,157 +1,24 @@
-import React, { useState } from 'react';
-import {
-  Container,
-  Alert,
-  Snackbar,
-  Paper,
-  Box,
-  Typography,
-  TextField,
-  Button,
-  MenuItem,
-  CircularProgress,
-} from '@mui/material';
-import Grid from '@mui/material/Grid';
-import { Link, Send } from '@mui/icons-material';
-import ToolLayout from '../../shared/components/ToolLayout/ToolLayout';
-import { APIKeyInput, AIResultDisplay, useOpenAIKey, OPENAI_SECRET_KEY } from '../../shared/components/AIToolShared';
-import MissingKeyAlert from '../../shared/components/MissingKeyAlert/MissingKeyAlert';
-import { generateWithOpenAI, TokenUsage } from '../../shared/services/openai';
+import React from 'react';
+import { Link } from '@mui/icons-material';
+import UrlFaqGenerator from '../../shared/components/UrlFaqGenerator';
 import { APIs } from '../../shared/config/apis';
 
-const SYSTEM_PROMPT = `You are an expert FAQ content generator. Generate comprehensive, accurate FAQs based on webpage content.
-
-When generating FAQs:
-1. Create questions that real users would ask about the page
-2. Provide clear, concise, and helpful answers
-3. Cover the most important topics
-4. Format output as numbered Q&A pairs`;
-
-const WebpageFAQGenerator: React.FC = () => {
-  const { needsKey, requireKey, reportError } = useOpenAIKey();
-  const [result, setResult] = useState('');
-  const [tokenUsage, setTokenUsage] = useState<TokenUsage | undefined>();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [url, setUrl] = useState('');
-  const [count, setCount] = useState(10);
-  const [tone, setTone] = useState('professional');
-
-  const handleGenerate = async () => {
-    const apiKey = requireKey();
-    if (!apiKey) return;
-    setIsLoading(true);
-    setError(null);
-
-    try {
-      const res = await fetch(APIs.converterTools.webpageToMarkdown, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to fetch webpage');
-
-      const content = data.data?.markdown || '';
-      if (!content) throw new Error('No content found on the webpage');
-
-      const userPrompt = `Generate ${count} FAQs in a ${tone} tone based on this webpage content:\n\nURL: ${url}\n\n${content.substring(0, 8000)}`;
-      const response = await generateWithOpenAI(apiKey, SYSTEM_PROMPT, userPrompt);
-      setResult(response.content);
-      setTokenUsage(response.usage);
-    } catch (err) {
-      reportError(err);
-      setError(err instanceof Error ? err.message : 'Failed to generate FAQs');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  return (
-    <ToolLayout toolName="Webpage FAQ Generator" toolIcon={<Link />} toolColor="#3b82f6">
-      <Container maxWidth="xl" sx={{ py: 3 }}>
-        <Grid container spacing={3}>
-          <Grid size={{ xs: 12, md: 5 }}>
-            <APIKeyInput />
-            <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', p: 3 }}>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                <Link color="primary" />
-                <Typography
-                  variant="h6"
-                  sx={{
-                    fontWeight: 600,
-                  }}
-                >
-                  Webpage URL
-                </Typography>
-              </Box>
-              <TextField
-                fullWidth
-                label="Webpage URL"
-                placeholder="https://example.com/about"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                sx={{ mb: 2 }}
-              />
-              <TextField
-                fullWidth
-                select
-                label="Number of FAQs"
-                value={count}
-                onChange={(e) => setCount(Number(e.target.value))}
-                sx={{ mb: 2 }}
-              >
-                {[5, 10, 15, 20, 25, 30].map((n) => (
-                  <MenuItem key={n} value={n}>
-                    {n} FAQs
-                  </MenuItem>
-                ))}
-              </TextField>
-              <TextField
-                fullWidth
-                select
-                label="Tone"
-                value={tone}
-                onChange={(e) => setTone(e.target.value)}
-                sx={{ mb: 3 }}
-              >
-                <MenuItem value="professional">Professional</MenuItem>
-                <MenuItem value="friendly">Friendly</MenuItem>
-                <MenuItem value="technical">Technical</MenuItem>
-                <MenuItem value="casual">Casual</MenuItem>
-              </TextField>
-              <Button
-                variant="contained"
-                fullWidth
-                disabled={isLoading || !url}
-                onClick={handleGenerate}
-                startIcon={isLoading ? <CircularProgress size={18} /> : <Send />}
-                sx={{ py: 1.25 }}
-              >
-                {isLoading ? 'Generating FAQs...' : 'Generate FAQs'}
-              </Button>
-            </Paper>
-            {needsKey && (
-              <Box sx={{ mt: 2 }}>
-                <MissingKeyAlert
-                  secretKey={OPENAI_SECRET_KEY}
-                  hint="FAQs are written by OpenAI from the fetched webpage using your own key."
-                />
-              </Box>
-            )}
-          </Grid>
-          <Grid size={{ xs: 12, md: 7 }}>
-            <AIResultDisplay result={result} title="Generated FAQs" tokenUsage={tokenUsage} />
-          </Grid>
-        </Grid>
-      </Container>
-      <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
-        <Alert severity="error" onClose={() => setError(null)}>
-          {error}
-        </Alert>
-      </Snackbar>
-    </ToolLayout>
-  );
-};
+const WebpageFAQGenerator: React.FC = () => (
+  <UrlFaqGenerator
+    toolName="Webpage FAQ Generator"
+    Icon={Link}
+    color="#3b82f6"
+    endpoint={APIs.converterTools.webpageToMarkdown}
+    source="webpage content"
+    subject="the page"
+    citeUrl
+    fetchError="Failed to fetch webpage"
+    emptyError="No content found on the webpage"
+    heading="Webpage URL"
+    urlLabel="Webpage URL"
+    urlPlaceholder="https://example.com/about"
+    keyHint="FAQs are written by OpenAI from the fetched webpage using your own key."
+  />
+);
 
 export default WebpageFAQGenerator;

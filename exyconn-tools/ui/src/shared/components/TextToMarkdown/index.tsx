@@ -1,0 +1,152 @@
+import React, { useState } from 'react';
+import { Container, Alert, Snackbar, Paper, Box, Typography, TextField, Button, CircularProgress } from '@mui/material';
+import Grid from '@mui/material/Grid';
+import type { SvgIconComponent } from '@mui/icons-material';
+import ToolLayout from '../ToolLayout/ToolLayout';
+import MarkdownOutput from '../MarkdownOutput';
+
+export interface TextToMarkdownProps {
+  toolName: string;
+  Icon: SvgIconComponent;
+  color: string;
+  hoverColor: string;
+  /** The converter endpoint: takes `{ content }`, answers `{ data: { markdown } }`. */
+  endpoint: string;
+  /** The source format as the labels name it: "RTF", "XML", "HTML". */
+  format: string;
+  /** The file input's `accept` attribute. */
+  accept: string;
+  placeholder: string;
+  emptyHint: string;
+}
+
+/** Pasted or uploaded markup converted to Markdown on the server: every "<format> to Markdown" tool. */
+const TextToMarkdown: React.FC<Readonly<TextToMarkdownProps>> = ({
+  toolName,
+  Icon,
+  color,
+  hoverColor,
+  endpoint,
+  format,
+  accept,
+  placeholder,
+  emptyHint,
+}) => {
+  const [content, setContent] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [markdown, setMarkdown] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleConvert = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content }),
+      });
+
+      const data = (await res.json()) as { success: boolean; error?: string; data?: { markdown: string } };
+      if (!res.ok) throw new Error(data.error || 'Conversion failed');
+
+      setMarkdown(data.data?.markdown || '');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Conversion failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(markdown);
+    setCopied(true);
+  };
+
+  const handleDownload = () => {
+    const blob = new Blob([markdown], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'converted.md';
+    a.click();
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setContent(await file.text());
+    }
+  };
+
+  return (
+    <ToolLayout toolName={toolName} toolIcon={<Icon />} toolColor={color}>
+      <Container maxWidth="xl" sx={{ py: 2 }}>
+        <Grid container spacing={2}>
+          <Grid size={{ xs: 12, md: 6 }}>
+            <Paper elevation={0} sx={{ p: 2, border: 1, borderColor: 'divider', borderRadius: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 600,
+                  }}
+                >
+                  {format} Content
+                </Typography>
+                <Button component="label" size="small" variant="outlined">
+                  {`Upload ${format}`}
+                  <input type="file" accept={accept} hidden onChange={handleFileUpload} />
+                </Button>
+              </Box>
+              <TextField
+                fullWidth
+                multiline
+                rows={14}
+                placeholder={placeholder}
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                sx={{ fontFamily: 'monospace' }}
+              />
+            </Paper>
+
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={handleConvert}
+              disabled={!content.trim() || loading}
+              startIcon={loading ? <CircularProgress size={16} /> : <Icon />}
+              sx={{ mt: 2, bgcolor: color, '&:hover': { bgcolor: hoverColor } }}
+            >
+              {loading ? 'Converting...' : 'Convert to Markdown'}
+            </Button>
+          </Grid>
+
+          <Grid size={{ xs: 12, md: 6 }}>
+            <MarkdownOutput
+              markdown={markdown}
+              Icon={Icon}
+              color={color}
+              emptyTitle={`Paste ${format} content to convert`}
+              emptyHint={emptyHint}
+              onCopy={handleCopy}
+              onDownload={handleDownload}
+            />
+          </Grid>
+        </Grid>
+      </Container>
+      <Snackbar open={!!error} autoHideDuration={6000} onClose={() => setError(null)}>
+        <Alert severity="error" onClose={() => setError(null)}>
+          {error}
+        </Alert>
+      </Snackbar>
+      <Snackbar open={copied} autoHideDuration={2000} onClose={() => setCopied(false)}>
+        <Alert severity="success">Copied to clipboard!</Alert>
+      </Snackbar>
+    </ToolLayout>
+  );
+};
+
+export default TextToMarkdown;

@@ -1,0 +1,498 @@
+{
+  "key": "ai-agentic",
+  "path": "/ai/agentic",
+  "title": "Agentic AI | Autonomous Intelligence for Business | Exyconn",
+  "seo": {
+    "title": "Agentic AI | Autonomous Intelligence for Business | Exyconn",
+    "description": "Discover Agentic AI solutions by Exyconn. Enable autonomous, adaptive, and collaborative AI agents for business automation, decision-making, and innovation.",
+    "keywords": "Agentic AI, autonomous AI, AI agents, business automation, adaptive AI, Exyconn",
+    "ogImageUrl": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=1200&q=80",
+    "canonical": "",
+    "noindex": false,
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://exyconn.com/{market}"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "AI",
+            "item": "https://exyconn.com/{market}/ai"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Agentic AI",
+            "item": "https://exyconn.com/{market}/ai/agentic"
+          }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "Agentic AI",
+        "description": "Discover Agentic AI solutions by Exyconn. Enable autonomous, adaptive, and collaborative AI agents for business automation, decision-making, and innovation.",
+        "url": "https://exyconn.com/{market}/ai/agentic",
+        "serviceType": "AI",
+        "provider": {
+          "@type": "Organization",
+          "name": "Exyconn",
+          "url": "https://exyconn.com"
+        },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "How does agentic AI solve my problem?",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Process automation",
+              "description": "Automates repetitive and complex workflows, freeing up human resources for higher-value tasks."
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Adaptive decision-making",
+              "description": "Learns from data and feedback to make smarter, context-aware decisions in real time."
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Collaboration & integration",
+              "description": "Works seamlessly with humans and other systems, integrating across platforms and teams."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "body": [
+    {
+      "component": "detail.stage"
+    },
+    {
+      "component": "detail.logos"
+    },
+    {
+      "component": "detail.intro"
+    },
+    {
+      "component": "detail.architecture"
+    },
+    {
+      "component": "detail.offerings"
+    },
+    {
+      "component": "detail.tabs",
+      "props": {
+        "index": 4,
+        "label": "Explore",
+        "title": "Agentic AI types",
+        "items": [
+          {
+            "label": "Reactive agents",
+            "summary": "Respond instantly to stimuli",
+            "text": "Reactive Agents act only on current input, without memory or internal state. They are fast and simple, ideal for straightforward, repetitive tasks.",
+            "points": [
+              "Example: Basic chatbots, thermostat controls",
+              "Strength: Speed and reliability in predictable environments",
+              "Limitation: Cannot learn or adapt to new situations"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Deliberative agents",
+            "summary": "Plan actions using reasoning",
+            "text": "Deliberative Agents build internal models and plan before acting. They can handle complex scenarios by predicting outcomes and making informed decisions.",
+            "points": [
+              "Example: Route-planning in autonomous vehicles",
+              "Strength: Can solve complex, multi-step problems",
+              "Limitation: Requires more computation and time"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Goal-based agents",
+            "summary": "Pursue explicit objectives",
+            "text": "Goal-Based Agents select actions that move them closer to defined goals, evaluating possible future states to make choices.",
+            "points": [
+              "Example: Game-playing AIs (like chess engines)",
+              "Strength: Flexible and adaptable to changing goals",
+              "Limitation: Needs clear goal definitions"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Utility-based agents",
+            "summary": "Maximize overall benefit",
+            "text": "Utility-Based Agents weigh the desirability of outcomes, choosing actions that maximize their expected utility or satisfaction.",
+            "points": [
+              "Example: Recommendation systems optimizing user satisfaction",
+              "Strength: Can balance multiple objectives and trade-offs",
+              "Limitation: Utility functions can be hard to define"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Learning agents",
+            "summary": "Adapt and improve over time",
+            "text": "Learning Agents use feedback to refine their behavior, improving performance as they gain experience.",
+            "points": [
+              "Example: Self-improving chatbots, adaptive spam filters",
+              "Strength: Can handle new, unseen situations",
+              "Limitation: Needs data and training time"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Model-based reflex agents",
+            "summary": "Use internal world models",
+            "text": "Model-Based Reflex Agents maintain a simple internal model to handle partially observable environments, enabling more flexible responses.",
+            "points": [
+              "Example: Smart home systems that track room occupancy",
+              "Strength: More robust than simple reflex agents",
+              "Limitation: Still limited by model complexity"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Multi-agent systems",
+            "summary": "Multiple agents working together",
+            "text": "Multi-Agent Systems involve several agents that interact, cooperate, or compete to solve distributed problems.",
+            "points": [
+              "Example: Swarm robotics, distributed sensor networks",
+              "Strength: Scalability and robustness",
+              "Limitation: Coordination and communication overhead"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Autonomous agents",
+            "summary": "Operate independently",
+            "text": "Autonomous Agents make decisions and act without human intervention, adapting to their environment as needed.",
+            "points": [
+              "Example: Self-driving cars, robotic vacuum cleaners",
+              "Strength: Reduces need for human oversight",
+              "Limitation: Must handle unexpected situations safely"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Embodied agents",
+            "summary": "Physical presence in the world",
+            "text": "Embodied Agents are robots or devices that interact with the physical world using sensors and actuators.",
+            "points": [
+              "Example: Industrial robots, drones",
+              "Strength: Can manipulate and sense the real world",
+              "Limitation: Hardware constraints and maintenance"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Cognitive agents",
+            "summary": "Human-like reasoning",
+            "text": "Cognitive Agents use models inspired by human thought, enabling reasoning, learning, and problem-solving.",
+            "points": [
+              "Example: Virtual assistants with memory and reasoning",
+              "Strength: Can handle complex, ambiguous tasks",
+              "Limitation: Computationally intensive"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Social agents",
+            "summary": "Interact with others",
+            "text": "Social Agents communicate and collaborate with humans or other agents, often used in assistants and collaborative tools.",
+            "points": [
+              "Example: Customer service bots, negotiation agents",
+              "Strength: Effective in team or user-facing roles",
+              "Limitation: Needs advanced communication skills"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Planning agents",
+            "summary": "Develop and execute plans",
+            "text": "Planning Agents generate and adapt action sequences to achieve complex goals.",
+            "points": [
+              "Example: Automated logistics and scheduling systems",
+              "Strength: Can optimize for efficiency and resources",
+              "Limitation: May struggle with highly dynamic environments"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Conversational agents",
+            "summary": "Engage in dialogue",
+            "text": "Conversational Agents interact with users via natural language, such as chatbots and virtual assistants.",
+            "points": [
+              "Example: ChatGPT, Alexa, Google Assistant",
+              "Strength: Natural, intuitive user interaction",
+              "Limitation: May misunderstand context or intent"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Robotic agents",
+            "summary": "Autonomous robots",
+            "text": "Robotic Agents are physical robots capable of sensing, reasoning, and acting in the real world.",
+            "points": [
+              "Example: Delivery robots, warehouse automation",
+              "Strength: Can perform physical tasks at scale",
+              "Limitation: Expensive and complex to deploy"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Software agents",
+            "summary": "Digital task automation",
+            "text": "Software Agents are programs that autonomously perform tasks in digital environments, like web crawlers or trading bots.",
+            "points": [
+              "Example: Email filters, automated trading systems",
+              "Strength: Fast, scalable, and tireless",
+              "Limitation: Limited to digital environments"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "BDI agents",
+            "summary": "Belief-Desire-Intention model",
+            "text": "BDI Agents use beliefs, desires, and intentions to make rational decisions and plan actions.",
+            "points": [
+              "Example: Research prototypes, advanced planning bots",
+              "Strength: Flexible and theoretically robust",
+              "Limitation: Complex to implement and scale"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Evolutionary agents",
+            "summary": "Evolve and adapt",
+            "text": "Evolutionary Agents use evolutionary algorithms to adapt and improve their behavior or structure.",
+            "points": [
+              "Example: AI for game strategy optimization",
+              "Strength: Can discover novel solutions",
+              "Limitation: May require many iterations to improve"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Mobile agents",
+            "summary": "Move across networks",
+            "text": "Mobile Agents can migrate between systems or network nodes to perform distributed tasks.",
+            "points": [
+              "Example: Distributed monitoring tools",
+              "Strength: Flexible deployment across systems",
+              "Limitation: Security and coordination challenges"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Collaborative agents",
+            "summary": "Work in teams",
+            "text": "Collaborative Agents coordinate with others to solve problems that require teamwork.",
+            "points": [
+              "Example: Multi-agent scheduling, swarm robotics",
+              "Strength: Can solve problems beyond single-agent capability",
+              "Limitation: Requires robust communication protocols"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Interface agents",
+            "summary": "Assist with software interfaces",
+            "text": "Interface Agents help users interact with applications, learning preferences and automating tasks.",
+            "points": [
+              "Example: Personal assistants, smart UI helpers",
+              "Strength: Improves user productivity and experience",
+              "Limitation: Needs to learn user preferences accurately"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Rational agents",
+            "summary": "Maximize performance",
+            "text": "Rational Agents always choose actions that maximize their expected performance, given their knowledge.",
+            "points": [
+              "Example: Automated bidding systems",
+              "Strength: Consistent and goal-oriented",
+              "Limitation: Dependent on quality of knowledge base"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Hybrid agents",
+            "summary": "Combine multiple approaches",
+            "text": "Hybrid Agents integrate features from different agent types to leverage their strengths.",
+            "points": [
+              "Example: Self-driving cars (combining reactive and deliberative)",
+              "Strength: Flexible and robust in complex environments",
+              "Limitation: Increased system complexity"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Proactive agents",
+            "summary": "Take initiative",
+            "text": "Proactive Agents anticipate needs or problems and act in advance, not just in response to events.",
+            "points": [
+              "Example: Predictive maintenance systems",
+              "Strength: Prevents issues before they occur",
+              "Limitation: Risk of acting on incorrect predictions"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Reactive-proactive hybrid agents",
+            "summary": "Balance reaction and initiative",
+            "text": "Reactive-Proactive Hybrid Agents combine immediate responses with proactive planning for flexible behavior.",
+            "points": [
+              "Example: Advanced customer support bots",
+              "Strength: Can handle both urgent and long-term needs",
+              "Limitation: Complex to design and tune"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          }
+        ],
+        "previous": "Previous",
+        "next": "Next"
+      }
+    },
+    {
+      "component": "detail.faq"
+    },
+    {
+      "component": "detail.related"
+    },
+    {
+      "component": "detail.cta"
+    }
+  ]
+}

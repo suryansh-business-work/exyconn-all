@@ -1,20 +1,23 @@
 import type { ToolDetailContent, ToolDetailsMap } from './types';
-import { businessUtilityToolDetails } from './business-utility';
-import { sitemapToolDetails } from './sitemap';
-import { websiteUrlToolDetails } from './website-url';
-import { aiChatToolDetails } from './ai-chat';
-import { aiWritingToolDetails } from './ai-writing';
-import { aiGeneratorToolDetails } from './ai-generator';
-import { faqSupportToolDetails } from './faq-support';
-import { converterToolDetails } from './converter';
-import { domainNetworkToolDetails } from './domain-network';
-import { pdfToolDetails } from './pdf';
-import { imageToolDetails } from './image';
-import { seoToolDetails } from './seo';
+import businessUtilityToolDetails from './business-utility.json';
+import sitemapToolDetails from './sitemap.json';
+import websiteUrlToolDetails from './website-url.json';
+import aiChatToolDetails from './ai-chat.json';
+import aiWritingToolDetails from './ai-writing.json';
+import aiGeneratorToolDetails from './ai-generator.json';
+import faqSupportToolDetails from './faq-support.json';
+import converterToolDetails from './converter.json';
+import domainNetworkToolDetails from './domain-network.json';
+import pdfToolDetails from './pdf.json';
+import imageToolDetails from './image.json';
+import seoToolDetails from './seo.json';
 
 export type { ToolDetailContent, ToolDetailsMap, ToolFaq } from './types';
 
-/** All tool detail content, keyed by tool id (matches ToolItem.id in toolsData). */
+/**
+ * All tool detail content, keyed by tool id (matches ToolItem.id in toolsData). The words live in
+ * one JSON file per tool category beside this module.
+ */
 export const toolDetails: ToolDetailsMap = {
   ...businessUtilityToolDetails,
   ...sitemapToolDetails,

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Paper, Box, Typography, IconButton, Tooltip } from '@mui/material';
-import { PictureAsPdf, ContentCopy, Download } from '@mui/icons-material';
+import { PictureAsPdf } from '@mui/icons-material';
+import SharedMarkdownOutput from '../../shared/components/MarkdownOutput';
 
 interface MarkdownOutputProps {
   markdown: string;
@@ -8,73 +8,15 @@ interface MarkdownOutputProps {
   onDownload: () => void;
 }
 
-const MarkdownOutput: React.FC<MarkdownOutputProps> = ({ markdown, onCopy, onDownload }) => {
-  return (
-    <Paper elevation={0} sx={{ border: 1, borderColor: 'divider', borderRadius: 2, height: '100%', minHeight: 400 }}>
-      {markdown ? (
-        <>
-          <Box
-            sx={{
-              p: 1.5,
-              borderBottom: 1,
-              borderColor: 'divider',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-            }}
-          >
-            <Typography
-              variant="subtitle2"
-              sx={{
-                fontWeight: 600,
-              }}
-            >
-              Converted Markdown
-            </Typography>
-            <Box>
-              <Tooltip title="Copy">
-                <IconButton size="small" onClick={onCopy}>
-                  <ContentCopy fontSize="small" />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Download">
-                <IconButton size="small" onClick={onDownload}>
-                  <Download fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            </Box>
-          </Box>
-          <Box sx={{ p: 2, maxHeight: 500, overflow: 'auto' }}>
-            <pre style={{ margin: 0, whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: 13 }}>{markdown}</pre>
-          </Box>
-        </>
-      ) : (
-        <Box
-          sx={{
-            p: 4,
-            textAlign: 'center',
-            color: 'text.secondary',
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-          }}
-        >
-          <PictureAsPdf sx={{ fontSize: 48, mb: 2, opacity: 0.3, color: '#ef4444' }} />
-          <Typography variant="body1">Upload a PDF to convert</Typography>
-          <Typography
-            variant="body2"
-            sx={{
-              color: 'text.secondary',
-              mt: 1,
-            }}
-          >
-            The converted Markdown will appear here
-          </Typography>
-        </Box>
-      )}
-    </Paper>
-  );
-};
+const MarkdownOutput: React.FC<MarkdownOutputProps> = (props) => (
+  <SharedMarkdownOutput
+    Icon={PictureAsPdf}
+    color="#ef4444"
+    emptyTitle="Upload a PDF to convert"
+    emptyHint="The converted Markdown will appear here"
+    maxHeight={500}
+    {...props}
+  />
+);
 
 export default MarkdownOutput;

@@ -1,0 +1,100 @@
+{
+  "key": "services",
+  "path": "/services",
+  "title": "Our Services | Exyconn",
+  "seo": {
+    "title": "Our Services | Exyconn",
+    "description": "Explore all digital, automation, analytics, SaaS, and mobile services offered by Exyconn. Transform your business with our comprehensive solutions.",
+    "keywords": "digital services, automation, SaaS, mobile development, enterprise applications, data analytics, Exyconn",
+    "ogImageUrl": "https://images.pexels.com/photos/3183197/pexels-photo-3183197.jpeg?auto=compress&w=1200&q=80",
+    "canonical": "",
+    "noindex": false,
+    "jsonLd": {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://exyconn.com/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Services"
+        }
+      ]
+    }
+  },
+  "body": [
+    {
+      "component": "detail.stage",
+      "props": {
+        "family": "services",
+        "crumbs": [
+          {
+            "label": "Home",
+            "href": "/"
+          },
+          {
+            "label": "Services",
+            "href": ""
+          }
+        ],
+        "title": "Software that builds, modernises and grows",
+        "lede": "From digital transformation to AI automation, we provide end-to-end services to help your business thrive in the digital era.",
+        "primary": {
+          "label": "Get started",
+          "href": "/contact"
+        },
+        "secondary": {
+          "label": "Get a quote",
+          "href": "/get-a-quote"
+        },
+        "scene": {
+          "shapes": [
+            "lattice"
+          ],
+          "data": {
+            "lattice": {
+              "clusters": 3
+            }
+          }
+        },
+        "glyph": "",
+        "tagline": ""
+      }
+    },
+    {
+      "component": "detail.proof"
+    },
+    {
+      "component": "service.grouped-cards"
+    },
+    {
+      "component": "service.steps"
+    },
+    {
+      "component": "service.related-hubs"
+    },
+    {
+      "component": "detail.cta",
+      "props": {
+        "family": "services",
+        "label": "",
+        "title": "Ready to transform your business?",
+        "text": "Let's discuss how our services can help you achieve your business goals. Schedule a free consultation today.",
+        "primary": {
+          "label": "Schedule consultation",
+          "href": "/contact"
+        },
+        "secondary": {
+          "label": "Get a quote",
+          "href": "/get-a-quote"
+        },
+        "echoShape": 0
+      }
+    }
+  ]
+}

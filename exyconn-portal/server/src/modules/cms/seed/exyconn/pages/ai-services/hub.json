@@ -1,0 +1,156 @@
+{
+  "key": "ai-services",
+  "path": "/ai-services",
+  "title": "AI Services | {serviceCount} AI Products & Build Services | Exyconn",
+  "seo": {
+    "title": "AI Services | {serviceCount} AI Products & Build Services | Exyconn",
+    "description": "Exyconn is an AI product and services company. {serviceCount} AI services across {categoryCount} categories — agents and automation, revenue systems, industry platforms, business operations, AI infrastructure, and governance.",
+    "keywords": "AI services, AI product company, AI development company, AI agents, AI Agents for SMBs, AI Workflow Automation, AI Voice Agents, AI WhatsApp Automation, AI Document Processing, AI Personal Assistant, AI Sales Automation, AI Customer Support, AI Marketing Automation, AI E-commerce Automation, Agentic Commerce, Vertical AI SaaS, AI Healthcare Software, AI Real Estate Software, AI Education / EdTech, AI Logistics & Supply Chain, AI SaaS for Local Businesses, AI HR & Recruitment, AI Recruitment Marketplace, AI Finance & Accounting, AI Compliance Automation, AI RAG Platform, AI Knowledge Management, AI Data & Analytics, AI API / Infrastructure, AI Observability, AI Developer Tools, AI Cybersecurity, AI Governance & Guardrails",
+    "ogImageUrl": "",
+    "canonical": "https://exyconn.com/ai-services",
+    "noindex": false,
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": "Exyconn AI Services",
+        "description": "Exyconn is an AI product and services company. {serviceCount} AI services across {categoryCount} categories — agents and automation, revenue systems, industry platforms, business operations, AI infrastructure, and governance.",
+        "url": "https://exyconn.com/ai-services"
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://exyconn.com/"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "AI services"
+          }
+        ]
+      }
+    ]
+  },
+  "body": [
+    {
+      "component": "detail.stage",
+      "props": {
+        "family": "services",
+        "crumbs": [
+          {
+            "label": "Home",
+            "href": "/"
+          },
+          {
+            "label": "AI services",
+            "href": ""
+          }
+        ],
+        "title": "AI that ships working systems, not pilots",
+        "lede": "Exyconn builds AI products and runs the services around them — agents that do real work, the platforms they run on, and the guardrails that keep them defensible in front of your customers.",
+        "primary": {
+          "label": "Get a quote",
+          "href": "/get-a-quote"
+        },
+        "secondary": {
+          "label": "Talk to an engineer",
+          "href": "/contact"
+        },
+        "scene": {
+          "shapes": [
+            "neuralCore"
+          ],
+          "data": {
+            "neuralCore": {
+              "modules": 6
+            }
+          }
+        },
+        "glyph": "",
+        "tagline": ""
+      }
+    },
+    {
+      "component": "detail.proof",
+      "props": {
+        "label": "The catalogue at a glance",
+        "items": [
+          {
+            "value": "{serviceCount}",
+            "label": "AI services"
+          },
+          {
+            "value": "{categoryCount}",
+            "label": "Capability areas"
+          }
+        ]
+      }
+    },
+    {
+      "component": "aiservice.catalogue"
+    },
+    {
+      "component": "service.related-hubs",
+      "props": {
+        "index": 2,
+        "label": "Explore",
+        "title": "AI, services and the platform",
+        "links": [
+          {
+            "href": "/services",
+            "title": "Services hub",
+            "text": "Every service by pillar — build, modernise and grow.",
+            "more": "Browse services"
+          },
+          {
+            "href": "/our-services",
+            "title": "Our service pillars",
+            "text": "AI platform services, SaaS development and enterprise consulting.",
+            "more": "See the pillars"
+          },
+          {
+            "href": "/exyconn-services",
+            "title": "Infrastructure platform",
+            "text": "Email, payments, logs, themes, translations and more — all in one place.",
+            "more": "See the platform"
+          },
+          {
+            "href": "/ai",
+            "title": "AI platform",
+            "text": "Agents, models, workflows and MCP infrastructure, production-ready.",
+            "more": "Explore AI"
+          }
+        ],
+        "featured": {
+          "href": "",
+          "title": "",
+          "text": "",
+          "more": ""
+        }
+      }
+    },
+    {
+      "component": "detail.cta",
+      "props": {
+        "family": "services",
+        "label": "",
+        "title": "Tell us the process, we'll scope the AI",
+        "text": "Bring one workflow that costs your team too much time. We will come back with what an AI system can take over, what it should not, and what it costs to build.",
+        "primary": {
+          "label": "Get a quote",
+          "href": "/get-a-quote"
+        },
+        "secondary": {
+          "label": "Book a consultation",
+          "href": "/contact"
+        },
+        "echoShape": 0
+      }
+    }
+  ]
+}
