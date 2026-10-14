@@ -1,6 +1,6 @@
 import gql from 'graphql-tag';
 
-/** The real WhatsApp number's settings, for WhatsApp demo > Admin > WhatsApp number. */
+/** The real WhatsApp number's settings, for Tech > Demos > WhatsApp bot. */
 export const whatsappChannelTypeDefs = gql`
   type WhatsappChannel {
     id: ID!
@@ -38,8 +38,16 @@ export const whatsappChannelTypeDefs = gql`
     whatsappChannel: WhatsappChannelSettings!
   }
 
+  "What the Test button sends: a blank access token means the saved one."
+  input WhatsappChannelTestInput {
+    phoneNumberId: String!
+    accessToken: String!
+  }
+
   extend type Mutation {
     saveWhatsappChannel(input: WhatsappChannelInput!): WhatsappChannel!
     deleteWhatsappChannel: Boolean!
+    "Reads the number from Meta with the token; resolves to how Meta names it."
+    testWhatsappChannel(input: WhatsappChannelTestInput!): String!
   }
 `;

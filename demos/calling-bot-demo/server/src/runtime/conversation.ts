@@ -82,7 +82,7 @@ export class Conversation {
     endCall(this.call, status, reason).catch((error) =>
       log.error('could not record the end of a call', { callId: this.id, error: errorText(error) }),
     );
-    this.transport.notify({ type: 'ended', reason });
+    this.transport.notify({ type: 'ended', reason, failed: status === 'FAILED' });
     this.transport.hangUp();
   }
 

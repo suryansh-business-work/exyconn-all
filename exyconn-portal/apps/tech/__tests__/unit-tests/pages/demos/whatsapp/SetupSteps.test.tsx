@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { fireEvent, screen } from '@testing-library/react';
-import { SetupSteps } from '../../../../src/admin/channel/SetupSteps';
-import { renderWithProviders } from '../../test-utils';
+import { SetupSteps } from '../../../../../src/pages/demos/whatsapp/SetupSteps';
+import { renderWithProviders } from '../../../test-utils';
 
 const WEBHOOK = 'https://api.example.com/whatsapp/webhook';
 

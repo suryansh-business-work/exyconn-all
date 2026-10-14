@@ -8,6 +8,10 @@
  */
 export const CALLING_BOT_CONFIG_MODEL = 'CallingBotConfig';
 
+/** Which telephony account rings real phones; NONE leaves only the browser call. */
+export const PHONE_PROVIDERS = ['NONE', 'VOBIZ', 'TWILIO'] as const;
+export type PhoneProvider = (typeof PHONE_PROVIDERS)[number];
+
 export const CALLING_BOT_CONFIG_FIELDS = {
   label: { type: String, required: true, trim: true },
   /** Sarvam AI subscription key, for speech-to-text and text-to-speech. Write-only. */
@@ -27,12 +31,20 @@ export const CALLING_BOT_CONFIG_FIELDS = {
   ttsSpeaker: { type: String, required: true, trim: true },
   /** A call is hung up after this long, so a demo cannot run up the bill. */
   maxCallSeconds: { type: Number, required: true, min: 30, max: 900 },
-  /** Vobiz account, for calls to a real phone; all three empty leaves only the browser call. */
+  /** Which account below places phone calls. */
+  phoneProvider: { type: String, enum: PHONE_PROVIDERS, required: true, default: 'NONE' },
+  /** Vobiz account, used when phoneProvider is VOBIZ. */
   vobizAuthId: { type: String, default: '', trim: true },
   /** Write-only. */
   vobizAuthToken: { type: String, default: '', trim: true },
   /** The Vobiz number calls are placed from, in E.164 (+91…). */
   vobizNumber: { type: String, default: '', trim: true },
+  /** Twilio account, used when phoneProvider is TWILIO: the Account SID (AC…). */
+  twilioAccountSid: { type: String, default: '', trim: true },
+  /** Write-only. Also checks Twilio's signature on its callbacks. */
+  twilioAuthToken: { type: String, default: '', trim: true },
+  /** The Twilio number calls are placed from, in E.164. */
+  twilioNumber: { type: String, default: '', trim: true },
   /**
    * Signs the short-lived tickets that open a call on the voice server. Generated with the
    * config, never shown and never edited; replacing the config retires every open ticket.
@@ -57,11 +69,33 @@ export interface CallingBotConfigRecord {
   vobizAuthId: string;
   vobizAuthToken: string;
   vobizNumber: string;
+  phoneProvider: PhoneProvider;
+  twilioAccountSid: string;
+  twilioAuthToken: string;
+  twilioNumber: string;
   ticketSecret: string;
   isActive: boolean;
 }
 
-/** Whether a config can place calls to a real phone: every Vobiz field is filled in. */
-export const canPhone = (
-  config: Pick<CallingBotConfigRecord, 'vobizAuthId' | 'vobizAuthToken' | 'vobizNumber'>,
-): boolean => Boolean(config.vobizAuthId && config.vobizAuthToken && config.vobizNumber);
+/** The fields that decide whether, and through whom, a config rings real phones. */
+export type PhoneSettings = Pick<
+  CallingBotConfigRecord,
+  | 'phoneProvider'
+  | 'vobizAuthId'
+  | 'vobizAuthToken'
+  | 'vobizNumber'
+  | 'twilioAccountSid'
+  | 'twilioAuthToken'
+  | 'twilioNumber'
+>;
+
+/** Whether a config can place calls to a real phone: its provider's every field is filled in. */
+export function canPhone(config: PhoneSettings): boolean {
+  if (config.phoneProvider === 'VOBIZ') {
+    return Boolean(config.vobizAuthId && config.vobizAuthToken && config.vobizNumber);
+  }
+  if (config.phoneProvider === 'TWILIO') {
+    return Boolean(config.twilioAccountSid && config.twilioAuthToken && config.twilioNumber);
+  }
+  return false;
+}

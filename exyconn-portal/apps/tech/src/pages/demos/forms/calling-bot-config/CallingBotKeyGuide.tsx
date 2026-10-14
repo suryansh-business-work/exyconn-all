@@ -67,7 +67,7 @@ export function CallingBotKeyGuide({ isEdit }: Readonly<{ isEdit: boolean }>) {
           sx={{
             display: 'grid',
             gap: 2,
-            gridTemplateColumns: { xs: '1fr', md: 'repeat(3, minmax(0, 1fr))' },
+            gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' },
           }}
         >
           {KEY_SOURCES.map((source) => (

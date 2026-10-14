@@ -4,6 +4,7 @@ import type { z } from 'zod';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
+  CallingBotPhoneProvider,
   useCreateCallingBotConfigMutation,
   useUpdateCallingBotConfigMutation,
 } from '@exyconn/shell/graphql/generated';
@@ -44,9 +45,13 @@ const toInitial = (row: CallingBotConfigRow | null): z.input<CallingBotConfigSch
   ttsModel: row?.ttsModel ?? NEW_CONFIG.ttsModel,
   ttsSpeaker: row?.ttsSpeaker ?? NEW_CONFIG.ttsSpeaker,
   maxCallSeconds: row?.maxCallSeconds ?? NEW_CONFIG.maxCallSeconds,
+  phoneProvider: row?.phoneProvider ?? CallingBotPhoneProvider.None,
   vobizAuthId: row?.vobizAuthId ?? '',
   vobizAuthToken: '',
   vobizNumber: row?.vobizNumber ?? '',
+  twilioAccountSid: row?.twilioAccountSid ?? '',
+  twilioAuthToken: '',
+  twilioNumber: row?.twilioNumber ?? '',
   isActive: row?.isActive === false ? 'false' : 'true',
 });
 

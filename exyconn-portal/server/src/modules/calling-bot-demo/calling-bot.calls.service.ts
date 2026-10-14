@@ -13,6 +13,7 @@ import { badRequest, notFound } from '../../utils/errors';
 import { isE164Phone } from '../../utils/phoneNumber';
 import { CallingBotCallModel } from './calling-bot.models';
 import { callingBotConfigs } from './calling-bot.config.service';
+import { placeTwilioCall } from './twilio.client';
 import { placeVobizCall } from './vobiz.client';
 
 /** Who is asking for a call: a demo visitor (`visitor:<id>`) or a portal user. */
@@ -71,12 +72,20 @@ async function ringPhone(
     config.maxCallSeconds + RING_SECONDS,
   );
   try {
-    const providerCallId = await placeVobizCall({
-      config,
-      to: phone,
-      answerUrl: voiceUrl(VOICE_PATHS.vobizAnswer, ticket),
-      hangupUrl: voiceUrl(VOICE_PATHS.vobizHangup, ticket),
-    });
+    const providerCallId =
+      config.phoneProvider === 'TWILIO'
+        ? await placeTwilioCall({
+            config,
+            to: phone,
+            answerUrl: voiceUrl(VOICE_PATHS.twilioAnswer, ticket),
+            statusUrl: voiceUrl(VOICE_PATHS.twilioStatus, ticket),
+          })
+        : await placeVobizCall({
+            config,
+            to: phone,
+            answerUrl: voiceUrl(VOICE_PATHS.vobizAnswer, ticket),
+            hangupUrl: voiceUrl(VOICE_PATHS.vobizHangup, ticket),
+          });
     await CallingBotCallModel.updateOne({ _id: call._id }, { status: 'RINGING', providerCallId });
   } catch (error) {
     await CallingBotCallModel.updateOne(
@@ -102,7 +111,7 @@ export const callingBotCalls = {
 
   /**
    * Starts a call: records it, signs the ticket the voice server will check, and either hands
-   * back the browser's socket address or has Vobiz ring the phone.
+   * back the browser's socket address or has the phone provider (Vobiz or Twilio) ring it.
    */
   async start(caller: Caller, input: StartCallInput) {
     const config = await callingBotConfigs.active();

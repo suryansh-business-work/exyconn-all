@@ -20,7 +20,7 @@ import { InfrastructurePage } from '../../src/pages/infrastructure';
 import { IncidentsPage } from '../../src/pages/incidents';
 import { LogsPage } from '../../src/pages/logs';
 import { JobsPage } from '../../src/pages/jobs';
-import { CallingBotPage } from '../../src/pages/demos';
+import { CallingBotPage, WhatsappBotPage } from '../../src/pages/demos';
 import { CloudflarePage } from '../../src/pages/security/cloudflare';
 import { SonarPage, SslCertificatesPage } from '../../src/pages/security';
 
@@ -77,6 +77,7 @@ describe('App', () => {
       ['/tech/logs', LogsPage],
       ['/tech/jobs', JobsPage],
       ['/tech/demos/calling-bot/:tab?', CallingBotPage],
+      ['/tech/demos/whatsapp-bot', WhatsappBotPage],
       ['/tech/settings', SettingsPage],
       ['/tech/security/cloudflare', CloudflarePage],
       ['/tech/security/ssl', SslCertificatesPage],
@@ -85,7 +86,16 @@ describe('App', () => {
     for (const [path, page] of pages) {
       expect(elementAt(path)?.type).toBe(page);
     }
-    expect(routes()).toHaveLength(pages.length + 1);
+    // Plus the two redirects: the old social-apps tab and the bare Demos group.
+    expect(routes()).toHaveLength(pages.length + 2);
+  });
+
+  it('opens the Demos group on the calling bot', () => {
+    render(<App />);
+    expect(elementAt('/tech/demos')?.props).toMatchObject({
+      to: '/tech/demos/calling-bot',
+      replace: true,
+    });
   });
 
   it('sends the old Environment Variables social-apps tab to its own page', () => {

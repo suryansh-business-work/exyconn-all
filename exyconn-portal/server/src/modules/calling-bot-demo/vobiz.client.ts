@@ -59,3 +59,13 @@ export async function placeVobizCall({
   const body = (await response.json()) as { request_uuid?: string };
   return body.request_uuid ?? '';
 }
+
+/** Proves a Vobiz Auth ID and Auth Token: reads the account they belong to. */
+export async function verifyVobiz(authId: string, authToken: string): Promise<void> {
+  const response = await fetch(`${VOBIZ_API}/Account/${encodeURIComponent(authId)}/`, {
+    headers: { 'X-Auth-ID': authId, 'X-Auth-Token': authToken },
+  });
+  if (!response.ok) {
+    badRequest(`Vobiz refused the Auth ID or Auth Token (HTTP ${response.status}).`);
+  }
+}

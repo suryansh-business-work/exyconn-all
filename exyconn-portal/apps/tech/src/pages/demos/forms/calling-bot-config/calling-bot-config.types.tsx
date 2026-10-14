@@ -1,7 +1,10 @@
 import { z } from 'zod';
-import { E164_PHONE } from '@exyconn/regex';
+import { E164_PHONE, TWILIO_ACCOUNT_SID } from '@exyconn/regex';
 import type { SelectOption } from '@exyconn/shell/components/form/rhf';
-import type { CallingBotConfigsQuery } from '@exyconn/shell/graphql/generated';
+import {
+  CallingBotPhoneProvider,
+  type CallingBotConfigsQuery,
+} from '@exyconn/shell/graphql/generated';
 import { secretField } from '../../../environment-variables/secret';
 
 export type CallingBotConfigRow = CallingBotConfigsQuery['callingBotConfigs'][number];
@@ -52,9 +55,45 @@ export const BOOL_OPTIONS: SelectOption[] = [
   { value: 'false', label: 'No' },
 ];
 
-/** A Vobiz setting is all-or-nothing: either every field is filled in, or phone calls are off. */
-const vobizComplete = (values: { vobizAuthId: string; vobizNumber: string }) =>
-  values.vobizAuthId === '' || values.vobizNumber !== '';
+/** Who rings real phones; with no provider the demo offers the browser call only. */
+export const PHONE_PROVIDER_OPTIONS: SelectOption[] = [
+  { value: CallingBotPhoneProvider.None, label: 'No phone calls (browser call only)' },
+  { value: CallingBotPhoneProvider.Vobiz, label: 'Vobiz' },
+  { value: CallingBotPhoneProvider.Twilio, label: 'Twilio' },
+];
+
+const e164 = z
+  .string()
+  .trim()
+  .refine((value) => value === '' || E164_PHONE.test(value), 'Use E.164, e.g. +918012345678');
+
+/** A field the chosen phone provider cannot work without. */
+interface Needed {
+  field:
+    | 'vobizAuthId'
+    | 'vobizAuthToken'
+    | 'vobizNumber'
+    | 'twilioAccountSid'
+    | 'twilioAuthToken'
+    | 'twilioNumber';
+  message: string;
+  /** A saved secret satisfies it on an edit, so it is required only when creating. */
+  secret?: boolean;
+}
+
+const NEEDED: Record<CallingBotPhoneProvider, Needed[]> = {
+  [CallingBotPhoneProvider.None]: [],
+  [CallingBotPhoneProvider.Vobiz]: [
+    { field: 'vobizAuthId', message: 'Vobiz Auth ID is required' },
+    { field: 'vobizAuthToken', message: 'Vobiz Auth Token is required', secret: true },
+    { field: 'vobizNumber', message: 'The Vobiz calling number is required' },
+  ],
+  [CallingBotPhoneProvider.Twilio]: [
+    { field: 'twilioAccountSid', message: 'Twilio Account SID is required' },
+    { field: 'twilioAuthToken', message: 'Twilio Auth Token is required', secret: true },
+    { field: 'twilioNumber', message: 'The Twilio calling number is required' },
+  ],
+};
 
 /** Keys are required to create; blank on an edit keeps the saved one (its eye button shows it). */
 export const makeSchema = (isEdit: boolean) =>
@@ -77,15 +116,28 @@ export const makeSchema = (isEdit: boolean) =>
         .int()
         .min(30, 'At least 30 seconds')
         .max(900, 'At most 15 minutes'),
+      phoneProvider: z.enum(CallingBotPhoneProvider),
       vobizAuthId: z.string().trim(),
       vobizAuthToken: z.string().trim(),
-      vobizNumber: z
+      vobizNumber: e164,
+      twilioAccountSid: z
         .string()
         .trim()
-        .refine((value) => value === '' || E164_PHONE.test(value), 'Use E.164, e.g. +918012345678'),
+        .refine(
+          (value) => value === '' || TWILIO_ACCOUNT_SID.test(value),
+          'A Twilio Account SID starts with AC and has 34 characters',
+        ),
+      twilioAuthToken: z.string().trim(),
+      twilioNumber: e164,
       isActive: z.enum(['true', 'false']),
     })
-    .refine(vobizComplete, { path: ['vobizNumber'], message: 'A Vobiz account needs its number' });
+    .superRefine((values, ctx) => {
+      for (const { field, message, secret } of NEEDED[values.phoneProvider]) {
+        if (values[field] === '' && !(secret && isEdit)) {
+          ctx.addIssue({ code: 'custom', path: [field], message });
+        }
+      }
+    });
 
 export type CallingBotConfigSchema = ReturnType<typeof makeSchema>;
 export type CallingBotConfigValues = z.infer<CallingBotConfigSchema>;

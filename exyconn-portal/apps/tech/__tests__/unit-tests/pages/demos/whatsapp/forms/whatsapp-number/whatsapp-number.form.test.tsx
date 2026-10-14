@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { WhatsappChannelDocument } from '@exyconn/shell/graphql/generated';
-import { WhatsappNumberForm } from '../../../../../../src/admin/channel/forms/whatsapp-number';
-import { renderWithProviders } from '../../../../test-utils';
-import { channelRow } from '../../../admin.fixtures';
+import { WhatsappNumberForm } from '../../../../../../../src/pages/demos/whatsapp/forms/whatsapp-number';
+import { renderWithProviders } from '../../../../../test-utils';
+import { channelRow } from '../../whatsapp.fixtures';
 
 const api = vi.hoisted(() => ({ save: vi.fn(), options: null as unknown, warn: vi.fn() }));
 
@@ -111,7 +111,7 @@ describe('WhatsappNumberForm — connected number', () => {
     renderWithProviders(<WhatsappNumberForm initial={channelRow()} />);
     await user.click(screen.getByRole('button', { name: 'Save changes' }));
     expect(await screen.findByText('Meta rejected the token')).toBeInTheDocument();
-    expect(api.warn).toHaveBeenCalledWith('wa-demo: saving the WhatsApp number failed', failure);
+    expect(api.warn).toHaveBeenCalledWith('tech: saving the WhatsApp number failed', failure);
   });
 
   it('falls back to a plain reason for a failure without a message', async () => {

@@ -1,18 +1,40 @@
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { Box } from '@exyconn/shell/components/ui';
+import { Box, Chip } from '@exyconn/shell/components/ui';
 import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useCrudResource } from '@exyconn/crud';
+import { useT } from '@exyconn/i18n';
 import {
+  CallingBotPhoneProvider,
   useCallingBotConfigsQuery,
   useDeleteCallingBotConfigMutation,
   useTestCallingBotConfigMutation,
 } from '@exyconn/shell/graphql/generated';
 import { maskedSecret } from '../environment-variables/secret';
 import { CallingBotConfigForm, type CallingBotConfigRow } from './forms/calling-bot-config';
+
+/** Which account rings phones, or that the demo offers the browser call only. */
+function PhoneProviderCell({ row }: Readonly<{ row: CallingBotConfigRow }>) {
+  const t = useT();
+  const label = row.phoneEnabled ? PROVIDER_NAMES[row.phoneProvider] : 'Browser only';
+  return (
+    <Chip
+      size="small"
+      variant="outlined"
+      color={row.phoneEnabled ? 'success' : 'default'}
+      label={t(label)}
+    />
+  );
+}
+
+const PROVIDER_NAMES: Record<CallingBotPhoneProvider, string> = {
+  [CallingBotPhoneProvider.None]: 'Browser only',
+  [CallingBotPhoneProvider.Vobiz]: 'Vobiz',
+  [CallingBotPhoneProvider.Twilio]: 'Twilio',
+};
 
 const COLUMNS: Column<CallingBotConfigRow>[] = [
   { key: 'label', label: 'Label' },
@@ -27,7 +49,7 @@ const COLUMNS: Column<CallingBotConfigRow>[] = [
   {
     key: 'phoneEnabled',
     label: 'Phone calls',
-    render: (r) => <StatusChip value={r.phoneEnabled ? 'ACTIVE' : 'INACTIVE'} />,
+    render: (r) => <PhoneProviderCell row={r} />,
   },
   {
     key: 'isActive',

@@ -45,8 +45,26 @@ export const VOBIZ_SOURCE: KeySource = {
     'Sign up at console.vobiz.ai and finish the account checks Vobiz asks for.',
     'Copy the Auth ID and Auth Token from your API credentials in the console.',
     'Buy a phone number under Phone Numbers and enter it in E.164, e.g. +918012345678.',
-    'Add balance to the account. Leave all three Vobiz fields empty to offer browser calls only.',
+    'Add balance to the account, then choose Vobiz as the phone provider below.',
   ],
 };
 
-export const KEY_SOURCES: readonly KeySource[] = [SARVAM_SOURCE, OPENAI_SOURCE, VOBIZ_SOURCE];
+export const TWILIO_SOURCE: KeySource = {
+  fields: ['Twilio Account SID', 'Twilio Auth Token', 'Calling number'],
+  provider: 'Twilio (rings real phones, optional)',
+  url: 'https://console.twilio.com',
+  urlLabel: 'console.twilio.com',
+  steps: [
+    'Sign in at console.twilio.com. The Account SID (starts with AC) and Auth Token are under Account Info on the dashboard.',
+    'Buy a voice-capable number under Phone Numbers > Manage > Buy a number, and enter it in E.164.',
+    'Allow the countries you will call under Voice > Settings > Geo permissions, e.g. India.',
+    'A trial account calls only numbers listed under Verified Caller IDs and plays a trial notice first; upgrade to call anyone.',
+  ],
+};
+
+export const KEY_SOURCES: readonly KeySource[] = [
+  SARVAM_SOURCE,
+  OPENAI_SOURCE,
+  VOBIZ_SOURCE,
+  TWILIO_SOURCE,
+];

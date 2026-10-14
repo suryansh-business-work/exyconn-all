@@ -9,6 +9,7 @@ import { withId, withIds } from '../../utils/serialize';
 import type { PermissionAction } from '../permissions/permission.model';
 import { secretHint } from '../tech/tech.secrets';
 import { callingBotCalls, type Caller, type StartCallInput } from './calling-bot.calls.service';
+import { testCallingBotKey, type KeyTestInput } from './calling-bot.keys.service';
 import {
   callingBotConfigs,
   type CallingBotConfigInput,
@@ -43,6 +44,7 @@ const SECRET_FIELDS: Record<string, { field: CallingBotSecretField; name: string
   SARVAM_API_KEY: { field: 'sarvamApiKey', name: 'Sarvam AI key' },
   OPENAI_API_KEY: { field: 'openAiApiKey', name: 'OpenAI key' },
   VOBIZ_AUTH_TOKEN: { field: 'vobizAuthToken', name: 'Vobiz Auth Token' },
+  TWILIO_AUTH_TOKEN: { field: 'twilioAuthToken', name: 'Twilio Auth Token' },
 };
 
 /** Every change to the settings, by whom: the keys sit with the install's other credentials. */
@@ -67,6 +69,7 @@ export const callingBotResolvers = {
     hasOpenAiApiKey: (row: CallingBotConfigRecord) => Boolean(row.openAiApiKey),
     openAiApiKeyHint: (row: CallingBotConfigRecord) => secretHint(row.openAiApiKey),
     hasVobizAuthToken: (row: CallingBotConfigRecord) => Boolean(row.vobizAuthToken),
+    hasTwilioAuthToken: (row: CallingBotConfigRecord) => Boolean(row.twilioAuthToken),
     phoneEnabled: (row: CallingBotConfigRecord) => canPhone(row),
   },
   Query: {
@@ -132,6 +135,14 @@ export const callingBotResolvers = {
         summary: `Revealed the ${name} of the calling bot config ${label}`,
       });
       return value;
+    },
+    testCallingBotKey: async (
+      _p: unknown,
+      { input }: { input: KeyTestInput },
+      ctx: GraphQLContext,
+    ) => {
+      await techStaff(ctx, 'EDIT');
+      return testCallingBotKey(input);
     },
     testCallingBotConfig: async (_p: unknown, { id }: Id, ctx: GraphQLContext) => {
       await techStaff(ctx, 'EDIT');

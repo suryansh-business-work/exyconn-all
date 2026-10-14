@@ -2,10 +2,10 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { WhatsappChannelDocument } from '@exyconn/shell/graphql/generated';
-import { ChannelTab } from '../../../../src/admin/channel';
-import type { WhatsappChannelRow } from '../../../../src/admin/channel/forms/whatsapp-number';
-import { renderWithProviders } from '../../test-utils';
-import { channelRow } from '../admin.fixtures';
+import { WhatsappChannelPanel } from '../../../../../src/pages/demos/whatsapp/WhatsappChannelPanel';
+import type { WhatsappChannelRow } from '../../../../../src/pages/demos/whatsapp/forms/whatsapp-number';
+import { renderWithProviders } from '../../../test-utils';
+import { channelRow } from './whatsapp.fixtures';
 
 const api = vi.hoisted(() => ({
   query: { data: undefined as unknown, error: undefined as unknown },
@@ -31,7 +31,7 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
 vi.mock('@exyconn/shell/logging/portalLogger', () => ({
   portalLogger: { warn: api.warn, error: vi.fn(), info: vi.fn(), debug: vi.fn() },
 }));
-vi.mock('../../../../src/admin/channel/forms/whatsapp-number', () => ({
+vi.mock('../../../../../src/pages/demos/whatsapp/forms/whatsapp-number', () => ({
   WhatsappNumberForm: ({ initial }: Readonly<{ initial: WhatsappChannelRow | null }>) => (
     <p>{`Number form for ${initial?.id ?? 'a new number'}`}</p>
   ),
@@ -59,9 +59,9 @@ async function disconnect(confirmWith: 'Disconnect' | 'Cancel') {
   return question;
 }
 
-describe('ChannelTab', () => {
+describe('WhatsappChannelPanel', () => {
   it('holds placeholders while the settings load, always asking the network', () => {
-    const { container } = renderWithProviders(<ChannelTab />);
+    const { container } = renderWithProviders(<WhatsappChannelPanel />);
     expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
     expect(api.queryOptions).toEqual({ fetchPolicy: 'cache-and-network' });
     expect(document.title).toContain('WhatsApp number');
@@ -69,7 +69,7 @@ describe('ChannelTab', () => {
 
   it('reports a failed load', () => {
     api.query = { data: undefined, error: new Error('Offline') };
-    renderWithProviders(<ChannelTab />);
+    renderWithProviders(<WhatsappChannelPanel />);
     expect(screen.getByRole('alert')).toHaveTextContent(
       'Could not load the WhatsApp number. Offline',
     );
@@ -77,7 +77,7 @@ describe('ChannelTab', () => {
 
   it('offers to connect a first number', () => {
     withChannel(null);
-    renderWithProviders(<ChannelTab />);
+    renderWithProviders(<WhatsappChannelPanel />);
     expect(screen.getByRole('textbox', { name: 'Callback URL' })).toHaveValue(WEBHOOK);
     expect(screen.queryByRole('textbox', { name: 'Verify token' })).not.toBeInTheDocument();
     expect(screen.getByText('Number form for a new number')).toBeInTheDocument();
@@ -86,7 +86,7 @@ describe('ChannelTab', () => {
 
   it('shows a connected number with its verify token and a way to disconnect it', () => {
     withChannel(channelRow());
-    renderWithProviders(<ChannelTab />);
+    renderWithProviders(<WhatsappChannelPanel />);
     expect(screen.getByRole('heading', { name: 'Number settings' })).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'Verify token' })).toHaveValue('verify-token-123');
     expect(screen.getByText('Number form for ch-1')).toBeInTheDocument();
@@ -96,7 +96,7 @@ describe('ChannelTab', () => {
 
   it('keeps the number when the disconnect is cancelled', async () => {
     withChannel(channelRow());
-    renderWithProviders(<ChannelTab />);
+    renderWithProviders(<WhatsappChannelPanel />);
     const question = await disconnect('Cancel');
     expect(question).toContain('Disconnect +1 555 010 0000?');
     expect(api.remove).not.toHaveBeenCalled();
@@ -104,7 +104,7 @@ describe('ChannelTab', () => {
 
   it('disconnects the number after asking, naming it by its ID when it has no display number', async () => {
     withChannel(channelRow({ displayPhone: '' }));
-    renderWithProviders(<ChannelTab />);
+    renderWithProviders(<WhatsappChannelPanel />);
     const question = await disconnect('Disconnect');
     expect(question).toContain('Disconnect 1234567890?');
     expect(api.remove).toHaveBeenCalledTimes(1);
@@ -115,11 +115,11 @@ describe('ChannelTab', () => {
     const failure = new Error('Token store unavailable');
     api.remove.mockRejectedValue(failure);
     withChannel(channelRow());
-    renderWithProviders(<ChannelTab />);
+    renderWithProviders(<WhatsappChannelPanel />);
     await disconnect('Disconnect');
     expect(await screen.findByText('Token store unavailable')).toBeInTheDocument();
     expect(api.warn).toHaveBeenCalledWith(
-      'wa-demo: disconnecting the WhatsApp number failed',
+      'tech: disconnecting the WhatsApp number failed',
       failure,
     );
   });
@@ -127,7 +127,7 @@ describe('ChannelTab', () => {
   it('falls back to a plain reason for a failure without a message', async () => {
     api.remove.mockRejectedValue('nope');
     withChannel(channelRow());
-    renderWithProviders(<ChannelTab />);
+    renderWithProviders(<WhatsappChannelPanel />);
     await disconnect('Disconnect');
     expect(await screen.findByText('Could not disconnect the WhatsApp number')).toBeInTheDocument();
   });
@@ -135,7 +135,7 @@ describe('ChannelTab', () => {
   it('disables Disconnect while it runs', () => {
     api.removing = true;
     withChannel(channelRow());
-    renderWithProviders(<ChannelTab />);
+    renderWithProviders(<WhatsappChannelPanel />);
     expect(screen.getByRole('button', { name: 'Disconnect' })).toBeDisabled();
   });
 });

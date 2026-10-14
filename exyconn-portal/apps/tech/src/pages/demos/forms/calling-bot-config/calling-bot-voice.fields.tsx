@@ -1,7 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { RhfSecretField, RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
-import { CallingBotSecret } from '@exyconn/shell/graphql/generated';
+import { CallingBotKey, CallingBotSecret } from '@exyconn/shell/graphql/generated';
 import {
   LANGUAGE_OPTIONS,
   MODEL_OPTIONS,
@@ -11,6 +11,7 @@ import {
 } from './calling-bot-config.types';
 import { OPENAI_SOURCE, SARVAM_SOURCE } from './calling-bot-key-guide';
 import { KeySourceHint } from './CallingBotKeyGuide';
+import { useKeyTest } from './useKeyTest';
 import type { RevealFor } from './useSecretReveal';
 
 interface CallingBotFieldsProps {
@@ -23,6 +24,7 @@ export function CallingBotVoiceFields({ initial, revealFor }: Readonly<CallingBo
   const { setValue, getValues } = useFormContext<CallingBotConfigValues>();
   const model = useWatch<CallingBotConfigValues, 'ttsModel'>({ name: 'ttsModel' });
   const voices = useMemo(() => VOICES[model] ?? [], [model]);
+  const testFor = useKeyTest(initial?.id);
 
   // A voice belongs to one model: switching the model picks that model's first voice.
   useEffect(() => {
@@ -39,6 +41,7 @@ export function CallingBotVoiceFields({ initial, revealFor }: Readonly<CallingBo
         label="Sarvam AI key"
         stored={initial?.hasSarvamApiKey}
         onReveal={revealFor(CallingBotSecret.SarvamApiKey)}
+        onTest={testFor(CallingBotKey.Sarvam)}
         helperText={<KeySourceHint source={SARVAM_SOURCE} />}
       />
       <RhfSecretField
@@ -46,6 +49,7 @@ export function CallingBotVoiceFields({ initial, revealFor }: Readonly<CallingBo
         label="OpenAI key"
         stored={initial?.hasOpenAiApiKey}
         onReveal={revealFor(CallingBotSecret.OpenaiApiKey)}
+        onTest={testFor(CallingBotKey.Openai)}
         helperText={<KeySourceHint source={OPENAI_SOURCE} />}
       />
       <RhfTextField

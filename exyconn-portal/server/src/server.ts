@@ -23,6 +23,7 @@ import { ensureAiModelPrices, startAiWorker } from './modules/ai';
 import { backfillAppLogGroupUsers } from './modules/logs';
 import { backfillPositionDefaults } from './modules/hr';
 import { runOnce } from './lib/migrations';
+import { migratePhoneProvider } from './modules/calling-bot-demo';
 import { migrateClientTaxIds } from './modules/clients';
 import { ensureCmsDefaults } from './modules/cms';
 import { startReminderSweep } from './modules/reminders';
@@ -91,6 +92,8 @@ async function bootstrap(): Promise<void> {
   // exyconn.com is the CMS's first site: seeded insert-only from the migrated pages, so an
   // editor's change is never undone and a page added in a later release still arrives.
   await ensureCmsDefaults();
+  // Calling bot configs from before Twilio was offered keep ringing through Vobiz.
+  await runAsPlatform(() => runOnce('calling-bot-phone-provider', migratePhoneProvider));
   // The WhatsApp demo opens on its default industries. Each industry is seeded into a company
   // once (ledger line per industry key), so a new one ships on the next boot and an edited
   // one is never overwritten.

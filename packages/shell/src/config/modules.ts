@@ -1198,6 +1198,14 @@ export const MODULES: ModuleDefinition[] = [
         group: 'Demos',
       },
       {
+        // The WhatsApp demo's real number: its Meta credentials, tested from the form.
+        key: 'tech-demos-whatsapp-bot',
+        label: 'WhatsApp bot',
+        path: '/tech/demos/whatsapp-bot',
+        icon: WhatsAppIcon,
+        group: 'Demos',
+      },
+      {
         // Moving exyconn.com's DNS from GoDaddy to Cloudflare and switching its nameservers.
         key: 'tech-cloudflare',
         label: 'Cloudflare',

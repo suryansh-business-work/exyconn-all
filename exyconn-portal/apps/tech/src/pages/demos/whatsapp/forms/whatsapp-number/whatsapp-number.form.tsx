@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
+import { RhfSecretField, RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
@@ -8,6 +8,7 @@ import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import {
   WhatsappChannelDocument,
   useSaveWhatsappChannelMutation,
+  useTestWhatsappChannelMutation,
 } from '@exyconn/shell/graphql/generated';
 import {
   makeWhatsappNumberSchema,
@@ -24,12 +25,14 @@ const KEEP_SECRET_HINT = 'Leave blank to keep the current value';
 
 /**
  * React Hook Form + Zod form for the company's real WhatsApp Business number (Meta WhatsApp
- * Cloud API). Saving refetches the settings, so the screen shows what the server stored.
+ * Cloud API). Saving refetches the settings, so the screen shows what the server stored; Test
+ * checks the number and token with Meta before or after saving.
  */
 export function WhatsappNumberForm({ initial }: Readonly<WhatsappNumberFormProps>) {
   const notify = useNotify();
   const isEdit = initial !== null;
   const [save] = useSaveWhatsappChannelMutation({ refetchQueries: [WhatsappChannelDocument] });
+  const [testChannel] = useTestWhatsappChannelMutation();
   const methods = useForm<WhatsappNumberFormValues>({
     mode: 'onTouched',
     resolver: zodResolver(makeWhatsappNumberSchema(isEdit)),
@@ -42,9 +45,16 @@ export function WhatsappNumberForm({ initial }: Readonly<WhatsappNumberFormProps
       methods.reset({ ...values, accessToken: '', appSecret: '' });
       notify(isEdit ? 'WhatsApp number updated' : 'WhatsApp number connected', 'success');
     } catch (error) {
-      portalLogger.warn('wa-demo: saving the WhatsApp number failed', error);
+      portalLogger.warn('tech: saving the WhatsApp number failed', error);
       notify(errorMessage(error, 'Could not save the WhatsApp number'), 'error');
     }
+  };
+
+  // The typed token, or the saved one when the field is blank, against the typed number.
+  const onTest = async () => {
+    const { phoneNumberId, accessToken } = methods.getValues();
+    const { data } = await testChannel({ variables: { input: { phoneNumberId, accessToken } } });
+    return data?.testWhatsappChannel ?? '';
   };
 
   return (
@@ -65,10 +75,11 @@ export function WhatsappNumberForm({ initial }: Readonly<WhatsappNumberFormProps
         label="Phone number"
         helperText="The number as people dial it, e.g. +1 555 010 0000. Shown here only."
       />
-      <RhfTextField
+      <RhfSecretField
         name="accessToken"
         label="Access token"
-        type="password"
+        stored={initial?.hasAccessToken}
+        onTest={onTest}
         helperText={
           isEdit
             ? KEEP_SECRET_HINT

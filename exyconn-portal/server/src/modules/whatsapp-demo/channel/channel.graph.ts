@@ -54,3 +54,26 @@ export function validSignature(rawBody: Buffer, header: string | undefined, appS
   const given = Buffer.from(header.slice(prefix.length), 'hex');
   return given.length === expected.length && timingSafeEqual(given, expected);
 }
+
+/**
+ * Proves a Phone number ID and access token belong together: reads the number with the token.
+ * Resolves to how Meta names it, e.g. "+1 555-010-0000 (Acme Clinic)".
+ */
+export async function verifyNumber(sender: Sender): Promise<string> {
+  const fields = 'display_phone_number,verified_name';
+  const response = await fetch(
+    `${GRAPH}/${encodeURIComponent(sender.phoneNumberId)}?fields=${fields}`,
+    { headers: { Authorization: `Bearer ${sender.accessToken}` } },
+  );
+  const body = (await response.json().catch(() => ({}))) as {
+    display_phone_number?: string;
+    verified_name?: string;
+    error?: { message?: string };
+  };
+  if (!response.ok) {
+    throw new Error(body.error?.message ?? `HTTP ${response.status}`);
+  }
+  return [body.display_phone_number, body.verified_name && `(${body.verified_name})`]
+    .filter(Boolean)
+    .join(' ');
+}

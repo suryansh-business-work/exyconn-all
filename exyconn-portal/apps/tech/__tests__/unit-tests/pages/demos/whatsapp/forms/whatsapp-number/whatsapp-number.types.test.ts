@@ -3,8 +3,8 @@ import {
   makeWhatsappNumberSchema,
   toWhatsappNumberValues,
   type WhatsappNumberFormValues,
-} from '../../../../../../src/admin/channel/forms/whatsapp-number';
-import { channelRow } from '../../../admin.fixtures';
+} from '../../../../../../../src/pages/demos/whatsapp/forms/whatsapp-number';
+import { channelRow } from '../../whatsapp.fixtures';
 
 /** Credentials of a given length, built at runtime rather than written into the test. */
 const credential = (length: number) => 'k'.repeat(length);

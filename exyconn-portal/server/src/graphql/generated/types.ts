@@ -1234,6 +1234,8 @@ export type CallingBotConfig = {
   hasOpenAiApiKey: Scalars['Boolean']['output'];
   /** Whether a Sarvam AI key is stored; the key itself is never returned. */
   hasSarvamApiKey: Scalars['Boolean']['output'];
+  /** Whether a Twilio Auth Token is stored; the token itself is never returned. */
+  hasTwilioAuthToken: Scalars['Boolean']['output'];
   /** Whether a Vobiz Auth Token is stored; the token itself is never returned. */
   hasVobizAuthToken: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
@@ -1246,8 +1248,10 @@ export type CallingBotConfig = {
   openAiApiKeyHint?: Maybe<Scalars['String']['output']>;
   /** A fast chat model, e.g. gpt-4o-mini. */
   openAiModel: Scalars['String']['output'];
-  /** Whether calls to a real phone can be placed: every Vobiz field is filled in. */
+  /** Whether calls to a real phone can be placed: the chosen provider's every field is filled in. */
   phoneEnabled: Scalars['Boolean']['output'];
+  /** Which account rings real phones. */
+  phoneProvider: CallingBotPhoneProvider;
   sarvamApiKeyHint?: Maybe<Scalars['String']['output']>;
   /** Who the bot is and how it talks. */
   systemPrompt: Scalars['String']['output'];
@@ -1255,9 +1259,13 @@ export type CallingBotConfig = {
   ttsModel: Scalars['String']['output'];
   /** Sarvam voice, e.g. anushka. */
   ttsSpeaker: Scalars['String']['output'];
+  /** The Twilio Account SID (AC...). */
+  twilioAccountSid: Scalars['String']['output'];
+  /** The Twilio number phone calls are placed from, in E.164. */
+  twilioNumber: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
   vobizAuthId: Scalars['String']['output'];
-  /** The number phone calls are placed from, in E.164. */
+  /** The Vobiz number phone calls are placed from, in E.164. */
   vobizNumber: Scalars['String']['output'];
 };
 
@@ -1270,21 +1278,59 @@ export type CallingBotConfigInput = {
   /** Write-only. Leave empty when editing to keep the stored key. */
   openAiApiKey: Scalars['String']['input'];
   openAiModel: Scalars['String']['input'];
+  phoneProvider: CallingBotPhoneProvider;
   /** Write-only. Leave empty when editing to keep the stored key. */
   sarvamApiKey: Scalars['String']['input'];
   systemPrompt: Scalars['String']['input'];
   ttsModel: Scalars['String']['input'];
   ttsSpeaker: Scalars['String']['input'];
+  twilioAccountSid: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored token. */
+  twilioAuthToken: Scalars['String']['input'];
+  twilioNumber: Scalars['String']['input'];
   vobizAuthId: Scalars['String']['input'];
   /** Write-only. Leave empty when editing to keep the stored token. */
   vobizAuthToken: Scalars['String']['input'];
   vobizNumber: Scalars['String']['input'];
 };
 
+/** An account the Tech screen can test on its own. */
+export enum CallingBotKey {
+  Openai = 'OPENAI',
+  Sarvam = 'SARVAM',
+  Twilio = 'TWILIO',
+  Vobiz = 'VOBIZ'
+}
+
+/** What the form holds when a Test button is pressed; a blank key means the saved one. */
+export type CallingBotKeyTestInput = {
+  /** The config being edited, whose saved keys stand in for blank ones. */
+  configId?: InputMaybe<Scalars['ID']['input']>;
+  key: CallingBotKey;
+  languageCode?: InputMaybe<Scalars['String']['input']>;
+  openAiApiKey?: InputMaybe<Scalars['String']['input']>;
+  openAiModel?: InputMaybe<Scalars['String']['input']>;
+  sarvamApiKey?: InputMaybe<Scalars['String']['input']>;
+  ttsModel?: InputMaybe<Scalars['String']['input']>;
+  ttsSpeaker?: InputMaybe<Scalars['String']['input']>;
+  twilioAccountSid?: InputMaybe<Scalars['String']['input']>;
+  twilioAuthToken?: InputMaybe<Scalars['String']['input']>;
+  vobizAuthId?: InputMaybe<Scalars['String']['input']>;
+  vobizAuthToken?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Which telephony account places calls to real phones; NONE offers browser calls only. */
+export enum CallingBotPhoneProvider {
+  None = 'NONE',
+  Twilio = 'TWILIO',
+  Vobiz = 'VOBIZ'
+}
+
 /** A stored calling bot key that Tech staff can reveal, one at a time. */
 export enum CallingBotSecret {
   OpenaiApiKey = 'OPENAI_API_KEY',
   SarvamApiKey = 'SARVAM_API_KEY',
+  TwilioAuthToken = 'TWILIO_AUTH_TOKEN',
   VobizAuthToken = 'VOBIZ_AUTH_TOKEN'
 }
 
@@ -6058,6 +6104,8 @@ export type Mutation = {
   syncWebsiteChatKnowledge: WebsiteChatSyncResult;
   /** Checks the OpenAI key and model, and the Sarvam key, language and voice. */
   testCallingBotConfig: Scalars['Boolean']['output'];
+  /** Tests one account from the form; resolves to what worked, or fails saying what did not. */
+  testCallingBotKey: Scalars['String']['output'];
   testCloudflareConnection: Scalars['Boolean']['output'];
   testGithubConnection: Scalars['Boolean']['output'];
   testGodaddyConnection: Scalars['Boolean']['output'];
@@ -6074,6 +6122,8 @@ export type Mutation = {
   /** Validates the token, then checks it can see the project. */
   testSonarConnection: SonarConnectionTest;
   testStripeConnection: Scalars['Boolean']['output'];
+  /** Reads the number from Meta with the token; resolves to how Meta names it. */
+  testWhatsappChannel: Scalars['String']['output'];
   /** Likes the post, or takes the like back. Returns the post as it now stands. */
   toggleSocialPostLike: SocialPost;
   /**
@@ -8465,6 +8515,11 @@ export type MutationTestCallingBotConfigArgs = {
 };
 
 
+export type MutationTestCallingBotKeyArgs = {
+  input: CallingBotKeyTestInput;
+};
+
+
 export type MutationTestCloudflareConnectionArgs = {
   id: Scalars['ID']['input'];
 };
@@ -8529,6 +8584,11 @@ export type MutationTestSonarConnectionArgs = {
 
 export type MutationTestStripeConnectionArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestWhatsappChannelArgs = {
+  input: WhatsappChannelTestInput;
 };
 
 
@@ -16621,6 +16681,12 @@ export type WhatsappChannelSettings = {
   webhookUrl: Scalars['String']['output'];
 };
 
+/** What the Test button sends: a blank access token means the saved one. */
+export type WhatsappChannelTestInput = {
+  accessToken: Scalars['String']['input'];
+  phoneNumberId: Scalars['String']['input'];
+};
+
 export type WhatsappCount = {
   __typename?: 'WhatsappCount';
   count: Scalars['Int']['output'];
@@ -17126,6 +17192,9 @@ export type ResolversTypes = ResolversObject<{
   CallingBotChannel: CallingBotChannel;
   CallingBotConfig: ResolverTypeWrapper<CallingBotConfig>;
   CallingBotConfigInput: CallingBotConfigInput;
+  CallingBotKey: CallingBotKey;
+  CallingBotKeyTestInput: CallingBotKeyTestInput;
+  CallingBotPhoneProvider: CallingBotPhoneProvider;
   CallingBotSecret: CallingBotSecret;
   CallingBotTurn: ResolverTypeWrapper<CallingBotTurn>;
   CallingBotTurnRole: CallingBotTurnRole;
@@ -17885,6 +17954,7 @@ export type ResolversTypes = ResolversObject<{
   WhatsappChannel: ResolverTypeWrapper<WhatsappChannel>;
   WhatsappChannelInput: WhatsappChannelInput;
   WhatsappChannelSettings: ResolverTypeWrapper<WhatsappChannelSettings>;
+  WhatsappChannelTestInput: WhatsappChannelTestInput;
   WhatsappCount: ResolverTypeWrapper<WhatsappCount>;
   WhatsappDayPoint: ResolverTypeWrapper<WhatsappDayPoint>;
   WhatsappDemo: ResolverTypeWrapper<WhatsappDemo>;
@@ -17998,6 +18068,7 @@ export type ResolversParentTypes = ResolversObject<{
   CallingBotCallStart: CallingBotCallStart;
   CallingBotConfig: CallingBotConfig;
   CallingBotConfigInput: CallingBotConfigInput;
+  CallingBotKeyTestInput: CallingBotKeyTestInput;
   CallingBotTurn: CallingBotTurn;
   Campaign: Campaign;
   CampaignInput: CampaignInput;
@@ -18614,6 +18685,7 @@ export type ResolversParentTypes = ResolversObject<{
   WhatsappChannel: WhatsappChannel;
   WhatsappChannelInput: WhatsappChannelInput;
   WhatsappChannelSettings: WhatsappChannelSettings;
+  WhatsappChannelTestInput: WhatsappChannelTestInput;
   WhatsappCount: WhatsappCount;
   WhatsappDayPoint: WhatsappDayPoint;
   WhatsappDemo: WhatsappDemo;
@@ -19302,6 +19374,7 @@ export type CallingBotConfigResolvers<ContextType = GraphQLContext, ParentType e
   greeting?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   hasOpenAiApiKey?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   hasSarvamApiKey?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  hasTwilioAuthToken?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   hasVobizAuthToken?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -19311,10 +19384,13 @@ export type CallingBotConfigResolvers<ContextType = GraphQLContext, ParentType e
   openAiApiKeyHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   openAiModel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   phoneEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  phoneProvider?: Resolver<ResolversTypes['CallingBotPhoneProvider'], ParentType, ContextType>;
   sarvamApiKeyHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   systemPrompt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   ttsModel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   ttsSpeaker?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  twilioAccountSid?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  twilioNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   vobizAuthId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   vobizNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -22048,6 +22124,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   syncSocialAccount?: Resolver<ResolversTypes['SocialSyncResult'], ParentType, ContextType, RequireFields<MutationSyncSocialAccountArgs, 'id'>>;
   syncWebsiteChatKnowledge?: Resolver<ResolversTypes['WebsiteChatSyncResult'], ParentType, ContextType>;
   testCallingBotConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestCallingBotConfigArgs, 'id'>>;
+  testCallingBotKey?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestCallingBotKeyArgs, 'input'>>;
   testCloudflareConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestCloudflareConnectionArgs, 'id'>>;
   testGithubConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGithubConnectionArgs, 'id'>>;
   testGodaddyConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGodaddyConnectionArgs, 'id'>>;
@@ -22061,6 +22138,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   testSocialAppConfig?: Resolver<ResolversTypes['SocialAppTest'], ParentType, ContextType, RequireFields<MutationTestSocialAppConfigArgs, 'app'>>;
   testSonarConnection?: Resolver<ResolversTypes['SonarConnectionTest'], ParentType, ContextType, RequireFields<MutationTestSonarConnectionArgs, 'id'>>;
   testStripeConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestStripeConnectionArgs, 'id'>>;
+  testWhatsappChannel?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestWhatsappChannelArgs, 'input'>>;
   toggleSocialPostLike?: Resolver<ResolversTypes['SocialPost'], ParentType, ContextType, RequireFields<MutationToggleSocialPostLikeArgs, 'id'>>;
   trackerAcceptConsent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, Partial<MutationTrackerAcceptConsentArgs>>;
   trackerHeartbeat?: Resolver<ResolversTypes['TrackerMe'], ParentType, ContextType, Partial<MutationTrackerHeartbeatArgs>>;

@@ -17,7 +17,7 @@ import { InfrastructurePage } from './pages/infrastructure';
 import { IncidentsPage } from './pages/incidents';
 import { LogsPage } from './pages/logs';
 import { JobsPage } from './pages/jobs';
-import { CallingBotPage } from './pages/demos';
+import { CallingBotPage, WhatsappBotPage } from './pages/demos';
 import { CloudflarePage } from './pages/security/cloudflare';
 import { SonarPage, SslCertificatesPage } from './pages/security';
 
@@ -42,6 +42,8 @@ export function App() {
       <Route path="/tech/logs" element={<LogsPage />} />
       <Route path="/tech/jobs" element={<JobsPage />} />
       <Route path="/tech/demos/calling-bot/:tab?" element={<CallingBotPage />} />
+      <Route path="/tech/demos/whatsapp-bot" element={<WhatsappBotPage />} />
+      <Route path="/tech/demos" element={<Navigate to="/tech/demos/calling-bot" replace />} />
       <Route path="/tech/settings" element={<SettingsPage />} />
       <Route path="/tech/security/cloudflare" element={<CloudflarePage />} />
       <Route path="/tech/security/ssl" element={<SslCertificatesPage />} />

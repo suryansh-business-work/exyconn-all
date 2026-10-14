@@ -57,9 +57,13 @@ query CallingBotConfigs {
     ttsModel
     ttsSpeaker
     maxCallSeconds
+    phoneProvider
     vobizAuthId
     hasVobizAuthToken
     vobizNumber
+    twilioAccountSid
+    hasTwilioAuthToken
+    twilioNumber
     phoneEnabled
     isActive
     updatedAt
@@ -84,6 +88,10 @@ mutation DeleteCallingBotConfig($id: ID!) {
 
 mutation RevealCallingBotSecret($id: ID!, $secret: CallingBotSecret!) {
   revealCallingBotSecret(id: $id, secret: $secret)
+}
+
+mutation TestCallingBotKey($input: CallingBotKeyTestInput!) {
+  testCallingBotKey(input: $input)
 }
 
 mutation TestCallingBotConfig($id: ID!) {
