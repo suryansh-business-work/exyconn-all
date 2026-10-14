@@ -68,7 +68,14 @@ const newTab = { target: "_blank", rel: "noopener noreferrer" };
           <ul class="pb-2">
             {[...group.links, ...(group.overview ? [group.overview] : [])].map((link) => (
               <li>
-                <a href={link.href} class="chrome-mobile-link" {...(link.external ? newTab : {})}>
+                <a
+                  href={link.href}
+                  class:list={[
+                    "chrome-mobile-link",
+                    { "chrome-mobile-link--highlight": link.highlight },
+                  ]}
+                  {...(link.external ? newTab : {})}
+                >
                   {link.label}
                   {link.external && <span class="sr-only">(opens in a new tab)</span>}
                 </a>

@@ -70,7 +70,14 @@ const newTab = { target: "_blank", rel: "noopener noreferrer" };
           <ul>
             {column.links.map((link) => (
               <li>
-                <a href={link.href} class="site-footer__link" {...(link.external ? newTab : {})}>
+                <a
+                  href={link.href}
+                  class:list={[
+                    "site-footer__link",
+                    { "site-footer__link--highlight": link.highlight },
+                  ]}
+                  {...(link.external ? newTab : {})}
+                >
                   {link.label}
                   {link.external && (
                     <>

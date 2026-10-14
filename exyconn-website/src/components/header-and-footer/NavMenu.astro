@@ -39,8 +39,16 @@ const panelId = `nav-panel-${group.id}`;
     </ul>
     {
       group.overview && (
-        <a href={group.overview.href} class="chrome-panel__overview">
+        <a
+          href={group.overview.href}
+          class:list={[
+            "chrome-panel__overview",
+            { "chrome-panel__overview--highlight": group.overview.highlight },
+          ]}
+          {...(group.overview.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+        >
           {group.overview.label}
+          {group.overview.external && <span class="sr-only">(opens in a new tab)</span>}
           <Icon name="arrow-right" class="icon-sm" />
         </a>
       )

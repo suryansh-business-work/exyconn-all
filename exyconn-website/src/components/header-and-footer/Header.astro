@@ -1,7 +1,7 @@
 ---
 /**
- * The site header: a slim promo strip, then the sticky night bar — logo, the three menus,
- * Blog and the highlighted "GCC in India" pill, search, accessibility, theme, and the two calls to action. Phones get the same bar
+ * The site header: a slim promo strip, then the sticky night bar — logo, the AI, Services and
+ * Demos menus, Blog, Company and the highlighted "GCC in India" pill, search, accessibility, theme, and the two calls to action. Phones get the same bar
  * with icon buttons and the menu drawer.
  */
 import MobileHeader from "./MobileHeader.astro";
@@ -42,9 +42,9 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
     </a>
 
     <div class="chrome-nav">
-      {HEADER_MENUS.slice(0, 2).map((group) => <NavMenu group={group} />)}
+      {HEADER_MENUS.slice(0, 3).map((group) => <NavMenu group={group} />)}
       <a href={BLOG_LINK.href} class="chrome-nav__link">{BLOG_LINK.label}</a>
-      {HEADER_MENUS.slice(2).map((group) => <NavMenu group={group} />)}
+      {HEADER_MENUS.slice(3).map((group) => <NavMenu group={group} />)}
       <a href={GCC_LINK.href} class="chrome-nav__link gcc-nav-pill" title={GCC_LINK.text}>
         {GCC_LINK.label}
       </a>
@@ -123,6 +123,7 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
     background: var(--color-sky-subtle);
     color: var(--color-sky-fg);
     font-weight: var(--font-weight-semibold);
+    white-space: nowrap;
   }
 
   .chrome-nav__link.gcc-nav-pill:hover {

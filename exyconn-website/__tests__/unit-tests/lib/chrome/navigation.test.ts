@@ -13,7 +13,7 @@ import {
   PROMO_LINK,
   type NavLink,
 } from "../../../../src/lib/chrome/navigation";
-import { TOOLS_SITE_URL } from "../../../../src/lib/site";
+import { DEMOS_SITE_URL, TOOLS_SITE_URL } from "../../../../src/lib/site";
 
 const everyLink: NavLink[] = [
   ...HEADER_MENUS.flatMap((group) => [...group.links, ...(group.overview ? [group.overview] : [])]),
@@ -28,14 +28,15 @@ const everyLink: NavLink[] = [
 ];
 
 describe("header menus", () => {
-  it("lists AI, Services and Company in that order with unique ids", () => {
-    expect(HEADER_MENUS.map((group) => group.id)).toEqual(["ai", "services", "company"]);
+  it("lists AI, Services, Demos and Company in that order with unique ids", () => {
+    expect(HEADER_MENUS.map((group) => group.id)).toEqual(["ai", "services", "demos", "company"]);
   });
 
-  it("gives AI and Services a hub link, Company none", () => {
-    const [ai, services, company] = HEADER_MENUS;
+  it("gives AI and Services a hub link, Demos the highlighted demos site, Company none", () => {
+    const [ai, services, demos, company] = HEADER_MENUS;
     expect(ai.overview?.href).toBe("/ai");
     expect(services.overview?.href).toBe("/our-services");
+    expect(demos.overview).toMatchObject({ href: DEMOS_SITE_URL, external: true, highlight: true });
     expect(company.overview).toBeUndefined();
   });
 
@@ -81,17 +82,19 @@ describe("links", () => {
 });
 
 describe("footer", () => {
-  it("leads the AI and Services columns with their hubs", () => {
-    const [ai, services, products, company] = FOOTER_COLUMNS;
+  it("leads the AI, Services and Demos columns with their hubs", () => {
+    const [ai, services, demos, products, company] = FOOTER_COLUMNS;
     expect(ai.links[0]).toEqual({ label: "AI platform", href: "/ai" });
     expect(ai.links.slice(1)).toEqual(HEADER_MENUS[0].links);
     expect(services.links[0]).toEqual({ label: "All services", href: "/our-services" });
+    expect(demos.links[0]).toMatchObject({ href: DEMOS_SITE_URL, highlight: true });
+    expect(demos.links.slice(1)).toEqual(HEADER_MENUS[2].links);
     expect(products.id).toBe("products");
     expect(company.id).toBe("company");
   });
 
   it("drops external links from the company column and ends it with blog and sitemap", () => {
-    const company = FOOTER_COLUMNS[3];
+    const company = FOOTER_COLUMNS[4];
     expect(company.links.some((link) => link.external)).toBe(false);
     expect(company.links.slice(-2)).toEqual([BLOG_LINK, { label: "Sitemap", href: "/sitemap" }]);
   });
