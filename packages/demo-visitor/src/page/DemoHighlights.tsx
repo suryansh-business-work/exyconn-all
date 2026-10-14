@@ -9,7 +9,7 @@ export function DemoHighlights({ items }: Readonly<{ items: readonly string[] }>
     <Box component="ul" sx={{ listStyle: 'none', m: 0, p: 0, display: 'grid', gap: 1 }}>
       {items.map((item) => (
         <Box key={item} component="li" sx={{ display: 'flex', gap: 1, alignItems: 'flex-start' }}>
-          <CheckCircleIcon fontSize="small" color="success" aria-hidden sx={{ mt: 0.25 }} />
+          <CheckCircleIcon fontSize="small" color="success" aria-hidden />
           <Typography variant="body2">{t(item)}</Typography>
         </Box>
       ))}

@@ -27,7 +27,7 @@ export function DemoHero({ eyebrow, title, subtitle, children, visual }: Readonl
             gridTemplateColumns: { xs: '1fr', md: 'minmax(0, 1.1fr) minmax(0, 1fr)' },
           }}
         >
-          <Stack spacing={2.5}>
+          <Stack spacing={3}>
             <Box>
               <Chip label={t(eyebrow)} color="primary" variant="outlined" size="small" />
             </Box>

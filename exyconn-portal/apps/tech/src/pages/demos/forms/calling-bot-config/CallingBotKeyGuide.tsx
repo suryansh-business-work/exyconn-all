@@ -28,7 +28,7 @@ function KeySourceCard({ source }: Readonly<{ source: KeySource }>) {
           <Typography variant="subtitle2" component="h4">
             {t(source.provider)}
           </Typography>
-          <Box component="ol" sx={{ m: 0, pl: 2.5 }}>
+          <Box component="ol" sx={{ m: 0, pl: 3 }}>
             {source.steps.map((step) => (
               <Typography key={step} component="li" variant="body2" sx={{ mb: 0.5 }}>
                 {t(step)}

@@ -34,7 +34,7 @@ export function DemoPhotoFrame({
           bgcolor: 'action.hover',
         }}
       />
-      <Text component="figcaption" size="caption" color="text.secondary" sx={{ mt: 0.75 }}>
+      <Text component="figcaption" size="caption" color="text.secondary" sx={{ mt: 1 }}>
         {t('Photo:')}{' '}
         <Link href={photo.sourceUrl} target="_blank" rel="noopener noreferrer" color="inherit">
           Pexels
