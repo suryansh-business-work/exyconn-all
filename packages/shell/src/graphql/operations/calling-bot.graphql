@@ -82,6 +82,10 @@ mutation DeleteCallingBotConfig($id: ID!) {
   deleteCallingBotConfig(id: $id)
 }
 
+mutation RevealCallingBotSecret($id: ID!, $secret: CallingBotSecret!) {
+  revealCallingBotSecret(id: $id, secret: $secret)
+}
+
 mutation TestCallingBotConfig($id: ID!) {
   testCallingBotConfig(id: $id)
 }

@@ -56,7 +56,7 @@ export const BOOL_OPTIONS: SelectOption[] = [
 const vobizComplete = (values: { vobizAuthId: string; vobizNumber: string }) =>
   values.vobizAuthId === '' || values.vobizNumber !== '';
 
-/** Keys are write-only: required to create; blank on an edit keeps the stored one. */
+/** Keys are required to create; blank on an edit keeps the saved one (its eye button shows it). */
 export const makeSchema = (isEdit: boolean) =>
   z
     .object({

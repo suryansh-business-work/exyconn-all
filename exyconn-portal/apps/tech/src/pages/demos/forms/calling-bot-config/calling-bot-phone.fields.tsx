@@ -1,23 +1,39 @@
 import { Typography } from '@exyconn/shell/components/ui';
-import { RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
+import { RhfSecretField, RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
+import { CallingBotSecret } from '@exyconn/shell/graphql/generated';
 import { useT } from '@exyconn/i18n';
-import { KEEP_SECRET_HINT } from '../../../environment-variables/secret';
-import { BOOL_OPTIONS } from './calling-bot-config.types';
+import { BOOL_OPTIONS, type CallingBotConfigRow } from './calling-bot-config.types';
+import { VOBIZ_SOURCE } from './calling-bot-key-guide';
+import { KeySourceHint } from './CallingBotKeyGuide';
+import type { RevealFor } from './useSecretReveal';
+
+interface CallingBotPhoneFieldsProps {
+  initial: CallingBotConfigRow | null;
+  revealFor: RevealFor;
+}
 
 /** The Vobiz account that rings real phones. Leave it empty for browser calls only. */
-export function CallingBotPhoneFields({ isEdit }: Readonly<{ isEdit: boolean }>) {
+export function CallingBotPhoneFields({
+  initial,
+  revealFor,
+}: Readonly<CallingBotPhoneFieldsProps>) {
   const t = useT();
   return (
     <>
       <Typography variant="subtitle2" component="h3" sx={{ mt: 1 }}>
         {t('Phone calls (Vobiz) — optional')}
       </Typography>
-      <RhfTextField name="vobizAuthId" label="Vobiz Auth ID" />
       <RhfTextField
+        name="vobizAuthId"
+        label="Vobiz Auth ID"
+        helperText={<KeySourceHint source={VOBIZ_SOURCE} />}
+      />
+      <RhfSecretField
         name="vobizAuthToken"
         label="Vobiz Auth Token"
-        type="password"
-        helperText={isEdit ? KEEP_SECRET_HINT : 'From the Vobiz console'}
+        stored={initial?.hasVobizAuthToken}
+        onReveal={revealFor(CallingBotSecret.VobizAuthToken)}
+        helperText={<KeySourceHint source={VOBIZ_SOURCE} />}
       />
       <RhfTextField
         name="vobizNumber"

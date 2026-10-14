@@ -1225,7 +1225,7 @@ export enum CallingBotChannel {
   Phone = 'PHONE'
 }
 
-/** The calling bot demo's settings (Tech > Demos > Calling bot). Keys are write-only. */
+/** The calling bot demo's settings (Tech > Demos > Calling bot). Keys are never listed; see revealCallingBotSecret. */
 export type CallingBotConfig = {
   __typename?: 'CallingBotConfig';
   createdAt: Scalars['DateTime']['output'];
@@ -1281,6 +1281,13 @@ export type CallingBotConfigInput = {
   vobizAuthToken: Scalars['String']['input'];
   vobizNumber: Scalars['String']['input'];
 };
+
+/** A stored calling bot key that Tech staff can reveal, one at a time. */
+export enum CallingBotSecret {
+  OpenaiApiKey = 'OPENAI_API_KEY',
+  SarvamApiKey = 'SARVAM_API_KEY',
+  VobizAuthToken = 'VOBIZ_AUTH_TOKEN'
+}
 
 /** One thing said on a call. */
 export type CallingBotTurn = {
@@ -5797,6 +5804,8 @@ export type Mutation = {
   resetUserPassword: Scalars['String']['output'];
   /** Copies a published version back into the draft (publish it to put it live). */
   restoreCmsPageRevision: CmsPage;
+  /** One stored key, in full, for the eye button on the Tech screen. Each reveal is audited. */
+  revealCallingBotSecret: Scalars['String']['output'];
   /**
    * Approves or rejects an off-computer claim (TRACKER role). A decision is final — an
    * entry that has already been decided is refused rather than flipped, so hours somebody
@@ -7945,6 +7954,12 @@ export type MutationResetUserPasswordArgs = {
 
 export type MutationRestoreCmsPageRevisionArgs = {
   revisionId: Scalars['ID']['input'];
+};
+
+
+export type MutationRevealCallingBotSecretArgs = {
+  id: Scalars['ID']['input'];
+  secret: CallingBotSecret;
 };
 
 
@@ -17687,6 +17702,14 @@ export type DeleteCallingBotConfigMutationVariables = Exact<{
 
 
 export type DeleteCallingBotConfigMutation = { __typename?: 'Mutation', deleteCallingBotConfig: boolean };
+
+export type RevealCallingBotSecretMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  secret: CallingBotSecret;
+}>;
+
+
+export type RevealCallingBotSecretMutation = { __typename?: 'Mutation', revealCallingBotSecret: string };
 
 export type TestCallingBotConfigMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -31390,6 +31413,35 @@ export function useDeleteCallingBotConfigMutation(baseOptions?: ApolloReactHooks
         return ApolloReactHooks.useMutation<DeleteCallingBotConfigMutation, DeleteCallingBotConfigMutationVariables>(DeleteCallingBotConfigDocument, options);
       }
 export type DeleteCallingBotConfigMutationHookResult = ReturnType<typeof useDeleteCallingBotConfigMutation>;
+export const RevealCallingBotSecretDocument = gql`
+    mutation RevealCallingBotSecret($id: ID!, $secret: CallingBotSecret!) {
+  revealCallingBotSecret(id: $id, secret: $secret)
+}
+    `;
+
+/**
+ * __useRevealCallingBotSecretMutation__
+ *
+ * To run a mutation, you first call `useRevealCallingBotSecretMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRevealCallingBotSecretMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [revealCallingBotSecretMutation, { data, loading, error }] = useRevealCallingBotSecretMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      secret: // value for 'secret'
+ *   },
+ * });
+ */
+export function useRevealCallingBotSecretMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RevealCallingBotSecretMutation, RevealCallingBotSecretMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RevealCallingBotSecretMutation, RevealCallingBotSecretMutationVariables>(RevealCallingBotSecretDocument, options);
+      }
+export type RevealCallingBotSecretMutationHookResult = ReturnType<typeof useRevealCallingBotSecretMutation>;
 export const TestCallingBotConfigDocument = gql`
     mutation TestCallingBotConfig($id: ID!) {
   testCallingBotConfig(id: $id)

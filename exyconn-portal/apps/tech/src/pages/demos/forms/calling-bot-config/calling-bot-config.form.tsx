@@ -15,6 +15,8 @@ import {
 } from './calling-bot-config.types';
 import { CallingBotVoiceFields } from './calling-bot-voice.fields';
 import { CallingBotPhoneFields } from './calling-bot-phone.fields';
+import { CallingBotKeyGuide } from './CallingBotKeyGuide';
+import { useSecretReveal } from './useSecretReveal';
 
 /** Where a new config starts: a fast model, Hindi, and Sarvam's free-tier voice. */
 const NEW_CONFIG = {
@@ -32,7 +34,7 @@ const toInput = ({ isActive, ...values }: CallingBotConfigValues) => ({
 
 const toInitial = (row: CallingBotConfigRow | null): z.input<CallingBotConfigSchema> => ({
   label: row?.label ?? '',
-  // Never prefilled: the API does not return keys, and blank keeps the stored one.
+  // Never prefilled: a saved key is fetched only by its eye button, and blank keeps it.
   sarvamApiKey: '',
   openAiApiKey: '',
   openAiModel: row?.openAiModel ?? NEW_CONFIG.openAiModel,
@@ -62,6 +64,7 @@ export function CallingBotConfigForm({
 }: Readonly<CallingBotConfigFormProps>) {
   const [createConfig] = useCreateCallingBotConfigMutation();
   const [updateConfig] = useUpdateCallingBotConfigMutation();
+  const revealFor = useSecretReveal(initial?.id);
   const methods = useForm<z.input<CallingBotConfigSchema>, unknown, CallingBotConfigValues>({
     mode: 'onTouched',
     resolver: zodResolver(makeSchema(Boolean(initial))),
@@ -77,8 +80,9 @@ export function CallingBotConfigForm({
   });
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <CallingBotVoiceFields isEdit={isEdit} />
-      <CallingBotPhoneFields isEdit={isEdit} />
+      <CallingBotKeyGuide isEdit={isEdit} />
+      <CallingBotVoiceFields initial={initial} revealFor={revealFor} />
+      <CallingBotPhoneFields initial={initial} revealFor={revealFor} />
     </EntityForm>
   );
 }

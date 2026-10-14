@@ -26,8 +26,9 @@ export interface CallingBotConfigInput {
 /** Sarvam's text-to-speech, asked for one word: the cheapest call that proves the key works. */
 const SARVAM_TTS_URL = 'https://api.sarvam.ai/text-to-speech';
 
-/** The keys that are written but never read back, nor kept when sent empty. */
+/** The keys that are never listed, nor overwritten when sent empty; only revealed one at a time. */
 const SECRETS = ['sarvamApiKey', 'openAiApiKey', 'vobizAuthToken'] as const;
+export type CallingBotSecretField = (typeof SECRETS)[number];
 
 function withoutBlankSecrets(input: CallingBotConfigInput): Partial<CallingBotConfigInput> {
   return SECRETS.reduce<Partial<CallingBotConfigInput>>(
@@ -89,9 +90,18 @@ export const callingBotConfigs = {
   },
 
   async remove(id: string) {
-    const doc = await CallingBotConfigModel.findByIdAndDelete(id).lean();
+    const doc = await CallingBotConfigModel.findByIdAndDelete(id).lean<CallingBotConfigRecord>();
     if (!doc) notFound('Calling bot config');
-    return true;
+    return doc;
+  },
+
+  /** One stored key, for the Tech screen's eye button; the caller records who asked. */
+  async reveal(id: string, field: CallingBotSecretField) {
+    const config = await CallingBotConfigModel.findById(id)
+      .select(`label ${field}`)
+      .lean<CallingBotConfigRecord>();
+    if (!config) notFound('Calling bot config');
+    return { label: config.label, value: config[field] ?? '' };
   },
 
   /** Proves both keys: OpenAI can reach the model, Sarvam can speak in the chosen voice. */

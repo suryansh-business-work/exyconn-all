@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 
 export const callingBotTypeDefs = gql`
-  "The calling bot demo's settings (Tech > Demos > Calling bot). Keys are write-only."
+  "The calling bot demo's settings (Tech > Demos > Calling bot). Keys are never listed; see revealCallingBotSecret."
   type CallingBotConfig {
     id: ID!
     label: String!
@@ -35,6 +35,13 @@ export const callingBotTypeDefs = gql`
     isActive: Boolean!
     createdAt: DateTime!
     updatedAt: DateTime!
+  }
+
+  "A stored calling bot key that Tech staff can reveal, one at a time."
+  enum CallingBotSecret {
+    SARVAM_API_KEY
+    OPENAI_API_KEY
+    VOBIZ_AUTH_TOKEN
   }
 
   input CallingBotConfigInput {
@@ -133,6 +140,8 @@ export const callingBotTypeDefs = gql`
     createCallingBotConfig(input: CallingBotConfigInput!): CallingBotConfig!
     updateCallingBotConfig(id: ID!, input: CallingBotConfigInput!): CallingBotConfig!
     deleteCallingBotConfig(id: ID!): Boolean!
+    "One stored key, in full, for the eye button on the Tech screen. Each reveal is audited."
+    revealCallingBotSecret(id: ID!, secret: CallingBotSecret!): String!
     "Checks the OpenAI key and model, and the Sarvam key, language and voice."
     testCallingBotConfig(id: ID!): Boolean!
     startCallingBotCall(input: StartCallingBotCallInput!): CallingBotCallStart!

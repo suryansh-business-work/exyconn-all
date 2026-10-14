@@ -454,6 +454,12 @@ export type CallingBotConfigInput = {
   vobizNumber: Scalars['String']['input'];
 };
 
+/** A stored calling bot key that Tech staff can reveal, one at a time. */
+export type CallingBotSecret =
+  | 'OPENAI_API_KEY'
+  | 'SARVAM_API_KEY'
+  | 'VOBIZ_AUTH_TOKEN';
+
 export type CallingBotTurnRole =
   | 'BOT'
   | 'CALLER';

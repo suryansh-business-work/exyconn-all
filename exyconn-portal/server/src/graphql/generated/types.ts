@@ -1224,7 +1224,7 @@ export enum CallingBotChannel {
   Phone = 'PHONE'
 }
 
-/** The calling bot demo's settings (Tech > Demos > Calling bot). Keys are write-only. */
+/** The calling bot demo's settings (Tech > Demos > Calling bot). Keys are never listed; see revealCallingBotSecret. */
 export type CallingBotConfig = {
   __typename?: 'CallingBotConfig';
   createdAt: Scalars['DateTime']['output'];
@@ -1280,6 +1280,13 @@ export type CallingBotConfigInput = {
   vobizAuthToken: Scalars['String']['input'];
   vobizNumber: Scalars['String']['input'];
 };
+
+/** A stored calling bot key that Tech staff can reveal, one at a time. */
+export enum CallingBotSecret {
+  OpenaiApiKey = 'OPENAI_API_KEY',
+  SarvamApiKey = 'SARVAM_API_KEY',
+  VobizAuthToken = 'VOBIZ_AUTH_TOKEN'
+}
 
 /** One thing said on a call. */
 export type CallingBotTurn = {
@@ -5796,6 +5803,8 @@ export type Mutation = {
   resetUserPassword: Scalars['String']['output'];
   /** Copies a published version back into the draft (publish it to put it live). */
   restoreCmsPageRevision: CmsPage;
+  /** One stored key, in full, for the eye button on the Tech screen. Each reveal is audited. */
+  revealCallingBotSecret: Scalars['String']['output'];
   /**
    * Approves or rejects an off-computer claim (TRACKER role). A decision is final — an
    * entry that has already been decided is refused rather than flipped, so hours somebody
@@ -7944,6 +7953,12 @@ export type MutationResetUserPasswordArgs = {
 
 export type MutationRestoreCmsPageRevisionArgs = {
   revisionId: Scalars['ID']['input'];
+};
+
+
+export type MutationRevealCallingBotSecretArgs = {
+  id: Scalars['ID']['input'];
+  secret: CallingBotSecret;
 };
 
 
@@ -17043,6 +17058,7 @@ export type ResolversTypes = ResolversObject<{
   CallingBotChannel: CallingBotChannel;
   CallingBotConfig: ResolverTypeWrapper<CallingBotConfig>;
   CallingBotConfigInput: CallingBotConfigInput;
+  CallingBotSecret: CallingBotSecret;
   CallingBotTurn: ResolverTypeWrapper<CallingBotTurn>;
   CallingBotTurnRole: CallingBotTurnRole;
   Campaign: ResolverTypeWrapper<Campaign>;
@@ -21852,6 +21868,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   resetPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
   resetUserPassword?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationResetUserPasswordArgs, 'id'>>;
   restoreCmsPageRevision?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationRestoreCmsPageRevisionArgs, 'revisionId'>>;
+  revealCallingBotSecret?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationRevealCallingBotSecretArgs, 'id' | 'secret'>>;
   reviewTrackerManualEntry?: Resolver<ResolversTypes['TrackerManualEntry'], ParentType, ContextType, RequireFields<MutationReviewTrackerManualEntryArgs, 'id' | 'status'>>;
   revokeApiKey?: Resolver<ResolversTypes['ApiKey'], ParentType, ContextType, RequireFields<MutationRevokeApiKeyArgs, 'id'>>;
   revokeContractSignature?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRevokeContractSignatureArgs, 'id'>>;
