@@ -131,8 +131,8 @@ describe('JobCompanyForm', () => {
 
     await user.clear(field('Slug'));
     await user.type(field('Slug'), 'Exy Conn');
-    await user.clear(field('Logo URL'));
-    await user.type(field('Logo URL'), 'logo.svg');
+    await user.clear(field('Logo'));
+    await user.type(field('Logo'), 'logo.svg');
     await user.clear(field('Website'));
     await user.type(field('Website'), 'exyconn.com');
     await user.type(field('Twitter'), 'twitter.com/exyconn');

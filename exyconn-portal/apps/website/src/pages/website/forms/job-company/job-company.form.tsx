@@ -7,6 +7,7 @@ import { Divider, Typography } from '@exyconn/shell/components/ui';
 import { RhfTextField, RhfSwitch, RhfRichText } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
+import { RhfMediaField } from '../../../cms/media';
 import { useCurrentSiteId } from '../../../cms/site';
 import {
   useCreateJobCompanyMutation,
@@ -146,7 +147,7 @@ export function JobCompanyForm({ initial, onDone, onCancel }: Readonly<JobCompan
       <RhfTextField name="companyCode" label="Company code" />
       <RhfTextField name="slug" label="Slug" />
       <RhfTextField name="name" label="Name" />
-      <RhfTextField name="logo" label="Logo URL" />
+      <RhfMediaField name="logo" label="Logo" siteId={siteId} />
       <RhfTextField name="tagline" label="Tagline" />
       <RhfRichText
         name="description"

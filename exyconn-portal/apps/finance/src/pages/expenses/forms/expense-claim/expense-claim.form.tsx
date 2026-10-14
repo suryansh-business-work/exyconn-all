@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { HTTP_URL } from '@exyconn/regex';
 import {
   RhfTextField,
+  RhfImageField,
   RhfSelect,
   RhfDatePicker,
   RhfAutocomplete,
@@ -98,7 +99,13 @@ export function ExpenseClaimForm({ initial, onDone, onCancel }: Readonly<Expense
       <RhfTextField name="amount" label="Amount" type="number" />
       <RhfCurrencyField />
       <RhfDatePicker name="incurredOn" label="Incurred on" />
-      <RhfTextField name="receiptUrl" label="Receipt link" />
+      <RhfImageField
+        name="receiptUrl"
+        label="Receipt link"
+        folder="expenses"
+        editableUrl
+        helperText="Upload a photo of the receipt, or paste a link to it."
+      />
       <RhfSelect name="status" label="Status" options={enumOptions(Object.values(ExpenseStatus))} />
       <RhfTextField name="approvedAmount" label="Approved amount" type="number" />
     </EntityForm>
