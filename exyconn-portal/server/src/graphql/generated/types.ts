@@ -2350,6 +2350,8 @@ export type Contact = {
   companyName: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   email: Scalars['String']['output'];
+  /** The latest check of this contact's email; null when it was never checked. */
+  emailVerification?: Maybe<EmailVerification>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   notes: Scalars['String']['output'];
@@ -3045,6 +3047,94 @@ export type EmailTemplateUsage = {
 export type EmailVariableInput = {
   name: Scalars['String']['input'];
   value: Scalars['String']['input'];
+};
+
+/** The latest check of one address. */
+export type EmailVerification = {
+  __typename?: 'EmailVerification';
+  catchAll: Scalars['Boolean']['output'];
+  checkedAt: Scalars['DateTime']['output'];
+  checkedBy: Scalars['String']['output'];
+  deliverable: Scalars['Boolean']['output'];
+  disposable: Scalars['Boolean']['output'];
+  email: Scalars['String']['output'];
+  hasMx: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  /** Why, in one line. */
+  reason: Scalars['String']['output'];
+  roleAccount: Scalars['Boolean']['output'];
+  source: EmailVerificationSource;
+  status: EmailVerificationStatus;
+  /** A likely typo fix, e.g. gmail.com for gmial.com. */
+  suggestion: Scalars['String']['output'];
+  syntaxValid: Scalars['Boolean']['output'];
+};
+
+/** A bulk check from an uploaded CSV, worked through in the background. */
+export type EmailVerificationBatch = {
+  __typename?: 'EmailVerificationBatch';
+  createdAt: Scalars['DateTime']['output'];
+  createdBy: Scalars['String']['output'];
+  finishedAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  invalid: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+  processed: Scalars['Int']['output'];
+  risky: Scalars['Int']['output'];
+  status: EmailVerificationBatchStatus;
+  total: Scalars['Int']['output'];
+  unknown: Scalars['Int']['output'];
+  verified: Scalars['Int']['output'];
+};
+
+export enum EmailVerificationBatchStatus {
+  Done = 'DONE',
+  Failed = 'FAILED',
+  Queued = 'QUEUED',
+  Running = 'RUNNING'
+}
+
+export type EmailVerificationPage = {
+  __typename?: 'EmailVerificationPage';
+  rows: Array<EmailVerification>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum EmailVerificationSource {
+  Bulk = 'BULK',
+  Crm = 'CRM',
+  Single = 'SINGLE'
+}
+
+/** What a check concluded: VERIFIED is a mailbox that exists and accepts email. */
+export enum EmailVerificationStatus {
+  Invalid = 'INVALID',
+  Risky = 'RISKY',
+  Unknown = 'UNKNOWN',
+  Verified = 'VERIFIED'
+}
+
+/** How the verifier reaches mail servers (Tech > Environment Variables). The password is write-only. */
+export type EmailVerifierConfig = {
+  __typename?: 'EmailVerifierConfig';
+  hasProxyPassword: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  proxyHost: Scalars['String']['output'];
+  proxyPort: Scalars['Int']['output'];
+  proxyUsername: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type EmailVerifierConfigInput = {
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+  proxyHost: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored password. */
+  proxyPassword: Scalars['String']['input'];
+  proxyPort: Scalars['Int']['input'];
+  proxyUsername: Scalars['String']['input'];
 };
 
 /** The people holding the EMPLOYEE role. */
@@ -4770,6 +4860,8 @@ export type Lead = {
   convertedDealId?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   email: Scalars['String']['output'];
+  /** The latest check of this lead's email; null when it was never checked. */
+  emailVerification?: Maybe<EmailVerification>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   notes: Scalars['String']['output'];
@@ -5341,6 +5433,9 @@ export type Mutation = {
   createEmailConfig: EmailConfig;
   createEmailFragment: EmailFragment;
   createEmailTemplate: EmailTemplate;
+  /** Queues the addresses of an uploaded CSV for checking in the background. */
+  createEmailVerificationBatch: EmailVerificationBatch;
+  createEmailVerifierConfig: EmailVerifierConfig;
   createEmployeeDocument: EmployeeDocument;
   createEmployeeRequest: EmployeeRequest;
   createEmploymentType: EmploymentType;
@@ -5504,6 +5599,7 @@ export type Mutation = {
   deleteEmailConfig: Scalars['Boolean']['output'];
   deleteEmailFragment: Scalars['Boolean']['output'];
   deleteEmailTemplate: Scalars['Boolean']['output'];
+  deleteEmailVerifierConfig: Scalars['Boolean']['output'];
   deleteEmployeeDocument: Scalars['Boolean']['output'];
   deleteEmployeeRequest: Scalars['Boolean']['output'];
   deleteEmploymentType: Scalars['Boolean']['output'];
@@ -6015,6 +6111,7 @@ export type Mutation = {
   updateEmailConfig: EmailConfig;
   updateEmailFragment: EmailFragment;
   updateEmailTemplate: EmailTemplate;
+  updateEmailVerifierConfig: EmailVerifierConfig;
   updateEmployeeDocument: EmployeeDocument;
   updateEmployeeRequest: EmployeeRequest;
   updateEmploymentType: EmploymentType;
@@ -6118,6 +6215,8 @@ export type Mutation = {
   upsertWhatsappDemo: WhatsappDemo;
   /** Public: exchanges the emailed code for a client hub pass. */
   verifyClientHubCode: ClientHubSignIn;
+  /** Checks one address now and keeps the result. */
+  verifyEmail: EmailVerification;
   /** The second step of a two-factor sign-in: the challenge from login, plus the code. */
   verifyMfa: AuthPayload;
   /** Public: exchanges the emailed code for a demo-only pass. */
@@ -6476,6 +6575,17 @@ export type MutationCreateEmailFragmentArgs = {
 
 export type MutationCreateEmailTemplateArgs = {
   input: EmailTemplateInput;
+};
+
+
+export type MutationCreateEmailVerificationBatchArgs = {
+  emails: Array<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type MutationCreateEmailVerifierConfigArgs = {
+  input: EmailVerifierConfigInput;
 };
 
 
@@ -7153,6 +7263,11 @@ export type MutationDeleteEmailFragmentArgs = {
 
 
 export type MutationDeleteEmailTemplateArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteEmailVerifierConfigArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -8633,6 +8748,12 @@ export type MutationUpdateEmailTemplateArgs = {
 };
 
 
+export type MutationUpdateEmailVerifierConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: EmailVerifierConfigInput;
+};
+
+
 export type MutationUpdateEmployeeDocumentArgs = {
   id: Scalars['ID']['input'];
   input: EmployeeDocumentInput;
@@ -9168,6 +9289,12 @@ export type MutationUpsertWhatsappDemoArgs = {
 export type MutationVerifyClientHubCodeArgs = {
   code: Scalars['String']['input'];
   email: Scalars['String']['input'];
+};
+
+
+export type MutationVerifyEmailArgs = {
+  email: Scalars['String']['input'];
+  source?: InputMaybe<EmailVerificationSource>;
 };
 
 
@@ -10790,6 +10917,9 @@ export type Query = {
   /** Images on the host and what the engine's disk is spent on. */
   dockerStorage: DockerStorage;
   emailDashboard: EmailDashboard;
+  emailVerificationBatches: Array<EmailVerificationBatch>;
+  emailVerificationsPaged: EmailVerificationPage;
+  emailVerifierConfigs: Array<EmailVerifierConfig>;
   /** One employee's balances for a year, every type their country offers filled in. HR. */
   employeeLeaveBalances: Array<LeaveBalance>;
   /**
@@ -11772,6 +11902,11 @@ export type QueryDockerContainerDetailArgs = {
 
 export type QueryEmailDashboardArgs = {
   days?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryEmailVerificationsPagedArgs = {
+  input: TableQueryInput;
 };
 
 
@@ -17066,6 +17201,14 @@ export type ResolversTypes = ResolversObject<{
   EmailTemplatePage: ResolverTypeWrapper<EmailTemplatePage>;
   EmailTemplateUsage: ResolverTypeWrapper<EmailTemplateUsage>;
   EmailVariableInput: EmailVariableInput;
+  EmailVerification: ResolverTypeWrapper<EmailVerification>;
+  EmailVerificationBatch: ResolverTypeWrapper<EmailVerificationBatch>;
+  EmailVerificationBatchStatus: EmailVerificationBatchStatus;
+  EmailVerificationPage: ResolverTypeWrapper<EmailVerificationPage>;
+  EmailVerificationSource: EmailVerificationSource;
+  EmailVerificationStatus: EmailVerificationStatus;
+  EmailVerifierConfig: ResolverTypeWrapper<EmailVerifierConfig>;
+  EmailVerifierConfigInput: EmailVerifierConfigInput;
   EmployeeAnalytics: ResolverTypeWrapper<EmployeeAnalytics>;
   EmployeeDocument: ResolverTypeWrapper<EmployeeDocument>;
   EmployeeDocumentInput: EmployeeDocumentInput;
@@ -17901,6 +18044,11 @@ export type ResolversParentTypes = ResolversObject<{
   EmailTemplatePage: EmailTemplatePage;
   EmailTemplateUsage: EmailTemplateUsage;
   EmailVariableInput: EmailVariableInput;
+  EmailVerification: EmailVerification;
+  EmailVerificationBatch: EmailVerificationBatch;
+  EmailVerificationPage: EmailVerificationPage;
+  EmailVerifierConfig: EmailVerifierConfig;
+  EmailVerifierConfigInput: EmailVerifierConfigInput;
   EmployeeAnalytics: EmployeeAnalytics;
   EmployeeDocument: EmployeeDocument;
   EmployeeDocumentInput: EmployeeDocumentInput;
@@ -19699,6 +19847,7 @@ export type ContactResolvers<ContextType = GraphQLContext, ParentType extends Re
   companyName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  emailVerification?: Resolver<Maybe<ResolversTypes['EmailVerification']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -20135,6 +20284,58 @@ export type EmailTemplateUsageResolvers<ContextType = GraphQLContext, ParentType
   key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type EmailVerificationResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['EmailVerification'] = ResolversParentTypes['EmailVerification']> = ResolversObject<{
+  catchAll?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  checkedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  checkedBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  deliverable?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  disposable?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  hasMx?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  reason?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  roleAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  source?: Resolver<ResolversTypes['EmailVerificationSource'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['EmailVerificationStatus'], ParentType, ContextType>;
+  suggestion?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  syntaxValid?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type EmailVerificationBatchResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['EmailVerificationBatch'] = ResolversParentTypes['EmailVerificationBatch']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  createdBy?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  finishedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  invalid?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  processed?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  risky?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['EmailVerificationBatchStatus'], ParentType, ContextType>;
+  total?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  unknown?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  verified?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type EmailVerificationPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['EmailVerificationPage'] = ResolversParentTypes['EmailVerificationPage']> = ResolversObject<{
+  rows?: Resolver<Array<ResolversTypes['EmailVerification']>, ParentType, ContextType>;
+  totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type EmailVerifierConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['EmailVerifierConfig'] = ResolversParentTypes['EmailVerifierConfig']> = ResolversObject<{
+  hasProxyPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  proxyHost?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  proxyPort?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  proxyUsername?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -21067,6 +21268,7 @@ export type LeadResolvers<ContextType = GraphQLContext, ParentType extends Resol
   convertedDealId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  emailVerification?: Resolver<Maybe<ResolversTypes['EmailVerification']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -21383,6 +21585,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createEmailConfig?: Resolver<ResolversTypes['EmailConfig'], ParentType, ContextType, RequireFields<MutationCreateEmailConfigArgs, 'input'>>;
   createEmailFragment?: Resolver<ResolversTypes['EmailFragment'], ParentType, ContextType, RequireFields<MutationCreateEmailFragmentArgs, 'input'>>;
   createEmailTemplate?: Resolver<ResolversTypes['EmailTemplate'], ParentType, ContextType, RequireFields<MutationCreateEmailTemplateArgs, 'input'>>;
+  createEmailVerificationBatch?: Resolver<ResolversTypes['EmailVerificationBatch'], ParentType, ContextType, RequireFields<MutationCreateEmailVerificationBatchArgs, 'emails' | 'name'>>;
+  createEmailVerifierConfig?: Resolver<ResolversTypes['EmailVerifierConfig'], ParentType, ContextType, RequireFields<MutationCreateEmailVerifierConfigArgs, 'input'>>;
   createEmployeeDocument?: Resolver<ResolversTypes['EmployeeDocument'], ParentType, ContextType, RequireFields<MutationCreateEmployeeDocumentArgs, 'input'>>;
   createEmployeeRequest?: Resolver<ResolversTypes['EmployeeRequest'], ParentType, ContextType, RequireFields<MutationCreateEmployeeRequestArgs, 'input'>>;
   createEmploymentType?: Resolver<ResolversTypes['EmploymentType'], ParentType, ContextType, RequireFields<MutationCreateEmploymentTypeArgs, 'input'>>;
@@ -21514,6 +21718,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteEmailConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmailConfigArgs, 'id'>>;
   deleteEmailFragment?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmailFragmentArgs, 'id'>>;
   deleteEmailTemplate?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmailTemplateArgs, 'id'>>;
+  deleteEmailVerifierConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmailVerifierConfigArgs, 'id'>>;
   deleteEmployeeDocument?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmployeeDocumentArgs, 'id'>>;
   deleteEmployeeRequest?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmployeeRequestArgs, 'id'>>;
   deleteEmploymentType?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteEmploymentTypeArgs, 'id'>>;
@@ -21790,6 +21995,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateEmailConfig?: Resolver<ResolversTypes['EmailConfig'], ParentType, ContextType, RequireFields<MutationUpdateEmailConfigArgs, 'id' | 'input'>>;
   updateEmailFragment?: Resolver<ResolversTypes['EmailFragment'], ParentType, ContextType, RequireFields<MutationUpdateEmailFragmentArgs, 'id' | 'input'>>;
   updateEmailTemplate?: Resolver<ResolversTypes['EmailTemplate'], ParentType, ContextType, RequireFields<MutationUpdateEmailTemplateArgs, 'id' | 'input'>>;
+  updateEmailVerifierConfig?: Resolver<ResolversTypes['EmailVerifierConfig'], ParentType, ContextType, RequireFields<MutationUpdateEmailVerifierConfigArgs, 'id' | 'input'>>;
   updateEmployeeDocument?: Resolver<ResolversTypes['EmployeeDocument'], ParentType, ContextType, RequireFields<MutationUpdateEmployeeDocumentArgs, 'id' | 'input'>>;
   updateEmployeeRequest?: Resolver<ResolversTypes['EmployeeRequest'], ParentType, ContextType, RequireFields<MutationUpdateEmployeeRequestArgs, 'id' | 'input'>>;
   updateEmploymentType?: Resolver<ResolversTypes['EmploymentType'], ParentType, ContextType, RequireFields<MutationUpdateEmploymentTypeArgs, 'id' | 'input'>>;
@@ -21881,6 +22087,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   uploadImage?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationUploadImageArgs, 'file' | 'fileName'>>;
   upsertWhatsappDemo?: Resolver<ResolversTypes['WhatsappDemo'], ParentType, ContextType, RequireFields<MutationUpsertWhatsappDemoArgs, 'input'>>;
   verifyClientHubCode?: Resolver<ResolversTypes['ClientHubSignIn'], ParentType, ContextType, RequireFields<MutationVerifyClientHubCodeArgs, 'code' | 'email'>>;
+  verifyEmail?: Resolver<ResolversTypes['EmailVerification'], ParentType, ContextType, RequireFields<MutationVerifyEmailArgs, 'email'>>;
   verifyMfa?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationVerifyMfaArgs, 'challenge' | 'code'>>;
   verifyWhatsappDemoCode?: Resolver<ResolversTypes['WhatsappDemoSignIn'], ParentType, ContextType, RequireFields<MutationVerifyWhatsappDemoCodeArgs, 'code' | 'email'>>;
   whatsappDemoParse?: Resolver<ResolversTypes['WhatsappDemoParseResult'], ParentType, ContextType, RequireFields<MutationWhatsappDemoParseArgs, 'input'>>;
@@ -22717,6 +22924,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   dockerContainers?: Resolver<Array<ResolversTypes['DockerContainer']>, ParentType, ContextType>;
   dockerStorage?: Resolver<ResolversTypes['DockerStorage'], ParentType, ContextType>;
   emailDashboard?: Resolver<ResolversTypes['EmailDashboard'], ParentType, ContextType, Partial<QueryEmailDashboardArgs>>;
+  emailVerificationBatches?: Resolver<Array<ResolversTypes['EmailVerificationBatch']>, ParentType, ContextType>;
+  emailVerificationsPaged?: Resolver<ResolversTypes['EmailVerificationPage'], ParentType, ContextType, RequireFields<QueryEmailVerificationsPagedArgs, 'input'>>;
+  emailVerifierConfigs?: Resolver<Array<ResolversTypes['EmailVerifierConfig']>, ParentType, ContextType>;
   employeeLeaveBalances?: Resolver<Array<ResolversTypes['LeaveBalance']>, ParentType, ContextType, RequireFields<QueryEmployeeLeaveBalancesArgs, 'employeeId' | 'year'>>;
   employeeSalary?: Resolver<Maybe<ResolversTypes['SalaryStructure']>, ParentType, ContextType, RequireFields<QueryEmployeeSalaryArgs, 'employeeId'>>;
   getActivity?: Resolver<ResolversTypes['Activity'], ParentType, ContextType, RequireFields<QueryGetActivityArgs, 'id'>>;
@@ -25406,6 +25616,10 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   EmailTemplate?: EmailTemplateResolvers<ContextType>;
   EmailTemplatePage?: EmailTemplatePageResolvers<ContextType>;
   EmailTemplateUsage?: EmailTemplateUsageResolvers<ContextType>;
+  EmailVerification?: EmailVerificationResolvers<ContextType>;
+  EmailVerificationBatch?: EmailVerificationBatchResolvers<ContextType>;
+  EmailVerificationPage?: EmailVerificationPageResolvers<ContextType>;
+  EmailVerifierConfig?: EmailVerifierConfigResolvers<ContextType>;
   EmployeeAnalytics?: EmployeeAnalyticsResolvers<ContextType>;
   EmployeeDocument?: EmployeeDocumentResolvers<ContextType>;
   EmployeeDocumentPage?: EmployeeDocumentPageResolvers<ContextType>;

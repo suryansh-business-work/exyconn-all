@@ -9,6 +9,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { ContactForm, type ContactRow } from './forms/contact';
 import { CONTACT_COLUMNS, type PagedContactRow, type ContactsGridContext } from './contacts-grid';
+import { useEmailCheck } from '../../email-verification';
 import { color } from '@exyconn/shell/components/ui';
 
 /** CRM → Contacts: the people at the accounts, and who owns each relationship. */
@@ -50,8 +51,10 @@ export function ContactsPage() {
     },
   ];
 
+  const verifyEmail = useEmailCheck(crud.reload);
   const gridContext: ContactsGridContext = {
     actions: { edit: crud.openEdit, delete: crud.remove },
+    verifyEmail,
   };
 
   return (

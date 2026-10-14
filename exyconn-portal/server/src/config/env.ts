@@ -125,6 +125,8 @@ export const env = Object.freeze({
   callingBotApiUrl: (
     process.env.CALLING_BOT_API_URL ?? 'https://demos.exyconn.com/calling-bot-demo/api'
   ).replace(/\/$/, ''),
+  /** The Reacher email verifier (its own container on the compose network, not on the internet). */
+  reacherUrl: (process.env.REACHER_URL ?? 'http://reacher:8080').replace(/\/$/, ''),
   /** exyconn.com: the site the website chat's knowledge bot learns from (sitemap + pages). */
   websiteUrl: (process.env.WEBSITE_URL ?? 'https://exyconn.com').replace(/\/$/, ''),
   /** The one market whose pages the knowledge sync reads, rather than all eighty-six copies. */

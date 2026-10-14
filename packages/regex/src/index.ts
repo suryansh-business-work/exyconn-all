@@ -54,6 +54,9 @@ export const UPPER_SNAKE = /^[A-Z\d_]+$/;
 /** A bare domain, not a URL — `exyconn.com`, no scheme and no path. */
 export const DOMAIN = /^[a-z\d-]+(?:\.[a-z\d-]+)+$/i;
 
+/** A server to connect to: a domain name (`proxy.example.com`) or an IPv4 address. */
+export const HOSTNAME = /^(?:[a-z\d-]+(?:\.[a-z\d-]+)+|\d{1,3}(?:\.\d{1,3}){3})$/i;
+
 /** A design token name, written into CSS as a custom property: letters, digits and dashes. */
 export const CSS_TOKEN_KEY = /^[a-z\d][a-z\d-]{0,60}$/i;
 

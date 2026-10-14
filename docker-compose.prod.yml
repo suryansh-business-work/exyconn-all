@@ -267,6 +267,21 @@ services:
       MONGODB_URI: ${MONGODB_URI}
       PUBLIC_URL: https://demos.exyconn.com/calling-bot-demo/api
 
+  # Reacher (github.com/reacherhq/check-if-email-exists): checks that an email address exists
+  # without sending anything, for CRM > Tools > Email verifier. No published port: only the
+  # portal server calls it, over the compose network (REACHER_URL, default http://reacher:8080).
+  # Mailbox checks speak SMTP on port 25, which this host blocks outbound; a SOCKS5 proxy set in
+  # Tech > Environment Variables > Email verifier is passed with each request.
+  reacher:
+    <<: *hardened
+    image: reacherhq/backend:v0.11.7
+    container_name: exyconn-reacher
+    restart: unless-stopped
+    mem_limit: 768m
+    environment:
+      RCH__HELLO_NAME: exyconn.com
+      RCH__FROM_EMAIL: verify@exyconn.com
+
   # The client hub: a client's people pay invoices, raise tickets and follow projects.
   portal-clienthub:
     <<: *hardened

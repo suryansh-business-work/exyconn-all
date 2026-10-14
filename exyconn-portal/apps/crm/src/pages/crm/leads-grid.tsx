@@ -11,11 +11,12 @@ import {
   type RowActionSpec,
 } from '@exyconn/crud';
 import type { ListLeadsPagedQuery } from '@exyconn/shell/graphql/generated';
+import { emailColumn, type EmailCheckContext } from '../../email-verification';
 
 export type PagedLeadRow = ListLeadsPagedQuery['listLeadsPaged']['rows'][number];
 
 /** Row handlers ag-grid hands to the shared action cells via its `context`. */
-export type LeadsGridContext = CrudGridContext<PagedLeadRow>;
+export type LeadsGridContext = CrudGridContext<PagedLeadRow> & EmailCheckContext;
 
 /** Hand-off to the pipeline. Gone once the lead has become a deal — it happens once. */
 const CONVERT_ACTION: RowActionSpec = {
@@ -29,7 +30,7 @@ const CONVERT_ACTION: RowActionSpec = {
 /** Column model for the server-side Leads grid. Name/Email hit the server filter. */
 export const LEAD_COLUMNS: ColDef<PagedLeadRow>[] = [
   textColumn('name', 'Name'),
-  textColumn('email', 'Email'),
+  emailColumn<PagedLeadRow>(),
   statusColumn('source', 'Source'),
   valueColumn('value', 'Value', (row) => row.value.toLocaleString()),
   statusColumn('stage', 'Stage'),

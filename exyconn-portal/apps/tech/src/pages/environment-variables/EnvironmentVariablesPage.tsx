@@ -3,6 +3,7 @@ import { Box } from '@exyconn/shell/components/ui';
 import ChatIcon from '@mui/icons-material/Chat';
 import ImageIcon from '@mui/icons-material/Image';
 import EmailIcon from '@mui/icons-material/Email';
+import MarkEmailReadIcon from '@mui/icons-material/MarkEmailRead';
 import MoveToInboxIcon from '@mui/icons-material/MoveToInbox';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import PhotoLibraryIcon from '@mui/icons-material/PhotoLibrary';
@@ -32,6 +33,7 @@ import { RazorpayConfigsPanel } from './RazorpayConfigsPanel';
 import { PaypalConfigsPanel } from './PaypalConfigsPanel';
 import { PayoneerConfigsPanel } from './PayoneerConfigsPanel';
 import { SonarConfigsPanel } from './SonarConfigsPanel';
+import { EmailVerifierConfigsPanel } from './EmailVerifierConfigsPanel';
 
 /** Route the tabs live under; each tab is a slug beneath it. */
 export const ENVIRONMENT_VARIABLES_PATH = '/tech/environment-variables';
@@ -63,6 +65,12 @@ const TABS: TabberItem[] = [
   panelTab('ai-pricing', 'AI Pricing', <PriceChangeIcon />, <AiPricingPanel />),
   panelTab('smtp', 'SMTP', <EmailIcon />, <EmailConfigsPanel />),
   panelTab('inbound-mail', 'Inbound Mail', <MoveToInboxIcon />, <InboundMailConfigsPanel />),
+  panelTab(
+    'email-verifier',
+    'Email verifier',
+    <MarkEmailReadIcon />,
+    <EmailVerifierConfigsPanel />,
+  ),
   panelTab('github', 'GitHub', <GitHubIcon />, <GithubConfigsPanel />),
   panelTab('godaddy', 'GoDaddy', <DnsIcon />, <GodaddyConfigsPanel />),
   panelTab('cloudflare', 'Cloudflare', <CloudIcon />, <CloudflareConfigsPanel />),

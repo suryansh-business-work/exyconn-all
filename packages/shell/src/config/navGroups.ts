@@ -4,6 +4,7 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import ArticleIcon from '@mui/icons-material/Article';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import BeachAccessIcon from '@mui/icons-material/BeachAccess';
+import BuildIcon from '@mui/icons-material/Build';
 import BusinessIcon from '@mui/icons-material/Business';
 import CampaignIcon from '@mui/icons-material/Campaign';
 import ContactsIcon from '@mui/icons-material/Contacts';
@@ -73,6 +74,7 @@ export const NAV_GROUP_ICONS = {
   System: SettingsIcon,
   'Team & company': BusinessIcon,
   'The team': Diversity3Icon,
+  Tools: BuildIcon,
   'Time & attendance': ScheduleIcon,
   'Time & leave': EventAvailableIcon,
 } satisfies Record<string, SvgIconComponent>;

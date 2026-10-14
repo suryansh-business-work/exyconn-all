@@ -29,6 +29,7 @@ import { startReminderSweep } from './modules/reminders';
 import { startAuditRetention } from './modules/audit';
 import { ensureWhatsappDemoSeeds } from './modules/whatsapp-demo';
 import { startWhatsappReminders } from './modules/whatsapp-demo/channel';
+import { startEmailVerification } from './modules/email-verification';
 import { attachChatSocket, startChatHandoff } from './modules/website-chat';
 import { env } from './config/env';
 import { logger } from './utils/logger';
@@ -120,6 +121,8 @@ async function bootstrap(): Promise<void> {
   // A reminder a demo workflow scheduled on the real WhatsApp number has to arrive whether or
   // not anyone has the demo open.
   startWhatsappReminders();
+  // Bulk email checks uploaded in CRM > Tools > Email verifier move on in the background.
+  startEmailVerification();
   // A website chat question nobody on the team answers in time goes to the knowledge bot, so
   // the visitor is never left waiting on an empty desk.
   startChatHandoff();

@@ -2351,6 +2351,8 @@ export type Contact = {
   companyName: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   email: Scalars['String']['output'];
+  /** The latest check of this contact's email; null when it was never checked. */
+  emailVerification?: Maybe<EmailVerification>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   notes: Scalars['String']['output'];
@@ -3046,6 +3048,94 @@ export type EmailTemplateUsage = {
 export type EmailVariableInput = {
   name: Scalars['String']['input'];
   value: Scalars['String']['input'];
+};
+
+/** The latest check of one address. */
+export type EmailVerification = {
+  __typename?: 'EmailVerification';
+  catchAll: Scalars['Boolean']['output'];
+  checkedAt: Scalars['DateTime']['output'];
+  checkedBy: Scalars['String']['output'];
+  deliverable: Scalars['Boolean']['output'];
+  disposable: Scalars['Boolean']['output'];
+  email: Scalars['String']['output'];
+  hasMx: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  /** Why, in one line. */
+  reason: Scalars['String']['output'];
+  roleAccount: Scalars['Boolean']['output'];
+  source: EmailVerificationSource;
+  status: EmailVerificationStatus;
+  /** A likely typo fix, e.g. gmail.com for gmial.com. */
+  suggestion: Scalars['String']['output'];
+  syntaxValid: Scalars['Boolean']['output'];
+};
+
+/** A bulk check from an uploaded CSV, worked through in the background. */
+export type EmailVerificationBatch = {
+  __typename?: 'EmailVerificationBatch';
+  createdAt: Scalars['DateTime']['output'];
+  createdBy: Scalars['String']['output'];
+  finishedAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  invalid: Scalars['Int']['output'];
+  name: Scalars['String']['output'];
+  processed: Scalars['Int']['output'];
+  risky: Scalars['Int']['output'];
+  status: EmailVerificationBatchStatus;
+  total: Scalars['Int']['output'];
+  unknown: Scalars['Int']['output'];
+  verified: Scalars['Int']['output'];
+};
+
+export enum EmailVerificationBatchStatus {
+  Done = 'DONE',
+  Failed = 'FAILED',
+  Queued = 'QUEUED',
+  Running = 'RUNNING'
+}
+
+export type EmailVerificationPage = {
+  __typename?: 'EmailVerificationPage';
+  rows: Array<EmailVerification>;
+  totalCount: Scalars['Int']['output'];
+};
+
+export enum EmailVerificationSource {
+  Bulk = 'BULK',
+  Crm = 'CRM',
+  Single = 'SINGLE'
+}
+
+/** What a check concluded: VERIFIED is a mailbox that exists and accepts email. */
+export enum EmailVerificationStatus {
+  Invalid = 'INVALID',
+  Risky = 'RISKY',
+  Unknown = 'UNKNOWN',
+  Verified = 'VERIFIED'
+}
+
+/** How the verifier reaches mail servers (Tech > Environment Variables). The password is write-only. */
+export type EmailVerifierConfig = {
+  __typename?: 'EmailVerifierConfig';
+  hasProxyPassword: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  proxyHost: Scalars['String']['output'];
+  proxyPort: Scalars['Int']['output'];
+  proxyUsername: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type EmailVerifierConfigInput = {
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+  proxyHost: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored password. */
+  proxyPassword: Scalars['String']['input'];
+  proxyPort: Scalars['Int']['input'];
+  proxyUsername: Scalars['String']['input'];
 };
 
 /** The people holding the EMPLOYEE role. */
@@ -4771,6 +4861,8 @@ export type Lead = {
   convertedDealId?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
   email: Scalars['String']['output'];
+  /** The latest check of this lead's email; null when it was never checked. */
+  emailVerification?: Maybe<EmailVerification>;
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
   notes: Scalars['String']['output'];
@@ -5342,6 +5434,9 @@ export type Mutation = {
   createEmailConfig: EmailConfig;
   createEmailFragment: EmailFragment;
   createEmailTemplate: EmailTemplate;
+  /** Queues the addresses of an uploaded CSV for checking in the background. */
+  createEmailVerificationBatch: EmailVerificationBatch;
+  createEmailVerifierConfig: EmailVerifierConfig;
   createEmployeeDocument: EmployeeDocument;
   createEmployeeRequest: EmployeeRequest;
   createEmploymentType: EmploymentType;
@@ -5505,6 +5600,7 @@ export type Mutation = {
   deleteEmailConfig: Scalars['Boolean']['output'];
   deleteEmailFragment: Scalars['Boolean']['output'];
   deleteEmailTemplate: Scalars['Boolean']['output'];
+  deleteEmailVerifierConfig: Scalars['Boolean']['output'];
   deleteEmployeeDocument: Scalars['Boolean']['output'];
   deleteEmployeeRequest: Scalars['Boolean']['output'];
   deleteEmploymentType: Scalars['Boolean']['output'];
@@ -6016,6 +6112,7 @@ export type Mutation = {
   updateEmailConfig: EmailConfig;
   updateEmailFragment: EmailFragment;
   updateEmailTemplate: EmailTemplate;
+  updateEmailVerifierConfig: EmailVerifierConfig;
   updateEmployeeDocument: EmployeeDocument;
   updateEmployeeRequest: EmployeeRequest;
   updateEmploymentType: EmploymentType;
@@ -6119,6 +6216,8 @@ export type Mutation = {
   upsertWhatsappDemo: WhatsappDemo;
   /** Public: exchanges the emailed code for a client hub pass. */
   verifyClientHubCode: ClientHubSignIn;
+  /** Checks one address now and keeps the result. */
+  verifyEmail: EmailVerification;
   /** The second step of a two-factor sign-in: the challenge from login, plus the code. */
   verifyMfa: AuthPayload;
   /** Public: exchanges the emailed code for a demo-only pass. */
@@ -6477,6 +6576,17 @@ export type MutationCreateEmailFragmentArgs = {
 
 export type MutationCreateEmailTemplateArgs = {
   input: EmailTemplateInput;
+};
+
+
+export type MutationCreateEmailVerificationBatchArgs = {
+  emails: Array<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+};
+
+
+export type MutationCreateEmailVerifierConfigArgs = {
+  input: EmailVerifierConfigInput;
 };
 
 
@@ -7154,6 +7264,11 @@ export type MutationDeleteEmailFragmentArgs = {
 
 
 export type MutationDeleteEmailTemplateArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteEmailVerifierConfigArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -8634,6 +8749,12 @@ export type MutationUpdateEmailTemplateArgs = {
 };
 
 
+export type MutationUpdateEmailVerifierConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: EmailVerifierConfigInput;
+};
+
+
 export type MutationUpdateEmployeeDocumentArgs = {
   id: Scalars['ID']['input'];
   input: EmployeeDocumentInput;
@@ -9169,6 +9290,12 @@ export type MutationUpsertWhatsappDemoArgs = {
 export type MutationVerifyClientHubCodeArgs = {
   code: Scalars['String']['input'];
   email: Scalars['String']['input'];
+};
+
+
+export type MutationVerifyEmailArgs = {
+  email: Scalars['String']['input'];
+  source?: InputMaybe<EmailVerificationSource>;
 };
 
 
@@ -10791,6 +10918,9 @@ export type Query = {
   /** Images on the host and what the engine's disk is spent on. */
   dockerStorage: DockerStorage;
   emailDashboard: EmailDashboard;
+  emailVerificationBatches: Array<EmailVerificationBatch>;
+  emailVerificationsPaged: EmailVerificationPage;
+  emailVerifierConfigs: Array<EmailVerifierConfig>;
   /** One employee's balances for a year, every type their country offers filled in. HR. */
   employeeLeaveBalances: Array<LeaveBalance>;
   /**
@@ -11773,6 +11903,11 @@ export type QueryDockerContainerDetailArgs = {
 
 export type QueryEmailDashboardArgs = {
   days?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryEmailVerificationsPagedArgs = {
+  input: TableQueryInput;
 };
 
 
@@ -18322,7 +18457,7 @@ export type ListContactsPagedQueryVariables = Exact<{
 }>;
 
 
-export type ListContactsPagedQuery = { __typename?: 'Query', listContactsPaged: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string }> } };
+export type ListContactsPagedQuery = { __typename?: 'Query', listContactsPaged: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null }> } };
 
 export type ListContactsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -18452,7 +18587,7 @@ export type ListLeadsPagedQueryVariables = Exact<{
 }>;
 
 
-export type ListLeadsPagedQuery = { __typename?: 'Query', listLeadsPaged: { __typename?: 'LeadPage', totalCount: number, rows: Array<{ __typename?: 'Lead', id: string, name: string, email: string, source: LeadSource, stage: LeadStage, value: number, owner: string, notes: string, campaignId: string, campaignName: string, convertedDealId?: string | null }> } };
+export type ListLeadsPagedQuery = { __typename?: 'Query', listLeadsPaged: { __typename?: 'LeadPage', totalCount: number, rows: Array<{ __typename?: 'Lead', id: string, name: string, email: string, source: LeadSource, stage: LeadStage, value: number, owner: string, notes: string, campaignId: string, campaignName: string, convertedDealId?: string | null, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null }> } };
 
 export type ListLeadsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -18584,6 +18719,65 @@ export type SetDomainNameserversMutationVariables = Exact<{
 
 
 export type SetDomainNameserversMutation = { __typename?: 'Mutation', setDomainNameservers: Array<string> };
+
+export type EmailVerificationBadgeFragment = { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string };
+
+export type EmailVerificationFieldsFragment = { __typename?: 'EmailVerification', email: string, syntaxValid: boolean, hasMx: boolean, deliverable: boolean, catchAll: boolean, disposable: boolean, roleAccount: boolean, suggestion: string, source: EmailVerificationSource, checkedBy: string, id: string, status: EmailVerificationStatus, reason: string, checkedAt: string };
+
+export type VerifyEmailMutationVariables = Exact<{
+  email: Scalars['String']['input'];
+  source?: InputMaybe<EmailVerificationSource>;
+}>;
+
+
+export type VerifyEmailMutation = { __typename?: 'Mutation', verifyEmail: { __typename?: 'EmailVerification', email: string, syntaxValid: boolean, hasMx: boolean, deliverable: boolean, catchAll: boolean, disposable: boolean, roleAccount: boolean, suggestion: string, source: EmailVerificationSource, checkedBy: string, id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } };
+
+export type EmailVerificationsPagedQueryVariables = Exact<{
+  input: TableQueryInput;
+}>;
+
+
+export type EmailVerificationsPagedQuery = { __typename?: 'Query', emailVerificationsPaged: { __typename?: 'EmailVerificationPage', totalCount: number, rows: Array<{ __typename?: 'EmailVerification', email: string, syntaxValid: boolean, hasMx: boolean, deliverable: boolean, catchAll: boolean, disposable: boolean, roleAccount: boolean, suggestion: string, source: EmailVerificationSource, checkedBy: string, id: string, status: EmailVerificationStatus, reason: string, checkedAt: string }> } };
+
+export type EmailVerificationBatchesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type EmailVerificationBatchesQuery = { __typename?: 'Query', emailVerificationBatches: Array<{ __typename?: 'EmailVerificationBatch', id: string, name: string, total: number, processed: number, status: EmailVerificationBatchStatus, verified: number, risky: number, invalid: number, unknown: number, createdBy: string, createdAt: string, finishedAt?: string | null }> };
+
+export type CreateEmailVerificationBatchMutationVariables = Exact<{
+  name: Scalars['String']['input'];
+  emails: Array<Scalars['String']['input']> | Scalars['String']['input'];
+}>;
+
+
+export type CreateEmailVerificationBatchMutation = { __typename?: 'Mutation', createEmailVerificationBatch: { __typename?: 'EmailVerificationBatch', id: string } };
+
+export type EmailVerifierConfigsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type EmailVerifierConfigsQuery = { __typename?: 'Query', emailVerifierConfigs: Array<{ __typename?: 'EmailVerifierConfig', id: string, label: string, proxyHost: string, proxyPort: number, proxyUsername: string, hasProxyPassword: boolean, isActive: boolean, updatedAt: string }> };
+
+export type CreateEmailVerifierConfigMutationVariables = Exact<{
+  input: EmailVerifierConfigInput;
+}>;
+
+
+export type CreateEmailVerifierConfigMutation = { __typename?: 'Mutation', createEmailVerifierConfig: { __typename?: 'EmailVerifierConfig', id: string } };
+
+export type UpdateEmailVerifierConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: EmailVerifierConfigInput;
+}>;
+
+
+export type UpdateEmailVerifierConfigMutation = { __typename?: 'Mutation', updateEmailVerifierConfig: { __typename?: 'EmailVerifierConfig', id: string } };
+
+export type DeleteEmailVerifierConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteEmailVerifierConfigMutation = { __typename?: 'Mutation', deleteEmailVerifierConfig: boolean };
 
 export type EmailFragmentFieldsFragment = { __typename?: 'EmailFragment', id: string, key: string, name: string, description: string, mjml: string, updatedBy: string, updatedAt: string };
 
@@ -24621,6 +24815,29 @@ export const CrmStatsFragmentDoc = gql`
     field
     total
   }
+}
+    `;
+export const EmailVerificationBadgeFragmentDoc = gql`
+    fragment EmailVerificationBadge on EmailVerification {
+  id
+  status
+  reason
+  checkedAt
+}
+    `;
+export const EmailVerificationFieldsFragmentDoc = gql`
+    fragment EmailVerificationFields on EmailVerification {
+  ...EmailVerificationBadge
+  email
+  syntaxValid
+  hasMx
+  deliverable
+  catchAll
+  disposable
+  roleAccount
+  suggestion
+  source
+  checkedBy
 }
     `;
 export const EmailFragmentFieldsFragmentDoc = gql`
@@ -35205,10 +35422,14 @@ export const ListContactsPagedDocument = gql`
     totalCount
     rows {
       ...ContactFields
+      emailVerification {
+        ...EmailVerificationBadge
+      }
     }
   }
 }
-    ${ContactFieldsFragmentDoc}`;
+    ${ContactFieldsFragmentDoc}
+${EmailVerificationBadgeFragmentDoc}`;
 
 /**
  * __useListContactsPagedQuery__
@@ -35968,10 +36189,13 @@ export const ListLeadsPagedDocument = gql`
       campaignId
       campaignName
       convertedDealId
+      emailVerification {
+        ...EmailVerificationBadge
+      }
     }
   }
 }
-    `;
+    ${EmailVerificationBadgeFragmentDoc}`;
 
 /**
  * __useListLeadsPagedQuery__
@@ -36693,6 +36917,310 @@ export function useSetDomainNameserversMutation(baseOptions?: ApolloReactHooks.M
         return ApolloReactHooks.useMutation<SetDomainNameserversMutation, SetDomainNameserversMutationVariables>(SetDomainNameserversDocument, options);
       }
 export type SetDomainNameserversMutationHookResult = ReturnType<typeof useSetDomainNameserversMutation>;
+export const VerifyEmailDocument = gql`
+    mutation VerifyEmail($email: String!, $source: EmailVerificationSource) {
+  verifyEmail(email: $email, source: $source) {
+    ...EmailVerificationFields
+  }
+}
+    ${EmailVerificationFieldsFragmentDoc}
+${EmailVerificationBadgeFragmentDoc}`;
+
+/**
+ * __useVerifyEmailMutation__
+ *
+ * To run a mutation, you first call `useVerifyEmailMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useVerifyEmailMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [verifyEmailMutation, { data, loading, error }] = useVerifyEmailMutation({
+ *   variables: {
+ *      email: // value for 'email'
+ *      source: // value for 'source'
+ *   },
+ * });
+ */
+export function useVerifyEmailMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<VerifyEmailMutation, VerifyEmailMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<VerifyEmailMutation, VerifyEmailMutationVariables>(VerifyEmailDocument, options);
+      }
+export type VerifyEmailMutationHookResult = ReturnType<typeof useVerifyEmailMutation>;
+export const EmailVerificationsPagedDocument = gql`
+    query EmailVerificationsPaged($input: TableQueryInput!) {
+  emailVerificationsPaged(input: $input) {
+    totalCount
+    rows {
+      ...EmailVerificationFields
+    }
+  }
+}
+    ${EmailVerificationFieldsFragmentDoc}
+${EmailVerificationBadgeFragmentDoc}`;
+
+/**
+ * __useEmailVerificationsPagedQuery__
+ *
+ * To run a query within a React component, call `useEmailVerificationsPagedQuery` and pass it any options that fit your needs.
+ * When your component renders, `useEmailVerificationsPagedQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useEmailVerificationsPagedQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useEmailVerificationsPagedQuery(baseOptions: ApolloReactHooks.QueryHookOptions<EmailVerificationsPagedQuery, EmailVerificationsPagedQueryVariables> & ({ variables: EmailVerificationsPagedQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<EmailVerificationsPagedQuery, EmailVerificationsPagedQueryVariables>(EmailVerificationsPagedDocument, options);
+      }
+export function useEmailVerificationsPagedLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<EmailVerificationsPagedQuery, EmailVerificationsPagedQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<EmailVerificationsPagedQuery, EmailVerificationsPagedQueryVariables>(EmailVerificationsPagedDocument, options);
+        }
+// @ts-ignore
+export function useEmailVerificationsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<EmailVerificationsPagedQuery, EmailVerificationsPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<EmailVerificationsPagedQuery, EmailVerificationsPagedQueryVariables>;
+// @ts-ignore
+export function useEmailVerificationsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<EmailVerificationsPagedQuery, EmailVerificationsPagedQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<EmailVerificationsPagedQuery | undefined, EmailVerificationsPagedQueryVariables>;
+export function useEmailVerificationsPagedSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<EmailVerificationsPagedQuery, EmailVerificationsPagedQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<EmailVerificationsPagedQuery, EmailVerificationsPagedQueryVariables>(EmailVerificationsPagedDocument, options);
+        }
+export type EmailVerificationsPagedQueryHookResult = ReturnType<typeof useEmailVerificationsPagedQuery>;
+export type EmailVerificationsPagedLazyQueryHookResult = ReturnType<typeof useEmailVerificationsPagedLazyQuery>;
+export type EmailVerificationsPagedSuspenseQueryHookResult = ReturnType<typeof useEmailVerificationsPagedSuspenseQuery>;
+export const EmailVerificationBatchesDocument = gql`
+    query EmailVerificationBatches {
+  emailVerificationBatches {
+    id
+    name
+    total
+    processed
+    status
+    verified
+    risky
+    invalid
+    unknown
+    createdBy
+    createdAt
+    finishedAt
+  }
+}
+    `;
+
+/**
+ * __useEmailVerificationBatchesQuery__
+ *
+ * To run a query within a React component, call `useEmailVerificationBatchesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useEmailVerificationBatchesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useEmailVerificationBatchesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useEmailVerificationBatchesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<EmailVerificationBatchesQuery, EmailVerificationBatchesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<EmailVerificationBatchesQuery, EmailVerificationBatchesQueryVariables>(EmailVerificationBatchesDocument, options);
+      }
+export function useEmailVerificationBatchesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<EmailVerificationBatchesQuery, EmailVerificationBatchesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<EmailVerificationBatchesQuery, EmailVerificationBatchesQueryVariables>(EmailVerificationBatchesDocument, options);
+        }
+// @ts-ignore
+export function useEmailVerificationBatchesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<EmailVerificationBatchesQuery, EmailVerificationBatchesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<EmailVerificationBatchesQuery, EmailVerificationBatchesQueryVariables>;
+// @ts-ignore
+export function useEmailVerificationBatchesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<EmailVerificationBatchesQuery, EmailVerificationBatchesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<EmailVerificationBatchesQuery | undefined, EmailVerificationBatchesQueryVariables>;
+export function useEmailVerificationBatchesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<EmailVerificationBatchesQuery, EmailVerificationBatchesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<EmailVerificationBatchesQuery, EmailVerificationBatchesQueryVariables>(EmailVerificationBatchesDocument, options);
+        }
+export type EmailVerificationBatchesQueryHookResult = ReturnType<typeof useEmailVerificationBatchesQuery>;
+export type EmailVerificationBatchesLazyQueryHookResult = ReturnType<typeof useEmailVerificationBatchesLazyQuery>;
+export type EmailVerificationBatchesSuspenseQueryHookResult = ReturnType<typeof useEmailVerificationBatchesSuspenseQuery>;
+export const CreateEmailVerificationBatchDocument = gql`
+    mutation CreateEmailVerificationBatch($name: String!, $emails: [String!]!) {
+  createEmailVerificationBatch(name: $name, emails: $emails) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useCreateEmailVerificationBatchMutation__
+ *
+ * To run a mutation, you first call `useCreateEmailVerificationBatchMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateEmailVerificationBatchMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createEmailVerificationBatchMutation, { data, loading, error }] = useCreateEmailVerificationBatchMutation({
+ *   variables: {
+ *      name: // value for 'name'
+ *      emails: // value for 'emails'
+ *   },
+ * });
+ */
+export function useCreateEmailVerificationBatchMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateEmailVerificationBatchMutation, CreateEmailVerificationBatchMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateEmailVerificationBatchMutation, CreateEmailVerificationBatchMutationVariables>(CreateEmailVerificationBatchDocument, options);
+      }
+export type CreateEmailVerificationBatchMutationHookResult = ReturnType<typeof useCreateEmailVerificationBatchMutation>;
+export const EmailVerifierConfigsDocument = gql`
+    query EmailVerifierConfigs {
+  emailVerifierConfigs {
+    id
+    label
+    proxyHost
+    proxyPort
+    proxyUsername
+    hasProxyPassword
+    isActive
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useEmailVerifierConfigsQuery__
+ *
+ * To run a query within a React component, call `useEmailVerifierConfigsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useEmailVerifierConfigsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useEmailVerifierConfigsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useEmailVerifierConfigsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<EmailVerifierConfigsQuery, EmailVerifierConfigsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<EmailVerifierConfigsQuery, EmailVerifierConfigsQueryVariables>(EmailVerifierConfigsDocument, options);
+      }
+export function useEmailVerifierConfigsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<EmailVerifierConfigsQuery, EmailVerifierConfigsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<EmailVerifierConfigsQuery, EmailVerifierConfigsQueryVariables>(EmailVerifierConfigsDocument, options);
+        }
+// @ts-ignore
+export function useEmailVerifierConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<EmailVerifierConfigsQuery, EmailVerifierConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<EmailVerifierConfigsQuery, EmailVerifierConfigsQueryVariables>;
+// @ts-ignore
+export function useEmailVerifierConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<EmailVerifierConfigsQuery, EmailVerifierConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<EmailVerifierConfigsQuery | undefined, EmailVerifierConfigsQueryVariables>;
+export function useEmailVerifierConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<EmailVerifierConfigsQuery, EmailVerifierConfigsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<EmailVerifierConfigsQuery, EmailVerifierConfigsQueryVariables>(EmailVerifierConfigsDocument, options);
+        }
+export type EmailVerifierConfigsQueryHookResult = ReturnType<typeof useEmailVerifierConfigsQuery>;
+export type EmailVerifierConfigsLazyQueryHookResult = ReturnType<typeof useEmailVerifierConfigsLazyQuery>;
+export type EmailVerifierConfigsSuspenseQueryHookResult = ReturnType<typeof useEmailVerifierConfigsSuspenseQuery>;
+export const CreateEmailVerifierConfigDocument = gql`
+    mutation CreateEmailVerifierConfig($input: EmailVerifierConfigInput!) {
+  createEmailVerifierConfig(input: $input) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useCreateEmailVerifierConfigMutation__
+ *
+ * To run a mutation, you first call `useCreateEmailVerifierConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateEmailVerifierConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createEmailVerifierConfigMutation, { data, loading, error }] = useCreateEmailVerifierConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateEmailVerifierConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateEmailVerifierConfigMutation, CreateEmailVerifierConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateEmailVerifierConfigMutation, CreateEmailVerifierConfigMutationVariables>(CreateEmailVerifierConfigDocument, options);
+      }
+export type CreateEmailVerifierConfigMutationHookResult = ReturnType<typeof useCreateEmailVerifierConfigMutation>;
+export const UpdateEmailVerifierConfigDocument = gql`
+    mutation UpdateEmailVerifierConfig($id: ID!, $input: EmailVerifierConfigInput!) {
+  updateEmailVerifierConfig(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useUpdateEmailVerifierConfigMutation__
+ *
+ * To run a mutation, you first call `useUpdateEmailVerifierConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateEmailVerifierConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateEmailVerifierConfigMutation, { data, loading, error }] = useUpdateEmailVerifierConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateEmailVerifierConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateEmailVerifierConfigMutation, UpdateEmailVerifierConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateEmailVerifierConfigMutation, UpdateEmailVerifierConfigMutationVariables>(UpdateEmailVerifierConfigDocument, options);
+      }
+export type UpdateEmailVerifierConfigMutationHookResult = ReturnType<typeof useUpdateEmailVerifierConfigMutation>;
+export const DeleteEmailVerifierConfigDocument = gql`
+    mutation DeleteEmailVerifierConfig($id: ID!) {
+  deleteEmailVerifierConfig(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteEmailVerifierConfigMutation__
+ *
+ * To run a mutation, you first call `useDeleteEmailVerifierConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteEmailVerifierConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteEmailVerifierConfigMutation, { data, loading, error }] = useDeleteEmailVerifierConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteEmailVerifierConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteEmailVerifierConfigMutation, DeleteEmailVerifierConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteEmailVerifierConfigMutation, DeleteEmailVerifierConfigMutationVariables>(DeleteEmailVerifierConfigDocument, options);
+      }
+export type DeleteEmailVerifierConfigMutationHookResult = ReturnType<typeof useDeleteEmailVerifierConfigMutation>;
 export const ListEmailFragmentsDocument = gql`
     query ListEmailFragments {
   listEmailFragments {

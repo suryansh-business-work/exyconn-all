@@ -967,6 +967,34 @@ export type EmailVariableInput = {
   value: Scalars['String']['input'];
 };
 
+export type EmailVerificationBatchStatus =
+  | 'DONE'
+  | 'FAILED'
+  | 'QUEUED'
+  | 'RUNNING';
+
+export type EmailVerificationSource =
+  | 'BULK'
+  | 'CRM'
+  | 'SINGLE';
+
+/** What a check concluded: VERIFIED is a mailbox that exists and accepts email. */
+export type EmailVerificationStatus =
+  | 'INVALID'
+  | 'RISKY'
+  | 'UNKNOWN'
+  | 'VERIFIED';
+
+export type EmailVerifierConfigInput = {
+  isActive: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+  proxyHost: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored password. */
+  proxyPassword: Scalars['String']['input'];
+  proxyPort: Scalars['Int']['input'];
+  proxyUsername: Scalars['String']['input'];
+};
+
 export type EmployeeDocumentInput = {
   employeeId: Scalars['String']['input'];
   issuedOn: Scalars['DateTime']['input'];
