@@ -313,6 +313,10 @@ export function portalViteConfig(app) {
       ],
     },
     server: { port: entry.port, strictPort: true },
+    // Dependencies are found up front, from the page AND the component specs. Found only when a
+    // spec first imports them, they are re-bundled mid-run and the dev server reloads — and the
+    // Cypress spec that happens to be loading then fails to fetch its own support file.
+    optimizeDeps: { entries: ["index.html", "src/**/*.cy.{ts,tsx}"] },
     test: {
       globals: true,
       environment: "jsdom",
