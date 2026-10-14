@@ -3,8 +3,8 @@ import {
   ListExitRecordsPagedDocument,
   ListGoalsPagedDocument,
   ListPerformanceReviewsPagedDocument,
+  ListEmployeeNamesDocument,
   ListTrainingsPagedDocument,
-  ListUsersDocument,
 } from '@exyconn/shell/graphql/generated';
 import {
   exitsReport,
@@ -59,7 +59,10 @@ const paged = (field: string, rows: object[]) => (options: QueryOptions) => ({
 });
 
 const { client } = fakeClient([
-  [ListUsersDocument, () => ({ listUsers: [{ id: 'u1', name: 'Asha' }] })],
+  [
+    ListEmployeeNamesDocument,
+    () => ({ listEmployeeNames: [{ id: 'u1', name: 'Asha', isActive: true }] }),
+  ],
   [ListGoalsPagedDocument, paged('listGoalsPaged', [goal])],
   [ListPerformanceReviewsPagedDocument, paged('listPerformanceReviewsPaged', [review])],
   [ListTrainingsPagedDocument, paged('listTrainingsPaged', [training])],

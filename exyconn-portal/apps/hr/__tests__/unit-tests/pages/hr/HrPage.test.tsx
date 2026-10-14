@@ -5,7 +5,7 @@ import {
   LeaveStatus,
   useDeleteLeaveRequestMutation,
   useListLeaveRequestsQuery,
-  useListUsersQuery,
+  useListEmployeeNamesQuery,
   useSetLeaveStatusMutation,
 } from '@exyconn/shell/graphql/generated';
 import { useAuth } from '@exyconn/shell/auth/AuthContext';
@@ -19,7 +19,7 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
   useListLeaveRequestsQuery: vi.fn(),
   useDeleteLeaveRequestMutation: vi.fn(),
-  useListUsersQuery: vi.fn(),
+  useListEmployeeNamesQuery: vi.fn(),
   useSetLeaveStatusMutation: vi.fn(),
 }));
 
@@ -91,11 +91,11 @@ beforeEach(() => {
   answer({ listLeaveRequests: leave });
   vi.mocked(useDeleteLeaveRequestMutation).mockReturnValue(mutationTuple(remove) as never);
   vi.mocked(useSetLeaveStatusMutation).mockReturnValue(mutationTuple(setStatus) as never);
-  vi.mocked(useListUsersQuery).mockReturnValue(
+  vi.mocked(useListEmployeeNamesQuery).mockReturnValue(
     queryResult({
-      listUsers: [
-        { id: 'u1', name: 'Asha Rao' },
-        { id: 'u2', name: 'Bilal Khan' },
+      listEmployeeNames: [
+        { id: 'u1', name: 'Asha Rao', isActive: true },
+        { id: 'u2', name: 'Bilal Khan', isActive: true },
       ],
     }) as never,
   );

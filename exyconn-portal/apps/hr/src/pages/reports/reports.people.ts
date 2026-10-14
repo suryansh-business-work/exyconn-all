@@ -1,25 +1,32 @@
 import type { ApolloClient } from '@apollo/client';
 import {
   ListUsersDocument,
+  ListEmployeeNamesDocument,
   ListAttendanceDocument,
   ListLeaveRequestsDocument,
   ListHolidaysDocument,
   ListEmployeeRequestsPagedDocument,
   type ListUsersQuery,
+  type ListEmployeeNamesQuery,
   type ListAttendanceQuery,
   type ListLeaveRequestsQuery,
   type ListHolidaysQuery,
   type ListEmployeeRequestsPagedQuery,
 } from '@exyconn/shell/graphql/generated';
+import { DEACTIVATED, employeeLabel } from '../../hooks/useEmployeeNames';
 import { defineReport } from './reports.types';
 import { fetchAllPages, fetchList } from './fetchAll';
 
 type User = ListUsersQuery['listUsers'][number];
 
-/** id → display name, so every report can show a person instead of an id. */
+/** id → display name, so every report can show a person instead of an id (deleted ones too). */
 export async function nameLookup(client: ApolloClient): Promise<Map<string, string>> {
-  const users = await fetchList(client, ListUsersDocument, (d: ListUsersQuery) => d.listUsers);
-  return new Map(users.map((u) => [u.id, u.name]));
+  const people = await fetchList(
+    client,
+    ListEmployeeNamesDocument,
+    (d: ListEmployeeNamesQuery) => d.listEmployeeNames,
+  );
+  return new Map(people.map((p) => [p.id, employeeLabel(p, DEACTIVATED)]));
 }
 
 /** Rows with `employeeName` added; an id no longer in the user list stays as the id. */

@@ -1,16 +1,36 @@
 import { useCallback, useMemo } from 'react';
-import { useListUsersQuery } from '@exyconn/shell/graphql/generated';
+import { useT } from '@exyconn/i18n';
+import {
+  useListEmployeeNamesQuery,
+  type ListEmployeeNamesQuery,
+} from '@exyconn/shell/graphql/generated';
+
+type EmployeeName = ListEmployeeNamesQuery['listEmployeeNames'][number];
+
+/** The word a deactivated or deleted person's name carries. */
+export const DEACTIVATED = 'Deactivated';
+
+/** A person's name as a record shows it: marked when the account is deactivated or deleted. */
+export function employeeLabel(employee: EmployeeName, deactivated: string): string {
+  return employee.isActive ? employee.name : `${employee.name} (${deactivated})`;
+}
 
 /**
  * Resolves an employee id to a display name for every HR grid that stores only the
- * id. One `listUsers` read, cached by Apollo, so the eight grids share it; an id
- * with no user (a deleted account) falls back to the id so the row is still traceable.
+ * id. One `listEmployeeNames` read, cached by Apollo, so the grids share it. Deleted
+ * accounts are kept (and marked), so their old records still name them.
  */
 export function useEmployeeNames(): (employeeId: string) => string {
-  const { data } = useListUsersQuery();
-  const nameById = useMemo(
-    () => new Map((data?.listUsers ?? []).map((user) => [user.id, user.name])),
-    [data],
-  );
+  const t = useT();
+  const { data } = useListEmployeeNamesQuery();
+  const nameById = useMemo(() => {
+    const deactivated = t(DEACTIVATED);
+    return new Map(
+      (data?.listEmployeeNames ?? []).map((employee) => [
+        employee.id,
+        employeeLabel(employee, deactivated),
+      ]),
+    );
+  }, [data, t]);
   return useCallback((employeeId: string) => nameById.get(employeeId) ?? employeeId, [nameById]);
 }

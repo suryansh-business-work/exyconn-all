@@ -156,6 +156,13 @@ export const adminTypeDefs = gql`
     department: String
   }
 
+  "A person as records name them; isActive is false once the account is deactivated or deleted."
+  type EmployeeName {
+    id: ID!
+    name: String!
+    isActive: Boolean!
+  }
+
   "One person in the org chart; the client nests them by managerId."
   type OrgNode {
     id: ID!
@@ -286,6 +293,8 @@ export const adminTypeDefs = gql`
     getUser(id: ID!): User!
     "Active employees for pickers in any portal; the full employee record stays HR's (listUsers)."
     listEmployeeOptions: [EmployeeOption!]!
+    "Every person's name, deleted accounts included, to show whose a record is."
+    listEmployeeNames: [EmployeeName!]!
     "The signed-in user's manager, if one is set."
     myManager: EmployeeOption
     "Everyone who reports to the signed-in user."

@@ -82,6 +82,10 @@ export const adminResolvers = {
       assertAuthenticated(ctx); // any signed-in user may fill an employee picker
       return withIds(await adminService.listEmployeeOptions());
     },
+    listEmployeeNames: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      assertAuthenticated(ctx); // a name is what any picker already shows
+      return withIds(await adminService.listEmployeeNames());
+    },
     appSettings: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       // A client hub contact or demo visitor reads their company's formats inside that company;
       // anybody else must be a signed-in user.

@@ -3,6 +3,7 @@ import {
   ListAttendanceDocument,
   ListEmployeeRequestsPagedDocument,
   ListHolidaysDocument,
+  ListEmployeeNamesDocument,
   ListLeaveRequestsDocument,
   ListUsersDocument,
 } from '@exyconn/shell/graphql/generated';
@@ -40,6 +41,7 @@ const USERS = [
 
 const { client } = fakeClient([
   [ListUsersDocument, () => ({ listUsers: USERS })],
+  [ListEmployeeNamesDocument, () => ({ listEmployeeNames: USERS })],
   [
     ListAttendanceDocument,
     () => ({
@@ -100,6 +102,7 @@ describe('people reports', () => {
     const names = await nameLookup(client);
 
     expect(names.get('u1')).toBe('Asha');
+    expect(names.get('u2')).toBe('Bala (Deactivated)');
     expect(names.size).toBe(5);
   });
 
