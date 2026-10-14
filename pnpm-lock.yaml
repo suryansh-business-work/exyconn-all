@@ -197,6 +197,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.14.0
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.2.18)(react@19.2.8))(@types/react@19.2.18)(react@19.2.8)
+      '@exyconn/demo-visitor':
+        specifier: workspace:*
+        version: link:../../packages/demo-visitor
       '@exyconn/i18n':
         specifier: workspace:*
         version: link:../../packages/i18n

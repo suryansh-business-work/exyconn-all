@@ -1,0 +1,8 @@
+/** The building blocks every demos.exyconn.com page is laid out with. */
+export { DemoHero } from './DemoHero';
+export { DemoSection } from './DemoSection';
+export { DemoSteps, type DemoStep } from './DemoSteps';
+export { DemoFaq, type DemoQuestion } from './DemoFaq';
+export { DemoHighlights } from './DemoHighlights';
+export { DemoPhotoFrame } from './DemoPhotoFrame';
+export { DEMO_PHOTOS, type DemoPhoto } from './demoPhotos';

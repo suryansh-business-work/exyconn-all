@@ -4,6 +4,7 @@ import { useT } from '@exyconn/i18n';
 import { IconButton, ListItemIcon, Menu, MenuItem } from '@exyconn/shell/components/ui';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import InfoIcon from '@mui/icons-material/InfoOutlined';
+import HelpIcon from '@mui/icons-material/HelpOutlineOutlined';
 import ContrastIcon from '@mui/icons-material/Contrast';
 import InsightsIcon from '@mui/icons-material/Insights';
 import AppsIcon from '@mui/icons-material/Apps';
@@ -13,10 +14,12 @@ import { canAccess, ROLES } from '@exyconn/shell/auth/roles';
 import { HUB_URL } from '@exyconn/shell/config/apps';
 import { useColorMode } from '@exyconn/shell/theme/ColorModeContext';
 import { AboutDialog } from './AboutDialog';
+import { GuideDialog } from './GuideDialog';
+import { guideSeen, markGuideSeen } from './guideSeen';
 import { clearVisitorPass } from '@exyconn/demo-visitor';
 
 /**
- * The chat list's ⋮ menu — the only way out of the demo: back to the portal, or sign out. A demo
+ * The chat list's ⋮ menu — the guide to the demo, and the only way out of it: back to the portal, or sign out. A demo
  * visitor (email-and-code sign-in) has no portal to go back to; signing out drops their pass.
  */
 export function AppMenu({ color }: Readonly<{ color: string }>) {
@@ -26,6 +29,12 @@ export function AppMenu({ color }: Readonly<{ color: string }>) {
   const { mode, toggle } = useColorMode();
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   const [about, setAbout] = useState(false);
+  // A first-time visitor gets the guide before their first chat; it stays a menu item after.
+  const [guide, setGuide] = useState(() => !guideSeen());
+  const closeGuide = () => {
+    markGuideSeen();
+    setGuide(false);
+  };
   const close = () => setAnchor(null);
   const isAdmin = user ? canAccess(user.roles, ROLES.ADMIN) : false;
   const handleSignOut = () => {
@@ -49,6 +58,17 @@ export function AppMenu({ color }: Readonly<{ color: string }>) {
         <MoreVertIcon />
       </IconButton>
       <Menu anchorEl={anchor} open={Boolean(anchor)} onClose={close}>
+        <MenuItem
+          onClick={() => {
+            close();
+            setGuide(true);
+          }}
+        >
+          <ListItemIcon>
+            <HelpIcon fontSize="small" />
+          </ListItemIcon>
+          {t('How this demo works')}
+        </MenuItem>
         <MenuItem
           onClick={() => {
             close();
@@ -100,6 +120,7 @@ export function AppMenu({ color }: Readonly<{ color: string }>) {
         </MenuItem>
       </Menu>
       <AboutDialog open={about} onClose={() => setAbout(false)} />
+      <GuideDialog open={guide} onClose={closeGuide} />
     </>
   );
 }

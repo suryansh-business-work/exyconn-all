@@ -1,7 +1,8 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ChatListPane } from '../../../../../src/components/wa/list/ChatListPane';
+import { markGuideSeen } from '../../../../../src/components/wa/list/guideSeen';
 import type { CatalogBundle } from '../../../../../src/runtime/types';
 import { renderWithProviders } from '../../../test-utils';
 import { bundle, chatRecord, message, store } from '../wa-ui.fixtures';
@@ -9,6 +10,11 @@ import { bundle, chatRecord, message, store } from '../wa-ui.fixtures';
 vi.mock('@exyconn/shell/auth/AuthContext', () => ({
   useAuth: () => ({ user: null, signOut: vi.fn() }),
 }));
+
+// A returning visitor: the first-visit guide would otherwise open over the list.
+beforeEach(() => {
+  markGuideSeen();
+});
 
 const BUNDLES = new Map<string, CatalogBundle>([
   ['clinic', bundle({ key: 'clinic', order: 1 })],

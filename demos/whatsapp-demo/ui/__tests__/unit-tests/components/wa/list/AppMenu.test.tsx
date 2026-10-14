@@ -5,6 +5,7 @@ import type { AuthUser } from '@exyconn/shell/auth/AuthContext';
 import { ROLES, type Role } from '@exyconn/shell/auth/roles';
 import { HUB_URL } from '@exyconn/shell/config/apps';
 import { AppMenu } from '../../../../../src/components/wa/list/AppMenu';
+import { markGuideSeen } from '../../../../../src/components/wa/list/guideSeen';
 import { renderWithProviders, useCurrentUrl } from '../../../test-utils';
 
 const auth = vi.hoisted(() => ({
@@ -47,6 +48,8 @@ function renderMenu(user: AuthUser | null) {
 
 beforeEach(() => {
   localStorage.clear();
+  // A returning visitor: the first-visit guide would otherwise open over the menu.
+  markGuideSeen();
 });
 afterEach(() => {
   vi.unstubAllGlobals();
