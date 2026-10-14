@@ -10,9 +10,12 @@ describe('portal app registry', () => {
     expect(new Set(ports).size).toBe(ports.length);
   });
 
-  it('gives every app its own subdomain', () => {
-    const subdomains = entries.map(([, app]) => app.subdomain);
-    expect(new Set(subdomains).size).toBe(subdomains.length);
+  it('gives every app its own address: a subdomain, or a path on one the demos share', () => {
+    const addresses = entries.map(([, app]) => {
+      const basePath = 'basePath' in app ? app.basePath : '';
+      return `${app.subdomain}${basePath}`;
+    });
+    expect(new Set(addresses).size).toBe(addresses.length);
   });
 
   it('titles and describes every app for its page head', () => {

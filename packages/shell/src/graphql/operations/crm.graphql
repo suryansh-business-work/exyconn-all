@@ -29,6 +29,9 @@ query ListLeadsPaged($input: TableQueryInput!) {
       campaignId
       campaignName
       convertedDealId
+      emailVerification {
+        ...EmailVerificationBadge
+      }
     }
   }
 }

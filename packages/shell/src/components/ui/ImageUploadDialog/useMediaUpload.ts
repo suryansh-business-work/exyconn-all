@@ -56,7 +56,17 @@ const toStockSelection = (item: PexelsMediaFieldsFragment): MediaSelection => {
  * Nothing is stored against a third-party CDN — a device file and a stock photo are both
  * uploaded through `uploadImage`, and a stock clip is imported server-side by URL.
  */
-export function useMediaUpload(folder: string | undefined, onUploaded: (url: string) => void) {
+/**
+ * Where an image goes instead of the shared ImageKit upload, given the cropped image as a data
+ * URL: the website's editors put it in the site's own media library, so it can be picked again.
+ */
+export type UploadDataUrl = (dataUrl: string, fileName: string) => Promise<string>;
+
+export function useMediaUpload(
+  folder: string | undefined,
+  onUploaded: (url: string) => void,
+  uploadDataUrl?: UploadDataUrl,
+) {
   const notify = useNotify();
   const inputRef = useRef<HTMLInputElement>(null);
   const [selection, setSelection] = useState<MediaSelection | null>(null);
@@ -97,13 +107,11 @@ export function useMediaUpload(folder: string | undefined, onUploaded: (url: str
       });
       return data?.importMediaFromUrl;
     }
-    const { data } = await uploadImage({
-      variables: {
-        file: await resolveDataUrl(current, crop),
-        fileName: current.fileName,
-        folder,
-      },
-    });
+    const file = await resolveDataUrl(current, crop);
+    if (uploadDataUrl) {
+      return uploadDataUrl(file, current.fileName);
+    }
+    const { data } = await uploadImage({ variables: { file, fileName: current.fileName, folder } });
     return data?.uploadImage;
   };
 

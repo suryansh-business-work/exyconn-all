@@ -89,11 +89,10 @@ describe('BuilderScreen tools', () => {
     expect(screen.queryByRole('button', { name: 'Show live preview' })).not.toBeInTheDocument();
   });
 
-  it('shows the saved draft beside the canvas and refreshes it after a save', async () => {
+  it('shows the saved draft beside the canvas from the start and refreshes it after a save', async () => {
     const loadPreviewUrl = vi.fn().mockResolvedValue(PREVIEW);
     renderScreen({ loadPreviewUrl });
 
-    await click('Show live preview');
     expect(await screen.findByTitle('Live preview')).toHaveAttribute('src', `${PREVIEW}&v=0-0`);
 
     await click('Save draft');

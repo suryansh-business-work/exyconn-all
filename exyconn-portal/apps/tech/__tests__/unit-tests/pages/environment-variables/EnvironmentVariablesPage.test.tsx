@@ -82,6 +82,7 @@ describe('EnvironmentVariablesPage', () => {
       'AI Pricing',
       'SMTP',
       'Inbound Mail',
+      'Email verifier',
       'GitHub',
       'GoDaddy',
       'Cloudflare',

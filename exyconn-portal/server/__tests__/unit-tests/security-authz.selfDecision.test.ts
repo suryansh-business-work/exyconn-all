@@ -93,12 +93,12 @@ describe('M7: nobody decides about themselves', () => {
     expect((await ExpenseClaimModel.findById(claim._id).lean())?.status).toBe('SUBMITTED');
   });
 
-  it('refuses anybody setting their own salary', async () => {
+  it('refuses HR setting their own salary (an administrator may)', async () => {
     await expect(
       PAYROLL.saveEmployeeSalary(
         null,
         { employeeId: 'hr-1', input: { basic: 1_000_000, effectiveFrom: new Date() } },
-        as('hr-1', [ROLES.ADMIN]),
+        as('hr-1', [ROLES.HR]),
       ),
     ).rejects.toThrow(/for yourself/);
     expect(await SalaryStructureModel.countDocuments()).toBe(0);

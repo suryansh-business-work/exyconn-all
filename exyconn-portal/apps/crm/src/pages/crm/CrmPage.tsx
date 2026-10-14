@@ -14,6 +14,7 @@ import {
 import { LeadForm, type LeadRow } from './forms/lead';
 import { ConvertLeadForm } from './forms/convert-lead';
 import { LEAD_COLUMNS, type PagedLeadRow, type LeadsGridContext } from './leads-grid';
+import { useEmailCheck } from '../../email-verification';
 import { color } from '@exyconn/shell/components/ui';
 
 /** CRM module — leads & pipeline dashboard with a server-side leads grid. */
@@ -51,8 +52,10 @@ export function CrmPage() {
     { label: 'Lost', value: String(statCount(stats, 'stage', 'LOST')), accent: color.red[200] },
   ];
 
+  const verifyEmail = useEmailCheck(crud.reload);
   const gridContext: LeadsGridContext = {
     actions: { convert: setConverting, edit: crud.openEdit, delete: crud.remove },
+    verifyEmail,
   };
 
   const closeConvert = () => setConverting(null);

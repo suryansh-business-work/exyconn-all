@@ -494,6 +494,14 @@ export const MODULES: ModuleDefinition[] = [
         icon: PersonIcon,
         group: 'Directory',
       },
+      {
+        // Whether an address really exists, before anybody writes to it (Reacher).
+        key: 'crm-email-verifier',
+        label: 'Email verifier',
+        path: '/crm/tools/email-verifier',
+        icon: MarkEmailReadIcon,
+        group: 'Tools',
+      },
     ],
   },
   {

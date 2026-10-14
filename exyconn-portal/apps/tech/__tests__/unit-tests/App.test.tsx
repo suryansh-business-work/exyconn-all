@@ -20,6 +20,7 @@ import { InfrastructurePage } from '../../src/pages/infrastructure';
 import { IncidentsPage } from '../../src/pages/incidents';
 import { LogsPage } from '../../src/pages/logs';
 import { JobsPage } from '../../src/pages/jobs';
+import { CallingBotPage } from '../../src/pages/demos';
 import { CloudflarePage } from '../../src/pages/security/cloudflare';
 import { SonarPage, SslCertificatesPage } from '../../src/pages/security';
 
@@ -75,6 +76,7 @@ describe('App', () => {
       ['/tech/incidents/:tab?', IncidentsPage],
       ['/tech/logs', LogsPage],
       ['/tech/jobs', JobsPage],
+      ['/tech/demos/calling-bot/:tab?', CallingBotPage],
       ['/tech/settings', SettingsPage],
       ['/tech/security/cloudflare', CloudflarePage],
       ['/tech/security/ssl', SslCertificatesPage],

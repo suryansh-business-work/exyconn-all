@@ -67,9 +67,9 @@ describe('PAGE_BLOCKS', () => {
 describe('PLACEHOLDER_CSS', () => {
   it('styles both placeholder tags and labels them from data attributes', () => {
     expect(PLACEHOLDER_CSS).toContain('exy-component, exy-fragment {');
-    expect(PLACEHOLDER_CSS).toContain(
-      String.raw`content: attr(data-exy-title) "\A" attr(data-exy-summary);`,
-    );
+    // The name above, in bold; what the section says underneath.
+    expect(PLACEHOLDER_CSS).toContain('content: attr(data-exy-title);');
+    expect(PLACEHOLDER_CSS).toContain('content: attr(data-exy-summary);');
     expect(PLACEHOLDER_CSS).toContain('exy-component[data-exy-container]:empty::after');
   });
 });

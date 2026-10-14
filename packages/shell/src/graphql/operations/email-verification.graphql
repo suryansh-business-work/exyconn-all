@@ -1,0 +1,90 @@
+# Email verification: CRM > Tools > Email verifier, the badge beside every CRM email, and the
+# verifier's proxy in Tech > Environment Variables.
+
+fragment EmailVerificationBadge on EmailVerification {
+  id
+  status
+  reason
+  checkedAt
+}
+
+fragment EmailVerificationFields on EmailVerification {
+  ...EmailVerificationBadge
+  email
+  syntaxValid
+  hasMx
+  deliverable
+  catchAll
+  disposable
+  roleAccount
+  suggestion
+  source
+  checkedBy
+}
+
+mutation VerifyEmail($email: String!, $source: EmailVerificationSource) {
+  verifyEmail(email: $email, source: $source) {
+    ...EmailVerificationFields
+  }
+}
+
+query EmailVerificationsPaged($input: TableQueryInput!) {
+  emailVerificationsPaged(input: $input) {
+    totalCount
+    rows {
+      ...EmailVerificationFields
+    }
+  }
+}
+
+query EmailVerificationBatches {
+  emailVerificationBatches {
+    id
+    name
+    total
+    processed
+    status
+    verified
+    risky
+    invalid
+    unknown
+    createdBy
+    createdAt
+    finishedAt
+  }
+}
+
+mutation CreateEmailVerificationBatch($name: String!, $emails: [String!]!) {
+  createEmailVerificationBatch(name: $name, emails: $emails) {
+    id
+  }
+}
+
+query EmailVerifierConfigs {
+  emailVerifierConfigs {
+    id
+    label
+    proxyHost
+    proxyPort
+    proxyUsername
+    hasProxyPassword
+    isActive
+    updatedAt
+  }
+}
+
+mutation CreateEmailVerifierConfig($input: EmailVerifierConfigInput!) {
+  createEmailVerifierConfig(input: $input) {
+    id
+  }
+}
+
+mutation UpdateEmailVerifierConfig($id: ID!, $input: EmailVerifierConfigInput!) {
+  updateEmailVerifierConfig(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteEmailVerifierConfig($id: ID!) {
+  deleteEmailVerifierConfig(id: $id)
+}

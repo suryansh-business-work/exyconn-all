@@ -5,7 +5,7 @@ import { DeviceUploadTab } from './DeviceUploadTab';
 import { MediaReview } from './MediaReview';
 import { PexelsTab } from './PexelsTab';
 import type { CropRect } from './crop-image';
-import { useMediaUpload } from './useMediaUpload';
+import { useMediaUpload, type UploadDataUrl } from './useMediaUpload';
 
 /**
  * What the dialog is allowed to return. Image fields (`RhfImageField`) pass `image`
@@ -25,6 +25,8 @@ interface ImageUploadDialogProps {
   media?: UploadMediaKind;
   onClose: () => void;
   onUploaded: (url: string) => void;
+  /** Stores the image somewhere else than the shared ImageKit upload (e.g. a site's library). */
+  uploadDataUrl?: UploadDataUrl;
 }
 
 /**
@@ -41,14 +43,19 @@ export function ImageUploadDialog({
   media = 'all',
   onClose,
   onUploaded,
+  uploadDataUrl,
 }: Readonly<ImageUploadDialogProps>) {
   const [tab, setTab] = useState<TabKey>('device');
   const [crop, setCrop] = useState<CropRect | null>(null);
-  const upload = useMediaUpload(folder, (url) => {
-    setCrop(null);
-    onUploaded(url);
-    onClose();
-  });
+  const upload = useMediaUpload(
+    folder,
+    (url) => {
+      setCrop(null);
+      onUploaded(url);
+      onClose();
+    },
+    uploadDataUrl,
+  );
   const { selection } = upload;
 
   const handleBack = () => {
