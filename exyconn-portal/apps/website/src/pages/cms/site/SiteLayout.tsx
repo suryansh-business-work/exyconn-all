@@ -1,5 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { Link as RouterLink, Outlet, useParams } from 'react-router-dom';
+import AddIcon from '@mui/icons-material/Add';
+import ViewListIcon from '@mui/icons-material/ViewList';
 import { useT } from '@exyconn/i18n';
 import { Alert, Box, Button, CircularProgress, Flex, Text } from '@exyconn/shell/components/ui';
 import { SiteContext, type CurrentSite } from './site.context';
@@ -34,6 +36,23 @@ export function SiteLayout() {
           <Text size="sm" color="text.secondary" sx={{ flexGrow: 1 }}>
             {value.site.domains.join(', ')}
           </Text>
+          <Button
+            component={RouterLink}
+            to="/website/sites"
+            size="small"
+            startIcon={<ViewListIcon fontSize="small" />}
+          >
+            {t('All websites')}
+          </Button>
+          <Button
+            component={RouterLink}
+            to="/website/sites?form=new"
+            size="small"
+            variant="outlined"
+            startIcon={<AddIcon fontSize="small" />}
+          >
+            {t('New website')}
+          </Button>
         </Flex>
         <Outlet />
       </SiteContext.Provider>

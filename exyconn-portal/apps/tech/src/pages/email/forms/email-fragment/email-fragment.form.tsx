@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { SLUG } from '@exyconn/regex';
-import { RhfTextField } from '@exyconn/shell/components/form/rhf';
+import { RhfCodeEditor, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
@@ -64,7 +64,7 @@ export function EmailFragmentForm({ initial, onDone, onCancel }: Readonly<Props>
       />
       <RhfTextField name="name" label="Name" />
       <RhfTextField name="description" label="Description" />
-      <RhfTextField name="mjml" label="MJML" multiline rows={14} />
+      <RhfCodeEditor name="mjml" label="MJML" language="html" height={320} />
     </EntityForm>
   );
 }

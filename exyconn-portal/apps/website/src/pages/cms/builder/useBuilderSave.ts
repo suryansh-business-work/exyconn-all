@@ -24,7 +24,7 @@ function readDraft(editor: LiveEditorHandle): CmsDraftInput {
   return { projectData: editor.getProjectData(), html: design.html, css: design.css };
 }
 
-/** Save draft, publish, autosave and the "unsaved changes" state of a builder. */
+/** Save draft, publish, autosave, the "unsaved changes" state and a count of saves. */
 export function useBuilderSave(
   editor: RefObject<LiveEditorHandle | null>,
   persistence: BuilderPersistence,
@@ -33,6 +33,8 @@ export function useBuilderSave(
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
   const [publishing, setPublishing] = useState(false);
+  // Bumped after every successful save (autosaves too), so a live preview can reload.
+  const [savedCount, setSavedCount] = useState(0);
   // Bumped on every edit, so an edit made while a save is in flight keeps the page dirty.
   const version = useRef(0);
   const busy = useRef(false);
@@ -53,6 +55,7 @@ export function useBuilderSave(
       try {
         await latest.current.saveDraft(readDraft(editor.current));
         if (version.current === started) setDirty(false);
+        setSavedCount((count) => count + 1);
         if (!silent) notify('Draft saved');
         return true;
       } catch (error) {
@@ -87,5 +90,5 @@ export function useBuilderSave(
     return () => globalThis.clearInterval(timer);
   }, [dirty, save, notify]);
 
-  return { dirty, saving, publishing, markDirty, save, publish };
+  return { dirty, saving, publishing, savedCount, markDirty, save, publish };
 }

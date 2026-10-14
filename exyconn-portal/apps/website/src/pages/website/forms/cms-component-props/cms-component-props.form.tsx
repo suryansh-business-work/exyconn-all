@@ -2,7 +2,7 @@ import { Controller, useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useT } from '@exyconn/i18n';
 import { ToggleButton, ToggleButtonGroup } from '@exyconn/shell/components/ui';
-import { RhfTextField } from '@exyconn/shell/components/form/rhf';
+import { RhfCodeEditor } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { fromTree, toTree, type PropNode } from './props-tree';
 import {
@@ -97,14 +97,11 @@ export function ComponentPropsForm({
           )}
         />
       ) : (
-        <RhfTextField
+        <RhfCodeEditor
           name="json"
           label="Settings (JSON)"
-          multiline
-          minRows={16}
-          slotProps={{
-            htmlInput: { style: { fontFamily: 'monospace', fontSize: 13 }, spellCheck: false },
-          }}
+          language="json"
+          height={420}
           helperText="Every value the component renders. Must be a JSON object."
         />
       )}

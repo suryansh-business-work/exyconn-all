@@ -1,9 +1,7 @@
 import type { TabberItem } from '@exyconn/tabber';
-import { RhfTextField } from '@exyconn/shell/components/form/rhf';
+import { RhfCodeEditor } from '@exyconn/shell/components/form/rhf';
 import { TokenListFields } from './TokenListFields';
 import { FontsTab } from './FontsTab';
-
-const CODE = { fontFamily: 'monospace', fontSize: 13 } as const;
 
 /** The editor's tabs, one per token group; the fonts tab uploads into the site's media. */
 export const designTabs = (siteId: string): TabberItem[] => [
@@ -73,12 +71,11 @@ export const designTabs = (siteId: string): TabberItem[] => [
     slug: 'css',
     label: 'Extra CSS',
     content: (
-      <RhfTextField
+      <RhfCodeEditor
         name="extraCss"
         label="Extra CSS"
-        multiline
-        minRows={12}
-        slotProps={{ htmlInput: { style: CODE, spellCheck: false } }}
+        language="css"
+        height={360}
         helperText="Written after the tokens on every page: utility classes, font-face rules."
       />
     ),

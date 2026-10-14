@@ -20,6 +20,7 @@
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@exyconn/code-editor": "workspace:*",
     "@exyconn/config": "workspace:*",
     "@exyconn/i18n": "workspace:*",
     "@exyconn/logger": "workspace:*",
