@@ -35,6 +35,10 @@ export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   'SocialAppConfig',
   'SocialOAuthState',
   'TrackerBuildSettings',
+  // The AI calling bot demo (demos.exyconn.com/calling-bot-demo): its settings and its calls
+  // belong to the install, and its voice server reads and writes them with no company in scope.
+  'CallingBotConfig',
+  'CallingBotCall',
   // NOTE: the support mailbox (InboundMailConfig) is deliberately NOT here — a company reads
   // its own mailbox into its own tickets, so each configures one in Tech.
   'AiModelPrice',

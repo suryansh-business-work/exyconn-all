@@ -20,8 +20,17 @@
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-/** Workspace roots the portal image builds from. */
-const ROOTS = ['packages', 'exyconn-portal/apps'];
+/**
+ * Workspace roots the portal image builds from: each child with a package.json is a package.
+ * The demos keep their UI (and server) one level down, under demos/<demo>/.
+ */
+const ROOTS = [
+  'packages',
+  'exyconn-portal/apps',
+  'demos',
+  'demos/whatsapp-demo',
+  'demos/calling-bot-demo',
+];
 const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mts', '.cts']);
 /** `from '@exyconn/shell/components/ui'` -> `@exyconn/shell`. */
 const IMPORT_PATTERN = /from\s+["'](@exyconn\/[a-z0-9-]+)(?:\/[^"']*)?["']/g;

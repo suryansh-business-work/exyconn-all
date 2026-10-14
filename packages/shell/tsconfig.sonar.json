@@ -9,7 +9,11 @@
     "../*/__tests__",
     "../../exyconn-portal/apps/*/src",
     "../../exyconn-portal/apps/*/__tests__",
-    "../../exyconn-portal/ui/src"
+    "../../exyconn-portal/ui/src",
+    "../../demos/hub/src",
+    "../../demos/whatsapp-demo/ui/src",
+    "../../demos/whatsapp-demo/ui/__tests__",
+    "../../demos/calling-bot-demo/ui/src"
   ],
   "exclude": [
     "**/node_modules",
@@ -18,6 +22,8 @@
     "../**/*.cy.tsx",
     "../../exyconn-portal/**/*.cy.ts",
     "../../exyconn-portal/**/*.cy.tsx",
-    "../../exyconn-portal/**/cypress"
+    "../../exyconn-portal/**/cypress",
+    "../../demos/**/*.cy.ts",
+    "../../demos/**/*.cy.tsx"
   ]
 }

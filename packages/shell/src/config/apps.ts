@@ -22,14 +22,29 @@ export function appOrigin(app: PortalAppKey): string {
   return `https://${subdomain}.${env.portalDomain}`;
 }
 
-/** Where an app's pages start for the company this page shows: its origin plus the company prefix. */
-export function appBaseUrl(app: PortalAppKey): string {
-  return `${appOrigin(app)}${ORGANIZATION_BASENAME}`;
+/** The path an app is mounted at on its origin (apps.json `basePath`); empty at the root. */
+function appBasePath(app: PortalAppKey): string {
+  const entry = PORTAL_APPS[app];
+  return 'basePath' in entry ? entry.basePath : '';
 }
 
-/** Relative path when the target is this app, absolute URL when it is another one. */
+/**
+ * Where an app's pages start for the company this page shows: its origin, the path it is
+ * mounted at, then the company prefix.
+ */
+export function appBaseUrl(app: PortalAppKey): string {
+  return `${appOrigin(app)}${appBasePath(app)}${ORGANIZATION_BASENAME}`;
+}
+
+/**
+ * Relative path when the target is this app, absolute URL when it is another one. A path that
+ * starts with the target app's base path (a module mounted at `/whatsapp-demo`) is taken inside
+ * the app, so the base path is not repeated.
+ */
 export function appUrl(app: PortalAppKey, path: string): string {
-  return app === env.portalApp ? path : `${appBaseUrl(app)}${path}`;
+  const base = appBasePath(app);
+  const inApp = base && path.startsWith(base) ? path.slice(base.length) || '/' : path;
+  return app === env.portalApp ? inApp : `${appBaseUrl(app)}${inApp}`;
 }
 
 /** Landing app that hosts the module launcher. */

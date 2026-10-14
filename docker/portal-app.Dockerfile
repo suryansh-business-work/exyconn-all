@@ -21,8 +21,10 @@ WORKDIR /repo
 FROM base AS deps
 ARG APP_PKG
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml .npmrc ./
+COPY packages/code-editor/package.json packages/code-editor/
 COPY packages/config/package.json packages/config/
 COPY packages/crud/package.json packages/crud/
+COPY packages/demo-visitor/package.json packages/demo-visitor/
 COPY packages/i18n/package.json packages/i18n/
 COPY packages/live-editor/package.json packages/live-editor/
 COPY packages/logger/package.json packages/logger/
@@ -58,8 +60,11 @@ COPY exyconn-portal/apps/support/package.json exyconn-portal/apps/support/
 COPY exyconn-portal/apps/tech/package.json exyconn-portal/apps/tech/
 COPY exyconn-portal/apps/tracker/package.json exyconn-portal/apps/tracker/
 COPY exyconn-portal/apps/website/package.json exyconn-portal/apps/website/
-COPY exyconn-portal/apps/whatsapp-demo/package.json exyconn-portal/apps/whatsapp-demo/
 COPY exyconn-portal/apps/clienthub/package.json exyconn-portal/apps/clienthub/
+COPY demos/hub/package.json demos/hub/
+COPY demos/whatsapp-demo/ui/package.json demos/whatsapp-demo/ui/
+COPY demos/calling-bot-demo/ui/package.json demos/calling-bot-demo/ui/
+COPY demos/calling-bot-demo/server/package.json demos/calling-bot-demo/server/
 COPY exyconn-website/package.json exyconn-website/
 COPY exyconn-tracker-app/package.json exyconn-tracker-app/
 # The root `prepare` script runs on every install, this one included; it needs its own
@@ -83,6 +88,7 @@ COPY tsconfig.base.json ./
 COPY packages packages
 COPY exyconn-portal/ui exyconn-portal/ui
 COPY exyconn-portal/apps exyconn-portal/apps
+COPY demos demos
 RUN pnpm --filter "${APP_PKG}" run build
 
 # nginx-unprivileged runs as uid 101 (pid in /tmp, cache under /tmp, conf.d writable by that
@@ -97,7 +103,7 @@ COPY docker/spa.nginx.conf /etc/nginx/templates/default.conf.template
 COPY docker/spa-security-headers.conf /etc/nginx/snippets/spa-security-headers.conf
 ENV NGINX_PORT=${PORT}
 # Who may frame the app (docker/spa-security-headers.conf). Compose widens it for the
-# WhatsApp demo only, which exyconn.com embeds.
+# demos that exyconn.com embeds.
 ENV FRAME_ANCESTORS="'self'"
 USER 101
 EXPOSE ${PORT}

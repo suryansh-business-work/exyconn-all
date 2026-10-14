@@ -1,6 +1,7 @@
 import type { SvgIconComponent } from '@mui/icons-material';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import ShareIcon from '@mui/icons-material/Share';
+import PhoneInTalkIcon from '@mui/icons-material/PhoneInTalk';
 import InsightsIcon from '@mui/icons-material/Insights';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import BugReportIcon from '@mui/icons-material/BugReport';
@@ -1179,6 +1180,14 @@ export const MODULES: ModuleDefinition[] = [
         path: '/tech/settings',
         icon: TuneIcon,
         group: 'Configuration',
+      },
+      {
+        // The AI calling bot at demos.exyconn.com/calling-bot-demo: its keys, voice and calls.
+        key: 'tech-demos-calling-bot',
+        label: 'Calling bot',
+        path: '/tech/demos/calling-bot',
+        icon: PhoneInTalkIcon,
+        group: 'Demos',
       },
       {
         // Moving exyconn.com's DNS from GoDaddy to Cloudflare and switching its nameservers.

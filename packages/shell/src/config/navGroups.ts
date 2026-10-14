@@ -13,6 +13,7 @@ import EngineeringIcon from '@mui/icons-material/Engineering';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import DevicesOtherIcon from '@mui/icons-material/DevicesOther';
+import PlayCircleIcon from '@mui/icons-material/PlayCircle';
 import FolderSharedIcon from '@mui/icons-material/FolderShared';
 import GavelIcon from '@mui/icons-material/Gavel';
 import GroupsIcon from '@mui/icons-material/Groups';
@@ -46,6 +47,7 @@ export const NAV_GROUP_ICONS = {
   Communication: CampaignIcon,
   Configuration: TuneIcon,
   Content: ArticleIcon,
+  Demos: PlayCircleIcon,
   Directory: ContactsIcon,
   Estate: DevicesOtherIcon,
   Growth: TrendingUpIcon,

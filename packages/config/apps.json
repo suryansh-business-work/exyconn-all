@@ -107,11 +107,25 @@
     "title": "Social · Exyconn Track",
     "description": "Exyconn Track — the internal employee feed."
   },
+  "demos": {
+    "subdomain": "demos",
+    "port": 4040,
+    "title": "Exyconn Demos",
+    "description": "Try Exyconn's AI products live — a WhatsApp Business automation and an AI calling bot that talks in real time."
+  },
   "whatsapp-demo": {
-    "subdomain": "whatsapp-demo",
+    "subdomain": "demos",
+    "basePath": "/whatsapp-demo",
     "port": 4038,
-    "title": "WhatsApp Demo · Exyconn Track",
-    "description": "Exyconn Track — an interactive WhatsApp Business automation demo for client walkthroughs."
+    "title": "WhatsApp Demo · Exyconn",
+    "description": "An interactive WhatsApp Business automation demo: booking, ordering and support flows you can chat with."
+  },
+  "calling-bot-demo": {
+    "subdomain": "demos",
+    "basePath": "/calling-bot-demo",
+    "port": 4041,
+    "title": "AI Calling Bot Demo · Exyconn",
+    "description": "Talk to an AI voice agent in real time — in your browser or on your own phone — in English, Hindi and other Indian languages."
   },
   "status": {
     "subdomain": "status",

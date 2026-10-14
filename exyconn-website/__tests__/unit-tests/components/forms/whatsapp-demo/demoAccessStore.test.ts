@@ -60,13 +60,13 @@ describe("demo access store", () => {
 describe("demoChatsUrl", () => {
   it("hands the pass over in the fragment, encoded", () => {
     expect(demoChatsUrl({ ...ACCESS, token: "a b/c" })).toBe(
-      "https://demo.example/whatsapp-demo#visitor=a%20b%2Fc"
+      "https://demo.example/#visitor=a%20b%2Fc"
     );
   });
 
   it("does not double the slash after the address", () => {
     expect(demoChatsUrl({ ...ACCESS, demoUrl: "https://demo.example/" })).toBe(
-      "https://demo.example/whatsapp-demo#visitor=pass-1"
+      "https://demo.example/#visitor=pass-1"
     );
   });
 });

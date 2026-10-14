@@ -9,7 +9,7 @@ import { reply, serveSite } from "../forms.helpers";
 
 const KEY = "exyconn.whatsappDemo.access";
 const ACCESS = { token: "pass-1", demoUrl: "https://demo.example/", name: "Meera Iyer" };
-const CHATS_URL = "https://demo.example/whatsapp-demo#visitor=pass-1";
+const CHATS_URL = "https://demo.example/#visitor=pass-1";
 
 /** The code route accepts the lead; the verify route hands out the pass. */
 const serveDemo = () =>

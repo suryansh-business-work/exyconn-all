@@ -69,7 +69,7 @@ class OpenAiClient {
    * model it names. A key that works for a model this organisation is not entitled to would
    * otherwise pass a test here and fail on the first real request.
    */
-  async verify(config: OpenAiConfigDocument): Promise<void> {
+  async verify(config: Pick<OpenAiConfigDocument, 'apiKey' | 'defaultModel'>): Promise<void> {
     await this.request(config.apiKey, `/v1/models/${encodeURIComponent(config.defaultModel)}`);
   }
 

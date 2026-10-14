@@ -31,7 +31,16 @@ const THEME_COLOR = { light: "#ffffff", dark: "#09090b" };
 const BACKGROUND_COLOR = THEME_COLOR.light;
 
 /** The share image every portal shows in a link preview: the app icon, 512px square. */
-const SHARE_IMAGE = { path: "/pwa/icon-any-512.png", size: "512" };
+const SHARE_IMAGE = { path: "pwa/icon-any-512.png", size: "512" };
+
+/**
+ * The URL path an app is served under, with a trailing slash: `/` for an app at the root of its
+ * subdomain, `/whatsapp-demo/` for one that shares an origin (demos.exyconn.com) with others.
+ * It is Vite's `base`, so built assets, the favicon and the PWA all live under it.
+ */
+function appBase(app) {
+  return `${PORTAL_APPS[app].basePath ?? ""}/`;
+}
 
 /**
  * Where an app is served from: its subdomain of VITE_PORTAL_DOMAIN (set by the Docker build),
@@ -42,6 +51,9 @@ function appOrigin(app) {
   const domain = process.env.VITE_PORTAL_DOMAIN;
   return domain ? `https://${subdomain}.${domain}` : `http://localhost:${port}`;
 }
+
+/** The app's own address: its origin plus the path it is served under. */
+const appAddress = (app) => `${appOrigin(app)}${appBase(app)}`;
 
 const metaTag = (attr, key, content) => ({
   tag: "meta",
@@ -55,14 +67,14 @@ const metaTag = (attr, key, content) => ({
  */
 function shareTags(app) {
   const { title, description } = PORTAL_APPS[app];
-  const origin = appOrigin(app);
-  const image = `${origin}${SHARE_IMAGE.path}`;
+  const address = appAddress(app);
+  const image = `${address}${SHARE_IMAGE.path}`;
   return [
     metaTag("property", "og:type", "website"),
     metaTag("property", "og:site_name", PORTAL_APPS.hub.title),
     metaTag("property", "og:title", title),
     metaTag("property", "og:description", description),
-    metaTag("property", "og:url", `${origin}/`),
+    metaTag("property", "og:url", address),
     metaTag("property", "og:image", image),
     metaTag("property", "og:image:width", SHARE_IMAGE.size),
     metaTag("property", "og:image:height", SHARE_IMAGE.size),
@@ -81,6 +93,7 @@ function shareTags(app) {
  */
 function portalHtml(app) {
   const { title, description } = PORTAL_APPS[app];
+  const base = appBase(app);
   return {
     name: "exyconn:portal-html",
     transformIndexHtml: {
@@ -93,7 +106,7 @@ function portalHtml(app) {
             attrs: {
               rel: "icon",
               type: "image/svg+xml",
-              href: "/exyconn-icon.svg",
+              href: `${base}exyconn-icon.svg`,
             },
             injectTo: "head",
           },
@@ -132,7 +145,10 @@ function portalHtml(app) {
           })),
           {
             tag: "link",
-            attrs: { rel: "apple-touch-icon", href: "/pwa/icon-any-192.png" },
+            attrs: {
+              rel: "apple-touch-icon",
+              href: `${base}pwa/icon-any-192.png`,
+            },
             injectTo: "head",
           },
           {
@@ -182,6 +198,7 @@ function shortName(app) {
  */
 function portalPwa(app) {
   const { title, description } = PORTAL_APPS[app];
+  const base = appBase(app);
   return VitePWA({
     registerType: "prompt",
     // The shell registers the worker itself (packages/shell/src/pwa), through the browser's
@@ -192,22 +209,30 @@ function portalPwa(app) {
       name: title,
       short_name: shortName(app),
       description,
-      start_url: "/",
-      scope: "/",
+      start_url: base,
+      scope: base,
       display: "standalone",
       theme_color: THEME_COLOR.light,
       background_color: BACKGROUND_COLOR,
       icons: [
-        { src: "/pwa/icon-any-192.png", sizes: "192x192", type: "image/png" },
-        { src: "/pwa/icon-any-512.png", sizes: "512x512", type: "image/png" },
         {
-          src: "/pwa/icon-maskable-192.png",
+          src: `${base}pwa/icon-any-192.png`,
+          sizes: "192x192",
+          type: "image/png",
+        },
+        {
+          src: `${base}pwa/icon-any-512.png`,
+          sizes: "512x512",
+          type: "image/png",
+        },
+        {
+          src: `${base}pwa/icon-maskable-192.png`,
           sizes: "192x192",
           type: "image/png",
           purpose: "maskable",
         },
         {
-          src: "/pwa/icon-maskable-512.png",
+          src: `${base}pwa/icon-maskable-512.png`,
           sizes: "512x512",
           type: "image/png",
           purpose: "maskable",
@@ -216,10 +241,13 @@ function portalPwa(app) {
     },
     workbox: {
       // The router is client-side, so every in-app URL falls back to the shell.
-      navigateFallback: "/index.html",
+      navigateFallback: `${base}index.html`,
       // Never the API, and never the login round trip.
       navigateFallbackDenylist: [/^\/graphql/, /^\/api/],
       globPatterns: ["**/*.{js,css,html,svg,png,woff2}"],
+      // The code editor (Monaco and its language workers, ~4 MB) loads only when a code field
+      // opens; precaching it would make every install download it.
+      globIgnores: ["**/MonacoPane-*", "**/*.worker-*.js"],
       // The bundles are large and hashed; an outdated one is dead weight in the cache.
       maximumFileSizeToCacheInBytes: 6 * 1024 * 1024,
       cleanupOutdatedCaches: true,
@@ -255,6 +283,7 @@ export function portalViteConfig(app) {
     );
   }
   return {
+    base: appBase(app),
     plugins: [react(), portalHtml(app), portalPwa(app)],
     publicDir: shellPublic,
     resolve: {

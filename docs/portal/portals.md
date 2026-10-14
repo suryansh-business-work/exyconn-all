@@ -32,7 +32,7 @@ running identical code.
 | IT                     | `it`         | https://it.exyconn.com         | https://it.exyconn.com/login         | 4034     | `IT`         |
 | Compliance             | `compliance` | https://compliance.exyconn.com | https://compliance.exyconn.com/login | 4037     | `COMPLIANCE` |
 | Social                 | `social`     | https://social.exyconn.com     | https://social.exyconn.com/login     | 4036     | `EMPLOYEE`   |
-| WhatsApp Demo          | `whatsapp-demo` | https://whatsapp-demo.exyconn.com | https://whatsapp-demo.exyconn.com/login | 4038 | `EMPLOYEE` |
+| WhatsApp Demo          | `whatsapp-demo` | https://demos.exyconn.com/whatsapp-demo/ | https://demos.exyconn.com/whatsapp-demo/login | 4038 | `EMPLOYEE` |
 | Client Hub             | `clienthub`     | https://clienthub.exyconn.com     | https://clienthub.exyconn.com/login     | 4039 | client contacts (email code) |
 
 Not portal apps, but part of the same deployment:

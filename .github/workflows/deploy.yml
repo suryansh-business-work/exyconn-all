@@ -217,9 +217,29 @@ jobs:
             context: .
             build_args: |
               APP_PKG=@exyconn/portal-app-whatsapp-demo
-              APP_DIR=exyconn-portal/apps/whatsapp-demo
+              APP_DIR=demos/whatsapp-demo/ui
               PORT=4038
               VITE_PORTAL_APP=whatsapp-demo
+          - service: demos-hub
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/demos-hub
+              APP_DIR=demos/hub
+              PORT=4040
+              VITE_PORTAL_APP=demos
+          - service: calling-bot-demo
+            dockerfile: docker/portal-app.Dockerfile
+            context: .
+            build_args: |
+              APP_PKG=@exyconn/calling-bot-demo-ui
+              APP_DIR=demos/calling-bot-demo/ui
+              PORT=4041
+              VITE_PORTAL_APP=calling-bot-demo
+          - service: calling-bot-voice
+            dockerfile: docker/calling-bot-voice.Dockerfile
+            context: .
+            build_args: ''
           - service: portal-clienthub
             dockerfile: docker/portal-app.Dockerfile
             context: .
@@ -427,7 +447,10 @@ jobs:
             "https://it.exyconn.com"
             "https://compliance.exyconn.com"
             "https://social.exyconn.com"
-            "https://whatsapp-demo.exyconn.com"
+            "https://demos.exyconn.com"
+            "https://demos.exyconn.com/whatsapp-demo/"
+            "https://demos.exyconn.com/calling-bot-demo/"
+            "https://demos.exyconn.com/calling-bot-demo/api/health"
             "https://clienthub.exyconn.com"
             "https://status.exyconn.com"
             "https://hr.exyconn.com"

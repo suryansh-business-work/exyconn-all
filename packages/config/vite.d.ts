@@ -4,6 +4,8 @@ import type appsRegistry from './apps.json';
 /** Registry entry describing where one micro-frontend is served and how its page is titled. */
 export interface PortalAppEntry {
   subdomain: string;
+  /** The path the app is mounted at on its origin (`/whatsapp-demo` on demos.exyconn.com); none at the root. */
+  basePath?: string;
   port: number;
   title: string;
   description: string;

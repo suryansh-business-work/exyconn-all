@@ -1176,6 +1176,124 @@ export enum BugStatus {
   Resolved = 'RESOLVED'
 }
 
+/** Whether the demo can take a call right now, and to a real phone. */
+export type CallingBotAvailability = {
+  __typename?: 'CallingBotAvailability';
+  available: Scalars['Boolean']['output'];
+  languageCode?: Maybe<Scalars['String']['output']>;
+  maxCallSeconds?: Maybe<Scalars['Int']['output']>;
+  phoneEnabled: Scalars['Boolean']['output'];
+};
+
+/** One call with the bot. */
+export type CallingBotCall = {
+  __typename?: 'CallingBotCall';
+  answeredAt?: Maybe<Scalars['DateTime']['output']>;
+  callerEmail: Scalars['String']['output'];
+  callerName: Scalars['String']['output'];
+  channel: CallingBotChannel;
+  createdAt: Scalars['DateTime']['output'];
+  /** Why the call ended. */
+  endReason: Scalars['String']['output'];
+  endedAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  languageCode: Scalars['String']['output'];
+  /** The number a phone call rang; empty for a browser call. */
+  phone: Scalars['String']['output'];
+  status: CallingBotCallStatus;
+  transcript: Array<CallingBotTurn>;
+};
+
+/** A call just asked for. A browser call opens its audio on socketUrl, which works once and briefly. */
+export type CallingBotCallStart = {
+  __typename?: 'CallingBotCallStart';
+  call: CallingBotCall;
+  socketUrl?: Maybe<Scalars['String']['output']>;
+};
+
+export enum CallingBotCallStatus {
+  Ended = 'ENDED',
+  Failed = 'FAILED',
+  Live = 'LIVE',
+  Ringing = 'RINGING',
+  Starting = 'STARTING'
+}
+
+export enum CallingBotChannel {
+  Browser = 'BROWSER',
+  Phone = 'PHONE'
+}
+
+/** The calling bot demo's settings (Tech > Demos > Calling bot). Keys are write-only. */
+export type CallingBotConfig = {
+  __typename?: 'CallingBotConfig';
+  createdAt: Scalars['DateTime']['output'];
+  /** The first thing the bot says. */
+  greeting: Scalars['String']['output'];
+  /** Whether an OpenAI key is stored; the key itself is never returned. */
+  hasOpenAiApiKey: Scalars['Boolean']['output'];
+  /** Whether a Sarvam AI key is stored; the key itself is never returned. */
+  hasSarvamApiKey: Scalars['Boolean']['output'];
+  /** Whether a Vobiz Auth Token is stored; the token itself is never returned. */
+  hasVobizAuthToken: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  /** The language of the call, e.g. hi-IN. */
+  languageCode: Scalars['String']['output'];
+  /** A call is hung up after this many seconds. */
+  maxCallSeconds: Scalars['Int']['output'];
+  openAiApiKeyHint?: Maybe<Scalars['String']['output']>;
+  /** A fast chat model, e.g. gpt-4o-mini. */
+  openAiModel: Scalars['String']['output'];
+  /** Whether calls to a real phone can be placed: every Vobiz field is filled in. */
+  phoneEnabled: Scalars['Boolean']['output'];
+  sarvamApiKeyHint?: Maybe<Scalars['String']['output']>;
+  /** Who the bot is and how it talks. */
+  systemPrompt: Scalars['String']['output'];
+  /** Sarvam text-to-speech model, e.g. bulbul:v2. */
+  ttsModel: Scalars['String']['output'];
+  /** Sarvam voice, e.g. anushka. */
+  ttsSpeaker: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  vobizAuthId: Scalars['String']['output'];
+  /** The number phone calls are placed from, in E.164. */
+  vobizNumber: Scalars['String']['output'];
+};
+
+export type CallingBotConfigInput = {
+  greeting: Scalars['String']['input'];
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+  languageCode: Scalars['String']['input'];
+  maxCallSeconds: Scalars['Int']['input'];
+  /** Write-only. Leave empty when editing to keep the stored key. */
+  openAiApiKey: Scalars['String']['input'];
+  openAiModel: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored key. */
+  sarvamApiKey: Scalars['String']['input'];
+  systemPrompt: Scalars['String']['input'];
+  ttsModel: Scalars['String']['input'];
+  ttsSpeaker: Scalars['String']['input'];
+  vobizAuthId: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored token. */
+  vobizAuthToken: Scalars['String']['input'];
+  vobizNumber: Scalars['String']['input'];
+};
+
+/** One thing said on a call. */
+export type CallingBotTurn = {
+  __typename?: 'CallingBotTurn';
+  at: Scalars['DateTime']['output'];
+  role: CallingBotTurnRole;
+  text: Scalars['String']['output'];
+};
+
+export enum CallingBotTurnRole {
+  Bot = 'BOT',
+  Caller = 'CALLER'
+}
+
 export type Campaign = {
   __typename?: 'Campaign';
   body?: Maybe<Scalars['String']['output']>;
@@ -2976,6 +3094,14 @@ export type EmployeeLicenceSeat = {
   renewalDate: Scalars['DateTime']['output'];
   status: LicenceStatus;
   vendor: Scalars['String']['output'];
+};
+
+/** A person as records name them; isActive is false once the account is deactivated or deleted. */
+export type EmployeeName = {
+  __typename?: 'EmployeeName';
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
 };
 
 /** Just enough of an active employee to put them in a picker — readable by any signed-in user. */
@@ -5188,6 +5314,7 @@ export type Mutation = {
   createBlogPost: BlogPost;
   createBudget: Budget;
   createBug: Bug;
+  createCallingBotConfig: CallingBotConfig;
   createCampaign: Campaign;
   createCannedReply: CannedReply;
   createCaseStudy: CaseStudy;
@@ -5352,6 +5479,7 @@ export type Mutation = {
   deleteBlogPost: Scalars['Boolean']['output'];
   deleteBudget: Scalars['Boolean']['output'];
   deleteBug: Scalars['Boolean']['output'];
+  deleteCallingBotConfig: Scalars['Boolean']['output'];
   deleteCampaign: Scalars['Boolean']['output'];
   deleteCannedReply: Scalars['Boolean']['output'];
   deleteCaseStudy: Scalars['Boolean']['output'];
@@ -5742,6 +5870,7 @@ export type Mutation = {
   socialMediaIdeas: Scalars['String']['output'];
   /** AI: what worked, what did not, and what to try, from the last days' posts. */
   socialMediaInsights: Scalars['String']['output'];
+  startCallingBotCall: CallingBotCallStart;
   /** Mints a secret and returns what an authenticator app needs. Nothing is switched on yet. */
   startMfaEnrolment: MfaEnrolment;
   /**
@@ -5779,6 +5908,8 @@ export type Mutation = {
   syncSocialAccount: SocialSyncResult;
   /** Re-reads exyconn.com (pages, blog posts, case studies) into the knowledge bot. */
   syncWebsiteChatKnowledge: WebsiteChatSyncResult;
+  /** Checks the OpenAI key and model, and the Sarvam key, language and voice. */
+  testCallingBotConfig: Scalars['Boolean']['output'];
   testCloudflareConnection: Scalars['Boolean']['output'];
   testGithubConnection: Scalars['Boolean']['output'];
   testGodaddyConnection: Scalars['Boolean']['output'];
@@ -5862,6 +5993,7 @@ export type Mutation = {
   updateBranding: Branding;
   updateBudget: Budget;
   updateBug: Bug;
+  updateCallingBotConfig: CallingBotConfig;
   updateCampaign: Campaign;
   updateCannedReply: CannedReply;
   updateCaseStudy: CaseStudy;
@@ -6224,6 +6356,11 @@ export type MutationCreateBudgetArgs = {
 
 export type MutationCreateBugArgs = {
   input: BugInput;
+};
+
+
+export type MutationCreateCallingBotConfigArgs = {
+  input: CallingBotConfigInput;
 };
 
 
@@ -6896,6 +7033,11 @@ export type MutationDeleteBudgetArgs = {
 
 
 export type MutationDeleteBugArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteCallingBotConfigArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -8066,6 +8208,11 @@ export type MutationSocialMediaInsightsArgs = {
 };
 
 
+export type MutationStartCallingBotCallArgs = {
+  input: StartCallingBotCallInput;
+};
+
+
 export type MutationStartOnboardingArgs = {
   employeeId: Scalars['ID']['input'];
   templateId: Scalars['ID']['input'];
@@ -8118,6 +8265,11 @@ export type MutationSubscribeToStatusArgs = {
 
 
 export type MutationSyncSocialAccountArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestCallingBotConfigArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -8345,6 +8497,12 @@ export type MutationUpdateBudgetArgs = {
 export type MutationUpdateBugArgs = {
   id: Scalars['ID']['input'];
   input: BugInput;
+};
+
+
+export type MutationUpdateCallingBotConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: CallingBotConfigInput;
 };
 
 
@@ -10543,6 +10701,12 @@ export type Query = {
    * days they fall on. Every month the window touches counts in full.
    */
   budgetVsActual: Array<BudgetVariance>;
+  callingBotAvailability: CallingBotAvailability;
+  /** One of the caller's own calls, to follow it as it happens. */
+  callingBotCall: CallingBotCall;
+  callingBotConfigs: Array<CallingBotConfig>;
+  /** The most recent calls, newest first. */
+  callingBotRecentCalls: Array<CallingBotCall>;
   /** Leads per campaign, most productive first — the overview's attribution figures. */
   campaignLeadCounts: Array<CampaignLeadCount>;
   campaignMetrics: CampaignMetrics;
@@ -10842,6 +11006,8 @@ export type Query = {
   listEmployeeDocuments: Array<EmployeeDocument>;
   listEmployeeDocumentsPaged: EmployeeDocumentPage;
   listEmployeeDocumentsStats: TableStats;
+  /** Every person's name, deleted accounts included, to show whose a record is. */
+  listEmployeeNames: Array<EmployeeName>;
   /** Active employees for pickers in any portal; the full employee record stays HR's (listUsers). */
   listEmployeeOptions: Array<EmployeeOption>;
   listEmployeeRequests: Array<EmployeeRequest>;
@@ -11422,6 +11588,16 @@ export type QueryAudienceMembersArgs = {
 export type QueryBudgetVsActualArgs = {
   from: Scalars['DateTime']['input'];
   to: Scalars['DateTime']['input'];
+};
+
+
+export type QueryCallingBotCallArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryCallingBotRecentCallsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -14058,6 +14234,12 @@ export enum SslCertificateStatus {
   Ok = 'OK',
   Unreachable = 'UNREACHABLE'
 }
+
+export type StartCallingBotCallInput = {
+  channel: CallingBotChannel;
+  /** The number to ring, in E.164; phone calls only. */
+  phone?: InputMaybe<Scalars['String']['input']>;
+};
 
 export type StatBucket = {
   __typename?: 'StatBucket';
@@ -16719,6 +16901,15 @@ export type ResolversTypes = ResolversObject<{
   BugPage: ResolverTypeWrapper<BugPage>;
   BugSeverity: BugSeverity;
   BugStatus: BugStatus;
+  CallingBotAvailability: ResolverTypeWrapper<CallingBotAvailability>;
+  CallingBotCall: ResolverTypeWrapper<CallingBotCall>;
+  CallingBotCallStart: ResolverTypeWrapper<CallingBotCallStart>;
+  CallingBotCallStatus: CallingBotCallStatus;
+  CallingBotChannel: CallingBotChannel;
+  CallingBotConfig: ResolverTypeWrapper<CallingBotConfig>;
+  CallingBotConfigInput: CallingBotConfigInput;
+  CallingBotTurn: ResolverTypeWrapper<CallingBotTurn>;
+  CallingBotTurnRole: CallingBotTurnRole;
   Campaign: ResolverTypeWrapper<Campaign>;
   CampaignChannel: CampaignChannel;
   CampaignInput: CampaignInput;
@@ -16880,6 +17071,7 @@ export type ResolversTypes = ResolversObject<{
   EmployeeDocumentInput: EmployeeDocumentInput;
   EmployeeDocumentPage: ResolverTypeWrapper<EmployeeDocumentPage>;
   EmployeeLicenceSeat: ResolverTypeWrapper<EmployeeLicenceSeat>;
+  EmployeeName: ResolverTypeWrapper<EmployeeName>;
   EmployeeOption: ResolverTypeWrapper<EmployeeOption>;
   EmployeeRequest: ResolverTypeWrapper<EmployeeRequest>;
   EmployeeRequestInput: EmployeeRequestInput;
@@ -17284,6 +17476,7 @@ export type ResolversTypes = ResolversObject<{
   SslCertificate: ResolverTypeWrapper<SslCertificate>;
   SslCertificateReport: ResolverTypeWrapper<SslCertificateReport>;
   SslCertificateStatus: SslCertificateStatus;
+  StartCallingBotCallInput: StartCallingBotCallInput;
   StatBucket: ResolverTypeWrapper<StatBucket>;
   StatFieldCounts: ResolverTypeWrapper<StatFieldCounts>;
   StatFieldSum: ResolverTypeWrapper<StatFieldSum>;
@@ -17568,6 +17761,12 @@ export type ResolversParentTypes = ResolversObject<{
   Bug: Bug;
   BugInput: BugInput;
   BugPage: BugPage;
+  CallingBotAvailability: CallingBotAvailability;
+  CallingBotCall: CallingBotCall;
+  CallingBotCallStart: CallingBotCallStart;
+  CallingBotConfig: CallingBotConfig;
+  CallingBotConfigInput: CallingBotConfigInput;
+  CallingBotTurn: CallingBotTurn;
   Campaign: Campaign;
   CampaignInput: CampaignInput;
   CampaignLeadCount: CampaignLeadCount;
@@ -17707,6 +17906,7 @@ export type ResolversParentTypes = ResolversObject<{
   EmployeeDocumentInput: EmployeeDocumentInput;
   EmployeeDocumentPage: EmployeeDocumentPage;
   EmployeeLicenceSeat: EmployeeLicenceSeat;
+  EmployeeName: EmployeeName;
   EmployeeOption: EmployeeOption;
   EmployeeRequest: EmployeeRequest;
   EmployeeRequestInput: EmployeeRequestInput;
@@ -18022,6 +18222,7 @@ export type ResolversParentTypes = ResolversObject<{
   SprintInput: SprintInput;
   SslCertificate: SslCertificate;
   SslCertificateReport: SslCertificateReport;
+  StartCallingBotCallInput: StartCallingBotCallInput;
   StatBucket: StatBucket;
   StatFieldCounts: StatFieldCounts;
   StatFieldSum: StatFieldSum;
@@ -18821,6 +19022,67 @@ export type BugResolvers<ContextType = GraphQLContext, ParentType extends Resolv
 export type BugPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['BugPage'] = ResolversParentTypes['BugPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['Bug']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CallingBotAvailabilityResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CallingBotAvailability'] = ResolversParentTypes['CallingBotAvailability']> = ResolversObject<{
+  available?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  languageCode?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  maxCallSeconds?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  phoneEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CallingBotCallResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CallingBotCall'] = ResolversParentTypes['CallingBotCall']> = ResolversObject<{
+  answeredAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  callerEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  callerName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  channel?: Resolver<ResolversTypes['CallingBotChannel'], ParentType, ContextType>;
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  endReason?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  endedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  languageCode?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['CallingBotCallStatus'], ParentType, ContextType>;
+  transcript?: Resolver<Array<ResolversTypes['CallingBotTurn']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CallingBotCallStartResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CallingBotCallStart'] = ResolversParentTypes['CallingBotCallStart']> = ResolversObject<{
+  call?: Resolver<ResolversTypes['CallingBotCall'], ParentType, ContextType>;
+  socketUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CallingBotConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CallingBotConfig'] = ResolversParentTypes['CallingBotConfig']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  greeting?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  hasOpenAiApiKey?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  hasSarvamApiKey?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  hasVobizAuthToken?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  languageCode?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  maxCallSeconds?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  openAiApiKeyHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  openAiModel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  phoneEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  sarvamApiKeyHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  systemPrompt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ttsModel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ttsSpeaker?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  vobizAuthId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  vobizNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CallingBotTurnResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CallingBotTurn'] = ResolversParentTypes['CallingBotTurn']> = ResolversObject<{
+  at?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  role?: Resolver<ResolversTypes['CallingBotTurnRole'], ParentType, ContextType>;
+  text?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -19910,6 +20172,13 @@ export type EmployeeLicenceSeatResolvers<ContextType = GraphQLContext, ParentTyp
   renewalDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['LicenceStatus'], ParentType, ContextType>;
   vendor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type EmployeeNameResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['EmployeeName'] = ResolversParentTypes['EmployeeName']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -21091,6 +21360,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createBlogPost?: Resolver<ResolversTypes['BlogPost'], ParentType, ContextType, RequireFields<MutationCreateBlogPostArgs, 'input'>>;
   createBudget?: Resolver<ResolversTypes['Budget'], ParentType, ContextType, RequireFields<MutationCreateBudgetArgs, 'input'>>;
   createBug?: Resolver<ResolversTypes['Bug'], ParentType, ContextType, RequireFields<MutationCreateBugArgs, 'input'>>;
+  createCallingBotConfig?: Resolver<ResolversTypes['CallingBotConfig'], ParentType, ContextType, RequireFields<MutationCreateCallingBotConfigArgs, 'input'>>;
   createCampaign?: Resolver<ResolversTypes['Campaign'], ParentType, ContextType, RequireFields<MutationCreateCampaignArgs, 'input'>>;
   createCannedReply?: Resolver<ResolversTypes['CannedReply'], ParentType, ContextType, RequireFields<MutationCreateCannedReplyArgs, 'input'>>;
   createCaseStudy?: Resolver<ResolversTypes['CaseStudy'], ParentType, ContextType, RequireFields<MutationCreateCaseStudyArgs, 'input'>>;
@@ -21220,6 +21490,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteBlogPost?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBlogPostArgs, 'id'>>;
   deleteBudget?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBudgetArgs, 'id'>>;
   deleteBug?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBugArgs, 'id'>>;
+  deleteCallingBotConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCallingBotConfigArgs, 'id'>>;
   deleteCampaign?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCampaignArgs, 'id'>>;
   deleteCannedReply?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCannedReplyArgs, 'id'>>;
   deleteCaseStudy?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCaseStudyArgs, 'id'>>;
@@ -21441,6 +21712,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   signContractWithToken?: Resolver<ResolversTypes['ContractSignedReceipt'], ParentType, ContextType, RequireFields<MutationSignContractWithTokenArgs, 'signedName' | 'token'>>;
   socialMediaIdeas?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSocialMediaIdeasArgs, 'count' | 'topic'>>;
   socialMediaInsights?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSocialMediaInsightsArgs, 'days'>>;
+  startCallingBotCall?: Resolver<ResolversTypes['CallingBotCallStart'], ParentType, ContextType, RequireFields<MutationStartCallingBotCallArgs, 'input'>>;
   startMfaEnrolment?: Resolver<ResolversTypes['MfaEnrolment'], ParentType, ContextType>;
   startOnboarding?: Resolver<ResolversTypes['OnboardingChecklist'], ParentType, ContextType, RequireFields<MutationStartOnboardingArgs, 'employeeId' | 'templateId'>>;
   startSocialConnect?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationStartSocialConnectArgs, 'app'>>;
@@ -21454,6 +21726,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   syncAllSocialAccounts?: Resolver<Array<ResolversTypes['SocialSyncResult']>, ParentType, ContextType>;
   syncSocialAccount?: Resolver<ResolversTypes['SocialSyncResult'], ParentType, ContextType, RequireFields<MutationSyncSocialAccountArgs, 'id'>>;
   syncWebsiteChatKnowledge?: Resolver<ResolversTypes['WebsiteChatSyncResult'], ParentType, ContextType>;
+  testCallingBotConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestCallingBotConfigArgs, 'id'>>;
   testCloudflareConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestCloudflareConnectionArgs, 'id'>>;
   testGithubConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGithubConnectionArgs, 'id'>>;
   testGodaddyConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGodaddyConnectionArgs, 'id'>>;
@@ -21495,6 +21768,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateBranding?: Resolver<ResolversTypes['Branding'], ParentType, ContextType, RequireFields<MutationUpdateBrandingArgs, 'input'>>;
   updateBudget?: Resolver<ResolversTypes['Budget'], ParentType, ContextType, RequireFields<MutationUpdateBudgetArgs, 'id' | 'input'>>;
   updateBug?: Resolver<ResolversTypes['Bug'], ParentType, ContextType, RequireFields<MutationUpdateBugArgs, 'id' | 'input'>>;
+  updateCallingBotConfig?: Resolver<ResolversTypes['CallingBotConfig'], ParentType, ContextType, RequireFields<MutationUpdateCallingBotConfigArgs, 'id' | 'input'>>;
   updateCampaign?: Resolver<ResolversTypes['Campaign'], ParentType, ContextType, RequireFields<MutationUpdateCampaignArgs, 'id' | 'input'>>;
   updateCannedReply?: Resolver<ResolversTypes['CannedReply'], ParentType, ContextType, RequireFields<MutationUpdateCannedReplyArgs, 'id' | 'input'>>;
   updateCaseStudy?: Resolver<ResolversTypes['CaseStudy'], ParentType, ContextType, RequireFields<MutationUpdateCaseStudyArgs, 'id' | 'input'>>;
@@ -22392,6 +22666,10 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   backgroundJobs?: Resolver<Array<ResolversTypes['BackgroundJob']>, ParentType, ContextType>;
   branding?: Resolver<ResolversTypes['Branding'], ParentType, ContextType>;
   budgetVsActual?: Resolver<Array<ResolversTypes['BudgetVariance']>, ParentType, ContextType, RequireFields<QueryBudgetVsActualArgs, 'from' | 'to'>>;
+  callingBotAvailability?: Resolver<ResolversTypes['CallingBotAvailability'], ParentType, ContextType>;
+  callingBotCall?: Resolver<ResolversTypes['CallingBotCall'], ParentType, ContextType, RequireFields<QueryCallingBotCallArgs, 'id'>>;
+  callingBotConfigs?: Resolver<Array<ResolversTypes['CallingBotConfig']>, ParentType, ContextType>;
+  callingBotRecentCalls?: Resolver<Array<ResolversTypes['CallingBotCall']>, ParentType, ContextType, Partial<QueryCallingBotRecentCallsArgs>>;
   campaignLeadCounts?: Resolver<Array<ResolversTypes['CampaignLeadCount']>, ParentType, ContextType>;
   campaignMetrics?: Resolver<ResolversTypes['CampaignMetrics'], ParentType, ContextType, RequireFields<QueryCampaignMetricsArgs, 'campaignId'>>;
   campaignOptions?: Resolver<Array<ResolversTypes['CampaignOption']>, ParentType, ContextType>;
@@ -22628,6 +22906,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   listEmployeeDocuments?: Resolver<Array<ResolversTypes['EmployeeDocument']>, ParentType, ContextType>;
   listEmployeeDocumentsPaged?: Resolver<ResolversTypes['EmployeeDocumentPage'], ParentType, ContextType, RequireFields<QueryListEmployeeDocumentsPagedArgs, 'input'>>;
   listEmployeeDocumentsStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
+  listEmployeeNames?: Resolver<Array<ResolversTypes['EmployeeName']>, ParentType, ContextType>;
   listEmployeeOptions?: Resolver<Array<ResolversTypes['EmployeeOption']>, ParentType, ContextType>;
   listEmployeeRequests?: Resolver<Array<ResolversTypes['EmployeeRequest']>, ParentType, ContextType>;
   listEmployeeRequestsPaged?: Resolver<ResolversTypes['EmployeeRequestPage'], ParentType, ContextType, RequireFields<QueryListEmployeeRequestsPagedArgs, 'input'>>;
@@ -25020,6 +25299,11 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   BudgetVariance?: BudgetVarianceResolvers<ContextType>;
   Bug?: BugResolvers<ContextType>;
   BugPage?: BugPageResolvers<ContextType>;
+  CallingBotAvailability?: CallingBotAvailabilityResolvers<ContextType>;
+  CallingBotCall?: CallingBotCallResolvers<ContextType>;
+  CallingBotCallStart?: CallingBotCallStartResolvers<ContextType>;
+  CallingBotConfig?: CallingBotConfigResolvers<ContextType>;
+  CallingBotTurn?: CallingBotTurnResolvers<ContextType>;
   Campaign?: CampaignResolvers<ContextType>;
   CampaignLeadCount?: CampaignLeadCountResolvers<ContextType>;
   CampaignLinkStat?: CampaignLinkStatResolvers<ContextType>;
@@ -25126,6 +25410,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   EmployeeDocument?: EmployeeDocumentResolvers<ContextType>;
   EmployeeDocumentPage?: EmployeeDocumentPageResolvers<ContextType>;
   EmployeeLicenceSeat?: EmployeeLicenceSeatResolvers<ContextType>;
+  EmployeeName?: EmployeeNameResolvers<ContextType>;
   EmployeeOption?: EmployeeOptionResolvers<ContextType>;
   EmployeeRequest?: EmployeeRequestResolvers<ContextType>;
   EmployeeRequestPage?: EmployeeRequestPageResolvers<ContextType>;

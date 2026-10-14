@@ -20,6 +20,7 @@
   "dependencies": {
     "@apollo/server": "^4.11.3",
     "@escape.tech/graphql-armor": "^3.2.0",
+    "@exyconn/calling-bot-demo-server": "workspace:*",
     "@exyconn/cms": "workspace:*",
     "@exyconn/wa-flow": "workspace:*",
     "argon2": "^0.45.1",

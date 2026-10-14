@@ -21,7 +21,7 @@ import { NotificationsPage } from '@/pages/Notifications';
 import { ApprovalsPage } from '@/pages/Approvals';
 import { RouteLogger } from '@/logging/RouteLogger';
 import { OfflineBanner, PwaUpdateBanner } from '@/pwa';
-import { ORGANIZATION_BASENAME } from '@/config/organizationPath';
+import { ROUTER_BASENAME } from '@/config/organizationPath';
 import { OrganizationUrlSync } from '@/routes/OrganizationUrlSync';
 
 /**
@@ -86,7 +86,7 @@ export function PortalApp({
                 <PwaUpdateBanner />
                 {/* Every address names its company (`/organization/:slug/...`); the prefix is
                     the basename, so the routes below are written without it. */}
-                <BrowserRouter basename={ORGANIZATION_BASENAME}>
+                <BrowserRouter basename={ROUTER_BASENAME}>
                   <RouteLogger />
                   <AuthProvider>
                     <OrganizationUrlSync />

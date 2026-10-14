@@ -1177,6 +1177,124 @@ export enum BugStatus {
   Resolved = 'RESOLVED'
 }
 
+/** Whether the demo can take a call right now, and to a real phone. */
+export type CallingBotAvailability = {
+  __typename?: 'CallingBotAvailability';
+  available: Scalars['Boolean']['output'];
+  languageCode?: Maybe<Scalars['String']['output']>;
+  maxCallSeconds?: Maybe<Scalars['Int']['output']>;
+  phoneEnabled: Scalars['Boolean']['output'];
+};
+
+/** One call with the bot. */
+export type CallingBotCall = {
+  __typename?: 'CallingBotCall';
+  answeredAt?: Maybe<Scalars['DateTime']['output']>;
+  callerEmail: Scalars['String']['output'];
+  callerName: Scalars['String']['output'];
+  channel: CallingBotChannel;
+  createdAt: Scalars['DateTime']['output'];
+  /** Why the call ended. */
+  endReason: Scalars['String']['output'];
+  endedAt?: Maybe<Scalars['DateTime']['output']>;
+  id: Scalars['ID']['output'];
+  languageCode: Scalars['String']['output'];
+  /** The number a phone call rang; empty for a browser call. */
+  phone: Scalars['String']['output'];
+  status: CallingBotCallStatus;
+  transcript: Array<CallingBotTurn>;
+};
+
+/** A call just asked for. A browser call opens its audio on socketUrl, which works once and briefly. */
+export type CallingBotCallStart = {
+  __typename?: 'CallingBotCallStart';
+  call: CallingBotCall;
+  socketUrl?: Maybe<Scalars['String']['output']>;
+};
+
+export enum CallingBotCallStatus {
+  Ended = 'ENDED',
+  Failed = 'FAILED',
+  Live = 'LIVE',
+  Ringing = 'RINGING',
+  Starting = 'STARTING'
+}
+
+export enum CallingBotChannel {
+  Browser = 'BROWSER',
+  Phone = 'PHONE'
+}
+
+/** The calling bot demo's settings (Tech > Demos > Calling bot). Keys are write-only. */
+export type CallingBotConfig = {
+  __typename?: 'CallingBotConfig';
+  createdAt: Scalars['DateTime']['output'];
+  /** The first thing the bot says. */
+  greeting: Scalars['String']['output'];
+  /** Whether an OpenAI key is stored; the key itself is never returned. */
+  hasOpenAiApiKey: Scalars['Boolean']['output'];
+  /** Whether a Sarvam AI key is stored; the key itself is never returned. */
+  hasSarvamApiKey: Scalars['Boolean']['output'];
+  /** Whether a Vobiz Auth Token is stored; the token itself is never returned. */
+  hasVobizAuthToken: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  /** The language of the call, e.g. hi-IN. */
+  languageCode: Scalars['String']['output'];
+  /** A call is hung up after this many seconds. */
+  maxCallSeconds: Scalars['Int']['output'];
+  openAiApiKeyHint?: Maybe<Scalars['String']['output']>;
+  /** A fast chat model, e.g. gpt-4o-mini. */
+  openAiModel: Scalars['String']['output'];
+  /** Whether calls to a real phone can be placed: every Vobiz field is filled in. */
+  phoneEnabled: Scalars['Boolean']['output'];
+  sarvamApiKeyHint?: Maybe<Scalars['String']['output']>;
+  /** Who the bot is and how it talks. */
+  systemPrompt: Scalars['String']['output'];
+  /** Sarvam text-to-speech model, e.g. bulbul:v2. */
+  ttsModel: Scalars['String']['output'];
+  /** Sarvam voice, e.g. anushka. */
+  ttsSpeaker: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  vobizAuthId: Scalars['String']['output'];
+  /** The number phone calls are placed from, in E.164. */
+  vobizNumber: Scalars['String']['output'];
+};
+
+export type CallingBotConfigInput = {
+  greeting: Scalars['String']['input'];
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+  languageCode: Scalars['String']['input'];
+  maxCallSeconds: Scalars['Int']['input'];
+  /** Write-only. Leave empty when editing to keep the stored key. */
+  openAiApiKey: Scalars['String']['input'];
+  openAiModel: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored key. */
+  sarvamApiKey: Scalars['String']['input'];
+  systemPrompt: Scalars['String']['input'];
+  ttsModel: Scalars['String']['input'];
+  ttsSpeaker: Scalars['String']['input'];
+  vobizAuthId: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored token. */
+  vobizAuthToken: Scalars['String']['input'];
+  vobizNumber: Scalars['String']['input'];
+};
+
+/** One thing said on a call. */
+export type CallingBotTurn = {
+  __typename?: 'CallingBotTurn';
+  at: Scalars['DateTime']['output'];
+  role: CallingBotTurnRole;
+  text: Scalars['String']['output'];
+};
+
+export enum CallingBotTurnRole {
+  Bot = 'BOT',
+  Caller = 'CALLER'
+}
+
 export type Campaign = {
   __typename?: 'Campaign';
   body?: Maybe<Scalars['String']['output']>;
@@ -2977,6 +3095,14 @@ export type EmployeeLicenceSeat = {
   renewalDate: Scalars['DateTime']['output'];
   status: LicenceStatus;
   vendor: Scalars['String']['output'];
+};
+
+/** A person as records name them; isActive is false once the account is deactivated or deleted. */
+export type EmployeeName = {
+  __typename?: 'EmployeeName';
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
 };
 
 /** Just enough of an active employee to put them in a picker — readable by any signed-in user. */
@@ -5189,6 +5315,7 @@ export type Mutation = {
   createBlogPost: BlogPost;
   createBudget: Budget;
   createBug: Bug;
+  createCallingBotConfig: CallingBotConfig;
   createCampaign: Campaign;
   createCannedReply: CannedReply;
   createCaseStudy: CaseStudy;
@@ -5353,6 +5480,7 @@ export type Mutation = {
   deleteBlogPost: Scalars['Boolean']['output'];
   deleteBudget: Scalars['Boolean']['output'];
   deleteBug: Scalars['Boolean']['output'];
+  deleteCallingBotConfig: Scalars['Boolean']['output'];
   deleteCampaign: Scalars['Boolean']['output'];
   deleteCannedReply: Scalars['Boolean']['output'];
   deleteCaseStudy: Scalars['Boolean']['output'];
@@ -5743,6 +5871,7 @@ export type Mutation = {
   socialMediaIdeas: Scalars['String']['output'];
   /** AI: what worked, what did not, and what to try, from the last days' posts. */
   socialMediaInsights: Scalars['String']['output'];
+  startCallingBotCall: CallingBotCallStart;
   /** Mints a secret and returns what an authenticator app needs. Nothing is switched on yet. */
   startMfaEnrolment: MfaEnrolment;
   /**
@@ -5780,6 +5909,8 @@ export type Mutation = {
   syncSocialAccount: SocialSyncResult;
   /** Re-reads exyconn.com (pages, blog posts, case studies) into the knowledge bot. */
   syncWebsiteChatKnowledge: WebsiteChatSyncResult;
+  /** Checks the OpenAI key and model, and the Sarvam key, language and voice. */
+  testCallingBotConfig: Scalars['Boolean']['output'];
   testCloudflareConnection: Scalars['Boolean']['output'];
   testGithubConnection: Scalars['Boolean']['output'];
   testGodaddyConnection: Scalars['Boolean']['output'];
@@ -5863,6 +5994,7 @@ export type Mutation = {
   updateBranding: Branding;
   updateBudget: Budget;
   updateBug: Bug;
+  updateCallingBotConfig: CallingBotConfig;
   updateCampaign: Campaign;
   updateCannedReply: CannedReply;
   updateCaseStudy: CaseStudy;
@@ -6225,6 +6357,11 @@ export type MutationCreateBudgetArgs = {
 
 export type MutationCreateBugArgs = {
   input: BugInput;
+};
+
+
+export type MutationCreateCallingBotConfigArgs = {
+  input: CallingBotConfigInput;
 };
 
 
@@ -6897,6 +7034,11 @@ export type MutationDeleteBudgetArgs = {
 
 
 export type MutationDeleteBugArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteCallingBotConfigArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -8067,6 +8209,11 @@ export type MutationSocialMediaInsightsArgs = {
 };
 
 
+export type MutationStartCallingBotCallArgs = {
+  input: StartCallingBotCallInput;
+};
+
+
 export type MutationStartOnboardingArgs = {
   employeeId: Scalars['ID']['input'];
   templateId: Scalars['ID']['input'];
@@ -8119,6 +8266,11 @@ export type MutationSubscribeToStatusArgs = {
 
 
 export type MutationSyncSocialAccountArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestCallingBotConfigArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -8346,6 +8498,12 @@ export type MutationUpdateBudgetArgs = {
 export type MutationUpdateBugArgs = {
   id: Scalars['ID']['input'];
   input: BugInput;
+};
+
+
+export type MutationUpdateCallingBotConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: CallingBotConfigInput;
 };
 
 
@@ -10544,6 +10702,12 @@ export type Query = {
    * days they fall on. Every month the window touches counts in full.
    */
   budgetVsActual: Array<BudgetVariance>;
+  callingBotAvailability: CallingBotAvailability;
+  /** One of the caller's own calls, to follow it as it happens. */
+  callingBotCall: CallingBotCall;
+  callingBotConfigs: Array<CallingBotConfig>;
+  /** The most recent calls, newest first. */
+  callingBotRecentCalls: Array<CallingBotCall>;
   /** Leads per campaign, most productive first — the overview's attribution figures. */
   campaignLeadCounts: Array<CampaignLeadCount>;
   campaignMetrics: CampaignMetrics;
@@ -10843,6 +11007,8 @@ export type Query = {
   listEmployeeDocuments: Array<EmployeeDocument>;
   listEmployeeDocumentsPaged: EmployeeDocumentPage;
   listEmployeeDocumentsStats: TableStats;
+  /** Every person's name, deleted accounts included, to show whose a record is. */
+  listEmployeeNames: Array<EmployeeName>;
   /** Active employees for pickers in any portal; the full employee record stays HR's (listUsers). */
   listEmployeeOptions: Array<EmployeeOption>;
   listEmployeeRequests: Array<EmployeeRequest>;
@@ -11423,6 +11589,16 @@ export type QueryAudienceMembersArgs = {
 export type QueryBudgetVsActualArgs = {
   from: Scalars['DateTime']['input'];
   to: Scalars['DateTime']['input'];
+};
+
+
+export type QueryCallingBotCallArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryCallingBotRecentCallsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -14060,6 +14236,12 @@ export enum SslCertificateStatus {
   Unreachable = 'UNREACHABLE'
 }
 
+export type StartCallingBotCallInput = {
+  channel: CallingBotChannel;
+  /** The number to ring, in E.164; phone calls only. */
+  phone?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type StatBucket = {
   __typename?: 'StatBucket';
   count: Scalars['Int']['output'];
@@ -16573,6 +16755,11 @@ export type ListEmployeeOptionsQueryVariables = Exact<{ [key: string]: never; }>
 
 export type ListEmployeeOptionsQuery = { __typename?: 'Query', listEmployeeOptions: Array<{ __typename?: 'EmployeeOption', id: string, name: string, email: string, designation?: string | null, department?: string | null }> };
 
+export type ListEmployeeNamesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ListEmployeeNamesQuery = { __typename?: 'Query', listEmployeeNames: Array<{ __typename?: 'EmployeeName', id: string, name: string, isActive: boolean }> };
+
 export type MyManagerQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -17317,6 +17504,68 @@ export type PromoteBugToTaskMutationVariables = Exact<{
 
 
 export type PromoteBugToTaskMutation = { __typename?: 'Mutation', promoteBugToTask: { __typename?: 'Task', id: string, key: string } };
+
+export type CallingBotCallFieldsFragment = { __typename?: 'CallingBotCall', id: string, channel: CallingBotChannel, status: CallingBotCallStatus, phone: string, languageCode: string, answeredAt?: string | null, endedAt?: string | null, endReason: string, createdAt: string, transcript: Array<{ __typename?: 'CallingBotTurn', role: CallingBotTurnRole, text: string, at: string }> };
+
+export type CallingBotAvailabilityQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CallingBotAvailabilityQuery = { __typename?: 'Query', callingBotAvailability: { __typename?: 'CallingBotAvailability', available: boolean, phoneEnabled: boolean, languageCode?: string | null, maxCallSeconds?: number | null } };
+
+export type StartCallingBotCallMutationVariables = Exact<{
+  input: StartCallingBotCallInput;
+}>;
+
+
+export type StartCallingBotCallMutation = { __typename?: 'Mutation', startCallingBotCall: { __typename?: 'CallingBotCallStart', socketUrl?: string | null, call: { __typename?: 'CallingBotCall', id: string, channel: CallingBotChannel, status: CallingBotCallStatus, phone: string, languageCode: string, answeredAt?: string | null, endedAt?: string | null, endReason: string, createdAt: string, transcript: Array<{ __typename?: 'CallingBotTurn', role: CallingBotTurnRole, text: string, at: string }> } } };
+
+export type CallingBotCallQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type CallingBotCallQuery = { __typename?: 'Query', callingBotCall: { __typename?: 'CallingBotCall', id: string, channel: CallingBotChannel, status: CallingBotCallStatus, phone: string, languageCode: string, answeredAt?: string | null, endedAt?: string | null, endReason: string, createdAt: string, transcript: Array<{ __typename?: 'CallingBotTurn', role: CallingBotTurnRole, text: string, at: string }> } };
+
+export type CallingBotConfigsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CallingBotConfigsQuery = { __typename?: 'Query', callingBotConfigs: Array<{ __typename?: 'CallingBotConfig', id: string, label: string, hasSarvamApiKey: boolean, sarvamApiKeyHint?: string | null, hasOpenAiApiKey: boolean, openAiApiKeyHint?: string | null, openAiModel: string, systemPrompt: string, greeting: string, languageCode: string, ttsModel: string, ttsSpeaker: string, maxCallSeconds: number, vobizAuthId: string, hasVobizAuthToken: boolean, vobizNumber: string, phoneEnabled: boolean, isActive: boolean, updatedAt: string }> };
+
+export type CreateCallingBotConfigMutationVariables = Exact<{
+  input: CallingBotConfigInput;
+}>;
+
+
+export type CreateCallingBotConfigMutation = { __typename?: 'Mutation', createCallingBotConfig: { __typename?: 'CallingBotConfig', id: string } };
+
+export type UpdateCallingBotConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: CallingBotConfigInput;
+}>;
+
+
+export type UpdateCallingBotConfigMutation = { __typename?: 'Mutation', updateCallingBotConfig: { __typename?: 'CallingBotConfig', id: string } };
+
+export type DeleteCallingBotConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteCallingBotConfigMutation = { __typename?: 'Mutation', deleteCallingBotConfig: boolean };
+
+export type TestCallingBotConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TestCallingBotConfigMutation = { __typename?: 'Mutation', testCallingBotConfig: boolean };
+
+export type CallingBotRecentCallsQueryVariables = Exact<{
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type CallingBotRecentCallsQuery = { __typename?: 'Query', callingBotRecentCalls: Array<{ __typename?: 'CallingBotCall', callerName: string, callerEmail: string, id: string, channel: CallingBotChannel, status: CallingBotCallStatus, phone: string, languageCode: string, answeredAt?: string | null, endedAt?: string | null, endReason: string, createdAt: string, transcript: Array<{ __typename?: 'CallingBotTurn', role: CallingBotTurnRole, text: string, at: string }> }> };
 
 export type ClientContactFieldsFragment = { __typename?: 'ClientContact', id: string, clientId: string, name: string, email: string, active: boolean, lastSignInAt?: string | null, signInCount: number, createdAt: string };
 
@@ -23998,6 +24247,24 @@ export const BrandingFieldsFragmentDoc = gql`
   }
 }
     `;
+export const CallingBotCallFieldsFragmentDoc = gql`
+    fragment CallingBotCallFields on CallingBotCall {
+  id
+  channel
+  status
+  phone
+  languageCode
+  answeredAt
+  endedAt
+  endReason
+  createdAt
+  transcript {
+    role
+    text
+    at
+  }
+}
+    `;
 export const ClientContactFieldsFragmentDoc = gql`
     fragment ClientContactFields on ClientContact {
   id
@@ -26318,6 +26585,51 @@ export function useListEmployeeOptionsSuspenseQuery(baseOptions?: ApolloReactHoo
 export type ListEmployeeOptionsQueryHookResult = ReturnType<typeof useListEmployeeOptionsQuery>;
 export type ListEmployeeOptionsLazyQueryHookResult = ReturnType<typeof useListEmployeeOptionsLazyQuery>;
 export type ListEmployeeOptionsSuspenseQueryHookResult = ReturnType<typeof useListEmployeeOptionsSuspenseQuery>;
+export const ListEmployeeNamesDocument = gql`
+    query ListEmployeeNames {
+  listEmployeeNames {
+    id
+    name
+    isActive
+  }
+}
+    `;
+
+/**
+ * __useListEmployeeNamesQuery__
+ *
+ * To run a query within a React component, call `useListEmployeeNamesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useListEmployeeNamesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useListEmployeeNamesQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useListEmployeeNamesQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ListEmployeeNamesQuery, ListEmployeeNamesQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ListEmployeeNamesQuery, ListEmployeeNamesQueryVariables>(ListEmployeeNamesDocument, options);
+      }
+export function useListEmployeeNamesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ListEmployeeNamesQuery, ListEmployeeNamesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ListEmployeeNamesQuery, ListEmployeeNamesQueryVariables>(ListEmployeeNamesDocument, options);
+        }
+// @ts-ignore
+export function useListEmployeeNamesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ListEmployeeNamesQuery, ListEmployeeNamesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListEmployeeNamesQuery, ListEmployeeNamesQueryVariables>;
+// @ts-ignore
+export function useListEmployeeNamesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListEmployeeNamesQuery, ListEmployeeNamesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ListEmployeeNamesQuery | undefined, ListEmployeeNamesQueryVariables>;
+export function useListEmployeeNamesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ListEmployeeNamesQuery, ListEmployeeNamesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ListEmployeeNamesQuery, ListEmployeeNamesQueryVariables>(ListEmployeeNamesDocument, options);
+        }
+export type ListEmployeeNamesQueryHookResult = ReturnType<typeof useListEmployeeNamesQuery>;
+export type ListEmployeeNamesLazyQueryHookResult = ReturnType<typeof useListEmployeeNamesLazyQuery>;
+export type ListEmployeeNamesSuspenseQueryHookResult = ReturnType<typeof useListEmployeeNamesSuspenseQuery>;
 export const MyManagerDocument = gql`
     query MyManager {
   myManager {
@@ -30588,6 +30900,353 @@ export function usePromoteBugToTaskMutation(baseOptions?: ApolloReactHooks.Mutat
         return ApolloReactHooks.useMutation<PromoteBugToTaskMutation, PromoteBugToTaskMutationVariables>(PromoteBugToTaskDocument, options);
       }
 export type PromoteBugToTaskMutationHookResult = ReturnType<typeof usePromoteBugToTaskMutation>;
+export const CallingBotAvailabilityDocument = gql`
+    query CallingBotAvailability {
+  callingBotAvailability {
+    available
+    phoneEnabled
+    languageCode
+    maxCallSeconds
+  }
+}
+    `;
+
+/**
+ * __useCallingBotAvailabilityQuery__
+ *
+ * To run a query within a React component, call `useCallingBotAvailabilityQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCallingBotAvailabilityQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCallingBotAvailabilityQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useCallingBotAvailabilityQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<CallingBotAvailabilityQuery, CallingBotAvailabilityQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CallingBotAvailabilityQuery, CallingBotAvailabilityQueryVariables>(CallingBotAvailabilityDocument, options);
+      }
+export function useCallingBotAvailabilityLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CallingBotAvailabilityQuery, CallingBotAvailabilityQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CallingBotAvailabilityQuery, CallingBotAvailabilityQueryVariables>(CallingBotAvailabilityDocument, options);
+        }
+// @ts-ignore
+export function useCallingBotAvailabilitySuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CallingBotAvailabilityQuery, CallingBotAvailabilityQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CallingBotAvailabilityQuery, CallingBotAvailabilityQueryVariables>;
+// @ts-ignore
+export function useCallingBotAvailabilitySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CallingBotAvailabilityQuery, CallingBotAvailabilityQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CallingBotAvailabilityQuery | undefined, CallingBotAvailabilityQueryVariables>;
+export function useCallingBotAvailabilitySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CallingBotAvailabilityQuery, CallingBotAvailabilityQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CallingBotAvailabilityQuery, CallingBotAvailabilityQueryVariables>(CallingBotAvailabilityDocument, options);
+        }
+export type CallingBotAvailabilityQueryHookResult = ReturnType<typeof useCallingBotAvailabilityQuery>;
+export type CallingBotAvailabilityLazyQueryHookResult = ReturnType<typeof useCallingBotAvailabilityLazyQuery>;
+export type CallingBotAvailabilitySuspenseQueryHookResult = ReturnType<typeof useCallingBotAvailabilitySuspenseQuery>;
+export const StartCallingBotCallDocument = gql`
+    mutation StartCallingBotCall($input: StartCallingBotCallInput!) {
+  startCallingBotCall(input: $input) {
+    socketUrl
+    call {
+      ...CallingBotCallFields
+    }
+  }
+}
+    ${CallingBotCallFieldsFragmentDoc}`;
+
+/**
+ * __useStartCallingBotCallMutation__
+ *
+ * To run a mutation, you first call `useStartCallingBotCallMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useStartCallingBotCallMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [startCallingBotCallMutation, { data, loading, error }] = useStartCallingBotCallMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useStartCallingBotCallMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<StartCallingBotCallMutation, StartCallingBotCallMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<StartCallingBotCallMutation, StartCallingBotCallMutationVariables>(StartCallingBotCallDocument, options);
+      }
+export type StartCallingBotCallMutationHookResult = ReturnType<typeof useStartCallingBotCallMutation>;
+export const CallingBotCallDocument = gql`
+    query CallingBotCall($id: ID!) {
+  callingBotCall(id: $id) {
+    ...CallingBotCallFields
+  }
+}
+    ${CallingBotCallFieldsFragmentDoc}`;
+
+/**
+ * __useCallingBotCallQuery__
+ *
+ * To run a query within a React component, call `useCallingBotCallQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCallingBotCallQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCallingBotCallQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useCallingBotCallQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CallingBotCallQuery, CallingBotCallQueryVariables> & ({ variables: CallingBotCallQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CallingBotCallQuery, CallingBotCallQueryVariables>(CallingBotCallDocument, options);
+      }
+export function useCallingBotCallLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CallingBotCallQuery, CallingBotCallQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CallingBotCallQuery, CallingBotCallQueryVariables>(CallingBotCallDocument, options);
+        }
+// @ts-ignore
+export function useCallingBotCallSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CallingBotCallQuery, CallingBotCallQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CallingBotCallQuery, CallingBotCallQueryVariables>;
+// @ts-ignore
+export function useCallingBotCallSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CallingBotCallQuery, CallingBotCallQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CallingBotCallQuery | undefined, CallingBotCallQueryVariables>;
+export function useCallingBotCallSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CallingBotCallQuery, CallingBotCallQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CallingBotCallQuery, CallingBotCallQueryVariables>(CallingBotCallDocument, options);
+        }
+export type CallingBotCallQueryHookResult = ReturnType<typeof useCallingBotCallQuery>;
+export type CallingBotCallLazyQueryHookResult = ReturnType<typeof useCallingBotCallLazyQuery>;
+export type CallingBotCallSuspenseQueryHookResult = ReturnType<typeof useCallingBotCallSuspenseQuery>;
+export const CallingBotConfigsDocument = gql`
+    query CallingBotConfigs {
+  callingBotConfigs {
+    id
+    label
+    hasSarvamApiKey
+    sarvamApiKeyHint
+    hasOpenAiApiKey
+    openAiApiKeyHint
+    openAiModel
+    systemPrompt
+    greeting
+    languageCode
+    ttsModel
+    ttsSpeaker
+    maxCallSeconds
+    vobizAuthId
+    hasVobizAuthToken
+    vobizNumber
+    phoneEnabled
+    isActive
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useCallingBotConfigsQuery__
+ *
+ * To run a query within a React component, call `useCallingBotConfigsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCallingBotConfigsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCallingBotConfigsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useCallingBotConfigsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<CallingBotConfigsQuery, CallingBotConfigsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CallingBotConfigsQuery, CallingBotConfigsQueryVariables>(CallingBotConfigsDocument, options);
+      }
+export function useCallingBotConfigsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CallingBotConfigsQuery, CallingBotConfigsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CallingBotConfigsQuery, CallingBotConfigsQueryVariables>(CallingBotConfigsDocument, options);
+        }
+// @ts-ignore
+export function useCallingBotConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CallingBotConfigsQuery, CallingBotConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CallingBotConfigsQuery, CallingBotConfigsQueryVariables>;
+// @ts-ignore
+export function useCallingBotConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CallingBotConfigsQuery, CallingBotConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CallingBotConfigsQuery | undefined, CallingBotConfigsQueryVariables>;
+export function useCallingBotConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CallingBotConfigsQuery, CallingBotConfigsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CallingBotConfigsQuery, CallingBotConfigsQueryVariables>(CallingBotConfigsDocument, options);
+        }
+export type CallingBotConfigsQueryHookResult = ReturnType<typeof useCallingBotConfigsQuery>;
+export type CallingBotConfigsLazyQueryHookResult = ReturnType<typeof useCallingBotConfigsLazyQuery>;
+export type CallingBotConfigsSuspenseQueryHookResult = ReturnType<typeof useCallingBotConfigsSuspenseQuery>;
+export const CreateCallingBotConfigDocument = gql`
+    mutation CreateCallingBotConfig($input: CallingBotConfigInput!) {
+  createCallingBotConfig(input: $input) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useCreateCallingBotConfigMutation__
+ *
+ * To run a mutation, you first call `useCreateCallingBotConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCallingBotConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCallingBotConfigMutation, { data, loading, error }] = useCreateCallingBotConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCallingBotConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateCallingBotConfigMutation, CreateCallingBotConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateCallingBotConfigMutation, CreateCallingBotConfigMutationVariables>(CreateCallingBotConfigDocument, options);
+      }
+export type CreateCallingBotConfigMutationHookResult = ReturnType<typeof useCreateCallingBotConfigMutation>;
+export const UpdateCallingBotConfigDocument = gql`
+    mutation UpdateCallingBotConfig($id: ID!, $input: CallingBotConfigInput!) {
+  updateCallingBotConfig(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useUpdateCallingBotConfigMutation__
+ *
+ * To run a mutation, you first call `useUpdateCallingBotConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCallingBotConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCallingBotConfigMutation, { data, loading, error }] = useUpdateCallingBotConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCallingBotConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateCallingBotConfigMutation, UpdateCallingBotConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateCallingBotConfigMutation, UpdateCallingBotConfigMutationVariables>(UpdateCallingBotConfigDocument, options);
+      }
+export type UpdateCallingBotConfigMutationHookResult = ReturnType<typeof useUpdateCallingBotConfigMutation>;
+export const DeleteCallingBotConfigDocument = gql`
+    mutation DeleteCallingBotConfig($id: ID!) {
+  deleteCallingBotConfig(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteCallingBotConfigMutation__
+ *
+ * To run a mutation, you first call `useDeleteCallingBotConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCallingBotConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCallingBotConfigMutation, { data, loading, error }] = useDeleteCallingBotConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteCallingBotConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteCallingBotConfigMutation, DeleteCallingBotConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteCallingBotConfigMutation, DeleteCallingBotConfigMutationVariables>(DeleteCallingBotConfigDocument, options);
+      }
+export type DeleteCallingBotConfigMutationHookResult = ReturnType<typeof useDeleteCallingBotConfigMutation>;
+export const TestCallingBotConfigDocument = gql`
+    mutation TestCallingBotConfig($id: ID!) {
+  testCallingBotConfig(id: $id)
+}
+    `;
+
+/**
+ * __useTestCallingBotConfigMutation__
+ *
+ * To run a mutation, you first call `useTestCallingBotConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestCallingBotConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testCallingBotConfigMutation, { data, loading, error }] = useTestCallingBotConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTestCallingBotConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TestCallingBotConfigMutation, TestCallingBotConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TestCallingBotConfigMutation, TestCallingBotConfigMutationVariables>(TestCallingBotConfigDocument, options);
+      }
+export type TestCallingBotConfigMutationHookResult = ReturnType<typeof useTestCallingBotConfigMutation>;
+export const CallingBotRecentCallsDocument = gql`
+    query CallingBotRecentCalls($limit: Int) {
+  callingBotRecentCalls(limit: $limit) {
+    callerName
+    callerEmail
+    ...CallingBotCallFields
+  }
+}
+    ${CallingBotCallFieldsFragmentDoc}`;
+
+/**
+ * __useCallingBotRecentCallsQuery__
+ *
+ * To run a query within a React component, call `useCallingBotRecentCallsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCallingBotRecentCallsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCallingBotRecentCallsQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useCallingBotRecentCallsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<CallingBotRecentCallsQuery, CallingBotRecentCallsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CallingBotRecentCallsQuery, CallingBotRecentCallsQueryVariables>(CallingBotRecentCallsDocument, options);
+      }
+export function useCallingBotRecentCallsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CallingBotRecentCallsQuery, CallingBotRecentCallsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CallingBotRecentCallsQuery, CallingBotRecentCallsQueryVariables>(CallingBotRecentCallsDocument, options);
+        }
+// @ts-ignore
+export function useCallingBotRecentCallsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CallingBotRecentCallsQuery, CallingBotRecentCallsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CallingBotRecentCallsQuery, CallingBotRecentCallsQueryVariables>;
+// @ts-ignore
+export function useCallingBotRecentCallsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CallingBotRecentCallsQuery, CallingBotRecentCallsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CallingBotRecentCallsQuery | undefined, CallingBotRecentCallsQueryVariables>;
+export function useCallingBotRecentCallsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CallingBotRecentCallsQuery, CallingBotRecentCallsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CallingBotRecentCallsQuery, CallingBotRecentCallsQueryVariables>(CallingBotRecentCallsDocument, options);
+        }
+export type CallingBotRecentCallsQueryHookResult = ReturnType<typeof useCallingBotRecentCallsQuery>;
+export type CallingBotRecentCallsLazyQueryHookResult = ReturnType<typeof useCallingBotRecentCallsLazyQuery>;
+export type CallingBotRecentCallsSuspenseQueryHookResult = ReturnType<typeof useCallingBotRecentCallsSuspenseQuery>;
 export const ClientContactsDocument = gql`
     query ClientContacts($clientId: ID!) {
   clientContacts(clientId: $clientId) {
