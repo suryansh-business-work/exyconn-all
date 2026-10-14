@@ -159,12 +159,18 @@ export async function permissionsFor(roles: Role[]): Promise<ModulePermission[]>
     }));
 }
 
+/** Who may decide about their own record: the company's administrators, who can do anything. */
+const OWN_RECORD_DECIDERS: ReadonlySet<Role> = new Set([ROLES.ADMIN, ROLES.SUPER_ADMIN]);
+
 /**
  * Refuses a decision about the caller's own record — approving their own leave, request or
- * expense claim, assessing their own performance, setting their own salary. Whatever role a
- * person holds, a decision about themselves is somebody else's to make.
+ * expense claim, assessing their own performance, setting their own salary. A decision about
+ * themselves is somebody else's to make, for every role except an administrator's.
  */
 export function assertNotOwnRecord(ctx: GraphQLContext, employeeId: unknown, what: string): void {
+  if (ctx.user?.roles.some((role) => OWN_RECORD_DECIDERS.has(role))) {
+    return;
+  }
   const callerId = ctx.user?.id;
   if (callerId !== undefined && employeeId != null && stringOf(employeeId) === callerId) {
     forbidden(`You cannot ${what} for yourself.`);
