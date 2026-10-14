@@ -2,7 +2,11 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { useT } from '@exyconn/i18n';
 import {
   DEMO_PHOTOS,
+  DemoCtaBand,
   DemoFaq,
+  DemoFeatures,
+  DemoFooter,
+  DemoHeader,
   DemoHero,
   DemoHighlights,
   DemoPhotoFrame,
@@ -11,9 +15,9 @@ import {
 } from '@exyconn/demo-visitor/page';
 import { Box, Button, Grid } from '@exyconn/shell/components/ui';
 import { DemoCard } from './DemoCard';
-import { HubHeader } from './HubHeader';
 import { DEMOS } from './demos';
 import { HUB_FAQ, HUB_STEPS } from './hub.content';
+import { HUB_FEATURES } from './hub.features';
 
 /** Why a prospect can trust what they are about to try. */
 const HERO_FACTS = [
@@ -27,7 +31,7 @@ export function HubPage() {
   const t = useT();
   return (
     <Box sx={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <HubHeader />
+      <DemoHeader />
       <Box component="main" sx={{ flex: 1 }}>
         <DemoHero
           eyebrow="Live AI demos"
@@ -58,10 +62,22 @@ export function HubPage() {
         <DemoSection id="how-it-works" title="How to try a demo" tinted>
           <DemoSteps steps={HUB_STEPS} />
         </DemoSection>
-        <DemoSection id="faq" title="Questions people ask">
+        <DemoSection
+          id="why"
+          title="Built for real business conversations"
+          subtitle="The same agents you try here answer our clients' customers every day."
+        >
+          <DemoFeatures items={HUB_FEATURES} />
+        </DemoSection>
+        <DemoSection id="faq" title="Questions people ask" tinted>
           <DemoFaq items={HUB_FAQ} />
         </DemoSection>
+        <DemoCtaBand
+          title="Want this working for your business?"
+          subtitle="Tell us what your customers call and message about. We tailor the flows, voice, language and integrations, and run them for you."
+        />
       </Box>
+      <DemoFooter />
     </Box>
   );
 }

@@ -1,7 +1,10 @@
 import { useI18n } from '@exyconn/i18n';
 import {
   DEMO_PHOTOS,
+  DemoCtaBand,
   DemoFaq,
+  DemoFooter,
+  DemoHeader,
   DemoHero,
   DemoHighlights,
   DemoPhotoFrame,
@@ -78,42 +81,50 @@ export function CallPage() {
   );
 
   return (
-    <Box component="main" sx={{ minHeight: '100vh' }}>
-      <DemoHero
-        eyebrow="Live demo · AI voice agent"
-        title="Talk to our AI calling bot"
-        subtitle="It listens, thinks and answers in real time. Interrupt it whenever you like — it stops and listens, like a person would."
-        visual={<CallHeroVisual loading={loading && !availability} available={available} />}
-      >
-        <Typography variant="subtitle2" component="h2">
-          {t('Before you call')}
-        </Typography>
-        <DemoHighlights items={CALL_TIPS} />
-      </DemoHero>
-      {phoneEnabled && (
-        <DemoSection
-          id="phone-call"
-          title="Or take the call on your phone"
-          subtitle="Enter your number and the bot rings you, just like it would ring your customers."
+    <>
+      <DemoHeader current="calling-bot-demo" />
+      <Box component="main" sx={{ minHeight: '100vh' }}>
+        <DemoHero
+          eyebrow="Live demo · AI voice agent"
+          title="Talk to our AI calling bot"
+          subtitle="It listens, thinks and answers in real time. Interrupt it whenever you like — it stops and listens, like a person would."
+          visual={<CallHeroVisual loading={loading && !availability} available={available} />}
         >
+          <Typography variant="subtitle2" component="h2">
+            {t('Before you call')}
+          </Typography>
+          <DemoHighlights items={CALL_TIPS} />
+        </DemoHero>
+        {phoneEnabled && (
+          <DemoSection
+            id="phone-call"
+            title="Or take the call on your phone"
+            subtitle="Enter your number and the bot rings you, just like it would ring your customers."
+          >
+            <Box sx={TWO_COLUMNS}>
+              <PhoneCallPanel />
+              <DemoHighlights items={PHONE_CALL_TIPS} />
+            </Box>
+          </DemoSection>
+        )}
+        <DemoSection id="how-to-try" title="How to try it" tinted={phoneEnabled}>
+          <DemoSteps steps={CALL_STEPS} />
+        </DemoSection>
+        <DemoSection id="use-cases" title="What businesses use it for" tinted={!phoneEnabled}>
           <Box sx={TWO_COLUMNS}>
-            <PhoneCallPanel />
-            <DemoHighlights items={PHONE_CALL_TIPS} />
+            <DemoHighlights items={USE_CASES} />
+            <DemoPhotoFrame photo={DEMO_PHOTOS.caller} />
           </Box>
         </DemoSection>
-      )}
-      <DemoSection id="how-to-try" title="How to try it" tinted={phoneEnabled}>
-        <DemoSteps steps={CALL_STEPS} />
-      </DemoSection>
-      <DemoSection id="use-cases" title="What businesses use it for" tinted={!phoneEnabled}>
-        <Box sx={TWO_COLUMNS}>
-          <DemoHighlights items={USE_CASES} />
-          <DemoPhotoFrame photo={DEMO_PHOTOS.caller} />
-        </Box>
-      </DemoSection>
-      <DemoSection id="faq" title="Questions people ask" tinted={phoneEnabled}>
-        <DemoFaq items={faq} values={faqValues} />
-      </DemoSection>
-    </Box>
+        <DemoSection id="faq" title="Questions people ask" tinted={phoneEnabled}>
+          <DemoFaq items={faq} values={faqValues} />
+        </DemoSection>
+        <DemoCtaBand
+          title="Want a calling bot for your business?"
+          subtitle="We set it up with your script, voice, language and phone number, and connect it to your CRM and calendar."
+        />
+      </Box>
+      <DemoFooter />
+    </>
   );
 }

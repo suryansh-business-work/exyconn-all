@@ -2,7 +2,7 @@ import type { SvgIconComponent } from '@mui/icons-material';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import PhoneInTalkIcon from '@mui/icons-material/PhoneInTalk';
 import { PORTAL_APPS, appBaseUrl, type PortalAppKey } from '@exyconn/shell/config/apps';
-import { DEMO_PHOTOS, type DemoPhoto } from '@exyconn/demo-visitor/page';
+import { DEMO_PHOTOS, shortTitle, type DemoPhoto } from '@exyconn/demo-visitor/page';
 
 /** One demo as the landing page lists it: its words come from the app registry. */
 export interface DemoEntry {
@@ -39,9 +39,6 @@ const DEMO_LOOKS: Partial<Record<PortalAppKey, DemoLook>> = {
     ],
   },
 };
-
-/** "WhatsApp Demo · Exyconn" -> "WhatsApp Demo": the registry title without the brand suffix. */
-const shortTitle = (title: string): string => title.split('·')[0].trim();
 
 /**
  * Every demo served from demos.exyconn.com, in registry order: an app that shares the demos
