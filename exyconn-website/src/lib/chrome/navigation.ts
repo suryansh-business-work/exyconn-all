@@ -118,6 +118,13 @@ export const HEADER_MENUS: readonly NavGroup[] = [AI, SERVICES, COMPANY];
 
 export const BLOG_LINK: NavLink = { label: "Blog", href: "/blog" };
 
+/** The highlighted header item: the GCC-in-India cost guide (the calculator links from it). */
+export const GCC_LINK: NavLink = {
+  label: "GCC in India",
+  href: "/gcc-in-india/cost-guide",
+  text: "Plan and cost your India centre",
+};
+
 /** The header's two calls to action. */
 export const HEADER_ACTIONS = {
   secondary: { label: "AI services", href: "/ai-services" },

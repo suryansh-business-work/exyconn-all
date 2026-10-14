@@ -1,7 +1,7 @@
 ---
 /**
- * The site header: a slim promo strip, then the sticky night bar — logo, the three menus and
- * Blog, search, accessibility, theme, and the two calls to action. Phones get the same bar
+ * The site header: a slim promo strip, then the sticky night bar — logo, the three menus,
+ * Blog and the highlighted "GCC in India" pill, search, accessibility, theme, and the two calls to action. Phones get the same bar
  * with icon buttons and the menu drawer.
  */
 import MobileHeader from "./MobileHeader.astro";
@@ -10,7 +10,13 @@ import BrandLogo from "../BrandLogo.astro";
 import ThemeToggle from "../ThemeToggle.astro";
 import Icon from "../inner/Icon.astro";
 import { BRANDING_FALLBACK, type Branding } from "../../lib/portal";
-import { BLOG_LINK, HEADER_ACTIONS, HEADER_MENUS, PROMO_LINK } from "../../lib/chrome/navigation";
+import {
+  BLOG_LINK,
+  GCC_LINK,
+  HEADER_ACTIONS,
+  HEADER_MENUS,
+  PROMO_LINK,
+} from "../../lib/chrome/navigation";
 
 interface Props {
   branding: Branding;
@@ -39,6 +45,9 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
       {HEADER_MENUS.slice(0, 2).map((group) => <NavMenu group={group} />)}
       <a href={BLOG_LINK.href} class="chrome-nav__link">{BLOG_LINK.label}</a>
       {HEADER_MENUS.slice(2).map((group) => <NavMenu group={group} />)}
+      <a href={GCC_LINK.href} class="chrome-nav__link gcc-nav-pill" title={GCC_LINK.text}>
+        {GCC_LINK.label}
+      </a>
     </div>
 
     <button
@@ -104,3 +113,25 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
 <script>
   import "../../scripts/chrome/header-menus";
 </script>
+
+<style>
+  /* The highlighted GCC item: a sky pill on the night bar, always readable (data-theme="dark"). */
+  .chrome-nav__link.gcc-nav-pill {
+    margin-left: var(--space-1);
+    border: var(--border-width-hairline) solid var(--color-sky-muted);
+    border-radius: var(--radius-pill);
+    background: var(--color-sky-subtle);
+    color: var(--color-sky-fg);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .chrome-nav__link.gcc-nav-pill:hover {
+    background: var(--color-sky-soft);
+    color: var(--color-sky-fg-strong);
+  }
+
+  .gcc-nav-pill:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-focus-ring);
+    outline-offset: var(--focus-ring-offset);
+  }
+</style>

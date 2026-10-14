@@ -130,7 +130,7 @@ export async function assertPublicHttpsUrl(raw: string): Promise<URL> {
 }
 
 /** Reads at most `maxBytes` of the body, erroring (and cancelling) past that. */
-async function readCapped(response: Response, maxBytes: number): Promise<Uint8Array> {
+async function readCapped(response: Response, maxBytes: number): Promise<Uint8Array<ArrayBuffer>> {
   const reader = response.body?.getReader();
   if (!reader) {
     return new Uint8Array();

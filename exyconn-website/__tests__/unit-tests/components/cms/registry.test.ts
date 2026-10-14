@@ -83,6 +83,9 @@ vi.mock("../../../../src/components/policies/PolicyList.astro", astro.factory);
 vi.mock("../../../../src/components/newsletter/NewsletterIssue.astro", astro.factory);
 vi.mock("../../../../src/components/newsletter/NewsletterList.astro", astro.factory);
 vi.mock("../../../../src/components/newsletter/NewsletterSignup.astro", astro.factory);
+vi.mock("../../../../src/components/cms/gcc/GccCalculatorBlock.astro", astro.factory);
+vi.mock("../../../../src/components/cms/gcc/GccCostFlow.astro", astro.factory);
+vi.mock("../../../../src/components/cms/gcc/GccTable.astro", astro.factory);
 
 import { cmsRenderer } from "../../../../src/components/cms/registry";
 

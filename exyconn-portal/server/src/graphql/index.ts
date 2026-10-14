@@ -160,6 +160,7 @@ import {
   websiteChatLibraryTypeDefs,
   websiteChatLibraryResolvers,
 } from '../modules/website-chat';
+import { gccTypeDefs, gccResolvers } from '../modules/gcc';
 import { JSONScalar } from './jsonScalar';
 
 type ResolverGroup = Record<string, Record<string, unknown> | undefined>;
@@ -289,6 +290,7 @@ export const typeDefs = [
   walletGatewayTypeDefs,
   websiteChatTypeDefs,
   websiteChatLibraryTypeDefs,
+  gccTypeDefs,
   cmsTypeDefs,
   cmsContentTypeDefs,
   cmsPublicTypeDefs,
@@ -377,6 +379,7 @@ export const resolvers = mergeResolvers([
   walletGatewayResolvers,
   websiteChatResolvers,
   websiteChatLibraryResolvers,
+  gccResolvers,
   cmsResolvers,
   cmsContentResolvers,
   cmsPublicResolvers,

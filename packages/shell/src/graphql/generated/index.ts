@@ -3558,6 +3558,43 @@ export enum GatewayMode {
   Sandbox = 'SANDBOX'
 }
 
+export type GccEmailInput = {
+  /** The estimate (schema version 1) as JSON. Totals are never read from it. */
+  estimateJson: Scalars['String']['input'];
+  /** An optional line from the sender, up to 500 characters. */
+  note?: InputMaybe<Scalars['String']['input']>;
+  /** Where to send the estimate. */
+  to: Scalars['String']['input'];
+};
+
+export type GccEmailResult = {
+  __typename?: 'GccEmailResult';
+  /** The address the estimate was sent to. */
+  sentTo: Scalars['String']['output'];
+};
+
+/** A new link. The token and revoke key are only ever returned here. */
+export type GccShareCreated = {
+  __typename?: 'GccShareCreated';
+  expiresAt: Scalars['DateTime']['output'];
+  revokeKey: Scalars['String']['output'];
+  token: Scalars['String']['output'];
+};
+
+export type GccShareInput = {
+  /** The visitor agreed to the estimate being stored until the link expires. Must be true. */
+  consent: Scalars['Boolean']['input'];
+  estimateJson: Scalars['String']['input'];
+  /** Between 1 and 30. */
+  expiresInDays: Scalars['Int']['input'];
+};
+
+export type GccSharedEstimate = {
+  __typename?: 'GccSharedEstimate';
+  estimateJson: Scalars['String']['output'];
+  expiresAt: Scalars['DateTime']['output'];
+};
+
 export type Gig = {
   __typename?: 'Gig';
   applicationContact: Scalars['String']['output'];
@@ -5450,6 +5487,8 @@ export type Mutation = {
   createExitRecord: ExitRecord;
   createExpenseClaim: ExpenseClaim;
   createFinding: Finding;
+  /** Public. Stores the estimate behind a read-only link. */
+  createGccShare: GccShareCreated;
   createGig: Gig;
   createGithubConfig: GithubConfig;
   createGoal: Goal;
@@ -5707,6 +5746,8 @@ export type Mutation = {
   duplicateCmsPage: CmsPage;
   /** Copies a workflow as a never-published draft keyed key-copy. */
   duplicateWhatsappWorkflow: WhatsappWorkflow;
+  /** Public. Emails the estimate as a PDF; fails with EMAIL_UNAVAILABLE unless it was sent. */
+  emailGccEstimate: GccEmailResult;
   /** Calls off a delegation. Only whoever arranged it may. */
   endApprovalDelegation: Scalars['Boolean']['output'];
   /**
@@ -5815,6 +5856,8 @@ export type Mutation = {
   revokeApiKey: ApiKey;
   /** LEGAL: withdraw an unsigned request. A signed one is evidence and cannot be withdrawn. */
   revokeContractSignature: Scalars['Boolean']['output'];
+  /** Public. True when the link was live and the key matched; the stored estimate is dropped. */
+  revokeGccShare: Scalars['Boolean']['output'];
   /** Ends every session except this one, for somebody who thinks their password has been seen. */
   revokeOtherSessions: Scalars['Int']['output'];
   revokeProjectShare: ProjectShare;
@@ -6626,6 +6669,12 @@ export type MutationCreateExpenseClaimArgs = {
 
 export type MutationCreateFindingArgs = {
   input: FindingInput;
+};
+
+
+export type MutationCreateGccShareArgs = {
+  captcha: WebsiteCaptchaAnswer;
+  input: GccShareInput;
 };
 
 
@@ -7743,6 +7792,12 @@ export type MutationDuplicateWhatsappWorkflowArgs = {
 };
 
 
+export type MutationEmailGccEstimateArgs = {
+  captcha: WebsiteCaptchaAnswer;
+  input: GccEmailInput;
+};
+
+
 export type MutationEndApprovalDelegationArgs = {
   id: Scalars['ID']['input'];
 };
@@ -7977,6 +8032,12 @@ export type MutationRevokeApiKeyArgs = {
 
 export type MutationRevokeContractSignatureArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationRevokeGccShareArgs = {
+  revokeKey: Scalars['String']['input'];
+  token: Scalars['String']['input'];
 };
 
 
@@ -11564,6 +11625,8 @@ export type Query = {
   searchPexelsPhotos: Array<PexelsMedia>;
   /** Stock videos for the shared upload dialog. Any signed-in user may search. */
   searchPexelsVideos: Array<PexelsMedia>;
+  /** Public. Null when the token is unknown, expired or revoked. */
+  sharedGccEstimate?: Maybe<GccSharedEstimate>;
   /** Public. Null when the token is unknown, expired or revoked — the page says so. */
   sharedProject?: Maybe<SharedProjectView>;
   /** The company's connected accounts. MARKETING. */
@@ -13167,6 +13230,11 @@ export type QuerySearchPexelsVideosArgs = {
   filters?: InputMaybe<PexelsSearchFilters>;
   page?: InputMaybe<Scalars['Int']['input']>;
   query: Scalars['String']['input'];
+};
+
+
+export type QuerySharedGccEstimateArgs = {
+  token: Scalars['String']['input'];
 };
 
 

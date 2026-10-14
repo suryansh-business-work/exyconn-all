@@ -1,13 +1,18 @@
 ---
 /**
  * The phone menu: a night drawer from the right (scripts/chrome/drawer.ts) with the three
- * header groups as disclosures, the shortcuts, then the call to action and the settings —
+ * highlighted "GCC in India" link, the header groups as disclosures, the shortcuts, then the call to action and the settings —
  * search, accessibility and cookie preferences live here instead of floating over the page.
  */
 import BrandLogo from "../BrandLogo.astro";
 import Icon from "../inner/Icon.astro";
 import { BRANDING_FALLBACK, type Branding } from "../../lib/portal";
-import { HEADER_ACTIONS, HEADER_MENUS, MOBILE_SHORTCUTS } from "../../lib/chrome/navigation";
+import {
+  GCC_LINK,
+  HEADER_ACTIONS,
+  HEADER_MENUS,
+  MOBILE_SHORTCUTS,
+} from "../../lib/chrome/navigation";
 import SocialIcon from "../SocialIcon.astro";
 import { socialLinks } from "../../lib/social-links";
 
@@ -47,6 +52,12 @@ const newTab = { target: "_blank", rel: "noopener noreferrer" };
   </div>
 
   <nav class="chrome-drawer__body" aria-label="Main">
+    <div class="chrome-mobile-section">
+      <a href={GCC_LINK.href} class="gcc-mobile-pill">
+        <span>{GCC_LINK.label}</span>
+        <span class="gcc-mobile-pill__text">{GCC_LINK.text}</span>
+      </a>
+    </div>
     {
       HEADER_MENUS.map((group) => (
         <details class="chrome-mobile-group chrome-mobile-section">
@@ -126,3 +137,34 @@ const newTab = { target: "_blank", rel: "noopener noreferrer" };
 <script>
   import "../../scripts/chrome/mobile-menu";
 </script>
+
+<style>
+  /* The highlighted GCC link at the top of the phone menu (the drawer is always night). */
+  .gcc-mobile-pill {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    min-height: 2.75rem;
+    padding: var(--space-3) var(--space-4);
+    border: var(--border-width-hairline) solid var(--color-sky-muted);
+    border-radius: var(--radius-xl);
+    background: var(--color-sky-subtle);
+    color: var(--color-sky-fg);
+    font-weight: var(--font-weight-semibold);
+  }
+
+  .gcc-mobile-pill:hover {
+    background: var(--color-sky-soft);
+  }
+
+  .gcc-mobile-pill:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-focus-ring);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  .gcc-mobile-pill__text {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-fg-secondary);
+  }
+</style>

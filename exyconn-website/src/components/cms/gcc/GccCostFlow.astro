@@ -1,0 +1,105 @@
+---
+/**
+ * 'gcc.cost-flow' — the kinds of money in a GCC budget as side-by-side lanes (one-time setup,
+ * recurring operating, refundable deposits). Lanes that are spent are joined by a connector;
+ * a "held" lane (money held, not spent) is drawn dashed and stands apart.
+ */
+import { cmsText } from "../company/types";
+
+interface Lane {
+  label: string;
+  title: string;
+  text: string;
+  items: readonly string[];
+  /** Money held, not spent (a refundable deposit). */
+  held?: boolean;
+}
+
+type Props = Readonly<{
+  caption: string;
+  lanes: readonly Lane[];
+  note?: string;
+}>;
+
+const { caption, lanes, note } = Astro.props;
+const footnote = cmsText(note);
+---
+
+<figure class="gcc-flow">
+  <figcaption class="inner-h3">{caption}</figcaption>
+  <ol class="gcc-flow__lanes">
+    {
+      lanes.map((lane) => (
+        <li class="inner-card gcc-flow__lane" data-held={lane.held ? "true" : "false"}>
+          <span class="stage-label inner-index">{lane.label}</span>
+          <h3 class="inner-h3">{lane.title}</h3>
+          <p class="inner-card__text">{lane.text}</p>
+          <ul class="inner-points text-sm">
+            {lane.items.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        </li>
+      ))
+    }
+  </ol>
+  {footnote && <p class="gcc-flow__note">{footnote}</p>}
+</figure>
+
+<style>
+  .gcc-flow {
+    margin-top: var(--space-10);
+  }
+
+  .gcc-flow__lanes {
+    display: grid;
+    gap: var(--space-6);
+    margin-top: var(--space-6);
+  }
+
+  @media (min-width: 1024px) {
+    .gcc-flow__lanes {
+      grid-auto-flow: column;
+      grid-auto-columns: 1fr;
+      gap: var(--space-8);
+    }
+  }
+
+  .inner-card.gcc-flow__lane {
+    position: relative;
+    border-top: var(--space-1) solid var(--color-sky-strong);
+  }
+
+  .inner-card.gcc-flow__lane[data-held="true"] {
+    border-style: dashed;
+    border-top-color: var(--color-cyan-strong);
+  }
+
+  /* The connector from a spent lane to the next spent lane: down on phones, right on desktop. */
+  .gcc-flow__lane[data-held="false"]:has(+ [data-held="false"])::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    bottom: calc(-1 * var(--space-6));
+    width: var(--border-width-hairline);
+    height: var(--space-6);
+    background: var(--color-line-strong);
+  }
+
+  @media (min-width: 1024px) {
+    .gcc-flow__lane[data-held="false"]:has(+ [data-held="false"])::after {
+      left: auto;
+      right: calc(-1 * var(--space-8));
+      top: 50%;
+      bottom: auto;
+      width: var(--space-8);
+      height: var(--border-width-hairline);
+    }
+  }
+
+  .gcc-flow__note {
+    margin-top: var(--space-6);
+    max-width: 48rem;
+    color: var(--color-fg-secondary);
+  }
+</style>

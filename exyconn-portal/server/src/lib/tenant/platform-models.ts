@@ -54,6 +54,8 @@ export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   'WebsiteSubmission',
   // The website captcha's spent questions — exyconn.com's own, not a company's.
   'WebsiteCaptchaUse',
+  // Share links to the exyconn.com GCC cost calculator's estimates, made by anonymous visitors.
+  'GccShare',
   'Tool',
   'ToolCategory',
   // The website CMS: every site, page, fragment, design system, image and newsletter.

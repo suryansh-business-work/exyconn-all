@@ -4,6 +4,7 @@ import {
   BLOG_LINK,
   FOOTER_COLUMNS,
   FOOTER_TAGLINE,
+  GCC_LINK,
   HEADER_ACTIONS,
   HEADER_MENUS,
   LEGAL_LINKS,
@@ -20,6 +21,7 @@ const everyLink: NavLink[] = [
   ...MOBILE_SHORTCUTS,
   ...LEGAL_LINKS,
   BLOG_LINK,
+  GCC_LINK,
   PROMO_LINK,
   HEADER_ACTIONS.primary,
   HEADER_ACTIONS.secondary,
@@ -45,6 +47,14 @@ describe("header menus", () => {
   it("sends the header's calls to action inside the site", () => {
     expect(HEADER_ACTIONS.primary).toEqual({ label: "Get started", href: "/contact" });
     expect(HEADER_ACTIONS.secondary.href).toBe("/ai-services");
+  });
+});
+
+describe("GCC in India highlight", () => {
+  it("links the cost guide inside the site with a one-line description", () => {
+    expect(GCC_LINK.href).toBe("/gcc-in-india/cost-guide");
+    expect(GCC_LINK.external).toBeUndefined();
+    expect(GCC_LINK.text).toBeTruthy();
   });
 });
 

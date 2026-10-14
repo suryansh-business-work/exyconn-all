@@ -2,10 +2,11 @@ import { WebsiteSubmissionModel } from './models';
 import { LeadModel } from '../crm/crm.model';
 import { UserModel } from '../admin/user.model';
 import { ROLES } from '../../constants/roles';
-import { assertPlatformStaff } from '../../lib/platformAccess';
+import { assertPlatformStaff, platformOperatorOrganizationId } from '../../lib/platformAccess';
 import { withId } from '../../utils/serialize';
 import { badRequest, notFound } from '../../utils/errors';
 import { logger } from '../../utils/logger';
+import { runForOrganization } from '../../lib/tenant';
 import type { GraphQLContext } from '../../middleware/auth';
 
 type Payload = Record<string, unknown>;
@@ -22,12 +23,13 @@ function firstText(data: Payload, keys: readonly string[]): string {
 }
 
 /**
- * What the seven website forms call the same things. Contact and job-application split
- * the name; india-offer says `business`; legal calls its message `details`.
+ * What the website forms call the same things. Contact and job-application split the name;
+ * india-offer says `business`; legal calls its message `details`; the GCC consultation
+ * calls it `notes`.
  */
 const NAME_KEYS = ['name', 'fullName'] as const;
 const COMPANY_KEYS = ['company', 'companyName', 'business'] as const;
-const MESSAGE_KEYS = ['message', 'details', 'coverLetter', 'subject'] as const;
+const MESSAGE_KEYS = ['message', 'details', 'notes', 'coverLetter', 'subject'] as const;
 
 function nameOf(data: Payload): string {
   const name = firstText(data, NAME_KEYS);
@@ -46,9 +48,13 @@ function notesOf(formType: string, data: Payload): string {
   const message = firstText(data, MESSAGE_KEYS);
   const company = firstText(data, COMPANY_KEYS);
   const phone = firstText(data, ['phone']);
+  const consent = firstText(data, ['marketingConsent']);
+  const estimate = firstText(data, ['estimateSummary']);
   if (company) lines.push(`Company: ${company}`);
   if (phone) lines.push(`Phone: ${phone}`);
+  if (consent) lines.push(`Marketing consent: ${consent}`);
   if (message) lines.push('', message);
+  if (estimate) lines.push('', 'Estimate they shared:', estimate);
   return lines.join('\n');
 }
 
@@ -77,7 +83,11 @@ export function leadFromSubmission(formType: string, data: Payload, owner: strin
  * those as leads would put complaints and candidates into a sales pipeline. Anything else
  * can still be handed over by hand from the inbox.
  */
-const SALES_FORM_TYPES: ReadonlySet<string> = new Set(['contact', 'india-offer']);
+const SALES_FORM_TYPES: ReadonlySet<string> = new Set([
+  'contact',
+  'india-offer',
+  'gcc-consultation',
+]);
 
 /** What an automatically filed lead's owner reads as until the desk picks it up. */
 export const UNASSIGNED = 'Unassigned';
@@ -89,6 +99,9 @@ export const UNASSIGNED = 'Unassigned';
  * Friday evening waited for somebody to open a screen — and an enquiry nobody opened was an
  * enquiry nobody answered. Best-effort: a submission is never lost because the CRM refused
  * it, and the button still works for whatever this leaves alone.
+ *
+ * A lead is the operator's own CRM data, and a website visitor's request carries no company,
+ * so the lead is filed inside the platform operator's organization.
  */
 export async function autoFileLead(
   submissionId: string,
@@ -103,10 +116,17 @@ export async function autoFileLead(
     return null;
   }
   try {
+    const operatorId = await platformOperatorOrganizationId();
+    if (operatorId === null) {
+      logger.warn(`Submission ${submissionId} was not filed as a lead: no operator organization`);
+      return null;
+    }
     // Named "Unassigned" rather than left blank: a lead has to have an owner, and putting a
     // real person's name on one nobody has picked up would say somebody had. Assignment is
     // the sales desk's own decision, and this is what it reads as until they make it.
-    const lead = await LeadModel.create(leadFromSubmission(formType, data, UNASSIGNED));
+    const lead = await runForOrganization(operatorId, () =>
+      LeadModel.create(leadFromSubmission(formType, data, UNASSIGNED)),
+    );
     const leadId = lead._id.toHexString();
     await WebsiteSubmissionModel.updateOne({ _id: submissionId }, { leadId });
     return leadId;

@@ -1,0 +1,107 @@
+---
+/**
+ * 'gcc.table' — a captioned comparison table. The first column heads each row; the table
+ * scrolls sideways inside its own focusable region on small screens, never the page.
+ */
+import { cmsText } from "../company/types";
+
+interface Row {
+  label: string;
+  cells: readonly string[];
+}
+
+type Props = Readonly<{
+  caption: string;
+  /** Column headings; the first one heads the row labels. */
+  columns: readonly string[];
+  rows: readonly Row[];
+  note?: string;
+}>;
+
+const { caption, columns, rows, note } = Astro.props;
+const footnote = cmsText(note);
+---
+
+<figure class="gcc-table">
+  <div class="gcc-table__scroll inner-panel" role="region" aria-label={caption} tabindex="0">
+    <table>
+      <caption>{caption}</caption>
+      <thead>
+        <tr>{columns.map((column) => <th scope="col">{column}</th>)}</tr>
+      </thead>
+      <tbody>
+        {
+          rows.map((row) => (
+            <tr>
+              <th scope="row">{row.label}</th>
+              {row.cells.map((cell) => (
+                <td>{cell}</td>
+              ))}
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+  {footnote && <figcaption class="gcc-table__note">{footnote}</figcaption>}
+</figure>
+
+<style>
+  .gcc-table {
+    margin-top: var(--space-10);
+  }
+
+  .gcc-table__scroll {
+    overflow-x: auto;
+  }
+
+  .gcc-table__scroll:focus-visible {
+    outline: var(--focus-ring-width) solid var(--color-focus-ring);
+    outline-offset: var(--focus-ring-offset);
+  }
+
+  table {
+    width: 100%;
+    min-width: 44rem;
+    border-collapse: collapse;
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-normal);
+  }
+
+  caption {
+    padding: var(--space-4) var(--space-5);
+    text-align: left;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg);
+  }
+
+  th,
+  td {
+    padding: var(--space-3) var(--space-5);
+    border-top: var(--border-width-hairline) solid var(--color-line);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  thead th {
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg);
+    background: var(--color-surface-subtle);
+  }
+
+  tbody th {
+    width: 12rem;
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-fg);
+  }
+
+  td {
+    color: var(--color-fg-secondary);
+  }
+
+  .gcc-table__note {
+    margin-top: var(--space-4);
+    max-width: 48rem;
+    color: var(--color-fg-secondary);
+  }
+</style>

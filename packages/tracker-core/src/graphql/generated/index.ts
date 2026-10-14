@@ -1180,6 +1180,23 @@ export type GatewayMode =
   | 'LIVE'
   | 'SANDBOX';
 
+export type GccEmailInput = {
+  /** The estimate (schema version 1) as JSON. Totals are never read from it. */
+  estimateJson: Scalars['String']['input'];
+  /** An optional line from the sender, up to 500 characters. */
+  note: InputMaybe<Scalars['String']['input']>;
+  /** Where to send the estimate. */
+  to: Scalars['String']['input'];
+};
+
+export type GccShareInput = {
+  /** The visitor agreed to the estimate being stored until the link expires. Must be true. */
+  consent: Scalars['Boolean']['input'];
+  estimateJson: Scalars['String']['input'];
+  /** Between 1 and 30. */
+  expiresInDays: Scalars['Int']['input'];
+};
+
 export type GigInput = {
   applicationContact: Scalars['String']['input'];
   applicationType: Scalars['String']['input'];

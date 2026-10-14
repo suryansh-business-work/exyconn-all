@@ -3557,6 +3557,43 @@ export enum GatewayMode {
   Sandbox = 'SANDBOX'
 }
 
+export type GccEmailInput = {
+  /** The estimate (schema version 1) as JSON. Totals are never read from it. */
+  estimateJson: Scalars['String']['input'];
+  /** An optional line from the sender, up to 500 characters. */
+  note?: InputMaybe<Scalars['String']['input']>;
+  /** Where to send the estimate. */
+  to: Scalars['String']['input'];
+};
+
+export type GccEmailResult = {
+  __typename?: 'GccEmailResult';
+  /** The address the estimate was sent to. */
+  sentTo: Scalars['String']['output'];
+};
+
+/** A new link. The token and revoke key are only ever returned here. */
+export type GccShareCreated = {
+  __typename?: 'GccShareCreated';
+  expiresAt: Scalars['DateTime']['output'];
+  revokeKey: Scalars['String']['output'];
+  token: Scalars['String']['output'];
+};
+
+export type GccShareInput = {
+  /** The visitor agreed to the estimate being stored until the link expires. Must be true. */
+  consent: Scalars['Boolean']['input'];
+  estimateJson: Scalars['String']['input'];
+  /** Between 1 and 30. */
+  expiresInDays: Scalars['Int']['input'];
+};
+
+export type GccSharedEstimate = {
+  __typename?: 'GccSharedEstimate';
+  estimateJson: Scalars['String']['output'];
+  expiresAt: Scalars['DateTime']['output'];
+};
+
 export type Gig = {
   __typename?: 'Gig';
   applicationContact: Scalars['String']['output'];
@@ -5449,6 +5486,8 @@ export type Mutation = {
   createExitRecord: ExitRecord;
   createExpenseClaim: ExpenseClaim;
   createFinding: Finding;
+  /** Public. Stores the estimate behind a read-only link. */
+  createGccShare: GccShareCreated;
   createGig: Gig;
   createGithubConfig: GithubConfig;
   createGoal: Goal;
@@ -5706,6 +5745,8 @@ export type Mutation = {
   duplicateCmsPage: CmsPage;
   /** Copies a workflow as a never-published draft keyed key-copy. */
   duplicateWhatsappWorkflow: WhatsappWorkflow;
+  /** Public. Emails the estimate as a PDF; fails with EMAIL_UNAVAILABLE unless it was sent. */
+  emailGccEstimate: GccEmailResult;
   /** Calls off a delegation. Only whoever arranged it may. */
   endApprovalDelegation: Scalars['Boolean']['output'];
   /**
@@ -5814,6 +5855,8 @@ export type Mutation = {
   revokeApiKey: ApiKey;
   /** LEGAL: withdraw an unsigned request. A signed one is evidence and cannot be withdrawn. */
   revokeContractSignature: Scalars['Boolean']['output'];
+  /** Public. True when the link was live and the key matched; the stored estimate is dropped. */
+  revokeGccShare: Scalars['Boolean']['output'];
   /** Ends every session except this one, for somebody who thinks their password has been seen. */
   revokeOtherSessions: Scalars['Int']['output'];
   revokeProjectShare: ProjectShare;
@@ -6625,6 +6668,12 @@ export type MutationCreateExpenseClaimArgs = {
 
 export type MutationCreateFindingArgs = {
   input: FindingInput;
+};
+
+
+export type MutationCreateGccShareArgs = {
+  captcha: WebsiteCaptchaAnswer;
+  input: GccShareInput;
 };
 
 
@@ -7742,6 +7791,12 @@ export type MutationDuplicateWhatsappWorkflowArgs = {
 };
 
 
+export type MutationEmailGccEstimateArgs = {
+  captcha: WebsiteCaptchaAnswer;
+  input: GccEmailInput;
+};
+
+
 export type MutationEndApprovalDelegationArgs = {
   id: Scalars['ID']['input'];
 };
@@ -7976,6 +8031,12 @@ export type MutationRevokeApiKeyArgs = {
 
 export type MutationRevokeContractSignatureArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationRevokeGccShareArgs = {
+  revokeKey: Scalars['String']['input'];
+  token: Scalars['String']['input'];
 };
 
 
@@ -11563,6 +11624,8 @@ export type Query = {
   searchPexelsPhotos: Array<PexelsMedia>;
   /** Stock videos for the shared upload dialog. Any signed-in user may search. */
   searchPexelsVideos: Array<PexelsMedia>;
+  /** Public. Null when the token is unknown, expired or revoked. */
+  sharedGccEstimate?: Maybe<GccSharedEstimate>;
   /** Public. Null when the token is unknown, expired or revoked — the page says so. */
   sharedProject?: Maybe<SharedProjectView>;
   /** The company's connected accounts. MARKETING. */
@@ -13166,6 +13229,11 @@ export type QuerySearchPexelsVideosArgs = {
   filters?: InputMaybe<PexelsSearchFilters>;
   page?: InputMaybe<Scalars['Int']['input']>;
   query: Scalars['String']['input'];
+};
+
+
+export type QuerySharedGccEstimateArgs = {
+  token: Scalars['String']['input'];
 };
 
 
@@ -17263,6 +17331,11 @@ export type ResolversTypes = ResolversObject<{
   FindingType: FindingType;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   GatewayMode: GatewayMode;
+  GccEmailInput: GccEmailInput;
+  GccEmailResult: ResolverTypeWrapper<GccEmailResult>;
+  GccShareCreated: ResolverTypeWrapper<GccShareCreated>;
+  GccShareInput: GccShareInput;
+  GccSharedEstimate: ResolverTypeWrapper<GccSharedEstimate>;
   Gig: ResolverTypeWrapper<Gig>;
   GigInput: GigInput;
   GigPage: ResolverTypeWrapper<GigPage>;
@@ -18093,6 +18166,11 @@ export type ResolversParentTypes = ResolversObject<{
   FindingInput: FindingInput;
   FindingPage: FindingPage;
   Float: Scalars['Float']['output'];
+  GccEmailInput: GccEmailInput;
+  GccEmailResult: GccEmailResult;
+  GccShareCreated: GccShareCreated;
+  GccShareInput: GccShareInput;
+  GccSharedEstimate: GccSharedEstimate;
   Gig: Gig;
   GigInput: GigInput;
   GigPage: GigPage;
@@ -20557,6 +20635,24 @@ export type FindingPageResolvers<ContextType = GraphQLContext, ParentType extend
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type GccEmailResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['GccEmailResult'] = ResolversParentTypes['GccEmailResult']> = ResolversObject<{
+  sentTo?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type GccShareCreatedResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['GccShareCreated'] = ResolversParentTypes['GccShareCreated']> = ResolversObject<{
+  expiresAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  revokeKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type GccSharedEstimateResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['GccSharedEstimate'] = ResolversParentTypes['GccSharedEstimate']> = ResolversObject<{
+  estimateJson?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  expiresAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type GigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Gig'] = ResolversParentTypes['Gig']> = ResolversObject<{
   applicationContact?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   applicationType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -21609,6 +21705,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createExitRecord?: Resolver<ResolversTypes['ExitRecord'], ParentType, ContextType, RequireFields<MutationCreateExitRecordArgs, 'input'>>;
   createExpenseClaim?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationCreateExpenseClaimArgs, 'input'>>;
   createFinding?: Resolver<ResolversTypes['Finding'], ParentType, ContextType, RequireFields<MutationCreateFindingArgs, 'input'>>;
+  createGccShare?: Resolver<ResolversTypes['GccShareCreated'], ParentType, ContextType, RequireFields<MutationCreateGccShareArgs, 'captcha' | 'input'>>;
   createGig?: Resolver<ResolversTypes['Gig'], ParentType, ContextType, RequireFields<MutationCreateGigArgs, 'input'>>;
   createGithubConfig?: Resolver<ResolversTypes['GithubConfig'], ParentType, ContextType, RequireFields<MutationCreateGithubConfigArgs, 'input'>>;
   createGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationCreateGoalArgs, 'input'>>;
@@ -21828,6 +21925,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   disconnectSocialAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisconnectSocialAccountArgs, 'id'>>;
   duplicateCmsPage?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationDuplicateCmsPageArgs, 'id' | 'path'>>;
   duplicateWhatsappWorkflow?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationDuplicateWhatsappWorkflowArgs, 'id'>>;
+  emailGccEstimate?: Resolver<ResolversTypes['GccEmailResult'], ParentType, ContextType, RequireFields<MutationEmailGccEstimateArgs, 'captcha' | 'input'>>;
   endApprovalDelegation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationEndApprovalDelegationArgs, 'id'>>;
   escalateSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationEscalateSupportTicketArgs, 'id' | 'reason'>>;
   fulfilItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationFulfilItAccessRequestArgs, 'id'>>;
@@ -21872,6 +21970,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   reviewTrackerManualEntry?: Resolver<ResolversTypes['TrackerManualEntry'], ParentType, ContextType, RequireFields<MutationReviewTrackerManualEntryArgs, 'id' | 'status'>>;
   revokeApiKey?: Resolver<ResolversTypes['ApiKey'], ParentType, ContextType, RequireFields<MutationRevokeApiKeyArgs, 'id'>>;
   revokeContractSignature?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRevokeContractSignatureArgs, 'id'>>;
+  revokeGccShare?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRevokeGccShareArgs, 'revokeKey' | 'token'>>;
   revokeOtherSessions?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   revokeProjectShare?: Resolver<ResolversTypes['ProjectShare'], ParentType, ContextType, RequireFields<MutationRevokeProjectShareArgs, 'id'>>;
   revokeSession?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRevokeSessionArgs, 'id'>>;
@@ -23435,6 +23534,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   searchKnowledgeBase?: Resolver<Array<ResolversTypes['KbArticle']>, ParentType, ContextType, RequireFields<QuerySearchKnowledgeBaseArgs, 'query'>>;
   searchPexelsPhotos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsPhotosArgs, 'query'>>;
   searchPexelsVideos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsVideosArgs, 'query'>>;
+  sharedGccEstimate?: Resolver<Maybe<ResolversTypes['GccSharedEstimate']>, ParentType, ContextType, RequireFields<QuerySharedGccEstimateArgs, 'token'>>;
   sharedProject?: Resolver<Maybe<ResolversTypes['SharedProjectView']>, ParentType, ContextType, RequireFields<QuerySharedProjectArgs, 'token'>>;
   socialAccounts?: Resolver<Array<ResolversTypes['SocialAccount']>, ParentType, ContextType>;
   socialAnalytics?: Resolver<ResolversTypes['SocialAnalytics'], ParentType, ContextType, RequireFields<QuerySocialAnalyticsArgs, 'days'>>;
@@ -25656,6 +25756,9 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   FinanceMonth?: FinanceMonthResolvers<ContextType>;
   Finding?: FindingResolvers<ContextType>;
   FindingPage?: FindingPageResolvers<ContextType>;
+  GccEmailResult?: GccEmailResultResolvers<ContextType>;
+  GccShareCreated?: GccShareCreatedResolvers<ContextType>;
+  GccSharedEstimate?: GccSharedEstimateResolvers<ContextType>;
   Gig?: GigResolvers<ContextType>;
   GigPage?: GigPageResolvers<ContextType>;
   GithubConfig?: GithubConfigResolvers<ContextType>;

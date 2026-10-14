@@ -75,6 +75,9 @@ import PolicyList from "../policies/PolicyList.astro";
 import NewsletterIssue from "../newsletter/NewsletterIssue.astro";
 import NewsletterList from "../newsletter/NewsletterList.astro";
 import NewsletterSignup from "../newsletter/NewsletterSignup.astro";
+import GccCalculatorBlock from "./gcc/GccCalculatorBlock.astro";
+import GccCostFlow from "./gcc/GccCostFlow.astro";
+import GccTable from "./gcc/GccTable.astro";
 
 /** Any Astro component, whatever its props. */
 type CmsRenderer = (props: never) => unknown;
@@ -163,6 +166,9 @@ const REGISTRY = {
   "newsletter.list": NewsletterList,
   "newsletter.issue": NewsletterIssue,
   "newsletter.signup": NewsletterSignup,
+  "gcc.table": GccTable,
+  "gcc.cost-flow": GccCostFlow,
+  "gcc.calculator": GccCalculatorBlock,
 } satisfies Record<CmsComponentKey, CmsRenderer>;
 
 /**

@@ -1,0 +1,25 @@
+export const X = {
+  title: "Download, share and next steps",
+  download: "Download",
+  share: "Move and share",
+  plan: "Plan",
+  pdf: "Download PDF report",
+  pdfBusy: "Preparing PDF…",
+  pdfFailed:
+    "The PDF could not be created in this browser. Use Print or the CSV/JSON export instead.",
+  csv: "Export detailed CSV",
+  json: "Export estimate (JSON)",
+  print: "Print report",
+  importJson: "Import estimate (JSON)",
+  shareButton: "Share or copy",
+  email: "Email this estimate",
+  duplicate: "Duplicate estimate",
+  saveScenario: "Save as new scenario",
+  consult: "Request an Exyconn consultation",
+  invalid: "Fix the highlighted fields first — exports use valid inputs only.",
+  done: {
+    csv: "CSV downloaded.",
+    json: "JSON downloaded. Import it here or in another browser to restore this estimate.",
+    pdf: "PDF downloaded.",
+  },
+} as const;

@@ -1,0 +1,42 @@
+{
+  "name": "@exyconn/gcc-cost",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The GCC-in-India cost model: the versioned estimate schema, a pure calculation engine on integer paise, scenario comparison, safe JSON import, CSV and the PDF document definition. Shared by the exyconn.com calculator and the portal server, so a figure shown, emailed or shared is computed by the same code.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "default": "./src/index.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"src/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "test": "vitest run --passWithNoTests"
+  },
+  "prettier": "@exyconn/config/prettier.json",
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@exyconn/config": "workspace:*",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@types/pdfmake": "0.3.3",
+    "@vitest/coverage-v8": "^5.0.0",
+    "eslint": "^10.9.1",
+    "prettier": "^3.4.2",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.0"
+  }
+}

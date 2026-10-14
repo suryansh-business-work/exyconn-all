@@ -92,6 +92,7 @@ export const SUBMISSION_FORM_TYPES = [
   'india-offer',
   'newsletter',
   'job-application',
+  'gcc-consultation',
 ] as const;
 
 export type JobCategory = (typeof JOB_CATEGORIES)[number];

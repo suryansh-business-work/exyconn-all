@@ -9,6 +9,7 @@ import {
 } from '../../../../src/modules/website/website.lead';
 import { logger } from '../../../../src/utils/logger';
 import { ADMIN_EMAIL, adminCtx, customerEditorCtx, seedSubmission } from './website.fixtures';
+import { seedPlatformOperator } from '../../security-authz.operator';
 
 const convert = (id: unknown) =>
   convertWebsiteSubmissionToLead(null, { id: String(id) }, adminCtx()) as Promise<{
@@ -108,6 +109,9 @@ describe('reading a lead off a form', () => {
 });
 
 describe('filing a lead automatically', () => {
+  // A visitor's lead is filed in the platform operator's organization.
+  beforeEach(() => seedPlatformOperator());
+
   it('logs and gives up when the CRM refuses the lead, keeping the submission unlinked', async () => {
     const row = await seedSubmission('contact', { email: 'sam@acme.test' });
     jest.spyOn(LeadModel, 'create').mockRejectedValueOnce(new Error('CRM is down'));
