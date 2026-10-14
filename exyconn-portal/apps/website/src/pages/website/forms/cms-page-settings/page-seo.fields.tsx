@@ -1,6 +1,6 @@
 import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
-import { RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
+import { RhfCodeEditor, RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { RhfMediaField } from '../../../cms/media';
 
 /** The page's own title, description, share image and indexing. */
@@ -23,12 +23,11 @@ export function PageSeoFields({ siteId }: Readonly<{ siteId: string }>) {
         helperText="Only when another URL is the original of this page."
       />
       <RhfSwitch name="seo.noindex" label="Hide from search engines (noindex)" />
-      <RhfTextField
+      <RhfCodeEditor
         name="seo.jsonLd"
         label="Structured data (JSON-LD)"
-        multiline
-        minRows={4}
-        slotProps={{ htmlInput: { style: { fontFamily: 'monospace' }, spellCheck: false } }}
+        language="json"
+        height={200}
         helperText="A schema.org JSON object, added to the page head."
       />
     </>

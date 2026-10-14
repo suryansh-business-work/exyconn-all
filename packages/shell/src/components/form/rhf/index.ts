@@ -10,5 +10,6 @@ export { RhfTimePicker } from './RhfTimePicker';
 export { RhfAutocomplete } from './RhfAutocomplete';
 export { RhfCurrencyField, useCompanyCurrency } from './RhfCurrencyField';
 export { RhfRichText } from './RhfRichText';
+export { RhfCodeEditor } from './RhfCodeEditor';
 export { RhfImageField } from './RhfImageField';
 export type { SelectOption } from './types';

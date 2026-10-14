@@ -127,6 +127,7 @@ import { socialTypeDefs, socialResolvers } from '../modules/social';
 import { approvalsTypeDefs, approvalsResolvers } from '../modules/approvals';
 import { logsTypeDefs, logsResolvers } from '../modules/logs';
 import { whatsappDemoTypeDefs, whatsappDemoResolvers } from '../modules/whatsapp-demo';
+import { callingBotTypeDefs, callingBotResolvers } from '../modules/calling-bot-demo';
 import {
   whatsappChannelTypeDefs,
   whatsappChannelResolvers,
@@ -276,6 +277,7 @@ export const typeDefs = [
   approvalsTypeDefs,
   logsTypeDefs,
   whatsappDemoTypeDefs,
+  callingBotTypeDefs,
   whatsappChannelTypeDefs,
   whatsappDemoVisitorTypeDefs,
   clientHubTypeDefs,
@@ -362,6 +364,7 @@ export const resolvers = mergeResolvers([
   approvalsResolvers,
   logsResolvers,
   whatsappDemoResolvers,
+  callingBotResolvers,
   whatsappChannelResolvers,
   whatsappDemoVisitorResolvers,
   clientHubResolvers,

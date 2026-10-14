@@ -76,7 +76,7 @@ describe('BlogPostForm', () => {
     renderForm();
     await fillRequired();
     await fillField('Slug', 'Scaling GraphQL');
-    await fillField('Cover image URL', 'cover.png');
+    await fillField('Cover image', 'cover.png');
 
     await press('Create');
 
@@ -91,7 +91,7 @@ describe('BlogPostForm', () => {
     const { onDone } = renderForm();
     expect(screen.getByText('Body images in website/blog')).toBeInTheDocument();
     await fillRequired();
-    await fillField('Cover image URL', '/images/cover.png');
+    await fillField('Cover image', '/images/cover.png');
 
     await press('Create');
 

@@ -13,8 +13,8 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
   useListSalaryStructuresStatsQuery: () => gql.stats(),
   useDeleteSalaryStructureMutation: () => [gql.remove],
-  useListUsersQuery: () => ({
-    data: { listUsers: [{ id: 'user-1', name: 'Asha Rao', email: 'asha@example.com' }] },
+  useListEmployeeNamesQuery: () => ({
+    data: { listEmployeeNames: [{ id: 'user-1', name: 'Asha Rao', isActive: true }] },
   }),
 }));
 

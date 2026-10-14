@@ -1,8 +1,6 @@
 import { useT } from '@exyconn/i18n';
 import { Text } from '@exyconn/shell/components/ui';
-import { RhfTextField } from '@exyconn/shell/components/form/rhf';
-
-const CODE_FIELD = { fontFamily: 'monospace', fontSize: 13 } as const;
+import { RhfCodeEditor } from '@exyconn/shell/components/form/rhf';
 
 /** Markup and CSS added to every page of the site. */
 export function SiteCodeFields() {
@@ -10,28 +8,25 @@ export function SiteCodeFields() {
   return (
     <>
       <Text weight="semibold">{t('Code')}</Text>
-      <RhfTextField
+      <RhfCodeEditor
         name="headHtml"
         label="Head HTML"
-        multiline
-        minRows={4}
-        slotProps={{ htmlInput: { style: CODE_FIELD, spellCheck: false } }}
+        language="html"
+        height={160}
         helperText="Added inside <head> on every page: meta tags, analytics. Only paste code you trust."
       />
-      <RhfTextField
+      <RhfCodeEditor
         name="bodyEndHtml"
         label="Body-end HTML"
-        multiline
-        minRows={4}
-        slotProps={{ htmlInput: { style: CODE_FIELD, spellCheck: false } }}
+        language="html"
+        height={160}
         helperText="Added before </body> on every page: chat widgets, tracking scripts."
       />
-      <RhfTextField
+      <RhfCodeEditor
         name="globalCss"
         label="Global CSS"
-        multiline
-        minRows={6}
-        slotProps={{ htmlInput: { style: CODE_FIELD, spellCheck: false } }}
+        language="css"
+        height={280}
         helperText="Styles every page and the page builder's canvas. Prefer design-system tokens: var(--color-primary)."
       />
     </>

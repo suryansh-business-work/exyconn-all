@@ -27,7 +27,10 @@ is built as a downloadable Windows installer artifact by the same workflow.
 | Portal · IT | 4034 | it.exyconn.com | `exyconn-portal-it` |
 | Portal · Compliance | 4037 | compliance.exyconn.com | `exyconn-portal-compliance` |
 | Portal · Social | 4036 | social.exyconn.com | `exyconn-portal-social` |
-| Portal · WhatsApp Demo | 4038 | whatsapp-demo.exyconn.com | `exyconn-portal-whatsapp-demo` |
+| Demos · landing page | 4040 | demos.exyconn.com | `exyconn-demos-hub` |
+| Demos · AI calling bot | 4041 | demos.exyconn.com/calling-bot-demo/ | `exyconn-calling-bot-demo` |
+| Demos · calling bot voice server | 4042 | demos.exyconn.com/calling-bot-demo/api/ | `exyconn-calling-bot-voice` |
+| Demos · WhatsApp Demo | 4038 | demos.exyconn.com/whatsapp-demo/ (whatsapp-demo.exyconn.com redirects) | `exyconn-portal-whatsapp-demo` |
 | Portal · Client Hub | 4039 | clienthub.exyconn.com | `exyconn-portal-clienthub` |
 | Status page (public, no sign-in) | 4035 | status.exyconn.com | `exyconn-portal-status` |
 | Portal API | 4004 | portal-server.exyconn.com | `exyconn-portal-server` |

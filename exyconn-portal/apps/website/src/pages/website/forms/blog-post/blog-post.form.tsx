@@ -10,6 +10,7 @@ import {
 } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
+import { RhfMediaField } from '../../../cms/media';
 import { useCurrentSiteId } from '../../../cms/site';
 import {
   useCreateBlogPostMutation,
@@ -110,7 +111,7 @@ export function BlogPostForm({ initial, onDone, onCancel }: Readonly<BlogPostFor
       <RhfTextField name="author.initials" label="Author initials" />
       <RhfTextField name="readTime" label="Read time" helperText="e.g. 5 min read" />
       <RhfChipsInput name="tags" label="Tags" />
-      <RhfTextField name="coverImage" label="Cover image URL" />
+      <RhfMediaField name="coverImage" label="Cover image" siteId={siteId} />
       <RhfSwitch name="featured" label="Featured" />
       <RhfSwitch name="isActive" label="Active" />
       <RhfDatePicker name="publishedAt" label="Published at" />

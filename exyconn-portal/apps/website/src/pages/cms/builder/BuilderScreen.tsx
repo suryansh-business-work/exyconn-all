@@ -52,9 +52,8 @@ export function BuilderScreen(props: Readonly<BuilderScreenProps>) {
   const notify = useNotify();
   const editor = useRef<LiveEditorHandle>(null);
   const [editing, setEditing] = useState<CmsEditRequest | null>(null);
-  const [liveOpen, setLiveOpen] = useState(false);
-  // Bumped after every successful save, so the live preview shows what was just saved.
-  const [savedVersion, setSavedVersion] = useState(0);
+  // The canvas shows server-rendered sections as cards, so the real rendering opens beside it.
+  const [liveOpen, setLiveOpen] = useState(Boolean(props.loadPreviewUrl));
   const uploadImage = useMediaUpload(site.id);
   const builder = useBuilderSave(editor, props);
   useUnloadGuard(builder.dirty);
@@ -121,12 +120,7 @@ export function BuilderScreen(props: Readonly<BuilderScreenProps>) {
         saving={builder.saving}
         publishing={builder.publishing}
         onBack={() => back().catch(report('Could not go back'))}
-        onSave={() =>
-          builder
-            .save()
-            .then((saved) => saved && setSavedVersion((value) => value + 1))
-            .catch(report('Could not save'))
-        }
+        onSave={() => builder.save().catch(report('Could not save'))}
         onPublish={() => builder.publish().catch(report('Could not publish'))}
         onPreview={preview}
         liveOpen={liveOpen}
@@ -153,7 +147,7 @@ export function BuilderScreen(props: Readonly<BuilderScreenProps>) {
         </Box>
         {liveOpen && props.loadPreviewUrl && (
           <Box sx={{ width: '45%', flexShrink: 0 }}>
-            <LivePreviewPane loadUrl={props.loadPreviewUrl} version={savedVersion} />
+            <LivePreviewPane loadUrl={props.loadPreviewUrl} version={builder.savedCount} />
           </Box>
         )}
       </Box>

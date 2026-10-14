@@ -76,6 +76,14 @@ query ListEmployeeOptions {
   }
 }
 
+query ListEmployeeNames {
+  listEmployeeNames {
+    id
+    name
+    isActive
+  }
+}
+
 query MyManager {
   myManager {
     id

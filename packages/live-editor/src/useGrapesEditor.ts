@@ -90,6 +90,8 @@ export function useGrapesEditor(
       ...startingContent(options),
       canvas: { styles: [...options.canvasStyles] },
       deviceManager: { devices: DEVICES },
+      // The canvas toolbar has Desktop / Tablet / Mobile buttons; GrapesJS's own select repeats them.
+      showDevices: false,
       blockManager: { blocks: options.blocks ?? ARTICLE_BLOCKS },
       plugins: [...(options.plugins ?? [])],
       selectorManager: { componentFirst: true },

@@ -35,5 +35,5 @@ export function forgetDemoAccess(): void {
 /** The demo's chats, handing the pass over in the fragment — which never reaches a server. */
 export function demoChatsUrl(access: DemoAccess): string {
   const base = access.demoUrl.replace(/\/$/, "");
-  return `${base}/whatsapp-demo#visitor=${encodeURIComponent(access.token)}`;
+  return `${base}/#visitor=${encodeURIComponent(access.token)}`;
 }

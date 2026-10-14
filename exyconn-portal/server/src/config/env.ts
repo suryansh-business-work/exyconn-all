@@ -117,7 +117,14 @@ export const env = Object.freeze({
   /** Public portal URL used as the login CTA inside transactional emails. */
   appUrl: process.env.APP_URL ?? 'https://portal.exyconn.com',
   /** The WhatsApp demo a verified visitor is sent to, from the code email and after sign-in. */
-  whatsappDemoUrl: process.env.WHATSAPP_DEMO_URL ?? 'https://whatsapp-demo.exyconn.com',
+  whatsappDemoUrl: process.env.WHATSAPP_DEMO_URL ?? 'https://demos.exyconn.com/whatsapp-demo',
+  /**
+   * The calling bot demo's voice server, as the internet reaches it (behind nginx): call tickets
+   * point a browser's socket and Vobiz's callbacks here.
+   */
+  callingBotApiUrl: (
+    process.env.CALLING_BOT_API_URL ?? 'https://demos.exyconn.com/calling-bot-demo/api'
+  ).replace(/\/$/, ''),
   /** exyconn.com: the site the website chat's knowledge bot learns from (sitemap + pages). */
   websiteUrl: (process.env.WEBSITE_URL ?? 'https://exyconn.com').replace(/\/$/, ''),
   /** The one market whose pages the knowledge sync reads, rather than all eighty-six copies. */

@@ -6,8 +6,11 @@ export interface PwaUpdate {
   apply: () => void;
 }
 
-/** Where the build writes its service worker. One per portal, at the origin's root. */
-const SERVICE_WORKER_URL = '/sw.js';
+/**
+ * Where the build writes its service worker: one per portal, at the root of the path the app
+ * is served under, so its scope is that app alone (two demos share demos.exyconn.com).
+ */
+const SERVICE_WORKER_URL = `${import.meta.env.BASE_URL}sw.js`;
 
 /** Asks the waiting worker to take over now (the generated worker listens for this). */
 const SKIP_WAITING = { type: 'SKIP_WAITING' };

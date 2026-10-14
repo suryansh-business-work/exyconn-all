@@ -11,11 +11,16 @@ async function stored(name: string, email: string) {
 }
 
 describe('account switches', () => {
-  it('deletes a user and reports one that is already gone', async () => {
+  it('deletes a user but keeps the record, and reports one that is already gone', async () => {
     const id = await stored('Asha', 'asha@exyconn.com');
 
     await expect(adminService.deleteUser(id)).resolves.toBe(true);
     expect(await UserModel.exists({ _id: id })).toBeNull();
+    expect(await UserModel.findById(id).setOptions({ withDeleted: true }).lean()).toMatchObject({
+      name: 'Asha',
+      isActive: false,
+      deletedAt: expect.any(Date),
+    });
     await expect(adminService.deleteUser(id)).rejects.toThrow('User not found');
   });
 

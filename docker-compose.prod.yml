@@ -234,6 +234,39 @@ services:
       # The WhatsApp chatbot page on exyconn.com runs the live demo in a frame.
       FRAME_ANCESTORS: "'self' https://exyconn.com https://www.exyconn.com"
 
+  # demos.exyconn.com: the public page listing every demo (deploy/nginx/demos.exyconn.com.conf).
+  demos-hub:
+    <<: *hardened
+    image: ${DOCKERHUB_USERNAME}/exyconn-demos-hub:${TAG:-latest}
+    container_name: exyconn-demos-hub
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4040:4040'
+
+  # demos.exyconn.com/calling-bot-demo/: the AI calling bot's call screen.
+  calling-bot-demo:
+    <<: *hardened
+    image: ${DOCKERHUB_USERNAME}/exyconn-calling-bot-demo:${TAG:-latest}
+    container_name: exyconn-calling-bot-demo
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4041:4041'
+
+  # The calling bot's voice server (demos.exyconn.com/calling-bot-demo/api/): live audio from a
+  # browser or a Vobiz phone call through Sarvam AI and OpenAI. Its credentials live in the
+  # active calling bot config in the database (Tech > Demos > Calling bot), none here.
+  calling-bot-voice:
+    <<: *hardened-node
+    image: ${DOCKERHUB_USERNAME}/exyconn-calling-bot-voice:${TAG:-latest}
+    container_name: exyconn-calling-bot-voice
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4042:4042'
+    environment:
+      NODE_ENV: production
+      MONGODB_URI: ${MONGODB_URI}
+      PUBLIC_URL: https://demos.exyconn.com/calling-bot-demo/api
+
   # The client hub: a client's people pay invoices, raise tickets and follow projects.
   portal-clienthub:
     <<: *hardened
@@ -266,7 +299,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRES_IN: 7d
       # Every portal micro-frontend calls this API from its own origin.
-      CORS_ORIGIN: https://portal.exyconn.com,https://admin.exyconn.com,https://employee.exyconn.com,https://finance.exyconn.com,https://support.exyconn.com,https://crm.exyconn.com,https://products.exyconn.com,https://legal.exyconn.com,https://hr.exyconn.com,https://marketing.exyconn.com,https://projects.exyconn.com,https://ai.exyconn.com,https://website.exyconn.com,https://tracker.exyconn.com,https://tech.exyconn.com,https://it.exyconn.com,https://compliance.exyconn.com,https://social.exyconn.com,https://whatsapp-demo.exyconn.com,https://clienthub.exyconn.com,https://status.exyconn.com
+      CORS_ORIGIN: https://portal.exyconn.com,https://admin.exyconn.com,https://employee.exyconn.com,https://finance.exyconn.com,https://support.exyconn.com,https://crm.exyconn.com,https://products.exyconn.com,https://legal.exyconn.com,https://hr.exyconn.com,https://marketing.exyconn.com,https://projects.exyconn.com,https://ai.exyconn.com,https://website.exyconn.com,https://tracker.exyconn.com,https://tech.exyconn.com,https://it.exyconn.com,https://compliance.exyconn.com,https://social.exyconn.com,https://demos.exyconn.com,https://clienthub.exyconn.com,https://status.exyconn.com
       APP_URL: https://portal.exyconn.com
       # The public sites the website chat widget opens its socket from (Website > Chatbot).
       CHAT_ORIGINS: https://exyconn.com,https://tools.exyconn.com

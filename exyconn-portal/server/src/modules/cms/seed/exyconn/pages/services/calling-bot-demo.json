@@ -1,0 +1,322 @@
+{
+  "key": "services-calling-bot-demo",
+  "path": "/services/calling-bot-demo",
+  "title": "AI Calling Bot & Voice Agent Services — Live Demo | Exyconn",
+  "seo": {
+    "title": "AI Calling Bot & Voice Agent Services — Live Demo | Exyconn",
+    "description": "Exyconn builds AI voice agents that answer and make phone calls in Hindi, English and other Indian languages — booking appointments, qualifying leads and resolving support in real time. Try the live calling bot in your browser or on your phone.",
+    "keywords": "AI calling bot, AI voice agent, voice bot India, Hindi voice bot, AI phone calls, call center automation, Exyconn",
+    "ogImageUrl": "https://images.unsplash.com/photo-1556745757-8d76bdb6984b?auto=format&fit=crop&w=1200&q=80",
+    "canonical": "",
+    "noindex": false,
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://exyconn.com/{market}"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Services",
+            "item": "https://exyconn.com/{market}/services"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "AI calling bot",
+            "item": "https://exyconn.com/{market}/services/calling-bot-demo"
+          }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "AI calling bot",
+        "description": "Exyconn builds AI voice agents that answer and make phone calls in Hindi, English and other Indian languages — booking appointments, qualifying leads and resolving support in real time. Try the live calling bot in your browser or on your phone.",
+        "url": "https://exyconn.com/{market}/services/calling-bot-demo",
+        "serviceType": "Services",
+        "provider": {
+          "@type": "Organization",
+          "name": "Exyconn",
+          "url": "https://exyconn.com"
+        },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "What we build with voice AI",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Inbound call answering",
+              "description": "Every call picked up on the first ring, day and night — questions answered, details taken, and the right person brought in when needed."
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Appointment booking",
+              "description": "Clinics, salons and service teams fill their calendars from a phone call, with confirmations and reminders that cut no-shows."
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Lead qualification calls",
+              "description": "The bot calls new leads within seconds, asks the right questions and puts the hot ones straight into your CRM."
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "Support & order status",
+              "description": "Order tracking, FAQs, returns and complaints handled on the call, escalated to your team with the full transcript."
+            },
+            {
+              "@type": "ListItem",
+              "position": 5,
+              "name": "Reminders & collections",
+              "description": "Payment reminders, renewals and follow-ups made at scale, politely and in the customer's own language."
+            },
+            {
+              "@type": "ListItem",
+              "position": 6,
+              "name": "Your systems, connected",
+              "description": "Calendars, CRMs, order systems and your telephony number — the bot works with the tools you already run."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "body": [
+    {
+      "component": "detail.stage",
+      "props": {
+        "family": "services",
+        "crumbs": [
+          {
+            "label": "Home",
+            "href": "/"
+          },
+          {
+            "label": "Services",
+            "href": "/services"
+          },
+          {
+            "label": "AI calling bot",
+            "href": ""
+          }
+        ],
+        "title": "AI calling bots that talk like your best agent",
+        "lede": "We design, build and run AI voice agents that answer and make phone calls in Hindi, English and other Indian languages — booking, qualifying and supporting in real time, and handing over to your team when a person is needed.",
+        "primary": {
+          "label": "Try the live demo",
+          "href": "https://demos.exyconn.com/calling-bot-demo/"
+        },
+        "secondary": {
+          "label": "All services",
+          "href": "/services"
+        },
+        "scene": {
+          "shapes": ["devices", "glyph"]
+        },
+        "glyph": "phone",
+        "tagline": "Answer every call — in every language."
+      }
+    },
+    {
+      "component": "detail.intro",
+      "props": {
+        "index": 1,
+        "label": "What it is",
+        "intro": {
+          "title": "What is an AI calling bot?",
+          "icon": "phone-volume",
+          "term": "An AI calling bot",
+          "definition": "is a voice agent on your phone line. It answers or places calls, understands what the caller says, replies in a natural voice in their language, books slots, takes details and passes the call to a person whenever it should — on the same numbers your customers already call."
+        },
+        "benefits": {
+          "title": "Why businesses choose Exyconn for voice automation",
+          "items": [
+            {
+              "icon": "bolt",
+              "text": "Answers in about a second, around the clock, with no hold music."
+            },
+            {
+              "icon": "language",
+              "text": "Speaks Hindi, English and other Indian languages, and understands mixed Hinglish."
+            },
+            {
+              "icon": "hand",
+              "text": "Lets callers interrupt — it stops, listens and answers, like a person would."
+            },
+            {
+              "icon": "file-lines",
+              "text": "Keeps a transcript of every call for quality, training and follow-up."
+            },
+            {
+              "icon": "user-group",
+              "text": "Hands over to your team with the full context when a person is needed."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "detail.offerings",
+      "props": {
+        "index": 2,
+        "label": "What we deliver",
+        "offerings": {
+          "title": "What we build with voice AI",
+          "items": [
+            {
+              "icon": "phone-volume",
+              "title": "Inbound call answering",
+              "text": "Every call picked up on the first ring, day and night — questions answered, details taken, and the right person brought in when needed."
+            },
+            {
+              "icon": "calendar-check",
+              "title": "Appointment booking",
+              "text": "Clinics, salons and service teams fill their calendars from a phone call, with confirmations and reminders that cut no-shows."
+            },
+            {
+              "icon": "filter",
+              "title": "Lead qualification calls",
+              "text": "The bot calls new leads within seconds, asks the right questions and puts the hot ones straight into your CRM."
+            },
+            {
+              "icon": "headset",
+              "title": "Support & order status",
+              "text": "Order tracking, FAQs, returns and complaints handled on the call, escalated to your team with the full transcript."
+            },
+            {
+              "icon": "bell",
+              "title": "Reminders & collections",
+              "text": "Payment reminders, renewals and follow-ups made at scale, politely and in the customer's own language."
+            },
+            {
+              "icon": "plug",
+              "title": "Your systems, connected",
+              "text": "Calendars, CRMs, order systems and your telephony number — the bot works with the tools you already run."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "detail.process",
+      "props": {
+        "index": 3,
+        "label": "How we work",
+        "title": "From Idea to MVP in Weeks",
+        "lede": "Our battle-tested methodology delivers production-ready solutions faster than traditional approaches.",
+        "steps": [
+          {
+            "title": "Discovery",
+            "text": "Deep-dive into your business goals, challenges, and data landscape to define the optimal AI strategy.",
+            "when": "Week 1-2"
+          },
+          {
+            "title": "Design",
+            "text": "Architect your AI solution with scalable infrastructure, selecting the right models and workflows.",
+            "when": "Week 2-3"
+          },
+          {
+            "title": "Build & Deploy",
+            "text": "Rapid development using pre-built AI components, followed by staged deployment to production.",
+            "when": "Week 3-6"
+          },
+          {
+            "title": "Optimize & Scale",
+            "text": "Continuous monitoring, optimization, and scaling support to maximize ROI and performance.",
+            "when": "Ongoing"
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.faq",
+      "props": {
+        "index": 4,
+        "label": "FAQ",
+        "title": "Questions about the AI calling bot",
+        "items": [
+          {
+            "question": "How do I try the live demo?",
+            "answer": "Open demos.exyconn.com/calling-bot-demo, sign in with your email and a one-time code, and press Start the call to talk to the bot from your browser. If phone calls are enabled, enter your number and the bot rings you within seconds."
+          },
+          {
+            "question": "Which languages does the bot speak?",
+            "answer": "Hindi, English and the major Indian languages — Bengali, Gujarati, Kannada, Malayalam, Marathi, Odia, Punjabi, Tamil and Telugu. The bot listens and answers in the caller's language."
+          },
+          {
+            "question": "How fast does it answer?",
+            "answer": "The bot listens, thinks and speaks as a stream, so it usually starts answering within about a second of the caller finishing. You can interrupt it at any time and it stops to listen."
+          },
+          {
+            "question": "Can it call real phone numbers?",
+            "answer": "Yes. We connect the bot to an Indian telephony number, so it can take inbound calls and place outbound calls to mobiles and landlines, with a time limit and a full transcript of every call."
+          },
+          {
+            "question": "What happens to the call recordings and transcripts?",
+            "answer": "Every call keeps a transcript you can review. Data stays in your account, access is limited to your team, and we follow your retention rules."
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.related",
+      "props": {
+        "index": 5,
+        "label": "Related services",
+        "title": "Explore related services",
+        "more": "Explore",
+        "cards": [
+          {
+            "href": "/services/application-modernization",
+            "index": "S/01",
+            "title": "Application modernization",
+            "text": "Upgrade your legacy systems for performance, security, and innovation.",
+            "tags": ["Legacy assessment", "Migration & refactoring", "Security & optimization"]
+          },
+          {
+            "href": "/services/automation-integration",
+            "index": "S/02",
+            "title": "Automation & integration",
+            "text": "Automate workflows and integrate your business systems with Exyconn.",
+            "tags": ["Workflow automation", "System integration", "RPA & bots"]
+          },
+          {
+            "href": "/services/whatsapp-chatbot",
+            "index": "S/03",
+            "title": "WhatsApp chatbot",
+            "text": "Book, sell and support inside WhatsApp, on the official Cloud API.",
+            "tags": ["Bookings", "Ordering", "Support"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.cta",
+      "props": {
+        "family": "services",
+        "label": "Next step",
+        "title": "Start with an AI calling bot",
+        "text": "Answer every call — in every language.",
+        "primary": {
+          "label": "Try the live demo",
+          "href": "https://demos.exyconn.com/calling-bot-demo/"
+        },
+        "secondary": {
+          "label": "Get a quote",
+          "href": "/get-a-quote"
+        },
+        "echoShape": 1
+      }
+    }
+  ]
+}

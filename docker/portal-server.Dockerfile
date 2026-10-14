@@ -22,6 +22,8 @@ COPY packages/wa-flow/package.json packages/wa-flow/
 COPY packages/cms/package.json packages/cms/
 COPY packages/regex/package.json packages/regex/
 COPY packages/config/package.json packages/config/
+# The calling bot demo's record definitions and call tickets, shared with its voice server.
+COPY demos/calling-bot-demo/server/package.json demos/calling-bot-demo/server/
 # The root `prepare` script runs on every install, this one included; it needs its own
 # file present. It no-ops without a .git directory, which an image never has.
 COPY scripts/install-git-hooks.mjs scripts/
@@ -36,8 +38,10 @@ FROM deps AS build
 COPY packages/regex packages/regex
 COPY packages/wa-flow packages/wa-flow
 COPY packages/cms packages/cms
+COPY demos/calling-bot-demo/server demos/calling-bot-demo/server
 RUN pnpm --filter @exyconn/regex run build && pnpm --filter @exyconn/wa-flow run build \
-  && pnpm --filter @exyconn/cms run build
+  && pnpm --filter @exyconn/cms run build \
+  && pnpm --filter @exyconn/calling-bot-demo-server run build
 COPY exyconn-portal/server exyconn-portal/server
 RUN pnpm --filter exyconn-portal-server run build \
   && pnpm --filter exyconn-portal-server deploy --prod /app
@@ -56,5 +60,6 @@ EXPOSE 4004
 HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
   CMD wget -q --spider http://127.0.0.1:4004/health || exit 1
 
-# `exyconn-compiled` points @exyconn/regex at its dist instead of its TypeScript source.
+# `exyconn-compiled` points @exyconn/regex and the calling bot's shared definitions at their
+# dist instead of their TypeScript source.
 CMD ["node", "--conditions=exyconn-compiled", "dist/server.js"]

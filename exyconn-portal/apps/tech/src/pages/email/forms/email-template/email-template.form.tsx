@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { SLUG } from '@exyconn/regex';
 import { useT } from '@exyconn/i18n';
 import { Alert, radius } from '@exyconn/shell/components/ui';
-import { RhfTextField, RhfSwitch } from '@exyconn/shell/components/form/rhf';
+import { RhfCodeEditor, RhfTextField, RhfSwitch } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
@@ -77,7 +77,7 @@ export function EmailTemplateForm({ initial, onDone, onCancel }: Readonly<Props>
         label="Subject"
         helperText="Takes the same {{placeholders}} as the body."
       />
-      <RhfTextField name="mjml" label="MJML" multiline rows={16} />
+      <RhfCodeEditor name="mjml" label="MJML" language="html" height={380} />
       <RhfSwitch name="isActive" label="Active (an inactive template refuses to send)" />
     </EntityForm>
   );

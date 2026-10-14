@@ -12,7 +12,7 @@ import { runForOrganization } from '../../lib/tenant';
 import { actorNameOf } from '../../lib/actor';
 
 /**
- * The WhatsApp Business demo at whatsapp-demo.exyconn.com.
+ * The WhatsApp Business demo at demos.exyconn.com/whatsapp-demo.
  *
  * Two audiences, enforced here rather than by hiding screens: the chat (any signed-in
  * employee — ADMIN passes every role check — or a demo visitor signed in with an emailed code)

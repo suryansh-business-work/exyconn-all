@@ -1,0 +1,95 @@
+# The AI calling bot demo (demos.exyconn.com/calling-bot-demo) and its settings in Tech > Demos.
+
+fragment CallingBotCallFields on CallingBotCall {
+  id
+  channel
+  status
+  phone
+  languageCode
+  answeredAt
+  endedAt
+  endReason
+  createdAt
+  transcript {
+    role
+    text
+    at
+  }
+}
+
+query CallingBotAvailability {
+  callingBotAvailability {
+    available
+    phoneEnabled
+    languageCode
+    maxCallSeconds
+  }
+}
+
+mutation StartCallingBotCall($input: StartCallingBotCallInput!) {
+  startCallingBotCall(input: $input) {
+    socketUrl
+    call {
+      ...CallingBotCallFields
+    }
+  }
+}
+
+query CallingBotCall($id: ID!) {
+  callingBotCall(id: $id) {
+    ...CallingBotCallFields
+  }
+}
+
+# Tech › Demos › Calling bot.
+query CallingBotConfigs {
+  callingBotConfigs {
+    id
+    label
+    hasSarvamApiKey
+    sarvamApiKeyHint
+    hasOpenAiApiKey
+    openAiApiKeyHint
+    openAiModel
+    systemPrompt
+    greeting
+    languageCode
+    ttsModel
+    ttsSpeaker
+    maxCallSeconds
+    vobizAuthId
+    hasVobizAuthToken
+    vobizNumber
+    phoneEnabled
+    isActive
+    updatedAt
+  }
+}
+
+mutation CreateCallingBotConfig($input: CallingBotConfigInput!) {
+  createCallingBotConfig(input: $input) {
+    id
+  }
+}
+
+mutation UpdateCallingBotConfig($id: ID!, $input: CallingBotConfigInput!) {
+  updateCallingBotConfig(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteCallingBotConfig($id: ID!) {
+  deleteCallingBotConfig(id: $id)
+}
+
+mutation TestCallingBotConfig($id: ID!) {
+  testCallingBotConfig(id: $id)
+}
+
+query CallingBotRecentCalls($limit: Int) {
+  callingBotRecentCalls(limit: $limit) {
+    callerName
+    callerEmail
+    ...CallingBotCallFields
+  }
+}

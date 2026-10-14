@@ -22,20 +22,37 @@ export function organizationBasename(slug: string | null): string {
   return slug ? `/${ORGANIZATION_SEGMENT}/${encodeURIComponent(slug)}` : '';
 }
 
-/** The company this page was loaded for. */
-export const CURRENT_ORGANIZATION_SLUG = organizationSlugOf(globalThis.location.pathname);
+/**
+ * Where this app is mounted on its origin, without the trailing slash: empty for an app at the
+ * root of its subdomain, `/whatsapp-demo` for a demo that shares demos.exyconn.com with others.
+ * It is Vite's `base` (apps.json `basePath`), so it comes before the company prefix.
+ */
+export const APP_BASE_PATH = import.meta.env.BASE_URL.replace(/\/$/, '');
 
-/** The router basename for this page. */
+/** The address's path with the app's base path taken off. */
+function pathAfterBase(pathname: string): string {
+  return pathname.startsWith(APP_BASE_PATH) ? pathname.slice(APP_BASE_PATH.length) : pathname;
+}
+
+/** The company this page was loaded for. */
+export const CURRENT_ORGANIZATION_SLUG = organizationSlugOf(
+  pathAfterBase(globalThis.location.pathname),
+);
+
+/** The company prefix for this page — what another app's address carries too. */
 export const ORGANIZATION_BASENAME = organizationBasename(CURRENT_ORGANIZATION_SLUG);
 
-/** Where the page is, inside the app: the path after the company prefix, plus query and hash. */
+/** The router basename for this page: the app's base path, then the company prefix. */
+export const ROUTER_BASENAME = `${APP_BASE_PATH}${ORGANIZATION_BASENAME}`;
+
+/** Where the page is, inside the app: the path after the router basename, plus query and hash. */
 export function pathInApp(): string {
   const { pathname, search, hash } = globalThis.location;
-  const path = pathname.slice(ORGANIZATION_BASENAME.length) || '/';
+  const path = pathname.slice(ROUTER_BASENAME.length) || '/';
   return `${path}${search}${hash}`;
 }
 
 /** The same place in this app, for another company. */
 export function organizationLocation(slug: string): string {
-  return `${organizationBasename(slug)}${pathInApp()}`;
+  return `${APP_BASE_PATH}${organizationBasename(slug)}${pathInApp()}`;
 }

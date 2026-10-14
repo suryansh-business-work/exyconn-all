@@ -9,6 +9,7 @@ import maintenance from './services/maintenance.json';
 import mobileApplicationDevelopment from './services/mobile-application-development.json';
 import softwareAsAService from './services/software-as-a-service.json';
 import whatsappChatbot from './services/whatsapp-chatbot.json';
+import callingBotDemo from './services/calling-bot-demo.json';
 import hub from './services/hub.json';
 import digitalMarketing from './services/digital-marketing.json';
 import softwareDevelopmentOutsourcing from './services/software-development-outsourcing.json';
@@ -24,6 +25,7 @@ export const SERVICE_PAGES: CmsSeedPage[] = [
   mobileApplicationDevelopment,
   softwareAsAService,
   whatsappChatbot,
+  callingBotDemo,
   hub,
   digitalMarketing,
   softwareDevelopmentOutsourcing,

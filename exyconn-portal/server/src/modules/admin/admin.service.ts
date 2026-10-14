@@ -381,6 +381,14 @@ class AdminService {
       .lean();
   }
 
+  /**
+   * Every person's name, deleted accounts included, so a leave request or payslip keeps saying
+   * whose it is after the account is gone. `isActive` is false for a deactivated or deleted one.
+   */
+  listEmployeeNames() {
+    return UserModel.find().setOptions({ withDeleted: true }).select('name isActive').lean();
+  }
+
   /** One page of users for the server-side Users grid (search/filter/sort/paginate). */
   listUsersPaged(input: TableQueryInput) {
     return tableQuery(UserModel, input, USER_TABLE_CONFIG);
@@ -399,7 +407,12 @@ class AdminService {
 
   async createUser(input: CreateUserInput) {
     if (input.managerId) await this.assertManagerExists(input.managerId);
-    const exists = await UserModel.findOne({ email: input.email.toLowerCase() }).lean();
+    // A deleted account keeps its address (it is still the person's record), so it counts here.
+    const exists = await UserModel.findOne({ email: input.email.toLowerCase() })
+      .setOptions({ withDeleted: true })
+      .select('deletedAt')
+      .lean();
+    if (exists?.deletedAt) badRequest('This email belongs to a deleted employee');
     if (exists) badRequest('A user with this email already exists');
     if (!input.roles.length) badRequest('At least one role is required');
 
@@ -513,9 +526,17 @@ class AdminService {
     return user;
   }
 
+  /**
+   * Deletes an account without erasing it: the person is signed out everywhere, can no longer
+   * sign in, and drops out of every list and picker, while the records that name them keep
+   * their name (listEmployeeNames).
+   */
   async deleteUser(id: string) {
-    const user = await UserModel.findByIdAndDelete(id).lean();
+    const user = await UserModel.findById(id).select('_id').lean();
     if (!user) notFound('User');
+    // Signed out first: once deleted, the account is hidden from the update that does it.
+    await bumpTokenVersion(id);
+    await UserModel.updateOne({ _id: id }, { deletedAt: new Date(), isActive: false });
     return true;
   }
 

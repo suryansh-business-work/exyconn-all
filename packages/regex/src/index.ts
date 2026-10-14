@@ -21,6 +21,9 @@ export const LINK = /^(?:https?:\/\/[^\s/?#]+(?:[/?#]\S*)?|\/(?!\/)\S*)$/i;
 /** A phone number as people write it: optional `+`, digits, spaces, dashes and brackets. */
 export const PHONE = /^\+?\(?\d[\d\s()-]{5,18}\d$/;
 
+/** A phone number in E.164: `+`, the country code and the number, digits only (e.g. `+919876543210`). */
+export const E164_PHONE = /^\+[1-9]\d{7,14}$/;
+
 /** A ten-digit Indian mobile number, without the country code — it always starts 6–9. */
 export const INDIAN_MOBILE = /^[6-9]\d{9}$/;
 

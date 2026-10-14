@@ -423,6 +423,41 @@ export type BugStatus =
   | 'OPEN'
   | 'RESOLVED';
 
+export type CallingBotCallStatus =
+  | 'ENDED'
+  | 'FAILED'
+  | 'LIVE'
+  | 'RINGING'
+  | 'STARTING';
+
+export type CallingBotChannel =
+  | 'BROWSER'
+  | 'PHONE';
+
+export type CallingBotConfigInput = {
+  greeting: Scalars['String']['input'];
+  isActive: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+  languageCode: Scalars['String']['input'];
+  maxCallSeconds: Scalars['Int']['input'];
+  /** Write-only. Leave empty when editing to keep the stored key. */
+  openAiApiKey: Scalars['String']['input'];
+  openAiModel: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored key. */
+  sarvamApiKey: Scalars['String']['input'];
+  systemPrompt: Scalars['String']['input'];
+  ttsModel: Scalars['String']['input'];
+  ttsSpeaker: Scalars['String']['input'];
+  vobizAuthId: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored token. */
+  vobizAuthToken: Scalars['String']['input'];
+  vobizNumber: Scalars['String']['input'];
+};
+
+export type CallingBotTurnRole =
+  | 'BOT'
+  | 'CALLER';
+
 export type CampaignChannel =
   | 'DISPLAY'
   | 'EMAIL'
@@ -2562,6 +2597,12 @@ export type SslCertificateStatus =
   | 'INVALID'
   | 'OK'
   | 'UNREACHABLE';
+
+export type StartCallingBotCallInput = {
+  channel: CallingBotChannel;
+  /** The number to ring, in E.164; phone calls only. */
+  phone: InputMaybe<Scalars['String']['input']>;
+};
 
 export type StatusCategory =
   | 'API'

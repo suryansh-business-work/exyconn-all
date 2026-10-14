@@ -56,7 +56,7 @@ describe('CaseStudyForm', () => {
     renderForm();
     await fillRequired();
     await fillField('Slug', 'acme_migration');
-    await fillField('Cover image URL', 'acme.png');
+    await fillField('Cover image', 'acme.png');
     await fillField('PDF URL', '/files/acme.pdf');
 
     await press('Create');

@@ -21,8 +21,8 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   useListExitRecordsStatsQuery: () => gql.stats(),
   useDeleteExitRecordMutation: () => [gql.remove],
   useExitRecordHeldAssetsQuery: (options: unknown) => gql.heldAssets(options),
-  useListUsersQuery: () => ({
-    data: { listUsers: [{ id: 'user-1', name: 'Asha Rao', email: 'asha@example.com' }] },
+  useListEmployeeNamesQuery: () => ({
+    data: { listEmployeeNames: [{ id: 'user-1', name: 'Asha Rao', isActive: true }] },
   }),
 }));
 

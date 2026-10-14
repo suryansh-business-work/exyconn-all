@@ -1,0 +1,41 @@
+{
+  "name": "@exyconn/calling-bot-demo-server",
+  "version": "1.1.0",
+  "private": true,
+  "description": "The AI calling bot demo's voice server (demos.exyconn.com/calling-bot-demo/api): a caller's audio, from the browser or a Vobiz phone call, through Sarvam speech-to-text, OpenAI and Sarvam text-to-speech in real time. Also exports the record definitions and call tickets the portal server shares with it.",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": {
+      "exyconn-compiled": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "default": "./src/index.ts"
+    }
+  },
+  "scripts": {
+    "dev": "tsx watch src/runtime/main.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/runtime/main.js",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"src/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\""
+  },
+  "dependencies": {
+    "mongoose": "^8.9.5",
+    "ws": "^8.21.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@exyconn/config": "workspace:*",
+    "@types/node": "^22.10.5",
+    "@types/ws": "^8.18.1",
+    "eslint": "^10.9.1",
+    "globals": "^17.12.0",
+    "prettier": "^3.4.2",
+    "tsx": "^4.19.2",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.69.0"
+  },
+  "prettier": "@exyconn/config/prettier.json"
+}

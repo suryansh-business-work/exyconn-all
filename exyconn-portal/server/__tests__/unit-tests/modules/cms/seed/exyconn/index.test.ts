@@ -64,6 +64,6 @@ describe('EXYCONN_SEED design system and pages', () => {
 
   it('seeds every migrated page', () => {
     expect(EXYCONN_SEED.pages).toBe(EXYCONN_PAGES);
-    expect(EXYCONN_PAGES).toHaveLength(79);
+    expect(EXYCONN_PAGES).toHaveLength(80);
   });
 });

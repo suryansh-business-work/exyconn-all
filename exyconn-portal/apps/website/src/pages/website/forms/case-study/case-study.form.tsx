@@ -10,6 +10,7 @@ import {
 } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
+import { RhfMediaField } from '../../../cms/media';
 import { useCurrentSiteId } from '../../../cms/site';
 import {
   useCreateCaseStudyMutation,
@@ -103,7 +104,7 @@ export function CaseStudyForm({ initial, onDone, onCancel }: Readonly<CaseStudyF
       <RhfTextField name="title" label="Title" />
       <RhfTextField name="excerpt" label="Excerpt" multiline minRows={2} />
       <ArticleBodyField folder={MEDIA_FOLDERS.caseStudies} />
-      <RhfTextField name="coverImage" label="Cover image URL" />
+      <RhfMediaField name="coverImage" label="Cover image" siteId={siteId} />
       <RhfTextField name="category" label="Category" />
       <RhfTextField name="author" label="Author" />
       <RhfChipsInput name="tags" label="Tags" />

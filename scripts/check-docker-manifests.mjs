@@ -16,8 +16,18 @@ import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 
 const PORTAL_DOCKERFILE = 'docker/portal-app.Dockerfile';
-/** Workspace roots the portal image builds from. Server-only trees are excluded on purpose. */
-const ROOTS = ['packages', 'exyconn-portal/apps'];
+/**
+ * Workspace roots the portal image builds from: each child with a package.json is a package.
+ * Server-only trees are excluded on purpose. The demos keep their UI one level down, under
+ * demos/<demo>/ui, beside the demo's server.
+ */
+const ROOTS = [
+  'packages',
+  'exyconn-portal/apps',
+  'demos',
+  'demos/whatsapp-demo',
+  'demos/calling-bot-demo',
+];
 
 const WEBSITE_DOCKERFILE = 'docker/website.Dockerfile';
 const WEBSITE_DIR = 'exyconn-website';

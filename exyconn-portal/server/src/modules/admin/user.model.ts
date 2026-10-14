@@ -1,4 +1,4 @@
-import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { Schema, model, type InferSchemaType, type Model, type Query } from 'mongoose';
 import { ALL_ROLES, ROLES } from '../../constants/roles';
 import {
   DEFAULT_WORK_HOURS_PER_DAY,
@@ -150,9 +150,32 @@ const userSchema = new Schema(
       min: WORK_HOURS_MIN,
       max: WORK_HOURS_MAX,
     },
+    /**
+     * When the account was deleted. Deleting keeps the record, so the leave, attendance and
+     * pay rows that name this person still show who they were; null is a live account.
+     */
+    deletedAt: { type: Date, default: null },
   },
   { timestamps: true },
 );
+
+/**
+ * Every query that reads or changes users; each leaves deleted accounts out, and so does every
+ * aggregation (below). A query that must see them too (naming the people old records belong to)
+ * sets the `withDeleted` option.
+ */
+const LIVE_USER_HOOKS =
+  /^(count|countDocuments|distinct|find|findOne|findOneAndUpdate|updateMany|updateOne)$/;
+
+userSchema.pre(LIVE_USER_HOOKS, function (this: Query<unknown, unknown>) {
+  if (!this.getOptions().withDeleted) {
+    this.where({ deletedAt: null });
+  }
+});
+
+userSchema.pre('aggregate', function () {
+  this.pipeline().unshift({ $match: { deletedAt: null } });
+});
 
 export type UserDocument = InferSchemaType<typeof userSchema>;
 
