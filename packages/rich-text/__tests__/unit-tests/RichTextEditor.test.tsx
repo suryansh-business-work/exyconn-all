@@ -3,6 +3,17 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { RichTextEditor } from '../../src';
 import { altFromFileName } from '../../src/forms/image';
 
+// Monaco needs a real browser; the source view is tested through a plain text area instead.
+vi.mock('@exyconn/code-editor', () => ({
+  CodeEditor: ({
+    value,
+    onChange,
+    label,
+  }: Readonly<{ value: string; onChange: (next: string) => void; label: string }>) => (
+    <textarea aria-label={label} value={value} onChange={(event) => onChange(event.target.value)} />
+  ),
+}));
+
 const renderEditor = (props: Partial<Parameters<typeof RichTextEditor>[0]> = {}) => {
   const onChange = vi.fn();
   const uploadImage = vi.fn(async () => 'https://ik.imagekit.io/x/a.png');
