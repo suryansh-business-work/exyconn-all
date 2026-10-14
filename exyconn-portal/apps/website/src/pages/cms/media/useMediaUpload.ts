@@ -54,3 +54,17 @@ export function useMediaUpload(siteId: string): (file: File) => Promise<string> 
     return data.uploadCmsAsset.url;
   };
 }
+
+/**
+ * The site library as the shared upload dialog's destination: the cropped image (a data URL)
+ * goes through the same checks and into the same library as a file dropped on Media.
+ */
+export function useMediaDataUrlUpload(
+  siteId: string,
+): (dataUrl: string, fileName: string) => Promise<string> {
+  const upload = useMediaUpload(siteId);
+  return async (dataUrl, fileName) => {
+    const blob = await (await fetch(dataUrl)).blob();
+    return upload(new File([blob], fileName, { type: blob.type }));
+  };
+}
