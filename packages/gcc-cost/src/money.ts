@@ -70,6 +70,8 @@ export function formatMoney(minor: Minor, options: FormatOptions): string {
     currency: options.currency,
     currencyDisplay: options.display ?? 'symbol',
     notation: options.compact ? 'compact' : 'standard',
+    // Set both ends: left to a currency's default minimum, some ICU builds print "₹150.0M".
+    minimumFractionDigits: 0,
     maximumFractionDigits: options.compact ? 1 : 0,
   }).format(value);
 }

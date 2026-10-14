@@ -38,7 +38,7 @@ describe('seedWebsiteContent', () => {
     gigs: 1,
     toolCategories: 7,
     tools: 52,
-    navLinks: 35,
+    navLinks: 37,
   };
 
   it('migrates every piece of the website content', async () => {
