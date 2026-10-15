@@ -184,7 +184,9 @@ describe('server bootstrap', () => {
       'migrateClientTaxIds',
       'ensureWhatsappDemoSeeds',
     ]);
-    expect(m.tenant.runAsPlatform).toHaveBeenCalledTimes(4);
+    // Admin access, the log-group backfill, status monitors, the calling bot migration and AI
+    // model prices run for the platform rather than for each company.
+    expect(m.tenant.runAsPlatform).toHaveBeenCalledTimes(5);
   });
 
   it('logs and exits when the database cannot be reached, serving nothing', async () => {
