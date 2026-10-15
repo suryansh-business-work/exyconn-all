@@ -23,7 +23,7 @@ import { ensureAiModelPrices, startAiWorker } from './modules/ai';
 import { backfillAppLogGroupUsers } from './modules/logs';
 import { backfillPositionDefaults } from './modules/hr';
 import { runOnce } from './lib/migrations';
-import { migratePhoneProvider } from './modules/calling-bot-demo';
+import { backfillPhoneFields, migratePhoneProvider } from './modules/calling-bot-demo';
 import { migrateClientTaxIds } from './modules/clients';
 import { ensureCmsDefaults } from './modules/cms';
 import { startReminderSweep } from './modules/reminders';
@@ -94,6 +94,8 @@ async function bootstrap(): Promise<void> {
   await ensureCmsDefaults();
   // Calling bot configs from before Twilio was offered keep ringing through Vobiz.
   await runAsPlatform(() => runOnce('calling-bot-phone-provider', migratePhoneProvider));
+  // and the oldest ones gain the phone fields they were saved without.
+  await runAsPlatform(() => runOnce('calling-bot-phone-fields', backfillPhoneFields));
   // The WhatsApp demo opens on its default industries. Each industry is seeded into a company
   // once (ledger line per industry key), so a new one ships on the next boot and an edited
   // one is never overwritten.

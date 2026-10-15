@@ -12,3 +12,24 @@ export async function migratePhoneProvider(): Promise<void> {
   );
   await CallingBotConfigModel.updateMany(unset, { $set: { phoneProvider: 'NONE' } });
 }
+
+/** The phone account fields, added after the first configs were saved. */
+const PHONE_FIELDS = [
+  'vobizAuthId',
+  'vobizAuthToken',
+  'vobizNumber',
+  'twilioAccountSid',
+  'twilioAuthToken',
+  'twilioNumber',
+] as const;
+
+/**
+ * Configs saved before a phone field existed have no value for it, and lean reads skip schema
+ * defaults, so the field reached GraphQL as null (a non-null `String!`) and failed the whole
+ * Calling bot list. Each missing field gets its schema default, an empty string.
+ */
+export async function backfillPhoneFields(): Promise<void> {
+  for (const field of PHONE_FIELDS) {
+    await CallingBotConfigModel.updateMany({ [field]: null }, { $set: { [field]: '' } });
+  }
+}
