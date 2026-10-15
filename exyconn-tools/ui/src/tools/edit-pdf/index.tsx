@@ -62,7 +62,11 @@ export default function EditPdf() {
   }, []);
 
   useEffect(() => {
-    if (pdfDoc) renderPage(pdfDoc, currentPage, annotations);
+    // A page that cannot be drawn (a broken page, or the editor closed mid-render) says so
+    // instead of escaping as an unhandled rejection.
+    if (pdfDoc) {
+      renderPage(pdfDoc, currentPage, annotations).catch(() => setError('Failed to show this page.'));
+    }
   }, [pdfDoc, currentPage, annotations, renderPage]);
 
   const loadFile = useCallback(async (f: File) => {
