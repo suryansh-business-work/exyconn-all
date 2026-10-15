@@ -43,7 +43,7 @@ export function CustomPropertiesGate({ object, children }: Readonly<CustomProper
   }
   if (loading && !loaded) {
     return (
-      <Stack spacing={2.5} aria-busy="true" aria-label={t('Loading the form')}>
+      <Stack spacing={2} aria-busy="true" aria-label={t('Loading the form')}>
         {SKELETON_ROWS.map((row) => (
           <Skeleton key={row} variant="rounded" height={56} />
         ))}

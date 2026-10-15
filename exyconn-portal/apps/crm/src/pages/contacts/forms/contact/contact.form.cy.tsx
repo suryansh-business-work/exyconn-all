@@ -3,10 +3,11 @@ import { ThemeProvider } from '@exyconn/shell/components/ui/styles';
 import { ContactForm } from './contact.form';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
+import { noCustomPropertiesMock } from '../../../../records/custom-fields/noCustomProperties.mock';
 
 const mount = () =>
   cy.mount(
-    <MockedProvider mocks={[]}>
+    <MockedProvider mocks={[noCustomPropertiesMock]}>
       <ThemeProvider theme={theme}>
         <NotificationProvider>
           <ContactForm initial={null} onDone={cy.stub()} onCancel={cy.stub().as('cancel')} />

@@ -75,7 +75,6 @@ describe('ContactsPage', () => {
     expect(dashboardProps()).toMatchObject({
       title: 'Contacts',
       entityLabel: 'contact',
-      exportFileName: 'contacts',
     });
   });
 

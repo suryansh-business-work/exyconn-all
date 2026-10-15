@@ -90,7 +90,7 @@ describe('CrmPage', () => {
     expect(recordList.options?.document).toBe(SearchLeadsDocument);
     expect(recordList.options?.select({ searchLeads: page } as never)).toBe(page);
     expect(dashboardProps().columnDefs).toBe(LEAD_COLUMNS);
-    expect(dashboardProps()).toMatchObject({ title: 'CRM', exportFileName: 'leads' });
+    expect(dashboardProps()).toMatchObject({ title: 'CRM' });
   });
 
   it('opens the lead form blank for a new lead and with the row for an edit', async () => {

@@ -31,7 +31,7 @@ export function CustomFieldsSection({
       <Box
         sx={{
           display: 'grid',
-          gap: 2.5,
+          gap: 2,
           gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, minmax(0, 1fr))' },
         }}
       >

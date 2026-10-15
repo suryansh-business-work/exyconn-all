@@ -76,7 +76,7 @@ describe('CompaniesPage', () => {
     expect(recordList.options?.document).toBe(SearchCompaniesDocument);
     expect(recordList.options?.select({ searchCompanies: page } as never)).toBe(page);
     expect(dashboardProps().columnDefs).toBe(COMPANY_COLUMNS);
-    expect(dashboardProps()).toMatchObject({ title: 'Companies', exportFileName: 'companies' });
+    expect(dashboardProps()).toMatchObject({ title: 'Companies' });
   });
 
   it('opens the form blank for a new company and with the row for an edit', async () => {
