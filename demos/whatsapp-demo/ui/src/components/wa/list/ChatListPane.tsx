@@ -1,8 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useT } from '@exyconn/i18n';
 import { Box, Button, Skeleton } from '@exyconn/shell/components/ui';
-import type { ChatStore } from '../../../runtime/store';
-import type { CatalogBundle } from '../../../runtime/types';
+import type { ChatStore, CatalogBundle } from '@exyconn/bot-studio/runtime';
 import { useWaPalette } from '../../../theme/useWa';
 import { WA_FONT, WA_LINE, WA_SIZE, WA_SPACE } from '../../../theme/wa.tokens';
 import { ChatListHeader } from './ChatListHeader';

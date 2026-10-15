@@ -36,3 +36,84 @@ export function downloadCsv(filename: string, csv: string): void {
   anchor.click();
   URL.revokeObjectURL(url);
 }
+
+/**
+ * The delimiter of a file, read off its header line: a comma, unless the header has no comma
+ * but has a semicolon (Excel in many European locales) or a tab (a TSV), in that order.
+ */
+function detectDelimiter(text: string): string {
+  const end = text.search(/[\r\n]/);
+  const header = end === -1 ? text : text.slice(0, end);
+  if (header.includes(',')) return ',';
+  if (header.includes(';')) return ';';
+  if (header.includes('\t')) return '\t';
+  return ',';
+}
+
+/** A quoted field from just after its opening quote: `""` is one quote. Returns where it ends. */
+function readQuoted(text: string, start: number): { value: string; next: number } {
+  let value = '';
+  let index = start;
+  while (index < text.length) {
+    const quote = text.indexOf('"', index);
+    if (quote === -1) {
+      return { value: value + text.slice(index), next: text.length };
+    }
+    value += text.slice(index, quote);
+    if (text[quote + 1] !== '"') {
+      return { value, next: quote + 1 };
+    }
+    value += '"';
+    index = quote + 2;
+  }
+  return { value, next: index };
+}
+
+/** True for a record that is one empty cell: a blank line. */
+function isBlank(row: string[]): boolean {
+  return row.length === 1 && row[0] === '';
+}
+
+/**
+ * CSV text to rows of cells (RFC 4180): quoted fields may hold the delimiter, line breaks and
+ * `""` for a quote; lines end in CRLF, LF or CR; a UTF-8 BOM is dropped, and so are blank lines
+ * at the end of the file. The delimiter is detected from the header line (see
+ * `detectDelimiter`). Cells are returned as written — trimming is the caller's choice.
+ */
+export function parseCsv(text: string): string[][] {
+  const source = text.startsWith('﻿') ? text.slice(1) : text;
+  const delimiter = detectDelimiter(source);
+  const rows: string[][] = [];
+  let row: string[] = [];
+  let field = '';
+  let index = 0;
+  while (index < source.length) {
+    const char = source[index];
+    if (char === '"' && field === '') {
+      const quoted = readQuoted(source, index + 1);
+      field = quoted.value;
+      index = quoted.next;
+    } else if (char === delimiter) {
+      row.push(field);
+      field = '';
+      index += 1;
+    } else if (char === '\r' || char === '\n') {
+      row.push(field);
+      rows.push(row);
+      row = [];
+      field = '';
+      index += char === '\r' && source[index + 1] === '\n' ? 2 : 1;
+    } else {
+      field += char;
+      index += 1;
+    }
+  }
+  if (field !== '' || row.length > 0) {
+    row.push(field);
+    rows.push(row);
+  }
+  while (rows.length > 0 && isBlank(rows[rows.length - 1])) {
+    rows.pop();
+  }
+  return rows;
+}

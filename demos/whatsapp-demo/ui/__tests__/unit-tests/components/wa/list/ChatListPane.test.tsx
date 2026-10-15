@@ -3,7 +3,7 @@ import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { ChatListPane } from '../../../../../src/components/wa/list/ChatListPane';
 import { markGuideSeen } from '../../../../../src/components/wa/list/guideSeen';
-import type { CatalogBundle } from '../../../../../src/runtime/types';
+import type { CatalogBundle } from '@exyconn/bot-studio/runtime';
 import { renderWithProviders } from '../../../test-utils';
 import { bundle, chatRecord, message, store } from '../wa-ui.fixtures';
 

@@ -5,7 +5,11 @@ import { recordActivity } from '../modules/admin/presence';
 import { principalForApiKey } from '../modules/integrations/api-key.service';
 import { organizationOf, runAsPlatform, setScopeOrganization, setScopeSelf } from '../lib/tenant';
 import { actingOrganization } from './actingOrganization';
-import { VISITOR_HEADER, visitorForPass, type DemoVisitor } from '../modules/whatsapp-demo/visitor';
+import {
+  VISITOR_HEADER,
+  visitorForPass,
+  type DemoVisitor,
+} from '../../../../demos/whatsapp-demo/server/src/visitor';
 import { CLIENT_PASS_HEADER, contactForPass, type ClientHubContact } from '../modules/clienthub';
 import { OrganizationModel } from '../modules/organizations/organization.model';
 import { deviceMayRun, deviceTokenIsLive } from '../modules/tracker/tracker.auth';
@@ -42,7 +46,7 @@ export interface GraphQLContext {
   deviceId?: string;
   /**
    * Set when the caller is a WhatsApp demo visitor (email-and-code sign-in, see
-   * modules/whatsapp-demo/visitor) rather than a portal user. Such a request has no `user`,
+   * demos/whatsapp-demo/server/src/visitor) rather than a portal user. Such a request has no `user`,
    * so every role guard refuses it; only the demo's chat operations accept it.
    */
   demoVisitor?: DemoVisitor;

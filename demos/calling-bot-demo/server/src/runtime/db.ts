@@ -4,6 +4,8 @@ import {
   CALLING_BOT_CALL_MODEL,
   CALLING_BOT_CONFIG_FIELDS,
   CALLING_BOT_CONFIG_MODEL,
+  CALLING_BOT_SCENARIO_FIELDS,
+  CALLING_BOT_SCENARIO_MODEL,
 } from '../index';
 import { env } from './env';
 
@@ -17,6 +19,12 @@ export const ConfigModel = mongoose.model(
 export const CallModel = mongoose.model(
   CALLING_BOT_CALL_MODEL,
   new Schema(CALLING_BOT_CALL_FIELDS, { timestamps: true }),
+);
+
+/** Read through `.lean<CallingBotScenarioRecord>()`: the example a call plays, if any. */
+export const ScenarioModel = mongoose.model(
+  CALLING_BOT_SCENARIO_MODEL,
+  new Schema(CALLING_BOT_SCENARIO_FIELDS, { timestamps: true }),
 );
 
 /** Connects to the portal's database, where the config and the calls live. */

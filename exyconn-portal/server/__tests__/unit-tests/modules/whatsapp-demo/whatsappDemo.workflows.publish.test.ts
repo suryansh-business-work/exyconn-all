@@ -6,8 +6,8 @@ import {
   publish,
   remove,
   saveDraft,
-} from '../../../../src/modules/whatsapp-demo/whatsappDemo.workflows';
-import { WhatsappWorkflowModel } from '../../../../src/modules/whatsapp-demo/whatsappDemo.model';
+} from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.workflows';
+import { WhatsappWorkflowModel } from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.model';
 import { AuditLogModel } from '../../../../src/modules/audit';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
 import { codeOf } from '../codeOf';

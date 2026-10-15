@@ -6,7 +6,7 @@ import {
   presentWorkflow,
   sameGraph,
   workflowStatus,
-} from '../../../../src/modules/whatsapp-demo/whatsappDemo.present';
+} from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.present';
 
 type DemoRow = Parameters<typeof presentDemo>[0];
 type WorkflowRow = Parameters<typeof presentWorkflow>[0];
@@ -73,6 +73,7 @@ describe('a demo as the API shows it', () => {
     expect(presentDemo(row)).toEqual({
       id: row._id.toHexString(),
       key: 'salon',
+      channel: 'whatsapp',
       industry: 'Salon',
       business: { name: 'Glow' },
       greeting: 'Hi',

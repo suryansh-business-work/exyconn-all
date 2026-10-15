@@ -123,6 +123,8 @@ These guidelines are working if: fewer unnecessary changes in diffs, fewer rewri
 <https://ai.exyconn.com>
 <https://website.exyconn.com>
 <https://tracker.exyconn.com>
+<https://demos.exyconn.com>
+<https://clienthub.exyconn.com>
 <https://tools.exyconn.com>
 <https://tools-api.exyconn.com/health>
 

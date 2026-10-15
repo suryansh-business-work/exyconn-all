@@ -307,8 +307,13 @@ Unknown ids or a bad accent make the scene fall back to its CSS gradient (logged
 focused; from script, `highlightStage(tag | null)` (`src/scripts/stage3d/events.ts`) — e.g. a
 FilterBar category or a completed form step. **Mid-page / closing morph:** any element with
 `data-stage-echo` (CtaBand has one) receives the canvas when it scrolls into view with the hero
-gone, and re-forms `data-stage-shape="n"` there. Keep mid-page echoes to Vision, Workflows and
-Custom model training.
+gone, and re-forms `data-stage-shape="n"` there. Keep mid-page echoes to Vision, Workflows,
+Custom model training and the industry pages' scroll story.
+
+**Scroll story** (`industry.story`, `components/cms/industry/IndustryStory.astro`): an echo
+marked `data-stage-live` inside a `[data-stage-story]` section keeps drawing while the canvas is
+there and turns the scene with how far the section has been read; `scripts/inner/story.ts`
+lights the use case (`data-story-step`) of the moment crossing the middle of the screen.
 
 **Budget & fallbacks (automatic).** Half the home tier: ~3.5k points on phones, ~8k on
 laptops, DPR ≤ 1.25 phone / 1.5 desktop, no fbm nebula on phones; three.js loads after first
@@ -345,6 +350,11 @@ layouts `sway`.
 | `documents`              | `sheets?` (4, ≤ 8)                                   | sheet i → i+1 (front first)     | policies, grievance, articles  |
 | `tree`                   | `branches?: number[]` (pages per section, ≤ 12 × 24) | section i → i+1, root 0         | sitemap                        |
 | `jet`, `robot`, `planet` | —                                                    | home-specific                   | (home story worlds)            |
+| industry ids (20)        | —                                                    | use case i → i+1 (marker, link) | `/industries/*`                |
+
+Industry scenes (`shapes/industries/`) share one builder (`kit.ts`): the industry's landmark on
+a round plinth, six use-case markers (icons in `icons.ts`) floating round it, each wired to the
+landmark by a live link. Use case `i` is card `i` of the page's use cases and its story moments.
 
 `glyph`, `terrain` and `constellation` throw without their data — pass real numbers.
 

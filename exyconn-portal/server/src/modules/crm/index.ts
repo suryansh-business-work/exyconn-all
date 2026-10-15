@@ -4,6 +4,7 @@ import { createCrudService } from '../../lib/crudService';
 import { createCrudResolvers } from '../../lib/crudResolvers';
 import { ROLES } from '../../constants/roles';
 import { emitWebhookBestEffort } from '../integrations';
+import { sanitizeCustom } from './records';
 // Imported for its side effect: the module registers what it wants chased.
 import './crm.reminders';
 import type { GraphQLContext } from '../../middleware/auth';
@@ -18,6 +19,7 @@ interface LeadInput {
   notes?: string;
   campaignId?: string;
   campaignName?: string;
+  custom?: unknown;
 }
 
 export const crmService = createCrudService<LeadInput>(LeadModel as never, 'Lead');
@@ -33,10 +35,16 @@ const leads = createCrudResolvers(crmService, {
   stats: { countBy: ['stage', 'source'], sum: ['value'] },
 });
 
-/** The form's save, with the campaign's name resolved from the id it picked. */
+/** The form's input, with the campaign's name resolved and the custom values checked. */
+const completeLead = async (input: LeadInput): Promise<LeadInput> => ({
+  ...(await withCampaignName(input)),
+  custom: await sanitizeCustom('LEAD', input.custom),
+});
+
+/** The form's save. */
 const createLead = async (p: unknown, args: never, ctx: GraphQLContext) => {
   const { input } = args as unknown as { input: LeadInput };
-  const completed = { input: await withCampaignName(input) } as unknown as never;
+  const completed = { input: await completeLead(input) } as unknown as never;
   const lead = (await leads.Mutation.createLead(p, completed, ctx)) as LeadInput & { id: string };
   emitWebhookBestEffort('lead.created', {
     leadId: lead.id,
@@ -54,7 +62,7 @@ const createLead = async (p: unknown, args: never, ctx: GraphQLContext) => {
 
 const updateLead = async (p: unknown, args: never, ctx: GraphQLContext) => {
   const { id, input } = args as unknown as { id: string; input: LeadInput };
-  const completed = { id, input: await withCampaignName(input) } as unknown as never;
+  const completed = { id, input: await completeLead(input) } as unknown as never;
   return leads.Mutation.updateLead(p, completed, ctx);
 };
 
@@ -70,6 +78,7 @@ export const crmResolvers = {
 
 export { crmTypeDefs } from './crm.typeDefs';
 export { crmEntitiesTypeDefs } from './crm.entities.typeDefs';
+export { crmRecordsTypeDefs, crmRecordsResolvers } from './records';
 export {
   crmEntitiesResolvers,
   companiesService,

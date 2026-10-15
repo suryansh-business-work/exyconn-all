@@ -4,7 +4,8 @@ module.exports = {
   testEnvironment: 'node',
   // src is a root so coverage counts every source file, including ones no test imports yet;
   // jest only reports untested files it finds under its roots. Tests still live in __tests__.
-  roots: ['<rootDir>/__tests__', '<rootDir>/src'],
+  // The WhatsApp demo's server code runs in this process and is tested here too.
+  roots: ['<rootDir>/__tests__', '<rootDir>/src', '<rootDir>/../../demos/whatsapp-demo/server/src'],
   testMatch: ['<rootDir>/__tests__/**/*.test.ts'],
   moduleFileExtensions: ['ts', 'js', 'json'],
   setupFiles: ['<rootDir>/__tests__/env.setup.ts'],

@@ -17,6 +17,12 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   useCreateContactMutation: () => [gql.create],
   useUpdateContactMutation: () => [gql.update],
   useListCompaniesQuery: () => gql.companies(),
+  // The record type has no custom properties: the form renders its built-in fields only.
+  useCrmObjectSchemaQuery: () => ({
+    data: { crmObjectSchema: { object: 'CONTACT', dedupeKey: '', properties: [] } },
+    loading: false,
+    refetch: vi.fn(),
+  }),
 }));
 
 const COMPANIES = [companyRow(), companyRow({ id: 'company-2', name: 'Globex' })];
@@ -93,6 +99,7 @@ describe('ContactForm', () => {
           status: ContactStatus.Active,
           owner: 'Priya',
           notes: '',
+          custom: {},
         },
       },
     });

@@ -1,10 +1,10 @@
-import { engineContext } from '../../../../../src/modules/whatsapp-demo/channel/channel.context';
-import { aiStatus } from '../../../../../src/modules/whatsapp-demo/whatsappDemo.parse';
+import { engineContext } from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.context';
+import { aiStatus } from '../../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.parse';
 import * as i18nService from '../../../../../src/modules/i18n/i18n.service';
 import { AppSettingsModel } from '../../../../../src/modules/admin/settings.model';
 import { useTestOrganization } from '../../../../helpers';
 
-jest.mock('../../../../../src/modules/whatsapp-demo/whatsappDemo.parse', () => ({
+jest.mock('../../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.parse', () => ({
   aiStatus: jest.fn(),
 }));
 

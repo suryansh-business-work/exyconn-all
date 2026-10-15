@@ -285,6 +285,7 @@ export type AuditAction =
   | 'ACCESS'
   | 'CREATE'
   | 'DELETE'
+  | 'IMPORT'
   | 'LOGIN'
   | 'PASSWORD_RESET'
   | 'PERMISSION'
@@ -488,6 +489,17 @@ export type CallingBotPhoneProvider =
   | 'NONE'
   | 'TWILIO'
   | 'VOBIZ';
+
+export type CallingBotScenarioInput = {
+  description: Scalars['String']['input'];
+  enabled: Scalars['Boolean']['input'];
+  greeting: Scalars['String']['input'];
+  /** Empty keeps the active config's language. */
+  languageCode: Scalars['String']['input'];
+  order: Scalars['Int']['input'];
+  systemPrompt: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+};
 
 /** A stored calling bot key that Tech staff can reveal, one at a time. */
 export type CallingBotSecret =
@@ -772,6 +784,7 @@ export type CompanyExpenseInput = {
 };
 
 export type CompanyInput = {
+  custom: InputMaybe<Scalars['JSON']['input']>;
   domain: Scalars['String']['input'];
   industry: InputMaybe<Scalars['String']['input']>;
   location: InputMaybe<Scalars['String']['input']>;
@@ -812,6 +825,7 @@ export type ComplianceCategory =
 export type ContactInput = {
   companyId: InputMaybe<Scalars['String']['input']>;
   companyName: InputMaybe<Scalars['String']['input']>;
+  custom: InputMaybe<Scalars['JSON']['input']>;
   email: Scalars['String']['input'];
   name: Scalars['String']['input'];
   notes: InputMaybe<Scalars['String']['input']>;
@@ -908,6 +922,116 @@ export type CreateUserInput = {
   workLocationNote: InputMaybe<Scalars['String']['input']>;
   workingTime: InputMaybe<WorkingTime>;
   workingTimeNote: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CrmConditionInput = {
+  op: CrmOp;
+  property: Scalars['String']['input'];
+  /** Dates as ISO strings; BETWEEN takes two values, IN/NOT_IN any number. */
+  values: Array<Scalars['String']['input']>;
+};
+
+/** Conditions in a group must all hold; a record matches when any group does. */
+export type CrmFilterGroupInput = {
+  conditions: Array<CrmConditionInput>;
+};
+
+export type CrmImportInput = {
+  /** The file line of the first row, so issues name lines a person can find. */
+  firstRowNumber: Scalars['Int']['input'];
+  mode: CrmImportMode;
+  object: CrmObject;
+  /** Up to 500 rows, each an object of property key to cell text. */
+  rows: Array<Scalars['JSON']['input']>;
+};
+
+/** CREATE skips rows that match an existing record, UPDATE skips rows that do not, UPSERT does both. */
+export type CrmImportMode =
+  | 'CREATE'
+  | 'UPDATE'
+  | 'UPSERT';
+
+export type CrmObject =
+  | 'COMPANY'
+  | 'CONTACT'
+  | 'LEAD';
+
+/** What a filter condition asks of a property; which ones apply depends on its type. */
+export type CrmOp =
+  | 'AFTER'
+  | 'BEFORE'
+  | 'BETWEEN'
+  | 'CONTAINS'
+  | 'ENDS_WITH'
+  | 'EQ'
+  | 'GT'
+  | 'GTE'
+  | 'IN'
+  | 'IS_EMPTY'
+  | 'IS_NOT_EMPTY'
+  | 'LAST_DAYS'
+  | 'LT'
+  | 'LTE'
+  | 'NEQ'
+  | 'NOT_CONTAINS'
+  | 'NOT_IN'
+  | 'STARTS_WITH';
+
+export type CrmPropertyInput = {
+  description: Scalars['String']['input'];
+  key: Scalars['String']['input'];
+  label: Scalars['String']['input'];
+  object: CrmObject;
+  options: Array<CrmPropertyOptionInput>;
+  required: Scalars['Boolean']['input'];
+  type: CrmPropertyType;
+};
+
+export type CrmPropertyOptionInput = {
+  label: Scalars['String']['input'];
+  value: Scalars['String']['input'];
+};
+
+export type CrmPropertyType =
+  | 'BOOLEAN'
+  | 'DATE'
+  | 'EMAIL'
+  | 'ENUM'
+  | 'NUMBER'
+  | 'PHONE'
+  | 'TEXT'
+  | 'URL';
+
+/** The key, type and record type of a property are fixed once it exists. */
+export type CrmPropertyUpdateInput = {
+  description: Scalars['String']['input'];
+  label: Scalars['String']['input'];
+  options: Array<CrmPropertyOptionInput>;
+  required: Scalars['Boolean']['input'];
+};
+
+export type CrmQueryInput = {
+  groups: InputMaybe<Array<CrmFilterGroupInput>>;
+  /** Zero-based. */
+  page: Scalars['Int']['input'];
+  pageSize: Scalars['Int']['input'];
+  search: InputMaybe<Scalars['String']['input']>;
+  sorts: InputMaybe<Array<CrmSortInput>>;
+};
+
+export type CrmSortInput = {
+  dir: SortDir;
+  property: Scalars['String']['input'];
+};
+
+export type CrmViewInput = {
+  columns: Array<Scalars['String']['input']>;
+  groups: Array<CrmFilterGroupInput>;
+  name: Scalars['String']['input'];
+  object: CrmObject;
+  search: Scalars['String']['input'];
+  shared: Scalars['Boolean']['input'];
+  sorts: Array<CrmSortInput>;
 };
 
 export type DealInput = {
@@ -1695,6 +1819,7 @@ export type KbArticleInput = {
 export type LeadInput = {
   /** Attribution. The campaign's name is filled in by the server from this id. */
   campaignId: InputMaybe<Scalars['String']['input']>;
+  custom: InputMaybe<Scalars['JSON']['input']>;
   email: Scalars['String']['input'];
   name: Scalars['String']['input'];
   notes: InputMaybe<Scalars['String']['input']>;
@@ -2348,6 +2473,11 @@ export type ProjectTimeline =
   | 'ON_TRACK'
   | 'OVERDUE';
 
+export type ProjectWorkflowInput = {
+  description: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+};
+
 export type PromptCategory =
   | 'ANALYSIS'
   | 'CODING'
@@ -2689,6 +2819,8 @@ export type StartCallingBotCallInput = {
   channel: CallingBotChannel;
   /** The number to ring, in E.164; phone calls only. */
   phone: InputMaybe<Scalars['String']['input']>;
+  /** The example the bot plays (from callingBotScenarios); none keeps the bot's own prompt. */
+  scenarioId: InputMaybe<Scalars['ID']['input']>;
 };
 
 export type StatusCategory =
@@ -2882,6 +3014,11 @@ export type TaskType =
   | 'EPIC'
   | 'STORY'
   | 'TASK';
+
+/** Who may read a ticket: people signed in to Projects, or anyone holding its public link. */
+export type TaskVisibility =
+  | 'PRIVATE'
+  | 'PUBLIC';
 
 export type TaxRegimeInput = {
   active: Scalars['Boolean']['input'];
@@ -3388,6 +3525,8 @@ export type WhatsappDemoEventType =
 export type WhatsappDemoInput = {
   active: Scalars['Boolean']['input'];
   business: Scalars['JSON']['input'];
+  /** whatsapp or website; left out when editing, the demo keeps its own. */
+  channel: InputMaybe<Scalars['String']['input']>;
   greeting: Scalars['String']['input'];
   industry: Scalars['String']['input'];
   key: Scalars['String']['input'];
@@ -3442,6 +3581,34 @@ export type WorkLocation =
   | 'HYBRID'
   | 'OFFICE'
   | 'OTHER';
+
+export type WorkflowEdgeInput = {
+  key: Scalars['String']['input'];
+  label: Scalars['String']['input'];
+  source: Scalars['String']['input'];
+  target: Scalars['String']['input'];
+};
+
+/** The whole drawing. Saved as one, and refused whole when it breaks a rule. */
+export type WorkflowGraphInput = {
+  edges: Array<WorkflowEdgeInput>;
+  nodes: Array<WorkflowNodeInput>;
+};
+
+export type WorkflowNodeInput = {
+  key: Scalars['String']['input'];
+  kind: WorkflowNodeKind;
+  label: Scalars['String']['input'];
+  x: Scalars['Float']['input'];
+  y: Scalars['Float']['input'];
+};
+
+/** The kinds of box a workflow is drawn from. */
+export type WorkflowNodeKind =
+  | 'DECISION'
+  | 'END'
+  | 'START'
+  | 'STEP';
 
 /** When an employee is expected to work. OTHER is described in workingTimeNote. */
 export type WorkingTime =

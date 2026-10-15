@@ -4,5 +4,6 @@
  */
 export * from './shared/config.fields';
 export * from './shared/call.fields';
+export * from './shared/scenario.fields';
 export * from './shared/ticket';
 export * from './shared/paths';

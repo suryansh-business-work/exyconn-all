@@ -5,7 +5,7 @@ import {
   isDuplicateKey,
   refuseGraph,
   refuseZod,
-} from '../../../../src/modules/whatsapp-demo/whatsappDemo.validation';
+} from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.validation';
 
 /** The GraphQLError a refusal throws. */
 function caught(refusal: () => never): GraphQLError {

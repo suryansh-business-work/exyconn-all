@@ -7,7 +7,10 @@ import type { CodegenConfig } from '@graphql-codegen/cli';
  */
 const config: CodegenConfig = {
   overwrite: true,
-  schema: '../../exyconn-portal/server/src/**/*.typeDefs.ts',
+  schema: [
+    '../../exyconn-portal/server/src/**/*.typeDefs.ts',
+    '../../demos/whatsapp-demo/server/src/**/*.typeDefs.ts',
+  ],
   documents: 'src/graphql/operations/**/*.graphql',
   generates: {
     'src/graphql/generated/index.ts': {

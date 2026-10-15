@@ -14,7 +14,12 @@ import Icon from "../inner/Icon.astro";
 import { BRANDING_FALLBACK, type Branding } from "../../lib/portal";
 import SocialIcon from "../SocialIcon.astro";
 import { socialLinks } from "../../lib/social-links";
-import { FOOTER_COLUMNS, FOOTER_TAGLINE, LEGAL_LINKS } from "../../lib/chrome/navigation";
+import {
+  FOOTER_COLUMNS,
+  FOOTER_INDUSTRIES,
+  FOOTER_TAGLINE,
+  LEGAL_LINKS,
+} from "../../lib/chrome/navigation";
 
 interface Props {
   branding: Branding;
@@ -93,6 +98,24 @@ const newTab = { target: "_blank", rel: "noopener noreferrer" };
       ))
     }
   </div>
+
+  <nav
+    class="chrome-shell site-footer__industries border-t border-line pt-10 pb-10"
+    aria-labelledby="footer-industries"
+  >
+    <h2 id="footer-industries" class="stage-label mb-3">{FOOTER_INDUSTRIES.label}</h2>
+    <ul class="site-footer__industry-list">
+      {
+        FOOTER_INDUSTRIES.links.map((link) => (
+          <li>
+            <a href={link.href} class="site-footer__link">
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
 
   <div class="site-footer__bottom">
     <div

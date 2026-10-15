@@ -1,13 +1,16 @@
 import { Types } from 'mongoose';
 import { toDemoProfile } from '@exyconn/wa-flow';
 import { SEED_DEMOS } from '@exyconn/wa-flow/seeds';
-import { whatsappDemoResolvers, whatsappDemoTypeDefs } from '../../../../src/modules/whatsapp-demo';
+import {
+  whatsappDemoResolvers,
+  whatsappDemoTypeDefs,
+} from '../../../../../../demos/whatsapp-demo/server/src';
 import { ROLES, type Role } from '../../../../src/constants/roles';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
 import { codeOf } from '../codeOf';
 import { END_GRAPH, draftInput, signedInAdmin } from './workflowFixtures';
 
-jest.mock('../../../../src/modules/whatsapp-demo/whatsappDemo.seed', () => ({
+jest.mock('../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.seed', () => ({
   ensureWhatsappDemoSeeds: async () => undefined,
   ensureWhatsappDemoSeedsLazily: async () => undefined,
 }));

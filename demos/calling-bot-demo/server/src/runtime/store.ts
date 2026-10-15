@@ -2,12 +2,14 @@ import { Types } from 'mongoose';
 import {
   isFinished,
   readCallTicket,
+  withScenario,
   type CallingBotCallRecord,
+  type CallingBotScenarioRecord,
   type CallingBotConfigRecord,
   type CallStatus,
   type TurnRole,
 } from '../index';
-import { CallModel, ConfigModel } from './db';
+import { CallModel, ConfigModel, ScenarioModel } from './db';
 
 /** How long the active config is reused before it is read again. */
 const CONFIG_TTL_MS = 15_000;
@@ -24,7 +26,18 @@ export async function activeConfig(): Promise<CallingBotConfigRecord | null> {
   return config;
 }
 
-/** What a ticket opens: the call it names and the config it was signed with. */
+/** The example a call was started with, or null when it had none (or it was deleted since). */
+async function scenarioOf(call: CallingBotCallRecord): Promise<CallingBotScenarioRecord | null> {
+  if (!call.scenarioId || !Types.ObjectId.isValid(call.scenarioId)) {
+    return null;
+  }
+  return ScenarioModel.findById(call.scenarioId).lean<CallingBotScenarioRecord>();
+}
+
+/**
+ * What a ticket opens: the call it names and the config it runs on — the one the ticket was
+ * signed with, playing the call's example when it has one.
+ */
 export interface TicketedCall {
   call: CallingBotCallRecord;
   config: CallingBotConfigRecord;
@@ -41,7 +54,10 @@ export async function callForTicket(ticket: string): Promise<TicketedCall | null
     return null;
   }
   const call = await CallModel.findById(claims.callId).lean<CallingBotCallRecord>();
-  return call && !isFinished(call.status) ? { call, config } : null;
+  if (!call || isFinished(call.status)) {
+    return null;
+  }
+  return { call, config: withScenario(config, await scenarioOf(call)) };
 }
 
 const callId = (call: CallingBotCallRecord): string => String(call._id);

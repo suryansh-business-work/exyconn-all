@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -8,15 +9,24 @@ import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import {
   ContactStatus,
+  CrmObject,
   useCreateContactMutation,
   useUpdateContactMutation,
   useListCompaniesQuery,
 } from '@exyconn/shell/graphql/generated';
+import {
+  CustomFieldsSection,
+  CustomPropertiesGate,
+  customDefaults,
+  customFieldsSchema,
+  toCustomInput,
+  type CustomPropertyDef,
+} from '../../../../records/custom-fields';
 import type { ContactRow } from './contact.types';
 
 const STATUS_OPTIONS = enumOptions(Object.values(ContactStatus));
 
-const schema = z.object({
+const baseSchema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
   email: z.string().trim().min(1, 'Email is required').regex(EMAIL, 'Enter a valid email'),
   phone: z.string().trim().regex(PHONE, 'Enter a valid phone number').or(z.literal('')),
@@ -26,9 +36,12 @@ const schema = z.object({
   owner: z.string().trim().min(1, 'Owner is required'),
   notes: z.string().trim(),
 });
-type Values = z.infer<typeof schema>;
+const buildSchema = (properties: readonly CustomPropertyDef[]) =>
+  baseSchema.extend({ custom: customFieldsSchema(properties) });
+type Schema = ReturnType<typeof buildSchema>;
+type Values = z.infer<Schema>;
 
-const toInitial = (row: ContactRow | null): Values => ({
+const toInitial = (row: ContactRow | null, properties: readonly CustomPropertyDef[]): Values => ({
   name: row?.name ?? '',
   email: row?.email ?? '',
   phone: row?.phone ?? '',
@@ -37,6 +50,7 @@ const toInitial = (row: ContactRow | null): Values => ({
   status: row?.status ?? ContactStatus.Active,
   owner: row?.owner ?? '',
   notes: row?.notes ?? '',
+  custom: customDefaults(properties, row?.custom),
 });
 
 interface ContactFormProps {
@@ -45,15 +59,29 @@ interface ContactFormProps {
   onCancel: () => void;
 }
 
-/** React Hook Form + Zod form to create or update a person at an account. */
-export function ContactForm({ initial, onDone, onCancel }: Readonly<ContactFormProps>) {
+/** React Hook Form + Zod form to create or update a person at an account, with custom properties. */
+export function ContactForm(props: Readonly<ContactFormProps>) {
+  return (
+    <CustomPropertiesGate object={CrmObject.Contact}>
+      {(properties) => <ContactFormFields {...props} properties={properties} />}
+    </CustomPropertiesGate>
+  );
+}
+
+function ContactFormFields({
+  initial,
+  onDone,
+  onCancel,
+  properties,
+}: Readonly<ContactFormProps & { properties: CustomPropertyDef[] }>) {
   const [createContact] = useCreateContactMutation();
   const [updateContact] = useUpdateContactMutation();
   const { data } = useListCompaniesQuery();
-  const methods = useForm<z.input<typeof schema>, unknown, Values>({
+  const schema = useMemo(() => buildSchema(properties), [properties]);
+  const methods = useForm<z.input<Schema>, unknown, Values>({
     mode: 'onTouched',
     resolver: zodResolver(schema),
-    defaultValues: toInitial(initial),
+    defaultValues: toInitial(initial, properties),
   });
 
   const companies = data?.listCompanies ?? [];
@@ -62,6 +90,7 @@ export function ContactForm({ initial, onDone, onCancel }: Readonly<ContactFormP
   const toInput = (values: Values) => ({
     ...values,
     companyName: companies.find((c) => c.id === values.companyId)?.name ?? '',
+    custom: toCustomInput(properties, values.custom),
   });
 
   const { isEdit, onSubmit } = useEntitySave({
@@ -82,6 +111,7 @@ export function ContactForm({ initial, onDone, onCancel }: Readonly<ContactFormP
       <RhfSelect name="status" label="Status" options={STATUS_OPTIONS} />
       <RhfTextField name="owner" label="Owner" />
       <RhfTextField name="notes" label="Notes" multiline rows={2} />
+      <CustomFieldsSection properties={properties} />
     </EntityForm>
   );
 }

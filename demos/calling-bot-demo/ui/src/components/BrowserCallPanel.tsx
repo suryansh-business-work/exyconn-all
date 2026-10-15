@@ -7,10 +7,15 @@ import { CallStatus } from './CallStatus';
 import { PhoneFrame } from './phone/PhoneFrame';
 import { Transcript } from './Transcript';
 
+interface BrowserCallPanelProps {
+  /** The example the bot plays; null keeps its own settings. */
+  scenarioId: string | null;
+}
+
 /** Talk to the bot from this browser, on a drawn phone: the microphone in, the bot's voice out. */
-export function BrowserCallPanel() {
+export function BrowserCallPanel({ scenarioId }: Readonly<BrowserCallPanelProps>) {
   const t = useT();
-  const call = useBrowserCall();
+  const call = useBrowserCall(scenarioId);
   const onCall = call.phase === 'connecting' || call.phase === 'live';
   return (
     <PhoneFrame>

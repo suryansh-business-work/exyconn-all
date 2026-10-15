@@ -7,15 +7,15 @@ import {
   WhatsappDemoModel,
   WhatsappDemoSessionModel,
   whatsappDemoResolvers,
-} from '../../../../src/modules/whatsapp-demo';
+} from '../../../../../../demos/whatsapp-demo/server/src';
 import { runForOrganization } from '../../../../src/lib/tenant';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
-import type { DemoVisitor } from '../../../../src/modules/whatsapp-demo/visitor/visitor.service';
+import type { DemoVisitor } from '../../../../../../demos/whatsapp-demo/server/src/visitor/visitor.service';
 import { codeOf } from '../codeOf';
 import { signedInAdmin } from './workflowFixtures';
 
 // The default industries are covered by their own suite; here the catalogue holds only what a test writes.
-jest.mock('../../../../src/modules/whatsapp-demo/whatsappDemo.seed', () => ({
+jest.mock('../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.seed', () => ({
   ensureWhatsappDemoSeeds: async () => undefined,
   ensureWhatsappDemoSeedsLazily: async () => undefined,
 }));

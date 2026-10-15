@@ -12,6 +12,7 @@ const mount = () =>
           <TicketForm
             initial={null}
             assignees={[{ value: 'u1', label: 'Asha Rao' }]}
+            epics={[]}
             onSubmit={cy.stub().as('submit').resolves()}
             onCancel={cy.stub().as('cancel')}
           />

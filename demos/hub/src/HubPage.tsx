@@ -36,7 +36,7 @@ export function HubPage() {
         <DemoHero
           eyebrow="Live AI demos"
           title="See our AI agents at work before you decide"
-          subtitle="Talk to a voice bot that answers like a person and chat with WhatsApp automations built for real businesses. Each demo runs on the same platform our clients use."
+          subtitle="Talk to a voice bot that answers like a person, chat with WhatsApp automations built for real businesses and try an AI chat agent on sample websites. Each demo runs on the same platform our clients use."
           visual={<DemoPhotoFrame photo={DEMO_PHOTOS.team} eager />}
         >
           <DemoHighlights items={HERO_FACTS} />
@@ -49,7 +49,7 @@ export function HubPage() {
         <DemoSection
           id="demos"
           title="Pick a demo"
-          subtitle="Both are live. Try one, or both with the same sign-in."
+          subtitle="All are live. Try one, or every one of them with the same sign-in."
         >
           <Grid container spacing={3} component="ul" sx={{ listStyle: 'none', p: 0, m: 0 }}>
             {DEMOS.map((demo) => (

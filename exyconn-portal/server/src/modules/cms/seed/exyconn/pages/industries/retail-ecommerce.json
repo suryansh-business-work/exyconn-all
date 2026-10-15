@@ -1,0 +1,468 @@
+{
+  "key": "industries-retail-ecommerce",
+  "path": "/industries/retail-ecommerce",
+  "title": "AI for Retail & E-commerce | Exyconn",
+  "seo": {
+    "title": "AI Automation for Retail and E-commerce Brands | Exyconn",
+    "description": "AI agents for D2C brands and retailers: help shoppers find products, sell and recover carts on WhatsApp, answer order tracking, run returns and forecast stock.",
+    "keywords": "AI for ecommerce, retail automation, ecommerce AI chatbot, WhatsApp commerce, abandoned cart recovery WhatsApp, where is my order automation, returns and exchanges automation, Shopify AI agent, D2C brand automation, COD order confirmation, demand forecasting for retail",
+    "ogImageUrl": "",
+    "canonical": "",
+    "noindex": false,
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "{marketUrl}" },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Industries",
+            "item": "{marketUrl}/industries"
+          },
+          { "@type": "ListItem", "position": 3, "name": "Retail & e-commerce" }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "AI automation for retail and e-commerce",
+        "serviceType": "AI agents and workflow automation",
+        "description": "Exyconn designs, builds and runs AI agents for D2C brands, online stores and multi-store retailers: product discovery, WhatsApp commerce and cart recovery, order tracking, returns and exchanges, stock and demand forecasting, and campaigns and review handling, connected to the storefront, order management system and courier partners.",
+        "url": "{marketUrl}/industries/retail-ecommerce",
+        "audience": {
+          "@type": "BusinessAudience",
+          "audienceType": "D2C brands, online stores, marketplace sellers and multi-store retailers"
+        },
+        "provider": { "@type": "Organization", "name": "{businessName}", "url": "{siteUrl}" },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "AI use cases for retail and e-commerce",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Product discovery assistant" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "WhatsApp commerce and cart recovery" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Order tracking and delivery updates" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Returns and exchanges" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Stock and demand forecasting" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Campaigns and review handling" }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "body": [
+    {
+      "component": "detail.stage",
+      "props": {
+        "family": "services",
+        "crumbs": [
+          { "label": "Home", "href": "/" },
+          { "label": "Industries", "href": "/industries" },
+          { "label": "Retail & e-commerce", "href": "" }
+        ],
+        "title": "Shoppers helped before and after checkout",
+        "lede": "AI agents for brands and retailers that help shoppers pick the right size, close sales on WhatsApp, answer \"where is my order\" and run returns by your policy. They work on the storefront, OMS and couriers you already use.",
+        "primary": { "label": "Plan AI for your store", "href": "/contact" },
+        "secondary": {
+          "label": "See e-commerce automation",
+          "href": "/ai-services/ai-ecommerce-automation"
+        },
+        "scene": { "shapes": ["retail"], "accent": ["fuchsia", "amber"] },
+        "glyph": "",
+        "tagline": "Discovery · Carts · Tracking · Returns · Stock"
+      }
+    },
+    {
+      "component": "detail.intro",
+      "props": {
+        "index": 1,
+        "label": "In short",
+        "intro": {
+          "title": "What does Exyconn build for retail and e-commerce?",
+          "icon": "bag-shopping",
+          "term": "AI for retail",
+          "definition": "is a group of agents that handle the questions and chores around every order: helping a shopper choose, recovering a cart on WhatsApp, answering where a parcel is, booking a return pickup and warning you before a bestseller runs out. Exyconn designs, builds and runs them on your storefront (Shopify, WooCommerce or your own), order management system and courier aggregator. Your support team handles the cases that need judgement."
+        },
+        "benefits": {
+          "title": "Why retailers are doing this now",
+          "items": [
+            {
+              "icon": "comments",
+              "text": "Shoppers already ask product questions on WhatsApp and Instagram, and expect a reply before they close the tab."
+            },
+            {
+              "icon": "truck-fast",
+              "text": "Order-status questions make up a large share of support tickets, and the answer is already sitting in the courier feed."
+            },
+            {
+              "icon": "money-bill-wave",
+              "text": "On cash-on-delivery orders, a quick confirmation message before dispatch can stop a parcel coming back unopened."
+            },
+            {
+              "icon": "rotate-left",
+              "text": "Returns and exchanges cost twice: the reverse shipment and the hours spent agreeing what happens next."
+            },
+            {
+              "icon": "boxes-stacked",
+              "text": "Stockouts on bestsellers and dead stock on slow lines both start as a forecast nobody had time to make."
+            }
+          ]
+        },
+        "demo": {
+          "kind": "chat",
+          "title": "whatsapp · store assistant",
+          "caption": "A shopper asks about sizing; the agent checks stock, recommends a size from her past order and shares a checkout link.",
+          "messages": [
+            { "from": "user", "text": "Does the linen kurta come in M? The one in olive" },
+            {
+              "from": "agent",
+              "text": "Hi Meera! Olive is in stock in M and L. Your last kurta from us was an M and you kept it, and this one has a similar fit. It's ₹1,890."
+            },
+            { "from": "user", "text": "Ok. Can I pay on delivery?" },
+            {
+              "from": "agent",
+              "text": "Yes, cash on delivery is available for your pin code. Here's a checkout link with the M added to your cart. Delivery is estimated for Thursday."
+            },
+            { "from": "user", "text": "Done, ordered" },
+            {
+              "from": "agent",
+              "text": "Thank you! I'll send the tracking link here once it's packed."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "service.info-grid",
+      "props": {
+        "index": 2,
+        "id": "retail-challenges",
+        "anchor": "",
+        "label": "The reality",
+        "title": "Where a store's hours actually go",
+        "lede": "Ask anyone running a D2C brand or a chain of stores. The list is long, and almost none of it is selling.",
+        "indexPrefix": "R",
+        "items": [
+          {
+            "id": "pre-sale-questions",
+            "title": "Pre-sale questions nobody answers in time",
+            "text": "Size, fabric, \"will it fit a 15-inch laptop\". A shopper who doesn't get an answer within minutes buys the same thing on a marketplace.",
+            "points": []
+          },
+          {
+            "id": "abandoned-carts",
+            "title": "Carts left at the payment page",
+            "text": "Shoppers drop off over shipping charges, a failed UPI payment or a doubt about returns. A generic reminder email rarely brings them back.",
+            "points": []
+          },
+          {
+            "id": "wismo",
+            "title": "\"Where is my order?\" all day",
+            "text": "The agent opening the courier panel to copy a tracking status into a reply is the most common support task in the business.",
+            "points": []
+          },
+          {
+            "id": "rto",
+            "title": "Parcels coming back unopened",
+            "text": "Wrong addresses, unreachable phones and second thoughts on COD orders turn into return-to-origin shipments you pay for both ways.",
+            "points": []
+          },
+          {
+            "id": "returns",
+            "title": "Returns handled by hand",
+            "text": "Checking the window, asking for photos, deciding refund or exchange and booking reverse pickup takes several messages per return.",
+            "points": []
+          },
+          {
+            "id": "stock-guesswork",
+            "title": "Reorders by instinct",
+            "text": "Purchase decisions come from last month's sales sheet, so a festive spike or a viral post leaves you out of stock in the sizes that sell.",
+            "points": []
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.offerings",
+      "props": {
+        "index": 3,
+        "label": "Use cases",
+        "offerings": {
+          "title": "Six jobs AI takes off your team's plate",
+          "items": [
+            {
+              "icon": "magnifying-glass",
+              "title": "Product discovery assistant",
+              "text": "Answers \"what goes with this\" and \"which size\" questions on your site and chat from your catalogue, size charts and reviews, and only recommends what is in stock."
+            },
+            {
+              "icon": "cart-shopping",
+              "title": "WhatsApp commerce and cart recovery",
+              "text": "Shows products and takes orders inside WhatsApp, follows up an abandoned cart with the shopper's actual question answered, and confirms COD orders before they ship."
+            },
+            {
+              "icon": "box",
+              "title": "Order tracking without a ticket",
+              "text": "Reads live status from your OMS and courier aggregator, answers \"where is my order\" in the chat, and acts on failed-delivery reports by confirming the address or a new slot."
+            },
+            {
+              "icon": "route",
+              "title": "Returns and exchanges",
+              "text": "Checks the order against your return window and policy, collects photos, offers an exchange size when it is in stock and books the reverse pickup. Exceptions go to your team."
+            },
+            {
+              "icon": "chart-line",
+              "title": "Stock and demand forecasting",
+              "text": "Projects demand by SKU and size from sales history, seasonality and upcoming campaigns, and drafts a reorder list for your buyer to approve."
+            },
+            {
+              "icon": "bullhorn",
+              "title": "Campaigns and reviews",
+              "text": "Sends back-in-stock and new-drop messages to customers who opted in, asks for reviews after delivery and drafts replies to the critical ones for approval."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "industry.story",
+      "props": {
+        "index": 4,
+        "label": "A day with it running",
+        "title": "One day at a D2C apparel brand",
+        "lede": "Follow a weekday in the run-up to a sale. Each moment lights the part of the store the agent is working on.",
+        "moments": [
+          {
+            "when": "08:00",
+            "title": "Last night's COD orders confirmed",
+            "text": "Overnight COD orders get a WhatsApp check of address and intent. Two shoppers cancel, one fixes a wrong pin code, and only confirmed orders go to the warehouse.",
+            "useCase": 2
+          },
+          {
+            "when": "10:30",
+            "title": "Tracking questions answered in the chat",
+            "text": "A run of \"where is my order\" messages gets live courier status in reply. One failed delivery is rescheduled for the evening with the customer's new landmark.",
+            "useCase": 3
+          },
+          {
+            "when": "12:45",
+            "title": "A shopper finds the right fit",
+            "text": "A visitor asks which jeans suit a taller frame. The agent suggests two fits with the longer inseam, both in stock in her size, and she checks out.",
+            "useCase": 1
+          },
+          {
+            "when": "15:10",
+            "title": "An exchange instead of a refund",
+            "text": "A customer says the shirt is tight. The agent confirms it is within the window, offers the next size up and books a pickup that brings the new one.",
+            "useCase": 4
+          },
+          {
+            "when": "18:00",
+            "title": "Back in stock, to the right people",
+            "text": "The restocked olive kurta goes out only to customers who asked to be told. The agent also drafts a reply to a two-star review about late delivery.",
+            "useCase": 6
+          },
+          {
+            "when": "22:30",
+            "title": "A reorder list before the sale",
+            "text": "Sell-through on the week's bestsellers is projected against the sale dates. The buyer wakes up to a reorder list by size, ready to approve or edit.",
+            "useCase": 5
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.architecture",
+      "props": {
+        "index": 5,
+        "label": "How it connects",
+        "title": "Built on the systems you already run",
+        "layers": [
+          { "label": "Where shoppers talk", "nodes": ["WhatsApp", "Site chat", "Instagram DMs"] },
+          { "label": "AI agents", "nodes": ["Shopping guide", "Order support", "Stock planner"] },
+          {
+            "label": "Your systems",
+            "nodes": ["Storefront", "OMS & warehouse", "Courier & payments"]
+          },
+          {
+            "label": "People in charge",
+            "nodes": ["Support handover", "Refund approvals", "Audit log"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.tabs",
+      "props": {
+        "index": 6,
+        "label": "By business",
+        "title": "What it looks like for your kind of store",
+        "items": [
+          {
+            "label": "D2C brands",
+            "summary": "Your own site, your own customers",
+            "text": "Brands that sell mostly through their own site gain the most on both ends of the order. We usually start with order tracking and COD confirmation, then add pre-sale help and cart recovery.",
+            "points": [
+              "Works with Shopify, WooCommerce or a custom store",
+              "COD confirmation and failed-delivery follow-up",
+              "Cart recovery on WhatsApp for opted-in shoppers"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Marketplace sellers",
+            "summary": "Many channels, one inventory",
+            "text": "When orders come from your site and several marketplaces, the agents work from one order and stock view, so customers on your own channels get accurate answers and reorders account for every channel.",
+            "points": [
+              "Order and stock data from your OMS across channels",
+              "Forecasts that include marketplace sales",
+              "Support for your own site and WhatsApp customers"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Omnichannel retailers",
+            "summary": "Stores and online together",
+            "text": "Retailers with physical stores connect POS and online stock, so the agent can tell a shopper which store has her size, reserve it, and handle returns bought online and brought back in store.",
+            "points": [
+              "Store-level stock checks and reservations",
+              "Returns across online and in-store purchases",
+              "Reporting by store, channel and category"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          }
+        ],
+        "previous": "Previous",
+        "next": "Next"
+      }
+    },
+    {
+      "component": "detail.process",
+      "props": {
+        "index": 7,
+        "label": "Rollout",
+        "title": "Live before your next sale",
+        "lede": "We start with the questions your support inbox gets most, which is almost always order status.",
+        "steps": [
+          {
+            "title": "Read the inbox",
+            "text": "We go through a sample of real tickets and chats, list your storefront, OMS and courier setup, and agree your return policy and handover rules in writing.",
+            "when": "Week 1"
+          },
+          {
+            "title": "Tracking and COD first",
+            "text": "Order tracking and COD confirmation go live on WhatsApp and site chat, with your team checking replies in the first days.",
+            "when": "Weeks 2–3"
+          },
+          {
+            "title": "Add selling and returns",
+            "text": "Product discovery, cart recovery, returns and campaign messages are switched on one at a time, each with its own approval rules.",
+            "when": "Weeks 4–7"
+          },
+          {
+            "title": "Run and improve",
+            "text": "We review conversations, retrain on missed questions, update the agent before each sale and add stock forecasting once there is enough clean history.",
+            "when": "Ongoing"
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.related",
+      "props": {
+        "index": 8,
+        "label": "Related",
+        "title": "What retailers pair this with",
+        "more": "Explore",
+        "cards": [
+          {
+            "href": "/ai-services/ai-ecommerce-automation",
+            "index": "AI/01",
+            "title": "AI e-commerce automation",
+            "text": "Catalogue, merchandising and post-purchase messaging automated across your storefront.",
+            "tags": ["Catalogue", "Post-purchase", "Storefront"]
+          },
+          {
+            "href": "/ai-services/ai-whatsapp-automation",
+            "index": "AI/02",
+            "title": "AI WhatsApp automation",
+            "text": "Sell, confirm and support on WhatsApp through the official Business API.",
+            "tags": ["WhatsApp", "COD", "Carts"]
+          },
+          {
+            "href": "/ai-services/agentic-commerce",
+            "index": "AI/03",
+            "title": "Agentic commerce",
+            "text": "Make your catalogue and checkout usable by AI agents that shop on a customer's behalf.",
+            "tags": ["Catalogue", "Checkout", "AI shoppers"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.faq",
+      "props": {
+        "index": 9,
+        "label": "FAQ",
+        "title": "Questions retailers ask us",
+        "items": [
+          {
+            "question": "Does this replace our customer support team?",
+            "answer": "No. It takes the routine questions such as order status, sizes and return windows, and passes damaged goods, payment disputes and unhappy customers to your team with the order and the conversation attached."
+          },
+          {
+            "question": "Which platforms can it connect to?",
+            "answer": "Storefronts such as Shopify and WooCommerce, order management systems, courier aggregators, payment gateways and POS systems, as long as they have an API or a dependable export. We confirm exactly what your stack allows in the first week."
+          },
+          {
+            "question": "Can the agent issue refunds on its own?",
+            "answer": "Only if you decide it should, within limits you set, for example store credit on items under a certain value. By default it collects the details and photos, and a person approves the refund."
+          },
+          {
+            "question": "Can customers write in Hindi or Hinglish?",
+            "answer": "Yes. The agent replies in the language and mix the customer uses, including Hinglish and other Indian languages, and your catalogue and policies stay written once."
+          },
+          {
+            "question": "Is customer data handled properly?",
+            "answer": "Order and contact data stay in your systems and an environment set up for your store, with role-based access and an audit log. Marketing messages go only to customers who opted in, and the setup follows India's DPDP Act 2023 and the Consumer Protection (E-Commerce) Rules, or the GDPR for European customers."
+          },
+          {
+            "question": "What does it cost?",
+            "answer": "It depends on order volume, channels and the systems we connect. Most stores start with order tracking and COD confirmation at a fixed price for the first phase. Tell us about your store and we'll quote it."
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.cta",
+      "props": {
+        "family": "services",
+        "label": "Next step",
+        "title": "Share a week of support tickets",
+        "text": "We'll show how many an agent could have closed using your order and courier data, and what it takes to connect it. No obligation.",
+        "primary": { "label": "Talk to us", "href": "/contact" },
+        "secondary": { "label": "Get a quote", "href": "/get-a-quote" },
+        "echoShape": 0
+      }
+    }
+  ]
+}

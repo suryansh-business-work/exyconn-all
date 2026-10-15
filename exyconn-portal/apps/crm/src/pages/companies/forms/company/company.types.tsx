@@ -1,4 +1,5 @@
 import type { CompanyFieldsFragment } from '@exyconn/shell/graphql/generated';
+import type { CustomFormValues } from '../../../../records/custom-fields';
 
 export type CompanyRow = CompanyFieldsFragment;
 
@@ -12,4 +13,5 @@ export interface CompanyFormValues {
   location: string;
   owner: string;
   notes: string;
+  custom: CustomFormValues;
 }

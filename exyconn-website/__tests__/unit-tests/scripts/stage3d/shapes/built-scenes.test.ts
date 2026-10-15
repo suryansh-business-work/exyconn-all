@@ -5,6 +5,7 @@ import {
   SHAPES,
   type ShapeId,
 } from "../../../../../src/scripts/stage3d/shapes/registry";
+import { INDUSTRY_LANDMARKS } from "../../../../../src/scripts/stage3d/shapes/industries";
 import type { Cloud } from "../../../../../src/scripts/stage3d/shapes/sampling";
 import { points } from "./helpers";
 
@@ -12,7 +13,7 @@ import { points } from "./helpers";
  * The built scenes: each one is told as a story (a build order per point) and draws its
  * structure as lines, and the stage looks down on it a little.
  */
-const BUILT: readonly ShapeId[] = [
+const BUILT_IN: readonly ShapeId[] = [
   "aiChip",
   "city",
   "cloudStack",
@@ -25,6 +26,11 @@ const BUILT: readonly ShapeId[] = [
   "roadmap",
   "workforce",
 ];
+// Every industry scene is a landmark built as a story (shapes/industries/kit.ts).
+const INDUSTRY_IDS = Object.keys(INDUSTRY_LANDMARKS) as ShapeId[];
+const BUILT: readonly ShapeId[] = [...BUILT_IN, ...INDUSTRY_IDS].toSorted((a, b) =>
+  a.localeCompare(b)
+);
 const N = 1500;
 const MOTIONS: ReadonlySet<string> = new Set(["spin", "sway"]);
 

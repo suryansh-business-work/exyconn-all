@@ -11,6 +11,7 @@ import { HelpPage } from './pages/help';
 import { ConfirmSubscriptionPage, UnsubscribePage } from './pages/subscribe';
 import { SharedProjectPage } from './pages/project';
 import { SignContractPage } from './pages/sign';
+import { PublicTicketPage } from './pages/ticket';
 
 /**
  * Public status site. Unlike every other micro-frontend it deliberately does not use
@@ -36,6 +37,8 @@ export function App() {
                 <Route path="/sign/:token" element={<SignContractPage />} />
                 {/* A client's read-only view of one project, opened from a share link. */}
                 <Route path="/project/:token" element={<SharedProjectPage />} />
+                {/* One ticket somebody made public in Projects, opened from its public link. */}
+                <Route path="/ticket/:token" element={<PublicTicketPage />} />
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </StatusShell>

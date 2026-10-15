@@ -34,9 +34,9 @@ export interface NotifiableTask {
   reporterId?: string | null;
 }
 
-/** Where the reader lands. There is no per-ticket route yet, so the board is the answer. */
-function boardLink(task: NotifiableTask): string {
-  return `/projects/${String(task.projectId)}/board`;
+/** Where the reader lands: the ticket's own page, addressed by its key the way Jira does. */
+export function ticketLink(task: Pick<NotifiableTask, 'key'>): string {
+  return `/projects/browse/${encodeURIComponent(task.key)}`;
 }
 
 /**
@@ -81,7 +81,7 @@ export async function notifyAssignment(
   await tell([assigneeId], {
     title: `${task.key} is yours`,
     body: `${actor.name} assigned "${task.title}" to you.`,
-    link: boardLink(task),
+    link: ticketLink(task),
   });
 }
 
@@ -90,7 +90,7 @@ export async function notifyComment(task: NotifiableTask, author: Actor): Promis
   await tell(watchersOf(task, author.id), {
     title: `New comment on ${task.key}`,
     body: `${author.name} commented on "${task.title}".`,
-    link: boardLink(task),
+    link: ticketLink(task),
   });
 }
 
@@ -108,6 +108,27 @@ export async function notifyTicketDone(
   await tell(watchersOf(task, actor.id), {
     title: `${task.key} was moved to ${columnName}`,
     body: `${actor.name} moved "${task.title}" to ${columnName}.`,
-    link: boardLink(task),
+    link: ticketLink(task),
   });
+}
+
+/**
+ * "Have a look at this." Sent by hand from the ticket's Share dialog, so unlike the notices
+ * above it goes to exactly the people chosen — minus the sender, who already knows.
+ */
+export async function notifyShare(
+  task: NotifiableTask,
+  actor: Actor,
+  recipientIds: string[],
+  note: string,
+): Promise<void> {
+  const shared = `${actor.name} shared "${task.title}" with you.`;
+  await tell(
+    recipientIds.filter((id) => id !== actor.id),
+    {
+      title: `${task.key} was shared with you`,
+      body: note === '' ? shared : `${shared} "${note}"`,
+      link: ticketLink(task),
+    },
+  );
 }

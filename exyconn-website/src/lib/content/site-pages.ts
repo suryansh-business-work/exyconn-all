@@ -31,6 +31,8 @@ export const sitePages = (aiServicePaths: readonly string[]): string[] => [
   "/services/software-as-a-service",
   "/services/software-development-outsourcing",
   "/services/whatsapp-chatbot",
+  "/services/calling-bot-demo",
+  "/services/ai-website-chat-agent",
   // AI
   "/ai",
   "/ai/agentic",

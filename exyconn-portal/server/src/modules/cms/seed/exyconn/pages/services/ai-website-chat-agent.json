@@ -1,0 +1,661 @@
+{
+  "key": "services-ai-website-chat-agent",
+  "path": "/services/ai-website-chat-agent",
+  "title": "AI Website Chat Agent & Chatbot Development — Live Demo | Exyconn",
+  "seo": {
+    "title": "AI Website Chat Agent & Chatbot Development — Live Demo | Exyconn",
+    "description": "Exyconn builds AI chat agents for your website that answer questions, run guided workflows for enquiries, estimates, bookings, ordering, order tracking and support, capture qualified leads and hand over to your team. One script tag on any website. Try the live demo.",
+    "keywords": "AI website chat agent, AI chatbot for website, website chatbot, AI lead capture chatbot, chatbot for Shopify, chatbot for WordPress, appointment booking chatbot, customer support chatbot, Exyconn",
+    "ogImageUrl": "https://images.unsplash.com/photo-1531746790731-6c087fecd65a?fm=jpg&fit=crop&w=1200&h=630&q=80",
+    "canonical": "",
+    "noindex": false,
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://exyconn.com/{market}"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Services",
+            "item": "https://exyconn.com/{market}/services"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "AI website chat agent",
+            "item": "https://exyconn.com/{market}/services/ai-website-chat-agent"
+          }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "AI website chat agent",
+        "description": "Exyconn builds AI chat agents for your website that answer questions, run guided workflows for enquiries, estimates, bookings, ordering, order tracking and support, capture qualified leads and hand over to your team. One script tag on any website. Try the live demo.",
+        "url": "https://exyconn.com/{market}/services/ai-website-chat-agent",
+        "serviceType": "Services",
+        "provider": {
+          "@type": "Organization",
+          "name": "Exyconn",
+          "url": "https://exyconn.com"
+        },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "What we build with website chat agents",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "AI chat agent for your website",
+              "description": "A branded chat window on every page that answers visitors in seconds, day and night, in your tone of voice and from your own content."
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Lead capture & qualification",
+              "description": "The agent asks the questions your sales team would, scores the answers and sends complete, qualified leads to your inbox or CRM."
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Consultation & appointment booking",
+              "description": "Visitors pick a service and a free slot from your real calendar, get a confirmation, and your team gets the brief before the call."
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "Product finder & ordering",
+              "description": "Shoppers describe what they need, the agent recommends from your catalogue, builds the cart and takes the order or sends a checkout link."
+            },
+            {
+              "@type": "ListItem",
+              "position": 5,
+              "name": "Customer support & order tracking",
+              "description": "Order status, returns, refunds and FAQs answered on the spot; anything else becomes a ticket in your helpdesk with the full chat attached."
+            },
+            {
+              "@type": "ListItem",
+              "position": 6,
+              "name": "Integrations with your tools",
+              "description": "CRM, calendar, helpdesk, order system, email and WhatsApp connected over their APIs, so every conversation lands where your team works."
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "body": [
+    {
+      "component": "detail.stage",
+      "props": {
+        "family": "services",
+        "crumbs": [
+          {
+            "label": "Home",
+            "href": "/"
+          },
+          {
+            "label": "Services",
+            "href": "/services"
+          },
+          {
+            "label": "AI website chat agent",
+            "href": ""
+          }
+        ],
+        "title": "An AI chat agent that turns website visitors into customers",
+        "lede": "We design, build and run AI chat agents for your website: they answer questions from your own content, run guided workflows for enquiries, estimates, bookings, orders and support, capture qualified leads, and hand over to your team when a person is needed. One script tag, any website.",
+        "primary": {
+          "label": "Try the live demo",
+          "href": "https://demos.exyconn.com/website-chat-demo/"
+        },
+        "secondary": {
+          "label": "Get a quote",
+          "href": "/get-a-quote"
+        },
+        "scene": {
+          "shapes": ["devices", "glyph"]
+        },
+        "glyph": "chatBubbles",
+        "tagline": "Answer, guide and convert — on every page."
+      }
+    },
+    {
+      "component": "detail.proof",
+      "props": {
+        "label": "The chat agent at a glance",
+        "items": [
+          {
+            "value": "1",
+            "label": "Script tag to install"
+          },
+          {
+            "value": "16",
+            "label": "Ready-made workflows"
+          },
+          {
+            "value": "24/7",
+            "label": "Answers, day and night"
+          },
+          {
+            "value": "2–3 wks",
+            "label": "Typical time to launch"
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.intro",
+      "props": {
+        "index": 1,
+        "label": "What it is",
+        "intro": {
+          "title": "What is an AI website chat agent?",
+          "icon": "robot",
+          "term": "An AI website chat agent",
+          "definition": "is an assistant that lives on your website. It greets visitors, understands what they type, answers from your pages, documents and catalogue, walks them through guided steps — an enquiry, an estimate, a booking, an order, a return — and passes the conversation to a person whenever it should. Unlike a menu-only chatbot, it understands free text; unlike a generic AI, it sticks to your facts and your rules."
+        },
+        "benefits": {
+          "title": "Why businesses choose Exyconn for website chat",
+          "items": [
+            {
+              "icon": "bolt",
+              "text": "Replies in seconds, around the clock, so no visitor waits for office hours."
+            },
+            {
+              "icon": "filter",
+              "text": "Turns anonymous traffic into qualified leads with the answers your sales team needs."
+            },
+            {
+              "icon": "book-open",
+              "text": "Answers from your own website, documents and catalogue — and says so when it does not know."
+            },
+            {
+              "icon": "language",
+              "text": "Understands and replies in your visitors' languages, including mixed Hinglish."
+            },
+            {
+              "icon": "user-group",
+              "text": "Hands over to your team with the full conversation when a person is needed."
+            },
+            {
+              "icon": "chart-line",
+              "text": "Every chat measured: leads captured, bookings made, questions asked and drop-off by step."
+            }
+          ]
+        },
+        "demo": {
+          "kind": "chat",
+          "title": "exyconn · website chat",
+          "caption": "A visitor on a services page asks for a website rebuild estimate and books a call — in under a minute.",
+          "messages": [
+            {
+              "from": "user",
+              "text": "Hi, how much would it cost to rebuild our company website?"
+            },
+            {
+              "from": "agent",
+              "text": "Happy to help. Roughly how many pages, and do you need online payments or a blog?"
+            },
+            {
+              "from": "user",
+              "text": "About 15 pages and a blog, no payments."
+            },
+            {
+              "from": "agent",
+              "text": "Thanks. A 15-page site with a blog typically falls in our standard website range, depending on design and content. I can send a detailed estimate — would you like to book a free 20-minute call?"
+            },
+            {
+              "from": "user",
+              "text": "Yes, Thursday afternoon works."
+            },
+            {
+              "from": "agent",
+              "text": "Booked for Thursday at 3:00 pm. A confirmation is on its way to your inbox, and our team has your brief."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "detail.offerings",
+      "props": {
+        "index": 2,
+        "label": "What we deliver",
+        "offerings": {
+          "title": "What we build with website chat agents",
+          "items": [
+            {
+              "icon": "robot",
+              "title": "AI chat agent for your website",
+              "text": "A branded chat window on every page that answers visitors in seconds, day and night, in your tone of voice and from your own content."
+            },
+            {
+              "icon": "filter",
+              "title": "Lead capture & qualification",
+              "text": "The agent asks the questions your sales team would, scores the answers and sends complete, qualified leads to your inbox or CRM."
+            },
+            {
+              "icon": "calendar-check",
+              "title": "Consultation & appointment booking",
+              "text": "Visitors pick a service and a free slot from your real calendar, get a confirmation, and your team gets the brief before the call."
+            },
+            {
+              "icon": "cart-shopping",
+              "title": "Product finder & ordering",
+              "text": "Shoppers describe what they need, the agent recommends from your catalogue, builds the cart and takes the order or sends a checkout link."
+            },
+            {
+              "icon": "headset",
+              "title": "Customer support & order tracking",
+              "text": "Order status, returns, refunds and FAQs answered on the spot; anything else becomes a ticket in your helpdesk with the full chat attached."
+            },
+            {
+              "icon": "plug",
+              "title": "Integrations with your tools",
+              "text": "CRM, calendar, helpdesk, order system, email and WhatsApp connected over their APIs, so every conversation lands where your team works."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "detail.tabs",
+      "props": {
+        "index": 3,
+        "label": "Ready-made workflows",
+        "title": "Guided workflows for services and products, ready to switch on",
+        "previous": "Previous",
+        "next": "Next",
+        "items": [
+          {
+            "label": "Services enquiry",
+            "summary": "Understand the need and route it",
+            "text": "For agencies, consultancies and service firms: the agent learns what the visitor needs, explains the matching service and hands a complete brief to the right person.",
+            "points": [
+              "Asks: service, goals, timeline and budget",
+              "Explains: the matching service in your own words",
+              "Delivers: a qualified lead with contact details to your CRM"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Project estimate",
+            "summary": "A ballpark price in a few questions",
+            "text": "Visitors answer a short, guided set of questions about scope and the agent returns an indicative range using your own pricing rules, then offers a call.",
+            "points": [
+              "Uses: your rate card and pricing rules, never guesses",
+              "Shows: an indicative range with what drives it",
+              "Follows up: books a call or emails the summary"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Consultation booking",
+            "summary": "From question to a booked call",
+            "text": "The agent offers free slots from your calendar, collects what your team needs to prepare and sends confirmations and reminders.",
+            "points": [
+              "Connects: Google Calendar, Outlook and Calendly",
+              "Collects: name, email, topic and pre-call questions",
+              "Cuts: no-shows with confirmation and reminder emails"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Product finder",
+            "summary": "The right product, by conversation",
+            "text": "Shoppers say what they are looking for in plain words; the agent narrows the catalogue by need, budget and preferences and explains the difference between options.",
+            "points": [
+              "Searches: your live catalogue, stock and prices",
+              "Compares: two or three best matches side by side",
+              "Links: straight to the product page or the cart"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Catalogue & ordering",
+            "summary": "Browse, build a cart and order in the chat",
+            "text": "Customers browse categories, add items with options and quantities, and place the order or receive a secure checkout link — without leaving the page they are on.",
+            "points": [
+              "Handles: variants, quantities and delivery details",
+              "Hands off: payment to your existing checkout",
+              "Sends: the order to your store or order system"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Order tracking",
+            "summary": "Where is my order, answered instantly",
+            "text": "With an order number and email, the agent looks up the live status in your order system and explains the next step, so support stops answering the same question.",
+            "points": [
+              "Reads: status from Shopify, WooCommerce or your API",
+              "Verifies: the customer before showing order details",
+              "Explains: delays and what happens next"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Returns & refunds",
+            "summary": "Your return policy, applied consistently",
+            "text": "The agent checks eligibility against your policy, collects the reason and photos if needed, and raises the return or refund request for your team to approve.",
+            "points": [
+              "Checks: return window and product rules",
+              "Collects: reason, photos and pickup details",
+              "Creates: a return request your team approves"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Support tickets",
+            "summary": "Every issue captured properly",
+            "text": "When the agent cannot solve something, it gathers the details, creates a ticket in your helpdesk and tells the customer when to expect a reply.",
+            "points": [
+              "Connects: Zendesk, Freshdesk, HubSpot or email",
+              "Attaches: the full conversation and page visited",
+              "Prioritises: by topic, urgency and customer type"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          },
+          {
+            "label": "Human handoff",
+            "summary": "A person, the moment it matters",
+            "text": "Visitors can ask for a person at any point. The agent passes the chat to your team in live chat, email or WhatsApp with the whole context, so nobody repeats themselves.",
+            "points": [
+              "Triggers: on request, frustration or high-value leads",
+              "Routes: by topic, language or working hours",
+              "Keeps: the full transcript for the agent who picks it up"
+            ],
+            "logo": {
+              "name": "",
+              "src": "",
+              "width": 0,
+              "height": 0
+            }
+          }
+        ]
+      }
+    },
+    {
+      "component": "service.info-grid",
+      "props": {
+        "index": 4,
+        "id": "works-on-your-website",
+        "anchor": "integrations",
+        "label": "Works on your website",
+        "title": "Install with one script tag, connect the tools you already use",
+        "lede": "The agent fits into your website and your stack, not the other way round — no rebuild, no migration, no new tool for your team to learn.",
+        "indexPrefix": "I",
+        "items": [
+          {
+            "id": "install",
+            "title": "One script tag, any website",
+            "text": "Paste one line before the closing body tag and the chat agent appears. It loads after your page, so it does not hold up your content.",
+            "points": [
+              "Loads asynchronously, after your page",
+              "Matches your brand colours, logo and tone",
+              "Shows on every page or only the pages you choose"
+            ]
+          },
+          {
+            "id": "platforms",
+            "title": "Works with the platform you already use",
+            "text": "No rebuild and no plugin lock-in. If your site can take a script tag, it can run the agent.",
+            "points": [
+              "WordPress and WooCommerce",
+              "Shopify, Webflow and Wix",
+              "React, Next.js, Vue and plain HTML"
+            ]
+          },
+          {
+            "id": "crm",
+            "title": "Leads straight into your CRM",
+            "text": "Every qualified lead is created or updated in your CRM with the answers, the page it came from and the campaign that brought the visitor.",
+            "points": [
+              "HubSpot, Salesforce, Zoho and Pipedrive",
+              "Exyconn CRM, Google Sheets or email",
+              "UTM source and page captured with each lead"
+            ]
+          },
+          {
+            "id": "calendar",
+            "title": "Real calendars, real slots",
+            "text": "Bookings use the live availability of the right person or team, with time zones handled for the visitor.",
+            "points": [
+              "Google Calendar and Microsoft Outlook",
+              "Calendly and Cal.com",
+              "Round-robin across your team"
+            ]
+          },
+          {
+            "id": "helpdesk",
+            "title": "Your helpdesk and order system",
+            "text": "Order lookups, returns and tickets go through the systems your support team already runs.",
+            "points": [
+              "Zendesk, Freshdesk and Intercom",
+              "Shopify, WooCommerce and custom order APIs",
+              "Email for teams without a helpdesk"
+            ]
+          },
+          {
+            "id": "handoff",
+            "title": "WhatsApp and live-chat handoff",
+            "text": "Continue the conversation on WhatsApp or pass it to a person in live chat, with the whole history attached.",
+            "points": [
+              "Handoff to your team in live chat or WhatsApp",
+              "Office hours and fallback to email",
+              "Pairs with our WhatsApp chatbot and AI calling bot"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.architecture",
+      "props": {
+        "index": 5,
+        "label": "How it fits together",
+        "title": "From your website to your team, in one flow",
+        "layers": [
+          {
+            "label": "Your website",
+            "nodes": ["Script tag", "Any platform", "Your branding"]
+          },
+          {
+            "label": "Chat agent",
+            "nodes": ["Guided workflows", "AI answers", "Lead capture"]
+          },
+          {
+            "label": "Knowledge",
+            "nodes": ["Your pages", "Docs & FAQs", "Catalogue"]
+          },
+          {
+            "label": "Your tools",
+            "nodes": ["CRM", "Calendar", "Helpdesk"]
+          },
+          {
+            "label": "Your team",
+            "nodes": ["Live chat", "WhatsApp", "Email"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.process",
+      "props": {
+        "index": 6,
+        "label": "How we work",
+        "title": "Live on your website in weeks, not months",
+        "lede": "A focused launch first, then more workflows as the conversations show what your visitors want.",
+        "steps": [
+          {
+            "title": "Discovery",
+            "text": "We review your website, enquiries and support tickets, and agree the workflows, tone and handoff rules that matter most.",
+            "when": "Week 1"
+          },
+          {
+            "title": "Knowledge & workflows",
+            "text": "We load your pages, documents and catalogue, configure the guided workflows and design the chat window in your brand.",
+            "when": "Week 1-2"
+          },
+          {
+            "title": "Integrate & test",
+            "text": "We connect your CRM, calendar and helpdesk, then test every journey on a staging copy of your site with your team.",
+            "when": "Week 2-3"
+          },
+          {
+            "title": "Launch & improve",
+            "text": "One script tag goes live; we review conversations, close gaps in the answers and add workflows as you grow.",
+            "when": "Ongoing"
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.faq",
+      "props": {
+        "index": 7,
+        "label": "FAQ",
+        "title": "Questions about the AI website chat agent",
+        "items": [
+          {
+            "question": "How do I try the live demo?",
+            "answer": "Open demos.exyconn.com/website-chat-demo, sign in with your email and a one-time code, and chat with the agent as a visitor would. Try a service enquiry, ask for a project estimate, book a consultation or look for a product."
+          },
+          {
+            "question": "Do I need an OpenAI key?",
+            "answer": "No. We run the AI for you as part of the service, so there is no key to create or bill to manage. If your company already has its own OpenAI or Azure OpenAI account and wants to use it, we can connect the agent to it instead."
+          },
+          {
+            "question": "Will it slow my site?",
+            "answer": "No. The script loads asynchronously after your page has rendered, so your content, Core Web Vitals and SEO are not held up. The chat window only loads its full interface when a visitor opens it."
+          },
+          {
+            "question": "Can it hand over to a person?",
+            "answer": "Yes. A visitor can ask for a person at any time, and you can set rules to hand over high-value leads or unhappy customers automatically. Your team picks up in live chat, email or WhatsApp with the full conversation, and outside office hours the agent takes the details and promises a reply."
+          },
+          {
+            "question": "Which languages does it speak?",
+            "answer": "The agent understands and replies in the visitor's language, including English, Hindi, Spanish, French, German, Arabic and other major languages, and handles mixed language such as Hinglish. Your guided workflows can be translated so buttons and questions match too."
+          },
+          {
+            "question": "How is lead data stored?",
+            "answer": "Leads and transcripts are stored in your own account, encrypted in transit and at rest, and access is limited to your team. They are sent on to your CRM or inbox as you choose, retention follows your rules, and the agent can show your privacy notice and ask for consent before it collects details."
+          },
+          {
+            "question": "Which websites does it work on?",
+            "answer": "Any website that can take a script tag: WordPress, WooCommerce, Shopify, Webflow, Wix, Squarespace, React, Next.js, Vue and plain HTML. We install it for you or send your developer a single line to paste."
+          },
+          {
+            "question": "Will it make things up?",
+            "answer": "The agent answers from your own website, documents and catalogue, and the guided workflows follow fixed steps for prices, bookings, orders and returns. When it does not know, it says so and offers a person instead of guessing."
+          },
+          {
+            "question": "Can it connect to our CRM, calendar and helpdesk?",
+            "answer": "Yes. We connect it to tools such as HubSpot, Salesforce, Zoho, Google Calendar, Outlook, Calendly, Zendesk, Freshdesk, Shopify and WooCommerce, and to your own systems over their APIs."
+          },
+          {
+            "question": "How long does it take to launch?",
+            "answer": "A focused agent with your content and two or three workflows typically goes live in two to three weeks, including integrations, testing on a staging copy of your site and your team's sign-off."
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.related",
+      "props": {
+        "index": 8,
+        "label": "Related services",
+        "title": "Explore related services",
+        "more": "Explore",
+        "cards": [
+          {
+            "href": "/services/whatsapp-chatbot",
+            "index": "S/01",
+            "title": "WhatsApp chatbot",
+            "text": "Book, sell and support inside WhatsApp, on the official Cloud API.",
+            "tags": ["Bookings", "Ordering", "Support"]
+          },
+          {
+            "href": "/services/calling-bot-demo",
+            "index": "S/02",
+            "title": "AI calling bot",
+            "text": "Voice agents that answer and make phone calls in your customers' language.",
+            "tags": ["Inbound calls", "Bookings", "Lead calls"]
+          },
+          {
+            "href": "/services/automation-integration",
+            "index": "S/03",
+            "title": "Automation & integration",
+            "text": "Automate workflows and integrate your business systems with Exyconn.",
+            "tags": ["Workflow automation", "System integration", "RPA & bots"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.cta",
+      "props": {
+        "family": "services",
+        "label": "Next step",
+        "title": "Put an AI chat agent on your website",
+        "text": "Answer, guide and convert — on every page.",
+        "primary": {
+          "label": "Try the live demo",
+          "href": "https://demos.exyconn.com/website-chat-demo/"
+        },
+        "secondary": {
+          "label": "Get a quote",
+          "href": "/get-a-quote"
+        },
+        "echoShape": 1
+      }
+    }
+  ]
+}

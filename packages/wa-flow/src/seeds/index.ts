@@ -24,6 +24,8 @@ import { retail } from './retail';
 import { saas } from './saas';
 import { salon } from './salon';
 import { travel } from './travel';
+import { websiteProducts } from './website-products';
+import { websiteServices } from './website-services';
 
 export const SEED_DEMOS: readonly SeedDemo[] = [
   healthcare,
@@ -46,4 +48,7 @@ export const SEED_DEMOS: readonly SeedDemo[] = [
   recruitment,
   publicServices,
   coworking,
+  // `channel: 'website'` demos — the WhatsApp chat filters them out by channel.
+  websiteServices,
+  websiteProducts,
 ];

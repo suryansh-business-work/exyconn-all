@@ -9,12 +9,30 @@ import { Box } from '@exyconn/shell/components/ui';
 import type { AuthUser } from '@exyconn/shell/auth/AuthContext';
 import { PageErrorBoundary } from '@exyconn/shell/logging/PageErrorBoundary';
 import { PAGE_GUTTER } from '@exyconn/shell/layout/PortalLayout/metrics';
-import { AnalyticsTab } from '../analytics';
-import { SessionsTab } from '../sessions';
-import { WorkflowEditorPage, WorkflowListPage } from '../workflows';
+import {
+  AnalyticsTab,
+  SessionsTab,
+  StudioProvider,
+  WorkflowEditorPage,
+  WorkflowListPage,
+  type StudioConfig,
+} from '@exyconn/bot-studio/studio';
+import { ChatPreview } from '../../components/wa/preview';
 import { ChannelTab } from '../channel';
 import { ADMIN_BASE, ADMIN_TAB } from '../admin.paths';
 import { AdminTopBar } from './AdminTopBar';
+import { AdminForbidden } from './AdminForbidden';
+
+/** The shared bot studio, run for the WhatsApp channel with the WhatsApp chat as its preview. */
+const STUDIO: StudioConfig = {
+  channel: 'whatsapp',
+  name: 'WhatsApp demo',
+  workflowsPath: `${ADMIN_BASE}/${ADMIN_TAB.botWorkflows}`,
+  renderPreview: (bundle, startWorkflow) => (
+    <ChatPreview bundle={bundle} startWorkflow={startWorkflow} />
+  ),
+  forbidden: <AdminForbidden />,
+};
 
 /**
  * Bot workflows has two screens: the list at /admin/bot-workflows and one workflow's editor
@@ -83,16 +101,18 @@ export function AdminShell({ user }: Readonly<{ user: AuthUser }>) {
   );
 
   return (
-    <Box sx={{ minHeight: '100dvh', bgcolor: 'background.default' }}>
-      <AdminTopBar user={user} />
-      <Box component="main" sx={{ px: PAGE_GUTTER, pb: 4, minWidth: 0 }}>
-        <Tabber
-          basePath={ADMIN_BASE}
-          items={tabs}
-          ariaLabel="WhatsApp demo admin sections"
-          sx={{ mb: 3 }}
-        />
+    <StudioProvider config={STUDIO}>
+      <Box sx={{ minHeight: '100dvh', bgcolor: 'background.default' }}>
+        <AdminTopBar user={user} />
+        <Box component="main" sx={{ px: PAGE_GUTTER, pb: 4, minWidth: 0 }}>
+          <Tabber
+            basePath={ADMIN_BASE}
+            items={tabs}
+            ariaLabel="WhatsApp demo admin sections"
+            sx={{ mb: 3 }}
+          />
+        </Box>
       </Box>
-    </Box>
+    </StudioProvider>
   );
 }

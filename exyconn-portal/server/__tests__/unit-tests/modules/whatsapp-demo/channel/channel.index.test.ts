@@ -6,8 +6,8 @@ import {
   whatsappChannelResolvers,
   whatsappChannelTypeDefs,
   whatsappWebhookRouter,
-} from '../../../../../src/modules/whatsapp-demo/channel';
-import { WhatsappChannelModel } from '../../../../../src/modules/whatsapp-demo/channel/channel.model';
+} from '../../../../../../../demos/whatsapp-demo/server/src/channel';
+import { WhatsappChannelModel } from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.model';
 import { ROLES, type Role } from '../../../../../src/constants/roles';
 import type { GraphQLContext } from '../../../../../src/middleware/auth';
 import { codeOf } from '../../codeOf';

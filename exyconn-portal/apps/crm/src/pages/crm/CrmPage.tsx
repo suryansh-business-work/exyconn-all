@@ -1,21 +1,24 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useT } from '@exyconn/i18n';
-import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
+import { CrudDashboard, useCrudResource } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { statCount, statSum, statTotal } from '@exyconn/shell/components/data/tableStats';
 import {
+  CrmObject,
   useListLeadsStatsQuery,
   useDeleteLeadMutation,
-  ListLeadsPagedDocument,
-  type ListLeadsPagedQuery,
+  SearchLeadsDocument,
+  type SearchLeadsQuery,
 } from '@exyconn/shell/graphql/generated';
 import { LeadForm, type LeadRow } from './forms/lead';
 import { ConvertLeadForm } from './forms/convert-lead';
 import { LEAD_COLUMNS, type PagedLeadRow, type LeadsGridContext } from './leads-grid';
 import { useEmailCheck } from '../../email-verification';
 import { color } from '@exyconn/shell/components/ui';
+import { RecordListToolbar, useRecordList, withRefreshSignal } from '../../records/list';
+import { RecordActions } from '../../records/RecordActions';
 
 /** CRM module — leads & pipeline dashboard with a server-side leads grid. */
 export function CrmPage() {
@@ -35,10 +38,13 @@ export function CrmPage() {
     confirmMessage: (row) => ({ message: 'Delete lead "{name}"?', values: { name: row.name } }),
     refetch: refetchStats,
   });
-  const fetchRows = usePagedFetcher(
-    ListLeadsPagedDocument,
-    (data: ListLeadsPagedQuery) => data.listLeadsPaged,
-  );
+  // Filters, sorts, columns and saved views: the HubSpot-style list over the search query.
+  const records = useRecordList({
+    object: CrmObject.Lead,
+    document: SearchLeadsDocument,
+    select: (data: SearchLeadsQuery) => data.searchLeads,
+    columns: LEAD_COLUMNS,
+  });
 
   const stats = statsData?.listLeadsStats;
   const statItems: StatItem[] = [
@@ -67,20 +73,35 @@ export function CrmPage() {
 
   return (
     <CrudDashboard
+      key={records.gridKey}
       title="CRM"
       subtitle="Leads & pipeline"
       entityLabel="lead"
-      exportFileName="leads"
       stats={statItems}
       statsLoading={!statsData && statsLoading}
-      crud={crud}
+      crud={withRefreshSignal(crud, records.refreshSignal)}
       renderForm={(initial) => (
         <LeadForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
       )}
-      columnDefs={LEAD_COLUMNS}
-      fetchRows={fetchRows}
+      columnDefs={records.columnDefs}
+      fetchRows={records.fetchRows}
       context={gridContext}
       searchPlaceholder="Search leads…"
+      initialSearch={records.initialSearch}
+      toolbar={
+        <RecordListToolbar
+          records={records}
+          allLabel="All leads"
+          renderActions={(query) => (
+            <RecordActions
+              object={CrmObject.Lead}
+              query={query}
+              fileName="leads"
+              onImported={crud.reload}
+            />
+          )}
+        />
+      }
       extraDialogs={
         <CrudDialog open={Boolean(converting)} title={t('Convert lead')} onClose={closeConvert}>
           {converting && (

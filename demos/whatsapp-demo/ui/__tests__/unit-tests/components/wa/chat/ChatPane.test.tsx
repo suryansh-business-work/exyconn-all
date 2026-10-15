@@ -16,7 +16,8 @@ vi.mock('@exyconn/shell/components/feedback/ConfirmProvider', async (importOrigi
   ...(await importOriginal<object>()),
   useConfirm: () => hooks.confirm,
 }));
-vi.mock('@exyconn/shell/logging/portalLogger', () => ({
+vi.mock('@exyconn/shell/logging/portalLogger', async (importOriginal) => ({
+  ...(await importOriginal<object>()),
   portalLogger: { error: hooks.logError, warn: vi.fn(), info: vi.fn(), debug: vi.fn() },
 }));
 vi.mock('../../../../../src/components/wa/messages/MessageView', async () => {

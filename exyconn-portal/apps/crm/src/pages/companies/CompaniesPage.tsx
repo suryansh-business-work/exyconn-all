@@ -1,18 +1,21 @@
-import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
+import { CrudDashboard, useCrudResource } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import {
+  CrmObject,
   useListCompaniesStatsQuery,
   useDeleteCompanyMutation,
   usePromoteCompanyToClientMutation,
-  ListCompaniesPagedDocument,
-  type ListCompaniesPagedQuery,
+  SearchCompaniesDocument,
+  type SearchCompaniesQuery,
 } from '@exyconn/shell/graphql/generated';
 import { CompanyForm, type CompanyRow } from './forms/company';
 import { COMPANY_COLUMNS, type PagedCompanyRow, type CompaniesGridContext } from './companies-grid';
 import { color } from '@exyconn/shell/components/ui';
+import { RecordListToolbar, useRecordList, withRefreshSignal } from '../../records/list';
+import { RecordActions } from '../../records/RecordActions';
 
 /** CRM → Companies: the accounts contacts and deals hang off. */
 export function CompaniesPage() {
@@ -30,10 +33,13 @@ export function CompaniesPage() {
     confirmMessage: (row) => ({ message: 'Delete company "{name}"?', values: { name: row.name } }),
     refetch: refetchStats,
   });
-  const fetchRows = usePagedFetcher(
-    ListCompaniesPagedDocument,
-    (data: ListCompaniesPagedQuery) => data.listCompaniesPaged,
-  );
+  // Filters, sorts, columns and saved views: the HubSpot-style list over the search query.
+  const records = useRecordList({
+    object: CrmObject.Company,
+    document: SearchCompaniesDocument,
+    select: (data: SearchCompaniesQuery) => data.searchCompanies,
+    columns: COMPANY_COLUMNS,
+  });
 
   const stats = statsData?.listCompaniesStats;
   const statItems: StatItem[] = [
@@ -72,20 +78,35 @@ export function CompaniesPage() {
 
   return (
     <CrudDashboard
+      key={records.gridKey}
       title="Companies"
       subtitle="Accounts, and who owns them"
       entityLabel="company"
-      exportFileName="companies"
       stats={statItems}
       statsLoading={!statsData && statsLoading}
-      crud={crud}
+      crud={withRefreshSignal(crud, records.refreshSignal)}
       renderForm={(initial) => (
         <CompanyForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
       )}
-      columnDefs={COMPANY_COLUMNS}
-      fetchRows={fetchRows}
+      columnDefs={records.columnDefs}
+      fetchRows={records.fetchRows}
       context={gridContext}
       searchPlaceholder="Search by name, domain, industry or owner…"
+      initialSearch={records.initialSearch}
+      toolbar={
+        <RecordListToolbar
+          records={records}
+          allLabel="All companies"
+          renderActions={(query) => (
+            <RecordActions
+              object={CrmObject.Company}
+              query={query}
+              fileName="companies"
+              onImported={crud.reload}
+            />
+          )}
+        />
+      }
     />
   );
 }

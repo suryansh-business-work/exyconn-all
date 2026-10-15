@@ -73,7 +73,8 @@ describe("shape registry", () => {
   });
 
   it("knows its ids", () => {
-    expect(SHAPE_IDS).toHaveLength(33);
+    // 33 built-in shapes and one scene per industry page.
+    expect(SHAPE_IDS).toHaveLength(33 + 20);
     expect(isShapeId("globe")).toBe(true);
     expect(isShapeId("teapot")).toBe(false);
     expect(isShapeId(3)).toBe(false);

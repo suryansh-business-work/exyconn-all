@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,15 +10,24 @@ import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import {
   CompanyStatus,
+  CrmObject,
   useCreateCompanyMutation,
   useUpdateCompanyMutation,
 } from '@exyconn/shell/graphql/generated';
 import { COMPANY_SIZES } from '../../crm.constants';
+import {
+  CustomFieldsSection,
+  CustomPropertiesGate,
+  customDefaults,
+  customFieldsSchema,
+  toCustomInput,
+  type CustomPropertyDef,
+} from '../../../../records/custom-fields';
 import type { CompanyRow } from './company.types';
 
 const STATUS_OPTIONS = enumOptions(Object.values(CompanyStatus));
 
-const schema = z.object({
+const baseSchema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
   /** A domain, not a URL — "exyconn.com", so two rows for one company are avoidable. */
   domain: z
@@ -33,9 +43,12 @@ const schema = z.object({
   owner: z.string().trim().min(1, 'Owner is required'),
   notes: z.string().trim(),
 });
-type Values = z.infer<typeof schema>;
+const buildSchema = (properties: readonly CustomPropertyDef[]) =>
+  baseSchema.extend({ custom: customFieldsSchema(properties) });
+type Schema = ReturnType<typeof buildSchema>;
+type Values = z.infer<Schema>;
 
-const toInitial = (row: CompanyRow | null): Values => ({
+const toInitial = (row: CompanyRow | null, properties: readonly CustomPropertyDef[]): Values => ({
   name: row?.name ?? '',
   domain: row?.domain ?? '',
   industry: row?.industry ?? '',
@@ -45,6 +58,7 @@ const toInitial = (row: CompanyRow | null): Values => ({
   location: row?.location ?? '',
   owner: row?.owner ?? '',
   notes: row?.notes ?? '',
+  custom: customDefaults(properties, row?.custom),
 });
 
 interface CompanyFormProps {
@@ -53,15 +67,33 @@ interface CompanyFormProps {
   onCancel: () => void;
 }
 
-/** React Hook Form + Zod form to create or update an account. */
-export function CompanyForm({ initial, onDone, onCancel }: Readonly<CompanyFormProps>) {
+/** React Hook Form + Zod form to create or update an account, with the company's own properties. */
+export function CompanyForm(props: Readonly<CompanyFormProps>) {
+  return (
+    <CustomPropertiesGate object={CrmObject.Company}>
+      {(properties) => <CompanyFormFields {...props} properties={properties} />}
+    </CustomPropertiesGate>
+  );
+}
+
+function CompanyFormFields({
+  initial,
+  onDone,
+  onCancel,
+  properties,
+}: Readonly<CompanyFormProps & { properties: CustomPropertyDef[] }>) {
   const t = useT();
   const [createCompany] = useCreateCompanyMutation();
   const [updateCompany] = useUpdateCompanyMutation();
-  const methods = useForm<z.input<typeof schema>, unknown, Values>({
+  const schema = useMemo(() => buildSchema(properties), [properties]);
+  const methods = useForm<z.input<Schema>, unknown, Values>({
     mode: 'onTouched',
     resolver: zodResolver(schema),
-    defaultValues: toInitial(initial),
+    defaultValues: toInitial(initial, properties),
+  });
+  const toInput = (values: Values) => ({
+    ...values,
+    custom: toCustomInput(properties, values.custom),
   });
 
   const sizeOptions: SelectOption[] = COMPANY_SIZES.map((size) => ({
@@ -72,8 +104,8 @@ export function CompanyForm({ initial, onDone, onCancel }: Readonly<CompanyFormP
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Company',
     initial,
-    create: (values: Values) => createCompany({ variables: { input: values } }),
-    update: (row, values) => updateCompany({ variables: { id: row.id, input: values } }),
+    create: (values: Values) => createCompany({ variables: { input: toInput(values) } }),
+    update: (row, values) => updateCompany({ variables: { id: row.id, input: toInput(values) } }),
     onDone,
   });
 
@@ -88,6 +120,7 @@ export function CompanyForm({ initial, onDone, onCancel }: Readonly<CompanyFormP
       <RhfTextField name="phone" label="Phone" />
       <RhfTextField name="location" label="Location" />
       <RhfTextField name="notes" label="Notes" multiline rows={2} />
+      <CustomFieldsSection properties={properties} />
     </EntityForm>
   );
 }

@@ -79,6 +79,12 @@ export const servicePillars: readonly ServicePillar[] = [
         tags: ["WhatsApp", "Chatbots", "Live demo"],
       },
       {
+        title: "AI website chat agent",
+        summary: "An AI chat agent on your website that answers, guides and captures leads.",
+        href: "/services/ai-website-chat-agent",
+        tags: ["Website", "AI chat", "Live demo"],
+      },
+      {
         title: "Maintenance & support",
         summary: "Keep your applications running smoothly with proactive support.",
         href: "/services/maintenance",

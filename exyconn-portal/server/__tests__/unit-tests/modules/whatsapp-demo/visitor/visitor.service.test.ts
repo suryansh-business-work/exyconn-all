@@ -6,9 +6,9 @@ import {
   setVisitorBlocked,
   visitorForPass,
   visitorStats,
-} from '../../../../../src/modules/whatsapp-demo/visitor/visitor.service';
-import { WhatsappDemoVisitorModel } from '../../../../../src/modules/whatsapp-demo/visitor/visitor.model';
-import { signVisitorPass } from '../../../../../src/modules/whatsapp-demo/visitor/visitor.token';
+} from '../../../../../../../demos/whatsapp-demo/server/src/visitor/visitor.service';
+import { WhatsappDemoVisitorModel } from '../../../../../../../demos/whatsapp-demo/server/src/visitor/visitor.model';
+import { signVisitorPass } from '../../../../../../../demos/whatsapp-demo/server/src/visitor/visitor.token';
 import { signPass } from '../../../../../src/lib/scopedPass';
 import { codeOf } from '../../codeOf';
 import { seedVisitor, useOperatorOrganization, withoutOperator } from './visitor.fixtures';

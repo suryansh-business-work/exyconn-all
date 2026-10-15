@@ -65,6 +65,8 @@ import {
   crmEntitiesResolvers,
   crmTypeDefs,
   crmResolvers,
+  crmRecordsTypeDefs,
+  crmRecordsResolvers,
 } from '../modules/crm';
 import {
   productsInventoryTypeDefs,
@@ -85,6 +87,10 @@ import {
   sprintsResolvers,
   shareTypeDefs,
   shareResolvers,
+  ticketTypeDefs,
+  ticketResolvers,
+  workflowsTypeDefs,
+  workflowsResolvers,
   projectHealthTypeDefs,
   projectHealthResolvers,
 } from '../modules/projects';
@@ -126,7 +132,10 @@ import { healthTypeDefs, healthResolvers } from '../modules/health';
 import { socialTypeDefs, socialResolvers } from '../modules/social';
 import { approvalsTypeDefs, approvalsResolvers } from '../modules/approvals';
 import { logsTypeDefs, logsResolvers } from '../modules/logs';
-import { whatsappDemoTypeDefs, whatsappDemoResolvers } from '../modules/whatsapp-demo';
+import {
+  whatsappDemoTypeDefs,
+  whatsappDemoResolvers,
+} from '../../../../demos/whatsapp-demo/server/src';
 import { callingBotTypeDefs, callingBotResolvers } from '../modules/calling-bot-demo';
 import {
   emailVerificationTypeDefs,
@@ -135,11 +144,11 @@ import {
 import {
   whatsappChannelTypeDefs,
   whatsappChannelResolvers,
-} from '../modules/whatsapp-demo/channel';
+} from '../../../../demos/whatsapp-demo/server/src/channel';
 import {
   whatsappDemoVisitorTypeDefs,
   whatsappDemoVisitorResolvers,
-} from '../modules/whatsapp-demo/visitor';
+} from '../../../../demos/whatsapp-demo/server/src/visitor';
 import {
   clientHubTypeDefs,
   clientHubResolvers,
@@ -227,6 +236,7 @@ export const typeDefs = [
   assetsTypeDefs,
   licencesTypeDefs,
   crmEntitiesTypeDefs,
+  crmRecordsTypeDefs,
   productsInventoryTypeDefs,
   productsPurchasingTypeDefs,
   integrationsTypeDefs,
@@ -246,6 +256,8 @@ export const typeDefs = [
   docsTypeDefs,
   sprintsTypeDefs,
   shareTypeDefs,
+  ticketTypeDefs,
+  workflowsTypeDefs,
   projectHealthTypeDefs,
   techTypeDefs,
   dnsTypeDefs,
@@ -320,6 +332,7 @@ export const resolvers = mergeResolvers([
   assetsResolvers,
   licencesResolvers,
   crmEntitiesResolvers,
+  crmRecordsResolvers,
   productsInventoryResolvers,
   productsPurchasingResolvers,
   integrationsResolvers,
@@ -337,6 +350,8 @@ export const resolvers = mergeResolvers([
   docsResolvers,
   sprintsResolvers,
   shareResolvers,
+  ticketResolvers,
+  workflowsResolvers,
   projectHealthResolvers,
   crmResolvers,
   techResolvers,

@@ -11,8 +11,10 @@ import { needsFrames, parseShapeIndex, phaseFor, type StagePhase } from "./state
 /**
  * Runs an inner page's scene: forms the shape in the hero and idles while the hero is on
  * screen; dims and freezes as it leaves; moves the one canvas into an echo host (the closing
- * CTA band) to re-form small there; draws only on demand otherwise. Reduced motion gets a
- * still frame of the finished shape. Returns a disposer.
+ * CTA band) to re-form small there; draws only on demand otherwise. An echo marked
+ * `data-stage-live` inside a `[data-stage-story]` section keeps drawing while it is there and
+ * turns the scene as the story is read. Reduced motion gets a still frame of the finished
+ * shape. Returns a disposer.
  */
 export interface InnerSceneOptions {
   stage: HTMLElement;
@@ -63,6 +65,15 @@ export const startInnerScene = async (options: InnerSceneOptions): Promise<() =>
     }
   };
 
+  /** The scroll story the canvas is in, when it moved into a live echo. */
+  const storyOf = (target: HTMLElement): HTMLElement | null =>
+    target === host || target.dataset.stageLive === undefined
+      ? null
+      : target.closest<HTMLElement>("[data-stage-story]");
+
+  const wantsFrames = () =>
+    needsFrames(phase, tier.animate, animator.settling() || storyOf(current) !== null);
+
   const render = () => {
     particles.uniforms.uTime.value = time;
     stars.uniforms.uTime.value = time;
@@ -85,14 +96,24 @@ export const startInnerScene = async (options: InnerSceneOptions): Promise<() =>
    */
   const lean = (dt: number) => {
     const onHero = current === host;
-    const { x, y, near, scroll } = input.step(dt, onHero);
+    const story = storyOf(current);
+    const { x, y, near, scroll } = input.step(dt, onHero, story);
     pitch = tier.animate ? damp(pitch, pitchGoal, 3, dt) : pitchGoal;
+    particles.uniforms.uPointer.value.set(x, y);
+    if (story) {
+      // Half a turn across the story, and the camera leans in on its middle steps.
+      root.rotation.x = pitch - y * 0.12;
+      root.rotation.y = x * 0.28 + (scroll - 0.5) * 0.9;
+      root.position.set(rest.x, 0, 0);
+      camera.position.z = rest.z - Math.sin(scroll * Math.PI) * 0.5;
+      particles.uniforms.uPointerMix.value = near;
+      return;
+    }
     root.rotation.x = pitch - y * 0.12 + scroll * 0.2;
     root.rotation.y = x * 0.28 + scroll * 0.6;
     // Sinks a little as the hero rises, so the scene stays clear of the sticky header.
     root.position.set(rest.x, -scroll * 0.5, 0);
     camera.position.z = rest.z - scroll * 1;
-    particles.uniforms.uPointer.value.set(x, y);
     particles.uniforms.uPointerMix.value = onHero ? near : 0;
   };
 
@@ -103,7 +124,7 @@ export const startInnerScene = async (options: InnerSceneOptions): Promise<() =>
     animator.step(time, dt);
     lean(dt);
     render();
-    raf = needsFrames(phase, tier.animate, animator.settling()) ? requestAnimationFrame(tick) : 0;
+    raf = wantsFrames() ? requestAnimationFrame(tick) : 0;
   };
 
   const run = () => {
@@ -113,7 +134,7 @@ export const startInnerScene = async (options: InnerSceneOptions): Promise<() =>
       animator.step(time, 0);
       lean(0);
       render();
-    } else if (!document.hidden && needsFrames(phase, tier.animate, animator.settling())) {
+    } else if (!document.hidden && wantsFrames()) {
       last = performance.now();
       raf = requestAnimationFrame(tick);
     }

@@ -16,6 +16,7 @@
     "@apollo/client": "^4.2.12",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@exyconn/bot-studio": "workspace:*",
     "@exyconn/crud": "workspace:*",
     "@exyconn/demo-visitor": "workspace:*",
     "@exyconn/i18n": "workspace:*",

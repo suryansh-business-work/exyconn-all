@@ -31,9 +31,12 @@ export function CallingBotCallsPanel() {
     { key: 'createdAt', label: 'When', render: (r) => formatDateTime(r.createdAt) },
     { key: 'callerName', label: 'Caller', render: (r) => r.callerName || r.callerEmail },
     { key: 'channel', label: 'Over' },
+    { key: 'scenarioTitle', label: 'Example', render: (r) => r.scenarioTitle ?? '—' },
     { key: 'status', label: 'Status', render: (r) => <StatusChip value={r.status} /> },
     { key: 'answeredAt', label: 'Length', render: lengthOf },
     { key: 'transcript', label: 'Turns', render: (r) => String(r.transcript.length) },
+    // Why a call failed, at a glance: a provider's refusal names the key or setting to fix.
+    { key: 'endReason', label: 'Ended because', render: (r) => r.endReason || '—' },
   ];
 
   return (

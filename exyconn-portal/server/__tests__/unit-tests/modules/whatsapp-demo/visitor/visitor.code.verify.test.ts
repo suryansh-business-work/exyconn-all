@@ -1,9 +1,9 @@
 import {
   requestVisitorCode,
   verifyVisitorCode,
-} from '../../../../../src/modules/whatsapp-demo/visitor/visitor.code';
-import { WhatsappDemoVisitorModel } from '../../../../../src/modules/whatsapp-demo/visitor/visitor.model';
-import { readVisitorPass } from '../../../../../src/modules/whatsapp-demo/visitor/visitor.token';
+} from '../../../../../../../demos/whatsapp-demo/server/src/visitor/visitor.code';
+import { WhatsappDemoVisitorModel } from '../../../../../../../demos/whatsapp-demo/server/src/visitor/visitor.model';
+import { readVisitorPass } from '../../../../../../../demos/whatsapp-demo/server/src/visitor/visitor.token';
 import { emailer } from '../../../../../src/modules/email/email.service';
 import { env } from '../../../../../src/config/env';
 import { codeOf } from '../../codeOf';

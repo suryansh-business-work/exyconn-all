@@ -13,7 +13,8 @@
     "../../demos/hub/src",
     "../../demos/whatsapp-demo/ui/src",
     "../../demos/whatsapp-demo/ui/__tests__",
-    "../../demos/calling-bot-demo/ui/src"
+    "../../demos/calling-bot-demo/ui/src",
+    "../../demos/website-chat-demo/ui/src"
   ],
   "exclude": [
     "**/node_modules",

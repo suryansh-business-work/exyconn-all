@@ -24,7 +24,8 @@ export const GCC_COST_CALCULATOR_PAGE: CmsSeedPage = {
       'Estimate the one-time, recurring and deposit costs of a Global Capability Centre in India across Lean, Standard and Enterprise scenarios. Runs in your browser.',
     keywords:
       'GCC cost calculator, global capability centre cost, India GCC budget, GCC setup cost estimate, offshore centre calculator',
-    ogImageUrl: '',
+    ogImageUrl:
+      'https://images.unsplash.com/photo-1554224154-26032ffc0d07?fm=jpg&fit=crop&w=1200&h=630&q=80',
     canonical: '',
     noindex: false,
     jsonLd: {

@@ -306,3 +306,9 @@ export function isValidTaxId(code: string, value: string): boolean {
   const type = BY_CODE.get(code);
   return type?.pattern.test(normalizeTaxId(value)) ?? false;
 }
+
+/**
+ * A CRM custom property's key, where its values are stored: starts with a letter, then
+ * lowercase letters, digits and `_`, at most 40 characters (`renewal_date`, `tier`).
+ */
+export const CRM_PROPERTY_KEY = /^[a-z][a-z\d_]{0,39}$/;

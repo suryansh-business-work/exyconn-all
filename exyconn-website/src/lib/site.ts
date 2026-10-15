@@ -6,5 +6,8 @@
  */
 export const TOOLS_SITE_URL = "https://tools.exyconn.com";
 
-/** Every live product demo (WhatsApp automation, AI calling bot), each under its own path. */
+/**
+ * Every live product demo (WhatsApp automation, AI calling bot, AI website chat agent), each
+ * under its own path.
+ */
 export const DEMOS_SITE_URL = "https://demos.exyconn.com";

@@ -32,7 +32,7 @@ async function team() {
 }
 
 describe('a ticket assigned to you', () => {
-  it('tells the assignee who handed it over, and links to the board', async () => {
+  it('tells the assignee who handed it over, and links to the ticket', async () => {
     const { dev, leadCtx } = await team();
     const created = await project();
     const todo = await column(leadCtx, created.id, 'To do');
@@ -52,7 +52,7 @@ describe('a ticket assigned to you', () => {
     expect(notices[0].kind).toBe('PROJECT');
     expect(notices[0].title).toBe('BILL-1 is yours');
     expect(notices[0].body).toContain('lead');
-    expect(notices[0].link).toBe(`/projects/${created.id}/board`);
+    expect(notices[0].link).toBe('/projects/browse/BILL-1');
   });
 
   it('says nothing when you assign a ticket to yourself', async () => {

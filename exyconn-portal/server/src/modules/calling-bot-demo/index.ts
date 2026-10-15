@@ -5,4 +5,5 @@
  */
 export { callingBotTypeDefs } from './calling-bot.typeDefs';
 export { callingBotResolvers } from './calling-bot.resolvers';
-export { migratePhoneProvider } from './calling-bot.migrations';
+export { backfillPhoneFields, migratePhoneProvider } from './calling-bot.migrations';
+export { ensureCallingBotScenarios } from './calling-bot.scenarios.service';

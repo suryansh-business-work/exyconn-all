@@ -4,7 +4,10 @@ import { CtaMessage } from '../../../../../src/components/wa/messages/CtaMessage
 import { frame, renderMessage } from './messages.fixtures';
 
 const ics = vi.hoisted(() => ({ downloadIcs: vi.fn() }));
-vi.mock('../../../../../src/components/wa/messages/ics', () => ics);
+vi.mock('@exyconn/bot-studio/shared', async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  ...ics,
+}));
 
 const event = { title: 'Dental check-up', start: Date.UTC(2026, 9, 6, 9, 30), durationMin: 30 };
 

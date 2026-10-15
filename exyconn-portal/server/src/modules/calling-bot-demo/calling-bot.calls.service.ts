@@ -13,6 +13,7 @@ import { badRequest, notFound } from '../../utils/errors';
 import { isE164Phone } from '../../utils/phoneNumber';
 import { CallingBotCallModel } from './calling-bot.models';
 import { callingBotConfigs } from './calling-bot.config.service';
+import { callingBotScenarios } from './calling-bot.scenarios.service';
 import { placeTwilioCall } from './twilio.client';
 import { placeVobizCall } from './vobiz.client';
 
@@ -27,6 +28,8 @@ export interface StartCallInput {
   channel: CallChannel;
   /** The number to ring, in E.164; phone calls only. */
   phone?: string | null;
+  /** The example the bot plays (Tech > Demos > Calling bot > Examples); none keeps the config's. */
+  scenarioId?: string | null;
 }
 
 /** A browser has this long to open its audio socket once the call is asked for. */
@@ -130,6 +133,7 @@ export const callingBotCalls = {
       await enforceLimit(callsPerNumber, phone, 'calls to this number');
     }
     await enforceLimit(callsPerCaller, caller.id, 'calls');
+    const scenario = input.scenarioId ? await callingBotScenarios.forCall(input.scenarioId) : null;
 
     const created = await CallingBotCallModel.create({
       channel: input.channel,
@@ -137,7 +141,9 @@ export const callingBotCalls = {
       callerName: caller.name,
       callerEmail: caller.email,
       phone: input.channel === 'PHONE' ? phone : '',
-      languageCode: config.languageCode,
+      languageCode: scenario?.languageCode || config.languageCode,
+      scenarioId: scenario ? String(scenario._id) : '',
+      scenarioTitle: scenario?.title ?? '',
     });
     const call = created.toObject<CallingBotCallRecord>();
     if (input.channel === 'PHONE') {

@@ -140,7 +140,7 @@ html.chrome-locked {
   align-items: center;
   gap: var(--space-1);
   min-height: 2.75rem;
-  padding: var(--space-2) var(--space-3);
+  padding: var(--space-2);
   border-radius: var(--radius-lg);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
@@ -188,7 +188,6 @@ html.chrome-locked {
   .chrome-nav {
     display: flex;
     align-items: center;
-    gap: var(--space-1);
     margin-right: auto;
   }
 
@@ -228,9 +227,27 @@ html.chrome-locked {
   }
 }
 
+/* With five menus the bar is full below 1280px: the search pill gives way to its icon, and
+   below 1152px Blog leaves the bar (the footer and phone menu keep it). */
+@media (min-width: 1024px) and (max-width: 1279px) {
+  .chrome-search {
+    display: none;
+  }
+
+  .chrome-search-icon {
+    display: inline-flex;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1151px) {
+  .chrome-nav__link--blog {
+    display: none;
+  }
+}
+
 @media (min-width: 1280px) {
   .chrome-search {
-    width: 14rem;
+    width: 12rem;
   }
 }
 
@@ -319,6 +336,20 @@ html.chrome-locked {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: var(--space-1);
+}
+
+/* A long menu (Industries): static, so its panel spans the sticky header, in three columns. */
+.chrome-menu--wide {
+  position: static;
+}
+
+.chrome-menu--wide .chrome-panel {
+  top: calc(100% + var(--space-1));
+  width: min(58rem, calc(100vw - 2 * var(--chrome-gutter)));
+}
+
+.chrome-menu--wide .chrome-panel__grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .chrome-panel__item {
@@ -624,6 +655,24 @@ html.chrome-locked {
 
   .site-footer__brand {
     grid-column: auto;
+  }
+}
+
+.site-footer__industry-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--space-6);
+}
+
+@media (min-width: 768px) {
+  .site-footer__industry-list {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .site-footer__industry-list {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 }
 

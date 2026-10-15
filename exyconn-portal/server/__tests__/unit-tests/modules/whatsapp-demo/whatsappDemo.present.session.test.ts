@@ -3,7 +3,7 @@ import {
   SESSION_IDLE_MS,
   presentEvent,
   presentSession,
-} from '../../../../src/modules/whatsapp-demo/whatsappDemo.present';
+} from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.present';
 
 type SessionRow = Parameters<typeof presentSession>[0];
 type EventRow = Parameters<typeof presentEvent>[0];

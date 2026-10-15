@@ -1,6 +1,6 @@
 import { useT } from '@exyconn/i18n';
 import { Box } from '@exyconn/shell/components/ui';
-import { initialsOf } from '../../../hooks/useDemoUser';
+import { initialsOf } from '@exyconn/bot-studio/runtime';
 import { useCompact, useWaPalette } from '../../../theme/useWa';
 import { WA_FONT, WA_SIZE, WA_SPACE } from '../../../theme/wa.tokens';
 import { WaAvatar } from '../common/WaAvatar';

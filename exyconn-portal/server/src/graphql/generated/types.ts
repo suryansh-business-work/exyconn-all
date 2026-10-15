@@ -792,6 +792,7 @@ export enum AuditAction {
   Access = 'ACCESS',
   Create = 'CREATE',
   Delete = 'DELETE',
+  Import = 'IMPORT',
   Login = 'LOGIN',
   PasswordReset = 'PASSWORD_RESET',
   Permission = 'PERMISSION',
@@ -1200,6 +1201,8 @@ export type CallingBotCall = {
   languageCode: Scalars['String']['output'];
   /** The number a phone call rang; empty for a browser call. */
   phone: Scalars['String']['output'];
+  /** The example the caller picked, as titled when the call was made; null for none. */
+  scenarioTitle?: Maybe<Scalars['String']['output']>;
   status: CallingBotCallStatus;
   transcript: Array<CallingBotTurn>;
 };
@@ -1325,6 +1328,50 @@ export enum CallingBotPhoneProvider {
   Twilio = 'TWILIO',
   Vobiz = 'VOBIZ'
 }
+
+/** An example call the bot can play (Tech > Demos > Calling bot > Examples). */
+export type CallingBotScenario = {
+  __typename?: 'CallingBotScenario';
+  /** The flow as the step-by-step script the voice model follows; empty without a flow. */
+  callScript: Scalars['String']['output'];
+  /** One line for the visitor: who the bot is and what to try. */
+  description: Scalars['String']['output'];
+  /** Only enabled examples are offered on the demo. */
+  enabled: Scalars['Boolean']['output'];
+  /** The call flow drawn in Tech (a wa-flow graph of voice steps); null when it has none. */
+  flow?: Maybe<Scalars['JSON']['output']>;
+  /** The first thing the bot says. */
+  greeting: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  /** e.g. hi-IN; empty keeps the active config's language. */
+  languageCode: Scalars['String']['output'];
+  /** Where it sits in the demo's list, smallest first. */
+  order: Scalars['Int']['output'];
+  /** Who the bot is on this call: the system prompt. */
+  systemPrompt: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type CallingBotScenarioInput = {
+  description: Scalars['String']['input'];
+  enabled: Scalars['Boolean']['input'];
+  greeting: Scalars['String']['input'];
+  /** Empty keeps the active config's language. */
+  languageCode: Scalars['String']['input'];
+  order: Scalars['Int']['input'];
+  systemPrompt: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+};
+
+/** What the demo shows of an example: the prompt stays with Tech. */
+export type CallingBotScenarioOption = {
+  __typename?: 'CallingBotScenarioOption';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  languageCode: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
 
 /** A stored calling bot key that Tech staff can reveal, one at a time. */
 export enum CallingBotSecret {
@@ -2197,6 +2244,7 @@ export type Company = {
   /** The Admin client this account became when a deal was won; empty until then. */
   clientId: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
+  custom: Scalars['JSON']['output'];
   domain: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   industry: Scalars['String']['output'];
@@ -2309,6 +2357,7 @@ export type CompanyFinance = {
 };
 
 export type CompanyInput = {
+  custom?: InputMaybe<Scalars['JSON']['input']>;
   domain: Scalars['String']['input'];
   industry?: InputMaybe<Scalars['String']['input']>;
   location?: InputMaybe<Scalars['String']['input']>;
@@ -2402,6 +2451,7 @@ export type Contact = {
   companyId: Scalars['String']['output'];
   companyName: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
+  custom: Scalars['JSON']['output'];
   email: Scalars['String']['output'];
   /** The latest check of this contact's email; null when it was never checked. */
   emailVerification?: Maybe<EmailVerification>;
@@ -2418,6 +2468,7 @@ export type Contact = {
 export type ContactInput = {
   companyId?: InputMaybe<Scalars['String']['input']>;
   companyName?: InputMaybe<Scalars['String']['input']>;
+  custom?: InputMaybe<Scalars['JSON']['input']>;
   email: Scalars['String']['input'];
   name: Scalars['String']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
@@ -2644,6 +2695,212 @@ export type CreatedWebhook = {
   __typename?: 'CreatedWebhook';
   secret: Scalars['String']['output'];
   webhook: Webhook;
+};
+
+export type CrmCondition = {
+  __typename?: 'CrmCondition';
+  op: CrmOp;
+  property: Scalars['String']['output'];
+  values: Array<Scalars['String']['output']>;
+};
+
+export type CrmConditionInput = {
+  op: CrmOp;
+  property: Scalars['String']['input'];
+  /** Dates as ISO strings; BETWEEN takes two values, IN/NOT_IN any number. */
+  values: Array<Scalars['String']['input']>;
+};
+
+export type CrmFilterGroup = {
+  __typename?: 'CrmFilterGroup';
+  conditions: Array<CrmCondition>;
+};
+
+/** Conditions in a group must all hold; a record matches when any group does. */
+export type CrmFilterGroupInput = {
+  conditions: Array<CrmConditionInput>;
+};
+
+export type CrmImportInput = {
+  /** The file line of the first row, so issues name lines a person can find. */
+  firstRowNumber: Scalars['Int']['input'];
+  mode: CrmImportMode;
+  object: CrmObject;
+  /** Up to 500 rows, each an object of property key to cell text. */
+  rows: Array<Scalars['JSON']['input']>;
+};
+
+export type CrmImportIssue = {
+  __typename?: 'CrmImportIssue';
+  message: Scalars['String']['output'];
+  row: Scalars['Int']['output'];
+  /** Left alone on purpose (already exists, nothing to update) rather than invalid. */
+  skipped: Scalars['Boolean']['output'];
+};
+
+/** CREATE skips rows that match an existing record, UPDATE skips rows that do not, UPSERT does both. */
+export enum CrmImportMode {
+  Create = 'CREATE',
+  Update = 'UPDATE',
+  Upsert = 'UPSERT'
+}
+
+export type CrmImportResult = {
+  __typename?: 'CrmImportResult';
+  created: Scalars['Int']['output'];
+  issues: Array<CrmImportIssue>;
+  skipped: Scalars['Int']['output'];
+  updated: Scalars['Int']['output'];
+};
+
+export enum CrmObject {
+  Company = 'COMPANY',
+  Contact = 'CONTACT',
+  Lead = 'LEAD'
+}
+
+export type CrmObjectSchema = {
+  __typename?: 'CrmObjectSchema';
+  /** The property that identifies a record on import (email, or domain for a company). */
+  dedupeKey: Scalars['String']['output'];
+  object: CrmObject;
+  properties: Array<CrmPropertyInfo>;
+};
+
+/** What a filter condition asks of a property; which ones apply depends on its type. */
+export enum CrmOp {
+  After = 'AFTER',
+  Before = 'BEFORE',
+  Between = 'BETWEEN',
+  Contains = 'CONTAINS',
+  EndsWith = 'ENDS_WITH',
+  Eq = 'EQ',
+  Gt = 'GT',
+  Gte = 'GTE',
+  In = 'IN',
+  IsEmpty = 'IS_EMPTY',
+  IsNotEmpty = 'IS_NOT_EMPTY',
+  LastDays = 'LAST_DAYS',
+  Lt = 'LT',
+  Lte = 'LTE',
+  Neq = 'NEQ',
+  NotContains = 'NOT_CONTAINS',
+  NotIn = 'NOT_IN',
+  StartsWith = 'STARTS_WITH'
+}
+
+/** A property a company added (CRM > Settings > Properties). */
+export type CrmProperty = {
+  __typename?: 'CrmProperty';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  key: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+  object: CrmObject;
+  options: Array<CrmPropertyOption>;
+  order: Scalars['Int']['output'];
+  required: Scalars['Boolean']['output'];
+  type: CrmPropertyType;
+};
+
+/** One property of a record type, as lists, filters, import and export see it. */
+export type CrmPropertyInfo = {
+  __typename?: 'CrmPropertyInfo';
+  builtIn: Scalars['Boolean']['output'];
+  description: Scalars['String']['output'];
+  importable: Scalars['Boolean']['output'];
+  key: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+  /** The operators a filter on this property may use. */
+  ops: Array<CrmOp>;
+  options: Array<CrmPropertyOption>;
+  required: Scalars['Boolean']['output'];
+  type: CrmPropertyType;
+};
+
+export type CrmPropertyInput = {
+  description: Scalars['String']['input'];
+  key: Scalars['String']['input'];
+  label: Scalars['String']['input'];
+  object: CrmObject;
+  options: Array<CrmPropertyOptionInput>;
+  required: Scalars['Boolean']['input'];
+  type: CrmPropertyType;
+};
+
+export type CrmPropertyOption = {
+  __typename?: 'CrmPropertyOption';
+  label: Scalars['String']['output'];
+  value: Scalars['String']['output'];
+};
+
+export type CrmPropertyOptionInput = {
+  label: Scalars['String']['input'];
+  value: Scalars['String']['input'];
+};
+
+export enum CrmPropertyType {
+  Boolean = 'BOOLEAN',
+  Date = 'DATE',
+  Email = 'EMAIL',
+  Enum = 'ENUM',
+  Number = 'NUMBER',
+  Phone = 'PHONE',
+  Text = 'TEXT',
+  Url = 'URL'
+}
+
+/** The key, type and record type of a property are fixed once it exists. */
+export type CrmPropertyUpdateInput = {
+  description: Scalars['String']['input'];
+  label: Scalars['String']['input'];
+  options: Array<CrmPropertyOptionInput>;
+  required: Scalars['Boolean']['input'];
+};
+
+export type CrmQueryInput = {
+  groups?: InputMaybe<Array<CrmFilterGroupInput>>;
+  /** Zero-based. */
+  page: Scalars['Int']['input'];
+  pageSize: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sorts?: InputMaybe<Array<CrmSortInput>>;
+};
+
+export type CrmSort = {
+  __typename?: 'CrmSort';
+  dir: SortDir;
+  property: Scalars['String']['output'];
+};
+
+export type CrmSortInput = {
+  dir: SortDir;
+  property: Scalars['String']['input'];
+};
+
+export type CrmView = {
+  __typename?: 'CrmView';
+  columns: Array<Scalars['String']['output']>;
+  groups: Array<CrmFilterGroup>;
+  id: Scalars['ID']['output'];
+  /** Saved by the person asking, who may change or delete it. */
+  mine: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  object: CrmObject;
+  ownerName: Scalars['String']['output'];
+  search: Scalars['String']['output'];
+  shared: Scalars['Boolean']['output'];
+  sorts: Array<CrmSort>;
+};
+
+export type CrmViewInput = {
+  columns: Array<Scalars['String']['input']>;
+  groups: Array<CrmFilterGroupInput>;
+  name: Scalars['String']['input'];
+  object: CrmObject;
+  search: Scalars['String']['input'];
+  shared: Scalars['Boolean']['input'];
+  sorts: Array<CrmSortInput>;
 };
 
 /** The MongoDB this server is connected to, reported by the database server. */
@@ -4949,6 +5206,8 @@ export type Lead = {
   /** The deal this lead was converted into, once it has been. */
   convertedDealId?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
+  /** Values of the company's own properties, keyed by property key. */
+  custom: Scalars['JSON']['output'];
   email: Scalars['String']['output'];
   /** The latest check of this lead's email; null when it was never checked. */
   emailVerification?: Maybe<EmailVerification>;
@@ -4965,6 +5224,7 @@ export type Lead = {
 export type LeadInput = {
   /** Attribution. The campaign's name is filled in by the server from this id. */
   campaignId?: InputMaybe<Scalars['String']['input']>;
+  custom?: InputMaybe<Scalars['JSON']['input']>;
   email: Scalars['String']['input'];
   name: Scalars['String']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
@@ -5497,6 +5757,7 @@ export type Mutation = {
   createBudget: Budget;
   createBug: Bug;
   createCallingBotConfig: CallingBotConfig;
+  createCallingBotScenario: CallingBotScenario;
   createCampaign: Campaign;
   createCannedReply: CannedReply;
   createCaseStudy: CaseStudy;
@@ -5517,6 +5778,8 @@ export type Mutation = {
   createContact: Contact;
   createContract: Contract;
   createCostCenter: CostCenter;
+  createCrmProperty: CrmProperty;
+  createCrmView: CrmView;
   createDeal: Deal;
   createDepartment: Department;
   createDocPage: DocPage;
@@ -5599,6 +5862,8 @@ export type Mutation = {
   createProduct: Product;
   createProject: Project;
   createProjectShare: ProjectShareCreated;
+  /** A new workflow opens with a Start joined to an End. */
+  createProjectWorkflow: ProjectWorkflow;
   createPrompt: Prompt;
   createPurchaseOrder: PurchaseOrder;
   createRazorpayConfig: RazorpayConfig;
@@ -5667,6 +5932,7 @@ export type Mutation = {
   deleteBudget: Scalars['Boolean']['output'];
   deleteBug: Scalars['Boolean']['output'];
   deleteCallingBotConfig: Scalars['Boolean']['output'];
+  deleteCallingBotScenario: Scalars['Boolean']['output'];
   deleteCampaign: Scalars['Boolean']['output'];
   deleteCannedReply: Scalars['Boolean']['output'];
   deleteCaseStudy: Scalars['Boolean']['output'];
@@ -5684,6 +5950,9 @@ export type Mutation = {
   deleteContact: Scalars['Boolean']['output'];
   deleteContract: Scalars['Boolean']['output'];
   deleteCostCenter: Scalars['Boolean']['output'];
+  /** Deletes the property and its values on every record. */
+  deleteCrmProperty: Scalars['Boolean']['output'];
+  deleteCrmView: Scalars['Boolean']['output'];
   deleteDeal: Scalars['Boolean']['output'];
   deleteDepartment: Scalars['Boolean']['output'];
   /** Deletes the page and everything filed under it. */
@@ -5746,6 +6015,7 @@ export type Mutation = {
   deleteProblemReport: Scalars['Boolean']['output'];
   deleteProduct: Scalars['Boolean']['output'];
   deleteProject: Scalars['Boolean']['output'];
+  deleteProjectWorkflow: Scalars['Boolean']['output'];
   deletePrompt: Scalars['Boolean']['output'];
   deletePurchaseOrder: Scalars['Boolean']['output'];
   deleteRazorpayConfig: Scalars['Boolean']['output'];
@@ -5803,6 +6073,7 @@ export type Mutation = {
   /** Mark an APPROVED request as carried out in the target system. */
   fulfilItAccessRequest: ItAccessRequest;
   grantTrackerAccess: TrackerAccess;
+  importCrmRecords: CrmImportResult;
   importMediaFromUrl: Scalars['String']['output'];
   /**
    * Disables a leaver's account. Only someone with an exit on record, never an administrator
@@ -5936,6 +6207,8 @@ export type Mutation = {
   runRecurringInvoiceNow: RecurringInvoice;
   saveAiModelPrice: AiModelPrice;
   saveAiSpendLimit: AiSpendLimit;
+  /** Saves an example's call flow (checked: voice steps only, no errors) and its script; null removes it. */
+  saveCallingBotScenarioFlow: CallingBotScenario;
   saveCmsFragmentDraft: CmsFragment;
   saveCmsPageDraft: CmsPage;
   /**
@@ -5946,6 +6219,7 @@ export type Mutation = {
    * already exists, and guessing wrong would fail the save on a duplicate key.
    */
   saveEmployeeSalary: SalaryStructure;
+  saveProjectWorkflowGraph: ProjectWorkflow;
   saveSocialAppConfig: SocialAppConfig;
   saveTrackerBuildSettings: TrackerBuildSettings;
   saveWhatsappChannel: WhatsappChannel;
@@ -6041,6 +6315,8 @@ export type Mutation = {
   setTaskParent: Task;
   /** Puts a ticket in a sprint, or back in the backlog with a null sprint. */
   setTaskSprint: Task;
+  /** Making a ticket public issues a new link; making it private kills the old one. */
+  setTaskVisibility: Task;
   /** Corrects one translation by hand. ADMIN only, and marks the row HUMAN for good. */
   setTranslation: Translation;
   setUserActive: User;
@@ -6050,6 +6326,8 @@ export type Mutation = {
   setWhatsappDemoVisitorBlocked: WhatsappDemoVisitor;
   /** Shares a post onto the feed, optionally with something of your own to say. */
   shareSocialPost: SocialPost;
+  /** Notifies the people chosen. Returns how many were told. */
+  shareTask: Scalars['Int']['output'];
   /**
    * LEGAL: sign our own side. The signer is the account making the request, not a name typed
    * into a field, and the document's hash is recorded with it.
@@ -6122,7 +6400,7 @@ export type Mutation = {
   /** Validates the token, then checks it can see the project. */
   testSonarConnection: SonarConnectionTest;
   testStripeConnection: Scalars['Boolean']['output'];
-  /** Reads the number from Meta with the token; resolves to how Meta names it. */
+  /** Checks the number and token with Meta and subscribes the app to the number's WhatsApp account. */
   testWhatsappChannel: Scalars['String']['output'];
   /** Likes the post, or takes the like back. Returns the post as it now stands. */
   toggleSocialPostLike: SocialPost;
@@ -6192,6 +6470,7 @@ export type Mutation = {
   updateBudget: Budget;
   updateBug: Bug;
   updateCallingBotConfig: CallingBotConfig;
+  updateCallingBotScenario: CallingBotScenario;
   updateCampaign: Campaign;
   updateCannedReply: CannedReply;
   updateCaseStudy: CaseStudy;
@@ -6207,6 +6486,8 @@ export type Mutation = {
   updateContact: Contact;
   updateContract: Contract;
   updateCostCenter: CostCenter;
+  updateCrmProperty: CrmProperty;
+  updateCrmView: CrmView;
   updateDeal: Deal;
   updateDepartment: Department;
   updateDocPage: DocPage;
@@ -6282,6 +6563,7 @@ export type Mutation = {
   updateProduct: Product;
   updateProfile: User;
   updateProject: Project;
+  updateProjectWorkflow: ProjectWorkflow;
   updatePrompt: Prompt;
   updatePurchaseOrder: PurchaseOrder;
   updateRazorpayConfig: RazorpayConfig;
@@ -6565,6 +6847,11 @@ export type MutationCreateCallingBotConfigArgs = {
 };
 
 
+export type MutationCreateCallingBotScenarioArgs = {
+  input: CallingBotScenarioInput;
+};
+
+
 export type MutationCreateCampaignArgs = {
   input: CampaignInput;
 };
@@ -6645,6 +6932,16 @@ export type MutationCreateContractArgs = {
 
 export type MutationCreateCostCenterArgs = {
   input: CostCenterInput;
+};
+
+
+export type MutationCreateCrmPropertyArgs = {
+  input: CrmPropertyInput;
+};
+
+
+export type MutationCreateCrmViewArgs = {
+  input: CrmViewInput;
 };
 
 
@@ -6982,6 +7279,11 @@ export type MutationCreateProjectShareArgs = {
 };
 
 
+export type MutationCreateProjectWorkflowArgs = {
+  input: ProjectWorkflowInput;
+};
+
+
 export type MutationCreatePromptArgs = {
   input: PromptInput;
 };
@@ -7260,6 +7562,11 @@ export type MutationDeleteCallingBotConfigArgs = {
 };
 
 
+export type MutationDeleteCallingBotScenarioArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteCampaignArgs = {
   id: Scalars['ID']['input'];
 };
@@ -7341,6 +7648,16 @@ export type MutationDeleteContractArgs = {
 
 
 export type MutationDeleteCostCenterArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteCrmPropertyArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteCrmViewArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -7640,6 +7957,11 @@ export type MutationDeleteProjectArgs = {
 };
 
 
+export type MutationDeleteProjectWorkflowArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeletePromptArgs = {
   id: Scalars['ID']['input'];
 };
@@ -7865,6 +8187,11 @@ export type MutationFulfilItAccessRequestArgs = {
 
 export type MutationGrantTrackerAccessArgs = {
   userId: Scalars['ID']['input'];
+};
+
+
+export type MutationImportCrmRecordsArgs = {
+  input: CrmImportInput;
 };
 
 
@@ -8149,6 +8476,12 @@ export type MutationSaveAiSpendLimitArgs = {
 };
 
 
+export type MutationSaveCallingBotScenarioFlowArgs = {
+  flow?: InputMaybe<Scalars['JSON']['input']>;
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationSaveCmsFragmentDraftArgs = {
   draft: CmsDraftInput;
   id: Scalars['ID']['input'];
@@ -8164,6 +8497,12 @@ export type MutationSaveCmsPageDraftArgs = {
 export type MutationSaveEmployeeSalaryArgs = {
   employeeId: Scalars['ID']['input'];
   input: EmployeeSalaryInput;
+};
+
+
+export type MutationSaveProjectWorkflowGraphArgs = {
+  graph: WorkflowGraphInput;
+  id: Scalars['ID']['input'];
 };
 
 
@@ -8389,6 +8728,12 @@ export type MutationSetTaskSprintArgs = {
 };
 
 
+export type MutationSetTaskVisibilityArgs = {
+  id: Scalars['ID']['input'];
+  visibility: TaskVisibility;
+};
+
+
 export type MutationSetTranslationArgs = {
   locale: Scalars['String']['input'];
   source: Scalars['String']['input'];
@@ -8424,6 +8769,13 @@ export type MutationSetWhatsappDemoVisitorBlockedArgs = {
 export type MutationShareSocialPostArgs = {
   body?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationShareTaskArgs = {
+  id: Scalars['ID']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
+  recipientIds: Array<Scalars['ID']['input']>;
 };
 
 
@@ -8757,6 +9109,12 @@ export type MutationUpdateCallingBotConfigArgs = {
 };
 
 
+export type MutationUpdateCallingBotScenarioArgs = {
+  id: Scalars['ID']['input'];
+  input: CallingBotScenarioInput;
+};
+
+
 export type MutationUpdateCampaignArgs = {
   id: Scalars['ID']['input'];
   input: CampaignInput;
@@ -8844,6 +9202,18 @@ export type MutationUpdateContractArgs = {
 export type MutationUpdateCostCenterArgs = {
   id: Scalars['ID']['input'];
   input: CostCenterInput;
+};
+
+
+export type MutationUpdateCrmPropertyArgs = {
+  id: Scalars['ID']['input'];
+  input: CrmPropertyUpdateInput;
+};
+
+
+export type MutationUpdateCrmViewArgs = {
+  id: Scalars['ID']['input'];
+  input: CrmViewInput;
 };
 
 
@@ -9225,6 +9595,12 @@ export type MutationUpdateProfileArgs = {
 export type MutationUpdateProjectArgs = {
   id: Scalars['ID']['input'];
   input: ProjectInput;
+};
+
+
+export type MutationUpdateProjectWorkflowArgs = {
+  id: Scalars['ID']['input'];
+  input: ProjectWorkflowInput;
 };
 
 
@@ -10800,6 +11176,25 @@ export enum ProjectTimeline {
   Overdue = 'OVERDUE'
 }
 
+/** A custom workflow drawn in Tools > Workflows. */
+export type ProjectWorkflow = {
+  __typename?: 'ProjectWorkflow';
+  createdAt: Scalars['DateTime']['output'];
+  createdByName: Scalars['String']['output'];
+  description: Scalars['String']['output'];
+  edges: Array<WorkflowEdge>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  nodes: Array<WorkflowNode>;
+  updatedAt: Scalars['DateTime']['output'];
+  updatedByName: Scalars['String']['output'];
+};
+
+export type ProjectWorkflowInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+};
+
 export type Prompt = {
   __typename?: 'Prompt';
   category: PromptCategory;
@@ -10853,6 +11248,25 @@ export type PublicPolicy = {
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
   version: Scalars['Int']['output'];
+};
+
+/** What a public ticket link shows. No comments, history, attachments or ids. */
+export type PublicTaskView = {
+  __typename?: 'PublicTaskView';
+  assigneeName: Scalars['String']['output'];
+  /** Rich text (HTML). */
+  description: Scalars['String']['output'];
+  dueDate?: Maybe<Scalars['DateTime']['output']>;
+  isDone: Scalars['Boolean']['output'];
+  key: Scalars['String']['output'];
+  labels: Array<Scalars['String']['output']>;
+  priority: TaskPriority;
+  projectName: Scalars['String']['output'];
+  /** The name of the board column the ticket sits in. */
+  status: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  type: TaskType;
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type PurchaseOrder = {
@@ -10970,6 +11384,10 @@ export type Query = {
   callingBotConfigs: Array<CallingBotConfig>;
   /** The most recent calls, newest first. */
   callingBotRecentCalls: Array<CallingBotCall>;
+  /** The examples a caller can pick on the demo, in order. */
+  callingBotScenarioOptions: Array<CallingBotScenarioOption>;
+  /** Every example call, for Tech. */
+  callingBotScenarios: Array<CallingBotScenario>;
   /** Leads per campaign, most productive first — the overview's attribution figures. */
   campaignLeadCounts: Array<CampaignLeadCount>;
   campaignMetrics: CampaignMetrics;
@@ -11039,6 +11457,9 @@ export type Query = {
    * link is unknown, withdrawn or expired.
    */
   contractToSign?: Maybe<ContractToSign>;
+  crmObjectSchema: CrmObjectSchema;
+  crmProperties: Array<CrmProperty>;
+  crmViews: Array<CrmView>;
   /** Open deals (not won or lost): how many, their face value and the probability-weighted value. */
   dealForecast: DealForecast;
   /** The domains on the active GoDaddy account. */
@@ -11612,6 +12033,8 @@ export type Query = {
   /** Public: a reporter checks on their own report by its reference. Rate-limited by address. */
   problemReportStatus: ProblemReportStatus;
   projectBoard: ProjectBoard;
+  /** A project's board columns, without its tickets. */
+  projectColumns: Array<BoardColumn>;
   /** Every page in a project's space, flat. The sidebar builds the tree from parentId. */
   projectDocPages: Array<DocPage>;
   /** One project measured against what it said it would do. */
@@ -11638,6 +12061,9 @@ export type Query = {
    * to the project without a ticket.
    */
   projectTimeLogSessions: Array<ProjectTimeLogSession>;
+  projectWorkflow: ProjectWorkflow;
+  /** Every workflow, most recently changed first. Nodes and edges are empty in this list. */
+  projectWorkflows: Array<ProjectWorkflow>;
   publicBlogPost?: Maybe<BlogPost>;
   publicBlogPosts: Array<BlogPost>;
   publicBranding: Branding;
@@ -11659,6 +12085,8 @@ export type Query = {
   publicNewsletterIssues: Array<NewsletterIssue>;
   publicPolicies: Array<PublicPolicy>;
   publicPolicy?: Maybe<PublicPolicy>;
+  /** Public. Null when the token is unknown or the ticket is private again. */
+  publicTask?: Maybe<PublicTaskView>;
   publicTool?: Maybe<Tool>;
   publicToolCategories: Array<ToolCategory>;
   publicTools: Array<Tool>;
@@ -11673,6 +12101,8 @@ export type Query = {
    * at most a handful from each — this answers "take me to that record", not "report on it".
    */
   search: Array<SearchGroup>;
+  searchCompanies: CompanyPage;
+  searchContacts: ContactPage;
   /**
    * Any signed-in user: published articles matching a phrase, best match first.
    *
@@ -11680,6 +12110,7 @@ export type Query = {
    * paste and an employee hunting for it themselves are the same search.
    */
   searchKnowledgeBase: Array<KbArticle>;
+  searchLeads: LeadPage;
   /** Stock photos for the shared upload dialog. Any signed-in user may search. */
   searchPexelsPhotos: Array<PexelsMedia>;
   /** Stock videos for the shared upload dialog. Any signed-in user may search. */
@@ -11727,6 +12158,8 @@ export type Query = {
   systemHealth: SystemHealth;
   /** The ticket's history, newest first. */
   taskActivity: Array<TaskActivity>;
+  /** One ticket by its key, e.g. EXY-14. Null when no ticket has that key. */
+  taskByKey?: Maybe<Task>;
   taskComments: Array<TaskComment>;
   /** The regimes on file, one per key, for anyone who sets salaries (HR and Finance). */
   taxRegimeChoices: Array<TaxRegimeChoice>;
@@ -11807,11 +12240,13 @@ export type Query = {
   websiteFormTypes: Array<Scalars['String']['output']>;
   whatsappChannel: WhatsappChannelSettings;
   whatsappDemoAiStatus: WhatsappAiStatus;
-  /** Every active demo with its published workflows, for the chat. */
+  /** Every active demo of one channel (whatsapp when left out) with its published workflows, for the chat. */
   whatsappDemoCatalog: Array<WhatsappDemoBundle>;
   whatsappDemoFunnel: Array<WhatsappFunnelStep>;
   whatsappDemoSession?: Maybe<WhatsappDemoSessionDetail>;
+  /** One channel's sessions (whatsapp when left out). */
   whatsappDemoSessions: WhatsappDemoSessionPage;
+  /** One channel's numbers (whatsapp when left out). */
   whatsappDemoStats: WhatsappDemoStats;
   /** The signed-in demo visitor (pass in x-demo-visitor), or null. */
   whatsappDemoVisitorMe?: Maybe<WhatsappDemoVisitor>;
@@ -11819,6 +12254,7 @@ export type Query = {
   whatsappDemoVisitorStats: TableStats;
   /** Website > WhatsApp Leads: every demo visitor (website staff). */
   whatsappDemoVisitorsPaged: WhatsappDemoVisitorPage;
+  /** One channel's demos (whatsapp when left out). */
   whatsappDemos: Array<WhatsappDemo>;
   whatsappWorkflow?: Maybe<WhatsappWorkflow>;
   whatsappWorkflows: Array<WhatsappWorkflow>;
@@ -12020,6 +12456,21 @@ export type QueryContractSignaturesArgs = {
 
 export type QueryContractToSignArgs = {
   token: Scalars['String']['input'];
+};
+
+
+export type QueryCrmObjectSchemaArgs = {
+  object: CrmObject;
+};
+
+
+export type QueryCrmPropertiesArgs = {
+  object: CrmObject;
+};
+
+
+export type QueryCrmViewsArgs = {
+  object: CrmObject;
 };
 
 
@@ -13107,6 +13558,11 @@ export type QueryProjectBoardArgs = {
 };
 
 
+export type QueryProjectColumnsArgs = {
+  projectId: Scalars['ID']['input'];
+};
+
+
 export type QueryProjectDocPagesArgs = {
   projectId: Scalars['ID']['input'];
 };
@@ -13156,6 +13612,11 @@ export type QueryProjectTimeLogSessionsArgs = {
   taskId?: InputMaybe<Scalars['ID']['input']>;
   to: Scalars['DateTime']['input'];
   userId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QueryProjectWorkflowArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -13253,6 +13714,11 @@ export type QueryPublicPolicyArgs = {
 };
 
 
+export type QueryPublicTaskArgs = {
+  token: Scalars['String']['input'];
+};
+
+
 export type QueryPublicToolArgs = {
   toolCode: Scalars['String']['input'];
 };
@@ -13273,8 +13739,23 @@ export type QuerySearchArgs = {
 };
 
 
+export type QuerySearchCompaniesArgs = {
+  query: CrmQueryInput;
+};
+
+
+export type QuerySearchContactsArgs = {
+  query: CrmQueryInput;
+};
+
+
 export type QuerySearchKnowledgeBaseArgs = {
   query: Scalars['String']['input'];
+};
+
+
+export type QuerySearchLeadsArgs = {
+  query: CrmQueryInput;
 };
 
 
@@ -13379,6 +13860,11 @@ export type QueryTaskActivityArgs = {
 };
 
 
+export type QueryTaskByKeyArgs = {
+  key: Scalars['String']['input'];
+};
+
+
 export type QueryTaskCommentsArgs = {
   taskId: Scalars['ID']['input'];
 };
@@ -13467,6 +13953,11 @@ export type QueryWebsiteChatSessionsPagedArgs = {
 };
 
 
+export type QueryWhatsappDemoCatalogArgs = {
+  channel?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryWhatsappDemoFunnelArgs = {
   demoKey: Scalars['String']['input'];
   from: Scalars['String']['input'];
@@ -13481,6 +13972,7 @@ export type QueryWhatsappDemoSessionArgs = {
 
 
 export type QueryWhatsappDemoSessionsArgs = {
+  channel?: InputMaybe<Scalars['String']['input']>;
   from?: InputMaybe<Scalars['String']['input']>;
   input: TableQueryInput;
   to?: InputMaybe<Scalars['String']['input']>;
@@ -13488,6 +13980,7 @@ export type QueryWhatsappDemoSessionsArgs = {
 
 
 export type QueryWhatsappDemoStatsArgs = {
+  channel?: InputMaybe<Scalars['String']['input']>;
   from: Scalars['String']['input'];
   to: Scalars['String']['input'];
 };
@@ -13495,6 +13988,11 @@ export type QueryWhatsappDemoStatsArgs = {
 
 export type QueryWhatsappDemoVisitorsPagedArgs = {
   input: TableQueryInput;
+};
+
+
+export type QueryWhatsappDemosArgs = {
+  channel?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -14517,6 +15015,8 @@ export type StartCallingBotCallInput = {
   channel: CallingBotChannel;
   /** The number to ring, in E.164; phone calls only. */
   phone?: InputMaybe<Scalars['String']['input']>;
+  /** The example the bot plays (from callingBotScenarios); none keeps the bot's own prompt. */
+  scenarioId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 export type StatBucket = {
@@ -15030,6 +15530,9 @@ export type Task = {
   /** The EPIC this ticket is filed under. Null for a ticket that stands on its own. */
   parentTaskId?: Maybe<Scalars['ID']['output']>;
   priority: TaskPriority;
+  projectId: Scalars['ID']['output'];
+  /** The read-only link anyone can open. Null while the ticket is private. */
+  publicUrl?: Maybe<Scalars['String']['output']>;
   reporterName: Scalars['String']['output'];
   /** The sprint the ticket is committed to. Null means it is still in the backlog. */
   sprintId?: Maybe<Scalars['ID']['output']>;
@@ -15038,6 +15541,7 @@ export type Task = {
   title: Scalars['String']['output'];
   type: TaskType;
   updatedAt: Scalars['DateTime']['output'];
+  visibility: TaskVisibility;
 };
 
 /** One recorded change to a ticket: who changed what, from what, to what. */
@@ -15110,6 +15614,12 @@ export enum TaskType {
   Epic = 'EPIC',
   Story = 'STORY',
   Task = 'TASK'
+}
+
+/** Who may read a ticket: people signed in to Projects, or anyone holding its public link. */
+export enum TaskVisibility {
+  Private = 'PRIVATE',
+  Public = 'PUBLIC'
 }
 
 /**
@@ -16656,6 +17166,11 @@ export type WhatsappChannel = {
   hasAccessToken: Scalars['Boolean']['output'];
   hasAppSecret: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
+  /** When Meta last delivered a message this server accepted for the number. */
+  lastInboundAt?: Maybe<Scalars['String']['output']>;
+  /** Why the last message or reply did not go through; empty when nothing is wrong. */
+  lastProblem: Scalars['String']['output'];
+  lastProblemAt?: Maybe<Scalars['String']['output']>;
   phoneNumberId: Scalars['String']['output'];
   updatedAt?: Maybe<Scalars['String']['output']>;
   updatedByName?: Maybe<Scalars['String']['output']>;
@@ -16708,6 +17223,8 @@ export type WhatsappDemo = {
   active: Scalars['Boolean']['output'];
   /** BusinessProfile, as businessSchema in @exyconn/wa-flow describes it. */
   business: Scalars['JSON']['output'];
+  /** Where its bot talks: whatsapp (the WhatsApp demo) or website (the website chat agent demo). */
+  channel: Scalars['String']['output'];
   greeting: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   industry: Scalars['String']['output'];
@@ -16790,6 +17307,8 @@ export enum WhatsappDemoEventType {
 export type WhatsappDemoInput = {
   active: Scalars['Boolean']['input'];
   business: Scalars['JSON']['input'];
+  /** whatsapp or website; left out when editing, the demo keeps its own. */
+  channel?: InputMaybe<Scalars['String']['input']>;
   greeting: Scalars['String']['input'];
   industry: Scalars['String']['input'];
   key: Scalars['String']['input'];
@@ -16996,6 +17515,54 @@ export enum WorkLocation {
   Other = 'OTHER'
 }
 
+/** One arrow between two boxes, by their keys. */
+export type WorkflowEdge = {
+  __typename?: 'WorkflowEdge';
+  key: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+  source: Scalars['String']['output'];
+  target: Scalars['String']['output'];
+};
+
+export type WorkflowEdgeInput = {
+  key: Scalars['String']['input'];
+  label: Scalars['String']['input'];
+  source: Scalars['String']['input'];
+  target: Scalars['String']['input'];
+};
+
+/** The whole drawing. Saved as one, and refused whole when it breaks a rule. */
+export type WorkflowGraphInput = {
+  edges: Array<WorkflowEdgeInput>;
+  nodes: Array<WorkflowNodeInput>;
+};
+
+/** One box on a workflow canvas. The key is the editor's own id for it. */
+export type WorkflowNode = {
+  __typename?: 'WorkflowNode';
+  key: Scalars['String']['output'];
+  kind: WorkflowNodeKind;
+  label: Scalars['String']['output'];
+  x: Scalars['Float']['output'];
+  y: Scalars['Float']['output'];
+};
+
+export type WorkflowNodeInput = {
+  key: Scalars['String']['input'];
+  kind: WorkflowNodeKind;
+  label: Scalars['String']['input'];
+  x: Scalars['Float']['input'];
+  y: Scalars['Float']['input'];
+};
+
+/** The kinds of box a workflow is drawn from. */
+export enum WorkflowNodeKind {
+  Decision = 'DECISION',
+  End = 'END',
+  Start = 'START',
+  Step = 'STEP'
+}
+
 /** When an employee is expected to work. OTHER is described in workingTimeNote. */
 export enum WorkingTime {
   Fixed = 'FIXED',
@@ -17195,6 +17762,9 @@ export type ResolversTypes = ResolversObject<{
   CallingBotKey: CallingBotKey;
   CallingBotKeyTestInput: CallingBotKeyTestInput;
   CallingBotPhoneProvider: CallingBotPhoneProvider;
+  CallingBotScenario: ResolverTypeWrapper<CallingBotScenario>;
+  CallingBotScenarioInput: CallingBotScenarioInput;
+  CallingBotScenarioOption: ResolverTypeWrapper<CallingBotScenarioOption>;
   CallingBotSecret: CallingBotSecret;
   CallingBotTurn: ResolverTypeWrapper<CallingBotTurn>;
   CallingBotTurnRole: CallingBotTurnRole;
@@ -17312,6 +17882,29 @@ export type ResolversTypes = ResolversObject<{
   CostCenterPage: ResolverTypeWrapper<CostCenterPage>;
   CreateUserInput: CreateUserInput;
   CreatedWebhook: ResolverTypeWrapper<CreatedWebhook>;
+  CrmCondition: ResolverTypeWrapper<CrmCondition>;
+  CrmConditionInput: CrmConditionInput;
+  CrmFilterGroup: ResolverTypeWrapper<CrmFilterGroup>;
+  CrmFilterGroupInput: CrmFilterGroupInput;
+  CrmImportInput: CrmImportInput;
+  CrmImportIssue: ResolverTypeWrapper<CrmImportIssue>;
+  CrmImportMode: CrmImportMode;
+  CrmImportResult: ResolverTypeWrapper<CrmImportResult>;
+  CrmObject: CrmObject;
+  CrmObjectSchema: ResolverTypeWrapper<CrmObjectSchema>;
+  CrmOp: CrmOp;
+  CrmProperty: ResolverTypeWrapper<CrmProperty>;
+  CrmPropertyInfo: ResolverTypeWrapper<CrmPropertyInfo>;
+  CrmPropertyInput: CrmPropertyInput;
+  CrmPropertyOption: ResolverTypeWrapper<CrmPropertyOption>;
+  CrmPropertyOptionInput: CrmPropertyOptionInput;
+  CrmPropertyType: CrmPropertyType;
+  CrmPropertyUpdateInput: CrmPropertyUpdateInput;
+  CrmQueryInput: CrmQueryInput;
+  CrmSort: ResolverTypeWrapper<CrmSort>;
+  CrmSortInput: CrmSortInput;
+  CrmView: ResolverTypeWrapper<CrmView>;
+  CrmViewInput: CrmViewInput;
   DatabaseInfo: ResolverTypeWrapper<DatabaseInfo>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>;
   Deal: ResolverTypeWrapper<Deal>;
@@ -17679,12 +18272,15 @@ export type ResolversTypes = ResolversObject<{
   ProjectTimeLogScreenshot: ResolverTypeWrapper<ProjectTimeLogScreenshot>;
   ProjectTimeLogSession: ResolverTypeWrapper<ProjectTimeLogSession>;
   ProjectTimeline: ProjectTimeline;
+  ProjectWorkflow: ResolverTypeWrapper<ProjectWorkflow>;
+  ProjectWorkflowInput: ProjectWorkflowInput;
   Prompt: ResolverTypeWrapper<Prompt>;
   PromptCategory: PromptCategory;
   PromptInput: PromptInput;
   PromptPage: ResolverTypeWrapper<PromptPage>;
   PromptVariableInput: PromptVariableInput;
   PublicPolicy: ResolverTypeWrapper<PublicPolicy>;
+  PublicTaskView: ResolverTypeWrapper<PublicTaskView>;
   PurchaseOrder: ResolverTypeWrapper<PurchaseOrder>;
   PurchaseOrderInput: PurchaseOrderInput;
   PurchaseOrderLine: ResolverTypeWrapper<PurchaseOrderLine>;
@@ -17835,6 +18431,7 @@ export type ResolversTypes = ResolversObject<{
   TaskInput: TaskInput;
   TaskPriority: TaskPriority;
   TaskType: TaskType;
+  TaskVisibility: TaskVisibility;
   TaxRegime: ResolverTypeWrapper<TaxRegime>;
   TaxRegimeChoice: ResolverTypeWrapper<TaxRegimeChoice>;
   TaxRegimeInput: TaxRegimeInput;
@@ -17982,6 +18579,12 @@ export type ResolversTypes = ResolversObject<{
   WhatsappWorkflowDraftInput: WhatsappWorkflowDraftInput;
   WhatsappWorkflowStatus: WhatsappWorkflowStatus;
   WorkLocation: WorkLocation;
+  WorkflowEdge: ResolverTypeWrapper<WorkflowEdge>;
+  WorkflowEdgeInput: WorkflowEdgeInput;
+  WorkflowGraphInput: WorkflowGraphInput;
+  WorkflowNode: ResolverTypeWrapper<WorkflowNode>;
+  WorkflowNodeInput: WorkflowNodeInput;
+  WorkflowNodeKind: WorkflowNodeKind;
   WorkingTime: WorkingTime;
   WorkspaceAnalytics: ResolverTypeWrapper<WorkspaceAnalytics>;
 }>;
@@ -18069,6 +18672,9 @@ export type ResolversParentTypes = ResolversObject<{
   CallingBotConfig: CallingBotConfig;
   CallingBotConfigInput: CallingBotConfigInput;
   CallingBotKeyTestInput: CallingBotKeyTestInput;
+  CallingBotScenario: CallingBotScenario;
+  CallingBotScenarioInput: CallingBotScenarioInput;
+  CallingBotScenarioOption: CallingBotScenarioOption;
   CallingBotTurn: CallingBotTurn;
   Campaign: Campaign;
   CampaignInput: CampaignInput;
@@ -18169,6 +18775,25 @@ export type ResolversParentTypes = ResolversObject<{
   CostCenterPage: CostCenterPage;
   CreateUserInput: CreateUserInput;
   CreatedWebhook: CreatedWebhook;
+  CrmCondition: CrmCondition;
+  CrmConditionInput: CrmConditionInput;
+  CrmFilterGroup: CrmFilterGroup;
+  CrmFilterGroupInput: CrmFilterGroupInput;
+  CrmImportInput: CrmImportInput;
+  CrmImportIssue: CrmImportIssue;
+  CrmImportResult: CrmImportResult;
+  CrmObjectSchema: CrmObjectSchema;
+  CrmProperty: CrmProperty;
+  CrmPropertyInfo: CrmPropertyInfo;
+  CrmPropertyInput: CrmPropertyInput;
+  CrmPropertyOption: CrmPropertyOption;
+  CrmPropertyOptionInput: CrmPropertyOptionInput;
+  CrmPropertyUpdateInput: CrmPropertyUpdateInput;
+  CrmQueryInput: CrmQueryInput;
+  CrmSort: CrmSort;
+  CrmSortInput: CrmSortInput;
+  CrmView: CrmView;
+  CrmViewInput: CrmViewInput;
   DatabaseInfo: DatabaseInfo;
   DateTime: Scalars['DateTime']['output'];
   Deal: Deal;
@@ -18457,11 +19082,14 @@ export type ResolversParentTypes = ResolversObject<{
   ProjectTimeLogRow: ProjectTimeLogRow;
   ProjectTimeLogScreenshot: ProjectTimeLogScreenshot;
   ProjectTimeLogSession: ProjectTimeLogSession;
+  ProjectWorkflow: ProjectWorkflow;
+  ProjectWorkflowInput: ProjectWorkflowInput;
   Prompt: Prompt;
   PromptInput: PromptInput;
   PromptPage: PromptPage;
   PromptVariableInput: PromptVariableInput;
   PublicPolicy: PublicPolicy;
+  PublicTaskView: PublicTaskView;
   PurchaseOrder: PurchaseOrder;
   PurchaseOrderInput: PurchaseOrderInput;
   PurchaseOrderLine: PurchaseOrderLine;
@@ -18709,6 +19337,11 @@ export type ResolversParentTypes = ResolversObject<{
   WhatsappWorkflow: WhatsappWorkflow;
   WhatsappWorkflowCreateInput: WhatsappWorkflowCreateInput;
   WhatsappWorkflowDraftInput: WhatsappWorkflowDraftInput;
+  WorkflowEdge: WorkflowEdge;
+  WorkflowEdgeInput: WorkflowEdgeInput;
+  WorkflowGraphInput: WorkflowGraphInput;
+  WorkflowNode: WorkflowNode;
+  WorkflowNodeInput: WorkflowNodeInput;
   WorkspaceAnalytics: WorkspaceAnalytics;
 }>;
 
@@ -19358,6 +19991,7 @@ export type CallingBotCallResolvers<ContextType = GraphQLContext, ParentType ext
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   languageCode?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  scenarioTitle?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['CallingBotCallStatus'], ParentType, ContextType>;
   transcript?: Resolver<Array<ResolversTypes['CallingBotTurn']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -19394,6 +20028,29 @@ export type CallingBotConfigResolvers<ContextType = GraphQLContext, ParentType e
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   vobizAuthId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   vobizNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CallingBotScenarioResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CallingBotScenario'] = ResolversParentTypes['CallingBotScenario']> = ResolversObject<{
+  callScript?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  flow?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
+  greeting?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  languageCode?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  order?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  systemPrompt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CallingBotScenarioOptionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CallingBotScenarioOption'] = ResolversParentTypes['CallingBotScenarioOption']> = ResolversObject<{
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  languageCode?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -19904,6 +20561,7 @@ export type CmsSiteSeoResolvers<ContextType = GraphQLContext, ParentType extends
 export type CompanyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Company'] = ResolversParentTypes['Company']> = ResolversObject<{
   clientId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  custom?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
   domain?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   industry?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -20016,6 +20674,7 @@ export type ContactResolvers<ContextType = GraphQLContext, ParentType extends Re
   companyId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   companyName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  custom?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   emailVerification?: Resolver<Maybe<ResolversTypes['EmailVerification']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -20136,6 +20795,92 @@ export type CostCenterPageResolvers<ContextType = GraphQLContext, ParentType ext
 export type CreatedWebhookResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CreatedWebhook'] = ResolversParentTypes['CreatedWebhook']> = ResolversObject<{
   secret?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   webhook?: Resolver<ResolversTypes['Webhook'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmConditionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmCondition'] = ResolversParentTypes['CrmCondition']> = ResolversObject<{
+  op?: Resolver<ResolversTypes['CrmOp'], ParentType, ContextType>;
+  property?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  values?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmFilterGroupResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmFilterGroup'] = ResolversParentTypes['CrmFilterGroup']> = ResolversObject<{
+  conditions?: Resolver<Array<ResolversTypes['CrmCondition']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmImportIssueResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmImportIssue'] = ResolversParentTypes['CrmImportIssue']> = ResolversObject<{
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  row?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  skipped?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmImportResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmImportResult'] = ResolversParentTypes['CrmImportResult']> = ResolversObject<{
+  created?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  issues?: Resolver<Array<ResolversTypes['CrmImportIssue']>, ParentType, ContextType>;
+  skipped?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  updated?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmObjectSchemaResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmObjectSchema'] = ResolversParentTypes['CrmObjectSchema']> = ResolversObject<{
+  dedupeKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  object?: Resolver<ResolversTypes['CrmObject'], ParentType, ContextType>;
+  properties?: Resolver<Array<ResolversTypes['CrmPropertyInfo']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmPropertyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmProperty'] = ResolversParentTypes['CrmProperty']> = ResolversObject<{
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  object?: Resolver<ResolversTypes['CrmObject'], ParentType, ContextType>;
+  options?: Resolver<Array<ResolversTypes['CrmPropertyOption']>, ParentType, ContextType>;
+  order?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  required?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['CrmPropertyType'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmPropertyInfoResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmPropertyInfo'] = ResolversParentTypes['CrmPropertyInfo']> = ResolversObject<{
+  builtIn?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  importable?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ops?: Resolver<Array<ResolversTypes['CrmOp']>, ParentType, ContextType>;
+  options?: Resolver<Array<ResolversTypes['CrmPropertyOption']>, ParentType, ContextType>;
+  required?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['CrmPropertyType'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmPropertyOptionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmPropertyOption'] = ResolversParentTypes['CrmPropertyOption']> = ResolversObject<{
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmSortResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmSort'] = ResolversParentTypes['CrmSort']> = ResolversObject<{
+  dir?: Resolver<ResolversTypes['SortDir'], ParentType, ContextType>;
+  property?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmViewResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmView'] = ResolversParentTypes['CrmView']> = ResolversObject<{
+  columns?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  groups?: Resolver<Array<ResolversTypes['CrmFilterGroup']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  mine?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  object?: Resolver<ResolversTypes['CrmObject'], ParentType, ContextType>;
+  ownerName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  search?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  shared?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  sorts?: Resolver<Array<ResolversTypes['CrmSort']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -21455,6 +22200,7 @@ export type LeadResolvers<ContextType = GraphQLContext, ParentType extends Resol
   campaignName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   convertedDealId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  custom?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   emailVerification?: Resolver<Maybe<ResolversTypes['EmailVerification']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -21751,6 +22497,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createBudget?: Resolver<ResolversTypes['Budget'], ParentType, ContextType, RequireFields<MutationCreateBudgetArgs, 'input'>>;
   createBug?: Resolver<ResolversTypes['Bug'], ParentType, ContextType, RequireFields<MutationCreateBugArgs, 'input'>>;
   createCallingBotConfig?: Resolver<ResolversTypes['CallingBotConfig'], ParentType, ContextType, RequireFields<MutationCreateCallingBotConfigArgs, 'input'>>;
+  createCallingBotScenario?: Resolver<ResolversTypes['CallingBotScenario'], ParentType, ContextType, RequireFields<MutationCreateCallingBotScenarioArgs, 'input'>>;
   createCampaign?: Resolver<ResolversTypes['Campaign'], ParentType, ContextType, RequireFields<MutationCreateCampaignArgs, 'input'>>;
   createCannedReply?: Resolver<ResolversTypes['CannedReply'], ParentType, ContextType, RequireFields<MutationCreateCannedReplyArgs, 'input'>>;
   createCaseStudy?: Resolver<ResolversTypes['CaseStudy'], ParentType, ContextType, RequireFields<MutationCreateCaseStudyArgs, 'input'>>;
@@ -21767,6 +22514,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createContact?: Resolver<ResolversTypes['Contact'], ParentType, ContextType, RequireFields<MutationCreateContactArgs, 'input'>>;
   createContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationCreateContractArgs, 'input'>>;
   createCostCenter?: Resolver<ResolversTypes['CostCenter'], ParentType, ContextType, RequireFields<MutationCreateCostCenterArgs, 'input'>>;
+  createCrmProperty?: Resolver<ResolversTypes['CrmProperty'], ParentType, ContextType, RequireFields<MutationCreateCrmPropertyArgs, 'input'>>;
+  createCrmView?: Resolver<ResolversTypes['CrmView'], ParentType, ContextType, RequireFields<MutationCreateCrmViewArgs, 'input'>>;
   createDeal?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationCreateDealArgs, 'input'>>;
   createDepartment?: Resolver<ResolversTypes['Department'], ParentType, ContextType, RequireFields<MutationCreateDepartmentArgs, 'input'>>;
   createDocPage?: Resolver<ResolversTypes['DocPage'], ParentType, ContextType, RequireFields<MutationCreateDocPageArgs, 'projectId' | 'title'>>;
@@ -21832,6 +22581,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createProduct?: Resolver<ResolversTypes['Product'], ParentType, ContextType, RequireFields<MutationCreateProductArgs, 'input'>>;
   createProject?: Resolver<ResolversTypes['Project'], ParentType, ContextType, RequireFields<MutationCreateProjectArgs, 'input'>>;
   createProjectShare?: Resolver<ResolversTypes['ProjectShareCreated'], ParentType, ContextType, RequireFields<MutationCreateProjectShareArgs, 'expiresInDays' | 'label' | 'projectId'>>;
+  createProjectWorkflow?: Resolver<ResolversTypes['ProjectWorkflow'], ParentType, ContextType, RequireFields<MutationCreateProjectWorkflowArgs, 'input'>>;
   createPrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<MutationCreatePromptArgs, 'input'>>;
   createPurchaseOrder?: Resolver<ResolversTypes['PurchaseOrder'], ParentType, ContextType, RequireFields<MutationCreatePurchaseOrderArgs, 'input'>>;
   createRazorpayConfig?: Resolver<ResolversTypes['RazorpayConfig'], ParentType, ContextType, RequireFields<MutationCreateRazorpayConfigArgs, 'input'>>;
@@ -21884,6 +22634,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteBudget?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBudgetArgs, 'id'>>;
   deleteBug?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBugArgs, 'id'>>;
   deleteCallingBotConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCallingBotConfigArgs, 'id'>>;
+  deleteCallingBotScenario?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCallingBotScenarioArgs, 'id'>>;
   deleteCampaign?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCampaignArgs, 'id'>>;
   deleteCannedReply?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCannedReplyArgs, 'id'>>;
   deleteCaseStudy?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCaseStudyArgs, 'id'>>;
@@ -21901,6 +22652,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteContact?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteContactArgs, 'id'>>;
   deleteContract?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteContractArgs, 'id'>>;
   deleteCostCenter?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCostCenterArgs, 'id'>>;
+  deleteCrmProperty?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCrmPropertyArgs, 'id'>>;
+  deleteCrmView?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCrmViewArgs, 'id'>>;
   deleteDeal?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteDealArgs, 'id'>>;
   deleteDepartment?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteDepartmentArgs, 'id'>>;
   deleteDocPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteDocPageArgs, 'id'>>;
@@ -21960,6 +22713,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteProblemReport?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProblemReportArgs, 'id'>>;
   deleteProduct?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProductArgs, 'id'>>;
   deleteProject?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProjectArgs, 'id'>>;
+  deleteProjectWorkflow?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProjectWorkflowArgs, 'id'>>;
   deletePrompt?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePromptArgs, 'id'>>;
   deletePurchaseOrder?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePurchaseOrderArgs, 'id'>>;
   deleteRazorpayConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteRazorpayConfigArgs, 'id'>>;
@@ -22006,6 +22760,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   escalateSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationEscalateSupportTicketArgs, 'id' | 'reason'>>;
   fulfilItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationFulfilItAccessRequestArgs, 'id'>>;
   grantTrackerAccess?: Resolver<ResolversTypes['TrackerAccess'], ParentType, ContextType, RequireFields<MutationGrantTrackerAccessArgs, 'userId'>>;
+  importCrmRecords?: Resolver<ResolversTypes['CrmImportResult'], ParentType, ContextType, RequireFields<MutationImportCrmRecordsArgs, 'input'>>;
   importMediaFromUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationImportMediaFromUrlArgs, 'fileName' | 'url'>>;
   itDisableLeaverAccount?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationItDisableLeaverAccountArgs, 'employeeId'>>;
   itProvisionOnboarding?: Resolver<Array<ResolversTypes['ItAccessRequest']>, ParentType, ContextType, RequireFields<MutationItProvisionOnboardingArgs, 'employeeId'>>;
@@ -22059,9 +22814,11 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   runRecurringInvoiceNow?: Resolver<ResolversTypes['RecurringInvoice'], ParentType, ContextType, RequireFields<MutationRunRecurringInvoiceNowArgs, 'id'>>;
   saveAiModelPrice?: Resolver<ResolversTypes['AiModelPrice'], ParentType, ContextType, RequireFields<MutationSaveAiModelPriceArgs, 'input'>>;
   saveAiSpendLimit?: Resolver<ResolversTypes['AiSpendLimit'], ParentType, ContextType, RequireFields<MutationSaveAiSpendLimitArgs, 'input'>>;
+  saveCallingBotScenarioFlow?: Resolver<ResolversTypes['CallingBotScenario'], ParentType, ContextType, RequireFields<MutationSaveCallingBotScenarioFlowArgs, 'id'>>;
   saveCmsFragmentDraft?: Resolver<ResolversTypes['CmsFragment'], ParentType, ContextType, RequireFields<MutationSaveCmsFragmentDraftArgs, 'draft' | 'id'>>;
   saveCmsPageDraft?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationSaveCmsPageDraftArgs, 'draft' | 'id'>>;
   saveEmployeeSalary?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationSaveEmployeeSalaryArgs, 'employeeId' | 'input'>>;
+  saveProjectWorkflowGraph?: Resolver<ResolversTypes['ProjectWorkflow'], ParentType, ContextType, RequireFields<MutationSaveProjectWorkflowGraphArgs, 'graph' | 'id'>>;
   saveSocialAppConfig?: Resolver<ResolversTypes['SocialAppConfig'], ParentType, ContextType, RequireFields<MutationSaveSocialAppConfigArgs, 'input'>>;
   saveTrackerBuildSettings?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType, RequireFields<MutationSaveTrackerBuildSettingsArgs, 'slackChannels'>>;
   saveWhatsappChannel?: Resolver<ResolversTypes['WhatsappChannel'], ParentType, ContextType, RequireFields<MutationSaveWhatsappChannelArgs, 'input'>>;
@@ -22099,12 +22856,14 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setSupportTicketTriage?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationSetSupportTicketTriageArgs, 'category' | 'id' | 'priority'>>;
   setTaskParent?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationSetTaskParentArgs, 'taskId'>>;
   setTaskSprint?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationSetTaskSprintArgs, 'taskId'>>;
+  setTaskVisibility?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationSetTaskVisibilityArgs, 'id' | 'visibility'>>;
   setTranslation?: Resolver<ResolversTypes['Translation'], ParentType, ContextType, RequireFields<MutationSetTranslationArgs, 'locale' | 'source' | 'text'>>;
   setUserActive?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSetUserActiveArgs, 'id' | 'isActive'>>;
   setUserBlocked?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSetUserBlockedArgs, 'id' | 'isBlocked'>>;
   setWebhookActive?: Resolver<ResolversTypes['Webhook'], ParentType, ContextType, RequireFields<MutationSetWebhookActiveArgs, 'active' | 'id'>>;
   setWhatsappDemoVisitorBlocked?: Resolver<ResolversTypes['WhatsappDemoVisitor'], ParentType, ContextType, RequireFields<MutationSetWhatsappDemoVisitorBlockedArgs, 'blocked' | 'id'>>;
   shareSocialPost?: Resolver<ResolversTypes['SocialPost'], ParentType, ContextType, RequireFields<MutationShareSocialPostArgs, 'id'>>;
+  shareTask?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationShareTaskArgs, 'id' | 'recipientIds'>>;
   signContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSignContractArgs, 'id'>>;
   signContractWithToken?: Resolver<ResolversTypes['ContractSignedReceipt'], ParentType, ContextType, RequireFields<MutationSignContractWithTokenArgs, 'signedName' | 'token'>>;
   socialMediaIdeas?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSocialMediaIdeasArgs, 'count' | 'topic'>>;
@@ -22168,6 +22927,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateBudget?: Resolver<ResolversTypes['Budget'], ParentType, ContextType, RequireFields<MutationUpdateBudgetArgs, 'id' | 'input'>>;
   updateBug?: Resolver<ResolversTypes['Bug'], ParentType, ContextType, RequireFields<MutationUpdateBugArgs, 'id' | 'input'>>;
   updateCallingBotConfig?: Resolver<ResolversTypes['CallingBotConfig'], ParentType, ContextType, RequireFields<MutationUpdateCallingBotConfigArgs, 'id' | 'input'>>;
+  updateCallingBotScenario?: Resolver<ResolversTypes['CallingBotScenario'], ParentType, ContextType, RequireFields<MutationUpdateCallingBotScenarioArgs, 'id' | 'input'>>;
   updateCampaign?: Resolver<ResolversTypes['Campaign'], ParentType, ContextType, RequireFields<MutationUpdateCampaignArgs, 'id' | 'input'>>;
   updateCannedReply?: Resolver<ResolversTypes['CannedReply'], ParentType, ContextType, RequireFields<MutationUpdateCannedReplyArgs, 'id' | 'input'>>;
   updateCaseStudy?: Resolver<ResolversTypes['CaseStudy'], ParentType, ContextType, RequireFields<MutationUpdateCaseStudyArgs, 'id' | 'input'>>;
@@ -22183,6 +22943,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateContact?: Resolver<ResolversTypes['Contact'], ParentType, ContextType, RequireFields<MutationUpdateContactArgs, 'id' | 'input'>>;
   updateContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationUpdateContractArgs, 'id' | 'input'>>;
   updateCostCenter?: Resolver<ResolversTypes['CostCenter'], ParentType, ContextType, RequireFields<MutationUpdateCostCenterArgs, 'id' | 'input'>>;
+  updateCrmProperty?: Resolver<ResolversTypes['CrmProperty'], ParentType, ContextType, RequireFields<MutationUpdateCrmPropertyArgs, 'id' | 'input'>>;
+  updateCrmView?: Resolver<ResolversTypes['CrmView'], ParentType, ContextType, RequireFields<MutationUpdateCrmViewArgs, 'id' | 'input'>>;
   updateDeal?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationUpdateDealArgs, 'id' | 'input'>>;
   updateDepartment?: Resolver<ResolversTypes['Department'], ParentType, ContextType, RequireFields<MutationUpdateDepartmentArgs, 'id' | 'input'>>;
   updateDocPage?: Resolver<ResolversTypes['DocPage'], ParentType, ContextType, RequireFields<MutationUpdateDocPageArgs, 'id'>>;
@@ -22247,6 +23009,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateProduct?: Resolver<ResolversTypes['Product'], ParentType, ContextType, RequireFields<MutationUpdateProductArgs, 'id' | 'input'>>;
   updateProfile?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUpdateProfileArgs, 'input'>>;
   updateProject?: Resolver<ResolversTypes['Project'], ParentType, ContextType, RequireFields<MutationUpdateProjectArgs, 'id' | 'input'>>;
+  updateProjectWorkflow?: Resolver<ResolversTypes['ProjectWorkflow'], ParentType, ContextType, RequireFields<MutationUpdateProjectWorkflowArgs, 'id' | 'input'>>;
   updatePrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<MutationUpdatePromptArgs, 'id' | 'input'>>;
   updatePurchaseOrder?: Resolver<ResolversTypes['PurchaseOrder'], ParentType, ContextType, RequireFields<MutationUpdatePurchaseOrderArgs, 'id' | 'input'>>;
   updateRazorpayConfig?: Resolver<ResolversTypes['RazorpayConfig'], ParentType, ContextType, RequireFields<MutationUpdateRazorpayConfigArgs, 'id' | 'input'>>;
@@ -22987,6 +23750,19 @@ export type ProjectTimeLogSessionResolvers<ContextType = GraphQLContext, ParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type ProjectWorkflowResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ProjectWorkflow'] = ResolversParentTypes['ProjectWorkflow']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  createdByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  edges?: Resolver<Array<ResolversTypes['WorkflowEdge']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  nodes?: Resolver<Array<ResolversTypes['WorkflowNode']>, ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  updatedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type PromptResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Prompt'] = ResolversParentTypes['Prompt']> = ResolversObject<{
   category?: Resolver<ResolversTypes['PromptCategory'], ParentType, ContextType>;
   content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -23014,6 +23790,22 @@ export type PublicPolicyResolvers<ContextType = GraphQLContext, ParentType exten
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   version?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PublicTaskViewResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PublicTaskView'] = ResolversParentTypes['PublicTaskView']> = ResolversObject<{
+  assigneeName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  dueDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  isDone?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  labels?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  priority?: Resolver<ResolversTypes['TaskPriority'], ParentType, ContextType>;
+  projectName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['TaskType'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -23071,6 +23863,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   callingBotCall?: Resolver<ResolversTypes['CallingBotCall'], ParentType, ContextType, RequireFields<QueryCallingBotCallArgs, 'id'>>;
   callingBotConfigs?: Resolver<Array<ResolversTypes['CallingBotConfig']>, ParentType, ContextType>;
   callingBotRecentCalls?: Resolver<Array<ResolversTypes['CallingBotCall']>, ParentType, ContextType, Partial<QueryCallingBotRecentCallsArgs>>;
+  callingBotScenarioOptions?: Resolver<Array<ResolversTypes['CallingBotScenarioOption']>, ParentType, ContextType>;
+  callingBotScenarios?: Resolver<Array<ResolversTypes['CallingBotScenario']>, ParentType, ContextType>;
   campaignLeadCounts?: Resolver<Array<ResolversTypes['CampaignLeadCount']>, ParentType, ContextType>;
   campaignMetrics?: Resolver<ResolversTypes['CampaignMetrics'], ParentType, ContextType, RequireFields<QueryCampaignMetricsArgs, 'campaignId'>>;
   campaignOptions?: Resolver<Array<ResolversTypes['CampaignOption']>, ParentType, ContextType>;
@@ -23110,6 +23904,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   complianceOverview?: Resolver<ResolversTypes['ComplianceOverview'], ParentType, ContextType>;
   contractSignatures?: Resolver<Array<ResolversTypes['ContractSignature']>, ParentType, ContextType, RequireFields<QueryContractSignaturesArgs, 'contractId'>>;
   contractToSign?: Resolver<Maybe<ResolversTypes['ContractToSign']>, ParentType, ContextType, RequireFields<QueryContractToSignArgs, 'token'>>;
+  crmObjectSchema?: Resolver<ResolversTypes['CrmObjectSchema'], ParentType, ContextType, RequireFields<QueryCrmObjectSchemaArgs, 'object'>>;
+  crmProperties?: Resolver<Array<ResolversTypes['CrmProperty']>, ParentType, ContextType, RequireFields<QueryCrmPropertiesArgs, 'object'>>;
+  crmViews?: Resolver<Array<ResolversTypes['CrmView']>, ParentType, ContextType, RequireFields<QueryCrmViewsArgs, 'object'>>;
   dealForecast?: Resolver<ResolversTypes['DealForecast'], ParentType, ContextType>;
   dnsDomains?: Resolver<Array<ResolversTypes['DnsDomain']>, ParentType, ContextType>;
   dnsOverview?: Resolver<ResolversTypes['DnsOverview'], ParentType, ContextType, RequireFields<QueryDnsOverviewArgs, 'domain'>>;
@@ -23574,6 +24371,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   probationsEnding?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryProbationsEndingArgs, 'days'>>;
   problemReportStatus?: Resolver<ResolversTypes['ProblemReportStatus'], ParentType, ContextType, RequireFields<QueryProblemReportStatusArgs, 'reference'>>;
   projectBoard?: Resolver<ResolversTypes['ProjectBoard'], ParentType, ContextType, RequireFields<QueryProjectBoardArgs, 'projectId'>>;
+  projectColumns?: Resolver<Array<ResolversTypes['BoardColumn']>, ParentType, ContextType, RequireFields<QueryProjectColumnsArgs, 'projectId'>>;
   projectDocPages?: Resolver<Array<ResolversTypes['DocPage']>, ParentType, ContextType, RequireFields<QueryProjectDocPagesArgs, 'projectId'>>;
   projectHealth?: Resolver<ResolversTypes['ProjectHealth'], ParentType, ContextType, RequireFields<QueryProjectHealthArgs, 'id'>>;
   projectHealthOverview?: Resolver<Array<ResolversTypes['ProjectHealth']>, ParentType, ContextType>;
@@ -23584,6 +24382,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   projectTimeLog?: Resolver<ResolversTypes['ProjectTimeLog'], ParentType, ContextType, RequireFields<QueryProjectTimeLogArgs, 'from' | 'projectId' | 'to'>>;
   projectTimeLogScreenshots?: Resolver<Array<ResolversTypes['ProjectTimeLogScreenshot']>, ParentType, ContextType, RequireFields<QueryProjectTimeLogScreenshotsArgs, 'projectId' | 'sessionId'>>;
   projectTimeLogSessions?: Resolver<Array<ResolversTypes['ProjectTimeLogSession']>, ParentType, ContextType, RequireFields<QueryProjectTimeLogSessionsArgs, 'from' | 'projectId' | 'to'>>;
+  projectWorkflow?: Resolver<ResolversTypes['ProjectWorkflow'], ParentType, ContextType, RequireFields<QueryProjectWorkflowArgs, 'id'>>;
+  projectWorkflows?: Resolver<Array<ResolversTypes['ProjectWorkflow']>, ParentType, ContextType>;
   publicBlogPost?: Resolver<Maybe<ResolversTypes['BlogPost']>, ParentType, ContextType, RequireFields<QueryPublicBlogPostArgs, 'slug'>>;
   publicBlogPosts?: Resolver<Array<ResolversTypes['BlogPost']>, ParentType, ContextType, Partial<QueryPublicBlogPostsArgs>>;
   publicBranding?: Resolver<ResolversTypes['Branding'], ParentType, ContextType>;
@@ -23603,13 +24403,17 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   publicNewsletterIssues?: Resolver<Array<ResolversTypes['NewsletterIssue']>, ParentType, ContextType, Partial<QueryPublicNewsletterIssuesArgs>>;
   publicPolicies?: Resolver<Array<ResolversTypes['PublicPolicy']>, ParentType, ContextType>;
   publicPolicy?: Resolver<Maybe<ResolversTypes['PublicPolicy']>, ParentType, ContextType, RequireFields<QueryPublicPolicyArgs, 'slug'>>;
+  publicTask?: Resolver<Maybe<ResolversTypes['PublicTaskView']>, ParentType, ContextType, RequireFields<QueryPublicTaskArgs, 'token'>>;
   publicTool?: Resolver<Maybe<ResolversTypes['Tool']>, ParentType, ContextType, RequireFields<QueryPublicToolArgs, 'toolCode'>>;
   publicToolCategories?: Resolver<Array<ResolversTypes['ToolCategory']>, ParentType, ContextType>;
   publicTools?: Resolver<Array<ResolversTypes['Tool']>, ParentType, ContextType, Partial<QueryPublicToolsArgs>>;
   receivables?: Resolver<ResolversTypes['Receivables'], ParentType, ContextType>;
   salarySlipPdf?: Resolver<ResolversTypes['SalarySlipDownload'], ParentType, ContextType, RequireFields<QuerySalarySlipPdfArgs, 'id'>>;
   search?: Resolver<Array<ResolversTypes['SearchGroup']>, ParentType, ContextType, RequireFields<QuerySearchArgs, 'query'>>;
+  searchCompanies?: Resolver<ResolversTypes['CompanyPage'], ParentType, ContextType, RequireFields<QuerySearchCompaniesArgs, 'query'>>;
+  searchContacts?: Resolver<ResolversTypes['ContactPage'], ParentType, ContextType, RequireFields<QuerySearchContactsArgs, 'query'>>;
   searchKnowledgeBase?: Resolver<Array<ResolversTypes['KbArticle']>, ParentType, ContextType, RequireFields<QuerySearchKnowledgeBaseArgs, 'query'>>;
+  searchLeads?: Resolver<ResolversTypes['LeadPage'], ParentType, ContextType, RequireFields<QuerySearchLeadsArgs, 'query'>>;
   searchPexelsPhotos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsPhotosArgs, 'query'>>;
   searchPexelsVideos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsVideosArgs, 'query'>>;
   sharedGccEstimate?: Resolver<Maybe<ResolversTypes['GccSharedEstimate']>, ParentType, ContextType, RequireFields<QuerySharedGccEstimateArgs, 'token'>>;
@@ -23634,6 +24438,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   supportSlaSummary?: Resolver<ResolversTypes['SupportSlaSummary'], ParentType, ContextType>;
   systemHealth?: Resolver<ResolversTypes['SystemHealth'], ParentType, ContextType>;
   taskActivity?: Resolver<Array<ResolversTypes['TaskActivity']>, ParentType, ContextType, RequireFields<QueryTaskActivityArgs, 'taskId'>>;
+  taskByKey?: Resolver<Maybe<ResolversTypes['Task']>, ParentType, ContextType, RequireFields<QueryTaskByKeyArgs, 'key'>>;
   taskComments?: Resolver<Array<ResolversTypes['TaskComment']>, ParentType, ContextType, RequireFields<QueryTaskCommentsArgs, 'taskId'>>;
   taxRegimeChoices?: Resolver<Array<ResolversTypes['TaxRegimeChoice']>, ParentType, ContextType>;
   teamGoals?: Resolver<Array<ResolversTypes['Goal']>, ParentType, ContextType>;
@@ -23670,7 +24475,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   websiteFormTypes?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   whatsappChannel?: Resolver<ResolversTypes['WhatsappChannelSettings'], ParentType, ContextType>;
   whatsappDemoAiStatus?: Resolver<ResolversTypes['WhatsappAiStatus'], ParentType, ContextType>;
-  whatsappDemoCatalog?: Resolver<Array<ResolversTypes['WhatsappDemoBundle']>, ParentType, ContextType>;
+  whatsappDemoCatalog?: Resolver<Array<ResolversTypes['WhatsappDemoBundle']>, ParentType, ContextType, Partial<QueryWhatsappDemoCatalogArgs>>;
   whatsappDemoFunnel?: Resolver<Array<ResolversTypes['WhatsappFunnelStep']>, ParentType, ContextType, RequireFields<QueryWhatsappDemoFunnelArgs, 'demoKey' | 'from' | 'to' | 'workflow'>>;
   whatsappDemoSession?: Resolver<Maybe<ResolversTypes['WhatsappDemoSessionDetail']>, ParentType, ContextType, RequireFields<QueryWhatsappDemoSessionArgs, 'sessionId'>>;
   whatsappDemoSessions?: Resolver<ResolversTypes['WhatsappDemoSessionPage'], ParentType, ContextType, RequireFields<QueryWhatsappDemoSessionsArgs, 'input'>>;
@@ -23678,7 +24483,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   whatsappDemoVisitorMe?: Resolver<Maybe<ResolversTypes['WhatsappDemoVisitor']>, ParentType, ContextType>;
   whatsappDemoVisitorStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   whatsappDemoVisitorsPaged?: Resolver<ResolversTypes['WhatsappDemoVisitorPage'], ParentType, ContextType, RequireFields<QueryWhatsappDemoVisitorsPagedArgs, 'input'>>;
-  whatsappDemos?: Resolver<Array<ResolversTypes['WhatsappDemo']>, ParentType, ContextType>;
+  whatsappDemos?: Resolver<Array<ResolversTypes['WhatsappDemo']>, ParentType, ContextType, Partial<QueryWhatsappDemosArgs>>;
   whatsappWorkflow?: Resolver<Maybe<ResolversTypes['WhatsappWorkflow']>, ParentType, ContextType, RequireFields<QueryWhatsappWorkflowArgs, 'id'>>;
   whatsappWorkflows?: Resolver<Array<ResolversTypes['WhatsappWorkflow']>, ParentType, ContextType, Partial<QueryWhatsappWorkflowsArgs>>;
   workspaceAnalytics?: Resolver<ResolversTypes['WorkspaceAnalytics'], ParentType, ContextType, RequireFields<QueryWorkspaceAnalyticsArgs, 'days'>>;
@@ -24573,12 +25378,15 @@ export type TaskResolvers<ContextType = GraphQLContext, ParentType extends Resol
   order?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   parentTaskId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   priority?: Resolver<ResolversTypes['TaskPriority'], ParentType, ContextType>;
+  projectId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  publicUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   reporterName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sprintId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   storyPoints?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['TaskType'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  visibility?: Resolver<ResolversTypes['TaskVisibility'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -25445,6 +26253,9 @@ export type WhatsappChannelResolvers<ContextType = GraphQLContext, ParentType ex
   hasAccessToken?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   hasAppSecret?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lastInboundAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  lastProblem?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lastProblemAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   phoneNumberId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedByName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -25477,6 +26288,7 @@ export type WhatsappDayPointResolvers<ContextType = GraphQLContext, ParentType e
 export type WhatsappDemoResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappDemo'] = ResolversParentTypes['WhatsappDemo']> = ResolversObject<{
   active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   business?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
+  channel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   greeting?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   industry?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -25640,6 +26452,23 @@ export type WhatsappWorkflowResolvers<ContextType = GraphQLContext, ParentType e
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type WorkflowEdgeResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WorkflowEdge'] = ResolversParentTypes['WorkflowEdge']> = ResolversObject<{
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  source?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  target?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WorkflowNodeResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WorkflowNode'] = ResolversParentTypes['WorkflowNode']> = ResolversObject<{
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['WorkflowNodeKind'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  x?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  y?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type WorkspaceAnalyticsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WorkspaceAnalytics'] = ResolversParentTypes['WorkspaceAnalytics']> = ResolversObject<{
   days?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   employees?: Resolver<ResolversTypes['EmployeeAnalytics'], ParentType, ContextType>;
@@ -25708,6 +26537,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   CallingBotCall?: CallingBotCallResolvers<ContextType>;
   CallingBotCallStart?: CallingBotCallStartResolvers<ContextType>;
   CallingBotConfig?: CallingBotConfigResolvers<ContextType>;
+  CallingBotScenario?: CallingBotScenarioResolvers<ContextType>;
+  CallingBotScenarioOption?: CallingBotScenarioOptionResolvers<ContextType>;
   CallingBotTurn?: CallingBotTurnResolvers<ContextType>;
   Campaign?: CampaignResolvers<ContextType>;
   CampaignLeadCount?: CampaignLeadCountResolvers<ContextType>;
@@ -25782,6 +26613,16 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   CostCenter?: CostCenterResolvers<ContextType>;
   CostCenterPage?: CostCenterPageResolvers<ContextType>;
   CreatedWebhook?: CreatedWebhookResolvers<ContextType>;
+  CrmCondition?: CrmConditionResolvers<ContextType>;
+  CrmFilterGroup?: CrmFilterGroupResolvers<ContextType>;
+  CrmImportIssue?: CrmImportIssueResolvers<ContextType>;
+  CrmImportResult?: CrmImportResultResolvers<ContextType>;
+  CrmObjectSchema?: CrmObjectSchemaResolvers<ContextType>;
+  CrmProperty?: CrmPropertyResolvers<ContextType>;
+  CrmPropertyInfo?: CrmPropertyInfoResolvers<ContextType>;
+  CrmPropertyOption?: CrmPropertyOptionResolvers<ContextType>;
+  CrmSort?: CrmSortResolvers<ContextType>;
+  CrmView?: CrmViewResolvers<ContextType>;
   DatabaseInfo?: DatabaseInfoResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
   Deal?: DealResolvers<ContextType>;
@@ -25986,9 +26827,11 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ProjectTimeLogRow?: ProjectTimeLogRowResolvers<ContextType>;
   ProjectTimeLogScreenshot?: ProjectTimeLogScreenshotResolvers<ContextType>;
   ProjectTimeLogSession?: ProjectTimeLogSessionResolvers<ContextType>;
+  ProjectWorkflow?: ProjectWorkflowResolvers<ContextType>;
   Prompt?: PromptResolvers<ContextType>;
   PromptPage?: PromptPageResolvers<ContextType>;
   PublicPolicy?: PublicPolicyResolvers<ContextType>;
+  PublicTaskView?: PublicTaskViewResolvers<ContextType>;
   PurchaseOrder?: PurchaseOrderResolvers<ContextType>;
   PurchaseOrderLine?: PurchaseOrderLineResolvers<ContextType>;
   PurchaseOrderPage?: PurchaseOrderPageResolvers<ContextType>;
@@ -26166,6 +27009,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   WhatsappFunnelStep?: WhatsappFunnelStepResolvers<ContextType>;
   WhatsappPublishedWorkflow?: WhatsappPublishedWorkflowResolvers<ContextType>;
   WhatsappWorkflow?: WhatsappWorkflowResolvers<ContextType>;
+  WorkflowEdge?: WorkflowEdgeResolvers<ContextType>;
+  WorkflowNode?: WorkflowNodeResolvers<ContextType>;
   WorkspaceAnalytics?: WorkspaceAnalyticsResolvers<ContextType>;
 }>;
 

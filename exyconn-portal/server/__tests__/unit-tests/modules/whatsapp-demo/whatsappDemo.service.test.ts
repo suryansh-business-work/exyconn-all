@@ -6,11 +6,11 @@ import {
   listDemos,
   upsertDemo,
   type WhatsappDemoInput,
-} from '../../../../src/modules/whatsapp-demo/whatsappDemo.service';
+} from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.service';
 import {
   WhatsappDemoModel,
   WhatsappWorkflowModel,
-} from '../../../../src/modules/whatsapp-demo/whatsappDemo.model';
+} from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.model';
 import { AuditLogModel } from '../../../../src/modules/audit';
 import { ROLES } from '../../../../src/constants/roles';
 import type { GraphQLContext } from '../../../../src/middleware/auth';

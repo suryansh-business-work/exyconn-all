@@ -1,0 +1,465 @@
+{
+  "key": "industries-travel-tourism",
+  "path": "/industries/travel-tourism",
+  "title": "AI for Travel & Tourism | Exyconn",
+  "seo": {
+    "title": "AI Automation for Travel and Tourism | Exyconn",
+    "description": "AI agents for travel agencies and tour operators: draft itineraries, quote and book trips, support travellers 24/7, chase visa papers and flag disruptions.",
+    "keywords": "AI for travel agencies, travel agency automation, AI itinerary builder, tour operator software AI, travel WhatsApp chatbot, travel quote automation, visa document checklist, flight disruption alerts, travel CRM automation, travel agency mid office",
+    "ogImageUrl": "",
+    "canonical": "",
+    "noindex": false,
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "{marketUrl}" },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Industries",
+            "item": "{marketUrl}/industries"
+          },
+          { "@type": "ListItem", "position": 3, "name": "Travel & tourism" }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "AI automation for travel and tourism",
+        "serviceType": "AI agents and workflow automation",
+        "description": "Exyconn designs, builds and runs AI agents for travel agencies, tour operators and DMCs: itinerary drafting, quotes and bookings, round-the-clock traveller support, visa and document checklists, disruption alerts and supplier and margin reporting, connected to the agency's booking engine, CRM and mid-office.",
+        "url": "{marketUrl}/industries/travel-tourism",
+        "audience": {
+          "@type": "BusinessAudience",
+          "audienceType": "Travel agencies, tour operators, DMCs and corporate travel desks"
+        },
+        "provider": { "@type": "Organization", "name": "{businessName}", "url": "{siteUrl}" },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "AI use cases for travel businesses",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Trip planning and itineraries" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Quotes and bookings" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Traveller support around the clock" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Visa and document checklists" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Disruption alerts" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Supplier and margin reports" }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "body": [
+    {
+      "component": "detail.stage",
+      "props": {
+        "family": "services",
+        "crumbs": [
+          { "label": "Home", "href": "/" },
+          { "label": "Industries", "href": "/industries" },
+          { "label": "Travel & tourism", "href": "" }
+        ],
+        "title": "Itineraries in minutes, travellers never stranded",
+        "lede": "AI agents that turn a WhatsApp enquiry into a costed itinerary, chase passports and visa papers, and message travellers the moment a flight moves.",
+        "primary": { "label": "Plan AI for your agency", "href": "/contact" },
+        "secondary": { "label": "See the WhatsApp chatbot", "href": "/services/whatsapp-chatbot" },
+        "scene": { "shapes": ["travel"], "accent": ["sky", "amber"] },
+        "glyph": "",
+        "tagline": "Itineraries · Quotes · Support · Visas · Alerts · Margins"
+      }
+    },
+    {
+      "component": "detail.intro",
+      "props": {
+        "index": 1,
+        "label": "In short",
+        "intro": {
+          "title": "What does Exyconn build for travel and tourism businesses?",
+          "icon": "plane-departure",
+          "term": "AI for travel",
+          "definition": "is a set of agents that draft itineraries, prepare quotes, collect travel documents and look after travellers during the trip, so your consultants spend their time selling and fixing the hard problems. Exyconn designs, builds and runs these agents for travel agencies, tour operators and DMCs, on top of the booking engine, supplier contracts, CRM and mid-office you already use. A consultant signs off every quote before it goes out."
+        },
+        "benefits": {
+          "title": "Why travel businesses are doing this now",
+          "items": [
+            {
+              "icon": "comments",
+              "text": "Most enquiries now start on WhatsApp, and the first agency to send a sensible plan usually wins the booking."
+            },
+            {
+              "icon": "file-pen",
+              "text": "A custom itinerary can take a consultant hours to put together from supplier rates and notes."
+            },
+            {
+              "icon": "earth-asia",
+              "text": "Travellers abroad need help at hours when your office in India is closed."
+            },
+            {
+              "icon": "passport",
+              "text": "Visa rules and document lists change often, and one missing paper can sink a trip."
+            },
+            {
+              "icon": "scale-balanced",
+              "text": "Package margins are thin, so knowing which supplier and which trip actually make money matters."
+            }
+          ]
+        },
+        "demo": {
+          "kind": "chat",
+          "title": "whatsapp · trip planner",
+          "caption": "A couple asks for a Bali honeymoon; the agent drafts a plan from the agency's own packages and books a call with a consultant.",
+          "messages": [
+            {
+              "from": "user",
+              "text": "Hi, planning our honeymoon to Bali in December, 6 nights. Budget around 1.5 lakh for two"
+            },
+            {
+              "from": "agent",
+              "text": "Congratulations, Rohit! A popular split is 3 nights in Ubud and 3 in Seminyak, with a private pool villa in Ubud. Flying from Delhi or Mumbai?"
+            },
+            { "from": "user", "text": "Delhi. And we'd like one day for snorkelling" },
+            {
+              "from": "agent",
+              "text": "Here's a draft: villas, transfers, a Nusa Penida snorkel day and breakfast throughout, from about ₹1,42,000 for two before flights. Flights from Delhi in mid-December are moving fast, so a consultant will confirm live fares."
+            },
+            { "from": "user", "text": "Looks good. Can someone call me tonight?" },
+            {
+              "from": "agent",
+              "text": "Booked: Priya from our team will call you at 7:30 pm with fares and the final quote. I've also sent the Indonesia entry checklist for both passports."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "service.info-grid",
+      "props": {
+        "index": 2,
+        "id": "travel-challenges",
+        "anchor": "",
+        "label": "The reality",
+        "title": "Where a travel agency's hours actually go",
+        "lede": "Talk to any agency owner and the work that wears the team down is rarely the selling.",
+        "indexPrefix": "T",
+        "items": [
+          {
+            "id": "enquiry-backlog",
+            "title": "Enquiries that go cold",
+            "text": "Leads arrive from WhatsApp, Instagram, the website and referrals. Many are price-shoppers, but the good ones get lost in the pile if nobody replies the same day.",
+            "points": []
+          },
+          {
+            "id": "itinerary-assembly",
+            "title": "Itineraries built by hand",
+            "text": "A consultant copies hotel descriptions, rates and day plans from supplier sheets into a document, then redoes it when the client changes one city.",
+            "points": []
+          },
+          {
+            "id": "after-hours",
+            "title": "Calls from abroad at 2am",
+            "text": "A missed transfer in Bangkok or a lost hotel voucher in Dubai lands on the owner's personal phone, because there is nobody else awake to answer.",
+            "points": []
+          },
+          {
+            "id": "documents",
+            "title": "Chasing passports and papers",
+            "text": "Passport copies, photos, bank statements and forms arrive in pieces over email and WhatsApp. Someone has to check each one against the embassy's list.",
+            "points": []
+          },
+          {
+            "id": "disruptions",
+            "title": "Schedule changes found too late",
+            "text": "Airlines retime and cancel flights, and the agency often hears about it from the traveller. Connecting transfers and hotel check-ins then need fixing in a rush.",
+            "points": []
+          },
+          {
+            "id": "margins",
+            "title": "Margins worked out after the trip",
+            "text": "Supplier invoices, refunds and currency moves are reconciled weeks later, so nobody knows which package or supplier actually earned money until the season is over.",
+            "points": []
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.offerings",
+      "props": {
+        "index": 3,
+        "label": "Use cases",
+        "offerings": {
+          "title": "Six jobs AI takes off your consultants' desks",
+          "items": [
+            {
+              "icon": "route",
+              "title": "Trip planning and itineraries",
+              "text": "Asks the traveller the right questions, then drafts a day-by-day itinerary from your own packages, preferred hotels and supplier contracts, in your agency's template."
+            },
+            {
+              "icon": "ticket",
+              "title": "Quotes and bookings",
+              "text": "Prices the itinerary from your contracted and live supplier rates, applies your markup, and prepares the quote for a consultant to approve. Once accepted, it books through your booking engine and sends vouchers."
+            },
+            {
+              "icon": "comments",
+              "title": "Traveller support, day and night",
+              "text": "Answers travellers on WhatsApp during the trip from their booking: pickup times, hotel addresses, what's included. Anything that needs a decision goes to the on-call consultant with the booking attached."
+            },
+            {
+              "icon": "passport",
+              "title": "Visa and document checklists",
+              "text": "Sends each traveller the checklist for their destination and nationality, collects scans on WhatsApp, checks passport validity and blank pages, and flags missing items before the appointment."
+            },
+            {
+              "icon": "bell",
+              "title": "Disruption alerts",
+              "text": "Watches flight schedule changes on booked PNRs, tells the traveller and the consultant straight away, and drafts the knock-on changes to transfers and hotel check-ins."
+            },
+            {
+              "icon": "chart-line",
+              "title": "Supplier and margin reports",
+              "text": "Matches supplier invoices and refunds against bookings in the mid-office and reports margin by trip, destination and supplier, with outstanding payables listed."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "industry.story",
+      "props": {
+        "index": 4,
+        "label": "A day with it running",
+        "title": "One day at a 12-person holiday agency",
+        "lede": "A Wednesday in peak booking season for an agency selling outbound holidays from India. Each moment lights the part of the business the agent is working on.",
+        "moments": [
+          {
+            "when": "05:40",
+            "title": "A flight retimed overnight",
+            "text": "A Singapore flight for a family of four has moved by three hours. The family and their consultant get a message before breakfast, with the airport transfer already re-requested.",
+            "useCase": 5
+          },
+          {
+            "when": "09:15",
+            "title": "Overnight enquiries, already drafted",
+            "text": "Eleven enquiries came in overnight. Each has a draft itinerary waiting from the agency's own Kerala, Dubai and Bali packages, sorted by how ready the traveller is to book.",
+            "useCase": 1
+          },
+          {
+            "when": "11:30",
+            "title": "A quote goes out",
+            "text": "A consultant reviews a seven-night Switzerland quote the agent priced from contracted hotel rates, adjusts one hotel and sends it. The client accepts by evening.",
+            "useCase": 2
+          },
+          {
+            "when": "14:00",
+            "title": "A missing bank statement caught",
+            "text": "A group of six is applying for Schengen visas. The agent notices one traveller sent only three months of statements and asks for the rest before the appointment date.",
+            "useCase": 4
+          },
+          {
+            "when": "18:20",
+            "title": "Supplier payments, lined up",
+            "text": "The owner gets margin by trip for last month's departures and a list of supplier payments due this week, with one hotel invoice that doesn't match the booking.",
+            "useCase": 6
+          },
+          {
+            "when": "23:50",
+            "title": "A traveller needs help in Bali",
+            "text": "A couple can't find their driver at Denpasar airport. The agent sends the driver's name and number from the voucher and alerts the on-call consultant while they wait.",
+            "useCase": 3
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.architecture",
+      "props": {
+        "index": 5,
+        "label": "How it connects",
+        "title": "Built on the booking stack you already run",
+        "layers": [
+          { "label": "Where travellers talk", "nodes": ["WhatsApp", "Website & email", "Phone"] },
+          { "label": "AI agents", "nodes": ["Trip planner", "Travel support", "Documents & ops"] },
+          {
+            "label": "Your systems",
+            "nodes": ["Booking engine", "CRM & mid-office", "Supplier rates"]
+          },
+          { "label": "People in charge", "nodes": ["Consultants", "Quote approval", "Audit log"] }
+        ]
+      }
+    },
+    {
+      "component": "detail.tabs",
+      "props": {
+        "index": 6,
+        "label": "By business",
+        "title": "What it looks like for your kind of travel business",
+        "items": [
+          {
+            "label": "Holiday agencies",
+            "summary": "Leisure trips, sold on WhatsApp",
+            "text": "The work is answering fast and building trips people can picture. We start with an agent that replies to every enquiry, drafts an itinerary from your packages and hands warm leads to a consultant.",
+            "points": [
+              "Same-day replies with a draft itinerary",
+              "Visa and document checklists per traveller",
+              "Support on WhatsApp during the trip"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Tour operators & DMCs",
+            "summary": "Contracts, groups and ground handling",
+            "text": "Operators live on supplier contracts and departures. Agents price trips from contracted rates, keep group rooming lists and manifests in order and keep guides and drivers informed.",
+            "points": [
+              "Quotes from contracted rates and allotments",
+              "Rooming lists and passenger manifests",
+              "Supplier and guide updates for each departure"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Corporate travel desks",
+            "summary": "Policy, approvals and duty of care",
+            "text": "For business travel the job is booking within policy and knowing where people are. Agents take requests on chat, check them against the travel policy, route approvals and alert travellers when plans change.",
+            "points": [
+              "Requests checked against travel policy",
+              "Manager approvals before ticketing",
+              "Disruption alerts and spend reports by cost centre"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          }
+        ],
+        "previous": "Previous",
+        "next": "Next"
+      }
+    },
+    {
+      "component": "detail.process",
+      "props": {
+        "index": 7,
+        "label": "Rollout",
+        "title": "Answering enquiries before next season",
+        "lede": "We start with enquiries and itineraries, because that's where consultants lose the most hours, and add trip support after.",
+        "steps": [
+          {
+            "title": "Gather packages and suppliers",
+            "text": "We collect your packages, preferred hotels, supplier rate sheets and a sample of real enquiries, and list the systems the agent needs to read.",
+            "when": "Week 1"
+          },
+          {
+            "title": "Enquiries and itineraries",
+            "text": "The agent goes live on WhatsApp and your website, drafting itineraries and quotes that consultants review before anything is sent.",
+            "when": "Weeks 2–4"
+          },
+          {
+            "title": "Documents, support and alerts",
+            "text": "Visa checklists, in-trip support and flight change alerts are added, followed by supplier and margin reporting.",
+            "when": "Weeks 5–9"
+          },
+          {
+            "title": "Run and improve",
+            "text": "We review conversations each week, update packages and visa lists as they change, and send a monthly summary of what the agent handled.",
+            "when": "Ongoing"
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.related",
+      "props": {
+        "index": 8,
+        "label": "Related",
+        "title": "What travel businesses pair this with",
+        "more": "Explore",
+        "cards": [
+          {
+            "href": "/ai-services/ai-whatsapp-automation",
+            "index": "AI/01",
+            "title": "AI WhatsApp automation",
+            "text": "Enquiries, quotes and in-trip support on the official WhatsApp Business API.",
+            "tags": ["WhatsApp", "Enquiries", "Support"]
+          },
+          {
+            "href": "/ai-services/ai-document-processing",
+            "index": "AI/02",
+            "title": "AI document processing",
+            "text": "Passports, forms and supplier invoices read and checked without retyping.",
+            "tags": ["Passports", "Invoices", "Forms"]
+          },
+          {
+            "href": "/ai-services/ai-sales-automation",
+            "index": "AI/03",
+            "title": "AI sales automation",
+            "text": "Follow-ups on open quotes handled so consultants spend their time in conversations.",
+            "tags": ["Leads", "Follow-up", "Quotes"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.faq",
+      "props": {
+        "index": 9,
+        "label": "FAQ",
+        "title": "Questions travel businesses ask us",
+        "items": [
+          {
+            "question": "Will this replace my travel consultants?",
+            "answer": "No. It does the first draft and the follow-up work: replying, pulling rates together, chasing documents and sending updates. Consultants still approve every quote, handle tricky changes and build the relationship that brings clients back."
+          },
+          {
+            "question": "Can it connect to our booking engine and suppliers?",
+            "answer": "It works with booking engines, GDS-connected tools, CRMs and mid-office systems that have an API or a reliable export, and with supplier rate sheets you already keep. In the first week we confirm what your stack allows the agent to read and book."
+          },
+          {
+            "question": "Does the agent decide on visas?",
+            "answer": "No. It sends the published checklist for the destination, collects and checks documents for completeness and flags gaps. The embassy or consulate decides on the visa, and your team gives any advice beyond the checklist."
+          },
+          {
+            "question": "What about passport and payment data?",
+            "answer": "Passport scans and traveller details are stored in your systems or a private environment we set up for you, with role-based access and an audit log. The setup follows the privacy law that applies, such as India's DPDP Act or the GDPR for European travellers, and card payments go through your payment gateway, never the chat."
+          },
+          {
+            "question": "What if something goes wrong at 3am?",
+            "answer": "The agent answers what it can from the booking straight away. If the traveller is stuck, unsafe or needs money spent, it calls in your on-call consultant with the booking and conversation attached, and keeps the traveller updated until someone takes over."
+          },
+          {
+            "question": "How much does it cost?",
+            "answer": "It depends on enquiry volume, the channels you use and which systems need connecting. Most agencies start with enquiries and itineraries; tell us about your business and we'll send a fixed quote for that first phase."
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.cta",
+      "props": {
+        "family": "services",
+        "label": "Next step",
+        "title": "Send us five recent enquiries",
+        "text": "We'll show you the itineraries and quotes an agent would have drafted from your own packages, and what it needs from your booking stack. No obligation.",
+        "primary": { "label": "Talk to us", "href": "/contact" },
+        "secondary": { "label": "Get a quote", "href": "/get-a-quote" },
+        "echoShape": 0
+      }
+    }
+  ]
+}

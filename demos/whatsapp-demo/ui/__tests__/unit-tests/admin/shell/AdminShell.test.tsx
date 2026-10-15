@@ -11,13 +11,14 @@ function EditorStub() {
   return <p>{`Editor for ${useParams().workflowId ?? ''}`}</p>;
 }
 
-vi.mock('../../../../src/admin/analytics', () => ({ AnalyticsTab: () => <p>Analytics tab</p> }));
-vi.mock('../../../../src/admin/sessions', () => ({ SessionsTab: () => <p>Sessions tab</p> }));
-vi.mock('../../../../src/admin/channel', () => ({ ChannelTab: () => <p>Channel tab</p> }));
-vi.mock('../../../../src/admin/workflows', () => ({
+vi.mock('@exyconn/bot-studio/studio', async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  AnalyticsTab: () => <p>Analytics tab</p>,
+  SessionsTab: () => <p>Sessions tab</p>,
   WorkflowListPage: () => <p>Workflow list</p>,
   WorkflowEditorPage: () => <EditorStub />,
 }));
+vi.mock('../../../../src/admin/channel', () => ({ ChannelTab: () => <p>Channel tab</p> }));
 
 function Url() {
   return <output aria-label="url">{useCurrentUrl()}</output>;

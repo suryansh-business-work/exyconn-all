@@ -1,0 +1,471 @@
+{
+  "key": "industries-hospitality",
+  "path": "/industries/hospitality",
+  "title": "AI for Hotels & Hospitality | Exyconn",
+  "seo": {
+    "title": "AI Automation for Hotels and Hospitality | Exyconn",
+    "description": "AI agents for hotels, resorts and homestays: answer guests on WhatsApp, take direct bookings, dispatch housekeeping, reply to reviews and report revenue.",
+    "keywords": "AI for hotels, hotel automation, hospitality AI, hotel WhatsApp chatbot, AI concierge, hotel guest messaging, housekeeping automation, hotel review management, direct booking chatbot, PMS integration",
+    "ogImageUrl": "",
+    "canonical": "",
+    "noindex": false,
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "{marketUrl}" },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Industries",
+            "item": "{marketUrl}/industries"
+          },
+          { "@type": "ListItem", "position": 3, "name": "Hospitality & hotels" }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "AI automation for hotels and hospitality",
+        "serviceType": "AI agents and workflow automation",
+        "description": "Exyconn designs, builds and runs AI agents for hotels, resorts and homestays: guest messaging, direct bookings, housekeeping and maintenance dispatch, review replies, in-stay upsells and daily revenue reporting, connected to the property's PMS and channel manager.",
+        "url": "{marketUrl}/industries/hospitality",
+        "audience": {
+          "@type": "BusinessAudience",
+          "audienceType": "Hotels, resorts, serviced apartments and homestays"
+        },
+        "provider": { "@type": "Organization", "name": "{businessName}", "url": "{siteUrl}" },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "AI use cases for hotels",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Guest messaging on WhatsApp and web chat"
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Direct booking assistant" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Review replies and reputation tracking"
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Housekeeping and maintenance dispatch" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "In-stay offers and upsells" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Daily revenue and occupancy reporting" }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "body": [
+    {
+      "component": "detail.stage",
+      "props": {
+        "family": "services",
+        "crumbs": [
+          { "label": "Home", "href": "/" },
+          { "label": "Industries", "href": "/industries" },
+          { "label": "Hospitality & hotels", "href": "" }
+        ],
+        "title": "Every guest answered, every room ready",
+        "lede": "AI agents for hotels, resorts and homestays that reply to guests in seconds, take bookings directly, send the right request to housekeeping and keep tonight's numbers current — all on top of the PMS and channel manager you already run.",
+        "primary": { "label": "Plan AI for your property", "href": "/contact" },
+        "secondary": { "label": "See the WhatsApp chatbot", "href": "/services/whatsapp-chatbot" },
+        "scene": { "shapes": ["hospitality"], "accent": ["amber", "violet"] },
+        "glyph": "",
+        "tagline": "Messaging · Bookings · Housekeeping · Reviews · Revenue"
+      }
+    },
+    {
+      "component": "detail.intro",
+      "props": {
+        "index": 1,
+        "label": "In short",
+        "intro": {
+          "title": "What does Exyconn build for hotels?",
+          "icon": "hotel",
+          "term": "AI for hospitality",
+          "definition": "is software that handles the repetitive guest and back-office work of a hotel — answering the same twenty questions, taking bookings, passing a request to the right team and keeping reports up to date — so your people keep the conversations that need a person. Exyconn designs, builds and runs these agents on your property management system (PMS), channel manager and WhatsApp Business account. Nothing you use today has to be replaced."
+        },
+        "benefits": {
+          "title": "Why hotels are doing this now",
+          "items": [
+            {
+              "icon": "comments",
+              "text": "Guests expect a reply in minutes on WhatsApp, not a callback tomorrow morning."
+            },
+            {
+              "icon": "moon",
+              "text": "Most enquiries arrive when the front desk is busiest — or asleep."
+            },
+            {
+              "icon": "percent",
+              "text": "Every booking that moves from an OTA to your own site keeps the commission in the hotel."
+            },
+            {
+              "icon": "user-clock",
+              "text": "Lean teams cover more shifts; repetitive work is the first thing to burn people out."
+            },
+            {
+              "icon": "star",
+              "text": "Review scores decide which hotel a traveller clicks on, and replies show you were listening."
+            }
+          ]
+        },
+        "demo": {
+          "kind": "chat",
+          "title": "whatsapp · guest concierge",
+          "caption": "A guest asks about early check-in and an airport pickup; the agent checks the room status and offers the transfer.",
+          "messages": [
+            {
+              "from": "user",
+              "text": "Hi, we land at 7am tomorrow. Any chance of an early check-in?"
+            },
+            {
+              "from": "agent",
+              "text": "Good morning, Ananya! Your deluxe room is due to be ready by 11. I've flagged it for priority cleaning and you're welcome to use the lounge and pool until then."
+            },
+            { "from": "user", "text": "Perfect. Can you arrange a cab from the airport too?" },
+            {
+              "from": "agent",
+              "text": "Of course — a sedan pickup is ₹1,450, charged to your room. Shall I book it for a 7:30 arrival at Terminal 2?"
+            },
+            { "from": "user", "text": "Yes please" },
+            {
+              "from": "agent",
+              "text": "Done. Your driver's name and number will arrive here an hour before landing. Safe travels!"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "service.info-grid",
+      "props": {
+        "index": 2,
+        "id": "hospitality-challenges",
+        "anchor": "",
+        "label": "The reality",
+        "title": "Where a hotel's hours actually go",
+        "lede": "Talk to any general manager and the same list comes up. None of it is hard; all of it is constant.",
+        "indexPrefix": "H",
+        "items": [
+          {
+            "id": "repeat-questions",
+            "title": "The same questions, all day",
+            "text": "Check-in time, parking, breakfast hours, the Wi-Fi password. Each takes a minute, and there are hundreds of them a week across phone, WhatsApp, email and OTA inboxes.",
+            "points": []
+          },
+          {
+            "id": "ota-dependence",
+            "title": "Bookings leaking to OTAs",
+            "text": "A guest who messages to ask about a room and waits too long for an answer books on a travel site instead — and the hotel pays commission on a guest who came to it first.",
+            "points": []
+          },
+          {
+            "id": "handoffs",
+            "title": "Requests lost between teams",
+            "text": "\"Extra towels for 304\" travels from the desk to a notebook to a housekeeper's phone. Somewhere in that chain it gets missed, and the guest asks twice.",
+            "points": []
+          },
+          {
+            "id": "reviews",
+            "title": "Reviews nobody has time to answer",
+            "text": "Feedback is spread over Google, booking sites and TripAdvisor. Replies go out late or not at all, and recurring complaints stay buried.",
+            "points": []
+          },
+          {
+            "id": "missed-revenue",
+            "title": "Extras that are never offered",
+            "text": "Late checkout, a room upgrade, a spa slot or a dinner table — guests often would say yes, but nobody asks at the right moment.",
+            "points": []
+          },
+          {
+            "id": "reporting",
+            "title": "Numbers assembled by hand",
+            "text": "Occupancy, ADR and RevPAR get pulled from the PMS into a spreadsheet every morning, so decisions run a day behind the data.",
+            "points": []
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.offerings",
+      "props": {
+        "index": 3,
+        "label": "Use cases",
+        "offerings": {
+          "title": "Six jobs AI takes off your team's plate",
+          "items": [
+            {
+              "icon": "comments",
+              "title": "Guest messaging, around the clock",
+              "text": "One agent answers on WhatsApp, web chat and email in the guest's language, from your own policies and live room data, and hands over to staff with the full conversation when a person is needed."
+            },
+            {
+              "icon": "calendar-check",
+              "title": "Direct bookings in the chat",
+              "text": "Checks availability and rates in the PMS, quotes the stay, takes the booking and sends a payment link — so an enquiry becomes a reservation without a detour through a travel site."
+            },
+            {
+              "icon": "star",
+              "title": "Review replies and themes",
+              "text": "Drafts a reply to each new review in your voice for a manager to approve, and flags what keeps coming up — slow breakfast service, a noisy room block — before it becomes a pattern."
+            },
+            {
+              "icon": "bell-concierge",
+              "title": "Housekeeping and maintenance dispatch",
+              "text": "Turns \"no hot water in 212\" into a ticket for the right team, follows it up, and tells the guest when it's fixed. Room readiness feeds back into early check-in answers."
+            },
+            {
+              "icon": "key",
+              "title": "Offers at the right moment",
+              "text": "Suggests an upgrade before arrival, a late checkout on the last morning, a table or a spa slot on a rainy afternoon — and books whatever the guest accepts."
+            },
+            {
+              "icon": "chart-line",
+              "title": "Revenue and the morning report",
+              "text": "Occupancy, ADR, RevPAR, pickup and channel mix compiled overnight and sent to the owner on WhatsApp or email, with the questions behind the numbers answered in plain language."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "industry.story",
+      "props": {
+        "index": 4,
+        "label": "A day with it running",
+        "title": "One day at a 60-room hotel",
+        "lede": "Scroll through a normal Tuesday. Each moment lights the part of the hotel the agent is working on.",
+        "moments": [
+          {
+            "when": "06:10",
+            "title": "A guest lands early",
+            "text": "A WhatsApp message from the airport asks about early check-in. The agent sees the room is due out at 10, flags it for priority cleaning and offers the lounge until then.",
+            "useCase": 1
+          },
+          {
+            "when": "09:30",
+            "title": "Housekeeping gets the list, sorted",
+            "text": "Departures, priority rooms and three guest requests from overnight reach the housekeeping supervisor's phone as one ordered list instead of a stack of notes.",
+            "useCase": 4
+          },
+          {
+            "when": "13:15",
+            "title": "An enquiry becomes a booking",
+            "text": "A family asks about two connecting rooms for the long weekend. The agent checks the PMS, quotes the direct rate, takes the booking and sends a payment link.",
+            "useCase": 2
+          },
+          {
+            "when": "16:40",
+            "title": "Dinner, offered at the right time",
+            "text": "It's raining and the pool is closed. Guests in residence get a note about the rooftop restaurant; eleven tables are booked through the chat.",
+            "useCase": 5
+          },
+          {
+            "when": "20:05",
+            "title": "A review gets an answer",
+            "text": "A three-star review mentions slow room service. A reply is drafted for the manager, and the agent notes it's the third mention this month.",
+            "useCase": 3
+          },
+          {
+            "when": "23:55",
+            "title": "Tomorrow's numbers, ready tonight",
+            "text": "Occupancy, ADR, RevPAR and pickup for the next fortnight land in the owner's inbox before midnight, with one line on what changed and why.",
+            "useCase": 6
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.architecture",
+      "props": {
+        "index": 5,
+        "label": "How it connects",
+        "title": "Built on the systems you already run",
+        "layers": [
+          {
+            "label": "Where guests talk",
+            "nodes": ["WhatsApp", "Website chat", "Email & OTA inbox"]
+          },
+          { "label": "AI agents", "nodes": ["Concierge", "Reservations", "Ops dispatcher"] },
+          { "label": "Your systems", "nodes": ["PMS", "Channel manager", "POS & payments"] },
+          { "label": "People in charge", "nodes": ["Staff handover", "Approvals", "Audit log"] }
+        ]
+      }
+    },
+    {
+      "component": "detail.tabs",
+      "props": {
+        "index": 6,
+        "label": "By property",
+        "title": "What it looks like for your kind of property",
+        "items": [
+          {
+            "label": "Boutique hotels & homestays",
+            "summary": "A small team doing everything",
+            "text": "When the owner is also the receptionist, the first win is simply not missing messages. We start with one WhatsApp agent that answers questions, takes bookings and forwards anything unusual to the owner's phone.",
+            "points": [
+              "Live on WhatsApp first, then your website",
+              "Works with common cloud PMS and channel managers",
+              "Morning summary of bookings and messages"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "City & business hotels",
+            "summary": "High volume, tight turnarounds",
+            "text": "Here the gain is in throughput: fast replies at check-in peaks, requests routed straight to housekeeping and engineering, and corporate booking enquiries answered without a wait.",
+            "points": [
+              "Request routing to housekeeping and maintenance",
+              "Corporate and group enquiries captured and qualified",
+              "Daily pickup and channel-mix reporting"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Resorts & hotel groups",
+            "summary": "Many outlets, one guest",
+            "text": "Resorts sell far more than rooms. Agents recommend dining, spa and activities through the stay, and groups get one set of agents across properties with reporting rolled up to head office.",
+            "points": [
+              "In-stay offers across F&B, spa and activities",
+              "Shared agents and policies across properties",
+              "Role-based access and a full audit trail"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          }
+        ],
+        "previous": "Previous",
+        "next": "Next"
+      }
+    },
+    {
+      "component": "detail.process",
+      "props": {
+        "index": 7,
+        "label": "Rollout",
+        "title": "Live with real guests in weeks, not a year",
+        "lede": "We start where the hours go first — usually guest messaging — and add the rest once your team trusts it.",
+        "steps": [
+          {
+            "title": "Map the guest journey",
+            "text": "We read a sample of real guest conversations, list your systems and agree which questions the agent answers and which go to a person.",
+            "when": "Week 1"
+          },
+          {
+            "title": "Connect and pilot",
+            "text": "The agent goes live on one channel with your policies, rates and room data, with staff reviewing its answers in the first days.",
+            "when": "Weeks 2–4"
+          },
+          {
+            "title": "Add bookings and operations",
+            "text": "Direct bookings, housekeeping dispatch, review replies and the morning report are switched on one at a time.",
+            "when": "Weeks 5–8"
+          },
+          {
+            "title": "Run and improve",
+            "text": "We monitor every conversation, retrain on the questions it couldn't answer and report what changed each month.",
+            "when": "Ongoing"
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.related",
+      "props": {
+        "index": 8,
+        "label": "Related",
+        "title": "What hotels pair this with",
+        "more": "Explore",
+        "cards": [
+          {
+            "href": "/ai-services/ai-whatsapp-automation",
+            "index": "AI/01",
+            "title": "AI WhatsApp automation",
+            "text": "Sales and support on WhatsApp, automated on the official Business API.",
+            "tags": ["WhatsApp", "Business API", "Support"]
+          },
+          {
+            "href": "/ai-services/ai-voice-agents",
+            "index": "AI/02",
+            "title": "AI voice agents",
+            "text": "Answer the reservation line on busy nights and book while the guest is still on the call.",
+            "tags": ["Phone", "Bookings", "24/7"]
+          },
+          {
+            "href": "/ai-services/ai-saas-for-local-businesses",
+            "index": "AI/03",
+            "title": "AI for local businesses",
+            "text": "Bookings, reviews and customer messaging automated for businesses with a physical presence.",
+            "tags": ["Reviews", "Bookings", "Messaging"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.faq",
+      "props": {
+        "index": 9,
+        "label": "FAQ",
+        "title": "Questions hotels ask us",
+        "items": [
+          {
+            "question": "Does the AI replace our front desk staff?",
+            "answer": "No. It takes the repetitive questions and requests off their plate and hands anything sensitive — a complaint, a special request, a VIP — to a person with the whole conversation attached. Most hotels use the time it frees for the guests who are standing in front of them."
+          },
+          {
+            "question": "Which PMS and channel managers can it work with?",
+            "answer": "Any system with an API or a reliable export. We have connected cloud PMS platforms, channel managers, POS systems and payment gateways; during the first week we confirm exactly what your stack exposes and what the agent can read or write."
+          },
+          {
+            "question": "Can guests message in their own language?",
+            "answer": "Yes. The agent replies in the language the guest writes in, including Hindi and other Indian languages, while your policies and rates stay written once in English."
+          },
+          {
+            "question": "What happens when the AI doesn't know the answer?",
+            "answer": "It says so, tells the guest a team member will reply, and passes the conversation to staff on WhatsApp or the dashboard. Every unanswered question is reviewed and added to what the agent knows, so the same gap doesn't come up twice."
+          },
+          {
+            "question": "Is guest data kept private?",
+            "answer": "Guest data stays in your systems and in an environment we set up for your property. Access is role-based, conversations are logged for audit, and the setup follows the privacy law that applies to you, such as India's DPDP Act or the GDPR for European guests."
+          },
+          {
+            "question": "How much does it cost?",
+            "answer": "It depends on the number of properties, channels and systems involved. Most hotels start with guest messaging on one channel and expand from there; tell us about your property and we'll send a fixed quote for the first phase."
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.cta",
+      "props": {
+        "family": "services",
+        "label": "Next step",
+        "title": "Show us a week of guest messages",
+        "text": "We'll point out which ones an agent could have answered, and what it would take to connect it to your PMS. No obligation.",
+        "primary": { "label": "Talk to us", "href": "/contact" },
+        "secondary": { "label": "Get a quote", "href": "/get-a-quote" },
+        "echoShape": 0
+      }
+    }
+  ]
+}

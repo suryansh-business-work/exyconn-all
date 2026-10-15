@@ -8,6 +8,7 @@ import { ContactsPage } from './pages/contacts';
 import { DealsListPage, DealsPage } from './pages/deals';
 import { ActivitiesPage } from './pages/activities';
 import { EmailVerifierPage } from './pages/email-verifier';
+import { PropertiesPage } from './pages/settings';
 
 /** CRM micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
@@ -21,6 +22,7 @@ export function App() {
       <Route path="/crm/deals/list" element={<DealsListPage />} />
       <Route path="/crm/activities" element={<ActivitiesPage />} />
       <Route path="/crm/tools/email-verifier/:tab?" element={<EmailVerifierPage />} />
+      <Route path="/crm/settings/properties/:object?" element={<PropertiesPage />} />
     </PortalApp>
   );
 }

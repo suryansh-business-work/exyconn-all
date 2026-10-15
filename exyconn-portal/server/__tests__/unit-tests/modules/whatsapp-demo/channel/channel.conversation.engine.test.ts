@@ -1,34 +1,38 @@
 import { randomUUID } from 'node:crypto';
 import type { PendingPush } from '@exyconn/wa-flow';
 import type { EngineContext } from '@exyconn/wa-flow/engine';
-import { converse } from '../../../../../src/modules/whatsapp-demo/channel/channel.conversation';
-import { engineContext } from '../../../../../src/modules/whatsapp-demo/channel/channel.context';
-import { play } from '../../../../../src/modules/whatsapp-demo/channel/channel.play';
-import { sendMessage } from '../../../../../src/modules/whatsapp-demo/channel/channel.graph';
+import { converse } from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.conversation';
+import { engineContext } from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.context';
+import { play } from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.play';
+import { sendMessage } from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.graph';
 import {
   publishedBundles,
   saveChat,
-} from '../../../../../src/modules/whatsapp-demo/channel/channel.chats';
-import { recordChatEvents } from '../../../../../src/modules/whatsapp-demo/channel/channel.analytics';
+} from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.chats';
+import { recordChatEvents } from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.analytics';
 import { logger } from '../../../../../src/utils/logger';
 import { chatRecord, demoBundle } from './channel.fixtures';
 
-jest.mock('../../../../../src/modules/whatsapp-demo/channel/channel.context', () => ({
+jest.mock('../../../../../../../demos/whatsapp-demo/server/src/channel/channel.context', () => ({
   engineContext: jest.fn(),
 }));
-jest.mock('../../../../../src/modules/whatsapp-demo/channel/channel.play', () => ({
+jest.mock('../../../../../../../demos/whatsapp-demo/server/src/channel/channel.play', () => ({
   play: jest.fn(),
 }));
-jest.mock('../../../../../src/modules/whatsapp-demo/channel/channel.graph', () => ({
+jest.mock('../../../../../../../demos/whatsapp-demo/server/src/channel/channel.graph', () => ({
   sendMessage: jest.fn(),
 }));
-jest.mock('../../../../../src/modules/whatsapp-demo/channel/channel.chats', () => ({
-  ...jest.requireActual('../../../../../src/modules/whatsapp-demo/channel/channel.chats'),
+jest.mock('../../../../../../../demos/whatsapp-demo/server/src/channel/channel.chats', () => ({
+  ...jest.requireActual(
+    '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.chats',
+  ),
   publishedBundles: jest.fn(),
   saveChat: jest.fn(),
 }));
-jest.mock('../../../../../src/modules/whatsapp-demo/channel/channel.analytics', () => ({
-  ...jest.requireActual('../../../../../src/modules/whatsapp-demo/channel/channel.analytics'),
+jest.mock('../../../../../../../demos/whatsapp-demo/server/src/channel/channel.analytics', () => ({
+  ...jest.requireActual(
+    '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.analytics',
+  ),
   recordChatEvents: jest.fn(),
 }));
 
@@ -146,13 +150,16 @@ describe('converse: inside an industry', () => {
 
     expect(sendMessage).toHaveBeenCalledTimes(1);
     expect(warned).toHaveBeenCalledWith(
-      { err: 'Recipient not on WhatsApp', type: 'text' },
-      'WhatsApp channel could not send a reply',
+      {
+        phoneNumberId: sender.phoneNumberId,
+        problem: 'A reply could not be sent. Recipient not on WhatsApp',
+      },
+      'WhatsApp channel problem',
     );
     expect(saveChat).toHaveBeenCalledTimes(1);
   });
 
-  it('logs a refusal that is not an Error as it came', async () => {
+  it('records a refusal that is not an Error as no answer', async () => {
     const warned = jest.spyOn(logger, 'warn').mockImplementation(() => undefined);
     jest.mocked(sendMessage).mockRejectedValueOnce('timeout');
 
@@ -162,6 +169,9 @@ describe('converse: inside an industry', () => {
       sender,
     );
 
-    expect(warned.mock.calls[0][0]).toEqual({ err: 'timeout', type: 'text' });
+    expect(warned.mock.calls[0][0]).toEqual({
+      phoneNumberId: sender.phoneNumberId,
+      problem: 'A reply could not be sent. no answer',
+    });
   });
 });

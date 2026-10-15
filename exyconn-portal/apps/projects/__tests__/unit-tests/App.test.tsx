@@ -7,6 +7,8 @@ import { App } from '../../src/App';
 import { ProjectsPage, ProjectWorkspacePage } from '../../src/pages/projects';
 import { ProjectsOverviewPage } from '../../src/pages/overview';
 import { BugsPage } from '../../src/pages/bugs';
+import { TicketPage } from '../../src/pages/browse';
+import { WorkflowEditorPage, WorkflowsPage } from '../../src/pages/workflows';
 
 interface PortalProps {
   loginElement: ReactElement;
@@ -47,12 +49,15 @@ describe('App', () => {
     expect(props.loginElement.type).toBe(Login);
   });
 
-  it('routes the overview, the register, a workspace with its tab and page, and bugs', () => {
+  it('routes the overview, the register, a ticket page, workflows, a workspace with its tab and page, and bugs', () => {
     render(<App />);
 
     expect(declaredRoutes((portal.props as PortalProps).children)).toEqual([
       ['/projects', ProjectsOverviewPage],
       ['/projects/list', ProjectsPage],
+      ['/projects/browse/:key', TicketPage],
+      ['/projects/workflows', WorkflowsPage],
+      ['/projects/workflows/:id', WorkflowEditorPage],
       ['/projects/:id/:tab?/:pageId?', ProjectWorkspacePage],
       ['/bugs', BugsPage],
     ]);

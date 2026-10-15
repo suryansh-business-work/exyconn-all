@@ -10,6 +10,8 @@ import { assertRole } from '../../middleware/roleGuard';
 import { assertPermission } from '../../lib/permissions';
 import { ROLES } from '../../constants/roles';
 import { emitWebhookBestEffort } from '../integrations';
+import { sanitizeCustom } from './records';
+import type { CrmObject } from './records/crm.objects';
 import { withId } from '../../utils/serialize';
 import { notFound } from '../../utils/errors';
 import type { GraphQLContext } from '../../middleware/auth';
@@ -26,6 +28,7 @@ interface CompanyInput {
   location?: string;
   owner: string;
   notes?: string;
+  custom?: unknown;
 }
 
 interface ContactInput {
@@ -38,6 +41,7 @@ interface ContactInput {
   status: string;
   owner: string;
   notes?: string;
+  custom?: unknown;
 }
 
 interface DealInput {
@@ -230,6 +234,17 @@ const dealForecast = async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
   return row ?? { openCount: 0, openValue: 0, weightedValue: 0 };
 };
 
+type Save = (p: unknown, a: never, c: GraphQLContext) => unknown;
+
+/** A create or update whose custom values are checked against the company's properties first. */
+const withCustom =
+  (object: CrmObject, save: Save): Save =>
+  async (p, args, ctx) => {
+    const { input, ...rest } = args as unknown as { input: { custom?: unknown } };
+    const custom = await sanitizeCustom(object, input.custom);
+    return save(p, { ...rest, input: { ...input, custom } } as unknown as never, ctx);
+  };
+
 export const crmEntitiesResolvers = {
   /** Written before the field existed, a `.lean()` row comes back without it. */
   Company: {
@@ -249,6 +264,10 @@ export const crmEntitiesResolvers = {
   Mutation: {
     ...companies.Mutation,
     ...contacts.Mutation,
+    createCompany: withCustom('COMPANY', companies.Mutation.createCompany),
+    updateCompany: withCustom('COMPANY', companies.Mutation.updateCompany),
+    createContact: withCustom('CONTACT', contacts.Mutation.createContact),
+    updateContact: withCustom('CONTACT', contacts.Mutation.updateContact),
     ...deals.Mutation,
     ...activities.Mutation,
     updateDeal,

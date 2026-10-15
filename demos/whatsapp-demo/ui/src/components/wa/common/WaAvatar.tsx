@@ -2,7 +2,7 @@ import { Avatar } from '@exyconn/shell/components/ui';
 import type { AccentKey, IconKey } from '@exyconn/wa-flow';
 import { useWaPalette } from '../../../theme/useWa';
 import { WA_RADIUS } from '../../../theme/wa.tokens';
-import { WA_ICONS } from '../icons';
+import { WA_ICONS } from '@exyconn/bot-studio/icons';
 
 interface WaAvatarProps {
   /** Accessible name; the avatar is decorative when the name is already beside it. */

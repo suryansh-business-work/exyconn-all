@@ -277,11 +277,11 @@
         "more": "Explore",
         "cards": [
           {
-            "href": "/services/application-modernization",
+            "href": "/services/ai-website-chat-agent",
             "index": "S/01",
-            "title": "Application modernization",
-            "text": "Upgrade your legacy systems for performance, security, and innovation.",
-            "tags": ["Legacy assessment", "Migration & refactoring", "Security & optimization"]
+            "title": "AI website chat agent",
+            "text": "An AI chat agent on your website that answers, guides and captures leads.",
+            "tags": ["Lead capture", "Guided workflows", "Any website"]
           },
           {
             "href": "/services/automation-integration",

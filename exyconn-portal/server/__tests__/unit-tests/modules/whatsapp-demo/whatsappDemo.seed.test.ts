@@ -3,11 +3,11 @@ import { SEED_DEMOS } from '@exyconn/wa-flow/seeds';
 import {
   ensureWhatsappDemoSeeds,
   ensureWhatsappDemoSeedsLazily,
-} from '../../../../src/modules/whatsapp-demo/whatsappDemo.seed';
+} from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.seed';
 import {
   WhatsappDemoModel,
   WhatsappWorkflowModel,
-} from '../../../../src/modules/whatsapp-demo/whatsappDemo.model';
+} from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.model';
 import { MigrationModel } from '../../../../src/lib/migrations';
 import { runForOrganization } from '../../../../src/lib/tenant';
 import { logger } from '../../../../src/utils/logger';

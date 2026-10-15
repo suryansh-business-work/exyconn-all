@@ -7,8 +7,8 @@ import {
   getChannel,
   saveChannel,
   type WhatsappChannelInput,
-} from '../../../../../src/modules/whatsapp-demo/channel/channel.service';
-import { WhatsappChannelModel } from '../../../../../src/modules/whatsapp-demo/channel/channel.model';
+} from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.service';
+import { WhatsappChannelModel } from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.model';
 import { AuditLogModel } from '../../../../../src/modules/audit';
 import { runForOrganization } from '../../../../../src/lib/tenant';
 import { open, seal } from '../../../../../src/utils/secretBox';
@@ -18,6 +18,14 @@ import type { GraphQLContext } from '../../../../../src/middleware/auth';
 import { codeOf } from '../../codeOf';
 import { seedUser, useTestOrganization } from '../../../../helpers';
 import { asArg } from '../../../../mockAs';
+
+// Switching a number on subscribes the app with Meta; the network is not part of these tests.
+jest.mock('../../../../../../../demos/whatsapp-demo/server/src/channel/channel.graph', () => ({
+  ...jest.requireActual(
+    '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.graph',
+  ),
+  subscribeApp: jest.fn().mockResolvedValue(['waba-1']),
+}));
 
 const organizationId = useTestOrganization();
 const accessToken = randomBytes(24).toString('hex');
@@ -83,6 +91,9 @@ describe('saveChannel', () => {
       accessTokenHint: accessToken.slice(-4),
       hasAppSecret: true,
       webhookUrl: WEBHOOK_URL,
+      lastInboundAt: null,
+      lastProblem: '',
+      lastProblemAt: null,
       updatedAt: expect.any(String),
       updatedByName: 'owner',
     });

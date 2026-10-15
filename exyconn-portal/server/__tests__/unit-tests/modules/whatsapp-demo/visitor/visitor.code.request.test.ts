@@ -1,8 +1,8 @@
 import {
   requestVisitorCode,
   type VisitorCodeInput,
-} from '../../../../../src/modules/whatsapp-demo/visitor/visitor.code';
-import { WhatsappDemoVisitorModel } from '../../../../../src/modules/whatsapp-demo/visitor/visitor.model';
+} from '../../../../../../../demos/whatsapp-demo/server/src/visitor/visitor.code';
+import { WhatsappDemoVisitorModel } from '../../../../../../../demos/whatsapp-demo/server/src/visitor/visitor.model';
 import { emailer } from '../../../../../src/modules/email/email.service';
 import { env } from '../../../../../src/config/env';
 import { logger } from '../../../../../src/utils/logger';

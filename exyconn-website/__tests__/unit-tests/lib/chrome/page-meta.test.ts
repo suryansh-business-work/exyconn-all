@@ -71,6 +71,8 @@ describe("buildPageMeta defaults", () => {
       url: `${SITE}${BRANDING_FALLBACK.ogImageUrl}`,
       width: 1200,
       height: 630,
+      type: "image/svg+xml",
+      alt: meta.title,
     });
   });
 

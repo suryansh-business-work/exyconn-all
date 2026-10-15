@@ -56,11 +56,19 @@ jest.mock('../../src/lib/migrations', () => ({
 }));
 jest.mock('../../src/modules/clients', () => ({ migrateClientTaxIds: jest.fn() }));
 jest.mock('../../src/modules/cms', () => ({ ensureCmsDefaults: jest.fn() }));
-jest.mock('../../src/modules/calling-bot-demo', () => ({ migratePhoneProvider: jest.fn() }));
+jest.mock('../../src/modules/calling-bot-demo', () => ({
+  migratePhoneProvider: jest.fn(),
+  backfillPhoneFields: jest.fn(),
+  ensureCallingBotScenarios: jest.fn(),
+}));
 jest.mock('../../src/modules/reminders', () => ({ startReminderSweep: jest.fn() }));
 jest.mock('../../src/modules/audit', () => ({ startAuditRetention: jest.fn() }));
-jest.mock('../../src/modules/whatsapp-demo', () => ({ ensureWhatsappDemoSeeds: jest.fn() }));
-jest.mock('../../src/modules/whatsapp-demo/channel', () => ({ startWhatsappReminders: jest.fn() }));
+jest.mock('../../../../demos/whatsapp-demo/server/src', () => ({
+  ensureWhatsappDemoSeeds: jest.fn(),
+}));
+jest.mock('../../../../demos/whatsapp-demo/server/src/channel', () => ({
+  startWhatsappReminders: jest.fn(),
+}));
 jest.mock('../../src/modules/website-chat', () => ({
   attachChatSocket: jest.fn(),
   startChatHandoff: jest.fn(),
@@ -96,7 +104,7 @@ const STARTERS: Array<[string, string]> = [
   ['../../src/modules/finance', 'startOverdueSweep'],
   ['../../src/modules/integrations', 'startWebhookDelivery'],
   ['../../src/modules/support', 'startInboundMail'],
-  ['../../src/modules/whatsapp-demo/channel', 'startWhatsappReminders'],
+  ['../../../../demos/whatsapp-demo/server/src/channel', 'startWhatsappReminders'],
   ['../../src/modules/website-chat', 'startChatHandoff'],
   ['../../src/modules/ai', 'startAiWorker'],
   ['../../src/modules/reminders', 'startReminderSweep'],
@@ -169,11 +177,14 @@ describe('server bootstrap', () => {
       'position-defaults',
       'client-tax-ids',
       'calling-bot-phone-provider',
+      'calling-bot-phone-fields',
     ]);
     expect(m.logs.backfillAppLogGroupUsers).toHaveBeenCalled();
     expect(m.hr.backfillPositionDefaults).toHaveBeenCalled();
     expect(m.clients.migrateClientTaxIds).toHaveBeenCalled();
     expect(m.callingBot.migratePhoneProvider).toHaveBeenCalled();
+    expect(m.callingBot.backfillPhoneFields).toHaveBeenCalled();
+    expect(m.callingBot.ensureCallingBotScenarios).toHaveBeenCalled();
     expect(m.organizations.forEachOrganization.mock.calls.map(([, label]) => label)).toEqual([
       'repairStoredCurrencies',
       'ensureEmailDefaults',
@@ -184,9 +195,9 @@ describe('server bootstrap', () => {
       'migrateClientTaxIds',
       'ensureWhatsappDemoSeeds',
     ]);
-    // Admin access, the log-group backfill, status monitors, the calling bot migration and AI
-    // model prices run for the platform rather than for each company.
-    expect(m.tenant.runAsPlatform).toHaveBeenCalledTimes(5);
+    // Admin access, the log-group backfill, status monitors, the two calling bot migrations, its
+    // example seeds and AI model prices run for the platform rather than for each company.
+    expect(m.tenant.runAsPlatform).toHaveBeenCalledTimes(7);
   });
 
   it('logs and exits when the database cannot be reached, serving nothing', async () => {

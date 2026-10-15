@@ -34,7 +34,8 @@ export const GCC_COST_GUIDE_PAGE: CmsSeedPage = {
       'Plan a Global Capability Centre in India: establishment models, cities, people, AI and technology, compliance and three-year costs, with a free calculator.',
     keywords:
       'GCC in India, global capability centre, GCC setup cost, captive centre India, build operate transfer, managed GCC, India offshore centre cost',
-    ogImageUrl: '',
+    ogImageUrl:
+      'https://images.unsplash.com/photo-1587474260584-136574528ed5?fm=jpg&fit=crop&w=1200&h=630&q=80',
     canonical: '',
     noindex: false,
     jsonLd: {

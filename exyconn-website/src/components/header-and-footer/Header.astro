@@ -42,9 +42,9 @@ const businessName = branding.businessName || BRANDING_FALLBACK.businessName;
     </a>
 
     <div class="chrome-nav">
-      {HEADER_MENUS.slice(0, 3).map((group) => <NavMenu group={group} />)}
-      <a href={BLOG_LINK.href} class="chrome-nav__link">{BLOG_LINK.label}</a>
-      {HEADER_MENUS.slice(3).map((group) => <NavMenu group={group} />)}
+      {HEADER_MENUS.slice(0, 4).map((group) => <NavMenu group={group} />)}
+      <a href={BLOG_LINK.href} class="chrome-nav__link chrome-nav__link--blog">{BLOG_LINK.label}</a>
+      {HEADER_MENUS.slice(4).map((group) => <NavMenu group={group} />)}
       <a href={GCC_LINK.href} class="chrome-nav__link gcc-nav-pill" title={GCC_LINK.text}>
         {GCC_LINK.label}
       </a>

@@ -23,7 +23,8 @@ const { readFileSync, readdirSync } = require("node:fs");
 const { join, resolve } = require("node:path");
 
 const SERVER = "exyconn-portal/server";
-const ROOT = join(SERVER, "src/modules");
+// The portal's modules, and the WhatsApp demo's server code the portal server runs with them.
+const ROOTS = [join(SERVER, "src/modules"), "demos/whatsapp-demo/server/src"];
 
 // pnpm keeps graphql in the server package, not at the workspace root.
 const serverRequire = createRequire(resolve(SERVER, "package.json"));
@@ -50,12 +51,14 @@ const failures = [];
 /** Every module's SDL, kept so the merged schema can be built once at the end. */
 const documents = [];
 
-for (const entry of readdirSync(ROOT, { recursive: true })) {
-  const name = String(entry);
-  if (!name.endsWith("typeDefs.ts")) {
-    continue;
-  }
-  const file = join(ROOT, name);
+const typeDefFiles = ROOTS.flatMap((root) =>
+  readdirSync(root, { recursive: true })
+    .map(String)
+    .filter((name) => name.endsWith("typeDefs.ts"))
+    .map((name) => join(root, name)),
+);
+
+for (const file of typeDefFiles) {
   const block = /gql`([\s\S]*?)`;/.exec(readFileSync(file, "utf8"));
   if (!block) {
     continue;

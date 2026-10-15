@@ -1,13 +1,13 @@
-import { stats } from '../../../../src/modules/whatsapp-demo/whatsappDemo.stats';
+import { stats } from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.stats';
 import {
   WhatsappDemoEventModel,
   WhatsappDemoSessionModel,
   type WhatsappEventType,
-} from '../../../../src/modules/whatsapp-demo/whatsappDemo.analytics.model';
+} from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.analytics.model';
 import {
   WhatsappDemoModel,
   WhatsappWorkflowModel,
-} from '../../../../src/modules/whatsapp-demo/whatsappDemo.model';
+} from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.model';
 
 let sequence = 0;
 const nextId = () => {

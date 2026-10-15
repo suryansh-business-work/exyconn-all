@@ -1,6 +1,6 @@
 import { useT } from '@exyconn/i18n';
 import { Box, ButtonBase, Snackbar } from '@exyconn/shell/components/ui';
-import type { CatalogBundle } from '../../../runtime/types';
+import type { CatalogBundle } from '@exyconn/bot-studio/runtime';
 import { useWaPalette } from '../../../theme/useWa';
 import { WA_FONT, WA_RADIUS, WA_SHADOW, WA_SIZE, WA_SPACE } from '../../../theme/wa.tokens';
 import { WaAvatar } from '../common/WaAvatar';

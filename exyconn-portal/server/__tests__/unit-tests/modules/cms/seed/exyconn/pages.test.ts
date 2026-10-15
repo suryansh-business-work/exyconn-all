@@ -2,6 +2,7 @@ import { cmsComponent, compileHtml, type CmsBlock } from '@exyconn/cms';
 import { EXYCONN_PAGES } from '../../../../../../src/modules/cms/seed/exyconn/pages';
 import { AI_PAGES } from '../../../../../../src/modules/cms/seed/exyconn/pages/ai';
 import { AI_SERVICE_PAGES } from '../../../../../../src/modules/cms/seed/exyconn/pages/ai-services';
+import { INDUSTRY_PAGES } from '../../../../../../src/modules/cms/seed/exyconn/pages/industries';
 import { SERVICE_PAGES } from '../../../../../../src/modules/cms/seed/exyconn/pages/services';
 import type { CmsSeedPage } from '../../../../../../src/modules/cms/seed/types';
 
@@ -44,10 +45,11 @@ describe('EXYCONN_PAGES', () => {
   });
 
   it('includes every area list in full', () => {
-    for (const area of [SERVICE_PAGES, AI_PAGES, AI_SERVICE_PAGES]) {
+    for (const area of [SERVICE_PAGES, AI_PAGES, AI_SERVICE_PAGES, INDUSTRY_PAGES]) {
       expect(EXYCONN_PAGES).toEqual(expect.arrayContaining(area));
     }
-    expect([SERVICE_PAGES.length, AI_PAGES.length, AI_SERVICE_PAGES.length]).toEqual([13, 8, 30]);
+    expect([SERVICE_PAGES.length, AI_PAGES.length, AI_SERVICE_PAGES.length]).toEqual([14, 8, 30]);
+    expect(INDUSTRY_PAGES).toHaveLength(21);
   });
 
   it('keeps each area under its own path', () => {
@@ -56,6 +58,7 @@ describe('EXYCONN_PAGES', () => {
       true,
     );
     expect(AI_SERVICE_PAGES.every((page) => page.path.startsWith('/ai-services'))).toBe(true);
+    expect(INDUSTRY_PAGES.every((page) => page.path.startsWith('/industries'))).toBe(true);
   });
 
   it('marks exactly the pages with route parameters as templates', () => {

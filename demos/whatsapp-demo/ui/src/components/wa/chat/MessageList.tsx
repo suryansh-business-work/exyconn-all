@@ -3,7 +3,7 @@ import { useT } from '@exyconn/i18n';
 import { Box } from '@exyconn/shell/components/ui';
 import LockIcon from '@mui/icons-material/Lock';
 import type { ChatMessage } from '@exyconn/wa-flow';
-import { useWaFormat } from '../../../hooks/useWaFormat';
+import { useWaFormat } from '@exyconn/bot-studio/runtime';
 import { useCompact, useReducedMotion, useWaPalette } from '../../../theme/useWa';
 import { WA_FONT, WA_RADIUS, WA_SPACE } from '../../../theme/wa.tokens';
 import { MessageView } from '../messages/MessageView';

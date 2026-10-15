@@ -4,11 +4,11 @@ import {
   recordEvents,
   type EventActor,
   type WhatsappDemoEventInput,
-} from '../../../../src/modules/whatsapp-demo/whatsappDemo.events';
+} from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.events';
 import {
   WhatsappDemoEventModel,
   WhatsappDemoSessionModel,
-} from '../../../../src/modules/whatsapp-demo/whatsappDemo.analytics.model';
+} from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.analytics.model';
 
 const asha: EventActor = { id: 'user-asha', name: 'Asha', email: 'asha@example.com' };
 const ravi: EventActor = { id: 'user-ravi', name: 'Ravi', email: 'ravi@example.com' };

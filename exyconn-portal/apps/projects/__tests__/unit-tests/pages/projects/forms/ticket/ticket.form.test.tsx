@@ -24,7 +24,13 @@ const onCancel = vi.fn();
 
 const renderForm = (initial: TicketRow | null = null) =>
   renderWithProviders(
-    <TicketForm initial={initial} assignees={ASSIGNEES} onSubmit={onSubmit} onCancel={onCancel} />,
+    <TicketForm
+      initial={initial}
+      assignees={ASSIGNEES}
+      epics={[]}
+      onSubmit={onSubmit}
+      onCancel={onCancel}
+    />,
   );
 
 describe('TicketForm', () => {
@@ -81,6 +87,7 @@ describe('TicketForm', () => {
         labels: [],
         storyPoints: null,
         dueDate: null,
+        parentTaskId: null,
       }),
     );
   });
@@ -112,6 +119,7 @@ describe('TicketForm', () => {
         labels: ['auth'],
         storyPoints: 999,
         dueDate: localIso(2026, 9, 31),
+        parentTaskId: null,
       }),
     );
   });
@@ -141,6 +149,7 @@ describe('TicketForm', () => {
         labels: ['ui'],
         storyPoints: 0,
         dueDate: '2026-11-01T00:00:00.000Z',
+        parentTaskId: null,
       }),
     );
   });

@@ -16,7 +16,10 @@ import {
   TRACKING_PATH,
   marketingTrackingRouter,
 } from './modules/marketing/marketing.tracking.routes';
-import { WEBHOOK_PATH, whatsappWebhookRouter } from './modules/whatsapp-demo/channel';
+import {
+  WEBHOOK_PATH,
+  whatsappWebhookRouter,
+} from '../../../demos/whatsapp-demo/server/src/channel';
 import {
   RAZORPAY_WEBHOOK_PATH,
   STRIPE_WEBHOOK_PATH,

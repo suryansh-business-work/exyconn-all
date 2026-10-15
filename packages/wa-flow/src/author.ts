@@ -28,7 +28,9 @@ export interface SeedWorkflow {
   nodes: readonly AuthorNode[];
 }
 
-export interface SeedDemo extends Omit<DemoProfile, 'order' | 'active'> {
+export interface SeedDemo extends Omit<DemoProfile, 'order' | 'active' | 'channel'> {
+  /** Where the bot talks; WhatsApp when left out. */
+  channel?: DemoProfile['channel'];
   workflows: readonly SeedWorkflow[];
 }
 
@@ -80,5 +82,6 @@ export function toWorkflowDef(seed: SeedWorkflow, order: number): WorkflowDef {
 /** A seed demo's profile as stored. */
 export function toDemoProfile(seed: SeedDemo, order: number): DemoProfile {
   const { key, industry, business, greeting, menuText, menuButton } = seed;
-  return { key, industry, business, greeting, menuText, menuButton, order, active: true };
+  const channel = seed.channel ?? 'whatsapp';
+  return { key, channel, industry, business, greeting, menuText, menuButton, order, active: true };
 }

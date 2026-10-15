@@ -7,7 +7,7 @@ import type { CodegenConfig } from '@graphql-codegen/cli';
  */
 const config: CodegenConfig = {
   overwrite: true,
-  schema: './src/**/*.typeDefs.ts',
+  schema: ['./src/**/*.typeDefs.ts', '../../demos/whatsapp-demo/server/src/**/*.typeDefs.ts'],
   generates: {
     './src/graphql/generated/types.ts': {
       plugins: ['typescript', 'typescript-resolvers'],

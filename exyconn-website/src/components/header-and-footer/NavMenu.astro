@@ -9,7 +9,7 @@ const { group } = Astro.props;
 const panelId = `nav-panel-${group.id}`;
 ---
 
-<div class="chrome-menu" data-nav-menu>
+<div class:list={["chrome-menu", { "chrome-menu--wide": group.wide }]} data-nav-menu>
   <button type="button" class="chrome-nav__link" aria-expanded="false" aria-controls={panelId}>
     {group.label}
     <Icon name="chevron-down" class="icon-xs text-fg-subtle" />

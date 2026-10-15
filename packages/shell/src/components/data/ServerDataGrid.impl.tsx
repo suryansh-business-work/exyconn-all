@@ -54,6 +54,7 @@ function ServerDataGridImpl({
   fetchRows,
   pageSize = DEFAULT_PAGE_SIZE,
   searchPlaceholder = 'Search…',
+  initialSearch = '',
   onRowClick,
   context,
   refreshSignal = 0,
@@ -78,8 +79,8 @@ function ServerDataGridImpl({
   );
   const gridRef = useRef<AgGridReact<unknown>>(null);
   // The trimmed search the grid last loaded with; the box's live text debounces into it.
-  const searchRef = useRef('');
-  const [search, setSearch] = useState('');
+  const searchRef = useRef(initialSearch.trim());
+  const [search, setSearch] = useState(initialSearch);
   const [loadError, setLoadError] = useState<string | null>(null);
   const lock = useLoadingLock();
 

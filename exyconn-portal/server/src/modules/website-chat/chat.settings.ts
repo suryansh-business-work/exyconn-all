@@ -6,13 +6,17 @@ import { parseInput, settingsSchema } from './chat.validation';
 /**
  * The chat's settings in the company in scope, created with their defaults the first time
  * anything asks — so a fresh install has a working chat before anyone opens the settings.
+ * Read as a document, not lean: a setting added after the row was saved (the session timeout,
+ * the agents) then answers with its schema default instead of undefined, which made every new
+ * chat's expiry an Invalid Date and failed the visitor's sign-in.
  */
 export async function readChatSettings() {
-  return ChatSettingsModel.findOneAndUpdate(
+  const settings = await ChatSettingsModel.findOneAndUpdate(
     {},
     { $setOnInsert: { enabled: true } },
     { upsert: true, new: true, setDefaultsOnInsert: true },
-  ).lean();
+  );
+  return settings.toObject();
 }
 
 /** The settings with whether the team is on duty right now, for the console. */

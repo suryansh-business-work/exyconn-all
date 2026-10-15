@@ -27,6 +27,7 @@ const ROOTS = [
   'demos',
   'demos/whatsapp-demo',
   'demos/calling-bot-demo',
+  'demos/website-chat-demo',
 ];
 
 const WEBSITE_DOCKERFILE = 'docker/website.Dockerfile';

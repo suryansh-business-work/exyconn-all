@@ -14,6 +14,8 @@ import {
 import { Box, Typography } from '@exyconn/shell/components/ui';
 import { useCallingBotAvailabilityQuery } from '@exyconn/shell/graphql/generated';
 import { PhoneCallPanel } from '../components/PhoneCallPanel';
+import { ScenarioPicker } from '../components/ScenarioPicker';
+import { useScenarioChoice } from '../call/useScenarioChoice';
 import { CallHeroVisual } from './CallHeroVisual';
 import {
   CALL_FAQ,
@@ -71,6 +73,8 @@ export function CallPage() {
   const { t, locale } = useI18n();
   const { data, loading } = useCallingBotAvailabilityQuery({ fetchPolicy: 'cache-and-network' });
   const availability = data?.callingBotAvailability;
+  const choice = useScenarioChoice();
+  const scenarioId = choice.selected?.id ?? null;
   const available = Boolean(availability?.available);
   // Sections alternate with the hero's panel colour; the phone section, when shown, shifts them.
   const phoneEnabled = Boolean(availability?.phoneEnabled);
@@ -88,8 +92,22 @@ export function CallPage() {
           eyebrow="Live demo · AI voice agent"
           title="Talk to our AI calling bot"
           subtitle="It listens, thinks and answers in real time. Interrupt it whenever you like — it stops and listens, like a person would."
-          visual={<CallHeroVisual loading={loading && !availability} available={available} />}
+          visual={
+            <CallHeroVisual
+              loading={loading && !availability}
+              available={available}
+              scenarioId={scenarioId}
+            />
+          }
         >
+          {available && (
+            <ScenarioPicker
+              scenarios={choice.scenarios}
+              selected={choice.selected}
+              onSelect={choice.select}
+              failed={choice.failed}
+            />
+          )}
           <Typography variant="subtitle2" component="h2">
             {t('Before you call')}
           </Typography>
@@ -102,7 +120,7 @@ export function CallPage() {
             subtitle="Enter your number and the bot rings you, just like it would ring your customers."
           >
             <Box sx={TWO_COLUMNS}>
-              <PhoneCallPanel />
+              <PhoneCallPanel scenarioId={scenarioId} />
               <DemoHighlights items={PHONE_CALL_TIPS} />
             </Box>
           </DemoSection>

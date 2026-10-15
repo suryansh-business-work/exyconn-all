@@ -12,7 +12,8 @@ vi.mock('../../../../../src/theme/useWa', async (importOriginal) => ({
   useReducedMotion: () => view.reduced,
   useCompact: () => view.compact,
 }));
-vi.mock('../../../../../src/hooks/useWaFormat', () => ({
+vi.mock('@exyconn/bot-studio/runtime', async (importOriginal) => ({
+  ...(await importOriginal<object>()),
   useWaFormat: () => ({
     date: (ms: number) => `date:${ms}`,
     time: (ms: number) => `time:${ms}`,

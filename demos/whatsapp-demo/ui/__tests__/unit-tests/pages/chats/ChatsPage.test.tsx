@@ -9,10 +9,12 @@ vi.mock(
   '../../../../src/pages/chats/useChatsPage',
   async () => (await import('./chats-page.stubs')).useChatsPageMock,
 );
-vi.mock('../../../../src/hooks/useWaFormat', () => ({
+vi.mock('@exyconn/bot-studio/runtime', async (importOriginal) => ({
+  ...(await importOriginal<object>()),
   useWaFormat: () => ({ time: (ms: number) => `time ${ms}`, date: (ms: number) => `date ${ms}` }),
 }));
-vi.mock('@exyconn/shell/logging/portalLogger', async () => ({
+vi.mock('@exyconn/shell/logging/portalLogger', async (importOriginal) => ({
+  ...(await importOriginal<object>()),
   portalLogger: (await import('./chats-page.stubs')).pageStubs.logger,
 }));
 vi.mock(

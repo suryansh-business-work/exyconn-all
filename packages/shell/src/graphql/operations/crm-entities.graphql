@@ -11,6 +11,9 @@ fragment CompanyFields on Company {
   notes
   clientId
   isClient
+  custom
+  createdAt
+  updatedAt
 }
 
 fragment ContactFields on Contact {
@@ -24,6 +27,9 @@ fragment ContactFields on Contact {
   status
   owner
   notes
+  custom
+  createdAt
+  updatedAt
 }
 
 fragment DealFields on Deal {

@@ -1,9 +1,18 @@
 import type { APIRoute } from "astro";
 import { publishedPaths } from "../lib/cms";
 import { aiServicePaths } from "../lib/cms/ai-services";
+import { INDUSTRIES } from "../lib/chrome/navigation";
 import { sitePages } from "../lib/content/site-pages";
 
 const SITE_URL = "https://exyconn.com";
+
+/** One line per industry page: what the AI agents handle there, from the Industries menu. */
+const industryLines = INDUSTRIES.links
+  .map(
+    (link) =>
+      `- [${link.label}](${SITE_URL}${link.href}): AI agents and automation for ${link.label.toLowerCase()} — ${(link.text ?? "").toLowerCase()}`
+  )
+  .join("\n");
 
 const content = `# Exyconn
 
@@ -28,6 +37,10 @@ Exyconn is a B2B technology services company offering AI agents, an infrastructu
 - [About Us](${SITE_URL}/about-us): Team and mission
 - [Contact](${SITE_URL}/contact): Get in touch
 - [Careers](${SITE_URL}/career): Open roles across the Exyconn group
+
+## Industries
+- [Industries we serve](${SITE_URL}/industries): How Exyconn applies AI agents, WhatsApp and voice bots, and workflow automation in twenty industries
+${industryLines}
 
 ## Sitemaps
 - [XML sitemap](${SITE_URL}/sitemap.xml)

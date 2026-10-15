@@ -31,6 +31,10 @@ export const CALLING_BOT_CALL_FIELDS = {
   /** The number a phone call rang, in E.164; empty for a browser call. */
   phone: { type: String, default: '' },
   languageCode: { type: String, required: true },
+  /** The example the caller picked (Tech > Demos > Calling bot > Examples); empty for none. */
+  scenarioId: { type: String, default: '' },
+  /** Its title when the call was made, so the log still reads after the example changes. */
+  scenarioTitle: { type: String, default: '', trim: true },
   /** Vobiz's id for a phone call (request_uuid, then the CallUUID it answers with). */
   providerCallId: { type: String, default: '' },
   answeredAt: { type: Date, default: null },
@@ -60,6 +64,8 @@ export interface CallingBotCallRecord {
   callerEmail: string;
   phone: string;
   languageCode: string;
+  scenarioId?: string;
+  scenarioTitle?: string;
   providerCallId: string;
   answeredAt: Date | null;
   endedAt: Date | null;

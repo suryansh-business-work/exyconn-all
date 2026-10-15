@@ -1,6 +1,7 @@
 fragment WhatsappDemoFields on WhatsappDemo {
   id
   key
+  channel
   industry
   business
   greeting
@@ -47,8 +48,8 @@ fragment WhatsappDemoSessionFields on WhatsappDemoSession {
   status
 }
 
-query WhatsappDemoCatalog {
-  whatsappDemoCatalog {
+query WhatsappDemoCatalog($channel: String) {
+  whatsappDemoCatalog(channel: $channel) {
     demo {
       ...WhatsappDemoFields
     }
@@ -86,8 +87,8 @@ mutation WhatsappDemoParse($input: WhatsappDemoParseInput!) {
   }
 }
 
-query WhatsappDemos {
-  whatsappDemos {
+query WhatsappDemos($channel: String) {
+  whatsappDemos(channel: $channel) {
     ...WhatsappDemoFields
   }
 }
@@ -104,8 +105,8 @@ query WhatsappWorkflow($id: ID!) {
   }
 }
 
-query WhatsappDemoStats($from: String!, $to: String!) {
-  whatsappDemoStats(from: $from, to: $to) {
+query WhatsappDemoStats($from: String!, $to: String!, $channel: String) {
+  whatsappDemoStats(from: $from, to: $to, channel: $channel) {
     sessions
     uniqueUsers
     flowsStarted
@@ -153,8 +154,13 @@ query WhatsappDemoFunnel($demoKey: String!, $workflow: String!, $from: String!, 
   }
 }
 
-query WhatsappDemoSessions($input: TableQueryInput!, $from: String, $to: String) {
-  whatsappDemoSessions(input: $input, from: $from, to: $to) {
+query WhatsappDemoSessions(
+  $input: TableQueryInput!
+  $from: String
+  $to: String
+  $channel: String
+) {
+  whatsappDemoSessions(input: $input, from: $from, to: $to, channel: $channel) {
     rows {
       ...WhatsappDemoSessionFields
     }
@@ -232,6 +238,9 @@ fragment WhatsappChannelFields on WhatsappChannel {
   accessTokenHint
   hasAppSecret
   webhookUrl
+  lastInboundAt
+  lastProblem
+  lastProblemAt
   updatedAt
   updatedByName
 }

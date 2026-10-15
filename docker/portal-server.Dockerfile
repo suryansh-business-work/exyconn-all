@@ -26,6 +26,7 @@ COPY packages/regex/package.json packages/regex/
 COPY packages/config/package.json packages/config/
 # The calling bot demo's record definitions and call tickets, shared with its voice server.
 COPY demos/calling-bot-demo/server/package.json demos/calling-bot-demo/server/
+COPY demos/whatsapp-demo/server/package.json demos/whatsapp-demo/server/
 # The root `prepare` script runs on every install, this one included; it needs its own
 # file present. It no-ops without a .git directory, which an image never has.
 COPY scripts/install-git-hooks.mjs scripts/
@@ -46,6 +47,8 @@ RUN pnpm --filter @exyconn/regex run build && pnpm --filter @exyconn/wa-flow run
   && pnpm --filter @exyconn/cms run build \
   && pnpm --filter @exyconn/gcc-cost run build \
   && pnpm --filter @exyconn/calling-bot-demo-server run build
+# The WhatsApp demo's server code is compiled by the portal server's build, into its dist.
+COPY demos/whatsapp-demo/server demos/whatsapp-demo/server
 COPY exyconn-portal/server exyconn-portal/server
 RUN pnpm --filter exyconn-portal-server run build \
   && pnpm --filter exyconn-portal-server deploy --prod /app
@@ -65,5 +68,6 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
   CMD wget -q --spider http://127.0.0.1:4004/health || exit 1
 
 # `exyconn-compiled` points @exyconn/regex and the calling bot's shared definitions at their
-# dist instead of their TypeScript source.
-CMD ["node", "--conditions=exyconn-compiled", "dist/server.js"]
+# dist instead of their TypeScript source. dist mirrors the repository (the build compiles the
+# WhatsApp demo's server code from demos/ too), so the entry sits at its source path.
+CMD ["node", "--conditions=exyconn-compiled", "dist/exyconn-portal/server/src/server.js"]

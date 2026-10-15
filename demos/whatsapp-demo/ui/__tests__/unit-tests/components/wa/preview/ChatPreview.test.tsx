@@ -38,7 +38,8 @@ const deps = vi.hoisted(() => {
   };
 });
 
-vi.mock('../../../../../src/hooks/useDemoUser', () => ({
+vi.mock('@exyconn/bot-studio/runtime', async (importOriginal) => ({
+  ...(await importOriginal<object>()),
   useDemoUser: () => ({
     id: 'u-1',
     fullName: 'Asha Nair',
@@ -46,17 +47,11 @@ vi.mock('../../../../../src/hooks/useDemoUser', () => ({
     email: '',
     phone: '',
   }),
-}));
-vi.mock('../../../../../src/hooks/useAiParse', () => ({
   useAiParse: (session: string) => {
     deps.aiSession = session;
     return { configured: false, read: deps.read };
   },
-}));
-vi.mock('../../../../../src/hooks/useEngineContext', () => ({
   useEngineContext: () => deps.context,
-}));
-vi.mock('../../../../../src/runtime/useChatRuntime', () => ({
   useChatRuntime: (options: typeof deps.options) => {
     deps.options = options;
     return deps.runtime;

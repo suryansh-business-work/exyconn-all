@@ -1,0 +1,465 @@
+{
+  "key": "industries-startups-saas",
+  "path": "/industries/startups-saas",
+  "title": "AI for Startups & SaaS | Exyconn",
+  "seo": {
+    "title": "AI Agents and Automation for SaaS Startups | Exyconn",
+    "description": "AI agents for SaaS startups: in-app support and onboarding, lead qualification and demo booking, answers from your docs, payment recovery and churn alerts.",
+    "keywords": "AI for SaaS, SaaS automation, AI support agent for SaaS, in-app onboarding chatbot, lead qualification AI, demo booking automation, AI documentation search, failed payment recovery, dunning automation, churn prediction SaaS, add AI features to SaaS product",
+    "ogImageUrl": "",
+    "canonical": "",
+    "noindex": false,
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "{marketUrl}" },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Industries",
+            "item": "{marketUrl}/industries"
+          },
+          { "@type": "ListItem", "position": 3, "name": "Startups & SaaS" }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "AI automation for startups and SaaS companies",
+        "serviceType": "AI agents and workflow automation",
+        "description": "Exyconn designs, builds and runs AI agents for startups and SaaS companies: in-app support and onboarding, lead qualification and demo booking, answers from product documentation, billing and failed-payment recovery, product usage and churn signals, and AI features built into the product itself, connected to the helpdesk, CRM, billing system and product analytics.",
+        "url": "{marketUrl}/industries/startups-saas",
+        "audience": {
+          "@type": "BusinessAudience",
+          "audienceType": "Startups, B2B SaaS companies and software product teams"
+        },
+        "provider": { "@type": "Organization", "name": "{businessName}", "url": "{siteUrl}" },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "AI use cases for startups and SaaS",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "In-app support and onboarding" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Lead qualification and demo booking" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Answers from your documentation" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Billing and failed-payment recovery" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Product usage and churn signals" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "AI features inside your product" }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "body": [
+    {
+      "component": "detail.stage",
+      "props": {
+        "family": "services",
+        "crumbs": [
+          { "label": "Home", "href": "/" },
+          { "label": "Industries", "href": "/industries" },
+          { "label": "Startups & SaaS", "href": "" }
+        ],
+        "title": "Support, sales and billing that scale without headcount",
+        "lede": "AI agents for SaaS teams that onboard new users inside the app, qualify sign-ups and book demos, answer from your docs, recover failed payments and warn you when an account starts to go quiet.",
+        "primary": { "label": "Plan AI for your product", "href": "/contact" },
+        "secondary": { "label": "See SaaS development", "href": "/services/software-as-a-service" },
+        "scene": { "shapes": ["saas"], "accent": ["violet", "cyan"] },
+        "glyph": "",
+        "tagline": "Support · Demos · Docs · Billing · Churn"
+      }
+    },
+    {
+      "component": "detail.intro",
+      "props": {
+        "index": 1,
+        "label": "In short",
+        "intro": {
+          "title": "What does Exyconn build for startups and SaaS companies?",
+          "icon": "rocket",
+          "term": "AI for SaaS",
+          "definition": "is a set of agents that run the repeatable parts of a software business around the product (onboarding, first-line support, lead qualification, dunning and churn watch) and, when you want it, AI features inside the product itself. Exyconn designs, builds and runs them on your helpdesk, CRM, billing system and product analytics, so a small team can serve many more customers. Founders and engineers stay on the roadmap."
+        },
+        "benefits": {
+          "title": "Why SaaS teams are doing this now",
+          "items": [
+            {
+              "icon": "user-plus",
+              "text": "New users decide in their first sessions whether the product is worth learning, often before anyone from your team has spoken to them."
+            },
+            {
+              "icon": "headset",
+              "text": "Support load grows with every customer, while hiring for it eats runway."
+            },
+            {
+              "icon": "credit-card",
+              "text": "Expired cards, bank declines and mandates that need re-authorisation cancel subscriptions customers meant to keep."
+            },
+            {
+              "icon": "book-open",
+              "text": "The docs already hold most answers, but customers ask in chat rather than search them."
+            },
+            {
+              "icon": "wand-magic-sparkles",
+              "text": "Buyers now expect some AI in the product itself, and building it well takes skills a small team may not have yet."
+            }
+          ]
+        },
+        "demo": {
+          "kind": "chat",
+          "title": "in-app · onboarding assistant",
+          "caption": "A new admin asks how to import data; the agent answers from the docs, checks the account and offers to finish the setup.",
+          "messages": [
+            { "from": "user", "text": "How do I import our customers from a spreadsheet?" },
+            {
+              "from": "agent",
+              "text": "Hi Daniel! Go to Settings → Import, upload a CSV and map the columns. I can see your workspace has no custom fields yet, so phone and GST number would be skipped. Want me to create those two fields first?"
+            },
+            {
+              "from": "user",
+              "text": "Yes please. Also can my sales team see only their own customers?"
+            },
+            {
+              "from": "agent",
+              "text": "Done, both fields are added. For your second question, that's role-based visibility on the Growth plan you're on: set the Sales role to \"Own records only\". Here's the two-minute guide."
+            },
+            { "from": "user", "text": "Perfect, thanks" },
+            {
+              "from": "agent",
+              "text": "You're welcome! Once the import finishes I'll let you know how many rows came in and whether any were skipped."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "service.info-grid",
+      "props": {
+        "index": 2,
+        "id": "saas-challenges",
+        "anchor": "",
+        "label": "The reality",
+        "title": "Where a SaaS team's hours actually go",
+        "lede": "Ask any founder where the week went. The answer is rarely the product.",
+        "indexPrefix": "S",
+        "items": [
+          {
+            "id": "onboarding-dropoff",
+            "title": "Sign-ups who never activate",
+            "text": "People create an account, get stuck on the first import or integration, and leave without telling anyone why.",
+            "points": []
+          },
+          {
+            "id": "how-to-tickets",
+            "title": "\"How do I\" tickets",
+            "text": "A large part of the support queue is answered in the docs. Engineers still get pulled in because the person on support isn't sure.",
+            "points": []
+          },
+          {
+            "id": "unqualified-demos",
+            "title": "Demos with the wrong people",
+            "text": "Founders spend calendar time on demos for students, competitors and companies far too small for the product, while real buyers wait days for a slot.",
+            "points": []
+          },
+          {
+            "id": "involuntary-churn",
+            "title": "Churn nobody chose",
+            "text": "A card expires or a bank declines a renewal, the reminder email lands in spam, and an account that was happy gets cancelled.",
+            "points": []
+          },
+          {
+            "id": "silent-accounts",
+            "title": "Accounts that go quiet",
+            "text": "Logins drop and a key user leaves, but the warning sits in product analytics nobody checks until the renewal call.",
+            "points": []
+          },
+          {
+            "id": "ai-roadmap",
+            "title": "An AI feature stuck on the roadmap",
+            "text": "Customers ask for summaries, search or an assistant in the product. The team knows it matters but can't pause the core roadmap to learn how to build it safely.",
+            "points": []
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.offerings",
+      "props": {
+        "index": 3,
+        "label": "Use cases",
+        "offerings": {
+          "title": "Six jobs AI takes off your team's plate",
+          "items": [
+            {
+              "icon": "comments",
+              "title": "In-app support and onboarding",
+              "text": "A chat agent inside your app that knows the user's plan and setup, walks them through first steps, can make safe changes for them and opens a helpdesk ticket with context when it can't help."
+            },
+            {
+              "icon": "calendar-check",
+              "title": "Lead qualification and demo booking",
+              "text": "Asks sign-ups and website visitors the questions your sales team would ask, enriches the lead in your CRM, and books a demo only for those who fit. Everyone else gets a self-serve path."
+            },
+            {
+              "icon": "magnifying-glass",
+              "title": "Answers from your docs",
+              "text": "Searches your help centre, API reference, changelog and past tickets and answers with links to the source. Gaps in the docs are listed for whoever owns them."
+            },
+            {
+              "icon": "credit-card",
+              "title": "Billing and failed-payment recovery",
+              "text": "Reads failed charges from Stripe, Razorpay or Chargebee, messages the customer with a payment or mandate link on the right channel, answers invoice questions and tells finance what is recovered."
+            },
+            {
+              "icon": "chart-line",
+              "title": "Product usage and churn signals",
+              "text": "Watches logins, feature usage and seat changes per account, flags accounts that are going quiet and drafts a note for the account owner with what changed."
+            },
+            {
+              "icon": "gear",
+              "title": "AI features inside your product",
+              "text": "We design and build AI features your customers use, such as an assistant, summaries, smart search or extraction, with evaluation, cost limits and logging in place before release."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "industry.story",
+      "props": {
+        "index": 4,
+        "label": "A day with it running",
+        "title": "One day at a 15-person B2B SaaS startup",
+        "lede": "Follow a weekday at a company selling to customers in India and abroad. Each moment lights the part of the business the agent is working on.",
+        "moments": [
+          {
+            "when": "07:30",
+            "title": "Overnight payments followed up",
+            "text": "Six renewals failed overnight, two because card mandates need re-authorising. Each customer gets a message with the right link, and four are paid by lunch.",
+            "useCase": 4
+          },
+          {
+            "when": "09:10",
+            "title": "A new admin set up in minutes",
+            "text": "A customer's ops lead signs in for the first time. The in-app agent helps her import 3,000 contacts, creates two missing fields and invites her team.",
+            "useCase": 1
+          },
+          {
+            "when": "11:40",
+            "title": "An API question answered from the docs",
+            "text": "A developer asks how webhook retries work. The agent answers from the API reference with a link, and notes that the retry limit is missing from the docs.",
+            "useCase": 3
+          },
+          {
+            "when": "14:00",
+            "title": "Only the right demos booked",
+            "text": "Twelve sign-ups answer a few questions about team size and use case. Three fit and are booked onto the founder's calendar with notes; the rest get a guided trial.",
+            "useCase": 2
+          },
+          {
+            "when": "17:30",
+            "title": "A beta AI feature checked",
+            "text": "The summaries feature built last month has run on 400 customer records today. The evaluation report shows quality and cost per call, and one prompt is adjusted.",
+            "useCase": 6
+          },
+          {
+            "when": "22:00",
+            "title": "Accounts going quiet, named",
+            "text": "Two accounts' weekly active users have halved and one admin has left. The account owner wakes up to a short note on each with the usage behind it.",
+            "useCase": 5
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.architecture",
+      "props": {
+        "index": 5,
+        "label": "How it connects",
+        "title": "Built on the stack you already run",
+        "layers": [
+          {
+            "label": "Where customers talk",
+            "nodes": ["In-app chat", "Email & helpdesk", "Website"]
+          },
+          { "label": "AI agents", "nodes": ["Support agent", "Sales qualifier", "Billing agent"] },
+          { "label": "Your systems", "nodes": ["Helpdesk & CRM", "Billing", "Product analytics"] },
+          { "label": "People in charge", "nodes": ["Escalations", "Approvals", "Audit log"] }
+        ]
+      }
+    },
+    {
+      "component": "detail.tabs",
+      "props": {
+        "index": 6,
+        "label": "By stage",
+        "title": "What it looks like at your stage",
+        "items": [
+          {
+            "label": "Early-stage startups",
+            "summary": "Founders doing support",
+            "text": "Before product-market fit, the founders answer every ticket and take every demo. We start with docs answers and onboarding help so they keep the conversations that teach them something.",
+            "points": [
+              "Support from your docs inside the app",
+              "Demo booking for qualified sign-ups",
+              "Weekly digest of what users asked"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Growing SaaS",
+            "summary": "Customers outpacing hires",
+            "text": "Once revenue is growing, support queues and failed payments grow with it. Agents take first-line tickets, recover payments and pass account health to customer success.",
+            "points": [
+              "First-line tickets resolved with helpdesk handover",
+              "Dunning across cards, UPI mandates and invoices",
+              "Account health alerts for customer success"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Product teams adding AI",
+            "summary": "AI in the product, not just around it",
+            "text": "For teams that want AI features their customers use, we build the feature, the evaluation suite and the cost controls with your engineers, and hand it over or keep running it.",
+            "points": [
+              "Assistant, summaries, search or extraction",
+              "Evaluation and cost tracking before launch",
+              "Per-tenant data isolation and logging"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          }
+        ],
+        "previous": "Previous",
+        "next": "Next"
+      }
+    },
+    {
+      "component": "detail.process",
+      "props": {
+        "index": 7,
+        "label": "Rollout",
+        "title": "Shipped in sprints, like the rest of your product",
+        "lede": "We start with whichever leak costs you more, support load or failed payments, and work in your tools and your release cycle.",
+        "steps": [
+          {
+            "title": "Read the queue and the stack",
+            "text": "We go through recent tickets, sign-ups and failed charges, list your helpdesk, CRM, billing and analytics, and agree what the agent may change in a customer's account.",
+            "when": "Week 1"
+          },
+          {
+            "title": "First agent live",
+            "text": "Docs answers and onboarding help, or payment recovery, go live for a share of users, with your team reviewing conversations every day.",
+            "when": "Weeks 2–3"
+          },
+          {
+            "title": "Add sales, churn and AI features",
+            "text": "Lead qualification, churn signals and any in-product AI feature are added one at a time, each with its own evaluation before full rollout.",
+            "when": "Weeks 4–8"
+          },
+          {
+            "title": "Run and improve",
+            "text": "We monitor answers, cost and recovery, update the agent with every release and changelog, and report what changed each month.",
+            "when": "Ongoing"
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.related",
+      "props": {
+        "index": 8,
+        "label": "Related",
+        "title": "What SaaS teams pair this with",
+        "more": "Explore",
+        "cards": [
+          {
+            "href": "/ai-services/ai-customer-support",
+            "index": "AI/01",
+            "title": "AI customer support",
+            "text": "Deflect the repetitive tickets and hand the rest over with full context.",
+            "tags": ["Helpdesk", "Tickets", "Handover"]
+          },
+          {
+            "href": "/ai-services/ai-rag-platform",
+            "index": "AI/02",
+            "title": "AI RAG platform",
+            "text": "Answers grounded in your docs, API reference and changelog, with citations.",
+            "tags": ["Docs", "Search", "Citations"]
+          },
+          {
+            "href": "/ai-services/ai-observability",
+            "index": "AI/03",
+            "title": "AI observability",
+            "text": "See what your AI features actually did, what they cost and where quality is slipping.",
+            "tags": ["Evaluation", "Cost", "Tracing"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.faq",
+      "props": {
+        "index": 9,
+        "label": "FAQ",
+        "title": "Questions SaaS teams ask us",
+        "items": [
+          {
+            "question": "Does this replace our support or success team?",
+            "answer": "No. It takes how-to questions, setup help and payment follow-ups. Bugs, refunds, enterprise accounts and unhappy customers go to your team with the conversation and account details attached."
+          },
+          {
+            "question": "Which tools can it connect to?",
+            "answer": "Helpdesks such as Zendesk, Intercom and Freshdesk, CRMs such as HubSpot and Salesforce, billing on Stripe, Razorpay or Chargebee, and product analytics tools, plus your own API. We confirm the exact access needed in the first week."
+          },
+          {
+            "question": "Can the agent change things in a customer's account?",
+            "answer": "Only the actions you allow, through your own API and the user's permissions, such as adding a field or resending an invite. Anything destructive, billing changes and refunds need a person's approval, and every action is logged."
+          },
+          {
+            "question": "Can it handle customers in other languages?",
+            "answer": "Yes. It replies in the language the user writes in, while your docs stay in English. For Indian customers that includes Hindi and other Indian languages."
+          },
+          {
+            "question": "What about customer data and security reviews?",
+            "answer": "Customer data stays in your stack or an environment set up for you, with per-tenant isolation, role-based access and an audit log, and is not used to train shared models. The setup follows India's DPDP Act 2023 and the GDPR, and we help answer the security questionnaires your customers send."
+          },
+          {
+            "question": "What does it cost?",
+            "answer": "It depends on the use cases, the tools we connect and conversation volume. Most teams start with one agent at a fixed price for the first phase, and model usage is reported so you can see cost per conversation. Tell us about your product and we'll quote it."
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.cta",
+      "props": {
+        "family": "services",
+        "label": "Next step",
+        "title": "Send us a month of support tickets",
+        "text": "We'll show which ones your docs already answer, what an agent inside your app would have resolved, and how long it takes to ship. No obligation.",
+        "primary": { "label": "Talk to us", "href": "/contact" },
+        "secondary": { "label": "Get a quote", "href": "/get-a-quote" },
+        "echoShape": 0
+      }
+    }
+  ]
+}

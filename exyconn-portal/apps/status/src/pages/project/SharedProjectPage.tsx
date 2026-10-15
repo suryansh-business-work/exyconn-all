@@ -1,19 +1,11 @@
 import { useParams } from 'react-router-dom';
-import {
-  Alert,
-  Box,
-  Card,
-  Chip,
-  Flex,
-  Typography,
-  iconSize,
-  fontWeight,
-} from '@exyconn/shell/components/ui';
+import { Alert, Box, Chip, Flex, Typography, fontWeight } from '@exyconn/shell/components/ui';
 import LockPersonIcon from '@mui/icons-material/LockPerson';
 import { useT, type Interpolations } from '@exyconn/i18n';
 import { formatWith } from '@exyconn/shell/utils/date';
 import { useSharedProjectQuery } from '@exyconn/shell/graphql/generated';
 import { DATE_FORMAT } from '../../status.constants';
+import { LinkExpiredCard } from '../../components/LinkExpiredCard';
 import { SharedProjectFacts } from './SharedProjectFacts';
 import { SharedProjectProgress } from './SharedProjectProgress';
 import type { SharedProjectView } from './shared-project.types';
@@ -63,31 +55,7 @@ export function SharedProjectPage() {
   const project = data?.sharedProject;
 
   if (!project) {
-    return (
-      <Card variant="outlined" sx={{ p: { xs: 3, md: 4 }, textAlign: 'center' }}>
-        <LockPersonIcon color="disabled" sx={{ fontSize: iconSize['5xl'] }} />
-        <Typography
-          variant="h5"
-          sx={{
-            fontWeight: fontWeight.bold,
-            mt: 1,
-          }}
-        >
-          {t('This link no longer works')}
-        </Typography>
-        <Typography
-          variant="body1"
-          sx={{
-            color: 'text.secondary',
-            mt: 1,
-          }}
-        >
-          {t(
-            'It has expired, been revoked, or was never valid. Ask whoever sent it for a new one.',
-          )}
-        </Typography>
-      </Card>
-    );
+    return <LinkExpiredCard />;
   }
 
   return (

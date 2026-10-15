@@ -1,3 +1,4 @@
+import { isValidObjectId } from 'mongoose';
 import { BoardColumnModel, TaskActivityModel, TaskCommentModel, TaskModel } from './board.model';
 import { stringOf } from '../../utils/serialize';
 import { stripTags } from '../../utils/textTrim';
@@ -109,7 +110,7 @@ function display(value: unknown): string {
 }
 
 /** Writes one line of history. Never throws into the caller: a lost trail is not a lost edit. */
-async function record(
+export async function record(
   taskId: string,
   actor: Actor,
   field: string,
@@ -199,6 +200,31 @@ function mergeAttachments(
   });
 }
 
+/**
+ * A ticket may only be filed under an EPIC of its own project, and an EPIC under nothing:
+ * epics are the top of the tree, so a chain of them would have no top.
+ */
+async function assertParent(
+  projectId: string,
+  parentTaskId: string | null | undefined,
+  type: string,
+  selfId?: string,
+) {
+  if (!parentTaskId) {
+    return;
+  }
+  if (type === 'EPIC') {
+    badRequest('An epic cannot be filed under another epic');
+  }
+  if (parentTaskId === selfId || !isValidObjectId(parentTaskId)) {
+    badRequest('Pick an epic from this project');
+  }
+  const parent = await TaskModel.findOne({ _id: parentTaskId, projectId }).select('type').lean();
+  if (parent?.type !== 'EPIC') {
+    badRequest('Pick an epic from this project');
+  }
+}
+
 /** Domain logic for the per-project board: columns, tickets and their comments. */
 export const boardService = {
   async board(projectId: string) {
@@ -254,6 +280,7 @@ export const boardService = {
     reporter: Actor,
     assigneeName: string,
   ) {
+    await assertParent(projectId, input.parentTaskId, input.type ?? 'TASK');
     const order = await TaskModel.countDocuments({ columnId });
     const patch = patchOf(input, assigneeName);
     if (input.attachments) {
@@ -276,6 +303,13 @@ export const boardService = {
   async updateTask(id: string, input: TaskInput, assigneeName: string, actor: Actor) {
     const before = await TaskModel.findById(id).lean();
     if (!before) notFound('Task');
+    // The parent the ticket will have after the save: the one sent, or the one it keeps.
+    await assertParent(
+      String(before.projectId),
+      input.parentTaskId === undefined ? before.parentTaskId : input.parentTaskId,
+      input.type ?? before.type,
+      String(before._id),
+    );
 
     const patch = patchOf(input, assigneeName);
     if (input.attachments) {
@@ -302,6 +336,8 @@ export const boardService = {
     await Promise.all([
       TaskCommentModel.deleteMany({ taskId: id }),
       TaskActivityModel.deleteMany({ taskId: id }),
+      // An epic's children stay on the board; they just stand on their own again.
+      TaskModel.updateMany({ parentTaskId: id }, { parentTaskId: null }),
     ]);
     return true;
   },

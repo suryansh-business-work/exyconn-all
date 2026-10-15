@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -12,15 +13,24 @@ import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import {
+  CrmObject,
   LeadSource,
   LeadStage,
   useCampaignOptionsQuery,
   useCreateLeadMutation,
   useUpdateLeadMutation,
 } from '@exyconn/shell/graphql/generated';
+import {
+  CustomFieldsSection,
+  CustomPropertiesGate,
+  customDefaults,
+  customFieldsSchema,
+  toCustomInput,
+  type CustomPropertyDef,
+} from '../../../../records/custom-fields';
 import type { LeadRow } from './lead.types';
 
-const schema = z.object({
+const baseSchema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
   email: z.string().trim().min(1, 'Email is required').regex(EMAIL, 'Enter a valid email'),
   source: z.enum(LeadSource),
@@ -29,9 +39,12 @@ const schema = z.object({
   owner: z.string().trim().min(1, 'Owner is required'),
   campaignId: z.string(),
 });
-type Values = z.infer<typeof schema>;
+const buildSchema = (properties: readonly CustomPropertyDef[]) =>
+  baseSchema.extend({ custom: customFieldsSchema(properties) });
+type Schema = ReturnType<typeof buildSchema>;
+type Values = z.infer<Schema>;
 
-const toInitial = (row: LeadRow | null): Values => ({
+const toInitial = (row: LeadRow | null, properties: readonly CustomPropertyDef[]): Values => ({
   name: row?.name ?? '',
   email: row?.email ?? '',
   source: row?.source ?? LeadSource.Website,
@@ -39,6 +52,7 @@ const toInitial = (row: LeadRow | null): Values => ({
   value: row?.value ?? 0,
   owner: row?.owner ?? '',
   campaignId: row?.campaignId ?? '',
+  custom: customDefaults(properties, row?.custom),
 });
 
 interface LeadFormProps {
@@ -47,15 +61,33 @@ interface LeadFormProps {
   onCancel: () => void;
 }
 
-/** React Hook Form + Zod form to create or update a lead. */
-export function LeadForm({ initial, onDone, onCancel }: Readonly<LeadFormProps>) {
+/** React Hook Form + Zod form to create or update a lead, with the company's own properties. */
+export function LeadForm(props: Readonly<LeadFormProps>) {
+  return (
+    <CustomPropertiesGate object={CrmObject.Lead}>
+      {(properties) => <LeadFormFields {...props} properties={properties} />}
+    </CustomPropertiesGate>
+  );
+}
+
+function LeadFormFields({
+  initial,
+  onDone,
+  onCancel,
+  properties,
+}: Readonly<LeadFormProps & { properties: CustomPropertyDef[] }>) {
   const { data } = useCampaignOptionsQuery();
   const [createLead] = useCreateLeadMutation();
   const [updateLead] = useUpdateLeadMutation();
-  const methods = useForm<z.input<typeof schema>, unknown, Values>({
+  const schema = useMemo(() => buildSchema(properties), [properties]);
+  const methods = useForm<z.input<Schema>, unknown, Values>({
     mode: 'onTouched',
     resolver: zodResolver(schema),
-    defaultValues: toInitial(initial),
+    defaultValues: toInitial(initial, properties),
+  });
+  const toInput = (values: Values) => ({
+    ...values,
+    custom: toCustomInput(properties, values.custom),
   });
 
   const campaignOptions: SelectOption[] = (data?.campaignOptions ?? []).map((campaign) => ({
@@ -66,8 +98,8 @@ export function LeadForm({ initial, onDone, onCancel }: Readonly<LeadFormProps>)
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Lead',
     initial,
-    create: (values: Values) => createLead({ variables: { input: values } }),
-    update: (row, values) => updateLead({ variables: { id: row.id, input: values } }),
+    create: (values: Values) => createLead({ variables: { input: toInput(values) } }),
+    update: (row, values) => updateLead({ variables: { id: row.id, input: toInput(values) } }),
     onDone,
   });
 
@@ -85,6 +117,7 @@ export function LeadForm({ initial, onDone, onCancel }: Readonly<LeadFormProps>)
         options={campaignOptions}
         helperText="Optional. Which campaign this lead came from."
       />
+      <CustomFieldsSection properties={properties} />
     </EntityForm>
   );
 }

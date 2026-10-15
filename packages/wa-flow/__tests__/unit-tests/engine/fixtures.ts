@@ -50,6 +50,7 @@ export function makeWorkflow(
 
 export const DEMO: DemoProfile = {
   key: 'demo',
+  channel: 'whatsapp',
   industry: 'Testing',
   business: {
     name: 'Test Co',

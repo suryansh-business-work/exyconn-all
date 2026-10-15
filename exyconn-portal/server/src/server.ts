@@ -23,13 +23,17 @@ import { ensureAiModelPrices, startAiWorker } from './modules/ai';
 import { backfillAppLogGroupUsers } from './modules/logs';
 import { backfillPositionDefaults } from './modules/hr';
 import { runOnce } from './lib/migrations';
-import { migratePhoneProvider } from './modules/calling-bot-demo';
+import {
+  backfillPhoneFields,
+  ensureCallingBotScenarios,
+  migratePhoneProvider,
+} from './modules/calling-bot-demo';
 import { migrateClientTaxIds } from './modules/clients';
 import { ensureCmsDefaults } from './modules/cms';
 import { startReminderSweep } from './modules/reminders';
 import { startAuditRetention } from './modules/audit';
-import { ensureWhatsappDemoSeeds } from './modules/whatsapp-demo';
-import { startWhatsappReminders } from './modules/whatsapp-demo/channel';
+import { ensureWhatsappDemoSeeds } from '../../../demos/whatsapp-demo/server/src';
+import { startWhatsappReminders } from '../../../demos/whatsapp-demo/server/src/channel';
 import { startEmailVerification } from './modules/email-verification';
 import { attachChatSocket, startChatHandoff } from './modules/website-chat';
 import { env } from './config/env';
@@ -94,6 +98,11 @@ async function bootstrap(): Promise<void> {
   await ensureCmsDefaults();
   // Calling bot configs from before Twilio was offered keep ringing through Vobiz.
   await runAsPlatform(() => runOnce('calling-bot-phone-provider', migratePhoneProvider));
+  // and the oldest ones gain the phone fields they were saved without.
+  await runAsPlatform(() => runOnce('calling-bot-phone-fields', backfillPhoneFields));
+  // The calling bot demo's example calls: each seeded once by key (its own ledger line), so an
+  // edited or deleted one stays that way and one added in a later release still arrives.
+  await runAsPlatform(ensureCallingBotScenarios);
   // The WhatsApp demo opens on its default industries. Each industry is seeded into a company
   // once (ledger line per industry key), so a new one ships on the next boot and an edited
   // one is never overwritten.

@@ -1,5 +1,5 @@
 import { OrganizationModel } from '../../../../../src/modules/organizations';
-import { WhatsappDemoVisitorModel } from '../../../../../src/modules/whatsapp-demo/visitor/visitor.model';
+import { WhatsappDemoVisitorModel } from '../../../../../../../demos/whatsapp-demo/server/src/visitor/visitor.model';
 import { invalidatePlatformOperatorCache } from '../../../../../src/lib/platformAccess';
 import { runAsPlatform } from '../../../../../src/lib/tenant';
 import { useTestOrganization } from '../../../../helpers';

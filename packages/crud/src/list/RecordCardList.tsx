@@ -20,6 +20,8 @@ interface RecordCardListProps<Row> {
   fetchRows: (input: TableQueryInput) => Promise<TablePageResult<Row>>;
   context: object;
   searchPlaceholder: string;
+  /** What the search box holds when the list mounts — a saved view's search, say. */
+  initialSearch?: string;
   /** Bump to reload after a create, edit or delete elsewhere on the page. */
   refreshSignal?: number;
   onRowClick?: (row: Row) => void;
@@ -38,11 +40,12 @@ export function RecordCardList<Row>({
   fetchRows,
   context,
   searchPlaceholder,
+  initialSearch = '',
   refreshSignal,
   onRowClick,
 }: Readonly<RecordCardListProps<Row>>) {
-  const [typed, setTyped] = useState('');
-  const [search, setSearch] = useState('');
+  const [typed, setTyped] = useState(initialSearch);
+  const [search, setSearch] = useState(initialSearch.trim());
   const [rows, setRows] = useState<Row[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);

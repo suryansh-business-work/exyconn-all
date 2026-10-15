@@ -14,7 +14,7 @@ import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { Grid } from '@exyconn/shell/components/ui';
 import { TaskPriority, TaskType, type TaskInput } from '@exyconn/shell/graphql/generated';
 import { TICKET_PRIORITY_OPTIONS, TICKET_TYPE_OPTIONS } from '../../ticket/ticket-meta';
-import type { TicketAssigneeOption, TicketRow } from './ticket.types';
+import type { TicketAssigneeOption, TicketOption, TicketRow } from './ticket.types';
 
 /** Points are a rough size, not a budget: a three-digit estimate is a typo. */
 const MAX_POINTS = 999;
@@ -35,6 +35,7 @@ const schema = z.object({
     )
     .refine((value) => value === '' || Number.isInteger(Number(value)), 'Points must be whole'),
   dueDate: z.string(),
+  parentTaskId: z.string(),
 });
 type Values = z.infer<typeof schema>;
 
@@ -49,6 +50,9 @@ export function toTaskInput(values: Values): TaskInput {
     labels: values.labels,
     storyPoints: values.storyPoints === '' ? null : Number(values.storyPoints),
     dueDate: values.dueDate === '' ? null : values.dueDate,
+    // An epic is the top of the tree, so whatever the picker last held is dropped for one.
+    parentTaskId:
+      values.type === TaskType.Epic || values.parentTaskId === '' ? null : values.parentTaskId,
   };
 }
 
@@ -62,11 +66,14 @@ const toInitial = (row: TicketRow | null): Values => ({
   storyPoints:
     row?.storyPoints === null || row?.storyPoints === undefined ? '' : String(row.storyPoints),
   dueDate: row?.dueDate ?? '',
+  parentTaskId: row?.parentTaskId ?? '',
 });
 
 interface TicketFormProps {
   initial: TicketRow | null;
   assignees: TicketAssigneeOption[];
+  /** The project's epics, for filing this ticket under one. */
+  epics: TicketOption[];
   onSubmit: (input: TaskInput) => Promise<void>;
   onCancel: () => void;
 }
@@ -75,7 +82,13 @@ interface TicketFormProps {
  * The whole of a ticket, as one React Hook Form + Zod form: the summary and the rich
  * description on the left, and the fields a board is filtered and sorted by on the right.
  */
-export function TicketForm({ initial, assignees, onSubmit, onCancel }: Readonly<TicketFormProps>) {
+export function TicketForm({
+  initial,
+  assignees,
+  epics,
+  onSubmit,
+  onCancel,
+}: Readonly<TicketFormProps>) {
   const t = useT();
   const methods = useForm<z.input<typeof schema>, unknown, Values>({
     mode: 'onTouched',
@@ -83,6 +96,8 @@ export function TicketForm({ initial, assignees, onSubmit, onCancel }: Readonly<
     defaultValues: toInitial(initial),
   });
 
+  const isEpic = methods.watch('type') === TaskType.Epic;
+  const epicOptions = [{ value: '', label: t('No epic') }, ...epics];
   const assigneeOptions = [{ value: '', label: t('Unassigned') }, ...assignees];
   const typeOptions = TICKET_TYPE_OPTIONS.map((o) => ({ ...o, label: t(o.label) }));
   const priorityOptions = TICKET_PRIORITY_OPTIONS.map((o) => ({ ...o, label: t(o.label) }));
@@ -117,6 +132,16 @@ export function TicketForm({ initial, assignees, onSubmit, onCancel }: Readonly<
         <Grid size={{ xs: 12, sm: 6 }}>
           <RhfChipsInput name="labels" label="Labels" helperText="Type a label and press Enter" />
         </Grid>
+        {isEpic ? null : (
+          <Grid size={{ xs: 12 }}>
+            <RhfAutocomplete
+              name="parentTaskId"
+              label="Epic"
+              options={epicOptions}
+              helperText="The epic this ticket is part of"
+            />
+          </Grid>
+        )}
       </Grid>
     </EntityForm>
   );

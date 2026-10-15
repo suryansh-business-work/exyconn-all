@@ -7,7 +7,9 @@ import { clamp, damp } from "../math";
  *   over the canvas (`near` → 1), the points under it scatter and light. Mouse and pen only
  *   — on a touch screen a drag is a scroll, and the scene must not jump under the thumb.
  * - Scroll: how far the hero has left the screen (0 = all of it on screen, 1 = gone), which
- *   turns the scene and brings the camera in as the visitor reads on.
+ *   turns the scene and brings the camera in as the visitor reads on. In a scroll story (the
+ *   canvas moved into a `[data-stage-story]` section) it is how far that section has been
+ *   read instead, so the scene turns with the steps.
  *
  * Nothing is listened to when motion is reduced; every value then stays at rest.
  */
@@ -22,6 +24,10 @@ export interface StageInput {
 export const heroScroll = (top: number, height: number): number =>
   clamp(-top / Math.max(1, height));
 
+/** How far a section has been read: 0 as its top enters from below, 1 as its bottom leaves. */
+export const sectionProgress = (top: number, height: number, viewport: number): number =>
+  clamp((viewport - top) / Math.max(1, height + viewport));
+
 const POINTER_SPEED = 4;
 const NEAR_SPEED = 6;
 const SCROLL_SPEED = 8;
@@ -32,6 +38,18 @@ export const createStageInput = (
   enabled: boolean
 ) => {
   const goal = { x: 0, y: 0, near: 0 };
+
+  const scrollGoal = (onHero: boolean, story: HTMLElement | null): number => {
+    if (story) {
+      const rect = story.getBoundingClientRect();
+      return sectionProgress(rect.top, rect.height, globalThis.innerHeight);
+    }
+    if (!onHero) {
+      return 0;
+    }
+    const rect = stage.getBoundingClientRect();
+    return heroScroll(rect.top, rect.height);
+  };
   const now: StageInput = { x: 0, y: 0, near: 0, scroll: 0 };
 
   const onMove = (event: PointerEvent) => {
@@ -57,13 +75,15 @@ export const createStageInput = (
   }
 
   return {
-    /** Advances the smoothed input by `dt` seconds; `onHero` is false while the canvas is away. */
-    step: (dt: number, onHero: boolean): StageInput => {
+    /**
+     * Advances the smoothed input by `dt` seconds; `onHero` is false while the canvas is away,
+     * `story` the scroll-story section it is in, if any.
+     */
+    step: (dt: number, onHero: boolean, story: HTMLElement | null = null): StageInput => {
       if (!enabled) {
         return now;
       }
-      const rect = stage.getBoundingClientRect();
-      const scroll = onHero ? heroScroll(rect.top, rect.height) : 0;
+      const scroll = scrollGoal(onHero, story);
       now.x = damp(now.x, goal.x, POINTER_SPEED, dt);
       now.y = damp(now.y, goal.y, POINTER_SPEED, dt);
       now.near = damp(now.near, goal.near, NEAR_SPEED, dt);

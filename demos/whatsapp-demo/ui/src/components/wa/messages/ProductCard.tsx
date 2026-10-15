@@ -1,7 +1,7 @@
 import { useT } from '@exyconn/i18n';
 import { Box } from '@exyconn/shell/components/ui';
 import type { RenderedProduct } from '@exyconn/wa-flow';
-import { useWaFormat } from '../../../hooks/useWaFormat';
+import { useWaFormat } from '@exyconn/bot-studio/runtime';
 import { useWaPalette } from '../../../theme/useWa';
 import { WA_FONT, WA_RADIUS, WA_SIZE, WA_SPACE } from '../../../theme/wa.tokens';
 import { Illustration } from './Illustration';
