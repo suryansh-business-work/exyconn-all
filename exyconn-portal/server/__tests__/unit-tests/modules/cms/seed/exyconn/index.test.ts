@@ -64,7 +64,7 @@ describe('EXYCONN_SEED design system and pages', () => {
 
   it('seeds every migrated page', () => {
     expect(EXYCONN_SEED.pages).toBe(EXYCONN_PAGES);
-    // 82 migrated pages, the industries hub and 20 industry pages.
-    expect(EXYCONN_PAGES).toHaveLength(82 + 21);
+    // 83 pages (82 migrated, the AI website chat agent), the industries hub and 20 industry pages.
+    expect(EXYCONN_PAGES).toHaveLength(83 + 21);
   });
 });
