@@ -1,0 +1,474 @@
+{
+  "key": "industries-events-entertainment",
+  "path": "/industries/events-entertainment",
+  "title": "AI for Events & Entertainment | Exyconn",
+  "seo": {
+    "title": "AI Automation for Events and Entertainment | Exyconn",
+    "description": "AI agents for event organisers and venues: take registrations, answer attendees on WhatsApp, run promotions, coordinate vendors and get people through check-in.",
+    "keywords": "AI for events, event automation, event WhatsApp chatbot, event registration automation, attendee communication, event ticketing chatbot, QR check-in system, event vendor management, conference management AI, post-event reports",
+    "ogImageUrl": "",
+    "canonical": "",
+    "noindex": false,
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "{marketUrl}" },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Industries",
+            "item": "{marketUrl}/industries"
+          },
+          { "@type": "ListItem", "position": 3, "name": "Events & entertainment" }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "AI automation for events and entertainment",
+        "serviceType": "AI agents and workflow automation",
+        "description": "Exyconn designs, builds and runs AI agents for event organisers, conference teams, venues and promoters: ticketing and registration, attendee questions, promotion campaigns, vendor and run-of-show coordination, check-in and access, and post-event reporting, connected to the organiser's ticketing platform, CRM and payment gateway.",
+        "url": "{marketUrl}/industries/events-entertainment",
+        "audience": {
+          "@type": "BusinessAudience",
+          "audienceType": "Event organisers, conference and exhibition teams, venues, promoters and wedding planners"
+        },
+        "provider": { "@type": "Organization", "name": "{businessName}", "url": "{siteUrl}" },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "AI use cases for events",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Ticketing and registration" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Attendee questions on WhatsApp and web chat"
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Promotion and campaigns" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Vendor and run-of-show coordination" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Check-in and access control" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Post-event reports" }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "body": [
+    {
+      "component": "detail.stage",
+      "props": {
+        "family": "services",
+        "crumbs": [
+          { "label": "Home", "href": "/" },
+          { "label": "Industries", "href": "/industries" },
+          { "label": "Events & entertainment", "href": "" }
+        ],
+        "title": "Every attendee answered before the doors open",
+        "lede": "AI agents for organisers, venues and promoters that sell and register, answer the same attendee questions thousands of times, keep vendors on the run-of-show and get people through the gate. They work alongside the ticketing platform you already sell on.",
+        "primary": { "label": "Plan AI for your next event", "href": "/contact" },
+        "secondary": { "label": "See the WhatsApp chatbot", "href": "/services/whatsapp-chatbot" },
+        "scene": { "shapes": ["events"], "accent": ["fuchsia", "amber"] },
+        "glyph": "",
+        "tagline": "Tickets · Attendees · Promotion · Vendors · Check-in"
+      }
+    },
+    {
+      "component": "detail.intro",
+      "props": {
+        "index": 1,
+        "label": "In short",
+        "intro": {
+          "title": "What does Exyconn build for events and entertainment?",
+          "icon": "ticket",
+          "term": "AI for events",
+          "definition": "is a set of agents that sells and registers, answers attendee questions, sends promotions, chases vendors and runs check-in, so a small event team can handle a crowd many times its size. Exyconn designs, builds and runs these agents on your ticketing or registration platform, your CRM, your payment gateway and your WhatsApp Business account. Your producers keep the creative and the decisions; the agents keep up with the messages."
+        },
+        "benefits": {
+          "title": "Why organisers are doing this now",
+          "items": [
+            {
+              "icon": "bolt",
+              "text": "Questions spike in the hours around an on-sale and on show day. Hiring for those peaks is expensive; leaving them unanswered costs tickets."
+            },
+            {
+              "icon": "mobile-screen",
+              "text": "Attendees expect tickets, directions and schedule changes on WhatsApp, not buried in an email."
+            },
+            {
+              "icon": "bullhorn",
+              "text": "Paid reach is costly. Following up warm leads from past events is cheaper than finding new ones."
+            },
+            {
+              "icon": "list-check",
+              "text": "One late vendor or a missed sound check can push a whole run-of-show. Someone has to chase every confirmation."
+            },
+            {
+              "icon": "handshake",
+              "text": "Sponsors want proof of footfall and engagement soon after the event, not three weeks later."
+            }
+          ]
+        },
+        "demo": {
+          "kind": "chat",
+          "title": "whatsapp · festival help desk",
+          "caption": "An attendee asks about re-entry and parking on show day; the agent answers from the event policy and resends her pass.",
+          "messages": [
+            { "from": "user", "text": "Hey, if I leave the venue for dinner can I come back in?" },
+            {
+              "from": "agent",
+              "text": "Hi Priyanka! Re-entry is allowed until 8pm. Keep your wristband on and scan your pass again at Gate 2 when you return."
+            },
+            {
+              "from": "user",
+              "text": "Ok. Also is there parking? And I can't find my ticket email"
+            },
+            {
+              "from": "agent",
+              "text": "Paid parking is at the P3 lot, a five-minute walk from Gate 2. I've resent your QR pass here, it's 2 × General Admission for Saturday."
+            },
+            { "from": "user", "text": "Got it, thanks!" },
+            {
+              "from": "agent",
+              "text": "Enjoy the show! The headliner is on at 9:15pm, and I'll message you if the timing changes."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "service.info-grid",
+      "props": {
+        "index": 2,
+        "id": "events-challenges",
+        "anchor": "",
+        "label": "The reality",
+        "title": "Where an event team's hours actually go",
+        "lede": "Every producer has the same list. Most of it happens in the fortnight before the event and all of it at once.",
+        "indexPrefix": "E",
+        "items": [
+          {
+            "id": "query-flood",
+            "title": "The same questions, thousands of times",
+            "text": "Age limits, bag policy, set times, where's my ticket. They arrive on Instagram, WhatsApp, email and the ticketing platform's inbox, all in the same week.",
+            "points": []
+          },
+          {
+            "id": "registration-mess",
+            "title": "Registrations that don't line up",
+            "text": "Delegate lists come from a form, a ticketing platform and a sponsor's spreadsheet. Duplicates, missing company names and unpaid passes are cleaned up by hand.",
+            "points": []
+          },
+          {
+            "id": "promotion",
+            "title": "Promotion that stops at the first post",
+            "text": "Early-bird deadlines, lineup announcements and reminders to past buyers need a steady rhythm, but the team is busy booking acts and venues.",
+            "points": []
+          },
+          {
+            "id": "vendors",
+            "title": "Vendors chased on personal phones",
+            "text": "Sound, light, staging, catering, security and decor each have load-in times and dependencies. Confirmations live in dozens of WhatsApp chats.",
+            "points": []
+          },
+          {
+            "id": "gate-queues",
+            "title": "Queues at the gate",
+            "text": "Scanners fail, guest lists are on paper and on-spot registrations slow everyone down. The first impression of the event is a long line.",
+            "points": []
+          },
+          {
+            "id": "reporting",
+            "title": "Reports assembled weeks later",
+            "text": "Sales by channel, actual attendance, session turnout and feedback sit in separate tools, so the sponsor report and the debrief come late.",
+            "points": []
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.offerings",
+      "props": {
+        "index": 3,
+        "label": "Use cases",
+        "offerings": {
+          "title": "Six jobs AI takes off your team's plate",
+          "items": [
+            {
+              "icon": "ticket",
+              "title": "Ticketing and registration",
+              "text": "Takes registrations and ticket purchases in chat with a payment link, issues the pass from your ticketing platform, and handles transfers and name changes within your rules. Refund requests go to a person."
+            },
+            {
+              "icon": "comments",
+              "title": "Attendee questions, before and on the day",
+              "text": "Answers on WhatsApp, Instagram and web chat from your FAQ, schedule and venue map in the attendee's language, and resends passes on request. Complaints and safety issues go straight to the ops team."
+            },
+            {
+              "icon": "bullhorn",
+              "title": "Promotion and campaigns",
+              "text": "Sends opted-in past attendees early-bird reminders, lineup news and last-call messages through your CRM, and drafts social posts for your team to approve."
+            },
+            {
+              "icon": "calendar-days",
+              "title": "Vendor and run-of-show coordination",
+              "text": "Confirms load-in slots, deliverables and contacts with every vendor from the production schedule, nudges anyone who hasn't confirmed and alerts the producer when a dependency slips."
+            },
+            {
+              "icon": "qrcode",
+              "title": "Check-in and access",
+              "text": "Sends QR passes before the day, checks scans against the attendee list by ticket type or zone, prints badges for walk-ins and gives the gate team a live count."
+            },
+            {
+              "icon": "chart-column",
+              "title": "Post-event reports",
+              "text": "Combines ticket sales by channel, check-ins, session attendance and feedback survey answers into a debrief and a sponsor report, ready the morning after."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "industry.story",
+      "props": {
+        "index": 4,
+        "label": "A day with it running",
+        "title": "One day before a two-day business conference",
+        "lede": "Follow the last full day before the doors open. Each moment lights the part of the event the agent is working on.",
+        "moments": [
+          {
+            "when": "07:30",
+            "title": "Vendors confirm their load-in",
+            "text": "The AV, staging and catering teams each get their load-in slot for tonight. Two confirm; the florist hasn't replied, so the producer is told before 8am.",
+            "useCase": 4
+          },
+          {
+            "when": "10:00",
+            "title": "Last-call message to past delegates",
+            "text": "Opted-in delegates from last year who haven't registered get a short note with tomorrow's keynote speakers and a registration link.",
+            "useCase": 3
+          },
+          {
+            "when": "12:45",
+            "title": "A late team registration",
+            "text": "A company registers five delegates through the chat. The agent collects names and GSTIN for the invoice, sends the payment link and issues five passes once it is paid.",
+            "useCase": 1
+          },
+          {
+            "when": "16:20",
+            "title": "Questions about parking and the agenda",
+            "text": "Two hundred messages arrive after the final reminder: parking, dress code, the workshop room. The agent answers them; a delegate needing wheelchair access is passed to the venue lead.",
+            "useCase": 2
+          },
+          {
+            "when": "19:00",
+            "title": "The gate is ready for tomorrow",
+            "text": "Every registered delegate has a QR pass on WhatsApp, the scanner list is synced and badges for VIPs and speakers are queued to print.",
+            "useCase": 5
+          },
+          {
+            "when": "23:30",
+            "title": "The pre-event numbers",
+            "text": "Registrations by ticket type and source, expected turnout per session and open vendor items go to the organising team as one summary.",
+            "useCase": 6
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.architecture",
+      "props": {
+        "index": 5,
+        "label": "How it connects",
+        "title": "Built on the systems you already run",
+        "layers": [
+          {
+            "label": "Where attendees talk",
+            "nodes": ["WhatsApp", "Instagram DMs", "Event website"]
+          },
+          { "label": "AI agents", "nodes": ["Box office", "Help desk", "Production desk"] },
+          {
+            "label": "Your systems",
+            "nodes": ["Ticketing platform", "CRM & email", "Scanner app"]
+          },
+          {
+            "label": "People in charge",
+            "nodes": ["Ops handover", "Producer sign-off", "Audit log"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.tabs",
+      "props": {
+        "index": 6,
+        "label": "By event",
+        "title": "What it looks like for your kind of event",
+        "items": [
+          {
+            "label": "Concerts & festivals",
+            "summary": "Large crowds, short peaks",
+            "text": "Volume is the challenge: thousands of fans asking the same things in the same hour. Agents answer, resend passes and push schedule changes, while the ops team handles what needs a person.",
+            "points": [
+              "Show-day help desk on WhatsApp",
+              "Schedule and gate updates pushed to ticket holders",
+              "Sales and check-in counts by gate"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Conferences & exhibitions",
+            "summary": "Delegates, sponsors and exhibitors",
+            "text": "Here the work is registration quality and follow-up. Agents handle group bookings and GST invoices, answer agenda questions and give sponsors a lead list and turnout report afterwards.",
+            "points": [
+              "Group registrations with invoice details",
+              "Badge printing for walk-ins and VIPs",
+              "Sponsor and session attendance reports"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Weddings & private events",
+            "summary": "One host, many guests and vendors",
+            "text": "Planners juggle RSVPs, travel details, room blocks and a dozen vendors. Agents collect RSVPs and arrival times, answer guest questions and keep every vendor on the day's timeline.",
+            "points": [
+              "RSVP, travel and rooming lists collected in chat",
+              "Vendor timeline with confirmations",
+              "Guest updates on venue and transport"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          }
+        ],
+        "previous": "Previous",
+        "next": "Next"
+      }
+    },
+    {
+      "component": "detail.process",
+      "props": {
+        "index": 7,
+        "label": "Rollout",
+        "title": "Ready before your next on-sale",
+        "lede": "We plan the rollout backwards from your event date, so the help desk is tested well before tickets go live.",
+        "steps": [
+          {
+            "title": "Map the attendee journey",
+            "text": "We read past attendee messages, list your ticketing, CRM and scanning tools, and agree what the agent answers and what goes to your team.",
+            "when": "Week 1"
+          },
+          {
+            "title": "Help desk and registration",
+            "text": "The attendee help desk and registration flow go live on WhatsApp and your site, with your team checking replies during the first on-sale.",
+            "when": "Weeks 2–3"
+          },
+          {
+            "title": "Vendors, campaigns and the gate",
+            "text": "Vendor coordination, promotion sequences and QR check-in are added and rehearsed with a test run before show day.",
+            "when": "Weeks 4–6"
+          },
+          {
+            "title": "Run every event after",
+            "text": "Each new event reuses the setup with a fresh FAQ and schedule. We review what attendees asked and improve the answers for the next one.",
+            "when": "Ongoing"
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.related",
+      "props": {
+        "index": 8,
+        "label": "Related",
+        "title": "What organisers pair this with",
+        "more": "Explore",
+        "cards": [
+          {
+            "href": "/ai-services/ai-whatsapp-automation",
+            "index": "AI/01",
+            "title": "AI WhatsApp automation",
+            "text": "Passes, reminders and show-day help on the official WhatsApp Business API.",
+            "tags": ["WhatsApp", "Passes", "Help desk"]
+          },
+          {
+            "href": "/ai-services/ai-marketing-automation",
+            "index": "AI/02",
+            "title": "AI marketing automation",
+            "text": "Campaigns and announcements produced at a pace a small promotions team can't manage by hand.",
+            "tags": ["Campaigns", "Social", "Email"]
+          },
+          {
+            "href": "/ai-services/ai-customer-support",
+            "index": "AI/03",
+            "title": "AI customer support",
+            "text": "Take the repeated attendee tickets and hand the rest to your team with full context.",
+            "tags": ["Support", "Refunds", "Handover"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.faq",
+      "props": {
+        "index": 9,
+        "label": "FAQ",
+        "title": "Questions organisers ask us",
+        "items": [
+          {
+            "question": "Does this replace our event staff or volunteers?",
+            "answer": "No. It takes the repeated questions, confirmations and reminders so your team can run the floor. Refunds, complaints, accessibility needs and safety issues are always passed to a person, with the conversation attached."
+          },
+          {
+            "question": "Can it work with the ticketing platform we already use?",
+            "answer": "Usually, yes. Most ticketing and registration platforms offer an API, webhooks or attendee exports, and we connect to whichever your platform supports. In the first week we confirm what we can read, such as orders and passes, and what we can write back."
+          },
+          {
+            "question": "What if the event changes at the last minute?",
+            "answer": "Your team updates the schedule or FAQ in one place and the agent answers from the new version straight away. For anything urgent, such as a gate change or a delayed set, a producer approves the message and it is sent to affected ticket holders."
+          },
+          {
+            "question": "How is attendee data protected?",
+            "answer": "Attendee data stays in your systems and an environment set up for your events, with role-based access and a log of every message. Promotions go only to people who opted in, and the setup follows the privacy law that applies, such as India's DPDP Act 2023 or the GDPR."
+          },
+          {
+            "question": "Can attendees message in their own language?",
+            "answer": "Yes. The agent replies in the language the attendee writes in, including Hindi and other Indian languages. Your FAQ and policies are written once and answered the same way in every language."
+          },
+          {
+            "question": "How much does it cost?",
+            "answer": "It depends on attendee numbers, channels and how many events you run a year. Some organisers start with a help desk for one event; others set it up across a season. Tell us about your calendar and we'll send a fixed quote."
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.cta",
+      "props": {
+        "family": "services",
+        "label": "Next step",
+        "title": "Share the questions from your last event",
+        "text": "Send us an export of attendee messages and we'll show which ones an agent could have answered, and how it would connect to your ticketing. No obligation.",
+        "primary": { "label": "Talk to us", "href": "/contact" },
+        "secondary": { "label": "Get a quote", "href": "/get-a-quote" },
+        "echoShape": 0
+      }
+    }
+  ]
+}

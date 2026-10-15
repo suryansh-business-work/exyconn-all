@@ -1,0 +1,475 @@
+{
+  "key": "industries-real-estate",
+  "path": "/industries/real-estate",
+  "title": "AI for Real Estate & Property | Exyconn",
+  "seo": {
+    "title": "AI Automation for Real Estate and Property | Exyconn",
+    "description": "AI agents for developers and brokers: reply to portal leads in seconds, qualify buyers, book site visits, write listings and track payments up to handover.",
+    "keywords": "AI for real estate, real estate automation, real estate WhatsApp chatbot, property lead management, real estate CRM automation, site visit scheduling, lead qualification real estate, AI for property developers, real estate voice agent, 99acres MagicBricks lead integration",
+    "ogImageUrl": "",
+    "canonical": "",
+    "noindex": false,
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "{marketUrl}" },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Industries",
+            "item": "{marketUrl}/industries"
+          },
+          { "@type": "ListItem", "position": 3, "name": "Real estate & property" }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "AI automation for real estate and property",
+        "serviceType": "AI agents and workflow automation",
+        "description": "Exyconn designs, builds and runs AI agents for property developers, brokers and rental managers: instant replies to portal leads, buyer qualification, site-visit scheduling, listing content and virtual tours, agreements, payment demands and handover, and pipeline and inventory reporting, connected to the firm's CRM, sales ERP and property portals.",
+        "url": "{marketUrl}/industries/real-estate",
+        "audience": {
+          "@type": "BusinessAudience",
+          "audienceType": "Property developers, real estate brokers and channel partners, and rental and property managers"
+        },
+        "provider": { "@type": "Organization", "name": "{businessName}", "url": "{siteUrl}" },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "AI use cases for real estate",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Instant reply to portal leads" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Lead qualification" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Site-visit scheduling" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Listing content and virtual tours" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Agreements, payments and handover" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Pipeline and inventory reports" }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "body": [
+    {
+      "component": "detail.stage",
+      "props": {
+        "family": "services",
+        "crumbs": [
+          { "label": "Home", "href": "/" },
+          { "label": "Industries", "href": "/industries" },
+          { "label": "Real estate & property", "href": "" }
+        ],
+        "title": "Every property lead called back in minutes",
+        "lede": "AI agents for developers and brokers that reply to portal and ad leads straight away, sort serious buyers from browsers, book site visits and keep buyers informed from booking to possession. They sit on the CRM your sales team already works in.",
+        "primary": { "label": "Plan AI for your sales team", "href": "/contact" },
+        "secondary": {
+          "label": "See AI real estate software",
+          "href": "/ai-services/ai-real-estate-software"
+        },
+        "scene": { "shapes": ["realEstate"], "accent": ["violet", "sky"] },
+        "glyph": "",
+        "tagline": "Leads · Qualification · Site visits · Listings · Handover"
+      }
+    },
+    {
+      "component": "detail.intro",
+      "props": {
+        "index": 1,
+        "label": "In short",
+        "intro": {
+          "title": "What does Exyconn build for real estate?",
+          "icon": "building",
+          "term": "AI for real estate",
+          "definition": "is a set of agents that replies to every property enquiry within minutes, asks the qualifying questions, books site visits and handles the paperwork reminders that follow a booking, so your sales and CRM teams spend their time with buyers who are ready. Exyconn designs, builds and runs these agents on your CRM, your sales ERP, your property portal accounts and your WhatsApp Business number. Prices, offers and agreements stay with your team; the agent works from what they approve."
+        },
+        "benefits": {
+          "title": "Why property firms are doing this now",
+          "items": [
+            {
+              "icon": "stopwatch",
+              "text": "A buyer who fills a form on a portal usually enquires on several projects at once. The first developer to call back sets the site visit."
+            },
+            {
+              "icon": "money-bill-wave",
+              "text": "Leads from portals and paid ads cost real money. Letting them sit uncalled over a weekend wastes the budget."
+            },
+            {
+              "icon": "filter",
+              "text": "Most enquiries are early-stage browsers. Sales managers want their closers on buyers with a budget and a timeline."
+            },
+            {
+              "icon": "language",
+              "text": "Buyers want to talk on WhatsApp, in their own language, at night and on Sundays."
+            },
+            {
+              "icon": "file-contract",
+              "text": "After booking, buyers have to be kept informed through every demand letter until possession. That work is constant and easy to slip on."
+            }
+          ]
+        },
+        "demo": {
+          "kind": "chat",
+          "title": "whatsapp · project sales desk",
+          "caption": "A buyer who enquired on a property portal gets a reply within minutes; the agent qualifies her and books a weekend site visit.",
+          "messages": [
+            {
+              "from": "agent",
+              "text": "Hi Kavya, thanks for your enquiry on 99acres about our 3BHK at Whitefield. Are you looking to live in it or as an investment?"
+            },
+            { "from": "user", "text": "To live in. What's the price and when is possession?" },
+            {
+              "from": "agent",
+              "text": "3BHK units start at ₹1.42 crore all-inclusive, and the RERA possession date for Tower B is December 2027. Would a home loan be part of the plan?"
+            },
+            {
+              "from": "user",
+              "text": "Yes, already have pre-approval. Can we see the sample flat this weekend?"
+            },
+            {
+              "from": "agent",
+              "text": "Saturday 11am or Sunday 4pm are free with Vikram from our sales team. Which suits you?"
+            },
+            { "from": "user", "text": "Sunday 4pm" },
+            {
+              "from": "agent",
+              "text": "Booked. Vikram will meet you at the experience centre and I'll send the location pin and his number on Sunday morning."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "service.info-grid",
+      "props": {
+        "index": 2,
+        "id": "real-estate-challenges",
+        "anchor": "",
+        "label": "The reality",
+        "title": "Where a property sales team's hours go",
+        "lede": "Sit with a pre-sales team for a day and the pattern is clear. The selling is a small part of it.",
+        "indexPrefix": "R",
+        "items": [
+          {
+            "id": "slow-callbacks",
+            "title": "Leads called back too late",
+            "text": "Enquiries from 99acres, MagicBricks, Housing.com and Meta ads land in an inbox or a sheet. By the time a caller gets to them, the buyer has already spoken to two other projects.",
+            "points": []
+          },
+          {
+            "id": "duplicates",
+            "title": "Duplicate and junk leads",
+            "text": "The same buyer arrives from three portals and a channel partner. Others are brokers, wrong numbers or people looking for rentals. Pre-sales sorts them by hand.",
+            "points": []
+          },
+          {
+            "id": "site-visit-no-shows",
+            "title": "Site visits that don't happen",
+            "text": "Visits are fixed on a call and forgotten. Without a reminder, a location pin and a named contact, buyers don't turn up and the sales manager's weekend is lost.",
+            "points": []
+          },
+          {
+            "id": "listing-content",
+            "title": "Listings written again and again",
+            "text": "Every unit needs a description, floor plan details, photos and the RERA registration number on each portal and ad. Updates after a price change are rarely made everywhere.",
+            "points": []
+          },
+          {
+            "id": "post-booking",
+            "title": "Post-booking paperwork",
+            "text": "Demand letters for each construction stage, TDS reminders, loan disbursement follow-ups and documents for registration all run on calls and spreadsheets.",
+            "points": []
+          },
+          {
+            "id": "inventory-view",
+            "title": "No live view of inventory",
+            "text": "Which units are sold, blocked or on hold, and how the pipeline looks for each project, is assembled from the CRM and the sales ERP for every review meeting.",
+            "points": []
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.offerings",
+      "props": {
+        "index": 3,
+        "label": "Use cases",
+        "offerings": {
+          "title": "Six jobs AI takes off your team's plate",
+          "items": [
+            {
+              "icon": "comments",
+              "title": "Instant reply to portal leads",
+              "text": "Picks up new leads from property portals, ad forms and your website the moment they arrive and starts a WhatsApp conversation or a call, logging every lead and its source in your CRM."
+            },
+            {
+              "icon": "magnifying-glass",
+              "title": "Lead qualification",
+              "text": "Asks about budget, configuration, location, timeline and loan status in a natural conversation, merges duplicates and scores each lead, so sales managers see the serious buyers first."
+            },
+            {
+              "icon": "calendar-check",
+              "title": "Site-visit scheduling",
+              "text": "Books visits into your sales team's calendars, sends the location pin and the sales person's name, reminds the buyer on the day and marks the visit done or missed in the CRM."
+            },
+            {
+              "icon": "images",
+              "title": "Listing content and virtual tours",
+              "text": "Drafts unit descriptions from floor plans and specifications with the RERA registration number included, shares walkthrough videos and 3D tours in chat, and flags listings that still show an old price."
+            },
+            {
+              "icon": "key",
+              "title": "Agreements, payments and handover",
+              "text": "Sends demand letters as each construction milestone is certified, reminds buyers about instalments and TDS, collects documents for the agreement and registration, and books handover and snag inspections. Your legal and CRM teams approve every document."
+            },
+            {
+              "icon": "chart-pie",
+              "title": "Pipeline and inventory reports",
+              "text": "Leads by source, visits booked and done, bookings, unsold inventory by tower and collections due, sent to sales heads each morning from your CRM and sales ERP."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "industry.story",
+      "props": {
+        "index": 4,
+        "label": "A day with it running",
+        "title": "One day at a developer with two projects on sale",
+        "lede": "Follow a busy Saturday. Each moment lights the part of the sales process the agent is working on.",
+        "moments": [
+          {
+            "when": "07:00",
+            "title": "Last night's leads, called back",
+            "text": "Forty enquiries came in overnight from portals and Instagram ads. Each got a WhatsApp reply within minutes and the agent has a conversation going with most of them.",
+            "useCase": 1
+          },
+          {
+            "when": "08:30",
+            "title": "Weekend visits confirmed",
+            "text": "Buyers booked for today get a reminder with the location pin and their sales person's name. Two reschedule to Sunday in the chat.",
+            "useCase": 3
+          },
+          {
+            "when": "11:15",
+            "title": "Serious buyers rise to the top",
+            "text": "A couple with a pre-approved loan and a move-in date next year are flagged as hot. A broker and a rental enquiry are tagged and set aside.",
+            "useCase": 2
+          },
+          {
+            "when": "14:00",
+            "title": "A price change, everywhere",
+            "text": "The sales head revises the price for Tower A. Updated unit descriptions are drafted for every portal listing and sent to marketing for approval.",
+            "useCase": 4
+          },
+          {
+            "when": "17:30",
+            "title": "A slab is cast, demands go out",
+            "text": "The engineer's certificate for the 12th-floor slab is in. Demand letters are prepared for each Tower B buyer, checked by the CRM team and sent with a TDS reminder where it applies.",
+            "useCase": 5
+          },
+          {
+            "when": "21:00",
+            "title": "The day's pipeline",
+            "text": "Leads by source, visits done, two bookings and the units still unsold per tower reach the managing director as one WhatsApp summary.",
+            "useCase": 6
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.architecture",
+      "props": {
+        "index": 5,
+        "label": "How it connects",
+        "title": "Built on the systems you already run",
+        "layers": [
+          {
+            "label": "Where buyers talk",
+            "nodes": ["Property portals", "WhatsApp & calls", "Ads & website"]
+          },
+          { "label": "AI agents", "nodes": ["Pre-sales", "Visit scheduler", "Post-sales desk"] },
+          { "label": "Your systems", "nodes": ["Real estate CRM", "Sales ERP", "Document store"] },
+          {
+            "label": "People in charge",
+            "nodes": ["Sales handover", "Legal approval", "Audit log"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.tabs",
+      "props": {
+        "index": 6,
+        "label": "By business",
+        "title": "What it looks like for your kind of firm",
+        "items": [
+          {
+            "label": "Developers & builders",
+            "summary": "Projects on sale and buyers to serve",
+            "text": "Developers carry both ends: a high volume of new leads and hundreds of booked buyers waiting on demands, updates and possession. Agents work pre-sales and post-sales from the same CRM.",
+            "points": [
+              "Lead response and site visits for each project",
+              "Milestone demand letters and payment reminders",
+              "Possession, snag and handover scheduling"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Brokers & channel partners",
+            "summary": "Many projects, small teams",
+            "text": "Brokers live on response speed and matching. Agents reply to every enquiry, ask the right questions and suggest the units that fit from the inventory you represent.",
+            "points": [
+              "Requirement capture and matching to inventory",
+              "Visit bookings across several developers",
+              "Follow-up sequences for warm buyers"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Rental & property management",
+            "summary": "Tenants, owners and maintenance",
+            "text": "Rental work is repeat work: viewings, tenant screening paperwork, rent reminders and repair requests. Agents handle the routine and pass decisions on tenants and deposits to your managers.",
+            "points": [
+              "Viewing bookings and tenant document collection",
+              "Rent and renewal reminders",
+              "Maintenance requests routed to vendors"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          }
+        ],
+        "previous": "Previous",
+        "next": "Next"
+      }
+    },
+    {
+      "component": "detail.process",
+      "props": {
+        "index": 7,
+        "label": "Rollout",
+        "title": "Calling back leads within a month",
+        "lede": "We start with lead response, because that is where portal and ad spend is lost, then add visits, content and post-sales.",
+        "steps": [
+          {
+            "title": "Trace the lead journey",
+            "text": "We follow a sample of leads from portal to booking, list your CRM, sales ERP and lead sources, and agree the qualifying questions with your sales head.",
+            "when": "Week 1"
+          },
+          {
+            "title": "Lead response for one project",
+            "text": "The agent replies to new leads for one project on WhatsApp and calls, with pre-sales reviewing conversations every day.",
+            "when": "Weeks 2–4"
+          },
+          {
+            "title": "Visits, listings and post-sales",
+            "text": "Site-visit booking, listing drafts and demand reminders are switched on and extended to your other projects.",
+            "when": "Weeks 5–8"
+          },
+          {
+            "title": "Run and improve",
+            "text": "We monitor conversations, update project details as prices and inventory change, and report monthly on response time, visits and bookings.",
+            "when": "Ongoing"
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.related",
+      "props": {
+        "index": 8,
+        "label": "Related",
+        "title": "What property firms pair this with",
+        "more": "Explore",
+        "cards": [
+          {
+            "href": "/ai-services/ai-real-estate-software",
+            "index": "AI/01",
+            "title": "AI real estate software",
+            "text": "Listing, lead and document workflows automated for property businesses.",
+            "tags": ["Listings", "Leads", "Documents"]
+          },
+          {
+            "href": "/ai-services/ai-voice-agents",
+            "index": "AI/02",
+            "title": "AI voice agents",
+            "text": "Call portal leads back within minutes and book the site visit on the same call.",
+            "tags": ["Calls", "Leads", "Site visits"]
+          },
+          {
+            "href": "/ai-services/ai-document-processing",
+            "index": "AI/03",
+            "title": "AI document processing",
+            "text": "KYC documents, agreements and loan papers turned into data your CRM can use.",
+            "tags": ["KYC", "Agreements", "Loans"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.faq",
+      "props": {
+        "index": 9,
+        "label": "FAQ",
+        "title": "Questions property firms ask us",
+        "items": [
+          {
+            "question": "Will the AI replace our pre-sales and sales teams?",
+            "answer": "No. It makes the first contact, asks the qualifying questions and books the visit, then hands the buyer to your sales person with the conversation and a summary. Negotiation, offers and closing stay with your people."
+          },
+          {
+            "question": "Does it work with our CRM and the property portals?",
+            "answer": "Yes, where they allow it. Most real estate CRMs have APIs, and portal leads arrive by API, webhook or email depending on your package. We connect to the routes you have and write every lead, call and visit back into your CRM."
+          },
+          {
+            "question": "Can the agent quote prices or commit to offers?",
+            "answer": "Only the prices and offers your team has approved and loaded. It never negotiates or promises a discount on its own. Anything outside the approved price list goes to a sales manager."
+          },
+          {
+            "question": "What about RERA and buyer data?",
+            "answer": "Listings and ads the agent drafts carry the project's RERA registration number, and every claim comes from your approved project details. Buyer data stays in your CRM and an environment set up for you, with role-based access and audit logs, under India's DPDP Act 2023 or the GDPR for overseas buyers."
+          },
+          {
+            "question": "Can buyers talk in their own language?",
+            "answer": "Yes. The agent chats and calls in English, Hindi and other Indian languages, which helps with NRI buyers and their families as well as local enquiries."
+          },
+          {
+            "question": "How much does it cost?",
+            "answer": "It depends on lead volume, the number of projects and the systems involved. Most firms start with lead response for one project. Tell us your lead sources and CRM and we'll send a fixed quote for the first phase."
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.cta",
+      "props": {
+        "family": "services",
+        "label": "Next step",
+        "title": "Send us a week of portal leads",
+        "text": "We'll show how fast each one was called back today, which ones were worth a site visit, and how an agent would connect to your CRM. No obligation.",
+        "primary": { "label": "Talk to us", "href": "/contact" },
+        "secondary": { "label": "Get a quote", "href": "/get-a-quote" },
+        "echoShape": 0
+      }
+    }
+  ]
+}

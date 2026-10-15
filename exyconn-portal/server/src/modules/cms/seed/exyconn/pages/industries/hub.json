@@ -1,0 +1,482 @@
+{
+  "key": "industries",
+  "path": "/industries",
+  "title": "Industries We Serve | Exyconn",
+  "seo": {
+    "title": "AI Automation by Industry: 20 Industries We Serve | Exyconn",
+    "description": "How Exyconn builds AI agents, WhatsApp and voice bots and workflow automation for hotels, clinics, retail, logistics, finance, real estate and 14 more industries.",
+    "keywords": "AI by industry, industry AI solutions, AI automation for small business, AI agents for hotels, AI for healthcare clinics, AI for real estate, AI for retail, AI for logistics, WhatsApp chatbot for business, vertical AI",
+    "ogImageUrl": "",
+    "canonical": "",
+    "noindex": false,
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "{marketUrl}"
+          },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Industries"
+          }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "CollectionPage",
+        "name": "Industries we serve",
+        "url": "{marketUrl}/industries",
+        "description": "AI agents and automation applied to twenty industries, each with its own use cases, systems and rollout.",
+        "mainEntity": {
+          "@type": "ItemList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Hospitality & hotels",
+              "url": "{marketUrl}/industries/hospitality"
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Cafés & coffee shops",
+              "url": "{marketUrl}/industries/cafes-coffee-shops"
+            },
+            {
+              "@type": "ListItem",
+              "position": 3,
+              "name": "Restaurants & food services",
+              "url": "{marketUrl}/industries/restaurants"
+            },
+            {
+              "@type": "ListItem",
+              "position": 4,
+              "name": "Travel & tourism",
+              "url": "{marketUrl}/industries/travel-tourism"
+            },
+            {
+              "@type": "ListItem",
+              "position": 5,
+              "name": "Healthcare & clinics",
+              "url": "{marketUrl}/industries/healthcare"
+            },
+            {
+              "@type": "ListItem",
+              "position": 6,
+              "name": "Beauty, salon & wellness",
+              "url": "{marketUrl}/industries/beauty-wellness"
+            },
+            {
+              "@type": "ListItem",
+              "position": 7,
+              "name": "Fitness & sports",
+              "url": "{marketUrl}/industries/fitness-sports"
+            },
+            {
+              "@type": "ListItem",
+              "position": 8,
+              "name": "Events & entertainment",
+              "url": "{marketUrl}/industries/events-entertainment"
+            },
+            {
+              "@type": "ListItem",
+              "position": 9,
+              "name": "Real estate & property",
+              "url": "{marketUrl}/industries/real-estate"
+            },
+            {
+              "@type": "ListItem",
+              "position": 10,
+              "name": "Construction & infrastructure",
+              "url": "{marketUrl}/industries/construction"
+            },
+            {
+              "@type": "ListItem",
+              "position": 11,
+              "name": "Manufacturing & industrial",
+              "url": "{marketUrl}/industries/manufacturing"
+            },
+            {
+              "@type": "ListItem",
+              "position": 12,
+              "name": "Automotive & dealerships",
+              "url": "{marketUrl}/industries/automotive"
+            },
+            {
+              "@type": "ListItem",
+              "position": 13,
+              "name": "Retail & e-commerce",
+              "url": "{marketUrl}/industries/retail-ecommerce"
+            },
+            {
+              "@type": "ListItem",
+              "position": 14,
+              "name": "Logistics & transportation",
+              "url": "{marketUrl}/industries/logistics"
+            },
+            {
+              "@type": "ListItem",
+              "position": 15,
+              "name": "Education & EdTech",
+              "url": "{marketUrl}/industries/education"
+            },
+            {
+              "@type": "ListItem",
+              "position": 16,
+              "name": "Startups & SaaS",
+              "url": "{marketUrl}/industries/startups-saas"
+            },
+            {
+              "@type": "ListItem",
+              "position": 17,
+              "name": "Banking, finance & insurance",
+              "url": "{marketUrl}/industries/bfsi"
+            },
+            {
+              "@type": "ListItem",
+              "position": 18,
+              "name": "Legal & consulting",
+              "url": "{marketUrl}/industries/legal"
+            },
+            {
+              "@type": "ListItem",
+              "position": 19,
+              "name": "Professional services",
+              "url": "{marketUrl}/industries/professional-services"
+            },
+            {
+              "@type": "ListItem",
+              "position": 20,
+              "name": "HR & recruitment",
+              "url": "{marketUrl}/industries/hr-recruitment"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "body": [
+    {
+      "component": "detail.stage",
+      "props": {
+        "family": "services",
+        "crumbs": [
+          {
+            "label": "Home",
+            "href": "/"
+          },
+          {
+            "label": "Industries",
+            "href": ""
+          }
+        ],
+        "title": "AI that knows how your business runs",
+        "lede": "A hotel, a clinic and a warehouse all need answers, bookings and reports, but never in the same way. Pick your industry to see the six jobs we automate there, the systems we connect to and what a day looks like with it running.",
+        "primary": {
+          "label": "Talk to us",
+          "href": "/contact"
+        },
+        "secondary": {
+          "label": "Browse AI services",
+          "href": "/ai-services"
+        },
+        "scene": {
+          "shapes": ["lattice"],
+          "data": {
+            "lattice": {
+              "clusters": 5
+            }
+          }
+        },
+        "glyph": "",
+        "tagline": "Twenty industries · Six use cases each · One team"
+      }
+    },
+    {
+      "component": "service.definition",
+      "props": {
+        "index": 1,
+        "id": "industries-definition",
+        "label": "In short",
+        "title": "What industry-specific AI means here",
+        "text": "Industry-specific AI is an agent or automation built around the way one kind of business actually works: its customers' questions, its software (a hotel's PMS, a clinic's HMS, a dealer's DMS) and its rules. Exyconn starts from those three things rather than from a generic chatbot, so the agent can look up a booking, raise the right ticket or draft the right document, and it hands anything that needs judgement to a person on your team."
+      }
+    },
+    {
+      "component": "service.grouped-cards",
+      "props": {
+        "index": 2,
+        "id": "industries",
+        "label": "Industries",
+        "title": "Find your industry",
+        "lede": "Each page lists the six use cases we build first, how they connect to your systems and the questions owners in that industry ask us.",
+        "more": "Explore",
+        "highlight": true,
+        "groups": [
+          {
+            "id": "hospitality-food",
+            "label": "Hospitality & food",
+            "title": "Places people stay, eat and travel",
+            "text": "Guests message at all hours, tables and rooms sell out, and reviews decide tomorrow's bookings.",
+            "cards": [
+              {
+                "href": "/industries/hospitality",
+                "title": "Hospitality & hotels",
+                "text": "Guest messaging, direct bookings, housekeeping dispatch and the morning revenue report.",
+                "tags": ["Hotels", "Resorts", "Homestays"],
+                "index": "A/01"
+              },
+              {
+                "href": "/industries/cafes-coffee-shops",
+                "title": "Cafés & coffee shops",
+                "text": "Orders and pre-orders on WhatsApp, loyalty for regulars, stock reorders and shift rotas.",
+                "tags": ["Cafés", "Bakeries", "Kiosks"],
+                "index": "A/02"
+              },
+              {
+                "href": "/industries/restaurants",
+                "title": "Restaurants & food services",
+                "text": "Reservations, phone orders, delivery-app orders in one place and food-cost reports.",
+                "tags": ["Dine-in", "Cloud kitchens", "QSR"],
+                "index": "A/03"
+              },
+              {
+                "href": "/industries/travel-tourism",
+                "title": "Travel & tourism",
+                "text": "Itineraries, quotes and bookings, visa checklists and support while travellers are on the move.",
+                "tags": ["Agencies", "Tour operators", "DMCs"],
+                "index": "A/04"
+              }
+            ]
+          },
+          {
+            "id": "health-lifestyle",
+            "label": "Health & lifestyle",
+            "title": "Services booked by appointment",
+            "text": "Calendars, reminders and no-shows run the day; trust and privacy run everything else.",
+            "cards": [
+              {
+                "href": "/industries/healthcare",
+                "title": "Healthcare & clinics",
+                "text": "Appointments, patient queries, digitised intake, lab follow-ups and insurance claims.",
+                "tags": ["Clinics", "Diagnostics", "Hospitals"],
+                "index": "B/01"
+              },
+              {
+                "href": "/industries/beauty-wellness",
+                "title": "Beauty, salon & wellness",
+                "text": "Round-the-clock booking, fewer no-shows, client preferences and memberships.",
+                "tags": ["Salons", "Spas", "Wellness"],
+                "index": "B/02"
+              },
+              {
+                "href": "/industries/fitness-sports",
+                "title": "Fitness & sports",
+                "text": "Trial enquiries, class bookings, renewals and early warnings on members about to leave.",
+                "tags": ["Gyms", "Studios", "Academies"],
+                "index": "B/03"
+              },
+              {
+                "href": "/industries/events-entertainment",
+                "title": "Events & entertainment",
+                "text": "Ticketing, attendee questions, promotion, vendor coordination and check-in.",
+                "tags": ["Organisers", "Venues", "Festivals"],
+                "index": "B/04"
+              }
+            ]
+          },
+          {
+            "id": "property-industry",
+            "label": "Property & industry",
+            "title": "Physical work with long cycles",
+            "text": "Leads, sites and machines that need tracking, paperwork that never ends, and money tied up in stock.",
+            "cards": [
+              {
+                "href": "/industries/real-estate",
+                "title": "Real estate & property",
+                "text": "Instant replies to portal leads, site-visit scheduling, listings and handover paperwork.",
+                "tags": ["Developers", "Brokers", "Rentals"],
+                "index": "C/01"
+              },
+              {
+                "href": "/industries/construction",
+                "title": "Construction & infrastructure",
+                "text": "Daily site reports, materials, safety checks, subcontractor schedules and RFIs.",
+                "tags": ["Contractors", "EPC", "Infra"],
+                "index": "C/02"
+              },
+              {
+                "href": "/industries/manufacturing",
+                "title": "Manufacturing & industrial",
+                "text": "Predictive maintenance, quality inspection, production planning and OEE dashboards.",
+                "tags": ["Plants", "MSMEs", "Suppliers"],
+                "index": "C/03"
+              },
+              {
+                "href": "/industries/automotive",
+                "title": "Automotive & dealerships",
+                "text": "Test drives, sales questions, service bookings and status updates, finance paperwork.",
+                "tags": ["Dealers", "Workshops", "EV"],
+                "index": "C/04"
+              }
+            ]
+          },
+          {
+            "id": "commerce-tech",
+            "label": "Commerce, learning & tech",
+            "title": "Businesses that run on volume",
+            "text": "Thousands of customers, students or users asking similar things, and data that should be steering decisions.",
+            "cards": [
+              {
+                "href": "/industries/retail-ecommerce",
+                "title": "Retail & e-commerce",
+                "text": "Product discovery, WhatsApp commerce, order tracking, returns and demand forecasts.",
+                "tags": ["D2C", "Stores", "Marketplaces"],
+                "index": "D/01"
+              },
+              {
+                "href": "/industries/logistics",
+                "title": "Logistics & transportation",
+                "text": "Shipment tracking, dispatch, proof of delivery, exception alerts and freight reports.",
+                "tags": ["3PL", "Fleets", "Couriers"],
+                "index": "D/02"
+              },
+              {
+                "href": "/industries/education",
+                "title": "Education & EdTech",
+                "text": "Admissions, fee reminders, parent alerts, AI tutoring and grading help.",
+                "tags": ["Schools", "Colleges", "EdTech"],
+                "index": "D/03"
+              },
+              {
+                "href": "/industries/startups-saas",
+                "title": "Startups & SaaS",
+                "text": "In-app support, demo booking, answers from your docs and failed-payment recovery.",
+                "tags": ["B2B SaaS", "Startups", "Platforms"],
+                "index": "D/04"
+              }
+            ]
+          },
+          {
+            "id": "finance-services",
+            "label": "Finance & professional services",
+            "title": "Expertise sold by trust",
+            "text": "Regulated work, confidential documents and expensive hours — where a person still signs off.",
+            "cards": [
+              {
+                "href": "/industries/bfsi",
+                "title": "Banking, finance & insurance",
+                "text": "Customer service, KYC checks, loan and claims processing, collections and fraud flags.",
+                "tags": ["NBFCs", "Insurers", "Brokers"],
+                "index": "E/01"
+              },
+              {
+                "href": "/industries/legal",
+                "title": "Legal & consulting",
+                "text": "Client intake, contract review, research over your precedents and deadline tracking.",
+                "tags": ["Law firms", "In-house", "Consultants"],
+                "index": "E/02"
+              },
+              {
+                "href": "/industries/professional-services",
+                "title": "Professional services",
+                "text": "Proposals, document drafting, timesheets, billing and search over past work.",
+                "tags": ["Accounting", "Agencies", "Advisory"],
+                "index": "E/03"
+              },
+              {
+                "href": "/industries/hr-recruitment",
+                "title": "HR & recruitment",
+                "text": "Sourcing and screening, interview scheduling, candidate updates and onboarding.",
+                "tags": ["Staffing", "HR teams", "RPO"],
+                "index": "E/04"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "component": "service.steps",
+      "props": {
+        "index": 3,
+        "id": "approach",
+        "label": "How we work",
+        "title": "The same careful rollout in every industry",
+        "highlight": false,
+        "steps": [
+          {
+            "title": "Start from real conversations",
+            "text": "We read a sample of the messages, calls and requests your team handles and agree which ones an agent should answer."
+          },
+          {
+            "title": "Connect your systems",
+            "text": "The agent reads from and writes to the software you already run, through its API or a reliable export. Nothing gets replaced."
+          },
+          {
+            "title": "Pilot one channel",
+            "text": "One use case goes live with staff checking its answers, so trust is earned before anything is switched on at scale."
+          },
+          {
+            "title": "Expand and keep improving",
+            "text": "The other use cases follow one at a time; we review every conversation it could not handle and report what changed each month."
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.faq",
+      "props": {
+        "index": 4,
+        "label": "FAQ",
+        "title": "Questions about AI for your industry",
+        "items": [
+          {
+            "question": "My industry isn't listed. Can you still help?",
+            "answer": "Probably. Most businesses share the same building blocks: customer messages, bookings or orders, documents, follow-ups and reports. Tell us how your day runs and we'll say honestly whether an agent would help."
+          },
+          {
+            "question": "Do I need to change my software?",
+            "answer": "No. We connect to the systems you already use — booking, billing, CRM, ERP, practice management — through their APIs or exports. If a system can't be connected, we tell you before any work starts."
+          },
+          {
+            "question": "Which channels can the agents work on?",
+            "answer": "WhatsApp through the official Business API, website chat, email, and phone calls through voice agents. Most businesses start with the channel where their customers already talk to them."
+          },
+          {
+            "question": "Who makes the important decisions?",
+            "answer": "Your team. Agents answer, collect, draft and route. Anything with real consequences, such as a refund, a clinical question, a credit decision or a hiring call, goes to a person with the context attached."
+          },
+          {
+            "question": "How long before something is live?",
+            "answer": "A first use case on one channel usually goes live within a few weeks of the first call. The timeline depends mostly on how quickly your systems can be connected."
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.cta",
+      "props": {
+        "family": "services",
+        "label": "Next step",
+        "title": "Tell us how your day runs",
+        "text": "Describe your business and the work that eats your team's time. We'll come back with the first thing we'd automate and what it would take.",
+        "primary": {
+          "label": "Talk to us",
+          "href": "/contact"
+        },
+        "secondary": {
+          "label": "Get a quote",
+          "href": "/get-a-quote"
+        },
+        "echoShape": 0
+      }
+    }
+  ]
+}

@@ -17,6 +17,7 @@ import { TOOLS_COMPONENTS } from './tools';
 import { POLICY_COMPONENTS } from './policy';
 import { NEWSLETTER_COMPONENTS } from './newsletter';
 import { GCC_COMPONENTS } from './gcc';
+import { INDUSTRY_COMPONENTS } from './industry';
 
 export type { CmsComponentDef } from './types';
 
@@ -43,6 +44,7 @@ const CATALOGUE = [
   ...POLICY_COMPONENTS,
   ...NEWSLETTER_COMPONENTS,
   ...GCC_COMPONENTS,
+  ...INDUSTRY_COMPONENTS,
 ] as const;
 
 export const CMS_COMPONENTS: readonly CmsComponentDef[] = CATALOGUE;

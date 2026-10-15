@@ -1,0 +1,471 @@
+{
+  "key": "industries-construction",
+  "path": "/industries/construction",
+  "title": "AI for Construction & Infrastructure | Exyconn",
+  "seo": {
+    "title": "AI Automation for Construction and Infrastructure | Exyconn",
+    "description": "AI agents for contractors and builders: turn site voice notes into daily reports, track materials, log safety checks, schedule subcontractors and answer RFIs.",
+    "keywords": "AI for construction, construction automation, daily progress report app, construction site reporting, RFI management, construction material tracking, subcontractor scheduling, construction safety software, construction project cost control, AI for contractors",
+    "ogImageUrl": "",
+    "canonical": "",
+    "noindex": false,
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "{marketUrl}" },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Industries",
+            "item": "{marketUrl}/industries"
+          },
+          { "@type": "ListItem", "position": 3, "name": "Construction & infrastructure" }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "AI automation for construction and infrastructure",
+        "serviceType": "AI agents and workflow automation",
+        "description": "Exyconn designs, builds and runs AI agents for contractors, builders and infrastructure firms: daily site reports from voice notes and photos, material procurement and tracking, safety checks and incident logging, subcontractor scheduling, answers from drawings and RFIs, and cost-versus-budget reporting, connected to the firm's ERP, project schedule and document control.",
+        "url": "{marketUrl}/industries/construction",
+        "audience": {
+          "@type": "BusinessAudience",
+          "audienceType": "General contractors, builders and developers, infrastructure and EPC firms, and specialist subcontractors"
+        },
+        "provider": { "@type": "Organization", "name": "{businessName}", "url": "{siteUrl}" },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "AI use cases for construction",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Daily site reports by voice and photo" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Material procurement and tracking" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Safety checks and incident logging" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Subcontractor scheduling" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Drawings and RFI answers" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Cost versus budget reporting" }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "body": [
+    {
+      "component": "detail.stage",
+      "props": {
+        "family": "services",
+        "crumbs": [
+          { "label": "Home", "href": "/" },
+          { "label": "Industries", "href": "/industries" },
+          { "label": "Construction & infrastructure", "href": "" }
+        ],
+        "title": "Site progress reported daily, not reconstructed monthly",
+        "lede": "AI agents for contractors and builders that turn a site engineer's voice note into the daily progress report, follow every material order to the gate and keep subcontractors, drawings and costs in step. They work from WhatsApp on site and your ERP in the office.",
+        "primary": { "label": "Plan AI for your sites", "href": "/contact" },
+        "secondary": {
+          "label": "See AI workflow automation",
+          "href": "/ai-services/ai-workflow-automation"
+        },
+        "scene": { "shapes": ["construction"], "accent": ["amber", "sky"] },
+        "glyph": "",
+        "tagline": "Site reports · Materials · Safety · Subcontractors · Costs"
+      }
+    },
+    {
+      "component": "detail.intro",
+      "props": {
+        "index": 1,
+        "label": "In short",
+        "intro": {
+          "title": "What does Exyconn build for construction?",
+          "icon": "helmet-safety",
+          "term": "AI for construction",
+          "definition": "is a set of agents that collects progress, material, safety and labour updates from site in whatever form they arrive, and turns them into the reports, orders and alerts your project team needs, so engineers spend less time typing and more time on the work. Exyconn designs, builds and runs these agents on WhatsApp for the site, and on your ERP, project schedule and drawing register for the office. Engineers and project managers still approve every quantity, drawing answer and payment."
+        },
+        "benefits": {
+          "title": "Why contractors are doing this now",
+          "items": [
+            {
+              "icon": "mobile-screen",
+              "text": "Every site supervisor already sends photos and voice notes on WhatsApp. The information exists; it just never reaches a report."
+            },
+            {
+              "icon": "hourglass-half",
+              "text": "A day lost waiting for steel, a crane or an answer to an RFI pushes everything behind it on the schedule."
+            },
+            {
+              "icon": "helmet-safety",
+              "text": "Clients, lenders and inspectors expect safety records that are written on the day, not filled in before an audit."
+            },
+            {
+              "icon": "people-carry-box",
+              "text": "Labour and subcontractor gangs move between sites. Knowing who is where tomorrow is a daily phone exercise."
+            },
+            {
+              "icon": "indian-rupee-sign",
+              "text": "Margins on fixed-price work are thin. Overruns found at month end are too late to fix."
+            }
+          ]
+        },
+        "demo": {
+          "kind": "chat",
+          "title": "whatsapp · site reporting",
+          "caption": "A site engineer sends a voice note and photos at the end of the shift; the agent drafts the daily progress report and flags a material shortfall.",
+          "messages": [
+            {
+              "from": "user",
+              "text": "(voice note) 4th floor slab shuttering done in grid C to F, reinforcement 60% done. 42 labour today, 6 from Sharma's gang absent. TMT 12mm running short."
+            },
+            {
+              "from": "agent",
+              "text": "Thanks Imran. Draft DPR for Tower 2: shuttering complete grids C–F, reinforcement about 60%, manpower 42 against 48 planned. Is the slab pour still planned for Thursday?"
+            },
+            { "from": "user", "text": "Yes if steel comes by Wednesday" },
+            {
+              "from": "agent",
+              "text": "Stores shows 1.8 tonnes of 12mm on hand against about 3 tonnes still needed for the slab. The open PO with the supplier is due Thursday. Shall I ask purchase to expedite it to Wednesday morning?"
+            },
+            { "from": "user", "text": "Yes do it" },
+            {
+              "from": "agent",
+              "text": "Done. Purchase and the project manager have been told, and the DPR with your 9 photos is in their inbox for sign-off."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "service.info-grid",
+      "props": {
+        "index": 2,
+        "id": "construction-challenges",
+        "anchor": "",
+        "label": "The reality",
+        "title": "Where a project team's hours actually go",
+        "lede": "Ask a project manager what slows a site down and it is rarely the concrete. It is information arriving late.",
+        "indexPrefix": "C",
+        "items": [
+          {
+            "id": "dpr",
+            "title": "Daily reports typed up at night",
+            "text": "Engineers spend the evening turning notebooks and WhatsApp photos into the DPR. When they're too tired, it is skipped and rebuilt from memory before the client meeting.",
+            "points": []
+          },
+          {
+            "id": "materials",
+            "title": "Materials chased by phone",
+            "text": "Indents, purchase orders, GRNs and e-way bills sit in different hands. Nobody can say quickly whether the cement for Friday's pour has left the plant.",
+            "points": []
+          },
+          {
+            "id": "safety",
+            "title": "Safety paperwork that lags the work",
+            "text": "Toolbox talks, permits for work at height and near-miss reports are filled on paper, if at all, and are hard to find when an inspector or client asks.",
+            "points": []
+          },
+          {
+            "id": "subcontractors",
+            "title": "Subcontractors out of sequence",
+            "text": "The plumber arrives before the slab is cured, the painter waits for the electrician. Each gang is coordinated by separate calls from the site.",
+            "points": []
+          },
+          {
+            "id": "rfis",
+            "title": "Questions waiting on drawings",
+            "text": "Site teams work from revised drawings, specifications and BOQ items spread across email and folders. An RFI can sit with the consultant for days while work stops.",
+            "points": []
+          },
+          {
+            "id": "cost-control",
+            "title": "Cost overruns found at month end",
+            "text": "Actual quantities, labour bills and material consumption are compared with the BOQ and budget only when the RA bill is prepared, after the money is spent.",
+            "points": []
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.offerings",
+      "props": {
+        "index": 3,
+        "label": "Use cases",
+        "offerings": {
+          "title": "Six jobs AI takes off your team's plate",
+          "items": [
+            {
+              "icon": "microphone",
+              "title": "Daily site reports by voice and photo",
+              "text": "Site engineers send a voice note and photos on WhatsApp in any language. The agent turns them into the DPR with progress by activity, manpower and equipment, and files it to the project for sign-off."
+            },
+            {
+              "icon": "boxes-stacked",
+              "title": "Material procurement and tracking",
+              "text": "Raises indents from site requests, follows the purchase order and e-way bill with the supplier, records receipts against the GRN in your ERP and warns the site when stock won't cover the next activity."
+            },
+            {
+              "icon": "shield-halved",
+              "title": "Safety checks and incidents",
+              "text": "Runs the daily checklist and toolbox talk record in chat, logs near-misses and incidents with photos and location, and alerts the safety officer at once. Investigations and corrective actions stay with your safety team."
+            },
+            {
+              "icon": "calendar-days",
+              "title": "Subcontractor scheduling",
+              "text": "Shares the look-ahead plan from your project schedule with each subcontractor, confirms gangs and start dates, and tells the planner when a delay upstream means a trade should be held back."
+            },
+            {
+              "icon": "compass-drafting",
+              "title": "Drawings and RFI answers",
+              "text": "Finds the latest revision of a drawing, the specification clause or the BOQ item a site team asks about, and drafts RFIs for anything not covered. Design answers come only from the architect or consultant."
+            },
+            {
+              "icon": "scale-unbalanced",
+              "title": "Cost versus budget",
+              "text": "Compares quantities executed, material consumed and labour bills with the BOQ and budget each week, by package and by site, and highlights overruns while they can still be acted on."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "industry.story",
+      "props": {
+        "index": 4,
+        "label": "A day with it running",
+        "title": "One day on a G+12 residential tower",
+        "lede": "Follow a working Tuesday on site. Each moment lights the part of the project the agent is working on.",
+        "moments": [
+          {
+            "when": "07:30",
+            "title": "The toolbox talk is on record",
+            "text": "The safety supervisor sends a photo of the morning talk and ticks the scaffold checklist in chat. A loose guard rail on level 9 is logged and the safety officer is alerted.",
+            "useCase": 3
+          },
+          {
+            "when": "09:45",
+            "title": "The electrician is held back a day",
+            "text": "Blockwork on level 7 is running late. The agent tells the electrical subcontractor to start conduit work on Thursday instead and updates the look-ahead.",
+            "useCase": 4
+          },
+          {
+            "when": "12:10",
+            "title": "A question about a lintel",
+            "text": "The foreman asks which lintel detail applies to the shaft opening. The agent finds it on revision R3 of the structural drawing; a second query on a clash is sent to the consultant as an RFI.",
+            "useCase": 5
+          },
+          {
+            "when": "15:30",
+            "title": "Ready-mix for Thursday, confirmed",
+            "text": "The supplier confirms the concrete for the level 8 pour. The truckload of steel arrives, its e-way bill is matched and the GRN is recorded in the ERP.",
+            "useCase": 2
+          },
+          {
+            "when": "18:20",
+            "title": "The DPR writes itself",
+            "text": "The site engineer sends a two-minute voice note and twelve photos on the way out. The draft DPR is with the project manager before he leaves the site office.",
+            "useCase": 1
+          },
+          {
+            "when": "22:00",
+            "title": "Costs against the BOQ",
+            "text": "This week's reinforcement consumption is running ahead of the BOQ quantity for level 7. The weekly cost note to the project director flags it with the drawings involved.",
+            "useCase": 6
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.architecture",
+      "props": {
+        "index": 5,
+        "label": "How it connects",
+        "title": "Built on the systems you already run",
+        "layers": [
+          { "label": "Where site teams talk", "nodes": ["WhatsApp", "Voice notes", "Site photos"] },
+          { "label": "AI agents", "nodes": ["Site reporter", "Materials desk", "Planning desk"] },
+          {
+            "label": "Your systems",
+            "nodes": ["ERP & purchase", "Project schedule", "Drawing register"]
+          },
+          {
+            "label": "People in charge",
+            "nodes": ["Engineer sign-off", "PM approvals", "Audit log"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.tabs",
+      "props": {
+        "index": 6,
+        "label": "By firm",
+        "title": "What it looks like for your kind of firm",
+        "items": [
+          {
+            "label": "Builders & developers",
+            "summary": "A few projects, owner close to site",
+            "text": "Most information moves on WhatsApp and Excel. The first win is a daily report and a material tracker that the owner can read without calling each site.",
+            "points": [
+              "WhatsApp DPRs from every site",
+              "Material indents, deliveries and stock",
+              "Weekly progress summary for the owner"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "General & EPC contractors",
+            "summary": "Many sites, many subcontractors",
+            "text": "Here the work is coordination and cost control. Agents link site reporting to the schedule and ERP, keep subcontractors sequenced and compare progress with the BOQ for RA billing.",
+            "points": [
+              "Look-ahead schedules shared with subcontractors",
+              "RFI drafting and drawing revision lookup",
+              "Cost versus BOQ by package and site"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Infrastructure projects",
+            "summary": "Roads, pipelines and long linear sites",
+            "text": "Work spreads over kilometres and crews rarely see the office. Agents collect chainage-wise progress, equipment logs and safety records from the field and pull them into one picture.",
+            "points": [
+              "Chainage-wise progress from voice and photo",
+              "Equipment hours and fuel logs",
+              "Safety and incident records by stretch"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          }
+        ],
+        "previous": "Previous",
+        "next": "Next"
+      }
+    },
+    {
+      "component": "detail.process",
+      "props": {
+        "index": 7,
+        "label": "Rollout",
+        "title": "Reporting from site within a month",
+        "lede": "We begin with one site and the daily report, because every other use case depends on knowing what happened on site today.",
+        "steps": [
+          {
+            "title": "Walk the site and the office",
+            "text": "We look at your DPR format, BOQ, purchase flow and schedule, talk to site engineers, and agree what the agent drafts and who approves it.",
+            "when": "Week 1"
+          },
+          {
+            "title": "Daily reports on one site",
+            "text": "Site engineers start sending voice notes and photos. The project manager reviews every draft DPR in the first weeks.",
+            "when": "Weeks 2–4"
+          },
+          {
+            "title": "Materials, safety and subcontractors",
+            "text": "Material tracking, safety checklists, subcontractor scheduling and drawing lookups are added, then rolled out to more sites.",
+            "when": "Weeks 5–9"
+          },
+          {
+            "title": "Run and improve",
+            "text": "We add new drawings and BOQ revisions as they come, review what site teams asked, and send a monthly report on what the agents handled.",
+            "when": "Ongoing"
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.related",
+      "props": {
+        "index": 8,
+        "label": "Related",
+        "title": "What contractors pair this with",
+        "more": "Explore",
+        "cards": [
+          {
+            "href": "/ai-services/ai-workflow-automation",
+            "index": "AI/01",
+            "title": "AI workflow automation",
+            "text": "Indents, approvals and handovers automated across the systems your projects already run on.",
+            "tags": ["Approvals", "ERP", "Workflows"]
+          },
+          {
+            "href": "/ai-services/ai-document-processing",
+            "index": "AI/02",
+            "title": "AI document processing",
+            "text": "Invoices, delivery challans, GRNs and measurement sheets turned into structured data.",
+            "tags": ["Invoices", "Challans", "GRN"]
+          },
+          {
+            "href": "/ai-services/ai-data-analytics",
+            "index": "AI/03",
+            "title": "AI data and analytics",
+            "text": "Progress, cost and material data brought together so project reviews start from facts.",
+            "tags": ["Cost", "Progress", "Dashboards"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.faq",
+      "props": {
+        "index": 9,
+        "label": "FAQ",
+        "title": "Questions contractors ask us",
+        "items": [
+          {
+            "question": "Will this replace our site engineers or planners?",
+            "answer": "No. It does the typing, chasing and searching so engineers and planners spend their time on the work and the decisions. Quantities, drawings, safety findings and payments are always approved by a named person."
+          },
+          {
+            "question": "Our site teams aren't comfortable with new apps. Will they use it?",
+            "answer": "They don't need a new app. Site teams use WhatsApp, voice notes and photos as they do today, in Hindi, English or their regional language, and the agent does the structuring."
+          },
+          {
+            "question": "Which systems does it connect to?",
+            "answer": "Your ERP or accounting system for purchase and GRNs, your project schedule in Primavera, MS Project or a spreadsheet, and the folders or document control system where drawings live. In the first week we confirm what each one exposes and what the agent can read or write."
+          },
+          {
+            "question": "Can the AI answer technical questions from site?",
+            "answer": "It finds what is already in your approved drawings, specifications and BOQ and quotes the revision it used. If the documents don't answer the question, it drafts an RFI for the architect or consultant. It never makes a design or structural call."
+          },
+          {
+            "question": "How is project and worker data protected?",
+            "answer": "Data stays in your systems and an environment set up for your firm, with role-based access by project and an audit log of every message. Worker details are handled under India's DPDP Act 2023, or the GDPR where it applies."
+          },
+          {
+            "question": "How much does it cost?",
+            "answer": "It depends on the number of sites, users and systems. Most firms start with daily reports on one or two sites. Share your DPR format and we'll send a fixed quote for the first phase."
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.cta",
+      "props": {
+        "family": "services",
+        "label": "Next step",
+        "title": "Send us one week of site WhatsApp updates",
+        "text": "We'll turn them into the DPRs and material alerts an agent would have produced, so you can judge the result on your own project. No obligation.",
+        "primary": { "label": "Talk to us", "href": "/contact" },
+        "secondary": { "label": "Get a quote", "href": "/get-a-quote" },
+        "echoShape": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,471 @@
+{
+  "key": "industries-legal",
+  "path": "/industries/legal",
+  "title": "AI for Law Firms & Consulting | Exyconn",
+  "seo": {
+    "title": "AI Automation for Law Firms and Legal Teams | Exyconn",
+    "description": "AI agents for law firms: screen new enquiries, run first-pass contract review, search your own precedents, track hearing dates and turn work into time entries.",
+    "keywords": "AI for law firms, legal AI India, contract review AI, legal practice automation, AI legal research, client intake automation, law firm billing software, case management automation, hearing date reminders, legal document automation",
+    "ogImageUrl": "",
+    "canonical": "",
+    "noindex": false,
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "{marketUrl}" },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Industries",
+            "item": "{marketUrl}/industries"
+          },
+          { "@type": "ListItem", "position": 3, "name": "Legal & consulting" }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "AI automation for law firms and legal teams",
+        "serviceType": "AI agents and workflow automation",
+        "description": "Exyconn designs, builds and runs AI agents for law firms, in-house legal teams and advisory practices: client intake and conflict checks, first-pass contract review, search over the firm's own precedents, hearing and limitation date tracking, time capture and billing, with matter-level access control.",
+        "url": "{marketUrl}/industries/legal",
+        "audience": {
+          "@type": "BusinessAudience",
+          "audienceType": "Law firms, advocates' chambers, in-house legal teams and advisory firms"
+        },
+        "provider": { "@type": "Organization", "name": "{businessName}", "url": "{siteUrl}" },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "AI use cases for law firms",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Client intake and conflict checks" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "First-pass contract review" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Research over your own precedents" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Deadline and hearing date tracking" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Time tracking and billing" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Confidentiality and access control" }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "body": [
+    {
+      "component": "detail.stage",
+      "props": {
+        "family": "services",
+        "crumbs": [
+          { "label": "Home", "href": "/" },
+          { "label": "Industries", "href": "/industries" },
+          { "label": "Legal & consulting", "href": "" }
+        ],
+        "title": "Less clerical work between you and the brief",
+        "lede": "AI agents for law firms and advisory practices that screen enquiries, mark up contracts against your playbook, find what the firm has already written and keep every date on the calendar. Lawyers review and sign everything that leaves the office.",
+        "primary": { "label": "Plan AI for your firm", "href": "/contact" },
+        "secondary": {
+          "label": "See AI document processing",
+          "href": "/ai-services/ai-document-processing"
+        },
+        "scene": { "shapes": ["legal"], "accent": ["violet", "sky"] },
+        "glyph": "",
+        "tagline": "Intake · Contracts · Precedents · Dates · Billing · Access"
+      }
+    },
+    {
+      "component": "detail.intro",
+      "props": {
+        "index": 1,
+        "label": "In short",
+        "intro": {
+          "title": "What does Exyconn build for law firms and legal teams?",
+          "icon": "scale-balanced",
+          "term": "AI for legal practice",
+          "definition": "is software that takes the clerical and first-pass work of a law firm, such as screening enquiries, marking up contracts, finding past drafts, watching cause lists and recording time, so lawyers spend their hours on advice and advocacy. Exyconn designs, builds and runs these agents on your matter management system, document store, email and calendar. They draft and flag; a lawyer reviews and decides, and nothing is sent to a client unchecked."
+        },
+        "benefits": {
+          "title": "Why firms are doing this now",
+          "items": [
+            {
+              "icon": "file-contract",
+              "text": "Clients expect a marked-up contract in days, and much of a first review is checking clauses against positions the firm already holds."
+            },
+            {
+              "icon": "folder-open",
+              "text": "A firm's best precedents sit in partners' folders and old email threads where nobody else can find them."
+            },
+            {
+              "icon": "calendar-days",
+              "text": "Hearing dates move with every cause list, and a missed limitation date cannot be undone."
+            },
+            {
+              "icon": "clock",
+              "text": "Time recorded at month end from memory is time that is under-billed or written off."
+            },
+            {
+              "icon": "user-lock",
+              "text": "Clients now ask in writing how their documents are protected, including from AI tools."
+            }
+          ]
+        },
+        "demo": {
+          "kind": "chat",
+          "title": "website chat · new enquiry",
+          "caption": "A prospective client describes a deposit dispute; the agent collects the facts, runs a conflict check and books a consultation without giving legal advice.",
+          "messages": [
+            {
+              "from": "user",
+              "text": "My landlord in Pune hasn't returned my ₹2,40,000 security deposit. It's been four months since I moved out. Can you help?"
+            },
+            {
+              "from": "agent",
+              "text": "I'm sorry to hear that, Kavya. I can't give legal advice here, but I can arrange a consultation with one of our advocates. Could you tell me the landlord's full name and whether you have the rent agreement?"
+            },
+            {
+              "from": "user",
+              "text": "Sunil Deshmukh. Yes, I have the registered agreement and the handover email."
+            },
+            {
+              "from": "agent",
+              "text": "Thank you. We have no conflict with that name. Adv. Meera Joshi handles tenancy matters and is free on Tuesday at 11:00 or Wednesday at 16:30. Which suits you?"
+            },
+            { "from": "user", "text": "Wednesday works." },
+            {
+              "from": "agent",
+              "text": "Booked for Wednesday at 16:30. Please upload the agreement and the email using the secure link I've just sent, so she can read them beforehand."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "service.info-grid",
+      "props": {
+        "index": 2,
+        "id": "legal-challenges",
+        "anchor": "",
+        "label": "The reality",
+        "title": "Where a firm's unbilled hours actually go",
+        "lede": "Partners and associates name the same list. Very little of it is law; all of it has to be done carefully.",
+        "indexPrefix": "L",
+        "items": [
+          {
+            "id": "intake",
+            "title": "Enquiries that are not yet matters",
+            "text": "Calls and messages arrive with half the facts. Someone senior has to read each one to decide whether it is in the firm's practice areas, urgent, or not a matter at all.",
+            "points": []
+          },
+          {
+            "id": "conflicts",
+            "title": "Conflict checks by email",
+            "text": "A new client's name is circulated to the partners and checked against memory and an old spreadsheet. It works until the related company or the other side's director is missed.",
+            "points": []
+          },
+          {
+            "id": "first-pass",
+            "title": "Associates reading boilerplate",
+            "text": "Every NDA, lease and vendor agreement gets a full read to find the five clauses that differ from the firm's standard position. The associate's time goes into finding them, not judging them.",
+            "points": []
+          },
+          {
+            "id": "precedents",
+            "title": "Drafts the firm has already written",
+            "text": "A good share-purchase agreement or written submission exists somewhere in the document store, but finding it means knowing who worked on it and what they named the file.",
+            "points": []
+          },
+          {
+            "id": "dates",
+            "title": "Cause lists checked by hand",
+            "text": "Clerks check daily cause lists and case status across several courts and tribunals, then update a diary. Adjournments, new dates and limitation periods all depend on that one manual step.",
+            "points": []
+          },
+          {
+            "id": "time",
+            "title": "Time reconstructed at month end",
+            "text": "Calls, emails and drafting are pieced together from calendars and sent folders before invoices go out. What is forgotten is never billed, and narratives are too vague for clients to accept.",
+            "points": []
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.offerings",
+      "props": {
+        "index": 3,
+        "label": "Use cases",
+        "offerings": {
+          "title": "Six jobs AI takes off your lawyers and clerks",
+          "items": [
+            {
+              "icon": "comments",
+              "title": "Client intake and conflict checks",
+              "text": "Answers enquiries that come to your website, email or WhatsApp, collects the facts and parties, checks names against your matter management system for conflicts and books a consultation. It does not give advice or go looking for clients."
+            },
+            {
+              "icon": "file-contract",
+              "title": "First-pass contract review",
+              "text": "Compares an incoming contract with your playbook clause by clause, marks deviations in tracked changes with the firm's fallback wording and lists missing clauses. The associate reviews every change before it goes to the client."
+            },
+            {
+              "icon": "magnifying-glass",
+              "title": "Research over your own precedents",
+              "text": "Searches the firm's past drafts, opinions, pleadings and notes in your document store and returns the relevant passages with links to the source file. It only searches documents the lawyer asking is allowed to open."
+            },
+            {
+              "icon": "calendar-days",
+              "title": "Deadlines and hearing dates",
+              "text": "Reads cause lists and case status for your matters each day, updates hearing dates in the matter system and calendars, and computes reply and limitation deadlines for a lawyer to confirm. Changes are sent to the matter team on email or WhatsApp."
+            },
+            {
+              "icon": "clock",
+              "title": "Time tracking and billing",
+              "text": "Suggests time entries from calls, meetings, emails and document edits against the right matter, for the lawyer to accept or change. Approved time flows into draft invoices with clear narratives for partner review."
+            },
+            {
+              "icon": "user-lock",
+              "title": "Confidentiality and access control",
+              "text": "Applies matter-level permissions and ethical walls to every agent action, so no one sees a document through the AI that they could not open directly. Every query and document view is logged for the partners."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "industry.story",
+      "props": {
+        "index": 4,
+        "label": "A day with it running",
+        "title": "One day at a twelve-lawyer litigation and corporate firm",
+        "lede": "A Monday with two hearings and a closing on Friday. Each moment lights the part of the practice the agent is working on.",
+        "moments": [
+          {
+            "when": "07:30",
+            "title": "The day's board, already read",
+            "text": "Today's cause lists are checked for the firm's matters. One case has moved from item 14 to item 3, and the junior on it gets a WhatsApp before leaving home.",
+            "useCase": 4
+          },
+          {
+            "when": "09:15",
+            "title": "An overnight enquiry, sorted",
+            "text": "A startup founder wrote in at midnight about a co-founder exit. The agent has collected the shareholding, checked both names for conflicts and booked a call with the corporate partner.",
+            "useCase": 1
+          },
+          {
+            "when": "11:00",
+            "title": "A vendor agreement marked up",
+            "text": "A client sends a 40-page master services agreement. In minutes the associate has a tracked-changes draft showing the indemnity, liability cap and termination clauses that differ from the firm's playbook.",
+            "useCase": 2
+          },
+          {
+            "when": "13:30",
+            "title": "An ethical wall holds",
+            "text": "A trainee searches for a company name that belongs to a matter they are walled off from. The agent returns nothing from that matter, and the attempt is logged for the managing partner.",
+            "useCase": 6
+          },
+          {
+            "when": "16:00",
+            "title": "Last year's submissions, found",
+            "text": "An associate asks for the firm's written submissions on interim injunctions in trademark cases. The agent returns three past filings with the relevant paragraphs and links to each file.",
+            "useCase": 3
+          },
+          {
+            "when": "19:45",
+            "title": "The day's time, ready to approve",
+            "text": "Each lawyer gets suggested entries for the day's calls, emails and drafting, matched to matters. Most are accepted with one tap, and the narratives are ready for the month's invoices.",
+            "useCase": 5
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.architecture",
+      "props": {
+        "index": 5,
+        "label": "How it connects",
+        "title": "Built on the systems you already run",
+        "layers": [
+          { "label": "Where clients talk", "nodes": ["Website form", "WhatsApp", "Email"] },
+          { "label": "AI agents", "nodes": ["Intake desk", "Drafting assistant", "Docket clerk"] },
+          {
+            "label": "Your systems",
+            "nodes": ["Matter management", "Document store", "eCourts & e-filing"]
+          },
+          { "label": "People in charge", "nodes": ["Partners", "Associate review", "Audit log"] }
+        ]
+      }
+    },
+    {
+      "component": "detail.tabs",
+      "props": {
+        "index": 6,
+        "label": "By practice",
+        "title": "What it looks like for your kind of practice",
+        "items": [
+          {
+            "label": "Advocates & small chambers",
+            "summary": "Court work with a lean team",
+            "text": "For an advocate with one or two juniors and a clerk, the first win is the diary. We start with cause-list tracking and hearing reminders, then add intake so enquiries are answered while you are in court.",
+            "points": [
+              "Daily cause-list checks across your courts",
+              "Hearing and limitation reminders on WhatsApp",
+              "Enquiry screening and consultation booking"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Full-service law firms",
+            "summary": "Volume of documents and matters",
+            "text": "Larger firms gain most from first-pass review and precedent search, where associate hours concentrate. Both run inside the firm's permissions, with time capture feeding billing.",
+            "points": [
+              "Playbook-based contract mark-ups",
+              "Search across the firm's document store",
+              "Suggested time entries and draft invoices"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Consulting & advisory firms",
+            "summary": "Reports, opinions and engagements",
+            "text": "Tax, regulatory and management consultancies write long reports from earlier work. Agents find past opinions and analyses, draft first versions from them and keep engagement deadlines in view.",
+            "points": [
+              "Drafts built from your past reports",
+              "Regulatory and filing deadline tracking",
+              "Client-level access control"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          }
+        ],
+        "previous": "Previous",
+        "next": "Next"
+      }
+    },
+    {
+      "component": "detail.process",
+      "props": {
+        "index": 7,
+        "label": "Rollout",
+        "title": "Start with the diary, then the documents",
+        "lede": "We begin with work that carries no advice risk, such as dates and intake, and move into documents once your lawyers trust the output.",
+        "steps": [
+          {
+            "title": "Map matters and permissions",
+            "text": "We list your systems, courts and practice areas, and agree how matter access and ethical walls apply to anything the agent reads.",
+            "when": "Week 1"
+          },
+          {
+            "title": "Dates and intake go live",
+            "text": "Cause-list tracking, hearing reminders and enquiry screening are switched on, with a clerk checking every date in the first weeks.",
+            "when": "Weeks 2–4"
+          },
+          {
+            "title": "Contracts, precedents and time",
+            "text": "Your playbooks are loaded for contract review, the document store is indexed by permission, and time suggestions start for one team.",
+            "when": "Weeks 5–10"
+          },
+          {
+            "title": "Run and improve",
+            "text": "We review flagged errors with your lawyers, update playbooks as positions change and report usage to the partners each month.",
+            "when": "Ongoing"
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.related",
+      "props": {
+        "index": 8,
+        "label": "Related",
+        "title": "What firms pair this with",
+        "more": "Explore",
+        "cards": [
+          {
+            "href": "/ai-services/ai-document-processing",
+            "index": "AI/01",
+            "title": "AI document processing",
+            "text": "Contracts, orders and forms turned into structured data you can check and search.",
+            "tags": ["Contracts", "Extraction", "Review"]
+          },
+          {
+            "href": "/ai-services/ai-rag-platform",
+            "index": "AI/02",
+            "title": "AI RAG platform",
+            "text": "Answers grounded in your own documents, with citations back to the source file.",
+            "tags": ["Search", "Citations", "Precedents"]
+          },
+          {
+            "href": "/ai-services/ai-governance-guardrails",
+            "index": "AI/03",
+            "title": "AI governance and guardrails",
+            "text": "Policy, controls and evidence that keep the firm's use of AI defensible to clients.",
+            "tags": ["Policy", "Access", "Audit"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.faq",
+      "props": {
+        "index": 9,
+        "label": "FAQ",
+        "title": "Questions law firms ask us",
+        "items": [
+          {
+            "question": "Does this replace associates or paralegals?",
+            "answer": "No. It takes the first pass: finding deviations, pulling precedents, updating dates and drafting time entries. A lawyer reviews every mark-up and decides what advice is given, and juniors spend more of their time on the analysis they are trained for."
+          },
+          {
+            "question": "Which practice management and document systems does it work with?",
+            "answer": "Any matter management, document management or billing system with an API or a reliable export, along with Microsoft 365 or Google Workspace for email and calendars and the public eCourts services for case status. In the first week we confirm what your setup exposes."
+          },
+          {
+            "question": "What about client confidentiality and privilege?",
+            "answer": "Documents stay in your own document store or a private environment set up for the firm, and are not used to train any public model. Matter-level permissions and ethical walls apply to every search, and all access is logged. The setup follows the DPDP Act 2023 for personal data, and the GDPR where you act for clients in Europe."
+          },
+          {
+            "question": "Can it work with documents in Indian languages?",
+            "answer": "Yes. It can read and search documents and talk to clients in Hindi, Marathi, Tamil and other Indian languages as well as English. For filings and court translations a lawyer or certified translator still checks the text."
+          },
+          {
+            "question": "What happens if the AI gets a date or a clause wrong?",
+            "answer": "Dates computed by the agent are shown to a lawyer to confirm, and every contract change is a tracked suggestion, not a final edit. Where it is unsure, it says so. Each correction is fed back so the same mistake is caught next time."
+          },
+          {
+            "question": "How much does it cost?",
+            "answer": "It depends on the number of lawyers, courts and systems involved. Most firms start with hearing-date tracking and intake, which are quick to set up; tell us about your practice and we'll send a fixed quote for that first phase."
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.cta",
+      "props": {
+        "family": "services",
+        "label": "Next step",
+        "title": "Send us one contract and your playbook",
+        "text": "We'll return a first-pass mark-up so your team can judge the quality, and outline what connecting it to your document store would involve. No obligation.",
+        "primary": { "label": "Talk to us", "href": "/contact" },
+        "secondary": { "label": "Get a quote", "href": "/get-a-quote" },
+        "echoShape": 0
+      }
+    }
+  ]
+}

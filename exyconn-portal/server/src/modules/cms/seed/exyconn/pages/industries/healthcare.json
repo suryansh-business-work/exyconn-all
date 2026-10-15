@@ -1,0 +1,471 @@
+{
+  "key": "industries-healthcare",
+  "path": "/industries/healthcare",
+  "title": "AI for Healthcare & Clinics | Exyconn",
+  "seo": {
+    "title": "AI Automation for Healthcare and Clinics | Exyconn",
+    "description": "AI agents for clinics and hospitals: book and remind appointments, answer patients on WhatsApp, digitise intake forms, share lab reports and prepare TPA claims.",
+    "keywords": "AI for clinics, healthcare automation, clinic appointment booking software, patient WhatsApp chatbot, AI medical receptionist, hospital appointment reminders, digital patient intake, lab report WhatsApp, TPA claim automation, clinic management software, ABDM integration",
+    "ogImageUrl": "",
+    "canonical": "",
+    "noindex": false,
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "{marketUrl}" },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Industries",
+            "item": "{marketUrl}/industries"
+          },
+          { "@type": "ListItem", "position": 3, "name": "Healthcare & clinics" }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "AI automation for healthcare and clinics",
+        "serviceType": "AI agents and workflow automation",
+        "description": "Exyconn designs, builds and runs administrative AI agents for clinics, diagnostic centres and hospitals: appointment booking and reminders, patient queries on WhatsApp and phone, digital intake forms, lab report delivery and follow-ups, billing and insurance claim preparation, and clinic analytics, connected to the facility's HMS or clinic software.",
+        "url": "{marketUrl}/industries/healthcare",
+        "audience": {
+          "@type": "BusinessAudience",
+          "audienceType": "Clinics, polyclinics, diagnostic centres, dental practices and hospitals"
+        },
+        "provider": { "@type": "Organization", "name": "{businessName}", "url": "{siteUrl}" },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "AI use cases for healthcare providers",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Appointment booking and reminders" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Patient queries on WhatsApp and phone" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Digital intake forms and records" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Lab reports and follow-ups" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Billing and insurance claims" }
+            },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Clinic analytics" } }
+          ]
+        }
+      }
+    ]
+  },
+  "body": [
+    {
+      "component": "detail.stage",
+      "props": {
+        "family": "services",
+        "crumbs": [
+          { "label": "Home", "href": "/" },
+          { "label": "Industries", "href": "/industries" },
+          { "label": "Healthcare & clinics", "href": "" }
+        ],
+        "title": "The front desk that never keeps patients waiting",
+        "lede": "AI agents that book appointments, answer routine patient questions, collect intake forms before the visit and prepare insurance paperwork, while every clinical decision stays with your doctors.",
+        "primary": { "label": "Plan AI for your clinic", "href": "/contact" },
+        "secondary": {
+          "label": "See AI healthcare software",
+          "href": "/ai-services/ai-healthcare-software"
+        },
+        "scene": { "shapes": ["healthcare"], "accent": ["cyan", "sky"] },
+        "glyph": "",
+        "tagline": "Appointments · Queries · Intake · Reports · Claims · Analytics"
+      }
+    },
+    {
+      "component": "detail.intro",
+      "props": {
+        "index": 1,
+        "label": "In short",
+        "intro": {
+          "title": "What does Exyconn build for healthcare providers?",
+          "icon": "stethoscope",
+          "term": "AI for clinics",
+          "definition": "is a set of administrative agents that handle appointments, routine patient questions, intake paperwork, report delivery and insurance documents, so reception and billing staff can look after the patients in the room. Exyconn designs, builds and runs these agents on top of your HMS or clinic software, WhatsApp Business account and phone line. They never diagnose, prescribe or triage on their own: anything clinical goes to a doctor or nurse."
+        },
+        "benefits": {
+          "title": "Why clinics are doing this now",
+          "items": [
+            {
+              "icon": "phone-slash",
+              "text": "Patients who can't get through on the phone book with another clinic instead."
+            },
+            {
+              "icon": "calendar-xmark",
+              "text": "Every missed appointment is a slot a doctor could have used for someone else."
+            },
+            {
+              "icon": "file-medical",
+              "text": "Paper forms filled in the waiting room mean retyping, errors and longer queues."
+            },
+            {
+              "icon": "id-card",
+              "text": "ABHA-linked records and digital claims are becoming the normal way of working in India."
+            },
+            {
+              "icon": "user-nurse",
+              "text": "Front-desk and billing teams are stretched, and repetitive work is what burns them out."
+            }
+          ]
+        },
+        "demo": {
+          "kind": "chat",
+          "title": "whatsapp · clinic front desk",
+          "caption": "A patient books a follow-up; the agent finds a slot, sends the intake form and leaves the medical question for the doctor.",
+          "messages": [
+            {
+              "from": "user",
+              "text": "Hi, I need a follow-up with Dr. Iyer for my thyroid. Anything on Saturday?"
+            },
+            {
+              "from": "agent",
+              "text": "Hello Mrs. Kulkarni. Dr. Iyer has 10:20 and 11:40 free this Saturday at the Baner clinic. Which works for you?"
+            },
+            { "from": "user", "text": "10:20. Should I stop my tablet before the blood test?" },
+            {
+              "from": "agent",
+              "text": "You're booked for 10:20. I can't advise on medicines, so I've passed your question to Dr. Iyer's nurse, who will reply here today."
+            },
+            { "from": "user", "text": "Ok thanks" },
+            {
+              "from": "agent",
+              "text": "Here's a short form to update your medicines and allergies before the visit. The consultation fee is ₹800, payable at the desk or by UPI."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "service.info-grid",
+      "props": {
+        "index": 2,
+        "id": "healthcare-challenges",
+        "anchor": "",
+        "label": "The reality",
+        "title": "Where a clinic's hours actually go",
+        "lede": "Ask a practice manager what fills the day and most of it happens away from the consulting room.",
+        "indexPrefix": "M",
+        "items": [
+          {
+            "id": "phone-queue",
+            "title": "A phone that never stops",
+            "text": "Booking, rescheduling, \"is the doctor in today?\" and directions all come by phone, while the same receptionist is checking in a queue of patients.",
+            "points": []
+          },
+          {
+            "id": "no-shows",
+            "title": "Empty slots from no-shows",
+            "text": "Patients forget, or cancel without telling anyone. The slot sits empty while someone else was told there was nothing free until next week.",
+            "points": []
+          },
+          {
+            "id": "paper-intake",
+            "title": "Paper forms and retyping",
+            "text": "Histories, consent forms and insurance details are filled in by hand at the desk, then typed into the HMS, and copied again for the next visit.",
+            "points": []
+          },
+          {
+            "id": "report-calls",
+            "title": "\"Are my reports ready?\"",
+            "text": "Lab and imaging reports bring a wave of calls and walk-ins. Abnormal results need a doctor's eye, and follow-up visits slip when nobody chases them.",
+            "points": []
+          },
+          {
+            "id": "claims",
+            "title": "Insurance paperwork that stalls",
+            "text": "Cashless pre-authorisation and claims need the right documents for each TPA or insurer. A missing discharge summary or bill break-up sends the file back.",
+            "points": []
+          },
+          {
+            "id": "blind-spots",
+            "title": "No clear view of the practice",
+            "text": "Which doctor is overbooked, which slots go empty and how much is stuck in pending claims sits across the HMS, the billing desk and a few spreadsheets.",
+            "points": []
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.offerings",
+      "props": {
+        "index": 3,
+        "label": "Use cases",
+        "offerings": {
+          "title": "Six administrative jobs AI takes off your front desk",
+          "items": [
+            {
+              "icon": "calendar-check",
+              "title": "Appointment booking and reminders",
+              "text": "Books, moves and cancels appointments against doctors' live schedules in your HMS, sends reminders with preparation notes, and offers freed slots to patients on the waitlist."
+            },
+            {
+              "icon": "comments",
+              "title": "Patient queries on WhatsApp and phone",
+              "text": "Answers timings, fees, directions, accepted insurers and visit preparation from your approved information. Symptoms and medical questions go straight to clinical staff, and emergencies are told to call emergency services."
+            },
+            {
+              "icon": "file-medical",
+              "title": "Intake forms and records, digitised",
+              "text": "Sends history, consent and insurance forms before the visit, reads uploaded prescriptions and ID documents, and files the details into the patient's record in the HMS for staff to verify."
+            },
+            {
+              "icon": "bell",
+              "title": "Lab reports and follow-ups",
+              "text": "Sends reports to patients once the lab or doctor releases them, routes results the doctor wants to discuss into a callback, and reminds patients when a follow-up or repeat test is due."
+            },
+            {
+              "icon": "credit-card",
+              "title": "Billing and insurance claims",
+              "text": "Builds the bill from the HMS, collects payment by UPI or card link, and assembles the document set for cashless pre-authorisation and claims to each TPA or insurer, with a billing executive submitting."
+            },
+            {
+              "icon": "chart-line",
+              "title": "Clinic analytics",
+              "text": "Reports footfall, no-shows, doctor utilisation, revenue by department and pending claims each morning, and answers questions like \"which slots go empty most?\" in plain language."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "industry.story",
+      "props": {
+        "index": 4,
+        "label": "A day with it running",
+        "title": "One day at a three-branch polyclinic",
+        "lede": "A Monday at a polyclinic with general medicine, paediatrics and an in-house lab. Each moment lights the part of the clinic the agent is working on.",
+        "moments": [
+          {
+            "when": "07:30",
+            "title": "Forms done before the doors open",
+            "text": "Patients booked for the morning have already filled in their history and consent forms on WhatsApp. The receptionist only has to check the flagged ones.",
+            "useCase": 3
+          },
+          {
+            "when": "08:15",
+            "title": "The morning numbers",
+            "text": "The practice manager sees today's bookings by doctor, Friday's no-shows and the claims still waiting on a TPA, and moves a paediatrician to the busier branch.",
+            "useCase": 6
+          },
+          {
+            "when": "10:45",
+            "title": "A cancellation, refilled",
+            "text": "A patient cancels a 12:00 slot by replying to her reminder. The agent offers it to the waitlist and a father with a feverish child takes it within minutes.",
+            "useCase": 1
+          },
+          {
+            "when": "13:20",
+            "title": "A cashless file, complete",
+            "text": "For a day-care procedure, the agent gathers the ID, policy card, doctor's notes and estimate into the pre-authorisation set. The billing executive checks it and submits to the TPA.",
+            "useCase": 5
+          },
+          {
+            "when": "16:00",
+            "title": "Reports out, one held back",
+            "text": "Forty blood reports are released and sent. One the doctor marked for discussion goes out as a callback request instead, booked for tomorrow morning.",
+            "useCase": 4
+          },
+          {
+            "when": "21:30",
+            "title": "An evening question",
+            "text": "A parent asks if the clinic is open on Sunday and whether vaccinations need an appointment. The agent answers and books the slot; a question about side effects goes to the nurse's morning queue.",
+            "useCase": 2
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.architecture",
+      "props": {
+        "index": 5,
+        "label": "How it connects",
+        "title": "Built on the systems your clinic already runs",
+        "layers": [
+          {
+            "label": "Where patients talk",
+            "nodes": ["WhatsApp", "Phone line", "Website booking"]
+          },
+          {
+            "label": "AI agents",
+            "nodes": ["Front desk agent", "Intake & reports", "Billing assistant"]
+          },
+          { "label": "Your systems", "nodes": ["HMS / EMR", "Lab system (LIS)", "TPA & insurer"] },
+          {
+            "label": "People in charge",
+            "nodes": ["Doctors & nurses", "Billing approval", "Audit log"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.tabs",
+      "props": {
+        "index": 6,
+        "label": "By provider",
+        "title": "What it looks like for your kind of practice",
+        "items": [
+          {
+            "label": "Single-doctor & dental clinics",
+            "summary": "One receptionist, one phone",
+            "text": "When one person runs the front desk, the first win is not missing calls. We start with an agent that books and reminds on WhatsApp and the phone, and sends forms before the visit.",
+            "points": [
+              "Bookings and reminders on WhatsApp",
+              "Intake and consent forms before the visit",
+              "Waitlist offers for cancelled slots"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Polyclinics & diagnostic centres",
+            "summary": "Many doctors, a busy lab",
+            "text": "With several specialities and a lab, the volume is in reports and scheduling. Agents balance bookings across doctors and branches, deliver reports once released and chase follow-ups.",
+            "points": [
+              "Scheduling across doctors and branches",
+              "Report delivery after release, with callbacks",
+              "Home sample collection booking"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Hospitals",
+            "summary": "Admissions, billing and claims",
+            "text": "For hospitals the heavy load is on the help desk and the TPA desk. Agents answer patient families, prepare pre-authorisation and claim document sets, and track every claim to settlement.",
+            "points": [
+              "Patient and family help desk on WhatsApp",
+              "Pre-authorisation and claim document sets",
+              "Claim tracking and ageing reports"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          }
+        ],
+        "previous": "Previous",
+        "next": "Next"
+      }
+    },
+    {
+      "component": "detail.process",
+      "props": {
+        "index": 7,
+        "label": "Rollout",
+        "title": "Live at the front desk in weeks",
+        "lede": "We start with appointments, where the phone load is, and add clinical-adjacent work only after your doctors have reviewed the rules.",
+        "steps": [
+          {
+            "title": "Map the patient journey",
+            "text": "We list your HMS, lab and billing systems, read a sample of patient messages and agree with your doctors what the agent may answer and what it must pass on.",
+            "when": "Weeks 1–2"
+          },
+          {
+            "title": "Appointments and queries",
+            "text": "Booking, reminders and routine questions go live on WhatsApp and the phone, with front-desk staff reviewing conversations in the first weeks.",
+            "when": "Weeks 3–5"
+          },
+          {
+            "title": "Intake, reports and billing",
+            "text": "Digital intake, report delivery, claim document sets and the morning analytics are added one by one, each signed off by the relevant team.",
+            "when": "Weeks 6–10"
+          },
+          {
+            "title": "Run and improve",
+            "text": "We review escalations and unanswered questions, keep the approved answers current with your doctors and report monthly on what the agent handled.",
+            "when": "Ongoing"
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.related",
+      "props": {
+        "index": 8,
+        "label": "Related",
+        "title": "What healthcare providers pair this with",
+        "more": "Explore",
+        "cards": [
+          {
+            "href": "/ai-services/ai-healthcare-software",
+            "index": "AI/01",
+            "title": "AI healthcare software",
+            "text": "Clinical and administrative AI built to the handling rules healthcare requires.",
+            "tags": ["Clinical", "Admin", "Compliance"]
+          },
+          {
+            "href": "/ai-services/ai-voice-agents",
+            "index": "AI/02",
+            "title": "AI voice agents",
+            "text": "Answer the clinic line, book appointments and confirm visits on live calls.",
+            "tags": ["Phone", "Appointments", "Reminders"]
+          },
+          {
+            "href": "/ai-services/ai-document-processing",
+            "index": "AI/03",
+            "title": "AI document processing",
+            "text": "Prescriptions, forms and claim documents turned into structured data you can check.",
+            "tags": ["Forms", "Claims", "Records"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.faq",
+      "props": {
+        "index": 9,
+        "label": "FAQ",
+        "title": "Questions clinics and hospitals ask us",
+        "items": [
+          {
+            "question": "Does the AI give medical advice or triage patients?",
+            "answer": "No. It handles administration only. Questions about symptoms, medicines or results go to your doctors or nurses, and anyone describing an emergency is told to call emergency services or come to the hospital straight away. Doctors decide what the agent is allowed to say."
+          },
+          {
+            "question": "Will it replace our receptionists?",
+            "answer": "No. It takes the phone and WhatsApp load off the desk so receptionists can look after patients standing in front of them, and passes anything sensitive or unusual to them with the conversation attached."
+          },
+          {
+            "question": "Which HMS and lab systems can it work with?",
+            "answer": "Any HMS, EMR or LIS with an API or a dependable export. Where your software is ABDM-enabled, the agent can work with ABHA-linked records through it. We confirm exactly what your systems allow in the first week."
+          },
+          {
+            "question": "How is patient data protected?",
+            "answer": "Health data stays in your systems and a private environment we set up for you, with role-based access, encryption and a full audit log. Patients consent before we message them, and the setup follows the law that applies to you: India's DPDP Act and ABDM's rules, the GDPR in Europe or HIPAA in the United States."
+          },
+          {
+            "question": "Can patients use their own language?",
+            "answer": "Yes. The agent works in English, Hindi and other Indian languages on WhatsApp and phone, while the approved answers are written once by your team."
+          },
+          {
+            "question": "How much does it cost?",
+            "answer": "It depends on the number of doctors, branches and systems involved. Most clinics start with appointments and reminders; tell us about your practice and we'll send a fixed quote for that first phase."
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.cta",
+      "props": {
+        "family": "services",
+        "label": "Next step",
+        "title": "Show us a week of your front-desk calls",
+        "text": "We'll map which calls and messages an agent could handle, which must stay with your staff, and what it needs from your HMS. No obligation.",
+        "primary": { "label": "Talk to us", "href": "/contact" },
+        "secondary": { "label": "Get a quote", "href": "/get-a-quote" },
+        "echoShape": 0
+      }
+    }
+  ]
+}

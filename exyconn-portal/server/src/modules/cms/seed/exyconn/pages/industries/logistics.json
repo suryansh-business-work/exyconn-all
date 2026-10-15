@@ -1,0 +1,465 @@
+{
+  "key": "industries-logistics",
+  "path": "/industries/logistics",
+  "title": "AI for Logistics & Transportation | Exyconn",
+  "seo": {
+    "title": "AI Automation for Logistics and Transport Firms | Exyconn",
+    "description": "AI agents for transporters, 3PLs and couriers: answer tracking queries, plan dispatch, collect POD, watch e-way bills, flag delays and report freight costs.",
+    "keywords": "AI for logistics, logistics automation, transport management automation, shipment tracking chatbot, e-way bill automation, proof of delivery app, route planning AI, fleet dispatch automation, 3PL warehouse automation, freight cost reporting, delivery exception alerts",
+    "ogImageUrl": "",
+    "canonical": "",
+    "noindex": false,
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "{marketUrl}" },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Industries",
+            "item": "{marketUrl}/industries"
+          },
+          { "@type": "ListItem", "position": 3, "name": "Logistics & transportation" }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "AI automation for logistics and transportation",
+        "serviceType": "AI agents and workflow automation",
+        "description": "Exyconn designs, builds and runs AI agents for transporters, fleet owners, 3PLs and courier companies: shipment tracking queries, route planning and dispatch, proof of delivery and e-way bills, delay and exception alerts, warehouse stock, and freight cost and on-time reporting, connected to the TMS, WMS and GPS telematics.",
+        "url": "{marketUrl}/industries/logistics",
+        "audience": {
+          "@type": "BusinessAudience",
+          "audienceType": "Transporters, fleet owners, 3PL and warehousing companies, couriers and freight forwarders"
+        },
+        "provider": { "@type": "Organization", "name": "{businessName}", "url": "{siteUrl}" },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "AI use cases for logistics",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Shipment tracking queries" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Route planning and dispatch" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Proof of delivery and e-way bills" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Delay and exception alerts" }
+            },
+            { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Warehouse stock" } },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Freight cost and on-time reporting" }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "body": [
+    {
+      "component": "detail.stage",
+      "props": {
+        "family": "services",
+        "crumbs": [
+          { "label": "Home", "href": "/" },
+          { "label": "Industries", "href": "/industries" },
+          { "label": "Logistics & transportation", "href": "" }
+        ],
+        "title": "Every load tracked, every exception caught",
+        "lede": "AI agents for transporters, 3PLs and couriers that answer \"where is my consignment\", plan the day's dispatch, collect POD from drivers on WhatsApp and raise a flag before a delay becomes a complaint.",
+        "primary": { "label": "Plan AI for your operations", "href": "/contact" },
+        "secondary": {
+          "label": "See logistics AI",
+          "href": "/ai-services/ai-logistics-supply-chain"
+        },
+        "scene": { "shapes": ["logistics"], "accent": ["amber", "cyan"] },
+        "glyph": "",
+        "tagline": "Tracking · Dispatch · POD · Alerts · Freight"
+      }
+    },
+    {
+      "component": "detail.intro",
+      "props": {
+        "index": 1,
+        "label": "In short",
+        "intro": {
+          "title": "What does Exyconn build for logistics companies?",
+          "icon": "truck",
+          "term": "AI for logistics",
+          "definition": "is a set of agents that take over the calls, messages and paperwork around each consignment: telling a customer where the truck is, proposing the day's routes, collecting POD photos from drivers, keeping e-way bills valid and warning the control room about loads that are running late. Exyconn designs, builds and runs them on your transport management system (TMS), warehouse system (WMS), GPS telematics and WhatsApp. Dispatchers and branch managers keep the decisions."
+        },
+        "benefits": {
+          "title": "Why logistics firms are doing this now",
+          "items": [
+            {
+              "icon": "phone-volume",
+              "text": "Control rooms spend much of the day on tracking calls, when the GPS already has the answer."
+            },
+            {
+              "icon": "mobile-screen",
+              "text": "Drivers and fleet owners already work on WhatsApp, so a bot can collect POD and updates without another app."
+            },
+            {
+              "icon": "file-invoice",
+              "text": "An e-way bill that expires mid-route, or a Part B not updated after a vehicle change, can hold goods at a checkpoint."
+            },
+            {
+              "icon": "hourglass-half",
+              "text": "Detention at loading and unloading points eats margin that was already thin."
+            },
+            {
+              "icon": "receipt",
+              "text": "Customers pay against POD, so every missing or unreadable copy delays an invoice."
+            }
+          ]
+        },
+        "demo": {
+          "kind": "chat",
+          "title": "whatsapp · consignment desk",
+          "caption": "A consignee asks about a delivery; the agent reads the GPS position and the e-way bill, and books an unloading slot.",
+          "messages": [
+            { "from": "user", "text": "LR 48213, when will it reach our Chakan warehouse?" },
+            {
+              "from": "agent",
+              "text": "Hi Sandeep. The truck MH 12 XX 4417 is past Satara on NH48, about 150 km away. At its current speed it should reach Chakan around 3:30pm."
+            },
+            { "from": "user", "text": "Our dock is busy until 4. Can it come at 4:30?" },
+            {
+              "from": "agent",
+              "text": "Yes. I've told the driver to report at 4:30 and booked dock slot 4:30–5:30 with your stores team. The e-way bill is valid until midnight, so there is no issue there."
+            },
+            { "from": "user", "text": "Good. Send me the POD once unloaded" },
+            {
+              "from": "agent",
+              "text": "Will do. The driver will upload the signed copy here and I'll forward it to you and to billing."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "service.info-grid",
+      "props": {
+        "index": 2,
+        "id": "logistics-challenges",
+        "anchor": "",
+        "label": "The reality",
+        "title": "Where a logistics team's hours actually go",
+        "lede": "Spend a morning in any control room and the same work fills the day. It is routine, and it never stops.",
+        "indexPrefix": "L",
+        "items": [
+          {
+            "id": "tracking-calls",
+            "title": "Tracking calls on loop",
+            "text": "Customers call for status, the coordinator calls the driver, then calls the customer back. The GPS portal had the location all along.",
+            "points": []
+          },
+          {
+            "id": "dispatch-planning",
+            "title": "Dispatch planned on a whiteboard",
+            "text": "Matching tonight's loads to available trucks and drivers happens on phone calls and memory, so part-loads and empty return legs go unnoticed.",
+            "points": []
+          },
+          {
+            "id": "pod-chasing",
+            "title": "POD that never arrives",
+            "text": "Signed copies come back days later, crumpled or missing a stamp, and billing waits for them before the invoice can go out.",
+            "points": []
+          },
+          {
+            "id": "eway-bills",
+            "title": "E-way bills nobody is watching",
+            "text": "A transhipment or a breakdown means a Part B update, and a long delay means an extension inside a fixed window. Miss either and the load is at risk at the next check.",
+            "points": []
+          },
+          {
+            "id": "late-news",
+            "title": "Bad news arriving last",
+            "text": "A truck stuck at a checkpost or a consignment held at a hub is often discovered when the customer calls to complain.",
+            "points": []
+          },
+          {
+            "id": "freight-visibility",
+            "title": "Costs known after the month ends",
+            "text": "Freight per lane, detention, fuel and on-time performance are assembled from several sheets, long after anything can be done about them.",
+            "points": []
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.offerings",
+      "props": {
+        "index": 3,
+        "label": "Use cases",
+        "offerings": {
+          "title": "Six jobs AI takes off your control room",
+          "items": [
+            {
+              "icon": "location-dot",
+              "title": "Shipment tracking queries",
+              "text": "Answers \"where is my consignment\" by LR, AWB or invoice number from GPS and TMS data, on WhatsApp, phone or a tracking page, and gives an ETA rather than a city name."
+            },
+            {
+              "icon": "route",
+              "title": "Route planning and dispatch",
+              "text": "Proposes the day's load plan and routes from bookings, vehicle capacity and driver hours, and sends trip details to drivers once the dispatcher approves."
+            },
+            {
+              "icon": "file-lines",
+              "title": "POD and e-way bills",
+              "text": "Collects POD photos from drivers, checks for signature and stamp, attaches them to the trip in the TMS, and tracks each e-way bill's validity and Part B so your team updates or extends it in time."
+            },
+            {
+              "icon": "bell",
+              "title": "Delay and exception alerts",
+              "text": "Watches every trip against its plan and alerts the control room and the customer when a truck stops too long, leaves the route or will miss its slot."
+            },
+            {
+              "icon": "box",
+              "title": "Warehouse stock",
+              "text": "Answers client questions on stock, inbound and outbound from the WMS, and flags slow-moving or near-expiry inventory to the warehouse manager."
+            },
+            {
+              "icon": "chart-line",
+              "title": "Freight cost and on-time reports",
+              "text": "Freight per lane, detention, empty kilometres and on-time delivery by customer and vendor, compiled daily from the TMS and sent to the managers who own them."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "industry.story",
+      "props": {
+        "index": 4,
+        "label": "A day with it running",
+        "title": "One day at a 40-truck transport company",
+        "lede": "Follow a weekday on the Mumbai–Pune–Bengaluru lanes. Each moment lights the part of the business the agent is working on.",
+        "moments": [
+          {
+            "when": "06:00",
+            "title": "Today's plan, ready to approve",
+            "text": "Overnight bookings are matched to available trucks and drivers. The dispatcher reviews the proposed load plan, swaps one vehicle and approves it.",
+            "useCase": 2
+          },
+          {
+            "when": "09:20",
+            "title": "Ten tracking calls that didn't happen",
+            "text": "Consignees ask about their loads on WhatsApp. Each gets the truck's position and an ETA from the GPS feed, with nobody in the control room picking up a phone.",
+            "useCase": 1
+          },
+          {
+            "when": "12:10",
+            "title": "A breakdown caught early",
+            "text": "A truck has been stationary on the highway for 50 minutes. The control room is alerted, a replacement vehicle is arranged and the consignee is told the new ETA.",
+            "useCase": 4
+          },
+          {
+            "when": "13:05",
+            "title": "Part B, updated in time",
+            "text": "The load moves to the replacement truck. The agent prompts the team to update the vehicle number on the e-way bill before it leaves, and confirms the update is done.",
+            "useCase": 3
+          },
+          {
+            "when": "16:45",
+            "title": "A client asks about stock",
+            "text": "A client's planner asks how many cartons of one SKU are in the Bhiwandi warehouse. The agent answers from the WMS, including two inbound trucks expected tomorrow.",
+            "useCase": 5
+          },
+          {
+            "when": "21:00",
+            "title": "The day's lanes in numbers",
+            "text": "On-time deliveries, detention hours, empty kilometres and freight per tonne by lane reach the owner, with the day's late trips listed by cause.",
+            "useCase": 6
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.architecture",
+      "props": {
+        "index": 5,
+        "label": "How it connects",
+        "title": "Built on the systems you already run",
+        "layers": [
+          { "label": "Where customers talk", "nodes": ["WhatsApp", "Phone line", "Tracking page"] },
+          {
+            "label": "AI agents",
+            "nodes": ["Tracking desk", "Dispatch planner", "Docs & POD agent"]
+          },
+          { "label": "Your systems", "nodes": ["TMS & ERP", "GPS telematics", "WMS"] },
+          {
+            "label": "People in charge",
+            "nodes": ["Dispatch sign-off", "Control room", "Audit log"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.tabs",
+      "props": {
+        "index": 6,
+        "label": "By business",
+        "title": "What it looks like for your kind of operation",
+        "items": [
+          {
+            "label": "Transporters & fleet owners",
+            "summary": "Full and part truckloads",
+            "text": "For FTL and PTL operators the first gains are fewer tracking calls and faster POD. We start with a WhatsApp desk for consignees and drivers, connected to your GPS and booking records.",
+            "points": [
+              "Tracking by LR number on WhatsApp",
+              "POD photos collected and checked from drivers",
+              "E-way bill validity and Part B reminders"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "3PL & warehousing",
+            "summary": "Many clients, one floor",
+            "text": "For warehouse operators, clients want stock answers and dispatch updates without emailing a coordinator. The agents read the WMS, answer clients directly and flag anomalies to the floor manager.",
+            "points": [
+              "Client stock and order-status answers from the WMS",
+              "Slow-moving and near-expiry flags",
+              "Client-wise SLA and throughput reporting"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Courier & last mile",
+            "summary": "High volume, small parcels",
+            "text": "For courier and last-mile networks, the volume is in failed deliveries and status queries. Agents confirm addresses, reschedule attempts and keep recipients informed so riders make fewer wasted trips.",
+            "points": [
+              "Delivery-attempt confirmation and rescheduling",
+              "Recipient updates from hub scans",
+              "Rider-level on-time and first-attempt reporting"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          }
+        ],
+        "previous": "Previous",
+        "next": "Next"
+      }
+    },
+    {
+      "component": "detail.process",
+      "props": {
+        "index": 7,
+        "label": "Rollout",
+        "title": "Live on your lanes within a month",
+        "lede": "We start with tracking queries, because that data already exists and the calls cost you every day.",
+        "steps": [
+          {
+            "title": "Map trips and data",
+            "text": "We sit with the control room, list your TMS, GPS and WMS sources, and agree which questions the agent answers and which alerts go to whom.",
+            "when": "Week 1"
+          },
+          {
+            "title": "Tracking desk pilot",
+            "text": "Tracking by LR or AWB goes live on WhatsApp for a few customers, with coordinators checking the answers against the GPS for the first days.",
+            "when": "Weeks 2–4"
+          },
+          {
+            "title": "Add dispatch, POD and alerts",
+            "text": "Driver POD collection, e-way bill tracking, exception alerts and dispatch suggestions are added one at a time.",
+            "when": "Weeks 5–8"
+          },
+          {
+            "title": "Run and improve",
+            "text": "We monitor every alert and conversation, tune thresholds that fire too often, and add lanes, branches and the daily freight report.",
+            "when": "Ongoing"
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.related",
+      "props": {
+        "index": 8,
+        "label": "Related",
+        "title": "What logistics firms pair this with",
+        "more": "Explore",
+        "cards": [
+          {
+            "href": "/ai-services/ai-logistics-supply-chain",
+            "index": "AI/01",
+            "title": "AI logistics & supply chain",
+            "text": "Forecasting, routing and exception handling across your supply chain.",
+            "tags": ["Routing", "Forecasting", "Exceptions"]
+          },
+          {
+            "href": "/ai-services/ai-document-processing",
+            "index": "AI/02",
+            "title": "AI document processing",
+            "text": "POD copies, invoices and LRs read and turned into structured data your billing can use.",
+            "tags": ["POD", "Invoices", "LR"]
+          },
+          {
+            "href": "/ai-services/ai-voice-agents",
+            "index": "AI/03",
+            "title": "AI voice agents",
+            "text": "Answer tracking calls and confirm delivery slots on the phone, in the caller's language.",
+            "tags": ["Phone", "Tracking", "Slots"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.faq",
+      "props": {
+        "index": 9,
+        "label": "FAQ",
+        "title": "Questions logistics companies ask us",
+        "items": [
+          {
+            "question": "Will this replace our dispatchers and coordinators?",
+            "answer": "No. It removes the routine tracking calls and document chasing. Load plans are proposals a dispatcher approves, and breakdowns, disputes and key-account issues go to your people with the trip history attached."
+          },
+          {
+            "question": "Which TMS and GPS systems can it connect to?",
+            "answer": "Any TMS, ERP, WMS or GPS telematics provider that offers an API or a regular data export, including in-house systems. Where there is nothing to connect to, we start from your booking sheet and a GPS feed. We confirm what is possible in the first week."
+          },
+          {
+            "question": "Does the agent generate e-way bills by itself?",
+            "answer": "It tracks validity and reminds your team to update Part B or extend a bill within the allowed window. Where your GST setup permits API access, it can prepare the update for a person to submit, and nothing is filed without your approval."
+          },
+          {
+            "question": "Can drivers use it in their own language?",
+            "answer": "Yes. Drivers can send voice notes or messages in Hindi, Marathi, Tamil, Telugu, Kannada and other Indian languages, and the agent replies in the same language. Most drivers only need to send a photo of the POD."
+          },
+          {
+            "question": "What about customer and driver data?",
+            "answer": "Location, consignment and driver data stay in an environment set up for your company, with role-based access and an audit log. Location tracking is limited to trips, and the setup follows India's DPDP Act 2023, or the GDPR for European shipments."
+          },
+          {
+            "question": "What does it cost?",
+            "answer": "It depends on fleet size, trip volume and the systems we connect. Most firms start with the tracking desk at a fixed price for the first phase. Tell us about your operation and we'll quote it."
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.cta",
+      "props": {
+        "family": "services",
+        "label": "Next step",
+        "title": "Give us one lane and a week of trips",
+        "text": "We'll show which tracking calls, POD delays and late arrivals an agent would have handled, using your own GPS and TMS data. No obligation.",
+        "primary": { "label": "Talk to us", "href": "/contact" },
+        "secondary": { "label": "Get a quote", "href": "/get-a-quote" },
+        "echoShape": 0
+      }
+    }
+  ]
+}

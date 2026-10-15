@@ -24,6 +24,7 @@ import { POLICY_PAGES } from './pages/policies';
 import { NEWSLETTER_PAGES } from './pages/newsletter';
 import { GCC_COST_GUIDE_PAGE } from './pages/gcc-cost-guide';
 import { GCC_COST_CALCULATOR_PAGE } from './pages/gcc-cost-calculator';
+import { INDUSTRY_PAGES } from './pages/industries';
 
 /** Every migrated page of exyconn.com, one file per page or area under pages/. */
 export const EXYCONN_PAGES: CmsSeedPage[] = [
@@ -54,4 +55,6 @@ export const EXYCONN_PAGES: CmsSeedPage[] = [
   // GCC in India.
   GCC_COST_GUIDE_PAGE,
   GCC_COST_CALCULATOR_PAGE,
+  // Industries.
+  ...INDUSTRY_PAGES,
 ];

@@ -1,0 +1,471 @@
+{
+  "key": "industries-fitness-sports",
+  "path": "/industries/fitness-sports",
+  "title": "AI for Gyms, Fitness & Sports | Exyconn",
+  "seo": {
+    "title": "AI Automation for Gyms, Fitness Studios & Sports | Exyconn",
+    "description": "AI agents for gyms, studios and sports academies: answer trial enquiries, book classes and waitlists, chase renewals, check in on members and flag churn risk.",
+    "keywords": "AI for gyms, gym automation, gym WhatsApp chatbot, fitness studio software AI, gym membership renewal reminders, class booking automation, gym lead management, member retention AI, sports academy management, gym CRM integration",
+    "ogImageUrl": "",
+    "canonical": "",
+    "noindex": false,
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "{marketUrl}" },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Industries",
+            "item": "{marketUrl}/industries"
+          },
+          { "@type": "ListItem", "position": 3, "name": "Fitness & sports" }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "AI automation for gyms, fitness studios and sports academies",
+        "serviceType": "AI agents and workflow automation",
+        "description": "Exyconn designs, builds and runs AI agents for gyms, boutique studios and sports academies: membership enquiries and trials, class bookings and waitlists, renewal and payment reminders, personal plan check-ins, churn-risk alerts and attendance and revenue reporting, connected to the club's gym management software and access control.",
+        "url": "{marketUrl}/industries/fitness-sports",
+        "audience": {
+          "@type": "BusinessAudience",
+          "audienceType": "Gyms, fitness studios, yoga and pilates studios, sports academies and clubs"
+        },
+        "provider": { "@type": "Organization", "name": "{businessName}", "url": "{siteUrl}" },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "AI use cases for gyms and sports clubs",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Membership enquiries and trial bookings"
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Class bookings and waitlists" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Renewal and payment reminders" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Personal plans and member check-ins" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Churn-risk alerts" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Attendance and revenue reporting" }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "body": [
+    {
+      "component": "detail.stage",
+      "props": {
+        "family": "services",
+        "crumbs": [
+          { "label": "Home", "href": "/" },
+          { "label": "Industries", "href": "/industries" },
+          { "label": "Fitness & sports", "href": "" }
+        ],
+        "title": "Fuller classes, fewer members quietly leaving",
+        "lede": "AI agents for gyms, studios and sports academies that turn a late-night enquiry into a booked trial, keep classes full from the waitlist and notice when a regular stops turning up. They run on the gym software and biometric check-in you already use.",
+        "primary": { "label": "Plan AI for your gym", "href": "/contact" },
+        "secondary": { "label": "See the WhatsApp chatbot", "href": "/services/whatsapp-chatbot" },
+        "scene": { "shapes": ["fitness"], "accent": ["cyan", "fuchsia"] },
+        "glyph": "",
+        "tagline": "Trials · Classes · Renewals · Check-ins · Retention"
+      }
+    },
+    {
+      "component": "detail.intro",
+      "props": {
+        "index": 1,
+        "label": "In short",
+        "intro": {
+          "title": "What does Exyconn build for gyms and sports clubs?",
+          "icon": "dumbbell",
+          "term": "AI for fitness",
+          "definition": "is a set of agents that answers membership enquiries, books trials and classes, sends renewal reminders and keeps in touch with members between sessions, so the front desk and trainers spend their time on the gym floor. Exyconn designs, builds and runs these agents on your gym management software, your biometric or QR access system and your WhatsApp Business account. Trainers still write the programmes; the agent keeps members on them."
+        },
+        "benefits": {
+          "title": "Why gyms are doing this now",
+          "items": [
+            {
+              "icon": "mobile-screen",
+              "text": "Prospects compare three gyms on Instagram and WhatsApp in an evening. The first one to reply with a trial slot usually gets the visit."
+            },
+            {
+              "icon": "door-open",
+              "text": "Members rarely cancel out loud. They stop coming, and the renewal date arrives with nobody having asked why."
+            },
+            {
+              "icon": "user-clock",
+              "text": "Front desks are thin at 6am and 9pm, which is exactly when members want to book and ask questions."
+            },
+            {
+              "icon": "calendar-xmark",
+              "text": "A no-show in a 20-spot spin class is a bike someone on the waitlist would have taken."
+            },
+            {
+              "icon": "indian-rupee-sign",
+              "text": "Renewals collected on time matter more to a gym's cash flow than any new joining offer."
+            }
+          ]
+        },
+        "demo": {
+          "kind": "chat",
+          "title": "whatsapp · membership desk",
+          "caption": "A prospect asks about prices late at night; the agent explains the plans and books a free trial into the PT schedule.",
+          "messages": [
+            {
+              "from": "user",
+              "text": "Hi, what are your membership charges? I'm looking for something near Indiranagar"
+            },
+            {
+              "from": "agent",
+              "text": "Hi Rohan! Our Indiranagar branch has a 3-month plan at ₹7,500 and 12 months at ₹21,000, both with group classes included. Would you like to try it first? The trial session is free."
+            },
+            { "from": "user", "text": "Yes. Can I come after work, around 7?" },
+            {
+              "from": "agent",
+              "text": "Tomorrow at 7pm works. Coach Meera can take you through a short assessment and a strength session. Any injuries she should know about?"
+            },
+            { "from": "user", "text": "Left knee is a bit weak after a football injury" },
+            {
+              "from": "agent",
+              "text": "Noted for Meera, she'll adjust the session. You're booked for tomorrow at 7pm. Bring trainers and a towel, and show this message at reception."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "service.info-grid",
+      "props": {
+        "index": 2,
+        "id": "fitness-challenges",
+        "anchor": "",
+        "label": "The reality",
+        "title": "Where a gym's hours actually go",
+        "lede": "Ask any club manager what eats the week and it is rarely the training. It is everything around it.",
+        "indexPrefix": "F",
+        "items": [
+          {
+            "id": "enquiries",
+            "title": "Enquiries that go cold overnight",
+            "text": "Instagram DMs and WhatsApp messages about fees arrive at 11pm. By the time someone replies the next afternoon, the prospect has walked into the gym down the road.",
+            "points": []
+          },
+          {
+            "id": "class-juggling",
+            "title": "Class lists managed by hand",
+            "text": "Popular batches fill in minutes while others run half-empty. Cancellations come in by message and the waitlist lives in someone's notebook.",
+            "points": []
+          },
+          {
+            "id": "renewals",
+            "title": "Renewals chased one call at a time",
+            "text": "Expiry lists are exported, then staff phone members between check-ins. Lapsed members are often spotted only when the biometric scanner refuses them.",
+            "points": []
+          },
+          {
+            "id": "silent-dropouts",
+            "title": "Members who drift away unnoticed",
+            "text": "Attendance data sits in the access system, but nobody has time to look for the member who went from four visits a week to none.",
+            "points": []
+          },
+          {
+            "id": "trainer-followup",
+            "title": "Trainers buried in follow-up messages",
+            "text": "Diet questions, plan tweaks and \"can we move Thursday?\" land on a trainer's personal phone, mixed in with everything else.",
+            "points": []
+          },
+          {
+            "id": "reporting",
+            "title": "No single view across branches",
+            "text": "Footfall, PT sessions sold, collections and dues sit in different exports, so owners compare branches from spreadsheets at the end of the month.",
+            "points": []
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.offerings",
+      "props": {
+        "index": 3,
+        "label": "Use cases",
+        "offerings": {
+          "title": "Six jobs AI takes off your team's plate",
+          "items": [
+            {
+              "icon": "comments",
+              "title": "Membership enquiries and free trials",
+              "text": "Answers fee, timing and facility questions on WhatsApp, Instagram and web chat from your current price list, then books a trial slot and logs the lead in your gym software with its source."
+            },
+            {
+              "icon": "calendar-check",
+              "title": "Class bookings and waitlists",
+              "text": "Members book, cancel and swap batches in chat. When someone drops out, the next person on the waitlist gets the spot and a confirmation, and the class roster updates for the instructor."
+            },
+            {
+              "icon": "credit-card",
+              "title": "Renewals and payment reminders",
+              "text": "Sends reminders ahead of expiry with a payment link or UPI option, records the payment against the membership and raises the GST invoice through your billing system. Freezes and plan changes go to staff."
+            },
+            {
+              "icon": "heart-pulse",
+              "title": "Personal plans and check-ins",
+              "text": "Shares the plan a trainer has written, checks in after sessions and logs how the member is feeling. Questions about pain, injury or medical conditions go straight to the trainer, never answered by the agent."
+            },
+            {
+              "icon": "bell",
+              "title": "Churn-risk alerts",
+              "text": "Watches check-in data from your biometric or QR access system and alerts the branch manager when a member's visits drop off, with a suggested message to send while there is still time."
+            },
+            {
+              "icon": "chart-line",
+              "title": "Attendance and revenue reports",
+              "text": "Footfall by hour, class fill rates, PT sessions, collections and upcoming renewals per branch, sent to owners on WhatsApp or email each morning."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "industry.story",
+      "props": {
+        "index": 4,
+        "label": "A day with it running",
+        "title": "One day at a two-branch gym with group classes",
+        "lede": "Follow a normal Monday. Each moment lights the part of the club the agent is working on.",
+        "moments": [
+          {
+            "when": "05:40",
+            "title": "A spot opens in the 6am spin class",
+            "text": "A member cancels from bed. The first person on the waitlist gets the bike and a confirmation before the instructor has opened the studio.",
+            "useCase": 2
+          },
+          {
+            "when": "08:15",
+            "title": "Overnight numbers reach the owner",
+            "text": "Yesterday's footfall at both branches, PT sessions completed, collections and this week's expiries arrive as one WhatsApp summary.",
+            "useCase": 6
+          },
+          {
+            "when": "11:30",
+            "title": "Renewal reminders go out",
+            "text": "Members whose plans end in ten days get a note with a payment link. Two pay straight away; one asks to freeze for a month and is handed to the desk.",
+            "useCase": 3
+          },
+          {
+            "when": "15:00",
+            "title": "A regular has gone quiet",
+            "text": "A member who trained four times a week has not checked in for 12 days. The branch manager gets an alert and a draft message to send personally.",
+            "useCase": 5
+          },
+          {
+            "when": "19:20",
+            "title": "Post-session check-in",
+            "text": "After her PT session, a member gets her week's plan from Coach Arjun and is asked how her shoulder felt. She mentions a twinge, and the note goes to Arjun.",
+            "useCase": 4
+          },
+          {
+            "when": "22:50",
+            "title": "A late-night enquiry becomes a trial",
+            "text": "Someone who saw a reel asks about couple memberships. The agent explains the plans and books a trial for Wednesday evening.",
+            "useCase": 1
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.architecture",
+      "props": {
+        "index": 5,
+        "label": "How it connects",
+        "title": "Built on the systems you already run",
+        "layers": [
+          { "label": "Where members talk", "nodes": ["WhatsApp", "Instagram DMs", "Website chat"] },
+          { "label": "AI agents", "nodes": ["Membership desk", "Class booker", "Retention watch"] },
+          {
+            "label": "Your systems",
+            "nodes": ["Gym software", "Biometric access", "Payments & GST"]
+          },
+          {
+            "label": "People in charge",
+            "nodes": ["Trainer handover", "Manager approvals", "Audit log"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.tabs",
+      "props": {
+        "index": 6,
+        "label": "By club",
+        "title": "What it looks like for your kind of club",
+        "items": [
+          {
+            "label": "Independent gyms",
+            "summary": "One branch, an owner on the floor",
+            "text": "The first win is answering every enquiry and every renewal on time without the owner living on WhatsApp. We start with one agent for leads, trials and expiry reminders.",
+            "points": [
+              "Leads from Instagram and WhatsApp in one place",
+              "Renewal reminders with payment links",
+              "Weekly summary of joins, renewals and dues"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Boutique studios",
+            "summary": "Yoga, pilates, spin and CrossFit boxes",
+            "text": "Revenue depends on full classes and class packs used before they expire. Agents run bookings, waitlists and late-cancel rules, and remind members about unused credits.",
+            "points": [
+              "Waitlist auto-fill and late-cancel policies",
+              "Class-pack and credit reminders",
+              "Instructor rosters updated as bookings change"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Chains & sports academies",
+            "summary": "Many branches, coaches and batches",
+            "text": "Chains need the same answers at every branch and numbers that roll up. Academies add parents to the conversation: batch timings, fee dues and progress notes for each child.",
+            "points": [
+              "One agent setup across all branches",
+              "Parent updates for junior batches",
+              "Branch-level attendance, collections and churn"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          }
+        ],
+        "previous": "Previous",
+        "next": "Next"
+      }
+    },
+    {
+      "component": "detail.process",
+      "props": {
+        "index": 7,
+        "label": "Rollout",
+        "title": "Answering members within a month",
+        "lede": "We usually begin with enquiries and renewals, because that is where a gym's cash comes from, then add classes and retention.",
+        "steps": [
+          {
+            "title": "Audit leads and renewals",
+            "text": "We look at a month of enquiries, expiries and class bookings, list your gym software and access system, and agree what the agent handles alone.",
+            "when": "Week 1"
+          },
+          {
+            "title": "Go live on WhatsApp",
+            "text": "Enquiries, trials and renewal reminders go live on one branch, with the desk reviewing replies for the first days.",
+            "when": "Weeks 2–3"
+          },
+          {
+            "title": "Classes, check-ins and alerts",
+            "text": "Class bookings, waitlists, trainer check-ins and churn alerts are switched on, then rolled out to other branches.",
+            "when": "Weeks 4–7"
+          },
+          {
+            "title": "Run and improve",
+            "text": "We review conversations every week, add the questions it missed and report monthly on bookings, renewals and response times.",
+            "when": "Ongoing"
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.related",
+      "props": {
+        "index": 8,
+        "label": "Related",
+        "title": "What gyms pair this with",
+        "more": "Explore",
+        "cards": [
+          {
+            "href": "/ai-services/ai-whatsapp-automation",
+            "index": "AI/01",
+            "title": "AI WhatsApp automation",
+            "text": "Enquiries, bookings and reminders on the official WhatsApp Business API.",
+            "tags": ["WhatsApp", "Leads", "Reminders"]
+          },
+          {
+            "href": "/ai-services/ai-saas-for-local-businesses",
+            "index": "AI/02",
+            "title": "AI for local businesses",
+            "text": "Bookings, reviews and customer messaging for businesses people visit in person.",
+            "tags": ["Bookings", "Reviews", "Messaging"]
+          },
+          {
+            "href": "/ai-services/ai-voice-agents",
+            "index": "AI/03",
+            "title": "AI voice agents",
+            "text": "Pick up the gym's phone line, answer fee questions and book trials during the evening rush.",
+            "tags": ["Phone", "Trials", "Evenings"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.faq",
+      "props": {
+        "index": 9,
+        "label": "FAQ",
+        "title": "Questions gyms ask us",
+        "items": [
+          {
+            "question": "Will this replace our front desk or sales staff?",
+            "answer": "No. It handles the repeated questions, bookings and reminders so your team can show prospects around, sell PT and look after members in the building. Price negotiations, freezes, refunds and complaints are passed to a person with the conversation attached."
+          },
+          {
+            "question": "Does it work with our gym management software and biometric machines?",
+            "answer": "If your gym software has an API or a reliable export, yes. Most biometric and QR access systems can share check-in logs, either directly or through the gym software. In the first week we confirm what your setup exposes and what the agent can read or update."
+          },
+          {
+            "question": "Can the AI give workout or diet advice?",
+            "answer": "Only what your trainers have written for that member. It can share the plan, remind members of sessions and log how they feel. Anything about pain, injury, medical conditions or supplements goes to a trainer, and the agent says so plainly."
+          },
+          {
+            "question": "What about members' personal and health data?",
+            "answer": "Data stays in your systems and in an environment set up for your gym, with role-based access and a log of every conversation. Health notes are kept to what trainers need, and the setup follows the privacy law that applies, such as India's DPDP Act 2023 or the GDPR."
+          },
+          {
+            "question": "Which languages can members use?",
+            "answer": "Members can write in English, Hindi and other Indian languages, or a mix of both, and the agent replies in kind. Your price list and policies are written once and stay the same in every language."
+          },
+          {
+            "question": "How much does it cost?",
+            "answer": "It depends on the number of branches, channels and systems. Most gyms start with enquiries and renewals on WhatsApp for one branch. Tell us how you run today and we'll send a fixed quote for the first phase."
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.cta",
+      "props": {
+        "family": "services",
+        "label": "Next step",
+        "title": "Send us last month's expiry list",
+        "text": "We'll show you which renewals and enquiries an agent would have followed up, and how it would plug into your gym software. No obligation.",
+        "primary": { "label": "Talk to us", "href": "/contact" },
+        "secondary": { "label": "Get a quote", "href": "/get-a-quote" },
+        "echoShape": 0
+      }
+    }
+  ]
+}

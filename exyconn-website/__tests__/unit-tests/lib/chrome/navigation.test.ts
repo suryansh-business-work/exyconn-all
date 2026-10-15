@@ -28,14 +28,21 @@ const everyLink: NavLink[] = [
 ];
 
 describe("header menus", () => {
-  it("lists AI, Services, Demos and Company in that order with unique ids", () => {
-    expect(HEADER_MENUS.map((group) => group.id)).toEqual(["ai", "services", "demos", "company"]);
+  it("lists AI, Services, Industries, Demos and Company in that order with unique ids", () => {
+    expect(HEADER_MENUS.map((group) => group.id)).toEqual([
+      "ai",
+      "services",
+      "industries",
+      "demos",
+      "company",
+    ]);
   });
 
-  it("gives AI and Services a hub link, Demos the highlighted demos site, Company none", () => {
-    const [ai, services, demos, company] = HEADER_MENUS;
+  it("gives AI, Services and Industries a hub link, Demos the highlighted demos site, Company none", () => {
+    const [ai, services, industries, demos, company] = HEADER_MENUS;
     expect(ai.overview?.href).toBe("/ai");
     expect(services.overview?.href).toBe("/our-services");
+    expect(industries.overview?.href).toBe("/industries");
     expect(demos.overview).toMatchObject({ href: DEMOS_SITE_URL, external: true, highlight: true });
     expect(company.overview).toBeUndefined();
   });
@@ -88,7 +95,7 @@ describe("footer", () => {
     expect(ai.links.slice(1)).toEqual(HEADER_MENUS[0].links);
     expect(services.links[0]).toEqual({ label: "All services", href: "/our-services" });
     expect(demos.links[0]).toMatchObject({ href: DEMOS_SITE_URL, highlight: true });
-    expect(demos.links.slice(1)).toEqual(HEADER_MENUS[2].links);
+    expect(demos.links.slice(1)).toEqual(HEADER_MENUS[3].links);
     expect(products.id).toBe("products");
     expect(company.id).toBe("company");
   });

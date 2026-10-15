@@ -1,0 +1,468 @@
+{
+  "key": "industries-beauty-wellness",
+  "path": "/industries/beauty-wellness",
+  "title": "AI for Beauty, Salons & Wellness | Exyconn",
+  "seo": {
+    "title": "AI Automation for Salons, Spas and Wellness | Exyconn",
+    "description": "AI agents for salons, spas and wellness studios: book appointments 24/7, cut no-shows with reminders, remember client history, sell packages and answer reviews.",
+    "keywords": "AI for salons, salon automation, salon booking app, salon WhatsApp booking, spa booking software, salon appointment reminders, reduce salon no-shows, salon membership packages, salon client management, salon review management, beauty clinic software",
+    "ogImageUrl": "",
+    "canonical": "",
+    "noindex": false,
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "{marketUrl}" },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Industries",
+            "item": "{marketUrl}/industries"
+          },
+          { "@type": "ListItem", "position": 3, "name": "Beauty, salon & wellness" }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "AI automation for beauty, salons and wellness",
+        "serviceType": "AI agents and workflow automation",
+        "description": "Exyconn designs, builds and runs AI agents for salons, spas, nail and skin studios and wellness centres: round-the-clock appointment booking, reminders that reduce no-shows, client preferences and history, memberships and packages, reviews and photos, and stylist utilisation and revenue reporting, connected to the business's salon software.",
+        "url": "{marketUrl}/industries/beauty-wellness",
+        "audience": {
+          "@type": "BusinessAudience",
+          "audienceType": "Hair and beauty salons, spas, skin and nail studios and wellness centres"
+        },
+        "provider": { "@type": "Organization", "name": "{businessName}", "url": "{siteUrl}" },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "AI use cases for salons and wellness businesses",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Appointment booking around the clock" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Reminders and no-show reduction" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Client preferences and history" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Memberships and packages" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Reviews and photos" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Stylist utilisation and revenue reporting"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "body": [
+    {
+      "component": "detail.stage",
+      "props": {
+        "family": "services",
+        "crumbs": [
+          { "label": "Home", "href": "/" },
+          { "label": "Industries", "href": "/industries" },
+          { "label": "Beauty, salon & wellness", "href": "" }
+        ],
+        "title": "A full chair book, without the phone tag",
+        "lede": "AI agents that book clients at midnight, remind them before they forget, remember the exact shade and the therapist they prefer, and show you which chairs earn their keep.",
+        "primary": { "label": "Plan AI for your salon", "href": "/contact" },
+        "secondary": { "label": "See the WhatsApp chatbot", "href": "/services/whatsapp-chatbot" },
+        "scene": { "shapes": ["beauty"], "accent": ["fuchsia", "violet"] },
+        "glyph": "",
+        "tagline": "Bookings · Reminders · History · Packages · Reviews · Utilisation"
+      }
+    },
+    {
+      "component": "detail.intro",
+      "props": {
+        "index": 1,
+        "label": "In short",
+        "intro": {
+          "title": "What does Exyconn build for salons, spas and wellness businesses?",
+          "icon": "spa",
+          "term": "AI for salons and spas",
+          "definition": "is a set of agents that take bookings, send reminders, keep client notes, sell packages and gather reviews, so stylists and therapists keep their hands on clients instead of on the phone. Exyconn designs, builds and runs these agents on your salon software, WhatsApp Business account and Instagram. Your front desk still decides on exceptions, refunds and anything a client is unhappy about."
+        },
+        "benefits": {
+          "title": "Why salons and spas are doing this now",
+          "items": [
+            {
+              "icon": "moon",
+              "text": "Clients decide to book a haircut late at night, scrolling Instagram, not during opening hours."
+            },
+            {
+              "icon": "calendar-xmark",
+              "text": "A no-show on a two-hour colour appointment is lost time that can't be sold again."
+            },
+            {
+              "icon": "hands",
+              "text": "Stylists answering the phone mid-service means wet hair, waiting clients and missed calls."
+            },
+            {
+              "icon": "repeat",
+              "text": "Memberships and packages bring clients back, but only if someone tracks and renews them."
+            },
+            {
+              "icon": "camera",
+              "text": "New clients choose a salon from photos and reviews on Google and Instagram."
+            }
+          ]
+        },
+        "demo": {
+          "kind": "chat",
+          "title": "whatsapp · salon bookings",
+          "caption": "A client rebooks her colour; the agent remembers the formula, the stylist and her package balance.",
+          "messages": [
+            { "from": "user", "text": "Hi! Need my root touch-up again, maybe Sunday?" },
+            {
+              "from": "agent",
+              "text": "Hi Sneha! Sunday with Farah, same shade as last time? She's free at 11:00 or 3:30."
+            },
+            { "from": "user", "text": "11 please. Can I add a hair spa?" },
+            {
+              "from": "agent",
+              "text": "Done: root touch-up and hair spa with Farah, Sunday 11:00, about two hours. The hair spa comes out of your package, which has 2 sessions left."
+            },
+            { "from": "user", "text": "Perfect, thank you" },
+            {
+              "from": "agent",
+              "text": "I'll remind you on Saturday evening. Touch-up today is ₹1,800, payable after your appointment."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "service.info-grid",
+      "props": {
+        "index": 2,
+        "id": "beauty-challenges",
+        "anchor": "",
+        "label": "The reality",
+        "title": "Where a salon's hours actually go",
+        "lede": "Spend a Saturday behind a salon's front desk and the pressure points are easy to spot.",
+        "indexPrefix": "B",
+        "items": [
+          {
+            "id": "phone-tag",
+            "title": "Booking by phone tag",
+            "text": "Clients call, DM on Instagram and message on WhatsApp to ask for slots. The person who answers has to check three stylists' diaries while the client waits.",
+            "points": []
+          },
+          {
+            "id": "no-shows",
+            "title": "No-shows and late cancellations",
+            "text": "A missed bridal trial or a long colour booking leaves a stylist idle for hours. Taking deposits fairly and consistently is awkward to do by hand.",
+            "points": []
+          },
+          {
+            "id": "lost-history",
+            "title": "Client history in someone's head",
+            "text": "The colour formula, the preferred therapist, a skin sensitivity or an allergy is remembered by one person. When that stylist leaves, the knowledge goes with her.",
+            "points": []
+          },
+          {
+            "id": "packages",
+            "title": "Packages nobody tracks",
+            "text": "Prepaid packages and memberships are sold at the counter and then tracked on paper or memory. Sessions expire unused, and renewals are never offered.",
+            "points": []
+          },
+          {
+            "id": "reviews",
+            "title": "Before-and-after photos never posted",
+            "text": "Happy clients leave without being asked for a review, and great results stay on stylists' phones instead of the salon's Google profile.",
+            "points": []
+          },
+          {
+            "id": "utilisation",
+            "title": "Who's busy and who isn't",
+            "text": "Some chairs are booked weeks ahead while others sit empty on weekdays. Commission, retail sales and rebooking rates are worked out by hand at month-end.",
+            "points": []
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.offerings",
+      "props": {
+        "index": 3,
+        "label": "Use cases",
+        "offerings": {
+          "title": "Six jobs AI takes off your front desk",
+          "items": [
+            {
+              "icon": "calendar-check",
+              "title": "Bookings at any hour",
+              "text": "Books, moves and cancels appointments from WhatsApp, Instagram and your website against each stylist's live diary in your salon software, allowing for service length and processing time."
+            },
+            {
+              "icon": "bell",
+              "title": "Reminders and fewer no-shows",
+              "text": "Sends confirmations and reminders with prep notes such as a patch test, collects deposits for long or high-value services under your policy, and offers freed slots to the waitlist."
+            },
+            {
+              "icon": "heart",
+              "title": "Client preferences and history",
+              "text": "Keeps each client's preferred stylist, colour formula, allergies and past services on their profile and puts them in front of the stylist before the appointment."
+            },
+            {
+              "icon": "credit-card",
+              "title": "Memberships and packages",
+              "text": "Tracks sessions left and expiry dates, tells clients their balance when they book, and offers a renewal or a suitable package when one is about to run out."
+            },
+            {
+              "icon": "star",
+              "title": "Reviews and photos",
+              "text": "Asks happy clients for a Google review after their visit, collects before-and-after photos with their consent for your Instagram, and drafts replies to reviews for the manager to approve."
+            },
+            {
+              "icon": "chart-line",
+              "title": "Stylist utilisation and revenue",
+              "text": "Reports chair and room utilisation, revenue and rebooking by stylist, retail sales and commission from the salon software, with the quiet slots worth filling highlighted."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "industry.story",
+      "props": {
+        "index": 4,
+        "label": "A day with it running",
+        "title": "One day at a six-chair salon and spa",
+        "lede": "A Thursday at a neighbourhood salon with a small spa room upstairs. Each moment lights the part of the salon the agent is working on.",
+        "moments": [
+          {
+            "when": "00:40",
+            "title": "A midnight booking",
+            "text": "A client scrolling Instagram asks for a balayage consultation. The agent finds a Saturday slot with the colour specialist and books it.",
+            "useCase": 1
+          },
+          {
+            "when": "09:30",
+            "title": "The stylists' day, briefed",
+            "text": "Each stylist gets today's list with notes: a client sensitive to ammonia, a regular who likes her fringe left long, a bride's trial with the reference photos attached.",
+            "useCase": 3
+          },
+          {
+            "when": "11:00",
+            "title": "A package about to lapse",
+            "text": "A client booking a facial is told she has one session left that expires this month. She renews the six-session package before arriving.",
+            "useCase": 4
+          },
+          {
+            "when": "14:15",
+            "title": "A cancellation, filled",
+            "text": "A 4pm keratin client cancels on her reminder. The slot is offered to the waitlist and booked within twenty minutes.",
+            "useCase": 2
+          },
+          {
+            "when": "18:30",
+            "title": "A great result, shared",
+            "text": "After a colour transformation, the client gets a thank-you message and a review link, and agrees to her before-and-after photo going on the salon's Instagram.",
+            "useCase": 5
+          },
+          {
+            "when": "21:00",
+            "title": "Tomorrow's gaps, spotted",
+            "text": "The owner sees today's takings, rebooking by stylist and two quiet weekday afternoons, with a suggestion to offer them to clients due for a trim.",
+            "useCase": 6
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.architecture",
+      "props": {
+        "index": 5,
+        "label": "How it connects",
+        "title": "Built on the salon software you already use",
+        "layers": [
+          {
+            "label": "Where clients talk",
+            "nodes": ["WhatsApp", "Instagram DMs", "Website booking"]
+          },
+          { "label": "AI agents", "nodes": ["Booking agent", "Client care", "Salon analyst"] },
+          {
+            "label": "Your systems",
+            "nodes": ["Salon software", "POS & payments", "Google profile"]
+          },
+          { "label": "People in charge", "nodes": ["Front desk", "Owner approvals", "Audit log"] }
+        ]
+      }
+    },
+    {
+      "component": "detail.tabs",
+      "props": {
+        "index": 6,
+        "label": "By business",
+        "title": "What it looks like for your kind of business",
+        "items": [
+          {
+            "label": "Independent salons",
+            "summary": "A few chairs, always busy",
+            "text": "When the owner also cuts hair, the first win is answering every booking request. We start with an agent on WhatsApp and Instagram that books, reminds and keeps client notes.",
+            "points": [
+              "Bookings on WhatsApp and Instagram",
+              "Reminders and a cancellation waitlist",
+              "Client notes in front of the stylist"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Spas & skin clinics",
+            "summary": "Long treatments, packages and consent",
+            "text": "Here the value is in long treatments and prepaid courses. Agents manage rooms and therapists, send pre-treatment instructions and consent forms, and track every course to completion.",
+            "points": [
+              "Room and therapist scheduling",
+              "Pre-treatment instructions and consent forms",
+              "Course and membership tracking with renewals"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Salon chains & franchises",
+            "summary": "Many outlets, one brand",
+            "text": "Across outlets, consistency and comparison matter. One booking agent covers every branch, client history follows the client between outlets, and utilisation is reported per outlet and per stylist.",
+            "points": [
+              "Shared booking across outlets",
+              "Client history and packages valid at every branch",
+              "Outlet and stylist performance compared"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          }
+        ],
+        "previous": "Previous",
+        "next": "Next"
+      }
+    },
+    {
+      "component": "detail.process",
+      "props": {
+        "index": 7,
+        "label": "Rollout",
+        "title": "Booking clients on WhatsApp within a month",
+        "lede": "We start with bookings and reminders, because empty slots are where the money goes first.",
+        "steps": [
+          {
+            "title": "Learn your services",
+            "text": "We go through your service menu, durations, stylists and policies in the salon software, and read a sample of real booking messages.",
+            "when": "Week 1"
+          },
+          {
+            "title": "Bookings and reminders",
+            "text": "The agent starts booking on WhatsApp and Instagram with reminders and a waitlist, while the front desk checks each booking for the first few days.",
+            "when": "Weeks 2–3"
+          },
+          {
+            "title": "Clients, packages and reviews",
+            "text": "Client notes, package tracking, review requests and the daily report are switched on one at a time.",
+            "when": "Weeks 4–6"
+          },
+          {
+            "title": "Run and improve",
+            "text": "We review conversations, update services and prices when they change, and send a monthly note on bookings, no-shows and renewals.",
+            "when": "Ongoing"
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.related",
+      "props": {
+        "index": 8,
+        "label": "Related",
+        "title": "What salons and spas pair this with",
+        "more": "Explore",
+        "cards": [
+          {
+            "href": "/ai-services/ai-saas-for-local-businesses",
+            "index": "AI/01",
+            "title": "AI for local businesses",
+            "text": "Bookings, reviews and customer messaging automated for businesses with a physical presence.",
+            "tags": ["Bookings", "Reviews", "Messaging"]
+          },
+          {
+            "href": "/ai-services/ai-whatsapp-automation",
+            "index": "AI/02",
+            "title": "AI WhatsApp automation",
+            "text": "Bookings, reminders and offers on the official WhatsApp Business API.",
+            "tags": ["WhatsApp", "Reminders", "Offers"]
+          },
+          {
+            "href": "/ai-services/ai-marketing-automation",
+            "index": "AI/03",
+            "title": "AI marketing automation",
+            "text": "Instagram content and win-back campaigns produced at a volume a small salon can't manage by hand.",
+            "tags": ["Instagram", "Campaigns", "Win-back"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.faq",
+      "props": {
+        "index": 9,
+        "label": "FAQ",
+        "title": "Questions salon and spa owners ask us",
+        "items": [
+          {
+            "question": "Will this replace my receptionist?",
+            "answer": "No. It takes the booking messages and reminders off the desk so your receptionist can welcome clients, sell retail and handle anyone who isn't happy. Exceptions, refunds and complaints always go to a person."
+          },
+          {
+            "question": "Does it work with my salon software?",
+            "answer": "It works with salon and spa software that has an API or a dependable export, so it books into the same diary your team already uses. In the first week we confirm what your system allows the agent to read and change."
+          },
+          {
+            "question": "Can it take deposits to stop no-shows?",
+            "answer": "Yes, if you want it to. You set the rules, for example a deposit for bridal trials or services over two hours, and the agent sends a payment link through your gateway. Refund decisions stay with the front desk."
+          },
+          {
+            "question": "Will it give skin or treatment advice?",
+            "answer": "No. It shares the preparation and aftercare notes you've written and sends patch-test and consent forms. Questions about reactions, skin conditions or suitability go to your therapist or dermatologist."
+          },
+          {
+            "question": "What about client photos and personal data?",
+            "answer": "Client details, notes and photos stay in your systems and a private environment we set up for you. Photos are posted only with the client's recorded consent, and marketing goes only to clients who opted in, in line with India's DPDP Act or the GDPR where it applies."
+          },
+          {
+            "question": "How much does it cost?",
+            "answer": "It depends on the number of outlets, stylists and channels. Most salons start with bookings and reminders on WhatsApp; tell us about yours and we'll send a fixed quote for the first phase."
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.cta",
+      "props": {
+        "family": "services",
+        "label": "Next step",
+        "title": "Show us last month's no-shows",
+        "text": "Share your no-show and cancellation list. We'll show how reminders, deposits and a waitlist would have handled them, and what it needs from your salon software. No obligation.",
+        "primary": { "label": "Talk to us", "href": "/contact" },
+        "secondary": { "label": "Get a quote", "href": "/get-a-quote" },
+        "echoShape": 0
+      }
+    }
+  ]
+}

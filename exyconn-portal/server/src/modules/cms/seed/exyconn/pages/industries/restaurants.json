@@ -1,0 +1,471 @@
+{
+  "key": "industries-restaurants",
+  "path": "/industries/restaurants",
+  "title": "AI for Restaurants & Food Services | Exyconn",
+  "seo": {
+    "title": "AI Automation for Restaurants and Food Services | Exyconn",
+    "description": "AI agents for restaurants: book tables and run the waitlist, take phone and WhatsApp orders, pull delivery orders into one place, track wastage and food cost.",
+    "keywords": "AI for restaurants, restaurant automation, restaurant AI phone ordering, restaurant WhatsApp ordering, restaurant reservation system, restaurant waitlist app, Swiggy Zomato order management, restaurant inventory management, food cost calculation, restaurant review management, restaurant POS integration",
+    "ogImageUrl": "",
+    "canonical": "",
+    "noindex": false,
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "{marketUrl}" },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Industries",
+            "item": "{marketUrl}/industries"
+          },
+          { "@type": "ListItem", "position": 3, "name": "Restaurants & food services" }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "AI automation for restaurants and food services",
+        "serviceType": "AI agents and workflow automation",
+        "description": "Exyconn designs, builds and runs AI agents for restaurants, cloud kitchens and caterers: table reservations and waitlists, phone and WhatsApp ordering by voice agent, delivery-app orders in one queue, inventory and wastage tracking, review replies and daily sales and food-cost reports, connected to the restaurant's POS and kitchen display.",
+        "url": "{marketUrl}/industries/restaurants",
+        "audience": {
+          "@type": "BusinessAudience",
+          "audienceType": "Restaurants, cloud kitchens, quick-service chains and caterers"
+        },
+        "provider": { "@type": "Organization", "name": "{businessName}", "url": "{siteUrl}" },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "AI use cases for restaurants",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Reservations and waitlist" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Phone and WhatsApp orders by voice agent"
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Delivery-app orders in one place" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Inventory and wastage tracking" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Reviews and guest feedback" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Sales and food-cost reports" }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "body": [
+    {
+      "component": "detail.stage",
+      "props": {
+        "family": "services",
+        "crumbs": [
+          { "label": "Home", "href": "/" },
+          { "label": "Industries", "href": "/industries" },
+          { "label": "Restaurants & food services", "href": "" }
+        ],
+        "title": "The phone answered while the pass is full",
+        "lede": "AI agents that pick up the reservation line, take orders by voice and WhatsApp, pull every delivery order into one queue and tell you what tonight's service actually cost.",
+        "primary": { "label": "Plan AI for your restaurant", "href": "/contact" },
+        "secondary": { "label": "Hear the calling bot", "href": "/services/calling-bot-demo" },
+        "scene": { "shapes": ["restaurant"], "accent": ["amber", "cyan"] },
+        "glyph": "",
+        "tagline": "Tables · Calls · Delivery · Stock · Reviews · Costs"
+      }
+    },
+    {
+      "component": "detail.intro",
+      "props": {
+        "index": 1,
+        "label": "In short",
+        "intro": {
+          "title": "What does Exyconn build for restaurants?",
+          "icon": "utensils",
+          "term": "AI for restaurants",
+          "definition": "is a set of agents that take bookings, answer the phone, take orders and keep track of stock and costs, so the floor and kitchen team spend service on guests and food rather than on calls and spreadsheets. Exyconn designs, builds and runs these agents on top of your POS, kitchen display and delivery-app accounts. Every order still lands as a normal KOT in the kitchen."
+        },
+        "benefits": {
+          "title": "Why restaurants are doing this now",
+          "items": [
+            {
+              "icon": "phone-volume",
+              "text": "The phone rings hardest at 8pm, when nobody on the floor can step away to answer it."
+            },
+            {
+              "icon": "percent",
+              "text": "Orders taken on your own phone line or WhatsApp carry no aggregator commission."
+            },
+            {
+              "icon": "carrot",
+              "text": "Ingredient prices move week to week, and margins on a dish can disappear without anyone noticing."
+            },
+            {
+              "icon": "users",
+              "text": "Kitchen and floor staff turn over often, so process has to live somewhere other than people's heads."
+            },
+            {
+              "icon": "star",
+              "text": "Diners check ratings on Google and Zomato before they book, and they read the replies too."
+            }
+          ]
+        },
+        "demo": {
+          "kind": "chat",
+          "title": "whatsapp · table bookings",
+          "caption": "A guest asks for a Saturday table; the agent checks the floor plan, offers a time and takes a note for the kitchen.",
+          "messages": [
+            {
+              "from": "user",
+              "text": "Hi, table for 6 this Saturday around 8:30? It's my dad's birthday"
+            },
+            {
+              "from": "agent",
+              "text": "Hi Arjun! 8:30 is full for six, but I can hold the corner table at 8:00 or a table on the terrace at 9:15. Which suits you?"
+            },
+            { "from": "user", "text": "8 is fine. Can you do a small cake?" },
+            {
+              "from": "agent",
+              "text": "Yes. Our pastry chef does a 500g chocolate truffle for ₹950, brought out after mains. Any allergies at the table?"
+            },
+            { "from": "user", "text": "One person can't have nuts" },
+            {
+              "from": "agent",
+              "text": "Noted for the kitchen. You're booked for 6 at 8:00 pm on Saturday, with the cake and a nut allergy on the ticket. See you then!"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "service.info-grid",
+      "props": {
+        "index": 2,
+        "id": "restaurants-challenges",
+        "anchor": "",
+        "label": "The reality",
+        "title": "Where a restaurant's hours actually go",
+        "lede": "Ask a restaurant manager what goes wrong on a busy night and the answer is rarely the food.",
+        "indexPrefix": "R",
+        "items": [
+          {
+            "id": "missed-calls",
+            "title": "Calls that ring out during service",
+            "text": "Bookings and takeaway orders come by phone at peak hours. When nobody can answer, the guest calls the next place on the list.",
+            "points": []
+          },
+          {
+            "id": "no-shows",
+            "title": "No-shows and a messy waitlist",
+            "text": "A table held for a party that never turns up is a table lost on the best night of the week. Walk-ins meanwhile wait at the door with a name scribbled on paper.",
+            "points": []
+          },
+          {
+            "id": "tablet-wall",
+            "title": "A wall of delivery tablets",
+            "text": "Swiggy, Zomato and your own website each ping on their own device. Orders get accepted late, items are marked out of stock in one app and not the others.",
+            "points": []
+          },
+          {
+            "id": "wastage",
+            "title": "Wastage nobody measures",
+            "text": "Prep is done by habit, closing stock is counted by eye and spoilage goes in the bin unrecorded. The gap shows up only when the month's purchase bills arrive.",
+            "points": []
+          },
+          {
+            "id": "feedback",
+            "title": "Feedback in too many places",
+            "text": "A cold biryani complaint on a delivery app, a five-star note on Google and a grumble to the server never meet, so the kitchen hears about problems late.",
+            "points": []
+          },
+          {
+            "id": "food-cost",
+            "title": "Food cost worked out once a month",
+            "text": "Recipe costing sits in a spreadsheet nobody updates. When onion or paneer prices jump, nobody knows which dishes stopped making money.",
+            "points": []
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.offerings",
+      "props": {
+        "index": 3,
+        "label": "Use cases",
+        "offerings": {
+          "title": "Six jobs AI takes off the floor and the pass",
+          "items": [
+            {
+              "icon": "calendar-check",
+              "title": "Reservations and the waitlist",
+              "text": "Books tables from WhatsApp, the website and Google against your floor plan, confirms the day before to cut no-shows, and texts walk-ins when their table is ready."
+            },
+            {
+              "icon": "microphone",
+              "title": "Phone and WhatsApp orders by voice",
+              "text": "A voice agent answers the restaurant line, takes takeaway and delivery orders item by item with modifiers, reads back the total and sends a KOT straight to the POS."
+            },
+            {
+              "icon": "motorcycle",
+              "title": "Delivery-app orders in one queue",
+              "text": "Pulls orders from aggregators and your own site into one view, keeps item availability in step across every app and warns the manager when an order is waiting too long to be accepted."
+            },
+            {
+              "icon": "boxes-stacked",
+              "title": "Inventory and wastage",
+              "text": "Deducts ingredients from stock as dishes sell using your recipes in the POS, takes closing counts and spoilage by voice or photo from the kitchen, and drafts purchase orders for the manager to approve."
+            },
+            {
+              "icon": "star",
+              "title": "Reviews and guest feedback",
+              "text": "Collects reviews from Google and the delivery apps, drafts replies for a manager to approve, and sends the kitchen a short note when the same dish keeps getting the same complaint."
+            },
+            {
+              "icon": "chart-line",
+              "title": "Sales and food-cost reports",
+              "text": "Builds the end-of-day report from the POS: covers, average bill, channel mix and theoretical versus actual food cost, with the dishes whose margin slipped this week at the top."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "industry.story",
+      "props": {
+        "index": 4,
+        "label": "A day with it running",
+        "title": "One day at a 90-cover North Indian restaurant",
+        "lede": "A Friday at a family restaurant that also runs a busy delivery kitchen. Each moment lights the part of the restaurant the agent is working on.",
+        "moments": [
+          {
+            "when": "10:30",
+            "title": "Last night's stock, counted",
+            "text": "The sous chef walks the cold room and reads out closing counts. The agent compares them with what the POS says was used, flags extra paneer wastage and drafts the vegetable order.",
+            "useCase": 4
+          },
+          {
+            "when": "12:50",
+            "title": "Lunch orders on one screen",
+            "text": "Office lunch orders land from two delivery apps and the website. One dish runs out and the agent marks it unavailable on all three at once.",
+            "useCase": 3
+          },
+          {
+            "when": "16:00",
+            "title": "Tonight's bookings, reconfirmed",
+            "text": "Every booking for tonight gets a WhatsApp reminder. Two parties cancel, their tables go back on sale and a waitlisted family of five is offered one.",
+            "useCase": 1
+          },
+          {
+            "when": "20:15",
+            "title": "The phone picks up on the first ring",
+            "text": "Peak service, and the takeaway line is ringing. The voice agent takes an order for three curries, rotis and a raita, confirms the pickup time and sends the KOT to the kitchen.",
+            "useCase": 2
+          },
+          {
+            "when": "21:40",
+            "title": "A complaint reaches the kitchen",
+            "text": "A delivery review says the dal makhani arrived lukewarm. The manager approves an apology, and the head chef gets a note that it's the third packaging complaint this week.",
+            "useCase": 5
+          },
+          {
+            "when": "23:45",
+            "title": "Food cost, the same night",
+            "text": "The owner gets covers, average bill, delivery versus dine-in and the day's food cost, with a line pointing out that the paneer dishes lost margin after this week's price rise.",
+            "useCase": 6
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.architecture",
+      "props": {
+        "index": 5,
+        "label": "How it connects",
+        "title": "Built on the POS and kitchen you already run",
+        "layers": [
+          { "label": "Where guests talk", "nodes": ["Phone line", "WhatsApp", "Delivery apps"] },
+          {
+            "label": "AI agents",
+            "nodes": ["Voice order taker", "Host & bookings", "Kitchen assistant"]
+          },
+          {
+            "label": "Your systems",
+            "nodes": ["Restaurant POS", "KDS & KOT printer", "Recipes & stock"]
+          },
+          { "label": "People in charge", "nodes": ["Floor manager", "Head chef", "Audit log"] }
+        ]
+      }
+    },
+    {
+      "component": "detail.tabs",
+      "props": {
+        "index": 6,
+        "label": "By format",
+        "title": "What it looks like for your kind of kitchen",
+        "items": [
+          {
+            "label": "Fine & casual dining",
+            "summary": "Tables are the product",
+            "text": "When a Saturday table is worth the most, the reservation book is where to start. Agents take bookings on every channel, confirm them, manage the waitlist and pass occasions and allergies to the kitchen.",
+            "points": [
+              "Bookings on WhatsApp, web and phone",
+              "Reconfirmations and a live waitlist",
+              "Allergies and occasions on the ticket"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "QSR & cloud kitchens",
+            "summary": "Speed and many channels",
+            "text": "Here every minute between an order arriving and being accepted matters. Agents run one order queue across apps and your own channels, keep menus in step and watch prep times.",
+            "points": [
+              "One queue across delivery apps and direct orders",
+              "Item availability synced everywhere",
+              "Voice and WhatsApp ordering on your own number"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Multi-outlet chains & caterers",
+            "summary": "Consistency across kitchens",
+            "text": "With a central kitchen or several outlets, food cost and stock transfers decide the margin. Agents track recipes, indents and wastage per outlet and roll the numbers up for head office.",
+            "points": [
+              "Per-outlet stock, indents and wastage",
+              "Food-cost comparison across outlets",
+              "Catering enquiries quoted and followed up"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          }
+        ],
+        "previous": "Previous",
+        "next": "Next"
+      }
+    },
+    {
+      "component": "detail.process",
+      "props": {
+        "index": 7,
+        "label": "Rollout",
+        "title": "From first call to full service in two months",
+        "lede": "We usually start with whatever is losing you orders today, which is most often the phone.",
+        "steps": [
+          {
+            "title": "Sit in on a service",
+            "text": "We look at your POS menu and recipes, listen to how calls and bookings come in and agree which jobs the agents take first.",
+            "when": "Week 1"
+          },
+          {
+            "title": "Bookings and phone orders",
+            "text": "Reservations and the voice ordering line go live, with a manager reviewing calls and KOTs during the first week.",
+            "when": "Weeks 2–4"
+          },
+          {
+            "title": "Delivery, stock and costs",
+            "text": "The delivery queue, inventory counts, review replies and the nightly food-cost report are added one by one.",
+            "when": "Weeks 5–8"
+          },
+          {
+            "title": "Run and improve",
+            "text": "We review calls and orders the agent struggled with, keep menus and recipes current and send a monthly summary of what changed.",
+            "when": "Ongoing"
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.related",
+      "props": {
+        "index": 8,
+        "label": "Related",
+        "title": "What restaurants pair this with",
+        "more": "Explore",
+        "cards": [
+          {
+            "href": "/ai-services/ai-voice-agents",
+            "index": "AI/01",
+            "title": "AI voice agents",
+            "text": "Take orders and bookings on your restaurant line, even in the middle of service.",
+            "tags": ["Phone", "Orders", "Bookings"]
+          },
+          {
+            "href": "/ai-services/ai-whatsapp-automation",
+            "index": "AI/02",
+            "title": "AI WhatsApp automation",
+            "text": "Bookings, orders and reminders on the official WhatsApp Business API.",
+            "tags": ["WhatsApp", "Reservations", "Orders"]
+          },
+          {
+            "href": "/ai-services/ai-workflow-automation",
+            "index": "AI/03",
+            "title": "AI workflow automation",
+            "text": "Stock, purchasing and reporting connected across the systems your kitchen already runs.",
+            "tags": ["Inventory", "Purchasing", "Reports"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.faq",
+      "props": {
+        "index": 9,
+        "label": "FAQ",
+        "title": "Questions restaurant owners ask us",
+        "items": [
+          {
+            "question": "Will the AI replace my captains or my host?",
+            "answer": "No. It answers the phone and the messages your team can't get to during service, and keeps the paperwork moving. Greeting guests, running tables and handling a complaint at the table stay with your people."
+          },
+          {
+            "question": "Can a voice agent really take a phone order correctly?",
+            "answer": "It takes the order from your live POS menu, asks about portions and modifiers, reads the order and total back and only sends the KOT once the caller confirms. If a caller asks for something off-menu or gets frustrated, the call is passed to a staff member."
+          },
+          {
+            "question": "Which POS and delivery apps does it work with?",
+            "answer": "Any POS with an API or a dependable export, and delivery orders through whatever integration your POS already has with the aggregators. We confirm what your setup can read and write in the first week, before anything goes live."
+          },
+          {
+            "question": "Does it handle Hindi and regional languages on calls?",
+            "answer": "Yes. The voice and chat agents work in English, Hindi and other Indian languages, and can switch mid-conversation when a caller does."
+          },
+          {
+            "question": "What about allergies and food safety?",
+            "answer": "The agent records allergies and dietary needs on the booking and the KOT, and answers ingredient questions only from the recipes you've approved. If it isn't sure, it says so and passes the question to the kitchen. Your FSSAI licence and food safety duties stay with your team."
+          },
+          {
+            "question": "How much does it cost?",
+            "answer": "It depends on the number of outlets, phone lines and systems. Most restaurants start with reservations or phone ordering at one outlet; tell us about yours and we'll send a fixed quote for the first phase."
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.cta",
+      "props": {
+        "family": "services",
+        "label": "Next step",
+        "title": "Let us listen to one Friday night",
+        "text": "Share last Friday's missed-call log and order report. We'll show you how many an agent could have taken and what it needs from your POS. No obligation.",
+        "primary": { "label": "Talk to us", "href": "/contact" },
+        "secondary": { "label": "Get a quote", "href": "/get-a-quote" },
+        "echoShape": 0
+      }
+    }
+  ]
+}

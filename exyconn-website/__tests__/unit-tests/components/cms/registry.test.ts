@@ -63,6 +63,7 @@ vi.mock("../../../../src/components/cms/service/ServiceRelatedHubs.astro", astro
 vi.mock("../../../../src/components/cms/service/ServiceSteps.astro", astro.factory);
 vi.mock("../../../../src/components/cms/service/WhatsappDemo.astro", astro.factory);
 vi.mock("../../../../src/components/cms/ai/AiGovernance.astro", astro.factory);
+vi.mock("../../../../src/components/cms/industry/IndustryStory.astro", astro.factory);
 vi.mock("../../../../src/components/cms/aiservice/AiServiceApproach.astro", astro.factory);
 vi.mock("../../../../src/components/cms/aiservice/AiServiceCatalogue.astro", astro.factory);
 vi.mock("../../../../src/components/cms/aiservice/AiServiceOutcomes.astro", astro.factory);

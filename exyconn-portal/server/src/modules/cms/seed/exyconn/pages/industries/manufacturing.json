@@ -1,0 +1,467 @@
+{
+  "key": "industries-manufacturing",
+  "path": "/industries/manufacturing",
+  "title": "AI for Manufacturing & Industrial | Exyconn",
+  "seo": {
+    "title": "AI Automation for Manufacturing and Factories | Exyconn",
+    "description": "AI agents for manufacturers: catch machine faults early, log quality checks, plan production, reorder material, track safety and report OEE per shift.",
+    "keywords": "AI for manufacturing, manufacturing automation, predictive maintenance software, OEE dashboard, AI quality inspection, production planning software, factory automation AI, manufacturing ERP integration, machine downtime tracking, MSME manufacturing software",
+    "ogImageUrl": "",
+    "canonical": "",
+    "noindex": false,
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "{marketUrl}" },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Industries",
+            "item": "{marketUrl}/industries"
+          },
+          { "@type": "ListItem", "position": 3, "name": "Manufacturing & industrial" }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "AI automation for manufacturing and industrial companies",
+        "serviceType": "AI agents and workflow automation",
+        "description": "Exyconn designs, builds and runs AI agents for manufacturers and industrial plants: predictive maintenance, quality inspection, production planning, inventory and procurement, safety and compliance records, and OEE and output dashboards, connected to the plant's ERP, machine data and maintenance systems.",
+        "url": "{marketUrl}/industries/manufacturing",
+        "audience": {
+          "@type": "BusinessAudience",
+          "audienceType": "Discrete and process manufacturers, auto-component and engineering suppliers, and MSME factories"
+        },
+        "provider": { "@type": "Organization", "name": "{businessName}", "url": "{siteUrl}" },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "AI use cases for manufacturing",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Predictive maintenance" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Quality inspection" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Production planning" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Inventory and procurement" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Safety and compliance" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "OEE and output dashboards" }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "body": [
+    {
+      "component": "detail.stage",
+      "props": {
+        "family": "services",
+        "crumbs": [
+          { "label": "Home", "href": "/" },
+          { "label": "Industries", "href": "/industries" },
+          { "label": "Manufacturing & industrial", "href": "" }
+        ],
+        "title": "Fewer breakdowns, fewer rejects, plans that hold",
+        "lede": "AI agents for manufacturers that watch machine data for early signs of failure, record quality checks as they happen, re-plan when an order changes and reorder material before the line stops. They read from the ERP, PLCs and maintenance logs you already have.",
+        "primary": { "label": "Plan AI for your plant", "href": "/contact" },
+        "secondary": {
+          "label": "See AI data and analytics",
+          "href": "/ai-services/ai-data-analytics"
+        },
+        "scene": { "shapes": ["manufacturing"], "accent": ["amber", "violet"] },
+        "glyph": "",
+        "tagline": "Maintenance · Quality · Planning · Materials · OEE"
+      }
+    },
+    {
+      "component": "detail.intro",
+      "props": {
+        "index": 1,
+        "label": "In short",
+        "intro": {
+          "title": "What does Exyconn build for manufacturing?",
+          "icon": "industry",
+          "term": "AI for manufacturing",
+          "definition": "is a set of agents that reads machine, quality and stock data from the shop floor and turns it into maintenance alerts, inspection records, production plans and purchase requests, so supervisors and planners act on today's data instead of last week's. Exyconn designs, builds and runs these agents on your ERP, your PLC or SCADA data, your maintenance records and the WhatsApp groups your shift teams already use. Engineers and quality heads still make the calls on stopping a line or releasing a lot."
+        },
+        "benefits": {
+          "title": "Why manufacturers are doing this now",
+          "items": [
+            {
+              "icon": "plug",
+              "text": "Many machines already log temperatures, cycle times and alarms through their PLCs. Most of that data is never looked at."
+            },
+            {
+              "icon": "triangle-exclamation",
+              "text": "An unplanned breakdown on a bottleneck machine costs the whole shift's output, not just the repair."
+            },
+            {
+              "icon": "clipboard-check",
+              "text": "Customers and auditors ask for traceable inspection records, and paper check sheets are slow to search."
+            },
+            {
+              "icon": "truck-fast",
+              "text": "Order books change weekly. Plans built once a month in a spreadsheet can't keep up."
+            },
+            {
+              "icon": "user-gear",
+              "text": "Experienced supervisors are retiring, and what they know about each machine is rarely written down."
+            }
+          ]
+        },
+        "demo": {
+          "kind": "chat",
+          "title": "whatsapp · maintenance desk",
+          "caption": "The agent spots a rising temperature trend on a press, alerts the maintenance engineer and helps book a stop between shifts.",
+          "messages": [
+            {
+              "from": "agent",
+              "text": "Suresh, the hydraulic oil temperature on Press 4 has been climbing for three days and is now well above its usual range at full load. Last time this pattern showed, the cooler fan motor was failing."
+            },
+            { "from": "user", "text": "What's running on it today?" },
+            {
+              "from": "agent",
+              "text": "Bracket part BR-220 for the Pune customer, 2,400 pieces left on the order, due Friday. Press 6 can run the same die but is free only after 4pm."
+            },
+            {
+              "from": "user",
+              "text": "Ok. Book a 1 hour stop at shift change and move the rest to Press 6"
+            },
+            {
+              "from": "agent",
+              "text": "Done. Work order raised for the cooler fan with the spare from stores, the planner has been told, and the production plan now shows BR-220 on Press 6 from 4pm. I'll check temperatures again after the repair."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "service.info-grid",
+      "props": {
+        "index": 2,
+        "id": "manufacturing-challenges",
+        "anchor": "",
+        "label": "The reality",
+        "title": "Where a plant's hours actually go",
+        "lede": "Talk to a plant head about a bad week and the same causes come up. Few of them are a surprise in hindsight.",
+        "indexPrefix": "M",
+        "items": [
+          {
+            "id": "breakdowns",
+            "title": "Breakdowns nobody saw coming",
+            "text": "Bearings, motors and hydraulics usually give warning signs in vibration, temperature or current. Without someone watching the trend, the first sign anyone notices is the machine stopping.",
+            "points": []
+          },
+          {
+            "id": "paper-quality",
+            "title": "Quality checks on paper",
+            "text": "In-process inspections are written on check sheets and typed up later. When a customer complaint arrives, tracing the lot, shift and operator takes days.",
+            "points": []
+          },
+          {
+            "id": "planning",
+            "title": "Plans rebuilt in Excel",
+            "text": "A rush order, a missing die or an absent operator means the planner rebuilds the schedule by hand, and the shop floor hears about it late.",
+            "points": []
+          },
+          {
+            "id": "stockouts",
+            "title": "Lines waiting for material",
+            "text": "Stock in the ERP and stock on the rack disagree. Shortages surface when the line stops, and purchase orders go out on urgent rates.",
+            "points": []
+          },
+          {
+            "id": "safety-records",
+            "title": "Safety and compliance records scattered",
+            "text": "Permits, near-miss reports, PPE checks and statutory inspection dates live in registers and files, and are pulled together only before an audit.",
+            "points": []
+          },
+          {
+            "id": "oee",
+            "title": "OEE calculated after the fact",
+            "text": "Downtime reasons, cycle times and rejects are logged per shift by hand, so the OEE figure is a week old and the real reasons for losses are guessed.",
+            "points": []
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.offerings",
+      "props": {
+        "index": 3,
+        "label": "Use cases",
+        "offerings": {
+          "title": "Six jobs AI takes off your team's plate",
+          "items": [
+            {
+              "icon": "wrench",
+              "title": "Predictive maintenance",
+              "text": "Reads vibration, temperature, current and alarm data from PLCs, SCADA or add-on sensors, spots trends that have preceded past failures and raises a work order in your maintenance system before the breakdown."
+            },
+            {
+              "icon": "clipboard-check",
+              "title": "Quality inspection",
+              "text": "Captures inspection results and defect photos from the line on a phone or tablet, checks them against the control plan, and alerts the quality engineer when a measurement drifts. Release and rejection decisions stay with your QC team."
+            },
+            {
+              "icon": "calendar-days",
+              "title": "Production planning",
+              "text": "Builds and re-plans the schedule from open sales orders, machine capacity, tooling and material availability in the ERP, and shares each shift's plan with supervisors for approval."
+            },
+            {
+              "icon": "boxes-stacked",
+              "title": "Inventory and procurement",
+              "text": "Compares the plan's material needs with stock and open POs, raises purchase requisitions for approval, chases suppliers on delivery dates and records receipts and GRNs against the order."
+            },
+            {
+              "icon": "shield-halved",
+              "title": "Safety and compliance",
+              "text": "Runs daily safety checklists and work permits in chat, logs near-misses with photos, and reminds owners before statutory inspections, calibrations and certificate renewals fall due."
+            },
+            {
+              "icon": "gauge-high",
+              "title": "OEE and output dashboards",
+              "text": "Calculates availability, performance and quality per machine and shift from machine signals and operator inputs, and answers questions like \"why was line 2 slow on Tuesday night\" in plain language."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "industry.story",
+      "props": {
+        "index": 4,
+        "label": "A day with it running",
+        "title": "One day at an auto-component plant running three shifts",
+        "lede": "Follow a normal Wednesday. Each moment lights the part of the plant the agent is working on.",
+        "moments": [
+          {
+            "when": "06:15",
+            "title": "The night shift, in numbers",
+            "text": "OEE per machine, output against plan and the top three downtime reasons from the night shift are on the plant head's phone before the morning meeting.",
+            "useCase": 6
+          },
+          {
+            "when": "08:00",
+            "title": "The safety walk is logged",
+            "text": "The shift in-charge completes the checklist in chat. A blocked fire exit near the paint shop is photographed and assigned to facilities with a deadline.",
+            "useCase": 5
+          },
+          {
+            "when": "10:40",
+            "title": "A dimension starts drifting",
+            "text": "Bore diameters on a CNC cell are trending towards the upper limit. The quality engineer is alerted with the last 20 readings and stops the cell for a tool change.",
+            "useCase": 2
+          },
+          {
+            "when": "13:30",
+            "title": "A rush order is fitted in",
+            "text": "A customer pulls an order forward by a week. The agent proposes a revised plan that moves two jobs, and the planner approves it before the second shift starts.",
+            "useCase": 3
+          },
+          {
+            "when": "16:20",
+            "title": "Steel ordered before the shortage",
+            "text": "The revised plan needs more coil than is in stock or on order. A purchase requisition is raised for approval and the usual supplier is asked to confirm a date.",
+            "useCase": 4
+          },
+          {
+            "when": "21:50",
+            "title": "A spindle sounds wrong",
+            "text": "Vibration on a grinding machine has crossed the level seen before its last bearing failure. A work order is raised for the next planned stop and the spare is reserved.",
+            "useCase": 1
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.architecture",
+      "props": {
+        "index": 5,
+        "label": "How it connects",
+        "title": "Built on the systems you already run",
+        "layers": [
+          {
+            "label": "Where the floor talks",
+            "nodes": ["Machines & PLCs", "Shop-floor tablets", "WhatsApp groups"]
+          },
+          { "label": "AI agents", "nodes": ["Maintenance watch", "Quality desk", "Planning desk"] },
+          { "label": "Your systems", "nodes": ["ERP", "MES / SCADA", "Maintenance CMMS"] },
+          { "label": "People in charge", "nodes": ["Shift sign-off", "QC release", "Audit log"] }
+        ]
+      }
+    },
+    {
+      "component": "detail.tabs",
+      "props": {
+        "index": 6,
+        "label": "By plant",
+        "title": "What it looks like for your kind of plant",
+        "items": [
+          {
+            "label": "MSME workshops",
+            "summary": "Tally, Excel and a few key machines",
+            "text": "Smaller plants often have no MES and limited machine data. We start with what exists: operator inputs on a phone, stock in your accounting or ERP, and simple sensors on the one or two machines that hurt most when they stop.",
+            "points": [
+              "Downtime and output logged from the floor in chat",
+              "Stock and purchase reminders from your books",
+              "Sensors added only where a machine justifies it"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Auto & engineering suppliers",
+            "summary": "OEM schedules and strict quality",
+            "text": "Delivery schedules from OEMs change often, and quality records must trace to the lot. Agents tie planning to customer schedules and keep inspection data searchable for audits and complaints.",
+            "points": [
+              "Re-planning against changing customer schedules",
+              "Traceable inspection records by lot and shift",
+              "Machine-level OEE and downtime reasons"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Process & multi-plant",
+            "summary": "Continuous lines and several sites",
+            "text": "In process plants, unplanned stops are costly and batch records matter. Agents watch historian data for early warnings and roll up output, energy and quality across plants for head office.",
+            "points": [
+              "Early warnings from historian and SCADA data",
+              "Batch and quality records compiled automatically",
+              "Cross-plant output and loss reporting"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          }
+        ],
+        "previous": "Previous",
+        "next": "Next"
+      }
+    },
+    {
+      "component": "detail.process",
+      "props": {
+        "index": 7,
+        "label": "Rollout",
+        "title": "From one line to the whole plant",
+        "lede": "We start on the line or machine where losses are highest, prove the result there, then extend.",
+        "steps": [
+          {
+            "title": "Walk the plant",
+            "text": "We spend time on the floor, look at downtime and reject records, list your ERP, machine data and maintenance systems, and pick the first line with you.",
+            "when": "Weeks 1–2"
+          },
+          {
+            "title": "Connect one line",
+            "text": "Machine data, operator inputs and quality checks from one line are connected, and the first alerts and shift reports go to supervisors for review.",
+            "when": "Weeks 3–6"
+          },
+          {
+            "title": "Planning, materials and safety",
+            "text": "Production planning, material reorders and safety records are added, and more lines are connected as each one is proven.",
+            "when": "Weeks 7–12"
+          },
+          {
+            "title": "Run and improve",
+            "text": "We tune alert thresholds with your maintenance team, add new failure patterns as they occur and review results with the plant head each month.",
+            "when": "Ongoing"
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.related",
+      "props": {
+        "index": 8,
+        "label": "Related",
+        "title": "What manufacturers pair this with",
+        "more": "Explore",
+        "cards": [
+          {
+            "href": "/ai-services/ai-data-analytics",
+            "index": "AI/01",
+            "title": "AI data and analytics",
+            "text": "Machine, quality and ERP data brought into one model your teams can question.",
+            "tags": ["OEE", "Pipelines", "Dashboards"]
+          },
+          {
+            "href": "/ai-services/ai-workflow-automation",
+            "index": "AI/02",
+            "title": "AI workflow automation",
+            "text": "Requisitions, approvals and work orders automated across ERP and maintenance systems.",
+            "tags": ["ERP", "Approvals", "Work orders"]
+          },
+          {
+            "href": "/ai-services/ai-document-processing",
+            "index": "AI/03",
+            "title": "AI document processing",
+            "text": "Supplier invoices, test certificates and delivery challans turned into data you can trust.",
+            "tags": ["Invoices", "Certificates", "GRN"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.faq",
+      "props": {
+        "index": 9,
+        "label": "FAQ",
+        "title": "Questions manufacturers ask us",
+        "items": [
+          {
+            "question": "Will this replace our maintenance, quality or planning staff?",
+            "answer": "No. The agents watch data and handle the paperwork so your engineers can act sooner. Stopping a line, releasing or rejecting a lot and approving purchases remain decisions for named people."
+          },
+          {
+            "question": "Our machines are old. Can we still do predictive maintenance?",
+            "answer": "Often, yes. Machines with PLCs usually expose some data already. For older machines, add-on vibration, temperature or current sensors can be fitted. We start with the machines whose breakdowns cost you most and only add hardware where it pays for itself."
+          },
+          {
+            "question": "Which ERP and shop-floor systems do you connect to?",
+            "answer": "We work with ERPs and accounting systems such as SAP, Microsoft Dynamics, Oracle and Tally, along with MES, SCADA historians and maintenance software, through their APIs, databases or exports. In the first weeks we confirm what each system exposes and agree read and write access with your IT team."
+          },
+          {
+            "question": "Is our production data safe?",
+            "answer": "Machine and production data stays in your network or an environment set up for your company. Shop-floor connections are read-only unless agreed, access is role-based and every action is logged. Personal data of workers is handled under India's DPDP Act 2023 or the GDPR where it applies."
+          },
+          {
+            "question": "Can operators use it in their own language?",
+            "answer": "Yes. Operators and supervisors can send updates and ask questions by voice or text in Hindi, English and other Indian languages, and get replies in the same language."
+          },
+          {
+            "question": "How much does it cost?",
+            "answer": "It depends on the number of machines, lines and systems, and whether sensors are needed. Most plants start with one line. Tell us about your plant and we'll send a fixed quote for that first phase."
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.cta",
+      "props": {
+        "family": "services",
+        "label": "Next step",
+        "title": "Share three months of downtime records",
+        "text": "We'll show which losses an agent could have flagged earlier and what data your machines already provide to do it. No obligation.",
+        "primary": { "label": "Talk to us", "href": "/contact" },
+        "secondary": { "label": "Get a quote", "href": "/get-a-quote" },
+        "echoShape": 0
+      }
+    }
+  ]
+}

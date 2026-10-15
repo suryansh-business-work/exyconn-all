@@ -1,0 +1,115 @@
+---
+/**
+ * An industry page's scroll story (CMS "industry.story"): a day in the business told as
+ * moments beside a night window. Once the hero is gone the page's scene moves into the
+ * window, stays live and turns as the story is read; the moment crossing the middle of the
+ * screen lights its use case (`useCase`, the scene tag of that use case's card).
+ */
+import "../../../styles/inner-stage.css";
+import ChapterHeading from "../../inner/ChapterHeading.astro";
+
+interface Moment {
+  when: string;
+  title: string;
+  text: string;
+  useCase: number;
+}
+
+type Props = Readonly<{
+  index: number;
+  label: string;
+  title: string;
+  lede: string;
+  moments: readonly Moment[];
+}>;
+
+const { index, label, title, lede, moments } = Astro.props;
+---
+
+<section class="inner-section stage-shell" aria-labelledby="industry-story" data-stage-story>
+  <ChapterHeading index={index} label={label} title={title} lede={lede} id="industry-story" />
+  <div class="industry-story">
+    <div class="industry-story__window" data-theme="dark" aria-hidden="true">
+      <div class="inner-echo" data-stage-echo data-stage-shape="0" data-stage-live></div>
+    </div>
+    <ol class="industry-story__steps">
+      {
+        moments.map((moment) => (
+          <li class="inner-card industry-story__step" data-story-step={moment.useCase}>
+            <p class="stage-label inner-index">{moment.when}</p>
+            <h3 class="inner-h3 mt-3">{moment.title}</h3>
+            <p class="inner-card__text">{moment.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .industry-story {
+    display: grid;
+    gap: var(--space-6);
+    margin-top: var(--space-10);
+  }
+
+  /* Phones: the window pins under the header and the moments scroll up beneath it. */
+  .industry-story__window {
+    position: sticky;
+    top: calc(var(--chrome-header-height) + var(--space-2));
+    z-index: 1;
+    height: 34svh;
+    overflow: hidden;
+    border-radius: var(--radius-2xl);
+    background: linear-gradient(180deg, var(--color-indigo-night), var(--color-inverse));
+    box-shadow: var(--shadow-md);
+  }
+
+  .industry-story__steps {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .industry-story__step {
+    transition: var(--transition-surface);
+  }
+
+  .industry-story__step[data-active] {
+    border-color: var(--accent-a-ink);
+    box-shadow: var(--shadow-md);
+  }
+
+  @media (min-width: 1024px) {
+    .industry-story {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      gap: var(--space-12);
+      align-items: start;
+    }
+
+    .industry-story__window {
+      grid-column: 2;
+      grid-row: 1;
+      top: var(--inner-sticky-top);
+      height: min(70svh, 36rem);
+    }
+
+    .industry-story__steps {
+      grid-column: 1;
+      grid-row: 1;
+      gap: 22svh;
+      padding-block: 14svh;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .industry-story__step {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  import { bootStories } from "../../../scripts/inner/story";
+
+  bootStories();
+</script>

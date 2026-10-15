@@ -55,6 +55,7 @@ import ServiceRelatedHubs from "./service/ServiceRelatedHubs.astro";
 import ServiceSteps from "./service/ServiceSteps.astro";
 import WhatsappDemo from "./service/WhatsappDemo.astro";
 import AiGovernance from "./ai/AiGovernance.astro";
+import IndustryStory from "./industry/IndustryStory.astro";
 import AiServiceApproach from "./aiservice/AiServiceApproach.astro";
 import AiServiceCatalogue from "./aiservice/AiServiceCatalogue.astro";
 import AiServiceOutcomes from "./aiservice/AiServiceOutcomes.astro";
@@ -145,6 +146,7 @@ const REGISTRY = {
   "service.faq": ServiceFaq,
   "service.related-hubs": ServiceRelatedHubs,
   "service.whatsapp-demo": WhatsappDemo,
+  "industry.story": IndustryStory,
   "ai.governance": AiGovernance,
   "aiservice.catalogue": AiServiceCatalogue,
   "aiservice.approach": AiServiceApproach,

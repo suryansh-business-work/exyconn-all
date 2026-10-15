@@ -1,0 +1,471 @@
+{
+  "key": "industries-cafes-coffee-shops",
+  "path": "/industries/cafes-coffee-shops",
+  "title": "AI for Cafés & Coffee Shops | Exyconn",
+  "seo": {
+    "title": "AI Automation for Cafés and Coffee Shops | Exyconn",
+    "description": "AI agents for cafés: take WhatsApp and Instagram pre-orders, reward regulars, reply to Google and Zomato reviews, reorder milk and beans, and send daily sales.",
+    "keywords": "AI for cafes, coffee shop automation, cafe WhatsApp ordering, cafe loyalty program, coffee shop pre-order app, cafe inventory management, cafe staff rota, Zomato review replies, cafe sales report, cafe POS integration",
+    "ogImageUrl": "",
+    "canonical": "",
+    "noindex": false,
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "{marketUrl}" },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Industries",
+            "item": "{marketUrl}/industries"
+          },
+          { "@type": "ListItem", "position": 3, "name": "Cafés & coffee shops" }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "AI automation for cafés and coffee shops",
+        "serviceType": "AI agents and workflow automation",
+        "description": "Exyconn designs, builds and runs AI agents for cafés and coffee shops: WhatsApp and Instagram ordering, loyalty for regulars, review replies on Google and Zomato, stock and supplier reorders, staff rota and shift swaps, and daily sales and menu reporting, connected to the café's POS.",
+        "url": "{marketUrl}/industries/cafes-coffee-shops",
+        "audience": {
+          "@type": "BusinessAudience",
+          "audienceType": "Independent cafés, coffee shops, bakery cafés and café chains"
+        },
+        "provider": { "@type": "Organization", "name": "{businessName}", "url": "{siteUrl}" },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "AI use cases for cafés",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "WhatsApp and Instagram ordering and pre-orders"
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Loyalty and regulars" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Review replies on Google and Zomato" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Stock and supplier reorders" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Staff rota and shift swaps" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Daily sales and menu performance" }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "body": [
+    {
+      "component": "detail.stage",
+      "props": {
+        "family": "services",
+        "crumbs": [
+          { "label": "Home", "href": "/" },
+          { "label": "Industries", "href": "/industries" },
+          { "label": "Cafés & coffee shops", "href": "" }
+        ],
+        "title": "Orders in the chat, milk on the shelf",
+        "lede": "AI agents that take pre-orders from WhatsApp and Instagram, remember your regulars and keep the oat milk from running out, so the person behind the counter can stay on the machine.",
+        "primary": { "label": "Plan AI for your café", "href": "/contact" },
+        "secondary": { "label": "See the WhatsApp chatbot", "href": "/services/whatsapp-chatbot" },
+        "scene": { "shapes": ["cafe"], "accent": ["amber", "fuchsia"] },
+        "glyph": "",
+        "tagline": "Pre-orders · Regulars · Reviews · Stock · Rota · Sales"
+      }
+    },
+    {
+      "component": "detail.intro",
+      "props": {
+        "index": 1,
+        "label": "In short",
+        "intro": {
+          "title": "What does Exyconn build for cafés and coffee shops?",
+          "icon": "mug-hot",
+          "term": "AI for cafés",
+          "definition": "is a set of agents that take orders from WhatsApp and Instagram, look after regulars, answer reviews, reorder stock and keep the rota straight, all working from the POS the café already uses. Exyconn designs, builds and runs them for single cafés and small chains. Your baristas keep making coffee; the agent handles the messages and the admin around it."
+        },
+        "benefits": {
+          "title": "Why cafés are doing this now",
+          "items": [
+            {
+              "icon": "mobile-screen",
+              "text": "Office crowds want to order on the walk over and collect without queueing."
+            },
+            {
+              "icon": "hashtag",
+              "text": "Instagram DMs asking \"are you open?\" or \"do you have vegan cake?\" go unread during the morning rush."
+            },
+            {
+              "icon": "percent",
+              "text": "An order placed directly with the café carries no aggregator commission."
+            },
+            {
+              "icon": "mug-saucer",
+              "text": "Regulars pay the rent, and they notice when you remember their usual."
+            },
+            {
+              "icon": "user-clock",
+              "text": "Owners still finish the rota and the supplier orders after closing, by hand."
+            }
+          ]
+        },
+        "demo": {
+          "kind": "chat",
+          "title": "whatsapp · café orders",
+          "caption": "A regular orders on the way in; the agent remembers her usual, adds a pastry and gives a pickup time.",
+          "messages": [
+            { "from": "user", "text": "Hey, can I get my usual? Reaching in 10 mins" },
+            {
+              "from": "agent",
+              "text": "Morning, Meera! One oat flat white, extra hot. Want the banana bread again? There are two slices left."
+            },
+            { "from": "user", "text": "Yes, save one for me" },
+            {
+              "from": "agent",
+              "text": "Done. ₹410 in total. Here's the UPI link, and it'll be on the pickup shelf at 8:52."
+            },
+            { "from": "user", "text": "Paid" },
+            {
+              "from": "agent",
+              "text": "Got it. That's your ninth coffee this month, so the next one's on us!"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "service.info-grid",
+      "props": {
+        "index": 2,
+        "id": "cafes-challenges",
+        "anchor": "",
+        "label": "The reality",
+        "title": "Where a café's hours actually go",
+        "lede": "Ask any café owner what eats the day besides coffee and you hear the same things.",
+        "indexPrefix": "C",
+        "items": [
+          {
+            "id": "rush-messages",
+            "title": "Messages nobody can answer at 9am",
+            "text": "Pre-order requests, table questions and catering enquiries arrive on WhatsApp and Instagram exactly when every hand is on the counter. By the time someone replies, the customer has gone elsewhere.",
+            "points": []
+          },
+          {
+            "id": "paper-loyalty",
+            "title": "Loyalty on stamp cards",
+            "text": "Stamp cards get lost, and the POS knows what people buy but nobody uses it. A regular who stops coming in just disappears without anyone noticing.",
+            "points": []
+          },
+          {
+            "id": "review-sprawl",
+            "title": "Reviews spread across apps",
+            "text": "Google, Zomato, Swiggy and Instagram comments all need watching. A complaint about cold food on a delivery order can sit unanswered for a week.",
+            "points": []
+          },
+          {
+            "id": "stockouts",
+            "title": "Running out of the basics",
+            "text": "Milk, beans, cups and lids are ordered from memory or a notebook. One missed dairy order means a morning of apologising for no oat milk.",
+            "points": []
+          },
+          {
+            "id": "rota",
+            "title": "The rota lives in a group chat",
+            "text": "Part-time staff swap shifts by messaging each other, and the manager finds out when someone fails to turn up for the opening shift.",
+            "points": []
+          },
+          {
+            "id": "menu-guesswork",
+            "title": "Menu decisions on gut feel",
+            "text": "Which bakes sell out by noon and which get thrown away at closing is in the POS, but pulling it out takes an evening the owner doesn't have.",
+            "points": []
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.offerings",
+      "props": {
+        "index": 3,
+        "label": "Use cases",
+        "offerings": {
+          "title": "Six jobs AI takes off the counter",
+          "items": [
+            {
+              "icon": "comments",
+              "title": "Pre-orders from WhatsApp and Instagram",
+              "text": "Takes the order in the chat, checks what's available on the POS menu, collects payment by UPI or card link and pushes the ticket to the counter with a pickup time."
+            },
+            {
+              "icon": "heart",
+              "title": "Regulars who feel remembered",
+              "text": "Keeps a digital stamp card against the customer's phone number, recalls their usual from POS history and sends a note when someone who came daily hasn't been in for two weeks."
+            },
+            {
+              "icon": "star",
+              "title": "Replies on Google and Zomato",
+              "text": "Drafts a reply to every new review for the owner to approve and groups the complaints, so \"slow at lunch\" or \"cold sandwiches on delivery\" shows up as a pattern, not a one-off."
+            },
+            {
+              "icon": "boxes-stacked",
+              "title": "Stock and supplier reorders",
+              "text": "Works out what's running low from sales and recipe usage in the POS, drafts the order for the dairy, bakery and bean suppliers, and sends it on WhatsApp once the manager says yes."
+            },
+            {
+              "icon": "user-clock",
+              "title": "Rota and shift swaps",
+              "text": "Publishes the weekly rota to staff on WhatsApp, handles swap requests between people who can cover, and tells the manager about any gap before the shift starts."
+            },
+            {
+              "icon": "chart-line",
+              "title": "Daily sales and menu performance",
+              "text": "Sends the owner a closing summary from the POS: takings by channel, best and worst sellers, what was wasted, and a plain answer to questions like \"is the cold brew worth keeping?\""
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "industry.story",
+      "props": {
+        "index": 4,
+        "label": "A day with it running",
+        "title": "One day at a two-outlet coffee shop",
+        "lede": "A weekday at a neighbourhood café with a second counter in an office park. Each moment lights the part of the shop the agent is working on.",
+        "moments": [
+          {
+            "when": "06:45",
+            "title": "A gap in the opening shift",
+            "text": "A barista messages that she's unwell. The agent offers the shift to two part-timers who are free, one accepts, and the manager gets the updated rota before the shutters go up.",
+            "useCase": 5
+          },
+          {
+            "when": "08:30",
+            "title": "The office rush, pre-ordered",
+            "text": "Fourteen WhatsApp pre-orders come in from the office park in half an hour. Each is paid by UPI and printed at the counter with a pickup time.",
+            "useCase": 1
+          },
+          {
+            "when": "11:20",
+            "title": "Oat milk before it runs out",
+            "text": "Sales are ahead of the usual pace. The agent drafts tomorrow's dairy order with extra oat milk and sends it to the supplier after the manager taps approve.",
+            "useCase": 4
+          },
+          {
+            "when": "15:10",
+            "title": "A regular comes back",
+            "text": "A customer who used to come in every morning hasn't visited in three weeks. A short message with a free cookie on his next coffee goes out; he redeems it the same afternoon.",
+            "useCase": 2
+          },
+          {
+            "when": "19:40",
+            "title": "A Zomato complaint answered",
+            "text": "A delivery review says the sandwich arrived soggy. The agent drafts an apology for the owner and notes it's the second mention of packaging this week.",
+            "useCase": 3
+          },
+          {
+            "when": "22:15",
+            "title": "Closing numbers on WhatsApp",
+            "text": "Takings by outlet and channel, the three bakes that sold out and the two that were binned arrive on the owner's phone before she's home.",
+            "useCase": 6
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.architecture",
+      "props": {
+        "index": 5,
+        "label": "How it connects",
+        "title": "Built around the POS you already use",
+        "layers": [
+          {
+            "label": "Where customers talk",
+            "nodes": ["WhatsApp", "Instagram DMs", "Google & Zomato"]
+          },
+          {
+            "label": "AI agents",
+            "nodes": ["Order taker", "Regulars & reviews", "Back-office aide"]
+          },
+          { "label": "Your systems", "nodes": ["Café POS", "Stock & recipes", "UPI & payments"] },
+          {
+            "label": "People in charge",
+            "nodes": ["Shift manager", "Owner approvals", "Audit log"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.tabs",
+      "props": {
+        "index": 6,
+        "label": "By café",
+        "title": "What it looks like for your kind of café",
+        "items": [
+          {
+            "label": "Single independent café",
+            "summary": "Owner on the floor",
+            "text": "The owner is pulling shots, so the first job is not losing orders and messages. We start with one WhatsApp agent that takes pre-orders, answers the usual questions and keeps a digital stamp card.",
+            "points": [
+              "Pre-orders and payment links on WhatsApp",
+              "Digital stamp card tied to phone numbers",
+              "A closing summary every night"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Bakery cafés & roasters",
+            "summary": "Production as well as service",
+            "text": "When you bake or roast on site, stock and waste matter as much as orders. Agents track ingredient use against sales, order from suppliers and take advance orders for cakes and beans.",
+            "points": [
+              "Advance orders for cakes and retail beans",
+              "Ingredient reorders from recipe usage",
+              "Waste and sell-out tracking by item"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Café chains & franchises",
+            "summary": "Many counters, one brand",
+            "text": "With several outlets, consistency is the job. One set of agents answers for every branch, rotas and stock are handled per outlet, and the head office gets a single view across them.",
+            "points": [
+              "Shared ordering and loyalty across outlets",
+              "Per-outlet rota, stock and supplier orders",
+              "Outlet comparison and role-based access"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          }
+        ],
+        "previous": "Previous",
+        "next": "Next"
+      }
+    },
+    {
+      "component": "detail.process",
+      "props": {
+        "index": 7,
+        "label": "Rollout",
+        "title": "Taking pre-orders within a month",
+        "lede": "We start with ordering on WhatsApp because it pays back first, then add the back-office jobs.",
+        "steps": [
+          {
+            "title": "Read your menu and messages",
+            "text": "We go through your POS menu, a few weeks of WhatsApp and Instagram messages and how you order stock today, and agree what the agent handles.",
+            "when": "Week 1"
+          },
+          {
+            "title": "Go live on WhatsApp",
+            "text": "Pre-orders, payment links and the stamp card go live at one counter, with staff watching the order tickets for the first few days.",
+            "when": "Weeks 2–3"
+          },
+          {
+            "title": "Add stock, rota and reviews",
+            "text": "Supplier reorders, the rota, review replies and the closing summary are switched on one at a time.",
+            "when": "Weeks 4–6"
+          },
+          {
+            "title": "Run and improve",
+            "text": "We watch every order and conversation, update the menu and answers when they change, and send a short monthly note on what improved.",
+            "when": "Ongoing"
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.related",
+      "props": {
+        "index": 8,
+        "label": "Related",
+        "title": "What cafés pair this with",
+        "more": "Explore",
+        "cards": [
+          {
+            "href": "/ai-services/ai-whatsapp-automation",
+            "index": "AI/01",
+            "title": "AI WhatsApp automation",
+            "text": "Ordering, payments and customer messages on the official WhatsApp Business API.",
+            "tags": ["WhatsApp", "Orders", "Payments"]
+          },
+          {
+            "href": "/ai-services/ai-saas-for-local-businesses",
+            "index": "AI/02",
+            "title": "AI for local businesses",
+            "text": "Bookings, reviews and customer messaging automated for businesses with a physical presence.",
+            "tags": ["Reviews", "Loyalty", "Messaging"]
+          },
+          {
+            "href": "/ai-services/ai-marketing-automation",
+            "index": "AI/03",
+            "title": "AI marketing automation",
+            "text": "Instagram posts, offers and win-back messages produced without a marketing team.",
+            "tags": ["Instagram", "Offers", "Win-back"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.faq",
+      "props": {
+        "index": 9,
+        "label": "FAQ",
+        "title": "Questions café owners ask us",
+        "items": [
+          {
+            "question": "Will this replace my counter staff?",
+            "answer": "No. It takes the messages, stamp cards, supplier orders and rota juggling off their hands. Making coffee, talking to customers and handling a complaint in person stay with your team."
+          },
+          {
+            "question": "Does it work with my POS and the delivery apps?",
+            "answer": "It works with POS systems that offer an API or a regular data export, which covers most cloud café POS tools. Orders from Swiggy and Zomato usually reach your POS through its own integration, so the agent reads them from there. In the first week we check exactly what your setup allows."
+          },
+          {
+            "question": "What happens if someone orders something you've run out of?",
+            "answer": "The agent reads item availability from the POS, so a sold-out item isn't offered. If stock runs out after the order is placed, it tells the customer straight away and offers a swap or a refund."
+          },
+          {
+            "question": "Can customers order in Hindi or other languages?",
+            "answer": "Yes. The agent replies in the language the customer writes in, including Hindi, Hinglish and other Indian languages, while your menu stays written once."
+          },
+          {
+            "question": "What about customer data and marketing messages?",
+            "answer": "Phone numbers and order history stay in your systems and a private environment we set up for you. Offers go only to people who have opted in on WhatsApp, and customers can stop them at any time, in line with India's DPDP Act and WhatsApp's own business messaging rules."
+          },
+          {
+            "question": "How much does it cost?",
+            "answer": "It depends on the number of outlets and which jobs you switch on. Most cafés start with WhatsApp pre-orders and the stamp card; tell us about your café and we'll send a fixed quote for that first phase."
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.cta",
+      "props": {
+        "family": "services",
+        "label": "Next step",
+        "title": "Send us your menu and one busy morning",
+        "text": "We'll show you how a WhatsApp pre-order flow would work for your counter and what it needs from your POS. No obligation.",
+        "primary": { "label": "Talk to us", "href": "/contact" },
+        "secondary": { "label": "Get a quote", "href": "/get-a-quote" },
+        "echoShape": 0
+      }
+    }
+  ]
+}

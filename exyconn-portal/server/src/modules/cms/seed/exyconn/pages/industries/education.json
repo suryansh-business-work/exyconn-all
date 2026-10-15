@@ -1,0 +1,468 @@
+{
+  "key": "industries-education",
+  "path": "/industries/education",
+  "title": "AI for Education & EdTech | Exyconn",
+  "seo": {
+    "title": "AI Automation for Schools, Colleges and EdTech | Exyconn",
+    "description": "AI agents for schools, colleges, coaching centres and EdTech: answer admission enquiries, send fee and attendance alerts, tutor students, help teachers mark.",
+    "keywords": "AI for schools, education automation, AI chatbot for admissions, school fee reminder WhatsApp, attendance alert to parents, AI tutor for students, AI grading assistant, coaching centre automation, edtech AI development, school ERP integration, student progress analytics",
+    "ogImageUrl": "",
+    "canonical": "",
+    "noindex": false,
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "{marketUrl}" },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Industries",
+            "item": "{marketUrl}/industries"
+          },
+          { "@type": "ListItem", "position": 3, "name": "Education & EdTech" }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "AI automation for education and EdTech",
+        "serviceType": "AI agents and workflow automation",
+        "description": "Exyconn designs, builds and runs AI agents for schools, colleges, coaching centres and EdTech companies: admissions enquiries, fee reminders and payments, attendance and timetable alerts to parents, an AI tutor for doubt solving, assessment and grading help for teachers, and student progress analytics, connected to the school ERP and LMS.",
+        "url": "{marketUrl}/industries/education",
+        "audience": {
+          "@type": "BusinessAudience",
+          "audienceType": "Schools, colleges, universities, coaching centres and EdTech companies"
+        },
+        "provider": { "@type": "Organization", "name": "{businessName}", "url": "{siteUrl}" },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "AI use cases for education",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Admissions enquiries" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Fee reminders and payments" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Attendance and timetable alerts to parents"
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "AI tutor and doubt solving" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Assessment and grading help" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Student progress analytics" }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "body": [
+    {
+      "component": "detail.stage",
+      "props": {
+        "family": "services",
+        "crumbs": [
+          { "label": "Home", "href": "/" },
+          { "label": "Industries", "href": "/industries" },
+          { "label": "Education & EdTech", "href": "" }
+        ],
+        "title": "Less admin for teachers, faster answers for parents",
+        "lede": "AI agents for schools, colleges and coaching centres that handle admission enquiries, fee and attendance messages and late-night doubts, so teachers and office staff get their time back for students.",
+        "primary": { "label": "Plan AI for your institution", "href": "/contact" },
+        "secondary": { "label": "See education AI", "href": "/ai-services/ai-education-edtech" },
+        "scene": { "shapes": ["education"], "accent": ["sky", "violet"] },
+        "glyph": "",
+        "tagline": "Admissions · Fees · Alerts · Tutoring · Progress"
+      }
+    },
+    {
+      "component": "detail.intro",
+      "props": {
+        "index": 1,
+        "label": "In short",
+        "intro": {
+          "title": "What does Exyconn build for education?",
+          "icon": "graduation-cap",
+          "term": "AI for education",
+          "definition": "is a set of agents that take on the routine communication and paperwork of a school, college or coaching centre (admission questions, fee reminders, attendance messages to parents, doubt solving after class and first-pass marking) while teachers keep every academic decision. Exyconn designs, builds and runs them on your school ERP, learning management system (LMS) and WhatsApp Business account. Nothing your staff use today has to change."
+        },
+        "benefits": {
+          "title": "Why institutions are doing this now",
+          "items": [
+            {
+              "icon": "comments",
+              "text": "Parents expect answers on WhatsApp, and the admissions season brings the same questions hundreds of times."
+            },
+            {
+              "icon": "indian-rupee-sign",
+              "text": "Fee follow-ups take office staff weeks every term and are awkward to do by phone."
+            },
+            {
+              "icon": "clock",
+              "text": "Students get stuck on homework in the evening, when no teacher is available."
+            },
+            {
+              "icon": "pen-to-square",
+              "text": "Teachers lose evenings and weekends to checking answer sheets and writing feedback."
+            },
+            {
+              "icon": "user-shield",
+              "text": "Children's data needs parental consent and careful handling under India's DPDP Act, and a well-built system makes that easier to show."
+            }
+          ]
+        },
+        "demo": {
+          "kind": "chat",
+          "title": "whatsapp · admissions desk",
+          "caption": "A parent asks about Class 6 admission; the agent explains the process, fees and documents, and books a campus visit.",
+          "messages": [
+            {
+              "from": "user",
+              "text": "Hello, are admissions open for Class 6 for next year? CBSE?"
+            },
+            {
+              "from": "agent",
+              "text": "Hello Mrs Kulkarni! Yes, Class 6 registrations for next session are open. There is a short interaction with the child, and the tuition fee is ₹62,000 a year in four instalments, excluding transport."
+            },
+            { "from": "user", "text": "What documents do we need?" },
+            {
+              "from": "agent",
+              "text": "The birth certificate, the latest report card, a transfer certificate from the current school, and the child's and parents' photos. Would you like to visit the campus first?"
+            },
+            { "from": "user", "text": "Yes, this Saturday if possible" },
+            {
+              "from": "agent",
+              "text": "Saturday at 10:30 is open, and the admissions coordinator Mr Thomas will show you around. I've booked it and sent the location. See you then!"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "service.info-grid",
+      "props": {
+        "index": 2,
+        "id": "education-challenges",
+        "anchor": "",
+        "label": "The reality",
+        "title": "Where an institution's hours actually go",
+        "lede": "Principals and centre heads describe the same week. Very little of it is teaching.",
+        "indexPrefix": "E",
+        "items": [
+          {
+            "id": "admission-rush",
+            "title": "Admission season overload",
+            "text": "Fees, transport routes, the syllabus, \"is there a waitlist\". The front office answers the same questions on the phone, in person and on WhatsApp for weeks.",
+            "points": []
+          },
+          {
+            "id": "fee-followups",
+            "title": "Fee follow-ups by phone",
+            "text": "Accounts staff work through a defaulter list one call at a time, and parents who meant to pay simply forgot the date.",
+            "points": []
+          },
+          {
+            "id": "parent-communication",
+            "title": "Parents finding out too late",
+            "text": "An absence, a timetable change or a cancelled bus reaches parents through a diary note or a crowded class group, if at all.",
+            "points": []
+          },
+          {
+            "id": "doubts-after-class",
+            "title": "Doubts with nowhere to go",
+            "text": "A student stuck on a problem at 9pm either waits until tomorrow's class or copies the answer. Teachers can't take those questions one by one.",
+            "points": []
+          },
+          {
+            "id": "marking-load",
+            "title": "Marking that fills the weekend",
+            "text": "Unit tests, assignments and practice papers pile up, and detailed written feedback is the first thing to be cut.",
+            "points": []
+          },
+          {
+            "id": "late-signals",
+            "title": "Struggling students noticed late",
+            "text": "Falling marks, missed classes and incomplete homework sit in different registers, so the pattern shows up only at the term report.",
+            "points": []
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.offerings",
+      "props": {
+        "index": 3,
+        "label": "Use cases",
+        "offerings": {
+          "title": "Six jobs AI takes off your staff's plate",
+          "items": [
+            {
+              "icon": "comments",
+              "title": "Admissions enquiries",
+              "text": "Answers parents and applicants on WhatsApp, web chat and phone from your prospectus and fee structure, books campus visits and counselling calls, and logs every lead in your admissions CRM or ERP."
+            },
+            {
+              "icon": "coins",
+              "title": "Fee reminders and payments",
+              "text": "Sends polite reminders before and after each due date with a payment link, answers questions on the instalment breakdown and marks the payment against the student in the ERP."
+            },
+            {
+              "icon": "bell",
+              "title": "Attendance and timetable alerts",
+              "text": "Tells parents when a child is marked absent, a class is rescheduled or a bus is running late, using the data teachers already enter in the ERP."
+            },
+            {
+              "icon": "person-chalkboard",
+              "title": "AI tutor and doubt solving",
+              "text": "Helps students work through a problem step by step from your own syllabus and notes, rather than handing over the answer, and tells the teacher which topics the class keeps asking about."
+            },
+            {
+              "icon": "square-check",
+              "title": "Assessment and grading help",
+              "text": "Drafts question papers from the syllabus, does a first pass on objective and short answers against your marking scheme, and suggests feedback. The teacher reviews and finalises every mark."
+            },
+            {
+              "icon": "chart-line",
+              "title": "Student progress analytics",
+              "text": "Brings marks, attendance and homework together per student and class, and flags students whose results or attendance are slipping so a teacher can step in early."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "industry.story",
+      "props": {
+        "index": 4,
+        "label": "A day with it running",
+        "title": "One day at a 1,200-student CBSE school",
+        "lede": "Follow a weekday in the second term. Each moment lights the part of the school the agent is working on.",
+        "moments": [
+          {
+            "when": "08:20",
+            "title": "Absences reach parents on time",
+            "text": "Class teachers mark attendance in the ERP. Parents of absent children get a message within minutes, and two reply that their child is unwell.",
+            "useCase": 3
+          },
+          {
+            "when": "10:00",
+            "title": "Fee reminders, not phone calls",
+            "text": "Families with the third instalment due next week get a reminder with a payment link. Payments are marked in the ERP as they come in.",
+            "useCase": 2
+          },
+          {
+            "when": "13:30",
+            "title": "Admission questions handled",
+            "text": "Twenty parents ask about next year's Class 1 intake. The agent answers from the prospectus, books five campus visits and adds each lead to the admissions list.",
+            "useCase": 1
+          },
+          {
+            "when": "16:00",
+            "title": "Unit tests marked in draft",
+            "text": "Class 8 science papers are scanned. Objective answers are marked against the scheme and short answers get suggested scores for the teacher to confirm or change.",
+            "useCase": 5
+          },
+          {
+            "when": "19:45",
+            "title": "A doubt solved at home",
+            "text": "A Class 10 student is stuck on a quadratic equations problem. The tutor walks her through it one step at a time from the school's own worksheet.",
+            "useCase": 4
+          },
+          {
+            "when": "21:30",
+            "title": "Early warnings for class teachers",
+            "text": "Students whose marks have dropped across two tests or who have missed several days are listed for each class teacher, ready for tomorrow.",
+            "useCase": 6
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.architecture",
+      "props": {
+        "index": 5,
+        "label": "How it connects",
+        "title": "Built on the systems you already run",
+        "layers": [
+          { "label": "Where families talk", "nodes": ["WhatsApp", "Website chat", "Parent app"] },
+          { "label": "AI agents", "nodes": ["Admissions desk", "Parent updates", "Study tutor"] },
+          { "label": "Your systems", "nodes": ["School ERP", "LMS", "Fee gateway"] },
+          {
+            "label": "People in charge",
+            "nodes": ["Teacher review", "Office handover", "Audit log"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.tabs",
+      "props": {
+        "index": 6,
+        "label": "By institution",
+        "title": "What it looks like for your kind of institution",
+        "items": [
+          {
+            "label": "Schools",
+            "summary": "Parents are the audience",
+            "text": "In K-12 most messages go to parents, and consent and tone matter. We usually start with attendance alerts and fee reminders from your ERP, then add admissions and teacher tools.",
+            "points": [
+              "Attendance, fee and transport messages to parents",
+              "Admission season enquiries and campus visits",
+              "Parental consent recorded for each purpose"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Coaching & test prep",
+            "summary": "Doubts and batches at scale",
+            "text": "Coaching centres run large batches with heavy doubt traffic before exams. A tutor trained on your own material answers doubts at any hour and shows faculty which topics need another class.",
+            "points": [
+              "Doubt solving from your notes and question banks",
+              "Batch, fee and test-schedule updates",
+              "Topic-wise weak areas for each batch"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Colleges & EdTech",
+            "summary": "Adult learners, digital first",
+            "text": "Colleges and online course providers deal with applicants from many places and learners who study at odd hours. Agents run admissions, course support inside the LMS and progress nudges.",
+            "points": [
+              "Applicant queries and document checklists",
+              "Course assistant inside your LMS",
+              "Completion and drop-off reporting"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          }
+        ],
+        "previous": "Previous",
+        "next": "Next"
+      }
+    },
+    {
+      "component": "detail.process",
+      "props": {
+        "index": 7,
+        "label": "Rollout",
+        "title": "Live within a term, not a year",
+        "lede": "We start where office staff lose the most time, usually parent communication, and add teaching tools once teachers have tried them.",
+        "steps": [
+          {
+            "title": "Map the school year",
+            "text": "We list your ERP, LMS and fee setup, read a sample of parent and student messages, and agree what the agent says, what it never says, and how consent is recorded.",
+            "when": "Weeks 1–2"
+          },
+          {
+            "title": "Parent messages first",
+            "text": "Attendance alerts, fee reminders and admission answers go live on WhatsApp, with the office checking messages in the first weeks.",
+            "when": "Weeks 3–5"
+          },
+          {
+            "title": "Add the classroom tools",
+            "text": "The tutor and grading help are piloted with a few teachers and classes, using your own syllabus, before they reach every grade.",
+            "when": "Weeks 6–10"
+          },
+          {
+            "title": "Run and improve",
+            "text": "We review conversations and teacher feedback, update content for each new term and session, and add progress reports once a term's data is in.",
+            "when": "Ongoing"
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.related",
+      "props": {
+        "index": 8,
+        "label": "Related",
+        "title": "What institutions pair this with",
+        "more": "Explore",
+        "cards": [
+          {
+            "href": "/ai-services/ai-education-edtech",
+            "index": "AI/01",
+            "title": "AI education / EdTech",
+            "text": "Adaptive learning, assessment and teaching tools for education providers.",
+            "tags": ["Tutoring", "Assessment", "LMS"]
+          },
+          {
+            "href": "/ai-services/ai-whatsapp-automation",
+            "index": "AI/02",
+            "title": "AI WhatsApp automation",
+            "text": "Admissions, fee and attendance messages on WhatsApp, on the official Business API.",
+            "tags": ["WhatsApp", "Parents", "Fees"]
+          },
+          {
+            "href": "/ai-services/ai-rag-platform",
+            "index": "AI/03",
+            "title": "AI RAG platform",
+            "text": "Answers grounded in your own syllabus, notes and question banks, with sources a teacher can check.",
+            "tags": ["Syllabus", "Notes", "Citations"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.faq",
+      "props": {
+        "index": 9,
+        "label": "FAQ",
+        "title": "Questions schools and colleges ask us",
+        "items": [
+          {
+            "question": "Will AI replace teachers?",
+            "answer": "No. It takes over reminders, routine questions and first-pass marking. Teachers set the content, review every grade and decide what to do about a student who is struggling. The tutor is built to explain steps, not to do homework for the student."
+          },
+          {
+            "question": "Which school ERP and LMS can it work with?",
+            "answer": "Any ERP or LMS with an API or a regular export, including common Indian school ERPs, Moodle and Google Classroom. Where there is no API we work from scheduled exports. We confirm what your system allows before we start."
+          },
+          {
+            "question": "How do you handle children's data?",
+            "answer": "Under India's DPDP Act 2023, processing a child's data needs verifiable consent from a parent or guardian, and tracking or targeted advertising aimed at children is not allowed. We record consent per purpose, keep data in an environment set up for your institution with role-based access and an audit log, and never use it for marketing. For overseas students we follow the GDPR where it applies."
+          },
+          {
+            "question": "Can parents and students use regional languages?",
+            "answer": "Yes. The agent replies in the language a parent writes in, such as Hindi, Marathi, Tamil or Bengali, and the tutor can explain in the student's medium of instruction."
+          },
+          {
+            "question": "What if the tutor gives a wrong answer?",
+            "answer": "It answers from your own syllabus and material and shows where the explanation came from. Students can flag an answer, flagged answers go to the subject teacher, and corrections are added so the same mistake isn't repeated."
+          },
+          {
+            "question": "What does it cost?",
+            "answer": "It depends on student numbers, campuses and the systems we connect. Most institutions start with parent communication at a fixed price for the first phase. Tell us about your institution and we'll quote it."
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.cta",
+      "props": {
+        "family": "services",
+        "label": "Next step",
+        "title": "Show us one admission season's enquiries",
+        "text": "We'll show how many an agent could have answered from your prospectus, and what connecting it to your ERP involves. No obligation.",
+        "primary": { "label": "Talk to us", "href": "/contact" },
+        "secondary": { "label": "Get a quote", "href": "/get-a-quote" },
+        "echoShape": 0
+      }
+    }
+  ]
+}

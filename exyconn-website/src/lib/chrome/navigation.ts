@@ -22,6 +22,8 @@ export interface NavGroup {
   links: readonly NavLink[];
   /** The hub page the group belongs to, shown at the foot of its menu. */
   overview?: NavLink;
+  /** A long list: the menu opens as a three-column panel across the header. */
+  wide?: boolean;
 }
 
 const AI: NavGroup = {
@@ -104,6 +106,106 @@ const SERVICES: NavGroup = {
   overview: { label: "Explore all services", href: "/our-services" },
 };
 
+/** The industries hub, at the foot of the menu and first in the footer row. */
+const INDUSTRIES_HUB: NavLink = { label: "All industries we serve", href: "/industries" };
+
+export const INDUSTRIES: NavGroup = {
+  id: "industries",
+  label: "Industries",
+  wide: true,
+  links: [
+    {
+      label: "Hospitality & hotels",
+      href: "/industries/hospitality",
+      text: "Guests, bookings, housekeeping",
+    },
+    {
+      label: "Cafés & coffee shops",
+      href: "/industries/cafes-coffee-shops",
+      text: "Orders, regulars, stock",
+    },
+    { label: "Restaurants", href: "/industries/restaurants", text: "Tables, orders, food cost" },
+    {
+      label: "Travel & tourism",
+      href: "/industries/travel-tourism",
+      text: "Itineraries, bookings, support",
+    },
+    {
+      label: "Healthcare & clinics",
+      href: "/industries/healthcare",
+      text: "Appointments, records, claims",
+    },
+    {
+      label: "Beauty & wellness",
+      href: "/industries/beauty-wellness",
+      text: "Bookings, no-shows, packages",
+    },
+    {
+      label: "Fitness & sports",
+      href: "/industries/fitness-sports",
+      text: "Trials, classes, renewals",
+    },
+    {
+      label: "Events & entertainment",
+      href: "/industries/events-entertainment",
+      text: "Tickets, attendees, check-in",
+    },
+    { label: "Real estate", href: "/industries/real-estate", text: "Leads, site visits, handover" },
+    {
+      label: "Construction",
+      href: "/industries/construction",
+      text: "Site reports, materials, safety",
+    },
+    {
+      label: "Manufacturing",
+      href: "/industries/manufacturing",
+      text: "Maintenance, quality, planning",
+    },
+    {
+      label: "Automotive & dealerships",
+      href: "/industries/automotive",
+      text: "Test drives, service, finance",
+    },
+    {
+      label: "Retail & e-commerce",
+      href: "/industries/retail-ecommerce",
+      text: "Discovery, carts, returns",
+    },
+    {
+      label: "Logistics & transport",
+      href: "/industries/logistics",
+      text: "Tracking, dispatch, POD",
+    },
+    {
+      label: "Education & EdTech",
+      href: "/industries/education",
+      text: "Admissions, fees, tutoring",
+    },
+    { label: "Startups & SaaS", href: "/industries/startups-saas", text: "Support, demos, churn" },
+    {
+      label: "Banking, finance & insurance",
+      href: "/industries/bfsi",
+      text: "KYC, loans, claims, collections",
+    },
+    {
+      label: "Legal & consulting",
+      href: "/industries/legal",
+      text: "Intake, contracts, deadlines",
+    },
+    {
+      label: "Professional services",
+      href: "/industries/professional-services",
+      text: "Proposals, documents, billing",
+    },
+    {
+      label: "HR & recruitment",
+      href: "/industries/hr-recruitment",
+      text: "Screening, interviews, onboarding",
+    },
+  ],
+  overview: INDUSTRIES_HUB,
+};
+
 /** The demos site's landing page, highlighted wherever it is listed. */
 const ALL_DEMOS: NavLink = {
   label: "All demos",
@@ -150,7 +252,13 @@ const COMPANY: NavGroup = {
 };
 
 /** The header's dropdowns, in order; Blog sits between Demos and Company. */
-export const HEADER_MENUS: readonly NavGroup[] = [AI, SERVICES, DEMOS, COMPANY];
+export const HEADER_MENUS: readonly NavGroup[] = [AI, SERVICES, INDUSTRIES, DEMOS, COMPANY];
+
+/** The footer's full-width row of every industry page, under the link columns. */
+export const FOOTER_INDUSTRIES: NavGroup = {
+  ...INDUSTRIES,
+  links: [INDUSTRIES_HUB, ...INDUSTRIES.links],
+};
 
 export const BLOG_LINK: NavLink = { label: "Blog", href: "/blog" };
 

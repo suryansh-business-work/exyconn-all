@@ -1,0 +1,471 @@
+{
+  "key": "industries-bfsi",
+  "path": "/industries/bfsi",
+  "title": "AI for Banking, Finance & Insurance | Exyconn",
+  "seo": {
+    "title": "AI Automation for Banking, NBFCs and Insurance | Exyconn",
+    "description": "AI agents for banks, NBFCs and insurers: answer account queries, check KYC documents, prepare loan and claim files, send collection reminders and flag fraud.",
+    "keywords": "AI in banking, AI for NBFC, insurance claims automation, KYC automation, loan processing automation, AI collections, banking chatbot, fraud detection AI, regulatory reporting automation, BFSI AI solutions",
+    "ogImageUrl": "",
+    "canonical": "",
+    "noindex": false,
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "{marketUrl}" },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Industries",
+            "item": "{marketUrl}/industries"
+          },
+          { "@type": "ListItem", "position": 3, "name": "Banking, finance & insurance" }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "AI automation for banking, finance and insurance",
+        "serviceType": "AI agents and workflow automation",
+        "description": "Exyconn designs, builds and runs AI agents for banks, NBFCs, insurers and brokers: customer and account queries, KYC document checks, loan and claim file preparation, collection reminders, fraud and risk flags and regulatory return preparation, connected to the core banking, loan and policy systems already in place.",
+        "url": "{marketUrl}/industries/bfsi",
+        "audience": {
+          "@type": "BusinessAudience",
+          "audienceType": "Banks, co-operative banks, NBFCs, fintech lenders, insurers and insurance brokers"
+        },
+        "provider": { "@type": "Organization", "name": "{businessName}", "url": "{siteUrl}" },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "AI use cases for banking, finance and insurance",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Customer service and account queries" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "KYC and onboarding document checks" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Loan and claims file processing" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Collections reminders" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Fraud and risk flags" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Regulatory reporting preparation" }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "body": [
+    {
+      "component": "detail.stage",
+      "props": {
+        "family": "services",
+        "crumbs": [
+          { "label": "Home", "href": "/" },
+          { "label": "Industries", "href": "/industries" },
+          { "label": "Banking, finance & insurance", "href": "" }
+        ],
+        "title": "Queries answered, files checked, decisions left to you",
+        "lede": "AI agents for banks, NBFCs and insurers that answer customers after verifying them, check KYC and loan documents before they reach an underwriter, and keep collections and returns on schedule. Your credit and compliance people still sign off.",
+        "primary": { "label": "Plan AI for your institution", "href": "/contact" },
+        "secondary": {
+          "label": "See AI document processing",
+          "href": "/ai-services/ai-document-processing"
+        },
+        "scene": { "shapes": ["bfsi"], "accent": ["cyan", "violet"] },
+        "glyph": "",
+        "tagline": "Service · KYC · Loans & claims · Collections · Fraud · Reporting"
+      }
+    },
+    {
+      "component": "detail.intro",
+      "props": {
+        "index": 1,
+        "label": "In short",
+        "intro": {
+          "title": "What does Exyconn build for banking, finance and insurance?",
+          "icon": "building-columns",
+          "term": "AI for BFSI",
+          "definition": "means agents that do the checking, chasing and answering around a loan, account or policy, so your officers spend their time on the decisions. Exyconn designs, builds and runs these agents on your core banking system, loan origination and management systems, policy administration system and WhatsApp Business account. They verify a customer before sharing anything, prepare files for a human to approve, and log every step for audit."
+        },
+        "benefits": {
+          "title": "Why lenders and insurers are doing this now",
+          "items": [
+            {
+              "icon": "mobile-screen",
+              "text": "Borrowers and policyholders expect to sort out an EMI or a claim on WhatsApp, not by visiting a branch."
+            },
+            {
+              "icon": "id-card",
+              "text": "Video KYC, CKYC and DigiLocker have made onboarding digital, but someone still has to check that the documents match."
+            },
+            {
+              "icon": "phone",
+              "text": "Collection calls now come with time windows, recording and conduct rules that are easier to follow when software keeps the log."
+            },
+            {
+              "icon": "user-shield",
+              "text": "Fraud moves fast through mule accounts and synthetic identities, and rule engines alone produce more alerts than analysts can read."
+            },
+            {
+              "icon": "file-shield",
+              "text": "Every return and inspection asks for the same figures with a clear trail back to source data."
+            }
+          ]
+        },
+        "demo": {
+          "kind": "chat",
+          "title": "whatsapp · loan servicing",
+          "caption": "A borrower asks to close a two-wheeler loan early; the agent verifies him, quotes the foreclosure amount from the loan system and sends the statement.",
+          "messages": [
+            {
+              "from": "user",
+              "text": "Hi, I want to close my bike loan early. How much do I still owe?"
+            },
+            {
+              "from": "agent",
+              "text": "Hello Rahul. Before I share loan details I need to confirm it's you. I've sent a 6-digit code to the mobile number ending 4471."
+            },
+            { "from": "user", "text": "582913" },
+            {
+              "from": "agent",
+              "text": "Thank you. For loan ending 0932, the foreclosure amount valid till 20 October is ₹38,412, which includes the foreclosure charge in your sanction letter. Shall I send the full statement as a PDF?"
+            },
+            { "from": "user", "text": "Yes please. And how do I pay?" },
+            {
+              "from": "agent",
+              "text": "Statement sent. You can pay through the UPI link below or at any branch. Once the payment clears, your NOC and the letter for removing the hypothecation from your RC will be sent to you here."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "service.info-grid",
+      "props": {
+        "index": 2,
+        "id": "bfsi-challenges",
+        "anchor": "",
+        "label": "The reality",
+        "title": "Where a lender's and insurer's hours actually go",
+        "lede": "Ask a branch manager, a credit ops head or a claims lead and the list is familiar. Most of it is checking and chasing, not judgement.",
+        "indexPrefix": "B",
+        "items": [
+          {
+            "id": "service-queries",
+            "title": "The same service requests, every channel",
+            "text": "Statement copies, EMI dates, interest certificates for tax, claim status, a changed mobile number. Each one needs the customer verified first, so even simple answers take a call centre agent several minutes.",
+            "points": []
+          },
+          {
+            "id": "kyc-rework",
+            "title": "KYC files that bounce back",
+            "text": "A blurred PAN, a name spelt differently on Aadhaar and the bank statement, an address proof that has expired. These are caught late, the customer is called again, and the account or loan waits.",
+            "points": []
+          },
+          {
+            "id": "file-queues",
+            "title": "Loan and claim files stuck on a missing page",
+            "text": "Underwriters open a file to find the third salary slip missing or the hospital discharge summary not attached. Hours go into finding out what is incomplete before anyone can assess risk.",
+            "points": []
+          },
+          {
+            "id": "collections",
+            "title": "Collections run from spreadsheets",
+            "text": "Bucket lists are exported, split among callers and worked by phone. Tracking who was called when, what they promised and whether the call stayed within the rules is mostly manual.",
+            "points": []
+          },
+          {
+            "id": "alert-fatigue",
+            "title": "Too many alerts, too few analysts",
+            "text": "Transaction monitoring rules fire on legitimate customers all day. Analysts clear the noise by hand, and the cases that matter wait in the same queue.",
+            "points": []
+          },
+          {
+            "id": "returns",
+            "title": "Returns rebuilt every period",
+            "text": "Figures for regulatory returns come from the core system, the loan system and a few spreadsheets. Compliance teams reconcile them again each time, close to the deadline.",
+            "points": []
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.offerings",
+      "props": {
+        "index": 3,
+        "label": "Use cases",
+        "offerings": {
+          "title": "Six jobs AI takes off your operations team",
+          "items": [
+            {
+              "icon": "comments",
+              "title": "Customer service and account queries",
+              "text": "Verifies the customer by OTP, then answers balance, EMI, statement, certificate and claim-status requests on WhatsApp, app chat or phone from the core banking or policy system. Complaints and anything outside its permissions go to an officer with the conversation attached."
+            },
+            {
+              "icon": "id-card",
+              "title": "KYC and onboarding document checks",
+              "text": "Reads PAN, Aadhaar, address proofs and bank statements, matches names, dates and addresses across them and against CKYC or DigiLocker data where the customer has consented. Mismatches are listed for the onboarding team before the file moves on."
+            },
+            {
+              "icon": "clipboard-check",
+              "title": "Loan and claims file processing",
+              "text": "Builds the file in your loan origination or claims system: extracts income and bank-statement data, checks the document list against the product's checklist and writes a summary. A credit officer or claims assessor makes the decision."
+            },
+            {
+              "icon": "bell",
+              "title": "Collections reminders",
+              "text": "Sends EMI and premium reminders before the due date and after a bounce on WhatsApp, SMS or voice, in the customer's language, only within permitted contact hours. Promises to pay and payment links are written back to the loan system, and every contact is logged."
+            },
+            {
+              "icon": "shield-halved",
+              "title": "Fraud and risk flags",
+              "text": "Reviews applications and transactions against the patterns your risk team defines, such as one device across many applications or documents that do not agree, and writes a case note for the analyst. Your team decides on the case and on any report to FIU-IND."
+            },
+            {
+              "icon": "chart-column",
+              "title": "Regulatory reporting preparation",
+              "text": "Pulls figures from the core system, loan system and general ledger into the formats your returns need, compares them with the last period and lists each variance with its source rows. A named officer reviews and files."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "industry.story",
+      "props": {
+        "index": 4,
+        "label": "A day with it running",
+        "title": "One day at a vehicle-finance NBFC with 40 branches",
+        "lede": "A normal Thursday, a week before month end. Each moment lights the part of the business the agent is working on.",
+        "moments": [
+          {
+            "when": "08:05",
+            "title": "Reminders go out as the window opens",
+            "text": "Borrowers with EMIs due on the 5th get a WhatsApp reminder with a payment link in Tamil, Telugu or Hindi. Three reply asking for a date change; their requests reach the collections desk with the account history attached.",
+            "useCase": 4
+          },
+          {
+            "when": "09:40",
+            "title": "A KYC mismatch caught early",
+            "text": "A new applicant's bank statement shows a different spelling of her surname from her PAN. The agent flags it for the branch before the file is logged, and the branch asks for a declaration the same morning.",
+            "useCase": 2
+          },
+          {
+            "when": "11:20",
+            "title": "A loan file arrives complete",
+            "text": "A dealer submits a tractor loan application. The agent extracts income from the bank statements, confirms every document on the checklist is present and sends the credit officer a one-page summary to decide on.",
+            "useCase": 3
+          },
+          {
+            "when": "14:10",
+            "title": "An interest certificate in two minutes",
+            "text": "A borrower asks for his interest certificate for an income tax claim. He is verified by OTP and receives the PDF from the loan management system without calling anyone.",
+            "useCase": 1
+          },
+          {
+            "when": "17:30",
+            "title": "Five applications, one phone",
+            "text": "Five applications from different districts were submitted from the same device in two days. The agent opens one case for the risk analyst with the links between them laid out.",
+            "useCase": 5
+          },
+          {
+            "when": "21:00",
+            "title": "Month-end figures, reconciled overnight",
+            "text": "Draft figures for the monthly returns are pulled and matched against the general ledger. The compliance head finds a list of four variances and their source rows waiting in the morning.",
+            "useCase": 6
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.architecture",
+      "props": {
+        "index": 5,
+        "label": "How it connects",
+        "title": "Built on the systems you already run",
+        "layers": [
+          {
+            "label": "Where customers talk",
+            "nodes": ["WhatsApp", "App & web chat", "Phone line"]
+          },
+          { "label": "AI agents", "nodes": ["Service agent", "Credit ops agent", "Risk monitor"] },
+          { "label": "Your systems", "nodes": ["Core banking", "LOS & LMS", "CKYC & bureau"] },
+          {
+            "label": "People in charge",
+            "nodes": ["Credit officers", "Compliance head", "Audit log"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.tabs",
+      "props": {
+        "index": 6,
+        "label": "By institution",
+        "title": "What it looks like for your kind of institution",
+        "items": [
+          {
+            "label": "Banks & co-operative banks",
+            "summary": "Many branches, one set of answers",
+            "text": "Branches and call centres field the same service requests all day. We start with verified self-service on WhatsApp for statements, certificates and account changes, then move into KYC checks and re-KYC drives.",
+            "points": [
+              "OTP-verified service requests on WhatsApp",
+              "Re-KYC reminders and document collection",
+              "Deployment inside your own infrastructure"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "NBFCs & fintech lenders",
+            "summary": "Volume, speed and collections",
+            "text": "For lenders the work is in the file and the follow-up. Agents check applications before they reach credit, track documents from dealers and DSAs, and run reminder-led collections with a full contact log.",
+            "points": [
+              "Document checks against each product's checklist",
+              "Bank-statement and income extraction",
+              "Collections reminders within contact-hour rules"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Insurers & brokers",
+            "summary": "Claims, renewals and policy servicing",
+            "text": "Policyholders mostly want two things: the status of a claim and a reminder before a policy lapses. Agents answer both, collect claim documents from customers, hospitals or garages and prepare the file for the assessor.",
+            "points": [
+              "Claim intake and document collection",
+              "Renewal reminders with payment links",
+              "Claim-status answers from the policy system"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          }
+        ],
+        "previous": "Previous",
+        "next": "Next"
+      }
+    },
+    {
+      "component": "detail.process",
+      "props": {
+        "index": 7,
+        "label": "Rollout",
+        "title": "Through your risk review first, then live",
+        "lede": "Financial institutions rightly review a vendor before anything touches customer data. We plan for that and start with one low-risk queue.",
+        "steps": [
+          {
+            "title": "Risk, data and process review",
+            "text": "We answer your information security and outsourcing questionnaires, agree where data is hosted and pick the first process, usually service requests or KYC checks.",
+            "when": "Weeks 1–2"
+          },
+          {
+            "title": "Build and test in your environment",
+            "text": "The agent is connected to test instances of your systems and run against past cases, with your team reviewing every answer and extraction.",
+            "when": "Weeks 3–6"
+          },
+          {
+            "title": "Live on one queue",
+            "text": "It goes live for one product or region with an officer approving its output, then extends to collections, claims or reporting once the numbers hold up.",
+            "when": "Weeks 7–12"
+          },
+          {
+            "title": "Run and improve",
+            "text": "We monitor accuracy and escalations, retrain on the cases it got wrong and keep the audit trail ready for internal audit and inspections.",
+            "when": "Ongoing"
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.related",
+      "props": {
+        "index": 8,
+        "label": "Related",
+        "title": "What lenders and insurers pair this with",
+        "more": "Explore",
+        "cards": [
+          {
+            "href": "/ai-services/ai-document-processing",
+            "index": "AI/01",
+            "title": "AI document processing",
+            "text": "KYC documents, bank statements and claim forms turned into structured data you can check.",
+            "tags": ["KYC", "Statements", "Claims"]
+          },
+          {
+            "href": "/ai-services/ai-compliance-automation",
+            "index": "AI/02",
+            "title": "AI compliance automation",
+            "text": "Evidence collection and control monitoring kept current instead of rebuilt before each audit.",
+            "tags": ["Audit", "Controls", "Evidence"]
+          },
+          {
+            "href": "/ai-services/ai-voice-agents",
+            "index": "AI/03",
+            "title": "AI voice agents",
+            "text": "Reminder and service calls in the customer's language, recorded and logged.",
+            "tags": ["Phone", "Collections", "Languages"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.faq",
+      "props": {
+        "index": 9,
+        "label": "FAQ",
+        "title": "Questions banks, NBFCs and insurers ask us",
+        "items": [
+          {
+            "question": "Will the AI approve loans or settle claims on its own?",
+            "answer": "No. It prepares the file, checks documents and writes a summary, and a credit officer or claims assessor makes the decision. The same applies to fraud cases and regulatory filings: the agent flags and drafts, a named person decides."
+          },
+          {
+            "question": "Which core banking, loan and policy systems can it connect to?",
+            "answer": "Any system with an API, a database view or a reliable file export, including core banking platforms, loan origination and management systems, policy administration and claims systems, CKYC, credit bureaus and payment gateways. In the first two weeks we confirm what your stack exposes and what the agent may read or write."
+          },
+          {
+            "question": "How is customer data protected?",
+            "answer": "Customers are verified before any account detail is shared, access is role-based and every action is logged. We can deploy inside your own cloud or data centre so data stays in India, and the setup is designed around the DPDP Act 2023 and the RBI or IRDAI outsourcing and IT requirements that apply to you. We work through your vendor risk review before go-live."
+          },
+          {
+            "question": "Can it talk to customers in regional languages?",
+            "answer": "Yes. It replies in the language the customer writes or speaks in, including Hindi, Tamil, Telugu, Marathi, Bengali and other Indian languages, while your product rules and scripts are maintained once."
+          },
+          {
+            "question": "What happens when the AI gets something wrong or cannot answer?",
+            "answer": "It is built to stop rather than guess: if it cannot verify a customer, read a document clearly or find an answer in your systems, it hands over to an officer with the reason. Every escalation is reviewed and used to correct the agent."
+          },
+          {
+            "question": "How much does it cost?",
+            "answer": "It depends on the number of products, channels and systems in scope and on where it is hosted. Most institutions start with one process, such as service requests or KYC checks; tell us which one and we'll send a fixed quote for that first phase."
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.cta",
+      "props": {
+        "family": "services",
+        "label": "Next step",
+        "title": "Pick one queue and we'll map it",
+        "text": "Service requests, KYC checks, claims or collections: send us an anonymised sample and we'll show where an agent fits and what it needs from your systems. No obligation.",
+        "primary": { "label": "Talk to us", "href": "/contact" },
+        "secondary": { "label": "Get a quote", "href": "/get-a-quote" },
+        "echoShape": 0
+      }
+    }
+  ]
+}

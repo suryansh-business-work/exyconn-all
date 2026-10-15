@@ -1,0 +1,468 @@
+{
+  "key": "industries-automotive",
+  "path": "/industries/automotive",
+  "title": "AI for Automotive & Dealerships | Exyconn",
+  "seo": {
+    "title": "AI Automation for Car Dealerships and Workshops | Exyconn",
+    "description": "AI agents for car and two-wheeler dealerships: book test drives, answer stock and EMI questions, fill the service bay, send job-card updates and chase papers.",
+    "keywords": "AI for car dealerships, dealership automation, automotive AI chatbot, test drive booking bot, service reminder WhatsApp, car service booking automation, dealer management system integration, workshop job card updates, automotive lead management, two-wheeler dealership software, vehicle service follow-up",
+    "ogImageUrl": "",
+    "canonical": "",
+    "noindex": false,
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "{marketUrl}" },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Industries",
+            "item": "{marketUrl}/industries"
+          },
+          { "@type": "ListItem", "position": 3, "name": "Automotive & dealerships" }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "AI automation for automotive dealerships and workshops",
+        "serviceType": "AI agents and workflow automation",
+        "description": "Exyconn designs, builds and runs AI agents for car and two-wheeler dealerships and service workshops: test-drive booking, a sales assistant for stock, variants and finance, service booking and reminders, job-card status updates, finance and insurance paperwork, and dealership performance reporting, connected to the dealer management system and CRM.",
+        "url": "{marketUrl}/industries/automotive",
+        "audience": {
+          "@type": "BusinessAudience",
+          "audienceType": "Car and two-wheeler dealerships, multi-brand workshops and dealer groups"
+        },
+        "provider": { "@type": "Organization", "name": "{businessName}", "url": "{siteUrl}" },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "AI use cases for automotive dealerships",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Test-drive booking" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Sales assistant for stock, variants and finance"
+              }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Service booking and reminders" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Service status updates" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Finance and insurance paperwork" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Dealership performance reporting" }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "body": [
+    {
+      "component": "detail.stage",
+      "props": {
+        "family": "services",
+        "crumbs": [
+          { "label": "Home", "href": "/" },
+          { "label": "Industries", "href": "/industries" },
+          { "label": "Automotive & dealerships", "href": "" }
+        ],
+        "title": "From first enquiry to the next service",
+        "lede": "AI agents for dealerships and workshops that answer stock and EMI questions at midnight, book test drives and service slots, and tell owners where their car is in the bay. They run on your DMS and CRM.",
+        "primary": { "label": "Plan AI for your dealership", "href": "/contact" },
+        "secondary": { "label": "See the WhatsApp chatbot", "href": "/services/whatsapp-chatbot" },
+        "scene": { "shapes": ["automotive"], "accent": ["sky", "cyan"] },
+        "glyph": "",
+        "tagline": "Test drives · Sales · Service · Paperwork · Reports"
+      }
+    },
+    {
+      "component": "detail.intro",
+      "props": {
+        "index": 1,
+        "label": "In short",
+        "intro": {
+          "title": "What does Exyconn build for automotive dealerships?",
+          "icon": "car",
+          "term": "AI for automotive",
+          "definition": "is a set of agents that do a dealership's routine sales and after-sales work: replying to leads, booking test drives and service appointments, sending job-card updates and chasing the documents a delivery needs. Exyconn designs, builds and runs them on your dealer management system (DMS), CRM and WhatsApp Business account, so sales consultants and service advisors spend their time with buyers and vehicles. Your OEM systems stay as they are."
+        },
+        "benefits": {
+          "title": "Why dealerships are doing this now",
+          "items": [
+            {
+              "icon": "mobile-screen",
+              "text": "Buyers compare variants and on-road prices on their phones late at night and message whichever dealer replies first."
+            },
+            {
+              "icon": "filter",
+              "text": "Leads arrive from the OEM website, listing portals, walk-ins and calls, and the slow ones go cold in a day."
+            },
+            {
+              "icon": "wrench",
+              "text": "After-sales carries the dealership between launches, and every lapsed service customer is revenue a local garage picks up."
+            },
+            {
+              "icon": "phone-slash",
+              "text": "Service advisors lose hours to \"is my car ready?\" calls during the busiest part of the day."
+            },
+            {
+              "icon": "file-signature",
+              "text": "A delivery date slips when one finance or insurance document is missing, and someone has to notice in time."
+            }
+          ]
+        },
+        "demo": {
+          "kind": "chat",
+          "title": "whatsapp · showroom assistant",
+          "caption": "A buyer asks about a variant and EMI; the agent checks stock, gives an indicative figure and books a test drive.",
+          "messages": [
+            {
+              "from": "user",
+              "text": "Is the automatic petrol in grey available? And what would the EMI be?"
+            },
+            {
+              "from": "agent",
+              "text": "Hi Rohit! We have one grey automatic in stock at the Baner showroom. On-road price is ₹11.8 lakh. With ₹2 lakh down over 5 years, the indicative EMI is about ₹20,000 a month; the bank confirms the final rate."
+            },
+            { "from": "user", "text": "Can I drive it on Saturday?" },
+            {
+              "from": "agent",
+              "text": "Saturday has 10:30 or 4:00 free. Should I book one, and would you like the car brought to your home instead?"
+            },
+            { "from": "user", "text": "10:30 at the showroom is fine" },
+            {
+              "from": "agent",
+              "text": "Booked. Priya from sales will meet you, and please bring your driving licence. I'll send a reminder on Friday evening."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "service.info-grid",
+      "props": {
+        "index": 2,
+        "id": "automotive-challenges",
+        "anchor": "",
+        "label": "The reality",
+        "title": "Where a dealership's hours actually go",
+        "lede": "Ask a general manager or a works manager and the same list comes up. Each item is small. Together they decide the month.",
+        "indexPrefix": "A",
+        "items": [
+          {
+            "id": "lead-response",
+            "title": "Leads answered too late",
+            "text": "An enquiry from the OEM site at 9pm gets a call the next afternoon. By then the buyer has visited two other showrooms.",
+            "points": []
+          },
+          {
+            "id": "same-questions",
+            "title": "The same price questions on repeat",
+            "text": "On-road price, waiting period, colours in stock, exchange value, EMI. Consultants answer them all day instead of following up hot prospects.",
+            "points": []
+          },
+          {
+            "id": "service-retention",
+            "title": "Service customers drifting away",
+            "text": "Once the free services end, owners stop coming back unless someone reminds them at the right kilometre reading and makes booking easy.",
+            "points": []
+          },
+          {
+            "id": "status-calls",
+            "title": "\"Is my car ready?\"",
+            "text": "Owners call for status, the advisor walks to the bay to check, and the job card in the DMS was already up to date.",
+            "points": []
+          },
+          {
+            "id": "delivery-docs",
+            "title": "Deliveries held up by paperwork",
+            "text": "Loan sanction, insurance cover note, KYC copies and registration all move on different timelines, tracked in a spreadsheet or someone's memory.",
+            "points": []
+          },
+          {
+            "id": "scattered-numbers",
+            "title": "Numbers spread across systems",
+            "text": "Enquiries, bookings, retail, service throughput and parts sales live in different screens, so the morning meeting starts with someone building a sheet.",
+            "points": []
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.offerings",
+      "props": {
+        "index": 3,
+        "label": "Use cases",
+        "offerings": {
+          "title": "Six jobs AI takes off your showroom and service floor",
+          "items": [
+            {
+              "icon": "calendar-check",
+              "title": "Test drives booked in the chat",
+              "text": "Offers the free slots for the model and fuel type the buyer wants, books showroom or home test drives against the demo-car calendar, and sends reminders to buyer and consultant."
+            },
+            {
+              "icon": "comments",
+              "title": "Sales assistant for stock, variants and finance",
+              "text": "Answers variant, colour, feature and waiting-period questions from live DMS stock and your price list, works out an indicative EMI, and logs every enquiry in the CRM for a consultant to pick up."
+            },
+            {
+              "icon": "wrench",
+              "title": "Service booking and reminders",
+              "text": "Reminds owners when a service is due by date or kilometres, offers bay slots, books pick-up and drop where you run it, and writes the appointment into the DMS."
+            },
+            {
+              "icon": "bell",
+              "title": "Job-card status updates",
+              "text": "Reads the job card and sends owners updates when the car is in, when an extra job needs their approval with the estimate, and when it is washed and ready."
+            },
+            {
+              "icon": "file-lines",
+              "title": "Finance and insurance paperwork",
+              "text": "Collects KYC and income documents on WhatsApp, checks each is readable and complete, tracks loan and insurance status, and reminds owners before the policy renews."
+            },
+            {
+              "icon": "chart-line",
+              "title": "Dealership performance",
+              "text": "Enquiry-to-booking conversion, test drives, retail, service load and parts sales pulled from the DMS and CRM into one daily summary for the dealer principal."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "industry.story",
+      "props": {
+        "index": 4,
+        "label": "A day with it running",
+        "title": "One day at a two-showroom car dealership",
+        "lede": "Follow a busy Saturday. Each moment lights the part of the dealership the agent is working on.",
+        "moments": [
+          {
+            "when": "07:30",
+            "title": "Service reminders go out",
+            "text": "Forty owners whose cars are due by date or odometer get a reminder with three slot options. The first replies are booked into the DMS before the workshop opens.",
+            "useCase": 3
+          },
+          {
+            "when": "09:15",
+            "title": "Overnight leads already answered",
+            "text": "Twelve enquiries came in after closing. Each got stock and price answers at the time, and the consultants start the day with a ranked list in the CRM.",
+            "useCase": 2
+          },
+          {
+            "when": "11:00",
+            "title": "A test drive moves home",
+            "text": "A buyer can't make the showroom slot. The agent rebooks it as a home test drive at 5pm and tells the consultant and the driver.",
+            "useCase": 1
+          },
+          {
+            "when": "13:40",
+            "title": "An extra job needs a yes",
+            "text": "The technician finds worn brake pads. The owner gets the estimate on WhatsApp, approves it, and the job card is updated without a phone call.",
+            "useCase": 4
+          },
+          {
+            "when": "16:20",
+            "title": "One document short of delivery",
+            "text": "Tuesday's delivery still needs a bank statement for the loan. The agent asks the buyer for it, checks the file arrives complete and tells the finance desk.",
+            "useCase": 5
+          },
+          {
+            "when": "20:30",
+            "title": "The day in one message",
+            "text": "Enquiries, test drives, bookings, cars delivered, vehicles serviced and parts sales reach the dealer principal, with a note on which model had the most walk-outs.",
+            "useCase": 6
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.architecture",
+      "props": {
+        "index": 5,
+        "label": "How it connects",
+        "title": "Built on the systems you already run",
+        "layers": [
+          { "label": "Where buyers talk", "nodes": ["WhatsApp", "Web & OEM leads", "Phone line"] },
+          { "label": "AI agents", "nodes": ["Sales assistant", "Service desk", "Paperwork agent"] },
+          { "label": "Your systems", "nodes": ["DMS", "Lead CRM", "Lenders & insurers"] },
+          {
+            "label": "People in charge",
+            "nodes": ["Sales handover", "Advisor approvals", "Audit log"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.tabs",
+      "props": {
+        "index": 6,
+        "label": "By business",
+        "title": "What it looks like for your kind of dealership",
+        "items": [
+          {
+            "label": "Two-wheeler dealerships",
+            "summary": "High footfall, small tickets",
+            "text": "Volumes are high and margins thin, so speed matters most. We start with a WhatsApp agent that answers price and EMI questions, books test rides and sends free-service reminders.",
+            "points": [
+              "Price, EMI and stock answers on WhatsApp",
+              "Test-ride and service slot booking",
+              "Free and paid service reminders by kilometre"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Car dealerships",
+            "summary": "Long buying cycle, many touchpoints",
+            "text": "A car purchase runs over weeks, with a test drive, an exchange valuation, a loan and insurance in between. Agents keep each buyer moving and keep the consultant informed at every step.",
+            "points": [
+              "Lead follow-up logged in your CRM",
+              "Test drives against the demo-car calendar",
+              "Document collection for loan and insurance"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Workshops & dealer groups",
+            "summary": "Many bays, many branches",
+            "text": "For service-heavy businesses and groups with several outlets, the agents balance bookings across workshops, send job-card updates and roll every branch's numbers into one report.",
+            "points": [
+              "Bookings spread across branches and bays",
+              "Job-card updates and estimate approvals",
+              "Group-level reporting with branch drill-down"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          }
+        ],
+        "previous": "Previous",
+        "next": "Next"
+      }
+    },
+    {
+      "component": "detail.process",
+      "props": {
+        "index": 7,
+        "label": "Rollout",
+        "title": "Live with real buyers within a month",
+        "lede": "Most dealerships start with lead replies or service reminders, whichever costs them more today.",
+        "steps": [
+          {
+            "title": "Map sales and service",
+            "text": "We read a sample of real enquiries and service calls, list what your DMS and CRM expose, and agree what the agent answers and what goes to a consultant or advisor.",
+            "when": "Week 1"
+          },
+          {
+            "title": "Pilot on one channel",
+            "text": "The agent goes live on WhatsApp with your price list, stock feed and slot calendar, and your team reviews its replies for the first days.",
+            "when": "Weeks 2–4"
+          },
+          {
+            "title": "Add after-sales and paperwork",
+            "text": "Service reminders, job-card updates, document collection and the daily report are switched on one at a time.",
+            "when": "Weeks 5–8"
+          },
+          {
+            "title": "Run and improve",
+            "text": "We watch every conversation, fix the questions it couldn't answer and update it for each new model launch and price change.",
+            "when": "Ongoing"
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.related",
+      "props": {
+        "index": 8,
+        "label": "Related",
+        "title": "What dealerships pair this with",
+        "more": "Explore",
+        "cards": [
+          {
+            "href": "/ai-services/ai-whatsapp-automation",
+            "index": "AI/01",
+            "title": "AI WhatsApp automation",
+            "text": "Sales and support on WhatsApp, automated on the official Business API.",
+            "tags": ["WhatsApp", "Leads", "Reminders"]
+          },
+          {
+            "href": "/ai-services/ai-voice-agents",
+            "index": "AI/02",
+            "title": "AI voice agents",
+            "text": "Take service bookings and answer status calls on the workshop line while advisors are on the floor.",
+            "tags": ["Phone", "Service", "Bookings"]
+          },
+          {
+            "href": "/ai-services/ai-document-processing",
+            "index": "AI/03",
+            "title": "AI document processing",
+            "text": "KYC, income proofs and insurance documents read, checked and filed against the right booking.",
+            "tags": ["KYC", "Loans", "Insurance"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.faq",
+      "props": {
+        "index": 9,
+        "label": "FAQ",
+        "title": "Questions dealerships ask us",
+        "items": [
+          {
+            "question": "Will this replace our sales consultants or service advisors?",
+            "answer": "No. It answers the repetitive questions, books slots and chases documents, then hands the buyer or owner to a person with the full conversation. Negotiation, exchange valuation and anything a customer is unhappy about stay with your team."
+          },
+          {
+            "question": "Can it work with our OEM's DMS?",
+            "answer": "It depends on what the DMS allows. Where there is an API or a dealer-side export we read stock, job cards and appointments directly; where the OEM locks it down we work from scheduled exports and your own CRM. We confirm this in the first week before promising anything."
+          },
+          {
+            "question": "Does the agent approve loans or quote final prices?",
+            "answer": "No. It gives indicative EMIs and prices from your current price list and says so. The lender decides on the loan, and your team confirms the final on-road price, discounts and exchange value."
+          },
+          {
+            "question": "Which languages can customers use?",
+            "answer": "Customers can write or speak in English, Hindi and other Indian languages such as Marathi, Tamil or Kannada, and the agent replies in the same language. Your price list and policies are maintained once."
+          },
+          {
+            "question": "How is customer data protected?",
+            "answer": "KYC and loan documents are stored in an environment set up for your dealership with role-based access and an audit log, and only passed to the lender or insurer you work with. The setup follows India's DPDP Act 2023, or the GDPR where it applies."
+          },
+          {
+            "question": "What does it cost?",
+            "answer": "It depends on the number of outlets, channels and systems we connect. Most dealerships start with one use case, such as lead replies or service reminders, at a fixed price for the first phase. Tell us about your setup and we'll quote it."
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.cta",
+      "props": {
+        "family": "services",
+        "label": "Next step",
+        "title": "Send us last month's missed enquiries",
+        "text": "We'll show which ones an agent could have answered that night, and what it would take to connect it to your DMS and CRM. No obligation.",
+        "primary": { "label": "Talk to us", "href": "/contact" },
+        "secondary": { "label": "Get a quote", "href": "/get-a-quote" },
+        "echoShape": 0
+      }
+    }
+  ]
+}

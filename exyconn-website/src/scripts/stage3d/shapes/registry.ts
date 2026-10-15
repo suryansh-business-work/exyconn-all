@@ -36,13 +36,14 @@ import { sampleTerrain, TERRAIN_BOUNDS, type TerrainParams } from "./terrain";
 import { sampleTokenStream, TOKEN_STREAM_BOUNDS, type TokenStreamParams } from "./token-stream";
 import { sampleTree, TREE_BOUNDS, type TreeParams } from "./tree";
 import { sampleWorkforce, WORKFORCE_BOUNDS, type WorkforceParams } from "./workforce";
+import { INDUSTRY_SHAPES, type IndustryShapeId } from "./industries";
 
 /**
  * Every shape a stage can show, keyed by id. A page names the ids it needs and passes the
  * data-driven ones their numbers; only those are sampled. Every sampler is pure and seeded
  * and keeps its points inside `bounds` (half extents about the origin).
  */
-export interface ShapeParamsMap {
+interface BuiltInShapeParams {
   core: Record<string, never>;
   jet: Record<string, never>;
   robot: Record<string, never>;
@@ -77,6 +78,11 @@ export interface ShapeParamsMap {
   neuralCore: NeuralCoreParams;
   aiChip: AiChipParams;
 }
+
+/** Industry scenes take no arguments: each is its landmark and six use cases. */
+export type ShapeParamsMap = BuiltInShapeParams & {
+  readonly [K in IndustryShapeId]: Record<string, never>;
+};
 
 export type ShapeId = keyof ShapeParamsMap;
 
@@ -143,6 +149,7 @@ export const SHAPES: Registry = {
   modernize: { bounds: MODERNIZE_BOUNDS, motion: "sway", sample: sampleModernize, pitch: 0.14 },
   neuralCore: { bounds: NEURAL_CORE_BOUNDS, motion: "spin", sample: sampleNeuralCore, pitch: 0.22 },
   aiChip: { bounds: AI_CHIP_BOUNDS, motion: "sway", sample: sampleAiChip, pitch: 0.62 },
+  ...INDUSTRY_SHAPES,
 };
 
 export const SHAPE_IDS = Object.keys(SHAPES) as ShapeId[];

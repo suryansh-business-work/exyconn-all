@@ -1,0 +1,477 @@
+{
+  "key": "industries-professional-services",
+  "path": "/industries/professional-services",
+  "title": "AI for Professional Services | Exyconn",
+  "seo": {
+    "title": "AI Automation for Professional Services Firms | Exyconn",
+    "description": "AI agents for accounting firms and consultancies: qualify enquiries, draft proposals, book meetings, chase documents, fill timesheets and report utilisation.",
+    "keywords": "AI for professional services, AI for accounting firms, AI for CA firms, consulting firm automation, proposal automation, timesheet automation, professional services automation, utilisation reporting, client onboarding automation, AI for consultants",
+    "ogImageUrl": "",
+    "canonical": "",
+    "noindex": false,
+    "jsonLd": [
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "{marketUrl}" },
+          {
+            "@type": "ListItem",
+            "position": 2,
+            "name": "Industries",
+            "item": "{marketUrl}/industries"
+          },
+          { "@type": "ListItem", "position": 3, "name": "Professional services" }
+        ]
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": "AI automation for professional services firms",
+        "serviceType": "AI agents and workflow automation",
+        "description": "Exyconn designs, builds and runs AI agents for accounting, consulting, architecture and engineering firms: enquiry intake and proposals, meeting scheduling, document drafting and review, timesheets and billing, search over past work and utilisation and profitability reporting, connected to the firm's CRM, practice management and accounting systems.",
+        "url": "{marketUrl}/industries/professional-services",
+        "audience": {
+          "@type": "BusinessAudience",
+          "audienceType": "Accounting and tax firms, management and IT consultancies, architecture and engineering practices"
+        },
+        "provider": { "@type": "Organization", "name": "{businessName}", "url": "{siteUrl}" },
+        "hasOfferCatalog": {
+          "@type": "OfferCatalog",
+          "name": "AI use cases for professional services firms",
+          "itemListElement": [
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Enquiry intake and proposals" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Meetings and scheduling" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Document drafting and review" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Timesheets and billing" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": { "@type": "Service", "name": "Search over past work" }
+            },
+            {
+              "@type": "Offer",
+              "itemOffered": {
+                "@type": "Service",
+                "name": "Utilisation and profitability reporting"
+              }
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "body": [
+    {
+      "component": "detail.stage",
+      "props": {
+        "family": "services",
+        "crumbs": [
+          { "label": "Home", "href": "/" },
+          { "label": "Industries", "href": "/industries" },
+          { "label": "Professional services", "href": "" }
+        ],
+        "title": "More billable hours, fewer chasing emails",
+        "lede": "AI agents for accounting firms, consultancies and design practices that answer enquiries, draft proposals, chase clients for documents and turn the week's work into timesheets. Your partners see utilisation while there is still time to act on it.",
+        "primary": { "label": "Plan AI for your firm", "href": "/contact" },
+        "secondary": {
+          "label": "See AI workflow automation",
+          "href": "/ai-services/ai-workflow-automation"
+        },
+        "scene": { "shapes": ["professionalServices"], "accent": ["violet", "cyan"] },
+        "glyph": "",
+        "tagline": "Proposals · Meetings · Drafting · Timesheets · Utilisation"
+      }
+    },
+    {
+      "component": "detail.intro",
+      "props": {
+        "index": 1,
+        "label": "In short",
+        "intro": {
+          "title": "What does Exyconn build for professional services firms?",
+          "icon": "briefcase",
+          "term": "AI for professional services",
+          "definition": "is software that handles the non-billable work around client engagements, such as proposals, scheduling, document chasing, first drafts and timesheets, so a firm's people spend more of their week on work clients pay for. Exyconn designs, builds and runs these agents on your CRM, practice management or PSA tool, accounting software and Microsoft 365 or Google Workspace. Partners keep approval of every proposal, deliverable and invoice."
+        },
+        "benefits": {
+          "title": "Why firms are doing this now",
+          "items": [
+            {
+              "icon": "inbox",
+              "text": "The firm that replies first with a clear scope and fee often wins the work."
+            },
+            {
+              "icon": "file-lines",
+              "text": "Most reports, engagement letters and proposals start from something the firm has already written."
+            },
+            {
+              "icon": "hourglass-half",
+              "text": "Every unrecorded call or email is time that will never reach an invoice."
+            },
+            {
+              "icon": "users",
+              "text": "Senior people spend evenings on admin that a junior or a system could do."
+            },
+            {
+              "icon": "chart-pie",
+              "text": "Fixed-fee work only pays if you can see an engagement running over while it is still running."
+            }
+          ]
+        },
+        "demo": {
+          "kind": "chat",
+          "title": "whatsapp · client documents",
+          "caption": "A client of an accounting firm asks what is needed for this month's GST return; the agent checks what has arrived and asks for the rest.",
+          "messages": [
+            {
+              "from": "user",
+              "text": "Hi, do you need anything else from us for this month's GSTR-3B?"
+            },
+            {
+              "from": "agent",
+              "text": "Hi Imran. We have your sales register and 41 purchase invoices. Two suppliers in your GSTR-2B haven't got a matching invoice from you yet: Shree Packaging and Delta Freight."
+            },
+            {
+              "from": "user",
+              "text": "Delta's invoice is with our accounts team. Shree Packaging I'll have to check."
+            },
+            {
+              "from": "agent",
+              "text": "No problem. You can upload both through the link below. The return is due on the 20th, so Priya would like everything by the 15th to leave time for review."
+            },
+            { "from": "user", "text": "Got it, will send by Wednesday" },
+            {
+              "from": "agent",
+              "text": "Thanks! I'll let Priya know, and send you a reminder on Wednesday morning if anything is still missing."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "service.info-grid",
+      "props": {
+        "index": 2,
+        "id": "professional-services-challenges",
+        "anchor": "",
+        "label": "The reality",
+        "title": "Where a firm's non-billable hours actually go",
+        "lede": "Managing partners at accounting firms, consultancies and design studios describe the same week. The expertise is billable; the work around it is not.",
+        "indexPrefix": "P",
+        "items": [
+          {
+            "id": "proposals",
+            "title": "Proposals written from a blank page",
+            "text": "Each enquiry needs a scope, an approach, a team and a fee. Partners rebuild them late at night from old proposals they half remember, and slow replies lose work.",
+            "points": []
+          },
+          {
+            "id": "scheduling",
+            "title": "Calendar back-and-forth",
+            "text": "Kick-off calls, reviews and site visits need three or four people from both sides. Finding a slot takes a thread of emails before any work is done.",
+            "points": []
+          },
+          {
+            "id": "document-chasing",
+            "title": "Chasing clients for information",
+            "text": "Bank statements, invoices, drawings, access to systems. Staff send the same reminder several times, and deadlines slip on the one thing still missing.",
+            "points": []
+          },
+          {
+            "id": "timesheets",
+            "title": "Timesheets filled in on Friday",
+            "text": "People reconstruct the week from memory, so short calls and quick reviews disappear. Invoices go out late, narratives are thin and write-offs follow.",
+            "points": []
+          },
+          {
+            "id": "knowledge",
+            "title": "Past work you cannot find",
+            "text": "The firm has done this kind of audit, feasibility study or migration before. Finding the deliverable means asking around until someone remembers the folder.",
+            "points": []
+          },
+          {
+            "id": "visibility",
+            "title": "Profitability known too late",
+            "text": "Utilisation and margin by client are worked out in a spreadsheet after the quarter closes, when a fixed-fee engagement has already overrun.",
+            "points": []
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.offerings",
+      "props": {
+        "index": 3,
+        "label": "Use cases",
+        "offerings": {
+          "title": "Six jobs AI takes off your fee earners",
+          "items": [
+            {
+              "icon": "envelope-open-text",
+              "title": "Enquiry intake and proposals",
+              "text": "Replies to enquiries from your website and email, asks the scoping questions your partners would ask and logs the lead in your CRM. It then drafts a proposal from your templates and past engagements for a partner to edit and send."
+            },
+            {
+              "icon": "calendar-check",
+              "title": "Meetings and scheduling",
+              "text": "Finds a time that works for your team and the client from shared calendars, sends the invite with an agenda and the documents to read, and reschedules when someone drops out."
+            },
+            {
+              "icon": "file-lines",
+              "title": "Document drafting and review",
+              "text": "Produces first drafts of engagement letters, reports, minutes and client memos from your templates and working papers, and checks drafts against your house style and review checklist before a senior signs off."
+            },
+            {
+              "icon": "clock",
+              "title": "Timesheets and billing",
+              "text": "Suggests time entries from calendars, calls, emails and documents worked on, matched to the right client and engagement in your PSA or practice tool. Approved time becomes draft invoices in your accounting software."
+            },
+            {
+              "icon": "magnifying-glass",
+              "title": "Search over past work",
+              "text": "Answers questions such as 'have we done a transfer pricing study for a pharma client?' from your document store and CRM, returning the deliverables, the team and links to the files each person is allowed to open."
+            },
+            {
+              "icon": "chart-pie",
+              "title": "Utilisation and profitability",
+              "text": "Combines timesheets, fees and costs into utilisation by person and margin by client and engagement each week, and warns the engagement lead when a fixed-fee job passes its budgeted hours."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "industry.story",
+      "props": {
+        "index": 4,
+        "label": "A day with it running",
+        "title": "One day at a 25-person accounting and advisory firm",
+        "lede": "A Tuesday in filing season. Each moment lights the part of the firm the agent is working on.",
+        "moments": [
+          {
+            "when": "08:30",
+            "title": "A kick-off call, booked without a thread",
+            "text": "A new audit client wants to meet this week. The agent finds an hour when the partner, the manager and the client's CFO are all free and sends the invite with the information request attached.",
+            "useCase": 2
+          },
+          {
+            "when": "10:00",
+            "title": "An enquiry becomes a draft proposal",
+            "text": "A logistics company asks about outsourcing its monthly bookkeeping and payroll. The agent asks about transaction volumes and headcount, logs the lead and puts a draft proposal in the partner's inbox.",
+            "useCase": 1
+          },
+          {
+            "when": "12:15",
+            "title": "Last year's work, found in a minute",
+            "text": "A manager asks whether the firm has prepared a due-diligence report for a manufacturing acquisition before. The agent returns two past reports and the names of the people who worked on them.",
+            "useCase": 5
+          },
+          {
+            "when": "15:00",
+            "title": "A management letter, first draft done",
+            "text": "From the audit working papers and last year's letter, the agent drafts the management letter points. The manager rewrites two of them and sends it to the partner for review.",
+            "useCase": 3
+          },
+          {
+            "when": "18:00",
+            "title": "Timesheets that fill themselves",
+            "text": "Each person gets suggested entries for the day's meetings, calls and files, already matched to clients. A short call with a payroll client that would have been forgotten is on the list.",
+            "useCase": 4
+          },
+          {
+            "when": "22:00",
+            "title": "An overrun flagged before it grows",
+            "text": "The weekly utilisation report shows a fixed-fee tax engagement at 90% of its hours with a month to go. The engagement lead gets a note to talk to the client about scope.",
+            "useCase": 6
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.architecture",
+      "props": {
+        "index": 5,
+        "label": "How it connects",
+        "title": "Built on the systems you already run",
+        "layers": [
+          { "label": "Where clients talk", "nodes": ["Email", "WhatsApp", "Client portal"] },
+          {
+            "label": "AI agents",
+            "nodes": ["Proposal writer", "Client assistant", "Billing clerk"]
+          },
+          { "label": "Your systems", "nodes": ["CRM", "PSA & timesheets", "Accounting & DMS"] },
+          {
+            "label": "People in charge",
+            "nodes": ["Engagement lead", "Partner approval", "Audit log"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.tabs",
+      "props": {
+        "index": 6,
+        "label": "By firm",
+        "title": "What it looks like for your kind of firm",
+        "items": [
+          {
+            "label": "Accounting & tax firms",
+            "summary": "Recurring compliance, many clients",
+            "text": "Most of the week goes into collecting data for returns and books, then answering clients about what is due. We start with document collection and status updates on WhatsApp, then add drafting and timesheets.",
+            "points": [
+              "Document requests tied to each filing deadline",
+              "Client status answers from your practice tool",
+              "Draft engagement letters and reports"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Management & IT consultancies",
+            "summary": "Proposals and project margin",
+            "text": "Winning work and keeping projects profitable matter most. Agents draft proposals from past engagements, keep timesheets complete and show margin by project every week.",
+            "points": [
+              "Proposals built from past engagements",
+              "Searchable library of deliverables",
+              "Weekly utilisation and margin by project"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          },
+          {
+            "label": "Architecture & engineering practices",
+            "summary": "Projects with long tails",
+            "text": "Design practices juggle site visits, consultant meetings and stage-based fees. Agents schedule the meetings, keep minutes, track stage fees against hours and find earlier drawings and specifications quickly.",
+            "points": [
+              "Site visit and design-review scheduling",
+              "Minutes and action lists after each meeting",
+              "Hours against stage fees per project"
+            ],
+            "logo": { "name": "", "src": "", "width": 1, "height": 1 }
+          }
+        ],
+        "previous": "Previous",
+        "next": "Next"
+      }
+    },
+    {
+      "component": "detail.process",
+      "props": {
+        "index": 7,
+        "label": "Rollout",
+        "title": "Useful in the first month, not the first year",
+        "lede": "We start with the admin that costs your seniors the most time, which is usually proposals or timesheets, and build out from there.",
+        "steps": [
+          {
+            "title": "Audit a typical week",
+            "text": "We look at where non-billable hours go, list your CRM, practice and accounting tools, and pick the first two jobs to automate.",
+            "when": "Week 1"
+          },
+          {
+            "title": "Connect and pilot with one team",
+            "text": "The agent is connected to your calendars, document store and practice tool and runs for one team, with people checking every draft and entry.",
+            "when": "Weeks 2–4"
+          },
+          {
+            "title": "Roll out across the firm",
+            "text": "Proposals, scheduling, drafting and timesheets are extended to other teams, and the utilisation report starts going to partners each week.",
+            "when": "Weeks 5–8"
+          },
+          {
+            "title": "Run and improve",
+            "text": "We add new templates as your services change, review what people correct, and report the effect on billed hours each month.",
+            "when": "Ongoing"
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.related",
+      "props": {
+        "index": 8,
+        "label": "Related",
+        "title": "What firms pair this with",
+        "more": "Explore",
+        "cards": [
+          {
+            "href": "/ai-services/ai-personal-assistant",
+            "index": "AI/01",
+            "title": "AI personal assistant",
+            "text": "An assistant across inbox, calendar and notes that knows your clients and engagements.",
+            "tags": ["Inbox", "Calendar", "Notes"]
+          },
+          {
+            "href": "/ai-services/ai-knowledge-management",
+            "index": "AI/02",
+            "title": "AI knowledge management",
+            "text": "Past deliverables and know-how made searchable and kept current.",
+            "tags": ["Search", "Deliverables", "Know-how"]
+          },
+          {
+            "href": "/ai-services/ai-finance-accounting",
+            "index": "AI/03",
+            "title": "AI finance and accounting",
+            "text": "Reconciliation, payables and reporting automated with the audit trail intact.",
+            "tags": ["Reconciliation", "Billing", "Reporting"]
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.faq",
+      "props": {
+        "index": 9,
+        "label": "FAQ",
+        "title": "Questions professional firms ask us",
+        "items": [
+          {
+            "question": "Will this replace our junior staff?",
+            "answer": "No. It takes admin off everyone's week: chasing documents, booking meetings, filling timesheets and producing first drafts. Juniors still do the analysis and seniors still review it, with more of their time spent on work the client pays for."
+          },
+          {
+            "question": "Which CRM, practice management and accounting tools does it work with?",
+            "answer": "Any tool with an API or a reliable export: CRMs, PSA and practice management tools, timesheet apps, accounting software such as Tally, Zoho Books, QuickBooks or Xero, and Microsoft 365 or Google Workspace. In the first week we confirm what your setup allows the agent to read and write."
+          },
+          {
+            "question": "How is client data kept confidential?",
+            "answer": "Client files stay in your own document store or a private environment set up for the firm and are not used to train public models. The agent follows your folder and client permissions, every action is logged, and the setup follows the DPDP Act 2023 in India and the GDPR for clients in Europe."
+          },
+          {
+            "question": "Can it work with clients who prefer other languages?",
+            "answer": "Yes. It can message clients in Hindi and other Indian languages or in the language they write in, while deliverables are drafted in the language you choose and reviewed by your team."
+          },
+          {
+            "question": "What happens when a draft or time entry is wrong?",
+            "answer": "Nothing it produces goes out on its own: proposals, deliverables and invoices are approved by a person, and time entries are suggestions. Corrections are tracked and used to adjust templates and matching rules."
+          },
+          {
+            "question": "How much does it cost?",
+            "answer": "It depends on firm size, the number of jobs automated and the tools involved. Most firms start with two jobs, often proposals and timesheets; tell us about your firm and we'll send a fixed quote for that first phase."
+          }
+        ]
+      }
+    },
+    {
+      "component": "detail.cta",
+      "props": {
+        "family": "services",
+        "label": "Next step",
+        "title": "Show us one week of a fee earner's calendar",
+        "text": "We'll mark which hours were admin an agent could take and estimate the effort to connect it to your tools. No obligation.",
+        "primary": { "label": "Talk to us", "href": "/contact" },
+        "secondary": { "label": "Get a quote", "href": "/get-a-quote" },
+        "echoShape": 0
+      }
+    }
+  ]
+}
