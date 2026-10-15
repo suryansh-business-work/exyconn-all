@@ -1,5 +1,5 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import { postJson } from '../../social-accounts/social.http';
+import { getJson, postJson } from '../../social-accounts/social.http';
 
 /**
  * The two things the server says to Meta's WhatsApp Cloud API: send a message, and mark the
@@ -53,6 +53,52 @@ export function validSignature(rawBody: Buffer, header: string | undefined, appS
   const expected = createHmac('sha256', appSecret).update(rawBody).digest();
   const given = Buffer.from(header.slice(prefix.length), 'hex');
   return given.length === expected.length && timingSafeEqual(given, expected);
+}
+
+/** The WhatsApp scopes whose targets are the business accounts a token can act for. */
+const WABA_SCOPES: ReadonlySet<string> = new Set([
+  'whatsapp_business_management',
+  'whatsapp_business_messaging',
+]);
+
+interface TokenDebug {
+  data?: { granular_scopes?: { scope?: string; target_ids?: string[] }[] };
+}
+
+/**
+ * Subscribes the app to every WhatsApp Business Account the token can act for. Meta delivers
+ * a number's messages only to apps subscribed to its account: a verified webhook alone receives
+ * nothing. Idempotent on Meta's side. Resolves to the account ids subscribed.
+ * https://developers.facebook.com/docs/whatsapp/embedded-signup/webhooks#subscribe-to-webhooks
+ */
+export async function subscribeApp(accessToken: string): Promise<string[]> {
+  const token = encodeURIComponent(accessToken);
+  const debug = (await getJson(
+    PROVIDER,
+    `${GRAPH}/debug_token?input_token=${token}`,
+    accessToken,
+  )) as TokenDebug;
+  const accounts = [
+    ...new Set(
+      (debug.data?.granular_scopes ?? [])
+        .filter((grant) => WABA_SCOPES.has(grant.scope ?? ''))
+        .flatMap((grant) => grant.target_ids ?? []),
+    ),
+  ];
+  if (accounts.length === 0) {
+    throw new Error(
+      'the token is not granted whatsapp_business_management for any WhatsApp Business Account',
+    );
+  }
+  for (const account of accounts) {
+    await postJson(
+      PROVIDER,
+      `${GRAPH}/${encodeURIComponent(account)}/subscribed_apps`,
+      {},
+      accessToken,
+    );
+  }
+  return accounts;
 }
 
 /**

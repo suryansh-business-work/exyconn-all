@@ -63,7 +63,7 @@ describe('WhatsappChannelPanel', () => {
   it('holds placeholders while the settings load, always asking the network', () => {
     const { container } = renderWithProviders(<WhatsappChannelPanel />);
     expect(container.querySelector('[aria-busy="true"]')).not.toBeNull();
-    expect(api.queryOptions).toEqual({ fetchPolicy: 'cache-and-network' });
+    expect(api.queryOptions).toEqual({ fetchPolicy: 'cache-and-network', pollInterval: 15_000 });
     expect(document.title).toContain('WhatsApp number');
   });
 

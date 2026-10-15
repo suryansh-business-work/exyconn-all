@@ -18,6 +18,11 @@ const whatsappChannelSchema = new Schema(
     /** What Meta echoes back when the webhook is registered. Not a credential. */
     verifyToken: { type: String, required: true, trim: true, index: true },
     enabled: { type: Boolean, required: true, default: false },
+    /** When Meta last delivered a message this server could read for the number. */
+    lastInboundAt: { type: Date, default: null },
+    /** Why the last message or reply did not go through, in words an administrator can act on. */
+    lastProblem: { type: String, default: '' },
+    lastProblemAt: { type: Date, default: null },
     updatedByName: { type: String, default: null },
   },
   { timestamps: true },

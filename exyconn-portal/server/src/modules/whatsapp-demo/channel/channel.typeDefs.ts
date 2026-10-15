@@ -13,6 +13,11 @@ export const whatsappChannelTypeDefs = gql`
     accessTokenHint: String
     hasAppSecret: Boolean!
     webhookUrl: String!
+    "When Meta last delivered a message this server accepted for the number."
+    lastInboundAt: String
+    "Why the last message or reply did not go through; empty when nothing is wrong."
+    lastProblem: String!
+    lastProblemAt: String
     updatedAt: String
     updatedByName: String
   }
@@ -47,7 +52,7 @@ export const whatsappChannelTypeDefs = gql`
   extend type Mutation {
     saveWhatsappChannel(input: WhatsappChannelInput!): WhatsappChannel!
     deleteWhatsappChannel: Boolean!
-    "Reads the number from Meta with the token; resolves to how Meta names it."
+    "Checks the number and token with Meta and subscribes the app to the number's WhatsApp account."
     testWhatsappChannel(input: WhatsappChannelTestInput!): String!
   }
 `;

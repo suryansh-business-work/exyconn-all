@@ -14,7 +14,7 @@ import {
   sessionFor,
   type ChatEvent,
 } from './channel.analytics';
-import { logger } from '../../../utils/logger';
+import { noteProblem } from './channel.health';
 
 /**
  * One turn of a chat on the real number: decide what the message means, play it through the
@@ -30,16 +30,23 @@ interface Outcome {
   events: ChatEvent[];
 }
 
+/**
+ * Meta's test number answers only the recipients listed on the app, and says so with this code.
+ * https://developers.facebook.com/docs/whatsapp/cloud-api/support/error-codes
+ */
+const NOT_ALLOWED_RECIPIENT = '131030';
+const NOT_ALLOWED_HINT =
+  ' (add the sender under Meta App > WhatsApp > API Setup > To, or connect a production number)';
+
 /** Sends in order; stops at the first refusal, since later messages would read out of place. */
 async function deliver(sender: Sender, to: string, contents: BotContent[], tools: RenderTools) {
   for (const payload of contents.flatMap((content) => toPayloads(content, tools))) {
     try {
       await sendMessage(sender, to, payload);
     } catch (error) {
-      logger.warn(
-        { err: error instanceof Error ? error.message : error, type: payload.type },
-        'WhatsApp channel could not send a reply',
-      );
+      const reason = error instanceof Error ? error.message : 'no answer';
+      const hint = reason.includes(NOT_ALLOWED_RECIPIENT) ? NOT_ALLOWED_HINT : '';
+      noteProblem(sender.phoneNumberId, `A reply could not be sent. ${reason}${hint}`);
       return;
     }
   }

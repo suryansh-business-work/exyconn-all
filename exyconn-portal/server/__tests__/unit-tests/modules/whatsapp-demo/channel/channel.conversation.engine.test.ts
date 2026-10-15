@@ -146,13 +146,16 @@ describe('converse: inside an industry', () => {
 
     expect(sendMessage).toHaveBeenCalledTimes(1);
     expect(warned).toHaveBeenCalledWith(
-      { err: 'Recipient not on WhatsApp', type: 'text' },
-      'WhatsApp channel could not send a reply',
+      {
+        phoneNumberId: sender.phoneNumberId,
+        problem: 'A reply could not be sent. Recipient not on WhatsApp',
+      },
+      'WhatsApp channel problem',
     );
     expect(saveChat).toHaveBeenCalledTimes(1);
   });
 
-  it('logs a refusal that is not an Error as it came', async () => {
+  it('records a refusal that is not an Error as no answer', async () => {
     const warned = jest.spyOn(logger, 'warn').mockImplementation(() => undefined);
     jest.mocked(sendMessage).mockRejectedValueOnce('timeout');
 
@@ -162,6 +165,9 @@ describe('converse: inside an industry', () => {
       sender,
     );
 
-    expect(warned.mock.calls[0][0]).toEqual({ err: 'timeout', type: 'text' });
+    expect(warned.mock.calls[0][0]).toEqual({
+      phoneNumberId: sender.phoneNumberId,
+      problem: 'A reply could not be sent. no answer',
+    });
   });
 });

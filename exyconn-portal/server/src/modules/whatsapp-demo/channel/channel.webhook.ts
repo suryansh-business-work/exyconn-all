@@ -5,6 +5,7 @@ import { markRead, validSignature } from './channel.graph';
 import { claimMessage } from './channel.chats';
 import { converse } from './channel.conversation';
 import { inTurn } from './channel.queue';
+import { noteProblem, recordInbound } from './channel.health';
 import { runForOrganization } from '../../../lib/tenant';
 import { logger } from '../../../utils/logger';
 
@@ -69,12 +70,27 @@ async function receive(raw: Buffer, signature: string | undefined): Promise<numb
   const channel =
     messages.length > 0 ? await channelLookup.forNumber(messages[0].phoneNumberId) : null;
   if (!channel) {
-    // Status updates, or a number no company has switched on: nothing to do, nothing to retry.
+    // Status updates, or a number no company has connected: nothing to do, nothing to retry.
     return 200;
   }
+  const { phoneNumberId } = channel.sender;
   if (!validSignature(raw, signature, channel.appSecret)) {
+    noteProblem(
+      phoneNumberId,
+      'A message arrived but its signature does not match the saved App secret. Copy the App secret again from Meta App > App settings > Basic and save.',
+    );
     return 401;
   }
+  if (!channel.enabled) {
+    noteProblem(
+      phoneNumberId,
+      'A message arrived while the number is switched off. Turn on "Answer messages on this number" and save.',
+    );
+    return 200;
+  }
+  recordInbound(phoneNumberId).catch((error: unknown) =>
+    logger.error({ err: error }, 'WhatsApp delivery could not be recorded'),
+  );
   for (const message of messages.filter((m) => m.phoneNumberId === channel.sender.phoneNumberId)) {
     inTurn(`${channel.organizationId}:${message.waId}`, () => handle(channel, message)).catch(
       (error: unknown) => logger.error({ err: error }, 'WhatsApp message could not be handled'),

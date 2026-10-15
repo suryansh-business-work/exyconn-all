@@ -31,13 +31,19 @@ describe('channelLookup.forNumber', () => {
       organizationId: companyA,
       appSecret,
       sender: { phoneNumberId: '1098765', accessToken },
+      enabled: true,
     });
   });
 
-  it('finds nothing for a switched-off or unknown number', async () => {
+  it('finds a switched-off number flagged off, so the webhook can say why it is silent', async () => {
     await connect(companyA, { enabled: false });
 
-    await expect(channelLookup.forNumber('1098765')).resolves.toBeNull();
+    await expect(channelLookup.forNumber('1098765')).resolves.toEqual(
+      expect.objectContaining({ organizationId: companyA, enabled: false }),
+    );
+  });
+
+  it('finds nothing for an unknown number', async () => {
     await expect(channelLookup.forNumber('5555555')).resolves.toBeNull();
   });
 

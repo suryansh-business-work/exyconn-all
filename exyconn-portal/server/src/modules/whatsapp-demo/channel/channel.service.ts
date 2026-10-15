@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import { WhatsappChannelModel } from './channel.model';
 import { channelLookup } from './channel.lookup';
-import { verifyNumber, type Sender } from './channel.graph';
+import { subscribeApp, verifyNumber, type Sender } from './channel.graph';
+import { recordProblem } from './channel.health';
 import { refuseZod } from '../whatsappDemo.validation';
 import { recordAudit } from '../../audit';
 import { secretHint } from '../../tech/tech.secrets';
@@ -53,6 +54,9 @@ function present(doc: Stored) {
     accessTokenHint: secretHint(open(doc.accessToken)),
     hasAppSecret: doc.appSecret !== '',
     webhookUrl: `${env.apiPublicUrl}${WEBHOOK_PATH}`,
+    lastInboundAt: doc.lastInboundAt?.toISOString() ?? null,
+    lastProblem: doc.lastProblem ?? '',
+    lastProblemAt: doc.lastProblemAt?.toISOString() ?? null,
     updatedAt: doc.updatedAt?.toISOString() ?? null,
     updatedByName: doc.updatedByName ?? null,
   };
@@ -102,6 +106,9 @@ export async function saveChannel(ctx: GraphQLContext, raw: WhatsappChannelInput
   if (!doc) {
     notFound('WhatsApp number');
   }
+  if (doc.enabled) {
+    await subscribeToMessages(doc.phoneNumberId, open(doc.accessToken));
+  }
   await recordAudit(ctx, {
     action: before ? 'UPDATE' : 'CREATE',
     module: MODULE,
@@ -109,7 +116,24 @@ export async function saveChannel(ctx: GraphQLContext, raw: WhatsappChannelInput
     entityLabel: input.displayPhone || input.phoneNumberId,
     summary: `${before ? 'Updated' : 'Connected'} the WhatsApp number ${input.displayPhone || input.phoneNumberId} (${input.enabled ? 'on' : 'off'})`,
   });
-  return present(doc);
+  return present((await findOwn()) ?? doc);
+}
+
+/**
+ * Meta sends a number's messages only to apps subscribed to its WhatsApp Business Account, so
+ * switching the number on subscribes the app. A refusal does not undo the save — it is shown
+ * on the number screen with Meta's reason, like any other delivery problem.
+ */
+async function subscribeToMessages(phoneNumberId: string, accessToken: string): Promise<void> {
+  try {
+    await subscribeApp(accessToken);
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : 'no answer';
+    await recordProblem(
+      phoneNumberId,
+      `Meta did not subscribe this app to the number's WhatsApp account, so messages will not arrive: ${reason}`,
+    );
+  }
 }
 
 export async function deleteChannel(ctx: GraphQLContext) {
@@ -151,11 +175,20 @@ export async function testChannel(input: WhatsappChannelTestInput): Promise<stri
   if (!accessToken) {
     badRequest('Enter the access token first.');
   }
+  let name = '';
   try {
-    const name = await verifyNumber({ phoneNumberId, accessToken });
-    return `Meta accepted the token for ${name || phoneNumberId}.`;
+    name = await verifyNumber({ phoneNumberId, accessToken });
   } catch (error) {
     const reason = error instanceof Error ? error.message : 'no answer';
     badRequest(`Meta refused the Phone number ID or access token: ${reason}`);
+  }
+  try {
+    const accounts = await subscribeApp(accessToken);
+    return `Meta accepted the token for ${name || phoneNumberId}, and will send its messages here (WhatsApp account ${accounts.join(', ')}).`;
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : 'no answer';
+    badRequest(
+      `The token works for ${name || phoneNumberId}, but Meta would not subscribe this app to its WhatsApp account, so messages will not arrive: ${reason}`,
+    );
   }
 }

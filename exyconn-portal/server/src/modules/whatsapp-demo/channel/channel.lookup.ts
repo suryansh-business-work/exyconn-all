@@ -12,12 +12,12 @@ export interface ChannelMatch {
   organizationId: string;
   appSecret: string;
   sender: Sender;
+  /** Switched on in the number settings; a switched-off number is found but not answered. */
+  enabled: boolean;
 }
 
 async function forNumber(phoneNumberId: string): Promise<ChannelMatch | null> {
-  const doc = await runAsPlatform(() =>
-    WhatsappChannelModel.findOne({ phoneNumberId, enabled: true }).lean(),
-  );
+  const doc = await runAsPlatform(() => WhatsappChannelModel.findOne({ phoneNumberId }).lean());
   const organizationId = doc ? organizationOf(doc) : null;
   if (!doc || !organizationId) {
     return null;
@@ -26,6 +26,7 @@ async function forNumber(phoneNumberId: string): Promise<ChannelMatch | null> {
     organizationId,
     appSecret: open(doc.appSecret),
     sender: { phoneNumberId: doc.phoneNumberId, accessToken: open(doc.accessToken) },
+    enabled: doc.enabled,
   };
 }
 

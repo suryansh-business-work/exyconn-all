@@ -19,6 +19,12 @@ import { codeOf } from '../../codeOf';
 import { seedUser, useTestOrganization } from '../../../../helpers';
 import { asArg } from '../../../../mockAs';
 
+// Switching a number on subscribes the app with Meta; the network is not part of these tests.
+jest.mock('../../../../../src/modules/whatsapp-demo/channel/channel.graph', () => ({
+  ...jest.requireActual('../../../../../src/modules/whatsapp-demo/channel/channel.graph'),
+  subscribeApp: jest.fn().mockResolvedValue(['waba-1']),
+}));
+
 const organizationId = useTestOrganization();
 const accessToken = randomBytes(24).toString('hex');
 const appSecret = randomUUID();
@@ -83,6 +89,9 @@ describe('saveChannel', () => {
       accessTokenHint: accessToken.slice(-4),
       hasAppSecret: true,
       webhookUrl: WEBHOOK_URL,
+      lastInboundAt: null,
+      lastProblem: '',
+      lastProblemAt: null,
       updatedAt: expect.any(String),
       updatedByName: 'owner',
     });

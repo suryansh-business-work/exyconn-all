@@ -75,6 +75,7 @@ beforeEach(() => {
     organizationId: new Types.ObjectId().toHexString(),
     appSecret,
     sender,
+    enabled: true,
   });
   jest.mocked(claimMessage).mockResolvedValue(chatRecord({ waId: '911' }));
   jest.mocked(markRead).mockResolvedValue(undefined);

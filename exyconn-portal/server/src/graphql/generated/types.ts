@@ -6166,7 +6166,7 @@ export type Mutation = {
   /** Validates the token, then checks it can see the project. */
   testSonarConnection: SonarConnectionTest;
   testStripeConnection: Scalars['Boolean']['output'];
-  /** Reads the number from Meta with the token; resolves to how Meta names it. */
+  /** Checks the number and token with Meta and subscribes the app to the number's WhatsApp account. */
   testWhatsappChannel: Scalars['String']['output'];
   /** Likes the post, or takes the like back. Returns the post as it now stands. */
   toggleSocialPostLike: SocialPost;
@@ -16723,6 +16723,11 @@ export type WhatsappChannel = {
   hasAccessToken: Scalars['Boolean']['output'];
   hasAppSecret: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
+  /** When Meta last delivered a message this server accepted for the number. */
+  lastInboundAt?: Maybe<Scalars['String']['output']>;
+  /** Why the last message or reply did not go through; empty when nothing is wrong. */
+  lastProblem: Scalars['String']['output'];
+  lastProblemAt?: Maybe<Scalars['String']['output']>;
   phoneNumberId: Scalars['String']['output'];
   updatedAt?: Maybe<Scalars['String']['output']>;
   updatedByName?: Maybe<Scalars['String']['output']>;
@@ -25545,6 +25550,9 @@ export type WhatsappChannelResolvers<ContextType = GraphQLContext, ParentType ex
   hasAccessToken?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   hasAppSecret?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lastInboundAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  lastProblem?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lastProblemAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   phoneNumberId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedByName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

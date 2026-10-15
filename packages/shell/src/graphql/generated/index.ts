@@ -6167,7 +6167,7 @@ export type Mutation = {
   /** Validates the token, then checks it can see the project. */
   testSonarConnection: SonarConnectionTest;
   testStripeConnection: Scalars['Boolean']['output'];
-  /** Reads the number from Meta with the token; resolves to how Meta names it. */
+  /** Checks the number and token with Meta and subscribes the app to the number's WhatsApp account. */
   testWhatsappChannel: Scalars['String']['output'];
   /** Likes the post, or takes the like back. Returns the post as it now stands. */
   toggleSocialPostLike: SocialPost;
@@ -16724,6 +16724,11 @@ export type WhatsappChannel = {
   hasAccessToken: Scalars['Boolean']['output'];
   hasAppSecret: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
+  /** When Meta last delivered a message this server accepted for the number. */
+  lastInboundAt?: Maybe<Scalars['String']['output']>;
+  /** Why the last message or reply did not go through; empty when nothing is wrong. */
+  lastProblem: Scalars['String']['output'];
+  lastProblemAt?: Maybe<Scalars['String']['output']>;
   phoneNumberId: Scalars['String']['output'];
   updatedAt?: Maybe<Scalars['String']['output']>;
   updatedByName?: Maybe<Scalars['String']['output']>;
@@ -24414,19 +24419,19 @@ export type DeleteWhatsappWorkflowMutationVariables = Exact<{
 
 export type DeleteWhatsappWorkflowMutation = { __typename?: 'Mutation', deleteWhatsappWorkflow: boolean };
 
-export type WhatsappChannelFieldsFragment = { __typename?: 'WhatsappChannel', id: string, phoneNumberId: string, displayPhone: string, verifyToken: string, enabled: boolean, hasAccessToken: boolean, accessTokenHint?: string | null, hasAppSecret: boolean, webhookUrl: string, updatedAt?: string | null, updatedByName?: string | null };
+export type WhatsappChannelFieldsFragment = { __typename?: 'WhatsappChannel', id: string, phoneNumberId: string, displayPhone: string, verifyToken: string, enabled: boolean, hasAccessToken: boolean, accessTokenHint?: string | null, hasAppSecret: boolean, webhookUrl: string, lastInboundAt?: string | null, lastProblem: string, lastProblemAt?: string | null, updatedAt?: string | null, updatedByName?: string | null };
 
 export type WhatsappChannelQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type WhatsappChannelQuery = { __typename?: 'Query', whatsappChannel: { __typename?: 'WhatsappChannelSettings', webhookUrl: string, channel?: { __typename?: 'WhatsappChannel', id: string, phoneNumberId: string, displayPhone: string, verifyToken: string, enabled: boolean, hasAccessToken: boolean, accessTokenHint?: string | null, hasAppSecret: boolean, webhookUrl: string, updatedAt?: string | null, updatedByName?: string | null } | null } };
+export type WhatsappChannelQuery = { __typename?: 'Query', whatsappChannel: { __typename?: 'WhatsappChannelSettings', webhookUrl: string, channel?: { __typename?: 'WhatsappChannel', id: string, phoneNumberId: string, displayPhone: string, verifyToken: string, enabled: boolean, hasAccessToken: boolean, accessTokenHint?: string | null, hasAppSecret: boolean, webhookUrl: string, lastInboundAt?: string | null, lastProblem: string, lastProblemAt?: string | null, updatedAt?: string | null, updatedByName?: string | null } | null } };
 
 export type SaveWhatsappChannelMutationVariables = Exact<{
   input: WhatsappChannelInput;
 }>;
 
 
-export type SaveWhatsappChannelMutation = { __typename?: 'Mutation', saveWhatsappChannel: { __typename?: 'WhatsappChannel', id: string, phoneNumberId: string, displayPhone: string, verifyToken: string, enabled: boolean, hasAccessToken: boolean, accessTokenHint?: string | null, hasAppSecret: boolean, webhookUrl: string, updatedAt?: string | null, updatedByName?: string | null } };
+export type SaveWhatsappChannelMutation = { __typename?: 'Mutation', saveWhatsappChannel: { __typename?: 'WhatsappChannel', id: string, phoneNumberId: string, displayPhone: string, verifyToken: string, enabled: boolean, hasAccessToken: boolean, accessTokenHint?: string | null, hasAppSecret: boolean, webhookUrl: string, lastInboundAt?: string | null, lastProblem: string, lastProblemAt?: string | null, updatedAt?: string | null, updatedByName?: string | null } };
 
 export type DeleteWhatsappChannelMutationVariables = Exact<{ [key: string]: never; }>;
 
@@ -26862,6 +26867,9 @@ export const WhatsappChannelFieldsFragmentDoc = gql`
   accessTokenHint
   hasAppSecret
   webhookUrl
+  lastInboundAt
+  lastProblem
+  lastProblemAt
   updatedAt
   updatedByName
 }

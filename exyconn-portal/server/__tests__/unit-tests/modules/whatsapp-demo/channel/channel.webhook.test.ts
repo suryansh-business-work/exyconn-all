@@ -73,7 +73,9 @@ let scopeSeen: string | null = null;
 
 beforeEach(() => {
   scopeSeen = null;
-  jest.mocked(channelLookup.forNumber).mockResolvedValue({ organizationId, appSecret, sender });
+  jest
+    .mocked(channelLookup.forNumber)
+    .mockResolvedValue({ organizationId, appSecret, sender, enabled: true });
   jest.mocked(claimMessage).mockImplementation(async () => {
     scopeSeen = currentOrganizationId();
     return chat;

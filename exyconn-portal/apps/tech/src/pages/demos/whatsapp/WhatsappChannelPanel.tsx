@@ -11,6 +11,7 @@ import {
   useDeleteWhatsappChannelMutation,
   useWhatsappChannelQuery,
 } from '@exyconn/shell/graphql/generated';
+import { ChannelHealth } from './ChannelHealth';
 import { SetupSteps } from './SetupSteps';
 import { WhatsappNumberForm, type WhatsappChannelRow } from './forms/whatsapp-number';
 
@@ -82,7 +83,11 @@ function DisconnectButton({ channel }: Readonly<{ channel: WhatsappChannelRow }>
 export function WhatsappChannelPanel() {
   const t = useT();
   usePageTitle(t('WhatsApp number'));
-  const { data, error, refetch } = useWhatsappChannelQuery({ fetchPolicy: 'cache-and-network' });
+  const { data, error, refetch } = useWhatsappChannelQuery({
+    fetchPolicy: 'cache-and-network',
+    // The delivery status below changes when someone messages the number.
+    pollInterval: 15_000,
+  });
   const settings = data?.whatsappChannel;
 
   if (error) {
@@ -111,6 +116,11 @@ export function WhatsappChannelPanel() {
           </Typography>
           {channel && <DisconnectButton channel={channel} />}
         </Stack>
+        {channel && (
+          <Box sx={{ mb: 2 }}>
+            <ChannelHealth channel={channel} />
+          </Box>
+        )}
         <WhatsappNumberForm key={channel?.id ?? 'new'} initial={channel ?? null} />
       </Box>
     </Stack>

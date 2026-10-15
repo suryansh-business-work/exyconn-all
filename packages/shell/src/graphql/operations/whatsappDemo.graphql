@@ -232,6 +232,9 @@ fragment WhatsappChannelFields on WhatsappChannel {
   accessTokenHint
   hasAppSecret
   webhookUrl
+  lastInboundAt
+  lastProblem
+  lastProblemAt
   updatedAt
   updatedByName
 }
