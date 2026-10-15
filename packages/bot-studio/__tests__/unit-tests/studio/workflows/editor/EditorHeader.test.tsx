@@ -46,7 +46,7 @@ describe('EditorHeader', () => {
     await user.click(button('Back to workflows'));
     await user.click(button('Edit workflow details'));
     await user.click(button('Tidy up'));
-    await user.click(button('Preview in WhatsApp'));
+    await user.click(button('Preview in the chat'));
     await user.click(button('Discard draft'));
     await user.click(button('Save draft'));
     await user.click(button('Publish'));

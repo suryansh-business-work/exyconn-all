@@ -68,8 +68,8 @@ describe('WorkflowDetailsForm', () => {
     expect(
       await screen.findByText('Use lowercase letters, digits and hyphens only'),
     ).toBeInTheDocument();
-    expect(screen.getByText('WhatsApp shows at most 24 characters')).toBeInTheDocument();
-    expect(screen.getByText('WhatsApp shows at most 72 characters')).toBeInTheDocument();
+    expect(screen.getByText('Chat menus show at most 24 characters')).toBeInTheDocument();
+    expect(screen.getByText('Chat menus show at most 72 characters')).toBeInTheDocument();
     expect(screen.getByText('Use 0 or more')).toBeInTheDocument();
     expect(onSubmit).not.toHaveBeenCalled();
   });

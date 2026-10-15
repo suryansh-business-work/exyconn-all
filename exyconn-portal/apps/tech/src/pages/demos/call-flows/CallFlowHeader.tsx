@@ -41,7 +41,7 @@ export function CallFlowHeader(props: Readonly<CallFlowHeaderProps>) {
         <Typography variant="subtitle1" component="h2" sx={{ fontWeight: 600 }} noWrap>
           {props.title}
         </Typography>
-        <Box sx={{ display: 'flex', gap: 0.75, mt: 0.25 }}>
+        <Box sx={{ display: 'flex', gap: 1, mt: 0.5 }}>
           <Chip
             size="small"
             label={hasFlow ? state : t('No flow yet: a starter is shown')}

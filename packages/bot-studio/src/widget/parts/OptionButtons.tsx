@@ -19,7 +19,7 @@ interface OptionsProps {
 export function OptionButtons({ options, quoted }: Readonly<OptionsProps>) {
   const { choose, look } = useWidgetActions();
   return (
-    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, mt: 1 }}>
+    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mt: 1 }}>
       {options.map((option) => (
         <Button
           key={option.id}
@@ -50,7 +50,7 @@ export function OptionList({ caption, sections, quoted }: Readonly<OptionListPro
       <Typography
         variant="caption"
         component="p"
-        sx={{ px: 1.5, py: 0.75, bgcolor: 'action.hover', fontWeight: 600 }}
+        sx={{ px: 1.5, py: 1, bgcolor: 'action.hover', fontWeight: 600 }}
       >
         {caption}
       </Typography>

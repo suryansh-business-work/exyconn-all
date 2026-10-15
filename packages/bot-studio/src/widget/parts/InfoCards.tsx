@@ -21,7 +21,7 @@ export function CtaActions({ actions }: Readonly<{ actions: readonly RenderedCta
     justifyContent: 'flex-start',
   } as const;
   return (
-    <Box sx={{ display: 'grid', gap: 0.75, mt: 1 }}>
+    <Box sx={{ display: 'grid', gap: 1, mt: 1 }}>
       {actions.map((action) => {
         if (action.kind === 'calendar') {
           return (

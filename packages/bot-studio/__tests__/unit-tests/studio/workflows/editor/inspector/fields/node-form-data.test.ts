@@ -125,9 +125,9 @@ describe('nodeResolver', () => {
     );
   });
 
-  it('names WhatsApp limits on long text, long lists and large numbers', async () => {
+  it('names chat limits on long text, long lists and large numbers', async () => {
     const long = await errorsOf(NODE_SCHEMAS.text.shape.data, { text: 'a'.repeat(1025) });
-    expect(long.text.message).toBe('Too long for WhatsApp');
+    expect(long.text.message).toBe('Too long for the chat');
     const button = { id: 'b', title: 'B' };
     const many = await errorsOf(NODE_SCHEMAS.buttons.shape.data, {
       text: 'x',

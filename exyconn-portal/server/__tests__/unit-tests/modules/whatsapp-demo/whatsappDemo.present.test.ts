@@ -73,6 +73,7 @@ describe('a demo as the API shows it', () => {
     expect(presentDemo(row)).toEqual({
       id: row._id.toHexString(),
       key: 'salon',
+      channel: 'whatsapp',
       industry: 'Salon',
       business: { name: 'Glow' },
       greeting: 'Hi',

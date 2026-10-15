@@ -71,7 +71,7 @@ describe('QueryErrorState', () => {
     );
     await user.click(screen.getByRole('button', { name: 'Retry' }));
     await waitFor(() =>
-      expect(logger.warn).toHaveBeenCalledWith('WhatsApp demo admin: retry failed', failure, {
+      expect(logger.warn).toHaveBeenCalledWith('Bot studio: retry failed', failure, {
         title: 'Could not load.',
       }),
     );

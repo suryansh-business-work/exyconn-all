@@ -26,7 +26,7 @@ export function WidgetHeader({ demo, look, onRestart, onClose }: Readonly<Widget
         alignItems: 'center',
         gap: 1.5,
         px: 1.5,
-        py: 1.25,
+        py: 1,
         bgcolor: look.fill,
         color: look.onFill,
       }}
@@ -55,7 +55,7 @@ export function WidgetHeader({ demo, look, onRestart, onClose }: Readonly<Widget
         >
           {demo.business.name}
         </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <Box
             aria-hidden
             sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: 'success.light' }}

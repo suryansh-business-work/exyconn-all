@@ -44,6 +44,7 @@ describe('row conversions', () => {
     const profile = toDemoProfile(demoRow({ order: 4, active: false }));
     expect(profile).toEqual({
       key: 'clinic',
+      channel: 'whatsapp',
       industry: 'Healthcare',
       business: { name: 'City Clinic' },
       greeting: 'Welcome',

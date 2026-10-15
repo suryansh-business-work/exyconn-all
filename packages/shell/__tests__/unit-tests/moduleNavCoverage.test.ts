@@ -41,13 +41,16 @@ function navLinks(): { path: string; scopedRoute?: string }[] {
   );
 }
 
-/** Every `path=` a file routes (nested ones relative), with optional/dynamic segments stripped. */
+/**
+ * Every `path=` a file routes (nested ones relative), with optional/dynamic segments and a
+ * trailing splat (a page that routes its own sub-pages) stripped.
+ */
 function pathsIn(file: string): string[] {
   if (!existsSync(file)) {
     return [];
   }
   return [...readFileSync(file, 'utf8').matchAll(/path="([^"]+)"/g)].map(
-    (match) => match[1].replaceAll(/\/:[^/]+\??/g, '') || '/',
+    (match) => match[1].replaceAll(/\/:[^/]+\??/g, '').replace(/\/\*$/, '') || '/',
   );
 }
 

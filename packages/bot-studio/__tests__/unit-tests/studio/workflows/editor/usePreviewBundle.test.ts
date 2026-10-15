@@ -26,6 +26,7 @@ describe('usePreviewBundle', () => {
     const { result } = renderHook(() => usePreviewBundle(demoRow(), own, siblings, DRAFT, null));
     expect(result.current?.demo).toEqual({
       key: 'clinic',
+      channel: 'whatsapp',
       industry: 'Healthcare',
       business: { name: 'City Clinic' },
       greeting: 'Welcome',

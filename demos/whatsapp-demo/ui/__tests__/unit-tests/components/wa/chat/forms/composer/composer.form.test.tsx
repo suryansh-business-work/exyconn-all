@@ -14,7 +14,8 @@ vi.mock('../../../../../../../src/theme/useWa', async (importOriginal) => ({
   ...(await importOriginal<object>()),
   useCompact: () => view.compact,
 }));
-vi.mock('@exyconn/shell/logging/portalLogger', () => ({
+vi.mock('@exyconn/shell/logging/portalLogger', async (importOriginal) => ({
+  ...(await importOriginal<object>()),
   portalLogger: { error: view.logError, warn: vi.fn(), info: vi.fn(), debug: vi.fn() },
 }));
 

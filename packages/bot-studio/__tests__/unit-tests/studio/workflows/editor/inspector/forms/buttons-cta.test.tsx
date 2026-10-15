@@ -28,12 +28,12 @@ describe('Buttons form', () => {
     });
   });
 
-  it('keeps button titles within WhatsApp’s limit', async () => {
+  it('keeps button titles within the chat’s limit', async () => {
     const { user, onApply } = renderNodeForm(makeNode('buttons'));
     await replaceText(user, screen.getAllByRole('textbox', { name: 'Title' })[0], 'A'.repeat(21));
     expect(screen.getByText('21/20')).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Apply' }));
-    expect(await screen.findByText('Too long for WhatsApp')).toBeInTheDocument();
+    expect(await screen.findByText('Too long for the chat')).toBeInTheDocument();
     expect(onApply).not.toHaveBeenCalled();
   });
 });

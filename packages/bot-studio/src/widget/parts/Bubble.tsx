@@ -31,7 +31,7 @@ export function Bubble({ mine, time, sender, bare = false, children }: Readonly<
       }}
     >
       {sender && (
-        <Typography variant="caption" sx={{ color: 'text.secondary', mb: 0.25, fontWeight: 600 }}>
+        <Typography variant="caption" sx={{ color: 'text.secondary', mb: 0.5, fontWeight: 600 }}>
           {sender}
         </Typography>
       )}
@@ -53,7 +53,7 @@ export function Bubble({ mine, time, sender, bare = false, children }: Readonly<
           {children}
         </Box>
       )}
-      <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.25 }}>
+      <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.5 }}>
         {time}
       </Typography>
     </Box>

@@ -32,7 +32,7 @@ export function WidgetConversation({ messages, typing }: Readonly<WidgetConversa
       <Box
         role="log"
         aria-live="polite"
-        sx={{ display: 'flex', flexDirection: 'column', gap: 1.25, p: 1.5 }}
+        sx={{ display: 'flex', flexDirection: 'column', gap: 1, p: 1.5 }}
       >
         {messages.map((message) => (
           <WidgetMessage key={message.id} message={message} time={format.time(message.at)} />
