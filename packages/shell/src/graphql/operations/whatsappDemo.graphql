@@ -254,3 +254,7 @@ mutation SaveWhatsappChannel($input: WhatsappChannelInput!) {
 mutation DeleteWhatsappChannel {
   deleteWhatsappChannel
 }
+
+mutation TestWhatsappChannel($input: WhatsappChannelTestInput!) {
+  testWhatsappChannel(input: $input)
+}

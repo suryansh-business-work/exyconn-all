@@ -17,6 +17,7 @@ import { CAREER_COMPONENTS } from '../../../src/catalogue/career';
 import { TOOLS_COMPONENTS } from '../../../src/catalogue/tools';
 import { POLICY_COMPONENTS } from '../../../src/catalogue/policy';
 import { NEWSLETTER_COMPONENTS } from '../../../src/catalogue/newsletter';
+import { GCC_COMPONENTS } from '../../../src/catalogue/gcc';
 import type { CmsComponentDef } from '../../../src/catalogue/types';
 
 /** Every area module, with the key prefix its entries share. */
@@ -38,6 +39,7 @@ const AREAS: ReadonlyArray<readonly [string, readonly CmsComponentDef[]]> = [
   ['tools', TOOLS_COMPONENTS],
   ['policy', POLICY_COMPONENTS],
   ['newsletter', NEWSLETTER_COMPONENTS],
+  ['gcc', GCC_COMPONENTS],
 ];
 
 describe('CMS_COMPONENTS', () => {

@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { WhatsappChannelModel } from './channel.model';
 import { channelLookup } from './channel.lookup';
-import type { Sender } from './channel.graph';
+import { verifyNumber, type Sender } from './channel.graph';
 import { refuseZod } from '../whatsappDemo.validation';
 import { recordAudit } from '../../audit';
 import { secretHint } from '../../tech/tech.secrets';
@@ -131,4 +131,31 @@ export async function deleteChannel(ctx: GraphQLContext) {
 export async function activeSender(): Promise<Sender | null> {
   const doc = await WhatsappChannelModel.findOne({ enabled: true }).lean();
   return doc ? { phoneNumberId: doc.phoneNumberId, accessToken: open(doc.accessToken) } : null;
+}
+
+/** What the Test button sends: the form's number and token; a blank token means the saved one. */
+export interface WhatsappChannelTestInput {
+  phoneNumberId: string;
+  accessToken: string;
+}
+
+/** Tests the number and token from the form against Meta, before or after they are saved. */
+export async function testChannel(input: WhatsappChannelTestInput): Promise<string> {
+  const phoneNumberId = input.phoneNumberId.trim();
+  if (!isDigits(phoneNumberId)) {
+    badRequest('Enter the Phone number ID first.');
+  }
+  const stored = await findOwn();
+  const accessToken =
+    input.accessToken.trim() || (stored?.accessToken ? open(stored.accessToken) : '');
+  if (!accessToken) {
+    badRequest('Enter the access token first.');
+  }
+  try {
+    const name = await verifyNumber({ phoneNumberId, accessToken });
+    return `Meta accepted the token for ${name || phoneNumberId}.`;
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : 'no answer';
+    badRequest(`Meta refused the Phone number ID or access token: ${reason}`);
+  }
 }

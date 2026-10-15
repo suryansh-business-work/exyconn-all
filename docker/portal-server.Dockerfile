@@ -20,6 +20,8 @@ COPY exyconn-tracker-app/package.json exyconn-tracker-app/
 # and config through both as a dev dependency) are resolved by the filtered install too.
 COPY packages/wa-flow/package.json packages/wa-flow/
 COPY packages/cms/package.json packages/cms/
+# The GCC cost calculator's engine: the server recomputes emailed and shared estimates with it.
+COPY packages/gcc-cost/package.json packages/gcc-cost/
 COPY packages/regex/package.json packages/regex/
 COPY packages/config/package.json packages/config/
 # The calling bot demo's record definitions and call tickets, shared with its voice server.
@@ -38,9 +40,11 @@ FROM deps AS build
 COPY packages/regex packages/regex
 COPY packages/wa-flow packages/wa-flow
 COPY packages/cms packages/cms
+COPY packages/gcc-cost packages/gcc-cost
 COPY demos/calling-bot-demo/server demos/calling-bot-demo/server
 RUN pnpm --filter @exyconn/regex run build && pnpm --filter @exyconn/wa-flow run build \
   && pnpm --filter @exyconn/cms run build \
+  && pnpm --filter @exyconn/gcc-cost run build \
   && pnpm --filter @exyconn/calling-bot-demo-server run build
 COPY exyconn-portal/server exyconn-portal/server
 RUN pnpm --filter exyconn-portal-server run build \

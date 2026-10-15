@@ -2,7 +2,7 @@
  * Every link the site chrome shows — header menus, the phone menu and the footer — declared
  * once. Hrefs are unprefixed: the middleware's `localiseLinks` adds the reader's market.
  */
-import { TOOLS_SITE_URL } from "../site";
+import { DEMOS_SITE_URL, TOOLS_SITE_URL } from "../site";
 
 export interface NavLink {
   label: string;
@@ -11,6 +11,8 @@ export interface NavLink {
   text?: string;
   /** Leaves the site: opens in a new tab, announced to screen readers. */
   external?: boolean;
+  /** Drawn in the accent colour, to stand out from the links around it. */
+  highlight?: boolean;
 }
 
 export interface NavGroup {
@@ -81,6 +83,11 @@ const SERVICES: NavGroup = {
       href: "/services/whatsapp-chatbot",
       text: "Live demo inside WhatsApp",
     },
+    {
+      label: "AI calling bot",
+      href: "/services/calling-bot-demo",
+      text: "Voice agent that answers calls",
+    },
     { label: "Maintenance", href: "/services/maintenance", text: "Keep software healthy" },
     {
       label: "Digital marketing",
@@ -95,6 +102,35 @@ const SERVICES: NavGroup = {
     { label: "India offer", href: "/india/offer", text: "₹4,999 से शुरू" },
   ],
   overview: { label: "Explore all services", href: "/our-services" },
+};
+
+/** The demos site's landing page, highlighted wherever it is listed. */
+const ALL_DEMOS: NavLink = {
+  label: "All demos",
+  href: DEMOS_SITE_URL,
+  external: true,
+  highlight: true,
+};
+
+/** Every live demo opens on demos.exyconn.com. */
+const DEMOS: NavGroup = {
+  id: "demos",
+  label: "Demos",
+  links: [
+    {
+      label: "WhatsApp demo",
+      href: `${DEMOS_SITE_URL}/whatsapp-demo/`,
+      text: "Chat with automated businesses",
+      external: true,
+    },
+    {
+      label: "AI calling bot demo",
+      href: `${DEMOS_SITE_URL}/calling-bot-demo/`,
+      text: "Talk to a voice agent live",
+      external: true,
+    },
+  ],
+  overview: ALL_DEMOS,
 };
 
 const COMPANY: NavGroup = {
@@ -113,10 +149,17 @@ const COMPANY: NavGroup = {
   ],
 };
 
-/** The header's dropdowns, in order; Blog sits between Services and Company. */
-export const HEADER_MENUS: readonly NavGroup[] = [AI, SERVICES, COMPANY];
+/** The header's dropdowns, in order; Blog sits between Demos and Company. */
+export const HEADER_MENUS: readonly NavGroup[] = [AI, SERVICES, DEMOS, COMPANY];
 
 export const BLOG_LINK: NavLink = { label: "Blog", href: "/blog" };
+
+/** The highlighted header item: the GCC-in-India cost guide (the calculator links from it). */
+export const GCC_LINK: NavLink = {
+  label: "GCC in India",
+  href: "/gcc-in-india/cost-guide",
+  text: "Plan and cost your India centre",
+};
 
 /** The header's two calls to action. */
 export const HEADER_ACTIONS = {
@@ -155,6 +198,7 @@ const PRODUCTS: NavGroup = {
 export const FOOTER_COLUMNS: readonly NavGroup[] = [
   { ...AI, links: [{ label: "AI platform", href: "/ai" }, ...AI.links] },
   { ...SERVICES, links: [{ label: "All services", href: "/our-services" }, ...SERVICES.links] },
+  { ...DEMOS, links: [ALL_DEMOS, ...DEMOS.links] },
   PRODUCTS,
   {
     ...COMPANY,

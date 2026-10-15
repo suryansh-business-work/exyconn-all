@@ -1,7 +1,7 @@
 import gql from 'graphql-tag';
 
 export const callingBotTypeDefs = gql`
-  "The calling bot demo's settings (Tech > Demos > Calling bot). Keys are write-only."
+  "The calling bot demo's settings (Tech > Demos > Calling bot). Keys are never listed; see revealCallingBotSecret."
   type CallingBotConfig {
     id: ID!
     label: String!
@@ -25,16 +25,64 @@ export const callingBotTypeDefs = gql`
     ttsSpeaker: String!
     "A call is hung up after this many seconds."
     maxCallSeconds: Int!
+    "Which account rings real phones."
+    phoneProvider: CallingBotPhoneProvider!
     vobizAuthId: String!
     "Whether a Vobiz Auth Token is stored; the token itself is never returned."
     hasVobizAuthToken: Boolean!
-    "The number phone calls are placed from, in E.164."
+    "The Vobiz number phone calls are placed from, in E.164."
     vobizNumber: String!
-    "Whether calls to a real phone can be placed: every Vobiz field is filled in."
+    "The Twilio Account SID (AC...)."
+    twilioAccountSid: String!
+    "Whether a Twilio Auth Token is stored; the token itself is never returned."
+    hasTwilioAuthToken: Boolean!
+    "The Twilio number phone calls are placed from, in E.164."
+    twilioNumber: String!
+    "Whether calls to a real phone can be placed: the chosen provider's every field is filled in."
     phoneEnabled: Boolean!
     isActive: Boolean!
     createdAt: DateTime!
     updatedAt: DateTime!
+  }
+
+  "A stored calling bot key that Tech staff can reveal, one at a time."
+  enum CallingBotSecret {
+    SARVAM_API_KEY
+    OPENAI_API_KEY
+    VOBIZ_AUTH_TOKEN
+    TWILIO_AUTH_TOKEN
+  }
+
+  "Which telephony account places calls to real phones; NONE offers browser calls only."
+  enum CallingBotPhoneProvider {
+    NONE
+    VOBIZ
+    TWILIO
+  }
+
+  "An account the Tech screen can test on its own."
+  enum CallingBotKey {
+    SARVAM
+    OPENAI
+    VOBIZ
+    TWILIO
+  }
+
+  "What the form holds when a Test button is pressed; a blank key means the saved one."
+  input CallingBotKeyTestInput {
+    "The config being edited, whose saved keys stand in for blank ones."
+    configId: ID
+    key: CallingBotKey!
+    sarvamApiKey: String
+    languageCode: String
+    ttsModel: String
+    ttsSpeaker: String
+    openAiApiKey: String
+    openAiModel: String
+    vobizAuthId: String
+    vobizAuthToken: String
+    twilioAccountSid: String
+    twilioAuthToken: String
   }
 
   input CallingBotConfigInput {
@@ -50,10 +98,15 @@ export const callingBotTypeDefs = gql`
     ttsModel: String!
     ttsSpeaker: String!
     maxCallSeconds: Int!
+    phoneProvider: CallingBotPhoneProvider!
     vobizAuthId: String!
     "Write-only. Leave empty when editing to keep the stored token."
     vobizAuthToken: String!
     vobizNumber: String!
+    twilioAccountSid: String!
+    "Write-only. Leave empty when editing to keep the stored token."
+    twilioAuthToken: String!
+    twilioNumber: String!
     isActive: Boolean
   }
 
@@ -133,6 +186,10 @@ export const callingBotTypeDefs = gql`
     createCallingBotConfig(input: CallingBotConfigInput!): CallingBotConfig!
     updateCallingBotConfig(id: ID!, input: CallingBotConfigInput!): CallingBotConfig!
     deleteCallingBotConfig(id: ID!): Boolean!
+    "One stored key, in full, for the eye button on the Tech screen. Each reveal is audited."
+    revealCallingBotSecret(id: ID!, secret: CallingBotSecret!): String!
+    "Tests one account from the form; resolves to what worked, or fails saying what did not."
+    testCallingBotKey(input: CallingBotKeyTestInput!): String!
     "Checks the OpenAI key and model, and the Sarvam key, language and voice."
     testCallingBotConfig(id: ID!): Boolean!
     startCallingBotCall(input: StartCallingBotCallInput!): CallingBotCallStart!

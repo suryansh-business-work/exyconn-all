@@ -11,7 +11,41 @@ export const VISITOR_FORM_LIMIT = { points: 5, windowMs: 10 * 60 * 1000 } as con
 /** Past this many tracked visitors the oldest are dropped, so a flood cannot grow memory. */
 const MAX_TRACKED_VISITORS = 10_000;
 
-const sent = new Map<string, number[]>();
+/** One per-visitor allowance, counted in this process. */
+export interface VisitorLimit {
+  /** Counts one request from `visitor`; false when they have already used their allowance. */
+  allow(visitor: string, now?: number): boolean;
+  /** Test seam: forgets every visitor. */
+  reset(): void;
+}
+
+/** A sliding-window allowance per visitor, bounded to MAX_TRACKED_VISITORS addresses. */
+export function createVisitorLimit(limit: { points: number; windowMs: number }): VisitorLimit {
+  const sent = new Map<string, number[]>();
+  return {
+    allow(visitor, now = Date.now()) {
+      const windowStart = now - limit.windowMs;
+      const recent = (sent.get(visitor) ?? []).filter((at) => at > windowStart);
+      if (recent.length >= limit.points) {
+        sent.set(visitor, recent);
+        return false;
+      }
+      recent.push(now);
+      sent.delete(visitor);
+      sent.set(visitor, recent);
+      if (sent.size > MAX_TRACKED_VISITORS) {
+        const oldest = sent.keys().next().value;
+        if (oldest !== undefined) {
+          sent.delete(oldest);
+        }
+      }
+      return true;
+    },
+    reset() {
+      sent.clear();
+    },
+  };
+}
 
 /**
  * The visitor's address as the host nginx saw it. nginx appends the connecting address to
@@ -27,27 +61,14 @@ export function visitorAddress(request: Request): string {
   return hops.at(-1) ?? "unknown";
 }
 
+const formLimit = createVisitorLimit(VISITOR_FORM_LIMIT);
+
 /** Counts one form from `visitor`; false when they have already sent their allowance. */
 export function allowVisitorForm(visitor: string, now = Date.now()): boolean {
-  const windowStart = now - VISITOR_FORM_LIMIT.windowMs;
-  const recent = (sent.get(visitor) ?? []).filter((at) => at > windowStart);
-  if (recent.length >= VISITOR_FORM_LIMIT.points) {
-    sent.set(visitor, recent);
-    return false;
-  }
-  recent.push(now);
-  sent.delete(visitor);
-  sent.set(visitor, recent);
-  if (sent.size > MAX_TRACKED_VISITORS) {
-    const oldest = sent.keys().next().value;
-    if (oldest !== undefined) {
-      sent.delete(oldest);
-    }
-  }
-  return true;
+  return formLimit.allow(visitor, now);
 }
 
 /** Test seam: forgets every visitor. */
 export function resetVisitorForms(): void {
-  sent.clear();
+  formLimit.reset();
 }

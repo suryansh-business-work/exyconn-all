@@ -8,8 +8,10 @@ describe("palette", () => {
   });
 
   it("runs the brand blue from 300 to 700 around the Exyconn 500", () => {
-    expect(Object.keys(palette.brand)).toEqual(["300", "500", "600", "700"]);
+    expect(Object.keys(palette.brand)).toEqual(["300", "400", "500", "600", "700"]);
     expect(palette.brand[500]).toBe("#0071e3");
+    // The GCC pages' accent blue, used for rules and highlights only.
+    expect(palette.brand[400]).toBe("#3fa8e6");
   });
 
   it("gives every hue the full 50–950 ramp", () => {

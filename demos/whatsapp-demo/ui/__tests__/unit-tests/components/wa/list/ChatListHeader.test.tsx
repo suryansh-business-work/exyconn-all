@@ -1,6 +1,7 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import { ChatListHeader } from '../../../../../src/components/wa/list/ChatListHeader';
+import { markGuideSeen } from '../../../../../src/components/wa/list/guideSeen';
 import { WA_LIGHT } from '../../../../../src/theme/wa.tokens';
 import { renderWithProviders } from '../../../test-utils';
 
@@ -14,6 +15,10 @@ vi.mock('@exyconn/shell/auth/AuthContext', () => ({
   useAuth: () => ({ user: null, signOut: vi.fn() }),
 }));
 
+// A returning visitor: the first-visit guide would otherwise open over the header.
+beforeEach(() => {
+  markGuideSeen();
+});
 afterEach(() => {
   view.compact = false;
 });

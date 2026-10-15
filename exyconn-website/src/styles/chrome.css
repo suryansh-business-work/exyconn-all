@@ -120,6 +120,7 @@ html.chrome-locked {
 
 .site-header__logo {
   display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   margin-right: auto;
   min-height: 2.75rem;
@@ -236,6 +237,16 @@ html.chrome-locked {
 @media (max-width: 1279px) {
   .chrome-cta--wide {
     display: none;
+  }
+
+  /* Four menus, Blog and the GCC pill leave no room for the search field on a small laptop:
+     the icon opens the same search. */
+  .chrome-search {
+    display: none;
+  }
+
+  .chrome-search-icon {
+    display: inline-flex;
   }
 }
 
@@ -354,6 +365,19 @@ html.chrome-locked {
 
 .chrome-panel__overview:hover {
   color: var(--color-cyan-bright);
+}
+
+/* A highlighted overview (Demos > All demos): the same sky accent as the GCC pill. */
+.chrome-panel__overview--highlight {
+  border: var(--border-width-hairline) solid var(--color-sky-muted);
+  border-radius: var(--radius-md);
+  background: var(--color-sky-subtle);
+  color: var(--color-sky-fg);
+}
+
+.chrome-panel__overview--highlight:hover {
+  background: var(--color-sky-soft);
+  color: var(--color-sky-fg-strong);
 }
 
 /* ---------- Drawers: phone menu (night), accessibility + cookies (site theme) ---------- */
@@ -561,6 +585,11 @@ html.chrome-locked {
   color: var(--color-fg);
 }
 
+.chrome-mobile-link--highlight {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-sky-fg);
+}
+
 .chrome-mobile-section {
   border-bottom: var(--border-width-hairline) solid var(--chrome-hairline);
   padding-block: var(--space-2);
@@ -590,7 +619,7 @@ html.chrome-locked {
 
 @media (min-width: 1024px) {
   .site-footer__columns {
-    grid-template-columns: minmax(0, 1.6fr) repeat(4, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1.6fr) repeat(5, minmax(0, 1fr));
   }
 
   .site-footer__brand {
@@ -616,6 +645,11 @@ html.chrome-locked {
 
 .site-footer__link:hover {
   color: var(--color-fg);
+}
+
+.site-footer__link--highlight {
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-sky-fg);
 }
 
 .chrome-social {

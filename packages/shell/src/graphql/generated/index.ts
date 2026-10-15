@@ -1225,7 +1225,7 @@ export enum CallingBotChannel {
   Phone = 'PHONE'
 }
 
-/** The calling bot demo's settings (Tech > Demos > Calling bot). Keys are write-only. */
+/** The calling bot demo's settings (Tech > Demos > Calling bot). Keys are never listed; see revealCallingBotSecret. */
 export type CallingBotConfig = {
   __typename?: 'CallingBotConfig';
   createdAt: Scalars['DateTime']['output'];
@@ -1235,6 +1235,8 @@ export type CallingBotConfig = {
   hasOpenAiApiKey: Scalars['Boolean']['output'];
   /** Whether a Sarvam AI key is stored; the key itself is never returned. */
   hasSarvamApiKey: Scalars['Boolean']['output'];
+  /** Whether a Twilio Auth Token is stored; the token itself is never returned. */
+  hasTwilioAuthToken: Scalars['Boolean']['output'];
   /** Whether a Vobiz Auth Token is stored; the token itself is never returned. */
   hasVobizAuthToken: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
@@ -1247,8 +1249,10 @@ export type CallingBotConfig = {
   openAiApiKeyHint?: Maybe<Scalars['String']['output']>;
   /** A fast chat model, e.g. gpt-4o-mini. */
   openAiModel: Scalars['String']['output'];
-  /** Whether calls to a real phone can be placed: every Vobiz field is filled in. */
+  /** Whether calls to a real phone can be placed: the chosen provider's every field is filled in. */
   phoneEnabled: Scalars['Boolean']['output'];
+  /** Which account rings real phones. */
+  phoneProvider: CallingBotPhoneProvider;
   sarvamApiKeyHint?: Maybe<Scalars['String']['output']>;
   /** Who the bot is and how it talks. */
   systemPrompt: Scalars['String']['output'];
@@ -1256,9 +1260,13 @@ export type CallingBotConfig = {
   ttsModel: Scalars['String']['output'];
   /** Sarvam voice, e.g. anushka. */
   ttsSpeaker: Scalars['String']['output'];
+  /** The Twilio Account SID (AC...). */
+  twilioAccountSid: Scalars['String']['output'];
+  /** The Twilio number phone calls are placed from, in E.164. */
+  twilioNumber: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
   vobizAuthId: Scalars['String']['output'];
-  /** The number phone calls are placed from, in E.164. */
+  /** The Vobiz number phone calls are placed from, in E.164. */
   vobizNumber: Scalars['String']['output'];
 };
 
@@ -1271,16 +1279,61 @@ export type CallingBotConfigInput = {
   /** Write-only. Leave empty when editing to keep the stored key. */
   openAiApiKey: Scalars['String']['input'];
   openAiModel: Scalars['String']['input'];
+  phoneProvider: CallingBotPhoneProvider;
   /** Write-only. Leave empty when editing to keep the stored key. */
   sarvamApiKey: Scalars['String']['input'];
   systemPrompt: Scalars['String']['input'];
   ttsModel: Scalars['String']['input'];
   ttsSpeaker: Scalars['String']['input'];
+  twilioAccountSid: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored token. */
+  twilioAuthToken: Scalars['String']['input'];
+  twilioNumber: Scalars['String']['input'];
   vobizAuthId: Scalars['String']['input'];
   /** Write-only. Leave empty when editing to keep the stored token. */
   vobizAuthToken: Scalars['String']['input'];
   vobizNumber: Scalars['String']['input'];
 };
+
+/** An account the Tech screen can test on its own. */
+export enum CallingBotKey {
+  Openai = 'OPENAI',
+  Sarvam = 'SARVAM',
+  Twilio = 'TWILIO',
+  Vobiz = 'VOBIZ'
+}
+
+/** What the form holds when a Test button is pressed; a blank key means the saved one. */
+export type CallingBotKeyTestInput = {
+  /** The config being edited, whose saved keys stand in for blank ones. */
+  configId?: InputMaybe<Scalars['ID']['input']>;
+  key: CallingBotKey;
+  languageCode?: InputMaybe<Scalars['String']['input']>;
+  openAiApiKey?: InputMaybe<Scalars['String']['input']>;
+  openAiModel?: InputMaybe<Scalars['String']['input']>;
+  sarvamApiKey?: InputMaybe<Scalars['String']['input']>;
+  ttsModel?: InputMaybe<Scalars['String']['input']>;
+  ttsSpeaker?: InputMaybe<Scalars['String']['input']>;
+  twilioAccountSid?: InputMaybe<Scalars['String']['input']>;
+  twilioAuthToken?: InputMaybe<Scalars['String']['input']>;
+  vobizAuthId?: InputMaybe<Scalars['String']['input']>;
+  vobizAuthToken?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Which telephony account places calls to real phones; NONE offers browser calls only. */
+export enum CallingBotPhoneProvider {
+  None = 'NONE',
+  Twilio = 'TWILIO',
+  Vobiz = 'VOBIZ'
+}
+
+/** A stored calling bot key that Tech staff can reveal, one at a time. */
+export enum CallingBotSecret {
+  OpenaiApiKey = 'OPENAI_API_KEY',
+  SarvamApiKey = 'SARVAM_API_KEY',
+  TwilioAuthToken = 'TWILIO_AUTH_TOKEN',
+  VobizAuthToken = 'VOBIZ_AUTH_TOKEN'
+}
 
 /** One thing said on a call. */
 export type CallingBotTurn = {
@@ -3551,6 +3604,43 @@ export enum GatewayMode {
   Sandbox = 'SANDBOX'
 }
 
+export type GccEmailInput = {
+  /** The estimate (schema version 1) as JSON. Totals are never read from it. */
+  estimateJson: Scalars['String']['input'];
+  /** An optional line from the sender, up to 500 characters. */
+  note?: InputMaybe<Scalars['String']['input']>;
+  /** Where to send the estimate. */
+  to: Scalars['String']['input'];
+};
+
+export type GccEmailResult = {
+  __typename?: 'GccEmailResult';
+  /** The address the estimate was sent to. */
+  sentTo: Scalars['String']['output'];
+};
+
+/** A new link. The token and revoke key are only ever returned here. */
+export type GccShareCreated = {
+  __typename?: 'GccShareCreated';
+  expiresAt: Scalars['DateTime']['output'];
+  revokeKey: Scalars['String']['output'];
+  token: Scalars['String']['output'];
+};
+
+export type GccShareInput = {
+  /** The visitor agreed to the estimate being stored until the link expires. Must be true. */
+  consent: Scalars['Boolean']['input'];
+  estimateJson: Scalars['String']['input'];
+  /** Between 1 and 30. */
+  expiresInDays: Scalars['Int']['input'];
+};
+
+export type GccSharedEstimate = {
+  __typename?: 'GccSharedEstimate';
+  estimateJson: Scalars['String']['output'];
+  expiresAt: Scalars['DateTime']['output'];
+};
+
 export type Gig = {
   __typename?: 'Gig';
   applicationContact: Scalars['String']['output'];
@@ -5443,6 +5533,8 @@ export type Mutation = {
   createExitRecord: ExitRecord;
   createExpenseClaim: ExpenseClaim;
   createFinding: Finding;
+  /** Public. Stores the estimate behind a read-only link. */
+  createGccShare: GccShareCreated;
   createGig: Gig;
   createGithubConfig: GithubConfig;
   createGoal: Goal;
@@ -5700,6 +5792,8 @@ export type Mutation = {
   duplicateCmsPage: CmsPage;
   /** Copies a workflow as a never-published draft keyed key-copy. */
   duplicateWhatsappWorkflow: WhatsappWorkflow;
+  /** Public. Emails the estimate as a PDF; fails with EMAIL_UNAVAILABLE unless it was sent. */
+  emailGccEstimate: GccEmailResult;
   /** Calls off a delegation. Only whoever arranged it may. */
   endApprovalDelegation: Scalars['Boolean']['output'];
   /**
@@ -5797,6 +5891,8 @@ export type Mutation = {
   resetUserPassword: Scalars['String']['output'];
   /** Copies a published version back into the draft (publish it to put it live). */
   restoreCmsPageRevision: CmsPage;
+  /** One stored key, in full, for the eye button on the Tech screen. Each reveal is audited. */
+  revealCallingBotSecret: Scalars['String']['output'];
   /**
    * Approves or rejects an off-computer claim (TRACKER role). A decision is final — an
    * entry that has already been decided is refused rather than flipped, so hours somebody
@@ -5806,6 +5902,8 @@ export type Mutation = {
   revokeApiKey: ApiKey;
   /** LEGAL: withdraw an unsigned request. A signed one is evidence and cannot be withdrawn. */
   revokeContractSignature: Scalars['Boolean']['output'];
+  /** Public. True when the link was live and the key matched; the stored estimate is dropped. */
+  revokeGccShare: Scalars['Boolean']['output'];
   /** Ends every session except this one, for somebody who thinks their password has been seen. */
   revokeOtherSessions: Scalars['Int']['output'];
   revokeProjectShare: ProjectShare;
@@ -6007,6 +6105,8 @@ export type Mutation = {
   syncWebsiteChatKnowledge: WebsiteChatSyncResult;
   /** Checks the OpenAI key and model, and the Sarvam key, language and voice. */
   testCallingBotConfig: Scalars['Boolean']['output'];
+  /** Tests one account from the form; resolves to what worked, or fails saying what did not. */
+  testCallingBotKey: Scalars['String']['output'];
   testCloudflareConnection: Scalars['Boolean']['output'];
   testGithubConnection: Scalars['Boolean']['output'];
   testGodaddyConnection: Scalars['Boolean']['output'];
@@ -6023,6 +6123,8 @@ export type Mutation = {
   /** Validates the token, then checks it can see the project. */
   testSonarConnection: SonarConnectionTest;
   testStripeConnection: Scalars['Boolean']['output'];
+  /** Reads the number from Meta with the token; resolves to how Meta names it. */
+  testWhatsappChannel: Scalars['String']['output'];
   /** Likes the post, or takes the like back. Returns the post as it now stands. */
   toggleSocialPostLike: SocialPost;
   /**
@@ -6617,6 +6719,12 @@ export type MutationCreateExpenseClaimArgs = {
 
 export type MutationCreateFindingArgs = {
   input: FindingInput;
+};
+
+
+export type MutationCreateGccShareArgs = {
+  captcha: WebsiteCaptchaAnswer;
+  input: GccShareInput;
 };
 
 
@@ -7734,6 +7842,12 @@ export type MutationDuplicateWhatsappWorkflowArgs = {
 };
 
 
+export type MutationEmailGccEstimateArgs = {
+  captcha: WebsiteCaptchaAnswer;
+  input: GccEmailInput;
+};
+
+
 export type MutationEndApprovalDelegationArgs = {
   id: Scalars['ID']['input'];
 };
@@ -7948,6 +8062,12 @@ export type MutationRestoreCmsPageRevisionArgs = {
 };
 
 
+export type MutationRevealCallingBotSecretArgs = {
+  id: Scalars['ID']['input'];
+  secret: CallingBotSecret;
+};
+
+
 export type MutationReviewTrackerManualEntryArgs = {
   id: Scalars['ID']['input'];
   reviewNote?: InputMaybe<Scalars['String']['input']>;
@@ -7962,6 +8082,12 @@ export type MutationRevokeApiKeyArgs = {
 
 export type MutationRevokeContractSignatureArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationRevokeGccShareArgs = {
+  revokeKey: Scalars['String']['input'];
+  token: Scalars['String']['input'];
 };
 
 
@@ -8390,6 +8516,11 @@ export type MutationTestCallingBotConfigArgs = {
 };
 
 
+export type MutationTestCallingBotKeyArgs = {
+  input: CallingBotKeyTestInput;
+};
+
+
 export type MutationTestCloudflareConnectionArgs = {
   id: Scalars['ID']['input'];
 };
@@ -8454,6 +8585,11 @@ export type MutationTestSonarConnectionArgs = {
 
 export type MutationTestStripeConnectionArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestWhatsappChannelArgs = {
+  input: WhatsappChannelTestInput;
 };
 
 
@@ -11549,6 +11685,8 @@ export type Query = {
   searchPexelsPhotos: Array<PexelsMedia>;
   /** Stock videos for the shared upload dialog. Any signed-in user may search. */
   searchPexelsVideos: Array<PexelsMedia>;
+  /** Public. Null when the token is unknown, expired or revoked. */
+  sharedGccEstimate?: Maybe<GccSharedEstimate>;
   /** Public. Null when the token is unknown, expired or revoked — the page says so. */
   sharedProject?: Maybe<SharedProjectView>;
   /** The company's connected accounts. MARKETING. */
@@ -13152,6 +13290,11 @@ export type QuerySearchPexelsVideosArgs = {
   filters?: InputMaybe<PexelsSearchFilters>;
   page?: InputMaybe<Scalars['Int']['input']>;
   query: Scalars['String']['input'];
+};
+
+
+export type QuerySharedGccEstimateArgs = {
+  token: Scalars['String']['input'];
 };
 
 
@@ -16539,6 +16682,12 @@ export type WhatsappChannelSettings = {
   webhookUrl: Scalars['String']['output'];
 };
 
+/** What the Test button sends: a blank access token means the saved one. */
+export type WhatsappChannelTestInput = {
+  accessToken: Scalars['String']['input'];
+  phoneNumberId: Scalars['String']['input'];
+};
+
 export type WhatsappCount = {
   __typename?: 'WhatsappCount';
   count: Scalars['Int']['output'];
@@ -17664,7 +17813,7 @@ export type CallingBotCallQuery = { __typename?: 'Query', callingBotCall: { __ty
 export type CallingBotConfigsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type CallingBotConfigsQuery = { __typename?: 'Query', callingBotConfigs: Array<{ __typename?: 'CallingBotConfig', id: string, label: string, hasSarvamApiKey: boolean, sarvamApiKeyHint?: string | null, hasOpenAiApiKey: boolean, openAiApiKeyHint?: string | null, openAiModel: string, systemPrompt: string, greeting: string, languageCode: string, ttsModel: string, ttsSpeaker: string, maxCallSeconds: number, vobizAuthId: string, hasVobizAuthToken: boolean, vobizNumber: string, phoneEnabled: boolean, isActive: boolean, updatedAt: string }> };
+export type CallingBotConfigsQuery = { __typename?: 'Query', callingBotConfigs: Array<{ __typename?: 'CallingBotConfig', id: string, label: string, hasSarvamApiKey: boolean, sarvamApiKeyHint?: string | null, hasOpenAiApiKey: boolean, openAiApiKeyHint?: string | null, openAiModel: string, systemPrompt: string, greeting: string, languageCode: string, ttsModel: string, ttsSpeaker: string, maxCallSeconds: number, phoneProvider: CallingBotPhoneProvider, vobizAuthId: string, hasVobizAuthToken: boolean, vobizNumber: string, twilioAccountSid: string, hasTwilioAuthToken: boolean, twilioNumber: string, phoneEnabled: boolean, isActive: boolean, updatedAt: string }> };
 
 export type CreateCallingBotConfigMutationVariables = Exact<{
   input: CallingBotConfigInput;
@@ -17687,6 +17836,21 @@ export type DeleteCallingBotConfigMutationVariables = Exact<{
 
 
 export type DeleteCallingBotConfigMutation = { __typename?: 'Mutation', deleteCallingBotConfig: boolean };
+
+export type RevealCallingBotSecretMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  secret: CallingBotSecret;
+}>;
+
+
+export type RevealCallingBotSecretMutation = { __typename?: 'Mutation', revealCallingBotSecret: string };
+
+export type TestCallingBotKeyMutationVariables = Exact<{
+  input: CallingBotKeyTestInput;
+}>;
+
+
+export type TestCallingBotKeyMutation = { __typename?: 'Mutation', testCallingBotKey: string };
 
 export type TestCallingBotConfigMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -24169,6 +24333,13 @@ export type DeleteWhatsappChannelMutationVariables = Exact<{ [key: string]: neve
 
 
 export type DeleteWhatsappChannelMutation = { __typename?: 'Mutation', deleteWhatsappChannel: boolean };
+
+export type TestWhatsappChannelMutationVariables = Exact<{
+  input: WhatsappChannelTestInput;
+}>;
+
+
+export type TestWhatsappChannelMutation = { __typename?: 'Mutation', testWhatsappChannel: string };
 
 export type WhatsappDemoVisitorFieldsFragment = { __typename?: 'WhatsappDemoVisitor', id: string, name: string, email: string, company: string, phone: string, source: WhatsappDemoVisitorSource, verifiedAt?: string | null, lastSignInAt?: string | null, signInCount: number, blocked: boolean, createdAt: string, updatedAt: string };
 
@@ -31256,9 +31427,13 @@ export const CallingBotConfigsDocument = gql`
     ttsModel
     ttsSpeaker
     maxCallSeconds
+    phoneProvider
     vobizAuthId
     hasVobizAuthToken
     vobizNumber
+    twilioAccountSid
+    hasTwilioAuthToken
+    twilioNumber
     phoneEnabled
     isActive
     updatedAt
@@ -31390,6 +31565,63 @@ export function useDeleteCallingBotConfigMutation(baseOptions?: ApolloReactHooks
         return ApolloReactHooks.useMutation<DeleteCallingBotConfigMutation, DeleteCallingBotConfigMutationVariables>(DeleteCallingBotConfigDocument, options);
       }
 export type DeleteCallingBotConfigMutationHookResult = ReturnType<typeof useDeleteCallingBotConfigMutation>;
+export const RevealCallingBotSecretDocument = gql`
+    mutation RevealCallingBotSecret($id: ID!, $secret: CallingBotSecret!) {
+  revealCallingBotSecret(id: $id, secret: $secret)
+}
+    `;
+
+/**
+ * __useRevealCallingBotSecretMutation__
+ *
+ * To run a mutation, you first call `useRevealCallingBotSecretMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRevealCallingBotSecretMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [revealCallingBotSecretMutation, { data, loading, error }] = useRevealCallingBotSecretMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      secret: // value for 'secret'
+ *   },
+ * });
+ */
+export function useRevealCallingBotSecretMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RevealCallingBotSecretMutation, RevealCallingBotSecretMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RevealCallingBotSecretMutation, RevealCallingBotSecretMutationVariables>(RevealCallingBotSecretDocument, options);
+      }
+export type RevealCallingBotSecretMutationHookResult = ReturnType<typeof useRevealCallingBotSecretMutation>;
+export const TestCallingBotKeyDocument = gql`
+    mutation TestCallingBotKey($input: CallingBotKeyTestInput!) {
+  testCallingBotKey(input: $input)
+}
+    `;
+
+/**
+ * __useTestCallingBotKeyMutation__
+ *
+ * To run a mutation, you first call `useTestCallingBotKeyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestCallingBotKeyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testCallingBotKeyMutation, { data, loading, error }] = useTestCallingBotKeyMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useTestCallingBotKeyMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TestCallingBotKeyMutation, TestCallingBotKeyMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TestCallingBotKeyMutation, TestCallingBotKeyMutationVariables>(TestCallingBotKeyDocument, options);
+      }
+export type TestCallingBotKeyMutationHookResult = ReturnType<typeof useTestCallingBotKeyMutation>;
 export const TestCallingBotConfigDocument = gql`
     mutation TestCallingBotConfig($id: ID!) {
   testCallingBotConfig(id: $id)
@@ -67156,6 +67388,34 @@ export function useDeleteWhatsappChannelMutation(baseOptions?: ApolloReactHooks.
         return ApolloReactHooks.useMutation<DeleteWhatsappChannelMutation, DeleteWhatsappChannelMutationVariables>(DeleteWhatsappChannelDocument, options);
       }
 export type DeleteWhatsappChannelMutationHookResult = ReturnType<typeof useDeleteWhatsappChannelMutation>;
+export const TestWhatsappChannelDocument = gql`
+    mutation TestWhatsappChannel($input: WhatsappChannelTestInput!) {
+  testWhatsappChannel(input: $input)
+}
+    `;
+
+/**
+ * __useTestWhatsappChannelMutation__
+ *
+ * To run a mutation, you first call `useTestWhatsappChannelMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestWhatsappChannelMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testWhatsappChannelMutation, { data, loading, error }] = useTestWhatsappChannelMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useTestWhatsappChannelMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TestWhatsappChannelMutation, TestWhatsappChannelMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TestWhatsappChannelMutation, TestWhatsappChannelMutationVariables>(TestWhatsappChannelDocument, options);
+      }
+export type TestWhatsappChannelMutationHookResult = ReturnType<typeof useTestWhatsappChannelMutation>;
 export const RequestWhatsappDemoCodeDocument = gql`
     mutation RequestWhatsappDemoCode($input: WhatsappDemoCodeInput!) {
   requestWhatsappDemoCode(input: $input)

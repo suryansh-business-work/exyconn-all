@@ -1,17 +1,14 @@
 import {
   WhatsappDemoEventType,
   WhatsappWorkflowStatus,
-  type WhatsappChannelQuery,
   type WhatsappDemoSessionQuery,
 } from '@exyconn/shell/graphql/generated';
 import type { WaGraph } from '@exyconn/wa-flow';
 import type { DemoStats } from '../../../src/admin/analytics/analytics.data';
 import type { SessionRow } from '../../../src/admin/sessions/session.columns';
 import type { DemoRow, WorkflowRow } from '../../../src/admin/workflows/model/api';
-import type { WhatsappChannelRow } from '../../../src/admin/channel/forms/whatsapp-number';
 
 type DemoEvent = NonNullable<WhatsappDemoSessionQuery['whatsappDemoSession']>['events'][number];
-export type ChannelSettings = WhatsappChannelQuery['whatsappChannel'];
 
 /** A two-node graph: a text greeting wired to an end node. */
 export const SAMPLE_GRAPH: WaGraph = {
@@ -127,23 +124,6 @@ export function demoEvent(overrides: Partial<DemoEvent> = {}): DemoEvent {
     label: null,
     durationMs: null,
     meta: null,
-    ...overrides,
-  };
-}
-
-export function channelRow(overrides: Partial<WhatsappChannelRow> = {}): WhatsappChannelRow {
-  return {
-    id: 'ch-1',
-    phoneNumberId: '1234567890',
-    displayPhone: '+1 555 010 0000',
-    verifyToken: 'verify-token-123',
-    enabled: true,
-    hasAccessToken: true,
-    accessTokenHint: '…abcd',
-    hasAppSecret: true,
-    webhookUrl: 'https://api.example.com/whatsapp/webhook',
-    updatedAt: null,
-    updatedByName: null,
     ...overrides,
   };
 }

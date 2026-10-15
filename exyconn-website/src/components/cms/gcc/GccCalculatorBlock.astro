@@ -1,0 +1,66 @@
+---
+/**
+ * 'gcc.calculator' — mounts the GCC cost calculator island with the preset the CMS holds.
+ * The preset is only as typed as the editor's JSON, so it is validated here with the
+ * calculator's own schema: an invalid one renders an accessible error, never a broken island.
+ */
+import { calculatorPresetSchema } from "@exyconn/gcc-cost";
+import { GccCalculator } from "../../gcc/calculator";
+import type { CmsRenderContext } from "../../../lib/cms/types";
+
+interface Text {
+  /** The region's accessible name. */
+  label: string;
+  loading: string;
+  noscript: string;
+  invalid: string;
+}
+
+type Props = Readonly<{ text: Text; preset: unknown; cms: CmsRenderContext }>;
+
+const { text, preset, cms } = Astro.props;
+// Printed on the PDF report and the share text: Admin › Branding, never a literal.
+const brand = { businessName: cms.branding.businessName, websiteUrl: cms.branding.websiteUrl };
+const parsed = calculatorPresetSchema.safeParse(preset);
+if (!parsed.success) {
+  console.error(
+    "gcc.calculator: the CMS preset is invalid at",
+    parsed.error.issues.map((issue) => issue.path.join(".") || "(root)")
+  );
+}
+---
+
+<section class="gcc-calculator stage-shell" aria-label={text.label}>
+  {
+    parsed.success ? (
+      <GccCalculator client:only="react" preset={parsed.data} brand={brand}>
+        <div slot="fallback" class="gcc-calculator__placeholder inner-panel" role="status">
+          <p>{text.loading}</p>
+          <noscript>
+            <p>{text.noscript}</p>
+          </noscript>
+        </div>
+      </GccCalculator>
+    ) : (
+      <div class="gcc-calculator__placeholder inner-panel" role="alert">
+        <p>{text.invalid}</p>
+      </div>
+    )
+  }
+</section>
+
+<style>
+  .gcc-calculator {
+    padding-block: var(--space-12);
+  }
+
+  .gcc-calculator__placeholder {
+    display: grid;
+    place-content: center;
+    gap: var(--space-3);
+    min-height: 24rem;
+    padding: var(--space-8);
+    text-align: center;
+    color: var(--color-fg-secondary);
+  }
+</style>

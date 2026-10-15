@@ -91,6 +91,9 @@ export const CLOUDFLARE_ID = /^[\da-f]{32}$/i;
 /** A Meta (WhatsApp Cloud API) object id, such as a Phone number ID: digits only. */
 export const META_ID = /^\d{5,30}$/;
 
+/** A Twilio Account SID: "AC" and 32 hex digits, as shown on the Twilio console. */
+export const TWILIO_ACCOUNT_SID = /^AC[\da-f]{32}$/i;
+
 /** A GitHub owner or repository name as it appears in the repository URL. */
 export const GITHUB_NAME = /^[\w.-]+$/;
 

@@ -1,7 +1,11 @@
 import { autoFileLead, UNASSIGNED } from '../../src/modules/website/website.lead';
 import { WebsiteSubmissionModel } from '../../src/modules/website/models';
 import { LeadModel } from '../../src/modules/crm/crm.model';
+import { OrganizationModel } from '../../src/modules/organizations';
+import { invalidatePlatformOperatorCache } from '../../src/lib/platformAccess';
+import { runAsPlatform } from '../../src/lib/tenant';
 import { useTestOrganization } from '../helpers';
+import { seedPlatformOperator } from './security-authz.operator';
 
 /**
  * The inbox always had a "convert to lead" button, so an enquiry that arrived on Friday
@@ -17,6 +21,9 @@ const submission = (formType: string, data: Record<string, unknown>) =>
     notes: '',
   });
 
+/** Leads are filed in the operator's organization, whichever company the suite is scoped to. */
+const leadOf = (id: string | null) => runAsPlatform(() => LeadModel.findById(id).lean());
+
 const enquiry = {
   name: 'Sam Khan',
   email: 'sam@acme.com',
@@ -26,14 +33,16 @@ const enquiry = {
 };
 
 describe('an enquiry that is a sales lead', () => {
-  useTestOrganization();
+  // A visitor's request has no company: leads are filed in the platform operator's.
+  const operatorId = useTestOrganization();
+  beforeEach(() => seedPlatformOperator(operatorId));
 
   it('is filed as one the moment it arrives', async () => {
     const row = await submission('contact', enquiry);
 
     const leadId = await autoFileLead(row._id.toHexString(), 'contact', enquiry);
 
-    const lead = await LeadModel.findById(leadId).lean();
+    const lead = await leadOf(leadId);
     expect(lead).toMatchObject({
       name: 'Sam Khan',
       email: 'sam@acme.com',
@@ -60,9 +69,39 @@ describe('an enquiry that is a sales lead', () => {
 
     const leadId = await autoFileLead(row._id.toHexString(), 'india-offer', data);
 
-    const lead = await LeadModel.findById(leadId).lean();
+    const lead = await leadOf(leadId);
     expect(lead?.name).toBe('Priya Nair');
     expect(lead?.notes).toContain('Nimbus Pvt');
+  });
+
+  it('takes a GCC consultation request, with its notes and the estimate it shared', async () => {
+    const data = {
+      name: 'Dana Fox',
+      email: 'dana@globex.com',
+      company: 'Globex',
+      notes: 'Planning 40 engineers in Pune.',
+      marketingConsent: 'no',
+      estimateSummary: 'Pune GCC (USD) • Forecast total: USD 1,200,000',
+    };
+    const row = await submission('gcc-consultation', data);
+
+    const leadId = await autoFileLead(row._id.toHexString(), 'gcc-consultation', data);
+
+    const lead = await leadOf(leadId);
+    expect(lead).toMatchObject({ name: 'Dana Fox', email: 'dana@globex.com', source: 'WEBSITE' });
+    expect(lead?.notes).toContain('Company: Globex');
+    expect(lead?.notes).toContain('Marketing consent: no');
+    expect(lead?.notes).toContain('Planning 40 engineers in Pune.');
+    expect(lead?.notes).toContain('Forecast total: USD 1,200,000');
+  });
+
+  it('files nothing while no organization operates the platform', async () => {
+    await OrganizationModel.updateOne({ _id: operatorId }, { isPlatformOperator: false });
+    invalidatePlatformOperatorCache();
+    const row = await submission('contact', enquiry);
+
+    expect(await autoFileLead(row._id.toHexString(), 'contact', enquiry)).toBeNull();
+    expect(await runAsPlatform(() => LeadModel.countDocuments())).toBe(0);
   });
 });
 

@@ -1224,7 +1224,7 @@ export enum CallingBotChannel {
   Phone = 'PHONE'
 }
 
-/** The calling bot demo's settings (Tech > Demos > Calling bot). Keys are write-only. */
+/** The calling bot demo's settings (Tech > Demos > Calling bot). Keys are never listed; see revealCallingBotSecret. */
 export type CallingBotConfig = {
   __typename?: 'CallingBotConfig';
   createdAt: Scalars['DateTime']['output'];
@@ -1234,6 +1234,8 @@ export type CallingBotConfig = {
   hasOpenAiApiKey: Scalars['Boolean']['output'];
   /** Whether a Sarvam AI key is stored; the key itself is never returned. */
   hasSarvamApiKey: Scalars['Boolean']['output'];
+  /** Whether a Twilio Auth Token is stored; the token itself is never returned. */
+  hasTwilioAuthToken: Scalars['Boolean']['output'];
   /** Whether a Vobiz Auth Token is stored; the token itself is never returned. */
   hasVobizAuthToken: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
@@ -1246,8 +1248,10 @@ export type CallingBotConfig = {
   openAiApiKeyHint?: Maybe<Scalars['String']['output']>;
   /** A fast chat model, e.g. gpt-4o-mini. */
   openAiModel: Scalars['String']['output'];
-  /** Whether calls to a real phone can be placed: every Vobiz field is filled in. */
+  /** Whether calls to a real phone can be placed: the chosen provider's every field is filled in. */
   phoneEnabled: Scalars['Boolean']['output'];
+  /** Which account rings real phones. */
+  phoneProvider: CallingBotPhoneProvider;
   sarvamApiKeyHint?: Maybe<Scalars['String']['output']>;
   /** Who the bot is and how it talks. */
   systemPrompt: Scalars['String']['output'];
@@ -1255,9 +1259,13 @@ export type CallingBotConfig = {
   ttsModel: Scalars['String']['output'];
   /** Sarvam voice, e.g. anushka. */
   ttsSpeaker: Scalars['String']['output'];
+  /** The Twilio Account SID (AC...). */
+  twilioAccountSid: Scalars['String']['output'];
+  /** The Twilio number phone calls are placed from, in E.164. */
+  twilioNumber: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
   vobizAuthId: Scalars['String']['output'];
-  /** The number phone calls are placed from, in E.164. */
+  /** The Vobiz number phone calls are placed from, in E.164. */
   vobizNumber: Scalars['String']['output'];
 };
 
@@ -1270,16 +1278,61 @@ export type CallingBotConfigInput = {
   /** Write-only. Leave empty when editing to keep the stored key. */
   openAiApiKey: Scalars['String']['input'];
   openAiModel: Scalars['String']['input'];
+  phoneProvider: CallingBotPhoneProvider;
   /** Write-only. Leave empty when editing to keep the stored key. */
   sarvamApiKey: Scalars['String']['input'];
   systemPrompt: Scalars['String']['input'];
   ttsModel: Scalars['String']['input'];
   ttsSpeaker: Scalars['String']['input'];
+  twilioAccountSid: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored token. */
+  twilioAuthToken: Scalars['String']['input'];
+  twilioNumber: Scalars['String']['input'];
   vobizAuthId: Scalars['String']['input'];
   /** Write-only. Leave empty when editing to keep the stored token. */
   vobizAuthToken: Scalars['String']['input'];
   vobizNumber: Scalars['String']['input'];
 };
+
+/** An account the Tech screen can test on its own. */
+export enum CallingBotKey {
+  Openai = 'OPENAI',
+  Sarvam = 'SARVAM',
+  Twilio = 'TWILIO',
+  Vobiz = 'VOBIZ'
+}
+
+/** What the form holds when a Test button is pressed; a blank key means the saved one. */
+export type CallingBotKeyTestInput = {
+  /** The config being edited, whose saved keys stand in for blank ones. */
+  configId?: InputMaybe<Scalars['ID']['input']>;
+  key: CallingBotKey;
+  languageCode?: InputMaybe<Scalars['String']['input']>;
+  openAiApiKey?: InputMaybe<Scalars['String']['input']>;
+  openAiModel?: InputMaybe<Scalars['String']['input']>;
+  sarvamApiKey?: InputMaybe<Scalars['String']['input']>;
+  ttsModel?: InputMaybe<Scalars['String']['input']>;
+  ttsSpeaker?: InputMaybe<Scalars['String']['input']>;
+  twilioAccountSid?: InputMaybe<Scalars['String']['input']>;
+  twilioAuthToken?: InputMaybe<Scalars['String']['input']>;
+  vobizAuthId?: InputMaybe<Scalars['String']['input']>;
+  vobizAuthToken?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Which telephony account places calls to real phones; NONE offers browser calls only. */
+export enum CallingBotPhoneProvider {
+  None = 'NONE',
+  Twilio = 'TWILIO',
+  Vobiz = 'VOBIZ'
+}
+
+/** A stored calling bot key that Tech staff can reveal, one at a time. */
+export enum CallingBotSecret {
+  OpenaiApiKey = 'OPENAI_API_KEY',
+  SarvamApiKey = 'SARVAM_API_KEY',
+  TwilioAuthToken = 'TWILIO_AUTH_TOKEN',
+  VobizAuthToken = 'VOBIZ_AUTH_TOKEN'
+}
 
 /** One thing said on a call. */
 export type CallingBotTurn = {
@@ -3550,6 +3603,43 @@ export enum GatewayMode {
   Sandbox = 'SANDBOX'
 }
 
+export type GccEmailInput = {
+  /** The estimate (schema version 1) as JSON. Totals are never read from it. */
+  estimateJson: Scalars['String']['input'];
+  /** An optional line from the sender, up to 500 characters. */
+  note?: InputMaybe<Scalars['String']['input']>;
+  /** Where to send the estimate. */
+  to: Scalars['String']['input'];
+};
+
+export type GccEmailResult = {
+  __typename?: 'GccEmailResult';
+  /** The address the estimate was sent to. */
+  sentTo: Scalars['String']['output'];
+};
+
+/** A new link. The token and revoke key are only ever returned here. */
+export type GccShareCreated = {
+  __typename?: 'GccShareCreated';
+  expiresAt: Scalars['DateTime']['output'];
+  revokeKey: Scalars['String']['output'];
+  token: Scalars['String']['output'];
+};
+
+export type GccShareInput = {
+  /** The visitor agreed to the estimate being stored until the link expires. Must be true. */
+  consent: Scalars['Boolean']['input'];
+  estimateJson: Scalars['String']['input'];
+  /** Between 1 and 30. */
+  expiresInDays: Scalars['Int']['input'];
+};
+
+export type GccSharedEstimate = {
+  __typename?: 'GccSharedEstimate';
+  estimateJson: Scalars['String']['output'];
+  expiresAt: Scalars['DateTime']['output'];
+};
+
 export type Gig = {
   __typename?: 'Gig';
   applicationContact: Scalars['String']['output'];
@@ -5442,6 +5532,8 @@ export type Mutation = {
   createExitRecord: ExitRecord;
   createExpenseClaim: ExpenseClaim;
   createFinding: Finding;
+  /** Public. Stores the estimate behind a read-only link. */
+  createGccShare: GccShareCreated;
   createGig: Gig;
   createGithubConfig: GithubConfig;
   createGoal: Goal;
@@ -5699,6 +5791,8 @@ export type Mutation = {
   duplicateCmsPage: CmsPage;
   /** Copies a workflow as a never-published draft keyed key-copy. */
   duplicateWhatsappWorkflow: WhatsappWorkflow;
+  /** Public. Emails the estimate as a PDF; fails with EMAIL_UNAVAILABLE unless it was sent. */
+  emailGccEstimate: GccEmailResult;
   /** Calls off a delegation. Only whoever arranged it may. */
   endApprovalDelegation: Scalars['Boolean']['output'];
   /**
@@ -5796,6 +5890,8 @@ export type Mutation = {
   resetUserPassword: Scalars['String']['output'];
   /** Copies a published version back into the draft (publish it to put it live). */
   restoreCmsPageRevision: CmsPage;
+  /** One stored key, in full, for the eye button on the Tech screen. Each reveal is audited. */
+  revealCallingBotSecret: Scalars['String']['output'];
   /**
    * Approves or rejects an off-computer claim (TRACKER role). A decision is final — an
    * entry that has already been decided is refused rather than flipped, so hours somebody
@@ -5805,6 +5901,8 @@ export type Mutation = {
   revokeApiKey: ApiKey;
   /** LEGAL: withdraw an unsigned request. A signed one is evidence and cannot be withdrawn. */
   revokeContractSignature: Scalars['Boolean']['output'];
+  /** Public. True when the link was live and the key matched; the stored estimate is dropped. */
+  revokeGccShare: Scalars['Boolean']['output'];
   /** Ends every session except this one, for somebody who thinks their password has been seen. */
   revokeOtherSessions: Scalars['Int']['output'];
   revokeProjectShare: ProjectShare;
@@ -6006,6 +6104,8 @@ export type Mutation = {
   syncWebsiteChatKnowledge: WebsiteChatSyncResult;
   /** Checks the OpenAI key and model, and the Sarvam key, language and voice. */
   testCallingBotConfig: Scalars['Boolean']['output'];
+  /** Tests one account from the form; resolves to what worked, or fails saying what did not. */
+  testCallingBotKey: Scalars['String']['output'];
   testCloudflareConnection: Scalars['Boolean']['output'];
   testGithubConnection: Scalars['Boolean']['output'];
   testGodaddyConnection: Scalars['Boolean']['output'];
@@ -6022,6 +6122,8 @@ export type Mutation = {
   /** Validates the token, then checks it can see the project. */
   testSonarConnection: SonarConnectionTest;
   testStripeConnection: Scalars['Boolean']['output'];
+  /** Reads the number from Meta with the token; resolves to how Meta names it. */
+  testWhatsappChannel: Scalars['String']['output'];
   /** Likes the post, or takes the like back. Returns the post as it now stands. */
   toggleSocialPostLike: SocialPost;
   /**
@@ -6616,6 +6718,12 @@ export type MutationCreateExpenseClaimArgs = {
 
 export type MutationCreateFindingArgs = {
   input: FindingInput;
+};
+
+
+export type MutationCreateGccShareArgs = {
+  captcha: WebsiteCaptchaAnswer;
+  input: GccShareInput;
 };
 
 
@@ -7733,6 +7841,12 @@ export type MutationDuplicateWhatsappWorkflowArgs = {
 };
 
 
+export type MutationEmailGccEstimateArgs = {
+  captcha: WebsiteCaptchaAnswer;
+  input: GccEmailInput;
+};
+
+
 export type MutationEndApprovalDelegationArgs = {
   id: Scalars['ID']['input'];
 };
@@ -7947,6 +8061,12 @@ export type MutationRestoreCmsPageRevisionArgs = {
 };
 
 
+export type MutationRevealCallingBotSecretArgs = {
+  id: Scalars['ID']['input'];
+  secret: CallingBotSecret;
+};
+
+
 export type MutationReviewTrackerManualEntryArgs = {
   id: Scalars['ID']['input'];
   reviewNote?: InputMaybe<Scalars['String']['input']>;
@@ -7961,6 +8081,12 @@ export type MutationRevokeApiKeyArgs = {
 
 export type MutationRevokeContractSignatureArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationRevokeGccShareArgs = {
+  revokeKey: Scalars['String']['input'];
+  token: Scalars['String']['input'];
 };
 
 
@@ -8389,6 +8515,11 @@ export type MutationTestCallingBotConfigArgs = {
 };
 
 
+export type MutationTestCallingBotKeyArgs = {
+  input: CallingBotKeyTestInput;
+};
+
+
 export type MutationTestCloudflareConnectionArgs = {
   id: Scalars['ID']['input'];
 };
@@ -8453,6 +8584,11 @@ export type MutationTestSonarConnectionArgs = {
 
 export type MutationTestStripeConnectionArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestWhatsappChannelArgs = {
+  input: WhatsappChannelTestInput;
 };
 
 
@@ -11548,6 +11684,8 @@ export type Query = {
   searchPexelsPhotos: Array<PexelsMedia>;
   /** Stock videos for the shared upload dialog. Any signed-in user may search. */
   searchPexelsVideos: Array<PexelsMedia>;
+  /** Public. Null when the token is unknown, expired or revoked. */
+  sharedGccEstimate?: Maybe<GccSharedEstimate>;
   /** Public. Null when the token is unknown, expired or revoked — the page says so. */
   sharedProject?: Maybe<SharedProjectView>;
   /** The company's connected accounts. MARKETING. */
@@ -13151,6 +13289,11 @@ export type QuerySearchPexelsVideosArgs = {
   filters?: InputMaybe<PexelsSearchFilters>;
   page?: InputMaybe<Scalars['Int']['input']>;
   query: Scalars['String']['input'];
+};
+
+
+export type QuerySharedGccEstimateArgs = {
+  token: Scalars['String']['input'];
 };
 
 
@@ -16538,6 +16681,12 @@ export type WhatsappChannelSettings = {
   webhookUrl: Scalars['String']['output'];
 };
 
+/** What the Test button sends: a blank access token means the saved one. */
+export type WhatsappChannelTestInput = {
+  accessToken: Scalars['String']['input'];
+  phoneNumberId: Scalars['String']['input'];
+};
+
 export type WhatsappCount = {
   __typename?: 'WhatsappCount';
   count: Scalars['Int']['output'];
@@ -17043,6 +17192,10 @@ export type ResolversTypes = ResolversObject<{
   CallingBotChannel: CallingBotChannel;
   CallingBotConfig: ResolverTypeWrapper<CallingBotConfig>;
   CallingBotConfigInput: CallingBotConfigInput;
+  CallingBotKey: CallingBotKey;
+  CallingBotKeyTestInput: CallingBotKeyTestInput;
+  CallingBotPhoneProvider: CallingBotPhoneProvider;
+  CallingBotSecret: CallingBotSecret;
   CallingBotTurn: ResolverTypeWrapper<CallingBotTurn>;
   CallingBotTurnRole: CallingBotTurnRole;
   Campaign: ResolverTypeWrapper<Campaign>;
@@ -17247,6 +17400,11 @@ export type ResolversTypes = ResolversObject<{
   FindingType: FindingType;
   Float: ResolverTypeWrapper<Scalars['Float']['output']>;
   GatewayMode: GatewayMode;
+  GccEmailInput: GccEmailInput;
+  GccEmailResult: ResolverTypeWrapper<GccEmailResult>;
+  GccShareCreated: ResolverTypeWrapper<GccShareCreated>;
+  GccShareInput: GccShareInput;
+  GccSharedEstimate: ResolverTypeWrapper<GccSharedEstimate>;
   Gig: ResolverTypeWrapper<Gig>;
   GigInput: GigInput;
   GigPage: ResolverTypeWrapper<GigPage>;
@@ -17796,6 +17954,7 @@ export type ResolversTypes = ResolversObject<{
   WhatsappChannel: ResolverTypeWrapper<WhatsappChannel>;
   WhatsappChannelInput: WhatsappChannelInput;
   WhatsappChannelSettings: ResolverTypeWrapper<WhatsappChannelSettings>;
+  WhatsappChannelTestInput: WhatsappChannelTestInput;
   WhatsappCount: ResolverTypeWrapper<WhatsappCount>;
   WhatsappDayPoint: ResolverTypeWrapper<WhatsappDayPoint>;
   WhatsappDemo: ResolverTypeWrapper<WhatsappDemo>;
@@ -17909,6 +18068,7 @@ export type ResolversParentTypes = ResolversObject<{
   CallingBotCallStart: CallingBotCallStart;
   CallingBotConfig: CallingBotConfig;
   CallingBotConfigInput: CallingBotConfigInput;
+  CallingBotKeyTestInput: CallingBotKeyTestInput;
   CallingBotTurn: CallingBotTurn;
   Campaign: Campaign;
   CampaignInput: CampaignInput;
@@ -18077,6 +18237,11 @@ export type ResolversParentTypes = ResolversObject<{
   FindingInput: FindingInput;
   FindingPage: FindingPage;
   Float: Scalars['Float']['output'];
+  GccEmailInput: GccEmailInput;
+  GccEmailResult: GccEmailResult;
+  GccShareCreated: GccShareCreated;
+  GccShareInput: GccShareInput;
+  GccSharedEstimate: GccSharedEstimate;
   Gig: Gig;
   GigInput: GigInput;
   GigPage: GigPage;
@@ -18520,6 +18685,7 @@ export type ResolversParentTypes = ResolversObject<{
   WhatsappChannel: WhatsappChannel;
   WhatsappChannelInput: WhatsappChannelInput;
   WhatsappChannelSettings: WhatsappChannelSettings;
+  WhatsappChannelTestInput: WhatsappChannelTestInput;
   WhatsappCount: WhatsappCount;
   WhatsappDayPoint: WhatsappDayPoint;
   WhatsappDemo: WhatsappDemo;
@@ -19208,6 +19374,7 @@ export type CallingBotConfigResolvers<ContextType = GraphQLContext, ParentType e
   greeting?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   hasOpenAiApiKey?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   hasSarvamApiKey?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  hasTwilioAuthToken?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   hasVobizAuthToken?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -19217,10 +19384,13 @@ export type CallingBotConfigResolvers<ContextType = GraphQLContext, ParentType e
   openAiApiKeyHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   openAiModel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   phoneEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  phoneProvider?: Resolver<ResolversTypes['CallingBotPhoneProvider'], ParentType, ContextType>;
   sarvamApiKeyHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   systemPrompt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   ttsModel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   ttsSpeaker?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  twilioAccountSid?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  twilioNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   vobizAuthId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   vobizNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -20541,6 +20711,24 @@ export type FindingPageResolvers<ContextType = GraphQLContext, ParentType extend
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type GccEmailResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['GccEmailResult'] = ResolversParentTypes['GccEmailResult']> = ResolversObject<{
+  sentTo?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type GccShareCreatedResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['GccShareCreated'] = ResolversParentTypes['GccShareCreated']> = ResolversObject<{
+  expiresAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  revokeKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type GccSharedEstimateResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['GccSharedEstimate'] = ResolversParentTypes['GccSharedEstimate']> = ResolversObject<{
+  estimateJson?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  expiresAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type GigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Gig'] = ResolversParentTypes['Gig']> = ResolversObject<{
   applicationContact?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   applicationType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -21593,6 +21781,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createExitRecord?: Resolver<ResolversTypes['ExitRecord'], ParentType, ContextType, RequireFields<MutationCreateExitRecordArgs, 'input'>>;
   createExpenseClaim?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationCreateExpenseClaimArgs, 'input'>>;
   createFinding?: Resolver<ResolversTypes['Finding'], ParentType, ContextType, RequireFields<MutationCreateFindingArgs, 'input'>>;
+  createGccShare?: Resolver<ResolversTypes['GccShareCreated'], ParentType, ContextType, RequireFields<MutationCreateGccShareArgs, 'captcha' | 'input'>>;
   createGig?: Resolver<ResolversTypes['Gig'], ParentType, ContextType, RequireFields<MutationCreateGigArgs, 'input'>>;
   createGithubConfig?: Resolver<ResolversTypes['GithubConfig'], ParentType, ContextType, RequireFields<MutationCreateGithubConfigArgs, 'input'>>;
   createGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationCreateGoalArgs, 'input'>>;
@@ -21812,6 +22001,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   disconnectSocialAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisconnectSocialAccountArgs, 'id'>>;
   duplicateCmsPage?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationDuplicateCmsPageArgs, 'id' | 'path'>>;
   duplicateWhatsappWorkflow?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationDuplicateWhatsappWorkflowArgs, 'id'>>;
+  emailGccEstimate?: Resolver<ResolversTypes['GccEmailResult'], ParentType, ContextType, RequireFields<MutationEmailGccEstimateArgs, 'captcha' | 'input'>>;
   endApprovalDelegation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationEndApprovalDelegationArgs, 'id'>>;
   escalateSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationEscalateSupportTicketArgs, 'id' | 'reason'>>;
   fulfilItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationFulfilItAccessRequestArgs, 'id'>>;
@@ -21852,9 +22042,11 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   resetPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationResetPasswordArgs, 'newPassword' | 'token'>>;
   resetUserPassword?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationResetUserPasswordArgs, 'id'>>;
   restoreCmsPageRevision?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationRestoreCmsPageRevisionArgs, 'revisionId'>>;
+  revealCallingBotSecret?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationRevealCallingBotSecretArgs, 'id' | 'secret'>>;
   reviewTrackerManualEntry?: Resolver<ResolversTypes['TrackerManualEntry'], ParentType, ContextType, RequireFields<MutationReviewTrackerManualEntryArgs, 'id' | 'status'>>;
   revokeApiKey?: Resolver<ResolversTypes['ApiKey'], ParentType, ContextType, RequireFields<MutationRevokeApiKeyArgs, 'id'>>;
   revokeContractSignature?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRevokeContractSignatureArgs, 'id'>>;
+  revokeGccShare?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRevokeGccShareArgs, 'revokeKey' | 'token'>>;
   revokeOtherSessions?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   revokeProjectShare?: Resolver<ResolversTypes['ProjectShare'], ParentType, ContextType, RequireFields<MutationRevokeProjectShareArgs, 'id'>>;
   revokeSession?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRevokeSessionArgs, 'id'>>;
@@ -21932,6 +22124,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   syncSocialAccount?: Resolver<ResolversTypes['SocialSyncResult'], ParentType, ContextType, RequireFields<MutationSyncSocialAccountArgs, 'id'>>;
   syncWebsiteChatKnowledge?: Resolver<ResolversTypes['WebsiteChatSyncResult'], ParentType, ContextType>;
   testCallingBotConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestCallingBotConfigArgs, 'id'>>;
+  testCallingBotKey?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestCallingBotKeyArgs, 'input'>>;
   testCloudflareConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestCloudflareConnectionArgs, 'id'>>;
   testGithubConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGithubConnectionArgs, 'id'>>;
   testGodaddyConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGodaddyConnectionArgs, 'id'>>;
@@ -21945,6 +22138,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   testSocialAppConfig?: Resolver<ResolversTypes['SocialAppTest'], ParentType, ContextType, RequireFields<MutationTestSocialAppConfigArgs, 'app'>>;
   testSonarConnection?: Resolver<ResolversTypes['SonarConnectionTest'], ParentType, ContextType, RequireFields<MutationTestSonarConnectionArgs, 'id'>>;
   testStripeConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestStripeConnectionArgs, 'id'>>;
+  testWhatsappChannel?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestWhatsappChannelArgs, 'input'>>;
   toggleSocialPostLike?: Resolver<ResolversTypes['SocialPost'], ParentType, ContextType, RequireFields<MutationToggleSocialPostLikeArgs, 'id'>>;
   trackerAcceptConsent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, Partial<MutationTrackerAcceptConsentArgs>>;
   trackerHeartbeat?: Resolver<ResolversTypes['TrackerMe'], ParentType, ContextType, Partial<MutationTrackerHeartbeatArgs>>;
@@ -23418,6 +23612,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   searchKnowledgeBase?: Resolver<Array<ResolversTypes['KbArticle']>, ParentType, ContextType, RequireFields<QuerySearchKnowledgeBaseArgs, 'query'>>;
   searchPexelsPhotos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsPhotosArgs, 'query'>>;
   searchPexelsVideos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsVideosArgs, 'query'>>;
+  sharedGccEstimate?: Resolver<Maybe<ResolversTypes['GccSharedEstimate']>, ParentType, ContextType, RequireFields<QuerySharedGccEstimateArgs, 'token'>>;
   sharedProject?: Resolver<Maybe<ResolversTypes['SharedProjectView']>, ParentType, ContextType, RequireFields<QuerySharedProjectArgs, 'token'>>;
   socialAccounts?: Resolver<Array<ResolversTypes['SocialAccount']>, ParentType, ContextType>;
   socialAnalytics?: Resolver<ResolversTypes['SocialAnalytics'], ParentType, ContextType, RequireFields<QuerySocialAnalyticsArgs, 'days'>>;
@@ -25639,6 +25834,9 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   FinanceMonth?: FinanceMonthResolvers<ContextType>;
   Finding?: FindingResolvers<ContextType>;
   FindingPage?: FindingPageResolvers<ContextType>;
+  GccEmailResult?: GccEmailResultResolvers<ContextType>;
+  GccShareCreated?: GccShareCreatedResolvers<ContextType>;
+  GccSharedEstimate?: GccSharedEstimateResolvers<ContextType>;
   Gig?: GigResolvers<ContextType>;
   GigPage?: GigPageResolvers<ContextType>;
   GithubConfig?: GithubConfigResolvers<ContextType>;

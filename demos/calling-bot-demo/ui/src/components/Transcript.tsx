@@ -29,8 +29,14 @@ function Line({ line }: Readonly<{ line: TranscriptLine }>) {
   );
 }
 
+interface TranscriptProps {
+  lines: TranscriptLine[];
+  /** Fill the parent's height (the phone screen) instead of stopping at a fixed height. */
+  fill?: boolean;
+}
+
 /** What has been said on the call, newest at the bottom, read out to screen readers as it comes. */
-export function Transcript({ lines }: Readonly<{ lines: TranscriptLine[] }>) {
+export function Transcript({ lines, fill = false }: Readonly<TranscriptProps>) {
   const t = useT();
   const end = useRef<HTMLLIElement>(null);
   useEffect(() => {
@@ -50,7 +56,7 @@ export function Transcript({ lines }: Readonly<{ lines: TranscriptLine[] }>) {
       role="region"
       aria-label={t('Transcript')}
       tabIndex={0}
-      sx={{ maxHeight: 360, overflowY: 'auto' }}
+      sx={{ ...(fill ? { height: '100%' } : { maxHeight: 360 }), overflowY: 'auto' }}
     >
       <Box
         component="ol"

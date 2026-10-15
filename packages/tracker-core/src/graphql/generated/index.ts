@@ -443,16 +443,58 @@ export type CallingBotConfigInput = {
   /** Write-only. Leave empty when editing to keep the stored key. */
   openAiApiKey: Scalars['String']['input'];
   openAiModel: Scalars['String']['input'];
+  phoneProvider: CallingBotPhoneProvider;
   /** Write-only. Leave empty when editing to keep the stored key. */
   sarvamApiKey: Scalars['String']['input'];
   systemPrompt: Scalars['String']['input'];
   ttsModel: Scalars['String']['input'];
   ttsSpeaker: Scalars['String']['input'];
+  twilioAccountSid: Scalars['String']['input'];
+  /** Write-only. Leave empty when editing to keep the stored token. */
+  twilioAuthToken: Scalars['String']['input'];
+  twilioNumber: Scalars['String']['input'];
   vobizAuthId: Scalars['String']['input'];
   /** Write-only. Leave empty when editing to keep the stored token. */
   vobizAuthToken: Scalars['String']['input'];
   vobizNumber: Scalars['String']['input'];
 };
+
+/** An account the Tech screen can test on its own. */
+export type CallingBotKey =
+  | 'OPENAI'
+  | 'SARVAM'
+  | 'TWILIO'
+  | 'VOBIZ';
+
+/** What the form holds when a Test button is pressed; a blank key means the saved one. */
+export type CallingBotKeyTestInput = {
+  /** The config being edited, whose saved keys stand in for blank ones. */
+  configId: InputMaybe<Scalars['ID']['input']>;
+  key: CallingBotKey;
+  languageCode: InputMaybe<Scalars['String']['input']>;
+  openAiApiKey: InputMaybe<Scalars['String']['input']>;
+  openAiModel: InputMaybe<Scalars['String']['input']>;
+  sarvamApiKey: InputMaybe<Scalars['String']['input']>;
+  ttsModel: InputMaybe<Scalars['String']['input']>;
+  ttsSpeaker: InputMaybe<Scalars['String']['input']>;
+  twilioAccountSid: InputMaybe<Scalars['String']['input']>;
+  twilioAuthToken: InputMaybe<Scalars['String']['input']>;
+  vobizAuthId: InputMaybe<Scalars['String']['input']>;
+  vobizAuthToken: InputMaybe<Scalars['String']['input']>;
+};
+
+/** Which telephony account places calls to real phones; NONE offers browser calls only. */
+export type CallingBotPhoneProvider =
+  | 'NONE'
+  | 'TWILIO'
+  | 'VOBIZ';
+
+/** A stored calling bot key that Tech staff can reveal, one at a time. */
+export type CallingBotSecret =
+  | 'OPENAI_API_KEY'
+  | 'SARVAM_API_KEY'
+  | 'TWILIO_AUTH_TOKEN'
+  | 'VOBIZ_AUTH_TOKEN';
 
 export type CallingBotTurnRole =
   | 'BOT'
@@ -1173,6 +1215,23 @@ export type FindingType =
 export type GatewayMode =
   | 'LIVE'
   | 'SANDBOX';
+
+export type GccEmailInput = {
+  /** The estimate (schema version 1) as JSON. Totals are never read from it. */
+  estimateJson: Scalars['String']['input'];
+  /** An optional line from the sender, up to 500 characters. */
+  note: InputMaybe<Scalars['String']['input']>;
+  /** Where to send the estimate. */
+  to: Scalars['String']['input'];
+};
+
+export type GccShareInput = {
+  /** The visitor agreed to the estimate being stored until the link expires. Must be true. */
+  consent: Scalars['Boolean']['input'];
+  estimateJson: Scalars['String']['input'];
+  /** Between 1 and 30. */
+  expiresInDays: Scalars['Int']['input'];
+};
 
 export type GigInput = {
   applicationContact: Scalars['String']['input'];
@@ -3274,6 +3333,12 @@ export type WhatsappChannelInput = {
   enabled: Scalars['Boolean']['input'];
   phoneNumberId: Scalars['String']['input'];
   verifyToken: Scalars['String']['input'];
+};
+
+/** What the Test button sends: a blank access token means the saved one. */
+export type WhatsappChannelTestInput = {
+  accessToken: Scalars['String']['input'];
+  phoneNumberId: Scalars['String']['input'];
 };
 
 export type WhatsappDemoCodeInput = {

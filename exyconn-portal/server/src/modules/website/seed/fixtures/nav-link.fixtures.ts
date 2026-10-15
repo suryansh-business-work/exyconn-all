@@ -311,4 +311,26 @@ export const navLinkFixtures: NavLinkInput[] = [
     isActive: true,
     order: 34,
   },
+
+  // GCC in India
+  {
+    label: 'GCC in India: Cost Guide',
+    href: '/gcc-in-india/cost-guide',
+    description:
+      'Plan a Global Capability Centre in India: models, cities, people, technology, compliance and three-year costs.',
+    category: 'Services',
+    keywords: 'GCC, global capability centre, India, captive, BOT, setup cost',
+    isActive: true,
+    order: 35,
+  },
+  {
+    label: 'GCC Cost Calculator',
+    href: '/gcc-in-india/cost-calculator',
+    description:
+      'Estimate the setup and running cost of a GCC in India across Lean, Standard and Enterprise scenarios.',
+    category: 'Services',
+    keywords: 'GCC cost, calculator, India, estimate, budget',
+    isActive: true,
+    order: 36,
+  },
 ];

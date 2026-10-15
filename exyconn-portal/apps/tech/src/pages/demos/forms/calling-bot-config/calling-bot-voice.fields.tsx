@@ -1,19 +1,30 @@
 import { useEffect, useMemo } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
-import { RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
-import { KEEP_SECRET_HINT } from '../../../environment-variables/secret';
+import { RhfSecretField, RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
+import { CallingBotKey, CallingBotSecret } from '@exyconn/shell/graphql/generated';
 import {
   LANGUAGE_OPTIONS,
   MODEL_OPTIONS,
   VOICES,
+  type CallingBotConfigRow,
   type CallingBotConfigValues,
 } from './calling-bot-config.types';
+import { OPENAI_SOURCE, SARVAM_SOURCE } from './calling-bot-key-guide';
+import { KeySourceHint } from './CallingBotKeyGuide';
+import { useKeyTest } from './useKeyTest';
+import type { RevealFor } from './useSecretReveal';
+
+interface CallingBotFieldsProps {
+  initial: CallingBotConfigRow | null;
+  revealFor: RevealFor;
+}
 
 /** Who the bot is, what it thinks with and how it sounds. */
-export function CallingBotVoiceFields({ isEdit }: Readonly<{ isEdit: boolean }>) {
+export function CallingBotVoiceFields({ initial, revealFor }: Readonly<CallingBotFieldsProps>) {
   const { setValue, getValues } = useFormContext<CallingBotConfigValues>();
   const model = useWatch<CallingBotConfigValues, 'ttsModel'>({ name: 'ttsModel' });
   const voices = useMemo(() => VOICES[model] ?? [], [model]);
+  const testFor = useKeyTest(initial?.id);
 
   // A voice belongs to one model: switching the model picks that model's first voice.
   useEffect(() => {
@@ -25,19 +36,21 @@ export function CallingBotVoiceFields({ isEdit }: Readonly<{ isEdit: boolean }>)
   return (
     <>
       <RhfTextField name="label" label="Label" />
-      <RhfTextField
+      <RhfSecretField
         name="sarvamApiKey"
         label="Sarvam AI key"
-        type="password"
-        helperText={
-          isEdit ? KEEP_SECRET_HINT : 'From dashboard.sarvam.ai — speech-to-text and text-to-speech'
-        }
+        stored={initial?.hasSarvamApiKey}
+        onReveal={revealFor(CallingBotSecret.SarvamApiKey)}
+        onTest={testFor(CallingBotKey.Sarvam)}
+        helperText={<KeySourceHint source={SARVAM_SOURCE} />}
       />
-      <RhfTextField
+      <RhfSecretField
         name="openAiApiKey"
         label="OpenAI key"
-        type="password"
-        helperText={isEdit ? KEEP_SECRET_HINT : 'A secret key from platform.openai.com/api-keys'}
+        stored={initial?.hasOpenAiApiKey}
+        onReveal={revealFor(CallingBotSecret.OpenaiApiKey)}
+        onTest={testFor(CallingBotKey.Openai)}
+        helperText={<KeySourceHint source={OPENAI_SOURCE} />}
       />
       <RhfTextField
         name="openAiModel"

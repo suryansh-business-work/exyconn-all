@@ -465,6 +465,24 @@ ${PAY_BUTTON}        <mj-text font-size="13px" color="#94a3b8">
           Your ticket reference is <strong>{{reference}}</strong>.
         </mj-text>`),
   },
+  {
+    key: 'gcc-estimate',
+    name: 'GCC calculator — estimate',
+    description:
+      'Sent from the GCC cost calculator on exyconn.com when a visitor emails an estimate. The PDF report is attached. {{estimateName}} is the estimate’s name, {{note}} the sender’s optional note and {{summary}} the headline figures per scenario, recalculated by the server.',
+    subject: 'GCC cost estimate: {{estimateName}}',
+    mjml: shell(`        <mj-text font-size="20px" font-weight="700" color="#0b0a12">{{estimateName}}</mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">
+          Here is the GCC cost estimate made with the {{companyName}} calculator. The full report, with every
+          line item, assumption and the methodology, is attached as a PDF.
+        </mj-text>
+        <mj-text font-size="15px" color="#334155" line-height="24px">{{note}}</mj-text>
+        <mj-divider border-color="#e2e8f0" />
+        <mj-text font-size="13px" color="#334155" line-height="20px">{{summary}}</mj-text>
+        <mj-text font-size="13px" color="#94a3b8">
+          This is an indicative planning estimate, not a quotation. Questions? Visit {{websiteUrl}}.
+        </mj-text>`),
+  },
 ];
 
 /**

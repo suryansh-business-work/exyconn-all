@@ -56,6 +56,7 @@ jest.mock('../../src/lib/migrations', () => ({
 }));
 jest.mock('../../src/modules/clients', () => ({ migrateClientTaxIds: jest.fn() }));
 jest.mock('../../src/modules/cms', () => ({ ensureCmsDefaults: jest.fn() }));
+jest.mock('../../src/modules/calling-bot-demo', () => ({ migratePhoneProvider: jest.fn() }));
 jest.mock('../../src/modules/reminders', () => ({ startReminderSweep: jest.fn() }));
 jest.mock('../../src/modules/audit', () => ({ startAuditRetention: jest.fn() }));
 jest.mock('../../src/modules/whatsapp-demo', () => ({ ensureWhatsappDemoSeeds: jest.fn() }));
@@ -75,6 +76,7 @@ const MODULES = {
   logs: '../../src/modules/logs',
   hr: '../../src/modules/hr',
   clients: '../../src/modules/clients',
+  callingBot: '../../src/modules/calling-bot-demo',
 } as const;
 
 type Loaded = Record<keyof typeof MODULES, Mocked> & {
@@ -166,10 +168,12 @@ describe('server bootstrap', () => {
       'app-log-group-users',
       'position-defaults',
       'client-tax-ids',
+      'calling-bot-phone-provider',
     ]);
     expect(m.logs.backfillAppLogGroupUsers).toHaveBeenCalled();
     expect(m.hr.backfillPositionDefaults).toHaveBeenCalled();
     expect(m.clients.migrateClientTaxIds).toHaveBeenCalled();
+    expect(m.callingBot.migratePhoneProvider).toHaveBeenCalled();
     expect(m.organizations.forEachOrganization.mock.calls.map(([, label]) => label)).toEqual([
       'repairStoredCurrencies',
       'ensureEmailDefaults',
@@ -180,7 +184,9 @@ describe('server bootstrap', () => {
       'migrateClientTaxIds',
       'ensureWhatsappDemoSeeds',
     ]);
-    expect(m.tenant.runAsPlatform).toHaveBeenCalledTimes(4);
+    // Admin access, the log-group backfill, status monitors, the calling bot migration and AI
+    // model prices run for the platform rather than for each company.
+    expect(m.tenant.runAsPlatform).toHaveBeenCalledTimes(5);
   });
 
   it('logs and exits when the database cannot be reached, serving nothing', async () => {

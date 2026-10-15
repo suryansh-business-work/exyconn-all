@@ -1,4 +1,10 @@
-import { newTicketSecret, type CallingBotConfigRecord } from '@exyconn/calling-bot-demo-server';
+import {
+  canPhone,
+  newTicketSecret,
+  type CallingBotConfigRecord,
+  type PhoneProvider,
+  type PhoneSettings,
+} from '@exyconn/calling-bot-demo-server';
 import { badRequest, notFound } from '../../utils/errors';
 import { openAiClient } from '../../utils/openai';
 import { requireSecret, withoutBlankSecret } from '../tech/tech.service';
@@ -17,17 +23,22 @@ export interface CallingBotConfigInput {
   ttsModel: string;
   ttsSpeaker: string;
   maxCallSeconds: number;
+  phoneProvider: PhoneProvider;
   vobizAuthId: string;
   vobizAuthToken: string;
   vobizNumber: string;
+  twilioAccountSid: string;
+  twilioAuthToken: string;
+  twilioNumber: string;
   isActive?: boolean | null;
 }
 
 /** Sarvam's text-to-speech, asked for one word: the cheapest call that proves the key works. */
 const SARVAM_TTS_URL = 'https://api.sarvam.ai/text-to-speech';
 
-/** The keys that are written but never read back, nor kept when sent empty. */
-const SECRETS = ['sarvamApiKey', 'openAiApiKey', 'vobizAuthToken'] as const;
+/** The keys that are never listed, nor overwritten when sent empty; only revealed one at a time. */
+const SECRETS = ['sarvamApiKey', 'openAiApiKey', 'vobizAuthToken', 'twilioAuthToken'] as const;
+export type CallingBotSecretField = (typeof SECRETS)[number];
 
 function withoutBlankSecrets(input: CallingBotConfigInput): Partial<CallingBotConfigInput> {
   return SECRETS.reduce<Partial<CallingBotConfigInput>>(
@@ -36,19 +47,42 @@ function withoutBlankSecrets(input: CallingBotConfigInput): Partial<CallingBotCo
   );
 }
 
-async function checkSarvam(config: CallingBotConfigRecord): Promise<void> {
+/** What the phone provider is called on an error. */
+const PROVIDER_NAMES: Record<PhoneProvider, string> = {
+  NONE: 'No phone provider',
+  VOBIZ: 'Vobiz',
+  TWILIO: 'Twilio',
+};
+
+/** A chosen phone provider must be complete once the saved keys are counted in. */
+function assertPhoneComplete(config: PhoneSettings): void {
+  if (config.phoneProvider !== 'NONE' && !canPhone(config)) {
+    badRequest(
+      `Fill in every ${PROVIDER_NAMES[config.phoneProvider]} field, or choose no phone calls.`,
+    );
+  }
+}
+
+/** Sarvam's text-to-speech settings a key is tried with. */
+export type SarvamVoice = Pick<CallingBotConfigRecord, 'languageCode' | 'ttsSpeaker' | 'ttsModel'>;
+
+/** Speaks one word with the key: the cheapest call that proves it, and the voice, work. */
+export async function checkSarvam(apiKey: string, voice: SarvamVoice): Promise<void> {
   const response = await fetch(SARVAM_TTS_URL, {
     method: 'POST',
-    headers: { 'api-subscription-key': config.sarvamApiKey, 'Content-Type': 'application/json' },
+    headers: { 'api-subscription-key': apiKey, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       text: 'Hello',
-      language_code: config.languageCode,
-      speaker: config.ttsSpeaker,
-      model: config.ttsModel,
+      language_code: voice.languageCode,
+      speaker: voice.ttsSpeaker,
+      model: voice.ttsModel,
     }),
   });
+  if (response.status === 401 || response.status === 403) {
+    badRequest('Sarvam AI refused the key. Create a new one at dashboard.sarvam.ai.');
+  }
   if (!response.ok) {
-    badRequest(`Sarvam AI refused the key, language or voice (HTTP ${response.status}).`);
+    badRequest(`Sarvam AI refused the language or voice (HTTP ${response.status}).`);
   }
 }
 
@@ -66,6 +100,7 @@ export const callingBotConfigs = {
   async create(input: CallingBotConfigInput) {
     requireSecret(input.sarvamApiKey, 'A Sarvam AI key');
     requireSecret(input.openAiApiKey, 'An OpenAI key');
+    assertPhoneComplete(input);
     if (input.isActive) {
       await CallingBotConfigModel.updateMany({}, { isActive: false });
     }
@@ -77,6 +112,9 @@ export const callingBotConfigs = {
   },
 
   async update(id: string, input: CallingBotConfigInput) {
+    const before = await CallingBotConfigModel.findById(id).lean<CallingBotConfigRecord>();
+    if (!before) notFound('Calling bot config');
+    assertPhoneComplete({ ...before, ...withoutBlankSecrets(input) });
     if (input.isActive) {
       await CallingBotConfigModel.updateMany({ _id: { $ne: id } }, { isActive: false });
     }
@@ -89,9 +127,18 @@ export const callingBotConfigs = {
   },
 
   async remove(id: string) {
-    const doc = await CallingBotConfigModel.findByIdAndDelete(id).lean();
+    const doc = await CallingBotConfigModel.findByIdAndDelete(id).lean<CallingBotConfigRecord>();
     if (!doc) notFound('Calling bot config');
-    return true;
+    return doc;
+  },
+
+  /** One stored key, for the Tech screen's eye button; the caller records who asked. */
+  async reveal(id: string, field: CallingBotSecretField) {
+    const config = await CallingBotConfigModel.findById(id)
+      .select(`label ${field}`)
+      .lean<CallingBotConfigRecord>();
+    if (!config) notFound('Calling bot config');
+    return { label: config.label, value: config[field] ?? '' };
   },
 
   /** Proves both keys: OpenAI can reach the model, Sarvam can speak in the chosen voice. */
@@ -103,7 +150,7 @@ export const callingBotConfigs = {
     } catch {
       badRequest('OpenAI refused the key or cannot reach the model.');
     }
-    await checkSarvam(config);
+    await checkSarvam(config.sarvamApiKey, config);
     return true;
   },
 };

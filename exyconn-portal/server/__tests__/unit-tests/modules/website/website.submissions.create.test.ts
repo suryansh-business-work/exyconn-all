@@ -9,6 +9,7 @@ import {
 import { mailer } from '../../../../src/utils/mailer';
 import { logger } from '../../../../src/utils/logger';
 import { solvedCaptcha } from '../../../helpers';
+import { seedPlatformOperator } from '../../security-authz.operator';
 
 jest.mock('../../../../src/utils/mailer', () => ({
   mailer: { sendFormSubmissionEmail: jest.fn() },
@@ -102,6 +103,9 @@ describe('what the public submission refuses', () => {
 });
 
 describe('what the public submission stores', () => {
+  // A visitor's lead is filed in the platform operator's organization.
+  beforeEach(() => seedPlatformOperator());
+
   it('files a new submission from the website unless the caller names its source', async () => {
     const plain = await submit({ formType: 'newsletter', submissionData: { email: 'a@b.co' } });
     const landing = await submit({

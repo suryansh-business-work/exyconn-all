@@ -16,6 +16,7 @@ COPY exyconn-portal/ui/package.json exyconn-portal/ui/
 COPY exyconn-website/package.json exyconn-website/
 COPY exyconn-tracker-app/package.json exyconn-tracker-app/
 COPY packages/cms/package.json packages/cms/
+COPY packages/gcc-cost/package.json packages/gcc-cost/
 COPY packages/regex/package.json packages/regex/
 COPY packages/seo/package.json packages/seo/
 COPY packages/config/package.json packages/config/
@@ -30,6 +31,7 @@ FROM deps AS build
 # never at runtime. Their tsconfigs may extend @exyconn/config's, which esbuild resolves
 # while transforming them — without config the build fails before emitting a page.
 COPY packages/cms packages/cms
+COPY packages/gcc-cost packages/gcc-cost
 COPY packages/regex packages/regex
 COPY packages/seo packages/seo
 COPY packages/config packages/config

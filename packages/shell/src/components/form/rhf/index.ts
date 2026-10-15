@@ -1,4 +1,5 @@
 export { RhfTextField } from './RhfTextField';
+export { RhfSecretField } from './RhfSecretField';
 export { RhfSelect } from './RhfSelect';
 export { RhfMultiSelect } from './RhfMultiSelect';
 export { RhfChipsInput } from './RhfChipsInput';

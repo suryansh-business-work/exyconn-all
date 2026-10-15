@@ -24,6 +24,7 @@ COPY pnpm-workspace.yaml package.json pnpm-lock.yaml .npmrc ./
 COPY packages/code-editor/package.json packages/code-editor/
 COPY packages/config/package.json packages/config/
 COPY packages/crud/package.json packages/crud/
+COPY packages/gcc-cost/package.json packages/gcc-cost/
 COPY packages/demo-visitor/package.json packages/demo-visitor/
 COPY packages/i18n/package.json packages/i18n/
 COPY packages/live-editor/package.json packages/live-editor/

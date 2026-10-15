@@ -14,7 +14,7 @@ import type { CallPhase, TranscriptLine } from './transcript';
 type ServerEvent =
   | { type: 'turn'; role: CallingBotTurnRole; text: string }
   | { type: 'clear' }
-  | { type: 'ended'; reason: string };
+  | { type: 'ended'; reason: string; failed: boolean };
 
 interface Session {
   socket: WebSocket | null;
@@ -35,6 +35,8 @@ export function useBrowserCall() {
   const [startedAt, setStartedAt] = useState<number | null>(null);
   const session = useRef<Session | null>(null);
   const lineCount = useRef(0);
+  // The socket closes right after the server's "ended", so only a call's first reason is kept.
+  const finished = useRef(false);
 
   const close = useCallback(() => {
     const current = session.current;
@@ -50,7 +52,10 @@ export function useBrowserCall() {
     (message: string | null) => {
       close();
       setPhase('ended');
-      setError(message);
+      if (!finished.current) {
+        finished.current = true;
+        setError(message);
+      }
     },
     [close],
   );
@@ -63,11 +68,14 @@ export function useBrowserCall() {
         lineCount.current += 1;
         const line = { key: `line-${lineCount.current}`, role: event.role, text: event.text };
         setLines((previous) => [...previous, line]);
+      } else if (event.failed) {
+        // The technical reason is for Tech > Demos > Calling bot > Calls, not for the caller.
+        finish(t('The bot could not take the call right now. Please try again in a few minutes.'));
       } else {
         finish(null);
       }
     },
-    [finish],
+    [finish, t],
   );
 
   const connect = useCallback(
@@ -93,6 +101,7 @@ export function useBrowserCall() {
   );
 
   const start = useCallback(async () => {
+    finished.current = false;
     setError(null);
     setLines([]);
     setStartedAt(null);

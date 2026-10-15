@@ -3,7 +3,9 @@ import type { AudioFormat } from './audio';
 
 /** What a call shows its caller as it goes (the browser call screen; a phone has no screen). */
 export type CallEvent =
-  { type: 'turn'; role: TurnRole; text: string } | { type: 'ended'; reason: string };
+  | { type: 'turn'; role: TurnRole; text: string }
+  /** `failed`: the call broke (a provider refused it) rather than being hung up or timed out. */
+  | { type: 'ended'; reason: string; failed: boolean };
 
 /** The line a conversation runs over: a browser socket or a Vobiz media stream. */
 export interface Transport {

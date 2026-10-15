@@ -10,7 +10,8 @@
  * moving to roles changed no daylight colour. Shades run light (50) to dark (950).
  *
  * `brand` is the Exyconn blue the form controls and focus ring wear; `ink` is the night
- * surface family only dark mode paints with.
+ * surface family only dark mode paints with. `brand.400` is the GCC pages' accent blue: under
+ * 3:1 on white, so it is used for rules and highlights, never for text or behind white text.
  */
 export const palette = {
   base: {
@@ -19,6 +20,7 @@ export const palette = {
   },
   brand: {
     300: "#4da3ff",
+    400: "#3fa8e6",
     500: "#0071e3",
     600: "#005bb5",
     700: "#004a99",

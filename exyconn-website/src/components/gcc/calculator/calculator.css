@@ -1,0 +1,656 @@
+/*
+ * The GCC calculator island. Every colour, space, radius and size is a site token
+ * (src/styles/tokens), so light and dark mode follow <html data-theme> with nothing extra here.
+ * Classes are namespaced `gcc-` because the island shares the page with the site's own CSS.
+ */
+.gcc-app {
+  color: var(--color-fg);
+  font-size: var(--font-size-md);
+}
+
+.gcc-loading {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: center;
+  min-height: 12rem;
+  color: var(--color-fg-muted);
+}
+
+.gcc-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Estimate bar */
+.gcc-bar {
+  display: grid;
+  gap: var(--space-3);
+  margin-block-end: var(--space-6);
+  padding: var(--space-4);
+  border: var(--border-width-hairline) solid var(--color-line);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+.gcc-bar__row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+.gcc-bar__estimate,
+.gcc-bar__scenario {
+  flex: 1 1 14rem;
+  max-width: 22rem;
+}
+.gcc-bar__note {
+  margin: 0;
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-xs);
+}
+.gcc-save {
+  display: inline-flex;
+  gap: var(--space-2);
+  align-items: center;
+  margin: 0;
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-sm);
+}
+.gcc-save--saved,
+.gcc-save--idle {
+  color: var(--color-green-fg);
+}
+.gcc-save--invalid {
+  color: var(--color-amber-fg);
+}
+.gcc-save--error,
+.gcc-save--conflict {
+  color: var(--color-red-fg);
+}
+
+/* Layout: form and sticky summary; on phones the summary comes first as a compact card. */
+.gcc-workspace {
+  display: grid;
+  gap: var(--space-6);
+  grid-template-columns: minmax(0, 1fr);
+}
+.gcc-workspace__main {
+  min-width: 0;
+}
+@media (min-width: 64rem) {
+  .gcc-workspace {
+    grid-template-columns: minmax(0, 1fr) 22rem;
+    align-items: start;
+  }
+  .gcc-summary {
+    position: sticky;
+    top: var(--space-24);
+  }
+}
+@media (max-width: 63.99rem) {
+  .gcc-summary {
+    order: -1;
+  }
+}
+
+/* Step navigation */
+.gcc-nav {
+  margin-block-end: var(--space-6);
+}
+.gcc-nav__progress {
+  display: grid;
+  gap: var(--space-2);
+  margin-block-end: var(--space-3);
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-sm);
+}
+.gcc-nav__progress .MuiLinearProgress-bar {
+  background: var(--color-sky);
+}
+.gcc-nav__list {
+  display: flex;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0 0 var(--space-2);
+  overflow-x: auto;
+  list-style: none;
+  scrollbar-width: thin;
+}
+.gcc-nav__item {
+  display: inline-flex;
+  gap: var(--space-2);
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  border: var(--border-width-hairline) solid var(--color-line);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface);
+  color: var(--color-fg-secondary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.gcc-nav__item:hover {
+  border-color: var(--color-sky);
+}
+.gcc-nav__item:focus-visible {
+  outline: var(--border-width-heavy) solid var(--color-focus-ring);
+  outline-offset: 2px;
+}
+.gcc-nav__item[aria-current="step"] {
+  border-color: var(--color-sky);
+  background: var(--color-sky-subtle);
+  color: var(--color-sky-fg);
+  font-weight: var(--font-weight-semibold);
+}
+.gcc-nav__index {
+  color: var(--color-fg-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sections, groups and grids */
+.gcc-section {
+  display: grid;
+  gap: var(--space-6);
+}
+.gcc-section__index {
+  margin: 0;
+  color: var(--color-sky-fg);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.08em;
+}
+.gcc-section__title {
+  margin: var(--space-1) 0 var(--space-2);
+  font-size: var(--font-size-2xl);
+  line-height: var(--line-height-tight);
+}
+.gcc-section__title:focus {
+  outline: none;
+}
+.gcc-section__lede {
+  margin: 0;
+  color: var(--color-fg-muted);
+}
+.gcc-group {
+  display: grid;
+  gap: var(--space-4);
+  margin: 0;
+  padding: var(--space-5);
+  min-width: 0;
+  border: var(--border-width-hairline) solid var(--color-line);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+.gcc-group__title {
+  padding: 0 var(--space-2);
+  color: var(--color-fg);
+  font-weight: var(--font-weight-semibold);
+}
+.gcc-grid {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+}
+.gcc-grid--wide {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr));
+}
+.gcc-row,
+.gcc-switches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+.gcc-row > .MuiTextField-root {
+  flex: 1 1 12rem;
+}
+.gcc-stack {
+  display: grid;
+  gap: var(--space-4);
+}
+.gcc-label {
+  display: inline-flex;
+  gap: var(--space-1);
+  align-items: center;
+}
+.gcc-label__tip {
+  pointer-events: auto;
+}
+.gcc-advanced,
+.gcc-line {
+  border: var(--border-width-hairline) solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.gcc-advanced::before,
+.gcc-line::before {
+  display: none;
+}
+.gcc-empty,
+.gcc-lines__note,
+.gcc-card__source {
+  margin: 0;
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* Cost lines, roles and cards */
+.gcc-lines {
+  display: grid;
+  gap: var(--space-4);
+}
+.gcc-lines__title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+}
+.gcc-lines__list {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.gcc-line--off {
+  opacity: 0.7;
+}
+.gcc-line__summary {
+  display: grid;
+  gap: var(--space-2);
+  width: 100%;
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 40rem) {
+  .gcc-line__summary {
+    grid-template-columns: minmax(0, 1.4fr) auto minmax(0, 1fr);
+    align-items: center;
+  }
+}
+.gcc-line__label {
+  font-weight: var(--font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+.gcc-line__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+.gcc-line__amount {
+  color: var(--color-fg-secondary);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+.gcc-line__fields {
+  display: grid;
+  gap: var(--space-4);
+}
+.gcc-line__tools {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-1);
+  margin-block-start: var(--space-3);
+}
+.gcc-card {
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  padding: var(--space-4);
+  border: var(--border-width-hairline) solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-subtle);
+}
+.gcc-card > * {
+  grid-column: 1;
+}
+.gcc-card > .MuiIconButton-root {
+  grid-column: 2;
+  grid-row: 1;
+}
+.gcc-card__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: space-between;
+}
+.gcc-categories {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+.gcc-categories__note {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--color-amber-fg);
+  font-size: var(--font-size-sm);
+}
+.gcc-scenarios {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.gcc-scenarios__item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  align-items: center;
+}
+
+/* Stats and metrics */
+.gcc-stats {
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-sky-subtle);
+}
+.gcc-stats__lead {
+  margin: 0 0 var(--space-3);
+  color: var(--color-sky-fg);
+  font-weight: var(--font-weight-semibold);
+}
+.gcc-stats__grid,
+.gcc-metrics {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 12rem), 1fr));
+}
+.gcc-stats__grid dt,
+.gcc-metric dt {
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-xs);
+}
+.gcc-stats__grid dd,
+.gcc-metric dd {
+  margin: var(--space-1) 0 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+}
+.gcc-metric {
+  padding: var(--space-4);
+  border: var(--border-width-hairline) solid var(--color-line);
+  border-block-start: var(--border-width-heavy) solid var(--color-sky);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.gcc-metric--lead {
+  background: var(--color-inverse);
+  color: var(--color-on-solid);
+}
+.gcc-metric--lead dt {
+  color: var(--color-on-solid-muted);
+}
+.gcc-metric--lead dd {
+  color: var(--color-lime-bright);
+  font-size: var(--font-size-2xl);
+}
+.gcc-metrics--compact .gcc-metric dd {
+  font-size: var(--font-size-md);
+}
+
+/* Summary sidebar: a night card in both modes. */
+.gcc-summary {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border-radius: var(--radius-xl);
+  background: var(--color-inverse);
+  color: var(--color-on-solid);
+  box-shadow: var(--shadow-lg);
+}
+.gcc-summary__title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+}
+.gcc-summary__scenario,
+.gcc-summary__note,
+.gcc-summary__stale {
+  margin: 0;
+  color: var(--color-on-solid-muted);
+  font-size: var(--font-size-xs);
+}
+.gcc-summary__stale {
+  color: var(--color-amber-bright);
+}
+.gcc-summary__total {
+  display: grid;
+  gap: var(--space-1);
+  padding-block: var(--space-3);
+  border-block: var(--border-width-hairline) solid
+    color-mix(in oklab, var(--color-on-solid) 18%, transparent);
+}
+.gcc-summary__total span {
+  color: var(--color-on-solid-muted);
+  font-size: var(--font-size-sm);
+}
+.gcc-summary__total strong {
+  color: var(--color-lime-bright);
+  font-size: var(--font-size-3xl);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--line-height-tight);
+  overflow-wrap: anywhere;
+}
+.gcc-summary__figures {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+.gcc-summary__figures div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.gcc-summary__figures dt {
+  color: var(--color-on-solid-muted);
+  font-size: var(--font-size-sm);
+}
+.gcc-summary__figures dd {
+  margin: 0;
+  color: var(--color-sky-bright);
+  font-weight: var(--font-weight-semibold);
+  font-variant-numeric: tabular-nums;
+  text-align: end;
+}
+.gcc-summary__breakdown {
+  background: transparent;
+  color: inherit;
+}
+
+/* Bars, timeline, tables */
+.gcc-bars {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+}
+.gcc-bars__row dt {
+  font-size: var(--font-size-sm);
+}
+.gcc-bars__row dd {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+}
+.gcc-bars__value {
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-semibold);
+}
+.gcc-bars__track {
+  display: block;
+  height: 0.5rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-muted);
+}
+.gcc-bars__fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-sky);
+}
+.gcc-bars--night .gcc-bars__track {
+  background: color-mix(in oklab, var(--color-on-solid) 14%, transparent);
+}
+.gcc-bars--night .gcc-bars__fill {
+  background: var(--color-sky-bright);
+}
+.gcc-panels {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 20rem), 1fr));
+}
+.gcc-panel {
+  display: grid;
+  gap: var(--space-3);
+  align-content: start;
+  min-width: 0;
+  padding: var(--space-5);
+  border: var(--border-width-hairline) solid var(--color-line);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+.gcc-panel__title {
+  margin: 0;
+  font-size: var(--font-size-lg);
+}
+.gcc-panel__subtitle {
+  margin: 0 0 var(--space-2);
+  font-size: var(--font-size-md);
+}
+.gcc-list {
+  margin: 0;
+  padding-inline-start: var(--space-5);
+}
+.gcc-disclaimer {
+  margin: 0;
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-xs);
+}
+.gcc-timeline {
+  margin: 0;
+}
+.gcc-timeline svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.gcc-timeline__bar {
+  fill: var(--color-sky);
+}
+.gcc-timeline__line {
+  fill: none;
+  stroke: var(--color-lime-fg);
+  stroke-width: 2.5;
+}
+.gcc-timeline figcaption {
+  margin-block: var(--space-2);
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-xs);
+}
+.gcc-table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+}
+.gcc-table-scroll:focus-visible {
+  outline: var(--border-width-heavy) solid var(--color-focus-ring);
+}
+.gcc-table-scroll table,
+.gcc-report table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.gcc-table-scroll th,
+.gcc-table-scroll td,
+.gcc-report th,
+.gcc-report td {
+  padding: var(--space-2) var(--space-3);
+  border-block-end: var(--border-width-hairline) solid var(--color-line);
+  text-align: start;
+  vertical-align: top;
+}
+.gcc-report caption {
+  padding-block: var(--space-3) var(--space-1);
+  font-weight: var(--font-weight-semibold);
+  text-align: start;
+}
+.gcc-compare__base,
+.gcc-compare__delta {
+  display: block;
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-xs);
+}
+.gcc-exports__groups {
+  display: grid;
+  gap: var(--space-3);
+}
+.gcc-exports__groups > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.gcc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  justify-content: flex-end;
+  margin-block-start: var(--space-6);
+}
+.gcc-actions__alert {
+  flex-basis: 100%;
+}
+.gcc-report {
+  padding: var(--space-5);
+  border: var(--border-width-hairline) solid var(--color-line);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  overflow-x: auto;
+}
+
+/* Print: only the report. */
+.gcc-print {
+  display: none;
+}
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .gcc-print,
+  .gcc-print * {
+    visibility: visible;
+  }
+  .gcc-print {
+    display: block;
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    color: var(--color-fg);
+    font-size: var(--font-size-xs);
+  }
+  .gcc-print table {
+    width: 100%;
+    border-collapse: collapse;
+    break-inside: avoid;
+  }
+  .gcc-print th,
+  .gcc-print td {
+    padding: var(--space-1) var(--space-2);
+    border-block-end: var(--border-width-hairline) solid var(--color-line);
+    text-align: start;
+  }
+  .gcc-print section {
+    break-before: page;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gcc-app * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

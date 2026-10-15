@@ -12,6 +12,15 @@ export const VOICE_PATHS = {
   vobizHangup: '/vobiz/hangup',
   /** WebSocket: a phone call's audio, both ways, from Vobiz. */
   vobizStream: '/vobiz/stream',
+  /** Twilio's call Url: returns the TwiML that streams the call's audio to `twilioStream`. */
+  twilioAnswer: '/twilio/answer',
+  /** Twilio's StatusCallback: the end of a phone call. */
+  twilioStatus: '/twilio/status',
+  /**
+   * WebSocket: a phone call's audio, both ways, from Twilio. Twilio's stream URL takes no
+   * query string, so this one reads its ticket from the stream's first `start` message.
+   */
+  twilioStream: '/twilio/stream',
 } as const;
 
 /** The query parameter every route reads its call ticket from. */
