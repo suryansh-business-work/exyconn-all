@@ -51,7 +51,7 @@ describe('project notices on rows with missing people', () => {
       kind: 'PROJECT',
       title: 'BILL-7 was moved to Done',
       body: 'Asha moved "Invoice PDF is blank" to Done.',
-      link: `/projects/${PROJECT_ID}/board`,
+      link: '/projects/browse/BILL-7',
     });
   });
 });
