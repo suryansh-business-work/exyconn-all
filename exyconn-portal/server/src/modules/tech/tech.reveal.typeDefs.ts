@@ -24,6 +24,7 @@ export const techRevealTypeDefs = gql`
     PAYONEER_API_TOKEN
     EMAIL_VERIFIER_PROXY_PASSWORD
     SOCIAL_APP_CLIENT_SECRET
+    GOOGLE_SIGN_IN_CLIENT_SECRET
   }
 
   extend type Mutation {

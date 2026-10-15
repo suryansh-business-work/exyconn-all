@@ -126,3 +126,19 @@ mutation RequestPasswordReset($email: String!) {
 mutation ResetPassword($token: String!, $newPassword: String!) {
   resetPassword(token: $token, newPassword: $newPassword)
 }
+
+# "Continue with Google": whether the sign-in page offers it, where to send the browser, and the
+# one-time ticket Google's callback hands back, redeemed for the same result as a password.
+query GoogleSignInEnabled {
+  googleSignInEnabled
+}
+
+mutation StartGoogleSignIn($returnTo: String!) {
+  startGoogleSignIn(returnTo: $returnTo)
+}
+
+mutation CompleteGoogleSignIn($ticket: String!) {
+  completeGoogleSignIn(ticket: $ticket) {
+    ...SignInResult
+  }
+}

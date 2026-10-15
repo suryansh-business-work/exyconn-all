@@ -4047,6 +4047,27 @@ export type GodaddyConfigInput = {
   label: Scalars['String']['input'];
 };
 
+/** The install's Google OAuth client. The secret is never returned; see revealTechSecret. */
+export type GoogleSignInConfig = {
+  __typename?: 'GoogleSignInConfig';
+  clientId: Scalars['String']['output'];
+  clientSecretHint?: Maybe<Scalars['String']['output']>;
+  enabled: Scalars['Boolean']['output'];
+  hasClientSecret: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  /** Register this exact address as an authorised redirect URI on the Google client. */
+  redirectUri: Scalars['String']['output'];
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
+  updatedByName?: Maybe<Scalars['String']['output']>;
+};
+
+export type GoogleSignInConfigInput = {
+  clientId: Scalars['String']['input'];
+  /** Blank keeps the stored secret. */
+  clientSecret: Scalars['String']['input'];
+  enabled: Scalars['Boolean']['input'];
+};
+
 export type Grade = {
   __typename?: 'Grade';
   active: Scalars['Boolean']['output'];
@@ -5766,6 +5787,8 @@ export type Mutation = {
   closeWebsiteChatSession: WebsiteChatSession;
   /** The employee's manager (or HR) leaves a comment on a direct report's goal. */
   commentOnTeamGoal: Goal;
+  /** Redeems the one-time ticket Google's callback handed the page. Public. */
+  completeGoogleSignIn: AuthPayload;
   /** Completes the sprint, moving unfinished tickets on per sprintCompletionPlan. */
   completeSprint: Sprint;
   /** One post per account: published now, scheduled, or kept as a draft. MARKETING. */
@@ -6260,6 +6283,7 @@ export type Mutation = {
    * already exists, and guessing wrong would fail the save on a duplicate key.
    */
   saveEmployeeSalary: SalaryStructure;
+  saveGoogleSignInConfig: GoogleSignInConfig;
   saveProjectWorkflowGraph: ProjectWorkflow;
   saveSocialAppConfig: SocialAppConfig;
   saveTrackerBuildSettings: TrackerBuildSettings;
@@ -6384,6 +6408,8 @@ export type Mutation = {
   /** AI: what worked, what did not, and what to try, from the last days' posts. */
   socialMediaInsights: Scalars['String']['output'];
   startCallingBotCall: CallingBotCallStart;
+  /** Google's consent page for a sign-in that returns to this portal page. Public. */
+  startGoogleSignIn: Scalars['String']['output'];
   /** Mints a secret and returns what an authenticator app needs. Nothing is switched on yet. */
   startMfaEnrolment: MfaEnrolment;
   /**
@@ -6426,8 +6452,12 @@ export type Mutation = {
   /** Tests one account from the form; resolves to what worked, or fails saying what did not. */
   testCallingBotKey: Scalars['String']['output'];
   testCloudflareConnection: Scalars['Boolean']['output'];
+  /** Connects to the proxy and signs in; says what worked, or why not. */
+  testEmailVerifierConfig: Scalars['String']['output'];
   testGithubConnection: Scalars['Boolean']['output'];
   testGodaddyConnection: Scalars['Boolean']['output'];
+  /** Checks the client ID and secret with Google; says what worked, or why not. */
+  testGoogleSignInConfig: Scalars['String']['output'];
   testImageUpload: Scalars['String']['output'];
   /** Signs in and opens the mailbox, so credentials are checked before the poller relies on them. */
   testInboundMailConnection: Scalars['Boolean']['output'];
@@ -6792,6 +6822,11 @@ export type MutationCloseWebsiteChatSessionArgs = {
 export type MutationCommentOnTeamGoalArgs = {
   comment: Scalars['String']['input'];
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationCompleteGoogleSignInArgs = {
+  ticket: Scalars['String']['input'];
 };
 
 
@@ -8552,6 +8587,11 @@ export type MutationSaveEmployeeSalaryArgs = {
 };
 
 
+export type MutationSaveGoogleSignInConfigArgs = {
+  input: GoogleSignInConfigInput;
+};
+
+
 export type MutationSaveProjectWorkflowGraphArgs = {
   graph: WorkflowGraphInput;
   id: Scalars['ID']['input'];
@@ -8858,6 +8898,11 @@ export type MutationStartCallingBotCallArgs = {
 };
 
 
+export type MutationStartGoogleSignInArgs = {
+  returnTo: Scalars['String']['input'];
+};
+
+
 export type MutationStartOnboardingArgs = {
   employeeId: Scalars['ID']['input'];
   templateId: Scalars['ID']['input'];
@@ -8925,6 +8970,11 @@ export type MutationTestCallingBotKeyArgs = {
 
 
 export type MutationTestCloudflareConnectionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestEmailVerifierConfigArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -11626,6 +11676,9 @@ export type Query = {
   getWebsiteChatFaq: WebsiteChatFaq;
   getWebsiteChatKnowledge: WebsiteChatKnowledge;
   getWebsiteSubmission: WebsiteSubmission;
+  googleSignInConfig: GoogleSignInConfig;
+  /** Whether the sign-in page offers Continue with Google. Public. */
+  googleSignInEnabled: Scalars['Boolean']['output'];
   /** India's GST state codes, for a place-of-supply or state picker. */
   gstStates: Array<GstState>;
   /** HR/ADMIN: workforce counts + headcount-over-time series. */
@@ -15835,6 +15888,7 @@ export enum TechSecret {
   GithubToken = 'GITHUB_TOKEN',
   GodaddyApiKey = 'GODADDY_API_KEY',
   GodaddyApiSecret = 'GODADDY_API_SECRET',
+  GoogleSignInClientSecret = 'GOOGLE_SIGN_IN_CLIENT_SECRET',
   ImagekitPrivateKey = 'IMAGEKIT_PRIVATE_KEY',
   InboundMailPassword = 'INBOUND_MAIL_PASSWORD',
   OpenaiApiKey = 'OPENAI_API_KEY',
@@ -18225,6 +18279,25 @@ export type ResetPasswordMutationVariables = Exact<{
 
 export type ResetPasswordMutation = { __typename?: 'Mutation', resetPassword: boolean };
 
+export type GoogleSignInEnabledQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GoogleSignInEnabledQuery = { __typename?: 'Query', googleSignInEnabled: boolean };
+
+export type StartGoogleSignInMutationVariables = Exact<{
+  returnTo: Scalars['String']['input'];
+}>;
+
+
+export type StartGoogleSignInMutation = { __typename?: 'Mutation', startGoogleSignIn: string };
+
+export type CompleteGoogleSignInMutationVariables = Exact<{
+  ticket: Scalars['String']['input'];
+}>;
+
+
+export type CompleteGoogleSignInMutation = { __typename?: 'Mutation', completeGoogleSignIn: { __typename?: 'AuthPayload', token: string, mfaRequired: boolean, mfaChallenge: string, user?: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null } | null } };
+
 export type TaskAttachmentFieldsFragment = { __typename?: 'TaskAttachment', url: string, name: string, contentType: string, uploadedByName: string, uploadedAt: string };
 
 export type TaskFieldsFragment = { __typename?: 'Task', id: string, columnId: string, key: string, title: string, description?: string | null, type: TaskType, priority: TaskPriority, assigneeId: string, assigneeName: string, reporterName: string, labels: Array<string>, storyPoints?: number | null, dueDate?: string | null, sprintId?: string | null, milestoneId?: string | null, parentTaskId?: string | null, order: number, createdAt: string, updatedAt: string, attachments: Array<{ __typename?: 'TaskAttachment', url: string, name: string, contentType: string, uploadedByName: string, uploadedAt: string }> };
@@ -19737,6 +19810,13 @@ export type DeleteEmailVerifierConfigMutationVariables = Exact<{
 
 
 export type DeleteEmailVerifierConfigMutation = { __typename?: 'Mutation', deleteEmailVerifierConfig: boolean };
+
+export type TestEmailVerifierConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TestEmailVerifierConfigMutation = { __typename?: 'Mutation', testEmailVerifierConfig: string };
 
 export type EmailFragmentFieldsFragment = { __typename?: 'EmailFragment', id: string, key: string, name: string, description: string, mjml: string, updatedBy: string, updatedAt: string };
 
@@ -24319,6 +24399,25 @@ export type RevealTechSecretMutationVariables = Exact<{
 
 export type RevealTechSecretMutation = { __typename?: 'Mutation', revealTechSecret: string };
 
+export type GoogleSignInConfigFieldsFragment = { __typename?: 'GoogleSignInConfig', id: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean, redirectUri: string, updatedAt?: string | null, updatedByName?: string | null };
+
+export type GoogleSignInConfigQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GoogleSignInConfigQuery = { __typename?: 'Query', googleSignInConfig: { __typename?: 'GoogleSignInConfig', id: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean, redirectUri: string, updatedAt?: string | null, updatedByName?: string | null } };
+
+export type SaveGoogleSignInConfigMutationVariables = Exact<{
+  input: GoogleSignInConfigInput;
+}>;
+
+
+export type SaveGoogleSignInConfigMutation = { __typename?: 'Mutation', saveGoogleSignInConfig: { __typename?: 'GoogleSignInConfig', id: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean, redirectUri: string, updatedAt?: string | null, updatedByName?: string | null } };
+
+export type TestGoogleSignInConfigMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TestGoogleSignInConfigMutation = { __typename?: 'Mutation', testGoogleSignInConfig: string };
+
 export type TrackerAccessFieldsFragment = { __typename?: 'TrackerAccess', id: string, userId: string, grantedBy: string, grantedAt: string, revokedAt?: string | null, isActive: boolean, consentedAt?: string | null, timezone: string };
 
 export type TrackerDeviceFieldsFragment = { __typename?: 'TrackerDevice', id: string, userId: string, deviceId: string, platform: string, hostname: string, appVersion: string, machineId: string, osName: string, osVersion: string, arch: string, cpuModel: string, cpuCores: number, totalMemoryMb: number, locale: string, timezone: string, screenCount: number, screenResolution: string, issuedAt: string, lastSeenAt: string, revokedAt?: string | null, isActive: boolean };
@@ -27250,6 +27349,18 @@ export const PexelsMediaFieldsFragmentDoc = gql`
   alt
   credit
   duration
+}
+    `;
+export const GoogleSignInConfigFieldsFragmentDoc = gql`
+    fragment GoogleSignInConfigFields on GoogleSignInConfig {
+  id
+  clientId
+  hasClientSecret
+  clientSecretHint
+  enabled
+  redirectUri
+  updatedAt
+  updatedByName
 }
     `;
 export const TrackerAccessFieldsFragmentDoc = gql`
@@ -31223,6 +31334,105 @@ export function useResetPasswordMutation(baseOptions?: ApolloReactHooks.Mutation
         return ApolloReactHooks.useMutation<ResetPasswordMutation, ResetPasswordMutationVariables>(ResetPasswordDocument, options);
       }
 export type ResetPasswordMutationHookResult = ReturnType<typeof useResetPasswordMutation>;
+export const GoogleSignInEnabledDocument = gql`
+    query GoogleSignInEnabled {
+  googleSignInEnabled
+}
+    `;
+
+/**
+ * __useGoogleSignInEnabledQuery__
+ *
+ * To run a query within a React component, call `useGoogleSignInEnabledQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGoogleSignInEnabledQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGoogleSignInEnabledQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGoogleSignInEnabledQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GoogleSignInEnabledQuery, GoogleSignInEnabledQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<GoogleSignInEnabledQuery, GoogleSignInEnabledQueryVariables>(GoogleSignInEnabledDocument, options);
+      }
+export function useGoogleSignInEnabledLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GoogleSignInEnabledQuery, GoogleSignInEnabledQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<GoogleSignInEnabledQuery, GoogleSignInEnabledQueryVariables>(GoogleSignInEnabledDocument, options);
+        }
+// @ts-ignore
+export function useGoogleSignInEnabledSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<GoogleSignInEnabledQuery, GoogleSignInEnabledQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GoogleSignInEnabledQuery, GoogleSignInEnabledQueryVariables>;
+// @ts-ignore
+export function useGoogleSignInEnabledSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GoogleSignInEnabledQuery, GoogleSignInEnabledQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GoogleSignInEnabledQuery | undefined, GoogleSignInEnabledQueryVariables>;
+export function useGoogleSignInEnabledSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GoogleSignInEnabledQuery, GoogleSignInEnabledQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<GoogleSignInEnabledQuery, GoogleSignInEnabledQueryVariables>(GoogleSignInEnabledDocument, options);
+        }
+export type GoogleSignInEnabledQueryHookResult = ReturnType<typeof useGoogleSignInEnabledQuery>;
+export type GoogleSignInEnabledLazyQueryHookResult = ReturnType<typeof useGoogleSignInEnabledLazyQuery>;
+export type GoogleSignInEnabledSuspenseQueryHookResult = ReturnType<typeof useGoogleSignInEnabledSuspenseQuery>;
+export const StartGoogleSignInDocument = gql`
+    mutation StartGoogleSignIn($returnTo: String!) {
+  startGoogleSignIn(returnTo: $returnTo)
+}
+    `;
+
+/**
+ * __useStartGoogleSignInMutation__
+ *
+ * To run a mutation, you first call `useStartGoogleSignInMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useStartGoogleSignInMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [startGoogleSignInMutation, { data, loading, error }] = useStartGoogleSignInMutation({
+ *   variables: {
+ *      returnTo: // value for 'returnTo'
+ *   },
+ * });
+ */
+export function useStartGoogleSignInMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<StartGoogleSignInMutation, StartGoogleSignInMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<StartGoogleSignInMutation, StartGoogleSignInMutationVariables>(StartGoogleSignInDocument, options);
+      }
+export type StartGoogleSignInMutationHookResult = ReturnType<typeof useStartGoogleSignInMutation>;
+export const CompleteGoogleSignInDocument = gql`
+    mutation CompleteGoogleSignIn($ticket: String!) {
+  completeGoogleSignIn(ticket: $ticket) {
+    ...SignInResult
+  }
+}
+    ${SignInResultFragmentDoc}`;
+
+/**
+ * __useCompleteGoogleSignInMutation__
+ *
+ * To run a mutation, you first call `useCompleteGoogleSignInMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCompleteGoogleSignInMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [completeGoogleSignInMutation, { data, loading, error }] = useCompleteGoogleSignInMutation({
+ *   variables: {
+ *      ticket: // value for 'ticket'
+ *   },
+ * });
+ */
+export function useCompleteGoogleSignInMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CompleteGoogleSignInMutation, CompleteGoogleSignInMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CompleteGoogleSignInMutation, CompleteGoogleSignInMutationVariables>(CompleteGoogleSignInDocument, options);
+      }
+export type CompleteGoogleSignInMutationHookResult = ReturnType<typeof useCompleteGoogleSignInMutation>;
 export const ProjectBoardDocument = gql`
     query ProjectBoard($projectId: ID!) {
   projectBoard(projectId: $projectId) {
@@ -39258,6 +39468,34 @@ export function useDeleteEmailVerifierConfigMutation(baseOptions?: ApolloReactHo
         return ApolloReactHooks.useMutation<DeleteEmailVerifierConfigMutation, DeleteEmailVerifierConfigMutationVariables>(DeleteEmailVerifierConfigDocument, options);
       }
 export type DeleteEmailVerifierConfigMutationHookResult = ReturnType<typeof useDeleteEmailVerifierConfigMutation>;
+export const TestEmailVerifierConfigDocument = gql`
+    mutation TestEmailVerifierConfig($id: ID!) {
+  testEmailVerifierConfig(id: $id)
+}
+    `;
+
+/**
+ * __useTestEmailVerifierConfigMutation__
+ *
+ * To run a mutation, you first call `useTestEmailVerifierConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestEmailVerifierConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testEmailVerifierConfigMutation, { data, loading, error }] = useTestEmailVerifierConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTestEmailVerifierConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TestEmailVerifierConfigMutation, TestEmailVerifierConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TestEmailVerifierConfigMutation, TestEmailVerifierConfigMutationVariables>(TestEmailVerifierConfigDocument, options);
+      }
+export type TestEmailVerifierConfigMutationHookResult = ReturnType<typeof useTestEmailVerifierConfigMutation>;
 export const ListEmailFragmentsDocument = gql`
     query ListEmailFragments {
   listEmailFragments {
@@ -64716,6 +64954,106 @@ export function useRevealTechSecretMutation(baseOptions?: ApolloReactHooks.Mutat
         return ApolloReactHooks.useMutation<RevealTechSecretMutation, RevealTechSecretMutationVariables>(RevealTechSecretDocument, options);
       }
 export type RevealTechSecretMutationHookResult = ReturnType<typeof useRevealTechSecretMutation>;
+export const GoogleSignInConfigDocument = gql`
+    query GoogleSignInConfig {
+  googleSignInConfig {
+    ...GoogleSignInConfigFields
+  }
+}
+    ${GoogleSignInConfigFieldsFragmentDoc}`;
+
+/**
+ * __useGoogleSignInConfigQuery__
+ *
+ * To run a query within a React component, call `useGoogleSignInConfigQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGoogleSignInConfigQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGoogleSignInConfigQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGoogleSignInConfigQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GoogleSignInConfigQuery, GoogleSignInConfigQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<GoogleSignInConfigQuery, GoogleSignInConfigQueryVariables>(GoogleSignInConfigDocument, options);
+      }
+export function useGoogleSignInConfigLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GoogleSignInConfigQuery, GoogleSignInConfigQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<GoogleSignInConfigQuery, GoogleSignInConfigQueryVariables>(GoogleSignInConfigDocument, options);
+        }
+// @ts-ignore
+export function useGoogleSignInConfigSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<GoogleSignInConfigQuery, GoogleSignInConfigQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GoogleSignInConfigQuery, GoogleSignInConfigQueryVariables>;
+// @ts-ignore
+export function useGoogleSignInConfigSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GoogleSignInConfigQuery, GoogleSignInConfigQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GoogleSignInConfigQuery | undefined, GoogleSignInConfigQueryVariables>;
+export function useGoogleSignInConfigSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GoogleSignInConfigQuery, GoogleSignInConfigQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<GoogleSignInConfigQuery, GoogleSignInConfigQueryVariables>(GoogleSignInConfigDocument, options);
+        }
+export type GoogleSignInConfigQueryHookResult = ReturnType<typeof useGoogleSignInConfigQuery>;
+export type GoogleSignInConfigLazyQueryHookResult = ReturnType<typeof useGoogleSignInConfigLazyQuery>;
+export type GoogleSignInConfigSuspenseQueryHookResult = ReturnType<typeof useGoogleSignInConfigSuspenseQuery>;
+export const SaveGoogleSignInConfigDocument = gql`
+    mutation SaveGoogleSignInConfig($input: GoogleSignInConfigInput!) {
+  saveGoogleSignInConfig(input: $input) {
+    ...GoogleSignInConfigFields
+  }
+}
+    ${GoogleSignInConfigFieldsFragmentDoc}`;
+
+/**
+ * __useSaveGoogleSignInConfigMutation__
+ *
+ * To run a mutation, you first call `useSaveGoogleSignInConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveGoogleSignInConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveGoogleSignInConfigMutation, { data, loading, error }] = useSaveGoogleSignInConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSaveGoogleSignInConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SaveGoogleSignInConfigMutation, SaveGoogleSignInConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SaveGoogleSignInConfigMutation, SaveGoogleSignInConfigMutationVariables>(SaveGoogleSignInConfigDocument, options);
+      }
+export type SaveGoogleSignInConfigMutationHookResult = ReturnType<typeof useSaveGoogleSignInConfigMutation>;
+export const TestGoogleSignInConfigDocument = gql`
+    mutation TestGoogleSignInConfig {
+  testGoogleSignInConfig
+}
+    `;
+
+/**
+ * __useTestGoogleSignInConfigMutation__
+ *
+ * To run a mutation, you first call `useTestGoogleSignInConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestGoogleSignInConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testGoogleSignInConfigMutation, { data, loading, error }] = useTestGoogleSignInConfigMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useTestGoogleSignInConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TestGoogleSignInConfigMutation, TestGoogleSignInConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TestGoogleSignInConfigMutation, TestGoogleSignInConfigMutationVariables>(TestGoogleSignInConfigDocument, options);
+      }
+export type TestGoogleSignInConfigMutationHookResult = ReturnType<typeof useTestGoogleSignInConfigMutation>;
 export const TrackerAccessListDocument = gql`
     query TrackerAccessList {
   trackerAccessList {

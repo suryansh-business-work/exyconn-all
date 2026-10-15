@@ -3,6 +3,7 @@ import { DateTimeResolver } from 'graphql-scalars';
 import { baseTypeDefs } from './base.typeDefs';
 import { authTypeDefs } from '../modules/auth/auth.typeDefs';
 import { authResolvers } from '../modules/auth/auth.resolvers';
+import { googleSignInTypeDefs, googleSignInResolvers } from '../modules/auth/google';
 import { organizationsTypeDefs, organizationsResolvers } from '../modules/organizations';
 import { adminTypeDefs } from '../modules/admin/admin.typeDefs';
 import { adminResolvers } from '../modules/admin/admin.resolvers';
@@ -226,6 +227,7 @@ export function mergeResolvers(groups: ResolverGroup[]) {
 export const typeDefs = [
   baseTypeDefs,
   authTypeDefs,
+  googleSignInTypeDefs,
   organizationsTypeDefs,
   adminTypeDefs,
   financeTypeDefs,
@@ -321,6 +323,7 @@ export const typeDefs = [
 
 export const resolvers = mergeResolvers([
   authResolvers,
+  googleSignInResolvers,
   organizationsResolvers,
   adminResolvers,
   reportingResolvers,

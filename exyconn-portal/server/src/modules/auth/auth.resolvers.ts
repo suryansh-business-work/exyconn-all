@@ -11,7 +11,7 @@ import type { GraphQLContext } from '../../middleware/auth';
 import type { UpdateProfileInput } from './auth.service';
 
 /** Where this request came from, as the session list will show it. */
-const signInFrom = (ctx: GraphQLContext) => ({
+export const signInFrom = (ctx: GraphQLContext) => ({
   ip: ctx.ip ?? 'unknown',
   userAgent: ctx.userAgent ?? '',
 });
@@ -22,7 +22,7 @@ const signInFrom = (ctx: GraphQLContext) => ({
  * A challenge is not a sign-in and is deliberately not audited as one: it says only that
  * somebody typed the right password, which the failed-attempt limiter already watches.
  */
-async function auditedSignIn(
+export async function auditedSignIn(
   result: Awaited<ReturnType<typeof authService.login>>,
   ctx: GraphQLContext,
   summary: string,

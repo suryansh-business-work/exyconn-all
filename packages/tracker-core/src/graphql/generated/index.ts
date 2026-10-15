@@ -1417,6 +1417,13 @@ export type GodaddyConfigInput = {
   label: Scalars['String']['input'];
 };
 
+export type GoogleSignInConfigInput = {
+  clientId: Scalars['String']['input'];
+  /** Blank keeps the stored secret. */
+  clientSecret: Scalars['String']['input'];
+  enabled: Scalars['Boolean']['input'];
+};
+
 export type GradeInput = {
   active: Scalars['Boolean']['input'];
   code: Scalars['String']['input'];
@@ -3096,6 +3103,7 @@ export type TechSecret =
   | 'GITHUB_TOKEN'
   | 'GODADDY_API_KEY'
   | 'GODADDY_API_SECRET'
+  | 'GOOGLE_SIGN_IN_CLIENT_SECRET'
   | 'IMAGEKIT_PRIVATE_KEY'
   | 'INBOUND_MAIL_PASSWORD'
   | 'OPENAI_API_KEY'

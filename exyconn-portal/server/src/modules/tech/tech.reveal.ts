@@ -18,6 +18,7 @@ import { GodaddyConfigModel } from '../dns/godaddy-config.model';
 import { EmailVerifierConfigModel } from '../email-verification/email-verifier-config.model';
 import { SonarConfigModel } from '../security/sonar-config.model';
 import { SocialAppConfigModel } from '../social-accounts/social.models';
+import { GoogleSignInConfigModel } from '../auth/google/google-sign-in.models';
 import { EmailConfigModel } from './email-config.model';
 import { GithubConfigModel } from './github-config.model';
 import { ImageConfigModel } from './image-config.model';
@@ -85,6 +86,14 @@ const SECRETS: Readonly<Record<string, SecretSource>> = {
     EmailVerifierConfigModel,
     'proxyPassword',
     'proxy password',
+  ),
+  GOOGLE_SIGN_IN_CLIENT_SECRET: source(
+    GoogleSignInConfigModel,
+    'clientSecret',
+    'Google client secret',
+    {
+      keyField: 'key',
+    },
   ),
   SOCIAL_APP_CLIENT_SECRET: source(SocialAppConfigModel, 'clientSecret', 'client secret', {
     keyField: 'app',
