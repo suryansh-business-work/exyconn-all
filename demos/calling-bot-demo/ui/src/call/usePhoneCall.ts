@@ -26,9 +26,10 @@ function phaseOf(status: CallingBotCallStatus | undefined, requested: boolean): 
 
 /**
  * A call with the bot on the caller's own phone: Vobiz rings the number, and the transcript is
- * followed here as the call goes.
+ * followed here as the call goes. `scenarioId` is the example the bot plays; null keeps its own
+ * settings.
  */
-export function usePhoneCall() {
+export function usePhoneCall(scenarioId: string | null) {
   const t = useT();
   const [startCall, { loading: starting }] = useStartCallingBotCallMutation();
   const [callId, setCallId] = useState<string | null>(null);
@@ -53,14 +54,14 @@ export function usePhoneCall() {
       setError(null);
       try {
         const { data: started } = await startCall({
-          variables: { input: { channel: CallingBotChannel.Phone, phone } },
+          variables: { input: { channel: CallingBotChannel.Phone, phone, scenarioId } },
         });
         setCallId(started?.startCallingBotCall.call.id ?? null);
       } catch (failure) {
         setError(errorMessage(failure, t('The phone call could not be placed.')));
       }
     },
-    [startCall, t],
+    [scenarioId, startCall, t],
   );
 
   const lines: TranscriptLine[] = (call?.transcript ?? []).map((turn) => ({

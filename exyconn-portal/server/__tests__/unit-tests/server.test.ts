@@ -59,6 +59,7 @@ jest.mock('../../src/modules/cms', () => ({ ensureCmsDefaults: jest.fn() }));
 jest.mock('../../src/modules/calling-bot-demo', () => ({
   migratePhoneProvider: jest.fn(),
   backfillPhoneFields: jest.fn(),
+  ensureCallingBotScenarios: jest.fn(),
 }));
 jest.mock('../../src/modules/reminders', () => ({ startReminderSweep: jest.fn() }));
 jest.mock('../../src/modules/audit', () => ({ startAuditRetention: jest.fn() }));
@@ -179,6 +180,7 @@ describe('server bootstrap', () => {
     expect(m.clients.migrateClientTaxIds).toHaveBeenCalled();
     expect(m.callingBot.migratePhoneProvider).toHaveBeenCalled();
     expect(m.callingBot.backfillPhoneFields).toHaveBeenCalled();
+    expect(m.callingBot.ensureCallingBotScenarios).toHaveBeenCalled();
     expect(m.organizations.forEachOrganization.mock.calls.map(([, label]) => label)).toEqual([
       'repairStoredCurrencies',
       'ensureEmailDefaults',
@@ -189,9 +191,9 @@ describe('server bootstrap', () => {
       'migrateClientTaxIds',
       'ensureWhatsappDemoSeeds',
     ]);
-    // Admin access, the log-group backfill, status monitors, the two calling bot migrations and
-    // AI model prices run for the platform rather than for each company.
-    expect(m.tenant.runAsPlatform).toHaveBeenCalledTimes(6);
+    // Admin access, the log-group backfill, status monitors, the two calling bot migrations, its
+    // example seeds and AI model prices run for the platform rather than for each company.
+    expect(m.tenant.runAsPlatform).toHaveBeenCalledTimes(7);
   });
 
   it('logs and exits when the database cannot be reached, serving nothing', async () => {

@@ -15,11 +15,16 @@ import { PhoneCallForm } from '../forms/phone-call';
 import { CallStatus } from './CallStatus';
 import { Transcript } from './Transcript';
 
+interface PhoneCallPanelProps {
+  /** The example the bot plays; null keeps its own settings. */
+  scenarioId: string | null;
+}
+
 /** Have the bot ring the caller's own phone, and follow what is said here. */
-export function PhoneCallPanel() {
+export function PhoneCallPanel({ scenarioId }: Readonly<PhoneCallPanelProps>) {
   const t = useT();
   const { visitor } = useVisitor();
-  const call = usePhoneCall();
+  const call = usePhoneCall(scenarioId);
   const own = visitor?.phone ?? '';
   const defaultPhone = E164_PHONE.test(own) ? own : '';
   return (

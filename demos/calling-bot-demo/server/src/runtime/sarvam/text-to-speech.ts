@@ -7,6 +7,9 @@ const TTS_URL = 'wss://api.sarvam.ai/text-to-speech/ws';
 /** Characters buffered before synthesis starts: Sarvam's lowest, so the first word comes soonest. */
 const MIN_BUFFER = 30;
 
+/** Which service failed, at the head of every failure reason. */
+const SERVICE = 'Sarvam text-to-speech';
+
 export interface VoiceSettings {
   model: string;
   speaker: string;
@@ -36,12 +39,15 @@ export class TextToSpeech {
       data: {
         language_code: voice.languageCode,
         speaker: voice.speaker,
-        speech_sample_rate: format.sampleRate,
+        // The WebSocket API takes the rate as a string enum ("8000", "16000", ...); a number is
+        // refused with an error right after the config, which ended every call after its greeting.
+        speech_sample_rate: String(format.sampleRate),
         output_audio_codec: format.encoding,
         min_buffer_size: MIN_BUFFER,
       },
     };
     this.socket = new SarvamSocket(
+      SERVICE,
       `${TTS_URL}?${query.toString()}`,
       { 'Api-Subscription-Key': apiKey },
       { type: 'ping' },
@@ -58,7 +64,8 @@ export class TextToSpeech {
     if (message.type === 'audio' && typeof data?.audio === 'string' && !this.muted) {
       events.onAudio(data.audio);
     } else if (message.type === 'error') {
-      events.onFailure(typeof data?.message === 'string' ? data.message : 'Text-to-speech failed');
+      const detail = typeof data?.message === 'string' ? data.message : 'failed';
+      events.onFailure(`${SERVICE}: ${detail}`);
     }
   }
 

@@ -6,6 +6,7 @@ import {
   type CallingBotTurnRole,
 } from '@exyconn/shell/graphql/generated';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
+import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import { openMicrophone, type Microphone } from '../audio/microphone';
 import { PcmPlayer } from '../audio/player';
 import type { CallPhase, TranscriptLine } from './transcript';
@@ -24,9 +25,10 @@ interface Session {
 
 /**
  * A call with the bot from this browser: the microphone and speaker open on the caller's click,
- * then the call is asked for and its audio runs over the voice server's socket.
+ * then the call is asked for and its audio runs over the voice server's socket. `scenarioId` is
+ * the example the bot plays; null keeps its own settings.
  */
-export function useBrowserCall() {
+export function useBrowserCall(scenarioId: string | null) {
   const t = useT();
   const [startCall] = useStartCallingBotCallMutation();
   const [phase, setPhase] = useState<CallPhase>('idle');
@@ -69,7 +71,9 @@ export function useBrowserCall() {
         const line = { key: `line-${lineCount.current}`, role: event.role, text: event.text };
         setLines((previous) => [...previous, line]);
       } else if (event.failed) {
-        // The technical reason is for Tech > Demos > Calling bot > Calls, not for the caller.
+        // The technical reason is for Tech (Logs, and Demos > Calling bot > Calls), not for the
+        // caller. It names the provider and its refusal, never a key.
+        portalLogger.error('Calling bot call failed', undefined, { reason: event.reason });
         finish(t('The bot could not take the call right now. Please try again in a few minutes.'));
       } else {
         finish(null);
@@ -116,7 +120,7 @@ export function useBrowserCall() {
       const current: Session = { socket: null, microphone, player };
       session.current = current;
       const { data } = await startCall({
-        variables: { input: { channel: CallingBotChannel.Browser } },
+        variables: { input: { channel: CallingBotChannel.Browser, scenarioId } },
       });
       const url = data?.startCallingBotCall.socketUrl;
       if (!url) {
@@ -127,7 +131,7 @@ export function useBrowserCall() {
       player.close();
       finish(errorMessage(failure, t('Allow the microphone, then try again.')));
     }
-  }, [connect, finish, startCall, t]);
+  }, [connect, finish, scenarioId, startCall, t]);
 
   const hangUp = useCallback(() => {
     const socket = session.current?.socket;

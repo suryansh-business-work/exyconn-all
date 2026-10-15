@@ -10,6 +10,15 @@ const STT_URL = 'wss://api.sarvam.ai/speech-to-text-realtime/ws';
  */
 const SILENCE_MS = '400';
 
+/** Which service failed, at the head of every failure reason. */
+const SERVICE = 'Sarvam speech-to-text';
+
+/**
+ * Text-to-speech names Odia `od-IN`; realtime speech-to-text knows it only as `or-IN`. Every
+ * other language has one code for both.
+ */
+const STT_LANGUAGE: Readonly<Record<string, string>> = { 'od-IN': 'or-IN' };
+
 export interface SpeechEvents {
   /** The caller started talking — the moment to stop the bot mid-sentence. */
   onSpeechStart: () => void;
@@ -24,7 +33,7 @@ export class SpeechToText {
 
   constructor(apiKey: string, languageCode: string, format: AudioFormat, events: SpeechEvents) {
     const query = new URLSearchParams({
-      language_code: languageCode,
+      language_code: STT_LANGUAGE[languageCode] ?? languageCode,
       model: 'saaras:v3-realtime',
       stream_type: 'fast',
       mode: 'transcribe',
@@ -34,6 +43,7 @@ export class SpeechToText {
       silence_duration_ms: SILENCE_MS,
     });
     this.socket = new SarvamSocket(
+      SERVICE,
       `${STT_URL}?${query.toString()}`,
       { 'API-SUBSCRIPTION-KEY': apiKey },
       { event: 'ping' },
@@ -53,9 +63,8 @@ export class SpeechToText {
         events.onUtterance(text);
       }
     } else if (message.event === 'error' && message.is_fatal === true) {
-      events.onFailure(
-        typeof message.message === 'string' ? message.message : 'Speech-to-text failed',
-      );
+      const detail = typeof message.message === 'string' ? message.message : 'failed';
+      events.onFailure(`${SERVICE}: ${detail}`);
     }
   }
 

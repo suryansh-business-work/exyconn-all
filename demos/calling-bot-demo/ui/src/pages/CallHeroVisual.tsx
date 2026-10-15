@@ -6,15 +6,17 @@ import { BrowserCallPanel } from '../components/BrowserCallPanel';
 interface CallHeroVisualProps {
   loading: boolean;
   available: boolean;
+  /** The example the bot plays; null keeps its own settings. */
+  scenarioId: string | null;
 }
 
 /** The hero's right side: the phone to call from, once the bot is known to be set up. */
-export function CallHeroVisual({ loading, available }: Readonly<CallHeroVisualProps>) {
+export function CallHeroVisual({ loading, available, scenarioId }: Readonly<CallHeroVisualProps>) {
   if (loading) {
     return <LoadingState />;
   }
   if (available) {
-    return <BrowserCallPanel />;
+    return <BrowserCallPanel scenarioId={scenarioId} />;
   }
   return (
     <EmptyState

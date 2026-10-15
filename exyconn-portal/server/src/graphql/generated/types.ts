@@ -1200,6 +1200,8 @@ export type CallingBotCall = {
   languageCode: Scalars['String']['output'];
   /** The number a phone call rang; empty for a browser call. */
   phone: Scalars['String']['output'];
+  /** The example the caller picked, as titled when the call was made; null for none. */
+  scenarioTitle?: Maybe<Scalars['String']['output']>;
   status: CallingBotCallStatus;
   transcript: Array<CallingBotTurn>;
 };
@@ -1325,6 +1327,46 @@ export enum CallingBotPhoneProvider {
   Twilio = 'TWILIO',
   Vobiz = 'VOBIZ'
 }
+
+/** An example call the bot can play (Tech > Demos > Calling bot > Examples). */
+export type CallingBotScenario = {
+  __typename?: 'CallingBotScenario';
+  /** One line for the visitor: who the bot is and what to try. */
+  description: Scalars['String']['output'];
+  /** Only enabled examples are offered on the demo. */
+  enabled: Scalars['Boolean']['output'];
+  /** The first thing the bot says. */
+  greeting: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  /** e.g. hi-IN; empty keeps the active config's language. */
+  languageCode: Scalars['String']['output'];
+  /** Where it sits in the demo's list, smallest first. */
+  order: Scalars['Int']['output'];
+  /** Who the bot is on this call: the system prompt. */
+  systemPrompt: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type CallingBotScenarioInput = {
+  description: Scalars['String']['input'];
+  enabled: Scalars['Boolean']['input'];
+  greeting: Scalars['String']['input'];
+  /** Empty keeps the active config's language. */
+  languageCode: Scalars['String']['input'];
+  order: Scalars['Int']['input'];
+  systemPrompt: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+};
+
+/** What the demo shows of an example: the prompt stays with Tech. */
+export type CallingBotScenarioOption = {
+  __typename?: 'CallingBotScenarioOption';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  languageCode: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
 
 /** A stored calling bot key that Tech staff can reveal, one at a time. */
 export enum CallingBotSecret {
@@ -5497,6 +5539,7 @@ export type Mutation = {
   createBudget: Budget;
   createBug: Bug;
   createCallingBotConfig: CallingBotConfig;
+  createCallingBotScenario: CallingBotScenario;
   createCampaign: Campaign;
   createCannedReply: CannedReply;
   createCaseStudy: CaseStudy;
@@ -5667,6 +5710,7 @@ export type Mutation = {
   deleteBudget: Scalars['Boolean']['output'];
   deleteBug: Scalars['Boolean']['output'];
   deleteCallingBotConfig: Scalars['Boolean']['output'];
+  deleteCallingBotScenario: Scalars['Boolean']['output'];
   deleteCampaign: Scalars['Boolean']['output'];
   deleteCannedReply: Scalars['Boolean']['output'];
   deleteCaseStudy: Scalars['Boolean']['output'];
@@ -6192,6 +6236,7 @@ export type Mutation = {
   updateBudget: Budget;
   updateBug: Bug;
   updateCallingBotConfig: CallingBotConfig;
+  updateCallingBotScenario: CallingBotScenario;
   updateCampaign: Campaign;
   updateCannedReply: CannedReply;
   updateCaseStudy: CaseStudy;
@@ -6562,6 +6607,11 @@ export type MutationCreateBugArgs = {
 
 export type MutationCreateCallingBotConfigArgs = {
   input: CallingBotConfigInput;
+};
+
+
+export type MutationCreateCallingBotScenarioArgs = {
+  input: CallingBotScenarioInput;
 };
 
 
@@ -7256,6 +7306,11 @@ export type MutationDeleteBugArgs = {
 
 
 export type MutationDeleteCallingBotConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteCallingBotScenarioArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -8754,6 +8809,12 @@ export type MutationUpdateBugArgs = {
 export type MutationUpdateCallingBotConfigArgs = {
   id: Scalars['ID']['input'];
   input: CallingBotConfigInput;
+};
+
+
+export type MutationUpdateCallingBotScenarioArgs = {
+  id: Scalars['ID']['input'];
+  input: CallingBotScenarioInput;
 };
 
 
@@ -10970,6 +11031,10 @@ export type Query = {
   callingBotConfigs: Array<CallingBotConfig>;
   /** The most recent calls, newest first. */
   callingBotRecentCalls: Array<CallingBotCall>;
+  /** The examples a caller can pick on the demo, in order. */
+  callingBotScenarioOptions: Array<CallingBotScenarioOption>;
+  /** Every example call, for Tech. */
+  callingBotScenarios: Array<CallingBotScenario>;
   /** Leads per campaign, most productive first — the overview's attribution figures. */
   campaignLeadCounts: Array<CampaignLeadCount>;
   campaignMetrics: CampaignMetrics;
@@ -14517,6 +14582,8 @@ export type StartCallingBotCallInput = {
   channel: CallingBotChannel;
   /** The number to ring, in E.164; phone calls only. */
   phone?: InputMaybe<Scalars['String']['input']>;
+  /** The example the bot plays (from callingBotScenarios); none keeps the bot's own prompt. */
+  scenarioId?: InputMaybe<Scalars['ID']['input']>;
 };
 
 export type StatBucket = {
@@ -17195,6 +17262,9 @@ export type ResolversTypes = ResolversObject<{
   CallingBotKey: CallingBotKey;
   CallingBotKeyTestInput: CallingBotKeyTestInput;
   CallingBotPhoneProvider: CallingBotPhoneProvider;
+  CallingBotScenario: ResolverTypeWrapper<CallingBotScenario>;
+  CallingBotScenarioInput: CallingBotScenarioInput;
+  CallingBotScenarioOption: ResolverTypeWrapper<CallingBotScenarioOption>;
   CallingBotSecret: CallingBotSecret;
   CallingBotTurn: ResolverTypeWrapper<CallingBotTurn>;
   CallingBotTurnRole: CallingBotTurnRole;
@@ -18069,6 +18139,9 @@ export type ResolversParentTypes = ResolversObject<{
   CallingBotConfig: CallingBotConfig;
   CallingBotConfigInput: CallingBotConfigInput;
   CallingBotKeyTestInput: CallingBotKeyTestInput;
+  CallingBotScenario: CallingBotScenario;
+  CallingBotScenarioInput: CallingBotScenarioInput;
+  CallingBotScenarioOption: CallingBotScenarioOption;
   CallingBotTurn: CallingBotTurn;
   Campaign: Campaign;
   CampaignInput: CampaignInput;
@@ -19358,6 +19431,7 @@ export type CallingBotCallResolvers<ContextType = GraphQLContext, ParentType ext
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   languageCode?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  scenarioTitle?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['CallingBotCallStatus'], ParentType, ContextType>;
   transcript?: Resolver<Array<ResolversTypes['CallingBotTurn']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -19394,6 +19468,27 @@ export type CallingBotConfigResolvers<ContextType = GraphQLContext, ParentType e
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   vobizAuthId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   vobizNumber?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CallingBotScenarioResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CallingBotScenario'] = ResolversParentTypes['CallingBotScenario']> = ResolversObject<{
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  greeting?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  languageCode?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  order?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  systemPrompt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CallingBotScenarioOptionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CallingBotScenarioOption'] = ResolversParentTypes['CallingBotScenarioOption']> = ResolversObject<{
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  languageCode?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -21751,6 +21846,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createBudget?: Resolver<ResolversTypes['Budget'], ParentType, ContextType, RequireFields<MutationCreateBudgetArgs, 'input'>>;
   createBug?: Resolver<ResolversTypes['Bug'], ParentType, ContextType, RequireFields<MutationCreateBugArgs, 'input'>>;
   createCallingBotConfig?: Resolver<ResolversTypes['CallingBotConfig'], ParentType, ContextType, RequireFields<MutationCreateCallingBotConfigArgs, 'input'>>;
+  createCallingBotScenario?: Resolver<ResolversTypes['CallingBotScenario'], ParentType, ContextType, RequireFields<MutationCreateCallingBotScenarioArgs, 'input'>>;
   createCampaign?: Resolver<ResolversTypes['Campaign'], ParentType, ContextType, RequireFields<MutationCreateCampaignArgs, 'input'>>;
   createCannedReply?: Resolver<ResolversTypes['CannedReply'], ParentType, ContextType, RequireFields<MutationCreateCannedReplyArgs, 'input'>>;
   createCaseStudy?: Resolver<ResolversTypes['CaseStudy'], ParentType, ContextType, RequireFields<MutationCreateCaseStudyArgs, 'input'>>;
@@ -21884,6 +21980,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteBudget?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBudgetArgs, 'id'>>;
   deleteBug?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteBugArgs, 'id'>>;
   deleteCallingBotConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCallingBotConfigArgs, 'id'>>;
+  deleteCallingBotScenario?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCallingBotScenarioArgs, 'id'>>;
   deleteCampaign?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCampaignArgs, 'id'>>;
   deleteCannedReply?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCannedReplyArgs, 'id'>>;
   deleteCaseStudy?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCaseStudyArgs, 'id'>>;
@@ -22168,6 +22265,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateBudget?: Resolver<ResolversTypes['Budget'], ParentType, ContextType, RequireFields<MutationUpdateBudgetArgs, 'id' | 'input'>>;
   updateBug?: Resolver<ResolversTypes['Bug'], ParentType, ContextType, RequireFields<MutationUpdateBugArgs, 'id' | 'input'>>;
   updateCallingBotConfig?: Resolver<ResolversTypes['CallingBotConfig'], ParentType, ContextType, RequireFields<MutationUpdateCallingBotConfigArgs, 'id' | 'input'>>;
+  updateCallingBotScenario?: Resolver<ResolversTypes['CallingBotScenario'], ParentType, ContextType, RequireFields<MutationUpdateCallingBotScenarioArgs, 'id' | 'input'>>;
   updateCampaign?: Resolver<ResolversTypes['Campaign'], ParentType, ContextType, RequireFields<MutationUpdateCampaignArgs, 'id' | 'input'>>;
   updateCannedReply?: Resolver<ResolversTypes['CannedReply'], ParentType, ContextType, RequireFields<MutationUpdateCannedReplyArgs, 'id' | 'input'>>;
   updateCaseStudy?: Resolver<ResolversTypes['CaseStudy'], ParentType, ContextType, RequireFields<MutationUpdateCaseStudyArgs, 'id' | 'input'>>;
@@ -23071,6 +23169,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   callingBotCall?: Resolver<ResolversTypes['CallingBotCall'], ParentType, ContextType, RequireFields<QueryCallingBotCallArgs, 'id'>>;
   callingBotConfigs?: Resolver<Array<ResolversTypes['CallingBotConfig']>, ParentType, ContextType>;
   callingBotRecentCalls?: Resolver<Array<ResolversTypes['CallingBotCall']>, ParentType, ContextType, Partial<QueryCallingBotRecentCallsArgs>>;
+  callingBotScenarioOptions?: Resolver<Array<ResolversTypes['CallingBotScenarioOption']>, ParentType, ContextType>;
+  callingBotScenarios?: Resolver<Array<ResolversTypes['CallingBotScenario']>, ParentType, ContextType>;
   campaignLeadCounts?: Resolver<Array<ResolversTypes['CampaignLeadCount']>, ParentType, ContextType>;
   campaignMetrics?: Resolver<ResolversTypes['CampaignMetrics'], ParentType, ContextType, RequireFields<QueryCampaignMetricsArgs, 'campaignId'>>;
   campaignOptions?: Resolver<Array<ResolversTypes['CampaignOption']>, ParentType, ContextType>;
@@ -25708,6 +25808,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   CallingBotCall?: CallingBotCallResolvers<ContextType>;
   CallingBotCallStart?: CallingBotCallStartResolvers<ContextType>;
   CallingBotConfig?: CallingBotConfigResolvers<ContextType>;
+  CallingBotScenario?: CallingBotScenarioResolvers<ContextType>;
+  CallingBotScenarioOption?: CallingBotScenarioOptionResolvers<ContextType>;
   CallingBotTurn?: CallingBotTurnResolvers<ContextType>;
   Campaign?: CampaignResolvers<ContextType>;
   CampaignLeadCount?: CampaignLeadCountResolvers<ContextType>;

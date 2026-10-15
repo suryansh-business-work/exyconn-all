@@ -9,6 +9,7 @@ fragment CallingBotCallFields on CallingBotCall {
   answeredAt
   endedAt
   endReason
+  scenarioTitle
   createdAt
   transcript {
     role
@@ -23,6 +24,16 @@ query CallingBotAvailability {
     phoneEnabled
     languageCode
     maxCallSeconds
+  }
+}
+
+# The examples a caller picks from on the demo.
+query CallingBotScenarioOptions {
+  callingBotScenarioOptions {
+    id
+    title
+    description
+    languageCode
   }
 }
 
@@ -104,4 +115,35 @@ query CallingBotRecentCalls($limit: Int) {
     callerEmail
     ...CallingBotCallFields
   }
+}
+
+# Tech › Demos › Calling bot › Examples.
+query CallingBotScenarios {
+  callingBotScenarios {
+    id
+    title
+    description
+    systemPrompt
+    greeting
+    languageCode
+    enabled
+    order
+    updatedAt
+  }
+}
+
+mutation CreateCallingBotScenario($input: CallingBotScenarioInput!) {
+  createCallingBotScenario(input: $input) {
+    id
+  }
+}
+
+mutation UpdateCallingBotScenario($id: ID!, $input: CallingBotScenarioInput!) {
+  updateCallingBotScenario(id: $id, input: $input) {
+    id
+  }
+}
+
+mutation DeleteCallingBotScenario($id: ID!) {
+  deleteCallingBotScenario(id: $id)
 }

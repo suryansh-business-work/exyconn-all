@@ -489,6 +489,17 @@ export type CallingBotPhoneProvider =
   | 'TWILIO'
   | 'VOBIZ';
 
+export type CallingBotScenarioInput = {
+  description: Scalars['String']['input'];
+  enabled: Scalars['Boolean']['input'];
+  greeting: Scalars['String']['input'];
+  /** Empty keeps the active config's language. */
+  languageCode: Scalars['String']['input'];
+  order: Scalars['Int']['input'];
+  systemPrompt: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+};
+
 /** A stored calling bot key that Tech staff can reveal, one at a time. */
 export type CallingBotSecret =
   | 'OPENAI_API_KEY'
@@ -2689,6 +2700,8 @@ export type StartCallingBotCallInput = {
   channel: CallingBotChannel;
   /** The number to ring, in E.164; phone calls only. */
   phone: InputMaybe<Scalars['String']['input']>;
+  /** The example the bot plays (from callingBotScenarios); none keeps the bot's own prompt. */
+  scenarioId: InputMaybe<Scalars['ID']['input']>;
 };
 
 export type StatusCategory =

@@ -41,6 +41,7 @@ export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   // How the email verifier reaches mail servers (a SOCKS5 proxy): one for the install.
   'EmailVerifierConfig',
   'CallingBotCall',
+  'CallingBotScenario',
   // NOTE: the support mailbox (InboundMailConfig) is deliberately NOT here — a company reads
   // its own mailbox into its own tickets, so each configures one in Tech.
   'AiModelPrice',

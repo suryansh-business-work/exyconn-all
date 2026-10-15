@@ -1,4 +1,9 @@
-import { canPhone, type CallingBotConfigRecord } from '@exyconn/calling-bot-demo-server';
+import {
+  canPhone,
+  type CallingBotCallRecord,
+  type CallingBotConfigRecord,
+  type CallingBotScenarioRecord,
+} from '@exyconn/calling-bot-demo-server';
 import { ROLES } from '../../constants/roles';
 import { actorNameOf } from '../../lib/actor';
 import { assertPlatformStaff } from '../../lib/platformAccess';
@@ -15,6 +20,7 @@ import {
   type CallingBotConfigInput,
   type CallingBotSecretField,
 } from './calling-bot.config.service';
+import { callingBotScenarios, type CallingBotScenarioInput } from './calling-bot.scenarios.service';
 
 /** The settings sit with the install's other credentials: the platform's own Tech staff only. */
 const TECH_MODULE = 'TechConfig';
@@ -62,6 +68,23 @@ const auditConfig = (
     summary,
   });
 
+/** Every change to an example call, by whom: it decides what the public demo says. */
+const auditScenario = (
+  ctx: GraphQLContext,
+  action: 'CREATE' | 'UPDATE' | 'DELETE',
+  scenario: CallingBotScenarioRecord,
+  summary: string,
+) =>
+  recordAudit(ctx, {
+    action,
+    module: TECH_MODULE,
+    entityId: scenario._id,
+    entityLabel: scenario.title,
+    summary,
+  });
+
+type ScenarioArgs = Id & { input: CallingBotScenarioInput };
+
 export const callingBotResolvers = {
   CallingBotConfig: {
     hasSarvamApiKey: (row: CallingBotConfigRecord) => Boolean(row.sarvamApiKey),
@@ -71,6 +94,9 @@ export const callingBotResolvers = {
     hasVobizAuthToken: (row: CallingBotConfigRecord) => Boolean(row.vobizAuthToken),
     hasTwilioAuthToken: (row: CallingBotConfigRecord) => Boolean(row.twilioAuthToken),
     phoneEnabled: (row: CallingBotConfigRecord) => canPhone(row),
+  },
+  CallingBotCall: {
+    scenarioTitle: (row: CallingBotCallRecord) => row.scenarioTitle || null,
   },
   Query: {
     callingBotConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
@@ -91,6 +117,14 @@ export const callingBotResolvers = {
     },
     callingBotCall: async (_p: unknown, { id }: Id, ctx: GraphQLContext) =>
       withId(await callingBotCalls.ownCall(await callerOf(ctx), id)),
+    callingBotScenarios: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      await techStaff(ctx, 'VIEW');
+      return withIds(await callingBotScenarios.list());
+    },
+    callingBotScenarioOptions: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      await callerOf(ctx);
+      return withIds(await callingBotScenarios.listEnabled());
+    },
   },
   Mutation: {
     createCallingBotConfig: async (
@@ -155,6 +189,42 @@ export const callingBotResolvers = {
     ) => {
       const { call, socketUrl } = await callingBotCalls.start(await callerOf(ctx), input);
       return { call: withId(call), socketUrl };
+    },
+    createCallingBotScenario: async (
+      _p: unknown,
+      { input }: { input: CallingBotScenarioInput },
+      ctx: GraphQLContext,
+    ) => {
+      await techStaff(ctx, 'CREATE');
+      const created = await callingBotScenarios.create(input);
+      await auditScenario(ctx, 'CREATE', created, `Added the calling bot example ${created.title}`);
+      return withId(created);
+    },
+    updateCallingBotScenario: async (
+      _p: unknown,
+      { id, input }: ScenarioArgs,
+      ctx: GraphQLContext,
+    ) => {
+      await techStaff(ctx, 'EDIT');
+      const updated = await callingBotScenarios.update(id, input);
+      await auditScenario(
+        ctx,
+        'UPDATE',
+        updated,
+        `Updated the calling bot example ${updated.title}`,
+      );
+      return withId(updated);
+    },
+    deleteCallingBotScenario: async (_p: unknown, { id }: Id, ctx: GraphQLContext) => {
+      await techStaff(ctx, 'DELETE');
+      const removed = await callingBotScenarios.remove(id);
+      await auditScenario(
+        ctx,
+        'DELETE',
+        removed,
+        `Deleted the calling bot example ${removed.title}`,
+      );
+      return true;
     },
   },
 };

@@ -157,6 +157,8 @@ export const callingBotTypeDefs = gql`
     endedAt: DateTime
     "Why the call ended."
     endReason: String!
+    "The example the caller picked, as titled when the call was made; null for none."
+    scenarioTitle: String
     transcript: [CallingBotTurn!]!
     createdAt: DateTime!
   }
@@ -171,6 +173,46 @@ export const callingBotTypeDefs = gql`
     channel: CallingBotChannel!
     "The number to ring, in E.164; phone calls only."
     phone: String
+    "The example the bot plays (from callingBotScenarios); none keeps the bot's own prompt."
+    scenarioId: ID
+  }
+
+  "An example call the bot can play (Tech > Demos > Calling bot > Examples)."
+  type CallingBotScenario {
+    id: ID!
+    title: String!
+    "One line for the visitor: who the bot is and what to try."
+    description: String!
+    "Who the bot is on this call: the system prompt."
+    systemPrompt: String!
+    "The first thing the bot says."
+    greeting: String!
+    "e.g. hi-IN; empty keeps the active config's language."
+    languageCode: String!
+    "Only enabled examples are offered on the demo."
+    enabled: Boolean!
+    "Where it sits in the demo's list, smallest first."
+    order: Int!
+    updatedAt: DateTime!
+  }
+
+  "What the demo shows of an example: the prompt stays with Tech."
+  type CallingBotScenarioOption {
+    id: ID!
+    title: String!
+    description: String!
+    languageCode: String!
+  }
+
+  input CallingBotScenarioInput {
+    title: String!
+    description: String!
+    systemPrompt: String!
+    greeting: String!
+    "Empty keeps the active config's language."
+    languageCode: String!
+    enabled: Boolean!
+    order: Int!
   }
 
   extend type Query {
@@ -180,6 +222,10 @@ export const callingBotTypeDefs = gql`
     callingBotAvailability: CallingBotAvailability!
     "One of the caller's own calls, to follow it as it happens."
     callingBotCall(id: ID!): CallingBotCall!
+    "Every example call, for Tech."
+    callingBotScenarios: [CallingBotScenario!]!
+    "The examples a caller can pick on the demo, in order."
+    callingBotScenarioOptions: [CallingBotScenarioOption!]!
   }
 
   extend type Mutation {
@@ -193,5 +239,8 @@ export const callingBotTypeDefs = gql`
     "Checks the OpenAI key and model, and the Sarvam key, language and voice."
     testCallingBotConfig(id: ID!): Boolean!
     startCallingBotCall(input: StartCallingBotCallInput!): CallingBotCallStart!
+    createCallingBotScenario(input: CallingBotScenarioInput!): CallingBotScenario!
+    updateCallingBotScenario(id: ID!, input: CallingBotScenarioInput!): CallingBotScenario!
+    deleteCallingBotScenario(id: ID!): Boolean!
   }
 `;
