@@ -7,6 +7,8 @@ import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import {
   WhatsappChannelDocument,
+  WhatsappChannelSecret,
+  useRevealWhatsappChannelSecretMutation,
   useSaveWhatsappChannelMutation,
   useTestWhatsappChannelMutation,
 } from '@exyconn/shell/graphql/generated';
@@ -33,6 +35,7 @@ export function WhatsappNumberForm({ initial }: Readonly<WhatsappNumberFormProps
   const isEdit = initial !== null;
   const [save] = useSaveWhatsappChannelMutation({ refetchQueries: [WhatsappChannelDocument] });
   const [testChannel] = useTestWhatsappChannelMutation();
+  const [revealSecret] = useRevealWhatsappChannelSecretMutation({ fetchPolicy: 'no-cache' });
   const methods = useForm<WhatsappNumberFormValues>({
     mode: 'onTouched',
     resolver: zodResolver(makeWhatsappNumberSchema(isEdit)),
@@ -57,6 +60,12 @@ export function WhatsappNumberForm({ initial }: Readonly<WhatsappNumberFormProps
     return data?.testWhatsappChannel ?? '';
   };
 
+  // The saved value for an eye button; the server audits every reveal.
+  const revealFor = (secret: WhatsappChannelSecret) => async () => {
+    const { data } = await revealSecret({ variables: { secret } });
+    return data?.revealWhatsappChannelSecret ?? '';
+  };
+
   return (
     <EntityForm
       methods={methods}
@@ -79,6 +88,7 @@ export function WhatsappNumberForm({ initial }: Readonly<WhatsappNumberFormProps
         name="accessToken"
         label="Access token"
         stored={initial?.hasAccessToken}
+        onReveal={revealFor(WhatsappChannelSecret.AccessToken)}
         onTest={onTest}
         helperText={
           isEdit
@@ -86,10 +96,11 @@ export function WhatsappNumberForm({ initial }: Readonly<WhatsappNumberFormProps
             : 'A permanent System User token with whatsapp_business_messaging. The temporary token expires in a day.'
         }
       />
-      <RhfTextField
+      <RhfSecretField
         name="appSecret"
         label="App secret"
-        type="password"
+        stored={initial?.hasAppSecret}
+        onReveal={revealFor(WhatsappChannelSecret.AppSecret)}
         helperText={
           isEdit
             ? KEEP_SECRET_HINT

@@ -3,12 +3,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useT } from '@exyconn/i18n';
 import { Box, Link, Text } from '@exyconn/shell/components/ui';
-import { RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
+import { RhfSecretField, RhfSwitch, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
-import { useSaveSocialAppConfigMutation } from '@exyconn/shell/graphql/generated';
+import { useSaveSocialAppConfigMutation, TechSecret } from '@exyconn/shell/graphql/generated';
 import { KEEP_SECRET_HINT } from '../../secret';
 import type { SocialAppRow } from './social-app.types';
+import { useTechSecretReveal } from '../../useTechSecretReveal';
 
 /** Turning an app on needs both halves of its credentials; a stored secret counts. */
 const makeSchema = (hasSecret: boolean) =>
@@ -45,6 +46,7 @@ export function SocialAppForm({ row, onDone, onCancel }: Readonly<SocialAppFormP
     // The secret is never prefilled: the API does not return it, and blank keeps it.
     defaultValues: { clientId: row.clientId, clientSecret: '', enabled: row.enabled },
   });
+  const revealFor = useTechSecretReveal(row.id);
   const { onSubmit } = useEntitySave({
     label: '{app} app',
     labelValues: { app: row.label },
@@ -74,10 +76,11 @@ export function SocialAppForm({ row, onDone, onCancel }: Readonly<SocialAppFormP
         </Text>
       </Box>
       <RhfTextField name="clientId" label="Client ID" />
-      <RhfTextField
+      <RhfSecretField
         name="clientSecret"
         label="Client secret"
-        type="password"
+        stored={row.hasClientSecret}
+        onReveal={revealFor(TechSecret.SocialAppClientSecret)}
         helperText={row.hasClientSecret ? KEEP_SECRET_HINT : 'Shown once in the provider console.'}
       />
       <RhfSwitch name="enabled" label="Let Marketing connect accounts with this app" />

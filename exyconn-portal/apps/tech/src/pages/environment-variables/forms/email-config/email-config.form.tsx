@@ -1,15 +1,22 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { RhfTextField, RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
+import {
+  RhfSecretField,
+  RhfTextField,
+  RhfSelect,
+  type SelectOption,
+} from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreateEmailConfigMutation,
   useUpdateEmailConfigMutation,
+  TechSecret,
 } from '@exyconn/shell/graphql/generated';
 import type { EmailConfigRow } from './email-config.types';
 import { KEEP_SECRET_HINT, secretField } from '../../secret';
+import { useTechSecretReveal } from '../../useTechSecretReveal';
 
 const BOOL_OPTIONS: SelectOption[] = [
   { value: 'true', label: 'Yes' },
@@ -74,6 +81,8 @@ export function EmailConfigForm({ initial, onDone, onCancel }: Readonly<EmailCon
     defaultValues: toInitial(initial),
   });
 
+  const revealFor = useTechSecretReveal(initial?.id);
+
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Email config',
     initial,
@@ -89,11 +98,16 @@ export function EmailConfigForm({ initial, onDone, onCancel }: Readonly<EmailCon
       <RhfTextField name="port" label="Port" type="number" />
       <RhfSelect name="secure" label="Use TLS/SSL (secure)" options={BOOL_OPTIONS} />
       <RhfTextField name="username" label="Username" />
-      <RhfTextField
+      <RhfSecretField
         name="password"
         label="Password"
-        type="password"
-        helperText={isEdit ? KEEP_SECRET_HINT : 'Stored write-only — it is never shown again'}
+        stored={initial?.hasPassword}
+        onReveal={revealFor(TechSecret.EmailPassword)}
+        helperText={
+          isEdit
+            ? KEEP_SECRET_HINT
+            : 'Kept on the server; open the config again and use the eye to see it'
+        }
       />
       <RhfTextField name="fromAddress" label="From address" />
       <RhfSelect name="isActive" label="Set as active" options={BOOL_OPTIONS} />

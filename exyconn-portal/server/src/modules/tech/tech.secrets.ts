@@ -34,6 +34,9 @@ export const techSecretResolvers = {
   EmailConfig: {
     hasPassword: hasSecret('password'),
   },
+  InboundMailConfig: {
+    hasPassword: hasSecret('password'),
+  },
   ImageConfig: {
     hasPrivateKey: hasSecret('privateKey'),
     privateKeyHint: hintOf('privateKey'),

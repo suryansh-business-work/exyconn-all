@@ -2,15 +2,22 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { RAZORPAY_KEY_ID } from '@exyconn/regex';
-import { RhfTextField, RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
+import {
+  RhfSecretField,
+  RhfTextField,
+  RhfSelect,
+  type SelectOption,
+} from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreateRazorpayConfigMutation,
   useUpdateRazorpayConfigMutation,
+  TechSecret,
 } from '@exyconn/shell/graphql/generated';
 import type { RazorpayConfigRow } from './razorpay-config.types';
 import { KEEP_SECRET_HINT, secretField, webhookUrl } from '../../secret';
+import { useTechSecretReveal } from '../../useTechSecretReveal';
 
 const BOOL_OPTIONS: SelectOption[] = [
   { value: 'true', label: 'Yes' },
@@ -76,6 +83,8 @@ export function RazorpayConfigForm({
     defaultValues: toInitial(initial),
   });
 
+  const revealFor = useTechSecretReveal(initial?.id);
+
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Razorpay account',
     initial,
@@ -92,16 +101,18 @@ export function RazorpayConfigForm({
         label="Key id"
         helperText="Dashboard › Account & Settings › API keys"
       />
-      <RhfTextField
+      <RhfSecretField
         name="keySecret"
         label="Key secret"
-        type="password"
+        stored={initial?.hasKeySecret}
+        onReveal={revealFor(TechSecret.RazorpayKeySecret)}
         helperText={isEdit ? KEEP_SECRET_HINT : 'Shown once, when the key is generated'}
       />
-      <RhfTextField
+      <RhfSecretField
         name="webhookSecret"
         label="Webhook secret"
-        type="password"
+        stored={initial?.hasWebhookSecret}
+        onReveal={revealFor(TechSecret.RazorpayWebhookSecret)}
         helperText={
           isEdit
             ? KEEP_SECRET_HINT

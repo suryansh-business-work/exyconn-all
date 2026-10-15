@@ -9,3 +9,5 @@ export { GithubConfigModel } from './github-config.model';
 export { PexelsConfigModel } from './pexels-config.model';
 export { OpenAiConfigModel } from './openai-config.model';
 export { TrackerBuildSettingsModel } from './tracker-build-settings.model';
+export { techRevealTypeDefs } from './tech.reveal.typeDefs';
+export { techRevealResolvers } from './tech.reveal';

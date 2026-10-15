@@ -49,10 +49,18 @@ export const whatsappChannelTypeDefs = gql`
     accessToken: String!
   }
 
+  "A stored credential of the number; the values are the field names."
+  enum WhatsappChannelSecret {
+    accessToken
+    appSecret
+  }
+
   extend type Mutation {
     saveWhatsappChannel(input: WhatsappChannelInput!): WhatsappChannel!
     deleteWhatsappChannel: Boolean!
     "Checks the number and token with Meta and subscribes the app to the number's WhatsApp account."
     testWhatsappChannel(input: WhatsappChannelTestInput!): String!
+    "One stored credential, in full, for the eye button. Each reveal is audited."
+    revealWhatsappChannelSecret(secret: WhatsappChannelSecret!): String!
   }
 `;

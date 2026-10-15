@@ -36,6 +36,7 @@ query ListInboundMailConfigs {
     port
     secure
     user
+    hasPassword
     mailbox
     pollSeconds
     deleteAfterImport
@@ -196,7 +197,10 @@ mutation StartTrackerBuild($platforms: [TrackerPlatform!]!, $ref: String!) {
 }
 
 mutation SaveTrackerBuildSettings($slackChannels: [String!]!, $statusAlertChannels: [String!]) {
-  saveTrackerBuildSettings(slackChannels: $slackChannels, statusAlertChannels: $statusAlertChannels) {
+  saveTrackerBuildSettings(
+    slackChannels: $slackChannels
+    statusAlertChannels: $statusAlertChannels
+  ) {
     slackChannels
     statusAlertChannels
   }
@@ -297,4 +301,8 @@ query BackgroundJobs {
 
 mutation RunBackgroundJob($key: String!) {
   runBackgroundJob(key: $key)
+}
+
+mutation RevealTechSecret($id: ID!, $secret: TechSecret!) {
+  revealTechSecret(id: $id, secret: $secret)
 }

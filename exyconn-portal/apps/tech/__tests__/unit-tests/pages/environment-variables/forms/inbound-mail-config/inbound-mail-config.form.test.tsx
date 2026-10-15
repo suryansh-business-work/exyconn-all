@@ -38,6 +38,7 @@ const stored = (overrides: Partial<InboundMailConfigRow> = {}): InboundMailConfi
   port: 143,
   secure: false,
   user: 'support',
+  hasPassword: true,
   mailbox: 'Support',
   pollSeconds: 300,
   deleteAfterImport: true,

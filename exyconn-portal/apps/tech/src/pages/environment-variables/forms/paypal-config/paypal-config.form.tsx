@@ -1,17 +1,19 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
+import { RhfSecretField, RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   GatewayMode,
   useCreatePaypalConfigMutation,
   useUpdatePaypalConfigMutation,
+  TechSecret,
 } from '@exyconn/shell/graphql/generated';
 import type { PaypalConfigRow } from './paypal-config.types';
 import { KEEP_SECRET_HINT, secretField } from '../../secret';
 import { BOOL_OPTIONS, MODE_OPTIONS } from '../../gatewayOptions';
+import { useTechSecretReveal } from '../../useTechSecretReveal';
 
 /** PayPal client ids and secrets are long random strings; anything this short is a paste error. */
 const MIN_KEY_LENGTH = 20;
@@ -69,6 +71,8 @@ export function PaypalConfigForm({ initial, onDone, onCancel }: Readonly<PaypalC
     defaultValues: toInitial(initial),
   });
 
+  const revealFor = useTechSecretReveal(initial?.id);
+
   const { isEdit, onSubmit } = useEntitySave({
     label: 'PayPal account',
     initial,
@@ -85,10 +89,11 @@ export function PaypalConfigForm({ initial, onDone, onCancel }: Readonly<PaypalC
         label="Client id"
         helperText="PayPal Developer › Apps & Credentials › your app"
       />
-      <RhfTextField
+      <RhfSecretField
         name="clientSecret"
         label="Client secret"
-        type="password"
+        stored={initial?.hasClientSecret}
+        onReveal={revealFor(TechSecret.PaypalClientSecret)}
         helperText={isEdit ? KEEP_SECRET_HINT : 'Shown under the client id in the same app'}
       />
       <RhfTextField

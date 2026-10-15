@@ -1,17 +1,19 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
+import { RhfSecretField, RhfTextField, RhfSelect } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   GatewayMode,
   useCreatePayoneerConfigMutation,
   useUpdatePayoneerConfigMutation,
+  TechSecret,
 } from '@exyconn/shell/graphql/generated';
 import type { PayoneerConfigRow } from './payoneer-config.types';
 import { KEEP_SECRET_HINT, secretField } from '../../secret';
 import { BOOL_OPTIONS, MODE_OPTIONS } from '../../gatewayOptions';
+import { useTechSecretReveal } from '../../useTechSecretReveal';
 
 /** Payoneer API tokens are long random strings; anything this short is a paste error. */
 const MIN_TOKEN_LENGTH = 12;
@@ -73,6 +75,8 @@ export function PayoneerConfigForm({
     defaultValues: toInitial(initial),
   });
 
+  const revealFor = useTechSecretReveal(initial?.id);
+
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Payoneer account',
     initial,
@@ -89,10 +93,11 @@ export function PayoneerConfigForm({
         label="Merchant code"
         helperText="Payoneer Checkout › Developers › API credentials"
       />
-      <RhfTextField
+      <RhfSecretField
         name="apiToken"
         label="API token"
-        type="password"
+        stored={initial?.hasApiToken}
+        onReveal={revealFor(TechSecret.PayoneerApiToken)}
         helperText={isEdit ? KEEP_SECRET_HINT : 'Shown once, when the token is generated'}
       />
       <RhfTextField
