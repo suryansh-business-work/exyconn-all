@@ -1,6 +1,6 @@
 import { WhatsappChannelModel } from './channel.model';
-import { runAsPlatform } from '../../../lib/tenant';
-import { logger } from '../../../utils/logger';
+import { runAsPlatform } from '../../../../../exyconn-portal/server/src/lib/tenant';
+import { logger } from '../../../../../exyconn-portal/server/src/utils/logger';
 
 /**
  * What the number screen shows about delivery: when Meta last reached this server and the last

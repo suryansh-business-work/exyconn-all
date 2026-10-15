@@ -1,8 +1,8 @@
-import { ROLES } from '../../../constants/roles';
-import { assertPlatformStaff } from '../../../lib/platformAccess';
-import { runForOrganization } from '../../../lib/tenant';
-import type { GraphQLContext } from '../../../middleware/auth';
-import type { TableQueryInput } from '../../../utils/tableQuery';
+import { ROLES } from '../../../../../exyconn-portal/server/src/constants/roles';
+import { assertPlatformStaff } from '../../../../../exyconn-portal/server/src/lib/platformAccess';
+import { runForOrganization } from '../../../../../exyconn-portal/server/src/lib/tenant';
+import type { GraphQLContext } from '../../../../../exyconn-portal/server/src/middleware/auth';
+import type { TableQueryInput } from '../../../../../exyconn-portal/server/src/utils/tableQuery';
 import {
   requestVisitorCode,
   verifyVisitorCode,

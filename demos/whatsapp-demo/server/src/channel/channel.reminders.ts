@@ -5,11 +5,14 @@ import { activeSender } from './channel.service';
 import { converse } from './channel.conversation';
 import { inTurn } from './channel.queue';
 import { toRecord } from './channel.chats';
-import { forEachOrganization } from '../../organizations';
-import { currentOrganizationId } from '../../../lib/tenant/tenant-scope';
-import { registerBackgroundJob } from '../../tech/jobs.registry';
-import { JOB_KEYS, recordJobRun } from '../../../utils/jobHeartbeat';
-import { logger } from '../../../utils/logger';
+import { forEachOrganization } from '../../../../../exyconn-portal/server/src/modules/organizations';
+import { currentOrganizationId } from '../../../../../exyconn-portal/server/src/lib/tenant/tenant-scope';
+import { registerBackgroundJob } from '../../../../../exyconn-portal/server/src/modules/tech/jobs.registry';
+import {
+  JOB_KEYS,
+  recordJobRun,
+} from '../../../../../exyconn-portal/server/src/utils/jobHeartbeat';
+import { logger } from '../../../../../exyconn-portal/server/src/utils/logger';
 
 /**
  * Reminders a workflow schedules ("your appointment is in an hour") arrive on their own on the

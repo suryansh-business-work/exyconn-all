@@ -2,9 +2,12 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "dist",
-    "rootDir": "src",
+    // The WhatsApp demo's server code lives in demos/whatsapp-demo/server and runs in this
+    // process, so the build compiles it too: dist mirrors the repo from its root, and this
+    // package's entry is dist/exyconn-portal/server/src/server.js.
+    "rootDir": "../..",
     "types": ["node"]
   },
-  "include": ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "../../demos/whatsapp-demo/server/src/**/*.ts"],
   "exclude": ["node_modules", "dist", "__tests__"]
 }

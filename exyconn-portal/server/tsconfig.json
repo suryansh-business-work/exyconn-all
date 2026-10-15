@@ -21,7 +21,8 @@
   },
   "include": [
     "src/**/*.ts",
-    "__tests__/**/*.ts"
+    "__tests__/**/*.ts",
+    "../../demos/whatsapp-demo/server/src/**/*.ts"
   ],
   "exclude": [
     "node_modules",

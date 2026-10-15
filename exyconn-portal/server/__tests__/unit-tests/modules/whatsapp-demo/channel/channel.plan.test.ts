@@ -1,6 +1,6 @@
 import type { PendingPush } from '@exyconn/wa-flow';
-import { plan } from '../../../../../src/modules/whatsapp-demo/channel/channel.plan';
-import { INDUSTRIES } from '../../../../../src/modules/whatsapp-demo/channel/channel.industries';
+import { plan } from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.plan';
+import { INDUSTRIES } from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.industries';
 import { chatRecord, demoBundle, option } from './channel.fixtures';
 
 const salon = demoBundle('salon', 'Salon');

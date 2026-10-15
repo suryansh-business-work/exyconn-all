@@ -1,5 +1,5 @@
-import { companyProfile } from '../../lib/company';
-import { isValidTimezone } from '../../utils/timezone';
+import { companyProfile } from '../../../../exyconn-portal/server/src/lib/company';
+import { isValidTimezone } from '../../../../exyconn-portal/server/src/utils/timezone';
 
 /** Used only when the company has no valid timezone of its own. */
 const DEFAULT_TIMEZONE = 'Asia/Kolkata';

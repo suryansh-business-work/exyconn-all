@@ -3,10 +3,10 @@ import type { PendingPush } from '@exyconn/wa-flow';
 import {
   deliverReminders,
   startWhatsappReminders,
-} from '../../../../../src/modules/whatsapp-demo/channel/channel.reminders';
-import { WhatsappChatModel } from '../../../../../src/modules/whatsapp-demo/channel/chat.model';
-import { activeSender } from '../../../../../src/modules/whatsapp-demo/channel/channel.service';
-import { converse } from '../../../../../src/modules/whatsapp-demo/channel/channel.conversation';
+} from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.reminders';
+import { WhatsappChatModel } from '../../../../../../../demos/whatsapp-demo/server/src/channel/chat.model';
+import { activeSender } from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.service';
+import { converse } from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.conversation';
 import * as organizationEach from '../../../../../src/modules/organizations/organization.each';
 import { backgroundJobs } from '../../../../../src/modules/tech/jobs.registry';
 import { JOB_KEYS, clearJobRuns, readJobRuns } from '../../../../../src/utils/jobHeartbeat';
@@ -15,12 +15,15 @@ import { logger } from '../../../../../src/utils/logger';
 import { useTestOrganization } from '../../../../helpers';
 import { asArg } from '../../../../mockAs';
 
-jest.mock('../../../../../src/modules/whatsapp-demo/channel/channel.service', () => ({
+jest.mock('../../../../../../../demos/whatsapp-demo/server/src/channel/channel.service', () => ({
   activeSender: jest.fn(),
 }));
-jest.mock('../../../../../src/modules/whatsapp-demo/channel/channel.conversation', () => ({
-  converse: jest.fn(),
-}));
+jest.mock(
+  '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.conversation',
+  () => ({
+    converse: jest.fn(),
+  }),
+);
 
 useTestOrganization();
 const sender = { phoneNumberId: '1098765', accessToken: randomUUID() };

@@ -3,9 +3,9 @@ import { SEED_DEMOS } from '@exyconn/wa-flow/seeds';
 import type { SeedDemo } from '@exyconn/wa-flow';
 import { WhatsappDemoModel, WhatsappWorkflowModel } from './whatsappDemo.model';
 import { isDuplicateKey } from './whatsappDemo.validation';
-import { runOnce } from '../../lib/migrations';
-import { currentOrganizationId } from '../../lib/tenant';
-import { logger } from '../../utils/logger';
+import { runOnce } from '../../../../exyconn-portal/server/src/lib/migrations';
+import { currentOrganizationId } from '../../../../exyconn-portal/server/src/lib/tenant';
+import { logger } from '../../../../exyconn-portal/server/src/utils/logger';
 
 /**
  * The default industries, copied into a company's database once each.

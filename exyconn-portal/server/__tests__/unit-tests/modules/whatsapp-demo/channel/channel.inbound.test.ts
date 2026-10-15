@@ -1,4 +1,4 @@
-import { inboundMessages } from '../../../../../src/modules/whatsapp-demo/channel/channel.inbound';
+import { inboundMessages } from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.inbound';
 
 const PHONE_ID = '1098765';
 

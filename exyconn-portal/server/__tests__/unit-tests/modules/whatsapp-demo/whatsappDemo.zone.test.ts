@@ -3,7 +3,7 @@ import {
   companyTimezone,
   localNow,
   zonedToEpoch,
-} from '../../../../src/modules/whatsapp-demo/whatsappDemo.zone';
+} from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.zone';
 
 jest.mock('../../../../src/lib/company', () => ({ companyProfile: jest.fn() }));
 

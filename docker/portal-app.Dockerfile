@@ -65,6 +65,7 @@ COPY exyconn-portal/apps/website/package.json exyconn-portal/apps/website/
 COPY exyconn-portal/apps/clienthub/package.json exyconn-portal/apps/clienthub/
 COPY demos/hub/package.json demos/hub/
 COPY demos/whatsapp-demo/ui/package.json demos/whatsapp-demo/ui/
+COPY demos/whatsapp-demo/server/package.json demos/whatsapp-demo/server/
 COPY demos/calling-bot-demo/ui/package.json demos/calling-bot-demo/ui/
 COPY demos/calling-bot-demo/server/package.json demos/calling-bot-demo/server/
 COPY demos/website-chat-demo/ui/package.json demos/website-chat-demo/ui/

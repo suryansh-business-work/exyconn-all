@@ -2,13 +2,13 @@ import {
   funnel,
   sessionDetail,
   sessions,
-} from '../../../../src/modules/whatsapp-demo/whatsappDemo.sessions';
+} from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.sessions';
 import {
   WhatsappDemoEventModel,
   WhatsappDemoSessionModel,
   type WhatsappEventType,
-} from '../../../../src/modules/whatsapp-demo/whatsappDemo.analytics.model';
-import { WhatsappWorkflowModel } from '../../../../src/modules/whatsapp-demo/whatsappDemo.model';
+} from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.analytics.model';
+import { WhatsappWorkflowModel } from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.model';
 import type { TableQueryInput } from '../../../../src/utils/tableQuery';
 
 const MINUTE = 60_000;

@@ -7,6 +7,7 @@ packages:
   # demos.exyconn.com: the landing page, and each demo's own UI (and server) under demos/<demo>/.
   - 'demos/hub'
   - 'demos/whatsapp-demo/ui'
+  - 'demos/whatsapp-demo/server'
   - 'demos/calling-bot-demo/ui'
   - 'demos/calling-bot-demo/server'
   - 'demos/website-chat-demo/ui'

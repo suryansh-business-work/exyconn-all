@@ -7,9 +7,9 @@ import {
   publishedBundles,
   saveChat,
   toRecord,
-} from '../../../../../src/modules/whatsapp-demo/channel/channel.chats';
-import { WhatsappChatModel } from '../../../../../src/modules/whatsapp-demo/channel/chat.model';
-import { catalog } from '../../../../../src/modules/whatsapp-demo/whatsappDemo.service';
+} from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.chats';
+import { WhatsappChatModel } from '../../../../../../../demos/whatsapp-demo/server/src/channel/chat.model';
+import { catalog } from '../../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.service';
 import { logger } from '../../../../../src/utils/logger';
 import { useTestOrganization } from '../../../../helpers';
 import { demoBundle, option } from './channel.fixtures';
@@ -19,7 +19,7 @@ jest.mock('@exyconn/wa-flow', () => ({
   ...jest.requireActual('@exyconn/wa-flow'),
   toDemoBundle: jest.fn(),
 }));
-jest.mock('../../../../../src/modules/whatsapp-demo/whatsappDemo.service', () => ({
+jest.mock('../../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.service', () => ({
   catalog: jest.fn(),
 }));
 

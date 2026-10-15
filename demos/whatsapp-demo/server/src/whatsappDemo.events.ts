@@ -5,7 +5,7 @@ import {
   type WhatsappEventType,
 } from './whatsappDemo.analytics.model';
 import { isDuplicateKey } from './whatsappDemo.validation';
-import { badRequest } from '../../utils/errors';
+import { badRequest } from '../../../../exyconn-portal/server/src/utils/errors';
 
 /** The most events one call may carry; the client flushes in batches well under this. */
 export const MAX_EVENTS_PER_CALL = 100;

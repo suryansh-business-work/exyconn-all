@@ -6,7 +6,7 @@ import {
   presentWorkflow,
   sameGraph,
   workflowStatus,
-} from '../../../../src/modules/whatsapp-demo/whatsappDemo.present';
+} from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.present';
 
 type DemoRow = Parameters<typeof presentDemo>[0];
 type WorkflowRow = Parameters<typeof presentWorkflow>[0];

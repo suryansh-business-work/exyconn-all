@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { Types } from 'mongoose';
-import { channelLookup } from '../../../../../src/modules/whatsapp-demo/channel/channel.lookup';
-import { WhatsappChannelModel } from '../../../../../src/modules/whatsapp-demo/channel/channel.model';
+import { channelLookup } from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.lookup';
+import { WhatsappChannelModel } from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.model';
 import { runAsPlatform, runForOrganization } from '../../../../../src/lib/tenant';
 import { seal } from '../../../../../src/utils/secretBox';
 

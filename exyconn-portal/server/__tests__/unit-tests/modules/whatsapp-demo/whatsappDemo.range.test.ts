@@ -3,7 +3,7 @@ import {
   daysOf,
   optionalRange,
   parseRange,
-} from '../../../../src/modules/whatsapp-demo/whatsappDemo.range';
+} from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.range';
 
 const KOLKATA = 'Asia/Kolkata';
 

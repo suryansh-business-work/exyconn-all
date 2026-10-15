@@ -4,13 +4,13 @@ import { channelLookup } from './channel.lookup';
 import { subscribeApp, verifyNumber, type Sender } from './channel.graph';
 import { recordProblem } from './channel.health';
 import { refuseZod } from '../whatsappDemo.validation';
-import { recordAudit } from '../../audit';
-import { secretHint } from '../../tech/tech.secrets';
-import { actorNameOf } from '../../../lib/actor';
-import { badRequest, notFound } from '../../../utils/errors';
-import { seal, open } from '../../../utils/secretBox';
-import { env } from '../../../config/env';
-import type { GraphQLContext } from '../../../middleware/auth';
+import { recordAudit } from '../../../../../exyconn-portal/server/src/modules/audit';
+import { secretHint } from '../../../../../exyconn-portal/server/src/modules/tech/tech.secrets';
+import { actorNameOf } from '../../../../../exyconn-portal/server/src/lib/actor';
+import { badRequest, notFound } from '../../../../../exyconn-portal/server/src/utils/errors';
+import { seal, open } from '../../../../../exyconn-portal/server/src/utils/secretBox';
+import { env } from '../../../../../exyconn-portal/server/src/config/env';
+import type { GraphQLContext } from '../../../../../exyconn-portal/server/src/middleware/auth';
 
 /**
  * The admin side of the real WhatsApp number: what WhatsApp demo > Admin > WhatsApp number

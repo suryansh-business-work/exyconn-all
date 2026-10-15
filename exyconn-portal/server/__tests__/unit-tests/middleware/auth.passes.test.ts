@@ -1,5 +1,5 @@
 import { contactForPass } from '../../../src/modules/clienthub';
-import { visitorForPass } from '../../../src/modules/whatsapp-demo/visitor';
+import { visitorForPass } from '../../../../../demos/whatsapp-demo/server/src/visitor';
 import { principalForApiKey } from '../../../src/modules/integrations/api-key.service';
 import { signToken } from '../../../src/utils/jwt';
 import { ROLES } from '../../../src/constants/roles';
@@ -10,7 +10,7 @@ jest.mock('../../../src/modules/clienthub', () => ({
   CLIENT_PASS_HEADER: 'x-client-pass',
   contactForPass: jest.fn(),
 }));
-jest.mock('../../../src/modules/whatsapp-demo/visitor', () => ({
+jest.mock('../../../../../demos/whatsapp-demo/server/src/visitor', () => ({
   VISITOR_HEADER: 'x-demo-visitor',
   visitorForPass: jest.fn(),
 }));

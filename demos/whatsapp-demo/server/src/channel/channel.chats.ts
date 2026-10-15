@@ -10,7 +10,7 @@ import type { DemoBundle } from '@exyconn/wa-flow/engine';
 import { WhatsappChatModel } from './chat.model';
 import { catalog } from '../whatsappDemo.service';
 import { isDuplicateKey } from '../whatsappDemo.validation';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../../exyconn-portal/server/src/utils/logger';
 
 /** A chat as the conversation reads it. */
 export interface ChatRecord {

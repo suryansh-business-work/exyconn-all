@@ -6,8 +6,8 @@ import { claimMessage } from './channel.chats';
 import { converse } from './channel.conversation';
 import { inTurn } from './channel.queue';
 import { noteProblem, recordInbound } from './channel.health';
-import { runForOrganization } from '../../../lib/tenant';
-import { logger } from '../../../utils/logger';
+import { runForOrganization } from '../../../../../exyconn-portal/server/src/lib/tenant';
+import { logger } from '../../../../../exyconn-portal/server/src/utils/logger';
 
 /**
  * Where Meta delivers WhatsApp messages for every company's number (Meta App > WhatsApp >

@@ -4,10 +4,10 @@ import type { WaGraph } from '@exyconn/wa-flow';
 import { WhatsappDemoModel, WhatsappWorkflowModel } from './whatsappDemo.model';
 import { presentWorkflow } from './whatsappDemo.present';
 import { isDuplicateKey, refuseGraph, refuseZod } from './whatsappDemo.validation';
-import { recordAudit, type AuditAction } from '../audit';
-import { actorNameOf } from '../../lib/actor';
-import { badRequest, notFound } from '../../utils/errors';
-import type { GraphQLContext } from '../../middleware/auth';
+import { recordAudit, type AuditAction } from '../../../../exyconn-portal/server/src/modules/audit';
+import { actorNameOf } from '../../../../exyconn-portal/server/src/lib/actor';
+import { badRequest, notFound } from '../../../../exyconn-portal/server/src/utils/errors';
+import type { GraphQLContext } from '../../../../exyconn-portal/server/src/middleware/auth';
 
 const MODULE = 'WhatsappWorkflow';
 

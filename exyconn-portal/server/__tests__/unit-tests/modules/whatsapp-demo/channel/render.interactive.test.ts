@@ -3,7 +3,7 @@ import {
   clip,
   interactive,
   oneButton,
-} from '../../../../../src/modules/whatsapp-demo/channel/render.interactive';
+} from '../../../../../../../demos/whatsapp-demo/server/src/channel/render.interactive';
 import { option } from './channel.fixtures';
 
 const register = jest.fn((o: RenderedOption) => `id-${o.id}`);

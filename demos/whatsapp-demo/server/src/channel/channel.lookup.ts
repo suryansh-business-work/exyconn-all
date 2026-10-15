@@ -1,7 +1,7 @@
 import { WhatsappChannelModel } from './channel.model';
 import type { Sender } from './channel.graph';
-import { organizationOf, runAsPlatform } from '../../../lib/tenant';
-import { open } from '../../../utils/secretBox';
+import { organizationOf, runAsPlatform } from '../../../../../exyconn-portal/server/src/lib/tenant';
+import { open } from '../../../../../exyconn-portal/server/src/utils/secretBox';
 
 /**
  * The webhook arrives before any company is in scope — Meta knows only the phone number id —

@@ -1,9 +1,12 @@
 import { randomUUID } from 'node:crypto';
-import { OpenAiConfigModel } from '../tech/openai-config.model';
-import { openAiClient, type CompletionResult } from '../../utils/openai';
-import { createLimiter } from '../../lib/rateLimiter';
+import { OpenAiConfigModel } from '../../../../exyconn-portal/server/src/modules/tech/openai-config.model';
+import {
+  openAiClient,
+  type CompletionResult,
+} from '../../../../exyconn-portal/server/src/utils/openai';
+import { createLimiter } from '../../../../exyconn-portal/server/src/lib/rateLimiter';
 import { companyTimezone, localNow } from './whatsappDemo.zone';
-import { logger } from '../../utils/logger';
+import { logger } from '../../../../exyconn-portal/server/src/utils/logger';
 import { storeActorEvents, type EventActor } from './whatsappDemo.events';
 import {
   SYSTEM_PROMPT,

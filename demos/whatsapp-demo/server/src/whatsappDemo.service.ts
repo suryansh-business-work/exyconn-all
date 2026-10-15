@@ -5,9 +5,9 @@ import { WhatsappDemoModel, WhatsappWorkflowModel } from './whatsappDemo.model';
 import { bundleRevision, presentDemo, presentPublished } from './whatsappDemo.present';
 import { isDuplicateKey, refuseZod } from './whatsappDemo.validation';
 import { ensureWhatsappDemoSeedsLazily } from './whatsappDemo.seed';
-import { recordAudit, diffChanges } from '../audit';
-import { badRequest, notFound } from '../../utils/errors';
-import type { GraphQLContext } from '../../middleware/auth';
+import { recordAudit, diffChanges } from '../../../../exyconn-portal/server/src/modules/audit';
+import { badRequest, notFound } from '../../../../exyconn-portal/server/src/utils/errors';
+import type { GraphQLContext } from '../../../../exyconn-portal/server/src/middleware/auth';
 
 const MODULE = 'WhatsappDemo';
 

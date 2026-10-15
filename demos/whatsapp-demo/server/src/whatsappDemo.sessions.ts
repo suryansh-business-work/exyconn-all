@@ -10,7 +10,11 @@ import { SESSION_IDLE_MS, presentEvent, presentSession } from './whatsappDemo.pr
 import { optionalRange, parseRange } from './whatsappDemo.range';
 import { companyTimezone } from './whatsappDemo.zone';
 import { demoKeyMatch } from './whatsappDemo.channel';
-import { tableQuery, type TableConfig, type TableQueryInput } from '../../utils/tableQuery';
+import {
+  tableQuery,
+  type TableConfig,
+  type TableQueryInput,
+} from '../../../../exyconn-portal/server/src/utils/tableQuery';
 
 /** The most events one session's detail returns. */
 const DETAIL_EVENT_LIMIT = 2000;

@@ -187,7 +187,8 @@ jobs:
         run: |
           pnpm --filter exyconn-portal-server run test --shard=${{ matrix.shard }}/6 --maxWorkers=2 \
             --coverage --coverageReporters=json --coverageReporters=text-summary \
-            '--collectCoverageFrom=src/**/*.ts' '--collectCoverageFrom=!src/graphql/generated/**'
+            '--collectCoverageFrom=src/**/*.ts' '--collectCoverageFrom=!src/graphql/generated/**' \
+            '--collectCoverageFrom=../../demos/whatsapp-demo/server/src/**/*.ts'
       # Each shard's raw coverage; the quality report merges the four into one summary.
       - name: Collect coverage
         if: always() && inputs.coverage

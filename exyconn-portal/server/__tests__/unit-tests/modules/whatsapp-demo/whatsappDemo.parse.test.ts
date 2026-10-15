@@ -1,7 +1,7 @@
 import { openAiClient } from '../../../../src/utils/openai';
 import { logger } from '../../../../src/utils/logger';
-import { parseAs } from '../../../../src/modules/whatsapp-demo/whatsappDemo.parse';
-import { WhatsappDemoSessionModel } from '../../../../src/modules/whatsapp-demo/whatsappDemo.analytics.model';
+import { parseAs } from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.parse';
+import { WhatsappDemoSessionModel } from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.analytics.model';
 import { actor, completion, configure, input, recordedCall } from './parseFixtures';
 
 const mockAllow = jest.fn<Promise<boolean>, [string]>();

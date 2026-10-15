@@ -1,15 +1,22 @@
-import { createLimiter, enforceLimit } from '../../../lib/rateLimiter';
-import { assertCaptcha } from '../../website/website.captcha';
-import { runForOrganization } from '../../../lib/tenant';
-import { platformOperatorOrganizationId } from '../../../lib/platformAccess';
-import { isEmailAddress } from '../../../utils/emailAddress';
-import { isPhoneNumber } from '../../../utils/phoneNumber';
-import { badRequest } from '../../../utils/errors';
-import { logger } from '../../../utils/logger';
-import { env } from '../../../config/env';
-import { emailer } from '../../email/email.service';
+import {
+  createLimiter,
+  enforceLimit,
+} from '../../../../../exyconn-portal/server/src/lib/rateLimiter';
+import { assertCaptcha } from '../../../../../exyconn-portal/server/src/modules/website/website.captcha';
+import { runForOrganization } from '../../../../../exyconn-portal/server/src/lib/tenant';
+import { platformOperatorOrganizationId } from '../../../../../exyconn-portal/server/src/lib/platformAccess';
+import { isEmailAddress } from '../../../../../exyconn-portal/server/src/utils/emailAddress';
+import { isPhoneNumber } from '../../../../../exyconn-portal/server/src/utils/phoneNumber';
+import { badRequest } from '../../../../../exyconn-portal/server/src/utils/errors';
+import { logger } from '../../../../../exyconn-portal/server/src/utils/logger';
+import { env } from '../../../../../exyconn-portal/server/src/config/env';
+import { emailer } from '../../../../../exyconn-portal/server/src/modules/email/email.service';
 import { WhatsappDemoVisitorModel, type VisitorSource } from './visitor.model';
-import { EMAIL_CODE_TTL_LABEL, consumeEmailCode, issueEmailCode } from '../../../lib/emailCode';
+import {
+  EMAIL_CODE_TTL_LABEL,
+  consumeEmailCode,
+  issueEmailCode,
+} from '../../../../../exyconn-portal/server/src/lib/emailCode';
 import { signVisitorPass } from './visitor.token';
 
 const LIMITS = { name: 120, company: 120 } as const;

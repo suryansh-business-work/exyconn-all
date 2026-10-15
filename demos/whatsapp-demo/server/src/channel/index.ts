@@ -1,5 +1,5 @@
-import { assertRole } from '../../../middleware/roleGuard';
-import { ROLES } from '../../../constants/roles';
+import { assertRole } from '../../../../../exyconn-portal/server/src/middleware/roleGuard';
+import { ROLES } from '../../../../../exyconn-portal/server/src/constants/roles';
 import {
   deleteChannel,
   getChannel,
@@ -8,9 +8,9 @@ import {
   type WhatsappChannelInput,
   type WhatsappChannelTestInput,
 } from './channel.service';
-import type { GraphQLContext } from '../../../middleware/auth';
-import { assertPlatformStaff } from '../../../lib/platformAccess';
-import type { PermissionAction } from '../../permissions/permission.model';
+import type { GraphQLContext } from '../../../../../exyconn-portal/server/src/middleware/auth';
+import { assertPlatformStaff } from '../../../../../exyconn-portal/server/src/lib/platformAccess';
+import type { PermissionAction } from '../../../../../exyconn-portal/server/src/modules/permissions/permission.model';
 
 export { whatsappChannelTypeDefs } from './channel.typeDefs';
 

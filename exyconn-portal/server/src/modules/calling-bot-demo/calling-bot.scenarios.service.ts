@@ -2,7 +2,7 @@ import { isValidObjectId } from 'mongoose';
 import type { CallingBotScenarioRecord } from '@exyconn/calling-bot-demo-server';
 import { runOnce } from '../../lib/migrations';
 import { badRequest, notFound } from '../../utils/errors';
-import { isDuplicateKey } from '../whatsapp-demo/whatsappDemo.validation';
+import { isDuplicateKey } from '../../../../../demos/whatsapp-demo/server/src/whatsappDemo.validation';
 import { CallingBotScenarioModel } from './calling-bot.models';
 import { SCENARIO_SEEDS, type ScenarioSeed } from './calling-bot.scenarios.seed';
 import { ensureCallingBotFlows } from './calling-bot.flows.service';

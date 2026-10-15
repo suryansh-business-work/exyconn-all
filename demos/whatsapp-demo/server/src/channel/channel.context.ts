@@ -1,8 +1,8 @@
 import { formatInTimeZone } from 'date-fns-tz';
 import type { DemoUser, EngineContext } from '@exyconn/wa-flow/engine';
-import { AppSettingsModel } from '../../admin/settings.model';
-import { readBundle } from '../../i18n';
-import { companyProfile } from '../../../lib/company';
+import { AppSettingsModel } from '../../../../../exyconn-portal/server/src/modules/admin/settings.model';
+import { readBundle } from '../../../../../exyconn-portal/server/src/modules/i18n';
+import { companyProfile } from '../../../../../exyconn-portal/server/src/lib/company';
 import { aiStatus } from '../whatsappDemo.parse';
 
 /**

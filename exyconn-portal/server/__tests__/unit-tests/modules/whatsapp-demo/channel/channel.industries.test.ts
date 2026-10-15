@@ -5,7 +5,7 @@ import {
   industryNamed,
   industryPicker,
   isSwitchWord,
-} from '../../../../../src/modules/whatsapp-demo/channel/channel.industries';
+} from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.industries';
 import { demoBundle, option } from './channel.fixtures';
 
 const t = (source: string) => `[${source}]`;

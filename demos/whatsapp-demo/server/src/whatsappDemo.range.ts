@@ -1,4 +1,4 @@
-import { badRequest } from '../../utils/errors';
+import { badRequest } from '../../../../exyconn-portal/server/src/utils/errors';
 import { zonedToEpoch } from './whatsappDemo.zone';
 
 /** The longest window one analytics request may span. */

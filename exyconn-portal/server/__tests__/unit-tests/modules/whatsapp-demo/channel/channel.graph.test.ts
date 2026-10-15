@@ -3,7 +3,7 @@ import {
   markRead,
   sendMessage,
   validSignature,
-} from '../../../../../src/modules/whatsapp-demo/channel/channel.graph';
+} from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.graph';
 import { postJson } from '../../../../../src/modules/social-accounts/social.http';
 
 jest.mock('../../../../../src/modules/social-accounts/social.http', () => ({

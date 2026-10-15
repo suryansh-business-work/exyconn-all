@@ -2,7 +2,7 @@ import type { RenderedOption } from '@exyconn/wa-flow';
 import {
   toPayloads,
   type RenderTools,
-} from '../../../../../src/modules/whatsapp-demo/channel/channel.render';
+} from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.render';
 import { option } from './channel.fixtures';
 
 const tools: RenderTools = {

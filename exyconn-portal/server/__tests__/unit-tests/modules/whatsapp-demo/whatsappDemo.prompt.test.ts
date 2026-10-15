@@ -5,7 +5,7 @@ import {
   userPrompt,
   type ParseEntity,
   type ParseIntent,
-} from '../../../../src/modules/whatsapp-demo/whatsappDemo.prompt';
+} from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.prompt';
 
 const KOLKATA = 'Asia/Kolkata';
 

@@ -3,9 +3,9 @@ import { toDemoProfile } from '@exyconn/wa-flow';
 import { SEED_DEMOS } from '@exyconn/wa-flow/seeds';
 import { UserModel } from '../../../../src/modules/admin/user.model';
 import { ROLES } from '../../../../src/constants/roles';
-import { WhatsappDemoModel } from '../../../../src/modules/whatsapp-demo/whatsappDemo.model';
+import { WhatsappDemoModel } from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.model';
 import type { GraphQLContext } from '../../../../src/middleware/auth';
-import type { WorkflowDraftInput } from '../../../../src/modules/whatsapp-demo/whatsappDemo.workflows';
+import type { WorkflowDraftInput } from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.workflows';
 
 /** Shared setup for the WhatsApp workflow suites: an admin, a demo and graphs that pass or fail. */
 

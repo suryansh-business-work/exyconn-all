@@ -1,8 +1,12 @@
-import { runForOrganization } from '../../../lib/tenant';
-import { platformOperatorOrganizationId } from '../../../lib/platformAccess';
-import { notFound } from '../../../utils/errors';
-import { tableQuery, tableStats, type TableQueryInput } from '../../../utils/tableQuery';
-import { withId, withIds } from '../../../utils/serialize';
+import { runForOrganization } from '../../../../../exyconn-portal/server/src/lib/tenant';
+import { platformOperatorOrganizationId } from '../../../../../exyconn-portal/server/src/lib/platformAccess';
+import { notFound } from '../../../../../exyconn-portal/server/src/utils/errors';
+import {
+  tableQuery,
+  tableStats,
+  type TableQueryInput,
+} from '../../../../../exyconn-portal/server/src/utils/tableQuery';
+import { withId, withIds } from '../../../../../exyconn-portal/server/src/utils/serialize';
 import { WhatsappDemoVisitorModel } from './visitor.model';
 import { readVisitorPass } from './visitor.token';
 

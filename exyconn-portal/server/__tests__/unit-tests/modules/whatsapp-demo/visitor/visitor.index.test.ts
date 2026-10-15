@@ -4,8 +4,8 @@ import {
   visitorForPass,
   whatsappDemoVisitorResolvers,
   whatsappDemoVisitorTypeDefs,
-} from '../../../../../src/modules/whatsapp-demo/visitor';
-import { WhatsappDemoVisitorModel } from '../../../../../src/modules/whatsapp-demo/visitor/visitor.model';
+} from '../../../../../../../demos/whatsapp-demo/server/src/visitor';
+import { WhatsappDemoVisitorModel } from '../../../../../../../demos/whatsapp-demo/server/src/visitor/visitor.model';
 import { emailer } from '../../../../../src/modules/email/email.service';
 import { ROLES, type Role } from '../../../../../src/constants/roles';
 import type { GraphQLContext } from '../../../../../src/middleware/auth';

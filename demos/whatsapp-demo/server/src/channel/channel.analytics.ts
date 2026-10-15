@@ -3,7 +3,7 @@ import type { EngineSignal } from '@exyconn/wa-flow';
 import { storeActorEvents, type EventActor, type StoredEvent } from '../whatsappDemo.events';
 import type { WhatsappEventType } from '../whatsappDemo.analytics.model';
 import { SESSION_IDLE_MS } from '../whatsappDemo.present';
-import { logger } from '../../../utils/logger';
+import { logger } from '../../../../../exyconn-portal/server/src/utils/logger';
 
 /**
  * Conversations on the real number feed the same Analytics and Sessions screens as the

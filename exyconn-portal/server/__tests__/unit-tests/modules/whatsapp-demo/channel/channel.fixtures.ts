@@ -1,6 +1,6 @@
 import type { OptionRef, RenderedOption } from '@exyconn/wa-flow';
 import type { DemoBundle } from '@exyconn/wa-flow/engine';
-import type { ChatRecord } from '../../../../../src/modules/whatsapp-demo/channel/channel.chats';
+import type { ChatRecord } from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.chats';
 
 /**
  * Just enough of a published industry for the channel's own code, which reads only the demo's

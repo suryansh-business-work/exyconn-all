@@ -24,7 +24,7 @@ src/seeds/<industry>/*.ts  ──(boot runOnce seed)──▶  Mongo: WhatsappDe
 whatsapp-demo app  ◀── published workflows (GraphQL) ──┤
    └─ engine.respond(bundle, state, event, ctx) → replies, pushes, analytics signals, ai request
                                                         │
-real WhatsApp number ◀── Meta Cloud API webhook ────────┘  (server: modules/whatsapp-demo/channel)
+real WhatsApp number ◀── Meta Cloud API webhook ────────┘  (server: demos/whatsapp-demo/server/src/channel)
    └─ the same engine on the server; replies sent as WhatsApp messages, state kept per chat
 ```
 

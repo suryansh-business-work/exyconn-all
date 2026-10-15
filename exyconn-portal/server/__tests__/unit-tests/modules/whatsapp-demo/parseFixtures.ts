@@ -1,8 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import { OpenAiConfigModel } from '../../../../src/modules/tech/openai-config.model';
 import type { CompletionResult } from '../../../../src/utils/openai';
-import type { ParseInput } from '../../../../src/modules/whatsapp-demo/whatsappDemo.parse';
-import { WhatsappDemoEventModel } from '../../../../src/modules/whatsapp-demo/whatsappDemo.analytics.model';
+import type { ParseInput } from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.parse';
+import { WhatsappDemoEventModel } from '../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.analytics.model';
 
 /** Shared setup for the AI parse suites. */
 

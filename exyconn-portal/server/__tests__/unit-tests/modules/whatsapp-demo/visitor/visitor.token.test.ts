@@ -2,7 +2,7 @@ import {
   VISITOR_HEADER,
   readVisitorPass,
   signVisitorPass,
-} from '../../../../../src/modules/whatsapp-demo/visitor/visitor.token';
+} from '../../../../../../../demos/whatsapp-demo/server/src/visitor/visitor.token';
 import { signPass } from '../../../../../src/lib/scopedPass';
 
 describe('visitor pass', () => {

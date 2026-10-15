@@ -1,14 +1,14 @@
 import type { AiRequest, BotContent, ChatState, EngineResult } from '@exyconn/wa-flow';
 import { respond, type EngineContext } from '@exyconn/wa-flow/engine';
-import { play } from '../../../../../src/modules/whatsapp-demo/channel/channel.play';
-import { parseAs } from '../../../../../src/modules/whatsapp-demo/whatsappDemo.parse';
+import { play } from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.play';
+import { parseAs } from '../../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.parse';
 import { demoBundle } from './channel.fixtures';
 
 jest.mock('@exyconn/wa-flow/engine', () => ({
   ...jest.requireActual('@exyconn/wa-flow/engine'),
   respond: jest.fn(),
 }));
-jest.mock('../../../../../src/modules/whatsapp-demo/whatsappDemo.parse', () => ({
+jest.mock('../../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.parse', () => ({
   parseAs: jest.fn(),
 }));
 

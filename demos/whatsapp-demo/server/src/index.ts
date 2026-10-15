@@ -1,16 +1,16 @@
-import { assertRole } from '../../middleware/roleGuard';
-import { ROLES } from '../../constants/roles';
+import { assertRole } from '../../../../exyconn-portal/server/src/middleware/roleGuard';
+import { ROLES } from '../../../../exyconn-portal/server/src/constants/roles';
 import * as demos from './whatsappDemo.service';
 import * as workflows from './whatsappDemo.workflows';
 import { recordEvents, type EventActor, type WhatsappDemoEventInput } from './whatsappDemo.events';
 import { aiStatus, parseAs, type ParseInput } from './whatsappDemo.parse';
 import { stats } from './whatsappDemo.stats';
 import { funnel, sessionDetail, sessions } from './whatsappDemo.sessions';
-import type { TableQueryInput } from '../../utils/tableQuery';
-import type { GraphQLContext } from '../../middleware/auth';
-import { runForOrganization } from '../../lib/tenant';
+import type { TableQueryInput } from '../../../../exyconn-portal/server/src/utils/tableQuery';
+import type { GraphQLContext } from '../../../../exyconn-portal/server/src/middleware/auth';
+import { runForOrganization } from '../../../../exyconn-portal/server/src/lib/tenant';
 import { channelOf } from '@exyconn/wa-flow';
-import { actorNameOf } from '../../lib/actor';
+import { actorNameOf } from '../../../../exyconn-portal/server/src/lib/actor';
 
 /**
  * The WhatsApp Business demo at demos.exyconn.com/whatsapp-demo.

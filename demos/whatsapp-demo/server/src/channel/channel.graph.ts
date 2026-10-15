@@ -1,5 +1,8 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import { getJson, postJson } from '../../social-accounts/social.http';
+import {
+  getJson,
+  postJson,
+} from '../../../../../exyconn-portal/server/src/modules/social-accounts/social.http';
 
 /**
  * The two things the server says to Meta's WhatsApp Cloud API: send a message, and mark the

@@ -132,7 +132,10 @@ import { healthTypeDefs, healthResolvers } from '../modules/health';
 import { socialTypeDefs, socialResolvers } from '../modules/social';
 import { approvalsTypeDefs, approvalsResolvers } from '../modules/approvals';
 import { logsTypeDefs, logsResolvers } from '../modules/logs';
-import { whatsappDemoTypeDefs, whatsappDemoResolvers } from '../modules/whatsapp-demo';
+import {
+  whatsappDemoTypeDefs,
+  whatsappDemoResolvers,
+} from '../../../../demos/whatsapp-demo/server/src';
 import { callingBotTypeDefs, callingBotResolvers } from '../modules/calling-bot-demo';
 import {
   emailVerificationTypeDefs,
@@ -141,11 +144,11 @@ import {
 import {
   whatsappChannelTypeDefs,
   whatsappChannelResolvers,
-} from '../modules/whatsapp-demo/channel';
+} from '../../../../demos/whatsapp-demo/server/src/channel';
 import {
   whatsappDemoVisitorTypeDefs,
   whatsappDemoVisitorResolvers,
-} from '../modules/whatsapp-demo/visitor';
+} from '../../../../demos/whatsapp-demo/server/src/visitor';
 import {
   clientHubTypeDefs,
   clientHubResolvers,

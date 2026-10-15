@@ -1,4 +1,4 @@
-import { readPass, signPass } from '../../../lib/scopedPass';
+import { readPass, signPass } from '../../../../../exyconn-portal/server/src/lib/scopedPass';
 
 /**
  * The demo visitor's pass, sent by the demo app as the `x-demo-visitor` header (see

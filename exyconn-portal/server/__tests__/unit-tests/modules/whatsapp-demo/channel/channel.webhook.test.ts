@@ -2,26 +2,31 @@ import { createHmac, randomUUID } from 'node:crypto';
 import express from 'express';
 import request from 'supertest';
 import { Types } from 'mongoose';
-import { whatsappWebhookRouter } from '../../../../../src/modules/whatsapp-demo/channel/channel.webhook';
-import { channelLookup } from '../../../../../src/modules/whatsapp-demo/channel/channel.lookup';
-import { claimMessage } from '../../../../../src/modules/whatsapp-demo/channel/channel.chats';
-import { converse } from '../../../../../src/modules/whatsapp-demo/channel/channel.conversation';
-import { markRead } from '../../../../../src/modules/whatsapp-demo/channel/channel.graph';
+import { whatsappWebhookRouter } from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.webhook';
+import { channelLookup } from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.lookup';
+import { claimMessage } from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.chats';
+import { converse } from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.conversation';
+import { markRead } from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.graph';
 import { currentOrganizationId } from '../../../../../src/lib/tenant';
 import { logger } from '../../../../../src/utils/logger';
 import { chatRecord } from './channel.fixtures';
 
-jest.mock('../../../../../src/modules/whatsapp-demo/channel/channel.lookup', () => ({
+jest.mock('../../../../../../../demos/whatsapp-demo/server/src/channel/channel.lookup', () => ({
   channelLookup: { forNumber: jest.fn(), knowsVerifyToken: jest.fn() },
 }));
-jest.mock('../../../../../src/modules/whatsapp-demo/channel/channel.chats', () => ({
+jest.mock('../../../../../../../demos/whatsapp-demo/server/src/channel/channel.chats', () => ({
   claimMessage: jest.fn(),
 }));
-jest.mock('../../../../../src/modules/whatsapp-demo/channel/channel.conversation', () => ({
-  converse: jest.fn(),
-}));
-jest.mock('../../../../../src/modules/whatsapp-demo/channel/channel.graph', () => ({
-  ...jest.requireActual('../../../../../src/modules/whatsapp-demo/channel/channel.graph'),
+jest.mock(
+  '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.conversation',
+  () => ({
+    converse: jest.fn(),
+  }),
+);
+jest.mock('../../../../../../../demos/whatsapp-demo/server/src/channel/channel.graph', () => ({
+  ...jest.requireActual(
+    '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.graph',
+  ),
   markRead: jest.fn(),
 }));
 

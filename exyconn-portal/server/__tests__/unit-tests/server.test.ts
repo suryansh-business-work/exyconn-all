@@ -63,8 +63,12 @@ jest.mock('../../src/modules/calling-bot-demo', () => ({
 }));
 jest.mock('../../src/modules/reminders', () => ({ startReminderSweep: jest.fn() }));
 jest.mock('../../src/modules/audit', () => ({ startAuditRetention: jest.fn() }));
-jest.mock('../../src/modules/whatsapp-demo', () => ({ ensureWhatsappDemoSeeds: jest.fn() }));
-jest.mock('../../src/modules/whatsapp-demo/channel', () => ({ startWhatsappReminders: jest.fn() }));
+jest.mock('../../../../demos/whatsapp-demo/server/src', () => ({
+  ensureWhatsappDemoSeeds: jest.fn(),
+}));
+jest.mock('../../../../demos/whatsapp-demo/server/src/channel', () => ({
+  startWhatsappReminders: jest.fn(),
+}));
 jest.mock('../../src/modules/website-chat', () => ({
   attachChatSocket: jest.fn(),
   startChatHandoff: jest.fn(),
@@ -100,7 +104,7 @@ const STARTERS: Array<[string, string]> = [
   ['../../src/modules/finance', 'startOverdueSweep'],
   ['../../src/modules/integrations', 'startWebhookDelivery'],
   ['../../src/modules/support', 'startInboundMail'],
-  ['../../src/modules/whatsapp-demo/channel', 'startWhatsappReminders'],
+  ['../../../../demos/whatsapp-demo/server/src/channel', 'startWhatsappReminders'],
   ['../../src/modules/website-chat', 'startChatHandoff'],
   ['../../src/modules/ai', 'startAiWorker'],
   ['../../src/modules/reminders', 'startReminderSweep'],

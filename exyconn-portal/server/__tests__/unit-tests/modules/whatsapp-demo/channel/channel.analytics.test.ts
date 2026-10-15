@@ -3,12 +3,12 @@ import {
   fromSignal,
   recordChatEvents,
   sessionFor,
-} from '../../../../../src/modules/whatsapp-demo/channel/channel.analytics';
-import { storeActorEvents } from '../../../../../src/modules/whatsapp-demo/whatsappDemo.events';
-import { SESSION_IDLE_MS } from '../../../../../src/modules/whatsapp-demo/whatsappDemo.present';
+} from '../../../../../../../demos/whatsapp-demo/server/src/channel/channel.analytics';
+import { storeActorEvents } from '../../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.events';
+import { SESSION_IDLE_MS } from '../../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.present';
 import { logger } from '../../../../../src/utils/logger';
 
-jest.mock('../../../../../src/modules/whatsapp-demo/whatsappDemo.events', () => ({
+jest.mock('../../../../../../../demos/whatsapp-demo/server/src/whatsappDemo.events', () => ({
   storeActorEvents: jest.fn().mockResolvedValue(1),
 }));
 

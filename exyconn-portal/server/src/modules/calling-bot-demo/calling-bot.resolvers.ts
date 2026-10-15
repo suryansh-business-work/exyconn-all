@@ -32,7 +32,7 @@ const techStaff = (ctx: GraphQLContext, action: PermissionAction) =>
 const RECENT_CALLS = 50;
 
 /**
- * Who may call the bot: a demo visitor (email-and-code sign-in, see whatsapp-demo/visitor) or
+ * Who may call the bot: a demo visitor (email-and-code sign-in, see demos/whatsapp-demo/server/src/visitor) or
  * any signed-in employee walking a client through it.
  */
 async function callerOf(ctx: GraphQLContext): Promise<Caller> {
