@@ -157,3 +157,15 @@ export async function fetchFxRates(
   const rates = fxRateSchema.array().safeParse(result.body.rates);
   return rates.success ? { ok: true, rates: rates.data } : failure("unavailable", UNAVAILABLE);
 }
+
+/** Every currency an estimate can be shown in, as 3-letter codes. */
+export async function fetchCurrencies(): Promise<ApiResult<{ currencies: string[] }>> {
+  const result = await call("/api/gcc/fx-currencies");
+  if (!result.ok) {
+    return result;
+  }
+  const codes = result.body.currencies;
+  const valid =
+    Array.isArray(codes) && codes.every((code) => typeof code === "string" && code.length === 3);
+  return valid ? { ok: true, currencies: codes as string[] } : failure("unavailable", UNAVAILABLE);
+}

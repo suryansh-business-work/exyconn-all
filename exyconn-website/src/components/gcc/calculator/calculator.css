@@ -423,6 +423,20 @@
   font-size: var(--font-size-md);
 }
 
+/* Currency picker: in step 1 and the summary card; the credit is ExchangeRate-API's condition. */
+.gcc-currency {
+  display: grid;
+  gap: var(--space-1);
+}
+.gcc-currency__credit {
+  justify-self: end;
+  color: var(--color-fg-muted);
+  font-size: var(--font-size-xs);
+}
+.gcc-summary .gcc-currency__credit {
+  color: var(--color-on-solid-muted);
+}
+
 /* Summary sidebar: a night card in both modes. */
 .gcc-summary {
   display: grid;

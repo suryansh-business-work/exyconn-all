@@ -77,6 +77,17 @@ export const UI = {
     preTax: "Pre-tax. Forecast total includes tax and contingency, excludes deposits.",
     empty: "Add roles or costs to see an estimate.",
   },
+  currency: {
+    label: "Show amounts in",
+    hint: "Live rate added automatically; change it under Assumptions.",
+    fetching: (code: string) => `Fetching the ${code} exchange rate…`,
+    fetched: (code: string, inr: string, day: string) => `1 ${code} = ${inr} INR (rate of ${day})`,
+    failed: (code: string, message: string) =>
+      `No live rate for ${code}: ${message} Add one under Assumptions.`,
+    full: "This estimate already holds the most exchange rates it can. Remove one under Assumptions first.",
+    noMatch: "No currency matches",
+    attribution: "Rates by Exchange Rate API",
+  },
   confirm: { cancel: "Cancel", confirm: "Confirm", remove: "Delete", reset: "Reset" },
   common: {
     add: "Add",

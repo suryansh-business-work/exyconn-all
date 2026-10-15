@@ -11,11 +11,12 @@ import { GET } from "../../../../src/pages/api/gcc/fx-rates";
 import { readJson, routeContext, VISITOR } from "../../pages/route-helpers";
 
 const fetchMock = vi.fn<typeof fetch>();
-const frankfurter = {
-  amount: 1,
-  base: "INR",
-  date: "2026-10-13",
-  rates: { GBP: 0.00909, USD: 0.012 },
+// 2026-10-13T00:02:31Z, as the source stamps its daily update.
+const table = {
+  result: "success",
+  base_code: "INR",
+  time_last_update_unix: 1_791_849_751,
+  rates: { INR: 1, GBP: 0.00909, USD: 0.012 },
 };
 
 const get = (query: string) =>
@@ -55,9 +56,9 @@ describe("the currencies a visitor may ask for", () => {
   });
 });
 
-describe("reading Frankfurter's answer", () => {
+describe("reading the rate table", () => {
   it("turns units per rupee into rupees per unit, to six decimals", () => {
-    expect(toFxRates(frankfurter, ["USD", "GBP"])).toEqual([
+    expect(toFxRates(table, ["USD", "GBP"])).toEqual([
       {
         currency: "USD",
         inrPerUnit: 83.333333,
@@ -76,29 +77,27 @@ describe("reading Frankfurter's answer", () => {
   });
 
   it("refuses an answer missing a currency or shaped wrongly", () => {
-    expect(() => toFxRates(frankfurter, ["JPY"])).toThrow("No reference rate for JPY");
-    expect(() => toFxRates({ date: "yesterday", rates: {} }, [])).toThrow();
-    expect(() => toFxRates({ date: "2026-10-13", rates: { USD: 0 } }, ["USD"])).toThrow();
+    expect(() => toFxRates(table, ["JPY"])).toThrow("No reference rate for JPY");
+    expect(() => toFxRates({ ...table, result: "error" }, [])).toThrow();
+    expect(() => toFxRates({ ...table, rates: { USD: 0 } }, ["USD"])).toThrow();
   });
 });
 
 describe("GET /api/gcc/fx-rates", () => {
-  it("answers the rates, and asks the source once an hour for the same currencies", async () => {
-    fetchMock.mockResolvedValue(new Response(JSON.stringify(frankfurter)));
+  it("answers the rates, and asks the source once an hour whatever the currencies", async () => {
+    fetchMock.mockResolvedValue(new Response(JSON.stringify(table)));
 
     const first = await readJson(await get("?currencies=USD,GBP"));
-    await get("?currencies=GBP,USD");
+    await get("?currencies=GBP");
 
     expect(first.status).toBe(200);
     expect(first.body.rates).toHaveLength(2);
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    expect(String(fetchMock.mock.calls[0][0])).toBe(
-      "https://api.frankfurter.app/latest?from=INR&to=GBP%2CUSD"
-    );
+    expect(String(fetchMock.mock.calls[0][0])).toBe("https://open.er-api.com/v6/latest/INR");
   });
 
   it("asks again once the cached rates are an hour old", async () => {
-    fetchMock.mockImplementation(async () => new Response(JSON.stringify(frankfurter)));
+    fetchMock.mockImplementation(async () => new Response(JSON.stringify(table)));
 
     await fetchFxRates(["USD"], 0);
     await fetchFxRates(["USD"], 60 * 60 * 1000);

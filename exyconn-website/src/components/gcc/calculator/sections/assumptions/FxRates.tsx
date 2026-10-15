@@ -10,6 +10,9 @@ import { LIMITS, type Estimate, type FxRate } from "@exyconn/gcc-cost";
 import { fetchFxRates } from "../../../../../lib/gcc/api";
 import { DateInput, NumberInput, SelectInput, SwitchInput, TextInput } from "../../fields";
 import { useCalculator } from "../../state/CalculatorContext";
+import { useCurrencyOptions } from "../../state/useCurrencyOptions";
+import { FX_ATTRIBUTION_URL } from "../../../../../lib/gcc/fx-attribution";
+import Link from "@mui/material/Link";
 import { A } from "../../strings/assumptions";
 import { UI } from "../../strings/ui";
 
@@ -39,7 +42,10 @@ export function FxRates() {
   const reporting = useWatch({ control, name: "reportingCurrency" });
   const [status, setStatus] = useState<Status>({ kind: "idle" });
   const foreign = preset.currencies.filter((code) => code !== "INR");
-  const options = foreign.map((code) => ({ value: code, label: code }));
+  const choices = useCurrencyOptions(fields.map((field) => field.currency));
+  const options = choices
+    .filter((choice) => choice.code !== "INR")
+    .map((choice) => ({ value: choice.code, label: choice.label }));
 
   const refresh = async () => {
     setStatus({ kind: "busy" });
@@ -67,7 +73,12 @@ export function FxRates() {
   return (
     <fieldset className="gcc-group">
       <legend className="gcc-group__title">{A.rates}</legend>
-      <p className="gcc-lines__note">{A.ratesNote}</p>
+      <p className="gcc-lines__note">
+        {A.ratesNote}{" "}
+        <Link href={FX_ATTRIBUTION_URL} target="_blank" rel="noopener noreferrer">
+          {UI.currency.attribution}
+        </Link>
+      </p>
       {fields.map((field, index) => (
         <div key={field.key} className="gcc-card">
           <div className="gcc-grid">

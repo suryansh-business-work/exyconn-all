@@ -20,8 +20,6 @@ export const F = {
     targetHint: "A planning target; costs come from the roles you add.",
     workingModel: "Working model",
     shiftPattern: "Shift pattern",
-    reportingCurrency: "Reporting currency",
-    reportingCurrencyHint: "Amounts are calculated in INR and shown in this currency.",
     forecastMonths: "Forecast duration",
     months: (value: number) => `${value} months`,
     rosterGap: (roles: number, target: number) =>

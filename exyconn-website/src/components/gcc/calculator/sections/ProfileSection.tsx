@@ -2,7 +2,7 @@ import Alert from "@mui/material/Alert";
 import Button from "@mui/material/Button";
 import { useFormContext, useWatch } from "react-hook-form";
 import { FORECAST_MONTHS, type Estimate } from "@exyconn/gcc-cost";
-import { DateInput, NumberInput, SelectInput, TextInput } from "../fields";
+import { CurrencyPicker, DateInput, NumberInput, SelectInput, TextInput } from "../fields";
 import { useCalculator } from "../state/CalculatorContext";
 import { F } from "../strings/fields";
 import {
@@ -19,7 +19,7 @@ const FORECAST_OPTIONS = FORECAST_MONTHS.map((value) => ({ value, label: P.month
 
 /** Step 1: the company, the centre's purpose and model, headcount targets and reporting basics. */
 export function ProfileSection() {
-  const { scenarioIndex, preset, goTo } = useCalculator();
+  const { scenarioIndex, goTo } = useCalculator();
   const s = `scenarios.${scenarioIndex}` as const;
   const { control } = useFormContext<Estimate>();
   const model = useWatch({ control, name: `${s}.profile.operatingModel` });
@@ -29,7 +29,6 @@ export function ProfileSection() {
   const target = useWatch({ control, name: `${s}.profile.targetHeadcountYear3` });
   const rosterSize = roles.reduce((total, role) => total + (role.headcount || 0), 0);
   const missingRate = currency !== "INR" && !rates.some((rate) => rate.currency === currency);
-  const currencies = preset.currencies.map((code) => ({ value: code, label: code }));
 
   return (
     <SectionShell id="profile">
@@ -70,12 +69,7 @@ export function ProfileSection() {
           label={P.shiftPattern}
           options={optionsOf(SHIFT_LABELS)}
         />
-        <SelectInput
-          name="reportingCurrency"
-          label={P.reportingCurrency}
-          hint={P.reportingCurrencyHint}
-          options={currencies}
-        />
+        <CurrencyPicker id="gcc-profile-currency" />
         <SelectInput
           name={`${s}.assumptions.forecastMonths`}
           label={P.forecastMonths}

@@ -18,6 +18,7 @@ const api = vi.hoisted(() => ({
   readSharedEstimate: vi.fn(),
   revokeShareLink: vi.fn(),
   fetchFxRates: vi.fn(),
+  fetchCurrencies: vi.fn().mockResolvedValue({ ok: false, reason: "unavailable", message: "" }),
 }));
 vi.mock("../../../../src/lib/gcc/api", () => api);
 vi.mock("../../../../src/components/forms/shared/postFormSubmission", () => ({

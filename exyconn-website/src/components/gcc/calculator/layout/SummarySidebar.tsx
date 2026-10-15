@@ -5,6 +5,7 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import Alert from "@mui/material/Alert";
 import { COST_SECTIONS, type ScenarioSummary } from "@exyconn/gcc-cost";
 import { BarList } from "../charts/BarList";
+import { CurrencyPicker } from "../fields";
 import { useCalculator, useMoney } from "../state/CalculatorContext";
 import { COST_SECTION_LABELS } from "../strings/results";
 import { UI } from "../strings/ui";
@@ -48,6 +49,7 @@ export function SummarySidebar() {
       <p className="gcc-summary__scenario">
         {UI.summary.scenario(result.scenario.name, summary.forecastMonths)}
       </p>
+      <CurrencyPicker id="gcc-summary-currency" credit />
       <div className="gcc-summary__total" aria-live="polite">
         <span>{UI.summary.forecast}</span>
         <strong>{money.format(summary.forecastTotal)}</strong>
