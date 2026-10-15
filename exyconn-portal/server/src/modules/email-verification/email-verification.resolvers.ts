@@ -95,6 +95,10 @@ export const emailVerificationResolvers = {
       await techStaff(ctx, 'EDIT');
       return withId(await emailVerifierConfigs.update(id, input));
     },
+    testEmailVerifierConfig: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
+      await techStaff(ctx, 'EDIT');
+      return emailVerifierConfigs.test(id);
+    },
     deleteEmailVerifierConfig: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
       await techStaff(ctx, 'DELETE');
       return emailVerifierConfigs.remove(id);

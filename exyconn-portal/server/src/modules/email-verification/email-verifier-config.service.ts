@@ -1,6 +1,7 @@
-import { notFound } from '../../utils/errors';
+import { badRequest, notFound } from '../../utils/errors';
 import { withoutBlankSecret } from '../tech/tech.service';
 import { EmailVerifierConfigModel } from './email-verifier-config.model';
+import { checkSocks5 } from './socks5.check';
 
 export interface EmailVerifierConfigInput {
   label: string;
@@ -36,6 +37,21 @@ export const emailVerifierConfigs = {
     ).lean();
     if (!doc) notFound('Email verifier config');
     return doc;
+  },
+
+  /** Connects to the config's proxy and signs in, without checking any address. */
+  async test(id: string) {
+    const config = await EmailVerifierConfigModel.findById(id).lean();
+    if (!config) notFound('Email verifier config');
+    if (!config.proxyHost) {
+      badRequest('This config has no proxy; checks run straight from the server.');
+    }
+    return checkSocks5({
+      host: config.proxyHost,
+      port: config.proxyPort,
+      username: config.proxyUsername,
+      password: config.proxyPassword,
+    });
   },
 
   async remove(id: string) {

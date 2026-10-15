@@ -88,3 +88,7 @@ mutation UpdateEmailVerifierConfig($id: ID!, $input: EmailVerifierConfigInput!) 
 mutation DeleteEmailVerifierConfig($id: ID!) {
   deleteEmailVerifierConfig(id: $id)
 }
+
+mutation TestEmailVerifierConfig($id: ID!) {
+  testEmailVerifierConfig(id: $id)
+}

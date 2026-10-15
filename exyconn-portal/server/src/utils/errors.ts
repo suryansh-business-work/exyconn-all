@@ -27,3 +27,16 @@ export class ConfigurationError extends Error {
 export function badRequest(message: string): never {
   throw new GraphQLError(message, { extensions: { code: 'BAD_USER_INPUT' } });
 }
+
+/**
+ * What went wrong, as the provider or the network said it: the error's message and, for a
+ * failed fetch ("fetch failed"), the cause underneath it (a DNS miss, a refused connection).
+ */
+export function reasonOf(error: unknown): string {
+  if (!(error instanceof Error)) {
+    return 'no reason was given';
+  }
+  const { cause } = error as { cause?: unknown };
+  const detail = cause instanceof Error ? cause.message : '';
+  return detail === '' ? error.message : `${error.message}: ${detail}`;
+}

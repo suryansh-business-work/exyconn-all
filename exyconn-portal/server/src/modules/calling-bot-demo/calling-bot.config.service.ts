@@ -5,7 +5,7 @@ import {
   type PhoneProvider,
   type PhoneSettings,
 } from '@exyconn/calling-bot-demo-server';
-import { badRequest, notFound } from '../../utils/errors';
+import { badRequest, notFound, reasonOf } from '../../utils/errors';
 import { openAiClient } from '../../utils/openai';
 import { requireSecret, withoutBlankSecret } from '../tech/tech.service';
 import { CallingBotConfigModel } from './calling-bot.models';
@@ -82,7 +82,8 @@ export async function checkSarvam(apiKey: string, voice: SarvamVoice): Promise<v
     badRequest('Sarvam AI refused the key. Create a new one at dashboard.sarvam.ai.');
   }
   if (!response.ok) {
-    badRequest(`Sarvam AI refused the language or voice (HTTP ${response.status}).`);
+    const detail = (await response.text()).slice(0, 300);
+    badRequest(`Sarvam AI refused the language or voice (HTTP ${response.status}): ${detail}`);
   }
 }
 
@@ -147,8 +148,8 @@ export const callingBotConfigs = {
     if (!config) notFound('Calling bot config');
     try {
       await openAiClient.verify({ apiKey: config.openAiApiKey, defaultModel: config.openAiModel });
-    } catch {
-      badRequest('OpenAI refused the key or cannot reach the model.');
+    } catch (error) {
+      badRequest(`OpenAI refused the key or cannot reach the model. ${reasonOf(error)}`);
     }
     await checkSarvam(config.sarvamApiKey, config);
     return true;
