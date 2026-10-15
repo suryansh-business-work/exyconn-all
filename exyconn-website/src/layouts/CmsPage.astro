@@ -85,7 +85,7 @@ const styles = [
   keywords={seo.keywords}
   metaImage={seo.metaImage}
   canonical={page.seo.canonical}
-  noindex={page.seo.noindex || page.preview || load.noindex === true}
+  noindex={page.seo.noindex || page.preview || load.noindex === true || load.seo?.noindex === true}
   ogType={load.ogType}
   jsonLd={seo.jsonLd}
   branding={branding}

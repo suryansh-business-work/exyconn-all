@@ -931,6 +931,8 @@ export type BlogPost = {
   isActive: Scalars['Boolean']['output'];
   publishedAt: Scalars['DateTime']['output'];
   readTime: Scalars['String']['output'];
+  /** Its own search and share meta; null on items saved before it existed. */
+  seo?: Maybe<ItemSeo>;
   /** The website it belongs to (Website > Websites). */
   siteId: Scalars['String']['output'];
   slug: Scalars['String']['output'];
@@ -949,6 +951,7 @@ export type BlogPostInput = {
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>;
   readTime?: InputMaybe<Scalars['String']['input']>;
+  seo?: InputMaybe<ItemSeoInput>;
   siteId?: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
   summary?: InputMaybe<Scalars['String']['input']>;
@@ -1595,6 +1598,8 @@ export type CaseStudy = {
   isActive: Scalars['Boolean']['output'];
   pdfUrl: Scalars['String']['output'];
   publishedAt: Scalars['DateTime']['output'];
+  /** Its own search and share meta; null on items saved before it existed. */
+  seo?: Maybe<ItemSeo>;
   /** The website it belongs to (Website > Websites). */
   siteId: Scalars['String']['output'];
   slug: Scalars['String']['output'];
@@ -1614,6 +1619,7 @@ export type CaseStudyInput = {
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   pdfUrl?: InputMaybe<Scalars['String']['input']>;
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  seo?: InputMaybe<ItemSeoInput>;
   siteId?: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -3913,6 +3919,8 @@ export type Gig = {
   isUrgent: Scalars['Boolean']['output'];
   postedDate: Scalars['DateTime']['output'];
   requirements: Array<Scalars['String']['output']>;
+  /** Its own search and share meta; null on items saved before it existed. */
+  seo?: Maybe<ItemSeo>;
   shortDescription: Scalars['String']['output'];
   /** The website it belongs to (Website > Websites). */
   siteId: Scalars['String']['output'];
@@ -3935,6 +3943,7 @@ export type GigInput = {
   isUrgent?: InputMaybe<Scalars['Boolean']['input']>;
   postedDate?: InputMaybe<Scalars['DateTime']['input']>;
   requirements?: InputMaybe<Array<Scalars['String']['input']>>;
+  seo?: InputMaybe<ItemSeoInput>;
   shortDescription?: InputMaybe<Scalars['String']['input']>;
   siteId?: InputMaybe<Scalars['String']['input']>;
   status: Scalars['String']['input'];
@@ -4216,6 +4225,8 @@ export type InboundMailConfig = {
   createdAt: Scalars['DateTime']['output'];
   /** Whether an imported message is removed from the mailbox rather than only marked seen. */
   deleteAfterImport: Scalars['Boolean']['output'];
+  /** Whether a mailbox password is stored; see revealTechSecret. */
+  hasPassword: Scalars['Boolean']['output'];
   host: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
@@ -5045,6 +5056,25 @@ export type ItVulnerabilityPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** An item's own search and share meta; a blank field keeps the page template's. */
+export type ItemSeo = {
+  __typename?: 'ItemSeo';
+  description: Scalars['String']['output'];
+  keywords: Scalars['String']['output'];
+  noindex: Scalars['Boolean']['output'];
+  /** The image shown when the page is shared (1200x630 works best). */
+  ogImageUrl: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
+export type ItemSeoInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  keywords?: InputMaybe<Scalars['String']['input']>;
+  noindex?: InputMaybe<Scalars['Boolean']['input']>;
+  ogImageUrl?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Job = {
   __typename?: 'Job';
   applicationDeadline?: Maybe<Scalars['DateTime']['output']>;
@@ -5065,6 +5095,8 @@ export type Job = {
   niceToHave: Array<Scalars['String']['output']>;
   requirements: Array<Scalars['String']['output']>;
   salaryRange: Scalars['String']['output'];
+  /** Its own search and share meta; null on items saved before it existed. */
+  seo?: Maybe<ItemSeo>;
   shortJobDescription: Scalars['String']['output'];
   /** The website it belongs to (Website > Websites). */
   siteId: Scalars['String']['output'];
@@ -5092,6 +5124,8 @@ export type JobCompany = {
   name: Scalars['String']['output'];
   order: Scalars['Int']['output'];
   secondaryColor: Scalars['String']['output'];
+  /** Its own search and share meta; null on items saved before it existed. */
+  seo?: Maybe<ItemSeo>;
   /** The website it belongs to (Website > Websites). */
   siteId: Scalars['String']['output'];
   slug: Scalars['String']['output'];
@@ -5116,6 +5150,7 @@ export type JobCompanyInput = {
   name: Scalars['String']['input'];
   order?: InputMaybe<Scalars['Int']['input']>;
   secondaryColor?: InputMaybe<Scalars['String']['input']>;
+  seo?: InputMaybe<ItemSeoInput>;
   siteId?: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
   socialLinks?: InputMaybe<CompanySocialLinksInput>;
@@ -5146,6 +5181,7 @@ export type JobInput = {
   niceToHave?: InputMaybe<Array<Scalars['String']['input']>>;
   requirements?: InputMaybe<Array<Scalars['String']['input']>>;
   salaryRange?: InputMaybe<Scalars['String']['input']>;
+  seo?: InputMaybe<ItemSeoInput>;
   shortJobDescription?: InputMaybe<Scalars['String']['input']>;
   siteId?: InputMaybe<Scalars['String']['input']>;
   skillSet?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -6163,6 +6199,10 @@ export type Mutation = {
   restoreCmsPageRevision: CmsPage;
   /** One stored key, in full, for the eye button on the Tech screen. Each reveal is audited. */
   revealCallingBotSecret: Scalars['String']['output'];
+  /** One saved credential of the config with this id, in full. Each reveal is audited. */
+  revealTechSecret: Scalars['String']['output'];
+  /** One stored credential, in full, for the eye button. Each reveal is audited. */
+  revealWhatsappChannelSecret: Scalars['String']['output'];
   /**
    * Approves or rejects an off-computer claim (TRACKER role). A decision is final — an
    * entry that has already been decided is refused rather than flipped, so hours somebody
@@ -8394,6 +8434,17 @@ export type MutationRevealCallingBotSecretArgs = {
 };
 
 
+export type MutationRevealTechSecretArgs = {
+  id: Scalars['ID']['input'];
+  secret: TechSecret;
+};
+
+
+export type MutationRevealWhatsappChannelSecretArgs = {
+  secret: WhatsappChannelSecret;
+};
+
+
 export type MutationReviewTrackerManualEntryArgs = {
   id: Scalars['ID']['input'];
   reviewNote?: InputMaybe<Scalars['String']['input']>;
@@ -9915,6 +9966,8 @@ export type NewsletterIssue = {
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   publishedAt: Scalars['DateTime']['output'];
+  /** Its own search and share meta; null on items saved before it existed. */
+  seo?: Maybe<ItemSeo>;
   siteId: Scalars['String']['output'];
   slug: Scalars['String']['output'];
   summary: Scalars['String']['output'];
@@ -9928,6 +9981,7 @@ export type NewsletterIssueInput = {
   coverImage?: InputMaybe<Scalars['String']['input']>;
   isActive: Scalars['Boolean']['input'];
   publishedAt?: InputMaybe<Scalars['String']['input']>;
+  seo?: InputMaybe<ItemSeoInput>;
   siteId: Scalars['String']['input'];
   slug: Scalars['String']['input'];
   summary?: InputMaybe<Scalars['String']['input']>;
@@ -15772,6 +15826,30 @@ export type TeamPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** A saved credential on Tech > Environment Variables that staff may reveal, one at a time. */
+export enum TechSecret {
+  CloudflareApiToken = 'CLOUDFLARE_API_TOKEN',
+  EmailPassword = 'EMAIL_PASSWORD',
+  EmailVerifierProxyPassword = 'EMAIL_VERIFIER_PROXY_PASSWORD',
+  GithubToken = 'GITHUB_TOKEN',
+  GodaddyApiKey = 'GODADDY_API_KEY',
+  GodaddyApiSecret = 'GODADDY_API_SECRET',
+  ImagekitPrivateKey = 'IMAGEKIT_PRIVATE_KEY',
+  InboundMailPassword = 'INBOUND_MAIL_PASSWORD',
+  OpenaiApiKey = 'OPENAI_API_KEY',
+  PayoneerApiToken = 'PAYONEER_API_TOKEN',
+  PaypalClientSecret = 'PAYPAL_CLIENT_SECRET',
+  PexelsApiKey = 'PEXELS_API_KEY',
+  RazorpayKeySecret = 'RAZORPAY_KEY_SECRET',
+  RazorpayWebhookSecret = 'RAZORPAY_WEBHOOK_SECRET',
+  SlackBotToken = 'SLACK_BOT_TOKEN',
+  SlackSigningSecret = 'SLACK_SIGNING_SECRET',
+  SocialAppClientSecret = 'SOCIAL_APP_CLIENT_SECRET',
+  SonarToken = 'SONAR_TOKEN',
+  StripeSecretKey = 'STRIPE_SECRET_KEY',
+  StripeWebhookSecret = 'STRIPE_WEBHOOK_SECRET'
+}
+
 /** How a ticket reached the desk. */
 export enum TicketChannel {
   /** Typed into the console by an agent, usually off a call. */
@@ -17189,6 +17267,12 @@ export type WhatsappChannelInput = {
   verifyToken: Scalars['String']['input'];
 };
 
+/** A stored credential of the number; the values are the field names. */
+export enum WhatsappChannelSecret {
+  AccessToken = 'accessToken',
+  AppSecret = 'appSecret'
+}
+
 export type WhatsappChannelSettings = {
   __typename?: 'WhatsappChannelSettings';
   channel?: Maybe<WhatsappChannel>;
@@ -18100,6 +18184,8 @@ export type ResolversTypes = ResolversObject<{
   ItVulnerability: ResolverTypeWrapper<ItVulnerability>;
   ItVulnerabilityInput: ItVulnerabilityInput;
   ItVulnerabilityPage: ResolverTypeWrapper<ItVulnerabilityPage>;
+  ItemSeo: ResolverTypeWrapper<ItemSeo>;
+  ItemSeoInput: ItemSeoInput;
   JSON: ResolverTypeWrapper<Scalars['JSON']['output']>;
   Job: ResolverTypeWrapper<Job>;
   JobCompany: ResolverTypeWrapper<JobCompany>;
@@ -18445,6 +18531,7 @@ export type ResolversTypes = ResolversObject<{
   Team: ResolverTypeWrapper<Team>;
   TeamInput: TeamInput;
   TeamPage: ResolverTypeWrapper<TeamPage>;
+  TechSecret: TechSecret;
   TicketChannel: TicketChannel;
   Tool: ResolverTypeWrapper<Tool>;
   ToolCategory: ResolverTypeWrapper<ToolCategory>;
@@ -18550,6 +18637,7 @@ export type ResolversTypes = ResolversObject<{
   WhatsappAiStatus: ResolverTypeWrapper<WhatsappAiStatus>;
   WhatsappChannel: ResolverTypeWrapper<WhatsappChannel>;
   WhatsappChannelInput: WhatsappChannelInput;
+  WhatsappChannelSecret: WhatsappChannelSecret;
   WhatsappChannelSettings: ResolverTypeWrapper<WhatsappChannelSettings>;
   WhatsappChannelTestInput: WhatsappChannelTestInput;
   WhatsappCount: ResolverTypeWrapper<WhatsappCount>;
@@ -18945,6 +19033,8 @@ export type ResolversParentTypes = ResolversObject<{
   ItVulnerability: ItVulnerability;
   ItVulnerabilityInput: ItVulnerabilityInput;
   ItVulnerabilityPage: ItVulnerabilityPage;
+  ItemSeo: ItemSeo;
+  ItemSeoInput: ItemSeoInput;
   JSON: Scalars['JSON']['output'];
   Job: Job;
   JobCompany: JobCompany;
@@ -19846,6 +19936,7 @@ export type BlogPostResolvers<ContextType = GraphQLContext, ParentType extends R
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   publishedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   readTime?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  seo?: Resolver<Maybe<ResolversTypes['ItemSeo']>, ParentType, ContextType>;
   siteId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -20185,6 +20276,7 @@ export type CaseStudyResolvers<ContextType = GraphQLContext, ParentType extends 
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   pdfUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   publishedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  seo?: Resolver<Maybe<ResolversTypes['ItemSeo']>, ParentType, ContextType>;
   siteId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   tags?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
@@ -21489,6 +21581,7 @@ export type GigResolvers<ContextType = GraphQLContext, ParentType extends Resolv
   isUrgent?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   postedDate?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   requirements?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  seo?: Resolver<Maybe<ResolversTypes['ItemSeo']>, ParentType, ContextType>;
   shortDescription?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   siteId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -21669,6 +21762,7 @@ export type ImageConfigResolvers<ContextType = GraphQLContext, ParentType extend
 export type InboundMailConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['InboundMailConfig'] = ResolversParentTypes['InboundMailConfig']> = ResolversObject<{
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   deleteAfterImport?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  hasPassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   host?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
@@ -22104,6 +22198,15 @@ export type ItVulnerabilityPageResolvers<ContextType = GraphQLContext, ParentTyp
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type ItemSeoResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ItemSeo'] = ResolversParentTypes['ItemSeo']> = ResolversObject<{
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  keywords?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  noindex?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  ogImageUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['JSON'], any> {
   name: 'JSON';
 }
@@ -22127,6 +22230,7 @@ export type JobResolvers<ContextType = GraphQLContext, ParentType extends Resolv
   niceToHave?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   requirements?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   salaryRange?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  seo?: Resolver<Maybe<ResolversTypes['ItemSeo']>, ParentType, ContextType>;
   shortJobDescription?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   siteId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   skillSet?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
@@ -22153,6 +22257,7 @@ export type JobCompanyResolvers<ContextType = GraphQLContext, ParentType extends
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   order?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   secondaryColor?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  seo?: Resolver<Maybe<ResolversTypes['ItemSeo']>, ParentType, ContextType>;
   siteId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   socialLinks?: Resolver<ResolversTypes['CompanySocialLinks'], ParentType, ContextType>;
@@ -22798,6 +22903,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   resetUserPassword?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationResetUserPasswordArgs, 'id'>>;
   restoreCmsPageRevision?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationRestoreCmsPageRevisionArgs, 'revisionId'>>;
   revealCallingBotSecret?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationRevealCallingBotSecretArgs, 'id' | 'secret'>>;
+  revealTechSecret?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationRevealTechSecretArgs, 'id' | 'secret'>>;
+  revealWhatsappChannelSecret?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationRevealWhatsappChannelSecretArgs, 'secret'>>;
   reviewTrackerManualEntry?: Resolver<ResolversTypes['TrackerManualEntry'], ParentType, ContextType, RequireFields<MutationReviewTrackerManualEntryArgs, 'id' | 'status'>>;
   revokeApiKey?: Resolver<ResolversTypes['ApiKey'], ParentType, ContextType, RequireFields<MutationRevokeApiKeyArgs, 'id'>>;
   revokeContractSignature?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRevokeContractSignatureArgs, 'id'>>;
@@ -23094,6 +23201,7 @@ export type NewsletterIssueResolvers<ContextType = GraphQLContext, ParentType ex
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   publishedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  seo?: Resolver<Maybe<ResolversTypes['ItemSeo']>, ParentType, ContextType>;
   siteId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   summary?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -26733,6 +26841,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ItTicketTrendPoint?: ItTicketTrendPointResolvers<ContextType>;
   ItVulnerability?: ItVulnerabilityResolvers<ContextType>;
   ItVulnerabilityPage?: ItVulnerabilityPageResolvers<ContextType>;
+  ItemSeo?: ItemSeoResolvers<ContextType>;
   JSON?: GraphQLScalarType;
   Job?: JobResolvers<ContextType>;
   JobCompany?: JobCompanyResolvers<ContextType>;

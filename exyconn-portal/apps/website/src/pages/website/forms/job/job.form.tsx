@@ -13,6 +13,7 @@ import {
 import { JobDetailsFields } from './job-details.fields';
 import { JobContentFields } from './job-content.fields';
 import type { JobRow } from './job.types';
+import { ItemSeoFields, itemSeoSchema, toItemSeoValues } from '../item-seo';
 
 const schema = z.object({
   jobCode: z.string().trim().min(1, 'Job code is required'),
@@ -35,6 +36,7 @@ const schema = z.object({
   applicationDeadline: z.string(),
   isActive: z.boolean(),
   isFeatured: z.boolean(),
+  seo: itemSeoSchema,
 });
 type Values = z.infer<typeof schema>;
 
@@ -59,6 +61,7 @@ const toInitial = (row: JobRow | null): Values => ({
   applicationDeadline: row?.applicationDeadline ?? '',
   isActive: row?.isActive ?? true,
   isFeatured: row?.isFeatured ?? false,
+  seo: toItemSeoValues(row?.seo),
 });
 
 /** The DateTime scalar rejects "" — an untouched picker must be sent as null. */
@@ -100,6 +103,7 @@ export function JobForm({ initial, onDone, onCancel }: Readonly<JobFormProps>) {
       <JobDetailsFields />
       <Divider />
       <JobContentFields />
+      <ItemSeoFields siteId={siteId} />
     </EntityForm>
   );
 }

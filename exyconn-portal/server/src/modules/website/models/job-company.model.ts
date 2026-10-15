@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { itemSeoField } from './item-seo.schema';
 
 const companyBenefitSchema = new Schema(
   {
@@ -43,6 +44,8 @@ const jobCompanySchema = new Schema(
     socialLinks: { type: socialLinksSchema, default: () => ({}) },
     brandColor: { type: String, default: '#0071e3', trim: true },
     secondaryColor: { type: String, default: '#00d4ff', trim: true },
+    /** Its own search and share meta; blank fields keep the page template's. */
+    seo: itemSeoField,
     isActive: { type: Boolean, default: true },
     order: { type: Number, default: 0 },
   },

@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { itemSeoField } from '../../website/models/item-seo.schema';
 
 /**
  * A newsletter issue published on a site (/newsletter, /newsletter/<slug>). The body is HTML,
@@ -13,6 +14,8 @@ const newsletterIssueSchema = new Schema(
     coverImage: { type: String, default: '', trim: true },
     content: { type: String, default: '' },
     contentCss: { type: String, default: '' },
+    /** Its own search and share meta; blank fields keep the page template's. */
+    seo: itemSeoField,
     isActive: { type: Boolean, required: true, default: true },
     publishedAt: { type: Date, required: true, default: Date.now },
   },

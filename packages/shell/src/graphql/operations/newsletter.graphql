@@ -10,6 +10,9 @@ fragment NewsletterIssueFields on NewsletterIssue {
   isActive
   publishedAt
   updatedAt
+  seo {
+    ...ItemSeoFields
+  }
 }
 
 query NewsletterIssues($siteId: ID!, $page: Int!, $pageSize: Int!, $search: String) {

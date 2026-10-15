@@ -35,6 +35,7 @@ export const issueLoader: PageLoader = async (input) => {
   };
   return {
     item: detail,
+    seo: issue.seo,
     ogType: "article",
     vars: { title: issue.title, summary: issue.summary, coverImage: issue.coverImage },
     jsonLd: [

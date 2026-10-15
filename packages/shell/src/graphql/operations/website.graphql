@@ -1,3 +1,11 @@
+fragment ItemSeoFields on ItemSeo {
+  title
+  description
+  keywords
+  ogImageUrl
+  noindex
+}
+
 fragment BlogPostFields on BlogPost {
   id
   siteId
@@ -17,6 +25,9 @@ fragment BlogPostFields on BlogPost {
   featured
   isActive
   publishedAt
+  seo {
+    ...ItemSeoFields
+  }
 }
 
 query ListBlogPosts {
@@ -89,6 +100,9 @@ fragment CaseStudyFields on CaseStudy {
   featured
   isActive
   publishedAt
+  seo {
+    ...ItemSeoFields
+  }
 }
 
 query ListCaseStudies {
@@ -175,6 +189,9 @@ fragment JobCompanyFields on JobCompany {
   secondaryColor
   isActive
   order
+  seo {
+    ...ItemSeoFields
+  }
 }
 
 query ListJobCompanies {
@@ -248,6 +265,9 @@ fragment JobFields on Job {
   applicationDeadline
   isActive
   isFeatured
+  seo {
+    ...ItemSeoFields
+  }
 }
 
 query ListJobs {
@@ -317,6 +337,9 @@ fragment GigFields on Gig {
   postedDate
   deadline
   isUrgent
+  seo {
+    ...ItemSeoFields
+  }
 }
 
 query ListGigs {

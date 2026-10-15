@@ -23,6 +23,8 @@ export const gigTypeDefs = gql`
     isUrgent: Boolean!
     createdAt: DateTime!
     updatedAt: DateTime!
+    "Its own search and share meta; null on items saved before it existed."
+    seo: ItemSeo
   }
 
   input GigInput {
@@ -43,6 +45,7 @@ export const gigTypeDefs = gql`
     postedDate: DateTime
     deadline: DateTime
     isUrgent: Boolean
+    seo: ItemSeoInput
   }
 
   type GigPage {

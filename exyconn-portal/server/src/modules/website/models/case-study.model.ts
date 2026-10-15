@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { itemSeoField } from './item-seo.schema';
 
 const caseStudySchema = new Schema(
   {
@@ -21,6 +22,8 @@ const caseStudySchema = new Schema(
     tags: { type: [String], default: [] },
     pdfUrl: { type: String, default: '', trim: true },
     featured: { type: Boolean, default: false },
+    /** Its own search and share meta; blank fields keep the page template's. */
+    seo: itemSeoField,
     isActive: { type: Boolean, default: true },
     publishedAt: { type: Date, required: true, default: Date.now },
   },

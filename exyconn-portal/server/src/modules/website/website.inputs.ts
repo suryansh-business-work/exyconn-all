@@ -1,3 +1,5 @@
+import type { ItemSeoInput } from './models/item-seo.schema';
+
 /** GraphQL input shapes for the website CMS entities, used to type the CRUD services. */
 
 export interface BlogAuthorInput {
@@ -19,6 +21,7 @@ export interface BlogPostInput {
   featured?: boolean;
   isActive?: boolean;
   publishedAt?: Date;
+  seo?: ItemSeoInput;
 }
 
 export interface CaseStudyInput {
@@ -35,6 +38,7 @@ export interface CaseStudyInput {
   featured?: boolean;
   isActive?: boolean;
   publishedAt?: Date;
+  seo?: ItemSeoInput;
 }
 
 export interface CompanyBenefitInput {
@@ -69,6 +73,7 @@ export interface JobCompanyInput {
   secondaryColor?: string;
   isActive?: boolean;
   order?: number;
+  seo?: ItemSeoInput;
 }
 
 export interface JobInput {
@@ -92,6 +97,7 @@ export interface JobInput {
   applicationDeadline?: Date;
   isActive?: boolean;
   isFeatured?: boolean;
+  seo?: ItemSeoInput;
 }
 
 export interface GigInput {
@@ -111,6 +117,7 @@ export interface GigInput {
   postedDate?: Date;
   deadline?: Date;
   isUrgent?: boolean;
+  seo?: ItemSeoInput;
 }
 
 export interface ToolCategoryInput {

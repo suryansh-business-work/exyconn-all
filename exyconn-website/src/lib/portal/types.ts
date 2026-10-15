@@ -31,6 +31,8 @@ export interface JobCompany {
   socialLinks: CompanySocialLinks;
   brandColor: string;
   secondaryColor: string;
+  /** Its own page meta (detail reads only); blank fields keep the template's. */
+  seo?: ItemSeo | null;
 }
 
 export interface Job {
@@ -54,6 +56,8 @@ export interface Job {
   jobPostDate: string;
   applicationDeadline: string | null;
   isFeatured: boolean;
+  /** Its own page meta (detail reads only); blank fields keep the template's. */
+  seo?: ItemSeo | null;
 }
 
 export interface Gig {
@@ -74,6 +78,8 @@ export interface Gig {
   postedDate: string;
   deadline: string | null;
   isUrgent: boolean;
+  /** Its own page meta (detail reads only); blank fields keep the template's. */
+  seo?: ItemSeo | null;
 }
 
 /** A group of tools in the public directory, e.g. "Developer tools". */
@@ -219,6 +225,8 @@ export interface BlogPost {
   featured: boolean;
   /** ISO 8601 timestamp. */
   publishedAt: string;
+  /** Its own page meta (detail reads only); blank fields keep the template's. */
+  seo?: ItemSeo | null;
 }
 
 /** A customer story, authored in the portal under Website > Case Studies. */
@@ -238,4 +246,15 @@ export interface CaseStudy {
   featured: boolean;
   /** ISO 8601 timestamp. */
   publishedAt: string;
+  /** Its own page meta (detail reads only); blank fields keep the template's. */
+  seo?: ItemSeo | null;
+}
+
+/** An item's own search and share meta, edited in the Website portal; blank keeps the template's. */
+export interface ItemSeo {
+  title: string;
+  description: string;
+  keywords: string;
+  ogImageUrl: string;
+  noindex: boolean;
 }

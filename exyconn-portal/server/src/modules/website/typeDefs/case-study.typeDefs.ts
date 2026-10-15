@@ -21,6 +21,8 @@ export const caseStudyTypeDefs = gql`
     publishedAt: DateTime!
     createdAt: DateTime!
     updatedAt: DateTime!
+    "Its own search and share meta; null on items saved before it existed."
+    seo: ItemSeo
   }
 
   input CaseStudyInput {
@@ -38,6 +40,7 @@ export const caseStudyTypeDefs = gql`
     featured: Boolean
     isActive: Boolean
     publishedAt: DateTime
+    seo: ItemSeoInput
   }
 
   type CaseStudyPage {

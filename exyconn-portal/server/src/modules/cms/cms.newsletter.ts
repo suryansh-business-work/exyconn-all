@@ -4,6 +4,7 @@ import { isEmailAddress } from '../../utils/emailAddress';
 import { withIds } from '../../utils/serialize';
 import { escapeRegex } from '../../utils/tableQuery';
 import { NewsletterIssueModel, NewsletterSubscriberModel } from './models';
+import type { ItemSeoInput } from '../website/models/item-seo.schema';
 
 export interface NewsletterIssueInput {
   siteId: string;
@@ -15,6 +16,7 @@ export interface NewsletterIssueInput {
   contentCss?: string | null;
   isActive: boolean;
   publishedAt?: string | null;
+  seo?: ItemSeoInput | null;
 }
 
 const SLUG = /^[a-z\d][a-z\d-]{0,118}[a-z\d]$/;
@@ -38,6 +40,7 @@ function issueFields(input: NewsletterIssueInput) {
     contentCss: input.contentCss ?? '',
     isActive: input.isActive,
     publishedAt: input.publishedAt ? new Date(input.publishedAt) : new Date(),
+    seo: input.seo ?? {},
   };
 }
 

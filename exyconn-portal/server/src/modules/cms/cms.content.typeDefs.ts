@@ -16,6 +16,8 @@ export const cmsContentTypeDefs = gql`
     publishedAt: DateTime!
     createdAt: DateTime!
     updatedAt: DateTime!
+    "Its own search and share meta; null on items saved before it existed."
+    seo: ItemSeo
   }
 
   type NewsletterIssuePage {
@@ -33,6 +35,7 @@ export const cmsContentTypeDefs = gql`
     contentCss: String
     isActive: Boolean!
     publishedAt: String
+    seo: ItemSeoInput
   }
 
   enum NewsletterSubscriberStatus {

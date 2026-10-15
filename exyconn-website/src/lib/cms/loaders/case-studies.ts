@@ -22,6 +22,7 @@ export const caseStudyLoader: PageLoader = async (input) => {
   const detail: CaseStudyDetail = { study, url };
   return {
     item: detail,
+    seo: study.seo,
     ogType: "article",
     vars: {
       title: study.title,
