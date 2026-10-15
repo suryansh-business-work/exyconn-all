@@ -14,6 +14,7 @@ import {
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
 import { TICKET_PRIORITIES, TICKET_TYPES, initialsOf } from '../ticket/ticket-meta';
 import { TicketFacetIcon } from '../ticket/TicketFacetIcon';
+import { openTicketInNewTab, wantsNewTab } from '../ticket/ticket-links';
 import type { TaskView } from './types';
 
 type Translate = ReturnType<typeof useT>;
@@ -49,6 +50,7 @@ interface TaskCardProps {
  * A draggable ticket card. It reads the way a board card has to: the handle, the summary,
  * then one line of the things you scan a board for — key, type, priority, points, assignee.
  * The card body opens the ticket; only the grip drags it, so a click never starts a drag.
+ * Ctrl/⌘-click or a middle click opens the ticket's own page in a new tab instead.
  */
 export function TaskCard({ task, onOpen }: Readonly<TaskCardProps>) {
   const t = useT();
@@ -89,7 +91,18 @@ export function TaskCard({ task, onOpen }: Readonly<TaskCardProps>) {
           role="button"
           tabIndex={0}
           aria-label={cardLabel(task, t)}
-          onClick={() => onOpen(task.id)}
+          onClick={(event) => {
+            if (wantsNewTab(event)) {
+              openTicketInNewTab(task.key);
+            } else {
+              onOpen(task.id);
+            }
+          }}
+          onAuxClick={(event) => {
+            if (event.button === 1) {
+              openTicketInNewTab(task.key);
+            }
+          }}
           onKeyDown={(event) => {
             if (event.key === 'Enter' || event.key === ' ') {
               event.preventDefault();

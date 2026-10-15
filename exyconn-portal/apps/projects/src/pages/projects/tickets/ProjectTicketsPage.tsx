@@ -4,7 +4,7 @@ import { Box, Flex, MenuItem, TextField } from '@exyconn/shell/components/ui';
 import { DataTable } from '@exyconn/shell/components/data/DataTable';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useProjectTasksQuery } from '@exyconn/shell/graphql/generated';
-import { TicketDialog, TICKET_TYPES } from '../ticket';
+import { TicketDialog, TICKET_TYPES, epicOptionsOf } from '../ticket';
 import type { TicketRow } from '../forms/ticket';
 import { ticketColumns } from './ticket-columns';
 
@@ -110,6 +110,7 @@ export function ProjectTicketsPage({ projectId }: Readonly<ProjectTicketsPagePro
 
       <TicketDialog
         ticket={openTicket}
+        epics={epicOptionsOf(rows, openId ?? '')}
         onClose={() => setOpenId(null)}
         onChanged={() => {
           refetch().catch(() => undefined);

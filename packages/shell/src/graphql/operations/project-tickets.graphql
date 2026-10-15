@@ -1,0 +1,45 @@
+query TaskByKey($key: String!) {
+  taskByKey(key: $key) {
+    ...TaskFields
+    projectId
+    visibility
+    publicUrl
+  }
+}
+
+query ProjectColumns($projectId: ID!) {
+  projectColumns(projectId: $projectId) {
+    id
+    name
+    isDone
+  }
+}
+
+query PublicTask($token: String!) {
+  publicTask(token: $token) {
+    key
+    title
+    description
+    type
+    priority
+    status
+    isDone
+    assigneeName
+    labels
+    dueDate
+    projectName
+    updatedAt
+  }
+}
+
+mutation SetTaskVisibility($id: ID!, $visibility: TaskVisibility!) {
+  setTaskVisibility(id: $id, visibility: $visibility) {
+    id
+    visibility
+    publicUrl
+  }
+}
+
+mutation ShareTask($id: ID!, $recipientIds: [ID!]!, $note: String) {
+  shareTask(id: $id, recipientIds: $recipientIds, note: $note)
+}

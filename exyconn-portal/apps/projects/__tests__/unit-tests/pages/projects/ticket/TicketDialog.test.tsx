@@ -53,7 +53,7 @@ const TICKET = taskRow();
 const PROMPT = 'Delete EXY-1 — "Login fails"?';
 
 function open(extra: Partial<Parameters<typeof TicketDialog>[0]> = {}) {
-  const props = { ticket: TICKET, onClose: vi.fn(), onChanged: vi.fn(), ...extra };
+  const props = { ticket: TICKET, epics: [], onClose: vi.fn(), onChanged: vi.fn(), ...extra };
   renderWithProviders(<TicketDialog {...props} />);
   return props;
 }
@@ -69,7 +69,9 @@ describe('TicketDialog', () => {
   });
 
   it('renders nothing without a ticket', () => {
-    renderWithProviders(<TicketDialog ticket={null} onClose={vi.fn()} onChanged={vi.fn()} />);
+    renderWithProviders(
+      <TicketDialog ticket={null} epics={[]} onClose={vi.fn()} onChanged={vi.fn()} />,
+    );
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });

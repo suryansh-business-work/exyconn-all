@@ -2359,6 +2359,11 @@ export type ProjectTimeline =
   | 'ON_TRACK'
   | 'OVERDUE';
 
+export type ProjectWorkflowInput = {
+  description: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+};
+
 export type PromptCategory =
   | 'ANALYSIS'
   | 'CODING'
@@ -2895,6 +2900,11 @@ export type TaskType =
   | 'EPIC'
   | 'STORY'
   | 'TASK';
+
+/** Who may read a ticket: people signed in to Projects, or anyone holding its public link. */
+export type TaskVisibility =
+  | 'PRIVATE'
+  | 'PUBLIC';
 
 export type TaxRegimeInput = {
   active: Scalars['Boolean']['input'];
@@ -3455,6 +3465,34 @@ export type WorkLocation =
   | 'HYBRID'
   | 'OFFICE'
   | 'OTHER';
+
+export type WorkflowEdgeInput = {
+  key: Scalars['String']['input'];
+  label: Scalars['String']['input'];
+  source: Scalars['String']['input'];
+  target: Scalars['String']['input'];
+};
+
+/** The whole drawing. Saved as one, and refused whole when it breaks a rule. */
+export type WorkflowGraphInput = {
+  edges: Array<WorkflowEdgeInput>;
+  nodes: Array<WorkflowNodeInput>;
+};
+
+export type WorkflowNodeInput = {
+  key: Scalars['String']['input'];
+  kind: WorkflowNodeKind;
+  label: Scalars['String']['input'];
+  x: Scalars['Float']['input'];
+  y: Scalars['Float']['input'];
+};
+
+/** The kinds of box a workflow is drawn from. */
+export type WorkflowNodeKind =
+  | 'DECISION'
+  | 'END'
+  | 'START'
+  | 'STEP';
 
 /** When an employee is expected to work. OTHER is described in workingTimeNote. */
 export type WorkingTime =

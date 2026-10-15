@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import {
   Box,
   Chip,
@@ -8,30 +7,28 @@ import {
   Divider,
   Flex,
   IconButton,
-  Tab,
-  Tabs,
   Text,
 } from '@exyconn/shell/components/ui';
 import CloseIcon from '@mui/icons-material/Close';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import { useT } from '@exyconn/i18n';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useListProjectMembersQuery, type TaskInput } from '@exyconn/shell/graphql/generated';
-import { TicketForm, type TicketRow } from '../forms/ticket';
+import { TicketForm, type TicketOption, type TicketRow } from '../forms/ticket';
 import { TICKET_PRIORITIES, TICKET_TYPES } from './ticket-meta';
 import { TicketFacetIcon } from './TicketFacetIcon';
-import { TicketComments } from './TicketComments';
-import { TicketActivity } from './TicketActivity';
+import { TicketTrail } from './TicketTrail';
+import { openTicketInNewTab } from './ticket-links';
 import { TicketColumnSelect, type TicketBoardColumn } from './TicketColumnSelect';
 import { TicketAttachments } from '../attachments';
 import { useTicket } from './useTicket';
 
-/** The two ways to read what has happened to a ticket. */
-type TicketTrail = 'comments' | 'history';
-
 interface TicketDialogProps {
   ticket: TicketRow | null;
+  /** The project's epics, for the form's Epic picker. */
+  epics: TicketOption[];
   onClose: () => void;
   /** Called after a save or a delete, so the board and the list reload. */
   onChanged: () => void;
@@ -47,10 +44,15 @@ interface TicketDialogProps {
  * editable ticket as a form, and the conversation underneath. Closing without saving changes
  * nothing — the form is the only writer of ticket fields.
  */
-export function TicketDialog({ ticket, onClose, onChanged, board }: Readonly<TicketDialogProps>) {
+export function TicketDialog({
+  ticket,
+  epics,
+  onClose,
+  onChanged,
+  board,
+}: Readonly<TicketDialogProps>) {
   const t = useT();
   const confirm = useConfirm();
-  const [trail, setTrail] = useState<TicketTrail>('comments');
   const { formatDateTime } = useSettings();
   const { data: memberData } = useListProjectMembersQuery();
   const { save, remove } = useTicket(onChanged);
@@ -93,6 +95,13 @@ export function TicketDialog({ ticket, onClose, onChanged, board }: Readonly<Tic
           <Text size="label">{ticket.key}</Text>
           <Chip size="small" label={t(TICKET_TYPES[ticket.type].label)} />
           <Box sx={{ flex: 1 }} />
+          <IconButton
+            size="small"
+            aria-label={t('Open {key} in a new page', { key: ticket.key })}
+            onClick={() => openTicketInNewTab(ticket.key)}
+          >
+            <OpenInNewIcon fontSize="small" />
+          </IconButton>
           <IconButton size="small" aria-label={t('Delete ticket')} onClick={destroy}>
             <DeleteOutlineIcon fontSize="small" />
           </IconButton>
@@ -116,7 +125,13 @@ export function TicketDialog({ ticket, onClose, onChanged, board }: Readonly<Tic
             onChange={(columnId) => board.onMove(ticket.id, columnId)}
           />
         ) : null}
-        <TicketForm initial={ticket} assignees={assignees} onSubmit={submit} onCancel={onClose} />
+        <TicketForm
+          initial={ticket}
+          assignees={assignees}
+          epics={epics}
+          onSubmit={submit}
+          onCancel={onClose}
+        />
         <Divider sx={{ my: 3 }} />
 
         <TicketAttachments
@@ -127,21 +142,7 @@ export function TicketDialog({ ticket, onClose, onChanged, board }: Readonly<Tic
         />
         <Divider sx={{ my: 3 }} />
 
-        <Tabs
-          value={trail}
-          onChange={(_event, next: TicketTrail) => setTrail(next)}
-          aria-label={t('Ticket conversation and history')}
-          sx={{ mb: 2 }}
-        >
-          <Tab value="comments" label={t('Comments')} />
-          <Tab value="history" label={t('History')} />
-        </Tabs>
-
-        {trail === 'comments' ? (
-          <TicketComments taskId={ticket.id} />
-        ) : (
-          <TicketActivity taskId={ticket.id} />
-        )}
+        <TicketTrail taskId={ticket.id} />
       </DialogContent>
     </Dialog>
   );

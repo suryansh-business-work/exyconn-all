@@ -1,7 +1,13 @@
 import { useT } from '@exyconn/i18n';
-import { Avatar, Chip, Flex, Text, fontSize, fontWeight } from '@exyconn/shell/components/ui';
+import { Avatar, Chip, Flex, Link, Text, fontSize, fontWeight } from '@exyconn/shell/components/ui';
 import type { Column } from '@exyconn/shell/components/data/DataTable';
-import { TICKET_PRIORITIES, TICKET_TYPES, TicketFacetIcon, initialsOf } from '../ticket';
+import {
+  TICKET_PRIORITIES,
+  TICKET_TYPES,
+  TicketFacetIcon,
+  initialsOf,
+  ticketPath,
+} from '../ticket';
 import type { TicketRow } from '../forms/ticket';
 
 /** The translator, so the module-scope column model can be given the page's own `t`. */
@@ -16,10 +22,18 @@ export function ticketColumns(
     {
       key: 'key',
       label: 'Key',
+      // A real link to the ticket's page: it opens in a new tab, and the click stops here so
+      // the row's own click (the quick-look dialog) does not open as well.
       render: (row) => (
-        <Text size="sm" sx={{ fontWeight: fontWeight.semibold, whiteSpace: 'nowrap' }}>
+        <Link
+          href={ticketPath(row.key)}
+          target="_blank"
+          rel="noopener"
+          onClick={(event) => event.stopPropagation()}
+          sx={{ fontWeight: fontWeight.semibold, whiteSpace: 'nowrap', fontSize: fontSize.sm }}
+        >
           {row.key}
-        </Text>
+        </Link>
       ),
     },
     {

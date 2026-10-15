@@ -1,0 +1,63 @@
+fragment ProjectWorkflowSummary on ProjectWorkflow {
+  id
+  name
+  description
+  createdByName
+  updatedByName
+  createdAt
+  updatedAt
+}
+
+fragment ProjectWorkflowGraph on ProjectWorkflow {
+  nodes {
+    key
+    kind
+    label
+    x
+    y
+  }
+  edges {
+    key
+    source
+    target
+    label
+  }
+}
+
+query ProjectWorkflows {
+  projectWorkflows {
+    ...ProjectWorkflowSummary
+  }
+}
+
+query ProjectWorkflow($id: ID!) {
+  projectWorkflow(id: $id) {
+    ...ProjectWorkflowSummary
+    ...ProjectWorkflowGraph
+  }
+}
+
+mutation CreateProjectWorkflow($input: ProjectWorkflowInput!) {
+  createProjectWorkflow(input: $input) {
+    id
+  }
+}
+
+mutation UpdateProjectWorkflow($id: ID!, $input: ProjectWorkflowInput!) {
+  updateProjectWorkflow(id: $id, input: $input) {
+    ...ProjectWorkflowSummary
+  }
+}
+
+mutation SaveProjectWorkflowGraph($id: ID!, $graph: WorkflowGraphInput!) {
+  saveProjectWorkflowGraph(id: $id, graph: $graph) {
+    id
+    updatedByName
+    updatedAt
+    ...ProjectWorkflowGraph
+  }
+}
+
+mutation DeleteProjectWorkflow($id: ID!) {
+  deleteProjectWorkflow(id: $id)
+}

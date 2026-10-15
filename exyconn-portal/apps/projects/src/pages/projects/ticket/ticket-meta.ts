@@ -66,3 +66,13 @@ export function initialsOf(name: string): string {
     .map((part) => part[0].toUpperCase())
     .join('');
 }
+
+/** The epics a ticket can be filed under: every EPIC in the project except the ticket itself. */
+export function epicOptionsOf(
+  tickets: ReadonlyArray<{ id: string; key: string; title: string; type: TaskType }>,
+  selfId: string,
+) {
+  return tickets
+    .filter((ticket) => ticket.type === TaskType.Epic && ticket.id !== selfId)
+    .map((ticket) => ({ value: ticket.id, label: `${ticket.key} · ${ticket.title}` }));
+}

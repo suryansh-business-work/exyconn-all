@@ -24,7 +24,13 @@ const onCancel = vi.fn();
 
 const renderForm = (initial: TicketRow | null = null) =>
   renderWithProviders(
-    <TicketForm initial={initial} assignees={ASSIGNEES} onSubmit={onSubmit} onCancel={onCancel} />,
+    <TicketForm
+      initial={initial}
+      assignees={ASSIGNEES}
+      epics={[]}
+      onSubmit={onSubmit}
+      onCancel={onCancel}
+    />,
   );
 
 describe('TicketForm', () => {

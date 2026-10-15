@@ -11,11 +11,17 @@ const VALUES = {
   labels: ['auth'],
   storyPoints: '',
   dueDate: '',
+  parentTaskId: '',
 };
 
 describe('toTaskInput', () => {
   it('sends unset points and an unset due date as nothing, not zero or blank', () => {
-    expect(toTaskInput(VALUES)).toEqual({ ...VALUES, storyPoints: null, dueDate: null });
+    expect(toTaskInput(VALUES)).toEqual({
+      ...VALUES,
+      storyPoints: null,
+      dueDate: null,
+      parentTaskId: null,
+    });
   });
 
   it('sends points as a number and a picked due date as it is', () => {

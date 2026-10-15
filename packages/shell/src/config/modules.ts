@@ -22,6 +22,7 @@ import SmartToyIcon from '@mui/icons-material/SmartToy';
 import HubIcon from '@mui/icons-material/Hub';
 import Inventory2Icon from '@mui/icons-material/Inventory2';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
+import SchemaIcon from '@mui/icons-material/Schema';
 import TerminalIcon from '@mui/icons-material/Terminal';
 import EventNoteIcon from '@mui/icons-material/EventNote';
 import HandshakeIcon from '@mui/icons-material/Handshake';
@@ -814,6 +815,13 @@ export const MODULES: ModuleDefinition[] = [
       { key: 'projects-overview', label: 'Overview', path: '/projects', icon: DashboardIcon },
       { key: 'projects-board', label: 'Projects', path: '/projects/list', icon: ViewKanbanIcon },
       { key: 'projects-bugs', label: 'Bugs', path: '/bugs', icon: BugReportIcon },
+      {
+        key: 'projects-workflows',
+        label: 'Workflows',
+        path: '/projects/workflows',
+        icon: SchemaIcon,
+        group: 'Tools',
+      },
     ],
   },
   {

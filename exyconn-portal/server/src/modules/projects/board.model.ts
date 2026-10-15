@@ -6,6 +6,9 @@ export const TASK_TYPES = ['TASK', 'STORY', 'BUG', 'EPIC'] as const;
 /** How urgent the ticket is, most urgent first. */
 export const TASK_PRIORITIES = ['HIGHEST', 'HIGH', 'MEDIUM', 'LOW', 'LOWEST'] as const;
 
+/** Who may read a ticket: people signed in to Projects, or anyone holding its public link. */
+export const TASK_VISIBILITIES = ['PRIVATE', 'PUBLIC'] as const;
+
 /**
  * One file hung off a ticket or a comment.
  *
@@ -77,6 +80,14 @@ const taskSchema = new Schema(
     parentTaskId: { type: String, default: null, index: true },
     attachments: { type: [taskAttachmentSchema], default: [] },
     order: { type: Number, required: true, default: 0 },
+    visibility: { type: String, enum: TASK_VISIBILITIES, required: true, default: 'PRIVATE' },
+    /**
+     * The token in a public ticket's link. Kept readable, unlike a project share's hash,
+     * because whoever made the ticket public must be able to copy its link again. Making
+     * the ticket private clears it, so an old link dies, and going public again issues a
+     * fresh one.
+     */
+    publicToken: { type: String, default: null, index: true },
   },
   { timestamps: true },
 );

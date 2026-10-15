@@ -5643,6 +5643,8 @@ export type Mutation = {
   createProduct: Product;
   createProject: Project;
   createProjectShare: ProjectShareCreated;
+  /** A new workflow opens with a Start joined to an End. */
+  createProjectWorkflow: ProjectWorkflow;
   createPrompt: Prompt;
   createPurchaseOrder: PurchaseOrder;
   createRazorpayConfig: RazorpayConfig;
@@ -5791,6 +5793,7 @@ export type Mutation = {
   deleteProblemReport: Scalars['Boolean']['output'];
   deleteProduct: Scalars['Boolean']['output'];
   deleteProject: Scalars['Boolean']['output'];
+  deleteProjectWorkflow: Scalars['Boolean']['output'];
   deletePrompt: Scalars['Boolean']['output'];
   deletePurchaseOrder: Scalars['Boolean']['output'];
   deleteRazorpayConfig: Scalars['Boolean']['output'];
@@ -5991,6 +5994,7 @@ export type Mutation = {
    * already exists, and guessing wrong would fail the save on a duplicate key.
    */
   saveEmployeeSalary: SalaryStructure;
+  saveProjectWorkflowGraph: ProjectWorkflow;
   saveSocialAppConfig: SocialAppConfig;
   saveTrackerBuildSettings: TrackerBuildSettings;
   saveWhatsappChannel: WhatsappChannel;
@@ -6086,6 +6090,8 @@ export type Mutation = {
   setTaskParent: Task;
   /** Puts a ticket in a sprint, or back in the backlog with a null sprint. */
   setTaskSprint: Task;
+  /** Making a ticket public issues a new link; making it private kills the old one. */
+  setTaskVisibility: Task;
   /** Corrects one translation by hand. ADMIN only, and marks the row HUMAN for good. */
   setTranslation: Translation;
   setUserActive: User;
@@ -6095,6 +6101,8 @@ export type Mutation = {
   setWhatsappDemoVisitorBlocked: WhatsappDemoVisitor;
   /** Shares a post onto the feed, optionally with something of your own to say. */
   shareSocialPost: SocialPost;
+  /** Notifies the people chosen. Returns how many were told. */
+  shareTask: Scalars['Int']['output'];
   /**
    * LEGAL: sign our own side. The signer is the account making the request, not a name typed
    * into a field, and the document's hash is recorded with it.
@@ -6328,6 +6336,7 @@ export type Mutation = {
   updateProduct: Product;
   updateProfile: User;
   updateProject: Project;
+  updateProjectWorkflow: ProjectWorkflow;
   updatePrompt: Prompt;
   updatePurchaseOrder: PurchaseOrder;
   updateRazorpayConfig: RazorpayConfig;
@@ -7033,6 +7042,11 @@ export type MutationCreateProjectShareArgs = {
 };
 
 
+export type MutationCreateProjectWorkflowArgs = {
+  input: ProjectWorkflowInput;
+};
+
+
 export type MutationCreatePromptArgs = {
   input: PromptInput;
 };
@@ -7696,6 +7710,11 @@ export type MutationDeleteProjectArgs = {
 };
 
 
+export type MutationDeleteProjectWorkflowArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeletePromptArgs = {
   id: Scalars['ID']['input'];
 };
@@ -8223,6 +8242,12 @@ export type MutationSaveEmployeeSalaryArgs = {
 };
 
 
+export type MutationSaveProjectWorkflowGraphArgs = {
+  graph: WorkflowGraphInput;
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationSaveSocialAppConfigArgs = {
   input: SocialAppConfigInput;
 };
@@ -8445,6 +8470,12 @@ export type MutationSetTaskSprintArgs = {
 };
 
 
+export type MutationSetTaskVisibilityArgs = {
+  id: Scalars['ID']['input'];
+  visibility: TaskVisibility;
+};
+
+
 export type MutationSetTranslationArgs = {
   locale: Scalars['String']['input'];
   source: Scalars['String']['input'];
@@ -8480,6 +8511,13 @@ export type MutationSetWhatsappDemoVisitorBlockedArgs = {
 export type MutationShareSocialPostArgs = {
   body?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationShareTaskArgs = {
+  id: Scalars['ID']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
+  recipientIds: Array<Scalars['ID']['input']>;
 };
 
 
@@ -9287,6 +9325,12 @@ export type MutationUpdateProfileArgs = {
 export type MutationUpdateProjectArgs = {
   id: Scalars['ID']['input'];
   input: ProjectInput;
+};
+
+
+export type MutationUpdateProjectWorkflowArgs = {
+  id: Scalars['ID']['input'];
+  input: ProjectWorkflowInput;
 };
 
 
@@ -10862,6 +10906,25 @@ export enum ProjectTimeline {
   Overdue = 'OVERDUE'
 }
 
+/** A custom workflow drawn in Tools > Workflows. */
+export type ProjectWorkflow = {
+  __typename?: 'ProjectWorkflow';
+  createdAt: Scalars['DateTime']['output'];
+  createdByName: Scalars['String']['output'];
+  description: Scalars['String']['output'];
+  edges: Array<WorkflowEdge>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  nodes: Array<WorkflowNode>;
+  updatedAt: Scalars['DateTime']['output'];
+  updatedByName: Scalars['String']['output'];
+};
+
+export type ProjectWorkflowInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+};
+
 export type Prompt = {
   __typename?: 'Prompt';
   category: PromptCategory;
@@ -10915,6 +10978,25 @@ export type PublicPolicy = {
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
   version: Scalars['Int']['output'];
+};
+
+/** What a public ticket link shows. No comments, history, attachments or ids. */
+export type PublicTaskView = {
+  __typename?: 'PublicTaskView';
+  assigneeName: Scalars['String']['output'];
+  /** Rich text (HTML). */
+  description: Scalars['String']['output'];
+  dueDate?: Maybe<Scalars['DateTime']['output']>;
+  isDone: Scalars['Boolean']['output'];
+  key: Scalars['String']['output'];
+  labels: Array<Scalars['String']['output']>;
+  priority: TaskPriority;
+  projectName: Scalars['String']['output'];
+  /** The name of the board column the ticket sits in. */
+  status: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  type: TaskType;
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type PurchaseOrder = {
@@ -11678,6 +11760,8 @@ export type Query = {
   /** Public: a reporter checks on their own report by its reference. Rate-limited by address. */
   problemReportStatus: ProblemReportStatus;
   projectBoard: ProjectBoard;
+  /** A project's board columns, without its tickets. */
+  projectColumns: Array<BoardColumn>;
   /** Every page in a project's space, flat. The sidebar builds the tree from parentId. */
   projectDocPages: Array<DocPage>;
   /** One project measured against what it said it would do. */
@@ -11704,6 +11788,9 @@ export type Query = {
    * to the project without a ticket.
    */
   projectTimeLogSessions: Array<ProjectTimeLogSession>;
+  projectWorkflow: ProjectWorkflow;
+  /** Every workflow, most recently changed first. Nodes and edges are empty in this list. */
+  projectWorkflows: Array<ProjectWorkflow>;
   publicBlogPost?: Maybe<BlogPost>;
   publicBlogPosts: Array<BlogPost>;
   publicBranding: Branding;
@@ -11725,6 +11812,8 @@ export type Query = {
   publicNewsletterIssues: Array<NewsletterIssue>;
   publicPolicies: Array<PublicPolicy>;
   publicPolicy?: Maybe<PublicPolicy>;
+  /** Public. Null when the token is unknown or the ticket is private again. */
+  publicTask?: Maybe<PublicTaskView>;
   publicTool?: Maybe<Tool>;
   publicToolCategories: Array<ToolCategory>;
   publicTools: Array<Tool>;
@@ -11793,6 +11882,8 @@ export type Query = {
   systemHealth: SystemHealth;
   /** The ticket's history, newest first. */
   taskActivity: Array<TaskActivity>;
+  /** One ticket by its key, e.g. EXY-14. Null when no ticket has that key. */
+  taskByKey?: Maybe<Task>;
   taskComments: Array<TaskComment>;
   /** The regimes on file, one per key, for anyone who sets salaries (HR and Finance). */
   taxRegimeChoices: Array<TaxRegimeChoice>;
@@ -13173,6 +13264,11 @@ export type QueryProjectBoardArgs = {
 };
 
 
+export type QueryProjectColumnsArgs = {
+  projectId: Scalars['ID']['input'];
+};
+
+
 export type QueryProjectDocPagesArgs = {
   projectId: Scalars['ID']['input'];
 };
@@ -13222,6 +13318,11 @@ export type QueryProjectTimeLogSessionsArgs = {
   taskId?: InputMaybe<Scalars['ID']['input']>;
   to: Scalars['DateTime']['input'];
   userId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QueryProjectWorkflowArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -13316,6 +13417,11 @@ export type QueryPublicNewsletterIssuesArgs = {
 
 export type QueryPublicPolicyArgs = {
   slug: Scalars['String']['input'];
+};
+
+
+export type QueryPublicTaskArgs = {
+  token: Scalars['String']['input'];
 };
 
 
@@ -13442,6 +13548,11 @@ export type QueryStatusOverviewArgs = {
 
 export type QueryTaskActivityArgs = {
   taskId: Scalars['ID']['input'];
+};
+
+
+export type QueryTaskByKeyArgs = {
+  key: Scalars['String']['input'];
 };
 
 
@@ -15098,6 +15209,9 @@ export type Task = {
   /** The EPIC this ticket is filed under. Null for a ticket that stands on its own. */
   parentTaskId?: Maybe<Scalars['ID']['output']>;
   priority: TaskPriority;
+  projectId: Scalars['ID']['output'];
+  /** The read-only link anyone can open. Null while the ticket is private. */
+  publicUrl?: Maybe<Scalars['String']['output']>;
   reporterName: Scalars['String']['output'];
   /** The sprint the ticket is committed to. Null means it is still in the backlog. */
   sprintId?: Maybe<Scalars['ID']['output']>;
@@ -15106,6 +15220,7 @@ export type Task = {
   title: Scalars['String']['output'];
   type: TaskType;
   updatedAt: Scalars['DateTime']['output'];
+  visibility: TaskVisibility;
 };
 
 /** One recorded change to a ticket: who changed what, from what, to what. */
@@ -15178,6 +15293,12 @@ export enum TaskType {
   Epic = 'EPIC',
   Story = 'STORY',
   Task = 'TASK'
+}
+
+/** Who may read a ticket: people signed in to Projects, or anyone holding its public link. */
+export enum TaskVisibility {
+  Private = 'PRIVATE',
+  Public = 'PUBLIC'
 }
 
 /**
@@ -17067,6 +17188,54 @@ export enum WorkLocation {
   Hybrid = 'HYBRID',
   Office = 'OFFICE',
   Other = 'OTHER'
+}
+
+/** One arrow between two boxes, by their keys. */
+export type WorkflowEdge = {
+  __typename?: 'WorkflowEdge';
+  key: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+  source: Scalars['String']['output'];
+  target: Scalars['String']['output'];
+};
+
+export type WorkflowEdgeInput = {
+  key: Scalars['String']['input'];
+  label: Scalars['String']['input'];
+  source: Scalars['String']['input'];
+  target: Scalars['String']['input'];
+};
+
+/** The whole drawing. Saved as one, and refused whole when it breaks a rule. */
+export type WorkflowGraphInput = {
+  edges: Array<WorkflowEdgeInput>;
+  nodes: Array<WorkflowNodeInput>;
+};
+
+/** One box on a workflow canvas. The key is the editor's own id for it. */
+export type WorkflowNode = {
+  __typename?: 'WorkflowNode';
+  key: Scalars['String']['output'];
+  kind: WorkflowNodeKind;
+  label: Scalars['String']['output'];
+  x: Scalars['Float']['output'];
+  y: Scalars['Float']['output'];
+};
+
+export type WorkflowNodeInput = {
+  key: Scalars['String']['input'];
+  kind: WorkflowNodeKind;
+  label: Scalars['String']['input'];
+  x: Scalars['Float']['input'];
+  y: Scalars['Float']['input'];
+};
+
+/** The kinds of box a workflow is drawn from. */
+export enum WorkflowNodeKind {
+  Decision = 'DECISION',
+  End = 'END',
+  Start = 'START',
+  Step = 'STEP'
 }
 
 /** When an employee is expected to work. OTHER is described in workingTimeNote. */
@@ -22339,6 +22508,90 @@ export type SharedProjectQueryVariables = Exact<{
 
 export type SharedProjectQuery = { __typename?: 'Query', sharedProject?: { __typename?: 'SharedProjectView', name: string, clientName: string, status: ProjectStatus, startDate?: string | null, endDate?: string | null, budgetHours?: number | null, trackedHours: number, milestones: Array<{ __typename?: 'SharedMilestone', name: string, dueOn?: string | null, state: MilestoneState }>, ticketCounts: Array<{ __typename?: 'SharedTicketCount', status: string, count: number }> } | null };
 
+export type TaskByKeyQueryVariables = Exact<{
+  key: Scalars['String']['input'];
+}>;
+
+
+export type TaskByKeyQuery = { __typename?: 'Query', taskByKey?: { __typename?: 'Task', projectId: string, visibility: TaskVisibility, publicUrl?: string | null, id: string, columnId: string, key: string, title: string, description?: string | null, type: TaskType, priority: TaskPriority, assigneeId: string, assigneeName: string, reporterName: string, labels: Array<string>, storyPoints?: number | null, dueDate?: string | null, sprintId?: string | null, milestoneId?: string | null, parentTaskId?: string | null, order: number, createdAt: string, updatedAt: string, attachments: Array<{ __typename?: 'TaskAttachment', url: string, name: string, contentType: string, uploadedByName: string, uploadedAt: string }> } | null };
+
+export type ProjectColumnsQueryVariables = Exact<{
+  projectId: Scalars['ID']['input'];
+}>;
+
+
+export type ProjectColumnsQuery = { __typename?: 'Query', projectColumns: Array<{ __typename?: 'BoardColumn', id: string, name: string, isDone: boolean }> };
+
+export type PublicTaskQueryVariables = Exact<{
+  token: Scalars['String']['input'];
+}>;
+
+
+export type PublicTaskQuery = { __typename?: 'Query', publicTask?: { __typename?: 'PublicTaskView', key: string, title: string, description: string, type: TaskType, priority: TaskPriority, status: string, isDone: boolean, assigneeName: string, labels: Array<string>, dueDate?: string | null, projectName: string, updatedAt: string } | null };
+
+export type SetTaskVisibilityMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  visibility: TaskVisibility;
+}>;
+
+
+export type SetTaskVisibilityMutation = { __typename?: 'Mutation', setTaskVisibility: { __typename?: 'Task', id: string, visibility: TaskVisibility, publicUrl?: string | null } };
+
+export type ShareTaskMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  recipientIds: Array<Scalars['ID']['input']> | Scalars['ID']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+export type ShareTaskMutation = { __typename?: 'Mutation', shareTask: number };
+
+export type ProjectWorkflowSummaryFragment = { __typename?: 'ProjectWorkflow', id: string, name: string, description: string, createdByName: string, updatedByName: string, createdAt: string, updatedAt: string };
+
+export type ProjectWorkflowGraphFragment = { __typename?: 'ProjectWorkflow', nodes: Array<{ __typename?: 'WorkflowNode', key: string, kind: WorkflowNodeKind, label: string, x: number, y: number }>, edges: Array<{ __typename?: 'WorkflowEdge', key: string, source: string, target: string, label: string }> };
+
+export type ProjectWorkflowsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type ProjectWorkflowsQuery = { __typename?: 'Query', projectWorkflows: Array<{ __typename?: 'ProjectWorkflow', id: string, name: string, description: string, createdByName: string, updatedByName: string, createdAt: string, updatedAt: string }> };
+
+export type ProjectWorkflowQueryVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type ProjectWorkflowQuery = { __typename?: 'Query', projectWorkflow: { __typename?: 'ProjectWorkflow', id: string, name: string, description: string, createdByName: string, updatedByName: string, createdAt: string, updatedAt: string, nodes: Array<{ __typename?: 'WorkflowNode', key: string, kind: WorkflowNodeKind, label: string, x: number, y: number }>, edges: Array<{ __typename?: 'WorkflowEdge', key: string, source: string, target: string, label: string }> } };
+
+export type CreateProjectWorkflowMutationVariables = Exact<{
+  input: ProjectWorkflowInput;
+}>;
+
+
+export type CreateProjectWorkflowMutation = { __typename?: 'Mutation', createProjectWorkflow: { __typename?: 'ProjectWorkflow', id: string } };
+
+export type UpdateProjectWorkflowMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: ProjectWorkflowInput;
+}>;
+
+
+export type UpdateProjectWorkflowMutation = { __typename?: 'Mutation', updateProjectWorkflow: { __typename?: 'ProjectWorkflow', id: string, name: string, description: string, createdByName: string, updatedByName: string, createdAt: string, updatedAt: string } };
+
+export type SaveProjectWorkflowGraphMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  graph: WorkflowGraphInput;
+}>;
+
+
+export type SaveProjectWorkflowGraphMutation = { __typename?: 'Mutation', saveProjectWorkflowGraph: { __typename?: 'ProjectWorkflow', id: string, updatedByName: string, updatedAt: string, nodes: Array<{ __typename?: 'WorkflowNode', key: string, kind: WorkflowNodeKind, label: string, x: number, y: number }>, edges: Array<{ __typename?: 'WorkflowEdge', key: string, source: string, target: string, label: string }> } };
+
+export type DeleteProjectWorkflowMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteProjectWorkflowMutation = { __typename?: 'Mutation', deleteProjectWorkflow: boolean };
+
 export type ProjectFieldsFragment = { __typename?: 'Project', id: string, name: string, key: string, description?: string | null, status: ProjectStatus, startDate?: string | null, endDate?: string | null, clientId?: string | null, clientName: string, budgetAmount?: number | null, budgetHours?: number | null };
 
 export type ListProjectsQueryVariables = Exact<{ [key: string]: never; }>;
@@ -26052,6 +26305,34 @@ export const ProjectShareFieldsFragmentDoc = gql`
   revokedAt
   isLive
   createdAt
+}
+    `;
+export const ProjectWorkflowSummaryFragmentDoc = gql`
+    fragment ProjectWorkflowSummary on ProjectWorkflow {
+  id
+  name
+  description
+  createdByName
+  updatedByName
+  createdAt
+  updatedAt
+}
+    `;
+export const ProjectWorkflowGraphFragmentDoc = gql`
+    fragment ProjectWorkflowGraph on ProjectWorkflow {
+  nodes {
+    key
+    kind
+    label
+    x
+    y
+  }
+  edges {
+    key
+    source
+    target
+    label
+  }
 }
     `;
 export const ProjectFieldsFragmentDoc = gql`
@@ -56421,6 +56702,430 @@ export function useSharedProjectSuspenseQuery(baseOptions?: ApolloReactHooks.Ski
 export type SharedProjectQueryHookResult = ReturnType<typeof useSharedProjectQuery>;
 export type SharedProjectLazyQueryHookResult = ReturnType<typeof useSharedProjectLazyQuery>;
 export type SharedProjectSuspenseQueryHookResult = ReturnType<typeof useSharedProjectSuspenseQuery>;
+export const TaskByKeyDocument = gql`
+    query TaskByKey($key: String!) {
+  taskByKey(key: $key) {
+    ...TaskFields
+    projectId
+    visibility
+    publicUrl
+  }
+}
+    ${TaskFieldsFragmentDoc}
+${TaskAttachmentFieldsFragmentDoc}`;
+
+/**
+ * __useTaskByKeyQuery__
+ *
+ * To run a query within a React component, call `useTaskByKeyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTaskByKeyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTaskByKeyQuery({
+ *   variables: {
+ *      key: // value for 'key'
+ *   },
+ * });
+ */
+export function useTaskByKeyQuery(baseOptions: ApolloReactHooks.QueryHookOptions<TaskByKeyQuery, TaskByKeyQueryVariables> & ({ variables: TaskByKeyQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<TaskByKeyQuery, TaskByKeyQueryVariables>(TaskByKeyDocument, options);
+      }
+export function useTaskByKeyLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<TaskByKeyQuery, TaskByKeyQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<TaskByKeyQuery, TaskByKeyQueryVariables>(TaskByKeyDocument, options);
+        }
+// @ts-ignore
+export function useTaskByKeySuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<TaskByKeyQuery, TaskByKeyQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TaskByKeyQuery, TaskByKeyQueryVariables>;
+// @ts-ignore
+export function useTaskByKeySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TaskByKeyQuery, TaskByKeyQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TaskByKeyQuery | undefined, TaskByKeyQueryVariables>;
+export function useTaskByKeySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TaskByKeyQuery, TaskByKeyQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<TaskByKeyQuery, TaskByKeyQueryVariables>(TaskByKeyDocument, options);
+        }
+export type TaskByKeyQueryHookResult = ReturnType<typeof useTaskByKeyQuery>;
+export type TaskByKeyLazyQueryHookResult = ReturnType<typeof useTaskByKeyLazyQuery>;
+export type TaskByKeySuspenseQueryHookResult = ReturnType<typeof useTaskByKeySuspenseQuery>;
+export const ProjectColumnsDocument = gql`
+    query ProjectColumns($projectId: ID!) {
+  projectColumns(projectId: $projectId) {
+    id
+    name
+    isDone
+  }
+}
+    `;
+
+/**
+ * __useProjectColumnsQuery__
+ *
+ * To run a query within a React component, call `useProjectColumnsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProjectColumnsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProjectColumnsQuery({
+ *   variables: {
+ *      projectId: // value for 'projectId'
+ *   },
+ * });
+ */
+export function useProjectColumnsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ProjectColumnsQuery, ProjectColumnsQueryVariables> & ({ variables: ProjectColumnsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ProjectColumnsQuery, ProjectColumnsQueryVariables>(ProjectColumnsDocument, options);
+      }
+export function useProjectColumnsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ProjectColumnsQuery, ProjectColumnsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ProjectColumnsQuery, ProjectColumnsQueryVariables>(ProjectColumnsDocument, options);
+        }
+// @ts-ignore
+export function useProjectColumnsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ProjectColumnsQuery, ProjectColumnsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ProjectColumnsQuery, ProjectColumnsQueryVariables>;
+// @ts-ignore
+export function useProjectColumnsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ProjectColumnsQuery, ProjectColumnsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ProjectColumnsQuery | undefined, ProjectColumnsQueryVariables>;
+export function useProjectColumnsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ProjectColumnsQuery, ProjectColumnsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ProjectColumnsQuery, ProjectColumnsQueryVariables>(ProjectColumnsDocument, options);
+        }
+export type ProjectColumnsQueryHookResult = ReturnType<typeof useProjectColumnsQuery>;
+export type ProjectColumnsLazyQueryHookResult = ReturnType<typeof useProjectColumnsLazyQuery>;
+export type ProjectColumnsSuspenseQueryHookResult = ReturnType<typeof useProjectColumnsSuspenseQuery>;
+export const PublicTaskDocument = gql`
+    query PublicTask($token: String!) {
+  publicTask(token: $token) {
+    key
+    title
+    description
+    type
+    priority
+    status
+    isDone
+    assigneeName
+    labels
+    dueDate
+    projectName
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __usePublicTaskQuery__
+ *
+ * To run a query within a React component, call `usePublicTaskQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePublicTaskQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePublicTaskQuery({
+ *   variables: {
+ *      token: // value for 'token'
+ *   },
+ * });
+ */
+export function usePublicTaskQuery(baseOptions: ApolloReactHooks.QueryHookOptions<PublicTaskQuery, PublicTaskQueryVariables> & ({ variables: PublicTaskQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<PublicTaskQuery, PublicTaskQueryVariables>(PublicTaskDocument, options);
+      }
+export function usePublicTaskLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<PublicTaskQuery, PublicTaskQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<PublicTaskQuery, PublicTaskQueryVariables>(PublicTaskDocument, options);
+        }
+// @ts-ignore
+export function usePublicTaskSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<PublicTaskQuery, PublicTaskQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<PublicTaskQuery, PublicTaskQueryVariables>;
+// @ts-ignore
+export function usePublicTaskSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<PublicTaskQuery, PublicTaskQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<PublicTaskQuery | undefined, PublicTaskQueryVariables>;
+export function usePublicTaskSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<PublicTaskQuery, PublicTaskQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<PublicTaskQuery, PublicTaskQueryVariables>(PublicTaskDocument, options);
+        }
+export type PublicTaskQueryHookResult = ReturnType<typeof usePublicTaskQuery>;
+export type PublicTaskLazyQueryHookResult = ReturnType<typeof usePublicTaskLazyQuery>;
+export type PublicTaskSuspenseQueryHookResult = ReturnType<typeof usePublicTaskSuspenseQuery>;
+export const SetTaskVisibilityDocument = gql`
+    mutation SetTaskVisibility($id: ID!, $visibility: TaskVisibility!) {
+  setTaskVisibility(id: $id, visibility: $visibility) {
+    id
+    visibility
+    publicUrl
+  }
+}
+    `;
+
+/**
+ * __useSetTaskVisibilityMutation__
+ *
+ * To run a mutation, you first call `useSetTaskVisibilityMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetTaskVisibilityMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [setTaskVisibilityMutation, { data, loading, error }] = useSetTaskVisibilityMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      visibility: // value for 'visibility'
+ *   },
+ * });
+ */
+export function useSetTaskVisibilityMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SetTaskVisibilityMutation, SetTaskVisibilityMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SetTaskVisibilityMutation, SetTaskVisibilityMutationVariables>(SetTaskVisibilityDocument, options);
+      }
+export type SetTaskVisibilityMutationHookResult = ReturnType<typeof useSetTaskVisibilityMutation>;
+export const ShareTaskDocument = gql`
+    mutation ShareTask($id: ID!, $recipientIds: [ID!]!, $note: String) {
+  shareTask(id: $id, recipientIds: $recipientIds, note: $note)
+}
+    `;
+
+/**
+ * __useShareTaskMutation__
+ *
+ * To run a mutation, you first call `useShareTaskMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useShareTaskMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [shareTaskMutation, { data, loading, error }] = useShareTaskMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      recipientIds: // value for 'recipientIds'
+ *      note: // value for 'note'
+ *   },
+ * });
+ */
+export function useShareTaskMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ShareTaskMutation, ShareTaskMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ShareTaskMutation, ShareTaskMutationVariables>(ShareTaskDocument, options);
+      }
+export type ShareTaskMutationHookResult = ReturnType<typeof useShareTaskMutation>;
+export const ProjectWorkflowsDocument = gql`
+    query ProjectWorkflows {
+  projectWorkflows {
+    ...ProjectWorkflowSummary
+  }
+}
+    ${ProjectWorkflowSummaryFragmentDoc}`;
+
+/**
+ * __useProjectWorkflowsQuery__
+ *
+ * To run a query within a React component, call `useProjectWorkflowsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProjectWorkflowsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProjectWorkflowsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useProjectWorkflowsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<ProjectWorkflowsQuery, ProjectWorkflowsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ProjectWorkflowsQuery, ProjectWorkflowsQueryVariables>(ProjectWorkflowsDocument, options);
+      }
+export function useProjectWorkflowsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ProjectWorkflowsQuery, ProjectWorkflowsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ProjectWorkflowsQuery, ProjectWorkflowsQueryVariables>(ProjectWorkflowsDocument, options);
+        }
+// @ts-ignore
+export function useProjectWorkflowsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ProjectWorkflowsQuery, ProjectWorkflowsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ProjectWorkflowsQuery, ProjectWorkflowsQueryVariables>;
+// @ts-ignore
+export function useProjectWorkflowsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ProjectWorkflowsQuery, ProjectWorkflowsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ProjectWorkflowsQuery | undefined, ProjectWorkflowsQueryVariables>;
+export function useProjectWorkflowsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ProjectWorkflowsQuery, ProjectWorkflowsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ProjectWorkflowsQuery, ProjectWorkflowsQueryVariables>(ProjectWorkflowsDocument, options);
+        }
+export type ProjectWorkflowsQueryHookResult = ReturnType<typeof useProjectWorkflowsQuery>;
+export type ProjectWorkflowsLazyQueryHookResult = ReturnType<typeof useProjectWorkflowsLazyQuery>;
+export type ProjectWorkflowsSuspenseQueryHookResult = ReturnType<typeof useProjectWorkflowsSuspenseQuery>;
+export const ProjectWorkflowDocument = gql`
+    query ProjectWorkflow($id: ID!) {
+  projectWorkflow(id: $id) {
+    ...ProjectWorkflowSummary
+    ...ProjectWorkflowGraph
+  }
+}
+    ${ProjectWorkflowSummaryFragmentDoc}
+${ProjectWorkflowGraphFragmentDoc}`;
+
+/**
+ * __useProjectWorkflowQuery__
+ *
+ * To run a query within a React component, call `useProjectWorkflowQuery` and pass it any options that fit your needs.
+ * When your component renders, `useProjectWorkflowQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useProjectWorkflowQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useProjectWorkflowQuery(baseOptions: ApolloReactHooks.QueryHookOptions<ProjectWorkflowQuery, ProjectWorkflowQueryVariables> & ({ variables: ProjectWorkflowQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<ProjectWorkflowQuery, ProjectWorkflowQueryVariables>(ProjectWorkflowDocument, options);
+      }
+export function useProjectWorkflowLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<ProjectWorkflowQuery, ProjectWorkflowQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<ProjectWorkflowQuery, ProjectWorkflowQueryVariables>(ProjectWorkflowDocument, options);
+        }
+// @ts-ignore
+export function useProjectWorkflowSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<ProjectWorkflowQuery, ProjectWorkflowQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ProjectWorkflowQuery, ProjectWorkflowQueryVariables>;
+// @ts-ignore
+export function useProjectWorkflowSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ProjectWorkflowQuery, ProjectWorkflowQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<ProjectWorkflowQuery | undefined, ProjectWorkflowQueryVariables>;
+export function useProjectWorkflowSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<ProjectWorkflowQuery, ProjectWorkflowQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<ProjectWorkflowQuery, ProjectWorkflowQueryVariables>(ProjectWorkflowDocument, options);
+        }
+export type ProjectWorkflowQueryHookResult = ReturnType<typeof useProjectWorkflowQuery>;
+export type ProjectWorkflowLazyQueryHookResult = ReturnType<typeof useProjectWorkflowLazyQuery>;
+export type ProjectWorkflowSuspenseQueryHookResult = ReturnType<typeof useProjectWorkflowSuspenseQuery>;
+export const CreateProjectWorkflowDocument = gql`
+    mutation CreateProjectWorkflow($input: ProjectWorkflowInput!) {
+  createProjectWorkflow(input: $input) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useCreateProjectWorkflowMutation__
+ *
+ * To run a mutation, you first call `useCreateProjectWorkflowMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateProjectWorkflowMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createProjectWorkflowMutation, { data, loading, error }] = useCreateProjectWorkflowMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateProjectWorkflowMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateProjectWorkflowMutation, CreateProjectWorkflowMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateProjectWorkflowMutation, CreateProjectWorkflowMutationVariables>(CreateProjectWorkflowDocument, options);
+      }
+export type CreateProjectWorkflowMutationHookResult = ReturnType<typeof useCreateProjectWorkflowMutation>;
+export const UpdateProjectWorkflowDocument = gql`
+    mutation UpdateProjectWorkflow($id: ID!, $input: ProjectWorkflowInput!) {
+  updateProjectWorkflow(id: $id, input: $input) {
+    ...ProjectWorkflowSummary
+  }
+}
+    ${ProjectWorkflowSummaryFragmentDoc}`;
+
+/**
+ * __useUpdateProjectWorkflowMutation__
+ *
+ * To run a mutation, you first call `useUpdateProjectWorkflowMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateProjectWorkflowMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateProjectWorkflowMutation, { data, loading, error }] = useUpdateProjectWorkflowMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateProjectWorkflowMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateProjectWorkflowMutation, UpdateProjectWorkflowMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateProjectWorkflowMutation, UpdateProjectWorkflowMutationVariables>(UpdateProjectWorkflowDocument, options);
+      }
+export type UpdateProjectWorkflowMutationHookResult = ReturnType<typeof useUpdateProjectWorkflowMutation>;
+export const SaveProjectWorkflowGraphDocument = gql`
+    mutation SaveProjectWorkflowGraph($id: ID!, $graph: WorkflowGraphInput!) {
+  saveProjectWorkflowGraph(id: $id, graph: $graph) {
+    id
+    updatedByName
+    updatedAt
+    ...ProjectWorkflowGraph
+  }
+}
+    ${ProjectWorkflowGraphFragmentDoc}`;
+
+/**
+ * __useSaveProjectWorkflowGraphMutation__
+ *
+ * To run a mutation, you first call `useSaveProjectWorkflowGraphMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveProjectWorkflowGraphMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveProjectWorkflowGraphMutation, { data, loading, error }] = useSaveProjectWorkflowGraphMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      graph: // value for 'graph'
+ *   },
+ * });
+ */
+export function useSaveProjectWorkflowGraphMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SaveProjectWorkflowGraphMutation, SaveProjectWorkflowGraphMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SaveProjectWorkflowGraphMutation, SaveProjectWorkflowGraphMutationVariables>(SaveProjectWorkflowGraphDocument, options);
+      }
+export type SaveProjectWorkflowGraphMutationHookResult = ReturnType<typeof useSaveProjectWorkflowGraphMutation>;
+export const DeleteProjectWorkflowDocument = gql`
+    mutation DeleteProjectWorkflow($id: ID!) {
+  deleteProjectWorkflow(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteProjectWorkflowMutation__
+ *
+ * To run a mutation, you first call `useDeleteProjectWorkflowMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteProjectWorkflowMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteProjectWorkflowMutation, { data, loading, error }] = useDeleteProjectWorkflowMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteProjectWorkflowMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteProjectWorkflowMutation, DeleteProjectWorkflowMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteProjectWorkflowMutation, DeleteProjectWorkflowMutationVariables>(DeleteProjectWorkflowDocument, options);
+      }
+export type DeleteProjectWorkflowMutationHookResult = ReturnType<typeof useDeleteProjectWorkflowMutation>;
 export const ListProjectsDocument = gql`
     query ListProjects {
   listProjects {

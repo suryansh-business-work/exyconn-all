@@ -5642,6 +5642,8 @@ export type Mutation = {
   createProduct: Product;
   createProject: Project;
   createProjectShare: ProjectShareCreated;
+  /** A new workflow opens with a Start joined to an End. */
+  createProjectWorkflow: ProjectWorkflow;
   createPrompt: Prompt;
   createPurchaseOrder: PurchaseOrder;
   createRazorpayConfig: RazorpayConfig;
@@ -5790,6 +5792,7 @@ export type Mutation = {
   deleteProblemReport: Scalars['Boolean']['output'];
   deleteProduct: Scalars['Boolean']['output'];
   deleteProject: Scalars['Boolean']['output'];
+  deleteProjectWorkflow: Scalars['Boolean']['output'];
   deletePrompt: Scalars['Boolean']['output'];
   deletePurchaseOrder: Scalars['Boolean']['output'];
   deleteRazorpayConfig: Scalars['Boolean']['output'];
@@ -5990,6 +5993,7 @@ export type Mutation = {
    * already exists, and guessing wrong would fail the save on a duplicate key.
    */
   saveEmployeeSalary: SalaryStructure;
+  saveProjectWorkflowGraph: ProjectWorkflow;
   saveSocialAppConfig: SocialAppConfig;
   saveTrackerBuildSettings: TrackerBuildSettings;
   saveWhatsappChannel: WhatsappChannel;
@@ -6085,6 +6089,8 @@ export type Mutation = {
   setTaskParent: Task;
   /** Puts a ticket in a sprint, or back in the backlog with a null sprint. */
   setTaskSprint: Task;
+  /** Making a ticket public issues a new link; making it private kills the old one. */
+  setTaskVisibility: Task;
   /** Corrects one translation by hand. ADMIN only, and marks the row HUMAN for good. */
   setTranslation: Translation;
   setUserActive: User;
@@ -6094,6 +6100,8 @@ export type Mutation = {
   setWhatsappDemoVisitorBlocked: WhatsappDemoVisitor;
   /** Shares a post onto the feed, optionally with something of your own to say. */
   shareSocialPost: SocialPost;
+  /** Notifies the people chosen. Returns how many were told. */
+  shareTask: Scalars['Int']['output'];
   /**
    * LEGAL: sign our own side. The signer is the account making the request, not a name typed
    * into a field, and the document's hash is recorded with it.
@@ -6327,6 +6335,7 @@ export type Mutation = {
   updateProduct: Product;
   updateProfile: User;
   updateProject: Project;
+  updateProjectWorkflow: ProjectWorkflow;
   updatePrompt: Prompt;
   updatePurchaseOrder: PurchaseOrder;
   updateRazorpayConfig: RazorpayConfig;
@@ -7032,6 +7041,11 @@ export type MutationCreateProjectShareArgs = {
 };
 
 
+export type MutationCreateProjectWorkflowArgs = {
+  input: ProjectWorkflowInput;
+};
+
+
 export type MutationCreatePromptArgs = {
   input: PromptInput;
 };
@@ -7695,6 +7709,11 @@ export type MutationDeleteProjectArgs = {
 };
 
 
+export type MutationDeleteProjectWorkflowArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeletePromptArgs = {
   id: Scalars['ID']['input'];
 };
@@ -8222,6 +8241,12 @@ export type MutationSaveEmployeeSalaryArgs = {
 };
 
 
+export type MutationSaveProjectWorkflowGraphArgs = {
+  graph: WorkflowGraphInput;
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationSaveSocialAppConfigArgs = {
   input: SocialAppConfigInput;
 };
@@ -8444,6 +8469,12 @@ export type MutationSetTaskSprintArgs = {
 };
 
 
+export type MutationSetTaskVisibilityArgs = {
+  id: Scalars['ID']['input'];
+  visibility: TaskVisibility;
+};
+
+
 export type MutationSetTranslationArgs = {
   locale: Scalars['String']['input'];
   source: Scalars['String']['input'];
@@ -8479,6 +8510,13 @@ export type MutationSetWhatsappDemoVisitorBlockedArgs = {
 export type MutationShareSocialPostArgs = {
   body?: InputMaybe<Scalars['String']['input']>;
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationShareTaskArgs = {
+  id: Scalars['ID']['input'];
+  note?: InputMaybe<Scalars['String']['input']>;
+  recipientIds: Array<Scalars['ID']['input']>;
 };
 
 
@@ -9286,6 +9324,12 @@ export type MutationUpdateProfileArgs = {
 export type MutationUpdateProjectArgs = {
   id: Scalars['ID']['input'];
   input: ProjectInput;
+};
+
+
+export type MutationUpdateProjectWorkflowArgs = {
+  id: Scalars['ID']['input'];
+  input: ProjectWorkflowInput;
 };
 
 
@@ -10861,6 +10905,25 @@ export enum ProjectTimeline {
   Overdue = 'OVERDUE'
 }
 
+/** A custom workflow drawn in Tools > Workflows. */
+export type ProjectWorkflow = {
+  __typename?: 'ProjectWorkflow';
+  createdAt: Scalars['DateTime']['output'];
+  createdByName: Scalars['String']['output'];
+  description: Scalars['String']['output'];
+  edges: Array<WorkflowEdge>;
+  id: Scalars['ID']['output'];
+  name: Scalars['String']['output'];
+  nodes: Array<WorkflowNode>;
+  updatedAt: Scalars['DateTime']['output'];
+  updatedByName: Scalars['String']['output'];
+};
+
+export type ProjectWorkflowInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+};
+
 export type Prompt = {
   __typename?: 'Prompt';
   category: PromptCategory;
@@ -10914,6 +10977,25 @@ export type PublicPolicy = {
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
   version: Scalars['Int']['output'];
+};
+
+/** What a public ticket link shows. No comments, history, attachments or ids. */
+export type PublicTaskView = {
+  __typename?: 'PublicTaskView';
+  assigneeName: Scalars['String']['output'];
+  /** Rich text (HTML). */
+  description: Scalars['String']['output'];
+  dueDate?: Maybe<Scalars['DateTime']['output']>;
+  isDone: Scalars['Boolean']['output'];
+  key: Scalars['String']['output'];
+  labels: Array<Scalars['String']['output']>;
+  priority: TaskPriority;
+  projectName: Scalars['String']['output'];
+  /** The name of the board column the ticket sits in. */
+  status: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  type: TaskType;
+  updatedAt: Scalars['DateTime']['output'];
 };
 
 export type PurchaseOrder = {
@@ -11677,6 +11759,8 @@ export type Query = {
   /** Public: a reporter checks on their own report by its reference. Rate-limited by address. */
   problemReportStatus: ProblemReportStatus;
   projectBoard: ProjectBoard;
+  /** A project's board columns, without its tickets. */
+  projectColumns: Array<BoardColumn>;
   /** Every page in a project's space, flat. The sidebar builds the tree from parentId. */
   projectDocPages: Array<DocPage>;
   /** One project measured against what it said it would do. */
@@ -11703,6 +11787,9 @@ export type Query = {
    * to the project without a ticket.
    */
   projectTimeLogSessions: Array<ProjectTimeLogSession>;
+  projectWorkflow: ProjectWorkflow;
+  /** Every workflow, most recently changed first. Nodes and edges are empty in this list. */
+  projectWorkflows: Array<ProjectWorkflow>;
   publicBlogPost?: Maybe<BlogPost>;
   publicBlogPosts: Array<BlogPost>;
   publicBranding: Branding;
@@ -11724,6 +11811,8 @@ export type Query = {
   publicNewsletterIssues: Array<NewsletterIssue>;
   publicPolicies: Array<PublicPolicy>;
   publicPolicy?: Maybe<PublicPolicy>;
+  /** Public. Null when the token is unknown or the ticket is private again. */
+  publicTask?: Maybe<PublicTaskView>;
   publicTool?: Maybe<Tool>;
   publicToolCategories: Array<ToolCategory>;
   publicTools: Array<Tool>;
@@ -11792,6 +11881,8 @@ export type Query = {
   systemHealth: SystemHealth;
   /** The ticket's history, newest first. */
   taskActivity: Array<TaskActivity>;
+  /** One ticket by its key, e.g. EXY-14. Null when no ticket has that key. */
+  taskByKey?: Maybe<Task>;
   taskComments: Array<TaskComment>;
   /** The regimes on file, one per key, for anyone who sets salaries (HR and Finance). */
   taxRegimeChoices: Array<TaxRegimeChoice>;
@@ -13172,6 +13263,11 @@ export type QueryProjectBoardArgs = {
 };
 
 
+export type QueryProjectColumnsArgs = {
+  projectId: Scalars['ID']['input'];
+};
+
+
 export type QueryProjectDocPagesArgs = {
   projectId: Scalars['ID']['input'];
 };
@@ -13221,6 +13317,11 @@ export type QueryProjectTimeLogSessionsArgs = {
   taskId?: InputMaybe<Scalars['ID']['input']>;
   to: Scalars['DateTime']['input'];
   userId?: InputMaybe<Scalars['ID']['input']>;
+};
+
+
+export type QueryProjectWorkflowArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -13315,6 +13416,11 @@ export type QueryPublicNewsletterIssuesArgs = {
 
 export type QueryPublicPolicyArgs = {
   slug: Scalars['String']['input'];
+};
+
+
+export type QueryPublicTaskArgs = {
+  token: Scalars['String']['input'];
 };
 
 
@@ -13441,6 +13547,11 @@ export type QueryStatusOverviewArgs = {
 
 export type QueryTaskActivityArgs = {
   taskId: Scalars['ID']['input'];
+};
+
+
+export type QueryTaskByKeyArgs = {
+  key: Scalars['String']['input'];
 };
 
 
@@ -15097,6 +15208,9 @@ export type Task = {
   /** The EPIC this ticket is filed under. Null for a ticket that stands on its own. */
   parentTaskId?: Maybe<Scalars['ID']['output']>;
   priority: TaskPriority;
+  projectId: Scalars['ID']['output'];
+  /** The read-only link anyone can open. Null while the ticket is private. */
+  publicUrl?: Maybe<Scalars['String']['output']>;
   reporterName: Scalars['String']['output'];
   /** The sprint the ticket is committed to. Null means it is still in the backlog. */
   sprintId?: Maybe<Scalars['ID']['output']>;
@@ -15105,6 +15219,7 @@ export type Task = {
   title: Scalars['String']['output'];
   type: TaskType;
   updatedAt: Scalars['DateTime']['output'];
+  visibility: TaskVisibility;
 };
 
 /** One recorded change to a ticket: who changed what, from what, to what. */
@@ -15177,6 +15292,12 @@ export enum TaskType {
   Epic = 'EPIC',
   Story = 'STORY',
   Task = 'TASK'
+}
+
+/** Who may read a ticket: people signed in to Projects, or anyone holding its public link. */
+export enum TaskVisibility {
+  Private = 'PRIVATE',
+  Public = 'PUBLIC'
 }
 
 /**
@@ -17068,6 +17189,54 @@ export enum WorkLocation {
   Other = 'OTHER'
 }
 
+/** One arrow between two boxes, by their keys. */
+export type WorkflowEdge = {
+  __typename?: 'WorkflowEdge';
+  key: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+  source: Scalars['String']['output'];
+  target: Scalars['String']['output'];
+};
+
+export type WorkflowEdgeInput = {
+  key: Scalars['String']['input'];
+  label: Scalars['String']['input'];
+  source: Scalars['String']['input'];
+  target: Scalars['String']['input'];
+};
+
+/** The whole drawing. Saved as one, and refused whole when it breaks a rule. */
+export type WorkflowGraphInput = {
+  edges: Array<WorkflowEdgeInput>;
+  nodes: Array<WorkflowNodeInput>;
+};
+
+/** One box on a workflow canvas. The key is the editor's own id for it. */
+export type WorkflowNode = {
+  __typename?: 'WorkflowNode';
+  key: Scalars['String']['output'];
+  kind: WorkflowNodeKind;
+  label: Scalars['String']['output'];
+  x: Scalars['Float']['output'];
+  y: Scalars['Float']['output'];
+};
+
+export type WorkflowNodeInput = {
+  key: Scalars['String']['input'];
+  kind: WorkflowNodeKind;
+  label: Scalars['String']['input'];
+  x: Scalars['Float']['input'];
+  y: Scalars['Float']['input'];
+};
+
+/** The kinds of box a workflow is drawn from. */
+export enum WorkflowNodeKind {
+  Decision = 'DECISION',
+  End = 'END',
+  Start = 'START',
+  Step = 'STEP'
+}
+
 /** When an employee is expected to work. OTHER is described in workingTimeNote. */
 export enum WorkingTime {
   Fixed = 'FIXED',
@@ -17754,12 +17923,15 @@ export type ResolversTypes = ResolversObject<{
   ProjectTimeLogScreenshot: ResolverTypeWrapper<ProjectTimeLogScreenshot>;
   ProjectTimeLogSession: ResolverTypeWrapper<ProjectTimeLogSession>;
   ProjectTimeline: ProjectTimeline;
+  ProjectWorkflow: ResolverTypeWrapper<ProjectWorkflow>;
+  ProjectWorkflowInput: ProjectWorkflowInput;
   Prompt: ResolverTypeWrapper<Prompt>;
   PromptCategory: PromptCategory;
   PromptInput: PromptInput;
   PromptPage: ResolverTypeWrapper<PromptPage>;
   PromptVariableInput: PromptVariableInput;
   PublicPolicy: ResolverTypeWrapper<PublicPolicy>;
+  PublicTaskView: ResolverTypeWrapper<PublicTaskView>;
   PurchaseOrder: ResolverTypeWrapper<PurchaseOrder>;
   PurchaseOrderInput: PurchaseOrderInput;
   PurchaseOrderLine: ResolverTypeWrapper<PurchaseOrderLine>;
@@ -17910,6 +18082,7 @@ export type ResolversTypes = ResolversObject<{
   TaskInput: TaskInput;
   TaskPriority: TaskPriority;
   TaskType: TaskType;
+  TaskVisibility: TaskVisibility;
   TaxRegime: ResolverTypeWrapper<TaxRegime>;
   TaxRegimeChoice: ResolverTypeWrapper<TaxRegimeChoice>;
   TaxRegimeInput: TaxRegimeInput;
@@ -18057,6 +18230,12 @@ export type ResolversTypes = ResolversObject<{
   WhatsappWorkflowDraftInput: WhatsappWorkflowDraftInput;
   WhatsappWorkflowStatus: WhatsappWorkflowStatus;
   WorkLocation: WorkLocation;
+  WorkflowEdge: ResolverTypeWrapper<WorkflowEdge>;
+  WorkflowEdgeInput: WorkflowEdgeInput;
+  WorkflowGraphInput: WorkflowGraphInput;
+  WorkflowNode: ResolverTypeWrapper<WorkflowNode>;
+  WorkflowNodeInput: WorkflowNodeInput;
+  WorkflowNodeKind: WorkflowNodeKind;
   WorkingTime: WorkingTime;
   WorkspaceAnalytics: ResolverTypeWrapper<WorkspaceAnalytics>;
 }>;
@@ -18535,11 +18714,14 @@ export type ResolversParentTypes = ResolversObject<{
   ProjectTimeLogRow: ProjectTimeLogRow;
   ProjectTimeLogScreenshot: ProjectTimeLogScreenshot;
   ProjectTimeLogSession: ProjectTimeLogSession;
+  ProjectWorkflow: ProjectWorkflow;
+  ProjectWorkflowInput: ProjectWorkflowInput;
   Prompt: Prompt;
   PromptInput: PromptInput;
   PromptPage: PromptPage;
   PromptVariableInput: PromptVariableInput;
   PublicPolicy: PublicPolicy;
+  PublicTaskView: PublicTaskView;
   PurchaseOrder: PurchaseOrder;
   PurchaseOrderInput: PurchaseOrderInput;
   PurchaseOrderLine: PurchaseOrderLine;
@@ -18787,6 +18969,11 @@ export type ResolversParentTypes = ResolversObject<{
   WhatsappWorkflow: WhatsappWorkflow;
   WhatsappWorkflowCreateInput: WhatsappWorkflowCreateInput;
   WhatsappWorkflowDraftInput: WhatsappWorkflowDraftInput;
+  WorkflowEdge: WorkflowEdge;
+  WorkflowEdgeInput: WorkflowEdgeInput;
+  WorkflowGraphInput: WorkflowGraphInput;
+  WorkflowNode: WorkflowNode;
+  WorkflowNodeInput: WorkflowNodeInput;
   WorkspaceAnalytics: WorkspaceAnalytics;
 }>;
 
@@ -21933,6 +22120,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createProduct?: Resolver<ResolversTypes['Product'], ParentType, ContextType, RequireFields<MutationCreateProductArgs, 'input'>>;
   createProject?: Resolver<ResolversTypes['Project'], ParentType, ContextType, RequireFields<MutationCreateProjectArgs, 'input'>>;
   createProjectShare?: Resolver<ResolversTypes['ProjectShareCreated'], ParentType, ContextType, RequireFields<MutationCreateProjectShareArgs, 'expiresInDays' | 'label' | 'projectId'>>;
+  createProjectWorkflow?: Resolver<ResolversTypes['ProjectWorkflow'], ParentType, ContextType, RequireFields<MutationCreateProjectWorkflowArgs, 'input'>>;
   createPrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<MutationCreatePromptArgs, 'input'>>;
   createPurchaseOrder?: Resolver<ResolversTypes['PurchaseOrder'], ParentType, ContextType, RequireFields<MutationCreatePurchaseOrderArgs, 'input'>>;
   createRazorpayConfig?: Resolver<ResolversTypes['RazorpayConfig'], ParentType, ContextType, RequireFields<MutationCreateRazorpayConfigArgs, 'input'>>;
@@ -22062,6 +22250,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteProblemReport?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProblemReportArgs, 'id'>>;
   deleteProduct?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProductArgs, 'id'>>;
   deleteProject?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProjectArgs, 'id'>>;
+  deleteProjectWorkflow?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteProjectWorkflowArgs, 'id'>>;
   deletePrompt?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePromptArgs, 'id'>>;
   deletePurchaseOrder?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeletePurchaseOrderArgs, 'id'>>;
   deleteRazorpayConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteRazorpayConfigArgs, 'id'>>;
@@ -22164,6 +22353,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   saveCmsFragmentDraft?: Resolver<ResolversTypes['CmsFragment'], ParentType, ContextType, RequireFields<MutationSaveCmsFragmentDraftArgs, 'draft' | 'id'>>;
   saveCmsPageDraft?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationSaveCmsPageDraftArgs, 'draft' | 'id'>>;
   saveEmployeeSalary?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationSaveEmployeeSalaryArgs, 'employeeId' | 'input'>>;
+  saveProjectWorkflowGraph?: Resolver<ResolversTypes['ProjectWorkflow'], ParentType, ContextType, RequireFields<MutationSaveProjectWorkflowGraphArgs, 'graph' | 'id'>>;
   saveSocialAppConfig?: Resolver<ResolversTypes['SocialAppConfig'], ParentType, ContextType, RequireFields<MutationSaveSocialAppConfigArgs, 'input'>>;
   saveTrackerBuildSettings?: Resolver<ResolversTypes['TrackerBuildSettings'], ParentType, ContextType, RequireFields<MutationSaveTrackerBuildSettingsArgs, 'slackChannels'>>;
   saveWhatsappChannel?: Resolver<ResolversTypes['WhatsappChannel'], ParentType, ContextType, RequireFields<MutationSaveWhatsappChannelArgs, 'input'>>;
@@ -22201,12 +22391,14 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setSupportTicketTriage?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationSetSupportTicketTriageArgs, 'category' | 'id' | 'priority'>>;
   setTaskParent?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationSetTaskParentArgs, 'taskId'>>;
   setTaskSprint?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationSetTaskSprintArgs, 'taskId'>>;
+  setTaskVisibility?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationSetTaskVisibilityArgs, 'id' | 'visibility'>>;
   setTranslation?: Resolver<ResolversTypes['Translation'], ParentType, ContextType, RequireFields<MutationSetTranslationArgs, 'locale' | 'source' | 'text'>>;
   setUserActive?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSetUserActiveArgs, 'id' | 'isActive'>>;
   setUserBlocked?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationSetUserBlockedArgs, 'id' | 'isBlocked'>>;
   setWebhookActive?: Resolver<ResolversTypes['Webhook'], ParentType, ContextType, RequireFields<MutationSetWebhookActiveArgs, 'active' | 'id'>>;
   setWhatsappDemoVisitorBlocked?: Resolver<ResolversTypes['WhatsappDemoVisitor'], ParentType, ContextType, RequireFields<MutationSetWhatsappDemoVisitorBlockedArgs, 'blocked' | 'id'>>;
   shareSocialPost?: Resolver<ResolversTypes['SocialPost'], ParentType, ContextType, RequireFields<MutationShareSocialPostArgs, 'id'>>;
+  shareTask?: Resolver<ResolversTypes['Int'], ParentType, ContextType, RequireFields<MutationShareTaskArgs, 'id' | 'recipientIds'>>;
   signContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationSignContractArgs, 'id'>>;
   signContractWithToken?: Resolver<ResolversTypes['ContractSignedReceipt'], ParentType, ContextType, RequireFields<MutationSignContractWithTokenArgs, 'signedName' | 'token'>>;
   socialMediaIdeas?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSocialMediaIdeasArgs, 'count' | 'topic'>>;
@@ -22350,6 +22542,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateProduct?: Resolver<ResolversTypes['Product'], ParentType, ContextType, RequireFields<MutationUpdateProductArgs, 'id' | 'input'>>;
   updateProfile?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUpdateProfileArgs, 'input'>>;
   updateProject?: Resolver<ResolversTypes['Project'], ParentType, ContextType, RequireFields<MutationUpdateProjectArgs, 'id' | 'input'>>;
+  updateProjectWorkflow?: Resolver<ResolversTypes['ProjectWorkflow'], ParentType, ContextType, RequireFields<MutationUpdateProjectWorkflowArgs, 'id' | 'input'>>;
   updatePrompt?: Resolver<ResolversTypes['Prompt'], ParentType, ContextType, RequireFields<MutationUpdatePromptArgs, 'id' | 'input'>>;
   updatePurchaseOrder?: Resolver<ResolversTypes['PurchaseOrder'], ParentType, ContextType, RequireFields<MutationUpdatePurchaseOrderArgs, 'id' | 'input'>>;
   updateRazorpayConfig?: Resolver<ResolversTypes['RazorpayConfig'], ParentType, ContextType, RequireFields<MutationUpdateRazorpayConfigArgs, 'id' | 'input'>>;
@@ -23090,6 +23283,19 @@ export type ProjectTimeLogSessionResolvers<ContextType = GraphQLContext, ParentT
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type ProjectWorkflowResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ProjectWorkflow'] = ResolversParentTypes['ProjectWorkflow']> = ResolversObject<{
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  createdByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  edges?: Resolver<Array<ResolversTypes['WorkflowEdge']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  nodes?: Resolver<Array<ResolversTypes['WorkflowNode']>, ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  updatedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type PromptResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Prompt'] = ResolversParentTypes['Prompt']> = ResolversObject<{
   category?: Resolver<ResolversTypes['PromptCategory'], ParentType, ContextType>;
   content?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -23117,6 +23323,22 @@ export type PublicPolicyResolvers<ContextType = GraphQLContext, ParentType exten
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   version?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PublicTaskViewResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PublicTaskView'] = ResolversParentTypes['PublicTaskView']> = ResolversObject<{
+  assigneeName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  dueDate?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  isDone?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  labels?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  priority?: Resolver<ResolversTypes['TaskPriority'], ParentType, ContextType>;
+  projectName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['TaskType'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -23679,6 +23901,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   probationsEnding?: Resolver<Array<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryProbationsEndingArgs, 'days'>>;
   problemReportStatus?: Resolver<ResolversTypes['ProblemReportStatus'], ParentType, ContextType, RequireFields<QueryProblemReportStatusArgs, 'reference'>>;
   projectBoard?: Resolver<ResolversTypes['ProjectBoard'], ParentType, ContextType, RequireFields<QueryProjectBoardArgs, 'projectId'>>;
+  projectColumns?: Resolver<Array<ResolversTypes['BoardColumn']>, ParentType, ContextType, RequireFields<QueryProjectColumnsArgs, 'projectId'>>;
   projectDocPages?: Resolver<Array<ResolversTypes['DocPage']>, ParentType, ContextType, RequireFields<QueryProjectDocPagesArgs, 'projectId'>>;
   projectHealth?: Resolver<ResolversTypes['ProjectHealth'], ParentType, ContextType, RequireFields<QueryProjectHealthArgs, 'id'>>;
   projectHealthOverview?: Resolver<Array<ResolversTypes['ProjectHealth']>, ParentType, ContextType>;
@@ -23689,6 +23912,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   projectTimeLog?: Resolver<ResolversTypes['ProjectTimeLog'], ParentType, ContextType, RequireFields<QueryProjectTimeLogArgs, 'from' | 'projectId' | 'to'>>;
   projectTimeLogScreenshots?: Resolver<Array<ResolversTypes['ProjectTimeLogScreenshot']>, ParentType, ContextType, RequireFields<QueryProjectTimeLogScreenshotsArgs, 'projectId' | 'sessionId'>>;
   projectTimeLogSessions?: Resolver<Array<ResolversTypes['ProjectTimeLogSession']>, ParentType, ContextType, RequireFields<QueryProjectTimeLogSessionsArgs, 'from' | 'projectId' | 'to'>>;
+  projectWorkflow?: Resolver<ResolversTypes['ProjectWorkflow'], ParentType, ContextType, RequireFields<QueryProjectWorkflowArgs, 'id'>>;
+  projectWorkflows?: Resolver<Array<ResolversTypes['ProjectWorkflow']>, ParentType, ContextType>;
   publicBlogPost?: Resolver<Maybe<ResolversTypes['BlogPost']>, ParentType, ContextType, RequireFields<QueryPublicBlogPostArgs, 'slug'>>;
   publicBlogPosts?: Resolver<Array<ResolversTypes['BlogPost']>, ParentType, ContextType, Partial<QueryPublicBlogPostsArgs>>;
   publicBranding?: Resolver<ResolversTypes['Branding'], ParentType, ContextType>;
@@ -23708,6 +23933,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   publicNewsletterIssues?: Resolver<Array<ResolversTypes['NewsletterIssue']>, ParentType, ContextType, Partial<QueryPublicNewsletterIssuesArgs>>;
   publicPolicies?: Resolver<Array<ResolversTypes['PublicPolicy']>, ParentType, ContextType>;
   publicPolicy?: Resolver<Maybe<ResolversTypes['PublicPolicy']>, ParentType, ContextType, RequireFields<QueryPublicPolicyArgs, 'slug'>>;
+  publicTask?: Resolver<Maybe<ResolversTypes['PublicTaskView']>, ParentType, ContextType, RequireFields<QueryPublicTaskArgs, 'token'>>;
   publicTool?: Resolver<Maybe<ResolversTypes['Tool']>, ParentType, ContextType, RequireFields<QueryPublicToolArgs, 'toolCode'>>;
   publicToolCategories?: Resolver<Array<ResolversTypes['ToolCategory']>, ParentType, ContextType>;
   publicTools?: Resolver<Array<ResolversTypes['Tool']>, ParentType, ContextType, Partial<QueryPublicToolsArgs>>;
@@ -23739,6 +23965,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   supportSlaSummary?: Resolver<ResolversTypes['SupportSlaSummary'], ParentType, ContextType>;
   systemHealth?: Resolver<ResolversTypes['SystemHealth'], ParentType, ContextType>;
   taskActivity?: Resolver<Array<ResolversTypes['TaskActivity']>, ParentType, ContextType, RequireFields<QueryTaskActivityArgs, 'taskId'>>;
+  taskByKey?: Resolver<Maybe<ResolversTypes['Task']>, ParentType, ContextType, RequireFields<QueryTaskByKeyArgs, 'key'>>;
   taskComments?: Resolver<Array<ResolversTypes['TaskComment']>, ParentType, ContextType, RequireFields<QueryTaskCommentsArgs, 'taskId'>>;
   taxRegimeChoices?: Resolver<Array<ResolversTypes['TaxRegimeChoice']>, ParentType, ContextType>;
   teamGoals?: Resolver<Array<ResolversTypes['Goal']>, ParentType, ContextType>;
@@ -24678,12 +24905,15 @@ export type TaskResolvers<ContextType = GraphQLContext, ParentType extends Resol
   order?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   parentTaskId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   priority?: Resolver<ResolversTypes['TaskPriority'], ParentType, ContextType>;
+  projectId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  publicUrl?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   reporterName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sprintId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   storyPoints?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['TaskType'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  visibility?: Resolver<ResolversTypes['TaskVisibility'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -25748,6 +25978,23 @@ export type WhatsappWorkflowResolvers<ContextType = GraphQLContext, ParentType e
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type WorkflowEdgeResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WorkflowEdge'] = ResolversParentTypes['WorkflowEdge']> = ResolversObject<{
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  source?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  target?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type WorkflowNodeResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WorkflowNode'] = ResolversParentTypes['WorkflowNode']> = ResolversObject<{
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['WorkflowNodeKind'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  x?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  y?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type WorkspaceAnalyticsResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WorkspaceAnalytics'] = ResolversParentTypes['WorkspaceAnalytics']> = ResolversObject<{
   days?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   employees?: Resolver<ResolversTypes['EmployeeAnalytics'], ParentType, ContextType>;
@@ -26096,9 +26343,11 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ProjectTimeLogRow?: ProjectTimeLogRowResolvers<ContextType>;
   ProjectTimeLogScreenshot?: ProjectTimeLogScreenshotResolvers<ContextType>;
   ProjectTimeLogSession?: ProjectTimeLogSessionResolvers<ContextType>;
+  ProjectWorkflow?: ProjectWorkflowResolvers<ContextType>;
   Prompt?: PromptResolvers<ContextType>;
   PromptPage?: PromptPageResolvers<ContextType>;
   PublicPolicy?: PublicPolicyResolvers<ContextType>;
+  PublicTaskView?: PublicTaskViewResolvers<ContextType>;
   PurchaseOrder?: PurchaseOrderResolvers<ContextType>;
   PurchaseOrderLine?: PurchaseOrderLineResolvers<ContextType>;
   PurchaseOrderPage?: PurchaseOrderPageResolvers<ContextType>;
@@ -26276,6 +26525,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   WhatsappFunnelStep?: WhatsappFunnelStepResolvers<ContextType>;
   WhatsappPublishedWorkflow?: WhatsappPublishedWorkflowResolvers<ContextType>;
   WhatsappWorkflow?: WhatsappWorkflowResolvers<ContextType>;
+  WorkflowEdge?: WorkflowEdgeResolvers<ContextType>;
+  WorkflowNode?: WorkflowNodeResolvers<ContextType>;
   WorkspaceAnalytics?: WorkspaceAnalyticsResolvers<ContextType>;
 }>;
 

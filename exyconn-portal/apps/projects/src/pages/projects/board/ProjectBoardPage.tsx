@@ -8,7 +8,7 @@ import { useBoardAnnouncements } from './useBoardAnnouncements';
 import { BoardColumnCard } from './BoardColumnCard';
 import { TaskCard } from './TaskCard';
 import { AddItemInput } from './AddItemInput';
-import { TicketDialog } from '../ticket';
+import { TicketDialog, epicOptionsOf } from '../ticket';
 import { tasksForSprint } from '../sprints/sprint-progress';
 import { CenteredState } from '@exyconn/shell/components/feedback/CenteredState';
 
@@ -99,6 +99,7 @@ export function ProjectBoardPage({ projectId, sprintFilter }: Readonly<ProjectBo
 
       <TicketDialog
         ticket={openTicket}
+        epics={epicOptionsOf(board.tasks, openId ?? '')}
         onClose={() => setOpenId(null)}
         onChanged={board.reload}
         board={{ columns: board.columns, onMove: moveTaskToColumn }}
