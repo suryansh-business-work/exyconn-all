@@ -2,6 +2,7 @@ import { ROBOTS_INDEX, ROBOTS_NOINDEX, type JsonLdNode, type PageMeta } from "@e
 import { BRANDING_FALLBACK, type Branding } from "../portal";
 import { DEFAULT_MARKET, MARKETS, marketUrl, type Market } from "../i18n/markets";
 import { socialLinks } from "../social-links";
+import { shareImage } from "./share-image";
 import { baselineJsonLd } from "./site-schema";
 
 /** What a page tells the layout about itself (Page.astro's props, and a CMS page's SEO). */
@@ -82,9 +83,10 @@ export function buildPageMeta(
   const path = pagePath === "" ? "/" : pagePath;
   const placedPath = market ? marketUrl(market, path) : path;
 
-  // OG image: absolute, defaulting to the branding OG image (1200x630). Some platforms reject
-  // SVG, so a PNG/JPG of the same size is the safest upload.
+  // OG image: absolute, defaulting to the branding OG image, sized for a large preview card.
+  // Some platforms reject SVG, so a PNG/JPG is the safest upload.
   const rawImage = seo.metaImage || branding.ogImageUrl || BRANDING_FALLBACK.ogImageUrl;
+  const title = seo.title || seo.metaTitle || `${businessName} | ${slogan}`;
   // Organization identity only — canonical/og:url stay derived from the site's origin.
   const baselineLd = baselineJsonLd({
     businessName,
@@ -95,7 +97,7 @@ export function buildPageMeta(
   });
 
   return {
-    title: seo.title || seo.metaTitle || `${businessName} | ${slogan}`,
+    title,
     description: seo.description || seo.metaDescription || DEFAULT_DESCRIPTION,
     canonical: seo.canonical || `${siteUrl}${placedPath}`,
     keywords: seo.keywords || seo.metaKeywords || DEFAULT_KEYWORDS,
@@ -104,7 +106,11 @@ export function buildPageMeta(
     alternates: market ? marketAlternates(siteUrl, path) : [],
     siteName: businessName,
     type: seo.ogType ?? "website",
-    image: { url: toAbsoluteUrl(rawImage), width: 1200, height: 630 },
+    image: shareImage(
+      toAbsoluteUrl(rawImage),
+      title,
+      branding.backgroundColor || BRANDING_FALLBACK.backgroundColor
+    ),
     themeColor: branding.primaryColor || BRANDING_FALLBACK.primaryColor,
     jsonLd: [...baselineLd, ...asList(seo.jsonLd)],
   };

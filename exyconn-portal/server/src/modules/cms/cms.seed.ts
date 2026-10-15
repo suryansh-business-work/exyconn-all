@@ -143,6 +143,21 @@ async function seedSite(seed: CmsSiteSeed): Promise<void> {
   await CmsSiteModel.updateOne({ _id: siteId }, { ...update, seededKeys: [...done] });
 }
 
+/**
+ * Gives a seeded page the share image its seed now names, when the page still has none — the
+ * seed is insert-only, so pages created before the seed had an image would keep the branding
+ * logo as their link preview. A page whose image an editor set is left alone.
+ */
+async function backfillSeedShareImages(seed: CmsSiteSeed): Promise<void> {
+  for (const page of seed.pages) {
+    if (page.seo.ogImageUrl === '') continue;
+    await CmsPageModel.updateMany(
+      { seedKey: page.key, 'seo.ogImageUrl': { $in: ['', null] } },
+      { $set: { 'seo.ogImageUrl': page.seo.ogImageUrl } },
+    );
+  }
+}
+
 /** Files every website record from before the CMS under the default site. */
 async function assignDefaultSite(): Promise<void> {
   const site = await CmsSiteModel.findOne({ isDefault: true }).select('_id').lean();
@@ -169,5 +184,6 @@ export async function ensureCmsDefaults(): Promise<void> {
   await runAsPlatform(async () => {
     await seedSite(EXYCONN_SEED);
     await runOnce('cms-site-ids', assignDefaultSite);
+    await runOnce('cms-seed-share-images', () => backfillSeedShareImages(EXYCONN_SEED));
   });
 }
