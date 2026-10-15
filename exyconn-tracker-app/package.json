@@ -1,6 +1,6 @@
 {
   "name": "exyconn-tracker-app",
-  "version": "1.10.47",
+  "version": "1.10.48",
   "private": true,
   "description": "Exyconn Tracker — cross-platform desktop time tracker (Windows + macOS).",
   "main": "out/main/index.js",

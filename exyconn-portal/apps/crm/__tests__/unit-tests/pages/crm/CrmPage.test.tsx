@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ListLeadsPagedDocument } from '@exyconn/shell/graphql/generated';
+import { SearchLeadsDocument } from '@exyconn/shell/graphql/generated';
 import { CrmPage } from '../../../../src/pages/crm';
 import { LEAD_COLUMNS } from '../../../../src/pages/crm/leads-grid';
 import { renderWithProviders } from '../../test-utils';
 import { leadRow, pending, tableStats } from '../../fixtures';
-import { dashboardProps, paged } from '../../crud-dashboard-stub';
+import { dashboardProps, recordList } from '../../crud-dashboard-stub';
 import { confirmRowDelete, runRowAction, statLines } from '../../crud-page-helpers';
 import { UrlProbe } from '../../form-stub';
 
@@ -26,6 +26,11 @@ vi.mock('@exyconn/crud', async (importOriginal) => {
     usePagedFetcher: stub.usePagedFetcherStub,
   };
 });
+
+vi.mock(
+  '../../../../src/records/list',
+  async () => (await import('../../crud-dashboard-stub')).recordListStub,
+);
 
 vi.mock('../../../../src/pages/crm/forms/lead', async () => ({
   LeadForm: (await import('../../form-stub')).FormStub,
@@ -78,12 +83,12 @@ describe('CrmPage', () => {
     expect(statLines()).toEqual(['Leads: 0', 'Pipeline: ₹0', 'Won: 0', 'Lost: 0']);
   });
 
-  it('drives the server grid with the paged leads query and the lead columns', () => {
+  it('drives the server grid with the leads query and the lead columns', () => {
     renderPage();
     const page = { totalCount: 1, rows: [leadRow()] };
 
-    expect(paged.document).toBe(ListLeadsPagedDocument);
-    expect(paged.select?.({ listLeadsPaged: page } as never)).toBe(page);
+    expect(recordList.options?.document).toBe(SearchLeadsDocument);
+    expect(recordList.options?.select({ searchLeads: page } as never)).toBe(page);
     expect(dashboardProps().columnDefs).toBe(LEAD_COLUMNS);
     expect(dashboardProps()).toMatchObject({ title: 'CRM', exportFileName: 'leads' });
   });

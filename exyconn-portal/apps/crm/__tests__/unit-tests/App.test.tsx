@@ -10,6 +10,7 @@ import { ContactsPage } from '../../src/pages/contacts';
 import { DealsListPage, DealsPage } from '../../src/pages/deals';
 import { ActivitiesPage } from '../../src/pages/activities';
 import { EmailVerifierPage } from '../../src/pages/email-verifier';
+import { PropertiesPage } from '../../src/pages/settings';
 
 interface PortalProps {
   loginElement: ReactElement;
@@ -62,6 +63,7 @@ describe('App', () => {
       ['/crm/deals/list', DealsListPage],
       ['/crm/activities', ActivitiesPage],
       ['/crm/tools/email-verifier/:tab?', EmailVerifierPage],
+      ['/crm/settings/properties/:object?', PropertiesPage],
     ]);
   });
 });

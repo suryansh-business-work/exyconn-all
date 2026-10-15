@@ -12,6 +12,12 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   ...(await importOriginal<typeof import('@exyconn/shell/graphql/generated')>()),
   useCreateCompanyMutation: () => [gql.create],
   useUpdateCompanyMutation: () => [gql.update],
+  // The record type has no custom properties: the form renders its built-in fields only.
+  useCrmObjectSchemaQuery: () => ({
+    data: { crmObjectSchema: { object: 'COMPANY', dedupeKey: '', properties: [] } },
+    loading: false,
+    refetch: vi.fn(),
+  }),
 }));
 
 function renderForm(initial: ReturnType<typeof companyRow> | null = null) {
@@ -92,6 +98,7 @@ describe('CompanyForm', () => {
           location: '',
           owner: 'Priya',
           notes: '',
+          custom: {},
         },
       },
     });

@@ -792,6 +792,7 @@ export enum AuditAction {
   Access = 'ACCESS',
   Create = 'CREATE',
   Delete = 'DELETE',
+  Import = 'IMPORT',
   Login = 'LOGIN',
   PasswordReset = 'PASSWORD_RESET',
   Permission = 'PERMISSION',
@@ -2239,6 +2240,7 @@ export type Company = {
   /** The Admin client this account became when a deal was won; empty until then. */
   clientId: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
+  custom: Scalars['JSON']['output'];
   domain: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   industry: Scalars['String']['output'];
@@ -2351,6 +2353,7 @@ export type CompanyFinance = {
 };
 
 export type CompanyInput = {
+  custom?: InputMaybe<Scalars['JSON']['input']>;
   domain: Scalars['String']['input'];
   industry?: InputMaybe<Scalars['String']['input']>;
   location?: InputMaybe<Scalars['String']['input']>;
@@ -2444,6 +2447,7 @@ export type Contact = {
   companyId: Scalars['String']['output'];
   companyName: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
+  custom: Scalars['JSON']['output'];
   email: Scalars['String']['output'];
   /** The latest check of this contact's email; null when it was never checked. */
   emailVerification?: Maybe<EmailVerification>;
@@ -2460,6 +2464,7 @@ export type Contact = {
 export type ContactInput = {
   companyId?: InputMaybe<Scalars['String']['input']>;
   companyName?: InputMaybe<Scalars['String']['input']>;
+  custom?: InputMaybe<Scalars['JSON']['input']>;
   email: Scalars['String']['input'];
   name: Scalars['String']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
@@ -2686,6 +2691,212 @@ export type CreatedWebhook = {
   __typename?: 'CreatedWebhook';
   secret: Scalars['String']['output'];
   webhook: Webhook;
+};
+
+export type CrmCondition = {
+  __typename?: 'CrmCondition';
+  op: CrmOp;
+  property: Scalars['String']['output'];
+  values: Array<Scalars['String']['output']>;
+};
+
+export type CrmConditionInput = {
+  op: CrmOp;
+  property: Scalars['String']['input'];
+  /** Dates as ISO strings; BETWEEN takes two values, IN/NOT_IN any number. */
+  values: Array<Scalars['String']['input']>;
+};
+
+export type CrmFilterGroup = {
+  __typename?: 'CrmFilterGroup';
+  conditions: Array<CrmCondition>;
+};
+
+/** Conditions in a group must all hold; a record matches when any group does. */
+export type CrmFilterGroupInput = {
+  conditions: Array<CrmConditionInput>;
+};
+
+export type CrmImportInput = {
+  /** The file line of the first row, so issues name lines a person can find. */
+  firstRowNumber: Scalars['Int']['input'];
+  mode: CrmImportMode;
+  object: CrmObject;
+  /** Up to 500 rows, each an object of property key to cell text. */
+  rows: Array<Scalars['JSON']['input']>;
+};
+
+export type CrmImportIssue = {
+  __typename?: 'CrmImportIssue';
+  message: Scalars['String']['output'];
+  row: Scalars['Int']['output'];
+  /** Left alone on purpose (already exists, nothing to update) rather than invalid. */
+  skipped: Scalars['Boolean']['output'];
+};
+
+/** CREATE skips rows that match an existing record, UPDATE skips rows that do not, UPSERT does both. */
+export enum CrmImportMode {
+  Create = 'CREATE',
+  Update = 'UPDATE',
+  Upsert = 'UPSERT'
+}
+
+export type CrmImportResult = {
+  __typename?: 'CrmImportResult';
+  created: Scalars['Int']['output'];
+  issues: Array<CrmImportIssue>;
+  skipped: Scalars['Int']['output'];
+  updated: Scalars['Int']['output'];
+};
+
+export enum CrmObject {
+  Company = 'COMPANY',
+  Contact = 'CONTACT',
+  Lead = 'LEAD'
+}
+
+export type CrmObjectSchema = {
+  __typename?: 'CrmObjectSchema';
+  /** The property that identifies a record on import (email, or domain for a company). */
+  dedupeKey: Scalars['String']['output'];
+  object: CrmObject;
+  properties: Array<CrmPropertyInfo>;
+};
+
+/** What a filter condition asks of a property; which ones apply depends on its type. */
+export enum CrmOp {
+  After = 'AFTER',
+  Before = 'BEFORE',
+  Between = 'BETWEEN',
+  Contains = 'CONTAINS',
+  EndsWith = 'ENDS_WITH',
+  Eq = 'EQ',
+  Gt = 'GT',
+  Gte = 'GTE',
+  In = 'IN',
+  IsEmpty = 'IS_EMPTY',
+  IsNotEmpty = 'IS_NOT_EMPTY',
+  LastDays = 'LAST_DAYS',
+  Lt = 'LT',
+  Lte = 'LTE',
+  Neq = 'NEQ',
+  NotContains = 'NOT_CONTAINS',
+  NotIn = 'NOT_IN',
+  StartsWith = 'STARTS_WITH'
+}
+
+/** A property a company added (CRM > Settings > Properties). */
+export type CrmProperty = {
+  __typename?: 'CrmProperty';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  key: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+  object: CrmObject;
+  options: Array<CrmPropertyOption>;
+  order: Scalars['Int']['output'];
+  required: Scalars['Boolean']['output'];
+  type: CrmPropertyType;
+};
+
+/** One property of a record type, as lists, filters, import and export see it. */
+export type CrmPropertyInfo = {
+  __typename?: 'CrmPropertyInfo';
+  builtIn: Scalars['Boolean']['output'];
+  description: Scalars['String']['output'];
+  importable: Scalars['Boolean']['output'];
+  key: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+  /** The operators a filter on this property may use. */
+  ops: Array<CrmOp>;
+  options: Array<CrmPropertyOption>;
+  required: Scalars['Boolean']['output'];
+  type: CrmPropertyType;
+};
+
+export type CrmPropertyInput = {
+  description: Scalars['String']['input'];
+  key: Scalars['String']['input'];
+  label: Scalars['String']['input'];
+  object: CrmObject;
+  options: Array<CrmPropertyOptionInput>;
+  required: Scalars['Boolean']['input'];
+  type: CrmPropertyType;
+};
+
+export type CrmPropertyOption = {
+  __typename?: 'CrmPropertyOption';
+  label: Scalars['String']['output'];
+  value: Scalars['String']['output'];
+};
+
+export type CrmPropertyOptionInput = {
+  label: Scalars['String']['input'];
+  value: Scalars['String']['input'];
+};
+
+export enum CrmPropertyType {
+  Boolean = 'BOOLEAN',
+  Date = 'DATE',
+  Email = 'EMAIL',
+  Enum = 'ENUM',
+  Number = 'NUMBER',
+  Phone = 'PHONE',
+  Text = 'TEXT',
+  Url = 'URL'
+}
+
+/** The key, type and record type of a property are fixed once it exists. */
+export type CrmPropertyUpdateInput = {
+  description: Scalars['String']['input'];
+  label: Scalars['String']['input'];
+  options: Array<CrmPropertyOptionInput>;
+  required: Scalars['Boolean']['input'];
+};
+
+export type CrmQueryInput = {
+  groups?: InputMaybe<Array<CrmFilterGroupInput>>;
+  /** Zero-based. */
+  page: Scalars['Int']['input'];
+  pageSize: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sorts?: InputMaybe<Array<CrmSortInput>>;
+};
+
+export type CrmSort = {
+  __typename?: 'CrmSort';
+  dir: SortDir;
+  property: Scalars['String']['output'];
+};
+
+export type CrmSortInput = {
+  dir: SortDir;
+  property: Scalars['String']['input'];
+};
+
+export type CrmView = {
+  __typename?: 'CrmView';
+  columns: Array<Scalars['String']['output']>;
+  groups: Array<CrmFilterGroup>;
+  id: Scalars['ID']['output'];
+  /** Saved by the person asking, who may change or delete it. */
+  mine: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  object: CrmObject;
+  ownerName: Scalars['String']['output'];
+  search: Scalars['String']['output'];
+  shared: Scalars['Boolean']['output'];
+  sorts: Array<CrmSort>;
+};
+
+export type CrmViewInput = {
+  columns: Array<Scalars['String']['input']>;
+  groups: Array<CrmFilterGroupInput>;
+  name: Scalars['String']['input'];
+  object: CrmObject;
+  search: Scalars['String']['input'];
+  shared: Scalars['Boolean']['input'];
+  sorts: Array<CrmSortInput>;
 };
 
 /** The MongoDB this server is connected to, reported by the database server. */
@@ -4991,6 +5202,8 @@ export type Lead = {
   /** The deal this lead was converted into, once it has been. */
   convertedDealId?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
+  /** Values of the company's own properties, keyed by property key. */
+  custom: Scalars['JSON']['output'];
   email: Scalars['String']['output'];
   /** The latest check of this lead's email; null when it was never checked. */
   emailVerification?: Maybe<EmailVerification>;
@@ -5007,6 +5220,7 @@ export type Lead = {
 export type LeadInput = {
   /** Attribution. The campaign's name is filled in by the server from this id. */
   campaignId?: InputMaybe<Scalars['String']['input']>;
+  custom?: InputMaybe<Scalars['JSON']['input']>;
   email: Scalars['String']['input'];
   name: Scalars['String']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
@@ -5560,6 +5774,8 @@ export type Mutation = {
   createContact: Contact;
   createContract: Contract;
   createCostCenter: CostCenter;
+  createCrmProperty: CrmProperty;
+  createCrmView: CrmView;
   createDeal: Deal;
   createDepartment: Department;
   createDocPage: DocPage;
@@ -5730,6 +5946,9 @@ export type Mutation = {
   deleteContact: Scalars['Boolean']['output'];
   deleteContract: Scalars['Boolean']['output'];
   deleteCostCenter: Scalars['Boolean']['output'];
+  /** Deletes the property and its values on every record. */
+  deleteCrmProperty: Scalars['Boolean']['output'];
+  deleteCrmView: Scalars['Boolean']['output'];
   deleteDeal: Scalars['Boolean']['output'];
   deleteDepartment: Scalars['Boolean']['output'];
   /** Deletes the page and everything filed under it. */
@@ -5850,6 +6069,7 @@ export type Mutation = {
   /** Mark an APPROVED request as carried out in the target system. */
   fulfilItAccessRequest: ItAccessRequest;
   grantTrackerAccess: TrackerAccess;
+  importCrmRecords: CrmImportResult;
   importMediaFromUrl: Scalars['String']['output'];
   /**
    * Disables a leaver's account. Only someone with an exit on record, never an administrator
@@ -6260,6 +6480,8 @@ export type Mutation = {
   updateContact: Contact;
   updateContract: Contract;
   updateCostCenter: CostCenter;
+  updateCrmProperty: CrmProperty;
+  updateCrmView: CrmView;
   updateDeal: Deal;
   updateDepartment: Department;
   updateDocPage: DocPage;
@@ -6704,6 +6926,16 @@ export type MutationCreateContractArgs = {
 
 export type MutationCreateCostCenterArgs = {
   input: CostCenterInput;
+};
+
+
+export type MutationCreateCrmPropertyArgs = {
+  input: CrmPropertyInput;
+};
+
+
+export type MutationCreateCrmViewArgs = {
+  input: CrmViewInput;
 };
 
 
@@ -7414,6 +7646,16 @@ export type MutationDeleteCostCenterArgs = {
 };
 
 
+export type MutationDeleteCrmPropertyArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteCrmViewArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteDealArgs = {
   id: Scalars['ID']['input'];
 };
@@ -7939,6 +8181,11 @@ export type MutationFulfilItAccessRequestArgs = {
 
 export type MutationGrantTrackerAccessArgs = {
   userId: Scalars['ID']['input'];
+};
+
+
+export type MutationImportCrmRecordsArgs = {
+  input: CrmImportInput;
 };
 
 
@@ -8943,6 +9190,18 @@ export type MutationUpdateContractArgs = {
 export type MutationUpdateCostCenterArgs = {
   id: Scalars['ID']['input'];
   input: CostCenterInput;
+};
+
+
+export type MutationUpdateCrmPropertyArgs = {
+  id: Scalars['ID']['input'];
+  input: CrmPropertyUpdateInput;
+};
+
+
+export type MutationUpdateCrmViewArgs = {
+  id: Scalars['ID']['input'];
+  input: CrmViewInput;
 };
 
 
@@ -11186,6 +11445,9 @@ export type Query = {
    * link is unknown, withdrawn or expired.
    */
   contractToSign?: Maybe<ContractToSign>;
+  crmObjectSchema: CrmObjectSchema;
+  crmProperties: Array<CrmProperty>;
+  crmViews: Array<CrmView>;
   /** Open deals (not won or lost): how many, their face value and the probability-weighted value. */
   dealForecast: DealForecast;
   /** The domains on the active GoDaddy account. */
@@ -11827,6 +12089,8 @@ export type Query = {
    * at most a handful from each — this answers "take me to that record", not "report on it".
    */
   search: Array<SearchGroup>;
+  searchCompanies: CompanyPage;
+  searchContacts: ContactPage;
   /**
    * Any signed-in user: published articles matching a phrase, best match first.
    *
@@ -11834,6 +12098,7 @@ export type Query = {
    * paste and an employee hunting for it themselves are the same search.
    */
   searchKnowledgeBase: Array<KbArticle>;
+  searchLeads: LeadPage;
   /** Stock photos for the shared upload dialog. Any signed-in user may search. */
   searchPexelsPhotos: Array<PexelsMedia>;
   /** Stock videos for the shared upload dialog. Any signed-in user may search. */
@@ -12176,6 +12441,21 @@ export type QueryContractSignaturesArgs = {
 
 export type QueryContractToSignArgs = {
   token: Scalars['String']['input'];
+};
+
+
+export type QueryCrmObjectSchemaArgs = {
+  object: CrmObject;
+};
+
+
+export type QueryCrmPropertiesArgs = {
+  object: CrmObject;
+};
+
+
+export type QueryCrmViewsArgs = {
+  object: CrmObject;
 };
 
 
@@ -13444,8 +13724,23 @@ export type QuerySearchArgs = {
 };
 
 
+export type QuerySearchCompaniesArgs = {
+  query: CrmQueryInput;
+};
+
+
+export type QuerySearchContactsArgs = {
+  query: CrmQueryInput;
+};
+
+
 export type QuerySearchKnowledgeBaseArgs = {
   query: Scalars['String']['input'];
+};
+
+
+export type QuerySearchLeadsArgs = {
+  query: CrmQueryInput;
 };
 
 
@@ -17556,6 +17851,29 @@ export type ResolversTypes = ResolversObject<{
   CostCenterPage: ResolverTypeWrapper<CostCenterPage>;
   CreateUserInput: CreateUserInput;
   CreatedWebhook: ResolverTypeWrapper<CreatedWebhook>;
+  CrmCondition: ResolverTypeWrapper<CrmCondition>;
+  CrmConditionInput: CrmConditionInput;
+  CrmFilterGroup: ResolverTypeWrapper<CrmFilterGroup>;
+  CrmFilterGroupInput: CrmFilterGroupInput;
+  CrmImportInput: CrmImportInput;
+  CrmImportIssue: ResolverTypeWrapper<CrmImportIssue>;
+  CrmImportMode: CrmImportMode;
+  CrmImportResult: ResolverTypeWrapper<CrmImportResult>;
+  CrmObject: CrmObject;
+  CrmObjectSchema: ResolverTypeWrapper<CrmObjectSchema>;
+  CrmOp: CrmOp;
+  CrmProperty: ResolverTypeWrapper<CrmProperty>;
+  CrmPropertyInfo: ResolverTypeWrapper<CrmPropertyInfo>;
+  CrmPropertyInput: CrmPropertyInput;
+  CrmPropertyOption: ResolverTypeWrapper<CrmPropertyOption>;
+  CrmPropertyOptionInput: CrmPropertyOptionInput;
+  CrmPropertyType: CrmPropertyType;
+  CrmPropertyUpdateInput: CrmPropertyUpdateInput;
+  CrmQueryInput: CrmQueryInput;
+  CrmSort: ResolverTypeWrapper<CrmSort>;
+  CrmSortInput: CrmSortInput;
+  CrmView: ResolverTypeWrapper<CrmView>;
+  CrmViewInput: CrmViewInput;
   DatabaseInfo: ResolverTypeWrapper<DatabaseInfo>;
   DateTime: ResolverTypeWrapper<Scalars['DateTime']['output']>;
   Deal: ResolverTypeWrapper<Deal>;
@@ -18426,6 +18744,25 @@ export type ResolversParentTypes = ResolversObject<{
   CostCenterPage: CostCenterPage;
   CreateUserInput: CreateUserInput;
   CreatedWebhook: CreatedWebhook;
+  CrmCondition: CrmCondition;
+  CrmConditionInput: CrmConditionInput;
+  CrmFilterGroup: CrmFilterGroup;
+  CrmFilterGroupInput: CrmFilterGroupInput;
+  CrmImportInput: CrmImportInput;
+  CrmImportIssue: CrmImportIssue;
+  CrmImportResult: CrmImportResult;
+  CrmObjectSchema: CrmObjectSchema;
+  CrmProperty: CrmProperty;
+  CrmPropertyInfo: CrmPropertyInfo;
+  CrmPropertyInput: CrmPropertyInput;
+  CrmPropertyOption: CrmPropertyOption;
+  CrmPropertyOptionInput: CrmPropertyOptionInput;
+  CrmPropertyUpdateInput: CrmPropertyUpdateInput;
+  CrmQueryInput: CrmQueryInput;
+  CrmSort: CrmSort;
+  CrmSortInput: CrmSortInput;
+  CrmView: CrmView;
+  CrmViewInput: CrmViewInput;
   DatabaseInfo: DatabaseInfo;
   DateTime: Scalars['DateTime']['output'];
   Deal: Deal;
@@ -20191,6 +20528,7 @@ export type CmsSiteSeoResolvers<ContextType = GraphQLContext, ParentType extends
 export type CompanyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Company'] = ResolversParentTypes['Company']> = ResolversObject<{
   clientId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  custom?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
   domain?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   industry?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -20303,6 +20641,7 @@ export type ContactResolvers<ContextType = GraphQLContext, ParentType extends Re
   companyId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   companyName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  custom?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   emailVerification?: Resolver<Maybe<ResolversTypes['EmailVerification']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -20423,6 +20762,92 @@ export type CostCenterPageResolvers<ContextType = GraphQLContext, ParentType ext
 export type CreatedWebhookResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CreatedWebhook'] = ResolversParentTypes['CreatedWebhook']> = ResolversObject<{
   secret?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   webhook?: Resolver<ResolversTypes['Webhook'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmConditionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmCondition'] = ResolversParentTypes['CrmCondition']> = ResolversObject<{
+  op?: Resolver<ResolversTypes['CrmOp'], ParentType, ContextType>;
+  property?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  values?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmFilterGroupResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmFilterGroup'] = ResolversParentTypes['CrmFilterGroup']> = ResolversObject<{
+  conditions?: Resolver<Array<ResolversTypes['CrmCondition']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmImportIssueResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmImportIssue'] = ResolversParentTypes['CrmImportIssue']> = ResolversObject<{
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  row?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  skipped?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmImportResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmImportResult'] = ResolversParentTypes['CrmImportResult']> = ResolversObject<{
+  created?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  issues?: Resolver<Array<ResolversTypes['CrmImportIssue']>, ParentType, ContextType>;
+  skipped?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  updated?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmObjectSchemaResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmObjectSchema'] = ResolversParentTypes['CrmObjectSchema']> = ResolversObject<{
+  dedupeKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  object?: Resolver<ResolversTypes['CrmObject'], ParentType, ContextType>;
+  properties?: Resolver<Array<ResolversTypes['CrmPropertyInfo']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmPropertyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmProperty'] = ResolversParentTypes['CrmProperty']> = ResolversObject<{
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  object?: Resolver<ResolversTypes['CrmObject'], ParentType, ContextType>;
+  options?: Resolver<Array<ResolversTypes['CrmPropertyOption']>, ParentType, ContextType>;
+  order?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  required?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['CrmPropertyType'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmPropertyInfoResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmPropertyInfo'] = ResolversParentTypes['CrmPropertyInfo']> = ResolversObject<{
+  builtIn?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  importable?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  key?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  ops?: Resolver<Array<ResolversTypes['CrmOp']>, ParentType, ContextType>;
+  options?: Resolver<Array<ResolversTypes['CrmPropertyOption']>, ParentType, ContextType>;
+  required?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  type?: Resolver<ResolversTypes['CrmPropertyType'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmPropertyOptionResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmPropertyOption'] = ResolversParentTypes['CrmPropertyOption']> = ResolversObject<{
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  value?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmSortResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmSort'] = ResolversParentTypes['CrmSort']> = ResolversObject<{
+  dir?: Resolver<ResolversTypes['SortDir'], ParentType, ContextType>;
+  property?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmViewResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmView'] = ResolversParentTypes['CrmView']> = ResolversObject<{
+  columns?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  groups?: Resolver<Array<ResolversTypes['CrmFilterGroup']>, ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  mine?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  object?: Resolver<ResolversTypes['CrmObject'], ParentType, ContextType>;
+  ownerName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  search?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  shared?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  sorts?: Resolver<Array<ResolversTypes['CrmSort']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -21742,6 +22167,7 @@ export type LeadResolvers<ContextType = GraphQLContext, ParentType extends Resol
   campaignName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   convertedDealId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  custom?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   emailVerification?: Resolver<Maybe<ResolversTypes['EmailVerification']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -22055,6 +22481,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createContact?: Resolver<ResolversTypes['Contact'], ParentType, ContextType, RequireFields<MutationCreateContactArgs, 'input'>>;
   createContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationCreateContractArgs, 'input'>>;
   createCostCenter?: Resolver<ResolversTypes['CostCenter'], ParentType, ContextType, RequireFields<MutationCreateCostCenterArgs, 'input'>>;
+  createCrmProperty?: Resolver<ResolversTypes['CrmProperty'], ParentType, ContextType, RequireFields<MutationCreateCrmPropertyArgs, 'input'>>;
+  createCrmView?: Resolver<ResolversTypes['CrmView'], ParentType, ContextType, RequireFields<MutationCreateCrmViewArgs, 'input'>>;
   createDeal?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationCreateDealArgs, 'input'>>;
   createDepartment?: Resolver<ResolversTypes['Department'], ParentType, ContextType, RequireFields<MutationCreateDepartmentArgs, 'input'>>;
   createDocPage?: Resolver<ResolversTypes['DocPage'], ParentType, ContextType, RequireFields<MutationCreateDocPageArgs, 'projectId' | 'title'>>;
@@ -22191,6 +22619,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteContact?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteContactArgs, 'id'>>;
   deleteContract?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteContractArgs, 'id'>>;
   deleteCostCenter?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCostCenterArgs, 'id'>>;
+  deleteCrmProperty?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCrmPropertyArgs, 'id'>>;
+  deleteCrmView?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteCrmViewArgs, 'id'>>;
   deleteDeal?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteDealArgs, 'id'>>;
   deleteDepartment?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteDepartmentArgs, 'id'>>;
   deleteDocPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteDocPageArgs, 'id'>>;
@@ -22297,6 +22727,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   escalateSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationEscalateSupportTicketArgs, 'id' | 'reason'>>;
   fulfilItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationFulfilItAccessRequestArgs, 'id'>>;
   grantTrackerAccess?: Resolver<ResolversTypes['TrackerAccess'], ParentType, ContextType, RequireFields<MutationGrantTrackerAccessArgs, 'userId'>>;
+  importCrmRecords?: Resolver<ResolversTypes['CrmImportResult'], ParentType, ContextType, RequireFields<MutationImportCrmRecordsArgs, 'input'>>;
   importMediaFromUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationImportMediaFromUrlArgs, 'fileName' | 'url'>>;
   itDisableLeaverAccount?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationItDisableLeaverAccountArgs, 'employeeId'>>;
   itProvisionOnboarding?: Resolver<Array<ResolversTypes['ItAccessRequest']>, ParentType, ContextType, RequireFields<MutationItProvisionOnboardingArgs, 'employeeId'>>;
@@ -22478,6 +22909,8 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateContact?: Resolver<ResolversTypes['Contact'], ParentType, ContextType, RequireFields<MutationUpdateContactArgs, 'id' | 'input'>>;
   updateContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationUpdateContractArgs, 'id' | 'input'>>;
   updateCostCenter?: Resolver<ResolversTypes['CostCenter'], ParentType, ContextType, RequireFields<MutationUpdateCostCenterArgs, 'id' | 'input'>>;
+  updateCrmProperty?: Resolver<ResolversTypes['CrmProperty'], ParentType, ContextType, RequireFields<MutationUpdateCrmPropertyArgs, 'id' | 'input'>>;
+  updateCrmView?: Resolver<ResolversTypes['CrmView'], ParentType, ContextType, RequireFields<MutationUpdateCrmViewArgs, 'id' | 'input'>>;
   updateDeal?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationUpdateDealArgs, 'id' | 'input'>>;
   updateDepartment?: Resolver<ResolversTypes['Department'], ParentType, ContextType, RequireFields<MutationUpdateDepartmentArgs, 'id' | 'input'>>;
   updateDocPage?: Resolver<ResolversTypes['DocPage'], ParentType, ContextType, RequireFields<MutationUpdateDocPageArgs, 'id'>>;
@@ -23437,6 +23870,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   complianceOverview?: Resolver<ResolversTypes['ComplianceOverview'], ParentType, ContextType>;
   contractSignatures?: Resolver<Array<ResolversTypes['ContractSignature']>, ParentType, ContextType, RequireFields<QueryContractSignaturesArgs, 'contractId'>>;
   contractToSign?: Resolver<Maybe<ResolversTypes['ContractToSign']>, ParentType, ContextType, RequireFields<QueryContractToSignArgs, 'token'>>;
+  crmObjectSchema?: Resolver<ResolversTypes['CrmObjectSchema'], ParentType, ContextType, RequireFields<QueryCrmObjectSchemaArgs, 'object'>>;
+  crmProperties?: Resolver<Array<ResolversTypes['CrmProperty']>, ParentType, ContextType, RequireFields<QueryCrmPropertiesArgs, 'object'>>;
+  crmViews?: Resolver<Array<ResolversTypes['CrmView']>, ParentType, ContextType, RequireFields<QueryCrmViewsArgs, 'object'>>;
   dealForecast?: Resolver<ResolversTypes['DealForecast'], ParentType, ContextType>;
   dnsDomains?: Resolver<Array<ResolversTypes['DnsDomain']>, ParentType, ContextType>;
   dnsOverview?: Resolver<ResolversTypes['DnsOverview'], ParentType, ContextType, RequireFields<QueryDnsOverviewArgs, 'domain'>>;
@@ -23940,7 +24376,10 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   receivables?: Resolver<ResolversTypes['Receivables'], ParentType, ContextType>;
   salarySlipPdf?: Resolver<ResolversTypes['SalarySlipDownload'], ParentType, ContextType, RequireFields<QuerySalarySlipPdfArgs, 'id'>>;
   search?: Resolver<Array<ResolversTypes['SearchGroup']>, ParentType, ContextType, RequireFields<QuerySearchArgs, 'query'>>;
+  searchCompanies?: Resolver<ResolversTypes['CompanyPage'], ParentType, ContextType, RequireFields<QuerySearchCompaniesArgs, 'query'>>;
+  searchContacts?: Resolver<ResolversTypes['ContactPage'], ParentType, ContextType, RequireFields<QuerySearchContactsArgs, 'query'>>;
   searchKnowledgeBase?: Resolver<Array<ResolversTypes['KbArticle']>, ParentType, ContextType, RequireFields<QuerySearchKnowledgeBaseArgs, 'query'>>;
+  searchLeads?: Resolver<ResolversTypes['LeadPage'], ParentType, ContextType, RequireFields<QuerySearchLeadsArgs, 'query'>>;
   searchPexelsPhotos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsPhotosArgs, 'query'>>;
   searchPexelsVideos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsVideosArgs, 'query'>>;
   sharedGccEstimate?: Resolver<Maybe<ResolversTypes['GccSharedEstimate']>, ParentType, ContextType, RequireFields<QuerySharedGccEstimateArgs, 'token'>>;
@@ -26139,6 +26578,16 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   CostCenter?: CostCenterResolvers<ContextType>;
   CostCenterPage?: CostCenterPageResolvers<ContextType>;
   CreatedWebhook?: CreatedWebhookResolvers<ContextType>;
+  CrmCondition?: CrmConditionResolvers<ContextType>;
+  CrmFilterGroup?: CrmFilterGroupResolvers<ContextType>;
+  CrmImportIssue?: CrmImportIssueResolvers<ContextType>;
+  CrmImportResult?: CrmImportResultResolvers<ContextType>;
+  CrmObjectSchema?: CrmObjectSchemaResolvers<ContextType>;
+  CrmProperty?: CrmPropertyResolvers<ContextType>;
+  CrmPropertyInfo?: CrmPropertyInfoResolvers<ContextType>;
+  CrmPropertyOption?: CrmPropertyOptionResolvers<ContextType>;
+  CrmSort?: CrmSortResolvers<ContextType>;
+  CrmView?: CrmViewResolvers<ContextType>;
   DatabaseInfo?: DatabaseInfoResolvers<ContextType>;
   DateTime?: GraphQLScalarType;
   Deal?: DealResolvers<ContextType>;

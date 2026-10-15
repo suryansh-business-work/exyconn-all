@@ -20,6 +20,8 @@ const leadSchema = new Schema(
     campaignName: { type: String, default: '', trim: true },
     /** Set once the lead has been converted; the deal it became. */
     convertedDealId: { type: String, default: null },
+    /** Values of the company's own properties (CRM > Settings > Properties), keyed by property. */
+    custom: { type: Schema.Types.Mixed, default: {} },
   },
   { timestamps: true },
 );

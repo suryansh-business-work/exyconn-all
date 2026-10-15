@@ -19,6 +19,8 @@ const contactSchema = new Schema(
     status: { type: String, enum: CONTACT_STATUSES, required: true, default: 'ACTIVE' },
     owner: { type: String, required: true, trim: true },
     notes: { type: String, default: '' },
+    /** Values of the company's own properties (CRM > Settings > Properties), keyed by property. */
+    custom: { type: Schema.Types.Mixed, default: {} },
   },
   { timestamps: true },
 );

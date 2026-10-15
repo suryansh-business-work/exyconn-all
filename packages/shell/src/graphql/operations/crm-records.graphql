@@ -1,0 +1,166 @@
+# The CRM's dynamic records layer: properties, HubSpot-style lists, saved views and import.
+
+fragment CrmPropertyInfoFields on CrmPropertyInfo {
+  key
+  label
+  type
+  options {
+    value
+    label
+  }
+  required
+  builtIn
+  importable
+  description
+  ops
+}
+
+fragment CrmPropertyFields on CrmProperty {
+  id
+  object
+  key
+  label
+  type
+  options {
+    value
+    label
+  }
+  required
+  description
+  order
+}
+
+fragment CrmViewFields on CrmView {
+  id
+  object
+  name
+  shared
+  mine
+  ownerName
+  search
+  groups {
+    conditions {
+      property
+      op
+      values
+    }
+  }
+  sorts {
+    property
+    dir
+  }
+  columns
+}
+
+query CrmObjectSchema($object: CrmObject!) {
+  crmObjectSchema(object: $object) {
+    object
+    dedupeKey
+    properties {
+      ...CrmPropertyInfoFields
+    }
+  }
+}
+
+query CrmProperties($object: CrmObject!) {
+  crmProperties(object: $object) {
+    ...CrmPropertyFields
+  }
+}
+
+query CrmViews($object: CrmObject!) {
+  crmViews(object: $object) {
+    ...CrmViewFields
+  }
+}
+
+query SearchLeads($query: CrmQueryInput!) {
+  searchLeads(query: $query) {
+    totalCount
+    rows {
+      id
+      name
+      email
+      source
+      stage
+      value
+      owner
+      notes
+      campaignId
+      campaignName
+      convertedDealId
+      custom
+      createdAt
+      updatedAt
+      emailVerification {
+        ...EmailVerificationBadge
+      }
+    }
+  }
+}
+
+query SearchCompanies($query: CrmQueryInput!) {
+  searchCompanies(query: $query) {
+    totalCount
+    rows {
+      ...CompanyFields
+    }
+  }
+}
+
+query SearchContacts($query: CrmQueryInput!) {
+  searchContacts(query: $query) {
+    totalCount
+    rows {
+      ...ContactFields
+      emailVerification {
+        ...EmailVerificationBadge
+      }
+    }
+  }
+}
+
+mutation CreateCrmProperty($input: CrmPropertyInput!) {
+  createCrmProperty(input: $input) {
+    ...CrmPropertyFields
+  }
+}
+
+mutation UpdateCrmProperty($id: ID!, $input: CrmPropertyUpdateInput!) {
+  updateCrmProperty(id: $id, input: $input) {
+    ...CrmPropertyFields
+  }
+}
+
+mutation DeleteCrmProperty($id: ID!) {
+  deleteCrmProperty(id: $id)
+}
+
+mutation CreateCrmView($input: CrmViewInput!) {
+  createCrmView(input: $input) {
+    ...CrmViewFields
+  }
+}
+
+mutation UpdateCrmView($id: ID!, $input: CrmViewInput!) {
+  updateCrmView(id: $id, input: $input) {
+    ...CrmViewFields
+  }
+}
+
+mutation DeleteCrmView($id: ID!) {
+  deleteCrmView(id: $id)
+}
+
+mutation ImportCrmRecords($input: CrmImportInput!) {
+  importCrmRecords(input: $input) {
+    created
+    updated
+    skipped
+    issues {
+      row
+      message
+      skipped
+    }
+  }
+}

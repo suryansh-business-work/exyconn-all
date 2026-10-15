@@ -65,6 +65,8 @@ import {
   crmEntitiesResolvers,
   crmTypeDefs,
   crmResolvers,
+  crmRecordsTypeDefs,
+  crmRecordsResolvers,
 } from '../modules/crm';
 import {
   productsInventoryTypeDefs,
@@ -231,6 +233,7 @@ export const typeDefs = [
   assetsTypeDefs,
   licencesTypeDefs,
   crmEntitiesTypeDefs,
+  crmRecordsTypeDefs,
   productsInventoryTypeDefs,
   productsPurchasingTypeDefs,
   integrationsTypeDefs,
@@ -326,6 +329,7 @@ export const resolvers = mergeResolvers([
   assetsResolvers,
   licencesResolvers,
   crmEntitiesResolvers,
+  crmRecordsResolvers,
   productsInventoryResolvers,
   productsPurchasingResolvers,
   integrationsResolvers,

@@ -17,6 +17,9 @@ const fetchRows = usePagedFetcher(
 );
 ```
 
+`CrudDashboard` (and `RecordCardList`) take an optional `initialSearch` that seeds the
+search box when they mount — the CRM lists use it for a saved view's search.
+
 Depends on `@exyconn/shell`; nothing depends on it but the apps.
 
 Full reference, including a module end to end:

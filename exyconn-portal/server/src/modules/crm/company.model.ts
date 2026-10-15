@@ -24,6 +24,8 @@ const companySchema = new Schema(
     notes: { type: String, default: '' },
     /** The Admin client this account became when a deal was won; empty until then. */
     clientId: { type: String, default: '', trim: true },
+    /** Values of the company's own properties (CRM > Settings > Properties), keyed by property. */
+    custom: { type: Schema.Types.Mixed, default: {} },
   },
   { timestamps: true },
 );

@@ -88,6 +88,9 @@ export function companyRow(overrides: Partial<CompanyFieldsFragment> = {}): Comp
     notes: '',
     clientId: '',
     isClient: false,
+    custom: {},
+    createdAt: '2026-10-01T00:00:00.000Z',
+    updatedAt: '2026-10-01T00:00:00.000Z',
     ...overrides,
   };
 }
@@ -105,6 +108,9 @@ export function contactRow(overrides: Partial<ContactFieldsFragment> = {}): Cont
     status: ContactStatus.Active,
     owner: 'Priya',
     notes: '',
+    custom: {},
+    createdAt: '2026-10-01T00:00:00.000Z',
+    updatedAt: '2026-10-01T00:00:00.000Z',
     ...overrides,
   };
 }

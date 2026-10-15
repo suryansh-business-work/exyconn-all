@@ -11,6 +11,7 @@ export const auditTypeDefs = gql`
     SETTINGS
     PERMISSION
     ACCESS
+    IMPORT
   }
 
   "One thing somebody changed. Append-only; read from Admin > Audit Log."

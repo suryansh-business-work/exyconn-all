@@ -13,6 +13,8 @@ export interface ServerDataGridProps<T> {
   fetchRows: (input: TableQueryInput) => Promise<TablePageResult<T>>;
   pageSize?: number;
   searchPlaceholder?: string;
+  /** What the search box holds when the grid mounts — a saved view's search, say. */
+  initialSearch?: string;
   onRowClick?: (row: T) => void;
   /** Passed to ag-grid so cell renderers can reach page-level handlers. */
   context?: object;

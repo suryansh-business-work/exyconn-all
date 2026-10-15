@@ -793,6 +793,7 @@ export enum AuditAction {
   Access = 'ACCESS',
   Create = 'CREATE',
   Delete = 'DELETE',
+  Import = 'IMPORT',
   Login = 'LOGIN',
   PasswordReset = 'PASSWORD_RESET',
   Permission = 'PERMISSION',
@@ -2240,6 +2241,7 @@ export type Company = {
   /** The Admin client this account became when a deal was won; empty until then. */
   clientId: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
+  custom: Scalars['JSON']['output'];
   domain: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   industry: Scalars['String']['output'];
@@ -2352,6 +2354,7 @@ export type CompanyFinance = {
 };
 
 export type CompanyInput = {
+  custom?: InputMaybe<Scalars['JSON']['input']>;
   domain: Scalars['String']['input'];
   industry?: InputMaybe<Scalars['String']['input']>;
   location?: InputMaybe<Scalars['String']['input']>;
@@ -2445,6 +2448,7 @@ export type Contact = {
   companyId: Scalars['String']['output'];
   companyName: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
+  custom: Scalars['JSON']['output'];
   email: Scalars['String']['output'];
   /** The latest check of this contact's email; null when it was never checked. */
   emailVerification?: Maybe<EmailVerification>;
@@ -2461,6 +2465,7 @@ export type Contact = {
 export type ContactInput = {
   companyId?: InputMaybe<Scalars['String']['input']>;
   companyName?: InputMaybe<Scalars['String']['input']>;
+  custom?: InputMaybe<Scalars['JSON']['input']>;
   email: Scalars['String']['input'];
   name: Scalars['String']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
@@ -2687,6 +2692,212 @@ export type CreatedWebhook = {
   __typename?: 'CreatedWebhook';
   secret: Scalars['String']['output'];
   webhook: Webhook;
+};
+
+export type CrmCondition = {
+  __typename?: 'CrmCondition';
+  op: CrmOp;
+  property: Scalars['String']['output'];
+  values: Array<Scalars['String']['output']>;
+};
+
+export type CrmConditionInput = {
+  op: CrmOp;
+  property: Scalars['String']['input'];
+  /** Dates as ISO strings; BETWEEN takes two values, IN/NOT_IN any number. */
+  values: Array<Scalars['String']['input']>;
+};
+
+export type CrmFilterGroup = {
+  __typename?: 'CrmFilterGroup';
+  conditions: Array<CrmCondition>;
+};
+
+/** Conditions in a group must all hold; a record matches when any group does. */
+export type CrmFilterGroupInput = {
+  conditions: Array<CrmConditionInput>;
+};
+
+export type CrmImportInput = {
+  /** The file line of the first row, so issues name lines a person can find. */
+  firstRowNumber: Scalars['Int']['input'];
+  mode: CrmImportMode;
+  object: CrmObject;
+  /** Up to 500 rows, each an object of property key to cell text. */
+  rows: Array<Scalars['JSON']['input']>;
+};
+
+export type CrmImportIssue = {
+  __typename?: 'CrmImportIssue';
+  message: Scalars['String']['output'];
+  row: Scalars['Int']['output'];
+  /** Left alone on purpose (already exists, nothing to update) rather than invalid. */
+  skipped: Scalars['Boolean']['output'];
+};
+
+/** CREATE skips rows that match an existing record, UPDATE skips rows that do not, UPSERT does both. */
+export enum CrmImportMode {
+  Create = 'CREATE',
+  Update = 'UPDATE',
+  Upsert = 'UPSERT'
+}
+
+export type CrmImportResult = {
+  __typename?: 'CrmImportResult';
+  created: Scalars['Int']['output'];
+  issues: Array<CrmImportIssue>;
+  skipped: Scalars['Int']['output'];
+  updated: Scalars['Int']['output'];
+};
+
+export enum CrmObject {
+  Company = 'COMPANY',
+  Contact = 'CONTACT',
+  Lead = 'LEAD'
+}
+
+export type CrmObjectSchema = {
+  __typename?: 'CrmObjectSchema';
+  /** The property that identifies a record on import (email, or domain for a company). */
+  dedupeKey: Scalars['String']['output'];
+  object: CrmObject;
+  properties: Array<CrmPropertyInfo>;
+};
+
+/** What a filter condition asks of a property; which ones apply depends on its type. */
+export enum CrmOp {
+  After = 'AFTER',
+  Before = 'BEFORE',
+  Between = 'BETWEEN',
+  Contains = 'CONTAINS',
+  EndsWith = 'ENDS_WITH',
+  Eq = 'EQ',
+  Gt = 'GT',
+  Gte = 'GTE',
+  In = 'IN',
+  IsEmpty = 'IS_EMPTY',
+  IsNotEmpty = 'IS_NOT_EMPTY',
+  LastDays = 'LAST_DAYS',
+  Lt = 'LT',
+  Lte = 'LTE',
+  Neq = 'NEQ',
+  NotContains = 'NOT_CONTAINS',
+  NotIn = 'NOT_IN',
+  StartsWith = 'STARTS_WITH'
+}
+
+/** A property a company added (CRM > Settings > Properties). */
+export type CrmProperty = {
+  __typename?: 'CrmProperty';
+  description: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  key: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+  object: CrmObject;
+  options: Array<CrmPropertyOption>;
+  order: Scalars['Int']['output'];
+  required: Scalars['Boolean']['output'];
+  type: CrmPropertyType;
+};
+
+/** One property of a record type, as lists, filters, import and export see it. */
+export type CrmPropertyInfo = {
+  __typename?: 'CrmPropertyInfo';
+  builtIn: Scalars['Boolean']['output'];
+  description: Scalars['String']['output'];
+  importable: Scalars['Boolean']['output'];
+  key: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+  /** The operators a filter on this property may use. */
+  ops: Array<CrmOp>;
+  options: Array<CrmPropertyOption>;
+  required: Scalars['Boolean']['output'];
+  type: CrmPropertyType;
+};
+
+export type CrmPropertyInput = {
+  description: Scalars['String']['input'];
+  key: Scalars['String']['input'];
+  label: Scalars['String']['input'];
+  object: CrmObject;
+  options: Array<CrmPropertyOptionInput>;
+  required: Scalars['Boolean']['input'];
+  type: CrmPropertyType;
+};
+
+export type CrmPropertyOption = {
+  __typename?: 'CrmPropertyOption';
+  label: Scalars['String']['output'];
+  value: Scalars['String']['output'];
+};
+
+export type CrmPropertyOptionInput = {
+  label: Scalars['String']['input'];
+  value: Scalars['String']['input'];
+};
+
+export enum CrmPropertyType {
+  Boolean = 'BOOLEAN',
+  Date = 'DATE',
+  Email = 'EMAIL',
+  Enum = 'ENUM',
+  Number = 'NUMBER',
+  Phone = 'PHONE',
+  Text = 'TEXT',
+  Url = 'URL'
+}
+
+/** The key, type and record type of a property are fixed once it exists. */
+export type CrmPropertyUpdateInput = {
+  description: Scalars['String']['input'];
+  label: Scalars['String']['input'];
+  options: Array<CrmPropertyOptionInput>;
+  required: Scalars['Boolean']['input'];
+};
+
+export type CrmQueryInput = {
+  groups?: InputMaybe<Array<CrmFilterGroupInput>>;
+  /** Zero-based. */
+  page: Scalars['Int']['input'];
+  pageSize: Scalars['Int']['input'];
+  search?: InputMaybe<Scalars['String']['input']>;
+  sorts?: InputMaybe<Array<CrmSortInput>>;
+};
+
+export type CrmSort = {
+  __typename?: 'CrmSort';
+  dir: SortDir;
+  property: Scalars['String']['output'];
+};
+
+export type CrmSortInput = {
+  dir: SortDir;
+  property: Scalars['String']['input'];
+};
+
+export type CrmView = {
+  __typename?: 'CrmView';
+  columns: Array<Scalars['String']['output']>;
+  groups: Array<CrmFilterGroup>;
+  id: Scalars['ID']['output'];
+  /** Saved by the person asking, who may change or delete it. */
+  mine: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  object: CrmObject;
+  ownerName: Scalars['String']['output'];
+  search: Scalars['String']['output'];
+  shared: Scalars['Boolean']['output'];
+  sorts: Array<CrmSort>;
+};
+
+export type CrmViewInput = {
+  columns: Array<Scalars['String']['input']>;
+  groups: Array<CrmFilterGroupInput>;
+  name: Scalars['String']['input'];
+  object: CrmObject;
+  search: Scalars['String']['input'];
+  shared: Scalars['Boolean']['input'];
+  sorts: Array<CrmSortInput>;
 };
 
 /** The MongoDB this server is connected to, reported by the database server. */
@@ -4992,6 +5203,8 @@ export type Lead = {
   /** The deal this lead was converted into, once it has been. */
   convertedDealId?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['DateTime']['output'];
+  /** Values of the company's own properties, keyed by property key. */
+  custom: Scalars['JSON']['output'];
   email: Scalars['String']['output'];
   /** The latest check of this lead's email; null when it was never checked. */
   emailVerification?: Maybe<EmailVerification>;
@@ -5008,6 +5221,7 @@ export type Lead = {
 export type LeadInput = {
   /** Attribution. The campaign's name is filled in by the server from this id. */
   campaignId?: InputMaybe<Scalars['String']['input']>;
+  custom?: InputMaybe<Scalars['JSON']['input']>;
   email: Scalars['String']['input'];
   name: Scalars['String']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
@@ -5561,6 +5775,8 @@ export type Mutation = {
   createContact: Contact;
   createContract: Contract;
   createCostCenter: CostCenter;
+  createCrmProperty: CrmProperty;
+  createCrmView: CrmView;
   createDeal: Deal;
   createDepartment: Department;
   createDocPage: DocPage;
@@ -5731,6 +5947,9 @@ export type Mutation = {
   deleteContact: Scalars['Boolean']['output'];
   deleteContract: Scalars['Boolean']['output'];
   deleteCostCenter: Scalars['Boolean']['output'];
+  /** Deletes the property and its values on every record. */
+  deleteCrmProperty: Scalars['Boolean']['output'];
+  deleteCrmView: Scalars['Boolean']['output'];
   deleteDeal: Scalars['Boolean']['output'];
   deleteDepartment: Scalars['Boolean']['output'];
   /** Deletes the page and everything filed under it. */
@@ -5851,6 +6070,7 @@ export type Mutation = {
   /** Mark an APPROVED request as carried out in the target system. */
   fulfilItAccessRequest: ItAccessRequest;
   grantTrackerAccess: TrackerAccess;
+  importCrmRecords: CrmImportResult;
   importMediaFromUrl: Scalars['String']['output'];
   /**
    * Disables a leaver's account. Only someone with an exit on record, never an administrator
@@ -6261,6 +6481,8 @@ export type Mutation = {
   updateContact: Contact;
   updateContract: Contract;
   updateCostCenter: CostCenter;
+  updateCrmProperty: CrmProperty;
+  updateCrmView: CrmView;
   updateDeal: Deal;
   updateDepartment: Department;
   updateDocPage: DocPage;
@@ -6705,6 +6927,16 @@ export type MutationCreateContractArgs = {
 
 export type MutationCreateCostCenterArgs = {
   input: CostCenterInput;
+};
+
+
+export type MutationCreateCrmPropertyArgs = {
+  input: CrmPropertyInput;
+};
+
+
+export type MutationCreateCrmViewArgs = {
+  input: CrmViewInput;
 };
 
 
@@ -7415,6 +7647,16 @@ export type MutationDeleteCostCenterArgs = {
 };
 
 
+export type MutationDeleteCrmPropertyArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteCrmViewArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteDealArgs = {
   id: Scalars['ID']['input'];
 };
@@ -7940,6 +8182,11 @@ export type MutationFulfilItAccessRequestArgs = {
 
 export type MutationGrantTrackerAccessArgs = {
   userId: Scalars['ID']['input'];
+};
+
+
+export type MutationImportCrmRecordsArgs = {
+  input: CrmImportInput;
 };
 
 
@@ -8944,6 +9191,18 @@ export type MutationUpdateContractArgs = {
 export type MutationUpdateCostCenterArgs = {
   id: Scalars['ID']['input'];
   input: CostCenterInput;
+};
+
+
+export type MutationUpdateCrmPropertyArgs = {
+  id: Scalars['ID']['input'];
+  input: CrmPropertyUpdateInput;
+};
+
+
+export type MutationUpdateCrmViewArgs = {
+  id: Scalars['ID']['input'];
+  input: CrmViewInput;
 };
 
 
@@ -11187,6 +11446,9 @@ export type Query = {
    * link is unknown, withdrawn or expired.
    */
   contractToSign?: Maybe<ContractToSign>;
+  crmObjectSchema: CrmObjectSchema;
+  crmProperties: Array<CrmProperty>;
+  crmViews: Array<CrmView>;
   /** Open deals (not won or lost): how many, their face value and the probability-weighted value. */
   dealForecast: DealForecast;
   /** The domains on the active GoDaddy account. */
@@ -11828,6 +12090,8 @@ export type Query = {
    * at most a handful from each — this answers "take me to that record", not "report on it".
    */
   search: Array<SearchGroup>;
+  searchCompanies: CompanyPage;
+  searchContacts: ContactPage;
   /**
    * Any signed-in user: published articles matching a phrase, best match first.
    *
@@ -11835,6 +12099,7 @@ export type Query = {
    * paste and an employee hunting for it themselves are the same search.
    */
   searchKnowledgeBase: Array<KbArticle>;
+  searchLeads: LeadPage;
   /** Stock photos for the shared upload dialog. Any signed-in user may search. */
   searchPexelsPhotos: Array<PexelsMedia>;
   /** Stock videos for the shared upload dialog. Any signed-in user may search. */
@@ -12177,6 +12442,21 @@ export type QueryContractSignaturesArgs = {
 
 export type QueryContractToSignArgs = {
   token: Scalars['String']['input'];
+};
+
+
+export type QueryCrmObjectSchemaArgs = {
+  object: CrmObject;
+};
+
+
+export type QueryCrmPropertiesArgs = {
+  object: CrmObject;
+};
+
+
+export type QueryCrmViewsArgs = {
+  object: CrmObject;
 };
 
 
@@ -13445,8 +13725,23 @@ export type QuerySearchArgs = {
 };
 
 
+export type QuerySearchCompaniesArgs = {
+  query: CrmQueryInput;
+};
+
+
+export type QuerySearchContactsArgs = {
+  query: CrmQueryInput;
+};
+
+
 export type QuerySearchKnowledgeBaseArgs = {
   query: Scalars['String']['input'];
+};
+
+
+export type QuerySearchLeadsArgs = {
+  query: CrmQueryInput;
 };
 
 
@@ -18828,9 +19123,9 @@ export type ComplianceOverviewQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ComplianceOverviewQuery = { __typename?: 'Query', complianceOverview: { __typename?: 'ComplianceOverview', risks: number, openRisks: number, risksPastReview: number, findings: number, openFindings: number, findingsOverdue: number, audits: number, auditsPlanned: number, objectives: number, objectivesAtRisk: number, reviews: number, lastReviewOn?: string | null, lastReviewTitle: string, risksByStatus: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }>, findingsByType: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }>, residualHeat: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }>, standardCoverage: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }> } };
 
-export type CompanyFieldsFragment = { __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean };
+export type CompanyFieldsFragment = { __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, custom: any, createdAt: string, updatedAt: string };
 
-export type ContactFieldsFragment = { __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string };
+export type ContactFieldsFragment = { __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, custom: any, createdAt: string, updatedAt: string };
 
 export type DealFieldsFragment = { __typename?: 'Deal', id: string, title: string, companyId: string, companyName: string, contactId: string, contactName: string, stage: DealStage, value: number, probability: number, expectedCloseDate?: string | null, owner: string, notes: string, clientId: string };
 
@@ -18841,14 +19136,14 @@ export type CrmStatsFragment = { __typename?: 'TableStats', total: number, count
 export type ListCompaniesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListCompaniesQuery = { __typename?: 'Query', listCompanies: Array<{ __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean }> };
+export type ListCompaniesQuery = { __typename?: 'Query', listCompanies: Array<{ __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, custom: any, createdAt: string, updatedAt: string }> };
 
 export type ListCompaniesPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListCompaniesPagedQuery = { __typename?: 'Query', listCompaniesPaged: { __typename?: 'CompanyPage', totalCount: number, rows: Array<{ __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean }> } };
+export type ListCompaniesPagedQuery = { __typename?: 'Query', listCompaniesPaged: { __typename?: 'CompanyPage', totalCount: number, rows: Array<{ __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, custom: any, createdAt: string, updatedAt: string }> } };
 
 export type ListCompaniesStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -18887,14 +19182,14 @@ export type PromoteCompanyToClientMutation = { __typename?: 'Mutation', promoteC
 export type ListContactsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListContactsQuery = { __typename?: 'Query', listContacts: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string }> };
+export type ListContactsQuery = { __typename?: 'Query', listContacts: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, custom: any, createdAt: string, updatedAt: string }> };
 
 export type ListContactsPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListContactsPagedQuery = { __typename?: 'Query', listContactsPaged: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null }> } };
+export type ListContactsPagedQuery = { __typename?: 'Query', listContactsPaged: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, custom: any, createdAt: string, updatedAt: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null }> } };
 
 export type ListContactsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -19013,6 +19308,105 @@ export type DeleteActivityMutationVariables = Exact<{
 
 
 export type DeleteActivityMutation = { __typename?: 'Mutation', deleteActivity: boolean };
+
+export type CrmPropertyInfoFieldsFragment = { __typename?: 'CrmPropertyInfo', key: string, label: string, type: CrmPropertyType, required: boolean, builtIn: boolean, importable: boolean, description: string, ops: Array<CrmOp>, options: Array<{ __typename?: 'CrmPropertyOption', value: string, label: string }> };
+
+export type CrmPropertyFieldsFragment = { __typename?: 'CrmProperty', id: string, object: CrmObject, key: string, label: string, type: CrmPropertyType, required: boolean, description: string, order: number, options: Array<{ __typename?: 'CrmPropertyOption', value: string, label: string }> };
+
+export type CrmViewFieldsFragment = { __typename?: 'CrmView', id: string, object: CrmObject, name: string, shared: boolean, mine: boolean, ownerName: string, search: string, columns: Array<string>, groups: Array<{ __typename?: 'CrmFilterGroup', conditions: Array<{ __typename?: 'CrmCondition', property: string, op: CrmOp, values: Array<string> }> }>, sorts: Array<{ __typename?: 'CrmSort', property: string, dir: SortDir }> };
+
+export type CrmObjectSchemaQueryVariables = Exact<{
+  object: CrmObject;
+}>;
+
+
+export type CrmObjectSchemaQuery = { __typename?: 'Query', crmObjectSchema: { __typename?: 'CrmObjectSchema', object: CrmObject, dedupeKey: string, properties: Array<{ __typename?: 'CrmPropertyInfo', key: string, label: string, type: CrmPropertyType, required: boolean, builtIn: boolean, importable: boolean, description: string, ops: Array<CrmOp>, options: Array<{ __typename?: 'CrmPropertyOption', value: string, label: string }> }> } };
+
+export type CrmPropertiesQueryVariables = Exact<{
+  object: CrmObject;
+}>;
+
+
+export type CrmPropertiesQuery = { __typename?: 'Query', crmProperties: Array<{ __typename?: 'CrmProperty', id: string, object: CrmObject, key: string, label: string, type: CrmPropertyType, required: boolean, description: string, order: number, options: Array<{ __typename?: 'CrmPropertyOption', value: string, label: string }> }> };
+
+export type CrmViewsQueryVariables = Exact<{
+  object: CrmObject;
+}>;
+
+
+export type CrmViewsQuery = { __typename?: 'Query', crmViews: Array<{ __typename?: 'CrmView', id: string, object: CrmObject, name: string, shared: boolean, mine: boolean, ownerName: string, search: string, columns: Array<string>, groups: Array<{ __typename?: 'CrmFilterGroup', conditions: Array<{ __typename?: 'CrmCondition', property: string, op: CrmOp, values: Array<string> }> }>, sorts: Array<{ __typename?: 'CrmSort', property: string, dir: SortDir }> }> };
+
+export type SearchLeadsQueryVariables = Exact<{
+  query: CrmQueryInput;
+}>;
+
+
+export type SearchLeadsQuery = { __typename?: 'Query', searchLeads: { __typename?: 'LeadPage', totalCount: number, rows: Array<{ __typename?: 'Lead', id: string, name: string, email: string, source: LeadSource, stage: LeadStage, value: number, owner: string, notes: string, campaignId: string, campaignName: string, convertedDealId?: string | null, custom: any, createdAt: string, updatedAt: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null }> } };
+
+export type SearchCompaniesQueryVariables = Exact<{
+  query: CrmQueryInput;
+}>;
+
+
+export type SearchCompaniesQuery = { __typename?: 'Query', searchCompanies: { __typename?: 'CompanyPage', totalCount: number, rows: Array<{ __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, custom: any, createdAt: string, updatedAt: string }> } };
+
+export type SearchContactsQueryVariables = Exact<{
+  query: CrmQueryInput;
+}>;
+
+
+export type SearchContactsQuery = { __typename?: 'Query', searchContacts: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, custom: any, createdAt: string, updatedAt: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null }> } };
+
+export type CreateCrmPropertyMutationVariables = Exact<{
+  input: CrmPropertyInput;
+}>;
+
+
+export type CreateCrmPropertyMutation = { __typename?: 'Mutation', createCrmProperty: { __typename?: 'CrmProperty', id: string, object: CrmObject, key: string, label: string, type: CrmPropertyType, required: boolean, description: string, order: number, options: Array<{ __typename?: 'CrmPropertyOption', value: string, label: string }> } };
+
+export type UpdateCrmPropertyMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: CrmPropertyUpdateInput;
+}>;
+
+
+export type UpdateCrmPropertyMutation = { __typename?: 'Mutation', updateCrmProperty: { __typename?: 'CrmProperty', id: string, object: CrmObject, key: string, label: string, type: CrmPropertyType, required: boolean, description: string, order: number, options: Array<{ __typename?: 'CrmPropertyOption', value: string, label: string }> } };
+
+export type DeleteCrmPropertyMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteCrmPropertyMutation = { __typename?: 'Mutation', deleteCrmProperty: boolean };
+
+export type CreateCrmViewMutationVariables = Exact<{
+  input: CrmViewInput;
+}>;
+
+
+export type CreateCrmViewMutation = { __typename?: 'Mutation', createCrmView: { __typename?: 'CrmView', id: string, object: CrmObject, name: string, shared: boolean, mine: boolean, ownerName: string, search: string, columns: Array<string>, groups: Array<{ __typename?: 'CrmFilterGroup', conditions: Array<{ __typename?: 'CrmCondition', property: string, op: CrmOp, values: Array<string> }> }>, sorts: Array<{ __typename?: 'CrmSort', property: string, dir: SortDir }> } };
+
+export type UpdateCrmViewMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: CrmViewInput;
+}>;
+
+
+export type UpdateCrmViewMutation = { __typename?: 'Mutation', updateCrmView: { __typename?: 'CrmView', id: string, object: CrmObject, name: string, shared: boolean, mine: boolean, ownerName: string, search: string, columns: Array<string>, groups: Array<{ __typename?: 'CrmFilterGroup', conditions: Array<{ __typename?: 'CrmCondition', property: string, op: CrmOp, values: Array<string> }> }>, sorts: Array<{ __typename?: 'CrmSort', property: string, dir: SortDir }> } };
+
+export type DeleteCrmViewMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteCrmViewMutation = { __typename?: 'Mutation', deleteCrmView: boolean };
+
+export type ImportCrmRecordsMutationVariables = Exact<{
+  input: CrmImportInput;
+}>;
+
+
+export type ImportCrmRecordsMutation = { __typename?: 'Mutation', importCrmRecords: { __typename?: 'CrmImportResult', created: number, updated: number, skipped: number, issues: Array<{ __typename?: 'CrmImportIssue', row: number, message: string, skipped: boolean }> } };
 
 export type ListLeadsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -25283,6 +25677,9 @@ export const CompanyFieldsFragmentDoc = gql`
   notes
   clientId
   isClient
+  custom
+  createdAt
+  updatedAt
 }
     `;
 export const ContactFieldsFragmentDoc = gql`
@@ -25297,6 +25694,9 @@ export const ContactFieldsFragmentDoc = gql`
   status
   owner
   notes
+  custom
+  createdAt
+  updatedAt
 }
     `;
 export const DealFieldsFragmentDoc = gql`
@@ -25344,6 +25744,61 @@ export const CrmStatsFragmentDoc = gql`
     field
     total
   }
+}
+    `;
+export const CrmPropertyInfoFieldsFragmentDoc = gql`
+    fragment CrmPropertyInfoFields on CrmPropertyInfo {
+  key
+  label
+  type
+  options {
+    value
+    label
+  }
+  required
+  builtIn
+  importable
+  description
+  ops
+}
+    `;
+export const CrmPropertyFieldsFragmentDoc = gql`
+    fragment CrmPropertyFields on CrmProperty {
+  id
+  object
+  key
+  label
+  type
+  options {
+    value
+    label
+  }
+  required
+  description
+  order
+}
+    `;
+export const CrmViewFieldsFragmentDoc = gql`
+    fragment CrmViewFields on CrmView {
+  id
+  object
+  name
+  shared
+  mine
+  ownerName
+  search
+  groups {
+    conditions {
+      property
+      op
+      values
+    }
+  }
+  sorts {
+    property
+    dir
+  }
+  columns
 }
     `;
 export const EmailVerificationBadgeFragmentDoc = gql`
@@ -36927,6 +37382,518 @@ export function useDeleteActivityMutation(baseOptions?: ApolloReactHooks.Mutatio
         return ApolloReactHooks.useMutation<DeleteActivityMutation, DeleteActivityMutationVariables>(DeleteActivityDocument, options);
       }
 export type DeleteActivityMutationHookResult = ReturnType<typeof useDeleteActivityMutation>;
+export const CrmObjectSchemaDocument = gql`
+    query CrmObjectSchema($object: CrmObject!) {
+  crmObjectSchema(object: $object) {
+    object
+    dedupeKey
+    properties {
+      ...CrmPropertyInfoFields
+    }
+  }
+}
+    ${CrmPropertyInfoFieldsFragmentDoc}`;
+
+/**
+ * __useCrmObjectSchemaQuery__
+ *
+ * To run a query within a React component, call `useCrmObjectSchemaQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCrmObjectSchemaQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCrmObjectSchemaQuery({
+ *   variables: {
+ *      object: // value for 'object'
+ *   },
+ * });
+ */
+export function useCrmObjectSchemaQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CrmObjectSchemaQuery, CrmObjectSchemaQueryVariables> & ({ variables: CrmObjectSchemaQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CrmObjectSchemaQuery, CrmObjectSchemaQueryVariables>(CrmObjectSchemaDocument, options);
+      }
+export function useCrmObjectSchemaLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CrmObjectSchemaQuery, CrmObjectSchemaQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CrmObjectSchemaQuery, CrmObjectSchemaQueryVariables>(CrmObjectSchemaDocument, options);
+        }
+// @ts-ignore
+export function useCrmObjectSchemaSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CrmObjectSchemaQuery, CrmObjectSchemaQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmObjectSchemaQuery, CrmObjectSchemaQueryVariables>;
+// @ts-ignore
+export function useCrmObjectSchemaSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmObjectSchemaQuery, CrmObjectSchemaQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmObjectSchemaQuery | undefined, CrmObjectSchemaQueryVariables>;
+export function useCrmObjectSchemaSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmObjectSchemaQuery, CrmObjectSchemaQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CrmObjectSchemaQuery, CrmObjectSchemaQueryVariables>(CrmObjectSchemaDocument, options);
+        }
+export type CrmObjectSchemaQueryHookResult = ReturnType<typeof useCrmObjectSchemaQuery>;
+export type CrmObjectSchemaLazyQueryHookResult = ReturnType<typeof useCrmObjectSchemaLazyQuery>;
+export type CrmObjectSchemaSuspenseQueryHookResult = ReturnType<typeof useCrmObjectSchemaSuspenseQuery>;
+export const CrmPropertiesDocument = gql`
+    query CrmProperties($object: CrmObject!) {
+  crmProperties(object: $object) {
+    ...CrmPropertyFields
+  }
+}
+    ${CrmPropertyFieldsFragmentDoc}`;
+
+/**
+ * __useCrmPropertiesQuery__
+ *
+ * To run a query within a React component, call `useCrmPropertiesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCrmPropertiesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCrmPropertiesQuery({
+ *   variables: {
+ *      object: // value for 'object'
+ *   },
+ * });
+ */
+export function useCrmPropertiesQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CrmPropertiesQuery, CrmPropertiesQueryVariables> & ({ variables: CrmPropertiesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CrmPropertiesQuery, CrmPropertiesQueryVariables>(CrmPropertiesDocument, options);
+      }
+export function useCrmPropertiesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CrmPropertiesQuery, CrmPropertiesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CrmPropertiesQuery, CrmPropertiesQueryVariables>(CrmPropertiesDocument, options);
+        }
+// @ts-ignore
+export function useCrmPropertiesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CrmPropertiesQuery, CrmPropertiesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmPropertiesQuery, CrmPropertiesQueryVariables>;
+// @ts-ignore
+export function useCrmPropertiesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmPropertiesQuery, CrmPropertiesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmPropertiesQuery | undefined, CrmPropertiesQueryVariables>;
+export function useCrmPropertiesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmPropertiesQuery, CrmPropertiesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CrmPropertiesQuery, CrmPropertiesQueryVariables>(CrmPropertiesDocument, options);
+        }
+export type CrmPropertiesQueryHookResult = ReturnType<typeof useCrmPropertiesQuery>;
+export type CrmPropertiesLazyQueryHookResult = ReturnType<typeof useCrmPropertiesLazyQuery>;
+export type CrmPropertiesSuspenseQueryHookResult = ReturnType<typeof useCrmPropertiesSuspenseQuery>;
+export const CrmViewsDocument = gql`
+    query CrmViews($object: CrmObject!) {
+  crmViews(object: $object) {
+    ...CrmViewFields
+  }
+}
+    ${CrmViewFieldsFragmentDoc}`;
+
+/**
+ * __useCrmViewsQuery__
+ *
+ * To run a query within a React component, call `useCrmViewsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCrmViewsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCrmViewsQuery({
+ *   variables: {
+ *      object: // value for 'object'
+ *   },
+ * });
+ */
+export function useCrmViewsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CrmViewsQuery, CrmViewsQueryVariables> & ({ variables: CrmViewsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CrmViewsQuery, CrmViewsQueryVariables>(CrmViewsDocument, options);
+      }
+export function useCrmViewsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CrmViewsQuery, CrmViewsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CrmViewsQuery, CrmViewsQueryVariables>(CrmViewsDocument, options);
+        }
+// @ts-ignore
+export function useCrmViewsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CrmViewsQuery, CrmViewsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmViewsQuery, CrmViewsQueryVariables>;
+// @ts-ignore
+export function useCrmViewsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmViewsQuery, CrmViewsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmViewsQuery | undefined, CrmViewsQueryVariables>;
+export function useCrmViewsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmViewsQuery, CrmViewsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CrmViewsQuery, CrmViewsQueryVariables>(CrmViewsDocument, options);
+        }
+export type CrmViewsQueryHookResult = ReturnType<typeof useCrmViewsQuery>;
+export type CrmViewsLazyQueryHookResult = ReturnType<typeof useCrmViewsLazyQuery>;
+export type CrmViewsSuspenseQueryHookResult = ReturnType<typeof useCrmViewsSuspenseQuery>;
+export const SearchLeadsDocument = gql`
+    query SearchLeads($query: CrmQueryInput!) {
+  searchLeads(query: $query) {
+    totalCount
+    rows {
+      id
+      name
+      email
+      source
+      stage
+      value
+      owner
+      notes
+      campaignId
+      campaignName
+      convertedDealId
+      custom
+      createdAt
+      updatedAt
+      emailVerification {
+        ...EmailVerificationBadge
+      }
+    }
+  }
+}
+    ${EmailVerificationBadgeFragmentDoc}`;
+
+/**
+ * __useSearchLeadsQuery__
+ *
+ * To run a query within a React component, call `useSearchLeadsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSearchLeadsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSearchLeadsQuery({
+ *   variables: {
+ *      query: // value for 'query'
+ *   },
+ * });
+ */
+export function useSearchLeadsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<SearchLeadsQuery, SearchLeadsQueryVariables> & ({ variables: SearchLeadsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<SearchLeadsQuery, SearchLeadsQueryVariables>(SearchLeadsDocument, options);
+      }
+export function useSearchLeadsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SearchLeadsQuery, SearchLeadsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<SearchLeadsQuery, SearchLeadsQueryVariables>(SearchLeadsDocument, options);
+        }
+// @ts-ignore
+export function useSearchLeadsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<SearchLeadsQuery, SearchLeadsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SearchLeadsQuery, SearchLeadsQueryVariables>;
+// @ts-ignore
+export function useSearchLeadsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SearchLeadsQuery, SearchLeadsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SearchLeadsQuery | undefined, SearchLeadsQueryVariables>;
+export function useSearchLeadsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SearchLeadsQuery, SearchLeadsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<SearchLeadsQuery, SearchLeadsQueryVariables>(SearchLeadsDocument, options);
+        }
+export type SearchLeadsQueryHookResult = ReturnType<typeof useSearchLeadsQuery>;
+export type SearchLeadsLazyQueryHookResult = ReturnType<typeof useSearchLeadsLazyQuery>;
+export type SearchLeadsSuspenseQueryHookResult = ReturnType<typeof useSearchLeadsSuspenseQuery>;
+export const SearchCompaniesDocument = gql`
+    query SearchCompanies($query: CrmQueryInput!) {
+  searchCompanies(query: $query) {
+    totalCount
+    rows {
+      ...CompanyFields
+    }
+  }
+}
+    ${CompanyFieldsFragmentDoc}`;
+
+/**
+ * __useSearchCompaniesQuery__
+ *
+ * To run a query within a React component, call `useSearchCompaniesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSearchCompaniesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSearchCompaniesQuery({
+ *   variables: {
+ *      query: // value for 'query'
+ *   },
+ * });
+ */
+export function useSearchCompaniesQuery(baseOptions: ApolloReactHooks.QueryHookOptions<SearchCompaniesQuery, SearchCompaniesQueryVariables> & ({ variables: SearchCompaniesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<SearchCompaniesQuery, SearchCompaniesQueryVariables>(SearchCompaniesDocument, options);
+      }
+export function useSearchCompaniesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SearchCompaniesQuery, SearchCompaniesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<SearchCompaniesQuery, SearchCompaniesQueryVariables>(SearchCompaniesDocument, options);
+        }
+// @ts-ignore
+export function useSearchCompaniesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<SearchCompaniesQuery, SearchCompaniesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SearchCompaniesQuery, SearchCompaniesQueryVariables>;
+// @ts-ignore
+export function useSearchCompaniesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SearchCompaniesQuery, SearchCompaniesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SearchCompaniesQuery | undefined, SearchCompaniesQueryVariables>;
+export function useSearchCompaniesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SearchCompaniesQuery, SearchCompaniesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<SearchCompaniesQuery, SearchCompaniesQueryVariables>(SearchCompaniesDocument, options);
+        }
+export type SearchCompaniesQueryHookResult = ReturnType<typeof useSearchCompaniesQuery>;
+export type SearchCompaniesLazyQueryHookResult = ReturnType<typeof useSearchCompaniesLazyQuery>;
+export type SearchCompaniesSuspenseQueryHookResult = ReturnType<typeof useSearchCompaniesSuspenseQuery>;
+export const SearchContactsDocument = gql`
+    query SearchContacts($query: CrmQueryInput!) {
+  searchContacts(query: $query) {
+    totalCount
+    rows {
+      ...ContactFields
+      emailVerification {
+        ...EmailVerificationBadge
+      }
+    }
+  }
+}
+    ${ContactFieldsFragmentDoc}
+${EmailVerificationBadgeFragmentDoc}`;
+
+/**
+ * __useSearchContactsQuery__
+ *
+ * To run a query within a React component, call `useSearchContactsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSearchContactsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSearchContactsQuery({
+ *   variables: {
+ *      query: // value for 'query'
+ *   },
+ * });
+ */
+export function useSearchContactsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<SearchContactsQuery, SearchContactsQueryVariables> & ({ variables: SearchContactsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<SearchContactsQuery, SearchContactsQueryVariables>(SearchContactsDocument, options);
+      }
+export function useSearchContactsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SearchContactsQuery, SearchContactsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<SearchContactsQuery, SearchContactsQueryVariables>(SearchContactsDocument, options);
+        }
+// @ts-ignore
+export function useSearchContactsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<SearchContactsQuery, SearchContactsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SearchContactsQuery, SearchContactsQueryVariables>;
+// @ts-ignore
+export function useSearchContactsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SearchContactsQuery, SearchContactsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SearchContactsQuery | undefined, SearchContactsQueryVariables>;
+export function useSearchContactsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SearchContactsQuery, SearchContactsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<SearchContactsQuery, SearchContactsQueryVariables>(SearchContactsDocument, options);
+        }
+export type SearchContactsQueryHookResult = ReturnType<typeof useSearchContactsQuery>;
+export type SearchContactsLazyQueryHookResult = ReturnType<typeof useSearchContactsLazyQuery>;
+export type SearchContactsSuspenseQueryHookResult = ReturnType<typeof useSearchContactsSuspenseQuery>;
+export const CreateCrmPropertyDocument = gql`
+    mutation CreateCrmProperty($input: CrmPropertyInput!) {
+  createCrmProperty(input: $input) {
+    ...CrmPropertyFields
+  }
+}
+    ${CrmPropertyFieldsFragmentDoc}`;
+
+/**
+ * __useCreateCrmPropertyMutation__
+ *
+ * To run a mutation, you first call `useCreateCrmPropertyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCrmPropertyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCrmPropertyMutation, { data, loading, error }] = useCreateCrmPropertyMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCrmPropertyMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateCrmPropertyMutation, CreateCrmPropertyMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateCrmPropertyMutation, CreateCrmPropertyMutationVariables>(CreateCrmPropertyDocument, options);
+      }
+export type CreateCrmPropertyMutationHookResult = ReturnType<typeof useCreateCrmPropertyMutation>;
+export const UpdateCrmPropertyDocument = gql`
+    mutation UpdateCrmProperty($id: ID!, $input: CrmPropertyUpdateInput!) {
+  updateCrmProperty(id: $id, input: $input) {
+    ...CrmPropertyFields
+  }
+}
+    ${CrmPropertyFieldsFragmentDoc}`;
+
+/**
+ * __useUpdateCrmPropertyMutation__
+ *
+ * To run a mutation, you first call `useUpdateCrmPropertyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCrmPropertyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCrmPropertyMutation, { data, loading, error }] = useUpdateCrmPropertyMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCrmPropertyMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateCrmPropertyMutation, UpdateCrmPropertyMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateCrmPropertyMutation, UpdateCrmPropertyMutationVariables>(UpdateCrmPropertyDocument, options);
+      }
+export type UpdateCrmPropertyMutationHookResult = ReturnType<typeof useUpdateCrmPropertyMutation>;
+export const DeleteCrmPropertyDocument = gql`
+    mutation DeleteCrmProperty($id: ID!) {
+  deleteCrmProperty(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteCrmPropertyMutation__
+ *
+ * To run a mutation, you first call `useDeleteCrmPropertyMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCrmPropertyMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCrmPropertyMutation, { data, loading, error }] = useDeleteCrmPropertyMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteCrmPropertyMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteCrmPropertyMutation, DeleteCrmPropertyMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteCrmPropertyMutation, DeleteCrmPropertyMutationVariables>(DeleteCrmPropertyDocument, options);
+      }
+export type DeleteCrmPropertyMutationHookResult = ReturnType<typeof useDeleteCrmPropertyMutation>;
+export const CreateCrmViewDocument = gql`
+    mutation CreateCrmView($input: CrmViewInput!) {
+  createCrmView(input: $input) {
+    ...CrmViewFields
+  }
+}
+    ${CrmViewFieldsFragmentDoc}`;
+
+/**
+ * __useCreateCrmViewMutation__
+ *
+ * To run a mutation, you first call `useCreateCrmViewMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCrmViewMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCrmViewMutation, { data, loading, error }] = useCreateCrmViewMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCrmViewMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateCrmViewMutation, CreateCrmViewMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateCrmViewMutation, CreateCrmViewMutationVariables>(CreateCrmViewDocument, options);
+      }
+export type CreateCrmViewMutationHookResult = ReturnType<typeof useCreateCrmViewMutation>;
+export const UpdateCrmViewDocument = gql`
+    mutation UpdateCrmView($id: ID!, $input: CrmViewInput!) {
+  updateCrmView(id: $id, input: $input) {
+    ...CrmViewFields
+  }
+}
+    ${CrmViewFieldsFragmentDoc}`;
+
+/**
+ * __useUpdateCrmViewMutation__
+ *
+ * To run a mutation, you first call `useUpdateCrmViewMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateCrmViewMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateCrmViewMutation, { data, loading, error }] = useUpdateCrmViewMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateCrmViewMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateCrmViewMutation, UpdateCrmViewMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateCrmViewMutation, UpdateCrmViewMutationVariables>(UpdateCrmViewDocument, options);
+      }
+export type UpdateCrmViewMutationHookResult = ReturnType<typeof useUpdateCrmViewMutation>;
+export const DeleteCrmViewDocument = gql`
+    mutation DeleteCrmView($id: ID!) {
+  deleteCrmView(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteCrmViewMutation__
+ *
+ * To run a mutation, you first call `useDeleteCrmViewMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteCrmViewMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteCrmViewMutation, { data, loading, error }] = useDeleteCrmViewMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteCrmViewMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteCrmViewMutation, DeleteCrmViewMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteCrmViewMutation, DeleteCrmViewMutationVariables>(DeleteCrmViewDocument, options);
+      }
+export type DeleteCrmViewMutationHookResult = ReturnType<typeof useDeleteCrmViewMutation>;
+export const ImportCrmRecordsDocument = gql`
+    mutation ImportCrmRecords($input: CrmImportInput!) {
+  importCrmRecords(input: $input) {
+    created
+    updated
+    skipped
+    issues {
+      row
+      message
+      skipped
+    }
+  }
+}
+    `;
+
+/**
+ * __useImportCrmRecordsMutation__
+ *
+ * To run a mutation, you first call `useImportCrmRecordsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useImportCrmRecordsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [importCrmRecordsMutation, { data, loading, error }] = useImportCrmRecordsMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useImportCrmRecordsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ImportCrmRecordsMutation, ImportCrmRecordsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ImportCrmRecordsMutation, ImportCrmRecordsMutationVariables>(ImportCrmRecordsDocument, options);
+      }
+export type ImportCrmRecordsMutationHookResult = ReturnType<typeof useImportCrmRecordsMutation>;
 export const ListLeadsDocument = gql`
     query ListLeads {
   listLeads {

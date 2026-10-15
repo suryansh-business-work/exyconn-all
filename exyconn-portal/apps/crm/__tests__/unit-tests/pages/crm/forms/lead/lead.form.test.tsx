@@ -14,6 +14,12 @@ vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
   useCreateLeadMutation: () => [gql.create],
   useUpdateLeadMutation: () => [gql.update],
   useCampaignOptionsQuery: () => gql.campaigns(),
+  // The record type has no custom properties: the form renders its built-in fields only.
+  useCrmObjectSchemaQuery: () => ({
+    data: { crmObjectSchema: { object: 'LEAD', dedupeKey: '', properties: [] } },
+    loading: false,
+    refetch: vi.fn(),
+  }),
 }));
 
 const CAMPAIGNS = [
@@ -83,6 +89,7 @@ describe('LeadForm', () => {
           value: 40000,
           owner: 'Priya',
           campaignId: 'campaign-2',
+          custom: {},
         },
       },
     });
@@ -125,6 +132,7 @@ describe('LeadForm', () => {
           value: 25000,
           owner: 'Priya',
           campaignId: 'campaign-1',
+          custom: {},
         },
       },
     });

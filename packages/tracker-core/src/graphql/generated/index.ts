@@ -285,6 +285,7 @@ export type AuditAction =
   | 'ACCESS'
   | 'CREATE'
   | 'DELETE'
+  | 'IMPORT'
   | 'LOGIN'
   | 'PASSWORD_RESET'
   | 'PERMISSION'
@@ -783,6 +784,7 @@ export type CompanyExpenseInput = {
 };
 
 export type CompanyInput = {
+  custom: InputMaybe<Scalars['JSON']['input']>;
   domain: Scalars['String']['input'];
   industry: InputMaybe<Scalars['String']['input']>;
   location: InputMaybe<Scalars['String']['input']>;
@@ -823,6 +825,7 @@ export type ComplianceCategory =
 export type ContactInput = {
   companyId: InputMaybe<Scalars['String']['input']>;
   companyName: InputMaybe<Scalars['String']['input']>;
+  custom: InputMaybe<Scalars['JSON']['input']>;
   email: Scalars['String']['input'];
   name: Scalars['String']['input'];
   notes: InputMaybe<Scalars['String']['input']>;
@@ -919,6 +922,116 @@ export type CreateUserInput = {
   workLocationNote: InputMaybe<Scalars['String']['input']>;
   workingTime: InputMaybe<WorkingTime>;
   workingTimeNote: InputMaybe<Scalars['String']['input']>;
+};
+
+export type CrmConditionInput = {
+  op: CrmOp;
+  property: Scalars['String']['input'];
+  /** Dates as ISO strings; BETWEEN takes two values, IN/NOT_IN any number. */
+  values: Array<Scalars['String']['input']>;
+};
+
+/** Conditions in a group must all hold; a record matches when any group does. */
+export type CrmFilterGroupInput = {
+  conditions: Array<CrmConditionInput>;
+};
+
+export type CrmImportInput = {
+  /** The file line of the first row, so issues name lines a person can find. */
+  firstRowNumber: Scalars['Int']['input'];
+  mode: CrmImportMode;
+  object: CrmObject;
+  /** Up to 500 rows, each an object of property key to cell text. */
+  rows: Array<Scalars['JSON']['input']>;
+};
+
+/** CREATE skips rows that match an existing record, UPDATE skips rows that do not, UPSERT does both. */
+export type CrmImportMode =
+  | 'CREATE'
+  | 'UPDATE'
+  | 'UPSERT';
+
+export type CrmObject =
+  | 'COMPANY'
+  | 'CONTACT'
+  | 'LEAD';
+
+/** What a filter condition asks of a property; which ones apply depends on its type. */
+export type CrmOp =
+  | 'AFTER'
+  | 'BEFORE'
+  | 'BETWEEN'
+  | 'CONTAINS'
+  | 'ENDS_WITH'
+  | 'EQ'
+  | 'GT'
+  | 'GTE'
+  | 'IN'
+  | 'IS_EMPTY'
+  | 'IS_NOT_EMPTY'
+  | 'LAST_DAYS'
+  | 'LT'
+  | 'LTE'
+  | 'NEQ'
+  | 'NOT_CONTAINS'
+  | 'NOT_IN'
+  | 'STARTS_WITH';
+
+export type CrmPropertyInput = {
+  description: Scalars['String']['input'];
+  key: Scalars['String']['input'];
+  label: Scalars['String']['input'];
+  object: CrmObject;
+  options: Array<CrmPropertyOptionInput>;
+  required: Scalars['Boolean']['input'];
+  type: CrmPropertyType;
+};
+
+export type CrmPropertyOptionInput = {
+  label: Scalars['String']['input'];
+  value: Scalars['String']['input'];
+};
+
+export type CrmPropertyType =
+  | 'BOOLEAN'
+  | 'DATE'
+  | 'EMAIL'
+  | 'ENUM'
+  | 'NUMBER'
+  | 'PHONE'
+  | 'TEXT'
+  | 'URL';
+
+/** The key, type and record type of a property are fixed once it exists. */
+export type CrmPropertyUpdateInput = {
+  description: Scalars['String']['input'];
+  label: Scalars['String']['input'];
+  options: Array<CrmPropertyOptionInput>;
+  required: Scalars['Boolean']['input'];
+};
+
+export type CrmQueryInput = {
+  groups: InputMaybe<Array<CrmFilterGroupInput>>;
+  /** Zero-based. */
+  page: Scalars['Int']['input'];
+  pageSize: Scalars['Int']['input'];
+  search: InputMaybe<Scalars['String']['input']>;
+  sorts: InputMaybe<Array<CrmSortInput>>;
+};
+
+export type CrmSortInput = {
+  dir: SortDir;
+  property: Scalars['String']['input'];
+};
+
+export type CrmViewInput = {
+  columns: Array<Scalars['String']['input']>;
+  groups: Array<CrmFilterGroupInput>;
+  name: Scalars['String']['input'];
+  object: CrmObject;
+  search: Scalars['String']['input'];
+  shared: Scalars['Boolean']['input'];
+  sorts: Array<CrmSortInput>;
 };
 
 export type DealInput = {
@@ -1706,6 +1819,7 @@ export type KbArticleInput = {
 export type LeadInput = {
   /** Attribution. The campaign's name is filled in by the server from this id. */
   campaignId: InputMaybe<Scalars['String']['input']>;
+  custom: InputMaybe<Scalars['JSON']['input']>;
   email: Scalars['String']['input'];
   name: Scalars['String']['input'];
   notes: InputMaybe<Scalars['String']['input']>;

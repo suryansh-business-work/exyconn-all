@@ -1,16 +1,19 @@
-import { CrudDashboard, useCrudResource, usePagedFetcher } from '@exyconn/crud';
+import { CrudDashboard, useCrudResource } from '@exyconn/crud';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { statCount, statTotal } from '@exyconn/shell/components/data/tableStats';
 import {
+  CrmObject,
   useListContactsStatsQuery,
   useDeleteContactMutation,
-  ListContactsPagedDocument,
-  type ListContactsPagedQuery,
+  SearchContactsDocument,
+  type SearchContactsQuery,
 } from '@exyconn/shell/graphql/generated';
 import { ContactForm, type ContactRow } from './forms/contact';
 import { CONTACT_COLUMNS, type PagedContactRow, type ContactsGridContext } from './contacts-grid';
 import { useEmailCheck } from '../../email-verification';
 import { color } from '@exyconn/shell/components/ui';
+import { RecordListToolbar, useRecordList, withRefreshSignal } from '../../records/list';
+import { RecordActions } from '../../records/RecordActions';
 
 /** CRM → Contacts: the people at the accounts, and who owns each relationship. */
 export function ContactsPage() {
@@ -26,10 +29,13 @@ export function ContactsPage() {
     confirmMessage: (row) => ({ message: 'Delete contact "{name}"?', values: { name: row.name } }),
     refetch: refetchStats,
   });
-  const fetchRows = usePagedFetcher(
-    ListContactsPagedDocument,
-    (data: ListContactsPagedQuery) => data.listContactsPaged,
-  );
+  // Filters, sorts, columns and saved views: the HubSpot-style list over the search query.
+  const records = useRecordList({
+    object: CrmObject.Contact,
+    document: SearchContactsDocument,
+    select: (data: SearchContactsQuery) => data.searchContacts,
+    columns: CONTACT_COLUMNS,
+  });
 
   const stats = statsData?.listContactsStats;
   const statItems: StatItem[] = [
@@ -59,20 +65,35 @@ export function ContactsPage() {
 
   return (
     <CrudDashboard
+      key={records.gridKey}
       title="Contacts"
       subtitle="People at the accounts"
       entityLabel="contact"
-      exportFileName="contacts"
       stats={statItems}
       statsLoading={!statsData && statsLoading}
-      crud={crud}
+      crud={withRefreshSignal(crud, records.refreshSignal)}
       renderForm={(initial) => (
         <ContactForm initial={initial} onCancel={crud.close} onDone={crud.onDone} />
       )}
-      columnDefs={CONTACT_COLUMNS}
-      fetchRows={fetchRows}
+      columnDefs={records.columnDefs}
+      fetchRows={records.fetchRows}
       context={gridContext}
       searchPlaceholder="Search by name, email, company or owner…"
+      initialSearch={records.initialSearch}
+      toolbar={
+        <RecordListToolbar
+          records={records}
+          allLabel="All contacts"
+          renderActions={(query) => (
+            <RecordActions
+              object={CrmObject.Contact}
+              query={query}
+              fileName="contacts"
+              onImported={crud.reload}
+            />
+          )}
+        />
+      }
     />
   );
 }

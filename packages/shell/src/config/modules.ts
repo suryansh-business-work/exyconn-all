@@ -503,6 +503,14 @@ export const MODULES: ModuleDefinition[] = [
         icon: MarkEmailReadIcon,
         group: 'Tools',
       },
+      {
+        // The fields every lead, company and contact has, built-in and the company's own.
+        key: 'crm-properties',
+        label: 'Properties',
+        path: '/crm/settings/properties',
+        icon: TuneIcon,
+        group: 'Configuration',
+      },
     ],
   },
   {

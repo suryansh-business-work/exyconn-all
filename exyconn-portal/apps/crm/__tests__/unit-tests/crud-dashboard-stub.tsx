@@ -73,3 +73,27 @@ export function usePagedFetcherStub(document: DocumentNode, select: (data: never
   paged.select = select;
   return paged.fetchRows;
 }
+
+/** What the page handed to useRecordList. */
+export const recordList: {
+  options: { document: unknown; select: (data: never) => unknown; columns: unknown } | null;
+} = { options: null };
+
+/**
+ * Stands in for `src/records/list`: records the options the page gave useRecordList and hands
+ * the page's own columns and the stand-in fetcher straight to the dashboard.
+ */
+export const recordListStub = {
+  useRecordList: (options: NonNullable<typeof recordList.options>) => {
+    recordList.options = options;
+    return {
+      columnDefs: options.columns,
+      fetchRows: paged.fetchRows,
+      initialSearch: '',
+      gridKey: 0,
+      refreshSignal: 0,
+    };
+  },
+  withRefreshSignal: <T,>(crud: T) => crud,
+  RecordListToolbar: () => null,
+};

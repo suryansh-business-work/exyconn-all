@@ -42,6 +42,8 @@ interface CrudDashboardProps<TRow, TPaged> {
   /** Handed to ag-grid so the shared cells can reach this page's row handlers. */
   context: object;
   searchPlaceholder: string;
+  /** What the search box holds when the list mounts — a saved view's search, say. */
+  initialSearch?: string;
   /** Rendered between the stat tiles and the grid — quick filters, mostly. */
   toolbar?: ReactNode;
   /**
@@ -86,6 +88,7 @@ export function CrudDashboard<TRow, TPaged>({
   fetchRows,
   context,
   searchPlaceholder,
+  initialSearch,
   toolbar,
   exportFileName,
   permissionModule,
@@ -168,6 +171,7 @@ export function CrudDashboard<TRow, TPaged>({
           refreshSignal={crud?.refreshSignal ?? refreshSignal}
           onRowClick={onRowClick}
           searchPlaceholder={searchPlaceholder}
+          initialSearch={initialSearch}
         />
       ) : (
         <ServerDataGrid<TPaged>
@@ -177,6 +181,7 @@ export function CrudDashboard<TRow, TPaged>({
           refreshSignal={crud?.refreshSignal ?? refreshSignal}
           onRowClick={onRowClick}
           searchPlaceholder={searchPlaceholder}
+          initialSearch={initialSearch}
           onQuery={gridQuery.onQuery}
         />
       )}

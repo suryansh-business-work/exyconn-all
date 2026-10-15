@@ -150,7 +150,9 @@ Optional props: `actionLabel` overrides the `New {entityLabel}` button (Blog use
 `"New post"` with an `"Edit blog post"` drawer), `onRowClick` navigates from a row,
 `toolbar` renders between the stat tiles and the grid (the support console's quick
 filters), `extraDialogs` holds secondary drawers a row action opens (send, details), and
-`children` renders under the grid.
+`children` renders under the grid. `initialSearch` is what the search box (grid or phone
+card list) holds when it mounts — the CRM lists pass a saved view's search, and give the
+dashboard a `key` that changes when a view is opened so the box is seeded again.
 
 `permissionModule` names the module this screen is restricted under in
 Admin › Roles & Permissions. Set it and the "New …" button, the edit/delete row actions

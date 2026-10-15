@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ListCompaniesPagedDocument } from '@exyconn/shell/graphql/generated';
+import { SearchCompaniesDocument } from '@exyconn/shell/graphql/generated';
 import { CompaniesPage } from '../../../../src/pages/companies';
 import { COMPANY_COLUMNS } from '../../../../src/pages/companies/companies-grid';
 import { renderWithProviders } from '../../test-utils';
 import { companyRow, pending, tableStats } from '../../fixtures';
-import { dashboardProps, paged } from '../../crud-dashboard-stub';
+import { dashboardProps, recordList } from '../../crud-dashboard-stub';
 import { confirmRowDelete, runRowAction, statLines } from '../../crud-page-helpers';
 
 const gql = vi.hoisted(() => ({
@@ -31,6 +31,11 @@ vi.mock('@exyconn/crud', async (importOriginal) => {
     usePagedFetcher: stub.usePagedFetcherStub,
   };
 });
+
+vi.mock(
+  '../../../../src/records/list',
+  async () => (await import('../../crud-dashboard-stub')).recordListStub,
+);
 
 vi.mock('../../../../src/pages/companies/forms/company', async () => ({
   CompanyForm: (await import('../../form-stub')).FormStub,
@@ -64,12 +69,12 @@ describe('CompaniesPage', () => {
     expect(statLines()[0]).toBe('Companies: 0');
   });
 
-  it('drives the server grid with the paged companies query and the company columns', () => {
+  it('drives the server grid with the companies query and the company columns', () => {
     renderWithProviders(<CompaniesPage />);
     const page = { totalCount: 1, rows: [companyRow()] };
 
-    expect(paged.document).toBe(ListCompaniesPagedDocument);
-    expect(paged.select?.({ listCompaniesPaged: page } as never)).toBe(page);
+    expect(recordList.options?.document).toBe(SearchCompaniesDocument);
+    expect(recordList.options?.select({ searchCompanies: page } as never)).toBe(page);
     expect(dashboardProps().columnDefs).toBe(COMPANY_COLUMNS);
     expect(dashboardProps()).toMatchObject({ title: 'Companies', exportFileName: 'companies' });
   });

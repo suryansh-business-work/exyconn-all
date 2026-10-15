@@ -1,12 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { ListContactsPagedDocument } from '@exyconn/shell/graphql/generated';
+import { SearchContactsDocument } from '@exyconn/shell/graphql/generated';
 import { ContactsPage } from '../../../../src/pages/contacts';
 import { CONTACT_COLUMNS } from '../../../../src/pages/contacts/contacts-grid';
 import { renderWithProviders } from '../../test-utils';
 import { contactRow, pending, tableStats } from '../../fixtures';
-import { dashboardProps, paged } from '../../crud-dashboard-stub';
+import { dashboardProps, paged, recordList } from '../../crud-dashboard-stub';
 import { confirmRowDelete, runRowAction, statLines } from '../../crud-page-helpers';
 
 const gql = vi.hoisted(() => ({ stats: vi.fn(), refetch: vi.fn(), deleteContact: vi.fn() }));
@@ -25,6 +25,11 @@ vi.mock('@exyconn/crud', async (importOriginal) => {
     usePagedFetcher: stub.usePagedFetcherStub,
   };
 });
+
+vi.mock(
+  '../../../../src/records/list',
+  async () => (await import('../../crud-dashboard-stub')).recordListStub,
+);
 
 vi.mock('../../../../src/pages/contacts/forms/contact', async () => ({
   ContactForm: (await import('../../form-stub')).FormStub,
@@ -59,12 +64,12 @@ describe('ContactsPage', () => {
     expect(statLines()).toEqual(['Contacts: 0', 'Active: 0', 'Unsubscribed: 0', 'Left company: 0']);
   });
 
-  it('drives the server grid with the paged contacts query and the contact columns', () => {
+  it('drives the server grid with the contacts query and the contact columns', () => {
     renderWithProviders(<ContactsPage />);
     const page = { totalCount: 1, rows: [contactRow()] };
 
-    expect(paged.document).toBe(ListContactsPagedDocument);
-    expect(paged.select?.({ listContactsPaged: page } as never)).toBe(page);
+    expect(recordList.options?.document).toBe(SearchContactsDocument);
+    expect(recordList.options?.select({ searchContacts: page } as never)).toBe(page);
     expect(dashboardProps().fetchRows).toBe(paged.fetchRows);
     expect(dashboardProps().columnDefs).toBe(CONTACT_COLUMNS);
     expect(dashboardProps()).toMatchObject({
