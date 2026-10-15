@@ -72,6 +72,47 @@ sync_snippet_includes() {
   rm -f "${tmp}"
 }
 
+# Hosts that moved to another vhost file, as "host|the file that serves it now". Installs
+# only ever add blocks, so the old ones stay in the certbot-managed file they lived in, and
+# nginx answers HTTPS from whichever it read first: whatsapp-demo.exyconn.com kept serving
+# the old app instead of redirecting to demos.exyconn.com. Their old blocks are removed from
+# every other Exyconn vhost (other sites on the host are never read); certbot then puts TLS
+# on the new home in step 4. Rolled back with everything else if `nginx -t` fails.
+RETIRED_HOSTS=(
+  "whatsapp-demo.exyconn.com|demos.exyconn.com.conf"
+)
+
+retire_moved_hosts() {
+  local entry host home conf name installed tmp
+  for entry in "${RETIRED_HOSTS[@]}"; do
+    IFS='|' read -r host home <<< "${entry}"
+    for conf in "${SRC_DIR}"/*.conf; do
+      name="$(basename "${conf}")"
+      installed="${NGINX_AVAILABLE}/${name}"
+      [ "${name}" = "${home}" ] && continue
+      grep -qE "server_name[[:space:]]+[^;]*\b${host//./\\.}\b" "${installed}" 2>/dev/null || continue
+      tmp="$(mktemp)"
+      awk -v drop="${host}" '
+        /^server[[:space:]]*\{/ && depth == 0 { inblock = 1; buf = "" }
+        inblock {
+          buf = buf $0 "\n"
+          depth += gsub(/\{/, "{")
+          depth -= gsub(/\}/, "}")
+          if (depth == 0) {
+            if (buf !~ "server_name[ \t]+[^;]*" drop "[ \t;]") { printf "%s", buf }
+            inblock = 0
+          }
+          next
+        }
+        { print }
+      ' "${installed}" > "${tmp}"
+      cat "${tmp}" > "${installed}"
+      rm -f "${tmp}"
+      echo "    removed the retired ${host} blocks from ${name} (it is served by ${home})"
+    done
+  done
+}
+
 # certbot -d args per certificate
 DOMAINS=(
   "exyconn.com|www.exyconn.com"
@@ -155,6 +196,7 @@ for conf in "${SRC_DIR}"/*.conf; do
   fi
   ln -sf "${installed}" "${NGINX_ENABLED}/${name}"
 done
+retire_moved_hosts
 nginx -t || rollback
 systemctl reload nginx
 
