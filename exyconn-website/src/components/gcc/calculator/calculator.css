@@ -8,6 +8,33 @@
   font-size: var(--font-size-md);
 }
 
+/*
+ * The site styles bare form elements (src/styles/input.scss, global.scss): a bordered, shadowed
+ * `input[type=text]` and a `label` with vertical margins. Inside an MUI field those draw a second
+ * box within the outline and push the label off the notch, so they are undone here. Keyed on
+ * MUI's classes, not `.gcc-app`, because dialogs and menus render in a portal outside the island.
+ * `:focus` is listed because the site's `input[type=text]:focus` outranks a two-class selector.
+ */
+.MuiInputBase-root .MuiInputBase-input,
+.MuiInputBase-root .MuiInputBase-input:focus {
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  outline: none;
+  color: inherit;
+  font-size: inherit;
+}
+.MuiFormLabel-root,
+.MuiFormControlLabel-root {
+  margin-block: 0;
+}
+/* The info button inside a field label: the site's 44px phone tap size would stretch the label. */
+.gcc-label__tip {
+  min-width: 0;
+  min-height: 0;
+}
+
 .gcc-loading {
   display: flex;
   gap: var(--space-3);
@@ -459,7 +486,8 @@
   font-variant-numeric: tabular-nums;
   text-align: end;
 }
-.gcc-summary__breakdown {
+/* Two classes: MUI's own Accordion class is injected after this file and would win a tie. */
+.gcc-summary .gcc-summary__breakdown {
   background: transparent;
   color: inherit;
 }
