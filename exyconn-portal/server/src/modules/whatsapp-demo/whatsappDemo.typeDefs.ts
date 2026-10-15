@@ -16,6 +16,8 @@ export const whatsappDemoTypeDefs = gql`
   type WhatsappDemo {
     id: ID!
     key: String!
+    "Where its bot talks: whatsapp (the WhatsApp demo) or website (the website chat agent demo)."
+    channel: String!
     industry: String!
     "BusinessProfile, as businessSchema in @exyconn/wa-flow describes it."
     business: JSON!
@@ -243,6 +245,8 @@ export const whatsappDemoTypeDefs = gql`
 
   input WhatsappDemoInput {
     key: String!
+    "whatsapp or website; left out when editing, the demo keeps its own."
+    channel: String
     industry: String!
     business: JSON!
     greeting: String!
@@ -270,23 +274,27 @@ export const whatsappDemoTypeDefs = gql`
   }
 
   extend type Query {
-    "Every active demo with its published workflows, for the chat."
-    whatsappDemoCatalog: [WhatsappDemoBundle!]!
+    "Every active demo of one channel (whatsapp when left out) with its published workflows, for the chat."
+    whatsappDemoCatalog(channel: String): [WhatsappDemoBundle!]!
     whatsappDemoAiStatus: WhatsappAiStatus!
-    whatsappDemos: [WhatsappDemo!]!
+    "One channel's demos (whatsapp when left out)."
+    whatsappDemos(channel: String): [WhatsappDemo!]!
     whatsappWorkflows(demoId: ID): [WhatsappWorkflow!]!
     whatsappWorkflow(id: ID!): WhatsappWorkflow
-    whatsappDemoStats(from: String!, to: String!): WhatsappDemoStats!
+    "One channel's numbers (whatsapp when left out)."
+    whatsappDemoStats(from: String!, to: String!, channel: String): WhatsappDemoStats!
     whatsappDemoFunnel(
       demoKey: String!
       workflow: String!
       from: String!
       to: String!
     ): [WhatsappFunnelStep!]!
+    "One channel's sessions (whatsapp when left out)."
     whatsappDemoSessions(
       input: TableQueryInput!
       from: String
       to: String
+      channel: String
     ): WhatsappDemoSessionPage!
     whatsappDemoSession(sessionId: ID!): WhatsappDemoSessionDetail
   }

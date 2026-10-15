@@ -30,6 +30,7 @@ is built as a downloadable Windows installer artifact by the same workflow.
 | Demos · landing page | 4040 | demos.exyconn.com | `exyconn-demos-hub` |
 | Demos · AI calling bot | 4041 | demos.exyconn.com/calling-bot-demo/ | `exyconn-calling-bot-demo` |
 | Demos · calling bot voice server | 4042 | demos.exyconn.com/calling-bot-demo/api/ | `exyconn-calling-bot-voice` |
+| Demos · AI website chat agent | 4043 | demos.exyconn.com/website-chat-demo/ | `exyconn-website-chat-demo` |
 | Demos · WhatsApp Demo | 4038 | demos.exyconn.com/whatsapp-demo/ (whatsapp-demo.exyconn.com redirects) | `exyconn-portal-whatsapp-demo` |
 | Portal · Client Hub | 4039 | clienthub.exyconn.com | `exyconn-portal-clienthub` |
 | Status page (public, no sign-in) | 4035 | status.exyconn.com | `exyconn-portal-status` |

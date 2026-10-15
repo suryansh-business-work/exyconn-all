@@ -23,27 +23,20 @@ const deps = vi.hoisted(() => ({
   runtime: { store: {}, open: vi.fn(), send: vi.fn(), choose: vi.fn(), clear: vi.fn() },
 }));
 
-vi.mock('../../../../src/hooks/useDemoUser', () => ({ useDemoUser: () => deps.user }));
-vi.mock('../../../../src/hooks/useCatalog', () => ({
+vi.mock('@exyconn/bot-studio/runtime', async (importOriginal) => ({
+  ...(await importOriginal<object>()),
+  useDemoUser: () => deps.user,
   useCatalog: () => ({ bundles: deps.bundles, loading: false }),
-}));
-vi.mock('../../../../src/analytics/session', () => ({ sessionId: deps.sessionId }));
-vi.mock('../../../../src/hooks/useAiParse', () => ({
+  sessionId: deps.sessionId,
   useAiParse: (session: string) => {
     deps.aiSession = session;
     return { configured: true, read: deps.read };
   },
-}));
-vi.mock('../../../../src/analytics/useDemoAnalytics', () => ({
   useDemoAnalytics: () => deps.track,
-}));
-vi.mock('../../../../src/hooks/useEngineContext', () => ({
   useEngineContext: (...args: unknown[]) => {
     deps.contextArgs = args;
     return deps.context;
   },
-}));
-vi.mock('../../../../src/runtime/useChatRuntime', () => ({
   useChatRuntime: (options: Record<string, unknown>) => {
     deps.runtimeOptions = options;
     return deps.runtime;

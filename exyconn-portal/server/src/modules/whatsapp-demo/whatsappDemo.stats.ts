@@ -1,8 +1,10 @@
 import type { PipelineStage } from 'mongoose';
+import type { Channel } from '@exyconn/wa-flow';
 import { WhatsappDemoEventModel, WhatsappDemoSessionModel } from './whatsappDemo.analytics.model';
 import { WhatsappDemoModel, WhatsappWorkflowModel } from './whatsappDemo.model';
 import { companyTimezone } from './whatsappDemo.zone';
 import { daysOf, parseRange, type Range } from './whatsappDemo.range';
+import { demoKeyMatch } from './whatsappDemo.channel';
 
 interface Bucket {
   _id: string | null;
@@ -29,14 +31,16 @@ interface AiBucket {
 const FLOW_TYPES = ['FLOW_STARTED', 'FLOW_COMPLETED', 'FLOW_ABANDONED'];
 
 /** Session numbers: counts, distinct users, average length, devices and sessions per day. */
-async function sessionFacets(range: Range, timeZone: string) {
+type KeyMatch = Awaited<ReturnType<typeof demoKeyMatch>>;
+
+async function sessionFacets(range: Range, timeZone: string, demos: KeyMatch) {
   const [facets] = await WhatsappDemoSessionModel.aggregate<{
     totals: { sessions: number; avgMs: number }[];
     users: { count: number }[];
     devices: Bucket[];
     daily: Bucket[];
   }>([
-    { $match: { startedAt: { $gte: range.from, $lt: range.to } } },
+    { $match: { startedAt: { $gte: range.from, $lt: range.to }, demos } },
     {
       $facet: {
         totals: [{ $group: { _id: null, sessions: { $sum: 1 }, avgMs: { $avg: '$durationMs' } } }],
@@ -59,10 +63,10 @@ async function sessionFacets(range: Range, timeZone: string) {
 }
 
 /** Event numbers: demos opened, flow outcomes, flows per day and the AI calls. */
-async function eventFacets(range: Range, timeZone: string) {
+async function eventFacets(range: Range, timeZone: string, demoKey: KeyMatch) {
   const day = { $dateToString: { format: '%Y-%m-%d', date: '$at', timezone: timeZone } };
   const pipeline: PipelineStage[] = [
-    { $match: { at: { $gte: range.from, $lt: range.to } } },
+    { $match: { at: { $gte: range.from, $lt: range.to }, demoKey } },
     {
       $facet: {
         demos: [
@@ -166,12 +170,14 @@ function dailySeries(range: Range, timeZone: string, sessions: Bucket[], flows: 
   }));
 }
 
-export async function stats(from: string, to: string) {
+/** One channel's numbers: a session or event counts when it touched one of its demos. */
+export async function stats(from: string, to: string, channel: Channel = 'whatsapp') {
   const timeZone = await companyTimezone();
   const range = parseRange(from, to, timeZone);
+  const keys = await demoKeyMatch(channel);
   const [sessions, events, labels] = await Promise.all([
-    sessionFacets(range, timeZone),
-    eventFacets(range, timeZone),
+    sessionFacets(range, timeZone, keys),
+    eventFacets(range, timeZone, keys),
     names(),
   ]);
   const flows = flowStats(events.flows, labels.workflow);

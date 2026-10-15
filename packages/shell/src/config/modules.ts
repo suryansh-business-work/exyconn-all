@@ -1214,6 +1214,15 @@ export const MODULES: ModuleDefinition[] = [
         group: 'Demos',
       },
       {
+        // The AI website chat agent (demos.exyconn.com/website-chat-demo): its workflows in the
+        // React Flow designer, analytics, sessions and setup.
+        key: 'tech-demos-website-bot',
+        label: 'Website chat bot',
+        path: '/tech/demos/website-bot',
+        icon: ForumIcon,
+        group: 'Demos',
+      },
+      {
         // The WhatsApp demo's real number: its Meta credentials, tested from the form.
         key: 'tech-demos-whatsapp-bot',
         label: 'WhatsApp bot',

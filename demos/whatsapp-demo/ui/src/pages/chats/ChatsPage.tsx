@@ -6,7 +6,7 @@ import { EmptyPane } from '../../components/wa/chat/EmptyPane';
 import { PushToast } from '../../components/wa/chat/PushToast';
 import { relativeDay } from '../../components/wa/chat/timeline';
 import { ChatListPane } from '../../components/wa/list/ChatListPane';
-import { useWaFormat } from '../../hooks/useWaFormat';
+import { useWaFormat } from '@exyconn/bot-studio/runtime';
 import { useCompact, useWaPalette } from '../../theme/useWa';
 import { WA_FONT, WA_SIZE } from '../../theme/wa.tokens';
 import { useChatsPage } from './useChatsPage';

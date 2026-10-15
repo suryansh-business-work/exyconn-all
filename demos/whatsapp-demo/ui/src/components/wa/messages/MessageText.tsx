@@ -1,7 +1,7 @@
 import { Box } from '@exyconn/shell/components/ui';
 import { useWaPalette } from '../../../theme/useWa';
 import { WA_FONT, WA_SPACE } from '../../../theme/wa.tokens';
-import { FormattedText } from './FormattedText';
+import { FormattedText } from '@exyconn/bot-studio/shared';
 
 interface MessageTextProps {
   header?: string;

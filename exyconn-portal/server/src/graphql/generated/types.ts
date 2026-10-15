@@ -1332,10 +1332,14 @@ export enum CallingBotPhoneProvider {
 /** An example call the bot can play (Tech > Demos > Calling bot > Examples). */
 export type CallingBotScenario = {
   __typename?: 'CallingBotScenario';
+  /** The flow as the step-by-step script the voice model follows; empty without a flow. */
+  callScript: Scalars['String']['output'];
   /** One line for the visitor: who the bot is and what to try. */
   description: Scalars['String']['output'];
   /** Only enabled examples are offered on the demo. */
   enabled: Scalars['Boolean']['output'];
+  /** The call flow drawn in Tech (a wa-flow graph of voice steps); null when it has none. */
+  flow?: Maybe<Scalars['JSON']['output']>;
   /** The first thing the bot says. */
   greeting: Scalars['String']['output'];
   id: Scalars['ID']['output'];
@@ -6203,6 +6207,8 @@ export type Mutation = {
   runRecurringInvoiceNow: RecurringInvoice;
   saveAiModelPrice: AiModelPrice;
   saveAiSpendLimit: AiSpendLimit;
+  /** Saves an example's call flow (checked: voice steps only, no errors) and its script; null removes it. */
+  saveCallingBotScenarioFlow: CallingBotScenario;
   saveCmsFragmentDraft: CmsFragment;
   saveCmsPageDraft: CmsPage;
   /**
@@ -8467,6 +8473,12 @@ export type MutationSaveAiModelPriceArgs = {
 
 export type MutationSaveAiSpendLimitArgs = {
   input: AiSpendLimitInput;
+};
+
+
+export type MutationSaveCallingBotScenarioFlowArgs = {
+  flow?: InputMaybe<Scalars['JSON']['input']>;
+  id: Scalars['ID']['input'];
 };
 
 
@@ -12228,11 +12240,13 @@ export type Query = {
   websiteFormTypes: Array<Scalars['String']['output']>;
   whatsappChannel: WhatsappChannelSettings;
   whatsappDemoAiStatus: WhatsappAiStatus;
-  /** Every active demo with its published workflows, for the chat. */
+  /** Every active demo of one channel (whatsapp when left out) with its published workflows, for the chat. */
   whatsappDemoCatalog: Array<WhatsappDemoBundle>;
   whatsappDemoFunnel: Array<WhatsappFunnelStep>;
   whatsappDemoSession?: Maybe<WhatsappDemoSessionDetail>;
+  /** One channel's sessions (whatsapp when left out). */
   whatsappDemoSessions: WhatsappDemoSessionPage;
+  /** One channel's numbers (whatsapp when left out). */
   whatsappDemoStats: WhatsappDemoStats;
   /** The signed-in demo visitor (pass in x-demo-visitor), or null. */
   whatsappDemoVisitorMe?: Maybe<WhatsappDemoVisitor>;
@@ -12240,6 +12254,7 @@ export type Query = {
   whatsappDemoVisitorStats: TableStats;
   /** Website > WhatsApp Leads: every demo visitor (website staff). */
   whatsappDemoVisitorsPaged: WhatsappDemoVisitorPage;
+  /** One channel's demos (whatsapp when left out). */
   whatsappDemos: Array<WhatsappDemo>;
   whatsappWorkflow?: Maybe<WhatsappWorkflow>;
   whatsappWorkflows: Array<WhatsappWorkflow>;
@@ -13938,6 +13953,11 @@ export type QueryWebsiteChatSessionsPagedArgs = {
 };
 
 
+export type QueryWhatsappDemoCatalogArgs = {
+  channel?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryWhatsappDemoFunnelArgs = {
   demoKey: Scalars['String']['input'];
   from: Scalars['String']['input'];
@@ -13952,6 +13972,7 @@ export type QueryWhatsappDemoSessionArgs = {
 
 
 export type QueryWhatsappDemoSessionsArgs = {
+  channel?: InputMaybe<Scalars['String']['input']>;
   from?: InputMaybe<Scalars['String']['input']>;
   input: TableQueryInput;
   to?: InputMaybe<Scalars['String']['input']>;
@@ -13959,6 +13980,7 @@ export type QueryWhatsappDemoSessionsArgs = {
 
 
 export type QueryWhatsappDemoStatsArgs = {
+  channel?: InputMaybe<Scalars['String']['input']>;
   from: Scalars['String']['input'];
   to: Scalars['String']['input'];
 };
@@ -13966,6 +13988,11 @@ export type QueryWhatsappDemoStatsArgs = {
 
 export type QueryWhatsappDemoVisitorsPagedArgs = {
   input: TableQueryInput;
+};
+
+
+export type QueryWhatsappDemosArgs = {
+  channel?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -17196,6 +17223,8 @@ export type WhatsappDemo = {
   active: Scalars['Boolean']['output'];
   /** BusinessProfile, as businessSchema in @exyconn/wa-flow describes it. */
   business: Scalars['JSON']['output'];
+  /** Where its bot talks: whatsapp (the WhatsApp demo) or website (the website chat agent demo). */
+  channel: Scalars['String']['output'];
   greeting: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   industry: Scalars['String']['output'];
@@ -17278,6 +17307,8 @@ export enum WhatsappDemoEventType {
 export type WhatsappDemoInput = {
   active: Scalars['Boolean']['input'];
   business: Scalars['JSON']['input'];
+  /** whatsapp or website; left out when editing, the demo keeps its own. */
+  channel?: InputMaybe<Scalars['String']['input']>;
   greeting: Scalars['String']['input'];
   industry: Scalars['String']['input'];
   key: Scalars['String']['input'];
@@ -20001,8 +20032,10 @@ export type CallingBotConfigResolvers<ContextType = GraphQLContext, ParentType e
 }>;
 
 export type CallingBotScenarioResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CallingBotScenario'] = ResolversParentTypes['CallingBotScenario']> = ResolversObject<{
+  callScript?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  flow?: Resolver<Maybe<ResolversTypes['JSON']>, ParentType, ContextType>;
   greeting?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   languageCode?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -22781,6 +22814,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   runRecurringInvoiceNow?: Resolver<ResolversTypes['RecurringInvoice'], ParentType, ContextType, RequireFields<MutationRunRecurringInvoiceNowArgs, 'id'>>;
   saveAiModelPrice?: Resolver<ResolversTypes['AiModelPrice'], ParentType, ContextType, RequireFields<MutationSaveAiModelPriceArgs, 'input'>>;
   saveAiSpendLimit?: Resolver<ResolversTypes['AiSpendLimit'], ParentType, ContextType, RequireFields<MutationSaveAiSpendLimitArgs, 'input'>>;
+  saveCallingBotScenarioFlow?: Resolver<ResolversTypes['CallingBotScenario'], ParentType, ContextType, RequireFields<MutationSaveCallingBotScenarioFlowArgs, 'id'>>;
   saveCmsFragmentDraft?: Resolver<ResolversTypes['CmsFragment'], ParentType, ContextType, RequireFields<MutationSaveCmsFragmentDraftArgs, 'draft' | 'id'>>;
   saveCmsPageDraft?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationSaveCmsPageDraftArgs, 'draft' | 'id'>>;
   saveEmployeeSalary?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationSaveEmployeeSalaryArgs, 'employeeId' | 'input'>>;
@@ -24441,7 +24475,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   websiteFormTypes?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   whatsappChannel?: Resolver<ResolversTypes['WhatsappChannelSettings'], ParentType, ContextType>;
   whatsappDemoAiStatus?: Resolver<ResolversTypes['WhatsappAiStatus'], ParentType, ContextType>;
-  whatsappDemoCatalog?: Resolver<Array<ResolversTypes['WhatsappDemoBundle']>, ParentType, ContextType>;
+  whatsappDemoCatalog?: Resolver<Array<ResolversTypes['WhatsappDemoBundle']>, ParentType, ContextType, Partial<QueryWhatsappDemoCatalogArgs>>;
   whatsappDemoFunnel?: Resolver<Array<ResolversTypes['WhatsappFunnelStep']>, ParentType, ContextType, RequireFields<QueryWhatsappDemoFunnelArgs, 'demoKey' | 'from' | 'to' | 'workflow'>>;
   whatsappDemoSession?: Resolver<Maybe<ResolversTypes['WhatsappDemoSessionDetail']>, ParentType, ContextType, RequireFields<QueryWhatsappDemoSessionArgs, 'sessionId'>>;
   whatsappDemoSessions?: Resolver<ResolversTypes['WhatsappDemoSessionPage'], ParentType, ContextType, RequireFields<QueryWhatsappDemoSessionsArgs, 'input'>>;
@@ -24449,7 +24483,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   whatsappDemoVisitorMe?: Resolver<Maybe<ResolversTypes['WhatsappDemoVisitor']>, ParentType, ContextType>;
   whatsappDemoVisitorStats?: Resolver<ResolversTypes['TableStats'], ParentType, ContextType>;
   whatsappDemoVisitorsPaged?: Resolver<ResolversTypes['WhatsappDemoVisitorPage'], ParentType, ContextType, RequireFields<QueryWhatsappDemoVisitorsPagedArgs, 'input'>>;
-  whatsappDemos?: Resolver<Array<ResolversTypes['WhatsappDemo']>, ParentType, ContextType>;
+  whatsappDemos?: Resolver<Array<ResolversTypes['WhatsappDemo']>, ParentType, ContextType, Partial<QueryWhatsappDemosArgs>>;
   whatsappWorkflow?: Resolver<Maybe<ResolversTypes['WhatsappWorkflow']>, ParentType, ContextType, RequireFields<QueryWhatsappWorkflowArgs, 'id'>>;
   whatsappWorkflows?: Resolver<Array<ResolversTypes['WhatsappWorkflow']>, ParentType, ContextType, Partial<QueryWhatsappWorkflowsArgs>>;
   workspaceAnalytics?: Resolver<ResolversTypes['WorkspaceAnalytics'], ParentType, ContextType, RequireFields<QueryWorkspaceAnalyticsArgs, 'days'>>;
@@ -26254,6 +26288,7 @@ export type WhatsappDayPointResolvers<ContextType = GraphQLContext, ParentType e
 export type WhatsappDemoResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['WhatsappDemo'] = ResolversParentTypes['WhatsappDemo']> = ResolversObject<{
   active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   business?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
+  channel?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   greeting?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   industry?: Resolver<ResolversTypes['String'], ParentType, ContextType>;

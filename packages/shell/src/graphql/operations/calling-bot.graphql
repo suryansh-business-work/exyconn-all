@@ -147,3 +147,26 @@ mutation UpdateCallingBotScenario($id: ID!, $input: CallingBotScenarioInput!) {
 mutation DeleteCallingBotScenario($id: ID!) {
   deleteCallingBotScenario(id: $id)
 }
+
+# Tech > Demos > Calling bot > Call flows: each example with its drawn flow and compiled script.
+query CallingBotScenarioFlows {
+  callingBotScenarios {
+    id
+    title
+    description
+    greeting
+    enabled
+    flow
+    callScript
+    updatedAt
+  }
+}
+
+mutation SaveCallingBotScenarioFlow($id: ID!, $flow: JSON) {
+  saveCallingBotScenarioFlow(id: $id, flow: $flow) {
+    id
+    flow
+    callScript
+    updatedAt
+  }
+}

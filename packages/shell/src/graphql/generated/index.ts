@@ -1333,10 +1333,14 @@ export enum CallingBotPhoneProvider {
 /** An example call the bot can play (Tech > Demos > Calling bot > Examples). */
 export type CallingBotScenario = {
   __typename?: 'CallingBotScenario';
+  /** The flow as the step-by-step script the voice model follows; empty without a flow. */
+  callScript: Scalars['String']['output'];
   /** One line for the visitor: who the bot is and what to try. */
   description: Scalars['String']['output'];
   /** Only enabled examples are offered on the demo. */
   enabled: Scalars['Boolean']['output'];
+  /** The call flow drawn in Tech (a wa-flow graph of voice steps); null when it has none. */
+  flow?: Maybe<Scalars['JSON']['output']>;
   /** The first thing the bot says. */
   greeting: Scalars['String']['output'];
   id: Scalars['ID']['output'];
@@ -6204,6 +6208,8 @@ export type Mutation = {
   runRecurringInvoiceNow: RecurringInvoice;
   saveAiModelPrice: AiModelPrice;
   saveAiSpendLimit: AiSpendLimit;
+  /** Saves an example's call flow (checked: voice steps only, no errors) and its script; null removes it. */
+  saveCallingBotScenarioFlow: CallingBotScenario;
   saveCmsFragmentDraft: CmsFragment;
   saveCmsPageDraft: CmsPage;
   /**
@@ -8468,6 +8474,12 @@ export type MutationSaveAiModelPriceArgs = {
 
 export type MutationSaveAiSpendLimitArgs = {
   input: AiSpendLimitInput;
+};
+
+
+export type MutationSaveCallingBotScenarioFlowArgs = {
+  flow?: InputMaybe<Scalars['JSON']['input']>;
+  id: Scalars['ID']['input'];
 };
 
 
@@ -12229,11 +12241,13 @@ export type Query = {
   websiteFormTypes: Array<Scalars['String']['output']>;
   whatsappChannel: WhatsappChannelSettings;
   whatsappDemoAiStatus: WhatsappAiStatus;
-  /** Every active demo with its published workflows, for the chat. */
+  /** Every active demo of one channel (whatsapp when left out) with its published workflows, for the chat. */
   whatsappDemoCatalog: Array<WhatsappDemoBundle>;
   whatsappDemoFunnel: Array<WhatsappFunnelStep>;
   whatsappDemoSession?: Maybe<WhatsappDemoSessionDetail>;
+  /** One channel's sessions (whatsapp when left out). */
   whatsappDemoSessions: WhatsappDemoSessionPage;
+  /** One channel's numbers (whatsapp when left out). */
   whatsappDemoStats: WhatsappDemoStats;
   /** The signed-in demo visitor (pass in x-demo-visitor), or null. */
   whatsappDemoVisitorMe?: Maybe<WhatsappDemoVisitor>;
@@ -12241,6 +12255,7 @@ export type Query = {
   whatsappDemoVisitorStats: TableStats;
   /** Website > WhatsApp Leads: every demo visitor (website staff). */
   whatsappDemoVisitorsPaged: WhatsappDemoVisitorPage;
+  /** One channel's demos (whatsapp when left out). */
   whatsappDemos: Array<WhatsappDemo>;
   whatsappWorkflow?: Maybe<WhatsappWorkflow>;
   whatsappWorkflows: Array<WhatsappWorkflow>;
@@ -13939,6 +13954,11 @@ export type QueryWebsiteChatSessionsPagedArgs = {
 };
 
 
+export type QueryWhatsappDemoCatalogArgs = {
+  channel?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 export type QueryWhatsappDemoFunnelArgs = {
   demoKey: Scalars['String']['input'];
   from: Scalars['String']['input'];
@@ -13953,6 +13973,7 @@ export type QueryWhatsappDemoSessionArgs = {
 
 
 export type QueryWhatsappDemoSessionsArgs = {
+  channel?: InputMaybe<Scalars['String']['input']>;
   from?: InputMaybe<Scalars['String']['input']>;
   input: TableQueryInput;
   to?: InputMaybe<Scalars['String']['input']>;
@@ -13960,6 +13981,7 @@ export type QueryWhatsappDemoSessionsArgs = {
 
 
 export type QueryWhatsappDemoStatsArgs = {
+  channel?: InputMaybe<Scalars['String']['input']>;
   from: Scalars['String']['input'];
   to: Scalars['String']['input'];
 };
@@ -13967,6 +13989,11 @@ export type QueryWhatsappDemoStatsArgs = {
 
 export type QueryWhatsappDemoVisitorsPagedArgs = {
   input: TableQueryInput;
+};
+
+
+export type QueryWhatsappDemosArgs = {
+  channel?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -17197,6 +17224,8 @@ export type WhatsappDemo = {
   active: Scalars['Boolean']['output'];
   /** BusinessProfile, as businessSchema in @exyconn/wa-flow describes it. */
   business: Scalars['JSON']['output'];
+  /** Where its bot talks: whatsapp (the WhatsApp demo) or website (the website chat agent demo). */
+  channel: Scalars['String']['output'];
   greeting: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   industry: Scalars['String']['output'];
@@ -17279,6 +17308,8 @@ export enum WhatsappDemoEventType {
 export type WhatsappDemoInput = {
   active: Scalars['Boolean']['input'];
   business: Scalars['JSON']['input'];
+  /** whatsapp or website; left out when editing, the demo keeps its own. */
+  channel?: InputMaybe<Scalars['String']['input']>;
   greeting: Scalars['String']['input'];
   industry: Scalars['String']['input'];
   key: Scalars['String']['input'];
@@ -18433,6 +18464,19 @@ export type DeleteCallingBotScenarioMutationVariables = Exact<{
 
 
 export type DeleteCallingBotScenarioMutation = { __typename?: 'Mutation', deleteCallingBotScenario: boolean };
+
+export type CallingBotScenarioFlowsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CallingBotScenarioFlowsQuery = { __typename?: 'Query', callingBotScenarios: Array<{ __typename?: 'CallingBotScenario', id: string, title: string, description: string, greeting: string, enabled: boolean, flow?: any | null, callScript: string, updatedAt: string }> };
+
+export type SaveCallingBotScenarioFlowMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  flow?: InputMaybe<Scalars['JSON']['input']>;
+}>;
+
+
+export type SaveCallingBotScenarioFlowMutation = { __typename?: 'Mutation', saveCallingBotScenarioFlow: { __typename?: 'CallingBotScenario', id: string, flow?: any | null, callScript: string, updatedAt: string } };
 
 export type ClientContactFieldsFragment = { __typename?: 'ClientContact', id: string, clientId: string, name: string, email: string, active: boolean, lastSignInAt?: string | null, signInCount: number, createdAt: string };
 
@@ -24932,16 +24976,18 @@ export type DeleteWebsiteChatKnowledgeMutationVariables = Exact<{
 
 export type DeleteWebsiteChatKnowledgeMutation = { __typename?: 'Mutation', deleteWebsiteChatKnowledge: boolean };
 
-export type WhatsappDemoFieldsFragment = { __typename?: 'WhatsappDemo', id: string, key: string, industry: string, business: any, greeting: string, menuText: string, menuButton: string, order: number, active: boolean, updatedAt: string };
+export type WhatsappDemoFieldsFragment = { __typename?: 'WhatsappDemo', id: string, key: string, channel: string, industry: string, business: any, greeting: string, menuText: string, menuButton: string, order: number, active: boolean, updatedAt: string };
 
 export type WhatsappWorkflowFieldsFragment = { __typename?: 'WhatsappWorkflow', id: string, demoId: string, demoKey: string, key: string, name: string, description: string, keywords: Array<string>, order: number, status: WhatsappWorkflowStatus, version: number, draft: any, published?: any | null, publishedAt?: string | null, updatedAt: string, updatedByName?: string | null };
 
 export type WhatsappDemoSessionFieldsFragment = { __typename?: 'WhatsappDemoSession', id: string, sessionId: string, userId: string, userName: string, userEmail: string, startedAt: string, lastEventAt: string, durationMs: number, device?: string | null, viewport?: string | null, demos: Array<string>, flowsStarted: number, flowsCompleted: number, events: number, status: string };
 
-export type WhatsappDemoCatalogQueryVariables = Exact<{ [key: string]: never; }>;
+export type WhatsappDemoCatalogQueryVariables = Exact<{
+  channel?: InputMaybe<Scalars['String']['input']>;
+}>;
 
 
-export type WhatsappDemoCatalogQuery = { __typename?: 'Query', whatsappDemoCatalog: Array<{ __typename?: 'WhatsappDemoBundle', revision: string, demo: { __typename?: 'WhatsappDemo', id: string, key: string, industry: string, business: any, greeting: string, menuText: string, menuButton: string, order: number, active: boolean, updatedAt: string }, workflows: Array<{ __typename?: 'WhatsappPublishedWorkflow', key: string, name: string, description: string, keywords: Array<string>, order: number, version: number, graph: any }> }> };
+export type WhatsappDemoCatalogQuery = { __typename?: 'Query', whatsappDemoCatalog: Array<{ __typename?: 'WhatsappDemoBundle', revision: string, demo: { __typename?: 'WhatsappDemo', id: string, key: string, channel: string, industry: string, business: any, greeting: string, menuText: string, menuButton: string, order: number, active: boolean, updatedAt: string }, workflows: Array<{ __typename?: 'WhatsappPublishedWorkflow', key: string, name: string, description: string, keywords: Array<string>, order: number, version: number, graph: any }> }> };
 
 export type WhatsappDemoAiStatusQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -24962,10 +25008,12 @@ export type WhatsappDemoParseMutationVariables = Exact<{
 
 export type WhatsappDemoParseMutation = { __typename?: 'Mutation', whatsappDemoParse: { __typename?: 'WhatsappDemoParseResult', ok: boolean, intent?: string | null, entities: any, latencyMs: number, error?: string | null } };
 
-export type WhatsappDemosQueryVariables = Exact<{ [key: string]: never; }>;
+export type WhatsappDemosQueryVariables = Exact<{
+  channel?: InputMaybe<Scalars['String']['input']>;
+}>;
 
 
-export type WhatsappDemosQuery = { __typename?: 'Query', whatsappDemos: Array<{ __typename?: 'WhatsappDemo', id: string, key: string, industry: string, business: any, greeting: string, menuText: string, menuButton: string, order: number, active: boolean, updatedAt: string }> };
+export type WhatsappDemosQuery = { __typename?: 'Query', whatsappDemos: Array<{ __typename?: 'WhatsappDemo', id: string, key: string, channel: string, industry: string, business: any, greeting: string, menuText: string, menuButton: string, order: number, active: boolean, updatedAt: string }> };
 
 export type WhatsappWorkflowsQueryVariables = Exact<{
   demoId?: InputMaybe<Scalars['ID']['input']>;
@@ -24984,6 +25032,7 @@ export type WhatsappWorkflowQuery = { __typename?: 'Query', whatsappWorkflow?: {
 export type WhatsappDemoStatsQueryVariables = Exact<{
   from: Scalars['String']['input'];
   to: Scalars['String']['input'];
+  channel?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -25003,6 +25052,7 @@ export type WhatsappDemoSessionsQueryVariables = Exact<{
   input: TableQueryInput;
   from?: InputMaybe<Scalars['String']['input']>;
   to?: InputMaybe<Scalars['String']['input']>;
+  channel?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -25021,7 +25071,7 @@ export type UpsertWhatsappDemoMutationVariables = Exact<{
 }>;
 
 
-export type UpsertWhatsappDemoMutation = { __typename?: 'Mutation', upsertWhatsappDemo: { __typename?: 'WhatsappDemo', id: string, key: string, industry: string, business: any, greeting: string, menuText: string, menuButton: string, order: number, active: boolean, updatedAt: string } };
+export type UpsertWhatsappDemoMutation = { __typename?: 'Mutation', upsertWhatsappDemo: { __typename?: 'WhatsappDemo', id: string, key: string, channel: string, industry: string, business: any, greeting: string, menuText: string, menuButton: string, order: number, active: boolean, updatedAt: string } };
 
 export type CreateWhatsappWorkflowMutationVariables = Exact<{
   input: WhatsappWorkflowCreateInput;
@@ -27544,6 +27594,7 @@ export const WhatsappDemoFieldsFragmentDoc = gql`
     fragment WhatsappDemoFields on WhatsappDemo {
   id
   key
+  channel
   industry
   business
   greeting
@@ -32726,6 +32777,90 @@ export function useDeleteCallingBotScenarioMutation(baseOptions?: ApolloReactHoo
         return ApolloReactHooks.useMutation<DeleteCallingBotScenarioMutation, DeleteCallingBotScenarioMutationVariables>(DeleteCallingBotScenarioDocument, options);
       }
 export type DeleteCallingBotScenarioMutationHookResult = ReturnType<typeof useDeleteCallingBotScenarioMutation>;
+export const CallingBotScenarioFlowsDocument = gql`
+    query CallingBotScenarioFlows {
+  callingBotScenarios {
+    id
+    title
+    description
+    greeting
+    enabled
+    flow
+    callScript
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useCallingBotScenarioFlowsQuery__
+ *
+ * To run a query within a React component, call `useCallingBotScenarioFlowsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCallingBotScenarioFlowsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCallingBotScenarioFlowsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useCallingBotScenarioFlowsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<CallingBotScenarioFlowsQuery, CallingBotScenarioFlowsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CallingBotScenarioFlowsQuery, CallingBotScenarioFlowsQueryVariables>(CallingBotScenarioFlowsDocument, options);
+      }
+export function useCallingBotScenarioFlowsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CallingBotScenarioFlowsQuery, CallingBotScenarioFlowsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CallingBotScenarioFlowsQuery, CallingBotScenarioFlowsQueryVariables>(CallingBotScenarioFlowsDocument, options);
+        }
+// @ts-ignore
+export function useCallingBotScenarioFlowsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CallingBotScenarioFlowsQuery, CallingBotScenarioFlowsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CallingBotScenarioFlowsQuery, CallingBotScenarioFlowsQueryVariables>;
+// @ts-ignore
+export function useCallingBotScenarioFlowsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CallingBotScenarioFlowsQuery, CallingBotScenarioFlowsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CallingBotScenarioFlowsQuery | undefined, CallingBotScenarioFlowsQueryVariables>;
+export function useCallingBotScenarioFlowsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CallingBotScenarioFlowsQuery, CallingBotScenarioFlowsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CallingBotScenarioFlowsQuery, CallingBotScenarioFlowsQueryVariables>(CallingBotScenarioFlowsDocument, options);
+        }
+export type CallingBotScenarioFlowsQueryHookResult = ReturnType<typeof useCallingBotScenarioFlowsQuery>;
+export type CallingBotScenarioFlowsLazyQueryHookResult = ReturnType<typeof useCallingBotScenarioFlowsLazyQuery>;
+export type CallingBotScenarioFlowsSuspenseQueryHookResult = ReturnType<typeof useCallingBotScenarioFlowsSuspenseQuery>;
+export const SaveCallingBotScenarioFlowDocument = gql`
+    mutation SaveCallingBotScenarioFlow($id: ID!, $flow: JSON) {
+  saveCallingBotScenarioFlow(id: $id, flow: $flow) {
+    id
+    flow
+    callScript
+    updatedAt
+  }
+}
+    `;
+
+/**
+ * __useSaveCallingBotScenarioFlowMutation__
+ *
+ * To run a mutation, you first call `useSaveCallingBotScenarioFlowMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveCallingBotScenarioFlowMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveCallingBotScenarioFlowMutation, { data, loading, error }] = useSaveCallingBotScenarioFlowMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      flow: // value for 'flow'
+ *   },
+ * });
+ */
+export function useSaveCallingBotScenarioFlowMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SaveCallingBotScenarioFlowMutation, SaveCallingBotScenarioFlowMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SaveCallingBotScenarioFlowMutation, SaveCallingBotScenarioFlowMutationVariables>(SaveCallingBotScenarioFlowDocument, options);
+      }
+export type SaveCallingBotScenarioFlowMutationHookResult = ReturnType<typeof useSaveCallingBotScenarioFlowMutation>;
 export const ClientContactsDocument = gql`
     query ClientContacts($clientId: ID!) {
   clientContacts(clientId: $clientId) {
@@ -68514,8 +68649,8 @@ export function useDeleteWebsiteChatKnowledgeMutation(baseOptions?: ApolloReactH
       }
 export type DeleteWebsiteChatKnowledgeMutationHookResult = ReturnType<typeof useDeleteWebsiteChatKnowledgeMutation>;
 export const WhatsappDemoCatalogDocument = gql`
-    query WhatsappDemoCatalog {
-  whatsappDemoCatalog {
+    query WhatsappDemoCatalog($channel: String) {
+  whatsappDemoCatalog(channel: $channel) {
     demo {
       ...WhatsappDemoFields
     }
@@ -68545,6 +68680,7 @@ export const WhatsappDemoCatalogDocument = gql`
  * @example
  * const { data, loading, error } = useWhatsappDemoCatalogQuery({
  *   variables: {
+ *      channel: // value for 'channel'
  *   },
  * });
  */
@@ -68675,8 +68811,8 @@ export function useWhatsappDemoParseMutation(baseOptions?: ApolloReactHooks.Muta
       }
 export type WhatsappDemoParseMutationHookResult = ReturnType<typeof useWhatsappDemoParseMutation>;
 export const WhatsappDemosDocument = gql`
-    query WhatsappDemos {
-  whatsappDemos {
+    query WhatsappDemos($channel: String) {
+  whatsappDemos(channel: $channel) {
     ...WhatsappDemoFields
   }
 }
@@ -68694,6 +68830,7 @@ export const WhatsappDemosDocument = gql`
  * @example
  * const { data, loading, error } = useWhatsappDemosQuery({
  *   variables: {
+ *      channel: // value for 'channel'
  *   },
  * });
  */
@@ -68806,8 +68943,8 @@ export type WhatsappWorkflowQueryHookResult = ReturnType<typeof useWhatsappWorkf
 export type WhatsappWorkflowLazyQueryHookResult = ReturnType<typeof useWhatsappWorkflowLazyQuery>;
 export type WhatsappWorkflowSuspenseQueryHookResult = ReturnType<typeof useWhatsappWorkflowSuspenseQuery>;
 export const WhatsappDemoStatsDocument = gql`
-    query WhatsappDemoStats($from: String!, $to: String!) {
-  whatsappDemoStats(from: $from, to: $to) {
+    query WhatsappDemoStats($from: String!, $to: String!, $channel: String) {
+  whatsappDemoStats(from: $from, to: $to, channel: $channel) {
     sessions
     uniqueUsers
     flowsStarted
@@ -68862,6 +68999,7 @@ export const WhatsappDemoStatsDocument = gql`
  *   variables: {
  *      from: // value for 'from'
  *      to: // value for 'to'
+ *      channel: // value for 'channel'
  *   },
  * });
  */
@@ -68935,8 +69073,8 @@ export type WhatsappDemoFunnelQueryHookResult = ReturnType<typeof useWhatsappDem
 export type WhatsappDemoFunnelLazyQueryHookResult = ReturnType<typeof useWhatsappDemoFunnelLazyQuery>;
 export type WhatsappDemoFunnelSuspenseQueryHookResult = ReturnType<typeof useWhatsappDemoFunnelSuspenseQuery>;
 export const WhatsappDemoSessionsDocument = gql`
-    query WhatsappDemoSessions($input: TableQueryInput!, $from: String, $to: String) {
-  whatsappDemoSessions(input: $input, from: $from, to: $to) {
+    query WhatsappDemoSessions($input: TableQueryInput!, $from: String, $to: String, $channel: String) {
+  whatsappDemoSessions(input: $input, from: $from, to: $to, channel: $channel) {
     rows {
       ...WhatsappDemoSessionFields
     }
@@ -68960,6 +69098,7 @@ export const WhatsappDemoSessionsDocument = gql`
  *      input: // value for 'input'
  *      from: // value for 'from'
  *      to: // value for 'to'
+ *      channel: // value for 'channel'
  *   },
  * });
  */

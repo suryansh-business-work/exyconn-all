@@ -5,6 +5,8 @@
  * Values are our own reading of the familiar look; no WhatsApp asset is used.
  */
 import type { AccentKey } from '@exyconn/wa-flow';
+import { TICK_TIMING } from '@exyconn/bot-studio/runtime';
+import { DARK_ACCENTS, LIGHT_ACCENTS } from '@exyconn/bot-studio/shared';
 
 export interface WaPalette {
   appBackdrop: string;
@@ -52,36 +54,6 @@ export interface WaPalette {
   qrPaper: string;
   accents: Readonly<Record<AccentKey, string>>;
 }
-
-const LIGHT_ACCENTS: Readonly<Record<AccentKey, string>> = {
-  teal: '#06a88a',
-  green: '#25a244',
-  blue: '#2b7de9',
-  indigo: '#5b5fc7',
-  purple: '#8e5bd6',
-  pink: '#d6458b',
-  red: '#e0473a',
-  orange: '#ec7a1c',
-  amber: '#c98a00',
-  cyan: '#0a9dc0',
-  slate: '#54656f',
-  brown: '#8d6748',
-};
-
-const DARK_ACCENTS: Readonly<Record<AccentKey, string>> = {
-  teal: '#21c7a8',
-  green: '#4cc768',
-  blue: '#5aa2f5',
-  indigo: '#8c90f0',
-  purple: '#b48cf0',
-  pink: '#f07ab3',
-  red: '#f47d72',
-  orange: '#f59d55',
-  amber: '#f0bd3d',
-  cyan: '#3ec4e4',
-  slate: '#aebac1',
-  brown: '#c49a78',
-};
 
 export const WA_LIGHT: WaPalette = {
   appBackdrop: '#eae6df',
@@ -260,9 +232,8 @@ export const WA_SHADOW = {
 } as const;
 
 export const WA_MOTION = {
-  /** sent → delivered → read, as the ticks animate. */
-  deliveredMs: 350,
-  readMs: 650,
+  /** sent → delivered → read, as the ticks animate (the chat runtime's own timing). */
+  ...TICK_TIMING,
   fast: '120ms',
   normal: '200ms',
 } as const;

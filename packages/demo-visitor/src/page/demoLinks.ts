@@ -8,7 +8,11 @@ export interface DemoLink {
 }
 
 /** The demos, in the order the site presents them; their names come from the app registry. */
-const DEMO_KEYS: readonly PortalAppKey[] = ['calling-bot-demo', 'whatsapp-demo'];
+const DEMO_KEYS: readonly PortalAppKey[] = [
+  'calling-bot-demo',
+  'whatsapp-demo',
+  'website-chat-demo',
+];
 
 /** "WhatsApp Demo · Exyconn" -> "WhatsApp Demo": the registry title without the brand suffix. */
 export const shortTitle = (title: string): string => title.split('·')[0].trim();

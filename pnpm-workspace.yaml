@@ -9,6 +9,7 @@ packages:
   - 'demos/whatsapp-demo/ui'
   - 'demos/calling-bot-demo/ui'
   - 'demos/calling-bot-demo/server'
+  - 'demos/website-chat-demo/ui'
   - 'exyconn-website'
   - 'exyconn-tracker-app'
   - 'exyconn-tracker-mobile'

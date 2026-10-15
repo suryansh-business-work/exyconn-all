@@ -1,5 +1,5 @@
 import type { FilterQuery } from 'mongoose';
-import type { WaGraph } from '@exyconn/wa-flow';
+import type { Channel, WaGraph } from '@exyconn/wa-flow';
 import {
   WhatsappDemoEventModel,
   WhatsappDemoSessionModel,
@@ -9,6 +9,7 @@ import { WhatsappWorkflowModel } from './whatsappDemo.model';
 import { SESSION_IDLE_MS, presentEvent, presentSession } from './whatsappDemo.present';
 import { optionalRange, parseRange } from './whatsappDemo.range';
 import { companyTimezone } from './whatsappDemo.zone';
+import { demoKeyMatch } from './whatsappDemo.channel';
 import { tableQuery, type TableConfig, type TableQueryInput } from '../../utils/tableQuery';
 
 /** The most events one session's detail returns. */
@@ -46,9 +47,16 @@ function statusFilter(input: TableQueryInput): FilterQuery<WhatsappDemoSessionDo
   return {};
 }
 
-export async function sessions(input: TableQueryInput, from?: string | null, to?: string | null) {
+/** One channel's sessions: those that opened one of its demos. */
+export async function sessions(
+  input: TableQueryInput,
+  from?: string | null,
+  to?: string | null,
+  channel: Channel = 'whatsapp',
+) {
   const range = optionalRange(from, to, await companyTimezone());
   const base: FilterQuery<WhatsappDemoSessionDocument> = {
+    demos: await demoKeyMatch(channel),
     ...statusFilter(input),
     ...(range ? { startedAt: { $gte: range.from, $lt: range.to } } : {}),
   };

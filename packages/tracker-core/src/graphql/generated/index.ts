@@ -3525,6 +3525,8 @@ export type WhatsappDemoEventType =
 export type WhatsappDemoInput = {
   active: Scalars['Boolean']['input'];
   business: Scalars['JSON']['input'];
+  /** whatsapp or website; left out when editing, the demo keeps its own. */
+  channel: InputMaybe<Scalars['String']['input']>;
   greeting: Scalars['String']['input'];
   industry: Scalars['String']['input'];
   key: Scalars['String']['input'];

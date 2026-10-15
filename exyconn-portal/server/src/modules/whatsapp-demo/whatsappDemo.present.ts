@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import type { Types } from 'mongoose';
+import { channelOf } from '@exyconn/wa-flow';
 import type { WhatsappDemoDocument, WhatsappWorkflowDocument } from './whatsappDemo.model';
 import type {
   WhatsappDemoEventDocument,
@@ -35,10 +36,14 @@ export function sameGraph(a: unknown, b: unknown): boolean {
   return stableJson(a) === stableJson(b);
 }
 
-export function presentDemo(doc: Stored<WhatsappDemoDocument>) {
+/** Rows stored before channels existed have no `channel`, whatever the schema's default says. */
+type StoredDemo = Stored<Omit<WhatsappDemoDocument, 'channel'> & { channel?: string | null }>;
+
+export function presentDemo(doc: StoredDemo) {
   return {
     id: doc._id.toHexString(),
     key: doc.key,
+    channel: channelOf(doc.channel),
     industry: doc.industry,
     business: doc.business,
     greeting: doc.greeting,
@@ -95,7 +100,7 @@ export function presentPublished(doc: Stored<WhatsappWorkflowDocument>) {
  * edit changes it, so the chat can tell its cached copy is stale.
  */
 export function bundleRevision(
-  demo: Stored<WhatsappDemoDocument>,
+  demo: StoredDemo,
   workflows: readonly Stored<WhatsappWorkflowDocument>[],
 ): string {
   const parts = workflows.map((wf) => `${wf.key}@${wf.version}`);

@@ -252,6 +252,15 @@ services:
     ports:
       - '127.0.0.1:4041:4041'
 
+  # demos.exyconn.com/website-chat-demo/: the AI website chat agent on sample websites.
+  website-chat-demo:
+    <<: *hardened
+    image: ${DOCKERHUB_USERNAME}/exyconn-website-chat-demo:${TAG:-latest}
+    container_name: exyconn-website-chat-demo
+    restart: unless-stopped
+    ports:
+      - '127.0.0.1:4043:4043'
+
   # The calling bot's voice server (demos.exyconn.com/calling-bot-demo/api/): live audio from a
   # browser or a Vobiz phone call through Sarvam AI and OpenAI. Its credentials live in the
   # active calling bot config in the database (Tech > Demos > Calling bot), none here.

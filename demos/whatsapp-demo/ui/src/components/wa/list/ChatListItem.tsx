@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { useT } from '@exyconn/i18n';
 import { Box, ButtonBase } from '@exyconn/shell/components/ui';
 import type { ChatMessage } from '@exyconn/wa-flow';
-import type { CatalogBundle } from '../../../runtime/types';
+import type { CatalogBundle } from '@exyconn/bot-studio/runtime';
 import { useWaPalette } from '../../../theme/useWa';
 import { WA_FONT, WA_LINE, WA_RADIUS, WA_SIZE, WA_SPACE } from '../../../theme/wa.tokens';
 import { VerifiedBadge } from '../common/VerifiedBadge';

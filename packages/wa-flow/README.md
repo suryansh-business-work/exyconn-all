@@ -40,6 +40,23 @@ boots with them. From then on the database is the truth: admins edit drafts and 
 chat runs the **published** version. A new seed industry (a key not in the database yet) is
 picked up on the next boot; an existing one is never overwritten.
 
+## Channels
+
+Every demo has a `channel`: `whatsapp` (default — the WhatsApp demo and the real number) or
+`website` (the AI website chat agent at demos.exyconn.com/website-chat-demo). Both run this
+engine; only the screen differs. Website demos live in `src/seeds/website-*` with
+`channel: 'website'`, and the server filters every query by channel. The browser runtime, the
+website widget and the bot studio (React Flow editor, analytics, sessions) are in
+[`@exyconn/bot-studio`](../bot-studio).
+
+## Call flows (`src/voice.ts`)
+
+The calling bot draws each example call as a graph of voice-safe nodes (`VOICE_NODE_TYPES`:
+text, buttons, list, input, ai, condition, handoff, end) in Tech > Demos > Calling bot > Call
+flows. The server checks it (`nonVoiceNodes`, `validateGraph`) and stores
+`toCallScript(graph)` — numbered steps saying what to say, what to ask and where each answer
+leads — which the voice server appends to the example's prompt.
+
 ## Writing an industry
 
 One folder per industry: `src/seeds/<industry>/index.ts` exports a `defineDemo({...})`, with one

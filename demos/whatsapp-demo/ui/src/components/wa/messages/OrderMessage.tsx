@@ -2,7 +2,7 @@ import { useT } from '@exyconn/i18n';
 import { Box } from '@exyconn/shell/components/ui';
 import PaymentsIcon from '@mui/icons-material/PaymentsOutlined';
 import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
-import { useWaFormat } from '../../../hooks/useWaFormat';
+import { useWaFormat } from '@exyconn/bot-studio/runtime';
 import { useWaPalette } from '../../../theme/useWa';
 import { WA_FONT, WA_LINE, WA_RADIUS, WA_SIZE, WA_SPACE } from '../../../theme/wa.tokens';
 import { useChatActions } from '../ChatActions';

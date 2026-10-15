@@ -3,12 +3,14 @@
  * parsed into the bundle a chat runs. Shared by the browser chat and the server's real
  * WhatsApp channel, so both refuse the same malformed content the same way.
  */
-import { businessSchema, graphSchema, type WorkflowDef } from './schema';
+import { businessSchema, CHANNELS, graphSchema, type Channel, type WorkflowDef } from './schema';
 import type { DemoBundle } from './engine/types';
 
 export interface CatalogEntry {
   demo: {
     key: string;
+    /** Rows stored before channels existed carry none: they are WhatsApp demos. */
+    channel?: string | null;
     industry: string;
     business: unknown;
     greeting: string;
@@ -25,6 +27,13 @@ export interface CatalogEntry {
     order: number;
     graph: unknown;
   }[];
+}
+
+const CHANNEL_SET: ReadonlySet<string> = new Set(CHANNELS);
+
+/** A stored channel name as the schema knows it; anything else is a WhatsApp demo. */
+export function channelOf(value: string | null | undefined): Channel {
+  return value && CHANNEL_SET.has(value) ? (value as Channel) : 'whatsapp';
 }
 
 /** Told about each part that did not parse; the part is left out. */
@@ -53,5 +62,8 @@ export function toDemoBundle(entry: CatalogEntry, warn: CatalogWarn): DemoBundle
       warn('wa-demo: workflow graph did not parse', graph.error, { workflow: w.key });
     }
   }
-  return { demo: { ...entry.demo, business: business.data }, workflows };
+  return {
+    demo: { ...entry.demo, channel: channelOf(entry.demo.channel), business: business.data },
+    workflows,
+  };
 }

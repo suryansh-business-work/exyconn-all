@@ -395,9 +395,17 @@ export const businessSchema = z.object({
   hours: z.string().trim().max(120),
 });
 
+/**
+ * Where a demo's bot talks: inside WhatsApp (the WhatsApp demo and the real number), or in a
+ * chat widget on a website (the website chat agent demo). Both run the same engine.
+ */
+export const CHANNELS = ['whatsapp', 'website'] as const;
+export type Channel = (typeof CHANNELS)[number];
+
 export const demoSchema = z.object({
   /** URL slug, e.g. `healthcare`. */
   key: slug,
+  channel: z.enum(CHANNELS).default('whatsapp'),
   industry: z.string().trim().min(1).max(60),
   business: businessSchema,
   greeting: text,

@@ -1,6 +1,7 @@
 import type { SvgIconComponent } from '@mui/icons-material';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import PhoneInTalkIcon from '@mui/icons-material/PhoneInTalk';
+import SupportAgentIcon from '@mui/icons-material/SupportAgent';
 import { PORTAL_APPS, appBaseUrl, type PortalAppKey } from '@exyconn/shell/config/apps';
 import { DEMO_PHOTOS, shortTitle, type DemoPhoto } from '@exyconn/demo-visitor/page';
 
@@ -36,6 +37,15 @@ const DEMO_LOOKS: Partial<Record<PortalAppKey, DemoLook>> = {
       'Chat with sample businesses: clinics, restaurants, hotels, salons and more',
       'Buttons, lists, catalogues, payments, tickets and reminders',
       'Type freely: the AI understands what you mean',
+    ],
+  },
+  'website-chat-demo': {
+    icon: SupportAgentIcon,
+    photo: DEMO_PHOTOS.team,
+    highlights: [
+      'Chat with a sample services site and a sample online store',
+      '12+ ready workflows: quotes, bookings, product finder, orders, returns',
+      'One script tag puts it on your own website',
     ],
   },
 };

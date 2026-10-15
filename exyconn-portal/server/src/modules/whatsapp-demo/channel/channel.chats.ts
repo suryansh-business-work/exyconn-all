@@ -113,7 +113,7 @@ const warn: CatalogWarn = (message, error, meta) => logger.warn({ err: error, ..
 
 /** The published industries, in menu order, as the chat runs them. */
 export async function publishedBundles(): Promise<DemoBundle[]> {
-  const entries = await catalog();
+  const entries = await catalog('whatsapp');
   return entries
     .map((entry) => toDemoBundle(entry, warn))
     .filter((bundle): bundle is DemoBundle => bundle !== null);

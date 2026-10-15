@@ -111,7 +111,7 @@
     "subdomain": "demos",
     "port": 4040,
     "title": "Exyconn Demos",
-    "description": "Try Exyconn's AI products live — a WhatsApp Business automation and an AI calling bot that talks in real time."
+    "description": "Try Exyconn's AI products live — a WhatsApp Business automation, an AI calling bot that talks in real time and an AI chat agent for websites."
   },
   "whatsapp-demo": {
     "subdomain": "demos",
@@ -126,6 +126,13 @@
     "port": 4041,
     "title": "AI Calling Bot Demo · Exyconn",
     "description": "Talk to an AI voice agent in real time — in your browser or on your own phone — in English, Hindi and other Indian languages."
+  },
+  "website-chat-demo": {
+    "subdomain": "demos",
+    "basePath": "/website-chat-demo",
+    "port": 4043,
+    "title": "AI Website Chat Agent Demo · Exyconn",
+    "description": "Chat with an AI agent on sample service and product websites, and see how it plugs into any website."
   },
   "status": {
     "subdomain": "status",

@@ -21,6 +21,7 @@ import {
   type CallingBotSecretField,
 } from './calling-bot.config.service';
 import { callingBotScenarios, type CallingBotScenarioInput } from './calling-bot.scenarios.service';
+import { saveScenarioFlow } from './calling-bot.flows.service';
 
 /** The settings sit with the install's other credentials: the platform's own Tech staff only. */
 const TECH_MODULE = 'TechConfig';
@@ -97,6 +98,11 @@ export const callingBotResolvers = {
   },
   CallingBotCall: {
     scenarioTitle: (row: CallingBotCallRecord) => row.scenarioTitle || null,
+  },
+  CallingBotScenario: {
+    // Examples stored before call flows existed have neither field.
+    flow: (row: CallingBotScenarioRecord) => row.flow ?? null,
+    callScript: (row: CallingBotScenarioRecord) => row.callScript ?? '',
   },
   Query: {
     callingBotConfigs: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
@@ -214,6 +220,21 @@ export const callingBotResolvers = {
         `Updated the calling bot example ${updated.title}`,
       );
       return withId(updated);
+    },
+    saveCallingBotScenarioFlow: async (
+      _p: unknown,
+      { id, flow }: Id & { flow?: unknown },
+      ctx: GraphQLContext,
+    ) => {
+      await techStaff(ctx, 'EDIT');
+      const saved = await saveScenarioFlow(id, flow);
+      await auditScenario(
+        ctx,
+        'UPDATE',
+        saved,
+        `Saved the call flow of the calling bot example ${saved.title}`,
+      );
+      return withId(saved);
     },
     deleteCallingBotScenario: async (_p: unknown, { id }: Id, ctx: GraphQLContext) => {
       await techStaff(ctx, 'DELETE');

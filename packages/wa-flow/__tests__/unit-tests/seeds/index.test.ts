@@ -4,9 +4,13 @@ import { SEED_DEMOS } from '../../../src/seeds';
 import { demoSchema, workflowSchema } from '../../../src/schema';
 
 describe('SEED_DEMOS', () => {
-  it('registers twenty industries with unique keys, in chat-list order', () => {
+  it('registers twenty WhatsApp industries and two website demos with unique keys, in order', () => {
     const keys = SEED_DEMOS.map((d) => d.key);
-    expect(keys).toHaveLength(20);
+    expect(keys).toHaveLength(22);
+    expect(SEED_DEMOS.filter((d) => d.channel === 'website').map((d) => d.key)).toEqual([
+      'website-services',
+      'website-products',
+    ]);
     expect(new Set(keys).size).toBe(keys.length);
     expect(keys.slice(0, 2)).toEqual(['healthcare', 'salon']);
     expect(keys).toEqual(

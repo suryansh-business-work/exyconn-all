@@ -23,6 +23,7 @@ ARG APP_PKG
 COPY pnpm-workspace.yaml package.json pnpm-lock.yaml .npmrc ./
 COPY packages/code-editor/package.json packages/code-editor/
 COPY packages/config/package.json packages/config/
+COPY packages/bot-studio/package.json packages/bot-studio/
 COPY packages/crud/package.json packages/crud/
 COPY packages/gcc-cost/package.json packages/gcc-cost/
 COPY packages/demo-visitor/package.json packages/demo-visitor/
@@ -66,6 +67,7 @@ COPY demos/hub/package.json demos/hub/
 COPY demos/whatsapp-demo/ui/package.json demos/whatsapp-demo/ui/
 COPY demos/calling-bot-demo/ui/package.json demos/calling-bot-demo/ui/
 COPY demos/calling-bot-demo/server/package.json demos/calling-bot-demo/server/
+COPY demos/website-chat-demo/ui/package.json demos/website-chat-demo/ui/
 COPY exyconn-website/package.json exyconn-website/
 COPY exyconn-tracker-app/package.json exyconn-tracker-app/
 # The root `prepare` script runs on every install, this one included; it needs its own

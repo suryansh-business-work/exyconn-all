@@ -9,6 +9,7 @@ import { funnel, sessionDetail, sessions } from './whatsappDemo.sessions';
 import type { TableQueryInput } from '../../utils/tableQuery';
 import type { GraphQLContext } from '../../middleware/auth';
 import { runForOrganization } from '../../lib/tenant';
+import { channelOf } from '@exyconn/wa-flow';
 import { actorNameOf } from '../../lib/actor';
 
 /**
@@ -17,9 +18,14 @@ import { actorNameOf } from '../../lib/actor';
  * Two audiences, enforced here rather than by hiding screens: the chat (any signed-in
  * employee — ADMIN passes every role check — or a demo visitor signed in with an emailed code)
  * reads the published catalogue, records its analytics and asks for AI parses; everything that edits content or reads analytics is the
- * company's administrators' (ADMIN, or the platform's SUPER_ADMIN).
+ * company's administrators' (ADMIN, or the platform's SUPER_ADMIN) and its Tech staff, who run
+ * the demos from Tech > Demos.
+ *
+ * The same module serves both bot channels — the WhatsApp demo and the website chat agent —
+ * picked by each query's `channel` (WhatsApp when a client names none).
  */
-const admin = (ctx: GraphQLContext) => assertRole(ctx, [ROLES.ADMIN, ROLES.SUPER_ADMIN]);
+const admin = (ctx: GraphQLContext) =>
+  assertRole(ctx, [ROLES.ADMIN, ROLES.SUPER_ADMIN, ROLES.TECH]);
 
 /**
  * Runs chat work for whoever may chat: a signed-in employee in their own company, or a demo
@@ -47,16 +53,17 @@ async function chatActor(ctx: GraphQLContext): Promise<EventActor> {
 
 type Id = { id: string };
 type Range = { from: string; to: string };
+type ChannelArg = { channel?: string | null };
 
 export const whatsappDemoResolvers = {
   Query: {
-    whatsappDemoCatalog: (_p: unknown, _a: unknown, ctx: GraphQLContext) =>
-      asChatter(ctx, () => demos.catalog()),
+    whatsappDemoCatalog: (_p: unknown, { channel }: ChannelArg, ctx: GraphQLContext) =>
+      asChatter(ctx, () => demos.catalog(channelOf(channel))),
     whatsappDemoAiStatus: (_p: unknown, _a: unknown, ctx: GraphQLContext) =>
       asChatter(ctx, () => aiStatus()),
-    whatsappDemos: (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+    whatsappDemos: (_p: unknown, { channel }: ChannelArg, ctx: GraphQLContext) => {
       admin(ctx);
-      return demos.listDemos();
+      return demos.listDemos(channelOf(channel));
     },
     whatsappWorkflows: (
       _p: unknown,
@@ -70,9 +77,13 @@ export const whatsappDemoResolvers = {
       admin(ctx);
       return workflows.getWorkflow(id);
     },
-    whatsappDemoStats: (_p: unknown, { from, to }: Range, ctx: GraphQLContext) => {
+    whatsappDemoStats: (
+      _p: unknown,
+      { from, to, channel }: Range & ChannelArg,
+      ctx: GraphQLContext,
+    ) => {
       admin(ctx);
-      return stats(from, to);
+      return stats(from, to, channelOf(channel));
     },
     whatsappDemoFunnel: (
       _p: unknown,
@@ -84,11 +95,11 @@ export const whatsappDemoResolvers = {
     },
     whatsappDemoSessions: (
       _p: unknown,
-      args: { input: TableQueryInput; from?: string | null; to?: string | null },
+      args: ChannelArg & { input: TableQueryInput; from?: string | null; to?: string | null },
       ctx: GraphQLContext,
     ) => {
       admin(ctx);
-      return sessions(args.input, args.from, args.to);
+      return sessions(args.input, args.from, args.to, channelOf(args.channel));
     },
     whatsappDemoSession: (
       _p: unknown,

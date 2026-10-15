@@ -1,5 +1,6 @@
 import { isValidObjectId } from 'mongoose';
-import { demoSchema } from '@exyconn/wa-flow';
+import { channelOf, demoSchema, type Channel } from '@exyconn/wa-flow';
+import { channelFilter } from './whatsappDemo.channel';
 import { WhatsappDemoModel, WhatsappWorkflowModel } from './whatsappDemo.model';
 import { bundleRevision, presentDemo, presentPublished } from './whatsappDemo.present';
 import { isDuplicateKey, refuseZod } from './whatsappDemo.validation';
@@ -12,6 +13,8 @@ const MODULE = 'WhatsappDemo';
 
 export interface WhatsappDemoInput {
   key: string;
+  /** Left out when editing: the demo keeps its channel. */
+  channel?: string | null;
   industry: string;
   business: unknown;
   greeting: string;
@@ -22,12 +25,14 @@ export interface WhatsappDemoInput {
 }
 
 /**
- * What the chat runs: every active demo with its PUBLISHED workflows only, so a draft an
- * admin is halfway through never reaches a customer.
+ * What the chat runs: every active demo of one channel with its PUBLISHED workflows only, so
+ * a draft an admin is halfway through never reaches a customer.
  */
-export async function catalog() {
+export async function catalog(channel: Channel = 'whatsapp') {
   await ensureWhatsappDemoSeedsLazily();
-  const demos = await WhatsappDemoModel.find({ active: true }).sort({ order: 1, key: 1 }).lean();
+  const demos = await WhatsappDemoModel.find({ ...channelFilter(channel), active: true })
+    .sort({ order: 1, key: 1 })
+    .lean();
   const workflows = await WhatsappWorkflowModel.find({
     demoId: { $in: demos.map((demo) => String(demo._id)) },
     version: { $gt: 0 },
@@ -44,9 +49,11 @@ export async function catalog() {
   });
 }
 
-export async function listDemos() {
+export async function listDemos(channel: Channel = 'whatsapp') {
   await ensureWhatsappDemoSeedsLazily();
-  const demos = await WhatsappDemoModel.find().sort({ order: 1, key: 1 }).lean();
+  const demos = await WhatsappDemoModel.find(channelFilter(channel))
+    .sort({ order: 1, key: 1 })
+    .lean();
   return demos.map(presentDemo);
 }
 
@@ -56,7 +63,7 @@ export async function upsertDemo(
   id: string | null | undefined,
   input: WhatsappDemoInput,
 ) {
-  const parsed = demoSchema.safeParse(input);
+  const parsed = demoSchema.safeParse({ ...input, channel: input.channel ?? undefined });
   if (!parsed.success) {
     refuseZod('The demo is not valid.', parsed.error);
   }
@@ -80,7 +87,9 @@ export async function upsertDemo(
     if (!before) {
       notFound('WhatsApp demo');
     }
-    const updated = await WhatsappDemoModel.findByIdAndUpdate(id, values, { new: true }).lean();
+    // An edit that names no channel keeps the demo's own (the schema would default it).
+    const changes = input.channel ? values : { ...values, channel: channelOf(before.channel) };
+    const updated = await WhatsappDemoModel.findByIdAndUpdate(id, changes, { new: true }).lean();
     if (!updated) {
       notFound('WhatsApp demo');
     }
@@ -93,7 +102,7 @@ export async function upsertDemo(
       entityId: id,
       entityLabel: values.key,
       summary: `Updated WhatsApp demo ${values.key}`,
-      changes: diffChanges(before, values),
+      changes: diffChanges(before, changes),
     });
     return presentDemo(updated);
   } catch (error) {

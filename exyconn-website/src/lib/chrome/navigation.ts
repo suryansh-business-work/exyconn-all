@@ -90,6 +90,11 @@ const SERVICES: NavGroup = {
       href: "/services/calling-bot-demo",
       text: "Voice agent that answers calls",
     },
+    {
+      label: "AI website chat agent",
+      href: "/services/ai-website-chat-agent",
+      text: "AI chat that captures leads",
+    },
     { label: "Maintenance", href: "/services/maintenance", text: "Keep software healthy" },
     {
       label: "Digital marketing",
@@ -229,6 +234,12 @@ const DEMOS: NavGroup = {
       label: "AI calling bot demo",
       href: `${DEMOS_SITE_URL}/calling-bot-demo/`,
       text: "Talk to a voice agent live",
+      external: true,
+    },
+    {
+      label: "Website chat agent demo",
+      href: `${DEMOS_SITE_URL}/website-chat-demo/`,
+      text: "Chat with an AI website agent",
       external: true,
     },
   ],

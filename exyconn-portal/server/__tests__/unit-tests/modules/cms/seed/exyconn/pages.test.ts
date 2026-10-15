@@ -48,7 +48,7 @@ describe('EXYCONN_PAGES', () => {
     for (const area of [SERVICE_PAGES, AI_PAGES, AI_SERVICE_PAGES, INDUSTRY_PAGES]) {
       expect(EXYCONN_PAGES).toEqual(expect.arrayContaining(area));
     }
-    expect([SERVICE_PAGES.length, AI_PAGES.length, AI_SERVICE_PAGES.length]).toEqual([13, 8, 30]);
+    expect([SERVICE_PAGES.length, AI_PAGES.length, AI_SERVICE_PAGES.length]).toEqual([14, 8, 30]);
     expect(INDUSTRY_PAGES).toHaveLength(21);
   });
 

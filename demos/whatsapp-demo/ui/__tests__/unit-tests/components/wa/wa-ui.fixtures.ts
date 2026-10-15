@@ -1,6 +1,5 @@
 import type { BotContent, ChatMessage, DemoProfile, UserContent } from '@exyconn/wa-flow';
-import type { ChatRecord, ChatStore } from '../../../../src/runtime/store';
-import type { CatalogBundle } from '../../../../src/runtime/types';
+import type { ChatRecord, ChatStore, CatalogBundle } from '@exyconn/bot-studio/runtime';
 
 type Business = DemoProfile['business'];
 
@@ -29,6 +28,7 @@ export function demoProfile(
 ): DemoProfile {
   return {
     key: 'clinic',
+    channel: 'whatsapp',
     industry: 'Healthcare',
     business: business(biz),
     greeting: 'Welcome',

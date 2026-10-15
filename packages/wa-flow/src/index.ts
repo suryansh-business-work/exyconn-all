@@ -11,3 +11,4 @@ export * from './validate';
 export * from './layout';
 export * from './author';
 export * from './messages';
+export * from './voice';

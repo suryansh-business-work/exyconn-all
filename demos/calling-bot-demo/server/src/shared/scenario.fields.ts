@@ -22,6 +22,10 @@ export const CALLING_BOT_SCENARIO_FIELDS = {
   enabled: { type: Boolean, required: true, default: true },
   /** Where it sits in the demo's list, smallest first. */
   order: { type: Number, required: true, default: 0 },
+  /** The call flow drawn in Tech (a `@exyconn/wa-flow` graph); null when there is none. */
+  flow: { type: Object, default: null },
+  /** The flow compiled into steps for the voice model; empty without a flow. */
+  callScript: { type: String, default: '' },
 };
 
 /** One example as stored. */
@@ -35,6 +39,9 @@ export interface CallingBotScenarioRecord {
   languageCode: string;
   enabled: boolean;
   order: number;
+  /** Rows stored before call flows existed have neither. */
+  flow?: unknown;
+  callScript?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -42,7 +49,7 @@ export interface CallingBotScenarioRecord {
 /** What an example changes on the config a call runs on. */
 export type ScenarioPersona = Pick<
   CallingBotScenarioRecord,
-  'systemPrompt' | 'greeting' | 'languageCode'
+  'systemPrompt' | 'greeting' | 'languageCode' | 'callScript'
 >;
 
 /** The config a call runs on once its example, if any, has set who the bot is. */
@@ -53,9 +60,11 @@ export function withScenario<T extends ScenarioPersona>(
   if (!scenario) {
     return config;
   }
+  const script = scenario.callScript?.trim();
   return {
     ...config,
-    systemPrompt: scenario.systemPrompt,
+    // A drawn call flow rides on the persona: who the bot is, then the steps it follows.
+    systemPrompt: script ? `${scenario.systemPrompt}\n\n${script}` : scenario.systemPrompt,
     greeting: scenario.greeting,
     languageCode: scenario.languageCode || config.languageCode,
   };

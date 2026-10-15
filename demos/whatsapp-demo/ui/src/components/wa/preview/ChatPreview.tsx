@@ -3,11 +3,13 @@ import { useT } from '@exyconn/i18n';
 import { Box } from '@exyconn/shell/components/ui';
 import type { DemoBundle } from '@exyconn/wa-flow/engine';
 import { MENU } from '@exyconn/wa-flow/engine';
-import { useAiParse } from '../../../hooks/useAiParse';
-import { useDemoUser } from '../../../hooks/useDemoUser';
-import { useEngineContext } from '../../../hooks/useEngineContext';
-import type { CatalogBundle } from '../../../runtime/types';
-import { useChatRuntime } from '../../../runtime/useChatRuntime';
+import {
+  useAiParse,
+  useDemoUser,
+  useEngineContext,
+  type CatalogBundle,
+  useChatRuntime,
+} from '@exyconn/bot-studio/runtime';
 import { useWaPalette } from '../../../theme/useWa';
 import { WA_FONT, WA_RADIUS, WA_SHADOW } from '../../../theme/wa.tokens';
 import { ChatPane } from '../chat/ChatPane';

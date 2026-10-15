@@ -11,7 +11,5 @@ export function useCompact(): boolean {
   return useMediaQuery(useTheme().breakpoints.down('md'));
 }
 
-/** Whether the viewer asked for less motion. */
-export function useReducedMotion(): boolean {
-  return useMediaQuery('(prefers-reduced-motion: reduce)');
-}
+/** Whether the viewer asked for less motion — shared with the chat runtime. */
+export { useReducedMotion } from '@exyconn/bot-studio/runtime';

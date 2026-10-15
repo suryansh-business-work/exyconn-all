@@ -3,7 +3,7 @@ import type { ChatMessage, UserContent } from '@exyconn/wa-flow';
 import { useWaPalette } from '../../../theme/useWa';
 import { WA_FONT, WA_LINE, WA_RADIUS, WA_SPACE } from '../../../theme/wa.tokens';
 import { Bubble } from './Bubble';
-import { FormattedText } from './FormattedText';
+import { FormattedText } from '@exyconn/bot-studio/shared';
 import type { Frame } from './types';
 
 interface UserMessageProps {

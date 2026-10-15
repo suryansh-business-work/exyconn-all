@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { CHANNELS } from '@exyconn/wa-flow';
 
 /**
  * The WhatsApp demo's content: one row per industry demo and one per workflow.
@@ -13,6 +14,12 @@ const demoSchema = new Schema(
   {
     /** URL slug, unique within the company (the tenant plugin scopes the index). */
     key: { type: String, required: true, unique: true, trim: true },
+    /**
+     * Where the bot talks: `whatsapp` (the WhatsApp demo and the real number) or `website`
+     * (the website chat agent demo). Rows stored before channels existed have none and are
+     * WhatsApp demos — `channelFilter` matches them, so they need no backfill.
+     */
+    channel: { type: String, enum: CHANNELS, default: 'whatsapp' },
     industry: { type: String, required: true, trim: true },
     business: { type: Schema.Types.Mixed, required: true, default: {} },
     greeting: { type: String, required: true },
@@ -25,6 +32,7 @@ const demoSchema = new Schema(
 );
 
 demoSchema.index({ order: 1 });
+demoSchema.index({ channel: 1, order: 1 });
 
 const workflowSchema = new Schema(
   {

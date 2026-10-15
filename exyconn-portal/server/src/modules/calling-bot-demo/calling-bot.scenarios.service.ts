@@ -5,6 +5,7 @@ import { badRequest, notFound } from '../../utils/errors';
 import { isDuplicateKey } from '../whatsapp-demo/whatsappDemo.validation';
 import { CallingBotScenarioModel } from './calling-bot.models';
 import { SCENARIO_SEEDS, type ScenarioSeed } from './calling-bot.scenarios.seed';
+import { ensureCallingBotFlows } from './calling-bot.flows.service';
 
 /** What Tech > Demos > Calling bot > Examples sends for one example. */
 export interface CallingBotScenarioInput {
@@ -46,6 +47,7 @@ export async function ensureCallingBotScenarios(): Promise<void> {
       }
     }
   }
+  await ensureCallingBotFlows();
 }
 
 /** The calling bot's example calls: the Tech screen's CRUD and the demo's picker. */

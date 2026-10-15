@@ -7,7 +7,7 @@ import { WA_SIZE } from '../../../theme/wa.tokens';
 import { useChatActions, type ChatActions } from '../ChatActions';
 import { ActionRows, type ActionRowItem } from './ActionRows';
 import { Bubble } from './Bubble';
-import { downloadIcs } from './ics';
+import { downloadIcs } from '@exyconn/bot-studio/shared';
 import { MessageText } from './MessageText';
 import type { ContentProps } from './types';
 

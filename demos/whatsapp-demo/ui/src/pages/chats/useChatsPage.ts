@@ -1,15 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { ChatMessage, RenderedOption } from '@exyconn/wa-flow';
-import { sessionId } from '../../analytics/session';
-import { useDemoAnalytics } from '../../analytics/useDemoAnalytics';
+import {
+  sessionId,
+  useDemoAnalytics,
+  useAiParse,
+  useCatalog,
+  useDemoUser,
+  useEngineContext,
+  useChatRuntime,
+} from '@exyconn/bot-studio/runtime';
 import type { ArrivedToast } from '../../components/wa/chat/PushToast';
 import { previewOf } from '../../components/wa/list/preview';
-import { useAiParse } from '../../hooks/useAiParse';
-import { useCatalog } from '../../hooks/useCatalog';
-import { useDemoUser } from '../../hooks/useDemoUser';
-import { useEngineContext } from '../../hooks/useEngineContext';
-import { useChatRuntime } from '../../runtime/useChatRuntime';
 import { HOME_PATH, chatPath } from '../../paths';
 
 /** Everything the chats screen needs: the catalog, the runtime, analytics and the toast. */

@@ -2,7 +2,7 @@ import { Box } from '@exyconn/shell/components/ui';
 import type { Illustration as IllustrationData } from '@exyconn/wa-flow';
 import { useWaPalette } from '../../../theme/useWa';
 import { WA_FONT, WA_RADIUS, WA_SPACE } from '../../../theme/wa.tokens';
-import { WA_ICONS } from '../icons';
+import { WA_ICONS } from '@exyconn/bot-studio/icons';
 
 interface IllustrationProps {
   image: IllustrationData;

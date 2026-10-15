@@ -193,6 +193,10 @@ export const callingBotTypeDefs = gql`
     enabled: Boolean!
     "Where it sits in the demo's list, smallest first."
     order: Int!
+    "The call flow drawn in Tech (a wa-flow graph of voice steps); null when it has none."
+    flow: JSON
+    "The flow as the step-by-step script the voice model follows; empty without a flow."
+    callScript: String!
     updatedAt: DateTime!
   }
 
@@ -242,5 +246,7 @@ export const callingBotTypeDefs = gql`
     createCallingBotScenario(input: CallingBotScenarioInput!): CallingBotScenario!
     updateCallingBotScenario(id: ID!, input: CallingBotScenarioInput!): CallingBotScenario!
     deleteCallingBotScenario(id: ID!): Boolean!
+    "Saves an example's call flow (checked: voice steps only, no errors) and its script; null removes it."
+    saveCallingBotScenarioFlow(id: ID!, flow: JSON): CallingBotScenario!
   }
 `;
