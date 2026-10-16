@@ -1,3 +1,4 @@
+import { MockedProvider } from '@apollo/client/testing/react';
 import type { ColDef } from 'ag-grid-community';
 import type { TableQueryInput } from '@/graphql/generated';
 import ServerDataGridImpl, { type TablePageResult } from './ServerDataGrid.impl';
@@ -40,10 +41,23 @@ function deferredFetch() {
   return { fetchRows, settleAll };
 }
 
+/**
+ * Mounts the grid inside an Apollo provider: it asks the server what its list may filter and
+ * sort (tableInfo), skipped here because these fetchers name no list, but the hook still needs
+ * a client in context.
+ */
+function mountGrid(fetchRows: (input: TableQueryInput) => Promise<TablePageResult<unknown>>) {
+  cy.mount(
+    <MockedProvider>
+      <ServerDataGridImpl columnDefs={columnDefs} fetchRows={fetchRows} height={400} />
+    </MockedProvider>,
+  );
+}
+
 describe('ServerDataGrid', () => {
   it('shows skeleton rows and locks the grid until the page arrives', () => {
     const { fetchRows, settleAll } = deferredFetch();
-    cy.mount(<ServerDataGridImpl columnDefs={columnDefs} fetchRows={fetchRows} height={400} />);
+    mountGrid(fetchRows);
 
     cy.get('[data-testid="grid-skeleton-cell"]').should('exist');
     cy.get('[aria-busy="true"]').should('have.attr', 'inert');
@@ -60,7 +74,7 @@ describe('ServerDataGrid', () => {
 
   it('reloads from the server when Refresh is pressed', () => {
     const fetchRows = cy.stub().as('fetchRows').resolves(page);
-    cy.mount(<ServerDataGridImpl columnDefs={columnDefs} fetchRows={fetchRows} height={400} />);
+    mountGrid(fetchRows);
     cy.contains('Alpha').should('be.visible');
 
     cy.get('[aria-label="Refresh table"]').click();
@@ -69,7 +83,7 @@ describe('ServerDataGrid', () => {
 
   it('debounces the search box into a single server query', () => {
     const fetchRows = cy.stub().as('fetchRows').resolves(page);
-    cy.mount(<ServerDataGridImpl columnDefs={columnDefs} fetchRows={fetchRows} height={400} />);
+    mountGrid(fetchRows);
     cy.contains('Alpha').should('be.visible');
 
     cy.get('input[aria-label="Search…"]').type('  alp ');
@@ -82,7 +96,7 @@ describe('ServerDataGrid', () => {
 
   it('tells the user when a page fails to load', () => {
     const fetchRows = cy.stub().rejects(new Error('Network down'));
-    cy.mount(<ServerDataGridImpl columnDefs={columnDefs} fetchRows={fetchRows} height={400} />);
+    mountGrid(fetchRows);
     cy.contains('Could not load the rows (Network down). Use Refresh to try again.').should(
       'be.visible',
     );

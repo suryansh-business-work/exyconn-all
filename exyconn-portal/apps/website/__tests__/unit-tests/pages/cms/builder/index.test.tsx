@@ -11,12 +11,13 @@ vi.mock('../../../../../src/pages/cms/fragments/FragmentBuilderPage', () => ({
 }));
 
 describe('builder routes', () => {
-  it('loads the page builder on demand, with a spinner meanwhile', async () => {
+  it('loads the page builder on demand, with a skeleton meanwhile', async () => {
     renderWithProviders(<PageBuilderRoute />);
 
-    expect(
-      screen.getByRole('progressbar', { name: 'Opening the page builder' }),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Opening the page builder').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
     expect(await screen.findByText('Page builder loaded')).toBeInTheDocument();
   });
 

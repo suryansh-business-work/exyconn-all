@@ -105,6 +105,7 @@ describe('CompanyForm', () => {
           country: '',
           timezone: '',
           description: '',
+          logoUrl: '',
           location: '',
           annualRevenue: null,
           employeeCount: null,
