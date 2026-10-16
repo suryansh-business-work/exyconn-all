@@ -39,6 +39,11 @@ export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   'GoogleSignInConfig',
   'GoogleSignInState',
   'GoogleSignInTicket',
+  // The shared Gmail mailbox the operator's CRM sends from (Tech > Environment Variables >
+  // Gmail), and a connection in progress. The messages it syncs (CrmEmailMessage) are CRM
+  // data and stay scoped to the company.
+  'GmailConfig',
+  'GmailOAuthState',
   'TrackerBuildSettings',
   // The AI calling bot demo (demos.exyconn.com/calling-bot-demo): its settings and its calls
   // belong to the install, and its voice server reads and writes them with no company in scope.

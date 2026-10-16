@@ -45,6 +45,10 @@ async function companyTarget(id: string, limit: number): Promise<TimelineTarget>
  * and — matched by email — website forms, chats, support tickets, leads, campaigns, system
  * emails and WhatsApp demo sign-ups. Nothing is copied; each module stays the source.
  */
+/** Who a contact's or company's page is about: their addresses and CRM records. */
+export const timelineTarget = (object: 'CONTACT' | 'COMPANY', id: string, limit: number) =>
+  object === 'CONTACT' ? contactTarget(id, limit) : companyTarget(id, limit);
+
 export async function crmTimeline(
   object: 'CONTACT' | 'COMPANY',
   id: string,

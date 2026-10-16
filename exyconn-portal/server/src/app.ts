@@ -13,6 +13,7 @@ import { env } from './config/env';
 import { TRACKER_UPDATES_PATH, trackerUpdatesRouter } from './modules/tracker/tracker.updates';
 import { SOCIAL_CALLBACK_PATH, socialCallbackRouter } from './modules/social-accounts';
 import { GOOGLE_CALLBACK_PATH, googleSignInRouter } from './modules/auth/google';
+import { GMAIL_CALLBACK_PATH, gmailConnectRouter } from './modules/gmail';
 import {
   TRACKING_PATH,
   marketingTrackingRouter,
@@ -86,6 +87,8 @@ export async function createApp(): Promise<Express> {
   app.use(SOCIAL_CALLBACK_PATH, socialCallbackRouter());
   // Where Google sends the browser back during "Continue with Google" (no session).
   app.use(GOOGLE_CALLBACK_PATH, googleSignInRouter());
+  // Where Google sends the browser back when Tech connects the CRM's Gmail (no session).
+  app.use(GMAIL_CALLBACK_PATH, gmailConnectRouter());
   // Meta's WhatsApp Cloud API delivers messages here; each delivery is signed (no session).
   app.use(WEBHOOK_PATH, whatsappWebhookRouter());
   // Stripe and Razorpay confirm client hub payments here; each delivery is signed (no session).

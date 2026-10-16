@@ -2798,6 +2798,36 @@ export type CrmEmailAddressInput = {
   primary?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
+export enum CrmEmailDirection {
+  In = 'IN',
+  Out = 'OUT'
+}
+
+export type CrmEmailMessage = {
+  __typename?: 'CrmEmailMessage';
+  bodyText: Scalars['String']['output'];
+  cc: Array<Scalars['String']['output']>;
+  direction: CrmEmailDirection;
+  from: Scalars['String']['output'];
+  gmailId: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  messageId: Scalars['String']['output'];
+  sentAt: Scalars['DateTime']['output'];
+  sentByName: Scalars['String']['output'];
+  snippet: Scalars['String']['output'];
+  subject: Scalars['String']['output'];
+  threadId: Scalars['String']['output'];
+  to: Array<Scalars['String']['output']>;
+};
+
+export type CrmEmailThread = {
+  __typename?: 'CrmEmailThread';
+  lastAt: Scalars['DateTime']['output'];
+  messages: Array<CrmEmailMessage>;
+  subject: Scalars['String']['output'];
+  threadId: Scalars['ID']['output'];
+};
+
 export type CrmFilterGroup = {
   __typename?: 'CrmFilterGroup';
   conditions: Array<CrmCondition>;
@@ -3334,6 +3364,14 @@ export enum DocumentStatus {
   Draft = 'DRAFT',
   Final = 'FINAL'
 }
+
+export type DraftCrmEmailInput = {
+  id: Scalars['ID']['input'];
+  /** What the email should say, in a few words. */
+  instruction: Scalars['String']['input'];
+  object: CrmTimelineObject;
+  threadId?: InputMaybe<Scalars['String']['input']>;
+};
 
 export type EmailConfig = {
   __typename?: 'EmailConfig';
@@ -4111,6 +4149,32 @@ export type GithubConfigInput = {
   repo: Scalars['String']['input'];
   /** Write-only. Leave empty when editing to keep the stored token. */
   token: Scalars['String']['input'];
+};
+
+/** The shared Gmail mailbox the CRM sends from. Tokens never leave the server. */
+export type GmailConfig = {
+  __typename?: 'GmailConfig';
+  clientId: Scalars['String']['output'];
+  clientSecretHint?: Maybe<Scalars['String']['output']>;
+  connected: Scalars['Boolean']['output'];
+  connectedAt?: Maybe<Scalars['DateTime']['output']>;
+  /** The mailbox Google connected; empty until then. */
+  connectedEmail: Scalars['String']['output'];
+  enabled: Scalars['Boolean']['output'];
+  hasClientSecret: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  /** Why the last call to Gmail failed; empty when it worked. */
+  lastError: Scalars['String']['output'];
+  /** Register this exact address as an authorised redirect URI on the Google client. */
+  redirectUri: Scalars['String']['output'];
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type GmailConfigInput = {
+  clientId: Scalars['String']['input'];
+  /** Blank keeps the stored secret. */
+  clientSecret: Scalars['String']['input'];
+  enabled: Scalars['Boolean']['input'];
 };
 
 export type Goal = {
@@ -6108,6 +6172,8 @@ export type Mutation = {
   /** Public. Refused unless `captcha` answers a question from `websiteCaptcha`. `resume` (PDF, DOC or DOCX, max 5 MB) is accepted with a job application only. */
   createWebsiteSubmission: WebsiteSubmission;
   createWhatsappWorkflow: WhatsappWorkflow;
+  /** An AI summary of everything that happened with the record. */
+  crmRecordSummary: Scalars['String']['output'];
   /** Approves or rejects one item, through the owning module's own decision service. */
   decideApproval: Scalars['Boolean']['output'];
   /** HR/ADMIN or the employee's manager: approve or reject, with an optional note. */
@@ -6259,7 +6325,10 @@ export type Mutation = {
   disableMfa: Scalars['Boolean']['output'];
   /** Puts the published graph back into the draft. */
   discardWhatsappWorkflowDraft: WhatsappWorkflow;
+  disconnectGmail: GmailConfig;
   disconnectSocialAccount: Scalars['Boolean']['output'];
+  /** An AI draft of a new email or a reply, from the record and its thread. */
+  draftCrmEmail: Scalars['String']['output'];
   duplicateCmsPage: CmsPage;
   /** Copies a workflow as a never-published draft keyed key-copy. */
   duplicateWhatsappWorkflow: WhatsappWorkflow;
@@ -6425,6 +6494,7 @@ export type Mutation = {
    * already exists, and guessing wrong would fail the save on a duplicate key.
    */
   saveEmployeeSalary: SalaryStructure;
+  saveGmailConfig: GmailConfig;
   saveGoogleSignInConfig: GoogleSignInConfig;
   saveProjectWorkflowGraph: ProjectWorkflow;
   saveSocialAppConfig: SocialAppConfig;
@@ -6443,6 +6513,7 @@ export type Mutation = {
    * leaves no send log or last-sent stamp behind.
    */
   sendCampaign: CampaignSendResult;
+  sendCrmEmail: CrmEmailMessage;
   /** Emails the invoice PDF to the client, moves a draft to SENT and stamps sentAt. */
   sendInvoice: Invoice;
   /** Posts a line onto the caller's OWN tracker thread. */
@@ -6550,6 +6621,8 @@ export type Mutation = {
   /** AI: what worked, what did not, and what to try, from the last days' posts. */
   socialMediaInsights: Scalars['String']['output'];
   startCallingBotCall: CallingBotCallStart;
+  /** Google's consent page to connect the mailbox; comes back to returnTo. */
+  startGmailConnect: Scalars['String']['output'];
   /** Google's consent page for a sign-in that returns to this portal page. Public. */
   startGoogleSignIn: Scalars['String']['output'];
   /** Mints a secret and returns what an authenticator app needs. Nothing is switched on yet. */
@@ -6597,6 +6670,8 @@ export type Mutation = {
   /** Connects to the proxy and signs in; says what worked, or why not. */
   testEmailVerifierConfig: Scalars['String']['output'];
   testGithubConnection: Scalars['Boolean']['output'];
+  /** Reads the mailbox's address with the stored connection. */
+  testGmailConfig: Scalars['String']['output'];
   testGodaddyConnection: Scalars['Boolean']['output'];
   /** Checks the client ID and secret with Google; says what worked, or why not. */
   testGoogleSignInConfig: Scalars['String']['output'];
@@ -7677,6 +7752,12 @@ export type MutationCreateWhatsappWorkflowArgs = {
 };
 
 
+export type MutationCrmRecordSummaryArgs = {
+  id: Scalars['ID']['input'];
+  object: CrmTimelineObject;
+};
+
+
 export type MutationDecideApprovalArgs = {
   decision: ApprovalDecision;
   id: Scalars['ID']['input'];
@@ -8372,6 +8453,11 @@ export type MutationDisconnectSocialAccountArgs = {
 };
 
 
+export type MutationDraftCrmEmailArgs = {
+  input: DraftCrmEmailInput;
+};
+
+
 export type MutationDuplicateCmsPageArgs = {
   id: Scalars['ID']['input'];
   path: Scalars['String']['input'];
@@ -8731,6 +8817,11 @@ export type MutationSaveEmployeeSalaryArgs = {
 };
 
 
+export type MutationSaveGmailConfigArgs = {
+  input: GmailConfigInput;
+};
+
+
 export type MutationSaveGoogleSignInConfigArgs = {
   input: GoogleSignInConfigInput;
 };
@@ -8768,6 +8859,11 @@ export type MutationSendCampaignArgs = {
   audienceListId?: InputMaybe<Scalars['ID']['input']>;
   id: Scalars['ID']['input'];
   testEmail?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationSendCrmEmailArgs = {
+  input: SendCrmEmailInput;
 };
 
 
@@ -9039,6 +9135,11 @@ export type MutationSocialMediaInsightsArgs = {
 
 export type MutationStartCallingBotCallArgs = {
   input: StartCallingBotCallInput;
+};
+
+
+export type MutationStartGmailConnectArgs = {
+  returnTo: Scalars['String']['input'];
 };
 
 
@@ -11712,6 +11813,10 @@ export type Query = {
    * link is unknown, withdrawn or expired.
    */
   contractToSign?: Maybe<ContractToSign>;
+  /** The record's Gmail threads, synced from Gmail first. */
+  crmEmailThreads: Array<CrmEmailThread>;
+  /** Whether the CRM can email through Gmail (connected, and this is the operator's CRM). */
+  crmGmailReady: Scalars['Boolean']['output'];
   crmObjectSchema: CrmObjectSchema;
   crmProperties: Array<CrmProperty>;
   /** Everything that happened with the contact or company, newest first (at most 200). */
@@ -11828,6 +11933,7 @@ export type Query = {
   getWebsiteChatFaq: WebsiteChatFaq;
   getWebsiteChatKnowledge: WebsiteChatKnowledge;
   getWebsiteSubmission: WebsiteSubmission;
+  gmailConfig: GmailConfig;
   googleSignInConfig: GoogleSignInConfig;
   /** Whether the sign-in page offers Continue with Google. Public. */
   googleSignInEnabled: Scalars['Boolean']['output'];
@@ -12716,6 +12822,12 @@ export type QueryContractSignaturesArgs = {
 
 export type QueryContractToSignArgs = {
   token: Scalars['String']['input'];
+};
+
+
+export type QueryCrmEmailThreadsArgs = {
+  id: Scalars['ID']['input'];
+  object: CrmTimelineObject;
 };
 
 
@@ -14666,6 +14778,16 @@ export type SearchHit = {
   title: Scalars['String']['output'];
 };
 
+export type SendCrmEmailInput = {
+  body: Scalars['String']['input'];
+  cc?: InputMaybe<Array<Scalars['String']['input']>>;
+  inReplyTo?: InputMaybe<Scalars['String']['input']>;
+  subject: Scalars['String']['input'];
+  /** Replying: Gmail's thread id and the Message-ID being answered. */
+  threadId?: InputMaybe<Scalars['String']['input']>;
+  to: Array<Scalars['String']['input']>;
+};
+
 export type SendMailInput = {
   message: Scalars['String']['input'];
   subject: Scalars['String']['input'];
@@ -16045,6 +16167,7 @@ export enum TechSecret {
   EmailPassword = 'EMAIL_PASSWORD',
   EmailVerifierProxyPassword = 'EMAIL_VERIFIER_PROXY_PASSWORD',
   GithubToken = 'GITHUB_TOKEN',
+  GmailClientSecret = 'GMAIL_CLIENT_SECRET',
   GodaddyApiKey = 'GODADDY_API_KEY',
   GodaddyApiSecret = 'GODADDY_API_SECRET',
   GoogleSignInClientSecret = 'GOOGLE_SIGN_IN_CLIENT_SECRET',
@@ -18184,6 +18307,9 @@ export type ResolversTypes = ResolversObject<{
   CrmConditionInput: CrmConditionInput;
   CrmEmailAddress: ResolverTypeWrapper<CrmEmailAddress>;
   CrmEmailAddressInput: CrmEmailAddressInput;
+  CrmEmailDirection: CrmEmailDirection;
+  CrmEmailMessage: ResolverTypeWrapper<CrmEmailMessage>;
+  CrmEmailThread: ResolverTypeWrapper<CrmEmailThread>;
   CrmFilterGroup: ResolverTypeWrapper<CrmFilterGroup>;
   CrmFilterGroupInput: CrmFilterGroupInput;
   CrmImportInput: CrmImportInput;
@@ -18236,6 +18362,7 @@ export type ResolversTypes = ResolversObject<{
   DocumentCategory: DocumentCategory;
   DocumentKind: DocumentKind;
   DocumentStatus: DocumentStatus;
+  DraftCrmEmailInput: DraftCrmEmailInput;
   EmailConfig: ResolverTypeWrapper<EmailConfig>;
   EmailConfigInput: EmailConfigInput;
   EmailDashboard: ResolverTypeWrapper<EmailDashboard>;
@@ -18308,6 +18435,8 @@ export type ResolversTypes = ResolversObject<{
   GigPage: ResolverTypeWrapper<GigPage>;
   GithubConfig: ResolverTypeWrapper<GithubConfig>;
   GithubConfigInput: GithubConfigInput;
+  GmailConfig: ResolverTypeWrapper<GmailConfig>;
+  GmailConfigInput: GmailConfigInput;
   Goal: ResolverTypeWrapper<Goal>;
   GoalInput: GoalInput;
   GoalPage: ResolverTypeWrapper<GoalPage>;
@@ -18626,6 +18755,7 @@ export type ResolversTypes = ResolversObject<{
   SalaryStructurePage: ResolverTypeWrapper<SalaryStructurePage>;
   SearchGroup: ResolverTypeWrapper<SearchGroup>;
   SearchHit: ResolverTypeWrapper<SearchHit>;
+  SendCrmEmailInput: SendCrmEmailInput;
   SendMailInput: SendMailInput;
   SendNotificationInput: SendNotificationInput;
   SendNotificationResult: ResolverTypeWrapper<SendNotificationResult>;
@@ -19091,6 +19221,8 @@ export type ResolversParentTypes = ResolversObject<{
   CrmConditionInput: CrmConditionInput;
   CrmEmailAddress: CrmEmailAddress;
   CrmEmailAddressInput: CrmEmailAddressInput;
+  CrmEmailMessage: CrmEmailMessage;
+  CrmEmailThread: CrmEmailThread;
   CrmFilterGroup: CrmFilterGroup;
   CrmFilterGroupInput: CrmFilterGroupInput;
   CrmImportInput: CrmImportInput;
@@ -19131,6 +19263,7 @@ export type ResolversParentTypes = ResolversObject<{
   DockerHost: DockerHost;
   DockerImage: DockerImage;
   DockerStorage: DockerStorage;
+  DraftCrmEmailInput: DraftCrmEmailInput;
   EmailConfig: EmailConfig;
   EmailConfigInput: EmailConfigInput;
   EmailDashboard: EmailDashboard;
@@ -19189,6 +19322,8 @@ export type ResolversParentTypes = ResolversObject<{
   GigPage: GigPage;
   GithubConfig: GithubConfig;
   GithubConfigInput: GithubConfigInput;
+  GmailConfig: GmailConfig;
+  GmailConfigInput: GmailConfigInput;
   Goal: Goal;
   GoalInput: GoalInput;
   GoalPage: GoalPage;
@@ -19437,6 +19572,7 @@ export type ResolversParentTypes = ResolversObject<{
   SalaryStructurePage: SalaryStructurePage;
   SearchGroup: SearchGroup;
   SearchHit: SearchHit;
+  SendCrmEmailInput: SendCrmEmailInput;
   SendMailInput: SendMailInput;
   SendNotificationInput: SendNotificationInput;
   SendNotificationResult: SendNotificationResult;
@@ -21165,6 +21301,31 @@ export type CrmEmailAddressResolvers<ContextType = GraphQLContext, ParentType ex
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type CrmEmailMessageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmEmailMessage'] = ResolversParentTypes['CrmEmailMessage']> = ResolversObject<{
+  bodyText?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  cc?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  direction?: Resolver<ResolversTypes['CrmEmailDirection'], ParentType, ContextType>;
+  from?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  gmailId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  messageId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  sentAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  sentByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  snippet?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  subject?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  threadId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  to?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmEmailThreadResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmEmailThread'] = ResolversParentTypes['CrmEmailThread']> = ResolversObject<{
+  lastAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  messages?: Resolver<Array<ResolversTypes['CrmEmailMessage']>, ParentType, ContextType>;
+  subject?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  threadId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type CrmFilterGroupResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmFilterGroup'] = ResolversParentTypes['CrmFilterGroup']> = ResolversObject<{
   conditions?: Resolver<Array<ResolversTypes['CrmCondition']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -21895,6 +22056,21 @@ export type GithubConfigResolvers<ContextType = GraphQLContext, ParentType exten
   repo?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   tokenHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type GmailConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['GmailConfig'] = ResolversParentTypes['GmailConfig']> = ResolversObject<{
+  clientId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  clientSecretHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  connected?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  connectedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  connectedEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  hasClientSecret?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lastError?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  redirectUri?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -23021,6 +23197,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createWebsiteChatKnowledge?: Resolver<ResolversTypes['WebsiteChatKnowledge'], ParentType, ContextType, RequireFields<MutationCreateWebsiteChatKnowledgeArgs, 'input'>>;
   createWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<MutationCreateWebsiteSubmissionArgs, 'captcha' | 'input'>>;
   createWhatsappWorkflow?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationCreateWhatsappWorkflowArgs, 'input'>>;
+  crmRecordSummary?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationCrmRecordSummaryArgs, 'id' | 'object'>>;
   decideApproval?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDecideApprovalArgs, 'decision' | 'id'>>;
   decideEmployeeRequest?: Resolver<ResolversTypes['EmployeeRequest'], ParentType, ContextType, RequireFields<MutationDecideEmployeeRequestArgs, 'id' | 'status'>>;
   decideItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationDecideItAccessRequestArgs, 'decision' | 'id'>>;
@@ -23158,7 +23335,9 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteWhatsappWorkflow?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWhatsappWorkflowArgs, 'id'>>;
   disableMfa?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisableMfaArgs, 'password'>>;
   discardWhatsappWorkflowDraft?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationDiscardWhatsappWorkflowDraftArgs, 'id'>>;
+  disconnectGmail?: Resolver<ResolversTypes['GmailConfig'], ParentType, ContextType>;
   disconnectSocialAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisconnectSocialAccountArgs, 'id'>>;
+  draftCrmEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationDraftCrmEmailArgs, 'input'>>;
   duplicateCmsPage?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationDuplicateCmsPageArgs, 'id' | 'path'>>;
   duplicateWhatsappWorkflow?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationDuplicateWhatsappWorkflowArgs, 'id'>>;
   emailGccEstimate?: Resolver<ResolversTypes['GccEmailResult'], ParentType, ContextType, RequireFields<MutationEmailGccEstimateArgs, 'captcha' | 'input'>>;
@@ -23226,6 +23405,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   saveCmsFragmentDraft?: Resolver<ResolversTypes['CmsFragment'], ParentType, ContextType, RequireFields<MutationSaveCmsFragmentDraftArgs, 'draft' | 'id'>>;
   saveCmsPageDraft?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationSaveCmsPageDraftArgs, 'draft' | 'id'>>;
   saveEmployeeSalary?: Resolver<ResolversTypes['SalaryStructure'], ParentType, ContextType, RequireFields<MutationSaveEmployeeSalaryArgs, 'employeeId' | 'input'>>;
+  saveGmailConfig?: Resolver<ResolversTypes['GmailConfig'], ParentType, ContextType, RequireFields<MutationSaveGmailConfigArgs, 'input'>>;
   saveGoogleSignInConfig?: Resolver<ResolversTypes['GoogleSignInConfig'], ParentType, ContextType, RequireFields<MutationSaveGoogleSignInConfigArgs, 'input'>>;
   saveProjectWorkflowGraph?: Resolver<ResolversTypes['ProjectWorkflow'], ParentType, ContextType, RequireFields<MutationSaveProjectWorkflowGraphArgs, 'graph' | 'id'>>;
   saveSocialAppConfig?: Resolver<ResolversTypes['SocialAppConfig'], ParentType, ContextType, RequireFields<MutationSaveSocialAppConfigArgs, 'input'>>;
@@ -23234,6 +23414,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   saveWhatsappWorkflowDraft?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationSaveWhatsappWorkflowDraftArgs, 'id' | 'input'>>;
   sendAdminCredentials?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sendCampaign?: Resolver<ResolversTypes['CampaignSendResult'], ParentType, ContextType, RequireFields<MutationSendCampaignArgs, 'id'>>;
+  sendCrmEmail?: Resolver<ResolversTypes['CrmEmailMessage'], ParentType, ContextType, RequireFields<MutationSendCrmEmailArgs, 'input'>>;
   sendInvoice?: Resolver<ResolversTypes['Invoice'], ParentType, ContextType, RequireFields<MutationSendInvoiceArgs, 'email' | 'id'>>;
   sendMyTrackerMessage?: Resolver<ResolversTypes['TrackerMessage'], ParentType, ContextType, RequireFields<MutationSendMyTrackerMessageArgs, 'body'>>;
   sendNotification?: Resolver<ResolversTypes['SendNotificationResult'], ParentType, ContextType, RequireFields<MutationSendNotificationArgs, 'input'>>;
@@ -23278,6 +23459,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   socialMediaIdeas?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSocialMediaIdeasArgs, 'count' | 'topic'>>;
   socialMediaInsights?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationSocialMediaInsightsArgs, 'days'>>;
   startCallingBotCall?: Resolver<ResolversTypes['CallingBotCallStart'], ParentType, ContextType, RequireFields<MutationStartCallingBotCallArgs, 'input'>>;
+  startGmailConnect?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationStartGmailConnectArgs, 'returnTo'>>;
   startGoogleSignIn?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationStartGoogleSignInArgs, 'returnTo'>>;
   startMfaEnrolment?: Resolver<ResolversTypes['MfaEnrolment'], ParentType, ContextType>;
   startOnboarding?: Resolver<ResolversTypes['OnboardingChecklist'], ParentType, ContextType, RequireFields<MutationStartOnboardingArgs, 'employeeId' | 'templateId'>>;
@@ -23297,6 +23479,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   testCloudflareConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestCloudflareConnectionArgs, 'id'>>;
   testEmailVerifierConfig?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestEmailVerifierConfigArgs, 'id'>>;
   testGithubConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGithubConnectionArgs, 'id'>>;
+  testGmailConfig?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   testGodaddyConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGodaddyConnectionArgs, 'id'>>;
   testGoogleSignInConfig?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   testImageUpload?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestImageUploadArgs, 'file' | 'fileName' | 'id'>>;
@@ -24318,6 +24501,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   complianceOverview?: Resolver<ResolversTypes['ComplianceOverview'], ParentType, ContextType>;
   contractSignatures?: Resolver<Array<ResolversTypes['ContractSignature']>, ParentType, ContextType, RequireFields<QueryContractSignaturesArgs, 'contractId'>>;
   contractToSign?: Resolver<Maybe<ResolversTypes['ContractToSign']>, ParentType, ContextType, RequireFields<QueryContractToSignArgs, 'token'>>;
+  crmEmailThreads?: Resolver<Array<ResolversTypes['CrmEmailThread']>, ParentType, ContextType, RequireFields<QueryCrmEmailThreadsArgs, 'id' | 'object'>>;
+  crmGmailReady?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   crmObjectSchema?: Resolver<ResolversTypes['CrmObjectSchema'], ParentType, ContextType, RequireFields<QueryCrmObjectSchemaArgs, 'object'>>;
   crmProperties?: Resolver<Array<ResolversTypes['CrmProperty']>, ParentType, ContextType, RequireFields<QueryCrmPropertiesArgs, 'object'>>;
   crmTimeline?: Resolver<Array<ResolversTypes['CrmTimelineItem']>, ParentType, ContextType, RequireFields<QueryCrmTimelineArgs, 'id' | 'object'>>;
@@ -24421,6 +24606,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getWebsiteChatFaq?: Resolver<ResolversTypes['WebsiteChatFaq'], ParentType, ContextType, RequireFields<QueryGetWebsiteChatFaqArgs, 'id'>>;
   getWebsiteChatKnowledge?: Resolver<ResolversTypes['WebsiteChatKnowledge'], ParentType, ContextType, RequireFields<QueryGetWebsiteChatKnowledgeArgs, 'id'>>;
   getWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<QueryGetWebsiteSubmissionArgs, 'id'>>;
+  gmailConfig?: Resolver<ResolversTypes['GmailConfig'], ParentType, ContextType>;
   googleSignInConfig?: Resolver<ResolversTypes['GoogleSignInConfig'], ParentType, ContextType>;
   googleSignInEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   gstStates?: Resolver<Array<ResolversTypes['GstState']>, ParentType, ContextType>;
@@ -27032,6 +27218,8 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   CreatedWebhook?: CreatedWebhookResolvers<ContextType>;
   CrmCondition?: CrmConditionResolvers<ContextType>;
   CrmEmailAddress?: CrmEmailAddressResolvers<ContextType>;
+  CrmEmailMessage?: CrmEmailMessageResolvers<ContextType>;
+  CrmEmailThread?: CrmEmailThreadResolvers<ContextType>;
   CrmFilterGroup?: CrmFilterGroupResolvers<ContextType>;
   CrmImportIssue?: CrmImportIssueResolvers<ContextType>;
   CrmImportResult?: CrmImportResultResolvers<ContextType>;
@@ -27101,6 +27289,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Gig?: GigResolvers<ContextType>;
   GigPage?: GigPageResolvers<ContextType>;
   GithubConfig?: GithubConfigResolvers<ContextType>;
+  GmailConfig?: GmailConfigResolvers<ContextType>;
   Goal?: GoalResolvers<ContextType>;
   GoalPage?: GoalPageResolvers<ContextType>;
   GodaddyConfig?: GodaddyConfigResolvers<ContextType>;

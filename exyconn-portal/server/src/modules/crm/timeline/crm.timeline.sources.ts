@@ -7,6 +7,7 @@ import { SupportTicketModel } from '../../employee/support.model';
 import { CampaignSendModel } from '../../marketing/campaign-send.model';
 import { CampaignModel } from '../../marketing/marketing.model';
 import { EmailLogModel } from '../../email/email-log.model';
+import { CrmEmailMessageModel } from '../../gmail/gmail.models';
 import { WhatsappDemoVisitorModel } from '../../../../../../demos/whatsapp-demo/server/src/visitor/visitor.model';
 import {
   item,
@@ -201,7 +202,29 @@ async function whatsappLeads({ addresses, limit }: TimelineTarget): Promise<Time
   );
 }
 
+async function gmailMessages({ addresses, limit }: TimelineTarget): Promise<TimelineItem[]> {
+  const rows = await CrmEmailMessageModel.find({ participants: { $in: addresses } })
+    .sort({ sentAt: -1 })
+    .limit(limit)
+    .lean();
+  return rows.map((row) =>
+    item({
+      id: `gmail:${idOf(row)}`,
+      kind: 'EMAIL',
+      at: row.sentAt,
+      title:
+        row.direction === 'OUT'
+          ? `Emailed: ${row.subject}`
+          : `Email from ${row.from}: ${row.subject}`,
+      summary: row.snippet,
+      actor: row.sentByName ?? '',
+      status: row.direction === 'OUT' ? 'Sent' : 'Received',
+    }),
+  );
+}
+
 export const TIMELINE_SOURCES = [
+  gmailMessages,
   activities,
   deals,
   leads,

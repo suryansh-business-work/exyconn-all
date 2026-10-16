@@ -7,7 +7,7 @@ export const GOOGLE_CALLBACK_PATH = '/oauth/google';
 export const googleRedirectUri = () => `${env.apiPublicUrl}${GOOGLE_CALLBACK_PATH}/callback`;
 
 const AUTHORIZE_URL = 'https://accounts.google.com/o/oauth2/v2/auth';
-const TOKEN_URL = 'https://oauth2.googleapis.com/token';
+export const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 const ISSUERS: ReadonlySet<string> = new Set([
   'accounts.google.com',
   'https://accounts.google.com',
@@ -43,7 +43,29 @@ export async function exchangeCode(
   client: GoogleClient,
   code: string,
   codeVerifier: string,
+  redirectUri = googleRedirectUri(),
 ): Promise<string> {
+  const tokens = await exchangeForTokens(client, code, codeVerifier, redirectUri);
+  if (!tokens.id_token) {
+    throw new Error('Google refused the sign-in: no ID token');
+  }
+  return tokens.id_token;
+}
+
+export interface GoogleTokens {
+  id_token?: string;
+  access_token?: string;
+  refresh_token?: string;
+  expires_in?: number;
+}
+
+/** Trades an authorisation code for Google's tokens; a refusal throws with Google's reason. */
+export async function exchangeForTokens(
+  client: GoogleClient,
+  code: string,
+  codeVerifier: string,
+  redirectUri: string,
+): Promise<GoogleTokens> {
   const response = await fetch(TOKEN_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -53,20 +75,19 @@ export async function exchangeCode(
       code,
       code_verifier: codeVerifier,
       grant_type: 'authorization_code',
-      redirect_uri: googleRedirectUri(),
+      redirect_uri: redirectUri,
     }),
   });
-  const body = (await response.json()) as {
-    id_token?: string;
+  const body = (await response.json()) as GoogleTokens & {
     error?: string;
     error_description?: string;
   };
-  if (!response.ok || !body.id_token) {
+  if (!response.ok) {
     throw new Error(
-      `Google refused the sign-in: ${body.error ?? 'no ID token'} ${body.error_description ?? ''}`,
+      `Google refused: ${body.error ?? 'no reason'} ${body.error_description ?? ''}`.trim(),
     );
   }
-  return body.id_token;
+  return body;
 }
 
 interface IdTokenClaims {

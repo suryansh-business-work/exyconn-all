@@ -5,6 +5,7 @@ import {
   ContactPointList,
   DetailActions,
   DetailField,
+  EmailButton,
   LocalTime,
   initialsOf,
 } from '../../../records/detail';
@@ -42,6 +43,11 @@ export function CompanyProfile({
       </Flex>
       <DetailActions
         target={{ relatedType: 'COMPANY', relatedId: company.id, relatedName: company.name }}
+        extra={
+          <EmailButton
+            context={{ object: 'COMPANY', id: company.id, to: [company.email].filter(Boolean) }}
+          />
+        }
         renderEdit={(close) => (
           <CompanyForm
             initial={company}

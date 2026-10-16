@@ -19,6 +19,7 @@ import { EmailVerifierConfigModel } from '../email-verification/email-verifier-c
 import { SonarConfigModel } from '../security/sonar-config.model';
 import { SocialAppConfigModel } from '../social-accounts/social.models';
 import { GoogleSignInConfigModel } from '../auth/google/google-sign-in.models';
+import { GmailConfigModel } from '../gmail/gmail.models';
 import { EmailConfigModel } from './email-config.model';
 import { GithubConfigModel } from './github-config.model';
 import { ImageConfigModel } from './image-config.model';
@@ -95,6 +96,9 @@ const SECRETS: Readonly<Record<string, SecretSource>> = {
       keyField: 'key',
     },
   ),
+  GMAIL_CLIENT_SECRET: source(GmailConfigModel, 'clientSecret', 'Gmail client secret', {
+    keyField: 'key',
+  }),
   SOCIAL_APP_CLIENT_SECRET: source(SocialAppConfigModel, 'clientSecret', 'client secret', {
     keyField: 'app',
   }),

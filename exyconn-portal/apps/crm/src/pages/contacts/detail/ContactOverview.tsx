@@ -6,7 +6,7 @@ import {
   CrmTimelineObject,
   type ContactFieldsFragment,
 } from '@exyconn/shell/graphql/generated';
-import { CustomValues, DetailField, Timeline } from '../../../records/detail';
+import { AiSummary, CustomValues, DetailField, Timeline } from '../../../records/detail';
 
 /** The Overview tab: what we know about the person, then their latest touchpoints. */
 export function ContactOverview({ contact }: Readonly<{ contact: ContactFieldsFragment }>) {
@@ -14,6 +14,7 @@ export function ContactOverview({ contact }: Readonly<{ contact: ContactFieldsFr
   const { formatDate } = useFormatters();
   return (
     <Stack spacing={2}>
+      <AiSummary object={CrmTimelineObject.Contact} id={contact.id} name={contact.name} />
       <Text component="h2" size="label" weight="bold">
         {t('Profile overview')}
       </Text>

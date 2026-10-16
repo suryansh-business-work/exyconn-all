@@ -6,3 +6,6 @@ export { DetailLayout } from './DetailLayout';
 export { LocalTime } from './LocalTime';
 export { Timeline } from './timeline/Timeline';
 export { initialsOf } from './initials';
+export { AiSummary } from './AiSummary';
+export { EmailButton } from './email/EmailButton';
+export { EmailThreads } from './email/EmailThreads';

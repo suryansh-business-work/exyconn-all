@@ -4,6 +4,7 @@ import { baseTypeDefs } from './base.typeDefs';
 import { authTypeDefs } from '../modules/auth/auth.typeDefs';
 import { authResolvers } from '../modules/auth/auth.resolvers';
 import { googleSignInTypeDefs, googleSignInResolvers } from '../modules/auth/google';
+import { gmailTypeDefs, gmailResolvers } from '../modules/gmail';
 import { organizationsTypeDefs, organizationsResolvers } from '../modules/organizations';
 import { adminTypeDefs } from '../modules/admin/admin.typeDefs';
 import { adminResolvers } from '../modules/admin/admin.resolvers';
@@ -231,6 +232,7 @@ export const typeDefs = [
   baseTypeDefs,
   authTypeDefs,
   googleSignInTypeDefs,
+  gmailTypeDefs,
   organizationsTypeDefs,
   adminTypeDefs,
   financeTypeDefs,
@@ -330,6 +332,7 @@ export const typeDefs = [
 export const resolvers = mergeResolvers([
   authResolvers,
   googleSignInResolvers,
+  gmailResolvers,
   organizationsResolvers,
   adminResolvers,
   reportingResolvers,

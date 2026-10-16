@@ -1,0 +1,85 @@
+# The CRM's Gmail: the connection on Tech > Environment Variables, and emailing from a record.
+fragment GmailConfigFields on GmailConfig {
+  id
+  clientId
+  hasClientSecret
+  clientSecretHint
+  enabled
+  connected
+  connectedEmail
+  connectedAt
+  lastError
+  redirectUri
+  updatedAt
+}
+
+query GmailConfig {
+  gmailConfig {
+    ...GmailConfigFields
+  }
+}
+
+mutation SaveGmailConfig($input: GmailConfigInput!) {
+  saveGmailConfig(input: $input) {
+    ...GmailConfigFields
+  }
+}
+
+mutation StartGmailConnect($returnTo: String!) {
+  startGmailConnect(returnTo: $returnTo)
+}
+
+mutation DisconnectGmail {
+  disconnectGmail {
+    ...GmailConfigFields
+  }
+}
+
+mutation TestGmailConfig {
+  testGmailConfig
+}
+
+fragment CrmEmailMessageFields on CrmEmailMessage {
+  id
+  gmailId
+  threadId
+  messageId
+  direction
+  from
+  to
+  cc
+  subject
+  snippet
+  bodyText
+  sentAt
+  sentByName
+}
+
+query CrmGmailReady {
+  crmGmailReady
+}
+
+query CrmEmailThreads($object: CrmTimelineObject!, $id: ID!) {
+  crmEmailThreads(object: $object, id: $id) {
+    threadId
+    subject
+    lastAt
+    messages {
+      ...CrmEmailMessageFields
+    }
+  }
+}
+
+mutation SendCrmEmail($input: SendCrmEmailInput!) {
+  sendCrmEmail(input: $input) {
+    ...CrmEmailMessageFields
+  }
+}
+
+mutation DraftCrmEmail($input: DraftCrmEmailInput!) {
+  draftCrmEmail(input: $input)
+}
+
+mutation CrmRecordSummary($object: CrmTimelineObject!, $id: ID!) {
+  crmRecordSummary(object: $object, id: $id)
+}

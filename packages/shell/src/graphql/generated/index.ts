@@ -2799,6 +2799,36 @@ export type CrmEmailAddressInput = {
   primary?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
+export enum CrmEmailDirection {
+  In = 'IN',
+  Out = 'OUT'
+}
+
+export type CrmEmailMessage = {
+  __typename?: 'CrmEmailMessage';
+  bodyText: Scalars['String']['output'];
+  cc: Array<Scalars['String']['output']>;
+  direction: CrmEmailDirection;
+  from: Scalars['String']['output'];
+  gmailId: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  messageId: Scalars['String']['output'];
+  sentAt: Scalars['DateTime']['output'];
+  sentByName: Scalars['String']['output'];
+  snippet: Scalars['String']['output'];
+  subject: Scalars['String']['output'];
+  threadId: Scalars['String']['output'];
+  to: Array<Scalars['String']['output']>;
+};
+
+export type CrmEmailThread = {
+  __typename?: 'CrmEmailThread';
+  lastAt: Scalars['DateTime']['output'];
+  messages: Array<CrmEmailMessage>;
+  subject: Scalars['String']['output'];
+  threadId: Scalars['ID']['output'];
+};
+
 export type CrmFilterGroup = {
   __typename?: 'CrmFilterGroup';
   conditions: Array<CrmCondition>;
@@ -3335,6 +3365,14 @@ export enum DocumentStatus {
   Draft = 'DRAFT',
   Final = 'FINAL'
 }
+
+export type DraftCrmEmailInput = {
+  id: Scalars['ID']['input'];
+  /** What the email should say, in a few words. */
+  instruction: Scalars['String']['input'];
+  object: CrmTimelineObject;
+  threadId?: InputMaybe<Scalars['String']['input']>;
+};
 
 export type EmailConfig = {
   __typename?: 'EmailConfig';
@@ -4112,6 +4150,32 @@ export type GithubConfigInput = {
   repo: Scalars['String']['input'];
   /** Write-only. Leave empty when editing to keep the stored token. */
   token: Scalars['String']['input'];
+};
+
+/** The shared Gmail mailbox the CRM sends from. Tokens never leave the server. */
+export type GmailConfig = {
+  __typename?: 'GmailConfig';
+  clientId: Scalars['String']['output'];
+  clientSecretHint?: Maybe<Scalars['String']['output']>;
+  connected: Scalars['Boolean']['output'];
+  connectedAt?: Maybe<Scalars['DateTime']['output']>;
+  /** The mailbox Google connected; empty until then. */
+  connectedEmail: Scalars['String']['output'];
+  enabled: Scalars['Boolean']['output'];
+  hasClientSecret: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  /** Why the last call to Gmail failed; empty when it worked. */
+  lastError: Scalars['String']['output'];
+  /** Register this exact address as an authorised redirect URI on the Google client. */
+  redirectUri: Scalars['String']['output'];
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type GmailConfigInput = {
+  clientId: Scalars['String']['input'];
+  /** Blank keeps the stored secret. */
+  clientSecret: Scalars['String']['input'];
+  enabled: Scalars['Boolean']['input'];
 };
 
 export type Goal = {
@@ -6109,6 +6173,8 @@ export type Mutation = {
   /** Public. Refused unless `captcha` answers a question from `websiteCaptcha`. `resume` (PDF, DOC or DOCX, max 5 MB) is accepted with a job application only. */
   createWebsiteSubmission: WebsiteSubmission;
   createWhatsappWorkflow: WhatsappWorkflow;
+  /** An AI summary of everything that happened with the record. */
+  crmRecordSummary: Scalars['String']['output'];
   /** Approves or rejects one item, through the owning module's own decision service. */
   decideApproval: Scalars['Boolean']['output'];
   /** HR/ADMIN or the employee's manager: approve or reject, with an optional note. */
@@ -6260,7 +6326,10 @@ export type Mutation = {
   disableMfa: Scalars['Boolean']['output'];
   /** Puts the published graph back into the draft. */
   discardWhatsappWorkflowDraft: WhatsappWorkflow;
+  disconnectGmail: GmailConfig;
   disconnectSocialAccount: Scalars['Boolean']['output'];
+  /** An AI draft of a new email or a reply, from the record and its thread. */
+  draftCrmEmail: Scalars['String']['output'];
   duplicateCmsPage: CmsPage;
   /** Copies a workflow as a never-published draft keyed key-copy. */
   duplicateWhatsappWorkflow: WhatsappWorkflow;
@@ -6426,6 +6495,7 @@ export type Mutation = {
    * already exists, and guessing wrong would fail the save on a duplicate key.
    */
   saveEmployeeSalary: SalaryStructure;
+  saveGmailConfig: GmailConfig;
   saveGoogleSignInConfig: GoogleSignInConfig;
   saveProjectWorkflowGraph: ProjectWorkflow;
   saveSocialAppConfig: SocialAppConfig;
@@ -6444,6 +6514,7 @@ export type Mutation = {
    * leaves no send log or last-sent stamp behind.
    */
   sendCampaign: CampaignSendResult;
+  sendCrmEmail: CrmEmailMessage;
   /** Emails the invoice PDF to the client, moves a draft to SENT and stamps sentAt. */
   sendInvoice: Invoice;
   /** Posts a line onto the caller's OWN tracker thread. */
@@ -6551,6 +6622,8 @@ export type Mutation = {
   /** AI: what worked, what did not, and what to try, from the last days' posts. */
   socialMediaInsights: Scalars['String']['output'];
   startCallingBotCall: CallingBotCallStart;
+  /** Google's consent page to connect the mailbox; comes back to returnTo. */
+  startGmailConnect: Scalars['String']['output'];
   /** Google's consent page for a sign-in that returns to this portal page. Public. */
   startGoogleSignIn: Scalars['String']['output'];
   /** Mints a secret and returns what an authenticator app needs. Nothing is switched on yet. */
@@ -6598,6 +6671,8 @@ export type Mutation = {
   /** Connects to the proxy and signs in; says what worked, or why not. */
   testEmailVerifierConfig: Scalars['String']['output'];
   testGithubConnection: Scalars['Boolean']['output'];
+  /** Reads the mailbox's address with the stored connection. */
+  testGmailConfig: Scalars['String']['output'];
   testGodaddyConnection: Scalars['Boolean']['output'];
   /** Checks the client ID and secret with Google; says what worked, or why not. */
   testGoogleSignInConfig: Scalars['String']['output'];
@@ -7678,6 +7753,12 @@ export type MutationCreateWhatsappWorkflowArgs = {
 };
 
 
+export type MutationCrmRecordSummaryArgs = {
+  id: Scalars['ID']['input'];
+  object: CrmTimelineObject;
+};
+
+
 export type MutationDecideApprovalArgs = {
   decision: ApprovalDecision;
   id: Scalars['ID']['input'];
@@ -8373,6 +8454,11 @@ export type MutationDisconnectSocialAccountArgs = {
 };
 
 
+export type MutationDraftCrmEmailArgs = {
+  input: DraftCrmEmailInput;
+};
+
+
 export type MutationDuplicateCmsPageArgs = {
   id: Scalars['ID']['input'];
   path: Scalars['String']['input'];
@@ -8732,6 +8818,11 @@ export type MutationSaveEmployeeSalaryArgs = {
 };
 
 
+export type MutationSaveGmailConfigArgs = {
+  input: GmailConfigInput;
+};
+
+
 export type MutationSaveGoogleSignInConfigArgs = {
   input: GoogleSignInConfigInput;
 };
@@ -8769,6 +8860,11 @@ export type MutationSendCampaignArgs = {
   audienceListId?: InputMaybe<Scalars['ID']['input']>;
   id: Scalars['ID']['input'];
   testEmail?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+export type MutationSendCrmEmailArgs = {
+  input: SendCrmEmailInput;
 };
 
 
@@ -9040,6 +9136,11 @@ export type MutationSocialMediaInsightsArgs = {
 
 export type MutationStartCallingBotCallArgs = {
   input: StartCallingBotCallInput;
+};
+
+
+export type MutationStartGmailConnectArgs = {
+  returnTo: Scalars['String']['input'];
 };
 
 
@@ -11713,6 +11814,10 @@ export type Query = {
    * link is unknown, withdrawn or expired.
    */
   contractToSign?: Maybe<ContractToSign>;
+  /** The record's Gmail threads, synced from Gmail first. */
+  crmEmailThreads: Array<CrmEmailThread>;
+  /** Whether the CRM can email through Gmail (connected, and this is the operator's CRM). */
+  crmGmailReady: Scalars['Boolean']['output'];
   crmObjectSchema: CrmObjectSchema;
   crmProperties: Array<CrmProperty>;
   /** Everything that happened with the contact or company, newest first (at most 200). */
@@ -11829,6 +11934,7 @@ export type Query = {
   getWebsiteChatFaq: WebsiteChatFaq;
   getWebsiteChatKnowledge: WebsiteChatKnowledge;
   getWebsiteSubmission: WebsiteSubmission;
+  gmailConfig: GmailConfig;
   googleSignInConfig: GoogleSignInConfig;
   /** Whether the sign-in page offers Continue with Google. Public. */
   googleSignInEnabled: Scalars['Boolean']['output'];
@@ -12717,6 +12823,12 @@ export type QueryContractSignaturesArgs = {
 
 export type QueryContractToSignArgs = {
   token: Scalars['String']['input'];
+};
+
+
+export type QueryCrmEmailThreadsArgs = {
+  id: Scalars['ID']['input'];
+  object: CrmTimelineObject;
 };
 
 
@@ -14667,6 +14779,16 @@ export type SearchHit = {
   title: Scalars['String']['output'];
 };
 
+export type SendCrmEmailInput = {
+  body: Scalars['String']['input'];
+  cc?: InputMaybe<Array<Scalars['String']['input']>>;
+  inReplyTo?: InputMaybe<Scalars['String']['input']>;
+  subject: Scalars['String']['input'];
+  /** Replying: Gmail's thread id and the Message-ID being answered. */
+  threadId?: InputMaybe<Scalars['String']['input']>;
+  to: Array<Scalars['String']['input']>;
+};
+
 export type SendMailInput = {
   message: Scalars['String']['input'];
   subject: Scalars['String']['input'];
@@ -16046,6 +16168,7 @@ export enum TechSecret {
   EmailPassword = 'EMAIL_PASSWORD',
   EmailVerifierProxyPassword = 'EMAIL_VERIFIER_PROXY_PASSWORD',
   GithubToken = 'GITHUB_TOKEN',
+  GmailClientSecret = 'GMAIL_CLIENT_SECRET',
   GodaddyApiKey = 'GODADDY_API_KEY',
   GodaddyApiSecret = 'GODADDY_API_SECRET',
   GoogleSignInClientSecret = 'GOOGLE_SIGN_IN_CLIENT_SECRET',
@@ -20858,6 +20981,74 @@ export type RunRecurringInvoiceNowMutationVariables = Exact<{
 
 
 export type RunRecurringInvoiceNowMutation = { __typename?: 'Mutation', runRecurringInvoiceNow: { __typename?: 'RecurringInvoice', id: string, name: string, clientId: string, clientName: string, amount: number, currency: string, placeOfSupplyStateCode: string, frequency: RecurrenceFrequency, startDate: string, nextRunAt: string, endDate?: string | null, dueDays: number, active: boolean, lastGeneratedAt?: string | null, generatedCount: number, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'InvoiceLine', description: string, quantity: number, rate: number, taxPercent: number, hsnSac: string, amount: number }> } };
+
+export type GmailConfigFieldsFragment = { __typename?: 'GmailConfig', id: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean, connected: boolean, connectedEmail: string, connectedAt?: string | null, lastError: string, redirectUri: string, updatedAt?: string | null };
+
+export type GmailConfigQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GmailConfigQuery = { __typename?: 'Query', gmailConfig: { __typename?: 'GmailConfig', id: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean, connected: boolean, connectedEmail: string, connectedAt?: string | null, lastError: string, redirectUri: string, updatedAt?: string | null } };
+
+export type SaveGmailConfigMutationVariables = Exact<{
+  input: GmailConfigInput;
+}>;
+
+
+export type SaveGmailConfigMutation = { __typename?: 'Mutation', saveGmailConfig: { __typename?: 'GmailConfig', id: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean, connected: boolean, connectedEmail: string, connectedAt?: string | null, lastError: string, redirectUri: string, updatedAt?: string | null } };
+
+export type StartGmailConnectMutationVariables = Exact<{
+  returnTo: Scalars['String']['input'];
+}>;
+
+
+export type StartGmailConnectMutation = { __typename?: 'Mutation', startGmailConnect: string };
+
+export type DisconnectGmailMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type DisconnectGmailMutation = { __typename?: 'Mutation', disconnectGmail: { __typename?: 'GmailConfig', id: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean, connected: boolean, connectedEmail: string, connectedAt?: string | null, lastError: string, redirectUri: string, updatedAt?: string | null } };
+
+export type TestGmailConfigMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TestGmailConfigMutation = { __typename?: 'Mutation', testGmailConfig: string };
+
+export type CrmEmailMessageFieldsFragment = { __typename?: 'CrmEmailMessage', id: string, gmailId: string, threadId: string, messageId: string, direction: CrmEmailDirection, from: string, to: Array<string>, cc: Array<string>, subject: string, snippet: string, bodyText: string, sentAt: string, sentByName: string };
+
+export type CrmGmailReadyQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type CrmGmailReadyQuery = { __typename?: 'Query', crmGmailReady: boolean };
+
+export type CrmEmailThreadsQueryVariables = Exact<{
+  object: CrmTimelineObject;
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type CrmEmailThreadsQuery = { __typename?: 'Query', crmEmailThreads: Array<{ __typename?: 'CrmEmailThread', threadId: string, subject: string, lastAt: string, messages: Array<{ __typename?: 'CrmEmailMessage', id: string, gmailId: string, threadId: string, messageId: string, direction: CrmEmailDirection, from: string, to: Array<string>, cc: Array<string>, subject: string, snippet: string, bodyText: string, sentAt: string, sentByName: string }> }> };
+
+export type SendCrmEmailMutationVariables = Exact<{
+  input: SendCrmEmailInput;
+}>;
+
+
+export type SendCrmEmailMutation = { __typename?: 'Mutation', sendCrmEmail: { __typename?: 'CrmEmailMessage', id: string, gmailId: string, threadId: string, messageId: string, direction: CrmEmailDirection, from: string, to: Array<string>, cc: Array<string>, subject: string, snippet: string, bodyText: string, sentAt: string, sentByName: string } };
+
+export type DraftCrmEmailMutationVariables = Exact<{
+  input: DraftCrmEmailInput;
+}>;
+
+
+export type DraftCrmEmailMutation = { __typename?: 'Mutation', draftCrmEmail: string };
+
+export type CrmRecordSummaryMutationVariables = Exact<{
+  object: CrmTimelineObject;
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type CrmRecordSummaryMutation = { __typename?: 'Mutation', crmRecordSummary: string };
 
 export type SystemHealthQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -26511,6 +26702,38 @@ export const RecurringInvoiceFieldsFragmentDoc = gql`
   generatedCount
   createdAt
   updatedAt
+}
+    `;
+export const GmailConfigFieldsFragmentDoc = gql`
+    fragment GmailConfigFields on GmailConfig {
+  id
+  clientId
+  hasClientSecret
+  clientSecretHint
+  enabled
+  connected
+  connectedEmail
+  connectedAt
+  lastError
+  redirectUri
+  updatedAt
+}
+    `;
+export const CrmEmailMessageFieldsFragmentDoc = gql`
+    fragment CrmEmailMessageFields on CrmEmailMessage {
+  id
+  gmailId
+  threadId
+  messageId
+  direction
+  from
+  to
+  cc
+  subject
+  snippet
+  bodyText
+  sentAt
+  sentByName
 }
     `;
 export const LeaveFieldsFragmentDoc = gql`
@@ -44871,6 +45094,341 @@ export function useRunRecurringInvoiceNowMutation(baseOptions?: ApolloReactHooks
         return ApolloReactHooks.useMutation<RunRecurringInvoiceNowMutation, RunRecurringInvoiceNowMutationVariables>(RunRecurringInvoiceNowDocument, options);
       }
 export type RunRecurringInvoiceNowMutationHookResult = ReturnType<typeof useRunRecurringInvoiceNowMutation>;
+export const GmailConfigDocument = gql`
+    query GmailConfig {
+  gmailConfig {
+    ...GmailConfigFields
+  }
+}
+    ${GmailConfigFieldsFragmentDoc}`;
+
+/**
+ * __useGmailConfigQuery__
+ *
+ * To run a query within a React component, call `useGmailConfigQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGmailConfigQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGmailConfigQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGmailConfigQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GmailConfigQuery, GmailConfigQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<GmailConfigQuery, GmailConfigQueryVariables>(GmailConfigDocument, options);
+      }
+export function useGmailConfigLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GmailConfigQuery, GmailConfigQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<GmailConfigQuery, GmailConfigQueryVariables>(GmailConfigDocument, options);
+        }
+// @ts-ignore
+export function useGmailConfigSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<GmailConfigQuery, GmailConfigQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GmailConfigQuery, GmailConfigQueryVariables>;
+// @ts-ignore
+export function useGmailConfigSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GmailConfigQuery, GmailConfigQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GmailConfigQuery | undefined, GmailConfigQueryVariables>;
+export function useGmailConfigSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GmailConfigQuery, GmailConfigQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<GmailConfigQuery, GmailConfigQueryVariables>(GmailConfigDocument, options);
+        }
+export type GmailConfigQueryHookResult = ReturnType<typeof useGmailConfigQuery>;
+export type GmailConfigLazyQueryHookResult = ReturnType<typeof useGmailConfigLazyQuery>;
+export type GmailConfigSuspenseQueryHookResult = ReturnType<typeof useGmailConfigSuspenseQuery>;
+export const SaveGmailConfigDocument = gql`
+    mutation SaveGmailConfig($input: GmailConfigInput!) {
+  saveGmailConfig(input: $input) {
+    ...GmailConfigFields
+  }
+}
+    ${GmailConfigFieldsFragmentDoc}`;
+
+/**
+ * __useSaveGmailConfigMutation__
+ *
+ * To run a mutation, you first call `useSaveGmailConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveGmailConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveGmailConfigMutation, { data, loading, error }] = useSaveGmailConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSaveGmailConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SaveGmailConfigMutation, SaveGmailConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SaveGmailConfigMutation, SaveGmailConfigMutationVariables>(SaveGmailConfigDocument, options);
+      }
+export type SaveGmailConfigMutationHookResult = ReturnType<typeof useSaveGmailConfigMutation>;
+export const StartGmailConnectDocument = gql`
+    mutation StartGmailConnect($returnTo: String!) {
+  startGmailConnect(returnTo: $returnTo)
+}
+    `;
+
+/**
+ * __useStartGmailConnectMutation__
+ *
+ * To run a mutation, you first call `useStartGmailConnectMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useStartGmailConnectMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [startGmailConnectMutation, { data, loading, error }] = useStartGmailConnectMutation({
+ *   variables: {
+ *      returnTo: // value for 'returnTo'
+ *   },
+ * });
+ */
+export function useStartGmailConnectMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<StartGmailConnectMutation, StartGmailConnectMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<StartGmailConnectMutation, StartGmailConnectMutationVariables>(StartGmailConnectDocument, options);
+      }
+export type StartGmailConnectMutationHookResult = ReturnType<typeof useStartGmailConnectMutation>;
+export const DisconnectGmailDocument = gql`
+    mutation DisconnectGmail {
+  disconnectGmail {
+    ...GmailConfigFields
+  }
+}
+    ${GmailConfigFieldsFragmentDoc}`;
+
+/**
+ * __useDisconnectGmailMutation__
+ *
+ * To run a mutation, you first call `useDisconnectGmailMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDisconnectGmailMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [disconnectGmailMutation, { data, loading, error }] = useDisconnectGmailMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useDisconnectGmailMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DisconnectGmailMutation, DisconnectGmailMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DisconnectGmailMutation, DisconnectGmailMutationVariables>(DisconnectGmailDocument, options);
+      }
+export type DisconnectGmailMutationHookResult = ReturnType<typeof useDisconnectGmailMutation>;
+export const TestGmailConfigDocument = gql`
+    mutation TestGmailConfig {
+  testGmailConfig
+}
+    `;
+
+/**
+ * __useTestGmailConfigMutation__
+ *
+ * To run a mutation, you first call `useTestGmailConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestGmailConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testGmailConfigMutation, { data, loading, error }] = useTestGmailConfigMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useTestGmailConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TestGmailConfigMutation, TestGmailConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TestGmailConfigMutation, TestGmailConfigMutationVariables>(TestGmailConfigDocument, options);
+      }
+export type TestGmailConfigMutationHookResult = ReturnType<typeof useTestGmailConfigMutation>;
+export const CrmGmailReadyDocument = gql`
+    query CrmGmailReady {
+  crmGmailReady
+}
+    `;
+
+/**
+ * __useCrmGmailReadyQuery__
+ *
+ * To run a query within a React component, call `useCrmGmailReadyQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCrmGmailReadyQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCrmGmailReadyQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useCrmGmailReadyQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<CrmGmailReadyQuery, CrmGmailReadyQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CrmGmailReadyQuery, CrmGmailReadyQueryVariables>(CrmGmailReadyDocument, options);
+      }
+export function useCrmGmailReadyLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CrmGmailReadyQuery, CrmGmailReadyQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CrmGmailReadyQuery, CrmGmailReadyQueryVariables>(CrmGmailReadyDocument, options);
+        }
+// @ts-ignore
+export function useCrmGmailReadySuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CrmGmailReadyQuery, CrmGmailReadyQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmGmailReadyQuery, CrmGmailReadyQueryVariables>;
+// @ts-ignore
+export function useCrmGmailReadySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmGmailReadyQuery, CrmGmailReadyQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmGmailReadyQuery | undefined, CrmGmailReadyQueryVariables>;
+export function useCrmGmailReadySuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmGmailReadyQuery, CrmGmailReadyQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CrmGmailReadyQuery, CrmGmailReadyQueryVariables>(CrmGmailReadyDocument, options);
+        }
+export type CrmGmailReadyQueryHookResult = ReturnType<typeof useCrmGmailReadyQuery>;
+export type CrmGmailReadyLazyQueryHookResult = ReturnType<typeof useCrmGmailReadyLazyQuery>;
+export type CrmGmailReadySuspenseQueryHookResult = ReturnType<typeof useCrmGmailReadySuspenseQuery>;
+export const CrmEmailThreadsDocument = gql`
+    query CrmEmailThreads($object: CrmTimelineObject!, $id: ID!) {
+  crmEmailThreads(object: $object, id: $id) {
+    threadId
+    subject
+    lastAt
+    messages {
+      ...CrmEmailMessageFields
+    }
+  }
+}
+    ${CrmEmailMessageFieldsFragmentDoc}`;
+
+/**
+ * __useCrmEmailThreadsQuery__
+ *
+ * To run a query within a React component, call `useCrmEmailThreadsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCrmEmailThreadsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCrmEmailThreadsQuery({
+ *   variables: {
+ *      object: // value for 'object'
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useCrmEmailThreadsQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CrmEmailThreadsQuery, CrmEmailThreadsQueryVariables> & ({ variables: CrmEmailThreadsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CrmEmailThreadsQuery, CrmEmailThreadsQueryVariables>(CrmEmailThreadsDocument, options);
+      }
+export function useCrmEmailThreadsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CrmEmailThreadsQuery, CrmEmailThreadsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CrmEmailThreadsQuery, CrmEmailThreadsQueryVariables>(CrmEmailThreadsDocument, options);
+        }
+// @ts-ignore
+export function useCrmEmailThreadsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CrmEmailThreadsQuery, CrmEmailThreadsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmEmailThreadsQuery, CrmEmailThreadsQueryVariables>;
+// @ts-ignore
+export function useCrmEmailThreadsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmEmailThreadsQuery, CrmEmailThreadsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmEmailThreadsQuery | undefined, CrmEmailThreadsQueryVariables>;
+export function useCrmEmailThreadsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmEmailThreadsQuery, CrmEmailThreadsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CrmEmailThreadsQuery, CrmEmailThreadsQueryVariables>(CrmEmailThreadsDocument, options);
+        }
+export type CrmEmailThreadsQueryHookResult = ReturnType<typeof useCrmEmailThreadsQuery>;
+export type CrmEmailThreadsLazyQueryHookResult = ReturnType<typeof useCrmEmailThreadsLazyQuery>;
+export type CrmEmailThreadsSuspenseQueryHookResult = ReturnType<typeof useCrmEmailThreadsSuspenseQuery>;
+export const SendCrmEmailDocument = gql`
+    mutation SendCrmEmail($input: SendCrmEmailInput!) {
+  sendCrmEmail(input: $input) {
+    ...CrmEmailMessageFields
+  }
+}
+    ${CrmEmailMessageFieldsFragmentDoc}`;
+
+/**
+ * __useSendCrmEmailMutation__
+ *
+ * To run a mutation, you first call `useSendCrmEmailMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSendCrmEmailMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [sendCrmEmailMutation, { data, loading, error }] = useSendCrmEmailMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSendCrmEmailMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SendCrmEmailMutation, SendCrmEmailMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SendCrmEmailMutation, SendCrmEmailMutationVariables>(SendCrmEmailDocument, options);
+      }
+export type SendCrmEmailMutationHookResult = ReturnType<typeof useSendCrmEmailMutation>;
+export const DraftCrmEmailDocument = gql`
+    mutation DraftCrmEmail($input: DraftCrmEmailInput!) {
+  draftCrmEmail(input: $input)
+}
+    `;
+
+/**
+ * __useDraftCrmEmailMutation__
+ *
+ * To run a mutation, you first call `useDraftCrmEmailMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDraftCrmEmailMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [draftCrmEmailMutation, { data, loading, error }] = useDraftCrmEmailMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useDraftCrmEmailMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DraftCrmEmailMutation, DraftCrmEmailMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DraftCrmEmailMutation, DraftCrmEmailMutationVariables>(DraftCrmEmailDocument, options);
+      }
+export type DraftCrmEmailMutationHookResult = ReturnType<typeof useDraftCrmEmailMutation>;
+export const CrmRecordSummaryDocument = gql`
+    mutation CrmRecordSummary($object: CrmTimelineObject!, $id: ID!) {
+  crmRecordSummary(object: $object, id: $id)
+}
+    `;
+
+/**
+ * __useCrmRecordSummaryMutation__
+ *
+ * To run a mutation, you first call `useCrmRecordSummaryMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCrmRecordSummaryMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [crmRecordSummaryMutation, { data, loading, error }] = useCrmRecordSummaryMutation({
+ *   variables: {
+ *      object: // value for 'object'
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useCrmRecordSummaryMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CrmRecordSummaryMutation, CrmRecordSummaryMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CrmRecordSummaryMutation, CrmRecordSummaryMutationVariables>(CrmRecordSummaryDocument, options);
+      }
+export type CrmRecordSummaryMutationHookResult = ReturnType<typeof useCrmRecordSummaryMutation>;
 export const SystemHealthDocument = gql`
     query SystemHealth {
   systemHealth {

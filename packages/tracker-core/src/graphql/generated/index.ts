@@ -969,6 +969,10 @@ export type CrmEmailAddressInput = {
   primary: InputMaybe<Scalars['Boolean']['input']>;
 };
 
+export type CrmEmailDirection =
+  | 'IN'
+  | 'OUT';
+
 /** Conditions in a group must all hold; a record matches when any group does. */
 export type CrmFilterGroupInput = {
   conditions: Array<CrmConditionInput>;
@@ -1157,6 +1161,14 @@ export type DocumentStatus =
   | 'ARCHIVED'
   | 'DRAFT'
   | 'FINAL';
+
+export type DraftCrmEmailInput = {
+  id: Scalars['ID']['input'];
+  /** What the email should say, in a few words. */
+  instruction: Scalars['String']['input'];
+  object: CrmTimelineObject;
+  threadId: InputMaybe<Scalars['String']['input']>;
+};
 
 export type EmailConfigInput = {
   fromAddress: Scalars['String']['input'];
@@ -1448,6 +1460,13 @@ export type GithubConfigInput = {
   repo: Scalars['String']['input'];
   /** Write-only. Leave empty when editing to keep the stored token. */
   token: Scalars['String']['input'];
+};
+
+export type GmailConfigInput = {
+  clientId: Scalars['String']['input'];
+  /** Blank keeps the stored secret. */
+  clientSecret: Scalars['String']['input'];
+  enabled: Scalars['Boolean']['input'];
 };
 
 export type GoalInput = {
@@ -2759,6 +2778,16 @@ export type SalaryStructureInput = {
   tdsPercent: InputMaybe<Scalars['Float']['input']>;
 };
 
+export type SendCrmEmailInput = {
+  body: Scalars['String']['input'];
+  cc: InputMaybe<Array<Scalars['String']['input']>>;
+  inReplyTo: InputMaybe<Scalars['String']['input']>;
+  subject: Scalars['String']['input'];
+  /** Replying: Gmail's thread id and the Message-ID being answered. */
+  threadId: InputMaybe<Scalars['String']['input']>;
+  to: Array<Scalars['String']['input']>;
+};
+
 export type SendMailInput = {
   message: Scalars['String']['input'];
   subject: Scalars['String']['input'];
@@ -3172,6 +3201,7 @@ export type TechSecret =
   | 'EMAIL_PASSWORD'
   | 'EMAIL_VERIFIER_PROXY_PASSWORD'
   | 'GITHUB_TOKEN'
+  | 'GMAIL_CLIENT_SECRET'
   | 'GODADDY_API_KEY'
   | 'GODADDY_API_SECRET'
   | 'GOOGLE_SIGN_IN_CLIENT_SECRET'

@@ -5,7 +5,7 @@ import {
   CrmTimelineObject,
   type CompanyFieldsFragment,
 } from '@exyconn/shell/graphql/generated';
-import { CustomValues, DetailField, Timeline } from '../../../records/detail';
+import { AiSummary, CustomValues, DetailField, Timeline } from '../../../records/detail';
 
 /** The Overview tab: what we know about the account, then its latest touchpoints. */
 export function CompanyOverview({ company }: Readonly<{ company: CompanyFieldsFragment }>) {
@@ -19,6 +19,7 @@ export function CompanyOverview({ company }: Readonly<{ company: CompanyFieldsFr
     );
   return (
     <Stack spacing={2}>
+      <AiSummary object={CrmTimelineObject.Company} id={company.id} name={company.name} />
       <Text component="h2" size="label" weight="bold">
         {t('Company overview')}
       </Text>

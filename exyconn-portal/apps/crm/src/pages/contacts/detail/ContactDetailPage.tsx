@@ -4,9 +4,13 @@ import { Alert, Box, Button, Skeleton } from '@exyconn/shell/components/ui';
 import { usePageTitle } from '@exyconn/shell/components/layout/usePageTitle';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
-import { CrmTimelineObject, useGetContactQuery } from '@exyconn/shell/graphql/generated';
+import {
+  CrmTimelineObject,
+  useCrmGmailReadyQuery,
+  useGetContactQuery,
+} from '@exyconn/shell/graphql/generated';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
-import { DetailLayout, Timeline } from '../../../records/detail';
+import { DetailLayout, EmailThreads, Timeline } from '../../../records/detail';
 import { ContactOverview } from './ContactOverview';
 import { ContactProfile } from './ContactProfile';
 
@@ -19,6 +23,7 @@ export function ContactDetailPage() {
     fetchPolicy: 'cache-and-network',
   });
   const contact = data?.getContact;
+  const { data: gmail } = useCrmGmailReadyQuery();
   usePageTitle(contact?.name ?? t('Contact'));
   const reload = () => {
     refetch().catch((reloadError: unknown) =>
@@ -51,6 +56,21 @@ export function ContactDetailPage() {
       label: 'Activity',
       content: <Timeline object={CrmTimelineObject.Contact} id={contact.id} limit={200} />,
     },
+    ...(gmail?.crmGmailReady
+      ? [
+          {
+            slug: 'emails',
+            label: 'Emails',
+            content: (
+              <EmailThreads
+                object={CrmTimelineObject.Contact}
+                id={contact.id}
+                defaultTo={[contact.email].filter(Boolean)}
+              />
+            ),
+          },
+        ]
+      : []),
   ];
   return (
     <Box>
