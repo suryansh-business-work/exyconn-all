@@ -11,6 +11,7 @@ import {
 import {
   emailPointSchema,
   emailPointsOf,
+  pictureUrlSchema,
   profileDefaults,
   profileSchema,
 } from '../../../../records/profile';
@@ -25,6 +26,7 @@ const wholeNumber = (max: number, message: string) =>
 
 const baseSchema = profileSchema.extend({
   name: z.string().trim().min(1, 'Name is required'),
+  logoUrl: pictureUrlSchema,
   /** A domain, not a URL — "exyconn.com", so two rows for one company are avoidable. */
   domain: z
     .string()
@@ -57,6 +59,7 @@ export const toCompanyValues = (
 ): CompanyValues => ({
   ...profileDefaults(row),
   name: row?.name ?? '',
+  logoUrl: row?.logoUrl ?? '',
   domain: row?.domain ?? '',
   emails: emailPointsOf(row),
   industry: row?.industry ?? '',

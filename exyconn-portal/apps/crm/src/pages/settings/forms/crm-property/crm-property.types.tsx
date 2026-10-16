@@ -1,10 +1,10 @@
 import { z } from 'zod';
 import { CRM_PROPERTY_KEY } from '@exyconn/regex';
 import {
+  CrmObject,
   CrmPropertyType,
-  type CrmObject,
+  type CrmPropertiesInput,
   type CrmPropertyFieldsFragment,
-  type CrmPropertyInput,
   type CrmPropertyUpdateInput,
 } from '@exyconn/shell/graphql/generated';
 import { CHOICE_TYPES } from '../../../../records/schema';
@@ -58,8 +58,24 @@ function checkOptions(options: readonly OptionValues[], ctx: z.RefinementCtx): v
   });
 }
 
-/** The property form's schema. A key may not be one the record type already has built in. */
-export function crmPropertySchema(builtInKeys: ReadonlySet<string>) {
+/** The keys each record type already uses, built in or added: a new property cannot reuse one. */
+export type TakenKeys = Readonly<Record<CrmObject, ReadonlySet<string>>>;
+
+const KEY_TAKEN: Readonly<Record<CrmObject, string>> = {
+  [CrmObject.Lead]: 'Leads already have a property with this key',
+  [CrmObject.Company]: 'Companies already have a property with this key',
+  [CrmObject.Contact]: 'Contacts already have a property with this key',
+};
+
+/** The first chosen record type that already uses the key, if any. */
+const takenOn = (taken: TakenKeys, objects: readonly CrmObject[], key: string) =>
+  objects.find((object) => taken[object].has(key));
+
+/**
+ * The property form's schema. On a new property the key must be free on every record type it is
+ * added to; `taken` is null when editing, because the key is fixed by then.
+ */
+export function crmPropertySchema(taken: TakenKeys | null) {
   return z
     .object({
       label: z
@@ -74,8 +90,8 @@ export function crmPropertySchema(builtInKeys: ReadonlySet<string>) {
         .regex(
           CRM_PROPERTY_KEY,
           'Start with a lowercase letter, then use lowercase letters, digits and _ (up to 40)',
-        )
-        .refine((key) => !builtInKeys.has(key), 'This key is already a built-in property'),
+        ),
+      objects: z.array(z.enum(CrmObject)).min(1, 'Choose at least one record type'),
       type: z.enum(CrmPropertyType),
       options: z.array(optionSchema),
       required: z.boolean(),
@@ -85,14 +101,23 @@ export function crmPropertySchema(builtInKeys: ReadonlySet<string>) {
       if (CHOICE_TYPES.has(values.type)) {
         checkOptions(values.options, ctx);
       }
+      const clash = taken ? takenOn(taken, values.objects, values.key) : undefined;
+      if (clash) {
+        ctx.addIssue({ code: 'custom', path: ['key'], message: KEY_TAKEN[clash] });
+      }
     });
 }
 
 export type CrmPropertyFormValues = z.infer<ReturnType<typeof crmPropertySchema>>;
 
-export const toPropertyFormValues = (row: CrmPropertyRow | null): CrmPropertyFormValues => ({
+/** A new property starts on the record type whose tab it was opened from. */
+export const toPropertyFormValues = (
+  row: CrmPropertyRow | null,
+  object: CrmObject,
+): CrmPropertyFormValues => ({
   label: row?.label ?? '',
   key: row?.key ?? '',
+  objects: [row?.object ?? object],
   type: row?.type ?? CrmPropertyType.Text,
   options: (row?.options ?? []).map(({ value, label }) => ({ value, label, saved: true })),
   required: row?.required ?? false,
@@ -112,12 +137,9 @@ export function toPropertyUpdateInput(values: CrmPropertyFormValues): CrmPropert
   };
 }
 
-export const toPropertyInput = (
-  object: CrmObject,
-  values: CrmPropertyFormValues,
-): CrmPropertyInput => ({
+export const toPropertyInput = (values: CrmPropertyFormValues): CrmPropertiesInput => ({
   ...toPropertyUpdateInput(values),
-  object,
+  objects: values.objects,
   key: values.key,
   type: values.type,
 });

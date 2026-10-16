@@ -8,10 +8,12 @@ import { importRecords, type ImportInput } from './crm.import';
 import { OBJECT_DEFS, type CrmObject } from './crm.objects';
 import {
   AUDIT_MODULE,
+  createProperties,
   createProperty,
   deleteProperty,
   listProperties,
   updateProperty,
+  type CrmPropertiesInput,
   type CrmPropertyInput,
   type CrmPropertyUpdate,
 } from './crm.properties';
@@ -107,6 +109,14 @@ export const crmRecordsResolvers = {
     ) => {
       await propertyGuard(ctx, 'CREATE');
       return createProperty(ctx, input);
+    },
+    createCrmProperties: async (
+      _p: unknown,
+      { input }: { input: CrmPropertiesInput },
+      ctx: GraphQLContext,
+    ) => {
+      await propertyGuard(ctx, 'CREATE');
+      return createProperties(ctx, input);
     },
     updateCrmProperty: async (
       _p: unknown,

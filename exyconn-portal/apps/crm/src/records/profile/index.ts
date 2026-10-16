@@ -5,6 +5,7 @@ export {
   emailPointSchema,
   emailPointsOf,
   phonePointSchema,
+  pictureUrlSchema,
   profileDefaults,
   profileSchema,
   type EmailPointValues,

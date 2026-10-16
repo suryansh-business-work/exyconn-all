@@ -11,7 +11,12 @@ import { assertPermission } from '../../lib/permissions';
 import { ROLES } from '../../constants/roles';
 import { emitWebhookBestEffort } from '../integrations';
 import { sanitizeCustom } from './records';
-import { withPrimaries, crmProfileResolvers, type PointsInput } from './crm.profile';
+import {
+  assertPictures,
+  withPrimaries,
+  crmProfileResolvers,
+  type PointsInput,
+} from './crm.profile';
 import { crmMediaResolvers, withAttachments } from './crm.media';
 import { crmTimelineResolvers } from './timeline';
 import type { CrmObject } from './records/crm.objects';
@@ -248,7 +253,10 @@ type Save = (p: unknown, a: never, c: GraphQLContext) => unknown;
 const withCustom =
   (object: CrmObject, save: Save): Save =>
   async (p, args, ctx) => {
-    const { input, ...rest } = args as unknown as { input: PointsInput & { custom?: unknown } };
+    const { input, ...rest } = args as unknown as {
+      input: PointsInput & { custom?: unknown; logoUrl?: string | null; avatarUrl?: string | null };
+    };
+    assertPictures(input);
     const custom = await sanitizeCustom(object, input.custom);
     const profiled = withPrimaries({ ...input, custom }, object === 'CONTACT');
     return save(p, { ...rest, input: profiled } as unknown as never, ctx);

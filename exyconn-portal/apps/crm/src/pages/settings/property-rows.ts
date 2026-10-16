@@ -50,7 +50,3 @@ export function propertyTableRows(
   const builtIn = schema.filter((property) => property.builtIn);
   return [...custom.map(fromCustom), ...builtIn.map(fromBuiltIn)];
 }
-
-/** The keys a new property cannot take. */
-export const builtInKeysOf = (schema: readonly CrmPropertyInfo[]): ReadonlySet<string> =>
-  new Set(schema.filter((property) => property.builtIn).map((property) => property.key));

@@ -22,6 +22,13 @@ const urlOrBlank = z
   .regex(HTTP_URL, 'Use a full address starting with https://')
   .or(z.literal(''));
 
+/** A logo or profile picture: blank, or the address the upload dialog handed back. */
+export const pictureUrlSchema = z
+  .string()
+  .trim()
+  .regex(HTTP_URL, 'Upload the picture again')
+  .or(z.literal(''));
+
 /** The fields a contact and a company share: the lists, the web and where they are. */
 export const profileSchema = z.object({
   phones: z.array(phonePointSchema),

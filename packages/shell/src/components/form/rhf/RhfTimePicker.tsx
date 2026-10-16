@@ -11,6 +11,8 @@ interface RhfTimePickerProps {
   helperText?: string;
   /** Pick a whole hour and store it as a number 0–23 instead of an `HH:mm` string. */
   hoursOnly?: boolean;
+  /** `small` for a dense grid of pickers, such as a week of opening hours. */
+  size?: 'small' | 'medium';
 }
 
 /** Reads a stored `HH:mm` string (or a 0–23 hour) into a Date for the picker. */
@@ -35,6 +37,7 @@ export function RhfTimePicker({
   label,
   helperText,
   hoursOnly = false,
+  size = 'medium',
 }: Readonly<RhfTimePickerProps>) {
   const { control } = useFormContext();
   const copy = useFieldCopy();
@@ -66,6 +69,7 @@ export function RhfTimePicker({
               // Matches RhfTextField, so a field is addressable as input[name="…"].
               name,
               fullWidth: true,
+              size,
               onBlur: field.onBlur,
               error: Boolean(fieldState.error),
               helperText: copy(fieldState.error?.message ?? helperText),

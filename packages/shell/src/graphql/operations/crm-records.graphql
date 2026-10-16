@@ -126,6 +126,12 @@ mutation CreateCrmProperty($input: CrmPropertyInput!) {
   }
 }
 
+mutation CreateCrmProperties($input: CrmPropertiesInput!) {
+  createCrmProperties(input: $input) {
+    ...CrmPropertyFields
+  }
+}
+
 mutation UpdateCrmProperty($id: ID!, $input: CrmPropertyUpdateInput!) {
   updateCrmProperty(id: $id, input: $input) {
     ...CrmPropertyFields

@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
@@ -15,7 +14,7 @@ import { useCrmPropertiesQuery, type CrmObject } from '@exyconn/shell/graphql/ge
 import { useObjectSchema } from '../../records/schema';
 import { CrmPropertyForm, type CrmPropertyRow } from './forms/crm-property';
 import { PROPERTY_COLUMNS } from './property-columns';
-import { builtInKeysOf, propertyTableRows, type PropertyTableRow } from './property-rows';
+import { propertyTableRows, type PropertyTableRow } from './property-rows';
 import { PROPERTY_PERMISSION_MODULE } from './property-types';
 import { useRemoveProperty } from './useRemoveProperty';
 
@@ -39,7 +38,6 @@ export function PropertiesPanel({ object, intro }: Readonly<PropertiesPanelProps
 
   const customRows = custom.data?.crmProperties ?? [];
   const rows = propertyTableRows(customRows, schema.properties);
-  const builtInKeys = useMemo(() => builtInKeysOf(schema.properties), [schema.properties]);
   const error = custom.error ?? schema.error;
 
   const actions: RowAction<PropertyTableRow>[] = [];
@@ -112,7 +110,6 @@ export function PropertiesPanel({ object, intro }: Readonly<PropertiesPanelProps
         <CrmPropertyForm
           object={object}
           initial={dialog.editing}
-          builtInKeys={builtInKeys}
           onDone={dialog.close}
           onCancel={dialog.close}
         />
