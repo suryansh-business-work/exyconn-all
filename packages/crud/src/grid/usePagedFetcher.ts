@@ -1,9 +1,16 @@
-import { useCallback, useRef } from 'react';
+import { useMemo, useRef } from 'react';
 import type { TypedDocumentNode } from '@apollo/client';
 import { useApolloClient } from '@apollo/client/react';
-import type { TablePageResult } from '@exyconn/shell/components/data/ServerDataGrid';
+import { getOperationAST, Kind, type DocumentNode } from 'graphql';
+import type { GridFetcher, TablePageResult } from '@exyconn/shell/components/data/ServerDataGrid';
 import type { TableFilterInput, TableQueryInput } from '@exyconn/shell/graphql/generated';
 import { queryData } from '@exyconn/shell/utils/queryData';
+
+/** The query field a list document reads, e.g. `listLeadsPaged`. */
+export function listFieldOf(document: DocumentNode): string | undefined {
+  const [first] = getOperationAST(document)?.selectionSet.selections ?? [];
+  return first?.kind === Kind.FIELD ? first.name.value : undefined;
+}
 
 /**
  * Turns a generated `ListXxxPaged` document into the `fetchRows` callback
@@ -18,12 +25,15 @@ import { queryData } from '@exyconn/shell/utils/queryData';
  * `extraFilters` are appended to whatever the grid's own column filters ask for — a
  * quick-filter toggle, or a drawer scoped to one parent record. They are read at fetch
  * time, so changing them needs a `refreshSignal` bump to make the grid re-read.
+ *
+ * The fetcher carries the name of the list it reads (`list`), which is what lets the grid ask
+ * the server which columns filter and sort, and export and import the list on the server.
  */
 export function usePagedFetcher<TQuery, TRow>(
   document: TypedDocumentNode<TQuery, { input: TableQueryInput }>,
   select: (data: TQuery) => TablePageResult<TRow>,
   extraFilters: readonly TableFilterInput[] = [],
-): (input: TableQueryInput) => Promise<TablePageResult<TRow>> {
+): GridFetcher<TRow> {
   const client = useApolloClient();
   // `select` and `extraFilters` are written inline at the call site, so keep the latest
   // ones in refs and leave the returned callback stable — the grid builds its
@@ -33,8 +43,8 @@ export function usePagedFetcher<TQuery, TRow>(
   const extraFiltersRef = useRef(extraFilters);
   extraFiltersRef.current = extraFilters;
 
-  return useCallback(
-    async (input: TableQueryInput): Promise<TablePageResult<TRow>> => {
+  return useMemo(() => {
+    const fetchPage = async (input: TableQueryInput): Promise<TablePageResult<TRow>> => {
       const filters = [...(input.filters ?? []), ...extraFiltersRef.current];
       const result = await client.query({
         query: document,
@@ -43,7 +53,7 @@ export function usePagedFetcher<TQuery, TRow>(
       });
       const page = selectRef.current(queryData(result, 'The paged list query'));
       return { rows: page.rows, totalCount: page.totalCount };
-    },
-    [client, document],
-  );
+    };
+    return Object.assign(fetchPage, { list: listFieldOf(document) });
+  }, [client, document]);
 }

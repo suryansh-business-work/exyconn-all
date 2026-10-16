@@ -43,8 +43,9 @@ describe('DealsPage board', () => {
     gql.deals.mockReturnValue(pending());
     renderWithProviders(<DealsPage />, { route: '/crm/deals' });
 
-    expect(screen.getByText('Loading pipeline…')).toBeInTheDocument();
-    expect(screen.getAllByText('Nothing here.')).toHaveLength(6);
+    expect(screen.getByRole('status')).toHaveTextContent('Loading the pipeline');
+    expect(screen.getAllByTestId('skeleton-deal-column')).toHaveLength(6);
+    expect(screen.queryByText('Nothing here.')).not.toBeInTheDocument();
   });
 
   it('lays the deals out in their stage columns', () => {

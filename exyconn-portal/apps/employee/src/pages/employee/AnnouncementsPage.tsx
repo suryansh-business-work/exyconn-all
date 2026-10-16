@@ -7,6 +7,11 @@ import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import PushPinIcon from '@mui/icons-material/PushPin';
 import { useActiveAnnouncementsQuery } from '@exyconn/shell/graphql/generated';
 import { panel, readingPanel } from '@exyconn/shell/components/glass/glass';
+import {
+  PanelSkeleton,
+  SkeletonStatus,
+  skeletonKeys,
+} from '@exyconn/shell/components/feedback/skeletons';
 
 /** Employee self-service: the live company announcement feed, pinned first. */
 export function AnnouncementsPage() {
@@ -19,11 +24,16 @@ export function AnnouncementsPage() {
     <Box>
       <PageHeader title="Announcements" subtitle="Notices, policies and updates from HR" />
 
-      {rows.length === 0 && (
+      {rows.length === 0 && loading && (
+        <SkeletonStatus label="Loading announcements">
+          {skeletonKeys(3, 'notice').map((key) => (
+            <PanelSkeleton key={key} lines={3} />
+          ))}
+        </SkeletonStatus>
+      )}
+      {rows.length === 0 && !loading && (
         <Box sx={readingPanel}>
-          <Text color="text.secondary">
-            {loading ? t('Loading…') : t('Nothing announced right now.')}
-          </Text>
+          <Text color="text.secondary">{t('Nothing announced right now.')}</Text>
         </Box>
       )}
 

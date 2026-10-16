@@ -12,6 +12,7 @@ import { assertValid, fileClientTicket, normalize } from '../support/client-tick
 import { ProjectModel } from '../projects/projects.model';
 import { projectView } from '../projects/share.service';
 import type { ClientHubContact } from './clienthub.auth';
+import { registerTable } from '../table-transfer/registry';
 
 /** Who client hub writes are filed under in the audit log and the email log. */
 const actorOf = (contact: ClientHubContact) => ({
@@ -40,6 +41,9 @@ const TICKET_TABLE = {
   sortFields: ['reference', 'subject', 'status', 'priority', 'createdAt', 'updatedAt'],
   defaultSort: { field: 'updatedAt', dir: 'DESC' as const },
 };
+registerTable('clientHubInvoices', INVOICE_TABLE);
+registerTable('clientHubPayments', PAYMENT_TABLE);
+registerTable('clientHubTickets', TICKET_TABLE);
 
 /** A client sees an invoice once it has gone out: drafts are still the company's business. */
 const visibleInvoices = (contact: ClientHubContact) => ({

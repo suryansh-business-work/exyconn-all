@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useAuth } from '@exyconn/shell/auth/AuthContext';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { DetailSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { EmptyState } from '@exyconn/shell/components/feedback/EmptyState';
 import { usePageTitle } from '@exyconn/shell/components/layout/usePageTitle';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
@@ -53,7 +53,7 @@ function ChatConversation({ sessionId }: Readonly<{ sessionId: string }>) {
     return <ConversationView session={session} conversation={conversation} />;
   }
   if (loading) {
-    return <LoadingState label="Loading the conversation" />;
+    return <DetailSkeleton tabs={false} blocks={3} label="Loading the conversation" />;
   }
   return (
     <EmptyState

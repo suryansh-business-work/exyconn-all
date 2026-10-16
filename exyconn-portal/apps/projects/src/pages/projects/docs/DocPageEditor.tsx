@@ -5,7 +5,7 @@ import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useDocPageQuery, type DocPageFieldsFragment } from '@exyconn/shell/graphql/generated';
 import { DocPageForm } from '../forms/doc-page';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 interface DocPageEditorProps {
   pageId: string;
@@ -35,7 +35,7 @@ export function DocPageEditor({
   const page = data?.docPage;
 
   if (loading && !page) {
-    return <LoadingState />;
+    return <PanelSkeleton lines={8} bare />;
   }
   if (!page) {
     return <Text color="text.secondary">{t('This page has been deleted.')}</Text>;

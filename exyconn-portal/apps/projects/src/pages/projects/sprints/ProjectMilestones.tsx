@@ -16,7 +16,7 @@ import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import {
   MilestoneState,
@@ -150,7 +150,7 @@ export function ProjectMilestones({ projectId }: Readonly<ProjectMilestonesProps
             </IconButton>
           </Flex>
         ))}
-        {firstLoad ? <LoadingState /> : null}
+        {firstLoad ? <PanelSkeleton lines={3} title={false} bare /> : null}
         {!firstLoad && milestones.length === 0 ? (
           <Text size="sm" color="text.secondary">
             {t('No milestones yet. Anything set here is what a shared client link shows.')}

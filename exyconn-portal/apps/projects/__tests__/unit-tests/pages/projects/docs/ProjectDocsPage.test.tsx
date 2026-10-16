@@ -100,7 +100,10 @@ describe('ProjectDocsPage', () => {
     state.docs = docsApi({ loading: true, pages: [], tree: [] });
     renderPage();
 
-    expect(screen.getByRole('progressbar', { name: 'Loading' })).toBeInTheDocument();
+    expect(screen.getByText('Loading').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
   });
 
   it('invites the first page into an empty space', async () => {

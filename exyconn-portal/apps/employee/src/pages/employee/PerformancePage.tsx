@@ -9,6 +9,11 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { SelfAssessmentCard, type ReviewRow } from './SelfAssessmentCard';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
+import {
+  PanelSkeleton,
+  SkeletonStatus,
+  skeletonKeys,
+} from '@exyconn/shell/components/feedback/skeletons';
 
 /** Employee self-service: appraisal cycles, newest first. */
 export function PerformancePage() {
@@ -29,11 +34,16 @@ export function PerformancePage() {
   return (
     <Box>
       <PageHeader title="Performance" subtitle="Appraisal cycles and your assessments" />
-      {reviews.length === 0 && (
+      {reviews.length === 0 && loading && (
+        <SkeletonStatus label="Loading your appraisals">
+          {skeletonKeys(2, 'review').map((key) => (
+            <PanelSkeleton key={key} lines={4} />
+          ))}
+        </SkeletonStatus>
+      )}
+      {reviews.length === 0 && !loading && (
         <Box sx={readingPanel}>
-          <Text color="text.secondary">
-            {loading ? t('Loading…') : t('No appraisal cycle has been opened for you yet.')}
-          </Text>
+          <Text color="text.secondary">{t('No appraisal cycle has been opened for you yet.')}</Text>
         </Box>
       )}
       <Flex direction="column" spacing={2}>

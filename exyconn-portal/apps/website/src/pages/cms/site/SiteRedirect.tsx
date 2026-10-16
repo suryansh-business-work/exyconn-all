@@ -1,8 +1,13 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useT } from '@exyconn/i18n';
-import { Alert, Box, CircularProgress } from '@exyconn/shell/components/ui';
+import { Alert } from '@exyconn/shell/components/ui';
 import { sitePath } from './site-paths';
 import { useCmsSites } from './useCmsSites';
+import {
+  PageHeaderSkeleton,
+  PanelSkeleton,
+  SkeletonStatus,
+} from '@exyconn/shell/components/feedback/skeletons';
 
 const WEBSITE_PREFIX = '/website';
 
@@ -30,9 +35,10 @@ export function SiteRedirect() {
   }
   if (loading) {
     return (
-      <Box sx={{ display: 'grid', placeItems: 'center', py: 6 }}>
-        <CircularProgress aria-label={t('Loading the websites')} />
-      </Box>
+      <SkeletonStatus label="Loading the websites">
+        <PageHeaderSkeleton />
+        <PanelSkeleton lines={6} />
+      </SkeletonStatus>
     );
   }
   return (

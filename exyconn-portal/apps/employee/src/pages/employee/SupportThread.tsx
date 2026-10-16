@@ -1,6 +1,7 @@
 import { useT } from '@exyconn/i18n';
 import { Box, Divider, Flex, Text } from '@exyconn/shell/components/ui';
 import { AttachmentList, type AttachmentItem } from '@exyconn/shell/components/upload';
+import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useMySupportRepliesQuery } from '@exyconn/shell/graphql/generated';
 import { SupportReplyForm, type SupportReplyRow } from './forms/support-reply';
@@ -63,7 +64,7 @@ export function SupportThread({
       </Flex>
     );
   } else if (loading) {
-    thread = <Text color="text.secondary">{t('Loading…')}</Text>;
+    thread = <PanelSkeleton lines={3} title={false} bare label="Loading the replies" />;
   }
 
   return (

@@ -45,7 +45,10 @@ describe('SessionDrawer', () => {
     mount('sess-1');
     expect(screen.getByRole('heading', { name: 'Demo session' })).toBeInTheDocument();
     expect(api.variables).toEqual({ sessionId: 'sess-1' });
-    expect(screen.getByRole('progressbar', { name: 'Loading the session' })).toBeInTheDocument();
+    expect(screen.getByText('Loading the session').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
   });
 
   it('reports a session that failed to load, with a retry', async () => {

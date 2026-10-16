@@ -1,0 +1,38 @@
+{
+  "name": "@exyconn/csv",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CSV with ZERO dependencies: RFC 4180 writing with formula-injection guarding, parsing with delimiter detection, and the cell text every table, export and filter shows. Shared by the portals and the portal server, so an export written in the browser and one written on the server read the same.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "default": "./src/index.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint \"src/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "test": "vitest run --passWithNoTests"
+  },
+  "prettier": "@exyconn/config/prettier.json",
+  "devDependencies": {
+    "@exyconn/config": "workspace:*",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@vitest/coverage-v8": "^5.0.0",
+    "eslint": "^10.9.1",
+    "prettier": "^3.4.2",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.0"
+  }
+}

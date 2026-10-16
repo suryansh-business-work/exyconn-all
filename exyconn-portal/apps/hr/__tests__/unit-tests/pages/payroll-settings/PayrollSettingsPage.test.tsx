@@ -44,7 +44,7 @@ describe('PayrollSettingsPage', () => {
     answer({ loading: true });
     renderWithProviders(<PayrollSettingsPage />);
 
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true');
     expect(screen.queryByText('What the next run will withhold')).not.toBeInTheDocument();
   });
 
@@ -59,7 +59,7 @@ describe('PayrollSettingsPage', () => {
     answer({ data: { payrollSettings: payrollSettings() }, loading: true });
     renderWithProviders(<PayrollSettingsPage />);
 
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(document.querySelector('[aria-busy="true"]')).toBeNull();
     expect(screen.getByText('What the next run will withhold')).toBeInTheDocument();
   });
 

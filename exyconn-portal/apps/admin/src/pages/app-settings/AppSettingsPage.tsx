@@ -2,6 +2,7 @@ import { useT } from '@exyconn/i18n';
 import { Box, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
+import { FormSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { useAppSettingsQuery } from '@exyconn/shell/graphql/generated';
 import { AppSettingsForm } from './forms/app-settings';
 
@@ -10,7 +11,16 @@ export function AppSettingsPage() {
   const t = useT();
   const { data, loading } = useAppSettingsQuery();
   const settings = data?.appSettings;
-  const emptyMessage = loading ? t('Loading…') : t('App settings are unavailable.');
+  let body = (
+    <Text size="sm" color="text.secondary">
+      {t('App settings are unavailable.')}
+    </Text>
+  );
+  if (settings) {
+    body = <AppSettingsForm initial={settings} />;
+  } else if (loading) {
+    body = <FormSkeleton fields={3} surface={false} label="Loading app settings" />;
+  }
 
   return (
     <Box>
@@ -18,15 +28,7 @@ export function AppSettingsPage() {
         title="App Settings"
         subtitle="Date, time and timezone formatting used across every app"
       />
-      <Box sx={[readingPanel, { maxWidth: 640 }]}>
-        {settings ? (
-          <AppSettingsForm initial={settings} />
-        ) : (
-          <Text size="sm" color="text.secondary">
-            {emptyMessage}
-          </Text>
-        )}
-      </Box>
+      <Box sx={[readingPanel, { maxWidth: 640 }]}>{body}</Box>
     </Box>
   );
 }

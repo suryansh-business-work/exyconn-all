@@ -33,6 +33,7 @@ const crud = createCrudResolvers(clientsService, {
     sortFields: ['name', 'email', 'phone', 'company', 'status', 'country', 'createdAt'],
     defaultSort: { field: 'createdAt', dir: 'DESC' },
   },
+  import: { matchFields: ['email'] },
   stats: { countBy: ['status', 'country'] },
 });
 

@@ -16,9 +16,9 @@ import {
 describe('StatusPage states', () => {
   it('shows a spinner while the first answer is on its way', async () => {
     renderWithProviders(<StatusPage />, { mocks: [overviewMock(HISTORY_DAYS, overview())] });
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true');
     expect(await screen.findByText('All systems operational')).toBeInTheDocument();
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(document.querySelector('[aria-busy="true"]')).toBeNull();
   });
 
   it('says why the page could not load', async () => {

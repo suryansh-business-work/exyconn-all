@@ -10,7 +10,7 @@ import {
   Typography,
   borderWidth,
 } from '@exyconn/shell/components/ui';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { EmptyState } from '@exyconn/shell/components/feedback/EmptyState';
 import { useWhatsappDemoSessionQuery } from '@exyconn/shell/graphql/generated';
 import { QueryErrorState } from '../../shared/QueryErrorState';
@@ -34,7 +34,7 @@ function SessionBody({ sessionId }: Readonly<{ sessionId: string }>) {
     return <QueryErrorState error={error} title="Could not load the session." onRetry={refetch} />;
   }
   if (loading && !detail) {
-    return <LoadingState label="Loading the session" />;
+    return <PanelSkeleton lines={8} bare label="Loading the session" />;
   }
   if (!detail) {
     return <EmptyState title="This session no longer exists." />;

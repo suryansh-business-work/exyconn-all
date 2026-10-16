@@ -9,7 +9,10 @@ import { appSettingsMock } from '../settingsMock';
 
 const input = (name: string) => document.querySelector<HTMLInputElement>(`input[name="${name}"]`);
 
-function renderTime(value: unknown, props: { hoursOnly?: boolean; helperText?: string } = {}) {
+function renderTime(
+  value: unknown,
+  props: { hoursOnly?: boolean; helperText?: string; size?: 'small' | 'medium' } = {},
+) {
   return renderWithProviders(
     <FormHarness defaultValues={{ start: value }}>
       <RhfTimePicker name="start" label="Start" {...props} />
@@ -23,6 +26,16 @@ describe('RhfTimePicker', () => {
 
     expect(input('start')).toHaveValue('09:30 AM');
     expect(screen.getByText('When the shift starts')).toBeInTheDocument();
+  });
+
+  it('is a full-size field by default and a dense one with size small', () => {
+    const label = () => screen.getByText('Start', { selector: 'label' });
+    const { unmount } = renderTime('09:30');
+    expect(label()).not.toHaveClass('MuiInputLabel-sizeSmall');
+    unmount();
+
+    renderTime('09:30', { size: 'small' });
+    expect(label()).toHaveClass('MuiInputLabel-sizeSmall');
   });
 
   it('writes a picked time back as HH:mm', () => {

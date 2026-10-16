@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useT } from '@exyconn/i18n';
 import { Box, Grid, Text } from '@exyconn/shell/components/ui';
+import { CardGridSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import {
@@ -53,7 +54,7 @@ export function OffboardingPage() {
   if (error) {
     body = <Text color="error">{error.message}</Text>;
   } else if (loading && leavers.length === 0) {
-    body = <Text color="text.secondary">{t('Loading…')}</Text>;
+    body = <CardGridSkeleton count={4} label="Loading leavers" />;
   } else if (leavers.length > 0) {
     body = (
       <Grid container spacing={1.5}>

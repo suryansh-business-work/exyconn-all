@@ -1,5 +1,5 @@
 import { countryName, useI18n, useT } from '@exyconn/i18n';
-import { Avatar, Chip, Divider, Flex, Link, Stack, Text } from '@exyconn/shell/components/ui';
+import { Chip, Divider, Flex, Link, Stack, Text } from '@exyconn/shell/components/ui';
 import type { ContactFieldsFragment } from '@exyconn/shell/graphql/generated';
 import {
   ContactPointList,
@@ -7,9 +7,13 @@ import {
   DetailField,
   EmailButton,
   LocalTime,
-  initialsOf,
+  RecordAvatar,
 } from '../../../records/detail';
+import { GoogleMapCard } from '../../../maps/GoogleMapCard';
+import { EmailVerifyButton } from '../../../email-verification';
 import { ContactForm } from '../forms/contact';
+
+const verifyButton = (address: string) => <EmailVerifyButton email={address} />;
 
 /** The left column of a contact's page: who they are, how to reach them, and the actions. */
 export function ContactProfile({
@@ -25,9 +29,7 @@ export function ContactProfile({
   return (
     <Stack spacing={2}>
       <Flex direction="row" spacing={1.5} alignItems="center">
-        <Avatar alt="" sx={{ width: 56, height: 56 }}>
-          {initialsOf(contact.name)}
-        </Avatar>
+        <RecordAvatar name={contact.name} src={contact.avatarUrl} sx={{ width: 56, height: 56 }} />
         <Stack spacing={0.5} sx={{ minWidth: 0 }}>
           <Text component="h1" size="lg" weight="bold">
             {contact.name}
@@ -66,6 +68,7 @@ export function ContactProfile({
           <ContactPointList
             scheme="mailto"
             points={contact.emails.map((e) => ({ ...e, value: e.address }))}
+            trailing={verifyButton}
           />
         )}
       </DetailField>
@@ -96,6 +99,7 @@ export function ContactProfile({
           </Link>
         )}
       </DetailField>
+      <GoogleMapCard target={contact} title={contact.name} />
     </Stack>
   );
 }

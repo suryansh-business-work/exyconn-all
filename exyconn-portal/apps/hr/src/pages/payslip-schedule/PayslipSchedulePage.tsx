@@ -1,12 +1,13 @@
 import { format } from 'date-fns';
 import { useT } from '@exyconn/i18n';
-import { Alert, Box, CircularProgress, Flex, Text } from '@exyconn/shell/components/ui';
+import { Alert, Box, Flex, Text } from '@exyconn/shell/components/ui';
 import { DetailRow } from '@exyconn/shell/components/data/DetailRow';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { usePayrollScheduleQuery } from '@exyconn/shell/graphql/generated';
 import { PayslipScheduleForm } from './forms/payslip-schedule';
+import { FormSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 /** What the last scheduled run did, so HR can see it worked without opening the email log. */
 function LastRun({
@@ -69,7 +70,7 @@ export function PayslipSchedulePage() {
         subtitleValues={{ timezone: settings.timezone }}
       />
       {error && <Alert severity="error">{error.message}</Alert>}
-      {loading && !schedule && <CircularProgress size={24} />}
+      {loading && !schedule && <FormSkeleton />}
       {schedule && (
         <Flex direction={{ xs: 'column', md: 'row' }} spacing={1.5} alignItems="flex-start">
           <Box sx={[readingPanel, { flex: 2, width: '100%' }]}>

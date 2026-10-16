@@ -1,115 +1,58 @@
-import { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { useT } from '@exyconn/i18n';
 import { Alert, Button, Flex } from '@exyconn/shell/components/ui';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
-import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
+import { appUrl } from '@exyconn/shell/config/apps';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import {
-  GmailConfigDocument,
-  useDisconnectGmailMutation,
-  useStartGmailConnectMutation,
   useTestGmailConfigMutation,
   type GmailConfigFieldsFragment,
 } from '@exyconn/shell/graphql/generated';
 
-/** The address to come back to after Google, without the outcome of an earlier try. */
-function returnAddress(): string {
-  const url = new URL(window.location.href);
-  url.searchParams.delete('gmailConnected');
-  url.searchParams.delete('gmailError');
-  return url.toString();
-}
+/** Where the CRM connects, turns on and disconnects its Gmail accounts. */
+const CRM_GMAIL_PATH = '/crm/settings/gmail';
 
 /**
- * Which mailbox is connected, and the Connect / Test / Disconnect buttons. Google sends the
- * browser back here with the outcome, which is announced once and taken off the address.
+ * How many mailboxes the CRM has connected with this client, a link to manage them in the CRM,
+ * and a Test that reads every enabled mailbox's address.
  */
 export function GmailConnection({ config }: Readonly<{ config: GmailConfigFieldsFragment }>) {
   const t = useT();
   const notify = useNotify();
-  const confirm = useConfirm();
-  const [params, setParams] = useSearchParams();
-  const [start, { loading: starting }] = useStartGmailConnectMutation();
-  const [test, { loading: testing }] = useTestGmailConfigMutation({
-    refetchQueries: [GmailConfigDocument],
-  });
-  const [disconnect] = useDisconnectGmailMutation({ refetchQueries: [GmailConfigDocument] });
+  const [test, { loading: testing }] = useTestGmailConfigMutation();
 
-  useEffect(() => {
-    const connected = params.get('gmailConnected');
-    const failed = params.get('gmailError');
-    if (connected === null && failed === null) {
-      return;
-    }
-    if (failed === null) {
-      notify('Gmail connected as {email}', 'success', { email: connected ?? '' });
-    } else {
-      notify(failed, 'error');
-    }
-    const rest = new URLSearchParams(params);
-    rest.delete('gmailConnected');
-    rest.delete('gmailError');
-    setParams(rest, { replace: true });
-  }, [params, setParams, notify]);
-
-  const run = async (action: () => Promise<unknown>, failure: string) => {
+  const onTest = async () => {
     try {
-      await action();
-    } catch (error) {
-      portalLogger.warn('tech: a Gmail action failed', error);
-      notify(errorMessage(error, failure), 'error');
-    }
-  };
-  const onConnect = () =>
-    run(async () => {
-      const { data } = await start({ variables: { returnTo: returnAddress() } });
-      if (data?.startGmailConnect) {
-        window.location.assign(data.startGmailConnect);
-      }
-    }, 'Could not start the Gmail connection');
-  const onTest = () =>
-    run(async () => {
       const { data } = await test();
       notify(data?.testGmailConfig ?? 'Gmail answered', 'success');
-    }, 'The Gmail test failed');
-  const onDisconnect = async () => {
-    const ok = await confirm({
-      title: 'Disconnect Gmail',
-      message: 'The CRM stops sending and reading email until Gmail is connected again.',
-      confirmText: 'Disconnect',
-      destructive: true,
-    });
-    if (ok) {
-      await run(() => disconnect(), 'Could not disconnect Gmail');
+    } catch (error) {
+      portalLogger.warn('tech: the Gmail test failed', error);
+      notify(errorMessage(error, 'The Gmail test failed'), 'error');
     }
   };
 
-  const ready = Boolean(config.clientId && config.hasClientSecret);
+  const hasAccounts = config.accountCount > 0;
   return (
     <Flex direction="column" spacing={1.5} sx={{ mb: 2 }}>
-      {config.connected ? (
-        <Alert severity={config.lastError ? 'warning' : 'success'}>
-          {t('Connected as {email}.', { email: config.connectedEmail })} {config.lastError}
-        </Alert>
-      ) : (
-        <Alert severity="info">
-          {t('No mailbox connected yet. Save the client, then connect.')}
-        </Alert>
-      )}
+      <Alert severity={hasAccounts ? 'success' : 'info'}>
+        {hasAccounts
+          ? t('{count} Gmail accounts connected in the CRM.', { count: config.accountCount })
+          : t('No Gmail account connected yet. Save the client, then connect accounts in the CRM.')}
+      </Alert>
       <Flex direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-        <Button variant="contained" onClick={onConnect} loading={starting} disabled={!ready}>
-          {config.connected ? t('Reconnect') : t('Connect Gmail')}
+        <Button variant="contained" href={appUrl('crm', CRM_GMAIL_PATH)}>
+          {t('Manage accounts in the CRM')}
         </Button>
-        <Button variant="outlined" onClick={onTest} loading={testing} disabled={!config.connected}>
+        <Button
+          variant="outlined"
+          onClick={() => {
+            onTest().catch((error: unknown) => portalLogger.warn('tech: Gmail test failed', error));
+          }}
+          loading={testing}
+          disabled={!hasAccounts}
+        >
           {t('Test')}
         </Button>
-        {config.connected && (
-          <Button color="error" variant="outlined" onClick={onDisconnect}>
-            {t('Disconnect')}
-          </Button>
-        )}
       </Flex>
     </Flex>
   );

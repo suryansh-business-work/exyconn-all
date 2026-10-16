@@ -1,7 +1,7 @@
 import { useT } from '@exyconn/i18n';
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 export interface LeaveSummaryRow {
   id: string;
@@ -23,7 +23,7 @@ export function RecentLeave({ requests, formatDate, loading = false }: Readonly<
   return (
     <Box sx={[panel, { height: '100%' }]}>
       <Heading level={6}>{t('Recent leave')}</Heading>
-      {loading && <LoadingState />}
+      {loading && <PanelSkeleton lines={3} title={false} bare />}
       {!loading && requests.length === 0 && (
         <Text size="sm" color="text.secondary">
           {t('No leave requests yet.')}

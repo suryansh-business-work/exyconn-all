@@ -36,7 +36,13 @@ function OptionRow({ index, count, onMove, onRemove }: Readonly<OptionRowProps>)
   }, [label, saved, valuePath, getFieldState, setValue]);
 
   return (
-    <Flex direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="flex-start">
+    <Flex
+      direction={{ xs: 'column', sm: 'row' }}
+      spacing={1}
+      alignItems="flex-start"
+      role="group"
+      aria-label={t('Choice {number}', { number })}
+    >
       <RhfTextField name={`options.${index}.label`} label="Choice" size="small" />
       <RhfTextField
         name={valuePath}

@@ -33,6 +33,7 @@ import { readSchedule } from './payroll.schedule';
 import { dispatchSalarySlips, renderPayslip } from './payroll.dispatch';
 import type { GraphQLContext } from '../../middleware/auth';
 import type { TableQueryInput } from '../../utils/tableQuery';
+import { registerTable } from '../table-transfer/registry';
 
 const PAYROLL_ROLES = [ROLES.HR, ROLES.FINANCE];
 
@@ -179,6 +180,7 @@ const SLIP_TABLE = {
   sortFields: ['year', 'month', 'net', 'status', 'issuedDate'],
   defaultSort: { field: 'issuedDate', dir: 'DESC' as const },
 };
+registerTable('listSalarySlipsPaged', SLIP_TABLE);
 
 function assertMonth(month: number, year: number) {
   if (month < 1 || month > 12) badRequest('month must be 1-12');

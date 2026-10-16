@@ -1,15 +1,9 @@
 import { useEffect, useState } from 'react';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import { useT } from '@exyconn/i18n';
-import {
-  Box,
-  CircularProgress,
-  Flex,
-  IconButton,
-  Text,
-  Tooltip,
-} from '@exyconn/shell/components/ui';
+import { Box, Flex, IconButton, Text, Tooltip } from '@exyconn/shell/components/ui';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
+import { SkeletonBone, SkeletonStatus } from '@exyconn/shell/components/feedback/skeletons';
 
 interface LivePreviewPaneProps {
   /** Resolves the address of the saved draft on the website. */
@@ -75,9 +69,9 @@ export function LivePreviewPane({ loadUrl, version }: Readonly<LivePreviewPanePr
           </Text>
         )}
         {!error && !url && (
-          <Flex justifyContent="center" sx={{ p: 4 }}>
-            <CircularProgress size={24} />
-          </Flex>
+          <SkeletonStatus sx={{ p: 2, height: '100%' }}>
+            <SkeletonBone variant="rounded" sx={{ height: '100%', minHeight: 240 }} />
+          </SkeletonStatus>
         )}
         {!error && url && (
           <Box

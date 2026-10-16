@@ -6,7 +6,6 @@ import {
   Alert,
   Box,
   Button,
-  CircularProgress,
   Flex,
   IconButton,
   Table,
@@ -25,6 +24,7 @@ import { useInvoiceFromTimeLog } from './useInvoiceFromTimeLog';
 import { PROJECT_BILLING_CSV, moneyFormat, projectBillingLines } from './tracker.billing';
 import type { BillingRange } from './BillingRangePicker';
 import { densePanel } from '@exyconn/shell/components/glass/glass';
+import { ListSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 /**
  * The same billable time, filed under the project it was booked to and set beside what
@@ -42,11 +42,7 @@ export function TrackerBillingByProject({ range }: Readonly<{ range: BillingRang
   const invoice = useInvoiceFromTimeLog(range, money);
 
   if (loading && !data) {
-    return (
-      <Flex justifyContent="center" sx={{ py: 4 }}>
-        <CircularProgress size={22} aria-label={t('Loading billing by project')} />
-      </Flex>
-    );
+    return <ListSkeleton columns={5} label="Loading billing by project" />;
   }
 
   return (

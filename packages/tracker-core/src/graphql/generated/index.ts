@@ -812,6 +812,7 @@ export type CompanyInput = {
   industry: InputMaybe<Scalars['String']['input']>;
   linkedinUrl: InputMaybe<Scalars['String']['input']>;
   location: InputMaybe<Scalars['String']['input']>;
+  logoUrl: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   notes: InputMaybe<Scalars['String']['input']>;
   owner: Scalars['String']['input'];
@@ -852,6 +853,7 @@ export type ComplianceCategory =
 
 export type ContactInput = {
   address: InputMaybe<Scalars['String']['input']>;
+  avatarUrl: InputMaybe<Scalars['String']['input']>;
   city: InputMaybe<Scalars['String']['input']>;
   companyId: InputMaybe<Scalars['String']['input']>;
   companyName: InputMaybe<Scalars['String']['input']>;
@@ -1034,6 +1036,17 @@ export type CrmPhoneNumberInput = {
   label: InputMaybe<Scalars['String']['input']>;
   number: Scalars['String']['input'];
   primary: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** One new property for several record types at once: a row is made for each of objects. */
+export type CrmPropertiesInput = {
+  description: Scalars['String']['input'];
+  key: Scalars['String']['input'];
+  label: Scalars['String']['input'];
+  objects: Array<CrmObject>;
+  options: Array<CrmPropertyOptionInput>;
+  required: Scalars['Boolean']['input'];
+  type: CrmPropertyType;
 };
 
 export type CrmPropertyInput = {
@@ -1373,10 +1386,21 @@ export type FileAttachmentInput = {
 };
 
 export type FilterOp =
+  /** Nothing stored, or an empty string; the filter's value is ignored. */
+  | 'BLANK'
   | 'CONTAINS'
+  | 'ENDS_WITH'
   | 'EQUALS'
   | 'GT'
+  | 'GTE'
+  /** Any of the filter's values; its value is ignored. */
+  | 'IN'
   | 'LT'
+  | 'LTE'
+  /** Anything but blank; the filter's value is ignored. */
+  | 'NOT_BLANK'
+  | 'NOT_CONTAINS'
+  | 'NOT_EQUALS'
   | 'STARTS_WITH';
 
 export type FindingInput = {
@@ -1482,6 +1506,11 @@ export type GithubConfigInput = {
   token: Scalars['String']['input'];
 };
 
+export type GmailAccountStatus =
+  | 'CONNECTED'
+  /** Google refused the stored connection; connect the account again. */
+  | 'NEEDS_RECONNECT';
+
 export type GmailConfigInput = {
   clientId: Scalars['String']['input'];
   /** Blank keeps the stored secret. */
@@ -1515,6 +1544,15 @@ export type GodaddyConfigInput = {
   apiSecret: InputMaybe<Scalars['String']['input']>;
   isActive: InputMaybe<Scalars['Boolean']['input']>;
   label: Scalars['String']['input'];
+};
+
+export type GoogleMapsConfigInput = {
+  /** Maps JavaScript key, restricted to the CRM's HTTP referrers. Leave empty when editing to keep it. */
+  browserKey: Scalars['String']['input'];
+  isActive: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+  /** Places API (New) key, used by the server only. Leave empty when editing to keep it. */
+  serverKey: Scalars['String']['input'];
 };
 
 export type GoogleSignInConfigInput = {
@@ -1936,6 +1974,27 @@ export type KbArticleInput = {
   title: Scalars['String']['input'];
 };
 
+export type LeadEmailStatus =
+  | 'BLOCKED'
+  | 'FOUND'
+  | 'NONE'
+  | 'UNREACHABLE';
+
+export type LeadImportInput = {
+  address: InputMaybe<Scalars['String']['input']>;
+  city: InputMaybe<Scalars['String']['input']>;
+  country: InputMaybe<Scalars['String']['input']>;
+  emails: InputMaybe<Array<Scalars['String']['input']>>;
+  lat: Scalars['Float']['input'];
+  lng: Scalars['Float']['input'];
+  mapUrl: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  phone: InputMaybe<Scalars['String']['input']>;
+  placeId: Scalars['ID']['input'];
+  primaryType: InputMaybe<Scalars['String']['input']>;
+  website: InputMaybe<Scalars['String']['input']>;
+};
+
 export type LeadInput = {
   /** Attribution. The campaign's name is filled in by the server from this id. */
   campaignId: InputMaybe<Scalars['String']['input']>;
@@ -1947,6 +2006,20 @@ export type LeadInput = {
   source: LeadSource;
   stage: LeadStage;
   value: Scalars['Float']['input'];
+};
+
+export type LeadSearchInput = {
+  lat: InputMaybe<Scalars['Float']['input']>;
+  lng: InputMaybe<Scalars['Float']['input']>;
+  /** Where, as text (e.g. Pune, India). Ignored when lat and lng are given. */
+  location: InputMaybe<Scalars['String']['input']>;
+  pageToken: InputMaybe<Scalars['String']['input']>;
+  /** What to look for, e.g. dentists. */
+  query: Scalars['String']['input'];
+  /** Radius around lat/lng in metres, at most 50000. */
+  radiusMeters: InputMaybe<Scalars['Int']['input']>;
+  /** A Google Places type, e.g. dentist. */
+  type: InputMaybe<Scalars['String']['input']>;
 };
 
 export type LeadSource =
@@ -2826,6 +2899,8 @@ export type SalaryStructureInput = {
 export type SendCrmEmailInput = {
   body: Scalars['String']['input'];
   cc: InputMaybe<Array<Scalars['String']['input']>>;
+  /** The connected account to send from; it has to be enabled for the CRM. */
+  fromAccountId: Scalars['ID']['input'];
   inReplyTo: InputMaybe<Scalars['String']['input']>;
   subject: Scalars['String']['input'];
   /** Replying: Gmail's thread id and the Message-ID being answered. */
@@ -3124,11 +3199,41 @@ export type SuppressionReason =
   | 'MANUAL'
   | 'UNSUBSCRIBED';
 
+/** One exported column: the row field it reads (dotted for a nested one, e.g. customer.name) and its heading. */
+export type TableExportColumnInput = {
+  field: Scalars['String']['input'];
+  header: Scalars['String']['input'];
+};
+
+export type TableFieldKind =
+  | 'BOOLEAN'
+  | 'DATE'
+  | 'ENUM'
+  | 'LIST'
+  | 'NUMBER'
+  | 'OBJECT'
+  | 'TEXT';
+
+export type TableFileFormat =
+  | 'CSV'
+  | 'XLSX';
+
 export type TableFilterInput = {
   field: Scalars['String']['input'];
   op: FilterOp;
   value: Scalars['String']['input'];
+  /** The values an IN filter matches any of; other operators ignore it. */
+  values: InputMaybe<Array<Scalars['String']['input']>>;
 };
+
+/** What an import does with a row whose match column names an existing record. */
+export type TableImportMode =
+  /** Every row becomes a new record. */
+  | 'CREATE'
+  /** Rows update the record they match; a row matching none is skipped. */
+  | 'UPDATE'
+  /** Rows update the record they match, and become new records when they match none. */
+  | 'UPSERT';
 
 /** Server-side pagination/sort/filter/search request. `page` is zero-indexed. */
 export type TableQueryInput = {
@@ -3138,6 +3243,8 @@ export type TableQueryInput = {
   pageSize: Scalars['Int']['input'];
   search: InputMaybe<Scalars['String']['input']>;
   sort: InputMaybe<TableSortInput>;
+  /** Several sort columns, most significant first. When set it wins over sort. */
+  sorts: InputMaybe<Array<TableSortInput>>;
 };
 
 export type TableSortInput = {
@@ -3249,6 +3356,8 @@ export type TechSecret =
   | 'GMAIL_CLIENT_SECRET'
   | 'GODADDY_API_KEY'
   | 'GODADDY_API_SECRET'
+  | 'GOOGLE_MAPS_BROWSER_KEY'
+  | 'GOOGLE_MAPS_SERVER_KEY'
   | 'GOOGLE_SIGN_IN_CLIENT_SECRET'
   | 'IMAGEKIT_PRIVATE_KEY'
   | 'INBOUND_MAIL_PASSWORD'

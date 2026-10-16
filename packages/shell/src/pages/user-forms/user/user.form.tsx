@@ -1,6 +1,5 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { CircularProgress, Flex } from '@/components/ui';
 import {
   RhfDatePicker,
   RhfMultiSelect,
@@ -26,6 +25,7 @@ import { EmploymentFields, ProfileFields, WorkArrangementFields } from './user.f
 import { CompensationFields, toSalaryInput, type EmployeeSalary } from '@/components/pay';
 import { toFormValues, toUserInput, userSchema, type UserValues } from './user.schema';
 import type { UserRow } from './user.types';
+import { FormSkeleton } from '@/components/feedback/skeletons';
 
 const ACTIVE_OPTIONS: SelectOption[] = [
   { value: 'true', label: 'Active' },
@@ -178,11 +178,7 @@ export function UserForm(props: Readonly<UserFormProps>) {
   });
 
   if (props.initial && loading && !data) {
-    return (
-      <Flex direction="column" alignItems="center" sx={{ py: 4 }}>
-        <CircularProgress size={22} aria-label="Loading compensation" />
-      </Flex>
-    );
+    return <FormSkeleton fields={8} surface={false} label="Loading compensation" />;
   }
 
   return <UserFormFields {...props} salary={data?.employeeSalary ?? null} />;

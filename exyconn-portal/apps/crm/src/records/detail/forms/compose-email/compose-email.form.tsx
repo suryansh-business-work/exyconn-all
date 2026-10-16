@@ -1,9 +1,10 @@
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { useT } from '@exyconn/i18n';
-import { Button, Flex } from '@exyconn/shell/components/ui';
-import { RhfChipsInput, RhfTextField } from '@exyconn/shell/components/form/rhf';
+import { Alert, Button, Flex } from '@exyconn/shell/components/ui';
+import { RhfChipsInput, RhfSelect, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
@@ -20,6 +21,7 @@ import {
   type ComposeEmailContext,
   type ComposeEmailValues,
 } from './compose-email.types';
+import { useComposeSender } from './useComposeSender';
 
 interface ComposeEmailFormProps {
   context: ComposeEmailContext;
@@ -28,8 +30,9 @@ interface ComposeEmailFormProps {
 }
 
 /**
- * React Hook Form + Zod form to email a contact, or reply in a thread, through the CRM's Gmail.
- * "Draft with AI" writes the message from the record, the thread and a short instruction.
+ * React Hook Form + Zod form to email a contact, or reply in a thread, from one of the CRM's
+ * connected Gmail accounts. "Draft with AI" writes the message from the record, the thread and
+ * a short instruction.
  */
 export function ComposeEmailForm({ context, onDone, onCancel }: Readonly<ComposeEmailFormProps>) {
   const t = useT();
@@ -41,6 +44,7 @@ export function ComposeEmailForm({ context, onDone, onCancel }: Readonly<Compose
     mode: 'onTouched',
     resolver: zodResolver(composeEmailSchema),
     defaultValues: {
+      fromAccountId: '',
       to: context.to,
       cc: [],
       subject: context.subject ?? '',
@@ -48,6 +52,13 @@ export function ComposeEmailForm({ context, onDone, onCancel }: Readonly<Compose
       instruction: '',
     },
   });
+
+  const sender = useComposeSender(context);
+  useEffect(() => {
+    if (sender.preferred && methods.getValues('fromAccountId') === '') {
+      methods.setValue('fromAccountId', sender.preferred);
+    }
+  }, [sender.preferred, methods]);
 
   const onDraft = async () => {
     try {
@@ -77,6 +88,7 @@ export function ComposeEmailForm({ context, onDone, onCancel }: Readonly<Compose
       await send({
         variables: {
           input: {
+            fromAccountId: values.fromAccountId,
             to: values.to,
             cc: values.cc,
             subject: values.subject,
@@ -102,6 +114,17 @@ export function ComposeEmailForm({ context, onDone, onCancel }: Readonly<Compose
       submitLabel="Send"
       onCancel={onCancel}
     >
+      {!sender.loading && sender.options.length === 0 && (
+        <Alert severity="warning">
+          {t('No Gmail account is turned on for the CRM. Connect one in CRM > Connect Gmail.')}
+        </Alert>
+      )}
+      <RhfSelect
+        name="fromAccountId"
+        label="From"
+        options={sender.options}
+        helperText="The connected Gmail account it is sent from"
+      />
       <RhfChipsInput name="to" label="To" helperText="Type an address and press Enter" />
       <RhfChipsInput name="cc" label="Cc" />
       <RhfTextField name="subject" label="Subject" />

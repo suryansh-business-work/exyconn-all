@@ -48,7 +48,8 @@ describe('OrgChartPage', () => {
     gql.chart.mockReturnValue({ data: undefined, loading: true });
     renderPage();
 
-    expect(screen.getAllByText('Loading…')).toHaveLength(2);
+    expect(screen.getByText('Loading the org chart')).toBeInTheDocument();
+    expect(screen.getByText('Loading people without a manager')).toBeInTheDocument();
   });
 
   it('explains how to start a chart when nobody reports to anybody yet', () => {

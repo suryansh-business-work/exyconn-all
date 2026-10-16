@@ -89,6 +89,7 @@ export function companyRow(overrides: Partial<CompanyFieldsFragment> = {}): Comp
     notes: '',
     clientId: '',
     isClient: false,
+    logoUrl: '',
     custom: {},
     email: '',
     emails: [],
@@ -104,6 +105,11 @@ export function companyRow(overrides: Partial<CompanyFieldsFragment> = {}): Comp
     annualRevenue: null,
     employeeCount: null,
     foundedYear: null,
+    lat: null,
+    lng: null,
+    placeId: '',
+    mapUrl: '',
+    leadSource: '',
     createdAt: '2026-10-01T00:00:00.000Z',
     updatedAt: '2026-10-01T00:00:00.000Z',
     ...overrides,
@@ -123,6 +129,7 @@ export function contactRow(overrides: Partial<ContactFieldsFragment> = {}): Cont
     status: ContactStatus.Active,
     owner: 'Priya',
     notes: '',
+    avatarUrl: '',
     custom: {},
     emails: [
       { __typename: 'CrmEmailAddress', address: 'asha@acme.io', label: 'Work', primary: true },
@@ -142,6 +149,10 @@ export function contactRow(overrides: Partial<ContactFieldsFragment> = {}): Cont
     languages: [],
     createdAt: '2026-10-01T00:00:00.000Z',
     updatedAt: '2026-10-01T00:00:00.000Z',
+    lat: null,
+    lng: null,
+    placeId: '',
+    mapUrl: '',
     ...overrides,
   };
 }

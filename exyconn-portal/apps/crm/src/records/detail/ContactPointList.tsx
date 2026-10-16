@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import StarIcon from '@mui/icons-material/Star';
 import { useT } from '@exyconn/i18n';
 import { Flex, Link, Text } from '@exyconn/shell/components/ui';
@@ -12,13 +13,26 @@ interface Point {
 export function ContactPointList({
   points,
   scheme,
-}: Readonly<{ points: Point[]; scheme: 'mailto' | 'tel' }>) {
+  trailing,
+}: Readonly<{
+  points: Point[];
+  scheme: 'mailto' | 'tel';
+  /** Extra controls after one entry, e.g. the Verify button beside an email address. */
+  trailing?: (value: string) => ReactNode;
+}>) {
   const t = useT();
   const ordered = [...points].sort((a, b) => Number(b.primary) - Number(a.primary));
   return (
     <Flex direction="column" spacing={0.5}>
       {ordered.map((point) => (
-        <Flex key={point.value} direction="row" spacing={0.5} alignItems="center">
+        <Flex
+          key={point.value}
+          direction="row"
+          spacing={0.5}
+          alignItems="center"
+          flexWrap="wrap"
+          useFlexGap
+        >
           <Link href={`${scheme}:${point.value}`} underline="hover">
             {point.value}
           </Link>
@@ -28,6 +42,7 @@ export function ContactPointList({
           {point.primary && (
             <StarIcon fontSize="inherit" color="warning" titleAccess={t('Primary')} />
           )}
+          {trailing?.(point.value)}
         </Flex>
       ))}
     </Flex>

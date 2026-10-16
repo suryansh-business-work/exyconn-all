@@ -134,9 +134,10 @@ describe('ChatConversationPage', () => {
     conversationWith({ loading: true });
     openPage();
 
-    expect(
-      screen.getByRole('progressbar', { name: 'Loading the conversation' }),
-    ).toBeInTheDocument();
+    expect(screen.getByText('Loading the conversation').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
     expect(seen.header).toBeNull();
   });
 

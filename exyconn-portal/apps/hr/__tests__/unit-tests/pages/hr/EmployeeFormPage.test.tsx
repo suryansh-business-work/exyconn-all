@@ -76,7 +76,7 @@ describe('EmployeeFormPage — editing', () => {
     vi.mocked(useGetUserQuery).mockReturnValue(queryResult(undefined, { loading: true }) as never);
     renderAt('/hr/employees/u1/edit');
     expect(screen.getByRole('heading', { name: 'Edit employee' })).toBeInTheDocument();
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(document.querySelector('[role="status"][aria-busy="true"]')).toBeInTheDocument();
     expect(screen.queryByText(/^Form for|^Blank form/)).not.toBeInTheDocument();
     expect(useGetUserQuery).toHaveBeenCalledWith(
       expect.objectContaining({ variables: { id: 'u1' }, skip: false }),
@@ -93,7 +93,7 @@ describe('EmployeeFormPage — editing', () => {
         'Changes to the working arrangement reach the desktop tracker within a minute.',
       ),
     ).toBeInTheDocument();
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(document.querySelector('[aria-busy="true"]')).toBeNull();
     expect(screen.getByText(`Form for ${JSON.stringify(employee)}`)).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Finish form' }));

@@ -16,13 +16,13 @@ describe('AppSettingsPage', () => {
       ],
     });
     expect(screen.getByRole('heading', { name: 'App Settings' })).toBeInTheDocument();
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getByText('Loading app settings')).toBeInTheDocument();
 
     expect(
       await screen.findByRole('spinbutton', { name: 'Keep audit history for (days)' }),
     ).toHaveValue(30);
     expect(screen.getByRole('button', { name: 'Save changes' })).toBeInTheDocument();
-    expect(screen.queryByText('Loading…')).toBeNull();
+    expect(screen.queryByText('Loading app settings')).toBeNull();
   });
 
   it('says the settings are unavailable when they cannot be read', async () => {

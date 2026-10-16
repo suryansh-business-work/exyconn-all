@@ -8,6 +8,7 @@ import { tableQuery, type TableConfig, type TableQueryInput } from '../../utils/
 import type { GraphQLContext } from '../../middleware/auth';
 import { emitWebhookBestEffort } from '../integrations';
 import { diffChanges, recordAudit, type Actor } from '../audit';
+import { registerTable } from '../table-transfer/registry';
 
 const financeRoles = [ROLES.FINANCE];
 
@@ -27,6 +28,7 @@ const PAYMENT_TABLE: TableConfig = {
   sortFields: ['invoiceNumber', 'amount', 'method', 'receivedAt', 'createdAt'],
   defaultSort: { field: 'receivedAt', dir: 'DESC' },
 };
+registerTable('listPaymentsPaged', PAYMENT_TABLE);
 
 /**
  * Money to two places.

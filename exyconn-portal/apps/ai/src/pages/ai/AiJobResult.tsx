@@ -6,6 +6,7 @@ import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { formatCostUsd } from './ai-jobs-grid';
 import { AiJobProgress } from './AiJobProgress';
 import { useAiJob } from './useAiJob';
+import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 /** Milliseconds in a second, for the latency read-out. */
 const MS_PER_SECOND = 1000;
@@ -22,8 +23,11 @@ export function AiJobResult({ id }: Readonly<{ id: string }>) {
   const { formatDateTime } = useSettings();
   const { job, loading, waiting } = useAiJob(id);
 
+  if (!job && loading) {
+    return <PanelSkeleton lines={6} title={false} bare label="Loading the job" />;
+  }
   if (!job) {
-    return <Text size="sm">{loading ? t('Loading…') : t('This job is no longer available.')}</Text>;
+    return <Text size="sm">{t('This job is no longer available.')}</Text>;
   }
 
   const notRunYet = t('Not run yet');

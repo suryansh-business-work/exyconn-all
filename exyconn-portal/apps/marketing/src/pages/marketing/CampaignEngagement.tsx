@@ -2,6 +2,7 @@ import { useT } from '@exyconn/i18n';
 import { Alert, Box, Divider, Flex, Grid, radius, Text } from '@exyconn/shell/components/ui';
 import { BarChart, ChartCard, type ChartData } from '@exyconn/shell/components/ui';
 import { useCampaignMetricsQuery } from '@exyconn/shell/graphql/generated';
+import { DashboardSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 interface CampaignEngagementProps {
   campaignId: string;
@@ -47,11 +48,7 @@ export function CampaignEngagement({ campaignId }: Readonly<CampaignEngagementPr
   const links = data?.campaignTopLinks ?? [];
 
   if (loading && !metrics) {
-    return (
-      <Text size="sm" color="text.secondary">
-        {t('Loading engagement…')}
-      </Text>
-    );
+    return <DashboardSkeleton tiles={4} charts={1} label="Loading engagement" />;
   }
 
   if (!metrics || metrics.sent === 0) {

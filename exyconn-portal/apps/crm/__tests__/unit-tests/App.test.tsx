@@ -12,6 +12,8 @@ import { ContactDetailPage } from '../../src/pages/contacts/detail';
 import { DealsListPage, DealsPage } from '../../src/pages/deals';
 import { ActivitiesPage } from '../../src/pages/activities';
 import { EmailVerifierPage } from '../../src/pages/email-verifier';
+import { LeadGeneratorPage } from '../../src/pages/lead-generator';
+import { GmailAccountsPage } from '../../src/pages/settings/gmail';
 import { PropertiesPage } from '../../src/pages/settings';
 import { MeetingsPage } from '../../src/pages/meetings';
 
@@ -69,7 +71,9 @@ describe('App', () => {
       ['/crm/activities', ActivitiesPage],
       ['/crm/meetings/:tab?', MeetingsPage],
       ['/crm/tools/email-verifier/:tab?', EmailVerifierPage],
+      ['/crm/tools/lead-generator', LeadGeneratorPage],
       ['/crm/settings/properties/:object?', PropertiesPage],
+      ['/crm/settings/gmail', GmailAccountsPage],
     ]);
   });
 });

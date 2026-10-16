@@ -6,7 +6,6 @@ import {
   Box,
   Button,
   Card,
-  CircularProgress,
   Flex,
   Typography,
   fontWeight,
@@ -15,6 +14,12 @@ import { useContractToSignQuery } from '@exyconn/shell/graphql/generated';
 import { SignContractForm } from './forms/sign-contract';
 import { SignedReceipt } from './SignedReceipt';
 import { ContractFacts } from './ContractFacts';
+import {
+  FormSkeleton,
+  PageHeaderSkeleton,
+  PanelSkeleton,
+  SkeletonStatus,
+} from '@exyconn/shell/components/feedback/skeletons';
 
 /**
  * The page a counterparty signs on.
@@ -38,9 +43,11 @@ export function SignContractPage() {
 
   if (loading) {
     return (
-      <Flex direction="column" alignItems="center" sx={{ py: 6 }}>
-        <CircularProgress />
-      </Flex>
+      <SkeletonStatus>
+        <PageHeaderSkeleton action={false} />
+        <PanelSkeleton lines={4} title={false} />
+        <FormSkeleton fields={3} />
+      </SkeletonStatus>
     );
   }
 

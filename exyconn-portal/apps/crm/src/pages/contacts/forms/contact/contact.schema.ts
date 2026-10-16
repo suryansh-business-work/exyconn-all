@@ -9,6 +9,7 @@ import {
 import {
   emailPointSchema,
   emailPointsOf,
+  pictureUrlSchema,
   profileDefaults,
   profileSchema,
 } from '../../../../records/profile';
@@ -16,6 +17,7 @@ import type { ContactRow } from './contact.types';
 
 const baseSchema = profileSchema.extend({
   name: z.string().trim().min(1, 'Name is required'),
+  avatarUrl: pictureUrlSchema,
   emails: z.array(emailPointSchema).min(1, 'Add at least one email address'),
   title: z.string().trim(),
   department: z.string().trim(),
@@ -39,6 +41,7 @@ export const toContactValues = (
 ): ContactValues => ({
   ...profileDefaults(row),
   name: row?.name ?? '',
+  avatarUrl: row?.avatarUrl ?? '',
   emails: emailPointsOf(row),
   title: row?.title ?? '',
   department: row?.department ?? '',

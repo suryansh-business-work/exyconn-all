@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { useT } from '@exyconn/i18n';
 import { Alert } from '@exyconn/shell/components/ui';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { FormSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 interface BodyGateProps {
   loading: boolean;
@@ -17,7 +17,7 @@ interface BodyGateProps {
 export function BodyGate({ loading, error, children }: Readonly<BodyGateProps>) {
   const t = useT();
   if (loading) {
-    return <LoadingState label="Loading the document" />;
+    return <FormSkeleton surface={false} label="Loading the document" />;
   }
   if (error) {
     return (

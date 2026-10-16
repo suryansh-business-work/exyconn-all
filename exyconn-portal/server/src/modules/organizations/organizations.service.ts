@@ -4,6 +4,7 @@ import { ROLES, type Role } from '../../constants/roles';
 import { badRequest, notFound } from '../../utils/errors';
 import { isValidCountry, isValidCurrency } from '../../utils/iso';
 import { isValidTimezone } from '../../utils/timezone';
+import { isWebAddress } from '../../utils/webAddress';
 import { canonicalLocale } from '../i18n/locale.constants';
 import {
   organizationOf,
@@ -63,17 +64,6 @@ function validate(input: Partial<OrganizationInput>): void {
   }
   if (input.logoUrl !== undefined && input.logoUrl !== '' && !isWebAddress(input.logoUrl)) {
     badRequest('The logo must be a web address (http or https).');
-  }
-}
-
-const WEB_PROTOCOLS = new Set(['http:', 'https:']);
-
-/** Whether a value is an absolute web address — the only kind a logo may be served from. */
-function isWebAddress(value: string): boolean {
-  try {
-    return WEB_PROTOCOLS.has(new URL(value).protocol);
-  } catch {
-    return false;
   }
 }
 

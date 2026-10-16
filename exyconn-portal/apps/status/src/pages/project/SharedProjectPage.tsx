@@ -9,7 +9,7 @@ import { LinkExpiredCard } from '../../components/LinkExpiredCard';
 import { SharedProjectFacts } from './SharedProjectFacts';
 import { SharedProjectProgress } from './SharedProjectProgress';
 import type { SharedProjectView } from './shared-project.types';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { DetailSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 const dateOrDash = (value?: string | null) => (value ? formatWith(value, DATE_FORMAT) : '—');
 
@@ -49,7 +49,7 @@ export function SharedProjectPage() {
   });
 
   if (loading) {
-    return <LoadingState />;
+    return <DetailSkeleton aside={false} tabs={false} blocks={3} />;
   }
 
   const project = data?.sharedProject;

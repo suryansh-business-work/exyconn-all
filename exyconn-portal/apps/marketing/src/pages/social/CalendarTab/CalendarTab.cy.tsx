@@ -16,10 +16,10 @@ import {
 describe('CalendarTab', () => {
   it('shows a loader until the accounts and the month first arrive', () => {
     mount({ delay: 400 });
-    cy.get('[aria-label="Loading accounts"]').should('exist');
-    cy.get('[aria-label="Loading calendar"]').should('exist');
+    cy.contains('[role="status"]', 'Loading accounts').should('have.attr', 'aria-busy', 'true');
+    cy.contains('[role="status"]', 'Loading calendar').should('have.attr', 'aria-busy', 'true');
     cy.contains(FB_LINE).should('be.visible');
-    cy.get('[aria-label="Loading calendar"]').should('not.exist');
+    cy.contains('[role="status"]', 'Loading calendar').should('not.exist');
   });
 
   it("puts this month's posts on their days: a published one links out, a scheduled one edits", () => {

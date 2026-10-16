@@ -7,6 +7,7 @@ import { useMyPoliciesQuery } from '@exyconn/shell/graphql/generated';
 import { PolicyCard, type Policy } from './PolicyCard';
 import { PolicyReaderDialog } from './PolicyReaderDialog';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
+import { CardGridSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 /**
  * Employee self-service: the policies this person is meant to read, and which of them still
@@ -31,7 +32,6 @@ export function PoliciesPage() {
   if (outstanding.length === 1) {
     outstandingNotice = t('One policy needs your signature.');
   }
-  const emptyNotice = loading ? t('Loading…') : t('No policies published yet.');
 
   return (
     <Box>
@@ -43,11 +43,15 @@ export function PoliciesPage() {
         </Alert>
       ) : null}
 
-      {ordered.length === 0 ? (
+      {ordered.length === 0 && loading && (
+        <CardGridSkeleton count={3} avatar={false} label="Loading policies" />
+      )}
+      {ordered.length === 0 && !loading && (
         <Box sx={readingPanel}>
-          <Text color="text.secondary">{emptyNotice}</Text>
+          <Text color="text.secondary">{t('No policies published yet.')}</Text>
         </Box>
-      ) : (
+      )}
+      {ordered.length > 0 && (
         <Grid container spacing={2}>
           {ordered.map((policy) => (
             <Grid

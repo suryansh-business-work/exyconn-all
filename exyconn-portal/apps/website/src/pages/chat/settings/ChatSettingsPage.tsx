@@ -2,7 +2,7 @@ import { useT } from '@exyconn/i18n';
 import { Box, Chip, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { FormSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { useWebsiteChatSettingsQuery } from '@exyconn/shell/graphql/generated';
 import { ChatSettingsForm } from '../forms/chat-settings';
@@ -32,7 +32,7 @@ export function ChatSettingsPage() {
   if (settings) {
     body = <ChatSettingsForm initial={settings} />;
   } else if (loading) {
-    body = <LoadingState label="Loading the chatbot settings" />;
+    body = <FormSkeleton surface={false} label="Loading the chatbot settings" />;
   } else {
     body = (
       <Text size="sm" color="error" role="alert">

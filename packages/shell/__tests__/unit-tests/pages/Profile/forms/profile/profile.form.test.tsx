@@ -43,7 +43,7 @@ describe('the profile form', () => {
   it('waits for the stored profile before showing the fields', async () => {
     showForm([meAnswer().mock]);
 
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true');
     expect(await screen.findByDisplayValue('Builds the payroll engine.')).toBeInTheDocument();
   });
 

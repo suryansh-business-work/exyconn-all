@@ -69,3 +69,35 @@ describe('appUrl', () => {
     );
   });
 });
+
+describe('appUrl for an app mounted under a base path', () => {
+  it('puts the base path between the origin and the company prefix', async () => {
+    const { appBaseUrl } = await loadApps({
+      app: 'hr',
+      domain: 'example.test',
+      url: '/organization/acme',
+    });
+    expect(appBaseUrl('whatsapp-demo')).toBe(
+      'https://demos.example.test/whatsapp-demo/organization/acme',
+    );
+  });
+
+  it('does not repeat the base path a link already starts with', async () => {
+    const { appUrl } = await loadApps({ app: 'hr', domain: 'example.test' });
+    expect(appUrl('whatsapp-demo', '/whatsapp-demo/admin')).toBe(
+      'https://demos.example.test/whatsapp-demo/admin',
+    );
+    expect(appUrl('whatsapp-demo', '/whatsapp-demo')).toBe(
+      'https://demos.example.test/whatsapp-demo/',
+    );
+    expect(appUrl('whatsapp-demo', '/admin')).toBe(
+      'https://demos.example.test/whatsapp-demo/admin',
+    );
+  });
+
+  it('keeps a link inside the mounted app relative to its base path', async () => {
+    const { appUrl } = await loadApps({ app: 'whatsapp-demo', domain: 'example.test' });
+    expect(appUrl('whatsapp-demo', '/whatsapp-demo/admin')).toBe('/admin');
+    expect(appUrl('whatsapp-demo', '/admin')).toBe('/admin');
+  });
+});

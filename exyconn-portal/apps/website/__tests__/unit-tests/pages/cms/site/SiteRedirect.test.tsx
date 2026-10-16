@@ -63,7 +63,10 @@ describe('SiteRedirect', () => {
   it('waits for the sites with a spinner', () => {
     answer({ loading: true });
     renderAt('/website/blog');
-    expect(screen.getByRole('progressbar', { name: 'Loading the websites' })).toBeInTheDocument();
+    expect(screen.getByText('Loading the websites').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
   });
 
   it('says why the sites could not load', () => {

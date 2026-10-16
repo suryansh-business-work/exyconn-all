@@ -66,14 +66,14 @@ describe('JobsPage', () => {
     expect(screen.getByText('Daily digest')).toBeInTheDocument();
     expect(screen.getByText('Not since this server started')).toBeInTheDocument();
     expect(runButtons()).toHaveLength(2);
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(screen.queryByText('Loading jobs')).not.toBeInTheDocument();
   });
 
-  it('shows a progress bar while the first list is on its way', () => {
+  it('shows a skeleton list while the first list is on its way', () => {
     gql.jobs.mockReturnValue(answer({ data: undefined, loading: true }));
     renderWithProviders(<JobsPage />);
 
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Loading jobs');
     expect(screen.getByRole('button', { name: 'Refresh' })).toBeDisabled();
     expect(screen.queryByRole('button', { name: 'Run now' })).not.toBeInTheDocument();
   });
@@ -82,7 +82,7 @@ describe('JobsPage', () => {
     gql.jobs.mockReturnValue(answer({ loading: true }));
     renderWithProviders(<JobsPage />);
 
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(screen.queryByText('Loading jobs')).not.toBeInTheDocument();
     expect(runButtons()).toHaveLength(2);
   });
 

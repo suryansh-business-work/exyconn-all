@@ -15,6 +15,7 @@ import { createLimiter, tooManyRequests } from '../../lib/rateLimiter';
 import { assertCaptcha, issueCaptcha } from './website.captcha';
 import { imageUploader } from '../../utils/imagekit';
 import { RESUME_UPLOAD, assertUpload } from '../../utils/uploadValidation';
+import { registerTable } from '../table-transfer/registry';
 
 const ALLOWED_FORM_TYPES = new Set<string>(SUBMISSION_FORM_TYPES);
 const ALLOWED_STATUSES = new Set<string>(SUBMISSION_STATUSES);
@@ -39,6 +40,7 @@ const SUBMISSION_TABLE = {
   sortFields: ['formType', 'source', 'status', 'createdAt', 'updatedAt'],
   defaultSort: { field: 'createdAt', dir: 'DESC' as const },
 };
+registerTable('listWebsiteSubmissionsPaged', SUBMISSION_TABLE);
 
 interface SubmissionInput {
   formType: string;

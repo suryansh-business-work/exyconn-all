@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useT } from '@exyconn/i18n';
-import { Alert, Skeleton, Stack, Text } from '@exyconn/shell/components/ui';
+import { Alert, Stack, Text } from '@exyconn/shell/components/ui';
 import { usePublicMeetingQuery } from '@exyconn/shell/graphql/generated';
 import { BookedConfirmation } from './BookedConfirmation';
 import { BookingFrame } from './BookingFrame';
+import { MeetingBookingSkeleton } from './BookingSkeletons';
 import { BookMeetingForm, type BookedMeeting } from './forms/book-meeting';
 import { MeetingSummary } from './MeetingSummary';
 import { SlotStep } from './SlotStep';
@@ -25,11 +26,7 @@ export function BookMeetingPage() {
   const meeting = data?.publicMeeting;
 
   if (loading && !meeting) {
-    return (
-      <BookingFrame>
-        <Skeleton variant="rounded" height={420} aria-busy />
-      </BookingFrame>
-    );
+    return <MeetingBookingSkeleton />;
   }
   if (!meeting) {
     return (

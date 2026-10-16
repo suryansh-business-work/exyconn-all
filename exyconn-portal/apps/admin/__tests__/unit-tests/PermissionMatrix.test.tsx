@@ -86,7 +86,10 @@ afterEach(() => vi.restoreAllMocks());
 describe('PermissionMatrix', () => {
   it('shows a loader, then says when no module is registered', async () => {
     mount([modules([]), stored()]);
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getByText('Loading modules').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
     expect(await screen.findByText('No modules registered.')).toBeInTheDocument();
   });
 

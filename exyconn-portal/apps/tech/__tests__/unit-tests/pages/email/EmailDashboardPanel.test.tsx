@@ -80,7 +80,10 @@ describe('EmailDashboardPanel', () => {
   it('shows a spinner until the first answer arrives', () => {
     answer(undefined, true);
     renderWithProviders(<EmailDashboardPanel />);
-    expect(screen.getByRole('progressbar', { name: 'Loading' })).toBeInTheDocument();
+    expect(screen.getByText('Loading').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
     expect(screen.queryByText('Templates')).not.toBeInTheDocument();
   });
 

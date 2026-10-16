@@ -6,6 +6,7 @@ import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { formatMoney } from '@exyconn/shell/utils/money';
 import { useMyPayrollQuery } from '@exyconn/shell/graphql/generated';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
+import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 type RowProps = {
   label: string;
@@ -33,6 +34,13 @@ export function PayrollPage() {
   const { formatDate } = useSettings();
 
   const p = data?.myPayroll;
+  const missing = loading ? (
+    <PanelSkeleton lines={8} label="Loading your salary structure" />
+  ) : (
+    <Box sx={readingPanel}>
+      <Text color="text.secondary">{t('No salary structure on file yet.')}</Text>
+    </Box>
+  );
 
   return (
     <Box>
@@ -69,13 +77,7 @@ export function PayrollPage() {
           </Box>
         </Card>
       ) : (
-        <Box sx={readingPanel}>
-          {loading ? (
-            <Text>{t('Loading…')}</Text>
-          ) : (
-            <Text color="text.secondary">{t('No salary structure on file yet.')}</Text>
-          )}
-        </Box>
+        missing
       )}
     </Box>
   );

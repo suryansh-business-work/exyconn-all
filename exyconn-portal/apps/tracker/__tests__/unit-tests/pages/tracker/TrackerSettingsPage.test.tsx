@@ -30,14 +30,20 @@ describe('TrackerSettingsPage', () => {
     expect(screen.getByRole('heading', { name: 'Tracker Settings' })).toBeInTheDocument();
     expect(screen.getByText('Capture settings')).toBeInTheDocument();
     expect(screen.getByText('Applies to every enrolled desktop agent.')).toBeInTheDocument();
-    expect(screen.getByRole('progressbar', { name: 'Loading settings' })).toBeInTheDocument();
+    expect(screen.getByText('Loading settings').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
     expect(screen.queryByRole('form')).not.toBeInTheDocument();
   });
 
   it('says there are no settings when the query answered with none', () => {
     state.query.mockReturnValue(queryResult(undefined, false));
     renderWithProviders(<TrackerSettingsPage />);
-    expect(screen.getByRole('progressbar', { name: 'No settings' })).toBeInTheDocument();
+    expect(screen.getByText('No settings').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
   });
 
   it('prefills the form from the saved settings', () => {
@@ -46,6 +52,6 @@ describe('TrackerSettingsPage', () => {
     renderWithProviders(<TrackerSettingsPage />);
     expect(screen.getByRole('form', { name: 'Capture settings form' })).toBeInTheDocument();
     expect(state.initial).toBe(saved);
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(document.querySelector('[aria-busy="true"]')).toBeNull();
   });
 });

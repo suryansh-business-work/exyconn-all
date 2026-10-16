@@ -1,6 +1,7 @@
 import { useEffect, useMemo, type ReactNode } from 'react';
 import { useT } from '@exyconn/i18n';
-import { Alert, Skeleton, Stack } from '@exyconn/shell/components/ui';
+import { Alert } from '@exyconn/shell/components/ui';
+import { FormSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import type { CrmObject } from '@exyconn/shell/graphql/generated';
@@ -12,9 +13,6 @@ interface CustomPropertiesGateProps {
   /** Renders the form once the record type's custom properties are known. */
   children: (properties: CustomPropertyDef[]) => ReactNode;
 }
-
-/** Placeholder rows standing in for a form while its properties load. */
-const SKELETON_ROWS = ['a', 'b', 'c', 'd'];
 
 /**
  * Holds a record form back until the record type's custom properties are known, so its schema,
@@ -42,13 +40,7 @@ export function CustomPropertiesGate({ object, children }: Readonly<CustomProper
     );
   }
   if (loading && !loaded) {
-    return (
-      <Stack spacing={2} aria-busy="true" aria-label={t('Loading the form')}>
-        {SKELETON_ROWS.map((row) => (
-          <Skeleton key={row} variant="rounded" height={56} />
-        ))}
-      </Stack>
-    );
+    return <FormSkeleton surface={false} label="Loading the form" />;
   }
   return children(custom);
 }

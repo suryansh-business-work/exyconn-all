@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useT } from '@exyconn/i18n';
-import { Alert, Box, Button, Skeleton } from '@exyconn/shell/components/ui';
+import { Alert, Box, Button } from '@exyconn/shell/components/ui';
 import { usePageTitle } from '@exyconn/shell/components/layout/usePageTitle';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
@@ -10,7 +10,12 @@ import {
   useGetContactQuery,
 } from '@exyconn/shell/graphql/generated';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
-import { DetailLayout, EmailThreads, Timeline } from '../../../records/detail';
+import {
+  DetailLayout,
+  EmailThreads,
+  RecordDetailSkeleton,
+  Timeline,
+} from '../../../records/detail';
 import { ContactOverview } from './ContactOverview';
 import { ContactProfile } from './ContactProfile';
 
@@ -46,7 +51,7 @@ export function ContactDetailPage() {
     );
   }
   if (!contact) {
-    return <Skeleton variant="rounded" height={420} aria-busy />;
+    return <RecordDetailSkeleton label="Loading the contact" />;
   }
 
   const tabs: TabberItem[] = [

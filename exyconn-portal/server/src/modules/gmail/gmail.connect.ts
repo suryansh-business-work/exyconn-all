@@ -10,7 +10,13 @@ import {
   verifiedEmailOf,
 } from '../auth/google/google-sign-in.oauth';
 import { gmailClient } from './gmail.client';
-import { GmailConfigModel, GmailOAuthStateModel, type GmailConfigDocument } from './gmail.models';
+import { enabledMailboxes, noteAccountOutcome, saveConnectedAccount } from './gmail.accounts';
+import {
+  GmailAccountModel,
+  GmailConfigModel,
+  GmailOAuthStateModel,
+  type GmailConfigDocument,
+} from './gmail.models';
 
 const KEY = 'default';
 export const GMAIL_CALLBACK_PATH = '/oauth/gmail';
@@ -30,17 +36,15 @@ export const readGmailConfig = () =>
   );
 
 /** What Tech sees: never a secret or a token, only whether they are there. */
-export function presentGmailConfig(doc: GmailConfigDocument) {
+export async function presentGmailConfig(doc: GmailConfigDocument) {
+  const accountCount = await runAsPlatform(() => GmailAccountModel.countDocuments());
   return {
     id: KEY,
     clientId: doc.clientId,
     hasClientSecret: doc.clientSecret !== '',
     clientSecretHint: secretHint(doc.clientSecret),
     enabled: doc.enabled,
-    connectedEmail: doc.connectedEmail,
-    connected: doc.refreshToken !== '',
-    connectedAt: doc.connectedAt,
-    lastError: doc.lastError,
+    accountCount,
     redirectUri: gmailRedirectUri(),
     updatedAt: doc.updatedAt,
   };
@@ -53,34 +57,42 @@ export interface GmailConfigInput {
   enabled: boolean;
 }
 
-const update = async (fields: Partial<GmailConfigDocument>) => {
+export async function saveGmailConfig(input: GmailConfigInput, actorName: string) {
+  const clientSecret = input.clientSecret.trim();
+  await readGmailConfig();
   const saved = await runAsPlatform(() =>
     GmailConfigModel.findOneAndUpdate(
       { key: KEY },
-      { $set: fields },
+      {
+        $set: {
+          clientId: input.clientId.trim(),
+          enabled: input.enabled,
+          updatedByName: actorName,
+          ...(clientSecret === '' ? {} : { clientSecret }),
+        },
+      },
       { new: true },
     ).lean<GmailConfigDocument>(),
   );
   if (!saved) notFound('Gmail config');
   return saved;
-};
-
-export async function saveGmailConfig(input: GmailConfigInput, actorName: string) {
-  const clientSecret = input.clientSecret.trim();
-  await readGmailConfig();
-  return update({
-    clientId: input.clientId.trim(),
-    enabled: input.enabled,
-    updatedByName: actorName,
-    ...(clientSecret === '' ? {} : { clientSecret }),
-  });
 }
 
-/** Google's consent page for the mailbox; the callback stores its refresh token. */
-export async function startGmailConnect(returnTo: string, actorName: string): Promise<string> {
+/** Who is connecting, kept with the state so the callback can name them in the audit. */
+export interface ConnectActor {
+  id: string;
+  name: string;
+  organizationId: string;
+}
+
+/**
+ * Google's consent page for one more mailbox (or the same one again, to renew its token);
+ * the callback stores its refresh token as a GmailAccount.
+ */
+export async function startGmailConnect(returnTo: string, actor: ConnectActor): Promise<string> {
   const config = await readGmailConfig();
   if (!config.clientId || !config.clientSecret) {
-    badRequest('Save the Google client ID and secret first.');
+    badRequest('Save the Google client ID and secret in Tech > Environment Variables > Gmail.');
   }
   if (!PORTAL_ORIGINS.has(new URL(returnTo).origin)) {
     badRequest('That is not a portal address.');
@@ -88,7 +100,14 @@ export async function startGmailConnect(returnTo: string, actorName: string): Pr
   const nonce = randomToken(24);
   const codeVerifier = randomToken(48);
   await runAsPlatform(() =>
-    GmailOAuthStateModel.create({ nonce, codeVerifier, returnTo, updatedByName: actorName }),
+    GmailOAuthStateModel.create({
+      nonce,
+      codeVerifier,
+      returnTo,
+      updatedByName: actor.name,
+      actorId: actor.id,
+      organizationId: actor.organizationId,
+    }),
   );
   const params = new URLSearchParams({
     client_id: config.clientId,
@@ -99,8 +118,8 @@ export async function startGmailConnect(returnTo: string, actorName: string): Pr
     code_challenge: sha256(codeVerifier),
     code_challenge_method: 'S256',
     access_type: 'offline',
-    // Always ask, so Google always hands back a refresh token.
-    prompt: 'consent',
+    // Always ask, so Google always hands back a refresh token; and let them pick an account.
+    prompt: 'consent select_account',
   });
   return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
 }
@@ -108,7 +127,7 @@ export async function startGmailConnect(returnTo: string, actorName: string): Pr
 export const takeGmailState = (nonce: string) =>
   runAsPlatform(() => GmailOAuthStateModel.findOneAndDelete({ nonce }).lean());
 
-/** The callback's work: trade the code, keep the refresh token sealed, note the mailbox. */
+/** The callback's work: trade the code, keep the refresh token sealed on the mailbox's row. */
 export async function finishGmailConnect(
   state: { codeVerifier: string; updatedByName?: string | null },
   code: string,
@@ -119,31 +138,27 @@ export async function finishGmailConnect(
     throw new Error('Google did not grant offline access. Try Connect again.');
   }
   const email = verifiedEmailOf(tokens.id_token, config.clientId);
-  await update({
-    refreshToken: seal(tokens.refresh_token),
-    connectedEmail: email,
-    connectedAt: new Date(),
-    lastError: '',
-    updatedByName: state.updatedByName ?? '',
-  });
+  await saveConnectedAccount(email, seal(tokens.refresh_token), state.updatedByName ?? '');
   return email;
 }
 
-export const disconnectGmail = (actorName: string) =>
-  update({ refreshToken: '', connectedEmail: '', connectedAt: null, updatedByName: actorName });
-
-/** Proves the stored connection by reading the mailbox's own address. */
+/** Proves every enabled account by reading each mailbox's own address. */
 export async function testGmail(): Promise<string> {
-  const config = await readGmailConfig();
-  if (!config.refreshToken) {
-    badRequest('Connect a Gmail account first.');
+  const mailboxes = await enabledMailboxes();
+  if (mailboxes.length === 0) {
+    badRequest('Connect a Gmail account in CRM > Connect Gmail first.');
   }
-  try {
-    const profile = await gmailClient.profile(config);
-    await update({ lastError: '' });
-    return `Gmail answered as ${profile.emailAddress}.`;
-  } catch (error) {
-    await update({ lastError: error instanceof Error ? error.message : 'Gmail did not answer.' });
-    throw error;
-  }
+  const results = await Promise.all(
+    mailboxes.map(async (mailbox) => {
+      try {
+        const profile = await gmailClient.profile(mailbox);
+        await noteAccountOutcome(mailbox.id, null);
+        return `${profile.emailAddress}: ok`;
+      } catch (error) {
+        await noteAccountOutcome(mailbox.id, error);
+        return `${mailbox.email}: ${error instanceof Error ? error.message : 'no answer'}`;
+      }
+    }),
+  );
+  return `Gmail answered for ${results.join('; ')}.`;
 }

@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useT } from '@exyconn/i18n';
-import { Alert, Button, Chip, Flex, Skeleton, Stack, Text } from '@exyconn/shell/components/ui';
+import { Alert, Button, Chip, Flex, Stack, Text } from '@exyconn/shell/components/ui';
+import { ListSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { useCrmTimelineQuery, type CrmTimelineObject } from '@exyconn/shell/graphql/generated';
 import { KIND_FILTERS } from './timeline.kinds';
@@ -63,7 +64,9 @@ export function Timeline({ object, id, limit, filters = true }: Readonly<Timelin
           ))}
         </Flex>
       )}
-      {loading && !data && <Skeleton variant="rounded" height={160} aria-busy />}
+      {loading && !data && (
+        <ListSkeleton toolbar={false} rows={4} columns={3} label="Loading the activity" />
+      )}
       {data && rows.length === 0 && (
         <Text color="text.secondary">{t('Nothing has happened with this record yet.')}</Text>
       )}

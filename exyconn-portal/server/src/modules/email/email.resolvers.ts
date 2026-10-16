@@ -12,6 +12,7 @@ import { withIds } from '../../utils/serialize';
 import { badRequest } from '../../utils/errors';
 import { tableQuery, type TableConfig, type TableQueryInput } from '../../utils/tableQuery';
 import type { GraphQLContext } from '../../middleware/auth';
+import { registerTable } from '../table-transfer/registry';
 
 const techRoles = [ROLES.TECH];
 
@@ -73,6 +74,7 @@ const LOG_TABLE: TableConfig = {
   sortFields: ['templateKey', 'to', 'status', 'sentAt'],
   defaultSort: { field: 'sentAt', dir: 'DESC' },
 };
+registerTable('listEmailLogsPaged', LOG_TABLE);
 
 /** How many days of trend the dashboard shows when the caller does not say. */
 const DEFAULT_TREND_DAYS = 14;

@@ -71,7 +71,7 @@ describe('ContainerDetailDialog', () => {
     gql.detail.mockReturnValue({ data: undefined, loading: true, error: undefined });
     open();
 
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true');
   });
 
   it('shows the error the inspect failed with', () => {
@@ -133,7 +133,7 @@ describe('ContainerDetailDialog', () => {
     });
     open();
 
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(document.querySelector('[aria-busy="true"]')).toBeNull();
     expect(rowFor('CPU now')).toHaveTextContent('3.2% of unlimited');
     expect(rowFor('Memory now')).toHaveTextContent('128.0 MB of unlimited');
     expect(screen.getAllByText('—')).toHaveLength(4);

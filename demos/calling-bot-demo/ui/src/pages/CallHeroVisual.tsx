@@ -1,5 +1,5 @@
 import PhoneDisabledIcon from '@mui/icons-material/PhoneDisabled';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { EmptyState } from '@exyconn/shell/components/feedback/EmptyState';
 import { BrowserCallPanel } from '../components/BrowserCallPanel';
 
@@ -13,7 +13,7 @@ interface CallHeroVisualProps {
 /** The hero's right side: the phone to call from, once the bot is known to be set up. */
 export function CallHeroVisual({ loading, available, scenarioId }: Readonly<CallHeroVisualProps>) {
   if (loading) {
-    return <LoadingState />;
+    return <PanelSkeleton lines={4} />;
   }
   if (available) {
     return <BrowserCallPanel scenarioId={scenarioId} />;

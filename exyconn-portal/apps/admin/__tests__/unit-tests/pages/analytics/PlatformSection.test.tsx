@@ -23,10 +23,10 @@ describe('PlatformSection', () => {
       ],
     });
     const section = screen.getByRole('region', { name: 'Platform' });
-    expect(within(section).getByRole('progressbar')).toBeInTheDocument();
+    expect(within(section).getByRole('status')).toHaveAttribute('aria-busy', 'true');
 
     expect(await within(section).findByText('Organizations')).toBeInTheDocument();
-    expect(within(section).queryByRole('progressbar')).toBeNull();
+    expect(section.querySelector('[aria-busy=\"true\"]')).toBeNull();
     expect(within(section).getByText('300')).toBeInTheDocument();
     expect(within(section).getByText('250')).toBeInTheDocument();
     // Months are YYYY-MM keys and are drawn exactly as they come; an unset country says so.
@@ -39,6 +39,6 @@ describe('PlatformSection', () => {
     });
     expect(await screen.findByText('Forbidden')).toBeInTheDocument();
     expect(screen.queryByText('Organizations')).toBeNull();
-    expect(screen.queryByRole('progressbar')).toBeNull();
+    expect(document.querySelector('[aria-busy="true"]')).toBeNull();
   });
 });

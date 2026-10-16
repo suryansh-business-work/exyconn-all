@@ -50,7 +50,7 @@ describe('TimeLogSessions', () => {
     answer(undefined, true);
     renderWithProviders(<TimeLogSessions {...PROPS} canViewScreenshots />);
 
-    expect(screen.getByText('Loading runs…')).toBeInTheDocument();
+    expect(screen.getByText('Loading runs')).toBeInTheDocument();
     expect(gql.sessions).toHaveBeenCalledWith({ variables: PROPS });
   });
 

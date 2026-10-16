@@ -1,7 +1,7 @@
 import { useT } from '@exyconn/i18n';
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import HourglassBottomIcon from '@mui/icons-material/HourglassBottom';
 
 /** Just enough of an employee to say whose probation is ending, and when. */
@@ -30,7 +30,7 @@ export function HrProbations({ rows, formatDate, loading = false }: Readonly<HrP
   return (
     <Box sx={[panel, { height: '100%' }]}>
       <Heading level={6}>{t('Coming off probation')}</Heading>
-      {loading && <LoadingState />}
+      {loading && <PanelSkeleton lines={3} title={false} bare />}
       {!loading && rows.length === 0 && (
         <Text size="sm" color="text.secondary">
           {t('Nobody’s probation ends in the next 30 days.')}

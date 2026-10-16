@@ -59,9 +59,9 @@ jobs:
       - run: pnpm install --frozen-lockfile
       # The server resolves @exyconn/wa-flow through its compiled dist (types included), and
       # dist is never committed, so it is built before anything typechecks the server.
-      - name: Build @exyconn/wa-flow, @exyconn/cms and @exyconn/gcc-cost
+      - name: Build @exyconn/wa-flow, @exyconn/cms, @exyconn/gcc-cost and @exyconn/csv
         if: inputs.server
-        run: pnpm --filter @exyconn/wa-flow --filter @exyconn/cms --filter @exyconn/gcc-cost build
+        run: pnpm --filter @exyconn/wa-flow --filter @exyconn/cms --filter @exyconn/gcc-cost --filter @exyconn/csv build
       # A workspace package the portal image does not copy the manifest for builds an image with
       # nothing installed, and dies on "tsc: not found" twenty minutes into a deploy.
       - name: Docker images copy every workspace package they build from
@@ -176,8 +176,8 @@ jobs:
           key: mongoms-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: mongoms-${{ runner.os }}-
       - run: pnpm install --frozen-lockfile
-      - name: Build @exyconn/wa-flow, @exyconn/cms and @exyconn/gcc-cost
-        run: pnpm --filter @exyconn/wa-flow --filter @exyconn/cms --filter @exyconn/gcc-cost build
+      - name: Build @exyconn/wa-flow, @exyconn/cms, @exyconn/gcc-cost and @exyconn/csv
+        run: pnpm --filter @exyconn/wa-flow --filter @exyconn/cms --filter @exyconn/gcc-cost --filter @exyconn/csv build
       # A quarter of the suites per job, two workers each: the suite was the slowest step of CI.
       - name: Server tests
         if: ${{ !inputs.coverage }}

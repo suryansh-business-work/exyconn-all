@@ -1,19 +1,21 @@
 import { currentOrganizationId } from '../../lib/tenant';
 import { platformOperatorOrganizationId } from '../../lib/platformAccess';
 import { badRequest, forbidden } from '../../utils/errors';
-import { logger } from '../../utils/logger';
 import { isEmailAddress } from '../../utils/emailAddress';
 import { timelineTarget } from '../crm/timeline/crm.timeline';
-import { connectedConfig, gmailClient, type GmailMessage } from './gmail.client';
-import { addressesIn, headerOf, plainTextOf } from './gmail.mime';
-import { CrmEmailMessageModel, type GmailConfigDocument } from './gmail.models';
-
-/** How many of a record's newest Gmail threads one sync reads. */
-const SYNC_THREADS = 20;
+import { gmailClient } from './gmail.client';
+import {
+  enabledMailboxes,
+  noteAccountOutcome,
+  sendingMailbox,
+  type AccountMailbox,
+} from './gmail.accounts';
+import { CrmEmailMessageModel } from './gmail.models';
+import { keepRecord, toRecord } from './gmail.sync';
 
 /**
- * The CRM's Gmail: the operator's own mailbox, so only the operator's own CRM may read or send
- * through it — a customer company never sees Exyconn's mail.
+ * The CRM's Gmail: the operator's own mailboxes, so only the operator's own CRM may read or
+ * send through them — a customer company never sees Exyconn's mail.
  */
 export async function assertOperatorCrm(): Promise<void> {
   const operator = await platformOperatorOrganizationId();
@@ -22,77 +24,9 @@ export async function assertOperatorCrm(): Promise<void> {
   }
 }
 
-type Direction = 'IN' | 'OUT';
-
-/** One Gmail message as the CRM keeps it. */
-function toRecord(message: GmailMessage, mailbox: string, sentByName = '') {
-  const from = addressesIn(headerOf(message.payload, 'From'))[0] ?? '';
-  const to = addressesIn(headerOf(message.payload, 'To'));
-  const cc = addressesIn(headerOf(message.payload, 'Cc'));
-  const direction: Direction = from === mailbox ? 'OUT' : 'IN';
-  return {
-    gmailId: message.id,
-    threadId: message.threadId,
-    messageId: headerOf(message.payload, 'Message-ID'),
-    direction,
-    from,
-    to,
-    cc,
-    participants: [...new Set([from, ...to, ...cc])],
-    subject: headerOf(message.payload, 'Subject'),
-    snippet: message.snippet ?? '',
-    bodyText: plainTextOf(message.payload).slice(0, 50_000),
-    sentAt: new Date(Number(message.internalDate ?? Date.now())),
-    sentByName,
-  };
-}
-
-const keep = (record: ReturnType<typeof toRecord>) =>
-  CrmEmailMessageModel.updateOne({ gmailId: record.gmailId }, { $set: record }, { upsert: true });
-
-/** Reads the record's newest threads from Gmail into the CRM; the old ones stay as they were. */
-async function sync(config: GmailConfigDocument, addresses: string[]): Promise<void> {
-  if (addresses.length === 0) {
-    return;
-  }
-  const query = addresses
-    .map((address) => `from:${address} OR to:${address} OR cc:${address}`)
-    .join(' OR ');
-  const ids = await gmailClient.threadIds(config, query, SYNC_THREADS);
-  const threads = await Promise.all(ids.map((id) => gmailClient.thread(config, id)));
-  await Promise.all(
-    threads.flat().map((message) => keep(toRecord(message, config.connectedEmail))),
-  );
-}
-
-/** The record's email threads, newest first, after a fresh sync (or as last synced, if Gmail fails). */
-export async function crmEmailThreads(object: 'CONTACT' | 'COMPANY', id: string) {
-  await assertOperatorCrm();
-  const config = await connectedConfig();
-  const target = await timelineTarget(object, id, SYNC_THREADS);
-  try {
-    await sync(config, target.addresses);
-  } catch (error) {
-    logger.warn({ err: error }, 'Gmail sync failed; showing what was synced before');
-  }
-  const messages = await CrmEmailMessageModel.find({ participants: { $in: target.addresses } })
-    .sort({ sentAt: 1 })
-    .lean();
-  const threads = new Map<string, typeof messages>();
-  for (const message of messages) {
-    threads.set(message.threadId, [...(threads.get(message.threadId) ?? []), message]);
-  }
-  return [...threads.entries()]
-    .map(([threadId, list]) => ({
-      threadId,
-      subject: list[0]?.subject ?? '',
-      lastAt: list.at(-1)?.sentAt ?? new Date(0),
-      messages: list.map((message) => ({ ...message, id: String(message._id) })),
-    }))
-    .sort((a, b) => b.lastAt.getTime() - a.lastAt.getTime());
-}
-
 export interface SendCrmEmailInput {
+  /** The connected account it goes out from; it has to be enabled for the CRM. */
+  fromAccountId: string;
   to: string[];
   cc?: string[] | null;
   subject: string;
@@ -105,7 +39,30 @@ export interface SendCrmEmailInput {
 const cleanAddresses = (list: string[] | null | undefined) =>
   (list ?? []).map((address) => address.trim().toLowerCase()).filter(Boolean);
 
-/** Sends as the connected mailbox and keeps the sent message on the CRM record. */
+/**
+ * How a reply joins its conversation. Gmail's thread id belongs to one mailbox, so it is only
+ * passed on when replying from the account that holds the thread; In-Reply-To and References
+ * (every Message-ID so far) thread it for everyone else's mail client either way.
+ */
+async function replyThreading(input: SendCrmEmailInput, mailbox: AccountMailbox) {
+  if (!input.threadId) {
+    return { threadId: undefined, inReplyTo: undefined, references: [] };
+  }
+  const earlier = await CrmEmailMessageModel.find({ threadId: input.threadId })
+    .sort({ sentAt: 1 })
+    .select('accountId messageId')
+    .lean();
+  const references = [...new Set(earlier.map((message) => message.messageId).filter(Boolean))];
+  const sameMailbox = earlier.some((message) => message.accountId === mailbox.id);
+  const answering = input.inReplyTo?.trim() ?? '';
+  return {
+    threadId: sameMailbox ? input.threadId : undefined,
+    inReplyTo: answering === '' ? references.at(-1) : answering,
+    references,
+  };
+}
+
+/** Sends from the chosen account and keeps the sent message, with its thread, on the record. */
 export async function sendCrmEmail(input: SendCrmEmailInput, sentByName: string) {
   await assertOperatorCrm();
   const to = cleanAddresses(input.to);
@@ -116,21 +73,48 @@ export async function sendCrmEmail(input: SendCrmEmailInput, sentByName: string)
   if (input.subject.trim() === '' || input.body.trim() === '') {
     badRequest('Write a subject and a message.');
   }
-  const config = await connectedConfig();
-  const sent = await gmailClient.send(
-    config,
-    {
-      from: config.connectedEmail,
-      to,
-      cc,
-      subject: input.subject.trim(),
-      body: input.body,
-      inReplyTo: input.inReplyTo ?? undefined,
-    },
-    input.threadId ?? undefined,
-  );
-  const full = await gmailClient.message(config, sent.id);
-  const record = toRecord(full, config.connectedEmail, sentByName);
-  await keep(record);
-  return { ...record, id: record.gmailId };
+  const mailbox = await sendingMailbox(input.fromAccountId);
+  const threading = await replyThreading(input, mailbox);
+  try {
+    const sent = await gmailClient.send(
+      mailbox,
+      {
+        from: mailbox.email,
+        to,
+        cc,
+        subject: input.subject.trim(),
+        body: input.body,
+        inReplyTo: threading.inReplyTo,
+        references: threading.references,
+      },
+      threading.threadId,
+    );
+    const record = toRecord(await gmailClient.message(mailbox, sent.id), mailbox);
+    await keepRecord(record, sentByName);
+    return { ...record, id: record.gmailId, sentByName };
+  } catch (error) {
+    await noteAccountOutcome(mailbox.id, error);
+    throw error;
+  }
+}
+
+/**
+ * Which account a new email to the record goes from by default: the one that last wrote to
+ * them, while it is still enabled; otherwise the newest connected one; null when there is none.
+ */
+export async function crmEmailSender(object: 'CONTACT' | 'COMPANY', id: string) {
+  const mailboxes = await enabledMailboxes();
+  if (mailboxes.length === 0) {
+    return null;
+  }
+  const { addresses } = await timelineTarget(object, id, 1);
+  const last = await CrmEmailMessageModel.findOne({
+    direction: 'OUT',
+    participants: { $in: addresses },
+    accountId: { $in: mailboxes.map((mailbox) => mailbox.id) },
+  })
+    .sort({ sentAt: -1 })
+    .select('accountId')
+    .lean();
+  return last?.accountId ?? mailboxes[0].id;
 }

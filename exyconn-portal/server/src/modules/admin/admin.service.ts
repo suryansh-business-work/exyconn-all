@@ -27,6 +27,7 @@ import { isValidTimezone } from '../../utils/timezone';
 import { isValidCountry } from '../../utils/iso';
 import { canonicalLocale, isValidLocale } from '../i18n/locale.constants';
 import type { WorkLocation, WorkingTime } from '../../constants/work';
+import { registerTable } from '../table-transfer/registry';
 
 /** Whitelist of the columns the Users grid may search / filter / sort. */
 const USER_TABLE_CONFIG: TableConfig = {
@@ -43,6 +44,7 @@ const USER_TABLE_CONFIG: TableConfig = {
   ],
   defaultSort: { field: 'createdAt', dir: 'DESC' },
 };
+registerTable('listUsersPaged', USER_TABLE_CONFIG);
 
 /** `isActive` -> active/inactive counts; `roles` unwound -> per-role counts (admins, distinct). */
 const USER_STATS_CONFIG: StatsConfig = { countBy: ['isActive'], unwindCountBy: ['roles'] };

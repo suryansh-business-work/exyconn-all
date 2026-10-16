@@ -35,7 +35,7 @@ describe('AnnouncementsPage', () => {
     vi.mocked(useActiveAnnouncementsQuery).mockReturnValue(queryResult({ loading: true }));
     renderWithProviders(<AnnouncementsPage />);
     expect(screen.getByRole('heading', { level: 1, name: 'Announcements' })).toBeInTheDocument();
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getByText('Loading announcements')).toBeInTheDocument();
     expect(useActiveAnnouncementsQuery).toHaveBeenCalledWith({ fetchPolicy: 'cache-and-network' });
   });
 
@@ -45,7 +45,7 @@ describe('AnnouncementsPage', () => {
     );
     renderWithProviders(<AnnouncementsPage />);
     expect(screen.getByText('Nothing announced right now.')).toBeInTheDocument();
-    expect(screen.queryByText('Loading…')).toBeNull();
+    expect(screen.queryByText('Loading announcements')).toBeNull();
   });
 
   it('lists every announcement with its category, date and body, pinning only the pinned one', () => {

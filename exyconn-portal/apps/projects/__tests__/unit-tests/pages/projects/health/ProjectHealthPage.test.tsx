@@ -31,7 +31,7 @@ describe('ProjectHealthPage', () => {
     answer(undefined, true);
     renderWithProviders(<ProjectHealthPage projectId="proj-1" />);
 
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getByText('Loading project health')).toBeInTheDocument();
     expect(gql.health).toHaveBeenCalledWith({
       variables: { id: 'proj-1' },
       skip: false,

@@ -12,6 +12,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { AiModelPriceForm, type AiModelPriceRow } from './forms/ai-model-price';
 import { AiSpendLimitForm } from './forms/ai-spend-limit';
+import { FormSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 /** Prices are small numbers; six decimals is where the cheapest models stop rounding to 0. */
 const PRICE_DIGITS = 6;
@@ -91,7 +92,7 @@ export function AiPricingPanel() {
           onDone={() => limit.refetch()}
         />
       ) : (
-        <Text size="sm">{t('Loading the budget…')}</Text>
+        <FormSkeleton fields={2} label="Loading the budget" />
       )}
     </Box>
   );

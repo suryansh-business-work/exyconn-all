@@ -12,11 +12,11 @@ describe('BrandingPage', () => {
       mocks: [{ request: { query: BrandingDocument }, result: { data: { branding: branding() } } }],
     });
     expect(screen.getByRole('heading', { name: 'Branding' })).toBeInTheDocument();
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getByText('Loading branding')).toBeInTheDocument();
 
     expect(await screen.findByRole('textbox', { name: 'Business name' })).toHaveValue('Acme');
     expect(screen.getByRole('tab', { name: 'Identity' })).toHaveAttribute('aria-selected', 'true');
-    expect(screen.queryByText('Loading…')).toBeNull();
+    expect(screen.queryByText('Loading branding')).toBeNull();
   });
 
   it('says branding is unavailable when it cannot be read', async () => {

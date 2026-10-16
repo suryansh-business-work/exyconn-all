@@ -62,7 +62,10 @@ describe('SiteLayout', () => {
     answer({ loading: true });
     renderLayout('/website/s/main');
 
-    expect(screen.getByRole('progressbar', { name: 'Loading the website' })).toBeInTheDocument();
+    expect(screen.getByText('Loading the website').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
     expect(readLastSite()).toBeNull();
   });
 

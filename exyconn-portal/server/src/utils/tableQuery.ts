@@ -12,7 +12,20 @@ import { badRequest } from './errors';
  */
 
 export type SortDir = 'ASC' | 'DESC';
-export type FilterOp = 'CONTAINS' | 'STARTS_WITH' | 'EQUALS' | 'GT' | 'LT';
+export type FilterOp =
+  | 'CONTAINS'
+  | 'NOT_CONTAINS'
+  | 'STARTS_WITH'
+  | 'ENDS_WITH'
+  | 'EQUALS'
+  | 'NOT_EQUALS'
+  | 'GT'
+  | 'GTE'
+  | 'LT'
+  | 'LTE'
+  | 'BLANK'
+  | 'NOT_BLANK'
+  | 'IN';
 
 export interface TableSortInput {
   field: string;
@@ -23,6 +36,8 @@ export interface TableFilterInput {
   field: string;
   op: FilterOp;
   value: string;
+  /** The values an IN filter matches any of; other operators ignore it. */
+  values?: string[] | null;
 }
 
 export interface TableQueryInput {
@@ -31,6 +46,8 @@ export interface TableQueryInput {
   pageSize: number;
   search?: string | null;
   sort?: TableSortInput | null;
+  /** Several sort columns, most significant first; when set it wins over `sort`. */
+  sorts?: TableSortInput[] | null;
   filters?: TableFilterInput[] | null;
 }
 
@@ -65,6 +82,8 @@ export const TABLE_QUERY_LIMITS = Object.freeze({
   maxSearchLength: 100,
   maxFilters: 20,
   maxFilterValueLength: 200,
+  maxFilterValues: 50,
+  maxSorts: 5,
   maxSkip: 100_000,
 });
 
@@ -77,22 +96,43 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-/** Translates one whitelisted column filter into its Mongo condition. */
-function filterCondition(op: FilterOp, value: string): unknown {
-  const escaped = escapeRegex(value);
-  if (op === 'CONTAINS') {
-    return { $regex: escaped, $options: 'i' };
+/** What a blank cell holds: nothing stored, or an empty string. */
+const BLANK_VALUES = [null, ''];
+
+/** The operators that read no value: a filter for them is kept even when its value is ''. */
+const VALUELESS_OPS: ReadonlySet<FilterOp> = new Set(['BLANK', 'NOT_BLANK']);
+
+/**
+ * Builds the Mongo condition for one operator. Comparison values stay strings: Mongoose casts
+ * them to the field's schema type (a number, a date), so `GT '0'` and an ISO instant both work.
+ */
+const FILTER_CONDITIONS: Record<Exclude<FilterOp, 'IN'>, (value: string) => unknown> = {
+  CONTAINS: (value) => ({ $regex: escapeRegex(value), $options: 'i' }),
+  NOT_CONTAINS: (value) => ({ $not: new RegExp(escapeRegex(value), 'i') }),
+  STARTS_WITH: (value) => ({ $regex: `^${escapeRegex(value)}`, $options: 'i' }),
+  ENDS_WITH: (value) => ({ $regex: `${escapeRegex(value)}$`, $options: 'i' }),
+  EQUALS: (value) => value,
+  NOT_EQUALS: (value) => ({ $ne: value }),
+  GT: (value) => ({ $gt: value }),
+  GTE: (value) => ({ $gte: value }),
+  LT: (value) => ({ $lt: value }),
+  LTE: (value) => ({ $lte: value }),
+  BLANK: () => ({ $in: BLANK_VALUES }),
+  NOT_BLANK: () => ({ $nin: BLANK_VALUES }),
+};
+
+/** Whether a filter asks for anything: a value, a list of them, or an operator that needs none. */
+function isActive(filter: TableFilterInput): boolean {
+  if (filter.op === 'IN') {
+    return (filter.values ?? []).length > 0;
   }
-  if (op === 'STARTS_WITH') {
-    return { $regex: `^${escaped}`, $options: 'i' };
-  }
-  if (op === 'GT') {
-    return { $gt: value };
-  }
-  if (op === 'LT') {
-    return { $lt: value };
-  }
-  return value;
+  return filter.value !== '' || VALUELESS_OPS.has(filter.op);
+}
+
+function filterCondition(filter: TableFilterInput): unknown {
+  return filter.op === 'IN'
+    ? { $in: filter.values ?? [] }
+    : FILTER_CONDITIONS[filter.op](filter.value);
 }
 
 /** Builds the combined Mongo filter from the base filter, search and column filters. */
@@ -111,8 +151,8 @@ function buildFilter<T>(
 
   const filterFields = new Set(config.filterFields);
   for (const filter of input.filters ?? []) {
-    if (filterFields.has(filter.field) && filter.value !== '') {
-      and.push({ [filter.field]: filterCondition(filter.op, filter.value) });
+    if (filterFields.has(filter.field) && isActive(filter)) {
+      and.push({ [filter.field]: filterCondition(filter) });
     }
   }
 
@@ -131,22 +171,33 @@ function assertWithinLimits(input: TableQueryInput, skip: number): void {
   if (filters.length > TABLE_QUERY_LIMITS.maxFilters) {
     badRequest(`At most ${TABLE_QUERY_LIMITS.maxFilters} filters per request`);
   }
-  if (filters.some((filter) => filter.value.length > TABLE_QUERY_LIMITS.maxFilterValueLength)) {
+  if (filters.some((filter) => (filter.values?.length ?? 0) > TABLE_QUERY_LIMITS.maxFilterValues)) {
+    badRequest(`An IN filter is limited to ${TABLE_QUERY_LIMITS.maxFilterValues} values`);
+  }
+  const values = filters.flatMap((filter) => [filter.value, ...(filter.values ?? [])]);
+  if (values.some((value) => value.length > TABLE_QUERY_LIMITS.maxFilterValueLength)) {
     badRequest(
       `A filter value is limited to ${TABLE_QUERY_LIMITS.maxFilterValueLength} characters`,
     );
+  }
+  if ((input.sorts?.length ?? 0) > TABLE_QUERY_LIMITS.maxSorts) {
+    badRequest(`At most ${TABLE_QUERY_LIMITS.maxSorts} sort columns per request`);
   }
   if (skip > TABLE_QUERY_LIMITS.maxSkip) {
     badRequest('That page is too far in; narrow the search or filters instead');
   }
 }
 
-/** Resolves the sort, falling back to the config default when the field isn't allowed. */
+/**
+ * Resolves the sort: the allowed columns of `sorts` in order, else `sort` when its column is
+ * allowed, else the config default.
+ */
 function buildSort(input: TableQueryInput, config: TableConfig): Record<string, 1 | -1> {
   const sortFields = new Set(config.sortFields);
-  const useRequested = Boolean(input.sort && sortFields.has(input.sort.field));
-  const sort = useRequested ? (input.sort as TableSortInput) : config.defaultSort;
-  return { [sort.field]: sort.dir === 'DESC' ? -1 : 1 };
+  const requested = input.sorts ?? (input.sort ? [input.sort] : []);
+  const allowed = requested.filter((sort) => sortFields.has(sort.field));
+  const sorts = allowed.length > 0 ? allowed : [config.defaultSort];
+  return Object.fromEntries(sorts.map((sort) => [sort.field, sort.dir === 'DESC' ? -1 : 1]));
 }
 
 /** Which columns to bucket-count and which numeric columns to sum for a dashboard. */

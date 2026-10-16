@@ -66,7 +66,7 @@ describe('PeoplePage', () => {
   it('shows loading, then the error, while there is no profile', () => {
     gql.profile.mockReturnValue({ data: undefined, loading: true, error: undefined });
     const { unmount } = renderWithProviders(<PeoplePage />, profileRoute);
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getByText('Loading the IT profile')).toBeInTheDocument();
     unmount();
 
     gql.profile.mockReturnValue({

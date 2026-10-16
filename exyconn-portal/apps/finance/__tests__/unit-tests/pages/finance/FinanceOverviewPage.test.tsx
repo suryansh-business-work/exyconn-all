@@ -87,7 +87,7 @@ describe('FinanceOverviewPage', () => {
     gql.result.mockReturnValue({ data: undefined, loading: true });
     renderWithProviders(<FinanceOverviewPage />);
 
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getAllByRole('status')[0]).toHaveAttribute('aria-busy', 'true');
     expect(screen.queryByText('Earned and spent')).not.toBeInTheDocument();
   });
 
@@ -129,7 +129,7 @@ describe('FinanceOverviewPage', () => {
 
     const position = screen.getByText('Position today').parentElement as HTMLElement;
     expect(within(position).getAllByText(formatMoney(0)).length).toBeGreaterThanOrEqual(1);
-    expect(screen.queryByText('Loading…')).not.toBeInTheDocument();
+    expect(document.querySelector('[aria-busy="true"]')).toBeNull();
   });
 
   it('re-asks for the period somebody picks', async () => {

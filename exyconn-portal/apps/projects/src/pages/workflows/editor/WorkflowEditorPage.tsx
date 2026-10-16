@@ -6,7 +6,11 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import EditIcon from '@mui/icons-material/EditOutlined';
 import SaveIcon from '@mui/icons-material/SaveOutlined';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import {
+  ChartSkeleton,
+  PageHeaderSkeleton,
+  SkeletonStatus,
+} from '@exyconn/shell/components/feedback/skeletons';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { WorkflowForm } from '../forms/workflow';
@@ -34,7 +38,12 @@ export function WorkflowEditorPage() {
   const { workflow } = editor;
 
   if (editor.loading) {
-    return <LoadingState />;
+    return (
+      <SkeletonStatus>
+        <PageHeaderSkeleton />
+        <ChartSkeleton height={480} />
+      </SkeletonStatus>
+    );
   }
   if (editor.error || !workflow) {
     return (

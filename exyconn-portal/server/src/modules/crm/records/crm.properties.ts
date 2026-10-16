@@ -1,7 +1,8 @@
+import type { HydratedDocument } from 'mongoose';
 import { recordAudit } from '../../audit';
 import { badRequest, notFound } from '../../../utils/errors';
 import type { GraphQLContext } from '../../../middleware/auth';
-import { CrmPropertyModel } from './crm-property.model';
+import { CrmPropertyModel, type CrmPropertyDocument } from './crm-property.model';
 import {
   CHOICE_TYPES,
   isBuiltInKey,
@@ -22,6 +23,8 @@ const MAX_OPTIONS = 100;
 const MAX_LABEL = 80;
 const MAX_DESCRIPTION = 300;
 const MAX_KEY = 40;
+/** MongoDB's code for a write the unique {object, key} index refused. */
+const DUPLICATE_KEY = 11000;
 
 /**
  * The same rule as `CRM_PROPERTY_KEY` in @exyconn/regex, which the settings form uses (the
@@ -93,37 +96,79 @@ export async function listProperties(object: CrmObject) {
   return rows.map((row) => present(row as unknown as PropertyRow));
 }
 
-export async function createProperty(ctx: GraphQLContext, input: CrmPropertyInput) {
+/** A new property for several record types at once: one row per type, all with the same key. */
+export type CrmPropertiesInput = Omit<CrmPropertyInput, 'object'> & { objects: CrmObject[] };
+
+/** Why the key cannot be used on this record type, or null when it is free. */
+async function keyProblem(object: CrmObject, key: string): Promise<string | null> {
+  const { plural } = OBJECT_DEFS[object];
+  if (isBuiltInKey(object, key)) {
+    return `"${key}" is already a built-in property of ${plural}`;
+  }
+  if (await CrmPropertyModel.exists({ object, key })) {
+    return `The ${plural} already have a property with the key "${key}"`;
+  }
+  if ((await CrmPropertyModel.countDocuments({ object })) >= MAX_PER_OBJECT) {
+    return `The ${plural} already have ${MAX_PER_OBJECT} properties, the most a record type can have`;
+  }
+  return null;
+}
+
+/**
+ * Creates the property on every chosen record type. Every type is checked before anything is
+ * written, and a write that still fails (a colleague took the key a moment earlier) takes back
+ * the rows already made, so the types never end up half done.
+ */
+export async function createProperties(ctx: GraphQLContext, input: CrmPropertiesInput) {
+  const objects = [...new Set(input.objects)];
+  if (objects.length === 0) {
+    badRequest('Choose at least one record type for the property');
+  }
   const key = input.key.trim();
   if (!isPropertyKey(key)) {
     badRequest('The key starts with a letter and uses lowercase letters, digits and _ (up to 40)');
   }
-  if (isBuiltInKey(input.object, key)) {
-    badRequest(`"${key}" is already a built-in property`);
+  const options = cleanOptions(input.type, input.options);
+  const text = cleanText(input);
+  const problems = await Promise.all(objects.map((object) => keyProblem(object, key)));
+  const blocking = problems.filter((problem): problem is string => problem !== null);
+  if (blocking.length > 0) {
+    badRequest(blocking.join('. '));
   }
-  const count = await CrmPropertyModel.countDocuments({ object: input.object });
-  if (count >= MAX_PER_OBJECT) {
-    badRequest(`Up to ${MAX_PER_OBJECT} properties per record type`);
+
+  const created: HydratedDocument<CrmPropertyDocument>[] = [];
+  try {
+    for (const object of objects) {
+      const order = await CrmPropertyModel.countDocuments({ object });
+      created.push(
+        await CrmPropertyModel.create({ object, key, type: input.type, options, order, ...text }),
+      );
+    }
+  } catch (error) {
+    await CrmPropertyModel.deleteMany({ _id: { $in: created.map((row) => row._id) } });
+    if ((error as { code?: number }).code === DUPLICATE_KEY) {
+      badRequest(`A property with the key "${key}" was added a moment ago. Try another key.`);
+    }
+    throw error;
   }
-  if (await CrmPropertyModel.exists({ object: input.object, key })) {
-    badRequest(`A property with the key "${key}" already exists`);
+
+  for (const row of created) {
+    await recordAudit(ctx, {
+      action: 'CREATE',
+      module: AUDIT_MODULE,
+      entityId: row._id,
+      entityLabel: row.label,
+      summary: `Added the ${OBJECT_DEFS[row.object].module} property "${row.label}" (${row.type})`,
+    });
   }
-  const row = await CrmPropertyModel.create({
-    object: input.object,
-    key,
-    type: input.type,
-    options: cleanOptions(input.type, input.options),
-    order: count,
-    ...cleanText(input),
-  });
-  await recordAudit(ctx, {
-    action: 'CREATE',
-    module: AUDIT_MODULE,
-    entityId: row._id,
-    entityLabel: row.label,
-    summary: `Added the ${OBJECT_DEFS[input.object].module} property "${row.label}" (${row.type})`,
-  });
-  return present(row.toObject() as unknown as PropertyRow);
+  return created.map((row) => present(row.toObject() as unknown as PropertyRow));
+}
+
+/** The single-type create, kept for callers that still send one `object`. */
+export async function createProperty(ctx: GraphQLContext, input: CrmPropertyInput) {
+  const { object, ...rest } = input;
+  const [row] = await createProperties(ctx, { ...rest, objects: [object] });
+  return row;
 }
 
 export async function updateProperty(ctx: GraphQLContext, id: string, update: CrmPropertyUpdate) {

@@ -9,6 +9,7 @@ import {
   type ChartData,
 } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
+import { ChartSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 /** One month on the headcount line. */
 interface HeadcountPoint {
@@ -18,7 +19,7 @@ interface HeadcountPoint {
 
 interface HrHeadcountChartProps {
   points: readonly HeadcountPoint[];
-  /** True while the dashboard query is in flight — "Loading…" rather than "not enough yet". */
+  /** True while the dashboard query is in flight — a chart skeleton rather than "not enough yet". */
   loading: boolean;
 }
 
@@ -40,12 +41,15 @@ export function HrHeadcountChart({ points, loading }: Readonly<HrHeadcountChartP
     [points, t],
   );
 
+  if (points.length < 2 && loading) {
+    return <ChartSkeleton label="Loading the headcount chart" />;
+  }
   if (points.length < 2) {
     return (
       <Box sx={[panel, { height: '100%' }]}>
         <Text size="label">{title}</Text>
         <Paragraph color="text.secondary" sx={{ py: 4, textAlign: 'center' }}>
-          {loading ? t('Loading…') : t('Not enough history to chart yet.')}
+          {t('Not enough history to chart yet.')}
         </Paragraph>
       </Box>
     );

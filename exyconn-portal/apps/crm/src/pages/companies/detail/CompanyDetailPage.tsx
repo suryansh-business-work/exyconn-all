@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { useT } from '@exyconn/i18n';
-import { Alert, Button, Skeleton } from '@exyconn/shell/components/ui';
+import { Alert, Button } from '@exyconn/shell/components/ui';
 import { usePageTitle } from '@exyconn/shell/components/layout/usePageTitle';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
@@ -10,7 +10,12 @@ import {
   useGetCompanyQuery,
 } from '@exyconn/shell/graphql/generated';
 import { Tabber, type TabberItem } from '@exyconn/tabber';
-import { DetailLayout, EmailThreads, Timeline } from '../../../records/detail';
+import {
+  DetailLayout,
+  EmailThreads,
+  RecordDetailSkeleton,
+  Timeline,
+} from '../../../records/detail';
 import { CompanyOverview } from './CompanyOverview';
 import { CompanyPeople } from './CompanyPeople';
 import { CompanyProfile } from './CompanyProfile';
@@ -47,7 +52,7 @@ export function CompanyDetailPage() {
     );
   }
   if (!company) {
-    return <Skeleton variant="rounded" height={420} aria-busy />;
+    return <RecordDetailSkeleton label="Loading the company" />;
   }
 
   const tabs: TabberItem[] = [

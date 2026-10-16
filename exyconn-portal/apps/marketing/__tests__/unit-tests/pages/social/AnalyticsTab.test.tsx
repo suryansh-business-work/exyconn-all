@@ -147,7 +147,10 @@ describe('AnalyticsTab', () => {
   it('shows a spinner before the first report and the error when it fails', () => {
     gql.analytics.mockReturnValue({ data: undefined, loading: true });
     const { unmount } = renderWithProviders(<AnalyticsTab />);
-    expect(screen.getByRole('progressbar', { name: 'Loading' })).toBeInTheDocument();
+    expect(screen.getByText('Loading').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
     unmount();
 
     gql.analytics.mockReturnValue({

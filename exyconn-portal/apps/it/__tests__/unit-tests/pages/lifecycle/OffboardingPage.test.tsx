@@ -94,7 +94,7 @@ describe('OffboardingPage', () => {
 
     gql.offboarding.mockReturnValue({ ...answer([]), data: undefined, loading: true });
     const loading = renderWithProviders(<OffboardingPage />);
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getByText('Loading leavers')).toBeInTheDocument();
     loading.unmount();
 
     gql.offboarding.mockReturnValue(answer([], { error: new Error('Exits are unavailable') }));

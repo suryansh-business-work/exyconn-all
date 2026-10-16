@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { DndContext, DragOverlay, closestCorners } from '@dnd-kit/core';
 import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
-import { Box, CircularProgress, Flex } from '@exyconn/shell/components/ui';
+import { Box, Flex } from '@exyconn/shell/components/ui';
 import { useProjectBoard } from './useProjectBoard';
 import { useBoardDnd } from './useBoardDnd';
 import { useBoardAnnouncements } from './useBoardAnnouncements';
@@ -10,7 +10,7 @@ import { TaskCard } from './TaskCard';
 import { AddItemInput } from './AddItemInput';
 import { TicketDialog, epicOptionsOf } from '../ticket';
 import { tasksForSprint } from '../sprints/sprint-progress';
-import { CenteredState } from '@exyconn/shell/components/feedback/CenteredState';
+import { CardGridSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 interface ProjectBoardPageProps {
   projectId: string;
@@ -44,11 +44,7 @@ export function ProjectBoardPage({ projectId, sprintFilter }: Readonly<ProjectBo
   const openTicket = board.tasks.find((task) => task.id === openId) ?? null;
 
   if (board.loading && board.columns.length === 0) {
-    return (
-      <CenteredState fill>
-        <CircularProgress />
-      </CenteredState>
-    );
+    return <CardGridSkeleton count={3} avatar={false} />;
   }
 
   return (

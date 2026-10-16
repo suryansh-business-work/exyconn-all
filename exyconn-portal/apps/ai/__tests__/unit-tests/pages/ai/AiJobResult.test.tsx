@@ -36,7 +36,7 @@ describe('AiJobResult', () => {
     watched.value = { loading: true, waiting: true };
     renderWithProviders(<AiJobResult id="job-42" />);
     expect(watched.id).toBe('job-42');
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getByText('Loading the job')).toBeInTheDocument();
   });
 
   it('says so when the job has gone', () => {

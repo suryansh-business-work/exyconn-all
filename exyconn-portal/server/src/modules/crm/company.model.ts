@@ -1,5 +1,6 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
 import { companyProfileFields } from './crm.profile';
+import { companyGeoFields } from './crm.geo';
 
 /** Roughly how big the account is, for segmenting the book of business. */
 export const COMPANY_SIZES = ['1-10', '11-50', '51-200', '201-1000', '1000+'] as const;
@@ -28,6 +29,7 @@ const companySchema = new Schema(
     /** Values of the company's own properties (CRM > Settings > Properties), keyed by property. */
     custom: { type: Schema.Types.Mixed, default: {} },
     ...companyProfileFields,
+    ...companyGeoFields,
   },
   { timestamps: true },
 );

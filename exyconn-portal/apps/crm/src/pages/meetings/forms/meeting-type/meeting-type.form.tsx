@@ -17,6 +17,7 @@ import {
   type MeetingTypeRow,
   type MeetingTypeValues,
 } from './meeting-type.types';
+import { BookingRulesFields } from './booking-rules.fields';
 import { WeeklyHoursFields } from './weekly-hours.fields';
 
 interface MeetingTypeFormProps {
@@ -77,13 +78,7 @@ export function MeetingTypeForm({ initial, onDone, onCancel }: Readonly<MeetingT
       <Divider />
       <WeeklyHoursFields />
       <Divider />
-      <RhfTextField
-        name="bufferMinutes"
-        label="Buffer between meetings (minutes)"
-        inputMode="numeric"
-      />
-      <RhfTextField name="minNoticeHours" label="Minimum notice (hours)" inputMode="numeric" />
-      <RhfTextField name="maxDaysAhead" label="Bookable up to (days ahead)" inputMode="numeric" />
+      <BookingRulesFields />
       <RhfSwitch name="active" label="The booking link is open" />
     </EntityForm>
   );

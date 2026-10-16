@@ -1,6 +1,11 @@
 import { useT } from '@exyconn/i18n';
 import { Divider } from '@exyconn/shell/components/ui';
-import { RhfSelect, RhfTextField, type SelectOption } from '@exyconn/shell/components/form/rhf';
+import {
+  RhfImageField,
+  RhfSelect,
+  RhfTextField,
+  type SelectOption,
+} from '@exyconn/shell/components/form/rhf';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import { CompanyStatus } from '@exyconn/shell/graphql/generated';
 import { COMPANY_SIZES } from '../../crm.constants';
@@ -17,6 +22,12 @@ export function CompanyDetailsFields() {
   }));
   return (
     <>
+      <RhfImageField
+        name="logoUrl"
+        label={t('Company logo')}
+        folder="crm-companies"
+        helperText={t('Shown on the company page and beside its people')}
+      />
       <RhfTextField name="name" label="Company name" />
       <RhfTextField name="domain" label="Domain" helperText="e.g. exyconn.com" />
       <RhfTextField name="industry" label="Industry" />

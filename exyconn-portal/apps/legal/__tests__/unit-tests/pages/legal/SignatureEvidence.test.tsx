@@ -64,7 +64,7 @@ describe('SignatureEvidence', () => {
   it('shows progress, and no empty note, while the first answer is on its way', () => {
     answer(undefined, { loading: true });
     renderEvidence();
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Loading signatures');
     expect(screen.queryByText('Nobody has been asked to sign this yet.')).not.toBeInTheDocument();
   });
 
@@ -72,14 +72,14 @@ describe('SignatureEvidence', () => {
     answer([]);
     renderEvidence();
     expect(screen.getByText('Nobody has been asked to sign this yet.')).toBeInTheDocument();
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(screen.queryByText('Loading signatures')).not.toBeInTheDocument();
   });
 
   it('keeps showing the requests it has while a refetch runs', () => {
     answer([signature()], { loading: true });
     renderEvidence();
     expect(screen.getByText('Bob Stone')).toBeInTheDocument();
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(screen.queryByText('Loading signatures')).not.toBeInTheDocument();
   });
 
   it('shows why the requests could not be read', () => {

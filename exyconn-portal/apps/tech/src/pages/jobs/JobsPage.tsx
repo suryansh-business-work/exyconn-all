@@ -1,5 +1,5 @@
 import { useT } from '@exyconn/i18n';
-import { Alert, Box, Button, Flex, LinearProgress, Text } from '@exyconn/shell/components/ui';
+import { Alert, Box, Button, Flex, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { panel } from '@exyconn/shell/components/glass/glass';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -11,6 +11,7 @@ import {
   type BackgroundJobsQuery,
 } from '@exyconn/shell/graphql/generated';
 import { JobRow } from './JobRow';
+import { ListSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 export type BackgroundJob = BackgroundJobsQuery['backgroundJobs'][number];
 
@@ -57,7 +58,6 @@ export function JobsPage() {
         </Button>
       </PageHeader>
 
-      {loading && jobs.length === 0 && <LinearProgress sx={{ mb: 1.5 }} />}
       {error && (
         <Alert severity="error" sx={{ mb: 1.5 }}>
           {errorMessage(error, t('The job list could not be read.'))}
@@ -71,6 +71,9 @@ export function JobsPage() {
           )}
         </Text>
         <Flex direction="column">
+          {loading && jobs.length === 0 && (
+            <ListSkeleton toolbar={false} rows={5} columns={3} label="Loading jobs" />
+          )}
           {jobs.map((job) => (
             <JobRow
               key={job.key}

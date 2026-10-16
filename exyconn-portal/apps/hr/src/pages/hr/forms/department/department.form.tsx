@@ -3,7 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { RhfAutocomplete, RhfTextField } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { FormSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreateDepartmentMutation,
@@ -65,7 +65,7 @@ export function DepartmentForm({ initial, onDone, onCancel }: Readonly<Departmen
 
   // The head picker needs its options before it can show the head already chosen.
   if (!data && loading) {
-    return <LoadingState />;
+    return <FormSkeleton surface={false} />;
   }
 
   return (

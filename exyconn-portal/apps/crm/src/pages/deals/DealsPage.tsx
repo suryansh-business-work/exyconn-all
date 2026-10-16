@@ -10,6 +10,7 @@ import {
   useSetDealStageMutation,
 } from '@exyconn/shell/graphql/generated';
 import { DealForm, type DealRow } from './forms/deal';
+import { DealBoardSkeleton } from './DealBoardSkeleton';
 import { DealColumn } from './DealColumn';
 import { DealsViewToggle } from './DealsViewToggle';
 import { PIPELINE_STAGES, STAGE_ACCENTS, stageLabel } from './deals.constants';
@@ -67,7 +68,7 @@ export function DealsPage() {
   }
 
   // PageHeader translates the subtitle and fills in the count.
-  const subtitle = loading ? 'Loading pipeline…' : '{count} open and closed opportunities';
+  const subtitle = data ? '{count} open and closed opportunities' : undefined;
 
   return (
     <Box>
@@ -80,18 +81,22 @@ export function DealsPage() {
         onAction={() => setCreating(true)}
       />
 
-      <Stack direction="row" spacing={1.5} sx={{ overflowX: 'auto', pb: 1 }}>
-        {PIPELINE_STAGES.map((stage) => (
-          <DealColumn
-            key={stage}
-            stage={stage}
-            accent={STAGE_ACCENTS[stage]}
-            deals={deals.filter((deal) => deal.stage === stage)}
-            onOpen={setEditing}
-            onDropDeal={move}
-          />
-        ))}
-      </Stack>
+      {loading && !data ? (
+        <DealBoardSkeleton stages={PIPELINE_STAGES} />
+      ) : (
+        <Stack direction="row" spacing={1.5} sx={{ overflowX: 'auto', pb: 1 }}>
+          {PIPELINE_STAGES.map((stage) => (
+            <DealColumn
+              key={stage}
+              stage={stage}
+              accent={STAGE_ACCENTS[stage]}
+              deals={deals.filter((deal) => deal.stage === stage)}
+              onOpen={setEditing}
+              onDropDeal={move}
+            />
+          ))}
+        </Stack>
+      )}
     </Box>
   );
 }

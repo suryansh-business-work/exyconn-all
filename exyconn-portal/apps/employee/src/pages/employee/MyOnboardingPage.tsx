@@ -1,5 +1,5 @@
 import { useT } from '@exyconn/i18n';
-import { Alert, Box, CircularProgress, Text } from '@exyconn/shell/components/ui';
+import { Alert, Box, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
@@ -11,6 +11,7 @@ import {
   useSetOnboardingItemMutation,
 } from '@exyconn/shell/graphql/generated';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
+import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 /**
  * My Workspace › My Onboarding — the joiner's own checklist.
@@ -42,7 +43,7 @@ export function MyOnboardingPage() {
     <Box>
       <PageHeader title="My Onboarding" subtitle="Everything to settle in your first days" />
       {error && <Alert severity="error">{error.message}</Alert>}
-      {loading && !data && <CircularProgress size={24} />}
+      {loading && !data && <PanelSkeleton lines={6} />}
       {data && !checklist && (
         <Box sx={readingPanel}>
           <Text weight="medium" sx={{ display: 'block', mb: 0.5 }}>

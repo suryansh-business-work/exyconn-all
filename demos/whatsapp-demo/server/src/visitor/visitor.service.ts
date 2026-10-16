@@ -9,6 +9,7 @@ import {
 import { withId, withIds } from '../../../../../exyconn-portal/server/src/utils/serialize';
 import { WhatsappDemoVisitorModel } from './visitor.model';
 import { readVisitorPass } from './visitor.token';
+import { registerTable } from '../../../../../exyconn-portal/server/src/modules/table-transfer/registry';
 
 /** A signed-in demo visitor, as a request knows them. */
 export interface DemoVisitor {
@@ -27,6 +28,7 @@ export const VISITOR_TABLE = {
   sortFields: ['name', 'email', 'company', 'createdAt', 'lastSignInAt', 'signInCount'],
   defaultSort: { field: 'createdAt', dir: 'DESC' as const },
 };
+registerTable('whatsappDemoVisitorsPaged', VISITOR_TABLE);
 
 /**
  * The visitor a pass belongs to, or null when the pass is forged, retired (blocked, or its

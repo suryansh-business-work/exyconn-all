@@ -60,7 +60,10 @@ describe('DocPageEditor', () => {
       variables: { id: 'page-1' },
       fetchPolicy: 'cache-and-network',
     });
-    expect(screen.getByRole('progressbar', { name: 'Loading' })).toBeInTheDocument();
+    expect(screen.getByText('Loading').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
   });
 
   it('keeps showing a cached page while it refreshes', () => {

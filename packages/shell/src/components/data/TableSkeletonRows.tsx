@@ -1,22 +1,27 @@
-import { Skeleton, TableCell, TableRow } from '@/components/ui';
-
-/** Stable keys for the placeholder rows — there is no data yet to key them by. */
-const SKELETON_ROW_KEYS = ['s1', 's2', 's3', 's4', 's5'];
+import { TableCell, TableRow } from '@/components/ui';
+import { SkeletonBone } from '../feedback/skeletons/SkeletonBone';
+import { skeletonKeys } from '../feedback/skeletons/skeletonContext';
 
 interface TableSkeletonRowsProps {
   columnKeys: string[];
   /** Adds a trailing placeholder cell under the "Actions" header. */
   withActions: boolean;
+  /** How many placeholder rows to draw. */
+  rows?: number;
 }
 
 /** Placeholder rows a table shows in place of its data while a request is in flight. */
-export function TableSkeletonRows({ columnKeys, withActions }: Readonly<TableSkeletonRowsProps>) {
+export function TableSkeletonRows({
+  columnKeys,
+  withActions,
+  rows = 5,
+}: Readonly<TableSkeletonRowsProps>) {
   const cellKeys = withActions ? [...columnKeys, '__actions'] : columnKeys;
-  return SKELETON_ROW_KEYS.map((rowKey) => (
+  return skeletonKeys(rows, 'row').map((rowKey) => (
     <TableRow key={rowKey} data-testid="table-skeleton-row">
       {cellKeys.map((cellKey) => (
         <TableCell key={cellKey} sx={{ borderColor: 'divider' }}>
-          <Skeleton variant="text" />
+          <SkeletonBone variant="text" />
         </TableCell>
       ))}
     </TableRow>

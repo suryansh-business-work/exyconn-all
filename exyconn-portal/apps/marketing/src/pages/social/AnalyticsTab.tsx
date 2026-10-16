@@ -14,7 +14,7 @@ import { MetricChart } from '@exyconn/shell/components/dashboard/MetricChart';
 import { PointChart } from '@exyconn/shell/components/dashboard/PointChart';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { DashboardSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { densePanel } from '@exyconn/shell/components/glass/glass';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import {
@@ -86,7 +86,7 @@ export function AnalyticsTab() {
         ))}
       </ToggleButtonGroup>
       {error && <Text color="error">{error.message}</Text>}
-      {!data && loading && <LoadingState />}
+      {!data && loading && <DashboardSkeleton />}
       {report && (
         <>
           <StatRow stats={tilesOf(report)} />

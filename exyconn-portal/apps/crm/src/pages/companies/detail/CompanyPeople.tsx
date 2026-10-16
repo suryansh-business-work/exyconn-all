@@ -1,9 +1,10 @@
 import { Link as RouterLink } from 'react-router-dom';
 import { useT } from '@exyconn/i18n';
-import { Alert, Avatar, Flex, Link, Skeleton, Stack, Text } from '@exyconn/shell/components/ui';
+import { Alert, Flex, Link, Stack, Text } from '@exyconn/shell/components/ui';
+import { ListSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { FilterOp, useListContactsPagedQuery } from '@exyconn/shell/graphql/generated';
-import { initialsOf } from '../../../records/detail';
+import { RecordAvatar } from '../../../records/detail';
 
 const PAGE_SIZE = 100;
 
@@ -23,7 +24,7 @@ export function CompanyPeople({ companyId }: Readonly<{ companyId: string }>) {
     return <Alert severity="error">{errorMessage(error, t('Could not load the people.'))}</Alert>;
   }
   if (loading && !data) {
-    return <Skeleton variant="rounded" height={120} aria-busy />;
+    return <ListSkeleton toolbar={false} rows={3} columns={2} label="Loading the people" />;
   }
   const people = data?.listContactsPaged.rows ?? [];
   if (people.length === 0) {
@@ -33,7 +34,7 @@ export function CompanyPeople({ companyId }: Readonly<{ companyId: string }>) {
     <Stack component="ul" spacing={1.5} sx={{ p: 0, m: 0, listStyle: 'none' }}>
       {people.map((person) => (
         <Flex key={person.id} component="li" direction="row" spacing={1.5} alignItems="center">
-          <Avatar alt="">{initialsOf(person.name)}</Avatar>
+          <RecordAvatar name={person.name} src={person.avatarUrl} />
           <Stack spacing={0}>
             <Link component={RouterLink} to={`/crm/contacts/${person.id}`} sx={{ fontWeight: 600 }}>
               {person.name}

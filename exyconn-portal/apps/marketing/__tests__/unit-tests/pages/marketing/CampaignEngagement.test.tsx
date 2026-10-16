@@ -139,7 +139,7 @@ describe('CampaignEngagement', () => {
     answer(null, [], true);
     renderWithProviders(<CampaignEngagement campaignId="campaign-1" />);
 
-    expect(screen.getByText('Loading engagement…')).toBeInTheDocument();
+    expect(screen.getByText('Loading engagement')).toBeInTheDocument();
   });
 
   it.each([

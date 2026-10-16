@@ -114,6 +114,17 @@ export const crmRecordsTypeDefs = gql`
     description: String!
   }
 
+  "One new property for several record types at once: a row is made for each of objects."
+  input CrmPropertiesInput {
+    objects: [CrmObject!]!
+    key: String!
+    label: String!
+    type: CrmPropertyType!
+    options: [CrmPropertyOptionInput!]!
+    required: Boolean!
+    description: String!
+  }
+
   "The key, type and record type of a property are fixed once it exists."
   input CrmPropertyUpdateInput {
     label: String!
@@ -246,6 +257,8 @@ export const crmRecordsTypeDefs = gql`
 
   extend type Mutation {
     createCrmProperty(input: CrmPropertyInput!): CrmProperty!
+    "Creates the property on every chosen record type, or on none when any of them cannot take the key."
+    createCrmProperties(input: CrmPropertiesInput!): [CrmProperty!]!
     updateCrmProperty(id: ID!, input: CrmPropertyUpdateInput!): CrmProperty!
     "Deletes the property and its values on every record."
     deleteCrmProperty(id: ID!): Boolean!

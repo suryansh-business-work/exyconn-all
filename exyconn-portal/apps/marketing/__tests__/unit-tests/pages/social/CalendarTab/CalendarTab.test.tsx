@@ -87,14 +87,23 @@ describe('CalendarTab', () => {
     renderWithProviders(<CalendarTab />);
 
     expect(lastQuery().skip).toBe(true);
-    expect(screen.getByRole('progressbar', { name: 'Loading calendar' })).toBeInTheDocument();
-    expect(screen.getByRole('progressbar', { name: 'Loading accounts' })).toBeInTheDocument();
+    expect(screen.getByText('Loading calendar').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
+    expect(screen.getByText('Loading accounts').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
   });
 
   it('shows a spinner until the first posts arrive, and the error if they fail', () => {
     cal.calendar.mockReturnValue({ data: undefined, loading: true, refetch: cal.refetch });
     const { unmount } = renderWithProviders(<CalendarTab />);
-    expect(screen.getByRole('progressbar', { name: 'Loading calendar' })).toBeInTheDocument();
+    expect(screen.getByText('Loading calendar').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
     unmount();
 
     cal.calendar.mockReturnValue({

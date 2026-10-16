@@ -16,7 +16,12 @@ import { StatBreakdown } from '@exyconn/shell/components/dashboard/StatBreakdown
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import {
+  ChartSkeleton,
+  ListSkeleton,
+  SkeletonStatus,
+  StatTilesSkeleton,
+} from '@exyconn/shell/components/feedback/skeletons';
 import {
   useEmailDashboardQuery,
   type EmailLogFieldsFragment,
@@ -46,7 +51,13 @@ export function EmailDashboardPanel() {
   });
   const { formatDateTime } = useSettings();
   if (!data && loading) {
-    return <LoadingState />;
+    return (
+      <SkeletonStatus>
+        <StatTilesSkeleton />
+        <ChartSkeleton />
+        <ListSkeleton toolbar={false} />
+      </SkeletonStatus>
+    );
   }
 
   const board = data?.emailDashboard;

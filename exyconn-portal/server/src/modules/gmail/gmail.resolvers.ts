@@ -2,12 +2,12 @@ import { ROLES } from '../../constants/roles';
 import { actorNameOf } from '../../lib/actor';
 import { assertPermission } from '../../lib/permissions';
 import { assertPlatformStaff } from '../../lib/platformAccess';
+import { currentOrganizationId } from '../../lib/tenant';
 import type { GraphQLContext } from '../../middleware/auth';
 import type { PermissionAction } from '../permissions/permission.model';
 import { recordAudit } from '../audit';
 import { draftCrmEmail, summariseCrmRecord, type DraftCrmEmailInput } from '../crm/crm.ai';
 import {
-  disconnectGmail,
   presentGmailConfig,
   readGmailConfig,
   saveGmailConfig,
@@ -16,12 +16,21 @@ import {
   type GmailConfigInput,
 } from './gmail.connect';
 import {
+  disconnectGmailAccount,
+  enabledMailboxes,
+  listGmailAccounts,
+  presentGmailAccount,
+  setGmailAccountEnabled,
+} from './gmail.accounts';
+import {
   assertOperatorCrm,
-  crmEmailThreads,
+  crmEmailSender,
   sendCrmEmail,
   type SendCrmEmailInput,
 } from './gmail.crm';
-import { connectedConfig } from './gmail.client';
+import { crmEmailThreads } from './gmail.sync';
+import { auditGmail } from './gmail.audit';
+import { gmailClientConfig } from './gmail.client';
 
 const TECH_MODULE = 'TechConfig';
 const techStaff = (ctx: GraphQLContext, action: PermissionAction) =>
@@ -29,42 +38,59 @@ const techStaff = (ctx: GraphQLContext, action: PermissionAction) =>
 /** Emailing a contact is a CRM activity; reading their mail needs to see the contact. */
 const crmUser = (ctx: GraphQLContext, action: PermissionAction) =>
   assertPermission(ctx, 'Activity', [ROLES.CRM], action);
+/** Every Gmail account call: a CRM user with the right, in the operator's own CRM. */
+const crmGmail = async (ctx: GraphQLContext, action: PermissionAction) => {
+  const user = await crmUser(ctx, action);
+  await assertOperatorCrm();
+  return user;
+};
 
 type Kind = 'CONTACT' | 'COMPANY';
-
-const audited = async (ctx: GraphQLContext, summary: string) =>
-  recordAudit(ctx, {
-    action: 'UPDATE',
-    module: TECH_MODULE,
-    entityId: 'gmail',
-    entityLabel: 'Gmail',
-    summary,
-  });
 
 export const gmailResolvers = {
   CrmEmailMessage: {
     id: (row: { id?: string; gmailId: string }) => row.id ?? row.gmailId,
     sentByName: (row: { sentByName?: string | null }) => row.sentByName ?? '',
+    accountId: (row: { accountId?: string | null }) => row.accountId ?? '',
+    mailbox: (row: { mailbox?: string | null }) => row.mailbox ?? '',
   },
   Query: {
     gmailConfig: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       await techStaff(ctx, 'VIEW');
       return presentGmailConfig(await readGmailConfig());
     },
+    gmailAccounts: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      await crmGmail(ctx, 'VIEW');
+      return (await listGmailAccounts()).map(presentGmailAccount);
+    },
+    gmailClientReady: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      await crmGmail(ctx, 'VIEW');
+      return gmailClientConfig().then(
+        () => true,
+        () => false,
+      );
+    },
     crmEmailThreads: async (
       _p: unknown,
       { object, id }: { object: Kind; id: string },
       ctx: GraphQLContext,
     ) => {
-      await crmUser(ctx, 'VIEW');
+      await crmGmail(ctx, 'VIEW');
       return crmEmailThreads(object, id);
+    },
+    crmEmailSender: async (
+      _p: unknown,
+      { object, id }: { object: Kind; id: string },
+      ctx: GraphQLContext,
+    ) => {
+      await crmGmail(ctx, 'VIEW');
+      return crmEmailSender(object, id);
     },
     crmGmailReady: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       await crmUser(ctx, 'VIEW');
       try {
         await assertOperatorCrm();
-        await connectedConfig();
-        return true;
+        return (await enabledMailboxes()).length > 0;
       } catch {
         return false;
       }
@@ -78,7 +104,13 @@ export const gmailResolvers = {
     ) => {
       await techStaff(ctx, 'EDIT');
       const saved = await saveGmailConfig(input, await actorNameOf(ctx));
-      await audited(ctx, `Saved the Gmail connection (${input.enabled ? 'on' : 'off'})`);
+      await recordAudit(ctx, {
+        action: 'UPDATE',
+        module: TECH_MODULE,
+        entityId: 'gmail',
+        entityLabel: 'Gmail',
+        summary: `Saved the Gmail client (${input.enabled ? 'on' : 'off'})`,
+      });
       return presentGmailConfig(saved);
     },
     startGmailConnect: async (
@@ -86,14 +118,30 @@ export const gmailResolvers = {
       { returnTo }: { returnTo: string },
       ctx: GraphQLContext,
     ) => {
-      await techStaff(ctx, 'EDIT');
-      return startGmailConnect(returnTo, await actorNameOf(ctx));
+      const user = await crmGmail(ctx, 'EDIT');
+      return startGmailConnect(returnTo, {
+        id: user.id,
+        name: await actorNameOf(ctx),
+        organizationId: currentOrganizationId() ?? '',
+      });
     },
-    disconnectGmail: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
-      await techStaff(ctx, 'EDIT');
-      const saved = await disconnectGmail(await actorNameOf(ctx));
-      await audited(ctx, 'Disconnected Gmail');
-      return presentGmailConfig(saved);
+    setGmailAccountEnabled: async (
+      _p: unknown,
+      { id, enabled }: { id: string; enabled: boolean },
+      ctx: GraphQLContext,
+    ) => {
+      await crmGmail(ctx, 'EDIT');
+      const saved = await setGmailAccountEnabled(id, enabled);
+      const summary = `${enabled ? 'Turned on' : 'Turned off'} the Gmail account ${saved.email} for the CRM`;
+      await auditGmail(ctx, 'UPDATE', { id, label: saved.email }, summary);
+      return presentGmailAccount(saved);
+    },
+    disconnectGmailAccount: async (_p: unknown, { id }: { id: string }, ctx: GraphQLContext) => {
+      await crmGmail(ctx, 'EDIT');
+      const removed = await disconnectGmailAccount(id);
+      const summary = `Disconnected the Gmail account ${removed.email}`;
+      await auditGmail(ctx, 'DELETE', { id, label: removed.email }, summary);
+      return true;
     },
     testGmailConfig: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       await techStaff(ctx, 'EDIT');
@@ -105,7 +153,10 @@ export const gmailResolvers = {
       ctx: GraphQLContext,
     ) => {
       await crmUser(ctx, 'CREATE');
-      return sendCrmEmail(input, await actorNameOf(ctx));
+      const sent = await sendCrmEmail(input, await actorNameOf(ctx));
+      const summary = `Sent "${sent.subject}" from ${sent.mailbox} to ${sent.to.join(', ')}`;
+      await auditGmail(ctx, 'CREATE', { id: sent.gmailId, label: sent.subject }, summary);
+      return sent;
     },
     draftCrmEmail: async (
       _p: unknown,

@@ -185,7 +185,10 @@ describe('PageBuilderPage', () => {
   it('waits for the page and resources, and says why one could not open', () => {
     answer(undefined, { loading: true });
     const { unmount } = renderAt();
-    expect(screen.getByRole('progressbar', { name: 'Opening the page' })).toBeInTheDocument();
+    expect(screen.getByText('Opening the page').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
     unmount();
 
     answer(undefined);
@@ -197,7 +200,10 @@ describe('PageBuilderPage', () => {
   it('waits for the resources even with the page loaded, and skips without an id', () => {
     gql.resources.mockReturnValue({ resources: null, loading: true, error: undefined });
     const { unmount } = renderAt();
-    expect(screen.getByRole('progressbar', { name: 'Opening the page' })).toBeInTheDocument();
+    expect(screen.getByText('Opening the page').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
     unmount();
 
     answer(undefined, { error: new Error('Forbidden') });

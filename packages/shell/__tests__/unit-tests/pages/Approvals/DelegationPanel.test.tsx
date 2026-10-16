@@ -37,7 +37,7 @@ describe('the delegation panel', () => {
   it('shows a loading state until the arrangements arrive', async () => {
     showPanel([delegations().mock]);
 
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true');
     expect(
       await screen.findByText(
         'Nobody is covering your approvals, and you are not covering anybody.',

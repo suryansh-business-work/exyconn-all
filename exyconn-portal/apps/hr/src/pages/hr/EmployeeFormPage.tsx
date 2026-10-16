@@ -1,12 +1,13 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { useT } from '@exyconn/i18n';
-import { Box, Button, CircularProgress, Flex, Paper, Text } from '@exyconn/shell/components/ui';
+import { Box, Button, Paper, Text } from '@exyconn/shell/components/ui';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 
 import { useGetUserQuery } from '@exyconn/shell/graphql/generated';
 import { UserForm } from '@exyconn/shell/pages/user-forms/user';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
+import { FormSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 const RECORDS_PATH = '/hr/employees';
 
@@ -53,11 +54,7 @@ export function EmployeeFormPage() {
       />
 
       <Paper sx={readingPanel}>
-        {loading && !initial && (
-          <Flex direction="column" alignItems="center" sx={{ py: 6 }}>
-            <CircularProgress />
-          </Flex>
-        )}
+        {loading && !initial && <FormSkeleton fields={8} surface={false} />}
         {error && <Text color="error">{error.message || t('Failed to load the employee.')}</Text>}
         {(!isEdit || initial) && (
           <UserForm initial={initial} onDone={done} onCancel={() => navigate(RECORDS_PATH)} />

@@ -60,7 +60,7 @@ describe('MyTeamPage', () => {
     reports({ loading: true });
     renderWithProviders(<MyTeamPage />);
 
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getByText('Loading your team')).toBeInTheDocument();
     expect(screen.queryByText('Direct reports')).toBeNull();
   });
 
@@ -85,7 +85,7 @@ describe('MyTeamPage', () => {
     expect(screen.getByText('Requests')).toBeInTheDocument();
     expect(screen.getByText('Performance reviews')).toBeInTheDocument();
     expect(screen.getByText('Goals')).toBeInTheDocument();
-    expect(screen.queryByText('Loading…')).toBeNull();
+    expect(screen.queryByText('Loading your team')).toBeNull();
 
     const [, mine, theirs] = screen.getAllByRole('row');
     expect(within(mine).getByText('Asha Rao')).toBeInTheDocument();

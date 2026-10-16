@@ -3,7 +3,7 @@ import { ReactFlowProvider } from '@xyflow/react';
 import { useT } from '@exyconn/i18n';
 import { usePageTitle } from '@exyconn/shell/components/layout/usePageTitle';
 import { EmptyState } from '@exyconn/shell/components/feedback/EmptyState';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { ChartSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import {
   useWhatsappDemoAiStatusQuery,
   useWhatsappDemosQuery,
@@ -47,7 +47,7 @@ export function WorkflowEditorPage() {
     );
   }
   if (workflowQuery.loading && !workflow) {
-    return <LoadingState />;
+    return <ChartSkeleton height={480} />;
   }
   if (!workflow) {
     return (

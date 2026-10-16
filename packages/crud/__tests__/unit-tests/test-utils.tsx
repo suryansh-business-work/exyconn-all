@@ -3,7 +3,7 @@ import { render, renderHook, type RenderOptions } from '@testing-library/react';
 import { MockedProvider } from '@apollo/client/testing/react';
 import type { MockLink } from '@apollo/client/testing';
 import { MemoryRouter, useLocation } from 'react-router-dom';
-import { ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider } from '@exyconn/ui/styles';
 import { createAppTheme } from '@exyconn/ui';
 import { ConfirmProvider } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';

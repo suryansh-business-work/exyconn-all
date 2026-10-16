@@ -65,4 +65,52 @@ describe('Portal', () => {
     await userEvent.click(screen.getByRole('button', { name: new RegExp(finance.label) }));
     expect(navigateTo).toHaveBeenLastCalledWith(finance.key, finance.path);
   });
+
+  it('filters the cards by name or description and offers a way back from no match', async () => {
+    const user = makeUser({ roles: ['FINANCE', 'HR'] });
+    const [finance, hr] = accessibleModules(user.roles);
+    renderWithProviders(<Portal />, { user });
+
+    await userEvent.type(screen.getByRole('searchbox', { name: 'Search modules' }), hr.label);
+    expect(screen.getByRole('heading', { name: hr.label })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: finance.label })).not.toBeInTheDocument();
+
+    await userEvent.clear(screen.getByRole('searchbox', { name: 'Search modules' }));
+    await userEvent.type(screen.getByRole('searchbox', { name: 'Search modules' }), 'zzz-nothing');
+    expect(screen.getByText('No modules match “zzz-nothing”')).toBeInTheDocument();
+
+    await userEvent.click(screen.getAllByRole('button', { name: 'Clear search' })[0]);
+    expect(screen.getByRole('heading', { name: finance.label })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: hr.label })).toBeInTheDocument();
+  });
+
+  it('clears the search on Escape', async () => {
+    const user = makeUser({ roles: ['FINANCE', 'HR'] });
+    const [finance] = accessibleModules(user.roles);
+    renderWithProviders(<Portal />, { user });
+    const box = screen.getByRole('searchbox', { name: 'Search modules' });
+
+    await userEvent.type(box, 'zzz-nothing{Escape}');
+    expect(box).toHaveValue('');
+    expect(screen.getByRole('heading', { name: finance.label })).toBeInTheDocument();
+  });
+
+  it('sorts the cards by name both ways and back to the recommended order', async () => {
+    const user = makeUser({ roles: ['ADMIN'] });
+    const modules = accessibleModules(user.roles);
+    renderWithProviders(<Portal />, { user });
+    const order = () => screen.getAllByRole('heading', { level: 2 }).map((h) => h.textContent);
+    const byName = modules.map((module) => module.label).toSorted((a, b) => a.localeCompare(b));
+
+    const pick = async (label: string) => {
+      await userEvent.click(screen.getByRole('combobox', { name: 'Sort by' }));
+      await userEvent.click(screen.getByRole('option', { name: label }));
+    };
+    await pick('Name (A–Z)');
+    expect(order()).toEqual(byName);
+    await pick('Name (Z–A)');
+    expect(order()).toEqual(byName.toReversed());
+    await pick('Recommended');
+    expect(order()).toEqual(modules.map((module) => module.label));
+  });
 });

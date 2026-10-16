@@ -31,6 +31,7 @@
     "@mui/material": "^9.4.0",
     "@mui/system": "^9.4.0",
     "@mui/x-date-pickers": "^9.13.0",
+    "@react-google-maps/api": "^2.20.8",
     "@tiptap/pm": "^3.31.3",
     "@tiptap/react": "^3.31.3",
     "@tiptap/starter-kit": "^3.31.3",

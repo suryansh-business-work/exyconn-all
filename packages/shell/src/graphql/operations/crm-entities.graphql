@@ -11,6 +11,7 @@ fragment CompanyFields on Company {
   notes
   clientId
   isClient
+  logoUrl
   custom
   createdAt
   updatedAt
@@ -36,6 +37,11 @@ fragment CompanyFields on Company {
   annualRevenue
   employeeCount
   foundedYear
+  lat
+  lng
+  placeId
+  mapUrl
+  leadSource
 }
 
 fragment ContactFields on Contact {
@@ -49,6 +55,7 @@ fragment ContactFields on Contact {
   status
   owner
   notes
+  avatarUrl
   custom
   createdAt
   updatedAt
@@ -74,6 +81,10 @@ fragment ContactFields on Contact {
   lifecycleStage
   leadSource
   languages
+  lat
+  lng
+  placeId
+  mapUrl
 }
 
 fragment DealFields on Deal {

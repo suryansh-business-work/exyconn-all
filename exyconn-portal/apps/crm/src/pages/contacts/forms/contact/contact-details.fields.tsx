@@ -1,9 +1,11 @@
 import {
   RhfChipsInput,
+  RhfImageField,
   RhfSelect,
   RhfTextField,
   type SelectOption,
 } from '@exyconn/shell/components/form/rhf';
+import { useT } from '@exyconn/i18n';
 import { Divider } from '@exyconn/shell/components/ui';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import { ContactStatus, LifecycleStage } from '@exyconn/shell/graphql/generated';
@@ -19,8 +21,15 @@ export function ContactDetailsFields({
   companyOptions,
   onRefreshCompanies,
 }: Readonly<{ companyOptions: SelectOption[]; onRefreshCompanies: () => Promise<unknown> }>) {
+  const t = useT();
   return (
     <>
+      <RhfImageField
+        name="avatarUrl"
+        label={t('Profile picture')}
+        folder="crm-contacts"
+        helperText={t('Shown on the contact page and in the company’s people')}
+      />
       <RhfTextField name="name" label="Full name" />
       <RhfTextField name="title" label="Job title" />
       <RhfTextField name="department" label="Department" />

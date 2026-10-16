@@ -1,5 +1,6 @@
 import { Schema } from 'mongoose';
 import { badRequest } from '../../utils/errors';
+import { isWebAddress } from '../../utils/webAddress';
 
 /**
  * The richer profile a contact and a company carry beyond their name: several labelled email
@@ -57,6 +58,8 @@ const sharedProfileFields = {
 
 export const contactProfileFields = {
   ...sharedProfileFields,
+  /** The person's profile picture, hosted on ImageKit; empty shows their initials. */
+  avatarUrl: { type: String, default: '', trim: true },
   department: { type: String, default: '', trim: true },
   lifecycleStage: { type: String, enum: LIFECYCLE_STAGES, default: 'LEAD' },
   leadSource: { type: String, default: '', trim: true },
@@ -65,6 +68,8 @@ export const contactProfileFields = {
 
 export const companyProfileFields = {
   ...sharedProfileFields,
+  /** The company's logo, hosted on ImageKit; empty shows its initials. */
+  logoUrl: { type: String, default: '', trim: true },
   annualRevenue: { type: Number, default: null },
   employeeCount: { type: Number, default: null },
   foundedYear: { type: Number, default: null },
@@ -134,6 +139,15 @@ export function withPrimaries<T extends PointsInput>(input: T, emailRequired: bo
   };
 }
 
+/** The pictures a contact or company may carry: blank, or an http(s) address. */
+export function assertPictures(input: { logoUrl?: string | null; avatarUrl?: string | null }) {
+  for (const url of [input.logoUrl, input.avatarUrl]) {
+    if (url && !isWebAddress(url.trim())) {
+      badRequest('A picture must be a web address (http or https). Upload it again.');
+    }
+  }
+}
+
 type Row = Record<string, unknown> & { email?: string | null; phone?: string | null };
 
 /** A record saved before the lists existed shows its one email or phone as the primary. */
@@ -168,6 +182,7 @@ const sharedResolvers = {
 export const crmProfileResolvers = {
   Contact: {
     ...sharedResolvers,
+    avatarUrl: text('avatarUrl'),
     department: text('department'),
     lifecycleStage: (row: Row) => (row.lifecycleStage as string | undefined) ?? 'LEAD',
     leadSource: text('leadSource'),
@@ -176,6 +191,7 @@ export const crmProfileResolvers = {
   Company: {
     ...sharedResolvers,
     email: (row: Row) => emailsOf(row).find((p) => p.primary)?.address ?? '',
+    logoUrl: text('logoUrl'),
     annualRevenue: numberOrNull('annualRevenue'),
     employeeCount: numberOrNull('employeeCount'),
     foundedYear: numberOrNull('foundedYear'),

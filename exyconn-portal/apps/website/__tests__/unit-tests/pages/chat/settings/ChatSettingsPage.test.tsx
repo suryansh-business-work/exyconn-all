@@ -81,8 +81,8 @@ describe('ChatSettingsPage', () => {
     renderWithProviders(<ChatSettingsPage />);
 
     expect(
-      screen.getByRole('progressbar', { name: 'Loading the chatbot settings' }),
-    ).toBeInTheDocument();
+      screen.getByText('Loading the chatbot settings').closest('[role="status"]'),
+    ).toHaveAttribute('aria-busy', 'true');
     expect(screen.queryByText(/now$/)).toBeNull();
     expect(screen.queryByRole('form')).toBeNull();
   });

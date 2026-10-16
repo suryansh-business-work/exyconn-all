@@ -6,13 +6,19 @@ import { renderWithProviders } from '../../../test-utils';
 describe('RecordState', () => {
   it('shows a labelled spinner while the record loads', () => {
     renderWithProviders(<RecordState loading label="blog post" />);
-    expect(screen.getByRole('progressbar', { name: 'Loading the blog post' })).toBeInTheDocument();
+    expect(screen.getByText('Loading the blog post').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
   it('prefers the spinner over an error from an earlier load', () => {
     renderWithProviders(<RecordState loading error={new Error('offline')} label="case study" />);
-    expect(screen.getByRole('progressbar', { name: 'Loading the case study' })).toBeInTheDocument();
+    expect(screen.getByText('Loading the case study').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
     expect(screen.queryByText(/offline/)).not.toBeInTheDocument();
   });
 

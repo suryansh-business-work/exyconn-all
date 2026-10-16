@@ -9,6 +9,7 @@ import {
   type TableConfig,
   type TableQueryInput,
 } from '../../utils/tableQuery';
+import { registerTable } from '../table-transfer/registry';
 
 /** Whitelist of the columns the Tech > Logs grid may search / filter / sort. */
 const LOGS_TABLE_CONFIG: TableConfig = {
@@ -41,6 +42,7 @@ const LOGS_TABLE_CONFIG: TableConfig = {
   ],
   defaultSort: { field: 'lastSeenAt', dir: 'DESC' },
 };
+registerTable('listAppLogGroupsPaged', LOGS_TABLE_CONFIG);
 
 const LOGS_STATS_CONFIG: StatsConfig = { countBy: ['status', 'level', 'source'], sum: ['count'] };
 

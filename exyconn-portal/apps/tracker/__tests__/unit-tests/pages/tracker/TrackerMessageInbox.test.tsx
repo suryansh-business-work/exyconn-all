@@ -90,7 +90,10 @@ describe('TrackerMessageInbox', () => {
   it('shows a spinner until the conversations first arrive', () => {
     state.query.mockReturnValue(queryResult(undefined, true));
     renderInbox();
-    expect(screen.getByRole('progressbar', { name: 'Loading' })).toBeInTheDocument();
+    expect(screen.getByText('Loading').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
     expect(screen.queryByText('No conversations yet')).not.toBeInTheDocument();
     expect(screen.getByText(PROMPT)).toBeInTheDocument();
   });
@@ -99,6 +102,6 @@ describe('TrackerMessageInbox', () => {
     state.query.mockReturnValue(queryResult({ trackerMessageThreads: [] }, true));
     renderInbox();
     expect(screen.getByText('No conversations yet')).toBeInTheDocument();
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(document.querySelector('[aria-busy="true"]')).toBeNull();
   });
 });

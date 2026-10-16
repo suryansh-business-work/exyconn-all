@@ -60,7 +60,7 @@ describe('TeamReviewsSection', () => {
     expect(useTeamPerformanceReviewsQuery).toHaveBeenCalledWith({
       fetchPolicy: 'cache-and-network',
     });
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getByText('Loading performance reviews')).toBeInTheDocument();
   });
 
   it('says so when no appraisal cycle is open', () => {

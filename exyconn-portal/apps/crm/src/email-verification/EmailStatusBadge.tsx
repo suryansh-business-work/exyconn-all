@@ -27,10 +27,14 @@ export function EmailStatusBadge({
         when: formatDateTime(verification.checkedAt),
       })
     : t('Never checked. Click to check it now.');
-  const clickable = !verification && onCheck && !checking;
+  const clickable = Boolean(!verification && onCheck && !checking);
+  // A chip that only shows a result is an image of it, focusable so its tooltip (the reason and
+  // when) is reachable by keyboard and its name is read out (SC 2.1.1, 4.1.2).
+  const statusOnly = clickable ? {} : { role: 'img', tabIndex: 0 };
   return (
     <Tooltip title={detail}>
       <Chip
+        {...statusOnly}
         size="small"
         variant={verification ? 'filled' : 'outlined'}
         color={view.color}

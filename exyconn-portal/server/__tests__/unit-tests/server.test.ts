@@ -55,6 +55,7 @@ jest.mock('../../src/lib/migrations', () => ({
   runOnce: jest.fn((_name: string, work: () => unknown) => work()),
 }));
 jest.mock('../../src/modules/clients', () => ({ migrateClientTaxIds: jest.fn() }));
+jest.mock('../../src/modules/gmail', () => ({ migrateLegacyGmailConnection: jest.fn() }));
 jest.mock('../../src/modules/cms', () => ({ ensureCmsDefaults: jest.fn() }));
 jest.mock('../../src/modules/calling-bot-demo', () => ({
   migratePhoneProvider: jest.fn(),
@@ -84,6 +85,7 @@ const MODULES = {
   logs: '../../src/modules/logs',
   hr: '../../src/modules/hr',
   clients: '../../src/modules/clients',
+  gmail: '../../src/modules/gmail',
   callingBot: '../../src/modules/calling-bot-demo',
 } as const;
 
@@ -176,12 +178,14 @@ describe('server bootstrap', () => {
       'app-log-group-users',
       'position-defaults',
       'client-tax-ids',
+      'gmail-multi-account',
       'calling-bot-phone-provider',
       'calling-bot-phone-fields',
     ]);
     expect(m.logs.backfillAppLogGroupUsers).toHaveBeenCalled();
     expect(m.hr.backfillPositionDefaults).toHaveBeenCalled();
     expect(m.clients.migrateClientTaxIds).toHaveBeenCalled();
+    expect(m.gmail.migrateLegacyGmailConnection).toHaveBeenCalled();
     expect(m.callingBot.migratePhoneProvider).toHaveBeenCalled();
     expect(m.callingBot.backfillPhoneFields).toHaveBeenCalled();
     expect(m.callingBot.ensureCallingBotScenarios).toHaveBeenCalled();
@@ -195,9 +199,10 @@ describe('server bootstrap', () => {
       'migrateClientTaxIds',
       'ensureWhatsappDemoSeeds',
     ]);
-    // Admin access, the log-group backfill, status monitors, the two calling bot migrations, its
-    // example seeds and AI model prices run for the platform rather than for each company.
-    expect(m.tenant.runAsPlatform).toHaveBeenCalledTimes(7);
+    // Admin access, the log-group backfill, status monitors, the Gmail account migration, the two
+    // calling bot migrations, its example seeds and AI model prices run for the platform rather
+    // than for each company.
+    expect(m.tenant.runAsPlatform).toHaveBeenCalledTimes(8);
   });
 
   it('logs and exits when the database cannot be reached, serving nothing', async () => {

@@ -61,6 +61,7 @@ const BLANK_PROFILE = {
   country: '',
   timezone: '',
   description: '',
+  avatarUrl: '',
   department: '',
   lifecycleStage: LifecycleStage.Lead,
   leadSource: '',

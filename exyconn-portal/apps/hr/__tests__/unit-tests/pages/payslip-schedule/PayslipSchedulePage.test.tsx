@@ -43,7 +43,7 @@ describe('PayslipSchedulePage', () => {
     answer({ loading: true });
     renderWithProviders(<PayslipSchedulePage />);
 
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true');
     expect(screen.queryByText('Last scheduled run')).not.toBeInTheDocument();
   });
 
@@ -58,7 +58,7 @@ describe('PayslipSchedulePage', () => {
     answer({ data: { payrollSchedule: payslipSchedule() }, loading: true });
     renderWithProviders(<PayslipSchedulePage />);
 
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(document.querySelector('[aria-busy="true"]')).toBeNull();
     expect(screen.getByText('Last scheduled run')).toBeInTheDocument();
   });
 

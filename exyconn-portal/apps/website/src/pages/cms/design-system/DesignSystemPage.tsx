@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useT } from '@exyconn/i18n';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
-import { Alert, Box, Button, CircularProgress, Paper } from '@exyconn/shell/components/ui';
+import { Alert, Button, Paper } from '@exyconn/shell/components/ui';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import {
@@ -10,6 +10,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { DesignSystemForm } from '../../website/forms/cms-design-system';
 import { useCurrentSite, useSitePath } from '../site';
+import { FormSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 /** Website › Design System: the current site's colours, type, radii, shadows and spacing. */
 export function DesignSystemPage() {
@@ -53,11 +54,7 @@ export function DesignSystemPage() {
       />
     );
   } else if (loading) {
-    body = (
-      <Box sx={{ display: 'grid', placeItems: 'center', py: 6 }}>
-        <CircularProgress aria-label={t('Loading the design system')} />
-      </Box>
-    );
+    body = <FormSkeleton fields={6} label="Loading the design system" />;
   } else if (error) {
     body = <Alert severity="error">{error.message}</Alert>;
   } else {

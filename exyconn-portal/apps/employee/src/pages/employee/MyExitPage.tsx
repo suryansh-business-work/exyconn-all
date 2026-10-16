@@ -13,6 +13,7 @@ import { DetailRow } from '@exyconn/shell/components/data/DetailRow';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { BoolChip } from '@exyconn/shell/components/data/BoolChip';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
+import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { formatMoney } from '@exyconn/shell/utils/money';
@@ -88,11 +89,7 @@ export function MyExitPage() {
   if (exit) {
     content = <ExitSummary exit={exit} formatDate={formatDate} />;
   } else if (loading) {
-    content = (
-      <Box sx={readingPanel}>
-        <Text>{t('Loading…')}</Text>
-      </Box>
-    );
+    content = <PanelSkeleton lines={6} label="Loading your exit" />;
   }
 
   return (

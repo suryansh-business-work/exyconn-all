@@ -48,6 +48,8 @@ export const crmProfileTypeDefs = gql`
     lifecycleStage: LifecycleStage!
     leadSource: String!
     languages: [String!]!
+    "The profile picture's web address; empty when there is none."
+    avatarUrl: String!
     website: String!
     linkedinUrl: String!
     twitterUrl: String!
@@ -63,6 +65,8 @@ export const crmProfileTypeDefs = gql`
   extend type Company {
     "The primary email address, empty when there is none."
     email: String!
+    "The logo's web address; empty when there is none."
+    logoUrl: String!
     emails: [CrmEmailAddress!]!
     phones: [CrmPhoneNumber!]!
     website: String!
@@ -85,6 +89,7 @@ export const crmProfileTypeDefs = gql`
     lifecycleStage: LifecycleStage
     leadSource: String
     languages: [String!]
+    avatarUrl: String
     website: String
     linkedinUrl: String
     twitterUrl: String
@@ -96,6 +101,7 @@ export const crmProfileTypeDefs = gql`
   }
 
   extend input CompanyInput {
+    logoUrl: String
     emails: [CrmEmailAddressInput!]
     phones: [CrmPhoneNumberInput!]
     website: String

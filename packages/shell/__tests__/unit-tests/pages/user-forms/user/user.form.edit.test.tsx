@@ -48,7 +48,7 @@ describe('UserForm — editing an employee', () => {
         saveSalaryMock(salary.match),
       ]);
 
-      expect(screen.getByLabelText('Loading compensation')).toBeInTheDocument();
+      expect(screen.getByRole('status')).toHaveTextContent('Loading compensation');
       expect(await screen.findByLabelText('New password (optional)', {}, SLOW)).toHaveValue('');
       expect(
         screen.getByText('The same roles the Admin console shows — this is one user record.'),

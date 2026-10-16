@@ -1,18 +1,10 @@
 import { Link as RouterLink, useParams } from 'react-router-dom';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import { useT } from '@exyconn/i18n';
-import {
-  Alert,
-  Box,
-  ButtonBase,
-  Divider,
-  Flex,
-  Skeleton,
-  Stack,
-  Text,
-} from '@exyconn/shell/components/ui';
+import { Alert, Box, ButtonBase, Divider, Flex, Stack, Text } from '@exyconn/shell/components/ui';
 import { usePublicBookingPageQuery } from '@exyconn/shell/graphql/generated';
 import { BookingFrame } from './BookingFrame';
+import { BookingProfileSkeleton } from './BookingSkeletons';
 
 /** A company's scheduling page (crm.exyconn.com/book/:org): every meeting it takes bookings for. */
 export function BookingProfilePage() {
@@ -21,11 +13,7 @@ export function BookingProfilePage() {
   const { data, loading } = usePublicBookingPageQuery({ variables: { org } });
   const page = data?.publicBookingPage;
   if (loading && !page) {
-    return (
-      <BookingFrame>
-        <Skeleton variant="rounded" height={240} aria-busy />
-      </BookingFrame>
-    );
+    return <BookingProfileSkeleton />;
   }
   if (!page) {
     return (

@@ -28,7 +28,7 @@ const cardTitles = () => screen.getAllByRole('heading', { level: 6 }).map((h) =>
 describe('PoliciesPage', () => {
   it('says it is loading before the first answer', () => {
     renderPage({ loading: true });
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getByText('Loading policies')).toBeInTheDocument();
   });
 
   it('says none are published when the list is empty', () => {

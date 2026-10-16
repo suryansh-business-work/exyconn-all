@@ -39,10 +39,11 @@ export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   'GoogleSignInConfig',
   'GoogleSignInState',
   'GoogleSignInTicket',
-  // The shared Gmail mailbox the operator's CRM sends from (Tech > Environment Variables >
-  // Gmail), and a connection in progress. The messages it syncs (CrmEmailMessage) are CRM
-  // data and stay scoped to the company.
+  // The Google client the operator's CRM Gmail connects through (Tech > Environment Variables >
+  // Gmail), the mailboxes connected with it (CRM > Connect Gmail), and a connection in
+  // progress. The messages they sync (CrmEmailMessage) are CRM data and stay company-scoped.
   'GmailConfig',
+  'GmailAccount',
   'GmailOAuthState',
   'TrackerBuildSettings',
   // The AI calling bot demo (demos.exyconn.com/calling-bot-demo): its settings and its calls
@@ -50,6 +51,8 @@ export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   'CallingBotConfig',
   // How the email verifier reaches mail servers (a SOCKS5 proxy): one for the install.
   'EmailVerifierConfig',
+  // The Google Maps Platform keys behind the CRM lead generator and maps: one for the install.
+  'GoogleMapsConfig',
   'CallingBotCall',
   'CallingBotScenario',
   // NOTE: the support mailbox (InboundMailConfig) is deliberately NOT here — a company reads

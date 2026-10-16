@@ -7,12 +7,15 @@ describe('BuilderState', () => {
   it('says why the document could not be opened, even while loading', () => {
     renderWithProviders(<BuilderState loading error={new Error('Forbidden')} label="page" />);
     expect(screen.getByText('Could not open the page: Forbidden')).toBeInTheDocument();
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(document.querySelector('[aria-busy="true"]')).toBeNull();
   });
 
   it('shows a spinner naming what is opening', () => {
     renderWithProviders(<BuilderState loading label="fragment" />);
-    expect(screen.getByRole('progressbar', { name: 'Opening the fragment' })).toBeInTheDocument();
+    expect(screen.getByText('Opening the fragment').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
   });
 
   it('says the document no longer exists once loading is over', () => {

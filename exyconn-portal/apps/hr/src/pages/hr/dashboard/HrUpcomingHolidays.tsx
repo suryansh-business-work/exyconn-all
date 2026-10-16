@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 import { useT } from '@exyconn/i18n';
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import CelebrationIcon from '@mui/icons-material/Celebration';
 import type { HolidayLike } from '@exyconn/shell/utils/upcomingHolidays';
 
@@ -23,7 +23,7 @@ export function HrUpcomingHolidays({
   return (
     <Box sx={[panel, { height: '100%' }]}>
       <Heading level={6}>{t('Upcoming holidays')}</Heading>
-      {loading && <LoadingState />}
+      {loading && <PanelSkeleton lines={3} title={false} bare />}
       {!loading && holidays.length === 0 && (
         <Text size="sm" color="text.secondary">
           {t('No holidays scheduled ahead.')}

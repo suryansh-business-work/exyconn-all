@@ -116,6 +116,7 @@ import { websiteTypeDefs, websiteResolvers } from '../modules/website';
 import { trackerTypeDefs, trackerResolvers } from '../modules/tracker';
 import { brandingTypeDefs, brandingResolvers } from '../modules/branding';
 import { i18nTypeDefs, i18nResolvers } from '../modules/i18n';
+import { tableTransferTypeDefs, tableTransferResolvers } from '../modules/table-transfer';
 import { announcementsTypeDefs, announcementsResolvers } from '../modules/announcements';
 import { notificationsTypeDefs, notificationsResolvers } from '../modules/notifications';
 import { requestsTypeDefs, requestsResolvers } from '../modules/requests';
@@ -152,6 +153,9 @@ import {
   emailVerificationTypeDefs,
   emailVerificationResolvers,
 } from '../modules/email-verification';
+import { googleMapsTypeDefs, googleMapsResolvers } from '../modules/google-maps';
+import { crmGeoResolvers } from '../modules/crm/crm.geo';
+import { crmGeoTypeDefs } from '../modules/crm/crm.geo.typeDefs';
 import {
   whatsappChannelTypeDefs,
   whatsappChannelResolvers,
@@ -283,6 +287,7 @@ export const typeDefs = [
   trackerTypeDefs,
   brandingTypeDefs,
   i18nTypeDefs,
+  tableTransferTypeDefs,
   announcementsTypeDefs,
   notificationsTypeDefs,
   requestsTypeDefs,
@@ -314,6 +319,8 @@ export const typeDefs = [
   whatsappDemoTypeDefs,
   callingBotTypeDefs,
   emailVerificationTypeDefs,
+  googleMapsTypeDefs,
+  crmGeoTypeDefs,
   whatsappChannelTypeDefs,
   whatsappDemoVisitorTypeDefs,
   clientHubTypeDefs,
@@ -382,6 +389,7 @@ export const resolvers = mergeResolvers([
   trackerResolvers,
   brandingResolvers,
   i18nResolvers,
+  tableTransferResolvers,
   announcementsResolvers,
   notificationsResolvers,
   requestsResolvers,
@@ -410,6 +418,8 @@ export const resolvers = mergeResolvers([
   whatsappDemoResolvers,
   callingBotResolvers,
   emailVerificationResolvers,
+  googleMapsResolvers,
+  crmGeoResolvers,
   whatsappChannelResolvers,
   whatsappDemoVisitorResolvers,
   clientHubResolvers,

@@ -1,9 +1,10 @@
-import { Box, Divider, Flex, Grid, Heading, Text, CircularProgress } from '@/components/ui';
+import { Box, Divider, Flex, Grid, Heading, Text } from '@/components/ui';
 import { formatDuration, activityPercent } from './tracker.format';
 import { TrackerDayCharts } from './TrackerDayCharts';
 import { TrackerDayProjects } from './TrackerDayProjects';
 import { TrackerScreenshotGallery } from './TrackerScreenshotGallery';
 import type { DateTimeFormatter, TrackerDayData } from './tracker.types';
+import { PanelSkeleton } from '@/components/feedback/skeletons';
 
 const EMPTY_TOTALS = { activeMs: 0, idleMs: 0, keyCount: 0, mouseCount: 0 };
 
@@ -55,11 +56,7 @@ export function TrackerDayPanel({
 }: Readonly<TrackerDayPanelProps>) {
   if (!selected) return <PanelMessage text="Select a day to see the breakdown." />;
   if (loading) {
-    return (
-      <Flex justifyContent="center" sx={{ py: 4 }}>
-        <CircularProgress size={22} aria-label="Loading day" />
-      </Flex>
-    );
+    return <PanelSkeleton lines={6} bare label="Loading day" />;
   }
   if (!day) return <PanelMessage text="No activity for this day." />;
 

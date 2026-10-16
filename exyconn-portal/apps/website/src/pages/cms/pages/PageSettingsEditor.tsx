@@ -1,7 +1,8 @@
 import { useT } from '@exyconn/i18n';
-import { Alert, Box, CircularProgress } from '@exyconn/shell/components/ui';
+import { Alert } from '@exyconn/shell/components/ui';
 import { useCmsPageQuery } from '@exyconn/shell/graphql/generated';
 import { CmsPageSettingsForm } from '../../website/forms/cms-page-settings';
+import { FormSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 interface PageSettingsEditorProps {
   siteId: string;
@@ -50,11 +51,7 @@ export function PageSettingsEditor({
     );
   }
   if (loading) {
-    return (
-      <Box sx={{ display: 'grid', placeItems: 'center', py: 4 }}>
-        <CircularProgress aria-label={t('Loading the page')} />
-      </Box>
-    );
+    return <FormSkeleton surface={false} label="Loading the page" />;
   }
   return <Alert severity="error">{error?.message ?? t('That page no longer exists.')}</Alert>;
 }

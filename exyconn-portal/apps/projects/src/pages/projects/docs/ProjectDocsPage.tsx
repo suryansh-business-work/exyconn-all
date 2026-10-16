@@ -14,7 +14,7 @@ import AddIcon from '@mui/icons-material/Add';
 import { useProjectDocs } from './useProjectDocs';
 import { DocTree } from './DocTree';
 import { DocPageEditor } from './DocPageEditor';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { PanelSkeleton, SkeletonStatus } from '@exyconn/shell/components/feedback/skeletons';
 
 interface ProjectDocsPageProps {
   projectId: string;
@@ -43,7 +43,18 @@ export function ProjectDocsPage({ projectId }: Readonly<ProjectDocsPageProps>) {
   };
 
   if (docs.loading && docs.pages.length === 0) {
-    return <LoadingState />;
+    return (
+      <SkeletonStatus>
+        <Grid container spacing={2}>
+          <Grid size={{ xs: 12, md: 4, lg: 3 }}>
+            <PanelSkeleton lines={6} />
+          </Grid>
+          <Grid size={{ xs: 12, md: 8, lg: 9 }}>
+            <PanelSkeleton lines={8} />
+          </Grid>
+        </Grid>
+      </SkeletonStatus>
+    );
   }
 
   return (

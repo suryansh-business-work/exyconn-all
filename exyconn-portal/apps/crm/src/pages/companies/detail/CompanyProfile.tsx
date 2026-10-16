@@ -1,5 +1,5 @@
 import { countryName, useFormatters, useI18n, useT } from '@exyconn/i18n';
-import { Avatar, Chip, Divider, Flex, Link, Stack, Text } from '@exyconn/shell/components/ui';
+import { Chip, Divider, Flex, Link, Stack, Text } from '@exyconn/shell/components/ui';
 import type { CompanyFieldsFragment } from '@exyconn/shell/graphql/generated';
 import {
   ContactPointList,
@@ -7,9 +7,13 @@ import {
   DetailField,
   EmailButton,
   LocalTime,
-  initialsOf,
+  RecordAvatar,
 } from '../../../records/detail';
+import { GoogleMapCard } from '../../../maps/GoogleMapCard';
+import { EmailVerifyButton } from '../../../email-verification';
 import { CompanyForm } from '../forms/company';
+
+const verifyButton = (address: string) => <EmailVerifyButton email={address} />;
 
 /** The left column of a company's page: the account, how to reach it, and the actions. */
 export function CompanyProfile({
@@ -25,9 +29,12 @@ export function CompanyProfile({
   return (
     <Stack spacing={2}>
       <Flex direction="row" spacing={1.5} alignItems="center">
-        <Avatar alt="" variant="rounded" sx={{ width: 56, height: 56 }}>
-          {initialsOf(company.name)}
-        </Avatar>
+        <RecordAvatar
+          name={company.name}
+          src={company.logoUrl}
+          variant="rounded"
+          sx={{ width: 56, height: 56 }}
+        />
         <Stack spacing={0.5} sx={{ minWidth: 0 }}>
           <Text component="h1" size="lg" weight="bold">
             {company.name}
@@ -68,6 +75,7 @@ export function CompanyProfile({
           <ContactPointList
             scheme="mailto"
             points={company.emails.map((e) => ({ ...e, value: e.address }))}
+            trailing={verifyButton}
           />
         )}
       </DetailField>
@@ -94,6 +102,7 @@ export function CompanyProfile({
       <DetailField label="Local time">
         {company.timezone && <LocalTime timezone={company.timezone} />}
       </DetailField>
+      <GoogleMapCard target={company} title={company.name} />
     </Stack>
   );
 }

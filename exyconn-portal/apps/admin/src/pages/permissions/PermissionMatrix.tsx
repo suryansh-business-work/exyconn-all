@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useT } from '@exyconn/i18n';
-import { Box, CircularProgress, Flex, Text } from '@exyconn/shell/components/ui';
+import { Box, Flex, Text } from '@exyconn/shell/components/ui';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
@@ -16,6 +16,7 @@ import { saveOperation } from './permissions.logic';
 import { usePermissionDraft } from './usePermissionDraft';
 import { PermissionTable } from './PermissionTable';
 import { PermissionSaveBar } from './PermissionSaveBar';
+import { ListSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 /** What one role may do in every module: a matrix edited in place and saved in one go. */
 export function PermissionMatrix({ role }: Readonly<{ role: Role }>) {
@@ -81,12 +82,14 @@ export function PermissionMatrix({ role }: Readonly<{ role: Role }>) {
     }
   };
 
+  if (moduleNames.length === 0 && modules.loading) {
+    return <ListSkeleton toolbar={false} columns={5} label="Loading modules" />;
+  }
   if (moduleNames.length === 0) {
     return (
       <Flex direction="row" alignItems="center" spacing={1} sx={{ py: 3, px: 2 }}>
-        {modules.loading && <CircularProgress size={18} aria-label={t('Loading modules')} />}
         <Text size="sm" color="text.secondary">
-          {modules.loading ? t('Loading…') : t('No modules registered.')}
+          {t('No modules registered.')}
         </Text>
       </Flex>
     );
