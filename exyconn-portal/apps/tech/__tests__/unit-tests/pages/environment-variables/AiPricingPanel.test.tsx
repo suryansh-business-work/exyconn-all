@@ -87,7 +87,7 @@ describe('AiPricingPanel budget', () => {
     gql.limit.mockReturnValue({ data: undefined, refetch: gql.refetchLimit });
     renderWithProviders(<AiPricingPanel />);
     expect(screen.getByRole('heading', { level: 1, name: 'AI budget' })).toBeInTheDocument();
-    expect(screen.getByText('Loading the budget…')).toBeInTheDocument();
+    expect(screen.getByText('Loading the budget')).toBeInTheDocument();
     expect(screen.queryByTestId('AiSpendLimitForm')).not.toBeInTheDocument();
   });
 
@@ -95,7 +95,7 @@ describe('AiPricingPanel budget', () => {
     gql.limit.mockReturnValue({ data: { aiSpendLimit: BUDGET }, refetch: gql.refetchLimit });
     renderWithProviders(<AiPricingPanel />);
     expect(forms.AiSpendLimitForm?.initial).toEqual(BUDGET);
-    expect(screen.queryByText('Loading the budget…')).not.toBeInTheDocument();
+    expect(screen.queryByText('Loading the budget')).not.toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'stub done' }));
     await userEvent.click(screen.getByRole('button', { name: 'stub cancel' }));
     expect(gql.refetchLimit).toHaveBeenCalledTimes(2);

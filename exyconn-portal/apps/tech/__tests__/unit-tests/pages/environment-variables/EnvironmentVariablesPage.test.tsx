@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   ENVIRONMENT_VARIABLES_PATH,
@@ -71,32 +71,29 @@ describe('EnvironmentVariablesPage', () => {
     expect(ENVIRONMENT_VARIABLES_PATH).toBe('/tech/environment-variables');
   });
 
-  it('offers one tab per integration, in order', () => {
+  it('lists every integration in the side menu, grouped by category', () => {
     renderAt('/tech/environment-variables/slack');
-    expect(screen.getByRole('tablist', { name: 'Integration credentials' })).toBeInTheDocument();
-    expect(screen.getAllByRole('tab').map((tab) => tab.textContent)).toEqual([
-      'Slack',
-      'ImageKit',
-      'Pexels',
-      'OpenAI',
-      'AI Pricing',
-      'SMTP',
-      'Inbound Mail',
-      'Email verifier',
-      'GitHub',
-      'GoDaddy',
-      'Cloudflare',
-      'Stripe',
-      'Razorpay',
-      'PayPal',
-      'Payoneer',
-      'SonarQube',
-      'Google sign-in',
-      'Gmail',
+    const nav = screen.getByRole('navigation', { name: 'Integration credentials' });
+    expect(
+      within(nav)
+        .getAllByRole('button', { expanded: true })
+        .map((header) => header.textContent),
+    ).toEqual([
+      'Messaging & email',
+      'Google',
+      'Media',
+      'AI',
+      'Payments',
+      'Domains & DNS',
+      'Developer tools',
     ]);
+    expect(within(nav).getByRole('button', { name: 'Slack' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
   });
 
-  it('opens on the first tab when the address names none', async () => {
+  it('opens on the first integration when the address names none', async () => {
     renderAt('/tech/environment-variables');
     expect(await screen.findByTestId('SlackConfigsPanel')).toBeInTheDocument();
     expect(screen.getByLabelText('url')).toHaveTextContent('/tech/environment-variables/slack');
@@ -119,13 +116,13 @@ describe('EnvironmentVariablesPage', () => {
     ['sonarqube', 'SonarConfigsPanel'],
   ])('shows the %s panel at its own address', (slug, panel) => {
     renderAt(`/tech/environment-variables/${slug}`);
-    expect(screen.getByRole('tabpanel')).toContainElement(screen.getByTestId(panel));
+    expect(screen.getByRole('region')).toContainElement(screen.getByTestId(panel));
     expect(screen.queryByTestId('SlackConfigsPanel')).not.toBeInTheDocument();
   });
 
-  it('moves to another integration when its tab is chosen', async () => {
+  it('moves to another integration when its menu entry is chosen', async () => {
     renderAt('/tech/environment-variables/slack');
-    await userEvent.click(screen.getByRole('tab', { name: 'Stripe' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Stripe' }));
     expect(await screen.findByTestId('StripeConfigsPanel')).toBeInTheDocument();
     expect(screen.getByLabelText('url')).toHaveTextContent('/tech/environment-variables/stripe');
   });
