@@ -28,6 +28,7 @@ export default defineConfig({
       provider: 'v8',
       include: ['src/**/*.{ts,tsx}'],
       exclude: ['**/*.{test,cy}.{ts,tsx}', '**/graphql/generated/**'],
+      thresholds: { statements: 100, branches: 100, functions: 100, lines: 100 },
     },
   },
 });

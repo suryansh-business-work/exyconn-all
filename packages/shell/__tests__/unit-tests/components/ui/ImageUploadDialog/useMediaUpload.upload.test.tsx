@@ -70,6 +70,21 @@ describe('useMediaUpload uploading', () => {
     expect(onUploaded).toHaveBeenCalledWith(CDN);
   });
 
+  it('hands the image to a custom uploader instead of ImageKit when one is given', async () => {
+    const onUploaded = vi.fn();
+    const uploadDataUrl = vi.fn().mockResolvedValue('https://site.test/media/logo.png');
+    const { result } = renderHook(() => useMediaUpload('branding', onUploaded, uploadDataUrl), {
+      // No uploadImage mock: a call to ImageKit would fail the upload.
+      wrapper: mediaWrapper([]),
+    });
+    await pickPng(result);
+
+    await act(() => result.current.upload(null));
+
+    expect(uploadDataUrl).toHaveBeenCalledWith(PNG_URL, 'logo.png');
+    expect(onUploaded).toHaveBeenCalledWith('https://site.test/media/logo.png');
+  });
+
   it('never rasterises a vector, even with a crop', async () => {
     const cropSpy = vi.spyOn(crop, 'cropImageToDataUrl');
     const svgUrl = dataUrlOf('image/svg+xml', 'png-bytes');

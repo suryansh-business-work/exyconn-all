@@ -9,6 +9,7 @@ async function loadAt(url: string) {
 }
 
 afterEach(() => {
+  vi.unstubAllEnvs();
   globalThis.history.replaceState(null, '', '/');
 });
 
@@ -78,5 +79,22 @@ describe('a page loaded without a company', () => {
     expect(mod.ORGANIZATION_BASENAME).toBe('');
     expect(mod.pathInApp()).toBe('/hr/leave?x=1');
     expect(mod.organizationLocation('acme')).toBe('/organization/acme/hr/leave?x=1');
+  });
+});
+
+describe('a page of an app mounted under a base path', () => {
+  it('reads the company after the base path and keeps both in the router basename', async () => {
+    vi.stubEnv('BASE_URL', '/whatsapp-demo/');
+    const mod = await loadAt('/whatsapp-demo/organization/acme/admin');
+    expect(mod.APP_BASE_PATH).toBe('/whatsapp-demo');
+    expect(mod.CURRENT_ORGANIZATION_SLUG).toBe('acme');
+    expect(mod.ROUTER_BASENAME).toBe('/whatsapp-demo/organization/acme');
+  });
+
+  it('reads an address outside the base path as it is', async () => {
+    vi.stubEnv('BASE_URL', '/whatsapp-demo/');
+    const mod = await loadAt('/organization/beta/admin');
+    expect(mod.CURRENT_ORGANIZATION_SLUG).toBe('beta');
+    expect(mod.ROUTER_BASENAME).toBe('/whatsapp-demo/organization/beta');
   });
 });
