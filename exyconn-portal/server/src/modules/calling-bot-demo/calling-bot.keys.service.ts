@@ -1,5 +1,5 @@
 import type { CallingBotConfigRecord } from '@exyconn/calling-bot-demo-server';
-import { badRequest, notFound } from '../../utils/errors';
+import { badRequest, notFound, reasonOf } from '../../utils/errors';
 import { openAiClient } from '../../utils/openai';
 import { CallingBotConfigModel } from './calling-bot.models';
 import { checkSarvam } from './calling-bot.config.service';
@@ -74,8 +74,8 @@ const CHECKS: Record<
         apiKey: pick(values, saved, 'openAiApiKey', 'OpenAI key'),
         defaultModel: model,
       });
-    } catch {
-      badRequest(`OpenAI refused the key, or the key cannot use ${model}.`);
+    } catch (error) {
+      badRequest(`OpenAI refused the key, or the key cannot use ${model}. ${reasonOf(error)}`);
     }
     return `OpenAI accepted the key and can use ${model}.`;
   },

@@ -9,6 +9,9 @@ import { renderWithProviders } from '../../../../test-utils';
 import { renderInSite } from '../../../cms/cms-helpers';
 import { field } from '../form-helpers';
 
+/** A form opened without meta sends every meta field blank (the template's meta stays). */
+const EMPTY_SEO = { title: '', description: '', keywords: '', ogImageUrl: '', noindex: false };
+
 const gql = vi.hoisted(() => ({ create: vi.fn(), update: vi.fn() }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
@@ -83,6 +86,7 @@ describe('JobCompanyForm', () => {
     expect(gql.create).toHaveBeenCalledWith({
       variables: {
         input: {
+          seo: EMPTY_SEO,
           companyCode: 'CMP-002',
           slug: 'acme',
           name: 'Acme',
@@ -166,7 +170,10 @@ describe('JobCompanyForm', () => {
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(gql.update).toHaveBeenCalledWith({
-      variables: { id: 'cmp-1', input: { ...companyValues, benefits: [], isActive: false } },
+      variables: {
+        id: 'cmp-1',
+        input: { seo: EMPTY_SEO, ...companyValues, benefits: [], isActive: false },
+      },
     });
     expect(await screen.findByText('Company updated')).toBeInTheDocument();
   });

@@ -3,6 +3,7 @@ import { DateTimeResolver } from 'graphql-scalars';
 import { baseTypeDefs } from './base.typeDefs';
 import { authTypeDefs } from '../modules/auth/auth.typeDefs';
 import { authResolvers } from '../modules/auth/auth.resolvers';
+import { googleSignInTypeDefs, googleSignInResolvers } from '../modules/auth/google';
 import { organizationsTypeDefs, organizationsResolvers } from '../modules/organizations';
 import { adminTypeDefs } from '../modules/admin/admin.typeDefs';
 import { adminResolvers } from '../modules/admin/admin.resolvers';
@@ -94,7 +95,12 @@ import {
   projectHealthTypeDefs,
   projectHealthResolvers,
 } from '../modules/projects';
-import { techTypeDefs, techResolvers } from '../modules/tech';
+import {
+  techTypeDefs,
+  techRevealTypeDefs,
+  techResolvers,
+  techRevealResolvers,
+} from '../modules/tech';
 import { dnsTypeDefs, dnsResolvers } from '../modules/dns';
 import { statusTypeDefs, statusResolvers } from '../modules/status';
 import { recruitingTypeDefs, recruitingResolvers } from '../modules/recruiting';
@@ -221,6 +227,7 @@ export function mergeResolvers(groups: ResolverGroup[]) {
 export const typeDefs = [
   baseTypeDefs,
   authTypeDefs,
+  googleSignInTypeDefs,
   organizationsTypeDefs,
   adminTypeDefs,
   financeTypeDefs,
@@ -260,6 +267,7 @@ export const typeDefs = [
   workflowsTypeDefs,
   projectHealthTypeDefs,
   techTypeDefs,
+  techRevealTypeDefs,
   dnsTypeDefs,
   ...websiteTypeDefs,
   trackerTypeDefs,
@@ -315,6 +323,7 @@ export const typeDefs = [
 
 export const resolvers = mergeResolvers([
   authResolvers,
+  googleSignInResolvers,
   organizationsResolvers,
   adminResolvers,
   reportingResolvers,
@@ -355,6 +364,7 @@ export const resolvers = mergeResolvers([
   projectHealthResolvers,
   crmResolvers,
   techResolvers,
+  techRevealResolvers,
   dnsResolvers,
   websiteResolvers,
   trackerResolvers,

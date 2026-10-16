@@ -1,12 +1,15 @@
 import { Box } from '@exyconn/shell/components/ui';
-import { DataTable, type Column } from '@exyconn/shell/components/data/DataTable';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { DataTable, type Column, type RowAction } from '@exyconn/shell/components/data/DataTable';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
+import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useCrudResource } from '@exyconn/crud';
 import {
   useDeleteEmailVerifierConfigMutation,
   useEmailVerifierConfigsQuery,
+  useTestEmailVerifierConfigMutation,
 } from '@exyconn/shell/graphql/generated';
 import { maskedSecret } from './secret';
 import {
@@ -36,8 +39,10 @@ const COLUMNS: Column<EmailVerifierConfigRow>[] = [
  * without a proxy most addresses come back "unknown".
  */
 export function EmailVerifierConfigsPanel() {
+  const notify = useNotify();
   const { data, loading, refetch } = useEmailVerifierConfigsQuery();
   const [deleteConfig] = useDeleteEmailVerifierConfigMutation();
+  const [testConfig] = useTestEmailVerifierConfigMutation();
   const crud = useCrudResource<EmailVerifierConfigRow>({
     label: 'Email verifier config',
     onDelete: (row) => deleteConfig({ variables: { id: row.id } }),
@@ -47,6 +52,26 @@ export function EmailVerifierConfigsPanel() {
     }),
     refetch,
   });
+
+  const test = async (row: EmailVerifierConfigRow) => {
+    try {
+      const { data: result } = await testConfig({ variables: { id: row.id } });
+      notify(result?.testEmailVerifierConfig ?? 'The proxy answered', 'success');
+    } catch (err) {
+      notify(err instanceof Error ? err.message : 'Connection failed', 'error');
+    }
+  };
+
+  const actions: RowAction<EmailVerifierConfigRow>[] = [
+    {
+      icon: <CheckCircleIcon fontSize="small" />,
+      tooltip: 'Test proxy',
+      ariaLabel: 'test email verifier proxy',
+      color: 'primary',
+      hidden: (row) => !row.proxyHost,
+      onClick: test,
+    },
+  ];
 
   if (crud.open) {
     const title = crud.editing ? 'Edit email verifier config' : 'New email verifier config';
@@ -72,6 +97,7 @@ export function EmailVerifierConfigsPanel() {
       <DataTable
         columns={COLUMNS}
         rows={data?.emailVerifierConfigs ?? []}
+        actions={actions}
         onEdit={crud.openEdit}
         onDelete={crud.remove}
         emptyMessage="No proxy yet: checks run without one."

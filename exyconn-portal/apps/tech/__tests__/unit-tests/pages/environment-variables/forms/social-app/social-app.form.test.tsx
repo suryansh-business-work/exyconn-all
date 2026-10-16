@@ -116,7 +116,9 @@ describe('SocialAppForm', () => {
 
   it('counts a stored secret, so an enabled app saves with the secret left blank', async () => {
     renderForm(row({ clientId: 'li-client', hasClientSecret: true, enabled: true }));
-    expect(screen.getByText('Leave blank to keep the current value')).toBeInTheDocument();
+    expect(
+      screen.getByText('Saved. Use the eye to see it, or type a new one to replace it.'),
+    ).toBeInTheDocument();
     expect(screen.getByLabelText('Client ID')).toHaveValue('li-client');
     expect(screen.getByRole('switch', { name: SWITCH })).toBeChecked();
     await press('Save');

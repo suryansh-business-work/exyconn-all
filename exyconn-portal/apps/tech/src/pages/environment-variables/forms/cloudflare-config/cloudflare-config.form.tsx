@@ -2,15 +2,22 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { CLOUDFLARE_ID } from '@exyconn/regex';
-import { RhfTextField, RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
+import {
+  RhfSecretField,
+  RhfTextField,
+  RhfSelect,
+  type SelectOption,
+} from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreateCloudflareConfigMutation,
   useUpdateCloudflareConfigMutation,
+  TechSecret,
 } from '@exyconn/shell/graphql/generated';
 import type { CloudflareConfigRow } from './cloudflare-config.types';
 import { KEEP_SECRET_HINT, secretField } from '../../secret';
+import { useTechSecretReveal } from '../../useTechSecretReveal';
 
 const BOOL_OPTIONS: SelectOption[] = [
   { value: 'true', label: 'Yes' },
@@ -72,6 +79,8 @@ export function CloudflareConfigForm({
     defaultValues: toInitial(initial),
   });
 
+  const revealFor = useTechSecretReveal(initial?.id);
+
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Cloudflare config',
     initial,
@@ -83,10 +92,11 @@ export function CloudflareConfigForm({
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="label" label="Label" />
-      <RhfTextField
+      <RhfSecretField
         name="apiToken"
         label="API token"
-        type="password"
+        stored={initial?.hasApiToken}
+        onReveal={revealFor(TechSecret.CloudflareApiToken)}
         helperText={
           isEdit
             ? KEEP_SECRET_HINT

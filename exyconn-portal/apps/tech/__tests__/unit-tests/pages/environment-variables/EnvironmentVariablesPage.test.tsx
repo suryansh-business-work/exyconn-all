@@ -91,6 +91,7 @@ describe('EnvironmentVariablesPage', () => {
       'PayPal',
       'Payoneer',
       'SonarQube',
+      'Google sign-in',
     ]);
   });
 

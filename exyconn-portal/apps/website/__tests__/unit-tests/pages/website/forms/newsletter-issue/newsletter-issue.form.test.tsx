@@ -8,6 +8,9 @@ import {
 import { renderWithProviders } from '../../../../test-utils';
 import { field } from '../form-helpers';
 
+/** A form opened without meta sends every meta field blank (the template's meta stays). */
+const EMPTY_SEO = { title: '', description: '', keywords: '', ogImageUrl: '', noindex: false };
+
 const gql = vi.hoisted(() => ({ create: vi.fn(), update: vi.fn() }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
@@ -81,6 +84,7 @@ describe('NewsletterIssueForm', () => {
     expect(gql.create).toHaveBeenCalledWith({
       variables: {
         input: {
+          seo: EMPTY_SEO,
           slug: 'june-2026',
           title: 'June 2026',
           summary: '',
@@ -109,6 +113,7 @@ describe('NewsletterIssueForm', () => {
       variables: {
         id: 'issue-1',
         input: {
+          seo: EMPTY_SEO,
           slug: 'may-2026',
           title: 'May 2026',
           summary: 'What shipped in May',

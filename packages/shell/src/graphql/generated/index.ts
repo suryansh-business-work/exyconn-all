@@ -932,6 +932,8 @@ export type BlogPost = {
   isActive: Scalars['Boolean']['output'];
   publishedAt: Scalars['DateTime']['output'];
   readTime: Scalars['String']['output'];
+  /** Its own search and share meta; null on items saved before it existed. */
+  seo?: Maybe<ItemSeo>;
   /** The website it belongs to (Website > Websites). */
   siteId: Scalars['String']['output'];
   slug: Scalars['String']['output'];
@@ -950,6 +952,7 @@ export type BlogPostInput = {
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>;
   readTime?: InputMaybe<Scalars['String']['input']>;
+  seo?: InputMaybe<ItemSeoInput>;
   siteId?: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
   summary?: InputMaybe<Scalars['String']['input']>;
@@ -1596,6 +1599,8 @@ export type CaseStudy = {
   isActive: Scalars['Boolean']['output'];
   pdfUrl: Scalars['String']['output'];
   publishedAt: Scalars['DateTime']['output'];
+  /** Its own search and share meta; null on items saved before it existed. */
+  seo?: Maybe<ItemSeo>;
   /** The website it belongs to (Website > Websites). */
   siteId: Scalars['String']['output'];
   slug: Scalars['String']['output'];
@@ -1615,6 +1620,7 @@ export type CaseStudyInput = {
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   pdfUrl?: InputMaybe<Scalars['String']['input']>;
   publishedAt?: InputMaybe<Scalars['DateTime']['input']>;
+  seo?: InputMaybe<ItemSeoInput>;
   siteId?: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
   tags?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -3914,6 +3920,8 @@ export type Gig = {
   isUrgent: Scalars['Boolean']['output'];
   postedDate: Scalars['DateTime']['output'];
   requirements: Array<Scalars['String']['output']>;
+  /** Its own search and share meta; null on items saved before it existed. */
+  seo?: Maybe<ItemSeo>;
   shortDescription: Scalars['String']['output'];
   /** The website it belongs to (Website > Websites). */
   siteId: Scalars['String']['output'];
@@ -3936,6 +3944,7 @@ export type GigInput = {
   isUrgent?: InputMaybe<Scalars['Boolean']['input']>;
   postedDate?: InputMaybe<Scalars['DateTime']['input']>;
   requirements?: InputMaybe<Array<Scalars['String']['input']>>;
+  seo?: InputMaybe<ItemSeoInput>;
   shortDescription?: InputMaybe<Scalars['String']['input']>;
   siteId?: InputMaybe<Scalars['String']['input']>;
   status: Scalars['String']['input'];
@@ -4036,6 +4045,27 @@ export type GodaddyConfigInput = {
   apiSecret?: InputMaybe<Scalars['String']['input']>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   label: Scalars['String']['input'];
+};
+
+/** The install's Google OAuth client. The secret is never returned; see revealTechSecret. */
+export type GoogleSignInConfig = {
+  __typename?: 'GoogleSignInConfig';
+  clientId: Scalars['String']['output'];
+  clientSecretHint?: Maybe<Scalars['String']['output']>;
+  enabled: Scalars['Boolean']['output'];
+  hasClientSecret: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  /** Register this exact address as an authorised redirect URI on the Google client. */
+  redirectUri: Scalars['String']['output'];
+  updatedAt?: Maybe<Scalars['DateTime']['output']>;
+  updatedByName?: Maybe<Scalars['String']['output']>;
+};
+
+export type GoogleSignInConfigInput = {
+  clientId: Scalars['String']['input'];
+  /** Blank keeps the stored secret. */
+  clientSecret: Scalars['String']['input'];
+  enabled: Scalars['Boolean']['input'];
 };
 
 export type Grade = {
@@ -4217,6 +4247,8 @@ export type InboundMailConfig = {
   createdAt: Scalars['DateTime']['output'];
   /** Whether an imported message is removed from the mailbox rather than only marked seen. */
   deleteAfterImport: Scalars['Boolean']['output'];
+  /** Whether a mailbox password is stored; see revealTechSecret. */
+  hasPassword: Scalars['Boolean']['output'];
   host: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
@@ -5046,6 +5078,25 @@ export type ItVulnerabilityPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** An item's own search and share meta; a blank field keeps the page template's. */
+export type ItemSeo = {
+  __typename?: 'ItemSeo';
+  description: Scalars['String']['output'];
+  keywords: Scalars['String']['output'];
+  noindex: Scalars['Boolean']['output'];
+  /** The image shown when the page is shared (1200x630 works best). */
+  ogImageUrl: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
+export type ItemSeoInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  keywords?: InputMaybe<Scalars['String']['input']>;
+  noindex?: InputMaybe<Scalars['Boolean']['input']>;
+  ogImageUrl?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type Job = {
   __typename?: 'Job';
   applicationDeadline?: Maybe<Scalars['DateTime']['output']>;
@@ -5066,6 +5117,8 @@ export type Job = {
   niceToHave: Array<Scalars['String']['output']>;
   requirements: Array<Scalars['String']['output']>;
   salaryRange: Scalars['String']['output'];
+  /** Its own search and share meta; null on items saved before it existed. */
+  seo?: Maybe<ItemSeo>;
   shortJobDescription: Scalars['String']['output'];
   /** The website it belongs to (Website > Websites). */
   siteId: Scalars['String']['output'];
@@ -5093,6 +5146,8 @@ export type JobCompany = {
   name: Scalars['String']['output'];
   order: Scalars['Int']['output'];
   secondaryColor: Scalars['String']['output'];
+  /** Its own search and share meta; null on items saved before it existed. */
+  seo?: Maybe<ItemSeo>;
   /** The website it belongs to (Website > Websites). */
   siteId: Scalars['String']['output'];
   slug: Scalars['String']['output'];
@@ -5117,6 +5172,7 @@ export type JobCompanyInput = {
   name: Scalars['String']['input'];
   order?: InputMaybe<Scalars['Int']['input']>;
   secondaryColor?: InputMaybe<Scalars['String']['input']>;
+  seo?: InputMaybe<ItemSeoInput>;
   siteId?: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
   socialLinks?: InputMaybe<CompanySocialLinksInput>;
@@ -5147,6 +5203,7 @@ export type JobInput = {
   niceToHave?: InputMaybe<Array<Scalars['String']['input']>>;
   requirements?: InputMaybe<Array<Scalars['String']['input']>>;
   salaryRange?: InputMaybe<Scalars['String']['input']>;
+  seo?: InputMaybe<ItemSeoInput>;
   shortJobDescription?: InputMaybe<Scalars['String']['input']>;
   siteId?: InputMaybe<Scalars['String']['input']>;
   skillSet?: InputMaybe<Array<Scalars['String']['input']>>;
@@ -5730,6 +5787,8 @@ export type Mutation = {
   closeWebsiteChatSession: WebsiteChatSession;
   /** The employee's manager (or HR) leaves a comment on a direct report's goal. */
   commentOnTeamGoal: Goal;
+  /** Redeems the one-time ticket Google's callback handed the page. Public. */
+  completeGoogleSignIn: AuthPayload;
   /** Completes the sprint, moving unfinished tickets on per sprintCompletionPlan. */
   completeSprint: Sprint;
   /** One post per account: published now, scheduled, or kept as a draft. MARKETING. */
@@ -6164,6 +6223,10 @@ export type Mutation = {
   restoreCmsPageRevision: CmsPage;
   /** One stored key, in full, for the eye button on the Tech screen. Each reveal is audited. */
   revealCallingBotSecret: Scalars['String']['output'];
+  /** One saved credential of the config with this id, in full. Each reveal is audited. */
+  revealTechSecret: Scalars['String']['output'];
+  /** One stored credential, in full, for the eye button. Each reveal is audited. */
+  revealWhatsappChannelSecret: Scalars['String']['output'];
   /**
    * Approves or rejects an off-computer claim (TRACKER role). A decision is final — an
    * entry that has already been decided is refused rather than flipped, so hours somebody
@@ -6220,6 +6283,7 @@ export type Mutation = {
    * already exists, and guessing wrong would fail the save on a duplicate key.
    */
   saveEmployeeSalary: SalaryStructure;
+  saveGoogleSignInConfig: GoogleSignInConfig;
   saveProjectWorkflowGraph: ProjectWorkflow;
   saveSocialAppConfig: SocialAppConfig;
   saveTrackerBuildSettings: TrackerBuildSettings;
@@ -6344,6 +6408,8 @@ export type Mutation = {
   /** AI: what worked, what did not, and what to try, from the last days' posts. */
   socialMediaInsights: Scalars['String']['output'];
   startCallingBotCall: CallingBotCallStart;
+  /** Google's consent page for a sign-in that returns to this portal page. Public. */
+  startGoogleSignIn: Scalars['String']['output'];
   /** Mints a secret and returns what an authenticator app needs. Nothing is switched on yet. */
   startMfaEnrolment: MfaEnrolment;
   /**
@@ -6386,8 +6452,12 @@ export type Mutation = {
   /** Tests one account from the form; resolves to what worked, or fails saying what did not. */
   testCallingBotKey: Scalars['String']['output'];
   testCloudflareConnection: Scalars['Boolean']['output'];
+  /** Connects to the proxy and signs in; says what worked, or why not. */
+  testEmailVerifierConfig: Scalars['String']['output'];
   testGithubConnection: Scalars['Boolean']['output'];
   testGodaddyConnection: Scalars['Boolean']['output'];
+  /** Checks the client ID and secret with Google; says what worked, or why not. */
+  testGoogleSignInConfig: Scalars['String']['output'];
   testImageUpload: Scalars['String']['output'];
   /** Signs in and opens the mailbox, so credentials are checked before the poller relies on them. */
   testInboundMailConnection: Scalars['Boolean']['output'];
@@ -6752,6 +6822,11 @@ export type MutationCloseWebsiteChatSessionArgs = {
 export type MutationCommentOnTeamGoalArgs = {
   comment: Scalars['String']['input'];
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationCompleteGoogleSignInArgs = {
+  ticket: Scalars['String']['input'];
 };
 
 
@@ -8395,6 +8470,17 @@ export type MutationRevealCallingBotSecretArgs = {
 };
 
 
+export type MutationRevealTechSecretArgs = {
+  id: Scalars['ID']['input'];
+  secret: TechSecret;
+};
+
+
+export type MutationRevealWhatsappChannelSecretArgs = {
+  secret: WhatsappChannelSecret;
+};
+
+
 export type MutationReviewTrackerManualEntryArgs = {
   id: Scalars['ID']['input'];
   reviewNote?: InputMaybe<Scalars['String']['input']>;
@@ -8498,6 +8584,11 @@ export type MutationSaveCmsPageDraftArgs = {
 export type MutationSaveEmployeeSalaryArgs = {
   employeeId: Scalars['ID']['input'];
   input: EmployeeSalaryInput;
+};
+
+
+export type MutationSaveGoogleSignInConfigArgs = {
+  input: GoogleSignInConfigInput;
 };
 
 
@@ -8807,6 +8898,11 @@ export type MutationStartCallingBotCallArgs = {
 };
 
 
+export type MutationStartGoogleSignInArgs = {
+  returnTo: Scalars['String']['input'];
+};
+
+
 export type MutationStartOnboardingArgs = {
   employeeId: Scalars['ID']['input'];
   templateId: Scalars['ID']['input'];
@@ -8874,6 +8970,11 @@ export type MutationTestCallingBotKeyArgs = {
 
 
 export type MutationTestCloudflareConnectionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestEmailVerifierConfigArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -9916,6 +10017,8 @@ export type NewsletterIssue = {
   id: Scalars['ID']['output'];
   isActive: Scalars['Boolean']['output'];
   publishedAt: Scalars['DateTime']['output'];
+  /** Its own search and share meta; null on items saved before it existed. */
+  seo?: Maybe<ItemSeo>;
   siteId: Scalars['String']['output'];
   slug: Scalars['String']['output'];
   summary: Scalars['String']['output'];
@@ -9929,6 +10032,7 @@ export type NewsletterIssueInput = {
   coverImage?: InputMaybe<Scalars['String']['input']>;
   isActive: Scalars['Boolean']['input'];
   publishedAt?: InputMaybe<Scalars['String']['input']>;
+  seo?: InputMaybe<ItemSeoInput>;
   siteId: Scalars['String']['input'];
   slug: Scalars['String']['input'];
   summary?: InputMaybe<Scalars['String']['input']>;
@@ -11572,6 +11676,9 @@ export type Query = {
   getWebsiteChatFaq: WebsiteChatFaq;
   getWebsiteChatKnowledge: WebsiteChatKnowledge;
   getWebsiteSubmission: WebsiteSubmission;
+  googleSignInConfig: GoogleSignInConfig;
+  /** Whether the sign-in page offers Continue with Google. Public. */
+  googleSignInEnabled: Scalars['Boolean']['output'];
   /** India's GST state codes, for a place-of-supply or state picker. */
   gstStates: Array<GstState>;
   /** HR/ADMIN: workforce counts + headcount-over-time series. */
@@ -15773,6 +15880,31 @@ export type TeamPage = {
   totalCount: Scalars['Int']['output'];
 };
 
+/** A saved credential on Tech > Environment Variables that staff may reveal, one at a time. */
+export enum TechSecret {
+  CloudflareApiToken = 'CLOUDFLARE_API_TOKEN',
+  EmailPassword = 'EMAIL_PASSWORD',
+  EmailVerifierProxyPassword = 'EMAIL_VERIFIER_PROXY_PASSWORD',
+  GithubToken = 'GITHUB_TOKEN',
+  GodaddyApiKey = 'GODADDY_API_KEY',
+  GodaddyApiSecret = 'GODADDY_API_SECRET',
+  GoogleSignInClientSecret = 'GOOGLE_SIGN_IN_CLIENT_SECRET',
+  ImagekitPrivateKey = 'IMAGEKIT_PRIVATE_KEY',
+  InboundMailPassword = 'INBOUND_MAIL_PASSWORD',
+  OpenaiApiKey = 'OPENAI_API_KEY',
+  PayoneerApiToken = 'PAYONEER_API_TOKEN',
+  PaypalClientSecret = 'PAYPAL_CLIENT_SECRET',
+  PexelsApiKey = 'PEXELS_API_KEY',
+  RazorpayKeySecret = 'RAZORPAY_KEY_SECRET',
+  RazorpayWebhookSecret = 'RAZORPAY_WEBHOOK_SECRET',
+  SlackBotToken = 'SLACK_BOT_TOKEN',
+  SlackSigningSecret = 'SLACK_SIGNING_SECRET',
+  SocialAppClientSecret = 'SOCIAL_APP_CLIENT_SECRET',
+  SonarToken = 'SONAR_TOKEN',
+  StripeSecretKey = 'STRIPE_SECRET_KEY',
+  StripeWebhookSecret = 'STRIPE_WEBHOOK_SECRET'
+}
+
 /** How a ticket reached the desk. */
 export enum TicketChannel {
   /** Typed into the console by an agent, usually off a call. */
@@ -17190,6 +17322,12 @@ export type WhatsappChannelInput = {
   verifyToken: Scalars['String']['input'];
 };
 
+/** A stored credential of the number; the values are the field names. */
+export enum WhatsappChannelSecret {
+  AccessToken = 'accessToken',
+  AppSecret = 'appSecret'
+}
+
 export type WhatsappChannelSettings = {
   __typename?: 'WhatsappChannelSettings';
   channel?: Maybe<WhatsappChannel>;
@@ -18140,6 +18278,25 @@ export type ResetPasswordMutationVariables = Exact<{
 
 
 export type ResetPasswordMutation = { __typename?: 'Mutation', resetPassword: boolean };
+
+export type GoogleSignInEnabledQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GoogleSignInEnabledQuery = { __typename?: 'Query', googleSignInEnabled: boolean };
+
+export type StartGoogleSignInMutationVariables = Exact<{
+  returnTo: Scalars['String']['input'];
+}>;
+
+
+export type StartGoogleSignInMutation = { __typename?: 'Mutation', startGoogleSignIn: string };
+
+export type CompleteGoogleSignInMutationVariables = Exact<{
+  ticket: Scalars['String']['input'];
+}>;
+
+
+export type CompleteGoogleSignInMutation = { __typename?: 'Mutation', completeGoogleSignIn: { __typename?: 'AuthPayload', token: string, mfaRequired: boolean, mfaChallenge: string, user?: { __typename?: 'User', id: string, name: string, email: string, roles: Array<Role>, avatarUrl?: string | null } | null } };
 
 export type TaskAttachmentFieldsFragment = { __typename?: 'TaskAttachment', url: string, name: string, contentType: string, uploadedByName: string, uploadedAt: string };
 
@@ -19653,6 +19810,13 @@ export type DeleteEmailVerifierConfigMutationVariables = Exact<{
 
 
 export type DeleteEmailVerifierConfigMutation = { __typename?: 'Mutation', deleteEmailVerifierConfig: boolean };
+
+export type TestEmailVerifierConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TestEmailVerifierConfigMutation = { __typename?: 'Mutation', testEmailVerifierConfig: string };
 
 export type EmailFragmentFieldsFragment = { __typename?: 'EmailFragment', id: string, key: string, name: string, description: string, mjml: string, updatedBy: string, updatedAt: string };
 
@@ -21786,7 +21950,7 @@ export type CampaignMetricsQueryVariables = Exact<{
 
 export type CampaignMetricsQuery = { __typename?: 'Query', campaignMetrics: { __typename?: 'CampaignMetrics', campaignId: string, sent: number, opened: number, clicked: number, totalOpens: number, totalClicks: number, openRate: number, clickRate: number, clickThroughRate: number }, campaignTopLinks: Array<{ __typename?: 'CampaignLinkStat', url: string, clicks: number, people: number }> };
 
-export type NewsletterIssueFieldsFragment = { __typename?: 'NewsletterIssue', id: string, siteId: string, slug: string, title: string, summary: string, coverImage: string, content: string, contentCss: string, isActive: boolean, publishedAt: string, updatedAt: string };
+export type NewsletterIssueFieldsFragment = { __typename?: 'NewsletterIssue', id: string, siteId: string, slug: string, title: string, summary: string, coverImage: string, content: string, contentCss: string, isActive: boolean, publishedAt: string, updatedAt: string, seo?: { __typename?: 'ItemSeo', title: string, description: string, keywords: string, ogImageUrl: string, noindex: boolean } | null };
 
 export type NewsletterIssuesQueryVariables = Exact<{
   siteId: Scalars['ID']['input'];
@@ -21796,7 +21960,7 @@ export type NewsletterIssuesQueryVariables = Exact<{
 }>;
 
 
-export type NewsletterIssuesQuery = { __typename?: 'Query', newsletterIssues: { __typename?: 'NewsletterIssuePage', totalCount: number, rows: Array<{ __typename?: 'NewsletterIssue', id: string, siteId: string, slug: string, title: string, summary: string, coverImage: string, content: string, contentCss: string, isActive: boolean, publishedAt: string, updatedAt: string }> } };
+export type NewsletterIssuesQuery = { __typename?: 'Query', newsletterIssues: { __typename?: 'NewsletterIssuePage', totalCount: number, rows: Array<{ __typename?: 'NewsletterIssue', id: string, siteId: string, slug: string, title: string, summary: string, coverImage: string, content: string, contentCss: string, isActive: boolean, publishedAt: string, updatedAt: string, seo?: { __typename?: 'ItemSeo', title: string, description: string, keywords: string, ogImageUrl: string, noindex: boolean } | null }> } };
 
 export type CreateNewsletterIssueMutationVariables = Exact<{
   input: NewsletterIssueInput;
@@ -23952,7 +24116,7 @@ export type DeleteEmailConfigMutation = { __typename?: 'Mutation', deleteEmailCo
 export type ListInboundMailConfigsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListInboundMailConfigsQuery = { __typename?: 'Query', listInboundMailConfigs: Array<{ __typename?: 'InboundMailConfig', id: string, label: string, host: string, port: number, secure: boolean, user: string, mailbox: string, pollSeconds: number, deleteAfterImport: boolean, isActive: boolean }> };
+export type ListInboundMailConfigsQuery = { __typename?: 'Query', listInboundMailConfigs: Array<{ __typename?: 'InboundMailConfig', id: string, label: string, host: string, port: number, secure: boolean, user: string, hasPassword: boolean, mailbox: string, pollSeconds: number, deleteAfterImport: boolean, isActive: boolean }> };
 
 export type CreateInboundMailConfigMutationVariables = Exact<{
   input: InboundMailConfigInput;
@@ -24227,6 +24391,33 @@ export type RunBackgroundJobMutationVariables = Exact<{
 
 export type RunBackgroundJobMutation = { __typename?: 'Mutation', runBackgroundJob: boolean };
 
+export type RevealTechSecretMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  secret: TechSecret;
+}>;
+
+
+export type RevealTechSecretMutation = { __typename?: 'Mutation', revealTechSecret: string };
+
+export type GoogleSignInConfigFieldsFragment = { __typename?: 'GoogleSignInConfig', id: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean, redirectUri: string, updatedAt?: string | null, updatedByName?: string | null };
+
+export type GoogleSignInConfigQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GoogleSignInConfigQuery = { __typename?: 'Query', googleSignInConfig: { __typename?: 'GoogleSignInConfig', id: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean, redirectUri: string, updatedAt?: string | null, updatedByName?: string | null } };
+
+export type SaveGoogleSignInConfigMutationVariables = Exact<{
+  input: GoogleSignInConfigInput;
+}>;
+
+
+export type SaveGoogleSignInConfigMutation = { __typename?: 'Mutation', saveGoogleSignInConfig: { __typename?: 'GoogleSignInConfig', id: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean, redirectUri: string, updatedAt?: string | null, updatedByName?: string | null } };
+
+export type TestGoogleSignInConfigMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type TestGoogleSignInConfigMutation = { __typename?: 'Mutation', testGoogleSignInConfig: string };
+
 export type TrackerAccessFieldsFragment = { __typename?: 'TrackerAccess', id: string, userId: string, grantedBy: string, grantedAt: string, revokedAt?: string | null, isActive: boolean, consentedAt?: string | null, timezone: string };
 
 export type TrackerDeviceFieldsFragment = { __typename?: 'TrackerDevice', id: string, userId: string, deviceId: string, platform: string, hostname: string, appVersion: string, machineId: string, osName: string, osVersion: string, arch: string, cpuModel: string, cpuCores: number, totalMemoryMb: number, locale: string, timezone: string, screenCount: number, screenResolution: string, issuedAt: string, lastSeenAt: string, revokedAt?: string | null, isActive: boolean };
@@ -24470,19 +24661,21 @@ export type SendTrackerNoticeMutationVariables = Exact<{
 
 export type SendTrackerNoticeMutation = { __typename?: 'Mutation', sendTrackerNotice: number };
 
-export type BlogPostFieldsFragment = { __typename?: 'BlogPost', id: string, siteId: string, slug: string, title: string, summary: string, content: string, contentCss: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } };
+export type ItemSeoFieldsFragment = { __typename?: 'ItemSeo', title: string, description: string, keywords: string, ogImageUrl: string, noindex: boolean };
+
+export type BlogPostFieldsFragment = { __typename?: 'BlogPost', id: string, siteId: string, slug: string, title: string, summary: string, content: string, contentCss: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string }, seo?: { __typename?: 'ItemSeo', title: string, description: string, keywords: string, ogImageUrl: string, noindex: boolean } | null };
 
 export type ListBlogPostsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListBlogPostsQuery = { __typename?: 'Query', listBlogPosts: Array<{ __typename?: 'BlogPost', id: string, siteId: string, slug: string, title: string, summary: string, content: string, contentCss: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } }> };
+export type ListBlogPostsQuery = { __typename?: 'Query', listBlogPosts: Array<{ __typename?: 'BlogPost', id: string, siteId: string, slug: string, title: string, summary: string, content: string, contentCss: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string }, seo?: { __typename?: 'ItemSeo', title: string, description: string, keywords: string, ogImageUrl: string, noindex: boolean } | null }> };
 
 export type ListBlogPostsPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListBlogPostsPagedQuery = { __typename?: 'Query', listBlogPostsPaged: { __typename?: 'BlogPostPage', totalCount: number, rows: Array<{ __typename?: 'BlogPost', id: string, siteId: string, slug: string, title: string, summary: string, content: string, contentCss: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } }> } };
+export type ListBlogPostsPagedQuery = { __typename?: 'Query', listBlogPostsPaged: { __typename?: 'BlogPostPage', totalCount: number, rows: Array<{ __typename?: 'BlogPost', id: string, siteId: string, slug: string, title: string, summary: string, content: string, contentCss: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string }, seo?: { __typename?: 'ItemSeo', title: string, description: string, keywords: string, ogImageUrl: string, noindex: boolean } | null }> } };
 
 export type ListBlogPostsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -24494,7 +24687,7 @@ export type GetBlogPostQueryVariables = Exact<{
 }>;
 
 
-export type GetBlogPostQuery = { __typename?: 'Query', getBlogPost: { __typename?: 'BlogPost', id: string, siteId: string, slug: string, title: string, summary: string, content: string, contentCss: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string } } };
+export type GetBlogPostQuery = { __typename?: 'Query', getBlogPost: { __typename?: 'BlogPost', id: string, siteId: string, slug: string, title: string, summary: string, content: string, contentCss: string, readTime: string, tags: Array<string>, coverImage: string, featured: boolean, isActive: boolean, publishedAt: string, author: { __typename?: 'BlogAuthor', name: string, role: string, initials: string }, seo?: { __typename?: 'ItemSeo', title: string, description: string, keywords: string, ogImageUrl: string, noindex: boolean } | null } };
 
 export type CreateBlogPostMutationVariables = Exact<{
   input: BlogPostInput;
@@ -24518,19 +24711,19 @@ export type DeleteBlogPostMutationVariables = Exact<{
 
 export type DeleteBlogPostMutation = { __typename?: 'Mutation', deleteBlogPost: boolean };
 
-export type CaseStudyFieldsFragment = { __typename?: 'CaseStudy', id: string, siteId: string, slug: string, title: string, excerpt: string, content: string, contentCss: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string };
+export type CaseStudyFieldsFragment = { __typename?: 'CaseStudy', id: string, siteId: string, slug: string, title: string, excerpt: string, content: string, contentCss: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string, seo?: { __typename?: 'ItemSeo', title: string, description: string, keywords: string, ogImageUrl: string, noindex: boolean } | null };
 
 export type ListCaseStudiesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListCaseStudiesQuery = { __typename?: 'Query', listCaseStudies: Array<{ __typename?: 'CaseStudy', id: string, siteId: string, slug: string, title: string, excerpt: string, content: string, contentCss: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string }> };
+export type ListCaseStudiesQuery = { __typename?: 'Query', listCaseStudies: Array<{ __typename?: 'CaseStudy', id: string, siteId: string, slug: string, title: string, excerpt: string, content: string, contentCss: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string, seo?: { __typename?: 'ItemSeo', title: string, description: string, keywords: string, ogImageUrl: string, noindex: boolean } | null }> };
 
 export type ListCaseStudiesPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListCaseStudiesPagedQuery = { __typename?: 'Query', listCaseStudiesPaged: { __typename?: 'CaseStudyPage', totalCount: number, rows: Array<{ __typename?: 'CaseStudy', id: string, siteId: string, slug: string, title: string, excerpt: string, content: string, contentCss: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string }> } };
+export type ListCaseStudiesPagedQuery = { __typename?: 'Query', listCaseStudiesPaged: { __typename?: 'CaseStudyPage', totalCount: number, rows: Array<{ __typename?: 'CaseStudy', id: string, siteId: string, slug: string, title: string, excerpt: string, content: string, contentCss: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string, seo?: { __typename?: 'ItemSeo', title: string, description: string, keywords: string, ogImageUrl: string, noindex: boolean } | null }> } };
 
 export type ListCaseStudiesStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -24542,7 +24735,7 @@ export type GetCaseStudyQueryVariables = Exact<{
 }>;
 
 
-export type GetCaseStudyQuery = { __typename?: 'Query', getCaseStudy: { __typename?: 'CaseStudy', id: string, siteId: string, slug: string, title: string, excerpt: string, content: string, contentCss: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string } };
+export type GetCaseStudyQuery = { __typename?: 'Query', getCaseStudy: { __typename?: 'CaseStudy', id: string, siteId: string, slug: string, title: string, excerpt: string, content: string, contentCss: string, coverImage: string, category: string, author: string, tags: Array<string>, pdfUrl: string, featured: boolean, isActive: boolean, publishedAt: string, seo?: { __typename?: 'ItemSeo', title: string, description: string, keywords: string, ogImageUrl: string, noindex: boolean } | null } };
 
 export type CreateCaseStudyMutationVariables = Exact<{
   input: CaseStudyInput;
@@ -24566,19 +24759,19 @@ export type DeleteCaseStudyMutationVariables = Exact<{
 
 export type DeleteCaseStudyMutation = { __typename?: 'Mutation', deleteCaseStudy: boolean };
 
-export type JobCompanyFieldsFragment = { __typename?: 'JobCompany', id: string, siteId: string, companyCode: string, slug: string, name: string, logo: string, tagline: string, description: string, culture: string, website: string, founded: string, employees: string, industry: string, headquarters: string, brandColor: string, secondaryColor: string, isActive: boolean, order: number, benefits: Array<{ __typename?: 'CompanyBenefit', icon: string, title: string, description: string }>, socialLinks: { __typename?: 'CompanySocialLinks', linkedin: string, twitter: string, facebook: string, instagram: string } };
+export type JobCompanyFieldsFragment = { __typename?: 'JobCompany', id: string, siteId: string, companyCode: string, slug: string, name: string, logo: string, tagline: string, description: string, culture: string, website: string, founded: string, employees: string, industry: string, headquarters: string, brandColor: string, secondaryColor: string, isActive: boolean, order: number, benefits: Array<{ __typename?: 'CompanyBenefit', icon: string, title: string, description: string }>, socialLinks: { __typename?: 'CompanySocialLinks', linkedin: string, twitter: string, facebook: string, instagram: string }, seo?: { __typename?: 'ItemSeo', title: string, description: string, keywords: string, ogImageUrl: string, noindex: boolean } | null };
 
 export type ListJobCompaniesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListJobCompaniesQuery = { __typename?: 'Query', listJobCompanies: Array<{ __typename?: 'JobCompany', id: string, siteId: string, companyCode: string, slug: string, name: string, logo: string, tagline: string, description: string, culture: string, website: string, founded: string, employees: string, industry: string, headquarters: string, brandColor: string, secondaryColor: string, isActive: boolean, order: number, benefits: Array<{ __typename?: 'CompanyBenefit', icon: string, title: string, description: string }>, socialLinks: { __typename?: 'CompanySocialLinks', linkedin: string, twitter: string, facebook: string, instagram: string } }> };
+export type ListJobCompaniesQuery = { __typename?: 'Query', listJobCompanies: Array<{ __typename?: 'JobCompany', id: string, siteId: string, companyCode: string, slug: string, name: string, logo: string, tagline: string, description: string, culture: string, website: string, founded: string, employees: string, industry: string, headquarters: string, brandColor: string, secondaryColor: string, isActive: boolean, order: number, benefits: Array<{ __typename?: 'CompanyBenefit', icon: string, title: string, description: string }>, socialLinks: { __typename?: 'CompanySocialLinks', linkedin: string, twitter: string, facebook: string, instagram: string }, seo?: { __typename?: 'ItemSeo', title: string, description: string, keywords: string, ogImageUrl: string, noindex: boolean } | null }> };
 
 export type ListJobCompaniesPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListJobCompaniesPagedQuery = { __typename?: 'Query', listJobCompaniesPaged: { __typename?: 'JobCompanyPage', totalCount: number, rows: Array<{ __typename?: 'JobCompany', id: string, siteId: string, companyCode: string, slug: string, name: string, logo: string, tagline: string, description: string, culture: string, website: string, founded: string, employees: string, industry: string, headquarters: string, brandColor: string, secondaryColor: string, isActive: boolean, order: number, benefits: Array<{ __typename?: 'CompanyBenefit', icon: string, title: string, description: string }>, socialLinks: { __typename?: 'CompanySocialLinks', linkedin: string, twitter: string, facebook: string, instagram: string } }> } };
+export type ListJobCompaniesPagedQuery = { __typename?: 'Query', listJobCompaniesPaged: { __typename?: 'JobCompanyPage', totalCount: number, rows: Array<{ __typename?: 'JobCompany', id: string, siteId: string, companyCode: string, slug: string, name: string, logo: string, tagline: string, description: string, culture: string, website: string, founded: string, employees: string, industry: string, headquarters: string, brandColor: string, secondaryColor: string, isActive: boolean, order: number, benefits: Array<{ __typename?: 'CompanyBenefit', icon: string, title: string, description: string }>, socialLinks: { __typename?: 'CompanySocialLinks', linkedin: string, twitter: string, facebook: string, instagram: string }, seo?: { __typename?: 'ItemSeo', title: string, description: string, keywords: string, ogImageUrl: string, noindex: boolean } | null }> } };
 
 export type ListJobCompaniesStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -24607,19 +24800,19 @@ export type DeleteJobCompanyMutationVariables = Exact<{
 
 export type DeleteJobCompanyMutation = { __typename?: 'Mutation', deleteJobCompany: boolean };
 
-export type JobFieldsFragment = { __typename?: 'Job', id: string, siteId: string, jobCode: string, companySlug: string, title: string, category: string, skillSet: Array<string>, shortJobDescription: string, jobDescription: string, jobResponsibilities: string, requirements: Array<string>, niceToHave: Array<string>, benefits: Array<string>, location: string, jobType: string, experienceLevel: string, workMode: string, salaryRange: string, jobPostDate: string, applicationDeadline?: string | null, isActive: boolean, isFeatured: boolean };
+export type JobFieldsFragment = { __typename?: 'Job', id: string, siteId: string, jobCode: string, companySlug: string, title: string, category: string, skillSet: Array<string>, shortJobDescription: string, jobDescription: string, jobResponsibilities: string, requirements: Array<string>, niceToHave: Array<string>, benefits: Array<string>, location: string, jobType: string, experienceLevel: string, workMode: string, salaryRange: string, jobPostDate: string, applicationDeadline?: string | null, isActive: boolean, isFeatured: boolean, seo?: { __typename?: 'ItemSeo', title: string, description: string, keywords: string, ogImageUrl: string, noindex: boolean } | null };
 
 export type ListJobsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListJobsQuery = { __typename?: 'Query', listJobs: Array<{ __typename?: 'Job', id: string, siteId: string, jobCode: string, companySlug: string, title: string, category: string, skillSet: Array<string>, shortJobDescription: string, jobDescription: string, jobResponsibilities: string, requirements: Array<string>, niceToHave: Array<string>, benefits: Array<string>, location: string, jobType: string, experienceLevel: string, workMode: string, salaryRange: string, jobPostDate: string, applicationDeadline?: string | null, isActive: boolean, isFeatured: boolean }> };
+export type ListJobsQuery = { __typename?: 'Query', listJobs: Array<{ __typename?: 'Job', id: string, siteId: string, jobCode: string, companySlug: string, title: string, category: string, skillSet: Array<string>, shortJobDescription: string, jobDescription: string, jobResponsibilities: string, requirements: Array<string>, niceToHave: Array<string>, benefits: Array<string>, location: string, jobType: string, experienceLevel: string, workMode: string, salaryRange: string, jobPostDate: string, applicationDeadline?: string | null, isActive: boolean, isFeatured: boolean, seo?: { __typename?: 'ItemSeo', title: string, description: string, keywords: string, ogImageUrl: string, noindex: boolean } | null }> };
 
 export type ListJobsPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListJobsPagedQuery = { __typename?: 'Query', listJobsPaged: { __typename?: 'JobPage', totalCount: number, rows: Array<{ __typename?: 'Job', id: string, siteId: string, jobCode: string, companySlug: string, title: string, category: string, skillSet: Array<string>, shortJobDescription: string, jobDescription: string, jobResponsibilities: string, requirements: Array<string>, niceToHave: Array<string>, benefits: Array<string>, location: string, jobType: string, experienceLevel: string, workMode: string, salaryRange: string, jobPostDate: string, applicationDeadline?: string | null, isActive: boolean, isFeatured: boolean }> } };
+export type ListJobsPagedQuery = { __typename?: 'Query', listJobsPaged: { __typename?: 'JobPage', totalCount: number, rows: Array<{ __typename?: 'Job', id: string, siteId: string, jobCode: string, companySlug: string, title: string, category: string, skillSet: Array<string>, shortJobDescription: string, jobDescription: string, jobResponsibilities: string, requirements: Array<string>, niceToHave: Array<string>, benefits: Array<string>, location: string, jobType: string, experienceLevel: string, workMode: string, salaryRange: string, jobPostDate: string, applicationDeadline?: string | null, isActive: boolean, isFeatured: boolean, seo?: { __typename?: 'ItemSeo', title: string, description: string, keywords: string, ogImageUrl: string, noindex: boolean } | null }> } };
 
 export type ListJobsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -24648,19 +24841,19 @@ export type DeleteJobMutationVariables = Exact<{
 
 export type DeleteJobMutation = { __typename?: 'Mutation', deleteJob: boolean };
 
-export type GigFieldsFragment = { __typename?: 'Gig', id: string, siteId: string, gigCode: string, title: string, category: string, shortDescription: string, fullDescription: string, deliverables: Array<string>, requirements: Array<string>, tags: Array<string>, budget: string, duration: string, status: string, applicationType: string, applicationContact: string, postedDate: string, deadline?: string | null, isUrgent: boolean };
+export type GigFieldsFragment = { __typename?: 'Gig', id: string, siteId: string, gigCode: string, title: string, category: string, shortDescription: string, fullDescription: string, deliverables: Array<string>, requirements: Array<string>, tags: Array<string>, budget: string, duration: string, status: string, applicationType: string, applicationContact: string, postedDate: string, deadline?: string | null, isUrgent: boolean, seo?: { __typename?: 'ItemSeo', title: string, description: string, keywords: string, ogImageUrl: string, noindex: boolean } | null };
 
 export type ListGigsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListGigsQuery = { __typename?: 'Query', listGigs: Array<{ __typename?: 'Gig', id: string, siteId: string, gigCode: string, title: string, category: string, shortDescription: string, fullDescription: string, deliverables: Array<string>, requirements: Array<string>, tags: Array<string>, budget: string, duration: string, status: string, applicationType: string, applicationContact: string, postedDate: string, deadline?: string | null, isUrgent: boolean }> };
+export type ListGigsQuery = { __typename?: 'Query', listGigs: Array<{ __typename?: 'Gig', id: string, siteId: string, gigCode: string, title: string, category: string, shortDescription: string, fullDescription: string, deliverables: Array<string>, requirements: Array<string>, tags: Array<string>, budget: string, duration: string, status: string, applicationType: string, applicationContact: string, postedDate: string, deadline?: string | null, isUrgent: boolean, seo?: { __typename?: 'ItemSeo', title: string, description: string, keywords: string, ogImageUrl: string, noindex: boolean } | null }> };
 
 export type ListGigsPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListGigsPagedQuery = { __typename?: 'Query', listGigsPaged: { __typename?: 'GigPage', totalCount: number, rows: Array<{ __typename?: 'Gig', id: string, siteId: string, gigCode: string, title: string, category: string, shortDescription: string, fullDescription: string, deliverables: Array<string>, requirements: Array<string>, tags: Array<string>, budget: string, duration: string, status: string, applicationType: string, applicationContact: string, postedDate: string, deadline?: string | null, isUrgent: boolean }> } };
+export type ListGigsPagedQuery = { __typename?: 'Query', listGigsPaged: { __typename?: 'GigPage', totalCount: number, rows: Array<{ __typename?: 'Gig', id: string, siteId: string, gigCode: string, title: string, category: string, shortDescription: string, fullDescription: string, deliverables: Array<string>, requirements: Array<string>, tags: Array<string>, budget: string, duration: string, status: string, applicationType: string, applicationContact: string, postedDate: string, deadline?: string | null, isUrgent: boolean, seo?: { __typename?: 'ItemSeo', title: string, description: string, keywords: string, ogImageUrl: string, noindex: boolean } | null }> } };
 
 export type ListGigsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -25141,6 +25334,13 @@ export type TestWhatsappChannelMutationVariables = Exact<{
 
 
 export type TestWhatsappChannelMutation = { __typename?: 'Mutation', testWhatsappChannel: string };
+
+export type RevealWhatsappChannelSecretMutationVariables = Exact<{
+  secret: WhatsappChannelSecret;
+}>;
+
+
+export type RevealWhatsappChannelSecretMutation = { __typename?: 'Mutation', revealWhatsappChannelSecret: string };
 
 export type WhatsappDemoVisitorFieldsFragment = { __typename?: 'WhatsappDemoVisitor', id: string, name: string, email: string, company: string, phone: string, source: WhatsappDemoVisitorSource, verifiedAt?: string | null, lastSignInAt?: string | null, signInCount: number, blocked: boolean, createdAt: string, updatedAt: string };
 
@@ -26462,6 +26662,15 @@ export const MarketingSuppressionFieldsFragmentDoc = gql`
   createdAt
 }
     `;
+export const ItemSeoFieldsFragmentDoc = gql`
+    fragment ItemSeoFields on ItemSeo {
+  title
+  description
+  keywords
+  ogImageUrl
+  noindex
+}
+    `;
 export const NewsletterIssueFieldsFragmentDoc = gql`
     fragment NewsletterIssueFields on NewsletterIssue {
   id
@@ -26475,6 +26684,9 @@ export const NewsletterIssueFieldsFragmentDoc = gql`
   isActive
   publishedAt
   updatedAt
+  seo {
+    ...ItemSeoFields
+  }
 }
     `;
 export const NewsletterSubscriberFieldsFragmentDoc = gql`
@@ -27139,6 +27351,18 @@ export const PexelsMediaFieldsFragmentDoc = gql`
   duration
 }
     `;
+export const GoogleSignInConfigFieldsFragmentDoc = gql`
+    fragment GoogleSignInConfigFields on GoogleSignInConfig {
+  id
+  clientId
+  hasClientSecret
+  clientSecretHint
+  enabled
+  redirectUri
+  updatedAt
+  updatedByName
+}
+    `;
 export const TrackerAccessFieldsFragmentDoc = gql`
     fragment TrackerAccessFields on TrackerAccess {
   id
@@ -27321,6 +27545,9 @@ export const BlogPostFieldsFragmentDoc = gql`
   featured
   isActive
   publishedAt
+  seo {
+    ...ItemSeoFields
+  }
 }
     `;
 export const CaseStudyFieldsFragmentDoc = gql`
@@ -27340,6 +27567,9 @@ export const CaseStudyFieldsFragmentDoc = gql`
   featured
   isActive
   publishedAt
+  seo {
+    ...ItemSeoFields
+  }
 }
     `;
 export const JobCompanyFieldsFragmentDoc = gql`
@@ -27373,6 +27603,9 @@ export const JobCompanyFieldsFragmentDoc = gql`
   secondaryColor
   isActive
   order
+  seo {
+    ...ItemSeoFields
+  }
 }
     `;
 export const JobFieldsFragmentDoc = gql`
@@ -27399,6 +27632,9 @@ export const JobFieldsFragmentDoc = gql`
   applicationDeadline
   isActive
   isFeatured
+  seo {
+    ...ItemSeoFields
+  }
 }
     `;
 export const GigFieldsFragmentDoc = gql`
@@ -27421,6 +27657,9 @@ export const GigFieldsFragmentDoc = gql`
   postedDate
   deadline
   isUrgent
+  seo {
+    ...ItemSeoFields
+  }
 }
     `;
 export const ToolCategoryFieldsFragmentDoc = gql`
@@ -31095,6 +31334,105 @@ export function useResetPasswordMutation(baseOptions?: ApolloReactHooks.Mutation
         return ApolloReactHooks.useMutation<ResetPasswordMutation, ResetPasswordMutationVariables>(ResetPasswordDocument, options);
       }
 export type ResetPasswordMutationHookResult = ReturnType<typeof useResetPasswordMutation>;
+export const GoogleSignInEnabledDocument = gql`
+    query GoogleSignInEnabled {
+  googleSignInEnabled
+}
+    `;
+
+/**
+ * __useGoogleSignInEnabledQuery__
+ *
+ * To run a query within a React component, call `useGoogleSignInEnabledQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGoogleSignInEnabledQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGoogleSignInEnabledQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGoogleSignInEnabledQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GoogleSignInEnabledQuery, GoogleSignInEnabledQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<GoogleSignInEnabledQuery, GoogleSignInEnabledQueryVariables>(GoogleSignInEnabledDocument, options);
+      }
+export function useGoogleSignInEnabledLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GoogleSignInEnabledQuery, GoogleSignInEnabledQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<GoogleSignInEnabledQuery, GoogleSignInEnabledQueryVariables>(GoogleSignInEnabledDocument, options);
+        }
+// @ts-ignore
+export function useGoogleSignInEnabledSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<GoogleSignInEnabledQuery, GoogleSignInEnabledQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GoogleSignInEnabledQuery, GoogleSignInEnabledQueryVariables>;
+// @ts-ignore
+export function useGoogleSignInEnabledSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GoogleSignInEnabledQuery, GoogleSignInEnabledQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GoogleSignInEnabledQuery | undefined, GoogleSignInEnabledQueryVariables>;
+export function useGoogleSignInEnabledSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GoogleSignInEnabledQuery, GoogleSignInEnabledQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<GoogleSignInEnabledQuery, GoogleSignInEnabledQueryVariables>(GoogleSignInEnabledDocument, options);
+        }
+export type GoogleSignInEnabledQueryHookResult = ReturnType<typeof useGoogleSignInEnabledQuery>;
+export type GoogleSignInEnabledLazyQueryHookResult = ReturnType<typeof useGoogleSignInEnabledLazyQuery>;
+export type GoogleSignInEnabledSuspenseQueryHookResult = ReturnType<typeof useGoogleSignInEnabledSuspenseQuery>;
+export const StartGoogleSignInDocument = gql`
+    mutation StartGoogleSignIn($returnTo: String!) {
+  startGoogleSignIn(returnTo: $returnTo)
+}
+    `;
+
+/**
+ * __useStartGoogleSignInMutation__
+ *
+ * To run a mutation, you first call `useStartGoogleSignInMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useStartGoogleSignInMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [startGoogleSignInMutation, { data, loading, error }] = useStartGoogleSignInMutation({
+ *   variables: {
+ *      returnTo: // value for 'returnTo'
+ *   },
+ * });
+ */
+export function useStartGoogleSignInMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<StartGoogleSignInMutation, StartGoogleSignInMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<StartGoogleSignInMutation, StartGoogleSignInMutationVariables>(StartGoogleSignInDocument, options);
+      }
+export type StartGoogleSignInMutationHookResult = ReturnType<typeof useStartGoogleSignInMutation>;
+export const CompleteGoogleSignInDocument = gql`
+    mutation CompleteGoogleSignIn($ticket: String!) {
+  completeGoogleSignIn(ticket: $ticket) {
+    ...SignInResult
+  }
+}
+    ${SignInResultFragmentDoc}`;
+
+/**
+ * __useCompleteGoogleSignInMutation__
+ *
+ * To run a mutation, you first call `useCompleteGoogleSignInMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCompleteGoogleSignInMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [completeGoogleSignInMutation, { data, loading, error }] = useCompleteGoogleSignInMutation({
+ *   variables: {
+ *      ticket: // value for 'ticket'
+ *   },
+ * });
+ */
+export function useCompleteGoogleSignInMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CompleteGoogleSignInMutation, CompleteGoogleSignInMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CompleteGoogleSignInMutation, CompleteGoogleSignInMutationVariables>(CompleteGoogleSignInDocument, options);
+      }
+export type CompleteGoogleSignInMutationHookResult = ReturnType<typeof useCompleteGoogleSignInMutation>;
 export const ProjectBoardDocument = gql`
     query ProjectBoard($projectId: ID!) {
   projectBoard(projectId: $projectId) {
@@ -39130,6 +39468,34 @@ export function useDeleteEmailVerifierConfigMutation(baseOptions?: ApolloReactHo
         return ApolloReactHooks.useMutation<DeleteEmailVerifierConfigMutation, DeleteEmailVerifierConfigMutationVariables>(DeleteEmailVerifierConfigDocument, options);
       }
 export type DeleteEmailVerifierConfigMutationHookResult = ReturnType<typeof useDeleteEmailVerifierConfigMutation>;
+export const TestEmailVerifierConfigDocument = gql`
+    mutation TestEmailVerifierConfig($id: ID!) {
+  testEmailVerifierConfig(id: $id)
+}
+    `;
+
+/**
+ * __useTestEmailVerifierConfigMutation__
+ *
+ * To run a mutation, you first call `useTestEmailVerifierConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestEmailVerifierConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testEmailVerifierConfigMutation, { data, loading, error }] = useTestEmailVerifierConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTestEmailVerifierConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TestEmailVerifierConfigMutation, TestEmailVerifierConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TestEmailVerifierConfigMutation, TestEmailVerifierConfigMutationVariables>(TestEmailVerifierConfigDocument, options);
+      }
+export type TestEmailVerifierConfigMutationHookResult = ReturnType<typeof useTestEmailVerifierConfigMutation>;
 export const ListEmailFragmentsDocument = gql`
     query ListEmailFragments {
   listEmailFragments {
@@ -51552,7 +51918,8 @@ export const NewsletterIssuesDocument = gql`
     }
   }
 }
-    ${NewsletterIssueFieldsFragmentDoc}`;
+    ${NewsletterIssueFieldsFragmentDoc}
+${ItemSeoFieldsFragmentDoc}`;
 
 /**
  * __useNewsletterIssuesQuery__
@@ -63168,6 +63535,7 @@ export const ListInboundMailConfigsDocument = gql`
     port
     secure
     user
+    hasPassword
     mailbox
     pollSeconds
     deleteAfterImport
@@ -64557,6 +64925,135 @@ export function useRunBackgroundJobMutation(baseOptions?: ApolloReactHooks.Mutat
         return ApolloReactHooks.useMutation<RunBackgroundJobMutation, RunBackgroundJobMutationVariables>(RunBackgroundJobDocument, options);
       }
 export type RunBackgroundJobMutationHookResult = ReturnType<typeof useRunBackgroundJobMutation>;
+export const RevealTechSecretDocument = gql`
+    mutation RevealTechSecret($id: ID!, $secret: TechSecret!) {
+  revealTechSecret(id: $id, secret: $secret)
+}
+    `;
+
+/**
+ * __useRevealTechSecretMutation__
+ *
+ * To run a mutation, you first call `useRevealTechSecretMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRevealTechSecretMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [revealTechSecretMutation, { data, loading, error }] = useRevealTechSecretMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      secret: // value for 'secret'
+ *   },
+ * });
+ */
+export function useRevealTechSecretMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RevealTechSecretMutation, RevealTechSecretMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RevealTechSecretMutation, RevealTechSecretMutationVariables>(RevealTechSecretDocument, options);
+      }
+export type RevealTechSecretMutationHookResult = ReturnType<typeof useRevealTechSecretMutation>;
+export const GoogleSignInConfigDocument = gql`
+    query GoogleSignInConfig {
+  googleSignInConfig {
+    ...GoogleSignInConfigFields
+  }
+}
+    ${GoogleSignInConfigFieldsFragmentDoc}`;
+
+/**
+ * __useGoogleSignInConfigQuery__
+ *
+ * To run a query within a React component, call `useGoogleSignInConfigQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGoogleSignInConfigQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGoogleSignInConfigQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGoogleSignInConfigQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GoogleSignInConfigQuery, GoogleSignInConfigQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<GoogleSignInConfigQuery, GoogleSignInConfigQueryVariables>(GoogleSignInConfigDocument, options);
+      }
+export function useGoogleSignInConfigLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GoogleSignInConfigQuery, GoogleSignInConfigQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<GoogleSignInConfigQuery, GoogleSignInConfigQueryVariables>(GoogleSignInConfigDocument, options);
+        }
+// @ts-ignore
+export function useGoogleSignInConfigSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<GoogleSignInConfigQuery, GoogleSignInConfigQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GoogleSignInConfigQuery, GoogleSignInConfigQueryVariables>;
+// @ts-ignore
+export function useGoogleSignInConfigSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GoogleSignInConfigQuery, GoogleSignInConfigQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GoogleSignInConfigQuery | undefined, GoogleSignInConfigQueryVariables>;
+export function useGoogleSignInConfigSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GoogleSignInConfigQuery, GoogleSignInConfigQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<GoogleSignInConfigQuery, GoogleSignInConfigQueryVariables>(GoogleSignInConfigDocument, options);
+        }
+export type GoogleSignInConfigQueryHookResult = ReturnType<typeof useGoogleSignInConfigQuery>;
+export type GoogleSignInConfigLazyQueryHookResult = ReturnType<typeof useGoogleSignInConfigLazyQuery>;
+export type GoogleSignInConfigSuspenseQueryHookResult = ReturnType<typeof useGoogleSignInConfigSuspenseQuery>;
+export const SaveGoogleSignInConfigDocument = gql`
+    mutation SaveGoogleSignInConfig($input: GoogleSignInConfigInput!) {
+  saveGoogleSignInConfig(input: $input) {
+    ...GoogleSignInConfigFields
+  }
+}
+    ${GoogleSignInConfigFieldsFragmentDoc}`;
+
+/**
+ * __useSaveGoogleSignInConfigMutation__
+ *
+ * To run a mutation, you first call `useSaveGoogleSignInConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSaveGoogleSignInConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [saveGoogleSignInConfigMutation, { data, loading, error }] = useSaveGoogleSignInConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSaveGoogleSignInConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SaveGoogleSignInConfigMutation, SaveGoogleSignInConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<SaveGoogleSignInConfigMutation, SaveGoogleSignInConfigMutationVariables>(SaveGoogleSignInConfigDocument, options);
+      }
+export type SaveGoogleSignInConfigMutationHookResult = ReturnType<typeof useSaveGoogleSignInConfigMutation>;
+export const TestGoogleSignInConfigDocument = gql`
+    mutation TestGoogleSignInConfig {
+  testGoogleSignInConfig
+}
+    `;
+
+/**
+ * __useTestGoogleSignInConfigMutation__
+ *
+ * To run a mutation, you first call `useTestGoogleSignInConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestGoogleSignInConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testGoogleSignInConfigMutation, { data, loading, error }] = useTestGoogleSignInConfigMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useTestGoogleSignInConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TestGoogleSignInConfigMutation, TestGoogleSignInConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TestGoogleSignInConfigMutation, TestGoogleSignInConfigMutationVariables>(TestGoogleSignInConfigDocument, options);
+      }
+export type TestGoogleSignInConfigMutationHookResult = ReturnType<typeof useTestGoogleSignInConfigMutation>;
 export const TrackerAccessListDocument = gql`
     query TrackerAccessList {
   trackerAccessList {
@@ -65874,7 +66371,8 @@ export const ListBlogPostsDocument = gql`
     ...BlogPostFields
   }
 }
-    ${BlogPostFieldsFragmentDoc}`;
+    ${BlogPostFieldsFragmentDoc}
+${ItemSeoFieldsFragmentDoc}`;
 
 /**
  * __useListBlogPostsQuery__
@@ -65920,7 +66418,8 @@ export const ListBlogPostsPagedDocument = gql`
     }
   }
 }
-    ${BlogPostFieldsFragmentDoc}`;
+    ${BlogPostFieldsFragmentDoc}
+${ItemSeoFieldsFragmentDoc}`;
 
 /**
  * __useListBlogPostsPagedQuery__
@@ -66018,7 +66517,8 @@ export const GetBlogPostDocument = gql`
     ...BlogPostFields
   }
 }
-    ${BlogPostFieldsFragmentDoc}`;
+    ${BlogPostFieldsFragmentDoc}
+${ItemSeoFieldsFragmentDoc}`;
 
 /**
  * __useGetBlogPostQuery__
@@ -66151,7 +66651,8 @@ export const ListCaseStudiesDocument = gql`
     ...CaseStudyFields
   }
 }
-    ${CaseStudyFieldsFragmentDoc}`;
+    ${CaseStudyFieldsFragmentDoc}
+${ItemSeoFieldsFragmentDoc}`;
 
 /**
  * __useListCaseStudiesQuery__
@@ -66197,7 +66698,8 @@ export const ListCaseStudiesPagedDocument = gql`
     }
   }
 }
-    ${CaseStudyFieldsFragmentDoc}`;
+    ${CaseStudyFieldsFragmentDoc}
+${ItemSeoFieldsFragmentDoc}`;
 
 /**
  * __useListCaseStudiesPagedQuery__
@@ -66295,7 +66797,8 @@ export const GetCaseStudyDocument = gql`
     ...CaseStudyFields
   }
 }
-    ${CaseStudyFieldsFragmentDoc}`;
+    ${CaseStudyFieldsFragmentDoc}
+${ItemSeoFieldsFragmentDoc}`;
 
 /**
  * __useGetCaseStudyQuery__
@@ -66428,7 +66931,8 @@ export const ListJobCompaniesDocument = gql`
     ...JobCompanyFields
   }
 }
-    ${JobCompanyFieldsFragmentDoc}`;
+    ${JobCompanyFieldsFragmentDoc}
+${ItemSeoFieldsFragmentDoc}`;
 
 /**
  * __useListJobCompaniesQuery__
@@ -66474,7 +66978,8 @@ export const ListJobCompaniesPagedDocument = gql`
     }
   }
 }
-    ${JobCompanyFieldsFragmentDoc}`;
+    ${JobCompanyFieldsFragmentDoc}
+${ItemSeoFieldsFragmentDoc}`;
 
 /**
  * __useListJobCompaniesPagedQuery__
@@ -66661,7 +67166,8 @@ export const ListJobsDocument = gql`
     ...JobFields
   }
 }
-    ${JobFieldsFragmentDoc}`;
+    ${JobFieldsFragmentDoc}
+${ItemSeoFieldsFragmentDoc}`;
 
 /**
  * __useListJobsQuery__
@@ -66707,7 +67213,8 @@ export const ListJobsPagedDocument = gql`
     }
   }
 }
-    ${JobFieldsFragmentDoc}`;
+    ${JobFieldsFragmentDoc}
+${ItemSeoFieldsFragmentDoc}`;
 
 /**
  * __useListJobsPagedQuery__
@@ -66894,7 +67401,8 @@ export const ListGigsDocument = gql`
     ...GigFields
   }
 }
-    ${GigFieldsFragmentDoc}`;
+    ${GigFieldsFragmentDoc}
+${ItemSeoFieldsFragmentDoc}`;
 
 /**
  * __useListGigsQuery__
@@ -66940,7 +67448,8 @@ export const ListGigsPagedDocument = gql`
     }
   }
 }
-    ${GigFieldsFragmentDoc}`;
+    ${GigFieldsFragmentDoc}
+${ItemSeoFieldsFragmentDoc}`;
 
 /**
  * __useListGigsPagedQuery__
@@ -69521,6 +70030,34 @@ export function useTestWhatsappChannelMutation(baseOptions?: ApolloReactHooks.Mu
         return ApolloReactHooks.useMutation<TestWhatsappChannelMutation, TestWhatsappChannelMutationVariables>(TestWhatsappChannelDocument, options);
       }
 export type TestWhatsappChannelMutationHookResult = ReturnType<typeof useTestWhatsappChannelMutation>;
+export const RevealWhatsappChannelSecretDocument = gql`
+    mutation RevealWhatsappChannelSecret($secret: WhatsappChannelSecret!) {
+  revealWhatsappChannelSecret(secret: $secret)
+}
+    `;
+
+/**
+ * __useRevealWhatsappChannelSecretMutation__
+ *
+ * To run a mutation, you first call `useRevealWhatsappChannelSecretMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRevealWhatsappChannelSecretMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [revealWhatsappChannelSecretMutation, { data, loading, error }] = useRevealWhatsappChannelSecretMutation({
+ *   variables: {
+ *      secret: // value for 'secret'
+ *   },
+ * });
+ */
+export function useRevealWhatsappChannelSecretMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<RevealWhatsappChannelSecretMutation, RevealWhatsappChannelSecretMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<RevealWhatsappChannelSecretMutation, RevealWhatsappChannelSecretMutationVariables>(RevealWhatsappChannelSecretDocument, options);
+      }
+export type RevealWhatsappChannelSecretMutationHookResult = ReturnType<typeof useRevealWhatsappChannelSecretMutation>;
 export const RequestWhatsappDemoCodeDocument = gql`
     mutation RequestWhatsappDemoCode($input: WhatsappDemoCodeInput!) {
   requestWhatsappDemoCode(input: $input)

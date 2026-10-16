@@ -2,15 +2,22 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET } from '@exyconn/regex';
-import { RhfTextField, RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
+import {
+  RhfSecretField,
+  RhfTextField,
+  RhfSelect,
+  type SelectOption,
+} from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreateStripeConfigMutation,
   useUpdateStripeConfigMutation,
+  TechSecret,
 } from '@exyconn/shell/graphql/generated';
 import type { StripeConfigRow } from './stripe-config.types';
 import { KEEP_SECRET_HINT, secretField, webhookUrl } from '../../secret';
+import { useTechSecretReveal } from '../../useTechSecretReveal';
 
 const BOOL_OPTIONS: SelectOption[] = [
   { value: 'true', label: 'Yes' },
@@ -63,6 +70,8 @@ export function StripeConfigForm({ initial, onDone, onCancel }: Readonly<StripeC
     defaultValues: toInitial(initial),
   });
 
+  const revealFor = useTechSecretReveal(initial?.id);
+
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Stripe account',
     initial,
@@ -74,16 +83,18 @@ export function StripeConfigForm({ initial, onDone, onCancel }: Readonly<StripeC
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="label" label="Label" />
-      <RhfTextField
+      <RhfSecretField
         name="secretKey"
         label="Secret key"
-        type="password"
+        stored={initial?.hasSecretKey}
+        onReveal={revealFor(TechSecret.StripeSecretKey)}
         helperText={isEdit ? KEEP_SECRET_HINT : 'Dashboard › Developers › API keys'}
       />
-      <RhfTextField
+      <RhfSecretField
         name="webhookSecret"
         label="Webhook signing secret"
-        type="password"
+        stored={initial?.hasWebhookSecret}
+        onReveal={revealFor(TechSecret.StripeWebhookSecret)}
         helperText={
           isEdit
             ? KEEP_SECRET_HINT

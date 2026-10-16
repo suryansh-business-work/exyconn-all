@@ -16,6 +16,7 @@ import {
 import { MEDIA_FOLDERS } from '../../live-edit/live-edit.config';
 import { CompanyBenefitsFields } from './company-benefits.fields';
 import type { JobCompanyRow } from './job-company.types';
+import { ItemSeoFields, itemSeoSchema, toItemSeoValues } from '../item-seo';
 
 const benefitSchema = z.object({
   icon: z.string().trim().min(1, 'Icon is required'),
@@ -83,6 +84,7 @@ const schema = z.object({
     .or(z.literal('')),
   isActive: z.boolean(),
   order: z.coerce.number({ message: 'Order must be a number' }).min(0, 'Order must be ≥ 0'),
+  seo: itemSeoSchema,
 });
 type Values = z.infer<typeof schema>;
 
@@ -114,6 +116,7 @@ const toInitial = (row: JobCompanyRow | null): Values => ({
   secondaryColor: row?.secondaryColor ?? '',
   isActive: row?.isActive ?? true,
   order: row?.order ?? 0,
+  seo: toItemSeoValues(row?.seo),
 });
 
 interface JobCompanyFormProps {
@@ -186,6 +189,7 @@ export function JobCompanyForm({ initial, onDone, onCancel }: Readonly<JobCompan
       <RhfTextField name="secondaryColor" label="Secondary color" />
       <RhfTextField name="order" label="Order" type="number" />
       <RhfSwitch name="isActive" label="Active" />
+      <ItemSeoFields siteId={siteId} />
     </EntityForm>
   );
 }

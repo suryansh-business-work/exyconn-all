@@ -1,12 +1,18 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import type { z } from 'zod';
-import { RhfTextField, RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
+import {
+  RhfSecretField,
+  RhfTextField,
+  RhfSelect,
+  type SelectOption,
+} from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreateEmailVerifierConfigMutation,
   useUpdateEmailVerifierConfigMutation,
+  TechSecret,
 } from '@exyconn/shell/graphql/generated';
 import { KEEP_SECRET_HINT } from '../../secret';
 import {
@@ -14,6 +20,7 @@ import {
   type EmailVerifierConfigRow,
   type EmailVerifierConfigValues,
 } from './email-verifier-config.types';
+import { useTechSecretReveal } from '../../useTechSecretReveal';
 
 const BOOL_OPTIONS: SelectOption[] = [
   { value: 'true', label: 'Yes' },
@@ -63,6 +70,7 @@ export function EmailVerifierConfigForm({
     resolver: zodResolver(emailVerifierConfigSchema),
     defaultValues: toInitial(initial),
   });
+  const revealFor = useTechSecretReveal(initial?.id);
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Email verifier config',
     initial,
@@ -81,10 +89,11 @@ export function EmailVerifierConfigForm({
       />
       <RhfTextField name="proxyPort" label="Proxy port" type="number" />
       <RhfTextField name="proxyUsername" label="Proxy username" />
-      <RhfTextField
+      <RhfSecretField
         name="proxyPassword"
         label="Proxy password"
-        type="password"
+        stored={initial?.hasProxyPassword}
+        onReveal={revealFor(TechSecret.EmailVerifierProxyPassword)}
         helperText={isEdit ? KEEP_SECRET_HINT : 'Only if the proxy asks for one'}
       />
       <RhfSelect name="isActive" label="Set as active" options={BOOL_OPTIONS} />

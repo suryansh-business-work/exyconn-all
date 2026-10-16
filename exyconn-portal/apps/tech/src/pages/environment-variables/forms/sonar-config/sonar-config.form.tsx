@@ -2,15 +2,22 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { HTTP_URL, SONAR_PROJECT_KEY } from '@exyconn/regex';
-import { RhfTextField, RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
+import {
+  RhfSecretField,
+  RhfTextField,
+  RhfSelect,
+  type SelectOption,
+} from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreateSonarConfigMutation,
   useUpdateSonarConfigMutation,
+  TechSecret,
 } from '@exyconn/shell/graphql/generated';
 import type { SonarConfigFormValues, SonarConfigRow } from './sonar-config.types';
 import { KEEP_SECRET_HINT, secretField } from '../../secret';
+import { useTechSecretReveal } from '../../useTechSecretReveal';
 
 const BOOL_OPTIONS: SelectOption[] = [
   { value: 'true', label: 'Yes' },
@@ -95,6 +102,8 @@ export function SonarConfigForm({ initial, onDone, onCancel }: Readonly<SonarCon
     defaultValues: toInitial(initial),
   });
 
+  const revealFor = useTechSecretReveal(initial?.id);
+
   const { isEdit, onSubmit } = useEntitySave({
     label: 'SonarQube config',
     initial,
@@ -111,10 +120,11 @@ export function SonarConfigForm({ initial, onDone, onCancel }: Readonly<SonarCon
         label="Server URL"
         helperText="e.g. https://sonarcloud.io or your SonarQube address"
       />
-      <RhfTextField
+      <RhfSecretField
         name="token"
         label="Token"
-        type="password"
+        stored={initial?.hasToken}
+        onReveal={revealFor(TechSecret.SonarToken)}
         helperText={
           isEdit ? KEEP_SECRET_HINT : 'A user token with Browse permission on the project'
         }

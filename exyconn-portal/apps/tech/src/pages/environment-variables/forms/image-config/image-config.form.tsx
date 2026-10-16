@@ -3,15 +3,22 @@ import { useT } from '@exyconn/i18n';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { HTTP_URL } from '@exyconn/regex';
-import { RhfTextField, RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
+import {
+  RhfSecretField,
+  RhfTextField,
+  RhfSelect,
+  type SelectOption,
+} from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreateImageConfigMutation,
   useUpdateImageConfigMutation,
+  TechSecret,
 } from '@exyconn/shell/graphql/generated';
 import type { ImageConfigRow } from './image-config.types';
 import { KEEP_SECRET_HINT, secretField } from '../../secret';
+import { useTechSecretReveal } from '../../useTechSecretReveal';
 
 const BOOL_OPTIONS: SelectOption[] = [
   { value: 'true', label: 'Yes' },
@@ -74,6 +81,8 @@ export function ImageConfigForm({ initial, onDone, onCancel }: Readonly<ImageCon
     defaultValues: toInitial(initial),
   });
 
+  const revealFor = useTechSecretReveal(initial?.id);
+
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Image config',
     initial,
@@ -91,11 +100,16 @@ export function ImageConfigForm({ initial, onDone, onCancel }: Readonly<ImageCon
         options={PROVIDER_OPTIONS.map((o) => ({ ...o, label: t(o.label) }))}
       />
       <RhfTextField name="publicKey" label="Public key" />
-      <RhfTextField
+      <RhfSecretField
         name="privateKey"
         label="Private key"
-        type="password"
-        helperText={isEdit ? KEEP_SECRET_HINT : 'Stored write-only — it is never shown again'}
+        stored={initial?.hasPrivateKey}
+        onReveal={revealFor(TechSecret.ImagekitPrivateKey)}
+        helperText={
+          isEdit
+            ? KEEP_SECRET_HINT
+            : 'Kept on the server; open the config again and use the eye to see it'
+        }
       />
       <RhfTextField name="urlEndpoint" label="URL endpoint" />
       <RhfSelect name="isActive" label="Set as active" options={BOOL_OPTIONS} />

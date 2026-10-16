@@ -24,6 +24,8 @@ export const techTypeDefs = gql`
     port: Int!
     secure: Boolean!
     user: String!
+    "Whether a mailbox password is stored; see revealTechSecret."
+    hasPassword: Boolean!
     mailbox: String!
     "How long the poller waits between rounds."
     pollSeconds: Int!

@@ -13,6 +13,7 @@ import DnsIcon from '@mui/icons-material/Dns';
 import CloudIcon from '@mui/icons-material/Cloud';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
 import PaymentsIcon from '@mui/icons-material/Payments';
+import GoogleIcon from '@mui/icons-material/Google';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import PublicIcon from '@mui/icons-material/Public';
@@ -32,6 +33,7 @@ import { StripeConfigsPanel } from './StripeConfigsPanel';
 import { RazorpayConfigsPanel } from './RazorpayConfigsPanel';
 import { PaypalConfigsPanel } from './PaypalConfigsPanel';
 import { PayoneerConfigsPanel } from './PayoneerConfigsPanel';
+import { GoogleSignInPanel } from './GoogleSignInPanel';
 import { SonarConfigsPanel } from './SonarConfigsPanel';
 import { EmailVerifierConfigsPanel } from './EmailVerifierConfigsPanel';
 
@@ -79,6 +81,7 @@ const TABS: TabberItem[] = [
   panelTab('paypal', 'PayPal', <AccountBalanceWalletIcon />, <PaypalConfigsPanel />),
   panelTab('payoneer', 'Payoneer', <PublicIcon />, <PayoneerConfigsPanel />),
   panelTab('sonarqube', 'SonarQube', <FactCheckIcon />, <SonarConfigsPanel />),
+  panelTab('google-sign-in', 'Google sign-in', <GoogleIcon />, <GoogleSignInPanel />),
 ];
 
 /**

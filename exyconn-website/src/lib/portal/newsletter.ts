@@ -1,5 +1,7 @@
 import { portalRequest } from "./client";
 import type { CaptchaAnswer } from "./submit";
+import { ITEM_SEO_FIELDS } from "./queries";
+import type { ItemSeo } from "./types";
 
 /** A published newsletter issue as the list shows it (Website › Newsletter › Issues). */
 export interface NewsletterIssueSummary {
@@ -15,10 +17,11 @@ export interface NewsletterIssueSummary {
 export interface NewsletterIssue extends NewsletterIssueSummary {
   content: string;
   contentCss: string;
+  seo?: ItemSeo | null;
 }
 
 const LIST_FIELDS = "id slug title summary coverImage publishedAt";
-const ISSUE_FIELDS = `${LIST_FIELDS} content contentCss`;
+const ISSUE_FIELDS = `${LIST_FIELDS} content contentCss ${ITEM_SEO_FIELDS}`;
 
 /**
  * A site's published issues, newest first. A portal failure is logged and renders the list's

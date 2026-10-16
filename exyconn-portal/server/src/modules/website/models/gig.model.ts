@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { itemSeoField } from './item-seo.schema';
 import {
   GIG_APPLICATION_TYPES,
   GIG_CATEGORIES,
@@ -32,6 +33,8 @@ const gigSchema = new Schema(
     applicationContact: { type: String, required: true, trim: true },
     postedDate: { type: Date, required: true, default: Date.now },
     deadline: { type: Date, default: null },
+    /** Its own search and share meta; blank fields keep the page template's. */
+    seo: itemSeoField,
     isUrgent: { type: Boolean, default: false },
   },
   { timestamps: true },

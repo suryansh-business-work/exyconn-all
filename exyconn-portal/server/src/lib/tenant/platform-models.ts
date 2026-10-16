@@ -34,6 +34,11 @@ export const PLATFORM_MODELS: ReadonlySet<string> = new Set([
   // state of a connection in progress (looked up by the provider's callback, before any scope).
   'SocialAppConfig',
   'SocialOAuthState',
+  // "Continue with Google" on the portal sign-in: the install's OAuth client, and the state and
+  // one-time ticket of a sign-in in progress (both read before anyone, or any company, is known).
+  'GoogleSignInConfig',
+  'GoogleSignInState',
+  'GoogleSignInTicket',
   'TrackerBuildSettings',
   // The AI calling bot demo (demos.exyconn.com/calling-bot-demo): its settings and its calls
   // belong to the install, and its voice server reads and writes them with no company in scope.

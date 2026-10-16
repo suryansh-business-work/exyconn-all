@@ -108,6 +108,8 @@ export const emailVerificationTypeDefs = gql`
     createEmailVerificationBatch(name: String!, emails: [String!]!): EmailVerificationBatch!
     createEmailVerifierConfig(input: EmailVerifierConfigInput!): EmailVerifierConfig!
     updateEmailVerifierConfig(id: ID!, input: EmailVerifierConfigInput!): EmailVerifierConfig!
+    "Connects to the proxy and signs in; says what worked, or why not."
+    testEmailVerifierConfig(id: ID!): String!
     deleteEmailVerifierConfig(id: ID!): Boolean!
   }
 `;

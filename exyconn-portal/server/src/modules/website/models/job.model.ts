@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { itemSeoField } from './item-seo.schema';
 import { EXPERIENCE_LEVELS, JOB_CATEGORIES, JOB_TYPES, WORK_MODES } from '../website.constants';
 
 const jobSchema = new Schema(
@@ -27,6 +28,8 @@ const jobSchema = new Schema(
     salaryRange: { type: String, default: '', trim: true },
     jobPostDate: { type: Date, required: true, default: Date.now },
     applicationDeadline: { type: Date, default: null },
+    /** Its own search and share meta; blank fields keep the page template's. */
+    seo: itemSeoField,
     isActive: { type: Boolean, default: true },
     isFeatured: { type: Boolean, default: false },
   },

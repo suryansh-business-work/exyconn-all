@@ -6,6 +6,9 @@ import { renderWithProviders } from '../../../../test-utils';
 import { renderInSite } from '../../../cms/cms-helpers';
 import { field, pickOption } from '../form-helpers';
 
+/** A form opened without meta sends every meta field blank (the template's meta stays). */
+const EMPTY_SEO = { title: '', description: '', keywords: '', ogImageUrl: '', noindex: false };
+
 const gql = vi.hoisted(() => ({ create: vi.fn(), update: vi.fn(), companies: vi.fn() }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
@@ -82,6 +85,7 @@ describe('JobForm', () => {
     expect(gql.create).toHaveBeenCalledWith({
       variables: {
         input: {
+          seo: EMPTY_SEO,
           jobCode: 'JOB-002',
           companySlug: 'exyconn',
           title: 'Designer',
@@ -143,7 +147,10 @@ describe('JobForm', () => {
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(gql.update).toHaveBeenCalledWith({
-      variables: { id: 'job-1', input: { ...jobValues, applicationDeadline: null } },
+      variables: {
+        id: 'job-1',
+        input: { seo: EMPTY_SEO, ...jobValues, applicationDeadline: null },
+      },
     });
     expect(await screen.findByText('Job updated')).toBeInTheDocument();
   });
@@ -161,7 +168,7 @@ describe('JobForm', () => {
     expect(gql.update).toHaveBeenCalledWith({
       variables: {
         id: 'job-1',
-        input: { ...jobValues, applicationDeadline: '2026-06-30T00:00:00.000Z' },
+        input: { seo: EMPTY_SEO, ...jobValues, applicationDeadline: '2026-06-30T00:00:00.000Z' },
       },
     });
   });

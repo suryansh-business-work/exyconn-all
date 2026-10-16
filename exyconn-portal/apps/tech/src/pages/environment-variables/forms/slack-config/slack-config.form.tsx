@@ -1,15 +1,22 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { RhfTextField, RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
+import {
+  RhfSecretField,
+  RhfTextField,
+  RhfSelect,
+  type SelectOption,
+} from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreateSlackConfigMutation,
   useUpdateSlackConfigMutation,
+  TechSecret,
 } from '@exyconn/shell/graphql/generated';
 import type { SlackConfigRow } from './slack-config.types';
 import { KEEP_SECRET_HINT, secretField } from '../../secret';
+import { useTechSecretReveal } from '../../useTechSecretReveal';
 
 const BOOL_OPTIONS: SelectOption[] = [
   { value: 'true', label: 'Yes' },
@@ -49,15 +56,11 @@ const toInput = (values: Values) => ({
   isActive: values.isActive === 'true',
 });
 
-/** Optional either way; on an edit, says whether one is stored and that blank keeps it. */
-const signingSecretHint = (row: SlackConfigRow | null): string => {
-  if (!row) {
-    return 'Optional. Lets website chat agents reply from Slack threads.';
-  }
-  return row.hasSigningSecret
-    ? 'Signing secret stored. Optional; lets website chat agents reply from Slack threads. Leave empty to keep the stored one.'
-    : 'Optional. Lets website chat agents reply from Slack threads. No signing secret stored yet.';
-};
+/** Optional either way; a stored one is shown behind the eye instead of this hint. */
+const signingSecretHint = (row: SlackConfigRow | null): string =>
+  row
+    ? 'Optional. Lets website chat agents reply from Slack threads. No signing secret stored yet.'
+    : 'Optional. Lets website chat agents reply from Slack threads.';
 
 const toInitial = (row: SlackConfigRow | null): Values => ({
   label: row?.label ?? '',
@@ -84,6 +87,8 @@ export function SlackConfigForm({ initial, onDone, onCancel }: Readonly<SlackCon
     defaultValues: toInitial(initial),
   });
 
+  const revealFor = useTechSecretReveal(initial?.id);
+
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Slack config',
     initial,
@@ -95,18 +100,20 @@ export function SlackConfigForm({ initial, onDone, onCancel }: Readonly<SlackCon
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="label" label="Label" />
-      <RhfTextField
+      <RhfSecretField
         name="botToken"
         label="Bot token"
-        type="password"
+        stored={initial?.hasBotToken}
+        onReveal={revealFor(TechSecret.SlackBotToken)}
         helperText={
           isEdit ? KEEP_SECRET_HINT : 'Slack app bot token (xoxb-…) with the chat:write scope'
         }
       />
-      <RhfTextField
+      <RhfSecretField
         name="signingSecret"
         label="Signing secret"
-        type="password"
+        stored={initial?.hasSigningSecret}
+        onReveal={revealFor(TechSecret.SlackSigningSecret)}
         helperText={signingSecretHint(initial)}
       />
       <RhfTextField

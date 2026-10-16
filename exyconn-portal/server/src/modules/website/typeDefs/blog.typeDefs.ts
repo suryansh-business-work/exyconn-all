@@ -33,6 +33,8 @@ export const blogTypeDefs = gql`
     publishedAt: DateTime!
     createdAt: DateTime!
     updatedAt: DateTime!
+    "Its own search and share meta; null on items saved before it existed."
+    seo: ItemSeo
   }
 
   input BlogPostInput {
@@ -49,6 +51,7 @@ export const blogTypeDefs = gql`
     featured: Boolean
     isActive: Boolean
     publishedAt: DateTime
+    seo: ItemSeoInput
   }
 
   type BlogPostPage {

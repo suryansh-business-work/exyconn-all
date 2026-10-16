@@ -26,6 +26,7 @@ import {
 } from '../../website.constants';
 import type { GigRow } from './gig.types';
 import { MEDIA_FOLDERS } from '../../live-edit/live-edit.config';
+import { ItemSeoFields, itemSeoSchema, toItemSeoValues } from '../item-seo';
 
 const schema = z.object({
   gigCode: z.string().trim().min(1, 'Gig code is required'),
@@ -44,6 +45,7 @@ const schema = z.object({
   postedDate: z.string(),
   deadline: z.string(),
   isUrgent: z.boolean(),
+  seo: itemSeoSchema,
 });
 type Values = z.infer<typeof schema>;
 
@@ -64,6 +66,7 @@ const toInitial = (row: GigRow | null): Values => ({
   postedDate: row?.postedDate ?? '',
   deadline: row?.deadline ?? '',
   isUrgent: row?.isUrgent ?? false,
+  seo: toItemSeoValues(row?.seo),
 });
 
 /** An empty date picker yields '', which is not a valid DateTime — send null instead. */
@@ -129,6 +132,7 @@ export function GigForm({ initial, onDone, onCancel }: Readonly<GigFormProps>) {
       <RhfDatePicker name="postedDate" label="Posted date" />
       <RhfDatePicker name="deadline" label="Deadline" />
       <RhfSwitch name="isUrgent" label="Urgent" />
+      <ItemSeoFields siteId={siteId} />
     </EntityForm>
   );
 }

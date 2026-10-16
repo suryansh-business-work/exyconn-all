@@ -147,7 +147,9 @@ describe('SonarConfigForm', () => {
 
   it('edits a stored config, keeping its token, and can deactivate it', async () => {
     renderForm(stored());
-    expect(screen.getByText('Leave blank to keep the current value')).toBeInTheDocument();
+    expect(
+      screen.getByText('Saved. Use the eye to see it, or type a new one to replace it.'),
+    ).toBeInTheDocument();
     await pickOption(ACTIVE, 'No');
     await press('Update');
 

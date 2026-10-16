@@ -67,7 +67,9 @@ describe('EmailConfigForm', () => {
     expect(screen.getByLabelText('Port')).toHaveValue(587);
     expect(screen.getByRole('combobox', { name: SECURE })).toHaveTextContent('No');
     expect(screen.getByRole('combobox', { name: ACTIVE })).toHaveTextContent('Yes');
-    expect(screen.getByText('Stored write-only — it is never shown again')).toBeInTheDocument();
+    expect(
+      screen.getByText('Kept on the server; open the config again and use the eye to see it'),
+    ).toBeInTheDocument();
   });
 
   it('asks for every required field', async () => {
@@ -122,7 +124,9 @@ describe('EmailConfigForm', () => {
 
   it('edits a secure, inactive config and keeps its password when left blank', async () => {
     renderForm(stored());
-    expect(screen.getByText('Leave blank to keep the current value')).toBeInTheDocument();
+    expect(
+      screen.getByText('Saved. Use the eye to see it, or type a new one to replace it.'),
+    ).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: SECURE })).toHaveTextContent('Yes');
     expect(screen.getByRole('combobox', { name: ACTIVE })).toHaveTextContent('No');
     await press('Update');

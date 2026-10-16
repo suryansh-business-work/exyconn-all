@@ -51,6 +51,8 @@ export const jobCompanyTypeDefs = gql`
     order: Int!
     createdAt: DateTime!
     updatedAt: DateTime!
+    "Its own search and share meta; null on items saved before it existed."
+    seo: ItemSeo
   }
 
   input JobCompanyInput {
@@ -73,6 +75,7 @@ export const jobCompanyTypeDefs = gql`
     secondaryColor: String
     isActive: Boolean
     order: Int
+    seo: ItemSeoInput
   }
 
   type JobCompanyPage {

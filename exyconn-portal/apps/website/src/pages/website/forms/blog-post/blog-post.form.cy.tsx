@@ -6,6 +6,9 @@ import { CreateBlogPostDocument } from '@exyconn/shell/graphql/generated';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
 
+/** A new item's meta, left blank so the page template's meta applies. */
+const EMPTY_SEO = { title: '', description: '', keywords: '', ogImageUrl: '', noindex: false };
+
 const NEW_POST = { slug: 'scaling-graphql', title: 'Scaling GraphQL', author: 'Ada Lovelace' };
 
 /** Exactly what BlogPostForm submits when only the required fields are filled in. */
@@ -14,6 +17,7 @@ const createMock: MockLink.MockedResponse = {
     query: CreateBlogPostDocument,
     variables: {
       input: {
+        seo: EMPTY_SEO,
         slug: NEW_POST.slug,
         title: NEW_POST.title,
         summary: '',

@@ -339,6 +339,7 @@ export type BlogPostInput = {
   isActive: InputMaybe<Scalars['Boolean']['input']>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
   readTime: InputMaybe<Scalars['String']['input']>;
+  seo: InputMaybe<ItemSeoInput>;
   siteId: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
   summary: InputMaybe<Scalars['String']['input']>;
@@ -561,6 +562,7 @@ export type CaseStudyInput = {
   isActive: InputMaybe<Scalars['Boolean']['input']>;
   pdfUrl: InputMaybe<Scalars['String']['input']>;
   publishedAt: InputMaybe<Scalars['DateTime']['input']>;
+  seo: InputMaybe<ItemSeoInput>;
   siteId: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
   tags: InputMaybe<Array<Scalars['String']['input']>>;
@@ -1370,6 +1372,7 @@ export type GigInput = {
   isUrgent: InputMaybe<Scalars['Boolean']['input']>;
   postedDate: InputMaybe<Scalars['DateTime']['input']>;
   requirements: InputMaybe<Array<Scalars['String']['input']>>;
+  seo: InputMaybe<ItemSeoInput>;
   shortDescription: InputMaybe<Scalars['String']['input']>;
   siteId: InputMaybe<Scalars['String']['input']>;
   status: Scalars['String']['input'];
@@ -1412,6 +1415,13 @@ export type GodaddyConfigInput = {
   apiSecret: InputMaybe<Scalars['String']['input']>;
   isActive: InputMaybe<Scalars['Boolean']['input']>;
   label: Scalars['String']['input'];
+};
+
+export type GoogleSignInConfigInput = {
+  clientId: Scalars['String']['input'];
+  /** Blank keeps the stored secret. */
+  clientSecret: Scalars['String']['input'];
+  enabled: Scalars['Boolean']['input'];
 };
 
 export type GradeInput = {
@@ -1761,6 +1771,14 @@ export type ItVulnerabilityInput = {
   title: Scalars['String']['input'];
 };
 
+export type ItemSeoInput = {
+  description: InputMaybe<Scalars['String']['input']>;
+  keywords: InputMaybe<Scalars['String']['input']>;
+  noindex: InputMaybe<Scalars['Boolean']['input']>;
+  ogImageUrl: InputMaybe<Scalars['String']['input']>;
+  title: InputMaybe<Scalars['String']['input']>;
+};
+
 export type JobCompanyInput = {
   benefits: InputMaybe<Array<CompanyBenefitInput>>;
   brandColor: InputMaybe<Scalars['String']['input']>;
@@ -1776,6 +1794,7 @@ export type JobCompanyInput = {
   name: Scalars['String']['input'];
   order: InputMaybe<Scalars['Int']['input']>;
   secondaryColor: InputMaybe<Scalars['String']['input']>;
+  seo: InputMaybe<ItemSeoInput>;
   siteId: InputMaybe<Scalars['String']['input']>;
   slug: Scalars['String']['input'];
   socialLinks: InputMaybe<CompanySocialLinksInput>;
@@ -1800,6 +1819,7 @@ export type JobInput = {
   niceToHave: InputMaybe<Array<Scalars['String']['input']>>;
   requirements: InputMaybe<Array<Scalars['String']['input']>>;
   salaryRange: InputMaybe<Scalars['String']['input']>;
+  seo: InputMaybe<ItemSeoInput>;
   shortJobDescription: InputMaybe<Scalars['String']['input']>;
   siteId: InputMaybe<Scalars['String']['input']>;
   skillSet: InputMaybe<Array<Scalars['String']['input']>>;
@@ -2035,6 +2055,7 @@ export type NewsletterIssueInput = {
   coverImage: InputMaybe<Scalars['String']['input']>;
   isActive: Scalars['Boolean']['input'];
   publishedAt: InputMaybe<Scalars['String']['input']>;
+  seo: InputMaybe<ItemSeoInput>;
   siteId: Scalars['String']['input'];
   slug: Scalars['String']['input'];
   summary: InputMaybe<Scalars['String']['input']>;
@@ -3074,6 +3095,30 @@ export type TeamInput = {
   name: Scalars['String']['input'];
 };
 
+/** A saved credential on Tech > Environment Variables that staff may reveal, one at a time. */
+export type TechSecret =
+  | 'CLOUDFLARE_API_TOKEN'
+  | 'EMAIL_PASSWORD'
+  | 'EMAIL_VERIFIER_PROXY_PASSWORD'
+  | 'GITHUB_TOKEN'
+  | 'GODADDY_API_KEY'
+  | 'GODADDY_API_SECRET'
+  | 'GOOGLE_SIGN_IN_CLIENT_SECRET'
+  | 'IMAGEKIT_PRIVATE_KEY'
+  | 'INBOUND_MAIL_PASSWORD'
+  | 'OPENAI_API_KEY'
+  | 'PAYONEER_API_TOKEN'
+  | 'PAYPAL_CLIENT_SECRET'
+  | 'PEXELS_API_KEY'
+  | 'RAZORPAY_KEY_SECRET'
+  | 'RAZORPAY_WEBHOOK_SECRET'
+  | 'SLACK_BOT_TOKEN'
+  | 'SLACK_SIGNING_SECRET'
+  | 'SOCIAL_APP_CLIENT_SECRET'
+  | 'SONAR_TOKEN'
+  | 'STRIPE_SECRET_KEY'
+  | 'STRIPE_WEBHOOK_SECRET';
+
 /** How a ticket reached the desk. */
 export type TicketChannel =
   /** Typed into the console by an agent, usually off a call. */
@@ -3471,6 +3516,11 @@ export type WhatsappChannelInput = {
   phoneNumberId: Scalars['String']['input'];
   verifyToken: Scalars['String']['input'];
 };
+
+/** A stored credential of the number; the values are the field names. */
+export type WhatsappChannelSecret =
+  | 'accessToken'
+  | 'appSecret';
 
 /** What the Test button sends: a blank access token means the saved one. */
 export type WhatsappChannelTestInput = {

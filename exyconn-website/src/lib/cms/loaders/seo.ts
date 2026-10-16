@@ -27,9 +27,10 @@ const asNodes = (jsonLd: unknown): JsonLdNode[] => {
 };
 
 /**
- * Fills a page's SEO: `{placeholders}` from the site's values (counters, market, URLs) and the
- * loader's (a template's item, which win), a blank description or image left to the site's,
- * and the loader's structured data after the page's own.
+ * Fills a page's SEO: the item's own meta where an editor filled it in, else the page's with
+ * `{placeholders}` from the site's values (counters, market, URLs) and the loader's (a template's
+ * item, which win), a blank description or image left to the site's, and the loader's
+ * structured data after the page's own.
  */
 export function filledSeo(
   page: Readonly<{ title: string; seo: CmsPageSeo }>,
@@ -39,11 +40,15 @@ export function filledSeo(
 ): FilledSeo {
   const vars = { ...variables, ...load.vars };
   const jsonLd = [...asNodes(fillJsonLd(page.seo.jsonLd, vars)), ...(load.jsonLd ?? [])];
+  const own = load.seo;
   return {
-    title: fillCopy(page.seo.title || page.title, vars),
-    description: fillCopy(page.seo.description, vars).trim() || fillCopy(site.description, vars),
-    keywords: withoutBlankKeywords(fillCopy(page.seo.keywords, vars)),
-    metaImage: fillCopy(page.seo.ogImageUrl, vars) || site.ogImageUrl,
+    title: own?.title || fillCopy(page.seo.title || page.title, vars),
+    description:
+      own?.description ||
+      fillCopy(page.seo.description, vars).trim() ||
+      fillCopy(site.description, vars),
+    keywords: own?.keywords || withoutBlankKeywords(fillCopy(page.seo.keywords, vars)),
+    metaImage: own?.ogImageUrl || fillCopy(page.seo.ogImageUrl, vars) || site.ogImageUrl,
     jsonLd: jsonLd.length > 0 ? jsonLd : undefined,
   };
 }

@@ -150,7 +150,15 @@ class AuthService {
    */
   async login(email: string, password: string, from: SignInFrom = NOWHERE): Promise<LoginResult> {
     const user = await verifyCredentials(email, password, from.ip);
+    return this.signInProved(user, from);
+  }
 
+  /**
+   * What follows once a person has proved who they are — a password here, Google's verified
+   * email in modules/auth/google — so every door checks the same things: the company is open,
+   * and two-factor, when it is on, still has to be passed.
+   */
+  async signInProved(user: SignedInUser, from: SignInFrom = NOWHERE): Promise<LoginResult> {
     const organizationId = organizationOf(user);
     await assertWorkspaceOpen(organizationId);
 

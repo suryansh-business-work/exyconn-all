@@ -26,6 +26,7 @@ export const blogArticleLoader: PageLoader = async (input) => {
   const detail: BlogArticleDetail = { post, related, url };
   return {
     item: detail,
+    seo: post.seo,
     ogType: "article",
     vars: {
       title: post.title,

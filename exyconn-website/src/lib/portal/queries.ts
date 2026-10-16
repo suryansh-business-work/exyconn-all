@@ -14,6 +14,9 @@ import type {
   ToolCategory,
 } from "./types";
 
+/** An item's own page meta, read with a single item (the detail pages' head), not with lists. */
+export const ITEM_SEO_FIELDS = "seo { title description keywords ogImageUrl noindex }";
+
 const BLOG_FIELDS = `
   id slug title summary content contentCss readTime tags coverImage featured publishedAt
   author { name role initials }
@@ -93,7 +96,7 @@ export async function getBlogPosts(site?: string): Promise<BlogPost[]> {
 export async function getBlogPost(slug: string, site?: string): Promise<BlogPost | null> {
   return read("getBlogPost", null, async () => {
     const data = await portalRequest<{ publicBlogPost: BlogPost | null }>(
-      `query GetBlogPost($slug: String!, $site: String) { publicBlogPost(slug: $slug, site: $site) { ${BLOG_FIELDS} } }`,
+      `query GetBlogPost($slug: String!, $site: String) { publicBlogPost(slug: $slug, site: $site) { ${BLOG_FIELDS} ${ITEM_SEO_FIELDS} } }`,
       { slug, site }
     );
     return data.publicBlogPost;
@@ -115,7 +118,7 @@ export async function getCaseStudies(site?: string): Promise<CaseStudy[]> {
 export async function getCaseStudy(slug: string, site?: string): Promise<CaseStudy | null> {
   return read("getCaseStudy", null, async () => {
     const data = await portalRequest<{ publicCaseStudy: CaseStudy | null }>(
-      `query GetCaseStudy($slug: String!, $site: String) { publicCaseStudy(slug: $slug, site: $site) { ${CASE_STUDY_FIELDS} } }`,
+      `query GetCaseStudy($slug: String!, $site: String) { publicCaseStudy(slug: $slug, site: $site) { ${CASE_STUDY_FIELDS} ${ITEM_SEO_FIELDS} } }`,
       { slug, site }
     );
     return data.publicCaseStudy;
@@ -137,7 +140,7 @@ export async function getJobCompanies(site?: string): Promise<JobCompany[]> {
 export async function getJobCompany(slug: string, site?: string): Promise<JobCompany | null> {
   return read("getJobCompany", null, async () => {
     const data = await portalRequest<{ publicJobCompany: JobCompany | null }>(
-      `query GetJobCompany($slug: String!, $site: String) { publicJobCompany(slug: $slug, site: $site) { ${COMPANY_FIELDS} } }`,
+      `query GetJobCompany($slug: String!, $site: String) { publicJobCompany(slug: $slug, site: $site) { ${COMPANY_FIELDS} ${ITEM_SEO_FIELDS} } }`,
       { slug, site }
     );
     return data.publicJobCompany;
@@ -157,7 +160,7 @@ export async function getJobs(companySlug?: string, site?: string): Promise<Job[
 export async function getJob(jobCode: string, site?: string): Promise<Job | null> {
   return read("getJob", null, async () => {
     const data = await portalRequest<{ publicJob: Job | null }>(
-      `query GetJob($jobCode: String!, $site: String) { publicJob(jobCode: $jobCode, site: $site) { ${JOB_FIELDS} } }`,
+      `query GetJob($jobCode: String!, $site: String) { publicJob(jobCode: $jobCode, site: $site) { ${JOB_FIELDS} ${ITEM_SEO_FIELDS} } }`,
       { jobCode, site }
     );
     return data.publicJob;
@@ -198,7 +201,7 @@ export async function getOpenGigs(site?: string): Promise<Gig[]> {
 export async function getGig(gigCode: string, site?: string): Promise<Gig | null> {
   return read("getGig", null, async () => {
     const data = await portalRequest<{ publicGig: Gig | null }>(
-      `query GetGig($gigCode: String!, $site: String) { publicGig(gigCode: $gigCode, site: $site) { ${GIG_FIELDS} } }`,
+      `query GetGig($gigCode: String!, $site: String) { publicGig(gigCode: $gigCode, site: $site) { ${GIG_FIELDS} ${ITEM_SEO_FIELDS} } }`,
       { gigCode, site }
     );
     return data.publicGig;

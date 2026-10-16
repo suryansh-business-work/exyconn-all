@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -20,12 +20,14 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import { RhfTextField } from '@exyconn/shell/components/form/rhf';
-import { useLoginMutation } from '@exyconn/shell/graphql/generated';
+import { useLoginMutation, type SignInResultFragment } from '@exyconn/shell/graphql/generated';
 import { useAuth, type AuthUser } from '@exyconn/shell/auth/AuthContext';
 import { safeNext } from '@exyconn/shell/utils/redirect';
 import { AdminRecovery } from './AdminRecovery';
 import { MfaChallengeForm } from '../mfa';
 import { ForgotPasswordDialog } from '../forgot-password';
+import { GoogleSignInButton } from './GoogleSignInButton';
+import { useGoogleTicket } from './useGoogleTicket';
 
 const schema = z.object({
   email: z.string().trim().min(1, 'Email is required').regex(EMAIL, 'Enter a valid email'),
@@ -56,11 +58,9 @@ export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
     defaultValues: { email: '', password: '' },
   });
 
-  const onSubmit = async (values: Values) => {
-    setError(null);
-    try {
-      const { data } = await login({ variables: values });
-      const result = data?.login;
+  /** A password or a Google ticket: either a code is still owed, or the person is in. */
+  const finish = useCallback(
+    (result: SignInResultFragment | undefined) => {
       if (result?.mfaRequired) {
         setChallenge(result.mfaChallenge);
         return;
@@ -70,6 +70,16 @@ export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
         // Return the user to the page they were trying to reach before the gate.
         navigate(safeNext(params.get('next')), { replace: true });
       }
+    },
+    [signIn, navigate, params],
+  );
+  useGoogleTicket(finish, setError);
+
+  const onSubmit = async (values: Values) => {
+    setError(null);
+    try {
+      const { data } = await login({ variables: values });
+      finish(data?.login);
     } catch (err) {
       setError(err instanceof Error ? err.message : t('Login failed'));
     }
@@ -150,6 +160,7 @@ export function LoginForm({ accentColor }: Readonly<LoginFormProps>) {
           >
             {t('Log in')}
           </Button>
+          <GoogleSignInButton onError={setError} />
 
           <Flex direction="column" alignItems="flex-start" spacing={0.5}>
             <Link

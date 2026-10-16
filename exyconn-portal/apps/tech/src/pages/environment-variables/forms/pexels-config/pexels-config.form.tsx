@@ -1,15 +1,22 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { RhfTextField, RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
+import {
+  RhfSecretField,
+  RhfTextField,
+  RhfSelect,
+  type SelectOption,
+} from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreatePexelsConfigMutation,
   useUpdatePexelsConfigMutation,
+  TechSecret,
 } from '@exyconn/shell/graphql/generated';
 import type { PexelsConfigRow } from './pexels-config.types';
 import { KEEP_SECRET_HINT, secretField } from '../../secret';
+import { useTechSecretReveal } from '../../useTechSecretReveal';
 
 const BOOL_OPTIONS: SelectOption[] = [
   { value: 'true', label: 'Yes' },
@@ -62,6 +69,8 @@ export function PexelsConfigForm({ initial, onDone, onCancel }: Readonly<PexelsC
     defaultValues: toInitial(initial),
   });
 
+  const revealFor = useTechSecretReveal(initial?.id);
+
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Pexels config',
     initial,
@@ -73,10 +82,11 @@ export function PexelsConfigForm({ initial, onDone, onCancel }: Readonly<PexelsC
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="label" label="Label" />
-      <RhfTextField
+      <RhfSecretField
         name="apiKey"
         label="API key"
-        type="password"
+        stored={initial?.hasApiKey}
+        onReveal={revealFor(TechSecret.PexelsApiKey)}
         helperText={
           isEdit
             ? KEEP_SECRET_HINT

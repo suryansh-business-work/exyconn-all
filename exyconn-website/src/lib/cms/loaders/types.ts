@@ -1,5 +1,6 @@
 import type { JsonLdNode, PageMeta } from "@exyconn/seo";
 import type { Market } from "../../i18n/markets";
+import type { ItemSeo } from "../../portal/types";
 
 /** What a page loader is given: the component's own props and where the page is served. */
 export interface PageLoadInput {
@@ -20,6 +21,7 @@ export interface PageLoadInput {
  * - `item` reaches the components as `cms.detail` (no second read);
  * - `vars` fill `{placeholders}` in the page's SEO title, description, keywords and image
  *   (a template's "{title} | Exyconn Blog");
+ * - `seo` is the item's own meta, which wins over the page's wherever a field is filled;
  * - `jsonLd` follows the page's own structured data; `ogType`, `noindex` and `status` as named.
  */
 export interface PageLoad {
@@ -30,6 +32,7 @@ export interface PageLoad {
   jsonLd?: readonly JsonLdNode[];
   ogType?: PageMeta["type"];
   noindex?: boolean;
+  seo?: ItemSeo | null;
   /** An HTTP status other than 200 for a page that still renders (e.g. 503 with a notice). */
   status?: number;
 }

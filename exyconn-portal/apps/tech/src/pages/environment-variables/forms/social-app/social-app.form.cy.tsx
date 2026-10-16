@@ -70,7 +70,9 @@ describe('SocialAppForm', () => {
 
   it('keeps the stored secret when it is left blank', () => {
     mount(stored, [keepSecret]);
-    cy.contains('Leave blank to keep the current value').should('be.visible');
+    cy.contains('Saved. Use the eye to see it, or type a new one to replace it.').should(
+      'be.visible',
+    );
     cy.contains('button', 'Save').click();
     cy.get('@done').should('have.been.called');
   });

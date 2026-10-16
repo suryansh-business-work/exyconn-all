@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { SLUG } from '@exyconn/regex';
 import type { NewsletterIssueFieldsFragment } from '@exyconn/shell/graphql/generated';
+import { itemSeoSchema, toItemSeoValues } from '../item-seo';
 
 export type NewsletterIssueRow = NewsletterIssueFieldsFragment;
 
@@ -17,6 +18,7 @@ export const issueSchema = z.object({
   content: z.string().trim().min(1, 'Write the issue'),
   isActive: z.boolean(),
   publishedAt: z.string().min(1, 'Pick the publish date'),
+  seo: itemSeoSchema,
 });
 
 export type NewsletterIssueFormValues = z.infer<typeof issueSchema>;
@@ -29,4 +31,5 @@ export const toIssueValues = (row: NewsletterIssueRow | null): NewsletterIssueFo
   content: row?.content ?? '',
   isActive: row?.isActive ?? true,
   publishedAt: row?.publishedAt ?? new Date().toISOString(),
+  seo: toItemSeoValues(row?.seo),
 });

@@ -154,12 +154,7 @@ query WhatsappDemoFunnel($demoKey: String!, $workflow: String!, $from: String!, 
   }
 }
 
-query WhatsappDemoSessions(
-  $input: TableQueryInput!
-  $from: String
-  $to: String
-  $channel: String
-) {
+query WhatsappDemoSessions($input: TableQueryInput!, $from: String, $to: String, $channel: String) {
   whatsappDemoSessions(input: $input, from: $from, to: $to, channel: $channel) {
     rows {
       ...WhatsappDemoSessionFields
@@ -266,4 +261,8 @@ mutation DeleteWhatsappChannel {
 
 mutation TestWhatsappChannel($input: WhatsappChannelTestInput!) {
   testWhatsappChannel(input: $input)
+}
+
+mutation RevealWhatsappChannelSecret($secret: WhatsappChannelSecret!) {
+  revealWhatsappChannelSecret(secret: $secret)
 }

@@ -12,6 +12,7 @@ import { tenantScope } from './middleware/tenant';
 import { env } from './config/env';
 import { TRACKER_UPDATES_PATH, trackerUpdatesRouter } from './modules/tracker/tracker.updates';
 import { SOCIAL_CALLBACK_PATH, socialCallbackRouter } from './modules/social-accounts';
+import { GOOGLE_CALLBACK_PATH, googleSignInRouter } from './modules/auth/google';
 import {
   TRACKING_PATH,
   marketingTrackingRouter,
@@ -83,6 +84,8 @@ export async function createApp(): Promise<Express> {
   app.use(TRACKING_PATH, marketingTrackingRouter());
   // Where LinkedIn, Meta, X and Google send the browser back after consent (no session).
   app.use(SOCIAL_CALLBACK_PATH, socialCallbackRouter());
+  // Where Google sends the browser back during "Continue with Google" (no session).
+  app.use(GOOGLE_CALLBACK_PATH, googleSignInRouter());
   // Meta's WhatsApp Cloud API delivers messages here; each delivery is signed (no session).
   app.use(WEBHOOK_PATH, whatsappWebhookRouter());
   // Stripe and Razorpay confirm client hub payments here; each delivery is signed (no session).

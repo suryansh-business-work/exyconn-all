@@ -59,7 +59,9 @@ describe('ImageConfigForm', () => {
     expect(screen.getByRole('combobox', { name: PROVIDER })).toHaveTextContent('ImageKit');
     expect(screen.getByRole('combobox', { name: ACTIVE })).toHaveTextContent('Yes');
     await pickOption(PROVIDER, 'ImageKit');
-    expect(screen.getByText('Stored write-only — it is never shown again')).toBeInTheDocument();
+    expect(
+      screen.getByText('Kept on the server; open the config again and use the eye to see it'),
+    ).toBeInTheDocument();
   });
 
   it('asks for the keys and the endpoint', async () => {
@@ -111,7 +113,9 @@ describe('ImageConfigForm', () => {
 
   it('edits an inactive config, keeping its private key when blank', async () => {
     renderForm(stored());
-    expect(screen.getByText('Leave blank to keep the current value')).toBeInTheDocument();
+    expect(
+      screen.getByText('Saved. Use the eye to see it, or type a new one to replace it.'),
+    ).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: ACTIVE })).toHaveTextContent('No');
     await pickOption(ACTIVE, 'Yes');
     await press('Update');

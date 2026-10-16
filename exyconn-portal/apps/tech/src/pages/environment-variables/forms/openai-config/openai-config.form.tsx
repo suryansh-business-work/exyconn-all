@@ -1,15 +1,22 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { RhfTextField, RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
+import {
+  RhfSecretField,
+  RhfTextField,
+  RhfSelect,
+  type SelectOption,
+} from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreateOpenAiConfigMutation,
   useUpdateOpenAiConfigMutation,
+  TechSecret,
 } from '@exyconn/shell/graphql/generated';
 import type { OpenAiConfigRow } from './openai-config.types';
 import { KEEP_SECRET_HINT, secretField } from '../../secret';
+import { useTechSecretReveal } from '../../useTechSecretReveal';
 
 const BOOL_OPTIONS: SelectOption[] = [
   { value: 'true', label: 'Yes' },
@@ -65,6 +72,8 @@ export function OpenAiConfigForm({ initial, onDone, onCancel }: Readonly<OpenAiC
     defaultValues: toInitial(initial),
   });
 
+  const revealFor = useTechSecretReveal(initial?.id);
+
   const { isEdit, onSubmit } = useEntitySave({
     label: 'OpenAI config',
     initial,
@@ -76,10 +85,11 @@ export function OpenAiConfigForm({ initial, onDone, onCancel }: Readonly<OpenAiC
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
       <RhfTextField name="label" label="Label" />
-      <RhfTextField
+      <RhfSecretField
         name="apiKey"
         label="API key"
-        type="password"
+        stored={initial?.hasApiKey}
+        onReveal={revealFor(TechSecret.OpenaiApiKey)}
         helperText={isEdit ? KEEP_SECRET_HINT : 'A secret key from platform.openai.com/api-keys'}
       />
       <RhfTextField

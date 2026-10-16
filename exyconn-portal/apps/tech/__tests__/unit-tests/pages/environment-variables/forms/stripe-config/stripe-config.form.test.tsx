@@ -110,7 +110,9 @@ describe('StripeConfigForm', () => {
 
   it('edits an inactive account, keeping both secrets when blank', async () => {
     renderForm(stored());
-    expect(screen.getAllByText('Leave blank to keep the current value')).toHaveLength(2);
+    expect(
+      screen.getAllByText('Saved. Use the eye to see it, or type a new one to replace it.'),
+    ).toHaveLength(2);
     expect(screen.getByRole('combobox', { name: ACTIVE })).toHaveTextContent('No');
     await pickOption(ACTIVE, 'Yes');
     await press('Update');

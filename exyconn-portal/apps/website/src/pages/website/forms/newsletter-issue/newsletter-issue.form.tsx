@@ -13,6 +13,7 @@ import {
   useUpdateNewsletterIssueMutation,
 } from '@exyconn/shell/graphql/generated';
 import { RhfMediaField } from '../../../cms/media';
+import { ItemSeoFields } from '../item-seo';
 import {
   issueSchema,
   toIssueValues,
@@ -72,6 +73,7 @@ export function NewsletterIssueForm({
       <RhfRichText name="content" label="Content" folder="website/newsletter" minHeight={320} />
       <RhfDatePicker name="publishedAt" label="Publish date" />
       <RhfSwitch name="isActive" label="Published on the site" />
+      <ItemSeoFields siteId={siteId} />
     </EntityForm>
   );
 }

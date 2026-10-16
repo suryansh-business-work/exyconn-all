@@ -38,6 +38,7 @@ const stored = (overrides: Partial<InboundMailConfigRow> = {}): InboundMailConfi
   port: 143,
   secure: false,
   user: 'support',
+  hasPassword: true,
   mailbox: 'Support',
   pollSeconds: 300,
   deleteAfterImport: true,
@@ -72,7 +73,9 @@ describe('InboundMailConfigForm', () => {
     expect(screen.getByRole('combobox', { name: SECURE })).toHaveTextContent('Yes');
     expect(screen.getByRole('combobox', { name: DELETE })).toHaveTextContent('No');
     expect(screen.getByRole('combobox', { name: ACTIVE })).toHaveTextContent('Yes');
-    expect(screen.getByText('Stored write-only — it is never shown again')).toBeInTheDocument();
+    expect(
+      screen.getByText('Kept on the server; open the config again and use the eye to see it'),
+    ).toBeInTheDocument();
   });
 
   it('needs a password to create a mailbox, along with its other details', async () => {
@@ -132,7 +135,9 @@ describe('InboundMailConfigForm', () => {
 
   it('edits a stored mailbox exactly as stored, keeping the password when empty', async () => {
     renderForm(stored());
-    expect(screen.getByText('Leave empty to keep the stored password')).toBeInTheDocument();
+    expect(
+      screen.getByText('Saved. Use the eye to see it, or type a new one to replace it.'),
+    ).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: SECURE })).toHaveTextContent('No');
     expect(screen.getByRole('combobox', { name: DELETE })).toHaveTextContent('Yes');
     expect(screen.getByRole('combobox', { name: ACTIVE })).toHaveTextContent('No');

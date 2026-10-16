@@ -6,6 +6,9 @@ import { CreateJobCompanyDocument } from '@exyconn/shell/graphql/generated';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
 
+/** A new item's meta, left blank so the page template's meta applies. */
+const EMPTY_SEO = { title: '', description: '', keywords: '', ogImageUrl: '', noindex: false };
+
 const NEW_COMPANY = { companyCode: 'EXY', slug: 'exyconn', name: 'Exyconn' };
 
 /** Exactly what JobCompanyForm submits when only the required fields are filled in. */
@@ -14,6 +17,7 @@ const createMock: MockLink.MockedResponse = {
     query: CreateJobCompanyDocument,
     variables: {
       input: {
+        seo: EMPTY_SEO,
         companyCode: NEW_COMPANY.companyCode,
         slug: NEW_COMPANY.slug,
         name: NEW_COMPANY.name,

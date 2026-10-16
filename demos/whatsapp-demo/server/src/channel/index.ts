@@ -5,8 +5,10 @@ import {
   getChannel,
   saveChannel,
   testChannel,
+  revealChannelSecret,
   type WhatsappChannelInput,
   type WhatsappChannelTestInput,
+  type WhatsappChannelSecret,
 } from './channel.service';
 import type { GraphQLContext } from '../../../../../exyconn-portal/server/src/middleware/auth';
 import { assertPlatformStaff } from '../../../../../exyconn-portal/server/src/lib/platformAccess';
@@ -58,6 +60,14 @@ export const whatsappChannelResolvers = {
     ) => {
       await manager(ctx, 'EDIT');
       return testChannel(input);
+    },
+    revealWhatsappChannelSecret: async (
+      _p: unknown,
+      { secret }: { secret: WhatsappChannelSecret },
+      ctx: GraphQLContext,
+    ) => {
+      await manager(ctx, 'EDIT');
+      return revealChannelSecret(ctx, secret);
     },
   },
 };

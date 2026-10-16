@@ -1,14 +1,21 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { RhfTextField, RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
+import {
+  RhfSecretField,
+  RhfTextField,
+  RhfSelect,
+  type SelectOption,
+} from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreateInboundMailConfigMutation,
   useUpdateInboundMailConfigMutation,
+  TechSecret,
 } from '@exyconn/shell/graphql/generated';
 import type { InboundMailConfigRow } from './inbound-mail-config.types';
+import { useTechSecretReveal } from '../../useTechSecretReveal';
 
 const BOOL_OPTIONS: SelectOption[] = [
   { value: 'true', label: 'Yes' },
@@ -94,6 +101,8 @@ export function InboundMailConfigForm({
     defaultValues: toInitial(initial),
   });
 
+  const revealFor = useTechSecretReveal(initial?.id);
+
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Inbound mail config',
     initial,
@@ -104,7 +113,7 @@ export function InboundMailConfigForm({
 
   const passwordHint = isEdit
     ? 'Leave empty to keep the stored password'
-    : 'Stored write-only — it is never shown again';
+    : 'Kept on the server; open the config again and use the eye to see it';
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
@@ -113,7 +122,13 @@ export function InboundMailConfigForm({
       <RhfTextField name="port" label="Port" type="number" />
       <RhfSelect name="secure" label="Use TLS/SSL (secure)" options={BOOL_OPTIONS} />
       <RhfTextField name="user" label="Username" />
-      <RhfTextField name="password" label="Password" type="password" helperText={passwordHint} />
+      <RhfSecretField
+        name="password"
+        label="Password"
+        stored={initial?.hasPassword}
+        onReveal={revealFor(TechSecret.InboundMailPassword)}
+        helperText={passwordHint}
+      />
       <RhfTextField name="mailbox" label="Mailbox" helperText="The folder to read, e.g. INBOX" />
       <RhfTextField
         name="pollSeconds"

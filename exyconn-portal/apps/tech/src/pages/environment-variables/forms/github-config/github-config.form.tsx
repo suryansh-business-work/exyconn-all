@@ -2,15 +2,22 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { GITHUB_NAME } from '@exyconn/regex';
-import { RhfTextField, RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
+import {
+  RhfSecretField,
+  RhfTextField,
+  RhfSelect,
+  type SelectOption,
+} from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreateGithubConfigMutation,
   useUpdateGithubConfigMutation,
+  TechSecret,
 } from '@exyconn/shell/graphql/generated';
 import type { GithubConfigRow } from './github-config.types';
 import { KEEP_SECRET_HINT, secretField } from '../../secret';
+import { useTechSecretReveal } from '../../useTechSecretReveal';
 
 const BOOL_OPTIONS: SelectOption[] = [
   { value: 'true', label: 'Yes' },
@@ -71,6 +78,8 @@ export function GithubConfigForm({ initial, onDone, onCancel }: Readonly<GithubC
     defaultValues: toInitial(initial),
   });
 
+  const revealFor = useTechSecretReveal(initial?.id);
+
   const { isEdit, onSubmit } = useEntitySave({
     label: 'GitHub config',
     initial,
@@ -88,10 +97,11 @@ export function GithubConfigForm({ initial, onDone, onCancel }: Readonly<GithubC
         helperText="The user or organisation, e.g. exyconn"
       />
       <RhfTextField name="repo" label="Repository" helperText="The repository name on its own" />
-      <RhfTextField
+      <RhfSecretField
         name="token"
         label="Access token"
-        type="password"
+        stored={initial?.hasToken}
+        onReveal={revealFor(TechSecret.GithubToken)}
         helperText={
           isEdit
             ? KEEP_SECRET_HINT

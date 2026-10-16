@@ -2,9 +2,9 @@ import { z } from 'zod';
 import { env } from '@exyconn/shell/config/env';
 
 /**
- * The platform credentials on these screens are write-only: the API says whether one is stored
- * and, for a long token, its last four characters — never the value. So an edit form starts
- * with the field empty, and leaving it empty keeps what is stored.
+ * The platform credentials on these screens are never listed: the API says whether one is stored
+ * and, for a long token, its last four characters. An edit form starts with the field empty; its
+ * eye button fetches the saved value (revealTechSecret, audited), and leaving it empty keeps it.
  */
 
 /** Helper text for a secret field on an edit form. */

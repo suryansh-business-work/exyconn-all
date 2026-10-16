@@ -81,7 +81,9 @@ describe('PexelsConfigForm', () => {
 
   it('renames a stored key without resending it and can deactivate it', async () => {
     renderForm(stored());
-    expect(screen.getByText('Leave blank to keep the current value')).toBeInTheDocument();
+    expect(
+      screen.getByText('Saved. Use the eye to see it, or type a new one to replace it.'),
+    ).toBeInTheDocument();
     fill('Label', 'Pexels');
     await pickOption(ACTIVE, 'No');
     await press('Update');

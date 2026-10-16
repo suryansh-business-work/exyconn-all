@@ -33,6 +33,8 @@ export const jobTypeDefs = gql`
     isFeatured: Boolean!
     createdAt: DateTime!
     updatedAt: DateTime!
+    "Its own search and share meta; null on items saved before it existed."
+    seo: ItemSeo
   }
 
   input JobInput {
@@ -57,6 +59,7 @@ export const jobTypeDefs = gql`
     applicationDeadline: DateTime
     isActive: Boolean
     isFeatured: Boolean
+    seo: ItemSeoInput
   }
 
   type JobPage {

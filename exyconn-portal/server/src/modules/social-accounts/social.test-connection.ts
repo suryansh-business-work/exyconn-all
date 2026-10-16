@@ -4,7 +4,7 @@ import { PROVIDERS } from './social.providers';
 import { appConfigs, callbackUrl } from './social.service';
 
 /** What a provider says when the client ID or secret is wrong — as opposed to the code. */
-const BAD_CREDENTIALS =
+export const BAD_CREDENTIALS =
   /invalid_client|unauthorized_client|client secret|client id|validating application|client authentication|oauth client was not found/i;
 
 /** A code no provider ever issued, and a verifier of the length PKCE demands. */

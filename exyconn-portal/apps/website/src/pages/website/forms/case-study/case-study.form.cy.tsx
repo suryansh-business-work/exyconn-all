@@ -6,6 +6,9 @@ import { CreateCaseStudyDocument } from '@exyconn/shell/graphql/generated';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
 
+/** A new item's meta, left blank so the page template's meta applies. */
+const EMPTY_SEO = { title: '', description: '', keywords: '', ogImageUrl: '', noindex: false };
+
 const NEW_STUDY = { slug: 'acme-migration', title: 'Acme Migration' };
 
 /** Exactly what CaseStudyForm submits when only the required fields are filled in. */
@@ -14,6 +17,7 @@ const createMock: MockLink.MockedResponse = {
     query: CreateCaseStudyDocument,
     variables: {
       input: {
+        seo: EMPTY_SEO,
         slug: NEW_STUDY.slug,
         title: NEW_STUDY.title,
         excerpt: '',

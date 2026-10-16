@@ -151,6 +151,30 @@ export async function deleteChannel(ctx: GraphQLContext) {
   return true;
 }
 
+export type WhatsappChannelSecret = 'accessToken' | 'appSecret';
+
+const SECRET_NAMES: Readonly<Record<WhatsappChannelSecret, string>> = {
+  accessToken: 'access token',
+  appSecret: 'app secret',
+};
+
+/** One stored credential, opened, for the eye button. Every look goes to the audit log. */
+export async function revealChannelSecret(ctx: GraphQLContext, secret: WhatsappChannelSecret) {
+  const doc = await findOwn();
+  if (!doc) {
+    notFound('WhatsApp number');
+  }
+  const label = doc.displayPhone || doc.phoneNumberId;
+  await recordAudit(ctx, {
+    action: 'ACCESS',
+    module: MODULE,
+    entityId: doc._id,
+    entityLabel: label,
+    summary: `Revealed the ${SECRET_NAMES[secret]} of the WhatsApp number ${label}`,
+  });
+  return open(doc[secret]);
+}
+
 /** The company's number when it is switched on, ready to send from. */
 export async function activeSender(): Promise<Sender | null> {
   const doc = await WhatsappChannelModel.findOne({ enabled: true }).lean();

@@ -45,6 +45,7 @@ export const gigLoader: PageLoader = async ({ params, site, siteUrl, props }) =>
   const detail: GigDetail = { gig, openGigs };
   return {
     item: detail,
+    seo: gig.seo,
     vars: { title: gig.title, summary: gig.shortDescription },
     jsonLd: [breadcrumbJsonLd(itemCrumbs(props, gig.title), siteUrl)],
   };
@@ -63,6 +64,7 @@ export const companyLoader: PageLoader = async ({ params, site, siteUrl, props }
   const detail: CompanyDetail = { company, jobs };
   return {
     item: detail,
+    seo: company.seo,
     vars: {
       name: company.name,
       tagline: company.tagline,
@@ -98,6 +100,7 @@ export const jobLoader: PageLoader = async (input) => {
   ];
   return {
     item: detail,
+    seo: job.seo,
     vars: {
       title: job.title,
       company: company.name,

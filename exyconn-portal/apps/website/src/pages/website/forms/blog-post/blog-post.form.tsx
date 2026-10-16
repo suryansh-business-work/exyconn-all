@@ -20,6 +20,7 @@ import {
 import { ArticleBodyField } from '../../live-edit';
 import { MEDIA_FOLDERS } from '../../live-edit/live-edit.config';
 import type { BlogRow } from './blog-post.types';
+import { ItemSeoFields, itemSeoSchema, toItemSeoValues } from '../item-seo';
 
 const schema = z.object({
   slug: z
@@ -46,6 +47,7 @@ const schema = z.object({
   featured: z.boolean(),
   isActive: z.boolean(),
   publishedAt: z.string(),
+  seo: itemSeoSchema,
 });
 type Values = z.infer<typeof schema>;
 
@@ -66,6 +68,7 @@ const toInitial = (row: BlogRow | null): Values => ({
   featured: row?.featured ?? false,
   isActive: row?.isActive ?? true,
   publishedAt: row?.publishedAt ?? '',
+  seo: toItemSeoValues(row?.seo),
 });
 
 /** An empty date picker yields '', which is not a valid DateTime — send null instead. */
@@ -115,6 +118,7 @@ export function BlogPostForm({ initial, onDone, onCancel }: Readonly<BlogPostFor
       <RhfSwitch name="featured" label="Featured" />
       <RhfSwitch name="isActive" label="Active" />
       <RhfDatePicker name="publishedAt" label="Published at" />
+      <ItemSeoFields siteId={siteId} />
     </EntityForm>
   );
 }

@@ -4,7 +4,7 @@ import { unwrapResolverError } from '@apollo/server/errors';
 import mongoose from 'mongoose';
 import { logger } from '../utils/logger';
 import { ORGANIZATION_FIELD } from '../lib/tenant';
-import { ConfigurationError } from '../utils/errors';
+import { ConfigurationError, reasonOf } from '../utils/errors';
 import { UnsafeUrlError } from '../utils/safeFetch';
 import { EmailRenderError } from '../modules/email/email.render';
 
@@ -28,6 +28,44 @@ export const PUBLIC_ERROR_CODES = new Set([
   // A website form's security check: the site shows a new question when it sees this.
   'CAPTCHA_FAILED',
 ]);
+
+/**
+ * The Test buttons on Tech > Environment Variables and Tech > Demos. Only Tech staff can run
+ * them, and the provider's own words ("invalid_api_key", "getaddrinfo ENOTFOUND") are the whole
+ * point of pressing one, so their failures keep their message instead of "Something went wrong".
+ */
+const CONNECTION_TESTS: ReadonlySet<string> = new Set([
+  'sendTestEmail',
+  'sendTestSlackMessage',
+  'testImageUpload',
+  'testInboundMailConnection',
+  'testGithubConnection',
+  'testPexelsConnection',
+  'testOpenAiConnection',
+  'testSonarConnection',
+  'testGodaddyConnection',
+  'testCloudflareConnection',
+  'testStripeConnection',
+  'testRazorpayConnection',
+  'testPaypalConnection',
+  'testPayoneerConnection',
+  'testSocialAppConfig',
+  'testEmailVerifierConfig',
+  'testGoogleSignInConfig',
+  'testCallingBotConfig',
+  'testCallingBotKey',
+  'testWhatsappChannel',
+]);
+
+/** A connection test's failure, in the provider's words, under a public code. */
+function testFailure(formatted: GraphQLFormattedError, error: unknown) {
+  const field = formatted.path?.[0];
+  if (typeof field !== 'string' || !CONNECTION_TESTS.has(field)) {
+    return null;
+  }
+  logger.warn({ err: error, test: field }, 'Connection test failed');
+  return { message: `The test failed: ${reasonOf(error)}`, code: 'BAD_REQUEST' };
+}
 
 /** Mongo's duplicate-key code — a unique index refusing a second record. */
 const DUPLICATE_KEY = 11000;
@@ -103,6 +141,15 @@ export function buildFormatError(production: boolean) {
     const code = formatted.extensions?.code;
     if (!production || (typeof code === 'string' && PUBLIC_ERROR_CODES.has(code))) {
       return formatted;
+    }
+    const failedTest = testFailure(formatted, original);
+    if (failedTest) {
+      return {
+        message: failedTest.message,
+        locations: formatted.locations,
+        path: formatted.path,
+        extensions: { code: failedTest.code },
+      };
     }
     const correlationId = randomUUID();
     logger.error({ err: original, correlationId, path: formatted.path }, 'Unhandled GraphQL error');
