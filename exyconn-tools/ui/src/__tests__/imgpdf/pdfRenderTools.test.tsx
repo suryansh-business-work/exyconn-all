@@ -317,6 +317,9 @@ describe('edit-pdf', () => {
   const load = async (container: HTMLElement, name = 'doc.pdf', pages = 2) => {
     upload(container, pdfFile(await makePdf(pages, [100, 200]), name));
     await screen.findByText('Page 1 / ' + pdfjs.numPages);
+    // The page label shows before the page is drawn; a click before then would be measured
+    // against the blank 300x150 canvas, not the 100x200 page at 1.5x.
+    await waitFor(() => expect(canvas().width).toBe(150));
   };
   const clickAt = (x: number, y: number) => fireEvent.click(canvas(), { clientX: x, clientY: y });
   const annotate = (text: string) => {
