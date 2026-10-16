@@ -10,10 +10,13 @@ import { MeetingBookingModel } from './meeting.models';
 import { meetingTypes, type MeetingTypeInput } from './meeting.types.service';
 import {
   bookMeeting,
+  publicBookingPage,
   publicMeeting,
   publicSlots,
   type BookMeetingInput,
 } from './meeting.booking.service';
+import { OrganizationModel } from '../../organizations/organization.model';
+import { currentOrganizationId, runAsPlatform } from '../../../lib/tenant';
 
 const MODULE = 'MeetingType';
 const crm = (ctx: GraphQLContext, action: PermissionAction) =>
@@ -27,8 +30,29 @@ const bookingLimiter = createLimiter({
 });
 const MAX_PAGE = 100;
 
+/** The company's slug, for the public links; '' when the caller has no company. */
+async function companySlug(): Promise<string> {
+  const id = currentOrganizationId();
+  if (!id) return '';
+  const org = await runAsPlatform(() => OrganizationModel.findById(id).select('slug').lean());
+  return org?.slug ?? '';
+}
+
+type Args = { org: string; slug: string };
+
 export const meetingResolvers = {
+  MeetingType: {
+    bookingPath: async (row: { slug: string }) => `/book/${await companySlug()}/${row.slug}`,
+  },
+  MeetingBooking: {
+    guests: (row: { guests?: string[] | null }) => row.guests ?? [],
+  },
   Query: {
+    meetingBookingPagePath: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
+      await crm(ctx, 'VIEW');
+      return `/book/${await companySlug()}`;
+    },
+    publicBookingPage: (_p: unknown, { org }: { org: string }) => publicBookingPage(org),
     meetingTypes: async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
       await crm(ctx, 'VIEW');
       return withIds(await meetingTypes.list());
@@ -50,9 +74,9 @@ export const meetingResolvers = {
       ]);
       return { rows: withIds(rows), totalCount };
     },
-    publicMeeting: (_p: unknown, { slug }: { slug: string }) => publicMeeting(slug),
-    publicMeetingSlots: (_p: unknown, { slug, from, to }: { slug: string; from: Date; to: Date }) =>
-      publicSlots(slug, new Date(from), new Date(to)),
+    publicMeeting: (_p: unknown, { org, slug }: Args) => publicMeeting(org, slug),
+    publicMeetingSlots: (_p: unknown, { org, slug, from, to }: Args & { from: Date; to: Date }) =>
+      publicSlots(org, slug, new Date(from), new Date(to)),
   },
   Mutation: {
     createMeetingType: async (
@@ -91,13 +115,13 @@ export const meetingResolvers = {
     },
     bookMeeting: async (
       _p: unknown,
-      { slug, input }: { slug: string; input: BookMeetingInput },
+      { org, slug, input }: Args & { input: BookMeetingInput },
       ctx: GraphQLContext,
     ) => {
       if (!(await bookingLimiter.allow(ctx.ip ?? 'unknown'))) {
         badRequest('Too many bookings from here. Try again in an hour.');
       }
-      return bookMeeting(slug, input);
+      return bookMeeting(org, slug, input);
     },
   },
 };

@@ -15,9 +15,10 @@ import {
   useMeetingTypesQuery,
 } from '@exyconn/shell/graphql/generated';
 import { MeetingTypeForm, type MeetingTypeRow } from './forms/meeting-type';
+import { BookingPageLink } from './BookingPageLink';
 
-/** The public page a meeting type is booked from (the status site needs no sign-in). */
-export const bookingLink = (slug: string) => appUrl('status', `/book/${slug}`);
+/** A public booking address on the CRM site, which needs no sign-in (/book/<company>/<link>). */
+export const bookingLink = (path: string) => appUrl('crm', path);
 
 /** Meetings > Meeting types: what people can book, for how long, and when. */
 export function MeetingTypesPanel() {
@@ -37,7 +38,7 @@ export function MeetingTypesPanel() {
 
   const copy = (row: MeetingTypeRow) => {
     globalThis.navigator.clipboard
-      .writeText(bookingLink(row.slug))
+      .writeText(bookingLink(row.bookingPath))
       .then(() => notify('Booking link copied', 'success'))
       .catch((error: unknown) => {
         portalLogger.warn('crm: copying a booking link failed', error);
@@ -55,7 +56,7 @@ export function MeetingTypesPanel() {
       icon: <OpenInNewIcon fontSize="small" />,
       tooltip: 'Open booking page',
       ariaLabel: 'open booking page',
-      onClick: (row) => globalThis.open(bookingLink(row.slug), '_blank', 'noopener'),
+      onClick: (row) => globalThis.open(bookingLink(row.bookingPath), '_blank', 'noopener'),
     },
   ];
   const columns: Column<MeetingTypeRow>[] = [
@@ -65,7 +66,7 @@ export function MeetingTypesPanel() {
       label: 'Length',
       render: (r) => t('{minutes} min', { minutes: r.durationMinutes }),
     },
-    { key: 'slug', label: 'Link', render: (r) => `/book/${r.slug}` },
+    { key: 'slug', label: 'Link', render: (r) => r.bookingPath },
     { key: 'hostName', label: 'Host' },
     {
       key: 'active',
@@ -93,6 +94,7 @@ export function MeetingTypesPanel() {
         actionLabel="New meeting type"
         onAction={crud.openCreate}
       />
+      <BookingPageLink />
       <DataTable
         columns={columns}
         rows={data?.meetingTypes ?? []}

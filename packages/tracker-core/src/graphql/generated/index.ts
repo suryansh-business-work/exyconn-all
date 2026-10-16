@@ -351,6 +351,8 @@ export type BlogPostInput = {
 
 export type BookMeetingInput = {
   email: Scalars['String']['input'];
+  /** Others to invite (at most 10); each gets the confirmation. */
+  guests: InputMaybe<Array<Scalars['String']['input']>>;
   name: Scalars['String']['input'];
   notes: InputMaybe<Scalars['String']['input']>;
   startAt: Scalars['DateTime']['input'];

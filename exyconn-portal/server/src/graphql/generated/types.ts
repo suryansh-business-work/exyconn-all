@@ -982,6 +982,8 @@ export type BoardColumn = {
 
 export type BookMeetingInput = {
   email: Scalars['String']['input'];
+  /** Others to invite (at most 10); each gets the confirmation. */
+  guests?: InputMaybe<Array<Scalars['String']['input']>>;
   name: Scalars['String']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
   startAt: Scalars['DateTime']['input'];
@@ -5914,6 +5916,7 @@ export type MeetingBooking = {
   createdAt: Scalars['DateTime']['output'];
   email: Scalars['String']['output'];
   endAt: Scalars['DateTime']['output'];
+  guests: Array<Scalars['String']['output']>;
   hostName: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   meetingTitle: Scalars['String']['output'];
@@ -5939,6 +5942,8 @@ export enum MeetingBookingStatus {
 export type MeetingType = {
   __typename?: 'MeetingType';
   active: Scalars['Boolean']['output'];
+  /** The public link's path on the CRM site: /book/<company>/<slug>. */
+  bookingPath: Scalars['String']['output'];
   bufferMinutes: Scalars['Int']['output'];
   createdAt: Scalars['DateTime']['output'];
   description: Scalars['String']['output'];
@@ -5949,7 +5954,6 @@ export type MeetingType = {
   location: Scalars['String']['output'];
   maxDaysAhead: Scalars['Int']['output'];
   minNoticeHours: Scalars['Int']['output'];
-  /** The public link is status.exyconn.com/book/<slug>. */
   slug: Scalars['String']['output'];
   timezone: Scalars['String']['output'];
   title: Scalars['String']['output'];
@@ -7104,6 +7108,7 @@ export type MutationAssignSupportTicketArgs = {
 
 export type MutationBookMeetingArgs = {
   input: BookMeetingInput;
+  org: Scalars['String']['input'];
   slug: Scalars['String']['input'];
 };
 
@@ -11734,12 +11739,24 @@ export type PromptVariableInput = {
   value: Scalars['String']['input'];
 };
 
+/** A company's booking page: every meeting it takes bookings for. */
+export type PublicBookingPage = {
+  __typename?: 'PublicBookingPage';
+  meetings: Array<PublicMeeting>;
+  organizationName: Scalars['String']['output'];
+  organizationSlug: Scalars['String']['output'];
+};
+
 /** What the public booking page shows before anything is booked. */
 export type PublicMeeting = {
   __typename?: 'PublicMeeting';
   description: Scalars['String']['output'];
   durationMinutes: Scalars['Int']['output'];
+  /** Whether a location is shared once the meeting is booked. */
+  hasLocation: Scalars['Boolean']['output'];
   hostName: Scalars['String']['output'];
+  organizationName: Scalars['String']['output'];
+  organizationSlug: Scalars['String']['output'];
   slug: Scalars['String']['output'];
   timezone: Scalars['String']['output'];
   title: Scalars['String']['output'];
@@ -12451,6 +12468,8 @@ export type Query = {
   /** The locales this workspace offers. Public — the login screen has a language picker. */
   localeOptions: Array<LocaleOption>;
   me: User;
+  /** The path of this company's booking page on the CRM site: /book/<company>. */
+  meetingBookingPagePath: Scalars['String']['output'];
   meetingBookings: MeetingBookingPage;
   meetingTypes: Array<MeetingType>;
   /** Delegations this person has arranged, and the ones they are covering. */
@@ -12585,6 +12604,8 @@ export type Query = {
   projectWorkflows: Array<ProjectWorkflow>;
   publicBlogPost?: Maybe<BlogPost>;
   publicBlogPosts: Array<BlogPost>;
+  /** Public: a company's booking page (/book/<org>). */
+  publicBookingPage: PublicBookingPage;
   publicBranding: Branding;
   publicCaseStudies: Array<CaseStudy>;
   publicCaseStudy?: Maybe<CaseStudy>;
@@ -12599,7 +12620,7 @@ export type Query = {
   publicJobCompanies: Array<JobCompany>;
   publicJobCompany?: Maybe<JobCompany>;
   publicJobs: Array<Job>;
-  /** Public: the meeting behind a booking link. */
+  /** Public: the meeting behind a booking link (/book/<org>/<slug>). */
   publicMeeting: PublicMeeting;
   /** Public: the free starts between two times (at most 62 days apart). */
   publicMeetingSlots: Array<Scalars['DateTime']['output']>;
@@ -14173,6 +14194,11 @@ export type QueryPublicBlogPostsArgs = {
 };
 
 
+export type QueryPublicBookingPageArgs = {
+  org: Scalars['String']['input'];
+};
+
+
 export type QueryPublicCaseStudiesArgs = {
   site?: InputMaybe<Scalars['String']['input']>;
 };
@@ -14236,12 +14262,14 @@ export type QueryPublicJobsArgs = {
 
 
 export type QueryPublicMeetingArgs = {
+  org: Scalars['String']['input'];
   slug: Scalars['String']['input'];
 };
 
 
 export type QueryPublicMeetingSlotsArgs = {
   from: Scalars['DateTime']['input'];
+  org: Scalars['String']['input'];
   slug: Scalars['String']['input'];
   to: Scalars['DateTime']['input'];
 };
@@ -18902,6 +18930,7 @@ export type ResolversTypes = ResolversObject<{
   PromptInput: PromptInput;
   PromptPage: ResolverTypeWrapper<PromptPage>;
   PromptVariableInput: PromptVariableInput;
+  PublicBookingPage: ResolverTypeWrapper<PublicBookingPage>;
   PublicMeeting: ResolverTypeWrapper<PublicMeeting>;
   PublicPolicy: ResolverTypeWrapper<PublicPolicy>;
   PublicTaskView: ResolverTypeWrapper<PublicTaskView>;
@@ -19737,6 +19766,7 @@ export type ResolversParentTypes = ResolversObject<{
   PromptInput: PromptInput;
   PromptPage: PromptPage;
   PromptVariableInput: PromptVariableInput;
+  PublicBookingPage: PublicBookingPage;
   PublicMeeting: PublicMeeting;
   PublicPolicy: PublicPolicy;
   PublicTaskView: PublicTaskView;
@@ -23206,6 +23236,7 @@ export type MeetingBookingResolvers<ContextType = GraphQLContext, ParentType ext
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   endAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  guests?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   hostName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   meetingTitle?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -23226,6 +23257,7 @@ export type MeetingBookingPageResolvers<ContextType = GraphQLContext, ParentType
 
 export type MeetingTypeResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['MeetingType'] = ResolversParentTypes['MeetingType']> = ResolversObject<{
   active?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  bookingPath?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   bufferMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -23303,7 +23335,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   archivePolicy?: Resolver<ResolversTypes['Policy'], ParentType, ContextType, RequireFields<MutationArchivePolicyArgs, 'id'>>;
   assignOrganizationAdmin?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationAssignOrganizationAdminArgs, 'input' | 'organizationId'>>;
   assignSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationAssignSupportTicketArgs, 'assigneeId' | 'id'>>;
-  bookMeeting?: Resolver<ResolversTypes['BookedMeeting'], ParentType, ContextType, RequireFields<MutationBookMeetingArgs, 'input' | 'slug'>>;
+  bookMeeting?: Resolver<ResolversTypes['BookedMeeting'], ParentType, ContextType, RequireFields<MutationBookMeetingArgs, 'input' | 'org' | 'slug'>>;
   cancelItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationCancelItAccessRequestArgs, 'id'>>;
   cancelMeetingBooking?: Resolver<ResolversTypes['MeetingBooking'], ParentType, ContextType, RequireFields<MutationCancelMeetingBookingArgs, 'id'>>;
   changePassword?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationChangePasswordArgs, 'currentPassword' | 'newPassword'>>;
@@ -24637,10 +24669,20 @@ export type PromptPageResolvers<ContextType = GraphQLContext, ParentType extends
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type PublicBookingPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PublicBookingPage'] = ResolversParentTypes['PublicBookingPage']> = ResolversObject<{
+  meetings?: Resolver<Array<ResolversTypes['PublicMeeting']>, ParentType, ContextType>;
+  organizationName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  organizationSlug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type PublicMeetingResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['PublicMeeting'] = ResolversParentTypes['PublicMeeting']> = ResolversObject<{
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   durationMinutes?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  hasLocation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   hostName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  organizationName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  organizationSlug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   slug?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -25189,6 +25231,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   localeBundle?: Resolver<ResolversTypes['LocaleBundle'], ParentType, ContextType, RequireFields<QueryLocaleBundleArgs, 'locale'>>;
   localeOptions?: Resolver<Array<ResolversTypes['LocaleOption']>, ParentType, ContextType>;
   me?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  meetingBookingPagePath?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   meetingBookings?: Resolver<ResolversTypes['MeetingBookingPage'], ParentType, ContextType, RequireFields<QueryMeetingBookingsArgs, 'page' | 'pageSize'>>;
   meetingTypes?: Resolver<Array<ResolversTypes['MeetingType']>, ParentType, ContextType>;
   myApprovalDelegations?: Resolver<ResolversTypes['MyApprovalDelegations'], ParentType, ContextType>;
@@ -25259,6 +25302,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   projectWorkflows?: Resolver<Array<ResolversTypes['ProjectWorkflow']>, ParentType, ContextType>;
   publicBlogPost?: Resolver<Maybe<ResolversTypes['BlogPost']>, ParentType, ContextType, RequireFields<QueryPublicBlogPostArgs, 'slug'>>;
   publicBlogPosts?: Resolver<Array<ResolversTypes['BlogPost']>, ParentType, ContextType, Partial<QueryPublicBlogPostsArgs>>;
+  publicBookingPage?: Resolver<ResolversTypes['PublicBookingPage'], ParentType, ContextType, RequireFields<QueryPublicBookingPageArgs, 'org'>>;
   publicBranding?: Resolver<ResolversTypes['Branding'], ParentType, ContextType>;
   publicCaseStudies?: Resolver<Array<ResolversTypes['CaseStudy']>, ParentType, ContextType, Partial<QueryPublicCaseStudiesArgs>>;
   publicCaseStudy?: Resolver<Maybe<ResolversTypes['CaseStudy']>, ParentType, ContextType, RequireFields<QueryPublicCaseStudyArgs, 'slug'>>;
@@ -25271,8 +25315,8 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   publicJobCompanies?: Resolver<Array<ResolversTypes['JobCompany']>, ParentType, ContextType, Partial<QueryPublicJobCompaniesArgs>>;
   publicJobCompany?: Resolver<Maybe<ResolversTypes['JobCompany']>, ParentType, ContextType, RequireFields<QueryPublicJobCompanyArgs, 'slug'>>;
   publicJobs?: Resolver<Array<ResolversTypes['Job']>, ParentType, ContextType, Partial<QueryPublicJobsArgs>>;
-  publicMeeting?: Resolver<ResolversTypes['PublicMeeting'], ParentType, ContextType, RequireFields<QueryPublicMeetingArgs, 'slug'>>;
-  publicMeetingSlots?: Resolver<Array<ResolversTypes['DateTime']>, ParentType, ContextType, RequireFields<QueryPublicMeetingSlotsArgs, 'from' | 'slug' | 'to'>>;
+  publicMeeting?: Resolver<ResolversTypes['PublicMeeting'], ParentType, ContextType, RequireFields<QueryPublicMeetingArgs, 'org' | 'slug'>>;
+  publicMeetingSlots?: Resolver<Array<ResolversTypes['DateTime']>, ParentType, ContextType, RequireFields<QueryPublicMeetingSlotsArgs, 'from' | 'org' | 'slug' | 'to'>>;
   publicNavLinks?: Resolver<Array<ResolversTypes['NavLink']>, ParentType, ContextType, Partial<QueryPublicNavLinksArgs>>;
   publicNewsletterIssue?: Resolver<Maybe<ResolversTypes['NewsletterIssue']>, ParentType, ContextType, RequireFields<QueryPublicNewsletterIssueArgs, 'slug'>>;
   publicNewsletterIssues?: Resolver<Array<ResolversTypes['NewsletterIssue']>, ParentType, ContextType, Partial<QueryPublicNewsletterIssuesArgs>>;
@@ -27718,6 +27762,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   ProjectWorkflow?: ProjectWorkflowResolvers<ContextType>;
   Prompt?: PromptResolvers<ContextType>;
   PromptPage?: PromptPageResolvers<ContextType>;
+  PublicBookingPage?: PublicBookingPageResolvers<ContextType>;
   PublicMeeting?: PublicMeetingResolvers<ContextType>;
   PublicPolicy?: PublicPolicyResolvers<ContextType>;
   PublicTaskView?: PublicTaskViewResolvers<ContextType>;

@@ -983,6 +983,8 @@ export type BoardColumn = {
 
 export type BookMeetingInput = {
   email: Scalars['String']['input'];
+  /** Others to invite (at most 10); each gets the confirmation. */
+  guests?: InputMaybe<Array<Scalars['String']['input']>>;
   name: Scalars['String']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
   startAt: Scalars['DateTime']['input'];
@@ -5915,6 +5917,7 @@ export type MeetingBooking = {
   createdAt: Scalars['DateTime']['output'];
   email: Scalars['String']['output'];
   endAt: Scalars['DateTime']['output'];
+  guests: Array<Scalars['String']['output']>;
   hostName: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   meetingTitle: Scalars['String']['output'];
@@ -5940,6 +5943,8 @@ export enum MeetingBookingStatus {
 export type MeetingType = {
   __typename?: 'MeetingType';
   active: Scalars['Boolean']['output'];
+  /** The public link's path on the CRM site: /book/<company>/<slug>. */
+  bookingPath: Scalars['String']['output'];
   bufferMinutes: Scalars['Int']['output'];
   createdAt: Scalars['DateTime']['output'];
   description: Scalars['String']['output'];
@@ -5950,7 +5955,6 @@ export type MeetingType = {
   location: Scalars['String']['output'];
   maxDaysAhead: Scalars['Int']['output'];
   minNoticeHours: Scalars['Int']['output'];
-  /** The public link is status.exyconn.com/book/<slug>. */
   slug: Scalars['String']['output'];
   timezone: Scalars['String']['output'];
   title: Scalars['String']['output'];
@@ -7105,6 +7109,7 @@ export type MutationAssignSupportTicketArgs = {
 
 export type MutationBookMeetingArgs = {
   input: BookMeetingInput;
+  org: Scalars['String']['input'];
   slug: Scalars['String']['input'];
 };
 
@@ -11735,12 +11740,24 @@ export type PromptVariableInput = {
   value: Scalars['String']['input'];
 };
 
+/** A company's booking page: every meeting it takes bookings for. */
+export type PublicBookingPage = {
+  __typename?: 'PublicBookingPage';
+  meetings: Array<PublicMeeting>;
+  organizationName: Scalars['String']['output'];
+  organizationSlug: Scalars['String']['output'];
+};
+
 /** What the public booking page shows before anything is booked. */
 export type PublicMeeting = {
   __typename?: 'PublicMeeting';
   description: Scalars['String']['output'];
   durationMinutes: Scalars['Int']['output'];
+  /** Whether a location is shared once the meeting is booked. */
+  hasLocation: Scalars['Boolean']['output'];
   hostName: Scalars['String']['output'];
+  organizationName: Scalars['String']['output'];
+  organizationSlug: Scalars['String']['output'];
   slug: Scalars['String']['output'];
   timezone: Scalars['String']['output'];
   title: Scalars['String']['output'];
@@ -12452,6 +12469,8 @@ export type Query = {
   /** The locales this workspace offers. Public — the login screen has a language picker. */
   localeOptions: Array<LocaleOption>;
   me: User;
+  /** The path of this company's booking page on the CRM site: /book/<company>. */
+  meetingBookingPagePath: Scalars['String']['output'];
   meetingBookings: MeetingBookingPage;
   meetingTypes: Array<MeetingType>;
   /** Delegations this person has arranged, and the ones they are covering. */
@@ -12586,6 +12605,8 @@ export type Query = {
   projectWorkflows: Array<ProjectWorkflow>;
   publicBlogPost?: Maybe<BlogPost>;
   publicBlogPosts: Array<BlogPost>;
+  /** Public: a company's booking page (/book/<org>). */
+  publicBookingPage: PublicBookingPage;
   publicBranding: Branding;
   publicCaseStudies: Array<CaseStudy>;
   publicCaseStudy?: Maybe<CaseStudy>;
@@ -12600,7 +12621,7 @@ export type Query = {
   publicJobCompanies: Array<JobCompany>;
   publicJobCompany?: Maybe<JobCompany>;
   publicJobs: Array<Job>;
-  /** Public: the meeting behind a booking link. */
+  /** Public: the meeting behind a booking link (/book/<org>/<slug>). */
   publicMeeting: PublicMeeting;
   /** Public: the free starts between two times (at most 62 days apart). */
   publicMeetingSlots: Array<Scalars['DateTime']['output']>;
@@ -14174,6 +14195,11 @@ export type QueryPublicBlogPostsArgs = {
 };
 
 
+export type QueryPublicBookingPageArgs = {
+  org: Scalars['String']['input'];
+};
+
+
 export type QueryPublicCaseStudiesArgs = {
   site?: InputMaybe<Scalars['String']['input']>;
 };
@@ -14237,12 +14263,14 @@ export type QueryPublicJobsArgs = {
 
 
 export type QueryPublicMeetingArgs = {
+  org: Scalars['String']['input'];
   slug: Scalars['String']['input'];
 };
 
 
 export type QueryPublicMeetingSlotsArgs = {
   from: Scalars['DateTime']['input'];
+  org: Scalars['String']['input'];
   slug: Scalars['String']['input'];
   to: Scalars['DateTime']['input'];
 };
@@ -22507,19 +22535,19 @@ export type CampaignMetricsQueryVariables = Exact<{
 
 export type CampaignMetricsQuery = { __typename?: 'Query', campaignMetrics: { __typename?: 'CampaignMetrics', campaignId: string, sent: number, opened: number, clicked: number, totalOpens: number, totalClicks: number, openRate: number, clickRate: number, clickThroughRate: number }, campaignTopLinks: Array<{ __typename?: 'CampaignLinkStat', url: string, clicks: number, people: number }> };
 
-export type MeetingTypeFieldsFragment = { __typename?: 'MeetingType', id: string, title: string, slug: string, description: string, durationMinutes: number, location: string, hostName: string, hostEmail: string, timezone: string, bufferMinutes: number, minNoticeHours: number, maxDaysAhead: number, active: boolean, createdAt: string, weeklyHours: Array<{ __typename?: 'MeetingWeeklyHours', day: number, enabled: boolean, start: string, end: string }> };
+export type MeetingTypeFieldsFragment = { __typename?: 'MeetingType', id: string, title: string, slug: string, bookingPath: string, description: string, durationMinutes: number, location: string, hostName: string, hostEmail: string, timezone: string, bufferMinutes: number, minNoticeHours: number, maxDaysAhead: number, active: boolean, createdAt: string, weeklyHours: Array<{ __typename?: 'MeetingWeeklyHours', day: number, enabled: boolean, start: string, end: string }> };
 
 export type MeetingTypesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MeetingTypesQuery = { __typename?: 'Query', meetingTypes: Array<{ __typename?: 'MeetingType', id: string, title: string, slug: string, description: string, durationMinutes: number, location: string, hostName: string, hostEmail: string, timezone: string, bufferMinutes: number, minNoticeHours: number, maxDaysAhead: number, active: boolean, createdAt: string, weeklyHours: Array<{ __typename?: 'MeetingWeeklyHours', day: number, enabled: boolean, start: string, end: string }> }> };
+export type MeetingTypesQuery = { __typename?: 'Query', meetingTypes: Array<{ __typename?: 'MeetingType', id: string, title: string, slug: string, bookingPath: string, description: string, durationMinutes: number, location: string, hostName: string, hostEmail: string, timezone: string, bufferMinutes: number, minNoticeHours: number, maxDaysAhead: number, active: boolean, createdAt: string, weeklyHours: Array<{ __typename?: 'MeetingWeeklyHours', day: number, enabled: boolean, start: string, end: string }> }> };
 
 export type CreateMeetingTypeMutationVariables = Exact<{
   input: MeetingTypeInput;
 }>;
 
 
-export type CreateMeetingTypeMutation = { __typename?: 'Mutation', createMeetingType: { __typename?: 'MeetingType', id: string, title: string, slug: string, description: string, durationMinutes: number, location: string, hostName: string, hostEmail: string, timezone: string, bufferMinutes: number, minNoticeHours: number, maxDaysAhead: number, active: boolean, createdAt: string, weeklyHours: Array<{ __typename?: 'MeetingWeeklyHours', day: number, enabled: boolean, start: string, end: string }> } };
+export type CreateMeetingTypeMutation = { __typename?: 'Mutation', createMeetingType: { __typename?: 'MeetingType', id: string, title: string, slug: string, bookingPath: string, description: string, durationMinutes: number, location: string, hostName: string, hostEmail: string, timezone: string, bufferMinutes: number, minNoticeHours: number, maxDaysAhead: number, active: boolean, createdAt: string, weeklyHours: Array<{ __typename?: 'MeetingWeeklyHours', day: number, enabled: boolean, start: string, end: string }> } };
 
 export type UpdateMeetingTypeMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -22527,7 +22555,7 @@ export type UpdateMeetingTypeMutationVariables = Exact<{
 }>;
 
 
-export type UpdateMeetingTypeMutation = { __typename?: 'Mutation', updateMeetingType: { __typename?: 'MeetingType', id: string, title: string, slug: string, description: string, durationMinutes: number, location: string, hostName: string, hostEmail: string, timezone: string, bufferMinutes: number, minNoticeHours: number, maxDaysAhead: number, active: boolean, createdAt: string, weeklyHours: Array<{ __typename?: 'MeetingWeeklyHours', day: number, enabled: boolean, start: string, end: string }> } };
+export type UpdateMeetingTypeMutation = { __typename?: 'Mutation', updateMeetingType: { __typename?: 'MeetingType', id: string, title: string, slug: string, bookingPath: string, description: string, durationMinutes: number, location: string, hostName: string, hostEmail: string, timezone: string, bufferMinutes: number, minNoticeHours: number, maxDaysAhead: number, active: boolean, createdAt: string, weeklyHours: Array<{ __typename?: 'MeetingWeeklyHours', day: number, enabled: boolean, start: string, end: string }> } };
 
 export type DeleteMeetingTypeMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -22536,7 +22564,7 @@ export type DeleteMeetingTypeMutationVariables = Exact<{
 
 export type DeleteMeetingTypeMutation = { __typename?: 'Mutation', deleteMeetingType: boolean };
 
-export type MeetingBookingFieldsFragment = { __typename?: 'MeetingBooking', id: string, meetingTypeId: string, meetingTitle: string, hostName: string, startAt: string, endAt: string, name: string, email: string, notes: string, timezone: string, status: MeetingBookingStatus, contactId: string, createdAt: string };
+export type MeetingBookingFieldsFragment = { __typename?: 'MeetingBooking', id: string, meetingTypeId: string, meetingTitle: string, hostName: string, startAt: string, endAt: string, name: string, email: string, notes: string, guests: Array<string>, timezone: string, status: MeetingBookingStatus, contactId: string, createdAt: string };
 
 export type MeetingBookingsQueryVariables = Exact<{
   page: Scalars['Int']['input'];
@@ -22544,23 +22572,39 @@ export type MeetingBookingsQueryVariables = Exact<{
 }>;
 
 
-export type MeetingBookingsQuery = { __typename?: 'Query', meetingBookings: { __typename?: 'MeetingBookingPage', totalCount: number, rows: Array<{ __typename?: 'MeetingBooking', id: string, meetingTypeId: string, meetingTitle: string, hostName: string, startAt: string, endAt: string, name: string, email: string, notes: string, timezone: string, status: MeetingBookingStatus, contactId: string, createdAt: string }> } };
+export type MeetingBookingsQuery = { __typename?: 'Query', meetingBookings: { __typename?: 'MeetingBookingPage', totalCount: number, rows: Array<{ __typename?: 'MeetingBooking', id: string, meetingTypeId: string, meetingTitle: string, hostName: string, startAt: string, endAt: string, name: string, email: string, notes: string, guests: Array<string>, timezone: string, status: MeetingBookingStatus, contactId: string, createdAt: string }> } };
 
 export type CancelMeetingBookingMutationVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type CancelMeetingBookingMutation = { __typename?: 'Mutation', cancelMeetingBooking: { __typename?: 'MeetingBooking', id: string, meetingTypeId: string, meetingTitle: string, hostName: string, startAt: string, endAt: string, name: string, email: string, notes: string, timezone: string, status: MeetingBookingStatus, contactId: string, createdAt: string } };
+export type CancelMeetingBookingMutation = { __typename?: 'Mutation', cancelMeetingBooking: { __typename?: 'MeetingBooking', id: string, meetingTypeId: string, meetingTitle: string, hostName: string, startAt: string, endAt: string, name: string, email: string, notes: string, guests: Array<string>, timezone: string, status: MeetingBookingStatus, contactId: string, createdAt: string } };
+
+export type MeetingBookingPagePathQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MeetingBookingPagePathQuery = { __typename?: 'Query', meetingBookingPagePath: string };
+
+export type PublicMeetingFieldsFragment = { __typename?: 'PublicMeeting', slug: string, title: string, description: string, durationMinutes: number, hostName: string, timezone: string, organizationName: string, organizationSlug: string, hasLocation: boolean };
+
+export type PublicBookingPageQueryVariables = Exact<{
+  org: Scalars['String']['input'];
+}>;
+
+
+export type PublicBookingPageQuery = { __typename?: 'Query', publicBookingPage: { __typename?: 'PublicBookingPage', organizationName: string, organizationSlug: string, meetings: Array<{ __typename?: 'PublicMeeting', slug: string, title: string, description: string, durationMinutes: number, hostName: string, timezone: string, organizationName: string, organizationSlug: string, hasLocation: boolean }> } };
 
 export type PublicMeetingQueryVariables = Exact<{
+  org: Scalars['String']['input'];
   slug: Scalars['String']['input'];
 }>;
 
 
-export type PublicMeetingQuery = { __typename?: 'Query', publicMeeting: { __typename?: 'PublicMeeting', slug: string, title: string, description: string, durationMinutes: number, hostName: string, timezone: string } };
+export type PublicMeetingQuery = { __typename?: 'Query', publicMeeting: { __typename?: 'PublicMeeting', slug: string, title: string, description: string, durationMinutes: number, hostName: string, timezone: string, organizationName: string, organizationSlug: string, hasLocation: boolean } };
 
 export type PublicMeetingSlotsQueryVariables = Exact<{
+  org: Scalars['String']['input'];
   slug: Scalars['String']['input'];
   from: Scalars['DateTime']['input'];
   to: Scalars['DateTime']['input'];
@@ -22570,6 +22614,7 @@ export type PublicMeetingSlotsQueryVariables = Exact<{
 export type PublicMeetingSlotsQuery = { __typename?: 'Query', publicMeetingSlots: Array<string> };
 
 export type BookMeetingMutationVariables = Exact<{
+  org: Scalars['String']['input'];
   slug: Scalars['String']['input'];
   input: BookMeetingInput;
 }>;
@@ -27378,6 +27423,7 @@ export const MeetingTypeFieldsFragmentDoc = gql`
   id
   title
   slug
+  bookingPath
   description
   durationMinutes
   location
@@ -27408,10 +27454,24 @@ export const MeetingBookingFieldsFragmentDoc = gql`
   name
   email
   notes
+  guests
   timezone
   status
   contactId
   createdAt
+}
+    `;
+export const PublicMeetingFieldsFragmentDoc = gql`
+    fragment PublicMeetingFields on PublicMeeting {
+  slug
+  title
+  description
+  durationMinutes
+  hostName
+  timezone
+  organizationName
+  organizationSlug
+  hasLocation
 }
     `;
 export const ItemSeoFieldsFragmentDoc = gql`
@@ -53376,18 +53436,102 @@ export function useCancelMeetingBookingMutation(baseOptions?: ApolloReactHooks.M
         return ApolloReactHooks.useMutation<CancelMeetingBookingMutation, CancelMeetingBookingMutationVariables>(CancelMeetingBookingDocument, options);
       }
 export type CancelMeetingBookingMutationHookResult = ReturnType<typeof useCancelMeetingBookingMutation>;
-export const PublicMeetingDocument = gql`
-    query PublicMeeting($slug: String!) {
-  publicMeeting(slug: $slug) {
-    slug
-    title
-    description
-    durationMinutes
-    hostName
-    timezone
-  }
+export const MeetingBookingPagePathDocument = gql`
+    query MeetingBookingPagePath {
+  meetingBookingPagePath
 }
     `;
+
+/**
+ * __useMeetingBookingPagePathQuery__
+ *
+ * To run a query within a React component, call `useMeetingBookingPagePathQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMeetingBookingPagePathQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMeetingBookingPagePathQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMeetingBookingPagePathQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<MeetingBookingPagePathQuery, MeetingBookingPagePathQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<MeetingBookingPagePathQuery, MeetingBookingPagePathQueryVariables>(MeetingBookingPagePathDocument, options);
+      }
+export function useMeetingBookingPagePathLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<MeetingBookingPagePathQuery, MeetingBookingPagePathQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<MeetingBookingPagePathQuery, MeetingBookingPagePathQueryVariables>(MeetingBookingPagePathDocument, options);
+        }
+// @ts-ignore
+export function useMeetingBookingPagePathSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<MeetingBookingPagePathQuery, MeetingBookingPagePathQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MeetingBookingPagePathQuery, MeetingBookingPagePathQueryVariables>;
+// @ts-ignore
+export function useMeetingBookingPagePathSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MeetingBookingPagePathQuery, MeetingBookingPagePathQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<MeetingBookingPagePathQuery | undefined, MeetingBookingPagePathQueryVariables>;
+export function useMeetingBookingPagePathSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<MeetingBookingPagePathQuery, MeetingBookingPagePathQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<MeetingBookingPagePathQuery, MeetingBookingPagePathQueryVariables>(MeetingBookingPagePathDocument, options);
+        }
+export type MeetingBookingPagePathQueryHookResult = ReturnType<typeof useMeetingBookingPagePathQuery>;
+export type MeetingBookingPagePathLazyQueryHookResult = ReturnType<typeof useMeetingBookingPagePathLazyQuery>;
+export type MeetingBookingPagePathSuspenseQueryHookResult = ReturnType<typeof useMeetingBookingPagePathSuspenseQuery>;
+export const PublicBookingPageDocument = gql`
+    query PublicBookingPage($org: String!) {
+  publicBookingPage(org: $org) {
+    organizationName
+    organizationSlug
+    meetings {
+      ...PublicMeetingFields
+    }
+  }
+}
+    ${PublicMeetingFieldsFragmentDoc}`;
+
+/**
+ * __usePublicBookingPageQuery__
+ *
+ * To run a query within a React component, call `usePublicBookingPageQuery` and pass it any options that fit your needs.
+ * When your component renders, `usePublicBookingPageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = usePublicBookingPageQuery({
+ *   variables: {
+ *      org: // value for 'org'
+ *   },
+ * });
+ */
+export function usePublicBookingPageQuery(baseOptions: ApolloReactHooks.QueryHookOptions<PublicBookingPageQuery, PublicBookingPageQueryVariables> & ({ variables: PublicBookingPageQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<PublicBookingPageQuery, PublicBookingPageQueryVariables>(PublicBookingPageDocument, options);
+      }
+export function usePublicBookingPageLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<PublicBookingPageQuery, PublicBookingPageQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<PublicBookingPageQuery, PublicBookingPageQueryVariables>(PublicBookingPageDocument, options);
+        }
+// @ts-ignore
+export function usePublicBookingPageSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<PublicBookingPageQuery, PublicBookingPageQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<PublicBookingPageQuery, PublicBookingPageQueryVariables>;
+// @ts-ignore
+export function usePublicBookingPageSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<PublicBookingPageQuery, PublicBookingPageQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<PublicBookingPageQuery | undefined, PublicBookingPageQueryVariables>;
+export function usePublicBookingPageSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<PublicBookingPageQuery, PublicBookingPageQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<PublicBookingPageQuery, PublicBookingPageQueryVariables>(PublicBookingPageDocument, options);
+        }
+export type PublicBookingPageQueryHookResult = ReturnType<typeof usePublicBookingPageQuery>;
+export type PublicBookingPageLazyQueryHookResult = ReturnType<typeof usePublicBookingPageLazyQuery>;
+export type PublicBookingPageSuspenseQueryHookResult = ReturnType<typeof usePublicBookingPageSuspenseQuery>;
+export const PublicMeetingDocument = gql`
+    query PublicMeeting($org: String!, $slug: String!) {
+  publicMeeting(org: $org, slug: $slug) {
+    ...PublicMeetingFields
+  }
+}
+    ${PublicMeetingFieldsFragmentDoc}`;
 
 /**
  * __usePublicMeetingQuery__
@@ -53401,6 +53545,7 @@ export const PublicMeetingDocument = gql`
  * @example
  * const { data, loading, error } = usePublicMeetingQuery({
  *   variables: {
+ *      org: // value for 'org'
  *      slug: // value for 'slug'
  *   },
  * });
@@ -53426,8 +53571,8 @@ export type PublicMeetingQueryHookResult = ReturnType<typeof usePublicMeetingQue
 export type PublicMeetingLazyQueryHookResult = ReturnType<typeof usePublicMeetingLazyQuery>;
 export type PublicMeetingSuspenseQueryHookResult = ReturnType<typeof usePublicMeetingSuspenseQuery>;
 export const PublicMeetingSlotsDocument = gql`
-    query PublicMeetingSlots($slug: String!, $from: DateTime!, $to: DateTime!) {
-  publicMeetingSlots(slug: $slug, from: $from, to: $to)
+    query PublicMeetingSlots($org: String!, $slug: String!, $from: DateTime!, $to: DateTime!) {
+  publicMeetingSlots(org: $org, slug: $slug, from: $from, to: $to)
 }
     `;
 
@@ -53443,6 +53588,7 @@ export const PublicMeetingSlotsDocument = gql`
  * @example
  * const { data, loading, error } = usePublicMeetingSlotsQuery({
  *   variables: {
+ *      org: // value for 'org'
  *      slug: // value for 'slug'
  *      from: // value for 'from'
  *      to: // value for 'to'
@@ -53470,8 +53616,8 @@ export type PublicMeetingSlotsQueryHookResult = ReturnType<typeof usePublicMeeti
 export type PublicMeetingSlotsLazyQueryHookResult = ReturnType<typeof usePublicMeetingSlotsLazyQuery>;
 export type PublicMeetingSlotsSuspenseQueryHookResult = ReturnType<typeof usePublicMeetingSlotsSuspenseQuery>;
 export const BookMeetingDocument = gql`
-    mutation BookMeeting($slug: String!, $input: BookMeetingInput!) {
-  bookMeeting(slug: $slug, input: $input) {
+    mutation BookMeeting($org: String!, $slug: String!, $input: BookMeetingInput!) {
+  bookMeeting(org: $org, slug: $slug, input: $input) {
     title
     hostName
     startAt
@@ -53494,6 +53640,7 @@ export const BookMeetingDocument = gql`
  * @example
  * const [bookMeetingMutation, { data, loading, error }] = useBookMeetingMutation({
  *   variables: {
+ *      org: // value for 'org'
  *      slug: // value for 'slug'
  *      input: // value for 'input'
  *   },

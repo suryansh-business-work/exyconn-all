@@ -12,11 +12,25 @@ import { ActivitiesPage } from './pages/activities';
 import { EmailVerifierPage } from './pages/email-verifier';
 import { PropertiesPage } from './pages/settings';
 import { MeetingsPage } from './pages/meetings';
+import { BookingProfilePage, BookMeetingPage } from './pages/book';
+
+/** The booking pages anyone can open from a meeting link, with no sign-in (like Calendly). */
+const PUBLIC_ROUTES = (
+  <>
+    <Route path="/book/:org" element={<BookingProfilePage />} />
+    <Route path="/book/:org/:slug" element={<BookMeetingPage />} />
+  </>
+);
 
 /** CRM micro-frontend. Everything outside its routes comes from the shell. */
 export function App() {
   return (
-    <PortalApp loginElement={<Login />} moduleRole={ROLES.CRM} homePath="/crm">
+    <PortalApp
+      loginElement={<Login />}
+      moduleRole={ROLES.CRM}
+      homePath="/crm"
+      publicRoutes={PUBLIC_ROUTES}
+    >
       <Route path="/crm" element={<CrmOverviewPage />} />
       <Route path="/crm/leads" element={<CrmPage />} />
       <Route path="/crm/companies" element={<CompaniesPage />} />

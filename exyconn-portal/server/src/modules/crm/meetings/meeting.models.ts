@@ -56,6 +56,8 @@ const meetingBookingSchema = new Schema(
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, trim: true, lowercase: true, index: true },
     notes: { type: String, default: '' },
+    /** Others the booker invited; each got the confirmation. */
+    guests: { type: [String], default: [] },
     /** The zone the person booked in, for their confirmation email. */
     timezone: { type: String, default: 'UTC' },
     status: { type: String, enum: BOOKING_STATUSES, required: true, default: 'CONFIRMED' },

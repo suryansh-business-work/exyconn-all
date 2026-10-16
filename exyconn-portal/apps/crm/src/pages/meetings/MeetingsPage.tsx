@@ -13,7 +13,7 @@ const TABS: TabberItem[] = [
 
 /**
  * CRM > Meetings: Calendly-style scheduling. A meeting type has a public link
- * (status.exyconn.com/book/<link>) where anyone picks a free time; each booking lands on the
+ * (crm.exyconn.com/book/<company>/<link>) where anyone picks a free time; each booking lands on the
  * person's CRM contact as a meeting.
  */
 export function MeetingsPage() {

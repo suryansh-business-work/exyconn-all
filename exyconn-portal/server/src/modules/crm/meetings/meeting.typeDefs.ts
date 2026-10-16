@@ -21,8 +21,9 @@ export const meetingTypeDefs = gql`
   type MeetingType {
     id: ID!
     title: String!
-    "The public link is status.exyconn.com/book/<slug>."
     slug: String!
+    "The public link's path on the CRM site: /book/<company>/<slug>."
+    bookingPath: String!
     description: String!
     durationMinutes: Int!
     location: String!
@@ -66,6 +67,7 @@ export const meetingTypeDefs = gql`
     name: String!
     email: String!
     notes: String!
+    guests: [String!]!
     timezone: String!
     status: MeetingBookingStatus!
     contactId: String!
@@ -85,6 +87,17 @@ export const meetingTypeDefs = gql`
     durationMinutes: Int!
     hostName: String!
     timezone: String!
+    organizationName: String!
+    organizationSlug: String!
+    "Whether a location is shared once the meeting is booked."
+    hasLocation: Boolean!
+  }
+
+  "A company's booking page: every meeting it takes bookings for."
+  type PublicBookingPage {
+    organizationName: String!
+    organizationSlug: String!
+    meetings: [PublicMeeting!]!
   }
 
   type BookedMeeting {
@@ -103,15 +116,21 @@ export const meetingTypeDefs = gql`
     notes: String
     "The booker's IANA time zone, for their confirmation email."
     timezone: String
+    "Others to invite (at most 10); each gets the confirmation."
+    guests: [String!]
   }
 
   extend type Query {
     meetingTypes: [MeetingType!]!
     meetingBookings(page: Int!, pageSize: Int!): MeetingBookingPage!
-    "Public: the meeting behind a booking link."
-    publicMeeting(slug: String!): PublicMeeting!
+    "The path of this company's booking page on the CRM site: /book/<company>."
+    meetingBookingPagePath: String!
+    "Public: a company's booking page (/book/<org>)."
+    publicBookingPage(org: String!): PublicBookingPage!
+    "Public: the meeting behind a booking link (/book/<org>/<slug>)."
+    publicMeeting(org: String!, slug: String!): PublicMeeting!
     "Public: the free starts between two times (at most 62 days apart)."
-    publicMeetingSlots(slug: String!, from: DateTime!, to: DateTime!): [DateTime!]!
+    publicMeetingSlots(org: String!, slug: String!, from: DateTime!, to: DateTime!): [DateTime!]!
   }
 
   extend type Mutation {
@@ -120,6 +139,6 @@ export const meetingTypeDefs = gql`
     deleteMeetingType(id: ID!): Boolean!
     cancelMeetingBooking(id: ID!): MeetingBooking!
     "Public: books a free start from a booking link."
-    bookMeeting(slug: String!, input: BookMeetingInput!): BookedMeeting!
+    bookMeeting(org: String!, slug: String!, input: BookMeetingInput!): BookedMeeting!
   }
 `;
