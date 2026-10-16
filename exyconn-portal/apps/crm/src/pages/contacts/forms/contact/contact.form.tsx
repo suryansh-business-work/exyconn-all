@@ -1,14 +1,11 @@
 import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { EMAIL, PHONE } from '@exyconn/regex';
-import { RhfTextField, RhfSelect, type SelectOption } from '@exyconn/shell/components/form/rhf';
+import type { z } from 'zod';
+import type { SelectOption } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
-import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import {
-  ContactStatus,
   CrmObject,
   useCreateContactMutation,
   useUpdateContactMutation,
@@ -17,41 +14,17 @@ import {
 import {
   CustomFieldsSection,
   CustomPropertiesGate,
-  customDefaults,
-  customFieldsSchema,
-  toCustomInput,
   type CustomPropertyDef,
 } from '../../../../records/custom-fields';
+import { ContactDetailsFields } from './contact-details.fields';
+import {
+  buildContactSchema,
+  toContactInput,
+  toContactValues,
+  type ContactSchema,
+  type ContactValues,
+} from './contact.schema';
 import type { ContactRow } from './contact.types';
-
-const STATUS_OPTIONS = enumOptions(Object.values(ContactStatus));
-
-const baseSchema = z.object({
-  name: z.string().trim().min(1, 'Name is required'),
-  email: z.string().trim().min(1, 'Email is required').regex(EMAIL, 'Enter a valid email'),
-  phone: z.string().trim().regex(PHONE, 'Enter a valid phone number').or(z.literal('')),
-  title: z.string().trim(),
-  companyId: z.string().trim(),
-  status: z.enum(ContactStatus),
-  owner: z.string().trim().min(1, 'Owner is required'),
-  notes: z.string().trim(),
-});
-const buildSchema = (properties: readonly CustomPropertyDef[]) =>
-  baseSchema.extend({ custom: customFieldsSchema(properties) });
-type Schema = ReturnType<typeof buildSchema>;
-type Values = z.infer<Schema>;
-
-const toInitial = (row: ContactRow | null, properties: readonly CustomPropertyDef[]): Values => ({
-  name: row?.name ?? '',
-  email: row?.email ?? '',
-  phone: row?.phone ?? '',
-  title: row?.title ?? '',
-  companyId: row?.companyId ?? '',
-  status: row?.status ?? ContactStatus.Active,
-  owner: row?.owner ?? '',
-  notes: row?.notes ?? '',
-  custom: customDefaults(properties, row?.custom),
-});
 
 interface ContactFormProps {
   initial: ContactRow | null;
@@ -59,7 +32,10 @@ interface ContactFormProps {
   onCancel: () => void;
 }
 
-/** React Hook Form + Zod form to create or update a person at an account, with custom properties. */
+/**
+ * React Hook Form + Zod form to create or update a person at an account: several emails and
+ * phones (one primary), lifecycle, whereabouts and the company's custom properties.
+ */
 export function ContactForm(props: Readonly<ContactFormProps>) {
   return (
     <CustomPropertiesGate object={CrmObject.Contact}>
@@ -77,40 +53,29 @@ function ContactFormFields({
   const [createContact] = useCreateContactMutation();
   const [updateContact] = useUpdateContactMutation();
   const { data } = useListCompaniesQuery();
-  const schema = useMemo(() => buildSchema(properties), [properties]);
-  const methods = useForm<z.input<Schema>, unknown, Values>({
+  const schema = useMemo(() => buildContactSchema(properties), [properties]);
+  const methods = useForm<z.input<ContactSchema>, unknown, ContactValues>({
     mode: 'onTouched',
     resolver: zodResolver(schema),
-    defaultValues: toInitial(initial, properties),
+    defaultValues: toContactValues(initial, properties),
   });
 
   const companies = data?.listCompanies ?? [];
   const companyOptions: SelectOption[] = companies.map((c) => ({ value: c.id, label: c.name }));
-  // The company name is stored alongside the id so a contact row reads without a join.
-  const toInput = (values: Values) => ({
-    ...values,
-    companyName: companies.find((c) => c.id === values.companyId)?.name ?? '',
-    custom: toCustomInput(properties, values.custom),
-  });
+  const companyNameOf = (id: string) => companies.find((c) => c.id === id)?.name ?? '';
+  const toInput = (values: ContactValues) => toContactInput(values, properties, companyNameOf);
 
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Contact',
     initial,
-    create: (values: Values) => createContact({ variables: { input: toInput(values) } }),
+    create: (values: ContactValues) => createContact({ variables: { input: toInput(values) } }),
     update: (row, values) => updateContact({ variables: { id: row.id, input: toInput(values) } }),
     onDone,
   });
 
   return (
     <EntityForm methods={methods} onSubmit={onSubmit} isEdit={isEdit} onCancel={onCancel}>
-      <RhfTextField name="name" label="Full name" />
-      <RhfTextField name="title" label="Job title" />
-      <RhfSelect name="companyId" label="Company" options={companyOptions} />
-      <RhfTextField name="email" label="Email" type="email" />
-      <RhfTextField name="phone" label="Phone" />
-      <RhfSelect name="status" label="Status" options={STATUS_OPTIONS} />
-      <RhfTextField name="owner" label="Owner" />
-      <RhfTextField name="notes" label="Notes" multiline rows={2} />
+      <ContactDetailsFields companyOptions={companyOptions} />
       <CustomFieldsSection properties={properties} />
     </EntityForm>
   );

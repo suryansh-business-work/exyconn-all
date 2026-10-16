@@ -2247,24 +2247,39 @@ export enum CmsSiteStatus {
 
 export type Company = {
   __typename?: 'Company';
+  address: Scalars['String']['output'];
+  annualRevenue?: Maybe<Scalars['Float']['output']>;
+  city: Scalars['String']['output'];
   /** The Admin client this account became when a deal was won; empty until then. */
   clientId: Scalars['String']['output'];
+  country: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   custom: Scalars['JSON']['output'];
+  description: Scalars['String']['output'];
   domain: Scalars['String']['output'];
+  /** The primary email address, empty when there is none. */
+  email: Scalars['String']['output'];
+  emails: Array<CrmEmailAddress>;
+  employeeCount?: Maybe<Scalars['Int']['output']>;
+  foundedYear?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
   industry: Scalars['String']['output'];
   /** Whether the account has a client record — what Finance and Projects bill and plan against. */
   isClient: Scalars['Boolean']['output'];
+  linkedinUrl: Scalars['String']['output'];
   location: Scalars['String']['output'];
   name: Scalars['String']['output'];
   notes: Scalars['String']['output'];
   owner: Scalars['String']['output'];
   phone: Scalars['String']['output'];
+  phones: Array<CrmPhoneNumber>;
   /** One of COMPANY_SIZES (11-50, and so on). A string, because 1-10 is not a valid enum name. */
   size: Scalars['String']['output'];
   status: CompanyStatus;
+  timezone: Scalars['String']['output'];
+  twitterUrl: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
+  website: Scalars['String']['output'];
 };
 
 export type CompanyBenefit = {
@@ -2363,17 +2378,30 @@ export type CompanyFinance = {
 };
 
 export type CompanyInput = {
+  address?: InputMaybe<Scalars['String']['input']>;
+  annualRevenue?: InputMaybe<Scalars['Float']['input']>;
+  city?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
   custom?: InputMaybe<Scalars['JSON']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
   domain: Scalars['String']['input'];
+  emails?: InputMaybe<Array<CrmEmailAddressInput>>;
+  employeeCount?: InputMaybe<Scalars['Int']['input']>;
+  foundedYear?: InputMaybe<Scalars['Int']['input']>;
   industry?: InputMaybe<Scalars['String']['input']>;
+  linkedinUrl?: InputMaybe<Scalars['String']['input']>;
   location?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
   owner: Scalars['String']['input'];
   phone?: InputMaybe<Scalars['String']['input']>;
+  phones?: InputMaybe<Array<CrmPhoneNumberInput>>;
   /** One of COMPANY_SIZES (11-50, and so on). A string, because 1-10 is not a valid enum name. */
   size: Scalars['String']['input'];
   status: CompanyStatus;
+  timezone?: InputMaybe<Scalars['String']['input']>;
+  twitterUrl?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CompanyPage = {
@@ -2454,34 +2482,67 @@ export type ComplianceSlice = {
 
 export type Contact = {
   __typename?: 'Contact';
+  address: Scalars['String']['output'];
+  city: Scalars['String']['output'];
   companyId: Scalars['String']['output'];
   companyName: Scalars['String']['output'];
+  country: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   custom: Scalars['JSON']['output'];
+  department: Scalars['String']['output'];
+  /** About the person, in a sentence or two. */
+  description: Scalars['String']['output'];
   email: Scalars['String']['output'];
   /** The latest check of this contact's email; null when it was never checked. */
   emailVerification?: Maybe<EmailVerification>;
+  /** Every address; email is the primary one. */
+  emails: Array<CrmEmailAddress>;
   id: Scalars['ID']['output'];
+  languages: Array<Scalars['String']['output']>;
+  leadSource: Scalars['String']['output'];
+  lifecycleStage: LifecycleStage;
+  linkedinUrl: Scalars['String']['output'];
   name: Scalars['String']['output'];
   notes: Scalars['String']['output'];
   owner: Scalars['String']['output'];
   phone: Scalars['String']['output'];
+  /** Every number; phone is the primary one. */
+  phones: Array<CrmPhoneNumber>;
   status: ContactStatus;
+  /** IANA time zone, for the contact's local time. */
+  timezone: Scalars['String']['output'];
   title: Scalars['String']['output'];
+  twitterUrl: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
+  website: Scalars['String']['output'];
 };
 
 export type ContactInput = {
+  address?: InputMaybe<Scalars['String']['input']>;
+  city?: InputMaybe<Scalars['String']['input']>;
   companyId?: InputMaybe<Scalars['String']['input']>;
   companyName?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
   custom?: InputMaybe<Scalars['JSON']['input']>;
-  email: Scalars['String']['input'];
+  department?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** The primary address; or send emails instead. */
+  email?: InputMaybe<Scalars['String']['input']>;
+  emails?: InputMaybe<Array<CrmEmailAddressInput>>;
+  languages?: InputMaybe<Array<Scalars['String']['input']>>;
+  leadSource?: InputMaybe<Scalars['String']['input']>;
+  lifecycleStage?: InputMaybe<LifecycleStage>;
+  linkedinUrl?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
   owner: Scalars['String']['input'];
   phone?: InputMaybe<Scalars['String']['input']>;
+  phones?: InputMaybe<Array<CrmPhoneNumberInput>>;
   status: ContactStatus;
+  timezone?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
+  twitterUrl?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ContactPage = {
@@ -2717,6 +2778,20 @@ export type CrmConditionInput = {
   values: Array<Scalars['String']['input']>;
 };
 
+/** One email address of a contact or company; exactly one is primary. */
+export type CrmEmailAddress = {
+  __typename?: 'CrmEmailAddress';
+  address: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+  primary: Scalars['Boolean']['output'];
+};
+
+export type CrmEmailAddressInput = {
+  address: Scalars['String']['input'];
+  label?: InputMaybe<Scalars['String']['input']>;
+  primary?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
 export type CrmFilterGroup = {
   __typename?: 'CrmFilterGroup';
   conditions: Array<CrmCondition>;
@@ -2794,6 +2869,20 @@ export enum CrmOp {
   NotIn = 'NOT_IN',
   StartsWith = 'STARTS_WITH'
 }
+
+/** One phone number of a contact or company; exactly one is primary. */
+export type CrmPhoneNumber = {
+  __typename?: 'CrmPhoneNumber';
+  label: Scalars['String']['output'];
+  number: Scalars['String']['output'];
+  primary: Scalars['Boolean']['output'];
+};
+
+export type CrmPhoneNumberInput = {
+  label?: InputMaybe<Scalars['String']['input']>;
+  number: Scalars['String']['input'];
+  primary?: InputMaybe<Scalars['Boolean']['input']>;
+};
 
 /** A property a company added (CRM > Settings > Properties). */
 export type CrmProperty = {
@@ -5497,6 +5586,17 @@ export type LicencePage = {
 export enum LicenceStatus {
   Active = 'ACTIVE',
   Cancelled = 'CANCELLED'
+}
+
+export enum LifecycleStage {
+  Customer = 'CUSTOMER',
+  Evangelist = 'EVANGELIST',
+  Lead = 'LEAD',
+  MarketingQualified = 'MARKETING_QUALIFIED',
+  Opportunity = 'OPPORTUNITY',
+  Other = 'OTHER',
+  SalesQualified = 'SALES_QUALIFIED',
+  Subscriber = 'SUBSCRIBER'
 }
 
 /** Everything a client needs to render itself in one locale. */
@@ -18022,6 +18122,8 @@ export type ResolversTypes = ResolversObject<{
   CreatedWebhook: ResolverTypeWrapper<CreatedWebhook>;
   CrmCondition: ResolverTypeWrapper<CrmCondition>;
   CrmConditionInput: CrmConditionInput;
+  CrmEmailAddress: ResolverTypeWrapper<CrmEmailAddress>;
+  CrmEmailAddressInput: CrmEmailAddressInput;
   CrmFilterGroup: ResolverTypeWrapper<CrmFilterGroup>;
   CrmFilterGroupInput: CrmFilterGroupInput;
   CrmImportInput: CrmImportInput;
@@ -18031,6 +18133,8 @@ export type ResolversTypes = ResolversObject<{
   CrmObject: CrmObject;
   CrmObjectSchema: ResolverTypeWrapper<CrmObjectSchema>;
   CrmOp: CrmOp;
+  CrmPhoneNumber: ResolverTypeWrapper<CrmPhoneNumber>;
+  CrmPhoneNumberInput: CrmPhoneNumberInput;
   CrmProperty: ResolverTypeWrapper<CrmProperty>;
   CrmPropertyInfo: ResolverTypeWrapper<CrmPropertyInfo>;
   CrmPropertyInput: CrmPropertyInput;
@@ -18276,6 +18380,7 @@ export type ResolversTypes = ResolversObject<{
   LicenceInput: LicenceInput;
   LicencePage: ResolverTypeWrapper<LicencePage>;
   LicenceStatus: LicenceStatus;
+  LifecycleStage: LifecycleStage;
   LocaleBundle: ResolverTypeWrapper<LocaleBundle>;
   LocaleOption: ResolverTypeWrapper<LocaleOption>;
   Location: ResolverTypeWrapper<Location>;
@@ -18921,12 +19026,16 @@ export type ResolversParentTypes = ResolversObject<{
   CreatedWebhook: CreatedWebhook;
   CrmCondition: CrmCondition;
   CrmConditionInput: CrmConditionInput;
+  CrmEmailAddress: CrmEmailAddress;
+  CrmEmailAddressInput: CrmEmailAddressInput;
   CrmFilterGroup: CrmFilterGroup;
   CrmFilterGroupInput: CrmFilterGroupInput;
   CrmImportInput: CrmImportInput;
   CrmImportIssue: CrmImportIssue;
   CrmImportResult: CrmImportResult;
   CrmObjectSchema: CrmObjectSchema;
+  CrmPhoneNumber: CrmPhoneNumber;
+  CrmPhoneNumberInput: CrmPhoneNumberInput;
   CrmProperty: CrmProperty;
   CrmPropertyInfo: CrmPropertyInfo;
   CrmPropertyInput: CrmPropertyInput;
@@ -20709,21 +20818,35 @@ export type CmsSiteSeoResolvers<ContextType = GraphQLContext, ParentType extends
 }>;
 
 export type CompanyResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Company'] = ResolversParentTypes['Company']> = ResolversObject<{
+  address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  annualRevenue?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  city?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   clientId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  country?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   custom?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   domain?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  emails?: Resolver<Array<ResolversTypes['CrmEmailAddress']>, ParentType, ContextType>;
+  employeeCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  foundedYear?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   industry?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   isClient?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  linkedinUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   location?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   owner?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  phones?: Resolver<Array<ResolversTypes['CrmPhoneNumber']>, ParentType, ContextType>;
   size?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['CompanyStatus'], ParentType, ContextType>;
+  timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  twitterUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  website?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -20821,20 +20944,34 @@ export type ComplianceSliceResolvers<ContextType = GraphQLContext, ParentType ex
 }>;
 
 export type ContactResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Contact'] = ResolversParentTypes['Contact']> = ResolversObject<{
+  address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  city?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   companyId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   companyName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  country?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   custom?: Resolver<ResolversTypes['JSON'], ParentType, ContextType>;
+  department?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   emailVerification?: Resolver<Maybe<ResolversTypes['EmailVerification']>, ParentType, ContextType>;
+  emails?: Resolver<Array<ResolversTypes['CrmEmailAddress']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  languages?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  leadSource?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lifecycleStage?: Resolver<ResolversTypes['LifecycleStage'], ParentType, ContextType>;
+  linkedinUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   owner?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  phones?: Resolver<Array<ResolversTypes['CrmPhoneNumber']>, ParentType, ContextType>;
   status?: Resolver<ResolversTypes['ContactStatus'], ParentType, ContextType>;
+  timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  twitterUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  website?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -20955,6 +21092,13 @@ export type CrmConditionResolvers<ContextType = GraphQLContext, ParentType exten
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type CrmEmailAddressResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmEmailAddress'] = ResolversParentTypes['CrmEmailAddress']> = ResolversObject<{
+  address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  primary?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type CrmFilterGroupResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmFilterGroup'] = ResolversParentTypes['CrmFilterGroup']> = ResolversObject<{
   conditions?: Resolver<Array<ResolversTypes['CrmCondition']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -20979,6 +21123,13 @@ export type CrmObjectSchemaResolvers<ContextType = GraphQLContext, ParentType ex
   dedupeKey?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   object?: Resolver<ResolversTypes['CrmObject'], ParentType, ContextType>;
   properties?: Resolver<Array<ResolversTypes['CrmPropertyInfo']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type CrmPhoneNumberResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmPhoneNumber'] = ResolversParentTypes['CrmPhoneNumber']> = ResolversObject<{
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  number?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  primary?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -26799,10 +26950,12 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   CostCenterPage?: CostCenterPageResolvers<ContextType>;
   CreatedWebhook?: CreatedWebhookResolvers<ContextType>;
   CrmCondition?: CrmConditionResolvers<ContextType>;
+  CrmEmailAddress?: CrmEmailAddressResolvers<ContextType>;
   CrmFilterGroup?: CrmFilterGroupResolvers<ContextType>;
   CrmImportIssue?: CrmImportIssueResolvers<ContextType>;
   CrmImportResult?: CrmImportResultResolvers<ContextType>;
   CrmObjectSchema?: CrmObjectSchemaResolvers<ContextType>;
+  CrmPhoneNumber?: CrmPhoneNumberResolvers<ContextType>;
   CrmProperty?: CrmPropertyResolvers<ContextType>;
   CrmPropertyInfo?: CrmPropertyInfoResolvers<ContextType>;
   CrmPropertyOption?: CrmPropertyOptionResolvers<ContextType>;

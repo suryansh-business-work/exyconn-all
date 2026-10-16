@@ -1,4 +1,5 @@
 import { Schema, model, type InferSchemaType, type Model } from 'mongoose';
+import { contactProfileFields } from './crm.profile';
 
 /** How willing the contact is to hear from us, so outreach stays lawful and welcome. */
 export const CONTACT_STATUSES = ['ACTIVE', 'UNSUBSCRIBED', 'BOUNCED', 'LEFT_COMPANY'] as const;
@@ -21,6 +22,7 @@ const contactSchema = new Schema(
     notes: { type: String, default: '' },
     /** Values of the company's own properties (CRM > Settings > Properties), keyed by property. */
     custom: { type: Schema.Types.Mixed, default: {} },
+    ...contactProfileFields,
   },
   { timestamps: true },
 );

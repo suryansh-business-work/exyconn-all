@@ -11,6 +11,7 @@ import { assertPermission } from '../../lib/permissions';
 import { ROLES } from '../../constants/roles';
 import { emitWebhookBestEffort } from '../integrations';
 import { sanitizeCustom } from './records';
+import { withPrimaries, crmProfileResolvers, type PointsInput } from './crm.profile';
 import type { CrmObject } from './records/crm.objects';
 import { withId } from '../../utils/serialize';
 import { notFound } from '../../utils/errors';
@@ -33,7 +34,7 @@ interface CompanyInput {
 
 interface ContactInput {
   name: string;
-  email: string;
+  email?: string;
   phone?: string;
   title?: string;
   companyId?: string;
@@ -236,18 +237,24 @@ const dealForecast = async (_p: unknown, _a: unknown, ctx: GraphQLContext) => {
 
 type Save = (p: unknown, a: never, c: GraphQLContext) => unknown;
 
-/** A create or update whose custom values are checked against the company's properties first. */
+/**
+ * A create or update whose custom values are checked against the company's properties first, and
+ * whose email and phone lists are tidied with the primary copied into `email` / `phone`.
+ */
 const withCustom =
   (object: CrmObject, save: Save): Save =>
   async (p, args, ctx) => {
-    const { input, ...rest } = args as unknown as { input: { custom?: unknown } };
+    const { input, ...rest } = args as unknown as { input: PointsInput & { custom?: unknown } };
     const custom = await sanitizeCustom(object, input.custom);
-    return save(p, { ...rest, input: { ...input, custom } } as unknown as never, ctx);
+    const profiled = withPrimaries({ ...input, custom }, object === 'CONTACT');
+    return save(p, { ...rest, input: profiled } as unknown as never, ctx);
   };
 
 export const crmEntitiesResolvers = {
   /** Written before the field existed, a `.lean()` row comes back without it. */
+  Contact: crmProfileResolvers.Contact,
   Company: {
+    ...crmProfileResolvers.Company,
     clientId: (company: { clientId?: string | null }) => company.clientId ?? '',
     isClient: (company: { clientId?: string | null }) => Boolean(company.clientId),
   },

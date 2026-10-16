@@ -63,6 +63,7 @@ import '../modules/search/providers';
 import { aiTypeDefs, aiResolvers } from '../modules/ai';
 import {
   crmEntitiesTypeDefs,
+  crmProfileTypeDefs,
   crmEntitiesResolvers,
   crmTypeDefs,
   crmResolvers,
@@ -243,6 +244,7 @@ export const typeDefs = [
   assetsTypeDefs,
   licencesTypeDefs,
   crmEntitiesTypeDefs,
+  crmProfileTypeDefs,
   crmRecordsTypeDefs,
   productsInventoryTypeDefs,
   productsPurchasingTypeDefs,

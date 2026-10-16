@@ -2248,24 +2248,39 @@ export enum CmsSiteStatus {
 
 export type Company = {
   __typename?: 'Company';
+  address: Scalars['String']['output'];
+  annualRevenue?: Maybe<Scalars['Float']['output']>;
+  city: Scalars['String']['output'];
   /** The Admin client this account became when a deal was won; empty until then. */
   clientId: Scalars['String']['output'];
+  country: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   custom: Scalars['JSON']['output'];
+  description: Scalars['String']['output'];
   domain: Scalars['String']['output'];
+  /** The primary email address, empty when there is none. */
+  email: Scalars['String']['output'];
+  emails: Array<CrmEmailAddress>;
+  employeeCount?: Maybe<Scalars['Int']['output']>;
+  foundedYear?: Maybe<Scalars['Int']['output']>;
   id: Scalars['ID']['output'];
   industry: Scalars['String']['output'];
   /** Whether the account has a client record — what Finance and Projects bill and plan against. */
   isClient: Scalars['Boolean']['output'];
+  linkedinUrl: Scalars['String']['output'];
   location: Scalars['String']['output'];
   name: Scalars['String']['output'];
   notes: Scalars['String']['output'];
   owner: Scalars['String']['output'];
   phone: Scalars['String']['output'];
+  phones: Array<CrmPhoneNumber>;
   /** One of COMPANY_SIZES (11-50, and so on). A string, because 1-10 is not a valid enum name. */
   size: Scalars['String']['output'];
   status: CompanyStatus;
+  timezone: Scalars['String']['output'];
+  twitterUrl: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
+  website: Scalars['String']['output'];
 };
 
 export type CompanyBenefit = {
@@ -2364,17 +2379,30 @@ export type CompanyFinance = {
 };
 
 export type CompanyInput = {
+  address?: InputMaybe<Scalars['String']['input']>;
+  annualRevenue?: InputMaybe<Scalars['Float']['input']>;
+  city?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
   custom?: InputMaybe<Scalars['JSON']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
   domain: Scalars['String']['input'];
+  emails?: InputMaybe<Array<CrmEmailAddressInput>>;
+  employeeCount?: InputMaybe<Scalars['Int']['input']>;
+  foundedYear?: InputMaybe<Scalars['Int']['input']>;
   industry?: InputMaybe<Scalars['String']['input']>;
+  linkedinUrl?: InputMaybe<Scalars['String']['input']>;
   location?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
   owner: Scalars['String']['input'];
   phone?: InputMaybe<Scalars['String']['input']>;
+  phones?: InputMaybe<Array<CrmPhoneNumberInput>>;
   /** One of COMPANY_SIZES (11-50, and so on). A string, because 1-10 is not a valid enum name. */
   size: Scalars['String']['input'];
   status: CompanyStatus;
+  timezone?: InputMaybe<Scalars['String']['input']>;
+  twitterUrl?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CompanyPage = {
@@ -2455,34 +2483,67 @@ export type ComplianceSlice = {
 
 export type Contact = {
   __typename?: 'Contact';
+  address: Scalars['String']['output'];
+  city: Scalars['String']['output'];
   companyId: Scalars['String']['output'];
   companyName: Scalars['String']['output'];
+  country: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   custom: Scalars['JSON']['output'];
+  department: Scalars['String']['output'];
+  /** About the person, in a sentence or two. */
+  description: Scalars['String']['output'];
   email: Scalars['String']['output'];
   /** The latest check of this contact's email; null when it was never checked. */
   emailVerification?: Maybe<EmailVerification>;
+  /** Every address; email is the primary one. */
+  emails: Array<CrmEmailAddress>;
   id: Scalars['ID']['output'];
+  languages: Array<Scalars['String']['output']>;
+  leadSource: Scalars['String']['output'];
+  lifecycleStage: LifecycleStage;
+  linkedinUrl: Scalars['String']['output'];
   name: Scalars['String']['output'];
   notes: Scalars['String']['output'];
   owner: Scalars['String']['output'];
   phone: Scalars['String']['output'];
+  /** Every number; phone is the primary one. */
+  phones: Array<CrmPhoneNumber>;
   status: ContactStatus;
+  /** IANA time zone, for the contact's local time. */
+  timezone: Scalars['String']['output'];
   title: Scalars['String']['output'];
+  twitterUrl: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
+  website: Scalars['String']['output'];
 };
 
 export type ContactInput = {
+  address?: InputMaybe<Scalars['String']['input']>;
+  city?: InputMaybe<Scalars['String']['input']>;
   companyId?: InputMaybe<Scalars['String']['input']>;
   companyName?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
   custom?: InputMaybe<Scalars['JSON']['input']>;
-  email: Scalars['String']['input'];
+  department?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  /** The primary address; or send emails instead. */
+  email?: InputMaybe<Scalars['String']['input']>;
+  emails?: InputMaybe<Array<CrmEmailAddressInput>>;
+  languages?: InputMaybe<Array<Scalars['String']['input']>>;
+  leadSource?: InputMaybe<Scalars['String']['input']>;
+  lifecycleStage?: InputMaybe<LifecycleStage>;
+  linkedinUrl?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
   owner: Scalars['String']['input'];
   phone?: InputMaybe<Scalars['String']['input']>;
+  phones?: InputMaybe<Array<CrmPhoneNumberInput>>;
   status: ContactStatus;
+  timezone?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
+  twitterUrl?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ContactPage = {
@@ -2718,6 +2779,20 @@ export type CrmConditionInput = {
   values: Array<Scalars['String']['input']>;
 };
 
+/** One email address of a contact or company; exactly one is primary. */
+export type CrmEmailAddress = {
+  __typename?: 'CrmEmailAddress';
+  address: Scalars['String']['output'];
+  label: Scalars['String']['output'];
+  primary: Scalars['Boolean']['output'];
+};
+
+export type CrmEmailAddressInput = {
+  address: Scalars['String']['input'];
+  label?: InputMaybe<Scalars['String']['input']>;
+  primary?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
 export type CrmFilterGroup = {
   __typename?: 'CrmFilterGroup';
   conditions: Array<CrmCondition>;
@@ -2795,6 +2870,20 @@ export enum CrmOp {
   NotIn = 'NOT_IN',
   StartsWith = 'STARTS_WITH'
 }
+
+/** One phone number of a contact or company; exactly one is primary. */
+export type CrmPhoneNumber = {
+  __typename?: 'CrmPhoneNumber';
+  label: Scalars['String']['output'];
+  number: Scalars['String']['output'];
+  primary: Scalars['Boolean']['output'];
+};
+
+export type CrmPhoneNumberInput = {
+  label?: InputMaybe<Scalars['String']['input']>;
+  number: Scalars['String']['input'];
+  primary?: InputMaybe<Scalars['Boolean']['input']>;
+};
 
 /** A property a company added (CRM > Settings > Properties). */
 export type CrmProperty = {
@@ -5498,6 +5587,17 @@ export type LicencePage = {
 export enum LicenceStatus {
   Active = 'ACTIVE',
   Cancelled = 'CANCELLED'
+}
+
+export enum LifecycleStage {
+  Customer = 'CUSTOMER',
+  Evangelist = 'EVANGELIST',
+  Lead = 'LEAD',
+  MarketingQualified = 'MARKETING_QUALIFIED',
+  Opportunity = 'OPPORTUNITY',
+  Other = 'OTHER',
+  SalesQualified = 'SALES_QUALIFIED',
+  Subscriber = 'SUBSCRIBER'
 }
 
 /** Everything a client needs to render itself in one locale. */
@@ -19324,9 +19424,9 @@ export type ComplianceOverviewQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ComplianceOverviewQuery = { __typename?: 'Query', complianceOverview: { __typename?: 'ComplianceOverview', risks: number, openRisks: number, risksPastReview: number, findings: number, openFindings: number, findingsOverdue: number, audits: number, auditsPlanned: number, objectives: number, objectivesAtRisk: number, reviews: number, lastReviewOn?: string | null, lastReviewTitle: string, risksByStatus: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }>, findingsByType: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }>, residualHeat: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }>, standardCoverage: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }> } };
 
-export type CompanyFieldsFragment = { __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, custom: any, createdAt: string, updatedAt: string };
+export type CompanyFieldsFragment = { __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> };
 
-export type ContactFieldsFragment = { __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, custom: any, createdAt: string, updatedAt: string };
+export type ContactFieldsFragment = { __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> };
 
 export type DealFieldsFragment = { __typename?: 'Deal', id: string, title: string, companyId: string, companyName: string, contactId: string, contactName: string, stage: DealStage, value: number, probability: number, expectedCloseDate?: string | null, owner: string, notes: string, clientId: string };
 
@@ -19337,14 +19437,14 @@ export type CrmStatsFragment = { __typename?: 'TableStats', total: number, count
 export type ListCompaniesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListCompaniesQuery = { __typename?: 'Query', listCompanies: Array<{ __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, custom: any, createdAt: string, updatedAt: string }> };
+export type ListCompaniesQuery = { __typename?: 'Query', listCompanies: Array<{ __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> };
 
 export type ListCompaniesPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListCompaniesPagedQuery = { __typename?: 'Query', listCompaniesPaged: { __typename?: 'CompanyPage', totalCount: number, rows: Array<{ __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, custom: any, createdAt: string, updatedAt: string }> } };
+export type ListCompaniesPagedQuery = { __typename?: 'Query', listCompaniesPaged: { __typename?: 'CompanyPage', totalCount: number, rows: Array<{ __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
 
 export type ListCompaniesStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -19383,14 +19483,14 @@ export type PromoteCompanyToClientMutation = { __typename?: 'Mutation', promoteC
 export type ListContactsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListContactsQuery = { __typename?: 'Query', listContacts: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, custom: any, createdAt: string, updatedAt: string }> };
+export type ListContactsQuery = { __typename?: 'Query', listContacts: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> };
 
 export type ListContactsPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListContactsPagedQuery = { __typename?: 'Query', listContactsPaged: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, custom: any, createdAt: string, updatedAt: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null }> } };
+export type ListContactsPagedQuery = { __typename?: 'Query', listContactsPaged: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
 
 export type ListContactsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -19549,14 +19649,14 @@ export type SearchCompaniesQueryVariables = Exact<{
 }>;
 
 
-export type SearchCompaniesQuery = { __typename?: 'Query', searchCompanies: { __typename?: 'CompanyPage', totalCount: number, rows: Array<{ __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, custom: any, createdAt: string, updatedAt: string }> } };
+export type SearchCompaniesQuery = { __typename?: 'Query', searchCompanies: { __typename?: 'CompanyPage', totalCount: number, rows: Array<{ __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
 
 export type SearchContactsQueryVariables = Exact<{
   query: CrmQueryInput;
 }>;
 
 
-export type SearchContactsQuery = { __typename?: 'Query', searchContacts: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, custom: any, createdAt: string, updatedAt: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null }> } };
+export type SearchContactsQuery = { __typename?: 'Query', searchContacts: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
 
 export type CreateCrmPropertyMutationVariables = Exact<{
   input: CrmPropertyInput;
@@ -25930,6 +26030,28 @@ export const CompanyFieldsFragmentDoc = gql`
   custom
   createdAt
   updatedAt
+  email
+  emails {
+    address
+    label
+    primary
+  }
+  phones {
+    number
+    label
+    primary
+  }
+  website
+  linkedinUrl
+  twitterUrl
+  address
+  city
+  country
+  timezone
+  description
+  annualRevenue
+  employeeCount
+  foundedYear
 }
     `;
 export const ContactFieldsFragmentDoc = gql`
@@ -25947,6 +26069,28 @@ export const ContactFieldsFragmentDoc = gql`
   custom
   createdAt
   updatedAt
+  emails {
+    address
+    label
+    primary
+  }
+  phones {
+    number
+    label
+    primary
+  }
+  website
+  linkedinUrl
+  twitterUrl
+  address
+  city
+  country
+  timezone
+  description
+  department
+  lifecycleStage
+  leadSource
+  languages
 }
     `;
 export const DealFieldsFragmentDoc = gql`

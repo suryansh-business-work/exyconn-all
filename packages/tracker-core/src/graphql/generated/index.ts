@@ -786,17 +786,30 @@ export type CompanyExpenseInput = {
 };
 
 export type CompanyInput = {
+  address: InputMaybe<Scalars['String']['input']>;
+  annualRevenue: InputMaybe<Scalars['Float']['input']>;
+  city: InputMaybe<Scalars['String']['input']>;
+  country: InputMaybe<Scalars['String']['input']>;
   custom: InputMaybe<Scalars['JSON']['input']>;
+  description: InputMaybe<Scalars['String']['input']>;
   domain: Scalars['String']['input'];
+  emails: InputMaybe<Array<CrmEmailAddressInput>>;
+  employeeCount: InputMaybe<Scalars['Int']['input']>;
+  foundedYear: InputMaybe<Scalars['Int']['input']>;
   industry: InputMaybe<Scalars['String']['input']>;
+  linkedinUrl: InputMaybe<Scalars['String']['input']>;
   location: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   notes: InputMaybe<Scalars['String']['input']>;
   owner: Scalars['String']['input'];
   phone: InputMaybe<Scalars['String']['input']>;
+  phones: InputMaybe<Array<CrmPhoneNumberInput>>;
   /** One of COMPANY_SIZES (11-50, and so on). A string, because 1-10 is not a valid enum name. */
   size: Scalars['String']['input'];
   status: CompanyStatus;
+  timezone: InputMaybe<Scalars['String']['input']>;
+  twitterUrl: InputMaybe<Scalars['String']['input']>;
+  website: InputMaybe<Scalars['String']['input']>;
 };
 
 export type CompanySocialLinksInput = {
@@ -825,16 +838,31 @@ export type ComplianceCategory =
   | 'SUPPLIER';
 
 export type ContactInput = {
+  address: InputMaybe<Scalars['String']['input']>;
+  city: InputMaybe<Scalars['String']['input']>;
   companyId: InputMaybe<Scalars['String']['input']>;
   companyName: InputMaybe<Scalars['String']['input']>;
+  country: InputMaybe<Scalars['String']['input']>;
   custom: InputMaybe<Scalars['JSON']['input']>;
-  email: Scalars['String']['input'];
+  department: InputMaybe<Scalars['String']['input']>;
+  description: InputMaybe<Scalars['String']['input']>;
+  /** The primary address; or send emails instead. */
+  email: InputMaybe<Scalars['String']['input']>;
+  emails: InputMaybe<Array<CrmEmailAddressInput>>;
+  languages: InputMaybe<Array<Scalars['String']['input']>>;
+  leadSource: InputMaybe<Scalars['String']['input']>;
+  lifecycleStage: InputMaybe<LifecycleStage>;
+  linkedinUrl: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   notes: InputMaybe<Scalars['String']['input']>;
   owner: Scalars['String']['input'];
   phone: InputMaybe<Scalars['String']['input']>;
+  phones: InputMaybe<Array<CrmPhoneNumberInput>>;
   status: ContactStatus;
+  timezone: InputMaybe<Scalars['String']['input']>;
   title: InputMaybe<Scalars['String']['input']>;
+  twitterUrl: InputMaybe<Scalars['String']['input']>;
+  website: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ContactStatus =
@@ -933,6 +961,12 @@ export type CrmConditionInput = {
   values: Array<Scalars['String']['input']>;
 };
 
+export type CrmEmailAddressInput = {
+  address: Scalars['String']['input'];
+  label: InputMaybe<Scalars['String']['input']>;
+  primary: InputMaybe<Scalars['Boolean']['input']>;
+};
+
 /** Conditions in a group must all hold; a record matches when any group does. */
 export type CrmFilterGroupInput = {
   conditions: Array<CrmConditionInput>;
@@ -978,6 +1012,12 @@ export type CrmOp =
   | 'NOT_CONTAINS'
   | 'NOT_IN'
   | 'STARTS_WITH';
+
+export type CrmPhoneNumberInput = {
+  label: InputMaybe<Scalars['String']['input']>;
+  number: Scalars['String']['input'];
+  primary: InputMaybe<Scalars['Boolean']['input']>;
+};
 
 export type CrmPropertyInput = {
   description: Scalars['String']['input'];
@@ -1933,6 +1973,16 @@ export type LicenceInput = {
 export type LicenceStatus =
   | 'ACTIVE'
   | 'CANCELLED';
+
+export type LifecycleStage =
+  | 'CUSTOMER'
+  | 'EVANGELIST'
+  | 'LEAD'
+  | 'MARKETING_QUALIFIED'
+  | 'OPPORTUNITY'
+  | 'OTHER'
+  | 'SALES_QUALIFIED'
+  | 'SUBSCRIBER';
 
 export type LocationInput = {
   active: Scalars['Boolean']['input'];
