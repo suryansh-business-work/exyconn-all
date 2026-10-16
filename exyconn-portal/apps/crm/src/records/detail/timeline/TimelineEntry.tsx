@@ -26,7 +26,7 @@ export function TimelineEntry({ entry }: Readonly<{ entry: TimelineRow }>) {
           color: `${style.color}.main`,
           bgcolor: 'action.hover',
           borderRadius: '50%',
-          p: 0.75,
+          p: 0.5,
           display: 'flex',
         }}
       >

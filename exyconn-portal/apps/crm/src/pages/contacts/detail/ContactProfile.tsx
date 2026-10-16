@@ -28,7 +28,7 @@ export function ContactProfile({
         <Avatar alt="" sx={{ width: 56, height: 56 }}>
           {initialsOf(contact.name)}
         </Avatar>
-        <Stack spacing={0.25} sx={{ minWidth: 0 }}>
+        <Stack spacing={0.5} sx={{ minWidth: 0 }}>
           <Text component="h1" size="lg" weight="bold">
             {contact.name}
           </Text>

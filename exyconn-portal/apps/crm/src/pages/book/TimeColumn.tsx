@@ -41,7 +41,7 @@ export function TimeColumn({
               </Button>
             </Box>
           ) : (
-            <Button key={slot} variant="outlined" onClick={() => onSelect(slot)} sx={{ py: 1.25 }}>
+            <Button key={slot} variant="outlined" onClick={() => onSelect(slot)} sx={{ py: 1 }}>
               {label(slot)}
             </Button>
           ),

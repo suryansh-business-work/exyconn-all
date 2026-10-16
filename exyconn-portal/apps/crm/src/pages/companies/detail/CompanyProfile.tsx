@@ -28,7 +28,7 @@ export function CompanyProfile({
         <Avatar alt="" variant="rounded" sx={{ width: 56, height: 56 }}>
           {initialsOf(company.name)}
         </Avatar>
-        <Stack spacing={0.25} sx={{ minWidth: 0 }}>
+        <Stack spacing={0.5} sx={{ minWidth: 0 }}>
           <Text component="h1" size="lg" weight="bold">
             {company.name}
           </Text>

@@ -18,7 +18,7 @@ export function ContactPointList({
   return (
     <Flex direction="column" spacing={0.5}>
       {ordered.map((point) => (
-        <Flex key={point.value} direction="row" spacing={0.75} alignItems="center">
+        <Flex key={point.value} direction="row" spacing={0.5} alignItems="center">
           <Link href={`${scheme}:${point.value}`} underline="hover">
             {point.value}
           </Link>
