@@ -21,6 +21,7 @@ vi.mock('@exyconn/shell/logging/portalLogger', () => ({
 
 const credential = (length: number) => 'k'.repeat(length);
 const KEEP = 'Leave blank to keep the current value';
+const SAVED = 'Saved. Use the eye to see it, or type a new one to replace it.';
 
 beforeEach(() => {
   api.save.mockReset().mockResolvedValue({});
@@ -84,7 +85,7 @@ describe('WhatsappNumberForm — connected number', () => {
   it('saves changes while keeping the stored credentials', async () => {
     const user = userEvent.setup();
     renderWithProviders(<WhatsappNumberForm initial={channelRow()} />);
-    expect(screen.getAllByText(KEEP)).toHaveLength(2);
+    expect(screen.getAllByText(SAVED)).toHaveLength(2);
     await user.click(screen.getByRole('switch', { name: 'Answer messages on this number' }));
     await user.click(screen.getByRole('button', { name: 'Save changes' }));
 

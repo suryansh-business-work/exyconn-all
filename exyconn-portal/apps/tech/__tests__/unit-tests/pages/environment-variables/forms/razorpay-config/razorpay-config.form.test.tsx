@@ -116,7 +116,9 @@ describe('RazorpayConfigForm', () => {
 
   it('edits an account, keeping both secrets when blank', async () => {
     renderForm(stored());
-    expect(screen.getAllByText('Leave blank to keep the current value')).toHaveLength(2);
+    expect(
+      screen.getAllByText('Saved. Use the eye to see it, or type a new one to replace it.'),
+    ).toHaveLength(2);
     await pickOption(ACTIVE, 'No');
     await press('Update');
 

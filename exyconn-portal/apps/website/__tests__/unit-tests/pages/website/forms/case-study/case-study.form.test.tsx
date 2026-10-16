@@ -8,6 +8,9 @@ import { renderInSite } from '../../../cms/cms-helpers';
 import { caseStudyRow } from '../../content-fixtures';
 import { fillField, press } from '../content-form-helpers';
 
+/** A form opened without meta sends every meta field blank (the template's meta stays). */
+const EMPTY_SEO = { title: '', description: '', keywords: '', ogImageUrl: '', noindex: false };
+
 const gql = vi.hoisted(() => ({ create: vi.fn(), update: vi.fn() }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
@@ -82,6 +85,7 @@ describe('CaseStudyForm', () => {
     expect(gql.create).toHaveBeenCalledWith({
       variables: {
         input: {
+          seo: EMPTY_SEO,
           slug: 'acme-migration',
           title: 'Acme migration',
           excerpt: '',
@@ -115,6 +119,7 @@ describe('CaseStudyForm', () => {
       variables: {
         id: 'case-1',
         input: {
+          seo: EMPTY_SEO,
           slug: row.slug,
           title: row.title,
           excerpt: 'A faster Acme',

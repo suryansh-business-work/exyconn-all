@@ -86,7 +86,9 @@ describe('OpenAiConfigForm', () => {
 
   it('changes the model of a stored key without resending the key', async () => {
     renderForm(stored());
-    expect(screen.getByText('Leave blank to keep the current value')).toBeInTheDocument();
+    expect(
+      screen.getByText('Saved. Use the eye to see it, or type a new one to replace it.'),
+    ).toBeInTheDocument();
     fill('Model', 'gpt-4.1');
     await pickOption(ACTIVE, 'No');
     await press('Update');

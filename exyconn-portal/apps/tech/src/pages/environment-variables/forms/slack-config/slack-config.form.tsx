@@ -56,15 +56,11 @@ const toInput = (values: Values) => ({
   isActive: values.isActive === 'true',
 });
 
-/** Optional either way; on an edit, says whether one is stored and that blank keeps it. */
-const signingSecretHint = (row: SlackConfigRow | null): string => {
-  if (!row) {
-    return 'Optional. Lets website chat agents reply from Slack threads.';
-  }
-  return row.hasSigningSecret
-    ? 'Signing secret stored. Optional; lets website chat agents reply from Slack threads. Leave empty to keep the stored one.'
-    : 'Optional. Lets website chat agents reply from Slack threads. No signing secret stored yet.';
-};
+/** Optional either way; a stored one is shown behind the eye instead of this hint. */
+const signingSecretHint = (row: SlackConfigRow | null): string =>
+  row
+    ? 'Optional. Lets website chat agents reply from Slack threads. No signing secret stored yet.'
+    : 'Optional. Lets website chat agents reply from Slack threads.';
 
 const toInitial = (row: SlackConfigRow | null): Values => ({
   label: row?.label ?? '',

@@ -116,7 +116,9 @@ describe('PaypalConfigForm', () => {
 
   it('edits an inactive sandbox account, keeping its secret when blank', async () => {
     renderForm(stored());
-    expect(screen.getByText('Leave blank to keep the current value')).toBeInTheDocument();
+    expect(
+      screen.getByText('Saved. Use the eye to see it, or type a new one to replace it.'),
+    ).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: ACTIVE })).toHaveTextContent('No');
     await press('Update');
 

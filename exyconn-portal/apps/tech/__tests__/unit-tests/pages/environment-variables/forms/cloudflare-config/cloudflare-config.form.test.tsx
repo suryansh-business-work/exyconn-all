@@ -89,7 +89,9 @@ describe('CloudflareConfigForm', () => {
 
   it('keeps the stored token when an edit leaves it blank', async () => {
     renderForm(stored());
-    expect(screen.getByText('Leave blank to keep the current value')).toBeInTheDocument();
+    expect(
+      screen.getByText('Saved. Use the eye to see it, or type a new one to replace it.'),
+    ).toBeInTheDocument();
     expect(screen.getByLabelText('Account ID')).toHaveValue(ACCOUNT);
     await pickOption(/^Set as active/, 'No');
     await press('Update');

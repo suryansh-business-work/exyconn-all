@@ -6,6 +6,9 @@ import { renderInSite } from '../../../cms/cms-helpers';
 import { blogRow } from '../../content-fixtures';
 import { fillField, press } from '../content-form-helpers';
 
+/** A form opened without meta sends every meta field blank (the template's meta stays). */
+const EMPTY_SEO = { title: '', description: '', keywords: '', ogImageUrl: '', noindex: false };
+
 const gql = vi.hoisted(() => ({ create: vi.fn(), update: vi.fn() }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
@@ -97,7 +100,9 @@ describe('BlogPostForm', () => {
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(gql.create).toHaveBeenCalledWith({
-      variables: { input: { ...NEW_POST, coverImage: '/images/cover.png', siteId: 'site-1' } },
+      variables: {
+        input: { seo: EMPTY_SEO, ...NEW_POST, coverImage: '/images/cover.png', siteId: 'site-1' },
+      },
     });
     expect(await screen.findByText('Blog post created')).toBeInTheDocument();
   });
@@ -110,7 +115,7 @@ describe('BlogPostForm', () => {
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(gql.create).toHaveBeenCalledWith({
-      variables: { input: { ...NEW_POST, siteId: undefined } },
+      variables: { input: { seo: EMPTY_SEO, ...NEW_POST, siteId: undefined } },
     });
   });
 
@@ -128,6 +133,7 @@ describe('BlogPostForm', () => {
       variables: {
         id: 'post-1',
         input: {
+          seo: EMPTY_SEO,
           slug: row.slug,
           title: 'Scaling GraphQL, again',
           summary: row.summary,

@@ -138,7 +138,9 @@ describe('SonarConfigForm', () => {
   it('never prefills the stored token and keeps it when left blank', () => {
     mount(stored, [keepTokenMock]);
     cy.get('input[name="token"]').should('have.value', '');
-    cy.contains('Leave blank to keep the current value').should('be.visible');
+    cy.contains('Saved. Use the eye to see it, or type a new one to replace it.').should(
+      'be.visible',
+    );
     cy.contains('button', 'Update').click();
     cy.get('@done').should('have.been.called');
   });

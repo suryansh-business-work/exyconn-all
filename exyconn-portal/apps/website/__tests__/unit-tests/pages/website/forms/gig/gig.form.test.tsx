@@ -6,6 +6,9 @@ import { renderWithProviders } from '../../../../test-utils';
 import { field, pickOption } from '../form-helpers';
 import { renderInSite } from '../../../cms/cms-helpers';
 
+/** A form opened without meta sends every meta field blank (the template's meta stays). */
+const EMPTY_SEO = { title: '', description: '', keywords: '', ogImageUrl: '', noindex: false };
+
 const gql = vi.hoisted(() => ({ create: vi.fn(), update: vi.fn() }));
 
 vi.mock('@exyconn/shell/graphql/generated', async (importOriginal) => ({
@@ -74,6 +77,7 @@ describe('GigForm', () => {
     expect(gql.create).toHaveBeenCalledWith({
       variables: {
         input: {
+          seo: EMPTY_SEO,
           gigCode: 'GIG-002',
           title: 'Logo design',
           category: 'Design',
@@ -130,7 +134,7 @@ describe('GigForm', () => {
 
     await waitFor(() => expect(onDone).toHaveBeenCalledTimes(1));
     expect(gql.update).toHaveBeenCalledWith({
-      variables: { id: 'gig-1', input: { ...gigValues, deadline: null } },
+      variables: { id: 'gig-1', input: { seo: EMPTY_SEO, ...gigValues, deadline: null } },
     });
     expect(await screen.findByText('Gig updated')).toBeInTheDocument();
   });

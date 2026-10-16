@@ -64,7 +64,9 @@ describe('PexelsConfigForm', () => {
   it('never prefills the stored secret and keeps it when left blank', () => {
     mount(stored, [keepSecretMock]);
     cy.get('input[name="apiKey"]').should('have.value', '');
-    cy.contains('Leave blank to keep the current value').should('be.visible');
+    cy.contains('Saved. Use the eye to see it, or type a new one to replace it.').should(
+      'be.visible',
+    );
     cy.contains('button', 'Update').click();
     cy.get('@done').should('have.been.called');
   });

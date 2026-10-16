@@ -117,8 +117,9 @@ describe('SlackConfigForm', () => {
 
   it('edits a config with a stored signing secret, keeping both secrets', async () => {
     renderForm(stored());
-    expect(screen.getByText(/^Signing secret stored\./)).toBeInTheDocument();
-    expect(screen.getByText('Leave blank to keep the current value')).toBeInTheDocument();
+    expect(
+      screen.getAllByText('Saved. Use the eye to see it, or type a new one to replace it.'),
+    ).toHaveLength(2);
     await pickOption(ACTIVE, 'No');
     await press('Update');
 
