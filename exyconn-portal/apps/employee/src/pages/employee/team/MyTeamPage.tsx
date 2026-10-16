@@ -11,6 +11,7 @@ import { TeamReviewsSection } from './TeamReviewsSection';
 import { TeamGoalsSection } from './TeamGoalsSection';
 import type { NameOf } from './team.types';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
+import { ListSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 /**
  * The manager's view: who reports to them, and everything those people are waiting on —
@@ -26,12 +27,13 @@ export function MyTeamPage() {
   return (
     <Box>
       <PageHeader title="My Team" subtitle="Your direct reports and what they need from you" />
-      {reports.length === 0 && (
+      {reports.length === 0 && loading && (
+        <ListSkeleton toolbar={false} rows={4} columns={3} label="Loading your team" />
+      )}
+      {reports.length === 0 && !loading && (
         <Box sx={readingPanel}>
           <Text color="text.secondary">
-            {loading
-              ? t('Loading…')
-              : t('Nobody reports to you yet. HR sets reporting lines on the employee record.')}
+            {t('Nobody reports to you yet. HR sets reporting lines on the employee record.')}
           </Text>
         </Box>
       )}

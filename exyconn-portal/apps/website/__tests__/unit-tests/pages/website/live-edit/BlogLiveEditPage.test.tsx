@@ -84,7 +84,10 @@ describe('BlogLiveEditPage', () => {
       skip: false,
       fetchPolicy: 'network-only',
     });
-    expect(screen.getByRole('progressbar', { name: 'Loading the blog post' })).toBeInTheDocument();
+    expect(screen.getByText('Loading the blog post').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
   });
 
   it('asks for nothing without an id, and says the post is gone', () => {

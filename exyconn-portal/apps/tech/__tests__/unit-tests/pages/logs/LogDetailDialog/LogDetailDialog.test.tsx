@@ -97,7 +97,7 @@ describe('LogDetailDialog', () => {
     gql.events.mockReturnValue(answer({ data: undefined, loading: true }));
     show();
 
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true');
     expect(screen.queryByText('Stack (latest)')).not.toBeInTheDocument();
   });
 

@@ -8,6 +8,7 @@ import { ReviewStatus, useTeamPerformanceReviewsQuery } from '@exyconn/shell/gra
 import { ManagerAssessmentForm } from '../forms/manager-assessment';
 import type { NameOf, TeamReviewRow, TeamSectionProps } from './team.types';
 import { panel } from '@exyconn/shell/components/glass/glass';
+import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 interface ReviewRowProps {
   review: TeamReviewRow;
@@ -56,9 +57,12 @@ export function TeamReviewsSection({ nameOf }: Readonly<TeamSectionProps>) {
   return (
     <Box sx={panel}>
       <Heading level={6}>{t('Performance reviews')}</Heading>
-      {rows.length === 0 && (
+      {rows.length === 0 && loading && (
+        <PanelSkeleton lines={3} title={false} bare label="Loading performance reviews" />
+      )}
+      {rows.length === 0 && !loading && (
         <Text size="sm" color="text.secondary">
-          {loading ? t('Loading…') : t('No appraisal cycles are open for your team.')}
+          {t('No appraisal cycles are open for your team.')}
         </Text>
       )}
       {rows.map((review) => (

@@ -21,7 +21,10 @@ const fact = (label: string) => screen.getByText(label).closest('.MuiCard-root')
 describe('SharedProjectPage', () => {
   it('loads, then shows the project, its client and the read-only warning', async () => {
     renderProject([projectLookup(sharedProject())]);
-    expect(screen.getByRole('progressbar', { name: 'Loading' })).toBeInTheDocument();
+    expect(screen.getByText('Loading').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
 
     expect(await screen.findByRole('heading', { name: 'Website relaunch' })).toBeInTheDocument();
     expect(screen.getByText('Acme')).toBeInTheDocument();

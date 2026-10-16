@@ -5,7 +5,7 @@ import PublicIcon from '@mui/icons-material/Public';
 import { formatWith } from '@exyconn/shell/utils/date';
 import { sanitizeRichHtml } from '@exyconn/shell/utils/sanitizeHtml';
 import { humanize } from '@exyconn/shell/components/work/work-arrangement';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { DetailSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { usePublicTaskQuery } from '@exyconn/shell/graphql/generated';
 import { DATE_FORMAT } from '../../status.constants';
 import { LinkExpiredCard } from '../../components/LinkExpiredCard';
@@ -28,7 +28,7 @@ export function PublicTicketPage() {
   });
 
   if (loading) {
-    return <LoadingState />;
+    return <DetailSkeleton aside={false} tabs={false} />;
   }
 
   const ticket = data?.publicTask;

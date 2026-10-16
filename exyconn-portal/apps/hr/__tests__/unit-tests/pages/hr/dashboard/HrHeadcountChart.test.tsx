@@ -17,8 +17,8 @@ const TITLE = 'Employee count over time';
 describe('HrHeadcountChart', () => {
   it('says it is loading rather than drawing an empty chart', () => {
     renderWithProviders(<HrHeadcountChart points={[]} loading />);
-    expect(screen.getByText(TITLE)).toBeInTheDocument();
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Loading the headcount chart');
+    expect(screen.getByTestId('skeleton-chart')).toBeInTheDocument();
     expect(screen.queryByRole('region', { name: TITLE })).not.toBeInTheDocument();
   });
 

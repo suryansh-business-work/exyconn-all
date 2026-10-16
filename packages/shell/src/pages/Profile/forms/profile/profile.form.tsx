@@ -3,12 +3,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { EntityForm } from '@/components/form/EntityForm';
 import { useAuth } from '@/auth/AuthContext';
 import { useNotify } from '@/components/feedback/NotificationProvider';
-import { LoadingState } from '@/components/feedback/CenteredState';
 import { errorMessage } from '@/utils/errorMessage';
 import { useMeQuery, useUpdateProfileMutation } from '@/graphql/generated';
 import { profileSchema } from './profile.schema';
 import { AboutFields, PreferenceFields, SocialLinkFields } from './profile.fields';
 import type { ProfileFormValues, ProfileInput, ProfileMe } from './profile.types';
+import { FormSkeleton } from '@/components/feedback/skeletons';
 
 /** The stored profile as form values: every missing value becomes '' (an empty field). */
 function valuesOf(name: string, me: ProfileMe | undefined): ProfileFormValues {
@@ -48,7 +48,7 @@ export function ProfileForm() {
   });
 
   if (!data && loading) {
-    return <LoadingState />;
+    return <FormSkeleton surface={false} />;
   }
 
   const onSubmit = async (values: ProfileFormValues) => {

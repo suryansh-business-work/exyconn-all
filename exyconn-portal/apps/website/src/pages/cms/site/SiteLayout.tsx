@@ -3,11 +3,16 @@ import { Link as RouterLink, Outlet, useParams } from 'react-router-dom';
 import AddIcon from '@mui/icons-material/Add';
 import ViewListIcon from '@mui/icons-material/ViewList';
 import { useT } from '@exyconn/i18n';
-import { Alert, Box, Button, CircularProgress, Flex, Text } from '@exyconn/shell/components/ui';
+import { Alert, Button, Flex, Text } from '@exyconn/shell/components/ui';
 import { SiteContext, type CurrentSite } from './site.context';
 import { SiteSwitcher } from './SiteSwitcher';
 import { rememberSite } from './site-paths';
 import { useCmsSites } from './useCmsSites';
+import {
+  PageHeaderSkeleton,
+  PanelSkeleton,
+  SkeletonStatus,
+} from '@exyconn/shell/components/feedback/skeletons';
 
 /**
  * Every /website/s/:siteSlug/… page renders inside this: it resolves the site from the URL,
@@ -60,9 +65,10 @@ export function SiteLayout() {
   }
   if (loading) {
     return (
-      <Box sx={{ display: 'grid', placeItems: 'center', py: 6 }}>
-        <CircularProgress aria-label={t('Loading the website')} />
-      </Box>
+      <SkeletonStatus label="Loading the website">
+        <PageHeaderSkeleton />
+        <PanelSkeleton lines={6} />
+      </SkeletonStatus>
     );
   }
   return (

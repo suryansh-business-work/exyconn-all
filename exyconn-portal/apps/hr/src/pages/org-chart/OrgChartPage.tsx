@@ -9,15 +9,20 @@ import { buildOrgTree, type OrgTreeNode } from './org-tree';
 import { OrgNodeCard } from './OrgNodeCard';
 import { OrgFlowChart } from './OrgFlowChart';
 import { panel } from '@exyconn/shell/components/glass/glass';
+import {
+  PanelSkeleton,
+  SkeletonBone,
+  SkeletonStatus,
+} from '@exyconn/shell/components/feedback/skeletons';
 
 interface UnplacedGroupProps {
   nodes: OrgTreeNode[];
-  emptyMessage: string;
+  loading: boolean;
   onOpen: (id: string) => void;
 }
 
 /** The people not yet on the chart: nobody above them and nobody reporting to them. */
-function UnplacedGroup({ nodes, emptyMessage, onOpen }: Readonly<UnplacedGroupProps>) {
+function UnplacedGroup({ nodes, loading, onOpen }: Readonly<UnplacedGroupProps>) {
   const t = useT();
   return (
     <Box sx={panel}>
@@ -25,9 +30,12 @@ function UnplacedGroup({ nodes, emptyMessage, onOpen }: Readonly<UnplacedGroupPr
       <Text size="sm" color="text.secondary" sx={{ mb: 1 }}>
         {t('Active people with nobody above them and nobody reporting to them.')}
       </Text>
-      {nodes.length === 0 && (
+      {nodes.length === 0 && loading && (
+        <PanelSkeleton lines={3} title={false} bare label="Loading people without a manager" />
+      )}
+      {nodes.length === 0 && !loading && (
         <Text size="sm" color="text.secondary">
-          {emptyMessage}
+          {t('Everyone is placed.')}
         </Text>
       )}
       {nodes.map((node) => (
@@ -44,9 +52,20 @@ export function OrgChartPage() {
   const navigate = useNavigate();
   const tree = useMemo(() => buildOrgTree(data?.orgChart ?? []), [data]);
   const openEmployee = useCallback((id: string) => navigate(`/hr/employees/${id}`), [navigate]);
-  const emptyChart = loading
-    ? t('Loading…')
-    : t('No reporting lines yet — set “Reports to” on an employee record.');
+  let chart = <OrgFlowChart trees={tree.trees} onOpen={openEmployee} />;
+  if (tree.trees.length === 0 && loading) {
+    chart = (
+      <SkeletonStatus label="Loading the org chart">
+        <SkeletonBone variant="rounded" sx={{ height: { xs: 480, md: '70vh' } }} />
+      </SkeletonStatus>
+    );
+  } else if (tree.trees.length === 0) {
+    chart = (
+      <Text size="sm" color="text.secondary">
+        {t('No reporting lines yet — set “Reports to” on an employee record.')}
+      </Text>
+    );
+  }
 
   return (
     <Box>
@@ -57,19 +76,9 @@ export function OrgChartPage() {
           <Text size="sm" color="text.secondary" sx={{ mb: 1 }}>
             {t('Drag to pan, scroll to zoom. Click a person to open their record.')}
           </Text>
-          {tree.trees.length === 0 ? (
-            <Text size="sm" color="text.secondary">
-              {emptyChart}
-            </Text>
-          ) : (
-            <OrgFlowChart trees={tree.trees} onOpen={openEmployee} />
-          )}
+          {chart}
         </Box>
-        <UnplacedGroup
-          nodes={tree.unplaced}
-          emptyMessage={loading ? t('Loading…') : t('Everyone is placed.')}
-          onOpen={openEmployee}
-        />
+        <UnplacedGroup nodes={tree.unplaced} loading={loading} onOpen={openEmployee} />
       </Flex>
     </Box>
   );

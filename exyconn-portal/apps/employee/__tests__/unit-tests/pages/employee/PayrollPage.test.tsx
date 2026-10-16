@@ -30,7 +30,7 @@ describe('PayrollPage', () => {
   it('says it is loading before the structure arrives', () => {
     vi.mocked(useMyPayrollQuery).mockReturnValue(queryResult({ loading: true }));
     renderWithProviders(<PayrollPage />);
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getByText('Loading your salary structure')).toBeInTheDocument();
   });
 
   it('says no structure is on file when HR has not set one', () => {

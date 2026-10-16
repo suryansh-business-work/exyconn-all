@@ -4,7 +4,7 @@ import { Alert, Card, Divider, Grid } from '@exyconn/shell/components/ui';
 import SearchOffIcon from '@mui/icons-material/SearchOff';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { DetailSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { EmptyState } from '@exyconn/shell/components/feedback/EmptyState';
 import { copyToClipboard } from '@exyconn/shell/utils/clipboard';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
@@ -40,7 +40,7 @@ export function TicketPage() {
   );
 
   if (page.loading) {
-    return <LoadingState />;
+    return <DetailSkeleton />;
   }
   if (page.error) {
     return <Alert severity="error">{errorMessage(page.error, 'Could not load the ticket')}</Alert>;

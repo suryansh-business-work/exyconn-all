@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useT } from '@exyconn/i18n';
 import { Box, Stack, Text, ToggleButton, ToggleButtonGroup } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
+import { DashboardSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { useAuth } from '@exyconn/shell/auth/AuthContext';
 import { ROLES } from '@exyconn/shell/auth/roles';
 import { useWorkspaceAnalyticsQuery } from '@exyconn/shell/graphql/generated';
@@ -53,7 +54,7 @@ export function AnalyticsPage() {
       <Stack spacing={3}>
         {seesPlatform && <PlatformSection />}
         {error && <Text color="error">{error.message}</Text>}
-        {loading && !report && <Text color="text.secondary">{t('Loading analytics…')}</Text>}
+        {loading && !report && <DashboardSkeleton tiles={4} charts={2} label="Loading analytics" />}
         {report && (
           <>
             <UsersSection users={report.users} />

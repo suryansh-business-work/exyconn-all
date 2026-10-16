@@ -1,12 +1,5 @@
 import { useT } from '@exyconn/i18n';
-import {
-  Alert,
-  Box,
-  CircularProgress,
-  Flex,
-  Typography,
-  fontWeight,
-} from '@exyconn/shell/components/ui';
+import { Alert, Box, Flex, Typography, fontWeight } from '@exyconn/shell/components/ui';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
 import { useStatusOverviewQuery, type StatusCategory } from '@exyconn/shell/graphql/generated';
 import { CATEGORY_LABELS, CATEGORY_ORDER, HISTORY_DAYS, REFRESH_MS } from '../../status.constants';
@@ -19,6 +12,12 @@ import { MaintenanceNotice } from './MaintenanceNotice';
 import { SubscribeCard } from '../subscribe';
 import type { StatusMaintenance, StatusService } from './status.types';
 import { BACKGROUND_REQUEST } from '@exyconn/shell/config/networkActivity';
+import {
+  DashboardSkeleton,
+  ListSkeleton,
+  PanelSkeleton,
+  SkeletonStatus,
+} from '@exyconn/shell/components/feedback/skeletons';
 
 /** Groups the flat service list into the page's sections, dropping empty categories. */
 function groupByCategory(services: StatusService[]) {
@@ -51,9 +50,11 @@ export function StatusPage() {
 
   if (loading && !data) {
     return (
-      <Flex justifyContent="center" sx={{ py: 8 }}>
-        <CircularProgress />
-      </Flex>
+      <SkeletonStatus>
+        <PanelSkeleton lines={1} />
+        <DashboardSkeleton />
+        <ListSkeleton toolbar={false} columns={2} />
+      </SkeletonStatus>
     );
   }
 

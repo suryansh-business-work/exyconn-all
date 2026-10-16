@@ -85,7 +85,10 @@ describe('CaseStudyLiveEditPage', () => {
       skip: false,
       fetchPolicy: 'network-only',
     });
-    expect(screen.getByRole('progressbar', { name: 'Loading the case study' })).toBeInTheDocument();
+    expect(screen.getByText('Loading the case study').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
   });
 
   it('asks for nothing without an id, and says the case study is gone', () => {

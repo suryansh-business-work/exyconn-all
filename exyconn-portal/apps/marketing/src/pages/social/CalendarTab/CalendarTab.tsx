@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { startOfMonth } from 'date-fns';
 import { useI18n, useT } from '@exyconn/i18n';
 import { Box, Text } from '@exyconn/shell/components/ui';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
 import { panel } from '@exyconn/shell/components/glass/glass';
 import { portalLogger } from '@exyconn/shell/logging/portalLogger';
 import { useSocialCalendarQuery } from '@exyconn/shell/graphql/generated';
 import { buildCalendar, defaultScheduleTime, queryRange } from '../calendar.days';
 import { useComposerData } from '../useComposerData';
 import { AccountFilter } from './AccountFilter';
+import { CalendarSkeleton } from './CalendarSkeleton';
 import { CalendarToolbar } from './CalendarToolbar';
 import { CalendarDayCell } from './CalendarDayCell';
 import { CalendarPostDialog, type CalendarDialogTarget } from './CalendarPostDialog';
@@ -65,7 +65,7 @@ export function CalendarTab() {
       <CalendarToolbar month={month} onMonth={setMonth} />
       {error && <Text color="error">{error.message}</Text>}
       {composer.accountsFirstLoad || (!data && loading) ? (
-        <LoadingState label="Loading calendar" />
+        <CalendarSkeleton />
       ) : (
         <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', gap: 0.5 }}>
           {WEEKDAYS.map((label) => (

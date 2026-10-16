@@ -10,7 +10,7 @@ import { TrackerBillingTable } from './TrackerBillingTable';
 import { EMPLOYEE_BILLING_CSV, moneyFormat } from './tracker.billing';
 import type { BillingRange } from './BillingRangePicker';
 import { densePanel } from '@exyconn/shell/components/glass/glass';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { ChartSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 /**
  * Tracked time priced per employee.
@@ -79,7 +79,7 @@ export function TrackerBillingEmployees({ range }: Readonly<{ range: BillingRang
       )}
 
       {firstLoad ? (
-        <LoadingState />
+        <ChartSkeleton />
       ) : (
         <TrackerBillingChart
           rows={rows}

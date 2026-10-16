@@ -1,7 +1,7 @@
 import { useT } from '@exyconn/i18n';
 import { Avatar, Box, Divider, Flex, Text, fontSize } from '@exyconn/shell/components/ui';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { useTaskActivityQuery } from '@exyconn/shell/graphql/generated';
 import { initialsOf } from './ticket-meta';
 
@@ -74,7 +74,7 @@ export function TicketActivity({ taskId }: Readonly<TicketActivityProps>) {
           </Flex>
         ))}
 
-        {firstLoad ? <LoadingState /> : null}
+        {firstLoad ? <PanelSkeleton lines={3} title={false} bare /> : null}
         {!firstLoad && entries.length === 0 ? (
           <Text size="sm" color="text.secondary">
             {t('Nothing has changed on this ticket yet.')}

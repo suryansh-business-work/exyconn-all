@@ -1,17 +1,18 @@
 import { useT } from '@exyconn/i18n';
-import { Box, Grid, Heading, Text, CircularProgress } from '@exyconn/shell/components/ui';
+import { Box, Grid, Heading, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 
 import { useTrackerSettingsQuery } from '@exyconn/shell/graphql/generated';
 import { TrackerSettingsForm } from './forms/tracker-settings';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
+import { FormSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 /** Hosts the tracker capture-settings form, prefilled from the current settings. */
 export function TrackerSettingsPage() {
   const t = useT();
   const { data, loading } = useTrackerSettingsQuery({ fetchPolicy: 'cache-and-network' });
   const settings = data?.trackerSettings;
-  const spinnerLabel = loading ? t('Loading settings') : t('No settings');
+  const spinnerLabel = loading ? 'Loading settings' : 'No settings';
 
   return (
     <Box>
@@ -34,7 +35,7 @@ export function TrackerSettingsPage() {
             {settings ? (
               <TrackerSettingsForm initial={settings} />
             ) : (
-              <CircularProgress size={22} aria-label={spinnerLabel} />
+              <FormSkeleton surface={false} label={spinnerLabel} />
             )}
           </Box>
         </Grid>

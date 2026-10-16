@@ -5,13 +5,23 @@ import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { useBrandingQuery } from '@exyconn/shell/graphql/generated';
 import { BrandingForm } from './forms/branding';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
+import { FormSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 /** Admin → Branding: the organisation's identity, images, palette and contacts. */
 export function BrandingPage() {
   const t = useT();
   const { data, loading } = useBrandingQuery();
   const branding = data?.branding;
-  const emptyMessage = loading ? t('Loading…') : t('Branding is unavailable.');
+  let body = (
+    <Text size="sm" color="text.secondary">
+      {t('Branding is unavailable.')}
+    </Text>
+  );
+  if (branding) {
+    body = <BrandingForm initial={branding} />;
+  } else if (loading) {
+    body = <FormSkeleton fields={8} surface={false} label="Loading branding" />;
+  }
 
   return (
     <Box>
@@ -19,15 +29,7 @@ export function BrandingPage() {
         title="Branding"
         subtitle="Identity, images, colours and contact details used across every app"
       />
-      <Box sx={readingPanel}>
-        {branding ? (
-          <BrandingForm initial={branding} />
-        ) : (
-          <Text size="sm" color="text.secondary">
-            {emptyMessage}
-          </Text>
-        )}
-      </Box>
+      <Box sx={readingPanel}>{body}</Box>
     </Box>
   );
 }

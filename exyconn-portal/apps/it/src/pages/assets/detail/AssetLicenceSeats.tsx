@@ -1,7 +1,7 @@
 import { useT } from '@exyconn/i18n';
 import { Card, Flex, Typography, fontWeight } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { useLicenceSeatsForQuery } from '@exyconn/shell/graphql/generated';
 
 interface AssetLicenceSeatsProps {
@@ -32,7 +32,7 @@ export function AssetLicenceSeats({
     return null;
   }
   if (!data && loading) {
-    return <LoadingState />;
+    return <PanelSkeleton lines={3} />;
   }
 
   const seats = data?.licenceSeatsFor ?? [];

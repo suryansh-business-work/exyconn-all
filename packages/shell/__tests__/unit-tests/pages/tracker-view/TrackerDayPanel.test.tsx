@@ -31,13 +31,13 @@ describe('TrackerDayPanel', () => {
     renderPanel({ selected: false, loading: true });
 
     expect(screen.getByText('Select a day to see the breakdown.')).toBeInTheDocument();
-    expect(screen.queryByLabelText('Loading day')).not.toBeInTheDocument();
+    expect(document.querySelector('[aria-busy="true"]')).toBeNull();
   });
 
-  it('shows a spinner while the selected day loads', () => {
+  it('shows a skeleton while the selected day loads', () => {
     renderPanel({ loading: true, day: makeDay() });
 
-    expect(screen.getByLabelText('Loading day')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('Loading day');
     expect(screen.queryByText('Tuesday, 3 February')).not.toBeInTheDocument();
   });
 

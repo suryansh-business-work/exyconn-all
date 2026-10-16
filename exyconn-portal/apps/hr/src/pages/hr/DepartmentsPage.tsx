@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useT } from '@exyconn/i18n';
-import { Box, CircularProgress, Flex, Text } from '@exyconn/shell/components/ui';
+import { Box, Flex, Text } from '@exyconn/shell/components/ui';
 import { CrudFormPage } from '@exyconn/shell/components/data/CrudFormPage';
 import { TableRefreshButton } from '@exyconn/shell/components/data/TableRefreshButton';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
@@ -15,6 +15,7 @@ import { DepartmentForm, type DepartmentRow } from './forms/department';
 import { PositionForm, type PositionRow } from './forms/position';
 import { DepartmentCard } from './departments/DepartmentCard';
 import { densePanel } from '@exyconn/shell/components/glass/glass';
+import { ListSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 /**
  * HR Departments — each department with its positions nested inside. A position's name is
@@ -105,9 +106,7 @@ export function DepartmentsPage() {
           />
         </Flex>
         {loading && rows.length === 0 && (
-          <Flex direction="column" alignItems="center" sx={{ py: 4 }}>
-            <CircularProgress size={24} aria-label={t('Loading departments')} />
-          </Flex>
+          <ListSkeleton toolbar={false} columns={3} label="Loading departments" />
         )}
         {!loading && rows.length === 0 && (
           <Text color="text.secondary" sx={{ p: 3, textAlign: 'center' }}>

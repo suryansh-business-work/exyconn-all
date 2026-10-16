@@ -106,8 +106,8 @@ describe('DesignSystemPage', () => {
     answer(undefined, { loading: true });
     const { unmount } = renderPage();
     expect(
-      screen.getByRole('progressbar', { name: 'Loading the design system' }),
-    ).toBeInTheDocument();
+      screen.getByText('Loading the design system').closest('[role="status"]'),
+    ).toHaveAttribute('aria-busy', 'true');
     unmount();
 
     answer(undefined, { error: new Error('Server down') });

@@ -6,7 +6,7 @@ import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
 import { color } from '@exyconn/shell/components/ui';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useComplianceOverviewQuery } from '@exyconn/shell/graphql/generated';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { ComplianceGaps } from './ComplianceGaps';
 
 /**
@@ -76,7 +76,7 @@ export function ComplianceOverviewPage() {
       recentTitle="What an auditor will ask about"
     >
       {firstLoad ? (
-        <LoadingState />
+        <PanelSkeleton lines={5} />
       ) : (
         <ComplianceGaps
           standardCoverage={overview?.standardCoverage ?? []}

@@ -1,12 +1,13 @@
 import { format } from 'date-fns';
 import { useT } from '@exyconn/i18n';
-import { Alert, Box, CircularProgress, Flex, Text } from '@exyconn/shell/components/ui';
+import { Alert, Box, Flex, Text } from '@exyconn/shell/components/ui';
 import { CrudDialog } from '@exyconn/shell/components/data/CrudDialog';
 import { DetailRow } from '@exyconn/shell/components/data/DetailRow';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { formatBytes } from '@exyconn/shell/utils/file';
 import { useDockerContainerDetailQuery } from '@exyconn/shell/graphql/generated';
 import { formatDuration } from './infrastructure.format';
+import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 interface ContainerDetailDialogProps {
   containerId: string | null;
@@ -49,7 +50,7 @@ export function ContainerDetailDialog({
   return (
     <CrudDialog open={Boolean(containerId)} title={name} onClose={onClose}>
       {error && <Alert severity="error">{error.message}</Alert>}
-      {loading && !detail && <CircularProgress size={24} />}
+      {loading && !detail && <PanelSkeleton lines={6} title={false} bare />}
       {detail && (
         <Flex direction="column" spacing={1}>
           <DetailRow label={t('State')}>

@@ -23,7 +23,10 @@ describe('AccountFilter', () => {
   it('shows a spinner until the accounts arrive', () => {
     renderFilter([], true);
 
-    expect(screen.getByRole('progressbar', { name: 'Loading accounts' })).toBeInTheDocument();
+    expect(screen.getByText('Loading accounts').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
     expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
   });
 

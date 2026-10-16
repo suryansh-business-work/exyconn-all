@@ -1,20 +1,19 @@
-import { useT } from '@exyconn/i18n';
 import { Box, Stack, Text } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { panel } from '@exyconn/shell/components/glass/glass';
+import { FormSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { useItSettingsQuery } from '@exyconn/shell/graphql/generated';
 import { ItSettingsForm } from './forms/it-settings';
 import { OwnedSettingsLinks } from './OwnedSettingsLinks';
 
 /** IT › Admin Settings: IT's own configuration, and the way to what other teams own. */
 export function SettingsPage() {
-  const t = useT();
   const { data, loading, error, refetch } = useItSettingsQuery({
     fetchPolicy: 'cache-and-network',
   });
   const settings = data?.itSettings;
 
-  let body = <Text color="text.secondary">{t('Loading…')}</Text>;
+  let body = <FormSkeleton surface={false} label="Loading IT settings" />;
   if (settings) {
     body = (
       <ItSettingsForm

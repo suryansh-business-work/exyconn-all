@@ -39,7 +39,7 @@ describe('ProjectBoardPage', () => {
     state.board = boardApi({ loading: true, columns: [], tasks: [] });
     renderBoard();
 
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true');
     expect(screen.queryByRole('button', { name: 'Add column' })).not.toBeInTheDocument();
   });
 
@@ -47,7 +47,7 @@ describe('ProjectBoardPage', () => {
     state.board = boardApi({ loading: true });
     renderBoard();
 
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(document.querySelector('[aria-busy="true"]')).toBeNull();
     expect(screen.getByRole('button', { name: 'Rename column To do' })).toBeInTheDocument();
   });
 

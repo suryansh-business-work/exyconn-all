@@ -2,7 +2,7 @@ import { useT } from '@exyconn/i18n';
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { panel } from '@exyconn/shell/components/glass/glass';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import PushPinIcon from '@mui/icons-material/PushPin';
 
 export interface AnnouncementSummary {
@@ -29,7 +29,7 @@ export function LatestAnnouncements({
   return (
     <Box sx={[panel, { height: '100%' }]}>
       <Heading level={6}>{t('Announcements')}</Heading>
-      {loading && <LoadingState />}
+      {loading && <PanelSkeleton lines={3} title={false} bare />}
       {!loading && announcements.length === 0 && (
         <Text size="sm" color="text.secondary">
           {t('Nothing announced right now.')}

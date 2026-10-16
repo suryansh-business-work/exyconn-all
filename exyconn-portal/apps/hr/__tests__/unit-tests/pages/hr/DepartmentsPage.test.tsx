@@ -66,7 +66,10 @@ describe('DepartmentsPage list', () => {
   it('shows a spinner, not an empty note, before the first answer', () => {
     answer(undefined, true);
     renderWithProviders(<DepartmentsPage />);
-    expect(screen.getByRole('progressbar', { name: 'Loading departments' })).toBeInTheDocument();
+    expect(screen.getByText('Loading departments').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
     expect(screen.queryByText('No departments yet.')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Refresh table' })).toBeDisabled();
   });
@@ -75,7 +78,7 @@ describe('DepartmentsPage list', () => {
     answer({ listDepartments: [sales] }, true);
     renderWithProviders(<DepartmentsPage />);
     expect(screen.getByText('Sales')).toBeInTheDocument();
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(document.querySelector('[aria-busy="true"]')).toBeNull();
   });
 
   it('says so when there are no departments', () => {

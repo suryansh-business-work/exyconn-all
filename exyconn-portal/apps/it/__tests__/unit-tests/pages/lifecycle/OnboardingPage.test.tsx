@@ -64,14 +64,14 @@ describe('OnboardingPage', () => {
     gql.onboarding.mockReturnValue({ ...answer([]), data: undefined, loading: true });
     renderWithProviders(<OnboardingPage />);
 
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getByText('Loading joiners')).toBeInTheDocument();
   });
 
   it('keeps showing the joiners during a background refresh', () => {
     gql.onboarding.mockReturnValue(answer([joinerRow()], { loading: true }));
     renderWithProviders(<OnboardingPage />);
 
-    expect(screen.queryByText('Loading…')).not.toBeInTheDocument();
+    expect(screen.queryByText('Loading joiners')).not.toBeInTheDocument();
     expect(screen.getByText('Asha Rao')).toBeInTheDocument();
   });
 

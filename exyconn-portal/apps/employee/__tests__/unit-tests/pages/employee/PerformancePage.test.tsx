@@ -34,7 +34,7 @@ describe('PerformancePage', () => {
     vi.mocked(useMyPerformanceReviewsQuery).mockReturnValue(queryResult({ loading: true }));
     vi.mocked(useSubmitSelfAssessmentMutation).mockReturnValue(mutationResult(vi.fn()));
     renderWithProviders(<PerformancePage />);
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getByText('Loading your appraisals')).toBeInTheDocument();
   });
 
   it('says no cycle is open when there are none', () => {
@@ -55,7 +55,7 @@ describe('PerformancePage', () => {
 
     const cycles = screen.getAllByRole('heading', { level: 6 }).map((h) => h.textContent);
     expect(cycles).toEqual(['H1 2026', 'H2 2025']);
-    expect(screen.queryByText('Loading…')).toBeNull();
+    expect(screen.queryByText('Loading your appraisals')).toBeNull();
   });
 
   it('submits the self-assessment, confirms it and reloads the cycles', async () => {

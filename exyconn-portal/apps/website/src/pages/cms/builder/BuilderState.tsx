@@ -1,5 +1,10 @@
 import { useT } from '@exyconn/i18n';
-import { Alert, Box, CircularProgress } from '@exyconn/shell/components/ui';
+import { Alert } from '@exyconn/shell/components/ui';
+import {
+  ChartSkeleton,
+  PageHeaderSkeleton,
+  SkeletonStatus,
+} from '@exyconn/shell/components/feedback/skeletons';
 
 interface BuilderStateProps {
   loading: boolean;
@@ -21,9 +26,10 @@ export function BuilderState({ loading, error, label }: Readonly<BuilderStatePro
   }
   if (loading) {
     return (
-      <Box sx={{ display: 'grid', placeItems: 'center', py: 6 }}>
-        <CircularProgress aria-label={t('Opening the {what}', { what })} />
-      </Box>
+      <SkeletonStatus label="Opening the {what}" labelValues={{ what }}>
+        <PageHeaderSkeleton />
+        <ChartSkeleton height={480} />
+      </SkeletonStatus>
     );
   }
   return <Alert severity="warning">{t('That {what} no longer exists.', { what })}</Alert>;

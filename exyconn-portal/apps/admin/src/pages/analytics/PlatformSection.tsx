@@ -7,7 +7,7 @@ import {
   usePlatformAnalyticsQuery,
   type PlatformAnalyticsQuery,
 } from '@exyconn/shell/graphql/generated';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { DashboardSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { AnalyticsSection } from './AnalyticsSection';
 import { PointChart } from '@exyconn/shell/components/dashboard/PointChart';
 import { count, withCountryNames } from './analytics.format';
@@ -34,7 +34,7 @@ export function PlatformSection() {
   return (
     <AnalyticsSection title="Platform" subtitle="Every organization on the platform, as of now">
       {error && <Text color="error">{error.message}</Text>}
-      {!data && loading && <LoadingState />}
+      {!data && loading && <DashboardSkeleton />}
       {platform && (
         <>
           <StatRow stats={tilesOf(platform)} />

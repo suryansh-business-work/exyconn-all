@@ -118,14 +118,20 @@ describe('FragmentBuilderPage', () => {
     spies.fragment.mockReturnValue(queryResult(undefined, { loading: true }));
     renderAt();
 
-    expect(screen.getByRole('progressbar', { name: 'Opening the fragment' })).toBeInTheDocument();
+    expect(screen.getByText('Opening the fragment').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
   });
 
   it('waits for the resources even when the fragment is there', () => {
     spies.resources.mockReturnValue({ resources: null, loading: true, error: undefined });
     renderAt();
 
-    expect(screen.getByRole('progressbar', { name: 'Opening the fragment' })).toBeInTheDocument();
+    expect(screen.getByText('Opening the fragment').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
     expect(spies.screen).toBeNull();
   });
 

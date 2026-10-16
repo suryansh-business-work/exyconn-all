@@ -48,7 +48,7 @@ function renderPage(
 describe('MyOnboardingPage', () => {
   it('shows a spinner until the first answer', () => {
     renderPage({ loading: true });
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true');
     expect(screen.queryByText('Nothing to do here yet')).toBeNull();
   });
 
@@ -60,7 +60,7 @@ describe('MyOnboardingPage', () => {
   it('explains that HR has not started a checklist yet', () => {
     renderPage({ data: { myOnboarding: null } });
     expect(screen.getByText('Nothing to do here yet')).toBeInTheDocument();
-    expect(screen.queryByRole('progressbar')).toBeNull();
+    expect(document.querySelector('[aria-busy="true"]')).toBeNull();
   });
 
   it('shows every task, letting the joiner tick only their own', () => {

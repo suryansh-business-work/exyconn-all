@@ -3,7 +3,6 @@ import { useT } from '@exyconn/i18n';
 import { Alert, Box, Button, Chip, Flex, Heading, Text } from '@/components/ui';
 import { densePanel } from '@/components/glass/glass';
 import { useConfirm } from '@/components/feedback/ConfirmProvider';
-import { LoadingState } from '@/components/feedback/CenteredState';
 import { useNotify } from '@/components/feedback/NotificationProvider';
 import { useSettings } from '@/hooks/useSettings';
 import { errorMessage } from '@/utils/errorMessage';
@@ -13,6 +12,7 @@ import {
   type MyApprovalDelegationsQuery,
 } from '@/graphql/generated';
 import { DelegateApprovalsForm } from './forms/delegate';
+import { PanelSkeleton } from '@/components/feedback/skeletons';
 
 type Given = MyApprovalDelegationsQuery['myApprovalDelegations']['given'][number];
 type Held = MyApprovalDelegationsQuery['myApprovalDelegations']['held'][number];
@@ -72,7 +72,7 @@ export function DelegationPanel() {
   });
   const [end] = useEndApprovalDelegationMutation();
   if (!data && loading) {
-    return <LoadingState />;
+    return <PanelSkeleton lines={4} />;
   }
   const given: Given[] = data?.myApprovalDelegations.given ?? [];
   const held: Held[] = data?.myApprovalDelegations.held ?? [];

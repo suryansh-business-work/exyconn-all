@@ -169,7 +169,10 @@ describe('DocumentForm', () => {
   it('holds the fields back while the text loads', () => {
     gql.body.mockReturnValue({ data: undefined, loading: true, error: undefined });
     renderForm(documentRow());
-    expect(screen.getByRole('progressbar', { name: 'Loading the document' })).toBeInTheDocument();
+    expect(screen.getByText('Loading the document').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
     expect(screen.queryByLabelText('Document title')).not.toBeInTheDocument();
   });
 

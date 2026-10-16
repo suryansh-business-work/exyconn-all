@@ -17,7 +17,7 @@ import { AssetNotesForm } from '../forms/asset-notes';
 import { AssetAssignmentHistory } from './AssetAssignmentHistory';
 import { AssetFacts, type AssetFact } from './AssetFacts';
 import { AssetLicenceSeats } from './AssetLicenceSeats';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { DetailSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 /**
  * One asset: what it is, who has it, what it has cost, and every hand-over it has been
@@ -43,7 +43,7 @@ export function AssetDetailPage() {
   const asset = data?.getAsset;
 
   if (loading && !asset) {
-    return <LoadingState />;
+    return <DetailSkeleton />;
   }
 
   if (!asset) {

@@ -49,12 +49,12 @@ describe('SettingsPage', () => {
     const { unmount } = renderWithProviders(<SettingsPage />);
     expect(gql.channels).toHaveBeenCalledWith({ fetchPolicy: 'cache-and-network' });
     expect(gql.settings).toHaveBeenCalledWith({ fetchPolicy: 'cache-and-network' });
-    expect(screen.getByText('Loading channels…')).toBeInTheDocument();
+    expect(screen.getByText('Loading channels')).toBeInTheDocument();
     expect(formRenders).not.toHaveBeenCalled();
     unmount();
     answer({ data: { listSlackChannels: CHANNELS } }, { loading: true });
     renderWithProviders(<SettingsPage />);
-    expect(screen.getByText('Loading channels…')).toBeInTheDocument();
+    expect(screen.getByText('Loading channels')).toBeInTheDocument();
   });
 
   it('offers every channel the bot can see, marking the private ones', () => {
@@ -73,7 +73,7 @@ describe('SettingsPage', () => {
       'C2',
       'C3',
     ]);
-    expect(screen.queryByText('Loading channels…')).not.toBeInTheDocument();
+    expect(screen.queryByText('Loading channels')).not.toBeInTheDocument();
   });
 
   it('starts the form from the saved channels', () => {

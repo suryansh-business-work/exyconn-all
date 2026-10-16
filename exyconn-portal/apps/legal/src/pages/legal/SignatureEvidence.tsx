@@ -1,5 +1,5 @@
 import { useT } from '@exyconn/i18n';
-import { Alert, Box, Button, Chip, Flex, LinearProgress, Text } from '@exyconn/shell/components/ui';
+import { Alert, Box, Button, Chip, Flex, Text } from '@exyconn/shell/components/ui';
 import { useConfirm } from '@exyconn/shell/components/feedback/ConfirmProvider';
 import { useNotify } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
@@ -9,6 +9,7 @@ import {
   useRevokeContractSignatureMutation,
   type ContractSignaturesQuery,
 } from '@exyconn/shell/graphql/generated';
+import { ListSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 type Signature = ContractSignaturesQuery['contractSignatures'][number];
 
@@ -119,7 +120,9 @@ export function SignatureEvidence({ contractId }: Readonly<SignatureEvidenceProp
 
   return (
     <Box>
-      {loading && signatures.length === 0 && <LinearProgress sx={{ mb: 1 }} />}
+      {loading && signatures.length === 0 && (
+        <ListSkeleton toolbar={false} rows={3} columns={3} label="Loading signatures" />
+      )}
       {error && <Alert severity="error">{errorMessage(error, t('Unavailable.'))}</Alert>}
       {!loading && signatures.length === 0 && (
         <Text size="sm" color="text.secondary">

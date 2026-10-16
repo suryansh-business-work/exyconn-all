@@ -29,7 +29,7 @@ describe('LivePreviewPane', () => {
     mount({ loadUrl, version: 0 });
 
     expect(screen.getByRole('region', { name: 'Live preview' })).toBeInTheDocument();
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true');
     expect(await frame()).toHaveAttribute('src', `${DRAFT}&v=0-0`);
   });
 

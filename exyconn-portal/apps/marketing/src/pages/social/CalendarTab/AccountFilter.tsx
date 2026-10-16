@@ -1,7 +1,8 @@
 import { useT } from '@exyconn/i18n';
-import { Autocomplete, Chip, CircularProgress, TextField } from '@exyconn/shell/components/ui';
+import { Autocomplete, Chip, TextField } from '@exyconn/shell/components/ui';
 import type { Account } from '../useSocialAccounts';
 import { accountLabel } from '../social.labels';
+import { SkeletonBone, SkeletonStatus } from '@exyconn/shell/components/feedback/skeletons';
 
 interface AccountFilterProps {
   accounts: readonly Account[];
@@ -19,7 +20,13 @@ export function AccountFilter({
   onChange,
 }: Readonly<AccountFilterProps>) {
   const t = useT();
-  if (loading) return <CircularProgress size={18} aria-label={t('Loading accounts')} />;
+  if (loading) {
+    return (
+      <SkeletonStatus label="Loading accounts">
+        <SkeletonBone variant="rounded" sx={{ width: { xs: '100%', sm: 320 }, height: 40 }} />
+      </SkeletonStatus>
+    );
+  }
   const chosen = new Set(selected);
   const value = accounts.filter((account) => chosen.has(account.id));
   return (

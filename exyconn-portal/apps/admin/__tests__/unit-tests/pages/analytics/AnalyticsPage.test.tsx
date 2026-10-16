@@ -40,13 +40,13 @@ describe('AnalyticsPage', () => {
   it('loads the last 30 days of users, employees and the tracker', async () => {
     renderWithProviders(<AnalyticsPage />, { mocks: [workspaceAnswer(30, 12, 20)] });
     expect(screen.getByRole('heading', { name: 'Analytics' })).toBeInTheDocument();
-    expect(screen.getByText('Loading analytics…')).toBeInTheDocument();
+    expect(screen.getByText('Loading analytics')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: '30 days' })).toHaveAttribute('aria-pressed', 'true');
 
     expect(await screen.findByRole('region', { name: 'Users' })).toBeInTheDocument();
     expect(screen.getByRole('region', { name: 'Employees' })).toBeInTheDocument();
     expect(screen.getByRole('region', { name: 'Employee tracker' })).toBeInTheDocument();
-    expect(screen.queryByText('Loading analytics…')).toBeNull();
+    expect(screen.queryByText('Loading analytics')).toBeNull();
     // A company ADMIN never sees the platform-wide section.
     expect(screen.queryByRole('region', { name: 'Platform' })).toBeNull();
   });

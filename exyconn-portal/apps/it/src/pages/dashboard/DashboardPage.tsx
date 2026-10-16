@@ -2,7 +2,7 @@ import { useT } from '@exyconn/i18n';
 import { Text, color } from '@exyconn/shell/components/ui';
 import { ModuleOverview } from '@exyconn/shell/components/dashboard/ModuleOverview';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { useItDashboardQuery, type ItDashboardQuery } from '@exyconn/shell/graphql/generated';
 import { DashboardLists } from './DashboardLists';
 
@@ -66,7 +66,7 @@ export function DashboardPage() {
       links={LINKS}
       recentTitle="What needs attention"
     >
-      {!data && loading && <LoadingState />}
+      {!data && loading && <PanelSkeleton lines={5} />}
       {dashboard && <DashboardLists dashboard={dashboard} />}
       {error && (
         <Text color="error">

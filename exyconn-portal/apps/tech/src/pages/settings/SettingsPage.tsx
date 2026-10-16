@@ -10,6 +10,7 @@ import {
 } from '@exyconn/shell/graphql/generated';
 import { TrackerNotificationsForm } from './forms/tracker-notifications';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
+import { FormSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 /** The translator `useT` hands back, so the label helper can stay at module scope. */
 type Translate = ReturnType<typeof useT>;
@@ -60,7 +61,7 @@ export function SettingsPage() {
             {channels.error.message}
           </Text>
         )}
-        {!ready && <Text size="sm">{t('Loading channels…')}</Text>}
+        {!ready && <FormSkeleton fields={2} surface={false} label="Loading channels" />}
         {ready && (
           <TrackerNotificationsForm
             options={options}

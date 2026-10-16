@@ -39,8 +39,10 @@ describe('ComposeTab', () => {
     gql.accounts.mockReturnValue({ data: undefined, loading: true });
     renderWithProviders(<ComposeTab />);
 
-    expect(screen.getByRole('progressbar', { name: 'Loading accounts' })).toBeInTheDocument();
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getByText('Loading accounts').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
     expect(screen.queryByText(/accounts, .* rules/)).not.toBeInTheDocument();
   });
 

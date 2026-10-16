@@ -1,6 +1,10 @@
 import { useT } from '@exyconn/i18n';
 import { Grid, Stack, Heading, Text } from '@exyconn/shell/components/ui';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import {
+  CardGridSkeleton,
+  PageHeaderSkeleton,
+  SkeletonStatus,
+} from '@exyconn/shell/components/feedback/skeletons';
 import { EmptyState } from '@exyconn/shell/components/feedback/EmptyState';
 import { useClientHubProjectsQuery } from '@exyconn/shell/graphql/generated';
 import { ProjectCard } from './ProjectCard';
@@ -12,7 +16,12 @@ export function ProjectsPage() {
   const projects = data?.clientHubProjects ?? [];
 
   if (loading && !data) {
-    return <LoadingState />;
+    return (
+      <SkeletonStatus>
+        <PageHeaderSkeleton action={false} />
+        <CardGridSkeleton avatar={false} />
+      </SkeletonStatus>
+    );
   }
   return (
     <Stack spacing={3}>

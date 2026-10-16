@@ -105,9 +105,9 @@ describe('UserDetailsPage', () => {
       .toEqual(['Could not reload the employee', failure]);
   });
 
-  it('spins while the first load is in flight', () => {
+  it('shows the record skeleton while the first load is in flight', () => {
     renderAt('/admin/users/emp-1', queryResult(undefined, { loading: true }));
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true');
     expect(screen.queryByText('Employee details')).toBeNull();
   });
 

@@ -16,7 +16,11 @@ import {
   ListItemText,
   Paper,
 } from '@exyconn/shell/components/ui';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import {
+  ChartSkeleton,
+  PageHeaderSkeleton,
+  SkeletonStatus,
+} from '@exyconn/shell/components/feedback/skeletons';
 import { EmptyState } from '@exyconn/shell/components/feedback/EmptyState';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { errorMessage } from '@exyconn/shell/utils/errorMessage';
@@ -58,7 +62,12 @@ export function CallFlowsPanel() {
     return <Alert severity="error">{errorMessage(error, t('Could not load the examples.'))}</Alert>;
   }
   if (loading && !data) {
-    return <LoadingState />;
+    return (
+      <SkeletonStatus>
+        <PageHeaderSkeleton action={false} />
+        <ChartSkeleton height={480} />
+      </SkeletonStatus>
+    );
   }
   if (!selected) {
     return (

@@ -1,5 +1,5 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { Box, Button, CircularProgress, Flex, Grid, Heading, Text } from '@/components/ui';
+import { Box, Button, Grid, Heading, Text } from '@/components/ui';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useGetUserQuery } from '@/graphql/generated';
 import { UserProfileCard } from './UserProfileCard';
@@ -8,6 +8,7 @@ import { EmployeeLeavePanel } from './EmployeeLeavePanel';
 import { EmployeeAttendancePanel } from './EmployeeAttendancePanel';
 import { EmployeeLeaveBalancePanel } from './EmployeeLeaveBalancePanel';
 import { portalLogger } from '@/logging/portalLogger';
+import { DetailSkeleton } from '@/components/feedback/skeletons';
 
 /** Dedicated employee details screen with administrative actions. */
 export function UserDetailsPage() {
@@ -35,11 +36,7 @@ export function UserDetailsPage() {
         {fromHr ? 'Back to employee records' : 'Back to users'}
       </Button>
 
-      {loading && !user && (
-        <Flex direction="column" alignItems="center" sx={{ py: 6 }}>
-          <CircularProgress />
-        </Flex>
-      )}
+      {loading && !user && <DetailSkeleton />}
 
       {error && <Text color="error">{error.message || 'Failed to load user.'}</Text>}
 

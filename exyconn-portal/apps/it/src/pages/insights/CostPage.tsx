@@ -2,7 +2,7 @@ import { useT } from '@exyconn/i18n';
 import { Box, Grid, Stack, Text, color } from '@exyconn/shell/components/ui';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { DashboardSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useItCostSummaryQuery, type ItCostSummaryQuery } from '@exyconn/shell/graphql/generated';
 import { MetricChart } from '@exyconn/shell/components/dashboard/MetricChart';
@@ -42,7 +42,7 @@ export function CostPage() {
         subtitle="SaaS spend, cloud bills, licences and hardware costs"
       />
       {error && <Text color="error">{error.message}</Text>}
-      {!cost && loading && <LoadingState />}
+      {!cost && loading && <DashboardSkeleton charts={3} />}
       {cost && (
         <Stack spacing={1.5}>
           <StatRow stats={tilesOf(cost, money)} />

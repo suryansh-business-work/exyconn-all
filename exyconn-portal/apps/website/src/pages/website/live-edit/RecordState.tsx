@@ -1,5 +1,10 @@
 import { useT } from '@exyconn/i18n';
-import { Alert, Box, CircularProgress } from '@exyconn/shell/components/ui';
+import { Alert } from '@exyconn/shell/components/ui';
+import {
+  ChartSkeleton,
+  PageHeaderSkeleton,
+  SkeletonStatus,
+} from '@exyconn/shell/components/feedback/skeletons';
 
 interface RecordStateProps {
   loading: boolean;
@@ -14,9 +19,10 @@ export function RecordState({ loading, error, label }: Readonly<RecordStateProps
   const what = t(label);
   if (loading) {
     return (
-      <Box sx={{ display: 'grid', placeItems: 'center', py: 6 }}>
-        <CircularProgress aria-label={t('Loading the {what}', { what })} />
-      </Box>
+      <SkeletonStatus label="Loading the {what}" labelValues={{ what }}>
+        <PageHeaderSkeleton />
+        <ChartSkeleton height={480} />
+      </SkeletonStatus>
     );
   }
   if (error) {

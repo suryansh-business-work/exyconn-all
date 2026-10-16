@@ -12,6 +12,7 @@ import {
   percentLabel,
 } from './health-format';
 import { panel } from '@exyconn/shell/components/glass/glass';
+import { StatTilesSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 /** Over its agreed hours is the one bar that should go red rather than simply fill up. */
 function budgetColor(used: number | null | undefined): 'success' | 'warning' | 'error' {
@@ -38,9 +39,11 @@ export function ProjectHealthPage({ projectId }: Readonly<{ projectId: string }>
   const { formatDate } = useSettings();
   const health = data?.projectHealth;
 
+  if (!health && loading) {
+    return <StatTilesSkeleton count={4} label="Loading project health" />;
+  }
   if (!health) {
-    const empty = loading ? t('Loading…') : t('No health to report yet.');
-    return <Text color="text.secondary">{empty}</Text>;
+    return <Text color="text.secondary">{t('No health to report yet.')}</Text>;
   }
 
   const budgetUsed = health.budgetUsedPercent ?? null;

@@ -64,8 +64,8 @@ describe('TrackerBillingByProject', () => {
       fetchPolicy: 'cache-and-network',
     });
     expect(
-      screen.getByRole('progressbar', { name: 'Loading billing by project' }),
-    ).toBeInTheDocument();
+      screen.getByText('Loading billing by project').closest('[role="status"]'),
+    ).toHaveAttribute('aria-busy', 'true');
     expect(state.chartRows).toBeNull();
   });
 

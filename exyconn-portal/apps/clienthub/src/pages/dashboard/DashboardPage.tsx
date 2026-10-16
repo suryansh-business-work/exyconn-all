@@ -1,7 +1,7 @@
 import { Link as RouterLink } from 'react-router-dom';
 import { useT } from '@exyconn/i18n';
 import { Button, Card, Grid, Stack, Heading, Text } from '@exyconn/shell/components/ui';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import {
   ProjectStatus,
   useClientHubMeQuery,
@@ -39,7 +39,7 @@ export function DashboardPage() {
       <Grid container spacing={2}>
         <Grid size={{ xs: 12, md: 7 }}>
           {loading && !remindersData ? (
-            <LoadingState />
+            <PanelSkeleton lines={4} />
           ) : (
             <RemindersPanel reminders={remindersData?.clientHubReminders ?? []} />
           )}

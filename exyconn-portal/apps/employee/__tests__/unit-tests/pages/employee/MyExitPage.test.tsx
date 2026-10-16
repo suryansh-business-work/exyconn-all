@@ -34,7 +34,7 @@ describe('MyExitPage', () => {
   it('says it is loading before the record arrives', () => {
     vi.mocked(useMyExitRecordQuery).mockReturnValue(queryResult({ loading: true }));
     renderWithProviders(<MyExitPage />);
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getByText('Loading your exit')).toBeInTheDocument();
     expect(screen.queryByText('No exit in progress.')).toBeNull();
   });
 

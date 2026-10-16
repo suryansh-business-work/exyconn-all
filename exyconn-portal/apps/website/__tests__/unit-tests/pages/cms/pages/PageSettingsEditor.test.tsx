@@ -69,7 +69,10 @@ describe('PageSettingsEditor', () => {
   it('shows a spinner while the page loads', () => {
     spies.page.mockReturnValue(queryResult(undefined, { loading: true }));
     renderEditor('page-1');
-    expect(screen.getByRole('progressbar', { name: 'Loading the page' })).toBeInTheDocument();
+    expect(screen.getByText('Loading the page').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
   });
 
   it('says why the page could not load, or that it is gone', () => {

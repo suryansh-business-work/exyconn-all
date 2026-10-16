@@ -59,7 +59,7 @@ describe('SettingsPage', () => {
     gql.settings.mockReturnValue(answer({ data: undefined, loading: true }));
     renderWithProviders(<SettingsPage />);
 
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getByText('Loading IT settings')).toBeInTheDocument();
   });
 
   it('keeps showing loading while a failed read is retried', () => {
@@ -68,7 +68,7 @@ describe('SettingsPage', () => {
     );
     renderWithProviders(<SettingsPage />);
 
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getByText('Loading IT settings')).toBeInTheDocument();
     expect(screen.queryByText('Offline')).not.toBeInTheDocument();
   });
 

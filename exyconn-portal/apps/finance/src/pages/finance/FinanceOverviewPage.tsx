@@ -9,7 +9,7 @@ import {
   type ChartData,
 } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { CardGridSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { ModuleDashboard } from '@exyconn/shell/components/dashboard/ModuleDashboard';
 import type { StatItem } from '@exyconn/shell/components/dashboard/StatCard';
@@ -98,13 +98,13 @@ export function FinanceOverviewPage() {
 
       <ModuleDashboard
         title="Company finance"
-        subtitle={firstLoad ? 'Loading…' : '{period}, ending today'}
+        subtitle="{period}, ending today"
         subtitleValues={{ period: t(period.label) }}
         stats={stats}
         statsLoading={firstLoad}
       >
         {firstLoad ? (
-          <LoadingState />
+          <CardGridSkeleton count={3} avatar={false} />
         ) : (
           <Grid container spacing={1.5}>
             <Grid

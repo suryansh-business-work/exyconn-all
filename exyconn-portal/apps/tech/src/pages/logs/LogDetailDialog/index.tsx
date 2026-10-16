@@ -4,7 +4,6 @@ import { useT } from '@exyconn/i18n';
 import {
   Alert,
   Button,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -19,6 +18,7 @@ import { CodeBlock } from './CodeBlock';
 import { LogSummary } from './LogSummary';
 import { OccurrencesTable } from './OccurrencesTable';
 import { OccurrenceDetail } from './OccurrenceDetail';
+import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 interface Props {
   row: AppLogRow | null;
@@ -89,7 +89,7 @@ export function LogDetailDialog({ row, actions, onClose }: Readonly<Props>) {
           <Flex direction="column" spacing={2}>
             <LogSummary row={row} />
             {error && <Alert severity="error">{error.message}</Alert>}
-            {loading && events.length === 0 && <CircularProgress size={24} />}
+            {loading && events.length === 0 && <PanelSkeleton lines={6} bare />}
             {!loading && events.length === 0 && (
               <CodeBlock title={t('Stack (latest)')} text={row.stack} />
             )}

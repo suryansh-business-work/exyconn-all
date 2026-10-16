@@ -7,7 +7,7 @@ import {
   type SelectOption,
 } from '@exyconn/shell/components/form/rhf';
 import { EntityForm } from '@exyconn/shell/components/form/EntityForm';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { FormSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import { useEntitySave } from '@exyconn/shell/components/form/useEntitySave';
 import {
   useCreatePositionMutation,
@@ -78,7 +78,7 @@ export function PositionForm({
   });
 
   if (optionsLoading) {
-    return <LoadingState />;
+    return <FormSkeleton fields={7} surface={false} />;
   }
 
   return (

@@ -66,12 +66,12 @@ describe('HostPanel', () => {
   it('shows a spinner until the first answer, and nothing when there is none', () => {
     gql.overview.mockReturnValue({ data: undefined, loading: true, error: undefined });
     const { unmount } = renderWithProviders(<HostPanel />);
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true');
     unmount();
 
     gql.overview.mockReturnValue({ data: undefined, loading: false, error: undefined });
     renderWithProviders(<HostPanel />);
-    expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+    expect(document.querySelector('[aria-busy="true"]')).toBeNull();
     expect(screen.queryByText('Containers running')).not.toBeInTheDocument();
   });
 

@@ -3,13 +3,14 @@ import { useT } from '@exyconn/i18n';
 import DnsIcon from '@mui/icons-material/Dns';
 import MemoryIcon from '@mui/icons-material/Memory';
 import StorageIcon from '@mui/icons-material/Storage';
-import { Alert, Box, CircularProgress, Grid, color } from '@exyconn/shell/components/ui';
+import { Alert, Box, Grid, color } from '@exyconn/shell/components/ui';
 import { StatCard } from '@exyconn/shell/components/dashboard/StatCard';
 import { formatBytes } from '@exyconn/shell/utils/file';
 import { useInfrastructureOverviewQuery } from '@exyconn/shell/graphql/generated';
 import { InfraDetailCard } from './InfraDetailCard';
 import { formatDuration } from './infrastructure.format';
 import { BACKGROUND_REQUEST } from '@exyconn/shell/config/networkActivity';
+import { DashboardSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 /** Refresh cadence for the live host figures, in milliseconds. */
 const POLL_MS = 30_000;
@@ -30,7 +31,7 @@ export function HostPanel() {
     return <Alert severity="error">{error.message}</Alert>;
   }
   if (!data) {
-    return loading ? <CircularProgress size={24} /> : null;
+    return loading ? <DashboardSkeleton charts={3} /> : null;
   }
 
   const { docker, runtime, database } = data.infrastructureOverview;

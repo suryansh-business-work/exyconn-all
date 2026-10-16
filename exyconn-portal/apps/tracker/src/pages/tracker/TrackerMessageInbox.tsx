@@ -1,13 +1,13 @@
 import { useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useT } from '@exyconn/i18n';
-import { Card, Grid, Typography } from '@exyconn/shell/components/ui';
+import { Box, Card, Grid, Typography } from '@exyconn/shell/components/ui';
 import { withParam } from '@exyconn/shell/utils/searchParams';
 import { useTrackerMessageThreadsQuery } from '@exyconn/shell/graphql/generated';
 import { TrackerMessageThreadList } from './TrackerMessageThreadList';
 import { TrackerMessageThread } from './TrackerMessageThread';
 import { BACKGROUND_REQUEST } from '@exyconn/shell/config/networkActivity';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 /** Query-string key holding whose conversation is open, so a thread can be linked to. */
 const EMPLOYEE_PARAM = 'employee';
@@ -49,7 +49,9 @@ export function TrackerMessageInbox() {
       >
         <Card variant="outlined">
           {!data && loading ? (
-            <LoadingState />
+            <Box sx={{ p: 2 }}>
+              <PanelSkeleton lines={6} title={false} bare />
+            </Box>
           ) : (
             <TrackerMessageThreadList
               threads={threads}

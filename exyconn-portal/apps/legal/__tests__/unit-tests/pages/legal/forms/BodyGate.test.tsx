@@ -12,7 +12,10 @@ describe('BodyGate', () => {
         <p>The form</p>
       </BodyGate>,
     );
-    expect(screen.getByRole('progressbar', { name: 'Loading the document' })).toBeInTheDocument();
+    expect(screen.getByText('Loading the document').closest('[role="status"]')).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
     expect(screen.queryByText('The form')).not.toBeInTheDocument();
   });
 

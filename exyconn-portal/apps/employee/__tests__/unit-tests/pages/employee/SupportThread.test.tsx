@@ -75,7 +75,7 @@ describe('SupportThread', () => {
 
   it('says it is loading before the first replies arrive', () => {
     renderThread({ loading: true });
-    expect(screen.getByText('Loading…')).toBeInTheDocument();
+    expect(screen.getByText('Loading the replies')).toBeInTheDocument();
   });
 
   it('says support will answer here when there are no replies yet', () => {

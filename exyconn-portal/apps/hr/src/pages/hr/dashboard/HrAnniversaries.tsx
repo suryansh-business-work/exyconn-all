@@ -1,7 +1,7 @@
 import { useT, type Interpolations } from '@exyconn/i18n';
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import CakeIcon from '@mui/icons-material/Cake';
 import type { Anniversary } from './hrDashboard.selectors';
 
@@ -37,7 +37,7 @@ export function HrAnniversaries({
   return (
     <Box sx={[panel, { height: '100%' }]}>
       <Heading level={6}>{t('Work anniversaries')}</Heading>
-      {loading && <LoadingState />}
+      {loading && <PanelSkeleton lines={3} title={false} bare />}
       {!loading && anniversaries.length === 0 && (
         <Text size="sm" color="text.secondary">
           {t('None in the next 30 days.')}

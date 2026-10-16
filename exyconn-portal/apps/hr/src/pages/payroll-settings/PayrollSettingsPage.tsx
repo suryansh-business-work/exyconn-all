@@ -1,11 +1,12 @@
 import { useT } from '@exyconn/i18n';
-import { Alert, Box, CircularProgress, Flex, Text } from '@exyconn/shell/components/ui';
+import { Alert, Box, Flex, Text } from '@exyconn/shell/components/ui';
 import { DetailRow } from '@exyconn/shell/components/data/DetailRow';
 import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { readingPanel } from '@exyconn/shell/components/glass/glass';
 import { usePayrollSettingsQuery } from '@exyconn/shell/graphql/generated';
 import { PayrollSettingsForm } from './forms/payroll-settings';
 import type { PayrollSettingsRow } from './forms/payroll-settings';
+import { FormSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 const OFF = 'Not withheld';
 
@@ -78,7 +79,7 @@ export function PayrollSettingsPage() {
         subtitle="Statutory deductions — PF, ESI, professional tax and income tax"
       />
       {error && <Alert severity="error">{error.message}</Alert>}
-      {loading && !settings && <CircularProgress size={24} />}
+      {loading && !settings && <FormSkeleton fields={6} />}
       {settings && (
         <Flex direction={{ xs: 'column', md: 'row' }} spacing={1.5} alignItems="flex-start">
           <Box sx={[readingPanel, { flex: 2, width: '100%' }]}>

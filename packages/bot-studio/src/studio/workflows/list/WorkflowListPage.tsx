@@ -4,7 +4,11 @@ import { useT } from '@exyconn/i18n';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import { usePageTitle } from '@exyconn/shell/components/layout/usePageTitle';
 import { EmptyState } from '@exyconn/shell/components/feedback/EmptyState';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import {
+  ListSkeleton,
+  PageHeaderSkeleton,
+  SkeletonStatus,
+} from '@exyconn/shell/components/feedback/skeletons';
 import { useWhatsappDemosQuery, useWhatsappWorkflowsQuery } from '@exyconn/shell/graphql/generated';
 import { Button, Flex, Paper, Text } from '@exyconn/shell/components/ui';
 import AddIcon from '@mui/icons-material/Add';
@@ -48,7 +52,12 @@ export function WorkflowListPage() {
     );
   }
   if (!demosQuery.data) {
-    return <LoadingState />;
+    return (
+      <SkeletonStatus>
+        <PageHeaderSkeleton />
+        <ListSkeleton />
+      </SkeletonStatus>
+    );
   }
 
   return (

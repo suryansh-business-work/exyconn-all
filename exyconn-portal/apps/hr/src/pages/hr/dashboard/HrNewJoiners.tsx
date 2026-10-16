@@ -1,7 +1,7 @@
 import { useT } from '@exyconn/i18n';
 import { Box, Flex, Heading, Text } from '@exyconn/shell/components/ui';
 import { panel } from '@exyconn/shell/components/glass/glass';
-import { LoadingState } from '@exyconn/shell/components/feedback/CenteredState';
+import { PanelSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import type { UserRow } from './hrDashboard.selectors';
 
@@ -18,7 +18,7 @@ export function HrNewJoiners({ users, formatDate, loading = false }: Readonly<Hr
   return (
     <Box sx={[panel, { height: '100%' }]}>
       <Heading level={6}>{t('New joiners this month')}</Heading>
-      {loading && <LoadingState />}
+      {loading && <PanelSkeleton lines={3} title={false} bare />}
       {!loading && users.length === 0 && (
         <Text size="sm" color="text.secondary">
           {t('No one joined this month.')}

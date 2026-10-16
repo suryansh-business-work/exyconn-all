@@ -26,7 +26,7 @@ function renderSign(
 describe('SignContractPage', () => {
   it('waits for the contract, then sets out what is being signed', async () => {
     renderSign([contractLookup(contract())]);
-    expect(screen.getByRole('progressbar')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true');
 
     expect(await screen.findByText('Sign “MSA 2026”')).toBeInTheDocument();
     expect(screen.getByText('Sent to Ada Lovelace. Read it, then sign below.')).toBeInTheDocument();

@@ -16,6 +16,7 @@ import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { formatDuration } from '@exyconn/shell/pages/tracker-view/tracker.format';
 import { useProjectTimeLogSessionsQuery } from '@exyconn/shell/graphql/generated';
 import { TimeLogScreenshots } from './TimeLogScreenshots';
+import { ListSkeleton } from '@exyconn/shell/components/feedback/skeletons';
 
 interface TimeLogSessionsProps {
   projectId: string;
@@ -52,16 +53,7 @@ export function TimeLogSessions({
   const sessions = data?.projectTimeLogSessions ?? [];
 
   if (loading) {
-    return (
-      <Typography
-        variant="body2"
-        sx={{
-          color: 'text.secondary',
-        }}
-      >
-        {t('Loading runs…')}
-      </Typography>
-    );
+    return <ListSkeleton toolbar={false} rows={3} columns={3} label="Loading runs" />;
   }
   if (sessions.length === 0) {
     return (

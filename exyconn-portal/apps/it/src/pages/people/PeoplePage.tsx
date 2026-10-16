@@ -5,6 +5,7 @@ import { PageHeader } from '@exyconn/shell/components/layout/PageHeader';
 import { DetailFact, DetailFactGrid } from '@exyconn/shell/components/data/DetailFact';
 import { StatusChip } from '@exyconn/shell/components/data/StatusChip';
 import { panel } from '@exyconn/shell/components/glass/glass';
+import { ProfileSkeleton } from './ProfileSkeleton';
 import { useSettings } from '@exyconn/shell/hooks/useSettings';
 import { useItEmployeeProfileQuery } from '@exyconn/shell/graphql/generated';
 import { EmployeePicker } from './EmployeePicker';
@@ -74,7 +75,7 @@ export function PeoplePage() {
   } else if (error) {
     body = <Text color="error">{error.message}</Text>;
   } else if (loading) {
-    body = <Text color="text.secondary">{t('Loading…')}</Text>;
+    body = <ProfileSkeleton />;
   }
 
   return (
