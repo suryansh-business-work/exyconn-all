@@ -5,6 +5,9 @@ import { CreateGigDocument } from '@exyconn/shell/graphql/generated';
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
 
+/** A new item's meta, left blank so the page template's meta applies. */
+const EMPTY_SEO = { title: '', description: '', keywords: '', ogImageUrl: '', noindex: false };
+
 const NEW_GIG = {
   gigCode: 'GIG-001',
   title: 'Landing page revamp',
@@ -21,6 +24,7 @@ const createMock = {
     query: CreateGigDocument,
     variables: {
       input: {
+        seo: EMPTY_SEO,
         gigCode: NEW_GIG.gigCode,
         title: NEW_GIG.title,
         category: NEW_GIG.category,

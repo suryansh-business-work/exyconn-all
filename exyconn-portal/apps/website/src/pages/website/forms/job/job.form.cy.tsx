@@ -6,6 +6,9 @@ import { CreateJobDocument, ListJobCompaniesDocument } from '@exyconn/shell/grap
 import { NotificationProvider } from '@exyconn/shell/components/feedback/NotificationProvider';
 import { theme } from '@exyconn/shell/config/theme';
 
+/** A new item's meta, left blank so the page template's meta applies. */
+const EMPTY_SEO = { title: '', description: '', keywords: '', ogImageUrl: '', noindex: false };
+
 const COMPANY = {
   // The cache normalises on __typename, so a mock result without one does not satisfy
   // the query and the select stays empty.
@@ -58,6 +61,7 @@ const createMock: MockLink.MockedResponse = {
     query: CreateJobDocument,
     variables: {
       input: {
+        seo: EMPTY_SEO,
         jobCode: NEW_JOB.jobCode,
         companySlug: COMPANY.slug,
         title: NEW_JOB.title,
