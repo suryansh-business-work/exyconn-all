@@ -19842,7 +19842,7 @@ export type CreateCompanyMutationVariables = Exact<{
 }>;
 
 
-export type CreateCompanyMutation = { __typename?: 'Mutation', createCompany: { __typename?: 'Company', id: string } };
+export type CreateCompanyMutation = { __typename?: 'Mutation', createCompany: { __typename?: 'Company', id: string, name: string } };
 
 export type UpdateCompanyMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -19888,7 +19888,7 @@ export type CreateContactMutationVariables = Exact<{
 }>;
 
 
-export type CreateContactMutation = { __typename?: 'Mutation', createContact: { __typename?: 'Contact', id: string } };
+export type CreateContactMutation = { __typename?: 'Mutation', createContact: { __typename?: 'Contact', id: string, name: string } };
 
 export type UpdateContactMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -37803,6 +37803,7 @@ export const CreateCompanyDocument = gql`
     mutation CreateCompany($input: CompanyInput!) {
   createCompany(input: $input) {
     id
+    name
   }
 }
     `;
@@ -38061,6 +38062,7 @@ export const CreateContactDocument = gql`
     mutation CreateContact($input: ContactInput!) {
   createContact(input: $input) {
     id
+    name
   }
 }
     `;

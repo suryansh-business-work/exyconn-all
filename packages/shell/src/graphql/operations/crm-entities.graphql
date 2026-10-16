@@ -152,6 +152,7 @@ query ListCompaniesStats {
 mutation CreateCompany($input: CompanyInput!) {
   createCompany(input: $input) {
     id
+    name
   }
 }
 
@@ -200,6 +201,7 @@ query ListContactsStats {
 mutation CreateContact($input: ContactInput!) {
   createContact(input: $input) {
     id
+    name
   }
 }
 

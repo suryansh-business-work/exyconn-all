@@ -102,7 +102,7 @@ describe('ContactForm', () => {
   it('offers the accounts as companies', async () => {
     renderForm();
 
-    expect(await optionsOf('Company')).toEqual(['Acme', 'Globex']);
+    expect(await optionsOf('Company')).toEqual(['Create Company', 'None', 'Acme', 'Globex']);
   });
 
   it('creates a contact, storing the chosen company name beside its id', async () => {

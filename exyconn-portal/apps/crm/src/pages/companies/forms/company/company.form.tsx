@@ -28,6 +28,8 @@ interface CompanyFormProps {
   initial: CompanyRow | null;
   onDone: () => void;
   onCancel: () => void;
+  /** Told the new record's id and name after a create, e.g. to pick it in a dropdown. */
+  onCreated?: (created: { id: string; name: string }) => void;
 }
 
 /** React Hook Form + Zod form to create or update an account, with the company's own properties. */
@@ -43,6 +45,7 @@ function CompanyFormFields({
   initial,
   onDone,
   onCancel,
+  onCreated,
   properties,
 }: Readonly<CompanyFormProps & { properties: CustomPropertyDef[] }>) {
   const [createCompany] = useCreateCompanyMutation();
@@ -58,7 +61,14 @@ function CompanyFormFields({
   const { isEdit, onSubmit } = useEntitySave({
     label: 'Company',
     initial,
-    create: (values: CompanyValues) => createCompany({ variables: { input: toInput(values) } }),
+    create: async (values: CompanyValues) => {
+      const result = await createCompany({ variables: { input: toInput(values) } });
+      const created = result.data?.createCompany;
+      if (created) {
+        onCreated?.({ id: created.id, name: created.name });
+      }
+      return result;
+    },
     update: (row, values) => updateCompany({ variables: { id: row.id, input: toInput(values) } }),
     onDone,
   });

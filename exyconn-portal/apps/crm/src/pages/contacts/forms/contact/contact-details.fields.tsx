@@ -8,6 +8,8 @@ import { Divider } from '@exyconn/shell/components/ui';
 import { enumOptions } from '@exyconn/shell/utils/enumOptions';
 import { ContactStatus, LifecycleStage } from '@exyconn/shell/graphql/generated';
 import { ContactPointsField, ProfileFields } from '../../../../records/profile';
+import { QuickCreateSelect } from '../../../../records/quick-create/QuickCreateSelect';
+import { CreateCompanyPanel } from '../../../../records/quick-create/CreateCompanyPanel';
 
 const STATUS_OPTIONS = enumOptions(Object.values(ContactStatus));
 const STAGE_OPTIONS = enumOptions(Object.values(LifecycleStage));
@@ -15,13 +17,21 @@ const STAGE_OPTIONS = enumOptions(Object.values(LifecycleStage));
 /** Who the person is, how to reach them, and where they stand with us. */
 export function ContactDetailsFields({
   companyOptions,
-}: Readonly<{ companyOptions: SelectOption[] }>) {
+  onRefreshCompanies,
+}: Readonly<{ companyOptions: SelectOption[]; onRefreshCompanies: () => Promise<unknown> }>) {
   return (
     <>
       <RhfTextField name="name" label="Full name" />
       <RhfTextField name="title" label="Job title" />
       <RhfTextField name="department" label="Department" />
-      <RhfSelect name="companyId" label="Company" options={companyOptions} />
+      <QuickCreateSelect
+        name="companyId"
+        label="Company"
+        options={companyOptions}
+        createLabel="Create Company"
+        onRefresh={onRefreshCompanies}
+        renderCreate={(done, cancel) => <CreateCompanyPanel done={done} cancel={cancel} />}
+      />
       <Divider />
       <ContactPointsField
         name="emails"

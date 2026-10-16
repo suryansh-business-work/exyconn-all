@@ -58,9 +58,9 @@ describe('ActivityForm', () => {
 
     expect(await optionsOf('Related to')).toEqual(['Acme rollout']);
     await chooseOption('About', 'Contact');
-    expect(await optionsOf('Related to')).toEqual(['Asha Rao']);
+    expect(await optionsOf('Related to')).toEqual(['Create Contact', 'None', 'Asha Rao']);
     await chooseOption('About', 'Company');
-    expect(await optionsOf('Related to')).toEqual(['Acme', 'Globex']);
+    expect(await optionsOf('Related to')).toEqual(['Create Company', 'None', 'Acme', 'Globex']);
   });
 
   it('offers nothing to relate to while the lists have not loaded', async () => {
@@ -70,10 +70,11 @@ describe('ActivityForm', () => {
     renderForm();
 
     expect(await optionsOf('Related to')).toEqual([]);
+    // No records yet, but a contact or company can still be created from the list.
     await chooseOption('About', 'Contact');
-    expect(await optionsOf('Related to')).toEqual([]);
+    expect(await optionsOf('Related to')).toEqual(['Create Contact', 'None']);
     await chooseOption('About', 'Company');
-    expect(await optionsOf('Related to')).toEqual([]);
+    expect(await optionsOf('Related to')).toEqual(['Create Company', 'None']);
   });
 
   it('logs an outstanding note about a deal, naming the deal', async () => {
