@@ -8,8 +8,8 @@ import { GmailConfigForm } from './forms/gmail-config';
 import { GmailConnection } from './GmailConnection';
 
 /**
- * Environment Variables > Gmail: the mailbox the CRM emails contacts from and reads their
- * threads in. One Google OAuth client (Gmail API enabled), connected once by its owner.
+ * Environment Variables > Gmail: the Google OAuth client (Gmail API enabled) the CRM's Gmail
+ * accounts connect through. The accounts themselves are connected in CRM > Connect Gmail.
  */
 export function GmailPanel() {
   const t = useT();

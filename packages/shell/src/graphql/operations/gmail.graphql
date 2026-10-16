@@ -1,14 +1,12 @@
-# The CRM's Gmail: the connection on Tech > Environment Variables, and emailing from a record.
+# The CRM's Gmail: the OAuth client on Tech > Environment Variables, the accounts connected in
+# CRM > Connect Gmail, and emailing from a record.
 fragment GmailConfigFields on GmailConfig {
   id
   clientId
   hasClientSecret
   clientSecretHint
   enabled
-  connected
-  connectedEmail
-  connectedAt
-  lastError
+  accountCount
   redirectUri
   updatedAt
 }
@@ -29,10 +27,32 @@ mutation StartGmailConnect($returnTo: String!) {
   startGmailConnect(returnTo: $returnTo)
 }
 
-mutation DisconnectGmail {
-  disconnectGmail {
-    ...GmailConfigFields
+fragment GmailAccountFields on GmailAccount {
+  id
+  email
+  enabled
+  status
+  lastError
+  connectedAt
+  connectedByName
+  lastSyncAt
+}
+
+query GmailAccounts {
+  gmailAccounts {
+    ...GmailAccountFields
   }
+  gmailClientReady
+}
+
+mutation SetGmailAccountEnabled($id: ID!, $enabled: Boolean!) {
+  setGmailAccountEnabled(id: $id, enabled: $enabled) {
+    ...GmailAccountFields
+  }
+}
+
+mutation DisconnectGmailAccount($id: ID!) {
+  disconnectGmailAccount(id: $id)
 }
 
 mutation TestGmailConfig {
@@ -53,15 +73,23 @@ fragment CrmEmailMessageFields on CrmEmailMessage {
   bodyText
   sentAt
   sentByName
+  accountId
+  mailbox
 }
 
 query CrmGmailReady {
   crmGmailReady
 }
 
+query CrmEmailSender($object: CrmTimelineObject!, $id: ID!) {
+  crmEmailSender(object: $object, id: $id)
+}
+
 query CrmEmailThreads($object: CrmTimelineObject!, $id: ID!) {
   crmEmailThreads(object: $object, id: $id) {
     threadId
+    accountId
+    mailbox
     subject
     lastAt
     messages {

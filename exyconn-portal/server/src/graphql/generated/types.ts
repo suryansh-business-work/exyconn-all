@@ -2293,13 +2293,25 @@ export type Company = {
   industry: Scalars['String']['output'];
   /** Whether the account has a client record — what Finance and Projects bill and plan against. */
   isClient: Scalars['Boolean']['output'];
+  /** Latitude, when the account was filed from Google Places; null otherwise. */
+  lat?: Maybe<Scalars['Float']['output']>;
+  /** Where the account came from, e.g. Google Places; empty when typed in by hand. */
+  leadSource: Scalars['String']['output'];
   linkedinUrl: Scalars['String']['output'];
+  /** Longitude, when the account was filed from Google Places; null otherwise. */
+  lng?: Maybe<Scalars['Float']['output']>;
   location: Scalars['String']['output'];
+  /** The logo's web address; empty when there is none. */
+  logoUrl: Scalars['String']['output'];
+  /** Its Google Maps page, empty when unknown. */
+  mapUrl: Scalars['String']['output'];
   name: Scalars['String']['output'];
   notes: Scalars['String']['output'];
   owner: Scalars['String']['output'];
   phone: Scalars['String']['output'];
   phones: Array<CrmPhoneNumber>;
+  /** The Google Place ID it was filed from, empty when typed in by hand. */
+  placeId: Scalars['String']['output'];
   /** One of COMPANY_SIZES (11-50, and so on). A string, because 1-10 is not a valid enum name. */
   size: Scalars['String']['output'];
   status: CompanyStatus;
@@ -2418,6 +2430,7 @@ export type CompanyInput = {
   industry?: InputMaybe<Scalars['String']['input']>;
   linkedinUrl?: InputMaybe<Scalars['String']['input']>;
   location?: InputMaybe<Scalars['String']['input']>;
+  logoUrl?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
   owner: Scalars['String']['input'];
@@ -2510,6 +2523,8 @@ export type ComplianceSlice = {
 export type Contact = {
   __typename?: 'Contact';
   address: Scalars['String']['output'];
+  /** The profile picture's web address; empty when there is none. */
+  avatarUrl: Scalars['String']['output'];
   city: Scalars['String']['output'];
   companyId: Scalars['String']['output'];
   companyName: Scalars['String']['output'];
@@ -2526,15 +2541,19 @@ export type Contact = {
   emails: Array<CrmEmailAddress>;
   id: Scalars['ID']['output'];
   languages: Array<Scalars['String']['output']>;
+  lat?: Maybe<Scalars['Float']['output']>;
   leadSource: Scalars['String']['output'];
   lifecycleStage: LifecycleStage;
   linkedinUrl: Scalars['String']['output'];
+  lng?: Maybe<Scalars['Float']['output']>;
+  mapUrl: Scalars['String']['output'];
   name: Scalars['String']['output'];
   notes: Scalars['String']['output'];
   owner: Scalars['String']['output'];
   phone: Scalars['String']['output'];
   /** Every number; phone is the primary one. */
   phones: Array<CrmPhoneNumber>;
+  placeId: Scalars['String']['output'];
   status: ContactStatus;
   /** IANA time zone, for the contact's local time. */
   timezone: Scalars['String']['output'];
@@ -2546,6 +2565,7 @@ export type Contact = {
 
 export type ContactInput = {
   address?: InputMaybe<Scalars['String']['input']>;
+  avatarUrl?: InputMaybe<Scalars['String']['input']>;
   city?: InputMaybe<Scalars['String']['input']>;
   companyId?: InputMaybe<Scalars['String']['input']>;
   companyName?: InputMaybe<Scalars['String']['input']>;
@@ -2826,12 +2846,15 @@ export enum CrmEmailDirection {
 
 export type CrmEmailMessage = {
   __typename?: 'CrmEmailMessage';
+  /** The connected account it was read from or sent by; empty on mail from before accounts. */
+  accountId: Scalars['String']['output'];
   bodyText: Scalars['String']['output'];
   cc: Array<Scalars['String']['output']>;
   direction: CrmEmailDirection;
   from: Scalars['String']['output'];
   gmailId: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  mailbox: Scalars['String']['output'];
   messageId: Scalars['String']['output'];
   sentAt: Scalars['DateTime']['output'];
   sentByName: Scalars['String']['output'];
@@ -2841,9 +2864,13 @@ export type CrmEmailMessage = {
   to: Array<Scalars['String']['output']>;
 };
 
+/** One conversation in one connected mailbox (Gmail thread ids are per mailbox). */
 export type CrmEmailThread = {
   __typename?: 'CrmEmailThread';
+  accountId: Scalars['String']['output'];
   lastAt: Scalars['DateTime']['output'];
+  /** The connected mailbox the conversation is in. */
+  mailbox: Scalars['String']['output'];
   messages: Array<CrmEmailMessage>;
   subject: Scalars['String']['output'];
   threadId: Scalars['ID']['output'];
@@ -2939,6 +2966,17 @@ export type CrmPhoneNumberInput = {
   label?: InputMaybe<Scalars['String']['input']>;
   number: Scalars['String']['input'];
   primary?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** One new property for several record types at once: a row is made for each of objects. */
+export type CrmPropertiesInput = {
+  description: Scalars['String']['input'];
+  key: Scalars['String']['input'];
+  label: Scalars['String']['input'];
+  objects: Array<CrmObject>;
+  options: Array<CrmPropertyOptionInput>;
+  required: Scalars['Boolean']['input'];
+  type: CrmPropertyType;
 };
 
 /** A property a company added (CRM > Settings > Properties). */
@@ -3934,10 +3972,21 @@ export type FileAttachmentInput = {
 };
 
 export enum FilterOp {
+  /** Nothing stored, or an empty string; the filter's value is ignored. */
+  Blank = 'BLANK',
   Contains = 'CONTAINS',
+  EndsWith = 'ENDS_WITH',
   Equals = 'EQUALS',
   Gt = 'GT',
+  Gte = 'GTE',
+  /** Any of the filter's values; its value is ignored. */
+  In = 'IN',
   Lt = 'LT',
+  Lte = 'LTE',
+  /** Anything but blank; the filter's value is ignored. */
+  NotBlank = 'NOT_BLANK',
+  NotContains = 'NOT_CONTAINS',
+  NotEquals = 'NOT_EQUALS',
   StartsWith = 'STARTS_WITH'
 }
 
@@ -4181,20 +4230,37 @@ export type GithubConfigInput = {
   token: Scalars['String']['input'];
 };
 
-/** The shared Gmail mailbox the CRM sends from. Tokens never leave the server. */
-export type GmailConfig = {
-  __typename?: 'GmailConfig';
-  clientId: Scalars['String']['output'];
-  clientSecretHint?: Maybe<Scalars['String']['output']>;
-  connected: Scalars['Boolean']['output'];
+/** A Gmail mailbox connected to the CRM. Its token never leaves the server. */
+export type GmailAccount = {
+  __typename?: 'GmailAccount';
   connectedAt?: Maybe<Scalars['DateTime']['output']>;
-  /** The mailbox Google connected; empty until then. */
-  connectedEmail: Scalars['String']['output'];
+  connectedByName: Scalars['String']['output'];
+  email: Scalars['String']['output'];
+  /** Whether the CRM reads and sends from it. */
   enabled: Scalars['Boolean']['output'];
-  hasClientSecret: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   /** Why the last call to Gmail failed; empty when it worked. */
   lastError: Scalars['String']['output'];
+  lastSyncAt?: Maybe<Scalars['DateTime']['output']>;
+  status: GmailAccountStatus;
+};
+
+export enum GmailAccountStatus {
+  Connected = 'CONNECTED',
+  /** Google refused the stored connection; connect the account again. */
+  NeedsReconnect = 'NEEDS_RECONNECT'
+}
+
+/** The Google OAuth client the CRM's Gmail accounts connect through. Secrets stay on the server. */
+export type GmailConfig = {
+  __typename?: 'GmailConfig';
+  /** How many Gmail accounts are connected in CRM > Connect Gmail. */
+  accountCount: Scalars['Int']['output'];
+  clientId: Scalars['String']['output'];
+  clientSecretHint?: Maybe<Scalars['String']['output']>;
+  enabled: Scalars['Boolean']['output'];
+  hasClientSecret: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
   /** Register this exact address as an authorised redirect URI on the Google client. */
   redirectUri: Scalars['String']['output'];
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
@@ -4270,6 +4336,36 @@ export type GodaddyConfigInput = {
   apiSecret?: InputMaybe<Scalars['String']['input']>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   label: Scalars['String']['input'];
+};
+
+/** What the CRM's maps need: the browser key, and whether lead search is set up. */
+export type GoogleMapsClientConfig = {
+  __typename?: 'GoogleMapsClientConfig';
+  /** Null when no browser key is configured; maps are then hidden. */
+  browserKey?: Maybe<Scalars['String']['output']>;
+  placesReady: Scalars['Boolean']['output'];
+};
+
+/** The install's Google Maps Platform keys (Tech > Environment Variables). Both keys are write-only. */
+export type GoogleMapsConfig = {
+  __typename?: 'GoogleMapsConfig';
+  browserKeyHint?: Maybe<Scalars['String']['output']>;
+  hasBrowserKey: Scalars['Boolean']['output'];
+  hasServerKey: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  serverKeyHint?: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type GoogleMapsConfigInput = {
+  /** Maps JavaScript key, restricted to the CRM's HTTP referrers. Leave empty when editing to keep it. */
+  browserKey: Scalars['String']['input'];
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+  /** Places API (New) key, used by the server only. Leave empty when editing to keep it. */
+  serverKey: Scalars['String']['input'];
 };
 
 /** The install's Google OAuth client. The secret is never returned; see revealTechSecret. */
@@ -5504,6 +5600,57 @@ export type Lead = {
   value: Scalars['Float']['output'];
 };
 
+export type LeadEmailResult = {
+  __typename?: 'LeadEmailResult';
+  emails: Array<Scalars['String']['output']>;
+  message: Scalars['String']['output'];
+  status: LeadEmailStatus;
+};
+
+export enum LeadEmailStatus {
+  Blocked = 'BLOCKED',
+  Found = 'FOUND',
+  None = 'NONE',
+  Unreachable = 'UNREACHABLE'
+}
+
+/** A place filed as a CRM company. */
+export type LeadImportFiled = {
+  __typename?: 'LeadImportFiled';
+  companyId: Scalars['ID']['output'];
+  placeId: Scalars['ID']['output'];
+};
+
+export type LeadImportInput = {
+  address?: InputMaybe<Scalars['String']['input']>;
+  city?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
+  emails?: InputMaybe<Array<Scalars['String']['input']>>;
+  lat: Scalars['Float']['input'];
+  lng: Scalars['Float']['input'];
+  mapUrl?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  phone?: InputMaybe<Scalars['String']['input']>;
+  placeId: Scalars['ID']['input'];
+  primaryType?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LeadImportResult = {
+  __typename?: 'LeadImportResult';
+  created: Scalars['Int']['output'];
+  filed: Array<LeadImportFiled>;
+  skipped: Scalars['Int']['output'];
+  skips: Array<LeadImportSkip>;
+};
+
+export type LeadImportSkip = {
+  __typename?: 'LeadImportSkip';
+  name: Scalars['String']['output'];
+  placeId: Scalars['ID']['output'];
+  reason: Scalars['String']['output'];
+};
+
 export type LeadInput = {
   /** Attribution. The campaign's name is filled in by the server from this id. */
   campaignId?: InputMaybe<Scalars['String']['input']>;
@@ -5521,6 +5668,48 @@ export type LeadPage = {
   __typename?: 'LeadPage';
   rows: Array<Lead>;
   totalCount: Scalars['Int']['output'];
+};
+
+/** A business found on Google Places. */
+export type LeadPlace = {
+  __typename?: 'LeadPlace';
+  address: Scalars['String']['output'];
+  city: Scalars['String']['output'];
+  country: Scalars['String']['output'];
+  /** The CRM company already filed from this place, if any. */
+  existingCompanyId?: Maybe<Scalars['ID']['output']>;
+  lat: Scalars['Float']['output'];
+  lng: Scalars['Float']['output'];
+  mapUrl: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  phone: Scalars['String']['output'];
+  placeId: Scalars['ID']['output'];
+  primaryType: Scalars['String']['output'];
+  rating?: Maybe<Scalars['Float']['output']>;
+  ratingCount?: Maybe<Scalars['Int']['output']>;
+  types: Array<Scalars['String']['output']>;
+  website: Scalars['String']['output'];
+};
+
+export type LeadSearchInput = {
+  lat?: InputMaybe<Scalars['Float']['input']>;
+  lng?: InputMaybe<Scalars['Float']['input']>;
+  /** Where, as text (e.g. Pune, India). Ignored when lat and lng are given. */
+  location?: InputMaybe<Scalars['String']['input']>;
+  pageToken?: InputMaybe<Scalars['String']['input']>;
+  /** What to look for, e.g. dentists. */
+  query: Scalars['String']['input'];
+  /** Radius around lat/lng in metres, at most 50000. */
+  radiusMeters?: InputMaybe<Scalars['Int']['input']>;
+  /** A Google Places type, e.g. dentist. */
+  type?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LeadSearchPage = {
+  __typename?: 'LeadSearchPage';
+  /** Pass back to get the next page; null on the last one. */
+  nextPageToken?: Maybe<Scalars['String']['output']>;
+  places: Array<LeadPlace>;
 };
 
 export enum LeadSource {
@@ -6158,6 +6347,8 @@ export type Mutation = {
   createContact: Contact;
   createContract: Contract;
   createCostCenter: CostCenter;
+  /** Creates the property on every chosen record type, or on none when any of them cannot take the key. */
+  createCrmProperties: Array<CrmProperty>;
   createCrmProperty: CrmProperty;
   createCrmView: CrmView;
   createDeal: Deal;
@@ -6181,6 +6372,7 @@ export type Mutation = {
   createGithubConfig: GithubConfig;
   createGoal: Goal;
   createGodaddyConfig: GodaddyConfig;
+  createGoogleMapsConfig: GoogleMapsConfig;
   createGrade: Grade;
   createHoliday: Holiday;
   createImageConfig: ImageConfig;
@@ -6354,6 +6546,7 @@ export type Mutation = {
   deleteGithubConfig: Scalars['Boolean']['output'];
   deleteGoal: Scalars['Boolean']['output'];
   deleteGodaddyConfig: Scalars['Boolean']['output'];
+  deleteGoogleMapsConfig: Scalars['Boolean']['output'];
   deleteGrade: Scalars['Boolean']['output'];
   deleteHoliday: Scalars['Boolean']['output'];
   deleteImageConfig: Scalars['Boolean']['output'];
@@ -6441,7 +6634,8 @@ export type Mutation = {
   disableMfa: Scalars['Boolean']['output'];
   /** Puts the published graph back into the draft. */
   discardWhatsappWorkflowDraft: WhatsappWorkflow;
-  disconnectGmail: GmailConfig;
+  /** Removes the account and its token; mail already synced stays on the records. */
+  disconnectGmailAccount: Scalars['Boolean']['output'];
   disconnectSocialAccount: Scalars['Boolean']['output'];
   /** An AI draft of a new email or a reply, from the record and its thread. */
   draftCrmEmail: Scalars['String']['output'];
@@ -6457,11 +6651,17 @@ export type Mutation = {
    * its escalation level, records the reason as an internal note and tells the assignee.
    */
   escalateSupportTicket: SupportTicket;
+  /** Reads a business website (home and contact pages, robots.txt honoured) for its email addresses. */
+  findLeadEmails: LeadEmailResult;
   /** Mark an APPROVED request as carried out in the target system. */
   fulfilItAccessRequest: ItAccessRequest;
   grantTrackerAccess: TrackerAccess;
   importCrmRecords: CrmImportResult;
+  /** Files the chosen places as CRM companies, skipping ones already filed. */
+  importLeadsToCrm: LeadImportResult;
   importMediaFromUrl: Scalars['String']['output'];
+  /** Imports up to 500 mapped rows (field to cell text) through the module's own create and update. */
+  importTableRows: TableImportResult;
   /**
    * Disables a leaver's account. Only someone with an exit on record, never an administrator
    * and never the caller. Admin's setUserActive remains the general way to deactivate anyone.
@@ -6492,6 +6692,8 @@ export type Mutation = {
   /** Re-files a page under a new parent (null for top level) at a given position. */
   moveDocPage: Scalars['Boolean']['output'];
   moveTask: Scalars['Boolean']['output'];
+  /** Reads an uploaded CSV or XLSX (up to 10 MB and 50,000 rows) for the import wizard. */
+  parseTableFile: ParsedTableFile;
   /**
    * Makes the bug a BUG ticket in the first column of its project's board and records the
    * ticket on the bug. Refused when the bug has no project, or was already promoted.
@@ -6674,6 +6876,8 @@ export type Mutation = {
    * PAID stamps paidOn, the date the reimbursement reaches the cash figures.
    */
   setExpenseClaimStatus: ExpenseClaim;
+  /** Turns an account on or off for the CRM. */
+  setGmailAccountEnabled: GmailAccount;
   /** HR/ADMIN or the employee's manager: approve or reject a leave request. */
   setLeaveStatus: LeaveRequest;
   /** Sets where one kind reaches this person. Returns the whole set, so a screen stays in step. */
@@ -6737,7 +6941,7 @@ export type Mutation = {
   /** AI: what worked, what did not, and what to try, from the last days' posts. */
   socialMediaInsights: Scalars['String']['output'];
   startCallingBotCall: CallingBotCallStart;
-  /** Google's consent page to connect the mailbox; comes back to returnTo. */
+  /** Google's consent page to connect one more mailbox (or renew one); comes back to returnTo. */
   startGmailConnect: Scalars['String']['output'];
   /** Google's consent page for a sign-in that returns to this portal page. Public. */
   startGoogleSignIn: Scalars['String']['output'];
@@ -6786,9 +6990,11 @@ export type Mutation = {
   /** Connects to the proxy and signs in; says what worked, or why not. */
   testEmailVerifierConfig: Scalars['String']['output'];
   testGithubConnection: Scalars['Boolean']['output'];
-  /** Reads the mailbox's address with the stored connection. */
+  /** Reads every enabled mailbox's address with its stored connection. */
   testGmailConfig: Scalars['String']['output'];
   testGodaddyConnection: Scalars['Boolean']['output'];
+  /** Runs one Places search with the server key; says what worked, or why not. */
+  testGoogleMapsConfig: Scalars['String']['output'];
   /** Checks the client ID and secret with Google; says what worked, or why not. */
   testGoogleSignInConfig: Scalars['String']['output'];
   testImageUpload: Scalars['String']['output'];
@@ -6909,6 +7115,7 @@ export type Mutation = {
   updateGithubConfig: GithubConfig;
   updateGoal: Goal;
   updateGodaddyConfig: GodaddyConfig;
+  updateGoogleMapsConfig: GoogleMapsConfig;
   updateGrade: Grade;
   updateHoliday: Holiday;
   updateImageConfig: ImageConfig;
@@ -7359,6 +7566,11 @@ export type MutationCreateCostCenterArgs = {
 };
 
 
+export type MutationCreateCrmPropertiesArgs = {
+  input: CrmPropertiesInput;
+};
+
+
 export type MutationCreateCrmPropertyArgs = {
   input: CrmPropertyInput;
 };
@@ -7465,6 +7677,11 @@ export type MutationCreateGoalArgs = {
 
 export type MutationCreateGodaddyConfigArgs = {
   input: GodaddyConfigInput;
+};
+
+
+export type MutationCreateGoogleMapsConfigArgs = {
+  input: GoogleMapsConfigInput;
 };
 
 
@@ -8182,6 +8399,11 @@ export type MutationDeleteGodaddyConfigArgs = {
 };
 
 
+export type MutationDeleteGoogleMapsConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteGradeArgs = {
   id: Scalars['ID']['input'];
 };
@@ -8587,6 +8809,11 @@ export type MutationDiscardWhatsappWorkflowDraftArgs = {
 };
 
 
+export type MutationDisconnectGmailAccountArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDisconnectSocialAccountArgs = {
   id: Scalars['ID']['input'];
 };
@@ -8625,6 +8852,11 @@ export type MutationEscalateSupportTicketArgs = {
 };
 
 
+export type MutationFindLeadEmailsArgs = {
+  website: Scalars['String']['input'];
+};
+
+
 export type MutationFulfilItAccessRequestArgs = {
   id: Scalars['ID']['input'];
 };
@@ -8640,10 +8872,24 @@ export type MutationImportCrmRecordsArgs = {
 };
 
 
+export type MutationImportLeadsToCrmArgs = {
+  leads: Array<LeadImportInput>;
+};
+
+
 export type MutationImportMediaFromUrlArgs = {
   fileName: Scalars['String']['input'];
   folder?: InputMaybe<Scalars['String']['input']>;
   url: Scalars['String']['input'];
+};
+
+
+export type MutationImportTableRowsArgs = {
+  firstRowNumber: Scalars['Int']['input'];
+  list: Scalars['String']['input'];
+  matchField?: InputMaybe<Scalars['String']['input']>;
+  mode: TableImportMode;
+  rows: Array<Scalars['JSON']['input']>;
 };
 
 
@@ -8716,6 +8962,12 @@ export type MutationMoveTaskArgs = {
   id: Scalars['ID']['input'];
   toColumnId: Scalars['ID']['input'];
   toIndex: Scalars['Int']['input'];
+};
+
+
+export type MutationParseTableFileArgs = {
+  contentBase64: Scalars['String']['input'];
+  fileName: Scalars['String']['input'];
 };
 
 
@@ -9129,6 +9381,12 @@ export type MutationSetExpenseClaimStatusArgs = {
 };
 
 
+export type MutationSetGmailAccountEnabledArgs = {
+  enabled: Scalars['Boolean']['input'];
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationSetLeaveStatusArgs = {
   id: Scalars['ID']['input'];
   status: LeaveStatus;
@@ -9369,6 +9627,11 @@ export type MutationTestGithubConnectionArgs = {
 
 
 export type MutationTestGodaddyConnectionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestGoogleMapsConfigArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -9803,6 +10066,12 @@ export type MutationUpdateGoalArgs = {
 export type MutationUpdateGodaddyConfigArgs = {
   id: Scalars['ID']['input'];
   input: GodaddyConfigInput;
+};
+
+
+export type MutationUpdateGoogleMapsConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: GoogleMapsConfigInput;
 };
 
 
@@ -10791,6 +11060,13 @@ export type OrganizationUpdateInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   taxSystem?: InputMaybe<TaxSystem>;
   timezone?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** An uploaded file read for import: its header row and data rows, blank rows kept in place. */
+export type ParsedTableFile = {
+  __typename?: 'ParsedTableFile';
+  headers: Array<Scalars['String']['output']>;
+  rows: Array<Array<Scalars['String']['output']>>;
 };
 
 /** How an employee is paid. Decides which amounts on the salary structure mean anything. */
@@ -11981,9 +12257,11 @@ export type Query = {
    * link is unknown, withdrawn or expired.
    */
   contractToSign?: Maybe<ContractToSign>;
-  /** The record's Gmail threads, synced from Gmail first. */
+  /** The account a new email to the record goes from by default; null when none is enabled. */
+  crmEmailSender?: Maybe<Scalars['ID']['output']>;
+  /** The record's Gmail threads across every enabled account, synced from Gmail first. */
   crmEmailThreads: Array<CrmEmailThread>;
-  /** Whether the CRM can email through Gmail (connected, and this is the operator's CRM). */
+  /** Whether the CRM can email through Gmail (an enabled account, and this is the operator's CRM). */
   crmGmailReady: Scalars['Boolean']['output'];
   crmObjectSchema: CrmObjectSchema;
   crmProperties: Array<CrmProperty>;
@@ -12101,7 +12379,13 @@ export type Query = {
   getWebsiteChatFaq: WebsiteChatFaq;
   getWebsiteChatKnowledge: WebsiteChatKnowledge;
   getWebsiteSubmission: WebsiteSubmission;
+  /** The Gmail accounts connected to the CRM, newest first. */
+  gmailAccounts: Array<GmailAccount>;
+  /** Whether Tech has saved and turned on the Google client the accounts connect through. */
+  gmailClientReady: Scalars['Boolean']['output'];
   gmailConfig: GmailConfig;
+  googleMapsClientConfig: GoogleMapsClientConfig;
+  googleMapsConfigs: Array<GoogleMapsConfig>;
   googleSignInConfig: GoogleSignInConfig;
   /** Whether the sign-in page offers Continue with Google. Public. */
   googleSignInEnabled: Scalars['Boolean']['output'];
@@ -12654,6 +12938,8 @@ export type Query = {
    * paste and an employee hunting for it themselves are the same search.
    */
   searchKnowledgeBase: Array<KbArticle>;
+  /** One page (up to 20) of Google Places Text Search results. */
+  searchLeadPlaces: LeadSearchPage;
   searchLeads: LeadPage;
   /** Stock photos for the shared upload dialog. Any signed-in user may search. */
   searchPexelsPhotos: Array<PexelsMedia>;
@@ -12700,6 +12986,11 @@ export type Query = {
   supportSlaSummary: SupportSlaSummary;
   /** Admin only — the deployment's own vital signs. */
   systemHealth: SystemHealth;
+  /** Every row of a paged list under the given search, sort and filters, as one file. Needs EXPORT. */
+  tableExport: TableFile;
+  /** The sample file to fill in for an import into this list. */
+  tableImportTemplate: TableFile;
+  tableInfo: TableInfo;
   /** The ticket's history, newest first. */
   taskActivity: Array<TaskActivity>;
   /** One ticket by its key, e.g. EXY-14. Null when no ticket has that key. */
@@ -13000,6 +13291,12 @@ export type QueryContractSignaturesArgs = {
 
 export type QueryContractToSignArgs = {
   token: Scalars['String']['input'];
+};
+
+
+export type QueryCrmEmailSenderArgs = {
+  id: Scalars['ID']['input'];
+  object: CrmTimelineObject;
 };
 
 
@@ -14336,6 +14633,11 @@ export type QuerySearchKnowledgeBaseArgs = {
 };
 
 
+export type QuerySearchLeadPlacesArgs = {
+  input: LeadSearchInput;
+};
+
+
 export type QuerySearchLeadsArgs = {
   query: CrmQueryInput;
 };
@@ -14434,6 +14736,28 @@ export type QuerySslCertificatesArgs = {
 
 export type QueryStatusOverviewArgs = {
   days?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryTableExportArgs = {
+  columns: Array<TableExportColumnInput>;
+  fileName: Scalars['String']['input'];
+  format: TableFileFormat;
+  input: TableQueryInput;
+  list: Scalars['String']['input'];
+};
+
+
+export type QueryTableImportTemplateArgs = {
+  columns?: InputMaybe<Array<TableExportColumnInput>>;
+  fileName: Scalars['String']['input'];
+  format: TableFileFormat;
+  list: Scalars['String']['input'];
+};
+
+
+export type QueryTableInfoArgs = {
+  list: Scalars['String']['input'];
 };
 
 
@@ -14984,6 +15308,8 @@ export type SearchHit = {
 export type SendCrmEmailInput = {
   body: Scalars['String']['input'];
   cc?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** The connected account to send from; it has to be enabled for the CRM. */
+  fromAccountId: Scalars['ID']['input'];
   inReplyTo?: InputMaybe<Scalars['String']['input']>;
   subject: Scalars['String']['input'];
   /** Replying: Gmail's thread id and the Message-ID being answered. */
@@ -16073,10 +16399,100 @@ export type SystemHealth = {
   uptimeSeconds: Scalars['Int']['output'];
 };
 
+/** One exported column: the row field it reads (dotted for a nested one, e.g. customer.name) and its heading. */
+export type TableExportColumnInput = {
+  field: Scalars['String']['input'];
+  header: Scalars['String']['input'];
+};
+
+export enum TableFieldKind {
+  Boolean = 'BOOLEAN',
+  Date = 'DATE',
+  Enum = 'ENUM',
+  List = 'LIST',
+  Number = 'NUMBER',
+  Object = 'OBJECT',
+  Text = 'TEXT'
+}
+
+/** A generated file, base64-encoded for the client to save. */
+export type TableFile = {
+  __typename?: 'TableFile';
+  contentBase64: Scalars['String']['output'];
+  fileName: Scalars['String']['output'];
+  mimeType: Scalars['String']['output'];
+  rowCount: Scalars['Int']['output'];
+};
+
+export enum TableFileFormat {
+  Csv = 'CSV',
+  Xlsx = 'XLSX'
+}
+
+/** A column a grid may filter on, with the kind of filter its type takes. */
+export type TableFilterColumn = {
+  __typename?: 'TableFilterColumn';
+  field: Scalars['String']['output'];
+  kind: TableFieldKind;
+  /** The values an enum column holds; empty otherwise. */
+  options: Array<Scalars['String']['output']>;
+};
+
 export type TableFilterInput = {
   field: Scalars['String']['input'];
   op: FilterOp;
   value: Scalars['String']['input'];
+  /** The values an IN filter matches any of; other operators ignore it. */
+  values?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+/** One column an import may fill: a field of the module's create input. */
+export type TableImportField = {
+  __typename?: 'TableImportField';
+  description?: Maybe<Scalars['String']['output']>;
+  field: Scalars['String']['output'];
+  kind: TableFieldKind;
+  /** The accepted values of an enum field; empty otherwise. */
+  options: Array<Scalars['String']['output']>;
+  required: Scalars['Boolean']['output'];
+};
+
+export type TableImportIssue = {
+  __typename?: 'TableImportIssue';
+  message: Scalars['String']['output'];
+  /** The row's line in the file. */
+  row: Scalars['Int']['output'];
+  /** True when the row was left alone on purpose rather than refused. */
+  skipped: Scalars['Boolean']['output'];
+};
+
+/** What an import does with a row whose match column names an existing record. */
+export enum TableImportMode {
+  /** Every row becomes a new record. */
+  Create = 'CREATE',
+  /** Rows update the record they match; a row matching none is skipped. */
+  Update = 'UPDATE',
+  /** Rows update the record they match, and become new records when they match none. */
+  Upsert = 'UPSERT'
+}
+
+export type TableImportResult = {
+  __typename?: 'TableImportResult';
+  created: Scalars['Int']['output'];
+  issues: Array<TableImportIssue>;
+  skipped: Scalars['Int']['output'];
+  updated: Scalars['Int']['output'];
+};
+
+/** What a grid may ask of a paged list: its filters, its sorts and whether it takes imports. */
+export type TableInfo = {
+  __typename?: 'TableInfo';
+  filters: Array<TableFilterColumn>;
+  importFields: Array<TableImportField>;
+  importable: Scalars['Boolean']['output'];
+  /** Fields that identify an existing record for UPDATE and UPSERT; empty means CREATE only. */
+  matchFields: Array<Scalars['String']['output']>;
+  sortFields: Array<Scalars['String']['output']>;
 };
 
 /** Server-side pagination/sort/filter/search request. `page` is zero-indexed. */
@@ -16087,6 +16503,8 @@ export type TableQueryInput = {
   pageSize: Scalars['Int']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
   sort?: InputMaybe<TableSortInput>;
+  /** Several sort columns, most significant first. When set it wins over sort. */
+  sorts?: InputMaybe<Array<TableSortInput>>;
 };
 
 export type TableSortInput = {
@@ -16373,6 +16791,8 @@ export enum TechSecret {
   GmailClientSecret = 'GMAIL_CLIENT_SECRET',
   GodaddyApiKey = 'GODADDY_API_KEY',
   GodaddyApiSecret = 'GODADDY_API_SECRET',
+  GoogleMapsBrowserKey = 'GOOGLE_MAPS_BROWSER_KEY',
+  GoogleMapsServerKey = 'GOOGLE_MAPS_SERVER_KEY',
   GoogleSignInClientSecret = 'GOOGLE_SIGN_IN_CLIENT_SECRET',
   ImagekitPrivateKey = 'IMAGEKIT_PRIVATE_KEY',
   InboundMailPassword = 'INBOUND_MAIL_PASSWORD',
@@ -18526,6 +18946,7 @@ export type ResolversTypes = ResolversObject<{
   CrmOp: CrmOp;
   CrmPhoneNumber: ResolverTypeWrapper<CrmPhoneNumber>;
   CrmPhoneNumberInput: CrmPhoneNumberInput;
+  CrmPropertiesInput: CrmPropertiesInput;
   CrmProperty: ResolverTypeWrapper<CrmProperty>;
   CrmPropertyInfo: ResolverTypeWrapper<CrmPropertyInfo>;
   CrmPropertyInput: CrmPropertyInput;
@@ -18640,6 +19061,8 @@ export type ResolversTypes = ResolversObject<{
   GigPage: ResolverTypeWrapper<GigPage>;
   GithubConfig: ResolverTypeWrapper<GithubConfig>;
   GithubConfigInput: GithubConfigInput;
+  GmailAccount: ResolverTypeWrapper<GmailAccount>;
+  GmailAccountStatus: GmailAccountStatus;
   GmailConfig: ResolverTypeWrapper<GmailConfig>;
   GmailConfigInput: GmailConfigInput;
   Goal: ResolverTypeWrapper<Goal>;
@@ -18648,6 +19071,9 @@ export type ResolversTypes = ResolversObject<{
   GoalStatus: GoalStatus;
   GodaddyConfig: ResolverTypeWrapper<GodaddyConfig>;
   GodaddyConfigInput: GodaddyConfigInput;
+  GoogleMapsClientConfig: ResolverTypeWrapper<GoogleMapsClientConfig>;
+  GoogleMapsConfig: ResolverTypeWrapper<GoogleMapsConfig>;
+  GoogleMapsConfigInput: GoogleMapsConfigInput;
   GoogleSignInConfig: ResolverTypeWrapper<GoogleSignInConfig>;
   GoogleSignInConfigInput: GoogleSignInConfigInput;
   Grade: ResolverTypeWrapper<Grade>;
@@ -18754,8 +19180,17 @@ export type ResolversTypes = ResolversObject<{
   KbArticleInput: KbArticleInput;
   KbArticlePage: ResolverTypeWrapper<KbArticlePage>;
   Lead: ResolverTypeWrapper<Lead>;
+  LeadEmailResult: ResolverTypeWrapper<LeadEmailResult>;
+  LeadEmailStatus: LeadEmailStatus;
+  LeadImportFiled: ResolverTypeWrapper<LeadImportFiled>;
+  LeadImportInput: LeadImportInput;
+  LeadImportResult: ResolverTypeWrapper<LeadImportResult>;
+  LeadImportSkip: ResolverTypeWrapper<LeadImportSkip>;
   LeadInput: LeadInput;
   LeadPage: ResolverTypeWrapper<LeadPage>;
+  LeadPlace: ResolverTypeWrapper<LeadPlace>;
+  LeadSearchInput: LeadSearchInput;
+  LeadSearchPage: ResolverTypeWrapper<LeadSearchPage>;
   LeadSource: LeadSource;
   LeadStage: LeadStage;
   LeaveBalance: ResolverTypeWrapper<LeaveBalance>;
@@ -18853,6 +19288,7 @@ export type ResolversTypes = ResolversObject<{
   OrganizationInput: OrganizationInput;
   OrganizationStatus: OrganizationStatus;
   OrganizationUpdateInput: OrganizationUpdateInput;
+  ParsedTableFile: ResolverTypeWrapper<ParsedTableFile>;
   PayType: PayType;
   Payment: ResolverTypeWrapper<Payment>;
   PaymentAttempt: ResolverTypeWrapper<PaymentAttempt>;
@@ -19073,7 +19509,17 @@ export type ResolversTypes = ResolversObject<{
   SupportTicketPage: ResolverTypeWrapper<SupportTicketPage>;
   SuppressionReason: SuppressionReason;
   SystemHealth: ResolverTypeWrapper<SystemHealth>;
+  TableExportColumnInput: TableExportColumnInput;
+  TableFieldKind: TableFieldKind;
+  TableFile: ResolverTypeWrapper<TableFile>;
+  TableFileFormat: TableFileFormat;
+  TableFilterColumn: ResolverTypeWrapper<TableFilterColumn>;
   TableFilterInput: TableFilterInput;
+  TableImportField: ResolverTypeWrapper<TableImportField>;
+  TableImportIssue: ResolverTypeWrapper<TableImportIssue>;
+  TableImportMode: TableImportMode;
+  TableImportResult: ResolverTypeWrapper<TableImportResult>;
+  TableInfo: ResolverTypeWrapper<TableInfo>;
   TableQueryInput: TableQueryInput;
   TableSortInput: TableSortInput;
   TableStats: ResolverTypeWrapper<TableStats>;
@@ -19447,6 +19893,7 @@ export type ResolversParentTypes = ResolversObject<{
   CrmObjectSchema: CrmObjectSchema;
   CrmPhoneNumber: CrmPhoneNumber;
   CrmPhoneNumberInput: CrmPhoneNumberInput;
+  CrmPropertiesInput: CrmPropertiesInput;
   CrmProperty: CrmProperty;
   CrmPropertyInfo: CrmPropertyInfo;
   CrmPropertyInput: CrmPropertyInput;
@@ -19538,6 +19985,7 @@ export type ResolversParentTypes = ResolversObject<{
   GigPage: GigPage;
   GithubConfig: GithubConfig;
   GithubConfigInput: GithubConfigInput;
+  GmailAccount: GmailAccount;
   GmailConfig: GmailConfig;
   GmailConfigInput: GmailConfigInput;
   Goal: Goal;
@@ -19545,6 +19993,9 @@ export type ResolversParentTypes = ResolversObject<{
   GoalPage: GoalPage;
   GodaddyConfig: GodaddyConfig;
   GodaddyConfigInput: GodaddyConfigInput;
+  GoogleMapsClientConfig: GoogleMapsClientConfig;
+  GoogleMapsConfig: GoogleMapsConfig;
+  GoogleMapsConfigInput: GoogleMapsConfigInput;
   GoogleSignInConfig: GoogleSignInConfig;
   GoogleSignInConfigInput: GoogleSignInConfigInput;
   Grade: Grade;
@@ -19628,8 +20079,16 @@ export type ResolversParentTypes = ResolversObject<{
   KbArticleInput: KbArticleInput;
   KbArticlePage: KbArticlePage;
   Lead: Lead;
+  LeadEmailResult: LeadEmailResult;
+  LeadImportFiled: LeadImportFiled;
+  LeadImportInput: LeadImportInput;
+  LeadImportResult: LeadImportResult;
+  LeadImportSkip: LeadImportSkip;
   LeadInput: LeadInput;
   LeadPage: LeadPage;
+  LeadPlace: LeadPlace;
+  LeadSearchInput: LeadSearchInput;
+  LeadSearchPage: LeadSearchPage;
   LeaveBalance: LeaveBalance;
   LeaveBalanceInput: LeaveBalanceInput;
   LeaveBalancePage: LeaveBalancePage;
@@ -19707,6 +20166,7 @@ export type ResolversParentTypes = ResolversObject<{
   OrganizationAdminInput: OrganizationAdminInput;
   OrganizationInput: OrganizationInput;
   OrganizationUpdateInput: OrganizationUpdateInput;
+  ParsedTableFile: ParsedTableFile;
   Payment: Payment;
   PaymentAttempt: PaymentAttempt;
   PaymentInput: PaymentInput;
@@ -19881,7 +20341,14 @@ export type ResolversParentTypes = ResolversObject<{
   SupportTicketInput: SupportTicketInput;
   SupportTicketPage: SupportTicketPage;
   SystemHealth: SystemHealth;
+  TableExportColumnInput: TableExportColumnInput;
+  TableFile: TableFile;
+  TableFilterColumn: TableFilterColumn;
   TableFilterInput: TableFilterInput;
+  TableImportField: TableImportField;
+  TableImportIssue: TableImportIssue;
+  TableImportResult: TableImportResult;
+  TableInfo: TableInfo;
   TableQueryInput: TableQueryInput;
   TableSortInput: TableSortInput;
   TableStats: TableStats;
@@ -21269,13 +21736,19 @@ export type CompanyResolvers<ContextType = GraphQLContext, ParentType extends Re
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   industry?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   isClient?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  lat?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  leadSource?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   linkedinUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lng?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   location?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  logoUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  mapUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   owner?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   phones?: Resolver<Array<ResolversTypes['CrmPhoneNumber']>, ParentType, ContextType>;
+  placeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   size?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['CompanyStatus'], ParentType, ContextType>;
   timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -21380,6 +21853,7 @@ export type ComplianceSliceResolvers<ContextType = GraphQLContext, ParentType ex
 
 export type ContactResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['Contact'] = ResolversParentTypes['Contact']> = ResolversObject<{
   address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  avatarUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   city?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   companyId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   companyName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -21393,14 +21867,18 @@ export type ContactResolvers<ContextType = GraphQLContext, ParentType extends Re
   emails?: Resolver<Array<ResolversTypes['CrmEmailAddress']>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   languages?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  lat?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   leadSource?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   lifecycleStage?: Resolver<ResolversTypes['LifecycleStage'], ParentType, ContextType>;
   linkedinUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lng?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  mapUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   notes?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   owner?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   phones?: Resolver<Array<ResolversTypes['CrmPhoneNumber']>, ParentType, ContextType>;
+  placeId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['ContactStatus'], ParentType, ContextType>;
   timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -21535,12 +22013,14 @@ export type CrmEmailAddressResolvers<ContextType = GraphQLContext, ParentType ex
 }>;
 
 export type CrmEmailMessageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmEmailMessage'] = ResolversParentTypes['CrmEmailMessage']> = ResolversObject<{
+  accountId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   bodyText?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   cc?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   direction?: Resolver<ResolversTypes['CrmEmailDirection'], ParentType, ContextType>;
   from?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   gmailId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  mailbox?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   messageId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sentAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   sentByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -21552,7 +22032,9 @@ export type CrmEmailMessageResolvers<ContextType = GraphQLContext, ParentType ex
 }>;
 
 export type CrmEmailThreadResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['CrmEmailThread'] = ResolversParentTypes['CrmEmailThread']> = ResolversObject<{
+  accountId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   lastAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  mailbox?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   messages?: Resolver<Array<ResolversTypes['CrmEmailMessage']>, ParentType, ContextType>;
   subject?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   threadId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -22292,16 +22774,25 @@ export type GithubConfigResolvers<ContextType = GraphQLContext, ParentType exten
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type GmailAccountResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['GmailAccount'] = ResolversParentTypes['GmailAccount']> = ResolversObject<{
+  connectedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  connectedByName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  lastError?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  lastSyncAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['GmailAccountStatus'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type GmailConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['GmailConfig'] = ResolversParentTypes['GmailConfig']> = ResolversObject<{
+  accountCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   clientId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   clientSecretHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  connected?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  connectedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
-  connectedEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   enabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   hasClientSecret?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  lastError?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   redirectUri?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<Maybe<ResolversTypes['DateTime']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
@@ -22338,6 +22829,24 @@ export type GodaddyConfigResolvers<ContextType = GraphQLContext, ParentType exte
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type GoogleMapsClientConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['GoogleMapsClientConfig'] = ResolversParentTypes['GoogleMapsClientConfig']> = ResolversObject<{
+  browserKey?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  placesReady?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type GoogleMapsConfigResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['GoogleMapsConfig'] = ResolversParentTypes['GoogleMapsConfig']> = ResolversObject<{
+  browserKeyHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  hasBrowserKey?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  hasServerKey?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  isActive?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  label?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  serverKeyHint?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -23028,9 +23537,62 @@ export type LeadResolvers<ContextType = GraphQLContext, ParentType extends Resol
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
+export type LeadEmailResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LeadEmailResult'] = ResolversParentTypes['LeadEmailResult']> = ResolversObject<{
+  emails?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['LeadEmailStatus'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type LeadImportFiledResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LeadImportFiled'] = ResolversParentTypes['LeadImportFiled']> = ResolversObject<{
+  companyId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  placeId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type LeadImportResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LeadImportResult'] = ResolversParentTypes['LeadImportResult']> = ResolversObject<{
+  created?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  filed?: Resolver<Array<ResolversTypes['LeadImportFiled']>, ParentType, ContextType>;
+  skipped?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  skips?: Resolver<Array<ResolversTypes['LeadImportSkip']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type LeadImportSkipResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LeadImportSkip'] = ResolversParentTypes['LeadImportSkip']> = ResolversObject<{
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  placeId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  reason?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
 export type LeadPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LeadPage'] = ResolversParentTypes['LeadPage']> = ResolversObject<{
   rows?: Resolver<Array<ResolversTypes['Lead']>, ParentType, ContextType>;
   totalCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type LeadPlaceResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LeadPlace'] = ResolversParentTypes['LeadPlace']> = ResolversObject<{
+  address?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  city?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  country?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  existingCompanyId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
+  lat?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  lng?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
+  mapUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  phone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  placeId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  primaryType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  rating?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
+  ratingCount?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  types?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  website?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type LeadSearchPageResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['LeadSearchPage'] = ResolversParentTypes['LeadSearchPage']> = ResolversObject<{
+  nextPageToken?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  places?: Resolver<Array<ResolversTypes['LeadPlace']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -23383,6 +23945,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createContact?: Resolver<ResolversTypes['Contact'], ParentType, ContextType, RequireFields<MutationCreateContactArgs, 'input'>>;
   createContract?: Resolver<ResolversTypes['Contract'], ParentType, ContextType, RequireFields<MutationCreateContractArgs, 'input'>>;
   createCostCenter?: Resolver<ResolversTypes['CostCenter'], ParentType, ContextType, RequireFields<MutationCreateCostCenterArgs, 'input'>>;
+  createCrmProperties?: Resolver<Array<ResolversTypes['CrmProperty']>, ParentType, ContextType, RequireFields<MutationCreateCrmPropertiesArgs, 'input'>>;
   createCrmProperty?: Resolver<ResolversTypes['CrmProperty'], ParentType, ContextType, RequireFields<MutationCreateCrmPropertyArgs, 'input'>>;
   createCrmView?: Resolver<ResolversTypes['CrmView'], ParentType, ContextType, RequireFields<MutationCreateCrmViewArgs, 'input'>>;
   createDeal?: Resolver<ResolversTypes['Deal'], ParentType, ContextType, RequireFields<MutationCreateDealArgs, 'input'>>;
@@ -23404,6 +23967,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   createGithubConfig?: Resolver<ResolversTypes['GithubConfig'], ParentType, ContextType, RequireFields<MutationCreateGithubConfigArgs, 'input'>>;
   createGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationCreateGoalArgs, 'input'>>;
   createGodaddyConfig?: Resolver<ResolversTypes['GodaddyConfig'], ParentType, ContextType, RequireFields<MutationCreateGodaddyConfigArgs, 'input'>>;
+  createGoogleMapsConfig?: Resolver<ResolversTypes['GoogleMapsConfig'], ParentType, ContextType, RequireFields<MutationCreateGoogleMapsConfigArgs, 'input'>>;
   createGrade?: Resolver<ResolversTypes['Grade'], ParentType, ContextType, RequireFields<MutationCreateGradeArgs, 'input'>>;
   createHoliday?: Resolver<ResolversTypes['Holiday'], ParentType, ContextType, RequireFields<MutationCreateHolidayArgs, 'input'>>;
   createImageConfig?: Resolver<ResolversTypes['ImageConfig'], ParentType, ContextType, RequireFields<MutationCreateImageConfigArgs, 'input'>>;
@@ -23542,6 +24106,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteGithubConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGithubConfigArgs, 'id'>>;
   deleteGoal?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGoalArgs, 'id'>>;
   deleteGodaddyConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGodaddyConfigArgs, 'id'>>;
+  deleteGoogleMapsConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGoogleMapsConfigArgs, 'id'>>;
   deleteGrade?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteGradeArgs, 'id'>>;
   deleteHoliday?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteHolidayArgs, 'id'>>;
   deleteImageConfig?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteImageConfigArgs, 'id'>>;
@@ -23624,7 +24189,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   deleteWhatsappWorkflow?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDeleteWhatsappWorkflowArgs, 'id'>>;
   disableMfa?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisableMfaArgs, 'password'>>;
   discardWhatsappWorkflowDraft?: Resolver<ResolversTypes['WhatsappWorkflow'], ParentType, ContextType, RequireFields<MutationDiscardWhatsappWorkflowDraftArgs, 'id'>>;
-  disconnectGmail?: Resolver<ResolversTypes['GmailConfig'], ParentType, ContextType>;
+  disconnectGmailAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisconnectGmailAccountArgs, 'id'>>;
   disconnectSocialAccount?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationDisconnectSocialAccountArgs, 'id'>>;
   draftCrmEmail?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationDraftCrmEmailArgs, 'input'>>;
   duplicateCmsPage?: Resolver<ResolversTypes['CmsPage'], ParentType, ContextType, RequireFields<MutationDuplicateCmsPageArgs, 'id' | 'path'>>;
@@ -23632,10 +24197,13 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   emailGccEstimate?: Resolver<ResolversTypes['GccEmailResult'], ParentType, ContextType, RequireFields<MutationEmailGccEstimateArgs, 'captcha' | 'input'>>;
   endApprovalDelegation?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationEndApprovalDelegationArgs, 'id'>>;
   escalateSupportTicket?: Resolver<ResolversTypes['SupportTicket'], ParentType, ContextType, RequireFields<MutationEscalateSupportTicketArgs, 'id' | 'reason'>>;
+  findLeadEmails?: Resolver<ResolversTypes['LeadEmailResult'], ParentType, ContextType, RequireFields<MutationFindLeadEmailsArgs, 'website'>>;
   fulfilItAccessRequest?: Resolver<ResolversTypes['ItAccessRequest'], ParentType, ContextType, RequireFields<MutationFulfilItAccessRequestArgs, 'id'>>;
   grantTrackerAccess?: Resolver<ResolversTypes['TrackerAccess'], ParentType, ContextType, RequireFields<MutationGrantTrackerAccessArgs, 'userId'>>;
   importCrmRecords?: Resolver<ResolversTypes['CrmImportResult'], ParentType, ContextType, RequireFields<MutationImportCrmRecordsArgs, 'input'>>;
+  importLeadsToCrm?: Resolver<ResolversTypes['LeadImportResult'], ParentType, ContextType, RequireFields<MutationImportLeadsToCrmArgs, 'leads'>>;
   importMediaFromUrl?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationImportMediaFromUrlArgs, 'fileName' | 'url'>>;
+  importTableRows?: Resolver<ResolversTypes['TableImportResult'], ParentType, ContextType, RequireFields<MutationImportTableRowsArgs, 'firstRowNumber' | 'list' | 'mode' | 'rows'>>;
   itDisableLeaverAccount?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationItDisableLeaverAccountArgs, 'employeeId'>>;
   itProvisionOnboarding?: Resolver<Array<ResolversTypes['ItAccessRequest']>, ParentType, ContextType, RequireFields<MutationItProvisionOnboardingArgs, 'employeeId'>>;
   itRevokeAllAccess?: Resolver<Array<ResolversTypes['ItAccessRequest']>, ParentType, ContextType, RequireFields<MutationItRevokeAllAccessArgs, 'employeeId'>>;
@@ -23650,6 +24218,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   migrateDnsToCloudflare?: Resolver<ResolversTypes['DnsMigrationResult'], ParentType, ContextType, RequireFields<MutationMigrateDnsToCloudflareArgs, 'domain'>>;
   moveDocPage?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationMoveDocPageArgs, 'id' | 'toIndex'>>;
   moveTask?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationMoveTaskArgs, 'id' | 'toColumnId' | 'toIndex'>>;
+  parseTableFile?: Resolver<ResolversTypes['ParsedTableFile'], ParentType, ContextType, RequireFields<MutationParseTableFileArgs, 'contentBase64' | 'fileName'>>;
   promoteBugToTask?: Resolver<ResolversTypes['Task'], ParentType, ContextType, RequireFields<MutationPromoteBugToTaskArgs, 'id'>>;
   promoteCompanyToClient?: Resolver<ResolversTypes['Company'], ParentType, ContextType, RequireFields<MutationPromoteCompanyToClientArgs, 'id'>>;
   publishCmsFragment?: Resolver<ResolversTypes['CmsFragment'], ParentType, ContextType, RequireFields<MutationPublishCmsFragmentArgs, 'id'>>;
@@ -23724,6 +24293,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   setDefaultCmsSite?: Resolver<ResolversTypes['CmsSite'], ParentType, ContextType, RequireFields<MutationSetDefaultCmsSiteArgs, 'id'>>;
   setDomainNameservers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType, RequireFields<MutationSetDomainNameserversArgs, 'domain' | 'target'>>;
   setExpenseClaimStatus?: Resolver<ResolversTypes['ExpenseClaim'], ParentType, ContextType, RequireFields<MutationSetExpenseClaimStatusArgs, 'id' | 'status'>>;
+  setGmailAccountEnabled?: Resolver<ResolversTypes['GmailAccount'], ParentType, ContextType, RequireFields<MutationSetGmailAccountEnabledArgs, 'enabled' | 'id'>>;
   setLeaveStatus?: Resolver<ResolversTypes['LeaveRequest'], ParentType, ContextType, RequireFields<MutationSetLeaveStatusArgs, 'id' | 'status'>>;
   setMyNotificationPreference?: Resolver<Array<ResolversTypes['NotificationPreference']>, ParentType, ContextType, RequireFields<MutationSetMyNotificationPreferenceArgs, 'input'>>;
   setMyTrackerPresence?: Resolver<ResolversTypes['TrackerPresenceState'], ParentType, ContextType, RequireFields<MutationSetMyTrackerPresenceArgs, 'status'>>;
@@ -23770,6 +24340,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   testGithubConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGithubConnectionArgs, 'id'>>;
   testGmailConfig?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   testGodaddyConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestGodaddyConnectionArgs, 'id'>>;
+  testGoogleMapsConfig?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestGoogleMapsConfigArgs, 'id'>>;
   testGoogleSignInConfig?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   testImageUpload?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationTestImageUploadArgs, 'file' | 'fileName' | 'id'>>;
   testInboundMailConnection?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationTestInboundMailConnectionArgs, 'id'>>;
@@ -23846,6 +24417,7 @@ export type MutationResolvers<ContextType = GraphQLContext, ParentType extends R
   updateGithubConfig?: Resolver<ResolversTypes['GithubConfig'], ParentType, ContextType, RequireFields<MutationUpdateGithubConfigArgs, 'id' | 'input'>>;
   updateGoal?: Resolver<ResolversTypes['Goal'], ParentType, ContextType, RequireFields<MutationUpdateGoalArgs, 'id' | 'input'>>;
   updateGodaddyConfig?: Resolver<ResolversTypes['GodaddyConfig'], ParentType, ContextType, RequireFields<MutationUpdateGodaddyConfigArgs, 'id' | 'input'>>;
+  updateGoogleMapsConfig?: Resolver<ResolversTypes['GoogleMapsConfig'], ParentType, ContextType, RequireFields<MutationUpdateGoogleMapsConfigArgs, 'id' | 'input'>>;
   updateGrade?: Resolver<ResolversTypes['Grade'], ParentType, ContextType, RequireFields<MutationUpdateGradeArgs, 'id' | 'input'>>;
   updateHoliday?: Resolver<ResolversTypes['Holiday'], ParentType, ContextType, RequireFields<MutationUpdateHolidayArgs, 'id' | 'input'>>;
   updateImageConfig?: Resolver<ResolversTypes['ImageConfig'], ParentType, ContextType, RequireFields<MutationUpdateImageConfigArgs, 'id' | 'input'>>;
@@ -24159,6 +24731,12 @@ export type OrganizationResolvers<ContextType = GraphQLContext, ParentType exten
   taxSystem?: Resolver<ResolversTypes['TaxSystem'], ParentType, ContextType>;
   timezone?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   updatedAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ParsedTableFileResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['ParsedTableFile'] = ResolversParentTypes['ParsedTableFile']> = ResolversObject<{
+  headers?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  rows?: Resolver<Array<Array<ResolversTypes['String']>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -24811,6 +25389,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   complianceOverview?: Resolver<ResolversTypes['ComplianceOverview'], ParentType, ContextType>;
   contractSignatures?: Resolver<Array<ResolversTypes['ContractSignature']>, ParentType, ContextType, RequireFields<QueryContractSignaturesArgs, 'contractId'>>;
   contractToSign?: Resolver<Maybe<ResolversTypes['ContractToSign']>, ParentType, ContextType, RequireFields<QueryContractToSignArgs, 'token'>>;
+  crmEmailSender?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType, RequireFields<QueryCrmEmailSenderArgs, 'id' | 'object'>>;
   crmEmailThreads?: Resolver<Array<ResolversTypes['CrmEmailThread']>, ParentType, ContextType, RequireFields<QueryCrmEmailThreadsArgs, 'id' | 'object'>>;
   crmGmailReady?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   crmObjectSchema?: Resolver<ResolversTypes['CrmObjectSchema'], ParentType, ContextType, RequireFields<QueryCrmObjectSchemaArgs, 'object'>>;
@@ -24916,7 +25495,11 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   getWebsiteChatFaq?: Resolver<ResolversTypes['WebsiteChatFaq'], ParentType, ContextType, RequireFields<QueryGetWebsiteChatFaqArgs, 'id'>>;
   getWebsiteChatKnowledge?: Resolver<ResolversTypes['WebsiteChatKnowledge'], ParentType, ContextType, RequireFields<QueryGetWebsiteChatKnowledgeArgs, 'id'>>;
   getWebsiteSubmission?: Resolver<ResolversTypes['WebsiteSubmission'], ParentType, ContextType, RequireFields<QueryGetWebsiteSubmissionArgs, 'id'>>;
+  gmailAccounts?: Resolver<Array<ResolversTypes['GmailAccount']>, ParentType, ContextType>;
+  gmailClientReady?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   gmailConfig?: Resolver<ResolversTypes['GmailConfig'], ParentType, ContextType>;
+  googleMapsClientConfig?: Resolver<ResolversTypes['GoogleMapsClientConfig'], ParentType, ContextType>;
+  googleMapsConfigs?: Resolver<Array<ResolversTypes['GoogleMapsConfig']>, ParentType, ContextType>;
   googleSignInConfig?: Resolver<ResolversTypes['GoogleSignInConfig'], ParentType, ContextType>;
   googleSignInEnabled?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   gstStates?: Resolver<Array<ResolversTypes['GstState']>, ParentType, ContextType>;
@@ -25332,6 +25915,7 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   searchCompanies?: Resolver<ResolversTypes['CompanyPage'], ParentType, ContextType, RequireFields<QuerySearchCompaniesArgs, 'query'>>;
   searchContacts?: Resolver<ResolversTypes['ContactPage'], ParentType, ContextType, RequireFields<QuerySearchContactsArgs, 'query'>>;
   searchKnowledgeBase?: Resolver<Array<ResolversTypes['KbArticle']>, ParentType, ContextType, RequireFields<QuerySearchKnowledgeBaseArgs, 'query'>>;
+  searchLeadPlaces?: Resolver<ResolversTypes['LeadSearchPage'], ParentType, ContextType, RequireFields<QuerySearchLeadPlacesArgs, 'input'>>;
   searchLeads?: Resolver<ResolversTypes['LeadPage'], ParentType, ContextType, RequireFields<QuerySearchLeadsArgs, 'query'>>;
   searchPexelsPhotos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsPhotosArgs, 'query'>>;
   searchPexelsVideos?: Resolver<Array<ResolversTypes['PexelsMedia']>, ParentType, ContextType, RequireFields<QuerySearchPexelsVideosArgs, 'query'>>;
@@ -25356,6 +25940,9 @@ export type QueryResolvers<ContextType = GraphQLContext, ParentType extends Reso
   statusOverview?: Resolver<ResolversTypes['StatusOverview'], ParentType, ContextType, Partial<QueryStatusOverviewArgs>>;
   supportSlaSummary?: Resolver<ResolversTypes['SupportSlaSummary'], ParentType, ContextType>;
   systemHealth?: Resolver<ResolversTypes['SystemHealth'], ParentType, ContextType>;
+  tableExport?: Resolver<ResolversTypes['TableFile'], ParentType, ContextType, RequireFields<QueryTableExportArgs, 'columns' | 'fileName' | 'format' | 'input' | 'list'>>;
+  tableImportTemplate?: Resolver<ResolversTypes['TableFile'], ParentType, ContextType, RequireFields<QueryTableImportTemplateArgs, 'fileName' | 'format' | 'list'>>;
+  tableInfo?: Resolver<ResolversTypes['TableInfo'], ParentType, ContextType, RequireFields<QueryTableInfoArgs, 'list'>>;
   taskActivity?: Resolver<Array<ResolversTypes['TaskActivity']>, ParentType, ContextType, RequireFields<QueryTaskActivityArgs, 'taskId'>>;
   taskByKey?: Resolver<Maybe<ResolversTypes['Task']>, ParentType, ContextType, RequireFields<QueryTaskByKeyArgs, 'key'>>;
   taskComments?: Resolver<Array<ResolversTypes['TaskComment']>, ParentType, ContextType, RequireFields<QueryTaskCommentsArgs, 'taskId'>>;
@@ -26272,6 +26859,54 @@ export type SystemHealthResolvers<ContextType = GraphQLContext, ParentType exten
   nodeVersion?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   serverVersion?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   uptimeSeconds?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TableFileResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TableFile'] = ResolversParentTypes['TableFile']> = ResolversObject<{
+  contentBase64?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  fileName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  mimeType?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  rowCount?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TableFilterColumnResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TableFilterColumn'] = ResolversParentTypes['TableFilterColumn']> = ResolversObject<{
+  field?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['TableFieldKind'], ParentType, ContextType>;
+  options?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TableImportFieldResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TableImportField'] = ResolversParentTypes['TableImportField']> = ResolversObject<{
+  description?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  field?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  kind?: Resolver<ResolversTypes['TableFieldKind'], ParentType, ContextType>;
+  options?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  required?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TableImportIssueResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TableImportIssue'] = ResolversParentTypes['TableImportIssue']> = ResolversObject<{
+  message?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  row?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  skipped?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TableImportResultResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TableImportResult'] = ResolversParentTypes['TableImportResult']> = ResolversObject<{
+  created?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  issues?: Resolver<Array<ResolversTypes['TableImportIssue']>, ParentType, ContextType>;
+  skipped?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  updated?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TableInfoResolvers<ContextType = GraphQLContext, ParentType extends ResolversParentTypes['TableInfo'] = ResolversParentTypes['TableInfo']> = ResolversObject<{
+  filters?: Resolver<Array<ResolversTypes['TableFilterColumn']>, ParentType, ContextType>;
+  importFields?: Resolver<Array<ResolversTypes['TableImportField']>, ParentType, ContextType>;
+  importable?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  matchFields?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
+  sortFields?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -27606,10 +28241,13 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   Gig?: GigResolvers<ContextType>;
   GigPage?: GigPageResolvers<ContextType>;
   GithubConfig?: GithubConfigResolvers<ContextType>;
+  GmailAccount?: GmailAccountResolvers<ContextType>;
   GmailConfig?: GmailConfigResolvers<ContextType>;
   Goal?: GoalResolvers<ContextType>;
   GoalPage?: GoalPageResolvers<ContextType>;
   GodaddyConfig?: GodaddyConfigResolvers<ContextType>;
+  GoogleMapsClientConfig?: GoogleMapsClientConfigResolvers<ContextType>;
+  GoogleMapsConfig?: GoogleMapsConfigResolvers<ContextType>;
   GoogleSignInConfig?: GoogleSignInConfigResolvers<ContextType>;
   Grade?: GradeResolvers<ContextType>;
   GradePage?: GradePageResolvers<ContextType>;
@@ -27669,7 +28307,13 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   KbArticle?: KbArticleResolvers<ContextType>;
   KbArticlePage?: KbArticlePageResolvers<ContextType>;
   Lead?: LeadResolvers<ContextType>;
+  LeadEmailResult?: LeadEmailResultResolvers<ContextType>;
+  LeadImportFiled?: LeadImportFiledResolvers<ContextType>;
+  LeadImportResult?: LeadImportResultResolvers<ContextType>;
+  LeadImportSkip?: LeadImportSkipResolvers<ContextType>;
   LeadPage?: LeadPageResolvers<ContextType>;
+  LeadPlace?: LeadPlaceResolvers<ContextType>;
+  LeadSearchPage?: LeadSearchPageResolvers<ContextType>;
   LeaveBalance?: LeaveBalanceResolvers<ContextType>;
   LeaveBalancePage?: LeaveBalancePageResolvers<ContextType>;
   LeavePolicy?: LeavePolicyResolvers<ContextType>;
@@ -27719,6 +28363,7 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   OpenAiConfig?: OpenAiConfigResolvers<ContextType>;
   OrgNode?: OrgNodeResolvers<ContextType>;
   Organization?: OrganizationResolvers<ContextType>;
+  ParsedTableFile?: ParsedTableFileResolvers<ContextType>;
   Payment?: PaymentResolvers<ContextType>;
   PaymentAttempt?: PaymentAttemptResolvers<ContextType>;
   PaymentPage?: PaymentPageResolvers<ContextType>;
@@ -27848,6 +28493,12 @@ export type Resolvers<ContextType = GraphQLContext> = ResolversObject<{
   SupportTicket?: SupportTicketResolvers<ContextType>;
   SupportTicketPage?: SupportTicketPageResolvers<ContextType>;
   SystemHealth?: SystemHealthResolvers<ContextType>;
+  TableFile?: TableFileResolvers<ContextType>;
+  TableFilterColumn?: TableFilterColumnResolvers<ContextType>;
+  TableImportField?: TableImportFieldResolvers<ContextType>;
+  TableImportIssue?: TableImportIssueResolvers<ContextType>;
+  TableImportResult?: TableImportResultResolvers<ContextType>;
+  TableInfo?: TableInfoResolvers<ContextType>;
   TableStats?: TableStatsResolvers<ContextType>;
   Task?: TaskResolvers<ContextType>;
   TaskActivity?: TaskActivityResolvers<ContextType>;

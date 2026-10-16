@@ -2294,13 +2294,25 @@ export type Company = {
   industry: Scalars['String']['output'];
   /** Whether the account has a client record — what Finance and Projects bill and plan against. */
   isClient: Scalars['Boolean']['output'];
+  /** Latitude, when the account was filed from Google Places; null otherwise. */
+  lat?: Maybe<Scalars['Float']['output']>;
+  /** Where the account came from, e.g. Google Places; empty when typed in by hand. */
+  leadSource: Scalars['String']['output'];
   linkedinUrl: Scalars['String']['output'];
+  /** Longitude, when the account was filed from Google Places; null otherwise. */
+  lng?: Maybe<Scalars['Float']['output']>;
   location: Scalars['String']['output'];
+  /** The logo's web address; empty when there is none. */
+  logoUrl: Scalars['String']['output'];
+  /** Its Google Maps page, empty when unknown. */
+  mapUrl: Scalars['String']['output'];
   name: Scalars['String']['output'];
   notes: Scalars['String']['output'];
   owner: Scalars['String']['output'];
   phone: Scalars['String']['output'];
   phones: Array<CrmPhoneNumber>;
+  /** The Google Place ID it was filed from, empty when typed in by hand. */
+  placeId: Scalars['String']['output'];
   /** One of COMPANY_SIZES (11-50, and so on). A string, because 1-10 is not a valid enum name. */
   size: Scalars['String']['output'];
   status: CompanyStatus;
@@ -2419,6 +2431,7 @@ export type CompanyInput = {
   industry?: InputMaybe<Scalars['String']['input']>;
   linkedinUrl?: InputMaybe<Scalars['String']['input']>;
   location?: InputMaybe<Scalars['String']['input']>;
+  logoUrl?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   notes?: InputMaybe<Scalars['String']['input']>;
   owner: Scalars['String']['input'];
@@ -2511,6 +2524,8 @@ export type ComplianceSlice = {
 export type Contact = {
   __typename?: 'Contact';
   address: Scalars['String']['output'];
+  /** The profile picture's web address; empty when there is none. */
+  avatarUrl: Scalars['String']['output'];
   city: Scalars['String']['output'];
   companyId: Scalars['String']['output'];
   companyName: Scalars['String']['output'];
@@ -2527,15 +2542,19 @@ export type Contact = {
   emails: Array<CrmEmailAddress>;
   id: Scalars['ID']['output'];
   languages: Array<Scalars['String']['output']>;
+  lat?: Maybe<Scalars['Float']['output']>;
   leadSource: Scalars['String']['output'];
   lifecycleStage: LifecycleStage;
   linkedinUrl: Scalars['String']['output'];
+  lng?: Maybe<Scalars['Float']['output']>;
+  mapUrl: Scalars['String']['output'];
   name: Scalars['String']['output'];
   notes: Scalars['String']['output'];
   owner: Scalars['String']['output'];
   phone: Scalars['String']['output'];
   /** Every number; phone is the primary one. */
   phones: Array<CrmPhoneNumber>;
+  placeId: Scalars['String']['output'];
   status: ContactStatus;
   /** IANA time zone, for the contact's local time. */
   timezone: Scalars['String']['output'];
@@ -2547,6 +2566,7 @@ export type Contact = {
 
 export type ContactInput = {
   address?: InputMaybe<Scalars['String']['input']>;
+  avatarUrl?: InputMaybe<Scalars['String']['input']>;
   city?: InputMaybe<Scalars['String']['input']>;
   companyId?: InputMaybe<Scalars['String']['input']>;
   companyName?: InputMaybe<Scalars['String']['input']>;
@@ -2827,12 +2847,15 @@ export enum CrmEmailDirection {
 
 export type CrmEmailMessage = {
   __typename?: 'CrmEmailMessage';
+  /** The connected account it was read from or sent by; empty on mail from before accounts. */
+  accountId: Scalars['String']['output'];
   bodyText: Scalars['String']['output'];
   cc: Array<Scalars['String']['output']>;
   direction: CrmEmailDirection;
   from: Scalars['String']['output'];
   gmailId: Scalars['String']['output'];
   id: Scalars['ID']['output'];
+  mailbox: Scalars['String']['output'];
   messageId: Scalars['String']['output'];
   sentAt: Scalars['DateTime']['output'];
   sentByName: Scalars['String']['output'];
@@ -2842,9 +2865,13 @@ export type CrmEmailMessage = {
   to: Array<Scalars['String']['output']>;
 };
 
+/** One conversation in one connected mailbox (Gmail thread ids are per mailbox). */
 export type CrmEmailThread = {
   __typename?: 'CrmEmailThread';
+  accountId: Scalars['String']['output'];
   lastAt: Scalars['DateTime']['output'];
+  /** The connected mailbox the conversation is in. */
+  mailbox: Scalars['String']['output'];
   messages: Array<CrmEmailMessage>;
   subject: Scalars['String']['output'];
   threadId: Scalars['ID']['output'];
@@ -2940,6 +2967,17 @@ export type CrmPhoneNumberInput = {
   label?: InputMaybe<Scalars['String']['input']>;
   number: Scalars['String']['input'];
   primary?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+/** One new property for several record types at once: a row is made for each of objects. */
+export type CrmPropertiesInput = {
+  description: Scalars['String']['input'];
+  key: Scalars['String']['input'];
+  label: Scalars['String']['input'];
+  objects: Array<CrmObject>;
+  options: Array<CrmPropertyOptionInput>;
+  required: Scalars['Boolean']['input'];
+  type: CrmPropertyType;
 };
 
 /** A property a company added (CRM > Settings > Properties). */
@@ -3935,10 +3973,21 @@ export type FileAttachmentInput = {
 };
 
 export enum FilterOp {
+  /** Nothing stored, or an empty string; the filter's value is ignored. */
+  Blank = 'BLANK',
   Contains = 'CONTAINS',
+  EndsWith = 'ENDS_WITH',
   Equals = 'EQUALS',
   Gt = 'GT',
+  Gte = 'GTE',
+  /** Any of the filter's values; its value is ignored. */
+  In = 'IN',
   Lt = 'LT',
+  Lte = 'LTE',
+  /** Anything but blank; the filter's value is ignored. */
+  NotBlank = 'NOT_BLANK',
+  NotContains = 'NOT_CONTAINS',
+  NotEquals = 'NOT_EQUALS',
   StartsWith = 'STARTS_WITH'
 }
 
@@ -4182,20 +4231,37 @@ export type GithubConfigInput = {
   token: Scalars['String']['input'];
 };
 
-/** The shared Gmail mailbox the CRM sends from. Tokens never leave the server. */
-export type GmailConfig = {
-  __typename?: 'GmailConfig';
-  clientId: Scalars['String']['output'];
-  clientSecretHint?: Maybe<Scalars['String']['output']>;
-  connected: Scalars['Boolean']['output'];
+/** A Gmail mailbox connected to the CRM. Its token never leaves the server. */
+export type GmailAccount = {
+  __typename?: 'GmailAccount';
   connectedAt?: Maybe<Scalars['DateTime']['output']>;
-  /** The mailbox Google connected; empty until then. */
-  connectedEmail: Scalars['String']['output'];
+  connectedByName: Scalars['String']['output'];
+  email: Scalars['String']['output'];
+  /** Whether the CRM reads and sends from it. */
   enabled: Scalars['Boolean']['output'];
-  hasClientSecret: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
   /** Why the last call to Gmail failed; empty when it worked. */
   lastError: Scalars['String']['output'];
+  lastSyncAt?: Maybe<Scalars['DateTime']['output']>;
+  status: GmailAccountStatus;
+};
+
+export enum GmailAccountStatus {
+  Connected = 'CONNECTED',
+  /** Google refused the stored connection; connect the account again. */
+  NeedsReconnect = 'NEEDS_RECONNECT'
+}
+
+/** The Google OAuth client the CRM's Gmail accounts connect through. Secrets stay on the server. */
+export type GmailConfig = {
+  __typename?: 'GmailConfig';
+  /** How many Gmail accounts are connected in CRM > Connect Gmail. */
+  accountCount: Scalars['Int']['output'];
+  clientId: Scalars['String']['output'];
+  clientSecretHint?: Maybe<Scalars['String']['output']>;
+  enabled: Scalars['Boolean']['output'];
+  hasClientSecret: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
   /** Register this exact address as an authorised redirect URI on the Google client. */
   redirectUri: Scalars['String']['output'];
   updatedAt?: Maybe<Scalars['DateTime']['output']>;
@@ -4271,6 +4337,36 @@ export type GodaddyConfigInput = {
   apiSecret?: InputMaybe<Scalars['String']['input']>;
   isActive?: InputMaybe<Scalars['Boolean']['input']>;
   label: Scalars['String']['input'];
+};
+
+/** What the CRM's maps need: the browser key, and whether lead search is set up. */
+export type GoogleMapsClientConfig = {
+  __typename?: 'GoogleMapsClientConfig';
+  /** Null when no browser key is configured; maps are then hidden. */
+  browserKey?: Maybe<Scalars['String']['output']>;
+  placesReady: Scalars['Boolean']['output'];
+};
+
+/** The install's Google Maps Platform keys (Tech > Environment Variables). Both keys are write-only. */
+export type GoogleMapsConfig = {
+  __typename?: 'GoogleMapsConfig';
+  browserKeyHint?: Maybe<Scalars['String']['output']>;
+  hasBrowserKey: Scalars['Boolean']['output'];
+  hasServerKey: Scalars['Boolean']['output'];
+  id: Scalars['ID']['output'];
+  isActive: Scalars['Boolean']['output'];
+  label: Scalars['String']['output'];
+  serverKeyHint?: Maybe<Scalars['String']['output']>;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type GoogleMapsConfigInput = {
+  /** Maps JavaScript key, restricted to the CRM's HTTP referrers. Leave empty when editing to keep it. */
+  browserKey: Scalars['String']['input'];
+  isActive?: InputMaybe<Scalars['Boolean']['input']>;
+  label: Scalars['String']['input'];
+  /** Places API (New) key, used by the server only. Leave empty when editing to keep it. */
+  serverKey: Scalars['String']['input'];
 };
 
 /** The install's Google OAuth client. The secret is never returned; see revealTechSecret. */
@@ -5505,6 +5601,57 @@ export type Lead = {
   value: Scalars['Float']['output'];
 };
 
+export type LeadEmailResult = {
+  __typename?: 'LeadEmailResult';
+  emails: Array<Scalars['String']['output']>;
+  message: Scalars['String']['output'];
+  status: LeadEmailStatus;
+};
+
+export enum LeadEmailStatus {
+  Blocked = 'BLOCKED',
+  Found = 'FOUND',
+  None = 'NONE',
+  Unreachable = 'UNREACHABLE'
+}
+
+/** A place filed as a CRM company. */
+export type LeadImportFiled = {
+  __typename?: 'LeadImportFiled';
+  companyId: Scalars['ID']['output'];
+  placeId: Scalars['ID']['output'];
+};
+
+export type LeadImportInput = {
+  address?: InputMaybe<Scalars['String']['input']>;
+  city?: InputMaybe<Scalars['String']['input']>;
+  country?: InputMaybe<Scalars['String']['input']>;
+  emails?: InputMaybe<Array<Scalars['String']['input']>>;
+  lat: Scalars['Float']['input'];
+  lng: Scalars['Float']['input'];
+  mapUrl?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  phone?: InputMaybe<Scalars['String']['input']>;
+  placeId: Scalars['ID']['input'];
+  primaryType?: InputMaybe<Scalars['String']['input']>;
+  website?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LeadImportResult = {
+  __typename?: 'LeadImportResult';
+  created: Scalars['Int']['output'];
+  filed: Array<LeadImportFiled>;
+  skipped: Scalars['Int']['output'];
+  skips: Array<LeadImportSkip>;
+};
+
+export type LeadImportSkip = {
+  __typename?: 'LeadImportSkip';
+  name: Scalars['String']['output'];
+  placeId: Scalars['ID']['output'];
+  reason: Scalars['String']['output'];
+};
+
 export type LeadInput = {
   /** Attribution. The campaign's name is filled in by the server from this id. */
   campaignId?: InputMaybe<Scalars['String']['input']>;
@@ -5522,6 +5669,48 @@ export type LeadPage = {
   __typename?: 'LeadPage';
   rows: Array<Lead>;
   totalCount: Scalars['Int']['output'];
+};
+
+/** A business found on Google Places. */
+export type LeadPlace = {
+  __typename?: 'LeadPlace';
+  address: Scalars['String']['output'];
+  city: Scalars['String']['output'];
+  country: Scalars['String']['output'];
+  /** The CRM company already filed from this place, if any. */
+  existingCompanyId?: Maybe<Scalars['ID']['output']>;
+  lat: Scalars['Float']['output'];
+  lng: Scalars['Float']['output'];
+  mapUrl: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  phone: Scalars['String']['output'];
+  placeId: Scalars['ID']['output'];
+  primaryType: Scalars['String']['output'];
+  rating?: Maybe<Scalars['Float']['output']>;
+  ratingCount?: Maybe<Scalars['Int']['output']>;
+  types: Array<Scalars['String']['output']>;
+  website: Scalars['String']['output'];
+};
+
+export type LeadSearchInput = {
+  lat?: InputMaybe<Scalars['Float']['input']>;
+  lng?: InputMaybe<Scalars['Float']['input']>;
+  /** Where, as text (e.g. Pune, India). Ignored when lat and lng are given. */
+  location?: InputMaybe<Scalars['String']['input']>;
+  pageToken?: InputMaybe<Scalars['String']['input']>;
+  /** What to look for, e.g. dentists. */
+  query: Scalars['String']['input'];
+  /** Radius around lat/lng in metres, at most 50000. */
+  radiusMeters?: InputMaybe<Scalars['Int']['input']>;
+  /** A Google Places type, e.g. dentist. */
+  type?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type LeadSearchPage = {
+  __typename?: 'LeadSearchPage';
+  /** Pass back to get the next page; null on the last one. */
+  nextPageToken?: Maybe<Scalars['String']['output']>;
+  places: Array<LeadPlace>;
 };
 
 export enum LeadSource {
@@ -6159,6 +6348,8 @@ export type Mutation = {
   createContact: Contact;
   createContract: Contract;
   createCostCenter: CostCenter;
+  /** Creates the property on every chosen record type, or on none when any of them cannot take the key. */
+  createCrmProperties: Array<CrmProperty>;
   createCrmProperty: CrmProperty;
   createCrmView: CrmView;
   createDeal: Deal;
@@ -6182,6 +6373,7 @@ export type Mutation = {
   createGithubConfig: GithubConfig;
   createGoal: Goal;
   createGodaddyConfig: GodaddyConfig;
+  createGoogleMapsConfig: GoogleMapsConfig;
   createGrade: Grade;
   createHoliday: Holiday;
   createImageConfig: ImageConfig;
@@ -6355,6 +6547,7 @@ export type Mutation = {
   deleteGithubConfig: Scalars['Boolean']['output'];
   deleteGoal: Scalars['Boolean']['output'];
   deleteGodaddyConfig: Scalars['Boolean']['output'];
+  deleteGoogleMapsConfig: Scalars['Boolean']['output'];
   deleteGrade: Scalars['Boolean']['output'];
   deleteHoliday: Scalars['Boolean']['output'];
   deleteImageConfig: Scalars['Boolean']['output'];
@@ -6442,7 +6635,8 @@ export type Mutation = {
   disableMfa: Scalars['Boolean']['output'];
   /** Puts the published graph back into the draft. */
   discardWhatsappWorkflowDraft: WhatsappWorkflow;
-  disconnectGmail: GmailConfig;
+  /** Removes the account and its token; mail already synced stays on the records. */
+  disconnectGmailAccount: Scalars['Boolean']['output'];
   disconnectSocialAccount: Scalars['Boolean']['output'];
   /** An AI draft of a new email or a reply, from the record and its thread. */
   draftCrmEmail: Scalars['String']['output'];
@@ -6458,11 +6652,17 @@ export type Mutation = {
    * its escalation level, records the reason as an internal note and tells the assignee.
    */
   escalateSupportTicket: SupportTicket;
+  /** Reads a business website (home and contact pages, robots.txt honoured) for its email addresses. */
+  findLeadEmails: LeadEmailResult;
   /** Mark an APPROVED request as carried out in the target system. */
   fulfilItAccessRequest: ItAccessRequest;
   grantTrackerAccess: TrackerAccess;
   importCrmRecords: CrmImportResult;
+  /** Files the chosen places as CRM companies, skipping ones already filed. */
+  importLeadsToCrm: LeadImportResult;
   importMediaFromUrl: Scalars['String']['output'];
+  /** Imports up to 500 mapped rows (field to cell text) through the module's own create and update. */
+  importTableRows: TableImportResult;
   /**
    * Disables a leaver's account. Only someone with an exit on record, never an administrator
    * and never the caller. Admin's setUserActive remains the general way to deactivate anyone.
@@ -6493,6 +6693,8 @@ export type Mutation = {
   /** Re-files a page under a new parent (null for top level) at a given position. */
   moveDocPage: Scalars['Boolean']['output'];
   moveTask: Scalars['Boolean']['output'];
+  /** Reads an uploaded CSV or XLSX (up to 10 MB and 50,000 rows) for the import wizard. */
+  parseTableFile: ParsedTableFile;
   /**
    * Makes the bug a BUG ticket in the first column of its project's board and records the
    * ticket on the bug. Refused when the bug has no project, or was already promoted.
@@ -6675,6 +6877,8 @@ export type Mutation = {
    * PAID stamps paidOn, the date the reimbursement reaches the cash figures.
    */
   setExpenseClaimStatus: ExpenseClaim;
+  /** Turns an account on or off for the CRM. */
+  setGmailAccountEnabled: GmailAccount;
   /** HR/ADMIN or the employee's manager: approve or reject a leave request. */
   setLeaveStatus: LeaveRequest;
   /** Sets where one kind reaches this person. Returns the whole set, so a screen stays in step. */
@@ -6738,7 +6942,7 @@ export type Mutation = {
   /** AI: what worked, what did not, and what to try, from the last days' posts. */
   socialMediaInsights: Scalars['String']['output'];
   startCallingBotCall: CallingBotCallStart;
-  /** Google's consent page to connect the mailbox; comes back to returnTo. */
+  /** Google's consent page to connect one more mailbox (or renew one); comes back to returnTo. */
   startGmailConnect: Scalars['String']['output'];
   /** Google's consent page for a sign-in that returns to this portal page. Public. */
   startGoogleSignIn: Scalars['String']['output'];
@@ -6787,9 +6991,11 @@ export type Mutation = {
   /** Connects to the proxy and signs in; says what worked, or why not. */
   testEmailVerifierConfig: Scalars['String']['output'];
   testGithubConnection: Scalars['Boolean']['output'];
-  /** Reads the mailbox's address with the stored connection. */
+  /** Reads every enabled mailbox's address with its stored connection. */
   testGmailConfig: Scalars['String']['output'];
   testGodaddyConnection: Scalars['Boolean']['output'];
+  /** Runs one Places search with the server key; says what worked, or why not. */
+  testGoogleMapsConfig: Scalars['String']['output'];
   /** Checks the client ID and secret with Google; says what worked, or why not. */
   testGoogleSignInConfig: Scalars['String']['output'];
   testImageUpload: Scalars['String']['output'];
@@ -6910,6 +7116,7 @@ export type Mutation = {
   updateGithubConfig: GithubConfig;
   updateGoal: Goal;
   updateGodaddyConfig: GodaddyConfig;
+  updateGoogleMapsConfig: GoogleMapsConfig;
   updateGrade: Grade;
   updateHoliday: Holiday;
   updateImageConfig: ImageConfig;
@@ -7360,6 +7567,11 @@ export type MutationCreateCostCenterArgs = {
 };
 
 
+export type MutationCreateCrmPropertiesArgs = {
+  input: CrmPropertiesInput;
+};
+
+
 export type MutationCreateCrmPropertyArgs = {
   input: CrmPropertyInput;
 };
@@ -7466,6 +7678,11 @@ export type MutationCreateGoalArgs = {
 
 export type MutationCreateGodaddyConfigArgs = {
   input: GodaddyConfigInput;
+};
+
+
+export type MutationCreateGoogleMapsConfigArgs = {
+  input: GoogleMapsConfigInput;
 };
 
 
@@ -8183,6 +8400,11 @@ export type MutationDeleteGodaddyConfigArgs = {
 };
 
 
+export type MutationDeleteGoogleMapsConfigArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDeleteGradeArgs = {
   id: Scalars['ID']['input'];
 };
@@ -8588,6 +8810,11 @@ export type MutationDiscardWhatsappWorkflowDraftArgs = {
 };
 
 
+export type MutationDisconnectGmailAccountArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationDisconnectSocialAccountArgs = {
   id: Scalars['ID']['input'];
 };
@@ -8626,6 +8853,11 @@ export type MutationEscalateSupportTicketArgs = {
 };
 
 
+export type MutationFindLeadEmailsArgs = {
+  website: Scalars['String']['input'];
+};
+
+
 export type MutationFulfilItAccessRequestArgs = {
   id: Scalars['ID']['input'];
 };
@@ -8641,10 +8873,24 @@ export type MutationImportCrmRecordsArgs = {
 };
 
 
+export type MutationImportLeadsToCrmArgs = {
+  leads: Array<LeadImportInput>;
+};
+
+
 export type MutationImportMediaFromUrlArgs = {
   fileName: Scalars['String']['input'];
   folder?: InputMaybe<Scalars['String']['input']>;
   url: Scalars['String']['input'];
+};
+
+
+export type MutationImportTableRowsArgs = {
+  firstRowNumber: Scalars['Int']['input'];
+  list: Scalars['String']['input'];
+  matchField?: InputMaybe<Scalars['String']['input']>;
+  mode: TableImportMode;
+  rows: Array<Scalars['JSON']['input']>;
 };
 
 
@@ -8717,6 +8963,12 @@ export type MutationMoveTaskArgs = {
   id: Scalars['ID']['input'];
   toColumnId: Scalars['ID']['input'];
   toIndex: Scalars['Int']['input'];
+};
+
+
+export type MutationParseTableFileArgs = {
+  contentBase64: Scalars['String']['input'];
+  fileName: Scalars['String']['input'];
 };
 
 
@@ -9130,6 +9382,12 @@ export type MutationSetExpenseClaimStatusArgs = {
 };
 
 
+export type MutationSetGmailAccountEnabledArgs = {
+  enabled: Scalars['Boolean']['input'];
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationSetLeaveStatusArgs = {
   id: Scalars['ID']['input'];
   status: LeaveStatus;
@@ -9370,6 +9628,11 @@ export type MutationTestGithubConnectionArgs = {
 
 
 export type MutationTestGodaddyConnectionArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationTestGoogleMapsConfigArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -9804,6 +10067,12 @@ export type MutationUpdateGoalArgs = {
 export type MutationUpdateGodaddyConfigArgs = {
   id: Scalars['ID']['input'];
   input: GodaddyConfigInput;
+};
+
+
+export type MutationUpdateGoogleMapsConfigArgs = {
+  id: Scalars['ID']['input'];
+  input: GoogleMapsConfigInput;
 };
 
 
@@ -10792,6 +11061,13 @@ export type OrganizationUpdateInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   taxSystem?: InputMaybe<TaxSystem>;
   timezone?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** An uploaded file read for import: its header row and data rows, blank rows kept in place. */
+export type ParsedTableFile = {
+  __typename?: 'ParsedTableFile';
+  headers: Array<Scalars['String']['output']>;
+  rows: Array<Array<Scalars['String']['output']>>;
 };
 
 /** How an employee is paid. Decides which amounts on the salary structure mean anything. */
@@ -11982,9 +12258,11 @@ export type Query = {
    * link is unknown, withdrawn or expired.
    */
   contractToSign?: Maybe<ContractToSign>;
-  /** The record's Gmail threads, synced from Gmail first. */
+  /** The account a new email to the record goes from by default; null when none is enabled. */
+  crmEmailSender?: Maybe<Scalars['ID']['output']>;
+  /** The record's Gmail threads across every enabled account, synced from Gmail first. */
   crmEmailThreads: Array<CrmEmailThread>;
-  /** Whether the CRM can email through Gmail (connected, and this is the operator's CRM). */
+  /** Whether the CRM can email through Gmail (an enabled account, and this is the operator's CRM). */
   crmGmailReady: Scalars['Boolean']['output'];
   crmObjectSchema: CrmObjectSchema;
   crmProperties: Array<CrmProperty>;
@@ -12102,7 +12380,13 @@ export type Query = {
   getWebsiteChatFaq: WebsiteChatFaq;
   getWebsiteChatKnowledge: WebsiteChatKnowledge;
   getWebsiteSubmission: WebsiteSubmission;
+  /** The Gmail accounts connected to the CRM, newest first. */
+  gmailAccounts: Array<GmailAccount>;
+  /** Whether Tech has saved and turned on the Google client the accounts connect through. */
+  gmailClientReady: Scalars['Boolean']['output'];
   gmailConfig: GmailConfig;
+  googleMapsClientConfig: GoogleMapsClientConfig;
+  googleMapsConfigs: Array<GoogleMapsConfig>;
   googleSignInConfig: GoogleSignInConfig;
   /** Whether the sign-in page offers Continue with Google. Public. */
   googleSignInEnabled: Scalars['Boolean']['output'];
@@ -12655,6 +12939,8 @@ export type Query = {
    * paste and an employee hunting for it themselves are the same search.
    */
   searchKnowledgeBase: Array<KbArticle>;
+  /** One page (up to 20) of Google Places Text Search results. */
+  searchLeadPlaces: LeadSearchPage;
   searchLeads: LeadPage;
   /** Stock photos for the shared upload dialog. Any signed-in user may search. */
   searchPexelsPhotos: Array<PexelsMedia>;
@@ -12701,6 +12987,11 @@ export type Query = {
   supportSlaSummary: SupportSlaSummary;
   /** Admin only — the deployment's own vital signs. */
   systemHealth: SystemHealth;
+  /** Every row of a paged list under the given search, sort and filters, as one file. Needs EXPORT. */
+  tableExport: TableFile;
+  /** The sample file to fill in for an import into this list. */
+  tableImportTemplate: TableFile;
+  tableInfo: TableInfo;
   /** The ticket's history, newest first. */
   taskActivity: Array<TaskActivity>;
   /** One ticket by its key, e.g. EXY-14. Null when no ticket has that key. */
@@ -13001,6 +13292,12 @@ export type QueryContractSignaturesArgs = {
 
 export type QueryContractToSignArgs = {
   token: Scalars['String']['input'];
+};
+
+
+export type QueryCrmEmailSenderArgs = {
+  id: Scalars['ID']['input'];
+  object: CrmTimelineObject;
 };
 
 
@@ -14337,6 +14634,11 @@ export type QuerySearchKnowledgeBaseArgs = {
 };
 
 
+export type QuerySearchLeadPlacesArgs = {
+  input: LeadSearchInput;
+};
+
+
 export type QuerySearchLeadsArgs = {
   query: CrmQueryInput;
 };
@@ -14435,6 +14737,28 @@ export type QuerySslCertificatesArgs = {
 
 export type QueryStatusOverviewArgs = {
   days?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryTableExportArgs = {
+  columns: Array<TableExportColumnInput>;
+  fileName: Scalars['String']['input'];
+  format: TableFileFormat;
+  input: TableQueryInput;
+  list: Scalars['String']['input'];
+};
+
+
+export type QueryTableImportTemplateArgs = {
+  columns?: InputMaybe<Array<TableExportColumnInput>>;
+  fileName: Scalars['String']['input'];
+  format: TableFileFormat;
+  list: Scalars['String']['input'];
+};
+
+
+export type QueryTableInfoArgs = {
+  list: Scalars['String']['input'];
 };
 
 
@@ -14985,6 +15309,8 @@ export type SearchHit = {
 export type SendCrmEmailInput = {
   body: Scalars['String']['input'];
   cc?: InputMaybe<Array<Scalars['String']['input']>>;
+  /** The connected account to send from; it has to be enabled for the CRM. */
+  fromAccountId: Scalars['ID']['input'];
   inReplyTo?: InputMaybe<Scalars['String']['input']>;
   subject: Scalars['String']['input'];
   /** Replying: Gmail's thread id and the Message-ID being answered. */
@@ -16074,10 +16400,100 @@ export type SystemHealth = {
   uptimeSeconds: Scalars['Int']['output'];
 };
 
+/** One exported column: the row field it reads (dotted for a nested one, e.g. customer.name) and its heading. */
+export type TableExportColumnInput = {
+  field: Scalars['String']['input'];
+  header: Scalars['String']['input'];
+};
+
+export enum TableFieldKind {
+  Boolean = 'BOOLEAN',
+  Date = 'DATE',
+  Enum = 'ENUM',
+  List = 'LIST',
+  Number = 'NUMBER',
+  Object = 'OBJECT',
+  Text = 'TEXT'
+}
+
+/** A generated file, base64-encoded for the client to save. */
+export type TableFile = {
+  __typename?: 'TableFile';
+  contentBase64: Scalars['String']['output'];
+  fileName: Scalars['String']['output'];
+  mimeType: Scalars['String']['output'];
+  rowCount: Scalars['Int']['output'];
+};
+
+export enum TableFileFormat {
+  Csv = 'CSV',
+  Xlsx = 'XLSX'
+}
+
+/** A column a grid may filter on, with the kind of filter its type takes. */
+export type TableFilterColumn = {
+  __typename?: 'TableFilterColumn';
+  field: Scalars['String']['output'];
+  kind: TableFieldKind;
+  /** The values an enum column holds; empty otherwise. */
+  options: Array<Scalars['String']['output']>;
+};
+
 export type TableFilterInput = {
   field: Scalars['String']['input'];
   op: FilterOp;
   value: Scalars['String']['input'];
+  /** The values an IN filter matches any of; other operators ignore it. */
+  values?: InputMaybe<Array<Scalars['String']['input']>>;
+};
+
+/** One column an import may fill: a field of the module's create input. */
+export type TableImportField = {
+  __typename?: 'TableImportField';
+  description?: Maybe<Scalars['String']['output']>;
+  field: Scalars['String']['output'];
+  kind: TableFieldKind;
+  /** The accepted values of an enum field; empty otherwise. */
+  options: Array<Scalars['String']['output']>;
+  required: Scalars['Boolean']['output'];
+};
+
+export type TableImportIssue = {
+  __typename?: 'TableImportIssue';
+  message: Scalars['String']['output'];
+  /** The row's line in the file. */
+  row: Scalars['Int']['output'];
+  /** True when the row was left alone on purpose rather than refused. */
+  skipped: Scalars['Boolean']['output'];
+};
+
+/** What an import does with a row whose match column names an existing record. */
+export enum TableImportMode {
+  /** Every row becomes a new record. */
+  Create = 'CREATE',
+  /** Rows update the record they match; a row matching none is skipped. */
+  Update = 'UPDATE',
+  /** Rows update the record they match, and become new records when they match none. */
+  Upsert = 'UPSERT'
+}
+
+export type TableImportResult = {
+  __typename?: 'TableImportResult';
+  created: Scalars['Int']['output'];
+  issues: Array<TableImportIssue>;
+  skipped: Scalars['Int']['output'];
+  updated: Scalars['Int']['output'];
+};
+
+/** What a grid may ask of a paged list: its filters, its sorts and whether it takes imports. */
+export type TableInfo = {
+  __typename?: 'TableInfo';
+  filters: Array<TableFilterColumn>;
+  importFields: Array<TableImportField>;
+  importable: Scalars['Boolean']['output'];
+  /** Fields that identify an existing record for UPDATE and UPSERT; empty means CREATE only. */
+  matchFields: Array<Scalars['String']['output']>;
+  sortFields: Array<Scalars['String']['output']>;
 };
 
 /** Server-side pagination/sort/filter/search request. `page` is zero-indexed. */
@@ -16088,6 +16504,8 @@ export type TableQueryInput = {
   pageSize: Scalars['Int']['input'];
   search?: InputMaybe<Scalars['String']['input']>;
   sort?: InputMaybe<TableSortInput>;
+  /** Several sort columns, most significant first. When set it wins over sort. */
+  sorts?: InputMaybe<Array<TableSortInput>>;
 };
 
 export type TableSortInput = {
@@ -16374,6 +16792,8 @@ export enum TechSecret {
   GmailClientSecret = 'GMAIL_CLIENT_SECRET',
   GodaddyApiKey = 'GODADDY_API_KEY',
   GodaddyApiSecret = 'GODADDY_API_SECRET',
+  GoogleMapsBrowserKey = 'GOOGLE_MAPS_BROWSER_KEY',
+  GoogleMapsServerKey = 'GOOGLE_MAPS_SERVER_KEY',
   GoogleSignInClientSecret = 'GOOGLE_SIGN_IN_CLIENT_SECRET',
   ImagekitPrivateKey = 'IMAGEKIT_PRIVATE_KEY',
   InboundMailPassword = 'INBOUND_MAIL_PASSWORD',
@@ -19810,9 +20230,9 @@ export type ComplianceOverviewQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type ComplianceOverviewQuery = { __typename?: 'Query', complianceOverview: { __typename?: 'ComplianceOverview', risks: number, openRisks: number, risksPastReview: number, findings: number, openFindings: number, findingsOverdue: number, audits: number, auditsPlanned: number, objectives: number, objectivesAtRisk: number, reviews: number, lastReviewOn?: string | null, lastReviewTitle: string, risksByStatus: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }>, findingsByType: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }>, residualHeat: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }>, standardCoverage: Array<{ __typename?: 'ComplianceSlice', label: string, value: number }> } };
 
-export type CompanyFieldsFragment = { __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> };
+export type CompanyFieldsFragment = { __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, logoUrl: string, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, leadSource: string, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> };
 
-export type ContactFieldsFragment = { __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> };
+export type ContactFieldsFragment = { __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> };
 
 export type DealFieldsFragment = { __typename?: 'Deal', id: string, title: string, companyId: string, companyName: string, contactId: string, contactName: string, stage: DealStage, value: number, probability: number, expectedCloseDate?: string | null, owner: string, notes: string, clientId: string };
 
@@ -19823,14 +20243,14 @@ export type CrmStatsFragment = { __typename?: 'TableStats', total: number, count
 export type ListCompaniesQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListCompaniesQuery = { __typename?: 'Query', listCompanies: Array<{ __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> };
+export type ListCompaniesQuery = { __typename?: 'Query', listCompanies: Array<{ __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, logoUrl: string, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, leadSource: string, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> };
 
 export type ListCompaniesPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListCompaniesPagedQuery = { __typename?: 'Query', listCompaniesPaged: { __typename?: 'CompanyPage', totalCount: number, rows: Array<{ __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
+export type ListCompaniesPagedQuery = { __typename?: 'Query', listCompaniesPaged: { __typename?: 'CompanyPage', totalCount: number, rows: Array<{ __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, logoUrl: string, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, leadSource: string, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
 
 export type ListCompaniesStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -19869,14 +20289,14 @@ export type PromoteCompanyToClientMutation = { __typename?: 'Mutation', promoteC
 export type ListContactsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ListContactsQuery = { __typename?: 'Query', listContacts: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> };
+export type ListContactsQuery = { __typename?: 'Query', listContacts: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> };
 
 export type ListContactsPagedQueryVariables = Exact<{
   input: TableQueryInput;
 }>;
 
 
-export type ListContactsPagedQuery = { __typename?: 'Query', listContactsPaged: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
+export type ListContactsPagedQuery = { __typename?: 'Query', listContactsPaged: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
 
 export type ListContactsStatsQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -20001,14 +20421,14 @@ export type GetContactQueryVariables = Exact<{
 }>;
 
 
-export type GetContactQuery = { __typename?: 'Query', getContact: { __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> } };
+export type GetContactQuery = { __typename?: 'Query', getContact: { __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> } };
 
 export type GetCompanyQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetCompanyQuery = { __typename?: 'Query', getCompany: { __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> } };
+export type GetCompanyQuery = { __typename?: 'Query', getCompany: { __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, logoUrl: string, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, leadSource: string, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> } };
 
 export type CrmTimelineQueryVariables = Exact<{
   object: CrmTimelineObject;
@@ -20066,14 +20486,14 @@ export type SearchCompaniesQueryVariables = Exact<{
 }>;
 
 
-export type SearchCompaniesQuery = { __typename?: 'Query', searchCompanies: { __typename?: 'CompanyPage', totalCount: number, rows: Array<{ __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
+export type SearchCompaniesQuery = { __typename?: 'Query', searchCompanies: { __typename?: 'CompanyPage', totalCount: number, rows: Array<{ __typename?: 'Company', id: string, name: string, domain: string, industry: string, size: string, status: CompanyStatus, phone: string, location: string, owner: string, notes: string, clientId: string, isClient: boolean, logoUrl: string, custom: any, createdAt: string, updatedAt: string, email: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, annualRevenue?: number | null, employeeCount?: number | null, foundedYear?: number | null, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, leadSource: string, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
 
 export type SearchContactsQueryVariables = Exact<{
   query: CrmQueryInput;
 }>;
 
 
-export type SearchContactsQuery = { __typename?: 'Query', searchContacts: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
+export type SearchContactsQuery = { __typename?: 'Query', searchContacts: { __typename?: 'ContactPage', totalCount: number, rows: Array<{ __typename?: 'Contact', id: string, name: string, email: string, phone: string, title: string, companyId: string, companyName: string, status: ContactStatus, owner: string, notes: string, avatarUrl: string, custom: any, createdAt: string, updatedAt: string, website: string, linkedinUrl: string, twitterUrl: string, address: string, city: string, country: string, timezone: string, description: string, department: string, lifecycleStage: LifecycleStage, leadSource: string, languages: Array<string>, lat?: number | null, lng?: number | null, placeId: string, mapUrl: string, emailVerification?: { __typename?: 'EmailVerification', id: string, status: EmailVerificationStatus, reason: string, checkedAt: string } | null, emails: Array<{ __typename?: 'CrmEmailAddress', address: string, label: string, primary: boolean }>, phones: Array<{ __typename?: 'CrmPhoneNumber', number: string, label: string, primary: boolean }> }> } };
 
 export type CreateCrmPropertyMutationVariables = Exact<{
   input: CrmPropertyInput;
@@ -20081,6 +20501,13 @@ export type CreateCrmPropertyMutationVariables = Exact<{
 
 
 export type CreateCrmPropertyMutation = { __typename?: 'Mutation', createCrmProperty: { __typename?: 'CrmProperty', id: string, object: CrmObject, key: string, label: string, type: CrmPropertyType, required: boolean, description: string, order: number, options: Array<{ __typename?: 'CrmPropertyOption', value: string, label: string }> } };
+
+export type CreateCrmPropertiesMutationVariables = Exact<{
+  input: CrmPropertiesInput;
+}>;
+
+
+export type CreateCrmPropertiesMutation = { __typename?: 'Mutation', createCrmProperties: Array<{ __typename?: 'CrmProperty', id: string, object: CrmObject, key: string, label: string, type: CrmPropertyType, required: boolean, description: string, order: number, options: Array<{ __typename?: 'CrmPropertyOption', value: string, label: string }> }> };
 
 export type UpdateCrmPropertyMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -21185,19 +21612,19 @@ export type RunRecurringInvoiceNowMutationVariables = Exact<{
 
 export type RunRecurringInvoiceNowMutation = { __typename?: 'Mutation', runRecurringInvoiceNow: { __typename?: 'RecurringInvoice', id: string, name: string, clientId: string, clientName: string, amount: number, currency: string, placeOfSupplyStateCode: string, frequency: RecurrenceFrequency, startDate: string, nextRunAt: string, endDate?: string | null, dueDays: number, active: boolean, lastGeneratedAt?: string | null, generatedCount: number, createdAt: string, updatedAt: string, lines: Array<{ __typename?: 'InvoiceLine', description: string, quantity: number, rate: number, taxPercent: number, hsnSac: string, amount: number }> } };
 
-export type GmailConfigFieldsFragment = { __typename?: 'GmailConfig', id: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean, connected: boolean, connectedEmail: string, connectedAt?: string | null, lastError: string, redirectUri: string, updatedAt?: string | null };
+export type GmailConfigFieldsFragment = { __typename?: 'GmailConfig', id: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean, accountCount: number, redirectUri: string, updatedAt?: string | null };
 
 export type GmailConfigQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GmailConfigQuery = { __typename?: 'Query', gmailConfig: { __typename?: 'GmailConfig', id: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean, connected: boolean, connectedEmail: string, connectedAt?: string | null, lastError: string, redirectUri: string, updatedAt?: string | null } };
+export type GmailConfigQuery = { __typename?: 'Query', gmailConfig: { __typename?: 'GmailConfig', id: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean, accountCount: number, redirectUri: string, updatedAt?: string | null } };
 
 export type SaveGmailConfigMutationVariables = Exact<{
   input: GmailConfigInput;
 }>;
 
 
-export type SaveGmailConfigMutation = { __typename?: 'Mutation', saveGmailConfig: { __typename?: 'GmailConfig', id: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean, connected: boolean, connectedEmail: string, connectedAt?: string | null, lastError: string, redirectUri: string, updatedAt?: string | null } };
+export type SaveGmailConfigMutation = { __typename?: 'Mutation', saveGmailConfig: { __typename?: 'GmailConfig', id: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean, accountCount: number, redirectUri: string, updatedAt?: string | null } };
 
 export type StartGmailConnectMutationVariables = Exact<{
   returnTo: Scalars['String']['input'];
@@ -21206,22 +21633,47 @@ export type StartGmailConnectMutationVariables = Exact<{
 
 export type StartGmailConnectMutation = { __typename?: 'Mutation', startGmailConnect: string };
 
-export type DisconnectGmailMutationVariables = Exact<{ [key: string]: never; }>;
+export type GmailAccountFieldsFragment = { __typename?: 'GmailAccount', id: string, email: string, enabled: boolean, status: GmailAccountStatus, lastError: string, connectedAt?: string | null, connectedByName: string, lastSyncAt?: string | null };
+
+export type GmailAccountsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type DisconnectGmailMutation = { __typename?: 'Mutation', disconnectGmail: { __typename?: 'GmailConfig', id: string, clientId: string, hasClientSecret: boolean, clientSecretHint?: string | null, enabled: boolean, connected: boolean, connectedEmail: string, connectedAt?: string | null, lastError: string, redirectUri: string, updatedAt?: string | null } };
+export type GmailAccountsQuery = { __typename?: 'Query', gmailClientReady: boolean, gmailAccounts: Array<{ __typename?: 'GmailAccount', id: string, email: string, enabled: boolean, status: GmailAccountStatus, lastError: string, connectedAt?: string | null, connectedByName: string, lastSyncAt?: string | null }> };
+
+export type SetGmailAccountEnabledMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  enabled: Scalars['Boolean']['input'];
+}>;
+
+
+export type SetGmailAccountEnabledMutation = { __typename?: 'Mutation', setGmailAccountEnabled: { __typename?: 'GmailAccount', id: string, email: string, enabled: boolean, status: GmailAccountStatus, lastError: string, connectedAt?: string | null, connectedByName: string, lastSyncAt?: string | null } };
+
+export type DisconnectGmailAccountMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DisconnectGmailAccountMutation = { __typename?: 'Mutation', disconnectGmailAccount: boolean };
 
 export type TestGmailConfigMutationVariables = Exact<{ [key: string]: never; }>;
 
 
 export type TestGmailConfigMutation = { __typename?: 'Mutation', testGmailConfig: string };
 
-export type CrmEmailMessageFieldsFragment = { __typename?: 'CrmEmailMessage', id: string, gmailId: string, threadId: string, messageId: string, direction: CrmEmailDirection, from: string, to: Array<string>, cc: Array<string>, subject: string, snippet: string, bodyText: string, sentAt: string, sentByName: string };
+export type CrmEmailMessageFieldsFragment = { __typename?: 'CrmEmailMessage', id: string, gmailId: string, threadId: string, messageId: string, direction: CrmEmailDirection, from: string, to: Array<string>, cc: Array<string>, subject: string, snippet: string, bodyText: string, sentAt: string, sentByName: string, accountId: string, mailbox: string };
 
 export type CrmGmailReadyQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 export type CrmGmailReadyQuery = { __typename?: 'Query', crmGmailReady: boolean };
+
+export type CrmEmailSenderQueryVariables = Exact<{
+  object: CrmTimelineObject;
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type CrmEmailSenderQuery = { __typename?: 'Query', crmEmailSender?: string | null };
 
 export type CrmEmailThreadsQueryVariables = Exact<{
   object: CrmTimelineObject;
@@ -21229,14 +21681,14 @@ export type CrmEmailThreadsQueryVariables = Exact<{
 }>;
 
 
-export type CrmEmailThreadsQuery = { __typename?: 'Query', crmEmailThreads: Array<{ __typename?: 'CrmEmailThread', threadId: string, subject: string, lastAt: string, messages: Array<{ __typename?: 'CrmEmailMessage', id: string, gmailId: string, threadId: string, messageId: string, direction: CrmEmailDirection, from: string, to: Array<string>, cc: Array<string>, subject: string, snippet: string, bodyText: string, sentAt: string, sentByName: string }> }> };
+export type CrmEmailThreadsQuery = { __typename?: 'Query', crmEmailThreads: Array<{ __typename?: 'CrmEmailThread', threadId: string, accountId: string, mailbox: string, subject: string, lastAt: string, messages: Array<{ __typename?: 'CrmEmailMessage', id: string, gmailId: string, threadId: string, messageId: string, direction: CrmEmailDirection, from: string, to: Array<string>, cc: Array<string>, subject: string, snippet: string, bodyText: string, sentAt: string, sentByName: string, accountId: string, mailbox: string }> }> };
 
 export type SendCrmEmailMutationVariables = Exact<{
   input: SendCrmEmailInput;
 }>;
 
 
-export type SendCrmEmailMutation = { __typename?: 'Mutation', sendCrmEmail: { __typename?: 'CrmEmailMessage', id: string, gmailId: string, threadId: string, messageId: string, direction: CrmEmailDirection, from: string, to: Array<string>, cc: Array<string>, subject: string, snippet: string, bodyText: string, sentAt: string, sentByName: string } };
+export type SendCrmEmailMutation = { __typename?: 'Mutation', sendCrmEmail: { __typename?: 'CrmEmailMessage', id: string, gmailId: string, threadId: string, messageId: string, direction: CrmEmailDirection, from: string, to: Array<string>, cc: Array<string>, subject: string, snippet: string, bodyText: string, sentAt: string, sentByName: string, accountId: string, mailbox: string } };
 
 export type DraftCrmEmailMutationVariables = Exact<{
   input: DraftCrmEmailInput;
@@ -21252,6 +21704,70 @@ export type CrmRecordSummaryMutationVariables = Exact<{
 
 
 export type CrmRecordSummaryMutation = { __typename?: 'Mutation', crmRecordSummary: string };
+
+export type GoogleMapsConfigFieldsFragment = { __typename?: 'GoogleMapsConfig', id: string, label: string, hasBrowserKey: boolean, browserKeyHint?: string | null, hasServerKey: boolean, serverKeyHint?: string | null, isActive: boolean, updatedAt: string };
+
+export type GoogleMapsConfigsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GoogleMapsConfigsQuery = { __typename?: 'Query', googleMapsConfigs: Array<{ __typename?: 'GoogleMapsConfig', id: string, label: string, hasBrowserKey: boolean, browserKeyHint?: string | null, hasServerKey: boolean, serverKeyHint?: string | null, isActive: boolean, updatedAt: string }> };
+
+export type CreateGoogleMapsConfigMutationVariables = Exact<{
+  input: GoogleMapsConfigInput;
+}>;
+
+
+export type CreateGoogleMapsConfigMutation = { __typename?: 'Mutation', createGoogleMapsConfig: { __typename?: 'GoogleMapsConfig', id: string } };
+
+export type UpdateGoogleMapsConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+  input: GoogleMapsConfigInput;
+}>;
+
+
+export type UpdateGoogleMapsConfigMutation = { __typename?: 'Mutation', updateGoogleMapsConfig: { __typename?: 'GoogleMapsConfig', id: string } };
+
+export type TestGoogleMapsConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type TestGoogleMapsConfigMutation = { __typename?: 'Mutation', testGoogleMapsConfig: string };
+
+export type DeleteGoogleMapsConfigMutationVariables = Exact<{
+  id: Scalars['ID']['input'];
+}>;
+
+
+export type DeleteGoogleMapsConfigMutation = { __typename?: 'Mutation', deleteGoogleMapsConfig: boolean };
+
+export type GoogleMapsClientConfigQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GoogleMapsClientConfigQuery = { __typename?: 'Query', googleMapsClientConfig: { __typename?: 'GoogleMapsClientConfig', browserKey?: string | null, placesReady: boolean } };
+
+export type LeadPlaceFieldsFragment = { __typename?: 'LeadPlace', placeId: string, name: string, address: string, city: string, country: string, phone: string, website: string, rating?: number | null, ratingCount?: number | null, lat: number, lng: number, mapUrl: string, primaryType: string, existingCompanyId?: string | null };
+
+export type SearchLeadPlacesQueryVariables = Exact<{
+  input: LeadSearchInput;
+}>;
+
+
+export type SearchLeadPlacesQuery = { __typename?: 'Query', searchLeadPlaces: { __typename?: 'LeadSearchPage', nextPageToken?: string | null, places: Array<{ __typename?: 'LeadPlace', placeId: string, name: string, address: string, city: string, country: string, phone: string, website: string, rating?: number | null, ratingCount?: number | null, lat: number, lng: number, mapUrl: string, primaryType: string, existingCompanyId?: string | null }> } };
+
+export type FindLeadEmailsMutationVariables = Exact<{
+  website: Scalars['String']['input'];
+}>;
+
+
+export type FindLeadEmailsMutation = { __typename?: 'Mutation', findLeadEmails: { __typename?: 'LeadEmailResult', emails: Array<string>, status: LeadEmailStatus, message: string } };
+
+export type ImportLeadsToCrmMutationVariables = Exact<{
+  leads: Array<LeadImportInput> | LeadImportInput;
+}>;
+
+
+export type ImportLeadsToCrmMutation = { __typename?: 'Mutation', importLeadsToCrm: { __typename?: 'LeadImportResult', created: number, skipped: number, filed: Array<{ __typename?: 'LeadImportFiled', placeId: string, companyId: string }>, skips: Array<{ __typename?: 'LeadImportSkip', placeId: string, name: string, reason: string }> } };
 
 export type SystemHealthQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -24758,6 +25274,53 @@ export type ClientSupportTicketStatusQueryVariables = Exact<{
 
 export type ClientSupportTicketStatusQuery = { __typename?: 'Query', clientSupportTicketStatus?: { __typename?: 'ClientTicketStatus', reference: string, subject: string, status: SupportStatus, updatedAt: string, replies: Array<{ __typename?: 'SupportReply', id: string, body: string, authorName: string, createdAt: string }> } | null };
 
+export type TableExportQueryVariables = Exact<{
+  list: Scalars['String']['input'];
+  input: TableQueryInput;
+  columns: Array<TableExportColumnInput> | TableExportColumnInput;
+  format: TableFileFormat;
+  fileName: Scalars['String']['input'];
+}>;
+
+
+export type TableExportQuery = { __typename?: 'Query', tableExport: { __typename?: 'TableFile', fileName: string, mimeType: string, contentBase64: string, rowCount: number } };
+
+export type TableInfoQueryVariables = Exact<{
+  list: Scalars['String']['input'];
+}>;
+
+
+export type TableInfoQuery = { __typename?: 'Query', tableInfo: { __typename?: 'TableInfo', sortFields: Array<string>, importable: boolean, matchFields: Array<string>, filters: Array<{ __typename?: 'TableFilterColumn', field: string, kind: TableFieldKind, options: Array<string> }>, importFields: Array<{ __typename?: 'TableImportField', field: string, required: boolean, kind: TableFieldKind, options: Array<string>, description?: string | null }> } };
+
+export type TableImportTemplateQueryVariables = Exact<{
+  list: Scalars['String']['input'];
+  format: TableFileFormat;
+  fileName: Scalars['String']['input'];
+  columns?: InputMaybe<Array<TableExportColumnInput> | TableExportColumnInput>;
+}>;
+
+
+export type TableImportTemplateQuery = { __typename?: 'Query', tableImportTemplate: { __typename?: 'TableFile', fileName: string, mimeType: string, contentBase64: string, rowCount: number } };
+
+export type ParseTableFileMutationVariables = Exact<{
+  fileName: Scalars['String']['input'];
+  contentBase64: Scalars['String']['input'];
+}>;
+
+
+export type ParseTableFileMutation = { __typename?: 'Mutation', parseTableFile: { __typename?: 'ParsedTableFile', headers: Array<string>, rows: Array<Array<string>> } };
+
+export type ImportTableRowsMutationVariables = Exact<{
+  list: Scalars['String']['input'];
+  mode: TableImportMode;
+  matchField?: InputMaybe<Scalars['String']['input']>;
+  rows: Array<Scalars['JSON']['input']> | Scalars['JSON']['input'];
+  firstRowNumber: Scalars['Int']['input'];
+}>;
+
+
+export type ImportTableRowsMutation = { __typename?: 'Mutation', importTableRows: { __typename?: 'TableImportResult', created: number, updated: number, skipped: number, issues: Array<{ __typename?: 'TableImportIssue', row: number, message: string, skipped: boolean }> } };
+
 export type ListEmailConfigsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -26599,6 +27162,7 @@ export const CompanyFieldsFragmentDoc = gql`
   notes
   clientId
   isClient
+  logoUrl
   custom
   createdAt
   updatedAt
@@ -26624,6 +27188,11 @@ export const CompanyFieldsFragmentDoc = gql`
   annualRevenue
   employeeCount
   foundedYear
+  lat
+  lng
+  placeId
+  mapUrl
+  leadSource
 }
     `;
 export const ContactFieldsFragmentDoc = gql`
@@ -26638,6 +27207,7 @@ export const ContactFieldsFragmentDoc = gql`
   status
   owner
   notes
+  avatarUrl
   custom
   createdAt
   updatedAt
@@ -26663,6 +27233,10 @@ export const ContactFieldsFragmentDoc = gql`
   lifecycleStage
   leadSource
   languages
+  lat
+  lng
+  placeId
+  mapUrl
 }
     `;
 export const DealFieldsFragmentDoc = gql`
@@ -27001,12 +27575,21 @@ export const GmailConfigFieldsFragmentDoc = gql`
   hasClientSecret
   clientSecretHint
   enabled
-  connected
-  connectedEmail
-  connectedAt
-  lastError
+  accountCount
   redirectUri
   updatedAt
+}
+    `;
+export const GmailAccountFieldsFragmentDoc = gql`
+    fragment GmailAccountFields on GmailAccount {
+  id
+  email
+  enabled
+  status
+  lastError
+  connectedAt
+  connectedByName
+  lastSyncAt
 }
     `;
 export const CrmEmailMessageFieldsFragmentDoc = gql`
@@ -27024,6 +27607,38 @@ export const CrmEmailMessageFieldsFragmentDoc = gql`
   bodyText
   sentAt
   sentByName
+  accountId
+  mailbox
+}
+    `;
+export const GoogleMapsConfigFieldsFragmentDoc = gql`
+    fragment GoogleMapsConfigFields on GoogleMapsConfig {
+  id
+  label
+  hasBrowserKey
+  browserKeyHint
+  hasServerKey
+  serverKeyHint
+  isActive
+  updatedAt
+}
+    `;
+export const LeadPlaceFieldsFragmentDoc = gql`
+    fragment LeadPlaceFields on LeadPlace {
+  placeId
+  name
+  address
+  city
+  country
+  phone
+  website
+  rating
+  ratingCount
+  lat
+  lng
+  mapUrl
+  primaryType
+  existingCompanyId
 }
     `;
 export const LeaveFieldsFragmentDoc = gql`
@@ -39171,6 +39786,36 @@ export function useCreateCrmPropertyMutation(baseOptions?: ApolloReactHooks.Muta
         return ApolloReactHooks.useMutation<CreateCrmPropertyMutation, CreateCrmPropertyMutationVariables>(CreateCrmPropertyDocument, options);
       }
 export type CreateCrmPropertyMutationHookResult = ReturnType<typeof useCreateCrmPropertyMutation>;
+export const CreateCrmPropertiesDocument = gql`
+    mutation CreateCrmProperties($input: CrmPropertiesInput!) {
+  createCrmProperties(input: $input) {
+    ...CrmPropertyFields
+  }
+}
+    ${CrmPropertyFieldsFragmentDoc}`;
+
+/**
+ * __useCreateCrmPropertiesMutation__
+ *
+ * To run a mutation, you first call `useCreateCrmPropertiesMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateCrmPropertiesMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createCrmPropertiesMutation, { data, loading, error }] = useCreateCrmPropertiesMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateCrmPropertiesMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateCrmPropertiesMutation, CreateCrmPropertiesMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateCrmPropertiesMutation, CreateCrmPropertiesMutationVariables>(CreateCrmPropertiesDocument, options);
+      }
+export type CreateCrmPropertiesMutationHookResult = ReturnType<typeof useCreateCrmPropertiesMutation>;
 export const UpdateCrmPropertyDocument = gql`
     mutation UpdateCrmProperty($id: ID!, $input: CrmPropertyUpdateInput!) {
   updateCrmProperty(id: $id, input: $input) {
@@ -45543,35 +46188,109 @@ export function useStartGmailConnectMutation(baseOptions?: ApolloReactHooks.Muta
         return ApolloReactHooks.useMutation<StartGmailConnectMutation, StartGmailConnectMutationVariables>(StartGmailConnectDocument, options);
       }
 export type StartGmailConnectMutationHookResult = ReturnType<typeof useStartGmailConnectMutation>;
-export const DisconnectGmailDocument = gql`
-    mutation DisconnectGmail {
-  disconnectGmail {
-    ...GmailConfigFields
+export const GmailAccountsDocument = gql`
+    query GmailAccounts {
+  gmailAccounts {
+    ...GmailAccountFields
   }
+  gmailClientReady
 }
-    ${GmailConfigFieldsFragmentDoc}`;
+    ${GmailAccountFieldsFragmentDoc}`;
 
 /**
- * __useDisconnectGmailMutation__
+ * __useGmailAccountsQuery__
  *
- * To run a mutation, you first call `useDisconnectGmailMutation` within a React component and pass it any options that fit your needs.
- * When your component renders, `useDisconnectGmailMutation` returns a tuple that includes:
+ * To run a query within a React component, call `useGmailAccountsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGmailAccountsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGmailAccountsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGmailAccountsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GmailAccountsQuery, GmailAccountsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<GmailAccountsQuery, GmailAccountsQueryVariables>(GmailAccountsDocument, options);
+      }
+export function useGmailAccountsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GmailAccountsQuery, GmailAccountsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<GmailAccountsQuery, GmailAccountsQueryVariables>(GmailAccountsDocument, options);
+        }
+// @ts-ignore
+export function useGmailAccountsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<GmailAccountsQuery, GmailAccountsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GmailAccountsQuery, GmailAccountsQueryVariables>;
+// @ts-ignore
+export function useGmailAccountsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GmailAccountsQuery, GmailAccountsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GmailAccountsQuery | undefined, GmailAccountsQueryVariables>;
+export function useGmailAccountsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GmailAccountsQuery, GmailAccountsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<GmailAccountsQuery, GmailAccountsQueryVariables>(GmailAccountsDocument, options);
+        }
+export type GmailAccountsQueryHookResult = ReturnType<typeof useGmailAccountsQuery>;
+export type GmailAccountsLazyQueryHookResult = ReturnType<typeof useGmailAccountsLazyQuery>;
+export type GmailAccountsSuspenseQueryHookResult = ReturnType<typeof useGmailAccountsSuspenseQuery>;
+export const SetGmailAccountEnabledDocument = gql`
+    mutation SetGmailAccountEnabled($id: ID!, $enabled: Boolean!) {
+  setGmailAccountEnabled(id: $id, enabled: $enabled) {
+    ...GmailAccountFields
+  }
+}
+    ${GmailAccountFieldsFragmentDoc}`;
+
+/**
+ * __useSetGmailAccountEnabledMutation__
+ *
+ * To run a mutation, you first call `useSetGmailAccountEnabledMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useSetGmailAccountEnabledMutation` returns a tuple that includes:
  * - A mutate function that you can call at any time to execute the mutation
  * - An object with fields that represent the current status of the mutation's execution
  *
  * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
  *
  * @example
- * const [disconnectGmailMutation, { data, loading, error }] = useDisconnectGmailMutation({
+ * const [setGmailAccountEnabledMutation, { data, loading, error }] = useSetGmailAccountEnabledMutation({
  *   variables: {
+ *      id: // value for 'id'
+ *      enabled: // value for 'enabled'
  *   },
  * });
  */
-export function useDisconnectGmailMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DisconnectGmailMutation, DisconnectGmailMutationVariables>) {
+export function useSetGmailAccountEnabledMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<SetGmailAccountEnabledMutation, SetGmailAccountEnabledMutationVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return ApolloReactHooks.useMutation<DisconnectGmailMutation, DisconnectGmailMutationVariables>(DisconnectGmailDocument, options);
+        return ApolloReactHooks.useMutation<SetGmailAccountEnabledMutation, SetGmailAccountEnabledMutationVariables>(SetGmailAccountEnabledDocument, options);
       }
-export type DisconnectGmailMutationHookResult = ReturnType<typeof useDisconnectGmailMutation>;
+export type SetGmailAccountEnabledMutationHookResult = ReturnType<typeof useSetGmailAccountEnabledMutation>;
+export const DisconnectGmailAccountDocument = gql`
+    mutation DisconnectGmailAccount($id: ID!) {
+  disconnectGmailAccount(id: $id)
+}
+    `;
+
+/**
+ * __useDisconnectGmailAccountMutation__
+ *
+ * To run a mutation, you first call `useDisconnectGmailAccountMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDisconnectGmailAccountMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [disconnectGmailAccountMutation, { data, loading, error }] = useDisconnectGmailAccountMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDisconnectGmailAccountMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DisconnectGmailAccountMutation, DisconnectGmailAccountMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DisconnectGmailAccountMutation, DisconnectGmailAccountMutationVariables>(DisconnectGmailAccountDocument, options);
+      }
+export type DisconnectGmailAccountMutationHookResult = ReturnType<typeof useDisconnectGmailAccountMutation>;
 export const TestGmailConfigDocument = gql`
     mutation TestGmailConfig {
   testGmailConfig
@@ -45640,10 +46359,55 @@ export function useCrmGmailReadySuspenseQuery(baseOptions?: ApolloReactHooks.Ski
 export type CrmGmailReadyQueryHookResult = ReturnType<typeof useCrmGmailReadyQuery>;
 export type CrmGmailReadyLazyQueryHookResult = ReturnType<typeof useCrmGmailReadyLazyQuery>;
 export type CrmGmailReadySuspenseQueryHookResult = ReturnType<typeof useCrmGmailReadySuspenseQuery>;
+export const CrmEmailSenderDocument = gql`
+    query CrmEmailSender($object: CrmTimelineObject!, $id: ID!) {
+  crmEmailSender(object: $object, id: $id)
+}
+    `;
+
+/**
+ * __useCrmEmailSenderQuery__
+ *
+ * To run a query within a React component, call `useCrmEmailSenderQuery` and pass it any options that fit your needs.
+ * When your component renders, `useCrmEmailSenderQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useCrmEmailSenderQuery({
+ *   variables: {
+ *      object: // value for 'object'
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useCrmEmailSenderQuery(baseOptions: ApolloReactHooks.QueryHookOptions<CrmEmailSenderQuery, CrmEmailSenderQueryVariables> & ({ variables: CrmEmailSenderQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<CrmEmailSenderQuery, CrmEmailSenderQueryVariables>(CrmEmailSenderDocument, options);
+      }
+export function useCrmEmailSenderLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<CrmEmailSenderQuery, CrmEmailSenderQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<CrmEmailSenderQuery, CrmEmailSenderQueryVariables>(CrmEmailSenderDocument, options);
+        }
+// @ts-ignore
+export function useCrmEmailSenderSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<CrmEmailSenderQuery, CrmEmailSenderQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmEmailSenderQuery, CrmEmailSenderQueryVariables>;
+// @ts-ignore
+export function useCrmEmailSenderSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmEmailSenderQuery, CrmEmailSenderQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<CrmEmailSenderQuery | undefined, CrmEmailSenderQueryVariables>;
+export function useCrmEmailSenderSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<CrmEmailSenderQuery, CrmEmailSenderQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<CrmEmailSenderQuery, CrmEmailSenderQueryVariables>(CrmEmailSenderDocument, options);
+        }
+export type CrmEmailSenderQueryHookResult = ReturnType<typeof useCrmEmailSenderQuery>;
+export type CrmEmailSenderLazyQueryHookResult = ReturnType<typeof useCrmEmailSenderLazyQuery>;
+export type CrmEmailSenderSuspenseQueryHookResult = ReturnType<typeof useCrmEmailSenderSuspenseQuery>;
 export const CrmEmailThreadsDocument = gql`
     query CrmEmailThreads($object: CrmTimelineObject!, $id: ID!) {
   crmEmailThreads(object: $object, id: $id) {
     threadId
+    accountId
+    mailbox
     subject
     lastAt
     messages {
@@ -45777,6 +46541,329 @@ export function useCrmRecordSummaryMutation(baseOptions?: ApolloReactHooks.Mutat
         return ApolloReactHooks.useMutation<CrmRecordSummaryMutation, CrmRecordSummaryMutationVariables>(CrmRecordSummaryDocument, options);
       }
 export type CrmRecordSummaryMutationHookResult = ReturnType<typeof useCrmRecordSummaryMutation>;
+export const GoogleMapsConfigsDocument = gql`
+    query GoogleMapsConfigs {
+  googleMapsConfigs {
+    ...GoogleMapsConfigFields
+  }
+}
+    ${GoogleMapsConfigFieldsFragmentDoc}`;
+
+/**
+ * __useGoogleMapsConfigsQuery__
+ *
+ * To run a query within a React component, call `useGoogleMapsConfigsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGoogleMapsConfigsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGoogleMapsConfigsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGoogleMapsConfigsQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GoogleMapsConfigsQuery, GoogleMapsConfigsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<GoogleMapsConfigsQuery, GoogleMapsConfigsQueryVariables>(GoogleMapsConfigsDocument, options);
+      }
+export function useGoogleMapsConfigsLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GoogleMapsConfigsQuery, GoogleMapsConfigsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<GoogleMapsConfigsQuery, GoogleMapsConfigsQueryVariables>(GoogleMapsConfigsDocument, options);
+        }
+// @ts-ignore
+export function useGoogleMapsConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<GoogleMapsConfigsQuery, GoogleMapsConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GoogleMapsConfigsQuery, GoogleMapsConfigsQueryVariables>;
+// @ts-ignore
+export function useGoogleMapsConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GoogleMapsConfigsQuery, GoogleMapsConfigsQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GoogleMapsConfigsQuery | undefined, GoogleMapsConfigsQueryVariables>;
+export function useGoogleMapsConfigsSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GoogleMapsConfigsQuery, GoogleMapsConfigsQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<GoogleMapsConfigsQuery, GoogleMapsConfigsQueryVariables>(GoogleMapsConfigsDocument, options);
+        }
+export type GoogleMapsConfigsQueryHookResult = ReturnType<typeof useGoogleMapsConfigsQuery>;
+export type GoogleMapsConfigsLazyQueryHookResult = ReturnType<typeof useGoogleMapsConfigsLazyQuery>;
+export type GoogleMapsConfigsSuspenseQueryHookResult = ReturnType<typeof useGoogleMapsConfigsSuspenseQuery>;
+export const CreateGoogleMapsConfigDocument = gql`
+    mutation CreateGoogleMapsConfig($input: GoogleMapsConfigInput!) {
+  createGoogleMapsConfig(input: $input) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useCreateGoogleMapsConfigMutation__
+ *
+ * To run a mutation, you first call `useCreateGoogleMapsConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateGoogleMapsConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createGoogleMapsConfigMutation, { data, loading, error }] = useCreateGoogleMapsConfigMutation({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useCreateGoogleMapsConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<CreateGoogleMapsConfigMutation, CreateGoogleMapsConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<CreateGoogleMapsConfigMutation, CreateGoogleMapsConfigMutationVariables>(CreateGoogleMapsConfigDocument, options);
+      }
+export type CreateGoogleMapsConfigMutationHookResult = ReturnType<typeof useCreateGoogleMapsConfigMutation>;
+export const UpdateGoogleMapsConfigDocument = gql`
+    mutation UpdateGoogleMapsConfig($id: ID!, $input: GoogleMapsConfigInput!) {
+  updateGoogleMapsConfig(id: $id, input: $input) {
+    id
+  }
+}
+    `;
+
+/**
+ * __useUpdateGoogleMapsConfigMutation__
+ *
+ * To run a mutation, you first call `useUpdateGoogleMapsConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateGoogleMapsConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateGoogleMapsConfigMutation, { data, loading, error }] = useUpdateGoogleMapsConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useUpdateGoogleMapsConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<UpdateGoogleMapsConfigMutation, UpdateGoogleMapsConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<UpdateGoogleMapsConfigMutation, UpdateGoogleMapsConfigMutationVariables>(UpdateGoogleMapsConfigDocument, options);
+      }
+export type UpdateGoogleMapsConfigMutationHookResult = ReturnType<typeof useUpdateGoogleMapsConfigMutation>;
+export const TestGoogleMapsConfigDocument = gql`
+    mutation TestGoogleMapsConfig($id: ID!) {
+  testGoogleMapsConfig(id: $id)
+}
+    `;
+
+/**
+ * __useTestGoogleMapsConfigMutation__
+ *
+ * To run a mutation, you first call `useTestGoogleMapsConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useTestGoogleMapsConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [testGoogleMapsConfigMutation, { data, loading, error }] = useTestGoogleMapsConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useTestGoogleMapsConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<TestGoogleMapsConfigMutation, TestGoogleMapsConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<TestGoogleMapsConfigMutation, TestGoogleMapsConfigMutationVariables>(TestGoogleMapsConfigDocument, options);
+      }
+export type TestGoogleMapsConfigMutationHookResult = ReturnType<typeof useTestGoogleMapsConfigMutation>;
+export const DeleteGoogleMapsConfigDocument = gql`
+    mutation DeleteGoogleMapsConfig($id: ID!) {
+  deleteGoogleMapsConfig(id: $id)
+}
+    `;
+
+/**
+ * __useDeleteGoogleMapsConfigMutation__
+ *
+ * To run a mutation, you first call `useDeleteGoogleMapsConfigMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteGoogleMapsConfigMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteGoogleMapsConfigMutation, { data, loading, error }] = useDeleteGoogleMapsConfigMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *   },
+ * });
+ */
+export function useDeleteGoogleMapsConfigMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<DeleteGoogleMapsConfigMutation, DeleteGoogleMapsConfigMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<DeleteGoogleMapsConfigMutation, DeleteGoogleMapsConfigMutationVariables>(DeleteGoogleMapsConfigDocument, options);
+      }
+export type DeleteGoogleMapsConfigMutationHookResult = ReturnType<typeof useDeleteGoogleMapsConfigMutation>;
+export const GoogleMapsClientConfigDocument = gql`
+    query GoogleMapsClientConfig {
+  googleMapsClientConfig {
+    browserKey
+    placesReady
+  }
+}
+    `;
+
+/**
+ * __useGoogleMapsClientConfigQuery__
+ *
+ * To run a query within a React component, call `useGoogleMapsClientConfigQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGoogleMapsClientConfigQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGoogleMapsClientConfigQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGoogleMapsClientConfigQuery(baseOptions?: ApolloReactHooks.QueryHookOptions<GoogleMapsClientConfigQuery, GoogleMapsClientConfigQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<GoogleMapsClientConfigQuery, GoogleMapsClientConfigQueryVariables>(GoogleMapsClientConfigDocument, options);
+      }
+export function useGoogleMapsClientConfigLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<GoogleMapsClientConfigQuery, GoogleMapsClientConfigQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<GoogleMapsClientConfigQuery, GoogleMapsClientConfigQueryVariables>(GoogleMapsClientConfigDocument, options);
+        }
+// @ts-ignore
+export function useGoogleMapsClientConfigSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<GoogleMapsClientConfigQuery, GoogleMapsClientConfigQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GoogleMapsClientConfigQuery, GoogleMapsClientConfigQueryVariables>;
+// @ts-ignore
+export function useGoogleMapsClientConfigSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GoogleMapsClientConfigQuery, GoogleMapsClientConfigQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<GoogleMapsClientConfigQuery | undefined, GoogleMapsClientConfigQueryVariables>;
+export function useGoogleMapsClientConfigSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<GoogleMapsClientConfigQuery, GoogleMapsClientConfigQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<GoogleMapsClientConfigQuery, GoogleMapsClientConfigQueryVariables>(GoogleMapsClientConfigDocument, options);
+        }
+export type GoogleMapsClientConfigQueryHookResult = ReturnType<typeof useGoogleMapsClientConfigQuery>;
+export type GoogleMapsClientConfigLazyQueryHookResult = ReturnType<typeof useGoogleMapsClientConfigLazyQuery>;
+export type GoogleMapsClientConfigSuspenseQueryHookResult = ReturnType<typeof useGoogleMapsClientConfigSuspenseQuery>;
+export const SearchLeadPlacesDocument = gql`
+    query SearchLeadPlaces($input: LeadSearchInput!) {
+  searchLeadPlaces(input: $input) {
+    nextPageToken
+    places {
+      ...LeadPlaceFields
+    }
+  }
+}
+    ${LeadPlaceFieldsFragmentDoc}`;
+
+/**
+ * __useSearchLeadPlacesQuery__
+ *
+ * To run a query within a React component, call `useSearchLeadPlacesQuery` and pass it any options that fit your needs.
+ * When your component renders, `useSearchLeadPlacesQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useSearchLeadPlacesQuery({
+ *   variables: {
+ *      input: // value for 'input'
+ *   },
+ * });
+ */
+export function useSearchLeadPlacesQuery(baseOptions: ApolloReactHooks.QueryHookOptions<SearchLeadPlacesQuery, SearchLeadPlacesQueryVariables> & ({ variables: SearchLeadPlacesQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<SearchLeadPlacesQuery, SearchLeadPlacesQueryVariables>(SearchLeadPlacesDocument, options);
+      }
+export function useSearchLeadPlacesLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<SearchLeadPlacesQuery, SearchLeadPlacesQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<SearchLeadPlacesQuery, SearchLeadPlacesQueryVariables>(SearchLeadPlacesDocument, options);
+        }
+// @ts-ignore
+export function useSearchLeadPlacesSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<SearchLeadPlacesQuery, SearchLeadPlacesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SearchLeadPlacesQuery, SearchLeadPlacesQueryVariables>;
+// @ts-ignore
+export function useSearchLeadPlacesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SearchLeadPlacesQuery, SearchLeadPlacesQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<SearchLeadPlacesQuery | undefined, SearchLeadPlacesQueryVariables>;
+export function useSearchLeadPlacesSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<SearchLeadPlacesQuery, SearchLeadPlacesQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<SearchLeadPlacesQuery, SearchLeadPlacesQueryVariables>(SearchLeadPlacesDocument, options);
+        }
+export type SearchLeadPlacesQueryHookResult = ReturnType<typeof useSearchLeadPlacesQuery>;
+export type SearchLeadPlacesLazyQueryHookResult = ReturnType<typeof useSearchLeadPlacesLazyQuery>;
+export type SearchLeadPlacesSuspenseQueryHookResult = ReturnType<typeof useSearchLeadPlacesSuspenseQuery>;
+export const FindLeadEmailsDocument = gql`
+    mutation FindLeadEmails($website: String!) {
+  findLeadEmails(website: $website) {
+    emails
+    status
+    message
+  }
+}
+    `;
+
+/**
+ * __useFindLeadEmailsMutation__
+ *
+ * To run a mutation, you first call `useFindLeadEmailsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useFindLeadEmailsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [findLeadEmailsMutation, { data, loading, error }] = useFindLeadEmailsMutation({
+ *   variables: {
+ *      website: // value for 'website'
+ *   },
+ * });
+ */
+export function useFindLeadEmailsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<FindLeadEmailsMutation, FindLeadEmailsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<FindLeadEmailsMutation, FindLeadEmailsMutationVariables>(FindLeadEmailsDocument, options);
+      }
+export type FindLeadEmailsMutationHookResult = ReturnType<typeof useFindLeadEmailsMutation>;
+export const ImportLeadsToCrmDocument = gql`
+    mutation ImportLeadsToCrm($leads: [LeadImportInput!]!) {
+  importLeadsToCrm(leads: $leads) {
+    created
+    skipped
+    filed {
+      placeId
+      companyId
+    }
+    skips {
+      placeId
+      name
+      reason
+    }
+  }
+}
+    `;
+
+/**
+ * __useImportLeadsToCrmMutation__
+ *
+ * To run a mutation, you first call `useImportLeadsToCrmMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useImportLeadsToCrmMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [importLeadsToCrmMutation, { data, loading, error }] = useImportLeadsToCrmMutation({
+ *   variables: {
+ *      leads: // value for 'leads'
+ *   },
+ * });
+ */
+export function useImportLeadsToCrmMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ImportLeadsToCrmMutation, ImportLeadsToCrmMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ImportLeadsToCrmMutation, ImportLeadsToCrmMutationVariables>(ImportLeadsToCrmDocument, options);
+      }
+export type ImportLeadsToCrmMutationHookResult = ReturnType<typeof useImportLeadsToCrmMutation>;
 export const SystemHealthDocument = gql`
     query SystemHealth {
   systemHealth {
@@ -65135,6 +66222,255 @@ export function useClientSupportTicketStatusSuspenseQuery(baseOptions?: ApolloRe
 export type ClientSupportTicketStatusQueryHookResult = ReturnType<typeof useClientSupportTicketStatusQuery>;
 export type ClientSupportTicketStatusLazyQueryHookResult = ReturnType<typeof useClientSupportTicketStatusLazyQuery>;
 export type ClientSupportTicketStatusSuspenseQueryHookResult = ReturnType<typeof useClientSupportTicketStatusSuspenseQuery>;
+export const TableExportDocument = gql`
+    query TableExport($list: String!, $input: TableQueryInput!, $columns: [TableExportColumnInput!]!, $format: TableFileFormat!, $fileName: String!) {
+  tableExport(
+    list: $list
+    input: $input
+    columns: $columns
+    format: $format
+    fileName: $fileName
+  ) {
+    fileName
+    mimeType
+    contentBase64
+    rowCount
+  }
+}
+    `;
+
+/**
+ * __useTableExportQuery__
+ *
+ * To run a query within a React component, call `useTableExportQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTableExportQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTableExportQuery({
+ *   variables: {
+ *      list: // value for 'list'
+ *      input: // value for 'input'
+ *      columns: // value for 'columns'
+ *      format: // value for 'format'
+ *      fileName: // value for 'fileName'
+ *   },
+ * });
+ */
+export function useTableExportQuery(baseOptions: ApolloReactHooks.QueryHookOptions<TableExportQuery, TableExportQueryVariables> & ({ variables: TableExportQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<TableExportQuery, TableExportQueryVariables>(TableExportDocument, options);
+      }
+export function useTableExportLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<TableExportQuery, TableExportQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<TableExportQuery, TableExportQueryVariables>(TableExportDocument, options);
+        }
+// @ts-ignore
+export function useTableExportSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<TableExportQuery, TableExportQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TableExportQuery, TableExportQueryVariables>;
+// @ts-ignore
+export function useTableExportSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TableExportQuery, TableExportQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TableExportQuery | undefined, TableExportQueryVariables>;
+export function useTableExportSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TableExportQuery, TableExportQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<TableExportQuery, TableExportQueryVariables>(TableExportDocument, options);
+        }
+export type TableExportQueryHookResult = ReturnType<typeof useTableExportQuery>;
+export type TableExportLazyQueryHookResult = ReturnType<typeof useTableExportLazyQuery>;
+export type TableExportSuspenseQueryHookResult = ReturnType<typeof useTableExportSuspenseQuery>;
+export const TableInfoDocument = gql`
+    query TableInfo($list: String!) {
+  tableInfo(list: $list) {
+    filters {
+      field
+      kind
+      options
+    }
+    sortFields
+    importable
+    matchFields
+    importFields {
+      field
+      required
+      kind
+      options
+      description
+    }
+  }
+}
+    `;
+
+/**
+ * __useTableInfoQuery__
+ *
+ * To run a query within a React component, call `useTableInfoQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTableInfoQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTableInfoQuery({
+ *   variables: {
+ *      list: // value for 'list'
+ *   },
+ * });
+ */
+export function useTableInfoQuery(baseOptions: ApolloReactHooks.QueryHookOptions<TableInfoQuery, TableInfoQueryVariables> & ({ variables: TableInfoQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<TableInfoQuery, TableInfoQueryVariables>(TableInfoDocument, options);
+      }
+export function useTableInfoLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<TableInfoQuery, TableInfoQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<TableInfoQuery, TableInfoQueryVariables>(TableInfoDocument, options);
+        }
+// @ts-ignore
+export function useTableInfoSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<TableInfoQuery, TableInfoQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TableInfoQuery, TableInfoQueryVariables>;
+// @ts-ignore
+export function useTableInfoSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TableInfoQuery, TableInfoQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TableInfoQuery | undefined, TableInfoQueryVariables>;
+export function useTableInfoSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TableInfoQuery, TableInfoQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<TableInfoQuery, TableInfoQueryVariables>(TableInfoDocument, options);
+        }
+export type TableInfoQueryHookResult = ReturnType<typeof useTableInfoQuery>;
+export type TableInfoLazyQueryHookResult = ReturnType<typeof useTableInfoLazyQuery>;
+export type TableInfoSuspenseQueryHookResult = ReturnType<typeof useTableInfoSuspenseQuery>;
+export const TableImportTemplateDocument = gql`
+    query TableImportTemplate($list: String!, $format: TableFileFormat!, $fileName: String!, $columns: [TableExportColumnInput!]) {
+  tableImportTemplate(
+    list: $list
+    format: $format
+    fileName: $fileName
+    columns: $columns
+  ) {
+    fileName
+    mimeType
+    contentBase64
+    rowCount
+  }
+}
+    `;
+
+/**
+ * __useTableImportTemplateQuery__
+ *
+ * To run a query within a React component, call `useTableImportTemplateQuery` and pass it any options that fit your needs.
+ * When your component renders, `useTableImportTemplateQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useTableImportTemplateQuery({
+ *   variables: {
+ *      list: // value for 'list'
+ *      format: // value for 'format'
+ *      fileName: // value for 'fileName'
+ *      columns: // value for 'columns'
+ *   },
+ * });
+ */
+export function useTableImportTemplateQuery(baseOptions: ApolloReactHooks.QueryHookOptions<TableImportTemplateQuery, TableImportTemplateQueryVariables> & ({ variables: TableImportTemplateQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useQuery<TableImportTemplateQuery, TableImportTemplateQueryVariables>(TableImportTemplateDocument, options);
+      }
+export function useTableImportTemplateLazyQuery(baseOptions?: ApolloReactHooks.LazyQueryHookOptions<TableImportTemplateQuery, TableImportTemplateQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return ApolloReactHooks.useLazyQuery<TableImportTemplateQuery, TableImportTemplateQueryVariables>(TableImportTemplateDocument, options);
+        }
+// @ts-ignore
+export function useTableImportTemplateSuspenseQuery(baseOptions?: ApolloReactHooks.SuspenseQueryHookOptions<TableImportTemplateQuery, TableImportTemplateQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TableImportTemplateQuery, TableImportTemplateQueryVariables>;
+// @ts-ignore
+export function useTableImportTemplateSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TableImportTemplateQuery, TableImportTemplateQueryVariables>): ApolloReactHooks.UseSuspenseQueryResult<TableImportTemplateQuery | undefined, TableImportTemplateQueryVariables>;
+export function useTableImportTemplateSuspenseQuery(baseOptions?: ApolloReactHooks.SkipToken | ApolloReactHooks.SuspenseQueryHookOptions<TableImportTemplateQuery, TableImportTemplateQueryVariables>) {
+          const options = baseOptions === ApolloReactHooks.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+// @ts-ignore
+          return ApolloReactHooks.useSuspenseQuery<TableImportTemplateQuery, TableImportTemplateQueryVariables>(TableImportTemplateDocument, options);
+        }
+export type TableImportTemplateQueryHookResult = ReturnType<typeof useTableImportTemplateQuery>;
+export type TableImportTemplateLazyQueryHookResult = ReturnType<typeof useTableImportTemplateLazyQuery>;
+export type TableImportTemplateSuspenseQueryHookResult = ReturnType<typeof useTableImportTemplateSuspenseQuery>;
+export const ParseTableFileDocument = gql`
+    mutation ParseTableFile($fileName: String!, $contentBase64: String!) {
+  parseTableFile(fileName: $fileName, contentBase64: $contentBase64) {
+    headers
+    rows
+  }
+}
+    `;
+
+/**
+ * __useParseTableFileMutation__
+ *
+ * To run a mutation, you first call `useParseTableFileMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useParseTableFileMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [parseTableFileMutation, { data, loading, error }] = useParseTableFileMutation({
+ *   variables: {
+ *      fileName: // value for 'fileName'
+ *      contentBase64: // value for 'contentBase64'
+ *   },
+ * });
+ */
+export function useParseTableFileMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ParseTableFileMutation, ParseTableFileMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ParseTableFileMutation, ParseTableFileMutationVariables>(ParseTableFileDocument, options);
+      }
+export type ParseTableFileMutationHookResult = ReturnType<typeof useParseTableFileMutation>;
+export const ImportTableRowsDocument = gql`
+    mutation ImportTableRows($list: String!, $mode: TableImportMode!, $matchField: String, $rows: [JSON!]!, $firstRowNumber: Int!) {
+  importTableRows(
+    list: $list
+    mode: $mode
+    matchField: $matchField
+    rows: $rows
+    firstRowNumber: $firstRowNumber
+  ) {
+    created
+    updated
+    skipped
+    issues {
+      row
+      message
+      skipped
+    }
+  }
+}
+    `;
+
+/**
+ * __useImportTableRowsMutation__
+ *
+ * To run a mutation, you first call `useImportTableRowsMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useImportTableRowsMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [importTableRowsMutation, { data, loading, error }] = useImportTableRowsMutation({
+ *   variables: {
+ *      list: // value for 'list'
+ *      mode: // value for 'mode'
+ *      matchField: // value for 'matchField'
+ *      rows: // value for 'rows'
+ *      firstRowNumber: // value for 'firstRowNumber'
+ *   },
+ * });
+ */
+export function useImportTableRowsMutation(baseOptions?: ApolloReactHooks.MutationHookOptions<ImportTableRowsMutation, ImportTableRowsMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return ApolloReactHooks.useMutation<ImportTableRowsMutation, ImportTableRowsMutationVariables>(ImportTableRowsDocument, options);
+      }
+export type ImportTableRowsMutationHookResult = ReturnType<typeof useImportTableRowsMutation>;
 export const ListEmailConfigsDocument = gql`
     query ListEmailConfigs {
   listEmailConfigs {

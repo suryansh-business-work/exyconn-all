@@ -1,23 +1,42 @@
 import gql from 'graphql-tag';
 
-/** The CRM's Gmail: the connection on Tech, and emailing from a contact or company page. */
+/**
+ * The CRM's Gmail: the OAuth client on Tech, the mailboxes connected in CRM > Connect Gmail,
+ * and emailing from a contact or company page.
+ */
 export const gmailTypeDefs = gql`
-  "The shared Gmail mailbox the CRM sends from. Tokens never leave the server."
+  "The Google OAuth client the CRM's Gmail accounts connect through. Secrets stay on the server."
   type GmailConfig {
     id: ID!
     clientId: String!
     hasClientSecret: Boolean!
     clientSecretHint: String
     enabled: Boolean!
-    connected: Boolean!
-    "The mailbox Google connected; empty until then."
-    connectedEmail: String!
-    connectedAt: DateTime
-    "Why the last call to Gmail failed; empty when it worked."
-    lastError: String!
+    "How many Gmail accounts are connected in CRM > Connect Gmail."
+    accountCount: Int!
     "Register this exact address as an authorised redirect URI on the Google client."
     redirectUri: String!
     updatedAt: DateTime
+  }
+
+  enum GmailAccountStatus {
+    CONNECTED
+    "Google refused the stored connection; connect the account again."
+    NEEDS_RECONNECT
+  }
+
+  "A Gmail mailbox connected to the CRM. Its token never leaves the server."
+  type GmailAccount {
+    id: ID!
+    email: String!
+    "Whether the CRM reads and sends from it."
+    enabled: Boolean!
+    status: GmailAccountStatus!
+    "Why the last call to Gmail failed; empty when it worked."
+    lastError: String!
+    connectedAt: DateTime
+    connectedByName: String!
+    lastSyncAt: DateTime
   }
 
   input GmailConfigInput {
@@ -46,16 +65,25 @@ export const gmailTypeDefs = gql`
     bodyText: String!
     sentAt: DateTime!
     sentByName: String!
+    "The connected account it was read from or sent by; empty on mail from before accounts."
+    accountId: String!
+    mailbox: String!
   }
 
+  "One conversation in one connected mailbox (Gmail thread ids are per mailbox)."
   type CrmEmailThread {
     threadId: ID!
+    accountId: String!
+    "The connected mailbox the conversation is in."
+    mailbox: String!
     subject: String!
     lastAt: DateTime!
     messages: [CrmEmailMessage!]!
   }
 
   input SendCrmEmailInput {
+    "The connected account to send from; it has to be enabled for the CRM."
+    fromAccountId: ID!
     to: [String!]!
     cc: [String!]
     subject: String!
@@ -75,18 +103,27 @@ export const gmailTypeDefs = gql`
 
   extend type Query {
     gmailConfig: GmailConfig!
-    "The record's Gmail threads, synced from Gmail first."
+    "The record's Gmail threads across every enabled account, synced from Gmail first."
     crmEmailThreads(object: CrmTimelineObject!, id: ID!): [CrmEmailThread!]!
-    "Whether the CRM can email through Gmail (connected, and this is the operator's CRM)."
+    "Whether the CRM can email through Gmail (an enabled account, and this is the operator's CRM)."
     crmGmailReady: Boolean!
+    "The Gmail accounts connected to the CRM, newest first."
+    gmailAccounts: [GmailAccount!]!
+    "Whether Tech has saved and turned on the Google client the accounts connect through."
+    gmailClientReady: Boolean!
+    "The account a new email to the record goes from by default; null when none is enabled."
+    crmEmailSender(object: CrmTimelineObject!, id: ID!): ID
   }
 
   extend type Mutation {
     saveGmailConfig(input: GmailConfigInput!): GmailConfig!
-    "Google's consent page to connect the mailbox; comes back to returnTo."
+    "Google's consent page to connect one more mailbox (or renew one); comes back to returnTo."
     startGmailConnect(returnTo: String!): String!
-    disconnectGmail: GmailConfig!
-    "Reads the mailbox's address with the stored connection."
+    "Turns an account on or off for the CRM."
+    setGmailAccountEnabled(id: ID!, enabled: Boolean!): GmailAccount!
+    "Removes the account and its token; mail already synced stays on the records."
+    disconnectGmailAccount(id: ID!): Boolean!
+    "Reads every enabled mailbox's address with its stored connection."
     testGmailConfig: String!
     sendCrmEmail(input: SendCrmEmailInput!): CrmEmailMessage!
     "An AI draft of a new email or a reply, from the record and its thread."

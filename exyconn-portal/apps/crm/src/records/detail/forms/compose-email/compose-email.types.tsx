@@ -4,6 +4,8 @@ import { EMAIL } from '@exyconn/regex';
 const addressList = z.array(z.string().trim().regex(EMAIL, 'Each address must be a valid email'));
 
 export const composeEmailSchema = z.object({
+  /** The connected Gmail account it goes out from. */
+  fromAccountId: z.string().trim().min(1, 'Choose the Gmail account to send from'),
   to: addressList.min(1, 'Add at least one recipient'),
   cc: addressList,
   subject: z
@@ -26,6 +28,8 @@ export interface ComposeEmailContext {
   subject?: string;
   threadId?: string;
   inReplyTo?: string;
+  /** The Gmail account a reply starts on: the one holding the thread. */
+  fromAccountId?: string;
 }
 
 /** A reply keeps the subject with one "Re:" in front of it. */

@@ -63,7 +63,7 @@ function headerText(mail: ParsedMail, name: string): string {
 }
 
 /** `<p>Hi</p>` → `Hi`, for the clients that send no plain-text part at all. */
-function htmlToText(html: string): string {
+export function htmlToText(html: string): string {
   const text = html
     .replaceAll(/<(script|style)[^]*?<\/\1>/gi, ' ')
     .replaceAll(/<br\s*\/?>|<\/p>|<\/div>|<\/tr>/gi, '\n');
